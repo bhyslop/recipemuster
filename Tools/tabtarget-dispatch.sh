@@ -20,6 +20,9 @@ if [ "$JOBS" == "1" ]; then
     OUTPUT_SYNC=-Oline
 fi
 
-# Run make in a clean environment
-env -i HOME="$HOME" PATH="/usr/local/bin:/usr/bin:/bin" \
-    make -f cnm-project.mk $OUTPUT_SYNC -j $JOBS $EXE $ARGS
+# Preserve the TERM environment variable for pretty colors
+CURRENT_TERM="${TERM:-xterm-256color}"
+
+# Run make in a clean environment, but include TERM
+env -i HOME="$HOME" PATH="/usr/local/bin:/usr/bin:/bin" TERM="$CURRENT_TERM" \
+    make -f brm-console.mk $OUTPUT_SYNC -j $JOBS $EXE $ARGS

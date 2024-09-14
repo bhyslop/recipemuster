@@ -11,10 +11,11 @@
 # Prefix used to distinguish commentary created by this makefile
 zCPM_SELF = brm-console.mk
 
-CPM_PFX = "$(zCPM_SELF): "
-
 CPM_TOOLS_RELDIR      = Tools
 zCPM_SUBMAKE_MBC_VARS = $(CPM_TOOLS_RELDIR)/mbc.MakefileBashConsole.variables.mk
+
+
+MBC_ARG__CONTEXT_STRING = $(zCPM_SELF)
 
 # Common utilities for tabtarget implementation including console colors
 include $(zCPM_SUBMAKE_MBC_VARS)
@@ -58,7 +59,9 @@ mbsr-A__BuildAndStartALL.sh:
 	                            MBSR_ARG_MONIKER=srjsv
 	$(MBC_PASS) "Done, no errors."
 
-test.sh:
+
+
+rmt.RecipeMusterTest.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
