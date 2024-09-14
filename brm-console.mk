@@ -19,7 +19,7 @@ zCPM_SUBMAKE_MBC_VARS = $(CPM_TOOLS_RELDIR)/mbc.MakefileBashConsole.variables.mk
 # Common utilities for tabtarget implementation including console colors
 include $(zCPM_SUBMAKE_MBC_VARS)
 
-  = tt
+zCPM_TABTARGET_DIR  = tt
 
 zCPM_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
 zCPM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
@@ -56,6 +56,9 @@ mbsr-A__BuildAndStartALL.sh:
 	                            MBSR_ARG_MONIKER=srjcl
 	$(zCPM_MBSR_SUBMAKE) mbsr-s__StartContainers.srjsv.sh  \
 	                            MBSR_ARG_MONIKER=srjsv
+	$(MBC_PASS) "Done, no errors."
+
+test.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
