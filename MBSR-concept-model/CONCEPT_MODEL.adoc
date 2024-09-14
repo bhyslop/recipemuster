@@ -1,0 +1,361 @@
+= Recipe Muster
+:toc:
+:toc-title: Table of Contents
+:sectnums:
+:icons: font
+:index:
+
+// Begin Mapping Section
+// tag::mapping-section[]
+
+:t_application:         <<word_application,Application>>
+:t_application_s:       <<word_application,Applications>>
+:t_command_spec:        <<word_command_spec,Command Spec>>
+:t_container:           <<word_container,Container>>
+:t_container_s:         <<word_container,Containers>>
+:t_container_registry:  <<word_container_registry,Container Registry>>
+:t_container_registry_ies:   <<word_container_registry,Container Registries>>
+:t_crypt:               <<word_crypt,Crypt>>
+:t_crypt_s:             <<word_crypt,Crypts>>
+:t_developer:           <<word_developer,Developer>>
+:t_dockerfile:          <<word_dockerfile,Dockerfile>>
+:t_model:               <<word_model,Model>>
+:t_moniker:             <<word_moniker,Moniker>>
+:t_nameplate:           <<word_nameplate,Nameplate>>
+:t_op_build:            <<word_build,RM Build>>
+:t_op_connect:          <<word_connect,RM Connect>>
+:t_op_invoke:           <<word_invoke,RM Invoke>>
+:t_op_expire:           <<word_expire,RM Expire>>
+:t_op_launch:           <<word_launch,RM Launch>>
+:t_op_quantify:         <<word_quantify,RM Quantify>>
+:t_op_retrieve:         <<word_retrieve,RM Retrieve>>
+:t_op_submit:           <<word_submit,RM Submit>>
+:t_op_validate:         <<word_validate,RM Validate>>
+:t_recipe:              <<word_recipe,Recipe>>
+:t_recipe_s:            <<word_recipe,Recipes>>
+:t_rm:                  <<word_rm,Recipe Muster>>
+:t_rm_submodule:        <<word_rm_submodule,Recipe Muster Submodule>>
+:t_rogue:               <<word_rogue,Rogue>>
+:t_rogue_s:             <<word_rogue,Rogues>>
+:t_sentry:              <<word_sentry,Sentry>>
+:t_sentry_s:            <<word_sentry,Sentries>>
+:t_service:             <<word_service,Service>>
+:t_service_s:           <<word_service,Services>>
+:t_share:               <<word_share,Share>>
+
+// end::mapping-section[]
+// End Mapping Section
+
+[abstract]
+.Abstract
+A project to simplify and make safe the use of
+{t_container_s}
+on the
+{t_developer}
+desktop.
+
+== Introduction
+
+The gestalt of the project is to make it easy to safely use and evolve
+{t_container_s}
+at the
+{t_developer}
+desktop.
+This bridges the gap between picking packages and
+{t_service_s}
+to how to deploy these
+{t_container_s}.
+
+One pattern is the
+{t_crypt} {t_model},
+where a
+{t_container}
+is only ever used for a short amount of time, and when it stops, nothing persists in its image.
+One critical security aspect is that a
+{t_container}
+is never permitted to see the whole internet after its creation.
+The
+{t_crypt}
+usually does its work through standard IO, a
+{t_command_spec},
+and  access provided by a
+{t_share}.
+Unusually, it may have a
+{t_sentry}
+and thus can access a limited internet resource during the
+{t_command_spec}.
+
+Another
+{t_model}
+is the
+{t_sentry}/{t_rogue},
+where if a
+{t_rogue}
+{t_container}
+needs to provide a
+{t_service}
+through a socket, it does so via a security
+{t_sentry}
+{t_container}.
+The
+{t_rogue}
+{t_container}
+is never allowed to touch the internet directly, only through the
+{t_sentry}.
+It may run persistently and accumulate state.
+The
+{t_sentry}
+is designed to be very simple and extremely robust, using base IP services such as iptables.
+
+Some specific
+{t_rogue_s}
+do need to touch the internet though.
+Two specific examples include GitHub and the LLM operator Anthropic.
+The
+{t_sentry}
+for that
+{t_rogue}
+is thus configured to allow these conversations but no other.
+
+It is very easy to add a new
+{t_application},
+i.e.
+{t_container}
+spec, to this world, so that it can be used at a desktop safely.
+There are other aspects to this project eventually though.
+
+I also want the project to support, simplify and enable the use of
+{t_container_registry_ies},
+specifically github.
+Several aspects of using
+{t_container_registry_ies}
+well require obscure practices.
+Here are a few aspects of particular note:
+
+* Storage management is critical, because
+{t_container_s}
+can take up lots of space.
+* Processes for selecting and designating long term
+{t_container_s}
+needs some tooling to be consistent and safe.
+* Latent
+{t_container}
+generation to provide easy ways to 'try out' updated infrastructure software make a lot of sense, though the storage allocated to them given github limits is a concern.
+
+== The {t_sentry}/{t_rogue} {t_model}
+
+Todo
+
+== The {t_crypt} {t_model}
+
+Todo
+
+[glossary]
+== Core Word Definitions
+
+[[word_application]]{t_application}::
+In the context of this project, refers to a
+{t_container}
+specification that can be easily added and used safely on a desktop.
+
+[[word_crypt]]{t_crypt}::
+A
+{t_model}
+where a
+{t_container}
+is used for a short amount of time, and when it stops, nothing persists in its {t_image}.
+{t_crypt_s}
+are never updated after creation.
+Many
+{t_crypt_s}
+never see the internet directly.
+
+[[word_moniker]]{t_moniker}::
+A short token that uniquely identifies a
+{t_application}
+in the context of its codebase.
+
+[[word_nameplate]]{t_nameplate}::
+A specification that is 1:1 with an
+{t_application}
+that configures the makefile to operate the chosen 
+{t_model}.
+It identifies the
+{t_moniker},
+specifies the various
+{t_recipe_s}
+involved with the
+{t_application},
+and identifies all internet resources that are used.
+
+[[word_recipe]]{t_recipe}::
+In short, this project's name for a
+{t_dockerfile}.
+
+[[word_rogue]]{t_rogue}::
+A
+{t_container}
+that provides a
+{t_service}
+through a socket but is never allowed to touch the internet directly, only through the
+{t_sentry}.
+It may run persistently and accumulate state.
+
+[[word_sentry]]{t_sentry}::
+A security
+{t_container}
+designed to be very simple and extremely robust, using base IP services such as iptables.
+It acts as an intermediary between a
+{t_rogue}
+{t_container}
+and the internet.
+
+[glossary]
+== Operation Definitions
+
+[[word_build]]{t_op_build}::
+Explicitly cause
+{t_rm}
+to attempt to assemble a
+{t_container}
+from the
+{t_nameplate}
+selected
+{t_recipe}.
+    
+[[word_connect]]{t_op_connect}::
+For persistent
+{t_application_s},
+open a shell to either the
+{t_rogue}
+or
+{t_sentry}
+{t_container}.
+They must be running for this to work.
+
+[[word_invoke]]{t_op_invoke}::
+Cause a
+{t_crypt}
+container to be created and ephemerally run given a
+{t_share_spec}
+and a
+{t_command_spec}.
+
+[[word_expire]]{t_op_expire}::
+Explicitly cause the designated
+{t_image_s}
+to be deleted from the
+{t_container_registry}.
+
+[[word_launch]]{t_op_launch}::
+for persistent
+{t_application_s},
+start the
+{t_rogue}
+and the
+{t_sentry}
+using local
+{t_image}
+corresponding to designated
+{t_moniker}.
+
+[[word_quantify]]{t_op_quantify}::
+Engage the
+{t_container_registry}
+to determine the list of available
+{t_image_s}
+for the currently designated
+{t_moniker}.
+This also may report on
+{t_container_registry}
+remaining capacity.
+
+[[word_retrieve]]{t_op_retrieve}::
+Determine if the
+{t_nameplate}
+identifies a valid
+{t_image}
+and if so, retrieve it from the
+{t_container_registry}.
+
+[[word_submit]]{t_op_submit}::
+Submit the most recent retrieved or built
+{t_image}
+to the
+{t_container_registry}
+if no such image exists.
+
+[[word_validate]]{t_op_validate}::
+Perform security checks on the
+{t_sentry}
+as per
+{t_nameplate}
+designated rules.
+May also be available for
+{t_rogue}
+{t_container_s}.
+
+[glossary]
+== Support Word Definitions
+
+[[word_container]]{t_container}::
+A lightweight, standalone, and executable package of software that includes everything needed to run an
+{t_application}:
+code, runtime, system tools, system libraries, and settings.
+
+[[word_model]]{t_model}::
+A pattern of interaction between a
+{t_developer}
+and the
+{t_rm}
+system.
+
+[[word_dockerfile]]{t_dockerfile}::
+The file used by the Docker and Podman containerization systems to specify the construction rules for a
+{t_image}.
+In this project, these are referred to as
+{t_recipe_s}.
+
+[[word_developer]]{t_developer}::
+TODO
+
+[[word_service]]{t_service}::
+A program or functionality provided by a
+{t_container},
+typically accessed through a port.
+
+[appendix]
+== Itches/ Ouches
+
+This section contains notes on deferred initiatives and future directions.
+
+////
+
+* OUCH:
+The Crypt is not holding up as a foundational concept.
+Renaming it Chasm makes a lot of sense, or perhaps Abyss or Creche.
+Bottle?  Aww bottle.
+
+* OUCH:
+AI curation services for dockerfile builds will be really cool, but lets push that back into a future cycle.
+Specifically, this relates to the theme of tools for making 'definite' recipes.
+
+* OUCH: 
+{t_container_registry}
+support service for 'kicking off' a particular indefinite
+{t_recipe}
+nightly build that captures build transcripts to github but only saves say the most recent 200MB of images to
+{t_container_registry}.
+It would make it easy to figure out if a new... hmm missing vocabulary...
+"container version"
+could actually function?
+Definitely defer this subaspect though, too prospective for now.
+
+* OUCH:
+I want the project to help make what I call 'definite'
+{t_recipe_s},
+which always resolve to assembling precise version constellations.
+I haven't decided how that all works but I want it a lot as part of lightweight powerful infrastructure for wrangling lots of potentially unsafe IP from the internet.
+
+////
+
