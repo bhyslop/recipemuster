@@ -64,5 +64,17 @@ mbsr-A__BuildAndStartALL.sh:
 rmt.RecipeMusterTest.sh:
 	$(MBC_PASS) "Done, no errors."
 
+CPM_TABTARGET_NAME = 
+CPM_TABTARGET_FILE = $(zCPM_TABTARGET_DIR)/$(CPM_TABTARGET_NAME)
+
+ttm.CreateTabtarget.sh:
+	@test -n "$(CPM_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
+	@echo '#!/bin/sh' > $(CPM_TABTARGET_FILE)
+	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
+	                 >> $(CPM_TABTARGET_FILE)
+	@chmod +x           $(CPM_TABTARGET_FILE)
+
+
+
 
 # EOF
