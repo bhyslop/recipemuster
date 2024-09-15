@@ -1,27 +1,39 @@
-## Copyright Scale Invariant, Inc - All Rights Reserved
-##
-## Unauthorized copying of this file, via any medium is strictly prohibited
-## Proprietary and confidential
-##
-## Written by Brad Hyslop <bhyslop@scaleinvariant.org> September 2024
+# Copyright 2024 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 
 # View interim official at: https://github.com/bhyslop/recipemuster/brm-console.mk
 
 # Prefix used to distinguish commentary created by this makefile
-zCPM_SELF = brm-console.mk
+zMRM_THIS_MAKEFILE = brm-console.mk
 
-CPM_TOOLS_RELDIR      = Tools
-zCPM_SUBMAKE_MBC_VARS = $(CPM_TOOLS_RELDIR)/mbc.MakefileBashConsole.variables.mk
+zMRM_TOOLS_DIR        = Tools
 
-zSSIMK_REPONAME        = $(shell basename $(shell pwd))
+#########################
+# Makefile Bash Console
+#
+# This is a sub makefile that contains several canned basic macros
+# for pretty printing and similar.
 
-MBC_ARG__CONTEXT_STRING = $(zCPM_SELF)
+zMRM_MBC_MAKEFILE = $(zMRM_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 
-# Common utilities for tabtarget implementation including console colors
-include $(zCPM_SUBMAKE_MBC_VARS)
+# Configure the sub makefile
+MBC_ARG__CONTEXT_STRING = $(zMRM_THIS_MAKEFILE)
 
-zCPM_TABTARGET_DIR  = tt
+include $(zMRM_MBC_MAKEFILE)
 
 zMRM_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
 zMRM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
@@ -32,18 +44,18 @@ zMRM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 #   rules function in 'big test cases': for efficiency, better to use
 #   explicit fine grained make dependencies so that make can make it
 #   efficient.
-zCPM_CONSOLE_MAKE = $(MAKE) -f $(zCPM_SELF)
+zCPM_CONSOLE_MAKE = $(MAKE) -f $(zMRM_THIS_MAKEFILE)
 
 default:
-	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zCPM_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
+	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zMRM_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
-zCPM_MBSR_MAKEFILE := $(CPM_TOOLS_RELDIR)/mbsr.MakefileBashSentryRogue.mk
+zCPM_MBSR_MAKEFILE := $(zMRM_TOOLS_DIR)/mbsr.MakefileBashSentryRogue.mk
 
 include $(zCPM_MBSR_MAKEFILE)
 
 zcpm_empty =
 
-zCPM_MBSR_SUBMAKE = $(MAKE) -f $(zCPM_MBSR_MAKEFILE) MBSR_ARG_SUBMAKE_MBC=$(zCPM_SUBMAKE_MBC_VARS)
+zCPM_MBSR_SUBMAKE = $(MAKE) -f $(zCPM_MBSR_MAKEFILE) MBSR_ARG_SUBMAKE_MBC=$(zMRM_MBC_MAKEFILE)
 
 mbsr-A__BuildAndStartALL.sh:
 	$(zMBSR_STEP) "Assure podman services available..."
@@ -65,10 +77,13 @@ mbsr-A__BuildAndStartALL.sh:
 #
 #  Helps you create default form tabtargets in right place.
 
+# Location for tabtargets relative to top level project directory
+zMRM_TABTARGET_DIR  = ./tt
+
 # Parameter from the tabtarget: what is the full name of the new tabtarget
 MRM_TABTARGET_NAME = 
 
-zMRM_TABTARGET_FILE = $(zCPM_TABTARGET_DIR)/$(MRM_TABTARGET_NAME)
+zMRM_TABTARGET_FILE = $(zMRM_TABTARGET_DIR)/$(MRM_TABTARGET_NAME)
 
 ttm.CreateTabtarget.sh:
 	@test -n "$(CPM_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
@@ -90,7 +105,7 @@ zMRM_SLICKEDIT_PROJECT_DIR = ./_slickedit
 vsr.ReplaceSlickEditWorkspace.sh:
 	mkdir -p                                             $(zMRM_SLICKEDIT_PROJECT_DIR)
 	-rm -rf                                              $(zMRM_SLICKEDIT_PROJECT_DIR)/*
-	cp $(CPM_TOOLS_RELDIR)/vsep_VisualSlickEditProject/* $(zMRM_SLICKEDIT_PROJECT_DIR)
+	cp $(zMRM_TOOLS_DIR)/vsep_VisualSlickEditProject/* $(zMRM_SLICKEDIT_PROJECT_DIR)
 	$(zMRM_PASS)
 
 
