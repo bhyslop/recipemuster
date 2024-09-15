@@ -60,7 +60,6 @@ mbsr-A__BuildAndStartALL.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
-
 rmt.RecipeMusterTest.sh:
 	$(MBC_PASS) "Done, no errors."
 
