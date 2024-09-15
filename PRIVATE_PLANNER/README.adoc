@@ -7,12 +7,18 @@ Author Name <author@example.com>
 
 == Introduction
 
-Provide a brief introduction to your project here.
+This is highly personal action planning support.
 
-== Installation
+== THE TODO SHORTLIST
+
+. Get top level console working with the jupyter under fume hood
+. ???
+
+== DEFERRED OPEN ISSUES
+
+This section contains reminders about future improvements, deferred for now.
 
 [NOTE]
-.Reminders about future improvements, deferred for now:
 ====
 * Get real clear if I think a docker container advertising a port gets external network view
 * Make the startup script for rogue standalone external too
@@ -50,14 +56,3 @@ Provide a brief introduction to your project here.
 * Seriously consider making tabtarget names in this file more like zmbsr_xxx_rule and then hardcoding tabtarget to pass var, better for nesting
 ====
 
-== Usage
-
-Provide instructions and examples on how to use your project.
-
-== Contributing
-
-Explain how others can contribute to your project.
-
-== License
-
-Include the license information for your project.
