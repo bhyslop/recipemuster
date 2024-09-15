@@ -14,6 +14,8 @@ zCPM_SELF = brm-console.mk
 CPM_TOOLS_RELDIR      = Tools
 zCPM_SUBMAKE_MBC_VARS = $(CPM_TOOLS_RELDIR)/mbc.MakefileBashConsole.variables.mk
 
+zSSIMK_REPONAME        = $(shell basename $(shell pwd))
+
 
 MBC_ARG__CONTEXT_STRING = $(zCPM_SELF)
 
@@ -74,6 +76,19 @@ ttm.CreateTabtarget.sh:
 	@chmod +x           $(CPM_TABTARGET_FILE)
 
 
+#######################################
+#  Slickedit Project Tabtarget
+#
+#  Due to filesystem handle entanglements, Slickedit doesn't play well wit git.
+#  This rule places a usable copy in a .gitignored location
+
+zSSIMK_VSEP_RELDIR=./_slickedit/$(zSSIMK_REPONAME)
+
+vsr.ReplaceSlickEditWorkspace.sh:
+	-rm -rf                                              $(zSSIMK_VSEP_RELDIR)
+	mkdir -p                                             $(zSSIMK_VSEP_RELDIR)
+	cp $(CPM_TOOLS_RELDIR)/vsep_VisualSlickEditProject/* $(zSSIMK_VSEP_RELDIR)
+	$(zSSIMK_PASS)
 
 
 # EOF
