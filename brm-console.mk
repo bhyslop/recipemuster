@@ -16,7 +16,6 @@ zCPM_SUBMAKE_MBC_VARS = $(CPM_TOOLS_RELDIR)/mbc.MakefileBashConsole.variables.mk
 
 zSSIMK_REPONAME        = $(shell basename $(shell pwd))
 
-
 MBC_ARG__CONTEXT_STRING = $(zCPM_SELF)
 
 # Common utilities for tabtarget implementation including console colors
@@ -24,8 +23,8 @@ include $(zCPM_SUBMAKE_MBC_VARS)
 
 zCPM_TABTARGET_DIR  = tt
 
-zCPM_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
-zCPM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
+zMRM_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
+zMRM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 
 
 # Use this to allow a console make target to explicitly trigger other
@@ -33,7 +32,6 @@ zCPM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 #   rules function in 'big test cases': for efficiency, better to use
 #   explicit fine grained make dependencies so that make can make it
 #   efficient.
-# ITCH_nestBashColorTrick == z when recurse, use less green for aggregated substeps
 zCPM_CONSOLE_MAKE = $(MAKE) -f $(zCPM_SELF)
 
 default:
@@ -62,10 +60,6 @@ mbsr-A__BuildAndStartALL.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
-rmt.RecipeMusterTest.sh:
-	$(MBC_PASS) "Done, no errors."
-
-
 #######################################
 #  Tabtarget Maintenance Tabtarget
 #
@@ -82,6 +76,7 @@ ttm.CreateTabtarget.sh:
 	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
 	                 >> $(zMRM_TABTARGET_FILE)
 	@chmod +x           $(zMRM_TABTARGET_FILE)
+	$(zMRM_PASS)
 
 
 #######################################
@@ -96,7 +91,7 @@ vsr.ReplaceSlickEditWorkspace.sh:
 	mkdir -p                                             $(zMRM_SLICKEDIT_PROJECT_DIR)
 	-rm -rf                                              $(zMRM_SLICKEDIT_PROJECT_DIR)/*
 	cp $(CPM_TOOLS_RELDIR)/vsep_VisualSlickEditProject/* $(zMRM_SLICKEDIT_PROJECT_DIR)
-	$(zSSIMK_PASS)
+	$(zMRM_PASS)
 
 
 # EOF
