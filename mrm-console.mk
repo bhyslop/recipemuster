@@ -20,7 +20,7 @@
 # Prefix used to distinguish commentary created by this makefile
 zMRM_THIS_MAKEFILE = brm-console.mk
 
-zMRM_TOOLS_DIR        = Tools
+zMRM_TOOLS_DIR     = Tools
 
 #########################
 # Makefile Bash Console
@@ -36,6 +36,7 @@ MBC_ARG__CONTEXT_STRING = $(zMRM_THIS_MAKEFILE)
 include $(zMRM_MBC_MAKEFILE)
 
 zMRM_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
+zMRM_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
 zMRM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 
 
@@ -44,7 +45,7 @@ zMRM_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 #   rules function in 'big test cases': for efficiency, better to use
 #   explicit fine grained make dependencies so that make can make it
 #   efficient.
-zCPM_CONSOLE_MAKE = $(MAKE) -f $(zMRM_THIS_MAKEFILE)
+zMRM_MAKE = $(MAKE) -f $(zMRM_THIS_MAKEFILE)
 
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zMRM_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
@@ -58,9 +59,9 @@ zcpm_empty =
 zCPM_MBSR_SUBMAKE = $(MAKE) -f $(zCPM_MBSR_MAKEFILE) MBSR_ARG_SUBMAKE_MBC=$(zMRM_MBC_MAKEFILE)
 
 mbsr-A__BuildAndStartALL.sh:
-	$(zMBSR_STEP) "Assure podman services available..."
+	$(zMRM_STEP) "Assure podman services available..."
 	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zMBSR_STEP) "Use" $(zMBSR_MAKE) "to recurse..."
+	$(zMRM_STEP) "Use" $(zMBSR_MAKE) "to recurse..."
 	$(zCPM_MBSR_SUBMAKE) mbsr-B__BuildImages.srjcl.sh  \
 	                        MBSR_ARG_MONIKER=srjcl
 	$(zCPM_MBSR_SUBMAKE) mbsr-B__BuildImages.srjsv.sh  \
