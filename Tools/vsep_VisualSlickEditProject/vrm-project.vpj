@@ -77,14 +77,17 @@
 
     <Files AutoFolders="PackageView">
         <Folder Name="..">
-            <F     N="../*.mk"                 Recurse="1" Excludes=""/>
-            <F     N="../*.sh"                 Recurse="1" Excludes=""/>
-            <F     N="../*.vpj"                Recurse="1" Excludes=""/>
-            <F     N="../*.vpw"                Recurse="1" Excludes=""/>
-            <F     N="../*.md"                 Recurse="1" Excludes=""/>
-            <F     N="../*.adoc"               Recurse="1" Excludes=""/>
-            <F     N="../.gitattribute?"       Recurse="1" Excludes=""/>
-            <F     N="../.gitignor?"           Recurse="1" Excludes=""/>
+            <F     N="../*.mk"                       Recurse="1" Excludes=""/>
+            <F     N="../*.sh"                       Recurse="1" Excludes=""/>
+            <F     N="../*.md"                       Recurse="1" Excludes=""/>
+            <F     N="../*.adoc"                     Recurse="1" Excludes=""/>
+            <F     N="../.gitattribute?"             Recurse="1" Excludes=""/>
+            <F     N="../.gitignor?"                 Recurse="1" Excludes=""/>
+        </Folder>
+
+        <Folder Name="../Tools">
+            <F     N="../Tools/*.vpj"                Recurse="1" Excludes=""/>
+            <F     N="../Tools/*.vpw"                Recurse="1" Excludes=""/>
         </Folder>
     </Files>
 

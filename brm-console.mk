@@ -65,29 +65,37 @@ mbsr-A__BuildAndStartALL.sh:
 rmt.RecipeMusterTest.sh:
 	$(MBC_PASS) "Done, no errors."
 
-CPM_TABTARGET_NAME = 
-CPM_TABTARGET_FILE = $(zCPM_TABTARGET_DIR)/$(CPM_TABTARGET_NAME)
+
+#######################################
+#  Tabtarget Maintenance Tabtarget
+#
+#  Helps you create default form tabtargets in right place.
+
+# Parameter from the tabtarget: what is the full name of the new tabtarget
+MRM_TABTARGET_NAME = 
+
+zMRM_TABTARGET_FILE = $(zCPM_TABTARGET_DIR)/$(MRM_TABTARGET_NAME)
 
 ttm.CreateTabtarget.sh:
 	@test -n "$(CPM_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
-	@echo '#!/bin/sh' > $(CPM_TABTARGET_FILE)
+	@echo '#!/bin/sh' > $(zMRM_TABTARGET_FILE)
 	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
-	                 >> $(CPM_TABTARGET_FILE)
-	@chmod +x           $(CPM_TABTARGET_FILE)
+	                 >> $(zMRM_TABTARGET_FILE)
+	@chmod +x           $(zMRM_TABTARGET_FILE)
 
 
 #######################################
 #  Slickedit Project Tabtarget
 #
-#  Due to filesystem handle entanglements, Slickedit doesn't play well wit git.
-#  This rule places a usable copy in a .gitignored location
+#  Due to filesystem handle entanglements, Slickedit doesn't play well
+#  with git.  This tabtarget places a usable copy in a .gitignored location
 
-zSSIMK_VSEP_RELDIR=./_slickedit/$(zSSIMK_REPONAME)
+zMRM_SLICKEDIT_PROJECT_DIR = ./_slickedit
 
 vsr.ReplaceSlickEditWorkspace.sh:
-	-rm -rf                                              $(zSSIMK_VSEP_RELDIR)
-	mkdir -p                                             $(zSSIMK_VSEP_RELDIR)
-	cp $(CPM_TOOLS_RELDIR)/vsep_VisualSlickEditProject/* $(zSSIMK_VSEP_RELDIR)
+	mkdir -p                                             $(zMRM_SLICKEDIT_PROJECT_DIR)
+	-rm -rf                                              $(zMRM_SLICKEDIT_PROJECT_DIR)/*
+	cp $(CPM_TOOLS_RELDIR)/vsep_VisualSlickEditProject/* $(zMRM_SLICKEDIT_PROJECT_DIR)
 	$(zSSIMK_PASS)
 
 
