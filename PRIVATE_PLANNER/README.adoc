@@ -11,7 +11,44 @@ Provide a brief introduction to your project here.
 
 == Installation
 
-Explain how to install your project.
+[NOTE]
+.Reminders about future improvements, deferred for now:
+====
+* Get real clear if I think a docker container advertising a port gets external network view
+* Make the startup script for rogue standalone external too
+* Cut down the diagnostic IP utilities found all over the place
+* Refresh whether rogue --privileged is required for function (and cut if not)
+* Cut outreach from the matplotlib container
+* Put pip after apk install
+* Cut startup script 5 second hack, probably with atomizing startup sequence
+* Rename dockerfile to recipe or containerfile... Does this make the environment a 'cake'? I think it does...
+* Try multiline docker arg/env for better maintenance
+* Better name for 'instance of application' for crisp docs. 'Environment'?
+* Make plantuml server variant that works with -> https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000 or http://localhost:8080/plantuml/png/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000 blended
+* Decide if sentry socat should be in a separate startup script rather than dockerfile (probably with atomization, yes)
+* Make pretty non-internet jupyter maths variant
+* Make integ check buried jupyter (i.e. flask executor only) with internet variant
+* There may be parameters in the dockerfile that are simpler out here
+* Consider rename all to BANDIT or PIRATE for ROGUE
+* Cut the network diagnostic that is in the build context
+* Strip back dnsmasq to _only_ serve the anthropic.com (or similar)
+* Figure out how to inscribe parameters during build so they don't confuse (or risk) the environment later
+* Sort out tests: automatic during build/setup, or explicit? Not all over the place
+* Consistify WORKDIR
+* Tee with error capture all the catted in scripts
+* Make default dockerfile arg/env values really illegal
+* Consider factoring out podman stop and then giving it a zero timeout; probably ought to manually stop and check logs for why it's slow
+* Decide whether to mononame the docker env/arg to the makefile name, or drift it. Do it.
+* Scrub out dockerfile environment variables unneeded in final env?
+* Rethink the .sh-ization of the nameplate, specifically for including includes
+* Really consider deprivilidgening ROGUE
+* Consider a precedent rule that in parallel will stop containers before rmi and use in build and start
+* Make choices concerning secondary port opens for the jupyter flask executor on top of jupyter
+* Figure suppression of error -> time="2024-08-30T06:54:29-07:00" level=warning msg="Failed to obtain TTY size: The handle is invalid."
+* Segregate nameplate checking to a subfile and explain there the unusability of a rule string for include directive
+* Something not sitting right about machinations around the ALL target in above makefile, and double console include, and mbc path include
+* Seriously consider making tabtarget names in this file more like zmbsr_xxx_rule and then hardcoding tabtarget to pass var, better for nesting
+====
 
 == Usage
 
