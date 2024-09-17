@@ -74,6 +74,20 @@ mbsr-A__BuildAndStartALL.sh:
 
 
 #######################################
+#  Nameplate Examples
+#
+#  This section has examples of several sample nameplates, some
+#  of which are useful in maintaining this example space.
+
+pyghm-B__BuildPythonGithubMaintenance.sh:
+	$(zRMC_STEP) "Assure podman services available..."
+	which podman
+	podman machine start || echo "Podman probably running already, lets go on..."
+	$(zRMC_MBSR_SUBMAKE) mbsr-B__BuildImages.pyghm.sh  \
+	                        MBSR_ARG_MONIKER=pyghm
+
+
+#######################################
 #  Tabtarget Maintenance Tabtarget
 #
 #  Helps you create default form tabtargets in right place.

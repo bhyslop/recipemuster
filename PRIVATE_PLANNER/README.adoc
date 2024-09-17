@@ -30,6 +30,7 @@ This section contains reminders about future improvements, deferred for now.
 * Refresh whether rogue --privileged is required for function (and cut if not)
 * Cut outreach from the matplotlib container
 * Put pip after apk install
+* Decide whether dockerfile is named in nameplate or implicit location from nameplate target
 * Document the phony rule trick and everything else about the warped rules of makefile in this project
 * Document the intriciacies of nameplate files well
 * Clean up the nameplate themes strongly
