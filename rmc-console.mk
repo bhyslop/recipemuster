@@ -104,8 +104,8 @@ ttc.CreateTabtarget.sh:
 zRMC_SLICKEDIT_PROJECT_DIR = ./_slickedit
 
 vsr.ReplaceSlickEditWorkspace.sh:
-	mkdir -p                                             $(zRMC_SLICKEDIT_PROJECT_DIR)
-	-rm -rf                                              $(zRMC_SLICKEDIT_PROJECT_DIR)/*
+	mkdir -p                                           $(zRMC_SLICKEDIT_PROJECT_DIR)
+	-rm -rf                                            $(zRMC_SLICKEDIT_PROJECT_DIR)/*
 	cp $(zRMC_TOOLS_DIR)/vsep_VisualSlickEditProject/* $(zRMC_SLICKEDIT_PROJECT_DIR)
 	$(zRMC_PASS)
 
