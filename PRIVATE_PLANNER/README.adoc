@@ -12,6 +12,7 @@ This is highly personal action planning support.
 == THE TODO SHORTLIST
 
 . Get top level console working with the jupyter under fume hood
+. Rename Rogue to Bottle
 . ???
 
 == DEFERRED OPEN ISSUES
@@ -23,6 +24,7 @@ This section contains reminders about future improvements, deferred for now.
 * Get real clear if I think a docker container advertising a port gets external network view
 * Make the startup script for rogue standalone external too
 * Cut down the diagnostic IP utilities found all over the place
+* Create python github downloader with command spec that renders the safe ip rules
 * Refresh whether rogue --privileged is required for function (and cut if not)
 * Cut outreach from the matplotlib container
 * Put pip after apk install

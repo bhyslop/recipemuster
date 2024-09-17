@@ -20,6 +20,7 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.md text eol=lf
+*.adoc text eol=lf
 *.txt text eol=lf
 
 # Declare files that will always have CRLF line endings on checkout.

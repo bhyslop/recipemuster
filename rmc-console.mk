@@ -19,7 +19,7 @@
 # View planner at: https://github.com/bhyslop/recipemuster/tree/main/PRIVATE_PLANNER
 
 # Prefix used to distinguish commentary created by this makefile
-zRMC_THIS_MAKEFILE = brm-console.mk
+zRMC_THIS_MAKEFILE = rmc-console.mk
 
 zRMC_TOOLS_DIR     = Tools
 

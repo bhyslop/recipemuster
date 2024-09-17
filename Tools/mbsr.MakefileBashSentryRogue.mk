@@ -33,42 +33,6 @@ MBSR_ARG_MONIKER = ""
 # If provided, the makefile that defines console variables.  Otherwise, no include
 MBSR_ARG_SUBMAKE_MBC =
 
-# Reminders about future improvements, deferred for now:
-#
-# OUCH Get real clear if I think a docker container advertising a port gets external network view
-# OUCH Make the startup script for rogue standalone external too
-# OUCH Cut down the diagnostic IP utilities found all over the place
-# OUCH Refresh whether rogue --privileged is required for function (and cut if not)
-# OUCH Cut outreach from the matplotlib container
-# OUCH put pip after apk install
-# OUCH Cut startup script 5 second hack, probably with atomizing startup sequence
-# OUCH rename dockerfile to recipe or containerfile...  Does this make the environment a 'cake'?  I think it does...
-# OUCH try multiline docker arg/env for bettermaint
-# OUCH bettername for 'instance of application' for crisp docs.  'environment'?
-# OUCH make plantuml server variant that works with -> https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000 or http://localhost:8080/plantuml/png/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000 blended
-# OUCH decide if sentry socat should be in a separate startup script rather than dockerfile (prolly with atomization, yes)
-# OUCH make pretty non-internet jupyter maths variant
-# OUCH make integ check buried jupyter (i.e. flask executor only) with internet variant
-# OUCH There may be parameters in the dockerfile that are simpler out here
-# OUCH consider rename all to BANDIT or PIRATE for ROGUE
-# OUCH cut the network diagnostic that is in the build context
-# OUCH strip back dnsmasq to _only_ serve the anthropic.com (or similar)
-# OUCH figure out how to inscribe parameters during build so they don't confuse (or risk) the environment later
-# OUCH Sort out tests: automatic during build/setup, or explicit?  Not all over the place
-# OUCH consistify WORKDIR
-# OUCH tee with error capture all the catted in scripts
-# OUCH make default dockerfile arg/env values really illegal
-# OUCH consider factoring out podman stop and then giving it a zero timeout; prolly ought to manually stop and check logs for why its slow
-# OUCH decide whether to mononame the docker env/arg to the makefile name, or drift it.  Do it.
-# OUCH scrub out dockerfile environment variables unneeded in final env?
-# OUCH Rethink the .sh-ization of the nameplate, specifically for including includes
-# OUCH really consider deprivilidgening ROGUE
-# OUCH consider a precedent rule that in parallel will stop containers before rmi and use in build and start
-# OUCH make choices concerning secondary port opens for the jupyter flask executor on top of jupyter
-# OUCH figure suppression of error -> time="2024-08-30T06:54:29-07:00" level=warning msg="Failed to obtain TTY size: The handle is invalid."
-# OUCH segregate nameplate checking to a subfile and explain there the unusability of a rule string for include directive
-# OUCH Something not sitting right about machenations around the ALL target in above makefile, and double console include, and mbc path include
-# OUCH seriously consider making tabtarget names in this file more like zmbsr_xxx_rule and then hardcoding tabtarget to pass var, better for nesting
 
 # Internal variables start with 'z' for easy identification
 
