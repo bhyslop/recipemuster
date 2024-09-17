@@ -84,10 +84,10 @@ zRMC_TABTARGET_DIR  = ./tt
 # Parameter from the tabtarget: what is the full name of the new tabtarget
 RMC_TABTARGET_NAME = 
 
-zRMC_TABTARGET_FILE = $(zRMC_TABTARGET_DIR)/$(MRM_TABTARGET_NAME)
+zRMC_TABTARGET_FILE = $(zRMC_TABTARGET_DIR)/$(RMC_TABTARGET_NAME)
 
 ttc.CreateTabtarget.sh:
-	@test -n "$(CPM_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
+	@test -n "$(RMC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
 	@echo '#!/bin/sh' > $(zRMC_TABTARGET_FILE)
 	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
 	                 >> $(zRMC_TABTARGET_FILE)
@@ -108,6 +108,16 @@ vsr.ReplaceSlickEditWorkspace.sh:
 	-rm -rf                                              $(zRMC_SLICKEDIT_PROJECT_DIR)/*
 	cp $(zRMC_TOOLS_DIR)/vsep_VisualSlickEditProject/* $(zRMC_SLICKEDIT_PROJECT_DIR)
 	$(zRMC_PASS)
+
+RMC_PARAM_DIR = 
+
+rmcgi.CreateGitIgnore.sh:
+	@test -n             "$(RMC_PARAM_DIR)" || { echo "Must provide dir name arg"; exit 1; }
+	mkdir -p              $(RMC_PARAM_DIR)
+	echo "*"            > $(RMC_PARAM_DIR)/.gitignore
+	echo "!.gitignore" >> $(RMC_PARAM_DIR)/.gitignore
+	$(zRMC_PASS)
+
 
 
 # EOF

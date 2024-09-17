@@ -12,12 +12,14 @@ This is highly personal action planning support.
 == THE TODO SHORTLIST
 
 . Get top level console working with the jupyter under fume hood
+. Revise all filesystem names from MBSR to Recipe Muster 
 . Rename Rogue to Bottle
 . ???
 
 == DEFERRED OPEN ISSUES
 
 This section contains reminders about future improvements, deferred for now.
+
 
 [NOTE]
 ====
@@ -28,6 +30,9 @@ This section contains reminders about future improvements, deferred for now.
 * Refresh whether rogue --privileged is required for function (and cut if not)
 * Cut outreach from the matplotlib container
 * Put pip after apk install
+* Document the phony rule trick and everything else about the warped rules of makefile in this project
+* Document the intriciacies of nameplate files well
+* Clean up the nameplate themes strongly
 * Cut startup script 5 second hack, probably with atomizing startup sequence
 * Rename dockerfile to recipe or containerfile... Does this make the environment a 'cake'? I think it does...
 * Try multiline docker arg/env for better maintenance

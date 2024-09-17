@@ -25,4 +25,4 @@ CURRENT_TERM="${TERM:-xterm-256color}"
 
 # Run make in a clean environment, but include TERM
 env -i HOME="$HOME" PATH="/usr/local/bin:/usr/bin:/bin" TERM="$CURRENT_TERM" \
-    make -f brm-console.mk $OUTPUT_SYNC -j $JOBS $EXE $ARGS
+    make -f rmc-console.mk $OUTPUT_SYNC -j $JOBS $EXE $ARGS
