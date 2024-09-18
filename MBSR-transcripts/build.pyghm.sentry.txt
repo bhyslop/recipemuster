@@ -1,1 +1,53 @@
-Error: the specified Containerfile or Dockerfile does not exist, ./MBSR-dockerfiles/pyghm.sentry.dockerfile: The system cannot find the file specified.
+STEP 1/24: FROM alpine:latest
+STEP 2/24: RUN apk update && apk add --no-cache     iputils     iproute2     net-tools     bind-tools     curl     traceroute     tcpdump     nmap     iptables     dnsmasq     socat   && echo done
+--> Using cache a5345f7b26d50f93f2df69978b782db6c54070c0c2d2f9e267d807987d1d5c1e
+--> a5345f7b26d5
+STEP 3/24: ARG NAMEPLATE_MONIKER
+--> Using cache 284f352236880dd37f0fb4d2d3293697fa55e5a80bca5610be829b216b1bcd0f
+--> 284f35223688
+STEP 4/24: ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
+--> Using cache 35b1f95ced93a104d4e8984260fc3bb0da24bb159f83c2c206f2406be25a873a
+--> 35b1f95ced93
+STEP 5/24: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
+--> 36ebd304499e
+STEP 6/24: ARG DNS_SERVER
+--> 3033788a8fed
+STEP 7/24: ENV DNS_SERVER=${DNS_SERVER}
+--> fd5a4a830bc2
+STEP 8/24: ARG NETWORK_MASK
+--> d6df94dcbf20
+STEP 9/24: ENV NETWORK_MASK=${NETWORK_MASK}
+--> 7f8abbf1e915
+STEP 10/24: ARG HOST_INTERFACE
+--> 1e26138086f8
+STEP 11/24: ENV HOST_INTERFACE=${HOST_INTERFACE}
+--> 290b92af969d
+STEP 12/24: ARG GUARDED_INTERFACE
+--> 04bcd9470218
+STEP 13/24: ENV GUARDED_INTERFACE=${GUARDED_INTERFACE}
+--> 6a985275da78
+STEP 14/24: ARG SENTRY_GUARDED_IP
+--> 30ce7875e8a4
+STEP 15/24: ENV SENTRY_GUARDED_IP=${SENTRY_GUARDED_IP}
+--> 9722acdcf3cd
+STEP 16/24: ARG ROGUE_IP
+--> 8faa825ca4f6
+STEP 17/24: ENV ROGUE_IP=${ROGUE_IP}
+--> f21f3fc406be
+STEP 18/24: ARG ROGUE_JUPYTER_PORT
+--> 3613c66171af
+STEP 19/24: ENV ROGUE_JUPYTER_PORT=${ROGUE_JUPYTER_PORT}
+--> 2e583b403a93
+STEP 20/24: ARG SENTRY_JUPYTER_PORT
+--> 8c8325ca30f2
+STEP 21/24: ENV SENTRY_JUPYTER_PORT=${SENTRY_JUPYTER_PORT}
+--> e11dfb8699ff
+STEP 22/24: ARG GUARDED_NETWORK_SUBNET
+--> 50191542a8dc
+STEP 23/24: ENV GUARDED_NETWORK_SUBNET=${GUARDED_NETWORK_SUBNET}
+--> 20b5340f7c3d
+STEP 24/24: CMD ["tail", "-f", "/dev/null"]
+COMMIT pyghm-sentry-image:pyghm
+--> 2ea510376ad4
+Successfully tagged localhost/pyghm-sentry-image:pyghm
+2ea510376ad471caf6449f2edf216a64ba9cd587b65e4afd2caae3dba003e92f
