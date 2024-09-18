@@ -1,1 +1,1 @@
-time="2024-09-17T08:23:14-07:00" level=error msg="cannot determine user's homedir"
+Error: the specified Containerfile or Dockerfile does not exist, ./MBSR-dockerfiles/pyghm.sentry.dockerfile: The system cannot find the file specified.
