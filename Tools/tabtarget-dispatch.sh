@@ -23,16 +23,18 @@ fi
 # Start Podman machine if it's not already running
 podman machine start || echo "Podman probably running already, let's go on..."
 
-# Run make in a clean environment with specific variables pulled from current environment
+# Run make in a clean environment with cherry picked variables from current environment.
+#  This set was roughly determined necessary to enable podman to function.  Stripping the
+#  environment revealed during container construction and invocation is a safety measure.
 env -i \
-HOME="${HOME}" \
-USER="${USER}" \
-USERPROFILE="${USERPROFILE}" \
-PATH="${PATH}" \
-APPDATA="${APPDATA}" \
-TEMP="${TEMP}" \
-TMP="${TMP}" \
-TERM="${TERM}" \
-PODMAN_REMOTE=1 \
-PODMAN_USERNS=keep-id \
-make -f rmc-console.mk "$OUTPUT_SYNC" -j "$JOBS" "$EXE" $ARGS
+  HOME="${HOME}"               \
+  USER="${USER}"               \
+  USERPROFILE="${USERPROFILE}" \
+  PATH="${PATH}"               \
+  APPDATA="${APPDATA}"         \
+  TEMP="${TEMP}"               \
+  TMP="${TMP}"                 \
+  TERM="${TERM}"               \
+  PODMAN_REMOTE=1              \
+  PODMAN_USERNS=keep-id        \
+  make -f rmc-console.mk "$OUTPUT_SYNC" -j "$JOBS" "$EXE" $ARGS
