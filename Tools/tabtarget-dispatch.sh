@@ -37,4 +37,6 @@ env -i \
   TERM="${TERM}"               \
   PODMAN_REMOTE=1              \
   PODMAN_USERNS=keep-id        \
-  make -f rmc-console.mk "$OUTPUT_SYNC" -j "$JOBS" "$EXE" $ARGS
+  echo KIDDING
+
+make -f rmc-console.mk "$OUTPUT_SYNC" -j "$JOBS" "$EXE" $ARGS

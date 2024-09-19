@@ -1,123 +1,53 @@
 STEP 1/24: FROM alpine:latest
-Resolved "alpine" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
-Trying to pull docker.io/library/alpine:latest...
-Getting image source signatures
-Copying blob sha256:c6a83fedfae6ed8a4f5f7cbb6a7b6f1c1ec3d86fea8cb9e5ba2e5e6673fde9f6
-Copying config sha256:324bc02ae1231fd9255658c128086395d3fa0aedd5a41ab6b034fd649d1a9260
-Writing manifest to image destination
 STEP 2/24: RUN apk update && apk add --no-cache     iputils     iproute2     net-tools     bind-tools     curl     traceroute     tcpdump     nmap     iptables     dnsmasq     socat   && echo done
-fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
-fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
-v3.20.2-206-g97641e7532a [https://dl-cdn.alpinelinux.org/alpine/v3.20/main]
-v3.20.2-201-geb66c8ba19a [https://dl-cdn.alpinelinux.org/alpine/v3.20/community]
-OK: 24162 distinct packages available
-fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
-fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
-(1/54) Installing fstrm (0.6.1-r4)
-(2/54) Installing krb5-conf (1.0-r2)
-(3/54) Installing libcom_err (1.47.0-r5)
-(4/54) Installing keyutils-libs (1.6.3-r3)
-(5/54) Installing libverto (0.3.2-r2)
-(6/54) Installing krb5-libs (1.21.3-r0)
-(7/54) Installing json-c (0.17-r0)
-(8/54) Installing nghttp2-libs (1.62.1-r0)
-(9/54) Installing protobuf-c (1.5.0-r0)
-(10/54) Installing libuv (1.48.0-r0)
-(11/54) Installing xz-libs (5.6.2-r0)
-(12/54) Installing libxml2 (2.12.7-r0)
-(13/54) Installing bind-libs (9.18.27-r0)
-(14/54) Installing bind-tools (9.18.27-r0)
-(15/54) Installing ca-certificates (20240705-r0)
-(16/54) Installing brotli-libs (1.1.0-r2)
-(17/54) Installing c-ares (1.28.1-r0)
-(18/54) Installing libunistring (1.2-r0)
-(19/54) Installing libidn2 (2.3.7-r0)
-(20/54) Installing libpsl (0.21.5-r1)
-(21/54) Installing zstd-libs (1.5.6-r0)
-(22/54) Installing libcurl (8.9.1-r1)
-(23/54) Installing curl (8.9.1-r1)
-(24/54) Installing dnsmasq-common (2.90-r3)
-(25/54) Installing dnsmasq (2.90-r3)
-Executing dnsmasq-2.90-r3.pre-install
-(26/54) Installing libcap2 (2.70-r0)
-(27/54) Installing libelf (0.191-r0)
-(28/54) Installing libmnl (1.0.5-r2)
-(29/54) Installing iproute2-minimal (6.9.0-r0)
-(30/54) Installing libxtables (1.8.10-r3)
-(31/54) Installing iproute2-tc (6.9.0-r0)
-(32/54) Installing iproute2-ss (6.9.0-r0)
-(33/54) Installing iproute2 (6.9.0-r0)
-Executing iproute2-6.9.0-r0.post-install
-(34/54) Installing libnftnl (1.2.6-r0)
-(35/54) Installing iptables (1.8.10-r3)
-(36/54) Installing iputils-arping (20240117-r0)
-(37/54) Installing iputils-clockdiff (20240117-r0)
-(38/54) Installing iputils-ping (20240117-r0)
-(39/54) Installing iputils-tracepath (20240117-r0)
-(40/54) Installing iputils (20240117-r0)
-(41/54) Installing mii-tool (2.10-r3)
-(42/54) Installing net-tools (2.10-r3)
-(43/54) Installing libgcc (13.2.1_git20240309-r0)
-(44/54) Installing lua5.4-libs (5.4.6-r1)
-(45/54) Installing libpcap (1.10.4-r1)
-(46/54) Installing libssh2 (1.11.0-r2)
-(47/54) Installing libstdc++ (13.2.1_git20240309-r0)
-(48/54) Installing nmap (7.95-r0)
-(49/54) Installing ncurses-terminfo-base (6.4_p20240420-r0)
-(50/54) Installing libncursesw (6.4_p20240420-r0)
-(51/54) Installing readline (8.2.10-r0)
-(52/54) Installing socat (1.8.0.0-r0)
-(53/54) Installing tcpdump (4.99.4-r1)
-(54/54) Installing traceroute (2.1.5-r0)
-Executing busybox-1.36.1-r29.trigger
-Executing ca-certificates-20240705-r0.trigger
-OK: 44 MiB in 68 packages
-done
+--> Using cache a5345f7b26d50f93f2df69978b782db6c54070c0c2d2f9e267d807987d1d5c1e
 --> a5345f7b26d5
 STEP 3/24: ARG NAMEPLATE_MONIKER
+--> Using cache 284f352236880dd37f0fb4d2d3293697fa55e5a80bca5610be829b216b1bcd0f
 --> 284f35223688
 STEP 4/24: ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
+--> Using cache 35b1f95ced93a104d4e8984260fc3bb0da24bb159f83c2c206f2406be25a873a
 --> 35b1f95ced93
 STEP 5/24: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
---> e690d612ddea
+--> 2d0f005ad41c
 STEP 6/24: ARG DNS_SERVER
---> 3c8d3d2709db
+--> 007e5e391608
 STEP 7/24: ENV DNS_SERVER=${DNS_SERVER}
---> 8fb5e54b2f8b
+--> 3d0523752a59
 STEP 8/24: ARG NETWORK_MASK
---> de0002d2017f
+--> 6ebee3a96c41
 STEP 9/24: ENV NETWORK_MASK=${NETWORK_MASK}
---> 8879af3ef7fc
+--> a735a70cb9a6
 STEP 10/24: ARG HOST_INTERFACE
---> bbbf107b5315
+--> 225903c6c73b
 STEP 11/24: ENV HOST_INTERFACE=${HOST_INTERFACE}
---> 6f477c74b7e0
+--> c54534e63e2b
 STEP 12/24: ARG GUARDED_INTERFACE
---> 4c6621487ad5
+--> ea09e372026c
 STEP 13/24: ENV GUARDED_INTERFACE=${GUARDED_INTERFACE}
---> 27d0a16a7d85
+--> 9205bb158468
 STEP 14/24: ARG SENTRY_GUARDED_IP
---> bdd2afe1d463
+--> e5a355c64c97
 STEP 15/24: ENV SENTRY_GUARDED_IP=${SENTRY_GUARDED_IP}
---> 89220ee0aa36
+--> dca03e49b486
 STEP 16/24: ARG ROGUE_IP
---> 991d66a49d58
+--> c2583e827a37
 STEP 17/24: ENV ROGUE_IP=${ROGUE_IP}
---> cd439d44599d
+--> 0561a806563c
 STEP 18/24: ARG ROGUE_JUPYTER_PORT
---> 94fc0cdfd67c
+--> 471e36cdd220
 STEP 19/24: ENV ROGUE_JUPYTER_PORT=${ROGUE_JUPYTER_PORT}
---> b10b70b98026
+--> c2afd71bded3
 STEP 20/24: ARG SENTRY_JUPYTER_PORT
---> 4b001b506b8c
+--> 16802cf256d0
 STEP 21/24: ENV SENTRY_JUPYTER_PORT=${SENTRY_JUPYTER_PORT}
---> 74603d8dee44
+--> 3895ef811410
 STEP 22/24: ARG GUARDED_NETWORK_SUBNET
---> 2262e6f5bed1
+--> cc819b83c82a
 STEP 23/24: ENV GUARDED_NETWORK_SUBNET=${GUARDED_NETWORK_SUBNET}
---> 6eda7907f51f
+--> 97468b6b3b12
 STEP 24/24: CMD ["tail", "-f", "/dev/null"]
 COMMIT srjcl-sentry-image:srjcl
---> d5a6cf2275de
+--> 589538c0e7bb
 Successfully tagged localhost/srjcl-sentry-image:srjcl
-d5a6cf2275de0431845802f724f307d6691ef198f58a1dbed50f1af46d16bf50
+589538c0e7bbe00055d518ed1dcc83ecfe63e7f36a47c609597041842bbdc15a
