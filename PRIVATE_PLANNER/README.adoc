@@ -23,6 +23,7 @@ This section contains reminders about future improvements, deferred for now.
 
 [NOTE]
 ====
+* Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
 * Get real clear if I think a docker container advertising a port gets external network view
 * Make the startup script for rogue standalone external too
