@@ -35,7 +35,7 @@ ARGS="$@"
 
 # Determine output synchronization
 case "$JOBS" in
-    1) OUTPUT_SYNC="-Oline" ;;
+    1) OUTPUT_SYNC="-Oline"    ;;
     *) OUTPUT_SYNC="-Orecurse" ;;
 esac
 

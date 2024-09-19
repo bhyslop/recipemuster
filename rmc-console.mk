@@ -133,5 +133,17 @@ rmcgi.CreateGitIgnore.sh:
 	$(zRMC_PASS)
 
 
+#########################################
+#
+#  Test Tabtargets
+
+Tttl.TestTabtargetLauncher.sh:
+	@echo "RMC_PARAM_1:" $(RMC_PARAM_1)
+	@echo "RMC_PARAM_2:" $(RMC_PARAM_2)
+	@echo "RMC_PARAM_3:" $(RMC_PARAM_3)
+	@echo "RMC_PARAM_4:" $(RMC_PARAM_4)
+	$(zRMC_PASS)
+
+
 
 # EOF
