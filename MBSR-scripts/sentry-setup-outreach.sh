@@ -10,9 +10,7 @@ echo "Checking and displaying environment variables..."
 : ${DNS_SERVER:?}             && echo "DNS_SERVER=             $DNS_SERVER"
 : ${GUARDED_NETWORK_SUBNET:?} && echo "GUARDED_NETWORK_SUBNET= $GUARDED_NETWORK_SUBNET"
 
-echo "Setting up iptables rules for outbound access..."
-iptables -A FORWARD -i $GUARDED_INTERFACE -o $HOST_INTERFACE -p udp --dport 53 -j ACCEPT
-iptables -A FORWARD -i $GUARDED_INTERFACE -o $HOST_INTERFACE -p tcp --dport 53 -j ACCEPT
+echo "Setting up iptables rules for anthropic specific access..."
 iptables -A FORWARD -i $GUARDED_INTERFACE -o $HOST_INTERFACE -d 160.79.104.0/23 -j ACCEPT
 
 echo "Allow incoming DNS queries..."
