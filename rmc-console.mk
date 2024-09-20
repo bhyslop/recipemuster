@@ -51,10 +51,20 @@ zRMC_MAKE = $(MAKE) -f $(zRMC_THIS_MAKEFILE)
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zRMC_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
+
+# OUCH scrub this out eventually
+$(info RMC_PARAM_1: $(RMC_PARAM_1))
+$(info RMC_PARAM_2: $(RMC_PARAM_2))
+$(info RMC_PARAM_3: $(RMC_PARAM_3))
+$(info RMC_PARAM_4: $(RMC_PARAM_4))
+
+
+
 zRMC_MBSR_MAKEFILE := $(zRMC_TOOLS_DIR)/mbsr.MakefileBashSentryRogue.mk
 
-include $(zRMC_MBSR_MAKEFILE)
+MBSR_ARG_MONIKER := $(RMC_PARAM_2)
 
+include $(zRMC_MBSR_MAKEFILE)
 
 zRMC_MBSR_SUBMAKE = $(MAKE) -f $(zRMC_MBSR_MAKEFILE) MBSR_ARG_SUBMAKE_MBC=$(zRMC_MBC_MAKEFILE)
 

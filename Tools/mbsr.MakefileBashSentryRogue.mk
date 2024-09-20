@@ -28,10 +28,10 @@
 #  two containers.
 
 # This parameter selects a particular instance of an application.
-MBSR_ARG_MONIKER = ""
+MBSR_ARG_MONIKER ?= ""
 
 # If provided, the makefile that defines console variables.  Otherwise, no include
-MBSR_ARG_SUBMAKE_MBC =
+MBSR_ARG_SUBMAKE_MBC ?=
 
 
 # Internal variables start with 'z' for easy identification
