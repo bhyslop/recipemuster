@@ -11,10 +11,14 @@ This is highly personal action planning support.
 
 == THE TODO SHORTLIST
 
-. Get top level console working with the jupyter under fume hood
+. Make the github outreach thing function
 . Revise all filesystem names from MBSR to Recipe Muster 
 . Rename Rogue to Bottle
 . ???
+
+== MINIDRAMAS
+
+=== 
 
 == DEFERRED OPEN ISSUES
 
@@ -25,6 +29,7 @@ This section contains reminders about future improvements, deferred for now.
 ====
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
+* Scrub out all tabtargets for modern consistency
 * Get real clear if I think a docker container advertising a port gets external network view
 * Make the startup script for rogue standalone external too
 * Cut down the diagnostic IP utilities found all over the place
