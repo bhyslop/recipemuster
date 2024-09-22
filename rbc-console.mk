@@ -53,10 +53,10 @@ default:
 
 
 # OUCH scrub this out eventually
-$(info RBC_PARAM_1: $(RBC_PARAM_1))
-$(info RBC_PARAM_2: $(RBC_PARAM_2))
-$(info RBC_PARAM_3: $(RBC_PARAM_3))
-$(info RBC_PARAM_4: $(RBC_PARAM_4))
+$(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
+$(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
+$(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
+$(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
 
 
 
