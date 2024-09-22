@@ -1,13 +1,4 @@
 STEP 1/21: FROM python:3.12.6-slim-bookworm
-Resolved "python" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
-Trying to pull docker.io/library/python:3.12.6-slim-bookworm...
-Getting image source signatures
-Copying blob sha256:7ce703381f53066514e923208d550e9e04110767f773052481f7a627051799ae
-Copying blob sha256:a2318d6c47ec9cac5acc500c47c79602bcf953cec711a18bc898911a0984365b
-Copying blob sha256:e0175c87c1f4dd35ec6d9c24c73f6be94dbd52a1fd7fae8218c8c0b2865a6d00
-Copying blob sha256:bea1d778e3e05fb1de9d2ba1276e9a89ade4d63ae2c26df474777f4e97b4a5cf
-Copying config sha256:0d8d642b665d136b7a11d9f4a3d8a25b18deba7479b5897009fdee7e3fe1eb0e
-Writing manifest to image destination
 STEP 2/21: RUN apt-get update && apt-get install -y      iputils-ping                              iproute2                                  net-tools                                 dnsutils                                  curl                                      traceroute                                tcpdump                                   nmap                                      && rm -rf /var/lib/apt/lists/*
 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
@@ -15,7 +6,7 @@ Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB
 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8787 kB]
 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [2468 B]
 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [182 kB]
-Fetched 9226 kB in 14s (659 kB/s)
+Fetched 9226 kB in 4s (2510 kB/s)
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -103,7 +94,7 @@ Get:53 http://deb.debian.org/debian bookworm/main amd64 nmap amd64 7.93+dfsg1-1 
 Get:54 http://deb.debian.org/debian bookworm/main amd64 publicsuffix all 20230209.2326-1 [126 kB]
 Get:55 http://deb.debian.org/debian bookworm/main amd64 tcpdump amd64 4.99.3-1 [467 kB]
 debconf: delaying package configuration, since apt-utils is not installed
-Fetched 25.1 MB in 38s (653 kB/s)
+Fetched 25.1 MB in 21s (1201 kB/s)
 Selecting previously unselected package libdbus-1-3:amd64.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 6695 files and directories currently installed.)
 Preparing to unpack .../00-libdbus-1-3_1.14.10-1~deb12u1_amd64.deb ...
@@ -351,7 +342,7 @@ Setting up nmap (7.93+dfsg1-1) ...
 Setting up bind9-dnsutils (1:9.18.28-1~deb12u2) ...
 Setting up dnsutils (1:9.18.28-1~deb12u2) ...
 Processing triggers for libc-bin (2.36-9+deb12u8) ...
---> 2d30d83ee941
+--> 30d8e700659f
 STEP 3/21: RUN pip install --no-cache-dir GitPython
 Collecting GitPython
   Downloading GitPython-3.1.43-py3-none-any.whl.metadata (13 kB)
@@ -365,44 +356,44 @@ Downloading smmap-5.0.1-py3-none-any.whl (24 kB)
 Installing collected packages: smmap, gitdb, GitPython
 Successfully installed GitPython-3.1.43 gitdb-4.0.11 smmap-5.0.1
 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
---> fae819a40616
+--> 103cebeb6d39
 STEP 4/21: ARG NAMEPLATE_MONIKER
---> b9804d3ea2b1
+--> 6843c5bf7ec2
 STEP 5/21: ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
---> 390f3113bed7
+--> 132bacd0195a
 STEP 6/21: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
---> 2c2242feb48d
+--> 8626d3613678
 STEP 7/21: ARG JUPYTER_PORT
---> c41da866ab85
+--> 1bb4a3e4e3b6
 STEP 8/21: ENV JUPYTER_PORT=${JUPYTER_PORT}
---> 8778f7581619
+--> 083b773c61b4
 STEP 9/21: ARG ROGUE_IP
---> 9933bbaed45d
+--> 07530aa7ac59
 STEP 10/21: ENV ROGUE_IP=${ROGUE_IP}
---> e34cf3197566
+--> e75c6abcce3d
 STEP 11/21: ARG ROGUE_WORKDIR
---> 913e2a93d716
+--> 57148fd94763
 STEP 12/21: ENV ROGUE_WORKDIR=${ROGUE_WORKDIR}
---> c5fb268f9719
+--> 30c463831ba7
 STEP 13/21: ARG GUARDED_INTERFACE
---> 5530e9ab6333
+--> 6221cc18c8cd
 STEP 14/21: ENV GUARDED_INTERFACE=${GUARDED_INTERFACE}
---> 877903951d05
+--> fe617fe71e38
 STEP 15/21: ARG SENTRY_GUARDED_IP
---> 842e0439c707
+--> ea249fe24b82
 STEP 16/21: ENV SENTRY_GUARDED_IP=${SENTRY_GUARDED_IP}
---> 39a83ff82f84
+--> 8fda45b9ab1c
 STEP 17/21: ARG GUARDED_NETWORK_SUBNET
---> 84355d4abaa8
+--> e0718ca5f9ec
 STEP 18/21: ENV GUARDED_NETWORK_SUBNET=${GUARDED_NETWORK_SUBNET}
---> 6a594d49f884
+--> 35b2d4661c2c
 STEP 19/21: RUN     echo "net.ipv6.conf.all.disable_ipv6 = 1"              >> /etc/sysctl.conf  &&    echo "net.ipv6.conf.default.disable_ipv6 = 1"          >> /etc/sysctl.conf  &&    echo done
 done
---> 1c3742a55572
+--> 574032212707
 STEP 20/21: WORKDIR ${ROGUE_WORKDIR}
---> eab12ced4d5b
+--> 595fa358494a
 STEP 21/21: CMD ["/bin/bash"]
 COMMIT pyghm-rogue-image
---> 9f6cfe81a53a
+--> 5869a72bdec9
 Successfully tagged localhost/pyghm-rogue-image:latest
-9f6cfe81a53af3118ca65116518e09709f5f83bb246b4e13801987714b5bb568
+5869a72bdec9b73aeee50195ba44eefdee60f4fa08a301457cae4bf8e457db47
