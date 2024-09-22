@@ -189,6 +189,7 @@ rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
 	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)) > $(zRBM_LAST_ROGUE_LOGS_FACTFILE) 2>&1
+	false # DEBUG STARTS HERE
 	$(zRBM_STEP) "Inspecting the guarded network..."
 	podman network inspect $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Setup complete... Find jupyter at:"
