@@ -62,7 +62,7 @@ $(info RBC_PARAM_4: $(RBC_PARAM_4))
 
 zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
 
-RBM_ARG_MONIKER := $(RBC_PARAM_2)
+RBM_ARG_MONIKER := $(RBC_PARAMETER_2)
 
 include $(zRBC_RBM_MAKEFILE)
 

@@ -110,7 +110,7 @@ zrbm_argcheck_rule:
 	@$(zRBM_ARGCHECK_NONZERO_CMD)
 	@$(zRBM_ARGCHECK_NAMEPLATE_CMD)
 
-rbm-i.%.sh: zrbm_argcheck_rule
+rbm-i.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
@@ -215,12 +215,12 @@ rbm-tr__TestRogue.%.sh: zrbm_argcheck_rule
 rbm-ts__TestSentry.%.sh: zrbm_argcheck_rule
 	$(MBC_PASS) "No current tests."
 
-rbm-cr__ConnectRogue.%.sh: zrbm_argcheck_rule
+rbm-cr.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to ROGUE"
 	podman exec -it $(zRBM_ROGUE_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
-rbm-cs__ConnectSentry.%.sh: zrbm_argcheck_rule
+rbm-cs.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman exec -it $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(MBC_PASS) "Done, no errors."

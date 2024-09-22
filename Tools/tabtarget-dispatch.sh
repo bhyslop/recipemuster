@@ -42,13 +42,15 @@ esac
 # Split $EXE by '.' and store in an array
 IFS='.' read -ra EXE_PARTS <<< "$TABTARGET_BASENAME"
 
+echo "HERE:" $TABTARGET_BASENAME "and" $EXE_PARTS
+
 # Invoke make.  The tabtarget name
-make -f rbc-console.mk                             \
-    "$OUTPUT_SYNC" -j "$JOBS"                      \
-    "$TABTARGET_BASENAME"                          \
-    ${EXE_PARTS[0]:+RMC_PARAM_1="${EXE_PARTS[0]}"} \
-    ${EXE_PARTS[1]:+RMC_PARAM_2="${EXE_PARTS[1]}"} \
-    ${EXE_PARTS[2]:+RMC_PARAM_3="${EXE_PARTS[2]}"} \
-    ${EXE_PARTS[3]:+RMC_PARAM_4="${EXE_PARTS[3]}"} \
+make -f rbc-console.mk                                 \
+    "$OUTPUT_SYNC" -j "$JOBS"                          \
+    "$TABTARGET_BASENAME"                              \
+    ${EXE_PARTS[0]:+RBC_PARAMETER_0="${EXE_PARTS[0]}"} \
+    ${EXE_PARTS[1]:+RBC_PARAMETER_1="${EXE_PARTS[1]}"} \
+    ${EXE_PARTS[2]:+RBC_PARAMETER_2="${EXE_PARTS[2]}"} \
+    ${EXE_PARTS[3]:+RBC_PARAMETER_3="${EXE_PARTS[3]}"} \
     $ARGS
 
