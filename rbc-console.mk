@@ -89,11 +89,17 @@ rbm-A__BuildAndStartALL.sh:
 #  This section has examples of several sample nameplates, some
 #  of which are useful in maintaining this example space.
 
-pyghm-B__BuildPythonGithubMaintenance.sh:
+pyghm-B.BuildPythonGithubMaintenance.sh:
 	$(zRBC_STEP) "Assure podman services available..."
 	which podman
 	podman machine start || echo "Podman probably running already, lets go on..."
 	$(zRBC_RBM_SUBMAKE) rbm-BL.sh  RBM_ARG_MONIKER=pyghm
+
+pyghm-s.StartPythonGithubMaintenance.sh:
+	$(zRBC_STEP) "Assure podman services available..."
+	which podman
+	podman machine start || echo "Podman probably running already, lets go on..."
+	$(zRBC_RBM_SUBMAKE) rbm-s.sh  RBM_ARG_MONIKER=pyghm
 
 
 #######################################

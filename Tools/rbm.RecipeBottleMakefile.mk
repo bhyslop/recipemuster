@@ -148,7 +148,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_ROGUE_BUILD_FACTFILE)   2>&1
 	$(MBC_PASS) "Done, no errors."
 
-rbm-s__StartContainers.%.sh: zrbm_argcheck_rule
+rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
