@@ -24,7 +24,7 @@ RBN_OUTREACH_DOMAIN=anthropic.com
 
 # Volume mounts and app directories: 
 # Hmm, do I want a la carte or whole thing?
-RBN_APP_OUTER_DIR=./MBSR-environments-srjcl
+RBN_APP_OUTER_DIR=./RBM-environments-srjcl
 RBN_APP_INNER_DIR=/mnt/rogue-data
 
 # If an autostart command, specify

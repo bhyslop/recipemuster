@@ -110,12 +110,13 @@ zrbm_argcheck_rule:
 	@$(zRBM_ARGCHECK_NONZERO_CMD)
 	@$(zRBM_ARGCHECK_NAMEPLATE_CMD)
 
+
 rbm-i.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
 rbm-BL.%: zrbm_argcheck_rule
-	$(zRBM_START) "Start building recipes locally..."
+	$(zRBM_START) "BUILD RECIPES LOCALLY"
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
@@ -149,6 +150,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 rbm-s.%: zrbm_argcheck_rule
+	$(zRBM_START) "START THE RECIPE SERVICE"
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
@@ -189,7 +191,6 @@ rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
 	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)) > $(zRBM_LAST_ROGUE_LOGS_FACTFILE) 2>&1
-	false # DEBUG STARTS HERE
 	$(zRBM_STEP) "Inspecting the guarded network..."
 	podman network inspect $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Setup complete... Find jupyter at:"
@@ -200,7 +201,12 @@ rbm-s.%: zrbm_argcheck_rule
 # OUCH consider if keep parse of -> $ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages
 # OUCH decide what to keep of below
 
-rbm-tr__TestRogue.%.sh: zrbm_argcheck_rule
+rbm-ts.%: zrbm_argcheck_rule
+	$(zRBM_START) "TEST SENTRY ASPECTS OF SERVICE"
+	$(MBC_PASS) "No current tests."
+
+rbm-tr.%: zrbm_argcheck_rule
+	$(zRBM_START) "TEST ROGUE ASPECTS OF SERVICE"
 	$(zRBM_STEP) "Test 0: Verifying DNS forwarding..."
 	podman exec $(zRBM_ROGUE_CONTAINER) nslookup api.anthropic.com || (echo "FAIL: ROGUE unable to resolve critical domain name" && exit 1)
 	$(zRBM_STEP) "Test 1: Checking if ROGUE can reach allowed domains..."
@@ -212,9 +218,6 @@ rbm-tr__TestRogue.%.sh: zrbm_argcheck_rule
 	$(zRBM_STEP) "Test 2: Verifying Jupyter accessibility..."
 	curl -s -o /dev/null -w "%{http_code}" http://localhost:$(zRBM_SENTRY_JUPYTER_PORT) | grep 200 || (echo "FAIL: Jupyter not accessible" && exit 1)
 	$(zRBM_STEP) "All security tests passed successfully."
-
-rbm-ts__TestSentry.%.sh: zrbm_argcheck_rule
-	$(MBC_PASS) "No current tests."
 
 rbm-cr.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to ROGUE"
