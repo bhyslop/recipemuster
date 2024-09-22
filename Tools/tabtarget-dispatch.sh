@@ -43,7 +43,7 @@ esac
 IFS='.' read -ra EXE_PARTS <<< "$TABTARGET_BASENAME"
 
 # Invoke make.  The tabtarget name
-make -f rmc-console.mk                             \
+make -f rbc-console.mk                             \
     "$OUTPUT_SYNC" -j "$JOBS"                      \
     "$TABTARGET_BASENAME"                          \
     ${EXE_PARTS[0]:+RMC_PARAM_1="${EXE_PARTS[0]}"} \

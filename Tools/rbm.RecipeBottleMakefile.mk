@@ -70,7 +70,8 @@ zRBM_ROGUE_JUPYTER_PORT       = $(RBM_NAMEPLATE_PORT_GUARDED)
 zRBM_ROGUE_WORKDIR            = $(RBM_NAMEPLATE_APP_INNER_DIR)
 zRBM_ROGUE_MOUNT_DIR          = $(RBM_NAMEPLATE_APP_OUTER_DIR)
 
-zRBM_STEP = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
+zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
+zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
 zRBM_SENTRY_DOCKERFILE = $(zRBM_DOCKERFILE_DIR)/$(RBM_ARG_MONIKER).sentry.dockerfile
 zRBM_ROGUE_DOCKERFILE  = $(zRBM_DOCKERFILE_DIR)/$(RBM_ARG_MONIKER).rogue.dockerfile
@@ -99,8 +100,8 @@ zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"                      ||
 
 zRBM_ARGCHECK_NAMEPLATE_CMD = test "$(RBM_ARG_MONIKER)" = "$(RBM_NAMEPLATE_MONIKER)" || (\
   $(MBC_SEE_RED) "Error: Rule only works if proper moniker selection.  Mismatch:"   &&\
-  $(MBC_SEE_RED) "      RBM_ARG_MONIKER       =" $(RBM_ARG_MONIKER)               &&\
-  $(MBC_SEE_RED) "      RBM_NAMEPLATE_MONIKER =" $(RBM_NAMEPLATE_MONIKER)         &&\
+  $(MBC_SEE_RED) "      RBM_ARG_MONIKER       =" $(RBM_ARG_MONIKER)                 &&\
+  $(MBC_SEE_RED) "      RBM_NAMEPLATE_MONIKER =" $(RBM_NAMEPLATE_MONIKER)           &&\
   exit 1)
 
 zrbm_argcheck_rule:
@@ -109,16 +110,18 @@ zrbm_argcheck_rule:
 	@$(zRBM_ARGCHECK_NONZERO_CMD)
 	@$(zRBM_ARGCHECK_NAMEPLATE_CMD)
 
-rbm-i__Info.%.sh: zrbm_argcheck_rule
+rbm-i.%.sh: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
-rbm-B__BuildImages.%.sh: zrbm_argcheck_rule
+# Build Local Images
+rbm-BL.%.sh: zrbm_argcheck_rule
+	$(zRBM_START) "Start building recipes locally..."
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
-	-podman rmi -f                                $(zRBM_SENTRY_IMAGE)
-	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)  \
+	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
+	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
 	  --build-arg NAMEPLATE_MONIKER=$(RBM_NAMEPLATE_MONIKER)            \
 	  --build-arg DNS_SERVER=$(zRBM_DNS)                                \
 	  --build-arg NETWORK_MASK=$(zRBM_GUARDED_NETMASK)                  \
