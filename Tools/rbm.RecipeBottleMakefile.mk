@@ -41,13 +41,13 @@ zRBM_MAKE = $(MAKE) -f $(zRBM_ME)
 
 zRBM_LOCALHOST_IP = 127.0.0.1
 
-zRBM_NAMEPLATE_DIR     = ./RBM-nameplates
+zRBN_DIR     = ./RBM-nameplates
 zRBM_DOCKERFILE_DIR    = ./RBM-dockerfiles
 zRBM_BUILD_CONTEXT_DIR = ./RBM-build-context
 zRBM_TRANSCRIPTS_DIR   = ./RBM-transcripts
 zRBM_SCRIPTS_DIR       = ./RBM-scripts
 
-zRBM_NAMEPLATE_FILE     = $(zRBM_NAMEPLATE_DIR)/nameplate.$(RBM_ARG_MONIKER).sh
+zRBN_FILE     = $(zRBN_DIR)/nameplate.$(RBM_ARG_MONIKER).sh
 
 
 # Argument is path to the console rules to allow this makefile to be sub-make'd not included
@@ -55,20 +55,20 @@ ifneq ($(strip $(RBM_ARG_SUBMAKE_MBC)),)
 include        $(RBM_ARG_SUBMAKE_MBC)
 endif
 
--include $(zRBM_NAMEPLATE_FILE)
+-include $(zRBN_FILE)
 
 # Network and interface variables
 zRBM_GUARDED_NETMASK          = 16
-zRBM_GUARDED_NETWORK_SUBNET   = $(RBM_NAMEPLATE_IP_HACK).0.0/$(zRBM_GUARDED_NETMASK)
-zRBM_HOST_GATEWAY             = $(RBM_NAMEPLATE_IP_HACK).0.1
-zRBM_SENTRY_GUARDED_IP        = $(RBM_NAMEPLATE_IP_HACK).0.2
-zRBM_ROGUE_IP                 = $(RBM_NAMEPLATE_IP_HACK).0.3
+zRBM_GUARDED_NETWORK_SUBNET   = $(RBN_IP_HACK).0.0/$(zRBM_GUARDED_NETMASK)
+zRBM_HOST_GATEWAY             = $(RBN_IP_HACK).0.1
+zRBM_SENTRY_GUARDED_IP        = $(RBN_IP_HACK).0.2
+zRBM_ROGUE_IP                 = $(RBN_IP_HACK).0.3
 zRBM_SENTRY_HOST_INTERFACE    = eth0
 zRBM_SENTRY_GUARDED_INTERFACE = eth1
-zRBM_SENTRY_JUPYTER_PORT      = $(RBM_NAMEPLATE_PORT_HOST)
-zRBM_ROGUE_JUPYTER_PORT       = $(RBM_NAMEPLATE_PORT_GUARDED)
-zRBM_ROGUE_WORKDIR            = $(RBM_NAMEPLATE_APP_INNER_DIR)
-zRBM_ROGUE_MOUNT_DIR          = $(RBM_NAMEPLATE_APP_OUTER_DIR)
+zRBM_SENTRY_JUPYTER_PORT      = $(RBN_PORT_HOST)
+zRBM_ROGUE_JUPYTER_PORT       = $(RBN_PORT_GUARDED)
+zRBM_ROGUE_WORKDIR            = $(RBN_APP_INNER_DIR)
+zRBM_ROGUE_MOUNT_DIR          = $(RBN_APP_OUTER_DIR)
 
 zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
@@ -98,15 +98,15 @@ zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"                      ||
   $(MBC_SEE_RED) "Error: RBM_ARG_MONIKER must be set in the tabtarget."    &&\
   exit 1)
 
-zRBM_ARGCHECK_NAMEPLATE_CMD = test "$(RBM_ARG_MONIKER)" = "$(RBM_NAMEPLATE_MONIKER)" || (\
+zRBM_ARGCHECK_NAMEPLATE_CMD = test "$(RBM_ARG_MONIKER)" = "$(RBN_MONIKER)" || (\
   $(MBC_SEE_RED) "Error: Rule only works if proper moniker selection.  Mismatch:"   &&\
   $(MBC_SEE_RED) "      RBM_ARG_MONIKER       =" $(RBM_ARG_MONIKER)                 &&\
-  $(MBC_SEE_RED) "      RBM_NAMEPLATE_MONIKER =" $(RBM_NAMEPLATE_MONIKER)           &&\
+  $(MBC_SEE_RED) "      RBN_MONIKER =" $(RBN_MONIKER)           &&\
   exit 1)
 
 zrbm_argcheck_rule:
 	@echo RBM_ARG_MONIKER is $(RBM_ARG_MONIKER)
-	@echo RBM_NAMEPLATE_MONIKER is $(RBM_NAMEPLATE_MONIKER)
+	@echo RBN_MONIKER is $(RBN_MONIKER)
 	@$(zRBM_ARGCHECK_NONZERO_CMD)
 	@$(zRBM_ARGCHECK_NAMEPLATE_CMD)
 
@@ -122,7 +122,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
 	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
 	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
-	  --build-arg NAMEPLATE_MONIKER=$(RBM_NAMEPLATE_MONIKER)            \
+	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)            \
 	  --build-arg DNS_SERVER=$(zRBM_DNS)                                \
 	  --build-arg NETWORK_MASK=$(zRBM_GUARDED_NETMASK)                  \
 	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \
@@ -137,7 +137,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
 	-podman rmi -f                               $(zRBM_ROGUE_IMAGE)
 	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)    \
-	  --build-arg NAMEPLATE_MONIKER=$(RBM_NAMEPLATE_MONIKER)            \
+	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)            \
 	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \
 	  --build-arg JUPYTER_PORT=$(zRBM_ROGUE_JUPYTER_PORT)               \
 	  --build-arg ROGUE_WORKDIR=$(zRBM_ROGUE_WORKDIR)                   \
