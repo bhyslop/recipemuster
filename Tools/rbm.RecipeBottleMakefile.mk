@@ -119,18 +119,22 @@ rbm-P.SetupPodman.sh:
 	   echo $$GITHUB_GHCR_PLAY_PAT | podman login ghcr.io -u $$GITHUB_GHCR_PLAY_USERNAME --password-stdin
 	$(MBC_PASS) "Done, no errors."
 
+
 # OUCH username pullout
+# OUCH this hasn't ever worked, there is something about the permissions and package
+#      creation which is mystically vague in github documentation.
+#
+# Restarting with intent to build at github: ref https://claude.ai/chat/289d9ff9-1767-45e7-8b63-8ac5781dbbce
+
 rbm-Sbcrc.StudyBasicContainerRegistryCycle.sh:
 	$(zRBM_START) "CARRY OUT A NOTIONAL CYCLE TO USE THE CONTAINER REGISTRY"
-	$(zRBM_STEP)  "Building image..."
-	podman build -t ghcr.io/bhyslop/recipemuster/hello-world:v1 Study/study-basic-container-registry-cycle
-	$(zRBM_STEP)  "Pushing image..."
-	podman push     ghcr.io/bhyslop/recipemuster/hello-world:v1
+	@echo "Debug: Current user is $$(whoami)"
+	@echo "Debug: Podman version: $$(podman version --format '{{.Client.Version}}')"
 	$(zRBM_STEP)  "Pulling image..."
-	podman pull     ghcr.io/bhyslop/recipemuster/hello-world:v1
+	podman pull ghcr.io/bhyslop/recipemuster:hello-world-v1
 	$(zRBM_STEP)  "Running image..."
-	podman run      ghcr.io/bhyslop/recipemuster/hello-world:v1
-	$(MBC_PASS) "Done, no errors."
+	podman run ghcr.io/bhyslop/recipemuster:hello-world-v1
+	$(MBC_PASS) "Done, no errors."	$(MBC_PASS) "Done, no errors."
 
 
 rbm-i.%: zrbm_argcheck_rule
