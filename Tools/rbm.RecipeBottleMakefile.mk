@@ -134,7 +134,7 @@ rbm-Sbcrc.StudyBasicContainerRegistryCycle.sh:
 	podman pull ghcr.io/bhyslop/recipemuster:hello-world-v1
 	$(zRBM_STEP)  "Running image..."
 	podman run ghcr.io/bhyslop/recipemuster:hello-world-v1
-	$(MBC_PASS) "Done, no errors."	$(MBC_PASS) "Done, no errors."
+	$(MBC_PASS) "Done, no errors."
 
 
 rbm-i.%: zrbm_argcheck_rule
