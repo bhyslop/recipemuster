@@ -93,8 +93,7 @@ pyghm-B__BuildPythonGithubMaintenance.sh:
 	$(zRBC_STEP) "Assure podman services available..."
 	which podman
 	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zRBC_RBM_SUBMAKE) rbm-B__BuildImages.pyghm.sh  \
-	                        RBM_ARG_MONIKER=pyghm
+	$(zRBC_RBM_SUBMAKE) rbm-BL.sh  RBM_ARG_MONIKER=pyghm
 
 
 #######################################

@@ -113,8 +113,8 @@ zrbm_argcheck_rule:
 rbm-i.%.sh: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
-# Build Local Images
-rbm-BL.%.sh: zrbm_argcheck_rule
+
+rbm-BL.%: zrbm_argcheck_rule
 	$(zRBM_START) "Start building recipes locally..."
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
