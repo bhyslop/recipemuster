@@ -15,13 +15,13 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 
-# View interim official at: https://github.com/bhyslop/recipemuster/rmc-console.mk
+# View interim official at: https://github.com/bhyslop/recipemuster/rbc-console.mk
 # View planner at: https://github.com/bhyslop/recipemuster/tree/main/PRIVATE_PLANNER
 
 # Prefix used to distinguish commentary created by this makefile
-zRMC_THIS_MAKEFILE = rmc-console.mk
+zRBC_THIS_MAKEFILE = rbc-console.mk
 
-zRMC_TOOLS_DIR     = Tools
+zRBC_TOOLS_DIR     = Tools
 
 #########################
 # Makefile Bash Console
@@ -29,16 +29,16 @@ zRMC_TOOLS_DIR     = Tools
 # This is a sub makefile that contains several canned basic macros
 # that help with very regular cons
 
-zRMC_MBC_MAKEFILE = $(zRMC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+zRBC_MBC_MAKEFILE = $(zRBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 
 # Configure the sub makefile
-MBC_ARG__CONTEXT_STRING = $(zRMC_THIS_MAKEFILE)
+MBC_ARG__CONTEXT_STRING = $(zRBC_THIS_MAKEFILE)
 
-include $(zRMC_MBC_MAKEFILE)
+include $(zRBC_MBC_MAKEFILE)
 
-zRMC_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
-zRMC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
-zRMC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
+zRBC_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
+zRBC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
+zRBC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 
 
 # Use this to allow a console make target to explicitly trigger other
@@ -46,40 +46,40 @@ zRMC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 #   rules function in 'big test cases': for efficiency, better to use
 #   explicit fine grained make dependencies so that make can make it
 #   efficient.
-zRMC_MAKE = $(MAKE) -f $(zRMC_THIS_MAKEFILE)
+zRBC_MAKE = $(MAKE) -f $(zRBC_THIS_MAKEFILE)
 
 default:
-	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zRMC_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
+	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zRBC_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
 
 # OUCH scrub this out eventually
-$(info RMC_PARAM_1: $(RMC_PARAM_1))
-$(info RMC_PARAM_2: $(RMC_PARAM_2))
-$(info RMC_PARAM_3: $(RMC_PARAM_3))
-$(info RMC_PARAM_4: $(RMC_PARAM_4))
+$(info RBC_PARAM_1: $(RBC_PARAM_1))
+$(info RBC_PARAM_2: $(RBC_PARAM_2))
+$(info RBC_PARAM_3: $(RBC_PARAM_3))
+$(info RBC_PARAM_4: $(RBC_PARAM_4))
 
 
 
-zRMC_MBSR_MAKEFILE := $(zRMC_TOOLS_DIR)/mbsr.MakefileBashSentryRogue.mk
+zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.MakefileBashSentryRogue.mk
 
-MBSR_ARG_MONIKER := $(RMC_PARAM_2)
+RBM_ARG_MONIKER := $(RBC_PARAM_2)
 
-include $(zRMC_MBSR_MAKEFILE)
+include $(zRBC_RBM_MAKEFILE)
 
-zRMC_MBSR_SUBMAKE = $(MAKE) -f $(zRMC_MBSR_MAKEFILE) MBSR_ARG_SUBMAKE_MBC=$(zRMC_MBC_MAKEFILE)
+zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MBC_MAKEFILE)
 
-mbsr-A__BuildAndStartALL.sh:
-	$(zRMC_STEP) "Assure podman services available..."
+rbm-A__BuildAndStartALL.sh:
+	$(zRBC_STEP) "Assure podman services available..."
 	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zRMC_STEP) "Use" $(zMBSR_MAKE) "to recurse..."
-	$(zRMC_MBSR_SUBMAKE) mbsr-B__BuildImages.srjcl.sh  \
-	                        MBSR_ARG_MONIKER=srjcl
-	$(zRMC_MBSR_SUBMAKE) mbsr-B__BuildImages.srjsv.sh  \
-	                        MBSR_ARG_MONIKER=srjsv
-	$(zRMC_MBSR_SUBMAKE) mbsr-s__StartContainers.srjcl.sh  \
-	                            MBSR_ARG_MONIKER=srjcl
-	$(zRMC_MBSR_SUBMAKE) mbsr-s__StartContainers.srjsv.sh  \
-	                            MBSR_ARG_MONIKER=srjsv
+	$(zRBC_STEP) "Use" $(zRBM_MAKE) "to recurse..."
+	$(zRBC_RBM_SUBMAKE) rbm-B__BuildImages.srjcl.sh  \
+	                        RBM_ARG_MONIKER=srjcl
+	$(zRBC_RBM_SUBMAKE) rbm-B__BuildImages.srjsv.sh  \
+	                        RBM_ARG_MONIKER=srjsv
+	$(zRBC_RBM_SUBMAKE) rbm-s__StartContainers.srjcl.sh  \
+	                            RBM_ARG_MONIKER=srjcl
+	$(zRBC_RBM_SUBMAKE) rbm-s__StartContainers.srjsv.sh  \
+	                            RBM_ARG_MONIKER=srjsv
 	$(MBC_PASS) "Done, no errors."
 
 
@@ -90,11 +90,11 @@ mbsr-A__BuildAndStartALL.sh:
 #  of which are useful in maintaining this example space.
 
 pyghm-B__BuildPythonGithubMaintenance.sh:
-	$(zRMC_STEP) "Assure podman services available..."
+	$(zRBC_STEP) "Assure podman services available..."
 	which podman
 	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zRMC_MBSR_SUBMAKE) mbsr-B__BuildImages.pyghm.sh  \
-	                        MBSR_ARG_MONIKER=pyghm
+	$(zRBC_RBM_SUBMAKE) rbm-B__BuildImages.pyghm.sh  \
+	                        RBM_ARG_MONIKER=pyghm
 
 
 #######################################
@@ -103,20 +103,20 @@ pyghm-B__BuildPythonGithubMaintenance.sh:
 #  Helps you create default form tabtargets in right place.
 
 # Location for tabtargets relative to top level project directory
-zRMC_TABTARGET_DIR  = ./tt
+zRBC_TABTARGET_DIR  = ./tt
 
 # Parameter from the tabtarget: what is the full name of the new tabtarget
-RMC_TABTARGET_NAME = 
+RBC_TABTARGET_NAME = 
 
-zRMC_TABTARGET_FILE = $(zRMC_TABTARGET_DIR)/$(RMC_TABTARGET_NAME)
+zRBC_TABTARGET_FILE = $(zRBC_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
 
 ttc.CreateTabtarget.sh:
-	@test -n "$(RMC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
-	@echo '#!/bin/sh' > $(zRMC_TABTARGET_FILE)
+	@test -n "$(RBC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
+	@echo '#!/bin/sh' > $(zRBC_TABTARGET_FILE)
 	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
-	                 >> $(zRMC_TABTARGET_FILE)
-	@chmod +x           $(zRMC_TABTARGET_FILE)
-	$(zRMC_PASS)
+	                 >> $(zRBC_TABTARGET_FILE)
+	@chmod +x           $(zRBC_TABTARGET_FILE)
+	$(zRBC_PASS)
 
 
 #######################################
@@ -125,22 +125,22 @@ ttc.CreateTabtarget.sh:
 #  Due to filesystem handle entanglements, Slickedit doesn't play well
 #  with git.  This tabtarget places a usable copy in a .gitignored location
 
-zRMC_SLICKEDIT_PROJECT_DIR = ./_slickedit
+zRBC_SLICKEDIT_PROJECT_DIR = ./_slickedit
 
 vsr.ReplaceSlickEditWorkspace.sh:
-	mkdir -p                                           $(zRMC_SLICKEDIT_PROJECT_DIR)
-	-rm -rf                                            $(zRMC_SLICKEDIT_PROJECT_DIR)/*
-	cp $(zRMC_TOOLS_DIR)/vsep_VisualSlickEditProject/* $(zRMC_SLICKEDIT_PROJECT_DIR)
-	$(zRMC_PASS)
+	mkdir -p                                           $(zRBC_SLICKEDIT_PROJECT_DIR)
+	-rm -rf                                            $(zRBC_SLICKEDIT_PROJECT_DIR)/*
+	cp $(zRBC_TOOLS_DIR)/vsep_VisualSlickEditProject/* $(zRBC_SLICKEDIT_PROJECT_DIR)
+	$(zRBC_PASS)
 
-RMC_PARAM_DIR = 
+RBC_PARAM_DIR = 
 
-rmcgi.CreateGitIgnore.sh:
-	@test -n             "$(RMC_PARAM_DIR)" || { echo "Must provide dir name arg"; exit 1; }
-	mkdir -p              $(RMC_PARAM_DIR)
-	echo "*"            > $(RMC_PARAM_DIR)/.gitignore
-	echo "!.gitignore" >> $(RMC_PARAM_DIR)/.gitignore
-	$(zRMC_PASS)
+rbcgi.CreateGitIgnore.sh:
+	@test -n             "$(RBC_PARAM_DIR)" || { echo "Must provide dir name arg"; exit 1; }
+	mkdir -p              $(RBC_PARAM_DIR)
+	echo "*"            > $(RBC_PARAM_DIR)/.gitignore
+	echo "!.gitignore" >> $(RBC_PARAM_DIR)/.gitignore
+	$(zRBC_PASS)
 
 
 #########################################
@@ -148,11 +148,11 @@ rmcgi.CreateGitIgnore.sh:
 #  Test Tabtargets
 
 Tttl.TestTabtargetLauncher.sh:
-	@echo "RMC_PARAM_1:" $(RMC_PARAM_1)
-	@echo "RMC_PARAM_2:" $(RMC_PARAM_2)
-	@echo "RMC_PARAM_3:" $(RMC_PARAM_3)
-	@echo "RMC_PARAM_4:" $(RMC_PARAM_4)
-	$(zRMC_PASS)
+	@echo "RBC_PARAM_1:" $(RBC_PARAM_1)
+	@echo "RBC_PARAM_2:" $(RBC_PARAM_2)
+	@echo "RBC_PARAM_3:" $(RBC_PARAM_3)
+	@echo "RBC_PARAM_4:" $(RBC_PARAM_4)
+	$(zRBC_PASS)
 
 
 
