@@ -42,8 +42,6 @@ esac
 # Split $EXE by '.' and store in an array
 IFS='.' read -ra EXE_PARTS <<< "$TABTARGET_BASENAME"
 
-echo "HERE:" $TABTARGET_BASENAME "and" $EXE_PARTS
-
 # Invoke make.  The tabtarget name
 make -f rbc-console.mk                                 \
     "$OUTPUT_SYNC" -j "$JOBS"                          \
