@@ -110,6 +110,14 @@ zrbm_argcheck_rule:
 	@$(zRBM_ARGCHECK_NONZERO_CMD)
 	@$(zRBM_ARGCHECK_NAMEPLATE_CMD)
 
+# OUCH make a user level RBM config file...
+rbm-P.SetupPodman.sh:
+	$(zRBM_START) "SETUP PODMAN SESSION"
+	-podman machine stop
+	podman machine start
+	@source ../secrets/github-ghcr-play.env &&\
+	   echo $$GITHUB_GHCR_PLAY_PAT | podman login ghcr.io -u $$GITHUB_GHCR_PLAY_USERNAME --password-stdin
+	$(MBC_PASS) "Done, no errors."
 
 rbm-i.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
