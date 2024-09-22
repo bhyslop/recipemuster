@@ -1,4 +1,4 @@
-name: Build and Push Container with Metrics
+name: Build and Push Multiple Containers with Metrics
 
 on:
   push:
@@ -9,6 +9,15 @@ on:
 
 jobs:
   build-and-push:
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Study/study-basic-container-registry-cycle/Dockerfile
+            image: ghcr.io/bhyslop/recipemuster:hello-world-v1
+          # Add more Dockerfile entries as needed, for example:
+          # - dockerfile: path/to/another/Dockerfile
+          #   image: ghcr.io/bhyslop/recipemuster:another-image
+
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
@@ -16,15 +25,15 @@ jobs:
 
     - name: Calculate Dockerfile hash
       id: dockerfile-hash
-      run: echo "::set-output name=hash::$(md5sum Study/study-basic-container-registry-cycle/Dockerfile | awk '{ print $1 }')"
+      run: echo "::set-output name=hash::$(md5sum ${{ matrix.dockerfile }} | awk '{ print $1 }')"
 
     - name: Cache Docker layers
       uses: actions/cache@v2
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ steps.dockerfile-hash.outputs.hash }}
+        key: ${{ runner.os }}-buildx-${{ matrix.image }}-${{ steps.dockerfile-hash.outputs.hash }}
         restore-keys: |
-          ${{ runner.os }}-buildx-
+          ${{ runner.os }}-buildx-${{ matrix.image }}-
 
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v1
@@ -39,12 +48,14 @@ jobs:
     - name: Get start time
       run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
 
-    - name: Build and push Docker image
+    - name: Build Docker image
       uses: docker/build-push-action@v2
       with:
-        context: Study/study-basic-container-registry-cycle
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ghcr.io/bhyslop/recipemuster:hello-world-v1
+        context: ${{ github.workspace }}
+        file: ${{ matrix.dockerfile }}
+        push: false
+        load: true
+        tags: ${{ matrix.image }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -57,7 +68,7 @@ jobs:
 
     - name: Check image size
       run: |
-        IMAGE_SIZE=$(docker image inspect ghcr.io/bhyslop/recipemuster:hello-world-v1 --format='{{.Size}}')
+        IMAGE_SIZE=$(docker image inspect ${{ matrix.image }} --format='{{.Size}}')
         IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
         echo "Image size: $IMAGE_SIZE_MB MB"
         echo "IMAGE_SIZE=$IMAGE_SIZE_MB" >> $GITHUB_ENV
@@ -70,9 +81,14 @@ jobs:
 
     - name: Report metrics
       run: |
+        echo "Image: ${{ matrix.image }}"
         echo "Build Duration: $BUILD_DURATION seconds"
         echo "Image Size: $IMAGE_SIZE MB"
         echo "Disk Usage: $DISK_USAGE"
+
+    - name: Push Docker image
+      if: github.event_name != 'pull_request'
+      run: docker push ${{ matrix.image }}
 
     - name: Move cache
       run: |
