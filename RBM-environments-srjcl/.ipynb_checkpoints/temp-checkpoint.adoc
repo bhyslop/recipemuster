@@ -1,8 +1,0 @@
-= This is an AsciiDoc Header
-
-Here's some *bold text* and _italic text_.
-
-== A list:
-. First item
-. Second item
-. Third item
