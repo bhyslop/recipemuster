@@ -1,2 +1,3 @@
 /startup.sh: 2: sysctl: not found
 Disable nag: Would you like to receive official Jupyter news?
+Starting with JupyterLab 4.1 individual plugins can be re-enabled in the user interface. While all plugins which were previously disabled have been locked, you need to explicitly lock any newly disabled plugins by using `jupyter labextension lock` command.
