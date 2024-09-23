@@ -28,6 +28,8 @@ This section contains reminders about future improvements, deferred for now.
 
 [NOTE]
 ====
+* Pull all build arguments out of dockerfiles, and instead introduce them into the makefile environment
+* Riddle a way to manage versioned docker images
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
 * Scrub out all tabtargets for modern consistency
