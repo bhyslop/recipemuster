@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir anthropic
 # Critical arg/env for distinguishing this instance from others like it (no shared image accidents)
 ARG NAMEPLATE_MONIKER
 ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
-# write a file so that following env vars are distinc
+# write a file so that following env vars are distinct
 RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
 
 # Define build arguments and set environment variables

@@ -41,13 +41,13 @@ zRBM_MAKE = $(MAKE) -f $(zRBM_ME)
 
 zRBM_LOCALHOST_IP = 127.0.0.1
 
-zRBN_DIR     = ./RBM-nameplates
+zRBM_NAMEPLATE_DIR     = ./RBM-nameplates
 zRBM_DOCKERFILE_DIR    = ./RBM-dockerfiles
 zRBM_BUILD_CONTEXT_DIR = ./RBM-build-context
 zRBM_TRANSCRIPTS_DIR   = ./RBM-transcripts
 zRBM_SCRIPTS_DIR       = ./RBM-scripts
 
-zRBN_FILE     = $(zRBN_DIR)/nameplate.$(RBM_ARG_MONIKER).sh
+zRBM_NAMEPLATE_FILE    = $(zRBM_NAMEPLATE_DIR)/nameplate.$(RBM_ARG_MONIKER).sh
 
 
 # Argument is path to the console rules to allow this makefile to be sub-make'd not included
@@ -55,7 +55,7 @@ ifneq ($(strip $(RBM_ARG_SUBMAKE_MBC)),)
 include        $(RBM_ARG_SUBMAKE_MBC)
 endif
 
--include $(zRBN_FILE)
+-include $(zRBM_NAMEPLATE_FILE)
 
 # Network and interface variables
 zRBM_GUARDED_NETMASK          = 16
@@ -149,7 +149,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
 	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
 	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
-	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)            \
+	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)                      \
 	  --build-arg DNS_SERVER=$(zRBM_DNS)                                \
 	  --build-arg NETWORK_MASK=$(zRBM_GUARDED_NETMASK)                  \
 	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \
@@ -159,19 +159,19 @@ rbm-BL.%: zrbm_argcheck_rule
 	  --build-arg HOST_INTERFACE=$(zRBM_SENTRY_HOST_INTERFACE)          \
 	  --build-arg SENTRY_GUARDED_IP=$(zRBM_SENTRY_GUARDED_IP)           \
 	  --build-arg GUARDED_NETWORK_SUBNET=$(zRBM_GUARDED_NETWORK_SUBNET) \
-	  --progress=plain                                                   \
+	  --progress=plain                                                  \
 	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_SENTRY_BUILD_FACTFILE)  2>&1
 	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
 	-podman rmi -f                               $(zRBM_ROGUE_IMAGE)
-	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)    \
-	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)            \
+	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)     \
+	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)                      \
 	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \
 	  --build-arg JUPYTER_PORT=$(zRBM_ROGUE_JUPYTER_PORT)               \
 	  --build-arg ROGUE_WORKDIR=$(zRBM_ROGUE_WORKDIR)                   \
 	  --build-arg GUARDED_INTERFACE=$(zRBM_SENTRY_GUARDED_INTERFACE)    \
 	  --build-arg SENTRY_GUARDED_IP=$(zRBM_SENTRY_GUARDED_IP)           \
 	  --build-arg GUARDED_NETWORK_SUBNET=$(zRBM_GUARDED_NETWORK_SUBNET) \
-	  --progress=plain                                                   \
+	  --progress=plain                                                  \
 	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_ROGUE_BUILD_FACTFILE)   2>&1
 	$(MBC_PASS) "Done, no errors."
 
@@ -227,11 +227,11 @@ rbm-s.%: zrbm_argcheck_rule
 # OUCH consider if keep parse of -> $ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages
 # OUCH decide what to keep of below
 
-rbm-ts.%: zrbm_argcheck_rule
+rbm-Ts.%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST SENTRY ASPECTS OF SERVICE"
 	$(MBC_PASS) "No current tests."
 
-rbm-tr.%: zrbm_argcheck_rule
+rbm-Tr.%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST ROGUE ASPECTS OF SERVICE"
 	$(zRBM_STEP) "Test 0: Verifying DNS forwarding..."
 	podman exec $(zRBM_ROGUE_CONTAINER) nslookup api.anthropic.com || (echo "FAIL: ROGUE unable to resolve critical domain name" && exit 1)
