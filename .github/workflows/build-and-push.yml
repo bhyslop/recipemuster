@@ -1,11 +1,13 @@
 name: Build and Push Multiple Containers with Metrics
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  # I've disabled all triggers while I figure out how I want to go forward here
+  #
+  #push:
+  #  branches: [ main ]
+  #pull_request:
+  #  branches: [ main ]
+  #workflow_dispatch:
 
 jobs:
   build-and-push:

@@ -19,7 +19,18 @@ This is highly personal action planning support.
 
 == MINIDRAMAS
 
-=== Minidrama: 
+=== Minidrama: Versioning Docker Images in the Cloud
+
+I don't know precisely why this is such a no-see-um (funname?) topic.
+Really very little traction, and I want the problem to go away.
+But it won't...
+
+Name and a User and a Tag and nothing else?
+Tag as date?
+
+Need good listing features, that's an easy one.
+Why not camp on that?
+For starters?
 
 == DEFERRED OPEN ISSUES
 
