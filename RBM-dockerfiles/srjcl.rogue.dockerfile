@@ -53,13 +53,13 @@ RUN echo '#!/bin/sh'                                                            
          '--ServerApp.password=""'                            \
          '--ServerApp.authenticate_prometheus=False'          \
          '--ServerApp.base_url=${JUPYTER_BASE_URL}'           \
-         '--notebook-dir=${ROGUE_WORKDIR}'                    \
+         '--notebook-dir=${RBEV_ROGUE_WORKDIR}'               \
                                                                                         >>  /startup.sh  &&\
     echo 'tail -f /dev/null' >>                                                             /startup.sh  &&\
     chmod +x                                                                                /startup.sh
 
 # Expose the Jupyter port
-EXPOSE ${JUPYTER_PORT}
+EXPOSE ${RBEV_ROGUE_JUPYTER_PORT}
 
 # Use the startup script as the entry point
 CMD ["/startup.sh"]

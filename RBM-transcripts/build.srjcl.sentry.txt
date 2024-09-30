@@ -1,53 +1,17 @@
-STEP 1/24: FROM alpine:latest
-STEP 2/24: RUN apk update && apk add --no-cache     iputils     iproute2     net-tools     bind-tools     curl     traceroute     tcpdump     nmap     iptables     dnsmasq     socat   && echo done
+STEP 1/6: FROM alpine:latest
+STEP 2/6: RUN apk update && apk add --no-cache     iputils     iproute2     net-tools     bind-tools     curl     traceroute     tcpdump     nmap     iptables     dnsmasq     socat   && echo done
 --> Using cache a5345f7b26d50f93f2df69978b782db6c54070c0c2d2f9e267d807987d1d5c1e
 --> a5345f7b26d5
-STEP 3/24: ARG NAMEPLATE_MONIKER
+STEP 3/6: ARG NAMEPLATE_MONIKER
 --> Using cache 284f352236880dd37f0fb4d2d3293697fa55e5a80bca5610be829b216b1bcd0f
 --> 284f35223688
-STEP 4/24: ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
+STEP 4/6: ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
 --> Using cache 35b1f95ced93a104d4e8984260fc3bb0da24bb159f83c2c206f2406be25a873a
 --> 35b1f95ced93
-STEP 5/24: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
---> 2d0f005ad41c
-STEP 6/24: ARG DNS_SERVER
---> 007e5e391608
-STEP 7/24: ENV DNS_SERVER=${DNS_SERVER}
---> 3d0523752a59
-STEP 8/24: ARG NETWORK_MASK
---> 6ebee3a96c41
-STEP 9/24: ENV NETWORK_MASK=${NETWORK_MASK}
---> a735a70cb9a6
-STEP 10/24: ARG HOST_INTERFACE
---> 225903c6c73b
-STEP 11/24: ENV HOST_INTERFACE=${HOST_INTERFACE}
---> c54534e63e2b
-STEP 12/24: ARG GUARDED_INTERFACE
---> ea09e372026c
-STEP 13/24: ENV GUARDED_INTERFACE=${GUARDED_INTERFACE}
---> 9205bb158468
-STEP 14/24: ARG SENTRY_GUARDED_IP
---> e5a355c64c97
-STEP 15/24: ENV SENTRY_GUARDED_IP=${SENTRY_GUARDED_IP}
---> dca03e49b486
-STEP 16/24: ARG ROGUE_IP
---> c2583e827a37
-STEP 17/24: ENV ROGUE_IP=${ROGUE_IP}
---> 0561a806563c
-STEP 18/24: ARG ROGUE_JUPYTER_PORT
---> 471e36cdd220
-STEP 19/24: ENV ROGUE_JUPYTER_PORT=${ROGUE_JUPYTER_PORT}
---> c2afd71bded3
-STEP 20/24: ARG SENTRY_JUPYTER_PORT
---> 16802cf256d0
-STEP 21/24: ENV SENTRY_JUPYTER_PORT=${SENTRY_JUPYTER_PORT}
---> 3895ef811410
-STEP 22/24: ARG GUARDED_NETWORK_SUBNET
---> cc819b83c82a
-STEP 23/24: ENV GUARDED_NETWORK_SUBNET=${GUARDED_NETWORK_SUBNET}
---> 97468b6b3b12
-STEP 24/24: CMD ["tail", "-f", "/dev/null"]
+STEP 5/6: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
+--> 45e917440268
+STEP 6/6: CMD ["tail", "-f", "/dev/null"]
 COMMIT srjcl-sentry-image:srjcl
---> 589538c0e7bb
+--> 50c5095c30d9
 Successfully tagged localhost/srjcl-sentry-image:srjcl
-589538c0e7bbe00055d518ed1dcc83ecfe63e7f36a47c609597041842bbdc15a
+50c5095c30d93f7db800eaaadf84e0428f2da30e29420834b1a63862d98cd391

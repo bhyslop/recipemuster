@@ -83,6 +83,12 @@ This section contains reminders about future improvements, deferred for now.
 * Create python github downloader with command spec that renders the safe ip rules
 * OUCH consider if keep parse of -> `$ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages`
 * Add a logging tabtarget dispatch variant
+* Write up precepts section that asserts...
+  * podman is trustable
+  * github is trustable
+  * manifesto of environment variables
+  * manifesto of fume hoods
+  * manifesto for recipe vs venv
 * Write up an apologea for forcing environment variables to exist and using containers via the makefile, maybe stronger.  Red pill or blue pill?
 * Recall Claude cool ideas for console colors
   https://claude.ai/chat/54a45100-0d5e-44a6-afce-4dc269e283a9
@@ -101,6 +107,7 @@ This section contains reminders about future improvements, deferred for now.
 * Decide if sentry socat should be in a separate startup script rather than dockerfile (probably with atomization, yes)
 * Make pretty non-internet jupyter maths variant
 * Make integ check buried jupyter (i.e. flask executor only) with internet variant
+
 * There may be parameters in the dockerfile that are simpler out here
 * Consider rename all to BANDIT or PIRATE for ROGUE
 * Cut the network diagnostic that is in the build context
