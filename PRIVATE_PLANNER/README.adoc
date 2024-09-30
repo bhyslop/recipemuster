@@ -83,6 +83,7 @@ This section contains reminders about future improvements, deferred for now.
 * Create python github downloader with command spec that renders the safe ip rules
 * OUCH consider if keep parse of -> `$ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages`
 * Add a logging tabtarget dispatch variant
+* Form an excellent opinion on what to do with logs of weekly builds
 * Write up precepts section that asserts...
   * podman is trustable
   * github is trustable

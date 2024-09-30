@@ -70,6 +70,10 @@ export RBEV_ROGUE_WORKDIR            := $(RBN_APP_INNER_DIR)
 export RBEV_ROGUE_MOUNT_DIR          := $(RBN_APP_OUTER_DIR)
 export RBEV_DNS_SERVER               := 8.8.8.8
 
+# Roll all Recipe Bottle Environment Variables up for podman exec
+RBEV__ALL := $(foreach var,$(filter RBEV_%,$(.VARIABLES)),-e $(var)='$($(var))')
+
+
 zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
@@ -162,7 +166,6 @@ rbm-BL.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
-
 rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_START) "START THE RECIPE SERVICE"
 	$(zRBM_STEP) "Cleaning up previous runs..."
@@ -180,26 +183,28 @@ rbm-s.%: zrbm_argcheck_rule
 	podman run -d --name $(zRBM_SENTRY_CONTAINER) \
 	  --network $(zRBM_HOST_NETWORK) \
 	  --env-file ../secrets/claude.env \
+	  $(RBEV__ALL) \
 	  -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
 	  --privileged \
 	  $(zRBM_SENTRY_IMAGE) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Checking Sentry nameplate..."
 	@podman exec $(zRBM_SENTRY_CONTAINER) cat /nameplate.txt | grep -q "srjcl" || (echo "ERROR: Sentry nameplate mismatch" && exit 1)
 	$(zRBM_STEP) "Executing host setup script..."
-	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
+	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh     | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Attaching guarded network to Sentry container..."
 	podman network connect $(zRBM_GUARDED_NETWORK) $(zRBM_SENTRY_CONTAINER) --ip $(RBEV_SENTRY_GUARDED_IP)
 	$(zRBM_STEP) "Executing guarded setup script..."
-	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-guarded.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
+	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-guarded.sh  | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Executing service setup script..."
-	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-service.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
+	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-service.sh  | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Executing outreach setup script..."
-	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-outreach.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
+	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-outreach.sh | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Running the Rogue container..."
 	podman run -d --name $(zRBM_ROGUE_CONTAINER) \
 	  --network $(zRBM_GUARDED_NETWORK):ip=$(RBEV_ROGUE_IP) \
 	  --network-alias $(zRBM_ROGUE_CONTAINER) \
 	  --env-file ../secrets/claude.env \
+	  $(RBEV__ALL) \
 	  --dns $(RBEV_SENTRY_GUARDED_IP) \
 	  -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z \
 	  --privileged \
