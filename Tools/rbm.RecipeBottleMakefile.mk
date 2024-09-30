@@ -162,7 +162,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	  --progress=plain                                                  \
 	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_SENTRY_BUILD_FACTFILE)  2>&1
 	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
-	-podman rmi -f                               $(zRBM_ROGUE_IMAGE)
+	-podman rmi -f                              $(zRBM_ROGUE_IMAGE)
 	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)     \
 	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)                      \
 	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \

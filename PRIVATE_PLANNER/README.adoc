@@ -9,15 +9,36 @@ Author Name <author@example.com>
 
 This is highly personal action planning support.
 
-== THE TODO SHORTLIST
-
-. BE VERY SURE THAT NASCENT ROGUE CANT PING EXCEPT ANTHROPIC
-. Make the github outreach thing function
-. Revise all filesystem names from MBSR to Recipe Muster 
-. Rename Rogue to Bottle
-. ???
 
 == MINIDRAMAS
+
+=== Minidrama: CURRENT FOCUS: the Alpha Github Action
+
+Here we go, lets see if I can get somewhere today!  This very day!
+
+* TODO: Pull all env vars down
+* TODO: Confirm current local function on `*srjcl*`
+* TODO: Recast nameplates to makestyle
+* TODO: construct makefile machinery to create the json for matrix config
+
+=== Minidrama: Idea for "The Daily/ Weekly" autobuild
+
+What if I make this system limit the number of times that dockerfiles are built per day/ week?
+Configurable, of course.
+And then, if the build fails, it sends me an email.
+Aha thanks copilot!
+Its sentance, not mine.
+
+Anyway.
+
+There would be ways to delete it, cause a restart, for sure.
+
+I'm iffy on the cache management that Claude Github Actions pushed.
+This might be a good alternative: no caches, and weekly might be the better unforced cadence. 
+
+Daddy like...
+
+Okay protoday I think...
 
 === Minidrama: Versioning Docker Images in the Cloud
 
@@ -39,7 +60,12 @@ This section contains reminders about future improvements, deferred for now.
 
 [NOTE]
 ====
+* BE VERY SURE THAT NASCENT ROGUE CANT PING EXCEPT ANTHROPIC
+* Make the github outreach thing function
+* Revise all filesystem names from MBSR to Recipe Muster 
+* Rename Rogue to Bottle
 * Pull all build arguments out of dockerfiles, and instead introduce them into the makefile environment
+* Prototype the usage of concept model keyphrases in this file via asciidoc includes
 * Riddle a way to manage versioned docker images
 * Explore creating a nonprivileged user to run the jupyter notebook (may help with shutdown)
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
@@ -50,6 +76,9 @@ This section contains reminders about future improvements, deferred for now.
 * Make the startup script for rogue standalone external too
 * Cut down the diagnostic IP utilities found all over the place
 * Create python github downloader with command spec that renders the safe ip rules
+* Add a logging tabtarget dispatch variant
+* Recall Claude cool ideas for console colors
+  https://claude.ai/chat/54a45100-0d5e-44a6-afce-4dc269e283a9
 * Refresh whether rogue --privileged is required for function (and cut if not)
 * Cut outreach from the matplotlib container
 * Put pip after apk install
