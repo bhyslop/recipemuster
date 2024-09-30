@@ -110,6 +110,7 @@ zrbm_argcheck_rule:
 	@$(zRBM_ARGCHECK_NONZERO_CMD)
 	@$(zRBM_ARGCHECK_NAMEPLATE_CMD)
 
+
 # OUCH make a user level RBM config file...
 rbm-P.SetupPodman.sh:
 	$(zRBM_START) "SETUP PODMAN SESSION"
@@ -161,6 +162,7 @@ rbm-BL.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
+
 rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_START) "START THE RECIPE SERVICE"
 	$(zRBM_STEP) "Cleaning up previous runs..."
@@ -181,6 +183,8 @@ rbm-s.%: zrbm_argcheck_rule
 	  -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
 	  --privileged \
 	  $(zRBM_SENTRY_IMAGE) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
+	$(zRBM_STEP) "Checking Sentry nameplate..."
+	@podman exec $(zRBM_SENTRY_CONTAINER) cat /nameplate.txt | grep -q "srjcl" || (echo "ERROR: Sentry nameplate mismatch" && exit 1)
 	$(zRBM_STEP) "Executing host setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Attaching guarded network to Sentry container..."
@@ -200,6 +204,8 @@ rbm-s.%: zrbm_argcheck_rule
 	  -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z \
 	  --privileged \
 	  $(zRBM_ROGUE_IMAGE) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
+	$(zRBM_STEP) "Checking Rogue nameplate..."
+	@podman exec $(zRBM_ROGUE_CONTAINER) cat /nameplate.txt | grep -q "srjcl" || (echo "ERROR: Rogue nameplate mismatch" && exit 1)
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
 	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)) > $(zRBM_LAST_ROGUE_LOGS_FACTFILE) 2>&1
@@ -211,9 +217,11 @@ rbm-s.%: zrbm_argcheck_rule
 	@echo http://$(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT)/lab | clip
 	$(MBC_SHOW_WHITE)
 
+
 rbm-Ts.%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST SENTRY ASPECTS OF SERVICE"
 	$(MBC_PASS) "No current tests."
+
 
 rbm-Tr.%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST ROGUE ASPECTS OF SERVICE"
@@ -229,10 +237,12 @@ rbm-Tr.%: zrbm_argcheck_rule
 	curl -s -o /dev/null -w "%{http_code}" http://localhost:$(zRBM_SENTRY_JUPYTER_PORT) | grep 200 || (echo "FAIL: Jupyter not accessible" && exit 1)
 	$(zRBM_STEP) "All security tests passed successfully."
 
+
 rbm-cr.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to ROGUE"
 	podman exec -it $(zRBM_ROGUE_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
+
 
 rbm-cs.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
