@@ -76,7 +76,9 @@ This section contains reminders about future improvements, deferred for now.
 * Make the startup script for rogue standalone external too
 * Cut down the diagnostic IP utilities found all over the place
 * Create python github downloader with command spec that renders the safe ip rules
+* OUCH consider if keep parse of -> `$ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages`
 * Add a logging tabtarget dispatch variant
+* Write up an apologea for forcing environment variables to exist and using containers via the makefile, maybe stronger.  Red pill or blue pill?
 * Recall Claude cool ideas for console colors
   https://claude.ai/chat/54a45100-0d5e-44a6-afce-4dc269e283a9
 * Refresh whether rogue --privileged is required for function (and cut if not)

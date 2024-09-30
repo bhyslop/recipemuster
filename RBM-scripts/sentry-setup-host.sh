@@ -3,20 +3,17 @@
 set -e
 set -x
 
-echo "Checking and displaying environment..."
-env
-
 echo "Checking and displaying needed environment variables..."
-: ${HOST_INTERFACE:?}      && echo "HOST_INTERFACE=      $HOST_INTERFACE"
-: ${DNS_SERVER:?}          && echo "DNS_SERVER=          $DNS_SERVER"
+: ${RBEV_SENTRY_HOST_INTERFACE:?}      && echo "RBEV_SENTRY_HOST_INTERFACE = $RBEV_SENTRY_HOST_INTERFACE"
+: ${RBEV_DNS_SERVER:?}                 && echo "RBEV_DNS_SERVER            = $RBEV_DNS_SERVER"
 
 echo "Verifying host interface..."
-if ! ip link show ${HOST_INTERFACE} | grep -q "state UP"; then
-    echo "Error: ${HOST_INTERFACE} is not up or does not exist"
+if ! ip link show ${RBEV_SENTRY_HOST_INTERFACE} | grep -q "state UP"; then
+    echo "Error: ${RBEV_SENTRY_HOST_INTERFACE} is not up or does not exist"
     exit 1
 fi
 
-HOST_INDEX=$(ip link show ${HOST_INTERFACE} | sed -n 's/^[[:space:]]*\([0-9]\+\):.*/\1/p')
+HOST_INDEX=$(ip link show ${RBEV_SENTRY_HOST_INTERFACE} | sed -n 's/^[[:space:]]*\([0-9]\+\):.*/\1/p')
 
 echo "Extracted HOST_INDEX:    ${HOST_INDEX}"
 
@@ -25,7 +22,7 @@ test -n "${HOST_INDEX}"    || (echo "Error: Failed to extract interface indices"
 echo "Host interface verified successfully"
 
 echo "Displaying host adapter configuration..."
-ip addr show $HOST_INTERFACE
+ip addr show $RBEV_SENTRY_HOST_INTERFACE
 
 echo "Displaying all addr info..."
 ip addr show
@@ -53,6 +50,6 @@ echo "Allow ping passthrough (OUCH diagnostic only?)..."
 iptables -A FORWARD -p icmp -j ACCEPT
 
 echo "Setting DNS server in resolv.conf..."
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "nameserver $RBEV_DNS_SERVER" > /etc/resolv.conf
 
 echo "Host setup complete."

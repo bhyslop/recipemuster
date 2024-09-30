@@ -21,25 +21,7 @@ ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
 # write a file so that following env vars are distinct
 RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
 
-# Define build arguments and set environment variables
-ARG JUPYTER_PORT
-ENV JUPYTER_PORT=${JUPYTER_PORT}
-
-ARG ROGUE_IP
-ENV ROGUE_IP=${ROGUE_IP}
-
-ARG ROGUE_WORKDIR
-ENV ROGUE_WORKDIR=${ROGUE_WORKDIR}
-
-ARG GUARDED_INTERFACE
-ENV GUARDED_INTERFACE=${GUARDED_INTERFACE}
-
-ARG SENTRY_GUARDED_IP
-ENV SENTRY_GUARDED_IP=${SENTRY_GUARDED_IP}
-
-ARG GUARDED_NETWORK_SUBNET
-ENV GUARDED_NETWORK_SUBNET=${GUARDED_NETWORK_SUBNET}
-
+# Environment variables are now expected to be set at runtime
 # Disable IPv6
 RUN \
     echo "net.ipv6.conf.all.disable_ipv6 = 1"              >> /etc/sysctl.conf  &&\
@@ -47,7 +29,7 @@ RUN \
     echo done
 
 # Set the working directory to the mount point
-WORKDIR ${ROGUE_WORKDIR}
+WORKDIR ${RBEV_ROGUE_WORKDIR}
 
 # Generate Jupyter config and set dark theme using settings override
 RUN jupyter lab --generate-config                                                                                                     &&\
@@ -58,13 +40,13 @@ RUN jupyter lab --generate-config                                               
 # Create a startup script
 RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&\
     echo 'sysctl -p'                                                                    >>  /startup.sh  &&\
-    echo 'ip route add default via ${SENTRY_GUARDED_IP}'                                >>  /startup.sh  &&\
-    echo 'echo "nameserver ${SENTRY_GUARDED_IP}" > /etc/resolv.conf'                    >>  /startup.sh  &&\
+    echo 'ip route add default via ${RBEV_SENTRY_GUARDED_IP}'                           >>  /startup.sh  &&\
+    echo 'echo "nameserver ${RBEV_SENTRY_GUARDED_IP}" > /etc/resolv.conf'               >>  /startup.sh  &&\
     echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&\
     echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&\
     echo 'jupyter lab'                                        \
          '--ip=0.0.0.0'                                       \
-         '--port=${JUPYTER_PORT}'                             \
+         '--port=${RBEV_ROGUE_JUPYTER_PORT}'                  \
          '--no-browser'                                       \
          '--allow-root'                                       \
          '--ServerApp.token=""'                               \
