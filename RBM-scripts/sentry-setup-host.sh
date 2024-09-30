@@ -9,7 +9,7 @@ echo "Checking and displaying needed environment variables..."
 
 echo "Verifying host interface..."
 if ! ip link show ${RBEV_SENTRY_HOST_INTERFACE} | grep -q "state UP"; then
-    echo "Error: ${RBEV_SENTRY_HOST_INTERFACE} is not up or does not exist"
+    echo  "Error: ${RBEV_SENTRY_HOST_INTERFACE} is not up or does not exist"
     exit 1
 fi
 

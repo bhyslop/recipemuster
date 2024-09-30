@@ -17,6 +17,9 @@ This is highly personal action planning support.
 Here we go, lets see if I can get somewhere today!  This very day!
 
 * TODO: Pull all env vars down
+* TODO: Review global handling of NAMEPLATE_MONIKER
+* TODO: MAYBE make dockerfiles crash if needed vars not set?
+
 * TODO: Confirm current local function on `*srjcl*`
 * TODO: Recast nameplates to makestyle
 * TODO: construct makefile machinery to create the json for matrix config
