@@ -34,7 +34,6 @@ RBM_ARG_MONIKER ?= ""
 # If provided, the makefile that defines console variables.  Otherwise, no include
 RBM_ARG_SUBMAKE_MBC ?=
 
-
 # Internal variables start with 'z' for easy identification
 
 zRBM_ME := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -50,7 +49,6 @@ zRBM_SCRIPTS_DIR       = ./RBM-scripts
 
 zRBM_NAMEPLATE_FILE    = $(zRBM_NAMEPLATE_DIR)/nameplate.$(RBM_ARG_MONIKER).sh
 
-
 # Argument is path to the console rules to allow this makefile to be sub-make'd not included
 ifneq ($(strip $(RBM_ARG_SUBMAKE_MBC)),)
 include        $(RBM_ARG_SUBMAKE_MBC)
@@ -58,18 +56,19 @@ endif
 
 -include $(zRBM_NAMEPLATE_FILE)
 
-# Network and interface variables
-zRBM_GUARDED_NETMASK          = 16
-zRBM_GUARDED_NETWORK_SUBNET   = $(RBN_IP_HACK).0.0/$(zRBM_GUARDED_NETMASK)
-zRBM_HOST_GATEWAY             = $(RBN_IP_HACK).0.1
-zRBM_SENTRY_GUARDED_IP        = $(RBN_IP_HACK).0.2
-zRBM_ROGUE_IP                 = $(RBN_IP_HACK).0.3
-zRBM_SENTRY_HOST_INTERFACE    = eth0
-zRBM_SENTRY_GUARDED_INTERFACE = eth1
-zRBM_SENTRY_JUPYTER_PORT      = $(RBN_PORT_HOST)
-zRBM_ROGUE_JUPYTER_PORT       = $(RBN_PORT_GUARDED)
-zRBM_ROGUE_WORKDIR            = $(RBN_APP_INNER_DIR)
-zRBM_ROGUE_MOUNT_DIR          = $(RBN_APP_OUTER_DIR)
+# Export environment variables for container runtime
+export RBEV_GUARDED_NETMASK          := 16
+export RBEV_GUARDED_NETWORK_SUBNET   := $(RBN_IP_HACK).0.0/$(RBEV_GUARDED_NETMASK)
+export RBEV_HOST_GATEWAY             := $(RBN_IP_HACK).0.1
+export RBEV_SENTRY_GUARDED_IP        := $(RBN_IP_HACK).0.2
+export RBEV_ROGUE_IP                 := $(RBN_IP_HACK).0.3
+export RBEV_SENTRY_HOST_INTERFACE    := eth0
+export RBEV_SENTRY_GUARDED_INTERFACE := eth1
+export RBEV_SENTRY_JUPYTER_PORT      := $(RBN_PORT_HOST)
+export RBEV_ROGUE_JUPYTER_PORT       := $(RBN_PORT_GUARDED)
+export RBEV_ROGUE_WORKDIR            := $(RBN_APP_INNER_DIR)
+export RBEV_ROGUE_MOUNT_DIR          := $(RBN_APP_OUTER_DIR)
+export RBEV_DNS_SERVER               := 8.8.8.8
 
 zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
@@ -95,14 +94,14 @@ ZRBM_LAST_ROGUE_BUILD_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MO
 
 zRBM_DNS       = 8.8.8.8
 
-zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"                      || (\
-  $(MBC_SEE_RED) "Error: RBM_ARG_MONIKER must be set in the tabtarget."    &&\
+zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"              || (\
+  $(MBC_SEE_RED) "Error: In tabtarget, RBM_ARG_MONIKER must be set."         &&\
   exit 1)
 
 zRBM_ARGCHECK_NAMEPLATE_CMD = test "$(RBM_ARG_MONIKER)" = "$(RBN_MONIKER)" || (\
   $(MBC_SEE_RED) "Error: Rule only works if proper moniker selection.  Mismatch:"   &&\
-  $(MBC_SEE_RED) "      RBM_ARG_MONIKER       =" $(RBM_ARG_MONIKER)                 &&\
-  $(MBC_SEE_RED) "      RBN_MONIKER =" $(RBN_MONIKER)           &&\
+  $(MBC_SEE_RED) "      RBM_ARG_MONIKER =" $(RBM_ARG_MONIKER)                       &&\
+  $(MBC_SEE_RED) "      RBN_MONIKER     =" $(RBN_MONIKER)                           &&\
   exit 1)
 
 zrbm_argcheck_rule:
@@ -151,30 +150,16 @@ rbm-BL.%: zrbm_argcheck_rule
 	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
 	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
 	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)                      \
-	  --build-arg DNS_SERVER=$(zRBM_DNS)                                \
-	  --build-arg NETWORK_MASK=$(zRBM_GUARDED_NETMASK)                  \
-	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \
-	  --build-arg ROGUE_JUPYTER_PORT=$(zRBM_ROGUE_JUPYTER_PORT)         \
-	  --build-arg SENTRY_JUPYTER_PORT=$(zRBM_SENTRY_JUPYTER_PORT)       \
-	  --build-arg GUARDED_INTERFACE=$(zRBM_SENTRY_GUARDED_INTERFACE)    \
-	  --build-arg HOST_INTERFACE=$(zRBM_SENTRY_HOST_INTERFACE)          \
-	  --build-arg SENTRY_GUARDED_IP=$(zRBM_SENTRY_GUARDED_IP)           \
-	  --build-arg GUARDED_NETWORK_SUBNET=$(zRBM_GUARDED_NETWORK_SUBNET) \
 	  --progress=plain                                                  \
 	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_SENTRY_BUILD_FACTFILE)  2>&1
 	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
 	-podman rmi -f                              $(zRBM_ROGUE_IMAGE)
 	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)     \
 	  --build-arg NAMEPLATE_MONIKER=$(RBN_MONIKER)                      \
-	  --build-arg ROGUE_IP=$(zRBM_ROGUE_IP)                             \
-	  --build-arg JUPYTER_PORT=$(zRBM_ROGUE_JUPYTER_PORT)               \
-	  --build-arg ROGUE_WORKDIR=$(zRBM_ROGUE_WORKDIR)                   \
-	  --build-arg GUARDED_INTERFACE=$(zRBM_SENTRY_GUARDED_INTERFACE)    \
-	  --build-arg SENTRY_GUARDED_IP=$(zRBM_SENTRY_GUARDED_IP)           \
-	  --build-arg GUARDED_NETWORK_SUBNET=$(zRBM_GUARDED_NETWORK_SUBNET) \
 	  --progress=plain                                                  \
 	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_ROGUE_BUILD_FACTFILE)   2>&1
 	$(MBC_PASS) "Done, no errors."
+
 
 rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_START) "START THE RECIPE SERVICE"
@@ -185,21 +170,21 @@ rbm-s.%: zrbm_argcheck_rule
 	-podman network rm $(zRBM_GUARDED_NETWORK) || true
 	$(zRBM_STEP) "Creating networks..."
 	podman network create --driver bridge $(zRBM_HOST_NETWORK)
-	podman network create --subnet $(zRBM_GUARDED_NETWORK_SUBNET) \
-	  --gateway $(zRBM_SENTRY_GUARDED_IP) \
+	podman network create --subnet $(RBEV_GUARDED_NETWORK_SUBNET) \
+	  --gateway $(RBEV_SENTRY_GUARDED_IP) \
 	  --internal \
 	  $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Running the Sentry container with host network..."
 	podman run -d --name $(zRBM_SENTRY_CONTAINER) \
 	  --network $(zRBM_HOST_NETWORK) \
 	  --env-file ../secrets/claude.env \
-	  -p $(zRBM_LOCALHOST_IP):$(zRBM_SENTRY_JUPYTER_PORT):$(zRBM_SENTRY_JUPYTER_PORT) \
+	  -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
 	  --privileged \
 	  $(zRBM_SENTRY_IMAGE) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Executing host setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Attaching guarded network to Sentry container..."
-	podman network connect $(zRBM_GUARDED_NETWORK) $(zRBM_SENTRY_CONTAINER) --ip $(zRBM_SENTRY_GUARDED_IP)
+	podman network connect $(zRBM_GUARDED_NETWORK) $(zRBM_SENTRY_CONTAINER) --ip $(RBEV_SENTRY_GUARDED_IP)
 	$(zRBM_STEP) "Executing guarded setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-guarded.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Executing service setup script..."
@@ -208,11 +193,11 @@ rbm-s.%: zrbm_argcheck_rule
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-outreach.sh | podman exec -i $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Running the Rogue container..."
 	podman run -d --name $(zRBM_ROGUE_CONTAINER) \
-	  --network $(zRBM_GUARDED_NETWORK):ip=$(zRBM_ROGUE_IP) \
+	  --network $(zRBM_GUARDED_NETWORK):ip=$(RBEV_ROGUE_IP) \
 	  --network-alias $(zRBM_ROGUE_CONTAINER) \
 	  --env-file ../secrets/claude.env \
-	  --dns $(zRBM_SENTRY_GUARDED_IP) \
-	  -v $(zRBM_ROGUE_MOUNT_DIR):$(zRBM_ROGUE_WORKDIR):Z \
+	  --dns $(RBEV_SENTRY_GUARDED_IP) \
+	  -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z \
 	  --privileged \
 	  $(zRBM_ROGUE_IMAGE) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Pulling logs..."
@@ -222,11 +207,9 @@ rbm-s.%: zrbm_argcheck_rule
 	podman network inspect $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Setup complete... Find jupyter at:"
 	$(MBC_SHOW_WHITE)
-	$(MBC_SHOW_YELLOW) "    -> http://$(zRBM_LOCALHOST_IP):$(zRBM_SENTRY_JUPYTER_PORT)/lab"
-	@echo http://$(zRBM_LOCALHOST_IP):$(zRBM_SENTRY_JUPYTER_PORT)/lab | clip
+	$(MBC_SHOW_YELLOW) "    -> http://$(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT)/lab"
+	@echo http://$(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT)/lab | clip
 	$(MBC_SHOW_WHITE)
-# OUCH consider if keep parse of -> $ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages
-# OUCH decide what to keep of below
 
 rbm-Ts.%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST SENTRY ASPECTS OF SERVICE"

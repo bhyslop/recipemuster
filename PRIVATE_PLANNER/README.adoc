@@ -17,11 +17,13 @@ This is highly personal action planning support.
 Here we go, lets see if I can get somewhere today!  This very day!
 
 * TODO: Pull all env vars down
-* TODO: Review global handling of NAMEPLATE_MONIKER
 * TODO: MAYBE make dockerfiles crash if needed vars not set?
+
+* TODO: Decide what to do around -> `rbm-P.SetupPodman.sh`
 
 * TODO: Confirm current local function on `*srjcl*`
 * TODO: Recast nameplates to makestyle
+* TODO: Decide if NAMEPLATE_MONIKER ought to be an RBEV_ thing and apply
 * TODO: construct makefile machinery to create the json for matrix config
 
 === Minidrama: Idea for "The Daily/ Weekly" autobuild
