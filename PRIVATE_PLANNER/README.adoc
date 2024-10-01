@@ -68,9 +68,12 @@ This section contains reminders about future improvements, deferred for now.
 * Make the github outreach thing function
 * Revise all filesystem names from MBSR to Recipe Muster 
 * Rename Rogue to Bottle
+* As per below suggest, use curlies for var substitutions
+    https://claude.ai/chat/4b2aeb38-7dd8-4236-9d5a-389db50f919a
 * Pull all build arguments out of dockerfiles, and instead introduce them into the makefile environment
 * Prototype the usage of concept model keyphrases in this file via asciidoc includes
 * Riddle a way to manage versioned docker images
+* debug podman start/stop/start
 * Explore creating a nonprivileged user to run the jupyter notebook (may help with shutdown)
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
