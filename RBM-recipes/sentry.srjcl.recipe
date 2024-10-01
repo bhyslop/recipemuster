@@ -1,16 +1,8 @@
 # Use a minimal base image
 FROM alpine:latest
 
-# Define ARG and ENV for RBEV variables with defaults
-# (None are currently used in this file, but we'll add them for consistency)
-ARG RBEV_SENTRY_JUPYTER_PORT=8000
-ENV RBEV_SENTRY_JUPYTER_PORT=${RBEV_SENTRY_JUPYTER_PORT}
-
-ARG RBEV_SENTRY_GUARDED_IP=172.17.0.2
-ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
-
-# Hardcode NAMEPLATE_MONIKER
-ENV NAMEPLATE_MONIKER=srjcl
+# Write a file with the nameplate designator
+RUN echo srjcl > /nameplate.txt
 
 # Install necessary packages
 RUN apk update && apk add --no-cache \

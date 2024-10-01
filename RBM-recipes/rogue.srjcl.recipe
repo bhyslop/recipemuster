@@ -1,6 +1,9 @@
 FROM python:3.10-slim
 
-# Define ARG and ENV for RBEV variables with defaults
+# Write a file with the nameplate designator
+RUN echo srjcl > /nameplate.txt
+
+# Define ARG and ENV: defaults for building remotely, from nameplate when used locally
 ARG RBEV_ROGUE_JUPYTER_PORT=8000
 ENV RBEV_ROGUE_JUPYTER_PORT=${RBEV_ROGUE_JUPYTER_PORT}
 
@@ -9,9 +12,6 @@ ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
 
 ARG RBEV_ROGUE_WORKDIR=/workspace
 ENV RBEV_ROGUE_WORKDIR=${RBEV_ROGUE_WORKDIR}
-
-# Hardcode NAMEPLATE_MONIKER
-ENV NAMEPLATE_MONIKER=srjcl
 
 # Install system dependencies and diagnostic tools
 RUN apt-get update && apt-get install -y  \
@@ -27,9 +27,6 @@ RUN apt-get update && apt-get install -y  \
 
 RUN pip install --no-cache-dir jupyter jupyterlab
 RUN pip install --no-cache-dir anthropic
-
-# write a file with the hardcoded nameplate
-RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
 
 # Disable IPv6
 RUN \
