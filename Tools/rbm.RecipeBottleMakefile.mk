@@ -56,7 +56,8 @@ endif
 
 -include $(zRBM_NAMEPLATE_FILE)
 
-# Export environment variables for container runtime
+# Variables for container runtime
+# OUCH export unneeeded given rollup var?
 export RBEV_GUARDED_NETMASK          := 16
 export RBEV_GUARDED_NETWORK_SUBNET   := $(RBN_IP_HACK).0.0/$(RBEV_GUARDED_NETMASK)
 export RBEV_HOST_GATEWAY             := $(RBN_IP_HACK).0.1
@@ -80,14 +81,14 @@ zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
 zRBM_ROGUE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/rogue.$(RBM_ARG_MONIKER).recipe
 
-zRBM_SENTRY_IMAGE = $(RBM_ARG_MONIKER)-sentry-image:$(RBM_ARG_MONIKER)
-zRBM_ROGUE_IMAGE  = $(RBM_ARG_MONIKER)-rogue-image
+zRBM_SENTRY_IMAGE      = $(RBM_ARG_MONIKER)-sentry-image:$(RBM_ARG_MONIKER)
+zRBM_ROGUE_IMAGE       = $(RBM_ARG_MONIKER)-rogue-image
 
-zRBM_SENTRY_CONTAINER = $(RBM_ARG_MONIKER)-sentry-container
-zRBM_ROGUE_CONTAINER  = $(RBM_ARG_MONIKER)-rogue-container
+zRBM_SENTRY_CONTAINER  = $(RBM_ARG_MONIKER)-sentry-container
+zRBM_ROGUE_CONTAINER   = $(RBM_ARG_MONIKER)-rogue-container
 
-zRBM_HOST_NETWORK    = $(RBM_ARG_MONIKER)-host-network
-zRBM_GUARDED_NETWORK = $(RBM_ARG_MONIKER)-guarded-network
+zRBM_HOST_NETWORK      = $(RBM_ARG_MONIKER)-host-network
+zRBM_GUARDED_NETWORK   = $(RBM_ARG_MONIKER)-guarded-network
 
 zRBM_LAST_SENTRY_CONTAINER_FACTFILE = $(zRBM_TRANSCRIPTS_DIR)/container.$(RBM_ARG_MONIKER).sentry.txt
 zRBM_LAST_ROGUE_CONTAINER_FACTFILE  = $(zRBM_TRANSCRIPTS_DIR)/container.$(RBM_ARG_MONIKER).rogue.txt
