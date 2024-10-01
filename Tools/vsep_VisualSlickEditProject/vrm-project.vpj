@@ -82,6 +82,7 @@
             <F     N="../*.md"                       Recurse="1" Excludes=""/>
             <F     N="../*.recipe"                   Recurse="1" Excludes=""/>
             <F     N="../*.sh"                       Recurse="1" Excludes=""/>
+            <F     N="../*.yml"                      Recurse="1" Excludes=""/>
             <F     N="../.gitattribute?"             Recurse="1" Excludes=""/>
             <F     N="../.gitignor?"                 Recurse="1" Excludes=""/>
         </Folder>
