@@ -31,7 +31,7 @@
 # This parameter selects a particular instance of an application.
 RBM_ARG_MONIKER ?= ""
 
-# If provided, the makefile that defines console variables.  Otherwise, no include
+# If provided, the makefile that defines console variables
 RBM_ARG_SUBMAKE_MBC ?=
 
 # Internal variables start with 'z' for easy identification
@@ -47,7 +47,7 @@ zRBM_BUILD_CONTEXT_DIR = ./RBM-build-context
 zRBM_TRANSCRIPTS_DIR   = ./RBM-transcripts
 zRBM_SCRIPTS_DIR       = ./RBM-scripts
 
-zRBM_NAMEPLATE_FILE    = $(zRBM_NAMEPLATE_DIR)/nameplate.$(RBM_ARG_MONIKER).sh
+zRBM_NAMEPLATE_FILE    = $(zRBM_NAMEPLATE_DIR)/nameplate.$(RBM_ARG_MONIKER).mk
 
 # Argument is path to the console rules to allow this makefile to be sub-make'd not included
 ifneq ($(strip $(RBM_ARG_SUBMAKE_MBC)),)
@@ -213,7 +213,7 @@ rbm-s.%: zrbm_argcheck_rule
 	@podman exec $(zRBM_ROGUE_CONTAINER) cat /nameplate.txt | grep -q "srjcl" || (echo "ERROR: Rogue nameplate mismatch" && exit 1)
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
-	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)) > $(zRBM_LAST_ROGUE_LOGS_FACTFILE) 2>&1
+	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE))  > $(zRBM_LAST_ROGUE_LOGS_FACTFILE)  2>&1
 	$(zRBM_STEP) "Inspecting the guarded network..."
 	podman network inspect $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Setup complete... Find jupyter at:"
