@@ -1,7 +1,7 @@
-STEP 1/5: FROM alpine:latest
-STEP 2/5: RUN echo srjcl > /nameplate.txt
---> 7ff91127c04c
-STEP 3/5: RUN apk update && apk add --no-cache     iputils                              iproute2                             net-tools                            bind-tools                           curl                                 traceroute                           tcpdump                              nmap                                 iptables                             dnsmasq                              socat                              && echo done
+STEP 1/4: FROM alpine:latest
+STEP 2/4: RUN echo srjcl       > /moniker.txt
+--> 011c5e24c311
+STEP 3/4: RUN apk update && apk add --no-cache     iputils                              iproute2                             net-tools                            bind-tools                           curl                                 traceroute                           tcpdump                              nmap                                 iptables                             dnsmasq                              socat                              && echo done
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
 v3.20.3-96-g1827497eea7 [https://dl-cdn.alpinelinux.org/alpine/v3.20/main]
@@ -69,12 +69,10 @@ Executing busybox-1.36.1-r29.trigger
 Executing ca-certificates-20240705-r0.trigger
 OK: 44 MiB in 68 packages
 done
---> 599cfa8a9e56
-STEP 4/5: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
---> c0e2d1004462
-STEP 5/5: CMD ["tail", "-f", "/dev/null"]
+--> b16cb1e4db9e
+STEP 4/4: CMD ["tail", "-f", "/dev/null"]
 COMMIT srjcl-sentry-image:srjcl
---> 3717fd66854d
+--> bc4586f73236
 [Warning] one or more build args were not consumed: [NAMEPLATE_MONIKER]
 Successfully tagged localhost/srjcl-sentry-image:srjcl
-3717fd66854d4be1406773c1313b0c3a4bbb99dca25c58981475b16faa643bcc
+bc4586f73236e2d7ea06c49c2b9139c65f60ba5067bf0f0053ba35b8e38183bd
