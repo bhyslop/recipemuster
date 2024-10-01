@@ -26,12 +26,13 @@ zRBC_TOOLS_DIR     = Tools
 #########################
 # Makefile Bash Console
 #
-# This is a sub makefile that contains several canned basic macros
-# that help with very regular cons
+# This is a sub makefile that contains several canned basic
+# macros that support regular console interactivity.
+#
 
 zRBC_MBC_MAKEFILE = $(zRBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 
-# Configure the sub makefile
+# What console tool will put in prefix of each line
 MBC_ARG__CONTEXT_STRING = $(zRBC_THIS_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
@@ -44,8 +45,7 @@ zRBC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 # Use this to allow a console make target to explicitly trigger other
 #   console make targets.  This is really only for making sure entire
 #   rules function in 'big test cases': for efficiency, better to use
-#   explicit fine grained make dependencies so that make can make it
-#   efficient.
+#   explicit fine grained make dependencies so that make is efficient.
 zRBC_MAKE = $(MAKE) -f $(zRBC_THIS_MAKEFILE)
 
 default:
@@ -53,13 +53,13 @@ default:
 
 
 # OUCH scrub this out eventually
-$(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
-$(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
-$(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
-$(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
+# $(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
+# $(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
+# $(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
+# $(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
 
 
-
+# Configure and include the Recipe Bottle Makefile
 zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
 
 RBM_ARG_MONIKER := $(RBC_PARAMETER_2)
@@ -67,20 +67,6 @@ RBM_ARG_MONIKER := $(RBC_PARAMETER_2)
 include $(zRBC_RBM_MAKEFILE)
 
 zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MBC_MAKEFILE)
-
-rbm-A__BuildAndStartALL.sh:
-	$(zRBC_STEP) "Assure podman services available..."
-	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zRBC_STEP) "Use" $(zRBM_MAKE) "to recurse..."
-	$(zRBC_RBM_SUBMAKE) rbm-B__BuildImages.srjcl.sh  \
-	                       RBM_ARG_MONIKER=srjcl
-	$(zRBC_RBM_SUBMAKE) rbm-B__BuildImages.srjsv.sh  \
-	                       RBM_ARG_MONIKER=srjsv
-	$(zRBC_RBM_SUBMAKE) rbm-s__StartContainers.srjcl.sh  \
-	                           RBM_ARG_MONIKER=srjcl
-	$(zRBC_RBM_SUBMAKE) rbm-s__StartContainers.srjsv.sh  \
-	                           RBM_ARG_MONIKER=srjsv
-	$(MBC_PASS) "Done, no errors."
 
 
 #######################################
@@ -149,14 +135,14 @@ rbcgi.CreateGitIgnore.sh:
 
 
 #########################################
-#
 #  Test Tabtargets
+#
 
 Tttl.TestTabtargetLauncher.sh:
-	@echo "RBC_PARAM_1:" $(RBC_PARAM_1)
-	@echo "RBC_PARAM_2:" $(RBC_PARAM_2)
-	@echo "RBC_PARAM_3:" $(RBC_PARAM_3)
-	@echo "RBC_PARAM_4:" $(RBC_PARAM_4)
+	@echo "RBC_PARAMETER_1:" $(RBC_PARAMETER_1)
+	@echo "RBC_PARAMETER_2:" $(RBC_PARAMETER_2)
+	@echo "RBC_PARAMETER_3:" $(RBC_PARAMETER_3)
+	@echo "RBC_PARAMETER_4:" $(RBC_PARAMETER_4)
 	$(zRBC_PASS)
 
 

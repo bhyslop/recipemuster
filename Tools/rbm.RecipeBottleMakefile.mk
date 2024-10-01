@@ -42,7 +42,7 @@ zRBM_MAKE = $(MAKE) -f $(zRBM_ME)
 zRBM_LOCALHOST_IP = 127.0.0.1
 
 zRBM_NAMEPLATE_DIR     = ./RBM-nameplates
-zRBM_DOCKERFILE_DIR    = ./RBM-dockerfiles
+zRBM_RECIPE_DIR        = ./RBM-recipes
 zRBM_BUILD_CONTEXT_DIR = ./RBM-build-context
 zRBM_TRANSCRIPTS_DIR   = ./RBM-transcripts
 zRBM_SCRIPTS_DIR       = ./RBM-scripts
@@ -77,8 +77,8 @@ RBEV__ALL := $(foreach var,$(filter RBEV_%,$(.VARIABLES)),-e $(var)='$($(var))')
 zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
-zRBM_SENTRY_DOCKERFILE = $(zRBM_DOCKERFILE_DIR)/$(RBM_ARG_MONIKER).sentry.dockerfile
-zRBM_ROGUE_DOCKERFILE  = $(zRBM_DOCKERFILE_DIR)/$(RBM_ARG_MONIKER).rogue.dockerfile
+zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
+zRBM_ROGUE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/rogue.$(RBM_ARG_MONIKER).recipe
 
 zRBM_SENTRY_IMAGE = $(RBM_ARG_MONIKER)-sentry-image:$(RBM_ARG_MONIKER)
 zRBM_ROGUE_IMAGE  = $(RBM_ARG_MONIKER)-rogue-image

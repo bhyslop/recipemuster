@@ -19,6 +19,7 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * **DONE** TODO: Pull all env vars down
 * **WONT** TODO: MAYBE make dockerfiles crash if needed vars not set?
 * **DONE** TODO: Confirm current local function on `*srjcl*`
+* TODO: Try use proper tabtarget arg crack
 * TODO: Recast nameplates to makestyle
 * TODO: Decide if NAMEPLATE_MONIKER ought to be an RBEV_ thing and apply
 * TODO: construct makefile machinery to create the json for matrix config
@@ -73,6 +74,7 @@ This section contains reminders about future improvements, deferred for now.
 * Explore creating a nonprivileged user to run the jupyter notebook (may help with shutdown)
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
+* I'm mixed as to whether rbc-console.mk ought to actually include the RBM core makefile...
 * Scrub out all tabtargets for modern consistency
 * Get real clear if I think a docker container advertising a port gets external network view
 * Consider proper use of `unexport` concerning the tabtarget name parts for proper recursive invocation
