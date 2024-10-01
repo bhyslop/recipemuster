@@ -1,20 +1,12 @@
-STEP 1/9: FROM alpine:latest
-STEP 2/9: ARG RBEV_SENTRY_JUPYTER_PORT=8000
---> 195c18b71428
-STEP 3/9: ENV RBEV_SENTRY_JUPYTER_PORT=${RBEV_SENTRY_JUPYTER_PORT}
---> 5844259c7344
-STEP 4/9: ARG RBEV_SENTRY_GUARDED_IP=172.17.0.2
---> de8c5cadc999
-STEP 5/9: ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
---> 492a3bd5a0ba
-STEP 6/9: ENV NAMEPLATE_MONIKER=srjcl
---> 66e61dd33ac4
-STEP 7/9: RUN apk update && apk add --no-cache     iputils                              iproute2                             net-tools                            bind-tools                           curl                                 traceroute                           tcpdump                              nmap                                 iptables                             dnsmasq                              socat                              && echo done
+STEP 1/5: FROM alpine:latest
+STEP 2/5: RUN echo srjcl > /nameplate.txt
+--> 7ff91127c04c
+STEP 3/5: RUN apk update && apk add --no-cache     iputils                              iproute2                             net-tools                            bind-tools                           curl                                 traceroute                           tcpdump                              nmap                                 iptables                             dnsmasq                              socat                              && echo done
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
-v3.20.3-82-ge412022add8 [https://dl-cdn.alpinelinux.org/alpine/v3.20/main]
-v3.20.3-85-ge19c1188ff3 [https://dl-cdn.alpinelinux.org/alpine/v3.20/community]
-OK: 24164 distinct packages available
+v3.20.3-96-g1827497eea7 [https://dl-cdn.alpinelinux.org/alpine/v3.20/main]
+v3.20.3-96-g1827497eea7 [https://dl-cdn.alpinelinux.org/alpine/v3.20/community]
+OK: 24165 distinct packages available
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
 (1/54) Installing fstrm (0.6.1-r4)
@@ -38,8 +30,8 @@ fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.
 (19/54) Installing libidn2 (2.3.7-r0)
 (20/54) Installing libpsl (0.21.5-r1)
 (21/54) Installing zstd-libs (1.5.6-r0)
-(22/54) Installing libcurl (8.9.1-r2)
-(23/54) Installing curl (8.9.1-r2)
+(22/54) Installing libcurl (8.10.1-r0)
+(23/54) Installing curl (8.10.1-r0)
 (24/54) Installing dnsmasq-common (2.90-r3)
 (25/54) Installing dnsmasq (2.90-r3)
 Executing dnsmasq-2.90-r3.pre-install
@@ -77,12 +69,12 @@ Executing busybox-1.36.1-r29.trigger
 Executing ca-certificates-20240705-r0.trigger
 OK: 44 MiB in 68 packages
 done
---> c6eeec7bb08b
-STEP 8/9: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
---> 29efd348532e
-STEP 9/9: CMD ["tail", "-f", "/dev/null"]
+--> 599cfa8a9e56
+STEP 4/5: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
+--> c0e2d1004462
+STEP 5/5: CMD ["tail", "-f", "/dev/null"]
 COMMIT srjcl-sentry-image:srjcl
---> 4b6535000c1a
+--> 3717fd66854d
 [Warning] one or more build args were not consumed: [NAMEPLATE_MONIKER]
 Successfully tagged localhost/srjcl-sentry-image:srjcl
-4b6535000c1ac568d13d9c78ce9a3fd8e7b314f7b0829f44468f6458b69d2faf
+3717fd66854d4be1406773c1313b0c3a4bbb99dca25c58981475b16faa643bcc

@@ -23,7 +23,7 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * **DONE** TODO: Recast nameplates to makestyle
 * TODO: Decide if NAMEPLATE_MONIKER ought to be an RBEV_ thing and apply
 * TODO: construct makefile machinery to create the json for matrix config
-* TODO: Decide what to do around -> `rbm-P.SetupPodman.sh`
+* TODO: ??? Decide what to do around -> `rbm-P.SetupPodman.sh`
 
 === Minidrama: Idea for "The Daily/ Weekly" autobuild
 

@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 
-# Write a file with the nameplate designator
-RUN echo srjcl > /nameplate.txt
+# Write a file with the moniker
+RUN echo srjcl       > /moniker.txt
 
 # Define ARG and ENV: defaults for building remotely, from nameplate when used locally
 ARG RBEV_ROGUE_JUPYTER_PORT=8000

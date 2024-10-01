@@ -189,7 +189,7 @@ rbm-s.%: zrbm_argcheck_rule
 	  --privileged \
 	  $(zRBM_SENTRY_IMAGE) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Checking Sentry nameplate..."
-	@podman exec $(zRBM_SENTRY_CONTAINER) cat /nameplate.txt | grep -q "srjcl" || (echo "ERROR: Sentry nameplate mismatch" && exit 1)
+	podman exec $(zRBM_SENTRY_CONTAINER) cat /moniker.txt | grep -q $(RBM_ARG_MONIKER) || (echo "ERROR: Sentry moniker mismatch" && exit 1)
 	$(zRBM_STEP) "Executing host setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh     | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Attaching guarded network to Sentry container..."
@@ -211,7 +211,7 @@ rbm-s.%: zrbm_argcheck_rule
 	  --privileged \
 	  $(zRBM_ROGUE_IMAGE) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Checking Rogue nameplate..."
-	@podman exec $(zRBM_ROGUE_CONTAINER) cat /nameplate.txt | grep -q "srjcl" || (echo "ERROR: Rogue nameplate mismatch" && exit 1)
+	@podman exec $(zRBM_ROGUE_CONTAINER) cat /moniker.txt | grep -q $(RBM_ARG_MONIKER) || (echo "ERROR: Rogue moniker mismatch" && exit 1)
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
 	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE))  > $(zRBM_LAST_ROGUE_LOGS_FACTFILE)  2>&1

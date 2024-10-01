@@ -1,26 +1,26 @@
-STEP 1/18: FROM python:3.10-slim
-STEP 2/18: ARG RBEV_ROGUE_JUPYTER_PORT=8000
---> 09a90f62921a
-STEP 3/18: ENV RBEV_ROGUE_JUPYTER_PORT=${RBEV_ROGUE_JUPYTER_PORT}
---> a8ab5fbd9f8a
-STEP 4/18: ARG RBEV_SENTRY_GUARDED_IP=172.17.0.2
---> 28ed91d72904
-STEP 5/18: ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
---> fdd741285120
-STEP 6/18: ARG RBEV_ROGUE_WORKDIR=/workspace
---> 4b5571e855e5
-STEP 7/18: ENV RBEV_ROGUE_WORKDIR=${RBEV_ROGUE_WORKDIR}
---> 28ea67427a0a
-STEP 8/18: ENV NAMEPLATE_MONIKER=srjcl
---> 3b79b0362e7f
-STEP 9/18: RUN apt-get update && apt-get install -y      iputils-ping                              iproute2                                  net-tools                                 dnsutils                                  curl                                      traceroute                                tcpdump                                   nmap                                      && rm -rf /var/lib/apt/lists/*
+STEP 1/17: FROM python:3.10-slim
+STEP 2/17: RUN echo srjcl > /nameplate.txt
+--> 10550adebd4c
+STEP 3/17: ARG RBEV_ROGUE_JUPYTER_PORT=8000
+--> b0cb9c4563fc
+STEP 4/17: ENV RBEV_ROGUE_JUPYTER_PORT=${RBEV_ROGUE_JUPYTER_PORT}
+--> f6258e71a60c
+STEP 5/17: ARG RBEV_SENTRY_GUARDED_IP=172.17.0.2
+--> 52d10d7c0749
+STEP 6/17: ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
+--> 8a3763f27e50
+STEP 7/17: ARG RBEV_ROGUE_WORKDIR=/workspace
+--> 154c0d1b04c0
+STEP 8/17: ENV RBEV_ROGUE_WORKDIR=${RBEV_ROGUE_WORKDIR}
+--> eff51952a5da
+STEP 9/17: RUN apt-get update && apt-get install -y      iputils-ping                              iproute2                                  net-tools                                 dnsutils                                  curl                                      traceroute                                tcpdump                                   nmap                                      && rm -rf /var/lib/apt/lists/*
 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8787 kB]
 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [2468 B]
 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [185 kB]
-Fetched 9229 kB in 13s (725 kB/s)
+Fetched 9229 kB in 10s (919 kB/s)
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -108,7 +108,7 @@ Get:53 http://deb.debian.org/debian bookworm/main amd64 nmap amd64 7.93+dfsg1-1 
 Get:54 http://deb.debian.org/debian bookworm/main amd64 publicsuffix all 20230209.2326-1 [126 kB]
 Get:55 http://deb.debian.org/debian bookworm/main amd64 tcpdump amd64 4.99.3-1 [467 kB]
 debconf: delaying package configuration, since apt-utils is not installed
-Fetched 25.1 MB in 38s (655 kB/s)
+Fetched 25.1 MB in 39s (652 kB/s)
 Selecting previously unselected package libdbus-1-3:amd64.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 6696 files and directories currently installed.)
 Preparing to unpack .../00-libdbus-1-3_1.14.10-1~deb12u1_amd64.deb ...
@@ -356,250 +356,250 @@ Setting up nmap (7.93+dfsg1-1) ...
 Setting up bind9-dnsutils (1:9.18.28-1~deb12u2) ...
 Setting up dnsutils (1:9.18.28-1~deb12u2) ...
 Processing triggers for libc-bin (2.36-9+deb12u7) ...
---> 2b2c5369aaf4
-STEP 10/18: RUN pip install --no-cache-dir jupyter jupyterlab
+--> b61ed944505f
+STEP 10/17: RUN pip install --no-cache-dir jupyter jupyterlab
 Collecting jupyter
   Downloading jupyter-1.1.1-py2.py3-none-any.whl (2.7 kB)
 Collecting jupyterlab
   Downloading jupyterlab-4.2.5-py3-none-any.whl (11.6 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.6/11.6 MB 729.1 kB/s eta 0:00:00
-Collecting ipykernel
-  Downloading ipykernel-6.29.5-py3-none-any.whl (117 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.2/117.2 kB 962.4 kB/s eta 0:00:00
-Collecting nbconvert
-  Downloading nbconvert-7.16.4-py3-none-any.whl (257 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 257.4/257.4 kB 688.7 kB/s eta 0:00:00
-Collecting jupyter-console
-  Downloading jupyter_console-6.6.3-py3-none-any.whl (24 kB)
-Collecting notebook
-  Downloading notebook-7.2.2-py3-none-any.whl (5.0 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.0/5.0 MB 635.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.6/11.6 MB 716.1 kB/s eta 0:00:00
 Collecting ipywidgets
   Downloading ipywidgets-8.1.5-py3-none-any.whl (139 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 139.8/139.8 kB 853.9 kB/s eta 0:00:00
-Collecting traitlets
-  Downloading traitlets-5.14.3-py3-none-any.whl (85 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.4/85.4 kB 1.1 MB/s eta 0:00:00
-Requirement already satisfied: setuptools>=40.1.0 in /usr/local/lib/python3.10/site-packages (from jupyterlab) (65.5.1)
-Collecting tornado>=6.2.0
-  Downloading tornado-6.4.1-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (436 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 436.8/436.8 kB 701.2 kB/s eta 0:00:00
-Collecting packaging
-  Downloading packaging-24.1-py3-none-any.whl (53 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.0/54.0 kB 1.5 MB/s eta 0:00:00
-Collecting jupyterlab-server<3,>=2.27.1
-  Downloading jupyterlab_server-2.27.3-py3-none-any.whl (59 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.7/59.7 kB 1.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 139.8/139.8 kB 835.8 kB/s eta 0:00:00
+Collecting notebook
+  Downloading notebook-7.2.2-py3-none-any.whl (5.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.0/5.0 MB 621.1 kB/s eta 0:00:00
+Collecting nbconvert
+  Downloading nbconvert-7.16.4-py3-none-any.whl (257 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 257.4/257.4 kB 717.5 kB/s eta 0:00:00
+Collecting ipykernel
+  Downloading ipykernel-6.29.5-py3-none-any.whl (117 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.2/117.2 kB 859.5 kB/s eta 0:00:00
+Collecting jupyter-console
+  Downloading jupyter_console-6.6.3-py3-none-any.whl (24 kB)
 Collecting jupyter-core
   Downloading jupyter_core-5.7.2-py3-none-any.whl (28 kB)
-Collecting httpx>=0.25.0
-  Downloading httpx-0.27.2-py3-none-any.whl (76 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.4/76.4 kB 1.1 MB/s eta 0:00:00
-Collecting jupyter-server<3,>=2.4.0
-  Downloading jupyter_server-2.14.2-py3-none-any.whl (383 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 383.6/383.6 kB 686.5 kB/s eta 0:00:00
-Collecting jinja2>=3.0.3
-  Downloading jinja2-3.1.4-py3-none-any.whl (133 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.3/133.3 kB 772.2 kB/s eta 0:00:00
-Collecting jupyter-lsp>=2.0.0
-  Downloading jupyter_lsp-2.2.5-py3-none-any.whl (69 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.1/69.1 kB 1.1 MB/s eta 0:00:00
-Collecting tomli>=1.2.2
-  Downloading tomli-2.0.1-py3-none-any.whl (12 kB)
-Collecting notebook-shim>=0.2
-  Downloading notebook_shim-0.2.4-py3-none-any.whl (13 kB)
 Collecting async-lru>=1.0.0
   Downloading async_lru-2.0.4-py3-none-any.whl (6.1 kB)
+Requirement already satisfied: setuptools>=40.1.0 in /usr/local/lib/python3.10/site-packages (from jupyterlab) (65.5.1)
+Collecting traitlets
+  Downloading traitlets-5.14.3-py3-none-any.whl (85 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.4/85.4 kB 808.4 kB/s eta 0:00:00
+Collecting packaging
+  Downloading packaging-24.1-py3-none-any.whl (53 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.0/54.0 kB 842.7 kB/s eta 0:00:00
+Collecting notebook-shim>=0.2
+  Downloading notebook_shim-0.2.4-py3-none-any.whl (13 kB)
+Collecting tornado>=6.2.0
+  Downloading tornado-6.4.1-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (436 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 436.8/436.8 kB 466.6 kB/s eta 0:00:00
+Collecting tomli>=1.2.2
+  Downloading tomli-2.0.1-py3-none-any.whl (12 kB)
+Collecting jupyterlab-server<3,>=2.27.1
+  Downloading jupyterlab_server-2.27.3-py3-none-any.whl (59 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.7/59.7 kB 2.6 MB/s eta 0:00:00
+Collecting jupyter-lsp>=2.0.0
+  Downloading jupyter_lsp-2.2.5-py3-none-any.whl (69 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.1/69.1 kB 640.1 kB/s eta 0:00:00
+Collecting httpx>=0.25.0
+  Downloading httpx-0.27.2-py3-none-any.whl (76 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.4/76.4 kB 777.0 kB/s eta 0:00:00
+Collecting jinja2>=3.0.3
+  Downloading jinja2-3.1.4-py3-none-any.whl (133 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.3/133.3 kB 574.1 kB/s eta 0:00:00
+Collecting jupyter-server<3,>=2.4.0
+  Downloading jupyter_server-2.14.2-py3-none-any.whl (383 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 383.6/383.6 kB 663.6 kB/s eta 0:00:00
 Collecting typing-extensions>=4.0.0
   Downloading typing_extensions-4.12.2-py3-none-any.whl (37 kB)
 Collecting idna
   Downloading idna-3.10-py3-none-any.whl (70 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 70.4/70.4 kB 2.8 MB/s eta 0:00:00
-Collecting httpcore==1.*
-  Downloading httpcore-1.0.5-py3-none-any.whl (77 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 77.9/77.9 kB 752.1 kB/s eta 0:00:00
-Collecting certifi
-  Downloading certifi-2024.8.30-py3-none-any.whl (167 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 167.3/167.3 kB 685.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 70.4/70.4 kB 836.4 kB/s eta 0:00:00
 Collecting anyio
   Downloading anyio-4.6.0-py3-none-any.whl (89 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.6/89.6 kB 873.3 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.6/89.6 kB 755.7 kB/s eta 0:00:00
 Collecting sniffio
   Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+Collecting httpcore==1.*
+  Downloading httpcore-1.0.5-py3-none-any.whl (77 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 77.9/77.9 kB 659.6 kB/s eta 0:00:00
+Collecting certifi
+  Downloading certifi-2024.8.30-py3-none-any.whl (167 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 167.3/167.3 kB 691.9 kB/s eta 0:00:00
 Collecting h11<0.15,>=0.13
   Downloading h11-0.14.0-py3-none-any.whl (58 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.3/58.3 kB 3.6 MB/s eta 0:00:00
-Collecting matplotlib-inline>=0.1
-  Downloading matplotlib_inline-0.1.7-py3-none-any.whl (9.9 kB)
-Collecting pyzmq>=24
-  Downloading pyzmq-26.2.0-cp310-cp310-manylinux_2_28_x86_64.whl (868 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 868.8/868.8 kB 850.0 kB/s eta 0:00:00
-Collecting debugpy>=1.6.5
-  Downloading debugpy-1.8.6-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.5 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.5/3.5 MB 645.2 kB/s eta 0:00:00
-Collecting ipython>=7.23.1
-  Downloading ipython-8.27.0-py3-none-any.whl (818 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 819.0/819.0 kB 684.4 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.3/58.3 kB 822.2 kB/s eta 0:00:00
 Collecting nest-asyncio
   Downloading nest_asyncio-1.6.0-py3-none-any.whl (5.2 kB)
+Collecting matplotlib-inline>=0.1
+  Downloading matplotlib_inline-0.1.7-py3-none-any.whl (9.9 kB)
 Collecting jupyter-client>=6.1.12
   Downloading jupyter_client-8.6.3-py3-none-any.whl (106 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 106.1/106.1 kB 1.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 106.1/106.1 kB 767.6 kB/s eta 0:00:00
 Collecting psutil
   Downloading psutil-6.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (290 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 290.5/290.5 kB 821.3 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 290.5/290.5 kB 802.4 kB/s eta 0:00:00
+Collecting ipython>=7.23.1
+  Downloading ipython-8.27.0-py3-none-any.whl (818 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 819.0/819.0 kB 622.5 kB/s eta 0:00:00
+Collecting pyzmq>=24
+  Downloading pyzmq-26.2.0-cp310-cp310-manylinux_2_28_x86_64.whl (868 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 868.8/868.8 kB 865.9 kB/s eta 0:00:00
 Collecting comm>=0.1.1
   Downloading comm-0.2.2-py3-none-any.whl (7.2 kB)
+Collecting debugpy>=1.6.5
+  Downloading debugpy-1.8.6-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.5/3.5 MB 354.1 kB/s eta 0:00:00
 Collecting MarkupSafe>=2.0
   Downloading MarkupSafe-2.1.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (25 kB)
 Collecting platformdirs>=2.5
   Downloading platformdirs-4.3.6-py3-none-any.whl (18 kB)
 Collecting jupyter-server-terminals>=0.4.4
   Downloading jupyter_server_terminals-0.5.3-py3-none-any.whl (13 kB)
-Collecting nbformat>=5.3.0
-  Downloading nbformat-5.10.4-py3-none-any.whl (78 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 12.2 MB/s eta 0:00:00
-Collecting jupyter-events>=0.9.0
-  Downloading jupyter_events-0.10.0-py3-none-any.whl (18 kB)
-Collecting prometheus-client>=0.9
-  Downloading prometheus_client-0.21.0-py3-none-any.whl (54 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.7/54.7 kB 18.9 MB/s eta 0:00:00
-Collecting send2trash>=1.8.2
-  Downloading Send2Trash-1.8.3-py3-none-any.whl (18 kB)
 Collecting terminado>=0.8.3
   Downloading terminado-0.18.1-py3-none-any.whl (14 kB)
-Collecting websocket-client>=1.7
-  Downloading websocket_client-1.8.0-py3-none-any.whl (58 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.8/58.8 kB 2.3 MB/s eta 0:00:00
+Collecting nbformat>=5.3.0
+  Downloading nbformat-5.10.4-py3-none-any.whl (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 9.1 MB/s eta 0:00:00
+Collecting jupyter-events>=0.9.0
+  Downloading jupyter_events-0.10.0-py3-none-any.whl (18 kB)
 Collecting overrides>=5.0
   Downloading overrides-7.7.0-py3-none-any.whl (17 kB)
 Collecting argon2-cffi>=21.1
   Downloading argon2_cffi-23.1.0-py3-none-any.whl (15 kB)
+Collecting send2trash>=1.8.2
+  Downloading Send2Trash-1.8.3-py3-none-any.whl (18 kB)
+Collecting prometheus-client>=0.9
+  Downloading prometheus_client-0.21.0-py3-none-any.whl (54 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.7/54.7 kB 13.0 MB/s eta 0:00:00
+Collecting websocket-client>=1.7
+  Downloading websocket_client-1.8.0-py3-none-any.whl (58 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.8/58.8 kB 782.6 kB/s eta 0:00:00
 Collecting json5>=0.9.0
   Downloading json5-0.9.25-py3-none-any.whl (30 kB)
-Collecting babel>=2.10
-  Downloading babel-2.16.0-py3-none-any.whl (9.6 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.6/9.6 MB 631.2 kB/s eta 0:00:00
 Collecting requests>=2.31
   Downloading requests-2.32.3-py3-none-any.whl (64 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 1.7 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 765.2 kB/s eta 0:00:00
+Collecting babel>=2.10
+  Downloading babel-2.16.0-py3-none-any.whl (9.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.6/9.6 MB 629.0 kB/s eta 0:00:00
 Collecting jsonschema>=4.18.0
   Downloading jsonschema-4.23.0-py3-none-any.whl (88 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.5/88.5 kB 841.0 kB/s eta 0:00:00
-Collecting pygments>=2.4.1
-  Downloading pygments-2.18.0-py3-none-any.whl (1.2 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 657.2 kB/s eta 0:00:00
-Collecting mistune<4,>=2.0.3
-  Downloading mistune-3.0.2-py3-none-any.whl (47 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.0/48.0 kB 1.4 MB/s eta 0:00:00
-Collecting beautifulsoup4
-  Downloading beautifulsoup4-4.12.3-py3-none-any.whl (147 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 147.9/147.9 kB 1.1 MB/s eta 0:00:00
-Collecting tinycss2
-  Downloading tinycss2-1.3.0-py3-none-any.whl (22 kB)
-Collecting jupyterlab-pygments
-  Downloading jupyterlab_pygments-0.3.0-py3-none-any.whl (15 kB)
-Collecting bleach!=5.0.0
-  Downloading bleach-6.1.0-py3-none-any.whl (162 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 162.8/162.8 kB 857.7 kB/s eta 0:00:00
-Collecting defusedxml
-  Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
-Collecting pandocfilters>=1.4.1
-  Downloading pandocfilters-1.5.1-py2.py3-none-any.whl (8.7 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.5/88.5 kB 1.0 MB/s eta 0:00:00
 Collecting nbclient>=0.5.0
   Downloading nbclient-0.10.0-py3-none-any.whl (25 kB)
+Collecting bleach!=5.0.0
+  Downloading bleach-6.1.0-py3-none-any.whl (162 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 162.8/162.8 kB 794.4 kB/s eta 0:00:00
+Collecting tinycss2
+  Downloading tinycss2-1.3.0-py3-none-any.whl (22 kB)
+Collecting pygments>=2.4.1
+  Downloading pygments-2.18.0-py3-none-any.whl (1.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 636.8 kB/s eta 0:00:00
+Collecting defusedxml
+  Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+Collecting mistune<4,>=2.0.3
+  Downloading mistune-3.0.2-py3-none-any.whl (47 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.0/48.0 kB 1.3 MB/s eta 0:00:00
+Collecting beautifulsoup4
+  Downloading beautifulsoup4-4.12.3-py3-none-any.whl (147 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 147.9/147.9 kB 672.6 kB/s eta 0:00:00
+Collecting pandocfilters>=1.4.1
+  Downloading pandocfilters-1.5.1-py2.py3-none-any.whl (8.7 kB)
+Collecting jupyterlab-pygments
+  Downloading jupyterlab_pygments-0.3.0-py3-none-any.whl (15 kB)
 Collecting widgetsnbextension~=4.0.12
   Downloading widgetsnbextension-4.0.13-py3-none-any.whl (2.3 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 644.5 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 640.2 kB/s eta 0:00:00
 Collecting jupyterlab-widgets~=3.0.12
   Downloading jupyterlab_widgets-3.0.13-py3-none-any.whl (214 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.4/214.4 kB 748.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.4/214.4 kB 717.0 kB/s eta 0:00:00
 Collecting prompt-toolkit>=3.0.30
   Downloading prompt_toolkit-3.0.48-py3-none-any.whl (386 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.6/386.6 kB 688.2 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.6/386.6 kB 664.1 kB/s eta 0:00:00
 Collecting exceptiongroup>=1.0.2
   Downloading exceptiongroup-1.2.2-py3-none-any.whl (16 kB)
 Collecting argon2-cffi-bindings
   Downloading argon2_cffi_bindings-21.2.0-cp36-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (86 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 86.2/86.2 kB 3.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 86.2/86.2 kB 4.3 MB/s eta 0:00:00
 Collecting six>=1.9.0
   Downloading six-1.16.0-py2.py3-none-any.whl (11 kB)
 Collecting webencodings
   Downloading webencodings-0.5.1-py2.py3-none-any.whl (11 kB)
-Collecting pexpect>4.3
-  Downloading pexpect-4.9.0-py2.py3-none-any.whl (63 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.8/63.8 kB 28.0 MB/s eta 0:00:00
-Collecting stack-data
-  Downloading stack_data-0.6.3-py3-none-any.whl (24 kB)
-Collecting jedi>=0.16
-  Downloading jedi-0.19.1-py2.py3-none-any.whl (1.6 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 660.9 kB/s eta 0:00:00
 Collecting decorator
   Downloading decorator-5.1.1-py3-none-any.whl (9.1 kB)
+Collecting stack-data
+  Downloading stack_data-0.6.3-py3-none-any.whl (24 kB)
+Collecting pexpect>4.3
+  Downloading pexpect-4.9.0-py2.py3-none-any.whl (63 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.8/63.8 kB 8.9 MB/s eta 0:00:00
+Collecting jedi>=0.16
+  Downloading jedi-0.19.1-py2.py3-none-any.whl (1.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 636.5 kB/s eta 0:00:00
 Collecting rpds-py>=0.7.1
   Downloading rpds_py-0.20.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (354 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 354.8/354.8 kB 1.8 MB/s eta 0:00:00
-Collecting attrs>=22.2.0
-  Downloading attrs-24.2.0-py3-none-any.whl (63 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.0/63.0 kB 1.1 MB/s eta 0:00:00
-Collecting jsonschema-specifications>=2023.03.6
-  Downloading jsonschema_specifications-2023.12.1-py3-none-any.whl (18 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 354.8/354.8 kB 2.1 MB/s eta 0:00:00
 Collecting referencing>=0.28.4
   Downloading referencing-0.35.1-py3-none-any.whl (26 kB)
+Collecting attrs>=22.2.0
+  Downloading attrs-24.2.0-py3-none-any.whl (63 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.0/63.0 kB 735.7 kB/s eta 0:00:00
+Collecting jsonschema-specifications>=2023.03.6
+  Downloading jsonschema_specifications-2023.12.1-py3-none-any.whl (18 kB)
 Collecting python-dateutil>=2.8.2
   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 762.5 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 708.1 kB/s eta 0:00:00
 Collecting rfc3339-validator
   Downloading rfc3339_validator-0.1.4-py2.py3-none-any.whl (3.5 kB)
-Collecting rfc3986-validator>=0.1.1
-  Downloading rfc3986_validator-0.1.1-py2.py3-none-any.whl (4.2 kB)
-Collecting pyyaml>=5.3
-  Downloading PyYAML-6.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (751 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 751.2/751.2 kB 691.1 kB/s eta 0:00:00
 Collecting python-json-logger>=2.0.4
   Downloading python_json_logger-2.0.7-py3-none-any.whl (8.1 kB)
+Collecting pyyaml>=5.3
+  Downloading PyYAML-6.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (751 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 751.2/751.2 kB 661.8 kB/s eta 0:00:00
+Collecting rfc3986-validator>=0.1.1
+  Downloading rfc3986_validator-0.1.1-py2.py3-none-any.whl (4.2 kB)
 Collecting fastjsonschema>=2.15
   Downloading fastjsonschema-2.20.0-py3-none-any.whl (23 kB)
 Collecting wcwidth
   Downloading wcwidth-0.2.13-py2.py3-none-any.whl (34 kB)
 Collecting charset-normalizer<4,>=2
   Downloading charset_normalizer-3.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (142 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 142.1/142.1 kB 1.5 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 142.1/142.1 kB 1.1 MB/s eta 0:00:00
 Collecting urllib3<3,>=1.21.1
   Downloading urllib3-2.2.3-py3-none-any.whl (126 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 126.3/126.3 kB 794.8 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 126.3/126.3 kB 784.7 kB/s eta 0:00:00
 Collecting ptyprocess
   Downloading ptyprocess-0.7.0-py2.py3-none-any.whl (13 kB)
 Collecting soupsieve>1.2
   Downloading soupsieve-2.6-py3-none-any.whl (36 kB)
 Collecting parso<0.9.0,>=0.8.3
   Downloading parso-0.8.4-py2.py3-none-any.whl (103 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.7/103.7 kB 12.6 MB/s eta 0:00:00
-Collecting uri-template
-  Downloading uri_template-1.3.0-py3-none-any.whl (11 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.7/103.7 kB 9.6 MB/s eta 0:00:00
 Collecting webcolors>=24.6.0
   Downloading webcolors-24.8.0-py3-none-any.whl (15 kB)
+Collecting jsonpointer>1.13
+  Downloading jsonpointer-3.0.0-py2.py3-none-any.whl (7.6 kB)
 Collecting fqdn
   Downloading fqdn-1.5.1-py3-none-any.whl (9.1 kB)
 Collecting isoduration
   Downloading isoduration-20.11.0-py3-none-any.whl (11 kB)
-Collecting jsonpointer>1.13
-  Downloading jsonpointer-3.0.0-py2.py3-none-any.whl (7.6 kB)
+Collecting uri-template
+  Downloading uri_template-1.3.0-py3-none-any.whl (11 kB)
 Collecting cffi>=1.0.1
   Downloading cffi-1.17.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (446 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 446.2/446.2 kB 933.5 kB/s eta 0:00:00
-Collecting pure-eval
-  Downloading pure_eval-0.2.3-py3-none-any.whl (11 kB)
-Collecting asttokens>=2.1.0
-  Downloading asttokens-2.4.1-py2.py3-none-any.whl (27 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 446.2/446.2 kB 813.0 kB/s eta 0:00:00
 Collecting executing>=1.2.0
   Downloading executing-2.1.0-py2.py3-none-any.whl (25 kB)
+Collecting asttokens>=2.1.0
+  Downloading asttokens-2.4.1-py2.py3-none-any.whl (27 kB)
+Collecting pure-eval
+  Downloading pure_eval-0.2.3-py3-none-any.whl (11 kB)
 Collecting pycparser
   Downloading pycparser-2.22-py3-none-any.whl (117 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.6/117.6 kB 2.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.6/117.6 kB 1.1 MB/s eta 0:00:00
 Collecting arrow>=0.15.0
   Downloading arrow-1.3.0-py3-none-any.whl (66 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.4/66.4 kB 4.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.4/66.4 kB 2.0 MB/s eta 0:00:00
 Collecting types-python-dateutil>=2.8.10
   Downloading types_python_dateutil-2.9.0.20240906-py3-none-any.whl (9.7 kB)
 Installing collected packages: webencodings, wcwidth, pure-eval, ptyprocess, fastjsonschema, widgetsnbextension, websocket-client, webcolors, urllib3, uri-template, typing-extensions, types-python-dateutil, traitlets, tornado, tomli, tinycss2, soupsieve, sniffio, six, send2trash, rpds-py, rfc3986-validator, pyzmq, pyyaml, python-json-logger, pygments, pycparser, psutil, prompt-toolkit, prometheus-client, platformdirs, pexpect, parso, pandocfilters, packaging, overrides, nest-asyncio, mistune, MarkupSafe, jupyterlab-widgets, jupyterlab-pygments, jsonpointer, json5, idna, h11, fqdn, executing, exceptiongroup, defusedxml, decorator, debugpy, charset-normalizer, certifi, babel, attrs, terminado, rfc3339-validator, requests, referencing, python-dateutil, matplotlib-inline, jupyter-core, jinja2, jedi, httpcore, comm, cffi, bleach, beautifulsoup4, async-lru, asttokens, anyio, stack-data, jupyter-server-terminals, jupyter-client, jsonschema-specifications, httpx, arrow, argon2-cffi-bindings, jsonschema, isoduration, ipython, argon2-cffi, nbformat, ipywidgets, ipykernel, nbclient, jupyter-events, jupyter-console, nbconvert, jupyter-server, notebook-shim, jupyterlab-server, jupyter-lsp, jupyterlab, notebook, jupyter
@@ -608,76 +608,74 @@ WARNING: Running pip as the 'root' user can result in broken permissions and con
 
 [notice] A new release of pip is available: 23.0.1 -> 24.2
 [notice] To update, run: pip install --upgrade pip
---> 38060c0a7531
-STEP 11/18: RUN pip install --no-cache-dir anthropic
+--> f8f44ff34ad4
+STEP 11/17: RUN pip install --no-cache-dir anthropic
 Collecting anthropic
   Downloading anthropic-0.34.2-py3-none-any.whl (891 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 891.9/891.9 kB 9.9 MB/s eta 0:00:00
-Collecting jiter<1,>=0.4.0
-  Downloading jiter-0.5.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (318 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 318.9/318.9 kB 40.9 MB/s eta 0:00:00
-Collecting tokenizers>=0.13.0
-  Downloading tokenizers-0.20.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.9 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.9/2.9 MB 35.9 MB/s eta 0:00:00
-Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.10/site-packages (from anthropic) (0.27.2)
-Requirement already satisfied: sniffio in /usr/local/lib/python3.10/site-packages (from anthropic) (1.3.1)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 891.9/891.9 kB 6.3 MB/s eta 0:00:00
 Collecting pydantic<3,>=1.9.0
   Downloading pydantic-2.9.2-py3-none-any.whl (434 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 434.9/434.9 kB 33.8 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 434.9/434.9 kB 7.0 MB/s eta 0:00:00
+Requirement already satisfied: anyio<5,>=3.5.0 in /usr/local/lib/python3.10/site-packages (from anthropic) (4.6.0)
+Requirement already satisfied: sniffio in /usr/local/lib/python3.10/site-packages (from anthropic) (1.3.1)
+Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.10/site-packages (from anthropic) (0.27.2)
 Collecting distro<2,>=1.7.0
   Downloading distro-1.9.0-py3-none-any.whl (20 kB)
+Collecting tokenizers>=0.13.0
+  Downloading tokenizers-0.20.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.9/2.9 MB 7.8 MB/s eta 0:00:00
 Requirement already satisfied: typing-extensions<5,>=4.7 in /usr/local/lib/python3.10/site-packages (from anthropic) (4.12.2)
-Requirement already satisfied: anyio<5,>=3.5.0 in /usr/local/lib/python3.10/site-packages (from anthropic) (4.6.0)
+Collecting jiter<1,>=0.4.0
+  Downloading jiter-0.5.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (318 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 318.9/318.9 kB 8.3 MB/s eta 0:00:00
 Requirement already satisfied: exceptiongroup>=1.0.2 in /usr/local/lib/python3.10/site-packages (from anyio<5,>=3.5.0->anthropic) (1.2.2)
 Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.10/site-packages (from anyio<5,>=3.5.0->anthropic) (3.10)
-Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/site-packages (from httpx<1,>=0.23.0->anthropic) (1.0.5)
 Requirement already satisfied: certifi in /usr/local/lib/python3.10/site-packages (from httpx<1,>=0.23.0->anthropic) (2024.8.30)
+Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/site-packages (from httpx<1,>=0.23.0->anthropic) (1.0.5)
 Requirement already satisfied: h11<0.15,>=0.13 in /usr/local/lib/python3.10/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->anthropic) (0.14.0)
-Collecting pydantic-core==2.23.4
-  Downloading pydantic_core-2.23.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 852.6 kB/s eta 0:00:00
 Collecting annotated-types>=0.6.0
   Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Collecting pydantic-core==2.23.4
+  Downloading pydantic_core-2.23.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 841.0 kB/s eta 0:00:00
 Collecting huggingface-hub<1.0,>=0.16.4
   Downloading huggingface_hub-0.25.1-py3-none-any.whl (436 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 436.4/436.4 kB 680.5 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 436.4/436.4 kB 694.3 kB/s eta 0:00:00
 Collecting fsspec>=2023.5.0
   Downloading fsspec-2024.9.0-py3-none-any.whl (179 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179.3/179.3 kB 926.0 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179.3/179.3 kB 1.1 MB/s eta 0:00:00
 Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (6.0.2)
+Requirement already satisfied: requests in /usr/local/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (2.32.3)
+Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (24.1)
 Collecting tqdm>=4.42.1
   Downloading tqdm-4.66.5-py3-none-any.whl (78 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.4/78.4 kB 1.1 MB/s eta 0:00:00
-Requirement already satisfied: requests in /usr/local/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (2.32.3)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.4/78.4 kB 1.0 MB/s eta 0:00:00
 Collecting filelock
   Downloading filelock-3.16.1-py3-none-any.whl (16 kB)
-Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (24.1)
-Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/site-packages (from requests->huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (3.3.2)
 Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/site-packages (from requests->huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (2.2.3)
+Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/site-packages (from requests->huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic) (3.3.2)
 Installing collected packages: tqdm, pydantic-core, jiter, fsspec, filelock, distro, annotated-types, pydantic, huggingface-hub, tokenizers, anthropic
 Successfully installed annotated-types-0.7.0 anthropic-0.34.2 distro-1.9.0 filelock-3.16.1 fsspec-2024.9.0 huggingface-hub-0.25.1 jiter-0.5.0 pydantic-2.9.2 pydantic-core-2.23.4 tokenizers-0.20.0 tqdm-4.66.5
 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
 
 [notice] A new release of pip is available: 23.0.1 -> 24.2
 [notice] To update, run: pip install --upgrade pip
---> 535c52131ba3
-STEP 12/18: RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
---> a8a299e1285d
-STEP 13/18: RUN     echo "net.ipv6.conf.all.disable_ipv6 = 1"              >> /etc/sysctl.conf  &&    echo "net.ipv6.conf.default.disable_ipv6 = 1"          >> /etc/sysctl.conf  &&    echo done
+--> ac03b35d81ff
+STEP 12/17: RUN     echo "net.ipv6.conf.all.disable_ipv6 = 1"              >> /etc/sysctl.conf  &&    echo "net.ipv6.conf.default.disable_ipv6 = 1"          >> /etc/sysctl.conf  &&    echo done
 done
---> 106eec0a7b79
-STEP 14/18: WORKDIR ${RBEV_ROGUE_WORKDIR}
---> f177bebabe82
-STEP 15/18: RUN jupyter lab --generate-config                                                                                                        &&    mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                             &&    echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings  &&    echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py
+--> 5bd09158e436
+STEP 13/17: WORKDIR ${RBEV_ROGUE_WORKDIR}
+--> 6639932d6ad7
+STEP 14/17: RUN jupyter lab --generate-config                                                                                                        &&    mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                             &&    echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings  &&    echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py
 Writing default config to: /root/.jupyter/jupyter_lab_config.py
---> f32c7b25710e
-STEP 16/18: RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&    echo 'sysctl -p'                                                                    >>  /startup.sh  &&    echo 'ip route add default via ${RBEV_SENTRY_GUARDED_IP}'                           >>  /startup.sh  &&    echo 'echo "nameserver ${RBEV_SENTRY_GUARDED_IP}" > /etc/resolv.conf'               >>  /startup.sh  &&    echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&    echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&    echo 'jupyter lab'                                                 '--ip=0.0.0.0'                                                '--port=${RBEV_ROGUE_JUPYTER_PORT}'                           '--no-browser'                                                '--allow-root'                                                '--ServerApp.token=""'                                        '--ServerApp.password=""'                                     '--ServerApp.authenticate_prometheus=False'                   '--ServerApp.base_url=${JUPYTER_BASE_URL}'                    '--notebook-dir=${RBEV_ROGUE_WORKDIR}'                                                                                                       >>  /startup.sh  &&    echo 'tail -f /dev/null' >>                                                             /startup.sh  &&    chmod +x                                                                                /startup.sh
---> f72ffd13a080
-STEP 17/18: EXPOSE ${RBEV_ROGUE_JUPYTER_PORT}
---> 3688840b8059
-STEP 18/18: CMD ["/startup.sh"]
+--> 5f57922b12c7
+STEP 15/17: RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&    echo 'sysctl -p'                                                                    >>  /startup.sh  &&    echo 'ip route add default via ${RBEV_SENTRY_GUARDED_IP}'                           >>  /startup.sh  &&    echo 'echo "nameserver ${RBEV_SENTRY_GUARDED_IP}" > /etc/resolv.conf'               >>  /startup.sh  &&    echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&    echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&    echo 'jupyter lab'                                                 '--ip=0.0.0.0'                                                '--port=${RBEV_ROGUE_JUPYTER_PORT}'                           '--no-browser'                                                '--allow-root'                                                '--ServerApp.token=""'                                        '--ServerApp.password=""'                                     '--ServerApp.authenticate_prometheus=False'                   '--ServerApp.base_url=${JUPYTER_BASE_URL}'                    '--notebook-dir=${RBEV_ROGUE_WORKDIR}'                                                                                                       >>  /startup.sh  &&    echo 'tail -f /dev/null' >>                                                             /startup.sh  &&    chmod +x                                                                                /startup.sh
+--> ab0a5b55edee
+STEP 16/17: EXPOSE ${RBEV_ROGUE_JUPYTER_PORT}
+--> 3ce7dc992722
+STEP 17/17: CMD ["/startup.sh"]
 COMMIT srjcl-rogue-image
---> f0858dbccc69
+--> e5f58c1ed976
 [Warning] one or more build args were not consumed: [NAMEPLATE_MONIKER]
 Successfully tagged localhost/srjcl-rogue-image:latest
-f0858dbccc69a85eb4589339daba29fa74f3b1de5d4e5f5084cd4a7acc5b8c43
+e5f58c1ed9764057e7eebe625d957de44a6416164994bfd18839aa631569e542
