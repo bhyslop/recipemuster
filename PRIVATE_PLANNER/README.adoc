@@ -25,6 +25,32 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * TODO: construct makefile machinery to create the json for matrix config
 * TODO: ??? Decide what to do around -> `rbm-P.SetupPodman.sh`
 
+=== Minidrama: Plan Ambiguity
+
+I'm having a devil of a time making a plan to transfer the build of several dockerfiles into a Github Action where they get maintained in the Github Container Registry for use.
+This isn't a thing I'm going to get meta good about, I don't think I'll do such things much in my life.
+So, the path of baby steps...
+Hmm.
+
+Okay.
+
+..
+
+Wow, I instructed Claude to have a terse conversation and it went very well.
+Wow!
+
+What did I get out of it?
+
+* Start with matrix from the get go
+* Getting 'retro' package sets is a pain through the package manager.
+* Bookkeeping eventually gets complex if shared layers, and I'll have a lot of those even naively
+* Don't store transcripts in containers: better to have tracking files in repo
+* 'Repository variables' is the way to go forward with config items, not facts in makefiles
+* Keep with the 'one long list of apt update packages'
+* No multi-stage container builds for a while
+* I am liking the simple addition of a datestampped per build file to a repo place that is never edited by a human
+* I don't fully grok run id and run number but those sound pretty good as anchor points.  Will still need dates though
+
 === Minidrama: Idea for "The Daily/ Weekly" autobuild
 
 What if I make this system limit the number of times that dockerfiles are built per day/ week?
@@ -82,6 +108,7 @@ This section contains reminders about future improvements, deferred for now.
 * Get real clear if I think a docker container advertising a port gets external network view
 * Consider proper use of `unexport` concerning the tabtarget name parts for proper recursive invocation
 * Make the startup script for rogue standalone external too
+* Look into placing monitor file write late in the recipes for potentially better caching
 * Cut down the diagnostic IP utilities found all over the place
 * Create python github downloader with command spec that renders the safe ip rules
 * OUCH consider if keep parse of -> `$ curl -v -s -I -X OPTIONS https://api.anthropic.com/v1/messages`
