@@ -25,6 +25,22 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * TODO: construct makefile machinery to create the json for matrix config
 * TODO: ??? Decide what to do around -> `rbm-P.SetupPodman.sh`
 
+=== Minidrama: Using Claude to Write Claude Requirements
+
+That worked evilly well!
+At least at first glance...
+I had several iterations of building out a requirements document.
+That process went pretty well, I think.
+
+I did ask claude to meet it, and on first glance it seems to have tried hard.
+Oh I hate its makefile conventions, but maybe the problem is that mine are weird.
+I'll definitely contemplate how I can get Claude to do my style makefiles.
+Is that its own `claudex`?
+Probably.
+
+I'm out of time and energy for further dive into this, but that was productive.
+There definitely is a vertigo here.
+
 === Minidrama: Local Image Studies
 
 On startup this morning, I decided to play with my local images.
