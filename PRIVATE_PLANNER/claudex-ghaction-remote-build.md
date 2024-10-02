@@ -1,12 +1,13 @@
 # GitHub Action for Container Building and Registry Management
 
 ## Objective
-Create a GitHub Action and support bash scripts to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
+Create a GitHub Action and support bash scripts for use by developer (not the github action) to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
 
 ## Main Components
 1. GitHub Action for building and uploading containers
 2. Support script to trigger and monitor the action
 3. Support script to list images in the container registry
+4. Support script to delete a named image from the container registry
 
 ## Detailed Requirements
 
@@ -48,6 +49,9 @@ f. If a build is successful, upload the image to the GitHub Container Registry
 
 ### 3. Support Script: List Images
 - List all images currently stored in the repository's container registry
+
+### 3. Support Script: Delete Image
+- Delete a named image from the repository's container registry
 
 ## Additional Notes
 - There is no requirement to manage a persistent cache, as builds will be infrequent.
