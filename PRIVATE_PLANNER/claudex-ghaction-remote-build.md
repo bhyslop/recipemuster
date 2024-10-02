@@ -1,23 +1,27 @@
 # GitHub Action for Container Building and Registry Management
 
 ## Objective
-Create a GitHub Action and support bash scripts for use by developer (not the github action) to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
+Create a GitHub Action and support makefile rules for use by developers to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
 
 ## Main Components
 1. GitHub Action for building and uploading containers
-2. Support script to trigger and monitor the action
-3. Support script to list images in the container registry
-4. Support script to delete a named image from the container registry
+2. Makefile rule to trigger and monitor the action
+3. Makefile rule to list images in the container registry
+4. Makefile rule to delete a named image from the container registry
 
 ## Detailed Requirements
 
 ### 1. GitHub Action
 
 #### Trigger
-- Support script run on developer workstation, not every repo push.
+- Support manual triggering through GitHub UI
+- Must be triggerable by makefile rule run on developer workstation
+
+#### Authentication
+- Recommendation: Use a GitHub Personal Access Token (PAT) stored as an environment variable (e.g., GITHUB_PAT) for authentication in both the GitHub Action and makefile rules
 
 #### Domain
-- All Dockerfiles found in the `RBM-recipes` subdirectory of the repository.
+- All Dockerfiles found in the `RBM-recipes` subdirectory of the repository
 
 #### Build Process
 a. Generate a timestamp postfix:
@@ -27,6 +31,7 @@ a. Generate a timestamp postfix:
 b. Create a Build Label for each image:
    - Format: `<filename>.<timestamp>`
    - Remove `.dockerfile` or `.recipe` extensions from the filename
+   - This Build Label will be used as the container image tag when uploading to the container registry
 
 c. Create a History Subdirectory:
    - Location: `RBM-transcripts/<Build Label>/`
@@ -39,22 +44,30 @@ d. Attempt to build all Docker images:
    - No secrets are required for these builds
    - Build only for PC architecture
 
-e. Commit the History Subdirectory to the repository for each build (regardless of build success)
+e. Commit the History Subdirectory to the repository for each build attempt (regardless of build success)
+   - This must be done by the GitHub Action as it orchestrates the process
+   - There should not be merge conflicts since the GitHub Action is the exclusive creator of new History Subdirectories
 
-f. If a build is successful, upload the image to the GitHub Container Registry
+f. If a build is successful:
+   - Upload the image to the GitHub Container Registry using the Build Label as the image tag
+   - Create a new file in the History Subdirectory called `digest.txt` containing:
+     * Size of the image
+     * Duration of the build
 
-### 2. Support Script: Action Trigger
+### 2. Makefile Rule: Action Trigger
 - Initiate the GitHub Action
 - Block (wait) until the action completes
 
-### 3. Support Script: List Images
+### 3. Makefile Rule: List Images
 - List all images currently stored in the repository's container registry
 
-### 3. Support Script: Delete Image
-- Delete a named image from the repository's container registry
+### 4. Makefile Rule: Delete Image
+- Delete a single named image from the repository's container registry
+- Prompt for confirmation before deleting
 
 ## Additional Notes
-- There is no requirement to manage a persistent cache, as builds will be infrequent.
-- All Dockerfiles should build correctly without any secrets.
-- The action is not responsible for deleting old versions of images. This is handled by support scripts provided to the developer.
-- Developers are responsible for all cleanups, including pruning old images and deleting their History Directories after the build.
+- There is no requirement to manage a persistent cache, as builds will be infrequent
+- All Dockerfiles should build correctly without any secrets
+- The action is not responsible for deleting old versions of images. This is handled by makefile rules provided to the developer
+- Developers are responsible for all cleanups, including pruning old images and deleting their History Directories after the build
+- The makefile containing the support rules should be delivered separately, not via the GitHub repository
