@@ -14,12 +14,12 @@ Create a GitHub Action and support bash scripts to automate the building of Dock
 ### 1. GitHub Action
 
 #### Trigger
-- support script run on developer workstation, not every repo push.
+- Support script run on developer workstation, not every repo push.
 
 #### Domain
-- all Dockerfiles found in the `RBM-recipes` subdirectory of the repository.
+- All Dockerfiles found in the `RBM-recipes` subdirectory of the repository.
 
-#### Build Process for each Dockerfile
+#### Build Process
 a. Generate a timestamp postfix:
    - Use the command: `date +'%Y%m%d__%H%M%S'`
    - This will be used in the Build Label
@@ -33,11 +33,13 @@ c. Create a History Subdirectory:
    - Copy the Dockerfile into this directory
    - Store build transcript in `history.txt` within this directory
 
-d. Attempt to build the Docker image
+d. Attempt to build all Docker images in parallel:
+   - Failure of one build should not affect the attempt of another
+   - No secrets are required for these builds
 
-e. Commit the History Subdirectory to the repository (regardless of build success)
+e. Commit the History Subdirectory to the repository for each build (regardless of build success)
 
-f. If build is successful, upload the image to the GitHub Container Registry
+f. If a build is successful, upload the image to the GitHub Container Registry
 
 ### 2. Support Script: Action Trigger
 - Initiate the GitHub Action
@@ -48,3 +50,7 @@ f. If build is successful, upload the image to the GitHub Container Registry
 
 ### 4. Support Script: Delete Image
 - Remove a specified image from the repository's container registry
+
+## Additional Notes
+- There is no requirement to manage a persistent cache, as builds will be infrequent.
+- All Dockerfiles should build correctly without any secrets.
