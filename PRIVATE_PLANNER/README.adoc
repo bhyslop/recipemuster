@@ -25,6 +25,13 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * TODO: construct makefile machinery to create the json for matrix config
 * TODO: ??? Decide what to do around -> `rbm-P.SetupPodman.sh`
 
+=== Minidrama: Local Image Studies
+
+On startup this morning, I decided to play with my local images.
+Whoa they're bigger than I expected!
+It is seriously reducing what the minimum viable product should be.
+No periodic autobuilds for darn sure.
+
 === Minidrama: Plan Ambiguity
 
 I'm having a devil of a time making a plan to transfer the build of several dockerfiles into a Github Action where they get maintained in the Github Container Registry for use.
