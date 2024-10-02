@@ -1,25 +1,50 @@
-SUMMARY: I want a Github Action and some support scripts that build my project's containers within github servers and post the successfully built images to the github container registry.
+# GitHub Action for Container Building and Registry Management
 
-The action must trigger builds of all files found in repo subdirectory `RBM-recipes`: every file there is a dockerfile.
+## Objective
+Create a GitHub Action and support bash scripts to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
 
-At the beginning of each attempt to build all such images, the Github Action must
-derive a postfix from the invocation time on the github server with the following linux command or similar:
-   ```
-   date +'%Y%m%d__%H%M%S'
-   ```
+## Main Components
+1. GitHub Action for building and uploading containers
+2. Support script to trigger and monitor the action
+3. Support script to list images in the container registry
+4. Support script to delete images from the container registry
 
-The Build Label for each build should be thus the filename found in `RBM-recipes` minus any `.dockerfile` or `.recipe` extension but then appended with the above datestamp.
+## Detailed Requirements
 
-At the beginning of each build, create a History Subdirectory.
-The History Subdirectory must be in repo root directory `RBM-transcripts` and must include the Build Label.
-Copy the dockerfile verbatim into the History Subdirectory at the beginning of the build.
-Store the textual transcript of the build attempt in file `history.txt` under the History Subdirectory.
-At the conclusion of the build, whether successful or not, the History Subdirectory must be committed to the github repository.
+### 1. GitHub Action
 
-If a build is successful, the image must be posted to the github repo's container registry area.
+#### Trigger
+- support script run on developer workstation, not every repo push.
 
-One support script is a command that triggers the whole action and then blocks until the action has completed.
+#### Domain
+- all Dockerfiles found in the `RBM-recipes` subdirectory of the repository.
 
-Another support script lists all images resident in the repo's container registry area.
+#### Build Process for each Dockerfile
+a. Generate a timestamp postfix:
+   - Use the command: `date +'%Y%m%d__%H%M%S'`
+   - This will be used in the Build Label
 
-Another support script causes the deletion of an image from the repo's container registry area.
+b. Create a Build Label for each image:
+   - Format: `<filename>.<timestamp>`
+   - Remove `.dockerfile` or `.recipe` extensions from the filename
+
+c. Create a History Subdirectory:
+   - Location: `RBM-transcripts/<Build Label>/`
+   - Copy the Dockerfile into this directory
+   - Store build transcript in `history.txt` within this directory
+
+d. Attempt to build the Docker image
+
+e. Commit the History Subdirectory to the repository (regardless of build success)
+
+f. If build is successful, upload the image to the GitHub Container Registry
+
+### 2. Support Script: Action Trigger
+- Initiate the GitHub Action
+- Block (wait) until the action completes
+
+### 3. Support Script: List Images
+- List all images currently stored in the repository's container registry
+
+### 4. Support Script: Delete Image
+- Remove a specified image from the repository's container registry
