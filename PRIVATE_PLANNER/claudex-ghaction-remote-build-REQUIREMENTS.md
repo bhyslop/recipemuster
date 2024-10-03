@@ -79,8 +79,10 @@ f. If a build is successful:
 - All Dockerfiles should build correctly without any secrets
 - The action is not responsible for deleting old versions of images. This is handled by makefile rules provided to the developer
 - Developers are responsible for all cleanups, including pruning old images and deleting their History Directories after the build
-- The makefile containing the support rules should be delivered separately, not via the GitHub repository
-- Use Docker Buildx for improved build performance and multi-platform support if needed in the future
-- Consider implementing a mechanism to prevent concurrent builds of the same Dockerfile to avoid conflicts
-- Add error handling and logging to the GitHub Action to provide better feedback on build failures
-- Consider implementing a retention policy for old images and build histories to manage storage usage
+- All error handling is expected to be done via the history
+
+## IGNORE THIS SECTION
+
+This section does not contain requirements; rather it is a list of future considerations for requirements.
+- Use Docker Buildx???
+
