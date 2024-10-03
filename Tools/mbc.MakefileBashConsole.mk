@@ -37,6 +37,7 @@ MBC_SHOW_GREEN  := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s
 MBC_NOW := $(shell date +'%Y%m%d__%H%M%S%3N')
 
 MBC_PASS := $(MBC_SHOW_GREEN)
+MBC_STEP := $(MBC_SHOW_WHITE)
 MBC_FAIL := (printf $(zMBC_TPUT_RESET)$(zMBC_TPUT_RED)$(MBC_ARG__CONTEXT_STRING)' FAILED\n'$(zMBC_TPUT_RESET) && exit 1)
 
 # Experiment to use in compound statements.
