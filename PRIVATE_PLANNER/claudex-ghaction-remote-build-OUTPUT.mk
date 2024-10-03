@@ -71,3 +71,4 @@ zsmc_argcheck_rule:
 		$(MBC_FAIL) "GITHUB_PAT environment variable is not set"; \
 		exit 1; \
 	fi
+
