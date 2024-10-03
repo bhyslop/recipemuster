@@ -15,7 +15,6 @@ zCMC_GITHUB_REPO        ?= $(shell git config --get remote.origin.url | sed 's/.
 zCMC_GITHUB_API_URL      = https://api.github.com
 zCMC_GITHUB_CONTAINER_REGISTRY = ghcr.io
 
-# Action Trigger
 bc-TR.%: zcmc_argcheck_rule
 	$(MBC_START) "Triggering GitHub Action for container building"
 	$(MBC_STEP) "Dispatching repository event..."
@@ -33,7 +32,6 @@ bc-TR.%: zcmc_argcheck_rule
 	done
 	$(MBC_PASS) "GitHub Action completed"
 
-# List Images
 bc-LI.%: zcmc_argcheck_rule
 	$(MBC_START) "Listing images in container registry"
 	$(MBC_STEP) "Fetching image list..."
@@ -42,19 +40,17 @@ bc-LI.%: zcmc_argcheck_rule
 	  jq -r '.[] | select(.name | startswith("$(zCMC_GITHUB_REPO)")) | .name'
 	$(MBC_PASS) "Image list retrieved"
 
-# Delete Image
 bc-DI.%: zcmc_argcheck_rule
 	$(MBC_START) "Deleting image from container registry"
 	$(MBC_STEP) "Prompting for confirmation..."
-	@read -p "Enter the name of the image to delete: " image_name            &&\
-	read -p "Are you sure you want to delete $$image_name? (y/N): " confirm  &&\
-	test "$$confirm" = "y" -o "$$confirm" = "Y"                              &&\
-	$(MBC_STEP) "Deleting image..."                                          &&\
-	curl -X DELETE -H "Authorization: token $(zCMC_GITHUB_PAT)"              \
+	read -p "Enter the name of the image to delete: " image_name            &&\
+	read -p "Are you sure you want to delete $$image_name? (y/N): " confirm &&\
+	test "$$confirm" = "y" -o "$$confirm" = "Y"                             &&\
+	$(MBC_STEP) "Deleting image..."                                         &&\
+	curl -X DELETE -H "Authorization: token $(zCMC_GITHUB_PAT)"             \
 	  $(zCMC_GITHUB_API_URL)/user/packages/container/$(zCMC_GITHUB_REPO)/versions/$$image_name
 	$(MBC_PASS) "Image deleted successfully"
 
-# Internal rule for argument checking
 zcmc_argcheck_rule:
 	@:
 
