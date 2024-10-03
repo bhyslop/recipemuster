@@ -1,19 +1,18 @@
-name: Build and Upload Containers
+name: Container Build and Upload
 
 on:
   workflow_dispatch:
   repository_dispatch:
-    types: [build-containers]
+    types: [build_containers]
 
 env:
-  REGISTRY: ghcr.io
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-push:
+  build-and-upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
@@ -22,53 +21,44 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d__%H%M%S')"
 
       - name: Build and push containers
         run: |
           for dockerfile in RBM-recipes/*.dockerfile RBM-recipes/*.recipe; do
             if [ -f "$dockerfile" ]; then
               filename=$(basename "$dockerfile")
-              filename_noext="${filename%.*}"
-              timestamp=$(date +'%Y%m%d__%H%M%S')
-              build_label="${filename_noext}.${timestamp}"
+              build_label="${filename%.*}.${GITHUB_SHA::7}.${{ steps.timestamp.outputs.timestamp }}"
               
-              echo "Processing $filename (Build Label: $build_label)"
+              echo "Building $build_label"
               
               # Create History Subdirectory
-              history_dir="RBM-transcripts/${build_label}"
-              mkdir -p "$history_dir"
-              cp "$dockerfile" "$history_dir/"
-              echo ${{ github.sha }} > "$history_dir/commit.txt"
+              mkdir -p "RBM-transcripts/$build_label"
+              cp "$dockerfile" "RBM-transcripts/$build_label/"
+              echo "${{ github.sha }}" > "RBM-transcripts/$build_label/commit.txt"
               
               # Attempt to build
-              build_start=$(date +%s)
-              if docker build -f "$dockerfile" -t "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}" . > "$history_dir/history.txt" 2>&1; then
-                build_end=$(date +%s)
-                build_duration=$((build_end - build_start))
-                
-                # Push the image
-                docker push "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}"
-                
-                # Get image size
-                image_size=$(docker image inspect "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}" --format='{{.Size}}')
+              if docker build -t "ghcr.io/${{ github.repository }}:$build_label" -f "$dockerfile" . > "RBM-transcripts/$build_label/history.txt" 2>&1; then
+                # If build successful, push to registry
+                docker push "ghcr.io/${{ github.repository }}:$build_label"
                 
                 # Create digest.txt
-                echo "Size: $image_size" > "$history_dir/digest.txt"
-                echo "Duration: ${build_duration}s" >> "$history_dir/digest.txt"
-                
-                echo "Successfully built and pushed: $build_label"
-              else
-                echo "Failed to build: $build_label"
+                echo "Size: $(docker image inspect ghcr.io/${{ github.repository }}:$build_label --format='{{.Size}}')" > "RBM-transcripts/$build_label/digest.txt"
+                echo "Build duration: $SECONDS seconds" >> "RBM-transcripts/$build_label/digest.txt"
               fi
-              
-              # Commit History Subdirectory
-              git config --local user.email "action@github.com"
-              git config --local user.name "GitHub Action"
-              git add "$history_dir"
-              git commit -m "Add build history for $build_label"
-              git push
             fi
           done
+
+      - name: Commit History Subdirectory
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add RBM-transcripts
+          git commit -m "Add build history for ${{ steps.timestamp.outputs.timestamp }}"
+          git push
