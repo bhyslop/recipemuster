@@ -26,51 +26,49 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker images
+      - name: Build and push containers
         run: |
           for dockerfile in RBM-recipes/*.dockerfile RBM-recipes/*.recipe; do
             if [ -f "$dockerfile" ]; then
               filename=$(basename "$dockerfile")
-              name="${filename%.*}"
+              filename_noext="${filename%.*}"
               timestamp=$(date +'%Y%m%d__%H%M%S')
-              build_label="${name}.${timestamp}"
+              build_label="${filename_noext}.${timestamp}"
               
-              echo "Processing $filename with build label $build_label"
+              echo "Processing $filename (Build Label: $build_label)"
               
-              # Create history directory
+              # Create History Subdirectory
               history_dir="RBM-transcripts/${build_label}"
               mkdir -p "$history_dir"
               cp "$dockerfile" "$history_dir/"
-              echo ${{ github.sha }} > "${history_dir}/commit.txt"
+              echo ${{ github.sha }} > "$history_dir/commit.txt"
               
-              # Attempt to build the image
+              # Attempt to build
               build_start=$(date +%s)
-              if docker build -t "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}" -f "$dockerfile" .; then
+              if docker build -f "$dockerfile" -t "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}" . > "$history_dir/history.txt" 2>&1; then
                 build_end=$(date +%s)
                 build_duration=$((build_end - build_start))
                 
                 # Push the image
                 docker push "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}"
                 
-                # Get image size and save digest
+                # Get image size
                 image_size=$(docker image inspect "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}" --format='{{.Size}}')
-                echo "Image size: $image_size bytes" > "${history_dir}/digest.txt"
-                echo "Build duration: $build_duration seconds" >> "${history_dir}/digest.txt"
                 
-                echo "Successfully built and pushed ${build_label}"
+                # Create digest.txt
+                echo "Size: $image_size" > "$history_dir/digest.txt"
+                echo "Duration: ${build_duration}s" >> "$history_dir/digest.txt"
+                
+                echo "Successfully built and pushed: $build_label"
               else
-                echo "Failed to build ${build_label}"
+                echo "Failed to build: $build_label"
               fi
               
-              # Save build transcript
-              docker build -t "${{ env.REGISTRY }}/${{ github.repository }}:${build_label}" -f "$dockerfile" . &> "${history_dir}/history.txt"
+              # Commit History Subdirectory
+              git config --local user.email "action@github.com"
+              git config --local user.name "GitHub Action"
+              git add "$history_dir"
+              git commit -m "Add build history for $build_label"
+              git push
             fi
           done
-
-      - name: Commit history
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add RBM-transcripts
-          git commit -m "Add build history [skip ci]" || echo "No changes to commit"
-          git push

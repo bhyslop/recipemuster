@@ -148,7 +148,7 @@ rbm-i.%: zrbm_argcheck_rule
 
 
 rbm-BL.%: zrbm_argcheck_rule
-	$(zRBM_START) "BUILD RECIPES LOCALLY"
+	$(zRBM_START) "Build all recipies locally"
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true

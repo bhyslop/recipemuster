@@ -1,65 +1,73 @@
-# Makefile rules for container management
+#########################
+# Simple Makefile Console
+#
 
-# Ensure GITHUB_PAT is set in your environment variables
-ifndef GITHUB_PAT
-$(error GITHUB_PAT is not set. Please set it in your environment variables)
-endif
+zSMC_MBC_MAKEFILE = $(zSMC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 
-REPO_OWNER := $(shell git config --get remote.origin.url | sed -n 's/.*github.com[:\/]\(.*\)\/\(.*\)\.git/\1/p')
-REPO_NAME := $(shell git config --get remote.origin.url | sed -n 's/.*github.com[:\/]\(.*\)\/\(.*\)\.git/\2/p')
+# Specify line prefix used in MBC display commands
+MBC_ARG__CONTEXT_STRING = smc.ContainerManagement.mk
 
-.PHONY: trigger-build list-images delete-image
+include $(zSMC_MBC_MAKEFILE)
 
-trigger-build:
-	@echo "Triggering GitHub Action to build containers..."
-	@curl -X POST \
-		-H "Authorization: token $(GITHUB_PAT)" \
+# GitHub-related variables
+zSMC_GITHUB_TOKEN ?= $(GITHUB_PAT)
+zSMC_GITHUB_REPO  ?= $(shell git config --get remote.origin.url | sed 's/.*://;s/.git$//')
+zSMC_REGISTRY     := ghcr.io
+
+# External Targets
+
+bc-trigger-build.sh: zsmc_argcheck_rule
+	$(MBC_START) "Triggering GitHub Action to build containers"
+	@curl -X POST -H "Authorization: token $(zSMC_GITHUB_TOKEN)" \
 		-H "Accept: application/vnd.github.v3+json" \
-		https://api.github.com/repos/$(REPO_OWNER)/$(REPO_NAME)/dispatches \
+		https://api.github.com/repos/$(zSMC_GITHUB_REPO)/dispatches \
 		-d '{"event_type": "build-containers"}'
-	@echo "Build triggered. Waiting for completion..."
+	@echo "Waiting for GitHub Action to complete..."
 	@while true; do \
-		status=$$(curl -s -H "Authorization: token $(GITHUB_PAT)" \
+		status=$$(curl -s -H "Authorization: token $(zSMC_GITHUB_TOKEN)" \
 			-H "Accept: application/vnd.github.v3+json" \
-			https://api.github.com/repos/$(REPO_OWNER)/$(REPO_NAME)/actions/runs \
-			| jq -r '.workflow_runs[0].status'); \
+			https://api.github.com/repos/$(zSMC_GITHUB_REPO)/actions/runs | \
+			jq -r '.workflow_runs[0].status'); \
 		if [ "$$status" = "completed" ]; then \
-			echo "Build completed."; \
 			break; \
-		elif [ "$$status" = "null" ]; then \
-			echo "No active workflow found. Please check manually."; \
-			break; \
-		else \
-			echo "Build status: $$status"; \
-			sleep 30; \
-		fi \
+		fi; \
+		sleep 10; \
 	done
+	$(MBC_PASS) "GitHub Action completed"
 
-list-images:
-	@echo "Listing images in the container registry..."
-	@curl -s -H "Authorization: token $(GITHUB_PAT)" \
+bc-list-images.sh: zsmc_argcheck_rule
+	$(MBC_START) "Listing images in the container registry"
+	@curl -s -H "Authorization: token $(zSMC_GITHUB_TOKEN)" \
 		-H "Accept: application/vnd.github.v3+json" \
-		https://api.github.com/user/packages?package_type=container \
-		| jq -r '.[] | select(.repository.full_name=="$(REPO_OWNER)/$(REPO_NAME)") | .name'
+		https://api.github.com/orgs/$(shell echo $(zSMC_GITHUB_REPO) | cut -d'/' -f1)/packages/container/$(shell echo $(zSMC_GITHUB_REPO) | cut -d'/' -f2)/versions | \
+		jq -r '.[] | "\(.metadata.container.tags[0]) - \(.name)"'
+	$(MBC_PASS) "Image list retrieved"
 
-delete-image:
-	@echo "Enter the name of the image to delete:"
-	@read -p "Image name: " image_name; \
-	echo "Are you sure you want to delete $$image_name? (y/N)"; \
-	read -p "Confirm: " confirm; \
+bc-delete-image.sh: zsmc_argcheck_rule
+	$(MBC_START) "Deleting image from the container registry"
+	@read -p "Enter the image tag to delete: " image_tag; \
+	read -p "Are you sure you want to delete $$image_tag? (y/N): " confirm; \
 	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
-		package_id=$$(curl -s -H "Authorization: token $(GITHUB_PAT)" \
+		version_id=$$(curl -s -H "Authorization: token $(zSMC_GITHUB_TOKEN)" \
 			-H "Accept: application/vnd.github.v3+json" \
-			https://api.github.com/user/packages?package_type=container \
-			| jq -r '.[] | select(.name=="'$$image_name'") | .id'); \
-		if [ -n "$$package_id" ]; then \
-			curl -X DELETE -H "Authorization: token $(GITHUB_PAT)" \
+			https://api.github.com/orgs/$(shell echo $(zSMC_GITHUB_REPO) | cut -d'/' -f1)/packages/container/$(shell echo $(zSMC_GITHUB_REPO) | cut -d'/' -f2)/versions | \
+			jq -r '.[] | select(.metadata.container.tags[0] == "'$$image_tag'") | .id'); \
+		if [ -n "$$version_id" ]; then \
+			curl -X DELETE -H "Authorization: token $(zSMC_GITHUB_TOKEN)" \
 				-H "Accept: application/vnd.github.v3+json" \
-				https://api.github.com/user/packages/container/$$image_name; \
-			echo "Image $$image_name deleted."; \
+				https://api.github.com/orgs/$(shell echo $(zSMC_GITHUB_REPO) | cut -d'/' -f1)/packages/container/$(shell echo $(zSMC_GITHUB_REPO) | cut -d'/' -f2)/versions/$$version_id; \
+			$(MBC_PASS) "Image $$image_tag deleted"; \
 		else \
-			echo "Image $$image_name not found."; \
-		fi \
+			$(MBC_FAIL) "Image $$image_tag not found"; \
+		fi; \
 	else \
-		echo "Deletion cancelled."; \
+		$(MBC_PASS) "Deletion cancelled"; \
+	fi
+
+# Internal targets
+
+zsmc_argcheck_rule:
+	@if [ -z "$(zSMC_GITHUB_TOKEN)" ]; then \
+		$(MBC_FAIL) "GITHUB_PAT environment variable is not set"; \
+		exit 1; \
 	fi
