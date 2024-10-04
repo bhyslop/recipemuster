@@ -20,7 +20,7 @@ Create a GitHub Action and support makefile rules for use by developers to autom
 
 #### Authentication
 - Use the built-in GITHUB_TOKEN secret for authentication in the GitHub Action
-- Use a GitHub Personal Access Token (PAT) stored as an environment variable (e.g., GITHUB_PAT) for authentication in makefile rules
+- Use a GitHub Personal Access Token (PAT) stored as an environment variable named RBM_GITHUB_PAT for authentication in makefile rules
 
 #### Configuration
 - Use a configuration file named `rbm-config.yml` in the repository root to define the following variables with their defaults:
@@ -36,13 +36,19 @@ Create a GitHub Action and support makefile rules for use by developers to autom
   fail-fast: false
   ```
 - The `rbm-config.yml` file must be committed to the repository root. If not found, the action must fail fast.
-- These configuration items must be applied in the action environment.
+- Apply the following configuration items in the action environment for rate limiting:
+  - timeout-minutes
+  - concurrency
+  - max-parallel
+  - continue-on-error
+  - fail-fast
 
 #### Domain
 - Process all Dockerfiles found in the directory specified by `recipes_dir` in the configuration
 - Use the `recipe_pattern` from the configuration to identify Dockerfile recipes
 
 #### Build Process
+
 a. Generate a timestamp postfix:
    - Use the command: `date +'%Y%m%d__%H%M%S'`
    - This will be used in the Build Label
@@ -100,8 +106,10 @@ g. Additional Considerations:
 - Use the GitHub API to perform the deletion
 
 ## Additional Notes
+
 - There is no requirement to manage a persistent cache, as builds will be infrequent
 - All Dockerfiles should build correctly without any secrets
 - The action is not responsible for deleting old versions of images. This is handled by makefile rules provided to the developer
 - Developers are responsible for all cleanups, including pruning old images and deleting their History Directories after the build
 - All error handling is expected to be done via the history
+

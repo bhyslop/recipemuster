@@ -49,14 +49,13 @@ No periodic autobuilds for darn sure.
 
 === Minidrama: Sophisticated Refactor
 
-* REVISE THE PAT NAME
-* Implement following configuration file items and assure they are applied in the action environment:
+* For makefile access, require GITHUB_PAT to have name RBM_GITHUB_PAT
+* Apply following configuration file items in the action environment for rate limiting:
   timeout-minutes
   concurrency
   max-parallel
   continue-on-error
   fail-fast
-
 
 Here's a place I'm building up a sophisticated modification request for Claude...
 
