@@ -47,6 +47,34 @@ Whoa they're bigger than I expected!
 It is seriously reducing what the minimum viable product should be.
 No periodic autobuilds for darn sure.
 
+=== Minidrama: Sophisticated Refactor
+
+* REVISE THE PAT NAME
+* Implement following configuration file items and assure they are applied in the action environment:
+  timeout-minutes
+  concurrency
+  max-parallel
+  continue-on-error
+  fail-fast
+
+
+Here's a place I'm building up a sophisticated modification request for Claude...
+
+* Add following configuration file items and assure they are applied in the action environment:
+  timeout-minutes
+  concurrency
+  max-parallel
+  continue-on-error
+  fail-fast
+* Alter `build_architecture` configuration item to be `build_architecture` and expressly allow and implement the ability to do a multiple architecure build via a delimited list here
+* Specify that `rbm-config.yml` is to required to committed to the repository root; if not found, action must fail fast.
+* Any attempt to use GHCR that fails needs to cause the action to fail, though it doesn't need to stop other parallel builds.
+* Security scanning is expressly not to be done in this action at this time for simplicity.
+* If history directory already exists at beginning of action, fail fast.
+* No slack or email notifications triggered by github action on completion; user expected to use web interface for that for simplicity.
+* Check before a container build that the intended tag name is unused; if used, fail that build but not necessarily the action.
+* There is no express process for updating the action itself; for simplicity, it is simply a repository file.
+
 === Minidrama: Plan Ambiguity
 
 I'm having a devil of a time making a plan to transfer the build of several dockerfiles into a Github Action where they get maintained in the Github Container Registry for use.
@@ -116,6 +144,10 @@ This section contains reminders about future improvements, deferred for now.
 * Make the github outreach thing function
 * Revise all filesystem names from MBSR to Recipe Muster 
 * Rename Rogue to Bottle
+* Decide what to do about security scanning of the docker images during creation
+* Critical user documentation: 
+  * I think I want to point users to use native GHCR retention policies, and claude thinks there's such a way through github web interface- didn't find it though just now; easier once I have builds
+  * Clearly state dockerfiles must have defaults for all arguments, expected override at startup
 * As per below suggest, use curlies for var substitutions
     https://claude.ai/chat/4b2aeb38-7dd8-4236-9d5a-389db50f919a
 * Pull all build arguments out of dockerfiles, and instead introduce them into the makefile environment
