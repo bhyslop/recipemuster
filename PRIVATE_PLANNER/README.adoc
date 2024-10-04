@@ -21,6 +21,11 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * **DONE** TODO: Try use proper tabtarget arg crack
 * **DONE** TODO: Recast nameplates to makestyle
 * **DONE** TODO: Decide if NAMEPLATE_MONIKER ought to be an RBEV_ thing and apply
+* Improve makefile cycles:
+  * Clarify how console style makefiles accept parameters
+  * Clarify when to use compound commands
+  * Consider local wrappers for MBC_ START, STEP, PASS
+
 * TODO: construct makefile machinery to create the json for matrix config
 * TODO: ??? Decide what to do around -> `rbm-P.SetupPodman.sh`
 
