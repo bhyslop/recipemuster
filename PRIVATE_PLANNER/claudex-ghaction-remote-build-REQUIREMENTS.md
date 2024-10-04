@@ -22,9 +22,18 @@ Create a GitHub Action and support makefile rules for use by developers to autom
 - Use the built-in GITHUB_TOKEN secret for authentication in the GitHub Action
 - Use a GitHub Personal Access Token (PAT) stored as an environment variable (e.g., GITHUB_PAT) for authentication in makefile rules
 
+#### Configuration
+- Use a configuration file named `rbm-config.yml` in the repository root to define the following variables with their defaults:
+  ```yaml
+  build_architecture: x86_64
+  history_dir: RBM-history
+  recipes_dir: RBM-recipes
+  recipe_pattern: "*.dockerfile"
+  ```
+
 #### Domain
-- Process all Dockerfiles found in the `RBM-recipes` subdirectory of the repository
-- Support both `.dockerfile` and `.recipe` file extensions
+- Process all Dockerfiles found in the directory specified by `recipes_dir` in the configuration
+- Use the `recipe_pattern` from the configuration to identify Dockerfile recipes
 
 #### Build Process
 a. Generate a timestamp postfix:
@@ -33,20 +42,21 @@ a. Generate a timestamp postfix:
 
 b. Create a Build Label for each image:
    - Format: `<filename>.<short_commit_hash>.<timestamp>`
-   - Remove `.dockerfile` or `.recipe` extensions from the filename
+   - Remove file extensions specified in `recipe_pattern` from the filename
    - Include the first 7 characters of the commit hash
    - This Build Label will be used as the container image tag when uploading to the container registry
 
 c. Create a History Subdirectory:
-   - Location: `RBM-transcripts/<Build Label>/`
+   - Location: `<history_dir>/<Build Label>/`
    - Copy the Dockerfile into this directory
    - Store build transcript in `history.txt` within this directory
    - Create a file called `commit.txt` containing the full GitHub commit hash of the repo corresponding to the Dockerfile
 
-d. Attempt to build all Docker images:
+d. Implement a matrix build strategy for parallel builds:
+   - Use GitHub Actions matrix strategy to build multiple Dockerfiles concurrently
    - Failure of one build should not affect the attempt of another
    - No secrets are required for these builds
-   - Build only for the architecture of the GitHub Action runner (typically x86_64)
+   - Build for the architecture specified in `build_architecture` configuration
    - Use Docker Buildx for improved build performance
 
 e. Commit the History Subdirectory to the repository for each build attempt (regardless of build success)
@@ -80,9 +90,3 @@ f. If a build is successful:
 - The action is not responsible for deleting old versions of images. This is handled by makefile rules provided to the developer
 - Developers are responsible for all cleanups, including pruning old images and deleting their History Directories after the build
 - All error handling is expected to be done via the history
-
-## IGNORE THIS SECTION
-
-This section does not contain requirements; rather it is a list of future considerations for requirements.
-- Use Docker Buildx???
-

@@ -9,7 +9,6 @@ Author Name <author@example.com>
 
 This is highly personal action planning support.
 
-
 == MINIDRAMAS
 
 === Minidrama: CURRENT FOCUS: the Alpha Github Action
