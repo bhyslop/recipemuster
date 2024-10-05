@@ -6,8 +6,9 @@ Create a GitHub Action and support makefile rules for use by developers to autom
 ## Main Components
 1. GitHub Action for building and uploading containers
 2. Makefile rule to trigger and monitor the action
-3. Makefile rule to list images in the container registry
-4. Makefile rule to delete a named image from the container registry
+3. Makefile rule to query the status of ongoing builds
+4. Makefile rule to list images in the container registry
+5. Makefile rule to delete a named image from the container registry
 
 ## Detailed Requirements
 
@@ -91,16 +92,26 @@ g. Additional Considerations:
    - No Slack or email notifications are to be triggered by the GitHub action on completion; users are expected to use the web interface for that, for simplicity
    - There is no express process for updating the action itself; for simplicity, it is simply a repository file
 
-### 2. Makefile Rule: Action Trigger
+### 2. Makefile Rule: Trigger Builds
 - Initiate the GitHub Action using the repository_dispatch event
-- Block (wait) until the action completes
 - Use curl or a similar tool to trigger the action and monitor its progress
+- Stash information useful for querying the current state of the GitHub action in a file named `../CURRENT_BUILD.txt`
+  - This information should include, at minimum:
+    * The timestamp when the build was triggered
+    * The workflow run ID or any other unique identifier for the specific build
+    * The repository name and owner
 
-### 3. Makefile Rule: List Images
+### 3. Makefile Rule: Query Builds
+- Use the information stored in `../CURRENT_BUILD.txt` to query whether the action has completed
+- Return a Unix status of success (0) if the build attempt has finished
+- Return a Unix status of failure (non-zero) if the build is ongoing
+- This rule should use the GitHub API to check the status of the workflow run
+
+### 4. Makefile Rule: List Images
 - List all images currently stored in the repository's container registry
 - Use the GitHub API to retrieve this information
 
-### 4. Makefile Rule: Delete Image
+### 5. Makefile Rule: Delete Image
 - Delete a single named image from the repository's container registry
 - Prompt for confirmation before deleting
 - Use the GitHub API to perform the deletion
@@ -112,4 +123,3 @@ g. Additional Considerations:
 - The action is not responsible for deleting old versions of images. This is handled by makefile rules provided to the developer
 - Developers are responsible for all cleanups, including pruning old images and deleting their History Directories after the build
 - All error handling is expected to be done via the history
-
