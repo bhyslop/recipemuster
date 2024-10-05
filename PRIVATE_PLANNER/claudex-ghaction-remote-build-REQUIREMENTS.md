@@ -1,15 +1,16 @@
 # GitHub Action for Container Building and Registry Management
 
 ## Objective
-Create a GitHub V3 Action and supporting makefile rules to build Docker containers and manage them in the GitHub Container Registry.
+Create a GitHub V3 Action, supporting Console Makefile rules, and a User Guide to build Docker containers and manage them in the GitHub Container Registry.
 
 ## Components
 1. GitHub Action for building and uploading containers
-2. Makefile rules for:
+2. Console Makefile rules for:
    - Triggering and monitoring the action
    - Querying build status
    - Listing registry images
    - Deleting specific registry images
+3. User Guide for setup and usage
 
 ## Detailed Requirements
 
@@ -18,11 +19,11 @@ Create a GitHub V3 Action and supporting makefile rules to build Docker containe
 #### Trigger
 - Manual trigger via GitHub UI (workflow_dispatch)
 - Repository_dispatch event type 'build_containers'
-- Triggerable by makefile rule from developer's workstation
+- Triggerable by Console Makefile rule from developer's workstation
 
 #### Authentication
 - GitHub Action: Use GITHUB_TOKEN secret
-- Makefile rules: Use GitHub Personal Access Token (RBM_GITHUB_PAT)
+- Console Makefile rules: Use GitHub Personal Access Token (RBM_GITHUB_PAT)
 
 #### Configuration
 - Use `rbm-config.yml` in repository root with these variables:
@@ -37,7 +38,7 @@ Create a GitHub V3 Action and supporting makefile rules to build Docker containe
   continue-on-error:   false
   fail-fast:           false
   ```
-- Action must fail if `rbm-config.yml` is missing or improperly formatted
+- GitHub Action must fail if `rbm-config.yml` is missing or improperly formatted
 - Implement `timeout-minutes`, `concurrency`, `max-parallel`, `continue-on-error`, and `fail-fast` using native GitHub Actions workflow syntax
 
 #### Build Process
@@ -53,7 +54,7 @@ Create a GitHub V3 Action and supporting makefile rules to build Docker containe
 3. Create History Subdirectory: `<history_dir>/<Build Label>/`
    - Verify directory doesn't exist at action start; fail if it does
    - Copy Dockerfile to this directory
-   - Store complete build transcript in `history.txt`
+   - Store complete Build Transcript in `history.txt`
    - Create `commit.txt` with full GitHub commit hash
 
 4. Matrix build strategy:
@@ -67,37 +68,59 @@ Create a GitHub V3 Action and supporting makefile rules to build Docker containe
    - Configure git user.email as "github-actions[bot]@users.noreply.github.com"
    - Configure git user.name as "github-actions[bot]"
 
-6. Successful build:
+6. Successful Build:
+   - Defined as: the dockerfile builds without errors and uploads to GHCR
    - Upload to GitHub Container Registry with Build Label tag
    - Fail action if GHCR upload fails after 3 retries
    - Create `digest.txt` with image size (in MB) and build duration (in seconds)
 
 7. Versioning: Use only Build Label as image tag
 
-### 2. Makefile Rule: Trigger Builds
+8. Build Transcript: A complete log of the build process, including all commands, outputs, and errors
+
+### 2. Console Makefile Rules
+
+#### Allowed Tools
+The Console Makefile is allowed to use only the following tools:
+- `make`
+- `jq`
+- `curl`
+- Standard `bash` utilities
+- `podman` OR `docker`
+
+#### Rule: Trigger Builds
 - Initiate action using repository_dispatch event
 - Monitor progress by polling GitHub API every 30 seconds
 - Store query URL in `../LAST_GET_WORKFLOW_RUN.txt`
 - Display real-time status updates to the user
 
-### 3. Makefile Rule: Query Builds
+#### Rule: Query Builds
 - Use URL from `../LAST_GET_WORKFLOW_RUN.txt`
 - Return exit code 0 if build finished (success or failure), non-zero if ongoing
-- Display build status and any error messages
+- Display build status with no error messages or very terse ones only
 
-### 4. Makefile Rule: List Images
+#### Rule: List Images
 - List all repository's container registry images
 - Use GitHub API
 - Display image name, tag, size, and creation date in a tabular format
 
-### 5. Makefile Rule: Delete Image
+#### Rule: Delete Image
 - Delete specified image from repository's container registry
 - Prompt for confirmation, showing image details before deletion
 - Use GitHub API
 - Provide feedback on successful deletion or any errors encountered
+
+### 3. User Guide Requirements
+
+The User Guide should include verbatim guides describing the following:
+
+1. PAT generation process with required scopes
+2. Local environment setup (e.g., setting environment variables)
+3. Required tools
 
 ## Notes
 - No persistent cache management is implemented in this version
 - Dockerfiles are built without secrets
 - Developers are responsible for managing cleanups (old images, History Directories)
 - Error handling is primarily managed through the history directory and build transcripts
+- No retry for API calls from Console Makefile: this is a user determination
