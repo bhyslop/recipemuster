@@ -95,17 +95,15 @@ g. Additional Considerations:
 ### 2. Makefile Rule: Trigger Builds
 - Initiate the GitHub Action using the repository_dispatch event
 - Use curl or a similar tool to trigger the action and monitor its progress
-- Stash information useful for querying the current state of the GitHub action in a file named `../CURRENT_BUILD.txt`
-  - This information should include, at minimum:
-    * The timestamp when the build was triggered
-    * The workflow run ID or any other unique identifier for the specific build
-    * The repository name and owner
+- From information gathered during trigger, stash the url needed to query status the triggered action into `../LAST_GET_WORKFLOW_RUN.txt`.  This will be similar to:
+   ```
+   https://api.github.com/repos/{owner}/{repo}/actions/runs/{run_id}
+   ```
 
 ### 3. Makefile Rule: Query Builds
-- Use the information stored in `../CURRENT_BUILD.txt` to query whether the action has completed
+- Use the url in `../LAST_GET_WORKFLOW_RUN.txt` to issue the "Get a workflow run" api request.
 - Return a Unix status of success (0) if the build attempt has finished
 - Return a Unix status of failure (non-zero) if the build is ongoing
-- This rule should use the GitHub API to check the status of the workflow run
 
 ### 4. Makefile Rule: List Images
 - List all images currently stored in the repository's container registry
