@@ -1,7 +1,7 @@
 # GitHub Action for Container Building and Registry Management
 
 ## Objective
-Create a GitHub Action and support makefile rules for use by developers to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
+Create a GitHub V3 Action and support makefile rules for use by developers to automate the building of Docker containers and manage their storage in the GitHub Container Registry.
 
 ## Main Components
 1. GitHub Action for building and uploading containers
@@ -27,22 +27,24 @@ Create a GitHub Action and support makefile rules for use by developers to autom
 - Use a configuration file named `rbm-config.yml` in the repository root to define the following variables with their defaults:
   ```yaml
   build_architectures: x86_64
-  history_dir: RBM-history
-  recipes_dir: RBM-recipes
-  recipe_pattern: "*.dockerfile"
-  timeout-minutes: 60
-  concurrency: 2
-  max-parallel: 2
-  continue-on-error: false
-  fail-fast: false
+  history_dir:         RBM-history
+  recipes_dir:         RBM-recipes
+  recipe_pattern:      "*.dockerfile"
+  timeout-minutes:     60
+  concurrency:         2
+  max-parallel:        2
+  continue-on-error:   false
+  fail-fast:           false
   ```
 - The `rbm-config.yml` file must be committed to the repository root. If not found, the action must fail fast.
-- Apply the following configuration items in the action environment for rate limiting:
-  - timeout-minutes
-  - concurrency
-  - max-parallel
-  - continue-on-error
-  - fail-fast
+- Implement the following configuration items using native GitHub Actions workflow syntax:
+   ```yaml
+   timeout-minutes
+   concurrency
+   max-parallel
+   continue-on-error
+   fail-fast
+   ```
 
 #### Domain
 - Process all Dockerfiles found in the directory specified by `recipes_dir` in the configuration
@@ -72,7 +74,7 @@ d. Implement a matrix build strategy for parallel builds:
    - Use GitHub Actions matrix strategy to build multiple Dockerfiles concurrently
    - Failure of one build should not affect the attempt of another
    - No secrets are required for these builds
-   - Build for the architectures specified in `build_architectures` configuration, allowing multiple architectures via a delimited list
+   - Build for the architectures specified in `build_architectures` configuration, allowing multiple architectures via a comma delimited list (for direct pass through to the container build)
    - Use Docker Buildx for improved build performance
 
 e. Commit the History Subdirectory to the repository for each build attempt (regardless of build success)
@@ -87,7 +89,12 @@ f. If a build is successful:
      * Size of the image (in bytes)
      * Duration of the build (in seconds)
 
-g. Additional Considerations:
+g. Versioning and Tagging:
+   - Use only the Build Label as the image tag.
+   - Do not implement or maintain a 'latest' tag.
+   - Do not implement any additional versioning schemes beyond the Build Label.
+
+h. Additional Considerations:
    - Security scanning is expressly not to be done in this action at this time for simplicity
    - No Slack or email notifications are to be triggered by the GitHub action on completion; users are expected to use the web interface for that, for simplicity
    - There is no express process for updating the action itself; for simplicity, it is simply a repository file
