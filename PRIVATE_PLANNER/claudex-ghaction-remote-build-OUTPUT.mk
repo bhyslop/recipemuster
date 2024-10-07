@@ -1,61 +1,129 @@
-#########################
-# Container Build Makefile Console
-#
+## GitHub Container Registry Build Makefile
+## Created: 2024-10-07
 
-zCBC_MBC_MAKEFILE = $(zCBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+# Master Makefile Prefix
+GHCR_PREFIX := GHCR
 
-# Specify line prefix used in MBC display commands
-MBC_ARG__CONTEXT_STRING = cbc.ContainerBuildConsole.mk
+# External variables
+GITHUB_REPO ?=
+RBM_GITHUB_PAT ?=
+CONTAINER_TOOL ?= docker
 
-include $(zCBC_MBC_MAKEFILE)
+# Internal variables
+zGHCR_API_URL := https://api.github.com
+zGHCR_WORKFLOW_FILE := .github/workflows/build-containers.yml
+zGHCR_CONFIG_FILE := rbm-config.yml
+zGHCR_LAST_WORKFLOW_RUN_FILE := ../LAST_GET_WORKFLOW_RUN.txt
 
-# GitHub Personal Access Token
-zCBC_GITHUB_PAT ?= $(shell echo $$RBM_GITHUB_PAT)
+# Error handling and messaging
+define MBC_START
+	@echo "Starting: $(1)"
+endef
 
-# GitHub repository information
-zCBC_GITHUB_REPO = $(shell git config --get remote.origin.url | sed 's/.*github.com[:/]\(.*\)\.git/\1/')
+define MBC_STEP
+	@echo "Step: $(1)"
+endef
 
-# GitHub API URL
-zCBC_GITHUB_API_URL = https://api.github.com
+define MBC_FAIL
+	@echo "Failed: $(1)" && exit 1
+endef
 
-## External Targets
+define MBC_PASS
+	@echo "Completed: $(1)"
+endef
 
-bc-TR.sh: zcbc_argcheck_rule
-	$(MBC_START) "Trigger remote build action"
-	$(MBC_STEP) "Triggering GitHub Action..."
-	curl -X POST $(zCBC_GITHUB_API_URL)/repos/$(zCBC_GITHUB_REPO)/dispatches     \
-	  -H "Authorization: token $(zCBC_GITHUB_PAT)"                               \
-	  -H "Accept: application/vnd.github.v3+json"                                \
-	  -d '{"event_type": "build_containers"}'                                    \
-	  --fail --silent --show-error
-	$(MBC_STEP) "Waiting for action to complete..."
-	$(MBC_PASS) "GitHub Action triggered successfully. Check the Actions tab for progress."
+# External Targets
 
-bc-LI.sh: zcbc_argcheck_rule
-	$(MBC_START) "List images in container registry"
-	$(MBC_STEP) "Fetching image list..."
-	curl -X GET $(zCBC_GITHUB_API_URL)/user/packages?package_type=container      \
-	  -H "Authorization: token $(zCBC_GITHUB_PAT)"                               \
-	  -H "Accept: application/vnd.github.v3+json"                                \
-	  --fail --silent --show-error                                               \
-	  | jq -r '.[] | select(.repository.full_name == "$(zCBC_GITHUB_REPO)") | .name'
-	$(MBC_PASS) "Image list fetched successfully."
+bc-trigger-build.sh:
+	$(MBC_START) "Triggering container build"
+	test -n "$(GITHUB_REPO)" || (echo "GITHUB_REPO is not set" && false)
+	test -n "$(RBM_GITHUB_PAT)" || (echo "RBM_GITHUB_PAT is not set" && false)
+	$(MBC_STEP) "Initiating build via repository_dispatch event"
+	curl -X POST -H "Authorization: token $(RBM_GITHUB_PAT)" \
+		-H "Accept: application/vnd.github.v3+json" \
+		$(zGHCR_API_URL)/repos/$(GITHUB_REPO)/dispatches \
+		-d '{"event_type": "build_containers"}'
+	$(MBC_STEP) "Monitoring build progress"
+	$(MAKE) zghcr_monitor_build_rule
+	$(MBC_PASS) "Build triggered and monitored"
 
-bc-DI.sh: zcbc_argcheck_rule
-	$(MBC_START) "Delete image from container registry"
-	$(MBC_STEP) "Prompting for confirmation..."
-	@read -p "Enter the name of the image to delete: " image_name               &&\
-	 read -p "Type YES to confirm deletion of $$image_name: " confirm           &&\
-	 test "$$confirm" = "YES"                                                   &&\
-	 $(MBC_STEP) "Deleting image $$image_name..."                               &&\
-	 curl -X DELETE "$(zCBC_GITHUB_API_URL)/user/packages/container/$(zCBC_GITHUB_REPO)/$$image_name" \
-	   -H "Authorization: token $(zCBC_GITHUB_PAT)"                             \
-	   -H "Accept: application/vnd.github.v3+json"                              \
-	   --fail --silent --show-error
-	$(MBC_PASS) "Image deletion process completed."
+bc-query-build.sh:
+	$(MBC_START) "Querying build status"
+	test -f $(zGHCR_LAST_WORKFLOW_RUN_FILE) || (echo "No recent build found" && false)
+	$(MAKE) zghcr_query_build_rule
+	$(MBC_PASS) "Build status queried"
 
-## Internal Targets
+bc-list-images.sh:
+	$(MBC_START) "Listing container registry images"
+	test -n "$(GITHUB_REPO)" || (echo "GITHUB_REPO is not set" && false)
+	test -n "$(RBM_GITHUB_PAT)" || (echo "RBM_GITHUB_PAT is not set" && false)
+	$(MAKE) zghcr_list_images_rule
+	$(MBC_PASS) "Images listed"
 
-zcbc_argcheck_rule:
-	@test -n "$(zCBC_GITHUB_PAT)" || { $(MBC_FAIL) "RBM_GITHUB_PAT environment variable is not set"; exit 1; }
+bc-delete-image.sh:
+	$(MBC_START) "Deleting specified image"
+	test -n "$(GITHUB_REPO)" || (echo "GITHUB_REPO is not set" && false)
+	test -n "$(RBM_GITHUB_PAT)" || (echo "RBM_GITHUB_PAT is not set" && false)
+	test -n "$(IMAGE_NAME)" || (echo "IMAGE_NAME is not set" && false)
+	$(MAKE) zghcr_delete_image_rule
+	$(MBC_PASS) "Image deletion process completed"
 
+# Internal Targets
+
+zghcr_monitor_build_rule:
+	$(MBC_STEP) "Polling GitHub API for build status"
+	while true; do \
+		workflow_run_url=$$(curl -s -H "Authorization: token $(RBM_GITHUB_PAT)" \
+			-H "Accept: application/vnd.github.v3+json" \
+			"$(zGHCR_API_URL)/repos/$(GITHUB_REPO)/actions/runs?event=repository_dispatch" | \
+			jq -r '.workflow_runs[0].url'); \
+		echo "$$workflow_run_url" > $(zGHCR_LAST_WORKFLOW_RUN_FILE); \
+		status=$$(curl -s -H "Authorization: token $(RBM_GITHUB_PAT)" \
+			-H "Accept: application/vnd.github.v3+json" "$$workflow_run_url" | \
+			jq -r '.status'); \
+		if [ "$$status" = "completed" ]; then \
+			echo "Build finished"; \
+			break; \
+		fi; \
+		echo "Build status: $$status"; \
+		sleep 30; \
+	done
+
+zghcr_query_build_rule:
+	$(MBC_STEP) "Querying build status"
+	workflow_run_url=$$(cat $(zGHCR_LAST_WORKFLOW_RUN_FILE)); \
+	status=$$(curl -s -H "Authorization: token $(RBM_GITHUB_PAT)" \
+		-H "Accept: application/vnd.github.v3+json" "$$workflow_run_url" | \
+		jq -r '.status'); \
+	conclusion=$$(curl -s -H "Authorization: token $(RBM_GITHUB_PAT)" \
+		-H "Accept: application/vnd.github.v3+json" "$$workflow_run_url" | \
+		jq -r '.conclusion'); \
+	echo "Build status: $$status"; \
+	echo "Build conclusion: $$conclusion"; \
+	test "$$status" = "completed" || exit 1
+
+zghcr_list_images_rule:
+	$(MBC_STEP) "Fetching and displaying images"
+	curl -s -H "Authorization: token $(RBM_GITHUB_PAT)" \
+		-H "Accept: application/vnd.github.v3+json" \
+		"$(zGHCR_API_URL)/user/packages?package_type=container" | \
+		jq -r '.[] | select(.repository.full_name == "$(GITHUB_REPO)") | \
+			"Name: \(.name)\tTag: \(.metadata.container.tags[0])\tSize: \(.size)\tCreated: \(.created_at)"' | \
+		column -t -s $$'\t'
+
+zghcr_delete_image_rule:
+	$(MBC_STEP) "Fetching image details"
+	image_details=$$(curl -s -H "Authorization: token $(RBM_GITHUB_PAT)" \
+		-H "Accept: application/vnd.github.v3+json" \
+		"$(zGHCR_API_URL)/user/packages?package_type=container" | \
+		jq -r '.[] | select(.repository.full_name == "$(GITHUB_REPO)" and .name == "$(IMAGE_NAME)")'); \
+	echo "Image details:"; \
+	echo "$$image_details" | jq .; \
+	read -p "Are you sure you want to delete this image? (y/N) " confirm && \
+	test "$$confirm" = "y" && \
+	package_id=$$(echo "$$image_details" | jq -r '.id') && \
+	curl -X DELETE -H "Authorization: token $(RBM_GITHUB_PAT)" \
+		-H "Accept: application/vnd.github.v3+json" \
+		"$(zGHCR_API_URL)/user/packages/container/$(IMAGE_NAME)/versions/$$package_id" && \
+	echo "Image deleted successfully" || \
+	echo "Image deletion cancelled or failed"
