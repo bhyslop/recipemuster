@@ -10,11 +10,17 @@ REQUIRED_BGCV_VARS := BGCV_REGISTRY_OWNER BGCV_REGISTRY_NAME BGCV_BUILD_ARCHITEC
                       BGCV_TIMEOUT_MINUTES BGCV_CONCURRENCY BGCV_MAX_PARALLEL \
                       BGCV_CONTINUE_ON_ERROR BGCV_FAIL_FAST
 
+
 bgcv_check_rule:
-	@$(foreach var,$(REQUIRED_BGCV_VARS),\
-		$(if $(value $(var)),,$(error Undefined required variable $(var)));\
-	)
+	@echo "Checking required variables..."
+	@for var in $(REQUIRED_BGCV_VARS); do \
+		if [ -z "$($$var)" ]; then \
+			echo "Error: Undefined required variable $$var"; \
+			exit 1; \
+		fi; \
+	done
 	@echo "All required variables are defined."
+
 
 bgcv_display_rule:
 	@$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)
