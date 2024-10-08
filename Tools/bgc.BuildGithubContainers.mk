@@ -1,45 +1,52 @@
 # Build Github Containers Makefile
 
-include mbc.MakefileBashConsole.mk
+include bgc-config.mk
 include ../BGC_STATION.mk
-include ../secrets/BGC_SECRETS.mk
+include ../secrets/github-ghcr-play.env
 
-zBGC_GITHUB_API_URL := https://api.github.com
-zBGC_REPO_OWNER := $(BGC_STATION_GITHUB_USERNAME)
-zBGC_REPO_NAME := $(BGC_STATION_GITHUB_REPO)
+zBGC_GITAPI_URL := https://api.github.com
 
-zBGC_CMD_TRIGGER_BUILD = curl -X POST -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
+# OUCH fix this
+BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
+
+zBGC_CMD_TRIGGER_BUILD = curl -X POST \
+    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITHUB_API_URL)/repos/$(zBGC_REPO_OWNER)/$(zBGC_REPO_NAME)/dispatches \
+    $(zBGC_GITAPI_URL)/repos/$(BGC_CONFIG_BACKREPO_USER)/$(BGC_CONFIG_BACKREPO_REPO)/dispatches \
     -d '{"event_type": "build_containers"}'
 
-zBGC_CMD_GET_WORKFLOW_RUN = curl -s -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
+zBGC_CMD_GET_WORKFLOW_RUN = curl -s \
+    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITHUB_API_URL)/repos/$(zBGC_REPO_OWNER)/$(zBGC_REPO_NAME)/actions/runs
+    $(zBGC_GITAPI_URL)/repos/$(BGC_CONFIG_BACKREPO_USER)/$(BGC_CONFIG_BACKREPO_REPO)/actions/runs
 
-zBGC_CMD_LIST_IMAGES = curl -s -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
+zBGC_CMD_LIST_IMAGES = curl -s \
+    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITHUB_API_URL)/user/packages?package_type=container
+    $(zBGC_GITAPI_URL)/user/packages?package_type=container
 
-zBGC_CMD_DELETE_IMAGE = curl -X DELETE -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
+zBGC_CMD_DELETE_IMAGE = curl -X DELETE \
+    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITHUB_API_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
+    $(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
 
-zBGC_check_vars:
+zbgc_argcheck_rule:
 	$(MBC_START) "Checking critical variables"
-	test -n "$(BGC_STATION_GITHUB_USERNAME)" || (echo "BGC_STATION_GITHUB_USERNAME is not set" && false)
-	test -n "$(BGC_STATION_GITHUB_REPO)"     || (echo "BGC_STATION_GITHUB_REPO is not set" && false)
-	test -n "$(BGC_SECRET_GITHUB_PAT)"       || (echo "BGC_SECRET_GITHUB_PAT is not set" && false)
-	test -n "$(zBGC_GITHUB_API_URL)"         || (echo "zBGC_GITHUB_API_URL is not set" && false)
+	test -n "$(BGC_CONFIG_BACKREPO_USER)" || (echo "BGC_CONFIG_BACKREPO_USER is not set"  && false)
+	test -n "$(BGC_CONFIG_BACKREPO_REPO)" || (echo "BGC_CONFIG_BACKREPO_REPO is not set"  && false)
+	test -n "$(BGC_SECRET_GITHUB_PAT)"    || (echo "BGC_SECRET_GITHUB_PAT is not set"     && false)
+	test -n "$(zBGC_GITHUB_API_URL)"      || (echo "zBGC_GITHUB_API_URL is not set"       && false)
 	$(MBC_PASS)
 
-bc-trigger-build.sh: zBGC_check_vars
+bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
 	$(zBGC_CMD_TRIGGER_BUILD)
 	jq -r '.workflow_runs[0].url' <<< "$$($(zBGC_CMD_GET_WORKFLOW_RUN))" > ../LAST_GET_WORKFLOW_RUN.txt
+	$(MBC_STEP) "Query api determined to be::"
+	$(MBC_SHOW_YELLOW) "   " $(shell cat ../LAST_GET_WORKFLOW_RUN.txt)
 	$(MBC_PASS)
 
-bc-query-build.sh: zBGC_check_vars
+bc-query-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Querying build status"
 	status=$$(curl -s -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" -H "Accept: application/vnd.github.v3+json" $$(cat ../LAST_GET_WORKFLOW_RUN.txt) | jq -r '.status')
 	if [ "$$status" = "completed" ]; then
@@ -50,13 +57,13 @@ bc-query-build.sh: zBGC_check_vars
 		exit 1
 	fi
 
-bc-list-images.sh: zBGC_check_vars
+bc-list-images.sh: zbgc_argcheck_rule
 	$(MBC_START) "Listing container registry images"
 	$(zBGC_CMD_LIST_IMAGES) | jq -r '.[] | select(.package_type=="container") | "\(.name)\t\(.version_count)\t\(.html_url)"' | \
 		awk 'BEGIN {printf "%-30s %-10s %-50s\n", "Image Name", "Versions", "URL"} {printf "%-30s %-10s %-50s\n", $$1, $$2, $$3}'
 	$(MBC_PASS)
 
-bc-delete-image.sh: zBGC_check_vars
+bc-delete-image.sh: zbgc_argcheck_rule
 	$(MBC_START) "Deleting container registry image"
 	@read -p "Enter image name to delete: " zBGC_IMAGE_NAME && \
 	read -p "Enter image version to delete: " zBGC_IMAGE_VERSION && \

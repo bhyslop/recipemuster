@@ -31,11 +31,13 @@ zRBC_TOOLS_DIR     = Tools
 #
 
 zRBC_MBC_MAKEFILE = $(zRBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+zRBC_BGC_MAKEFILE = $(zRBC_TOOLS_DIR)/bgc.BuildGithubContainers.mk
 
 # What console tool will put in prefix of each line
 MBC_ARG__CONTEXT_STRING = $(zRBC_THIS_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
+include $(zRBC_BGC_MAKEFILE)
 
 zRBC_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
 zRBC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
