@@ -15,24 +15,23 @@ jobs:
       config: ${{ steps.read-config.outputs.config }}
     steps:
       - uses: actions/checkout@v4
-      - id: read-config
+      
+      - name: Check and display configuration
         run: |
-          if [ ! -f rbm-config.yml ]; then
-            echo "Error: rbm-config.yml not found"
-            exit 1
-          fi
-          echo "config=$(cat rbm-config.yml | yq eval -o json -)" >> $GITHUB_OUTPUT
+          make -f bgcv.Variables.mk bgcv_check_rule
+          make -f bgcv.Variables.mk bgcv_display_rule > config_output.txt
+          echo "config=$(cat config_output.txt | jq -R 'split("=") | {(.[0]): .[1]}' | jq -s add)" >> $GITHUB_OUTPUT
 
   build:
     needs: setup
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: ${{ fromJson(needs.setup.outputs.config).recipes_dir }}/${{ fromJson(needs.setup.outputs.config).recipe_pattern }}
-      max-parallel: ${{ fromJson(needs.setup.outputs.config).max-parallel }}
-      fail-fast: ${{ fromJson(needs.setup.outputs.config).fail-fast }}
-    continue-on-error: ${{ fromJson(needs.setup.outputs.config).continue-on-error }}
-    timeout-minutes: ${{ fromJson(needs.setup.outputs.config).timeout-minutes }}
+        dockerfile: ${{ fromJson(needs.setup.outputs.config).BGCV_RECIPES_DIR }}/${{ fromJson(needs.setup.outputs.config).BGCV_RECIPE_PATTERN }}
+      max-parallel: ${{ fromJson(needs.setup.outputs.config).BGCV_MAX_PARALLEL }}
+      fail-fast: ${{ fromJson(needs.setup.outputs.config).BGCV_FAIL_FAST }}
+    continue-on-error: ${{ fromJson(needs.setup.outputs.config).BGCV_CONTINUE_ON_ERROR }}
+    timeout-minutes: ${{ fromJson(needs.setup.outputs.config).BGCV_TIMEOUT_MINUTES }}
 
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +57,7 @@ jobs:
           FILENAME=$(basename ${{ matrix.dockerfile }} | cut -f 1 -d '.')
           BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
           echo "build_label=$BUILD_LABEL" >> $GITHUB_OUTPUT
-          echo "history_dir=${{ fromJson(needs.setup.outputs.config).history_dir }}/$BUILD_LABEL" >> $GITHUB_OUTPUT
+          echo "history_dir=${{ fromJson(needs.setup.outputs.config).BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_OUTPUT
 
       - name: Create history directory
         run: |
@@ -77,12 +76,12 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.build_label }}
-          platforms: ${{ fromJson(needs.setup.outputs.config).build_architectures }}
+          tags: ghcr.io/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_OWNER }}/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_NAME }}:${{ steps.meta.outputs.build_label }}
+          platforms: ${{ fromJson(needs.setup.outputs.config).BGCV_BUILD_ARCHITECTURES }}
 
       - name: Create digest.txt
         run: |
-          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.build_label }} --format='{{.Size}}')
+          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_OWNER }}/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_NAME }}:${{ steps.meta.outputs.build_label }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ job.duration }}
           echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ steps.meta.outputs.history_dir }}/digest.txt

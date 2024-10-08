@@ -3,6 +3,7 @@
 include bgc-config.mk
 include ../BGC_STATION.mk
 include ../secrets/github-ghcr-play.env
+include bgcv.Variables.mk
 
 zBGC_GITAPI_URL := https://api.github.com
 
@@ -12,13 +13,13 @@ BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 zBGC_CMD_TRIGGER_BUILD = curl -X POST \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/repos/$(BGC_CONFIG_BACKREPO_USER)/$(BGC_CONFIG_BACKREPO_REPO)/dispatches \
+    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches \
     -d '{"event_type": "build_containers"}'
 
 zBGC_CMD_GET_WORKFLOW_RUN = curl -s \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/repos/$(BGC_CONFIG_BACKREPO_USER)/$(BGC_CONFIG_BACKREPO_REPO)/actions/runs
+    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs
 
 zBGC_CMD_LIST_IMAGES = curl -s \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
@@ -30,31 +31,10 @@ zBGC_CMD_DELETE_IMAGE = curl -X DELETE \
     -H "Accept: application/vnd.github.v3+json" \
     $(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
 
-
-# Dynamic list of all BGCV_ variables
-BGCV__VARS := $(filter BGCV_%,$(.VARIABLES))
-
-# Specific list of required BGCV_ variables
-REQUIRED_BGCV_VARS :=       \
-   BGCV_REGISTRY_OWNER      \
-   BGCV_REGISTRY_NAME       \
-   BGCV_BUILD_ARCHITECTURES \
-   BGCV_HISTORY_DIR         \
-   BGCV_RECIPES_DIR         \
-   BGCV_RECIPE_PATTERN      \
-   BGCV_TIMEOUT_MINUTES     \
-   BGCV_CONCURRENCY         \
-   BGCV_MAX_PARALLEL        \
-   BGCV_CONTINUE_ON_ERROR   \
-   BGCV_FAIL_FAST           \
-
-
-zbgc_argcheck_rule:
+zbgc_argcheck_rule: bgcv_check_rule
 	$(MBC_START) "Checking needed variables..."
 	test -n "$(BGC_SECRET_GITHUB_PAT)"    || (echo "BGC_SECRET_GITHUB_PAT is not set"     && false)
 	test -n "$(zBGC_GITAPI_URL)"          || (echo "zBGC_GITAPI_URL is not set"           && false)
-	$(MBC_START) "Checking configuration variables..."
-	@$(foreach var,$(REQUIRED_BGCV_VARS),  $(if $(value $(var)),,$(error Undefined required variable $(var)));)
 	$(MBC_PASS)
 
 bc-trigger-build.sh: zbgc_argcheck_rule
@@ -94,4 +74,7 @@ bc-delete-image.sh: zbgc_argcheck_rule
 	(echo "Deletion cancelled or failed" && exit 1)
 	$(MBC_PASS)
 
-
+bc-display-config:
+	$(MBC_START) "Displaying configuration variables"
+	@$(MAKE) -f bgcv.Variables.mk bgcv_display_rule
+	$(MBC_PASS)
