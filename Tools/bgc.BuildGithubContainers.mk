@@ -30,12 +30,31 @@ zBGC_CMD_DELETE_IMAGE = curl -X DELETE \
     -H "Accept: application/vnd.github.v3+json" \
     $(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
 
+
+# Dynamic list of all BGCV_ variables
+BGCV__VARS := $(filter BGCV_%,$(.VARIABLES))
+
+# Specific list of required BGCV_ variables
+REQUIRED_BGCV_VARS :=       \
+   BGCV_REGISTRY_OWNER      \
+   BGCV_REGISTRY_NAME       \
+   BGCV_BUILD_ARCHITECTURES \
+   BGCV_HISTORY_DIR         \
+   BGCV_RECIPES_DIR         \
+   BGCV_RECIPE_PATTERN      \
+   BGCV_TIMEOUT_MINUTES     \
+   BGCV_CONCURRENCY         \
+   BGCV_MAX_PARALLEL        \
+   BGCV_CONTINUE_ON_ERROR   \
+   BGCV_FAIL_FAST           \
+
+
 zbgc_argcheck_rule:
-	$(MBC_START) "Checking needed variables"
-	test -n "$(BGC_CONFIG_BACKREPO_USER)" || (echo "BGC_CONFIG_BACKREPO_USER is not set"  && false)
-	test -n "$(BGC_CONFIG_BACKREPO_REPO)" || (echo "BGC_CONFIG_BACKREPO_REPO is not set"  && false)
+	$(MBC_START) "Checking needed variables..."
 	test -n "$(BGC_SECRET_GITHUB_PAT)"    || (echo "BGC_SECRET_GITHUB_PAT is not set"     && false)
 	test -n "$(zBGC_GITAPI_URL)"          || (echo "zBGC_GITAPI_URL is not set"           && false)
+	$(MBC_START) "Checking configuration variables..."
+	@$(foreach var,$(REQUIRED_BGCV_VARS),  $(if $(value $(var)),,$(error Undefined required variable $(var)));)
 	$(MBC_PASS)
 
 bc-trigger-build.sh: zbgc_argcheck_rule
