@@ -31,11 +31,11 @@ zBGC_CMD_DELETE_IMAGE = curl -X DELETE \
     $(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
 
 zbgc_argcheck_rule:
-	$(MBC_START) "Checking critical variables"
+	$(MBC_START) "Checking needed variables"
 	test -n "$(BGC_CONFIG_BACKREPO_USER)" || (echo "BGC_CONFIG_BACKREPO_USER is not set"  && false)
 	test -n "$(BGC_CONFIG_BACKREPO_REPO)" || (echo "BGC_CONFIG_BACKREPO_REPO is not set"  && false)
 	test -n "$(BGC_SECRET_GITHUB_PAT)"    || (echo "BGC_SECRET_GITHUB_PAT is not set"     && false)
-	test -n "$(zBGC_GITHUB_API_URL)"      || (echo "zBGC_GITHUB_API_URL is not set"       && false)
+	test -n "$(zBGC_GITAPI_URL)"          || (echo "zBGC_GITAPI_URL is not set"           && false)
 	$(MBC_PASS)
 
 bc-trigger-build.sh: zbgc_argcheck_rule

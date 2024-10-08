@@ -159,6 +159,7 @@ This section contains reminders about future improvements, deferred for now.
 * Need a 'core word' for the repo backing the repo builder
    -> use in {owner,repo} vars
 * I do not like the ghaction and related console makefile name subfiles
+* Think about whether I can mix rbm-config.yml and the makefile variant
 * Explore creating a nonprivileged user to run the jupyter notebook (may help with shutdown)
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
