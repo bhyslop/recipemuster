@@ -18,7 +18,7 @@ REQUIRED_BGCV_VARS :=      \
   BGCV_TIMEOUT_MINUTES     \
 
 
-bgcv_check_rule:
+bgcfh_check_rule:
 	@echo "Checking required variables..."
 	@for var in $(REQUIRED_BGCV_VARS); do \
 	  test -n "$${!var}" || (echo "Error: Undefined required variable $$var" && exit 1); \
@@ -26,5 +26,5 @@ bgcv_check_rule:
 	@echo "All required variables are defined."
 
 
-bgcv_display_rule:
+bgcfh_display_rule:
 	@$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)

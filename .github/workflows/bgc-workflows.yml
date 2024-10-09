@@ -16,8 +16,8 @@ jobs:
 
       - name: Load configuration
         run: |
-          make -f bgc-flow-helper.mk bgcv_check_rule
-          make -f bgc-flow-helper.mk bgcv_display_rule >> $GITHUB_ENV
+          make -f ${{ github.workspace }}/${{ env.BGCV_TOOLS_DIR }}/bgc-flow-helper.mk bgcfh_check_rule
+          make -f ${{ github.workspace }}/${{ env.BGCV_TOOLS_DIR }}/bgc-flow-helper.mk bgcfh_display_rule >> $GITHUB_ENV
 
       - name: Get Dockerfiles
         id: get-dockerfiles

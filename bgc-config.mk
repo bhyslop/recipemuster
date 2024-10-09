@@ -10,4 +10,5 @@ export BGCV_CONCURRENCY         := 2
 export BGCV_MAX_PARALLEL        := 2
 export BGCV_CONTINUE_ON_ERROR   := false
 export BGCV_FAIL_FAST           := false
+export BGCV_TOOLS_DIR           := Tools
 
