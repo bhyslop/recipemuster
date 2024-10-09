@@ -16,8 +16,8 @@ jobs:
 
       - name: Load configuration
         run: |
-          make -f bgcv.Variables.mk bgcv_check_rule
-          make -f bgcv.Variables.mk bgcv_display_rule >> $GITHUB_ENV
+          make -f bgc-flow-helper.mk bgcv_check_rule
+          make -f bgc-flow-helper.mk bgcv_display_rule >> $GITHUB_ENV
 
       - name: Get Dockerfiles
         id: get-dockerfiles
@@ -57,6 +57,13 @@ jobs:
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
 
+      - name: Check if tag exists
+        run: |
+          if docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1; then
+            echo "Error: Tag ${{ env.BUILD_LABEL }} already exists"
+            exit 1
+          fi
+
       - name: Create history directory
         run: |
           mkdir -p $HISTORY_DIR
@@ -94,7 +101,7 @@ jobs:
           name: build-transcript-${{ env.BUILD_LABEL }}
           path: ${{ env.HISTORY_DIR }}/history.txt
 
-  concurrency: 
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: false
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
