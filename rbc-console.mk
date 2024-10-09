@@ -90,6 +90,12 @@ pyghm-s.StartPythonGithubMaintenance.sh:
 	$(zRBC_RBM_SUBMAKE) rbm-s.sh  RBM_ARG_MONIKER=pyghm
 
 
+# OUCH is this the right place?
+oga.OpenGithubAction.sh:
+	$(zRBC_STEP) "Assure podman services available..."
+	cygstart https://github.com/bhyslop/recipemuster/actions/
+
+
 #######################################
 #  Tabtarget Maintenance Tabtarget
 #

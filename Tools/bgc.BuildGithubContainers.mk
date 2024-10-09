@@ -1,9 +1,11 @@
 # Build Github Containers Makefile
 
+# OUCH hardcoded path Tools
+
 include bgc-config.mk
 include ../BGC_STATION.mk
 include ../secrets/github-ghcr-play.env
-include bgcv.Variables.mk
+include $(BGCV_TOOLS_DIR)/bgc-flow-helper.mk
 
 zBGC_GITAPI_URL := https://api.github.com
 
