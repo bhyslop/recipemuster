@@ -6,11 +6,24 @@ on:
     types: [build_containers]
 
 jobs:
+  get-dockerfiles:
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Dockerfiles
+        id: get-dockerfiles
+        run: |
+          DOCKERFILES=$(ls ${{ env.BGCV_RECIPES_DIR }}/${{ env.BGCV_RECIPE_PATTERN }})
+          echo "dockerfiles=$(echo $DOCKERFILES | tr ' ' ',')" >> $GITHUB_OUTPUT
+
   build:
+    needs: get-dockerfiles
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
+        dockerfile: ${{ fromJson(needs.get-dockerfiles.outputs.dockerfiles) }}
       max-parallel: ${{ env.BGCV_MAX_PARALLEL }}
       fail-fast: ${{ env.BGCV_FAIL_FAST }}
     continue-on-error: ${{ env.BGCV_CONTINUE_ON_ERROR }}
@@ -22,12 +35,6 @@ jobs:
         run: |
           make -f ${{ github.workspace }}/${{ env.BGCV_TOOLS_DIR }}/bgc-flow-helper.mk bgcfh_check_rule
           make -f ${{ github.workspace }}/${{ env.BGCV_TOOLS_DIR }}/bgc-flow-helper.mk bgcfh_display_rule >> $GITHUB_ENV
-
-      - name: Get Dockerfiles
-        id: get-dockerfiles
-        run: |
-          DOCKERFILES=$(ls ${{ env.BGCV_RECIPES_DIR }}/${{ env.BGCV_RECIPE_PATTERN }})
-          echo "dockerfiles=$(echo $DOCKERFILES | tr ' ' ',')" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3

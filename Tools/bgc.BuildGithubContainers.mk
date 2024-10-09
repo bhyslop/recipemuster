@@ -33,7 +33,7 @@ zBGC_CMD_DELETE_IMAGE = curl -X DELETE \
     -H "Accept: application/vnd.github.v3+json" \
     $(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
 
-zbgc_argcheck_rule: bgcv_check_rule
+zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_START) "Checking needed variables..."
 	test -n "$(BGC_SECRET_GITHUB_PAT)"    || (echo "BGC_SECRET_GITHUB_PAT is not set"     && false)
 	test -n "$(zBGC_GITAPI_URL)"          || (echo "zBGC_GITAPI_URL is not set"           && false)
