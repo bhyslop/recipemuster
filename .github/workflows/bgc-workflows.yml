@@ -1,3 +1,10 @@
+name: BGC Workflow
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [build_containers]
+
 jobs:
   build:
     runs-on: ubuntu-latest
