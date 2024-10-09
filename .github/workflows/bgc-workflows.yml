@@ -6,20 +6,45 @@ on:
     types: [build_containers]
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      env_vars: ${{ steps.set_env.outputs.env_vars }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load configuration
+        id: set_env
+        run: |
+          make -f ${{ github.workspace }}/tools/bgc-flow-helper.mk bgcfh_check_rule
+          echo "env_vars<<EOF" >> $GITHUB_OUTPUT
+          make -f ${{ github.workspace }}/tools/bgc-flow-helper.mk bgcfh_display_rule
+          echo "EOF" >> $GITHUB_OUTPUT
+
   get-dockerfiles:
+    needs: setup
     runs-on: ubuntu-latest
     outputs:
       dockerfiles: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "${{ needs.setup.outputs.env_vars }}" >> $GITHUB_ENV
+
       - name: Get Dockerfiles
         id: get-dockerfiles
         run: |
           DOCKERFILES=$(ls ${{ env.BGCV_RECIPES_DIR }}/${{ env.BGCV_RECIPE_PATTERN }})
-          echo "dockerfiles=$(echo $DOCKERFILES | tr ' ' ',')" >> $GITHUB_OUTPUT
+          JSON_ARRAY=$(printf '%s\n' $DOCKERFILES | jq -R . | jq -s .)
+          echo "dockerfiles=$JSON_ARRAY" >> $GITHUB_OUTPUT
+
+      - name: Debug output
+        run: echo "${{ steps.get-dockerfiles.outputs.dockerfiles }}"
 
   build:
-    needs: get-dockerfiles
+    needs: [setup, get-dockerfiles]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,10 +56,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load configuration
+      - name: Set environment variables
         run: |
-          make -f ${{ github.workspace }}/${{ env.BGCV_TOOLS_DIR }}/bgc-flow-helper.mk bgcfh_check_rule
-          make -f ${{ github.workspace }}/${{ env.BGCV_TOOLS_DIR }}/bgc-flow-helper.mk bgcfh_display_rule >> $GITHUB_ENV
+          echo "${{ needs.setup.outputs.env_vars }}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
