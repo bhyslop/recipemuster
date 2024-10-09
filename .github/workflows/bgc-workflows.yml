@@ -24,10 +24,10 @@ jobs:
     strategy:
       matrix:
         dockerfile: ${{ fromJson(needs.get-dockerfiles.outputs.dockerfiles) }}
-      max-parallel: ${{ env.BGCV_MAX_PARALLEL }}
-      fail-fast: ${{ env.BGCV_FAIL_FAST }}
-    continue-on-error: ${{ env.BGCV_CONTINUE_ON_ERROR }}
-    timeout-minutes: ${{ env.BGCV_TIMEOUT_MINUTES }}
+      max-parallel: 4
+      fail-fast: false
+    continue-on-error: true
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
 
