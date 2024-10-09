@@ -1,16 +1,13 @@
-name: Build and Push Containers
-
-on:
-  workflow_dispatch:
-  repository_dispatch:
-    types: [build_containers]
-
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
+      max-parallel: ${{ env.BGCV_MAX_PARALLEL }}
+      fail-fast: ${{ env.BGCV_FAIL_FAST }}
+    continue-on-error: ${{ env.BGCV_CONTINUE_ON_ERROR }}
+    timeout-minutes: ${{ env.BGCV_TIMEOUT_MINUTES }}
     steps:
       - uses: actions/checkout@v4
 
@@ -25,15 +22,6 @@ jobs:
           DOCKERFILES=$(ls ${{ env.BGCV_RECIPES_DIR }}/${{ env.BGCV_RECIPE_PATTERN }})
           echo "dockerfiles=$(echo $DOCKERFILES | tr ' ' ',')" >> $GITHUB_OUTPUT
 
-    strategy:
-      matrix:
-        dockerfile: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
-      max-parallel: ${{ env.BGCV_MAX_PARALLEL }}
-      fail-fast: ${{ env.BGCV_FAIL_FAST }}
-    continue-on-error: ${{ env.BGCV_CONTINUE_ON_ERROR }}
-    timeout-minutes: ${{ env.BGCV_TIMEOUT_MINUTES }}
-
-    steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -104,5 +92,4 @@ jobs:
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
-
 
