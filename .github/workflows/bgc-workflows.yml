@@ -16,9 +16,9 @@ jobs:
       - name: Load configuration
         id: set_env
         run: |
-          make -f ${{ github.workspace }}/tools/bgc-flow-helper.mk bgcfh_check_rule
+          make -f ${{ github.workspace }}/Tools/bgc-flow-helper.mk bgcfh_check_rule
           echo "env_vars<<EOF" >> $GITHUB_OUTPUT
-          make -f ${{ github.workspace }}/tools/bgc-flow-helper.mk bgcfh_display_rule
+          make -f ${{ github.workspace }}/Tools/bgc-flow-helper.mk bgcfh_display_rule
           echo "EOF" >> $GITHUB_OUTPUT
 
   get-dockerfiles:
