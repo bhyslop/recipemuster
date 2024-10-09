@@ -9,33 +9,31 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
-    outputs:
-      config: ${{ steps.read-config.outputs.config }}
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Check and display configuration
+
+      - name: Load configuration
         run: |
           make -f bgcv.Variables.mk bgcv_check_rule
-          make -f bgcv.Variables.mk bgcv_display_rule > config_output.txt
-          echo "config=$(cat config_output.txt | jq -R 'split("=") | {(.[0]): .[1]}' | jq -s add)" >> $GITHUB_OUTPUT
+          make -f bgcv.Variables.mk bgcv_display_rule >> $GITHUB_ENV
 
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
+      - name: Get Dockerfiles
+        id: get-dockerfiles
+        run: |
+          DOCKERFILES=$(ls ${{ env.BGCV_RECIPES_DIR }}/${{ env.BGCV_RECIPE_PATTERN }})
+          echo "dockerfiles=$(echo $DOCKERFILES | tr ' ' ',')" >> $GITHUB_OUTPUT
+
     strategy:
       matrix:
-        dockerfile: ${{ fromJson(needs.setup.outputs.config).BGCV_RECIPES_DIR }}/${{ fromJson(needs.setup.outputs.config).BGCV_RECIPE_PATTERN }}
-      max-parallel: ${{ fromJson(needs.setup.outputs.config).BGCV_MAX_PARALLEL }}
-      fail-fast: ${{ fromJson(needs.setup.outputs.config).BGCV_FAIL_FAST }}
-    continue-on-error: ${{ fromJson(needs.setup.outputs.config).BGCV_CONTINUE_ON_ERROR }}
-    timeout-minutes: ${{ fromJson(needs.setup.outputs.config).BGCV_TIMEOUT_MINUTES }}
+        dockerfile: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
+      max-parallel: ${{ env.BGCV_MAX_PARALLEL }}
+      fail-fast: ${{ env.BGCV_FAIL_FAST }}
+    continue-on-error: ${{ env.BGCV_CONTINUE_ON_ERROR }}
+    timeout-minutes: ${{ env.BGCV_TIMEOUT_MINUTES }}
 
     steps:
-      - uses: actions/checkout@v4
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -56,16 +54,11 @@ jobs:
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           FILENAME=$(basename ${{ matrix.dockerfile }} | cut -f 1 -d '.')
           BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
-          echo "build_label=$BUILD_LABEL" >> $GITHUB_OUTPUT
-          echo "history_dir=${{ fromJson(needs.setup.outputs.config).BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_OUTPUT
+          echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
+          echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
 
       - name: Create history directory
         run: |
-          HISTORY_DIR=${{ steps.meta.outputs.history_dir }}
-          if [ -d "$HISTORY_DIR" ]; then
-            echo "Error: History directory already exists"
-            exit 1
-          fi
           mkdir -p $HISTORY_DIR
           cp ${{ matrix.dockerfile }} $HISTORY_DIR/
           echo ${{ github.sha }} > $HISTORY_DIR/commit.txt
@@ -76,31 +69,32 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
-          tags: ghcr.io/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_OWNER }}/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_NAME }}:${{ steps.meta.outputs.build_label }}
-          platforms: ${{ fromJson(needs.setup.outputs.config).BGCV_BUILD_ARCHITECTURES }}
+          tags: ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
+          platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
 
       - name: Create digest.txt
         run: |
-          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_OWNER }}/${{ fromJson(needs.setup.outputs.config).BGCV_REGISTRY_NAME }}:${{ steps.meta.outputs.build_label }} --format='{{.Size}}')
+          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ job.duration }}
-          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ steps.meta.outputs.history_dir }}/digest.txt
-          echo "Build duration: ${BUILD_DURATION}s" >> ${{ steps.meta.outputs.history_dir }}/digest.txt
+          echo "Image size: ${IMAGE_SIZE_MB}MB" > $HISTORY_DIR/digest.txt
+          echo "Build duration: ${BUILD_DURATION}s" >> $HISTORY_DIR/digest.txt
 
       - name: Commit history directory
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add ${{ steps.meta.outputs.history_dir }}
-          git commit -m "Add build history for ${{ steps.meta.outputs.build_label }}"
+          git add $HISTORY_DIR
+          git commit -m "Add build history for ${{ env.BUILD_LABEL }}"
           git push
 
       - name: Upload build transcript
         uses: actions/upload-artifact@v4
         with:
-          name: build-transcript-${{ steps.meta.outputs.build_label }}
-          path: ${{ steps.meta.outputs.history_dir }}/history.txt
+          name: build-transcript-${{ env.BUILD_LABEL }}
+          path: ${{ env.HISTORY_DIR }}/history.txt
 
-    concurrency: 
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
+  concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false
+
