@@ -23,7 +23,12 @@ zBGC_CMD_TRIGGER_BUILD = curl -X POST \
 zBGC_CMD_GET_WORKFLOW_RUN = curl -s \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs
+    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1
+
+zBGC_CMD_GET_SPECIFIC_RUN = curl -s \
+    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
+    -H "Accept: application/vnd.github.v3+json" \
+    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/
 
 zBGC_CMD_LIST_IMAGES = curl -s \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
@@ -44,19 +49,18 @@ zbgc_argcheck_rule: bgcfh_check_rule
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
 	test "$(BGC_ARG_DOCKERFILE)" != "" || (echo "Error: BGC_ARG_DOCKERFILE is not set or is empty" && exit 1)
-	$(zBGC_CMD_TRIGGER_BUILD) | jq -r '.workflow_run.url' > $(zBGC_LAST_RUN_CACHE)
-	$(MBC_STEP) "Workflow run URL determined to be:"
+	$(zBGC_CMD_TRIGGER_BUILD)
+	sleep 5  # Give GitHub a moment to process the dispatch event
+	$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
+	$(MBC_STEP) "Workflow run ID determined to be:"
 	$(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_PASS)
 
 bc-query-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Querying build status"
-	@curl -s \
-	    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
-	    -H "Accept: application/vnd.github.v3+json" \
-	    $$(cat $(zBGC_LAST_RUN_CACHE)) | \
+	@$(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) | \
 	  jq -r '.status' | ( read status && test "$$status" == "completed" || \
-	     (echo "Build ongoing. Current status: $$status" && false)
+	     (echo "Build ongoing. Current status: $$status" && false))
 	@echo "Build succeeded"
 	$(MBC_PASS)
 
@@ -82,3 +86,4 @@ bc-display-config:
 	$(MBC_START) "Displaying configuration variables"
 	@$(MAKE) -f bgcv.Variables.mk bgcv_display_rule
 	$(MBC_PASS)
+
