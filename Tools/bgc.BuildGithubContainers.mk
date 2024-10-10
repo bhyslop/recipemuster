@@ -10,8 +10,9 @@ zBGC_GITAPI_URL := https://api.github.com
 # OUCH fix this
 BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 
-# Default wrong on purpose: override when makefile invoked
-BGC_ARG_DOCKERFILE = xxxx.dockerfile
+zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
+
+BGC_ARG_DOCKERFILE ?=
 
 zBGC_CMD_TRIGGER_BUILD = curl -X POST \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
@@ -42,11 +43,10 @@ zbgc_argcheck_rule: bgcfh_check_rule
 
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
-        test -n "$BGC_ARG_DOCKERFILE" || (echo "BGC_ARG_DOCKERFILE not set" && false)
-	$(zBGC_CMD_TRIGGER_BUILD)
-	jq -r '.workflow_runs[0].url' <<< "$$($(zBGC_CMD_GET_WORKFLOW_RUN))" > ../LAST_GET_WORKFLOW_RUN.txt
-	$(MBC_STEP) "Query api determined to be::"
-	$(MBC_SHOW_YELLOW) "   " $(shell cat ../LAST_GET_WORKFLOW_RUN.txt)
+	test "$(BGC_ARG_DOCKERFILE)" != "" || (echo "Error: BGC_ARG_DOCKERFILE is not set or is empty" && exit 1)
+	$(zBGC_CMD_TRIGGER_BUILD) | jq -r '.workflow_run.url' > $(zBGC_LAST_RUN_CACHE)
+	$(MBC_STEP) "Workflow run URL determined to be:"
+	$(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_PASS)
 
 bc-query-build.sh: zbgc_argcheck_rule
@@ -54,7 +54,7 @@ bc-query-build.sh: zbgc_argcheck_rule
 	@curl -s \
 	    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
 	    -H "Accept: application/vnd.github.v3+json" \
-	    $$(cat ../LAST_GET_WORKFLOW_RUN.txt) | \
+	    $$(cat $(zBGC_LAST_RUN_CACHE)) | \
 	  jq -r '.status' | ( read status && test "$$status" == "completed" || \
 	     (echo "Build ongoing. Current status: $$status" && false)
 	@echo "Build succeeded"
