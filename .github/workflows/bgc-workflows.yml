@@ -1,12 +1,6 @@
 name: BGC Single Container Build Workflow
 
 on:
-  workflow_dispatch:
-    inputs:
-      dockerfile:
-        description: 'Path to the Dockerfile to build'
-        required: true
-        type: string
   repository_dispatch:
     types: [build_containers]
 
@@ -16,35 +10,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate configuration files
+        run: |
+          test -f bgc-config.mk || (echo "Error: bgc-config.mk is missing" && exit 1)
+          test -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk || (echo "Error: bgc_flow_helper.mk is missing" && exit 1)
+
+      - name: Check required variables
+        run: make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_check_rule
+
       - name: Load configuration
         run: |
-          if [ ! -f bgc-config.mk ]; then
-            echo "Error: bgc-config.mk is missing"
-            exit 1
-          fi
-          source bgc-config.mk
-          echo "BGCV_BUILD_ARCHITECTURES=$BGCV_BUILD_ARCHITECTURES" >> $GITHUB_ENV
-          echo "BGCV_HISTORY_DIR=$BGCV_HISTORY_DIR" >> $GITHUB_ENV
-          echo "BGCV_REGISTRY_OWNER=$BGCV_REGISTRY_OWNER" >> $GITHUB_ENV
-          echo "BGCV_REGISTRY_NAME=$BGCV_REGISTRY_NAME" >> $GITHUB_ENV
+          eval "$(make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_display_rule)"
+          env | grep '^BGCV_' >> $GITHUB_ENV
 
-      - name: Set Dockerfile path
+      - name: Set and validate Dockerfile path
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "DOCKERFILE=${{ github.event.inputs.dockerfile }}" >> $GITHUB_ENV
-          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-            echo "DOCKERFILE=${{ github.event.client_payload.dockerfile }}" >> $GITHUB_ENV
-          else
-            echo "Error: Unsupported event type"
-            exit 1
-          fi
+          DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
+          test -n "$DOCKERFILE" || (echo "Error: Dockerfile path not provided in client_payload" && exit 1)
+          test -f "$DOCKERFILE" || (echo "Error: Dockerfile not found at path: $DOCKERFILE" && exit 1)
+          echo "DOCKERFILE=$DOCKERFILE" >> $GITHUB_ENV
 
       - name: Generate build metadata
-        id: meta
         run: |
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          FILENAME=$(basename $DOCKERFILE | cut -f 1 -d '.')
+          FILENAME=$(basename ${{ env.DOCKERFILE }} | cut -f 1 -d '.')
           BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
@@ -64,16 +54,13 @@ jobs:
 
       - name: Check if tag exists
         run: |
-          if docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1; then
-            echo "Error: Tag ${{ env.BUILD_LABEL }} already exists"
-            exit 1
-          fi
+          docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1 && (echo "Error: Tag ${{ env.BUILD_LABEL }} already exists" && exit 1) || true
 
       - name: Create history directory
         run: |
-          mkdir -p $HISTORY_DIR
-          cp $DOCKERFILE $HISTORY_DIR/
-          echo ${{ github.sha }} > $HISTORY_DIR/commit.txt
+          mkdir -p ${{ env.HISTORY_DIR }} || (echo "Error: Failed to create history directory" && exit 1)
+          cp ${{ env.DOCKERFILE }} ${{ env.HISTORY_DIR }}/ || (echo "Error: Failed to copy Dockerfile to history directory" && exit 1)
+          echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt || (echo "Error: Failed to create commit.txt" && exit 1)
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -86,19 +73,19 @@ jobs:
 
       - name: Create digest.txt
         run: |
-          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}')
+          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}') || (echo "Error: Failed to get image size" && exit 1)
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ job.duration }}
-          echo "Image size: ${IMAGE_SIZE_MB}MB" > $HISTORY_DIR/digest.txt
-          echo "Build duration: ${BUILD_DURATION}s" >> $HISTORY_DIR/digest.txt
+          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt || (echo "Error: Failed to write image size to digest.txt" && exit 1)
+          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/digest.txt || (echo "Error: Failed to write build duration to digest.txt" && exit 1)
 
       - name: Commit history directory
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add $HISTORY_DIR
-          git commit -m "Add build history for ${{ env.BUILD_LABEL }}"
-          git push
+          git config --local user.email "github-actions[bot]@users.noreply.github.com" || (echo "Error: Failed to set git user email" && exit 1)
+          git config --local user.name "github-actions[bot]" || (echo "Error: Failed to set git user name" && exit 1)
+          git add ${{ env.HISTORY_DIR }} || (echo "Error: Failed to stage history directory" && exit 1)
+          git commit -m "Add build history for ${{ env.BUILD_LABEL }}" || (echo "Error: Failed to commit history directory" && exit 1)
+          git push || (echo "Error: Failed to push changes" && exit 1)
 
       - name: Upload build transcript
         uses: actions/upload-artifact@v4
