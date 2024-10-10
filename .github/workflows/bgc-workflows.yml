@@ -12,29 +12,40 @@ jobs:
 
       - name: Validate configuration files
         run: |
-          test -f bgc-config.mk || (echo "Error: bgc-config.mk is missing" && exit 1)
-          test -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk || (echo "Error: bgc_flow_helper.mk is missing" && exit 1)
+          test -f bgc-config.mk ||\
+            (echo "Error: bgc-config.mk is missing" && exit 1)
+          test -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk ||\
+            (echo "Error: bgc_flow_helper.mk is missing" && exit 1)
 
       - name: Check required variables
-        run: make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_check_rule
+        run: |
+          make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_check_rule ||\
+            (echo "Error: Required variables check failed" && exit 1)
 
       - name: Load configuration
         run: |
-          eval "$(make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_display_rule)"
-          env | grep '^BGCV_' >> $GITHUB_ENV
+          eval "$(make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_display_rule)" ||\
+            (echo "Error: Failed to load configuration" && exit 1)
+          env | grep '^BGCV_' >> $GITHUB_ENV ||\
+            (echo "Error: Failed to set BGCV environment variables" && exit 1)
 
       - name: Set and validate Dockerfile path
         run: |
           DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
-          test -n "$DOCKERFILE" || (echo "Error: Dockerfile path not provided in client_payload" && exit 1)
-          test -f "$DOCKERFILE" || (echo "Error: Dockerfile not found at path: $DOCKERFILE" && exit 1)
+          test -n "$DOCKERFILE" ||\
+            (echo "Error: Dockerfile path not provided in client_payload" && exit 1)
+          test -f "$DOCKERFILE" ||\
+            (echo "Error: Dockerfile not found at path: $DOCKERFILE" && exit 1)
           echo "DOCKERFILE=$DOCKERFILE" >> $GITHUB_ENV
 
       - name: Generate build metadata
         run: |
-          TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          FILENAME=$(basename ${{ env.DOCKERFILE }} | cut -f 1 -d '.')
+          TIMESTAMP=$(date +'%Y%m%d__%H%M%S') ||\
+            (echo "Error: Failed to generate timestamp" && exit 1)
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7) ||\
+            (echo "Error: Failed to generate short SHA" && exit 1)
+          FILENAME=$(basename ${{ env.DOCKERFILE }} | cut -f 1 -d '.') ||\
+            (echo "Error: Failed to extract filename" && exit 1)
           BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
@@ -54,13 +65,18 @@ jobs:
 
       - name: Check if tag exists
         run: |
-          docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1 && (echo "Error: Tag ${{ env.BUILD_LABEL }} already exists" && exit 1) || true
+          docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1 &&\
+            (echo "Error: Tag ${{ env.BUILD_LABEL }} already exists" && exit 1) ||\
+            echo "Tag does not exist, proceeding with build"
 
       - name: Create history directory
         run: |
-          mkdir -p ${{ env.HISTORY_DIR }} || (echo "Error: Failed to create history directory" && exit 1)
-          cp ${{ env.DOCKERFILE }} ${{ env.HISTORY_DIR }}/ || (echo "Error: Failed to copy Dockerfile to history directory" && exit 1)
-          echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt || (echo "Error: Failed to create commit.txt" && exit 1)
+          mkdir -p ${{ env.HISTORY_DIR }} ||\
+            (echo "Error: Failed to create history directory" && exit 1)
+          cp ${{ env.DOCKERFILE }} ${{ env.HISTORY_DIR }}/ ||\
+            (echo "Error: Failed to copy Dockerfile to history directory" && exit 1)
+          echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt ||\
+            (echo "Error: Failed to create commit.txt" && exit 1)
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -73,19 +89,27 @@ jobs:
 
       - name: Create digest.txt
         run: |
-          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}') || (echo "Error: Failed to get image size" && exit 1)
+          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}') ||\
+            (echo "Error: Failed to get image size" && exit 1)
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ job.duration }}
-          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt || (echo "Error: Failed to write image size to digest.txt" && exit 1)
-          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/digest.txt || (echo "Error: Failed to write build duration to digest.txt" && exit 1)
+          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt ||\
+            (echo "Error: Failed to write image size to digest.txt" && exit 1)
+          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/digest.txt ||\
+            (echo "Error: Failed to write build duration to digest.txt" && exit 1)
 
       - name: Commit history directory
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com" || (echo "Error: Failed to set git user email" && exit 1)
-          git config --local user.name "github-actions[bot]" || (echo "Error: Failed to set git user name" && exit 1)
-          git add ${{ env.HISTORY_DIR }} || (echo "Error: Failed to stage history directory" && exit 1)
-          git commit -m "Add build history for ${{ env.BUILD_LABEL }}" || (echo "Error: Failed to commit history directory" && exit 1)
-          git push || (echo "Error: Failed to push changes" && exit 1)
+          git config --local user.email "github-actions[bot]@users.noreply.github.com" ||\
+            (echo "Error: Failed to set git user email" && exit 1)
+          git config --local user.name "github-actions[bot]" ||\
+            (echo "Error: Failed to set git user name" && exit 1)
+          git add ${{ env.HISTORY_DIR }} ||\
+            (echo "Error: Failed to stage history directory" && exit 1)
+          git commit -m "Add build history for ${{ env.BUILD_LABEL }}" ||\
+            (echo "Error: Failed to commit history directory" && exit 1)
+          git push ||\
+            (echo "Error: Failed to push changes" && exit 1)
 
       - name: Upload build transcript
         uses: actions/upload-artifact@v4
