@@ -1,11 +1,9 @@
 # Build Github Containers Makefile
 
-# OUCH hardcoded path Tools
-
 include bgc-config.mk
 include ../BGC_STATION.mk
 include ../secrets/github-ghcr-play.env
-include $(BGCV_TOOLS_DIR)/bgc-flow-helper.mk
+include $(BGCV_TOOLS_DIR)/bgc_flow_helper.mk
 
 zBGC_GITAPI_URL := https://api.github.com
 
@@ -16,7 +14,7 @@ zBGC_CMD_TRIGGER_BUILD = curl -X POST \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
     $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches \
-    -d '{"event_type": "build_containers"}'
+    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(DOCKERFILE)"}}'
 
 zBGC_CMD_GET_WORKFLOW_RUN = curl -s \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
@@ -41,6 +39,10 @@ zbgc_argcheck_rule: bgcfh_check_rule
 
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
+	@if [ -z "$(DOCKERFILE)" ]; then \
+		echo "Error: DOCKERFILE is not set. Usage: make bc-trigger-build.sh DOCKERFILE=path/to/Dockerfile"; \
+		exit 1; \
+	fi
 	$(zBGC_CMD_TRIGGER_BUILD)
 	jq -r '.workflow_runs[0].url' <<< "$$($(zBGC_CMD_GET_WORKFLOW_RUN))" > ../LAST_GET_WORKFLOW_RUN.txt
 	$(MBC_STEP) "Query api determined to be::"
@@ -50,12 +52,12 @@ bc-trigger-build.sh: zbgc_argcheck_rule
 bc-query-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Querying build status"
 	status=$$(curl -s -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" -H "Accept: application/vnd.github.v3+json" $$(cat ../LAST_GET_WORKFLOW_RUN.txt) | jq -r '.status')
-	if [ "$$status" = "completed" ]; then
-		echo "Build finished"
-		exit 0
-	else
-		echo "Build ongoing"
-		exit 1
+	if [ "$$status" = "completed" ]; then \
+		echo "Build finished"; \
+		exit 0; \
+	else \
+		echo "Build ongoing"; \
+		exit 1; \
 	fi
 
 bc-list-images.sh: zbgc_argcheck_rule
@@ -80,3 +82,4 @@ bc-display-config:
 	$(MBC_START) "Displaying configuration variables"
 	@$(MAKE) -f bgcv.Variables.mk bgcv_display_rule
 	$(MBC_PASS)
+
