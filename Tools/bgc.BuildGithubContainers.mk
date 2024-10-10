@@ -10,11 +10,14 @@ zBGC_GITAPI_URL := https://api.github.com
 # OUCH fix this
 BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 
+# Default wrong on purpose: override when makefile invoked
+BGC_ARG_DOCKERFILE = xxxx.dockerfile
+
 zBGC_CMD_TRIGGER_BUILD = curl -X POST \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
     -H "Accept: application/vnd.github.v3+json" \
     $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches \
-    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(DOCKERFILE)"}}'
+    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_DOCKERFILE)"}}'
 
 zBGC_CMD_GET_WORKFLOW_RUN = curl -s \
     -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
@@ -39,10 +42,7 @@ zbgc_argcheck_rule: bgcfh_check_rule
 
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
-	@if [ -z "$(DOCKERFILE)" ]; then \
-		echo "Error: DOCKERFILE is not set. Usage: make bc-trigger-build.sh DOCKERFILE=path/to/Dockerfile"; \
-		exit 1; \
-	fi
+        test -n "$BGC_ARG_DOCKERFILE" || (echo "BGC_ARG_DOCKERFILE not set" && false)
 	$(zBGC_CMD_TRIGGER_BUILD)
 	jq -r '.workflow_runs[0].url' <<< "$$($(zBGC_CMD_GET_WORKFLOW_RUN))" > ../LAST_GET_WORKFLOW_RUN.txt
 	$(MBC_STEP) "Query api determined to be::"
@@ -51,14 +51,14 @@ bc-trigger-build.sh: zbgc_argcheck_rule
 
 bc-query-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Querying build status"
-	status=$$(curl -s -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" -H "Accept: application/vnd.github.v3+json" $$(cat ../LAST_GET_WORKFLOW_RUN.txt) | jq -r '.status')
-	if [ "$$status" = "completed" ]; then \
-		echo "Build finished"; \
-		exit 0; \
-	else \
-		echo "Build ongoing"; \
-		exit 1; \
-	fi
+	@curl -s \
+	    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
+	    -H "Accept: application/vnd.github.v3+json" \
+	    $$(cat ../LAST_GET_WORKFLOW_RUN.txt) | \
+	  jq -r '.status' | ( read status && test "$$status" == "completed" || \
+	     (echo "Build ongoing. Current status: $$status" && false)
+	@echo "Build succeeded"
+	$(MBC_PASS)
 
 bc-list-images.sh: zbgc_argcheck_rule
 	$(MBC_START) "Listing container registry images"
@@ -82,4 +82,3 @@ bc-display-config:
 	$(MBC_START) "Displaying configuration variables"
 	@$(MAKE) -f bgcv.Variables.mk bgcv_display_rule
 	$(MBC_PASS)
-

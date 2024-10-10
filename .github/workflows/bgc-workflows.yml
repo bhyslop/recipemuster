@@ -1,63 +1,53 @@
-name: BGC Workflow
+name: BGC Single Container Build Workflow
 
 on:
   workflow_dispatch:
+    inputs:
+      dockerfile:
+        description: 'Path to the Dockerfile to build'
+        required: true
+        type: string
   repository_dispatch:
     types: [build_containers]
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
-    outputs:
-      env_vars: ${{ steps.set_env.outputs.env_vars }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Load configuration
-        id: set_env
         run: |
-          echo "env_vars<<EOF" >> $GITHUB_OUTPUT
-          make -f ${{ github.workspace }}/Tools/bgc-flow-helper.mk bgcfh_display_rule
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ ! -f bgc-config.mk ]; then
+            echo "Error: bgc-config.mk is missing"
+            exit 1
+          fi
+          source bgc-config.mk
+          echo "BGCV_BUILD_ARCHITECTURES=$BGCV_BUILD_ARCHITECTURES" >> $GITHUB_ENV
+          echo "BGCV_HISTORY_DIR=$BGCV_HISTORY_DIR" >> $GITHUB_ENV
+          echo "BGCV_REGISTRY_OWNER=$BGCV_REGISTRY_OWNER" >> $GITHUB_ENV
+          echo "BGCV_REGISTRY_NAME=$BGCV_REGISTRY_NAME" >> $GITHUB_ENV
 
-  get-dockerfiles:
-    needs: setup
-    runs-on: ubuntu-latest
-    outputs:
-      dockerfiles: ${{ steps.get-dockerfiles.outputs.dockerfiles }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set environment variables
+      - name: Set Dockerfile path
         run: |
-          echo "${{ needs.setup.outputs.env_vars }}" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "DOCKERFILE=${{ github.event.inputs.dockerfile }}" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "DOCKERFILE=${{ github.event.client_payload.dockerfile }}" >> $GITHUB_ENV
+          else
+            echo "Error: Unsupported event type"
+            exit 1
+          fi
 
-      - name: Get Dockerfiles
-        id: get-dockerfiles
+      - name: Generate build metadata
+        id: meta
         run: |
-          DOCKERFILES=$(ls ${{ env.BGCV_RECIPES_DIR }}/${{ env.BGCV_RECIPE_PATTERN }})
-          JSON_ARRAY=$(printf '%s\n' $DOCKERFILES | jq -R . | jq -s .)
-          echo "dockerfiles=$JSON_ARRAY" >> $GITHUB_OUTPUT
-
-      - name: Debug output
-        run: echo "${{ steps.get-dockerfiles.outputs.dockerfiles }}"
-
-  build:
-    needs: [setup, get-dockerfiles]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dockerfile: ${{ fromJson(needs.get-dockerfiles.outputs.dockerfiles) }}
-      max-parallel: 4
-      fail-fast: false
-    continue-on-error: true
-    timeout-minutes: 360
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set environment variables
-        run: |
-          echo "${{ needs.setup.outputs.env_vars }}" >> $GITHUB_ENV
+          TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          FILENAME=$(basename $DOCKERFILE | cut -f 1 -d '.')
+          BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
+          echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
+          echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -72,16 +62,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate build metadata
-        id: meta
-        run: |
-          TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          FILENAME=$(basename ${{ matrix.dockerfile }} | cut -f 1 -d '.')
-          BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
-          echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
-          echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
-
       - name: Check if tag exists
         run: |
           if docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1; then
@@ -92,14 +72,14 @@ jobs:
       - name: Create history directory
         run: |
           mkdir -p $HISTORY_DIR
-          cp ${{ matrix.dockerfile }} $HISTORY_DIR/
+          cp $DOCKERFILE $HISTORY_DIR/
           echo ${{ github.sha }} > $HISTORY_DIR/commit.txt
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: ${{ env.DOCKERFILE }}
           push: true
           tags: ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
@@ -129,5 +109,4 @@ jobs:
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
-
 
