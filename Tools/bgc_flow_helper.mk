@@ -1,3 +1,6 @@
+# OUCH experiment to try and figure gh actions shelling
+SHELL = /bin/bash
+
 include bgc-config.mk
 
 # Dynamic list of all BGCV_ variables
