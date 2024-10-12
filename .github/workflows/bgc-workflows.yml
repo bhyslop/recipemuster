@@ -24,12 +24,17 @@ jobs:
       - name: Load configuration
         shell: bash
         run: |
-          eval "$(make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_display_rule)" || (echo "Error: Failed to load configuration" && false)
-          env | grep '^BGCV_' >> $GITHUB_ENV || (echo "Error: Failed to set BGCV environment variables" && false)
+          echo "BGCW: Establish env vars from helper makefile..."
+          eval "$(make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_display_rule)"  | grep '^BGCV_' >> $GITHUB_ENV
+          echo "BGCW: Are they in the env now?"
+          env
 
       - name: Set and validate Dockerfile path
         shell: bash
         run: |
+          echo "BGCW: Are they in the env now?"
+          env
+          echo "BGCW: Proceeding with dockering..."
           DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
           test -n "$DOCKERFILE" || (echo "Error: Dockerfile path not provided in client_payload" && false)
           test -f "$DOCKERFILE" || (echo "Error: Dockerfile not found at path: $DOCKERFILE" && false)
