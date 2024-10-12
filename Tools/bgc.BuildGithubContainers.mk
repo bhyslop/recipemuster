@@ -46,7 +46,7 @@ bc-trigger-build.sh: zbgc_argcheck_rule
 	@$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event"
 	@sleep 5
-	$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
+	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
 	@test -s $(zBGC_LAST_RUN_CACHE) || ($(MBC_SEE_RED) "Failed to obtain workflow run ID" && false)
 	$(MBC_STEP) "Workflow run ID determined to be:"
 	$(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))
@@ -63,7 +63,9 @@ bc-query-build.sh: zbgc_argcheck_rule
 bc-list-images.sh: zbgc_argcheck_rule
 	$(MBC_START) "Listing container registry images"
 	$(zBGC_CMD_LIST_IMAGES) | jq -r '.[] | select(.package_type=="container") | "\(.name)\t\(.version_count)\t\(.html_url)"' | \
-		awk 'BEGIN {printf "%-30s %-10s %-50s\n", "Image Name", "Versions", "URL"} {printf "%-30s %-10s %-50s\n", $$1, $$2, $$3}'
+	  awk 'BEGIN {printf "%-30s %-10s %-50s\n", "Image Name", "Versions", "URL"} {printf "%-30s %-10s %-50s\n", $$1, $$2, $$3}'
+	$(MBC_START) "Show raw query outputs for debug"
+	$(zBGC_CMD_LIST_IMAGES)
 	$(MBC_PASS)
 
 bc-delete-image.sh: zbgc_argcheck_rule

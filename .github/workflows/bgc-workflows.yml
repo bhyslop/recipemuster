@@ -83,6 +83,7 @@ jobs:
           context: .
           file: ${{ env.DOCKERFILE }}
           push: true
+          load: true
           tags: ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
 
