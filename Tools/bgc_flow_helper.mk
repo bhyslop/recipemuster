@@ -11,29 +11,31 @@ REQUIRED_BGCV_VARS :=      \
   BGCV_REGISTRY_NAME       \
   BGCV_REGISTRY_OWNER      \
 
-
-bgcfh_check_rule:
-	echo "Checking required variables..."
+bgcfh_display_and_check_rule:
+	echo "Gathering shell information..."
 	echo "SHELL variable: $$SHELL"
 	echo "Current shell (ps):"
 	ps -p $$$$
 	echo "Shell from /proc/self/exe:"
-	readlink /proc/self/exe
+	readlink /proc/self/exe || echo "readlink not available"
 	echo "Available shells:"
-	cat /etc/shells
+	cat /etc/shells || echo "Unable to read /etc/shells"
 	echo "Bash version (if available):"
 	bash --version || echo "Bash not found or not executable"
 	echo "Sh version (if available):"
 	sh --version || echo "Sh not found or not executable"
 	echo "Environment variables:"
 	env
-	for var in $(REQUIRED_BGCV_VARS); do \
-	  eval value=\$$$$var; \
-	  test -n "$$value" || (echo "Error: Undefined required variable $$var" && false); \
+	echo "Displaying and checking BGCV variables..."
+	for var in $(BGCV_VARS); do \
+		value=$$(eval echo \$${$$var}); \
+		echo "$$var=$$value"; \
+		if [ -z "$$value" ]; then \
+			echo "Error: $$var is not set or empty"; \
+			exit 1; \
+		fi; \
 	done
-	echo "All required variables are defined."
+	echo "All BGCV variables are set and non-empty."
 
-
-bgcfh_display_rule:
-	$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)
+.PHONY: bgcfh_display_and_check_rule
 
