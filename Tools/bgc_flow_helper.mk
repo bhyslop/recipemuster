@@ -11,7 +11,8 @@ REQUIRED_BGCV_VARS :=      \
   BGCV_REGISTRY_NAME       \
   BGCV_REGISTRY_OWNER      \
 
-bgcfh_display_and_check_rule:
+
+bgcfh_check_rule:
 	echo "Gathering shell information..."
 	echo "SHELL variable: $$SHELL"
 	echo "Current shell (ps):"
@@ -37,5 +38,7 @@ bgcfh_display_and_check_rule:
 	done
 	echo "All BGCV variables are set and non-empty."
 
-.PHONY: bgcfh_display_and_check_rule
+
+bgcfh_display_rule:
+	$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)
 
