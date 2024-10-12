@@ -42,15 +42,14 @@ zbgc_argcheck_rule: bgcfh_check_rule
 
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
-	test "$(BGC_ARG_DOCKERFILE)" != "" || (echo "Error: BGC_ARG_DOCKERFILE is not set or is empty" && exit 1)
+	test "$(BGC_ARG_DOCKERFILE)" != "" || (echo "Error: BGC_ARG_DOCKERFILE is not set or is empty" && false)
 	$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Waiting for GitHub to process the dispatch event"
 	sleep 5
 	$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
-	test -s $(zBGC_LAST_RUN_CACHE)                                            && \
-	  $(MBC_STEP) "Workflow run ID determined to be:"                         && \
-	  $(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))                 || \
-	  ($(MBC_ERROR) "Failed to obtain workflow run ID" && exit 1)
+	test -s $(zBGC_LAST_RUN_CACHE) || ($(MBC_SEE_RED) "Failed to obtain workflow run ID" && false)
+	$(MBC_STEP) "Workflow run ID determined to be:"
+	$(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_PASS)
 
 bc-query-build.sh: zbgc_argcheck_rule
