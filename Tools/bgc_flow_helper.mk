@@ -25,8 +25,10 @@ bgcfh_check_rule:
 	bash --version || echo "Bash not found or not executable"
 	echo "Sh version (if available):"
 	sh --version || echo "Sh not found or not executable"
-	echo "Environment variables:"
-	env
+	@if [ -z "$$BASH_VERSION" ]; then \
+		echo "Error: This makefile requires bash to run"; \
+		exit 1; \
+	fi
 	echo "Displaying and checking BGCV variables..."
 	for var in $(BGCV_VARS); do \
 		value=$$(eval echo \$${$$var}); \
