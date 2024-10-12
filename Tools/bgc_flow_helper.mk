@@ -14,8 +14,11 @@ REQUIRED_BGCV_VARS :=      \
 
 bgcfh_check_rule:
 	@echo "Checking required variables..."
+	@echo "Current shell: $$SHELL"
+	@echo "Current shell version:"
+	@$$SHELL --version
 	@for var in $(REQUIRED_BGCV_VARS); do \
-	  test -n "$${!var}" || (echo "Error: Undefined required variable $$var" && exit 1); \
+	  test -n "$${!var}" || (echo "Error: Undefined required variable $$var" && false); \
 	done
 	@echo "All required variables are defined."
 
