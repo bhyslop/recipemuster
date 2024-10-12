@@ -14,31 +14,25 @@ zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
 
 BGC_ARG_DOCKERFILE ?=
 
-zBGC_CMD_TRIGGER_BUILD := curl -X POST \
-    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
-    -H '"Accept: application/vnd.github.v3+json"' \
-    '"$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches"' \
-    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_DOCKERFILE)"} }'
+zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
+                     -H 'Accept: application/vnd.github.v3+json'
 
-zBGC_CMD_GET_WORKFLOW_RUN := curl -s \
-    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
-    -H '"Accept: application/vnd.github.v3+json"' \
-    '"$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1"'
+zBGC_CMD_TRIGGER_BUILD := curl -X POST $(zBGC_CURL_HEADERS) \
+    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches' \
+    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_DOCKERFILE)"}}'
 
-zBGC_CMD_GET_SPECIFIC_RUN := curl -s \
-    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
-    -H '"Accept: application/vnd.github.v3+json"' \
-    '"$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"'
+zBGC_CMD_GET_WORKFLOW_RUN := curl -s $(zBGC_CURL_HEADERS) \
+    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
-zBGC_CMD_LIST_IMAGES := curl -s \
-    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
-    -H '"Accept: application/vnd.github.v3+json"' \
-    '"$(zBGC_GITAPI_URL)/user/packages?package_type=container"'
+zBGC_CMD_GET_SPECIFIC_RUN := curl -s  $(zBGC_CURL_HEADERS) \
+    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/'
 
-zBGC_CMD_DELETE_IMAGE := curl -X DELETE \
-    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
-    -H '"Accept: application/vnd.github.v3+json"' \
-    '"$(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)"'
+zBGC_CMD_LIST_IMAGES := curl -s $(zBGC_CURL_HEADERS) \
+    '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
+
+zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
+    '$(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)'
+
 
 zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_START) "Checking needed variables..."
