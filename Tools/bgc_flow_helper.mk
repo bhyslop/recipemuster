@@ -16,22 +16,6 @@ REQUIRED_BGCV_VARS :=      \
 
 
 bgcfh_check_rule:
-	echo "Gathering shell information..."
-	echo "SHELL variable: $$SHELL"
-	echo "Current shell (ps):"
-	ps -p $$$$
-	echo "Shell from /proc/self/exe:"
-	readlink /proc/self/exe || echo "readlink not available"
-	echo "Available shells:"
-	cat /etc/shells || echo "Unable to read /etc/shells"
-	echo "Bash version (if available):"
-	bash --version || echo "Bash not found or not executable"
-	echo "Sh version (if available):"
-	sh --version || echo "Sh not found or not executable"
-	@if [ -z "$$BASH_VERSION" ]; then \
-		echo "Error: This makefile requires bash to run"; \
-		exit 1; \
-	fi
 	echo "Displaying and checking BGCV variables..."
 	for var in $(BGCV_VARS); do \
 		value=$$(eval echo \$${$$var}); \
