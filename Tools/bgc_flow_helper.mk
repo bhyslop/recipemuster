@@ -13,15 +13,27 @@ REQUIRED_BGCV_VARS :=      \
 
 
 bgcfh_check_rule:
-	@echo "Checking required variables..."
-	@echo "Current shell: $$SHELL"
-	@echo "Current shell version:"
-	@$$SHELL --version
-	@for var in $(REQUIRED_BGCV_VARS); do \
-	  test -n "$${!var}" || (echo "Error: Undefined required variable $$var" && false); \
+	echo "Checking required variables..."
+	echo "SHELL variable: $$SHELL"
+	echo "Current shell (ps):"
+	ps -p $$$$
+	echo "Shell from /proc/self/exe:"
+	readlink /proc/self/exe
+	echo "Available shells:"
+	cat /etc/shells
+	echo "Bash version (if available):"
+	bash --version || echo "Bash not found or not executable"
+	echo "Sh version (if available):"
+	sh --version || echo "Sh not found or not executable"
+	echo "Environment variables:"
+	env
+	for var in $(REQUIRED_BGCV_VARS); do \
+	  eval value=\$$$$var; \
+	  test -n "$$value" || (echo "Error: Undefined required variable $$var" && false); \
 	done
-	@echo "All required variables are defined."
+	echo "All required variables are defined."
 
 
 bgcfh_display_rule:
-	@$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)
+	$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)
+
