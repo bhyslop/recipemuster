@@ -14,31 +14,31 @@ zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
 
 BGC_ARG_DOCKERFILE ?=
 
-zBGC_CMD_TRIGGER_BUILD = curl -X POST \
-    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
-    -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches \
-    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_DOCKERFILE)"}}'
+zBGC_CMD_TRIGGER_BUILD := curl -X POST \
+    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
+    -H '"Accept: application/vnd.github.v3+json"' \
+    '"$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches"' \
+    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_DOCKERFILE)"} }'
 
-zBGC_CMD_GET_WORKFLOW_RUN = curl -s \
-    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
-    -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1
+zBGC_CMD_GET_WORKFLOW_RUN := curl -s \
+    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
+    -H '"Accept: application/vnd.github.v3+json"' \
+    '"$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1"'
 
-zBGC_CMD_GET_SPECIFIC_RUN = curl -s \
-    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
-    -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/
+zBGC_CMD_GET_SPECIFIC_RUN := curl -s \
+    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
+    -H '"Accept: application/vnd.github.v3+json"' \
+    '"$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"'
 
-zBGC_CMD_LIST_IMAGES = curl -s \
-    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
-    -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/user/packages?package_type=container
+zBGC_CMD_LIST_IMAGES := curl -s \
+    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
+    -H '"Accept: application/vnd.github.v3+json"' \
+    '"$(zBGC_GITAPI_URL)/user/packages?package_type=container"'
 
-zBGC_CMD_DELETE_IMAGE = curl -X DELETE \
-    -H "Authorization: token $(BGC_SECRET_GITHUB_PAT)" \
-    -H "Accept: application/vnd.github.v3+json" \
-    $(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)
+zBGC_CMD_DELETE_IMAGE := curl -X DELETE \
+    -H '"Authorization: token $(BGC_SECRET_GITHUB_PAT)"' \
+    -H '"Accept: application/vnd.github.v3+json"' \
+    '"$(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)"'
 
 zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_START) "Checking needed variables..."
@@ -50,10 +50,13 @@ bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
 	test "$(BGC_ARG_DOCKERFILE)" != "" || (echo "Error: BGC_ARG_DOCKERFILE is not set or is empty" && exit 1)
 	$(zBGC_CMD_TRIGGER_BUILD)
-	sleep 5  # Give GitHub a moment to process the dispatch event
+	$(MBC_STEP) "Waiting for GitHub to process the dispatch event"
+	sleep 5
 	$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
-	$(MBC_STEP) "Workflow run ID determined to be:"
-	$(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))
+	test -s $(zBGC_LAST_RUN_CACHE)                                            && \
+	  $(MBC_STEP) "Workflow run ID determined to be:"                         && \
+	  $(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))                 || \
+	  ($(MBC_ERROR) "Failed to obtain workflow run ID" && exit 1)
 	$(MBC_PASS)
 
 bc-query-build.sh: zbgc_argcheck_rule
