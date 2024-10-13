@@ -96,7 +96,7 @@ jobs:
           echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt ||\
             (echo "GHA: Error: Failed to create commit.txt" && false)
 
-     - name: Build and push
+      - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v5
         with:
