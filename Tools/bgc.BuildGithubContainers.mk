@@ -12,14 +12,14 @@ BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 
 zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
 
-BGC_ARG_DOCKERFILE ?=
+BGC_ARG_RECIPE ?=
 
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
                      -H 'Accept: application/vnd.github.v3+json'
 
 zBGC_CMD_TRIGGER_BUILD := curl -X POST $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches' \
-    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_DOCKERFILE)"}}'
+    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_RECIPE)"}}'
 
 zBGC_CMD_GET_WORKFLOW_RUN := curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
@@ -44,8 +44,8 @@ zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_PASS)
 
 bc-trigger-build.sh: zbgc_argcheck_rule
-	$(MBC_START) "Triggering container build"
-	@test "$(BGC_ARG_DOCKERFILE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_DOCKERFILE unset" && false)
+	$(MBC_START) "Triggering container build on specified recipe or dockerfile"
+	@test "$(BGC_ARG_RECIPE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && false)
 	@$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event"
 	@sleep 5
