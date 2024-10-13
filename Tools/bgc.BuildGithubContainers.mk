@@ -11,6 +11,7 @@ zBGC_GITAPI_URL := https://api.github.com
 BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 
 zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
+zBGC_LAST_RUN_CONTENTS := $(shell cat $(zBGC_LAST_RUN_CACHE))
 
 BGC_ARG_RECIPE ?=
 
@@ -35,6 +36,12 @@ zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
 
 zBGC_CMD_LIST_PACKAGE_VERSIONS := curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
+
+zBGC_CMD_GET_JOBS := curl $(zBGC_CURL_HEADERS) \
+     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/jobs'
+
+zBGC_CMD_GET_LOGS := curl $(zBGC_CURL_HEADERS) \
+     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/logs'
 
 
 zbgc_argcheck_rule: bgcfh_check_rule
@@ -92,5 +99,17 @@ bc-display-config:
 	$(MBC_START) "Displaying configuration variables"
 	@$(MAKE) -f bgcv.Variables.mk bgcv_display_rule
 	$(MBC_PASS)
+
+bc-get-jobs.sh: zbgc_argcheck_rule
+	$(MBC_START) "Get job info"
+	$(zBGC_CMD_GET_JOBS) | jq '.jobs[] | select(.name == "build") | .steps[] | select(.name == "Build and push")'
+	$(MBC_PASS)
+
+# https://github.com/bhyslop/recipemuster/commit/715888f4a818b04d7132380cdb58dfdb0e92ba9d/checks/31467111690/logs/13
+bc-get-logs.sh: zbgc_argcheck_rule
+	$(MBC_STEP) "Get logs"
+	$(zBGC_CMD_GET_LOGS)
+	$(MBC_PASS)
+	
 
 
