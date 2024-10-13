@@ -52,7 +52,7 @@ jobs:
           FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${SHORT_SHA}.${TIMESTAMP}"
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
-          echo "GHCR_PATH=ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}" >> $GITHUB_ENV
+          echo "GHCR_PATH=ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:$BUILD_LABEL" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
           echo "GHA: Var TIMESTAMP=$TIMESTAMP"
           echo "GHA: Var SHORT_SHA=$SHORT_SHA"
@@ -81,7 +81,7 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to check if tag exists..."
-          docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1 &&\
+          docker manifest inspect ${{ env.GHCR_PATH }} > /dev/null 2>&1 &&\
             (echo "GHA: Error: Tag ${{ env.BUILD_LABEL }} already exists" && false)
           echo "GHA: Tag does not exist, proceeding with build"
 
@@ -103,7 +103,7 @@ jobs:
           context: .
           file: ${{ env.DOCKERFILE }}
           push: true
-          tags: ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
+          tags: ${{ env.GHCR_PATH }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
           outputs: type=image,push=true
           cache-from: type=gha
@@ -136,8 +136,8 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to create digest.txt..."
-          docker pull ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
-          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}')
+          docker pull ${{ env.GHCR_PATH }}
+          IMAGE_SIZE=$(docker image inspect ${{ env.GHCR_PATH }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ steps.docker_build.outputs.duration }}
           echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt
