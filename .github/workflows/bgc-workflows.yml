@@ -92,6 +92,7 @@ jobs:
 
       - name: Build and push
         uses: docker/build-push-action@v5
+        id: build-and-push
         with:
           context: .
           file: ${{ env.DOCKERFILE }}
@@ -99,6 +100,22 @@ jobs:
           load: true
           tags: ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
+
+      - name: Save build logs
+        if: always()
+        shell: bash
+        run: |
+          echo "GHA: about to save build logs..."
+          mkdir -p ${{ env.HISTORY_DIR }}
+          echo "${{ steps.build-and-push.outputs.metadata }}" > ${{ env.HISTORY_DIR }}/history.txt
+          echo "GHA: Build logs saved to ${{ env.HISTORY_DIR }}/history.txt"
+
+      - name: Upload build transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-transcript-${{ env.BUILD_LABEL }}
+          path: ${{ env.HISTORY_DIR }}/history.txt
 
       - name: Create digest.txt
         shell: bash
