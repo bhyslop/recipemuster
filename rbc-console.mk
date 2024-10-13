@@ -111,10 +111,12 @@ zRBC_TABTARGET_FILE = $(zRBC_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
 
 ttc.CreateTabtarget.sh:
 	@test -n "$(RBC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
-	@echo '#!/bin/sh' > $(zRBC_TABTARGET_FILE)
+	@echo '#!/bin/sh' >         $(zRBC_TABTARGET_FILE)
 	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
-	                 >> $(zRBC_TABTARGET_FILE)
-	@chmod +x           $(zRBC_TABTARGET_FILE)
+	                 >>         $(zRBC_TABTARGET_FILE)
+	@chmod +x                   $(zRBC_TABTARGET_FILE)
+	git add                     $(zRBC_TABTARGET_FILE)
+	git update-index --chmod=+x $(zRBC_TABTARGET_FILE)
 	$(zRBC_PASS)
 
 
