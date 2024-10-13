@@ -96,7 +96,7 @@ jobs:
           echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt ||\
             (echo "GHA: Error: Failed to create commit.txt" && false)
 
-      - name: Build and push
+     - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v5
         with:
@@ -105,13 +105,9 @@ jobs:
           push: true
           tags: ${{ env.GHCR_PATH }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
-          outputs: type=image,push=true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Capture build log
         if: always()
-        shell: bash
         run: |
           echo "GHA: about to capture detailed build log..."
           mkdir -p ${{ env.HISTORY_DIR }}
@@ -124,6 +120,20 @@ jobs:
             echo "Build completed at: $(date)"
           } > ${{ env.HISTORY_DIR }}/history.txt
           echo "GHA: Detailed build log saved to ${{ env.HISTORY_DIR }}/history.txt"
+          echo "Build and push step output:"
+          echo "${{ steps.docker_build.outputs.metadata }}" > ${{ env.HISTORY_DIR }}/build_metadata.json
+          echo "Full job log:"
+          cat $GITHUB_STEP_SUMMARY > ${{ env.HISTORY_DIR }}/full_job_log.txt
+
+      - name: Process and display build log
+        if: always()
+        run: |
+          echo "Processing build log..."
+          echo "Build metadata:"
+          cat ${{ env.HISTORY_DIR }}/build_metadata.json
+          echo "Full job log summary:"
+          cat ${{ env.HISTORY_DIR }}/full_job_log.txt
+          # Add any additional processing you need here
 
       - name: Upload build transcript
         if: always()
