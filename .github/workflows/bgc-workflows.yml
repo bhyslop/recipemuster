@@ -48,13 +48,15 @@ jobs:
           echo "GHA: about to generate build metadata..."
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          FILENAME=$(basename ${{ env.DOCKERFILE }} | cut -f 1 -d '.')
-          BUILD_LABEL="${FILENAME}.${SHORT_SHA}.${TIMESTAMP}"
+          FULL_FILENAME=$(basename ${{ env.DOCKERFILE }})
+          FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
+          BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${SHORT_SHA}.${TIMESTAMP}"
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
           echo "GHA: Var TIMESTAMP=$TIMESTAMP"
           echo "GHA: Var SHORT_SHA=$SHORT_SHA"
-          echo "GHA: Var FILENAME=$FILENAME"
+          echo "GHA: Var FULL_FILENAME=$FULL_FILENAME"
+          echo "GHA: Var FILENAME_WITHOUT_EXT=$FILENAME_WITHOUT_EXT"
           echo "GHA: Var BUILD_LABEL=$BUILD_LABEL"
           echo "GHA: Var HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL"
 
