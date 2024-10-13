@@ -98,13 +98,15 @@ jobs:
 
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6.9.0
         with:
           context: .
           file: ${{ env.DOCKERFILE }}
           push: true
           tags: ${{ env.GHCR_PATH }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
+          provenance: true
+          sbom: true
 
       - name: Capture build log
         if: always()
