@@ -65,6 +65,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -93,24 +95,34 @@ jobs:
             (echo "GHA: Error: Failed to create commit.txt" && false)
 
       - name: Build and push
+        id: docker_build
         uses: docker/build-push-action@v5
-        id: build-and-push
         with:
           context: .
           file: ${{ env.DOCKERFILE }}
           push: true
-          load: true
           tags: ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
+          outputs: type=image,push=true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Save build logs
+      - name: Capture build log
         if: always()
         shell: bash
         run: |
-          echo "GHA: about to save build logs..."
+          echo "GHA: about to capture detailed build log..."
           mkdir -p ${{ env.HISTORY_DIR }}
-          echo "${{ steps.build-and-push.outputs.metadata }}" > ${{ env.HISTORY_DIR }}/history.txt
-          echo "GHA: Build logs saved to ${{ env.HISTORY_DIR }}/history.txt"
+          {
+            echo "Build started at: $(date)"
+            echo "Dockerfile: ${{ env.DOCKERFILE }}"
+            echo "Build label: ${{ env.BUILD_LABEL }}"
+            echo "-----BEGIN BUILD LOG-----"
+            echo "${{ toJson(steps.docker_build.outputs) }}" | jq -r '.[] | select(.type=="buildkit") | .attrs.rawJson' | jq -r '.[] | select(.stream != null) | .stream'
+            echo "-----END BUILD LOG-----"
+            echo "Build completed at: $(date)"
+          } > ${{ env.HISTORY_DIR }}/history.txt
+          echo "GHA: Detailed build log saved to ${{ env.HISTORY_DIR }}/history.txt"
 
       - name: Upload build transcript
         if: always()

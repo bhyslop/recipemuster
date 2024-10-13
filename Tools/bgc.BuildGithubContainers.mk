@@ -39,13 +39,13 @@ zBGC_CMD_LIST_PACKAGE_VERSIONS := curl -s $(zBGC_CURL_HEADERS) \
 
 zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_START) "Checking needed variables..."
-	test -n "$(BGC_SECRET_GITHUB_PAT)"    || (echo "BGC_SECRET_GITHUB_PAT is not set"     && false)
-	test -n "$(zBGC_GITAPI_URL)"          || (echo "zBGC_GITAPI_URL is not set"           && false)
+	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
+	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
 	$(MBC_PASS)
 
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
-	@test "$(BGC_ARG_DOCKERFILE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_DOCKERFILE is not set or is empty" && false)
+	@test "$(BGC_ARG_DOCKERFILE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_DOCKERFILE unset" && false)
 	@$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event"
 	@sleep 5
