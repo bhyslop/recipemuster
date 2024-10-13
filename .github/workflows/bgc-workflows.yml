@@ -52,12 +52,14 @@ jobs:
           FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${SHORT_SHA}.${TIMESTAMP}"
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
+          echo "GHCR_PATH=ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
           echo "GHA: Var TIMESTAMP=$TIMESTAMP"
           echo "GHA: Var SHORT_SHA=$SHORT_SHA"
           echo "GHA: Var FULL_FILENAME=$FULL_FILENAME"
           echo "GHA: Var FILENAME_WITHOUT_EXT=$FILENAME_WITHOUT_EXT"
           echo "GHA: Var BUILD_LABEL=$BUILD_LABEL"
+          echo "GHA: Var GHCR_PATH=$GHCR_PATH"
           echo "GHA: Var HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL"
 
       - name: Set up QEMU
@@ -79,7 +81,7 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to check if tag exists..."
-          docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1 && \
+          docker manifest inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} > /dev/null 2>&1 &&\
             (echo "GHA: Error: Tag ${{ env.BUILD_LABEL }} already exists" && false)
           echo "GHA: Tag does not exist, proceeding with build"
 
@@ -134,14 +136,12 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to create digest.txt..."
-          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}') ||\
-            (echo "GHA: Error: Failed to get image size" && false)
+          docker pull ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }}
+          IMAGE_SIZE=$(docker image inspect ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:${{ env.BUILD_LABEL }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
-          BUILD_DURATION=${{ job.duration }}
-          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt ||\
-            (echo "GHA: Error: Failed to write image size to digest.txt" && false)
-          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/digest.txt ||\
-            (echo "GHA: Error: Failed to write build duration to digest.txt" && false)
+          BUILD_DURATION=${{ steps.docker_build.outputs.duration }}
+          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt
+          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/digest.txt
 
       - name: Commit history directory
         shell: bash
