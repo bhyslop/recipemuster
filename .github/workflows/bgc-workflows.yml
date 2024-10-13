@@ -119,6 +119,16 @@ jobs:
             echo "Dockerfile: ${{ env.DOCKERFILE }}"
             echo "Build label: ${{ env.BUILD_LABEL }}"
             echo "-----BEGIN BUILD LOG-----"
+
+            echo "Contents of /home/runner/.docker/buildx/:"
+            ls -la /home/runner/.docker/buildx/
+
+            if [ -f /home/runner/.docker/buildx/activity.json ]; then
+                cat /home/runner/.docker/buildx/activity.json
+            else
+              echo "GHA: Error: activity.json file not found"
+            fi
+
             echo "${{ steps.docker_build.outputs }}"
             echo "-----END BUILD LOG-----"
             echo "Build completed at: $(date)"
