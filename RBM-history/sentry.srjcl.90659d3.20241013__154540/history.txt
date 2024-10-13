@@ -1,0 +1,10 @@
+Dockerfile: RBM-recipes/sentry.srjcl.recipe
+Build label: sentry.srjcl.90659d3.20241013__154540
+-----BEGIN BUILD LOG STEPS-----
+{
+  imageid: sha256:6683fb3383977ee95e0cfe812ec610fdbd6a88a60b3cc309582392023a410ccc,
+  digest: sha256:6683fb3383977ee95e0cfe812ec610fdbd6a88a60b3cc309582392023a410ccc,
+  metadata: {n "buildx.build.provenance": {n "builder": {n "id": "https://github.com/bhyslop/recipemuster/actions/runs/11315687387"n },n "buildType": "https://mobyproject.org/buildkit@v1",n "materials": [n {n "uri": "pkg:docker/alpine@latest?platform=linux%2Famd64",n "digest": {n "sha256": "beefdbd8a1da6d2915566fde36db9db0b524eb737fc57cd1367effd16dc0d06d"n }n }n ],n "invocation": {n "configSource": {},n "parameters": {n "frontend": "dockerfile.v0",n "locals": [n {n "name": "context"n },n {n "name": "dockerfile"n }n ]n },n "environment": {n "platform": "linux/amd64"n }n }n },n "buildx.build.ref": "builder-91d8d5e3-577e-4f22-bfdc-a9498df348b0/builder-91d8d5e3-577e-4f22-bfdc-a9498df348b00/ohhwn6o3jg1jzuq0dow4ewd5g",n "containerimage.descriptor": {n "mediaType": "application/vnd.oci.image.index.v1+json",n "digest": "sha256:6683fb3383977ee95e0cfe812ec610fdbd6a88a60b3cc309582392023a410ccc",n "size": 855n },n "containerimage.digest": "sha256:6683fb3383977ee95e0cfe812ec610fdbd6a88a60b3cc309582392023a410ccc",n "image.name": "ghcr.io/bhyslop/recipemuster:sentry.srjcl.90659d3.20241013__154540"n}
+}
+-----END BUILD LOG STEPS-----
+Build completed at: Sun Oct 13 15:45:50 UTC 2024
