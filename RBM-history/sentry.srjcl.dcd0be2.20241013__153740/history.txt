@@ -1,0 +1,19 @@
+Dockerfile: RBM-recipes/sentry.srjcl.recipe
+Build label: sentry.srjcl.dcd0be2.20241013__153740
+-----BEGIN BUILD LOG-----
+Contents of /home/runner/.docker/buildx/:
+total 36
+drwxr-xr-x 7 runner docker 4096 Oct 13 15:37 .
+drwx------ 3 runner docker 4096 Oct 13 15:37 ..
+-rw------- 1 runner docker   16 Oct 13 15:37 .buildNodeID
+-rw------- 1 runner docker    0 Oct 13 15:37 .lock
+drwx------ 2 runner docker 4096 Oct 13 15:37 activity
+drwxr-xr-x 2 runner docker 4096 Oct 13 15:37 certs
+-rw------- 1 runner docker  106 Oct 13 15:37 current
+drwx------ 2 runner docker 4096 Oct 13 15:37 defaults
+drwx------ 2 runner docker 4096 Oct 13 15:37 instances
+drwx------ 3 runner docker 4096 Oct 13 15:37 refs
+GHA: Error: activity.json file not found
+Object
+-----END BUILD LOG-----
+Build completed at: Sun Oct 13 15:37:46 UTC 2024
