@@ -114,11 +114,10 @@ jobs:
           echo "GHA: about to capture detailed build log..."
           mkdir -p ${{ env.HISTORY_DIR }}
           {
-            echo "Build started at: $(date)"
             echo "Dockerfile: ${{ env.DOCKERFILE }}"
             echo "Build label: ${{ env.BUILD_LABEL }}"
             echo "-----BEGIN BUILD LOG-----"
-            echo "${{ toJson(steps.docker_build.outputs) }}" | jq -r '.[] | select(.type=="buildkit") | .attrs.rawJson' | jq -r '.[] | select(.stream != null) | .stream'
+            echo "${{ steps.docker_build.outputs }}"
             echo "-----END BUILD LOG-----"
             echo "Build completed at: $(date)"
           } > ${{ env.HISTORY_DIR }}/history.txt
