@@ -45,7 +45,7 @@ zbgc_argcheck_rule: bgcfh_check_rule
 
 bc-trigger-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build"
-	test "$(BGC_ARG_DOCKERFILE)" != "" || (echo "Error: BGC_ARG_DOCKERFILE is not set or is empty" && false)
+	@test "$(BGC_ARG_DOCKERFILE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_DOCKERFILE is not set or is empty" && false)
 	@$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event"
 	@sleep 5
