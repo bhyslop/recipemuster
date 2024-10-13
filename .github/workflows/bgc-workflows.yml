@@ -118,9 +118,9 @@ jobs:
           {
             echo "Dockerfile: ${{ env.DOCKERFILE }}"
             echo "Build label: ${{ env.BUILD_LABEL }}"
-            echo "-----BEGIN BUILD LOG-----"
-            echo "${{join(steps.docker_build.outputs.*, '\n')}}"
-            echo "-----END BUILD LOG-----"
+            echo "-----BEGIN BUILD LOG STEPS-----"
+            echo "${{ toJSON(steps.docker_build.outputs) }}"
+            echo "-----END BUILD LOG STEPS-----"
             echo "Build completed at: $(date)"
           } > ${{ env.HISTORY_DIR }}/history.txt
           echo "GHA: Detailed build log saved to ${{ env.HISTORY_DIR }}/history.txt"
