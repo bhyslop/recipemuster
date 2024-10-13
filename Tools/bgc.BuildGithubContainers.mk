@@ -51,8 +51,8 @@ bc-trigger-build.sh: zbgc_argcheck_rule
 	@sleep 5
 	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
 	@test -s $(zBGC_LAST_RUN_CACHE) || ($(MBC_SEE_RED) "Failed to obtain workflow run ID" && false)
-	$(MBC_STEP) "Workflow run ID determined to be:"
-	$(MBC_SHOW_YELLOW) "   " $$(cat $(zBGC_LAST_RUN_CACHE))
+	$(MBC_STEP) "See progress at:"
+	$(MBC_SHOW_YELLOW) "   https://github.com/bhyslop/recipemuster/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_PASS)
 
 bc-query-build.sh: zbgc_argcheck_rule

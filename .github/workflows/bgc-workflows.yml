@@ -147,12 +147,6 @@ jobs:
           git push ||\
             (echo "GHA: Error: Failed to push changes" && false)
 
-      - name: Upload build transcript
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-transcript-${{ env.BUILD_LABEL }}
-          path: ${{ env.HISTORY_DIR }}/history.txt
-
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
