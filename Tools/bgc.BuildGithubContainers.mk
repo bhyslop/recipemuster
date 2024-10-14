@@ -32,7 +32,7 @@ zBGC_CMD_LIST_IMAGES := curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
 
 zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/user/packages/container/$(zBGC_IMAGE_NAME)/versions/$(zBGC_IMAGE_VERSION)'
+    '$(zBGC_GITAPI_URL)/packages/container/$(BGCV_REGISTRY_NAME)/$(BGC_ARG_TAG)'
 
 zBGC_CMD_LIST_PACKAGE_VERSIONS := curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
@@ -89,11 +89,11 @@ bc-list-images.sh: zbgc_argcheck_rule
 
 bc-delete-image.sh: zbgc_argcheck_rule
 	$(MBC_START) "Deleting container registry image"
-	@test "$(BGC_ARG_IMAGE)" != "" || ($(MBC_SEE_RED) "Error: Specify which image" && false)
-	@echo   "Deleting image: $(BGC_ARG_IMAGE)"
-	@read -p "Confirm delete $(BGC_ARG_IMAGE)? (y/n) " confirm && test "$$confirm" = "y" ]  ||\
+	@test "$(BGC_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Specify which image tag to delete with BGC_ARG_TAG" && false)
+	@echo   "Deleting image with tag: $(BGC_ARG_TAG)"
+	@read -p "Confirm delete image with tag $(BGC_ARG_TAG)? (y/n) " confirm && test "$$confirm" = "y" || \
 	   ($(MBC_SEE_RED) "WONT DELETE" && false)
-	$(zBGC_CMD_DELETE_IMAGE)
+	@$(zBGC_CMD_DELETE_IMAGE)
 	$(MBC_PASS)
 
 bc-display-config:

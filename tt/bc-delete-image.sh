@@ -1,2 +1,2 @@
 #!/bin/sh
-cd "$(dirname "$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$(basename "$0")" BGC_ARG_IMAGE="$1"
+cd "$(dirname "$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$(basename "$0")" BGC_ARG_TAG="$1"
