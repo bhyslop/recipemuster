@@ -87,14 +87,11 @@ bc-list-images.sh: zbgc_argcheck_rule
 
 bc-delete-image.sh: zbgc_argcheck_rule
 	$(MBC_START) "Deleting container registry image"
-	@read -p "Enter image name to delete: " zBGC_IMAGE_NAME && \
-	read -p "Enter image version to delete: " zBGC_IMAGE_VERSION && \
-	echo "Deleting image: $$zBGC_IMAGE_NAME:$$zBGC_IMAGE_VERSION" && \
-	read -p "Are you sure? (y/n) " confirm && \
-	[ "$$confirm" = "y" ] && \
-	$(zBGC_CMD_DELETE_IMAGE) && \
-	echo "Image deleted successfully" || \
-	(echo "Deletion cancelled or failed" && exit 1)
+	@test "$(BGC_ARG_IMAGE)" != "" || ($(MBC_SEE_RED) "Error: Specify which image" && false)
+	@echo   "Deleting image: $(BGC_ARG_IMAGE)"
+	@read -p "Confirm delete $(BGC_ARG_IMAGE)? (y/n) " confirm && test "$$confirm" = "y" ]  ||\
+	   ($(MBC_SEE_RED) "WONT DELETE" && false)
+	$(zBGC_CMD_DELETE_IMAGE)
 	$(MBC_PASS)
 
 bc-display-config:
