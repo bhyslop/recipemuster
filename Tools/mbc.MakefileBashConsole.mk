@@ -41,8 +41,9 @@ MBC_STEP  := $(MBC_SHOW_WHITE)
 MBC_PASS  := $(MBC_SHOW_GREEN)
 MBC_FAIL  := (printf $(zMBC_TPUT_RESET)$(zMBC_TPUT_RED)$(MBC_ARG__CONTEXT_STRING)' FAILED\n'$(zMBC_TPUT_RESET) && exit 1)
 
-# Experiment to use in compound statements.
+# For use in compound statements.
 MBC_SEE_RED    := printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %s %s\n'$(zMBC_TPUT_RESET) $(zMBC_TPUT_RED)
+MBC_SEE_YELLOW := printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %s %s\n'$(zMBC_TPUT_RESET) $(zMBC_TPUT_YELLOW)
 
 
 #################################

@@ -43,6 +43,7 @@ zBGC_CMD_GET_JOBS := curl -s $(zBGC_CURL_HEADERS) \
 zBGC_CMD_GET_LOGS := curl -sL $(zBGC_CURL_HEADERS) \
      '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/logs'
 
+
 zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_START) "Checking needed variables..."
 	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
@@ -58,7 +59,7 @@ bc-trigger-build.sh: zbgc_argcheck_rule
 	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
 	@test -s $(zBGC_LAST_RUN_CACHE) || ($(MBC_SEE_RED) "Failed to obtain workflow run ID" && false)
 	$(MBC_STEP) "See progress at:"
-	$(MBC_SHOW_YELLOW) "   https://github.com/bhyslop/recipemuster/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
+	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_PASS)
 
 bc-query-build.sh: zbgc_argcheck_rule
@@ -75,12 +76,13 @@ bc-list-images.sh: zbgc_argcheck_rule
 	  jq -r '.[] | select(.package_type=="container") | .name' |\
 	  while read -r package_name; do                \
 	    echo "Package: $$package_name";             \
+	    $(MBC_SEE_YELLOW) "    https://github.com/$(BGCV_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name"; \
 	    echo "Versions:";                           \
-	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                                    |\
-	      jq -r '.[] | "\(.metadata.container.tags[]) \(.created_at) \(.name)"'              |\
-	      sort -r                                                                            |\
-	      awk '{split($$3, digest, ":"); printf "%-40s %-25s %.12s\n", $$1, $$2, digest[2]}' |\
-	      awk 'BEGIN {printf "%-40s %-25s %-12s\n", "Tag", "Created At", "Short Digest"}1';   \
+	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                            |\
+	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id) \(.created_at)"'        |\
+	      sort -r                                                                    |\
+	      awk '{printf "%-40s %-20s %-25s\n", $$1, $$2, $$3}'                        |\
+	      awk 'BEGIN {printf "%-40s %-20s %-25s\n", "Tag (Image Name)", "Version ID", "Created At"}1'; \
 	    echo; \
 	  done
 	$(MBC_PASS)
