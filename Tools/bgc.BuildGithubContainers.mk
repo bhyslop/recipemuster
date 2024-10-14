@@ -71,15 +71,18 @@ bc-query-build.sh: zbgc_argcheck_rule
 
 bc-list-images.sh: zbgc_argcheck_rule
 	$(MBC_START) "Listing container registry images and versions"
-	@$(zBGC_CMD_LIST_IMAGES) | jq -r '.[] | select(.package_type=="container") | .name' | while read -r package_name; do \
-		echo "Package: $$package_name"; \
-		echo "Versions:"; \
-		$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | jq -r '.[] | "\(.metadata.container.tags[]) \(.created_at) \(.name)"' | \
-		sort -r | \
-		awk '{split($$3, digest, ":"); printf "%-40s %-25s %.12s\n", $$1, $$2, digest[2]}' | \
-		awk 'BEGIN {printf "%-40s %-25s %-12s\n", "Tag", "Created At", "Short Digest"}1'; \
-		echo; \
-	done
+	@$(zBGC_CMD_LIST_IMAGES)                                   |\
+	  jq -r '.[] | select(.package_type=="container") | .name' |\
+	  while read -r package_name; do                \
+	    echo "Package: $$package_name";             \
+	    echo "Versions:";                           \
+	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                                    |\
+	      jq -r '.[] | "\(.metadata.container.tags[]) \(.created_at) \(.name)"'              |\
+	      sort -r                                                                            |\
+	      awk '{split($$3, digest, ":"); printf "%-40s %-25s %.12s\n", $$1, $$2, digest[2]}' |\
+	      awk 'BEGIN {printf "%-40s %-25s %-12s\n", "Tag", "Created At", "Short Digest"}1';   \
+	    echo; \
+	  done
 	$(MBC_PASS)
 
 bc-delete-image.sh: zbgc_argcheck_rule
