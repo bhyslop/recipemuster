@@ -45,12 +45,10 @@ jobs:
       - name: Generate build metadata
         shell: bash
         run: |
-          echo "GHA: about to generate build metadata..."
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           FULL_FILENAME=$(basename ${{ env.DOCKERFILE }})
           FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
-          BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${SHORT_SHA}.${TIMESTAMP}"
+          BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${TIMESTAMP}"
           echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
           echo "GHCR_PATH=ghcr.io/${{ env.BGCV_REGISTRY_OWNER }}/${{ env.BGCV_REGISTRY_NAME }}:$BUILD_LABEL" >> $GITHUB_ENV
           echo "HISTORY_DIR=${{ env.BGCV_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
@@ -107,6 +105,13 @@ jobs:
           platforms: ${{ env.BGCV_BUILD_ARCHITECTURES }}
           provenance: true
           sbom: true
+
+      - name: Tag image
+        run: |
+          docker pull ${{ env.GHCR_PATH }}
+          docker tag  ${{ env.GHCR_PATH }} \
+                      ${{ env.GHCR_PATH }}
+          docker push ${{ env.GHCR_PATH }}
 
       - name: Capture build log
         if: always()
