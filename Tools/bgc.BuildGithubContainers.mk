@@ -37,9 +37,6 @@ zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
 zBGC_CMD_LIST_PACKAGE_VERSIONS := curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
 
-zBGC_CMD_GET_JOBS := curl -s $(zBGC_CURL_HEADERS) \
-     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/jobs'
-
 zBGC_CMD_GET_LOGS := curl -sL $(zBGC_CURL_HEADERS) \
      '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/logs'
 
@@ -130,3 +127,5 @@ bgc-flbl%: zbgc_argcheck_rule
 	@$(zBGC_CMD_GET_LOGS) > ../workflow_logs.zip
 	$(MBC_PASS)
 
+
+# eof
