@@ -103,20 +103,25 @@ bgc-lcri%: zbgc_argcheck_rule
 
 bgc-di%: zbgc_argcheck_rule
 	$(MBC_START) "Deleting container registry image"
-	@test "$(BGC_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Specify which image tag to delete with BGC_ARG_TAG" && false)
+	@test "$(BGC_ARG_TAG)" != ""  ||\
+	  ($(MBC_SEE_RED) "Error: Specify which image tag to delete with BGC_ARG_TAG" && false)
 	@echo "Deleting image with tag: $(BGC_ARG_TAG)"
 	@echo "Fetching package version information..."
 	@$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | jq -r '.[] | select(.metadata.container.tags[] | contains("$(BGC_ARG_TAG)")) | .id' > .version_id.tmp
-	@test -s .version_id.tmp || ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm .version_id.tmp && false)
+	@test -s .version_id.tmp  ||\
+	  ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm .version_id.tmp && false)
 	@echo "Found version ID: $$(cat .version_id.tmp) for tag $(BGC_ARG_TAG)"
-	@read -p "Confirm delete image with tag $(BGC_ARG_TAG) and version ID $$(cat .version_id.tmp)? (y/n) " confirm && test "$$confirm" = "y" || (rm .version_id.tmp && $(MBC_SEE_RED) "WONT DELETE" && false)
+	@read -p "Confirm delete image? Type YES: " confirm && test "$$confirm" = "YES"  ||\
+	  (rm .version_id.tmp && $(MBC_SEE_RED) "WONT DELETE" && false)
 	@echo "Sending delete request..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
 		'$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$$(cat .version_id.tmp) \
 		-o .delete_response.tmp -w "HTTP_STATUS:%{http_code}\n"
 	@echo "Delete response:"
 	@cat .delete_response.tmp
-	@grep -q "HTTP_STATUS:204" .delete_response.tmp || ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status: $$(grep HTTP_STATUS .delete_response.tmp | cut -d':' -f2)" && rm .version_id.tmp .delete_response.tmp && false)
+	@grep -q "HTTP_STATUS:204" .delete_response.tmp ||\
+	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status: $$(grep HTTP_STATUS .delete_response.tmp | cut -d':' -f2)" &&\
+	   rm .version_id.tmp .delete_response.tmp && false)
 	@echo "Successfully deleted image version."
 	@rm .version_id.tmp .delete_response.tmp
 	$(MBC_PASS)

@@ -159,7 +159,8 @@ This section contains reminders about future improvements, deferred for now.
 * Why is Tools hardcoded in the workflow?
 * Need a 'core word' for the repo backing the repo builder
    -> use in {owner,repo} vars
-* Fix bgc-flbl "Fetch Last Build Logs"
+* Fix bgc-flbl "Fetch Last Build Logs": better temp directory
+* Fix delete image temp directory and files
 * Repair state of build transcripts: MAybe a path using 6.9.0 action build summary extract, or sbom or provenance
 * Maybe integrate syft to study sbom (go program)
 * I do not like the ghaction and related console makefile name subfiles
