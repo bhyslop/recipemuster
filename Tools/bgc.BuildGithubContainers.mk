@@ -70,12 +70,12 @@ zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_
 			       (read status && echo "  Status: $$status" &&\
 			        test "$$status" == "completed")
 
-bc-query-build.sh: zbgc_argcheck_rule
+bgc-qlb.%: zbgc_argcheck_rule
 	$(MBC_START) "Querying build status"
-	@$(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) | \
-	  jq -r '.status' | ( read status && test "$$status" == "completed" || \
-	     (echo "Build ongoing. Current status: $$status" && false))
-	@echo "Build succeeded"
+	$(MBC_STEP) "Workflow online at:"
+	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
+	$(MBC_STEP) "Polling to completion..."
+	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_PASS)
 
 bc-list-images.sh: zbgc_argcheck_rule
