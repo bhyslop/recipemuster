@@ -18,6 +18,9 @@ zBGC_LAST_RUN_CONTENTS = $(shell cat $(zBGC_LAST_RUN_CACHE))
 zBGC_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID.txt
 zBGC_VERSION_ID_CONTENTS = $$(cat $(zBGC_VERSION_ID_CACHE))
 
+zBGC_DELETE_CACHE    = $(zBGC_TEMP_DIR)/BGC_DELETE.txt
+
+
 BGC_ARG_RECIPE ?=
 
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
@@ -122,14 +125,14 @@ bgc-di%: zbgc_argcheck_rule
 	@echo "Sending delete request..."
 	curl -X DELETE $(zBGC_CURL_HEADERS) \
 		'$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_VERSION_ID_CONTENTS) \
-		-o .delete_response.tmp -w "HTTP_STATUS:%{http_code}\n"
+		-o $(zBGC_DELETE_CACHE) -w "HTTP_STATUS:%{http_code}\n"
 	@echo "Delete response:"
-	@cat .delete_response.tmp
+	@cat $(zBGC_DELETE_CACHE)
 	@grep -q "HTTP_STATUS:204" .delete_response.tmp ||\
 	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status: $$(grep HTTP_STATUS .delete_response.tmp | cut -d':' -f2)" &&\
-	   .delete_response.tmp && false)
+	   $(zBGC_DELETE_CACHE) && false)
 	@echo "Successfully deleted image version."
-	@rm $(zBGC_VERSION_ID_CACHE) .delete_response.tmp
+	@rm $(zBGC_VERSION_ID_CACHE) $(zBGC_DELETE_CACHE)
 	$(MBC_PASS)
 
 
