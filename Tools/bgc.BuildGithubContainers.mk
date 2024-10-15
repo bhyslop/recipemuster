@@ -50,7 +50,8 @@ zbgc_argcheck_rule: bgcfh_check_rule
 	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
 	$(MBC_PASS)
 
-bgc-tb.%: zbgc_argcheck_rule
+
+bgc-tb%: zbgc_argcheck_rule
 	$(MBC_START) "Trigger Build with specified recipe or dockerfile"
 	@test "$(BGC_ARG_RECIPE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && false)
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
@@ -75,7 +76,7 @@ zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_
                                (read status && read conclusion &&                        \
                                 echo "  Status: $$status    Conclusion: $$conclusion" &&\
                                 test "$$status" == "completed")
-bgc-qlb.%: zbgc_argcheck_rule
+bgc-qlb%: zbgc_argcheck_rule
 	$(MBC_START) "Query Last Build status"
 	$(MBC_STEP) "Workflow online at:"
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
@@ -83,7 +84,7 @@ bgc-qlb.%: zbgc_argcheck_rule
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_PASS)
 
-bgc-lcri.%: zbgc_argcheck_rule
+bgc-lcri%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	@$(zBGC_CMD_LIST_IMAGES)                                   |\
 	  jq -r '.[] | select(.package_type=="container") | .name' |\
@@ -94,13 +95,14 @@ bgc-lcri.%: zbgc_argcheck_rule
 	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                            |\
 	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id) \(.created_at)"'        |\
 	      sort -r                                                                    |\
-	      awk '{printf "%-40s %-20s %-25s\n", $$1, $$2, $$3}'                        |\
+	      awk       '{printf "%-40s %-20s %-25s\n", $$1, $$2, $$3}'                  |\
 	      awk 'BEGIN {printf "%-40s %-20s %-25s\n", "Tag (Image Name)", "Version ID", "Created At"}1'; \
 	    echo; \
 	  done
 	$(MBC_PASS)
 
-bc-delete-image.sh: zbgc_argcheck_rule
+
+bgc-di%: zbgc_argcheck_rule
 	$(MBC_START) "Deleting container registry image"
 	@test "$(BGC_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Specify which image tag to delete with BGC_ARG_TAG" && false)
 	@echo "Deleting image with tag: $(BGC_ARG_TAG)"
