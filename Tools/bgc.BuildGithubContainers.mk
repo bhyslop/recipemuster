@@ -50,17 +50,25 @@ zbgc_argcheck_rule: bgcfh_check_rule
 	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
 	$(MBC_PASS)
 
-bc-trigger-build.sh: zbgc_argcheck_rule
+bgc-tb.%: zbgc_argcheck_rule
 	$(MBC_START) "Triggering container build on specified recipe or dockerfile"
 	@test "$(BGC_ARG_RECIPE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && false)
 	@$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event"
 	@sleep 5
+	$(MBC_STEP) "Retrieve workflow run ID..."
 	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
-	@test -s $(zBGC_LAST_RUN_CACHE) || ($(MBC_SEE_RED) "Failed to obtain workflow run ID" && false)
-	$(MBC_STEP) "See progress at:"
+	@test -s $(zBGC_LAST_RUN_CACHE)
+	$(MBC_STEP) "Workflow online at:"
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
+	$(MBC_STEP) "Polling to completion..."
+	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_PASS)
+
+zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) |\
+                               jq -r '.status'                                          |\
+			       (read status && echo "  Status: $$status" &&\
+			        test "$$status" == "completed")
 
 bc-query-build.sh: zbgc_argcheck_rule
 	$(MBC_START) "Querying build status"
