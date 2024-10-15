@@ -13,6 +13,9 @@ BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
 zBGC_LAST_RUN_CONTENTS := $(shell cat $(zBGC_LAST_RUN_CACHE))
 
+zBGC_VERSION_ID_CACHE    = ../BGC_VERSION_ID.txt
+zBGC_VERSION_ID_CONTENTS = $(shell cat $(zBGC_VERSION_ID_CACHE))
+
 BGC_ARG_RECIPE ?=
 
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
@@ -102,28 +105,28 @@ bgc-lcri%: zbgc_argcheck_rule
 
 
 bgc-di%: zbgc_argcheck_rule
-	$(MBC_START) "Deleting container registry image"
+	$(MBC_START) "Delete Container Registry Image"
 	@test "$(BGC_ARG_TAG)" != ""  ||\
-	  ($(MBC_SEE_RED) "Error: Specify which image tag to delete with BGC_ARG_TAG" && false)
+	  ($(MBC_SEE_RED) "Error: Must say which image tag to delete" && false)
 	@echo "Deleting image with tag: $(BGC_ARG_TAG)"
 	@echo "Fetching package version information..."
-	@$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | jq -r '.[] | select(.metadata.container.tags[] | contains("$(BGC_ARG_TAG)")) | .id' > .version_id.tmp
-	@test -s .version_id.tmp  ||\
-	  ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm .version_id.tmp && false)
-	@echo "Found version ID: $$(cat .version_id.tmp) for tag $(BGC_ARG_TAG)"
+	@$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | jq -r '.[] | select(.metadata.container.tags[] | contains("$(BGC_ARG_TAG)")) | .id' > $(zBGC_VERSION_ID_CACHE)
+	@test -s $(zBGC_VERSION_ID_CACHE)  ||\
+	  ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm false)
+	@echo "Found version ID:" $(zBGC_VERSION_ID_CONTENTS) "for tag $(BGC_ARG_TAG)"
 	@read -p "Confirm delete image? Type YES: " confirm && test "$$confirm" = "YES"  ||\
-	  (rm .version_id.tmp && $(MBC_SEE_RED) "WONT DELETE" && false)
+	  ($(MBC_SEE_RED) "WONT DELETE" && false)
 	@echo "Sending delete request..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
-		'$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$$(cat .version_id.tmp) \
+		'$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_VERSION_ID_CONTENTS) \
 		-o .delete_response.tmp -w "HTTP_STATUS:%{http_code}\n"
 	@echo "Delete response:"
 	@cat .delete_response.tmp
 	@grep -q "HTTP_STATUS:204" .delete_response.tmp ||\
 	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status: $$(grep HTTP_STATUS .delete_response.tmp | cut -d':' -f2)" &&\
-	   rm .version_id.tmp .delete_response.tmp && false)
+	   .delete_response.tmp && false)
 	@echo "Successfully deleted image version."
-	@rm .version_id.tmp .delete_response.tmp
+	@rm $(zBGC_VERSION_ID_CACHE) .delete_response.tmp
 	$(MBC_PASS)
 
 
