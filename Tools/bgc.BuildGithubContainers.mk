@@ -135,7 +135,7 @@ bgc-di%: zbgc_argcheck_rule
 
 bgc-flbl%: zbgc_argcheck_rule
 	$(MBC_START) "Fetch Last Build Logs"
-	@$(zBGC_CMD_GET_LOGS) > ../workflow_logs.zip
+	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs.zip
 	$(MBC_PASS)
 
 
