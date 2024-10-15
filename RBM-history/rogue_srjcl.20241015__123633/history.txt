@@ -1,0 +1,10 @@
+Dockerfile: RBM-recipes/rogue_srjcl.recipe
+Build label: rogue_srjcl.20241015__123633
+-----BEGIN BUILD LOG STEPS-----
+{
+  imageid: sha256:dc594a267274981a46979c8a54d40fd91143dbf90461254ed56681cd5a1f0c56,
+  digest: sha256:dc594a267274981a46979c8a54d40fd91143dbf90461254ed56681cd5a1f0c56,
+  metadata: {n "buildx.build.provenance": {n "builder": {n "id": "https://github.com/bhyslop/recipemuster/actions/runs/11346173282/attempts/1"n },n "buildType": "https://mobyproject.org/buildkit@v1",n "materials": [n {n "uri": "pkg:docker/docker/buildkit-syft-scanner@stable-1",n "digest": {n "sha256": "176e0869c38aeaede37e594fcf182c91d44391a932e1d71e99ec204873445a33"n }n },n {n "uri": "pkg:docker/python@3.10-slim?platform=linux%2Famd64",n "digest": {n "sha256": "1eb5d76bf3e9e612176ebf5eadf8f27ec300b7b4b9a99f5856f8232fd33aa16e"n }n }n ],n "invocation": {n "configSource": {},n "parameters": {n "frontend": "dockerfile.v0",n "locals": [n {n "name": "context"n },n {n "name": "dockerfile"n }n ]n },n "environment": {n "platform": "linux/amd64"n }n }n },n "buildx.build.ref": "builder-4f895577-49e7-493b-89cf-6d721599dbce/builder-4f895577-49e7-493b-89cf-6d721599dbce0/nupv6okb1mcmce7tg63on0bed",n "containerimage.descriptor": {n "mediaType": "application/vnd.oci.image.index.v1+json",n "digest": "sha256:dc594a267274981a46979c8a54d40fd91143dbf90461254ed56681cd5a1f0c56",n "size": 856n },n "containerimage.digest": "sha256:dc594a267274981a46979c8a54d40fd91143dbf90461254ed56681cd5a1f0c56",n "image.name": "ghcr.io/bhyslop/recipemuster:rogue_srjcl.20241015__123633"n}
+}
+-----END BUILD LOG STEPS-----
+Build completed at: Tue Oct 15 12:37:34 UTC 2024
