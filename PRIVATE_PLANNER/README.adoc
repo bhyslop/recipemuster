@@ -156,6 +156,7 @@ This section contains reminders about future improvements, deferred for now.
 * Prototype the usage of concept model keyphrases in this file via asciidoc includes
 * Riddle a way to manage versioned docker images
 * debug podman start/stop/start
+* I dont like -> bgc_flow_helper.mk
 * Why is Tools hardcoded in the workflow?
 * Need a 'core word' for the repo backing the repo builder
    -> use in {owner,repo} vars

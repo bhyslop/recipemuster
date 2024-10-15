@@ -50,12 +50,10 @@ zBGC_CMD_GET_LOGS := curl -sL $(zBGC_CURL_HEADERS) \
      '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/logs'
 
 
-zbgc_argcheck_rule: bgcfh_check_rule
-	$(MBC_START) "Checking needed variables..."
+zbgc_argcheck_rule:
 	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
 	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
 	@mkdir -p $(zBGC_TEMP_DIR)
-	$(MBC_PASS)
 
 
 bgc-tb%: zbgc_argcheck_rule
