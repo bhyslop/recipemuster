@@ -10,11 +10,13 @@ zBGC_GITAPI_URL := https://api.github.com
 # OUCH fix this
 BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
 
-zBGC_LAST_RUN_CACHE = ../LAST_GET_WORKFLOW_RUN.txt
-zBGC_LAST_RUN_CONTENTS := $(shell cat $(zBGC_LAST_RUN_CACHE))
+zBGC_TEMP_DIR = ../BGC_TEMP_DIR
 
-zBGC_VERSION_ID_CACHE    = ../BGC_VERSION_ID.txt
-zBGC_VERSION_ID_CONTENTS = $(shell cat $(zBGC_VERSION_ID_CACHE))
+zBGC_LAST_RUN_CACHE    = $(zBGC_TEMP_DIR)/LAST_GET_WORKFLOW_RUN.txt
+zBGC_LAST_RUN_CONTENTS = $(shell cat $(zBGC_LAST_RUN_CACHE))
+
+zBGC_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID.txt
+zBGC_VERSION_ID_CONTENTS = $$(cat $(zBGC_VERSION_ID_CACHE))
 
 BGC_ARG_RECIPE ?=
 
@@ -48,6 +50,7 @@ zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_START) "Checking needed variables..."
 	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
 	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
+	@mkdir -p $(zBGC_TEMP_DIR)
 	$(MBC_PASS)
 
 
@@ -117,7 +120,7 @@ bgc-di%: zbgc_argcheck_rule
 	@read -p "Confirm delete image? Type YES: " confirm && test "$$confirm" = "YES"  ||\
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)
 	@echo "Sending delete request..."
-	@curl -X DELETE $(zBGC_CURL_HEADERS) \
+	curl -X DELETE $(zBGC_CURL_HEADERS) \
 		'$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_VERSION_ID_CONTENTS) \
 		-o .delete_response.tmp -w "HTTP_STATUS:%{http_code}\n"
 	@echo "Delete response:"
