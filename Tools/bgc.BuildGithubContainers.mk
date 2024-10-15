@@ -126,8 +126,8 @@ bgc-di%: zbgc_argcheck_rule
 	@echo "Sending delete request..."
 	curl -X DELETE $(zBGC_CURL_HEADERS) \
 	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_VERSION_ID_CONTENTS) \
-	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_CACHE) && echo "Curl exit status:" $$?
-     	@echo "Delete response:" $(zBGC_DELETE_CONTENTS)
+	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_CACHE)
+	@echo "Delete response:" $(zBGC_DELETE_CONTENTS)
 	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_CACHE) ||\
 	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status:" $(zBGC_DELETE_CONTENTS)  &&  false)
 	@echo "Successfully deleted image version."
