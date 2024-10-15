@@ -69,6 +69,8 @@ bgc-tb%: zbgc_argcheck_rule
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_STEP) "Polling to completion..."
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
+	$(MBC_STEP) "Git Pull for artifacts..."
+	git pull
 	$(MBC_PASS)
 
 zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) |\
@@ -122,19 +124,9 @@ bgc-di%: zbgc_argcheck_rule
 	@rm .version_id.tmp .delete_response.tmp
 	$(MBC_PASS)
 
-bc-display-config:
-	$(MBC_START) "Displaying configuration variables"
-	@$(MAKE) -f bgcv.Variables.mk bgcv_display_rule
-	$(MBC_PASS)
 
-bc-get-jobs.sh: zbgc_argcheck_rule
-	$(MBC_START) "Get job info"
-	$(zBGC_CMD_GET_JOBS) | jq '.jobs[] | select(.name == "build") | .steps[] | select(.name == "Build and push")'
-	$(MBC_PASS)
-
-bc-get-logs.sh: zbgc_argcheck_rule
-	$(MBC_START) "Downloading and processing logs"
+bgc-flbl%: zbgc_argcheck_rule
+	$(MBC_START) "Fetch Last Build Logs"
 	@$(zBGC_CMD_GET_LOGS) > ../workflow_logs.zip
 	$(MBC_PASS)
-
 
