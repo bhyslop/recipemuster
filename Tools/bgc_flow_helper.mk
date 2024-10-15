@@ -16,14 +16,9 @@ REQUIRED_BGCV_VARS :=      \
 
 
 bgcfh_check_rule:
-	@echo "Checking BGCV variables..."
 	@for var in $(REQUIRED_BGCV_VARS); do \
-		if [ -z "$${!var}" ]; then \
-			echo "Error: $$var is not set or empty"; \
-			exit 1; \
-		fi; \
+	  test -z "$${!var}" && echo "Error: $$var is not set or empty" && exit 1 || true; \
 	done
-	@echo "All required BGCV variables are set."
 
 
 bgcfh_display_rule:
