@@ -71,10 +71,10 @@ bgc-tb.%: zbgc_argcheck_rule
 	$(MBC_PASS)
 
 zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) |\
-                               jq -r '.status'                                          |\
-			       (read status && echo "  Status: $$status" &&\
-			        test "$$status" == "completed")
-
+                              jq -r '.status, .conclusion'                              |\
+                               (read status && read conclusion &&                        \
+                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
+                                test "$$status" == "completed")
 bgc-qlb.%: zbgc_argcheck_rule
 	$(MBC_START) "Query Last Build status"
 	$(MBC_STEP) "Workflow online at:"
