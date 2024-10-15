@@ -51,10 +51,15 @@ zbgc_argcheck_rule: bgcfh_check_rule
 	$(MBC_PASS)
 
 bgc-tb.%: zbgc_argcheck_rule
-	$(MBC_START) "Triggering container build on specified recipe or dockerfile"
+	$(MBC_START) "Trigger Build with specified recipe or dockerfile"
 	@test "$(BGC_ARG_RECIPE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && false)
+	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
+	@git fetch                                               &&\
+	  git status -uno | grep -q 'Your branch is up to date'  &&\
+	  git diff-index --quiet HEAD --                         &&\
+	  true || ($(MBC_SEE_RED) "Error: Commit/ push first or risk wrong recipe version" && false)
 	@$(zBGC_CMD_TRIGGER_BUILD)
-	$(MBC_STEP) "Pausing for GitHub to process the dispatch event"
+	$(MBC_STEP) "Pausing for GitHub to process the dispatch event..."
 	@sleep 5
 	$(MBC_STEP) "Retrieve workflow run ID..."
 	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
@@ -71,15 +76,15 @@ zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_
 			        test "$$status" == "completed")
 
 bgc-qlb.%: zbgc_argcheck_rule
-	$(MBC_START) "Querying build status"
+	$(MBC_START) "Query Last Build status"
 	$(MBC_STEP) "Workflow online at:"
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_STEP) "Polling to completion..."
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_PASS)
 
-bc-list-images.sh: zbgc_argcheck_rule
-	$(MBC_START) "Listing container registry images and versions"
+bgc-lcri.%: zbgc_argcheck_rule
+	$(MBC_START) "List Current Registry Images"
 	@$(zBGC_CMD_LIST_IMAGES)                                   |\
 	  jq -r '.[] | select(.package_type=="container") | .name' |\
 	  while read -r package_name; do                \
