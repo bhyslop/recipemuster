@@ -1,0 +1,23 @@
+# Use a minimal base image
+FROM alpine:latest
+
+# Write a file with the moniker
+RUN echo srjcl       > /moniker.txt
+
+# Install necessary packages
+RUN apk update && apk add --no-cache \
+    iputils                          \
+    iproute2                         \
+    net-tools                        \
+    bind-tools                       \
+    curl                             \
+    traceroute                       \
+    tcpdump                          \
+    nmap                             \
+    iptables                         \
+    dnsmasq                          \
+    socat                            \
+  && echo done
+
+# Keep the container alive
+CMD ["tail", "-f", "/dev/null"]
