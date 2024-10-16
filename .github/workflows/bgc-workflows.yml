@@ -137,7 +137,7 @@ jobs:
           echo "Full Syft analysis saved to ${{ env.HISTORY_DIR }}/syft_analysis.json"
           echo "Package summary saved to ${{ env.HISTORY_DIR }}/package_summary.txt"
 
-      - name: Create digest.txt
+      - name: Create rough_digest.txt
         shell: bash
         run: |
           echo "GHA: about to create digest.txt..."
@@ -145,8 +145,14 @@ jobs:
           IMAGE_SIZE=$(docker image inspect ${{ env.GHCR_PATH }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ steps.docker_build.outputs.duration }}
-          echo "Image size: ${IMAGE_SIZE_MB}MB" > ${{ env.HISTORY_DIR }}/digest.txt
-          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/digest.txt
+          echo "Image size: ${IMAGE_SIZE_MB}MB"      > ${{ env.HISTORY_DIR }}/rough_digest.txt
+          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/rough_digest.txt
+
+      - name: Save image digest
+        shell: bash
+        run: |
+          FULL_IMAGE_REFERENCE=$(docker inspect ${{ env.GHCR_PATH }} | jq -c '.[0] | {Id, RepoTags, RepoDigests, Created}')
+          echo "Full image reference with digest: ${FULL_IMAGE_REFERENCE}" >> ${{ env.HISTORY_DIR }}/image_digest.txt
 
       - name: Commit history directory
         shell: bash

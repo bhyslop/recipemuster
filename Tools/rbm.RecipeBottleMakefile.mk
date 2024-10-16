@@ -7,7 +7,6 @@
 ## Written by Brad Hyslop <bhyslop@scaleinvariant.org> August 2024
 
 
-
 ##############################################
 # Sentry and Rogue Experiment
 #
@@ -123,23 +122,6 @@ rbm-P.SetupPodman.sh:
 	podman machine start
 	@source ../secrets/github-ghcr-play.env &&\
 	   echo $$GITHUB_GHCR_PLAY_PAT | podman login ghcr.io -u $$GITHUB_GHCR_PLAY_USERNAME --password-stdin
-	$(MBC_PASS) "Done, no errors."
-
-
-# OUCH username pullout
-# OUCH this hasn't ever worked, there is something about the permissions and package
-#      creation which is mystically vague in github documentation.
-#
-# Restarting with intent to build at github: ref https://claude.ai/chat/289d9ff9-1767-45e7-8b63-8ac5781dbbce
-
-rbm-Sbcrc.StudyBasicContainerRegistryCycle.sh:
-	$(zRBM_START) "CARRY OUT A NOTIONAL CYCLE TO USE THE CONTAINER REGISTRY"
-	@echo "Debug: Current user is $$(whoami)"
-	@echo "Debug: Podman version: $$(podman version --format '{{.Client.Version}}')"
-	$(zRBM_STEP)  "Pulling image..."
-	podman pull ghcr.io/bhyslop/recipemuster:hello-world-v1
-	$(zRBM_STEP)  "Running image..."
-	podman run ghcr.io/bhyslop/recipemuster:hello-world-v1
 	$(MBC_PASS) "Done, no errors."
 
 
