@@ -114,41 +114,28 @@ jobs:
                       ${{ env.GHCR_PATH }}
           docker push ${{ env.GHCR_PATH }}
 
-      - name: Capture build log
-        if: always()
+      - name: Analyze container with Syft
         run: |
-          echo "GHA: about to capture detailed build log..."
-          mkdir -p ${{ env.HISTORY_DIR }}
-          {
-            echo "Dockerfile: ${{ env.DOCKERFILE }}"
-            echo "Build label: ${{ env.BUILD_LABEL }}"
-            echo "-----BEGIN BUILD LOG STEPS-----"
-            echo "${{ toJSON(steps.docker_build.outputs) }}"
-            echo "-----END BUILD LOG STEPS-----"
-            echo "Build completed at: $(date)"
-          } > ${{ env.HISTORY_DIR }}/history.txt
-          echo "GHA: Detailed build log saved to ${{ env.HISTORY_DIR }}/history.txt"
-          echo "Build and push step output:"
-          echo "${{ steps.docker_build.outputs.metadata }}" > ${{ env.HISTORY_DIR }}/build_metadata.json
-          echo "Full job log:"
-          cat $GITHUB_STEP_SUMMARY > ${{ env.HISTORY_DIR }}/full_job_log.txt
+          echo "GHA: Install Syft, pinned version..."
+          curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz &&\
+            tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/
 
-      - name: Process and display build log
-        if: always()
-        run: |
-          echo "Processing build log..."
-          echo "Build metadata:"
-          cat ${{ env.HISTORY_DIR }}/build_metadata.json
-          echo "Full job log summary:"
-          cat ${{ env.HISTORY_DIR }}/full_job_log.txt
-          # Add any additional processing you need here
+          echo "GHA: Pull the image..."
+          docker pull ${{ env.GHCR_PATH }}
 
-      - name: Upload build transcript
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-transcript-${{ env.BUILD_LABEL }}
-          path: ${{ env.HISTORY_DIR }}/history.txt
+          echo "GHA: Run Syft analysis and save to file..."
+          syft ${{ env.GHCR_PATH }} -o json > ${{ env.HISTORY_DIR }}/syft_analysis.json
+
+          echo "GHA: Generate a summary report..."
+          echo "Package analysis summary:" > ${{ env.HISTORY_DIR }}/package_summary.txt
+          jq -r '.artifacts[] | "\(.name) \(.version)"' ${{ env.HISTORY_DIR }}/syft_analysis.json |\
+            sort | uniq -c | sort -rn | head -n 20 >> ${{ env.HISTORY_DIR }}/package_summary.txt
+
+          echo "GHA: Display the summary..."
+          cat ${{ env.HISTORY_DIR }}/package_summary.txt
+
+          echo "Full Syft analysis saved to ${{ env.HISTORY_DIR }}/syft_analysis.json"
+          echo "Package summary saved to ${{ env.HISTORY_DIR }}/package_summary.txt"
 
       - name: Create digest.txt
         shell: bash
