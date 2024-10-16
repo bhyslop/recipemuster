@@ -148,13 +148,16 @@ jobs:
           echo "Image size: ${IMAGE_SIZE_MB}MB"      > ${{ env.HISTORY_DIR }}/rough_digest.txt
           echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/rough_digest.txt
 
-      - name: Save image digest
+      - name: Save image digest information to separate files
         shell: bash
         run: |
-          echo "GHA: Attempt to create an image_digest.txt that will match podmans: fragile!"
-          docker inspect ghcr.io/bhyslop/recipemuster:sentry_srjcl.20241016__143441 | \
-            jq -c '.[0] | {Id: .Id | sub("sha256:"; ""), RepoTags, RepoDigests: [.RepoDigests[-1]], Created}' \
-               >> ${{ env.HISTORY_DIR }}/image_digest.txt
+          echo "GHA: Creating separate files for different image digest information"
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].Id | sub("sha256:"; "")' > ${{ env.HISTORY_DIR }}/docker_inspect_Id.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].RepoTags[0] // empty'    > ${{ env.HISTORY_DIR }}/docker_inspect_RepoTags_0.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].RepoTags[1] // empty'    > ${{ env.HISTORY_DIR }}/docker_inspect_RepoTags_1.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].RepoDigests[-1]'         > ${{ env.HISTORY_DIR }}/docker_inspect_RepoDigests_last.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].Created'                 > ${{ env.HISTORY_DIR }}/docker_inspect_Created.txt
+          echo "GHA: Image digest information saved to separate files"
 
       - name: Commit history directory
         shell: bash
