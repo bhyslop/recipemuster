@@ -82,8 +82,8 @@ zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
 zRBM_ROGUE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/rogue.$(RBM_ARG_MONIKER).recipe
 
-zRBM_SENTRY_IMAGE      = $(RBM_ARG_MONIKER)-sentry-image:$(RBM_ARG_MONIKER)
-zRBM_ROGUE_IMAGE       = $(RBM_ARG_MONIKER)-rogue-image
+zRBM_SENTRY_IMAGE      = $(RBEV_SENTRY_IMAGE)
+zRBM_ROGUE_IMAGE       = $(RBEV_ROGUE_IMAGE)
 
 zRBM_SENTRY_CONTAINER  = $(RBM_ARG_MONIKER)-sentry-container
 zRBM_ROGUE_CONTAINER   = $(RBM_ARG_MONIKER)-rogue-container
@@ -140,21 +140,11 @@ rbm-a%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-BL.%: zrbm_argcheck_rule
-	$(zRBM_START) "Build all recipies locally"
+rbm-h%: zrbm_argcheck_rule
+	$(zRBM_START) "Halt all related containers..."
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
 	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
-	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
-	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
-	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
-	  --progress=plain                                                  \
-	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_SENTRY_BUILD_FACTFILE)  2>&1
-	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
-	-podman rmi -f                              $(zRBM_ROGUE_IMAGE)
-	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)     \
-	  --progress=plain                                                  \
-	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_ROGUE_BUILD_FACTFILE)   2>&1
 	$(MBC_PASS) "Done, no errors."
 
 
