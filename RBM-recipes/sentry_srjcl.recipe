@@ -3,17 +3,17 @@ FROM alpine:latest
 
 # Install necessary packages
 RUN apk update && apk add --no-cache                                           \
-    iputils             `#For network connectivity tests`                      \
-    iproute2            `#For network configuration`                           \
-    net-tools           `#For network interface configuration and statistics`  \
     bind-tools          `#For DNS lookups and diagnostics`                     \
     curl                `#For making HTTP requests`                            \
-    traceroute          `#For tracing network routes`                          \
-    tcpdump             `#For packet analysis`                                 \
-    nmap                `#For network discovery`                               \
-    iptables            `#For configuring firewall rules`                      \
     dnsmasq             `#For DNS forwarding and DHCP server`                  \
+    iproute2            `#For network configuration`                           \
+    iptables            `#For configuring firewall rules`                      \
+    iputils             `#For network connectivity tests`                      \
+    net-tools           `#For network interface configuration and statistics`  \
+    nmap                `#For network discovery`                               \
     socat               `#For multipurpose relay`                              \
+    tcpdump             `#For packet analysis`                                 \
+    traceroute          `#For tracing network routes`                          \
   && echo done
 
 # Keep the container alive
