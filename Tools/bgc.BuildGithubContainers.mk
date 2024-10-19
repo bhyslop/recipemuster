@@ -103,8 +103,8 @@ bgc-lcri%: zbgc_argcheck_rule
 	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                            |\
 	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                       |\
 	      sort -r                                                                    |\
-	      awk '{printf "%-40s %-20s ghcr.io/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}' |\
-	      awk 'BEGIN {printf "%-40s %-20s %-70s\n", "Tag (Image Name)", "Version ID", "Full Repository Path"}1'; \
+	      awk       '{printf "%-40s %-20s ghcr.io/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}' |\
+	      awk 'BEGIN {printf "%-40s %-20s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
 	    echo; \
 	  done
 	$(MBC_PASS)
