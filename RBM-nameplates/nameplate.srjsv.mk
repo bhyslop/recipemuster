@@ -4,6 +4,10 @@
 
 RBN_MONIKER = srjsv
 
+RBN_SENTRY_IMAGE = ghcr.io/bhyslop/recipemuster:rogue_srjcl.20241019__024649
+RBN_ROGUE_IMAGE  = ghcr.io/bhyslop/recipemuster:rogue_srjsv.20241019__033933
+
+
 # NOT GOOD YET
 RBN_IP_HACK = 10.241
 
