@@ -89,7 +89,7 @@ jobs:
           echo "GHA: about to create history directory..."
           mkdir -p ${{ env.HISTORY_DIR }} ||\
             (echo "GHA: Error: Failed to create history directory" && false)
-          cp ${{ env.DOCKERFILE }} ${{ env.HISTORY_DIR }}/ ||\
+          cp ${{ env.DOCKERFILE }} ${{ env.HISTORY_DIR }}/recipe.txt ||\
             (echo "GHA: Error: Failed to copy Dockerfile to history directory" && false)
           echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt ||\
             (echo "GHA: Error: Failed to create commit.txt" && false)
