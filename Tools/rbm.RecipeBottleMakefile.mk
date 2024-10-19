@@ -1,4 +1,4 @@
-## ©️ 2024 Scale Invariant, Inc.  All rights reserved.
+## © 2024 Scale Invariant.  All rights reserved.
 ##      Reference: https://www.termsfeed.com/blog/sample-copyright-notices/
 ##
 ## Unauthorized copying of this file, via any medium is strictly prohibited

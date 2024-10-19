@@ -4,6 +4,8 @@
 
 RBN_MONIKER = srjcl
 
+RBN_SENTRY_IMAGE = sentry_srjcl.20241016__145519
+
 # NOT GOOD YET
 RBN_IP_HACK = 10.240
 
