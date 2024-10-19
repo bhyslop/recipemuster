@@ -139,7 +139,8 @@ rbm-a%: zrbm_argcheck_rule
 	podman pull $(RBEV_SENTRY_FQIN)
 	podman pull $(RBEV_ROGUE_FQIN)
 	$(zRBM_STEP)  "Verify images against history..."
-	ls $(zRBM_HISTORY_DIR)
+	cat $(zRBM_HISTORY_DIR)/$(RBN_ROGUE_IMAGE_TAG)/docker_inspect_Id.txt
+	podman inspect $(RBEV_ROGUE_FQIN) | jq -r '.[0].Id'
 	false
 	$(MBC_PASS) "Done, no errors."
 
