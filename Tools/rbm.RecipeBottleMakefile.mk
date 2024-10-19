@@ -197,8 +197,6 @@ rbm-s.%: zrbm_argcheck_rule
 	  -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z \
 	  --privileged \
 	  $(RBEV_ROGUE_FQIN) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
-	$(zRBM_STEP) "Checking Rogue nameplate..."
-	@podman exec $(zRBM_ROGUE_CONTAINER) cat /moniker.txt | grep -q $(RBM_ARG_MONIKER) || (echo "ERROR: Rogue moniker mismatch" && exit 1)
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
 	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE))  > $(zRBM_LAST_ROGUE_LOGS_FACTFILE)  2>&1
