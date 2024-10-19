@@ -137,13 +137,14 @@ rbm-a%: zrbm_argcheck_rule
 	$(zRBM_START) "Acquire and validate" $(RBM_ARG_MONIKER) "images from repo..."
 	podman pull $(RBEV_SENTRY_FQIN)
 	podman pull $(RBEV_ROGUE_FQIN)
-	$(zRBM_STEP)  "Verify images against history..."
-	test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_SENTRY_IMAGE_TAG)/docker_inspect_Id.txt)" = \
-	             "$$(podman inspect $(RBEV_SENTRY_FQIN) | jq -r '.[0].Id')" || \
-	  ($(MBC_SEE_RED) "Sentry image mismatch." && false)
-	test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_ROGUE_IMAGE_TAG)/docker_inspect_Id.txt)" = \
-	             "$$(podman inspect $(RBEV_ROGUE_FQIN) | jq -r '.[0].Id')" || \
-	  ($(MBC_SEE_RED) "Rogue image mismatch." && false)
+	$(zRBM_STEP)  "Verify Sentry image against history..."
+	@test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_SENTRY_IMAGE_TAG)/docker_inspect_Id.txt)" = \
+	              "$$(podman inspect $(RBEV_SENTRY_FQIN) | jq -r '.[0].Id')" || \
+	     ($(MBC_SEE_RED) "Sentry image mismatch." && false)
+	$(zRBM_STEP)  "Verify Rogue image against history..."
+	@test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_ROGUE_IMAGE_TAG)/docker_inspect_Id.txt)" = \
+	              "$$(podman inspect $(RBEV_ROGUE_FQIN) | jq -r '.[0].Id')" || \
+	     ($(MBC_SEE_RED) "Rogue image mismatch." && false)
 	$(MBC_PASS) "Done, no errors."
 
 
