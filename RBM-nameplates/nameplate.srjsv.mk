@@ -7,7 +7,7 @@ RBN_MONIKER = srjsv
 RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 RBN_ROGUE_REPO_FULL_NAME  = ghcr.io/bhyslop/recipemuster
 
-RBN_SENTRY_IMAGE_TAG = rogue_srjcl.20241019__024649
+RBN_SENTRY_IMAGE_TAG = sentry_srjsv.20241019__040403
 RBN_ROGUE_IMAGE_TAG  = rogue_srjsv.20241019__033933
 
 
