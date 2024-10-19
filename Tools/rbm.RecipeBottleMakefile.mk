@@ -103,9 +103,8 @@ ZRBM_LAST_ROGUE_BUILD_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MO
 
 zRBM_DNS       = 8.8.8.8
 
-zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"              || (\
-  $(MBC_SEE_RED) "Error: In tabtarget, RBM_ARG_MONIKER must be set."         &&\
-  exit 1)
+zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"  || \
+  ($(MBC_SEE_RED) "Error: In tabtarget, RBM_ARG_MONIKER must be set." && false)
 
 zRBM_ARGCHECK_NAMEPLATE_CMD = test "$(RBM_ARG_MONIKER)" = "$(RBN_MONIKER)" || (\
   $(MBC_SEE_RED) "Error: Rule only works if proper moniker selection.  Mismatch:"   &&\
@@ -139,9 +138,12 @@ rbm-a%: zrbm_argcheck_rule
 	podman pull $(RBEV_SENTRY_FQIN)
 	podman pull $(RBEV_ROGUE_FQIN)
 	$(zRBM_STEP)  "Verify images against history..."
-	cat $(zRBM_HISTORY_DIR)/$(RBN_ROGUE_IMAGE_TAG)/docker_inspect_Id.txt
-	podman inspect $(RBEV_ROGUE_FQIN) | jq -r '.[0].Id'
-	false
+	test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_SENTRY_IMAGE_TAG)/docker_inspect_Id.txt)" = \
+	             "$$(podman inspect $(RBEV_SENTRY_FQIN) | jq -r '.[0].Id')" || \
+	  ($(MBC_SEE_RED) "Sentry image mismatch." && false)
+	test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_ROGUE_IMAGE_TAG)/docker_inspect_Id.txt)" = \
+	             "$$(podman inspect $(RBEV_ROGUE_FQIN) | jq -r '.[0].Id')" || \
+	  ($(MBC_SEE_RED) "Rogue image mismatch." && false)
 	$(MBC_PASS) "Done, no errors."
 
 
