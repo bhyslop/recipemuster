@@ -8,6 +8,7 @@ RUN apk update && apk add --no-cache                                           \
     curl        `# For making HTTP requests and basic diagnostics`             \
     socat       `# For multipurpose relay (essential for proxying)`            \
     iptables    `# For configuring firewall rules`                             \
+    tcpdump     `# For packet capture and analysis`                            \
     && rm -rf /var/cache/apk/*
 
 # Keep the container alive
