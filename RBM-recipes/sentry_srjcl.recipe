@@ -1,22 +1,19 @@
 # Use a minimal base image
 FROM alpine:latest
 
-# Write a file with the moniker
-RUN echo srjcl       > /moniker.txt
-
 # Install necessary packages
-RUN apk update && apk add --no-cache \
-    iputils                          \
-    iproute2                         \
-    net-tools                        \
-    bind-tools                       \
-    curl                             \
-    traceroute                       \
-    tcpdump                          \
-    nmap                             \
-    iptables                         \
-    dnsmasq                          \
-    socat                            \
+RUN apk update && apk add --no-cache                                           \
+    iputils             `#For network connectivity tests`                      \
+    iproute2            `#For network configuration`                           \
+    net-tools           `#For network interface configuration and statistics`  \
+    bind-tools          `#For DNS lookups and diagnostics`                     \
+    curl                `#For making HTTP requests`                            \
+    traceroute          `#For tracing network routes`                          \
+    tcpdump             `#For packet analysis`                                 \
+    nmap                `#For network discovery`                               \
+    iptables            `#For configuring firewall rules`                      \
+    dnsmasq             `#For DNS forwarding and DHCP server`                  \
+    socat               `#For multipurpose relay`                              \
   && echo done
 
 # Keep the container alive

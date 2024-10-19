@@ -1,8 +1,5 @@
 FROM python:3.10-slim
 
-# Write a file with the moniker
-RUN echo srjcl       > /moniker.txt
-
 # Define ARG and ENV: defaults for building remotely, from nameplate when used locally
 ARG RBEV_ROGUE_JUPYTER_PORT=8000
 ENV RBEV_ROGUE_JUPYTER_PORT=${RBEV_ROGUE_JUPYTER_PORT}
@@ -14,15 +11,15 @@ ARG RBEV_ROGUE_WORKDIR=/workspace
 ENV RBEV_ROGUE_WORKDIR=${RBEV_ROGUE_WORKDIR}
 
 # Install system dependencies and diagnostic tools
-RUN apt-get update && apt-get install -y  \
-    iputils-ping                          \
-    iproute2                              \
-    net-tools                             \
-    dnsutils                              \
-    curl                                  \
-    traceroute                            \
-    tcpdump                               \
-    nmap                                  \
+RUN apt-get update && apt-get install -y                                       \
+    iputils-ping         `#For network connectivity tests`                     \
+    iproute2             `#For network configuration`                          \
+    net-tools            `#For network interface configuration and statistics` \
+    dnsutils             `#For DNS lookups and diagnostics`                    \
+    curl                 `#For making HTTP requests`                           \
+    traceroute           `#For tracing network routes`                         \
+    tcpdump              `#For packet analysis`                                \
+    nmap                 `#For network discovery`                              \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir jupyter jupyterlab
