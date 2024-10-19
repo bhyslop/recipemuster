@@ -57,6 +57,8 @@ endif
 
 # Variables for container runtime
 # OUCH export unneeeded given rollup var?
+export RBEV_SENTRY_IMAGE             := $(RBN_SENTRY_IMAGE)
+export RBEV_ROGUE_IMAGE              := $(RBN_ROGUE_IMAGE)
 export RBEV_GUARDED_NETMASK          := 16
 export RBEV_GUARDED_NETWORK_SUBNET   := $(RBN_IP_HACK).0.0/$(RBEV_GUARDED_NETMASK)
 export RBEV_HOST_GATEWAY             := $(RBN_IP_HACK).0.1
@@ -130,7 +132,11 @@ rbm-i.%: zrbm_argcheck_rule
 
 
 rbm-a%: zrbm_argcheck_rule
-	$(zRBM_START) "Acquire and validate $(RBM_ARG_MONIKER) images from repo..."
+	$(zRBM_START) "Acquire and validate" $(RBM_ARG_MONIKER) "images from repo..."
+	podman pull $(RBEV_SENTRY_IMAGE)
+	podman pull $(RBEV_ROGUE_IMAGE)
+	$(zRBM_STEP)  "Verify images against history..."
+	false
 	$(MBC_PASS) "Done, no errors."
 
 
