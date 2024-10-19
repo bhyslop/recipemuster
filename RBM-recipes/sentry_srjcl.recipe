@@ -18,3 +18,4 @@ RUN apk update && apk add --no-cache                                           \
 
 # Keep the container alive
 CMD ["tail", "-f", "/dev/null"]
+
