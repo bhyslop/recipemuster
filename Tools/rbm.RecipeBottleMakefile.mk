@@ -129,6 +129,11 @@ rbm-i.%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
+rbm-a%: zrbm_argcheck_rule
+	$(zRBM_START) "Acquire and validate $(RBM_ARG_MONIKER) images from repo..."
+	$(MBC_PASS) "Done, no errors."
+
+
 rbm-BL.%: zrbm_argcheck_rule
 	$(zRBM_START) "Build all recipies locally"
 	$(zRBM_STEP) "Cleaning up previous runs..."
