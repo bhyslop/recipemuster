@@ -45,6 +45,7 @@ zRBM_RECIPE_DIR        = ./RBM-recipes
 zRBM_BUILD_CONTEXT_DIR = ./RBM-build-context
 zRBM_TRANSCRIPTS_DIR   = ./RBM-transcripts
 zRBM_SCRIPTS_DIR       = ./RBM-scripts
+zRBM_HISTORY_DIR       = ./RBM-history
 
 zRBM_NAMEPLATE_FILE    = $(zRBM_NAMEPLATE_DIR)/nameplate.$(RBM_ARG_MONIKER).mk
 
@@ -57,8 +58,13 @@ endif
 
 # Variables for container runtime
 # OUCH export unneeeded given rollup var?
-export RBEV_SENTRY_IMAGE             := $(RBN_SENTRY_IMAGE)
-export RBEV_ROGUE_IMAGE              := $(RBN_ROGUE_IMAGE)
+#
+# FQIN: Fully Qualified Image Name
+# RFN:  Repository Full Name: refers to the complete path to the repository, 
+#                             including the registry domain, owner, and
+#                             repository name. 
+export RBEV_SENTRY_FQIN              := $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
+export RBEV_ROGUE_FQIN               := $(RBN_ROGUE_REPO_FULL_NAME):$(RBN_ROGUE_IMAGE_TAG)
 export RBEV_GUARDED_NETMASK          := 16
 export RBEV_GUARDED_NETWORK_SUBNET   := $(RBN_IP_HACK).0.0/$(RBEV_GUARDED_NETMASK)
 export RBEV_HOST_GATEWAY             := $(RBN_IP_HACK).0.1
@@ -81,9 +87,6 @@ zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
 zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
 zRBM_ROGUE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/rogue.$(RBM_ARG_MONIKER).recipe
-
-zRBM_SENTRY_IMAGE      = $(RBEV_SENTRY_IMAGE)
-zRBM_ROGUE_IMAGE       = $(RBEV_ROGUE_IMAGE)
 
 zRBM_SENTRY_CONTAINER  = $(RBM_ARG_MONIKER)-sentry-container
 zRBM_ROGUE_CONTAINER   = $(RBM_ARG_MONIKER)-rogue-container
@@ -133,9 +136,10 @@ rbm-i.%: zrbm_argcheck_rule
 
 rbm-a%: zrbm_argcheck_rule
 	$(zRBM_START) "Acquire and validate" $(RBM_ARG_MONIKER) "images from repo..."
-	podman pull $(RBEV_SENTRY_IMAGE)
-	podman pull $(RBEV_ROGUE_IMAGE)
+	podman pull $(RBEV_SENTRY_FQIN)
+	podman pull $(RBEV_ROGUE_FQIN)
 	$(zRBM_STEP)  "Verify images against history..."
+	ls $(zRBM_HISTORY_DIR)
 	false
 	$(MBC_PASS) "Done, no errors."
 
@@ -168,7 +172,7 @@ rbm-s.%: zrbm_argcheck_rule
 	  $(RBEV__ALL) \
 	  -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
 	  --privileged \
-	  $(zRBM_SENTRY_IMAGE) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
+	  $(RBEV_SENTRY_FQIN) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Checking Sentry nameplate..."
 	podman exec $(zRBM_SENTRY_CONTAINER) cat /moniker.txt | grep -q $(RBM_ARG_MONIKER) || (echo "ERROR: Sentry moniker mismatch" && exit 1)
 	$(zRBM_STEP) "Executing host setup script..."
@@ -190,7 +194,7 @@ rbm-s.%: zrbm_argcheck_rule
 	  --dns $(RBEV_SENTRY_GUARDED_IP) \
 	  -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z \
 	  --privileged \
-	  $(zRBM_ROGUE_IMAGE) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
+	  $(RBEV_ROGUE_FQIN) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Checking Rogue nameplate..."
 	@podman exec $(zRBM_ROGUE_CONTAINER) cat /moniker.txt | grep -q $(RBM_ARG_MONIKER) || (echo "ERROR: Rogue moniker mismatch" && exit 1)
 	$(zRBM_STEP) "Pulling logs..."
