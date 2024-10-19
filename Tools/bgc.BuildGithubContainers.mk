@@ -27,28 +27,33 @@ BGC_ARG_RECIPE ?=
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
                      -H 'Accept: application/vnd.github.v3+json'
 
-zBGC_CMD_TRIGGER_BUILD := curl -X POST $(zBGC_CURL_HEADERS) \
+zBGC_CMD_TRIGGER_BUILD = curl -X POST $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/dispatches' \
     -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_RECIPE)"}}'
 
-zBGC_CMD_GET_WORKFLOW_RUN := curl -s $(zBGC_CURL_HEADERS) \
+zBGC_CMD_GET_WORKFLOW_RUN = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
-zBGC_CMD_GET_SPECIFIC_RUN := curl -s  $(zBGC_CURL_HEADERS) \
+zBGC_CMD_GET_SPECIFIC_RUN = curl -s  $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/'
 
-zBGC_CMD_LIST_IMAGES := curl -s $(zBGC_CURL_HEADERS) \
+zBGC_CMD_LIST_IMAGES = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
 
 zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/packages/container/$(BGCV_REGISTRY_NAME)/$(BGC_ARG_TAG)'
 
-zBGC_CMD_LIST_PACKAGE_VERSIONS := curl -s $(zBGC_CURL_HEADERS) \
+zBGC_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
 
-zBGC_CMD_GET_LOGS := curl -sL $(zBGC_CURL_HEADERS) \
+zBGC_CMD_GET_LOGS = curl -sL $(zBGC_CURL_HEADERS) \
      '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/logs'
 
+zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) |\
+                             jq -r '.status, .conclusion'                              |\
+                              (read status && read conclusion &&                        \
+                               echo "  Status: $$status    Conclusion: $$conclusion" &&\
+                               test "$$status" == "completed")
 
 zbgc_argcheck_rule: bgcfh_check_rule
 	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
@@ -78,11 +83,7 @@ bgc-tb%: zbgc_argcheck_rule
 	git pull
 	$(MBC_PASS)
 
-zBGC_CMD_QUERY_LAST_INNER := $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) |\
-                              jq -r '.status, .conclusion'                              |\
-                               (read status && read conclusion &&                        \
-                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
-                                test "$$status" == "completed")
+
 bgc-qlb%: zbgc_argcheck_rule
 	$(MBC_START) "Query Last Build status"
 	$(MBC_STEP) "Workflow online at:"
