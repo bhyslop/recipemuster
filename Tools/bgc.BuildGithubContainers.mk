@@ -35,7 +35,7 @@ zBGC_CMD_GET_WORKFLOW_RUN = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
 zBGC_CMD_GET_SPECIFIC_RUN = curl -s  $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)'
+    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/'$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)
 
 zBGC_CMD_LIST_IMAGES = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
@@ -86,7 +86,7 @@ bgc-tb%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Workflow online at:"
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
-	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
+	until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	git pull
 	$(MBC_PASS) "No errors."
