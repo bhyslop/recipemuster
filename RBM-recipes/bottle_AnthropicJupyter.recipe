@@ -1,4 +1,4 @@
-FROM python:3.12.7-bookworm
+FROM python:3.12.7-slim-bookworm
 
 # Define ARG and ENV: defaults for building remotely, from nameplate when used locally
 ARG RBEV_BOTTLE_JUPYTER_PORT=8000
