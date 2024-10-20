@@ -1,16 +1,16 @@
 # Build Github Containers Makefile
 
 include bgc-config.mk
-include ../BGC_STATION.mk
-include ../secrets/github-ghcr-play.env
+include $(BGCV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(BGCV_TOOLS_DIR)/bgc_flow_helper.mk
+
+# Acquire the PAT needed to do GHCR image access/ control
+include $(BGCV_GITHUB_PAT_ENV)
+BGC_SECRET_GITHUB_PAT = $(BGCV_GITHUB_PAT_VARIABLE)
 
 zBGC_GITAPI_URL := https://api.github.com
 
-# OUCH fix this
-BGC_SECRET_GITHUB_PAT = $(GITHUB_GHCR_PLAY_PAT)
-
-zBGC_TEMP_DIR = ../BGC_TEMP_DIR
+zBGC_TEMP_DIR = $(BGCV_TEMP_DIR)
 
 zBGC_LAST_RUN_CACHE    = $(zBGC_TEMP_DIR)/LAST_GET_WORKFLOW_RUN.txt
 zBGC_LAST_RUN_CONTENTS = $(shell cat $(zBGC_LAST_RUN_CACHE))
