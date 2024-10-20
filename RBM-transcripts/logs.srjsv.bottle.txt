@@ -1,0 +1,2 @@
+/startup.sh: 2: sysctl: not found
+Disable nag: Would you like to receive official Jupyter news?
