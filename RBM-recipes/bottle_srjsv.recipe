@@ -1,5 +1,15 @@
 FROM python:3.12.7-bookworm
 
+# Define ARG and ENV: defaults for building remotely, from nameplate when used locally
+ARG RBEV_BOTTLE_JUPYTER_PORT=8000
+ENV RBEV_BOTTLE_JUPYTER_PORT=${RBEV_ROGUE_JUPYTER_PORT}
+
+ARG RBEV_SENTRY_GUARDED_IP=172.17.0.2
+ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
+
+ARG RBEV_BOTTLE_WORKDIR=/workspace
+ENV RBEV_BOTTLE_WORKDIR=${RBEV_BOTTLE_WORKDIR}
+
 # Install system dependencies and diagnostic tools
 RUN apt-get update && apt-get install -y                      \
     iputils-ping         `#For network connectivity tests`    \
@@ -40,32 +50,6 @@ RUN pip install --no-cache-dir           \
     opencv-python                        \
     && echo "Done installing Jupyter environment and additional packages"
 
-# The rest of the Dockerfile remains unchanged
-# Critical arg/env for distinguishing this instance from others like it (no shared image accidents)
-ARG NAMEPLATE_MONIKER
-ENV NAMEPLATE_MONIKER=${NAMEPLATE_MONIKER}
-# write a file so that following env vars are distinc
-RUN echo $NAMEPLATE_MONIKER > /nameplate.txt
-
-# Define build arguments and set environment variables
-ARG JUPYTER_PORT
-ENV JUPYTER_PORT=${JUPYTER_PORT}
-
-ARG ROGUE_IP
-ENV ROGUE_IP=${ROGUE_IP}
-
-ARG ROGUE_WORKDIR
-ENV ROGUE_WORKDIR=${ROGUE_WORKDIR}
-
-ARG GUARDED_INTERFACE
-ENV GUARDED_INTERFACE=${GUARDED_INTERFACE}
-
-ARG SENTRY_GUARDED_IP
-ENV SENTRY_GUARDED_IP=${SENTRY_GUARDED_IP}
-
-ARG GUARDED_NETWORK_SUBNET
-ENV GUARDED_NETWORK_SUBNET=${GUARDED_NETWORK_SUBNET}
-
 # Disable IPv6
 RUN \
     echo "net.ipv6.conf.all.disable_ipv6 = 1"              >> /etc/sysctl.conf  &&\
@@ -73,31 +57,31 @@ RUN \
     echo done
 
 # Set the working directory to the mount point
-WORKDIR ${ROGUE_WORKDIR}
+WORKDIR ${RBEV_BOTTLE_WORKDIR}
 
 # Generate Jupyter config and set dark theme using settings override
-RUN jupyter lab --generate-config                                                                                                     &&\
-    mkdir -p                              /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                             &&\
-    echo '{"theme": "JupyterLab Dark"}' > /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings  &&\
+RUN jupyter lab --generate-config                                                                                                         &&\
+    mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                              &&\
+    echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings   &&\
     echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py
 
 # Create a startup script
 RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&\
     echo 'sysctl -p'                                                                    >>  /startup.sh  &&\
-    echo 'ip route add default via ${SENTRY_GUARDED_IP}'                                >>  /startup.sh  &&\
-    echo 'echo "nameserver ${SENTRY_GUARDED_IP}" > /etc/resolv.conf'                    >>  /startup.sh  &&\
+    echo 'ip route add default via ${RBEV_SENTRY_GUARDED_IP}'                           >>  /startup.sh  &&\
+    echo 'echo         "nameserver ${RBEV_SENTRY_GUARDED_IP}" > /etc/resolv.conf'       >>  /startup.sh  &&\
     echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&\
     echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&\
     echo 'jupyter lab'                                        \
          '--ip=0.0.0.0'                                       \
-         '--port=${JUPYTER_PORT}'                             \
+         '--port=${RBEV_BOTTLE_JUPYTER_PORT}'                 \
          '--no-browser'                                       \
          '--allow-root'                                       \
          '--ServerApp.token=""'                               \
          '--ServerApp.password=""'                            \
          '--ServerApp.authenticate_prometheus=False'          \
          '--ServerApp.base_url=${JUPYTER_BASE_URL}'           \
-         '--notebook-dir=${ROGUE_WORKDIR}'                    \
+         '--notebook-dir=${RBEV_BOTTLE_WORKDIR}'              \
                                                                                         >>  /startup.sh  &&\
     echo 'tail -f /dev/null' >>                                                             /startup.sh  &&\
     chmod +x                                                                                /startup.sh

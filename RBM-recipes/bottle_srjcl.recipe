@@ -35,9 +35,9 @@ RUN \
 WORKDIR ${RBEV_BOTTLE_WORKDIR}
 
 # Generate Jupyter config and set dark theme using settings override
-RUN jupyter lab --generate-config                                                                                                        &&\
-    mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                             &&\
-    echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings  &&\
+RUN jupyter lab --generate-config                                                                                                         &&\
+    mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                              &&\
+    echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings   &&\
     echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py
 
 # Create a startup script
