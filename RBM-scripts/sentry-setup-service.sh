@@ -11,7 +11,7 @@ echo "Checking and displaying environment variables..."
 : ${RBEV_BOTTLE_JUPYTER_PORT:?}      && echo "RBEV_BOTTLE_JUPYTER_PORT      = $RBEV_BOTTLE_JUPYTER_PORT"
 : ${RBEV_SENTRY_JUPYTER_PORT:?}      && echo "RBEV_SENTRY_JUPYTER_PORT      = $RBEV_SENTRY_JUPYTER_PORT"
 : ${RBEV_GUARDED_NETWORK_SUBNET:?}   && echo "RBEV_GUARDED_NETWORK_SUBNET   = $RBEV_GUARDED_NETWORK_SUBNET"
-: ${RBEV_ROGUE_IP:?}                 && echo "RBEV_ROGUE_IP                 = $RBEV_ROGUE_IP"
+: ${RBEV_BOTTLE_IP:?}                && echo "RBEV_BOTTLE_IP                = RBEV_BOTTLE_IP"
 
 echo "Verifying guarded interface..."
 if ! ip link show ${RBEV_SENTRY_GUARDED_INTERFACE} | grep -q "state UP"; then
@@ -43,6 +43,6 @@ iptables -t nat -A PREROUTING  -i $RBEV_SENTRY_HOST_INTERFACE    -p tcp --dport 
 iptables -t nat -A POSTROUTING -o $RBEV_SENTRY_GUARDED_INTERFACE -p tcp --dport $RBEV_BOTTLE_JUPYTER_PORT -j SNAT --to-source      $RBEV_SENTRY_GUARDED_IP
 
 echo "Starting socat for Jupyter port forwarding..."
-socat TCP-LISTEN:${RBEV_SENTRY_JUPYTER_PORT},fork TCP:${RBEV_ROGUE_IP}:${RBEV_BOTTLE_JUPYTER_PORT} &
+socat TCP-LISTEN:${RBEV_SENTRY_JUPYTER_PORT},fork TCP:${RBEV_BOTTLE_IP}:${RBEV_BOTTLE_JUPYTER_PORT} &
 
 echo "Service setup complete."
