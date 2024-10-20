@@ -69,8 +69,8 @@ zbgc_recipe_argument_check:
 
 
 bgc-tb%: zbgc_argcheck_rule zbgc_recipe_argument_check
+	$(MBC_START) "Trigger Build"
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
-	false
 	@git fetch                                               &&\
 	  git status -uno | grep -q 'Your branch is up to date'  &&\
 	  git diff-index --quiet HEAD --                         &&\
