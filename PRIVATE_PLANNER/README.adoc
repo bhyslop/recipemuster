@@ -152,6 +152,7 @@ This section contains reminders about future improvements, deferred for now.
 * Make the github outreach thing function
 * Revise all filesystem names from MBSR to Recipe Muster 
 * Rename Rogue to Bottle
+* There's been some tectonic drift from bgc requirements.  Realign.
 * Decide what to do about security scanning of the docker images during creation
 * Critical user documentation: 
   * I think I want to point users to use native GHCR retention policies, and claude thinks there's such a way through github web interface- didn't find it though just now; easier once I have builds

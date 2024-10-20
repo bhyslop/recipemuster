@@ -35,7 +35,7 @@ zBGC_CMD_GET_WORKFLOW_RUN = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
 zBGC_CMD_GET_SPECIFIC_RUN = curl -s  $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/'
+    '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)'
 
 zBGC_CMD_LIST_IMAGES = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
@@ -46,12 +46,11 @@ zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
 zBGC_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
 
-zBGC_CMD_GET_LOGS = curl -sL $(zBGC_CURL_HEADERS) \
-     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)/logs'
+zBGC_CMD_GET_LOGS = $(zBGC_CMD_GET_SPECIFIC_RUN)/logs
 
-zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)) |\
-                             jq -r '.status, .conclusion'                                          |\
-                              (read status && read conclusion &&                        \
+zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)            |\
+                             jq -r '.status, .conclusion'           |\
+                              (read status && read conclusion &&\
                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
                                test "$$status" == "completed")
 
