@@ -7,8 +7,8 @@ RBN_MONIKER = srjcl
 RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 
-RBN_SENTRY_IMAGE_TAG = sentry_srjcl.20241019__143743
-RBN_BOTTLE_IMAGE_TAG = bottle_srjcl.20241019__143333
+RBN_SENTRY_IMAGE_TAG = sentry_Alpine.20241020__153626
+RBN_BOTTLE_IMAGE_TAG = bottle_AnthropicJupyter.20241020__152233
 
 # NOT GOOD YET
 RBN_IP_HACK = 10.240
