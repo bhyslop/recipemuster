@@ -87,7 +87,7 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Workflow online at:"
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
-	until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
+	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	git pull
 	$(MBC_STEP) "Everything went right, delete the run cache..."
