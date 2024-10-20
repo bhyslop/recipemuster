@@ -68,7 +68,9 @@ bgc-tb%: zbgc_argcheck_rule
 	@git fetch                                               &&\
 	  git status -uno | grep -q 'Your branch is up to date'  &&\
 	  git diff-index --quiet HEAD --                         &&\
-	  true || ($(MBC_SEE_RED) "Error: Commit/ push first or risk wrong recipe version" && false)
+	  true || ($(MBC_SEE_RED) "ERROR: Your repo is not cleanly aligned with github variant." &&\
+	           $(MBC_SEE_RED) "       Commit or otherwise match to proceed (prevents merge"  &&\
+		   $(MBC_SEE_RED) "       conflicts with image history tracking)." && false)
 	@$(zBGC_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event..."
 	@sleep 5
