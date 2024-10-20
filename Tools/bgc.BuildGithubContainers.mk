@@ -12,14 +12,14 @@ zBGC_GITAPI_URL := https://api.github.com
 
 zBGC_TEMP_DIR = $(BGCV_TEMP_DIR)
 
-zBGC_CURRENT_WORKFLOW_RUN_CACHE    = $(zBGC_TEMP_DIR)/CURR_WORKFLOW_RUN.txt
+zBGC_CURRENT_WORKFLOW_RUN_CACHE    = $(zBGC_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
 zBGC_CURRENT_WORKFLOW_RUN_CONTENTS = $$(cat $(zBGC_CURRENT_WORKFLOW_RUN_CACHE))
 
-zBGC_DELETE_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID.txt
+zBGC_DELETE_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID__$(MBC_NOW).txt
 zBGC_DELETE_VERSION_ID_CONTENTS = $$(cat $(zBGC_DELETE_VERSION_ID_CACHE))
 
-zBGC_DELETE_CACHE    = $(zBGC_TEMP_DIR)/BGC_DELETE.txt
-zBGC_DELETE_CONTENTS = $$(cat $(zBGC_DELETE_CACHE))
+zBGC_DELETE_RESULT_CACHE    = $(zBGC_TEMP_DIR)/BGC_DELETE__$(MBC_NOW).txt
+zBGC_DELETE_RESULT_CONTENTS = $$(cat $(zBGC_DELETE_RESULT_CACHE))
 
 
 BGC_ARG_RECIPE ?=
@@ -89,6 +89,8 @@ bgc-tb%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	git pull
+	$(MBC_STEP) "Everything went right, delete the run cache..."
+	rm $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
 
 
@@ -127,12 +129,12 @@ bgc-di%: zbgc_argcheck_rule
 	$(MBC_STEP) "Sending delete request..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
 	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_DELETE_VERSION_ID_CONTENTS) \
-	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_CACHE)
-	@echo "Delete response:" $(zBGC_DELETE_CONTENTS)
-	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_CACHE) ||\
-	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status:" $(zBGC_DELETE_CONTENTS)  &&  false)
+	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_RESULT_CACHE)
+	@echo "Delete response:" $(zBGC_DELETE_RESULT_CONTENTS)
+	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_RESULT_CACHE) ||\
+	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status:" $(zBGC_DELETE_RESULT_CONTENTS)  &&  false)
 	@echo "Successfully deleted image version."
-	@rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_CACHE)
+	@rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE)
 	$(MBC_PASS) "No errors."
 
 
