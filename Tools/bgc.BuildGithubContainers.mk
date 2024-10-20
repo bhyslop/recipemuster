@@ -12,11 +12,11 @@ zBGC_GITAPI_URL := https://api.github.com
 
 zBGC_TEMP_DIR = $(BGCV_TEMP_DIR)
 
-zBGC_LAST_RUN_CACHE    = $(zBGC_TEMP_DIR)/LAST_GET_WORKFLOW_RUN.txt
-zBGC_LAST_RUN_CONTENTS = $(shell cat $(zBGC_LAST_RUN_CACHE))
+zBGC_CURRENT_WORKFLOW_RUN_CACHE    = $(zBGC_TEMP_DIR)/CURR_WORKFLOW_RUN.txt
+zBGC_CURRENT_WORKFLOW_RUN_CONTENTS = $$(cat $(zBGC_CURRENT_WORKFLOW_RUN_CACHE))
 
-zBGC_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID.txt
-zBGC_VERSION_ID_CONTENTS = $$(cat $(zBGC_VERSION_ID_CACHE))
+zBGC_DELETE_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID.txt
+zBGC_DELETE_VERSION_ID_CONTENTS = $$(cat $(zBGC_DELETE_VERSION_ID_CACHE))
 
 zBGC_DELETE_CACHE    = $(zBGC_TEMP_DIR)/BGC_DELETE.txt
 zBGC_DELETE_CONTENTS = $$(cat $(zBGC_DELETE_CACHE))
@@ -47,10 +47,10 @@ zBGC_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
 
 zBGC_CMD_GET_LOGS = curl -sL $(zBGC_CURL_HEADERS) \
-     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_LAST_RUN_CONTENTS)/logs'
+     '$(zBGC_GITAPI_URL)/repos/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)/logs'
 
-zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_LAST_RUN_CACHE)) |\
-                             jq -r '.status, .conclusion'                              |\
+zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)$$(cat $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)) |\
+                             jq -r '.status, .conclusion'                                          |\
                               (read status && read conclusion &&                        \
                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
                                test "$$status" == "completed")
@@ -75,23 +75,14 @@ bgc-tb%: zbgc_argcheck_rule
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event..."
 	@sleep 5
 	$(MBC_STEP) "Retrieve workflow run ID..."
-	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_LAST_RUN_CACHE)
-	@test -s $(zBGC_LAST_RUN_CACHE)
+	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
+	@test -s                                                       $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_STEP) "Workflow online at:"
-	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
+	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	git pull
-	$(MBC_PASS) "No errors."
-
-
-bgc-qlb%: zbgc_argcheck_rule
-	$(MBC_START) "Query Last Build status"
-	$(MBC_STEP) "Workflow online at:"
-	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
-	$(MBC_STEP) "Polling to completion..."
-	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_PASS) "No errors."
 
 
@@ -119,21 +110,23 @@ bgc-di%: zbgc_argcheck_rule
 	  ($(MBC_SEE_RED) "Error: Must say which image tag to delete" && false)
 	@echo "Deleting image with tag: $(BGC_ARG_TAG)"
 	@echo "Fetching package version information..."
-	@$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | jq -r '.[] | select(.metadata.container.tags[] | contains("$(BGC_ARG_TAG)")) | .id' > $(zBGC_VERSION_ID_CACHE)
-	@test -s $(zBGC_VERSION_ID_CACHE)  ||\
+	@$(zBGC_CMD_LIST_PACKAGE_VERSIONS) |\
+	  jq -r '.[] | select(.metadata.container.tags[] | contains("$(BGC_ARG_TAG)")) | .id' \
+	       > $(zBGC_DELETE_VERSION_ID_CACHE)
+	@test -s $(zBGC_DELETE_VERSION_ID_CACHE)  ||\
 	  ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm false)
-	@echo "Found version ID:" $(zBGC_VERSION_ID_CONTENTS) "for tag $(BGC_ARG_TAG)"
+	@echo "Found version ID:" $(zBGC_DELETE_VERSION_ID_CONTENTS) "for tag $(BGC_ARG_TAG)"
 	@echo $(MBC_SEE_YELLOW) "Confirm delete image?" && read -p "Type YES: " confirm && test "$$confirm" = "YES"  ||\
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)
 	$(MBC_STEP) "Sending delete request..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
-	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_VERSION_ID_CONTENTS) \
+	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_DELETE_VERSION_ID_CONTENTS) \
 	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_CACHE)
 	@echo "Delete response:" $(zBGC_DELETE_CONTENTS)
 	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_CACHE) ||\
 	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status:" $(zBGC_DELETE_CONTENTS)  &&  false)
 	@echo "Successfully deleted image version."
-	@rm $(zBGC_VERSION_ID_CACHE) $(zBGC_DELETE_CACHE)
+	@rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_CACHE)
 	$(MBC_PASS) "No errors."
 
 
