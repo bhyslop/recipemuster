@@ -165,18 +165,19 @@ rbm-s.%: zrbm_argcheck_rule
 	-podman network rm $(zRBM_GUARDED_NETWORK) || true
 	$(zRBM_STEP) "Creating networks..."
 	podman network create --driver bridge $(zRBM_HOST_NETWORK)
-	podman network create --subnet $(RBEV_GUARDED_NETWORK_SUBNET) \
-	  --gateway $(RBEV_SENTRY_GUARDED_IP) \
-	  --internal \
-	  $(zRBM_GUARDED_NETWORK)
+	podman network create --subnet $(RBEV_GUARDED_NETWORK_SUBNET)     \
+	                      --gateway $(RBEV_SENTRY_GUARDED_IP)         \
+	                      --internal                                  \
+	                      $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Running the Sentry container with host network..."
-	podman run -d --name $(zRBM_SENTRY_CONTAINER) \
-	  --network $(zRBM_HOST_NETWORK) \
-	  --env-file ../secrets/claude.env \
-	  $(RBEV__ALL) \
-	  -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
-	  --privileged \
-	  $(RBEV_SENTRY_FQIN) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
+	podman run -d                                                     \
+	           --name $(zRBM_SENTRY_CONTAINER)                        \
+	           --network $(zRBM_HOST_NETWORK)                         \
+	           --env-file ../secrets/claude.env                       \
+	           $(RBEV__ALL)                                           \
+	           -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
+	           --privileged                                           \
+	           $(RBEV_SENTRY_FQIN) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Executing host setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh     | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Attaching guarded network to Sentry container..."
@@ -188,14 +189,15 @@ rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_STEP) "Executing outreach setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-outreach.sh | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Running the Rogue container..."
-	podman run -d --name $(zRBM_ROGUE_CONTAINER) \
-	  --network $(zRBM_GUARDED_NETWORK):ip=$(RBEV_ROGUE_IP) \
-	  --network-alias $(zRBM_ROGUE_CONTAINER) \
-	  --env-file ../secrets/claude.env \
-	  $(RBEV__ALL) \
-	  --dns $(RBEV_SENTRY_GUARDED_IP) \
-	  -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z \
-	  --privileged \
+	podman run -d                                                     \
+	           --name $(zRBM_ROGUE_CONTAINER)                         \
+	           --network $(zRBM_GUARDED_NETWORK):ip=$(RBEV_ROGUE_IP)  \
+	           --network-alias $(zRBM_ROGUE_CONTAINER)                \
+	           --env-file ../secrets/claude.env                       \
+	           $(RBEV__ALL)                                           \
+	           --dns $(RBEV_SENTRY_GUARDED_IP)                        \
+	           -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z     \
+	           --privileged                                           \
 	  $(RBEV_ROGUE_FQIN) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
