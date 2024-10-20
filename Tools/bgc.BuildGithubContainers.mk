@@ -123,7 +123,7 @@ bgc-di%: zbgc_argcheck_rule
 	@test -s $(zBGC_VERSION_ID_CACHE)  ||\
 	  ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm false)
 	@echo "Found version ID:" $(zBGC_VERSION_ID_CONTENTS) "for tag $(BGC_ARG_TAG)"
-	@echo $(MBC_SEE_YELLOW) && read -p "Confirm delete image? Type YES: " confirm && test "$$confirm" = "YES"  ||\
+	@echo $(MBC_SEE_YELLOW) "Confirm delete image?" && read -p "Type YES: " confirm && test "$$confirm" = "YES"  ||\
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)
 	$(MBC_STEP) "Sending delete request..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
