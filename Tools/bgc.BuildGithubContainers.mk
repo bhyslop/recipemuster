@@ -6,7 +6,7 @@ include $(BGCV_TOOLS_DIR)/bgc_flow_helper.mk
 
 # Acquire the PAT needed to do GHCR image access/ control
 include $(BGCV_GITHUB_PAT_ENV)
-BGC_SECRET_GITHUB_PAT = $(BGCV_GITHUB_PAT_VARIABLE)
+BGC_SECRET_GITHUB_PAT = $(BGCSV_PAT)
 
 zBGC_GITAPI_URL := https://api.github.com
 

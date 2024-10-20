@@ -8,6 +8,5 @@ export BGCV_TOOLS_DIR           := Tools
 
 # Needed just for makefile console
 export BGCV_GITHUB_PAT_ENV      := ../secrets/github-ghcr-play.env
-export BGCV_GITHUB_PAT_VARIABLE := GITHUB_GHCR_PLAY_PAT
 export BGCV_TEMP_DIR            := ../BGC_TEMP_DIR
 
