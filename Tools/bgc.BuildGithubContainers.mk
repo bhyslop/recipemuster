@@ -63,16 +63,15 @@ zbgc_argcheck_rule: bgcfh_check_rule
 zbgc_recipe_argument_check:
 	$(MBC_START) "Checking recipe argument"
 	@test -n "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && exit 1)
-	@test -f "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: '$(BGC_ARG_RECIPE)' is not a file" && false)
-	@basename "$(BGC_ARG_RECIPE)" | grep -q '[A-Z]' && \
-	  ($(MBC_SEE_RED) "Error: Basename of '$(BGC_ARG_RECIPE)' contains uppercase letters" && false)
-	$(MBC_STEP) "$(BGC_ARG_RECIPE) is well formed, moving on..."
+	@test -f "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: '$(BGC_ARG_RECIPE)' is not a file" && exit 1)
+	@! basename "$(BGC_ARG_RECIPE)" | grep -q '[A-Z]' || \
+	  ($(MBC_SEE_RED) "Error: Basename of '$(BGC_ARG_RECIPE)' contains uppercase letters" && exit 1)
+	@$(MBC_STEP) "$(BGC_ARG_RECIPE) is well formed, moving on..."
 
 
 bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_START) "Trigger Build of $(BGC_ARG_RECIPE)"
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
-	false
 	@git fetch                                               &&\
 	  git status -uno | grep -q 'Your branch is up to date'  &&\
 	  git diff-index --quiet HEAD --                         &&\
