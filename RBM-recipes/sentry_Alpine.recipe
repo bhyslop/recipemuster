@@ -1,10 +1,13 @@
 # Use a specific version for better reproducibility
 FROM alpine:3.20.3
 
-# Install essential packages including iptables
+
+
+
+# Update and install essential packages
 RUN apk update && apk add --no-cache                                           \
     curl                `# For making HTTP requests and basic diagnostics`     \
-    dnsmasq             `#For DNS forwarding and DHCP server`                  \
+    dnsmasq             `# For DNS forwarding and DHCP server`                 \
     iproute2            `# For network configuration`                          \
     iptables            `# For configuring firewall rules`                     \
     iputils             `# For basic network connectivity tests`               \
