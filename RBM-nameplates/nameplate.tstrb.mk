@@ -5,10 +5,10 @@
 RBN_MONIKER = tstrb
 
 RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
-RBN_ROGUE_REPO_FULL_NAME  = ghcr.io/bhyslop/recipemuster
+RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 
 RBN_SENTRY_IMAGE_TAG = sentry_alpine.20241019__171511
-RBN_ROGUE_IMAGE_TAG  = bottle_challenger.20241019__155648
+RBN_BOTTLE_IMAGE_TAG = bottle_challenger.20241019__155648
 
 # NOT GOOD YET
 RBN_IP_HACK = 10.242
@@ -29,7 +29,7 @@ RBN_WIDEREACH_DOMAIN  = github.com
 # Volume mounts and app directories:
 # Hmm, do I want a la carte or whole thing?
 RBN_APP_OUTER_DIR = ./RBM-environments-${RBN_MONIKER}
-RBN_APP_INNER_DIR = /mnt/rogue-data
+RBN_APP_INNER_DIR = /mnt/bottle-data
 
 # If an autostart command, specify
 RBN_AUTOURL_ENABLED = 0

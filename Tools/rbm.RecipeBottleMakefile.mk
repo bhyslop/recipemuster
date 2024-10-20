@@ -8,14 +8,14 @@
 
 
 ##############################################
-# Sentry and Rogue Experiment
+# Sentry and Bottle Experiment
 #
 #  This is a makefile snippet that implements critical safety mechanisms for using
 #  untrusted code in a secure environment.
 #
-#  Find below a concept where I am creating two docker containers, SENTRY and ROGUE.
+#  Find below a concept where I am creating two docker containers, SENTRY and BOTTLE.
 #
-#  The one named ROGUE is a container that runs untrusted code from the internet.
+#  The one named BOTTLE is a container that runs untrusted code from the internet.
 #  While this container has a few select needs to reach the internet, these are
 #  very restricted.
 #
@@ -64,18 +64,18 @@ endif
 #                             including the registry domain, owner, and
 #                             repository name. 
 export RBEV_SENTRY_FQIN              := $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
-export RBEV_ROGUE_FQIN               := $(RBN_ROGUE_REPO_FULL_NAME):$(RBN_ROGUE_IMAGE_TAG)
+export RBEV_BOTTLE_FQIN              := $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
 export RBEV_GUARDED_NETMASK          := 16
 export RBEV_GUARDED_NETWORK_SUBNET   := $(RBN_IP_HACK).0.0/$(RBEV_GUARDED_NETMASK)
 export RBEV_HOST_GATEWAY             := $(RBN_IP_HACK).0.1
 export RBEV_SENTRY_GUARDED_IP        := $(RBN_IP_HACK).0.2
-export RBEV_ROGUE_IP                 := $(RBN_IP_HACK).0.3
+export RBEV_BOTTLE_IP                := $(RBN_IP_HACK).0.3
 export RBEV_SENTRY_HOST_INTERFACE    := eth0
 export RBEV_SENTRY_GUARDED_INTERFACE := eth1
 export RBEV_SENTRY_JUPYTER_PORT      := $(RBN_PORT_HOST)
-export RBEV_ROGUE_JUPYTER_PORT       := $(RBN_PORT_GUARDED)
-export RBEV_ROGUE_WORKDIR            := $(RBN_APP_INNER_DIR)
-export RBEV_ROGUE_MOUNT_DIR          := $(RBN_APP_OUTER_DIR)
+export RBEV_BOTTLE_JUPYTER_PORT      := $(RBN_PORT_GUARDED)
+export RBEV_BOTTLE_WORKDIR           := $(RBN_APP_INNER_DIR)
+export RBEV_BOTTLE_MOUNT_DIR         := $(RBN_APP_OUTER_DIR)
 export RBEV_DNS_SERVER               := 8.8.8.8
 
 # Roll all Recipe Bottle Environment Variables up for podman exec
@@ -86,20 +86,20 @@ zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
 zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
-zRBM_ROGUE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/rogue.$(RBM_ARG_MONIKER).recipe
+zRBM_BOTTLE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/bottle.$(RBM_ARG_MONIKER).recipe
 
 zRBM_SENTRY_CONTAINER  = $(RBM_ARG_MONIKER)-sentry-container
-zRBM_ROGUE_CONTAINER   = $(RBM_ARG_MONIKER)-rogue-container
+zRBM_BOTTLE_CONTAINER   = $(RBM_ARG_MONIKER)-bottle-container
 
 zRBM_HOST_NETWORK      = $(RBM_ARG_MONIKER)-host-network
 zRBM_GUARDED_NETWORK   = $(RBM_ARG_MONIKER)-guarded-network
 
 zRBM_LAST_SENTRY_CONTAINER_FACTFILE = $(zRBM_TRANSCRIPTS_DIR)/container.$(RBM_ARG_MONIKER).sentry.txt
-zRBM_LAST_ROGUE_CONTAINER_FACTFILE  = $(zRBM_TRANSCRIPTS_DIR)/container.$(RBM_ARG_MONIKER).rogue.txt
+zRBM_LAST_BOTTLE_CONTAINER_FACTFILE = $(zRBM_TRANSCRIPTS_DIR)/container.$(RBM_ARG_MONIKER).bottle.txt
 zRBM_LAST_SENTRY_LOGS_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/logs.$(RBM_ARG_MONIKER).sentry.txt
-zRBM_LAST_ROGUE_LOGS_FACTFILE       = $(zRBM_TRANSCRIPTS_DIR)/logs.$(RBM_ARG_MONIKER).rogue.txt
+zRBM_LAST_BOTTLE_LOGS_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/logs.$(RBM_ARG_MONIKER).bottle.txt
 ZRBM_LAST_SENTRY_BUILD_FACTFILE     = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MONIKER).sentry.txt
-ZRBM_LAST_ROGUE_BUILD_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MONIKER).rogue.txt
+ZRBM_LAST_BOTTLE_BUILD_FACTFILE     = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MONIKER).bottle.txt
 
 zRBM_DNS       = 8.8.8.8
 
@@ -136,31 +136,31 @@ rbm-i.%: zrbm_argcheck_rule
 rbm-a%: zrbm_argcheck_rule
 	$(zRBM_START) "Acquire and validate" $(RBM_ARG_MONIKER) "images from repo..."
 	podman pull $(RBEV_SENTRY_FQIN)
-	podman pull $(RBEV_ROGUE_FQIN)
+	podman pull $(RBEV_BOTTLE_FQIN)
 	$(zRBM_STEP)  "Verify Sentry image against history..."
 	@test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_SENTRY_IMAGE_TAG)/docker_inspect_Id.txt)" = \
 	              "$$(podman inspect $(RBEV_SENTRY_FQIN) | jq -r '.[0].Id')" || \
 	     ($(MBC_SEE_RED) "Sentry image mismatch." && false)
-	$(zRBM_STEP)  "Verify Rogue image against history..."
-	@test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_ROGUE_IMAGE_TAG)/docker_inspect_Id.txt)" = \
-	              "$$(podman inspect $(RBEV_ROGUE_FQIN) | jq -r '.[0].Id')" || \
-	     ($(MBC_SEE_RED) "Rogue image mismatch." && false)
+	$(zRBM_STEP)  "Verify Bottle image against history..."
+	@test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_BOTTLE_IMAGE_TAG)/docker_inspect_Id.txt)" = \
+	              "$$(podman inspect $(RBEV_BOTTLE_FQIN) | jq -r '.[0].Id')" || \
+	     ($(MBC_SEE_RED) "Bottle image mismatch." && false)
 	$(MBC_PASS) "Done, no errors."
 
 
 rbm-h%: zrbm_argcheck_rule
 	$(zRBM_START) "Halt all related containers..."
 	$(zRBM_STEP) "Cleaning up previous runs..."
-	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
-	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
+	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_BOTTLE_CONTAINER) || true
+	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_BOTTLE_CONTAINER) || true
 	$(MBC_PASS) "Done, no errors."
 
 
 rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_START) "START THE RECIPE SERVICE"
 	$(zRBM_STEP) "Cleaning up previous runs..."
-	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
-	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_ROGUE_CONTAINER) || true
+	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_BOTTLE_CONTAINER) || true
+	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_BOTTLE_CONTAINER) || true
 	-podman network rm $(zRBM_HOST_NETWORK)    || true
 	-podman network rm $(zRBM_GUARDED_NETWORK) || true
 	$(zRBM_STEP) "Creating networks..."
@@ -188,20 +188,20 @@ rbm-s.%: zrbm_argcheck_rule
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-service.sh  | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Executing outreach setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-outreach.sh | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
-	$(zRBM_STEP) "Running the Rogue container..."
+	$(zRBM_STEP) "Running the Bottle container..."
 	podman run -d                                                     \
-	           --name $(zRBM_ROGUE_CONTAINER)                         \
-	           --network $(zRBM_GUARDED_NETWORK):ip=$(RBEV_ROGUE_IP)  \
-	           --network-alias $(zRBM_ROGUE_CONTAINER)                \
+	           --name $(zRBM_BOTTLE_CONTAINER)                        \
+	           --network $(zRBM_GUARDED_NETWORK):ip=$(RBEV_BOTTLE_IP) \
+	           --network-alias $(zRBM_BOTTLE_CONTAINER)               \
 	           --env-file ../secrets/claude.env                       \
 	           $(RBEV__ALL)                                           \
 	           --dns $(RBEV_SENTRY_GUARDED_IP)                        \
-	           -v $(RBEV_ROGUE_MOUNT_DIR):$(RBEV_ROGUE_WORKDIR):Z     \
+	           -v $(RBEV_BOTTLE_MOUNT_DIR):$(RBEV_BOTTLE_WORKDIR):Z   \
 	           --privileged                                           \
-	  $(RBEV_ROGUE_FQIN) > $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE)
+	  $(RBEV_BOTTLE_FQIN) > $(zRBM_LAST_BOTTLE_CONTAINER_FACTFILE)
 	$(zRBM_STEP) "Pulling logs..."
 	podman logs $$(cat $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)) > $(zRBM_LAST_SENTRY_LOGS_FACTFILE) 2>&1
-	podman logs $$(cat $(zRBM_LAST_ROGUE_CONTAINER_FACTFILE))  > $(zRBM_LAST_ROGUE_LOGS_FACTFILE)  2>&1
+	podman logs $$(cat $(zRBM_LAST_BOTTLE_CONTAINER_FACTFILE)) > $(zRBM_LAST_BOTTLE_LOGS_FACTFILE) 2>&1
 	$(zRBM_STEP) "Inspecting the guarded network..."
 	podman network inspect $(zRBM_GUARDED_NETWORK)
 	$(zRBM_STEP) "Setup complete... Find jupyter at:"
@@ -217,11 +217,11 @@ rbm-Ts.%: zrbm_argcheck_rule
 
 
 rbm-Tr.%: zrbm_argcheck_rule
-	$(zRBM_START) "TEST ROGUE ASPECTS OF SERVICE"
+	$(zRBM_START) "TEST BOTTLE ASPECTS OF SERVICE"
 	$(zRBM_STEP) "Test 0: Verifying DNS forwarding..."
-	podman exec $(zRBM_ROGUE_CONTAINER) nslookup api.anthropic.com || (echo "FAIL: ROGUE unable to resolve critical domain name" && exit 1)
-	$(zRBM_STEP) "Test 1: Checking if ROGUE can reach allowed domains..."
-	podman exec $(zRBM_ROGUE_CONTAINER) sh -c 'curl https://api.anthropic.com/v1/messages \
+	podman exec $(zRBM_BOTTLE_CONTAINER) nslookup api.anthropic.com || (echo "FAIL: BOTTLE unable to resolve critical domain name" && exit 1)
+	$(zRBM_STEP) "Test 1: Checking if BOTTLE can reach allowed domains..."
+	podman exec $(zRBM_BOTTLE_CONTAINER) sh -c 'curl https://api.anthropic.com/v1/messages \
 	  --header "x-api-key: $$ANTHROPIC_API_KEY" \
 	  --header "anthropic-version: 2023-06-01" \
 	  --header "content-type: application/json" \
@@ -232,8 +232,8 @@ rbm-Tr.%: zrbm_argcheck_rule
 
 
 rbm-cr.%: zrbm_argcheck_rule
-	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to ROGUE"
-	podman exec -it $(zRBM_ROGUE_CONTAINER) /bin/bash
+	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
+	podman exec -it $(zRBM_BOTTLE_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
@@ -241,7 +241,6 @@ rbm-cs.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman exec -it $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(MBC_PASS) "Done, no errors."
-
 
 
 # EOF
