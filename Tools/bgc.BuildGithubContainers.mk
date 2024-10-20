@@ -81,7 +81,7 @@ bgc-tb%: zbgc_argcheck_rule
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	git pull
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
 
 
 bgc-qlb%: zbgc_argcheck_rule
@@ -90,7 +90,8 @@ bgc-qlb%: zbgc_argcheck_rule
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME)/actions/runs/"$$(cat $(zBGC_LAST_RUN_CACHE))
 	$(MBC_STEP) "Polling to completion..."
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
+
 
 bgc-lcri%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
@@ -107,7 +108,7 @@ bgc-lcri%: zbgc_argcheck_rule
 	      awk 'BEGIN {printf "%-40s %-20s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
 	    echo; \
 	  done
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
 
 
 bgc-di%: zbgc_argcheck_rule
@@ -123,7 +124,7 @@ bgc-di%: zbgc_argcheck_rule
 	@read -p "Confirm delete image? Type YES: " confirm && test "$$confirm" = "YES"  ||\
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)
 	@echo "Sending delete request..."
-	curl -X DELETE $(zBGC_CURL_HEADERS) \
+	@curl -X DELETE $(zBGC_CURL_HEADERS) \
 	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_VERSION_ID_CONTENTS) \
 	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_CACHE)
 	@echo "Delete response:" $(zBGC_DELETE_CONTENTS)
@@ -131,13 +132,13 @@ bgc-di%: zbgc_argcheck_rule
 	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status:" $(zBGC_DELETE_CONTENTS)  &&  false)
 	@echo "Successfully deleted image version."
 	@rm $(zBGC_VERSION_ID_CACHE) $(zBGC_DELETE_CACHE)
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
 
 
 bgc-flbl%: zbgc_argcheck_rule
 	$(MBC_START) "Fetch Last Build Logs"
 	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs.zip
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
 
 
 # eof
