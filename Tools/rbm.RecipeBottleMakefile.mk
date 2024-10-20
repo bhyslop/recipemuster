@@ -159,10 +159,12 @@ rbm-h%: zrbm_argcheck_rule
 rbm-s.%: zrbm_argcheck_rule
 	$(zRBM_START) "START THE RECIPE SERVICE"
 	$(zRBM_STEP) "Cleaning up previous runs..."
-	-podman stop  $(zRBM_SENTRY_CONTAINER) $(zRBM_BOTTLE_CONTAINER) || true
-	-podman rm -f $(zRBM_SENTRY_CONTAINER) $(zRBM_BOTTLE_CONTAINER) || true
-	-podman network rm $(zRBM_HOST_NETWORK)    || true
-	-podman network rm $(zRBM_GUARDED_NETWORK) || true
+	-podman stop  $(zRBM_BOTTLE_CONTAINER) || true
+	-podman rm -f $(zRBM_BOTTLE_CONTAINER) || true
+	-podman stop  $(zRBM_SENTRY_CONTAINER) || true
+	-podman rm -f $(zRBM_SENTRY_CONTAINER) || true
+	-podman network rm -f $(zRBM_HOST_NETWORK)    || true
+	-podman network rm -f $(zRBM_GUARDED_NETWORK) || true
 	$(zRBM_STEP) "Creating networks..."
 	podman network create --driver bridge $(zRBM_HOST_NETWORK)
 	podman network create --subnet $(RBEV_GUARDED_NETWORK_SUBNET)     \
