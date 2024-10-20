@@ -60,10 +60,17 @@ zbgc_argcheck_rule: bgcfh_check_rule
 	@mkdir -p $(zBGC_TEMP_DIR)
 
 
-bgc-tb%: zbgc_argcheck_rule
-	$(MBC_START) "Trigger Build with specified recipe or dockerfile"
-	@test "$(BGC_ARG_RECIPE)" != "" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && false)
+zbgc_recipe_argument_check:
+	$(MBC_START) "Checking recipe argument"
+	@test -n "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && false)
+	@test -f "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: '$(BGC_ARG_RECIPE)' is not a file" && false)
+	@basename "$(BGC_ARG_RECIPE)" | grep -q '[A-Z]' && \
+	  ($(MBC_SEE_RED) "Error: Recipe '$(BGC_ARG_RECIPE)' cannot have uppercase" && false) || true
+
+
+bgc-tb%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
+	false
 	@git fetch                                               &&\
 	  git status -uno | grep -q 'Your branch is up to date'  &&\
 	  git diff-index --quiet HEAD --                         &&\
