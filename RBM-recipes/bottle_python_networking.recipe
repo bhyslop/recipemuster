@@ -25,5 +25,5 @@ WORKDIR /tests
 # Set the entrypoint to bash
 ENTRYPOINT ["/bin/bash"]
 
-# Default command keeps the container running
-CMD ["tail", "-f", "/dev/null"]
+# Simple CMD to echo a message and sleep
+CMD ["bash", "-c", "echo 'Container is running' && sleep infinity"]
