@@ -90,6 +90,8 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	git pull
+	$(MBC_STEP) "Pull logs..."
+	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
 	rm $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
@@ -138,11 +140,6 @@ bgc-di%: zbgc_argcheck_rule
 	@rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE)
 	$(MBC_PASS) "No errors."
 
-
-bgc-flbl%: zbgc_argcheck_rule
-	$(MBC_START) "Fetch Last Build Logs"
-	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs.zip
-	$(MBC_PASS) "No errors."
 
 
 # eof
