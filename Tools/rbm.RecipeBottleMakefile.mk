@@ -148,6 +148,21 @@ rbm-a%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
+rbm-b.%: zrbm_argcheck_rule
+	$(zRBM_START) "Build all recipies locally"
+	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
+	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
+	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
+	  --progress=plain                                                  \
+	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_SENTRY_BUILD_FACTFILE)  2>&1
+	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
+	-podman rmi -f                              $(zRBM_ROGUE_IMAGE)
+	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)     \
+	  --progress=plain                                                  \
+	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_ROGUE_BUILD_FACTFILE)   2>&1
+	$(MBC_PASS) "Done, no errors."
+
+
 rbm-h%: zrbm_argcheck_rule
 	$(zRBM_START) "Halt all related containers..."
 	$(zRBM_STEP) "Cleaning up previous runs..."

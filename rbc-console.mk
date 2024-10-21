@@ -120,6 +120,11 @@ ttc.CreateTabtarget.sh:
 	$(zRBC_PASS)
 
 
+ttx.FixTabtargetExecutability.sh:
+	git update-index --chmod=+x $(zRBC_TABTARGET_DIR)/*
+	$(zRBC_PASS)
+
+
 #######################################
 #  Slickedit Project Tabtarget
 #
