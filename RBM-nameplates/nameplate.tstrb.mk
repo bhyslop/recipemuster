@@ -7,8 +7,11 @@ RBN_MONIKER = tstrb
 RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 
-RBN_SENTRY_IMAGE_TAG = sentry_ubuntu.20241020__175025
-RBN_BOTTLE_IMAGE_TAG = bottle_python_networking.20241021__140159
+RBN_SENTRY_IMAGE_ROOT = sentry_ubuntu
+RBN_BOTTLE_IMAGE_ROOT = bottle_python_networking 
+
+RBN_SENTRY_IMAGE_TAG = 20241020__175025
+RBN_BOTTLE_IMAGE_TAG = 20241021__141748
 
 # NOT GOOD YET
 RBN_IP_HACK = 10.242
