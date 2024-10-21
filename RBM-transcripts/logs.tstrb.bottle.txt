@@ -1,0 +1,1 @@
+/usr/bin/tail: /usr/bin/tail: cannot execute binary file

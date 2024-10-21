@@ -129,7 +129,7 @@ rbm-P.SetupPodman.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-i.%: zrbm_argcheck_rule
+rbm-i%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
@@ -156,7 +156,7 @@ rbm-h%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-s.%: zrbm_argcheck_rule
+rbm-s%: zrbm_argcheck_rule
 	$(zRBM_START) "START THE RECIPE SERVICE"
 	$(zRBM_STEP) "Cleaning up previous runs..."
 	-podman stop  $(zRBM_BOTTLE_CONTAINER) || true
@@ -213,12 +213,12 @@ rbm-s.%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE)
 
 
-rbm-Ts.%: zrbm_argcheck_rule
+rbm-Ts%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST SENTRY ASPECTS OF SERVICE"
 	$(MBC_PASS) "No current tests."
 
 
-rbm-Tr.%: zrbm_argcheck_rule
+rbm-Tb%: zrbm_argcheck_rule
 	$(zRBM_START) "TEST BOTTLE ASPECTS OF SERVICE"
 	$(zRBM_STEP) "Test 0: Verifying DNS forwarding..."
 	podman exec $(zRBM_BOTTLE_CONTAINER) nslookup api.anthropic.com || (echo "FAIL: BOTTLE unable to resolve critical domain name" && exit 1)
@@ -233,13 +233,13 @@ rbm-Tr.%: zrbm_argcheck_rule
 	$(zRBM_STEP) "All security tests passed successfully."
 
 
-rbm-cr.%: zrbm_argcheck_rule
+rbm-cb%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(zRBM_BOTTLE_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-cs.%: zrbm_argcheck_rule
+rbm-cs%: zrbm_argcheck_rule
 	$(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman exec -it $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(MBC_PASS) "Done, no errors."

@@ -20,7 +20,7 @@ RBN_PORT_GUARDED = 8000
 
 # If the nameplate is allowed to reach out to the internet, specify
 # OUCH CHANGE THIS!!!  Expedient to try and viz stuff now
-RBN_OUTREACH_ENABLED = 0
+RBN_OUTREACH_ENABLED = 1
 
 # Pretty unsafe thing, but needed for bootstrap
 RBN_WIDEREACH_ENABLED = 1
