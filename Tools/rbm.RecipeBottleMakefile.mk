@@ -195,6 +195,8 @@ rbm-s%: zrbm_argcheck_rule
 	           -p $(zRBM_LOCALHOST_IP):$(RBEV_SENTRY_JUPYTER_PORT):$(RBEV_SENTRY_JUPYTER_PORT) \
 	           --privileged                                           \
 	           $(RBEV_SENTRY_FQIN) > $(zRBM_LAST_SENTRY_CONTAINER_FACTFILE)
+	$(zRBM_STEP) "FREEZE FOR NOW..."
+	false
 	$(zRBM_STEP) "Executing host setup script..."
 	cat $(zRBM_SCRIPTS_DIR)/sentry-setup-host.sh     | podman exec -i $(RBEV__ALL) $(zRBM_SENTRY_CONTAINER) /bin/sh
 	$(zRBM_STEP) "Attaching guarded network to Sentry container..."
