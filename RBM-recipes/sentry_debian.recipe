@@ -21,6 +21,8 @@ RUN apt-get update && apt-get install -y                                        
     iptraf-ng           `# For real-time IP LAN monitoring`                              \
     traceroute          `# For tracing network routes`                                   \
     lsof                `# For listing open files and the processes that opened them`    \
+    selinux-utils       `# For SELinux utilities including getenforce`                   \
+    apparmor-utils      `# For AppArmor utilities including aa-status`                   \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep the container alive
