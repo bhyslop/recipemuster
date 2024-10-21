@@ -19,5 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends                
     nftables            `# For newer firewall rule testing`                             \
     && rm -rf /var/lib/apt/lists/*
 
-# Keep the container alive
-CMD ["tail", "-f", "/dev/null"]
+# Set working directory
+WORKDIR /tests
+
+# Default command
+CMD ["/bin/bash"]
