@@ -1,1 +1,1 @@
-/usr/bin/tail: /usr/bin/tail: cannot execute binary file
+/usr/bin/bash: /usr/bin/bash: cannot execute binary file

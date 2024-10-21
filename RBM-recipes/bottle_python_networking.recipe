@@ -19,11 +19,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends                
     nftables            `# For newer firewall rule testing`                             \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /tests
-
-# Set the entrypoint to bash
-ENTRYPOINT ["/bin/bash"]
-
-# Simple CMD to echo a message and sleep
-CMD ["bash", "-c", "echo 'Container is running' && sleep infinity"]
+# Keep the container alive
+CMD ["tail", "-f", "/dev/null"]
