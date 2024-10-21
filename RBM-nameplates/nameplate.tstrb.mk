@@ -8,7 +8,7 @@ RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 
 RBN_SENTRY_IMAGE_TAG = sentry_alpine.20241019__171511
-RBN_BOTTLE_IMAGE_TAG = bottle_challenger.20241019__155648
+RBN_BOTTLE_IMAGE_TAG = bottle_python_networking.20241021__131414
 
 # NOT GOOD YET
 RBN_IP_HACK = 10.242
