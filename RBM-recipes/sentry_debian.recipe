@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y                                        
     netcat-openbsd      `# For nc command, useful for testing network connections`       \
     iptraf-ng           `# For real-time IP LAN monitoring`                              \
     traceroute          `# For tracing network routes`                                   \
+    lsof                `# For listing open files and the processes that opened them`    \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep the container alive
