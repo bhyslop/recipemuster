@@ -29,7 +29,8 @@ log-facility=/var/log/dnsmasq.log
 EOF
 
 echo "Starting dnsmasq..."
-dnsmasq
+dnsmasq -d -q &> /var/log/dnsmasq_verbose.log
+sleep 2  # Give dnsmasq time to start
 
 echo "Outbound setup complete."
 
