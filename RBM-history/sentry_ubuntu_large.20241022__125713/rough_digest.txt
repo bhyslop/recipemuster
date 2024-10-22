@@ -1,0 +1,2 @@
+Image size: 203MB
+Build duration: s
