@@ -1,6 +1,9 @@
 # Use a specific version for better reproducibility
 FROM alpine:3.20.3
 
+# Spaces for diffing against other
+#   sentry docker images.
+
 # Update and install essential packages
 RUN apk update && apk add --no-cache                                                     \
     bind-tools          `# Equivalent to dnsutils, for dig and nslookup`                 \
