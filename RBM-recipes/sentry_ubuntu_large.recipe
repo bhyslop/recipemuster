@@ -1,5 +1,5 @@
 # Use a specific version of Ubuntu for better reproducibility
-FROM ubuntu:22.04
+FROM ubuntu:24.10
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
