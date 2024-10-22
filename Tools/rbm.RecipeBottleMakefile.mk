@@ -148,7 +148,7 @@ rbm-a%: zrbm_argcheck_rule
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-b.%: zrbm_argcheck_rule
+rbm-b%: zrbm_argcheck_rule
 	$(zRBM_START) "Build all recipies locally"
 	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
 	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
