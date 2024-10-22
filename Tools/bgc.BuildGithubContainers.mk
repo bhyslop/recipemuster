@@ -97,7 +97,7 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_PASS) "No errors."
 
 
-bgc-lcri%: zbgc_argcheck_rule
+bgc-l%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	@$(zBGC_CMD_LIST_IMAGES)                                   |\
 	  jq -r '.[] | select(.package_type=="container") | .name' |\
