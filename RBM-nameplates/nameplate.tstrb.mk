@@ -7,7 +7,7 @@ RBN_MONIKER = tstrb
 RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
 
-RBN_SENTRY_IMAGE_TAG = sentry_debian.20241021__161716
+RBN_SENTRY_IMAGE_TAG = sentry_ubuntu_large.20241022__125713
 RBN_BOTTLE_IMAGE_TAG = bottle_python_networking.20241021__144537
 
 # NOT GOOD YET
