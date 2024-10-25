@@ -177,12 +177,14 @@ This section contains reminders about future improvements, deferred for now.
 * Repair state of build transcripts: MAybe a path using 6.9.0 action build summary extract, or sbom or provenance
 * Maybe integrate syft to study sbom (go program)
 * I do not like the ghaction and related console makefile name subfiles
+* Is it better to have different tabtargets for agile bottle service that do not need internet?
 * Think about whether I can mix rbm-config.yml and the makefile variant
 * Explore creating a nonprivileged user to run the jupyter notebook (may help with shutdown)
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
 * I'm mixed as to whether rbc-console.mk ought to actually include the RBM core makefile...
 * Scrub out all tabtargets for modern consistency
+* Get real sure that sentry iptables limits what internet sites can send data to the bottle
 * Get real clear if I think a docker container advertising a port gets external network view
 * Consider proper use of `unexport` concerning the tabtarget name parts for proper recursive invocation
 * Make the startup script for rogue standalone external too
