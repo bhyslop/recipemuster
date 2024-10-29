@@ -1,35 +1,32 @@
-# © 2024 Scale Invariant.  All rights reserved.
+# Recipe Bottle Service Assignment Makefile
+# Jupyter Notebook with Claude Access
 
-# "Jupyter Notebook with Claude Access"
+# Core Configuration
+RBN_MONIKER := srjcl
+RBN_DESCRIPTION := Jupyter Notebook environment with Claude API access for AI-assisted development
 
-RBN_MONIKER = srjcl
+# Image Configuration
+RBN_SENTRY_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
+RBN_BOTTLE_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
+RBN_SENTRY_IMAGE_TAG := sentry_alpine.20241020__171441
+RBN_BOTTLE_IMAGE_TAG := bottle_anthropic_jupyter.20241020__173503
 
-RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
-RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
+# Network Configuration
+RBN_GUARDED_NETWORK_ID := 10.240
 
-RBN_SENTRY_IMAGE_TAG = sentry_alpine.20241020__171441
-RBN_BOTTLE_IMAGE_TAG = bottle_anthropic_jupyter.20241020__173503
+# Port Service Configuration
+RBN_PORT_ENABLED := 1
+RBN_PORT_HOST := 8889
+RBN_PORT_GUARDED := 8888
 
-# NOT GOOD YET
-RBN_IP_HACK = 10.240
+# Internet Outreach Configuration
+RBN_PORT_ENABLED := 1
+RBN_OUTREACH_CIDR := 160.79.104.0/23
+RBN_OUTREACH_DOMAIN := anthropic.com
 
-# If the nameplate exports services through an application port, specify
-RBN_PORT_ENABLED = 1
-RBN_PORT_HOST    = 8889
-RBN_PORT_GUARDED = 8888
+# Volume Mount Configuration
+RBN_VOLUME_MOUNTS := -v ./RBM-environments-srjcl:/mnt/bottle-data:Z
 
-# If the nameplate is allowed to reach out to the internet, specify
-RBN_OUTREACH_ENABLED = 1
-RBN_OUTREACH_CIDR    = 160.79.104.0/23
-RBN_OUTREACH_DOMAIN  = anthropic.com
-
-# Volume mounts and app directories: 
-# Hmm, do I want a la carte or whole thing?
-RBN_APP_OUTER_DIR = ./RBM-environments-${RBN_MONIKER}
-RBN_APP_INNER_DIR = /mnt/bottle-data
-
-# If an autostart command, specify
-RBN_AUTOURL_ENABLED = 1
-RBN_AUTOURL_URL     = http://${zMBSR_LOCALHOST_IP}:${RBN_PORT_HOST}/lab
-
-# eof
+# Auto-start Configuration
+RBN_AUTOURL_ENABLED := 1
+RBN_AUTOURL_URL := http://127.0.0.1:$(RBN_PORT_HOST)/lab

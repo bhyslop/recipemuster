@@ -27,6 +27,12 @@ Here we go, lets see if I can get somewhere today!  This very day!
 * TODO: construct makefile machinery to create the json for matrix config
 * TODO: ??? Decide what to do around -> `rbm-P.SetupPodman.sh`
 
+=== Minidrama: Distributed Requirement Fascinations
+
+This is verra spicy!
+
+I've resumed an attempt to make a top level concept 
+
 === Minidrama: Using Claude to Write Claude Requirements
 
 That worked evilly well!
