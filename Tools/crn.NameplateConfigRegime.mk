@@ -50,8 +50,12 @@ zrbs_validate_rule: \
   zrbs_validate_moniker \
   zrbs_validate_description \
   zrbs_validate_sentry_image zrbs_validate_bottle_image \
-  zrbs_validate_network zrbs_validate_port_enabled_$(RBN_PORT_ENABLED) \
+  zrbs_validate_network \
+  zrbs_validate_port_enabled \
+  zrbs_validate_port_enabled_$(RBN_PORT_ENABLED) \
+  zrbs_validate_outreach_enabled \
   zrbs_validate_outreach_$(RBN_OUTREACH_ENABLED) \
+  zrbs_validate_autourl_enabled \
   zrbs_validate_autourl_$(RBN_AUTOURL_ENABLED)
 
 zrbs_validate_moniker:
@@ -70,6 +74,15 @@ zrbs_validate_bottle_image:
 
 zrbs_validate_network:
 	@test -n "$(RBN_GUARDED_NETWORK_ID)" || (echo "Error: RBN_GUARDED_NETWORK_ID must be set" && exit 1)
+
+zrbs_validate_port_enabled:
+	@test "$(RBN_PORT_ENABLED)" = "0" -o "$(RBN_PORT_ENABLED)" = "1" || (echo "Error: RBN_PORT_ENABLED must be 0 or 1" && exit 1)
+
+zrbs_validate_outreach_enabled:
+	@test "$(RBN_OUTREACH_ENABLED)" = "0" -o "$(RBN_OUTREACH_ENABLED)" = "1" || (echo "Error: RBN_OUTREACH_ENABLED must be 0 or 1" && exit 1)
+
+zrbs_validate_autourl_enabled:
+	@test "$(RBN_AUTOURL_ENABLED)" = "0" -o "$(RBN_AUTOURL_ENABLED)" = "1" || (echo "Error: RBN_AUTOURL_ENABLED must be 0 or 1" && exit 1)
 
 # Port validation rules
 zrbs_validate_port_enabled_1:
@@ -98,32 +111,53 @@ zrbs_validate_autourl_1:
 zrbs_validate_autourl_0:
 	@: # No validation needed when autourl disabled
 
-# Render Rule
-zrbs_render_rule:
+# Render Rule with Component Subrules
+zrbs_render_rule: \
+  zrbs_render_header \
+  zrbs_render_images \
+  zrbs_render_network \
+  zrbs_render_port_$(RBN_PORT_ENABLED) \
+  zrbs_render_outreach_$(RBN_OUTREACH_ENABLED) \
+  zrbs_render_volumes \
+  zrbs_render_autourl_$(RBN_AUTOURL_ENABLED)
+
+zrbs_render_header:
 	@echo "Recipe Bottle Service Configuration: $(RBN_MONIKER)"
 	@echo "Description: $(RBN_DESCRIPTION)"
 	@echo ""
+
+zrbs_render_images:
 	@echo "Image Configuration:"
 	@echo "  Sentry Image: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
 	@echo "  Bottle Image: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
 	@echo ""
+
+zrbs_render_network:
 	@echo "Network Configuration:"
 	@echo "  Guarded Network ID: $(RBN_GUARDED_NETWORK_ID)"
 	@echo ""
-	@case "$(RBN_PORT_ENABLED)" in \
-		1) echo "Port Service: ENABLED"; \
-		   echo "  Host Port: $(RBN_PORT_HOST)"; \
-		   echo "  Container Port: $(RBN_PORT_GUARDED)";; \
-		*) echo "Port Service: DISABLED";; \
-	esac
+
+zrbs_render_port_1:
+	@echo "Port Service: ENABLED"
+	@echo "  Host Port: $(RBN_PORT_HOST)"
+	@echo "  Container Port: $(RBN_PORT_GUARDED)"
 	@echo ""
-	@case "$(RBN_OUTREACH_ENABLED)" in \
-		1) echo "Internet Outreach: ENABLED"; \
-		   echo "  Allowed CIDR: $(RBN_OUTREACH_CIDR)"; \
-		   echo "  Allowed Domain: $(RBN_OUTREACH_DOMAIN)";; \
-		*) echo "Internet Outreach: DISABLED";; \
-	esac
+
+zrbs_render_port_0:
+	@echo "Port Service: DISABLED"
 	@echo ""
+
+zrbs_render_outreach_1:
+	@echo "Internet Outreach: ENABLED"
+	@echo "  Allowed CIDR: $(RBN_OUTREACH_CIDR)"
+	@echo "  Allowed Domain: $(RBN_OUTREACH_DOMAIN)"
+	@echo ""
+
+zrbs_render_outreach_0:
+	@echo "Internet Outreach: DISABLED"
+	@echo ""
+
+zrbs_render_volumes:
 	@if [ -n "$(RBN_VOLUME_MOUNTS)" ]; then \
 		echo "Volume Mounts:"; \
 		echo "$(RBN_VOLUME_MOUNTS)" | tr ' ' '\n' | sed 's/^/  /'; \
@@ -131,9 +165,11 @@ zrbs_render_rule:
 		echo "Volume Mounts: None configured"; \
 	fi
 	@echo ""
-	@case "$(RBN_AUTOURL_ENABLED)" in \
-		1) echo "Auto-start URL: ENABLED"; \
-		   echo "  URL: $(RBN_AUTOURL_URL)";; \
-		*) echo "Auto-start URL: DISABLED";; \
-	esac
+
+zrbs_render_autourl_1:
+	@echo "Auto-start URL: ENABLED"
+	@echo "  URL: $(RBN_AUTOURL_URL)"
+
+zrbs_render_autourl_0:
+	@echo "Auto-start URL: DISABLED"
 
