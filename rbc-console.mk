@@ -32,12 +32,16 @@ zRBC_TOOLS_DIR     = Tools
 
 zRBC_MBC_MAKEFILE = $(zRBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 zRBC_BGC_MAKEFILE = $(zRBC_TOOLS_DIR)/bgc.BuildGithubContainers.mk
+zRBC_CRN_MAKEFILE = $(zRBC_TOOLS_DIR)/crn.NameplateConfigRegime.mk
+
 
 # What console tool will put in prefix of each line
 MBC_ARG__CONTEXT_STRING = $(zRBC_THIS_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_BGC_MAKEFILE)
+include $(zRBC_CRN_MAKEFILE)
+
 
 zRBC_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
 zRBC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
@@ -69,6 +73,19 @@ RBM_ARG_MONIKER := $(RBC_PARAMETER_2)
 include $(zRBC_RBM_MAKEFILE)
 
 zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MBC_MAKEFILE)
+
+
+
+#######################################
+#  Config Regime Info
+#
+#  This section has examples of several sample nameplates, some
+#  of which are useful in maintaining this example space.
+
+
+rbm-Ci.ConfigRegimeInfo.sh: rbs_define
+	$(zRBC_PASS)
+
 
 
 #######################################

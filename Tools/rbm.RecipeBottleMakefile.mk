@@ -86,10 +86,10 @@ zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
 zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
-zRBM_BOTTLE_DOCKERFILE  = $(zRBM_RECIPE_DIR)/bottle.$(RBM_ARG_MONIKER).recipe
+zRBM_BOTTLE_DOCKERFILE = $(zRBM_RECIPE_DIR)/bottle.$(RBM_ARG_MONIKER).recipe
 
 zRBM_SENTRY_CONTAINER  = $(RBM_ARG_MONIKER)-sentry-container
-zRBM_BOTTLE_CONTAINER   = $(RBM_ARG_MONIKER)-bottle-container
+zRBM_BOTTLE_CONTAINER  = $(RBM_ARG_MONIKER)-bottle-container
 
 zRBM_HOST_NETWORK      = $(RBM_ARG_MONIKER)-host-network
 zRBM_GUARDED_NETWORK   = $(RBM_ARG_MONIKER)-guarded-network
@@ -129,7 +129,7 @@ rbm-P.SetupPodman.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-i%: zrbm_argcheck_rule
+rbm-i%: zrbm_argcheck_rule rbs_render
 	$(MBC_PASS) "Done, no errors."
 
 
