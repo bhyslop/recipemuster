@@ -97,6 +97,80 @@ zrbs_validate_network:
 	@$(call zrbs_check_exported,RBN_GUARDED_NETWORK_ID,"RBN_GUARDED_NETWORK_ID must be exported")
 	@$(call zrbs_check_nonempty,$(RBN_GUARDED_NETWORK_ID),"RBN_GUARDED_NETWORK_ID must not be empty")
 
+# Port feature validation
+zrbs_validate_port: zrbs_validate_port_enabled zrbs_validate_port_$(RBN_PORT_ENABLED)
+
+zrbs_validate_port_enabled:
+	@$(call zrbs_check_exported,RBN_PORT_ENABLED,"RBN_PORT_ENABLED must be exported")
+	@$(call zrbs_check_bool,$(RBN_PORT_ENABLED),"RBN_PORT_ENABLED must be 0 or 1")
+
+zrbs_validate_port_1:
+	@$(call zrbs_check_exported,RBN_PORT_HOST,"RBN_PORT_HOST must be exported when PORT_ENABLED=1")
+	@$(call zrbs_check_nonempty,$(RBN_PORT_HOST),"RBN_PORT_HOST must not be empty when PORT_ENABLED=1")
+	@$(call zrbs_check_exported,RBN_PORT_GUARDED,"RBN_PORT_GUARDED must be exported when PORT_ENABLED=1")
+	@$(call zrbs_check_nonempty,$(RBN_PORT_GUARDED),"RBN_PORT_GUARDED must not be empty when PORT_ENABLED=1")
+	@$(call zrbs_check_range,$(RBN_PORT_HOST),1,65535,"RBN_PORT_HOST must be between 1 and 65535")
+	@$(call zrbs_check_range,$(RBN_PORT_GUARDED),1,65535,"RBN_PORT_GUARDED must be between 1 and 65535")
+
+zrbs_validate_port_0:
+	@:
+
+# Outreach feature validation
+zrbs_validate_outreach: zrbs_validate_outreach_enabled zrbs_validate_outreach_$(RBN_OUTREACH_ENABLED)
+
+zrbs_validate_outreach_enabled:
+	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,"RBN_OUTREACH_ENABLED must be exported")
+	@$(call zrbs_check_bool,$(RBN_OUTREACH_ENABLED),"RBN_OUTREACH_ENABLED must be 0 or 1")
+
+zrbs_validate_outreach_1:
+	@$(call zrbs_check_exported,RBN_OUTREACH_CIDR,"RBN_OUTREACH_CIDR must be exported when OUTREACH_ENABLED=1")
+	@$(call zrbs_check_nonempty,$(RBN_OUTREACH_CIDR),"RBN_OUTREACH_CIDR must not be empty when OUTREACH_ENABLED=1")
+	@$(call zrbs_check_exported,RBN_OUTREACH_DOMAIN,"RBN_OUTREACH_DOMAIN must be exported when OUTREACH_ENABLED=1")
+	@$(call zrbs_check_nonempty,$(RBN_OUTREACH_DOMAIN),"RBN_OUTREACH_DOMAIN must not be empty when OUTREACH_ENABLED=1")
+	@$(call zrbs_check_matches,$(RBN_OUTREACH_CIDR),^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$$,"RBN_OUTREACH_CIDR must be valid CIDR notation")
+
+zrbs_validate_outreach_0:
+	@:
+
+# Autourl feature validation
+zrbs_validate_autourl: zrbs_validate_autourl_enabled zrbs_validate_autourl_$(RBN_AUTOURL_ENABLED)
+
+zrbs_validate_autourl_enabled:
+	@$(call zrbs_check_exported,RBN_AUTOURL_ENABLED,"RBN_AUTOURL_ENABLED must be exported")
+	@$(call zrbs_check_bool,$(RBN_AUTOURL_ENABLED),"RBN_AUTOURL_ENABLED must be 0 or 1")
+
+zrbs_validate_autourl_1:
+	@$(call zrbs_check_exported,RBN_AUTOURL_URL,"RBN_AUTOURL_URL must be exported when AUTOURL_ENABLED=1")
+	@$(call zrbs_check_nonempty,$(RBN_AUTOURL_URL),"RBN_AUTOURL_URL must not be empty when AUTOURL_ENABLED=1")
+
+zrbs_validate_autourl_0:
+	@:
+
+# Render target with component subrules
+rbs_render: zrbs_render_header \
+            zrbs_render_images \
+            zrbs_render_network \
+            zrbs_render_port \
+            zrbs_render_outreach \
+            zrbs_render_volumes \
+            zrbs_render_autourl
+
+zrbs_render_header:
+	@echo "Recipe Bottle Service Configuration: $(RBN_MONIKER)"
+	@echo "Description: $(RBN_DESCRIPTION)"
+	@echo ""
+
+zrbs_render_images:
+	@echo "Image Configuration:"
+	@echo "  Sentry Image: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
+	@echo "  Bottle Image: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
+	@echo ""
+
+zrbs_render_network:
+	@echo "Network Configuration:"
+	@echo "  Guarded Network ID: $(RBN_GUARDED_NETWORK_ID)"
+	@echo ""
+
 # Port feature render rules
 zrbs_render_port: zrbs_render_port_status \
                   zrbs_render_port_$(RBN_PORT_ENABLED)
@@ -146,75 +220,4 @@ zrbs_render_autourl_0:
 
 zrbs_render_autourl_:
     @echo "Error: RBN_AUTOURL_ENABLED must be defined as 0 or 1" && exit 1
-
-# Render target with component subrules
-rbs_render: zrbs_render_header \
-            zrbs_render_images \
-            zrbs_render_network \
-            zrbs_render_port \
-            zrbs_render_outreach \
-            zrbs_render_volumes \
-            zrbs_render_autourl
-
-zrbs_render_header:
-	@echo "Recipe Bottle Service Configuration: $(RBN_MONIKER)"
-	@echo "Description: $(RBN_DESCRIPTION)"
-	@echo ""
-
-zrbs_render_images:
-	@echo "Image Configuration:"
-	@echo "  Sentry Image: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
-	@echo "  Bottle Image: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
-	@echo ""
-
-zrbs_render_network:
-	@echo "Network Configuration:"
-	@echo "  Guarded Network ID: $(RBN_GUARDED_NETWORK_ID)"
-	@echo ""
-
-zrbs_render_port: zrbs_render_port_status zrbs_render_port_$(RBN_PORT_ENABLED)
-
-zrbs_render_port_status:
-	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
-
-zrbs_render_port_1:
-	@echo "  Host Port: $(RBN_PORT_HOST)"
-	@echo "  Container Port: $(RBN_PORT_GUARDED)"
-	@echo ""
-
-zrbs_render_port_0:
-	@echo ""
-
-zrbs_render_outreach: zrbs_render_outreach_status zrbs_render_outreach_$(RBN_OUTREACH_ENABLED)
-
-zrbs_render_outreach_status:
-	@echo "Internet Outreach: $(if $(filter 1,$(RBN_OUTREACH_ENABLED)),ENABLED,DISABLED)"
-
-zrbs_render_outreach_1:
-	@echo "  Allowed CIDR: $(RBN_OUTREACH_CIDR)"
-	@echo "  Allowed Domain: $(RBN_OUTREACH_DOMAIN)"
-	@echo ""
-
-zrbs_render_outreach_0:
-	@echo ""
-
-zrbs_render_volumes:
-	@if [ -n "$(RBN_VOLUME_MOUNTS)" ]; then \
-		echo "Volume Mounts:"; \
-		echo "$(RBN_VOLUME_MOUNTS)" | tr ' ' '\n' | sed 's/^/  /'; \
-	else \
-		echo "Volume Mounts: None configured"; \
-	fi
-	@echo ""
-
-zrbs_render_autourl: zrbs_render_autourl_status zrbs_render_autourl_$(RBN_AUTOURL_ENABLED)
-
-zrbs_render_autourl_status:
-	@echo "Auto-start URL: $(if $(filter 1,$(RBN_AUTOURL_ENABLED)),ENABLED,DISABLED)"
-
-zrbs_render_autourl_1:
-	@echo "  URL: $(RBN_AUTOURL_URL)"
-
-zrbs_render_autourl_0:
-	@:
 
