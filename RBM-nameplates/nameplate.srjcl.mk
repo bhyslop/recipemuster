@@ -20,9 +20,9 @@ export RBN_PORT_HOST    := 8889
 export RBN_PORT_GUARDED := 8888
 
 # Internet Outreach Configuration
-export RBN_PORT_ENABLED := 1
-export RBN_OUTREACH_CIDR := 160.79.104.0/23
-export RBN_OUTREACH_DOMAIN := anthropic.com
+export RBN_OUTREACH_ENABLED := 1
+export RBN_OUTREACH_CIDR    := 160.79.104.0/23
+export RBN_OUTREACH_DOMAIN  := anthropic.com
 
 # Volume Mount Configuration
 export RBN_VOLUME_MOUNTS := -v ./RBM-environments-srjcl:/mnt/bottle-data:Z

@@ -25,6 +25,7 @@ zrbs_check_bool = test "$(1)" = "0" -o "$(1)" = "1" || (echo "Error: $(2)" && ex
 #
 # Core Service Definition Rule
 #
+
 rbs_define:
 	@echo "Nameplate Config Regime"
 	@echo ""
@@ -61,6 +62,8 @@ rbs_define:
 	@echo "RBN_AUTOURL_ENABLED        # Set to 1 to enable URL auto-open, 0 otherwise"
 	@echo "When RBN_AUTOURL_ENABLED=1, requires:"
 	@echo "  RBN_AUTOURL_URL          # URL to open after service start"
+	echo zrbs_validate_port_$(RBN_PORT_ENABLED)
+
 
 #
 # Core Validation Target
