@@ -173,7 +173,12 @@ This section contains reminders about future improvements, deferred for now.
 * Figure out how to use arbitrary bottles
 * Can I disable ipv6 from the sentry?
 * Work on the generic sentry
-* 
+* Config Regime Repairs Fixes
+    * Define distinct outputs: Makefile, Specification (defines Assignemtn variables and constraints and export character and range and type)
+    * group subrules by item
+    * Better handling of rendering when improperly set up
+    * Renderer doesn't work right unless it passes validator; better if renderer is explanitory.  Use validation subrules in render?
+    * Improve handling of enable flags: several bugs
 * Cut monikers from reference recipes
 * I dont like -> bgc_flow_helper.mk
 * Why is Tools hardcoded in the workflow?

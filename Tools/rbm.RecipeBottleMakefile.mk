@@ -129,7 +129,7 @@ rbm-P.SetupPodman.sh:
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-i%: zrbm_argcheck_rule rbs_render
+rbm-i%: zrbm_argcheck_rule rbs_validate rbs_render
 	$(MBC_PASS) "Done, no errors."
 
 

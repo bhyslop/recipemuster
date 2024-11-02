@@ -1,18 +1,24 @@
 # Recipe Bottle Service Configuration Regime
 # This makefile defines the configuration requirements for Recipe Bottle Services
 
-# Regime and Assignment Prefixes
-#
-# Regime Prefix: rbs
-#
-# Assignment Prefix: rbn
+# Regime Prefix: rbs_
+# Assignment Prefix: RBN_
 
-# Validation helper functions for common checks
-zrbs_check_exported = @env | grep -q ^$(1)= || (echo "Error: $(1) must be exported" && exit 1)
-zrbs_check_nonempty = @test -n "$(1)" || (echo "Error: $(2)" && exit 1)
-zrbs_check_bool = @test "$(1)" = "0" -o "$(1)" = "1" || (echo "Error: $(2) must be 0 or 1" && exit 1)
-zrbs_check_ge = @test $(1) -ge $(2) || (echo "Error: $(3)" && exit 1)
-zrbs_check_lt = @test $(1) -lt $(2) || (echo "Error: $(3)" && exit 1)
+# Standard validation helper pattern implementation
+zrbs_check_exported = env | grep -q ^$(1)= || (echo "Error: $(2)" && exit 1)
+zrbs_check_eq = test $(1) = $(2) || (echo "Error: $(3)" && exit 1)
+zrbs_check_ne = test $(1) != $(2) || (echo "Error: $(3)" && exit 1)
+zrbs_check_lt = test $(1) -lt $(2) || (echo "Error: $(3)" && exit 1)
+zrbs_check_le = test $(1) -le $(2) || (echo "Error: $(3)" && exit 1)
+zrbs_check_gt = test $(1) -gt $(2) || (echo "Error: $(3)" && exit 1)
+zrbs_check_ge = test $(1) -ge $(2) || (echo "Error: $(3)" && exit 1)
+zrbs_check_range = test $(1) -ge $(2) -a $(1) -le $(3) || (echo "Error: $(4)" && exit 1)
+zrbs_check_empty = test -z "$(1)" || (echo "Error: $(2)" && exit 1)
+zrbs_check_nonempty = test -n "$(1)" || (echo "Error: $(2)" && exit 1)
+zrbs_check_matches = echo "$(1)" | grep -Eq "$(2)" || (echo "Error: $(3)" && exit 1)
+zrbs_check_startswith = echo "$(1)" | grep -q "^$(2)" || (echo "Error: $(3)" && exit 1)
+zrbs_check_endswith = echo "$(1)" | grep -q "$(2)$$" || (echo "Error: $(3)" && exit 1)
+zrbs_check_bool = test "$(1)" = "0" -o "$(1)" = "1" || (echo "Error: $(2)" && exit 1)
 
 # Core Service Definition Rule
 rbs_define:
@@ -45,106 +51,109 @@ rbs_define:
 	@echo ""
 	@echo "== Volume Mount Configuration =="
 	@echo "RBN_VOLUME_MOUNTS          # Podman volume mount arguments"
-	@echo "                              # Format: -v host:container:opts [-v ...]"
+	@echo "                           # Format: -v host:container:opts [-v ...]"
 	@echo ""
 	@echo "== Auto-start Configuration =="
 	@echo "RBN_AUTOURL_ENABLED        # Set to 1 to enable URL auto-open, 0 otherwise"
 	@echo "When RBN_AUTOURL_ENABLED=1, requires:"
 	@echo "  RBN_AUTOURL_URL          # URL to open after service start"
 
-# Core Validation Rules
-rbs_validate: \
-  zrbs_validate_moniker \
-  zrbs_validate_description \
-  zrbs_validate_sentry_image \
-  zrbs_validate_bottle_image \
-  zrbs_validate_network \
-  zrbs_validate_port_enabled \
-  zrbs_validate_port_enabled_$(RBN_PORT_ENABLED) \
-  zrbs_validate_outreach_enabled \
-  zrbs_validate_outreach_$(RBN_OUTREACH_ENABLED) \
-  zrbs_validate_autourl_enabled \
-  zrbs_validate_autourl_$(RBN_AUTOURL_ENABLED)
+# Core validation target
+rbs_validate: zrbs_validate_core \
+              zrbs_validate_images \
+              zrbs_validate_network \
+              zrbs_validate_port \
+              zrbs_validate_outreach \
+              zrbs_validate_autourl
+
+# Core variable validation
+zrbs_validate_core: zrbs_validate_moniker zrbs_validate_description
 
 zrbs_validate_moniker:
-	$(call zrbs_check_nonempty,$(RBN_MONIKER),RBN_MONIKER must be set)
-	$(call zrbs_check_exported,RBN_MONIKER)
+	$(call zrbs_check_exported,RBN_MONIKER,"RBN_MONIKER must be exported")
+	$(call zrbs_check_nonempty,$(RBN_MONIKER),"RBN_MONIKER must not be empty")
 
 zrbs_validate_description:
-	$(call zrbs_check_nonempty,$(RBN_DESCRIPTION),RBN_DESCRIPTION must be set)
-	$(call zrbs_check_exported,RBN_DESCRIPTION)
+	$(call zrbs_check_exported,RBN_DESCRIPTION,"RBN_DESCRIPTION must be exported")
+	$(call zrbs_check_nonempty,$(RBN_DESCRIPTION),"RBN_DESCRIPTION must not be empty")
+
+# Image validation
+zrbs_validate_images: zrbs_validate_sentry_image zrbs_validate_bottle_image
 
 zrbs_validate_sentry_image:
-	$(call zrbs_check_nonempty,$(RBN_SENTRY_REPO_FULL_NAME),RBN_SENTRY_REPO_FULL_NAME must be set)
-	$(call zrbs_check_exported,RBN_SENTRY_REPO_FULL_NAME)
-	$(call zrbs_check_nonempty,$(RBN_SENTRY_IMAGE_TAG),RBN_SENTRY_IMAGE_TAG must be set)
-	$(call zrbs_check_exported,RBN_SENTRY_IMAGE_TAG)
+	$(call zrbs_check_exported,RBN_SENTRY_REPO_FULL_NAME,"RBN_SENTRY_REPO_FULL_NAME must be exported")
+	$(call zrbs_check_nonempty,$(RBN_SENTRY_REPO_FULL_NAME),"RBN_SENTRY_REPO_FULL_NAME must not be empty")
+	$(call zrbs_check_exported,RBN_SENTRY_IMAGE_TAG,"RBN_SENTRY_IMAGE_TAG must be exported")
+	$(call zrbs_check_nonempty,$(RBN_SENTRY_IMAGE_TAG),"RBN_SENTRY_IMAGE_TAG must not be empty")
 
 zrbs_validate_bottle_image:
-	$(call zrbs_check_nonempty,$(RBN_BOTTLE_REPO_FULL_NAME),RBN_BOTTLE_REPO_FULL_NAME must be set)
-	$(call zrbs_check_exported,RBN_BOTTLE_REPO_FULL_NAME)
-	$(call zrbs_check_nonempty,$(RBN_BOTTLE_IMAGE_TAG),RBN_BOTTLE_IMAGE_TAG must be set)
-	$(call zrbs_check_exported,RBN_BOTTLE_IMAGE_TAG)
+	$(call zrbs_check_exported,RBN_BOTTLE_REPO_FULL_NAME,"RBN_BOTTLE_REPO_FULL_NAME must be exported")
+	$(call zrbs_check_nonempty,$(RBN_BOTTLE_REPO_FULL_NAME),"RBN_BOTTLE_REPO_FULL_NAME must not be empty")
+	$(call zrbs_check_exported,RBN_BOTTLE_IMAGE_TAG,"RBN_BOTTLE_IMAGE_TAG must be exported")
+	$(call zrbs_check_nonempty,$(RBN_BOTTLE_IMAGE_TAG),"RBN_BOTTLE_IMAGE_TAG must not be empty")
 
+# Network validation
 zrbs_validate_network:
-	$(call zrbs_check_nonempty,$(RBN_GUARDED_NETWORK_ID),RBN_GUARDED_NETWORK_ID must be set)
-	$(call zrbs_check_exported,RBN_GUARDED_NETWORK_ID)
+	$(call zrbs_check_exported,RBN_GUARDED_NETWORK_ID,"RBN_GUARDED_NETWORK_ID must be exported")
+	$(call zrbs_check_nonempty,$(RBN_GUARDED_NETWORK_ID),"RBN_GUARDED_NETWORK_ID must not be empty")
+
+# Port feature validation
+zrbs_validate_port: zrbs_validate_port_enabled zrbs_validate_port_$(RBN_PORT_ENABLED)
 
 zrbs_validate_port_enabled:
-	$(call zrbs_check_bool,$(RBN_PORT_ENABLED),RBN_PORT_ENABLED)
-	$(call zrbs_check_exported,RBN_PORT_ENABLED)
+	$(call zrbs_check_exported,RBN_PORT_ENABLED,"RBN_PORT_ENABLED must be exported")
+	$(call zrbs_check_bool,$(RBN_PORT_ENABLED),"RBN_PORT_ENABLED must be 0 or 1")
+
+zrbs_validate_port_1:
+	$(call zrbs_check_exported,RBN_PORT_HOST,"RBN_PORT_HOST must be exported when PORT_ENABLED=1")
+	$(call zrbs_check_nonempty,$(RBN_PORT_HOST),"RBN_PORT_HOST must not be empty when PORT_ENABLED=1")
+	$(call zrbs_check_exported,RBN_PORT_GUARDED,"RBN_PORT_GUARDED must be exported when PORT_ENABLED=1")
+	$(call zrbs_check_nonempty,$(RBN_PORT_GUARDED),"RBN_PORT_GUARDED must not be empty when PORT_ENABLED=1")
+	$(call zrbs_check_range,$(RBN_PORT_HOST),1,65535,"RBN_PORT_HOST must be between 1 and 65535")
+	$(call zrbs_check_range,$(RBN_PORT_GUARDED),1,65535,"RBN_PORT_GUARDED must be between 1 and 65535")
+
+zrbs_validate_port_0:
+	@:
+
+# Outreach feature validation
+zrbs_validate_outreach: zrbs_validate_outreach_enabled zrbs_validate_outreach_$(RBN_OUTREACH_ENABLED)
 
 zrbs_validate_outreach_enabled:
-	$(call zrbs_check_bool,$(RBN_OUTREACH_ENABLED),RBN_OUTREACH_ENABLED)
-	$(call zrbs_check_exported,RBN_OUTREACH_ENABLED)
+	$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,"RBN_OUTREACH_ENABLED must be exported")
+	$(call zrbs_check_bool,$(RBN_OUTREACH_ENABLED),"RBN_OUTREACH_ENABLED must be 0 or 1")
 
-zrbs_validate_autourl_enabled:
-	$(call zrbs_check_bool,$(RBN_AUTOURL_ENABLED),RBN_AUTOURL_ENABLED)
-	$(call zrbs_check_exported,RBN_AUTOURL_ENABLED)
-
-# Port validation rules
-zrbs_validate_port_enabled_1:
-	$(call zrbs_check_nonempty,$(RBN_PORT_HOST),RBN_PORT_HOST required when PORT_ENABLED=1)
-	$(call zrbs_check_exported,RBN_PORT_HOST)
-	$(call zrbs_check_nonempty,$(RBN_PORT_GUARDED),RBN_PORT_GUARDED required when PORT_ENABLED=1)
-	$(call zrbs_check_exported,RBN_PORT_GUARDED)
-	$(call zrbs_check_ge,$(RBN_PORT_HOST),1,RBN_PORT_HOST must be at least 1)
-	$(call zrbs_check_lt,$(RBN_PORT_HOST),65536,RBN_PORT_HOST must be less than 65536)
-	$(call zrbs_check_ge,$(RBN_PORT_GUARDED),1,RBN_PORT_GUARDED must be at least 1)
-	$(call zrbs_check_lt,$(RBN_PORT_GUARDED),65536,RBN_PORT_GUARDED must be less than 65536)
-
-zrbs_validate_port_enabled_0:
-	@: # No validation needed when ports disabled
-
-# Outreach validation rules
 zrbs_validate_outreach_1:
-	$(call zrbs_check_nonempty,$(RBN_OUTREACH_CIDR),RBN_OUTREACH_CIDR required when OUTREACH_ENABLED=1)
-	$(call zrbs_check_exported,RBN_OUTREACH_CIDR)
-	$(call zrbs_check_nonempty,$(RBN_OUTREACH_DOMAIN),RBN_OUTREACH_DOMAIN required when OUTREACH_ENABLED=1)
-	$(call zrbs_check_exported,RBN_OUTREACH_DOMAIN)
-	@echo "$(RBN_OUTREACH_CIDR)" | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$$' ||\
-	  (echo "Error: RBN_OUTREACH_CIDR must be valid CIDR notation" && exit 1)
+	$(call zrbs_check_exported,RBN_OUTREACH_CIDR,"RBN_OUTREACH_CIDR must be exported when OUTREACH_ENABLED=1")
+	$(call zrbs_check_nonempty,$(RBN_OUTREACH_CIDR),"RBN_OUTREACH_CIDR must not be empty when OUTREACH_ENABLED=1")
+	$(call zrbs_check_exported,RBN_OUTREACH_DOMAIN,"RBN_OUTREACH_DOMAIN must be exported when OUTREACH_ENABLED=1")
+	$(call zrbs_check_nonempty,$(RBN_OUTREACH_DOMAIN),"RBN_OUTREACH_DOMAIN must not be empty when OUTREACH_ENABLED=1")
+	$(call zrbs_check_matches,$(RBN_OUTREACH_CIDR),^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$$,"RBN_OUTREACH_CIDR must be valid CIDR notation")
 
 zrbs_validate_outreach_0:
-	@: # No validation needed when outreach disabled
+	@:
 
-# Autourl validation rules
+# Autourl feature validation
+zrbs_validate_autourl: zrbs_validate_autourl_enabled zrbs_validate_autourl_$(RBN_AUTOURL_ENABLED)
+
+zrbs_validate_autourl_enabled:
+	$(call zrbs_check_exported,RBN_AUTOURL_ENABLED,"RBN_AUTOURL_ENABLED must be exported")
+	$(call zrbs_check_bool,$(RBN_AUTOURL_ENABLED),"RBN_AUTOURL_ENABLED must be 0 or 1")
+
 zrbs_validate_autourl_1:
-	$(call zrbs_check_nonempty,$(RBN_AUTOURL_URL),RBN_AUTOURL_URL required when AUTOURL_ENABLED=1)
-	$(call zrbs_check_exported,RBN_AUTOURL_URL)
+	$(call zrbs_check_exported,RBN_AUTOURL_URL,"RBN_AUTOURL_URL must be exported when AUTOURL_ENABLED=1")
+	$(call zrbs_check_nonempty,$(RBN_AUTOURL_URL),"RBN_AUTOURL_URL must not be empty when AUTOURL_ENABLED=1")
 
 zrbs_validate_autourl_0:
-	@: # No validation needed when autourl disabled
+	@:
 
-# Render Rule with Component Subrules
-rbs_render: \
-  zrbs_render_header \
-  zrbs_render_images \
-  zrbs_render_network \
-  zrbs_render_port_$(RBN_PORT_ENABLED) \
-  zrbs_render_outreach_$(RBN_OUTREACH_ENABLED) \
-  zrbs_render_volumes \
-  zrbs_render_autourl_$(RBN_AUTOURL_ENABLED)
+# Render target with component subrules
+rbs_render: zrbs_render_header \
+            zrbs_render_images \
+            zrbs_render_network \
+            zrbs_render_port \
+            zrbs_render_outreach \
+            zrbs_render_volumes \
+            zrbs_render_autourl
 
 zrbs_render_header:
 	@echo "Recipe Bottle Service Configuration: $(RBN_MONIKER)"
@@ -162,24 +171,30 @@ zrbs_render_network:
 	@echo "  Guarded Network ID: $(RBN_GUARDED_NETWORK_ID)"
 	@echo ""
 
+zrbs_render_port: zrbs_render_port_status zrbs_render_port_$(RBN_PORT_ENABLED)
+
+zrbs_render_port_status:
+	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
+
 zrbs_render_port_1:
-	@echo "Port Service: ENABLED"
 	@echo "  Host Port: $(RBN_PORT_HOST)"
 	@echo "  Container Port: $(RBN_PORT_GUARDED)"
 	@echo ""
 
 zrbs_render_port_0:
-	@echo "Port Service: DISABLED"
 	@echo ""
 
+zrbs_render_outreach: zrbs_render_outreach_status zrbs_render_outreach_$(RBN_OUTREACH_ENABLED)
+
+zrbs_render_outreach_status:
+	@echo "Internet Outreach: $(if $(filter 1,$(RBN_OUTREACH_ENABLED)),ENABLED,DISABLED)"
+
 zrbs_render_outreach_1:
-	@echo "Internet Outreach: ENABLED"
 	@echo "  Allowed CIDR: $(RBN_OUTREACH_CIDR)"
 	@echo "  Allowed Domain: $(RBN_OUTREACH_DOMAIN)"
 	@echo ""
 
 zrbs_render_outreach_0:
-	@echo "Internet Outreach: DISABLED"
 	@echo ""
 
 zrbs_render_volumes:
@@ -191,10 +206,14 @@ zrbs_render_volumes:
 	fi
 	@echo ""
 
+zrbs_render_autourl: zrbs_render_autourl_status zrbs_render_autourl_$(RBN_AUTOURL_ENABLED)
+
+zrbs_render_autourl_status:
+	@echo "Auto-start URL: $(if $(filter 1,$(RBN_AUTOURL_ENABLED)),ENABLED,DISABLED)"
+
 zrbs_render_autourl_1:
-	@echo "Auto-start URL: ENABLED"
 	@echo "  URL: $(RBN_AUTOURL_URL)"
 
 zrbs_render_autourl_0:
-	@echo "Auto-start URL: DISABLED"
+	@:
 
