@@ -7,20 +7,32 @@
 #
 # Standard Validation Helpers
 #
-zrbs_check_exported = @test "$(1)" != "1" -a "$($(1))" != "1" || \
+#
+# Standard Validation Helpers
+#
+zrbs_check_exported = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (env | grep -q ^$(2)= || (echo "Error: $(2) must be exported" && exit 1))
-zrbs_check_eq = @test "$(1)" != "1" -a "$($(1))" != "1" || \
+
+zrbs_check_eq = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (test "$(2)" = "$(3)" || (echo "Error: $(4)" && exit 1))
-zrbs_check_bool = @test "$(1)" != "1" -a "$($(1))" != "1" || \
+
+zrbs_check_bool = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (test "$(2)" = "0" -o "$(2)" = "1" || (echo "Error: $(2) must be 0 or 1" && exit 1))
-zrbs_check_range = @test "$(1)" != "1" -a "$($(1))" != "1" || \
+
+zrbs_check_range = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (test "$(2)" -ge "$(3)" -a "$(2)" -le "$(4)" || (echo "Error: $(2) must be between $(3) and $(4)" && exit 1))
-zrbs_check_empty = @test "$(1)" != "1" -a "$($(1))" != "1" || \
+
+zrbs_check_empty = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (test -z "$(2)" || (echo "Error: $(3)" && exit 1))
-zrbs_check_nonempty = @test "$(1)" != "1" -a "$($(1))" != "1" || \
+
+zrbs_check_nonempty = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (test -n "$(2)" || (echo "Error: $(2) must not be empty" && exit 1))
-zrbs_check_matches = @test "$(1)" != "1" -a "$($(1))" != "1" || \
-    (echo "$(2)" | grep -Eq "$(3)" || (echo "Error: $(4)" && exit 1))
+
+zrbs_check_startswith = @test "$(1)" = "1" || test "$($(1))" != "1" || \
+    (echo "$(2)" | grep -q "^$(3)" || (echo "Error: $(4)" && exit 1))
+
+zrbs_check_endswith = @test "$(1)" = "1" || test "$($(1))" != "1" || \
+    (echo "$(2)" | grep -q "$(3)$$" || (echo "Error: $(4)" && exit 1))
 
 #
 # Core Service Definition Rule
@@ -117,6 +129,7 @@ zrbs_validate_port: zrbs_validate_port_enabled zrbs_validate_port_config
 
 zrbs_validate_port_enabled:
 	@$(call zrbs_check_exported,1,RBN_PORT_ENABLED)
+	echo RBN_PORT_ENABLED is $(RBN_PORT_ENABLED)
 	@$(call zrbs_check_bool,1,RBN_PORT_ENABLED)
 
 zrbs_validate_port_config:
@@ -134,10 +147,21 @@ zrbs_validate_outreach_enabled:
 	@$(call zrbs_check_exported,1,RBN_OUTREACH_ENABLED)
 	@$(call zrbs_check_bool,1,RBN_OUTREACH_ENABLED)
 
+
+
+# Updated helper that won't get confused by the pattern
+zrbs_check_matches = @test "$(1)" = "1" || test "$($(1))" != "1" || \
+    (echo '$(2)' | grep -E '$(3)' || (echo "Error: $(4)" && exit 1))
+
+# And the validation rule using single quotes to protect the pattern
 zrbs_validate_outreach_config:
 	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,RBN_OUTREACH_CIDR)
 	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,RBN_OUTREACH_DOMAIN)
-	@$(call zrbs_check_matches,RBN_OUTREACH_ENABLED,$(RBN_OUTREACH_CIDR),^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$$,"RBN_OUTREACH_CIDR must be valid CIDR notation")
+	@echo "DEBUG: RBN_OUTREACH_CIDR value is '$(RBN_OUTREACH_CIDR)'"
+	@$(call zrbs_check_matches,RBN_OUTREACH_ENABLED,$(RBN_OUTREACH_CIDR),^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/[0-9][0-9]*$$,"RBN_OUTREACH_CIDR must be valid CIDR notation")
+
+
+
 
 #
 # Feature Group: Volume Mounts
