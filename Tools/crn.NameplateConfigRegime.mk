@@ -129,7 +129,6 @@ zrbs_validate_port: zrbs_validate_port_enabled zrbs_validate_port_config
 
 zrbs_validate_port_enabled:
 	@$(call zrbs_check_exported,1,RBN_PORT_ENABLED)
-	echo RBN_PORT_ENABLED is $(RBN_PORT_ENABLED)
 	@$(call zrbs_check_bool,1,RBN_PORT_ENABLED)
 
 zrbs_validate_port_config:
@@ -157,10 +156,7 @@ zrbs_check_matches = @test "$(1)" = "1" || test "$($(1))" != "1" || \
 zrbs_validate_outreach_config:
 	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,RBN_OUTREACH_CIDR)
 	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,RBN_OUTREACH_DOMAIN)
-	@echo "DEBUG: RBN_OUTREACH_CIDR value is '$(RBN_OUTREACH_CIDR)'"
 	@$(call zrbs_check_matches,RBN_OUTREACH_ENABLED,$(RBN_OUTREACH_CIDR),^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/[0-9][0-9]*$$,"RBN_OUTREACH_CIDR must be valid CIDR notation")
-
-
 
 
 #
