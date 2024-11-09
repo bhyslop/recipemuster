@@ -192,6 +192,13 @@ This section contains reminders about future improvements, deferred for now.
 * Is it better to have different tabtargets for agile bottle service that do not need internet?
 * Think about whether I can mix rbm-config.yml and the makefile variant
 * Explore creating a nonprivileged user to run the jupyter notebook (may help with shutdown)
+* I'm finding that I want more word prefixes, as subcategories manifest in the words that I'm writing.  Its not just a simple `t_`. Nope!
+* The concept of **Operations** may be overblown- are they actually special?
+* How do you construct mapping sections when the vocabulary gets hierarchical and some word constellations are best submanaged?
+* How do I use the idea of 'word constellations' more formally?
+* Do I have rules or maybe specific allowances for the use of abbreviations and acronyms inside of... crumbs whats the asciidoc term, 'replacement texts'?
+* Word constellations: I think I want a few operations to help massage the word constellations, i.e. add words, shift words, etc.  rebalance, etc.
+* Make sure to explode the definition lists lots of places!
 * Decide whether to do a tabtarget generation flavor with a parameter that pulls parameter from name in script
 * Solve the tabtarget dispatch script problem with clean environment and admin privileges for podman sufficent for sentry ip forwarding enabling
 * I'm mixed as to whether rbc-console.mk ought to actually include the RBM core makefile...
@@ -250,6 +257,8 @@ This section contains reminders about future improvements, deferred for now.
 * Figure suppression of error -> time="2024-08-30T06:54:29-07:00" level=warning msg="Failed to obtain TTY size: The handle is invalid."
 * Segregate nameplate checking to a subfile and explain there the unusability of a rule string for include directive
 * Something not sitting right about machinations around the ALL target in above makefile, and double console include, and mbc path include
+* A number of times Claude sneaks in somethhing like the following concerning volume mounts.  Research this?     - SELinux context if applicable
+
 * Seriously consider making tabtarget names in this file more like zmbsr_xxx_rule and then hardcoding tabtarget to pass var, better for nesting
 ====
 
