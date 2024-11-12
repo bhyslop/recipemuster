@@ -85,9 +85,6 @@ RBEV__ALL := $(foreach var,$(filter RBEV_%,$(.VARIABLES)),-e $(var)='$($(var))')
 zRBM_START = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 zRBM_STEP  = $(MBC_SHOW_WHITE) "Moniker:"$(RBM_ARG_MONIKER)
 
-zRBM_SENTRY_DOCKERFILE = $(zRBM_RECIPE_DIR)/sentry.$(RBM_ARG_MONIKER).recipe
-zRBM_BOTTLE_DOCKERFILE = $(zRBM_RECIPE_DIR)/bottle.$(RBM_ARG_MONIKER).recipe
-
 zRBM_SENTRY_CONTAINER  = $(RBM_ARG_MONIKER)-sentry-container
 zRBM_BOTTLE_CONTAINER  = $(RBM_ARG_MONIKER)-bottle-container
 
@@ -100,8 +97,6 @@ zRBM_LAST_SENTRY_LOGS_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/logs.$(RBM_ARG_MON
 zRBM_LAST_BOTTLE_LOGS_FACTFILE      = $(zRBM_TRANSCRIPTS_DIR)/logs.$(RBM_ARG_MONIKER).bottle.txt
 ZRBM_LAST_SENTRY_BUILD_FACTFILE     = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MONIKER).sentry.txt
 ZRBM_LAST_BOTTLE_BUILD_FACTFILE     = $(zRBM_TRANSCRIPTS_DIR)/build.$(RBM_ARG_MONIKER).bottle.txt
-
-zRBM_DNS       = 8.8.8.8
 
 zRBM_ARGCHECK_NONZERO_CMD = test -n "$(RBM_ARG_MONIKER)"  || \
   ($(MBC_SEE_RED) "Error: In tabtarget, RBM_ARG_MONIKER must be set." && false)
@@ -145,21 +140,6 @@ rbm-a%: zrbm_argcheck_rule
 	@test "$$(cat $(zRBM_HISTORY_DIR)/$(RBN_BOTTLE_IMAGE_TAG)/docker_inspect_Id.txt)" = \
 	              "$$(podman inspect $(RBEV_BOTTLE_FQIN) | jq -r '.[0].Id')" || \
 	     ($(MBC_SEE_RED) "Bottle image mismatch." && false)
-	$(MBC_PASS) "Done, no errors."
-
-
-rbm-b%: zrbm_argcheck_rule
-	$(zRBM_START) "Build all recipies locally"
-	$(zRBM_STEP)  "Building image"               $(zRBM_SENTRY_IMAGE) "..."
-	-podman rmi -f                               $(zRBM_SENTRY_IMAGE)
-	podman build -f $(zRBM_SENTRY_DOCKERFILE) -t $(zRBM_SENTRY_IMAGE)   \
-	  --progress=plain                                                  \
-	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_SENTRY_BUILD_FACTFILE)  2>&1
-	$(zRBM_STEP)  "Building image"              $(zRBM_ROGUE_IMAGE) "..."
-	-podman rmi -f                              $(zRBM_ROGUE_IMAGE)
-	podman build -f $(zRBM_ROGUE_DOCKERFILE) -t $(zRBM_ROGUE_IMAGE)     \
-	  --progress=plain                                                  \
-	  $(zRBM_BUILD_CONTEXT_DIR)      > $(ZRBM_LAST_ROGUE_BUILD_FACTFILE)   2>&1
 	$(MBC_PASS) "Done, no errors."
 
 
