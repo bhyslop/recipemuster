@@ -11,6 +11,17 @@ This is highly personal action planning support.
 
 == MINIDRAMAS
 
+=== Minidrama: CURRENT FOCUS: First RBM Implementation
+
+* Architectural term installation
+* Architectural term definition revie
+* guarded->enclave
+* finish asciidoc config regime scrub
+* Scrub up config regimes
+* at_rbm_system -> installation?
+* Work with claude to make a plan to code generate: use config regimes?
+
+
 === Minidrama: CURRENT FOCUS: the Alpha Github Action
 
 Here we go, lets see if I can get somewhere today!  This very day!

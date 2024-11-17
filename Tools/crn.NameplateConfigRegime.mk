@@ -7,9 +7,6 @@
 #
 # Standard Validation Helpers
 #
-#
-# Standard Validation Helpers
-#
 zrbs_check_exported = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (env | grep -q ^$(2)= || (echo "Error: $(2) must be exported" && exit 1))
 
@@ -28,17 +25,14 @@ zrbs_check_empty = @test "$(1)" = "1" || test "$($(1))" != "1" || \
 zrbs_check_nonempty = @test "$(1)" = "1" || test "$($(1))" != "1" || \
     (test -n "$(2)" || (echo "Error: $(2) must not be empty" && exit 1))
 
-zrbs_check_startswith = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (echo "$(2)" | grep -q "^$(3)" || (echo "Error: $(4)" && exit 1))
-
-zrbs_check_endswith = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (echo "$(2)" | grep -q "$(3)$$" || (echo "Error: $(4)" && exit 1))
+zrbs_check_matches = @test "$(1)" = "1" || test "$($(1))" != "1" || \
+    (echo '$(2)' | grep -E '$(3)' || (echo "Error: $(4)" && exit 1))
 
 #
 # Core Service Definition Rule
 #
 rbs_define:
-	@echo "Nameplate Config Regime"
+	@echo "Recipe Bottle Service Configuration Regime"
 	@echo ""
 	@echo "== Required Core Variables =="
 	@echo "RBN_MONIKER              # Unique identifier for this service instance"
@@ -50,40 +44,34 @@ rbs_define:
 	@echo "RBN_SENTRY_IMAGE_TAG       # Tag for sentry image"
 	@echo "RBN_BOTTLE_IMAGE_TAG       # Tag for bottle image"
 	@echo ""
-	@echo "== Network Configuration =="
-	@echo "RBN_GUARDED_NETWORK_ID     # Unique network ID (e.g., 10.240)"
-	@echo ""
 	@echo "== Port Service Configuration =="
-	@echo "RBN_PORT_ENABLED           # Set to 1 to enable port service, 0 otherwise"
+	@echo "RBN_PORT_ENABLED           # Enable flag for port service (0 or 1)"
 	@echo "When RBN_PORT_ENABLED=1, requires:"
-	@echo "  RBN_PORT_HOST            # External port for service access"
-	@echo "  RBN_PORT_GUARDED         # Internal port for container service"
+	@echo "  RBN_PORT_UPLINK         # External port on uplink network"
+	@echo "  RBN_PORT_ENCLAVE        # Port between sentry and bottle containers"
+	@echo "  RBN_PORT_SERVICE        # Port exposed by bottle container"
 	@echo ""
-	@echo "== Internet Outreach Configuration =="
-	@echo "RBN_OUTREACH_ENABLED       # Set to 1 to enable internet access, 0 otherwise"
-	@echo "When RBN_OUTREACH_ENABLED=1, requires:"
-	@echo "  RBN_OUTREACH_CIDR        # CIDR range for allowed outbound traffic"
-	@echo "  RBN_OUTREACH_DOMAIN      # Domain name for DNS resolution"
+	@echo "== Network Uplink Configuration =="
+	@echo "RBN_UPLINK_DNS_ENABLED     # Enable protected DNS resolution (0 or 1)"
+	@echo "RBN_UPLINK_ACCESS_ENABLED  # Enable protected IP access (0 or 1)"
+	@echo "RBN_UPLINK_DNS_GLOBAL      # Enable unrestricted DNS resolution (0 or 1)"
+	@echo "RBN_UPLINK_ACCESS_GLOBAL   # Enable unrestricted IP access (0 or 1)"
+	@echo "When configured accordingly:"
+	@echo "  RBN_UPLINK_ALLOWED_CIDRS   # Space-separated list of allowed CIDR ranges"
+	@echo "  RBN_UPLINK_ALLOWED_DOMAINS # Space-separated list of allowed domains"
 	@echo ""
 	@echo "== Volume Mount Configuration =="
 	@echo "RBN_VOLUME_MOUNTS          # Podman volume mount arguments"
 	@echo "                           # Format: -v host:container:opts [-v ...]"
-	@echo ""
-	@echo "== Auto-start Configuration =="
-	@echo "RBN_AUTOURL_ENABLED        # Set to 1 to enable URL auto-open, 0 otherwise"
-	@echo "When RBN_AUTOURL_ENABLED=1, requires:"
-	@echo "  RBN_AUTOURL_URL          # URL to open after service start"
 
 #
 # Core Validation Target
 #
 rbs_validate: zrbs_validate_core \
               zrbs_validate_images \
-              zrbs_validate_network \
               zrbs_validate_port \
-              zrbs_validate_outreach \
-              zrbs_validate_volume \
-              zrbs_validate_autourl
+              zrbs_validate_uplink \
+              zrbs_validate_volume
 
 #
 # Feature Group: Core Configuration
@@ -116,13 +104,6 @@ zrbs_validate_bottle_image:
 	@$(call zrbs_check_nonempty,1,RBN_BOTTLE_IMAGE_TAG)
 
 #
-# Feature Group: Network Configuration
-#
-zrbs_validate_network:
-	@$(call zrbs_check_exported,1,RBN_GUARDED_NETWORK_ID)
-	@$(call zrbs_check_nonempty,1,RBN_GUARDED_NETWORK_ID)
-
-#
 # Feature Group: Port Service
 #
 zrbs_validate_port: zrbs_validate_port_enabled zrbs_validate_port_config
@@ -132,64 +113,52 @@ zrbs_validate_port_enabled:
 	@$(call zrbs_check_bool,1,RBN_PORT_ENABLED)
 
 zrbs_validate_port_config:
-	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_HOST)
-	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_GUARDED)
-	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_HOST),1,65535)
-	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_GUARDED),1,65535)
+	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_UPLINK)
+	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_ENCLAVE)
+	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_SERVICE)
+	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_UPLINK),1,65535)
+	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_ENCLAVE),1,65535)
+	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_SERVICE),1,65535)
 
 #
-# Feature Group: Internet Outreach
+# Feature Group: Network Uplink
 #
-zrbs_validate_outreach: zrbs_validate_outreach_enabled zrbs_validate_outreach_config
+zrbs_validate_uplink: zrbs_validate_uplink_basic zrbs_validate_uplink_config
 
-zrbs_validate_outreach_enabled:
-	@$(call zrbs_check_exported,1,RBN_OUTREACH_ENABLED)
-	@$(call zrbs_check_bool,1,RBN_OUTREACH_ENABLED)
+zrbs_validate_uplink_basic:
+	@$(call zrbs_check_exported,1,RBN_UPLINK_DNS_ENABLED)
+	@$(call zrbs_check_bool,1,RBN_UPLINK_DNS_ENABLED)
+	@$(call zrbs_check_exported,1,RBN_UPLINK_ACCESS_ENABLED)
+	@$(call zrbs_check_bool,1,RBN_UPLINK_ACCESS_ENABLED)
+	@$(call zrbs_check_exported,1,RBN_UPLINK_DNS_GLOBAL)
+	@$(call zrbs_check_bool,1,RBN_UPLINK_DNS_GLOBAL)
+	@$(call zrbs_check_exported,1,RBN_UPLINK_ACCESS_GLOBAL)
+	@$(call zrbs_check_bool,1,RBN_UPLINK_ACCESS_GLOBAL)
 
-
-
-# Updated helper that won't get confused by the pattern
-zrbs_check_matches = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (echo '$(2)' | grep -E '$(3)' || (echo "Error: $(4)" && exit 1))
-
-# And the validation rule using single quotes to protect the pattern
-zrbs_validate_outreach_config:
-	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,RBN_OUTREACH_CIDR)
-	@$(call zrbs_check_exported,RBN_OUTREACH_ENABLED,RBN_OUTREACH_DOMAIN)
-	@$(call zrbs_check_matches,RBN_OUTREACH_ENABLED,$(RBN_OUTREACH_CIDR),^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/[0-9][0-9]*$$,"RBN_OUTREACH_CIDR must be valid CIDR notation")
-
+zrbs_validate_uplink_config:
+	@if [ "$(RBN_UPLINK_ACCESS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_ACCESS_GLOBAL)" = "0" ]; then \
+		$(call zrbs_check_exported,1,RBN_UPLINK_ALLOWED_CIDRS); \
+		$(call zrbs_check_nonempty,1,RBN_UPLINK_ALLOWED_CIDRS); \
+	fi
+	@if [ "$(RBN_UPLINK_DNS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_DNS_GLOBAL)" = "0" ]; then \
+		$(call zrbs_check_exported,1,RBN_UPLINK_ALLOWED_DOMAINS); \
+		$(call zrbs_check_nonempty,1,RBN_UPLINK_ALLOWED_DOMAINS); \
+	fi
 
 #
 # Feature Group: Volume Mounts
 #
-zrbs_validate_volume: zrbs_validate_volume_mounts
-
-zrbs_validate_volume_mounts:
+zrbs_validate_volume:
 	@$(call zrbs_check_exported,1,RBN_VOLUME_MOUNTS)
-
-#
-# Feature Group: Auto-URL
-#
-zrbs_validate_autourl: zrbs_validate_autourl_enabled zrbs_validate_autourl_config
-
-zrbs_validate_autourl_enabled:
-	@$(call zrbs_check_exported,1,RBN_AUTOURL_ENABLED)
-	@$(call zrbs_check_bool,1,RBN_AUTOURL_ENABLED)
-
-zrbs_validate_autourl_config:
-	@$(call zrbs_check_exported,RBN_AUTOURL_ENABLED,RBN_AUTOURL_URL)
-	@$(call zrbs_check_nonempty,RBN_AUTOURL_ENABLED,RBN_AUTOURL_URL)
 
 #
 # Render Rules
 #
 rbs_render: zrbs_render_header \
            zrbs_render_images \
-           zrbs_render_network \
            zrbs_render_port \
-           zrbs_render_outreach \
-           zrbs_render_volume \
-           zrbs_render_autourl
+           zrbs_render_uplink \
+           zrbs_render_volume
 
 zrbs_render_header:
 	@echo "Recipe Bottle Service Configuration: $(RBN_MONIKER)"
@@ -202,30 +171,29 @@ zrbs_render_images:
 	@echo "  Bottle Image: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
 	@echo ""
 
-zrbs_render_network:
-	@echo "Network Configuration:"
-	@echo "  Guarded Network ID: $(RBN_GUARDED_NETWORK_ID)"
-	@echo ""
-
 zrbs_render_port:
 	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Host Port: $(RBN_PORT_HOST)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Container Port: $(RBN_PORT_GUARDED)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Uplink Port: $(RBN_PORT_UPLINK)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_PORT_ENCLAVE)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Service Port: $(RBN_PORT_SERVICE)"
 	@echo ""
 
-zrbs_render_outreach:
-	@echo "Internet Outreach: $(if $(filter 1,$(RBN_OUTREACH_ENABLED)),ENABLED,DISABLED)"
-	@test "$(RBN_OUTREACH_ENABLED)" != "1" || echo "  CIDR: $(RBN_OUTREACH_CIDR)"
-	@test "$(RBN_OUTREACH_ENABLED)" != "1" || echo "  Domain: $(RBN_OUTREACH_DOMAIN)"
+zrbs_render_uplink:
+	@echo "Network Uplink Configuration:"
+	@echo "  DNS Resolution: $(if $(filter 1,$(RBN_UPLINK_DNS_ENABLED)),ENABLED,DISABLED)"
+	@echo "  IP Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_ENABLED)),ENABLED,DISABLED)"
+	@echo "  Global DNS: $(if $(filter 1,$(RBN_UPLINK_DNS_GLOBAL)),ENABLED,DISABLED)"
+	@echo "  Global Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_GLOBAL)),ENABLED,DISABLED)"
+	@if [ "$(RBN_UPLINK_ACCESS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_ACCESS_GLOBAL)" = "0" ]; then \
+		echo "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"; \
+	fi
+	@if [ "$(RBN_UPLINK_DNS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_DNS_GLOBAL)" = "0" ]; then \
+		echo "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"; \
+	fi
 	@echo ""
 
 zrbs_render_volume:
 	@echo "Volume Configuration:"
 	@echo "  Mounts: $(RBN_VOLUME_MOUNTS)"
-	@echo ""
-
-zrbs_render_autourl:
-	@echo "Auto-URL: $(if $(filter 1,$(RBN_AUTOURL_ENABLED)),ENABLED,DISABLED)"
-	@test "$(RBN_AUTOURL_ENABLED)" != "1" || echo "  URL: $(RBN_AUTOURL_URL)"
 	@echo ""
 
