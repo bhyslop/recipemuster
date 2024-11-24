@@ -32,7 +32,6 @@ zRBC_TOOLS_DIR     = Tools
 
 zRBC_MBC_MAKEFILE = $(zRBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 zRBC_BGC_MAKEFILE = $(zRBC_TOOLS_DIR)/bgc.BuildGithubContainers.mk
-zRBC_CRN_MAKEFILE = $(zRBC_TOOLS_DIR)/crn.NameplateConfigRegime.mk
 
 
 # What console tool will put in prefix of each line
