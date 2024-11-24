@@ -39,7 +39,7 @@ RBM_UPLINK_NETWORK    = $(RBM_MONIKER)-host
 RBM_ENCLAVE_NETWORK   = $(RBM_MONIKER)-enclave
 
 # Render rules
-rbm-r%: rbb_render rbb_render rbb_render
+rbm-r%: rbs_render rbb_render rbn_render
 	@test -n "$(RBM_MONIKER)" || (echo "Error: RBM_MONIKER must be set" && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
