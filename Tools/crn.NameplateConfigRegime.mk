@@ -161,7 +161,7 @@ zrbs_validate_uplink_dns:
 # Feature Group: Volume Mounts
 #
 zrbs_validate_volume:
-	@$(call zrbs_check_exported,1,RBN_VOLUME_MOUNTS)
+	@test ! -n "$(RBN_VOLUME_MOUNTS)" || $(call zrbs_check_exported,1,RBN_VOLUME_MOUNTS)
 
 #
 # Render Rules
@@ -205,6 +205,7 @@ zrbs_render_uplink:
 
 zrbs_render_volume:
 	@echo "Volume Configuration:"
-	@echo "  Mounts: $(RBN_VOLUME_MOUNTS)"
+	@test ! -n "$(RBN_VOLUME_MOUNTS)" && echo "  None configured" || echo "  Mounts: $(RBN_VOLUME_MOUNTS)"
 	@echo ""
+
 
