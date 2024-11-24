@@ -24,7 +24,6 @@ zrbs_define_registry:
 	@echo "RBS_REGISTRY_CREDENTIALS   # Authentication token for container registry access"
 
 zrbs_validate_registry:
-	# Validate optional registry credentials if provided
 	@test -z "$(RBS_REGISTRY_CREDENTIALS)" || $(call zrbs_check_exported,1,RBS_REGISTRY_CREDENTIALS)
 	@test -z "$(RBS_REGISTRY_CREDENTIALS)" || $(call zrbs_check_nonempty,1,$(RBS_REGISTRY_CREDENTIALS))
 
