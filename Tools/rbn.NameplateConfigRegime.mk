@@ -142,7 +142,7 @@ zrbn_validate_uplink_basic:
 	@$(call zrbn_check_bool,1,$(RBN_UPLINK_ACCESS_GLOBAL))
 
 
-RBN_CIDR_REGEX := '^([0-9][0-9]?[0-9]?\.){3}[0-9][0-9]?[0-9]?\/[0-9][0-9]?$$'
+RBN_CIDR_REGEX := ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$
 
 zrbn_validate_uplink_access:
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
@@ -152,13 +152,15 @@ zrbn_validate_uplink_access:
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
 		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_CIDRS),$(RBN_CIDR_REGEX),"RBN_UPLINK_ALLOWED_CIDRS must be space-separated CIDR ranges")
 
+RBN_DOMAIN_REGEX := ^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]( [a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9])*$$
+
 zrbn_validate_uplink_dns:
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
 		$(call zrbn_check_exported,1,RBN_UPLINK_ALLOWED_DOMAINS)
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
 		$(call zrbn_check_nonempty,1,$(RBN_UPLINK_ALLOWED_DOMAINS))
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
-		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_DOMAINS),'^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]( [a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9])*$$',"RBN_UPLINK_ALLOWED_DOMAINS must be space-separated domain names")
+		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_DOMAINS),$(RBN_DOMAIN_REGEX),"RBN_UPLINK_ALLOWED_DOMAINS must be space-separated domain names")
 
 #
 # Feature Group: Volume Mounts
