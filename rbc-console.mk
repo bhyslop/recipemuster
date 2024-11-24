@@ -39,8 +39,6 @@ MBC_ARG__CONTEXT_STRING = $(zRBC_THIS_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_BGC_MAKEFILE)
-include $(zRBC_CRN_MAKEFILE)
-
 
 zRBC_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
 zRBC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
@@ -58,10 +56,10 @@ default:
 
 
 # OUCH scrub this out eventually
-# $(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
-# $(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
-# $(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
-# $(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
+$(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
+$(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
+$(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
+$(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
 
 
 # Configure and include the Recipe Bottle Makefile

@@ -24,7 +24,8 @@ RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_SENTRY_LOG     = $(RBM_TRANSCRIPTS_DIR)/sentry.$(RBM_MONIKER).log
 RBM_BOTTLE_LOG     = $(RBM_TRANSCRIPTS_DIR)/bottle.$(RBM_MONIKER).log
 
-include $(RBM_NAMEPLATE_PATH)
+# May not be populated, depending upon entry point rule.
+-include $(RBM_NAMEPLATE_PATH)
 
 # Include configuration regimes
 include Tools/rbb.BaseConfigRegime.mk
