@@ -97,7 +97,7 @@ zrbm_start_bottle_rule:
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
 
 
-rbm-br%: rbm_validate
+rbm-br%: zrbm_validate_regimes_rule
 	@echo "Running Agile Bottle container for $(RBM_MONIKER)"
 	
 	# Command must be provided
@@ -113,7 +113,7 @@ rbm-br%: rbm_validate
 
 
 # Sentry Stop Rule
-rbm-SX%: rbm_validate
+rbm-SX%: zrbm_validate_regimes_rule
 	@echo "Stopping Sentry container for $(RBM_MONIKER)"
 	
 	# Network disconnection
@@ -130,10 +130,10 @@ rbm-SX%: rbm_validate
 
 
 # Bottle Stop Rule
-rbm-BX%: rbm_validate
+rbm-BX%: zrbm_validate_regimes_rule
 	@echo "Stopping Bottle container for $(RBM_MONIKER)"
 	-podman stop -t 30 $(RBM_BOTTLE_CONTAINER)
-	-podman rm -f $(RBM_BOTTLE_CONTAINER)
+	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
 
 
 zrbm_start_sessile_rule:
@@ -148,3 +148,13 @@ rbm-ss%:                  \
   # Game on...
 	@echo "Started Sessile Service $(RBM_MONIKER)"
 
+# zrbm_validate_regimes_rule
+rbm-cs%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
+	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/sh
+	$(MBC_PASS) "Done, no errors."
+
+
+rbm-cb%: zrbm_validate_regimes_rule
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
+	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
