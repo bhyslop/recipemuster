@@ -77,7 +77,7 @@ zrbm_start_sentry_rule rbm-SS%: zrbm_validate_regimes_rule
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 	
 	# Security Configuration
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh > $(RBM_SENTRY_LOG) 2>&1
+	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec $(RBM_SENTRY_CONTAINER) /bin/sh
 
 
 rbm-BS%: rbm_validate
