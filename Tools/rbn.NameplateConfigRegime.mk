@@ -141,13 +141,16 @@ zrbn_validate_uplink_basic:
 	@$(call zrbn_check_exported,1,RBN_UPLINK_ACCESS_GLOBAL)
 	@$(call zrbn_check_bool,1,$(RBN_UPLINK_ACCESS_GLOBAL))
 
+
+RBN_CIDR_REGEX := '^([0-9][0-9]?[0-9]?\.){3}[0-9][0-9]?[0-9]?\/[0-9][0-9]?$$'
+
 zrbn_validate_uplink_access:
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
 		$(call zrbn_check_exported,1,RBN_UPLINK_ALLOWED_CIDRS)
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
 		$(call zrbn_check_nonempty,1,$(RBN_UPLINK_ALLOWED_CIDRS))
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
-		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_CIDRS),'^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}( ([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2})*$$',"RBN_UPLINK_ALLOWED_CIDRS must be space-separated CIDR ranges")
+		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_CIDRS),$(RBN_CIDR_REGEX),"RBN_UPLINK_ALLOWED_CIDRS must be space-separated CIDR ranges")
 
 zrbn_validate_uplink_dns:
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
