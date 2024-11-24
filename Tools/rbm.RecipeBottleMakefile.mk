@@ -51,7 +51,7 @@ rbm-v%: rbb_validate rbn_validate rbs_validate
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
 
-rbm-ss%: rbm_validate
+rbm-SS%: rbm_validate
 	@echo "Starting Sentry container for $(RBM_MONIKER)"
 	
 	# Network Creation Sequence
@@ -80,7 +80,7 @@ rbm-ss%: rbm_validate
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh > $(RBM_SENTRY_LOG) 2>&1
 
 
-rbm-bs%: rbm_validate
+rbm-BS%: rbm_validate
 	@echo "Starting Sessile Bottle container for $(RBM_MONIKER)"
 	
 	# Bottle Cleanup Sequence
@@ -113,7 +113,7 @@ rbm-br%: rbm_validate
 
 
 # Sentry Stop Rule
-rbm-sx%: rbm_validate
+rbm-SX%: rbm_validate
 	@echo "Stopping Sentry container for $(RBM_MONIKER)"
 	
 	# Network disconnection
@@ -128,9 +128,18 @@ rbm-sx%: rbm_validate
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 
+
 # Bottle Stop Rule
-rbm-bx%: rbm_validate
+rbm-BX%: rbm_validate
 	@echo "Stopping Bottle container for $(RBM_MONIKER)"
 	-podman stop -t 30 $(RBM_BOTTLE_CONTAINER)
 	-podman rm -f $(RBM_BOTTLE_CONTAINER)
+
+
+zrbm_start_sessile:
+	@echo "Starting Sessile Service $(RBM_MONIKER)"
+
+
+rbm-ss%:  zrbm_start_sessile  rbm-SS rbm-BS
+	@echo "Started Sessile Service $(RBM_MONIKER)"
 
