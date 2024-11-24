@@ -54,13 +54,11 @@ zRBC_MAKE = $(MAKE) -f $(zRBC_THIS_MAKEFILE)
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zRBC_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
-
 # OUCH scrub this out eventually
-$(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
-$(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
-$(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
-$(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
-
+# $(info RBC_PARAMETER_0: $(RBC_PARAMETER_0))
+# $(info RBC_PARAMETER_1: $(RBC_PARAMETER_1))
+# $(info RBC_PARAMETER_2: $(RBC_PARAMETER_2))
+# $(info RBC_PARAMETER_3: $(RBC_PARAMETER_3))
 
 # Configure and include the Recipe Bottle Makefile
 zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk

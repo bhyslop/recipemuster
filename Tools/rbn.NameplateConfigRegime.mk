@@ -26,7 +26,7 @@ zrbn_check_nonempty = test "$(1)" != "1" || \
     (test -n "$(2)" || (echo "Error: '$(2)' must not be empty" && exit 1))
 
 zrbn_check_matches = test "$(1)" != "1" || \
-    (echo '$(2)' | grep -E '$(3)' || (echo "Error: $(4)" && exit 1))
+    (echo '$(2)' | grep -q -E '$(3)' || (echo "Error: $(4)" && exit 1))
 
 zrbn_check_startswith = test "$(1)" != "1" || \
     (echo '$(2)' | grep -E '^$(3)' || (echo "Error: $(4)" && exit 1))

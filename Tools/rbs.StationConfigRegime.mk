@@ -12,10 +12,10 @@ rbs_validate: zrbs_validate_registry
 rbs_render: zrbs_render_registry
 
 # Helper functions
-zrbs_check_exported = @test "$(1)" != "1" || \
+zrbs_check_exported = test "$(1)" != "1" || \
     (env | grep -q ^'$(2)'= || (echo "Error: Variable '$(2)' must be exported" && exit 1))
 
-zrbs_check_nonempty = @test "$(1)" != "1" || \
+zrbs_check_nonempty = test "$(1)" != "1" || \
     (test -n '$(2)' || (echo "Error: Variable '$(2)' must not be empty" && exit 1))
 
 # Registry Authentication Feature Group
