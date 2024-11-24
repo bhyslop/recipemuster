@@ -7,31 +7,31 @@
 #
 # Standard Validation Helpers
 #
-zrbs_check_exported = @test "$(1)" != "1" || \
+zrbs_check_exported = test "$(1)" != "1" || \
     (env | grep -q ^$(2)= || (echo "Error: '$(2)' must be exported" && exit 1))
 
-zrbs_check_eq = @test "$(1)" != "1" || \
+zrbs_check_eq = test "$(1)" != "1" || \
     (test "$(2)" = "$(3)" || (echo "Error: '$(4)'" && exit 1))
 
-zrbs_check_bool = @test "$(1)" != "1" || \
+zrbs_check_bool = test "$(1)" != "1" || \
     (test "$(2)" = "0" -o "$(2)" = "1" || (echo "Error: '$(2)' must be 0 or 1" && exit 1))
 
-zrbs_check_range = @test "$(1)" != "1" || \
+zrbs_check_range = test "$(1)" != "1" || \
     (test $(2) -ge $(3) -a $(2) -le $(4) || (echo "Error: '$(2)' must be between '$(3)' and '$(4)'" && exit 1))
 
-zrbs_check_empty = @test "$(1)" != "1" || \
+zrbs_check_empty = test "$(1)" != "1" || \
     (test -z "$(2)" || (echo "Error: '$(3)'" && exit 1))
 
-zrbs_check_nonempty = @test "$(1)" != "1" || \
+zrbs_check_nonempty = test "$(1)" != "1" || \
     (test -n "$(2)" || (echo "Error: '$(2)' must not be empty" && exit 1))
 
-zrbs_check_matches = @test "$(1)" != "1" || \
+zrbs_check_matches = test "$(1)" != "1" || \
     (echo '$(2)' | grep -E '$(3)' || (echo "Error: $(4)" && exit 1))
 
-zrbs_check_startswith = @test "$(1)" != "1" || \
+zrbs_check_startswith = test "$(1)" != "1" || \
     (echo '$(2)' | grep -E '^$(3)' || (echo "Error: $(4)" && exit 1))
 
-zrbs_check_endswith = @test "$(1)" != "1" || \
+zrbs_check_endswith = test "$(1)" != "1" || \
     (echo '$(2)' | grep -E '$(3)$$' || (echo "Error: $(4)" && exit 1))
 
 #
