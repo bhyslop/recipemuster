@@ -46,12 +46,12 @@ rbm-r%: rbs_render rbb_render rbn_render
 
 
 # Validation rules
-rbm-v%: rbb_validate rbn_validate rbs_validate
+zrbm_validate_regimes_rule rbm-v%: rbb_validate rbn_validate rbs_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
 
-rbm-SS%: rbm_validate
+zrbm_start_sentry_rule rbm-SS%: zrbm_validate_regimes_rule
 	@echo "Starting Sentry container for $(RBM_MONIKER)"
 	
 	# Network Creation Sequence
@@ -136,10 +136,11 @@ rbm-BX%: rbm_validate
 	-podman rm -f $(RBM_BOTTLE_CONTAINER)
 
 
-zrbm_start_sessile:
+zrbm_start_sessile_rule:
 	@echo "Starting Sessile Service $(RBM_MONIKER)"
 
 
-rbm-ss%:  zrbm_start_sessile  rbm-SS rbm-BS
+# zrbm_start_sessile_rule  rbm-SS rbm-BS
+rbm-ss%: zrbm_start_sessile_rule zrbm_start_sentry_rule
 	@echo "Started Sessile Service $(RBM_MONIKER)"
 
