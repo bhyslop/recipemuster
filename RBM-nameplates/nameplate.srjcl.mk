@@ -1,33 +1,29 @@
-# Recipe Bottle Service Assignment Makefile
-# Jupyter Notebook with Claude Access
+# Recipe Bottle Nameplate Configuration
+# Jupyter Notebook environment with Claude API access
 
-# Core Configuration
+# Core Service Definition
 export RBN_MONIKER     := srjcl
 export RBN_DESCRIPTION := Jupyter Notebook environment with Claude API access for AI-assisted development
 
-# Image Configuration
+# Image Source Configuration
 export RBN_SENTRY_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
 export RBN_BOTTLE_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
 export RBN_SENTRY_IMAGE_TAG      := sentry_alpine.20241020__171441
 export RBN_BOTTLE_IMAGE_TAG      := bottle_anthropic_jupyter.20241020__173503
 
-# Network Configuration
-export RBN_GUARDED_NETWORK_ID := 10.240
-
 # Port Service Configuration
 export RBN_PORT_ENABLED := 1
-export RBN_PORT_HOST    := 8889
-export RBN_PORT_GUARDED := 8888
+export RBN_PORT_UPLINK  := 8889
+export RBN_PORT_ENCLAVE := 8888
+export RBN_PORT_SERVICE := 8888
 
-# Internet Outreach Configuration
-export RBN_OUTREACH_ENABLED := 1
-export RBN_OUTREACH_CIDR    := 160.79.104.0/23
-export RBN_OUTREACH_DOMAIN  := anthropic.com
+# Network Uplink Configuration
+export RBN_UPLINK_DNS_ENABLED     := 1
+export RBN_UPLINK_ACCESS_ENABLED  := 1
+export RBN_UPLINK_DNS_GLOBAL      := 0
+export RBN_UPLINK_ACCESS_GLOBAL   := 0
+export RBN_UPLINK_ALLOWED_CIDRS   := 160.79.104.0/23
+export RBN_UPLINK_ALLOWED_DOMAINS := anthropic.com
 
 # Volume Mount Configuration
 export RBN_VOLUME_MOUNTS := -v ./RBM-environments-srjcl:/mnt/bottle-data:Z
-
-# Auto-start Configuration
-export RBN_AUTOURL_ENABLED := 1
-export RBN_AUTOURL_URL     := http://127.0.0.1:$(RBN_PORT_HOST)/lab
-

@@ -12,12 +12,10 @@ export RBB_DNS_SERVER         := 8.8.8.8
 
 # Path Configuration
 # Location for nameplate configuration files
-export RBB_NAMEPLATE_PATH     := nameplates
+export RBB_NAMEPLATE_PATH     := RBM-nameplates
 
 # Container Registry Configuration
 # Specify your container registry server (optional)
 # Example for GitHub Container Registry:
 export RBB_REGISTRY_SERVER    := ghcr.io
 
-# Include validation rules
-include Tools/rbb.Config.mk
