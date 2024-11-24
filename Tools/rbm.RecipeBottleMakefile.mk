@@ -35,7 +35,7 @@ include Tools/rbs.StationConfigRegime.mk
 # Container and network naming
 RBM_SENTRY_CONTAINER  = $(RBM_MONIKER)-sentry
 RBM_BOTTLE_CONTAINER  = $(RBM_MONIKER)-bottle
-RBM_UPLINK_NETWORK    = $(RBM_MONIKER)-host
+RBM_UPLINK_NETWORK    = $(RBM_MONIKER)-uplink
 RBM_ENCLAVE_NETWORK   = $(RBM_MONIKER)-enclave
 
 
@@ -53,7 +53,7 @@ zrbm_validate_regimes_rule rbm-v%: rbb_validate rbn_validate rbs_validate
 
 zrbm_start_sentry_rule rbm-SS%: zrbm_validate_regimes_rule
 	@echo "Starting Sentry container for $(RBM_MONIKER)"
-	
+
 	# Network Creation Sequence
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
@@ -62,7 +62,7 @@ zrbm_start_sentry_rule rbm-SS%: zrbm_validate_regimes_rule
 	                     --gateway $(RBB_ENCLAVE_GATEWAY)          \
 	                     --internal                                \
 	                     $(RBM_ENCLAVE_NETWORK)
-	
+
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
 	podman run -d                                                            \
@@ -71,16 +71,16 @@ zrbm_start_sentry_rule rbm-SS%: zrbm_validate_regimes_rule
 	    --privileged                                                         \
 	    $(if $(RBN_PORT_ENABLED),-p $(RBN_PORT_UPLINK):$(RBN_PORT_UPLINK))   \
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
-	
+
 	# Network Connect Sequence
 	podman network connect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
-	
+
 	# Security Configuration
 	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec $(RBM_SENTRY_CONTAINER) /bin/sh
 
 
-rbm-BS%: rbm_validate
+zrbm_start_bottle_rule:
 	@echo "Starting Sessile Bottle container for $(RBM_MONIKER)"
 	
 	# Bottle Cleanup Sequence
@@ -89,9 +89,9 @@ rbm-BS%: rbm_validate
 	
 	# Bottle Launch Sequence
 	podman run -d                            \
-	    --name $(RBM_BOTTLE_CONTAINER)       \
+	    --name    $(RBM_BOTTLE_CONTAINER)    \
 	    --network $(RBM_ENCLAVE_NETWORK)     \
-	    --dns $(RBB_ENCLAVE_GATEWAY)         \
+	    --dns     $(RBB_ENCLAVE_GATEWAY)     \
 	    --restart unless-stopped             \
 	    $(RBN_VOLUME_MOUNTS)                 \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
@@ -141,6 +141,10 @@ zrbm_start_sessile_rule:
 
 
 # zrbm_start_sessile_rule  rbm-SS rbm-BS
-rbm-ss%: zrbm_start_sessile_rule zrbm_start_sentry_rule
+rbm-ss%:                  \
+  zrbm_start_sessile_rule \
+  zrbm_start_sentry_rule  \
+  zrbm_start_bottle_rule  \
+  # Game on...
 	@echo "Started Sessile Service $(RBM_MONIKER)"
 
