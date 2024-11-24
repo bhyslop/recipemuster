@@ -1,9 +1,6 @@
 # Regime Prefix: rbs_
 # Assignment Prefix: RBS_
 
-.PHONY: rbs_define rbs_validate rbs_render
-.PHONY: zrbs_validate_registry zrbs_render_registry
-
 # Top-level targets
 rbs_define: zrbs_define_registry
 

@@ -1,33 +1,44 @@
+## © 2024 Scale Invariant.  All rights reserved.
+##      Reference: https://www.termsfeed.com/blog/sample-copyright-notices/
+##
+## Unauthorized copying of this file, via any medium is strictly prohibited
+## Proprietary and confidential
+##
+## Written by Brad Hyslop <bhyslop@scaleinvariant.org> November 2024
+
 # Recipe Bottle Makefile (RBM)
 # Implements secure containerized service management
 
 # Directory structure
 RBM_SCRIPTS_DIR      := RBM-scripts
 RBM_TRANSCRIPTS_DIR  := RBM-transcripts
-RBM_NAMEPLATES_DIR   := RBM-nameplates
+
+# Required argument for service moniker
+RBM_MONIKER ?= __MUST_DEFINE_MONIKER__
+
+include ../RBS_STATION.mk
+include rbb.base.mk
+
+# File paths
+RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
+RBM_SENTRY_LOG     = $(RBM_TRANSCRIPTS_DIR)/sentry.$(RBM_MONIKER).log
+RBM_BOTTLE_LOG     = $(RBM_TRANSCRIPTS_DIR)/bottle.$(RBM_MONIKER).log
+
+include $(RBM_NAMEPLATE_PATH)
 
 # Include configuration regimes
 include Tools/rbb.BaseConfigRegime.mk
 include Tools/rbn.NameplateConfigRegime.mk
 include Tools/rbs.StationConfigRegime.mk
 
-# Required argument for service moniker
-RBM_MONIKER ?=
-
-# File paths
-RBM_NAMEPLATE_PATH = $(RBM_NAMEPLATES_DIR)/nameplate.$(RBM_MONIKER).mk
-RBM_SENTRY_LOG    = $(RBM_TRANSCRIPTS_DIR)/sentry.$(RBM_MONIKER).log
-RBM_BOTTLE_LOG    = $(RBM_TRANSCRIPTS_DIR)/bottle.$(RBM_MONIKER).log
-
 # Container and network naming
 RBM_SENTRY_CONTAINER  = $(RBM_MONIKER)-sentry
 RBM_BOTTLE_CONTAINER  = $(RBM_MONIKER)-bottle
-RBM_UPLINK_NETWORK   = $(RBM_MONIKER)-host
-RBM_ENCLAVE_NETWORK  = $(RBM_MONIKER)-enclave
+RBM_UPLINK_NETWORK    = $(RBM_MONIKER)-host
+RBM_ENCLAVE_NETWORK   = $(RBM_MONIKER)-enclave
 
 # Validation rules
-.PHONY: rbm_validate
-rbm_validate: rbb_validate rbn_validate rbs_validate
+rbm-v%: rbb_validate rbn_validate rbs_validate
 	@test -n "$(RBM_MONIKER)" || (echo "Error: RBM_MONIKER must be set" && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
@@ -134,5 +145,5 @@ help:
 	@echo "Configuration from:"
 	@echo "  Base Config:     Tools/rbb.BaseConfigRegime.mk"
 	@echo "  Station Config:  Tools/rbs.StationConfigRegime.mk"
-	@echo "  Nameplate:       $(RBM_NAMEPLATES_DIR)/<moniker>.mk"
+	@echo "  Nameplate:       $(RBB_NAMEPLATE_PATH)/<moniker>.mk"
 	

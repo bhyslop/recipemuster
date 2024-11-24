@@ -68,7 +68,7 @@ default:
 # Configure and include the Recipe Bottle Makefile
 zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
 
-RBM_ARG_MONIKER := $(RBC_PARAMETER_2)
+RBM_MONIKER := $(RBC_PARAMETER_2)
 
 include $(zRBC_RBM_MAKEFILE)
 
