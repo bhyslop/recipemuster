@@ -7,26 +7,32 @@
 #
 # Standard Validation Helpers
 #
-zrbs_check_exported = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (env | grep -q ^$(2)= || (echo "Error: $(2) must be exported" && exit 1))
+zrbs_check_exported = @test "$(1)" != "1" || \
+    (env | grep -q ^$(2)= || (echo "Error: '$(2)' must be exported" && exit 1))
 
-zrbs_check_eq = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (test "$(2)" = "$(3)" || (echo "Error: $(4)" && exit 1))
+zrbs_check_eq = @test "$(1)" != "1" || \
+    (test "$(2)" = "$(3)" || (echo "Error: '$(4)'" && exit 1))
 
-zrbs_check_bool = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (test "$(2)" = "0" -o "$(2)" = "1" || (echo "Error: $(2) must be 0 or 1" && exit 1))
+zrbs_check_bool = @test "$(1)" != "1" || \
+    (test "$(2)" = "0" -o "$(2)" = "1" || (echo "Error: '$(2)' must be 0 or 1" && exit 1))
 
-zrbs_check_range = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (test "$(2)" -ge "$(3)" -a "$(2)" -le "$(4)" || (echo "Error: $(2) must be between $(3) and $(4)" && exit 1))
+zrbs_check_range = @test "$(1)" != "1" || \
+    (test $(2) -ge $(3) -a $(2) -le $(4) || (echo "Error: '$(2)' must be between '$(3)' and '$(4)'" && exit 1))
 
-zrbs_check_empty = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (test -z "$(2)" || (echo "Error: $(3)" && exit 1))
+zrbs_check_empty = @test "$(1)" != "1" || \
+    (test -z "$(2)" || (echo "Error: '$(3)'" && exit 1))
 
-zrbs_check_nonempty = @test "$(1)" = "1" || test "$($(1))" != "1" || \
-    (test -n "$(2)" || (echo "Error: $(2) must not be empty" && exit 1))
+zrbs_check_nonempty = @test "$(1)" != "1" || \
+    (test -n "$(2)" || (echo "Error: '$(2)' must not be empty" && exit 1))
 
-zrbs_check_matches = @test "$(1)" = "1" || test "$($(1))" != "1" || \
+zrbs_check_matches = @test "$(1)" != "1" || \
     (echo '$(2)' | grep -E '$(3)' || (echo "Error: $(4)" && exit 1))
+
+zrbs_check_startswith = @test "$(1)" != "1" || \
+    (echo '$(2)' | grep -E '^$(3)' || (echo "Error: $(4)" && exit 1))
+
+zrbs_check_endswith = @test "$(1)" != "1" || \
+    (echo '$(2)' | grep -E '$(3)$$' || (echo "Error: $(4)" && exit 1))
 
 #
 # Core Service Definition Rule
@@ -80,11 +86,11 @@ zrbs_validate_core: zrbs_validate_moniker zrbs_validate_description
 
 zrbs_validate_moniker:
 	@$(call zrbs_check_exported,1,RBN_MONIKER)
-	@$(call zrbs_check_nonempty,1,RBN_MONIKER)
+	@$(call zrbs_check_nonempty,1,$(RBN_MONIKER))
 
 zrbs_validate_description:
 	@$(call zrbs_check_exported,1,RBN_DESCRIPTION)
-	@$(call zrbs_check_nonempty,1,RBN_DESCRIPTION)
+	@$(call zrbs_check_nonempty,1,$(RBN_DESCRIPTION))
 
 #
 # Feature Group: Image Configuration
@@ -93,15 +99,15 @@ zrbs_validate_images: zrbs_validate_sentry_image zrbs_validate_bottle_image
 
 zrbs_validate_sentry_image:
 	@$(call zrbs_check_exported,1,RBN_SENTRY_REPO_FULL_NAME)
-	@$(call zrbs_check_nonempty,1,RBN_SENTRY_REPO_FULL_NAME)
+	@$(call zrbs_check_nonempty,1,$(RBN_SENTRY_REPO_FULL_NAME))
 	@$(call zrbs_check_exported,1,RBN_SENTRY_IMAGE_TAG)
-	@$(call zrbs_check_nonempty,1,RBN_SENTRY_IMAGE_TAG)
+	@$(call zrbs_check_nonempty,1,$(RBN_SENTRY_IMAGE_TAG))
 
 zrbs_validate_bottle_image:
 	@$(call zrbs_check_exported,1,RBN_BOTTLE_REPO_FULL_NAME)
-	@$(call zrbs_check_nonempty,1,RBN_BOTTLE_REPO_FULL_NAME)
+	@$(call zrbs_check_nonempty,1,$(RBN_BOTTLE_REPO_FULL_NAME))
 	@$(call zrbs_check_exported,1,RBN_BOTTLE_IMAGE_TAG)
-	@$(call zrbs_check_nonempty,1,RBN_BOTTLE_IMAGE_TAG)
+	@$(call zrbs_check_nonempty,1,$(RBN_BOTTLE_IMAGE_TAG))
 
 #
 # Feature Group: Port Service
@@ -110,40 +116,46 @@ zrbs_validate_port: zrbs_validate_port_enabled zrbs_validate_port_config
 
 zrbs_validate_port_enabled:
 	@$(call zrbs_check_exported,1,RBN_PORT_ENABLED)
-	@$(call zrbs_check_bool,1,RBN_PORT_ENABLED)
+	@$(call zrbs_check_bool,1,$(RBN_PORT_ENABLED))
 
 zrbs_validate_port_config:
-	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_UPLINK)
-	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_ENCLAVE)
-	@$(call zrbs_check_exported,RBN_PORT_ENABLED,RBN_PORT_SERVICE)
-	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_UPLINK),1,65535)
-	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_ENCLAVE),1,65535)
-	@$(call zrbs_check_range,RBN_PORT_ENABLED,$(RBN_PORT_SERVICE),1,65535)
+	@$(call zrbs_check_exported,$(RBN_PORT_ENABLED),RBN_PORT_UPLINK)
+	@$(call zrbs_check_exported,$(RBN_PORT_ENABLED),RBN_PORT_ENCLAVE)
+	@$(call zrbs_check_exported,$(RBN_PORT_ENABLED),RBN_PORT_SERVICE)
+	@$(call zrbs_check_range,$(RBN_PORT_ENABLED),$(RBN_PORT_UPLINK),1,65535)
+	@$(call zrbs_check_range,$(RBN_PORT_ENABLED),$(RBN_PORT_ENCLAVE),1,65535)
+	@$(call zrbs_check_range,$(RBN_PORT_ENABLED),$(RBN_PORT_SERVICE),1,65535)
 
 #
 # Feature Group: Network Uplink
 #
-zrbs_validate_uplink: zrbs_validate_uplink_basic zrbs_validate_uplink_config
+zrbs_validate_uplink: zrbs_validate_uplink_basic zrbs_validate_uplink_access zrbs_validate_uplink_dns
 
 zrbs_validate_uplink_basic:
 	@$(call zrbs_check_exported,1,RBN_UPLINK_DNS_ENABLED)
-	@$(call zrbs_check_bool,1,RBN_UPLINK_DNS_ENABLED)
+	@$(call zrbs_check_bool,1,$(RBN_UPLINK_DNS_ENABLED))
 	@$(call zrbs_check_exported,1,RBN_UPLINK_ACCESS_ENABLED)
-	@$(call zrbs_check_bool,1,RBN_UPLINK_ACCESS_ENABLED)
+	@$(call zrbs_check_bool,1,$(RBN_UPLINK_ACCESS_ENABLED))
 	@$(call zrbs_check_exported,1,RBN_UPLINK_DNS_GLOBAL)
-	@$(call zrbs_check_bool,1,RBN_UPLINK_DNS_GLOBAL)
+	@$(call zrbs_check_bool,1,$(RBN_UPLINK_DNS_GLOBAL))
 	@$(call zrbs_check_exported,1,RBN_UPLINK_ACCESS_GLOBAL)
-	@$(call zrbs_check_bool,1,RBN_UPLINK_ACCESS_GLOBAL)
+	@$(call zrbs_check_bool,1,$(RBN_UPLINK_ACCESS_GLOBAL))
 
-zrbs_validate_uplink_config:
-	@if [ "$(RBN_UPLINK_ACCESS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_ACCESS_GLOBAL)" = "0" ]; then \
-		$(call zrbs_check_exported,1,RBN_UPLINK_ALLOWED_CIDRS); \
-		$(call zrbs_check_nonempty,1,RBN_UPLINK_ALLOWED_CIDRS); \
-	fi
-	@if [ "$(RBN_UPLINK_DNS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_DNS_GLOBAL)" = "0" ]; then \
-		$(call zrbs_check_exported,1,RBN_UPLINK_ALLOWED_DOMAINS); \
-		$(call zrbs_check_nonempty,1,RBN_UPLINK_ALLOWED_DOMAINS); \
-	fi
+zrbs_validate_uplink_access:
+	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
+		$(call zrbs_check_exported,1,RBN_UPLINK_ALLOWED_CIDRS)
+	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
+		$(call zrbs_check_nonempty,1,$(RBN_UPLINK_ALLOWED_CIDRS))
+	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
+		$(call zrbs_check_matches,1,$(RBN_UPLINK_ALLOWED_CIDRS),'^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}( ([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2})*$$',"RBN_UPLINK_ALLOWED_CIDRS must be space-separated CIDR ranges")
+
+zrbs_validate_uplink_dns:
+	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
+		$(call zrbs_check_exported,1,RBN_UPLINK_ALLOWED_DOMAINS)
+	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
+		$(call zrbs_check_nonempty,1,$(RBN_UPLINK_ALLOWED_DOMAINS))
+	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
+		$(call zrbs_check_matches,1,$(RBN_UPLINK_ALLOWED_DOMAINS),'^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]( [a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9])*$$',"RBN_UPLINK_ALLOWED_DOMAINS must be space-separated domain names")
 
 #
 # Feature Group: Volume Mounts
@@ -172,7 +184,8 @@ zrbs_render_images:
 	@echo ""
 
 zrbs_render_port:
-	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
+	@echo "Port Service:"
+	@test "$(RBN_PORT_ENABLED)" != "1" && echo "  DISABLED" || echo "  ENABLED"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Uplink Port: $(RBN_PORT_UPLINK)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_PORT_ENCLAVE)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Service Port: $(RBN_PORT_SERVICE)"
@@ -180,16 +193,14 @@ zrbs_render_port:
 
 zrbs_render_uplink:
 	@echo "Network Uplink Configuration:"
-	@echo "  DNS Resolution: $(if $(filter 1,$(RBN_UPLINK_DNS_ENABLED)),ENABLED,DISABLED)"
-	@echo "  IP Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_ENABLED)),ENABLED,DISABLED)"
-	@echo "  Global DNS: $(if $(filter 1,$(RBN_UPLINK_DNS_GLOBAL)),ENABLED,DISABLED)"
-	@echo "  Global Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_GLOBAL)),ENABLED,DISABLED)"
-	@if [ "$(RBN_UPLINK_ACCESS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_ACCESS_GLOBAL)" = "0" ]; then \
-		echo "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"; \
-	fi
-	@if [ "$(RBN_UPLINK_DNS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_DNS_GLOBAL)" = "0" ]; then \
-		echo "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"; \
-	fi
+	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" && echo "  DNS Resolution: DISABLED" || echo "  DNS Resolution: ENABLED"
+	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" && echo "  IP Access: DISABLED" || echo "  IP Access: ENABLED"
+	@test "$(RBN_UPLINK_DNS_GLOBAL)" != "1" && echo "  Global DNS: DISABLED" || echo "  Global DNS: ENABLED"
+	@test "$(RBN_UPLINK_ACCESS_GLOBAL)" != "1" && echo "  Global Access: DISABLED" || echo "  Global Access: ENABLED"
+	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
+		echo "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"
+	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
+		echo "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"
 	@echo ""
 
 zrbs_render_volume:
