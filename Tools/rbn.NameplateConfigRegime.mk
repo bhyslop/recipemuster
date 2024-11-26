@@ -8,31 +8,38 @@
 # Standard Validation Helpers
 #
 zrbn_check_exported = test "$(1)" != "1" || \
-    (env | grep -q ^$(2)= || (echo "Error: '$(2)' must be exported" && exit 1))
+    (env | grep -q ^'$(2)'= || (echo "Error: Variable '$(2)' must be exported" && exit 1))
 
-zrbn_check_eq = test "$(1)" != "1" || \
-    (test "$(2)" = "$(3)" || (echo "Error: '$(4)'" && exit 1))
+zrbn_check__boolean = test "$(1)" != "1" || \
+    (test '$(2)' = "0" -o '$(2)' = "1" || (echo "Error: Value '$(2)' must be 0 or 1" && exit 1))
 
-zrbn_check_bool = test "$(1)" != "1" || \
-    (test "$(2)" = "0" -o "$(2)" = "1" || (echo "Error: '$(2)' must be 0 or 1" && exit 1))
+zrbn_check_in_range = \
+  test "$(1)" != "1" || (test '$(2)' -ge '$(3)' -a '$(2)' -le '$(4)' || \
+  (echo "Error: Value '$(2)' must be between '$(3)' and '$(4)'" && exit 1))
 
-zrbn_check_range = test "$(1)" != "1" || \
-    (test $(2) -ge $(3) -a $(2) -le $(4) || (echo "Error: '$(2)' must be between '$(3)' and '$(4)'" && exit 1))
+zrbn_check_nonempty = \
+  test "$(1)" != "1" || (test -n '$(2)' || \
+  (echo "Error: Variable '$(2)' must not be empty" && exit 1))
 
-zrbn_check_empty = test "$(1)" != "1" || \
-    (test -z "$(2)" || (echo "Error: '$(3)'" && exit 1))
+zrbn_check__matches = \
+  test "$(1)" != "1" || (echo '$(2)' | grep -E '$(3)' || \
+  (echo "Error: $(4)" && exit 1))
 
-zrbn_check_nonempty = test "$(1)" != "1" || \
-    (test -n "$(2)" || (echo "Error: '$(2)' must not be empty" && exit 1))
+zrbn_check_startwth = \
+  test "$(1)" != "1" || (echo '$(2)' | grep -E '^$(3)' || \
+  (echo "Error: $(4)" && exit 1))
 
-zrbn_check_matches = test "$(1)" != "1" || \
-    (echo '$(2)' | grep -q -E '$(3)' || (echo "Error: $(4)" && exit 1))
+zrbn_check_endswith = \
+  test "$(1)" != "1" || (echo '$(2)' | grep -E '$(3)$$' || \
+  (echo "Error: $(4)" && exit 1))
 
-zrbn_check_startswith = test "$(1)" != "1" || \
-    (echo '$(2)' | grep -E '^$(3)' || (echo "Error: $(4)" && exit 1))
+zrbn_check__is_cidr = \
+  test "$(1)" != "1" || (echo '$(2)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
+  (echo "Error: Value '$(2)' must be in valid CIDR notation" && exit 1))
 
-zrbn_check_endswith = test "$(1)" != "1" || \
-    (echo '$(2)' | grep -E '$(3)$$' || (echo "Error: $(4)" && exit 1))
+zrbn_check_isdomain = \
+  test "$(1)" != "1" || (echo '$(2)' | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$$' || \
+  (echo "Error: Value '$(2)' must be a valid domain name" && exit 1))
 
 #
 # Core Service Definition Rule
@@ -116,15 +123,15 @@ zrbn_validate_port: zrbn_validate_port_enabled zrbn_validate_port_config
 
 zrbn_validate_port_enabled:
 	@$(call zrbn_check_exported,1,RBN_PORT_ENABLED)
-	@$(call zrbn_check_bool,1,$(RBN_PORT_ENABLED))
+	@$(call zrbn_check__boolean,1,$(RBN_PORT_ENABLED))
 
 zrbn_validate_port_config:
 	@$(call zrbn_check_exported,$(RBN_PORT_ENABLED),RBN_PORT_UPLINK)
 	@$(call zrbn_check_exported,$(RBN_PORT_ENABLED),RBN_PORT_ENCLAVE)
 	@$(call zrbn_check_exported,$(RBN_PORT_ENABLED),RBN_PORT_SERVICE)
-	@$(call zrbn_check_range,$(RBN_PORT_ENABLED),$(RBN_PORT_UPLINK),1,65535)
-	@$(call zrbn_check_range,$(RBN_PORT_ENABLED),$(RBN_PORT_ENCLAVE),1,65535)
-	@$(call zrbn_check_range,$(RBN_PORT_ENABLED),$(RBN_PORT_SERVICE),1,65535)
+	@$(call zrbn_check_in_range,$(RBN_PORT_ENABLED),$(RBN_PORT_UPLINK),1,65535)
+	@$(call zrbn_check_in_range,$(RBN_PORT_ENABLED),$(RBN_PORT_ENCLAVE),1,65535)
+	@$(call zrbn_check_in_range,$(RBN_PORT_ENABLED),$(RBN_PORT_SERVICE),1,65535)
 
 #
 # Feature Group: Network Uplink
@@ -133,40 +140,41 @@ zrbn_validate_uplink: zrbn_validate_uplink_basic zrbn_validate_uplink_access zrb
 
 zrbn_validate_uplink_basic:
 	@$(call zrbn_check_exported,1,RBN_UPLINK_DNS_ENABLED)
-	@$(call zrbn_check_bool,1,$(RBN_UPLINK_DNS_ENABLED))
+	@$(call zrbn_check__boolean,1,$(RBN_UPLINK_DNS_ENABLED))
 	@$(call zrbn_check_exported,1,RBN_UPLINK_ACCESS_ENABLED)
-	@$(call zrbn_check_bool,1,$(RBN_UPLINK_ACCESS_ENABLED))
+	@$(call zrbn_check__boolean,1,$(RBN_UPLINK_ACCESS_ENABLED))
 	@$(call zrbn_check_exported,1,RBN_UPLINK_DNS_GLOBAL)
-	@$(call zrbn_check_bool,1,$(RBN_UPLINK_DNS_GLOBAL))
+	@$(call zrbn_check__boolean,1,$(RBN_UPLINK_DNS_GLOBAL))
 	@$(call zrbn_check_exported,1,RBN_UPLINK_ACCESS_GLOBAL)
-	@$(call zrbn_check_bool,1,$(RBN_UPLINK_ACCESS_GLOBAL))
-
-
-RBN_CIDR_REGEX := ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$
+	@$(call zrbn_check__boolean,1,$(RBN_UPLINK_ACCESS_GLOBAL))
 
 zrbn_validate_uplink_access:
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
 		$(call zrbn_check_exported,1,RBN_UPLINK_ALLOWED_CIDRS)
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
 		$(call zrbn_check_nonempty,1,$(RBN_UPLINK_ALLOWED_CIDRS))
-	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
-		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_CIDRS),$(RBN_CIDR_REGEX),"RBN_UPLINK_ALLOWED_CIDRS must be space-separated CIDR ranges")
-
-RBN_DOMAIN_REGEX := ^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]( [a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9])*$$
+	@if [ "$(RBN_UPLINK_ACCESS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_ACCESS_GLOBAL)" = "0" ]; then \
+		for cidr in $(RBN_UPLINK_ALLOWED_CIDRS); do \
+			$(call zrbn_check__is_cidr,1,$$cidr); \
+		done \
+	fi
 
 zrbn_validate_uplink_dns:
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
 		$(call zrbn_check_exported,1,RBN_UPLINK_ALLOWED_DOMAINS)
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
 		$(call zrbn_check_nonempty,1,$(RBN_UPLINK_ALLOWED_DOMAINS))
-	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
-		$(call zrbn_check_matches,1,$(RBN_UPLINK_ALLOWED_DOMAINS),$(RBN_DOMAIN_REGEX),"RBN_UPLINK_ALLOWED_DOMAINS must be space-separated domain names")
+	@if [ "$(RBN_UPLINK_DNS_ENABLED)" = "1" ] && [ "$(RBN_UPLINK_DNS_GLOBAL)" = "0" ]; then \
+		for domain in $(RBN_UPLINK_ALLOWED_DOMAINS); do \
+			$(call zrbn_check_isdomain,1,$$domain); \
+		done \
+	fi
 
 #
 # Feature Group: Volume Mounts
 #
 zrbn_validate_volume:
-	@test ! -n "$(RBN_VOLUME_MOUNTS)" || $(call zrbn_check_exported,1,RBN_VOLUME_MOUNTS)
+	@$(call zrbn_check_exported,1,RBN_VOLUME_MOUNTS)
 
 #
 # Render Rules
@@ -210,7 +218,28 @@ zrbn_render_uplink:
 
 zrbn_render_volume:
 	@echo "Volume Configuration:"
-	@test ! -n "$(RBN_VOLUME_MOUNTS)" && echo "  None configured" || echo "  Mounts: $(RBN_VOLUME_MOUNTS)"
+	@echo "  Mounts: $(RBN_VOLUME_MOUNTS)"
 	@echo ""
 
+#
+# Environment variable rollup for container usage
+#
+RBN__ROLLUP_ENVIRONMENT_VAR := \
+  RBN_MONIKER='$(RBN_MONIKER)' \
+  RBN_DESCRIPTION='$(RBN_DESCRIPTION)' \
+  RBN_SENTRY_REPO_FULL_NAME='$(RBN_SENTRY_REPO_FULL_NAME)' \
+  RBN_BOTTLE_REPO_FULL_NAME='$(RBN_BOTTLE_REPO_FULL_NAME)' \
+  RBN_SENTRY_IMAGE_TAG='$(RBN_SENTRY_IMAGE_TAG)' \
+  RBN_BOTTLE_IMAGE_TAG='$(RBN_BOTTLE_IMAGE_TAG)' \
+  RBN_PORT_ENABLED='$(RBN_PORT_ENABLED)' \
+  RBN_PORT_UPLINK='$(RBN_PORT_UPLINK)' \
+  RBN_PORT_ENCLAVE='$(RBN_PORT_ENCLAVE)' \
+  RBN_PORT_SERVICE='$(RBN_PORT_SERVICE)' \
+  RBN_UPLINK_DNS_ENABLED='$(RBN_UPLINK_DNS_ENABLED)' \
+  RBN_UPLINK_ACCESS_ENABLED='$(RBN_UPLINK_ACCESS_ENABLED)' \
+  RBN_UPLINK_DNS_GLOBAL='$(RBN_UPLINK_DNS_GLOBAL)' \
+  RBN_UPLINK_ACCESS_GLOBAL='$(RBN_UPLINK_ACCESS_GLOBAL)' \
+  RBN_UPLINK_ALLOWED_CIDRS='$(RBN_UPLINK_ALLOWED_CIDRS)' \
+  RBN_UPLINK_ALLOWED_DOMAINS='$(RBN_UPLINK_ALLOWED_DOMAINS)' \
+  RBN_VOLUME_MOUNTS='$(RBN_VOLUME_MOUNTS)'
 
