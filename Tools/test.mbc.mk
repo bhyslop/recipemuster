@@ -54,7 +54,7 @@ test-invalid-prefix:
 	echo "First test..."
 	(export THE_CIDR=192.168.1.23/23 && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
 	echo "Second test..."
-	! (export THE_CIDR=192.168.1.23    && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
+	(! (export THE_CIDR=192.168.1.23    && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))) 
 	echo "test passed"
 
 
