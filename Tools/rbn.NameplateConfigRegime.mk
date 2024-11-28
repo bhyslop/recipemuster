@@ -34,11 +34,11 @@ zrbn_check_endswith = \
   (echo "Error: $(4)" && exit 1))
 
 zrbn_check__is_cidr = \
-  test "$(1)" != "1" || (echo '$(2)' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
-  (echo "Error: Value '$(2)' must be in valid CIDR notation" && exit 1))
+  test "$(1)" != "1" || (echo $(2) | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
+  (echo "Error: Value '$(2)' is not in valid CIDR notation" && exit 1))
 
 zrbn_check_isdomain = \
-  test "$(1)" != "1" || (echo '$(2)' | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$$' || \
+  test "$(1)" != "1" || (echo $(2) | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$$' || \
   (echo "Error: Value '$(2)' must be a valid domain name" && exit 1))
 
 #

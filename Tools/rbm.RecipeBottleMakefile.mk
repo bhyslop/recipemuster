@@ -73,6 +73,8 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    --network $(RBM_UPLINK_NETWORK)                                      \
 	    --privileged                                                         \
 	    $(if $(RBN_PORT_ENABLED),-p $(RBN_PORT_UPLINK):$(RBN_PORT_UPLINK))   \
+	    $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                      \
+	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                      \
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Network Connect Sequence
