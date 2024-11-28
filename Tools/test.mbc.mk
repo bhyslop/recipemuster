@@ -45,15 +45,17 @@ test-invalid-ip:
 	@$(call MBC_CHECK__IS_CIDR,1,256.168.1.0/24) || $(MBC_PASS) "Invalid IP in CIDR correctly rejected"
 
 
-BAD_CIDR = 192.168.1.
+
+my_cidr_check = \
+  test "$(1)" != "1" || (echo $(2) | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
+  ($(MBC_SEE_RED) "Value '$(2)' must be in valid CIDR notation" && exit 1))
+
+BAD_CIDR = 192.168.1.23/23
 
 test-invalid-prefix:
 	$(MBC_START) "Testing CIDR with invalid prefix $(BAD_CIDR)"
-	@($(call MBC_CHECK__IS_CIDR,1,$(BAD_CIDR)); echo RETCODE IS $$?)
-	@($(call MBC_CHECK__IS_CIDR,1,$(BAD_CIDR)) || exit 13) || true
+	@($(call my_cidr_check,1,$(BAD_CIDR)) || exit 13) || true
 	$(MBC_PASS) "Class C CIDR format test passed"
-
-xxx
 
 
 test-missing-parts:

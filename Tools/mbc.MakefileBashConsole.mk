@@ -41,43 +41,43 @@ MBC_SEE_GREEN  := printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %
 
 
 # Validation helpers
-MBC_CHECK_EXPORTED := \
+MBC_CHECK_EXPORTED = \
   test "$(1)" != "1" || (env | grep -q ^'$(2)'= || \
   ($(MBC_SEE_RED) "Variable '$(2)' must be exported" && exit 1))
 
-MBC_CHECK__BOOLEAN := \
+MBC_CHECK__BOOLEAN = \
   test "$(1)" != "1" || (test '$(2)' = "0" -o '$(2)' = "1" || \
   ($(MBC_SEE_RED) "Value '$(2)' must be 0 or 1" && exit 1))
 
-MBC_CHECK_IN_RANGE := \
+MBC_CHECK_IN_RANGE = \
   test "$(1)" != "1" || (test '$(2)' -ge '$(3)' -a '$(2)' -le '$(4)' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be between '$(3)' and '$(4)'" && exit 1))
 
-MBC_CHECK_NONEMPTY := \
+MBC_CHECK_NONEMPTY = \
   test "$(1)" != "1" || (test -n '$(2)' || \
   ($(MBC_SEE_RED) "Value '$(2)' must not be empty" && exit 1))
 
-MBC_CHECK__MATCHES := \
+MBC_CHECK__MATCHES = \
   test "$(1)" != "1" || (echo $(2) | grep -E $(3) || \
   ($(MBC_SEE_RED) "Value '$(2)' does not match required pattern" && exit 1))
 
-MBC_CHECK_STARTS_W := \
+MBC_CHECK_STARTS_W = \
   test "$(1)" != "1" || (echo $(2) | grep -E ^$(3) || \
   ($(MBC_SEE_RED) "Value '$(2)' must start with required pattern" && exit 1))
 
-MBC_CHECK_ENDSWITH := \
+MBC_CHECK_ENDSWITH = \
   test "$(1)" != "1" || (echo $(2) | grep -E $(3)$$ || \
   ($(MBC_SEE_RED) "Value '$(2)' must end with required pattern" && exit 1))
 
-MBC_CHECK__IS_CIDR := \
+MBC_CHECK__IS_CIDR = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be in valid CIDR notation" && exit 1))
 
-MBC_CHECK_ISDOMAIN := \
+MBC_CHECK_ISDOMAIN = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be a valid domain name" && exit 1))
 
-MBC_CHECK__IS_IPV4 := \
+MBC_CHECK__IS_IPV4 = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be a valid IPv4 address" && exit 1))
 
