@@ -6,17 +6,5 @@ MBC_CHECK__IS_CIDR = \
 
 
 
-GOOD_CIDR = 192.168.1.23/23
-
-BAD_CIDR = 192.168.1.23
-
-
-basic_negative_retry:
-	echo "First test..."
-	($(call MBC_CHECK__IS_CIDR,1,$(GOOD_CIDR)))
-	echo "Second test..."
-	! ($(call MBC_CHECK__IS_CIDR,1,$(BAD_CIDR)))
-	echo "test passed"
-
 
 

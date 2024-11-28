@@ -52,9 +52,9 @@ BAD_CIDR = 192.168.1.23
 
 test-invalid-prefix:
 	echo "First test..."
-	($(call MBC_CHECK__IS_CIDR,1,$(GOOD_CIDR)))
+	(export THE_CIDR=192.168.1.23/23 && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
 	echo "Second test..."
-	! ($(call MBC_CHECK__IS_CIDR,1,$(BAD_CIDR)))
+	! (export THE_CIDR=192.168.1.23    && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
 	echo "test passed"
 
 
