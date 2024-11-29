@@ -78,10 +78,20 @@ MBC_CHECK__IS_CIDR = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be in valid CIDR notation" && exit 1))
 
+# This regex-based check has limitations:
+#   - Allows dots at start/end despite RFC rules
+#   - Cannot validate 63-char max label length
+#   - Accepts consecutive dots
+#   - Domain parts can contain numbers only
 MBC_CHECK_ISDOMAIN = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be a valid domain name" && exit 1))
 
+# This regex-based check has limitations:
+#   - Accepts invalid octet values >255
+#   - Allows leading zeros in octets
+#   - Cannot validate proper octet count if delimiters malformed
+#   - Cannot verify IPv4 address class/scope validity
 MBC_CHECK__IS_IPV4 = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be a valid IPv4 address" && exit 1))
