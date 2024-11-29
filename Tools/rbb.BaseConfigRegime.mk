@@ -59,7 +59,7 @@ rbb_render:
     @test "$(RBB_DNS_SERVER)" = "" || $(MBC_STEP) "DNS Server: $(RBB_DNS_SERVER)"
     $(MBC_START) "System Configuration:"
     @test "$(RBB_NAMEPLATE_PATH)" = "" || $(MBC_STEP) "Nameplate Path: $(RBB_NAMEPLATE_PATH)"
-    @test "$(RBB_REGISTRY_SERVER)" = "" || $(MBC_STEP) "Registry Server: $(RBB_REGISTRY_SERVER)"
+s    @test "$(RBB_REGISTRY_SERVER)" = "" || $(MBC_STEP) "Registry Server: $(RBB_REGISTRY_SERVER)"
 
 # Environment rollup for container usage
 RBB__ROLLUP_ENVIRONMENT_VAR := \
@@ -68,4 +68,3 @@ RBB__ROLLUP_ENVIRONMENT_VAR := \
   RBB_DNS_SERVER='$(RBB_DNS_SERVER)' \
   RBB_NAMEPLATE_PATH='$(RBB_NAMEPLATE_PATH)' \
   RBB_REGISTRY_SERVER='$(RBB_REGISTRY_SERVER)'
-
