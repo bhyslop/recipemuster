@@ -5,8 +5,8 @@
 # Core Identity Validation
 #
 rbn_validate_core: \
-	rbn_validate_moniker \
-	rbn_validate_description
+	zrbn_validate_moniker \
+	zrbn_validate_description
 
 zrbn_validate_moniker:
 	@$(call MBC_CHECK_EXPORTED,1,RBN_MONIKER)

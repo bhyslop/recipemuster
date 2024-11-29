@@ -47,7 +47,7 @@ iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
 iptables -A FORWARD -j RBM-FORWARD || exit 10
 
 echo "RBSp2: Phase 2: Port Setup"
-if [ "${RBN_PORT_ENABLED}" = "true" ]; then
+if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
     echo "RBSp2: Setting up DNAT rules"
@@ -61,7 +61,7 @@ if [ "${RBN_PORT_ENABLED}" = "true" ]; then
 fi
 
 echo "RBSp3: Phase 3: Access Setup"
-if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "false" ]; then
+if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"
     iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
     iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
@@ -75,7 +75,7 @@ else
     echo "RBSp3: Configuring NAT"
     iptables -t nat -A POSTROUTING -o eth0 -s "${RBB_ENCLAVE_SUBNET}" -j MASQUERADE || exit 31
 
-    if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "true" ]; then
+    if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
         echo "RBSp3: Enabling global access"
         iptables -A RBM-EGRESS  -o eth0 -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
@@ -90,7 +90,7 @@ fi
 
 echo "RBSp4: Configuring DNS services"
 
-if [ "${RBN_UPLINK_DNS_ENABLED}" = "false" ]; then
+if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     echo "RBSp4: Blocking all DNS traffic"
     iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
@@ -115,7 +115,7 @@ else
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
     echo "log-time"                                        >> /etc/dnsmasq.conf || exit 41
 
-    if [ "${RBN_UPLINK_DNS_GLOBAL}" = "true" ]; then
+    if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"
         echo "server=${RBB_DNS_SERVER}"                    >> /etc/dnsmasq.conf || exit 41
     else
