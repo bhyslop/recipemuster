@@ -10,6 +10,9 @@
 # Set below variable to add a localization context to pretty lines
 MBC_ARG__CONTEXT_STRING ?= mbu-c
 
+# Timestamp good for unique temp filenames durable for a compound make process
+MBC_NOW := $(shell date +'%Y%m%d__%H%M%S%3N')
+
 # No quotes since value is integer, not a string
 MBC_CONSOLEPARAM__COLS  := $(shell tput cols)
 MBC_CONSOLEPARAM__LINES := $(shell tput lines)
@@ -26,8 +29,6 @@ MBC_SHOW_WHITE  := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s
 MBC_SHOW_YELLOW := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %s %s\n'$(zMBC_TPUT_RESET) $(zMBC_TPUT_YELLOW)
 MBC_SHOW_RED    := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %s %s\n'$(zMBC_TPUT_RESET) $(zMBC_TPUT_RED)
 MBC_SHOW_GREEN  := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %s %s\n'$(zMBC_TPUT_RESET) $(zMBC_TPUT_GREEN)
-
-MBC_NOW := $(shell date +'%Y%m%d__%H%M%S%3N')
 
 MBC_START := $(MBC_SHOW_WHITE)
 MBC_STEP  := $(MBC_SHOW_WHITE)
