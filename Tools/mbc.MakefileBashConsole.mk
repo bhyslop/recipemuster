@@ -69,8 +69,11 @@ MBC_CHECK_ENDSWITH = \
   test "$(1)" != "1" || (echo $(2) | grep -E $(3)$$ || \
   ($(MBC_SEE_RED) "Value '$(2)' must end with required pattern" && exit 1))
 
-# This is a weak form check: invalid octets and mask ranges
-#   are not illegal by this defintion.
+# This regex-based check has limitations:
+#   - Accepts invalid octet values >255 
+#   - Allows invalid prefix lengths beyond /32
+#   - Cannot validate proper octet count/delimiting
+#   - Cannot verify network address aligns with prefix length
 MBC_CHECK__IS_CIDR = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be in valid CIDR notation" && exit 1))

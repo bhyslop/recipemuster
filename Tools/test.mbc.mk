@@ -1,13 +1,20 @@
 include mbc.MakefileBashConsole.mk
 
-tmbc_test_all: tmbc_test_cidr_valid tmbc_test_cidr_invalid
+tmbc_test_all:              \
+  tmbc_test_basic_cidr      \
+  tmbc_test_zero_cidr       \
+  tmbc_test_max_cidr        \
+  tmbc_test_class_a         \
+  tmbc_test_class_b         \
+  tmbc_test_class_c         \
+  tmbc_test_max_octet       \
+  tmbc_test_edge_masks      \
+  tmbc_test_no_prefix       \
+  tmbc_test_missing_parts   \
+  tmbc_test_too_many_octets \
+  # end-of-list
 	$(MBC_PASS) "All CIDR format tests completed"
 
-tmbc_test_cidr_valid: tmbc_test_basic_cidr tmbc_test_zero_cidr tmbc_test_max_cidr tmbc_test_class_a tmbc_test_class_b tmbc_test_class_c
-	$(MBC_PASS) "All valid CIDR format tests completed"
-
-tmbc_test_cidr_invalid: tmbc_test_no_prefix tmbc_test_missing_parts
-	$(MBC_PASS) "All invalid CIDR format tests completed"
 
 tmbc_test_basic_cidr:
 	@(export THE_CIDR=192.168.1.0/24 && \
@@ -56,3 +63,21 @@ tmbc_test_missing_parts:
 	  echo "Testing incomplete IP address in CIDR: $$THE_CIDR" && \
 	  $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR)))
 	$(MBC_PASS) "Missing parts test passed"
+
+tmbc_test_max_octet:
+	@(export THE_CIDR=250.251.252.253/24 && \
+	  echo "Testing valid high octets in CIDR: $$THE_CIDR" && \
+	  $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
+	$(MBC_PASS) "Max octet test passed"
+
+tmbc_test_edge_masks:
+	@(export THE_CIDR=192.168.1.0/31 && \
+	  echo "Testing edge case prefix length: $$THE_CIDR" && \
+	  $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
+	$(MBC_PASS) "Edge mask test passed"
+
+tmbc_test_too_many_octets:
+	@(! (export THE_CIDR=192.168.1.1.1/24 && \
+	  echo "Testing CIDR with excess octets: $$THE_CIDR" && \
+	  $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR)))
+	$(MBC_PASS) "Too many octets test passed"
