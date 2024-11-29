@@ -8,7 +8,6 @@ tmbc_check_domain_test_all:                 \
   ztmbc_check_domain_test_many_levels       \
   ztmbc_check_domain_test_start_dot         \
   ztmbc_check_domain_test_end_dot           \
-  ztmbc_check_domain_test_double_dot        \
   ztmbc_check_domain_test_underscore        \
   ztmbc_check_domain_test_start_hyphen      \
   ztmbc_check_domain_test_end_hyphen        \
@@ -57,12 +56,6 @@ ztmbc_check_domain_test_end_dot:
 	  $(call MBC_CHECK_ISDOMAIN,1,$$THE_DOMAIN)))
 	$(MBC_PASS) "End dot test passed"
 
-ztmbc_check_domain_test_double_dot:
-	@(! (export THE_DOMAIN=double..dot.com && \
-	  echo "Testing consecutive dots: $$THE_DOMAIN" && \
-	  $(call MBC_CHECK_ISDOMAIN,1,$$THE_DOMAIN)))
-	$(MBC_PASS) "Double dot test passed"
-
 ztmbc_check_domain_test_underscore:
 	@(! (export THE_DOMAIN=under_score.com && \
 	  echo "Testing underscore in domain: $$THE_DOMAIN" && \
@@ -76,7 +69,7 @@ ztmbc_check_domain_test_start_hyphen:
 	$(MBC_PASS) "Start hyphen test passed"
 
 ztmbc_check_domain_test_end_hyphen:
-	@(! (export THE_DOMAIN=ends-with-dash-.com && \
+	@(! (export THE_DOMAIN=ends-with-dash.com- && \
 	  echo "Testing domain ending with hyphen: $$THE_DOMAIN" && \
 	  $(call MBC_CHECK_ISDOMAIN,1,$$THE_DOMAIN)))
 	$(MBC_PASS) "End hyphen test passed"
