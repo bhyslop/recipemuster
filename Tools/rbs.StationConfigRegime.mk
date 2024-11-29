@@ -28,5 +28,5 @@ rbs_render:
 	@test "$(RBS_REGISTRY_CREDENTIALS)" = "" && $(MBC_STEP) "  Registry Credentials: Not configured (anonymous access)"
 
 # Environment variable rollup for container usage
-RBS_ROLLUP_ENVIRONMENT_VAR := \
+RBS__ROLLUP_ENVIRONMENT_VAR := \
   RBS_REGISTRY_CREDENTIALS='$(RBS_REGISTRY_CREDENTIALS)'

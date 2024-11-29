@@ -169,7 +169,7 @@ rbn_render:
 	@test "$(RBN_VOLUME_MOUNTS)" = "" || $(MBC_STEP) "Volume Mounts: $(RBN_VOLUME_MOUNTS)"
 
 # Container environment arguments for Assignment Variables
-RBN_ROLLUP_ENVIRONMENT_VAR := \
+RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_MONIKER='$(RBN_MONIKER)' \
   RBN_DESCRIPTION='$(RBN_DESCRIPTION)' \
   RBN_SENTRY_REPO_FULL_NAME='$(RBN_SENTRY_REPO_FULL_NAME)' \
