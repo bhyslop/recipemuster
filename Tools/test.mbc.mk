@@ -45,17 +45,14 @@ test-invalid-ip:
 	@$(call MBC_CHECK__IS_CIDR,1,256.168.1.0/24) || $(MBC_PASS) "Invalid IP in CIDR correctly rejected"
 
 
-GOOD_CIDR = 192.168.1.23/23
-
-BAD_CIDR = 192.168.1.23
-
-
-test-invalid-prefix:
-	echo "First test..."
-	(export THE_CIDR=192.168.1.23/23 && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))
-	echo "Second test..."
-	(! (export THE_CIDR=192.168.1.23    && $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))) 
-	echo "test passed"
+tmbc_test_invalid_prefix:
+	@(  (export THE_CIDR=192.168.1.23/23    && \
+	  echo "$$THE_CIDR is valid..."         && \
+	  $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR)))
+	@(! (export THE_CIDR=192.168.1.23       && \
+	  echo "$$THE_CIDR lacks postfix..."    && \
+	  $(call MBC_CHECK__IS_CIDR,1,$$THE_CIDR))) 
+	$(MBC_PASS) "No failures"
 
 
 test-missing-parts:
