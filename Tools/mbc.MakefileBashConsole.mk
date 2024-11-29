@@ -69,6 +69,8 @@ MBC_CHECK_ENDSWITH = \
   test "$(1)" != "1" || (echo $(2) | grep -E $(3)$$ || \
   ($(MBC_SEE_RED) "Value '$(2)' must end with required pattern" && exit 1))
 
+# This is a weak form check: invalid octets and mask ranges
+#   are not illegal by this defintion.
 MBC_CHECK__IS_CIDR = \
   test "$(1)" != "1" || (echo $(2) | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$$' || \
   ($(MBC_SEE_RED) "Value '$(2)' must be in valid CIDR notation" && exit 1))
