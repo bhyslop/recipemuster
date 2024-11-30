@@ -2,6 +2,7 @@
 echo "RBS: Beginning sentry setup script"
 
 set -e
+set -x
 
 : ${RBB_ENCLAVE_SUBNET:?}         && echo "RBSp0: RBB_ENCLAVE_SUBNET         = ${RBB_ENCLAVE_SUBNET}"
 : ${RBB_ENCLAVE_GATEWAY:?}        && echo "RBSp0: RBB_ENCLAVE_GATEWAY        = ${RBB_ENCLAVE_GATEWAY}"
