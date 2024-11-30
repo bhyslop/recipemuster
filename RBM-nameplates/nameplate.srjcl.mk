@@ -8,7 +8,7 @@ export RBN_DESCRIPTION := Jupyter Notebook environment with Claude API access fo
 # Image Source Configuration
 export RBN_SENTRY_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
 export RBN_BOTTLE_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
-export RBN_SENTRY_IMAGE_TAG      := sentry_alpine.20241020__171441
+export RBN_SENTRY_IMAGE_TAG      := sentry_alpine_large.20241022__125927
 export RBN_BOTTLE_IMAGE_TAG      := bottle_anthropic_jupyter.20241020__173503
 
 # Port Service Configuration
