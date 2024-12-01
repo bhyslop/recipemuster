@@ -112,7 +112,6 @@ else
     echo "log-queries=extra"                               >> /etc/dnsmasq.conf || exit 41
     echo "log-facility=/var/log/dnsmasq.log"               >> /etc/dnsmasq.conf || exit 41
     echo "log-dhcp"                                        >> /etc/dnsmasq.conf || exit 41
-    echo "log-debug"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
     echo "log-time"                                        >> /etc/dnsmasq.conf || exit 41
 
@@ -127,6 +126,9 @@ else
             echo "server=/${domain}/${RBB_DNS_SERVER}"     >> /etc/dnsmasq.conf || exit 41
         done
     fi
+
+    echo "RBSp4: Echo back the constructed dnsmasq config file"
+    cat                                                       /etc/dnsmasq.conf || exit 41
 
     echo "RBSp4: Starting dnsmasq service"
     dnsmasq || exit 42
