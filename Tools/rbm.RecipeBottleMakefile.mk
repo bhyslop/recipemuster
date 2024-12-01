@@ -53,6 +53,7 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 
 
 rbm-SS%: zrbm_start_sentry_rule
+	@echo "Completed delegate."
 zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Starting Sentry container for $(RBM_MONIKER)"
 
@@ -85,6 +86,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 
 rbm-BS%: zrbm_start_bottle_rule
+	@echo "Completed delegate."
 zrbm_start_bottle_rule:
 	@echo "Starting Sessile Bottle container for $(RBM_MONIKER)"
 	
