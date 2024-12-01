@@ -112,8 +112,8 @@ else
     echo "log-queries=extra"                               >> /etc/dnsmasq.conf || exit 41
     echo "log-facility=/var/log/dnsmasq.log"               >> /etc/dnsmasq.conf || exit 41
     echo "log-dhcp"                                        >> /etc/dnsmasq.conf || exit 41
+    echo "log-debug"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
-    echo "log-time"                                        >> /etc/dnsmasq.conf || exit 41
 
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"
@@ -129,6 +129,9 @@ else
 
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                       /etc/dnsmasq.conf || exit 41
+
+    echo "RBSp4: Note version in use"
+    dnsmasq --version
 
     echo "RBSp4: Starting dnsmasq service"
     dnsmasq || exit 42

@@ -268,6 +268,8 @@ This section contains reminders about future improvements, deferred for now.
 * Really consider deprivilidgening ROGUE
 * Make a config regime for all container registry aspects: username and PAT, such that each nameplate can use one and also the GCB too
 * Consider GCB to CRB for container registry builderd
+* Riddle DNSSEC feature, noting that my alpine base image does not have it.  Restore with a different image?
+    echo "log-time"                                        >> /etc/dnsmasq.conf || exit 41
 * Display yellow nag for any nameplate op that uses global dns or ip
 * Consider a precedent rule that in parallel will stop containers before rmi and use in build and start
 * Make choices concerning secondary port opens for the jupyter flask executor on top of jupyter
