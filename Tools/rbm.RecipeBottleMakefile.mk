@@ -67,10 +67,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	# Network Creation Sequence
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
-	podman network create --driver bridge --dns=none $(RBM_UPLINK_NETWORK)
+	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
 	podman network create --subnet $(RBB_ENCLAVE_SUBNET)           \
 	                     --gateway $(RBB_ENCLAVE_GATEWAY)          \
-	                     --dns=none                                \
 	                     --internal                                \
 	                     $(RBM_ENCLAVE_NETWORK)
 
