@@ -113,6 +113,10 @@ rbm-br%: zrbm_validate_regimes_rule
 	# Bottle Create and Execute Sequence
 	podman run --rm                                           \
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
+	    --dns-search "."                                      \
+	    --dns-opt "ndots:1"                                   \
+	    --dns-opt "timeout:2"                                 \
+	    --dns-opt "attempts:5"                                \
 	    --dns     $(RBB_ENCLAVE_GATEWAY)                      \
 	    $(RBN_VOLUME_MOUNTS)                                  \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)  \
