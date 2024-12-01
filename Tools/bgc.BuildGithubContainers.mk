@@ -115,6 +115,17 @@ bgc-l%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 
+bgc-ri%: zbgc_argcheck_rule
+	$(MBC_START) "Retrieve Container Registry Image"
+	@test "$(BGC_ARG_TAG)" != ""  ||\
+	  ($(MBC_SEE_RED) "Error: Must say which image tag to retrieve" && false)
+	$(MBC_STEP) "Log in to container registry..."
+	@podman login ghcr.io -u $(BGCSV_USERNAME) -p $(BGCSV_PAT)
+	$(MBC_STEP) "Fetch image..."
+	podman pull $(BGC_ARG_TAG)
+	$(MBC_PASS) "No errors."
+
+
 bgc-di%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
 	@test "$(BGC_ARG_TAG)" != ""  ||\

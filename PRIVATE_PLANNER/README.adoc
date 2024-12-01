@@ -266,6 +266,9 @@ This section contains reminders about future improvements, deferred for now.
 * Scrub out dockerfile environment variables unneeded in final env?
 * Rethink the .sh-ization of the nameplate, specifically for including includes
 * Really consider deprivilidgening ROGUE
+* Make a config regime for all container registry aspects: username and PAT, such that each nameplate can use one and also the GCB too
+* Consider GCB to CRB for container registry builderd
+* Display yellow nag for any nameplate op that uses global dns or ip
 * Consider a precedent rule that in parallel will stop containers before rmi and use in build and start
 * Make choices concerning secondary port opens for the jupyter flask executor on top of jupyter
 * Figure suppression of error -> time="2024-08-30T06:54:29-07:00" level=warning msg="Failed to obtain TTY size: The handle is invalid."
