@@ -55,6 +55,13 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 rbm-SS%: zrbm_start_sentry_rule
 	@echo "Completed delegate."
 zrbm_start_sentry_rule: zrbm_validate_regimes_rule
+
+	@echo "Stopping any prior containers for $(RBM_MONIKER)"
+	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
+	-podman rm -f      $(RBM_SENTRY_CONTAINER)
+	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
+	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
+
 	@echo "Starting Sentry container for $(RBM_MONIKER)"
 
 	# Network Creation Sequence
@@ -98,6 +105,10 @@ zrbm_start_bottle_rule:
 	podman run -d                            \
 	    --name    $(RBM_BOTTLE_CONTAINER)    \
 	    --network $(RBM_ENCLAVE_NETWORK)     \
+	    --dns-search "."                     \
+	    --dns-opt "ndots:1"                  \
+	    --dns-opt "timeout:2"                \
+	    --dns-opt "attempts:5"               \
 	    --dns     $(RBB_ENCLAVE_GATEWAY)     \
 	    --restart unless-stopped             \
 	    $(RBN_VOLUME_MOUNTS)                 \
