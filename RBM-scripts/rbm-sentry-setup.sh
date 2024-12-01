@@ -116,7 +116,6 @@ else
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
     echo "no-resolv"                                       >> /etc/dnsmasq.conf || exit 41
     echo "no-poll"                                         >> /etc/dnsmasq.conf || exit 41
-    echo "bind-dynamic"                                    >> /etc/dnsmasq.conf || exit 41
 
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"
