@@ -192,11 +192,11 @@ RBB_ENCLAVE_SIZE = 24
 machine_setup_PROTOTYPE_rule.sh:
 	$(MBC_START) "Setting up podman machine for RBM"
 	$(MBC_STEP) "Create and configure RBM machine named" $(RBB_MACHINE_NAME)
-	#podman machine init          \
-	#  $(RBB_MACHINE_NAME)        \
-	#  --cpus 2                   \
-	#  --memory 4096              \
-	#  --disk-size 100
+	podman machine init          \
+	  $(RBB_MACHINE_NAME)        \
+	  --cpus 2                   \
+	  --memory 4096              \
+	  --disk-size 100
 	$(MBC_STEP) "Start the machine named" $(RBB_MACHINE_NAME)
 	podman machine start $(RBB_MACHINE_NAME)
 	$(MBC_STEP) "Permanently disable aardvark-dns"
