@@ -185,3 +185,36 @@ rbm-i%:  rbb_render rbn_render rbs_render
 	$(MBC_PASS) "Done, no errors."
 
 
+# https://claude.ai/chat/1b421a0b-f6cb-49ac-b5f8-c0db14a75c39
+# https://claude.ai/chat/a3c82136-d21d-4e7b-85fb-9af28384e7ea
+RBB_ENCLAVE_SIZE = 24
+machine_setup_PROTOTYPE_rule:
+	$(MBC_START) "Setting up podman machine for RBM"
+	$(MBC_STEP) "Create and configure RBM machine"
+	podman machine init \
+	  --name rbm \
+	  --cpus 2 \
+	  --memory 4096 \
+	  --disk-size 100
+	$(MBC_STEP) "Start the machine"
+	podman machine start rbm
+	$(MBC_STEP) "Permanently disable aardvark-dns"
+	podman machine ssh rbm "sudo systemctl mask podman-network-aardvark"
+	podman machine ssh rbm "sudo systemctl disable --now podman-network-aardvark"
+	$(MBC_STEP) "Configure podman networking"
+	podman machine ssh rbm sh -c 'sudo tee /etc/containers/containers.conf' > /dev/null << EOF
+[network]
+default_subnet_pools = [
+  { base = "$(RBB_ENCLAVE_SUBNET)" size = $(RBB_ENCLAVE_SIZE) }
+]
+network_backend = "cni"
+default_network_options = ["ipv6=false"]
+
+[dns]
+backend = "none"
+EOF
+	$(MBC_STEP) "Verify configuration"
+	podman machine ssh rbm "systemctl status podman-network-aardvark"
+	podman machine ssh rbm "cat /etc/containers/containers.conf"
+
+
