@@ -78,6 +78,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman run -d                                                            \
 	    --name $(RBM_SENTRY_CONTAINER)                                       \
 	    --network $(RBM_UPLINK_NETWORK)                                      \
+	    --ip $(RBB_ENCLAVE_GATEWAY)                                          \
 	    --privileged                                                         \
 	    $(if $(RBN_PORT_ENABLED),-p $(RBN_PORT_UPLINK):$(RBN_PORT_UPLINK))   \
 	    $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                      \
