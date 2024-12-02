@@ -191,11 +191,13 @@ rbm-i%:  rbb_render rbn_render rbs_render
 RBB_MACHINE_NAME = podman-machine-default
 RBB_ENCLAVE_SIZE = 24
 machine_setup_PROTOTYPE_rule.sh:
+	-podman machine stop
+	-podman machine rm $(RBB_MACHINE_NAME)
 	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
 	podman machine start $(RBB_MACHINE_NAME)
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]\ndns_backend=\"none\"" | sudo tee /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'sudo mkdir -p /etc/cni/net.d'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "{\n  \"cniVersion\": \"0.4.0\",\n  \"name\": \"podman\",\n  \"plugins\": [\n    {\n      \"type\": \"bridge\",\n      \"bridge\": \"cni0\",\n      \"ipam\": {\n        \"type\": \"host-local\"\n      }\n    }\n  ]\n}" | sudo tee /etc/cni/net.d/87-podman-bridge.conflist'
 	podman machine restart $(RBB_MACHINE_NAME)
-
 
 
 # eof
