@@ -213,14 +213,9 @@ machine_setup_PROTOTYPE_rule.sh:
 	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[dns]"                                                             | sudo tee -a /etc/containers/containers.conf'
 	podman machine ssh $(RBB_MACHINE_NAME) 'echo "backend = \"none\""                                                | sudo tee -a /etc/containers/containers.conf'
 	$(MBC_STEP) "Verify configuration"
-	podman machine ssh rbm_machine "systemctl status podman-network-aardvark || true"
-	podman machine ssh rbm_machine "cat /etc/containers/containers.conf"
-
-	false
-	echo "Below did not work, so we resorted to deleting down to one preferred machine."
-	podman machine default rbm_machine
-	podman machine ssh rbm_machine "systemctl is-active podman-network-aardvark"
-
+	podman machine ssh $(RBB_MACHINE_NAME) "systemctl status podman-network-aardvark || true"
+	podman machine ssh $(RBB_MACHINE_NAME) "cat /etc/containers/containers.conf"
+	podman machine ssh $(RBB_MACHINE_NAME) "systemctl is-active podman-network-aardvark"
 	$(MBC_PASS) "Done, no errors."
 
 
