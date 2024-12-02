@@ -215,6 +215,11 @@ machine_setup_PROTOTYPE_rule.sh:
 	$(MBC_STEP) "Verify configuration"
 	podman machine ssh rbm_machine "systemctl status podman-network-aardvark || true"
 	podman machine ssh rbm_machine "cat /etc/containers/containers.conf"
+
+	false
+	echo "Below did not work, so we resorted to deleting down to one preferred machine."
+	podman machine default rbm_machine
+
 	$(MBC_PASS) "Done, no errors."
 
 
