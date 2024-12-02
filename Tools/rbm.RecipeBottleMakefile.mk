@@ -196,6 +196,6 @@ machine_setup_PROTOTYPE_rule.sh:
 	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]\ndns_backend=\"none\"" | sudo tee /etc/containers/podman/containers.conf'
 	podman machine restart $(RBB_MACHINE_NAME)
 
-This configures podman to skip DNS setup entirely. If this works, we can add back the subnet configuration.
+
 
 # eof
