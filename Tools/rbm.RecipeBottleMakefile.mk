@@ -108,6 +108,7 @@ zrbm_start_bottle_rule:
 	    --name    $(RBM_BOTTLE_CONTAINER)    \
 	    --network $(RBM_ENCLAVE_NETWORK)     \
 	    --dns-search "."                     \
+	    --dns-opt "use-vc"                   \
 	    --dns-opt "ndots:1"                  \
 	    --dns-opt "timeout:2"                \
 	    --dns-opt "attempts:5"               \
