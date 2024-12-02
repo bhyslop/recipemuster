@@ -98,7 +98,7 @@ zrbm_start_bottle_rule:
 	@echo "Starting Sessile Bottle container for $(RBM_MONIKER)"
 	
 	# Bottle Cleanup Sequence
-	-podman stop -t 30 $(RBM_BOTTLE_CONTAINER)
+	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
 	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
 	
 	# Bottle Launch Sequence
@@ -143,7 +143,7 @@ rbm-SX%: zrbm_validate_regimes_rule
 	-podman network disconnect $(RBM_UPLINK_NETWORK)  $(RBM_SENTRY_CONTAINER)
 	
 	# Container termination
-	-podman stop -t 30 $(RBM_SENTRY_CONTAINER)
+	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
 	-podman rm -f      $(RBM_SENTRY_CONTAINER)
 	
 	# Network cleanup
@@ -154,7 +154,7 @@ rbm-SX%: zrbm_validate_regimes_rule
 # Bottle Stop Rule
 rbm-BX%: zrbm_validate_regimes_rule
 	@echo "Stopping Bottle container for $(RBM_MONIKER)"
-	-podman stop -t 30 $(RBM_BOTTLE_CONTAINER)
+	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
 	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
 
 
@@ -188,6 +188,7 @@ rbm-i%:  rbb_render rbn_render rbs_render
 # https://claude.ai/chat/1b421a0b-f6cb-49ac-b5f8-c0db14a75c39
 # https://claude.ai/chat/a3c82136-d21d-4e7b-85fb-9af28384e7ea
 # https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
+# https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
 RBB_MACHINE_NAME = podman-machine-default
 RBB_ENCLAVE_SIZE = 24
 machine_setup_PROTOTYPE_rule.sh:
@@ -196,7 +197,7 @@ machine_setup_PROTOTYPE_rule.sh:
 	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
 	podman machine start $(RBB_MACHINE_NAME)
 	podman machine ssh $(RBB_MACHINE_NAME) 'sudo mkdir -p /etc/cni/net.d'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "{\n  \"cniVersion\": \"0.4.0\",\n  \"name\": \"podman\",\n  \"plugins\": [\n    {\n      \"type\": \"bridge\",\n      \"bridge\": \"cni0\",\n      \"ipam\": {\n        \"type\": \"host-local\"\n      }\n    }\n  ]\n}" | sudo tee /etc/cni/net.d/87-podman-bridge.conflist'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "{\n  \"cniVersion\": \"0.4.0\",\n  \"name\": \"podman\",\n  \"plugins\": [\n    {\n      \"type\": \"bridge\",\n      \"bridge\": \"cni0\",\n      \"dns\": {\n        \"nameservers\": [\"CONTAINER_DNS\"]\n      },\n      \"ipam\": {\n        \"type\": \"host-local\"\n      }\n    }\n  ]\n}" | sudo tee /etc/cni/net.d/87-podman-bridge.conflist'
 	podman machine stop $(RBB_MACHINE_NAME)
 	podman machine start $(RBB_MACHINE_NAME)
 
