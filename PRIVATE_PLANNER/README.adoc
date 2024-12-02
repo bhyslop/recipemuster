@@ -281,5 +281,15 @@ This section contains reminders about future improvements, deferred for now.
     or {rbb_dns_server}: "If not specified, the system uses the host's resolver configuration."
 * Seriously consider making tabtarget names in this file more like zmbsr_xxx_rule and then hardcoding tabtarget to pass var, better for nesting
 * helpers in the CRG doc needs to be a Linked Term.
+* Square with versioning the podman machine:
+      podman machine init          \
+        rbm_machine        \
+        --cpus 2                   \
+        --memory 4096              \
+        --disk-size 100
+      Downloading VM image: v20241128061229-5.2-rootfs-amd64.tar.zst [==================>-----------------------------------------------------------] 42.9MiB / 179.9MiB
+
+      podman machine init --image-path=/path/to/your/downloaded/image.tar.zst my-machine
+* profit
 ====
 
