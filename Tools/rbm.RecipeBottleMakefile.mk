@@ -187,7 +187,7 @@ rbm-i%:  rbb_render rbn_render rbs_render
 
 # https://claude.ai/chat/1b421a0b-f6cb-49ac-b5f8-c0db14a75c39
 # https://claude.ai/chat/a3c82136-d21d-4e7b-85fb-9af28384e7ea
-RBB_MACHINE_NAME = rbm_machine
+RBB_MACHINE_NAME = podman-machine-default
 RBB_ENCLAVE_SIZE = 24
 machine_setup_PROTOTYPE_rule.sh:
 	$(MBC_START) "Setting up podman machine for RBM"
