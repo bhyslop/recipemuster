@@ -78,7 +78,7 @@ zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MB
 #  of which are useful in maintaining this example space.
 
 
-rbm-Ci.ConfigRegimeInfo.sh: rbs_define
+rbm-Ci.ConfigRegimeInfo.sh: rbs_define rbb_define rbn_define
 	$(zRBC_PASS)
 
 

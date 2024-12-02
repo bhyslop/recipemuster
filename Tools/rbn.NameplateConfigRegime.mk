@@ -144,29 +144,29 @@ rbn_define:
 	@echo "RBN_VOLUME_MOUNTS        # Optional volume mount arguments"
 
 rbn_render:
-	$(MBC_START) "Recipe Bottle Nameplate Configuration:"
-	$(MBC_STEP) "Core Identity:"
-	$(MBC_STEP) "  Moniker: $(RBN_MONIKER)"
-	$(MBC_STEP) "  Description: $(RBN_DESCRIPTION)"
-	$(MBC_STEP) "Container Images:"
-	$(MBC_STEP) "  Sentry: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
-	$(MBC_STEP) "  Bottle: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
-	$(MBC_STEP) "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || $(MBC_STEP) "  Uplink Port: $(RBN_PORT_UPLINK)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || $(MBC_STEP) "  Enclave Port: $(RBN_PORT_ENCLAVE)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || $(MBC_STEP) "  Service Port: $(RBN_PORT_SERVICE)"
-	$(MBC_STEP) "Network Uplink:"
-	$(MBC_STEP) "  DNS Resolution: $(if $(filter 1,$(RBN_UPLINK_DNS_ENABLED)),ENABLED,DISABLED)"
-	$(MBC_STEP) "  IP Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_ENABLED)),ENABLED,DISABLED)"
-	$(MBC_STEP) "  Global DNS: $(if $(filter 1,$(RBN_UPLINK_DNS_GLOBAL)),ENABLED,DISABLED)"
-	$(MBC_STEP) "  Global Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_GLOBAL)),ENABLED,DISABLED)"
+	$(MBC_STEP) "Recipe Bottle Nameplate Configuration:"
+	@echo "Core Identity:"
+	@echo "  Moniker: $(RBN_MONIKER)"
+	@echo "  Description: $(RBN_DESCRIPTION)"
+	@echo "Container Images:"
+	@echo "  Sentry: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
+	@echo "  Bottle: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
+	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Uplink Port: $(RBN_PORT_UPLINK)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_PORT_ENCLAVE)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Service Port: $(RBN_PORT_SERVICE)"
+	@echo "Network Uplink:"
+	@echo "  DNS Resolution: $(if $(filter 1,$(RBN_UPLINK_DNS_ENABLED)),ENABLED,DISABLED)"
+	@echo "  IP Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_ENABLED)),ENABLED,DISABLED)"
+	@echo "  Global DNS: $(if $(filter 1,$(RBN_UPLINK_DNS_GLOBAL)),ENABLED,DISABLED)"
+	@echo "  Global Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_GLOBAL)),ENABLED,DISABLED)"
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || \
 	 test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
-	 $(MBC_STEP) "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"
+	 @echo "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || \
 	 test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
-	 $(MBC_STEP) "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"
-	@test "$(RBN_VOLUME_MOUNTS)" = "" || $(MBC_STEP) "Volume Mounts: $(RBN_VOLUME_MOUNTS)"
+	 @echo "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"
+	@test "$(RBN_VOLUME_MOUNTS)" = "" || echo "Volume Mounts: $(RBN_VOLUME_MOUNTS)"
 
 # Container environment arguments for Assignment Variables
 RBN__ROLLUP_ENVIRONMENT_VAR := \
@@ -187,3 +187,4 @@ RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_UPLINK_ALLOWED_CIDRS='$(RBN_UPLINK_ALLOWED_CIDRS)' \
   RBN_UPLINK_ALLOWED_DOMAINS='$(RBN_UPLINK_ALLOWED_DOMAINS)' \
   RBN_VOLUME_MOUNTS='$(RBN_VOLUME_MOUNTS)'
+

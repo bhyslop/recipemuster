@@ -53,13 +53,13 @@ rbb_define:
 	@echo "RBB_REGISTRY_SERVER      # Optional: Container registry server address"
 
 rbb_render:
-	@$(MBC_START) "Network Configuration:"
-	@$(MBC_STEP) "Enclave Subnet: $(RBB_ENCLAVE_SUBNET)"
-	@$(MBC_STEP) "Enclave Gateway: $(RBB_ENCLAVE_GATEWAY)"
-	@test "$(RBB_DNS_SERVER)" = "" || $(MBC_STEP) "DNS Server: $(RBB_DNS_SERVER)"
-	@$(MBC_START) "System Configuration:"
-	@test "$(RBB_NAMEPLATE_PATH)" = "" || $(MBC_STEP) "Nameplate Path: $(RBB_NAMEPLATE_PATH)"
-	@test "$(RBB_REGISTRY_SERVER)" = "" || $(MBC_STEP) "Registry Server: $(RBB_REGISTRY_SERVER)"
+	$(MBC_STEP) "Network Configuration:"
+	@echo "Enclave Subnet: $(RBB_ENCLAVE_SUBNET)"
+	@echo "Enclave Gateway: $(RBB_ENCLAVE_GATEWAY)"
+	@test "$(RBB_DNS_SERVER)" = "" || echo "DNS Server: $(RBB_DNS_SERVER)"
+	$(MBC_STEP) "System Configuration:"
+	@test "$(RBB_NAMEPLATE_PATH)" = "" || echo "Nameplate Path: $(RBB_NAMEPLATE_PATH)"
+	@test "$(RBB_REGISTRY_SERVER)" = "" || echo "Registry Server: $(RBB_REGISTRY_SERVER)"
 
 # Environment rollup for container usage
 RBB__ROLLUP_ENVIRONMENT_VAR := \

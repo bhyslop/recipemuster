@@ -23,10 +23,11 @@ rbs_validate: zrbs_validate_registry_auth
 rbs_render:
 	$(MBC_START) "Station Configuration Status:"
 	@echo ""
-	$(MBC_STEP) "Registry Authentication:"
-	@test "$(RBS_REGISTRY_CREDENTIALS)" = "" || $(MBC_STEP) "  Registry Credentials: [CREDENTIALS HIDDEN]"
-	@test "$(RBS_REGISTRY_CREDENTIALS)" = "" && $(MBC_STEP) "  Registry Credentials: Not configured (anonymous access)"
+	$(MBC_STEP) "Registry Authentication"
+	@test "$(RBS_REGISTRY_CREDENTIALS)" = "" || echo "  Registry Credentials: [CREDENTIALS ARE HIDDEN]"
+	@test "$(RBS_REGISTRY_CREDENTIALS)" = "" && echo "  Registry Credentials: Not configured (anonymous access)"
 
 # Environment variable rollup for container usage
 RBS__ROLLUP_ENVIRONMENT_VAR := \
   RBS_REGISTRY_CREDENTIALS='$(RBS_REGISTRY_CREDENTIALS)'
+

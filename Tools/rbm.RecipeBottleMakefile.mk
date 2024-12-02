@@ -180,3 +180,8 @@ rbm-cs%:
 rbm-cb%: zrbm_validate_regimes_rule
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
+
+rbm-i%:  rbb_render rbn_render rbs_render
+	$(MBC_PASS) "Done, no errors."
+
+
