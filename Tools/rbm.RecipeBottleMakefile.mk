@@ -197,7 +197,8 @@ machine_setup_PROTOTYPE_rule.sh:
 	podman machine start $(RBB_MACHINE_NAME)
 	podman machine ssh $(RBB_MACHINE_NAME) 'sudo mkdir -p /etc/cni/net.d'
 	podman machine ssh $(RBB_MACHINE_NAME) 'echo "{\n  \"cniVersion\": \"0.4.0\",\n  \"name\": \"podman\",\n  \"plugins\": [\n    {\n      \"type\": \"bridge\",\n      \"bridge\": \"cni0\",\n      \"ipam\": {\n        \"type\": \"host-local\"\n      }\n    }\n  ]\n}" | sudo tee /etc/cni/net.d/87-podman-bridge.conflist'
-	podman machine restart $(RBB_MACHINE_NAME)
+	podman machine stop $(RBB_MACHINE_NAME)
+	podman machine start $(RBB_MACHINE_NAME)
 
 
 # eof
