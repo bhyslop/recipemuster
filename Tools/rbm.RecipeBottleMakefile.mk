@@ -193,14 +193,9 @@ RBB_ENCLAVE_SIZE = 24
 machine_setup_PROTOTYPE_rule.sh:
 	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
 	podman machine start $(RBB_MACHINE_NAME)
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]" | sudo tee /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "default_subnet_pools = [" | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "  { base = \"$(RBB_ENCLAVE_SUBNET)\" size = $(RBB_ENCLAVE_SIZE) }" | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "]" | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "network_backend = \"cni\"" | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[dns]" | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "backend = \"systemd\"" | sudo tee -a /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]\ndns_backend=\"none\"" | sudo tee /etc/containers/podman/containers.conf'
 	podman machine restart $(RBB_MACHINE_NAME)
 
+This configures podman to skip DNS setup entirely. If this works, we can add back the subnet configuration.
 
 # eof
