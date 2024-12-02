@@ -193,7 +193,7 @@ RBB_ENCLAVE_SIZE = 24
 machine_setup_PROTOTYPE_rule.sh:
 	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
 	podman machine start $(RBB_MACHINE_NAME)
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]\ndns_backend=\"none\"" | sudo tee /etc/containers/podman/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]\ndns_backend=\"none\"" | sudo tee /etc/containers/containers.conf'
 	podman machine restart $(RBB_MACHINE_NAME)
 
 
