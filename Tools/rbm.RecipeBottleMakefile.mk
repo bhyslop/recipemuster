@@ -187,36 +187,20 @@ rbm-i%:  rbb_render rbn_render rbs_render
 
 # https://claude.ai/chat/1b421a0b-f6cb-49ac-b5f8-c0db14a75c39
 # https://claude.ai/chat/a3c82136-d21d-4e7b-85fb-9af28384e7ea
+# https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
 RBB_MACHINE_NAME = podman-machine-default
 RBB_ENCLAVE_SIZE = 24
-machine_setup_PROTOTYPE_rule.sh:
-	$(MBC_START) "Setting up podman machine for RBM"
-	$(MBC_STEP) "Create and configure RBM machine named" $(RBB_MACHINE_NAME)
-	podman machine init          \
-	  $(RBB_MACHINE_NAME)        \
-	  --cpus 2                   \
-	  --memory 4096              \
-	  --disk-size 100
-	$(MBC_STEP) "Start the machine named" $(RBB_MACHINE_NAME)
+machine_setup_rule.sh:
+	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
 	podman machine start $(RBB_MACHINE_NAME)
-	$(MBC_STEP) "Permanently disable aardvark-dns"
-	podman machine ssh $(RBB_MACHINE_NAME) "sudo systemctl mask podman-network-aardvark"
-	podman machine ssh $(RBB_MACHINE_NAME) "sudo systemctl disable --now podman-network-aardvark"
-	$(MBC_STEP) "Configure podman networking"
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]"                                                         | sudo tee    /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "default_subnet_pools = ["                                          | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "  { base = \"$(RBB_ENCLAVE_SUBNET)\" size = $(RBB_ENCLAVE_SIZE) }" | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "]"                                                                 | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "network_backend = \"cni\""                                         | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "default_network_options = [\"ipv6=false\"]"                        | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo ""                                                                  | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[dns]"                                                             | sudo tee -a /etc/containers/containers.conf'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "backend = \"none\""                                                | sudo tee -a /etc/containers/containers.conf'
-	$(MBC_STEP) "Verify configuration"
-	podman machine ssh $(RBB_MACHINE_NAME) "systemctl status podman-network-aardvark || true"
-	podman machine ssh $(RBB_MACHINE_NAME) "cat /etc/containers/containers.conf"
-	podman machine ssh $(RBB_MACHINE_NAME) "systemctl is-active podman-network-aardvark"
-	$(MBC_PASS) "Done, no errors."
+	podman machine ssh $(RBB_MACHINE_NAME) "sudo systemctl stop podman-network-aardvark"
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[network]"                                    | sudo tee /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "network_backend = \"cni\""                    | sudo tee -a /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "default_network_options = [\"ipv6=false\"]"   | sudo tee -a /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo ""                                             | sudo tee -a /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "[dns]"                                        | sudo tee -a /etc/containers/containers.conf'
+	podman machine ssh $(RBB_MACHINE_NAME) 'echo "backend = \"systemd\""                        | sudo tee -a /etc/containers/containers.conf'
+	podman machine restart $(RBB_MACHINE_NAME)
 
 
 # eof
