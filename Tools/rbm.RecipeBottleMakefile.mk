@@ -165,7 +165,7 @@ rbm-ss%:                  \
 	echo "PROCESS FINISHED: but lets beware following nags..."
 	false && echo "/24 above"
 	false && echo "potentially tectonic change in setup script ordering"
-
+	false && echo "Switch bottle back to jupyter and claude"
 
 
 # zrbm_validate_regimes_rule
