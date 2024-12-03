@@ -82,9 +82,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Network Connect Sequence
-	podman network connect \
-	    --ip $(RBB_ENCLAVE_GATEWAY)                    \
-	    $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
+	podman network connect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 
 	# Security Configuration
