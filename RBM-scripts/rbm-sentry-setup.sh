@@ -48,10 +48,15 @@ iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
 iptables -A FORWARD -j RBM-FORWARD || exit 10
 
 echo "RBSp1.5: Configuring DHCP firewall rules"
-iptables -A RBM-FORWARD -i eth1 -p udp --dport 67 -j ACCEPT || exit 10
-iptables -A RBM-FORWARD -i eth1 -p udp --dport 68 -j ACCEPT || exit 10
-iptables -A RBM-FORWARD -i eth1 -p udp --sport 67 -j ACCEPT || exit 10
-iptables -A RBM-FORWARD -i eth1 -p udp --sport 68 -j ACCEPT || exit 10
+# Forward chain rules
+iptables -A RBM-FORWARD -i eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
+iptables -A RBM-FORWARD -o eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
+# Input chain rules 
+iptables -A RBM-INGRESS -i eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
+iptables -A RBM-INGRESS -i eth1 -p udp --sport 67:68 -j ACCEPT || exit 10
+# Output chain rules
+iptables -A RBM-EGRESS -o eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
+iptables -A RBM-EGRESS -o eth1 -p udp --sport 67:68 -j ACCEPT || exit 10
 
 echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBN_PORT_ENABLED}" = "1" ]; then
