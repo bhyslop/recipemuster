@@ -68,10 +68,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
-	podman network create --subnet $(RBB_ENCLAVE_SUBNET)           \
-	                     --gateway $(RBB_ENCLAVE_GATEWAY)          \
-	                     --internal                                \
-	                     $(RBM_ENCLAVE_NETWORK)
+	podman network create --internal      $(RBM_ENCLAVE_NETWORK)
 
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
@@ -107,12 +104,6 @@ zrbm_start_bottle_rule:
 	podman run -d                            \
 	    --name    $(RBM_BOTTLE_CONTAINER)    \
 	    --network $(RBM_ENCLAVE_NETWORK)     \
-	    --dns-search "."                     \
-	    --dns-opt "use-vc"                   \
-	    --dns-opt "ndots:1"                  \
-	    --dns-opt "timeout:2"                \
-	    --dns-opt "attempts:5"               \
-	    --dns     $(RBB_ENCLAVE_GATEWAY)     \
 	    --restart unless-stopped             \
 	    $(RBN_VOLUME_MOUNTS)                 \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
@@ -127,11 +118,6 @@ rbm-br%: zrbm_validate_regimes_rule
 	# Bottle Create and Execute Sequence
 	podman run --rm                                           \
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
-	    --dns-search "."                                      \
-	    --dns-opt "ndots:1"                                   \
-	    --dns-opt "timeout:2"                                 \
-	    --dns-opt "attempts:5"                                \
-	    --dns     $(RBB_ENCLAVE_GATEWAY)                      \
 	    $(RBN_VOLUME_MOUNTS)                                  \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)  \
 	    $(CMD)

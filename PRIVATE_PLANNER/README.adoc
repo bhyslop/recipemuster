@@ -290,6 +290,8 @@ This section contains reminders about future improvements, deferred for now.
       Downloading VM image: v20241128061229-5.2-rootfs-amd64.tar.zst [==================>-----------------------------------------------------------] 42.9MiB / 179.9MiB
 
       podman machine init --image-path=/path/to/your/downloaded/image.tar.zst my-machine
+* Seriously consider consolidating sentry startup script with Tools
 * profit
+
 ====
 
