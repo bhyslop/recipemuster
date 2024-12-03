@@ -92,10 +92,6 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	# Security Configuration
 	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
-	echo "PROCESS FINISHED: but lets beware following nags..."
-	false && echo "/24 above"
-	false && echo "potentially tectonic change in setup script ordering"
-
 
 
 rbm-BS%: zrbm_start_bottle_rule
@@ -165,6 +161,12 @@ rbm-ss%:                  \
   zrbm_start_bottle_rule  \
   # Game on...
 	@echo "Started Sessile Service $(RBM_MONIKER)"
+
+	echo "PROCESS FINISHED: but lets beware following nags..."
+	false && echo "/24 above"
+	false && echo "potentially tectonic change in setup script ordering"
+
+
 
 # zrbm_validate_regimes_rule
 rbm-cs%:
