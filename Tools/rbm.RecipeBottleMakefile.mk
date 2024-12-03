@@ -177,8 +177,7 @@ rbm-i%:  rbb_render rbn_render rbs_render
 # https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
 # https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
 RBB_MACHINE_NAME = podman-machine-default
-RBB_ENCLAVE_SIZE = 24
-machine_setup_PROTOTYPE_rule.sh:
+OBSOLETE_machine_setup_PROTOTYPE_rule.sh:
 	-podman machine stop
 	-podman machine rm $(RBB_MACHINE_NAME)
 	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
