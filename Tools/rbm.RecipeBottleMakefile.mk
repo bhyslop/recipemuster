@@ -168,6 +168,7 @@ rbm-ss%:                  \
 	false && echo "potentially tectonic change in setup script ordering"
 	false && echo "Switch bottle back to jupyter and claude"
 	false && echo "Do I really, really need bottle to run privileged?"
+	false && echo "Scrub out the 8.8.8.8 from the sentry setup"
 
 
 # zrbm_validate_regimes_rule
