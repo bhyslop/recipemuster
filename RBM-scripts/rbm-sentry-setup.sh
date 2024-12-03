@@ -58,6 +58,11 @@ iptables -A RBM-INGRESS -i eth1 -p udp --sport 67:68 -j ACCEPT || exit 10
 iptables -A RBM-EGRESS -o eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
 iptables -A RBM-EGRESS -o eth1 -p udp --sport 67:68 -j ACCEPT || exit 10
 
+echo "RBSp1.6: Configuring ICMP firewall rules"
+iptables -A RBM-FORWARD -p icmp -j ACCEPT || exit 10
+iptables -A RBM-INGRESS -p icmp -j ACCEPT || exit 10
+iptables -A RBM-EGRESS  -p icmp -j ACCEPT || exit 10
+
 echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
