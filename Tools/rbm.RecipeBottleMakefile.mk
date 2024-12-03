@@ -86,10 +86,16 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Network Connect Sequence
 	podman network connect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
+	podman exec $(RBM_SENTRY_CONTAINER) ip addr add ${RBB_ENCLAVE_GATEWAY}/24 dev eth1
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 
 	# Security Configuration
 	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+
+	echo "PROCESS FINISHED: but lets beware following nags..."
+	false && echo "/24 above"
+	false && echo "potentially tectonic change in setup script ordering"
+
 
 
 rbm-BS%: zrbm_start_bottle_rule
