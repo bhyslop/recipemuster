@@ -107,6 +107,7 @@ zrbm_start_bottle_rule:
 	podman run -d                            \
 	    --name    $(RBM_BOTTLE_CONTAINER)    \
 	    --network $(RBM_ENCLAVE_NETWORK)     \
+	    --privileged                         \
 	    --restart unless-stopped             \
 	    $(RBN_VOLUME_MOUNTS)                 \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
@@ -166,6 +167,7 @@ rbm-ss%:                  \
 	false && echo "/24 above"
 	false && echo "potentially tectonic change in setup script ordering"
 	false && echo "Switch bottle back to jupyter and claude"
+	false && echo "Do I really, really need bottle to run privileged?"
 
 
 # zrbm_validate_regimes_rule
