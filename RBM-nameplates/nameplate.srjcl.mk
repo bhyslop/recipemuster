@@ -12,7 +12,7 @@ export RBN_SENTRY_IMAGE_TAG      := sentry_alpine_large.20241022__125927
 
 # TEMPORARY CUT
 # export RBN_BOTTLE_IMAGE_TAG      := bottle_anthropic_jupyter.20241020__173503
-export RBN_BOTTLE_IMAGE_TAG      := sentry_ubuntu_large.20241022__130547
+export RBN_BOTTLE_IMAGE_TAG      := bottle_ubuntu_test.20241203__154457
 
 # Port Service Configuration
 export RBN_PORT_ENABLED := 1
