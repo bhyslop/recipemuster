@@ -68,10 +68,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
-	podman network create --driver bridge         \
-	                      --internal              \
-	                      --ipam-driver=none      \
-	                      $(RBM_ENCLAVE_NETWORK)
+	podman network create --subnet $(RBB_ENCLAVE_SUBNET)           \
+	                     --gateway $(RBB_ENCLAVE_GATEWAY)          \
+	                     --internal                                \
+	                     $(RBM_ENCLAVE_NETWORK)
 
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
@@ -85,13 +85,13 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Network Connect Sequence
-	podman network connect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
-	podman exec $(RBM_SENTRY_CONTAINER) ip addr add ${RBB_ENCLAVE_GATEWAY}/24 dev eth1
+	podman network connect \
+	    --ip $(RBB_ENCLAVE_GATEWAY)                    \
+	    $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 
 	# Security Configuration
 	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
-
 
 
 rbm-BS%: zrbm_start_bottle_rule
@@ -107,7 +107,7 @@ zrbm_start_bottle_rule:
 	podman run -d                            \
 	    --name    $(RBM_BOTTLE_CONTAINER)    \
 	    --network $(RBM_ENCLAVE_NETWORK)     \
-	    --privileged                         \
+	    --dns     $(RBB_ENCLAVE_GATEWAY)     \
 	    --restart unless-stopped             \
 	    $(RBN_VOLUME_MOUNTS)                 \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
@@ -122,6 +122,7 @@ rbm-br%: zrbm_validate_regimes_rule
 	# Bottle Create and Execute Sequence
 	podman run --rm                                           \
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
+	    --dns     $(RBB_ENCLAVE_GATEWAY)                      \
 	    $(RBN_VOLUME_MOUNTS)                                  \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)  \
 	    $(CMD)
@@ -163,14 +164,6 @@ rbm-ss%:                  \
   # Game on...
 	@echo "Started Sessile Service $(RBM_MONIKER)"
 
-	echo "PROCESS FINISHED: but lets beware following nags..."
-	false && echo "/24 above"
-	false && echo "potentially tectonic change in setup script ordering"
-	false && echo "Switch bottle back to jupyter and claude"
-	false && echo "Do I really, really need bottle to run privileged?"
-	false && echo "Scrub out the 8.8.8.8 from the sentry setup"
-
-
 # zrbm_validate_regimes_rule
 rbm-cs%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
@@ -184,23 +177,6 @@ rbm-cb%: zrbm_validate_regimes_rule
 
 rbm-i%:  rbb_render rbn_render rbs_render
 	$(MBC_PASS) "Done, no errors."
-
-
-# https://claude.ai/chat/1b421a0b-f6cb-49ac-b5f8-c0db14a75c39
-# https://claude.ai/chat/a3c82136-d21d-4e7b-85fb-9af28384e7ea
-# https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
-# https://claude.ai/chat/4f5d16c6-28ba-4b33-b604-742326607da8
-RBB_MACHINE_NAME = podman-machine-default
-OBSOLETE_machine_setup_PROTOTYPE_rule.sh:
-	-podman machine stop
-	-podman machine rm $(RBB_MACHINE_NAME)
-	podman machine init $(RBB_MACHINE_NAME) --cpus 2 --memory 4096 --disk-size 100
-	podman machine start $(RBB_MACHINE_NAME)
-	podman machine ssh $(RBB_MACHINE_NAME) 'sudo mkdir -p /etc/cni/net.d'
-	podman machine ssh $(RBB_MACHINE_NAME) 'echo "{\n  \"cniVersion\": \"0.4.0\",\n  \"name\": \"podman\",\n  \"plugins\": [\n    {\n      \"type\": \"bridge\",\n      \"bridge\": \"cni0\",\n      \"dns\": {\n        \"nameservers\": [\"CONTAINER_DNS\"]\n      },\n      \"ipam\": {\n        \"type\": \"host-local\"\n      }\n    }\n  ]\n}" | sudo tee /etc/cni/net.d/87-podman-bridge.conflist'
-	podman machine stop $(RBB_MACHINE_NAME)
-	podman machine start $(RBB_MACHINE_NAME)
-
 
 
 # eof

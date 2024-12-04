@@ -47,22 +47,6 @@ iptables -A INPUT   -j RBM-INGRESS || exit 10
 iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
 iptables -A FORWARD -j RBM-FORWARD || exit 10
 
-echo "RBSp1.5: Configuring DHCP firewall rules"
-# Forward chain rules
-iptables -A RBM-FORWARD -i eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
-iptables -A RBM-FORWARD -o eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
-# Input chain rules 
-iptables -A RBM-INGRESS -i eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
-iptables -A RBM-INGRESS -i eth1 -p udp --sport 67:68 -j ACCEPT || exit 10
-# Output chain rules
-iptables -A RBM-EGRESS -o eth1 -p udp --dport 67:68 -j ACCEPT || exit 10
-iptables -A RBM-EGRESS -o eth1 -p udp --sport 67:68 -j ACCEPT || exit 10
-
-echo "RBSp1.6: Configuring ICMP firewall rules"
-iptables -A RBM-FORWARD -p icmp -j ACCEPT || exit 10
-iptables -A RBM-INGRESS -p icmp -j ACCEPT || exit 10
-iptables -A RBM-EGRESS  -p icmp -j ACCEPT || exit 10
-
 echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
@@ -118,16 +102,10 @@ else
     timeout 5s nc -z "${RBB_DNS_SERVER}" 53 || exit 40
     timeout 6s dig  @"${RBB_DNS_SERVER}" .  || exit 40
 
-    echo "RBSp4: Create dnsmasq log dir"
-    mkdir -p /var/lib/dnsmasq || exit 41
-
     echo "RBSp4: Configuring dnsmasq"
-    echo "bind-dynamic"                                    >  /etc/dnsmasq.conf || exit 41
+    echo "bind-interfaces"                                 >  /etc/dnsmasq.conf || exit 41
     echo "interface=eth1"                                  >> /etc/dnsmasq.conf || exit 41
-    echo "listen-address=${RBB_ENCLAVE_GATEWAY}"           >> /etc/dnsmasq.conf || exit 41
-    echo "dhcp-range=172.16.0.50,172.16.0.150,12h"         >> /etc/dnsmasq.conf || exit 41
-    echo "dhcp-option=3,${RBB_ENCLAVE_GATEWAY}"            >> /etc/dnsmasq.conf || exit 41
-    echo "dhcp-option=6,${RBB_ENCLAVE_GATEWAY}"            >> /etc/dnsmasq.conf || exit 41
+    echo "no-dhcp-interface=eth1"                          >> /etc/dnsmasq.conf || exit 41
     echo "cache-size=1000"                                 >> /etc/dnsmasq.conf || exit 41
     echo "min-cache-ttl=600"                               >> /etc/dnsmasq.conf || exit 41
     echo "max-cache-ttl=3600"                              >> /etc/dnsmasq.conf || exit 41
@@ -136,10 +114,8 @@ else
     echo "log-dhcp"                                        >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
+    echo "no-resolv"                                       >> /etc/dnsmasq.conf || exit 41
     echo "no-poll"                                         >> /etc/dnsmasq.conf || exit 41
-    echo "dhcp-lease-max=100"                              >> /etc/dnsmasq.conf || exit 41
-    echo "dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases"  >> /etc/dnsmasq.conf || exit 41
-    echo "server=8.8.8.8"                                  >> /etc/dnsmasq.conf || exit 41
 
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"

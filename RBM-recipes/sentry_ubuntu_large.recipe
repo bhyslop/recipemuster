@@ -8,7 +8,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y                                                 \
     apparmor-utils      `# For AppArmor utilities including aa-status`                   \
     curl                `# For making HTTP requests and basic diagnostics`               \
-    isc-dhcp-client     `# For dynamic IP address assignment`                            \
     dnsmasq             `# For DNS forwarding and DHCP server`                           \
     dnsutils            `# For dig and nslookup commands`                                \
     iproute2            `# For network configuration`                                    \
