@@ -103,11 +103,15 @@ else
     timeout 5s nc -z "${RBB_DNS_SERVER}" 53 || exit 40
     timeout 5s dig  @"${RBB_DNS_SERVER}" .  || exit 40
 
+    echo "RBSp4: Process cleanup"
+    killall -9 dnsmasq || true
+
     echo "RBSp4: Note version in use"
     dnsmasq --version
 
     echo "RBSp4: Configuring dnsmasq"
-    echo "bind-interfaces"                                 >  /etc/dnsmasq.conf || exit 41
+    echo "bind-dynamic"                                    >  /etc/dnsmasq.conf || exit 41
+    echo "listen-address=${RBB_ENCLAVE_SENTRY_GATEWAY}"    >> /etc/dnsmasq.conf || exit 41
     echo "interface=eth1"                                  >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=eth1"                          >> /etc/dnsmasq.conf || exit 41
     echo "cache-size=1000"                                 >> /etc/dnsmasq.conf || exit 41
