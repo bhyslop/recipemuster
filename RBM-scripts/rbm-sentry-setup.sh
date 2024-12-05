@@ -100,50 +100,48 @@ if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -j DROP || exit 40
 else
     echo "RBSp4: Testing DNS server connectivity"
-    timeout 5s nc -z "${RBB_DNS_SERVER}" 53 || exit 40
-    timeout 5s dig  @"${RBB_DNS_SERVER}" .  || exit 40
+    timeout 5s nc -z "${RBB_DNS_SERVER}" 53                   || exit 40
+    timeout 5s dig  @"${RBB_DNS_SERVER}" .                    || exit 40
 
     echo "RBSp4: Process cleanup"
     killall -9 dnsmasq || true
-
-    echo "RBSp4: Note version in use"
-    dnsmasq --version
+    sleep 1
 
     echo "RBSp4: Configuring dnsmasq"
-    echo "bind-dynamic"                                    >  /etc/dnsmasq.conf || exit 41
-    echo "listen-address=${RBB_ENCLAVE_SENTRY_GATEWAY}"    >> /etc/dnsmasq.conf || exit 41
-    echo "interface=eth1"                                  >> /etc/dnsmasq.conf || exit 41
-    echo "no-dhcp-interface=eth1"                          >> /etc/dnsmasq.conf || exit 41
-    echo "cache-size=1000"                                 >> /etc/dnsmasq.conf || exit 41
-    echo "min-cache-ttl=600"                               >> /etc/dnsmasq.conf || exit 41
-    echo "max-cache-ttl=3600"                              >> /etc/dnsmasq.conf || exit 41
-    echo "log-queries=extra"                               >> /etc/dnsmasq.conf || exit 41
-    echo "log-facility=/var/log/dnsmasq.log"               >> /etc/dnsmasq.conf || exit 41
-    echo "log-dhcp"                                        >> /etc/dnsmasq.conf || exit 41
-    echo "log-debug"                                       >> /etc/dnsmasq.conf || exit 41
-    echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
-    echo "no-resolv"                                       >> /etc/dnsmasq.conf || exit 41
-    echo "no-poll"                                         >> /etc/dnsmasq.conf || exit 41
+    echo "bind-interfaces"                                 > /etc/dnsmasq.conf || exit 41
+    echo "except-interface=lo"                            >> /etc/dnsmasq.conf || exit 41
+    echo "except-interface=eth0"                          >> /etc/dnsmasq.conf || exit 41
+    echo "interface=eth1"                                 >> /etc/dnsmasq.conf || exit 41
+    echo "listen-address=${RBB_ENCLAVE_SENTRY_GATEWAY}"   >> /etc/dnsmasq.conf || exit 41
+    echo "no-dhcp-interface=eth1"                         >> /etc/dnsmasq.conf || exit 41
+    echo "cache-size=1000"                                >> /etc/dnsmasq.conf || exit 41
+    echo "min-cache-ttl=600"                              >> /etc/dnsmasq.conf || exit 41
+    echo "max-cache-ttl=3600"                             >> /etc/dnsmasq.conf || exit 41
+    echo "log-queries=extra"                              >> /etc/dnsmasq.conf || exit 41
+    echo "log-facility=/var/log/dnsmasq.log"              >> /etc/dnsmasq.conf || exit 41
+    echo "log-dhcp"                                       >> /etc/dnsmasq.conf || exit 41
+    echo "log-debug"                                      >> /etc/dnsmasq.conf || exit 41
+    echo "log-async=20"                                   >> /etc/dnsmasq.conf || exit 41
+    echo "log-time"                                       >> /etc/dnsmasq.conf || exit 41
+    echo "no-resolv"                                      >> /etc/dnsmasq.conf || exit 41
+    echo "no-poll"                                        >> /etc/dnsmasq.conf || exit 41
 
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
-        echo "RBSp4: Enabling global DNS resolution"
-        echo "server=${RBB_DNS_SERVER}"                    >> /etc/dnsmasq.conf || exit 41
+        echo "server=${RBB_DNS_SERVER}"                   >> /etc/dnsmasq.conf || exit 41
     else
-        echo "RBSp4: Configuring domain-based DNS filtering"
-        echo "auth-zone=."                                 >> /etc/dnsmasq.conf || exit 41
+        echo "auth-zone=."                                >> /etc/dnsmasq.conf || exit 41
         for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
-            echo "auth-zone-domain=${domain}"              >> /etc/dnsmasq.conf || exit 41
-            echo "server=/${domain}/${RBB_DNS_SERVER}"     >> /etc/dnsmasq.conf || exit 41
+            echo "auth-zone-domain=${domain}"             >> /etc/dnsmasq.conf || exit 41
+            echo "server=/${domain}/${RBB_DNS_SERVER}"    >> /etc/dnsmasq.conf || exit 41
         done
     fi
-
-    echo "RBSp4: Echo back the constructed dnsmasq config file"
-    cat                                                       /etc/dnsmasq.conf || exit 41
 
     echo "RBSp4: Starting dnsmasq service"
     dnsmasq || exit 42
 
     echo "RBSp4: Configuring DNS firewall rules"
+    iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
+    iptables -A RBM-INGRESS -i eth1 -p tcp --dport 53                        -j ACCEPT || exit 43
     iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                        -j ACCEPT || exit 43
     iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
