@@ -103,6 +103,9 @@ else
     timeout 5s nc -z "${RBB_DNS_SERVER}" 53 || exit 40
     timeout 5s dig  @"${RBB_DNS_SERVER}" .  || exit 40
 
+    echo "RBSp4: Note version in use"
+    dnsmasq --version
+
     echo "RBSp4: Configuring dnsmasq"
     echo "bind-interfaces"                                 >  /etc/dnsmasq.conf || exit 41
     echo "interface=eth1"                                  >> /etc/dnsmasq.conf || exit 41
@@ -115,7 +118,6 @@ else
     echo "log-dhcp"                                        >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
-    echo "log-time"                                        >> /etc/dnsmasq.conf || exit 41
     echo "no-resolv"                                       >> /etc/dnsmasq.conf || exit 41
     echo "no-poll"                                         >> /etc/dnsmasq.conf || exit 41
 
@@ -133,9 +135,6 @@ else
 
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                       /etc/dnsmasq.conf || exit 41
-
-    echo "RBSp4: Note version in use"
-    dnsmasq --version
 
     echo "RBSp4: Starting dnsmasq service"
     dnsmasq || exit 42
