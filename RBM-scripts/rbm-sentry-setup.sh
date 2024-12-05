@@ -107,6 +107,9 @@ else
     killall -9 dnsmasq || true
     sleep 1
 
+    echo "RBSp4: Note version in use"
+    dnsmasq --version
+
     echo "RBSp4: Configuring dnsmasq"
     echo "bind-interfaces"                                 > /etc/dnsmasq.conf || exit 41
     echo "except-interface=lo"                            >> /etc/dnsmasq.conf || exit 41
@@ -122,19 +125,23 @@ else
     echo "log-dhcp"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                      >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                   >> /etc/dnsmasq.conf || exit 41
-    echo "log-time"                                       >> /etc/dnsmasq.conf || exit 41
     echo "no-resolv"                                      >> /etc/dnsmasq.conf || exit 41
     echo "no-poll"                                        >> /etc/dnsmasq.conf || exit 41
 
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
+        echo "RBSp4: Enabling global DNS resolution"
         echo "server=${RBB_DNS_SERVER}"                   >> /etc/dnsmasq.conf || exit 41
     else
+        echo "RBSp4: Configuring domain-based DNS filtering"
         echo "auth-zone=."                                >> /etc/dnsmasq.conf || exit 41
         for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
             echo "auth-zone-domain=${domain}"             >> /etc/dnsmasq.conf || exit 41
             echo "server=/${domain}/${RBB_DNS_SERVER}"    >> /etc/dnsmasq.conf || exit 41
         done
     fi
+
+    echo "RBSp4: Echo back the constructed dnsmasq config file"
+    cat                                                       /etc/dnsmasq.conf || exit 41
 
     echo "RBSp4: Starting dnsmasq service"
     dnsmasq || exit 42
