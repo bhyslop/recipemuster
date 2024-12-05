@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y                                        
     procps              `# For ps command to check running processes`                    \
     socat               `# For multipurpose relay (essential for proxying)`              \
     tcpdump             `# For packet capture and analysis`                              \
+    telnet              `# For testing TCP connections`                                  \
     traceroute          `# For tracing network routes`                                   \
     vim                 `# For text editing in the container`                            \
     ethtool             `# For querying, controlling network driver/hardware settings`   \
