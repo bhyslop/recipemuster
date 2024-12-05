@@ -5,7 +5,8 @@ set -e
 set -x
 
 : ${RBB_ENCLAVE_SUBNET:?}         && echo "RBSp0: RBB_ENCLAVE_SUBNET         = ${RBB_ENCLAVE_SUBNET}"
-: ${RBB_ENCLAVE_GATEWAY:?}        && echo "RBSp0: RBB_ENCLAVE_GATEWAY        = ${RBB_ENCLAVE_GATEWAY}"
+: ${RBB_ENCLAVE_PRIMAL_GATEWAY:?} && echo "RBSp0: RBB_ENCLAVE_PRIMAL_GATEWAY = ${RBB_ENCLAVE_PRIMAL_GATEWAY}"
+: ${RBB_ENCLAVE_SENTRY_GATEWAY:?} && echo "RBSp0: RBB_ENCLAVE_SENTRY_GATEWAY = ${RBB_ENCLAVE_SENTRY_GATEWAY}"
 : ${RBB_DNS_SERVER:?}             && echo "RBSp0: RBB_DNS_SERVER             = ${RBB_DNS_SERVER}"
 : ${RBN_PORT_ENABLED:?}           && echo "RBSp0: RBN_PORT_ENABLED           = ${RBN_PORT_ENABLED}"
 : ${RBN_PORT_UPLINK:?}            && echo "RBSp0: RBN_PORT_UPLINK            = ${RBN_PORT_UPLINK}"
@@ -52,8 +53,8 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
     echo "RBSp2: Setting up DNAT rules"
-    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_PORT_UPLINK}" \
-             -j DNAT --to-destination "${RBB_ENCLAVE_GATEWAY}:${RBN_PORT_SERVICE}" \
+    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_PORT_UPLINK}"              \
+             -j DNAT --to-destination "${RBB_ENCLAVE_SENTRY_GATEWAY}:${RBN_PORT_SERVICE}"  \
              -m comment --comment "RBM-PORT-FORWARD" || exit 20
 
     echo "RBSp2: Configuring port filter rules"
@@ -100,7 +101,7 @@ if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
 else
     echo "RBSp4: Testing DNS server connectivity"
     timeout 5s nc -z "${RBB_DNS_SERVER}" 53 || exit 40
-    timeout 6s dig  @"${RBB_DNS_SERVER}" .  || exit 40
+    timeout 5s dig  @"${RBB_DNS_SERVER}" .  || exit 40
 
     echo "RBSp4: Configuring dnsmasq"
     echo "bind-interfaces"                                 >  /etc/dnsmasq.conf || exit 41
@@ -114,6 +115,7 @@ else
     echo "log-dhcp"                                        >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                    >> /etc/dnsmasq.conf || exit 41
+    echo "log-time"                                        >> /etc/dnsmasq.conf || exit 41
     echo "no-resolv"                                       >> /etc/dnsmasq.conf || exit 41
     echo "no-poll"                                         >> /etc/dnsmasq.conf || exit 41
 
@@ -139,14 +141,14 @@ else
     dnsmasq || exit 42
 
     echo "RBSp4: Configuring DNS firewall rules"
-    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j ACCEPT || exit 43
-    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j ACCEPT || exit 43
-    iptables -A RBM-EGRESS -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
-    iptables -A RBM-EGRESS -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
+    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
+    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                        -j ACCEPT || exit 43
+    iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
+    iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
 
     echo "RBSp4: Setting up DNS NAT rules"
-    iptables -t nat -A PREROUTING -i eth1 -p udp --dport 53 -j DNAT --to ${RBB_ENCLAVE_GATEWAY}:53 || exit 43
-    iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 53 -j DNAT --to ${RBB_ENCLAVE_GATEWAY}:53 || exit 43
+    iptables -t nat -A PREROUTING -i eth1 -p udp --dport 53 -j DNAT --to ${RBB_ENCLAVE_SENTRY_GATEWAY}:53 || exit 43
+    iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 53 -j DNAT --to ${RBB_ENCLAVE_SENTRY_GATEWAY}:53 || exit 43
 fi
 
 echo "RBSp4: Sentry setup complete"

@@ -68,10 +68,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
-	podman network create --subnet $(RBB_ENCLAVE_SUBNET)           \
-	                     --gateway $(RBB_ENCLAVE_GATEWAY)          \
-	                     --internal                                \
-	                     $(RBM_ENCLAVE_NETWORK)
+	podman network create --subnet $(RBB_ENCLAVE_SUBNET)             \
+	                      --gateway $(RBB_ENCLAVE_PRIMAL_GATEWAY)    \
+	                      --internal                                 \
+	                      $(RBM_ENCLAVE_NETWORK)
 
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
@@ -85,8 +85,8 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Network Connect Sequence
-	podman network connect \
-	    --ip $(RBB_ENCLAVE_GATEWAY)                    \
+	podman network connect                               \
+	    --ip $(RBB_ENCLAVE_SENTRY_GATEWAY)               \
 	    $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 
@@ -104,12 +104,12 @@ zrbm_start_bottle_rule:
 	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
 	
 	# Bottle Launch Sequence
-	podman run -d                            \
-	    --name    $(RBM_BOTTLE_CONTAINER)    \
-	    --network $(RBM_ENCLAVE_NETWORK)     \
-	    --dns     $(RBB_ENCLAVE_GATEWAY)     \
-	    --restart unless-stopped             \
-	    $(RBN_VOLUME_MOUNTS)                 \
+	podman run -d                                \
+	    --name    $(RBM_BOTTLE_CONTAINER)        \
+	    --network $(RBM_ENCLAVE_NETWORK)         \
+	    --dns     $(RBB_ENCLAVE_SENTRY_GATEWAY)  \
+	    --restart unless-stopped                 \
+	    $(RBN_VOLUME_MOUNTS)                     \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
 
 
@@ -122,7 +122,7 @@ rbm-br%: zrbm_validate_regimes_rule
 	# Bottle Create and Execute Sequence
 	podman run --rm                                           \
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
-	    --dns     $(RBB_ENCLAVE_GATEWAY)                      \
+	    --dns     $(RBB_ENCLAVE_SENTRY_GATEWAY)               \
 	    $(RBN_VOLUME_MOUNTS)                                  \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)  \
 	    $(CMD)
