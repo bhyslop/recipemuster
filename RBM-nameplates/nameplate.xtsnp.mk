@@ -22,11 +22,14 @@ export RBN_PORT_SERVICE := 8888
 
 # Network Uplink Configuration
 #    Worksheet: https://claude.ai/chat/3b81ecc4-c3bd-4e71-82af-4f0feec7ce97
+#    Vexingly, example.com seems to have a large range.  I've experimentally
+#    extended the cidr a number of times based off of nslookups at various
+#    times.
 export RBN_UPLINK_DNS_ENABLED     := 1
 export RBN_UPLINK_ACCESS_ENABLED  := 1
 export RBN_UPLINK_DNS_GLOBAL      := 0
 export RBN_UPLINK_ACCESS_GLOBAL   := 0
-export RBN_UPLINK_ALLOWED_CIDRS   := 93.184.216.0/26
 export RBN_UPLINK_ALLOWED_DOMAINS := example.com
+export RBN_UPLINK_ALLOWED_CIDRS   := 93.184.214.0/22
 
 
