@@ -136,13 +136,11 @@ else
 
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"
-        echo "server=${RBB_DNS_SERVER}"                   >> /etc/dnsmasq.conf || exit 41
+        echo "server=${RBB_DNS_SERVER}" >> /etc/dnsmasq.conf || exit 41
     else
         echo "RBSp4: Configuring domain-based DNS filtering"
-        echo "auth-zone=."                                >> /etc/dnsmasq.conf || exit 41
         for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
-            echo "auth-zone-domain=${domain}"             >> /etc/dnsmasq.conf || exit 41
-            echo "server=/${domain}/${RBB_DNS_SERVER}"    >> /etc/dnsmasq.conf || exit 41
+            echo "server=/${domain}/${RBB_DNS_SERVER}" >> /etc/dnsmasq.conf || exit 41
         done
     fi
 
