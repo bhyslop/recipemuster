@@ -82,6 +82,12 @@ else
         iptables -A RBM-EGRESS  -o eth0 -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
     else
+        echo "RBSp3: Configuring DNS server access"
+        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
+
         echo "RBSp3: Setting up CIDR-based access control"
         for cidr in ${RBN_UPLINK_ALLOWED_CIDRS}; do
             iptables -A RBM-EGRESS  -o eth0 -d "${cidr}" -j ACCEPT || exit 32
