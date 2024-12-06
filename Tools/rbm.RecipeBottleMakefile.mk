@@ -74,6 +74,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman network create --subnet $(RBB_ENCLAVE_SUBNET)             \
 	                      --gateway $(RBB_ENCLAVE_PRIMAL_GATEWAY)    \
 	                      --internal                                 \
+			      --interface $(RBM_ENCLAVE_NETWORK)         \
 	                      $(RBM_ENCLAVE_NETWORK)
 
 	# Sentry Run Sequence

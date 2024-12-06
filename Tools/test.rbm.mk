@@ -1,5 +1,5 @@
 
 
 rbm-t.TestRBM.mk:
-	@echo "TESTING"
+	@echo "TESTING THIS"
 
