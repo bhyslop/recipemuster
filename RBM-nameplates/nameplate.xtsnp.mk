@@ -32,4 +32,10 @@ export RBN_UPLINK_ACCESS_GLOBAL   := 0
 export RBN_UPLINK_ALLOWED_DOMAINS := example.com
 export RBN_UPLINK_ALLOWED_CIDRS   := 93.184.214.0/22
 
+# Network Configuration
+export RBN_ENCLAVE_NETWORK_BASE   := 172.16.0.0
+export RBN_ENCLAVE_NETMASK        := 24
+export RBN_ENCLAVE_INITIAL_IP     := 172.16.0.1
+export RBN_ENCLAVE_SENTRY_IP      := 172.16.0.2
+
 

@@ -57,8 +57,8 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 
 rbm-SS%: zrbm_start_sentry_rule
 	@echo "Completed delegate."
-zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
+zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Stopping any prior containers for $(RBM_MONIKER)"
 	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
 	-podman rm -f      $(RBM_SENTRY_CONTAINER)
@@ -71,10 +71,12 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
-	podman network create --subnet $(RBB_ENCLAVE_SUBNET)             \
-	                      --gateway $(RBB_ENCLAVE_PRIMAL_GATEWAY)    \
-	                      --internal                                 \
+	podman network create --subnet $(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK)  \
+	                      --gateway $(RBN_ENCLAVE_INITIAL_IP)                          \
+	                      --dns-enabled=true                                           \
+	                      --internal                                                   \
 	                      $(RBM_ENCLAVE_NETWORK)
+
 
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
@@ -87,11 +89,22 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                      \
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
-	# Network Connect Sequence
-	podman network connect                               \
-	    --ip $(RBB_ENCLAVE_SENTRY_GATEWAY)               \
+	# Network Connect and Configure Sequence
+	podman network connect                              \
+	    --ip $(RBN_ENCLAVE_SENTRY_IP)                   \
 	    $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
+
+	# Verify eth1 presence and initial IP
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
+
+	# Remove auto-assigned address and configure gateway
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr  del $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)    dev eth1"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr  add $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route add $(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1"
+
+	# Verify exact gateway configuration
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr show eth1 | grep -q '^    inet $(RBN_ENCLAVE_INITIAL_IP)'"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "[ \$(ip addr show eth1 | grep '^    inet ' | wc -l) -eq 1 ]"
 
 	# Security Configuration
 	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
@@ -110,14 +123,15 @@ zrbm_start_bottle_rule:
 	podman run -d                                \
 	    --name    $(RBM_BOTTLE_CONTAINER)        \
 	    --network $(RBM_ENCLAVE_NETWORK)         \
-	    --dns     $(RBB_ENCLAVE_SENTRY_GATEWAY)  \
+	    --dns     $(RBN_ENCLAVE_SENTRY_IP)       \
 	    --restart unless-stopped                 \
 	    $(RBN_VOLUME_MOUNTS)                     \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
 
 	# DNS Configuration
 	podman exec $(RBM_BOTTLE_CONTAINER) /bin/sh -c \
-	    "echo 'nameserver $(RBB_ENCLAVE_SENTRY_GATEWAY)' > /etc/resolv.conf"
+	    "echo 'nameserver $(RBN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
+
 
 
 rbm-br%: zrbm_validate_regimes_rule
@@ -129,7 +143,7 @@ rbm-br%: zrbm_validate_regimes_rule
 	# Bottle Create and Execute Sequence
 	podman run --rm                                           \
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
-	    --dns     $(RBB_ENCLAVE_SENTRY_GATEWAY)               \
+	    --dns     $(RBN_ENCLAVE_SENTRY_IP)                    \
 	    $(RBN_VOLUME_MOUNTS)                                  \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)  \
 	    $(CMD)

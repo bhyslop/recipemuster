@@ -4,9 +4,10 @@ echo "RBS: Beginning sentry setup script"
 set -e
 set -x
 
-: ${RBB_ENCLAVE_SUBNET:?}         && echo "RBSp0: RBB_ENCLAVE_SUBNET         = ${RBB_ENCLAVE_SUBNET}"
-: ${RBB_ENCLAVE_PRIMAL_GATEWAY:?} && echo "RBSp0: RBB_ENCLAVE_PRIMAL_GATEWAY = ${RBB_ENCLAVE_PRIMAL_GATEWAY}"
-: ${RBB_ENCLAVE_SENTRY_GATEWAY:?} && echo "RBSp0: RBB_ENCLAVE_SENTRY_GATEWAY = ${RBB_ENCLAVE_SENTRY_GATEWAY}"
+: ${RBN_ENCLAVE_NETWORK_BASE:?}   && echo "RBSp0: RBN_ENCLAVE_NETWORK_BASE   = ${RBN_ENCLAVE_NETWORK_BASE}"
+: ${RBN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBN_ENCLAVE_NETMASK        = ${RBN_ENCLAVE_NETMASK}"
+: ${RBN_ENCLAVE_INITIAL_IP:?}     && echo "RBSp0: RBN_ENCLAVE_INITIAL_IP     = ${RBN_ENCLAVE_INITIAL_IP}"
+: ${RBN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBN_ENCLAVE_SENTRY_IP      = ${RBN_ENCLAVE_SENTRY_IP}"
 : ${RBB_DNS_SERVER:?}             && echo "RBSp0: RBB_DNS_SERVER             = ${RBB_DNS_SERVER}"
 : ${RBN_PORT_ENABLED:?}           && echo "RBSp0: RBN_PORT_ENABLED           = ${RBN_PORT_ENABLED}"
 : ${RBN_PORT_UPLINK:?}            && echo "RBSp0: RBN_PORT_UPLINK            = ${RBN_PORT_UPLINK}"
@@ -54,7 +55,7 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     
     echo "RBSp2: Setting up DNAT rules"
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_PORT_UPLINK}"              \
-             -j DNAT --to-destination "${RBB_ENCLAVE_SENTRY_GATEWAY}:${RBN_PORT_SERVICE}"  \
+             -j DNAT --to-destination "${RBN_ENCLAVE_SENTRY_IP}:${RBN_PORT_SERVICE}"       \
              -m comment --comment "RBM-PORT-FORWARD" || exit 20
 
     echo "RBSp2: Configuring port filter rules"
@@ -75,7 +76,8 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
     echo "RBSp3: Configuring NAT"
-    iptables -t nat -A POSTROUTING -o eth0 -s "${RBB_ENCLAVE_SUBNET}" -j MASQUERADE || exit 31
+    iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_NETWORK_BASE}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE
+ || exit 31
 
     if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
         echo "RBSp3: Enabling global access"
@@ -161,8 +163,8 @@ else
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
 
     echo "RBSp4: Setting up DNS NAT rules"
-    iptables -t nat -A PREROUTING -i eth1 -p udp --dport 53 -j DNAT --to ${RBB_ENCLAVE_SENTRY_GATEWAY}:53 || exit 43
-    iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 53 -j DNAT --to ${RBB_ENCLAVE_SENTRY_GATEWAY}:53 || exit 43
+    iptables -t nat -A PREROUTING -i eth1 -p udp --dport 53 -j DNAT --to ${RBN_ENCLAVE_SENTRY_IP}:53
+    iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 53 -j DNAT --to ${RBN_ENCLAVE_SENTRY_IP}:53
 fi
 
 echo "RBSp4: Sentry setup complete"
