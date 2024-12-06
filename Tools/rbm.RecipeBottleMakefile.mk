@@ -32,6 +32,9 @@ include Tools/rbb.BaseConfigRegime.mk
 include Tools/rbn.NameplateConfigRegime.mk
 include Tools/rbs.StationConfigRegime.mk
 
+# Test rules
+include Tools/test.rbm.mk
+
 # Container and network naming
 RBM_SENTRY_CONTAINER  = $(RBM_MONIKER)-sentry
 RBM_BOTTLE_CONTAINER  = $(RBM_MONIKER)-bottle
