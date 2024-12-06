@@ -98,6 +98,9 @@ fi
 
 echo "RBSp4: Configuring DNS services"
 
+echo "RBSp4: Configuring sentry DNS resolution"
+echo "nameserver ${RBB_DNS_SERVER}" > /etc/resolv.conf   || exit 40
+
 if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     echo "RBSp4: Blocking all DNS traffic"
     iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 40
