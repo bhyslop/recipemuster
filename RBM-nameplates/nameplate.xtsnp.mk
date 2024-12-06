@@ -15,7 +15,10 @@ export RBN_SENTRY_IMAGE_TAG      := sentry_alpine_large.20241022__125927
 export RBN_BOTTLE_IMAGE_TAG      := bottle_ubuntu_test.20241206__014156
 
 # Port Service Configuration
-export RBN_PORT_ENABLED := 0
+export RBN_PORT_ENABLED := 1
+export RBN_PORT_UPLINK  := 8889
+export RBN_PORT_ENCLAVE := 8888
+export RBN_PORT_SERVICE := 8888
 
 # Network Uplink Configuration
 #    Worksheet: https://claude.ai/chat/3b81ecc4-c3bd-4e71-82af-4f0feec7ce97
