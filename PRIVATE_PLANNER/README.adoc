@@ -291,6 +291,7 @@ This section contains reminders about future improvements, deferred for now.
 
       podman machine init --image-path=/path/to/your/downloaded/image.tar.zst my-machine
 * Seriously consider consolidating sentry startup script with Tools
+* log-test doesn't work in my alpine sentry: would it work in a ubuntu one?  Is it worth swithcing to for that reason?
 * profit
 
 ====
