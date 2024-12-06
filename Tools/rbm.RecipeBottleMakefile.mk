@@ -111,6 +111,7 @@ zrbm_start_bottle_rule:
 	    --name    $(RBM_BOTTLE_CONTAINER)        \
 	    --network $(RBM_ENCLAVE_NETWORK)         \
 	    --dns     $(RBB_ENCLAVE_SENTRY_GATEWAY)  \
+	    --ip-route default via $(RBB_ENCLAVE_SENTRY_GATEWAY) \
 	    --restart unless-stopped                 \
 	    $(RBN_VOLUME_MOUNTS)                     \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
