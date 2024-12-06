@@ -76,8 +76,7 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
     echo "RBSp3: Configuring NAT"
-    iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_NETWORK_BASE}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE
- || exit 31
+    iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_NETWORK_BASE}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
 
     if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
         echo "RBSp3: Enabling global access"
@@ -125,7 +124,7 @@ else
     echo "bind-interfaces"                                 > /etc/dnsmasq.conf || exit 41
     echo "except-interface=lo"                            >> /etc/dnsmasq.conf || exit 41
     echo "interface=eth1"                                 >> /etc/dnsmasq.conf || exit 41
-    echo "listen-address=${RBB_ENCLAVE_SENTRY_GATEWAY}"   >> /etc/dnsmasq.conf || exit 41
+    echo "listen-address=${RBN_ENCLAVE_SENTRY_IP}"        >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=eth1"                         >> /etc/dnsmasq.conf || exit 41
     echo "cache-size=1000"                                >> /etc/dnsmasq.conf || exit 41
     echo "min-cache-ttl=600"                              >> /etc/dnsmasq.conf || exit 41
@@ -168,5 +167,4 @@ else
 fi
 
 echo "RBSp4: Sentry setup complete"
-
 
