@@ -112,15 +112,12 @@ zrbm_start_bottle_rule:
 	    --network $(RBM_ENCLAVE_NETWORK)         \
 	    --dns     $(RBB_ENCLAVE_SENTRY_GATEWAY)  \
 	    --restart unless-stopped                 \
-	    --cap-add NET_ADMIN                      \
 	    $(RBN_VOLUME_MOUNTS)                     \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
 
-	# Network Configuration
+	# DNS Configuration
 	podman exec $(RBM_BOTTLE_CONTAINER) /bin/sh -c \
-	    "echo 'nameserver $(RBB_ENCLAVE_SENTRY_GATEWAY)' > /etc/resolv.conf && \
-	     ip route del default || true && \
-	     ip route add default via $(RBB_ENCLAVE_SENTRY_GATEWAY)"
+	    "echo 'nameserver $(RBB_ENCLAVE_SENTRY_GATEWAY)' > /etc/resolv.conf"
 
 
 rbm-br%: zrbm_validate_regimes_rule
