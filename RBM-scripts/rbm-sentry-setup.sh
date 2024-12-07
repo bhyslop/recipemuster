@@ -139,13 +139,13 @@ echo "RBSp4: Configuring dnsmasq"
         echo "server=${RBB_DNS_SERVER}"                   >> /etc/dnsmasq.conf || exit 41
     else
         echo "RBSp4: Configuring domain-based DNS filtering"
-        # Set default upstream server with no domain restriction for reverse DNS
-        echo "server=${RBB_DNS_SERVER}"                   >> /etc/dnsmasq.conf || exit 41
-        # Add domain-specific forwarding
+        # Add domain-specific forwarding first
         for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
             echo "server=/${domain}/${RBB_DNS_SERVER}"    >> /etc/dnsmasq.conf || exit 41
         done
-        # Block all other forward DNS lookups
+        # Set default upstream server for reverse DNS
+        echo "server=${RBB_DNS_SERVER}"                   >> /etc/dnsmasq.conf || exit 41
+        # Block all other domains last
         echo "address=/#/0.0.0.0"                         >> /etc/dnsmasq.conf || exit 41
     fi
 
