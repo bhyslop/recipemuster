@@ -114,7 +114,7 @@ else
     timeout 5s dig  @"${RBB_DNS_SERVER}" .                    || exit 40
 
     echo "RBSp4: Process cleanup"
-    killall -9 dnsmasq || true
+    killall -9 dnsmasq 2>/dev/null || true
     sleep 1
 
     echo "RBSp4: Note version in use"
@@ -122,7 +122,6 @@ else
 
     echo "RBSp4: Configuring dnsmasq"
     echo "bind-interfaces"                                 > /etc/dnsmasq.conf || exit 41
-    echo "except-interface=lo"                            >> /etc/dnsmasq.conf || exit 41
     echo "interface=eth1"                                 >> /etc/dnsmasq.conf || exit 41
     echo "listen-address=${RBN_ENCLAVE_SENTRY_IP}"        >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=eth1"                         >> /etc/dnsmasq.conf || exit 41
@@ -134,21 +133,24 @@ else
     echo "log-dhcp"                                       >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                      >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                   >> /etc/dnsmasq.conf || exit 41
-    echo "no-resolv"                                      >> /etc/dnsmasq.conf || exit 41
-    echo "no-poll"                                        >> /etc/dnsmasq.conf || exit 41
-
-    if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
-        echo "RBSp4: Enabling global DNS resolution"
-        echo "server=${RBB_DNS_SERVER}" >> /etc/dnsmasq.conf || exit 41
-    else
-        echo "RBSp4: Configuring domain-based DNS filtering"
-        for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
-            echo "server=/${domain}/${RBB_DNS_SERVER}" >> /etc/dnsmasq.conf || exit 41
-        done
-    fi
+        
+        if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
+            echo "RBSp4: Enabling global DNS resolution"
+            echo "server=${RBB_DNS_SERVER}"               >> /etc/dnsmasq.conf || exit 41
+        else
+            echo "RBSp4: Configuring domain-based DNS filtering"
+            # Set default upstream server with no domain restriction for reverse DNS
+            echo "server=${RBB_DNS_SERVER}"               >> /etc/dnsmasq.conf || exit 41
+            # Add domain-specific forwarding
+            for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
+                echo "server=/${domain}/${RBB_DNS_SERVER}" >> /etc/dnsmasq.conf || exit 41
+            done
+            # Block all other forward DNS lookups
+            echo "address=/#/0.0.0.0"                     >> /etc/dnsmasq.conf || exit 41
+        fi
 
     echo "RBSp4: Echo back the constructed dnsmasq config file"
-    cat                                                       /etc/dnsmasq.conf || exit 41
+    cat                                                      /etc/dnsmasq.conf || exit 41
 
     echo "RBSp4: Starting dnsmasq service"
     dnsmasq || exit 42
@@ -167,4 +169,3 @@ else
 fi
 
 echo "RBSp4: Sentry setup complete"
-

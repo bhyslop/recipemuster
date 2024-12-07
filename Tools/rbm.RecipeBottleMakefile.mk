@@ -182,7 +182,7 @@ rbm-ss%:                  \
 # zrbm_validate_regimes_rule
 rbm-cs%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
-	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/sh
+	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
