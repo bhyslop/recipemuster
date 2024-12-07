@@ -73,7 +73,6 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
 	podman network create --subnet $(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK)  \
 	                      --gateway $(RBN_ENCLAVE_INITIAL_IP)                          \
-	                      --dns-enabled=true                                           \
 	                      --internal                                                   \
 	                      $(RBM_ENCLAVE_NETWORK)
 
