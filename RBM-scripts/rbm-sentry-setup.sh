@@ -128,7 +128,7 @@ else
     echo "cache-size=1000"                                        >> /etc/dnsmasq.conf || exit 41
     echo "min-cache-ttl=600"                                      >> /etc/dnsmasq.conf || exit 41
     echo "max-cache-ttl=3600"                                     >> /etc/dnsmasq.conf || exit 41
-    echo "log-queries=extra"                                      >> /etc/dnsmasq.conf || exit 41  
+    echo "log-queries=extra"                                      >> /etc/dnsmasq.conf || exit 41
     echo "log-facility=/var/log/dnsmasq.log"                      >> /etc/dnsmasq.conf || exit 41
     echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                              >> /etc/dnsmasq.conf || exit 41
@@ -138,10 +138,12 @@ else
         echo "server=${RBB_DNS_SERVER}"                           >> /etc/dnsmasq.conf || exit 41
     else
         echo "RBSp4: Configuring domain-based DNS filtering"
-        echo "address=/#/0.0.0.0"                                 >> /etc/dnsmasq.conf || exit 41
+        # Add domain-specific forwarding first
         for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
             echo "server=/${domain}/${RBB_DNS_SERVER}"            >> /etc/dnsmasq.conf || exit 41
         done
+        # Block everything else with NXDOMAIN
+        echo "server=/#/"                                         >> /etc/dnsmasq.conf || exit 41
     fi
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                              /etc/dnsmasq.conf || exit 41
