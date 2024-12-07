@@ -55,6 +55,28 @@ zrbn_validate_port_config:
 	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_PORT_SERVICE),1,65535)
 
 #
+# Network Address Validation
+#
+rbn_validate_network_address: \
+	zrbn_validate_network_base \
+	zrbn_validate_network_mask \
+	zrbn_validate_network_ips
+
+zrbn_validate_network_base:
+	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_NETWORK_BASE)
+	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_NETWORK_BASE))
+
+zrbn_validate_network_mask:
+	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_NETMASK)
+	@$(call MBC_CHECK_IN_RANGE,1,$(RBN_ENCLAVE_NETMASK),8,30)
+
+zrbn_validate_network_ips:
+	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_INITIAL_IP)
+	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_INITIAL_IP))
+	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_SENTRY_IP)
+	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_SENTRY_IP))
+
+#
 # Network Uplink Validation
 #
 rbn_validate_uplink: \
@@ -107,6 +129,7 @@ rbn_validate: \
 	rbn_validate_core \
 	rbn_validate_images \
 	rbn_validate_ports \
+	rbn_validate_network_address \
 	rbn_validate_uplink \
 	rbn_validate_volumes
 
@@ -129,6 +152,12 @@ rbn_define:
 	@echo "  RBN_PORT_UPLINK       # External port on uplink network (1-65535)"
 	@echo "  RBN_PORT_ENCLAVE      # Internal port between containers (1-65535)"
 	@echo "  RBN_PORT_SERVICE      # Port exposed by bottle service (1-65535)"
+	@echo
+	@echo "== Network Address =="
+	@echo "RBN_ENCLAVE_NETWORK_BASE # Base IPv4 address for enclave network"
+	@echo "RBN_ENCLAVE_NETMASK     # Network mask width (8-30)"
+	@echo "RBN_ENCLAVE_INITIAL_IP  # Gateway IP for container startup"
+	@echo "RBN_ENCLAVE_SENTRY_IP   # IP address for Sentry Container"
 	@echo
 	@echo "== Network Uplink =="
 	@echo "RBN_UPLINK_DNS_ENABLED   # Enable protected DNS resolution (0 or 1)"
@@ -155,6 +184,11 @@ rbn_render:
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Uplink Port: $(RBN_PORT_UPLINK)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_PORT_ENCLAVE)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Service Port: $(RBN_PORT_SERVICE)"
+	@echo "Network Address:"
+	@echo "  Network Base: $(RBN_ENCLAVE_NETWORK_BASE)"
+	@echo "  Network Mask: $(RBN_ENCLAVE_NETMASK)"
+	@echo "  Initial IP: $(RBN_ENCLAVE_INITIAL_IP)"
+	@echo "  Sentry IP: $(RBN_ENCLAVE_SENTRY_IP)"
 	@echo "Network Uplink:"
 	@echo "  DNS Resolution: $(if $(filter 1,$(RBN_UPLINK_DNS_ENABLED)),ENABLED,DISABLED)"
 	@echo "  IP Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_ENABLED)),ENABLED,DISABLED)"
@@ -162,10 +196,10 @@ rbn_render:
 	@echo "  Global Access: $(if $(filter 1,$(RBN_UPLINK_ACCESS_GLOBAL)),ENABLED,DISABLED)"
 	@test "$(RBN_UPLINK_ACCESS_ENABLED)" != "1" || \
 	 test "$(RBN_UPLINK_ACCESS_GLOBAL)" = "1" || \
-	 @echo "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"
+	 echo "  Allowed CIDRs: $(RBN_UPLINK_ALLOWED_CIDRS)"
 	@test "$(RBN_UPLINK_DNS_ENABLED)" != "1" || \
 	 test "$(RBN_UPLINK_DNS_GLOBAL)" = "1" || \
-	 @echo "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"
+	 echo "  Allowed Domains: $(RBN_UPLINK_ALLOWED_DOMAINS)"
 	@test "$(RBN_VOLUME_MOUNTS)" = "" || echo "Volume Mounts: $(RBN_VOLUME_MOUNTS)"
 
 # Container environment arguments for Assignment Variables
@@ -180,6 +214,10 @@ RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_PORT_UPLINK='$(RBN_PORT_UPLINK)' \
   RBN_PORT_ENCLAVE='$(RBN_PORT_ENCLAVE)' \
   RBN_PORT_SERVICE='$(RBN_PORT_SERVICE)' \
+  RBN_ENCLAVE_NETWORK_BASE='$(RBN_ENCLAVE_NETWORK_BASE)' \
+  RBN_ENCLAVE_NETMASK='$(RBN_ENCLAVE_NETMASK)' \
+  RBN_ENCLAVE_INITIAL_IP='$(RBN_ENCLAVE_INITIAL_IP)' \
+  RBN_ENCLAVE_SENTRY_IP='$(RBN_ENCLAVE_SENTRY_IP)' \
   RBN_UPLINK_DNS_ENABLED='$(RBN_UPLINK_DNS_ENABLED)' \
   RBN_UPLINK_ACCESS_ENABLED='$(RBN_UPLINK_ACCESS_ENABLED)' \
   RBN_UPLINK_DNS_GLOBAL='$(RBN_UPLINK_DNS_GLOBAL)' \
