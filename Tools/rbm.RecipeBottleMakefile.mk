@@ -128,11 +128,6 @@ zrbm_start_bottle_rule:
 	    $(RBN_VOLUME_MOUNTS)                     \
 	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
 
-	# DNS Configuration
-	podman exec $(RBM_BOTTLE_CONTAINER) /bin/sh -c \
-	    "echo 'nameserver $(RBN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
-
-
 
 rbm-br%: zrbm_validate_regimes_rule
 	@echo "Running Agile Bottle container for $(RBM_MONIKER)"
