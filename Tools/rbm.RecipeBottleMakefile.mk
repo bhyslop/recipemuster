@@ -90,15 +90,15 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Network Connect and Configure Sequence
 	podman network connect                              \
-	    --ip $(RBN_ENCLAVE_SENTRY_IP)                   \
+	    --ip $(RBN_ENCLAVE_INITIAL_IP)                  \
 	    $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
 
 	# Verify eth1 presence and initial IP
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 
 	# Remove auto-assigned address and configure gateway
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr  del $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)    dev eth1"
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr  add $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
 
 	# Verify route exists
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
