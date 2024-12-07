@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y                                        
     net-tools           `# For netstat and other networking tools`                       \
     netcat-openbsd      `# For nc command, useful for testing network connections`       \
     procps              `# For ps command to check running processes`                    \
+    psmisc              `# For fuser and killall commands`                               \
     socat               `# For multipurpose relay (essential for proxying)`              \
     tcpdump             `# For packet capture and analysis`                              \
     telnet              `# For testing TCP connections`                                  \
