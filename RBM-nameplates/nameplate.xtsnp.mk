@@ -8,11 +8,11 @@ export RBN_DESCRIPTION := Example Test No Port: nameplate for testing without ad
 # Image Source Configuration
 export RBN_SENTRY_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
 export RBN_BOTTLE_REPO_FULL_NAME := ghcr.io/bhyslop/recipemuster
-export RBN_SENTRY_IMAGE_TAG      := bottle_ubuntu_test.20241206__014156
+export RBN_SENTRY_IMAGE_TAG      := bottle_ubuntu_test.20241203__154457
 
 # TEMPORARY CUT
 # export RBN_BOTTLE_IMAGE_TAG      := bottle_anthropic_jupyter.20241020__173503
-export RBN_BOTTLE_IMAGE_TAG      := bottle_ubuntu_test.20241206__014156
+export RBN_BOTTLE_IMAGE_TAG      := bottle_ubuntu_test.20241203__154457
 
 # Port Service Configuration
 export RBN_PORT_ENABLED := 1
