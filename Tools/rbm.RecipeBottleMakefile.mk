@@ -72,10 +72,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
 	podman network create --subnet $(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK)  \
-	                      --gateway $(RBN_ENCLAVE_INITIAL_IP)                          \
+	                      --gateway $(RBN_ENCLAVE_SENTRY_IP)                           \
 	                      --internal                                                   \
 	                      $(RBM_ENCLAVE_NETWORK)
-
 
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
