@@ -104,7 +104,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Verify exact gateway configuration
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr show eth1 | grep -q '^    inet $(RBN_ENCLAVE_INITIAL_IP)'"
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "[ \$(ip addr show eth1 | grep '^    inet ' | wc -l) -eq 1 ]"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "[ $$(ip addr show eth1 | grep '^    inet ' | wc -l) -eq 1 ]"
 
 	# Security Configuration
 	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
