@@ -99,7 +99,8 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	# Remove auto-assigned address and configure gateway
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr  del $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)    dev eth1"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr  add $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route add $(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1"
+	# Verify route exists
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
 
 	# Verify exact gateway configuration
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr show eth1 | grep -q '^    inet $(RBN_ENCLAVE_INITIAL_IP)'"
