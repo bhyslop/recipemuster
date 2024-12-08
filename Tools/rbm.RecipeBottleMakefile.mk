@@ -207,7 +207,7 @@ rbm-T%:
 	@echo "First, lets get process info so we know the dnsmasq is up..."
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
 	@echo "Now, lets tcpdump..."
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv '(port 53) or (host $(RBB_DNS_SERVER) and port 53)'
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv
 
 
 # eof
