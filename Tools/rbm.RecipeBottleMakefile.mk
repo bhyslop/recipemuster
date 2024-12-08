@@ -208,7 +208,16 @@ rbm-TS%:
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
 	@echo "Now, lets tcpdump..."
 	# podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv 'arp or ip'
+	# podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv 'arp or ip'
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n
+
+
+rbm-TB%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT BJOTTLE"
+	@echo "Nuke any tcpdump there before..."
+	podman exec $(RBM_BOTTLE_CONTAINER) pkill tcpdump || true
+	@echo "Now, lets tcpdump..."
+	podman exec $(RBM_BOTTLE_CONTAINER) tcpdump -n
 
 
 rbm-TP%:
