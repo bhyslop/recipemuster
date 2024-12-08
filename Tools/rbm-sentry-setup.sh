@@ -148,14 +148,17 @@ else
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                              /etc/dnsmasq.conf || exit 41
 
-    echo "RBSp4: Process info before launch (zombie dnsmasq diagnostic)..."
-    ps aux
-    echo "RBSp4: Starting dnsmasq service"
-    dnsmasq & dnspid=$!
-    wait $dnspid || exit 42
-    sleep 1
-    echo "RBSp4: Process info after launch..."
-    ps aux
+    #  FOR NOW I'M COMMENTING THIS OUT: we seem to get zombie processes and while
+    #  I'm trying to riddle the failure of bottle to see sentry first time, that
+    #  is a distraction.  For now we'll manually run in its own console.
+    #
+    # echo "RBSp4: Process info before launch (zombie dnsmasq diagnostic)..."
+    # ps aux
+    # echo "RBSp4: Starting dnsmasq service"
+    # dnsmasq -d
+    # sleep 1
+    # echo "RBSp4: Process info after launch..."
+    # ps aux
 
     echo "RBSp4: Configuring DNS firewall rules"
     iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
