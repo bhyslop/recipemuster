@@ -194,5 +194,11 @@ rbm-i%:  rbb_render rbn_render rbs_render
 	$(MBC_PASS) "Done, no errors."
 
 
+rbm-d%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "Explicit dnsmasq run"
+	# OUCH /bin/sh or /bin/bash ?
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "dnsmasq"
+
+
 
 # eof
