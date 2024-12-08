@@ -213,7 +213,8 @@ rbm-TS%:
 rbm-TP%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT PODMAN"
 	podman machine ssh "sudo dnf install -y tcpdump"
-	podman machine ssh "sudo tcpdump -i any -n -vvv"
+	# podman machine ssh "sudo tcpdump -i any -n -vvv '(port 53) or (host $(RBB_DNS_SERVER) and port 53)'"
+	podman machine ssh "sudo tcpdump -i eth0 -n -vvv 'not port mdns and not port 5353'"
 
 
 # eof
