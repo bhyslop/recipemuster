@@ -151,7 +151,8 @@ else
     echo "RBSp4: Process info before launch (zombie dnsmasq diagnostic)..."
     ps aux
     echo "RBSp4: Starting dnsmasq service"
-    dnsmasq || exit 42
+    dnsmasq & dnspid=$!
+    wait $dnspid || exit 42
     sleep 1
     echo "RBSp4: Process info after launch..."
     ps aux
