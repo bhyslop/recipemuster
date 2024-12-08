@@ -202,6 +202,8 @@ rbm-d%:
 
 rbm-T%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER"
+	@echo "Nuke any tcpdump there before..."
+	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump
 	@echo "First, lets get process info so we know the dnsmasq is up..."
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
 	@echo "Now, lets tcpdump..."
