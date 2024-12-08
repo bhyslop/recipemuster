@@ -200,5 +200,9 @@ rbm-d%:
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/bash -c "dnsmasq --keep-in-foreground"
 
 
+rbm-T%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "Explicit dnsmasq run"
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i any -n -vvv '(port 53) or (host $(RBB_DNS_SERVER) and port 53)'
+
 
 # eof
