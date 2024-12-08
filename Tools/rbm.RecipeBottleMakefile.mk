@@ -10,7 +10,7 @@
 # Implements secure containerized service management
 
 # Directory structure
-RBM_SCRIPTS_DIR      := RBM-scripts
+RBM_TOOLS_DIR        := Tools
 RBM_TRANSCRIPTS_DIR  := RBM-transcripts
 
 # Required argument for service moniker
@@ -28,12 +28,12 @@ RBM_BOTTLE_LOG     = $(RBM_TRANSCRIPTS_DIR)/bottle.$(RBM_MONIKER).log
 -include $(RBM_NAMEPLATE_PATH)
 
 # Include configuration regimes
-include Tools/rbb.BaseConfigRegime.mk
-include Tools/rbn.NameplateConfigRegime.mk
-include Tools/rbs.StationConfigRegime.mk
+include $(RBM_TOOLS_DIR)/rbb.BaseConfigRegime.mk
+include $(RBM_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
+include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
 # Test rules
-include Tools/test.rbm.mk
+include $(RBM_TOOLS_DIR)/test.rbm.mk
 
 # Container and network naming
 RBM_SENTRY_CONTAINER  = $(RBM_MONIKER)-sentry
@@ -106,7 +106,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr show eth1 | grep -q 'inet $(RBN_ENCLAVE_SENTRY_IP)'"
 
 	# Security Configuration
-	cat $(RBM_SCRIPTS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
 
 rbm-BS%: zrbm_start_bottle_rule
