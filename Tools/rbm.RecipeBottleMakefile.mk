@@ -197,7 +197,7 @@ rbm-i%:  rbb_render rbn_render rbs_render
 rbm-d%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "Explicit dnsmasq run"
 	# OUCH /bin/sh or /bin/bash ?
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "dnsmasq"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/bash -c "dnsmasq --keep-in-foreground"
 
 
 
