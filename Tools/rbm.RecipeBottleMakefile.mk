@@ -200,14 +200,19 @@ rbm-d%:
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/bash -c "dnsmasq --keep-in-foreground"
 
 
-rbm-T%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER"
+rbm-TS%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT SENTRY"
 	@echo "Nuke any tcpdump there before..."
-	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump
+	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump || true
 	@echo "First, lets get process info so we know the dnsmasq is up..."
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
 	@echo "Now, lets tcpdump..."
 	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv
+
+
+rbm-TP%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT PODMAN"
+	podman machine ssh "sudo tcpdump -i podman3 -n -vvv '(port 53) or (host $(RBB_DNS_SERVER) and port 53)'"
 
 
 # eof
