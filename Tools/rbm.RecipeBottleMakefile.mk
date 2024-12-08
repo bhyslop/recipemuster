@@ -207,14 +207,16 @@ rbm-TS%:
 	@echo "First, lets get process info so we know the dnsmasq is up..."
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
 	@echo "Now, lets tcpdump..."
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv
+	# podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv 'arp or ip'
 
 
 rbm-TP%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT PODMAN"
 	podman machine ssh "sudo dnf install -y tcpdump"
 	# podman machine ssh "sudo tcpdump -i any -n -vvv '(port 53) or (host $(RBB_DNS_SERVER) and port 53)'"
-	podman machine ssh "sudo tcpdump -i eth0 -n -vvv 'not port mdns and not port 5353'"
+	# podman machine ssh "sudo tcpdump -i eth0 -n -vvv 'not port mdns and not port 5353'"
+	podman machine ssh "sudo tcpdump -i eth0 -n -vvv '(not port mdns and not port 5353) or arp'"
 
 
 # eof
