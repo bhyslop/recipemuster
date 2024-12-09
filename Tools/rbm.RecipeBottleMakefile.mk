@@ -99,8 +99,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
 
 	# Remove auto-assigned address and configure gateway
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip link set eth1 arp off"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip link set eth1 arp on"
 	echo "Starting a delay to guess if there's a race on availability of the new ip addr..."
 	sleep 5
 	echo "Continuing following delay.  Lets try detecting the new IP..."
