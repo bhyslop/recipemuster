@@ -15,6 +15,27 @@ This is highly personal action planning support.
 
 Here's Claude's expression of the issue:
 
+NEWER
+----
+Here's the debug context:
+
+We're troubleshooting a Podman network setup where:
+1. SENTRY container connects to two networks (uplink and enclave)
+2. SENTRY changes its enclave IP from 172.16.0.2 to 172.16.0.1 (gateway)
+3. Later, BOTTLE starts and should use SENTRY as its gateway
+4. Problem: BOTTLE gets wrong MAC for SENTRY (3e:37:c4:cc:cd:f1 instead of 62:ba:23:9a:d1:99)
+
+To debug further, we need tcpdump from the Podman machine's perspective of BOTTLE's network namespace. Command would be:
+
+```bash
+podman machine ssh "sudo nsenter -t $(podman inspect -f '{{.State.Pid}}' xtsnp-bottle) -n tcpdump -i any -n -vvv"
+```
+
+This will show us if the ARP exchange looks different from the bridge's perspective.
+----
+
+
+OLDER
 ----
 The issue occurs during Sentry container network setup where we change the IP address on eth1 from initial to gateway address. This IP change while MAC addresses remain constant creates ARP cache inconsistencies between container, podman bridge, and BOTTLE.
 

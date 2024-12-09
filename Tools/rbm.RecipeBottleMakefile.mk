@@ -103,12 +103,11 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip link set eth1 arp on"
-	echo "Starting a delay to guess if there's a race on availability of the new ip addr..."
+
+	# Add bridge flush and gratuitous ARP
+	podman machine ssh "ip neigh flush dev br-$$(podman network inspect -f '{{.Id}}' $(RBM_ENCLAVE_NETWORK) | head -c 12)"
 	sleep 5
-	echo "Continuing following delay.  Lets try detecting the new IP..."
-	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
-	echo "Lets try arping now..."
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "arping -U -c 2 -w 3 -I eth1 -s $(RBN_ENCLAVE_SENTRY_IP) $(RBN_ENCLAVE_SENTRY_IP)"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "arping -U -I eth1 -s $(RBN_ENCLAVE_SENTRY_IP) $(RBN_ENCLAVE_SENTRY_IP) -c 3"
 	@read -p "Debug pause __AFTER__ IP change. Press enter..." dummy
 
 	# Diagnostic info within namespaces
