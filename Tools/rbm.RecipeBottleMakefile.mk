@@ -104,10 +104,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip neigh show"
 	podman machine ssh "ip neigh show"
 
-	# Clear ARP caches
+	# Clear ARP caches at container and bridge level
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip neigh flush dev eth1"
 	podman machine ssh "podman network inspect $(RBM_ENCLAVE_NETWORK)"
-	podman machine ssh "sudo ip neigh flush dev $$(podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.NetworkInterface}}')"
+	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip neigh flush dev eth1"
 
 	# Verify route exists
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
