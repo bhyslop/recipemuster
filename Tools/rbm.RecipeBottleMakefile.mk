@@ -105,7 +105,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip link set eth1 arp on"
 
 	# Add bridge flush and gratuitous ARP
-	podman machine ssh "ip neigh flush dev cntr-$(podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.ID}}' | head -c 12)"
+	podman machine ssh "ip neigh flush dev $(podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.NetworkInterface}}')"
 	sleep 5
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "arping -U -I eth1 -s $(RBN_ENCLAVE_SENTRY_IP) $(RBN_ENCLAVE_SENTRY_IP) -c 3"
 	@read -p "Debug pause __AFTER__ IP change. Press enter..." dummy
