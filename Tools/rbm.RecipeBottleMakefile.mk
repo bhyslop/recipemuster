@@ -101,6 +101,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Clear ARP caches at container and bridge level
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip neigh flush dev eth1"
+	podman machine ssh "podman network inspect $(RBM_ENCLAVE_NETWORK)"
 	podman machine ssh "sudo ip neigh flush dev $$(podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.network_interface}}')"
 
 	# Verify route exists
