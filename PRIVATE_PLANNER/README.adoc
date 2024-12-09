@@ -11,6 +11,27 @@ This is highly personal action planning support.
 
 == MINIDRAMAS
 
+=== Minidrama: the arp problems after ip address swizzle.
+
+Here's Claude's expression of the issue:
+
+----
+The issue occurs during Sentry container network setup where we change the IP address on eth1 from initial to gateway address. This IP change while MAC addresses remain constant creates ARP cache inconsistencies between container, podman bridge, and BOTTLE.
+
+Our solution attempts to clear stale ARP entries by:
+1. Flushing ARP cache in Sentry container after IP change
+2. Flushing ARP cache on podman machine bridge interface
+3. Doing this before BOTTLE starts to ensure clean initial state
+
+The theory is that removing stale mappings will force new ARP resolution with correct IP/MAC pairs when BOTTLE connects.
+
+Key test points:
+- Verify ARP caches are actually cleared
+- Check if BOTTLE sees consistent MAC for Sentry's IP
+- Confirm DNS resolution works first try
+----
+
+
 === Minidrama: CURRENT FOCUS: First RBM Implementation
 
 * Architectural term installation

@@ -99,6 +99,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
 
+	# Clear ARP caches at container and bridge level
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip neigh flush dev eth1"
+	podman machine ssh "sudo ip neigh flush dev $(shell podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.network_interface}}')"
+
 	# Verify route exists
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
 
@@ -200,32 +204,34 @@ rbm-d%:
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/bash -c "dnsmasq --keep-in-foreground"
 
 
-rbm-TS%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT SENTRY"
+rbm-OIS%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE INSIDE SENTRY"
 	@echo "Nuke any tcpdump there before..."
 	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump || true
 	@echo "First, lets get process info so we know the dnsmasq is up..."
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
 	@echo "Now, lets tcpdump..."
-	# podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv
-	# podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth0 -i eth1 -n -vvv 'arp or ip'
 	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n
 
 
-rbm-TB%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT BJOTTLE"
+rbm-OIB%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT BOTTLE"
 	@echo "Nuke any tcpdump there before..."
 	podman exec $(RBM_BOTTLE_CONTAINER) pkill tcpdump || true
 	@echo "Now, lets tcpdump..."
 	podman exec $(RBM_BOTTLE_CONTAINER) tcpdump -n
 
 
-rbm-TP%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT PODMAN"
-	podman machine ssh "sudo dnf install -y tcpdump"
-	# podman machine ssh "sudo tcpdump -i any -n -vvv '(port 53) or (host $(RBB_DNS_SERVER) and port 53)'"
-	# podman machine ssh "sudo tcpdump -i eth0 -n -vvv 'not port mdns and not port 5353'"
-	podman machine ssh "sudo tcpdump -i eth0 -n -vvv '(not port mdns and not port 5353) or arp'"
+rbm-OPS%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
+	podman machine ssh "sudo dnf install -y tcpdump || true"
+	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n tcpdump -i any -n -vvv"
+
+
+rbm-OPB%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
+	podman machine ssh "sudo dnf install -y tcpdump || true"
+	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)) -n tcpdump -i any -n -vvv"
 
 
 # eof
