@@ -87,6 +87,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                      \
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
+	# Add debug pause point
+	@read -p "Debug pause before Network connect and IP change. Press enter to continue..."
+
 	# Network Connect and Configure Sequence
 	podman network connect                              \
 	    --ip $(RBN_ENCLAVE_INITIAL_IP)                  \
@@ -94,9 +97,6 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Verify eth1 presence and initial IP
 	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
-
-	# Add debug pause point
-	@read -p "Debug pause before IP change. Press enter to continue..."
 
 	# Remove auto-assigned address and configure gateway
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
