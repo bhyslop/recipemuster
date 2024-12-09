@@ -100,8 +100,8 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Remove auto-assigned address and configure gateway
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
-        podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
-        @read -p "Debug pause __AFTER__ IP change. Press enter..." dummy
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
+	@read -p "Debug pause __AFTER__ IP change. Press enter..." dummy
 
 	# Diagnostic info within namespaces
 	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip addr show"
