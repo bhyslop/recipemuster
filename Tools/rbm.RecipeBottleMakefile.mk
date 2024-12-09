@@ -99,7 +99,12 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
 
-	# Clear ARP caches at container and bridge level
+	# Diagnostic info within namespaces
+	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip addr show"
+	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip neigh show"
+	podman machine ssh "ip neigh show"
+
+	# Clear ARP caches
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip neigh flush dev eth1"
 	podman machine ssh "podman network inspect $(RBM_ENCLAVE_NETWORK)"
 	podman machine ssh "sudo ip neigh flush dev $$(podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.NetworkInterface}}')"

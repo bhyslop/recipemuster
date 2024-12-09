@@ -314,6 +314,7 @@ This section contains reminders about future improvements, deferred for now.
 * Seriously consider consolidating sentry startup script with Tools
 * log-test doesn't work in my alpine sentry: would it work in a ubuntu one?  Is it worth swithcing to for that reason?
 * Must deal with multiple bottle service conflict on same IP
+* Deal well with the arp flush in the podman machine: not n
 * Must deal with `RBN_PORT_ENABLED := 0` failing to work right
 * profit
 
