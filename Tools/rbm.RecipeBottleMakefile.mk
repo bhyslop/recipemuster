@@ -88,7 +88,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Add debug pause point
-	@read -p "Debug pause __BEFORE__ Network connect and IP change..."
+	@read -p "Debug pause __BEFORE__ Network connect and IP change. Start SENTRY and ENCLAVE tcpdumps now..."
 
 	# Network Connect and Configure Sequence
 	podman network connect                              \
@@ -250,5 +250,9 @@ rbm-OPB%:
 	podman machine ssh "sudo dnf install -y tcpdump || true"
 	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)) -n tcpdump -i any -n -vvv"
 
+
+rbm-OPE%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ENCLAVE NETWORK.  Beware this is highly podman version specific..."
+	podman machine ssh "sudo nsenter -n -t $$(ls -l /proc/\$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net | awk -F'[][]' '{print $$2}') tcpdump -i any -n -vvv"
 
 # eof
