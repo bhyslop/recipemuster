@@ -106,6 +106,48 @@ Puppiez!
 So cute.
 
 .
+=== Minidrama: the CNI approach
+
+https://chatgpt.com/c/67585c1a-4620-8007-a823-aec8887992e6
+
+From CHATGPT:
+----
+Concept Overview: Custom Container-Based Gateway with Podman and CNI
+
+Goal:
+Create a Podman network where the host does not act as the gateway, yet containers still receive a gateway IP from the network configuration—one that is instead owned and managed by a specific container on that network.
+
+Default Behavior:
+
+Podman’s default CNI network (bridge + host-local IPAM) assigns a gateway IP to a host-side bridge interface (isGateway: true) and sets that IP as the default route for containers.
+Containers rely on the host as their default gateway.
+Desired Outcome:
+
+Disable the host bridge from becoming the gateway.
+Still provide a gateway IP to containers via IPAM.
+Assign that gateway IP to a dedicated "gateway container" rather than the host.
+Containers connect to the network, see the assigned gateway IP, and send traffic through the container acting as the gateway.
+Configuration Steps:
+
+Edit CNI Configuration:
+
+Locate the network’s CNI config file (e.g., /etc/cni/net.d/mynet.conflist).
+In the bridge plugin section, set "isGateway": false.
+In the ipam configuration (often host-local), keep or set a "gateway" field (e.g., "gateway": "10.88.0.10") and define routes for default traffic.
+Result of Changed Config:
+
+The host no longer assigns itself the gateway IP.
+Containers receive the specified gateway IP and default route from IPAM, but now no host gateway exists by default.
+Run a Gateway Container:
+
+Start a container on the same network with --ip 10.88.0.10 (the chosen gateway IP) and --cap-add=NET_ADMIN.
+Inside this gateway container, enable IP forwarding and set up any routing or NAT rules. This container now fulfills the gateway role.
+Effect:
+
+Containers on the network get the gateway IP (10.88.0.10, for example) from CNI, and direct traffic there.
+The gateway container responds on that IP, handling traffic, rather than relying on the host’s bridge interface.
+This approach decouples gateway functionality from the host and shifts it into a container that you fully control.
+----
 
 === Minidrama: the arp problems after ip address swizzle.
 
@@ -159,6 +201,41 @@ Key test points:
 * at_rbm_system -> installation?
 * Work with claude to make a plan to code generate: use config regimes?
 
+Here's the reformatted version in AsciiDoc:
+
+=== Minidrama: Notes on DHClient Implementation Attempt
+
+==== Summary
+I spent a day experimenting with using dhclient from the bottle while serving DHCP from dnsmasq. While I got it working (with Claude's help), I ultimately decided not to proceed with this approach.
+
+==== Main Issues
+
+* The dhclient bottle installation was too invasive and disruptive to the container workflow
+* Significant sentry startup modifications would be needed to handle DHCP
+* The changes would force major reordering and create unwanted dependencies in the sentry startup script
+
+==== Later Discovery
+Subsequent research during reversion suggested dhclient might not be as invasive as initially thought. Installing the `isc-dhcp-client` package might have been sufficient. Worth revisiting another time.
+
+==== Technical Notes
+
+===== Reversion Context
+* Testing was done on a Windows box with podman machine dynamics
+* Behavior on native podman remains untested
+
+===== Podman Machine Networking Challenges
+The attempt to modify podman machine networking proved problematic:
+
+* Each cycle required full container and machine acquisition
+* Significantly slowed development velocity
+
+===== Reference Information
+* Terminal commit with dhclient: 4098425dae08c615ce034399786a09e9447a71da
+* Original prototype machine setup included CNI configuration and bridge setup
+* Multiple Claude chat sessions were consulted during implementation
+
+==== Future Consideration
+While this approach was abandoned, the simpler installation path discovered later might be worth exploring in the future.
 
 === Minidrama: CURRENT FOCUS: the Alpha Github Action
 

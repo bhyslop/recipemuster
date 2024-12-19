@@ -78,13 +78,13 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	# Sentry Run Sequence
 	-podman rm -f $(RBM_SENTRY_CONTAINER)
-	podman run -d                                                            \
-	    --name $(RBM_SENTRY_CONTAINER)                                       \
-	    --network $(RBM_UPLINK_NETWORK)                                      \
-	    --privileged                                                         \
-	    $(if $(RBN_PORT_ENABLED),-p $(RBN_PORT_UPLINK):$(RBN_PORT_UPLINK))   \
-	    $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                      \
-	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                      \
+	podman run -d                                                                                 \
+	    --name $(RBM_SENTRY_CONTAINER)                                                            \
+	    --network $(RBM_UPLINK_NETWORK)                                                           \
+	    --privileged                                                                              \
+	    $(if $(RBN_PORT_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION))  \
+	    $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                                           \
+	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
 	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Add debug pause point

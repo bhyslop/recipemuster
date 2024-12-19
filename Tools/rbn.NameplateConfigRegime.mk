@@ -47,10 +47,10 @@ zrbn_validate_port_enabled:
 	@$(call MBC_CHECK__BOOLEAN,1,$(RBN_PORT_ENABLED))
 
 zrbn_validate_port_config:
-	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_PORT_UPLINK)
-	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_PORT_UPLINK),1,65535)
-	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_PORT_ENCLAVE)
-	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_PORT_ENCLAVE),1,65535)
+	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_ENTRY_PORT_WORKSTATION)
+	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_ENTRY_PORT_WORKSTATION),1,65535)
+	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_ENTRY_PORT_ENCLAVE)
+	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_ENTRY_PORT_ENCLAVE),1,65535)
 	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_PORT_SERVICE)
 	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_PORT_SERVICE),1,65535)
 
@@ -147,11 +147,10 @@ rbn_define:
 	@echo "RBN_BOTTLE_IMAGE_TAG     # Version tag for bottle image"
 	@echo
 	@echo "== Port Service =="
-	@echo "RBN_PORT_ENABLED         # Enable port service functionality (0 or 1)"
+	@echo "RBN_PORT_ENABLED              # Enable port service functionality (0 or 1)"
 	@echo "When RBN_PORT_ENABLED=1, requires:"
-	@echo "  RBN_PORT_UPLINK       # External port on uplink network (1-65535)"
-	@echo "  RBN_PORT_ENCLAVE      # Internal port between containers (1-65535)"
-	@echo "  RBN_PORT_SERVICE      # Port exposed by bottle service (1-65535)"
+	@echo "  RBN_ENTRY_PORT_WORKSTATION  # External port on uplink network (1-65535)"
+	@echo "  RBN_ENTRY_PORT_ENCLAVE      # port between containers (1-65535)"
 	@echo
 	@echo "== Network Address =="
 	@echo "RBN_ENCLAVE_NETWORK_BASE # Base IPv4 address for enclave network"
@@ -181,8 +180,8 @@ rbn_render:
 	@echo "  Sentry: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
 	@echo "  Bottle: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
 	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Uplink Port: $(RBN_PORT_UPLINK)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_PORT_ENCLAVE)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Workstation Port: $(RBN_ENTRY_PORT_WORKSTATION)"
+	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_ENTRY_PORT_ENCLAVE)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Service Port: $(RBN_PORT_SERVICE)"
 	@echo "Network Address:"
 	@echo "  Network Base: $(RBN_ENCLAVE_NETWORK_BASE)"
@@ -211,8 +210,8 @@ RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_SENTRY_IMAGE_TAG='$(RBN_SENTRY_IMAGE_TAG)' \
   RBN_BOTTLE_IMAGE_TAG='$(RBN_BOTTLE_IMAGE_TAG)' \
   RBN_PORT_ENABLED='$(RBN_PORT_ENABLED)' \
-  RBN_PORT_UPLINK='$(RBN_PORT_UPLINK)' \
-  RBN_PORT_ENCLAVE='$(RBN_PORT_ENCLAVE)' \
+  RBN_ENTRY_PORT_WORKSTATION='$(RBN_ENTRY_PORT_WORKSTATION)' \
+  RBN_ENTRY_PORT_ENCLAVE='$(RBN_ENTRY_PORT_ENCLAVE)' \
   RBN_PORT_SERVICE='$(RBN_PORT_SERVICE)' \
   RBN_ENCLAVE_NETWORK_BASE='$(RBN_ENCLAVE_NETWORK_BASE)' \
   RBN_ENCLAVE_NETMASK='$(RBN_ENCLAVE_NETMASK)' \
