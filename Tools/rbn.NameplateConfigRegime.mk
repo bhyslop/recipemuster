@@ -147,7 +147,7 @@ rbn_define:
 	@echo "== Port Service =="
 	@echo "RBN_PORT_ENABLED              # Enable port service functionality (0 or 1)"
 	@echo "When RBN_PORT_ENABLED=1, requires:"
-	@echo "  RBN_ENTRY_PORT_WORKSTATION  # External port on uplink network (1-65535)"
+	@echo "  RBN_ENTRY_PORT_WORKSTATION  # External port on transit network (1-65535)"
 	@echo "  RBN_ENTRY_PORT_ENCLAVE      # port between containers (1-65535)"
 	@echo
 	@echo "== Network Address =="
