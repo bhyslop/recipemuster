@@ -4,8 +4,8 @@
 
 RBN_MONIKER = srjsv
 
-RBN_SENTRY_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
-RBN_BOTTLE_REPO_FULL_NAME = ghcr.io/bhyslop/recipemuster
+RBN_SENTRY_REPO_PATH = ghcr.io/bhyslop/recipemuster
+RBN_BOTTLE_REPO_PATH = ghcr.io/bhyslop/recipemuster
 
 RBN_SENTRY_IMAGE_TAG = sentry_alpine.20241020__171441
 RBN_BOTTLE_IMAGE_TAG = bottle_sci_viz_jupyter.20241020__172259

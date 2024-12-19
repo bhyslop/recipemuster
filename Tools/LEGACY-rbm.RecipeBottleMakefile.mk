@@ -61,8 +61,8 @@ endif
 # RFN:  Repository Full Name: refers to the complete path to the repository, 
 #                             including the registry domain, owner, and
 #                             repository name. 
-export RBEV_SENTRY_FQIN              := $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
-export RBEV_BOTTLE_FQIN              := $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
+export RBEV_SENTRY_FQIN              := $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
+export RBEV_BOTTLE_FQIN              := $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 export RBEV_GUARDED_NETMASK          := 16
 export RBEV_GUARDED_NETWORK_SUBNET   := $(RBN_IP_HACK).0.0/$(RBEV_GUARDED_NETMASK)
 export RBEV_HOST_GATEWAY             := $(RBN_IP_HACK).0.1

@@ -71,9 +71,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman network rm -f $(RBM_UPLINK_NETWORK)
 	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
 	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
-	podman network create --subnet $(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK)  \
-	                      --gateway $(RBN_ENCLAVE_SENTRY_IP)                           \
-	                      --internal                                                   \
+	podman network create --subnet $(RBN_ENCLAVE_BASE_IP)/$(RBN_ENCLAVE_NETMASK)  \
+	                      --gateway $(RBN_ENCLAVE_SENTRY_IP)                      \
+	                      --internal                                              \
 	                      $(RBM_ENCLAVE_NETWORK)
 
 	# Sentry Run Sequence
@@ -85,7 +85,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	    $(if $(RBN_PORT_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION))  \
 	    $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                                           \
 	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
-	    $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)
+	    $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
 
 	# Add debug pause point
 	@read -p "Debug pause __BEFORE__ Network connect and IP change. Start SENTRY and ENCLAVE tcpdumps now..."
@@ -124,7 +124,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip neigh flush dev eth1"
 
 	# Verify route exists
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_NETWORK_BASE)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
+	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_BASE_IP)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
 
 	# Verify gateway IP is configured correctly
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr show eth1 | grep -q 'inet $(RBN_ENCLAVE_SENTRY_IP)'"
@@ -149,7 +149,7 @@ zrbm_start_bottle_rule:
 	    --dns     $(RBN_ENCLAVE_SENTRY_IP)       \
 	    --restart unless-stopped                 \
 	    $(RBN_VOLUME_MOUNTS)                     \
-	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)
+	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 
 rbm-br%: zrbm_validate_regimes_rule
@@ -163,7 +163,7 @@ rbm-br%: zrbm_validate_regimes_rule
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
 	    --dns     $(RBN_ENCLAVE_SENTRY_IP)                    \
 	    $(RBN_VOLUME_MOUNTS)                                  \
-	    $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)  \
+	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)  \
 	    $(CMD)
 
 

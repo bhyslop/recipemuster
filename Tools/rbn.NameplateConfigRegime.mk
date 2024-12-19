@@ -24,14 +24,14 @@ rbn_validate_images: \
 	zrbn_validate_bottle_image
 
 zrbn_validate_sentry_image:
-	@$(call MBC_CHECK_EXPORTED,1,RBN_SENTRY_REPO_FULL_NAME)
-	@$(call MBC_CHECK_NONEMPTY,1,$(RBN_SENTRY_REPO_FULL_NAME))
+	@$(call MBC_CHECK_EXPORTED,1,RBN_SENTRY_REPO_PATH)
+	@$(call MBC_CHECK_NONEMPTY,1,$(RBN_SENTRY_REPO_PATH))
 	@$(call MBC_CHECK_EXPORTED,1,RBN_SENTRY_IMAGE_TAG)
 	@$(call MBC_CHECK_NONEMPTY,1,$(RBN_SENTRY_IMAGE_TAG))
 
 zrbn_validate_bottle_image:
-	@$(call MBC_CHECK_EXPORTED,1,RBN_BOTTLE_REPO_FULL_NAME)
-	@$(call MBC_CHECK_NONEMPTY,1,$(RBN_BOTTLE_REPO_FULL_NAME))
+	@$(call MBC_CHECK_EXPORTED,1,RBN_BOTTLE_REPO_PATH)
+	@$(call MBC_CHECK_NONEMPTY,1,$(RBN_BOTTLE_REPO_PATH))
 	@$(call MBC_CHECK_EXPORTED,1,RBN_BOTTLE_IMAGE_TAG)
 	@$(call MBC_CHECK_NONEMPTY,1,$(RBN_BOTTLE_IMAGE_TAG))
 
@@ -51,8 +51,6 @@ zrbn_validate_port_config:
 	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_ENTRY_PORT_WORKSTATION),1,65535)
 	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_ENTRY_PORT_ENCLAVE)
 	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_ENTRY_PORT_ENCLAVE),1,65535)
-	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_PORT_SERVICE)
-	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_PORT_SERVICE),1,65535)
 
 #
 # Network Address Validation
@@ -63,8 +61,8 @@ rbn_validate_network_address: \
 	zrbn_validate_network_ips
 
 zrbn_validate_network_base:
-	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_NETWORK_BASE)
-	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_NETWORK_BASE))
+	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_BASE_IP)
+	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_BASE_IP))
 
 zrbn_validate_network_mask:
 	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_NETMASK)
@@ -141,8 +139,8 @@ rbn_define:
 	@echo "RBN_DESCRIPTION          # Human-readable service description"
 	@echo
 	@echo "== Container Images =="
-	@echo "RBN_SENTRY_REPO_FULL_NAME # Full repository path for sentry image"
-	@echo "RBN_BOTTLE_REPO_FULL_NAME # Full repository path for bottle image"
+	@echo "RBN_SENTRY_REPO_PATH     # Full repository path for sentry image"
+	@echo "RBN_BOTTLE_REPO_PATH     # Full repository path for bottle image"
 	@echo "RBN_SENTRY_IMAGE_TAG     # Version tag for sentry image"
 	@echo "RBN_BOTTLE_IMAGE_TAG     # Version tag for bottle image"
 	@echo
@@ -153,7 +151,7 @@ rbn_define:
 	@echo "  RBN_ENTRY_PORT_ENCLAVE      # port between containers (1-65535)"
 	@echo
 	@echo "== Network Address =="
-	@echo "RBN_ENCLAVE_NETWORK_BASE # Base IPv4 address for enclave network"
+	@echo "RBN_ENCLAVE_BASE_IP     # Base IPv4 address for enclave network"
 	@echo "RBN_ENCLAVE_NETMASK     # Network mask width (8-30)"
 	@echo "RBN_ENCLAVE_INITIAL_IP  # Gateway IP for container startup"
 	@echo "RBN_ENCLAVE_SENTRY_IP   # IP address for Sentry Container"
@@ -177,14 +175,13 @@ rbn_render:
 	@echo "  Moniker: $(RBN_MONIKER)"
 	@echo "  Description: $(RBN_DESCRIPTION)"
 	@echo "Container Images:"
-	@echo "  Sentry: $(RBN_SENTRY_REPO_FULL_NAME):$(RBN_SENTRY_IMAGE_TAG)"
-	@echo "  Bottle: $(RBN_BOTTLE_REPO_FULL_NAME):$(RBN_BOTTLE_IMAGE_TAG)"
+	@echo "  Sentry: $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)"
+	@echo "  Bottle: $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)"
 	@echo "Port Service: $(if $(filter 1,$(RBN_PORT_ENABLED)),ENABLED,DISABLED)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Workstation Port: $(RBN_ENTRY_PORT_WORKSTATION)"
 	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Enclave Port: $(RBN_ENTRY_PORT_ENCLAVE)"
-	@test "$(RBN_PORT_ENABLED)" != "1" || echo "  Service Port: $(RBN_PORT_SERVICE)"
 	@echo "Network Address:"
-	@echo "  Network Base: $(RBN_ENCLAVE_NETWORK_BASE)"
+	@echo "  Network Base: $(RBN_ENCLAVE_BASE_IP)"
 	@echo "  Network Mask: $(RBN_ENCLAVE_NETMASK)"
 	@echo "  Initial IP: $(RBN_ENCLAVE_INITIAL_IP)"
 	@echo "  Sentry IP: $(RBN_ENCLAVE_SENTRY_IP)"
@@ -205,15 +202,14 @@ rbn_render:
 RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_MONIKER='$(RBN_MONIKER)' \
   RBN_DESCRIPTION='$(RBN_DESCRIPTION)' \
-  RBN_SENTRY_REPO_FULL_NAME='$(RBN_SENTRY_REPO_FULL_NAME)' \
-  RBN_BOTTLE_REPO_FULL_NAME='$(RBN_BOTTLE_REPO_FULL_NAME)' \
+  RBN_SENTRY_REPO_PATH='$(RBN_SENTRY_REPO_PATH)' \
+  RBN_BOTTLE_REPO_PATH='$(RBN_BOTTLE_REPO_PATH)' \
   RBN_SENTRY_IMAGE_TAG='$(RBN_SENTRY_IMAGE_TAG)' \
   RBN_BOTTLE_IMAGE_TAG='$(RBN_BOTTLE_IMAGE_TAG)' \
   RBN_PORT_ENABLED='$(RBN_PORT_ENABLED)' \
   RBN_ENTRY_PORT_WORKSTATION='$(RBN_ENTRY_PORT_WORKSTATION)' \
   RBN_ENTRY_PORT_ENCLAVE='$(RBN_ENTRY_PORT_ENCLAVE)' \
-  RBN_PORT_SERVICE='$(RBN_PORT_SERVICE)' \
-  RBN_ENCLAVE_NETWORK_BASE='$(RBN_ENCLAVE_NETWORK_BASE)' \
+  RBN_ENCLAVE_BASE_IP='$(RBN_ENCLAVE_BASE_IP)' \
   RBN_ENCLAVE_NETMASK='$(RBN_ENCLAVE_NETMASK)' \
   RBN_ENCLAVE_INITIAL_IP='$(RBN_ENCLAVE_INITIAL_IP)' \
   RBN_ENCLAVE_SENTRY_IP='$(RBN_ENCLAVE_SENTRY_IP)' \
