@@ -35,7 +35,7 @@ My road to this feature request has been long. Since I'm not a deep networking e
 After finding that docker couldn't connect host and internal networks to the same container, I switched to podman and explored several approaches:
 
 1. **Direct Gateway Assignment:** I first tried the naive approach - simply assigning the gateway IP to the SENTRY container. Podman silently rejected this request.
-2. **Network Configuration Deep Dive:** Next came experimentation with --opt and --dns options in podman commands, along with AI-suggested CNI configuration nudges.  These didn't just work.
+2. **Network Configuration Deep Dive:** Next came experimentation with --opt and --dns options in podman commands, along with AI-suggested CNI configuration nudges. These didn't just work.
 3. **BOTTLE-side Solutions:** Implementing dhclient in BOTTLE showed promise but revealed network race conditions during container startup. Some test BOTTLEs worked, others didn't - and more importantly, this required intimate BOTTLE container startup modifications.
 4. **Privileged BOTTLE Container Approach:** Success came with elevating BOTTLE privileges to allow network stack modification, but this violated the core security premise of using SENTRY to protect untrusted BOTTLE containers.  Race condition vulnerabilities here too.
 5. **Post-startup SENTRY Reconfiguration:** My latest attempts focused on reassigning SENTRY's IP after startup. This led to fascinating podman machine network namespace investigation with tcpdump, but ultimately failed due to ARP cache complications (AIs themselves uncertain that gratuitous ARP caching poisoning would work).
