@@ -15,69 +15,6 @@ This is highly personal action planning support.
 
 https://github.com/containers/podman/issues/new?template=feature_request.yaml
 
-==== Title
-
-Enable Container to 'drop in' as network gateway
-
-==== Feature Request Description
-
-I am an embedded developer who wants to use more containers but I need more security measures to protect customer assets.
-Find at https://scaleinv.github.io/recipebottle/ an abstract of my passion open-source project to do this.
-
-In short, I want a container running less trusted code ("BOTTLE") to be able to use a container running a trusted, carefully configured intermediary container ("SENTRY") to intermediate all local and internet access?
-For this project to succeed, it nees to be able to use unadulterated dockerfiles/ existing images for BOTTLE.
-Prototypes using `podman` and bespoke dockerfiles have proven the concept, after invasive network configuration.
-
-Could we build on the precedent of container DHCP to enable SENTRY to function as a gateway to BOTTLE?
-
-==== Suggest Potential Solution
-
-I wonder if it is a simple and elegant solution to add an `--as-gateway` flag to the `podman network connect` command.
-This parameterless option would simply cause podman to assign the gateway IP to the container that is being connected to the network, and also work through any persistence of MAC address in the process.
-
-I'm hoping this is an obvious enough feature that others would want this.
-A search of your open issues led me only to "DMZ Feature Request" at https://github.com/containers/podman/issues/20222 which may be consonant, though I can't tell without spending a lot more study.
-That has been idle a year, I observe.
-
-==== Alternatives Considered
-
-My road to this feature request has been quite long.
-Since I'm not a deep networking expert, I've been freely using Claude from Anthropic and ChatGPT to help me work on this.
-
-First, I started this whole project based on `docker`.
-I had may frustrations until a series of failures led me to fine print in the docker documentation asserting that one could not connect a host network and an internal network to the same container.
-This was long enough ago that it may not be true anymore, but it was enough of a blocker to lead me to try `podman`.
-
-I've found `podman` delightful in all respects, so much so that I'd like it to be one of the 'trusted few' apps I install natively on my workstation.
-Well done folks!
-
-Then, I developed a prototype using bespoke dockerfiles in `podman` and was able to cause the security behavior I wanted: `iptables` and `dnsmasq` worked great for constraining BOTTLE's access to the internet.
-This was enough to then justify the 'container image lifecycle management playground' engineering I've already built out for the project.
-
-I then started working on the generalization of the prototype, minimizing the need to conduct intimate surgery on candidate BOTTLE dockerfiles.
-
-I tried the naive approach, simply assigning the gateway IP to the BOTTLE container but `podman` silently rejected my request.
-I tried a bevvy of similar approaches that led me to explore `--opt` and `--dns` option permutations in `podman run` and `podman network` commands.
-Between me and my AI, I couldn't break through with these.
-They feel like some combination of power tools for the network-wise and features that are becoming cruft.
-
-In the next approach, I had some success elevating the privileges of the BOTTLE container to allow it to manipulate the network stack: a simple after-startup `ip route` and nameserver revision started working, but I was having misgivings about elevating privileges for a BOTTLE.
-I also didn't want to tempt the demons of network config race conditions involved here.
-
-I then played some with setting up `dhclient` in the BOTTLE to effectively post-configure the network stack, but this seemed to get stuck with 'combativeness' between my networking and `podman`'s own.
-I additionally didn't love this for same reasons as the previous approach: intimate BOTTLE manipulation is not great, so I moved on.
-
-My most recent approach was to try and re-assign the SENTRY IP address after container startup to be the gateway, but that failed when arps communicated the wrong MAC address.
-I went far down the rabbit hole of `podman machine` network namespace tracing (my laptop is windows) to figure this out.
-Claude was ready to guide me into arp cache manipulation, but ultimately that felt too fragile.
-I want this project to work well inside and outside of a `podman machine` after all.
-
-ChatGPT had some ideas about manipulating CNI inside the `podman machine` to set up a custom gateway container- I'd flirted with some CNI settings under Claude's suggestions, without a lot of traction.
-Interestingly, I think that could have worked with significant effort: neither Claude nor ChatGPT go very far past api specifications.
-Anyway, finally one of the AIs led me to the insight that `podman` is moving away from CNI and towards `netavark`, rendering any CNI approach short term at best.
-I want this tool for the rest of my life!
-A brief re-evaluation of docker revealed that its CNI use is thoroughly internal and not accessible.
-Other runtimes with more kubernetes ties seem sophisticated and complex, without having the developer workstation/ desktop focus of `podman`.
 
 ==== Other notes
 

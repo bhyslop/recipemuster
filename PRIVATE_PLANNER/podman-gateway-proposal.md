@@ -5,17 +5,15 @@
 
 Enable Container to 'drop in' as network gateway
 
-## Feature Request Description
+## Feature Request Description (NEEDS SVG ATTACH)
 
-I am an embedded developer who wants to use more containers but I need more security measures to protect customer assets.
+I want a container running less trusted code ("BOTTLE") to be able to use an arbitrary container running a trusted, carefully configured container ("SENTRY") to intermediate all local and internet access.
 
-I want a container running less trusted code ("BOTTLE") to be able to use a container running a trusted, carefully configured intermediary container ("SENTRY") to intermediate all local and internet access?
+Find at [RBM System Vision](https://scaleinv.github.io/recipebottle) a diagram and abstract of my passion open-source project to do this.
 
-Find at [RBM System Vision](https://scaleinv.github.io/recipebottle/#_the_rbm_system_vision) a diagram and abstract of my passion open-source project to do this.
+Prototypes using `podman` with bespoke BOTTLE dockerfiles have proven the concept.
 
-For this project to succeed, it nees to be able to use existing images and/ or stock dockerfiles for BOTTLE.
-Prototypes using `podman` and bespoke dockerfiles have proven the concept.
-I've tried many things to move away from dockerfiles with intimate networking configuration, and lately I want to explore the following.
+Now, for this project to succeed, it nees to be able to use existing images and/ or stock dockerfiles for BOTTLE.
 
 Could we add a network feature to allow SENTRY to function as gateway to a BOTTLE from its earliest DHCP?
 
