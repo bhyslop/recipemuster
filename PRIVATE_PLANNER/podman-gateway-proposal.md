@@ -17,11 +17,16 @@ Could podman add a network feature to allow SENTRY to function as gateway to BOT
 
 ## Suggest Potential Solution
 
-I wonder if it is a simple and elegant solution to add an `--as-gateway` flag to the `podman network connect` command.
-This parameterless option would simply cause podman to assign the gateway IP to the container that is being connected to the network, and also work through any consistency of MAC address in the process (see `arp` mention later).
+Based on experiments described above and below, I propose adding an `--as-gateway` flag to the `podman network connect` command.
+This parameterless option would:
 
-I'm hoping this is simple and unobtrusive feature that others would want.
-A search of your open issues led me only to [DMZ Feature Request](https://github.com/containers/podman/issues/20222) which may be consonant, though idle.
+1. Assign the gateway IP to the specified container (SENTRY in my case)
+2. Handle MAC address consistency to avoid ARP cache issues
+3. Ensure proper network initialization during container startup
+
+This simple, unobtrusive feature could enable many security-focused container patterns. A search of your open issues led me only to [DMZ Feature Request](https://github.com/containers/podman/issues/20222) which may be consonant, though idle.
+
+The proposed flag aligns well with podman's transition to netavark, potentially making implementation straightforward.
 
 ## Alternatives Considered
 
