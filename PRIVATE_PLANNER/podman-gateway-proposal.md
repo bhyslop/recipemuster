@@ -15,7 +15,7 @@ Find at [RBM System Vision](https://scaleinv.github.io/recipebottle/#_the_rbm_sy
 
 For this project to succeed, it nees to be able to use existing images and/ or stock dockerfiles for BOTTLE.
 Prototypes using `podman` and bespoke dockerfiles have proven the concept.
-I've tried many things to move away from dockerfiles with intimate networking configuration, and lately I've arrived at this.
+I've tried many things to move away from dockerfiles with intimate networking configuration, and lately I want to explore the following.
 
 Could we add a network feature to allow SENTRY to function as gateway to a BOTTLE from its earliest DHCP?
 
@@ -24,8 +24,8 @@ Could we add a network feature to allow SENTRY to function as gateway to a BOTTL
 I wonder if it is a simple and elegant solution to add an `--as-gateway` flag to the `podman network connect` command.
 This parameterless option would simply cause podman to assign the gateway IP to the container that is being connected to the network, and also work through any consistency of MAC address in the process (see `arp` mention later).
 
-I'm hoping this is an obvious enough feature that others would want this.
-A search of your open issues led me only to [DMZ Feature Request](https://github.com/containers/podman/issues/20222) which may be consonant, if idle.
+I'm hoping this is simple and unobtrusive feature that others would want.
+A search of your open issues led me only to [DMZ Feature Request](https://github.com/containers/podman/issues/20222) which may be consonant, though idle.
 
 ## Alternatives Considered
 
@@ -49,17 +49,17 @@ So here are the alternatives I've tried within `podman`:
 They feel like some combination of power tools for the network-wise and features that may be drifting into cruft.
 * Next I played some with setting up `dhclient` in the BOTTLE to effectively post-configure its network stack to see SENTRY as the gateway, but this seemed to get stuck with 'combativeness' between my networking and `podman`'s own.  My test BOTTLEs didn't behave uniformly with this, though some progress.  I posited I was getting bitten by network config race conditions involved in booting a container in one network environment then operating it in another.
 After all, I want to work with stock BOTTLEs, not ones I intimately reconfigure.
-* Then, I had some success elevating the privileges of the BOTTLE container to allow it to manipulate the network stack.  A simple post-startup `ip route` and nameserver revision started working, but I was having misgivings about elevating privileges for a BOTTLE.  The suspicion of network race conditions lingered (I'm not going to get into the necessary mechanics for stabilizing eth0/eth1 container network assignment 😊) so I didn't dig in.
+* Then, I had some success elevating the privileges of the BOTTLE container to allow it to manipulate the network stack.  A simple post-startup `ip route` and nameserver revision started working, but I was having misgivings about elevating privileges for a BOTTLE.  That plus the suspicion of network race conditions lingered (I'm not going to get into the necessary mechanics for stabilizing eth0/eth1 container network assignment 😊) so I didn't dig in.
 * My most recent approach was to try and re-assign the SENTRY IP address after SENTRY startup but before BOTTLE startup to emplace SENTRY as the gateway, but that failed when arps communicated the wrong MAC address even after.
 I went far down the rabbit hole of `podman machine` network namespace `tcpdump` study (my laptop is windows) to figure this out.
 Claude was ready to guide me attempting unsolicited arp cache poisioning pieces but that felt literally and figuratively gratuitous, as well as fragile.
 I want this project to work well inside and outside of a `podman machine` after all.
 * At this point I enlisted ChatGPT for fresh ideas: it suggested manipulating CNI to more correctly emplace SENTRY as the gateway container with some deft customizations of a `podman` default CNI `conflist`.
-While exploring this approach, I learned that `podman` is moving away from CNI and towards 'netavark' which does not seem known to the AIs yet.
+While exploring this approach, I learned that `podman` is moving away from CNI and towards 'netavark'.
 I studied other container runtimes for stable future-proof CNI environments, from a locally managed `containerd` to a CRI-O.
 However, I think people who might want to use my open source system will want the full 'desktop' feature set absent from CRI-O and other kubernetes spawn.
 
 Finally, thank you `podman` maintainers for an amazing project!
-I'm not averse to attempting an implementation PR, once we scrub this concept against your long term visions.
+I'm not averse to attempting an implementation PR, once we scrub this concept for compatibility with your long term visions.
 
 Thoughts?
