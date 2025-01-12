@@ -305,14 +305,14 @@ zrbm_proto_namespace_rule:
 	# 3) CLEAN UP OLD NETNS & VETHs INSIDE THE VM
 	########################################################################
 	@echo "3) Clean up old netns and leftover veth interfaces inside the VM"
-	@podman machine ssh "sudo ip netns del $(RBM_PROTO_NS_NAME) 2>/dev/null || true"
-	@podman machine ssh "sudo ip link del veth_sentry_out  2>/dev/null || true"
-	@podman machine ssh "sudo ip link del veth_sentry_in   2>/dev/null || true"
-	@podman machine ssh "sudo ip link del veth_bottle_out  2>/dev/null || true"
-	@podman machine ssh "sudo ip link del veth_bottle_in   2>/dev/null || true"
+	podman machine ssh "sudo ip netns del $(RBM_PROTO_NS_NAME) 2>/dev/null || true"
+	podman machine ssh "sudo ip link del veth_sentry_out  2>/dev/null || true"
+	podman machine ssh "sudo ip link del veth_sentry_in   2>/dev/null || true"
+	podman machine ssh "sudo ip link del veth_bottle_out  2>/dev/null || true"
+	podman machine ssh "sudo ip link del veth_bottle_in   2>/dev/null || true"
 
 	@echo "-----------------------------------------------------"
-	@echo "Steps #4-#8 eliminated.
+	@echo "Steps #4-#8 eliminated."
 	@echo "-----------------------------------------------------"
 
 	########################################################################
