@@ -317,10 +317,10 @@ zrbm_proto_namespace_rule:
 	                    && sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set lo up"
 
 	@echo "9) Launch SENTRY container with host net, privileged"
-	podman run -d \
+	podman run -d                          \
 	  --name $(RBM_PROTO_SENTRY_CONTAINER) \
-	  --network host \
-	  --privileged \
+	  --network bridge                     \
+	  --privileged                         \
 	  $(RBM_PROTO_SENTRY_IMAGE)
 
 	@echo "10) Connect SENTRY to the custom netns as eth1"
@@ -343,7 +343,7 @@ zrbm_proto_namespace_rule:
 	  --network none \
 	  --security-opt label=disable \
 	  $(RBM_PROTO_BOTTLE_IMAGE)
-	podman container update --network-add netns:/run/netns/$(RBM_PROTO_NS_NAME) $(RBM_PROTO_BOTTLE_CONTAINER)
+	podman network connect ns:/run/netns/$(RBM_PROTO_NS_NAME) $(RBM_PROTO_BOTTLE_CONTAINER)
 
 	@echo "14) Assign IP on BOTTLE's eth1 to $(RBM_PROTO_BOTTLE_IP)"
 	podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ip link set eth1 up
