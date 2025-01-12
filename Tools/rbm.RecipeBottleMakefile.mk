@@ -311,31 +311,8 @@ zrbm_proto_namespace_rule:
 	@podman machine ssh "sudo ip link del veth_bottle_out  2>/dev/null || true"
 	@podman machine ssh "sudo ip link del veth_bottle_in   2>/dev/null || true"
 
-	########################################################################
-	# 4) OPTIONAL: CREATE A VM-LEVEL NETNS & VETH (NOT FOR CONTAINERS)
-	########################################################################
-	@echo "4) Create new VM-level netns: $(RBM_PROTO_NS_NAME) [Optional demo]"
-	@podman machine ssh "sudo ip netns add $(RBM_PROTO_NS_NAME)"
-
-	@echo "5) Create veth pair: $(RBM_PROTO_VETH_HOST) <-> $(RBM_PROTO_VETH_ENCLAVE)"
-	@podman machine ssh "sudo ip link add $(RBM_PROTO_VETH_HOST) type veth peer name $(RBM_PROTO_VETH_ENCLAVE)"
-
-	@echo "6) Move $(RBM_PROTO_VETH_ENCLAVE) into netns $(RBM_PROTO_NS_NAME)"
-	@podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_ENCLAVE) netns $(RBM_PROTO_NS_NAME)"
-
-	@echo "7) Assign IP on VM side, bring up link"
-	@podman machine ssh "sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev $(RBM_PROTO_VETH_HOST) || true"
-	@podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_HOST) up || true"
-
-	@echo "8) Assign IP on netns side, bring up link"
-	@podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev $(RBM_PROTO_VETH_ENCLAVE) || true"
-	@podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set $(RBM_PROTO_VETH_ENCLAVE) up || true"
-	@podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set lo up || true"
-
 	@echo "-----------------------------------------------------"
-	@echo "Steps #4-#8 are optional. We created a netns in the VM"
-	@echo "and a veth pair for demonstration. The containers will"
-	@echo "have separate netns. Next we attach SENTRY & BOTTLE."
+	@echo "Steps #4-#8 eliminated.
 	@echo "-----------------------------------------------------"
 
 	########################################################################
