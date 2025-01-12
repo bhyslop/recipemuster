@@ -269,25 +269,22 @@ rbm-OPE%:
 #
 # You must define or override the following environment variables for your prototype:
 #
-#   RBM_PROTO_NS_NAME          e.g. "myproto-ns"
-#   RBM_PROTO_VETH_HOST        e.g. "veth0proto"
-#   RBM_PROTO_VETH_ENCLAVE     e.g. "veth1proto"
-#   RBM_PROTO_ENCLAVE_HOST_IP  e.g. "192.168.77.1"
-#   RBM_PROTO_SENTRY_IP        e.g. "192.168.77.2"
-#   RBM_PROTO_BOTTLE_IP        e.g. "192.168.77.3"
-#
-#   RBM_PROTO_SENTRY_CONTAINER e.g. "myproto-sentry"
-#   RBM_PROTO_BOTTLE_CONTAINER e.g. "myproto-bottle"
-#   RBM_PROTO_SENTRY_IMAGE     e.g. "localhost/myproto-sentryimg:latest"
-#   RBM_PROTO_BOTTLE_IMAGE     e.g. "localhost/myproto-bottleimg:latest"
-#
-# The snippet uses "ping" as a connectivity test.
-###
+RBM_PROTO_NS_NAME          = myproto-ns
+RBM_PROTO_VETH_HOST        = myproto_veth0
+RBM_PROTO_VETH_ENCLAVE     = myproto_veth1
+RBM_PROTO_ENCLAVE_HOST_IP  = 10.242.0.1
+RBM_PROTO_SENTRY_IP        = 10.242.0.2
+RBM_PROTO_BOTTLE_IP        = 10.242.0.3
+RBM_PROTO_SENTRY_CONTAINER = myproto-sentry
+RBM_PROTO_BOTTLE_CONTAINER = myproto-bottle
+RBM_PROTO_SENTRY_IMAGE     = ghcr.io/bhyslop/recipemuster:sentry_ubuntu_large.20241022__130547
+RBM_PROTO_BOTTLE_IMAGE     = ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
 
-rbm-PT%: zrbm_proto_test_rule
+
+rbm-PN%: zrbm_proto_namespace_rule
 	@echo "Prototype test complete for $(RBM_MONIKER)."
 
-zrbm_proto_test_rule: zrbm_validate_regimes_rule
+zrbm_proto_namespace_rule:
 	@echo "=== Prototype netns test: $(RBM_PROTO_NS_NAME) ==="
 
 	@echo "1) Stop & remove any prior SENTRY container"

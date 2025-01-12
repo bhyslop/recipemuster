@@ -97,8 +97,26 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_PASS) "No errors."
 
 
+# TOKEN AUTH FAIL INSCRUTABILITY:
+#
+# $ tt/bgc-l.ListCurrentRegistryImages.sh
+# rbc-console.mk: List Current Registry Images
+# rbc-console.mk: DEBUG: raw listing...
+# curl -s -H 'Authorization: token ghp_xxxx' -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/user/packages?package_type=container'
+# {
+#   "message": "Bad credentials",
+#   "documentation_url": "https://docs.github.com/rest",
+#   "status": "401"
+# }
+# rbc-console.mk: JQ execution...
+# assertion "cb == jq_util_input_next_input_cb" failed: file "/cygdrive/d/a/scallywag/jq/jq-1.7.1-1.x86_64/src/jq-1.7.1/src/util.c", line 360, function: jq_util_input_get_position
+
+
 bgc-l%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
+	$(MBC_STEP) "DEBUG: raw listing..."
+	@$(zBGC_CMD_LIST_IMAGES)
+	$(MBC_STEP) "JQ execution..."
 	@$(zBGC_CMD_LIST_IMAGES)                                   |\
 	  jq -r '.[] | select(.package_type=="container") | .name' |\
 	  while read -r package_name; do                \
