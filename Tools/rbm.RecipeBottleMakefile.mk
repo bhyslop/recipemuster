@@ -324,7 +324,7 @@ zrbm_proto_namespace_rule:
 	  $(RBM_PROTO_SENTRY_IMAGE)
 
 	@echo "10) Connect SENTRY to the custom netns as eth1"
-	podman container update --network-add netns:/run/netns/myproto-ns $(RBM_PROTO_SENTRY_CONTAINER)
+	podman network connect ns:/run/netns/$(RBM_PROTO_NS_NAME) $(RBM_PROTO_SENTRY_CONTAINER)
 
 	@echo "11) Inside SENTRY, set IP for eth1"
 	# We assigned $(RBM_PROTO_SENTRY_IP) to the netns's veth side. We can either reuse that or
