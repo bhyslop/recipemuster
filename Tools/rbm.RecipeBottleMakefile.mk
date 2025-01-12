@@ -260,46 +260,42 @@ rbm-OPE%:
 
 
 ###
-# Prototype test: create custom netns, veth pair, run SENTRY with host net,
-# then connect SENTRY to the netns as eth1. Also launch a BOTTLE container
-# in the same netns (eth1) to verify pings.
+# Network namespace testing: creates custom netns, veth pairs, runs SENTRY with host net,
+# then connects SENTRY to the netns as eth1. Also launches a BOTTLE container
+# in the same netns (eth1) to verify connectivity.
 #
 # USAGE EXAMPLE:
-#   make rbm-PTmyproto
+#   make rbm-PNnsproto
 #
 # References:
 #   https://chatgpt.com/c/6783fd42-e50c-8007-b23b-7744a7ed58f2
 #
-# You must define or override the following environment variables for your prototype:
+# Custom network namespace variables (not in nameplate):
 #
-RBM_PROTO_NS_NAME          = myproto-ns
-RBM_PROTO_VETH_HOST        = myproto_veth0
-RBM_PROTO_VETH_ENCLAVE     = myproto_veth1
+RBM_PROTO_NS_NAME          = $(RBM_MONIKER)-ns
+RBM_PROTO_VETH_HOST        = $(RBM_MONIKER)_veth0
+RBM_PROTO_VETH_ENCLAVE     = $(RBM_MONIKER)_veth1
 RBM_PROTO_ENCLAVE_HOST_IP  = 10.242.0.1
 RBM_PROTO_SENTRY_IP        = 10.242.0.2
 RBM_PROTO_BOTTLE_IP        = 10.242.0.3
-RBM_PROTO_SENTRY_CONTAINER = myproto-sentry
-RBM_PROTO_BOTTLE_CONTAINER = myproto-bottle
-RBM_PROTO_SENTRY_IMAGE     = ghcr.io/bhyslop/recipemuster:sentry_ubuntu_large.20241022__130547
-RBM_PROTO_BOTTLE_IMAGE     = ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
 
 
 rbm-PN%: zrbm_proto_namespace_rule
 	@echo "Prototype test complete for $(RBM_MONIKER)."
 
 zrbm_proto_namespace_rule:
-	@echo "=== Prototype netns test: $(RBM_PROTO_NS_NAME) ==="
+	@echo "=== Network namespace test: $(RBM_PROTO_NS_NAME) ==="
 
 	########################################################################
 	# 1) STOP & REMOVE PRIOR CONTAINERS
 	########################################################################
 	@echo "1) Stop & remove any prior SENTRY container"
-	-podman stop -t 5  $(RBM_PROTO_SENTRY_CONTAINER) || true
-	-podman rm   -f    $(RBM_PROTO_SENTRY_CONTAINER) || true
+	-podman stop -t 5  $(RBM_MONIKER)-sentry || true
+	-podman rm   -f    $(RBM_MONIKER)-sentry || true
 
 	@echo "2) Stop & remove any prior BOTTLE container"
-	-podman stop -t 5  $(RBM_PROTO_BOTTLE_CONTAINER) || true
-	-podman rm   -f    $(RBM_PROTO_BOTTLE_CONTAINER) || true
+	-podman stop -t 5  $(RBM_MONIKER)-bottle || true
+	-podman rm   -f    $(RBM_MONIKER)-bottle || true
 
 	########################################################################
 	# 3) CLEAN UP OLD NETNS & VETHs INSIDE THE VM
@@ -316,17 +312,18 @@ zrbm_proto_namespace_rule:
 	########################################################################
 	@echo "9) Launch SENTRY container with bridging for internet"
 	podman run -d \
-	  --name $(RBM_PROTO_SENTRY_CONTAINER) \
+	  --name $(RBM_MONIKER)-sentry \
 	  --network bridge \
 	  --privileged \
-	  $(RBM_PROTO_SENTRY_IMAGE)
+	  $(if $(RBN_PORT_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION)) \
+	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
 
 	########################################################################
 	# 10) SETUP SENTRY NETWORKING
 	########################################################################
 	@echo "10) Setting up SENTRY networking"
 	@echo "10a) Getting SENTRY PID and creating veth pair"
-	@SENTRY_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_SENTRY_CONTAINER)") && \
+	@SENTRY_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry") && \
 	echo "SENTRY PID: $$SENTRY_PID" && \
 	podman machine ssh "sudo ip link add veth_sentry_out type veth peer name veth_sentry_in && \
 	  sudo ip link set veth_sentry_in netns $$SENTRY_PID && \
@@ -337,25 +334,26 @@ zrbm_proto_namespace_rule:
 	  sudo ip link set veth_sentry_out up"
 
 	@echo "10b) Configuring SENTRY IP forwarding and NAT"
-	podman machine ssh "podman exec $(RBM_PROTO_SENTRY_CONTAINER) sysctl -w net.ipv4.ip_forward=1"
-	podman machine ssh "podman exec $(RBM_PROTO_SENTRY_CONTAINER) iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+	podman machine ssh "podman exec $(RBM_MONIKER)-sentry sysctl -w net.ipv4.ip_forward=1"
+	podman machine ssh "podman exec $(RBM_MONIKER)-sentry iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 
 	@echo "11) Testing SENTRY network connectivity"
-	-podman machine ssh "podman exec $(RBM_PROTO_SENTRY_CONTAINER) ping -c 2 $(RBM_PROTO_ENCLAVE_HOST_IP)"
+	-podman machine ssh "podman exec $(RBM_MONIKER)-sentry ping -c 2 $(RBM_PROTO_ENCLAVE_HOST_IP)"
 
 	########################################################################
 	# 12) SETUP BOTTLE CONTAINER
 	########################################################################
 	@echo "12) Launch and configure BOTTLE container"
 	podman run -d \
-	  --name $(RBM_PROTO_BOTTLE_CONTAINER) \
+	  --name $(RBM_MONIKER)-bottle \
 	  --network none \
 	  --privileged \
 	  --security-opt label=disable \
-	  $(RBM_PROTO_BOTTLE_IMAGE)
+	  $(RBN_VOLUME_MOUNTS) \
+	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	@echo "13) Setting up BOTTLE networking"
-	@BOTTLE_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_BOTTLE_CONTAINER)") && \
+	@BOTTLE_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-bottle") && \
 	echo "BOTTLE PID: $$BOTTLE_PID" && \
 	podman machine ssh "sudo ip link add veth_bottle_out type veth peer name veth_bottle_in && \
 	  sudo ip link set veth_bottle_in netns $$BOTTLE_PID && \
@@ -366,14 +364,14 @@ zrbm_proto_namespace_rule:
 	  sudo ip link set veth_bottle_out up"
 
 	@echo "14) Configuring BOTTLE routing"
-	@BOTTLE_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_BOTTLE_CONTAINER)") && \
+	@BOTTLE_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-bottle") && \
 	podman machine ssh "sudo nsenter -t $$BOTTLE_PID -n ip route add default via $(RBM_PROTO_SENTRY_IP) dev eth1"
 
 	@echo "15) Testing BOTTLE to SENTRY connectivity"
-	-podman machine ssh "podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ping -c 3 $(RBM_PROTO_SENTRY_IP)"
+	-podman machine ssh "podman exec $(RBM_MONIKER)-bottle ping -c 3 $(RBM_PROTO_SENTRY_IP)"
 
 	@echo "16) Testing BOTTLE external connectivity"
-	-podman machine ssh "podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ping -c 3 1.1.1.1"
+	-podman machine ssh "podman exec $(RBM_MONIKER)-bottle ping -c 3 1.1.1.1"
 
 
 
