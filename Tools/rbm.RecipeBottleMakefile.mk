@@ -267,6 +267,9 @@ rbm-OPE%:
 # USAGE EXAMPLE:
 #   make rbm-PTmyproto
 #
+# References:
+#   https://chatgpt.com/c/6783fd42-e50c-8007-b23b-7744a7ed58f2
+#
 # You must define or override the following environment variables for your prototype:
 #
 RBM_PROTO_NS_NAME          = myproto-ns
@@ -301,61 +304,45 @@ zrbm_proto_namespace_rule:
 	@echo "4) Create new netns: $(RBM_PROTO_NS_NAME)"
 	podman machine ssh "sudo ip netns add $(RBM_PROTO_NS_NAME)"
 
-	@echo "5) Create veth pair: $(RBM_PROTO_VETH_HOST) <-> $(RBM_PROTO_VETH_ENCLAVE)"
+	@echo "5) Create veth pair on the host: $(RBM_PROTO_VETH_HOST) <-> $(RBM_PROTO_VETH_ENCLAVE)"
 	podman machine ssh "sudo ip link add $(RBM_PROTO_VETH_HOST) type veth peer name $(RBM_PROTO_VETH_ENCLAVE)"
 
 	@echo "6) Move $(RBM_PROTO_VETH_ENCLAVE) into netns $(RBM_PROTO_NS_NAME)"
 	podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_ENCLAVE) netns $(RBM_PROTO_NS_NAME)"
 
-	@echo "7) Assign IP on host side, bring up link"
-	podman machine ssh "sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev $(RBM_PROTO_VETH_HOST) \
-	                    && sudo ip link set $(RBM_PROTO_VETH_HOST) up"
+	@echo "7) Assign IP on host side, bring up link (optional if you just need it for local testing)"
+	podman machine ssh "sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev $(RBM_PROTO_VETH_HOST) || true"
+	podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_HOST) up || true"
 
-	@echo "8) Assign IP on netns side, bring up link"
-	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev $(RBM_PROTO_VETH_ENCLAVE) \
-	                    && sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set $(RBM_PROTO_VETH_ENCLAVE) up \
-	                    && sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set lo up"
+	@echo "8) (Optional) Assign IP on netns side, bring up link"
+	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev $(RBM_PROTO_VETH_ENCLAVE) || true"
+	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set $(RBM_PROTO_VETH_ENCLAVE) up || true"
+	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set lo up || true"
 
-	@echo "9) Launch SENTRY container with host net, privileged"
+	@echo "------------------------------------------------------------------------"
+	@echo "NOTE: Steps #3-#8 created a host-level netns and veth pair, but"
+	@echo "      for the final container attachments we will do MANUAL veth moves"
+	@echo "      instead of 'podman network connect ns:/run/netns/...'."
+	@echo "------------------------------------------------------------------------"
+
+	@echo "9) Launch SENTRY container with normal Podman bridging (internet access)"
 	podman run -d                          \
 	  --name $(RBM_PROTO_SENTRY_CONTAINER) \
 	  --network bridge                     \
 	  --privileged                         \
 	  $(RBM_PROTO_SENTRY_IMAGE)
 
-	@echo "10) Connect SENTRY to the custom netns as eth1"
-	podman network connect ns:/run/netns/$(RBM_PROTO_NS_NAME) $(RBM_PROTO_SENTRY_CONTAINER)
+	@echo "   Check SENTRY container PID"
+	$(eval SENTRY_PID := $(shell podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_SENTRY_CONTAINER) 2>/dev/null))
 
-	@echo "11) Inside SENTRY, set IP for eth1"
-	# We assigned $(RBM_PROTO_SENTRY_IP) to the netns's veth side. We can either reuse that or
-	# pick a separate IP to confirm both sides. For simplicity, let's keep same .2 address:
-	# Or optionally do '192.168.77.2/24 dev eth1' so it's identical. Adjust as you like:
-	podman exec $(RBM_PROTO_SENTRY_CONTAINER) ip link set eth1 up
-	# If you'd prefer a different IP for the container's eth1, uncomment the next line:
-	# podman exec $(RBM_PROTO_SENTRY_CONTAINER) ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev eth1
+	@echo "10) Create a new veth pair for the SENTRY side: 'veth_sentry_out' <-> 'veth_sentry_in'"
+	podman machine ssh "sudo ip link add veth_sentry_out type veth peer name veth_sentry_in"
 
-	@echo "12) Optional ping test from SENTRY to host side"
-	podman exec $(RBM_PROTO_SENTRY_CONTAINER) ping -c 2 $(RBM_PROTO_ENCLAVE_HOST_IP) || true
+	@echo "    - Move 'veth_sentry_in' into the SENTRY container's netns (so it becomes eth1)"
+	podman machine ssh "sudo ip link set veth_sentry_in netns $(SENTRY_PID)"
+	podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip link set veth_sentry_in name eth1"
+	podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev eth
 
-	@echo "13) Launch BOTTLE container in the SAME netns as eth1"
-	podman run -d \
-	  --name $(RBM_PROTO_BOTTLE_CONTAINER) \
-	  --network none \
-	  --security-opt label=disable \
-	  $(RBM_PROTO_BOTTLE_IMAGE)
-	podman network connect ns:/run/netns/$(RBM_PROTO_NS_NAME) $(RBM_PROTO_BOTTLE_CONTAINER)
-
-	@echo "14) Assign IP on BOTTLE's eth1 to $(RBM_PROTO_BOTTLE_IP)"
-	podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ip link set eth1 up
-	podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ip addr add $(RBM_PROTO_BOTTLE_IP)/24 dev eth1
-
-	@echo "15) Ping SENTRY from BOTTLE"
-	podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ping -c 3 $(RBM_PROTO_SENTRY_IP) || true
-
-	@echo "16) Ping host side from BOTTLE"
-	podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ping -c 3 $(RBM_PROTO_ENCLAVE_HOST_IP) || true
-
-	@read -p 'Prototype test done. Press enter to finalize...' dummy
 
 
 # eof
