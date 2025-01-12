@@ -290,58 +290,128 @@ rbm-PN%: zrbm_proto_namespace_rule
 zrbm_proto_namespace_rule:
 	@echo "=== Prototype netns test: $(RBM_PROTO_NS_NAME) ==="
 
+	########################################################################
+	# 1) STOP & REMOVE PRIOR CONTAINERS (host side, but effectively in VM)
+	########################################################################
 	@echo "1) Stop & remove any prior SENTRY container"
-	-podman stop -t 5  $(RBM_PROTO_SENTRY_CONTAINER)
-	-podman rm   -f    $(RBM_PROTO_SENTRY_CONTAINER)
+	-podman stop -t 5  $(RBM_PROTO_SENTRY_CONTAINER) || true
+	-podman rm   -f    $(RBM_PROTO_SENTRY_CONTAINER) || true
 
 	@echo "2) Stop & remove any prior BOTTLE container"
-	-podman stop -t 5  $(RBM_PROTO_BOTTLE_CONTAINER)
-	-podman rm   -f    $(RBM_PROTO_BOTTLE_CONTAINER)
+	-podman stop -t 5  $(RBM_PROTO_BOTTLE_CONTAINER) || true
+	-podman rm   -f    $(RBM_PROTO_BOTTLE_CONTAINER) || true
 
-	@echo "3) Clean up old netns"
-	podman machine ssh "sudo ip netns del $(RBM_PROTO_NS_NAME) 2>/dev/null || true"
+	########################################################################
+	# 3) CLEAN UP OLD NETNS & VETHs INSIDE THE VM
+	########################################################################
+	@echo "3) Clean up old netns and leftover veth interfaces inside the VM"
+	@podman machine ssh "sudo ip netns del $(RBM_PROTO_NS_NAME) 2>/dev/null || true"
+	@podman machine ssh "sudo ip link del veth_sentry_out  2>/dev/null || true"
+	@podman machine ssh "sudo ip link del veth_sentry_in   2>/dev/null || true"
+	@podman machine ssh "sudo ip link del veth_bottle_out  2>/dev/null || true"
+	@podman machine ssh "sudo ip link del veth_bottle_in   2>/dev/null || true"
 
-	@echo "4) Create new netns: $(RBM_PROTO_NS_NAME)"
-	podman machine ssh "sudo ip netns add $(RBM_PROTO_NS_NAME)"
+	########################################################################
+	# 4) OPTIONAL: CREATE A VM-LEVEL NETNS & VETH (NOT FOR CONTAINERS)
+	########################################################################
+	@echo "4) Create new VM-level netns: $(RBM_PROTO_NS_NAME) [Optional demo]"
+	@podman machine ssh "sudo ip netns add $(RBM_PROTO_NS_NAME)"
 
-	@echo "5) Create veth pair on the host: $(RBM_PROTO_VETH_HOST) <-> $(RBM_PROTO_VETH_ENCLAVE)"
-	podman machine ssh "sudo ip link add $(RBM_PROTO_VETH_HOST) type veth peer name $(RBM_PROTO_VETH_ENCLAVE)"
+	@echo "5) Create veth pair: $(RBM_PROTO_VETH_HOST) <-> $(RBM_PROTO_VETH_ENCLAVE)"
+	@podman machine ssh "sudo ip link add $(RBM_PROTO_VETH_HOST) type veth peer name $(RBM_PROTO_VETH_ENCLAVE)"
 
 	@echo "6) Move $(RBM_PROTO_VETH_ENCLAVE) into netns $(RBM_PROTO_NS_NAME)"
-	podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_ENCLAVE) netns $(RBM_PROTO_NS_NAME)"
+	@podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_ENCLAVE) netns $(RBM_PROTO_NS_NAME)"
 
-	@echo "7) Assign IP on host side, bring up link (optional if you just need it for local testing)"
-	podman machine ssh "sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev $(RBM_PROTO_VETH_HOST) || true"
-	podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_HOST) up || true"
+	@echo "7) Assign IP on VM side, bring up link"
+	@podman machine ssh "sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev $(RBM_PROTO_VETH_HOST) || true"
+	@podman machine ssh "sudo ip link set $(RBM_PROTO_VETH_HOST) up || true"
 
-	@echo "8) (Optional) Assign IP on netns side, bring up link"
-	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev $(RBM_PROTO_VETH_ENCLAVE) || true"
-	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set $(RBM_PROTO_VETH_ENCLAVE) up || true"
-	podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set lo up || true"
+	@echo "8) Assign IP on netns side, bring up link"
+	@podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev $(RBM_PROTO_VETH_ENCLAVE) || true"
+	@podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set $(RBM_PROTO_VETH_ENCLAVE) up || true"
+	@podman machine ssh "sudo ip netns exec $(RBM_PROTO_NS_NAME) ip link set lo up || true"
 
-	@echo "------------------------------------------------------------------------"
-	@echo "NOTE: Steps #3-#8 created a host-level netns and veth pair, but"
-	@echo "      for the final container attachments we will do MANUAL veth moves"
-	@echo "      instead of 'podman network connect ns:/run/netns/...'."
-	@echo "------------------------------------------------------------------------"
+	@echo "-----------------------------------------------------"
+	@echo "Steps #4-#8 are optional. We created a netns in the VM"
+	@echo "and a veth pair for demonstration. The containers will"
+	@echo "have separate netns. Next we attach SENTRY & BOTTLE."
+	@echo "-----------------------------------------------------"
 
-	@echo "9) Launch SENTRY container with normal Podman bridging (internet access)"
-	podman run -d                          \
+	########################################################################
+	# 9) START SENTRY CONTAINER (FROM HOST) BUT RUNS INSIDE THE VM
+	########################################################################
+	@echo "9) Launch SENTRY container with bridging for internet"
+	podman run -d \
 	  --name $(RBM_PROTO_SENTRY_CONTAINER) \
-	  --network bridge                     \
-	  --privileged                         \
+	  --network bridge \
+	  --privileged \
 	  $(RBM_PROTO_SENTRY_IMAGE)
 
-	@echo "   Check SENTRY container PID"
-	$(eval SENTRY_PID := $(shell podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_SENTRY_CONTAINER) 2>/dev/null))
+	########################################################################
+	# 10) GET THE REAL SENTRY PID FROM INSIDE THE VM, ADD veth_sentry_in
+	########################################################################
+	@echo "   Gathering the VM-side PID for SENTRY"
+	# Use 'podman machine ssh "podman inspect ..." to get the true PID inside VM
+	$(eval SENTRY_PID := $(shell podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_SENTRY_CONTAINER)"))
+	@echo "   The SENTRY PID inside the VM is $(SENTRY_PID)"
 
-	@echo "10) Create a new veth pair for the SENTRY side: 'veth_sentry_out' <-> 'veth_sentry_in'"
-	podman machine ssh "sudo ip link add veth_sentry_out type veth peer name veth_sentry_in"
+	@echo "10a) Create new veth pair 'veth_sentry_out' <-> 'veth_sentry_in' in the VM"
+	@podman machine ssh "sudo ip link add veth_sentry_out type veth peer name veth_sentry_in"
 
-	@echo "    - Move 'veth_sentry_in' into the SENTRY container's netns (so it becomes eth1)"
-	podman machine ssh "sudo ip link set veth_sentry_in netns $(SENTRY_PID)"
-	podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip link set veth_sentry_in name eth1"
-	podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev eth
+	@echo "10b) Move 'veth_sentry_in' into SENTRY container's netns"
+	@podman machine ssh "sudo ip link set veth_sentry_in netns $(SENTRY_PID)"
+	@podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip link set veth_sentry_in name eth1"
+	@podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev eth1"
+	@podman machine ssh "sudo nsenter -t $(SENTRY_PID) -n ip link set eth1 up"
+
+	@echo "10c) Give 'veth_sentry_out' an IP and bring it up in the VM"
+	@podman machine ssh "sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev veth_sentry_out || true"
+	@podman machine ssh "sudo ip link set veth_sentry_out up"
+
+	@echo "10d) Enable IP forwarding & NAT inside SENTRY container"
+	@podman machine ssh "podman exec $(RBM_PROTO_SENTRY_CONTAINER) sysctl -w net.ipv4.ip_forward=1"
+	@podman machine ssh "podman exec $(RBM_PROTO_SENTRY_CONTAINER) iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+
+	@echo "11) Test ping from SENTRY's eth1 to 'veth_sentry_out' IP"
+	@podman machine ssh "podman exec $(RBM_PROTO_SENTRY_CONTAINER) ping -c 2 $(RBM_PROTO_ENCLAVE_HOST_IP) || true"
+
+	########################################################################
+	# 12) START BOTTLE CONTAINER (NO NETWORK), THEN ADD SECOND INTERFACE
+	########################################################################
+	@echo "12) Launch BOTTLE container (from host) with --network none"
+	podman run -d \
+	  --name $(RBM_PROTO_BOTTLE_CONTAINER) \
+	  --network none \
+	  --privileged \
+	  --security-opt label=disable \
+	  $(RBM_PROTO_BOTTLE_IMAGE)
+
+	@echo "   Gathering the VM-side PID for BOTTLE"
+	$(eval BOTTLE_PID := $(shell podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_PROTO_BOTTLE_CONTAINER)"))
+	@echo "   The BOTTLE PID inside the VM is $(BOTTLE_PID)"
+
+	@echo "13) Create veth pair 'veth_bottle_out' <-> 'veth_bottle_in' in the VM"
+	@podman machine ssh "sudo ip link add veth_bottle_out type veth peer name veth_bottle_in"
+
+	@echo "13b) Move 'veth_bottle_in' into BOTTLE netns as eth1"
+	@podman machine ssh "sudo ip link set veth_bottle_in netns $(BOTTLE_PID)"
+	@podman machine ssh "sudo nsenter -t $(BOTTLE_PID) -n ip link set veth_bottle_in name eth1"
+	@podman machine ssh "sudo nsenter -t $(BOTTLE_PID) -n ip addr add $(RBM_PROTO_BOTTLE_IP)/24 dev eth1"
+	@podman machine ssh "sudo nsenter -t $(BOTTLE_PID) -n ip link set eth1 up"
+
+	@echo "13c) Assign IP to 'veth_bottle_out' and bring it up in the VM"
+	@podman machine ssh "sudo ip addr add 10.242.0.4/24 dev veth_bottle_out || true"
+	@podman machine ssh "sudo ip link set veth_bottle_out up"
+
+	@echo "14) Make BOTTLE route via SENTRY's eth1 IP: $(RBM_PROTO_SENTRY_IP)"
+	@podman machine ssh "sudo nsenter -t $(BOTTLE_PID) -n ip route add default via $(RBM_PROTO_SENTRY_IP) dev eth1"
+
+	@echo "15) Ping SENTRY from BOTTLE"
+	@podman machine ssh "podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ping -c 3 $(RBM_PROTO_SENTRY_IP) || true"
+
+	@echo "16) (Optional) If NAT works, BOTTLE can ping external"
+	@echo "    Try: podman machine ssh \"podman exec $(RBM_PROTO_BOTTLE_CONTAINER) ping -c 3 1.1.1.1\""
 
 
 
