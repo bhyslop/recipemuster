@@ -319,6 +319,9 @@ zrbm_proto_namespace_rule:
 	  --privileged                                     \
 	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
 
+	@echo "4a) Waiting for SENTRY container..."
+	timeout 5s podman machine ssh "while ! podman inspect $(RBM_SENTRY_CONTAINER) >/dev/null 2>&1; do sleep 0.2; done"
+
 	########################################################################
 	# 5) CONSTRUCT SENTRY NAMESPACE SCRIPT
 	########################################################################
