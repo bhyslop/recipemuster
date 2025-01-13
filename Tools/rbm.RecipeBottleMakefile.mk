@@ -330,7 +330,7 @@ zrbm_proto_namespace_rule:
 	echo "#!/bin/sh"                                                                                          >  $(NSPROTO_SENTRY_NS_SCRIPT)
 	echo "set -e"                                                                                             >> $(NSPROTO_SENTRY_NS_SCRIPT)
 	echo "echo 'Getting SENTRY PID...'"                                                                       >> $(NSPROTO_SENTRY_NS_SCRIPT)
-	echo "SENTRY_PID=\$$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER))"                         >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "SENTRY_PID=\$(podman ps | grep nsproto-sentry | awk '{print \$1}' | xargs podman inspect -f '{{.State.Pid}}')" >> $(NSPROTO_SENTRY_NS_SCRIPT)
 	echo "[ -n \"\$$SENTRY_PID\" ] || exit 31"                                                                >> $(NSPROTO_SENTRY_NS_SCRIPT)
 	echo "echo 'SENTRY PID: '\$$SENTRY_PID"                                                                   >> $(NSPROTO_SENTRY_NS_SCRIPT)
 	echo "echo 'Setting up SENTRY networking...'"                                                             >> $(NSPROTO_SENTRY_NS_SCRIPT)
