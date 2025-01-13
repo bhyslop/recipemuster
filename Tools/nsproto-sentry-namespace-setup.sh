@@ -1,7 +1,10 @@
 #!/bin/sh
 set -e
+echo 'Can we see sentry here...'
+podman inspect  nsproto-sentry
+podman inspect -f '{{.State.Pid}}' nsproto-sentry
 echo 'Getting SENTRY PID...'
-SENTRY_PID=$(podman inspect -f '{{.State.Pid}}' nsproto-sentry)
+SENTRY_PID=$(PODMAN_IGNORE_CGROUPSV1_WARNING=1 podman inspect -f '{{.State.Pid}}' nsproto-sentry)
 [ -n "$SENTRY_PID" ] || exit 31
 echo 'SENTRY PID: '$SENTRY_PID
 echo 'Setting up SENTRY networking...'
