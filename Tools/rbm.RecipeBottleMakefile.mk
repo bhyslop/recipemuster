@@ -278,6 +278,8 @@ RBM_PROTO_VETH_ENCLAVE     = $(RBM_MONIKER)_veth1
 RBM_PROTO_ENCLAVE_HOST_IP  = 10.242.0.1
 RBM_PROTO_SENTRY_IP        = 10.242.0.2
 RBM_PROTO_BOTTLE_IP        = 10.242.0.3
+NSPROTO_SENTRY_NS_SCRIPT   = $(RBM_TOOLS_DIR)/nsproto-sentry-namespace-setup.sh
+NSPROTO_BOTTLE_NS_SCRIPT   = $(RBM_TOOLS_DIR)/nsproto-bottle-namespace-setup.sh
 
 
 rbm-PN%: zrbm_proto_namespace_rule
@@ -308,9 +310,9 @@ zrbm_proto_namespace_rule:
 	podman machine ssh "sudo ip link del veth_bottle_in   2>/dev/null || true"
 
 	########################################################################
-	# 9) START SENTRY CONTAINER
+	# 4) START SENTRY CONTAINER
 	########################################################################
-	@echo "9) Launch SENTRY container with bridging for internet"
+	@echo "4) Launch SENTRY container with bridging for internet"
 	podman run -d \
 	  --name $(RBM_SENTRY_CONTAINER) \
 	  --network bridge \
@@ -319,60 +321,77 @@ zrbm_proto_namespace_rule:
 	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
 
 	########################################################################
-	# 10) SETUP SENTRY NETWORKING
+	# 5) CONSTRUCT SENTRY NAMESPACE SCRIPT
 	########################################################################
-	@echo "10) Setting up SENTRY networking"
-	@echo "10a) Getting SENTRY PID and creating veth pair"
-	@SENTRY_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)") && \
-	echo "SENTRY PID: $$SENTRY_PID" && \
-	podman machine ssh "sudo ip link add veth_sentry_out type veth peer name veth_sentry_in && \
-	  sudo ip link set veth_sentry_in netns $$SENTRY_PID && \
-	  sudo nsenter -t $$SENTRY_PID -n ip link set veth_sentry_in name eth1 && \
-	  sudo nsenter -t $$SENTRY_PID -n ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev eth1 && \
-	  sudo nsenter -t $$SENTRY_PID -n ip link set eth1 up && \
-	  sudo ip addr add $(RBM_PROTO_ENCLAVE_HOST_IP)/24 dev veth_sentry_out && \
-	  sudo ip link set veth_sentry_out up"
-
-	@echo "10b) Configuring SENTRY IP forwarding and NAT"
-	podman machine ssh "podman exec $(RBM_SENTRY_CONTAINER) sysctl -w net.ipv4.ip_forward=1"
-	podman machine ssh "podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
-
-	@echo "11) Testing SENTRY network connectivity"
-	-podman machine ssh "podman exec $(RBM_SENTRY_CONTAINER) ping -c 2 $(RBM_PROTO_ENCLAVE_HOST_IP)"
+	@echo "5) Construct SENTRY namespace setup script"
+	echo "#!/bin/sh"                                                                                        >  $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "set -e"                                                                                           >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "echo 'Getting SENTRY PID...'"                                                                     >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "SENTRY_PID=\$$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER))"                       >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "[ -n \"\$$SENTRY_PID\" ] || exit 31"                                                              >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "echo 'SENTRY PID: '\$$SENTRY_PID"                                                                 >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "echo 'Setting up SENTRY networking...'"                                                           >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo ip link add veth_sentry_out type veth peer name veth_sentry_in || exit 31"                   >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo ip link set veth_sentry_in netns \$$SENTRY_PID || exit 31"                                   >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo nsenter -t \$$SENTRY_PID -n ip link set veth_sentry_in name eth1 || exit 31"                 >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo nsenter -t \$$SENTRY_PID -n ip addr add $(RBM_PROTO_SENTRY_IP)/24 dev eth1 || exit 31"       >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo nsenter -t \$$SENTRY_PID -n ip link set eth1 up || exit 31"                                  >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo ip link set veth_sentry_out up || exit 31"                                                   >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "echo 'Configuring SENTRY IP forwarding and NAT...'"                                               >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo nsenter -t \$$SENTRY_PID -n sysctl -w net.ipv4.ip_forward=1 || exit 31"                      >> $(NSPROTO_SENTRY_NS_SCRIPT)
+	echo "sudo nsenter -t \$$SENTRY_PID -n iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE || exit 31" >> $(NSPROTO_SENTRY_NS_SCRIPT)
 
 	########################################################################
-	# 12) SETUP BOTTLE CONTAINER
+	# 6) EXECUTE SENTRY NAMESPACE SCRIPT
 	########################################################################
-	@echo "12) Launch and configure BOTTLE container"
+	@echo "6) Execute SENTRY namespace setup script"
+	cat $(NSPROTO_SENTRY_NS_SCRIPT) | podman machine ssh "sudo /bin/sh"
+
+	########################################################################
+	# 7) START BOTTLE CONTAINER 
+	#
+	#    Note this step adds net_raw but only for ping in prototype
+	########################################################################
+	@echo "7) Launch and configure BOTTLE container"
 	podman run -d \
 	  --name $(RBM_BOTTLE_CONTAINER) \
 	  --network none \
-	  --privileged \
+	  --cap-add net_raw  \
 	  --security-opt label=disable \
 	  $(RBN_VOLUME_MOUNTS) \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
-	@echo "13) Setting up BOTTLE networking"
-	@BOTTLE_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)") && \
-	echo "BOTTLE PID: $$BOTTLE_PID" && \
-	podman machine ssh "sudo ip link add veth_bottle_out type veth peer name veth_bottle_in && \
-	  sudo ip link set veth_bottle_in netns $$BOTTLE_PID && \
-	  sudo nsenter -t $$BOTTLE_PID -n ip link set veth_bottle_in name eth1 && \
-	  sudo nsenter -t $$BOTTLE_PID -n ip addr add $(RBM_PROTO_BOTTLE_IP)/24 dev eth1 && \
-	  sudo nsenter -t $$BOTTLE_PID -n ip link set eth1 up && \
-	  sudo ip addr add 10.242.0.4/24 dev veth_bottle_out && \
-	  sudo ip link set veth_bottle_out up"
+	########################################################################
+	# 8) CONSTRUCT BOTTLE NAMESPACE SCRIPT
+	########################################################################
+	@echo "8) Construct BOTTLE namespace setup script"
+	echo "#!/bin/sh"                                                                                            >  $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "set -e"                                                                                               >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "echo 'Getting BOTTLE PID...'"                                                                         >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "BOTTLE_PID=\$$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER))"                           >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "[ -n \"\$$BOTTLE_PID\" ] || exit 31"                                                                  >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "echo 'BOTTLE PID: '\$$BOTTLE_PID"                                                                     >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "echo 'Setting up BOTTLE networking...'"                                                               >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo ip link add veth_bottle_out type veth peer name veth_bottle_in || exit 31"                       >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo ip link set veth_bottle_in netns \$$BOTTLE_PID || exit 31"                                       >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo nsenter -t \$$BOTTLE_PID -n ip link set veth_bottle_in name eth1 || exit 31"                     >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo nsenter -t \$$BOTTLE_PID -n ip addr add $(RBM_PROTO_BOTTLE_IP)/24 dev eth1 || exit 31"           >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo nsenter -t \$$BOTTLE_PID -n ip link set eth1 up || exit 31"                                      >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo ip link set veth_bottle_out up || exit 31"                                                       >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "echo 'Configuring BOTTLE routing...'"                                                                 >> $(NSPROTO_BOTTLE_NS_SCRIPT)
+	echo "sudo nsenter -t \$$BOTTLE_PID -n ip route add default via $(RBM_PROTO_SENTRY_IP) dev eth1 || exit 31" >> $(NSPROTO_BOTTLE_NS_SCRIPT)
 
-	@echo "14) Configuring BOTTLE routing"
-	@BOTTLE_PID=$$(podman machine ssh "podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)") && \
-	podman machine ssh "sudo nsenter -t $$BOTTLE_PID -n ip route add default via $(RBM_PROTO_SENTRY_IP) dev eth1"
+	########################################################################
+	# 9) EXECUTE BOTTLE NAMESPACE SCRIPT
+	########################################################################
+	@echo "9) Execute BOTTLE namespace setup script"
+	cat $(NSPROTO_BOTTLE_NS_SCRIPT) | podman machine ssh "sudo /bin/sh"
 
-	@echo "15) Testing BOTTLE to SENTRY connectivity"
+	@echo "10) Testing BOTTLE to SENTRY connectivity"
 	-podman machine ssh "podman exec $(RBM_BOTTLE_CONTAINER) ping -c 3 $(RBM_PROTO_SENTRY_IP)"
 
-	@echo "16) Testing BOTTLE external connectivity"
+	@echo "11) Testing BOTTLE external connectivity"
 	-podman machine ssh "podman exec $(RBM_BOTTLE_CONTAINER) ping -c 3 1.1.1.1"
-
 
 
 # eof
