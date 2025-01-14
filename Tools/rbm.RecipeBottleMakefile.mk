@@ -383,16 +383,16 @@ zrbm_proto_namespace_rule:
 	echo "sudo nsenter -t \$$BOTTLE_PID -n ip route add default via $(RBM_PROTO_SENTRY_IP) dev eth1"          >> $(NSPROTO_BOTTLE_NS_SCRIPT)
 
 	########################################################################
-	# 9) EXECUTE BOTTLE NAMESPACE SCRIPT
+	# 9) START BOTTLE CONTAINER
 	########################################################################
-	@echo "9) Execute BOTTLE namespace setup script"
-	cat $(NSPROTO_BOTTLE_NS_SCRIPT) | podman machine ssh "/bin/sh"
+	@echo "9) Start BOTTLE container"
+	podman start $(RBM_BOTTLE_CONTAINER)
 
 	########################################################################
-	# 10) START BOTTLE CONTAINER
+	# 10) EXECUTE BOTTLE NAMESPACE SCRIPT
 	########################################################################
-	@echo "10) Start BOTTLE container"
-	podman start $(RBM_BOTTLE_CONTAINER)
+	@echo "10) Execute BOTTLE namespace setup script"
+	cat $(NSPROTO_BOTTLE_NS_SCRIPT) | podman machine ssh "/bin/sh"
 
 	########################################################################
 	# 11) TEST CONNECTIVITY
