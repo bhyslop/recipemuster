@@ -1,9 +1,5 @@
 #!/bin/sh
 set -e
-echo 'Can we see sentry here, ps first...'
-podman ps
-echo 'Can we see sentry here, inspect all...'
-podman inspect  nsproto-sentry
 echo 'Can we see sentry here, inspect intimate...'
 podman inspect -f '{{.State.Pid}}' nsproto-sentry
 echo 'Getting SENTRY PID...'

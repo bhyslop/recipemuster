@@ -521,6 +521,7 @@ This section contains reminders about future improvements, deferred for now.
 * Must deal with multiple bottle service conflict on same IP
 * Deal well with the arp flush in the podman machine: not n
 * Must deal with `RBN_PORT_ENABLED := 0` failing to work right
+* Put in a moniker length guard such that the veth names created aren't more than 15 chars
 * profit
 
 ====
