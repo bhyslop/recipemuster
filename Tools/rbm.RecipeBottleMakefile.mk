@@ -351,7 +351,7 @@ zrbm_proto_namespace_rule:
 	# 6) EXECUTE SENTRY NAMESPACE SCRIPT
 	########################################################################
 	@echo "6) Execute SENTRY namespace setup script"
-	cat $(NSPROTO_SENTRY_NS_SCRIPT) | podman machine ssh "sudo /bin/sh"
+	cat $(NSPROTO_SENTRY_NS_SCRIPT) | podman machine ssh "/bin/sh"
 
 	########################################################################
 	# 7) CREATE BOTTLE CONTAINER (BUT DON'T START)
@@ -388,7 +388,7 @@ zrbm_proto_namespace_rule:
 	# 9) EXECUTE BOTTLE NAMESPACE SCRIPT
 	########################################################################
 	@echo "9) Execute BOTTLE namespace setup script"
-	cat $(NSPROTO_BOTTLE_NS_SCRIPT) | podman machine ssh "sudo /bin/sh"
+	cat $(NSPROTO_BOTTLE_NS_SCRIPT) | podman machine ssh "/bin/sh"
 
 	########################################################################
 	# 10) START BOTTLE CONTAINER
