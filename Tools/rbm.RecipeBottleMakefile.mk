@@ -416,5 +416,4 @@ zrbm_proto_namespace_rule:
 	-podman machine ssh "podman exec $(RBM_BOTTLE_CONTAINER) ping -c 3 1.1.1.1"
 
 
-
 # eof
