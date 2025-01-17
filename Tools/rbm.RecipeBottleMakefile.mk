@@ -105,7 +105,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  --network none                                   \
 	  --cap-add net_raw                                \
 	  --security-opt label=disable                     \
-	  $(RBN_VOLUME_MOUNTS)                            \
+	  $(RBN_VOLUME_MOUNTS)                             \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	@echo "Executing BOTTLE namespace setup script before starting container"  
