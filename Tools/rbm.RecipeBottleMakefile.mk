@@ -55,101 +55,74 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
 
+# Modified networking variables (internal)
+zRBM_BRIDGE           = vbr_$(RBM_MONIKER)
+zRBM_VETH_SENTRY_IN   = vsi_$(RBM_MONIKER)
+zRBM_VETH_SENTRY_OUT  = vso_$(RBM_MONIKER)
+zRBM_VETH_BOTTLE_IN   = vbi_$(RBM_MONIKER)
+zRBM_VETH_BOTTLE_OUT  = vbo_$(RBM_MONIKER)
+
 rbm-SS%: zrbm_start_sentry_rule
 	@echo "Completed delegate."
 
 zrbm_start_sentry_rule: zrbm_validate_regimes_rule
-	@echo "Stopping any prior containers for $(RBM_MONIKER)"
+	@echo "Starting containers for $(RBM_MONIKER)"
+	
+	@echo "Stopping any prior containers"
 	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
-	-podman rm -f      $(RBM_SENTRY_CONTAINER)
+	-podman rm   -f    $(RBM_SENTRY_CONTAINER)
 	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
-	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
+	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
-	@echo "Starting Sentry container for $(RBM_MONIKER)"
+	@echo "Cleaning up old netns and interfaces inside VM"
+	-podman machine ssh "sudo ip netns del $(RBM_MONIKER)-ns        2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(zRBM_VETH_SENTRY_OUT) 2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(zRBM_VETH_SENTRY_IN)  2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(zRBM_VETH_BOTTLE_OUT) 2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(zRBM_VETH_BOTTLE_IN)  2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(zRBM_BRIDGE)          2>/dev/null || true"
 
-	# Network Creation Sequence
-	-podman network rm -f $(RBM_UPLINK_NETWORK)
-	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
-	podman network create --driver bridge $(RBM_UPLINK_NETWORK)
-	podman network create --subnet $(RBN_ENCLAVE_BASE_IP)/$(RBN_ENCLAVE_NETMASK)  \
-	                      --gateway $(RBN_ENCLAVE_SENTRY_IP)                      \
-	                      --internal                                              \
-	                      $(RBM_ENCLAVE_NETWORK)
+	@echo "Launching SENTRY container with bridging for internet"
+	podman run -d                                      \
+	  --name $(RBM_SENTRY_CONTAINER)                   \
+	  --network bridge                                 \
+	  --privileged                                     \
+	  $(if $(RBN_PORT_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION))  \
+	  $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                                           \
+	  $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
+	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
 
-	# Sentry Run Sequence
-	-podman rm -f $(RBM_SENTRY_CONTAINER)
-	podman run -d                                                                                 \
-	    --name $(RBM_SENTRY_CONTAINER)                                                            \
-	    --network $(RBM_UPLINK_NETWORK)                                                           \
-	    --privileged                                                                              \
-	    $(if $(RBN_PORT_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION))  \
-	    $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                                           \
-	    $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
-	    $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
+	@echo "Waiting for SENTRY container"
+	sleep 2
+	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
-	# Add debug pause point
-	@read -p "Debug pause __BEFORE__ Network connect and IP change. Start SENTRY and ENCLAVE tcpdumps now..."
+	@echo "Executing SENTRY namespace setup script"
+	cat $(RBM_TOOLS_DIR)/zrbm-sentry-ns-setup.sh | podman machine ssh "/bin/sh"
 
-	# Network Connect and Configure Sequence
-	podman network connect                              \
-	    --ip $(RBN_ENCLAVE_INITIAL_IP)                  \
-	    $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
+	@echo "Creating (but not starting) BOTTLE container"
+	podman create                                      \
+	  --name $(RBM_BOTTLE_CONTAINER)                   \
+	  --network none                                   \
+	  --cap-add net_raw                                \
+	  --security-opt label=disable                     \
+	  $(RBN_VOLUME_MOUNTS)                            \
+	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
-	# Verify eth1 presence and initial IP
-	timeout 5s sh -c "while ! podman exec $(RBM_SENTRY_CONTAINER) ip addr show eth1 | grep -q 'inet '; do sleep 0.2; done"
+	@echo "Executing BOTTLE namespace setup script before starting container"  
+	cat $(RBM_TOOLS_DIR)/zrbm-bottle-ns-setup.sh | podman machine ssh "/bin/sh"
 
-	# Remove auto-assigned address and configure gateway
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip link set eth1 arp off"
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr del $(RBN_ENCLAVE_INITIAL_IP)/$(RBN_ENCLAVE_NETMASK)  dev eth1"
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr add $(RBN_ENCLAVE_SENTRY_IP)/$(RBN_ENCLAVE_NETMASK)   dev eth1"
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip link set eth1 arp on"
+	@echo "Starting BOTTLE container after networking is configured"
+	podman start $(RBM_BOTTLE_CONTAINER)
 
-	# Add bridge flush and gratuitous ARP
-	podman machine ssh "export MYPID=$$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) &&" \
-	                   "export MYBRIDGE=$$(podman network inspect $(RBM_ENCLAVE_NETWORK) -f '{{.NetworkInterface}}') &&" \
-	                   "echo 'pid:' $$MYPID ' and ' $$MYBRIDGE ' here' &&" \
-	                   "sudo nsenter -t $$MYPID -n ip neigh flush dev $$MYBRIDGE"
-	sleep 5
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "arping -U -I eth1 -s $(RBN_ENCLAVE_SENTRY_IP) $(RBN_ENCLAVE_SENTRY_IP) -c 3"
-	@read -p "Debug pause __AFTER__ IP change. Press enter..." dummy
-
-	# Diagnostic info within namespaces
-	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip addr show"
-	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip neigh show"
-	podman machine ssh "ip neigh show"
-
-	# Clear ARP caches at container and bridge level
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip neigh flush dev eth1"
-	podman machine ssh "podman network inspect $(RBM_ENCLAVE_NETWORK)"
-	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n ip neigh flush dev eth1"
-
-	# Verify route exists
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip route show | grep -q '$(RBN_ENCLAVE_BASE_IP)/$(RBN_ENCLAVE_NETMASK) dev eth1'"
-
-	# Verify gateway IP is configured correctly
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/sh -c "ip addr show eth1 | grep -q 'inet $(RBN_ENCLAVE_SENTRY_IP)'"
-
-	# Security Configuration
+	@echo "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
 
 rbm-BS%: zrbm_start_bottle_rule
 	@echo "Completed delegate."
 zrbm_start_bottle_rule:
-	@echo "Starting Sessile Bottle container for $(RBM_MONIKER)"
-	
-	# Bottle Cleanup Sequence
-	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
-	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
-	
-	# Bottle Launch Sequence
-	podman run -d                                \
-	    --name    $(RBM_BOTTLE_CONTAINER)        \
-	    --network $(RBM_ENCLAVE_NETWORK)         \
-	    --dns     $(RBN_ENCLAVE_SENTRY_IP)       \
-	    --restart unless-stopped                 \
-	    $(RBN_VOLUME_MOUNTS)                     \
-	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
+	@echo "UNUSED FOR NOW."
+	false
 
 
 rbm-br%: zrbm_validate_regimes_rule
