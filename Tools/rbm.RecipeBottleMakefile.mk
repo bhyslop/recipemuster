@@ -97,7 +97,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	@echo "Executing SENTRY namespace setup script"
-	cat $(RBM_TOOLS_DIR)/zrbm-sentry-ns-setup.sh | podman machine ssh "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh | podman machine ssh "/bin/sh"
 
 	@echo "Creating (but not starting) BOTTLE container"
 	podman create                                      \
@@ -109,7 +109,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	@echo "Executing BOTTLE namespace setup script before starting container"  
-	cat $(RBM_TOOLS_DIR)/zrbm-bottle-ns-setup.sh | podman machine ssh "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh | podman machine ssh "/bin/sh"
 
 	@echo "Starting BOTTLE container after networking is configured"
 	podman start $(RBM_BOTTLE_CONTAINER)
