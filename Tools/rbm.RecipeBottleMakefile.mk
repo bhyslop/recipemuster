@@ -36,10 +36,16 @@ include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
 include $(RBM_TOOLS_DIR)/test.rbm.mk
 
 # Container and network naming
-RBM_SENTRY_CONTAINER  = $(RBM_MONIKER)-sentry
-RBM_BOTTLE_CONTAINER  = $(RBM_MONIKER)-bottle
-RBM_UPLINK_NETWORK    = $(RBM_MONIKER)-uplink
-RBM_ENCLAVE_NETWORK   = $(RBM_MONIKER)-enclave
+RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
+RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
+RBM_UPLINK_NETWORK     = $(RBM_MONIKER)-uplink
+RBM_ENCLAVE_NETWORK    = $(RBM_MONIKER)-enclave
+RBM_ENCLAVE_BRIDGE     = vbr_$(RBM_MONIKER)
+RBM_ENCLAVE_SENTRY_IN  = vsi_$(RBM_MONIKER)
+RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
+RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
+RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
+
 
 
 # Render rules
@@ -55,13 +61,6 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
 
-# Modified networking variables (internal)
-zRBM_BRIDGE           = vbr_$(RBM_MONIKER)
-zRBM_VETH_SENTRY_IN   = vsi_$(RBM_MONIKER)
-zRBM_VETH_SENTRY_OUT  = vso_$(RBM_MONIKER)
-zRBM_VETH_BOTTLE_IN   = vbi_$(RBM_MONIKER)
-zRBM_VETH_BOTTLE_OUT  = vbo_$(RBM_MONIKER)
-
 rbm-SS%: zrbm_start_sentry_rule
 	@echo "Completed delegate."
 
@@ -76,11 +75,11 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	@echo "Cleaning up old netns and interfaces inside VM"
 	-podman machine ssh "sudo ip netns del $(RBM_MONIKER)-ns        2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(zRBM_VETH_SENTRY_OUT) 2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(zRBM_VETH_SENTRY_IN)  2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(zRBM_VETH_BOTTLE_OUT) 2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(zRBM_VETH_BOTTLE_IN)  2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(zRBM_BRIDGE)          2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_OUT) 2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_IN)  2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BOTTLE_OUT) 2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BOTTLE_IN)  2>/dev/null || true"
+	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BRIDGE)     2>/dev/null || true"
 
 	@echo "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
