@@ -69,8 +69,8 @@ zrbn_validate_network_mask:
 	@$(call MBC_CHECK_IN_RANGE,1,$(RBN_ENCLAVE_NETMASK),8,30)
 
 zrbn_validate_network_ips:
-	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_INITIAL_IP)
-	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_INITIAL_IP))
+	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_BOTTLE_IP)
+	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_BOTTLE_IP))
 	@$(call MBC_CHECK_EXPORTED,1,RBN_ENCLAVE_SENTRY_IP)
 	@$(call MBC_CHECK__IS_IPV4,1,$(RBN_ENCLAVE_SENTRY_IP))
 
@@ -153,7 +153,7 @@ rbn_define:
 	@echo "== Network Address =="
 	@echo "RBN_ENCLAVE_BASE_IP     # Base IPv4 address for enclave network"
 	@echo "RBN_ENCLAVE_NETMASK     # Network mask width (8-30)"
-	@echo "RBN_ENCLAVE_INITIAL_IP  # Gateway IP for container startup"
+	@echo "RBN_ENCLAVE_BOTTLE_IP   # Gateway IP for container startup"
 	@echo "RBN_ENCLAVE_SENTRY_IP   # IP address for Sentry Container"
 	@echo
 	@echo "== Network Uplink =="
@@ -183,7 +183,7 @@ rbn_render:
 	@echo "Network Address:"
 	@echo "  Network Base: $(RBN_ENCLAVE_BASE_IP)"
 	@echo "  Network Mask: $(RBN_ENCLAVE_NETMASK)"
-	@echo "  Initial IP: $(RBN_ENCLAVE_INITIAL_IP)"
+	@echo "  Bottle IP: $(RBN_ENCLAVE_BOTTLE_IP)"
 	@echo "  Sentry IP: $(RBN_ENCLAVE_SENTRY_IP)"
 	@echo "Network Uplink:"
 	@echo "  DNS Resolution: $(if $(filter 1,$(RBN_UPLINK_DNS_ENABLED)),ENABLED,DISABLED)"
@@ -211,7 +211,7 @@ RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_ENTRY_PORT_ENCLAVE='$(RBN_ENTRY_PORT_ENCLAVE)' \
   RBN_ENCLAVE_BASE_IP='$(RBN_ENCLAVE_BASE_IP)' \
   RBN_ENCLAVE_NETMASK='$(RBN_ENCLAVE_NETMASK)' \
-  RBN_ENCLAVE_INITIAL_IP='$(RBN_ENCLAVE_INITIAL_IP)' \
+  RBN_ENCLAVE_BOTTLE_IP='$(RBN_ENCLAVE_BOTTLE_IP)' \
   RBN_ENCLAVE_SENTRY_IP='$(RBN_ENCLAVE_SENTRY_IP)' \
   RBN_UPLINK_DNS_ENABLED='$(RBN_UPLINK_DNS_ENABLED)' \
   RBN_UPLINK_ACCESS_ENABLED='$(RBN_UPLINK_ACCESS_ENABLED)' \

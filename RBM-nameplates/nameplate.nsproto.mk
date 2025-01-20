@@ -27,8 +27,8 @@ export RBN_UPLINK_ALLOWED_DOMAINS := anthropic.com
 # Network Configuration
 export RBN_ENCLAVE_BASE_IP    := 10.242.0.0
 export RBN_ENCLAVE_NETMASK    := 24
-export RBN_ENCLAVE_INITIAL_IP := 10.242.0.3
 export RBN_ENCLAVE_SENTRY_IP  := 10.242.0.2
+export RBN_ENCLAVE_BOTTLE_IP  := 10.242.0.3
 
 # Volume Mount Configuration
 export RBN_VOLUME_MOUNTS :=
