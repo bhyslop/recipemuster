@@ -47,7 +47,7 @@ export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 
 # Consolidated passed variables
-RBM_ROLLUP_ENV = $(addprefix -e ,$(filter RBM_%,$(.VARIABLES)))
+RBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
 
 # Render rules
