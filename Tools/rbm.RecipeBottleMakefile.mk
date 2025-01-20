@@ -99,7 +99,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	@echo "Executing SENTRY namespace setup script"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh   |\
-	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR) $(RBM_ROLLUP_ENV),export $v='$($v)';) PODMAN_IGNORE_CGROUPSV1_WARNING=1 /bin/sh"
+	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v=\"$($v)\";) "  \
+	                     "$(foreach v,$(RBM_ROLLUP_ENV),export $v=\"$($v)\";) "               \
+	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                                 \
+	                     "/bin/sh"
 
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh | podman machine ssh "/bin/sh"
 
@@ -114,7 +117,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	@echo "Executing BOTTLE namespace setup script before starting container"  
 	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
-	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR) $(RBM_ROLLUP_ENV),export $v='$($v)';) PODMAN_IGNORE_CGROUPSV1_WARNING=1 /bin/sh"
+	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v=\"$($v)\";) "  \
+	                     "$(foreach v,$(RBM_ROLLUP_ENV),export $v=\"$($v)\";) "               \
+	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                                 \
+	                     "/bin/sh"
 
 	@echo "Starting BOTTLE container after networking is configured"
 	podman start $(RBM_BOTTLE_CONTAINER)
