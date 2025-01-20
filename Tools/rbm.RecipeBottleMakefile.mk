@@ -47,7 +47,7 @@ export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 
 # Consolidated passed variables
-RBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
+zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
 
 # Render rules
@@ -100,7 +100,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Executing SENTRY namespace setup script"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-	                     "$(foreach v,$(RBM_ROLLUP_ENV),export $v=\"$($v)\";) "     \
+	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
@@ -116,7 +116,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Executing BOTTLE namespace setup script before starting container"  
 	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-	                     "$(foreach v,$(RBM_ROLLUP_ENV),export $v=\"$($v)\";) "     \
+	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
