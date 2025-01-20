@@ -117,7 +117,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	@echo "VERY GROSS: give container start pause.  Fix this with better API fu, someday."
-	sleep 2
+	sleep 10
 
 	@echo "Executing BOTTLE namespace setup script before starting container"  
 	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
