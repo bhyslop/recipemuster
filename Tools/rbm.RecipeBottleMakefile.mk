@@ -104,6 +104,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
+	@echo "Configuring SENTRY security"
+	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+
 	@echo "Creating (but not starting) BOTTLE container"
 	podman create                                      \
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
@@ -113,6 +116,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  $(RBN_VOLUME_MOUNTS)                             \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
+	@echo "Starting BOTTLE container after networking is configured"
+	podman start $(RBM_BOTTLE_CONTAINER)
+
 	@echo "Executing BOTTLE namespace setup script before starting container"  
 	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
@@ -120,11 +126,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
-	@echo "Starting BOTTLE container after networking is configured"
-	podman start $(RBM_BOTTLE_CONTAINER)
-
-	@echo "Configuring SENTRY security"
-	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+	@echo "Bottle service should be available now."
 
 
 rbm-BS%: zrbm_start_bottle_rule
