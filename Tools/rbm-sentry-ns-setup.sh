@@ -5,7 +5,7 @@ set -e
 set -x
 
 # Validate required environment variables
-: ${RBM_MONIKER:?}              && echo "RSNS0: RBM_MONIKER              = ${RBM_MONIKER}"
+: ${RBM_SENTRY_CONTAINER:?}     && echo "RSNS0: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
 : ${RBN_ENCLAVE_SENTRY_IP:?}    && echo "RSNS0: RBN_ENCLAVE_SENTRY_IP    = ${RBN_ENCLAVE_SENTRY_IP}"
 : ${RBN_ENCLAVE_NETMASK:?}      && echo "RSNS0: RBN_ENCLAVE_NETMASK      = ${RBN_ENCLAVE_NETMASK}"
 : ${RBM_ENCLAVE_BRIDGE:?}       && echo "RSNS0: RBM_ENCLAVE_BRIDGE       = ${RBM_ENCLAVE_BRIDGE}"
@@ -13,7 +13,7 @@ set -x
 : ${RBM_ENCLAVE_SENTRY_OUT:?}   && echo "RSNS0: RBM_ENCLAVE_SENTRY_OUT   = ${RBM_ENCLAVE_SENTRY_OUT}"
 
 echo "RSNS1: Getting SENTRY PID"
-SENTRY_PID=$(podman inspect -f '{{.State.Pid}}' ${RBM_MONIKER}-sentry) || exit 50
+SENTRY_PID=$(podman inspect -f '{{.State.Pid}}' ${RBM_SENTRY_CONTAINER}) || exit 50
 [ -n "$SENTRY_PID" ] || exit 51
 echo "RSNS1: SENTRY PID: $SENTRY_PID"
 

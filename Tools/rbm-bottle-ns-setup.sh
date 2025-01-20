@@ -5,7 +5,7 @@ set -e
 set -x
 
 # Validate required environment variables
-: ${RBM_MONIKER:?}              && echo "RBNS0: RBM_MONIKER              = ${RBM_MONIKER}"
+: ${RBM_BOTTLE_CONTAINER:?}     && echo "RBNS0: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
 : ${RBN_ENCLAVE_NETMASK:?}      && echo "RBNS0: RBN_ENCLAVE_NETMASK      = ${RBN_ENCLAVE_NETMASK}"
 : ${RBN_ENCLAVE_SENTRY_IP:?}    && echo "RBNS0: RBN_ENCLAVE_SENTRY_IP    = ${RBN_ENCLAVE_SENTRY_IP}"
 : ${RBM_ENCLAVE_BRIDGE:?}       && echo "RBNS0: RBM_ENCLAVE_BRIDGE       = ${RBM_ENCLAVE_BRIDGE}"
@@ -14,7 +14,7 @@ set -x
 : ${RBN_ENCLAVE_BOTTLE_IP:?}    && echo "RBNS0: RBN_ENCLAVE_BOTTLE_IP    = ${RBN_ENCLAVE_BOTTLE_IP}"
 
 echo "RBNS1: Getting BOTTLE PID"
-BOTTLE_PID=$(podman inspect -f '{{.State.Pid}}' ${RBM_MONIKER}-bottle) || exit 50
+BOTTLE_PID=$(podman inspect -f '{{.State.Pid}}' ${RBM_BOTTLE_CONTAINER}) || exit 50
 [ -n "$BOTTLE_PID" ] || exit 51
 echo "RBNS1: BOTTLE PID: $BOTTLE_PID"
 
