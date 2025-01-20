@@ -104,8 +104,6 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
-	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh | podman machine ssh "/bin/sh"
-
 	@echo "Creating (but not starting) BOTTLE container"
 	podman create                                      \
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
