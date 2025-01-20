@@ -46,6 +46,8 @@ export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 
+# Consolidated passed variables
+RBM_ROLLUP_ENV = $(addprefix -e ,$(filter RBM_%,$(.VARIABLES)))
 
 
 # Render rules
@@ -96,6 +98,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	@echo "Executing SENTRY namespace setup script"
+	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh   |\
+	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR) $(RBM_ROLLUP_ENV),export $v='$($v)';) PODMAN_IGNORE_CGROUPSV1_WARNING=1 /bin/sh"
+
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh | podman machine ssh "/bin/sh"
 
 	@echo "Creating (but not starting) BOTTLE container"
@@ -108,7 +113,8 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	@echo "Executing BOTTLE namespace setup script before starting container"  
-	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh | podman machine ssh "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
+	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR) $(RBM_ROLLUP_ENV),export $v='$($v)';) PODMAN_IGNORE_CGROUPSV1_WARNING=1 /bin/sh"
 
 	@echo "Starting BOTTLE container after networking is configured"
 	podman start $(RBM_BOTTLE_CONTAINER)
