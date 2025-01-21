@@ -40,6 +40,7 @@ export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
 export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
 export RBM_UPLINK_NETWORK     = $(RBM_MONIKER)-uplink
 export RBM_ENCLAVE_NETWORK    = $(RBM_MONIKER)-enclave
+export RBM_ENCLAVE_NAMESPACE  = $(RBM_MONIKER)-ns
 export RBM_ENCLAVE_BRIDGE     = vbr_$(RBM_MONIKER)
 export RBM_ENCLAVE_SENTRY_IN  = vsi_$(RBM_MONIKER)
 export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
@@ -76,7 +77,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	@echo "Cleaning up old netns and interfaces inside VM"
-	-podman machine ssh "sudo ip netns del $(RBM_MONIKER)-ns        2>/dev/null || true"
+	-podman machine ssh "sudo ip netns del $(RBM_ENCLAVE_NAMESPACE) 2>/dev/null || true"
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_OUT) 2>/dev/null || true"
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_IN)  2>/dev/null || true"
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BOTTLE_OUT) 2>/dev/null || true"
@@ -107,22 +108,19 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
-	@echo "Creating (but not starting) BOTTLE container"
+	@echo "Creating BOTTLE container with namespace networking"
 	podman create                                      \
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
-	  --network none                                   \
+	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --cap-add net_raw                                \
 	  --security-opt label=disable                     \
 	  $(RBN_VOLUME_MOUNTS)                             \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
-	@echo "VERY GROSS: give container start pause.  Fix this with better API fu, someday."
-	sleep 10
-
 	@echo "Starting BOTTLE container after networking is configured"
 	podman start $(RBM_BOTTLE_CONTAINER)
 
-	@echo "Executing BOTTLE namespace setup script before starting container"  
+	@echo "Executing BOTTLE namespace setup script"  
 	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
