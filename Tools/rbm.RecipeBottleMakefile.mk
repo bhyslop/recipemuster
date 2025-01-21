@@ -147,6 +147,9 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 
 	@echo "Bottle service should be available now."
 
+	@echo "OUCH I DO NOT LOVE SUDO AND PODMAN MACHINE AND PODMAN RUN UNHOLY.  But will try it"
+	false
+
 
 rbm-BS%: zrbm_start_bottle_rule
 	@echo "Completed delegate."
