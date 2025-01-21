@@ -115,13 +115,17 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
+	@echo "Verifying network setup in podman machine..."
+	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BRIDGE)"
+	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BOTTLE_OUT)"
+
 	@echo "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
 
 	@echo "Creating BOTTLE container with namespace networking"
 	podman run -d                                 \
 	  --name $(RBM_BOTTLE_CONTAINER)              \
-	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
+	  --network netns:$(RBM_ENCLAVE_NAMESPACE)     \
 	  --cap-add net_raw                           \
 	  --security-opt label=disable                \
 	  $(RBN_VOLUME_MOUNTS)                        \
