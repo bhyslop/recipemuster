@@ -133,7 +133,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	sleep 2
 
 	@echo "Creating BOTTLE container with namespace networking"
-	podman machine ssh "podman run -d \
+	podman machine ssh "sudo podman run -d \
 	  --name $(RBM_BOTTLE_CONTAINER) \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --cap-add net_raw \
