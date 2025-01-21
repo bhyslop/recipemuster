@@ -17,6 +17,14 @@ set -x
 echo "RBNS1: Creating network namespace"
 sudo ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
 
+echo "RBNS1-DEBUG: Checking namespace creation results..."
+echo "RBNS1-DEBUG: Namespace list:"
+sudo ip netns list
+echo "RBNS1-DEBUG: Netns directory contents:"
+sudo ls -la /var/run/netns/ || echo "No /var/run/netns directory"
+sudo ls -la /run/netns/     || echo "No /run/netns directory"
+echo "RBNS1-DEBUG: End namespace check"
+
 echo "RBNS2: Creating and configuring veth pair"
 sudo ip link add ${RBM_ENCLAVE_BOTTLE_OUT} type veth peer name ${RBM_ENCLAVE_BOTTLE_IN} || exit 60
 
