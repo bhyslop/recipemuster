@@ -115,9 +115,19 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
+	@echo "Setting network namespace permissions..."
+	-podman machine ssh "sudo chmod 555 /var/run/netns"
+	-podman machine ssh "sudo chmod 555 /var/run/netns/$(RBM_ENCLAVE_NAMESPACE)"
+	-podman machine ssh "ls -la /var/run"
+	-podman machine ssh "ls -la /var/run/netns"
+
 	@echo "Verifying network setup in podman machine..."
+	podman machine ssh "echo 'Network namespace list:' && sudo ip netns list"
+	podman machine ssh "echo 'Namespace file permissions:' && ls -l /var/run/netns/$(RBM_ENCLAVE_NAMESPACE)"
+	podman machine ssh "echo 'Network interfaces:'"
 	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BRIDGE)"
 	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BOTTLE_OUT)"
+	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) ip link list"
 
 	@echo "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
@@ -125,7 +135,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Creating BOTTLE container with namespace networking"
 	podman run -d                                 \
 	  --name $(RBM_BOTTLE_CONTAINER)              \
-	  --network netns:$(RBM_ENCLAVE_NAMESPACE)     \
+	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --cap-add net_raw                           \
 	  --security-opt label=disable                \
 	  $(RBN_VOLUME_MOUNTS)                        \
