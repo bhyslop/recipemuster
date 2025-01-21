@@ -108,10 +108,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
-	@echo "Launching BOTTLE container with shared SENTRY networking"
+	@echo "Creating BOTTLE container with namespace networking"
 	podman run -d                                 \
 	  --name $(RBM_BOTTLE_CONTAINER)              \
-	  --network container:$(RBM_SENTRY_CONTAINER) \
+	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --cap-add net_raw                           \
 	  --security-opt label=disable                \
 	  $(RBN_VOLUME_MOUNTS)                        \
