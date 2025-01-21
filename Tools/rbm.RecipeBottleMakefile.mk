@@ -108,6 +108,13 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	@echo "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
+	@echo "Executing BOTTLE namespace setup script"
+	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
+	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
+	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
+	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
+	                     "/bin/sh"
+
 	@echo "Creating BOTTLE container with namespace networking"
 	podman run -d                                 \
 	  --name $(RBM_BOTTLE_CONTAINER)              \
