@@ -105,28 +105,21 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
-@echo "Configuring SENTRY security"
+	@echo "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
-	@echo "Creating enclave network with namespace"
-	-podman network rm -f $(RBM_ENCLAVE_NETWORK) 2>/dev/null || true
-	podman network create --driver netns --opt namespace=$(RBM_ENCLAVE_NAMESPACE) $(RBM_ENCLAVE_NETWORK)
-
-	@echo "Launching BOTTLE container with namespace networking"
-	podman run -d                        \
-	  --name $(RBM_BOTTLE_CONTAINER)     \
-	  --network $(RBM_ENCLAVE_NETWORK)   \
-	  --cap-add net_raw                  \
-	  --security-opt label=disable       \
-	  $(RBN_VOLUME_MOUNTS)               \
+	@echo "Launching BOTTLE container with shared SENTRY networking"
+	podman run -d                                 \
+	  --name $(RBM_BOTTLE_CONTAINER)              \
+	  --network container:$(RBM_SENTRY_CONTAINER) \
+	  --cap-add net_raw                           \
+	  --security-opt label=disable                \
+	  $(RBN_VOLUME_MOUNTS)                        \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
-	@echo "Executing BOTTLE namespace setup script"  
-	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
-	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
-	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
-	                     "/bin/sh"
+	@echo "Waiting for BOTTLE container"
+	sleep 2
+	podman machine ssh "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	@echo "Bottle service should be available now."
 
