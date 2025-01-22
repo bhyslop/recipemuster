@@ -19,8 +19,8 @@ export RBN_ENTRY_PORT_ENCLAVE     := 8888
 # Network Uplink Configuration
 export RBN_UPLINK_DNS_ENABLED     := 1
 export RBN_UPLINK_ACCESS_ENABLED  := 1
-export RBN_UPLINK_DNS_GLOBAL      := 1
-export RBN_UPLINK_ACCESS_GLOBAL   := 1
+export RBN_UPLINK_DNS_GLOBAL      := 0
+export RBN_UPLINK_ACCESS_GLOBAL   := 0
 export RBN_UPLINK_ALLOWED_CIDRS   := 160.79.104.0/23
 export RBN_UPLINK_ALLOWED_DOMAINS := anthropic.com
 
