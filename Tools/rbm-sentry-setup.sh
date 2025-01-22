@@ -63,6 +63,9 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-FORWARD -i eth1 -p tcp --sport "${RBN_ENTRY_PORT_ENCLAVE}"     -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT || exit 20
 fi
 
+echo "RBSp2: Configuring ICMP filter rules"
+iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
+
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"

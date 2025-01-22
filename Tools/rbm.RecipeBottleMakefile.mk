@@ -136,6 +136,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman run -d                                 \
 	  --name $(RBM_BOTTLE_CONTAINER)              \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
+	  --dns=$(RBN_ENCLAVE_SENTRY_IP)              \
 	  --cap-add net_raw                           \
 	  --security-opt label=disable                \
 	  $(RBN_VOLUME_MOUNTS)                        \
