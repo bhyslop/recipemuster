@@ -133,22 +133,19 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	sleep 2
 
 	@echo "Creating BOTTLE container with namespace networking"
-	podman machine ssh "sudo podman run -d \
-	  --name $(RBM_BOTTLE_CONTAINER) \
+	podman run -d                                 \
+	  --name $(RBM_BOTTLE_CONTAINER)              \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
-	  --cap-add net_raw \
-	  --security-opt label=disable \
-	  $(RBN_VOLUME_MOUNTS) \
-	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)"
+	  --cap-add net_raw                           \
+	  --security-opt label=disable                \
+	  $(RBN_VOLUME_MOUNTS)                        \
+	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	@echo "Waiting for BOTTLE container"
 	sleep 2
 	podman machine ssh "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	@echo "Bottle service should be available now."
-
-	@echo "OUCH I DO NOT LOVE SUDO AND PODMAN MACHINE AND PODMAN RUN UNHOLY.  But will try it"
-	false
 
 
 rbm-BS%: zrbm_start_bottle_rule
