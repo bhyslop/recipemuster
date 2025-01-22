@@ -66,6 +66,10 @@ fi
 echo "RBSp2: Configuring ICMP filter rules"
 iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
 
+echo "RBSp2: Configuring ICMP access rules"
+iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
+iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
+
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"
