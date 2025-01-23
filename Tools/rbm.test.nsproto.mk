@@ -1,6 +1,4 @@
 
-TRBM_SENTRY = nsproto-sentry
-TRBM_BOTTLE = nsproto-bottle
 
 rbm-t.TestRBM.nsproto.mk:
 	@echo "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
@@ -13,10 +11,22 @@ rbm-t.TestRBM.nsproto.mk:
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -L RBM-INGRESS
 
 	@echo "Show that we can access internet from sentry"
-	podman exec -it $(TRBM_SENTRY) nslookup example.com
+	podman exec $(RBM_SENTRY_CONTAINER) nslookup example.com
 	@echo "Show that we can access anthropic from bottle"
-	podman exec -it $(TRBM_BOTTLE) nslookup anthropic.com
+	podman exec $(RBM_BOTTLE_CONTAINER) nslookup anthropic.com
 	@echo "Show that we cannot access google from bottle"
-	! podman exec -it $(TRBM_BOTTLE) nslookup google.com
+	! podman exec $(RBM_BOTTLE_CONTAINER) nslookup google.com
+
+    
+	@echo "Get anthropic.com IP from sentry then try from bottle:"
+	@ANTHROPIC_IP=$$(podman exec $(TRBM_SENTRY) dig +short anthropic.com | head -1)  &&\
+	  echo "Testing allowed IP $$ANTHROPIC_IP"                                       &&\
+	  podman exec $(TRBM_BOTTLE) ping -c 2 $$ANTHROPIC_IP
+
+	@echo "Get google.com IP from sentry then try from bottle:"
+	@GOOGLE_IP=$$(podman exec $(TRBM_SENTRY) dig +short google.com | head -1)  &&\
+	  echo "Testing blocked IP $$GOOGLE_IP"                                    &&\
+	  ! podman exec $(TRBM_BOTTLE) ping -c 2 $$GOOGLE_IP
+
 	@echo "PASS"
 
