@@ -8,7 +8,7 @@ rbm-t.TestRBM.nsproto.mk:
 	@echo "Check if dnsmasq is running on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
 	@echo "Verify network connectivity"
-	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBN_ENCLAVE_SENTRY_IP)
+	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBN_ENCLAVE_SENTRY_IP) -c 4
 	@echo "Check iptables on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -L RBM-INGRESS
 
