@@ -521,6 +521,15 @@ This section contains reminders about future improvements, deferred for now.
 * Must deal with multiple bottle service conflict on same IP
 * Deal well with the arp flush in the podman machine: not n
 * Must deal with `RBN_PORT_ENABLED := 0` failing to work right
+* Deferred dns hardening ai suggestions:
+    ```
+    1. Add `no-resolv` to dnsmasq config to prevent fallback to /etc/resolv.conf
+    2. Add `strict-order` to enforce server ordering
+    3. Add `bogus-priv` and `domain-needed` flags
+    4. Log DNS queries with `log-queries=extra` (already present)
+    5. Consider rate limiting with `dns-ratelimit`
+    6. Add explicit `except-interface=eth0` to prevent DNS requests from external interface
+    ```
 * Put in a moniker length guard such that the veth names created aren't more than 15 chars
 * profit
 

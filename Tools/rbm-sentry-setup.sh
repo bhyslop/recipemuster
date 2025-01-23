@@ -150,7 +150,7 @@ else
             echo "server=/${domain}/${RBB_DNS_SERVER}"            >> /etc/dnsmasq.conf || exit 41
         done
         # Block everything else with NXDOMAIN
-        echo "server=/#/"                                         >> /etc/dnsmasq.conf || exit 41
+        echo "address=/#/"                                        >> /etc/dnsmasq.conf || exit 41
     fi
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                              /etc/dnsmasq.conf || exit 41
