@@ -28,5 +28,21 @@ rbm-t.TestRBM.nsproto.mk:
 	  echo "Testing blocked IP $$GOOGLE_IP"                                             &&\
 	  ! podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 -w 2 $$GOOGLE_IP
 
+	@echo "Testing non-existent domain"
+	podman exec -i $(TRBM_BOTTLE) nslookup nonexistentdomain123.test | grep NXDOMAIN
+
+	@echo "Testing TCP connections"
+	@ANTHROPIC_IP=$$(podman exec -i $(TRBM_SENTRY) dig +short anthropic.com | head -1)  &&\
+	  podman exec -i $(TRBM_BOTTLE) nc -w 2 -zv $$ANTHROPIC_IP 443                      &&\
+	! podman exec -i $(TRBM_BOTTLE) nc -w 2 -zv 8.8.8.8 443
+
+	@echo "Testing DNS protocols"
+	podman exec -i $(TRBM_BOTTLE) dig +tcp anthropic.com
+	podman exec -i $(TRBM_BOTTLE) dig +notcp anthropic.com
+
+	@echo "Testing direct DNS server access"
+	! podman exec -i $(TRBM_BOTTLE) dig @8.8.8.8 anthropic.com
+	! podman exec -i $(TRBM_BOTTLE) nc -w 2 -zv 8.8.8.8 53
+
 	@echo "PASS"
 
