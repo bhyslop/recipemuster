@@ -1,4 +1,6 @@
 
+TRBM_SENTRY = nsproto-sentry
+TRBM_BOTTLE = nsproto-bottle
 
 rbm-t.TestRBM.mk:
 	@echo "Show that we can access the example"
