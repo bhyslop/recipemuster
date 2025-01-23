@@ -6,7 +6,7 @@ rbm-t.TestRBM.nsproto.mk:
 	@echo "Check if dnsmasq is running on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
 	@echo "Verify network connectivity"
-	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBN_ENCLAVE_SENTRY_IP) -c 4
+	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBN_ENCLAVE_SENTRY_IP) -c 2
 	@echo "Check iptables on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -L RBM-INGRESS
 
@@ -21,12 +21,12 @@ rbm-t.TestRBM.nsproto.mk:
 	@echo "Get anthropic.com IP from sentry then try from bottle:"
 	@ANTHROPIC_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short anthropic.com | head -1)  &&\
 	  echo "Testing allowed IP $$ANTHROPIC_IP"                                                &&\
-	  podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 $$ANTHROPIC_IP
+	  podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 -w 2 $$ANTHROPIC_IP
 
 	@echo "Get google.com IP from sentry then try from bottle:"
 	@GOOGLE_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short google.com | head -1)  &&\
 	  echo "Testing blocked IP $$GOOGLE_IP"                                             &&\
-	  ! podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 $$GOOGLE_IP
+	  ! podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 -w 2 $$GOOGLE_IP
 
 	@echo "PASS"
 
