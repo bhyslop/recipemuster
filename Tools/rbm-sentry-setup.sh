@@ -172,8 +172,6 @@ else
     echo "RBSp4: Configuring DNS firewall rules"
     iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
     iptables -A RBM-INGRESS -i eth1 -p tcp --dport 53                        -j ACCEPT || exit 43
-    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
-    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                        -j ACCEPT || exit 43
     iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
 
