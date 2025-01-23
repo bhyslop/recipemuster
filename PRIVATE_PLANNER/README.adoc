@@ -22,6 +22,41 @@ https://github.com/containers/podman/issues/new?template=feature_request.yaml
 
 * "DMZ Feature Request": https://github.com/containers/podman/issues/20222
 
+=== Minidrama: 8.8.8.8 pokethrough
+
+FROM CLAUDE:
+
+Confirmed the changes were applied correctly in the transcript - we moved the DNS blocking rules after the SENTRY-specific ACCEPT rules in RBSp3. However, BOTTLE is still able to directly access 8.8.8.8.
+
+Summary of attempted fixes:
+
+1. Added DROP rules at end of RBSp4 (Failed)
+```bash
+iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP
+iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP
+```
+
+2. Moved DROP rules to RBSp3 before ACCEPT rules (Failed)
+```bash
+echo "RBSp3: Block direct DNS access"
+iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP
+iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP
+```
+
+3. Current attempt: Moved DROP rules after SENTRY-specific ACCEPT and changed ACCEPT to target SENTRY IP (Failed)
+```bash
+iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT
+iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT
+iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP
+iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP
+```
+
+Remaining issues to investigate:
+- Rule ordering in the FORWARD chain
+- Possible NAT rules interfering
+- Whether DNS traffic is taking an unexpected path through the network
+- May need tcpdump analysis to trace DNS packet flow
+
 === Minidrama: Beerbrawl
 
 Its been a minute since I last bluetoothed to my phone to minidrama.
