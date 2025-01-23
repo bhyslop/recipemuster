@@ -82,10 +82,6 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter       || exit 31
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
-    echo "RBSp3: Block direct DNS access"
-    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 30
-    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 30
-
     echo "RBSp3: Configuring NAT"
     iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
 
@@ -95,10 +91,12 @@ else
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
     else
         echo "RBSp3: Configuring DNS server access"
-        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
-        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
-        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
-        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}"        -j ACCEPT || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}"        -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                               -j DROP   || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                               -j DROP   || exit 31
 
         echo "RBSp3: Setting up CIDR-based access control"
         for cidr in ${RBN_UPLINK_ALLOWED_CIDRS}; do
