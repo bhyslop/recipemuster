@@ -33,7 +33,7 @@ include $(RBM_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
 # Test rules
-include $(RBM_TOOLS_DIR)/test.rbm.nsproto.mk
+include $(RBM_TOOLS_DIR)/rbm.test.nsproto.mk
 
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
