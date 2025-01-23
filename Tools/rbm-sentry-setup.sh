@@ -135,6 +135,11 @@ else
     echo "cache-size=1000"                                        >> /etc/dnsmasq.conf || exit 41
     echo "min-cache-ttl=600"                                      >> /etc/dnsmasq.conf || exit 41
     echo "max-cache-ttl=3600"                                     >> /etc/dnsmasq.conf || exit 41
+    echo "no-resolv"                                              >> /etc/dnsmasq.conf || exit 41
+    echo "strict-order"                                           >> /etc/dnsmasq.conf || exit 41
+    echo "bogus-priv"                                             >> /etc/dnsmasq.conf || exit 41
+    echo "domain-needed"                                          >> /etc/dnsmasq.conf || exit 41
+    echo "except-interface=eth0"                                  >> /etc/dnsmasq.conf || exit 41
     echo "log-queries=extra"                                      >> /etc/dnsmasq.conf || exit 41
     echo "log-facility=/var/log/dnsmasq.log"                      >> /etc/dnsmasq.conf || exit 41
     echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
