@@ -175,6 +175,10 @@ else
     iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
 
+    echo "RBSp4: Block direct DNS access to external servers"
+    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                        -j DROP   || exit 43
+    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                        -j DROP   || exit 43
+
     echo "RBSp4: Setting up DNS NAT rules"
     iptables -t nat -A PREROUTING -i eth1 -p udp --dport 53 -j DNAT --to ${RBN_ENCLAVE_SENTRY_IP}:53
     iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 53 -j DNAT --to ${RBN_ENCLAVE_SENTRY_IP}:53
