@@ -82,6 +82,10 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter       || exit 31
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
+    echo "RBSp3: Block direct DNS access"
+    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 30
+    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 30
+
     echo "RBSp3: Configuring NAT"
     iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
 
@@ -168,10 +172,6 @@ else
     sleep 2
     echo "RBSp4: Process info after launch..."
     ps aux
-
-    echo "RBSp4: Block direct DNS access to external servers"
-    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                        -j DROP   || exit 43
-    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                        -j DROP   || exit 43
 
     echo "RBSp4: Configuring DNS firewall rules"
     iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
