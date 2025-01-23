@@ -158,8 +158,9 @@ else
     echo "RBSp4: Process info before launch (zombie dnsmasq diagnostic)..."
     ps aux
     echo "RBSp4: Starting dnsmasq service"
-    dnsmasq -d
-    sleep 1
+    dnsmasq
+    echo "RBSp4: Mystery dnsmasq setup delay"
+    sleep 2
     echo "RBSp4: Process info after launch..."
     ps aux
 
