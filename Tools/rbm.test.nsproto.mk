@@ -44,5 +44,33 @@ rbm-t.TestRBM.nsproto.mk:
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 anthropic.com
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv 8.8.8.8 53
 
+	$(MBC_SHOW_WHITE) "Testing non-standard DNS ports"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 -p 5353 example.com
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 -p 443 example.com
+
+	$(MBC_SHOW_WHITE) "Testing alternate DNS providers"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @1.1.1.1 example.com
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @9.9.9.9 example.com
+
+	$(MBC_SHOW_WHITE) "Testing DNS zone transfers"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 example.com AXFR
+
+	$(MBC_SHOW_WHITE) "Testing IPv6 DNS"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @2001:4860:4860::8888 example.com
+
+	$(MBC_SHOW_WHITE) "Testing multicast DNS"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @224.0.0.251%eth0 -p 5353 example.local
+
+	$(MBC_SHOW_WHITE) "Testing ICMP tunneling attempts"
+	podman exec -i $(RBM_BOTTLE_CONTAINER) apt-get update && \
+	podman exec -i $(RBM_BOTTLE_CONTAINER) apt-get install -y hping3 && \
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) hping3 8.8.8.8 -2 -s 53 -p 53
+
+	$(MBC_SHOW_WHITE) "Testing source IP spoofing"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
+
+	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) nc -u 8.8.8.8 53 < /dev/urandom
+
 	$(MBC_SHOW_WHITE) "PASS"
 
