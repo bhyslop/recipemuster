@@ -2,22 +2,9 @@
 
 rbm-t.TestRBM.nsproto.mk:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
-	$(MBC_SHOW_WHITE) "facts: $(RBM_SENTRY_CONTAINER) and $(RBM_BOTTLE_CONTAINER)"
-
-
-
-
-	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
-	! podman exec $(RBM_BOTTLE_CONTAINER) nc -z -w 1 8.8.8.8 53
-	
-	$(MBC_SHOW_WHITE) "Verify package management isolation"
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
-
-	$(MBC_SHOW_WHITE) "Test ICMP tunneling attempts"  
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I 8.8.8.8
-
-
-
+	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER  is $(RBM_SENTRY_CONTAINER)"
+	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER  is $(RBM_BOTTLE_CONTAINER)"
+	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP is $(RBN_ENCLAVE_SENTRY_IP)"
 
 	$(MBC_SHOW_WHITE) "Check if dnsmasq is running on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
@@ -79,6 +66,18 @@ rbm-t.TestRBM.nsproto.mk:
 
 	$(MBC_SHOW_WHITE) "Testing source IP spoofing"
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
+
+	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
+	! podman exec $(RBM_BOTTLE_CONTAINER) nc -z -w 1 8.8.8.8 53
+	
+	$(MBC_SHOW_WHITE) "Verify package management isolation"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
+
+	$(MBC_SHOW_WHITE) "Test ICMP forwarding behavior"
+	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBN_ENCLAVE_SENTRY_IP)"
+
+	$(MBC_SHOW_WHITE) "Verify ICMP blocking beyond SENTRY" 
+	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"
 
 	$(MBC_SHOW_WHITE) "PASS"
 
