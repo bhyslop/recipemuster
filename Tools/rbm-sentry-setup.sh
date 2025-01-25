@@ -135,7 +135,10 @@ else
     echo "interface=eth1"                                         >> /etc/dnsmasq.conf || exit 41
     echo "listen-address=${RBN_ENCLAVE_SENTRY_IP}"                >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=eth1"                                 >> /etc/dnsmasq.conf || exit 41
+    echo "dns-forward-max=150"                                    >> /etc/dnsmasq.conf || exit 41
     echo "cache-size=1000"                                        >> /etc/dnsmasq.conf || exit 41
+    echo "min-port=4096"                                          >> /etc/dnsmasq.conf || exit 41
+    echo "max-port=65535"                                         >> /etc/dnsmasq.conf || exit 41
     echo "min-cache-ttl=600"                                      >> /etc/dnsmasq.conf || exit 41
     echo "max-cache-ttl=3600"                                     >> /etc/dnsmasq.conf || exit 41
     echo "no-resolv"                                              >> /etc/dnsmasq.conf || exit 41

@@ -6,6 +6,31 @@ rbm-t.TestRBM.nsproto.mk:
 	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER  is $(RBM_BOTTLE_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP is $(RBN_ENCLAVE_SENTRY_IP)"
 
+
+	$(MBC_SHOW_WHITE) "Testing DNS rate limiting and flood protection"
+	@echo "Running sequential DNS queries to test rate limiting..."
+	@for i in $$(seq 1 20); do \
+		podman exec -i $(RBM_BOTTLE_CONTAINER) dig +timeout=1 anthropic.com +short & \
+	done
+	@sleep 2
+
+	@echo "Testing rapid DNS query flooding..."
+	@START_TIME=$$(date +%s); \
+	for i in $$(seq 1 50); do \
+		podman exec -i $(RBM_BOTTLE_CONTAINER) dig +timeout=1 +tries=1 anthropic.com > /dev/null 2>&1 & \
+	done; \
+	wait; \
+	END_TIME=$$(date +%s); \
+	DURATION=$$((END_TIME - START_TIME)); \
+	test $$DURATION -gt 5 || (echo "ERROR: DNS queries not being rate limited" && exit 1)
+
+	@echo "Verifying DNS service stays responsive after flood attempt..."
+	podman exec -i $(RBM_BOTTLE_CONTAINER) dig +timeout=2 anthropic.com || (echo "ERROR: DNS service unresponsive" && exit 1)
+
+
+	false # MOVE TO BOTTOM
+
+
 	$(MBC_SHOW_WHITE) "Check if dnsmasq is running on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
 	$(MBC_SHOW_WHITE) "Verify network connectivity"
