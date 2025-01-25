@@ -80,3 +80,5 @@ rbm-t.TestRBM.nsproto.mk:
 
 	$(MBC_SHOW_WHITE) "PASS"
 
+
+# eof
