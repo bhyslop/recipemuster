@@ -3,6 +3,22 @@
 rbm-t.TestRBM.nsproto.mk:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
 	$(MBC_SHOW_WHITE) "facts: $(RBM_SENTRY_CONTAINER) and $(RBM_BOTTLE_CONTAINER)"
+
+
+
+
+	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) sh -c 'head -c 1024 < /dev/urandom | nc -u -w 1 8.8.8.8 53' 2>/dev/null
+	
+	$(MBC_SHOW_WHITE) "Verify package management isolation"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
+
+	$(MBC_SHOW_WHITE) "Test ICMP tunneling attempts"  
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I 8.8.8.8
+
+
+
+
 	$(MBC_SHOW_WHITE) "Check if dnsmasq is running on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
 	$(MBC_SHOW_WHITE) "Verify network connectivity"
@@ -63,15 +79,6 @@ rbm-t.TestRBM.nsproto.mk:
 
 	$(MBC_SHOW_WHITE) "Testing source IP spoofing"
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
-
-	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) sh -c 'head -c 1024 < /dev/urandom | nc -u -w 1 8.8.8.8 53 2>/dev/null || exit 0'
-	
-	$(MBC_SHOW_WHITE) "Verify package management isolation"
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
-
-	$(MBC_SHOW_WHITE) "Test ICMP tunneling attempts"  
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I 8.8.8.8
 
 	$(MBC_SHOW_WHITE) "PASS"
 
