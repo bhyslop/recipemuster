@@ -567,6 +567,7 @@ This section contains reminders about future improvements, deferred for now.
     ```
 * Put in a moniker length guard such that the veth names created aren't more than 15 chars
 * Consider dns rate limitation setup and implemmentation
+* Ingress and Egress Port features
 * Consider a whole new traffic category: container using host ports.  Digest from chatgpt thoughts:
     **Summary:** Allowing a container to directly use a host port can be beneficial in specific scenarios, such as running network utilities, reverse proxies, system-level daemons, VPN services, or CI agents. This setup simplifies deployment and allows closer integration with the host's networking or system. However, it comes with risks like reduced isolation, potential port conflicts, and security vulnerabilities. Proper precautions—like using minimal privileges, monitoring, and careful configuration—are essential to ensure safety and stability. This approach should only be used when it aligns with clear architectural or operational needs.
 * profit
