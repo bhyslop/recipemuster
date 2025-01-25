@@ -41,13 +41,21 @@ iptables -A OUTPUT  -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
 
 echo "RBSp1: Creating RBM chains"
 iptables -N RBM-INGRESS || exit 10
-iptables -N RBM-EGRESS  || exit 10
+iptables -N RBM-EGRESS  || exit 10 
 iptables -N RBM-FORWARD || exit 10
+
+echo "RBSp1: Blocking ICMP cross-boundary traffic"
+iptables -A RBM-FORWARD -p icmp -j DROP || exit 10
+iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 10
 
 echo "RBSp1: Setting up chain jumps"
 iptables -A INPUT   -j RBM-INGRESS || exit 10
 iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
 iptables -A FORWARD -j RBM-FORWARD || exit 10
+
+echo "RBSp2: Allowing ICMP within enclave only"
+iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20 
+iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBN_PORT_ENABLED}" = "1" ]; then
@@ -62,15 +70,6 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-INGRESS -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}" -m state --state NEW                     -j ACCEPT || exit 20
     iptables -A RBM-FORWARD -i eth1 -p tcp --sport "${RBN_ENTRY_PORT_ENCLAVE}"     -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT || exit 20
 fi
-
-echo "RBSp2: Configuring ICMP rules"
-echo "    Blocking ICMP cross-boundary traffic" 
-iptables -I RBM-FORWARD 1 -p icmp -j DROP         || exit 20
-iptables -I RBM-EGRESS  1 -o eth0 -p icmp -j DROP || exit 20
-
-echo "    Allowing ICMP within enclave only"
-iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20 
-iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
