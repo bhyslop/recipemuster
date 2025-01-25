@@ -19,17 +19,16 @@ rbm-t.TestRBM.nsproto.mk:
 	podman exec $(RBM_BOTTLE_CONTAINER) nslookup anthropic.com
 	$(MBC_SHOW_WHITE) "Show that we cannot access google from bottle"
 	! podman exec $(RBM_BOTTLE_CONTAINER) nslookup google.com
-
     
-	$(MBC_SHOW_WHITE) "Get anthropic.com IP from sentry then try from bottle:"
+	$(MBC_SHOW_WHITE) "Get anthropic.com IP from sentry then try TCP connection from bottle:"
 	@ANTHROPIC_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short anthropic.com | head -1)  &&\
 	  echo "Testing allowed IP $$ANTHROPIC_IP"                                                &&\
-	  podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 -w 2 $$ANTHROPIC_IP
+	  podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$ANTHROPIC_IP 443
 
-	$(MBC_SHOW_WHITE) "Get google.com IP from sentry then try from bottle:"
+	$(MBC_SHOW_WHITE) "Get google.com IP from sentry then verify TCP blocking from bottle:"
 	@GOOGLE_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short google.com | head -1)  &&\
 	  echo "Testing blocked IP $$GOOGLE_IP"                                             &&\
-	  ! podman exec $(RBM_BOTTLE_CONTAINER) ping -c 2 -w 2 $$GOOGLE_IP
+	  ! podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$GOOGLE_IP 443
 
 	$(MBC_SHOW_WHITE) "Testing non-existent domain"
 	podman exec -i $(RBM_BOTTLE_CONTAINER) nslookup nonexistentdomain123.test | grep NXDOMAIN
