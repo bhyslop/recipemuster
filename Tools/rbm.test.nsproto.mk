@@ -61,16 +61,17 @@ rbm-t.TestRBM.nsproto.mk:
 	$(MBC_SHOW_WHITE) "Testing multicast DNS"
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @224.0.0.251%eth0 -p 5353 example.local
 
-	$(MBC_SHOW_WHITE) "Testing ICMP tunneling attempts"
-	podman exec -i $(RBM_BOTTLE_CONTAINER) apt-get update && \
-	podman exec -i $(RBM_BOTTLE_CONTAINER) apt-get install -y hping3 && \
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) hping3 8.8.8.8 -2 -s 53 -p 53
-
 	$(MBC_SHOW_WHITE) "Testing source IP spoofing"
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
 
 	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) nc -u 8.8.8.8 53 < /dev/urandom
+
+	$(MBC_SHOW_WHITE) "Verify package management isolation"
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
+
+	$(MBC_SHOW_WHITE) "Test ICMP tunneling attempts"  
+	! podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I 8.8.8.8
 
 	$(MBC_SHOW_WHITE) "PASS"
 
