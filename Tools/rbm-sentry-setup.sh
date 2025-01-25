@@ -63,13 +63,14 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-FORWARD -i eth1 -p tcp --sport "${RBN_ENTRY_PORT_ENCLAVE}"     -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT || exit 20
 fi
 
-echo "RBSp2: Configuring ICMP rules: Block ICMP forwarding and external traffic"
-iptables -A RBM-FORWARD -p icmp -j DROP           || exit 21
-iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP   || exit 21
+echo "RBSp2: Configuring ICMP rules"
+echo "    Blocking ICMP cross-boundary traffic" 
+iptables -I RBM-FORWARD 1 -p icmp -j DROP         || exit 20
+iptables -I RBM-EGRESS  1 -o eth0 -p icmp -j DROP || exit 20
 
-echo "RBSp2: Configuring ICMP rules: Allow ICMP only within enclave"
-iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 21
-iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 21
+echo "    Allowing ICMP within enclave only"
+iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20 
+iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
