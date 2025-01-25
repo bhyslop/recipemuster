@@ -8,7 +8,7 @@ rbm-t.TestRBM.nsproto.mk:
 
 
 	$(MBC_SHOW_WHITE) "Testing DNS tunneling"
-	podman exec -i $(RBM_BOTTLE_CONTAINER) sh -c '! (head -c 1024 < /dev/urandom | nc -u -w 1 8.8.8.8 53)'
+	! podman exec $(RBM_BOTTLE_CONTAINER) nc -z -w 1 8.8.8.8 53
 	
 	$(MBC_SHOW_WHITE) "Verify package management isolation"
 	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
