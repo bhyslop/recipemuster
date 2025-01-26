@@ -9,11 +9,11 @@ export RBN_DESCRIPTION := Jupyter Notebook environment with Claude API access fo
 export RBN_SENTRY_REPO_PATH := ghcr.io/bhyslop/recipemuster
 export RBN_BOTTLE_REPO_PATH := ghcr.io/bhyslop/recipemuster
 export RBN_SENTRY_IMAGE_TAG := sentry_alpine_large.20241022__125927
-export RBN_BOTTLE_IMAGE_TAG := bottle_anthropic_jupyter.20250126__192330
+export RBN_BOTTLE_IMAGE_TAG := bottle_anthropic_jupyter.20250126__193213
 
 # Port Service Configuration
 export RBN_PORT_ENABLED           := 1
-export RBN_ENTRY_PORT_WORKSTATION := 8889
+export RBN_ENTRY_PORT_WORKSTATION := 8000
 export RBN_ENTRY_PORT_ENCLAVE     := 8000
 
 # Network Uplink Configuration
