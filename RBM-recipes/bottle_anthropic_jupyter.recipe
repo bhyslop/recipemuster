@@ -4,9 +4,6 @@ FROM python:3.12.7-slim-bookworm
 ARG RBEV_BOTTLE_JUPYTER_PORT=8000
 ENV RBEV_BOTTLE_JUPYTER_PORT=${RBEV_BOTTLE_JUPYTER_PORT}
 
-ARG RBEV_SENTRY_GUARDED_IP=172.17.0.2
-ENV RBEV_SENTRY_GUARDED_IP=${RBEV_SENTRY_GUARDED_IP}
-
 ARG RBEV_BOTTLE_WORKDIR=/workspace
 ENV RBEV_BOTTLE_WORKDIR=${RBEV_BOTTLE_WORKDIR}
 
@@ -25,12 +22,6 @@ RUN apt-get update && apt-get install -y                                       \
 RUN pip install --no-cache-dir jupyter jupyterlab
 RUN pip install --no-cache-dir anthropic
 
-# Disable IPv6
-RUN \
-    echo "net.ipv6.conf.all.disable_ipv6 = 1"              >> /etc/sysctl.conf  &&\
-    echo "net.ipv6.conf.default.disable_ipv6 = 1"          >> /etc/sysctl.conf  &&\
-    echo done
-
 # Set the working directory to the mount point
 WORKDIR ${RBEV_BOTTLE_WORKDIR}
 
@@ -42,9 +33,6 @@ RUN jupyter lab --generate-config                                               
 
 # Create a startup script
 RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&\
-    echo 'sysctl -p'                                                                    >>  /startup.sh  &&\
-    echo 'ip route add default via ${RBEV_SENTRY_GUARDED_IP}'                           >>  /startup.sh  &&\
-    echo 'echo         "nameserver ${RBEV_SENTRY_GUARDED_IP}" > /etc/resolv.conf'       >>  /startup.sh  &&\
     echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&\
     echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&\
     echo 'jupyter lab'                                        \
