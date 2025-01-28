@@ -7,6 +7,10 @@ ENV RBEV_BOTTLE_JUPYTER_PORT=${RBEV_BOTTLE_JUPYTER_PORT}
 ARG RBEV_BOTTLE_WORKDIR=/workspace
 ENV RBEV_BOTTLE_WORKDIR=${RBEV_BOTTLE_WORKDIR}
 
+# Add Jupyter-specific environment variables
+ENV JUPYTER_BASE_URL="/"
+ENV JUPYTER_IP="0.0.0.0"
+
 # Install system dependencies and diagnostic tools
 RUN apt-get update && apt-get install -y                                       \
     iputils-ping         `#For network connectivity tests`                     \
@@ -29,7 +33,8 @@ WORKDIR ${RBEV_BOTTLE_WORKDIR}
 RUN jupyter lab --generate-config                                                                                                         &&\
     mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                              &&\
     echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings   &&\
-    echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py
+    echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py                                                       &&\
+    echo "c.ServerApp.ip = '0.0.0.0'"     >> /root/.jupyter/jupyter_server_config.py
 
 # Create a startup script
 RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&\
@@ -45,6 +50,7 @@ RUN echo '#!/bin/sh'                                                            
          '--ServerApp.authenticate_prometheus=False'          \
          '--ServerApp.base_url=${JUPYTER_BASE_URL}'           \
          '--notebook-dir=${RBEV_BOTTLE_WORKDIR}'              \
+         '--ServerApp.allow_origin="*"'                       \
                                                                                         >>  /startup.sh  &&\
     echo 'tail -f /dev/null' >>                                                             /startup.sh  &&\
     chmod +x                                                                                /startup.sh
