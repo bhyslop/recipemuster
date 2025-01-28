@@ -63,12 +63,12 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     
     echo "RBSp2: Setting up DNAT rules"
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}"   \
-             -j DNAT --to-destination "${RBN_ENCLAVE_SENTRY_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
+             -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
              -m comment --comment "RBM-PORT-FORWARD" || exit 20
 
     echo "RBSp2: Configuring port filter rules"
     iptables -A RBM-INGRESS -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}" -m state --state NEW                     -j ACCEPT || exit 20
-    iptables -A RBM-FORWARD -i eth1 -p tcp --sport "${RBN_ENTRY_PORT_ENCLAVE}"     -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT || exit 20
+    iptables -A RBM-FORWARD -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_ENCLAVE}"     -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT || exit 20
 fi
 
 echo "RBSp3: Phase 3: Access Setup"
