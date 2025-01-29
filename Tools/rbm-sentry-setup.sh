@@ -70,6 +70,10 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-FORWARD         -p tcp --dport 8000 -j ACCEPT  || exit 25
     iptables -A RBM-FORWARD         -p tcp --sport 8000 -j ACCEPT  || exit 25
     iptables -A RBM-EGRESS  -o eth1 -p tcp --dport 8000 -j ACCEPT  || exit 25
+
+    echo "RBSp2: Adding explicit bidirectional forwarding for port traffic"
+    iptables -I FORWARD 1 -i eth1 -o eth0 -j ACCEPT || exit 26
+    iptables -I FORWARD 1 -i eth0 -o eth1 -j ACCEPT || exit 26
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
