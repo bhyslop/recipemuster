@@ -21,6 +21,12 @@ RUN apt-get update && apt-get install -y                                       \
     traceroute           `#For tracing network routes`                         \
     tcpdump              `#For packet analysis`                                \
     nmap                 `#For network discovery`                              \
+    procps               `#For ps, top, etc.`                                  \
+    netcat-openbsd       `#For network testing`                                \
+    lsof                 `#For checking open ports/files`                      \
+    htop                 `#For process monitoring`                             \
+    strace               `#For system call tracing`                            \
+    vim                  `#For file editing`                                   \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir jupyter jupyterlab
@@ -36,10 +42,16 @@ RUN jupyter lab --generate-config                                               
     echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py                                                       &&\
     echo "c.ServerApp.ip = '0.0.0.0'"     >> /root/.jupyter/jupyter_server_config.py
 
-# Create a startup script
+# Create a startup script with enhanced logging
 RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&\
+    echo 'echo "Starting Jupyter environment with enhanced logging..."'                 >>  /startup.sh  &&\
+    echo 'echo "Network interface configuration:"'                                      >>  /startup.sh  &&\
+    echo 'ip addr'                                                                      >>  /startup.sh  &&\
+    echo 'echo "Current listening ports:"'                                              >>  /startup.sh  &&\
+    echo 'netstat -tuln'                                                                >>  /startup.sh  &&\
     echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&\
     echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&\
+    echo 'echo "Starting Jupyter Lab server..."'                                        >>  /startup.sh  &&\
     echo 'jupyter lab'                                        \
          '--ip=0.0.0.0'                                       \
          '--port=${RBEV_BOTTLE_JUPYTER_PORT}'                 \
@@ -51,8 +63,9 @@ RUN echo '#!/bin/sh'                                                            
          '--ServerApp.base_url=${JUPYTER_BASE_URL}'           \
          '--notebook-dir=${RBEV_BOTTLE_WORKDIR}'              \
          '--ServerApp.allow_origin="*"'                       \
+         '--log-level=DEBUG'                                  \
                                                                                         >>  /startup.sh  &&\
-    echo 'tail -f /dev/null' >>                                                             /startup.sh  &&\
+    echo 'tail -f /dev/null'                                                            >>  /startup.sh  &&\
     chmod +x                                                                                /startup.sh
 
 # Expose the Jupyter port
