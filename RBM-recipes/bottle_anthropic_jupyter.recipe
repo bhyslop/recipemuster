@@ -27,6 +27,8 @@ RUN apt-get update && apt-get install -y                                       \
     htop                 `#For process monitoring`                             \
     strace               `#For system call tracing`                            \
     vim                  `#For file editing`                                   \
+    wget                 `#For downloading files`                              \
+    telnet               `#For testing TCP connections`                        \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir jupyter jupyterlab
