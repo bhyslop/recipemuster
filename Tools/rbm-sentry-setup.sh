@@ -66,6 +66,7 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-INGRESS -i eth0 -p tcp --dport 8000 -j ACCEPT  || exit 25
     iptables -A RBM-FORWARD         -p tcp --dport 8000 -j ACCEPT  || exit 25
     iptables -A RBM-FORWARD         -p tcp --sport 8000 -j ACCEPT  || exit 25
+    iptables -A RBM-EGRESS  -o eth1 -p tcp --dport 8000 -j ACCEPT  || exit 25
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
