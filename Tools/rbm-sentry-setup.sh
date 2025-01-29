@@ -72,8 +72,6 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-FORWARD -i eth0 -o eth1 -p tcp --dport "${RBN_ENTRY_PORT_ENCLAVE}" -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT || exit 20
     # Allow return traffic
     iptables -A RBM-FORWARD -i eth1 -o eth0 -p tcp --sport "${RBN_ENTRY_PORT_ENCLAVE}" -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 20
-    # Allow internal traffic between sentry and bottle
-    iptables -A RBM-FORWARD -i eth1 -o eth1 -p tcp --dport "${RBN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 20
 fi
 
 echo "RBSp3: Phase 3: Access Setup"
