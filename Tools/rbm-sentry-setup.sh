@@ -44,10 +44,6 @@ iptables -N RBM-INGRESS || exit 10
 iptables -N RBM-EGRESS  || exit 10 
 iptables -N RBM-FORWARD || exit 10
 
-echo "RBSp1: Blocking ICMP cross-boundary traffic"
-iptables -A RBM-FORWARD -p icmp -j DROP || exit 10
-iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 10
-
 echo "RBSp1: Setting up chain jumps"
 iptables -A INPUT   -j RBM-INGRESS || exit 10
 iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
@@ -71,6 +67,10 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-FORWARD         -p tcp --dport 8000 -j ACCEPT  || exit 25
     iptables -A RBM-FORWARD         -p tcp --sport 8000 -j ACCEPT  || exit 25
 fi
+
+echo "RBSp2b: Blocking ICMP cross-boundary traffic"
+iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
+iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 29
 
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then

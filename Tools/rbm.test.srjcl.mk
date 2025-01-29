@@ -25,6 +25,19 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Show port forwarding rules in sentry" 
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L PREROUTING -n -v | grep 8000
 
+	$(MBC_SHOW_WHITE) "Let's first verify IP connectivity between sentry and bottle:"
+	podman exec srjcl-sentry ping -c 2 10.242.0.3
+
+	$(MBC_SHOW_WHITE) "Let's look at the routing on both sides:"
+	podman exec srjcl-sentry ip route show
+	podman exec srjcl-bottle ip route show
+
+	$(MBC_SHOW_WHITE) "Let's check the actual interfaces in sentry:"
+	podman exec srjcl-sentry ip addr show eth1
+
+	$(MBC_SHOW_WHITE) "Let's examine all forwarding rules in sentry:"
+	podman exec srjcl-sentry iptables -L RBM-FORWARD -n -v
+
 	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
 	podman exec srjcl-sentry curl -v --connect-timeout 5 --max-time 10 http://10.242.0.3:8000/lab
 
