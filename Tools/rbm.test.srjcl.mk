@@ -26,6 +26,6 @@ rbm-t.TestRBM.srjcl.mk:
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L PREROUTING -n -v | grep 8000
 
 	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
-	podman exec $(RBM_SENTRY_CONTAINER) curl -v http://$(RBN_ENCLAVE_BOTTLE_IP):8000/lab
+	podman exec srjcl-sentry curl -v --connect-timeout 5 --max-time 10 http://10.242.0.3:8000/lab
 
 	$(MBC_SHOW_WHITE) "PASS"
