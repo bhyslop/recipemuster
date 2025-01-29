@@ -34,6 +34,7 @@ include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
 # Test rules
 include $(RBM_TOOLS_DIR)/rbm.test.nsproto.mk
+include $(RBM_TOOLS_DIR)/rbm.test.srjcl.mk
 
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
