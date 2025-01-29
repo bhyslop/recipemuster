@@ -89,7 +89,8 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
     echo "RBSp3: Configuring NAT"
-    iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
+    # Only masquerade traffic going to non-local destinations
+    iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" ! -d "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
 
     if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
         echo "RBSp3: Enabling global access"
