@@ -38,6 +38,15 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Let's examine all forwarding rules in sentry:"
 	podman exec srjcl-sentry iptables -L RBM-FORWARD -n -v
 
+	$(MBC_SHOW_WHITE) "Check the OUTPUT chain"
+	podman exec srjcl-sentry iptables -L RBM-EGRESS -n -v
+
+	$(MBC_SHOW_WHITE) "Check the INPUT chain"
+	podman exec srjcl-sentry iptables -L RBM-INGRESS -n -v
+
+	$(MBC_SHOW_WHITE) "Let's also see ALL nat rules"
+	podman exec srjcl-sentry iptables -t nat -L -n -v
+
 	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
 	podman exec srjcl-sentry curl -v --connect-timeout 5 --max-time 10 http://10.242.0.3:8000/lab
 
