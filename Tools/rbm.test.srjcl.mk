@@ -22,11 +22,10 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Verify Jupyter HTTP response"
 	podman exec $(RBM_BOTTLE_CONTAINER) echo -e "GET /lab HTTP/1.0\r\n\r\n" | podman exec -i $(RBM_BOTTLE_CONTAINER) /usr/bin/nc localhost 8000 | grep "HTTP/1.1 200 OK"
 
-	# Following tests still need work but worth checking
-	$(MBC_SHOW_WHITE) "DISABLED: Test connectivity from sentry to bottle"
-	### podman exec $(RBM_SENTRY_CONTAINER) curl -v http://$(RBN_ENCLAVE_BOTTLE_IP):8000/lab
+	$(MBC_SHOW_WHITE) "Show port forwarding rules in sentry" 
+	podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L PREROUTING -n -v | grep 8000
 
-	$(MBC_SHOW_WHITE) "DISABLED: Test port forwarding rules in sentry" 
-	### podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L PREROUTING -n -v | grep 8000
+	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
+	podman exec $(RBM_SENTRY_CONTAINER) curl -v http://$(RBN_ENCLAVE_BOTTLE_IP):8000/lab
 
 	$(MBC_SHOW_WHITE) "PASS"
