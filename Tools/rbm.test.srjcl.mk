@@ -47,6 +47,15 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Let's also see ALL nat rules"
 	podman exec srjcl-sentry iptables -t nat -L -n -v
 
+	$(MBC_SHOW_WHITE) "Check that the port is actually bound on the host:"
+	podman port srjcl-sentry
+
+	$(MBC_SHOW_WHITE) "Let's check all NAT rules again but with extended info:"
+	podman exec srjcl-sentry iptables -t nat -L -n -v --line-numbers
+
+	$(MBC_SHOW_WHITE) "Check if INPUT rules are correctly handling incoming traffic:"
+	podman exec srjcl-sentry iptables -L INPUT -n -v --line-numbers
+
 	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
 	podman exec srjcl-sentry curl -v --connect-timeout 5 --max-time 10 http://10.242.0.3:8000/lab
 

@@ -44,6 +44,9 @@ iptables -N RBM-INGRESS || exit 10
 iptables -N RBM-EGRESS  || exit 10 
 iptables -N RBM-FORWARD || exit 10
 
+echo "RBSp1: Adding explicit input rule for port 8000"
+iptables -I INPUT 3 -p tcp --dport 8000 -j ACCEPT || exit 15
+
 echo "RBSp1: Setting up chain jumps"
 iptables -A INPUT   -j RBM-INGRESS || exit 10
 iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
