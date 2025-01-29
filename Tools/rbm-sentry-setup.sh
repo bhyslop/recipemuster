@@ -44,9 +44,6 @@ iptables -N RBM-INGRESS || exit 10
 iptables -N RBM-EGRESS  || exit 10 
 iptables -N RBM-FORWARD || exit 10
 
-echo "RBSp1: Adding explicit input rule for port 8000"
-iptables -I INPUT 3 -p tcp --dport 8000 -j ACCEPT || exit 15
-
 echo "RBSp1: Setting up chain jumps"
 iptables -A INPUT   -j RBM-INGRESS || exit 10
 iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
@@ -60,24 +57,32 @@ echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
-    echo "RBSp2: Setting up port return path NAT"
-    iptables -t nat -A POSTROUTING -o eth0 -p tcp --sport "${RBN_ENTRY_PORT_ENCLAVE}" \
-             -s "${RBN_ENCLAVE_BOTTLE_IP}" -j MASQUERADE || exit 27
+    echo "RBSp2: Add logging for dropped packets in our port range"
+    iptables -N RBM-PORT-LOG
+    iptables -A RBM-PORT-LOG -j LOG --log-prefix "RBM-PORT-DROP: " --log-level 4
+    iptables -A RBM-PORT-LOG -j DROP
+
+    echo "RBSp2: Setting up rules for port traffic"
+    iptables -I INPUT 3             -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT -m comment --comment "RBM-PORT-IN"      || exit 15
+    iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE}           -m comment --comment "RBM-PORT-INGRESS" -j ACCEPT || exit 25
+    iptables -A RBM-EGRESS  -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE}           -m comment --comment "RBM-PORT-EGRESS"  -j ACCEPT || exit 25
+
+    echo "RBSp2: Setting up NAT rules"
+    iptables -t nat -I POSTROUTING 1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} \
+             -s ${RBN_ENCLAVE_BOTTLE_IP} -j MASQUERADE -m comment --comment "RBM-PORT-RETURN" || exit 26
 
     echo "RBSp2: Setting up DNAT rules"
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}"   \
              -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
              -m comment --comment "RBM-PORT-FORWARD" || exit 20
 
-    echo "RBSp2: Configuring port filter rules"
-    iptables -A RBM-INGRESS -i eth0 -p tcp --dport 8000 -j ACCEPT  || exit 25
-    iptables -A RBM-FORWARD         -p tcp --dport 8000 -j ACCEPT  || exit 25
-    iptables -A RBM-FORWARD         -p tcp --sport 8000 -j ACCEPT  || exit 25
-    iptables -A RBM-EGRESS  -o eth1 -p tcp --dport 8000 -j ACCEPT  || exit 25
-
-    echo "RBSp2: Adding explicit bidirectional forwarding for port ${RBN_ENTRY_PORT_ENCLAVE}"
+    echo "RBSp2: Adding explicit bidirectional forwarding"
     iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 26
     iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 26
+
+    echo "RBSp2: Adding logging for unmatched port traffic"
+    iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 27
+    iptables -A RBM-FORWARD -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 27
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
