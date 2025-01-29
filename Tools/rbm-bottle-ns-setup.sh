@@ -37,7 +37,6 @@ sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip addr add ${RBN_ENCLAVE_BOTTLE_IP}
 sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set eth0 up                                                    || exit 64
 sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip route add default via ${RBN_ENCLAVE_SENTRY_IP} dev eth0             || exit 65
 sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set lo up                                                      || exit 66
-sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip addr add 127.0.0.1/8 dev lo                                         || exit 67
 
 echo "RBNS5: Connecting namespace veth to bridge"
 sudo ip link set ${RBM_ENCLAVE_BOTTLE_OUT} master ${RBM_ENCLAVE_BRIDGE} || exit 70
