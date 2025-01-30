@@ -67,13 +67,17 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-PORT-LOG -j DROP
 
     echo "RBSp2: Setting up rules for port traffic"
-    iptables -I INPUT 3             -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT -m comment --comment "RBM-PORT-IN"      || exit 15
-    iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE}           -m comment --comment "RBM-PORT-INGRESS" -j ACCEPT || exit 25
-    iptables -A RBM-EGRESS  -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE}           -m comment --comment "RBM-PORT-EGRESS"  -j ACCEPT || exit 25
+    iptables -I INPUT 3             -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-IN"      -j ACCEPT || exit 15
+    iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-INGRESS" -j ACCEPT || exit 25
+    iptables -A RBM-EGRESS  -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-EGRESS"  -j ACCEPT || exit 25
 
     echo "RBSp2: Setting up NAT rules"
     iptables -t nat -I POSTROUTING 1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} \
              -s ${RBN_ENCLAVE_BOTTLE_IP} -j MASQUERADE -m comment --comment "RBM-PORT-RETURN" || exit 26
+
+    echo "RBSp2: Log return traffic NAT attempts"
+    iptables -t nat -I POSTROUTING 1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} \
+             -s ${RBN_ENCLAVE_BOTTLE_IP} -j LOG --log-prefix "RBM-RETURN-NAT: " --log-level 4 || exit 26
 
     echo "RBSp2: Setting up DNAT rules"
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}"   \
@@ -83,6 +87,10 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Adding explicit bidirectional forwarding"
     iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 26
     iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 26
+
+    echo "RBSp2: Log return traffic forward attempts"
+    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j LOG \
+             --log-prefix "RBM-RETURN-FWD: " --log-level 4 || exit 26
 
     echo "RBSp2: Adding logging for unmatched port traffic"
     iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 27
