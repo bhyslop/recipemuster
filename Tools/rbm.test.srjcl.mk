@@ -62,11 +62,8 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Testing sentry network path"
 	podman exec $(RBM_SENTRY_CONTAINER) ip route get 10.242.0.3
 
-	$(MBC_SHOW_WHITE) "Checking sentry connections"
-	podman exec $(RBM_SENTRY_CONTAINER) netstat -nt | grep ${RBN_ENTRY_PORT_ENCLAVE}
-
-	$(MBC_SHOW_WHITE) "Checking established connections"
-	podman exec $(RBM_SENTRY_CONTAINER) ss -nt state established | grep ${RBN_ENTRY_PORT_ENCLAVE}
+	$(MBC_SHOW_WHITE) "Checking sentry connection tracking"
+	podman exec $(RBM_SENTRY_CONTAINER) conntrack -L | grep ${RBN_ENTRY_PORT_ENCLAVE}
 
 	$(MBC_SHOW_WHITE) "Verifying NAT rules are active"
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L -n -v | grep ${RBN_ENTRY_PORT_ENCLAVE}
