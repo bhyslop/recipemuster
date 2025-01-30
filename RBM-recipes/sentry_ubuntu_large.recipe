@@ -27,6 +27,11 @@ RUN apt-get update && apt-get install -y                                        
     tcptraceroute       `# For TCP-based traceroute utility`                             \
     mtr                 `# For network diagnostic combining ping and traceroute`         \
     tshark              `# For command-line Wireshark packet capture and analysis`       \
+    ss-tools            `# For detailed socket statistics`                               \
+    conntrack           `# For connection tracking`                                      \
+    iftop               `# For bandwidth monitoring`                                     \
+    psmisc              `# For fuser, killall, etc.`                                     \
+    ipcalc              `# For IP calculations and subnet info`                          \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep the container alive
