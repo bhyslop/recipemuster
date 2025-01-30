@@ -20,6 +20,11 @@ set -x
 : ${RBN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBN_UPLINK_ALLOWED_CIDRS   = ${RBN_UPLINK_ALLOWED_CIDRS}"
 : ${RBN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBN_UPLINK_ALLOWED_DOMAINS = ${RBN_UPLINK_ALLOWED_DOMAINS}"
 
+echo "RBSp0b: Setting up nftables logging table"
+nft add table filter_rbm_log
+nft add chain filter_rbm_log ingress_log { type filter hook ingress priority -10 \; }
+nft add chain filter_rbm_log forward_log { type filter hook forward priority -10 \; }
+
 echo "RBSp1: Beginning IPTables initialization"
 
 echo "RBSp1: Set ephemeral port range for uplink connections"
@@ -66,6 +71,9 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -A RBM-PORT-LOG -j LOG --log-prefix "RBM-PORT-DROP: " --log-level 4
     iptables -A RBM-PORT-LOG -j DROP
 
+    echo "RBSp2: Adding nftables port monitoring"
+    nft add rule filter_rbm_log forward_log ip daddr ${RBN_ENCLAVE_BOTTLE_IP} tcp dport ${RBN_ENTRY_PORT_ENCLAVE} log prefix \"RBM-PORT-MONITOR: \"
+
     echo "RBSp2: Setting up rules for port traffic"
     iptables -I INPUT 3             -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-IN"      -j ACCEPT || exit 15
     iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-INGRESS" -j ACCEPT || exit 25
@@ -79,10 +87,16 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     iptables -t nat -I POSTROUTING 1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} \
              -s ${RBN_ENCLAVE_BOTTLE_IP} -j LOG --log-prefix "RBM-RETURN-NAT: " --log-level 4 || exit 26
 
+    echo "RBSp2: Adding nftables NAT return monitoring"
+    nft add rule filter_rbm_log forward_log ip saddr ${RBN_ENCLAVE_BOTTLE_IP} tcp sport ${RBN_ENTRY_PORT_ENCLAVE} log prefix \"RBM-NAT-RETURN: \"
+
     echo "RBSp2: Setting up DNAT rules"
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}"   \
              -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
              -m comment --comment "RBM-PORT-FORWARD" || exit 20
+
+    echo "RBSp2: Adding nftables DNAT monitoring"
+    nft add rule filter_rbm_log forward_log ip daddr ${RBN_ENCLAVE_BOTTLE_IP} tcp dport ${RBN_ENTRY_PORT_WORKSTATION} log prefix \"RBM-DNAT-FORWARD: \"
 
     echo "RBSp2: Adding explicit bidirectional forwarding"
     iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 26
@@ -149,6 +163,9 @@ if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
     iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -j DROP || exit 40
+
+    echo "RBSp3: Adding nftables block monitoring"
+    nft add rule filter_rbm_log forward_log ip saddr ${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK} log prefix \"RBM-BLOCKED: \"
 else
     echo "RBSp4: Testing DNS server connectivity"
     timeout 5s nc -z "${RBB_DNS_SERVER}" 53                   || exit 40
@@ -196,6 +213,10 @@ else
     fi
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                              /etc/dnsmasq.conf || exit 41
+
+    echo "RBSp4: Adding nftables DNS monitoring"
+    nft add rule filter_rbm_log forward_log ip daddr ${RBB_DNS_SERVER} tcp dport 53 log prefix \"RBM-DNS-TCP: \"
+    nft add rule filter_rbm_log forward_log ip daddr ${RBB_DNS_SERVER} udp dport 53 log prefix \"RBM-DNS-UDP: \"
 
     echo "RBSp4: Process info before launch (zombie dnsmasq diagnostic)..."
     ps aux
