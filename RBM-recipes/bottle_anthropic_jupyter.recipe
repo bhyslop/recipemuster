@@ -29,6 +29,16 @@ RUN apt-get update && apt-get install -y                                       \
     vim                  `#For file editing`                                   \
     wget                 `#For downloading files`                              \
     telnet               `#For testing TCP connections`                        \
+    ss-tools             `#For detailed socket statistics`                     \
+    conntrack            `#For connection tracking`                            \
+    socat                `#For multipurpose relay`                             \
+    iptraf-ng            `#For interactive network monitoring`                 \
+    iftop                `#For bandwidth monitoring`                           \
+    mtr                  `#For network diagnostic combining ping & traceroute` \
+    ethtool              `#For network interface card settings`                \
+    bridge-utils         `#For bridge network diagnostics`                     \
+    psmisc               `#For fuser, killall, etc.`                           \
+    ipcalc               `#For IP calculations and subnet info`                \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir jupyter jupyterlab
