@@ -75,6 +75,12 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Adding nftables port monitoring"
     nft add rule filter_rbm_log forward_log ip daddr ${RBN_ENCLAVE_BOTTLE_IP} tcp dport ${RBN_ENTRY_PORT_ENCLAVE} log prefix \"RBM-PORT-MONITOR: \"
 
+    echo "RBSp2: Adding nftables detailed return monitoring"
+    nft add rule filter_rbm_log forward_log ip saddr ${RBN_ENCLAVE_BOTTLE_IP} ip daddr 10.88.0.0/16 tcp sport ${RBN_ENTRY_PORT_ENCLAVE} log prefix \"RBM-NAT-RETURN-DETAIL: \"
+
+    echo "RBSp2: Adding nftables connection tracking monitoring"
+    nft add rule filter_rbm_log forward_log ct state established log prefix \"RBM-CONN-TRACK: \"
+
     echo "RBSp2: Setting up rules for port traffic"
     iptables -I INPUT 3             -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-IN"      -j ACCEPT || exit 15
     iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -m comment --comment "RBM-PORT-INGRESS" -j ACCEPT || exit 25
