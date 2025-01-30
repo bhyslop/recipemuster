@@ -22,8 +22,9 @@ set -x
 
 echo "RBSp0b: Setting up nftables logging table"
 nft add table filter_rbm_log
-nft add chain filter_rbm_log ingress_log { type filter hook ingress priority -10 \; }
+nft add chain filter_rbm_log input_log { type filter hook input priority -10 \; }
 nft add chain filter_rbm_log forward_log { type filter hook forward priority -10 \; }
+nft add chain filter_rbm_log output_log { type filter hook output priority -10 \; }
 
 echo "RBSp1: Beginning IPTables initialization"
 
