@@ -59,13 +59,19 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
 	podman exec srjcl-sentry curl -v --connect-timeout 5 --max-time 10 http://10.242.0.3:8000/lab
 
-	$(MBC_SHOW_WHITE) "Initial syslog state:"
-	podman exec srjcl-sentry grep "RBM-" /var/log/messages || true
+	$(MBC_SHOW_WHITE) "Initial log state:"
+	podman exec $(RBM_SENTRY_CONTAINER) dmesg | grep "RBM-" || true
 
 	$(MBC_SHOW_WHITE) "Attempting connection to Jupyter:"
 	-curl -v --connect-timeout 5 --max-time 10 http://localhost:8000/lab
 
-	$(MBC_SHOW_WHITE) "Final syslog state:"
-	podman exec srjcl-sentry grep "RBM-" /var/log/messages || true
+	$(MBC_SHOW_WHITE) "Showing new log entries:"
+	podman exec $(RBM_SENTRY_CONTAINER) dmesg | grep "RBM-" || true
+
+	$(MBC_SHOW_WHITE) "Dumping full nftables state:"
+	podman exec $(RBM_SENTRY_CONTAINER) nft list ruleset | grep -A2 "filter_rbm_log"
 
 	$(MBC_SHOW_WHITE) "PASS"
+
+
+#eof
