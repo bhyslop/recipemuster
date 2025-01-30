@@ -261,13 +261,13 @@ rbm-OPE%:
 rbm-OPA%:
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ALL NETWORK PATHS"
 	@echo "Monitoring BOTTLE namespace..."
-	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 -nn host 10.88.0.1" &
+	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -l -i eth0 -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)" &
 	@echo "Monitoring bridge interface..."
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) -nn host 10.88.0.1" &
+	podman machine ssh "sudo tcpdump -l -i $(RBM_ENCLAVE_BRIDGE) -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)" &
 	@echo "Monitoring BOTTLE veth..."
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) -nn host 10.88.0.1" &
-	@echo "Monitoring SENTRY veth..."
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_SENTRY_IN) -nn host 10.88.0.1" &
+	podman machine ssh "sudo tcpdump -l -i $(RBM_ENCLAVE_BOTTLE_OUT) -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)" &
+	@echo "Monitoring SENTRY inside container..."
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -l -i eth1 -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP) &
 	@echo "Monitoring started on all interfaces. Use Ctrl+C to stop."
 	wait
 
