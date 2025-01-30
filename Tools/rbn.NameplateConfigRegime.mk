@@ -40,7 +40,9 @@ zrbn_validate_bottle_image:
 #
 rbn_validate_ports: \
 	zrbn_validate_port_enabled \
-	zrbn_validate_port_config
+	zrbn_validate_port_config \
+	zrbn_validate_port_separation \
+	zrbn_validate_uplink_ports
 
 zrbn_validate_port_enabled:
 	@$(call MBC_CHECK_EXPORTED,1,RBN_PORT_ENABLED)
@@ -51,6 +53,19 @@ zrbn_validate_port_config:
 	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_ENTRY_PORT_WORKSTATION),1,65535)
 	@$(call MBC_CHECK_EXPORTED,$(RBN_PORT_ENABLED),RBN_ENTRY_PORT_ENCLAVE)
 	@$(call MBC_CHECK_IN_RANGE,$(RBN_PORT_ENABLED),$(RBN_ENTRY_PORT_ENCLAVE),1,65535)
+
+zrbn_validate_port_separation:
+	@test "$(RBN_PORT_ENABLED)" = "0" || \
+	  test "$(RBN_UPLINK_PORT_MIN)" -gt "$(RBN_ENTRY_PORT_WORKSTATION)" || \
+	  (echo "Error: RBN_UPLINK_PORT_MIN must be greater than RBN_ENTRY_PORT_WORKSTATION" && exit 1)
+	@test "$(RBN_PORT_ENABLED)" = "0" || \
+	  test "$(RBN_UPLINK_PORT_MIN)" -gt "$(RBN_ENTRY_PORT_ENCLAVE)" || \
+	  (echo "Error: RBN_UPLINK_PORT_MIN must be greater than RBN_ENTRY_PORT_ENCLAVE" && exit 1)
+
+
+zrbn_validate_uplink_ports:
+	@$(call MBC_CHECK_EXPORTED,1,RBN_UPLINK_PORT_MIN)
+	@$(call MBC_CHECK_IN_RANGE,1,$(RBN_UPLINK_PORT_MIN),1024,65535)
 
 #
 # Network Address Validation
@@ -128,6 +143,7 @@ rbn_validate: \
 	rbn_validate_images \
 	rbn_validate_ports \
 	rbn_validate_network_address \
+	rbn_validate_uplink_ports \
 	rbn_validate_uplink \
 	rbn_validate_volumes
 
@@ -155,6 +171,9 @@ rbn_define:
 	@echo "RBN_ENCLAVE_NETMASK     # Network mask width (8-30)"
 	@echo "RBN_ENCLAVE_BOTTLE_IP   # Gateway IP for container startup"
 	@echo "RBN_ENCLAVE_SENTRY_IP   # IP address for Sentry Container"
+	@echo
+	@echo "== Uplink Port Range =="
+	@echo "RBN_UPLINK_PORT_MIN        # Minimum port number for uplink connections (must be > service ports)"
 	@echo
 	@echo "== Network Uplink =="
 	@echo "RBN_UPLINK_DNS_ENABLED   # Enable protected DNS resolution (0 or 1)"
@@ -213,6 +232,7 @@ RBN__ROLLUP_ENVIRONMENT_VAR := \
   RBN_ENCLAVE_NETMASK='$(RBN_ENCLAVE_NETMASK)' \
   RBN_ENCLAVE_BOTTLE_IP='$(RBN_ENCLAVE_BOTTLE_IP)' \
   RBN_ENCLAVE_SENTRY_IP='$(RBN_ENCLAVE_SENTRY_IP)' \
+  RBN_UPLINK_PORT_MIN='$(RBN_UPLINK_PORT_MIN)' \
   RBN_UPLINK_DNS_ENABLED='$(RBN_UPLINK_DNS_ENABLED)' \
   RBN_UPLINK_ACCESS_ENABLED='$(RBN_UPLINK_ACCESS_ENABLED)' \
   RBN_UPLINK_DNS_GLOBAL='$(RBN_UPLINK_DNS_GLOBAL)' \

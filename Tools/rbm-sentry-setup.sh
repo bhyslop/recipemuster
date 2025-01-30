@@ -13,6 +13,7 @@ set -x
 : ${RBN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBN_ENTRY_PORT_WORKSTATION = ${RBN_ENTRY_PORT_WORKSTATION}"
 : ${RBN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBN_ENTRY_PORT_ENCLAVE     = ${RBN_ENTRY_PORT_ENCLAVE}"
 : ${RBN_UPLINK_DNS_ENABLED:?}     && echo "RBSp0: RBN_UPLINK_DNS_ENABLED     = ${RBN_UPLINK_DNS_ENABLED}"
+: ${RBN_UPLINK_PORT_MIN:?}        && echo "RBSp0: RBN_UPLINK_PORT_MIN        = ${RBN_UPLINK_PORT_MIN}"
 : ${RBN_UPLINK_ACCESS_ENABLED:?}  && echo "RBSp0: RBN_UPLINK_ACCESS_ENABLED  = ${RBN_UPLINK_ACCESS_ENABLED}"
 : ${RBN_UPLINK_DNS_GLOBAL:?}      && echo "RBSp0: RBN_UPLINK_DNS_GLOBAL      = ${RBN_UPLINK_DNS_GLOBAL}"
 : ${RBN_UPLINK_ACCESS_GLOBAL:?}   && echo "RBSp0: RBN_UPLINK_ACCESS_GLOBAL   = ${RBN_UPLINK_ACCESS_GLOBAL}"
@@ -20,6 +21,9 @@ set -x
 : ${RBN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBN_UPLINK_ALLOWED_DOMAINS = ${RBN_UPLINK_ALLOWED_DOMAINS}"
 
 echo "RBSp1: Beginning IPTables initialization"
+
+echo "RBSp1: Set ephemeral port range for uplink connections"
+echo "${RBN_UPLINK_PORT_MIN} 65535" > /proc/sys/net/ipv4/ip_local_port_range || exit 10
 
 echo "RBSp1: Flushing existing rules"
 iptables -F        || exit 10
