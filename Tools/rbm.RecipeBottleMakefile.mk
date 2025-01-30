@@ -258,4 +258,18 @@ rbm-OPE%:
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
+rbm-OPA%:
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ALL NETWORK PATHS"
+	@echo "Monitoring BOTTLE namespace..."
+	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 -nn host 10.88.0.1" &
+	@echo "Monitoring bridge interface..."
+	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) -nn host 10.88.0.1" &
+	@echo "Monitoring BOTTLE veth..."
+	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) -nn host 10.88.0.1" &
+	@echo "Monitoring SENTRY veth..."
+	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_SENTRY_IN) -nn host 10.88.0.1" &
+	@echo "Monitoring started on all interfaces. Use Ctrl+C to stop."
+	wait
+
+
 # eof
