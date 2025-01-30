@@ -59,19 +59,22 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Test connectivity from sentry to bottle"
 	podman exec srjcl-sentry curl -v --connect-timeout 5 --max-time 10 http://10.242.0.3:8000/lab
 
-	echo "rbc-console.mk: Testing sentry network path"
-	podman exec $(RBM_SENTRY_CONTAINER) ip route get 10.242.0.3 
+	$(MBC_SHOW_WHITE) "Testing sentry network path"
+	podman exec $(RBM_SENTRY_CONTAINER) ip route get 10.242.0.3
 
-	echo "rbc-console.mk: Checking sentry connection tracking"
-	podman exec $(RBM_SENTRY_CONTAINER) conntrack -L | grep ${RBN_ENTRY_PORT_ENCLAVE}
+	$(MBC_SHOW_WHITE) "Checking sentry connections"
+	podman exec $(RBM_SENTRY_CONTAINER) netstat -nt | grep ${RBN_ENTRY_PORT_ENCLAVE}
 
-	echo "rbc-console.mk: Verifying NAT rules are active"
+	$(MBC_SHOW_WHITE) "Checking established connections"
+	podman exec $(RBM_SENTRY_CONTAINER) ss -nt state established | grep ${RBN_ENTRY_PORT_ENCLAVE}
+
+	$(MBC_SHOW_WHITE) "Verifying NAT rules are active"
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L -n -v | grep ${RBN_ENTRY_PORT_ENCLAVE}
 
-	echo "rbc-console.mk: Test inbound port access"
+	$(MBC_SHOW_WHITE) "Test inbound port access"
 	podman exec $(RBM_SENTRY_CONTAINER) nc -zv 0.0.0.0 ${RBN_ENTRY_PORT_ENCLAVE}
 
-	echo "rbc-console.mk: Test forward path"
+	$(MBC_SHOW_WHITE) "Test forward path"
 	podman exec $(RBM_SENTRY_CONTAINER) nc -zv ${RBN_ENCLAVE_BOTTLE_IP} ${RBN_ENTRY_PORT_ENCLAVE}
 
 	$(MBC_SHOW_WHITE) "Initial log state:"
