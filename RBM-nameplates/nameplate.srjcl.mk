@@ -17,6 +17,7 @@ export RBN_ENTRY_PORT_WORKSTATION := 8000
 export RBN_ENTRY_PORT_ENCLAVE     := 8000
 
 # Network Uplink Configuration
+export RBN_UPLINK_PORT_MIN        := 10000
 export RBN_UPLINK_DNS_ENABLED     := 1
 export RBN_UPLINK_ACCESS_ENABLED  := 1
 export RBN_UPLINK_DNS_GLOBAL      := 0

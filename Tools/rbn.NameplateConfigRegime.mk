@@ -143,7 +143,6 @@ rbn_validate: \
 	rbn_validate_images \
 	rbn_validate_ports \
 	rbn_validate_network_address \
-	rbn_validate_uplink_ports \
 	rbn_validate_uplink \
 	rbn_validate_volumes
 
