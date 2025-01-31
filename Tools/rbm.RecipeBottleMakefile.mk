@@ -266,15 +266,19 @@ rbm-OPA%: rbm-OPA-bottle% rbm-OPA-bridge% rbm-OPA-veth% rbm-OPA-sentry%
 	@echo "=== Starting Network Path Monitoring (Ctrl-C to stop) ==="
 
 rbm-OPA-bottle%:
+	@echo "=== bottle ==="
 	@podman machine ssh 'sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[32m%-8s %s\033[0m\n" "BOTTLE" "$$line"; done; trap "sudo kill $$(sudo pidof tcpdump)" EXIT'
 
 rbm-OPA-bridge%:
+	@echo "=== bridge ==="
 	@podman machine ssh 'sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[33m%-8s %s\033[0m\n" "BRIDGE" "$$line"; done; trap "sudo kill $$(sudo pidof tcpdump)" EXIT'
 
 rbm-OPA-veth%:
+	@echo "=== veth ==="
 	@podman machine ssh 'sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[36m%-8s %s\033[0m\n" "VETH" "$$line"; done; trap "sudo kill $$(sudo pidof tcpdump)" EXIT'
 
 rbm-OPA-sentry%:
+	@echo "=== sentry ==="
 	@podman exec $(RBM_SENTRY_CONTAINER) sh -c 'tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[35m%-8s %s\033[0m\n" "SENTRY" "$$line"; done; trap "kill $$(pidof tcpdump)" EXIT'
 
 
