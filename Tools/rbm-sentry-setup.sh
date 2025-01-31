@@ -186,18 +186,8 @@ else
         echo "address=/#/"                                        >> /etc/dnsmasq.conf || exit 41
     fi
 
-    echo "RBSp4: Adding return path monitoring"
-    nft add rule filter_rbm_log forward_log oif eth0 ip saddr ${RBN_ENCLAVE_BOTTLE_IP} tcp sport ${RBN_ENTRY_PORT_ENCLAVE} log prefix \"RBM-RETURN-PATH: \"
-
-    echo "RBSp4: Adding established connection monitoring"
-    nft add rule filter_rbm_log forward_log oif eth0 ip saddr ${RBN_ENCLAVE_BOTTLE_IP} tcp sport ${RBN_ENTRY_PORT_ENCLAVE} ct state established log prefix \"RBM-ESTABLISHED: \"
-
     echo "RBSp4: Echo back the constructed dnsmasq config file"
     cat                                                              /etc/dnsmasq.conf || exit 41
-
-    echo "RBSp4: Adding nftables DNS monitoring"
-    nft add rule filter_rbm_log forward_log ip daddr ${RBB_DNS_SERVER} tcp dport 53 log prefix \"RBM-DNS-TCP: \"
-    nft add rule filter_rbm_log forward_log ip daddr ${RBB_DNS_SERVER} udp dport 53 log prefix \"RBM-DNS-UDP: \"
 
     echo "RBSp4: Process info before launch (zombie dnsmasq diagnostic)..."
     ps aux
