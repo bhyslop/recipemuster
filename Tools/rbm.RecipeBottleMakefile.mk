@@ -258,19 +258,25 @@ rbm-OPE%:
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
-rbm-OPA%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ALL NETWORK PATHS"
-	@echo "Monitoring BOTTLE namespace..."
-	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -l -i eth0 -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)" &
-	@echo "Monitoring bridge interface..."
-	podman machine ssh "sudo tcpdump -l -i $(RBM_ENCLAVE_BRIDGE) -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)" &
-	@echo "Monitoring BOTTLE veth..."
-	podman machine ssh "sudo tcpdump -l -i $(RBM_ENCLAVE_BOTTLE_OUT) -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)" &
-	@echo "Monitoring SENTRY inside container..."
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -l -i eth1 -nn host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP) &
-	@echo "Monitoring started on all interfaces. Use Ctrl+C to stop."
-	wait
+zRBM_OPA_FILTER = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
 
-# https://claude.ai/chat/d7f3f13a-b0bf-4a53-882b-a35329570c39 glorious!
+rbm-OPA%:
+	@echo "=== Starting Network Path Monitoring ==="
+
+	@echo "Monitoring BOTTLE namespace..."
+	@podman machine ssh 'sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -tttt -q -l -i eth0 -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[32m[BOTTLE %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
+	
+	@echo "Monitoring bridge interface..."
+	@podman machine ssh 'sudo tcpdump -tttt -q -l -i $(RBM_ENCLAVE_BRIDGE) -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[33m[BRIDGE %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
+	
+	@echo "Monitoring BOTTLE veth..."
+	@podman machine ssh 'sudo tcpdump -tttt -q -l -i $(RBM_ENCLAVE_BOTTLE_OUT) -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[36m[VETH   %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
+	
+	@echo "Monitoring SENTRY inside container..."
+	@podman exec $(RBM_SENTRY_CONTAINER) 'tcpdump -tttt -q -l -i eth1 -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[35m[SENTRY %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
+	
+	@echo "=== Monitoring active (Ctrl+C to stop) ==="
+	@trap 'kill $$(jobs -p) 2>/dev/null' EXIT INT TERM; wait
+
 
 # eof
