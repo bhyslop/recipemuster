@@ -74,23 +74,11 @@ rbm-t.TestRBM.srjcl.mk:
 	$(MBC_SHOW_WHITE) "Verifying NAT rules are active"
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -t nat -L -n -v | grep ${RBN_ENTRY_PORT_ENCLAVE}
 
-	$(MBC_SHOW_WHITE) "Test inbound port access"
-	-podman exec $(RBM_SENTRY_CONTAINER) nc -zv 0.0.0.0 ${RBN_ENTRY_PORT_ENCLAVE}
-
 	$(MBC_SHOW_WHITE) "Test forward path"
 	podman exec $(RBM_SENTRY_CONTAINER) nc -zv ${RBN_ENCLAVE_BOTTLE_IP} ${RBN_ENTRY_PORT_ENCLAVE}
 
-	$(MBC_SHOW_WHITE) "Initial log state:"
-	podman exec $(RBM_SENTRY_CONTAINER) dmesg | grep -E "RBM-(PORT-MONITOR|DNAT-FORWARD|RETURN-PATH|PORT-RETURN-NAT):"
-
-	$(MBC_SHOW_WHITE) "Attempting connection to Jupyter:"
-	-curl -v --connect-timeout 5 --max-time 10 http://localhost:8000/lab
-
-	$(MBC_SHOW_WHITE) "Showing new log entries:"
-	podman exec $(RBM_SENTRY_CONTAINER) dmesg | grep -E "RBM-(PORT-MONITOR|DNAT-FORWARD|RETURN-PATH|PORT-RETURN-NAT):"
-
-	$(MBC_SHOW_WHITE) "Dumping full nftables state:"
-	podman exec $(RBM_SENTRY_CONTAINER) nft list ruleset | grep -A2 "filter_rbm_log"
+	echo "Testing direct host access to Jupyter:"
+	curl -v --connect-timeout 5 --max-time 10 http://localhost:8000/lab | grep "HTTP/1.1 200 OK"
 
 	$(MBC_SHOW_WHITE) "PASS"
 
