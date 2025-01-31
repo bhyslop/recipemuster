@@ -77,10 +77,12 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
              -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
              -m comment --comment "RBM-PORT-FORWARD" || exit 26
 
-    echo "RBSp2: Setting up explicit SNAT for forwarded traffic"
+    echo "RBSp2: Setting up explicit SNAT for forwarded traffic only"
     iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-             -j SNAT --to-source ${RBN_ENCLAVE_SENTRY_IP} \
-             -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 27
+         -s 10.88.0.0/16 \
+         -j SNAT --to-source ${RBN_ENCLAVE_SENTRY_IP} \
+         -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 27
+
 
     echo "RBSp2: Adding NAT logging for debugging"
     iptables -t nat -I POSTROUTING 1 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
