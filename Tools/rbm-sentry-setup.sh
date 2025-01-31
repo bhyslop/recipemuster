@@ -20,12 +20,6 @@ set -x
 : ${RBN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBN_UPLINK_ALLOWED_CIDRS   = ${RBN_UPLINK_ALLOWED_CIDRS}"
 : ${RBN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBN_UPLINK_ALLOWED_DOMAINS = ${RBN_UPLINK_ALLOWED_DOMAINS}"
 
-echo "RBSp0b: Setting up nftables logging table"
-nft add table filter_rbm_log
-nft add chain filter_rbm_log input_log { type filter hook input priority -10 \; }
-nft add chain filter_rbm_log forward_log { type filter hook forward priority -10 \; }
-nft add chain filter_rbm_log output_log { type filter hook output priority -10 \; }
-
 echo "RBSp1: Beginning IPTables initialization"
 
 echo "RBSp1: Set ephemeral port range for uplink connections"
@@ -68,42 +62,36 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
     echo "RBSp2: Add logging for dropped packets in our port range"
-    iptables -N RBM-PORT-LOG || exit 25
-    iptables -A RBM-PORT-LOG -j LOG --log-prefix "RBM-PORT-DROP: " --log-level 4 || exit 25
+    iptables -N RBM-PORT-LOG         || exit 25
     iptables -A RBM-PORT-LOG -j DROP || exit 25
 
     echo "RBSp2: Setting up DNAT for incoming traffic"
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}"   \
              -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
-             -m comment --comment "RBM-PORT-FORWARD" || exit 26
+             -m comment --comment "RBM-PORT-FORWARD" || exit 25
 
     echo "RBSp2: Ensuring local traffic to bottle is allowed"
-    iptables -A OUTPUT -o eth1 -p tcp -d "${RBN_ENCLAVE_BOTTLE_IP}" --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 27
-    iptables -A INPUT  -i eth1 -p tcp -s "${RBN_ENCLAVE_BOTTLE_IP}" --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 28
+    iptables -A OUTPUT -o eth1 -p tcp -d "${RBN_ENCLAVE_BOTTLE_IP}" --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A INPUT  -i eth1 -p tcp -s "${RBN_ENCLAVE_BOTTLE_IP}" --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
 
     echo "RBSp2: Setting up explicit SNAT for external forwarded traffic"
     iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
          ! -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" \
          -j SNAT --to-source "${RBN_ENCLAVE_SENTRY_IP}" \
-         -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 29
-
-    echo "RBSp2: Adding NAT logging for debugging"
-    iptables -t nat -I POSTROUTING 1 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-         ! -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" \
-         -j LOG --log-prefix "RBM-FORWARD-NAT: " --log-level 4 || exit 30
+         -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 25
 
     echo "RBSp2: Adding explicit bidirectional forwarding"
-    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 31
-    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 32
+    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
 
     echo "RBSp2: Adding logging for unmatched port traffic"
-    iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 33
-    iptables -A RBM-FORWARD -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 34
+    iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
+    iptables -A RBM-FORWARD -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
 iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
-iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 29
+iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
 
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
@@ -118,7 +106,6 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
     echo "RBSp3: Configuring NAT"
-    # Only masquerade traffic going to non-local destinations
     iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" ! -d "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
 
     if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
@@ -153,9 +140,6 @@ if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
     iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -j DROP || exit 40
-
-    echo "RBSp3: Adding nftables block monitoring"
-    nft add rule filter_rbm_log forward_log ip saddr ${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK} log prefix \"RBM-BLOCKED: \"
 else
     echo "RBSp4: Testing DNS server connectivity"
     timeout 5s nc -z "${RBB_DNS_SERVER}" 53                   || exit 40

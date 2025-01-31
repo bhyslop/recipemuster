@@ -32,4 +32,4 @@ export RBN_ENCLAVE_SENTRY_IP  := 10.242.0.2
 export RBN_ENCLAVE_BOTTLE_IP  := 10.242.0.3
 
 # Volume Mount Configuration
-export RBN_VOLUME_MOUNTS := -v ./RBM-environments-srjcl:/mnt/bottle-data:Z
+export RBN_VOLUME_MOUNTS := -v ./RBM-environments-srjcl:/workspace:Z
