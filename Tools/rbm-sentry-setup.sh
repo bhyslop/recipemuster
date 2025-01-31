@@ -77,25 +77,26 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
              -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
              -m comment --comment "RBM-PORT-FORWARD" || exit 26
 
-    echo "RBSp2: Setting up explicit SNAT for forwarded traffic only"
-    iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-         -s 10.88.0.0/16 \
-         -j SNAT --to-source ${RBN_ENCLAVE_SENTRY_IP} \
-         -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 27
+    echo "RBSp2: Ensuring local traffic to bottle is allowed"
+    iptables -A OUTPUT -o eth1 -p tcp -d "${RBN_ENCLAVE_BOTTLE_IP}" --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 27
+    iptables -A INPUT -i eth1 -p tcp -s "${RBN_ENCLAVE_BOTTLE_IP}" --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 28
 
+    echo "RBSp2: Setting up explicit SNAT for external traffic only"
+    iptables -t nat -A POSTROUTING -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
+             -j SNAT --to-source "${RBN_ENCLAVE_SENTRY_IP}" \
+             -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 29
 
     echo "RBSp2: Adding NAT logging for debugging"
-    iptables -t nat -I POSTROUTING 1 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-             -j LOG --log-prefix "RBM-FORWARD-NAT: " --log-level 4 || exit 28
+    iptables -t nat -I POSTROUTING 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
+             -j LOG --log-prefix "RBM-FORWARD-NAT: " --log-level 4 || exit 30
 
-    # Keep existing bidirectional forwarding rules
     echo "RBSp2: Adding explicit bidirectional forwarding"
-    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 29
-    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 30
+    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 31
+    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 32
 
     echo "RBSp2: Adding logging for unmatched port traffic"
-    iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 31
-    iptables -A RBM-FORWARD -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 32
+    iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 33
+    iptables -A RBM-FORWARD -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 34
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
