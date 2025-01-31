@@ -258,25 +258,25 @@ rbm-OPE%:
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
-zRBM_OPA_FILTER = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
+zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
+zRBM_TCPDUMP_BASE = -tttt -q -l -nn "$(zRBM_OPA_FILTER)" 2>/dev/null
+zRBM_GREP_FILTER  = grep -v "listening\|dropped\|verbose"
 
-rbm-OPA%:
-	@echo "=== Starting Network Path Monitoring ==="
+rbm-OPA%: rbm-OPA-bottle% rbm-OPA-bridge% rbm-OPA-veth% rbm-OPA-sentry%
+	@echo "=== Starting Network Path Monitoring (Ctrl-C to stop) ==="
 
-	@echo "Monitoring BOTTLE namespace..."
-	@podman machine ssh 'sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -tttt -q -l -i eth0 -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[32m[BOTTLE %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
-	
-	@echo "Monitoring bridge interface..."
-	@podman machine ssh 'sudo tcpdump -tttt -q -l -i $(RBM_ENCLAVE_BRIDGE) -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[33m[BRIDGE %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
-	
-	@echo "Monitoring BOTTLE veth..."
-	@podman machine ssh 'sudo tcpdump -tttt -q -l -i $(RBM_ENCLAVE_BOTTLE_OUT) -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[36m[VETH   %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
-	
-	@echo "Monitoring SENTRY inside container..."
-	@podman exec $(RBM_SENTRY_CONTAINER) 'tcpdump -tttt -q -l -i eth1 -nn "$(zRBM_OPA_FILTER)" 2>/dev/null | grep -v "listening\|dropped\|verbose" | awk "{printf \"\033[35m[SENTRY %s]\033[0m %s\n", strftime(\"%H:%M:%S\"), \$$0}"' &
-	
-	@echo "=== Monitoring active (Ctrl+C to stop) ==="
-	@trap 'kill $$(jobs -p) 2>/dev/null' EXIT INT TERM; wait
+rbm-OPA-bottle%:
+	@podman machine ssh 'sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[32m%-8s %s\033[0m\n" "BOTTLE" "$$line"; done; trap "sudo kill $$(sudo pidof tcpdump)" EXIT'
+
+rbm-OPA-bridge%:
+	@podman machine ssh 'sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[33m%-8s %s\033[0m\n" "BRIDGE" "$$line"; done; trap "sudo kill $$(sudo pidof tcpdump)" EXIT'
+
+rbm-OPA-veth%:
+	@podman machine ssh 'sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[36m%-8s %s\033[0m\n" "VETH" "$$line"; done; trap "sudo kill $$(sudo pidof tcpdump)" EXIT'
+
+rbm-OPA-sentry%:
+	@podman exec $(RBM_SENTRY_CONTAINER) sh -c 'tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | $(zRBM_GREP_FILTER) | while read line; do printf "\033[35m%-8s %s\033[0m\n" "SENTRY" "$$line"; done; trap "kill $$(pidof tcpdump)" EXIT'
+
 
 
 # eof
