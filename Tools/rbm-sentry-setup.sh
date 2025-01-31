@@ -79,12 +79,13 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
 
     echo "RBSp2: Ensuring local traffic to bottle is allowed"
     iptables -A OUTPUT -o eth1 -p tcp -d "${RBN_ENCLAVE_BOTTLE_IP}" --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 27
-    iptables -A INPUT -i eth1 -p tcp -s "${RBN_ENCLAVE_BOTTLE_IP}" --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 28
+    iptables -A INPUT  -i eth1 -p tcp -s "${RBN_ENCLAVE_BOTTLE_IP}" --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 28
 
-    echo "RBSp2: Setting up explicit SNAT for external traffic only"
-    iptables -t nat -A POSTROUTING -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-             -j SNAT --to-source "${RBN_ENCLAVE_SENTRY_IP}" \
-             -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 29
+    echo "RBSp2: Setting up explicit SNAT for external forwarded traffic"
+    iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
+         ! -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" \
+         -j SNAT --to-source "${RBN_ENCLAVE_SENTRY_IP}" \
+         -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 29
 
     echo "RBSp2: Adding NAT logging for debugging"
     iptables -t nat -I POSTROUTING 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
