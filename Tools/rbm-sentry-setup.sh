@@ -88,8 +88,9 @@ if [ "${RBN_PORT_ENABLED}" = "1" ]; then
          -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 29
 
     echo "RBSp2: Adding NAT logging for debugging"
-    iptables -t nat -I POSTROUTING 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-             -j LOG --log-prefix "RBM-FORWARD-NAT: " --log-level 4 || exit 30
+    iptables -t nat -I POSTROUTING 1 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
+         ! -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" \
+         -j LOG --log-prefix "RBM-FORWARD-NAT: " --log-level 4 || exit 30
 
     echo "RBSp2: Adding explicit bidirectional forwarding"
     iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 31
