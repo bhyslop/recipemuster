@@ -261,10 +261,6 @@ rbm-OPE%:
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
-zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
-zRBM_TCPDUMP_BASE = -l -nn "$(zRBM_OPA_FILTER)"
-
-
 rbm-OPA%: \
   rbm-OPA-bottle \
   rbm-OPA-bridge \
@@ -273,8 +269,9 @@ rbm-OPA%: \
   # eol
 	@echo "=== All monitoring processes are running. Press Ctrl-C to interrupt. ==="
 
+zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
+zRBM_TCPDUMP_BASE = -U -l -nn "$(zRBM_OPA_FILTER)"
 
-# Keep the parallel targets but simplify their commands
 rbm-OPA-bottle:
 	@echo "=== bottle ==="
 	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE)"
@@ -290,7 +287,5 @@ rbm-OPA-veth:
 rbm-OPA-sentry:
 	@echo "=== sentry ==="
 	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE)
-
-
 
 # eof
