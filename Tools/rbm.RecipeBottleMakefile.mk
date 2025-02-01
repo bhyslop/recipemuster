@@ -262,8 +262,7 @@ rbm-OPE%:
 
 
 zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
-zRBM_TCPDUMP_BASE = -tttt -q -l -nn "$(zRBM_OPA_FILTER)" 2>/dev/null
-zRBM_GREP_FILTER  = grep -v "listening\|dropped\|verbose"
+zRBM_TCPDUMP_BASE = -l -nn "$(zRBM_OPA_FILTER)"
 
 
 rbm-OPA%: \
@@ -274,29 +273,23 @@ rbm-OPA%: \
   # eol
 	@echo "=== All monitoring processes are running. Press Ctrl-C to interrupt. ==="
 
+
+# Keep the parallel targets but simplify their commands
 rbm-OPA-bottle:
-	echo "=== bottle ==="
-	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE)" \
-	  | $(zRBM_GREP_FILTER) \
-	  | while read line; do printf "\033[32m%-8s %s\033[0m\n" "BOTTLE" "$$line"; done
+	@echo "=== bottle ==="
+	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE)"
 
 rbm-OPA-bridge:
-	echo "=== bridge ==="
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE)" \
-	  | $(zRBM_GREP_FILTER) \
-	  | while read line; do printf "\033[33m%-8s %s\033[0m\n" "BRIDGE" "$$line"; done
+	@echo "=== bridge ==="
+	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE)"
 
 rbm-OPA-veth:
-	echo "=== veth ==="
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE)" \
-	  | $(zRBM_GREP_FILTER) \
-	  | while read line; do printf "\033[36m%-8s %s\033[0m\n" "VETH" "$$line"; done
+	@echo "=== veth ==="
+	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE)"
 
 rbm-OPA-sentry:
-	echo "=== sentry ==="
-	podman exec $(RBM_SENTRY_CONTAINER) sh -c 'tcpdump -i eth1 $(zRBM_TCPDUMP_BASE)' \
-	  | $(zRBM_GREP_FILTER) \
-	  | while read line; do printf "\033[35m%-8s %s\033[0m\n" "SENTRY" "$$line"; done
+	@echo "=== sentry ==="
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE)
 
 
 
