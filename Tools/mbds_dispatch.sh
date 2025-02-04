@@ -11,8 +11,8 @@ cd "$(dirname "$0")/.."
 MBDS_SHOW "Changed to repository root"
 
 MBDS_SHOW "Source variables file and station file"
-source ./mbds-variables.shmk
-source $MBDS_STATION_FILE
+source ./mbdv-variables.shmk
+source  $MBDV_STATION_FILE
 
 MBDS_NOW=$(date +'%Y%m%d-%H%M%Sp%N')
 MBDS_SHOW "Generated timestamp: $MBDS_NOW"
@@ -42,37 +42,38 @@ else
     MBDS_SHOW "Multi-threaded mode with $MBDS_MAKE_JOBS jobs"
 fi
 
-MBDS_LOG_DIR=$USIV_LOG_ABSDIR
-MBDS_LOG_LAST=$USIV_LOG_LAST
-MBDS_LOG_SAME=$MBDS_LOG_DIR/same-$MBDS_TABTARGET_BASENAME.$USIV_LOG_EXTENSION
-MBDS_LOG_HIST=$MBDS_LOG_DIR/hist-$MBDS_NOW-$MBDS_TABTARGET_BASENAME.$USIV_LOG_EXTENSION
+zMBDS_LOG_DIR=$MBDV_LOG_DIR
+zMBDS_LOG_LAST=$MBDV_LOG_LAST
+zMBDS_LOG_SAME=$zMBDS_LOG_DIR/same-$MBDS_TABTARGET_BASENAME.$MBDV_LOG_EXT
+zMBDS_LOG_HIST=$zMBDS_LOG_DIR/hist-$MBDS_NOW-$MBDS_TABTARGET_BASENAME.$MBDV_LOG_EXT
 
 MBDS_SHOW "Log paths:"
-MBDS_SHOW "  DIR:  $MBDS_LOG_DIR"
-MBDS_SHOW "  LAST: $MBDS_LOG_LAST"
-MBDS_SHOW "  SAME: $MBDS_LOG_SAME"
+MBDS_SHOW "  DIR:  $zMBDS_LOG_DIR"
+MBDS_SHOW "  LAST: $zMBDS_LOG_LAST"
+MBDS_SHOW "  SAME: $zMBDS_LOG_SAME"
 
-echo "Historical log will be written to: $MBDS_LOG_HIST"
+echo "Historical log will be written to: $zMBDS_LOG_HIST"
 
 MBDS_SHOW "Creating log directory"
-mkdir -p "$MBDS_LOG_DIR"
+mkdir -p "$zMBDS_LOG_DIR"
 
 MBDS_TIMESTAMP_VAR="${USIV_MAKE_TIMESTAMP_VAR:-MAKE_TIMESTAMP}"
 MBDS_SHOW "Using timestamp variable: $MBDS_TIMESTAMP_VAR"
 
 MBDS_SHOW "Executing make command..."
-make -f "$USIV_MAKEFILE"                         \
+make -f "$MBDV_MAKEFILE"                         \
     $MBDS_OUTPUT_SYNC -j "$MBDS_MAKE_JOBS"       \
     "$MBDS_TABTARGET_BASENAME"                   \
     "${MBDS_TOKEN_PARAMS[@]}"                    \
     "$@"                                         \
     "$MBDS_TIMESTAMP_VAR=$MBDS_NOW"              \
     2>&1                                         \
-    | tee "$MBDS_LOG_LAST"                       \
-    | tee "$MBDS_LOG_SAME"                       \
-    | tee "$MBDS_LOG_HIST"
+    | tee "$zMBDS_LOG_LAST"                      \
+    | tee "$zMBDS_LOG_SAME"                      \
+    | tee "$zMBDS_LOG_HIST"
 
 MBDS_EXIT_STATUS="${PIPESTATUS[0]}"
 MBDS_SHOW "Make completed with status: $MBDS_EXIT_STATUS"
 
 exit "$MBDS_EXIT_STATUS"
+
