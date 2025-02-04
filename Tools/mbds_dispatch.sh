@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-MBDS_VERBOSE=${MBDSENV_VERBOSE:-0}
-MBDS_SHOW() { test "$MBDS_VERBOSE" != "1" || echo "dispatch: $1"; }
+zMBDS_VERBOSE=${MBDS_VERBOSE:-0}
+MBDS_SHOW() { test "$zMBDS_VERBOSE" != "1" || echo "dispatch: $1"; }
 
 MBDS_SHOW "Starting dispatch script"
 
@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 MBDS_SHOW "Changed to repository root"
 
 MBDS_SHOW "Source variables file and station file"
-source ./mbds-variables.sh
+source ./mbds-variables.shmk
 source $MBDS_STATION_FILE
 
 MBDS_NOW=$(date +'%Y%m%d-%H%M%Sp%N')
