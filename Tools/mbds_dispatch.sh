@@ -20,20 +20,21 @@ source ./mbdv-variables.shmk
 : ${MBDV_MAKEFILE:?}         && zMBDS_SHOW "Makefile:      ${MBDV_MAKEFILE}"
 
 zMBDS_SHOW "Source station file and validate"
-source  $MBDV_STATION_FILE
+source $MBDV_STATION_FILE
+: ${MBDS_MAX_JOBS:?}         && zMBDS_SHOW "Max jobs:      ${MBDS_MAX_JOBS}"
 
-MBDS_NOW=$(date +'%Y%m%d-%H%M%Sp%N')
-zMBDS_SHOW "Generated timestamp: $MBDS_NOW"
+MBDS_NOW_STAMP=$(date +'%Y%m%d-%H%M%Sp%N')
+zMBDS_SHOW "Generated timestamp: $MBDS_NOW_STAMP"
 
 zMBDS_JP_ARG=$1
 zMBDS_OM_ARG=$2
-zMBDS_BASENAME=$3
+zMBDS_TARGET=$3
 shift 3
 
 zMBDS_SHOW "Validating job profile"
 case "$zMBDS_JP_ARG" in
-  jp_single) zMBDS_MAKE_JP=1        ;;
-  jp_full)   zMBDS_MAKE_JP=$(nproc) ;;
+  jp_single) zMBDS_MAKE_JP=1                ;;
+  jp_full)   zMBDS_MAKE_JP=$MBDS_MAX_JOBS   ;;
   *) zMBDS_SHOW "Invalid job profile: $zMBDS_JP_ARG"; exit 1 ;;
 esac
 
@@ -44,48 +45,48 @@ case "$zMBDS_OM_ARG" in
   *) zMBDS_SHOW "Invalid output mode: $zMBDS_OM_ARG"; exit 1 ;;
 esac
 
-zMBDS_SHOW "tabtarget tokenizing: $zMBDS_BASENAME"
-IFS='.' read -ra MBDS_TOKENS <<< "$zMBDS_BASENAME"
+zMBDS_SHOW "tabtarget tokenizing: $zMBDS_TARGET"
+IFS='.' read -ra MBDS_TOKENS <<< "$zMBDS_TARGET"
 zMBDS_SHOW "Split tokens: ${MBDS_TOKENS[*]}"
 
 MBDS_TOKEN_PARAMS=()
 for i in "${!MBDS_TOKENS[@]}"; do
-    [[ -z "${MBDS_TOKENS[$i]}" ]] || MBDS_TOKEN_PARAMS+=("RBC_PARAMETER_$i=${MBDS_TOKENS[$i]}")
+    [[ -z "${MBDS_TOKENS[$i]}" ]] || MBDS_TOKEN_PARAMS+=("MBDM_PARAMETER_$i=${MBDS_TOKENS[$i]}")
 done
 zMBDS_SHOW "Token parameters: ${MBDS_TOKEN_PARAMS[*]}"
 
-zMBDS_LOG_DIR=$MBDV_LOG_DIR
-zMBDS_LOG_LAST=$MBDV_LOG_LAST
-zMBDS_LOG_SAME=$zMBDS_LOG_DIR/same-$zMBDS_BASENAME.$MBDV_LOG_EXT
-zMBDS_LOG_HIST=$zMBDS_LOG_DIR/hist-$MBDS_NOW-$zMBDS_BASENAME.$MBDV_LOG_EXT
+zMBDS_LOG_LAST=$MBDV_LOG_DIR/$MBDV_LOG_LAST.$MBDV_LOG_EXT
+zMBDS_LOG_SAME=$MBDV_LOG_DIR/same-$zMBDS_TARGET.$MBDV_LOG_EXT
+zMBDS_LOG_HIST=$MBDV_LOG_DIR/hist-$MBDS_NOW_STAMP-$zMBDS_TARGET.$MBDV_LOG_EXT
 
 zMBDS_SHOW "Log paths:"
-zMBDS_SHOW "  DIR:        $zMBDS_LOG_DIR"
-zMBDS_SHOW "  LAST:       $zMBDS_LOG_LAST"
-zMBDS_SHOW "  SAME:       $zMBDS_LOG_SAME"
+zMBDS_SHOW "  DIR:   $MBDV_LOG_DIR"
+zMBDS_SHOW "  LAST:  $zMBDS_LOG_LAST"
+zMBDS_SHOW "  SAME:  $zMBDS_LOG_SAME"
 
 echo "Historical log: $zMBDS_LOG_HIST"
 
-zMBDS_SHOW "Creating log directory"
-mkdir -p "$zMBDS_LOG_DIR"
+zMBDS_SHOW "Assure log directory exists..."
+mkdir -p "$MBDV_LOG_DIR"
 
-MBDS_TIMESTAMP_VAR="${USIV_MAKE_TIMESTAMP_VAR:-MAKE_TIMESTAMP}"
-zMBDS_SHOW "Using timestamp variable: $MBDS_TIMESTAMP_VAR"
+MBDS_MAKE_CMD="make -f $MBDV_MAKEFILE \
+    $zMBDS_OUTPUT_SYNC -j $zMBDS_MAKE_JP \
+    $zMBDS_TARGET \
+    MBDM_NOW_STAMP=$MBDS_NOW_STAMP \
+    ${MBDS_TOKEN_PARAMS[*]} \
+    $@"
+
+echo "Executing: $MBDS_MAKE_CMD"  \
+          | tee "$zMBDS_LOG_LAST" \
+          | tee "$zMBDS_LOG_SAME" \
+          | tee "$zMBDS_LOG_HIST"
 
 zMBDS_SHOW "Executing make command..."
-make -f "$MBDV_MAKEFILE"                         \
-    $zMBDS_OUTPUT_SYNC -j "$zMBDS_MAKE_JP"       \
-    "$zMBDS_BASENAME"                            \
-    "${MBDS_TOKEN_PARAMS[@]}"                    \
-    "$@"                                         \
-    "$MBDS_TIMESTAMP_VAR=$MBDS_NOW"              \
-    2>&1                                         \
-    | tee "$zMBDS_LOG_LAST"                      \
-    | tee "$zMBDS_LOG_SAME"                      \
-    | tee "$zMBDS_LOG_HIST"
+$MBDS_MAKE_CMD 2>&1 | tee -a "$zMBDS_LOG_LAST" \
+                    | tee -a "$zMBDS_LOG_SAME" \
+                    | tee -a "$zMBDS_LOG_HIST"
 
 MBDS_EXIT_STATUS="${PIPESTATUS[0]}"
 zMBDS_SHOW "Make completed with status: $MBDS_EXIT_STATUS"
 
 exit "$MBDS_EXIT_STATUS"
-
