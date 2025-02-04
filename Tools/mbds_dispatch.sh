@@ -69,22 +69,19 @@ echo "Historical log: $zMBDS_LOG_HIST"
 zMBDS_SHOW "Assure log directory exists..."
 mkdir -p "$MBDV_LOG_DIR"
 
-MBDS_MAKE_CMD="make -f $MBDV_MAKEFILE \
-    $zMBDS_OUTPUT_SYNC -j $zMBDS_MAKE_JP \
-    $zMBDS_TARGET \
-    MBDM_NOW_STAMP=$MBDS_NOW_STAMP \
-    ${MBDS_TOKEN_PARAMS[*]} \
-    $@"
+cmd_parts=(
+    "make -f $MBDV_MAKEFILE"
+    "$zMBDS_OUTPUT_SYNC -j $zMBDS_MAKE_JP"
+    "$zMBDS_TARGET"
+    "MBDM_NOW_STAMP=$MBDS_NOW_STAMP"
+    "${MBDS_TOKEN_PARAMS[*]}"
+    "$@"
+)
 
-echo "Executing: $MBDS_MAKE_CMD"  \
-          | tee "$zMBDS_LOG_LAST" \
-          | tee "$zMBDS_LOG_SAME" \
-          | tee "$zMBDS_LOG_HIST"
+MBDS_MAKE_CMD="${cmd_parts[*]}"
 
-zMBDS_SHOW "Executing make command..."
-$MBDS_MAKE_CMD 2>&1 | tee -a "$zMBDS_LOG_LAST" \
-                    | tee -a "$zMBDS_LOG_SAME" \
-                    | tee -a "$zMBDS_LOG_HIST"
+echo "Executing: $MBDS_MAKE_CMD"      | tee    "$zMBDS_LOG_LAST" "$zMBDS_LOG_SAME" "$zMBDS_LOG_HIST"
+eval            "$MBDS_MAKE_CMD" 2>&1 | tee -a "$zMBDS_LOG_LAST" "$zMBDS_LOG_SAME" "$zMBDS_LOG_HIST"
 
 MBDS_EXIT_STATUS="${PIPESTATUS[0]}"
 zMBDS_SHOW "Make completed with status: $MBDS_EXIT_STATUS"
