@@ -48,8 +48,6 @@ zMBDS_SHOW "tabtarget tokenizing: $zMBDS_BASENAME"
 IFS='.' read -ra MBDS_TOKENS <<< "$zMBDS_BASENAME"
 zMBDS_SHOW "Split tokens: ${MBDS_TOKENS[*]}"
 
-zMBDS_SHOW "Make arguments: $*"
-
 MBDS_TOKEN_PARAMS=()
 for i in "${!MBDS_TOKENS[@]}"; do
     [[ -z "${MBDS_TOKENS[$i]}" ]] || MBDS_TOKEN_PARAMS+=("RBC_PARAMETER_$i=${MBDS_TOKENS[$i]}")
@@ -62,11 +60,11 @@ zMBDS_LOG_SAME=$zMBDS_LOG_DIR/same-$zMBDS_BASENAME.$MBDV_LOG_EXT
 zMBDS_LOG_HIST=$zMBDS_LOG_DIR/hist-$MBDS_NOW-$zMBDS_BASENAME.$MBDV_LOG_EXT
 
 zMBDS_SHOW "Log paths:"
-zMBDS_SHOW "  DIR:  $zMBDS_LOG_DIR"
-zMBDS_SHOW "  LAST: $zMBDS_LOG_LAST"
-zMBDS_SHOW "  SAME: $zMBDS_LOG_SAME"
+zMBDS_SHOW "  DIR:        $zMBDS_LOG_DIR"
+zMBDS_SHOW "  LAST:       $zMBDS_LOG_LAST"
+zMBDS_SHOW "  SAME:       $zMBDS_LOG_SAME"
 
-echo "Historical log will be written to: $zMBDS_LOG_HIST"
+echo "Historical log: $zMBDS_LOG_HIST"
 
 zMBDS_SHOW "Creating log directory"
 mkdir -p "$zMBDS_LOG_DIR"
