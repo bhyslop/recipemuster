@@ -262,8 +262,8 @@ rbm-OPE%:
 
 
 rbm-OBSN%: zrbm_validate_regimes_rule
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORK"
-	cat $(RBM_TOOLS_DIR)/rbm-observe-bottle-service-network.sh | \
+	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
+	cat $(RBM_TOOLS_DIR)/rbm-observe-bottle-service-networks.sh | \
 	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;)     \
 	  $(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";)       \
 	  /bin/sh
