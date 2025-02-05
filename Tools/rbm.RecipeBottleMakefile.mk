@@ -270,16 +270,4 @@ rbm-OBSN%: zrbm_validate_regimes_rule
 	)
 
 
-# The below works but above doesnt!
-#
-# RBM_MONIKER=srjcl \
-# RBM_ENCLAVE_NAMESPACE=srjcl-ns \
-# RBM_ENCLAVE_BRIDGE=vbr_srjcl \
-# RBM_ENCLAVE_BOTTLE_OUT=vbo_srjcl \
-# RBM_SENTRY_CONTAINER=srjcl-sentry \
-# RBN_ENCLAVE_BOTTLE_IP=10.242.0.3 \
-# RBN_ENCLAVE_SENTRY_IP=10.242.0.2 \
-# Tools/rbm-observe-bottle-service-network.sh
-
-
 # eof
