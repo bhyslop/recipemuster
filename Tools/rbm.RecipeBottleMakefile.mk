@@ -270,6 +270,11 @@ rbm-OPA-bottle:
 	podman machine ssh "which tcpdump"
 	podman machine ssh "sudo -n true && echo 'sudo ok' || echo 'sudo failed'"
 	podman machine ssh "ip netns list"
+	podman machine ssh "sudo -n journalctl -n 20" 2>&1
+	podman machine ssh "sudo -n dmesg | tail" 2>&1
+	podman machine ssh "sudo -n tcpdump -c 1 -i eth0" 2>&1
+	podman machine ssh "sudo -n journalctl -n 20" 2>&1
+	podman machine ssh "sudo -n dmesg | tail" 2>&1
 	podman machine ssh "sudo -n ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
 
 rbm-OPA-bridge:
