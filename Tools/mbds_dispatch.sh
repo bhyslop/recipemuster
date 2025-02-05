@@ -76,6 +76,7 @@ cmd_parts=(
     "$zMBDS_OUTPUT_MODE -j $zMBDS_JOB_PROFILE"
     "$zMBDS_TARGET"
     "MBDM_NOW_STAMP=$MBDS_NOW_STAMP"
+    "MBDM_JOB_PROFILE=$zMBDS_JOB_PROFILE"
     "${MBDS_TOKEN_PARAMS[*]}"
     "$@"
 )
