@@ -266,20 +266,20 @@ zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_I
 zRBM_TCPDUMP_BASE = -U -l -nn -vvv "$(zRBM_OPA_FILTER)"
 
 rbm-OPA-bottle:
-	podman machine ssh "echo === bottle ==="
-	podman machine ssh -t "sudo -n ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+	stdbuf -oL -eL podman machine ssh "echo === bottle ==="
+	stdbuf -oL -eL podman machine ssh "sudo -n ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
 
 rbm-OPA-bridge:
-	podman machine ssh "echo === bridge ==="
-	podman machine ssh -t "sudo -n tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+	stdbuf -oL -eL podman machine ssh "echo === bridge ==="
+	stdbuf -oL -eL podman machine ssh "sudo -n tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE) | cat" 2>&1
 
 rbm-OPA-veth:
-	podman machine ssh "echo === veth ==="
-	podman machine ssh -t "sudo -n tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+	stdbuf -oL -eL podman machine ssh "echo === veth ==="
+	stdbuf -oL -eL podman machine ssh "sudo -n tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE) | cat" 2>&1
 
 rbm-OPA-sentry:
-	podman machine ssh "echo === sentry ==="
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | cat 2>&1
+	stdbuf -oL -eL podman machine ssh "echo === sentry ==="
+	stdbuf -oL -eL podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | cat 2>&1
 
 
 rbm-OPA%: \
