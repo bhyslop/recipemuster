@@ -267,6 +267,9 @@ zRBM_TCPDUMP_BASE = -U -l -nn -vvv "$(zRBM_OPA_FILTER)"
 
 rbm-OPA-bottle:
 	podman machine ssh "echo === bottle ==="
+	podman machine ssh "which tcpdump"
+	podman machine ssh "sudo -n true && echo 'sudo ok' || echo 'sudo failed'"
+	podman machine ssh "ip netns list"
 	podman machine ssh "sudo -n ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
 
 rbm-OPA-bridge:
