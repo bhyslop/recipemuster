@@ -261,34 +261,33 @@ rbm-OPE%:
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
-rbm-OPA%: \
+# Base tcpdump options
+zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
+zRBM_TCPDUMP_BASE = -U -l -nn -vvv "$(zRBM_OPA_FILTER)"
+
+rbm-OPA-bottle:
+	podman machine ssh "echo === bottle ==="
+	podman machine ssh "sudo -n ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+
+rbm-OPA-bridge:
+	podman machine ssh "echo === bridge ==="
+	podman machine ssh "sudo -n tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+
+rbm-OPA-veth:
+	podman machine ssh "echo === veth ==="
+	podman machine ssh "sudo -n tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+
+rbm-OPA-sentry:
+	podman machine ssh "echo === sentry ==="
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+
+rbm-OPA: \
   rbm-OPA-bottle \
   rbm-OPA-bridge \
   rbm-OPA-veth   \
   rbm-OPA-sentry \
   # eol
 	@echo "=== Complete. ==="
-
-# Add base tcpdump options for consistent buffering and filtering
-zRBM_OPA_FILTER   = host $(RBN_ENCLAVE_BOTTLE_IP) or host $(RBN_ENCLAVE_SENTRY_IP)
-zRBM_TCPDUMP_BASE = -U -l -nn -vvv "$(zRBM_OPA_FILTER)"
-
-# Split into separate rules that can be run independently
-rbm-OPA-bottle:
-	podman machine ssh "echo === bottle ==="
-	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) tcpdump -i eth0 $(zRBM_TCPDUMP_BASE)" 2>&1
-
-rbm-OPA-bridge:
-	podman machine ssh "echo === bridge ==="
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BRIDGE) $(zRBM_TCPDUMP_BASE)" 2>&1
-
-rbm-OPA-veth:
-	podman machine ssh "echo === veth ==="
-	podman machine ssh "sudo tcpdump -i $(RBM_ENCLAVE_BOTTLE_OUT) $(zRBM_TCPDUMP_BASE)" 2>&1
-
-rbm-OPA-sentry:
-	podman machine ssh "echo === sentry ===" 2>&1
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE)
 
 
 # eof
