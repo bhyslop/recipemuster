@@ -279,9 +279,10 @@ rbm-OPA-veth:
 
 rbm-OPA-sentry:
 	podman machine ssh "echo === sentry ==="
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | cat" 2>&1
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -i eth1 $(zRBM_TCPDUMP_BASE) | cat 2>&1
 
-rbm-OPA: \
+
+rbm-OPA%: \
   rbm-OPA-bottle \
   rbm-OPA-bridge \
   rbm-OPA-veth   \
