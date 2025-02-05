@@ -1,5 +1,9 @@
 #!/bin/sh
 
+echo "OBSN DIAG: Script starting, pwd=$(pwd)"
+echo "OBSN DIAG: Script path=$0"
+echo "OBSN DIAG: Environment check..."
+
 echo "OBSN: Beginning network observation script"
 
 set -e
@@ -27,6 +31,8 @@ cleanup() {
     exit 0
 }
 trap cleanup SIGINT SIGTERM
+
+echo "OBSN DIAG: About to setup tcpdump"
 
 echo "OBSN: Setting up common tcpdump options"
 TCPDUMP_OPTS="-U -l -nn -vvv"
@@ -57,6 +63,8 @@ prefix_sentry() {
     done
 }
 
+echo "OBSN DIAG: About to start captures"
+
 echo "OBSN: Starting network capture processes"
 echo "OBSN: Starting bottle perspective capture"
 podman machine ssh "sudo -n ip netns exec ${RBM_ENCLAVE_NAMESPACE} tcpdump ${TCPDUMP_OPTS} -i eth0 '${FILTER}'" 2>&1 | 
@@ -77,8 +85,10 @@ podman exec ${RBM_SENTRY_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth1 "${FILTER}" 
 echo "OBSN: All capture processes started"
 echo "OBSN: Press Ctrl+C to stop captures"
 
-# Wait for any process to exit
+echo "OBSN DIAG: About to wait for processes"
+
 wait
 
-# Cleanup will be handled by the trap
+echo "OBSN DIAG: Wait completed"
 
+# Cleanup will be handled by the trap
