@@ -43,12 +43,12 @@ esac
 IFS='.' read -ra EXE_PARTS <<< "$TABTARGET_BASENAME"
 
 # Invoke make.  The tabtarget name maps to a console rule
-make -f rbc-console.mk                                 \
-    "$OUTPUT_SYNC" -j "$JOBS"                          \
-    "$TABTARGET_BASENAME"                              \
-    ${EXE_PARTS[0]:+RBC_PARAMETER_0="${EXE_PARTS[0]}"} \
-    ${EXE_PARTS[1]:+RBC_PARAMETER_1="${EXE_PARTS[1]}"} \
-    ${EXE_PARTS[2]:+RBC_PARAMETER_2="${EXE_PARTS[2]}"} \
-    ${EXE_PARTS[3]:+RBC_PARAMETER_3="${EXE_PARTS[3]}"} \
+make -f rbc-console.mk                                  \
+    "$OUTPUT_SYNC" -j "$JOBS"                           \
+    "$TABTARGET_BASENAME"                               \
+    ${EXE_PARTS[0]:+MBDM_PARAMETER_0="${EXE_PARTS[0]}"} \
+    ${EXE_PARTS[1]:+MBDM_PARAMETER_1="${EXE_PARTS[1]}"} \
+    ${EXE_PARTS[2]:+MBDM_PARAMETER_2="${EXE_PARTS[2]}"} \
+    ${EXE_PARTS[3]:+MBDM_PARAMETER_3="${EXE_PARTS[3]}"} \
     $ARGS
 

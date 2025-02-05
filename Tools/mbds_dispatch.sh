@@ -1,10 +1,11 @@
 #!/bin/bash
 
 set -euo pipefail
-test "$zMBDS_VERBOSE" != "1" || set -x
 
 zMBDS_VERBOSE=${MBDS_VERBOSE:-0}
 zMBDS_SHOW() { test "$zMBDS_VERBOSE" != "1" || echo "dispatch: $1"; }
+
+test "$zMBDS_VERBOSE" != "1" || set -x
 
 zMBDS_SHOW "Starting dispatch script"
 
@@ -33,18 +34,19 @@ shift 3
 
 zMBDS_SHOW "Validating job profile"
 case "$zMBDS_JP_ARG" in
-  jp_single) zMBDS_MAKE_JP=1                ;;
-  jp_full)   zMBDS_MAKE_JP=$MBDS_MAX_JOBS   ;;
+  jp_single) zMBDS_JOB_PROFILE=1                ;;
+  jp_full)   zMBDS_JOB_PROFILE=$MBDS_MAX_JOBS   ;;
   *) zMBDS_SHOW "Invalid job profile: $zMBDS_JP_ARG"; exit 1 ;;
 esac
 
 zMBDS_SHOW "Validating output mode"
 case "$zMBDS_OM_ARG" in
-  om_line)   zMBDS_OUTPUT_SYNC="-Oline"     ;;
-  om_target) zMBDS_OUTPUT_SYNC="-Orecurse"  ;;
+  om_line)   zMBDS_OUTPUT_MODE="-Oline"     ;;
+  om_target) zMBDS_OUTPUT_MODE="-Orecurse"  ;;
   *) zMBDS_SHOW "Invalid output mode: $zMBDS_OM_ARG"; exit 1 ;;
 esac
 
+zMBDS_SHOW "Extract tokens from tabtarget so make can use them in all places"
 zMBDS_SHOW "tabtarget tokenizing: $zMBDS_TARGET"
 IFS='.' read -ra MBDS_TOKENS <<< "$zMBDS_TARGET"
 zMBDS_SHOW "Split tokens: ${MBDS_TOKENS[*]}"
@@ -71,7 +73,7 @@ mkdir -p "$MBDV_LOG_DIR"
 
 cmd_parts=(
     "make -f $MBDV_MAKEFILE"
-    "$zMBDS_OUTPUT_SYNC -j $zMBDS_MAKE_JP"
+    "$zMBDS_OUTPUT_MODE -j $zMBDS_JOB_PROFILE"
     "$zMBDS_TARGET"
     "MBDM_NOW_STAMP=$MBDS_NOW_STAMP"
     "${MBDS_TOKEN_PARAMS[*]}"
