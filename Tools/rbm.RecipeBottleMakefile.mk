@@ -261,12 +261,12 @@ rbm-OPE%:
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
-rbm-OBS%: zrbm_validate_regimes_rule
+rbm-OBSN%: zrbm_validate_regimes_rule
 	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORK"
-	/bin/sh -c '\
-	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) \
-	  $(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) \
-	  $(RBM_TOOLS_DIR)/rbm-observe-bottle-service-network.sh'
+	cat $(RBM_TOOLS_DIR)/rbm-observe-bottle-service-network.sh | \
+	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;)     \
+	  $(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";)       \
+	  /bin/sh
 
 
 # eof
