@@ -7,7 +7,6 @@ echo "OBSN DIAG: Environment check..."
 echo "OBSN: Beginning network observation script"
 
 set -e
-set -x
 
 # Validate required environment variables
 : ${RBM_MONIKER:?}              && echo "OBSN: RBM_MONIKER              = ${RBM_MONIKER}"
@@ -20,8 +19,11 @@ set -x
 
 echo "OBSN: Storing terminal control sequences"
 BOLD=$(tput bold)
-GREEN=$(tput setaf 2)
-CYAN=$(tput setaf 6)
+RED=$(tput setaf 1)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+WHITE=$(tput setaf 7)
 RESET=$(tput sgr0)
 
 echo "OBSN: Setting up signal handling"
@@ -41,25 +43,25 @@ FILTER="host ${RBN_ENCLAVE_BOTTLE_IP} or host ${RBN_ENCLAVE_SENTRY_IP}"
 echo "OBSN: Defining output prefixing functions"
 prefix_bottle() {
     while read -r line; do
-        echo "${GREEN}${BOLD}OBSN: [BOTTLE]${RESET} $line"
+        echo "${YELLOW}${BOLD}OBSN: [BOTTLE]${RESET} $line"
     done
 }
 
 prefix_bridge() {
     while read -r line; do
-        echo "${GREEN}${BOLD}OBSN: [BRIDGE]${RESET} $line"
+        echo "${BLUE}${BOLD}OBSN: [BRIDGE]${RESET} $line"
     done
 }
 
 prefix_veth() {
     while read -r line; do
-        echo "${GREEN}${BOLD}OBSN: [VETH]${RESET} $line"
+        echo "${MAGENTA}${BOLD}OBSN: [VETH]${RESET} $line"
     done
 }
 
 prefix_sentry() {
     while read -r line; do
-        echo "${GREEN}${BOLD}OBSN: [SENTRY]${RESET} $line"
+        echo "${WHITE}${BOLD}OBSN: [SENTRY]${RESET} $line"
     done
 }
 
