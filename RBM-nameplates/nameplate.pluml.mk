@@ -21,8 +21,10 @@ export RBN_UPLINK_DNS_ENABLED     := 0
 export RBN_UPLINK_ACCESS_ENABLED  := 0
 export RBN_UPLINK_DNS_GLOBAL      := 0
 export RBN_UPLINK_ACCESS_GLOBAL   := 0
-export RBN_UPLINK_ALLOWED_CIDRS   :=
-export RBN_UPLINK_ALLOWED_DOMAINS :=
+
+# OUCH NOT ACTUALLY PROPER: need to enable optional
+export RBN_UPLINK_ALLOWED_CIDRS   := 160.79.104.0/23
+export RBN_UPLINK_ALLOWED_DOMAINS := anthropic.com
 
 # Network Configuration
 export RBN_ENCLAVE_BASE_IP    := 10.242.0.0
@@ -31,7 +33,8 @@ export RBN_ENCLAVE_SENTRY_IP  := 10.242.0.2
 export RBN_ENCLAVE_BOTTLE_IP  := 10.242.0.3
 
 # Volume Mount Configuration
-export RBN_VOLUME_MOUNTS := 
 
+# OUCH NOT ACTUALLY PROPER: need to enable optional
+export RBN_VOLUME_MOUNTS := -v ./RBM-environments-srjcl:/workspace:Z
 
 # eof

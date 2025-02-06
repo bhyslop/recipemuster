@@ -425,6 +425,11 @@ This section contains reminders about future improvements, deferred for now.
    * all gh actions
    * syft
    * qemu, docker, buildx
+* Assure plantuml container doesn't need volume mounts or external cidrs or access
+* some sort of documentation of:
+  http://localhost:8001/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKe50000
+  http://localhost:8080/plantuml
+  http://localhost:8000/lab
 * Discuss with friends use of YAML for makefile configuration
 * BE VERY SURE THAT NASCENT ROGUE CANT PING EXCEPT ANTHROPIC
 * Make the github outreach thing function
