@@ -93,7 +93,7 @@ done
 zMBD_SHOW "Token parameters: ${zMBD_TOKEN_PARAMS[*]}"
 
 zMBD_TAG=${zMBD_TOKENS[0]}-${zMBD_TOKENS[2]}
-zMBD_SHOW "Logfile infix: ${zMBD_TAG}"
+zMBD_SHOW "Presume second token descriptive so using infix: ${zMBD_TAG}"
 
 zMBD_LOG_LAST=$MBS_LOG_DIR/$MBV_LOG_LAST.$MBV_LOG_EXT
 zMBD_LOG_SAME=$MBS_LOG_DIR/same-${zMBD_TAG}.$MBV_LOG_EXT
