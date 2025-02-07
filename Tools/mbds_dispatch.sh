@@ -33,13 +33,13 @@ zMBD_VARIABLES=./mbv.variables.sh
 source ${zMBD_VARIABLES}
 : ${zMBD_VARIABLES:?}       && zMBD_SHOW "Variables file: ${zMBD_VARIABLES}"
 : ${MBV_STATION_FILE:?}     && zMBD_SHOW "Station file:   ${MBV_STATION_FILE}"
-: ${MBV_LOG_DIR:?}          && zMBD_SHOW "Log directory:  ${MBV_LOG_DIR}"
 : ${MBV_LOG_LAST:?}         && zMBD_SHOW "Latest log:     ${MBV_LOG_LAST}"
 : ${MBV_LOG_EXT:?}          && zMBD_SHOW "Log extension:  ${MBV_LOG_EXT}"
 : ${MBV_MAKEFILE:?}         && zMBD_SHOW "Makefile:       ${MBV_MAKEFILE}"
 
 zMBD_SHOW "Source station file and validate"
 source $MBV_STATION_FILE
+: ${MBS_LOG_DIR:?}          && zMBD_SHOW "Log directory:  ${MBS_LOG_DIR}"
 : ${MBS_MAX_JOBS:?}         && zMBD_SHOW "Max jobs:       ${MBS_MAX_JOBS}"
 
 zMBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%Sp%N')
@@ -75,19 +75,19 @@ for i in "${!zMBD_TOKENS[@]}"; do
 done
 zMBD_SHOW "Token parameters: ${zMBD_TOKEN_PARAMS[*]}"
 
-zMBD_LOG_LAST=$MBV_LOG_DIR/$MBV_LOG_LAST.$MBV_LOG_EXT
-zMBD_LOG_SAME=$MBV_LOG_DIR/same-$zMBD_TARGET.$MBV_LOG_EXT
-zMBD_LOG_HIST=$MBV_LOG_DIR/hist-$zMBD_NOW_STAMP-$zMBD_TARGET.$MBV_LOG_EXT
+zMBD_LOG_LAST=$MBS_LOG_DIR/$MBV_LOG_LAST.$MBV_LOG_EXT
+zMBD_LOG_SAME=$MBS_LOG_DIR/same-$zMBD_TARGET.$MBV_LOG_EXT
+zMBD_LOG_HIST=$MBS_LOG_DIR/hist-$zMBD_NOW_STAMP-$zMBD_TARGET.$MBV_LOG_EXT
 
 zMBD_SHOW "Log paths:"
-zMBD_SHOW "  DIR:   $MBV_LOG_DIR"
+zMBD_SHOW "  DIR:   $MBS_LOG_DIR"
 zMBD_SHOW "  LAST:  $zMBD_LOG_LAST"
 zMBD_SHOW "  SAME:  $zMBD_LOG_SAME"
 
 echo "Historical log: $zMBD_LOG_HIST"
 
 zMBD_SHOW "Assure log directory exists..."
-mkdir -p "$MBV_LOG_DIR"
+mkdir -p "$MBS_LOG_DIR"
 
 cmd_parts=(
     "make -f $MBV_MAKEFILE"

@@ -13,27 +13,21 @@
 # limitations under the License.
 
 ##########################################
-# Makefile Bash Variables File
+# Makefile Bash Station File
 #
-# This is a reference variables file defined when mapping the RBM
-# makefile system into a repo.  The stock dispatch script
-# uses this to set up the dispatch environment.
+# This is a reference station file that contains user workstation specific
+# configuration for the Makefile Bash Console environment.  The stock dispatch
+# script uses this to set up the dispatch environment.
 #
 # This file is bilingual: it is interpreted by both bash and make.
 # Therefore: no spaces are allowed around `=`.  Also, only declare
 # variables here.  If you define any variables in terms of other
 # ones, use ${xxx} to expand.
 
-# This uses a station file that is checked into repo for reference
-#  Strongly recommended you _not_ commit this file so each user can
-#  have their own.  If you place it up a directory `..` then multiple
-#  repo clones can share it.
-MBV_STATION_FILE=./RBS_STATION.mk
+# Where to write logs on this workstation relative to repo root
+MBS_LOG_DIR=../_logs_rbc
 
+# When running a parallel make, use this many cores
+MBS_MAX_JOBS=12
 
-MBV_TABTARGET_DIR=tt
-MBV_TOOLS_DIR=Tools
-MBV_LOG_LAST=last
-MBV_LOG_EXT=txt
-MBV_MAKEFILE=rbc.console.mk
 
