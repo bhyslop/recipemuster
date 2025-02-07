@@ -1,2 +1,3 @@
 #!/bin/sh
-cd "$(dirname "$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$(basename "$0")"
+cd "$(dirname "$0")/.." &&  Tools/mbds_dispatch.sh jp_single om_line "$(basename "$0")"
+

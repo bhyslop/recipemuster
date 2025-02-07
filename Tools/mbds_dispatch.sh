@@ -14,11 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Dispatch shell script
+##########################################
+# Makefile Bash Dispatch Shell Script
+#
+# Notes:
+#  - Set verbose mode with MBD_VERBOSE=1 or MBD_VERBOSE=2 before command
+#  - Leading 'z' variable prefix indicates it should not be referenced
+#    by name outside of this file.
+#
+# Commentary:
+#    In days where all builds were local, the dispatch script served
+#  a critical role in scrubbing the environment variables down to the
+#  bare minimum needed before handing control to make.  This reduced
+#  the chances of 'works in my environment but not in yours.'  At the
+#  time of this writing, this is embracing a new model where environments
+#  are set by containers instead.  Podman under windows with cygwin has
+#  some exotic environment variable entanglements so little effort is
+#  done to scrub out the variables.
 
 set -euo pipefail
 
-# Set verbose mode with MBD_VERBOSE=1 or MBD_VERBOSE=2 before command
 zMBD_VERBOSE=${MBD_VERBOSE:-0}
 zMBD_SHOW() { test "$zMBD_VERBOSE" != "1" || echo "dispatch: $1"; }
 test               "$zMBD_VERBOSE" != "2" || set -x
@@ -101,10 +116,11 @@ cmd_parts=(
 
 zMBD_MAKE_CMD="${cmd_parts[*]}"
 
-echo "Executing: $zMBD_MAKE_CMD"      | tee    "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" "$zMBD_LOG_HIST"
+zMBD_SHOW "eval: $zMBD_MAKE_CMD"      | tee    "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" "$zMBD_LOG_HIST"
 eval            "$zMBD_MAKE_CMD" 2>&1 | tee -a "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" "$zMBD_LOG_HIST"
 
 zMBD_EXIT_STATUS="${PIPESTATUS[0]}"
 zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
 
 exit "$zMBD_EXIT_STATUS"
+

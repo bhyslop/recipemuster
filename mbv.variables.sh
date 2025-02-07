@@ -28,8 +28,7 @@
 #  Strongly recommended you _not_ commit this file so each user can
 #  have their own.  If you place it up a directory `..` then multiple
 #  repo clones can share it.
-MBV_STATION_FILE=./RBS_STATION.mk
-
+MBV_STATION_FILE=./RBS.STATION-reference.sh
 
 MBV_TABTARGET_DIR=tt
 MBV_TOOLS_DIR=Tools
