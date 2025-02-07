@@ -1,3 +1,0 @@
-/startup.sh: 2: sysctl: not found
-Command line is not complete. Try option "help"
-Disable nag: Would you like to receive official Jupyter news?
