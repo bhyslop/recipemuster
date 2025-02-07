@@ -13,86 +13,84 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 # Dispatch shell script
 
 set -euo pipefail
 
-zMBDS_VERBOSE=${MBDS_VERBOSE:-0}
-zMBDS_SHOW() { test "$zMBDS_VERBOSE" != "1" || echo "dispatch: $1"; }
+# Set verbose mode with MBDS_VERBOSE=1 or MBDS_VERBOSE=2 before command
+zMBD_VERBOSE=${MBDS_VERBOSE:-0}
+zMBD_SHOW() { test "$zMBD_VERBOSE" != "1" || echo "dispatch: $1"; }
+test               "$zMBD_VERBOSE" != "2" || set -x
 
-test "$zMBDS_VERBOSE" != "2" || set -x
-
-zMBDS_SHOW "Starting dispatch script"
+zMBD_SHOW "Starting dispatch script"
 
 cd "$(dirname "$0")/.."
-zMBDS_SHOW "Changed to repository root"
+zMBD_SHOW "Changed to repository root"
 
-zMBDS_SHOW "Source variables file and validate"
+zMBD_SHOW "Source variables file and validate"
 zMBD_VARIABLES=./mbv.variables.sh
 source ${zMBD_VARIABLES}
-: ${zMBD_VARIABLES:?}        && zMBDS_SHOW "Variables file: ${zMBD_VARIABLES}"
-: ${MBDV_STATION_FILE:?}     && zMBDS_SHOW "Station file:   ${MBDV_STATION_FILE}"
-: ${MBDV_LOG_DIR:?}          && zMBDS_SHOW "Log directory:  ${MBDV_LOG_DIR}"
-: ${MBDV_LOG_LAST:?}         && zMBDS_SHOW "Latest log:     ${MBDV_LOG_LAST}"
-: ${MBDV_LOG_EXT:?}          && zMBDS_SHOW "Log extension:  ${MBDV_LOG_EXT}"
-: ${MBDV_MAKEFILE:?}         && zMBDS_SHOW "Makefile:       ${MBDV_MAKEFILE}"
+: ${zMBD_VARIABLES:?}        && zMBD_SHOW "Variables file: ${zMBD_VARIABLES}"
+: ${MBV_STATION_FILE:?}     && zMBD_SHOW "Station file:   ${MBV_STATION_FILE}"
+: ${MBV_LOG_DIR:?}          && zMBD_SHOW "Log directory:  ${MBV_LOG_DIR}"
+: ${MBV_LOG_LAST:?}         && zMBD_SHOW "Latest log:     ${MBV_LOG_LAST}"
+: ${MBV_LOG_EXT:?}          && zMBD_SHOW "Log extension:  ${MBV_LOG_EXT}"
+: ${MBV_MAKEFILE:?}         && zMBD_SHOW "Makefile:       ${MBV_MAKEFILE}"
 
-zMBDS_SHOW "Source station file and validate"
-source $MBDV_STATION_FILE
-: ${MBDS_MAX_JOBS:?}         && zMBDS_SHOW "Max jobs:       ${MBDS_MAX_JOBS}"
+zMBD_SHOW "Source station file and validate"
+source $MBV_STATION_FILE
+: ${MBDS_MAX_JOBS:?}         && zMBD_SHOW "Max jobs:       ${MBDS_MAX_JOBS}"
 
 MBDS_NOW_STAMP=$(date +'%Y%m%d-%H%M%Sp%N')
-zMBDS_SHOW "Generated timestamp: $MBDS_NOW_STAMP"
+zMBD_SHOW "Generated timestamp: $MBDS_NOW_STAMP"
 
 zMBDS_JP_ARG=$1
 zMBDS_OM_ARG=$2
 zMBDS_TARGET=$3
 shift 3
 
-zMBDS_SHOW "Validating job profile"
+zMBD_SHOW "Validating job profile"
 case "$zMBDS_JP_ARG" in
   jp_single) zMBDS_JOB_PROFILE=1                ;;
   jp_full)   zMBDS_JOB_PROFILE=$MBDS_MAX_JOBS   ;;
-  *) zMBDS_SHOW "Invalid job profile: $zMBDS_JP_ARG"; exit 1 ;;
+  *) zMBD_SHOW "Invalid job profile: $zMBDS_JP_ARG"; exit 1 ;;
 esac
 
-zMBDS_SHOW "Validating output mode"
+zMBD_SHOW "Validating output mode"
 case "$zMBDS_OM_ARG" in
   om_line)   zMBDS_OUTPUT_MODE="-Oline"     ;;
   om_target) zMBDS_OUTPUT_MODE="-Orecurse"  ;;
-  *) zMBDS_SHOW "Invalid output mode: $zMBDS_OM_ARG"; exit 1 ;;
+  *) zMBD_SHOW "Invalid output mode: $zMBDS_OM_ARG"; exit 1 ;;
 esac
 
-zMBDS_SHOW "Extract tokens from tabtarget so make can use them in all places"
-zMBDS_SHOW "tabtarget tokenizing: $zMBDS_TARGET"
+zMBD_SHOW "Extract tokens from tabtarget so make can use them in all places"
+zMBD_SHOW "tabtarget tokenizing: $zMBDS_TARGET"
 IFS='.' read -ra MBDS_TOKENS <<< "$zMBDS_TARGET"
-zMBDS_SHOW "Split tokens: ${MBDS_TOKENS[*]}"
+zMBD_SHOW "Split tokens: ${MBDS_TOKENS[*]}"
 
 MBDS_TOKEN_PARAMS=()
 for i in "${!MBDS_TOKENS[@]}"; do
     [[ -z "${MBDS_TOKENS[$i]}" ]] || MBDS_TOKEN_PARAMS+=("MBDM_PARAMETER_$i=${MBDS_TOKENS[$i]}")
 done
-zMBDS_SHOW "Token parameters: ${MBDS_TOKEN_PARAMS[*]}"
+zMBD_SHOW "Token parameters: ${MBDS_TOKEN_PARAMS[*]}"
 
-zMBDS_LOG_LAST=$MBDV_LOG_DIR/$MBDV_LOG_LAST.$MBDV_LOG_EXT
-zMBDS_LOG_SAME=$MBDV_LOG_DIR/same-$zMBDS_TARGET.$MBDV_LOG_EXT
-zMBDS_LOG_HIST=$MBDV_LOG_DIR/hist-$MBDS_NOW_STAMP-$zMBDS_TARGET.$MBDV_LOG_EXT
+zMBDS_LOG_LAST=$MBV_LOG_DIR/$MBV_LOG_LAST.$MBV_LOG_EXT
+zMBDS_LOG_SAME=$MBV_LOG_DIR/same-$zMBDS_TARGET.$MBV_LOG_EXT
+zMBDS_LOG_HIST=$MBV_LOG_DIR/hist-$MBDS_NOW_STAMP-$zMBDS_TARGET.$MBV_LOG_EXT
 
-zMBDS_SHOW "Log paths:"
-zMBDS_SHOW "  DIR:   $MBDV_LOG_DIR"
-zMBDS_SHOW "  LAST:  $zMBDS_LOG_LAST"
-zMBDS_SHOW "  SAME:  $zMBDS_LOG_SAME"
+zMBD_SHOW "Log paths:"
+zMBD_SHOW "  DIR:   $MBV_LOG_DIR"
+zMBD_SHOW "  LAST:  $zMBDS_LOG_LAST"
+zMBD_SHOW "  SAME:  $zMBDS_LOG_SAME"
 
 echo "Historical log: $zMBDS_LOG_HIST"
 
-zMBDS_SHOW "Assure log directory exists..."
-mkdir -p "$MBDV_LOG_DIR"
+zMBD_SHOW "Assure log directory exists..."
+mkdir -p "$MBV_LOG_DIR"
 
 cmd_parts=(
-    "make -f $MBDV_MAKEFILE"
+    "make -f $MBV_MAKEFILE"
     "$zMBDS_OUTPUT_MODE -j $zMBDS_JOB_PROFILE"
     "$zMBDS_TARGET"
     "MBDM_NOW_STAMP=$MBDS_NOW_STAMP"
@@ -107,6 +105,6 @@ echo "Executing: $MBDS_MAKE_CMD"      | tee    "$zMBDS_LOG_LAST" "$zMBDS_LOG_SAM
 eval            "$MBDS_MAKE_CMD" 2>&1 | tee -a "$zMBDS_LOG_LAST" "$zMBDS_LOG_SAME" "$zMBDS_LOG_HIST"
 
 MBDS_EXIT_STATUS="${PIPESTATUS[0]}"
-zMBDS_SHOW "Make completed with status: $MBDS_EXIT_STATUS"
+zMBD_SHOW "Make completed with status: $MBDS_EXIT_STATUS"
 
 exit "$MBDS_EXIT_STATUS"

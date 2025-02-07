@@ -1,11 +1,34 @@
-# Interpreted by both bash and make: no spaces allowed around `=`, only variable declaration
+# Copyright 2025 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-MBDV_STATION_FILE=../RBM_STATION.mk
-MBDV_TABTARGET_DIR=tt
-MBDV_TOOLS_DIR=Tools
-MBDV_STATION_THREAD_VAR=RBMS_THREADS
-MBDV_LOG_DIR=../_logs_mbdv
-MBDV_LOG_LAST=last
-MBDV_LOG_EXT=txt
-MBDV_MAKEFILE=rbc-console.mk
+##########################################
+# Makefile Bash Variables File
+#
+# This is a reference variables file.  The stock dispatch script
+# uses this to set up the dispatch environment.
+#
+# This file is bilingual: it is interpreted by both bash and make.
+# Therefore: no spaces are allowed around `=`.  Also, only declare
+# variables here.  If you define any variables in terms of other
+# ones, use ${xxx} to expand.
+
+MBV_STATION_FILE=../RBM_STATION.mk
+MBV_TABTARGET_DIR=tt
+MBV_TOOLS_DIR=Tools
+MBV_STATION_THREAD_VAR=RBMS_THREADS
+MBV_LOG_DIR=../_logs_mbdv
+MBV_LOG_LAST=last
+MBV_LOG_EXT=txt
+MBV_MAKEFILE=rbc-console.mk
 
