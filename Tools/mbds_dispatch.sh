@@ -46,11 +46,13 @@ zMBD_SHOW "Changed to repository root, cwd for all ops dispatched"
 zMBD_SHOW "Source variables file and validate"
 zMBD_VARIABLES=./mbv.variables.sh
 source ${zMBD_VARIABLES}
-: ${zMBD_VARIABLES:?}       && zMBD_SHOW "Variables file: ${zMBD_VARIABLES}"
-: ${MBV_STATION_FILE:?}     && zMBD_SHOW "Station file:   ${MBV_STATION_FILE}"
-: ${MBV_LOG_LAST:?}         && zMBD_SHOW "Latest log:     ${MBV_LOG_LAST}"
-: ${MBV_LOG_EXT:?}          && zMBD_SHOW "Log extension:  ${MBV_LOG_EXT}"
-: ${MBV_MAKEFILE:?}         && zMBD_SHOW "Makefile:       ${MBV_MAKEFILE}"
+: ${zMBD_VARIABLES:?}          && zMBD_SHOW "Variables file:      ${zMBD_VARIABLES}"
+: ${MBV_STATION_FILE:?}        && zMBD_SHOW "Station file:        ${MBV_STATION_FILE}"
+: ${MBV_LOG_LAST:?}            && zMBD_SHOW "Latest log:          ${MBV_LOG_LAST}"
+: ${MBV_LOG_EXT:?}             && zMBD_SHOW "Log extension:       ${MBV_LOG_EXT}"
+: ${MBV_MAKEFILE:?}            && zMBD_SHOW "Makefile:            ${MBV_MAKEFILE}"
+: ${MBV_TABTARGET_DIR:?}       && zMBD_SHOW "Tabtarget Dir:       ${MBV_TABTARGET_DIR}"
+: ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: $MBV_TABTARGET_DELIMITER}"
 
 zMBD_SHOW "Source station file and validate"
 source $MBV_STATION_FILE
@@ -81,7 +83,7 @@ esac
 
 zMBD_SHOW "Extract tokens from tabtarget so make can use them in all places"
 zMBD_SHOW "tabtarget tokenizing: $zMBD_TARGET"
-IFS='.' read -ra zMBD_TOKENS <<< "$zMBD_TARGET"
+IFS="$MBV_TABTARGET_DELIMITER" read -ra zMBD_TOKENS <<< "$zMBD_TARGET"
 zMBD_SHOW "Split tokens: ${zMBD_TOKENS[*]}"
 
 zMBD_TOKEN_PARAMS=()
