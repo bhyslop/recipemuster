@@ -15,7 +15,8 @@
 ##########################################
 # Makefile Bash Variables File
 #
-# This is a reference variables file.  The stock dispatch script
+# This is a reference variables file defined when mapping the RBM
+# makefile system into a repo.  The stock dispatch script
 # uses this to set up the dispatch environment.
 #
 # This file is bilingual: it is interpreted by both bash and make.
@@ -26,7 +27,6 @@
 MBV_STATION_FILE=../RBM_STATION.mk
 MBV_TABTARGET_DIR=tt
 MBV_TOOLS_DIR=Tools
-MBV_STATION_THREAD_VAR=RBMS_THREADS
 MBV_LOG_DIR=../_logs_mbdv
 MBV_LOG_LAST=last
 MBV_LOG_EXT=txt
