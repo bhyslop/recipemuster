@@ -1,11 +1,29 @@
 #!/bin/bash
 
+# Copyright 2025 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+
+# Dispatch shell script
+
 set -euo pipefail
 
 zMBDS_VERBOSE=${MBDS_VERBOSE:-0}
 zMBDS_SHOW() { test "$zMBDS_VERBOSE" != "1" || echo "dispatch: $1"; }
 
-test "$zMBDS_VERBOSE" != "1" || set -x
+test "$zMBDS_VERBOSE" != "2" || set -x
 
 zMBDS_SHOW "Starting dispatch script"
 
@@ -13,16 +31,18 @@ cd "$(dirname "$0")/.."
 zMBDS_SHOW "Changed to repository root"
 
 zMBDS_SHOW "Source variables file and validate"
-source ./mbdv-variables.shmk
-: ${MBDV_STATION_FILE:?}     && zMBDS_SHOW "Station file:  ${MBDV_STATION_FILE}"
-: ${MBDV_LOG_DIR:?}          && zMBDS_SHOW "Log directory: ${MBDV_LOG_DIR}"
-: ${MBDV_LOG_LAST:?}         && zMBDS_SHOW "Latest log:    ${MBDV_LOG_LAST}"
-: ${MBDV_LOG_EXT:?}          && zMBDS_SHOW "Log extension: ${MBDV_LOG_EXT}"
-: ${MBDV_MAKEFILE:?}         && zMBDS_SHOW "Makefile:      ${MBDV_MAKEFILE}"
+zMBD_VARIABLES=./mbv.variables.sh
+source ${zMBD_VARIABLES}
+: ${zMBD_VARIABLES:?}        && zMBDS_SHOW "Variables file: ${zMBD_VARIABLES}"
+: ${MBDV_STATION_FILE:?}     && zMBDS_SHOW "Station file:   ${MBDV_STATION_FILE}"
+: ${MBDV_LOG_DIR:?}          && zMBDS_SHOW "Log directory:  ${MBDV_LOG_DIR}"
+: ${MBDV_LOG_LAST:?}         && zMBDS_SHOW "Latest log:     ${MBDV_LOG_LAST}"
+: ${MBDV_LOG_EXT:?}          && zMBDS_SHOW "Log extension:  ${MBDV_LOG_EXT}"
+: ${MBDV_MAKEFILE:?}         && zMBDS_SHOW "Makefile:       ${MBDV_MAKEFILE}"
 
 zMBDS_SHOW "Source station file and validate"
 source $MBDV_STATION_FILE
-: ${MBDS_MAX_JOBS:?}         && zMBDS_SHOW "Max jobs:      ${MBDS_MAX_JOBS}"
+: ${MBDS_MAX_JOBS:?}         && zMBDS_SHOW "Max jobs:       ${MBDS_MAX_JOBS}"
 
 MBDS_NOW_STAMP=$(date +'%Y%m%d-%H%M%Sp%N')
 zMBDS_SHOW "Generated timestamp: $MBDS_NOW_STAMP"

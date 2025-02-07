@@ -132,30 +132,6 @@ ttx.FixTabtargetExecutability.sh:
 	$(zRBC_PASS)
 
 
-#######################################
-#  Slickedit Project Tabtarget
-#
-#  Due to filesystem handle entanglements, Slickedit doesn't play well
-#  with git.  This tabtarget places a usable copy in a .gitignored location
-
-zRBC_SLICKEDIT_PROJECT_DIR = ./_slickedit
-
-vsr.ReplaceSlickEditWorkspace.sh:
-	mkdir -p                                           $(zRBC_SLICKEDIT_PROJECT_DIR)
-	-rm -rf                                            $(zRBC_SLICKEDIT_PROJECT_DIR)/*
-	cp $(zRBC_TOOLS_DIR)/vsep_VisualSlickEditProject/* $(zRBC_SLICKEDIT_PROJECT_DIR)
-	$(zRBC_PASS)
-
-RBC_PARAM_DIR = 
-
-rbcgi.CreateGitIgnore.sh:
-	@test -n             "$(RBC_PARAM_DIR)" || { echo "Must provide dir name arg"; exit 1; }
-	mkdir -p              $(RBC_PARAM_DIR)
-	echo "*"            > $(RBC_PARAM_DIR)/.gitignore
-	echo "!.gitignore" >> $(RBC_PARAM_DIR)/.gitignore
-	$(zRBC_PASS)
-
-
 #########################################
 #  Test Tabtargets
 #
