@@ -226,53 +226,12 @@ rbm-i%:  rbb_render rbn_render rbs_render
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-d%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "Explicit dnsmasq run"
-	# OUCH /bin/sh or /bin/bash ?
-	podman exec $(RBM_SENTRY_CONTAINER) /bin/bash -c "dnsmasq --keep-in-foreground"
-
-
-rbm-OIS%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE INSIDE SENTRY"
-	$(MBC_STEP) "Nuke any tcpdump there before..."
-	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump || true
-	$(MBC_STEP) "First, lets get process info so we know the dnsmasq is up..."
-	podman exec $(RBM_SENTRY_CONTAINER) ps aux
-	$(MBC_STEP) "Now, lets tcpdump..."
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n
-
-
-rbm-OIB%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT BOTTLE"
-	$(MBC_STEP) "Nuke any tcpdump there before..."
-	podman exec $(RBM_BOTTLE_CONTAINER) pkill tcpdump || true
-	$(MBC_STEP) "Now, lets tcpdump..."
-	podman exec $(RBM_BOTTLE_CONTAINER) tcpdump -n
-
-
-rbm-OPS%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
-	podman machine ssh "sudo dnf install -y tcpdump || true"
-	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n tcpdump -i any -n -vvv"
-
-
-rbm-OPB%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
-	podman machine ssh "sudo dnf install -y tcpdump || true"
-	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)) -n tcpdump -i any -n -vvv"
-
-
-rbm-OPE%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ENCLAVE NETWORK"
-	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
-
-
-rbm-OBSN%: zrbm_validate_regimes_rule
+rbp-o%: zrbm_validate_regimes_rule
 	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
 	( \
 		$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && ) \
 		$(foreach v,$(zRBM_ROLLUP_ENV),export $v="$($v)" && ) \
-		cat $(RBM_TOOLS_DIR)/rbm-observe-bottle-service-networks.sh | /bin/sh \
+		cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh \
 	)
 
 
