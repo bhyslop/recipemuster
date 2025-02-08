@@ -65,7 +65,6 @@ include $(zRBC_RBM_MAKEFILE)
 zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MBC_MAKEFILE)
 
 
-
 #######################################
 #  Config Regime Info
 #
@@ -75,7 +74,6 @@ zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MB
 
 rbm-Ci.ConfigRegimeInfo.sh: rbs_define rbb_define rbn_define
 	$(zRBC_PASS)
-
 
 
 #######################################
