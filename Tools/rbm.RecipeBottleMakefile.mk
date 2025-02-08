@@ -31,6 +31,7 @@ RBM_BOTTLE_LOG     = $(RBM_TRANSCRIPTS_DIR)/bottle.$(RBM_MONIKER).log
 -include $(RBM_NAMEPLATE_PATH)
 
 # Include configuration regimes
+include $(RBM_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(RBM_TOOLS_DIR)/rbb.BaseConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
@@ -66,6 +67,12 @@ rbm-v%: zrbm_validate_regimes_rule
 zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
+
+
+rbp-a.%:
+	$(MBC_START) "Establish podman machine."
+	podman machine init
+	$(MBC_PASS) "No errors."
 
 
 rbm-SS%: zrbm_start_sentry_rule
