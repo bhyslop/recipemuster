@@ -26,11 +26,11 @@ zMBC_TPUT_GREEN  := $(shell tput setaf 2)$(shell tput bold)
 MBC_TERMINAL_SETTINGS := TERM=xterm-256color COLUMNS=$(MBC_CONSOLEPARAM__COLS) LINES=$(MBC_CONSOLEPARAM__LINES) 
 
 # This tolerates extra spaces at end of lines when only a few params used
-MBC_SHOW_NORMAL := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s %s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-MBC_SHOW_WHITE  := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_BOLD)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-MBC_SHOW_YELLOW := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_YELLOW)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-MBC_SHOW_RED    := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_RED)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-MBC_SHOW_GREEN  := @printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_GREEN)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
+MBC_SHOW_NORMAL := @printf "$(MBC_ARG__CONTEXT_STRING): %s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+MBC_SHOW_WHITE  := @printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_BOLD)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+MBC_SHOW_YELLOW := @printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_YELLOW)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+MBC_SHOW_RED    := @printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_RED)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+MBC_SHOW_GREEN  := @printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_GREEN)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 
 MBC_START := $(MBC_SHOW_WHITE)
 MBC_STEP  := $(MBC_SHOW_WHITE)
@@ -38,10 +38,9 @@ MBC_PASS  := $(MBC_SHOW_GREEN)
 MBC_FAIL  := (printf $(zMBC_TPUT_RESET)$(zMBC_TPUT_RED)$(MBC_ARG__CONTEXT_STRING)' FAILED\n'$(zMBC_TPUT_RESET) && exit 1)
 
 # For use in compound statements.
-MBC_SEE_RED    := printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_RED)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-MBC_SEE_YELLOW := printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_YELLOW)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-MBC_SEE_GREEN  := printf '%s'$(MBC_ARG__CONTEXT_STRING)': %s'$(zMBC_TPUT_GREEN)'%s %s %s %s %s %s %s %s'$(zMBC_TPUT_RESET)'\n'
-
+MBC_SEE_RED    := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_RED)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+MBC_SEE_YELLOW := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_YELLOW)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+MBC_SEE_GREEN  := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_GREEN)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 
 
 # Validation helpers
