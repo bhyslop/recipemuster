@@ -74,12 +74,12 @@ rbp-a.%:
 	$(MBC_TERMINAL_SETTINGS) podman machine start
 	$(MBC_PASS) "No errors."
 
-rbp-s%: zrbm_start_sentry_rule
+rbp-s%: zrbm_start_service_rule
 	$(MBC_STEP) "Completed delegate."
 
-zrbm_start_sentry_rule: zrbm_validate_regimes_rule
+zrbm_start_service_rule: zrbm_validate_regimes_rule
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
-	
+
 	$(MBC_STEP) "Stopping any prior containers"
 	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
 	-podman rm   -f    $(RBM_SENTRY_CONTAINER)
@@ -137,13 +137,13 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
-	podman run -d                                 \
-	  --name $(RBM_BOTTLE_CONTAINER)              \
+	podman run -d                                      \
+	  --name $(RBM_BOTTLE_CONTAINER)                   \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
-	  --dns=$(RBN_ENCLAVE_SENTRY_IP)              \
-	  --cap-add net_raw                           \
-	  --security-opt label=disable                \
-	  $(RBN_VOLUME_MOUNTS)                        \
+	  --dns=$(RBN_ENCLAVE_SENTRY_IP)                   \
+	  --cap-add net_raw                                \
+	  --security-opt label=disable                     \
+	  $(RBN_VOLUME_MOUNTS)                             \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
@@ -151,13 +151,6 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
-
-
-rbm-BS%: zrbm_start_bottle_rule
-	$(MBC_STEP) "Completed delegate."
-zrbm_start_bottle_rule:
-	$(MBC_STEP) "UNUSED FOR NOW."
-	false
 
 
 rbm-br%: zrbm_validate_regimes_rule
@@ -174,42 +167,6 @@ rbm-br%: zrbm_validate_regimes_rule
 	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)  \
 	    $(CMD)
 
-
-# Sentry Stop Rule
-rbm-SX%: zrbm_validate_regimes_rule
-	$(MBC_STEP) "Stopping Sentry container for $(RBM_MONIKER)"
-	
-	# Network disconnection
-	-podman network disconnect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
-	-podman network disconnect $(RBM_UPLINK_NETWORK)  $(RBM_SENTRY_CONTAINER)
-	
-	# Container termination
-	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
-	-podman rm -f      $(RBM_SENTRY_CONTAINER)
-	
-	# Network cleanup
-	-podman network rm -f $(RBM_ENCLAVE_NETWORK)
-	-podman network rm -f $(RBM_UPLINK_NETWORK)
-
-
-# Bottle Stop Rule
-rbm-BX%: zrbm_validate_regimes_rule
-	$(MBC_STEP) "Stopping Bottle container for $(RBM_MONIKER)"
-	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
-	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
-
-
-zrbm_start_sessile_rule:
-	$(MBC_STEP) "Starting Sessile Service $(RBM_MONIKER)"
-
-
-# zrbm_start_sessile_rule  rbm-SS rbm-BS
-rbm-ss%:                  \
-  zrbm_start_sessile_rule \
-  zrbm_start_sentry_rule  \
-  zrbm_start_bottle_rule  \
-  # Game on...
-	$(MBC_STEP) "Started Sessile Service $(RBM_MONIKER)"
 
 # zrbm_validate_regimes_rule
 rbm-cs%:
@@ -228,10 +185,10 @@ rbm-i%:  rbb_render rbn_render rbs_render
 
 rbp-o%: zrbm_validate_regimes_rule
 	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	( \
-		$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && ) \
-		$(foreach v,$(zRBM_ROLLUP_ENV),export $v="$($v)" && ) \
-		cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh \
+	(                                                                    \
+	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && )          \
+	  $(foreach v,$(zRBM_ROLLUP_ENV),export $v="$($v)" && )              \
+	  cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh \
 	)
 
 
