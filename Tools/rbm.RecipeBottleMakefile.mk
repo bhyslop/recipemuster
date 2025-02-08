@@ -71,9 +71,8 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 
 rbp-a.%:
 	$(MBC_START) "Establish podman machine."
-	podman machine start
+	$(MBC_TERMINAL_SETTINGS) podman machine start
 	$(MBC_PASS) "No errors."
-
 
 rbm-SS%: zrbm_start_sentry_rule
 	@echo "Completed delegate."
