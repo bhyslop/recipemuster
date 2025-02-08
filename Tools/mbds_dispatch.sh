@@ -121,11 +121,16 @@ cmd_parts=(
 
 zMBD_MAKE_CMD="${cmd_parts[*]}"
 
-zMBD_SHOW "eval: $zMBD_MAKE_CMD"      | tee    "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" "$zMBD_LOG_HIST"
-eval            "$zMBD_MAKE_CMD" 2>&1 | tee -a "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" "$zMBD_LOG_HIST"
+zMBD_TIMESTAMP='while read -r line; do printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$line"; done'
 
-zMBD_EXIT_STATUS="${PIPESTATUS[0]}"
+zMBD_SHOW "eval: $zMBD_MAKE_CMD"
+
+{ eval "$zMBD_MAKE_CMD" 2>&1; zMBD_EXIT_STATUS=$?; echo "Exit with $zMBD_EXIT_STATUS"; } \
+     | tee "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" \
+     >(${zMBD_TIMESTAMP} >> "$zMBD_LOG_HIST")
+
 zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
 
 exit "$zMBD_EXIT_STATUS"
+
 
