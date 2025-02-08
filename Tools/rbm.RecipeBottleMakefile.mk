@@ -74,19 +74,19 @@ rbp-a.%:
 	$(MBC_TERMINAL_SETTINGS) podman machine start
 	$(MBC_PASS) "No errors."
 
-rbm-SS%: zrbm_start_sentry_rule
-	@echo "Completed delegate."
+rbp-s%: zrbm_start_sentry_rule
+	$(MBC_STEP) "Completed delegate."
 
 zrbm_start_sentry_rule: zrbm_validate_regimes_rule
-	@echo "Starting containers for $(RBM_MONIKER)"
+	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 	
-	@echo "Stopping any prior containers"
+	$(MBC_STEP) "Stopping any prior containers"
 	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
 	-podman rm   -f    $(RBM_SENTRY_CONTAINER)
 	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
-	@echo "Cleaning up old netns and interfaces inside VM"
+	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
 	-podman machine ssh "sudo ip netns del $(RBM_ENCLAVE_NAMESPACE) 2>/dev/null || true"
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_OUT) 2>/dev/null || true"
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_IN)  2>/dev/null || true"
@@ -94,7 +94,7 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BOTTLE_IN)  2>/dev/null || true"
 	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BRIDGE)     2>/dev/null || true"
 
-	@echo "Launching SENTRY container with bridging for internet"
+	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
 	  --name $(RBM_SENTRY_CONTAINER)                   \
 	  --network bridge                                 \
@@ -104,28 +104,28 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
 	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
 
-	@echo "Waiting for SENTRY container"
+	$(MBC_STEP) "Waiting for SENTRY container"
 	sleep 2
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
-	@echo "Executing SENTRY namespace setup script"
+	$(MBC_STEP) "Executing SENTRY namespace setup script"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
-	@echo "Configuring SENTRY security"
+	$(MBC_STEP) "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
-	@echo "Executing BOTTLE namespace setup script"
+	$(MBC_STEP) "Executing BOTTLE namespace setup script"
 	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
-	@echo "Verifying network setup in podman machine..."
+	$(MBC_STEP) "Verifying network setup in podman machine..."
 	podman machine ssh "echo 'Network namespace list:' && sudo ip netns list"
 	podman machine ssh "echo 'Namespace file permissions:' && ls -l /var/run/netns/$(RBM_ENCLAVE_NAMESPACE)"
 	podman machine ssh "echo 'Network interfaces:'"
@@ -133,10 +133,10 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BOTTLE_OUT)"
 	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) ip link list"
 
-	@echo "SUPERSTITION WAIT for BOTTLE steps settling..."
+	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
 
-	@echo "Creating BOTTLE container with namespace networking"
+	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
 	podman run -d                                 \
 	  --name $(RBM_BOTTLE_CONTAINER)              \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
@@ -146,22 +146,22 @@ zrbm_start_sentry_rule: zrbm_validate_regimes_rule
 	  $(RBN_VOLUME_MOUNTS)                        \
 	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
 
-	@echo "Waiting for BOTTLE container"
+	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
 	podman machine ssh "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
-	@echo "Bottle service should be available now."
+	$(MBC_STEP) "Bottle service should be available now."
 
 
 rbm-BS%: zrbm_start_bottle_rule
-	@echo "Completed delegate."
+	$(MBC_STEP) "Completed delegate."
 zrbm_start_bottle_rule:
-	@echo "UNUSED FOR NOW."
+	$(MBC_STEP) "UNUSED FOR NOW."
 	false
 
 
 rbm-br%: zrbm_validate_regimes_rule
-	@echo "Running Agile Bottle container for $(RBM_MONIKER)"
+	$(MBC_STEP) "Running Agile Bottle container for $(RBM_MONIKER)"
 	
 	# Command must be provided
 	@test -n "$(CMD)" || (echo "Error: CMD must be set" && exit 1)
@@ -177,7 +177,7 @@ rbm-br%: zrbm_validate_regimes_rule
 
 # Sentry Stop Rule
 rbm-SX%: zrbm_validate_regimes_rule
-	@echo "Stopping Sentry container for $(RBM_MONIKER)"
+	$(MBC_STEP) "Stopping Sentry container for $(RBM_MONIKER)"
 	
 	# Network disconnection
 	-podman network disconnect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
@@ -194,13 +194,13 @@ rbm-SX%: zrbm_validate_regimes_rule
 
 # Bottle Stop Rule
 rbm-BX%: zrbm_validate_regimes_rule
-	@echo "Stopping Bottle container for $(RBM_MONIKER)"
+	$(MBC_STEP) "Stopping Bottle container for $(RBM_MONIKER)"
 	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
 	-podman rm -f      $(RBM_BOTTLE_CONTAINER)
 
 
 zrbm_start_sessile_rule:
-	@echo "Starting Sessile Service $(RBM_MONIKER)"
+	$(MBC_STEP) "Starting Sessile Service $(RBM_MONIKER)"
 
 
 # zrbm_start_sessile_rule  rbm-SS rbm-BS
@@ -209,17 +209,17 @@ rbm-ss%:                  \
   zrbm_start_sentry_rule  \
   zrbm_start_bottle_rule  \
   # Game on...
-	@echo "Started Sessile Service $(RBM_MONIKER)"
+	$(MBC_STEP) "Started Sessile Service $(RBM_MONIKER)"
 
 # zrbm_validate_regimes_rule
 rbm-cs%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
 rbm-cb%: zrbm_validate_regimes_rule
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 rbm-i%:  rbb_render rbn_render rbs_render
@@ -227,48 +227,48 @@ rbm-i%:  rbb_render rbn_render rbs_render
 
 
 rbm-d%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "Explicit dnsmasq run"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "Explicit dnsmasq run"
 	# OUCH /bin/sh or /bin/bash ?
 	podman exec $(RBM_SENTRY_CONTAINER) /bin/bash -c "dnsmasq --keep-in-foreground"
 
 
 rbm-OIS%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE INSIDE SENTRY"
-	@echo "Nuke any tcpdump there before..."
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE INSIDE SENTRY"
+	$(MBC_STEP) "Nuke any tcpdump there before..."
 	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump || true
-	@echo "First, lets get process info so we know the dnsmasq is up..."
+	$(MBC_STEP) "First, lets get process info so we know the dnsmasq is up..."
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux
-	@echo "Now, lets tcpdump..."
+	$(MBC_STEP) "Now, lets tcpdump..."
 	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n
 
 
 rbm-OIB%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT BOTTLE"
-	@echo "Nuke any tcpdump there before..."
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "TCPDUMPER AT BOTTLE"
+	$(MBC_STEP) "Nuke any tcpdump there before..."
 	podman exec $(RBM_BOTTLE_CONTAINER) pkill tcpdump || true
-	@echo "Now, lets tcpdump..."
+	$(MBC_STEP) "Now, lets tcpdump..."
 	podman exec $(RBM_BOTTLE_CONTAINER) tcpdump -n
 
 
 rbm-OPS%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
 	podman machine ssh "sudo dnf install -y tcpdump || true"
 	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_SENTRY_CONTAINER)) -n tcpdump -i any -n -vvv"
 
 
 rbm-OPB%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE PODMAN MACHINE SENTRY"
 	podman machine ssh "sudo dnf install -y tcpdump || true"
 	podman machine ssh "sudo nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)) -n tcpdump -i any -n -vvv"
 
 
 rbm-OPE%:
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ENCLAVE NETWORK"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE ENCLAVE NETWORK"
 	podman machine ssh "sudo nsenter --net=/proc/$$(podman inspect -f '{{.State.Pid}}' $(RBM_MONIKER)-sentry)/ns/net tcpdump -i any -n -vvv"
 
 
 rbm-OBSN%: zrbm_validate_regimes_rule
-	@echo "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
+	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
 	( \
 		$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && ) \
 		$(foreach v,$(zRBM_ROLLUP_ENV),export $v="$($v)" && ) \
