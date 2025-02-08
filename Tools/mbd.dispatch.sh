@@ -129,9 +129,10 @@ zMBD_TIMESTAMP() {
 
 zMBD_SHOW "eval: $zMBD_MAKE_CMD"
 
-echo "command: $zMBD_MAKE_CMD" | tee "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" | tee -a "$zMBD_LOG_HIST"
+echo "command: $zMBD_MAKE_CMD" >> "$zMBD_LOG_LAST" >> "$zMBD_LOG_SAME" >> "$zMBD_LOG_HIST"
 
 { 
+    zMBD_EXIT_STATUS=100
     eval "$zMBD_MAKE_CMD" 2>&1
     zMBD_EXIT_STATUS=$?
     zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
