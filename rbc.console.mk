@@ -66,13 +66,6 @@ rbc-ta.%:
 	$(MBC_PASS)
 
 
-# OUCH is this the right place?
-oga.OpenGithubAction.sh:
-	$(zRBC_STEP) "Assure podman services available..."
-	cygstart https://github.com/bhyslop/recipemuster/actions/
-
-
-
 #######################################
 #  Tabtarget Maintenance Tabtarget
 #
@@ -101,16 +94,12 @@ ttx.FixTabtargetExecutability.sh:
 
 
 #########################################
-#  Test Tabtargets
+#  Legacy helpers
 #
 
-Tttl.TestTabtargetLauncher.sh:
-	@echo "RBC_PARAMETER_1:" $(RBC_PARAMETER_1)
-	@echo "RBC_PARAMETER_2:" $(RBC_PARAMETER_2)
-	@echo "RBC_PARAMETER_3:" $(RBC_PARAMETER_3)
-	@echo "RBC_PARAMETER_4:" $(RBC_PARAMETER_4)
-	$(zRBC_PASS)
-
+oga.OpenGithubAction.sh:
+	$(zRBC_STEP) "Assure podman services available..."
+	cygstart https://github.com/bhyslop/recipemuster/actions/
 
 
 # EOF
