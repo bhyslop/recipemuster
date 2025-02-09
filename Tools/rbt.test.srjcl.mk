@@ -33,7 +33,8 @@ rbt_test_bottle_service_rule:
 	  echo "List active kernels"  && \
 	  curl -X GET "http://localhost:8000/api/kernels" \
 	    -H "X-XSRFToken: $$XSRF_TOKEN" \
-	    -H "Cookie: _xsrf=$$XSRF_TOKEN"; echo "SAW EXIT STATUS $$?"
-	$(MBC_SHOW_WHITE) "PASS"
+	    -H "Cookie: _xsrf=$$XSRF_TOKEN"  && echo finish
+
+	$(MBC_PASS) "No errors detected."
 
 # eof
