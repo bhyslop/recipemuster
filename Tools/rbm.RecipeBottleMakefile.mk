@@ -65,6 +65,7 @@ rbm-r%: rbs_render rbb_render rbn_render
 # Validation rules
 rbm-v%: zrbm_validate_regimes_rule
 zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
+	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
@@ -170,13 +171,13 @@ rbm-br%: zrbm_validate_regimes_rule
 
 # zrbm_validate_regimes_rule
 rbm-cs%:
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
+	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
 rbm-cb%: zrbm_validate_regimes_rule
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
+	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 rbm-i%:  rbb_render rbn_render rbs_render
@@ -184,7 +185,7 @@ rbm-i%:  rbb_render rbn_render rbs_render
 
 
 rbp-o%: zrbm_validate_regimes_rule
-	$(MBC_STEP) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
+	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
 	(                                                                    \
 	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && )          \
 	  $(foreach v,$(zRBM_ROLLUP_ENV),export $v="$($v)" && )              \
