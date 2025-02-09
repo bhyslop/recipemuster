@@ -58,13 +58,15 @@ include $(zRBT_TEST_SRJCL)
 #  Test Targets
 #
 
-rbc-ta.%: rbs_define rbb_define rbn_define \
-  rbt_test_nsproto_bottle_service_rule     \
-  rbt_test_srjcl_bottle_service_rule       \
-  # 
-	$(MBC_PASS)
 
 rbc-to.%: rbs_define rbb_define rbn_define rbt_test_$(RBM_MONIKER)_bottle_service_rule
+	$(MBC_PASS)
+
+
+rbc-ta.%:
+	$(MBC_START) "For each well known nameplate"
+	$(MAKE) -f $(MBV_MAKEFILE) rbc-to.rule RBM_MONIKER=srjcl
+	$(MAKE) -f $(MBV_MAKEFILE) rbc-to.rule RBM_MONIKER=nsproto
 	$(MBC_PASS)
 
 
