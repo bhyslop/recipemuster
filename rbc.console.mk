@@ -57,48 +57,35 @@ default:
 
 # Configure and include the Recipe Bottle Makefile
 zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
+zRBT_TEST_NSPROTO := $(zRBC_TOOLS_DIR)/rbt.test.nsproto.mk
+zRBT_TEST_SRJCL   := $(zRBC_TOOLS_DIR)/rbt.test.srjcl.mk
 
 RBM_MONIKER := $(MBDM_PARAMETER_2)
 
 include $(zRBC_RBM_MAKEFILE)
 
-zRBC_RBM_SUBMAKE = $(MAKE) -f $(zRBC_RBM_MAKEFILE) RBM_ARG_SUBMAKE_MBC=$(zRBC_MBC_MAKEFILE)
-
 
 #######################################
-#  Config Regime Info
+#  Test Targets
 #
-#  This section has examples of several sample nameplates, some
-#  of which are useful in maintaining this example space.
 
+rbc-ta.%: rbs_define rbb_define rbn_define
+	$(MBC_START) "Run all tests"
+	$(MAKE) -f $(zRBT_TEST_NSPROTO) rbt_test_bottle_service_rule RBM_MONIKER=nsproto
+	$(MAKE) -f $(zRBT_TEST_SRJCL)   rbt_test_bottle_service_rule RBM_MONIKER=srjcl
+	$(MBC_PASS)
 
-rbm-Ci.ConfigRegimeInfo.sh: rbs_define rbb_define rbn_define
-	$(zRBC_PASS)
-
-
-#######################################
-#  Nameplate Examples
-#
-#  This section has examples of several sample nameplates, some
-#  of which are useful in maintaining this example space.
-
-pyghm-B.BuildPythonGithubMaintenance.sh:
-	$(zRBC_STEP) "Assure podman services available..."
-	which podman
-	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zRBC_RBM_SUBMAKE) rbm-BL.sh  RBM_ARG_MONIKER=pyghm
-
-pyghm-s.StartPythonGithubMaintenance.sh:
-	$(zRBC_STEP) "Assure podman services available..."
-	which podman
-	podman machine start || echo "Podman probably running already, lets go on..."
-	$(zRBC_RBM_SUBMAKE) rbm-s.sh  RBM_ARG_MONIKER=pyghm
+rbc-to.%: rbs_define rbb_define rbn_define
+	$(MBC_START) "Run tests for nameplate ->" $(RBM_MONIKER)
+	$(MAKE) -f rbt.test.$(RBM_MONIKER).mk   rbt_test_bottle_service_rule
+	$(MBC_PASS)
 
 
 # OUCH is this the right place?
 oga.OpenGithubAction.sh:
 	$(zRBC_STEP) "Assure podman services available..."
 	cygstart https://github.com/bhyslop/recipemuster/actions/
+
 
 
 #######################################
@@ -117,7 +104,7 @@ zRBC_TABTARGET_FILE = $(zRBC_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
 ttc.CreateTabtarget.sh:
 	@test -n "$(RBC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
 	@echo '#!/bin/sh' >         $(zRBC_TABTARGET_FILE)
-	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/tabtarget-dispatch.sh 1 "$$(basename "$$0")"' \
+	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/Tools/mbd.dispatch.sh jp_single om_line "$$(basename "$$0")"' \
 	                 >>         $(zRBC_TABTARGET_FILE)
 	@chmod +x                   $(zRBC_TABTARGET_FILE)
 	git add                     $(zRBC_TABTARGET_FILE)
