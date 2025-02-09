@@ -61,8 +61,8 @@ rbc-to.%:
 
 rbc-ta.%:
 	$(MBC_START) "For each well known nameplate"
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nsproto_rule
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_srjcl_rule
+	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nsproto_rule RBM_MONIKER=nsproto
+	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_srjcl_rule   RBM_MONIKER=srjcl
 	$(MBC_PASS)
 
 
