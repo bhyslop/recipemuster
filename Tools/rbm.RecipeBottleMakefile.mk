@@ -178,7 +178,7 @@ rbm-cs%:
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-cb%: zrbm_validate_regimes_rule
+rbm-cb%: zrbm_validate_regimes_rule♦
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
