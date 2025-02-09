@@ -163,7 +163,7 @@ rbm-br%: zrbm_validate_regimes_rule
 	    --network $(RBM_ENCLAVE_NETWORK)                      \
 	    --dns     $(RBN_ENCLAVE_SENTRY_IP)                    \
 	    $(RBN_VOLUME_MOUNTS)                                  \
-	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)  \
+	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)       \
 	    $(CMD)
 
 
@@ -181,6 +181,7 @@ rbm-cs%:
 rbm-cb%: zrbm_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
+
 
 rbm-i%:  rbb_render rbn_render rbs_render
 	$(MBC_PASS) "Done, no errors."
