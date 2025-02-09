@@ -44,14 +44,10 @@ default:
 
 # Configure and include the Recipe Bottle Makefile
 zRBC_RBM_MAKEFILE := $(MBV_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
-zRBT_TEST_NSPROTO := $(MBV_TOOLS_DIR)/rbt.test.nsproto.mk
-zRBT_TEST_SRJCL   := $(MBV_TOOLS_DIR)/rbt.test.srjcl.mk
 
 RBM_MONIKER := $(MBDM_PARAMETER_2)
 
 include $(zRBC_RBM_MAKEFILE)
-include $(zRBT_TEST_NSPROTO)
-include $(zRBT_TEST_SRJCL)
 
 
 #######################################
@@ -59,14 +55,21 @@ include $(zRBT_TEST_SRJCL)
 #
 
 
-rbc-to.%: rbs_define rbb_define rbn_define rbt_test_$(RBM_MONIKER)_bottle_service_rule
+zrbc_test_%_rule: rbs_define rbb_define rbn_define
+	$(MBC_START) "Testing nameplate $*"
+	$(MAKE) -f $(MBV_TOOLS_DIR)/rbt.test.$*.mk rbt_test_bottle_service_rule RBT_MBC_MAKEFILE='$(zRBC_MBC_MAKEFILE)'
+
+
+rbc-to.%: 
+	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
+	$(MAKE) -f $(MBV_MAKEFILE) zrbc_test_$(RBM_MONIKER)_rule
 	$(MBC_PASS)
 
 
 rbc-ta.%:
 	$(MBC_START) "For each well known nameplate"
-	$(MAKE) -f $(MBV_MAKEFILE) rbc-to.rule RBM_MONIKER=srjcl
-	$(MAKE) -f $(MBV_MAKEFILE) rbc-to.rule RBM_MONIKER=nsproto
+	$(MAKE) -f $(MBV_MAKEFILE) zrbc_test_nsproto_rule
+	$(MAKE) -f $(MBV_MAKEFILE) zrbc_test_srjcl_rule
 	$(MBC_PASS)
 
 

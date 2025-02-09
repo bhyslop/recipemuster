@@ -1,6 +1,8 @@
 
+# Configuration: where to find the Makefile Bash Console declarations
+include $(RBT_MBC_MAKEFILE)
 
-rbt_test_nsproto_bottle_service_rule:
+rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
 	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER  is $(RBM_SENTRY_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER  is $(RBM_BOTTLE_CONTAINER)"
