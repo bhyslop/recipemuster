@@ -167,9 +167,9 @@ rbm-br%: zrbm_validate_regimes_rule
 	    $(CMD)
 
 
-rbm_test_%_rule: rbs_define rbb_define rbn_define
-	$(MBC_START) "Testing nameplate $*"
-	$(MAKE) -f $(MBV_TOOLS_DIR)/rbt.test.$*.mk rbt_test_bottle_service_rule RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)
+rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
+	$(MBC_START) "Testing nameplate $(RBM_MONIKER)"
+	$(MAKE) -f $(MBV_TOOLS_DIR)/rbt.test.$(RBM_MONIKER).mk rbt_test_bottle_service_rule RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)
 
 
 rbm-cs%:

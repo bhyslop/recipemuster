@@ -56,13 +56,13 @@ include $(zRBC_RBM_MAKEFILE)
 
 rbc-to.%: 
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_$(RBM_MONIKER)_rule
+	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nameplate_rule
 	$(MBC_PASS)
 
 rbc-ta.%:
 	$(MBC_START) "For each well known nameplate"
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nsproto_rule RBM_MONIKER=nsproto
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_srjcl_rule   RBM_MONIKER=srjcl
+	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nameplate_rule RBM_MONIKER=nsproto
+	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nameplate_rule RBM_MONIKER=srjcl
 	$(MBC_PASS)
 
 
