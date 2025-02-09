@@ -14,14 +14,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
-
-# View interim official at: https://github.com/bhyslop/recipemuster/rbc-console.mk
-# View planner at: https://github.com/bhyslop/recipemuster/tree/main/PRIVATE_PLANNER
-
-# Prefix used to distinguish commentary created by this makefile
-zRBC_THIS_MAKEFILE = rbc-console.mk
-
-zRBC_TOOLS_DIR     = Tools
+# Get the master configuration
+include mbv.variables.sh
 
 #########################
 # Makefile Bash Console
@@ -30,12 +24,11 @@ zRBC_TOOLS_DIR     = Tools
 # macros that support regular console interactivity.
 #
 
-zRBC_MBC_MAKEFILE = $(zRBC_TOOLS_DIR)/mbc.MakefileBashConsole.mk
-zRBC_BGC_MAKEFILE = $(zRBC_TOOLS_DIR)/bgc.BuildGithubContainers.mk
-
+zRBC_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+zRBC_BGC_MAKEFILE = $(MBV_TOOLS_DIR)/bgc.BuildGithubContainers.mk
 
 # What console tool will put in prefix of each line
-MBC_ARG__CONTEXT_STRING = $(zRBC_THIS_MAKEFILE)
+MBC_ARG__CONTEXT_STRING = $(MBV_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_BGC_MAKEFILE)
@@ -45,20 +38,14 @@ zRBC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
 zRBC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 
 
-# Use this to allow a console make target to explicitly trigger other
-#   console make targets.  This is really only for making sure entire
-#   rules function in 'big test cases': for efficiency, better to use
-#   explicit fine grained make dependencies so that make is efficient.
-zRBC_MAKE = $(MAKE) -f $(zRBC_THIS_MAKEFILE)
-
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zRBC_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
 
 # Configure and include the Recipe Bottle Makefile
-zRBC_RBM_MAKEFILE := $(zRBC_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
-zRBT_TEST_NSPROTO := $(zRBC_TOOLS_DIR)/rbt.test.nsproto.mk
-zRBT_TEST_SRJCL   := $(zRBC_TOOLS_DIR)/rbt.test.srjcl.mk
+zRBC_RBM_MAKEFILE := $(MBV_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
+zRBT_TEST_NSPROTO := $(MBV_TOOLS_DIR)/rbt.test.nsproto.mk
+zRBT_TEST_SRJCL   := $(MBV_TOOLS_DIR)/rbt.test.srjcl.mk
 
 RBM_MONIKER := $(MBDM_PARAMETER_2)
 

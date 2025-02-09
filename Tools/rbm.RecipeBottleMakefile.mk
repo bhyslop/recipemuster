@@ -36,10 +36,6 @@ include $(RBM_TOOLS_DIR)/rbb.BaseConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
-# Test rules
-include $(RBM_TOOLS_DIR)/rbm.test.nsproto.mk
-include $(RBM_TOOLS_DIR)/rbm.test.srjcl.mk
-
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
 export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
@@ -58,6 +54,7 @@ zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
 # Render rules
 rbm-r%: rbs_render rbb_render rbn_render
+	$(MBC_START) "Rendering regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
