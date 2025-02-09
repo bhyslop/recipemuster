@@ -31,7 +31,8 @@ RBM_BOTTLE_LOG     = $(RBM_TRANSCRIPTS_DIR)/bottle.$(RBM_MONIKER).log
 -include $(RBM_NAMEPLATE_PATH)
 
 # Include configuration regimes
-include $(RBM_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+zRBM_MBC_MAKEFILE = $(RBM_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+include $(zRBM_MBC_MAKEFILE)
 include $(RBM_TOOLS_DIR)/rbb.BaseConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
 include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
@@ -168,7 +169,7 @@ rbm-br%: zrbm_validate_regimes_rule
 
 rbm_test_%_rule: rbs_define rbb_define rbn_define
 	$(MBC_START) "Testing nameplate $*"
-	$(MAKE) -f $(MBV_TOOLS_DIR)/rbt.test.$*.mk rbt_test_bottle_service_rule
+	$(MAKE) -f $(MBV_TOOLS_DIR)/rbt.test.$*.mk rbt_test_bottle_service_rule RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)
 
 
 rbm-cs%:
