@@ -39,7 +39,7 @@ zRBC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
 
 
 default:
-	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(zRBC_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
+	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(MBV_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
 
 # Configure and include the Recipe Bottle Makefile
@@ -50,6 +50,8 @@ zRBT_TEST_SRJCL   := $(MBV_TOOLS_DIR)/rbt.test.srjcl.mk
 RBM_MONIKER := $(MBDM_PARAMETER_2)
 
 include $(zRBC_RBM_MAKEFILE)
+include $(zRBT_TEST_NSPROTO)
+include $(zRBT_TEST_SRJCL)
 
 
 #######################################
@@ -58,13 +60,13 @@ include $(zRBC_RBM_MAKEFILE)
 
 rbc-ta.%: rbs_define rbb_define rbn_define
 	$(MBC_START) "Run all tests"
-	$(MAKE) -f $(zRBT_TEST_NSPROTO) rbt_test_bottle_service_rule RBM_MONIKER=nsproto
-	$(MAKE) -f $(zRBT_TEST_SRJCL)   rbt_test_bottle_service_rule RBM_MONIKER=srjcl
+	$(MAKE) rbt_test_srjcl_bottle_service_rule   RBM_MONIKER=nsproto
+	$(MAKE) rbt_test_nsproto_bottle_service_rule RBM_MONIKER=srjcl
 	$(MBC_PASS)
 
 rbc-to.%: rbs_define rbb_define rbn_define
 	$(MBC_START) "Run tests for nameplate ->" $(RBM_MONIKER)
-	$(MAKE) -f rbt.test.$(RBM_MONIKER).mk   rbt_test_bottle_service_rule
+	$(MAKE)  rbt_test_$(RBM_MONIKER)_bottle_service_rule
 	$(MBC_PASS)
 
 
@@ -80,18 +82,16 @@ oga.OpenGithubAction.sh:
 #
 #  Helps you create default form tabtargets in right place.
 
-# Location for tabtargets relative to top level project directory
-zRBC_TABTARGET_DIR  = ./tt
-
-# Parameter from the tabtarget: what is the full name of the new tabtarget
+# Parameter from the tabtarget: what is the full name of the new tabtarget, no directory 
 RBC_TABTARGET_NAME = 
 
-zRBC_TABTARGET_FILE = $(zRBC_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
+zRBC_TABTARGET_FILE  = $(MBV_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
+zRBC_DISPATCH_SCRIPT = $(MBV_TOOLS_DIR)/mbd.dispatch.sh
 
 ttc.CreateTabtarget.sh:
 	@test -n "$(RBC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
 	@echo '#!/bin/sh' >         $(zRBC_TABTARGET_FILE)
-	@echo 'cd "$$(dirname "$$0")/.." &&  Tools/Tools/mbd.dispatch.sh jp_single om_line "$$(basename "$$0")"' \
+	@echo 'cd "$$(dirname "$$0")/.." &&  $(zRBC_DISPATCH_SCRIPT) jp_single om_line "$$(basename "$$0")"' \
 	                 >>         $(zRBC_TABTARGET_FILE)
 	@chmod +x                   $(zRBC_TABTARGET_FILE)
 	git add                     $(zRBC_TABTARGET_FILE)
@@ -100,7 +100,7 @@ ttc.CreateTabtarget.sh:
 
 
 ttx.FixTabtargetExecutability.sh:
-	git update-index --chmod=+x $(zRBC_TABTARGET_DIR)/*
+	git update-index --chmod=+x $(MBV_TABTARGET_DIR)/*
 	$(zRBC_PASS)
 
 
