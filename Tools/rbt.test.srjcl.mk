@@ -44,11 +44,12 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "Create and test kernel using WebSocket"
 
 	$(MBC_SHOW_WHITE) "Request kernel ID in temp file"
-	podman exec $(RBM_SENTRY_CONTAINER) curl -s -X POST \
-		"http://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels" \
-		-H "Content-Type: application/json" \
-		-d '{"name":"python3"}' \
-		> $(RBT_TEMP_DIR)/kernel_response.json
+	curl -X POST "$(RBT_JUPYTER_API)/kernels"             \
+	  -H "Content-Type: application/json"                 \
+	  -H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))"    \
+	  -H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"   \
+	  -d '{"name":"python3"}'                             \
+	  > $(RBT_TEMP_DIR)/kernel_response.json
 
 	$(MBC_SHOW_WHITE) "Store kernel ID in temp file"
 	podman exec $(RBM_SENTRY_CONTAINER) jq -r .id \
