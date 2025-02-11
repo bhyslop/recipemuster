@@ -13,7 +13,7 @@ export RBN_BOTTLE_IMAGE_TAG := bottle_anthropic_jupyter.20250130__152820
 
 # Port Service Configuration
 export RBN_PORT_ENABLED           := 1
-export RBN_ENTRY_PORT_WORKSTATION := 8000
+export RBN_ENTRY_PORT_WORKSTATION := 7999
 export RBN_ENTRY_PORT_ENCLAVE     := 8000
 
 # Network Uplink Configuration
