@@ -167,7 +167,7 @@ rbm-br%: zrbm_validate_regimes_rule
 
 rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
 	$(MBC_START) "Testing nameplate $(RBM_MONIKER)"
-	xxx
+	false
 	$(MAKE) -f $(MBV_TOOLS_DIR)/rbt.test.$(RBM_MONIKER).mk   \
 	                RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)    \
 	                rbt_test_bottle_service_rule

@@ -60,25 +60,27 @@ zrbc_prepare_temporary_dir:
 	$(MBC_START) "Set up temporary dir ->" $(zRBC_TEMP_DIR)
 	@test -n "$(MBV_TEMP_ROOT_DIR)"  || ($(MBC_SEE_RED) "MBV_TEMP_ROOT_DIR not set" && exit 1)
 	@test -n "$(MBV_NOW_STAMP)"      || ($(MBC_SEE_RED) "MBV_NOW_STAMP not set"     && exit 1)
-	mkdir -p  $(zRBC_TEMP_DIR)
-	@test -d "$(zRBC_TEMP_DIR)" || ($(MBC_SEE_RED) "Failed to create directory" && exit 1)
-	-rm -f    $(zRBC_TEMP_DIR)/*
+	mkdir -p    $(zRBC_TEMP_DIR)
+	@test -d   "$(zRBC_TEMP_DIR)"   || ($(MBC_SEE_RED) "Failed to create directory" && exit 1)
+	@test ! -f "$(zRBC_TEMP_DIR)/*" || ($(MBC_SEE_RED) "Directory contains files"   && exit 1)
 
 
 #######################################
 #  Test Targets
 #
 
+
+zRBC_MAKE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
+
 rbc-to.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
-	$(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
+	$(zRBC_MAKE_TEST_CMD)
 	$(MBC_PASS)
 
 rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "For each well known nameplate"
-	false
-	$(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR) RBM_MONIKER=nsproto 
-	$(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR) RBM_MONIKER=srjcl   
+	$(zRBC_MAKE_TEST_CMD) RBM_MONIKER=nsproto 
+	$(zRBC_MAKE_TEST_CMD) RBM_MONIKER=srjcl   
 	$(MBC_PASS)
 
 
