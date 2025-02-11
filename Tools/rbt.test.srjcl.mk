@@ -37,44 +37,49 @@ rbt_test_bottle_service_rule:
 	  -d '{"kernel":{"name":"python3"},"name":"test.ipynb","path":"test.ipynb","type":"notebook"}'
 
 	$(MBC_SHOW_WHITE) "List active kernels"
-	curl -X GET "$(RBT_JUPYTER_API)/kernels"               \
-	  -H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))"     \
-	  -H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"
+	curl -X GET "$(RBT_JUPYTER_API)/kernels" \
+		-H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))" \
+		-H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"
 
-	$(MBC_SHOW_WHITE) "Create kernel and list Python packages using WebSocket"
-	podman exec $(RBM_SENTRY_CONTAINER) bash -c '\
-	  echo "Creating kernel..." && \
-	  NEW_KERNEL_ID=$$(curl -s -X POST "http://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels" \
-	     -H "Content-Type: application/json" \
-	     -d '"'"'{"name":"python3"}'"'"' | jq -r .id) && \
-	  if [ -z "$$NEW_KERNEL_ID" ]; then \
-	    echo "Failed to get kernel ID" >&2; \
-	    exit 1; \
-	  fi && \
-	  echo "Using kernel ID: $$NEW_KERNEL_ID" && \
-	  echo "{ \
-	    \"header\": { \
-	      \"msg_id\": \"$$(cat /proc/sys/kernel/random/uuid)\", \
-	      \"msg_type\": \"execute_request\", \
-	      \"username\": \"test\", \
-	      \"session\": \"$$(cat /proc/sys/kernel/random/uuid)\", \
-	      \"date\": \"$$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")\" \
-	    }, \
-	    \"parent_header\": {}, \
-	    \"metadata\": {}, \
-	    \"content\": { \
-	      \"code\": \"import pkg_resources; list(pkg_resources.working_set)\", \
-	      \"silent\": false, \
-	      \"store_history\": false, \
-	      \"user_expressions\": {}, \
-	      \"allow_stdin\": false \
-	    }, \
-	    \"channel\": \"shell\" \
-	  }" | websocat "ws://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels/$$NEW_KERNEL_ID/channels" | \
-	  jq "select(.msg_type == \"execute_result\") | .content.data.\"text/plain\"" && \
-	  echo "Cleaning up kernel..." && \
-	  curl -s -X DELETE "http://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels/$$NEW_KERNEL_ID" && \
-	  echo "Done."'
+	$(MBC_SHOW_WHITE) "Create and test kernel using WebSocket"
+
+	$(MBC_SHOW_WHITE) "Request kernel ID in temp file"
+	podman exec $(RBM_SENTRY_CONTAINER) curl -s -X POST \
+		"http://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels" \
+		-H "Content-Type: application/json" \
+		-d '{"name":"python3"}' \
+		> $(RBT_TEMP_DIR)/kernel_response.json
+
+	$(MBC_SHOW_WHITE) "Store kernel ID in temp file"
+	podman exec $(RBM_SENTRY_CONTAINER) jq -r .id \
+		< $(RBT_TEMP_DIR)/kernel_response.json \
+		> $(RBT_TEMP_DIR)/kernel_id
+
+	$(MBC_SHOW_WHITE) "Send WebSocket message to list Python packages"
+	podman exec $(RBM_SENTRY_CONTAINER) bash -c 'echo "{ \
+		\"header\": { \
+			\"msg_id\": \"$$(cat /proc/sys/kernel/random/uuid)\", \
+			\"msg_type\": \"execute_request\", \
+			\"username\": \"test\", \
+			\"session\": \"$$(cat /proc/sys/kernel/random/uuid)\", \
+			\"date\": \"$$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")\" \
+		}, \
+		\"parent_header\": {}, \
+		\"metadata\": {}, \
+		\"content\": { \
+			\"code\": \"import pkg_resources; list(pkg_resources.working_set)\", \
+			\"silent\": false, \
+			\"store_history\": false, \
+			\"user_expressions\": {}, \
+			\"allow_stdin\": false \
+		}, \
+		\"channel\": \"shell\" \
+	}" | websocat "ws://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels/$$(cat $(RBT_TEMP_DIR)/kernel_id)/channels" \
+		| jq "select(.msg_type == \"execute_result\") | .content.data.\"text/plain\""'
+
+	# Cleanup kernel
+	podman exec $(RBM_SENTRY_CONTAINER) curl -s -X DELETE \
+		"http://$(RBN_ENCLAVE_SENTRY_IP):$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels/$$(cat $(RBT_TEMP_DIR)/kernel_id)"
 
 	$(MBC_PASS) "No errors detected."
 
