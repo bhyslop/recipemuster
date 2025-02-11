@@ -172,6 +172,7 @@ rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
 	$(MAKE) -f $(RBM_TESTS_DIR)/rbt.test.$(RBM_MONIKER).mk   \
 	                RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)    \
 			RBT_TEMP_DIR=$(RBM_TEMP_DIR)             \
+			RBT_TESTS_DIR=$(RBM_TESTS_DIR)           \
 	                rbt_test_bottle_service_rule
 
 

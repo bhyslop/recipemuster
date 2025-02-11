@@ -15,7 +15,6 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_BOTTLE_IP      is $(RBN_ENCLAVE_BOTTLE_IP)"
 	$(MBC_SHOW_WHITE) "   fact: RBT_TEMP_DIR               is $(RBT_TEMP_DIR)"
 	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR              is $(RBT_TESTS_DIR)"
-	false && echo "WE NEED TO PLUMB IN THE TESTS DIR I THINK.  What do with RBT_MAKEFILE?"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
 	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
@@ -45,18 +44,32 @@ rbt_test_bottle_service_rule:
 		-H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))"   \
 		-H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"
 
+	$(MBC_SHOW_WHITE) "Cleaning up any existing sessions and kernels"
+	curl -X DELETE "$(RBT_JUPYTER_API)/sessions"                        \
+	    -H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))"                \
+	    -H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"
+
+	$(MBC_SHOW_WHITE) "Confirm cleanup of sessions and kernels"
+	curl -X GET "$(RBT_JUPYTER_API)/kernels"                            \
+	    -H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))"                \
+	    -H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"               \
+	    | jq -r '.[].id'                                                \
+	    | xargs -I{} curl -X DELETE "$(RBT_JUPYTER_API)/kernels/{}"     \
+	    -H "X-XSRFToken: $$(cat $(RBT_XSRF_TOKEN_FILE))"                \
+	    -H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"
+
 	$(MBC_SHOW_WHITE) "Create and test kernel using WebSocket"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
 	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
 
 	$(MBC_SHOW_WHITE) "Executing enclave tests from SENTRY container"
-	cat rbt.test.srjcl.enclave.sh | podman exec -i        \
-	  -e RBN_ENCLAVE_BOTTLE_IP=$(RBN_ENCLAVE_BOTTLE_IP)   \
-          -e RBN_ENTRY_PORT_ENCLAVE=$(RBN_ENTRY_PORT_ENCLAVE) \
+	cat $(RBT_TESTS_DIR)/rbt.test.srjcl.enclave.sh | podman exec -i  \
+	  -e RBN_ENCLAVE_BOTTLE_IP=$(RBN_ENCLAVE_BOTTLE_IP)              \
+          -e RBN_ENTRY_PORT_ENCLAVE=$(RBN_ENTRY_PORT_ENCLAVE)            \
 	  $(RBM_SENTRY_CONTAINER) /bin/sh
 
-    $(MBC_PASS) "No errors detected."
+	$(MBC_PASS) "No errors detected."
 
 
 # eof
