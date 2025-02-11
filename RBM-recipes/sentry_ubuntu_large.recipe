@@ -31,7 +31,13 @@ RUN apt-get update && apt-get install -y                                        
     iftop               `# For bandwidth monitoring`                                     \
     psmisc              `# For fuser, killall, etc.`                                     \
     ipcalc              `# For IP calculations and subnet info`                          \
+    jq                  `# For JSON parsing and manipulation`                            \
     && rm -rf /var/lib/apt/lists/*
+
+# EXPERIMENTAL: Websocket client for testing jupyter function
+RUN curl -L https://github.com/vi/websocat/releases/download/v1.12.0/websocat.x86_64-unknown-linux-musl \
+                -o /usr/local/bin/websocat && \
+          chmod +x /usr/local/bin/websocat
 
 # Keep the container alive
 CMD ["tail", "-f", "/dev/null"]
