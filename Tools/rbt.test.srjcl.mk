@@ -11,6 +11,7 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER       is $(RBM_BOTTLE_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP      is $(RBN_ENCLAVE_SENTRY_IP)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENTRY_PORT_WORKSTATION is $(RBN_ENTRY_PORT_WORKSTATION)"
+	$(MBC_SHOW_WHITE) "   fact: RBT_TEMP_DIR               is $(RBT_TEMP_DIR)"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
 	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
