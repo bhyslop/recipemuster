@@ -28,7 +28,7 @@ zRBC_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 zRBC_BGC_MAKEFILE = $(MBV_TOOLS_DIR)/bgc.BuildGithubContainers.mk
 
 # What console tool will put in prefix of each line
-MBC_ARG__CONTEXT_STRING = $(MBV_MAKEFILE)
+MBC_ARG__CONTEXT_STRING = $(MBV_CONSOLE_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_BGC_MAKEFILE)
@@ -51,18 +51,34 @@ include $(zRBC_RBM_MAKEFILE)
 
 
 #######################################
+#  Clean Temporary directory creation
+#
+
+zRBC_TEMP_DIR = $(MBV_TEMP_ROOT_DIR)/temp-$(MBV_NOW_STAMP)
+
+zrbc_prepare_temporary_dir:
+	$(MBC_START) "Set up temporary dir ->" $(zRBC_TEMP_DIR)
+	@test -n "$(MBV_TEMP_ROOT_DIR)"  || ($(MBC_SEE_RED) "MBV_TEMP_ROOT_DIR not set" && exit 1)
+	@test -n "$(MBV_NOW_STAMP)"      || ($(MBC_SEE_RED) "MBV_NOW_STAMP not set"     && exit 1)
+	mkdir -p  $(zRBC_TEMP_DIR)
+	@test -d "$(zRBC_TEMP_DIR)" || ($(MBC_SEE_RED) "Failed to create directory" && exit 1)
+	-rm -f    $(zRBC_TEMP_DIR)/*
+
+
+#######################################
 #  Test Targets
 #
 
-rbc-to.%: 
+rbc-to.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nameplate_rule
+	$(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
 	$(MBC_PASS)
 
-rbc-ta.%:
+rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "For each well known nameplate"
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nameplate_rule RBM_MONIKER=nsproto
-	$(MAKE) -f $(MBV_MAKEFILE) rbm_test_nameplate_rule RBM_MONIKER=srjcl
+	false
+	$(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR) RBM_MONIKER=nsproto 
+	$(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR) RBM_MONIKER=srjcl   
 	$(MBC_PASS)
 
 
@@ -89,6 +105,7 @@ ttc.CreateTabtarget.sh:
 
 
 ttx.FixTabtargetExecutability.sh:
+	$(MBC_START) "Repair windows proclivity to goof up executable privileges"
 	git update-index --chmod=+x $(MBV_TABTARGET_DIR)/*
 	$(zRBC_PASS)
 

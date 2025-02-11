@@ -50,7 +50,7 @@ source ${zMBD_VARIABLES}
 : ${MBV_STATION_FILE:?}        && zMBD_SHOW "Station file:        ${MBV_STATION_FILE}"
 : ${MBV_LOG_LAST:?}            && zMBD_SHOW "Latest log:          ${MBV_LOG_LAST}"
 : ${MBV_LOG_EXT:?}             && zMBD_SHOW "Log extension:       ${MBV_LOG_EXT}"
-: ${MBV_MAKEFILE:?}            && zMBD_SHOW "Makefile:            ${MBV_MAKEFILE}"
+: ${MBV_CONSOLE_MAKEFILE:?}    && zMBD_SHOW "Console Makefile:    ${MBV_CONSOLE_MAKEFILE}"
 : ${MBV_TABTARGET_DIR:?}       && zMBD_SHOW "Tabtarget Dir:       ${MBV_TABTARGET_DIR}"
 : ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: $MBV_TABTARGET_DELIMITER}"
 
@@ -110,11 +110,11 @@ zMBD_SHOW "Assure log directory exists..."
 mkdir -p "$MBS_LOG_DIR"
 
 cmd_parts=(
-    "make -f $MBV_MAKEFILE"
+    "make -f $MBV_CONSOLE_MAKEFILE"
     "$zMBD_OUTPUT_MODE -j $zMBD_JOB_PROFILE"
     "$zMBD_TARGET"
-    "MBDM_NOW_STAMP=$zMBD_NOW_STAMP"
-    "MBDM_JOB_PROFILE=$zMBD_JOB_PROFILE"
+    "MBV_NOW_STAMP=$zMBD_NOW_STAMP"
+    "MBV_JOB_PROFILE=$zMBD_JOB_PROFILE"
     "${zMBD_TOKEN_PARAMS[*]}"
     "$@"
 )

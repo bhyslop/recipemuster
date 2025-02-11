@@ -29,11 +29,12 @@
 #  have their own.  If you place it up a directory `..` then multiple
 #  repo clones can share it.
 MBV_STATION_FILE=../RBS.STATION.sh
+MBV_CONSOLE_MAKEFILE=rbc.console.mk
 
 MBV_TABTARGET_DIR=tt
 MBV_TABTARGET_DELIMITER=.
 MBV_TOOLS_DIR=Tools
+MBV_TEMP_ROOT_DIR=../temp-${MBV_CONSOLE_MAKEFILE}
 MBV_LOG_LAST=last
 MBV_LOG_EXT=txt
-MBV_MAKEFILE=rbc.console.mk
 
