@@ -38,39 +38,65 @@ MBC_PASS  := $(MBC_SHOW_GREEN)
 MBC_FAIL  := (printf $(zMBC_TPUT_RESET)$(zMBC_TPUT_RED)$(MBC_ARG__CONTEXT_STRING)' FAILED\n'$(zMBC_TPUT_RESET) && exit 1)
 
 # For use in compound statements.
+MBC_SEE_NORMAL := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_RESET)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 MBC_SEE_RED    := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_RED)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 MBC_SEE_YELLOW := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_YELLOW)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 MBC_SEE_GREEN  := printf "$(MBC_ARG__CONTEXT_STRING): $(zMBC_TPUT_GREEN)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 
 
-# Validation helpers
+# Validate that a variable is exported in environment
+#    $(1) - GATE    - Test only if "1", bypass otherwise
+#    $(2) - VARNAME - Name of variable to verify exported
 MBC_CHECK_EXPORTED = \
   test "$(1)" != "1" || (env | grep -q ^'$(2)'= || \
-  ($(MBC_SEE_RED) "Variable '$(2)' must be exported" && exit 1))
+  ($(MBC_SEE_RED) "Variable '$(2)' must be exported (see locale below)" && exit 1))
 
+# Validate that a value is boolean (0 or 1)
+#    $(1) - GATE  - Test only if "1", bypass otherwise
+#    $(2) - VALUE - Value to verify is 0 or 1
 MBC_CHECK__BOOLEAN = \
   test "$(1)" != "1" || (test '$(2)' = "0" -o '$(2)' = "1" || \
-  ($(MBC_SEE_RED) "Value '$(2)' must be 0 or 1" && exit 1))
+  ($(MBC_SEE_RED) "Value '$(2)' must be 0 or 1 (see locale below)" && exit 1))
 
+# Validate that a value falls within inclusive range
+#    $(1) - GATE  - Test only if "1", bypass otherwise
+#    $(2) - VALUE - Value to verify in range
+#    $(3) - MIN   - Minimum allowed value
+#    $(4) - MAX   - Maximum allowed value
 MBC_CHECK_IN_RANGE = \
   test "$(1)" != "1" || (test '$(2)' -ge '$(3)' -a '$(2)' -le '$(4)' || \
-  ($(MBC_SEE_RED) "Value '$(2)' must be between '$(3)' and '$(4)'" && exit 1))
+  ($(MBC_SEE_RED) "Value '$(2)' must be between '$(3)' and '$(4)' (see locale below)" && exit 1))
 
+# Validate that a value is non-empty, with conditional bypass
+#    $(1) - GATE  - Test only if "1", bypass otherwise
+#    $(2) - VALUE - Value to verify non-empty
 MBC_CHECK_NONEMPTY = \
   test "$(1)" != "1" || (test -n '$(2)' || \
-  ($(MBC_SEE_RED) "Value '$(2)' must not be empty" && exit 1))
+  ($(MBC_SEE_RED) "Critical value must not be empty (see locale below)" && exit 1))
 
+# Validate that a value matches a regex pattern
+#    $(1) - GATE    - Test only if "1", bypass otherwise
+#    $(2) - VALUE   - Value to test against pattern
+#    $(3) - PATTERN - Extended regex pattern to match
 MBC_CHECK__MATCHES = \
   test "$(1)" != "1" || (echo $(2) | grep -E $(3) || \
-  ($(MBC_SEE_RED) "Value '$(2)' does not match required pattern" && exit 1))
+  ($(MBC_SEE_RED) "Value '$(2)' does not match required pattern (see locale below)" && exit 1))
 
+# Validate that a value starts with a regex pattern
+#    $(1) - GATE    - Test only if "1", bypass otherwise
+#    $(2) - VALUE   - Value to test against pattern
+#    $(3) - PATTERN - Extended regex pattern to match at start
 MBC_CHECK_STARTS_W = \
   test "$(1)" != "1" || (echo $(2) | grep -E ^$(3) || \
-  ($(MBC_SEE_RED) "Value '$(2)' must start with required pattern" && exit 1))
+  ($(MBC_SEE_RED) "Value '$(2)' must start with required pattern (see locale below)" && exit 1))
 
+# Validate that a value ends with a regex pattern
+#    $(1) - GATE    - Test only if "1", bypass otherwise
+#    $(2) - VALUE   - Value to test against pattern
+#    $(3) - PATTERN - Extended regex pattern to match at end
 MBC_CHECK_ENDSWITH = \
   test "$(1)" != "1" || (echo $(2) | grep -E $(3)$$ || \
-  ($(MBC_SEE_RED) "Value '$(2)' must end with required pattern" && exit 1))
+  ($(MBC_SEE_RED) "Value '$(2)' must end with required pattern (see locale below)" && exit 1))
 
 # This regex-based check has limitations:
 #   - Accepts invalid octet values >255 

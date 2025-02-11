@@ -28,7 +28,7 @@ zRBC_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 zRBC_BGC_MAKEFILE = $(MBV_TOOLS_DIR)/bgc.BuildGithubContainers.mk
 
 # What console tool will put in prefix of each line
-MBC_ARG__CONTEXT_STRING = $(MBV_CONSOLE_MAKEFILE)
+MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 
 include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_BGC_MAKEFILE)
@@ -58,8 +58,9 @@ zRBC_TEMP_DIR = $(MBV_TEMP_ROOT_DIR)/temp-$(MBV_NOW_STAMP)
 
 zrbc_prepare_temporary_dir:
 	$(MBC_START) "Set up temporary dir ->" $(zRBC_TEMP_DIR)
-	@test -n "$(MBV_TEMP_ROOT_DIR)"  || ($(MBC_SEE_RED) "MBV_TEMP_ROOT_DIR not set" && exit 1)
-	@test -n "$(MBV_NOW_STAMP)"      || ($(MBC_SEE_RED) "MBV_NOW_STAMP not set"     && exit 1)
+	@$(call MBC_CHECK_NONEMPTY,1,$(zRBC_TEMP_DIR))
+	@$(call MBC_CHECK_NONEMPTY,1,$(MBV_TEMP_ROOT_DIR))
+	@$(call MBC_CHECK_NONEMPTY,1,$(MBV_NOW_STAMP))
 	mkdir -p    $(zRBC_TEMP_DIR)
 	@test -d   "$(zRBC_TEMP_DIR)"   || ($(MBC_SEE_RED) "Failed to create directory" && exit 1)
 	@test ! -f "$(zRBC_TEMP_DIR)/*" || ($(MBC_SEE_RED) "Directory contains files"   && exit 1)

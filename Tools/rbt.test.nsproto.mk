@@ -7,6 +7,7 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER  is $(RBM_SENTRY_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER  is $(RBM_BOTTLE_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP is $(RBN_ENCLAVE_SENTRY_IP)"
+	false
 
 	$(MBC_SHOW_WHITE) "Check if dnsmasq is running on sentry"
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
