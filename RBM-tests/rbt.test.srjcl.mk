@@ -14,6 +14,7 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP      is $(RBN_ENCLAVE_SENTRY_IP)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_BOTTLE_IP      is $(RBN_ENCLAVE_BOTTLE_IP)"
 	$(MBC_SHOW_WHITE) "   fact: RBT_TEMP_DIR               is $(RBT_TEMP_DIR)"
+	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR              is $(RBT_TESTS_DIR)"
 	false && echo "WE NEED TO PLUMB IN THE TESTS DIR I THINK.  What do with RBT_MAKEFILE?"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
