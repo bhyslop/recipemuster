@@ -56,9 +56,10 @@ echo '{
         "allow_stdin": false
     },
     "channel": "shell"
-}' | websocat "ws://${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}/api/kernels/${KERNEL_ID}/channels" \
-    | tee /dev/stderr \
-    | jq 'select(.msg_type == "stream") | .content.text' || exit 1
+}' | websocat --no-close \
+    "ws://${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}/api/kernels/${KERNEL_ID}/channels" \
+    | jq -c 'select(.msg_type == "stream" or .msg_type == "execute_result" or .msg_type == "status")' \
+    | awk '/idle/{exit}; {print}' || exit 1
 
 echo "RBTJ7: Cleaning up test kernel"
 curl -s -X DELETE "${JUPYTER_BASE}/api/kernels/${KERNEL_ID}" \
