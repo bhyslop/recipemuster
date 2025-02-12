@@ -56,8 +56,18 @@ echo '{
         "allow_stdin": false
     },
     "channel": "shell"
-}' | websocat --no-close \
+}' | websocat --text --verbose \
     "ws://${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}/api/kernels/${KERNEL_ID}/channels" \
+    2>/tmp/ws_debug | tee /tmp/ws_output || exit 1
+
+echo "RBTJ6.0: WebSocket debug output"
+cat /tmp/ws_debug
+
+echo "RBTJ6.1: WebSocket raw output"
+cat /tmp/ws_output || exit 1
+
+echo "RBTJ6.2: Filtered output"
+cat /tmp/ws_output \
     | jq -c 'select(.msg_type == "stream" or .msg_type == "execute_result" or .msg_type == "status")' \
     | awk '/idle/{exit}; {print}' || exit 1
 

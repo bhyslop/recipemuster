@@ -171,6 +171,7 @@ rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
 	@test -n "$(RBM_TEMP_DIR)" || ($(MBC_SEE_RED) "RBM_TEMP_DIR not set" && exit 1)
 	$(MAKE) -f $(RBM_TESTS_DIR)/rbt.test.$(RBM_MONIKER).mk   \
 	                RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)    \
+			MBC_ARG__CTXT=rbt.test                   \
 			RBT_TEMP_DIR=$(RBM_TEMP_DIR)             \
 			RBT_TESTS_DIR=$(RBM_TESTS_DIR)           \
 	                rbt_test_bottle_service_rule
@@ -182,7 +183,7 @@ rbm-cs%:
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-cb%: zrbm_validate_regimes_rule♦
+rbm-cb%: zrbm_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
