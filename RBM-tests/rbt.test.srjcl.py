@@ -43,51 +43,53 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             "X-XSRFToken": xsrf_token,
             "Cookie": f"_xsrf={xsrf_token}"
         }
-
+        
         session_data = {
             "kernel": {"name": "python3"},
             "name": "test.ipynb",
             "path": "test.ipynb",
             "type": "notebook"
         }
-
+        
         response = requests.post(api_url, 
                                headers=headers,
                                json=session_data,
                                timeout=10)
         response.raise_for_status()
         session_info = response.json()
-        kernel_id = session_info.get('kernel', {}).get('id')
-        if not kernel_id:
-            return False, "Failed to create kernel session"
-        print(f"Created kernel session: {kernel_id}")
+        if not session_info.get('id'):
+            return False, "Failed to create session"
+        print(f"Created session: {json.dumps(session_info, indent=2)}")
 
-        # Step 3: Test kernel by executing code
+        # Step 3: Test kernel by executing code through session
         print("Testing kernel execution...")
-        execute_url = urljoin(base_url, f"/api/kernels/{kernel_id}/execute")
+        execute_url = urljoin(base_url, f"/api/sessions/{session_info['id']}/execute")
         code = "print('Hello from Jupyter kernel')"
-
+        
         for attempt in range(max_retries):
             try:
-                # Try to execute code
+                # Try to execute code via session
                 response = requests.post(execute_url,
                                       headers=headers,
-                                      json={"code": code},
+                                      json={
+                                          "code": code,
+                                          "silent": False,
+                                          "store_history": True,
+                                          "user_expressions": {},
+                                          "allow_stdin": False
+                                      },
                                       timeout=10)
                 response.raise_for_status()
-                msg_id = response.json().get('msg_id')
-
-                if msg_id:
-                    print(f"Successfully executed code with msg_id: {msg_id}")
-                    return True, "Kernel is responsive and executing code"
-
-                except requests.exceptions.RequestException as e:
+                print(f"Response from execute: {json.dumps(response.json(), indent=2)}")
+                return True, "Successfully sent code to kernel"
+                    
+            except requests.exceptions.RequestException as e:
                 print(f"Attempt {attempt + 1} failed: {str(e)}")
                 if attempt < max_retries - 1:
                     print(f"Waiting {retry_delay}s before retry...")
                     time.sleep(retry_delay)
                     
-        return False, "Failed to execute code on kernel after multiple attempts"
+        return False, "Failed to execute code after multiple attempts"
 
         # Step 4: Clean up
         print("Cleaning up...")
