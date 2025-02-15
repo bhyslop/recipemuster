@@ -149,9 +149,9 @@ rm "$zMBD_STATUS_TMP"
 set -e
 
 zMBD_SHOW "Generate checksum after all logging is complete, regardless of eval status"
-echo "Same log checksum: $(sha256sum           "$zMBD_LOG_SAME" 2>/dev/null || 
-                          openssl dgst -sha256 "$zMBD_LOG_SAME" 2>/dev/null || 
-                          echo "checksum-unavailable")" >> "$zMBD_LOG_HIST" || true
+echo "Same log checksum: $(sha256sum            "$zMBD_LOG_SAME" 2>/dev/null || 
+                           openssl dgst -sha256 "$zMBD_LOG_SAME" 2>/dev/null || 
+                           echo "checksum-unavailable")" >> "$zMBD_LOG_HIST" || true
 
 zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
 

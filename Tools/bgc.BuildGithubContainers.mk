@@ -130,8 +130,6 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 
 bgc-l%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
-	$(MBC_STEP) "DEBUG: raw listing..."
-	@$(zBGC_CMD_LIST_IMAGES)
 	$(MBC_STEP) "JQ execution..."
 	@$(zBGC_CMD_LIST_IMAGES)                                   |\
 	  jq -r '.[] | select(.package_type=="container") | .name' |\
@@ -142,8 +140,8 @@ bgc-l%: zbgc_argcheck_rule
 	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                            |\
 	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                       |\
 	      sort -r                                                                    |\
-	      awk       '{printf "%-40s %-20s ghcr.io/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}' |\
-	      awk 'BEGIN {printf "%-40s %-20s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
+	      awk       '{printf "%-50s %-13s ghcr.io/$(BGCV_REGISTRY_OWNER)/$(BGCV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}' |\
+	      awk 'BEGIN {printf "%-50s %-13s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
 	    echo; \
 	  done
 	$(MBC_PASS) "No errors."
