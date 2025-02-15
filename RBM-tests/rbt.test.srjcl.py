@@ -10,6 +10,18 @@ def test_jupyter_server(base_url="http://localhost:7999"):
     Returns (success: bool, message: str)
     """
     try:
+        # Step 0: Clean up any existing kernels
+        print("Cleaning up existing kernels...")
+        sessions_url = urljoin(base_url, "/api/sessions")
+        response = requests.get(sessions_url, timeout=10)
+        if response.status_code == 200:
+            existing_sessions = response.json()
+            for session in existing_sessions:
+                session_id = session.get('id')
+                if session_id:
+                    requests.delete(f"{sessions_url}/{session_id}")
+            print(f"Cleaned up {len(existing_sessions)} existing sessions")
+        
         # Step 1: Test basic connectivity and get XSRF token
         print("Testing basic connectivity...")
         response = requests.get(base_url + "/lab", 
@@ -53,8 +65,8 @@ def test_jupyter_server(base_url="http://localhost:7999"):
         # Step 3: Test kernel status with retries
         print("Testing kernel status...")
         kernel_url = urljoin(base_url, f"/api/kernels/{kernel_id}")
-        max_retries = 5
-        retry_delay = 2
+        max_retries = 10
+        retry_delay = 3
 
         for attempt in range(max_retries):
             response = requests.get(kernel_url,
@@ -63,11 +75,12 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             response.raise_for_status()
             kernel_info = response.json()
 
+            print(f"Kernel info received: {json.dumps(kernel_info, indent=2)}")
             if kernel_info.get('execution_state') == 'idle':
                 print("Kernel is running and idle")
                 break
             elif attempt < max_retries - 1:
-                print(f"Kernel not ready (status: {kernel_info.get('execution_state')}), waiting {retry_delay}s...")
+                print(f"Kernel not ready (state: {kernel_info.get('execution_state')}), waiting {retry_delay}s...")
                 time.sleep(retry_delay)
         else:
             return False, f"Kernel never reached idle state after {max_retries} attempts"
