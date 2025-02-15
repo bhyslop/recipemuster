@@ -42,10 +42,10 @@ rbt_test_bottle_service_rule:
 	  --connect-timeout 5 --max-time 10 $(RBT_PLANTUML_URL)/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40
 
 	$(MBC_SHOW_WHITE) "Test server response with invalid diagram hash"
-	! curl -s $(RBT_PLANTUML_URL)/txt/invalid_hash | grep "Bob"
+	@test 0 -eq $$(curl -s $(RBT_PLANTUML_URL)/txt/invalid_hash | grep -c "Bob")
 
 	$(MBC_SHOW_WHITE) "Test server response with malformed diagram"
-	echo "invalid uml content" | ! curl -s --data-binary @- $(RBT_PLANTUML_URL)/txt/uml | grep "Bob"
+	@test 0 -eq $$(echo "invalid uml content" | curl -s --data-binary @- $(RBT_PLANTUML_URL)/txt/uml | grep -c "Bob")
 
 	$(MBC_PASS) "All PlantUML service tests passed successfully."
 
