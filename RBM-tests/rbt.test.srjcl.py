@@ -3,6 +3,9 @@ import json
 import time
 from urllib.parse import urljoin
 import sys
+import uuid
+import websocket
+import threading
 
 def test_jupyter_server(base_url="http://localhost:7999"):
     """
@@ -61,44 +64,86 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             return False, "Failed to create session"
         print(f"Created session: {json.dumps(session_info, indent=2)}")
 
-        # Step 3: Test kernel by executing code through session
+        # Step 3: Test kernel by executing code through WebSocket
         print("Testing kernel execution...")
-        execute_url = urljoin(base_url, f"/api/sessions/{session_info['id']}/execute")
-        code = "print('Hello from Jupyter kernel')"
+        kernel_id = session_info['kernel']['id']
         
-        for attempt in range(max_retries):
-            try:
-                # Try to execute code via session
-                response = requests.post(execute_url,
-                                      headers=headers,
-                                      json={
-                                          "code": code,
-                                          "silent": False,
-                                          "store_history": True,
-                                          "user_expressions": {},
-                                          "allow_stdin": False
-                                      },
-                                      timeout=10)
-                response.raise_for_status()
-                print(f"Response from execute: {json.dumps(response.json(), indent=2)}")
-                return True, "Successfully sent code to kernel"
-                    
-            except requests.exceptions.RequestException as e:
-                print(f"Attempt {attempt + 1} failed: {str(e)}")
-                if attempt < max_retries - 1:
-                    print(f"Waiting {retry_delay}s before retry...")
-                    time.sleep(retry_delay)
-                    
-        return False, "Failed to execute code after multiple attempts"
+        # Use the channels endpoint for kernel communication
+        ws_url = urljoin(base_url, f"/api/kernels/{kernel_id}/channels")
+        ws_url = ws_url.replace('http://', 'ws://')
+        
+        execution_completed = threading.Event()
+        execution_successful = False
+        execution_result = None
 
-        # Step 4: Clean up
-        print("Cleaning up...")
-        response = requests.delete(kernel_url,
-                                 headers=headers,
-                                 timeout=10)
-        response.raise_for_status()
-        
-        return True, "All tests passed successfully"
+        def on_message(ws, message):
+            nonlocal execution_successful, execution_result
+            try:
+                msg = json.loads(message)
+                msg_type = msg.get('msg_type', '')
+                if msg_type == 'status' and msg.get('content', {}).get('execution_state') == 'idle':
+                    execution_completed.set()
+                elif msg_type in ['execute_result', 'stream']:
+                    execution_successful = True
+                    execution_result = msg.get('content', {}).get('text', msg.get('content', {}).get('data', {}).get('text/plain', ''))
+            except Exception as e:
+                print(f"Error processing message: {str(e)}")
+
+        def on_error(ws, error):
+            print(f"WebSocket error: {error}")
+            execution_completed.set()
+
+        def on_close(ws, close_status_code, close_msg):
+            print("WebSocket connection closed")
+            execution_completed.set()
+
+        def on_open(ws):
+            execute_request = {
+                'header': {
+                    'msg_id': str(uuid.uuid4()),
+                    'username': '',
+                    'session': str(uuid.uuid4()),
+                    'msg_type': 'execute_request',
+                    'version': '5.0'
+                },
+                'parent_header': {},
+                'metadata': {},
+                'content': {
+                    'code': 'print("Hello from Jupyter kernel")',
+                    'silent': False,
+                    'store_history': True,
+                    'user_expressions': {},
+                    'allow_stdin': False
+                },
+                'channel': 'shell'
+            }
+            ws.send(json.dumps(execute_request))
+
+        ws = websocket.WebSocketApp(
+            ws_url,
+            header=[
+                f"Cookie: _xsrf={xsrf_token}",
+                "User-Agent: Mozilla/5.0"
+            ],
+            on_open=on_open,
+            on_message=on_message,
+            on_error=on_error,
+            on_close=on_close
+        )
+
+        ws_thread = threading.Thread(target=ws.run_forever)
+        ws_thread.daemon = True
+        ws_thread.start()
+
+        # Wait for execution to complete with timeout
+        if not execution_completed.wait(timeout=10):
+            ws.close()
+            return False, "Execution timed out"
+
+        if execution_successful:
+            return True, f"Successfully executed code. Result: {execution_result}"
+        else:
+            return False, "Failed to get execution result"
 
     except requests.exceptions.ConnectionError as e:
         return False, f"Connection error: {str(e)}"
