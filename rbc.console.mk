@@ -26,28 +26,22 @@ include mbv.variables.sh
 
 zRBC_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 zRBC_BGC_MAKEFILE = $(MBV_TOOLS_DIR)/bgc.BuildGithubContainers.mk
+zRBC_RBM_MAKEFILE = $(MBV_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
 
 # What console tool will put in prefix of each line
 MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 
+# How selection of a bottle service is done
+RBM_MONIKER = $(MBDM_PARAMETER_2)
+
 include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_BGC_MAKEFILE)
-
-zRBC_START = $(MBC_SHOW_WHITE) "Rule $@: starting..."
-zRBC_STEP  = $(MBC_SHOW_WHITE) "Rule $@:"
-zRBC_PASS  = $(MBC_PASS)       "Rule $@: no errors."
+include $(zRBC_RBM_MAKEFILE)
 
 
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(MBV_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
-
-# Configure and include the Recipe Bottle Makefile
-zRBC_RBM_MAKEFILE := $(MBV_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
-
-RBM_MONIKER := $(MBDM_PARAMETER_2)
-
-include $(zRBC_RBM_MAKEFILE)
 
 
 #######################################
@@ -104,13 +98,13 @@ ttc.CreateTabtarget.sh:
 	@chmod +x                   $(zRBC_TABTARGET_FILE)
 	git add                     $(zRBC_TABTARGET_FILE)
 	git update-index --chmod=+x $(zRBC_TABTARGET_FILE)
-	$(zRBC_PASS)
+	$(MBC_PASS) "No errors."
 
 
 ttx.FixTabtargetExecutability.sh:
 	$(MBC_START) "Repair windows proclivity to goof up executable privileges"
 	git update-index --chmod=+x $(MBV_TABTARGET_DIR)/*
-	$(zRBC_PASS)
+	$(MBC_PASS) "No errors."
 
 
 #########################################
@@ -118,7 +112,7 @@ ttx.FixTabtargetExecutability.sh:
 #
 
 oga.OpenGithubAction.sh:
-	$(zRBC_STEP) "Assure podman services available..."
+	$(MBC_STEP) "Assure podman services available..."
 	cygstart https://github.com/bhyslop/recipemuster/actions/
 
 
