@@ -82,18 +82,29 @@ def test_jupyter_server(base_url="http://localhost:7999"):
 
         def on_message(ws, message):
             nonlocal execution_successful, execution_result
-            print(f"WebSocket message received: {message[:200]}...")  # First 200 chars
+            print(f"WebSocket message received: {message[:200]}...")
             try:
                 msg = json.loads(message)
                 msg_type = msg.get('msg_type', '')
-                print(f"Message type: {msg_type}")
-                if msg_type == 'status' and msg.get('content', {}).get('execution_state') == 'idle':
-                    print("Kernel is idle")
-                    execution_completed.set()
-                elif msg_type in ['execute_result', 'stream']:
-                    print("Got execution result")
+                channel = msg.get('channel', '')
+                print(f"Message type: {msg_type} on channel: {channel}")
+                
+                if msg_type == 'status':
+                    state = msg.get('content', {}).get('execution_state')
+                    print(f"Kernel state: {state}")
+                    if state == 'idle':
+                        execution_completed.set()
+                elif msg_type == 'stream':
+                    print("Got stream output")
                     execution_successful = True
-                    execution_result = msg.get('content', {}).get('text', msg.get('content', {}).get('data', {}).get('text/plain', ''))
+                    execution_result = msg.get('content', {}).get('text', '')
+                elif msg_type == 'execute_result':
+                    print("Got execute result")
+                    execution_successful = True
+                    execution_result = msg.get('content', {}).get('data', {}).get('text/plain', '')
+                elif msg_type == 'error':
+                    print(f"Kernel error: {msg.get('content', {})}")
+                    execution_completed.set()
             except Exception as e:
                 print(f"Error processing message: {str(e)}")
 
@@ -113,7 +124,7 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                     'username': '',
                     'session': str(uuid.uuid4()),
                     'msg_type': 'execute_request',
-                    'version': '5.0'
+                    'version': '5.3'  # Match the version from server
                 },
                 'parent_header': {},
                 'metadata': {},
@@ -124,7 +135,8 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                     'user_expressions': {},
                     'allow_stdin': False
                 },
-                'channel': 'shell'
+                'channel': 'shell',
+                'buffers': []  # Match server message format
             }
             print("Sending execute request")
             ws.send(json.dumps(execute_request))
