@@ -76,10 +76,11 @@ def test_jupyter_server(base_url="http://localhost:7999"):
         ws_url = ws_url.replace('http://', 'ws://')
         print(f"Attempting WebSocket connection to: {ws_url}")
         
+        kernel_ready = threading.Event()
         execution_completed = threading.Event()
         execution_successful = False
         execution_result = None
-
+        
         def on_message(ws, message):
             nonlocal execution_successful, execution_result
             print(f"WebSocket message received: {message[:200]}...")
@@ -87,60 +88,60 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                 msg = json.loads(message)
                 msg_type = msg.get('msg_type', '')
                 channel = msg.get('channel', '')
+                parent_header = msg.get('parent_header', {})
                 print(f"Message type: {msg_type} on channel: {channel}")
                 
                 if msg_type == 'status':
                     state = msg.get('content', {}).get('execution_state')
                     print(f"Kernel state: {state}")
                     if state == 'idle':
-                        execution_completed.set()
+                        # Only set kernel_ready if this is a response to kernel_info
+                        if parent_header.get('msg_type') == 'kernel_info_request':
+                            kernel_ready.set()
+                        else:
+                            execution_completed.set()
                 elif msg_type == 'stream':
-                    print("Got stream output")
+                    text = msg.get('content', {}).get('text', '')
+                    print(f"Stream output: {text}")
                     execution_successful = True
-                    execution_result = msg.get('content', {}).get('text', '')
+                    execution_result = text
                 elif msg_type == 'execute_result':
-                    print("Got execute result")
+                    data = msg.get('content', {}).get('data', {})
+                    print(f"Execute result: {data}")
                     execution_successful = True
-                    execution_result = msg.get('content', {}).get('data', {}).get('text/plain', '')
+                    execution_result = str(data.get('text/plain', ''))
                 elif msg_type == 'error':
-                    print(f"Kernel error: {msg.get('content', {})}")
+                    error_info = msg.get('content', {})
+                    print(f"Kernel error: {error_info}")
                     execution_completed.set()
             except Exception as e:
                 print(f"Error processing message: {str(e)}")
 
         def on_error(ws, error):
             print(f"WebSocket error: {error}")
-            execution_completed.set()
 
         def on_close(ws, close_status_code, close_msg):
             print(f"WebSocket connection closed with status {close_status_code}: {close_msg}")
-            execution_completed.set()
 
         def on_open(ws):
             print("WebSocket connection opened")
-            execute_request = {
+            # First send kernel_info_request to check kernel readiness
+            kernel_info_request = {
                 'header': {
                     'msg_id': str(uuid.uuid4()),
                     'username': '',
                     'session': str(uuid.uuid4()),
-                    'msg_type': 'execute_request',
-                    'version': '5.3'  # Match the version from server
+                    'msg_type': 'kernel_info_request',
+                    'version': '5.3'
                 },
                 'parent_header': {},
                 'metadata': {},
-                'content': {
-                    'code': 'print("Hello from Jupyter kernel")',
-                    'silent': False,
-                    'store_history': True,
-                    'user_expressions': {},
-                    'allow_stdin': False
-                },
+                'content': {},
                 'channel': 'shell',
-                'buffers': []  # Match server message format
+                'buffers': []
             }
-            print("Sending execute request")
-            ws.send(json.dumps(execute_request))
-            print("Execute request sent")
+            print("Sending kernel info request")
+            ws.send(json.dumps(kernel_info_request))
 
         ws = websocket.WebSocketApp(
             ws_url,
@@ -154,27 +155,66 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             on_close=on_close
         )
 
-        ws_thread = threading.Thread(target=ws.run_forever)
-        ws_thread.daemon = True
+        ws_thread = threading.Thread(target=ws.run_forever, daemon=True)
         ws_thread.start()
 
-        # Wait for execution to complete with timeout
+        # Wait for kernel to be ready
+        if not kernel_ready.wait(timeout=10):
+            ws.close()
+            return False, "Timeout waiting for kernel to be ready"
+
+        # Now send the execute request
+        execute_request = {
+            'header': {
+                'msg_id': str(uuid.uuid4()),
+                'username': '',
+                'session': str(uuid.uuid4()),
+                'msg_type': 'execute_request',
+                'version': '5.3'
+            },
+            'parent_header': {},
+            'metadata': {},
+            'content': {
+                'code': 'print("Hello from Jupyter kernel")',
+                'silent': False,
+                'store_history': True,
+                'user_expressions': {},
+                'allow_stdin': False
+            },
+            'channel': 'shell',
+            'buffers': []
+        }
+        print("Sending execute request")
+        ws.send(json.dumps(execute_request))
+        print("Execute request sent")
+
+        # Wait for execution to complete
         if not execution_completed.wait(timeout=10):
             ws.close()
-            return False, "Execution timed out"
+            return False, "Timeout waiting for execution result"
 
+        ws.close()
+        
         if execution_successful:
             return True, f"Successfully executed code. Result: {execution_result}"
         else:
             return False, "Failed to get execution result"
 
     except requests.exceptions.ConnectionError as e:
+        if 'ws' in locals():
+            ws.close()
         return False, f"Connection error: {str(e)}"
     except requests.exceptions.Timeout as e:
+        if 'ws' in locals():
+            ws.close()
         return False, f"Timeout error: {str(e)}"
     except requests.exceptions.RequestException as e:
+        if 'ws' in locals():
+            ws.close()
         return False, f"Request error: {str(e)}"
     except Exception as e:
+        if 'ws' in locals():
+            ws.close()
         return False, f"Unexpected error: {str(e)}"
 
 if __name__ == "__main__":
