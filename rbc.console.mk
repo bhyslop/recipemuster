@@ -63,8 +63,6 @@ zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule
 
 rbc-to.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
-	$(MBC_STEP)  "Restart the bottle service"
-	$(zRBC_START_TEST_CMD)
 	$(MBC_STEP)  "Test the bottle service"
 	$(zRBC_MAKE_TEST_CMD)
 	$(MBC_PASS)
