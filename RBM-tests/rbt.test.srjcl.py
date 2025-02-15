@@ -62,28 +62,32 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             return False, "Failed to create kernel session"
         print(f"Created kernel session: {kernel_id}")
 
-        # Step 3: Test kernel status with retries
-        print("Testing kernel status...")
-        kernel_url = urljoin(base_url, f"/api/kernels/{kernel_id}")
-        max_retries = 10
-        retry_delay = 3
+        # Step 3: Test kernel by executing code
+        print("Testing kernel execution...")
+        execute_url = urljoin(base_url, f"/api/kernels/{kernel_id}/execute")
+        code = "print('Hello from Jupyter kernel')"
 
         for attempt in range(max_retries):
-            response = requests.get(kernel_url,
-                                  headers=headers,
-                                  timeout=10)
-            response.raise_for_status()
-            kernel_info = response.json()
+            try:
+                # Try to execute code
+                response = requests.post(execute_url,
+                                      headers=headers,
+                                      json={"code": code},
+                                      timeout=10)
+                response.raise_for_status()
+                msg_id = response.json().get('msg_id')
 
-            print(f"Kernel info received: {json.dumps(kernel_info, indent=2)}")
-            if kernel_info.get('execution_state') == 'idle':
-                print("Kernel is running and idle")
-                break
-            elif attempt < max_retries - 1:
-                print(f"Kernel not ready (state: {kernel_info.get('execution_state')}), waiting {retry_delay}s...")
-                time.sleep(retry_delay)
-        else:
-            return False, f"Kernel never reached idle state after {max_retries} attempts"
+                if msg_id:
+                    print(f"Successfully executed code with msg_id: {msg_id}")
+                    return True, "Kernel is responsive and executing code"
+
+                except requests.exceptions.RequestException as e:
+                print(f"Attempt {attempt + 1} failed: {str(e)}")
+                if attempt < max_retries - 1:
+                    print(f"Waiting {retry_delay}s before retry...")
+                    time.sleep(retry_delay)
+                    
+        return False, "Failed to execute code on kernel after multiple attempts"
 
         # Step 4: Clean up
         print("Cleaning up...")
@@ -91,7 +95,7 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                                  headers=headers,
                                  timeout=10)
         response.raise_for_status()
-
+        
         return True, "All tests passed successfully"
 
     except requests.exceptions.ConnectionError as e:
