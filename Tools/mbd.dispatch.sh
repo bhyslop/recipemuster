@@ -112,7 +112,6 @@ mkdir -p "$MBS_LOG_DIR"
 > "$zMBD_LOG_SAME"
 > "$zMBD_LOG_HIST"
 
-echo "Get git context for historical log"
 zMBD_GIT_CONTEXT=$(git describe --always --dirty --tags --long 2>/dev/null || echo "git-unavailable")
 echo "Git context: $zMBD_GIT_CONTEXT" >> "$zMBD_LOG_HIST"
 
@@ -145,10 +144,10 @@ zMBD_EXIT_STATUS=100
     zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
 } | tee -a "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" >(zMBD_TIMESTAMP >> "$zMBD_LOG_HIST")
 
-# Generate checksum of 'same' log and append to historical log
-echo "Same log checksum: $(sha256sum           "$zMBD_LOG_SAME" 2>/dev/null ||
-                          openssl dgst -sha256 "$zMBD_LOG_SAME" 2>/dev/null ||
-                          echo "checksum-unavailable")" >> "$zMBD_LOG_HIST"
+zMBD_SHOW "Generate checksum after all logging is complete, regardless of eval status"
+echo "Same log checksum: $(sha256sum           "$zMBD_LOG_SAME" 2>/dev/null || 
+                          openssl dgst -sha256 "$zMBD_LOG_SAME" 2>/dev/null || 
+                          echo "checksum-unavailable")" >> "$zMBD_LOG_HIST" || true
 
 zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
 
