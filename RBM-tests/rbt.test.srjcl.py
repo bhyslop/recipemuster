@@ -68,9 +68,13 @@ def test_jupyter_server(base_url="http://localhost:7999"):
         print("Testing kernel execution...")
         kernel_id = session_info['kernel']['id']
         
+        # Enable websocket trace debugging
+        websocket.enableTrace(True)
+        
         # Use the channels endpoint for kernel communication
         ws_url = urljoin(base_url, f"/api/kernels/{kernel_id}/channels")
         ws_url = ws_url.replace('http://', 'ws://')
+        print(f"Attempting WebSocket connection to: {ws_url}")
         
         execution_completed = threading.Event()
         execution_successful = False
@@ -78,12 +82,16 @@ def test_jupyter_server(base_url="http://localhost:7999"):
 
         def on_message(ws, message):
             nonlocal execution_successful, execution_result
+            print(f"WebSocket message received: {message[:200]}...")  # First 200 chars
             try:
                 msg = json.loads(message)
                 msg_type = msg.get('msg_type', '')
+                print(f"Message type: {msg_type}")
                 if msg_type == 'status' and msg.get('content', {}).get('execution_state') == 'idle':
+                    print("Kernel is idle")
                     execution_completed.set()
                 elif msg_type in ['execute_result', 'stream']:
+                    print("Got execution result")
                     execution_successful = True
                     execution_result = msg.get('content', {}).get('text', msg.get('content', {}).get('data', {}).get('text/plain', ''))
             except Exception as e:
@@ -94,10 +102,11 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             execution_completed.set()
 
         def on_close(ws, close_status_code, close_msg):
-            print("WebSocket connection closed")
+            print(f"WebSocket connection closed with status {close_status_code}: {close_msg}")
             execution_completed.set()
 
         def on_open(ws):
+            print("WebSocket connection opened")
             execute_request = {
                 'header': {
                     'msg_id': str(uuid.uuid4()),
@@ -117,7 +126,9 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                 },
                 'channel': 'shell'
             }
+            print("Sending execute request")
             ws.send(json.dumps(execute_request))
+            print("Execute request sent")
 
         ws = websocket.WebSocketApp(
             ws_url,
