@@ -69,11 +69,13 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
 	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
 
-	$(MBC_SHOW_WHITE) "Executing enclave tests from SENTRY container"
-	cat $(RBT_TESTS_DIR)/rbt.test.srjcl.enclave.sh | podman exec -i  \
-	  -e RBN_ENCLAVE_BOTTLE_IP=$(RBN_ENCLAVE_BOTTLE_IP)              \
-          -e RBN_ENTRY_PORT_ENCLAVE=$(RBN_ENTRY_PORT_ENCLAVE)            \
-	  $(RBM_SENTRY_CONTAINER) /bin/sh
+	$(MBC_SHOW_WHITE) "Running Python Jupyter test using test container"
+	cat $(RBT_TESTS_DIR)/rbt.test.srjcl.py |                                   \
+	  podman run --rm -i                                                       \
+	    --network host                                                         \
+	    -e RBN_ENTRY_PORT_WORKSTATION=$(RBN_ENTRY_PORT_WORKSTATION)            \
+	    ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409 \
+	    python3 -
 
 	$(MBC_PASS) "No errors detected."
 
