@@ -14,7 +14,6 @@ def test_jupyter_server(base_url="http://localhost:7999"):
     """
     try:
         # Step 0: Clean up any existing kernels
-        print("Cleaning up existing kernels...")
         sessions_url = urljoin(base_url, "/api/sessions")
         response = requests.get(sessions_url, timeout=10)
         if response.status_code == 200:
@@ -23,23 +22,18 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                 session_id = session.get('id')
                 if session_id:
                     requests.delete(f"{sessions_url}/{session_id}")
-            print(f"Cleaned up {len(existing_sessions)} existing sessions")
         
         # Step 1: Test basic connectivity and get XSRF token
-        print("Testing basic connectivity...")
         response = requests.get(base_url + "/lab", 
                               headers={"User-Agent": "Mozilla/5.0"},
                               timeout=10)
         response.raise_for_status()
         
-        # Extract XSRF token from cookies
         xsrf_token = response.cookies.get('_xsrf')
         if not xsrf_token:
             return False, "Failed to get XSRF token"
-        print(f"Got XSRF token: {xsrf_token}")
 
         # Step 2: Create a new session
-        print("Creating new session...")
         api_url = urljoin(base_url, "/api/sessions")
         headers = {
             "Content-Type": "application/json",
@@ -62,19 +56,11 @@ def test_jupyter_server(base_url="http://localhost:7999"):
         session_info = response.json()
         if not session_info.get('id'):
             return False, "Failed to create session"
-        print(f"Created session: {json.dumps(session_info, indent=2)}")
 
         # Step 3: Test kernel by executing code through WebSocket
-        print("Testing kernel execution...")
         kernel_id = session_info['kernel']['id']
-        
-        # Enable websocket trace debugging
-        websocket.enableTrace(True)
-        
-        # Use the channels endpoint for kernel communication
         ws_url = urljoin(base_url, f"/api/kernels/{kernel_id}/channels")
         ws_url = ws_url.replace('http://', 'ws://')
-        print(f"Attempting WebSocket connection to: {ws_url}")
         
         kernel_ready = threading.Event()
         execution_completed = threading.Event()
@@ -83,36 +69,27 @@ def test_jupyter_server(base_url="http://localhost:7999"):
         
         def on_message(ws, message):
             nonlocal execution_successful, execution_result
-            print(f"WebSocket message received: {message[:200]}...")
             try:
                 msg = json.loads(message)
                 msg_type = msg.get('msg_type', '')
-                channel = msg.get('channel', '')
                 parent_header = msg.get('parent_header', {})
-                print(f"Message type: {msg_type} on channel: {channel}")
                 
                 if msg_type == 'status':
                     state = msg.get('content', {}).get('execution_state')
-                    print(f"Kernel state: {state}")
                     if state == 'idle':
-                        # Only set kernel_ready if this is a response to kernel_info
                         if parent_header.get('msg_type') == 'kernel_info_request':
                             kernel_ready.set()
                         else:
                             execution_completed.set()
                 elif msg_type == 'stream':
                     text = msg.get('content', {}).get('text', '')
-                    print(f"Stream output: {text}")
                     execution_successful = True
                     execution_result = text
                 elif msg_type == 'execute_result':
                     data = msg.get('content', {}).get('data', {})
-                    print(f"Execute result: {data}")
                     execution_successful = True
                     execution_result = str(data.get('text/plain', ''))
                 elif msg_type == 'error':
-                    error_info = msg.get('content', {})
-                    print(f"Kernel error: {error_info}")
                     execution_completed.set()
             except Exception as e:
                 print(f"Error processing message: {str(e)}")
@@ -121,11 +98,9 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             print(f"WebSocket error: {error}")
 
         def on_close(ws, close_status_code, close_msg):
-            print(f"WebSocket connection closed with status {close_status_code}: {close_msg}")
+            pass
 
         def on_open(ws):
-            print("WebSocket connection opened")
-            # First send kernel_info_request to check kernel readiness
             kernel_info_request = {
                 'header': {
                     'msg_id': str(uuid.uuid4()),
@@ -140,7 +115,6 @@ def test_jupyter_server(base_url="http://localhost:7999"):
                 'channel': 'shell',
                 'buffers': []
             }
-            print("Sending kernel info request")
             ws.send(json.dumps(kernel_info_request))
 
         ws = websocket.WebSocketApp(
@@ -158,12 +132,10 @@ def test_jupyter_server(base_url="http://localhost:7999"):
         ws_thread = threading.Thread(target=ws.run_forever, daemon=True)
         ws_thread.start()
 
-        # Wait for kernel to be ready
         if not kernel_ready.wait(timeout=10):
             ws.close()
             return False, "Timeout waiting for kernel to be ready"
 
-        # Now send the execute request
         execute_request = {
             'header': {
                 'msg_id': str(uuid.uuid4()),
@@ -184,11 +156,8 @@ def test_jupyter_server(base_url="http://localhost:7999"):
             'channel': 'shell',
             'buffers': []
         }
-        print("Sending execute request")
         ws.send(json.dumps(execute_request))
-        print("Execute request sent")
 
-        # Wait for execution to complete
         if not execution_completed.wait(timeout=10):
             ws.close()
             return False, "Timeout waiting for execution result"
@@ -219,11 +188,9 @@ def test_jupyter_server(base_url="http://localhost:7999"):
 
 if __name__ == "__main__":
     import os
-    # Get port from environment if provided, otherwise use default
     port = os.environ.get('RBN_ENTRY_PORT_WORKSTATION', '7999')
     base_url = f"http://localhost:{port}"
     success, message = test_jupyter_server(base_url)
-    print(f"\nTest result: {message}")
+    print(f"Test result: {message}")
     sys.exit(0 if success else 1)
-
 
