@@ -17,21 +17,14 @@
 # Get the master configuration
 include mbv.variables.sh
 
-#########################
-# Makefile Bash Console
-#
-# This is a sub makefile that contains several canned basic
-# macros that support regular console interactivity.
-#
-
 zRBC_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 zRBC_BGC_MAKEFILE = $(MBV_TOOLS_DIR)/bgc.BuildGithubContainers.mk
 zRBC_RBM_MAKEFILE = $(MBV_TOOLS_DIR)/rbm.RecipeBottleMakefile.mk
 
-# What console tool will put in prefix of each line
+# Submake config: What console tool will put in prefix of each line
 MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 
-# How selection of a bottle service is done
+# Submake config: How selection of a bottle service is done
 RBM_MONIKER = $(MBDM_PARAMETER_2)
 
 include $(zRBC_MBC_MAKEFILE)
@@ -64,18 +57,24 @@ zrbc_prepare_temporary_dir:
 #  Test Targets
 #
 
+zRBC_START_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbm_start_service_rule
+zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
 
-zRBC_MAKE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
 
 rbc-to.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
+	$(MBC_STEP)  "Restart the bottle service"
+	$(zRBC_START_TEST_CMD)
+	$(MBC_STEP)  "Test the bottle service"
 	$(zRBC_MAKE_TEST_CMD)
 	$(MBC_PASS)
 
 rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "For each well known nameplate"
-	$(zRBC_MAKE_TEST_CMD) RBM_MONIKER=nsproto 
-	$(zRBC_MAKE_TEST_CMD) RBM_MONIKER=srjcl   
+	$(zRBC_START_TEST_CMD) RBM_MONIKER=nsproto 
+	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=nsproto
+	$(zRBC_START_TEST_CMD) RBM_MONIKER=srjcl 
+	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=srjcl   
 	$(MBC_PASS)
 
 
