@@ -23,10 +23,19 @@ rbt_test_bottle_service_rule:
 	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump
 
 	$(MBC_SHOW_WHITE) "Test PlantUML text rendering endpoint"
-	curl -s $(RBT_PLANTUML_URL)/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40 | grep "Bob.*Alice.*hello there.*boo"
+	echo "Testing server response contains expected elements..."
+	curl -s $(RBT_PLANTUML_URL)/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40 > $(RBT_TEMP_DIR)/response.txt
+	grep -q "Bob"         $(RBT_TEMP_DIR)/response.txt
+	grep -q "Alice"       $(RBT_TEMP_DIR)/response.txt
+	grep -q "hello there" $(RBT_TEMP_DIR)/response.txt
+	grep -q "boo"         $(RBT_TEMP_DIR)/response.txt
 
 	$(MBC_SHOW_WHITE) "Test PlantUML server with local diagram"
-	cat $(RBT_TEST_DIAGRAM_PATH) | curl -s --data-binary @- $(RBT_PLANTUML_URL)/txt/uml | grep "Bob.*Alice.*hello there.*boo"
+	cat $(RBT_TEST_DIAGRAM_PATH) | curl -s --data-binary @- $(RBT_PLANTUML_URL)/txt/uml > $(RBT_TEMP_DIR)/local_response.txt
+	grep -q "Bob"         $(RBT_TEMP_DIR)/local_response.txt
+	grep -q "Alice"       $(RBT_TEMP_DIR)/local_response.txt
+	grep -q "hello there" $(RBT_TEMP_DIR)/local_response.txt
+	grep -q "boo"         $(RBT_TEMP_DIR)/local_response.txt
 
 	$(MBC_SHOW_WHITE) "Verify server handles basic HTTP headers"
 	curl -v -H "User-Agent: Mozilla/5.0" -H "Accept: text/plain" \
