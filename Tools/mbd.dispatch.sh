@@ -137,12 +137,16 @@ zMBD_SHOW "eval: $zMBD_MAKE_CMD"
 
 echo "command: $zMBD_MAKE_CMD" >> "$zMBD_LOG_LAST" >> "$zMBD_LOG_SAME" >> "$zMBD_LOG_HIST"
 
-zMBD_EXIT_STATUS=100
+set +e
+zMBD_STATUS_TMP=$(mktemp)
 { 
     eval "$zMBD_MAKE_CMD" 2>&1
-    zMBD_EXIT_STATUS=$?
-    zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
+    echo $? > "$zMBD_STATUS_TMP"
+    zMBD_SHOW "Make completed with local status: $(cat $zMBD_STATUS_TMP)"
 } | tee -a "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" >(zMBD_TIMESTAMP >> "$zMBD_LOG_HIST")
+zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_TMP")
+rm "$zMBD_STATUS_TMP"
+set -e
 
 zMBD_SHOW "Generate checksum after all logging is complete, regardless of eval status"
 echo "Same log checksum: $(sha256sum           "$zMBD_LOG_SAME" 2>/dev/null || 
