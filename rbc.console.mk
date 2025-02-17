@@ -77,6 +77,9 @@ rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=pluml
 	$(MBC_PASS)
 
+rbc-tg%:   zrbc_prepare_temporary_dir
+	$(MBC_START) "Test github action build, retrieval, use"
+	$(MBC_PASS)
 
 #######################################
 #  Tabtarget Maintenance Tabtarget

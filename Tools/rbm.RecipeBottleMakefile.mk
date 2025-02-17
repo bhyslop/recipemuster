@@ -151,21 +151,6 @@ zrbm_start_service_rule: zrbm_validate_regimes_rule
 	$(MBC_STEP) "Bottle service should be available now."
 
 
-rbm-br%: zrbm_validate_regimes_rule
-	$(MBC_STEP) "Running Agile Bottle container for $(RBM_MONIKER)"
-	
-	# Command must be provided
-	@test -n "$(CMD)" || (echo "Error: CMD must be set" && exit 1)
-	
-	# Bottle Create and Execute Sequence
-	podman run --rm                                           \
-	    --network $(RBM_ENCLAVE_NETWORK)                      \
-	    --dns     $(RBN_ENCLAVE_SENTRY_IP)                    \
-	    $(RBN_VOLUME_MOUNTS)                                  \
-	    $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)       \
-	    $(CMD)
-
-
 rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
 	$(MBC_START) "Testing nameplate $(RBM_MONIKER)"
 	@test -n "$(RBM_TEMP_DIR)" || ($(MBC_SEE_RED) "RBM_TEMP_DIR not set" && exit 1)
