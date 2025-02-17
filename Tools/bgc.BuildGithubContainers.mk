@@ -171,7 +171,22 @@ bgc-r%: zbgc_argcheck_rule
 	podman pull $(BGC_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
-zBGC_EXTRACT_TAG = $(shell echo "$(1)" | sed -n 's/.*://p')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 bgc-d%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
@@ -179,19 +194,18 @@ bgc-d%: zbgc_argcheck_rule
 	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (BGC_ARG_FQIN)" && false)
 	@echo "Deleting image: $(BGC_ARG_FQIN)"
 	@echo "Extracting tag from FQIN..."
-	@tag="$$(echo "$(BGC_ARG_FQIN)" | sed -n 's/.*://p')" && \
-	echo "Using tag: $$tag" && \
-	$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | \
-	  jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
-	    > $(zBGC_DELETE_VERSION_ID_CACHE)
+	@( tag=$$(echo "$(BGC_ARG_FQIN)" | cut -d: -f2)  &&  echo "Using tag: $$tag" && \
+	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS) | \
+	      jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
+	       > $(zBGC_DELETE_VERSION_ID_CACHE))
 	@test -s $(zBGC_DELETE_VERSION_ID_CACHE) || \
 	  ($(MBC_SEE_RED) "Error: No version found for FQIN $(BGC_ARG_FQIN)" && rm $(zBGC_DELETE_VERSION_ID_CACHE) && false)
 	@echo "Found version ID: $(zBGC_DELETE_VERSION_ID_CONTENTS)"
 	@test "$(BGC_ARG_SKIP_DELETE_CONFIRMATION)" = "SKIP" || \
 	  ($(MBC_SEE_YELLOW) "Confirm delete image?" && \
-	   read -p "Type YES: " confirm              && \
-	   test "$confirm" = "YES"                   || \
-	   ($(MBC_SEE_RED) "WONT DELETE"             && false))
+	  read -p "Type YES: " confirm && \
+	  (test "$$confirm" = "YES" || \
+	  ($(MBC_SEE_RED) "WONT DELETE" && false)))
 	$(MBC_STEP) "Deleting image version..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
 	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/$(zBGC_DELETE_VERSION_ID_CONTENTS)' \
