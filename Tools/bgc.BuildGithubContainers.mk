@@ -44,7 +44,9 @@ BGC_ARG_FQIN_OUTPUT ?=
 
 zBGC_RECIPE_BASENAME  = $(shell basename $(BGC_ARG_RECIPE))
 
-zBGC_VERIFY_BUILD_DIR = $(shell ls -td $(BGCV_HISTORY_DIR)/$(basename $(zBGC_RECIPE_BASENAME))* 2>/dev/null | head -n1)
+zBGC_VERIFY_BUILD_DIR     = $(shell ls -td $(BGCV_HISTORY_DIR)/$(basename $(zBGC_RECIPE_BASENAME))* 2>/dev/null | head -n1)
+zBGC_VERIFY_FQIN_FILE     = $(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
+zBGC_VERIFY_FQIN_CONTENTS = $$(cat zBGC_VERIFY_FQIN_FILE)
 
 
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
@@ -114,14 +116,13 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Git Pull for artifacts..."
 	@git pull
 	$(MBC_STEP) "Verifying build output..."
-	@test -n "$(zBGC_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Could not find build directory for $(zBGC_RECIPE_BASENAME)" && false)
-	@cmp "$(BGC_ARG_RECIPE)" "$(zBGC_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: Built recipe does not match submitted recipe" && false)
+	@test -n "$(zBGC_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory" && false)
+	@cmp "$(BGC_ARG_RECIPE)" "$(zBGC_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
 	$(MBC_STEP) "Extracting FQIN..."
-	@test -f "$(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
-	@FQIN=$$(cat "$(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt")
-	@$(MBC_SEE_YELLOW) "Built container FQIN: $$FQIN"
-	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || echo "$$FQIN" > "$(BGC_ARG_FQIN_OUTPUT)"
-	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || $(MBC_STEP) "Wrote FQIN to $(BGC_ARG_FQIN_OUTPUT)"
+	@test -f "$(zBGC_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
+	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zBGC_VERIFY_FQIN_CONTENTS)"
+	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || cp "$(zBGC_VERIFY_FQIN_FILE)"   "$(BGC_ARG_FQIN_OUTPUT)"
+	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(BGC_ARG_FQIN_OUTPUT)"
 	$(MBC_STEP) "Pull logs..."
 	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
