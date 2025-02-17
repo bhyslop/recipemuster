@@ -79,10 +79,14 @@ rbc-ta.%:  zrbc_prepare_temporary_dir
 
 zRBC_TEST_RECIPE = test_busybox.recipe
 
+zRBC_FQIN_FILE     = $(zRBC_TEMP_DIR)/fqin.txt
+zBGC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
+
 rbc-tg%:   zrbc_prepare_temporary_dir
 	$(MBC_START) "Test github action build, retrieval, use"
 	tt/bgc-l.ListCurrentRegistryImages.sh
-	tt/bgc-b.BuildWithRecipe.sh $(BGCV_RECIPES_DIR)/$(zRBC_TEST_RECIPE)
+	tt/bgc-b.BuildWithRecipe.sh $(BGCV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
+	tt/bgc-r.RetrieveImage.sh $(zBGC_FQIN_CONTENTS)
 	$(MBC_PASS) "No errors."
 
 

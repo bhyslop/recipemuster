@@ -40,6 +40,13 @@ zBGC_DELETE_RESULT_CONTENTS = $$(cat $(zBGC_DELETE_RESULT_CACHE))
 
 BGC_ARG_RECIPE ?=
 
+BGC_ARG_FQIN_OUTPUT ?=
+
+zBGC_RECIPE_BASENAME  = $(shell basename $(BGC_ARG_RECIPE))
+
+zBGC_VERIFY_BUILD_DIR = $(shell ls -td $(BGCV_HISTORY_DIR)/$(basename $(zBGC_RECIPE_BASENAME))* 2>/dev/null | head -n1)
+
+
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
                      -H 'Accept: application/vnd.github.v3+json'
 
@@ -105,7 +112,16 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Polling to completion..."
 	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
-	git pull
+	@git pull
+	$(MBC_STEP) "Verifying build output..."
+	@test -n "$(zBGC_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Could not find build directory for $(zBGC_RECIPE_BASENAME)" && false)
+	@cmp "$(BGC_ARG_RECIPE)" "$(zBGC_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: Built recipe does not match submitted recipe" && false)
+	$(MBC_STEP) "Extracting FQIN..."
+	@test -f "$(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
+	@FQIN=$$(cat "$(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt")
+	@$(MBC_SEE_YELLOW) "Built container FQIN: $$FQIN"
+	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || echo "$$FQIN" > "$(BGC_ARG_FQIN_OUTPUT)"
+	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || $(MBC_STEP) "Wrote FQIN to $(BGC_ARG_FQIN_OUTPUT)"
 	$(MBC_STEP) "Pull logs..."
 	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
@@ -147,7 +163,7 @@ bgc-l%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 
-bgc-ri%: zbgc_argcheck_rule
+bgc-r%: zbgc_argcheck_rule
 	$(MBC_START) "Retrieve Container Registry Image"
 	@test "$(BGC_ARG_TAG)" != ""  ||\
 	  ($(MBC_SEE_RED) "Error: Must say which image tag to retrieve" && false)
@@ -158,7 +174,7 @@ bgc-ri%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 
-bgc-di%: zbgc_argcheck_rule
+bgc-d%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
 	@test "$(BGC_ARG_TAG)" != ""  ||\
 	  ($(MBC_SEE_RED) "Error: Must say which image tag to delete" && false)
