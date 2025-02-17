@@ -65,7 +65,7 @@ rbc-to.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
 	$(MBC_STEP)  "Test the bottle service"
 	$(zRBC_MAKE_TEST_CMD)
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
 
 rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "For each well known nameplate"
@@ -75,11 +75,12 @@ rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=srjcl
 	$(zRBC_START_TEST_CMD) RBM_MONIKER=pluml
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=pluml
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
 
 rbc-tg%:   zrbc_prepare_temporary_dir
 	$(MBC_START) "Test github action build, retrieval, use"
-	$(MBC_PASS)
+	$(MBC_PASS) "No errors."
+
 
 #######################################
 #  Tabtarget Maintenance Tabtarget
