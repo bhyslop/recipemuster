@@ -77,8 +77,12 @@ rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=pluml
 	$(MBC_PASS) "No errors."
 
+zRBC_TEST_RECIPE = test_busybox.recipe
+
 rbc-tg%:   zrbc_prepare_temporary_dir
 	$(MBC_START) "Test github action build, retrieval, use"
+	tt/bgc-l.ListCurrentRegistryImages.sh
+	tt/bgc-b.BuildWithRecipe.sh $(BGCV_RECIPES_DIR)/$(zRBC_TEST_RECIPE)
 	$(MBC_PASS) "No errors."
 
 
