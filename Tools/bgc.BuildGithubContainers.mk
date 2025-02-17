@@ -172,22 +172,6 @@ bgc-r%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bgc-d%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
 	@test "$(BGC_ARG_FQIN)" != "" || \
@@ -207,9 +191,10 @@ bgc-d%: zbgc_argcheck_rule
 	  (test "$$confirm" = "YES" || \
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)))
 	$(MBC_STEP) "Deleting image version..."
-	@curl -X DELETE $(zBGC_CURL_HEADERS) \
-	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/$(zBGC_DELETE_VERSION_ID_CONTENTS)' \
-	  -s -w "HTTP_STATUS:%{http_code}" > $(zBGC_DELETE_RESULT_CACHE)
+	@version_id=$$(cat $(zBGC_DELETE_VERSION_ID_CACHE)) && \
+	  curl -X DELETE $(zBGC_CURL_HEADERS) \
+	  "$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/$$version_id" \
+	   -s -w "HTTP_STATUS:%{http_code}" > $(zBGC_DELETE_RESULT_CACHE)
 	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_RESULT_CACHE) || \
 	  ($(MBC_SEE_RED) "Failed to delete image version. Response: $(zBGC_DELETE_RESULT_CONTENTS)" && \
 	   rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE) && false)
