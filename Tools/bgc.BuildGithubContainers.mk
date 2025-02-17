@@ -46,7 +46,7 @@ zBGC_RECIPE_BASENAME  = $(shell basename $(BGC_ARG_RECIPE))
 
 zBGC_VERIFY_BUILD_DIR     = $(shell ls -td $(BGCV_HISTORY_DIR)/$(basename $(zBGC_RECIPE_BASENAME))* 2>/dev/null | head -n1)
 zBGC_VERIFY_FQIN_FILE     = $(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
-zBGC_VERIFY_FQIN_CONTENTS = $$(cat zBGC_VERIFY_FQIN_FILE)
+zBGC_VERIFY_FQIN_CONTENTS = $$(cat $(zBGC_VERIFY_FQIN_FILE))
 
 
 zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
