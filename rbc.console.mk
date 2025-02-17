@@ -84,14 +84,18 @@ zBGC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
 rbc-tg%:   zrbc_prepare_temporary_dir
 	$(MBC_START) "Test github action build, retrieval, use"
-	$(MBC_STEP) "Validate list..."
+	$(MBC_STEP) "Validate list before..."
 	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate build..."
 	tt/bgc-b.BuildWithRecipe.sh $(BGCV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
+	$(MBC_STEP) "Validate list during..."
+	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate retrieval..."
 	tt/bgc-r.RetrieveImage.sh $(zBGC_FQIN_CONTENTS)
 	$(MBC_STEP) "Validate deletion..."
 	tt/bgc-d.DeleteImageFromRegistry.sh $(zBGC_FQIN_CONTENTS) BGC_ARG_SKIP_DELETE_CONFIRMATION=SKIP
+	$(MBC_STEP) "Validate list after..."
+	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
 
 #######################################
