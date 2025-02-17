@@ -37,10 +37,10 @@ zBGC_DELETE_VERSION_ID_CONTENTS = $$(cat $(zBGC_DELETE_VERSION_ID_CACHE))
 zBGC_DELETE_RESULT_CACHE    = $(zBGC_TEMP_DIR)/BGC_DELETE__$(MBC_NOW).txt
 zBGC_DELETE_RESULT_CONTENTS = $$(cat $(zBGC_DELETE_RESULT_CACHE))
 
-
-BGC_ARG_RECIPE ?=
-
-BGC_ARG_FQIN_OUTPUT ?=
+BGC_ARG_RECIPE                   ?=
+BGC_ARG_FQIN_OUTPUT              ?=
+BGC_ARG_FQIN                     ?=
+BGC_ARG_SKIP_DELETE_CONFIRMATION ?=
 
 zBGC_RECIPE_BASENAME  = $(shell basename $(BGC_ARG_RECIPE))
 
@@ -64,9 +64,6 @@ zBGC_CMD_GET_SPECIFIC_RUN = curl -s  $(zBGC_CURL_HEADERS) \
 
 zBGC_CMD_LIST_IMAGES = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
-
-zBGC_CMD_DELETE_IMAGE := curl -X DELETE $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/packages/container/$(BGCV_REGISTRY_NAME)/$(BGC_ARG_TAG)'
 
 zBGC_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zBGC_CURL_HEADERS) \
     '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions'
@@ -174,32 +171,37 @@ bgc-r%: zbgc_argcheck_rule
 	podman pull $(BGC_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
+zBGC_EXTRACT_TAG = $(shell echo "$(1)" | sed -n 's/.*://p')
 
 bgc-d%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
-	@test "$(BGC_ARG_TAG)" != ""  ||\
-	  ($(MBC_SEE_RED) "Error: Must say which image tag to delete" && false)
-	@echo "Deleting image with tag: $(BGC_ARG_TAG)"
-	@echo "Fetching package version information..."
-	@$(zBGC_CMD_LIST_PACKAGE_VERSIONS) |\
-	  jq -r '.[] | select(.metadata.container.tags[] | contains("$(BGC_ARG_TAG)")) | .id' \
-	       > $(zBGC_DELETE_VERSION_ID_CACHE)
-	@test -s $(zBGC_DELETE_VERSION_ID_CACHE)  ||\
-	  ($(MBC_SEE_RED) "Error: No version found for tag $(BGC_ARG_TAG)" && rm false)
-	@echo "Found version ID:" $(zBGC_DELETE_VERSION_ID_CONTENTS) "for tag $(BGC_ARG_TAG)"
-	@$(MBC_SEE_YELLOW) "Confirm delete image?" && read -p "Type YES: " confirm && test "$$confirm" = "YES"  ||\
-	  ($(MBC_SEE_RED) "WONT DELETE" && false)
-	$(MBC_STEP) "Sending delete request..."
+	@test "$(BGC_ARG_FQIN)" != "" || \
+	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (BGC_ARG_FQIN)" && false)
+	@echo "Deleting image: $(BGC_ARG_FQIN)"
+	@echo "Extracting tag from FQIN..."
+	@tag="$$(echo "$(BGC_ARG_FQIN)" | sed -n 's/.*://p')" && \
+	echo "Using tag: $$tag" && \
+	$(zBGC_CMD_LIST_PACKAGE_VERSIONS) | \
+	  jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
+	    > $(zBGC_DELETE_VERSION_ID_CACHE)
+	@test -s $(zBGC_DELETE_VERSION_ID_CACHE) || \
+	  ($(MBC_SEE_RED) "Error: No version found for FQIN $(BGC_ARG_FQIN)" && rm $(zBGC_DELETE_VERSION_ID_CACHE) && false)
+	@echo "Found version ID: $(zBGC_DELETE_VERSION_ID_CONTENTS)"
+	@test "$(BGC_ARG_SKIP_DELETE_CONFIRMATION)" = "SKIP" || \
+	  ($(MBC_SEE_YELLOW) "Confirm delete image?" && \
+	   read -p "Type YES: " confirm              && \
+	   test "$confirm" = "YES"                   || \
+	   ($(MBC_SEE_RED) "WONT DELETE"             && false))
+	$(MBC_STEP) "Deleting image version..."
 	@curl -X DELETE $(zBGC_CURL_HEADERS) \
-	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/'$(zBGC_DELETE_VERSION_ID_CONTENTS) \
-	  -s -w "HTTP_STATUS:%{http_code}\n" > $(zBGC_DELETE_RESULT_CACHE)
-	@echo "Delete response:" $(zBGC_DELETE_RESULT_CONTENTS)
-	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_RESULT_CACHE) ||\
-	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status:" $(zBGC_DELETE_RESULT_CONTENTS)  &&  false)
+	  '$(zBGC_GITAPI_URL)/user/packages/container/$(BGCV_REGISTRY_NAME)/versions/$(zBGC_DELETE_VERSION_ID_CONTENTS)' \
+	  -s -w "HTTP_STATUS:%{http_code}" > $(zBGC_DELETE_RESULT_CACHE)
+	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_RESULT_CACHE) || \
+	  ($(MBC_SEE_RED) "Failed to delete image version. Response: $(zBGC_DELETE_RESULT_CONTENTS)" && \
+	   rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE) && false)
 	@echo "Successfully deleted image version."
-	@rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE)
+	@rm -f $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE)
 	$(MBC_PASS) "No errors."
-
 
 
 # eof
