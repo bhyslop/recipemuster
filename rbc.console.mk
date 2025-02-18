@@ -36,10 +36,12 @@ default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(MBV_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
 
-
 #######################################
 #  Clean Temporary directory creation
 #
+# This might better be done in the dispatch script.  Not sure:
+# problems of dispatches calling dispatches may be unique to
+# testing Recipe Bottle, not using it.
 
 zRBC_TEMP_DIR = $(MBV_TEMP_ROOT_DIR)/temp-$(MBV_NOW_STAMP)
 
@@ -54,20 +56,28 @@ zrbc_prepare_temporary_dir:
 
 
 #######################################
+#  Startup
+#
+
+rbc-a%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
+	$(MBC_START) "Podman started and logged into container registry"
+	$(MBC_PASS) "No errors."
+
+
+#######################################
 #  Test Targets
 #
 
 zRBC_START_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbm_start_service_rule
 zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
 
-
-rbc-to.%:  zrbc_prepare_temporary_dir
+rbc-to%: zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
 	$(MBC_STEP)  "Test the bottle service"
 	$(zRBC_MAKE_TEST_CMD)
 	$(MBC_PASS) "No errors."
 
-rbc-ta.%:  zrbc_prepare_temporary_dir
+rbc-tb%: zrbc_prepare_temporary_dir
 	$(MBC_START) "For each well known nameplate"
 	$(zRBC_START_TEST_CMD) RBM_MONIKER=nsproto
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=nsproto
@@ -82,7 +92,7 @@ zRBC_TEST_RECIPE = test_busybox.recipe
 zRBC_FQIN_FILE     = $(zRBC_TEMP_DIR)/fqin.txt
 zBGC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
-rbc-tg%:   zrbc_prepare_temporary_dir
+rbc-tg%: zrbc_prepare_temporary_dir
 	$(MBC_START) "Test github action build, retrieval, use"
 	$(MBC_STEP) "Validate list before..."
 	tt/bgc-l.ListCurrentRegistryImages.sh
@@ -97,6 +107,15 @@ rbc-tg%:   zrbc_prepare_temporary_dir
 	$(MBC_STEP) "Validate list after..."
 	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
+
+rbc-ta%:
+	$(MBC_START) "RUN REPOWIDE TESTS"
+	$(MBC_STEP) "Github tests..."
+	tt/rbc-tg.TestGithubWorkflow.sh
+	$(MBC_STEP) "Bottle service tests..."
+	tt/rbc-tb.TestBottles.sh
+	$(MBC_PASS) "No errors."
+
 
 #######################################
 #  Tabtarget Maintenance Tabtarget
@@ -118,7 +137,6 @@ ttc.CreateTabtarget.sh:
 	git add                     $(zRBC_TABTARGET_FILE)
 	git update-index --chmod=+x $(zRBC_TABTARGET_FILE)
 	$(MBC_PASS) "No errors."
-
 
 ttx.FixTabtargetExecutability.sh:
 	$(MBC_START) "Repair windows proclivity to goof up executable privileges"

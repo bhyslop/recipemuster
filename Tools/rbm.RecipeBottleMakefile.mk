@@ -67,9 +67,8 @@ zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
 
-rbp-a.%:
-	$(MBC_START) "Establish podman machine."
-	$(MBC_TERMINAL_SETTINGS) podman machine start
+rbp-a%:     rbm_podman_machine_start_rule     \
+            bgc_container_registry_login_rule
 	$(MBC_PASS) "No errors."
 
 rbp-s%: zrbm_start_service_rule

@@ -52,7 +52,7 @@ source ${zMBD_VARIABLES}
 : ${MBV_LOG_EXT:?}             && zMBD_SHOW "Log extension:       ${MBV_LOG_EXT}"
 : ${MBV_CONSOLE_MAKEFILE:?}    && zMBD_SHOW "Console Makefile:    ${MBV_CONSOLE_MAKEFILE}"
 : ${MBV_TABTARGET_DIR:?}       && zMBD_SHOW "Tabtarget Dir:       ${MBV_TABTARGET_DIR}"
-: ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: $MBV_TABTARGET_DELIMITER}"
+: ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: ${MBV_TABTARGET_DELIMITER}"
 
 zMBD_SHOW "Source station file and validate"
 source $MBV_STATION_FILE

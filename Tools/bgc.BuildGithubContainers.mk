@@ -160,17 +160,17 @@ bgc-l%: zbgc_argcheck_rule
 	  done
 	$(MBC_PASS) "No errors."
 
-
-bgc-r%: zbgc_argcheck_rule
-	$(MBC_START) "Retrieve Container Registry Image"
-	@test "$(BGC_ARG_TAG)" != ""  ||\
-	  ($(MBC_SEE_RED) "Error: Must say which image tag to retrieve" && false)
-	$(MBC_STEP) "Log in to container registry..."
+bgc_container_registry_login_rule: zbgc_argcheck_rule
+	$(MBC_START) "Log in to container registry"
 	@podman login ghcr.io -u $(BGCSV_USERNAME) -p $(BGCSV_PAT)
+	$(MBC_PASS) "No errors."
+
+bgc-r%: bgc_container_registry_login_rule
+	$(MBC_START) "Retrieve Container Registry Image"
+	@test "$(BGC_ARG_TAG)" != "" ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
 	$(MBC_STEP) "Fetch image..."
 	podman pull $(BGC_ARG_TAG)
 	$(MBC_PASS) "No errors."
-
 
 bgc-d%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
