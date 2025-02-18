@@ -84,7 +84,7 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	cat $(RBM_TOOLS_DIR)/rbnc.namespace.sh |\
+	cat $(RBM_TOOLS_DIR)/rbnc.cleanup.sh |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "             \
                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                                \
@@ -105,7 +105,7 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbns.namespace.sh   |\
+	cat $(RBM_TOOLS_DIR)/rbns.sentry.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
@@ -115,7 +115,7 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	cat $(RBM_TOOLS_DIR)/rbss.sentry.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbnb.namespace.sh   |\
+	cat $(RBM_TOOLS_DIR)/rbnb.bottle.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
