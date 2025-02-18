@@ -78,6 +78,8 @@ zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)            |\
                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
                                test "$$status" == "completed")
 
+zBGC_CMD_DELETE_VERSION = curl -X DELETE $(zBGC_CURL_HEADERS) \
+    '$(zBGC_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zBGC_DELETE_VERSION_ID_CONTENTS)
 
 zbgc_argcheck_rule: rbvc_check_rule
 	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
@@ -182,10 +184,7 @@ bgc-d.%: zbgc_argcheck_rule
 	  (test "$$confirm" = "YES" || \
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)))
 	$(MBC_STEP) "Deleting image version..."
-	@version_id=$$(cat $(zBGC_DELETE_VERSION_ID_CACHE)) && \
-	  curl -X DELETE $(zBGC_CURL_HEADERS) \
-	  "$(zBGC_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/$$version_id" \
-	   -s -w "HTTP_STATUS:%{http_code}" > $(zBGC_DELETE_RESULT_CACHE)
+	@$(zBGC_CMD_DELETE_VERSION) -s -w "HTTP_STATUS:%{http_code}" > $(zBGC_DELETE_RESULT_CACHE)
 	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_RESULT_CACHE) || \
 	  ($(MBC_SEE_RED) "Failed to delete image version. Response: $(zBGC_DELETE_RESULT_CONTENTS)" && \
 	   rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE) && false)
