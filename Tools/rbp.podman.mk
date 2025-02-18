@@ -115,7 +115,7 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
 	cat $(RBM_TOOLS_DIR)/rbnb.bottle.sh | $(zRBM_PODMAN_SSH_CMD)
 
-	$(MBC_STEP) "Verifying network setup in podman machine..."
+	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	cat $(RBM_TOOLS_DIR)/rbni.info.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
@@ -166,7 +166,7 @@ rbp-i.%:  rbb_render rbn_render rbs_render
 
 rbp-o.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(eval $(zRBM_EXPORT_ENV) && cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh)
+	(eval $(zRBM_EXPORT_ENV) && cat $(RBM_TOOLS_DIR)/rbo.observe.sh | /bin/sh)
 
 
 # eof
