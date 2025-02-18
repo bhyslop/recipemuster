@@ -2,16 +2,29 @@
 include $(RBT_MBC_MAKEFILE)
 
 # Main entry point
-rbt_test_bottle_service_rule: ztest_info_rule ztest_basic_network_rule \
-    ztest_bottle_dns_allow_anthropic_rule ztest_bottle_dns_block_google_rule \
-    ztest_bottle_tcp443_allow_anthropic_rule ztest_bottle_tcp443_block_google_rule \
-    ztest_bottle_dns_nonexist_rule ztest_bottle_dns_tcp_rule ztest_bottle_dns_notcp_rule \
-    ztest_bottle_dns_block_direct_rule ztest_bottle_dns_block_altport_rule \
-    ztest_bottle_dns_block_cloudflare_rule ztest_bottle_dns_block_quad9_rule \
-    ztest_bottle_dns_block_zonetransfer_rule ztest_bottle_dns_block_ipv6_rule \
-    ztest_bottle_dns_block_multicast_rule ztest_bottle_dns_block_spoofing_rule \
-    ztest_bottle_dns_block_tunneling_rule ztest_bottle_block_packages_rule \
-    ztest_bottle_icmp_sentry_only_rule ztest_bottle_icmp_block_beyond_rule
+rbt_test_bottle_service_rule:                \
+  ztest_info_rule                            \
+  ztest_basic_network_rule                   \
+  ztest_bottle_dns_allow_anthropic_rule      \
+  ztest_bottle_dns_block_google_rule         \
+  ztest_bottle_tcp443_allow_anthropic_rule   \
+  ztest_bottle_tcp443_block_google_rule      \
+  ztest_bottle_dns_nonexist_rule             \
+  ztest_bottle_dns_tcp_rule                  \
+  ztest_bottle_dns_notcp_rule                \
+  ztest_bottle_dns_block_direct_rule         \
+  ztest_bottle_dns_block_altport_rule        \
+  ztest_bottle_dns_block_cloudflare_rule     \
+  ztest_bottle_dns_block_quad9_rule          \
+  ztest_bottle_dns_block_zonetransfer_rule   \
+  ztest_bottle_dns_block_ipv6_rule           \
+  ztest_bottle_dns_block_multicast_rule      \
+  ztest_bottle_dns_block_spoofing_rule       \
+  ztest_bottle_dns_block_tunneling_rule      \
+  ztest_bottle_block_packages_rule           \
+  ztest_bottle_icmp_sentry_only_rule         \
+  ztest_bottle_icmp_block_beyond_rule        \
+  # end-list
 
 # Information collection
 ztest_info_rule:
@@ -36,11 +49,11 @@ ztest_bottle_dns_block_google_rule: ztest_basic_network_rule
 # TCP connection tests
 ztest_bottle_tcp443_allow_anthropic_rule: ztest_basic_network_rule
 	@ANTHROPIC_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short anthropic.com | head -1) && \
-	podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$ANTHROPIC_IP 443
+	  podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$ANTHROPIC_IP 443
 
 ztest_bottle_tcp443_block_google_rule: ztest_basic_network_rule
 	@GOOGLE_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short google.com | head -1) && \
-	! podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$GOOGLE_IP 443
+	  ! podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$GOOGLE_IP 443
 
 # DNS protocol tests
 ztest_bottle_dns_nonexist_rule: ztest_basic_network_rule
