@@ -78,18 +78,17 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
 	$(MBC_STEP) "Stopping any prior containers"
-	-podman stop -t 5  $(RBM_SENTRY_CONTAINER)
+	-podman stop -t 2  $(RBM_SENTRY_CONTAINER)
 	-podman rm   -f    $(RBM_SENTRY_CONTAINER)
-	-podman stop -t 5  $(RBM_BOTTLE_CONTAINER)
+	-podman stop -t 2  $(RBM_BOTTLE_CONTAINER)
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	-podman machine ssh "sudo ip netns del $(RBM_ENCLAVE_NAMESPACE) 2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_OUT) 2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_SENTRY_IN)  2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BOTTLE_OUT) 2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BOTTLE_IN)  2>/dev/null || true"
-	-podman machine ssh "sudo ip link del $(RBM_ENCLAVE_BRIDGE)     2>/dev/null || true"
+	cat $(RBM_TOOLS_DIR)/rbnc.namespace.sh |\
+	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
+                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "             \
+                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                                \
+                    "/bin/sh"
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
@@ -123,12 +122,11 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	                     "/bin/sh"
 
 	$(MBC_STEP) "Verifying network setup in podman machine..."
-	podman machine ssh "echo 'Network namespace list:' && sudo ip netns list"
-	podman machine ssh "echo 'Namespace file permissions:' && ls -l /var/run/netns/$(RBM_ENCLAVE_NAMESPACE)"
-	podman machine ssh "echo 'Network interfaces:'"
-	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BRIDGE)"
-	podman machine ssh "sudo ip link show $(RBM_ENCLAVE_BOTTLE_OUT)"
-	podman machine ssh "sudo ip netns exec $(RBM_ENCLAVE_NAMESPACE) ip link list"
+	cat $(RBM_TOOLS_DIR)/rbni.info.sh |\
+          podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
+                             "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
+                             "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
+                             "/bin/sh"
 
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
