@@ -49,23 +49,23 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #  Test Targets
 #
 
-zRBC_START_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbm_start_service_rule
-zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
+zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbm_start_service_rule
+zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
 
 rbc-to.%:
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
 	$(MBC_STEP)  "Test the bottle service"
-	$(zRBC_MAKE_TEST_CMD)
+	$(zRBC_RUN_SERVICE_TEST_CMD)
 	$(MBC_PASS) "No errors."
 
 rbc-tb.%:
-	$(MBC_START) "For each well known nameplate"
-	$(zRBC_START_TEST_CMD) RBM_MONIKER=nsproto
-	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=nsproto
-	$(zRBC_START_TEST_CMD) RBM_MONIKER=srjcl
-	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=srjcl
-	$(zRBC_START_TEST_CMD) RBM_MONIKER=pluml
-	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=pluml
+	$(MBC_START) "For each well known nameplate, and threads:$(MBD_JOB_PROFILE)"
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=nsproto
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=nsproto
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=srjcl
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=srjcl
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=pluml
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=pluml
 	$(MBC_PASS) "No errors."
 
 zRBC_TEST_RECIPE = test_busybox.recipe

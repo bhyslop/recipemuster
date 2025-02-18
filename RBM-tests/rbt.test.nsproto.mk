@@ -25,6 +25,7 @@ rbt_test_bottle_service_rule:                \
   ztest_bottle_icmp_sentry_only_rule         \
   ztest_bottle_icmp_block_beyond_rule        \
   # end-list
+	$(MBC_PASS) "No errors seen."
 
 # Information collection
 ztest_info_rule:
