@@ -51,6 +51,12 @@ export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
+zRBM_EXPORT_ENV := "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
+                   "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "   \
+                   "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
+
+zRBM_PODMAN_SSH_CMD = podman machine ssh $(zRBM_EXPORT_ENV) /bin/sh
+
 
 # Render rules
 rbp-r.%: rbs_render rbb_render rbn_render
@@ -84,11 +90,7 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	cat $(RBM_TOOLS_DIR)/rbnc.cleanup.sh |\
-	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "             \
-                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                                \
-                    "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbnc.cleanup.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
@@ -105,28 +107,16 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbns.sentry.sh   |\
-	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
-	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
-	                     "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbns.sentry.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "Configuring SENTRY security"
 	cat $(RBM_TOOLS_DIR)/rbss.sentry.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbnb.bottle.sh   |\
-	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
-	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
-	                     "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbnb.bottle.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "Verifying network setup in podman machine..."
-	cat $(RBM_TOOLS_DIR)/rbni.info.sh |\
-          podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
-                             "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
-                             "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
-                             "/bin/sh"
+	cat $(RBM_TOOLS_DIR)/rbni.info.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
@@ -176,11 +166,7 @@ rbp-i.%:  rbb_render rbn_render rbs_render
 
 rbp-o.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(                                                                    \
-	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && )          \
-	  $(foreach v,$(zRBM_ROLLUP_ENV),export $v="$($v)" && )              \
-	  cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh \
-	)
+	cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh $(zRBM_EXPORT_ENV)
 
 
 # eof
