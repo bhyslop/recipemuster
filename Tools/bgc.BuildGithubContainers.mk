@@ -76,6 +76,7 @@ zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)            |\
                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
                                test "$$status" == "completed")
 
+
 zbgc_argcheck_rule: bgcfh_check_rule
 	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
 	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
@@ -127,21 +128,6 @@ bgc-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_PASS) "No errors."
 
 
-# TOKEN AUTH FAIL INSCRUTABILITY:
-#
-# $ tt/bgc-l.ListCurrentRegistryImages.sh
-# rbc-console.mk: List Current Registry Images
-# rbc-console.mk: DEBUG: raw listing...
-# curl -s -H 'Authorization: token ghp_xxxx' -H 'Accept: application/vnd.github.v3+json' 'https://api.github.com/user/packages?package_type=container'
-# {
-#   "message": "Bad credentials",
-#   "documentation_url": "https://docs.github.com/rest",
-#   "status": "401"
-# }
-# rbc-console.mk: JQ execution...
-# assertion "cb == jq_util_input_next_input_cb" failed: file "/cygdrive/d/a/scallywag/jq/jq-1.7.1-1.x86_64/src/jq-1.7.1/src/util.c", line 360, function: jq_util_input_get_position
-
-
 bgc-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
@@ -160,10 +146,12 @@ bgc-l.%: zbgc_argcheck_rule
 	  done
 	$(MBC_PASS) "No errors."
 
+
 bgc_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
 	@podman login ghcr.io -u $(BGCSV_USERNAME) -p $(BGCSV_PAT)
 	$(MBC_PASS) "No errors."
+
 
 bgc-r.%: bgc_container_registry_login_rule
 	$(MBC_START) "Retrieve Container Registry Image"
@@ -171,6 +159,7 @@ bgc-r.%: bgc_container_registry_login_rule
 	$(MBC_STEP) "Fetch image..."
 	podman pull $(BGC_ARG_TAG)
 	$(MBC_PASS) "No errors."
+
 
 bgc-d.%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
