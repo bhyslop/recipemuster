@@ -91,7 +91,7 @@ zbgc_recipe_argument_check:
 	@$(MBC_STEP) "$(BGC_ARG_RECIPE) is well formed, moving on..."
 
 
-bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
+bgc-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_START) "Trigger Build of $(BGC_ARG_RECIPE)"
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
 	@git fetch                                               &&\
@@ -142,7 +142,7 @@ bgc-b%: zbgc_argcheck_rule zbgc_recipe_argument_check
 # assertion "cb == jq_util_input_next_input_cb" failed: file "/cygdrive/d/a/scallywag/jq/jq-1.7.1-1.x86_64/src/jq-1.7.1/src/util.c", line 360, function: jq_util_input_get_position
 
 
-bgc-l%: zbgc_argcheck_rule
+bgc-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
 	@$(zBGC_CMD_LIST_IMAGES)                                   |\
@@ -165,14 +165,14 @@ bgc_container_registry_login_rule: zbgc_argcheck_rule
 	@podman login ghcr.io -u $(BGCSV_USERNAME) -p $(BGCSV_PAT)
 	$(MBC_PASS) "No errors."
 
-bgc-r%: bgc_container_registry_login_rule
+bgc-r.%: bgc_container_registry_login_rule
 	$(MBC_START) "Retrieve Container Registry Image"
 	@test "$(BGC_ARG_TAG)" != "" ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
 	$(MBC_STEP) "Fetch image..."
 	podman pull $(BGC_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
-bgc-d%: zbgc_argcheck_rule
+bgc-d.%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
 	@test "$(BGC_ARG_FQIN)" != "" || \
 	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (BGC_ARG_FQIN)" && false)
