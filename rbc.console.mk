@@ -89,12 +89,12 @@ rbc-tg.%:
 	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
 
-rbc-ta%:
+rbc-ta.%:
 	$(MBC_START) "RUN REPOWIDE TESTS"
 	$(MBC_STEP) "Github tests..."
 	tt/rbc-tg.TestGithubWorkflow.sh
 	$(MBC_STEP) "Bottle service tests..."
-	tt/rbc-tb.TestBottles.sh
+	tt/rbc-tb.TestBottles.parallel.sh
 	$(MBC_PASS) "No errors."
 
 
