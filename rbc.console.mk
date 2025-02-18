@@ -69,7 +69,7 @@ rbc-to.%:  zrbc_prepare_temporary_dir
 
 rbc-ta.%:  zrbc_prepare_temporary_dir
 	$(MBC_START) "For each well known nameplate"
-	$(zRBC_START_TEST_CMD) RBM_MONIKER=nsproto 
+	$(zRBC_START_TEST_CMD) RBM_MONIKER=nsproto
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=nsproto
 	$(zRBC_START_TEST_CMD) RBM_MONIKER=srjcl
 	$(zRBC_MAKE_TEST_CMD)  RBM_MONIKER=srjcl
