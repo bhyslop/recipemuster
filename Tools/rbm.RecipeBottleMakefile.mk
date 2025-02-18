@@ -107,17 +107,17 @@ zrbm_start_service_rule: zrbm_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbm-sentry-ns-setup.sh   |\
+	cat $(RBM_TOOLS_DIR)/rbns.namespace.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
 	                     "/bin/sh"
 
 	$(MBC_STEP) "Configuring SENTRY security"
-	cat $(RBM_TOOLS_DIR)/rbm-sentry-setup.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+	cat $(RBM_TOOLS_DIR)/rbss.sentry.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbm-bottle-ns-setup.sh   |\
+	cat $(RBM_TOOLS_DIR)/rbnb.namespace.sh   |\
 	  podman machine ssh "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 	                     "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
 	                     "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "                       \
