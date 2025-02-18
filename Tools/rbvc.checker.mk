@@ -3,24 +3,24 @@ SHELL = /bin/bash
 
 include rbv.variables.mk
 
-# Dynamic list of all BGCV_ variables
-BGCV_VARS := $(filter BGCV_%,$(.VARIABLES))
+# Dynamic list of all RBV_ variables
+RBV_VARS := $(filter RBV_%,$(.VARIABLES))
 
-# Specific list of required BGCV_ variables
-REQUIRED_BGCV_VARS :=      \
-  BGCV_BUILD_ARCHITECTURES \
-  BGCV_HISTORY_DIR         \
-  BGCV_RECIPES_DIR         \
-  BGCV_REGISTRY_NAME       \
-  BGCV_REGISTRY_OWNER      \
+# Specific list of required RBV_ variables
+REQUIRED_RBV_VARS :=      \
+  RBV_BUILD_ARCHITECTURES \
+  RBV_HISTORY_DIR         \
+  RBV_RECIPES_DIR         \
+  RBV_REGISTRY_NAME       \
+  RBV_REGISTRY_OWNER      \
 
 
-bgcfh_check_rule:
-	@for var in $(REQUIRED_BGCV_VARS); do \
+rbvc_check_rule:
+	@for var in $(REQUIRED_RBV_VARS); do \
 	  test -z "$${!var}" && echo "Error: $$var is not set or empty" && exit 1 || true; \
 	done
 
 
-bgcfh_display_rule:
-	$(foreach var,$(BGCV_VARS), echo "$(var)=$($(var))";)
+rbvc_display_rule:
+	$(foreach var,$(RBV_VARS), echo "$(var)=$($(var))";)
 

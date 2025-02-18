@@ -97,7 +97,7 @@ rbc-tg.%: zrbc_prepare_temporary_dir
 	$(MBC_STEP) "Validate list before..."
 	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate build..."
-	tt/bgc-b.BuildWithRecipe.sh $(BGCV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
+	tt/bgc-b.BuildWithRecipe.sh $(RBV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
 	$(MBC_STEP) "Validate list during..."
 	tt/bgc-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate retrieval..."
