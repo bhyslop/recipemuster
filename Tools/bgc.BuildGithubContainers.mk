@@ -167,7 +167,7 @@ bgc_container_registry_login_rule: zbgc_argcheck_rule
 
 bgc-r.%: bgc_container_registry_login_rule
 	$(MBC_START) "Retrieve Container Registry Image"
-	@test "$(BGC_ARG_TAG)" != "" ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
+	@test "$(BGC_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
 	$(MBC_STEP) "Fetch image..."
 	podman pull $(BGC_ARG_TAG)
 	$(MBC_PASS) "No errors."
