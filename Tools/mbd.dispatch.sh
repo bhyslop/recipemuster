@@ -53,6 +53,7 @@ source ${zMBD_VARIABLES}
 : ${MBV_CONSOLE_MAKEFILE:?}    && zMBD_SHOW "Console Makefile:    ${MBV_CONSOLE_MAKEFILE}"
 : ${MBV_TABTARGET_DIR:?}       && zMBD_SHOW "Tabtarget Dir:       ${MBV_TABTARGET_DIR}"
 : ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: ${MBV_TABTARGET_DELIMITER}"
+: ${MBV_TEMP_ROOT_DIR:?}       && zMBD_SHOW "Temp root directory: ${MBV_TEMP_ROOT_DIR}"
 
 zMBD_SHOW "Source select station file vars and validate"
 source $MBV_STATION_FILE
@@ -62,6 +63,12 @@ source $MBV_STATION_FILE
 zMBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%Sp%N')
 zMBD_SHOW "Generated timestamp: $zMBD_NOW_STAMP"
 
+zMBD_SHOW "Setting up temporary directory"
+zMBD_TEMP_DIR="$MBV_TEMP_ROOT_DIR/temp-$zMBD_NOW_STAMP"
+mkdir -p        "$zMBD_TEMP_DIR"
+test  -d        "$zMBD_TEMP_DIR"                            || ( zMBD_SHOW "Failed mkdir temp: $zMBD_TEMP_DIR" && exit 1)
+test -z "$(find "$zMBD_TEMP_DIR" -mindepth 1 -print -quit)" || ( zMBD_SHOW "temp dir nonempty: $zMBD_TEMP_DIR" && exit 1)
+
 zMBD_JP_ARG=$1
 zMBD_OM_ARG=$2
 zMBD_TARGET=$3
@@ -69,8 +76,9 @@ shift 3
 
 zMBD_SHOW "Validating job profile"
 case "$zMBD_JP_ARG" in
-  jp_single) zMBD_JOB_PROFILE=1               ;;
-  jp_full)   zMBD_JOB_PROFILE=$MBS_MAX_JOBS   ;;
+  jp_single)    zMBD_JOB_PROFILE=1               ;;
+  jp_bounded)   zMBD_JOB_PROFILE=$MBS_MAX_JOBS   ;;
+  jp_unbounded) zMBD_JOB_PROFILE=""              ;;
   *) zMBD_SHOW "Invalid job profile: $zMBD_JP_ARG"; exit 1 ;;
 esac
 
@@ -119,8 +127,9 @@ cmd_parts=(
     "make -f $MBV_CONSOLE_MAKEFILE"
     "$zMBD_OUTPUT_MODE -j $zMBD_JOB_PROFILE"
     "$zMBD_TARGET"
-    "MBV_NOW_STAMP=$zMBD_NOW_STAMP"
-    "MBV_JOB_PROFILE=$zMBD_JOB_PROFILE"
+    "MBD_NOW_STAMP=$zMBD_NOW_STAMP"
+    "MBD_JOB_PROFILE=$zMBD_JOB_PROFILE"
+    "MBD_DISPATCH_TEMP_DIR=$zMBD_TEMP_DIR"
     "${zMBD_TOKEN_PARAMS[*]}"
     "$@"
 )

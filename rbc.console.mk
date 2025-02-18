@@ -37,25 +37,6 @@ default:
 
 
 #######################################
-#  Clean Temporary directory creation
-#
-# This might better be done in the dispatch script.  Not sure:
-# problems of dispatches calling dispatches may be unique to
-# testing Recipe Bottle, not using it.
-
-zRBC_TEMP_DIR = $(MBV_TEMP_ROOT_DIR)/temp-$(MBV_NOW_STAMP)
-
-zrbc_prepare_temporary_dir:
-	$(MBC_START) "Set up temporary dir ->" $(zRBC_TEMP_DIR)
-	@$(call MBC_CHECK_NONEMPTY,1,$(zRBC_TEMP_DIR))
-	@$(call MBC_CHECK_NONEMPTY,1,$(MBV_TEMP_ROOT_DIR))
-	@$(call MBC_CHECK_NONEMPTY,1,$(MBV_NOW_STAMP))
-	mkdir -p    $(zRBC_TEMP_DIR)
-	@test -d   "$(zRBC_TEMP_DIR)"   || ($(MBC_SEE_RED) "Failed to create directory" && exit 1)
-	@test ! -f "$(zRBC_TEMP_DIR)/*" || ($(MBC_SEE_RED) "Directory contains files"   && exit 1)
-
-
-#######################################
 #  Startup
 #
 
@@ -69,7 +50,7 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #
 
 zRBC_START_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbm_start_service_rule
-zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(zRBC_TEMP_DIR)
+zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR)
 
 rbc-to.%: zrbc_prepare_temporary_dir
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
@@ -89,7 +70,7 @@ rbc-tb.%: zrbc_prepare_temporary_dir
 
 zRBC_TEST_RECIPE = test_busybox.recipe
 
-zRBC_FQIN_FILE     = $(zRBC_TEMP_DIR)/fqin.txt
+zRBC_FQIN_FILE     = $(MBD_DISPATCH_TEMP_DIR)/fqin.txt
 zBGC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
 rbc-tg.%: zrbc_prepare_temporary_dir
