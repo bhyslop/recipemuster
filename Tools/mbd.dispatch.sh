@@ -147,7 +147,7 @@ zMBD_SHOW "eval: $zMBD_MAKE_CMD"
 echo "command: $zMBD_MAKE_CMD" >> "$zMBD_LOG_LAST" >> "$zMBD_LOG_SAME" >> "$zMBD_LOG_HIST"
 
 set +e
-zMBD_STATUS_TMP=$(mktemp)
+zMBD_STATUS_TMP="$zMBD_TEMP_DIR/status-$$"
 { 
     eval "$zMBD_MAKE_CMD" 2>&1
     echo $? > "$zMBD_STATUS_TMP"
