@@ -1,7 +1,7 @@
 # OUCH experiment to try and figure gh actions shelling
 SHELL = /bin/bash
 
-include bgc-config.mk
+include rbv.variables.mk
 
 # Dynamic list of all BGCV_ variables
 BGCV_VARS := $(filter BGCV_%,$(.VARIABLES))
