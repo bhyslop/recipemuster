@@ -17,10 +17,10 @@
 # Build Github Containers Makefile
 
 include mbv.variables.sh
-include bgc-config.mk
+include rbv.variables.mk
 
 include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
-include $(MBV_TOOLS_DIR)/bgc_flow_helper.mk
+include $(MBV_TOOLS_DIR)/rbvc.checker.mk
 
 # Acquire the PAT needed to do GHCR image access/ control
 include $(BGCV_GITHUB_PAT_ENV)

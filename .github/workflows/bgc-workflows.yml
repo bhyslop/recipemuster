@@ -14,22 +14,22 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to validate configuration files..."
-          test -f bgc-config.mk ||\
-            (echo "GHA: Error: bgc-config.mk is missing" && false)
-          test -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk ||\
-            (echo "GHA: Error: bgc_flow_helper.mk is missing" && false)
+          test -f rbv.variables.mk ||\
+            (echo "GHA: Error: rbv.variables.mk is missing" && false)
+          test -f ${{ github.workspace }}/Tools/rbvc.checker.mk ||\
+            (echo "GHA: Error: rbvc.checker.mk is missing" && false)
 
       - name: Check required variables
         shell: bash
         run: |
           echo "GHA: about to check required variables..."
-          make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_check_rule
+          make -f ${{ github.workspace }}/Tools/rbvc.checker.mk bgcfh_check_rule
 
       - name: Load configuration
         shell: bash
         run: |
           echo "GHA: about to establish env vars from helper makefile..."
-          eval "$(make -f ${{ github.workspace }}/Tools/bgc_flow_helper.mk bgcfh_display_rule)" | grep '^BGCV_' >> $GITHUB_ENV
+          eval "$(make -f ${{ github.workspace }}/Tools/rbvc.checker.mk bgcfh_display_rule)" | grep '^BGCV_' >> $GITHUB_ENV
           echo "GHA: Environment variables have been submitted, available in next step."
 
       - name: Set and validate Dockerfile path
