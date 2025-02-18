@@ -50,7 +50,7 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #
 
 zRBC_START_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbm_start_service_rule
-zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR)
+zRBC_MAKE_TEST_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbm_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
 
 rbc-to.%:
 	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
