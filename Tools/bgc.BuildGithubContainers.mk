@@ -123,7 +123,7 @@ bgc-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Extracting FQIN..."
 	@test -f "$(zBGC_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
 	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zBGC_VERIFY_FQIN_CONTENTS)"
-	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || cp "$(zBGC_VERIFY_FQIN_FILE)"   "$(BGC_ARG_FQIN_OUTPUT)"
+	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || cp  "$(zBGC_VERIFY_FQIN_FILE)"  "$(BGC_ARG_FQIN_OUTPUT)"
 	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(BGC_ARG_FQIN_OUTPUT)"
 	$(MBC_STEP) "Pull logs..."
 	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
@@ -135,18 +135,18 @@ bgc-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 bgc-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
-	@$(zBGC_CMD_LIST_IMAGES)                                   |\
-	  jq -r '.[] | select(.package_type=="container") | .name' |\
-	  while read -r package_name; do                \
-	    echo "Package: $$package_name";             \
+	@$(zBGC_CMD_LIST_IMAGES)                                                                                          |\
+	  jq -r '.[] | select(.package_type=="container") | .name'                                                        |\
+	  while read -r package_name; do                                                                                   \
+	    echo "Package: $$package_name";                                                                                \
 	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBV_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name"; \
-	    echo "Versions:";                           \
-	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                            |\
-	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                       |\
-	      sort -r                                                                    |\
+	    echo "Versions:";                                                                                              \
+	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                                                             |\
+	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                        |\
+	      sort -r                                                                                                     |\
 	      awk       '{printf "%-50s %-13s ghcr.io/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}'   |\
 	      awk 'BEGIN {printf "%-50s %-13s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
-	    echo; \
+	    echo;                                                                                                          \
 	  done
 	$(MBC_PASS) "No errors."
 

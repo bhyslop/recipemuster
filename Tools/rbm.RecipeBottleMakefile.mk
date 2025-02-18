@@ -166,7 +166,7 @@ rbp-i.%:  rbb_render rbn_render rbs_render
 
 rbp-o.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(eval $(zRBM_EXPORT_ENV); cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh)
+	(eval $(zRBM_EXPORT_ENV) && cat $(RBM_TOOLS_DIR)/rbo.ObserveBottleServiceNetworks.sh | /bin/sh)
 
 
 # eof
