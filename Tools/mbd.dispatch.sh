@@ -41,7 +41,7 @@ test               "$zMBD_VERBOSE" != "2" || set -x
 zMBD_SHOW "Starting dispatch script"
 
 cd "$(dirname "$0")/.."
-zMBD_SHOW "Changed to repository root, cwd for all ops dispatched"
+zMBD_SHOW "Changed to repository root, cwd for all commands executed"
 
 zMBD_SHOW "Source variables file and validate"
 zMBD_VARIABLES=./mbv.variables.sh
@@ -54,7 +54,7 @@ source ${zMBD_VARIABLES}
 : ${MBV_TABTARGET_DIR:?}       && zMBD_SHOW "Tabtarget Dir:       ${MBV_TABTARGET_DIR}"
 : ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: ${MBV_TABTARGET_DELIMITER}"
 
-zMBD_SHOW "Source station file and validate"
+zMBD_SHOW "Source select station file vars and validate"
 source $MBV_STATION_FILE
 : ${MBS_LOG_DIR:?}          && zMBD_SHOW "Log directory:  ${MBS_LOG_DIR}"
 : ${MBS_MAX_JOBS:?}         && zMBD_SHOW "Max jobs:       ${MBS_MAX_JOBS}"
