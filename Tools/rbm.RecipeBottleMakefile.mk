@@ -53,29 +53,28 @@ zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
 
 # Render rules
-rbm-r%: rbs_render rbb_render rbn_render
+rbp-r.%: rbs_render rbb_render rbn_render
 	$(MBC_START) "Rendering regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
 
 
 # Validation rules
-rbm-v%: zrbm_validate_regimes_rule
-zrbm_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
+rbp-v.%: zrbp_validate_regimes_rule
+zrbp_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
-
 
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Start up correct podman machine"
 	podman machine start
 	$(MBC_PASS) "No errors."
 
-rbp-s%: zrbm_start_service_rule
+rbp-s.%: zrbp_start_service_rule
 	$(MBC_STEP) "Completed delegate."
 
-zrbm_start_service_rule: zrbm_validate_regimes_rule
+zrbp_start_service_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
 	$(MBC_STEP) "Stopping any prior containers"
@@ -151,7 +150,7 @@ zrbm_start_service_rule: zrbm_validate_regimes_rule
 	$(MBC_STEP) "Bottle service should be available now."
 
 
-rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
+rbp_test_nameplate_rule: rbs_define rbb_define rbn_define
 	$(MBC_START) "Testing nameplate $(RBM_MONIKER)"
 	@test -n "$(RBM_TEMP_DIR)" || ($(MBC_SEE_RED) "RBM_TEMP_DIR not set" && exit 1)
 	$(MAKE) -f $(RBM_TESTS_DIR)/rbt.test.$(RBM_MONIKER).mk   \
@@ -162,22 +161,22 @@ rbm_test_nameplate_rule: rbs_define rbb_define rbn_define
 	                rbt_test_bottle_service_rule
 
 
-rbm-cs%:
+rbp-s.%:
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
-rbm-cb%: zrbm_validate_regimes_rule
+rbp-b.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
-rbm-i%:  rbb_render rbn_render rbs_render
+rbp-i.%:  rbb_render rbn_render rbs_render
 	$(MBC_PASS) "Done, no errors."
 
 
-rbp-o%: zrbm_validate_regimes_rule
+rbp-o.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
 	(                                                                    \
 	  $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && )          \
