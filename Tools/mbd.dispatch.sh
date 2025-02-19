@@ -138,10 +138,12 @@ zMBD_MAKE_CMD="${cmd_parts[*]}"
 
 zMBD_CURATE_SAME() {
     # Convert to unix line endings, strip colors, normalize temp dir, remove VOLATILE lines
-    sed 's/\r$//'                               | \
-    sed 's/\x1b\[[0-9;]*m//g'                   | \
-    sed "s|$zMBD_TEMP_DIR|MBD_EPHEMERAL_DIR|g"  | \
-    grep -v VOLATILE
+    sed -e 's/\r/\n/g' \
+        -e '/^$/d' \
+        -e 's/\x1b[\[][0-9;]*[a-zA-Z]//g' \
+        -e 's/\x1b[(][A-Z]//g' \
+        -e "s|$zMBD_TEMP_DIR|MBD_EPHEMERAL_DIR|g" \
+        -e '/VOLATILE/d'
 }
 
 zMBD_CURATE_HIST() {
