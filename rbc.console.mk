@@ -33,9 +33,6 @@ include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_RBG_MAKEFILE)
 include $(zRBC_RBP_MAKEFILE)
 
-# Required argument for service moniker
-RBM_MONIKER ?= __MUST_DEFINE_MONIKER__
-
 include ../RBS_STATION.mk
 include rbb.base.mk
 
