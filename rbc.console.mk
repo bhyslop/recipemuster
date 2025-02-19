@@ -55,7 +55,7 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 rbc-to.%:  rbt_test_bottle_service_rule
 	$(MBC_PASS) "No errors."
 
-zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbp_start_service_rule
+zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_start_service_rule
 zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
 
 rbc-tb.%:
