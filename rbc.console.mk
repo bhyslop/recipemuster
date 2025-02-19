@@ -56,7 +56,7 @@ rbc-to.%:  rbt_test_bottle_service_rule
 	$(MBC_PASS) "No errors."
 
 zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_start_service_rule
-zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
+zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbt_test_bottle_service_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
 
 rbc-tb.%:
 	$(MBC_START) "For each well known nameplate, and threads:$(MBD_JOB_PROFILE)"
