@@ -77,10 +77,10 @@ rbp_podman_machine_start_rule:
 	podman machine start
 	$(MBC_PASS) "No errors."
 
-rbp-s.%: zrbp_start_service_rule
+rbp-s.%: rbp_start_service_rule
 	$(MBC_STEP) "Completed delegate."
 
-zrbp_start_service_rule: zrbp_validate_regimes_rule
+rbp_start_service_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
 	$(MBC_STEP) "Stopping any prior containers"
@@ -136,17 +136,6 @@ zrbp_start_service_rule: zrbp_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
-
-
-rbp_test_nameplate_rule: rbs_define rbb_define rbn_define
-	$(MBC_START) "Testing nameplate $(RBM_MONIKER)"
-	@test -n "$(RBM_TEMP_DIR)" || ($(MBC_SEE_RED) "RBM_TEMP_DIR not set" && exit 1)
-	$(MAKE) -f $(RBM_TESTS_DIR)/rbt.test.$(RBM_MONIKER).mk   \
-	                RBT_MBC_MAKEFILE=$(zRBM_MBC_MAKEFILE)    \
-			MBC_ARG__CTXT=rbt.test                   \
-			RBT_TEMP_DIR=$(RBM_TEMP_DIR)             \
-			RBT_TESTS_DIR=$(RBM_TESTS_DIR)           \
-	                rbt_test_bottle_service_rule
 
 
 rbp-s.%:
