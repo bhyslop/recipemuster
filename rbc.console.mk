@@ -49,24 +49,23 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #
 
 # Allowed to fail gracefully if no moniker available
-RBC_TEST_PATH = $(MBV_TESTS_DIR)/rbt.test.$(RBM_MONIKER).mk
+-include RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
--include $(RBC_TEST_PATH)
-
-rbc-to.%:
-	$(MBC_START) "Test for $(RBM_MONIKER) beginning"
-	$(MBC_STEP)  "Test the bottle service"
-	$(MAKE) rbt_test_bottle_service_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR)
+# Each test defines same rule
+rbc-to.%:  rbt_test_bottle_service_rule
 	$(MBC_PASS) "No errors."
+
+zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) zrbp_start_service_rule
+zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_test_nameplate_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
 
 rbc-tb.%:
 	$(MBC_START) "For each well known nameplate, and threads:$(MBD_JOB_PROFILE)"
-	$(MAKE) zrbp_start_service_rule RBM_MONIKER=nsproto
-	$(MAKE) rbt_test_bottle_service_rule RBM_MONIKER=nsproto RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR)
-	$(MAKE) zrbp_start_service_rule RBM_MONIKER=srjcl
-	$(MAKE) rbt_test_bottle_service_rule RBM_MONIKER=srjcl RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR)
-	$(MAKE) zrbp_start_service_rule RBM_MONIKER=pluml
-	$(MAKE) rbt_test_bottle_service_rule RBM_MONIKER=pluml RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR)
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=nsproto
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=nsproto
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=srjcl
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=srjcl
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=pluml
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=pluml
 	$(MBC_PASS) "No errors."
 
 zRBC_TEST_RECIPE = test_busybox.recipe
