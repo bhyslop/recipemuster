@@ -28,6 +28,12 @@ RBM_MONIKER = $(MBDM_PARAMETER_2)
 include ../RBS_STATION.mk
 include rbb.base.mk
 
+# File paths
+RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
+
+# May not be populated, depending upon entry point rule.
+-include $(RBM_NAMEPLATE_PATH)
+
 include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
