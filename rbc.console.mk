@@ -42,9 +42,9 @@ include $(RBV_GITHUB_PAT_ENV)
 include $(MBV_TOOLS_DIR)/rbvc.checker.mk
 include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
-include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbb.regime-base.mk
+include $(MBV_TOOLS_DIR)/rbn.regime-nameplate.mk
+include $(MBV_TOOLS_DIR)/rbs.regime-station.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 default:
