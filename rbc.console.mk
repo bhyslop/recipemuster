@@ -19,19 +19,19 @@ SHELL := /bin/bash
 # Get the master configuration
 include mbv.variables.sh
 
-zRBC_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
-zRBC_RBG_MAKEFILE = $(MBV_TOOLS_DIR)/rbg.github.mk
-zRBC_RBP_MAKEFILE = $(MBV_TOOLS_DIR)/rbp.podman.mk
-
 # Submake config: What console tool will put in prefix of each line
 MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 
 # Submake config: How selection of a bottle service is done
 RBM_MONIKER = $(MBDM_PARAMETER_2)
 
-include $(zRBC_MBC_MAKEFILE)
-include $(zRBC_RBG_MAKEFILE)
-include $(zRBC_RBP_MAKEFILE)
+include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+# Include configuration regimes
+include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbg.github.mk
+include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 include ../RBS_STATION.mk
 include rbb.base.mk
@@ -41,11 +41,6 @@ RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 
 # May not be populated, depending upon entry point rule.
 -include $(RBM_NAMEPLATE_PATH)
-
-# Include configuration regimes
-include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
 # Allowed to fail gracefully if no moniker available
 -include RBM-tests/rbt.test.$(RBM_MONIKER).mk

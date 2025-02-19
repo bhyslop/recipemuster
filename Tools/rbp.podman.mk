@@ -29,10 +29,10 @@ export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 
-# Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
+zRBN_ROLLUP_ENV = $(filter RBN_%,$(.VARIABLES))
 
-zRBM_EXPORT_ENV := $(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v && ) \
+zRBM_EXPORT_ENV := $(foreach v,$(zRBN_ROLLUP_ENV),export $v=\"$($v)\" && ) \
                    $(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\" && ) \
                    PODMAN_IGNORE_CGROUPSV1_WARNING=1
 
