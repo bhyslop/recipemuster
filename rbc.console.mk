@@ -31,16 +31,15 @@ include rbb.base.mk
 # File paths
 RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 
-# May not be populated, depending upon entry point rule.
+# Allowed to fail gracefully if no moniker available
 -include $(RBM_NAMEPLATE_PATH)
+-include RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
 include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
-
 include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
 include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
 include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
-
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 default:
@@ -59,9 +58,6 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #######################################
 #  Test Targets
 #
-
-# Allowed to fail gracefully if no moniker available
--include RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
 # Each test defines same rule
 rbc-to.%:  rbt_test_bottle_service_rule
