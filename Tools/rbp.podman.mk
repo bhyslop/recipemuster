@@ -29,15 +29,14 @@ export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 
-# For complex variables that may contain spaces/special chars
-zRBM_EXPORT_COMPLEX = $(foreach v,$(filter RBN_VOLUME_MOUNTS,$(.VARIABLES)),export $v='$($v)' && )
+zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
+zRBN_ROLLUP_ENV = $(filter RBN_%,$(.VARIABLES))
 
-# For regular variables
-zRBM_EXPORT_REGULAR = $(foreach v,$(filter-out RBN_VOLUME_MOUNTS,$(filter RBN_%,$(.VARIABLES))),export $v=\"$($v)\" && ) \
-                      $(foreach v,$(filter RBM_%,$(.VARIABLES)),export $v=\"$($v)\" && )
+zRBM_EXPORT_ENV := $(foreach v,$(zRBN_ROLLUP_ENV),export $v=\"$($v)\" && ) \
+                   $(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\" && ) \
+                   PODMAN_IGNORE_CGROUPSV1_WARNING=1
 
-zRBM_PODMAN_SSH_CMD = podman machine ssh '$(zRBM_EXPORT_COMPLEX) $(zRBM_EXPORT_REGULAR) PODMAN_IGNORE_CGROUPSV1_WARNING=1 /bin/sh'
-
+zRBM_PODMAN_SSH_CMD = podman machine ssh '$(zRBM_EXPORT_ENV) /bin/sh'
 
 # Render rules
 rbp-r.%: rbs_render rbb_render rbn_render
