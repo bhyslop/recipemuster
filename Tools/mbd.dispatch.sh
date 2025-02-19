@@ -138,9 +138,9 @@ zMBD_MAKE_CMD="${cmd_parts[*]}"
 
 zMBD_CURATE_SAME() {
     # Convert to unix line endings, strip colors, normalize temp dir, remove VOLATILE lines
-    sed 's/\r$//'                      | \
-    sed 's/\x1b\[[0-9;]*m//g'          | \
-    sed "s|$zMBD_TEMP_DIR|TEMP_DIR|g"  | \
+    sed 's/\r$//'                               | \
+    sed 's/\x1b\[[0-9;]*m//g'                   | \
+    sed "s|$zMBD_TEMP_DIR|MBD_EPHEMERAL_DIR|g"  | \
     grep -v VOLATILE
 }
 
@@ -158,12 +158,12 @@ set +e
 zMBD_STATUS_TMP="$zMBD_TEMP_DIR/status-$$"
 { 
     eval "$zMBD_MAKE_CMD" 2>&1
-    echo $? > "$zMBD_STATUS_TMP"
-    zMBD_SHOW "Make completed with local status: $(cat $zMBD_STATUS_TMP)"
+    echo $? >                    "$zMBD_STATUS_TMP"
+    zMBD_SHOW "Make status: $(cat $zMBD_STATUS_TMP)"
 } | tee -a "$zMBD_LOG_LAST" >(zMBD_CURATE_SAME >> "$zMBD_LOG_SAME") \
                             >(zMBD_CURATE_HIST >> "$zMBD_LOG_HIST")
 zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_TMP")
-rm "$zMBD_STATUS_TMP"
+rm                     "$zMBD_STATUS_TMP"
 set -e
 
 zMBD_SHOW "Generate checksum after all logging is complete, regardless of eval status"
