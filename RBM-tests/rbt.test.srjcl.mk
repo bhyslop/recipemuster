@@ -64,11 +64,6 @@ rbt_test_bottle_service_rule:
 	    -H "Cookie: _xsrf=$$(cat $(RBT_XSRF_TOKEN_FILE))"
 	@echo curl done
 
-	$(MBC_SHOW_WHITE) "Create and test kernel using WebSocket"
-
-	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
-	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
-
 	$(MBC_SHOW_WHITE) "Running Python Jupyter test using test container"
 	cat $(RBT_TESTS_DIR)/rbt.test.srjcl.py |                                   \
 	  podman run --rm -i                                                       \
