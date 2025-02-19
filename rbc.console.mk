@@ -71,22 +71,22 @@ rbc-tb.%:
 zRBC_TEST_RECIPE = test_busybox.recipe
 
 zRBC_FQIN_FILE     = $(MBD_DISPATCH_TEMP_DIR)/fqin.txt
-zBGC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
+zRBC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
 rbc-tg.%:
 	$(MBC_START) "Test github action build, retrieval, use"
 	$(MBC_STEP) "Validate list before..."
-	tt/bgc-l.ListCurrentRegistryImages.sh
+	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate build..."
-	tt/bgc-b.BuildWithRecipe.sh $(RBV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
+	tt/rbg-b.BuildWithRecipe.sh $(RBV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
 	$(MBC_STEP) "Validate list during..."
-	tt/bgc-l.ListCurrentRegistryImages.sh
+	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate retrieval..."
-	tt/bgc-r.RetrieveImage.sh $(zBGC_FQIN_CONTENTS)
+	tt/rbg-r.RetrieveImage.sh $(zRBC_FQIN_CONTENTS)
 	$(MBC_STEP) "Validate deletion..."
-	tt/bgc-d.DeleteImageFromRegistry.sh $(zBGC_FQIN_CONTENTS) BGC_ARG_SKIP_DELETE_CONFIRMATION=SKIP
+	tt/rbg-d.DeleteImageFromRegistry.sh $(zRBC_FQIN_CONTENTS) BGC_ARG_SKIP_DELETE_CONFIRMATION=SKIP
 	$(MBC_STEP) "Validate list after..."
-	tt/bgc-l.ListCurrentRegistryImages.sh
+	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
 
 rbc-ta.%:

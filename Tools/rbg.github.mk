@@ -25,80 +25,80 @@ include $(MBV_TOOLS_DIR)/rbvc.checker.mk
 
 # Acquire the PAT needed to do GHCR image access/ control
 include $(RBV_GITHUB_PAT_ENV)
-BGC_SECRET_GITHUB_PAT = $(BGCSV_PAT)
+RBG_SECRET_GITHUB_PAT = $(BGCSV_PAT)
 
-zBGC_GITAPI_URL := https://api.github.com
+zRBG_GITAPI_URL := https://api.github.com
 
-zBGC_TEMP_DIR = $(RBV_TEMP_DIR)
+zRBG_TEMP_DIR = $(RBV_TEMP_DIR)
 
-zBGC_CURRENT_WORKFLOW_RUN_CACHE    = $(zBGC_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
-zBGC_CURRENT_WORKFLOW_RUN_CONTENTS = $$(cat $(zBGC_CURRENT_WORKFLOW_RUN_CACHE))
+zRBG_CURRENT_WORKFLOW_RUN_CACHE    = $(zRBG_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
+zRBG_CURRENT_WORKFLOW_RUN_CONTENTS = $$(cat $(zRBG_CURRENT_WORKFLOW_RUN_CACHE))
 
-zBGC_DELETE_VERSION_ID_CACHE    = $(zBGC_TEMP_DIR)/BGC_VERSION_ID__$(MBC_NOW).txt
-zBGC_DELETE_VERSION_ID_CONTENTS = $$(cat $(zBGC_DELETE_VERSION_ID_CACHE))
+zRBG_DELETE_VERSION_ID_CACHE    = $(zRBG_TEMP_DIR)/RBG_VERSION_ID__$(MBC_NOW).txt
+zRBG_DELETE_VERSION_ID_CONTENTS = $$(cat $(zRBG_DELETE_VERSION_ID_CACHE))
 
-zBGC_DELETE_RESULT_CACHE    = $(zBGC_TEMP_DIR)/BGC_DELETE__$(MBC_NOW).txt
-zBGC_DELETE_RESULT_CONTENTS = $$(cat $(zBGC_DELETE_RESULT_CACHE))
+zRBG_DELETE_RESULT_CACHE    = $(zRBG_TEMP_DIR)/RBG_DELETE__$(MBC_NOW).txt
+zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
-BGC_ARG_RECIPE                   ?=
-BGC_ARG_FQIN_OUTPUT              ?=
-BGC_ARG_FQIN                     ?=
-BGC_ARG_SKIP_DELETE_CONFIRMATION ?=
+RBG_ARG_RECIPE                   ?=
+RBG_ARG_FQIN_OUTPUT              ?=
+RBG_ARG_FQIN                     ?=
+RBG_ARG_SKIP_DELETE_CONFIRMATION ?=
 
-zBGC_RECIPE_BASENAME  = $(shell basename $(BGC_ARG_RECIPE))
+zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
 
-zBGC_VERIFY_BUILD_DIR     = $(shell ls -td $(RBV_HISTORY_DIR)/$(basename $(zBGC_RECIPE_BASENAME))* 2>/dev/null | head -n1)
-zBGC_VERIFY_FQIN_FILE     = $(zBGC_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
-zBGC_VERIFY_FQIN_CONTENTS = $$(cat $(zBGC_VERIFY_FQIN_FILE))
+zRBG_VERIFY_BUILD_DIR     = $(shell ls -td $(RBV_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null | head -n1)
+zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
+zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 
 
-zBGC_CURL_HEADERS := -H 'Authorization: token $(BGC_SECRET_GITHUB_PAT)' \
+zRBG_CURL_HEADERS := -H 'Authorization: token $(RBG_SECRET_GITHUB_PAT)' \
                      -H 'Accept: application/vnd.github.v3+json'
 
-zBGC_CMD_TRIGGER_BUILD = curl -X POST $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/dispatches' \
-    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(BGC_ARG_RECIPE)"}}'
+zRBG_CMD_TRIGGER_BUILD = curl -X POST $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/dispatches' \
+    -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(RBG_ARG_RECIPE)"}}'
 
-zBGC_CMD_GET_WORKFLOW_RUN = curl -s $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
+zRBG_CMD_GET_WORKFLOW_RUN = curl -s $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
-zBGC_CMD_GET_SPECIFIC_RUN = curl -s  $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/'$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)
+zRBG_CMD_GET_SPECIFIC_RUN = curl -s  $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/'$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 
-zBGC_CMD_LIST_IMAGES = curl -s $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/user/packages?package_type=container'
+zRBG_CMD_LIST_IMAGES = curl -s $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/user/packages?package_type=container'
 
-zBGC_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions'
+zRBG_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions'
 
-zBGC_CMD_GET_LOGS = $(zBGC_CMD_GET_SPECIFIC_RUN)/logs
+zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 
-zBGC_CMD_QUERY_LAST_INNER = $(zBGC_CMD_GET_SPECIFIC_RUN)            |\
+zRBG_CMD_QUERY_LAST_INNER = $(zRBG_CMD_GET_SPECIFIC_RUN)            |\
                              jq -r '.status, .conclusion'           |\
                               (read status && read conclusion &&\
                                echo "  Status: $$status    Conclusion: $$conclusion" &&\
                                test "$$status" == "completed")
 
-zBGC_CMD_DELETE_VERSION = curl -X DELETE $(zBGC_CURL_HEADERS) \
-    '$(zBGC_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zBGC_DELETE_VERSION_ID_CONTENTS)
+zRBG_CMD_DELETE_VERSION = curl -X DELETE $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
 zbgc_argcheck_rule: rbvc_check_rule
-	@test -n "$(BGC_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: BGC_SECRET_GITHUB_PAT unset" && false)
-	@test -n "$(zBGC_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zBGC_GITAPI_URL unset"       && false)
-	@mkdir -p $(zBGC_TEMP_DIR)
+	@test -n "$(RBG_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: RBG_SECRET_GITHUB_PAT unset" && false)
+	@test -n "$(zRBG_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset"       && false)
+	@mkdir -p $(zRBG_TEMP_DIR)
 
 
 zbgc_recipe_argument_check:
 	$(MBC_START) "Checking recipe argument"
-	@test -n "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: BGC_ARG_RECIPE unset" && exit 1)
-	@test -f "$(BGC_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: '$(BGC_ARG_RECIPE)' is not a file" && exit 1)
-	@! basename "$(BGC_ARG_RECIPE)" | grep -q '[A-Z]' || \
-	  ($(MBC_SEE_RED) "Error: Basename of '$(BGC_ARG_RECIPE)' contains uppercase letters" && exit 1)
-	@$(MBC_STEP) "$(BGC_ARG_RECIPE) is well formed, moving on..."
+	@test -n "$(RBG_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: RBG_ARG_RECIPE unset" && exit 1)
+	@test -f "$(RBG_ARG_RECIPE)" || ($(MBC_SEE_RED) "Error: '$(RBG_ARG_RECIPE)' is not a file" && exit 1)
+	@! basename "$(RBG_ARG_RECIPE)" | grep -q '[A-Z]' || \
+	  ($(MBC_SEE_RED) "Error: Basename of '$(RBG_ARG_RECIPE)' contains uppercase letters" && exit 1)
+	@$(MBC_STEP) "$(RBG_ARG_RECIPE) is well formed, moving on..."
 
 
-bgc-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
-	$(MBC_START) "Trigger Build of $(BGC_ARG_RECIPE)"
+rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
+	$(MBC_START) "Trigger Build of $(RBG_ARG_RECIPE)"
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
 	@git fetch                                               &&\
 	  git status -uno | grep -q 'Your branch is up to date'  &&\
@@ -106,43 +106,43 @@ bgc-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	  true || ($(MBC_SEE_RED) "ERROR: Your repo is not cleanly aligned with github variant." &&\
 	           $(MBC_SEE_RED) "       Commit or otherwise match to proceed (prevents merge"  &&\
 		   $(MBC_SEE_RED) "       conflicts with image history tracking)." && false)
-	@$(zBGC_CMD_TRIGGER_BUILD)
+	@$(zRBG_CMD_TRIGGER_BUILD)
 	$(MBC_STEP) "Pausing for GitHub to process the dispatch event..."
 	@sleep 5
 	$(MBC_STEP) "Retrieve workflow run ID..."
-	@$(zBGC_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
-	@test -s                                                       $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
+	@$(zRBG_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
+	@test -s                                                       $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_STEP) "Workflow online at:"
-	$(MBC_SHOW_YELLOW) "   https://github.com/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/"$(zBGC_CURRENT_WORKFLOW_RUN_CONTENTS)
+	$(MBC_SHOW_YELLOW) "   https://github.com/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/"$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
-	@until $(zBGC_CMD_QUERY_LAST_INNER); do sleep 3; done
+	@until $(zRBG_CMD_QUERY_LAST_INNER); do sleep 3; done
 	$(MBC_STEP) "Git Pull for artifacts..."
 	@git pull
 	$(MBC_STEP) "Verifying build output..."
-	@test -n "$(zBGC_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory" && false)
-	@cmp "$(BGC_ARG_RECIPE)" "$(zBGC_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
+	@test -n "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory" && false)
+	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
 	$(MBC_STEP) "Extracting FQIN..."
-	@test -f "$(zBGC_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
-	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zBGC_VERIFY_FQIN_CONTENTS)"
-	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || cp  "$(zBGC_VERIFY_FQIN_FILE)"  "$(BGC_ARG_FQIN_OUTPUT)"
-	@test -z "$(BGC_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(BGC_ARG_FQIN_OUTPUT)"
+	@test -f "$(zRBG_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
+	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zRBG_VERIFY_FQIN_CONTENTS)"
+	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp  "$(zRBG_VERIFY_FQIN_FILE)"  "$(RBG_ARG_FQIN_OUTPUT)"
+	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(RBG_ARG_FQIN_OUTPUT)"
 	$(MBC_STEP) "Pull logs..."
-	@$(zBGC_CMD_GET_LOGS) > $(zBGC_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
+	@$(zRBG_CMD_GET_LOGS) > $(zRBG_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
-	rm $(zBGC_CURRENT_WORKFLOW_RUN_CACHE)
+	rm $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
 
 
-bgc-l.%: zbgc_argcheck_rule
+rbg-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
-	@$(zBGC_CMD_LIST_IMAGES)                                                                                          |\
+	@$(zRBG_CMD_LIST_IMAGES)                                                                                          |\
 	  jq -r '.[] | select(.package_type=="container") | .name'                                                        |\
 	  while read -r package_name; do                                                                                   \
 	    echo "Package: $$package_name";                                                                                \
 	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBV_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name"; \
 	    echo "Versions:";                                                                                              \
-	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS)                                                                             |\
+	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                             |\
 	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                        |\
 	      sort -r                                                                                                     |\
 	      awk       '{printf "%-50s %-13s ghcr.io/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}'   |\
@@ -152,45 +152,45 @@ bgc-l.%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 
-bgc_container_registry_login_rule: zbgc_argcheck_rule
+rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
 	@podman login ghcr.io -u $(BGCSV_USERNAME) -p $(BGCSV_PAT)
 	$(MBC_PASS) "No errors."
 
 
-bgc-r.%: bgc_container_registry_login_rule
+rbg-r.%: rbg_container_registry_login_rule
 	$(MBC_START) "Retrieve Container Registry Image"
-	@test "$(BGC_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
+	@test "$(RBG_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
 	$(MBC_STEP) "Fetch image..."
-	podman pull $(BGC_ARG_TAG)
+	podman pull $(RBG_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
 
-bgc-d.%: zbgc_argcheck_rule
+rbg-d.%: zbgc_argcheck_rule
 	$(MBC_START) "Delete Container Registry Image"
-	@test "$(BGC_ARG_FQIN)" != "" || \
-	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (BGC_ARG_FQIN)" && false)
-	@echo "Deleting image: $(BGC_ARG_FQIN)"
+	@test "$(RBG_ARG_FQIN)" != "" || \
+	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (RBG_ARG_FQIN)" && false)
+	@echo "Deleting image: $(RBG_ARG_FQIN)"
 	@echo "Extracting tag from FQIN..."
-	@( tag=$$(echo "$(BGC_ARG_FQIN)" | cut -d: -f2)  &&  echo "Using tag: $$tag" && \
-	    $(zBGC_CMD_LIST_PACKAGE_VERSIONS) | \
+	@( tag=$$(echo "$(RBG_ARG_FQIN)" | cut -d: -f2)  &&  echo "Using tag: $$tag" && \
+	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS) | \
 	      jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
-	       > $(zBGC_DELETE_VERSION_ID_CACHE))
-	@test -s $(zBGC_DELETE_VERSION_ID_CACHE) || \
-	  ($(MBC_SEE_RED) "Error: No version found for FQIN $(BGC_ARG_FQIN)" && rm $(zBGC_DELETE_VERSION_ID_CACHE) && false)
-	@echo "Found version ID: $(zBGC_DELETE_VERSION_ID_CONTENTS)"
-	@test "$(BGC_ARG_SKIP_DELETE_CONFIRMATION)" = "SKIP" || \
+	       > $(zRBG_DELETE_VERSION_ID_CACHE))
+	@test -s $(zRBG_DELETE_VERSION_ID_CACHE) || \
+	  ($(MBC_SEE_RED) "Error: No version found for FQIN $(RBG_ARG_FQIN)" && rm $(zRBG_DELETE_VERSION_ID_CACHE) && false)
+	@echo "Found version ID: $(zRBG_DELETE_VERSION_ID_CONTENTS)"
+	@test "$(RBG_ARG_SKIP_DELETE_CONFIRMATION)" = "SKIP" || \
 	  ($(MBC_SEE_YELLOW) "Confirm delete image?" && \
 	  read -p "Type YES: " confirm && \
 	  (test "$$confirm" = "YES" || \
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)))
 	$(MBC_STEP) "Deleting image version..."
-	@$(zBGC_CMD_DELETE_VERSION) -s -w "HTTP_STATUS:%{http_code}" > $(zBGC_DELETE_RESULT_CACHE)
-	@grep -q "HTTP_STATUS:204" $(zBGC_DELETE_RESULT_CACHE) || \
-	  ($(MBC_SEE_RED) "Failed to delete image version. Response: $(zBGC_DELETE_RESULT_CONTENTS)" && \
-	   rm $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE) && false)
+	@$(zRBG_CMD_DELETE_VERSION) -s -w "HTTP_STATUS:%{http_code}" > $(zRBG_DELETE_RESULT_CACHE)
+	@grep -q "HTTP_STATUS:204" $(zRBG_DELETE_RESULT_CACHE) || \
+	  ($(MBC_SEE_RED) "Failed to delete image version. Response: $(zRBG_DELETE_RESULT_CONTENTS)" && \
+	   rm $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE) && false)
 	@echo "Successfully deleted image version."
-	@rm -f $(zBGC_DELETE_VERSION_ID_CACHE) $(zBGC_DELETE_RESULT_CACHE)
+	@rm -f $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE)
 	$(MBC_PASS) "No errors."
 
 
