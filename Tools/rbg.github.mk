@@ -36,6 +36,14 @@ RBG_ARG_FQIN                     ?=
 # Valid for: Delete operations only
 RBG_ARG_SKIP_DELETE_CONFIRMATION ?=
 
+include mbv.variables.sh
+include rbv.variables.mk
+
+include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+include $(MBV_TOOLS_DIR)/rbvc.checker.mk
+
+# Acquire the PAT needed to do GHCR image access/ control
+include $(RBV_GITHUB_PAT_ENV)
 RBG_SECRET_GITHUB_PAT = $(BGCSV_PAT)
 
 zRBG_GITAPI_URL := https://api.github.com
