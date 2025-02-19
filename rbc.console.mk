@@ -33,6 +33,36 @@ include $(zRBC_MBC_MAKEFILE)
 include $(zRBC_RBG_MAKEFILE)
 include $(zRBC_RBP_MAKEFILE)
 
+# Required argument for service moniker
+RBM_MONIKER ?= __MUST_DEFINE_MONIKER__
+
+include ../RBS_STATION.mk
+include rbb.base.mk
+
+# File paths
+RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
+
+# May not be populated, depending upon entry point rule.
+-include $(RBM_NAMEPLATE_PATH)
+
+# Include configuration regimes
+include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
+
+# Allowed to fail gracefully if no moniker available
+-include RBM-tests/rbt.test.$(RBM_MONIKER).mk
+
+include mbv.variables.sh
+include rbv.variables.mk
+
+include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+include $(MBV_TOOLS_DIR)/rbvc.checker.mk
+
+# Acquire the PAT needed to do GHCR image access/ control
+include $(RBV_GITHUB_PAT_ENV)
+
+
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(MBV_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
@@ -49,9 +79,6 @@ rbc-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #######################################
 #  Test Targets
 #
-
-# Allowed to fail gracefully if no moniker available
--include RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
 # Each test defines same rule
 rbc-to.%:  rbt_test_bottle_service_rule

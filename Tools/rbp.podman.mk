@@ -9,23 +9,6 @@
 # Recipe Bottle Makefile (RBM)
 # Implements secure containerized service management
 
-# Required argument for service moniker
-RBM_MONIKER ?= __MUST_DEFINE_MONIKER__
-
-include ../RBS_STATION.mk
-include rbb.base.mk
-
-# File paths
-RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
-
-# May not be populated, depending upon entry point rule.
--include $(RBM_NAMEPLATE_PATH)
-
-# Include configuration regimes
-include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
-
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
 export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
