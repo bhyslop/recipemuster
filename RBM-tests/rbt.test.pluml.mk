@@ -44,7 +44,7 @@ rbt_test_bottle_service_rule:
 	grep -q "boo"         $(MBD_TEMP_DIR)/response.txt
 
 	$(MBC_SHOW_WHITE) "Test PlantUML server with local diagram"
-	cat $(RBT_TEST_DIAGRAM_PATH) | curl -s --data-binary @- $(RBT_PLANTUML_URL)/txt/uml > $(MBD_TEMP_DIRd)/local_response.txt
+	cat $(RBT_TEST_DIAGRAM_PATH) | curl -s --data-binary @- $(RBT_PLANTUML_URL)/txt/uml > $(MBD_TEMP_DIR)/local_response.txt
 	grep -q "Bob"         $(MBD_TEMP_DIR)/local_response.txt
 	grep -q "Alice"       $(MBD_TEMP_DIR)/local_response.txt
 	grep -q "hello there" $(MBD_TEMP_DIR)/local_response.txt
