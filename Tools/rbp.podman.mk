@@ -11,12 +11,6 @@
 
 SHELL := /bin/bash
 
-
-# Directory structure
-RBM_TOOLS_DIR        := $(MBV_TOOLS_DIR)
-RBM_TESTS_DIR        := RBM-tests
-RBM_TRANSCRIPTS_DIR  := RBM-transcripts
-
 # Required argument for service moniker
 RBM_MONIKER ?= __MUST_DEFINE_MONIKER__
 
@@ -30,11 +24,11 @@ RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 -include $(RBM_NAMEPLATE_PATH)
 
 # Include configuration regimes
-zRBM_MBC_MAKEFILE = $(RBM_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+zRBM_MBC_MAKEFILE = $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(zRBM_MBC_MAKEFILE)
-include $(RBM_TOOLS_DIR)/rbb.BaseConfigRegime.mk
-include $(RBM_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
-include $(RBM_TOOLS_DIR)/rbs.StationConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
@@ -90,7 +84,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	cat $(RBM_TOOLS_DIR)/rbnc.cleanup.sh | $(zRBM_PODMAN_SSH_CMD)
+	cat $(MBV_TOOLS_DIR)/rbnc.cleanup.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
@@ -107,16 +101,16 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbns.sentry.sh | $(zRBM_PODMAN_SSH_CMD)
+	cat $(MBV_TOOLS_DIR)/rbns.sentry.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "Configuring SENTRY security"
-	cat $(RBM_TOOLS_DIR)/rbss.sentry.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+	cat $(MBV_TOOLS_DIR)/rbss.sentry.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	cat $(RBM_TOOLS_DIR)/rbnb.bottle.sh | $(zRBM_PODMAN_SSH_CMD)
+	cat $(MBV_TOOLS_DIR)/rbnb.bottle.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
-	cat $(RBM_TOOLS_DIR)/rbni.info.sh | $(zRBM_PODMAN_SSH_CMD)
+	cat $(MBV_TOOLS_DIR)/rbni.info.sh | $(zRBM_PODMAN_SSH_CMD)
 
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
@@ -155,7 +149,7 @@ rbp-i.%:  rbb_render rbn_render rbs_render
 
 rbp-o.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(eval $(zRBM_EXPORT_ENV) && cat $(RBM_TOOLS_DIR)/rbo.observe.sh | /bin/sh)
+	(eval $(zRBM_EXPORT_ENV) && cat $(MBV_TOOLS_DIR)/rbo.observe.sh | /bin/sh)
 
 
 # eof

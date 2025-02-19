@@ -14,6 +14,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
+SHELL := /bin/bash
+
 # Get the master configuration
 include mbv.variables.sh
 
