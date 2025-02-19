@@ -25,7 +25,7 @@
 # ones, use ${xxx} to expand.
 
 # Where to write logs on this workstation relative to repo root
-MBS_LOG_DIR=../_logs_rbc
+MBS_LOG_DIR=../_logs_rbs
 
 # When running a parallel make, use this many cores
 MBS_MAX_JOBS=12

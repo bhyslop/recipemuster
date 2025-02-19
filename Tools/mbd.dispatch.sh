@@ -136,7 +136,15 @@ cmd_parts=(
 
 zMBD_MAKE_CMD="${cmd_parts[*]}"
 
-zMBD_TIMESTAMP() {
+zMBD_CURATE_SAME() {
+    # Convert to unix line endings, strip colors, normalize temp dir, remove VOLATILE lines
+    sed 's/\r$//'                      | \
+    sed 's/\x1b\[[0-9;]*m//g'          | \
+    sed "s|$zMBD_TEMP_DIR|TEMP_DIR|g"  | \
+    grep -v VOLATILE
+}
+
+zMBD_CURATE_HIST() {
     while read -r line; do 
         printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$line"
     done
@@ -152,7 +160,8 @@ zMBD_STATUS_TMP="$zMBD_TEMP_DIR/status-$$"
     eval "$zMBD_MAKE_CMD" 2>&1
     echo $? > "$zMBD_STATUS_TMP"
     zMBD_SHOW "Make completed with local status: $(cat $zMBD_STATUS_TMP)"
-} | tee -a "$zMBD_LOG_LAST" "$zMBD_LOG_SAME" >(zMBD_TIMESTAMP >> "$zMBD_LOG_HIST")
+} | tee -a "$zMBD_LOG_LAST" >(zMBD_CURATE_SAME >> "$zMBD_LOG_SAME") \
+                            >(zMBD_CURATE_HIST >> "$zMBD_LOG_HIST")
 zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_TMP")
 rm "$zMBD_STATUS_TMP"
 set -e
