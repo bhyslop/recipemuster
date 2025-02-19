@@ -91,6 +91,13 @@ rbc-tg.%:
 	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
 
+rbc-tf.%:
+	$(MBC_START) "Fast test..."
+	tt/rbg-l.ListCurrentRegistryImages.sh
+	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=pluml
+	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=pluml
+	$(MBC_PASS) "No errors."
+
 rbc-ta.%:
 	$(MBC_START) "RUN REPOWIDE TESTS"
 	$(MBC_STEP) "Github tests..."

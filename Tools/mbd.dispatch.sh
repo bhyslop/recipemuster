@@ -105,7 +105,7 @@ zMBD_SHOW "Presume second token descriptive so using logfile infix: ${zMBD_TAG}"
 
 zMBD_LOG_LAST=$MBS_LOG_DIR/$MBV_LOG_LAST.$MBV_LOG_EXT
 zMBD_LOG_SAME=$MBS_LOG_DIR/same-${zMBD_TAG}.$MBV_LOG_EXT
-zMBD_LOG_HIST=$MBS_LOG_DIR/hist-$zMBD_NOW_STAMP-${zMBD_TAG}.$MBV_LOG_EXT
+zMBD_LOG_HIST=$MBS_LOG_DIR/hist-${zMBD_TAG}-$zMBD_NOW_STAMP.$MBV_LOG_EXT
 
 zMBD_SHOW "Log paths:"
 zMBD_SHOW "  DIR:   $MBS_LOG_DIR"
