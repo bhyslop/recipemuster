@@ -22,29 +22,26 @@ include mbv.variables.sh
 # Submake config: What console tool will put in prefix of each line
 MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 
-# Submake config: How selection of a bottle service is done
-RBM_MONIKER = $(MBDM_PARAMETER_2)
+# Submake config: Select bottle service from a token in the rule (parsed by dispatch)
+RBM_MONIKER = $(MBD_PARAMETER_2)
 
+# Submake config: Where to find derived nameplate and test files
+RBM_NAMEPLATE_FILE = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
+RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
+
+include ../RBS.STATION.sh
 include ../RBS_STATION.mk
 include rbb.base.mk
-
-# File paths
-RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
-
-# Allowed to fail gracefully if no moniker available
--include $(RBM_NAMEPLATE_PATH)
--include RBM-tests/rbt.test.$(RBM_MONIKER).mk
-
+-include $(RBM_NAMEPLATE_FILE)
+-include $(RBM_TEST_FILE)
 include rbv.variables.mk
-
 include $(RBV_GITHUB_PAT_ENV)
-
 include $(MBV_TOOLS_DIR)/rbvc.checker.mk
-include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
+include $(MBV_TOOLS_DIR)/mbc.console.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
-include $(MBV_TOOLS_DIR)/rbb.regime-base.mk
-include $(MBV_TOOLS_DIR)/rbn.regime-nameplate.mk
-include $(MBV_TOOLS_DIR)/rbs.regime-station.mk
+include $(MBV_TOOLS_DIR)/rbrb.base.mk
+include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
+include $(MBV_TOOLS_DIR)/rbrs.station.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 default:
@@ -124,19 +121,19 @@ rbc-ta.%:
 #  Helps you create default form tabtargets in right place.
 
 # Parameter from the tabtarget: what is the full name of the new tabtarget, no directory 
-RBC_TABTARGET_NAME = 
+RBC_TABTARGET_NAME   = 
 
 zRBC_TABTARGET_FILE  = $(MBV_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
 zRBC_DISPATCH_SCRIPT = $(MBV_TOOLS_DIR)/mbd.dispatch.sh
+zRBC_TABTARGET_CMD   = 'cd "$$(dirname "$$0")/.." &&  $(zRBC_DISPATCH_SCRIPT) jp_single om_line "$$(basename "$$0")"'
 
 ttc.CreateTabtarget.sh:
 	@test -n "$(RBC_TABTARGET_NAME)" || { echo "Error: missing name param"; exit 1; }
-	@echo '#!/bin/sh' >         $(zRBC_TABTARGET_FILE)
-	@echo 'cd "$$(dirname "$$0")/.." &&  $(zRBC_DISPATCH_SCRIPT) jp_single om_line "$$(basename "$$0")"' \
-	                 >>         $(zRBC_TABTARGET_FILE)
-	@chmod +x                   $(zRBC_TABTARGET_FILE)
-	git add                     $(zRBC_TABTARGET_FILE)
-	git update-index --chmod=+x $(zRBC_TABTARGET_FILE)
+	@echo '#!/bin/sh'           >  $(zRBC_TABTARGET_FILE)
+	@echo $(zRBC_TABTARGET_CMD) >> $(zRBC_TABTARGET_FILE)
+	@chmod +x                      $(zRBC_TABTARGET_FILE)
+	git add                        $(zRBC_TABTARGET_FILE)
+	git update-index --chmod=+x    $(zRBC_TABTARGET_FILE)
 	$(MBC_PASS) "No errors."
 
 ttx.FixTabtargetExecutability.sh:

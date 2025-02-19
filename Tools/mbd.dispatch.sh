@@ -96,7 +96,7 @@ zMBD_SHOW "Split tokens: ${zMBD_TOKENS[*]}"
 
 zMBD_TOKEN_PARAMS=()
 for i in "${!zMBD_TOKENS[@]}"; do
-    [[ -z "${zMBD_TOKENS[$i]}" ]] || zMBD_TOKEN_PARAMS+=("MBDM_PARAMETER_$i=${zMBD_TOKENS[$i]}")
+    [[ -z "${zMBD_TOKENS[$i]}" ]] || zMBD_TOKEN_PARAMS+=("MBD_PARAMETER_$i=${zMBD_TOKENS[$i]}")
 done
 zMBD_SHOW "Token parameters: ${zMBD_TOKEN_PARAMS[*]}"
 

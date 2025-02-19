@@ -43,7 +43,7 @@ zRBM_PODMAN_SSH_CMD = podman machine ssh $(zRBM_EXPORT_ENV) /bin/sh
 rbp-r.%: rbs_render rbb_render rbn_render
 	$(MBC_START) "Rendering regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
-	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
+	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
 # Validation rules
@@ -51,7 +51,7 @@ rbp-v.%: zrbp_validate_regimes_rule
 zrbp_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
 	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
-	@test -f "$(RBM_NAMEPLATE_PATH)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_PATH)" && exit 1)
+	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Start up correct podman machine"
