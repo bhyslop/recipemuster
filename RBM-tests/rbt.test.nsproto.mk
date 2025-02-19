@@ -45,7 +45,7 @@ ztest_info_rule:
 	@echo "RBM_SENTRY_CONTAINER:  $(RBM_SENTRY_CONTAINER)"
 	@echo "RBM_BOTTLE_CONTAINER:  $(RBM_BOTTLE_CONTAINER)"
 	@echo "RBN_ENCLAVE_SENTRY_IP: $(RBN_ENCLAVE_SENTRY_IP)"
-	@echo "RBT_TEMP_DIR:          $(RBT_TEMP_DIR)"
+	@echo "RBV_TEMP_DIR:          $(RBV_TEMP_DIR)"
 
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule

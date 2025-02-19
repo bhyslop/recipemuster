@@ -16,7 +16,7 @@
 
 RBT_JUPYTER_URL = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/lab
 RBT_JUPYTER_API = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/api
-RBT_XSRF_TOKEN_FILE = $(RBT_TEMP_DIR)/jupyter_xsrf_token
+RBT_XSRF_TOKEN_FILE = $(RBV_TEMP_DIR)/jupyter_xsrf_token
 
 rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
@@ -26,7 +26,7 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENTRY_PORT_ENCLAVE     is $(RBN_ENTRY_PORT_ENCLAVE)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP      is $(RBN_ENCLAVE_SENTRY_IP)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_BOTTLE_IP      is $(RBN_ENCLAVE_BOTTLE_IP)"
-	$(MBC_SHOW_WHITE) "   fact: RBT_TEMP_DIR               is $(RBT_TEMP_DIR)"
+	$(MBC_SHOW_WHITE) "   fact: RBV_TEMP_DIR               is $(RBV_TEMP_DIR)"
 	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR              is $(RBT_TESTS_DIR)"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"

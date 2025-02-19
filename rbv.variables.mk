@@ -7,5 +7,5 @@ export RBV_RECIPES_DIR         := RBM-recipes
 
 # Needed just for makefile console
 export RBV_GITHUB_PAT_ENV      := ../secrets/github-ghcr-play.env
-export RBV_TEMP_DIR            := ../BGC_TEMP_DIR
+export RBV_TEMP_DIR            := ../RBW_TEMP_DIR
 
