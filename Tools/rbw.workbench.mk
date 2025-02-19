@@ -14,7 +14,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
-SHELL := /bin/bash
+SHELL := /bin/bash -eo pipefail
 
 # Get the master configuration
 include mbv.variables.sh
