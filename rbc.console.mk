@@ -84,7 +84,7 @@ rbc-tg.%:
 	$(MBC_STEP) "Validate retrieval..."
 	tt/rbg-r.RetrieveImage.sh $(zRBC_FQIN_CONTENTS)
 	$(MBC_STEP) "Validate deletion..."
-	tt/rbg-d.DeleteImageFromRegistry.sh $(zRBC_FQIN_CONTENTS) BGC_ARG_SKIP_DELETE_CONFIRMATION=SKIP
+	tt/rbg-d.DeleteImageFromRegistry.sh $(zRBC_FQIN_CONTENTS) RBG_ARG_SKIP_DELETE_CONFIRMATION=SKIP
 	$(MBC_STEP) "Validate list after..."
 	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
