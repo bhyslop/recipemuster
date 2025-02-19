@@ -60,7 +60,7 @@ source $MBV_STATION_FILE
 : ${MBS_LOG_DIR:?}          && zMBD_SHOW "Log directory:  ${MBS_LOG_DIR}"
 : ${MBS_MAX_JOBS:?}         && zMBD_SHOW "Max jobs:       ${MBS_MAX_JOBS}"
 
-zMBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%Sp%N')
+zMBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))
 zMBD_SHOW "Generated timestamp: $zMBD_NOW_STAMP"
 
 zMBD_SHOW "Setting up temporary directory"
