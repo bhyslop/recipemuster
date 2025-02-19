@@ -20,9 +20,6 @@
 # Required argument for service moniker
 RBM_MONIKER ?= __MUST_DEFINE_MONIKER__
 
-include ../RBS_STATION.mk
-include rbb.base.mk
-
 # File paths
 RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 
