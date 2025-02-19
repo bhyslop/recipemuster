@@ -25,6 +25,12 @@ MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 # Submake config: How selection of a bottle service is done
 RBM_MONIKER = $(MBDM_PARAMETER_2)
 
+# File paths
+RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
+
+# May not be populated, depending upon entry point rule.
+-include $(RBM_NAMEPLATE_PATH)
+
 include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 # Include configuration regimes
 include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
@@ -35,12 +41,6 @@ include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 include ../RBS_STATION.mk
 include rbb.base.mk
-
-# File paths
-RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
-
-# May not be populated, depending upon entry point rule.
--include $(RBM_NAMEPLATE_PATH)
 
 # Allowed to fail gracefully if no moniker available
 -include RBM-tests/rbt.test.$(RBM_MONIKER).mk
