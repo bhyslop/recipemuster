@@ -18,10 +18,6 @@
 # Implements secure containerized service management
 
 
-# Include configuration regimes
-include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
-include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
 
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry

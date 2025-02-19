@@ -36,6 +36,11 @@ RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 
 include $(MBV_TOOLS_DIR)/mbc.MakefileBashConsole.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
+
+include $(MBV_TOOLS_DIR)/rbb.BaseConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbn.NameplateConfigRegime.mk
+include $(MBV_TOOLS_DIR)/rbs.StationConfigRegime.mk
+
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 default:
