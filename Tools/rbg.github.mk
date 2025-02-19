@@ -16,6 +16,25 @@
 #
 # Build Github Containers Makefile
 
+# Path to the Dockerfile recipe to be built. Must be a file containing valid Dockerfile
+# instructions. The basename must not contain uppercase letters.
+# Valid for: Build operations only
+RBG_ARG_RECIPE                   ?=
+
+# Optional output file path where the Fully Qualified Image Name (FQIN) of the built 
+# container will be written. If not specified, the FQIN is only displayed in the console.
+# Valid for: Build operations only
+RBG_ARG_FQIN_OUTPUT              ?=
+
+# Fully Qualified Image Name (FQIN) of the container image to operate on, typically 
+# in the format ghcr.io/owner/name:tag. Required for image deletion operations.
+# Valid for: Delete operations only
+RBG_ARG_FQIN                     ?=
+
+# Set to "SKIP" to bypass the interactive confirmation prompt when deleting container
+# images. If not set, user must type "YES" to confirm deletion.
+# Valid for: Delete operations only
+RBG_ARG_SKIP_DELETE_CONFIRMATION ?=
 
 include mbv.variables.sh
 include rbv.variables.mk
@@ -39,11 +58,6 @@ zRBG_DELETE_VERSION_ID_CONTENTS = $$(cat $(zRBG_DELETE_VERSION_ID_CACHE))
 
 zRBG_DELETE_RESULT_CACHE    = $(zRBG_TEMP_DIR)/RBG_DELETE__$(MBC_NOW).txt
 zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
-
-RBG_ARG_RECIPE                   ?=
-RBG_ARG_FQIN_OUTPUT              ?=
-RBG_ARG_FQIN                     ?=
-RBG_ARG_SKIP_DELETE_CONFIRMATION ?=
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
 

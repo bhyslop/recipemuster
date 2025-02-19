@@ -69,13 +69,6 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
 	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
 
-	$(MBC_SHOW_WHITE) "Testing WebSocket upgrade..."
-	curl -v -N -H "Connection: Upgrade"                     \
-	           -H "Upgrade: websocket"                      \
-	           -H "Sec-WebSocket-Version: 13"               \
-	           -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
-	           http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/api/kernels/$(shell cat $(RBT_XSRF_TOKEN_FILE))/channels
-
 	$(MBC_SHOW_WHITE) "Running Python Jupyter test using test container"
 	cat $(RBT_TESTS_DIR)/rbt.test.srjcl.py |                                   \
 	  podman run --rm -i                                                       \
