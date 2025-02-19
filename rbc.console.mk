@@ -35,7 +35,6 @@ RBM_NAMEPLATE_PATH = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 -include $(RBM_NAMEPLATE_PATH)
 -include RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
-include mbv.variables.sh
 include rbv.variables.mk
 
 include $(RBV_GITHUB_PAT_ENV)
