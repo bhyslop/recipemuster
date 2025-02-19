@@ -16,7 +16,7 @@
 
 RBT_JUPYTER_URL = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/lab
 RBT_JUPYTER_API = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/api
-RBT_XSRF_TOKEN_FILE = $(RBV_TEMP_DIR)/jupyter_xsrf_token
+RBT_XSRF_TOKEN_FILE = $(MBD_TEMP_DIR)/jupyter_xsrf_token
 
 rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
@@ -26,7 +26,7 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENTRY_PORT_ENCLAVE     is $(RBN_ENTRY_PORT_ENCLAVE)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP      is $(RBN_ENCLAVE_SENTRY_IP)"
 	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_BOTTLE_IP      is $(RBN_ENCLAVE_BOTTLE_IP)"
-	$(MBC_SHOW_WHITE) "   fact: RBV_TEMP_DIR               is $(RBV_TEMP_DIR)"
+	$(MBC_SHOW_WHITE) "   fact: MBD_TEMP_DIR               is $(MBD_TEMP_DIR)"
 	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR              is $(RBT_TESTS_DIR)"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
@@ -78,12 +78,11 @@ rbt_test_bottle_service_rule:
 	@echo curl done
 
 	$(MBC_SHOW_WHITE) "Running Python Jupyter test using test container"
-	cat $(RBT_TESTS_DIR)/rbt.test.srjcl.py |                                   \
-	  podman run --rm -i                                                       \
-	    --network host                                                         \
-	    -e RBN_ENTRY_PORT_WORKSTATION=$(RBN_ENTRY_PORT_WORKSTATION)            \
-	    ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409 \
-	    python3 -
+	podman run --rm -i                                                       \
+	  --network host                                                         \
+	  -e RBN_ENTRY_PORT_WORKSTATION=$(RBN_ENTRY_PORT_WORKSTATION)            \
+	  ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409 \
+	  python3 - < $(RBT_TESTS_DIR)/rbt.test.srjcl.py
 
 	$(MBC_PASS) "No errors detected."
 

@@ -41,15 +41,13 @@ RBG_SECRET_GITHUB_PAT = $(BGCSV_PAT)
 
 zRBG_GITAPI_URL := https://api.github.com
 
-zRBG_TEMP_DIR = $(RBV_TEMP_DIR)
-
-zRBG_CURRENT_WORKFLOW_RUN_CACHE    = $(zRBG_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
+zRBG_CURRENT_WORKFLOW_RUN_CACHE    = $(MBD_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
 zRBG_CURRENT_WORKFLOW_RUN_CONTENTS = $$(cat $(zRBG_CURRENT_WORKFLOW_RUN_CACHE))
 
-zRBG_DELETE_VERSION_ID_CACHE    = $(zRBG_TEMP_DIR)/RBG_VERSION_ID__$(MBC_NOW).txt
+zRBG_DELETE_VERSION_ID_CACHE    = $(MBD_TEMP_DIR)/RBG_VERSION_ID__$(MBC_NOW).txt
 zRBG_DELETE_VERSION_ID_CONTENTS = $$(cat $(zRBG_DELETE_VERSION_ID_CACHE))
 
-zRBG_DELETE_RESULT_CACHE    = $(zRBG_TEMP_DIR)/RBG_DELETE__$(MBC_NOW).txt
+zRBG_DELETE_RESULT_CACHE    = $(MBD_TEMP_DIR)/RBG_DELETE__$(MBC_NOW).txt
 zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
@@ -92,7 +90,7 @@ zRBG_CMD_DELETE_VERSION = curl -X DELETE $(zRBG_CURL_HEADERS) \
 zbgc_argcheck_rule: rbvc_check_rule
 	@test -n "$(RBG_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: RBG_SECRET_GITHUB_PAT unset" && false)
 	@test -n "$(zRBG_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset"       && false)
-	@mkdir -p $(zRBG_TEMP_DIR)
+	@mkdir -p $(MBD_TEMP_DIR)
 
 
 zbgc_recipe_argument_check:
@@ -134,7 +132,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp  "$(zRBG_VERIFY_FQIN_FILE)"  "$(RBG_ARG_FQIN_OUTPUT)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(RBG_ARG_FQIN_OUTPUT)"
 	$(MBC_STEP) "Pull logs..."
-	@$(zRBG_CMD_GET_LOGS) > $(zRBG_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
+	@$(zRBG_CMD_GET_LOGS) > $(MBD_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
 	rm $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."

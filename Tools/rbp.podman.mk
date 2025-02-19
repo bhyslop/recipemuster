@@ -38,7 +38,6 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
 
 zRBM_PODMAN_SSH_CMD = podman machine ssh $(zRBM_EXPORT_ENV) /bin/sh
 
-
 # Render rules
 rbp-r.%: rbs_render rbb_render rbn_render
 	$(MBC_START) "Rendering regimes"
@@ -71,7 +70,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	cat $(MBV_TOOLS_DIR)/rbnc.cleanup.sh | $(zRBM_PODMAN_SSH_CMD)
+	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
@@ -88,16 +87,16 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	cat $(MBV_TOOLS_DIR)/rbns.sentry.sh | $(zRBM_PODMAN_SSH_CMD)
+	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
 
 	$(MBC_STEP) "Configuring SENTRY security"
-	cat $(MBV_TOOLS_DIR)/rbss.sentry.sh | podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh
+	podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	cat $(MBV_TOOLS_DIR)/rbnb.bottle.sh | $(zRBM_PODMAN_SSH_CMD)
+	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
-	cat $(MBV_TOOLS_DIR)/rbni.info.sh | $(zRBM_PODMAN_SSH_CMD)
+	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
 
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
@@ -136,7 +135,7 @@ rbp-i.%:  rbb_render rbn_render rbs_render
 
 rbp-o.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(eval $(zRBM_EXPORT_ENV) && cat $(MBV_TOOLS_DIR)/rbo.observe.sh | /bin/sh)
+	(eval $(zRBM_EXPORT_ENV) && /bin/sh < $(MBV_TOOLS_DIR)/rbo.observe.shs)
 
 
 # eof

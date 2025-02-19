@@ -61,12 +61,14 @@ rbw-a.%:  rbp_podman_machine_start_rule  bgc_container_registry_login_rule
 #  Test Targets
 #
 
+RBT_TESTS_DIR = RBM-tests
+
 # Each test defines same rule
 rbw-to.%:  rbt_test_bottle_service_rule
 	$(MBC_PASS) "No errors."
 
 zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_start_service_rule
-zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbt_test_bottle_service_rule RBM_TEMP_DIR=$(MBD_DISPATCH_TEMP_DIR) -j $(MBD_JOB_PROFILE)
+zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbt_test_bottle_service_rule RBM_TEMP_DIR=$(MBD_TEMP_DIR) -j $(MBD_JOB_PROFILE)
 
 rbw-tb.%:
 	$(MBC_START) "For each well known nameplate, and threads:$(MBD_JOB_PROFILE)"
@@ -80,7 +82,7 @@ rbw-tb.%:
 
 zRBC_TEST_RECIPE = test_busybox.recipe
 
-zRBC_FQIN_FILE     = $(MBD_DISPATCH_TEMP_DIR)/fqin.txt
+zRBC_FQIN_FILE     = $(MBD_TEMP_DIR)/fqin.txt
 zRBC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
 rbw-tg.%:
