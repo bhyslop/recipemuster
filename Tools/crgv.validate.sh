@@ -17,7 +17,6 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 # Configuration Regime Validate Library
-# Provides core validation functions for configuration regime validators
 
 
 # Core error handling
