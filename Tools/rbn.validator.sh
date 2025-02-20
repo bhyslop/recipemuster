@@ -21,30 +21,30 @@
 source crgv.validate.sh
 
 # Core Service Identity
-crgv_is_boolean              RBN_MONIKER
-crgv_is_boolean              RBN_DESCRIPTION
-crgv_is_domain               RBN_SENTRY_REPO_PATH
-crgv_is_domain               RBN_BOTTLE_REPO_PATH
-crgv_is_boolean              RBN_SENTRY_IMAGE_TAG
-crgv_is_boolean              RBN_BOTTLE_IMAGE_TAG
-crgv_is_boolean              RBN_ENTRY_ENABLED
+crgv_bool              RBN_MONIKER
+crgv_bool              RBN_DESCRIPTION
+crgv_domain               RBN_SENTRY_REPO_PATH
+crgv_domain               RBN_BOTTLE_REPO_PATH
+crgv_bool              RBN_SENTRY_IMAGE_TAG
+crgv_bool              RBN_BOTTLE_IMAGE_TAG
+crgv_bool              RBN_ENTRY_ENABLED
 
 # Enclave Network Configuration
-crgv_is_ipv4                 RBN_ENCLAVE_BASE_IP
-crgv_in_range                RBN_ENCLAVE_NETMASK 8 30
-crgv_is_ipv4                 RBN_ENCLAVE_SENTRY_IP
-crgv_is_ipv4                 RBN_ENCLAVE_BOTTLE_IP
+crgv_ipv4                 RBN_ENCLAVE_BASE_IP
+crgv_range                RBN_ENCLAVE_NETMASK 8 30
+crgv_ipv4                 RBN_ENCLAVE_SENTRY_IP
+crgv_ipv4                 RBN_ENCLAVE_BOTTLE_IP
 
 # Uplink Configuration
-crgv_is_port                 RBN_UPLINK_PORT_MIN
-crgv_is_boolean              RBN_UPLINK_DNS_ENABLED
-crgv_is_boolean              RBN_UPLINK_ACCESS_ENABLED
-crgv_is_boolean              RBN_UPLINK_DNS_GLOBAL
-crgv_is_boolean              RBN_UPLINK_ACCESS_GLOBAL
+crgv_port                 RBN_UPLINK_PORT_MIN
+crgv_bool              RBN_UPLINK_DNS_ENABLED
+crgv_bool              RBN_UPLINK_ACCESS_ENABLED
+crgv_bool              RBN_UPLINK_DNS_GLOBAL
+crgv_bool              RBN_UPLINK_ACCESS_GLOBAL
 
 if [[ $RBN_ENTRY_ENABLED == 1 ]]; then
-    crgv_is_port             RBN_ENTRY_PORT_WORKSTATION
-    crgv_is_port             RBN_ENTRY_PORT_ENCLAVE
+    crgv_port             RBN_ENTRY_PORT_WORKSTATION
+    crgv_port             RBN_ENTRY_PORT_ENCLAVE
     
     # Can I weaken below check?
     test $RBN_ENTRY_PORT_WORKSTATION -lt $RBN_UPLINK_PORT_MIN || \
@@ -54,14 +54,14 @@ if [[ $RBN_ENTRY_ENABLED == 1 ]]; then
 fi
 
 if [[ $RBN_UPLINK_ACCESS_ENABLED == 1 && $RBN_UPLINK_ACCESS_GLOBAL == 0 ]]; then
-    crgv_is_cidr_list        RBN_UPLINK_ALLOWED_CIDRS
+    crgv_list_cidr        RBN_UPLINK_ALLOWED_CIDRS
 fi
 
 if [[ $RBN_UPLINK_DNS_ENABLED == 1 && $RBN_UPLINK_DNS_GLOBAL == 0 ]]; then
-    crgv_is_domain_list      RBN_UPLINK_ALLOWED_DOMAINS
+    crgv_list_domain      RBN_UPLINK_ALLOWED_DOMAINS
 fi
 
-crgv_is_string_opt           RBN_VOLUME_MOUNTS
+crgv_string_opt           RBN_VOLUME_MOUNTS
 
 # Success
 exit 0
