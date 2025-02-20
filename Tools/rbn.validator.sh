@@ -21,12 +21,12 @@
 source crgv.validate.sh
 
 # Core Service Identity
-crgv_bool               RBN_MONIKER
-crgv_string             RBN_DESCRIPTION
-crgv_domain             RBN_SENTRY_REPO_PATH
-crgv_domain             RBN_BOTTLE_REPO_PATH
-crgv_bool               RBN_SENTRY_IMAGE_TAG
-crgv_bool               RBN_BOTTLE_IMAGE_TAG
+crgv_xname              RBN_MONIKER 2 12
+crgv_string             RBN_DESCRIPTION  0 120
+crgv_fqin               RBN_SENTRY_REPO_PATH 1 128
+crgv_fqin               RBN_BOTTLE_REPO_PATH 1 128
+crgv_fqin               RBN_SENTRY_IMAGE_TAG 1 128
+crgv_fqin               RBN_BOTTLE_IMAGE_TAG 1 128
 crgv_bool               RBN_ENTRY_ENABLED
 
 # Enclave Network Configuration
@@ -61,7 +61,7 @@ if [[ $RBN_UPLINK_DNS_ENABLED == 1 && $RBN_UPLINK_DNS_GLOBAL == 0 ]]; then
     crgv_list_domain    RBN_UPLINK_ALLOWED_DOMAINS
 fi
 
-crgv_string_opt         RBN_VOLUME_MOUNTS
+crgv_string_opt         RBN_VOLUME_MOUNTS 0 240
 
 # Success
 exit 0
