@@ -17,9 +17,8 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 # RBN Configuration Validator
-# Sources the Config Regime Library for validation functions
 
-source crgl.library.sh
+source crgv.validate.sh
 
 # Core Service Identity
 crgl_is_boolean RBN_MONIKER
@@ -35,7 +34,7 @@ crgl_is_boolean RBN_BOTTLE_IMAGE_TAG
 # Entry Service Configuration
 crgl_is_boolean RBN_ENTRY_ENABLED
 
-if [[ "$RBN_ENTRY_ENABLED" == "1" ]]; then
+if [[ $RBN_ENTRY_ENABLED == 1 ]]; then
     crgl_is_port RBN_ENTRY_PORT_WORKSTATION
     crgl_is_port RBN_ENTRY_PORT_ENCLAVE
     
@@ -61,11 +60,11 @@ crgl_is_boolean RBN_UPLINK_ACCESS_ENABLED
 crgl_is_boolean RBN_UPLINK_DNS_GLOBAL
 crgl_is_boolean RBN_UPLINK_ACCESS_GLOBAL
 
-if [[ "$RBN_UPLINK_ACCESS_ENABLED" == "1" && "$RBN_UPLINK_ACCESS_GLOBAL" == "0" ]]; then
+if [[ $RBN_UPLINK_ACCESS_ENABLED == 1 && $RBN_UPLINK_ACCESS_GLOBAL == 0 ]]; then
     crgl_is_cidr_list RBN_UPLINK_ALLOWED_CIDRS
 fi
 
-if [[ "$RBN_UPLINK_DNS_ENABLED" == "1" && "$RBN_UPLINK_DNS_GLOBAL" == "0" ]]; then
+if [[ $RBN_UPLINK_DNS_ENABLED == 1 && $RBN_UPLINK_DNS_GLOBAL == 0 ]]; then
     crgl_is_domain_list RBN_UPLINK_ALLOWED_DOMAINS
 fi
 

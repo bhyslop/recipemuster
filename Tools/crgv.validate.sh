@@ -125,38 +125,5 @@ crgl_is_domain_list() {
     done
 }
 
-crgl_render_header() {
-    echo "=== $1 ==="
-}
-
-crgl_render_group() {
-    echo "--- $1 ---"
-}
-
-# Render a single value with label
-crgl_render_value() {
-    local varname=$1
-    local val=${!1}
-    printf "%-30s: %s\n" "$varname" "$val"
-}
-
-# Render boolean with enabled/disabled text
-crgl_render_boolean() {
-    local varname=$1
-    local val=${!1}
-    local status=$([ "$val" = "1" ] && echo "enabled" || echo "disabled")
-    printf "%-30s: %s\n" "$varname" "$status"
-}
-
-# Render list with each item on new line
-crgl_render_list() {
-    local varname=$1
-    local val=${!1}
-    echo "$varname:"
-    for item in $val; do
-        echo "    $item"
-    done
-}
-
 
 # eof
