@@ -16,33 +16,33 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
-# Configuration Regime Library (crgl)
+# Configuration Regime Render Library
 # Provides core validation functions for configuration regime validators
 
 
 # Core error handling
-crgl_die() {
-    echo "ERROR: $1" >&2
+crgr_die() {
+    echo "ERROR: $*" >&2
     exit 1
 }
 
-crgl_render_header() {
+crgr_render_header() {
     echo "=== $1 ==="
 }
 
-crgl_render_group() {
+crgr_render_group() {
     echo "--- $1 ---"
 }
 
 # Render a single value with label
-crgl_render_value() {
+crgr_render_value() {
     local varname=$1
     local val=${!1}
     printf "%-30s: %s\n" "$varname" "$val"
 }
 
 # Render boolean with enabled/disabled text
-crgl_render_boolean() {
+crgr_render_boolean() {
     local varname=$1
     local val=${!1}
     local status=$([ "$val" = "1" ] && echo "enabled" || echo "disabled")
@@ -50,7 +50,7 @@ crgl_render_boolean() {
 }
 
 # Render list with each item on new line
-crgl_render_list() {
+crgr_render_list() {
     local varname=$1
     local val=${!1}
     echo "$varname:"

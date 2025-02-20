@@ -21,55 +21,47 @@
 source crgv.validate.sh
 
 # Core Service Identity
-crgl_is_boolean RBN_MONIKER
-crgl_is_boolean RBN_DESCRIPTION
-
-# Container Image Configuration
-crgl_is_domain RBN_SENTRY_REPO_PATH
-crgl_is_domain RBN_BOTTLE_REPO_PATH
-# TODO: Need specialized validation for image tags
-crgl_is_boolean RBN_SENTRY_IMAGE_TAG
-crgl_is_boolean RBN_BOTTLE_IMAGE_TAG
-
-# Entry Service Configuration
-crgl_is_boolean RBN_ENTRY_ENABLED
-
-if [[ $RBN_ENTRY_ENABLED == 1 ]]; then
-    crgl_is_port RBN_ENTRY_PORT_WORKSTATION
-    crgl_is_port RBN_ENTRY_PORT_ENCLAVE
-    
-    # TODO: Entry ports must be lower than RBN_UPLINK_PORT_MIN
-    test $RBN_ENTRY_PORT_WORKSTATION -lt $RBN_UPLINK_PORT_MIN || \
-        crgl_die "RBN_ENTRY_PORT_WORKSTATION must be less than RBN_UPLINK_PORT_MIN"
-    test $RBN_ENTRY_PORT_ENCLAVE -lt $RBN_UPLINK_PORT_MIN || \
-        crgl_die "RBN_ENTRY_PORT_ENCLAVE must be less than RBN_UPLINK_PORT_MIN"
-fi
+crgv_is_boolean              RBN_MONIKER
+crgv_is_boolean              RBN_DESCRIPTION
+crgv_is_domain               RBN_SENTRY_REPO_PATH
+crgv_is_domain               RBN_BOTTLE_REPO_PATH
+crgv_is_boolean              RBN_SENTRY_IMAGE_TAG
+crgv_is_boolean              RBN_BOTTLE_IMAGE_TAG
+crgv_is_boolean              RBN_ENTRY_ENABLED
 
 # Enclave Network Configuration
-crgl_is_ipv4 RBN_ENCLAVE_BASE_IP
-crgl_in_range RBN_ENCLAVE_NETMASK 8 30
-crgl_is_ipv4 RBN_ENCLAVE_SENTRY_IP
-crgl_is_ipv4 RBN_ENCLAVE_BOTTLE_IP
-
-# TODO: Validate IPs are within network defined by BASE_IP/NETMASK
+crgv_is_ipv4                 RBN_ENCLAVE_BASE_IP
+crgv_in_range                RBN_ENCLAVE_NETMASK 8 30
+crgv_is_ipv4                 RBN_ENCLAVE_SENTRY_IP
+crgv_is_ipv4                 RBN_ENCLAVE_BOTTLE_IP
 
 # Uplink Configuration
-crgl_is_port RBN_UPLINK_PORT_MIN
-crgl_is_boolean RBN_UPLINK_DNS_ENABLED
-crgl_is_boolean RBN_UPLINK_ACCESS_ENABLED
-crgl_is_boolean RBN_UPLINK_DNS_GLOBAL
-crgl_is_boolean RBN_UPLINK_ACCESS_GLOBAL
+crgv_is_port                 RBN_UPLINK_PORT_MIN
+crgv_is_boolean              RBN_UPLINK_DNS_ENABLED
+crgv_is_boolean              RBN_UPLINK_ACCESS_ENABLED
+crgv_is_boolean              RBN_UPLINK_DNS_GLOBAL
+crgv_is_boolean              RBN_UPLINK_ACCESS_GLOBAL
+
+if [[ $RBN_ENTRY_ENABLED == 1 ]]; then
+    crgv_is_port             RBN_ENTRY_PORT_WORKSTATION
+    crgv_is_port             RBN_ENTRY_PORT_ENCLAVE
+    
+    # Can I weaken below check?
+    test $RBN_ENTRY_PORT_WORKSTATION -lt $RBN_UPLINK_PORT_MIN || \
+        crgv_print_and_die RBN_ENTRY_PORT_WORKSTATION "must be less than" RBN_UPLINK_PORT_MIN
+    test $RBN_ENTRY_PORT_ENCLAVE     -lt $RBN_UPLINK_PORT_MIN || \
+        crgv_print_and_die RBN_ENTRY_PORT_ENCLAVE "must be less than" RBN_UPLINK_PORT_MIN
+fi
 
 if [[ $RBN_UPLINK_ACCESS_ENABLED == 1 && $RBN_UPLINK_ACCESS_GLOBAL == 0 ]]; then
-    crgl_is_cidr_list RBN_UPLINK_ALLOWED_CIDRS
+    crgv_is_cidr_list        RBN_UPLINK_ALLOWED_CIDRS
 fi
 
 if [[ $RBN_UPLINK_DNS_ENABLED == 1 && $RBN_UPLINK_DNS_GLOBAL == 0 ]]; then
-    crgl_is_domain_list RBN_UPLINK_ALLOWED_DOMAINS
+    crgv_is_domain_list      RBN_UPLINK_ALLOWED_DOMAINS
 fi
 
-# Volume Mount Configuration
-# Note: Complex format validation deferred to podman
+crgv_is_string_opt           RBN_VOLUME_MOUNTS
 
 # Success
 exit 0
