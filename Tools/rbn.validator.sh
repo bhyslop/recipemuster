@@ -22,7 +22,7 @@ source crgv.validate.sh
 
 # Core Service Identity
 crgv_bool               RBN_MONIKER
-crgv_bool               RBN_DESCRIPTION
+crgv_string             RBN_DESCRIPTION
 crgv_domain             RBN_SENTRY_REPO_PATH
 crgv_domain             RBN_BOTTLE_REPO_PATH
 crgv_bool               RBN_SENTRY_IMAGE_TAG

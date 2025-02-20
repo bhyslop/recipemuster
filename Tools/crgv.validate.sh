@@ -26,6 +26,17 @@ crgv_print_and_die() {
 }
 
 # Basic type validators
+crgv_string() {
+    local val=${!1}
+    test -n "$val" || crgv_print_and_die "$1 must not be empty"
+}
+
+crgv_string_opt() {
+    local val=${!1}
+    test -z "$val" && return 0
+    crgv_string "$1"
+}
+
 crgv_bool() {
     local val=${!1}
     test "$val" = "0" -o "$val" = "1" || crgv_print_and_die "$1 must be 0 or 1, got: $val"
