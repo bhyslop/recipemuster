@@ -25,17 +25,67 @@ crgv_print_and_die() {
     exit 1
 }
 
-# Basic type validators
+# String validator with optional length constraints
 crgv_string() {
     local val=${!1}
+    local min=$2
+    local max=$3
+    
+    # Allow empty if min=0
+    test "$min" = "0" -a -z "$val" && return 0
+    
+    # Otherwise must not be empty
     test -n "$val" || crgv_print_and_die "$1 must not be empty"
+    
+    # Check length constraints if max provided
+    if [ -n "$max" ]; then
+        test ${#val} -ge $min || crgv_print_and_die "$1 must be at least $min chars"
+        test ${#val} -le $max || crgv_print_and_die "$1 must be no more than $max chars"
+    fi
 }
 
-crgv_string_opt() {
+# Cross-context name validator (system-safe identifier)
+crgv_xname() {
     local val=${!1}
-    test -z "$val" && return 0
-    crgv_string "$1"
+    local min=$2
+    local max=$3
+    
+    # Allow empty if min=0
+    test "$min" = "0" -a -z "$val" && return 0
+    
+    # Otherwise must not be empty
+    test -n "$val" || crgv_print_and_die "$1 must not be empty"
+    
+    # Check length constraints
+    test ${#val} -ge $min || crgv_print_and_die "$1 must be at least $min chars"
+    test ${#val} -le $max || crgv_print_and_die "$1 must be no more than $max chars"
+    
+    # Must start with letter and contain only allowed chars
+    test $(echo "$val" | grep -E '^[a-zA-Z][a-zA-Z0-9_-]*$') || \
+        crgv_print_and_die "$1 must start with letter and contain only letters, numbers, underscore, hyphen"
 }
+
+# Fully Qualified Image Name component validator
+crgv_fqin() {
+    local val=${!1}
+    local min=$2
+    local max=$3
+    
+    # Allow empty if min=0
+    test "$min" = "0" -a -z "$val" && return 0
+    
+    # Otherwise must not be empty
+    test -n "$val" || crgv_print_and_die "$1 must not be empty"
+    
+    # Check length constraints
+    test ${#val} -ge $min || crgv_print_and_die "$1 must be at least $min chars"
+    test ${#val} -le $max || crgv_print_and_die "$1 must be no more than $max chars"
+    
+    # Allow letters, numbers, dots, hyphens, underscores, forward slashes, colons
+    test $(echo "$val" | grep -E '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$') || \
+        crgv_print_and_die "$1 must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes"
+}
+
 
 crgv_bool() {
     local val=${!1}
