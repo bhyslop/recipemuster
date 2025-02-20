@@ -31,7 +31,7 @@ crgv_bool               RBN_ENTRY_ENABLED
 
 # Enclave Network Configuration
 crgv_ipv4               RBN_ENCLAVE_BASE_IP
-crgv_range              RBN_ENCLAVE_NETMASK 8 30
+crgv_decimal            RBN_ENCLAVE_NETMASK 8 30
 crgv_ipv4               RBN_ENCLAVE_SENTRY_IP
 crgv_ipv4               RBN_ENCLAVE_BOTTLE_IP
 

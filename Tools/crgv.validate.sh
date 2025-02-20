@@ -98,7 +98,7 @@ crgv_opt_bool() {
     crgv_bool $1
 }
 
-crgv_range() {
+crgv_decimal() {
     local val=${!1}
     test -n "$val" || crgv_print_and_die "$1 must not be empty"
     test $val -ge $2 -a $val -le $3 || crgv_print_and_die "$1 value $val must be between $2 and $3"
@@ -107,7 +107,7 @@ crgv_range() {
 crgv_opt_range() {
     local val=${!1}
     test -z "$val" && return 0
-    crgv_range $1 $2 $3
+    crgv_decimal $1 $2 $3
 }
 
 crgv_ipv4() {
@@ -147,7 +147,7 @@ crgv_opt_domain() {
 }
 
 crgv_port() {
-    crgv_range $1 1 65535
+    crgv_decimal $1 1 65535
 }
 
 crgv_opt_port() {
