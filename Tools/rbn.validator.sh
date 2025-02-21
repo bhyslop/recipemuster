@@ -57,10 +57,10 @@ if [[ $RBN_ENTRY_ENABLED == 1 ]]; then
         crgv_print_and_die RBN_ENTRY_PORT_ENCLAVE "must be less than" RBN_UPLINK_PORT_MIN
 fi
 
+# These two are mutually exclusive, can do this better
 if [[ $RBN_UPLINK_ACCESS_ENABLED == 1 && $RBN_UPLINK_ACCESS_GLOBAL == 0 ]]; then
     crgv_list_cidr      RBN_UPLINK_ALLOWED_CIDRS
 fi
-
 if [[ $RBN_UPLINK_DNS_ENABLED == 1 && $RBN_UPLINK_DNS_GLOBAL == 0 ]]; then
     crgv_list_domain    RBN_UPLINK_ALLOWED_DOMAINS
 fi
