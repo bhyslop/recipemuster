@@ -14,7 +14,7 @@ RBN_BOTTLE_IMAGE_TAG = bottle_sci_viz_jupyter.20241020__172259
 RBN_IP_HACK = 10.241
 
 # If the nameplate exports services through an application port, specify
-RBN_PORT_ENABLED = 1
+RBN_ENTRY_ENABLED = 1
 RBN_PORT_HOST    = 8900
 RBN_PORT_GUARDED = 8901
 

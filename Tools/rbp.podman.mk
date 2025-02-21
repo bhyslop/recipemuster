@@ -77,7 +77,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	  --name $(RBM_SENTRY_CONTAINER)                   \
 	  --network bridge                                 \
 	  --privileged                                     \
-	  $(if $(RBN_PORT_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION))  \
+	  $(if $(RBN_ENTRY_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION)) \
 	  $(addprefix -e ,$(RBB__ROLLUP_ENVIRONMENT_VAR))                                           \
 	  $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
 	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)

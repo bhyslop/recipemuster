@@ -9,7 +9,7 @@ set -x
 : ${RBN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBN_ENCLAVE_SENTRY_IP      = ${RBN_ENCLAVE_SENTRY_IP}"
 : ${RBN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBN_ENCLAVE_BOTTLE_IP      = ${RBN_ENCLAVE_BOTTLE_IP}"
 : ${RBB_DNS_SERVER:?}             && echo "RBSp0: RBB_DNS_SERVER             = ${RBB_DNS_SERVER}"
-: ${RBN_PORT_ENABLED:?}           && echo "RBSp0: RBN_PORT_ENABLED           = ${RBN_PORT_ENABLED}"
+: ${RBN_ENTRY_ENABLED:?}          && echo "RBSp0: RBN_ENTRY_ENABLED          = ${RBN_ENTRY_ENABLED}"
 : ${RBN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBN_ENTRY_PORT_WORKSTATION = ${RBN_ENTRY_PORT_WORKSTATION}"
 : ${RBN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBN_ENTRY_PORT_ENCLAVE     = ${RBN_ENTRY_PORT_ENCLAVE}"
 : ${RBN_UPLINK_DNS_ENABLED:?}     && echo "RBSp0: RBN_UPLINK_DNS_ENABLED     = ${RBN_UPLINK_DNS_ENABLED}"
@@ -58,7 +58,7 @@ iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
 iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp2: Phase 2: Port Setup"
-if [ "${RBN_PORT_ENABLED}" = "1" ]; then
+if [ "${RBN_ENTRY_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
     echo "RBSp2: Add logging for dropped packets in our port range"

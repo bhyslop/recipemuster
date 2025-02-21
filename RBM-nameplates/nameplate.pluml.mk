@@ -11,7 +11,7 @@ export RBN_SENTRY_IMAGE_TAG := sentry_ubuntu_large.20250130__154657
 export RBN_BOTTLE_IMAGE_TAG := bottle_plantuml.20250206__133847
 
 # Port Service Configuration
-export RBN_PORT_ENABLED           := 1
+export RBN_ENTRY_ENABLED          := 1
 export RBN_ENTRY_PORT_WORKSTATION := 8001
 export RBN_ENTRY_PORT_ENCLAVE     := 8080
 

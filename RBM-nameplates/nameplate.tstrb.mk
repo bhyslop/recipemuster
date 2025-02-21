@@ -14,7 +14,7 @@ RBN_BOTTLE_IMAGE_TAG = bottle_python_networking.20241021__144537
 RBN_IP_HACK = 10.242
 
 # If the nameplate exports services through an application port, specify
-RBN_PORT_ENABLED = 0
+RBN_ENTRY_ENABLED = 0
 RBN_PORT_HOST    = 8000
 RBN_PORT_GUARDED = 8000
 

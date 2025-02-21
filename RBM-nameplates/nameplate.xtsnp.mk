@@ -15,7 +15,7 @@ export RBN_SENTRY_IMAGE_TAG := bottle_ubuntu_test.20241203__154457
 export RBN_BOTTLE_IMAGE_TAG      := bottle_ubuntu_test.20241203__154457
 
 # Port Service Configuration
-export RBN_PORT_ENABLED            := 1
+export RBN_ENTRY_ENABLED           := 1
 export RBN_ENTRY_PORT_WORKSTATION  := 8889
 export RBN_ENTRY_PORT_ENCLAVE      := 8888
 

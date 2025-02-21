@@ -18,7 +18,11 @@
 
 # Nameplate Validator
 
-source crgv.validate.sh
+set -e  # Exit immediately if a command exits with non-zero status
+
+# Find tools in same directory
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "$SCRIPT_DIR/crgv.validate.sh"
 
 # Core Service Identity
 crgv_xname              RBN_MONIKER 2 12
@@ -61,7 +65,7 @@ if [[ $RBN_UPLINK_DNS_ENABLED == 1 && $RBN_UPLINK_DNS_GLOBAL == 0 ]]; then
     crgv_list_domain    RBN_UPLINK_ALLOWED_DOMAINS
 fi
 
-crgv_string_opt         RBN_VOLUME_MOUNTS 0 240
+crgv_string             RBN_VOLUME_MOUNTS 0 240
 
 # Success
 exit 0
