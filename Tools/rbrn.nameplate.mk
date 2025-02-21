@@ -4,7 +4,7 @@
 # Core validation target that other parts of the system expect
 rbn_validate:
 	$(MBC_START) "Validating RBN nameplate configuration"
-	sh $(MBV_TOOLS_DIR)/rbn.validator.sh
+	$(MBV_TOOLS_DIR)/rbn.validator.sh
 	$(MBC_PASS) "No validation errors."
 
 # Container environment arguments for Assignment Variables
