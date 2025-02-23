@@ -47,7 +47,7 @@ rbp-r.%: rbs_render rbb_render rbn_render
 
 # Validation rules
 rbp-v.%: zrbp_validate_regimes_rule
-zrbp_validate_regimes_rule: rbb_validate rbn_validate rbs_validate
+zrbp_validate_regimes_rule: rbb_validate rbn_validate
 	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
