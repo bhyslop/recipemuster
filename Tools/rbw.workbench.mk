@@ -44,6 +44,9 @@ include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
 include $(MBV_TOOLS_DIR)/rbrs.station.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
+
+RBW_RECIPES_DIR  = RBM-recipes
+
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(MBV_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
 
@@ -90,7 +93,7 @@ rbw-tg.%:
 	$(MBC_STEP) "Validate list before..."
 	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate build..."
-	tt/rbg-b.BuildWithRecipe.sh $(RBV_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
+	tt/rbg-b.BuildWithRecipe.sh $(RBW_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
 	$(MBC_STEP) "Validate list during..."
 	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate retrieval..."
