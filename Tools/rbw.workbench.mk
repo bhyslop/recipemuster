@@ -41,7 +41,6 @@ include $(MBV_TOOLS_DIR)/mbc.console.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
 include $(MBV_TOOLS_DIR)/rbrb.base.mk
 include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
-include $(MBV_TOOLS_DIR)/rbrs.station.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 

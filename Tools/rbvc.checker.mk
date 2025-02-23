@@ -10,7 +10,6 @@ RBV_VARS := $(filter RBV_%,$(.VARIABLES))
 REQUIRED_RBV_VARS :=      \
   RBV_BUILD_ARCHITECTURES \
   RBV_HISTORY_DIR         \
-  RBV_RECIPES_DIR         \
   RBV_REGISTRY_NAME       \
   RBV_REGISTRY_OWNER      \
 
