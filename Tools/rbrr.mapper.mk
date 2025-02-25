@@ -18,7 +18,7 @@
 # Assignment Prefix: RBRR_
 
 # Include the config file here for easier github action workflow integration
-include rbrr.repo.sh
+include rbrr.repo.mk
 
 # Core validation target that other parts of the system expect
 rbrr_validate:
