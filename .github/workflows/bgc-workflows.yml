@@ -14,22 +14,23 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to validate configuration files..."
-          test -f ${{ github.workspace }}/Tools/rbrr.validator.sh ||\
-            (echo "GHA: Error: rbrr.validator.sh is missing" && false)
+          # Source MBV variables
+          source ./mbv.variables.sh
+          echo "MBV_TOOLS_DIR=$MBV_TOOLS_DIR" >> $GITHUB_ENV
 
       - name: Load repository configuration
         shell: bash
         run: |
           echo "GHA: about to load repository configuration..."
           # Use the new rbrr_export_github_env rule to export all variables
-          make -f Tools/rbrr.mapper.mk rbrr_export_github_env | bash
+          make -f ${{ env.MBV_TOOLS_DIR }}/rbrr.mapper.mk rbrr_export_github_env | bash
           echo "GHA: Environment variables have been submitted, available in next step."
 
       - name: Validate configuration
         shell: bash
         run: |
           echo "GHA: about to validate repository configuration..."
-          bash ${{ github.workspace }}/Tools/rbrr.validator.sh
+          bash ${{ env.MBV_TOOLS_DIR }}/rbrr.validator.sh
 
       - name: Set and validate Dockerfile path
         shell: bash
