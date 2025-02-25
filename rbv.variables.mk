@@ -6,10 +6,12 @@ export RBV_HISTORY_DIR         := RBM-history
 
 # File containing user specific secrets for accessing the container registry.  Must define:
 #
-# RBV_USERNAME: Your GitHub username for authentication with GitHub Container Registry (ghcr.io)
-# RBV_PAT: Personal Access Token with appropriate permissions for GitHub Container Registry operations
-#          Generate this token at https://github.com/settings/tokens with at least the following scopes:
-#            - read:packages, write:packages, delete:packages (for container operations)
-#            - repo (for workflow dispatch)
+# RBV_USERNAME: GitHub username required for container registry (ghcr.io) login
+# RBV_PAT: GitHub Personal Access Token used for both:
+#          1. GitHub API authentication (for building/listing/deleting images)
+#          2. Container registry authentication (for pulling images)
+#          Generate this token at https://github.com/settings/tokens with scopes:
+#          - read:packages, write:packages, delete:packages
+#          - repo (for workflow dispatch)
 export RBV_GITHUB_PAT_ENV      := ../secrets/github-ghcr-play.env
 
