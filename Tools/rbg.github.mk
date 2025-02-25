@@ -55,8 +55,8 @@ zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.t
 zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 
 
-zRBG_CURL_HEADERS := -H 'Authorization: token $(RBV_PAT)' \
-                     -H 'Accept: application/vnd.github.v3+json'
+zRBG_CURL_HEADERS = -H 'Authorization: token $$RBV_PAT' \
+                    -H 'Accept: application/vnd.github.v3+json'
 
 zRBG_CMD_TRIGGER_BUILD = source $(RBRR_GITHUB_PAT_ENV) && curl -X POST $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/dispatches' \
