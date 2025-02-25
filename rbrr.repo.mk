@@ -17,14 +17,13 @@
 #
 # Recipe Bottle Repository Configuration - Base Values
 
-
-export RBRR_REGISTRY_SERVER     := ghcr.io
-export RBRR_REGISTRY_OWNER      := bhyslop
-export RBRR_REGISTRY_NAME       := recipemuster
-export RBRR_BUILD_ARCHITECTURES := linux/amd64
-export RBRR_HISTORY_DIR         := RBM-history
-export RBRR_NAMEPLATE_PATH      := RBM-nameplates
-export RBRR_DNS_SERVER          := 8.8.8.8
+RBRR_REGISTRY_SERVER     = ghcr.io
+RBRR_REGISTRY_OWNER      = bhyslop
+RBRR_REGISTRY_NAME       = recipemuster
+RBRR_BUILD_ARCHITECTURES = linux/amd64
+RBRR_HISTORY_DIR         = RBM-history
+RBRR_NAMEPLATE_PATH      = RBM-nameplates
+RBRR_DNS_SERVER          = 8.8.8.8
 
 # File containing user specific secrets for accessing the container registry.  Must define:
 #
@@ -35,7 +34,7 @@ export RBRR_DNS_SERVER          := 8.8.8.8
 #          Generate this token at https://github.com/settings/tokens with scopes:
 #          - read:packages, write:packages, delete:packages
 #          - repo (for workflow dispatch)
-export RBRR_GITHUB_PAT_ENV := ../secrets/github-ghcr-play.env
+RBRR_GITHUB_PAT_ENV = ../secrets/github-ghcr-play.env
 
 
 # eof
