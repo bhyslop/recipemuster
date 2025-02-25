@@ -37,8 +37,6 @@ RBG_ARG_FQIN                     ?=
 RBG_ARG_SKIP_DELETE_CONFIRMATION ?=
 
 
-RBG_SECRET_GITHUB_PAT = $(BGCSV_PAT)
-
 zRBG_GITAPI_URL := https://api.github.com
 
 zRBG_CURRENT_WORKFLOW_RUN_CACHE    = $(MBD_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
@@ -57,7 +55,7 @@ zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.t
 zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 
 
-zRBG_CURL_HEADERS := -H 'Authorization: token $(RBG_SECRET_GITHUB_PAT)' \
+zRBG_CURL_HEADERS := -H 'Authorization: token $(RBV_PAT)' \
                      -H 'Accept: application/vnd.github.v3+json'
 
 zRBG_CMD_TRIGGER_BUILD = curl -X POST $(zRBG_CURL_HEADERS) \
@@ -88,8 +86,8 @@ zRBG_CMD_DELETE_VERSION = curl -X DELETE $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
 zbgc_argcheck_rule: rbvc_check_rule
-	@test -n "$(RBG_SECRET_GITHUB_PAT)"    || ($(MBC_SEE_RED) "Error: RBG_SECRET_GITHUB_PAT unset" && false)
-	@test -n "$(zRBG_GITAPI_URL)"          || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset"       && false)
+	@test -n "$(RBV_PAT)"         || ($(MBC_SEE_RED) "Error: RBV_PAT unset"         && false)
+	@test -n "$(zRBG_GITAPI_URL)" || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset" && false)
 	@mkdir -p $(MBD_TEMP_DIR)
 
 
@@ -159,7 +157,7 @@ rbg-l.%: zbgc_argcheck_rule
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
-	@podman login ghcr.io -u $(BGCSV_USERNAME) -p $(BGCSV_PAT)
+	@podman login ghcr.io -u $(RBV_USERNAME) -p $(RBV_PAT)
 	$(MBC_PASS) "No errors."
 
 

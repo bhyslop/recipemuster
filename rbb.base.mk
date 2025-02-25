@@ -1,5 +1,4 @@
 # Base Configuration Makefile
-# This file should be placed in Tools/rbb.BaseConfigRegime.mk and customized
 
 # DNS Configuration
 # Example: Use Google's public DNS, or specify your preferred DNS server
