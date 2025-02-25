@@ -19,7 +19,7 @@
 
 # Core validation target that other parts of the system expect
 rbn_validate:
-	$(MBC_START) "Validating RBN nameplate configuration"
+	$(MBC_START) "Validating RBN nameplate configuration with RBM_MONIKER as" $(RBM_MONIKER)
 	$(MBV_TOOLS_DIR)/rbn.validator.sh
 	$(MBC_PASS) "No validation errors."
 

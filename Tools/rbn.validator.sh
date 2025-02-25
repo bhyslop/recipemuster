@@ -24,6 +24,8 @@ set -e  # Exit immediately if a command exits with non-zero status
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/crgv.validate.sh"
 
+echo "DEBUG here RBM_MONIKER is" $RBM_MONIKER
+
 # Core Service Identity
 crgv_xname              RBN_MONIKER 2 12
 crgv_string             RBN_DESCRIPTION  0 120
