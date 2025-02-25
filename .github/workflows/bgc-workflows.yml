@@ -29,6 +29,9 @@ jobs:
           echo "RBRR_REGISTRY_NAME=$RBRR_REGISTRY_NAME" >> $GITHUB_ENV
           echo "RBRR_BUILD_ARCHITECTURES=$RBRR_BUILD_ARCHITECTURES" >> $GITHUB_ENV
           echo "RBRR_HISTORY_DIR=$RBRR_HISTORY_DIR" >> $GITHUB_ENV
+          echo "RBRR_NAMEPLATE_PATH=$RBRR_NAMEPLATE_PATH" >> $GITHUB_ENV
+          echo "RBRR_DNS_SERVER=$RBRR_DNS_SERVER" >> $GITHUB_ENV
+          echo "RBRR_GITHUB_PAT_ENV=$RBRR_GITHUB_PAT_ENV" >> $GITHUB_ENV
           echo "GHA: Environment variables have been submitted, available in next step."
 
       - name: Validate configuration
