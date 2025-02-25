@@ -20,13 +20,6 @@
 # Include the config file here for easier github action workflow integration
 include rbrr.repo.mk
 
-# Core validation target that other parts of the system expect
-rbrr_validate:
-	$(MBC_START) "Validating RBRR repository configuration"
-	$(MBV_TOOLS_DIR)/rbrr.validator.sh
-	$(MBC_PASS) "No validation errors."
-
-
 # Container environment arguments for Assignment Variables
 RBRR__ROLLUP_ENVIRONMENT_VAR = \
   RBRR_REGISTRY_SERVER='$(RBRR_REGISTRY_SERVER)' \
@@ -37,5 +30,21 @@ RBRR__ROLLUP_ENVIRONMENT_VAR = \
   RBRR_DNS_SERVER='$(RBRR_DNS_SERVER)' \
   RBRR_NAMEPLATE_PATH='$(RBRR_NAMEPLATE_PATH)'
 
+# Core validation target that other parts of the system expect
+rbrr_validate:
+	$(MBC_START) "Validating RBRR repository configuration"
+	$(MBV_TOOLS_DIR)/rbrr.validator.sh
+	$(MBC_PASS) "No validation errors."
+
+# GitHub Actions environment export function - explicit version
+rbrr_export_github_env:
+	@echo 'echo "RBRR_REGISTRY_SERVER=$(RBRR_REGISTRY_SERVER)"         >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_REGISTRY_OWNER=$(RBRR_REGISTRY_OWNER)"           >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_REGISTRY_NAME=$(RBRR_REGISTRY_NAME)"             >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_BUILD_ARCHITECTURES=$(RBRR_BUILD_ARCHITECTURES)" >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_HISTORY_DIR=$(RBRR_HISTORY_DIR)"                 >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_NAMEPLATE_PATH=$(RBRR_NAMEPLATE_PATH)"           >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_DNS_SERVER=$(RBRR_DNS_SERVER)"                   >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_GITHUB_PAT_ENV=$(RBRR_GITHUB_PAT_ENV)"           >> $$GITHUB_ENV'
 
 # eof
