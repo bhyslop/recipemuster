@@ -32,7 +32,6 @@ RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 include rbrr.repo.mk
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
-include rbv.variables.mk
 include $(RBV_GITHUB_PAT_ENV)
 include $(MBV_TOOLS_DIR)/mbc.console.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
