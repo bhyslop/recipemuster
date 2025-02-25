@@ -48,6 +48,7 @@ make_cmd=$(mbd_gen_make_cmd)
 mbd_show "Generated make command: $make_cmd"
 
 # Log command to all log files
+echo "log files:"             $MBD_LOG_LAST      $MBD_LOG_SAME      $MBD_LOG_HIST
 echo "command: $make_cmd" >> "$MBD_LOG_LAST" >> "$MBD_LOG_SAME" >> "$MBD_LOG_HIST"
 echo "Git context: $MBD_GIT_CONTEXT" >> "$MBD_LOG_HIST"
 
@@ -59,6 +60,7 @@ zMBD_STATUS_FILE="$MBD_TEMP_DIR/status-$$"
 { 
     eval "$make_cmd" 2>&1
     echo $? > "$zMBD_STATUS_FILE"
+    mbd_show "Make status: $(cat $zMBD_STATUS_FILE)"
 } | tee -a "$MBD_LOG_LAST" >(mbd_curate_same >> "$MBD_LOG_SAME") \
                            >(mbd_curate_hist >> "$MBD_LOG_HIST")
 zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_FILE")
@@ -67,6 +69,7 @@ set -e
 
 # Generate checksum for the log file
 mbd_generate_checksum "$MBD_LOG_SAME" "$MBD_LOG_HIST"
+mbd_show "Checksum generated"
 
 mbd_show "Make completed with status: $zMBD_EXIT_STATUS"
 
