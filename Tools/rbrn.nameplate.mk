@@ -17,11 +17,7 @@
 # Regime Prefix: rbn_
 # Assignment Prefix: RBN_
 
-# Core validation target that other parts of the system expect
-rbn_validate:
-	$(MBC_START) "Validating RBN nameplate configuration with RBM_MONIKER as" $(RBM_MONIKER)
-	$(MBV_TOOLS_DIR)/rbn.validator.sh
-	$(MBC_PASS) "No validation errors."
+# Allow higher level make to include the correct nameplate
 
 # Container environment arguments for Assignment Variables
 RBN__ROLLUP_ENVIRONMENT_VAR = \
@@ -45,7 +41,13 @@ RBN__ROLLUP_ENVIRONMENT_VAR = \
   RBN_UPLINK_ACCESS_GLOBAL='$(RBN_UPLINK_ACCESS_GLOBAL)' \
   RBN_UPLINK_ALLOWED_CIDRS='$(RBN_UPLINK_ALLOWED_CIDRS)' \
   RBN_UPLINK_ALLOWED_DOMAINS='$(RBN_UPLINK_ALLOWED_DOMAINS)' \
-  RBN_VOLUME_MOUNTS='$(RBN_VOLUME_MOUNTS)'
+  RBN_VOLUME_MOUNTS='$(RBN_VOLUME_MOUNTS)' \
+
+# Core validation target that other parts of the system expect
+rbn_validate:
+	$(MBC_START) "Validating RBN nameplate configuration with RBM_MONIKER as" $(RBM_MONIKER)
+	$(RBN__ROLLUP_ENVIRONMENT_VAR) $(MBV_TOOLS_DIR)/rbn.validator.sh
+	$(MBC_PASS) "No validation errors."
 
 
 # eof
