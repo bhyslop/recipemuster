@@ -33,44 +33,44 @@ MBD_VERBOSE=${MBD_VERBOSE:-0}
 
 # Source the utilities script
 source "$(dirname "$0")/mbd.utils.sh" "$MBD_VERBOSE"
-mbd_show "Starting dispatch script" "dispatch"
+mbd_show "Starting dispatch script"
 
 # Setup the environment (source and validate variables)
-mbd_setup || { echo "ERROR: Environment setup failed" >&2; exit 1; }
-mbd_show "Environment setup complete" "dispatch"
+mbd_setup || (echo "ERROR: Environment setup failed" >&2 && exit 1)
+mbd_show "Environment setup complete"
 
 # Process the command-line arguments
-mbd_process_args "$@" || { echo "ERROR: Argument processing failed" >&2; exit 1; }
-mbd_show "Arguments processed" "dispatch"
+mbd_process_args "$@" || (echo "ERROR: Argument processing failed" >&2 && exit 1)
+mbd_show "Arguments processed"
 
 # Generate the make command
 make_cmd=$(mbd_gen_make_cmd)
-mbd_show "Generated make command: $make_cmd" "dispatch"
+mbd_show "Generated make command: $make_cmd"
 
 # Log command to all log files
 echo "command: $make_cmd" >> "$MBD_LOG_LAST" >> "$MBD_LOG_SAME" >> "$MBD_LOG_HIST"
 echo "Git context: $MBD_GIT_CONTEXT" >> "$MBD_LOG_HIST"
 
-mbd_show "Executing make command" "dispatch"
+mbd_show "Executing make command"
 
 # Execute make with the generated command
 set +e
-STATUS_TMP="$MBD_TEMP_DIR/status-$$"
+zMBD_STATUS_FILE="$MBD_TEMP_DIR/status-$$"
 { 
     eval "$make_cmd" 2>&1
-    echo $? > "$STATUS_TMP"
-    mbd_show "Make status: $(cat $STATUS_TMP)" "dispatch"
+    echo $? > "$zMBD_STATUS_FILE"
+    mbd_show "Make status: $(cat $zMBD_STATUS_FILE)"
 } | tee -a "$MBD_LOG_LAST" >(mbd_curate_same >> "$MBD_LOG_SAME") \
                            >(mbd_curate_hist >> "$MBD_LOG_HIST")
-EXIT_STATUS=$(cat "$STATUS_TMP")
-rm "$STATUS_TMP"
+zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_FILE")
+rm                     "$zMBD_STATUS_FILE"
 set -e
 
 # Generate checksum for the log file
 mbd_generate_checksum "$MBD_LOG_SAME" "$MBD_LOG_HIST"
-mbd_show "Checksum generated" "dispatch"
+mbd_show "Checksum generated"
 
-mbd_show "Make completed with status: $EXIT_STATUS" "dispatch"
+mbd_show "Make completed with status: $zMBD_EXIT_STATUS"
 
-exit "$EXIT_STATUS"
+exit "$zMBD_EXIT_STATUS"
 

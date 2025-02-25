@@ -39,8 +39,7 @@ mbd_verbose=${1:-${MBD_VERBOSE:-0}}
 
 # Utility function to display messages based on verbosity
 mbd_show() {
-    local prefix=${2:-"mbd"}
-    test "$mbd_verbose" != "1" || echo "$prefix: $1"
+    echo "MBD_SHOW: $1"
 }
 
 # Enable trace mode if verbose level is 2
@@ -50,7 +49,7 @@ fi
 
 # Source configuration files and validate settings
 mbd_setup() {
-    mbd_show "Sourcing variables files and validating" "setup"
+    mbd_show "Sourcing variables files and validating"
     
     # Source main variables file
     local variables_file=${1:-"./mbv.variables.sh"}
@@ -66,7 +65,7 @@ mbd_setup() {
     crgv_string MBV_TEMP_ROOT_DIR       1 256
     
     # Source station file
-    mbd_show "Sourcing station file" "setup"
+    mbd_show "Sourcing station file"
     source "$MBV_STATION_FILE"
     
     # Validate station variables
@@ -75,7 +74,7 @@ mbd_setup() {
     
     # Generate timestamp
     MBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))
-    mbd_show "Generated timestamp: $MBD_NOW_STAMP" "setup"
+    mbd_show "Generated timestamp: $MBD_NOW_STAMP"
     
     # Setup temporary directory
     MBD_TEMP_DIR="$MBV_TEMP_ROOT_DIR/temp-$MBD_NOW_STAMP"
