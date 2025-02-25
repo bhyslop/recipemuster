@@ -26,7 +26,7 @@ MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 RBM_MONIKER = $(MBD_PARAMETER_2)
 
 # Submake config: Where to find derived nameplate and test files
-RBM_NAMEPLATE_FILE = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
+RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
 include rbb.base.mk

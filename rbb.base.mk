@@ -4,10 +4,6 @@
 # Example: Use Google's public DNS, or specify your preferred DNS server
 export RBB_DNS_SERVER         := 8.8.8.8
 
-# Path Configuration
-# Location for nameplate configuration files
-export RBB_NAMEPLATE_PATH     := RBM-nameplates
-
 # Container Registry Configuration
 # Specify your container registry server (optional)
 # Example for GitHub Container Registry:
