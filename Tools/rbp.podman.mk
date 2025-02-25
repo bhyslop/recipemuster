@@ -39,13 +39,6 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
 
 zRBM_PODMAN_SSH_CMD = podman machine ssh $(zRBM_EXPORT_ENV) /bin/sh
 
-# Render rules
-rbp-r.%: rbs_render rbb_render rbn_render
-	$(MBC_START) "Rendering regimes"
-	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
-	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
-
-
 # Validation rules
 rbp-v.%: zrbp_validate_regimes_rule
 zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
@@ -128,10 +121,6 @@ rbp-s.%:
 rbp-b.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
-
-
-rbp-i.%:  rbb_render rbn_render rbs_render
-	$(MBC_PASS) "Done, no errors."
 
 
 rbp-o.%: zrbp_validate_regimes_rule
