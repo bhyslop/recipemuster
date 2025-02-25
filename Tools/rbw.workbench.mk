@@ -16,6 +16,9 @@
 
 SHELL := /bin/bash -eo pipefail
 
+# Get the master configuration
+include mbv.variables.sh
+
 # Submake config: What console tool will put in prefix of each line
 MBC_ARG__CTXT = $(MBV_CONSOLE_MAKEFILE)
 
