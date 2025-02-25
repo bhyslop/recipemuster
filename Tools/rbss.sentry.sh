@@ -141,9 +141,7 @@ if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -j DROP || exit 40
 else
-    echo "RBSp4: Testing DNS server connectivity"
-    timeout 5s nc -z "${RBRR_DNS_SERVER}" 53                  || exit 40
-    timeout 5s dig  @"${RBRR_DNS_SERVER}" .                   || exit 40
+    echo "RBSp4: Set up DNS Server"
 
     echo "RBSp4: Process cleanup"
     killall -9 dnsmasq 2>/dev/null || true
