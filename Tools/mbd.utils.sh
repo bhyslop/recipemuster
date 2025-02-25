@@ -148,6 +148,8 @@ mbd_process_args() {
     
     # Prepare log directories
     mkdir -p "$MBS_LOG_DIR"
+
+    # Maybe unnecessary
     > "$MBD_LOG_LAST"
     > "$MBD_LOG_SAME"
     > "$MBD_LOG_HIST"
@@ -183,9 +185,9 @@ mbd_generate_checksum() {
     local output_file=$2
     
     # Try multiple checksum commands (platform-dependent)
-    local checksum=$(sha256sum "$file"           2>/dev/null || 
-                    openssl dgst -sha256 "$file" 2>/dev/null || 
-                    echo "checksum-unavailable")
+    local checksum=$(sha256sum            "$file" 2>/dev/null || 
+                     openssl dgst -sha256 "$file" 2>/dev/null || 
+                     echo "checksum-unavailable")
     
     echo "Same log checksum: $checksum" >> "$output_file"
     return 0
@@ -199,7 +201,7 @@ mbd_gen_make_cmd() {
     local cmd=("make" "-f" "$makefile" "$MBD_OUTPUT_MODE")
     
     # Add job profile if not empty
-    if [[ -n "$MBD_JOB_PROFILE" ]]; then
+    if [[ -n       "$MBD_JOB_PROFILE" ]]; then
         cmd+=("-j" "$MBD_JOB_PROFILE")
     fi
     
