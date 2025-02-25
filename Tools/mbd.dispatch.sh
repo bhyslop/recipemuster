@@ -22,7 +22,7 @@
 #
 # Commentary:
 #   This script is the main dispatch entry point that leverages the 
-#   mbd-utils.sh utility functions to set up the environment and execute
+#   mbd.utils.sh utility functions to set up the environment and execute
 #   make with the necessary parameters, while maintaining a cleaner 
 #   approach than the original implementation.
 
@@ -32,7 +32,7 @@ set -euo pipefail
 MBD_VERBOSE=${MBD_VERBOSE:-0}
 
 # Source the utilities script
-source "$(dirname "$0")/mbd-utils.sh" "$MBD_VERBOSE"
+source "$(dirname "$0")/mbd.utils.sh" "$MBD_VERBOSE"
 mbd_show "Starting dispatch script" "dispatch"
 
 # Setup the environment (source and validate variables)
@@ -67,7 +67,7 @@ rm "$STATUS_TMP"
 set -e
 
 # Generate checksum for the log file
-mbd_gen_checksum "$MBD_LOG_SAME" "$MBD_LOG_HIST"
+mbd_generate_checksum "$MBD_LOG_SAME" "$MBD_LOG_HIST"
 mbd_show "Checksum generated" "dispatch"
 
 mbd_show "Make completed with status: $EXIT_STATUS" "dispatch"

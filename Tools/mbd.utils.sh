@@ -21,7 +21,7 @@
 # This script provides utility functions for the build system.
 # It can be sourced by other scripts to provide common functionality.
 #
-# Usage: source mbd-utils.sh [verbose_level]
+# Usage: source mbd.utils.sh [verbose_level]
 #
 # Functions:
 # - mbd_show: Display messages based on verbosity level
