@@ -17,12 +17,12 @@
 # Main entry point
 rbt_test_bottle_service_rule:                \
   ztest_info_rule                            \
+  ztest_bottle_dns_nonexist_rule             \
   ztest_basic_network_rule                   \
   ztest_bottle_dns_allow_anthropic_rule      \
   ztest_bottle_dns_block_google_rule         \
   ztest_bottle_tcp443_allow_anthropic_rule   \
   ztest_bottle_tcp443_block_google_rule      \
-  ztest_bottle_dns_nonexist_rule             \
   ztest_bottle_dns_tcp_rule                  \
   ztest_bottle_dns_notcp_rule                \
   ztest_bottle_dns_block_direct_rule         \
@@ -71,8 +71,7 @@ ztest_bottle_tcp443_block_google_rule: ztest_basic_network_rule
 
 # DNS protocol tests
 ztest_bottle_dns_nonexist_rule: ztest_basic_network_rule
-	podman exec nsproto-bottle nslookup nonexistentdomain123.test \
-	  >              $(MBD_TEMP_DIR)/dns_test_output.txt 2>&1
+	! podman exec nsproto-bottle nslookup nonexistentdomain123.test >  $(MBD_TEMP_DIR)/dns_test_output.txt 2>&1
 	cat              $(MBD_TEMP_DIR)/dns_test_output.txt
 	grep -q NXDOMAIN $(MBD_TEMP_DIR)/dns_test_output.txt || exit 1
 
