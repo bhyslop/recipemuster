@@ -76,12 +76,6 @@ zRBG_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zRBG_CURL_HEADERS) \
 
 zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 
-zRBG_CMD_QUERY_LAST_INNER = $(zRBG_CMD_GET_SPECIFIC_RUN)            |\
-                             jq -r '.status, .conclusion'           |\
-                              (read status && read conclusion &&\
-                               echo "  Status: $$status    Conclusion: $$conclusion" &&\
-                               test "$$status" == "completed")
-
 zRBG_CMD_DELETE_VERSION = curl -X DELETE $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
@@ -118,9 +112,20 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_STEP) "Workflow online at:"
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/"$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
-	@until $(zRBG_CMD_QUERY_LAST_INNER); do sleep 3; done
-	$(MBC_STEP) "Git Pull for artifacts..."
-	@git pull
+	@status=""; conclusion=""; \
+	while [ "$$status" != "completed" ]; do \
+	  status=$$($(zRBG_CMD_GET_SPECIFIC_RUN)     | jq -r '.status');     \
+	  conclusion=$$($(zRBG_CMD_GET_SPECIFIC_RUN) | jq -r '.conclusion'); \
+	  echo "  Status: $$status    Conclusion: $$conclusion";             \
+	  if [ "$$status" != "completed" ]; then sleep 3; fi;                \
+	done; test "$$conclusion" == "success" || ($(MBC_SEE_RED) "Error: Workflow fail: $$conclusion" && false)
+	$(MBC_STEP) "Git Pull for artifacts with retry..."
+	@for i in 1 2 3 4 5; do \
+	  git fetch --quiet                                                                                &&\
+	  if [ $$(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then git pull && break; fi  &&\
+	  echo "  Waiting for remote changes (attempt $$i)"                                                &&\
+	  [ $$i -eq 5 ] && ($(MBC_SEE_RED) "Error: No new commits after 5 attempts" && false)              &&\
+	  sleep 5; done
 	$(MBC_STEP) "Verifying build output..."
 	@test -n "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory" && false)
 	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)

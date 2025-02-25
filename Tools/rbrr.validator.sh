@@ -30,15 +30,10 @@ crgv_xname               RBRR_REGISTRY_OWNER 2 64
 crgv_xname               RBRR_REGISTRY_NAME 2 64
 crgv_string              RBRR_GITHUB_PAT_ENV 1 255
 
-# Verify PAT environment file exists
-if [ ! -f "$RBRR_GITHUB_PAT_ENV" ]; then
-    crgv_print_and_die "RBRR_GITHUB_PAT_ENV file '$RBRR_GITHUB_PAT_ENV' does not exist"
-fi
-
 # Build Configuration
 crgv_string              RBRR_BUILD_ARCHITECTURES 1 255
 crgv_string              RBRR_HISTORY_DIR 1 255
-crgv_opt_ipv4            RBRR_DNS_SERVER
+crgv_ipv4                RBRR_DNS_SERVER
 crgv_string              RBRR_NAMEPLATE_PATH 1 255
 
 # Verify directories exist
