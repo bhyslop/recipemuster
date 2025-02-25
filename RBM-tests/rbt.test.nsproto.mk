@@ -71,7 +71,7 @@ ztest_bottle_tcp443_block_google_rule: ztest_basic_network_rule
 
 # DNS protocol tests
 ztest_bottle_dns_nonexist_rule: ztest_basic_network_rule
-	podman exec $(RBM_BOTTLE_CONTAINER) nslookup nonexistentdomain123.test 2>&1 | grep NXDOMAIN
+	podman exec $(RBM_BOTTLE_CONTAINER) nslookup nonexistentdomain123.test 2>&1 | grep NXDOMAIN && echo "Test passed"
 
 ztest_bottle_dns_tcp_rule: ztest_basic_network_rule
 	podman exec -i $(RBM_BOTTLE_CONTAINER) dig +tcp anthropic.com
