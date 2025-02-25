@@ -36,6 +36,7 @@ RBG_ARG_FQIN                     ?=
 # Valid for: Delete operations only
 RBG_ARG_SKIP_DELETE_CONFIRMATION ?=
 
+zRBG_GIT_REGISTRY := ghcr.io
 
 zRBG_GITAPI_URL := https://api.github.com
 
@@ -145,25 +146,25 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 rbg-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
-	@$(zRBG_CMD_LIST_IMAGES)                                                                                          |\
-	  jq -r '.[] | select(.package_type=="container") | .name'                                                        |\
-	  while read -r package_name; do                                                                                   \
-	    echo "Package: $$package_name";                                                                                \
-	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBRR_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name"; \
-	    echo "Versions:";                                                                                              \
-	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                             |\
-	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                        |\
-	      sort -r                                                                                                     |\
-	      awk       '{printf "%-13s ghcr.io/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$2, $$1}'             |\
-	      awk 'BEGIN {printf "%-13s %-70s\n", "Version ID", "FQIN (Fully Qualified Image Name)"}1';                    \
-	    echo;                                                                                                          \
+	@$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
+	  jq -r '.[] | select(.package_type=="container") | .name'                                                          |\
+	  while read -r package_name; do                                                                                     \
+	    echo "Package: $$package_name";                                                                                  \
+	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBRR_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name";  \
+	    echo "Versions:";                                                                                                \
+	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                               |\
+	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                          |\
+	      sort -r                                                                                                       |\
+	      awk       '{printf "%-13s $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$2, $$1}' |\
+	      awk 'BEGIN {printf "%-13s %-70s\n", "Version ID", "Fully Qualified Image Name"}1';                             \
+	    echo;                                                                                                            \
 	  done
 	$(MBC_PASS) "No errors."
 
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
-	@source $(RBRR_GITHUB_PAT_ENV) && podman login ghcr.io -u $$RBV_USERNAME -p $$RBV_PAT
+	@source $(RBRR_GITHUB_PAT_ENV) && podman login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "No errors."
 
 
