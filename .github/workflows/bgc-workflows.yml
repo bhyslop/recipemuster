@@ -14,8 +14,6 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to validate configuration files..."
-          test -f rbrr.repo.sh ||\
-            (echo "GHA: Error: rbrr.repo.sh is missing" && false)
           test -f ${{ github.workspace }}/Tools/rbrr.validator.sh ||\
             (echo "GHA: Error: rbrr.validator.sh is missing" && false)
 
