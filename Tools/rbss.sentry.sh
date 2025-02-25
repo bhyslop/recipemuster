@@ -8,7 +8,7 @@ set -x
 : ${RBN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBN_ENCLAVE_NETMASK        = ${RBN_ENCLAVE_NETMASK}"
 : ${RBN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBN_ENCLAVE_SENTRY_IP      = ${RBN_ENCLAVE_SENTRY_IP}"
 : ${RBN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBN_ENCLAVE_BOTTLE_IP      = ${RBN_ENCLAVE_BOTTLE_IP}"
-: ${RBRR_DNS_SERVER:?}            && echo "RBSp0: RBRR_DNS_SERVER            = ${RBRR_DNS_SERVER}"
+: ${RBB_DNS_SERVER:?}             && echo "RBSp0: RBB_DNS_SERVER             = ${RBB_DNS_SERVER}"
 : ${RBN_ENTRY_ENABLED:?}          && echo "RBSp0: RBN_ENTRY_ENABLED          = ${RBN_ENTRY_ENABLED}"
 : ${RBN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBN_ENTRY_PORT_WORKSTATION = ${RBN_ENTRY_PORT_WORKSTATION}"
 : ${RBN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBN_ENTRY_PORT_ENCLAVE     = ${RBN_ENTRY_PORT_ENCLAVE}"
@@ -114,8 +114,8 @@ else
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
     else
         echo "RBSp3: Configuring DNS server access"
-        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBRR_DNS_SERVER}"       -j ACCEPT || exit 31
-        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}"       -j ACCEPT || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}"        -j ACCEPT || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}"        -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                               -j DROP   || exit 31
@@ -132,7 +132,7 @@ fi
 echo "RBSp4: Configuring DNS services"
 
 echo "RBSp4: Configuring sentry DNS resolution"
-echo "nameserver ${RBRR_DNS_SERVER}" > /etc/resolv.conf   || exit 40
+echo "nameserver ${RBB_DNS_SERVER}" > /etc/resolv.conf   || exit 40
 
 if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     echo "RBSp4: Blocking all DNS traffic"
@@ -142,8 +142,8 @@ if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
     iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -j DROP || exit 40
 else
     echo "RBSp4: Testing DNS server connectivity"
-    timeout 5s nc -z "${RBRR_DNS_SERVER}" 53                   || exit 40
-    timeout 5s dig  @"${RBRR_DNS_SERVER}" .                    || exit 40
+    timeout 5s nc -z "${RBB_DNS_SERVER}" 53                   || exit 40
+    timeout 5s dig  @"${RBB_DNS_SERVER}" .                    || exit 40
 
     echo "RBSp4: Process cleanup"
     killall -9 dnsmasq 2>/dev/null || true
@@ -175,12 +175,12 @@ else
     echo "log-async=20"                                           >> /etc/dnsmasq.conf || exit 41
     if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"
-        echo "server=${RBRR_DNS_SERVER}"                          >> /etc/dnsmasq.conf || exit 41
+        echo "server=${RBB_DNS_SERVER}"                           >> /etc/dnsmasq.conf || exit 41
     else
         echo "RBSp4: Configuring domain-based DNS filtering"
         # Add domain-specific forwarding first
         for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
-            echo "server=/${domain}/${RBRR_DNS_SERVER}"           >> /etc/dnsmasq.conf || exit 41
+            echo "server=/${domain}/${RBB_DNS_SERVER}"            >> /etc/dnsmasq.conf || exit 41
         done
         # Block everything else with NXDOMAIN
         echo "address=/#/"                                        >> /etc/dnsmasq.conf || exit 41
@@ -199,10 +199,10 @@ else
     ps aux
 
     echo "RBSp4: Configuring DNS firewall rules"
-    iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                         -j ACCEPT || exit 43
-    iptables -A RBM-INGRESS -i eth1 -p tcp --dport 53                         -j ACCEPT || exit 43
-    iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
-    iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
+    iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                        -j ACCEPT || exit 43
+    iptables -A RBM-INGRESS -i eth1 -p tcp --dport 53                        -j ACCEPT || exit 43
+    iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
+    iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBB_DNS_SERVER}" -j ACCEPT || exit 43
 fi
 
 echo "RBSp4: Sentry setup complete"
