@@ -58,31 +58,31 @@ zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 zRBG_CURL_HEADERS := -H 'Authorization: token $(RBV_PAT)' \
                      -H 'Accept: application/vnd.github.v3+json'
 
-zRBG_CMD_TRIGGER_BUILD = curl -X POST $(zRBG_CURL_HEADERS) \
+zRBG_CMD_TRIGGER_BUILD = source $(RBRR_GITHUB_PAT_ENV) && curl -X POST $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/dispatches' \
     -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(RBG_ARG_RECIPE)"}}'
 
-zRBG_CMD_GET_WORKFLOW_RUN = curl -s $(zRBG_CURL_HEADERS) \
+zRBG_CMD_GET_WORKFLOW_RUN = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
-zRBG_CMD_GET_SPECIFIC_RUN = curl -s  $(zRBG_CURL_HEADERS) \
+zRBG_CMD_GET_SPECIFIC_RUN = source $(RBRR_GITHUB_PAT_ENV) && curl -s  $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/'$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 
-zRBG_CMD_LIST_IMAGES = curl -s $(zRBG_CURL_HEADERS) \
+zRBG_CMD_LIST_IMAGES = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages?package_type=container'
 
-zRBG_CMD_LIST_PACKAGE_VERSIONS = curl -s $(zRBG_CURL_HEADERS) \
+zRBG_CMD_LIST_PACKAGE_VERSIONS = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions'
 
 zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 
-zRBG_CMD_DELETE_VERSION = curl -X DELETE $(zRBG_CURL_HEADERS) \
+zRBG_CMD_DELETE_VERSION = source $(RBRR_GITHUB_PAT_ENV) && curl -X DELETE $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
 zbgc_argcheck_rule: rbrr_validate
-	@test -n "$(RBV_PAT)"         || ($(MBC_SEE_RED) "Error: RBV_PAT unset"         && false)
+	@test -f "$(RBRR_GITHUB_PAT_ENV)" || ($(MBC_SEE_RED) "Error: GitHub PAT env file not found at $(RBRR_GITHUB_PAT_ENV)" && false)
+	@(source $(RBRR_GITHUB_PAT_ENV) && test -n "$$RBV_PAT" || ($(MBC_SEE_RED) "Error: RBV_PAT missing" && false))
 	@test -n "$(zRBG_GITAPI_URL)" || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset" && false)
-	@mkdir -p $(MBD_TEMP_DIR)
 
 
 zbgc_recipe_argument_check:
@@ -162,7 +162,7 @@ rbg-l.%: zbgc_argcheck_rule
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
-	@podman login ghcr.io -u $(RBV_USERNAME) -p $(RBV_PAT)
+	@source $(RBRR_GITHUB_PAT_ENV) && podman login ghcr.io -u $(RBV_USERNAME) -p $(RBV_PAT)
 	$(MBC_PASS) "No errors."
 
 
