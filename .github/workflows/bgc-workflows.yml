@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "GHA: about to load repository configuration..."
           # Use the new rbrr_export_github_env rule to export all variables
-          make -f rbrr.mapper.mk rbrr_export_github_env | bash
+          make -f Tools/rbrr.mapper.mk rbrr_export_github_env | bash
           echo "GHA: Environment variables have been submitted, available in next step."
 
       - name: Validate configuration
