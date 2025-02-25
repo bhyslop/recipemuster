@@ -33,13 +33,12 @@ include rbb.base.mk
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
 include rbv.variables.mk
-include rbrr.repo.sh
 include $(RBV_GITHUB_PAT_ENV)
 include $(MBV_TOOLS_DIR)/rbvc.checker.mk
 include $(MBV_TOOLS_DIR)/mbc.console.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
 include $(MBV_TOOLS_DIR)/rbrb.base.mk
-include $(MBV_TOOLS_DIR)/rbrr.repo.mk
+include $(MBV_TOOLS_DIR)/rbrr.mapper.mk
 include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
 

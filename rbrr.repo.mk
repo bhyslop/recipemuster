@@ -30,20 +30,13 @@
 # - Modifications should maintain this dual compatibility
 # - For GitHub Actions workflows, this file can be sourced directly
 
-# Registry Configuration
-export RBRR_REGISTRY_SERVER=ghcr.io
-export RBRR_REGISTRY_OWNER=bhyslop
-export RBRR_REGISTRY_NAME=recipemuster
-
-# Build Configuration
-export RBRR_BUILD_ARCHITECTURES=linux/amd64
-export RBRR_HISTORY_DIR=RBM-history
-
-# Path Configuration
-export RBRR_NAMEPLATE_PATH=RBM-nameplates
-
-# DNS Configuration
-export RBRR_DNS_SERVER=8.8.8.8
+export RBRR_REGISTRY_SERVER     := ghcr.io
+export RBRR_REGISTRY_OWNER      := bhyslop
+export RBRR_REGISTRY_NAME       := recipemuster
+export RBRR_BUILD_ARCHITECTURES := linux/amd64
+export RBRR_HISTORY_DIR         := RBM-history
+export RBRR_NAMEPLATE_PATH      := RBM-nameplates
+export RBRR_DNS_SERVER          := 8.8.8.8
 
 # File containing user specific secrets for accessing the container registry.  Must define:
 #
@@ -54,7 +47,7 @@ export RBRR_DNS_SERVER=8.8.8.8
 #          Generate this token at https://github.com/settings/tokens with scopes:
 #          - read:packages, write:packages, delete:packages
 #          - repo (for workflow dispatch)
-export RBRR_GITHUB_PAT_ENV=../secrets/github-ghcr-play.env
+export RBRR_GITHUB_PAT_ENV := ../secrets/github-ghcr-play.env
 
 
 # eof

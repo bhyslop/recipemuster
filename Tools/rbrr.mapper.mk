@@ -17,6 +17,9 @@
 # Regime Prefix: rbrr_
 # Assignment Prefix: RBRR_
 
+# Include the config file here for easier github action workflow integration
+include rbrr.repo.sh
+
 # Core validation target that other parts of the system expect
 rbrr_validate:
 	$(MBC_START) "Validating RBRR repository configuration"
