@@ -79,7 +79,7 @@ zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 zRBG_CMD_DELETE_VERSION = curl -X DELETE $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
-zbgc_argcheck_rule: rbvc_check_rule
+zbgc_argcheck_rule: rbrr_validate
 	@test -n "$(RBV_PAT)"         || ($(MBC_SEE_RED) "Error: RBV_PAT unset"         && false)
 	@test -n "$(zRBG_GITAPI_URL)" || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset" && false)
 	@mkdir -p $(MBD_TEMP_DIR)
