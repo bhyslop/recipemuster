@@ -154,8 +154,8 @@ rbg-l.%: zbgc_argcheck_rule
 	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                             |\
 	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                        |\
 	      sort -r                                                                                                     |\
-	      awk       '{printf "%-50s %-13s ghcr.io/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$1, $$2, $$1}'   |\
-	      awk 'BEGIN {printf "%-50s %-13s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
+	      awk       '{printf "%-13s ghcr.io/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$2, $$1}'             |\
+	      awk 'BEGIN {printf "%-13s %-70s\n", "Version ID", "FQIN (Fully Qualified Image Name)"}1';                    \
 	    echo;                                                                                                          \
 	  done
 	$(MBC_PASS) "No errors."
