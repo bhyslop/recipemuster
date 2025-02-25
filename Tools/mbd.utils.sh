@@ -39,7 +39,7 @@ mbd_verbose=${1:-${MBD_VERBOSE:-0}}
 
 # Utility function to display messages based on verbosity
 mbd_show() {
-    echo "MBD_SHOW: $1"
+    test "$mbd_verbose" != "1" || echo "MBDSHOW: $*"
 }
 
 # Enable trace mode if verbose level is 2

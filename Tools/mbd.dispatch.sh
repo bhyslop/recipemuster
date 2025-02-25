@@ -59,7 +59,6 @@ zMBD_STATUS_FILE="$MBD_TEMP_DIR/status-$$"
 { 
     eval "$make_cmd" 2>&1
     echo $? > "$zMBD_STATUS_FILE"
-    mbd_show "Make status: $(cat $zMBD_STATUS_FILE)"
 } | tee -a "$MBD_LOG_LAST" >(mbd_curate_same >> "$MBD_LOG_SAME") \
                            >(mbd_curate_hist >> "$MBD_LOG_HIST")
 zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_FILE")
@@ -68,7 +67,6 @@ set -e
 
 # Generate checksum for the log file
 mbd_generate_checksum "$MBD_LOG_SAME" "$MBD_LOG_HIST"
-mbd_show "Checksum generated"
 
 mbd_show "Make completed with status: $zMBD_EXIT_STATUS"
 
