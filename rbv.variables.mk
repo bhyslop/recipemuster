@@ -1,8 +1,8 @@
 # Needed generally
-export RBV_REGISTRY_OWNER      := bhyslop
-export RBV_REGISTRY_NAME       := recipemuster
-export RBV_BUILD_ARCHITECTURES := linux/amd64
-export RBV_HISTORY_DIR         := RBM-history
+RBV_REGISTRY_OWNER      = bhyslop
+RBV_REGISTRY_NAME       = recipemuster
+RBV_BUILD_ARCHITECTURES = linux/amd64
+RBV_HISTORY_DIR         = RBM-history
 
 # File containing user specific secrets for accessing the container registry.  Must define:
 #
@@ -13,5 +13,5 @@ export RBV_HISTORY_DIR         := RBM-history
 #          Generate this token at https://github.com/settings/tokens with scopes:
 #          - read:packages, write:packages, delete:packages
 #          - repo (for workflow dispatch)
-export RBV_GITHUB_PAT_ENV      := ../secrets/github-ghcr-play.env
+RBV_GITHUB_PAT_ENV      = ../secrets/github-ghcr-play.env
 
