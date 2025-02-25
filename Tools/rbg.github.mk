@@ -50,34 +50,35 @@ zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
 
-zRBG_VERIFY_BUILD_DIR     = $(shell ls -td $(RBV_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null | head -n1)
+zRBG_VERIFY_BUILD_DIR     = $(shell ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null | head -n1)
 zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
 zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 
+zRBG_REPO_PREFIX = $(zRBG_GITAPI_URL)/repos/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)
 
 zRBG_CURL_HEADERS = -H "Authorization: token $$RBV_PAT" \
                     -H 'Accept: application/vnd.github.v3+json'
 
 zRBG_CMD_TRIGGER_BUILD = source $(RBRR_GITHUB_PAT_ENV) && curl -X POST $(zRBG_CURL_HEADERS) \
-    '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/dispatches' \
+    '$(zRBG_REPO_PREFIX)/dispatches' \
     -d '{"event_type": "build_containers", "client_payload": {"dockerfile": "$(RBG_ARG_RECIPE)"}}'
 
 zRBG_CMD_GET_WORKFLOW_RUN = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
-    '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
+    '$(zRBG_REPO_PREFIX)/actions/runs?event=repository_dispatch&branch=main&per_page=1'
 
 zRBG_CMD_GET_SPECIFIC_RUN = source $(RBRR_GITHUB_PAT_ENV) && curl -s  $(zRBG_CURL_HEADERS) \
-    '$(zRBG_GITAPI_URL)/repos/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/'$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
+    '$(zRBG_REPO_PREFIX)/actions/runs/'$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 
 zRBG_CMD_LIST_IMAGES = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages?package_type=container'
 
 zRBG_CMD_LIST_PACKAGE_VERSIONS = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
-    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions'
+    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions'
 
 zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 
 zRBG_CMD_DELETE_VERSION = source $(RBRR_GITHUB_PAT_ENV) && curl -X DELETE $(zRBG_CURL_HEADERS) \
-    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBV_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
+    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
 zbgc_argcheck_rule: rbrr_validate
 	@test -f "$(RBRR_GITHUB_PAT_ENV)" || ($(MBC_SEE_RED) "Error: GitHub PAT env file not found at $(RBRR_GITHUB_PAT_ENV)" && false)
@@ -110,7 +111,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@$(zRBG_CMD_GET_WORKFLOW_RUN) | jq -r '.workflow_runs[0].id' > $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	@test -s                                                       $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_STEP) "Workflow online at:"
-	$(MBC_SHOW_YELLOW) "   https://github.com/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME)/actions/runs/"$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
+	$(MBC_SHOW_YELLOW) "   https://github.com/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)/actions/runs/"$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
 	@status=""; conclusion=""; \
 	while [ "$$status" != "completed" ]; do \
@@ -148,12 +149,12 @@ rbg-l.%: zbgc_argcheck_rule
 	  jq -r '.[] | select(.package_type=="container") | .name'                                                        |\
 	  while read -r package_name; do                                                                                   \
 	    echo "Package: $$package_name";                                                                                \
-	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBV_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name"; \
+	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBRR_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name"; \
 	    echo "Versions:";                                                                                              \
 	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                             |\
 	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                        |\
 	      sort -r                                                                                                     |\
-	      awk       '{printf "%-50s %-13s ghcr.io/$(RBV_REGISTRY_OWNER)/$(RBV_REGISTRY_NAME):%s\n", $$1, $$2, $$1}'   |\
+	      awk       '{printf "%-50s %-13s ghcr.io/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$1, $$2, $$1}'   |\
 	      awk 'BEGIN {printf "%-50s %-13s %-70s\n", "Image Tag", "Version ID", "FQIN (Fully Qualified Image Name)"}1'; \
 	    echo;                                                                                                          \
 	  done
