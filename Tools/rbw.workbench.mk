@@ -29,7 +29,6 @@ RBM_MONIKER = $(MBD_PARAMETER_2)
 RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
-include rbb.base.mk
 include rbrr.repo.mk
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
@@ -38,7 +37,6 @@ include $(RBV_GITHUB_PAT_ENV)
 include $(MBV_TOOLS_DIR)/rbvc.checker.mk
 include $(MBV_TOOLS_DIR)/mbc.console.mk
 include $(MBV_TOOLS_DIR)/rbg.github.mk
-include $(MBV_TOOLS_DIR)/rbrb.base.mk
 include $(MBV_TOOLS_DIR)/rbrr.mapper.mk
 include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk

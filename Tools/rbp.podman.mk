@@ -32,8 +32,9 @@ export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
-zRBM_EXPORT_ENV := "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
-                   "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "   \
+zRBM_EXPORT_ENV := "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
+                   "$(foreach v,$(RBRR__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
+                   "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
 zRBM_PODMAN_SSH_CMD = podman machine ssh $(zRBM_EXPORT_ENV) /bin/sh
@@ -47,7 +48,7 @@ rbp-r.%: rbs_render rbb_render rbn_render
 
 # Validation rules
 rbp-v.%: zrbp_validate_regimes_rule
-zrbp_validate_regimes_rule: rbb_validate rbn_validate rbrr_validate rbrr_validate
+zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)

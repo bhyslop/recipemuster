@@ -16,19 +16,6 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Repository Configuration - Base Values
-#
-# BILINGUAL FILE: This file is designed to be compatible with both:
-# 1. Shell scripts (sourced with `. ./rbrb.repo.sh` or `source ./rbrb.repo.sh`)
-# 2. Makefiles (included with `include rbrb.repo.sh`)
-#
-# USAGE NOTES:
-# - When used in a shell context, variables are exported to the environment
-# - When included in makefiles, variables become make variables
-# - The export syntax is intentionally compatible with both contexts
-# - Comments must start at beginning of line for Make compatibility
-# - No conditionals or complex shell logic to maintain Make compatibility
-# - Modifications should maintain this dual compatibility
-# - For GitHub Actions workflows, this file can be sourced directly
 
 export RBRR_REGISTRY_SERVER     := ghcr.io
 export RBRR_REGISTRY_OWNER      := bhyslop
