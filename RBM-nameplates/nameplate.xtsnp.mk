@@ -1,6 +1,7 @@
 # Recipe Bottle Nameplate Configuration
 # Jupyter Notebook environment with Claude API access
 
+
 # Core Service Definition
 export RBN_MONIKER     := xtsnp
 export RBN_DESCRIPTION := Example Test No Port: nameplate for testing without advertising a port
