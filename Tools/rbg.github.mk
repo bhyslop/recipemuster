@@ -163,7 +163,7 @@ rbg-l.%: zbgc_argcheck_rule
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
-	@source $(RBRR_GITHUB_PAT_ENV) && podman login ghcr.io -u $(RBV_USERNAME) -p $(RBV_PAT)
+	@source $(RBRR_GITHUB_PAT_ENV) && podman login ghcr.io -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "No errors."
 
 
