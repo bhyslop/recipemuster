@@ -29,8 +29,6 @@ RBM_MONIKER = $(MBD_PARAMETER_2)
 RBM_NAMEPLATE_FILE = $(RBB_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
-include ../RBS.STATION.sh
-include ../RBS_STATION.mk
 include rbb.base.mk
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
