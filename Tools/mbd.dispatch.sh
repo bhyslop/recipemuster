@@ -19,161 +19,58 @@
 #
 # Notes:
 #  - Set verbose mode with MBD_VERBOSE=1 or MBD_VERBOSE=2 before command
-#  - Leading 'z' variable prefix indicates it should not be referenced
-#    by name outside of this file.
 #
 # Commentary:
-#    In days where all builds were local, the dispatch script served
-#  a critical role in scrubbing the environment variables down to the
-#  bare minimum needed before handing control to make.  This reduced
-#  the chances of 'works in my environment but not in yours.'  At the
-#  time of this writing, this is embracing a new model where environments
-#  are set by containers instead.  Podman under windows with cygwin has
-#  some exotic environment variable entanglements so little effort is
-#  done to scrub out the variables.
+#   This script is the main dispatch entry point that leverages the 
+#   mbd-utils.sh utility functions to set up the environment and execute
+#   make with the necessary parameters, while maintaining a cleaner 
+#   approach than the original implementation.
 
 set -euo pipefail
 
-zMBD_VERBOSE=${MBD_VERBOSE:-0}
-zMBD_SHOW() { test "$zMBD_VERBOSE" != "1" || echo "dispatch: $1"; }
-test               "$zMBD_VERBOSE" != "2" || set -x
+# Initialize verbose level (used by utilities)
+MBD_VERBOSE=${MBD_VERBOSE:-0}
 
-zMBD_SHOW "Starting dispatch script"
+# Source the utilities script
+source "$(dirname "$0")/mbd-utils.sh" "$MBD_VERBOSE"
+mbd_show "Starting dispatch script" "dispatch"
 
-cd "$(dirname "$0")/.."
-zMBD_SHOW "Changed to repository root, cwd for all commands executed"
+# Setup the environment (source and validate variables)
+mbd_setup || { echo "ERROR: Environment setup failed" >&2; exit 1; }
+mbd_show "Environment setup complete" "dispatch"
 
-zMBD_SHOW "Source variables file and validate"
-zMBD_VARIABLES=./mbv.variables.sh
-source ${zMBD_VARIABLES}
-: ${zMBD_VARIABLES:?}          && zMBD_SHOW "Variables file:      ${zMBD_VARIABLES}"
-: ${MBV_STATION_FILE:?}        && zMBD_SHOW "Station file:        ${MBV_STATION_FILE}"
-: ${MBV_LOG_LAST:?}            && zMBD_SHOW "Latest log:          ${MBV_LOG_LAST}"
-: ${MBV_LOG_EXT:?}             && zMBD_SHOW "Log extension:       ${MBV_LOG_EXT}"
-: ${MBV_CONSOLE_MAKEFILE:?}    && zMBD_SHOW "Console Makefile:    ${MBV_CONSOLE_MAKEFILE}"
-: ${MBV_TABTARGET_DIR:?}       && zMBD_SHOW "Tabtarget Dir:       ${MBV_TABTARGET_DIR}"
-: ${MBV_TABTARGET_DELIMITER:?} && zMBD_SHOW "Tabtarget Delimiter: ${MBV_TABTARGET_DELIMITER}"
-: ${MBV_TEMP_ROOT_DIR:?}       && zMBD_SHOW "Temp root directory: ${MBV_TEMP_ROOT_DIR}"
+# Process the command-line arguments
+mbd_process_args "$@" || { echo "ERROR: Argument processing failed" >&2; exit 1; }
+mbd_show "Arguments processed" "dispatch"
 
-zMBD_SHOW "Source select station file vars and validate"
-source $MBV_STATION_FILE
-: ${MBS_LOG_DIR:?}          && zMBD_SHOW "Log directory:  ${MBS_LOG_DIR}"
-: ${MBS_MAX_JOBS:?}         && zMBD_SHOW "Max jobs:       ${MBS_MAX_JOBS}"
+# Generate the make command
+make_cmd=$(mbd_gen_make_cmd)
+mbd_show "Generated make command: $make_cmd" "dispatch"
 
-zMBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))
-zMBD_SHOW "Generated timestamp: $zMBD_NOW_STAMP"
+# Log command to all log files
+echo "command: $make_cmd" >> "$MBD_LOG_LAST" >> "$MBD_LOG_SAME" >> "$MBD_LOG_HIST"
+echo "Git context: $MBD_GIT_CONTEXT" >> "$MBD_LOG_HIST"
 
-zMBD_SHOW "Setting up temporary directory"
-zMBD_TEMP_DIR="$MBV_TEMP_ROOT_DIR/temp-$zMBD_NOW_STAMP"
-mkdir -p        "$zMBD_TEMP_DIR"
-test  -d        "$zMBD_TEMP_DIR"                            || ( zMBD_SHOW "Failed mkdir temp: $zMBD_TEMP_DIR" && exit 1)
-test -z "$(find "$zMBD_TEMP_DIR" -mindepth 1 -print -quit)" || ( zMBD_SHOW "temp dir nonempty: $zMBD_TEMP_DIR" && exit 1)
+mbd_show "Executing make command" "dispatch"
 
-zMBD_JP_ARG=$1
-zMBD_OM_ARG=$2
-zMBD_TARGET=$3
-shift 3
-
-zMBD_SHOW "Validating job profile"
-case "$zMBD_JP_ARG" in
-  jp_single)    zMBD_JOB_PROFILE=1               ;;
-  jp_bounded)   zMBD_JOB_PROFILE=$MBS_MAX_JOBS   ;;
-  jp_unbounded) zMBD_JOB_PROFILE=""              ;;
-  *) zMBD_SHOW "Invalid job profile: $zMBD_JP_ARG"; exit 1 ;;
-esac
-
-zMBD_SHOW "Validating output mode"
-case "$zMBD_OM_ARG" in
-  om_line)   zMBD_OUTPUT_MODE="-Oline"     ;;
-  om_target) zMBD_OUTPUT_MODE="-Orecurse"  ;;
-  *) zMBD_SHOW "Invalid output mode: $zMBD_OM_ARG"; exit 1 ;;
-esac
-
-zMBD_SHOW "Extract tokens from tabtarget so make can use them in all places"
-zMBD_SHOW "tabtarget tokenizing: $zMBD_TARGET"
-IFS="$MBV_TABTARGET_DELIMITER" read -ra zMBD_TOKENS <<< "$zMBD_TARGET"
-zMBD_SHOW "Split tokens: ${zMBD_TOKENS[*]}"
-
-zMBD_TOKEN_PARAMS=()
-for i in "${!zMBD_TOKENS[@]}"; do
-    [[ -z "${zMBD_TOKENS[$i]}" ]] || zMBD_TOKEN_PARAMS+=("MBD_PARAMETER_$i=${zMBD_TOKENS[$i]}")
-done
-zMBD_SHOW "Token parameters: ${zMBD_TOKEN_PARAMS[*]}"
-
-zMBD_TAG=${zMBD_TOKENS[0]}-${zMBD_TOKENS[2]}
-zMBD_SHOW "Presume second token descriptive so using logfile infix: ${zMBD_TAG}"
-
-zMBD_LOG_LAST=$MBS_LOG_DIR/$MBV_LOG_LAST.$MBV_LOG_EXT
-zMBD_LOG_SAME=$MBS_LOG_DIR/same-${zMBD_TAG}.$MBV_LOG_EXT
-zMBD_LOG_HIST=$MBS_LOG_DIR/hist-${zMBD_TAG}-$zMBD_NOW_STAMP.$MBV_LOG_EXT
-
-zMBD_SHOW "Log paths:"
-zMBD_SHOW "  DIR:   $MBS_LOG_DIR"
-zMBD_SHOW "  LAST:  $zMBD_LOG_LAST"
-zMBD_SHOW "  SAME:  $zMBD_LOG_SAME"
-
-echo "Historical log: $zMBD_LOG_HIST"
-
-zMBD_SHOW "Assure log directory exists and logs prepared..."
-mkdir -p "$MBS_LOG_DIR"
-> "$zMBD_LOG_LAST"
-> "$zMBD_LOG_SAME"
-> "$zMBD_LOG_HIST"
-
-zMBD_GIT_CONTEXT=$(git describe --always --dirty --tags --long 2>/dev/null || echo "git-unavailable")
-echo "Git context: $zMBD_GIT_CONTEXT" >> "$zMBD_LOG_HIST"
-
-cmd_parts=(
-    "make -f $MBV_CONSOLE_MAKEFILE"
-    "$zMBD_OUTPUT_MODE -j $zMBD_JOB_PROFILE"
-    "$zMBD_TARGET"
-    "MBD_NOW_STAMP=$zMBD_NOW_STAMP"
-    "MBD_JOB_PROFILE=$zMBD_JOB_PROFILE"
-    "MBD_TEMP_DIR=$zMBD_TEMP_DIR"
-    "${zMBD_TOKEN_PARAMS[*]}"
-    "$@"
-)
-
-zMBD_MAKE_CMD="${cmd_parts[*]}"
-
-zMBD_CURATE_SAME() {
-    # Convert to unix line endings, strip colors, normalize temp dir, remove VOLATILE lines
-    sed -e 's/\r/\n/g' \
-        -e '/^$/d' \
-        -e 's/\x1b[\[][0-9;]*[a-zA-Z]//g' \
-        -e 's/\x1b[(][A-Z]//g' \
-        -e "s|$zMBD_TEMP_DIR|MBD_EPHEMERAL_DIR|g" \
-        -e '/VOLATILE/d'
-}
-
-zMBD_CURATE_HIST() {
-    while read -r line; do 
-        printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$line"
-    done
-}
-
-zMBD_SHOW "eval: $zMBD_MAKE_CMD"
-
-echo "command: $zMBD_MAKE_CMD" >> "$zMBD_LOG_LAST" >> "$zMBD_LOG_SAME" >> "$zMBD_LOG_HIST"
-
+# Execute make with the generated command
 set +e
-zMBD_STATUS_TMP="$zMBD_TEMP_DIR/status-$$"
+STATUS_TMP="$MBD_TEMP_DIR/status-$$"
 { 
-    eval "$zMBD_MAKE_CMD" 2>&1
-    echo $? >                    "$zMBD_STATUS_TMP"
-    zMBD_SHOW "Make status: $(cat $zMBD_STATUS_TMP)"
-} | tee -a "$zMBD_LOG_LAST" >(zMBD_CURATE_SAME >> "$zMBD_LOG_SAME") \
-                            >(zMBD_CURATE_HIST >> "$zMBD_LOG_HIST")
-zMBD_EXIT_STATUS=$(cat "$zMBD_STATUS_TMP")
-rm                     "$zMBD_STATUS_TMP"
+    eval "$make_cmd" 2>&1
+    echo $? > "$STATUS_TMP"
+    mbd_show "Make status: $(cat $STATUS_TMP)" "dispatch"
+} | tee -a "$MBD_LOG_LAST" >(mbd_curate_same >> "$MBD_LOG_SAME") \
+                           >(mbd_curate_hist >> "$MBD_LOG_HIST")
+EXIT_STATUS=$(cat "$STATUS_TMP")
+rm "$STATUS_TMP"
 set -e
 
-zMBD_SHOW "Generate checksum after all logging is complete, regardless of eval status"
-echo "Same log checksum: $(sha256sum            "$zMBD_LOG_SAME" 2>/dev/null || 
-                           openssl dgst -sha256 "$zMBD_LOG_SAME" 2>/dev/null || 
-                           echo "checksum-unavailable")" >> "$zMBD_LOG_HIST" || true
+# Generate checksum for the log file
+mbd_gen_checksum "$MBD_LOG_SAME" "$MBD_LOG_HIST"
+mbd_show "Checksum generated" "dispatch"
 
-zMBD_SHOW "Make completed with status: $zMBD_EXIT_STATUS"
+mbd_show "Make completed with status: $EXIT_STATUS" "dispatch"
 
-exit "$zMBD_EXIT_STATUS"
+exit "$EXIT_STATUS"
 
