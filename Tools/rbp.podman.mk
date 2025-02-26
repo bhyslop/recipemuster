@@ -123,7 +123,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                  \
-	  --privileged                                     \
+	  --cap-add net_raw                                \
 	  --security-opt label=disable                     \
 	  $(RBRN_VOLUME_MOUNTS)                            \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
