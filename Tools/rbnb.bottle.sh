@@ -16,10 +16,10 @@ set -x
 : ${RBM_ENCLAVE_NS_DIR:?}       && echo "RBNS0: RBM_ENCLAVE_NS_DIR       = ${RBM_ENCLAVE_NS_DIR}"
 
 echo "RBNS1: Creating network namespace directory usable by users"
-sudo mkdir -p                  $(RBM_ENCLAVE_NS_DIR) || exit 40
-sudo chown $(whoami):$(whoami) $(RBM_ENCLAVE_NS_DIR) || exit 40
-sudo chmod 755                 $(RBM_ENCLAVE_NS_DIR) || exit 40
-export            IP_NETNS_DIR=$(RBM_ENCLAVE_NS_DIR)
+sudo mkdir -p                  ${RBM_ENCLAVE_NS_DIR} || exit 40
+sudo chown $(whoami):$(whoami) ${RBM_ENCLAVE_NS_DIR} || exit 40
+sudo chmod 755                 ${RBM_ENCLAVE_NS_DIR} || exit 40
+export            IP_NETNS_DIR=${RBM_ENCLAVE_NS_DIR}
 
 echo "RBNS1: Create the net namespace"
 ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
