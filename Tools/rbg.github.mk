@@ -171,10 +171,14 @@ rbg-l.%: zbgc_argcheck_rule
 	  done
 	$(MBC_PASS) "No errors."
 
+# OUCH consolidate with RBP
+zRBG_SOCKET_PATH = /tmp/podman-$(RBRR_MACHINE_NAME).sock
+zRBG_CONNECTION  = CONTAINER_HOST=unix://$(zRBG_SOCKET_PATH)
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
-	@source $(RBRR_GITHUB_PAT_ENV) && podman login --machine=$(RBRR_MACHINE_NAME) $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	@$(zRBG_CONNECTION) source $(RBRR_GITHUB_PAT_ENV) && \
+	  podman login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "No errors."
 
 
@@ -182,7 +186,7 @@ rbg-r.%: rbg_container_registry_login_rule
 	$(MBC_START) "Retrieve Container Registry Image"
 	@test "$(RBG_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
 	$(MBC_STEP) "Fetch image..."
-	podman pull --machine=$(RBRR_MACHINE_NAME) $(RBG_ARG_TAG)
+	$(zRBG_CONNECTION) podman pull $(RBG_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
 

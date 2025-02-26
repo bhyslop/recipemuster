@@ -49,8 +49,9 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
+# OUCH consolidate with RBG 
 zRBP_SOCKET_PATH = /tmp/podman-$(RBRR_MACHINE_NAME).sock
-
+zRBP_CONNECTION  = CONTAINER_HOST=unix://$(zRBP_SOCKET_PATH)
 
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
@@ -62,7 +63,6 @@ rbp_podman_machine_init_rule:
 	fi
 	$(MBC_PASS) "No errors."
 
-zRBP_CONNECTION = CONTAINER_HOST=unix://$(zRBP_SOCKET_PATH)
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
 	$(MBC_START) "Start up Podman machine $(RBRR_MACHINE_NAME)"

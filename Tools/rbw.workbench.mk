@@ -50,7 +50,7 @@ default:
 #  Startup
 #
 
-rbw-a.%:  rbp_podman_machine_start_rule  rbg_container_registry_login_rule
+rbw-a.%:  rbp_podman_machine_start_rule  rbg_container_registry_login_rule rbp_check_connection
 	$(MBC_START) "Podman started and logged into container registry"
 	$(MBC_PASS) "No errors."
 
