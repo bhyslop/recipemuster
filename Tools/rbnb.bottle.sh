@@ -17,21 +17,25 @@ set -x
 
 echo "RBNS1: Creating network namespace directory usable by users"
 sudo mkdir -p                  ${RBM_ENCLAVE_NS_DIR} || exit 40
-sudo chown $(whoami):$(whoami) ${RBM_ENCLAVE_NS_DIR} || exit 40
-sudo chmod 755                 ${RBM_ENCLAVE_NS_DIR} || exit 40
-export            IP_NETNS_DIR=${RBM_ENCLAVE_NS_DIR}
+sudo chown $(whoami):$(whoami) ${RBM_ENCLAVE_NS_DIR} || exit 41
+sudo chmod 755                 ${RBM_ENCLAVE_NS_DIR} || exit 42
 
-echo "RBNS1: Create the net namespace"
-ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
+echo "RBNS1: Creating network namespace with sudo"
+sudo ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
+
+echo "RBNS1: Creating link from system namespace to our directory"
+sudo touch                                      ${RBM_ENCLAVE_NS_DIR}/${RBM_ENCLAVE_NAMESPACE} || exit 51
+sudo ln -sf /run/netns/${RBM_ENCLAVE_NAMESPACE} ${RBM_ENCLAVE_NS_DIR}/${RBM_ENCLAVE_NAMESPACE} || exit 52
+sudo chmod 755                                  ${RBM_ENCLAVE_NS_DIR}/${RBM_ENCLAVE_NAMESPACE} || exit 53
 
 echo "RBNS1-DEBUG: Checking namespace creation results..."
 echo "RBNS1-DEBUG: Namespace list:"
-sudo ip netns list || exit 52
+sudo ip netns list || exit 55
 
 echo "RBNS1-DEBUG: Netns directory contents:"
 sudo ls -la /var/run/netns/       || echo "No /var/run/netns directory"
 sudo ls -la /run/netns/           || echo "No /run/netns directory"
-sudo ls -la $(RBM_ENCLAVE_NS_DIR) || echo "No RBM)ENCLAVE_NS_DIR directory"
+sudo ls -la ${RBM_ENCLAVE_NS_DIR} || echo "No ${RBM_ENCLAVE_NS_DIR} directory"
 echo "RBNS1-DEBUG: End namespace check"
 
 echo "RBNS2: Creating and configuring veth pair"
