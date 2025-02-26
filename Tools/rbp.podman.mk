@@ -29,6 +29,7 @@ export RBM_ENCLAVE_SENTRY_IN  = vsi_$(RBM_MONIKER)
 export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
+export RBM_ENCLAVE_NS_DIR     = /var/lib/rbm-netns
 
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
@@ -53,6 +54,8 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 zRBP_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
 zRBP_CONN = --connection $(RBRR_MACHINE_NAME)
 
+
+# OUCH de layer / de nest this
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	if ! podman machine list | grep -q "$(RBRR_MACHINE_NAME)"; then \
@@ -62,7 +65,6 @@ rbp_podman_machine_init_rule:
 	  echo "Podman machine $(RBRR_MACHINE_NAME) already exists"; \
 	fi
 	$(MBC_PASS) "No errors."
-
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
 	$(MBC_START) "Start up Podman machine $(RBRR_MACHINE_NAME)"
@@ -124,14 +126,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
-	podman $(zRBP_CONN) run -d                         \
-	  --name $(RBM_BOTTLE_CONTAINER)                   \
-	  --userns=host                                    \
-	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
-	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                  \
-	  --cap-add net_raw                                \
-	  --security-opt label=disable                     \
-	  $(RBRN_VOLUME_MOUNTS)                            \
+	podman $(zRBP_CONN) run -d                                     \
+	  --name $(RBM_BOTTLE_CONTAINER)                               \
+	  --network ns:/$(RBM_ENCLAVE_NS_DIR)/$(RBM_ENCLAVE_NAMESPACE) \
+	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                              \
+	  --cap-add net_raw                                            \
+	  --security-opt label=disable                                 \
+	  $(RBRN_VOLUME_MOUNTS)                                        \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
 	$(MBC_STEP) "Waiting for BOTTLE container"

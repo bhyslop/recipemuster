@@ -13,23 +13,25 @@ set -x
 : ${RBM_ENCLAVE_BOTTLE_OUT:?}   && echo "RBNS0: RBM_ENCLAVE_BOTTLE_OUT   = ${RBM_ENCLAVE_BOTTLE_OUT}"
 : ${RBRN_ENCLAVE_BOTTLE_IP:?}   && echo "RBNS0: RBRN_ENCLAVE_BOTTLE_IP   = ${RBRN_ENCLAVE_BOTTLE_IP}"
 : ${RBM_ENCLAVE_NAMESPACE:?}    && echo "RBNS0: RBM_ENCLAVE_NAMESPACE    = ${RBM_ENCLAVE_NAMESPACE}"
+: ${RBM_ENCLAVE_NS_DIR:?}       && echo "RBNS0: RBM_ENCLAVE_NS_DIR       = ${RBM_ENCLAVE_NS_DIR}"
 
-echo "RBNS1: Creating network namespace"
-sudo ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
+echo "RBNS1: Creating network namespace directory usable by users"
+sudo mkdir -p                  $(RBM_ENCLAVE_NS_DIR) || exit 40
+sudo chown $(whoami):$(whoami) $(RBM_ENCLAVE_NS_DIR) || exit 40
+sudo chmod 755                 $(RBM_ENCLAVE_NS_DIR) || exit 40
+export            IP_NETNS_DIR=$(RBM_ENCLAVE_NS_DIR)
 
-echo "RBNS1-DEBUG2: Make namespace accessible to the podman user"
-sudo chmod 755 /run/netns                          || echo "Warning: Could not change ns parent permissions"
-sudo chmod 755 /run/netns/${RBM_ENCLAVE_NAMESPACE} || echo "Warning: Could not change ns file permissions"
-
-echo "RBNS1-DEBUG2: Also try changing ownership if chmod alone doesn't fix it"
-sudo chown user:user /run/netns/${RBM_ENCLAVE_NAMESPACE} || echo "Warning: Could not change ns file ownership"
+echo "RBNS1: Create the net namespace"
+ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
 
 echo "RBNS1-DEBUG: Checking namespace creation results..."
 echo "RBNS1-DEBUG: Namespace list:"
-sudo ip netns list
+sudo ip netns list || exit 52
+
 echo "RBNS1-DEBUG: Netns directory contents:"
-sudo ls -la /var/run/netns/ || echo "No /var/run/netns directory"
-sudo ls -la /run/netns/     || echo "No /run/netns directory"
+sudo ls -la /var/run/netns/       || echo "No /var/run/netns directory"
+sudo ls -la /run/netns/           || echo "No /run/netns directory"
+sudo ls -la $(RBM_ENCLAVE_NS_DIR) || echo "No RBM)ENCLAVE_NS_DIR directory"
 echo "RBNS1-DEBUG: End namespace check"
 
 echo "RBNS2: Creating and configuring veth pair"
