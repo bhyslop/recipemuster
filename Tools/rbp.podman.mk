@@ -38,7 +38,8 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
-zRBM_PODMAN_SSH_CMD = podman machine ssh $(zRBM_EXPORT_ENV) /bin/sh
+zRBM_PODMAN_SSH_CMD   = podman machine ssh $(RBRR_MACHINE_NAME) $(zRBM_EXPORT_ENV)
+zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
 # Validation rules
 rbp-v.%: zrbp_validate_regimes_rule
@@ -47,9 +48,19 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
-rbp_podman_machine_start_rule:
-	$(MBC_START) "Start up correct podman machine"
-	podman machine start
+rbp_podman_machine_init_rule:
+	$(MBC_START) "Initialize Podman machine if it doesn't exist"
+	@if ! podman machine list | grep -q "$(RBRR_MACHINE_NAME)"; then \
+	  $(MBC_STEP) "Creating new Podman machine $(RBRR_MACHINE_NAME) with image $(RBRR_MACHINE_IMAGE)"; \
+	  podman machine init $(RBRR_MACHINE_NAME) --image=$(RBRR_MACHINE_IMAGE); \
+	else \
+	  $(MBC_STEP) "Podman machine $(RBRR_MACHINE_NAME) already exists"; \
+	fi
+	$(MBC_PASS) "No errors."
+
+rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
+	$(MBC_START) "Start up Podman machine $(RBRR_MACHINE_NAME)"
+	podman machine start $(RBRR_MACHINE_NAME)
 	$(MBC_PASS) "No errors."
 
 rbp-s.%: rbp_start_service_rule
@@ -65,7 +76,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
+	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman run -d                                      \
@@ -79,19 +90,19 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 
 	$(MBC_STEP) "Waiting for SENTRY container"
 	sleep 2
-	podman machine ssh "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
+	$(zRBM_PODMAN_SSH_CMD) "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
+	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
 
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
+	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
-	$(zRBM_PODMAN_SSH_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
+	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
 
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
@@ -108,7 +119,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
-	podman machine ssh "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
+	$(zRBM_PODMAN_SSH_CMD) "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
 

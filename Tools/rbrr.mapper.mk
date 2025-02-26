@@ -29,6 +29,8 @@ RBRR__ROLLUP_ENVIRONMENT_VAR = \
   RBRR_DNS_SERVER='$(RBRR_DNS_SERVER)' \
   RBRR_NAMEPLATE_PATH='$(RBRR_NAMEPLATE_PATH)' \
   RBRR_DNS_SERVER='$(RBRR_DNS_SERVER)' \
+  RBRR_MACHINE_NAME='$(RBRR_MACHINE_NAME)' \
+  RBRR_MACHINE_IMAGE='$(RBRR_MACHINE_IMAGE)' \
   RBRR_GITHUB_PAT_ENV='$(RBRR_GITHUB_PAT_ENV)' \
 
 # Core validation target that other parts of the system expect
@@ -37,7 +39,7 @@ rbrr_validate:
 	$(RBRR__ROLLUP_ENVIRONMENT_VAR) $(MBV_TOOLS_DIR)/rbrr.validator.sh
 	$(MBC_PASS) "No validation errors."
 
-# GitHub Actions environment export function - explicit version
+# GitHub Actions environment export function - explicit version.  Note some vars unneeded in gh runner
 rbrr_export_github_env:
 	@echo 'echo "RBRR_REGISTRY_OWNER=$(RBRR_REGISTRY_OWNER)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_REGISTRY_NAME=$(RBRR_REGISTRY_NAME)"             >> $$GITHUB_ENV'

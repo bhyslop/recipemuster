@@ -23,6 +23,8 @@ RBRR_BUILD_ARCHITECTURES = linux/amd64
 RBRR_HISTORY_DIR         = RBM-history
 RBRR_NAMEPLATE_PATH      = RBM-nameplates
 RBRR_DNS_SERVER          = 8.8.8.8
+RBRR_MACHINE_NAME        = podman-machine-rbw
+RBRR_MACHINE_IMAGE       = Ubuntu-22.04
 
 # File containing user specific secrets for accessing the container registry.  Must define:
 #

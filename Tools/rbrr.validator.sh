@@ -35,6 +35,10 @@ crgv_string              RBRR_HISTORY_DIR 1 255
 crgv_ipv4                RBRR_DNS_SERVER
 crgv_string              RBRR_NAMEPLATE_PATH 1 255
 
+# Podman configuration
+crgv_string              RBRR_MACHINE_NAME  1 64
+crgv_string              RBRR_MACHINE_IMAGE 1 64
+
 # Verify directories exist
 if [ ! -d "$RBRR_HISTORY_DIR" ]; then
     crgv_print_and_die "RBRR_HISTORY_DIR directory '$RBRR_HISTORY_DIR' does not exist"
