@@ -24,10 +24,7 @@ set -e  # Exit immediately if a command exits with non-zero status
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/crgv.validate.sh"
 
-echo "OUCH: here RBRR_REGISTRY_SERVER is" ${RBRR_REGISTRY_SERVER}
-
 # Registry Configuration
-crgv_domain              RBRR_REGISTRY_SERVER
 crgv_xname               RBRR_REGISTRY_OWNER 2 64
 crgv_xname               RBRR_REGISTRY_NAME 2 64
 crgv_string              RBRR_GITHUB_PAT_ENV 1 255

@@ -17,7 +17,6 @@
 #
 # Recipe Bottle Repository Configuration - Base Values
 
-RBRR_REGISTRY_SERVER     = ghcr.io
 RBRR_REGISTRY_OWNER      = bhyslop
 RBRR_REGISTRY_NAME       = recipemuster
 RBRR_BUILD_ARCHITECTURES = linux/amd64

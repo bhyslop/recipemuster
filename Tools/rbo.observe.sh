@@ -14,8 +14,8 @@ set -e
 : ${RBM_ENCLAVE_BRIDGE:?}       && echo "OBSN: RBM_ENCLAVE_BRIDGE       = ${RBM_ENCLAVE_BRIDGE}"
 : ${RBM_ENCLAVE_BOTTLE_OUT:?}   && echo "OBSN: RBM_ENCLAVE_BOTTLE_OUT   = ${RBM_ENCLAVE_BOTTLE_OUT}"
 : ${RBM_SENTRY_CONTAINER:?}     && echo "OBSN: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
-: ${RBN_ENCLAVE_BOTTLE_IP:?}    && echo "OBSN: RBN_ENCLAVE_BOTTLE_IP    = ${RBN_ENCLAVE_BOTTLE_IP}"
-: ${RBN_ENCLAVE_SENTRY_IP:?}    && echo "OBSN: RBN_ENCLAVE_SENTRY_IP    = ${RBN_ENCLAVE_SENTRY_IP}"
+: ${RBRN_ENCLAVE_BOTTLE_IP:?}   && echo "OBSN: RBRN_ENCLAVE_BOTTLE_IP   = ${RRBN_ENCLAVE_BOTTLE_IP}"
+: ${RBRN_ENCLAVE_SENTRY_IP:?}   && echo "OBSN: RBRN_ENCLAVE_SENTRY_IP   = ${RBRN_ENCLAVE_SENTRY_IP}"
 
 echo "OBSN: Storing terminal control sequences"
 BOLD=$(tput bold)
@@ -38,7 +38,7 @@ echo "OBSN DIAG: About to setup tcpdump"
 
 echo "OBSN: Setting up common tcpdump options"
 TCPDUMP_OPTS="-U -l -nn -vvv"
-FILTER="host ${RBN_ENCLAVE_BOTTLE_IP} or host ${RBN_ENCLAVE_SENTRY_IP}"
+FILTER="host ${RBRN_ENCLAVE_BOTTLE_IP} or host ${RBRN_ENCLAVE_SENTRY_IP}"
 
 echo "OBSN: Defining output prefixing functions"
 prefix_bottle() {

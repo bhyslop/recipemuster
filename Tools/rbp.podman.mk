@@ -32,7 +32,7 @@ export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
 
-zRBM_EXPORT_ENV := "$(foreach v,$(RBN__ROLLUP_ENVIRONMENT_VAR),export $v;) "  \
+zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(RBRR__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
@@ -71,10 +71,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	  --name $(RBM_SENTRY_CONTAINER)                   \
 	  --network bridge                                 \
 	  --privileged                                     \
-	  $(if $(RBN_ENTRY_ENABLED),-p $(RBN_ENTRY_PORT_WORKSTATION):$(RBN_ENTRY_PORT_WORKSTATION)) \
-	  $(addprefix -e ,$(RBRR__ROLLUP_ENVIRONMENT_VAR))                                          \
-	  $(addprefix -e ,$(RBN__ROLLUP_ENVIRONMENT_VAR))                                           \
-	  $(RBN_SENTRY_REPO_PATH):$(RBN_SENTRY_IMAGE_TAG)
+	  $(if $(RBRN_ENTRY_ENABLED),-p $(RBRN_ENTRY_PORT_WORKSTATION):$(RBRN_ENTRY_PORT_WORKSTATION)) \
+	  $(addprefix -e ,$(RBRR__ROLLUP_ENVIRONMENT_VAR))                                             \
+	  $(addprefix -e ,$(RBRN__ROLLUP_ENVIRONMENT_VAR))                                             \
+	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG)
 
 	$(MBC_STEP) "Waiting for SENTRY container"
 	sleep 2
@@ -99,11 +99,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	podman run -d                                      \
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
-	  --dns=$(RBN_ENCLAVE_SENTRY_IP)                   \
+	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                  \
 	  --cap-add net_raw                                \
 	  --security-opt label=disable                     \
-	  $(RBN_VOLUME_MOUNTS)                             \
-	  $(RBN_BOTTLE_REPO_PATH):$(RBN_BOTTLE_IMAGE_TAG)
+	  $(RBRN_VOLUME_MOUNTS)                            \
+	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2

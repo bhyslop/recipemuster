@@ -42,15 +42,15 @@ rbt_test_bottle_service_rule:                \
 
 # Information collection
 ztest_info_rule:
-	@echo "RBM_SENTRY_CONTAINER:  $(RBM_SENTRY_CONTAINER)"
-	@echo "RBM_BOTTLE_CONTAINER:  $(RBM_BOTTLE_CONTAINER)"
-	@echo "RBN_ENCLAVE_SENTRY_IP: $(RBN_ENCLAVE_SENTRY_IP)"
-	@echo "MBD_TEMP_DIR:          $(MBD_TEMP_DIR)"
+	@echo "RBM_SENTRY_CONTAINER:   $(RBM_SENTRY_CONTAINER)"
+	@echo "RBM_BOTTLE_CONTAINER:   $(RBM_BOTTLE_CONTAINER)"
+	@echo "RBRN_ENCLAVE_SENTRY_IP: $(RBRN_ENCLAVE_SENTRY_IP)"
+	@echo "MBD_TEMP_DIR:           $(MBD_TEMP_DIR)"
 
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule
 	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
-	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBN_ENCLAVE_SENTRY_IP) -c 2
+	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
 	podman exec $(RBM_SENTRY_CONTAINER) iptables -L RBM-INGRESS
 
 # DNS resolution tests
@@ -117,7 +117,7 @@ ztest_bottle_block_packages_rule: ztest_basic_network_rule
 
 # ICMP tests
 ztest_bottle_icmp_sentry_only_rule: ztest_basic_network_rule
-	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBN_ENCLAVE_SENTRY_IP)"
+	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
 
 ztest_bottle_icmp_block_beyond_rule: ztest_basic_network_rule
 	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"

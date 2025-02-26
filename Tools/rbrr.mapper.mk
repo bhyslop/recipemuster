@@ -22,7 +22,6 @@ include rbrr.repo.mk
 
 # Container environment arguments for Assignment Variables
 RBRR__ROLLUP_ENVIRONMENT_VAR = \
-  RBRR_REGISTRY_SERVER='$(RBRR_REGISTRY_SERVER)' \
   RBRR_REGISTRY_OWNER='$(RBRR_REGISTRY_OWNER)' \
   RBRR_REGISTRY_NAME='$(RBRR_REGISTRY_NAME)' \
   RBRR_BUILD_ARCHITECTURES='$(RBRR_BUILD_ARCHITECTURES)' \
@@ -40,7 +39,6 @@ rbrr_validate:
 
 # GitHub Actions environment export function - explicit version
 rbrr_export_github_env:
-	@echo 'echo "RBRR_REGISTRY_SERVER=$(RBRR_REGISTRY_SERVER)"         >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_REGISTRY_OWNER=$(RBRR_REGISTRY_OWNER)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_REGISTRY_NAME=$(RBRR_REGISTRY_NAME)"             >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_BUILD_ARCHITECTURES=$(RBRR_BUILD_ARCHITECTURES)" >> $$GITHUB_ENV'

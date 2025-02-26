@@ -4,26 +4,26 @@ echo "RBS: Beginning sentry setup script"
 set -e
 set -x
 
-: ${RBN_ENCLAVE_BASE_IP:?}        && echo "RBSp0: RBN_ENCLAVE_BASE_IP        = ${RBN_ENCLAVE_BASE_IP}"
-: ${RBN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBN_ENCLAVE_NETMASK        = ${RBN_ENCLAVE_NETMASK}"
-: ${RBN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBN_ENCLAVE_SENTRY_IP      = ${RBN_ENCLAVE_SENTRY_IP}"
-: ${RBN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBN_ENCLAVE_BOTTLE_IP      = ${RBN_ENCLAVE_BOTTLE_IP}"
-: ${RBRR_DNS_SERVER:?}            && echo "RBSp0: RBRR_DNS_SERVER            = ${RBRR_DNS_SERVER}"
-: ${RBN_ENTRY_ENABLED:?}          && echo "RBSp0: RBN_ENTRY_ENABLED          = ${RBN_ENTRY_ENABLED}"
-: ${RBN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBN_ENTRY_PORT_WORKSTATION = ${RBN_ENTRY_PORT_WORKSTATION}"
-: ${RBN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBN_ENTRY_PORT_ENCLAVE     = ${RBN_ENTRY_PORT_ENCLAVE}"
-: ${RBN_UPLINK_DNS_ENABLED:?}     && echo "RBSp0: RBN_UPLINK_DNS_ENABLED     = ${RBN_UPLINK_DNS_ENABLED}"
-: ${RBN_UPLINK_PORT_MIN:?}        && echo "RBSp0: RBN_UPLINK_PORT_MIN        = ${RBN_UPLINK_PORT_MIN}"
-: ${RBN_UPLINK_ACCESS_ENABLED:?}  && echo "RBSp0: RBN_UPLINK_ACCESS_ENABLED  = ${RBN_UPLINK_ACCESS_ENABLED}"
-: ${RBN_UPLINK_DNS_GLOBAL:?}      && echo "RBSp0: RBN_UPLINK_DNS_GLOBAL      = ${RBN_UPLINK_DNS_GLOBAL}"
-: ${RBN_UPLINK_ACCESS_GLOBAL:?}   && echo "RBSp0: RBN_UPLINK_ACCESS_GLOBAL   = ${RBN_UPLINK_ACCESS_GLOBAL}"
-: ${RBN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBN_UPLINK_ALLOWED_CIDRS   = ${RBN_UPLINK_ALLOWED_CIDRS}"
-: ${RBN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBN_UPLINK_ALLOWED_DOMAINS = ${RBN_UPLINK_ALLOWED_DOMAINS}"
+: ${RBRN_ENCLAVE_BASE_IP:?}        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
+: ${RBRN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
+: ${RBRN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
+: ${RBRN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
+: ${RBRR_DNS_SERVER:?}             && echo "RBSp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
+: ${RBRN_ENTRY_ENABLED:?}          && echo "RBSp0: RBRN_ENTRY_ENABLED          = ${RBRN_ENTRY_ENABLED}"
+: ${RBRN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
+: ${RBRN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
+: ${RBRN_UPLINK_DNS_ENABLED:?}     && echo "RBSp0: RBRN_UPLINK_DNS_ENABLED     = ${RBRN_UPLINK_DNS_ENABLED}"
+: ${RBRN_UPLINK_PORT_MIN:?}        && echo "RBSp0: RBRN_UPLINK_PORT_MIN        = ${RBRN_UPLINK_PORT_MIN}"
+: ${RBRN_UPLINK_ACCESS_ENABLED:?}  && echo "RBSp0: RBRN_UPLINK_ACCESS_ENABLED  = ${RBRN_UPLINK_ACCESS_ENABLED}"
+: ${RBRN_UPLINK_DNS_GLOBAL:?}      && echo "RBSp0: RBRN_UPLINK_DNS_GLOBAL      = ${RBRN_UPLINK_DNS_GLOBAL}"
+: ${RBRN_UPLINK_ACCESS_GLOBAL:?}   && echo "RBSp0: RBRN_UPLINK_ACCESS_GLOBAL   = ${RBRN_UPLINK_ACCESS_GLOBAL}"
+: ${RBRN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
+: ${RBRN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
 
 echo "RBSp1: Beginning IPTables initialization"
 
 echo "RBSp1: Set ephemeral port range for uplink connections"
-echo "${RBN_UPLINK_PORT_MIN} 65535" > /proc/sys/net/ipv4/ip_local_port_range || exit 10
+echo "${RBRN_UPLINK_PORT_MIN} 65535" > /proc/sys/net/ipv4/ip_local_port_range || exit 10
 
 echo "RBSp1: Flushing existing rules"
 iptables -F        || exit 10
@@ -58,7 +58,7 @@ iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
 iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp2: Phase 2: Port Setup"
-if [ "${RBN_ENTRY_ENABLED}" = "1" ]; then
+if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
     echo "RBSp2: Add logging for dropped packets in our port range"
@@ -66,27 +66,27 @@ if [ "${RBN_ENTRY_ENABLED}" = "1" ]; then
     iptables -A RBM-PORT-LOG -j DROP || exit 25
 
     echo "RBSp2: Setting up DNAT for incoming traffic"
-    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBN_ENTRY_PORT_WORKSTATION}"   \
-             -j DNAT --to-destination "${RBN_ENCLAVE_BOTTLE_IP}:${RBN_ENTRY_PORT_ENCLAVE}" \
+    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}"    \
+             -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" \
              -m comment --comment "RBM-PORT-FORWARD" || exit 25
 
     echo "RBSp2: Ensuring local traffic to bottle is allowed"
-    iptables -A OUTPUT -o eth1 -p tcp -d "${RBN_ENCLAVE_BOTTLE_IP}" --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -A INPUT  -i eth1 -p tcp -s "${RBN_ENCLAVE_BOTTLE_IP}" --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A OUTPUT -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A INPUT  -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
 
     echo "RBSp2: Setting up explicit SNAT for external forwarded traffic"
-    iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} \
-         ! -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" \
-         -j SNAT --to-source "${RBN_ENCLAVE_SENTRY_IP}" \
+    iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} \
+         ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+         -j SNAT --to-source "${RBRN_ENCLAVE_SENTRY_IP}"        \
          -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 25
 
     echo "RBSp2: Adding explicit bidirectional forwarding"
-    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
 
     echo "RBSp2: Adding logging for unmatched port traffic"
-    iptables -A RBM-FORWARD -p tcp --sport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
-    iptables -A RBM-FORWARD -p tcp --dport ${RBN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
+    iptables -A RBM-FORWARD -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
+    iptables -A RBM-FORWARD -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
@@ -94,7 +94,7 @@ iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
 iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
 
 echo "RBSp3: Phase 3: Access Setup"
-if [ "${RBN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
+if [ "${RBRN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"
     iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
     iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
@@ -106,23 +106,25 @@ else
     echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
 
     echo "RBSp3: Configuring NAT"
-    iptables -t nat -A POSTROUTING -o eth0 -s "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" ! -d "${RBN_ENCLAVE_BASE_IP}/${RBN_ENCLAVE_NETMASK}" -j MASQUERADE || exit 31
+    iptables -t nat -A POSTROUTING -o eth0 -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+                                         ! -d "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+                                         -j MASQUERADE || exit 31
 
-    if [ "${RBN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
+    if [ "${RBRN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
         echo "RBSp3: Enabling global access"
         iptables -A RBM-EGRESS  -o eth0 -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
     else
         echo "RBSp3: Configuring DNS server access"
-        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBRR_DNS_SERVER}"       -j ACCEPT || exit 31
-        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}"       -j ACCEPT || exit 31
-        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
-        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
-        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                               -j DROP   || exit 31
-        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                               -j DROP   || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBRR_DNS_SERVER}"        -j ACCEPT || exit 31
+        iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}"        -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBRN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBRN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                                -j DROP   || exit 31
+        iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                                -j DROP   || exit 31
 
         echo "RBSp3: Setting up CIDR-based access control"
-        for cidr in ${RBN_UPLINK_ALLOWED_CIDRS}; do
+        for cidr in ${RBRN_UPLINK_ALLOWED_CIDRS}; do
             iptables -A RBM-EGRESS  -o eth0 -d "${cidr}" -j ACCEPT || exit 32
             iptables -A RBM-FORWARD -i eth1 -d "${cidr}" -j ACCEPT || exit 32
         done
@@ -134,7 +136,7 @@ echo "RBSp4: Configuring DNS services"
 echo "RBSp4: Configuring sentry DNS resolution"
 echo "nameserver ${RBRR_DNS_SERVER}" > /etc/resolv.conf   || exit 40
 
-if [ "${RBN_UPLINK_DNS_ENABLED}" = "0" ]; then
+if [ "${RBRN_UPLINK_DNS_ENABLED}" = "0" ]; then
     echo "RBSp4: Blocking all DNS traffic"
     iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
@@ -153,7 +155,7 @@ else
     echo "RBSp4: Configuring dnsmasq"
     echo "bind-interfaces"                                         > /etc/dnsmasq.conf || exit 41
     echo "interface=eth1"                                         >> /etc/dnsmasq.conf || exit 41
-    echo "listen-address=${RBN_ENCLAVE_SENTRY_IP}"                >> /etc/dnsmasq.conf || exit 41
+    echo "listen-address=${RBRN_ENCLAVE_SENTRY_IP}"               >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=eth1"                                 >> /etc/dnsmasq.conf || exit 41
     echo "dns-forward-max=150"                                    >> /etc/dnsmasq.conf || exit 41
     echo "cache-size=1000"                                        >> /etc/dnsmasq.conf || exit 41
@@ -171,13 +173,13 @@ else
     echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                              >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                           >> /etc/dnsmasq.conf || exit 41
-    if [ "${RBN_UPLINK_DNS_GLOBAL}" = "1" ]; then
+    if [ "${RBRN_UPLINK_DNS_GLOBAL}" = "1" ]; then
         echo "RBSp4: Enabling global DNS resolution"
         echo "server=${RBRR_DNS_SERVER}"                          >> /etc/dnsmasq.conf || exit 41
     else
         echo "RBSp4: Configuring domain-based DNS filtering"
         # Add domain-specific forwarding first
-        for domain in ${RBN_UPLINK_ALLOWED_DOMAINS}; do
+        for domain in ${RBRN_UPLINK_ALLOWED_DOMAINS}; do
             echo "server=/${domain}/${RBRR_DNS_SERVER}"           >> /etc/dnsmasq.conf || exit 41
         done
         # Block everything else with NXDOMAIN

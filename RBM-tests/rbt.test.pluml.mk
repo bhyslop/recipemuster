@@ -14,23 +14,23 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
-RBT_PLANTUML_URL = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)
+RBT_PLANTUML_URL = http://localhost:$(RBRN_ENTRY_PORT_WORKSTATION)
 RBT_TEST_DIAGRAM_PATH = $(MBD_TEMP_DIR)/test_diagram.txt
 
 rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
-	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER       is $(RBM_SENTRY_CONTAINER)"
-	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER       is $(RBM_BOTTLE_CONTAINER)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENTRY_PORT_WORKSTATION is $(RBN_ENTRY_PORT_WORKSTATION)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP      is $(RBN_ENCLAVE_SENTRY_IP)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_BOTTLE_IP      is $(RBN_ENCLAVE_BOTTLE_IP)"
-	$(MBC_SHOW_WHITE) "   fact: MBD_TEMP_DIR               is $(MBD_TEMP_DIR)"
+	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER        is $(RBM_SENTRY_CONTAINER)"
+	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER        is $(RBM_BOTTLE_CONTAINER)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENTRY_PORT_WORKSTATION is $(RBRN_ENTRY_PORT_WORKSTATION)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENCLAVE_SENTRY_IP      is $(RBRN_ENCLAVE_SENTRY_IP)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENCLAVE_BOTTLE_IP      is $(RBRN_ENCLAVE_BOTTLE_IP)"
+	$(MBC_SHOW_WHITE) "   fact: MBD_TEMP_DIR                is $(MBD_TEMP_DIR)"
 
 	$(MBC_SHOW_WHITE) "Create test diagram content"
 	@echo "@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml" > $(RBT_TEST_DIAGRAM_PATH)
 
 	$(MBC_SHOW_WHITE) "Watch network traffic during request attempt"
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n -i eth0 port $(RBN_ENTRY_PORT_WORKSTATION) & sleep 1
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n -i eth0 port $(RBRN_ENTRY_PORT_WORKSTATION) & sleep 1
 	curl -v --connect-timeout 5 --max-time 10 $(RBT_PLANTUML_URL)/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40 || true
 	sleep 2
 	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump

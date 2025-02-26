@@ -14,26 +14,26 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
-RBT_JUPYTER_URL = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/lab
-RBT_JUPYTER_API = http://localhost:$(RBN_ENTRY_PORT_WORKSTATION)/api
+RBT_JUPYTER_URL = http://localhost:$(RBRN_ENTRY_PORT_WORKSTATION)/lab
+RBT_JUPYTER_API = http://localhost:$(RBRN_ENTRY_PORT_WORKSTATION)/api
 RBT_XSRF_TOKEN_FILE = $(MBD_TEMP_DIR)/jupyter_xsrf_token
 
 rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "COLLECT INFORMATION HELPFUL IN DEBUGGING..."
-	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER       is $(RBM_SENTRY_CONTAINER)"
-	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER       is $(RBM_BOTTLE_CONTAINER)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENTRY_PORT_WORKSTATION is $(RBN_ENTRY_PORT_WORKSTATION)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENTRY_PORT_ENCLAVE     is $(RBN_ENTRY_PORT_ENCLAVE)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_SENTRY_IP      is $(RBN_ENCLAVE_SENTRY_IP)"
-	$(MBC_SHOW_WHITE) "   fact: RBN_ENCLAVE_BOTTLE_IP      is $(RBN_ENCLAVE_BOTTLE_IP)"
-	$(MBC_SHOW_WHITE) "   fact: MBD_TEMP_DIR               is $(MBD_TEMP_DIR)"
-	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR              is $(RBT_TESTS_DIR)"
+	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER        is $(RBM_SENTRY_CONTAINER)"
+	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER        is $(RBM_BOTTLE_CONTAINER)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENTRY_PORT_WORKSTATION is $(RBRN_ENTRY_PORT_WORKSTATION)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENTRY_PORT_ENCLAVE     is $(RBRN_ENTRY_PORT_ENCLAVE)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENCLAVE_SENTRY_IP      is $(RBRN_ENCLAVE_SENTRY_IP)"
+	$(MBC_SHOW_WHITE) "   fact: RBRN_ENCLAVE_BOTTLE_IP      is $(RBRN_ENCLAVE_BOTTLE_IP)"
+	$(MBC_SHOW_WHITE) "   fact: MBD_TEMP_DIR                is $(MBD_TEMP_DIR)"
+	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR               is $(RBT_TESTS_DIR)"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
 	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
 
 	$(MBC_SHOW_WHITE) "Watch network traffic during curl attempt"
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n -i eth0 port $(RBN_ENTRY_PORT_WORKSTATION) & sleep 1
+	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n -i eth0 port $(RBRN_ENTRY_PORT_WORKSTATION) & sleep 1
 	curl -v --connect-timeout 5 --max-time 10 $(RBT_JUPYTER_URL) || true
 	sleep 2
 	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump
@@ -80,7 +80,7 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "Running Python Jupyter test using test container"
 	podman run --rm -i                                                       \
 	  --network host                                                         \
-	  -e RBN_ENTRY_PORT_WORKSTATION=$(RBN_ENTRY_PORT_WORKSTATION)            \
+	  -e RBRN_ENTRY_PORT_WORKSTATION=$(RBRN_ENTRY_PORT_WORKSTATION)          \
 	  ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409 \
 	  python3 - < $(RBT_TESTS_DIR)/rbt.test.srjcl.py
 
