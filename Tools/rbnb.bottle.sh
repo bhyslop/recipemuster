@@ -19,37 +19,47 @@ echo "RBNS1: Creating network namespace directory usable by users"
 sudo mkdir -p                  ${RBM_ENCLAVE_NS_DIR} || exit 40
 sudo chown $(whoami):$(whoami) ${RBM_ENCLAVE_NS_DIR} || exit 41
 sudo chmod 755                 ${RBM_ENCLAVE_NS_DIR} || exit 42
-export            IP_NETNS_DIR=${RBM_ENCLAVE_NS_DIR}
 
-echo "RBNS1: Creating network namespace with sudo"
-sudo ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
+# Create the network namespace file path
+NS_PATH="${RBM_ENCLAVE_NS_DIR}/${RBM_ENCLAVE_NAMESPACE}"
+
+echo "RBNS1: Creating network namespace with unshare"
+unshare                  --net=${NS_PATH} --mount-proc -f /bin/true || exit 50
+sudo chown $(whoami):$(whoami) ${NS_PATH}                           || exit 51
+sudo chmod 644                 ${NS_PATH}                           || exit 52
 
 echo "RBNS1-DEBUG: Checking namespace creation results..."
-echo "RBNS1-DEBUG: Namespace list:"
-sudo ip netns list || exit 55
-
-echo "RBNS1-DEBUG: Netns directory contents:"
-sudo ls -la /var/run/netns/       || echo "No /var/run/netns directory"
-sudo ls -la /run/netns/           || echo "No /run/netns directory"
-sudo ls -la ${RBM_ENCLAVE_NS_DIR} || echo "No ${RBM_ENCLAVE_NS_DIR} directory"
-echo "RBNS1-DEBUG: End namespace check"
+echo "RBNS1-DEBUG: Namespace file:"
+ls -la ${NS_PATH} || exit 55
 
 echo "RBNS2: Creating and configuring veth pair"
 sudo ip link add ${RBM_ENCLAVE_BOTTLE_OUT} type veth peer name ${RBM_ENCLAVE_BOTTLE_IN} || exit 60
 
 echo "RBNS3: Moving veth endpoint to namespace"
-sudo ip link set ${RBM_ENCLAVE_BOTTLE_IN} netns ${RBM_ENCLAVE_NAMESPACE} || exit 61
+# Use nsenter instead of ip netns exec
+sudo ip link set ${RBM_ENCLAVE_BOTTLE_IN} netns $(readlink -f ${NS_PATH}) || exit 61
 
 echo "RBNS4: Configuring interface in namespace"
-sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set ${RBM_ENCLAVE_BOTTLE_IN}                         name eth0    || exit 62
-sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip addr add ${RBRN_ENCLAVE_BOTTLE_IP}/${RBRN_ENCLAVE_NETMASK} dev eth0    || exit 63
-sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set                                                       eth0 up || exit 64
-sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip route add default via ${RBRN_ENCLAVE_SENTRY_IP}            dev eth0    || exit 65
-sudo ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set lo up                                                         || exit 66
+sudo nsenter --net=${NS_PATH} ip link                         set ${RBM_ENCLAVE_BOTTLE_IN} name eth0    || exit 62
+sudo nsenter --net=${NS_PATH} ip addr add ${RBRN_ENCLAVE_BOTTLE_IP}/${RBRN_ENCLAVE_NETMASK} dev eth0    || exit 63
+sudo nsenter --net=${NS_PATH} ip link                                                       set eth0 up || exit 64
+sudo nsenter --net=${NS_PATH} ip route add default via ${RBRN_ENCLAVE_SENTRY_IP}            dev eth0    || exit 65
+sudo nsenter --net=${NS_PATH} ip link set lo up || exit 66
 
 echo "RBNS5: Connecting namespace veth to bridge"
 sudo ip link set ${RBM_ENCLAVE_BOTTLE_OUT} master ${RBM_ENCLAVE_BRIDGE} || exit 70
-sudo ip link set ${RBM_ENCLAVE_BOTTLE_OUT} up                           || exit 71
+sudo ip link set ${RBM_ENCLAVE_BOTTLE_OUT} up || exit 71
+
+echo "RBNS5: Create a symlink from /var/run/netns/ to our namespace for compatibility"
+if [ ! -d /var/run/netns ]; then
+  sudo mkdir -p /var/run/netns
+fi
+sudo ln -sf ${NS_PATH} /var/run/netns/${RBM_ENCLAVE_NAMESPACE} 2>/dev/null || true
+
+echo "RBNS6: Namespace permissions check"
+ls -la ${NS_PATH}
+echo "Mount point info:"
+findmnt -t nsfs
 
 echo "RBNS: Bottle namespace setup complete"
 
