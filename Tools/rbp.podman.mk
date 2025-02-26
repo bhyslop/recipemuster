@@ -48,38 +48,49 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
+
+zRBP_SOCKET_PATH = /tmp/podman-$(RBRR_MACHINE_NAME).sock
+
+
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	if ! podman machine list | grep -q "$(RBRR_MACHINE_NAME)"; then \
 	  echo "Creating new Podman machine $(RBRR_MACHINE_NAME) with image $(RBRR_MACHINE_IMAGE)"; \
-	  podman machine init --rootful $(RBRR_MACHINE_NAME); \
+	  podman machine init --rootful --socket-path=$(zRBP_SOCKET_PATH) $(RBRR_MACHINE_NAME); \
 	else \
 	  echo "Podman machine $(RBRR_MACHINE_NAME) already exists"; \
 	fi
 	$(MBC_PASS) "No errors."
+
+zRBP_CONNECTION = CONTAINER_HOST=unix://$(zRBP_SOCKET_PATH)
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
 	$(MBC_START) "Start up Podman machine $(RBRR_MACHINE_NAME)"
 	podman machine start $(RBRR_MACHINE_NAME)
 	$(MBC_PASS) "No errors."
 
-rbp-s.%: rbp_start_service_rule
+rbp_check_connection:
+	$(MBC_START) "Checking connection to $(RBRR_MACHINE_NAME)"
+	$(zRBP_CONNECTION) podman info > /dev/null || (echo "Unable to connect to machine" && exit 1)
+	$(MBC_PASS) "Connection successful."
+
+rbp-s.%: rbp_start_service_rule rbp_check_connection
 	$(MBC_STEP) "Completed delegate."
 
-rbp_start_service_rule: zrbp_validate_regimes_rule
+rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
 	$(MBC_STEP) "Stopping any prior containers"
-	-podman stop -t 2  $(RBM_SENTRY_CONTAINER)
-	-podman rm   -f    $(RBM_SENTRY_CONTAINER)
-	-podman stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-podman rm   -f    $(RBM_BOTTLE_CONTAINER)
+	-$(zRBP_CONNECTION) podman stop -t 2  $(RBM_SENTRY_CONTAINER)
+	-$(zRBP_CONNECTION) podman rm   -f    $(RBM_SENTRY_CONTAINER)
+	-$(zRBP_CONNECTION) podman stop -t 2  $(RBM_BOTTLE_CONTAINER)
+	-$(zRBP_CONNECTION) podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
-	podman run -d                                      \
+	$(zRBP_CONNECTION) podman run -d                   \
 	  --name $(RBM_SENTRY_CONTAINER)                   \
 	  --network bridge                                 \
 	  --privileged                                     \
@@ -96,7 +107,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
 
 	$(MBC_STEP) "Configuring SENTRY security"
-	podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
+	$(zRBP_CONNECTION) podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
@@ -108,7 +119,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
-	podman run -d                                      \
+	$(zRBP_CONNECTION) podman run -d                   \
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                  \
@@ -126,13 +137,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule
 
 rbp-s.%:
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
-	podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
+	$(zRBP_CONNECTION) podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
 rbp-b.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
-	podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
+	$(zRBP_CONNECTION) podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
 rbp-o.%: zrbp_validate_regimes_rule
