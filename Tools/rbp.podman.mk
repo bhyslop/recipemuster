@@ -69,6 +69,11 @@ rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
 	podman machine start $(RBRR_MACHINE_NAME)
 	$(MBC_PASS) "No errors."
 
+rbp_podman_machine_stop_rule:
+	$(MBC_START) "Stopping machine $(RBRR_MACHINE_NAME)"
+	podman machine stop $(RBRR_MACHINE_NAME)
+	$(MBC_PASS) "No errors."
+
 rbp_check_connection:
 	$(MBC_START) "Checking connection to $(RBRR_MACHINE_NAME)"
 	podman $(zRBP_CONN) info > /dev/null || (echo "Unable to connect to machine" && exit 1)

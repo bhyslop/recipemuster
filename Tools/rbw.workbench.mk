@@ -47,12 +47,20 @@ default:
 
 
 #######################################
-#  Startup
+#  Startup/ shutdown
 #
 
-rbw-a.%:  rbp_podman_machine_start_rule  rbg_container_registry_login_rule rbp_check_connection
-	$(MBC_START) "Podman started and logged into container registry"
-	$(MBC_PASS) "No errors."
+rbw-a.%: rbw_prestart_rule rbp_podman_machine_start_rule rbg_container_registry_login_rule rbp_check_connection
+	$(MBC_PASS) "Podman started and logged into container registry."
+
+rbw-z.%: rbw_prestop_rule rbp_podman_machine_stop_rule
+	$(MBC_PASS) "Podman stopped."
+
+rbw_prestart_rule:
+	$(MBC_START) "Starting podman and logging in to container registry..."
+
+rbw_prestop_rule:
+	$(MBC_START) "Stopping podman..."
 
 
 #######################################
