@@ -136,6 +136,16 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zRBG_VERIFY_FQIN_CONTENTS)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp  "$(zRBG_VERIFY_FQIN_FILE)"  "$(RBG_ARG_FQIN_OUTPUT)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(RBG_ARG_FQIN_OUTPUT)"
+
+	$(MBC_STEP) "Verifying image availability in registry..."
+	@tag=$$(echo "$(zRBG_VERIFY_FQIN_CONTENTS)" | cut -d: -f2); \
+	echo "  Waiting for tag: $$tag to become available..."; \
+	for i in 1 2 3 4 5; do \
+	  $(zRBG_CMD_LIST_PACKAGE_VERSIONS) | jq -e '.[] | select(.metadata.container.tags[] | contains("'$$tag'"))' > /dev/null && break; \
+	  echo "  Image not yet available, attempt $$i of 5"; \
+	  [ $$i -eq 5 ] && ($(MBC_SEE_RED) "Error: Image '$$tag' not available in registry after 5 attempts" && false); \
+	  sleep 5; \
+	done
 	$(MBC_STEP) "Pull logs..."
 	@$(zRBG_CMD_GET_LOGS) > $(MBD_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
