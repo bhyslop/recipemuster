@@ -18,6 +18,7 @@ echo "RBNS1: Creating network namespace"
 sudo ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
 
 echo "RBNS1-DEBUG2: Make namespace accessible to the podman user"
+sudo chmod 755 /run/netns                          || echo "Warning: Could not change ns parent permissions"
 sudo chmod 755 /run/netns/${RBM_ENCLAVE_NAMESPACE} || echo "Warning: Could not change ns file permissions"
 
 echo "RBNS1-DEBUG2: Also try changing ownership if chmod alone doesn't fix it"
