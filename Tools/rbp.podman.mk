@@ -51,6 +51,7 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 
 # OUCH consolidate with RBG 
 zRBP_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
+zRBP_CONN = --connection $(RBRR_MACHINE_NAME)
 
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
@@ -70,7 +71,7 @@ rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
 
 rbp_check_connection:
 	$(MBC_START) "Checking connection to $(RBRR_MACHINE_NAME)"
-	$(zRBP_CONNECTION) podman info > /dev/null || (echo "Unable to connect to machine" && exit 1)
+	podman $(zRBP_CONN) info > /dev/null || (echo "Unable to connect to machine" && exit 1)
 	$(MBC_PASS) "Connection successful."
 
 rbp-s.%: rbp_start_service_rule rbp_check_connection
@@ -80,16 +81,16 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
 	$(MBC_STEP) "Stopping any prior containers"
-	-$(zRBP_CONNECTION) podman stop -t 2  $(RBM_SENTRY_CONTAINER)
-	-$(zRBP_CONNECTION) podman rm   -f    $(RBM_SENTRY_CONTAINER)
-	-$(zRBP_CONNECTION) podman stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-$(zRBP_CONNECTION) podman rm   -f    $(RBM_BOTTLE_CONTAINER)
+	-podman $(zRBP_CONN) stop -t 2  $(RBM_SENTRY_CONTAINER)
+	-podman $(zRBP_CONN) rm   -f    $(RBM_SENTRY_CONTAINER)
+	-podman $(zRBP_CONN) stop -t 2  $(RBM_BOTTLE_CONTAINER)
+	-podman $(zRBP_CONN) rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
-	$(zRBP_CONNECTION) podman run -d                   \
+	podman $(zRBP_CONN) run -d                         \
 	  --name $(RBM_SENTRY_CONTAINER)                   \
 	  --network bridge                                 \
 	  --privileged                                     \
@@ -106,7 +107,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
 
 	$(MBC_STEP) "Configuring SENTRY security"
-	$(zRBP_CONNECTION) podman exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
+	podman $(zRBP_CONN) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup script"
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
@@ -118,7 +119,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
-	$(zRBP_CONNECTION) podman run -d                   \
+	podman $(zRBP_CONN) run -d                         \
 	  --name $(RBM_BOTTLE_CONTAINER)                   \
 	  --network ns:/run/netns/$(RBM_ENCLAVE_NAMESPACE) \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                  \
@@ -136,13 +137,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 rbp-s.%:
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
-	$(zRBP_CONNECTION) podman exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
+	podman $(zRBP_CONN) exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
 rbp-b.%: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
-	$(zRBP_CONNECTION) podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
+	podman $(zRBP_CONN) exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
 rbp-o.%: zrbp_validate_regimes_rule

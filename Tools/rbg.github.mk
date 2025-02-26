@@ -177,7 +177,7 @@ zRBG_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
 	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman --connection $(RBRR_MACHINE_NAME) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	  podman --connection $(RBRR_MACHINE_NAME) glogin $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "No errors."
 
 
