@@ -52,7 +52,7 @@ rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	if ! podman machine list | grep -q "$(RBRR_MACHINE_NAME)"; then \
 	  echo "Creating new Podman machine $(RBRR_MACHINE_NAME) with image $(RBRR_MACHINE_IMAGE)"; \
-	  podman machine init $(RBRR_MACHINE_NAME) --image=$(RBRR_MACHINE_IMAGE); \
+	  podman machine init $(RBRR_MACHINE_NAME); \
 	else \
 	  echo "Podman machine $(RBRR_MACHINE_NAME) already exists"; \
 	fi
