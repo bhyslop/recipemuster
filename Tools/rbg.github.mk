@@ -172,8 +172,7 @@ rbg-l.%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 # OUCH consolidate with RBP
-zRBG_SOCKET_PATH = /tmp/podman-$(RBRR_MACHINE_NAME).sock
-zRBG_CONNECTION  = CONTAINER_HOST=unix://$(zRBG_SOCKET_PATH)
+zRBG_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"

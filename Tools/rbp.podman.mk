@@ -50,8 +50,7 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 
 
 # OUCH consolidate with RBG 
-zRBP_SOCKET_PATH = /tmp/podman-$(RBRR_MACHINE_NAME).sock
-zRBP_CONNECTION  = CONTAINER_HOST=unix://$(zRBP_SOCKET_PATH)
+zRBP_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
 
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
