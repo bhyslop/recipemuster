@@ -32,6 +32,8 @@ MBC_SHOW_YELLOW := @printf "$(MBC_ARG__CTXT): $(zMBC_TPUT_YELLOW)%s %s %s %s %s 
 MBC_SHOW_RED    := @printf "$(MBC_ARG__CTXT): $(zMBC_TPUT_RED)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 MBC_SHOW_GREEN  := @printf "$(MBC_ARG__CTXT): $(zMBC_TPUT_GREEN)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
 
+MBC_RAW_YELLOW := @printf "$(zMBC_TPUT_YELLOW)%s %s %s %s %s %s %s %s %s$(zMBC_TPUT_RESET)\n"
+
 MBC_START := $(MBC_SHOW_WHITE)
 MBC_STEP  := $(MBC_SHOW_WHITE)
 MBC_PASS  := $(MBC_SHOW_GREEN)

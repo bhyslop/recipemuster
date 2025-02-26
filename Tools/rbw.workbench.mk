@@ -146,6 +146,31 @@ ttx.FixTabtargetExecutability.sh:
 #  Legacy helpers
 #
 
+rbw-hw.%:
+	$(MBC_START) "Helper for WSL Distribution Managment:"
+	$(MBC_SHOW_NORMAL) Stop wsl:
+	@echo
+	$(MBC_RAW_YELLOW)  "     wsl --shutdown"
+	@echo
+	$(MBC_SHOW_NORMAL) "List current distributions:
+	@echo
+	$(MBC_RAW_YELLOW)  "     wsl -l -v"
+	@echo
+	$(MBC_SHOW_NORMAL) "List available distributions:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     wsl --list --online"
+	@echo
+	$(MBC_SHOW_NORMAL) "Delete a distribution:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     wsl --unregister <DistroName>"
+	@echo
+	$(MBC_SHOW_NORMAL) "Install a distribution:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     wsl --install <DistroName>"
+	@echo
+	$(MBC_PASS) "No errors."
+
+
 oga.OpenGithubAction.sh:
 	$(MBC_STEP) "Assure podman services available..."
 	cygstart https://github.com/bhyslop/recipemuster/actions/
