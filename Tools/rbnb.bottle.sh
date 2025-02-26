@@ -22,7 +22,7 @@ sudo chmod 755                 ${RBM_ENCLAVE_NS_DIR} || exit 42
 export            IP_NETNS_DIR=${RBM_ENCLAVE_NS_DIR}
 
 echo "RBNS1: Creating network namespace with sudo"
-ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
+sudo ip netns add ${RBM_ENCLAVE_NAMESPACE} || exit 50
 
 echo "RBNS1-DEBUG: Checking namespace creation results..."
 echo "RBNS1-DEBUG: Namespace list:"
