@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends                
     texlive-base        `# Basic LaTeX distribution`                                    \
     groff               `# Document formatting system`                                  \
     docbook-utils       `# Tools for processing DocBook documents`                      \
-    python3-rst2pdf     `# Convert reStructuredText to PDF`                             \
     markdown            `# Markdown processor`                                          \
     html-xml-utils      `# Tools for HTML and XML files`                                \
     jq                  `# JSON processor`                                              \
@@ -42,7 +41,8 @@ RUN pip install --no-cache-dir                                                  
     chardet             `# Character encoding detection`                                \
     spacy               `# NLP toolkit`                                                 \
     pypdf               `# PDF manipulation library`                                    \
-    nltk                `# Natural Language Toolkit`
+    nltk                `# Natural Language Toolkit`                                    \
+    rst2pdf             `# Convert reStructuredText to PDF`
 
 # Download basic NLTK data
 RUN python -m nltk.downloader punkt stopwords
