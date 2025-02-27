@@ -129,9 +129,20 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	  [ $$i -eq 5 ] && ($(MBC_SEE_RED) "Error: No new commits after 5 attempts" && false)              &&\
 	  sleep 5; done
 	$(MBC_STEP) "Verifying build output..."
-	@test -n "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory" && false)
-	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
-	$(MBC_STEP) "Extracting FQIN..."
+	@echo "MissingBuidDirDebug: RBRR_HISTORY_DIR = $(RBRR_HISTORY_DIR)"
+	@echo "MissingBuidDirDebug: Recipe basename = $(basename $(zRBG_RECIPE_BASENAME))"
+	@echo "MissingBuidDirDebug: Search pattern = $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*"
+	@echo "MissingBuidDirDebug: Found directories:"
+	@ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null || echo "  None found with pattern"
+	@echo "MissingBuidDirDebug: Selected build directory = $(zRBG_VERIFY_BUILD_DIR)"
+	@test -n "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
+	@test -d "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Build directory '$(zRBG_VERIFY_BUILD_DIR)' is not a valid directory" && false)
+	@echo "MissingBuidDirDebug: Comparing recipes:"
+	@echo "  Source recipe: $(RBG_ARG_RECIPE)"
+	@echo "  Build recipe: $(zRBG_VERIFY_BUILD_DIR)/recipe.txt"
+	@test -f "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe.txt not found in $(zRBG_VERIFY_BUILD_DIR)" && false)
+	@echo "MissingBuidDirDebug: end"
+	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)	$(MBC_STEP) "Extracting FQIN..."
 	@test -f "$(zRBG_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
 	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zRBG_VERIFY_FQIN_CONTENTS)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp  "$(zRBG_VERIFY_FQIN_FILE)"  "$(RBG_ARG_FQIN_OUTPUT)"

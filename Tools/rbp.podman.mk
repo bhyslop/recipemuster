@@ -51,7 +51,6 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 
 
 # OUCH consolidate with RBG 
-zRBP_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
 zRBP_CONN = --connection $(RBRR_MACHINE_NAME)
 
 
