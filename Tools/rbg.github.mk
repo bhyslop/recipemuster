@@ -142,7 +142,8 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "  Build recipe: $(zRBG_VERIFY_BUILD_DIR)/recipe.txt"
 	@test -f "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe.txt not found in $(zRBG_VERIFY_BUILD_DIR)" && false)
 	@echo "MissingBuidDirDebug: end"
-	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)	$(MBC_STEP) "Extracting FQIN..."
+	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
+	$(MBC_STEP) "Extracting FQIN..."
 	@test -f "$(zRBG_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
 	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zRBG_VERIFY_FQIN_CONTENTS)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp  "$(zRBG_VERIFY_FQIN_FILE)"  "$(RBG_ARG_FQIN_OUTPUT)"
