@@ -39,7 +39,7 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
-zRBM_PODMAN_SSH_CMD   = podman machine ssh $(RBRR_MACHINE_NAME) $(zRBM_EXPORT_ENV)
+zRBM_PODMAN_SSH_CMD   = podman machine ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $(RBRR_MACHINE_NAME) $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
 # Validation rules
