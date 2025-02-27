@@ -51,7 +51,7 @@ zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
 
-zRBG_VERIFY_BUILD_DIR     = $(shell ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null | head -n1)
+zRBG_VERIFY_BUILD_DIR     = $(shell find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1)
 zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
 zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 
