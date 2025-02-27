@@ -184,8 +184,10 @@ rbg-l.%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 # OUCH consolidate with RBP
-# zRBG_CONN = --connection $(RBRR_MACHINE_NAME)
-zRBG_CONN =
+#zRBP_MACHINE = $(RBRR_MACHINE_NAME)
+zRBP_MACHINE = podman-machine-default
+zRBG_CONN = --connection $(zRBP_MACHINE)
+
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
