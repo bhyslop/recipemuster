@@ -47,6 +47,8 @@ rbrr_export_github_env:
 	@echo 'echo "RBRR_HISTORY_DIR=$(RBRR_HISTORY_DIR)"                 >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_NAMEPLATE_PATH=$(RBRR_NAMEPLATE_PATH)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_DNS_SERVER=$(RBRR_DNS_SERVER)"                   >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_MACHINE_NAME=$(RBRR_MACHINE_NAME)"               >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_MACHINE_IMAGE=$(RBRR_MACHINE_IMAGE)"             >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_GITHUB_PAT_ENV=$(RBRR_GITHUB_PAT_ENV)"           >> $$GITHUB_ENV'
 
 
