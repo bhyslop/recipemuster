@@ -172,7 +172,7 @@ rbg-l.%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 # OUCH consolidate with RBP
-zRBG_CONNECTION = CONTAINER_HOST="npipe:////./pipe/$(RBRR_MACHINE_NAME)"
+zRBG_CONN = --connection $(RBRR_MACHINE_NAME)
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
@@ -185,7 +185,7 @@ rbg-r.%: rbg_container_registry_login_rule
 	$(MBC_START) "Retrieve Container Registry Image"
 	@test "$(RBG_ARG_TAG)" != "" || ($(MBC_SEE_RED) "Error: Which container FQIN?" && false)
 	$(MBC_STEP) "Fetch image..."
-	$(zRBG_CONNECTION) podman pull $(RBG_ARG_TAG)
+	podman $(zRBG_CONN) pull $(RBG_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
 
