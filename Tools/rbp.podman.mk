@@ -51,15 +51,17 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 
 
 # OUCH consolidate with RBG 
-zRBP_CONN = --connection $(RBRR_MACHINE_NAME)
-
+#zRBP_MACHINE = $(RBRR_MACHINE_NAME)
+#zRBP_CONN = --connection $(RBRR_MACHINE_NAME)
+zRBP_MACHINE =
+zRBP_CONN =
 
 # OUCH de layer / de nest this
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	if ! podman machine list | grep -q "$(RBRR_MACHINE_NAME)"; then \
 	  echo "Creating new Podman machine $(RBRR_MACHINE_NAME) with image $(RBRR_MACHINE_IMAGE)"; \
-	  podman machine init --rootful $(RBRR_MACHINE_NAME); \
+	  podman machine init --rootful $(zRBP_MACHINE); \
 	else \
 	  echo "Podman machine $(RBRR_MACHINE_NAME) already exists"; \
 	fi
@@ -67,12 +69,12 @@ rbp_podman_machine_init_rule:
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
 	$(MBC_START) "Start up Podman machine $(RBRR_MACHINE_NAME)"
-	podman machine start $(RBRR_MACHINE_NAME)
+	podman machine start $(zRBP_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_stop_rule:
 	$(MBC_START) "Stopping machine $(RBRR_MACHINE_NAME)"
-	podman machine stop $(RBRR_MACHINE_NAME)
+	podman machine stop $(zRBP_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_check_connection:

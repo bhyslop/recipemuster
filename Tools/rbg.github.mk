@@ -184,12 +184,13 @@ rbg-l.%: zbgc_argcheck_rule
 	$(MBC_PASS) "No errors."
 
 # OUCH consolidate with RBP
-zRBG_CONN = --connection $(RBRR_MACHINE_NAME)
+# zRBG_CONN = --connection $(RBRR_MACHINE_NAME)
+zRBG_CONN =
 
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
 	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman --connection $(RBRR_MACHINE_NAME) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	  podman $(zRBG_CONN) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "No errors."
 
 
