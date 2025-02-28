@@ -56,10 +56,16 @@ rbw-a.%: rbw_prestart_rule rbp_podman_machine_start_rule rbg_container_registry_
 rbw-z.%: rbw_prestop_rule rbp_podman_machine_stop_rule
 	$(MBC_PASS) "Podman stopped."
 
+rbw-Z.%: rbw_prenuke_rule rbp_podman_machine_nuke_rule
+	$(MBC_PASS) "Nuke completed."
+
 rbw_prestart_rule:
 	$(MBC_START) "Starting podman and logging in to container registry..."
 
 rbw_prestop_rule:
+	$(MBC_START) "Stopping podman..."
+
+rbw_prenuke_rule:
 	$(MBC_START) "Stopping podman..."
 
 
