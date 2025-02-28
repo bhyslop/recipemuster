@@ -8,7 +8,7 @@ RBRN_DESCRIPTION = Jupyter Notebook environment with Claude API access for AI-as
 # Image Source Configuration
 RBRN_SENTRY_REPO_PATH = ghcr.io/bhyslop/recipemuster
 RBRN_BOTTLE_REPO_PATH = ghcr.io/bhyslop/recipemuster
-RBRN_SENTRY_IMAGE_TAG = sentry_ubuntu_large.20250211__153900
+RBRN_SENTRY_IMAGE_TAG = sentry_ubuntu_large.20241022__130547
 RBRN_BOTTLE_IMAGE_TAG = bottle_anthropic_jupyter.20250130__152820
 
 # Port Service Configuration
