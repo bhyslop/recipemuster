@@ -43,11 +43,8 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
-# OUCH messy
-#zRBM_PODMAN_SSH_CMD   = SSH_STRICT_HOST_KEY_CHECKING=no podman machine ssh $(zRBP_MACHINE) $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SSH_CMD   = podman machine ssh $(zRBP_MACHINE) $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
-zRBM_BOTTLE_SSH_CMD   = podman machine ssh $(zRBP_MACHINE)
 
 # Validation rules
 rbp-v.%: zrbp_validate_regimes_rule
@@ -92,8 +89,8 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Stopping any prior containers"
 	-podman $(zRBP_CONN) stop -t 2  $(RBM_SENTRY_CONTAINER)
 	-podman $(zRBP_CONN) rm   -f    $(RBM_SENTRY_CONTAINER)
-	-$(zRBM_BOTTLE_SSH_CMD) podman stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-$(zRBM_BOTTLE_SSH_CMD) podman rm   -f    $(RBM_BOTTLE_CONTAINER)
+	-podman $(zRBP_CONN) stop -t 2  $(RBM_BOTTLE_CONTAINER)
+	-podman $(zRBP_CONN) rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
@@ -128,8 +125,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
-	$(zRBM_BOTTLE_SSH_CMD) sudo podman run -d                      \
-	  --replace                                                    \
+	podman $(zRBP_CONN) run -d                                     \
 	  --name $(RBM_BOTTLE_CONTAINER)                               \
 	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE)         \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                              \
@@ -140,7 +136,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
-	$(zRBM_BOTTLE_SSH_CMD) "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
+	$(zRBM_PODMAN_SSH_CMD) "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
 
