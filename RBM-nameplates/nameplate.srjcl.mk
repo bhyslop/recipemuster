@@ -32,4 +32,6 @@ RBRN_ENCLAVE_SENTRY_IP  = 10.242.0.2
 RBRN_ENCLAVE_BOTTLE_IP  = 10.242.0.3
 
 # Volume Mount Configuration
-RBRN_VOLUME_MOUNTS = -v ./RBM-environments-srjcl:/workspace:Z
+# RBRN_VOLUME_MOUNTS = -v ./RBM-environments-srjcl:/workspace:Z
+RBRN_VOLUME_MOUNTS =
+
