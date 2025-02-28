@@ -17,6 +17,10 @@
 # Recipe Bottle Makefile (RBM)
 # Implements secure containerized service management
 
+# OUCH consolidate with RBG 
+#zRBP_MACHINE = $(RBRR_MACHINE_NAME)
+zRBP_MACHINE = podman-machine-default
+zRBP_CONN = --connection $(zRBP_MACHINE)
 
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
@@ -39,7 +43,7 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
-zRBM_PODMAN_SSH_CMD   = SSH_STRICT_HOST_KEY_CHECKING=no podman machine ssh $(RBRR_MACHINE_NAME) $(zRBM_EXPORT_ENV) 
+zRBM_PODMAN_SSH_CMD   = SSH_STRICT_HOST_KEY_CHECKING=no podman machine ssh $(zRBP_MACHINE) $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
 # Validation rules
@@ -50,11 +54,6 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
-# OUCH consolidate with RBG 
-#zRBP_MACHINE = $(RBRR_MACHINE_NAME)
-zRBP_MACHINE = podman-machine-default
-zRBP_CONN = --connection $(zRBP_MACHINE)
-
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	@podman machine list | grep -q       "$(zRBP_MACHINE)" || \
@@ -62,17 +61,17 @@ rbp_podman_machine_init_rule:
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
-	$(MBC_START) "Start up Podman machine $(RBRR_MACHINE_NAME)"
+	$(MBC_START) "Start up Podman machine $(zRBP_MACHINE)"
 	podman machine start $(zRBP_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_stop_rule:
-	$(MBC_START) "Stopping machine $(RBRR_MACHINE_NAME)"
+	$(MBC_START) "Stopping machine $(zRBP_MACHINE)"
 	podman machine stop $(zRBP_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_check_connection:
-	$(MBC_START) "Checking connection to $(RBRR_MACHINE_NAME)"
+	$(MBC_START) "Checking connection to $(zRBP_MACHINE)"
 	podman $(zRBP_CONN) info > /dev/null || (echo "Unable to connect to machine" && exit 1)
 	$(MBC_PASS) "Connection successful."
 
