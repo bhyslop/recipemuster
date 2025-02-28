@@ -130,6 +130,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking"
 	$(zRBM_BOTTLE_SSH_CMD) sudo podman run -d                      \
+	  --replace                                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                               \
 	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE)         \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                              \
