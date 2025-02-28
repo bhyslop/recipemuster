@@ -6,10 +6,10 @@ RBRN_MONIKER     = nsdemo
 RBRN_DESCRIPTION = Network namespace prototype with standard Docker images for container networking
 
 # Image Source Configuration
-RBRN_SENTRY_REPO_PATH = docker.io/library
-RBRN_BOTTLE_REPO_PATH = docker.io/library
-RBRN_SENTRY_IMAGE_TAG = ubuntu:24.10
-RBRN_BOTTLE_IMAGE_TAG = ubuntu:24.10
+RBRN_SENTRY_REPO_PATH = docker.io/library/ubuntu
+RBRN_BOTTLE_REPO_PATH = docker.io/library/ubuntu
+RBRN_SENTRY_IMAGE_TAG = 24.10
+RBRN_BOTTLE_IMAGE_TAG = 24.10
 
 # Port Service Configuration
 RBRN_ENTRY_ENABLED          = 1
