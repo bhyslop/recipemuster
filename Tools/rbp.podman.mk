@@ -56,11 +56,10 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
-
 rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	@podman machine list | grep -q "$(zRBP_MACHINE)" || \
-	  podman machine init `#--rootful` $(zRBP_MACHINE)
+	  PODMAN_MACHINE_CGROUP=systemd podman machine init `#--rootful` $(zRBP_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
