@@ -155,12 +155,12 @@ ttx.FixTabtargetExecutability.sh:
 #
 
 rbw-hw.%:
-	$(MBC_START) "Helper for WSL Distribution Managment:"
+	$(MBC_START) "Helper for WSL Distribution Management:"
 	$(MBC_SHOW_NORMAL) Stop wsl:
 	@echo
 	$(MBC_RAW_YELLOW)  "     wsl --shutdown"
 	@echo
-	$(MBC_SHOW_NORMAL) "List current distributions:
+	$(MBC_SHOW_NORMAL) "List current distributions:"
 	@echo
 	$(MBC_RAW_YELLOW)  "     wsl -l -v"
 	@echo
@@ -176,8 +176,25 @@ rbw-hw.%:
 	@echo
 	$(MBC_RAW_YELLOW)  "     wsl --install <DistroName>"
 	@echo
+	$(MBC_SHOW_NORMAL) "Install Required Podman Dependencies:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     sudo dnf install make"
+	$(MBC_RAW_YELLOW)  "     sudo dnf install ncurses   # for tput"
+	$(MBC_RAW_YELLOW)  "     sudo dnf install qemu-img"
+	$(MBC_RAW_YELLOW)  "     sudo dnf install qemu-system-x86"
+	$(MBC_RAW_YELLOW)  "     sudo dnf install libvirt-daemon-driver-qemu"
+	$(MBC_RAW_YELLOW)  "     sudo dnf install virtiofsd"
+	@echo
+	$(MBC_SHOW_NORMAL) "Access Windows C: drive:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     cd /mnt/c"
+	@echo
+	$(MBC_SHOW_NORMAL) "Validate Podman Installation:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     podman --version"
+	$(MBC_RAW_YELLOW)  "     podman machine ls"
+	@echo
 	$(MBC_PASS) "No errors."
-
 
 oga.OpenGithubAction.sh:
 	$(MBC_STEP) "Assure podman services available..."
