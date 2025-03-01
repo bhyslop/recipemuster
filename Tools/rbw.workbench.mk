@@ -218,7 +218,7 @@ rbw-dph.DigestPodmanHtml.sh:
 	  -v '$(zRBW_PODMAN_INSTALL_WIN)':/podman-remote:ro \
 	  -v ./Study/study-strip-podman-docs:/app/study:rw \
 	  $(zRBW_DOC_CONSOLIDATION_IMAGE) \
-	  python /app/study/spd.strip-podman-docs.py /podman-remote/podman-5.4.0/docs /app/study/output
+	  python /app/study/spd.strip-podman-docs.py /podman-remote /app/study/output
 
 oga.OpenGithubAction.sh:
 	$(MBC_STEP) "Assure podman services available..."

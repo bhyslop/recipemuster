@@ -75,10 +75,16 @@ def process_distribution(dist_path, output_dir):
     dist_name = os.path.basename(dist_path)
     logger.info(f"Processing distribution: {dist_name}")
     
-    docs_dir = os.path.join(dist_path, "docs")
-    if not os.path.exists(docs_dir):
-        logger.warning(f"No docs directory found in {dist_path}")
-        return
+    # Check if dist_path itself is a docs directory or if it contains a docs subdirectory
+    if os.path.basename(dist_path) == "docs":
+        docs_dir = dist_path
+        # Extract distribution name from parent directory
+        dist_name = os.path.basename(os.path.dirname(dist_path))
+    else:
+        docs_dir = os.path.join(dist_path, "docs")
+        if not os.path.exists(docs_dir):
+            logger.warning(f"No docs directory found in {dist_path}")
+            return
     
     html_files = glob.glob(os.path.join(docs_dir, "*.html"))
     if not html_files:
@@ -165,18 +171,23 @@ def main():
         os.makedirs(output_dir)
     
     try:
-        # Find all podman distribution directories
-        podman_dirs = glob.glob(os.path.join(podman_root_dir, "podman-*"))
-        
-        if not podman_dirs:
-            logger.error(f"No podman distribution directories found in {podman_root_dir}")
-            sys.exit(1)
-        
-        logger.info(f"Found {len(podman_dirs)} podman distributions: {', '.join(os.path.basename(d) for d in podman_dirs)}")
-        
-        # Process each distribution
-        for dist_dir in podman_dirs:
-            process_distribution(dist_dir, output_dir)
+        # Check if the provided path is directly to a docs directory
+        if os.path.basename(podman_root_dir) == "docs":
+            logger.info("Processing single docs directory")
+            process_distribution(podman_root_dir, output_dir)
+        else:
+            # Find all podman distribution directories
+            podman_dirs = glob.glob(os.path.join(podman_root_dir, "podman-*"))
+            
+            if not podman_dirs:
+                logger.error(f"No podman distribution directories found in {podman_root_dir}")
+                sys.exit(1)
+            
+            logger.info(f"Found {len(podman_dirs)} podman distributions: {', '.join(os.path.basename(d) for d in podman_dirs)}")
+            
+            # Process each distribution
+            for dist_dir in podman_dirs:
+                process_distribution(dist_dir, output_dir)
         
         logger.info("Documentation processing complete")
     except Exception as e:
@@ -186,4 +197,4 @@ def main():
 if __name__ == "__main__":
     print("BEGINNING PODMAN DOCUMENTATION CONSOLIDATION")
     main()
-
+    
