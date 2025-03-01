@@ -68,6 +68,15 @@ rbw_prestop_rule:
 rbw_prenuke_rule:
 	$(MBC_START) "Stopping podman..."
 
+rbw-S.%: rbp_connect_sentry_rule
+	$(MBC_PASS) "No errors."
+
+rbw-B.%: rbp_connect_bottle_rule
+	$(MBC_PASS) "No errors."
+
+rbw-o.%: rbp_observe_networks_rule
+	$(MBC_PASS) "No errors."
+
 
 #######################################
 #  Test Targets

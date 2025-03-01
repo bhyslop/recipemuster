@@ -7,7 +7,6 @@ echo "OBSN DIAG: Environment check..."
 echo "OBSN: Beginning network observation script"
 
 set -e
-set +x
 
 # Validate required environment variables
 : ${RBM_MACHINE:?}              && echo "OBSN: RBM_MACHINE              = ${RBM_MACHINE}"

@@ -51,12 +51,14 @@ zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
-rbp_podman_machine_init_rule:
+rbp_podman_machine_start_rule:
 	$(MBC_START) "Capture some podman info"
 	podman --version
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
 	  PODMAN_MACHINE_CGROUP=systemd podman machine init --rootful $(RBM_MACHINE)
+	$(MBC_START) "Start up Podman machine $(RBM_MACHINE)"
+	podman machine start $(RBM_MACHINE)
 	$(MBC_START) "Update utilities..."
 	podman $(RBM_CONNECTION) machine ssh sudo dnf install -y tcpdump
 	$(MBC_START) "Version info on machine..."
@@ -64,11 +66,6 @@ rbp_podman_machine_init_rule:
 	podman machine inspect $(RBM_MACHINE)
 	podman $(RBM_CONNECTION) machine ssh "cat /etc/os-release && uname -r"
 	podman $(RBM_CONNECTION) info
-	$(MBC_PASS) "No errors."
-
-rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
-	$(MBC_START) "Start up Podman machine $(RBM_MACHINE)"
-	podman machine start $(RBM_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_stop_rule:
@@ -148,18 +145,18 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Bottle service should be available now."
 
 
-rbp-s.%:
+rbp_connect_sentry_rule:
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman $(RBM_CONNECTION) exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 
-rbp-b.%: zrbp_validate_regimes_rule
+rbp_connect_bottle_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
-	podman $(RBM_CONNECTION) exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
+	$(zRBM_PODMAN_RAW_CMD) sudo podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
-rbp-o.%: zrbp_validate_regimes_rule
+rbp_observe_networks_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
 	(eval $(zRBM_EXPORT_ENV) && /bin/sh < $(MBV_TOOLS_DIR)/rbo.observe.sh)
 
