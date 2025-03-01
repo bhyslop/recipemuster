@@ -212,7 +212,7 @@ zRBW_DOC_CONSOLIDATOR_PYTHON = Study/study-strip-podman-docs/spd.strip-podman-do
 zRBW_DOC_CONSOLIDATION_IMAGE = ghcr.io/bhyslop/recipemuster:bottle_deftextpro.20250227__172342
 
 rbw-dph.DigestPodmanHtml.sh:
-	podman run --rm                                                              \
+	podman -c podman-machine-default run --rm                                    \
 	  -v $(zRBW_PODMAN_INSTALL_ROOT):$(zRBW_PODMAN_INSTALL_ROOT):ro              \
 	  -v $(CURDIR)/Study/study-strip-podman-docs:/app/study:rw                   \
 	  $(zRBW_DOC_CONSOLIDATION_IMAGE)                                            \
