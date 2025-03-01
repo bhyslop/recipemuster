@@ -57,6 +57,13 @@ rbp_podman_machine_init_rule:
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
 	  PODMAN_MACHINE_CGROUP=systemd podman machine init --rootful $(RBM_MACHINE)
+	$(MBC_START) "Update utilities..."
+	podman $(RBM_CONNECTION) machine ssh sudo dnf install -y tcpdump
+	$(MBC_START) "Version info on machine..."
+	podman $(RBM_CONNECTION) version
+	podman machine inspect $(RBM_MACHINE)
+	podman $(RBM_CONNECTION) machine ssh "cat /etc/os-release && uname -r"
+	podman $(RBM_CONNECTION) info
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_start_rule: rbp_podman_machine_init_rule
@@ -136,7 +143,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
-	$(zRBM_PODMAN_SSH_CMD) "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
+	$(zRBM_PODMAN_RAW_CMD) "sudo podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
 
