@@ -2,8 +2,8 @@
 """
 Podman Documentation Consolidator
 
-This script processes HTML documentation files from Podman and consolidates them
-into a single Markdown file optimized for AI comprehension.
+This script processes HTML documentation files from multiple Podman distributions
+and consolidates them into one Markdown file per distribution optimized for AI comprehension.
 """
 
 import os
@@ -11,6 +11,7 @@ import sys
 import re
 import pypandoc
 import logging
+import glob
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
@@ -69,31 +70,42 @@ def group_documents_by_category(html_files):
     
     return categories
 
-def process_html_files(html_dir, output_dir):
-    """Process all HTML files in the specified directory and generate consolidated Markdown."""
-    html_files = [os.path.join(html_dir, f) for f in os.listdir(html_dir) if f.endswith('.html')]
+def process_distribution(dist_path, output_dir):
+    """Process a single Podman distribution."""
+    dist_name = os.path.basename(dist_path)
+    logger.info(f"Processing distribution: {dist_name}")
+    
+    docs_dir = os.path.join(dist_path, "docs")
+    if not os.path.exists(docs_dir):
+        logger.warning(f"No docs directory found in {dist_path}")
+        return
+    
+    html_files = glob.glob(os.path.join(docs_dir, "*.html"))
+    if not html_files:
+        logger.warning(f"No HTML files found in {docs_dir}")
+        return
+    
     logger.info(f"Found {len(html_files)} HTML files to process")
     
-    # Group files by category
-    categories = group_documents_by_category(html_files)
-    logger.info(f"Grouped documents into {len(categories)} categories: {', '.join(categories.keys())}")
+    # Create one markdown file per distribution
+    output_file = os.path.join(output_dir, f"{dist_name}-docs.md")
+    logger.info(f"Creating consolidated markdown file: {output_file}")
     
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    # Process each category separately
-    for category, files in categories.items():
-        output_file = os.path.join(output_dir, f"podman-{category}-docs.md")
-        logger.info(f"Processing category: {category} with {len(files)} files -> {output_file}")
+    with open(output_file, 'w', encoding='utf-8') as outfile:
+        # Add header to the markdown file
+        outfile.write(f"# {dist_name} Documentation\n\n")
+        outfile.write("*This document is a consolidated version of the Podman documentation, optimized for AI comprehension.*\n\n")
+        outfile.write("## Table of Contents\n\n")
         
-        with open(output_file, 'w', encoding='utf-8') as outfile:
-            # Add header to the markdown file
-            outfile.write(f"# Podman {category.title()} Documentation\n\n")
-            outfile.write("*This document is a consolidated version of the Podman documentation, optimized for AI comprehension.*\n\n")
-            outfile.write("## Table of Contents\n\n")
+        # Group files by category for better organization
+        categories = group_documents_by_category(html_files)
+        logger.info(f"Grouped documents into {len(categories)} categories: {', '.join(categories.keys())}")
+        
+        # Generate table of contents by category
+        for category in sorted(categories.keys()):
+            outfile.write(f"### {category.title()}\n\n")
             
-            # Generate table of contents
-            for html_file in sorted(files):
+            for html_file in sorted(categories[category]):
                 try:
                     with open(html_file, 'r', encoding='utf-8') as infile:
                         html_content = infile.read()
@@ -108,9 +120,13 @@ def process_html_files(html_dir, output_dir):
                     logger.error(f"Error processing TOC for {html_file}: {e}")
             
             outfile.write("\n")
+        
+        # Process each category
+        for category in sorted(categories.keys()):
+            outfile.write(f"# {category.title()} Commands\n\n")
             
-            # Process each file and append to the output
-            for html_file in sorted(files):
+            # Process each file in the category
+            for html_file in sorted(categories[category]):
                 try:
                     logger.info(f"Converting {html_file}")
                     with open(html_file, 'r', encoding='utf-8') as infile:
@@ -125,7 +141,7 @@ def process_html_files(html_dir, output_dir):
                     
                     # Add a separator and file identifier
                     outfile.write(f"<a id='{basename}'></a>\n\n")
-                    outfile.write(f"# {section_name or basename}\n\n")
+                    outfile.write(f"## {section_name or basename}\n\n")
                     outfile.write(md_content)
                     outfile.write("\n\n---\n\n")
                     
@@ -136,23 +152,38 @@ def process_html_files(html_dir, output_dir):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python script.py <html_directory> [output_directory]")
+        print("Usage: python script.py <podman_root_directory> [output_directory]")
         sys.exit(1)
     
-    html_dir = sys.argv[1]
+    podman_root_dir = sys.argv[1]
     output_dir = sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
     
-    logger.info(f"HTML directory: {html_dir}")
+    logger.info(f"Podman root directory: {podman_root_dir}")
     logger.info(f"Output directory: {output_dir}")
     
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
     try:
-        process_html_files(html_dir, output_dir)
+        # Find all podman distribution directories
+        podman_dirs = glob.glob(os.path.join(podman_root_dir, "podman-*"))
+        
+        if not podman_dirs:
+            logger.error(f"No podman distribution directories found in {podman_root_dir}")
+            sys.exit(1)
+        
+        logger.info(f"Found {len(podman_dirs)} podman distributions: {', '.join(os.path.basename(d) for d in podman_dirs)}")
+        
+        # Process each distribution
+        for dist_dir in podman_dirs:
+            process_distribution(dist_dir, output_dir)
+        
         logger.info("Documentation processing complete")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    print("BEGINNING")
+    print("BEGINNING PODMAN DOCUMENTATION CONSOLIDATION")
     main()
 
