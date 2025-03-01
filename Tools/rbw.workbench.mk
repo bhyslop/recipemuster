@@ -203,6 +203,21 @@ rbw-hw.%:
 	$(MBC_PASS) "No errors."
 
 
+zRBW_PODMAN_INSTALL_ROOT = /cygdrive/c/podman-remote
+
+zRBW_SAMPLE_HTML_ROOT = /cygdrive/c/podman-remote/podman-5.4.0/docs
+
+zRBW_DOC_CONSOLIDATOR_PYTHON = Study/study-strip-podman-docs/spd.strip-podman-docs.py
+
+zRBW_DOC_CONSOLIDATION_IMAGE = ghcr.io/bhyslop/recipemuster:bottle_deftextpro.20250227__172342
+
+rbw-dph.DigestPodmanHtml.sh:
+	podman run --rm                                                              \
+	  -v $(zRBW_PODMAN_INSTALL_ROOT):$(zRBW_PODMAN_INSTALL_ROOT):ro              \
+	  -v $(CURDIR)/Study/study-strip-podman-docs:/app/study:rw                   \
+	  $(zRBW_DOC_CONSOLIDATION_IMAGE)                                            \
+	  python /app/study/$(zRBW_DOC_CONSOLIDATOR_PYTHON) $(zRBW_SAMPLE_HTML_ROOT)
+
 oga.OpenGithubAction.sh:
 	$(MBC_STEP) "Assure podman services available..."
 	cygstart https://github.com/bhyslop/recipemuster/actions/
