@@ -212,11 +212,18 @@ zRBW_DOC_CONSOLIDATOR_PYTHON = Study/study-strip-podman-docs/spd.strip-podman-do
 zRBW_DOC_CONSOLIDATION_IMAGE = ghcr.io/bhyslop/recipemuster:bottle_deftextpro.20250227__172342
 
 rbw-dph.DigestPodmanHtml.sh:
-	podman -c podman-machine-default run --rm                                    \
-	  -v $(zRBW_PODMAN_INSTALL_ROOT):$(zRBW_PODMAN_INSTALL_ROOT):ro              \
-	  -v $(CURDIR)/Study/study-strip-podman-docs:/app/study:rw                   \
-	  $(zRBW_DOC_CONSOLIDATION_IMAGE)                                            \
-	  python /app/study/$(zRBW_DOC_CONSOLIDATOR_PYTHON) $(zRBW_SAMPLE_HTML_ROOT) /app/study/output
+	podman -c podman-machine-default run --rm \
+	  -v //c/podman-remote:/podman-remote:ro \
+	  -v "$(shell cygpath -w $(CURDIR))/study-strip-podman-docs":/app/study:rw \
+	  $(zRBW_DOC_CONSOLIDATION_IMAGE) \
+	  python /app/study/spd.strip-podman-docs.py C:/podman-remote/podman-5.4.0/docs /app/study/output
+
+rbw-dps.DigestPodmanStudy.sh:
+	podman -c podman-machine-default run --rm -it \
+	  -v ../../../podman-remote:/podman-remote:ro \
+	  -v ./Study/study-strip-podman-docs:/app/study:rw \
+	  $(zRBW_DOC_CONSOLIDATION_IMAGE) \
+	  /bin/bash
 
 oga.OpenGithubAction.sh:
 	$(MBC_STEP) "Assure podman services available..."
