@@ -115,7 +115,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
 	$(MBC_STEP) "Executing BOTTLE namespace setup in userspace"
-	$(zRBM_PODMAN_SSH_CMD) unshare -r -n $(MBV_TOOLS_DIR)/rbnb.bottle.sh
+	$(zRBM_PODMAN_SSH_CMD) "unshare -r -n /bin/sh" < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
