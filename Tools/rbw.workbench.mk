@@ -147,7 +147,7 @@ rbw-ta.%:
 	tt/rbw-tg.TestGithubWorkflow.sh
 	$(MBC_STEP) "Bottle service tests..."
 	tt/rbw-tb.TestBottles.parallel.sh
-	$(MBC_PASS) "No errors."
+	$(MBC_PASS) "TEST ALL PASSED WITHOUT ERRORS."
 
 
 #######################################
