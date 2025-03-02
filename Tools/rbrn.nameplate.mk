@@ -14,8 +14,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
-# Regime Prefix: rbn_
-# Assignment Prefix: RBN_
+# Regime Prefix: rbrn_
+# Assignment Prefix: RBRN_
 
 # Allow higher level make to include the correct nameplate
 
