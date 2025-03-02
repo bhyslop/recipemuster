@@ -4,6 +4,7 @@ echo "RBS: Beginning sentry setup script"
 set -e
 set -x
 
+# Validate environment variables
 : ${RBRN_ENCLAVE_BASE_IP:?}        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
 : ${RBRN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
 : ${RBRN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
@@ -59,48 +60,13 @@ iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
-    echo "RBSp2: Configuring port forwarding"
+    echo "RBSp2: Configuring TCP access for bottled services"
     
-    echo "RBSp0: Enabling IP forwarding for entry port forwarding"
-    echo 1 > /proc/sys/net/ipv4/ip_forward || exit 15
+    # Allow direct connections from sentry to bottle for the entry port
+    iptables -A RBM-EGRESS -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A RBM-INGRESS -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
     
-    echo "RBSp2: Add logging for port traffic (with specific acceptance for entry port)"
-    iptables -N RBM-PORT-LOG         || exit 25
-    iptables -A RBM-PORT-LOG -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -A RBM-PORT-LOG -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -A RBM-PORT-LOG -j DROP || exit 25
-
-    echo "RBSp2: Setting up DNAT for incoming traffic"
-    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}"    \
-             -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" \
-             -m comment --comment "RBM-PORT-FORWARD" || exit 25
-
-    echo "RBSp2: Ensuring local traffic to bottle is allowed"
-    iptables -A OUTPUT -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -A INPUT  -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-
-    echo "RBSp2: Setting up explicit SNAT for external forwarded traffic"
-    iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} \
-         ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
-         -j SNAT --to-source "${RBRN_ENCLAVE_SENTRY_IP}"        \
-         -m comment --comment "RBM-PORT-FORWARD-SNAT" || exit 25
-
-    echo "RBSp2: Adding explicit bidirectional forwarding"
-    iptables -I FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -I FORWARD 1 -i eth0 -o eth1 -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-
-    echo "RBSp2: Adding logging for unmatched port traffic"
-    iptables -A RBM-FORWARD -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
-    iptables -A RBM-FORWARD -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j RBM-PORT-LOG || exit 25
-fi
-
-echo "RBSp2b: Blocking ICMP cross-boundary traffic"
-iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
-iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
-
-echo "RBSp2: Setting up port forwarding proxy service"
-if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
-    echo "RBSp2: Starting socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
+    echo "RBSp2: Setting up socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
     nohup socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE} >/var/log/socat-proxy.log 2>&1 &
     
     echo "RBSp2: Give socat a moment to start"
@@ -116,16 +82,14 @@ if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
     fi
 fi
 
+echo "RBSp2b: Blocking ICMP cross-boundary traffic"
+iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
+iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
+
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBRN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"
     iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
-
-    if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
-        echo "RBSp3: Adding exception for entry port forwarding"
-        iptables -I RBM-FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 30
-    fi
-
     iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
 else
     echo "RBSp3: Setting up network forwarding"
