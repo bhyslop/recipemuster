@@ -82,10 +82,11 @@ rbw-o.%: rbp_observe_networks_rule
 #  Test Targets
 #
 
-RBT_TESTS_DIR           = RBM-tests
-MBT_PODMAN_EXEC_SENTRY   = podman --connection $(RBM_MACHINE)                         exec    $(RBM_SENTRY_CONTAINER)
-MBT_PODMAN_EXEC_BOTTLE   = podman --connection $(RBM_MACHINE) machine ssh sudo podman exec    $(RBM_BOTTLE_CONTAINER)
-MBT_POMAN_EXEC_BOTTLE_I = podman --connection $(RBM_MACHINE) machine ssh sudo podman exec -i $(RBM_BOTTLE_CONTAINER)
+RBT_TESTS_DIR            = RBM-tests
+MBT_PODMAN_BASE          = podman --connection $(RBM_MACHINE)
+MBT_PODMAN_EXEC_SENTRY   = $(MBT_PODMAN_BASE)                         exec    $(RBM_SENTRY_CONTAINER)
+MBT_PODMAN_EXEC_BOTTLE   = $(MBT_PODMAN_BASE) machine ssh sudo podman exec    $(RBM_BOTTLE_CONTAINER)
+MBT_POMAN_EXEC_BOTTLE_I  = $(MBT_PODMAN_BASE) machine ssh sudo podman exec -i $(RBM_BOTTLE_CONTAINER)
 
 # Each test defines same rule
 rbw-to.%:  rbt_test_bottle_service_rule

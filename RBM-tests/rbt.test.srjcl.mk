@@ -78,7 +78,7 @@ rbt_test_bottle_service_rule:
 	@echo curl done
 
 	$(MBC_SHOW_WHITE) "Running Python Jupyter test using test container"
-	podman run --rm -i                                                       \
+	$(MBT_PODMAN_BASE) run --rm -i                                           \
 	  --network host                                                         \
 	  -e RBRN_ENTRY_PORT_WORKSTATION=$(RBRN_ENTRY_PORT_WORKSTATION)          \
 	  ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409 \
