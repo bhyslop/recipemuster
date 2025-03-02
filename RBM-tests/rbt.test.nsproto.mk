@@ -83,51 +83,51 @@ ztest_bottle_dns_nonexist_rule: ztest_basic_network_rule
 	grep -q NXDOMAIN $(MBD_TEMP_DIR)/dns_test_output.txt || exit 1
 
 ztest_bottle_dns_tcp_rule: ztest_basic_network_rule
-	$(MBT_POMAN_EXEC_BOTTLE_I) dig +tcp anthropic.com
+	$(MBT_PODMAN_EXEC_BOTTLE_I) dig +tcp anthropic.com
 
 ztest_bottle_dns_notcp_rule: ztest_basic_network_rule
-	$(MBT_POMAN_EXEC_BOTTLE_I) dig +notcp anthropic.com
+	$(MBT_PODMAN_EXEC_BOTTLE_I) dig +notcp anthropic.com
 
 # DNS security tests
 ztest_bottle_dns_block_direct_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 anthropic.com
-	! $(MBT_POMAN_EXEC_BOTTLE_I) nc -w 2 -zv 8.8.8.8 53
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @8.8.8.8 anthropic.com
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) nc -w 2 -zv 8.8.8.8 53
 
 ztest_bottle_dns_block_altport_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 -p 5353 example.com
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 -p 443 example.com
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @8.8.8.8 -p 5353 example.com
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @8.8.8.8 -p 443 example.com
 
 ztest_bottle_dns_block_cloudflare_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @1.1.1.1 example.com
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @1.1.1.1 example.com
 
 ztest_bottle_dns_block_quad9_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @9.9.9.9 example.com
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @9.9.9.9 example.com
 
 ztest_bottle_dns_block_zonetransfer_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 example.com AXFR
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @8.8.8.8 example.com AXFR
 
 ztest_bottle_dns_block_ipv6_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @2001:4860:4860::8888 example.com
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @2001:4860:4860::8888 example.com
 
 ztest_bottle_dns_block_multicast_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @224.0.0.251%eth0 -p 5353 example.local
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @224.0.0.251%eth0 -p 5353 example.local
 
 ztest_bottle_dns_block_spoofing_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
 
 ztest_bottle_dns_block_tunneling_rule: ztest_basic_network_rule
 	! $(MBT_PODMAN_EXEC_BOTTLE) nc -z -w 1 8.8.8.8 53
 
 # Package management test - runs independently after network setup
 ztest_bottle_block_packages_rule: ztest_basic_network_rule
-	! $(MBT_POMAN_EXEC_BOTTLE_I) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
 
 # ICMP tests
 ztest_bottle_icmp_sentry_only_rule: ztest_basic_network_rule
-	$(MBT_POMAN_EXEC_BOTTLE_I) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
+	$(MBT_PODMAN_EXEC_BOTTLE_I) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
 
 ztest_bottle_icmp_block_beyond_rule: ztest_basic_network_rule
-	$(MBT_POMAN_EXEC_BOTTLE_I) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"
+	$(MBT_PODMAN_EXEC_BOTTLE_I) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"
 
 
 # eof
