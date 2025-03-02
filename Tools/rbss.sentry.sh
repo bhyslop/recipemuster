@@ -111,6 +111,7 @@ if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
     fi
 fi
 
+
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBRN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"
