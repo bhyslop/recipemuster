@@ -40,87 +40,98 @@ rbt_test_bottle_service_rule:                \
   # end-list
 	$(MBC_PASS) "No errors seen."
 
+MBT_POMAN_EXEC_SENTRY   = podman --connection $(RBM_MACHINE)                         exec    $(RBM_SENTRY_CONTAINER)
+MBT_POMAN_EXEC_BOTTLE   = podman --connection $(RBM_MACHINE) machine ssh sudo podman exec    $(RBM_BOTTLE_CONTAINER)
+MBT_POMAN_EXEC_BOTTLE_I = podman --connection $(RBM_MACHINE) machine ssh sudo podman exec -i $(RBM_BOTTLE_CONTAINER)
+
 # Information collection
 ztest_info_rule:
 	@echo "RBM_SENTRY_CONTAINER:   $(RBM_SENTRY_CONTAINER)"
 	@echo "RBM_BOTTLE_CONTAINER:   $(RBM_BOTTLE_CONTAINER)"
 	@echo "RBRN_ENCLAVE_SENTRY_IP: $(RBRN_ENCLAVE_SENTRY_IP)"
 	@echo "MBD_TEMP_DIR:           $(MBD_TEMP_DIR)"
+	@echo "RBM_MACHINE:            $(RBM_MACHINE)"
+	@test -n "$(RBM_SENTRY_CONTAINER)"   || (echo "Error: RBM_SENTRY_CONTAINER   must be set" && exit 1)
+	@test -n "$(RBM_BOTTLE_CONTAINER)"   || (echo "Error: RBM_BOTTLE_CONTAINER   must be set" && exit 1)
+	@test -n "$(RBRN_ENCLAVE_SENTRY_IP)" || (echo "Error: RBRN_ENCLAVE_SENTRY_IP must be set" && exit 1)
+	@test -n "$(MBD_TEMP_DIR)"           || (echo "Error: MBD_TEMP_DIR           must be set" && exit 1)
+	@test -n "$(RBM_MACHINE)"            || (echo "Error: RBM_MACHINE            must be set" && exit 1)
+
 
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule
-	podman exec $(RBM_SENTRY_CONTAINER) ps aux | grep dnsmasq
-	podman exec $(RBM_BOTTLE_CONTAINER) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
-	podman exec $(RBM_SENTRY_CONTAINER) iptables -L RBM-INGRESS
+	$(MBT_POMAN_EXEC_SENTRY) ps aux | grep dnsmasq
+	$(MBT_POMAN_EXEC_BOTTLE) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
+	$(MBT_POMAN_EXEC_SENTRY) iptables -L RBM-INGRESS
 
 # DNS resolution tests
 ztest_bottle_dns_allow_anthropic_rule: ztest_basic_network_rule
-	podman exec $(RBM_BOTTLE_CONTAINER) nslookup anthropic.com
+	$(MBT_POMAN_EXEC_BOTTLE) nslookup anthropic.com
 
 ztest_bottle_dns_block_google_rule: ztest_basic_network_rule
-	! podman exec $(RBM_BOTTLE_CONTAINER) nslookup google.com
+	! $(MBT_POMAN_EXEC_BOTTLE) nslookup google.com
 
 # TCP connection tests
 ztest_bottle_tcp443_allow_anthropic_rule: ztest_basic_network_rule
-	@ANTHROPIC_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short anthropic.com | head -1) && \
-	  podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$ANTHROPIC_IP 443
+	@ANTHROPIC_IP=$$($(MBT_POMAN_EXEC_SENTRY) dig +short anthropic.com | head -1) && \
+	  $(MBT_POMAN_EXEC_BOTTLE) nc -w 2 -zv $$ANTHROPIC_IP 443
 
 ztest_bottle_tcp443_block_google_rule: ztest_basic_network_rule
-	@GOOGLE_IP=$$(podman exec $(RBM_SENTRY_CONTAINER) dig +short google.com | head -1) && \
-	  ! podman exec $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv $$GOOGLE_IP 443
+	@GOOGLE_IP=$$($(MBT_POMAN_EXEC_SENTRY) dig +short google.com | head -1) && \
+	  ! $(MBT_POMAN_EXEC_BOTTLE) nc -w 2 -zv $$GOOGLE_IP 443
 
 # DNS protocol tests
 ztest_bottle_dns_nonexist_rule: ztest_basic_network_rule
-	! podman exec nsproto-bottle nslookup nonexistentdomain123.test >  $(MBD_TEMP_DIR)/dns_test_output.txt 2>&1
+	! $(MBT_POMAN_EXEC_BOTTLE) nslookup nonexistentdomain123.test >  $(MBD_TEMP_DIR)/dns_test_output.txt 2>&1
 	cat              $(MBD_TEMP_DIR)/dns_test_output.txt
 	grep -q NXDOMAIN $(MBD_TEMP_DIR)/dns_test_output.txt || exit 1
 
 ztest_bottle_dns_tcp_rule: ztest_basic_network_rule
-	podman exec -i $(RBM_BOTTLE_CONTAINER) dig +tcp anthropic.com
+	$(MBT_POMAN_EXEC_BOTTLE_I) dig +tcp anthropic.com
 
 ztest_bottle_dns_notcp_rule: ztest_basic_network_rule
-	podman exec -i $(RBM_BOTTLE_CONTAINER) dig +notcp anthropic.com
+	$(MBT_POMAN_EXEC_BOTTLE_I) dig +notcp anthropic.com
 
 # DNS security tests
 ztest_bottle_dns_block_direct_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 anthropic.com
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) nc -w 2 -zv 8.8.8.8 53
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 anthropic.com
+	! $(MBT_POMAN_EXEC_BOTTLE_I) nc -w 2 -zv 8.8.8.8 53
 
 ztest_bottle_dns_block_altport_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 -p 5353 example.com
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 -p 443 example.com
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 -p 5353 example.com
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 -p 443 example.com
 
 ztest_bottle_dns_block_cloudflare_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @1.1.1.1 example.com
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @1.1.1.1 example.com
 
 ztest_bottle_dns_block_quad9_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @9.9.9.9 example.com
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @9.9.9.9 example.com
 
 ztest_bottle_dns_block_zonetransfer_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 example.com AXFR
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 example.com AXFR
 
 ztest_bottle_dns_block_ipv6_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @2001:4860:4860::8888 example.com
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @2001:4860:4860::8888 example.com
 
 ztest_bottle_dns_block_multicast_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @224.0.0.251%eth0 -p 5353 example.local
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @224.0.0.251%eth0 -p 5353 example.local
 
 ztest_bottle_dns_block_spoofing_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
+	! $(MBT_POMAN_EXEC_BOTTLE_I) dig @8.8.8.8 +nsid example.com -b 192.168.1.2
 
 ztest_bottle_dns_block_tunneling_rule: ztest_basic_network_rule
-	! podman exec $(RBM_BOTTLE_CONTAINER) nc -z -w 1 8.8.8.8 53
+	! $(MBT_POMAN_EXEC_BOTTLE) nc -z -w 1 8.8.8.8 53
 
 # Package management test - runs independently after network setup
 ztest_bottle_block_packages_rule: ztest_basic_network_rule
-	! podman exec -i $(RBM_BOTTLE_CONTAINER) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
+	! $(MBT_POMAN_EXEC_BOTTLE_I) timeout 2 apt-get -qq update 2>&1 | grep -q "Could not resolve"
 
 # ICMP tests
 ztest_bottle_icmp_sentry_only_rule: ztest_basic_network_rule
-	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
+	$(MBT_POMAN_EXEC_BOTTLE_I) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
 
 ztest_bottle_icmp_block_beyond_rule: ztest_basic_network_rule
-	podman exec -i $(RBM_BOTTLE_CONTAINER) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"
+	$(MBT_POMAN_EXEC_BOTTLE_I) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"
 
 
 # eof

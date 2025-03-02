@@ -131,7 +131,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking (SKIPPING RBRN_VOLUME_MOUNTS FOR DEBUG)"
 	$(zRBM_PODMAN_RAW_CMD) sudo podman run -d                      \
 	  --name $(RBM_BOTTLE_CONTAINER)                               \
-	  --privileged                                                 \
 	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE)         \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                              \
 	  --cap-add net_raw                                            \
