@@ -23,12 +23,15 @@ else
   exit 1
 fi
 
-# Setup the network namespace
-echo "RBNS1: Setting up network namespace directory"
-mkdir -p /run/netns
-mount -t tmpfs netns /run/netns
+# Create a user-accessible namespace directory
+echo "RBNS1: Setting up user-accessible network namespace directory"
+USER_NETNS_DIR=/home/user/users-netns
+mkdir -p             $USER_NETNS_DIR
+mount -t tmpfs netns $USER_NETNS_DIR
 
-echo "RBNS2: Creating network namespace"
+# Setup touch file to create namespace reference
+NAMESPACE_FILE="$USER_NETNS_DIR/${RBM_ENCLAVE_NAMESPACE}"
+echo "RBNS2: Creating network namespace in $NAMESPACE_FILE"
 ip netns add ${RBM_ENCLAVE_NAMESPACE}
 
 echo "RBNS3: Creating and configuring veth pair"
@@ -49,13 +52,12 @@ ip link set ${RBM_ENCLAVE_BOTTLE_OUT} master ${RBM_ENCLAVE_BRIDGE}
 ip link set ${RBM_ENCLAVE_BOTTLE_OUT} up
 
 echo "RBNS7: Verifying namespace exists"
-ls -la /run/netns/${RBM_ENCLAVE_NAMESPACE} || echo "WARNING: Namespace not found!"
+ls -la $NAMESPACE_FILE || echo "WARNING: Namespace file not found!"
 
-echo "RBNS8: Making namespace visible to host system"
-# We need to make the namespace created in our user namespace 
-# accessible to the host system for container attachment
-mkdir -p /var/run/netns
-mount --bind /run/netns/${RBM_ENCLAVE_NAMESPACE} /var/run/netns/${RBM_ENCLAVE_NAMESPACE}
+echo "RBNS8: Export our namespace path for container attachment"
+# Export this location so podman can find it
+export RBM_NETNS_PATH="$NAMESPACE_FILE"
+echo "RBM_NETNS_PATH=$RBM_NETNS_PATH" > $HOME/.netns_env
 
 echo "RBNS: Bottle namespace setup complete"
 
