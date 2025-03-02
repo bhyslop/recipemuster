@@ -23,41 +23,41 @@ else
   exit 1
 fi
 
-# Create a user-accessible namespace directory
+# Setup the user-accessible network namespace directory
 echo "RBNS1: Setting up user-accessible network namespace directory"
 USER_NETNS_DIR=/home/user/users-netns
-mkdir -p             $USER_NETNS_DIR
+mkdir -p $USER_NETNS_DIR
 mount -t tmpfs netns $USER_NETNS_DIR
 
-# Setup touch file to create namespace reference
-NAMESPACE_FILE="$USER_NETNS_DIR/${RBM_ENCLAVE_NAMESPACE}"
-echo "RBNS2: Creating network namespace in $NAMESPACE_FILE"
-ip netns add ${RBM_ENCLAVE_NAMESPACE}
+# Create our namespace reference file
+NAMESPACE_FILE=$USER_NETNS_DIR/${RBM_ENCLAVE_NAMESPACE}
+echo "RBNS2: Creating network namespace file at $NAMESPACE_FILE"
 
-echo "RBNS3: Creating and configuring veth pair"
+# We're already in a network namespace (from unshare -n)
+# So we just need to save a reference to the current namespace
+echo "RBNS3: Saving reference to current network namespace"
+touch $NAMESPACE_FILE
+mount --bind /proc/self/ns/net $NAMESPACE_FILE
+
+echo "RBNS4: Creating and configuring veth pair"
 ip link add ${RBM_ENCLAVE_BOTTLE_OUT} type veth peer name ${RBM_ENCLAVE_BOTTLE_IN}
 
-echo "RBNS4: Moving veth endpoint to namespace"
-ip link set ${RBM_ENCLAVE_BOTTLE_IN} netns ${RBM_ENCLAVE_NAMESPACE}
-
-echo "RBNS5: Configuring interface in namespace"
-ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set ${RBM_ENCLAVE_BOTTLE_IN} name eth0
-ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip addr add ${RBRN_ENCLAVE_BOTTLE_IP}/${RBRN_ENCLAVE_NETMASK} dev eth0
-ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set eth0 up
-ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip route add default via ${RBRN_ENCLAVE_SENTRY_IP} dev eth0
-ip netns exec ${RBM_ENCLAVE_NAMESPACE} ip link set lo up
+echo "RBNS5: Configuring interfaces"
+# We're already in the namespace, so no need to specify it
+ip link set ${RBM_ENCLAVE_BOTTLE_IN} name eth0
+ip addr add ${RBRN_ENCLAVE_BOTTLE_IP}/${RBRN_ENCLAVE_NETMASK} dev eth0
+ip link set eth0 up
+ip route add default via ${RBRN_ENCLAVE_SENTRY_IP} dev eth0
+ip link set lo up
 
 echo "RBNS6: Connecting namespace veth to bridge"
 ip link set ${RBM_ENCLAVE_BOTTLE_OUT} master ${RBM_ENCLAVE_BRIDGE}
 ip link set ${RBM_ENCLAVE_BOTTLE_OUT} up
 
-echo "RBNS7: Verifying namespace exists"
+echo "RBNS7: Verifying namespace file exists"
 ls -la $NAMESPACE_FILE || echo "WARNING: Namespace file not found!"
 
-echo "RBNS8: Export our namespace path for container attachment"
-# Export this location so podman can find it
-export RBM_NETNS_PATH="$NAMESPACE_FILE"
-echo "RBM_NETNS_PATH=$RBM_NETNS_PATH" > $HOME/.netns_env
+echo "RBNS8: Network namespace is ready at $NAMESPACE_FILE"
 
 echo "RBNS: Bottle namespace setup complete"
 
