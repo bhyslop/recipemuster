@@ -61,8 +61,13 @@ echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring port forwarding"
     
-    echo "RBSp2: Add logging for dropped packets in our port range"
+    echo "RBSp0: Enabling IP forwarding for entry port forwarding"
+    echo 1 > /proc/sys/net/ipv4/ip_forward || exit 15
+    
+    echo "RBSp2: Add logging for port traffic (with specific acceptance for entry port)"
     iptables -N RBM-PORT-LOG         || exit 25
+    iptables -A RBM-PORT-LOG -p tcp --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A RBM-PORT-LOG -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
     iptables -A RBM-PORT-LOG -j DROP || exit 25
 
     echo "RBSp2: Setting up DNAT for incoming traffic"
@@ -93,29 +98,35 @@ echo "RBSp2b: Blocking ICMP cross-boundary traffic"
 iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
 iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
 
-echo "RBSp2: Setting up port forwarding proxy service"
-if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
-    echo "RBSp2: Starting socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
-    nohup socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE} >/var/log/socat-proxy.log 2>&1 &
-    
-    echo "RBSp2: Give socat a moment to start"
-    sleep 1
-    
-    echo "RBSp2: Verify socat is running"
-    if pgrep -f "socat.*:${RBRN_ENTRY_PORT_WORKSTATION}" >/dev/null; then
-        echo "RBSp2: Socat proxy started successfully"
-    else
-        echo "RBSp2: ERROR - Socat proxy failed to start"
-        cat /var/log/socat-proxy.log
-        exit 26
-    fi
-fi
+# echo "RBSp2: Setting up port forwarding proxy service"
+# if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
+#     echo "RBSp2: Starting socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
+#     nohup socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE} >/var/log/socat-proxy.log 2>&1 &
+#     
+#     echo "RBSp2: Give socat a moment to start"
+#     sleep 1
+#     
+#     echo "RBSp2: Verify socat is running"
+#     if pgrep -f "socat.*:${RBRN_ENTRY_PORT_WORKSTATION}" >/dev/null; then
+#         echo "RBSp2: Socat proxy started successfully"
+#     else
+#         echo "RBSp2: ERROR - Socat proxy failed to start"
+#         cat /var/log/socat-proxy.log
+#         exit 26
+#     fi
+# fi
 
 
 echo "RBSp3: Phase 3: Access Setup"
 if [ "${RBRN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
     echo "RBSp3: Blocking all non-port traffic"
     iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
+
+    if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
+        echo "RBSp3: Adding exception for entry port forwarding"
+        iptables -I RBM-FORWARD 1 -i eth1 -o eth0 -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 30
+    fi
+
     iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
 else
     echo "RBSp3: Setting up network forwarding"
