@@ -30,10 +30,10 @@ rbt_test_bottle_service_rule:
 	@echo "@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml" > $(RBT_TEST_DIAGRAM_PATH)
 
 	$(MBC_SHOW_WHITE) "Watch network traffic during request attempt"
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n -i eth0 port $(RBRN_ENTRY_PORT_WORKSTATION) & sleep 1
+	$(MBT_PODMAN_EXEC_SENTRY) tcpdump -n -i eth0 port $(RBRN_ENTRY_PORT_WORKSTATION) & sleep 1
 	curl -v --connect-timeout 5 --max-time 10 $(RBT_PLANTUML_URL)/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40 || true
 	sleep 2
-	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump
+	$(MBT_PODMAN_EXEC_SENTRY) pkill tcpdump
 
 	$(MBC_SHOW_WHITE) "Test PlantUML text rendering endpoint"
 	echo "Testing server response contains expected elements..."

@@ -30,13 +30,13 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBT_TESTS_DIR               is $(RBT_TESTS_DIR)"
 
 	$(MBC_SHOW_WHITE) "Verify Jupyter process is running in bottle"
-	podman exec $(RBM_BOTTLE_CONTAINER) ps aux | grep jupyter
+	$(MBT_PODMAN_EXEC_BOTTLE) ps aux | grep jupyter
 
 	$(MBC_SHOW_WHITE) "Watch network traffic during curl attempt"
-	podman exec $(RBM_SENTRY_CONTAINER) tcpdump -n -i eth0 port $(RBRN_ENTRY_PORT_WORKSTATION) & sleep 1
+	$(MBT_PODMAN_EXEC_SENTRY) tcpdump -n -i eth0 port $(RBRN_ENTRY_PORT_WORKSTATION) & sleep 1
 	curl -v --connect-timeout 5 --max-time 10 $(RBT_JUPYTER_URL) || true
 	sleep 2
-	podman exec $(RBM_SENTRY_CONTAINER) pkill tcpdump
+	$(MBT_PODMAN_EXEC_SENTRY) pkill tcpdump
 
 	$(MBC_SHOW_WHITE) "Try curl with browser-like headers"
 	curl -v -H "User-Agent: Mozilla/5.0" -H "Accept: text/html,application/xhtml+xml" \

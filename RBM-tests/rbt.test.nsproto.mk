@@ -40,10 +40,6 @@ rbt_test_bottle_service_rule:                \
   # end-list
 	$(MBC_PASS) "No errors seen."
 
-MBT_POMAN_EXEC_SENTRY   = podman --connection $(RBM_MACHINE)                         exec    $(RBM_SENTRY_CONTAINER)
-MBT_POMAN_EXEC_BOTTLE   = podman --connection $(RBM_MACHINE) machine ssh sudo podman exec    $(RBM_BOTTLE_CONTAINER)
-MBT_POMAN_EXEC_BOTTLE_I = podman --connection $(RBM_MACHINE) machine ssh sudo podman exec -i $(RBM_BOTTLE_CONTAINER)
-
 # Information collection
 ztest_info_rule:
 	@echo "RBM_SENTRY_CONTAINER:   $(RBM_SENTRY_CONTAINER)"
@@ -60,9 +56,9 @@ ztest_info_rule:
 
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule
-	$(MBT_POMAN_EXEC_SENTRY) ps aux | grep dnsmasq
+	$(MBT_PODMAN_EXEC_SENTRY) ps aux | grep dnsmasq
 	$(MBT_POMAN_EXEC_BOTTLE) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
-	$(MBT_POMAN_EXEC_SENTRY) iptables -L RBM-INGRESS
+	$(MBT_PODMAN_EXEC_SENTRY) iptables -L RBM-INGRESS
 
 # DNS resolution tests
 ztest_bottle_dns_allow_anthropic_rule: ztest_basic_network_rule
@@ -73,11 +69,11 @@ ztest_bottle_dns_block_google_rule: ztest_basic_network_rule
 
 # TCP connection tests
 ztest_bottle_tcp443_allow_anthropic_rule: ztest_basic_network_rule
-	@ANTHROPIC_IP=$$($(MBT_POMAN_EXEC_SENTRY) dig +short anthropic.com | head -1) && \
+	@ANTHROPIC_IP=$$($(MBT_PODMAN_EXEC_SENTRY) dig +short anthropic.com | head -1) && \
 	  $(MBT_POMAN_EXEC_BOTTLE) nc -w 2 -zv $$ANTHROPIC_IP 443
 
 ztest_bottle_tcp443_block_google_rule: ztest_basic_network_rule
-	@GOOGLE_IP=$$($(MBT_POMAN_EXEC_SENTRY) dig +short google.com | head -1) && \
+	@GOOGLE_IP=$$($(MBT_PODMAN_EXEC_SENTRY) dig +short google.com | head -1) && \
 	  ! $(MBT_POMAN_EXEC_BOTTLE) nc -w 2 -zv $$GOOGLE_IP 443
 
 # DNS protocol tests
