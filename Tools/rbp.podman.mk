@@ -28,7 +28,6 @@ export RBM_ENCLAVE_SENTRY_IN  = vsi_$(RBM_MONIKER)
 export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
-export RBM_ENCLAVE_NS_DIR     = /var/lib/rbm-netns
 export RBM_MACHINE            = podman-machine-default
 export RBM_CONNECTION         = --connection $(RBM_MACHINE)
 
