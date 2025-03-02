@@ -40,12 +40,10 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
-zRBM_PODMAN_RAW_CMD   = podman machine ssh $(RBM_MACHINE)
-zRBM_PODMAN_SSH_CMD   = podman machine ssh $(RBM_MACHINE) $(zRBM_EXPORT_ENV) 
+zRBM_PODMAN_RAW_CMD   = podman $(RBM_CONNECTION) machine ssh
+zRBM_PODMAN_SSH_CMD   = podman $(RBM_CONNECTION) machine ssh $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
-# Validation rules
-rbp-v.%: zrbp_validate_regimes_rule
 zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
@@ -83,9 +81,6 @@ rbp_check_connection:
 	$(MBC_START) "Checking connection to $(RBM_MACHINE)"
 	podman $(RBM_CONNECTION) info > /dev/null || (echo "Unable to connect to machine" && exit 1)
 	$(MBC_PASS) "Connection successful."
-
-rbp-s.%: rbp_start_service_rule rbp_check_connection
-	$(MBC_STEP) "Completed delegate."
 
 rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"

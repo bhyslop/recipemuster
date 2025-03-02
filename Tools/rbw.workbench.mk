@@ -47,26 +47,19 @@ default:
 
 
 #######################################
-#  Startup/ shutdown
+#  Podman automation
 #
+# These rules are designed to allow the pattern match to parameterize
+# the operation via $(RBM_MONIKER).
 
-rbw-a.%: rbw_prestart_rule rbp_podman_machine_start_rule rbg_container_registry_login_rule rbp_check_connection
+rbw-a.%: zrbw_prestart_rule rbp_podman_machine_start_rule rbg_container_registry_login_rule rbp_check_connection
 	$(MBC_PASS) "Podman started and logged into container registry."
 
-rbw-z.%: rbw_prestop_rule rbp_podman_machine_stop_rule
+rbw-z.%: zrbw_prestop_rule rbp_podman_machine_stop_rule
 	$(MBC_PASS) "Podman stopped."
 
-rbw-Z.%: rbw_prenuke_rule rbp_podman_machine_nuke_rule
+rbw-Z.%: zrbw_prenuke_rule rbp_podman_machine_nuke_rule
 	$(MBC_PASS) "Nuke completed."
-
-rbw_prestart_rule:
-	$(MBC_START) "Starting podman and logging in to container registry..."
-
-rbw_prestop_rule:
-	$(MBC_START) "Stopping podman..."
-
-rbw_prenuke_rule:
-	$(MBC_START) "Stopping podman..."
 
 rbw-S.%: rbp_connect_sentry_rule
 	$(MBC_PASS) "No errors."
@@ -76,6 +69,21 @@ rbw-B.%: rbp_connect_bottle_rule
 
 rbw-o.%: rbp_observe_networks_rule
 	$(MBC_PASS) "No errors."
+
+rbw-s.%: rbp_check_connection rbp_start_service_rule
+	$(MBC_STEP) "Completed delegate."
+
+rbw-v.%: zrbp_validate_regimes_rule
+	$(MBC_PASS) "No errors."
+
+zrbw_prestart_rule:
+	$(MBC_START) "Starting podman and logging in to container registry..."
+
+zrbw_prestop_rule:
+	$(MBC_START) "Stopping podman..."
+
+zrbw_prenuke_rule:
+	$(MBC_START) "Nuking podman..."
 
 
 #######################################
