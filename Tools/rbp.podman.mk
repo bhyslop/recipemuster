@@ -114,8 +114,8 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
-	$(MBC_STEP) "Executing BOTTLE namespace setup script"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
+	$(MBC_STEP) "Executing BOTTLE namespace setup in userspace"
+	$(zRBM_PODMAN_SSH_CMD) unshare -r -n $(MBV_TOOLS_DIR)/rbnb.bottle.sh
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
@@ -123,11 +123,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "SUPERSTITION WAIT for BOTTLE steps settling..."
 	sleep 2
 
-	$(MBC_STEP) "Creating BOTTLE container with namespace networking (SKIPPING RBRN_VOLUME_MOUNTS FOR DEBUG)"
+	$(MBC_STEP) "Creating BOTTLE container with network namespace"
 	$(zRBM_PODMAN_RAW_CMD) run -d                                  \
 	  --name $(RBM_BOTTLE_CONTAINER)                               \
-	  --privileged                                                 \
-	  --network container:$(RBM_SENTRY_CONTAINER)                  \
+	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE)         \
 	  --dns=$(RBRN_ENCLAVE_SENTRY_IP)                              \
 	  --cap-add net_raw                                            \
 	  --security-opt label=disable                                 \
