@@ -53,7 +53,7 @@ rbp_podman_machine_start_rule:
 	podman --version
 	$(MBC_START) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
-	  PODMAN_MACHINE_CGROUP=systemd podman machine init --rootful $(RBM_MACHINE)
+	  PODMAN_MACHINE_CGROUP=systemd podman machine init $(RBM_MACHINE)
 	$(MBC_START) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
 	$(MBC_START) "Update utilities..."
