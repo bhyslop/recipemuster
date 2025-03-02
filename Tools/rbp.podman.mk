@@ -71,9 +71,10 @@ rbp_podman_machine_stop_rule:
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_nuke_rule:
-	$(MBC_START) "Initialize Podman machine if it doesn't exist"
-	-podman machine stop $(RBM_MACHINE)
-	podman  machine rm   $(RBM_MACHINE)
+	$(MBC_START) "Try stopping before removal"
+	-podman machine stop  $(RBM_MACHINE)
+	$(MBC_START) "Now remove"
+	podman  machine rm -f $(RBM_MACHINE)
 	$(MBC_PASS) "No errors."
 
 rbp_check_connection:
