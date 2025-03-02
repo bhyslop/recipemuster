@@ -46,7 +46,7 @@ zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
 # Validation rules
 rbp-v.%: zrbp_validate_regimes_rule
-zrbp_validate_regimes_rule: rbn_validate rbrr_validate rbrr_validate
+zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	$(MBC_START) "Validating regimes"
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)

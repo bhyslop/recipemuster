@@ -44,9 +44,9 @@ RBRN__ROLLUP_ENVIRONMENT_VAR = \
   RBRN_VOLUME_MOUNTS='$(RBRN_VOLUME_MOUNTS)' \
 
 # Core validation target that other parts of the system expect
-rbn_validate:
+rbrn_validate:
 	$(MBC_START) "Validating RBN nameplate configuration with RBM_MONIKER as" $(RBM_MONIKER)
-	$(RBRN__ROLLUP_ENVIRONMENT_VAR) $(MBV_TOOLS_DIR)/rbn.validator.sh
+	$(RBRN__ROLLUP_ENVIRONMENT_VAR) $(MBV_TOOLS_DIR)/rbrn.validator.sh
 	$(MBC_PASS) "No validation errors."
 
 
