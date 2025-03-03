@@ -124,7 +124,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking (SKIPPING RBRN_VOLUME_MOUNTS FOR DEBUG)"
-	$(zRBM_PODMAN_RAW_CMD) sudo podman run -d                      \
+	$(zRBM_PODMAN_RAW_CMD) podman run -d                           \
 	  --name $(RBM_BOTTLE_CONTAINER)                               \
 	  --privileged                                                 \
 	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE)         \
@@ -135,7 +135,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
-	$(zRBM_PODMAN_RAW_CMD) "sudo podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
+	$(zRBM_PODMAN_RAW_CMD) "podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
 
