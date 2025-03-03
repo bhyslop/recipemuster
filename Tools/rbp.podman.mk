@@ -39,7 +39,7 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "$(foreach v,$(zRBM_ROLLUP_ENV),export $v=\"$($v)\";) "    \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
-zRBM_PODMAN_RAW_CMD   = podman $(RBM_CONNECTION)
+zRBM_PODMAN_RAW_CMD   = podman $(RBM_CONNECTION) machine ssh
 zRBM_PODMAN_SSH_CMD   = podman $(RBM_CONNECTION) machine ssh $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
@@ -88,8 +88,8 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Stopping any prior containers"
 	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_SENTRY_CONTAINER)
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_SENTRY_CONTAINER)
-	-$(zRBM_PODMAN_RAW_CMD) stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-$(zRBM_PODMAN_RAW_CMD) rm   -f    $(RBM_BOTTLE_CONTAINER)
+	-$(zRBM_PODMAN_RAW_CMD) sudo podman stop -t 2  $(RBM_BOTTLE_CONTAINER)
+	-$(zRBM_PODMAN_RAW_CMD) sudo podman rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
@@ -124,7 +124,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 
 	$(MBC_STEP) "Creating BOTTLE container with namespace networking (SKIPPING RBRN_VOLUME_MOUNTS FOR DEBUG)"
-	$(zRBM_PODMAN_RAW_CMD) run -d                                  \
+	$(zRBM_PODMAN_RAW_CMD) sudo podman run -d                      \
 	  --name $(RBM_BOTTLE_CONTAINER)                               \
 	  --privileged                                                 \
 	  --network ns:/var/run/netns/$(RBM_ENCLAVE_NAMESPACE)         \
@@ -135,10 +135,9 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
-	$(zRBM_PODMAN_RAW_CMD) "ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
+	$(zRBM_PODMAN_RAW_CMD) "sudo podman ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
 
 	$(MBC_STEP) "Bottle service should be available now."
-
 
 
 rbp_connect_sentry_rule:
