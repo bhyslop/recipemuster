@@ -35,5 +35,9 @@ echo "RBNS5: Connecting namespace veth to bridge"
 sudo ip link set ${RBM_ENCLAVE_BOTTLE_OUT} master ${RBM_ENCLAVE_BRIDGE} || exit 70
 sudo ip link set ${RBM_ENCLAVE_BOTTLE_OUT} up                           || exit 71
 
+echo "RBNS6: Setting DNS configuration in container namespace"
+sudo nsenter -t $BOTTLE_PID -n mkdir -p /etc/netns || true
+sudo nsenter -t $BOTTLE_PID -n bash -c "echo 'nameserver ${RBRN_ENCLAVE_SENTRY_IP}' > /etc/resolv.conf" || echo "WARNING: Failed to set DNS configuration"
+
 echo "RBNS: Bottle namespace setup complete"
 
