@@ -16,25 +16,27 @@ else
   exit 1
 fi
 
-# Setup the user-accessible network namespace directory
-echo "RBNS1: Setting up user-accessible network namespace directory"
-USER_NETNS_DIR=/home/user/users-netns
-mkdir -p $USER_NETNS_DIR
-mount -t tmpfs netns $USER_NETNS_DIR
+# Create a tempfile that we'll use to pass the network namespace FD to the next stage
+TEMP_DIR=/tmp/netns-setup
+mkdir -p $TEMP_DIR
+echo "RBNS1: Creating network namespace reference"
 
-# Create our namespace reference file
-NAMESPACE_FILE=$USER_NETNS_DIR/${RBM_ENCLAVE_NAMESPACE}
-echo "RBNS2: Creating network namespace file at $NAMESPACE_FILE"
+# Create a file with our current PID and NS info
+echo $$ > $TEMP_DIR/${RBM_ENCLAVE_NAMESPACE}.pid
+readlink /proc/self/ns/net > $TEMP_DIR/${RBM_ENCLAVE_NAMESPACE}.ns
 
-# We're already in a network namespace (from unshare -n)
-# So we just need to save a reference to the current namespace
-echo "RBNS3: Saving reference to current network namespace"
-touch $NAMESPACE_FILE
-mount --bind /proc/self/ns/net $NAMESPACE_FILE
+echo "RBNS2: Network namespace created with PID $$ and NS $(readlink /proc/self/ns/net)"
+echo "RBNS3: Tempfiles created at $TEMP_DIR/${RBM_ENCLAVE_NAMESPACE}.pid and $TEMP_DIR/${RBM_ENCLAVE_NAMESPACE}.ns"
 
-echo "RBNS4: Verifying namespace file exists"
-ls -la $NAMESPACE_FILE || echo "WARNING: Namespace file not found!"
+# Now we keep this process running to maintain the namespace
+echo "RBNS4: This process will keep running in background to maintain the namespace..."
 
-echo "RBNS5: Network namespace creation complete"
-echo "RBNS5: Namespace location: $NAMESPACE_FILE"
+# Launch background process to hold namespace open
+(sleep 3600 &) # Keep running for an hour
+
+# Sleep briefly so the background process can establish
+sleep 5
+
+echo "RBNS5: Namespace setup complete, background process running with PID $$"
+
 
