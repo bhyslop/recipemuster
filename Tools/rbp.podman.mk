@@ -48,17 +48,41 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	@test -n "$(RBM_MONIKER)"        || (echo "Error: RBM_MONIKER must be set"                    && exit 1)
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
+rbp_podman_machine_acquire_start_rule:
+	$(MBC_START) "Baseline the podman machine image"
+	$(MBC_SHOW_YELLOW) "THIS WILL RESET YOUR PODMAN MACHINE, HIT CONTROL C FAST IF YOU DONT WANT THIS"
+	sleep 5
+	$(MBC_STEP) "HERE WE GO..."
+	-podman machine stop  $(RBM_MACHINE)
+	-podman machine rm -f $(RBM_MACHINE)
+	$(MBC_STEP) "Acquire the default podman machine (latest, uncontrolled)..."
+	podman machine init $(RBM_MACHINE)
+	podman $(RBM_CONNECTION) machine start
+	$(MBC_STEP) "Install skopeo for bridging your container registry..."
+	podman $(RBM_CONNECTION) machine ssh sudo dnf install -y skopeo
+	$(MBC_STEP) "Log into your container registry with skopeo..."
+	source $(RBRR_GITHUB_PAT_ENV) && podman $(RBM_CONNECTION) exec \
+	  skopeo login --username $$RBV_USERNAME \
+	               --password $$RBV_PAT \
+	               $(zRBG_GIT_REGISTRY)
+
+rbp_podman_machine_acquire_complete_rule:
+	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
+	$(MBC_STEP) "Gather information about your chosen vm..."
+	podman $(RBM_CONNECTION) exec skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw
+	$(MBC_PASS) "No errors."
+
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Capture some podman info"
 	podman --version
-	$(MBC_START) "Initialize Podman machine if it doesn't exist"
+	$(MBC_STEP) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
 	  PODMAN_MACHINE_CGROUP=systemd podman machine init $(RBM_MACHINE)
-	$(MBC_START) "Start up Podman machine $(RBM_MACHINE)"
+	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
-	$(MBC_START) "Update utilities..."
+	$(MBC_STEP) "Update utilities..."
 	podman $(RBM_CONNECTION) machine ssh sudo dnf install -y tcpdump
-	$(MBC_START) "Version info on machine..."
+	$(MBC_STEP) "Version info on machine..."
 	podman $(RBM_CONNECTION) version
 	podman machine inspect $(RBM_MACHINE)
 	podman $(RBM_CONNECTION) machine ssh "cat /etc/os-release && uname -r"
@@ -73,7 +97,7 @@ rbp_podman_machine_stop_rule:
 rbp_podman_machine_nuke_rule:
 	$(MBC_START) "Try stopping before removal"
 	-podman machine stop  $(RBM_MACHINE)
-	$(MBC_START) "Now remove"
+	$(MBC_STEP) "Now remove"
 	podman  machine rm -f $(RBM_MACHINE)
 	$(MBC_PASS) "No errors."
 

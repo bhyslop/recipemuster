@@ -30,8 +30,10 @@ RBRR__ROLLUP_ENVIRONMENT_VAR = \
   RBRR_NAMEPLATE_PATH='$(RBRR_NAMEPLATE_PATH)' \
   RBRR_DNS_SERVER='$(RBRR_DNS_SERVER)' \
   RBRR_MACHINE_NAME='$(RBRR_MACHINE_NAME)' \
-  RBRR_MACHINE_IMAGE='$(RBRR_MACHINE_IMAGE)' \
   RBRR_GITHUB_PAT_ENV='$(RBRR_GITHUB_PAT_ENV)' \
+  RBRR_VMDIST_TAG='$(RBRR_VMDIST_TAG)' \
+  RBRR_VMDIST_ARCH='$(RBRR_VMDIST_ARCH)' \
+  RBRR_VMDIST_BLOB_SHA='$(RBRR_VMDIST_BLOB_SHA)' \
 
 # Core validation target that other parts of the system expect
 rbrr_validate:
@@ -39,7 +41,8 @@ rbrr_validate:
 	$(RBRR__ROLLUP_ENVIRONMENT_VAR) $(MBV_TOOLS_DIR)/rbrr.validator.sh
 	$(MBC_PASS) "No validation errors."
 
-# GitHub Actions environment export function - explicit version.  Note some vars unneeded in gh runner
+# GitHub Actions environment export function - explicit version.  Note some vars are
+#   unneeded in gh runner but it shares validation function for now.
 rbrr_export_github_env:
 	@echo 'echo "RBRR_REGISTRY_OWNER=$(RBRR_REGISTRY_OWNER)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_REGISTRY_NAME=$(RBRR_REGISTRY_NAME)"             >> $$GITHUB_ENV'
@@ -48,8 +51,10 @@ rbrr_export_github_env:
 	@echo 'echo "RBRR_NAMEPLATE_PATH=$(RBRR_NAMEPLATE_PATH)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_DNS_SERVER=$(RBRR_DNS_SERVER)"                   >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_MACHINE_NAME=$(RBRR_MACHINE_NAME)"               >> $$GITHUB_ENV'
-	@echo 'echo "RBRR_MACHINE_IMAGE=$(RBRR_MACHINE_IMAGE)"             >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_GITHUB_PAT_ENV=$(RBRR_GITHUB_PAT_ENV)"           >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_VMDIST_TAG=$(RBRR_VMDIST_TAG)"                   >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_VMDIST_ARCH=$(RBRR_VMDIST_ARCH)"                 >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_VMDIST_BLOB_SHA=$(RBRR_VMDIST_BLOB_SHA)"         >> $$GITHUB_ENV'
 
 
 # eof
