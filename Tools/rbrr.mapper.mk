@@ -32,7 +32,8 @@ RBRR__ROLLUP_ENVIRONMENT_VAR = \
   RBRR_MACHINE_NAME='$(RBRR_MACHINE_NAME)' \
   RBRR_GITHUB_PAT_ENV='$(RBRR_GITHUB_PAT_ENV)' \
   RBRR_VMDIST_TAG='$(RBRR_VMDIST_TAG)' \
-  RBRR_VMDIST_ARCH='$(RBRR_VMDIST_ARCH)' \
+  RBRR_VMDIST_RAW_ARCH='$(RBRR_VMDIST_RAW_ARCH)' \
+  RBRR_VMDIST_SKOPEO_ARCH='$(RBRR_VMDIST_SKOPEO_ARCH)' \
   RBRR_VMDIST_BLOB_SHA='$(RBRR_VMDIST_BLOB_SHA)' \
 
 # Core validation target that other parts of the system expect
@@ -53,7 +54,8 @@ rbrr_export_github_env:
 	@echo 'echo "RBRR_MACHINE_NAME=$(RBRR_MACHINE_NAME)"               >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_GITHUB_PAT_ENV=$(RBRR_GITHUB_PAT_ENV)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_VMDIST_TAG=$(RBRR_VMDIST_TAG)"                   >> $$GITHUB_ENV'
-	@echo 'echo "RBRR_VMDIST_ARCH=$(RBRR_VMDIST_ARCH)"                 >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_VMDIST_RAW_ARCH=$(RBRR_VMDIST_RAW_ARCH)"         >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_VMDIST_SKOPEO_ARCH=$(RBRR_VMDIST_SKOPEO_ARCH)"   >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_VMDIST_BLOB_SHA=$(RBRR_VMDIST_BLOB_SHA)"         >> $$GITHUB_ENV'
 
 

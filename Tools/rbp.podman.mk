@@ -52,7 +52,7 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 zRBM_UNCONTROLLED_MACHINE    = uncontrolled_skopeo_wrangler
 zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
 
-RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
+RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
 
 rbp_podman_machine_acquire_start_rule:
 	$(MBC_START) "Baseline the podman machine image"
@@ -77,23 +77,24 @@ rbp_podman_machine_acquire_start_rule:
 
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
-	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_ARCH)"
+	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_RAW_ARCH)"
 
 	$(MBC_STEP) "Gather information about your chosen vm..."
 	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw > /tmp/vm_manifest.json"
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | jq ."
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json"
 
-	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_ARCH) exists in manifest..."
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_ARCH)\"'" && \
-	  echo "Architecture $(RBRR_VMDIST_ARCH) confirmed in manifest"
+	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_RAW_ARCH) exists in manifest..."
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"'" && \
+	  echo "Architecture $(RBRR_VMDIST_RAW_ARCH) confirmed in manifest"
 
 	$(MBC_STEP) "Creating controlled VM image reference..."
 	@echo "Full controlled image name: $(RBP_CONTROLLED_IMAGE_NAME)"
-	@echo "Registry:             $(zRBG_GIT_REGISTRY)"
-	@echo "Owner:                $(RBRR_REGISTRY_OWNER)"
-	@echo "Repository:           $(RBRR_REGISTRY_NAME)"
-	@echo "Selected VM Arch:     $(RBRR_VMDIST_ARCH)"
-	@echo "Selected VM Blob SHA: $(RBRR_VMDIST_BLOB_SHA)"
+	@echo "Registry:                $(zRBG_GIT_REGISTRY)"
+	@echo "Owner:                   $(RBRR_REGISTRY_OWNER)"
+	@echo "Repository:              $(RBRR_REGISTRY_NAME)"
+	@echo "Selected Raw VM Arch:    $(RBRR_VMDIST_RAW_ARCH)"
+	@echo "Selected Skopeo VM Arch: $(RBRR_VMDIST_SKOPEO_ARCH)"
+	@echo "Selected VM Blob SHA:    $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."
 	-$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
@@ -114,12 +115,12 @@ rbp_podman_machine_acquire_complete_rule:
 
 	@echo "Comparing digests..."
 	$(zRBM_UNCONTROLLED_SSH) "cmp -s /tmp/source_digest /tmp/controlled_digest" && \
-		echo "? Digests match - image integrity verified" || \
-		(echo "? WARNING: Digests do not match!" && \
-		 echo "This may indicate the controlled image is not properly synchronized" && \
-		 echo "Source: $$(cat /tmp/source_digest)" && \
-		 echo "Controlled: $$(cat /tmp/controlled_digest)" && \
-		 echo "Proceeding anyway, but verification has failed" && false)
+	  echo "? Digests match - image integrity verified" || \
+	  (echo "? WARNING: Digests do not match!" && \
+	   echo "This may indicate the controlled image is not properly synchronized" && \
+	   echo "Source: $$(cat /tmp/source_digest)" && \
+	   echo "Controlled: $$(cat /tmp/controlled_digest)" && \
+	   echo "Proceeding anyway, but verification has failed" && false)
 
 	$(MBC_STEP) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
 	@echo "To create a controlled machine, use:"
