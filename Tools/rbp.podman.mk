@@ -50,7 +50,6 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 
 
 zRBM_UNCONTROLLED_MACHINE    = uncontrolled_skopeo_wrangler
-zRBM_UNCONTROLLED_CONNECTION = --connection $(zRBM_UNCONTROLLED_MACHINE)
 
 rbp_podman_machine_acquire_start_rule:
 	$(MBC_START) "Baseline the podman machine image"
@@ -64,11 +63,11 @@ rbp_podman_machine_acquire_start_rule:
 	podman machine init   $(zRBM_UNCONTROLLED_MACHINE)
 	podman machine start  $(zRBM_UNCONTROLLED_MACHINE)
 	$(MBC_STEP) "Install skopeo for bridging your container registry..."
-	podman $(zRBM_UNCONTROLLED_CONNECTION) machine ssh \
+	podman machine ssh $(zRBM_UNCONTROLLED_MACHINE) \
 	  sudo dnf install -y skopeo --setopt=subscription-manager.disable=1
 	$(MBC_STEP) "Log into your container registry with skopeo..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
-	  podman $(zRBM_UNCONTROLLED_CONNECTION) machine ssh \
+	podman machine ssh $(zRBM_UNCONTROLLED_MACHINE) \
 	    skopeo login --username $$RBV_USERNAME \
 	                 --password $$RBV_PAT \
 	                 $(zRBG_GIT_REGISTRY)
