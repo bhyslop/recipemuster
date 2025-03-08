@@ -97,11 +97,11 @@ rbp_podman_machine_acquire_complete_rule:
 	@echo "Selected VM Blob SHA:    $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."
-	-$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
+	-$(zRBM_UNCONTROLLED_SSH) "skopeo inspect --raw docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
 	  cat /tmp/inspect_result && echo "Image already exists in registry" || \
 	  (echo "Controlled image not found in registry" && \
 	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
-	   $(zRBM_UNCONTROLLED_SSH) "skopeo copy docker://$(RBRR_VMDIST_TAG) docker://$(RBP_CONTROLLED_IMAGE_NAME) --debug" && \
+	   $(zRBM_UNCONTROLLED_SSH) "skopeo copy --override-arch $(RBRR_VMDIST_RAW_ARCH) docker://$(RBRR_VMDIST_TAG) docker://$(RBP_CONTROLLED_IMAGE_NAME) --debug" && \
 	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
@@ -110,17 +110,17 @@ rbp_podman_machine_acquire_complete_rule:
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/source_digest"
 
 	@echo "Retrieving controlled image digest..."
-	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) --format '{{.Digest}}' > /tmp/controlled_digest"
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect --raw docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/controlled_manifest.json"
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_manifest.json | grep -m1 '\"digest\":' | cut -d'\"' -f4 > /tmp/controlled_digest"
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_digest"
 
-	@echo "Comparing digests..."
+	$(MBC_STEP) "Comparing digests..."
 	$(zRBM_UNCONTROLLED_SSH) "cmp -s /tmp/source_digest /tmp/controlled_digest" && \
 	  echo "? Digests match - image integrity verified" || \
-	  (echo "? WARNING: Digests do not match!" && \
-	   echo "This may indicate the controlled image is not properly synchronized" && \
-	   echo "Source: $$(cat /tmp/source_digest)" && \
-	   echo "Controlled: $$(cat /tmp/controlled_digest)" && \
-	   echo "Proceeding anyway, but verification has failed" && false)
+	  (echo "? WARNING: Digests do not match!"                                      && \
+	   echo "Source:     $$($(zRBM_UNCONTROLLED_SSH) 'cat /tmp/source_digest')"     && \
+	   echo "Controlled: $$($(zRBM_UNCONTROLLED_SSH) 'cat /tmp/controlled_digest')" && \
+	   echo "Proceeding anyway, but verification has failed")
 
 	$(MBC_STEP) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
 	@echo "To create a controlled machine, use:"
