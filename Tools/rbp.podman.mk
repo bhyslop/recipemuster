@@ -106,7 +106,7 @@ rbp_podman_machine_acquire_complete_rule:
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
 	@echo "Retrieving source image digest..."
-	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG) --format '{{.Digest}}' > /tmp/source_digest"
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect --override-arch $(RBRR_VMDIST_RAW_ARCH) --override-os linux docker://$(RBRR_VMDIST_TAG) --format '{{.Digest}}' > /tmp/source_digest"
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/source_digest"
 
 	@echo "Retrieving controlled image digest..."
