@@ -86,12 +86,18 @@ rbp_podman_machine_acquire_complete_rule:
 	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_RAW_ARCH)"
 
 	$(MBC_STEP) "Gather information about your chosen vm..."
-	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw > /tmp/vm_manifest.json"
+	$(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBRR_VMDIST_TAG) --verbose > /tmp/vm_manifest.json"
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json"
+	$(MBC_STEP) "Debug: Verifying oras installed correctly and showing version info..."
+	$(zRBM_UNCONTROLLED_SSH) "oras version"
 
 	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_RAW_ARCH) exists in manifest..."
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"'" && \
-	  echo "Architecture $(RBRR_VMDIST_RAW_ARCH) confirmed in manifest"
+	  echo "Architecture $(RBRR_VMDIST_RAW_ARCH) confirmed in manifest" || \
+	  (echo "ERROR: Architecture $(RBRR_VMDIST_RAW_ARCH) not found in manifest!" && \
+	   echo "Debug: Available architectures:" && \
+	   $(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep 'architecture' -A1" && \
+	   exit 1)
 
 	$(MBC_STEP) "Creating controlled VM image reference..."
 	@echo "Full controlled image name: $(RBP_CONTROLLED_IMAGE_NAME)"
@@ -99,33 +105,50 @@ rbp_podman_machine_acquire_complete_rule:
 	@echo "Owner:                   $(RBRR_REGISTRY_OWNER)"
 	@echo "Repository:              $(RBRR_REGISTRY_NAME)"
 	@echo "Selected Raw VM Arch:    $(RBRR_VMDIST_RAW_ARCH)"
-	@echo "Selected Skopeo VM Arch: $(RBRR_VMDIST_SKOPEO_ARCH)"
+	@echo "Selected Oras VM Arch:   $(RBRR_VMDIST_SKOPEO_ARCH)"
 	@echo "Selected VM Blob SHA:    $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."
-	-$(zRBM_UNCONTROLLED_SSH) "skopeo inspect --raw docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
-	  cat /tmp/inspect_result && echo "Image already exists in registry" || \
-	  (echo "Controlled image not found in registry" && \
+	$(MBC_STEP) "Debug: Testing oras repository command..."
+	-$(zRBM_UNCONTROLLED_SSH) "oras repository tags $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME) | grep controlled" || \
+	  echo "No controlled images found, will need to create one"
+	
+	-$(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBP_CONTROLLED_IMAGE_NAME) --verbose > /tmp/inspect_result 2>&1" && \
+	  (cat /tmp/inspect_result && echo "Image already exists in registry") || \
+	  (echo "Debug: Inspect result shows controlled image not found" && \
+	   cat /tmp/inspect_result && \
+	   echo "Controlled image not found in registry" && \
 	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
-	   $(zRBM_UNCONTROLLED_SSH) "skopeo copy --all --format v2s2 --override-arch $(RBRR_VMDIST_RAW_ARCH) docker://$(RBRR_VMDIST_TAG) docker://$(RBP_CONTROLLED_IMAGE_NAME) --debug" && \
+	   $(MBC_STEP) "Debug: Showing manifest before copy attempt..." && \
+	   $(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBRR_VMDIST_TAG) --verbose" && \
+	   $(zRBM_UNCONTROLLED_SSH) "oras copy --from-registry $(RBRR_VMDIST_TAG) --to-registry $(RBP_CONTROLLED_IMAGE_NAME) --verbose --platform $(RBRR_VMDIST_RAW_ARCH)" && \
 	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
 	@echo "Retrieving source image digest..."
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep -A10 '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"' | grep -m1 '\"digest\":' | cut -d'\"' -f4 > /tmp/source_digest"
+	$(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBRR_VMDIST_TAG) --verbose | grep -A10 '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"' | grep -m1 '\"digest\":' | cut -d'\"' -f4 > /tmp/source_digest"
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/source_digest"
+	$(MBC_STEP) "Debug: Full source manifest digest section..."
+	$(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBRR_VMDIST_TAG) --verbose | grep -A10 '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"'"
 
 	@echo "Retrieving controlled image digest..."
-	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect --raw docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/controlled_manifest.json"
+	$(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBP_CONTROLLED_IMAGE_NAME) --verbose > /tmp/controlled_manifest.json"
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_manifest.json | grep -m1 '\"digest\":' | cut -d'\"' -f4 > /tmp/controlled_digest"
 	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_digest"
+	$(MBC_STEP) "Debug: Full controlled manifest..."
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_manifest.json"
 
 	$(MBC_STEP) "Comparing digests..."
 	$(zRBM_UNCONTROLLED_SSH) "cmp -s /tmp/source_digest /tmp/controlled_digest" && \
 	  echo "? Digests match - image integrity verified" || \
-	  (echo "? WARNING: Digests do not match!"                                      && \
+	  (echo "?? WARNING: Digests do not match!"                                      && \
 	   echo "Source:     $$($(zRBM_UNCONTROLLED_SSH) 'cat /tmp/source_digest')"     && \
 	   echo "Controlled: $$($(zRBM_UNCONTROLLED_SSH) 'cat /tmp/controlled_digest')" && \
+	   echo "Debug: Side-by-side comparison of manifests:" && \
+	   echo "=== SOURCE MANIFEST EXCERPT ===" && \
+	   $(zRBM_UNCONTROLLED_SSH) "oras manifest fetch $(RBRR_VMDIST_TAG) --verbose | head -30" && \
+	   echo "=== CONTROLLED MANIFEST EXCERPT ===" && \
+	   $(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_manifest.json | head -30" && \
 	   echo "Proceeding anyway, but verification has failed")
 
 	$(MBC_PASS) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
