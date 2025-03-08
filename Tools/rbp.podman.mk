@@ -122,19 +122,14 @@ rbp_podman_machine_acquire_complete_rule:
 	   echo "Controlled: $$($(zRBM_UNCONTROLLED_SSH) 'cat /tmp/controlled_digest')" && \
 	   echo "Proceeding anyway, but verification has failed")
 
-	$(MBC_STEP) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
-	@echo "To create a controlled machine, use:"
-	@echo "  podman machine init --image-path=$(RBP_CONTROLLED_IMAGE_NAME) $(RBM_MACHINE)"
-	@echo "  podman machine start $(RBM_MACHINE)"
-
-	$(MBC_PASS) "Controlled VM image verification completed."
+	$(MBC_PASS) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
 
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Capture some podman info"
 	podman --version
 	$(MBC_STEP) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
-	  PODMAN_MACHINE_CGROUP=systemd podman machine init $(RBM_MACHINE)
+	  PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_CONTROLLED_IMAGE_NAME) $(RBM_MACHINE)
 	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
 	$(MBC_STEP) "Update utilities..."
