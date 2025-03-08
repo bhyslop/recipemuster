@@ -69,8 +69,11 @@ rbp_podman_machine_acquire_start_rule:
 	$(zRBM_UNCONTROLLED_SSH) sudo dnf install -y skopeo --setopt=subscription-manager.disable=1
 	$(MBC_STEP) "Log into your container registry with skopeo..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
-	$(zRBM_UNCONTROLLED_SSH)  skopeo login --username $$RBV_USERNAME \
-	                                       --password $$RBV_PAT $(zRBG_GIT_REGISTRY)
+	  $(zRBM_UNCONTROLLED_SSH)  skopeo login --username $$RBV_USERNAME \
+	                                         --password $$RBV_PAT $(zRBG_GIT_REGISTRY)
+	$(MBC_START) "Log in to your container registry with podman..."
+	source $(RBRR_GITHUB_PAT_ENV)  && \
+	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
