@@ -231,5 +231,4 @@ rbp_observe_networks_rule: zrbp_validate_regimes_rule
 	(eval $(zRBM_EXPORT_ENV) && /bin/sh < $(MBV_TOOLS_DIR)/rbo.observe.sh)
 
 
-
 # eof
