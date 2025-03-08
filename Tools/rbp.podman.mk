@@ -78,7 +78,7 @@ rbp_podman_machine_acquire_start_rule:
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
 	$(MBC_STEP) "Gather information about your chosen vm..."
-	$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw > /tmp/vm_manifest.json
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw > /tmp/vm_manifest.json"
 
 	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_ARCH) exists in manifest..."
 	$(zRBM_UNCONTROLLED_SSH) cat /tmp/vm_manifest.json | grep -q '"architecture":"$(RBRR_VMDIST_ARCH)"'
@@ -93,8 +93,8 @@ rbp_podman_machine_acquire_complete_rule:
 		                                      docker://$(RBP_CONTROLLED_IMAGE_NAME))
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
-	$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(RBRR_VMDIST_TAG)       --format '{{.Digest}}' > /tmp/source_digest
-	$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(CONTROLLED_IMAGE_NAME) --format '{{.Digest}}' > /tmp/controlled_digest
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG)       --format '{{.Digest}}' > /tmp/source_digest"
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(CONTROLLED_IMAGE_NAME) --format '{{.Digest}}' > /tmp/controlled_digest"
 	$(zRBM_UNCONTROLLED_SSH) cmp /tmp/source_digest /tmp/controlled_digest
 	$(MBC_PASS) "Controlled machine $(RBM_MACHINE) is now ready for use."
 
