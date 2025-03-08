@@ -1,0 +1,33 @@
+# Dockerfile to preserve quay.io/podman/machine-os-wsl:5.4
+# 
+# Source URLs:
+# - Repository: https://quay.io/repository/podman/machine-os-wsl
+# - Tags page: https://quay.io/repository/podman/machine-os-wsl?tab=tags
+# - History page: https://quay.io/repository/podman/machine-os-wsl?tab=history
+#
+# Current SHA256: 598c02457f24 (as of Sat, Mar 8, 2025 7:12 AM)
+#
+# Tag History (newest to oldest):
+# - 598c02457f24 (Sat, Mar 8, 2025 7:12 AM)
+# - 64e402ce783c (Sat, Mar 8, 2025 4:12 AM)
+# - 75203953c560 (Sat, Mar 8, 2025 1:12 AM)
+# - f04920df4eb1 (Fri, Mar 7, 2025 10:11 PM)
+# - a780dc9da95f (Fri, Mar 7, 2025 7:12 PM)
+# - df408cf2e215 (Fri, Mar 7, 2025 4:14 PM)
+# - ad4b4705c8ab (Fri, Mar 7, 2025 1:12 PM)
+# - 3bc8abd313c6 (Fri, Mar 7, 2025 10:11 AM)
+# - 67723256e3d3 (Fri, Mar 7, 2025 7:16 AM)
+# - 573101f65d41 (Fri, Mar 7, 2025 4:12 AM)
+# - ea27d505d799 (Fri, Mar 7, 2025 1:17 AM)
+# - 757096d7a2d5 (Thu, Mar 6, 2025 10:13 PM)
+# - 0a9193f22ada (Thu, Mar 6, 2025 7:13 PM)
+# - 3aaeddfe0fb6 (Thu, Mar 6, 2025 4:13 PM)
+# - 7c499321107d (Thu, Mar 6, 2025 1:12 PM)
+# - fa09a8b424e7 (Thu, Mar 6, 2025 10:14 AM) (created)
+#
+# Update frequency: Approximately every 3 hours
+# Captured on: March 8, 2025
+# Purpose: Preserve image to prevent upstream retagging issues
+
+FROM quay.io/podman/machine-os-wsl:5.4
+
