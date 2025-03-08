@@ -77,26 +77,56 @@ rbp_podman_machine_acquire_start_rule:
 
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
+	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_ARCH)"
+
 	$(MBC_STEP) "Gather information about your chosen vm..."
 	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw > /tmp/vm_manifest.json"
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | jq ."
 
 	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_ARCH) exists in manifest..."
-	$(zRBM_UNCONTROLLED_SSH) cat /tmp/vm_manifest.json | grep -q '"architecture":"$(RBRR_VMDIST_ARCH)"'
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_ARCH)\"'" && \
+	  echo "Architecture $(RBRR_VMDIST_ARCH) confirmed in manifest"
 
-	$(MBC_STEP) "Creating controlled VM image named $(RBP_CONTROLLED_IMAGE_NAME)"
+	$(MBC_STEP) "Creating controlled VM image reference..."
+	@echo "Full controlled image name: $(RBP_CONTROLLED_IMAGE_NAME)"
+	@echo "Registry:             $(zRBG_GIT_REGISTRY)"
+	@echo "Owner:                $(RBRR_REGISTRY_OWNER)"
+	@echo "Repository:           $(RBRR_REGISTRY_NAME)"
+	@echo "Selected VM Arch:     $(RBRR_VMDIST_ARCH)"
+	@echo "Selected VM Blob SHA: $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."
-	-$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) > /dev/null 2>&1 || \
-		(echo "Controlled image not found, will create it..."            && \
-		 echo "Copying original VM image to controlled repository..."    && \
-		 $(zRBM_UNCONTROLLED_SSH) skopeo copy docker://$(RBRR_VMDIST_TAG)   \
-		                                      docker://$(RBP_CONTROLLED_IMAGE_NAME))
+	-$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
+	  cat /tmp/inspect_result && echo "Image already exists in registry" || \
+	  (echo "Controlled image not found in registry" && \
+	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
+	   $(zRBM_UNCONTROLLED_SSH) "skopeo copy docker://$(RBRR_VMDIST_TAG) docker://$(RBP_CONTROLLED_IMAGE_NAME) --debug" && \
+	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
-	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG)       --format '{{.Digest}}' > /tmp/source_digest"
-	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(CONTROLLED_IMAGE_NAME) --format '{{.Digest}}' > /tmp/controlled_digest"
-	$(zRBM_UNCONTROLLED_SSH) cmp /tmp/source_digest /tmp/controlled_digest
-	$(MBC_PASS) "Controlled machine $(RBM_MACHINE) is now ready for use."
+	@echo "Retrieving source image digest..."
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBRR_VMDIST_TAG) --format '{{.Digest}}' > /tmp/source_digest"
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/source_digest"
+
+	@echo "Retrieving controlled image digest..."
+	$(zRBM_UNCONTROLLED_SSH) "skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) --format '{{.Digest}}' > /tmp/controlled_digest"
+	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_digest"
+
+	@echo "Comparing digests..."
+	$(zRBM_UNCONTROLLED_SSH) "cmp -s /tmp/source_digest /tmp/controlled_digest" && \
+		echo "? Digests match - image integrity verified" || \
+		(echo "? WARNING: Digests do not match!" && \
+		 echo "This may indicate the controlled image is not properly synchronized" && \
+		 echo "Source: $$(cat /tmp/source_digest)" && \
+		 echo "Controlled: $$(cat /tmp/controlled_digest)" && \
+		 echo "Proceeding anyway, but verification has failed" && false)
+
+	$(MBC_STEP) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
+	@echo "To create a controlled machine, use:"
+	@echo "  podman machine init --image-path=$(RBP_CONTROLLED_IMAGE_NAME) $(RBM_MACHINE)"
+	@echo "  podman machine start $(RBM_MACHINE)"
+
+	$(MBC_PASS) "Controlled VM image verification completed."
 
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Capture some podman info"
