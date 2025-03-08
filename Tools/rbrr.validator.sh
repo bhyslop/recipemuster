@@ -37,10 +37,10 @@ crgv_string              RBRR_NAMEPLATE_PATH 1 255
 
 # Podman configuration
 crgv_string              RBRR_MACHINE_NAME  1 64
-crgv_xname               RBRR_VMDIST_TAG 1 128
+crgv_fqin                RBRR_VMDIST_TAG 1 128
 crgv_xname               RBRR_VMDIST_RAW_ARCH 1 64
 crgv_xname               RBRR_VMDIST_SKOPEO_ARCH 1 64
-crgv_xname               RBRR_VMDIST_BLOB_SHA 64 64
+crgv_string              RBRR_VMDIST_BLOB_SHA 64 64
 
 # Verify directories exist
 if [ ! -d "$RBRR_HISTORY_DIR" ]; then

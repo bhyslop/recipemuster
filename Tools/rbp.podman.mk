@@ -101,7 +101,7 @@ rbp_podman_machine_acquire_complete_rule:
 	  cat /tmp/inspect_result && echo "Image already exists in registry" || \
 	  (echo "Controlled image not found in registry" && \
 	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
-	   $(zRBM_UNCONTROLLED_SSH) "skopeo copy --override-arch $(RBRR_VMDIST_RAW_ARCH) docker://$(RBRR_VMDIST_TAG) docker://$(RBP_CONTROLLED_IMAGE_NAME) --debug" && \
+	   $(zRBM_UNCONTROLLED_SSH) "skopeo copy --all --format v2s2 --override-arch $(RBRR_VMDIST_RAW_ARCH) docker://$(RBRR_VMDIST_TAG) docker://$(RBP_CONTROLLED_IMAGE_NAME) --debug" && \
 	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
