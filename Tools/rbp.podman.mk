@@ -65,15 +65,21 @@ rbp_podman_machine_acquire_start_rule:
 	$(MBC_STEP) "Acquire the default podman machine (latest for your podman, uncontrolled)..."
 	podman machine init   $(zRBM_UNCONTROLLED_MACHINE)
 	podman machine start  $(zRBM_UNCONTROLLED_MACHINE)
-	$(MBC_STEP) "Install skopeo for bridging your container registry..."
-	$(zRBM_UNCONTROLLED_SSH) sudo dnf install -y skopeo --setopt=subscription-manager.disable=1
-	$(MBC_STEP) "Log into your container registry with skopeo..."
+	$(MBC_STEP) "Install oras for bridging your container registry..."
+	$(zRBM_UNCONTROLLED_SSH) "curl -LO https://github.com/oras-project/oras/releases/download/v1.1.0/oras_1.1.0_linux_amd64.tar.gz"
+	$(zRBM_UNCONTROLLED_SSH) "mkdir -p oras-install"
+	$(zRBM_UNCONTROLLED_SSH) "tar -zxf oras_1.1.0_linux_amd64.tar.gz -C oras-install"
+	$(zRBM_UNCONTROLLED_SSH) "sudo mv oras-install/oras /usr/local/bin/"
+	$(zRBM_UNCONTROLLED_SSH) "rm -rf oras_1.1.0_linux_amd64.tar.gz oras-install"
+	$(MBC_STEP) "Log into your container registry with oras..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
-	  $(zRBM_UNCONTROLLED_SSH)  skopeo login --username $$RBV_USERNAME \
-	                                         --password $$RBV_PAT $(zRBG_GIT_REGISTRY)
+	  $(zRBM_UNCONTROLLED_SSH)  oras login --username $$RBV_USERNAME \
+	                                       --password $$RBV_PAT $(zRBG_GIT_REGISTRY)
 	$(MBC_START) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
 	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+
+	$(MBC_PASS) "Ready to acquire controlled VM image next."
 
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
