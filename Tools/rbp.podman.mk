@@ -75,7 +75,8 @@ rbp_podman_machine_acquire_start_rule:
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
 	$(MBC_STEP) "Gather information about your chosen vm..."
-	podman $(RBM_CONNECTION) exec skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw
+	podman machine ssh $(zRBM_UNCONTROLLED_MACHINE) \
+	  skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw
 	$(MBC_PASS) "No errors."
 
 rbp_podman_machine_start_rule:
