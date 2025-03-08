@@ -50,6 +50,9 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 
 
 zRBM_UNCONTROLLED_MACHINE    = uncontrolled_skopeo_wrangler
+zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
+
+RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
 
 rbp_podman_machine_acquire_start_rule:
 	$(MBC_START) "Baseline the podman machine image"
@@ -63,21 +66,34 @@ rbp_podman_machine_acquire_start_rule:
 	podman machine init   $(zRBM_UNCONTROLLED_MACHINE)
 	podman machine start  $(zRBM_UNCONTROLLED_MACHINE)
 	$(MBC_STEP) "Install skopeo for bridging your container registry..."
-	podman machine ssh $(zRBM_UNCONTROLLED_MACHINE) \
-	  sudo dnf install -y skopeo --setopt=subscription-manager.disable=1
+	$(zRBM_UNCONTROLLED_SSH) sudo dnf install -y skopeo --setopt=subscription-manager.disable=1
 	$(MBC_STEP) "Log into your container registry with skopeo..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
-	podman machine ssh $(zRBM_UNCONTROLLED_MACHINE) \
-	    skopeo login --username $$RBV_USERNAME \
-	                 --password $$RBV_PAT \
-	                 $(zRBG_GIT_REGISTRY)
+	$(zRBM_UNCONTROLLED_SSH)  skopeo login --username $$RBV_USERNAME \
+	                                       --password $$RBV_PAT $(zRBG_GIT_REGISTRY)
 
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
 	$(MBC_STEP) "Gather information about your chosen vm..."
-	podman machine ssh $(zRBM_UNCONTROLLED_MACHINE) \
-	  skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw
-	$(MBC_PASS) "No errors."
+	$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(RBRR_VMDIST_TAG) --raw > /tmp/vm_manifest.json
+
+	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_ARCH) exists in manifest..."
+	$(zRBM_UNCONTROLLED_SSH) cat /tmp/vm_manifest.json | grep -q '"architecture":"$(RBRR_VMDIST_ARCH)"'
+
+	$(MBC_STEP) "Creating controlled VM image named $(RBP_CONTROLLED_IMAGE_NAME)"
+
+	$(MBC_STEP) "Checking if controlled image exists in registry..."
+	-$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(RBP_CONTROLLED_IMAGE_NAME) > /dev/null 2>&1 || \
+		(echo "Controlled image not found, will create it..."            && \
+		 echo "Copying original VM image to controlled repository..."    && \
+		 $(zRBM_UNCONTROLLED_SSH) skopeo copy docker://$(RBRR_VMDIST_TAG)   \
+		                                      docker://$(RBP_CONTROLLED_IMAGE_NAME))
+
+	$(MBC_STEP) "Verifying controlled image matches source image..."
+	$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(RBRR_VMDIST_TAG)       --format '{{.Digest}}' > /tmp/source_digest
+	$(zRBM_UNCONTROLLED_SSH) skopeo inspect docker://$(CONTROLLED_IMAGE_NAME) --format '{{.Digest}}' > /tmp/controlled_digest
+	$(zRBM_UNCONTROLLED_SSH) cmp /tmp/source_digest /tmp/controlled_digest
+	$(MBC_PASS) "Controlled machine $(RBM_MACHINE) is now ready for use."
 
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Capture some podman info"
