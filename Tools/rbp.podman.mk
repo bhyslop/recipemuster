@@ -53,7 +53,7 @@ zRBM_STASH_MACHINE   = pdvm-stash
 zRBM_STASH_SSH       = podman machine ssh $(zRBM_STASH_MACHINE)
 zRBM_STASH_TAG_SAFE  = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
 zRBM_STASH_SHA_SHORT = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
-RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):safekeep-$(RBRR_VMDIST_RAW_ARCH)-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
+RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(RBRR_VMDIST_RAW_ARCH)-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 rbp_stash_start_rule:
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
@@ -87,7 +87,7 @@ rbp_stash_finish_rule:
 	  echo "Architecture $(RBRR_VMDIST_RAW_ARCH) confirmed in manifest"
 
 	$(MBC_STEP) "Creating controlled VM image reference..."
-	@echo "Full controlled image name: $(RBP_CONTROLLED_IMAGE_NAME)"
+	@echo "Stashed image name:      $(RBP_STASH_IMAGE)"
 	@echo "Registry:                $(zRBG_GIT_REGISTRY)"
 	@echo "Owner:                   $(RBRR_REGISTRY_OWNER)"
 	@echo "Repository:              $(RBRR_REGISTRY_NAME)"
@@ -96,12 +96,12 @@ rbp_stash_finish_rule:
 	@echo "Selected VM Blob SHA:    $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."
-	-$(zRBM_STASH_SSH) "crane manifest $(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
+	-$(zRBM_STASH_SSH) "crane manifest $(RBP_STASH_IMAGE) > /tmp/inspect_result 2>&1" && \
 	  cat /tmp/inspect_result && echo "Image already exists in registry" || \
 	  (echo "Controlled image not found in registry" && \
-	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
+	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_STASH_IMAGE)..." && \
 	   source $(RBRR_GITHUB_PAT_ENV) && \
-	   $(zRBM_STASH_SSH) "crane copy $(RBRR_VMDIST_TAG) $(RBP_CONTROLLED_IMAGE_NAME)" && \
+	   $(zRBM_STASH_SSH) "crane copy $(RBRR_VMDIST_TAG) $(RBP_STASH_IMAGE)" && \
 	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
@@ -110,7 +110,7 @@ rbp_stash_finish_rule:
 	$(zRBM_STASH_SSH) "cat /tmp/source_digest"
 
 	@echo "Retrieving controlled image digest..."
-	$(zRBM_STASH_SSH) "crane digest $(RBP_CONTROLLED_IMAGE_NAME) > /tmp/controlled_digest"
+	$(zRBM_STASH_SSH) "crane digest $(RBP_STASH_IMAGE) > /tmp/controlled_digest"
 	$(zRBM_STASH_SSH) "cat /tmp/controlled_digest"
 
 	$(MBC_STEP) "Comparing digests..."
@@ -118,7 +118,7 @@ rbp_stash_finish_rule:
 	  echo "? Digests match - image integrity verified" || \
 	  (echo "? FAILURE: Digests do not match!" && false)
 
-	$(MBC_PASS) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
+	$(MBC_PASS) "Ready to use controlled VM image $(RBP_STASH_IMAGE)"
 
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Start the podman machine needed for Bottle Services"
