@@ -49,7 +49,7 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
-zRBM_UNCONTROLLED_MACHINE    = uncontrolled_skopeo_wrangler
+zRBM_UNCONTROLLED_MACHINE    = uncontrolled_crane_wrangler
 zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
 
 RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
@@ -65,12 +65,10 @@ rbp_podman_machine_acquire_start_rule:
 	$(MBC_STEP) "Acquire the default podman machine (latest for your podman, uncontrolled)..."
 	podman machine init   $(zRBM_UNCONTROLLED_MACHINE)
 	podman machine start  $(zRBM_UNCONTROLLED_MACHINE)
-	$(MBC_STEP) "Install skopeo for bridging your container registry..."
-	$(zRBM_UNCONTROLLED_SSH) sudo dnf install -y skopeo --setopt=subscription-manager.disable=1
-	$(MBC_STEP) "Log into your container registry with skopeo..."
-	source $(RBRR_GITHUB_PAT_ENV) && \
-	  $(zRBM_UNCONTROLLED_SSH)  skopeo login --username $$RBV_USERNAME \
-	                                         --password $$RBV_PAT $(zRBG_GIT_REGISTRY)
+	$(MBC_STEP) "Install crane for bridging your container registry..."
+	$(zRBM_UNCONTROLLED_SSH) sudo dnf install -y go
+	$(zRBM_UNCONTROLLED_SSH) go install github.com/google/go-containerregistry/cmd/crane@v0.20.3
+	$(zRBM_UNCONTROLLED_SSH) sudo mv ~/go/bin/crane /usr/local/bin/
 	$(MBC_START) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
 	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
