@@ -126,12 +126,12 @@ rbp_podman_machine_start_rule:
 	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
 	$(MBC_STEP) "Update utilities..."
-	podman $(RBM_CONNECTION) machine ssh \
+	podman machine ssh $(RBM_MACHINE) \
 	  sudo dnf install -y tcpdump --setopt=subscription-manager.disable=1
 	$(MBC_STEP) "Version info on machine..."
 	podman $(RBM_CONNECTION) version
 	podman machine inspect $(RBM_MACHINE)
-	podman $(RBM_CONNECTION) machine ssh "cat /etc/os-release && uname -r"
+	podman machine ssh $(RBM_MACHINE) "cat /etc/os-release && uname -r"
 	podman $(RBM_CONNECTION) info
 	$(MBC_PASS) "No errors."
 
