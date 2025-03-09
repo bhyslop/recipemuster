@@ -65,7 +65,7 @@ rbw-ia.%: rbp_podman_machine_acquire_start_rule
 	$(MBC_PASS) "Image acquisition started."
 
 rbw-ic.%: rbp_podman_machine_acquire_complete_rule
-	$(MBC_PASS) "Image acquisition started."
+	$(MBC_PASS) "Image acquisition complete."
 
 rbw-S.%: rbp_connect_sentry_rule
 	$(MBC_PASS) "No errors."
