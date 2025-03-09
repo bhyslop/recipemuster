@@ -53,7 +53,7 @@ zRBM_STASH_MACHINE   = pdvm-stash
 zRBM_STASH_SSH       = podman machine ssh $(zRBM_STASH_MACHINE)
 zRBM_STASH_TAG_SAFE  = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
 zRBM_STASH_SHA_SHORT = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
-RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(RBRR_VMDIST_RAW_ARCH)-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
+RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 rbp_stash_start_rule:
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
@@ -64,7 +64,7 @@ rbp_stash_start_rule:
 	podman machine init   $(zRBM_STASH_MACHINE)
 	podman machine start  $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
-	$(zRBM_STASH_SSH) curl -L "https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz" -o crane.tar.gz
+	$(zRBM_STASH_SSH) curl -L $(RBRR_VMDIST_CRANE) -o crane.tar.gz
 	$(zRBM_STASH_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
 	$(MBC_STEP) "Log into your container registry with crane..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
@@ -76,23 +76,17 @@ rbp_stash_start_rule:
 
 rbp_stash_finish_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
-	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_RAW_ARCH)"
+	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG)"
 
 	$(MBC_STEP) "Gather information about your chosen vm..."
 	$(zRBM_STASH_SSH) "crane manifest $(RBRR_VMDIST_TAG) > /tmp/vm_manifest.json"
 	$(zRBM_STASH_SSH) "cat /tmp/vm_manifest.json"
-
-	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_RAW_ARCH) exists in manifest..."
-	$(zRBM_STASH_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"'" && \
-	  echo "Architecture $(RBRR_VMDIST_RAW_ARCH) confirmed in manifest"
 
 	$(MBC_STEP) "Creating controlled VM image reference..."
 	@echo "Stashed image name:      $(RBP_STASH_IMAGE)"
 	@echo "Registry:                $(zRBG_GIT_REGISTRY)"
 	@echo "Owner:                   $(RBRR_REGISTRY_OWNER)"
 	@echo "Repository:              $(RBRR_REGISTRY_NAME)"
-	@echo "Selected Raw VM Arch:    $(RBRR_VMDIST_RAW_ARCH)"
-	@echo "Selected Skopeo VM Arch: $(RBRR_VMDIST_SKOPEO_ARCH)"
 	@echo "Selected VM Blob SHA:    $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."

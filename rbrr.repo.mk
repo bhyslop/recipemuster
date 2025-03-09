@@ -34,9 +34,11 @@ RBRR_MACHINE_NAME        = podman-machine-rbw
 #   Copying config sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
 #   Writing manifest to image destination
 RBRR_VMDIST_TAG          = quay.io/podman/machine-os-wsl:5.3
-RBRR_VMDIST_RAW_ARCH     = x86_64
-RBRR_VMDIST_SKOPEO_ARCH  = amd64
 RBRR_VMDIST_BLOB_SHA     = 6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
+
+# Version and arch of utility for copying betwixt container registries
+RBRR_VMDIST_CRANE        = https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
+
 
 # File containing user specific secrets for accessing the container registry.  Must define:
 #
