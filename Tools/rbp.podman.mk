@@ -54,6 +54,11 @@ zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
 
 RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
 
+zRBM_UNCONTROLLED_MACHINE    = uncontrolled_crane_wrangler
+zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
+
+RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
+
 rbp_podman_machine_acquire_start_rule:
 	$(MBC_START) "Baseline the podman machine image"
 	$(MBC_SHOW_YELLOW) "THIS WILL RESET YOUR PODMAN MACHINE, HIT CONTROL C FAST IF YOU DONT WANT THIS"
@@ -69,9 +74,13 @@ rbp_podman_machine_acquire_start_rule:
 	$(zRBM_UNCONTROLLED_SSH) curl -L "https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz" -o crane.tar.gz
 	$(zRBM_UNCONTROLLED_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
 	$(zRBM_UNCONTROLLED_SSH) rm crane.tar.gz
-	$(MBC_START) "Log in to your container registry with podman..."
+	$(MBC_STEP) "Log into your container registry with crane..."
+	source $(RBRR_GITHUB_PAT_ENV) && \
+	  $(zRBM_UNCONTROLLED_SSH) crane auth login $(zRBG_GIT_REGISTRY) -u $RBV_USERNAME -p $RBV_PAT
+	$(MBC_STEP) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $RBV_USERNAME -p $RBV_PAT
+	$(MBC_PASS) "Ready to use machine $(zRBM_UNCONTROLLED_MACHINE)"
 
 rbp_podman_machine_acquire_complete_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
@@ -100,7 +109,7 @@ rbp_podman_machine_acquire_complete_rule:
 	  (echo "Controlled image not found in registry" && \
 	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
 	   source $(RBRR_GITHUB_PAT_ENV) && \
-	   $(zRBM_UNCONTROLLED_SSH) "crane copy $(RBRR_VMDIST_TAG) $(RBP_CONTROLLED_IMAGE_NAME) --username=$$RBV_USERNAME --password=$$RBV_PAT" && \
+	   $(zRBM_UNCONTROLLED_SSH) "crane copy $(RBRR_VMDIST_TAG) $(RBP_CONTROLLED_IMAGE_NAME)" && \
 	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
