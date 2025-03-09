@@ -1,0 +1,1 @@
+ghcr.io/bhyslop/recipemuster:test_sftrr.20250309__222204
