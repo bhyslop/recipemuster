@@ -64,7 +64,7 @@ rbw-Z.%: zrbw_prenuke_rule rbp_podman_machine_nuke_rule
 rbw-ia.%: rbp_stash_start_rule
 	$(MBC_PASS) "Image acquisition started."
 
-rbw-ic.%: rbp_stash_finish_rule:
+rbw-ic.%: rbp_stash_finish_rule
 	$(MBC_PASS) "Image acquisition complete."
 
 rbw-S.%: rbp_connect_sentry_rule
