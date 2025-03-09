@@ -28,7 +28,7 @@ export RBM_ENCLAVE_SENTRY_IN  = vsi_$(RBM_MONIKER)
 export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
-export RBM_MACHINE            = podman-machine-default
+export RBM_MACHINE            = pdvm-rbw
 export RBM_CONNECTION         = --connection $(RBM_MACHINE)
 
 # Consolidated passed variables
@@ -49,37 +49,29 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
-zRBM_UNCONTROLLED_MACHINE    = uncontrolled_crane_wrangler
-zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
+zRBM_STASH_MACHINE  = pdvm-stash
+zRBM_STASH_SSH      = podman machine ssh $(zRBM_STASH_MACHINE)
 
-RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
-
-zRBM_UNCONTROLLED_MACHINE    = uncontrolled_crane_wrangler
-zRBM_UNCONTROLLED_SSH        = podman machine ssh $(zRBM_UNCONTROLLED_MACHINE)
-
-RBP_CONTROLLED_IMAGE_NAME  = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
+RBP_CONTROLLED_IMAGE_NAME = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
 
 rbp_podman_machine_acquire_start_rule:
-	$(MBC_START) "Baseline the podman machine image"
-	$(MBC_SHOW_YELLOW) "THIS WILL RESET YOUR PODMAN MACHINE, HIT CONTROL C FAST IF YOU DONT WANT THIS"
-	sleep 5
-	$(MBC_STEP) "HERE WE GO..."
+	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
 	-podman machine stop  $(RBM_MACHINE)
-	-podman machine stop  $(zRBM_UNCONTROLLED_MACHINE)
-	-podman machine rm -f $(zRBM_UNCONTROLLED_MACHINE)
-	$(MBC_STEP) "Acquire the default podman machine (latest for your podman, uncontrolled)..."
-	podman machine init   $(zRBM_UNCONTROLLED_MACHINE)
-	podman machine start  $(zRBM_UNCONTROLLED_MACHINE)
+	-podman machine stop  $(zRBM_STASH_MACHINE)
+	-podman machine rm -f $(zRBM_STASH_MACHINE)
+	$(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
+	podman machine init   $(zRBM_STASH_MACHINE)
+	podman machine start  $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
-	$(zRBM_UNCONTROLLED_SSH) curl -L "https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz" -o crane.tar.gz
-	$(zRBM_UNCONTROLLED_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
-	$(zRBM_UNCONTROLLED_SSH) rm crane.tar.gz
+	$(zRBM_STASH_SSH) curl -L "https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz" -o crane.tar.gz
+	$(zRBM_STASH_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
+	$(zRBM_STASH_SSH) rm crane.tar.gz
 	$(MBC_STEP) "Log into your container registry with crane..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
-	  $(zRBM_UNCONTROLLED_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	  $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_STEP) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "Ready to use machine $(zRBM_UNCONTROLLED_MACHINE)"
 
 rbp_podman_machine_acquire_complete_rule:
@@ -87,11 +79,11 @@ rbp_podman_machine_acquire_complete_rule:
 	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_RAW_ARCH)"
 
 	$(MBC_STEP) "Gather information about your chosen vm..."
-	$(zRBM_UNCONTROLLED_SSH) "crane manifest $(RBRR_VMDIST_TAG) > /tmp/vm_manifest.json"
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json"
+	$(zRBM_STASH_SSH) "crane manifest $(RBRR_VMDIST_TAG) > /tmp/vm_manifest.json"
+	$(zRBM_STASH_SSH) "cat /tmp/vm_manifest.json"
 
 	$(MBC_STEP) "Validating architecture $(RBRR_VMDIST_RAW_ARCH) exists in manifest..."
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"'" && \
+	$(zRBM_STASH_SSH) "cat /tmp/vm_manifest.json | grep -q '\"architecture\":\"$(RBRR_VMDIST_RAW_ARCH)\"'" && \
 	  echo "Architecture $(RBRR_VMDIST_RAW_ARCH) confirmed in manifest"
 
 	$(MBC_STEP) "Creating controlled VM image reference..."
@@ -104,25 +96,25 @@ rbp_podman_machine_acquire_complete_rule:
 	@echo "Selected VM Blob SHA:    $(RBRR_VMDIST_BLOB_SHA)"
 
 	$(MBC_STEP) "Checking if controlled image exists in registry..."
-	-$(zRBM_UNCONTROLLED_SSH) "crane manifest $(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
+	-$(zRBM_STASH_SSH) "crane manifest $(RBP_CONTROLLED_IMAGE_NAME) > /tmp/inspect_result 2>&1" && \
 	  cat /tmp/inspect_result && echo "Image already exists in registry" || \
 	  (echo "Controlled image not found in registry" && \
 	   echo "Starting copy from $(RBRR_VMDIST_TAG) to $(RBP_CONTROLLED_IMAGE_NAME)..." && \
 	   source $(RBRR_GITHUB_PAT_ENV) && \
-	   $(zRBM_UNCONTROLLED_SSH) "crane copy $(RBRR_VMDIST_TAG) $(RBP_CONTROLLED_IMAGE_NAME)" && \
+	   $(zRBM_STASH_SSH) "crane copy $(RBRR_VMDIST_TAG) $(RBP_CONTROLLED_IMAGE_NAME)" && \
 	   echo "Copy completed successfully")
 
 	$(MBC_STEP) "Verifying controlled image matches source image..."
 	@echo "Retrieving source image digest..."
-	$(zRBM_UNCONTROLLED_SSH) "crane digest $(RBRR_VMDIST_TAG) > /tmp/source_digest"
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/source_digest"
+	$(zRBM_STASH_SSH) "crane digest $(RBRR_VMDIST_TAG) > /tmp/source_digest"
+	$(zRBM_STASH_SSH) "cat /tmp/source_digest"
 
 	@echo "Retrieving controlled image digest..."
-	$(zRBM_UNCONTROLLED_SSH) "crane digest $(RBP_CONTROLLED_IMAGE_NAME) > /tmp/controlled_digest"
-	$(zRBM_UNCONTROLLED_SSH) "cat /tmp/controlled_digest"
+	$(zRBM_STASH_SSH) "crane digest $(RBP_CONTROLLED_IMAGE_NAME) > /tmp/controlled_digest"
+	$(zRBM_STASH_SSH) "cat /tmp/controlled_digest"
 
 	$(MBC_STEP) "Comparing digests..."
-	$(zRBM_UNCONTROLLED_SSH) "cmp -s /tmp/source_digest /tmp/controlled_digest" && \
+	$(zRBM_STASH_SSH) "cmp -s /tmp/source_digest /tmp/controlled_digest" && \
 	  echo "? Digests match - image integrity verified" || \
 	  (echo "? FAILURE: Digests do not match!" && false)
 
@@ -131,7 +123,7 @@ rbp_podman_machine_acquire_complete_rule:
 rbp_podman_machine_start_rule:
 	$(MBC_START) "Start the podman machine needed for Bottle Services"
 	$(MBC_STEP) "Shutdown the wrangler, if started"
-	-podman machine stop $(zRBM_UNCONTROLLED_MACHINE)
+	-podman machine stop $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Log version info"
 	podman --version
 	$(MBC_STEP) "Initialize Podman machine if it doesn't exist"
