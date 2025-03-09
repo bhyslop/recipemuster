@@ -20,6 +20,7 @@ RUN dnf update -y && dnf install -y \
     zip \
     zlib-devel \
     ncurses-devel \
+    ncurses-compat-libs \
     clang \
     make
 
@@ -33,10 +34,12 @@ ARG SWIFT_URL=https://download.swift.org/${SWIFT_BRANCH}/${SWIFT_PLATFORM}/swift
 RUN curl -fSsL ${SWIFT_URL} -o swift.tar.gz \
     && mkdir -p /usr/local/swift \
     && tar -xzf swift.tar.gz --strip-components=1 -C /usr/local/swift \
-    && rm swift.tar.gz
+    && rm swift.tar.gz \
+    && if [ ! -f /lib64/libtinfo.so.5 ] && [ -f /lib64/libtinfo.so.6 ]; then ln -s /lib64/libtinfo.so.6 /lib64/libtinfo.so.5; fi
 
-# Set Swift in PATH
+# Set Swift in PATH and add library path
 ENV PATH="/usr/local/swift/usr/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/swift/usr/lib:${LD_LIBRARY_PATH}"
 
 # Verify installation
 RUN swift --version
