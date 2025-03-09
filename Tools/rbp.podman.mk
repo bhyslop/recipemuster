@@ -66,9 +66,9 @@ rbp_podman_machine_acquire_start_rule:
 	podman machine init   $(zRBM_UNCONTROLLED_MACHINE)
 	podman machine start  $(zRBM_UNCONTROLLED_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
-	$(zRBM_UNCONTROLLED_SSH) sudo dnf install -y go
-	$(zRBM_UNCONTROLLED_SSH) go install github.com/google/go-containerregistry/cmd/crane@v0.20.3
-	$(zRBM_UNCONTROLLED_SSH) sudo mv ~/go/bin/crane /usr/local/bin/
+	$(zRBM_UNCONTROLLED_SSH) curl -L "https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz" -o crane.tar.gz
+	$(zRBM_UNCONTROLLED_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
+	$(zRBM_UNCONTROLLED_SSH) rm crane.tar.gz
 	$(MBC_START) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
 	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
@@ -123,7 +123,10 @@ rbp_podman_machine_acquire_complete_rule:
 	$(MBC_PASS) "Ready to use controlled VM image $(RBP_CONTROLLED_IMAGE_NAME)"
 
 rbp_podman_machine_start_rule:
-	$(MBC_START) "Capture some podman info"
+	$(MBC_START) "Start the podman machine needed for Bottle Services"
+	$(MBC_STEP) "Shutdown the wrangler, if started"
+	-podman machine stop $(zRBM_UNCONTROLLED_MACHINE)
+	$(MBC_STEP) "Log version info"
 	podman --version
 	$(MBC_STEP) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
