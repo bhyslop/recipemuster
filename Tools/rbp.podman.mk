@@ -76,10 +76,10 @@ rbp_podman_machine_acquire_start_rule:
 	$(zRBM_UNCONTROLLED_SSH) rm crane.tar.gz
 	$(MBC_STEP) "Log into your container registry with crane..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
-	  $(zRBM_UNCONTROLLED_SSH) crane auth login $(zRBG_GIT_REGISTRY) -u $RBV_USERNAME -p $RBV_PAT
+	  $(zRBM_UNCONTROLLED_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_STEP) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $RBV_USERNAME -p $RBV_PAT
+	  podman -c $(zRBM_UNCONTROLLED_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "Ready to use machine $(zRBM_UNCONTROLLED_MACHINE)"
 
 rbp_podman_machine_acquire_complete_rule:
