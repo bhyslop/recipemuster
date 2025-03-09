@@ -49,12 +49,13 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
-zRBM_STASH_MACHINE  = pdvm-stash
-zRBM_STASH_SSH      = podman machine ssh $(zRBM_STASH_MACHINE)
+zRBM_STASH_MACHINE   = pdvm-stash
+zRBM_STASH_SSH       = podman machine ssh $(zRBM_STASH_MACHINE)
+zRBM_STASH_TAG_SAFE  = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
+zRBM_STASH_SHA_SHORT = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
+RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):safekeep-$(RBRR_VMDIST_RAW_ARCH)-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
-RBP_CONTROLLED_IMAGE_NAME = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):controlled-$(RBRR_VMDIST_RAW_ARCH)-$(RBRR_VMDIST_BLOB_SHA)
-
-rbp_podman_machine_acquire_start_rule:
+rbp_stash_start_rule:
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
 	-podman machine stop  $(RBM_MACHINE)
 	-podman machine stop  $(zRBM_STASH_MACHINE)
@@ -65,7 +66,6 @@ rbp_podman_machine_acquire_start_rule:
 	$(MBC_STEP) "Install crane for bridging your container registry..."
 	$(zRBM_STASH_SSH) curl -L "https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz" -o crane.tar.gz
 	$(zRBM_STASH_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
-	$(zRBM_STASH_SSH) rm crane.tar.gz
 	$(MBC_STEP) "Log into your container registry with crane..."
 	source $(RBRR_GITHUB_PAT_ENV) && \
 	  $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
@@ -74,7 +74,7 @@ rbp_podman_machine_acquire_start_rule:
 	  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_PASS) "Ready to use machine $(zRBM_UNCONTROLLED_MACHINE)"
 
-rbp_podman_machine_acquire_complete_rule:
+rbp_stash_finish_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
 	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG), architecture: $(RBRR_VMDIST_RAW_ARCH)"
 
@@ -128,7 +128,7 @@ rbp_podman_machine_start_rule:
 	podman --version
 	$(MBC_STEP) "Initialize Podman machine if it doesn't exist"
 	podman machine list | grep -q "$(RBM_MACHINE)" || \
-	  PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_CONTROLLED_IMAGE_NAME) $(RBM_MACHINE)
+	  PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_STASH_IMAGE) $(RBM_MACHINE)
 	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
 	$(MBC_STEP) "Update utilities..."
