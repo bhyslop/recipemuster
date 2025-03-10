@@ -40,13 +40,13 @@ zRBG_GIT_REGISTRY := ghcr.io
 
 zRBG_GITAPI_URL := https://api.github.com
 
-zRBG_CURRENT_WORKFLOW_RUN_CACHE    = $(MBD_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBC_NOW).txt
+zRBG_CURRENT_WORKFLOW_RUN_CACHE    = $(MBD_TEMP_DIR)/CURR_WORKFLOW_RUN__$(MBD_NOW_STAMP).txt
 zRBG_CURRENT_WORKFLOW_RUN_CONTENTS = $$(cat $(zRBG_CURRENT_WORKFLOW_RUN_CACHE))
 
-zRBG_DELETE_VERSION_ID_CACHE    = $(MBD_TEMP_DIR)/RBG_VERSION_ID__$(MBC_NOW).txt
+zRBG_DELETE_VERSION_ID_CACHE    = $(MBD_TEMP_DIR)/RBG_VERSION_ID__$(MBD_NOW_STAMP).txt
 zRBG_DELETE_VERSION_ID_CONTENTS = $$(cat $(zRBG_DELETE_VERSION_ID_CACHE))
 
-zRBG_DELETE_RESULT_CACHE    = $(MBD_TEMP_DIR)/RBG_DELETE__$(MBC_NOW).txt
+zRBG_DELETE_RESULT_CACHE    = $(MBD_TEMP_DIR)/RBG_DELETE__$(MBD_NOW_STAMP).txt
 zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
@@ -159,7 +159,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	  sleep 5; \
 	done
 	$(MBC_STEP) "Pull logs..."
-	@$(zRBG_CMD_GET_LOGS) > $(MBD_TEMP_DIR)/workflow_logs__$(MBC_NOW).txt
+	@$(zRBG_CMD_GET_LOGS) > $(MBD_TEMP_DIR)/workflow_logs__$(MBD_NOW_STAMP).txt
 	$(MBC_STEP) "Everything went right, delete the run cache..."
 	rm $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
@@ -168,16 +168,16 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 rbg-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
-	$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
+	@$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
 	  jq -r '.[] | select(.package_type=="container") | .name'                                                          |\
 	  while read -r package_name; do                                                                                     \
 	    echo "Package: $$package_name";                                                                                  \
 	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBRR_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name";  \
 	    echo "Versions:";                                                                                                \
 	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                               |\
-	      jq -r '.[] | "\(.metadata.container.tags[]) \(.id)"'                                                          |\
+	      jq -r '.[] | . as $$item | if (.metadata.container.tags | length) > 0 then .metadata.container.tags[] as $$tag | "\($$item.id) \($$tag)" else "\(.id) NO_TAG" end' |\
 	      sort -r                                                                                                       |\
-	      awk       '{printf "%-13s $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$2, $$1}' |\
+	      awk       '{printf "%-13s $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$1, $$2}' |\
 	      awk 'BEGIN {printf "%-13s %-70s\n", "Version ID", "Fully Qualified Image Name"}1';                             \
 	    echo;                                                                                                            \
 	  done

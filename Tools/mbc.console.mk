@@ -10,9 +10,6 @@
 # Set below variable to add a localization context to pretty lines
 MBC_ARG__CTXT ?= mbu-c
 
-# Timestamp good for unique temp filenames durable for a compound make process
-MBC_NOW := $(shell date +'%Y%m%d__%H%M%S%3N')
-
 # No quotes since value is integer, not a string
 MBC_CONSOLEPARAM__COLS  := $(shell tput cols)
 MBC_CONSOLEPARAM__LINES := $(shell tput lines)
