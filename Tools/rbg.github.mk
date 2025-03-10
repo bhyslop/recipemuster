@@ -74,7 +74,7 @@ zRBG_CMD_LIST_IMAGES = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEAD
     '$(zRBG_GITAPI_URL)/user/packages?package_type=container'
 
 zRBG_CMD_LIST_PACKAGE_VERSIONS = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
-    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions'
+    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions?per_page=100'
 
 zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 
@@ -168,7 +168,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 rbg-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
-	@$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
+	$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
 	  jq -r '.[] | select(.package_type=="container") | .name'                                                          |\
 	  while read -r package_name; do                                                                                     \
 	    echo "Package: $$package_name";                                                                                  \
