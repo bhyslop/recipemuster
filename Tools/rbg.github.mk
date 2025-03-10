@@ -164,7 +164,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	rm $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
 
-
+# OUCH need to have a utility rule to build out the list
 rbg-l.%: zbgc_argcheck_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
