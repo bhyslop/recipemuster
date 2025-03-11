@@ -109,13 +109,15 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	@touch $(zRBG_COLLECT_DEPAGINATED)
 	@echo "1" > $(zRBG_COLLECT_PAGE_COUNT)
 	$(MBC_STEP) "Retrieving paged results..."
-	@while true; do                                                  \
+	@items=1 while [ $$items -ne 0 ]; do                             \
 	  page=$$(cat $(zRBG_COLLECT_PAGE_COUNT));                       \
 	  echo "  Fetching page $$page...";                              \
 	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE);   \
 	  echo "  Counting items on page $$page...";                     \
 	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE));  \
-	  test $$items -eq 0 && break;                                   \
+	  if [ $$items -eq 0 ]; then                                     \
+	    continue;                                                    \
+	  fi;                                                            \
 	  echo "  Processing page $$page...";                            \
 	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[] | . as $$tag | [.., $$tag] | join(" ")' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
 	  echo "  Updating page count $$page...";                        \
