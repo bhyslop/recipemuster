@@ -113,6 +113,7 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	  page=$$(cat $(zRBG_COLLECT_PAGE_COUNT));                       \
 	  echo "  Fetching page $$page...";                              \
 	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE);   \
+	  echo "  Counting items on page $$page...";                     \
 	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE));  \
 	  test $$items -eq 0 && break;                                   \
 	  echo "  Processing page $$page...";                            \
