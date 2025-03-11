@@ -96,6 +96,33 @@ zbgc_recipe_argument_check:
 	@$(MBC_STEP) "$(RBG_ARG_RECIPE) is well formed, moving on..."
 
 
+zRBG_COLLECT_DEPAGINATED = $(MBD_TEMP_DIR)/RBG_LIST__$(MBD_NOW_STAMP).txt
+zRBG_COLLECT_TEMP_PAGE   = $(MBD_TEMP_DIR)/RBG_PAGE__$(MBD_NOW_STAMP).json
+zRBG_COLLECT_PAGE_COUNT  = $(MBD_TEMP_DIR)/RBG_PAGE_COUNT__$(MBD_NOW_STAMP).txt
+
+zRBG_CMD_COLLECT_PACKAGE_VERSIONS_PAGED = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
+    '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions?per_page=100&page='
+
+zbgc_collect_rule: zbgc_argcheck_rule
+	$(MBC_START) "Fetching all registry images with pagination to" $(zRBG_COLLECT_DEPAGINATED)
+	@rm -f $(zRBG_COLLECT_DEPAGINATED)
+	@touch $(zRBG_COLLECT_DEPAGINATED)
+	@echo "1" > $(zRBG_COLLECT_PAGE_COUNT)
+	$(MBC_STEP) "Retrieving paged results..."
+	@while true; do \
+	  page=$$(cat $(zRBG_COLLECT_PAGE_COUNT)); \
+	  echo "  Fetching page $$page..."; \
+	  $(zRBG_CMD_COLLECT_PACKAGE_VERSIONS_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE); \
+	  items=$$(jq '. | length' $(zRBG_COLLECT_TEMP_PAGE)); \
+	  test $$items -eq 0 && break; \
+	  jq -r '.[] | . as $$item | if (.metadata.container.tags | length) > 0 then .metadata.container.tags[] as $$tag | "\($$item.id) \($$tag)" else "\(.id) NO_TAG" end' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
+	  echo $$((page + 1)) > $(zRBG_COLLECT_PAGE_COUNT); \
+	done
+	@echo "  Retrieved $$(wc -l < $(zRBG_LIST_DEPAGINATED)) image versions"
+	# @rm -f $(zRBG_LIST_TEMP_PAGE) $(zRBG_LIST_PAGE_COUNT)
+	$(MBC_PASS) "Pagination complete."
+
+
 rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_START) "Trigger Build of $(RBG_ARG_RECIPE)"
 	$(MBC_STEP) "Make sure your local repo is up to date with github variant..."
@@ -164,8 +191,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	rm $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
 
-# OUCH need to have a utility rule to build out the list
-rbg-l.%: zbgc_argcheck_rule
+rbg-l.%: zbgc_argcheck_rule zbgc_collect_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "JQ execution..."
 	@$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
