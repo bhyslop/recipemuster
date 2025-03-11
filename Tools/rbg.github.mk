@@ -96,35 +96,36 @@ zbgc_recipe_argument_check:
 	@$(MBC_STEP) "$(RBG_ARG_RECIPE) is well formed, moving on..."
 
 
-zRBG_COLLECT_DEPAGINATED = $(MBD_TEMP_DIR)/RBG_COLLECT__$(MBD_NOW_STAMP).txt
 zRBG_COLLECT_TEMP_PAGE   = $(MBD_TEMP_DIR)/RBG_PAGE__$(MBD_NOW_STAMP).json
-zRBG_COLLECT_PAGE_COUNT  = $(MBD_TEMP_DIR)/RBG_PAGE_COUNT__$(MBD_NOW_STAMP).txt
+zRBG_COLLECT_FULL_JSON   = $(MBD_TEMP_DIR)/RBG_COMBINED__$(MBD_NOW_STAMP).json
 
 zRBG_CMD_COLLECT_PAGED = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions?per_page=100&page='
 
 zbgc_collect_rule: zbgc_argcheck_rule
-	$(MBC_START) "Fetching all registry images with pagination to" $(zRBG_COLLECT_DEPAGINATED)
-	@rm -f $(zRBG_COLLECT_DEPAGINATED)
-	@touch $(zRBG_COLLECT_DEPAGINATED)
+	$(MBC_START) "Fetching all registry images with pagination to" $(zRBG_COLLECT_FULL_JSON)
+	@echo "[]" > $(zRBG_COLLECT_FULL_JSON)
 	$(MBC_STEP) "Retrieving paged results..."
 	@page=1                                                                  &&\
 	while true; do                                                             \
 	  echo "  Fetching page $$page..."                                       &&\
 	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE)            &&\
 	  echo "  Counting items on page $$page..."                              &&\
-	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE))           &&\
-	  echo "  Saw items $$items..." || exit 10;                                \
+	  items=$$(jq '. | length' $(zRBG_COLLECT_TEMP_PAGE))                    &&\
+	  echo "  Saw $$items items..." || exit 10;                                \
 	  test $$items -ne 0 || break;                                             \
-	  echo "  Processing page $$page..."                                     &&\
-	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[]' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED) &&\
-	  echo "  Updating page count $$page..."                                 &&\
-	  page=$$((page + 1))           || exit 12;                                \
+	  echo "  Appending page $$page to combined JSON..."                     &&\
+	  jq -s '.[0] + .[1]' $(zRBG_COLLECT_FULL_JSON) $(zRBG_COLLECT_TEMP_PAGE) >\
+	                      $(zRBG_COLLECT_FULL_JSON).tmp                      &&\
+	  mv $(zRBG_COLLECT_FULL_JSON).tmp $(zRBG_COLLECT_FULL_JSON)             &&\
+	  echo "  Updating page counter..."                                      &&\
+	  page=$$((page + 1));                                                     \
 	done
 	$(MBC_STEP) "Concluding..."
-	@echo "  Retrieved $$(wc -l <      $(zRBG_COLLECT_DEPAGINATED)) image versions"
-	# @rm -f $(zRBG_COLLECT_TEMP_PAGE) $(zRBG_COLLECT_PAGE_COUNT)
+	@entries=$$(jq '. | length' $(zRBG_COLLECT_FULL_JSON))
+	@echo "  Retrieved $$entries total items"
 	$(MBC_PASS) "Pagination complete."
+
 
 rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_START) "Trigger Build of $(RBG_ARG_RECIPE)"
