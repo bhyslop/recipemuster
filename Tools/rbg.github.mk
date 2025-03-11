@@ -224,18 +224,22 @@ rbg-r.%: rbg_container_registry_login_rule
 	$(MBC_PASS) "No errors."
 
 
+zRBG_TAG_CACHE    = $(MBD_TEMP_DIR)/RBG_TAG__$(MBD_NOW_STAMP).txt
+zRBG_TAG_CONTENTS = $$(cat $(zRBG_TAG_CACHE))
+
 rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	$(MBC_START) "Delete Container Registry Image"
 	@test "$(RBG_ARG_FQIN)" != "" || \
 	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (RBG_ARG_FQIN)" && false)
 	@echo "Deleting image: $(RBG_ARG_FQIN)"
 	@echo "Extracting tag from FQIN..."
-	@tag=$$(echo "$(RBG_ARG_FQIN)" | cut -d: -f2)
-	@echo "Using tag: '$$tag'"
+	@echo "$(RBG_ARG_FQIN)" | sed 's/.*://' > $(zRBG_TAG_CACHE)
+	@echo "Using tag: '$(zRBG_TAG_CONTENTS)'"
+	@test -n "$(zRBG_TAG_CONTENTS)" || ($(MBC_SEE_RED) "Error: Could not extract a valid tag from FQIN $(RBG_ARG_FQIN)" && false)
 	@echo "DEBUG: Available tags in registry:"
 	@jq -r '.[] | .metadata.container.tags[]?' $(zRBG_COLLECT_FULL_JSON) | sort | uniq
-	@echo "DEBUG: Finding versions matching tag '$$tag'..."
-	@jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' $(zRBG_COLLECT_FULL_JSON) > $(zRBG_DELETE_VERSION_ID_CACHE)
+	@echo "DEBUG: Finding versions matching tag '$(zRBG_TAG_CONTENTS)'..."
+	@jq -r '.[] | select(.metadata.container.tags[] | . == "$(zRBG_TAG_CONTENTS)") | .id' $(zRBG_COLLECT_FULL_JSON) > $(zRBG_DELETE_VERSION_ID_CACHE)
 	@match_count=$$(wc -l < $(zRBG_DELETE_VERSION_ID_CACHE) | tr -d ' '); \
 	echo "DEBUG: Found $$match_count matching version(s)"; \
 	echo "DEBUG: Matching version IDs:"; \
@@ -254,7 +258,7 @@ rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	  ($(MBC_SEE_RED) "Failed to delete image version. See response above." && \
 	   rm $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE) && false)
 	@echo "Successfully deleted image version."
-	@rm -f $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE)
+	@rm -f $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE) $(zRBG_TAG_CACHE)
 	$(MBC_PASS) "No errors."
 
 
