@@ -116,7 +116,7 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE));  \
 	  test $$items -eq 0 && break;                                   \
 	  echo "  Processing page $$page...";                            \
-	  jq -r '.[] | . as $$item | if (.metadata.container.tags | length) > 0 then .metadata.container.tags[] as $$tag | "\($$item.id) \($$tag)" else "\(.id) NO_TAG" end' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
+	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[] | . as $$tag | [.., $$tag] | join(" ")' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
 	  echo "  Updating page count $$page...";                        \
 	  echo $$((page + 1)) > $(zRBG_COLLECT_PAGE_COUNT);              \
 	done
