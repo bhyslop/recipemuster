@@ -108,18 +108,18 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	@rm -f $(zRBG_COLLECT_DEPAGINATED)
 	@touch $(zRBG_COLLECT_DEPAGINATED)
 	$(MBC_STEP) "Retrieving paged results..."
-	@page=1;                                                                   \
+	@page=1                                                                  &&\
 	while true; do                                                             \
-	  echo "  Fetching page $$page...";                                        \
-	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE);             \
-	  echo "  Counting items on page $$page...";                               \
-	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE));            \
-	  echo "  Saw items $$items...";                                           \
+	  echo "  Fetching page $$page..."                                       &&\
+	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE)            &&\
+	  echo "  Counting items on page $$page..."                              &&\
+	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE))           &&\
+	  echo "  Saw items $$items..." || exit 10;                                \
 	  test $$items -ne 0 || break;                                             \
-	  echo "  Processing page $$page...";                                      \
-	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[]' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
-	  echo "  Updating page count $$page...";                                  \
-	  page=$$((page + 1));                                                     \
+	  echo "  Processing page $$page..."                                     &&\
+	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[]' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED) &&\
+	  echo "  Updating page count $$page..."                                 &&\
+	  page=$$((page + 1))           || exit 12;                                \
 	done
 	$(MBC_STEP) "Concluding..."
 	@echo "  Retrieved $$(wc -l <      $(zRBG_COLLECT_DEPAGINATED)) image versions"
