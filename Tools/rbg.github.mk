@@ -203,7 +203,7 @@ rbg-l.%: zbgc_argcheck_rule zbgc_collect_rule
 	@echo "Versions:"
 	@printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
 	@jq -r '.[] | select(.metadata.container.tags | length > 0) | .id as $$id | .metadata.container.tags[] as $$tag | [$$id, "$(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):" + $$tag] | @tsv' \
-	  $(zRBG_COLLECT_FULL_JSON) | sort -r | while read id tag; do printf "%-13s %s\n" "$$id" "$$tag"; done
+	  $(zRBG_COLLECT_FULL_JSON) | sort -k2 -r | while read id tag; do printf "%-13s %s\n" "$$id" "$$tag"; done
 	@echo "$(MBC_RESET)"
 	$(MBC_STEP) "Total image versions: $$(jq '[.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags | length] | add // 0' $(zRBG_COLLECT_FULL_JSON))"
 	$(MBC_PASS) "No errors."
