@@ -78,7 +78,7 @@ zRBG_CMD_LIST_PACKAGE_VERSIONS = source $(RBRR_GITHUB_PAT_ENV) && curl -s $(zRBG
 
 zRBG_CMD_GET_LOGS = $(zRBG_CMD_GET_SPECIFIC_RUN)/logs
 
-zRBG_CMD_DELETE_VERSION = source $(RBRR_GITHUB_PAT_ENV) && curl -X DELETE $(zRBG_CURL_HEADERS) \
+zRBG_CMD_DELETE_VERSION = source $(RBRR_GITHUB_PAT_ENV) && curl -X DELETE -s $(zRBG_CURL_HEADERS) \
     '$(zRBG_GITAPI_URL)/user/packages/container/$(RBRR_REGISTRY_NAME)/versions/'$(zRBG_DELETE_VERSION_ID_CONTENTS)
 
 zbgc_argcheck_rule: rbrr_validate
@@ -236,15 +236,19 @@ rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	@echo "$(RBG_ARG_FQIN)" | sed 's/.*://' > $(zRBG_TAG_CACHE)
 	@echo "Using tag: '$(zRBG_TAG_CONTENTS)'"
 	@test -n "$(zRBG_TAG_CONTENTS)" || ($(MBC_SEE_RED) "Error: Could not extract a valid tag from FQIN $(RBG_ARG_FQIN)" && false)
-	@echo "DEBUG: Available tags in registry:"
-	@jq -r '.[] | .metadata.container.tags[]?' $(zRBG_COLLECT_FULL_JSON) | sort | uniq
-	@echo "DEBUG: Finding versions matching tag '$(zRBG_TAG_CONTENTS)'..."
-	@jq -r '.[] | select(.metadata.container.tags[] | . == "$(zRBG_TAG_CONTENTS)") | .id' $(zRBG_COLLECT_FULL_JSON) > $(zRBG_DELETE_VERSION_ID_CACHE)
+	
+	@echo "DEBUG: Collecting tag and ID mapping..."
+	@jq -r '.[] | select(.metadata.container.tags != null) | .id as $$id | .metadata.container.tags[] as $$tag | [$$id, $$tag] | @tsv' $(zRBG_COLLECT_FULL_JSON) > $(MBD_TEMP_DIR)/all_tags_with_ids.txt
+	
+	@echo "DEBUG: Searching for tag '$(zRBG_TAG_CONTENTS)' in extracted mapping..."
+	@grep "$(zRBG_TAG_CONTENTS)$$" $(MBD_TEMP_DIR)/all_tags_with_ids.txt | cut -f1 > $(zRBG_DELETE_VERSION_ID_CACHE) || true
+	
 	@match_count=$$(wc -l < $(zRBG_DELETE_VERSION_ID_CACHE) | tr -d ' '); \
-	echo "DEBUG: Found $$match_count matching version(s)"; \
+	echo "DEBUG: Found $$match_count exact matching version(s)"; \
 	echo "DEBUG: Matching version IDs:"; \
 	cat $(zRBG_DELETE_VERSION_ID_CACHE); \
 	test "$$match_count" -eq 1 || ($(MBC_SEE_RED) "Error: Expected exactly 1 matching version, found $$match_count" && rm $(zRBG_DELETE_VERSION_ID_CACHE) && false)
+	
 	@echo "Found version ID: $(zRBG_DELETE_VERSION_ID_CONTENTS)"
 	@test "$(RBG_ARG_SKIP_DELETE_CONFIRMATION)" = "SKIP" || \
 	  ($(MBC_SEE_YELLOW) "Confirm delete image?" && \
@@ -252,13 +256,11 @@ rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	  (test "$$confirm" = "YES" || \
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)))
 	$(MBC_STEP) "Deleting image version..."
-	@$(zRBG_CMD_DELETE_VERSION) -v -w "\nHTTP_STATUS:%{http_code}\n" > $(zRBG_DELETE_RESULT_CACHE) 2>&1
-	@cat $(zRBG_DELETE_RESULT_CACHE)
+	@$(zRBG_CMD_DELETE_VERSION) -s -w "\nHTTP_STATUS:%{http_code}\n" > $(zRBG_DELETE_RESULT_CACHE) 2>&1
 	@grep -q "HTTP_STATUS:204" $(zRBG_DELETE_RESULT_CACHE) || \
-	  ($(MBC_SEE_RED) "Failed to delete image version. See response above." && \
+	  ($(MBC_SEE_RED) "Failed to delete image version. HTTP Status: $$(grep 'HTTP_STATUS' $(zRBG_DELETE_RESULT_CACHE) || echo 'unknown')" && \
 	   rm $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE) && false)
 	@echo "Successfully deleted image version."
-	@rm -f $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE) $(zRBG_TAG_CACHE)
 	$(MBC_PASS) "No errors."
 
 
