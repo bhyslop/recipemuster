@@ -224,16 +224,16 @@ rbg-r.%: rbg_container_registry_login_rule
 	$(MBC_PASS) "No errors."
 
 
-rbg-d.%: zbgc_argcheck_rule
+rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	$(MBC_START) "Delete Container Registry Image"
 	@test "$(RBG_ARG_FQIN)" != "" || \
 	  ($(MBC_SEE_RED) "Error: Must provide FQIN of image to delete (RBG_ARG_FQIN)" && false)
 	@echo "Deleting image: $(RBG_ARG_FQIN)"
 	@echo "Extracting tag from FQIN..."
-	@( tag=$$(echo "$(RBG_ARG_FQIN)" | cut -d: -f2)  &&  echo "Using tag: $$tag" && \
-	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS) | \
-	      jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
-	       > $(zRBG_DELETE_VERSION_ID_CACHE))
+	@tag=$$(echo "$(RBG_ARG_FQIN)" | cut -d: -f2)
+	@echo "Using tag: $$tag"
+	@jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
+	  $(zRBG_COLLECT_FULL_JSON) > $(zRBG_DELETE_VERSION_ID_CACHE)
 	@test -s $(zRBG_DELETE_VERSION_ID_CACHE) || \
 	  ($(MBC_SEE_RED) "Error: No version found for FQIN $(RBG_ARG_FQIN)" && rm $(zRBG_DELETE_VERSION_ID_CACHE) && false)
 	@echo "Found version ID: $(zRBG_DELETE_VERSION_ID_CONTENTS)"
