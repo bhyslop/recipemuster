@@ -109,21 +109,21 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	@touch $(zRBG_COLLECT_DEPAGINATED)
 	@echo "1" > $(zRBG_COLLECT_PAGE_COUNT)
 	$(MBC_STEP) "Retrieving paged results..."
-	@items=1 && while [ $$items -ne 0 ]; do                          \
-	  page=$$(cat $(zRBG_COLLECT_PAGE_COUNT));                       \
-	  echo "  Fetching page $$page...";                              \
-	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE);   \
-	  echo "  Counting items on page $$page...";                     \
-	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE));  \
-	  echo "  Saw items $$items...";                                 \
-	  test $$items -ne 0 || echo "EXIT DETECTED";                    \
-	  test $$items -ne 0 || continue;                                \
-	  echo "  Processing page $$page...";                            \
+	@while true; do                                                            \
+	  page=$$(cat $(zRBG_COLLECT_PAGE_COUNT));                                 \
+	  echo "  Fetching page $$page...";                                        \
+	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE);             \
+	  echo "  Counting items on page $$page...";                               \
+	  items=$$(jq '. | length'          $(zRBG_COLLECT_TEMP_PAGE));            \
+	  echo "  Saw items $$items...";                                           \
+	  test $$items -ne 0 || break;                                             \
+	  echo "  Processing page $$page...";                                      \
 	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[] | . as $$tag | [.., $$tag] | join(" ")' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
-	  echo "  Updating page count $$page...";                        \
-	  echo $$((page + 1)) > $(zRBG_COLLECT_PAGE_COUNT);              \
-	done || { echo "HERE WITH $$items" && [ $$items -eq 0 ] && true; }
-	@echo "  Retrieved $$(wc -l <"     $(zRBG_COLLECT_DEPAGINATED)) "image versions"
+	  echo "  Updating page count $$page...";                                  \
+	  echo $$((page + 1)) > $(zRBG_COLLECT_PAGE_COUNT);                        \
+	done
+	$(MBC_STEP) "Concluding..."
+	@echo "  Retrieved $$(wc -l <      $(zRBG_COLLECT_DEPAGINATED)) image versions"
 	# @rm -f $(zRBG_COLLECT_TEMP_PAGE) $(zRBG_COLLECT_PAGE_COUNT)
 	$(MBC_PASS) "Pagination complete."
 
