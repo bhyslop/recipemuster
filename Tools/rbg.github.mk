@@ -231,11 +231,16 @@ rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	@echo "Deleting image: $(RBG_ARG_FQIN)"
 	@echo "Extracting tag from FQIN..."
 	@tag=$$(echo "$(RBG_ARG_FQIN)" | cut -d: -f2)
-	@echo "Using tag: $$tag"
-	@jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' \
-	  $(zRBG_COLLECT_FULL_JSON) > $(zRBG_DELETE_VERSION_ID_CACHE)
-	@test -s $(zRBG_DELETE_VERSION_ID_CACHE) || \
-	  ($(MBC_SEE_RED) "Error: No version found for FQIN $(RBG_ARG_FQIN)" && rm $(zRBG_DELETE_VERSION_ID_CACHE) && false)
+	@echo "Using tag: '$$tag'"
+	@echo "DEBUG: Available tags in registry:"
+	@jq -r '.[] | .metadata.container.tags[]?' $(zRBG_COLLECT_FULL_JSON) | sort | uniq
+	@echo "DEBUG: Finding versions matching tag '$$tag'..."
+	@jq -r '.[] | select(.metadata.container.tags[] | contains("'$$tag'")) | .id' $(zRBG_COLLECT_FULL_JSON) > $(zRBG_DELETE_VERSION_ID_CACHE)
+	@match_count=$$(wc -l < $(zRBG_DELETE_VERSION_ID_CACHE) | tr -d ' '); \
+	echo "DEBUG: Found $$match_count matching version(s)"; \
+	echo "DEBUG: Matching version IDs:"; \
+	cat $(zRBG_DELETE_VERSION_ID_CACHE); \
+	test "$$match_count" -eq 1 || ($(MBC_SEE_RED) "Error: Expected exactly 1 matching version, found $$match_count" && rm $(zRBG_DELETE_VERSION_ID_CACHE) && false)
 	@echo "Found version ID: $(zRBG_DELETE_VERSION_ID_CONTENTS)"
 	@test "$(RBG_ARG_SKIP_DELETE_CONFIRMATION)" = "SKIP" || \
 	  ($(MBC_SEE_YELLOW) "Confirm delete image?" && \
@@ -243,9 +248,10 @@ rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	  (test "$$confirm" = "YES" || \
 	  ($(MBC_SEE_RED) "WONT DELETE" && false)))
 	$(MBC_STEP) "Deleting image version..."
-	@$(zRBG_CMD_DELETE_VERSION) -s -w "HTTP_STATUS:%{http_code}" > $(zRBG_DELETE_RESULT_CACHE)
+	@$(zRBG_CMD_DELETE_VERSION) -v -w "\nHTTP_STATUS:%{http_code}\n" > $(zRBG_DELETE_RESULT_CACHE) 2>&1
+	@cat $(zRBG_DELETE_RESULT_CACHE)
 	@grep -q "HTTP_STATUS:204" $(zRBG_DELETE_RESULT_CACHE) || \
-	  ($(MBC_SEE_RED) "Failed to delete image version. Response: $(zRBG_DELETE_RESULT_CONTENTS)" && \
+	  ($(MBC_SEE_RED) "Failed to delete image version. See response above." && \
 	   rm $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE) && false)
 	@echo "Successfully deleted image version."
 	@rm -f $(zRBG_DELETE_VERSION_ID_CACHE) $(zRBG_DELETE_RESULT_CACHE)
