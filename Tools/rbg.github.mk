@@ -112,7 +112,7 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE)            &&\
 	  echo "  Counting items on page $$page..."                              &&\
 	  items=$$(jq '. | length' $(zRBG_COLLECT_TEMP_PAGE))                    &&\
-	  echo "  Saw $$items items..." || exit 10;                                \
+	  echo "  Saw $$items items on page $$page..." || exit 10;                 \
 	  test $$items -ne 0 || break;                                             \
 	  echo "  Appending page $$page to combined JSON..."                     &&\
 	  jq -s '.[0] + .[1]' $(zRBG_COLLECT_FULL_JSON) $(zRBG_COLLECT_TEMP_PAGE) >\
@@ -122,8 +122,7 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	  page=$$((page + 1));                                                     \
 	done
 	$(MBC_STEP) "Concluding..."
-	@entries=$$(jq '. | length' $(zRBG_COLLECT_FULL_JSON))
-	@echo "  Retrieved $$entries total items"
+	@echo "  Retrieved" $$(jq '. | length' $(zRBG_COLLECT_FULL_JSON)) "total items"
 	$(MBC_PASS) "Pagination complete."
 
 
@@ -195,22 +194,18 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	rm $(zRBG_CURRENT_WORKFLOW_RUN_CACHE)
 	$(MBC_PASS) "No errors."
 
+
 rbg-l.%: zbgc_argcheck_rule zbgc_collect_rule
 	$(MBC_START) "List Current Registry Images"
-	$(MBC_STEP) "JQ execution..."
-	@$(zRBG_CMD_LIST_IMAGES)                                                                                            |\
-	  jq -r '.[] | select(.package_type=="container") | .name'                                                          |\
-	  while read -r package_name; do                                                                                     \
-	    echo "Package: $$package_name";                                                                                  \
-	    $(MBC_SEE_YELLOW) "    https://github.com/$(RBRR_REGISTRY_OWNER)/$$package_name/pkgs/container/$$package_name";  \
-	    echo "Versions:";                                                                                                \
-	    $(zRBG_CMD_LIST_PACKAGE_VERSIONS)                                                                               |\
-	      jq -r '.[] | . as $$item | if (.metadata.container.tags | length) > 0 then .metadata.container.tags[] as $$tag | "\($$item.id) \($$tag)" else "\(.id) NO_TAG" end' |\
-	      sort -r                                                                                                       |\
-	      awk       '{printf "%-13s $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):%s\n", $$1, $$2}' |\
-	      awk 'BEGIN {printf "%-13s %-70s\n", "Version ID", "Fully Qualified Image Name"}1';                             \
-	    echo;                                                                                                            \
-	  done
+	$(MBC_STEP) "Processing collected JSON data..."
+	@echo "Package: $(RBRR_REGISTRY_NAME)"
+	$(MBC_SHOW_YELLOW) "    https://github.com/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)/pkgs/container/$(RBRR_REGISTRY_NAME)"
+	@echo "Versions:"
+	@printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
+	@jq -r '.[] | select(.metadata.container.tags | length > 0) | .id as $$id | .metadata.container.tags[] as $$tag | [$$id, "$(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):" + $$tag] | "%-13s %s" | format' \
+	    $(zRBG_COLLECT_FULL_JSON) | sort -r
+	@echo "$(MBC_RESET)"
+	$(MBC_STEP) "Total image versions: $$(jq '[.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags | length] | add // 0' $(zRBG_COLLECT_FULL_JSON))"
 	$(MBC_PASS) "No errors."
 
 
