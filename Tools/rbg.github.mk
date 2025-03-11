@@ -107,10 +107,9 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	$(MBC_START) "Fetching all registry images with pagination to" $(zRBG_COLLECT_DEPAGINATED)
 	@rm -f $(zRBG_COLLECT_DEPAGINATED)
 	@touch $(zRBG_COLLECT_DEPAGINATED)
-	@echo "1" > $(zRBG_COLLECT_PAGE_COUNT)
 	$(MBC_STEP) "Retrieving paged results..."
-	@while true; do                                                            \
-	  page=$$(cat $(zRBG_COLLECT_PAGE_COUNT));                                 \
+	@page=1;                                                                   \
+	while true; do                                                             \
 	  echo "  Fetching page $$page...";                                        \
 	  $(zRBG_CMD_COLLECT_PAGED)$$page > $(zRBG_COLLECT_TEMP_PAGE);             \
 	  echo "  Counting items on page $$page...";                               \
@@ -118,15 +117,14 @@ zbgc_collect_rule: zbgc_argcheck_rule
 	  echo "  Saw items $$items...";                                           \
 	  test $$items -ne 0 || break;                                             \
 	  echo "  Processing page $$page...";                                      \
-	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[] | . as $$tag | [.., $$tag] | join(" ")' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
+	  jq -r '.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags[]' $(zRBG_COLLECT_TEMP_PAGE) >> $(zRBG_COLLECT_DEPAGINATED); \
 	  echo "  Updating page count $$page...";                                  \
-	  echo $$((page + 1)) > $(zRBG_COLLECT_PAGE_COUNT);                        \
+	  page=$$((page + 1));                                                     \
 	done
 	$(MBC_STEP) "Concluding..."
 	@echo "  Retrieved $$(wc -l <      $(zRBG_COLLECT_DEPAGINATED)) image versions"
 	# @rm -f $(zRBG_COLLECT_TEMP_PAGE) $(zRBG_COLLECT_PAGE_COUNT)
 	$(MBC_PASS) "Pagination complete."
-
 
 rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_START) "Trigger Build of $(RBG_ARG_RECIPE)"
