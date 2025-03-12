@@ -52,5 +52,4 @@ RBRR_VMDIST_CRANE        = https://github.com/google/go-containerregistry/releas
 RBRR_GITHUB_PAT_ENV = ../secrets/github-ghcr-play.env
 
 
-
 # eof
