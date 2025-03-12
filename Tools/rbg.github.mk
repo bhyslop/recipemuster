@@ -145,14 +145,14 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_SHOW_YELLOW) "   https://github.com/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)/actions/runs/"$(zRBG_CURRENT_WORKFLOW_RUN_CONTENTS)
 	$(MBC_STEP) "Polling to completion..."
 	@status="" && conclusion="" &&  \
-	while true; do                                          \
-	  response=$($(zRBG_CMD_GET_SPECIFIC_RUN));             \
-	  echo "  TRACE: here response is $$response";          \
-	  status=$(echo     "$response" | jq -r '.status');     \
-	  conclusion=$(echo "$response" | jq -r '.conclusion'); \
-	  echo "  Status: $status    Conclusion: $conclusion";  \
-	  test "$status" != "completed" || break;               \
-	  sleep 3;                                              \
+	while true; do                                            \
+	  response=$$($(zRBG_CMD_GET_SPECIFIC_RUN));              \
+	  echo "  TRACE: here response is $$response";            \
+	  status=$(echo     "$$response" | jq -r '.status');      \
+	  conclusion=$(echo "$$response" | jq -r '.conclusion');  \
+	  echo "  Status: $$status    Conclusion: $$conclusion";  \
+	  test           "$$status" != "completed" || break;      \
+	  sleep 3;                                                \
 	done; test "$conclusion" == "success" || ($(MBC_SEE_RED) "Error: Workflow fail: $conclusion" && false)
 	$(MBC_STEP) "Git Pull for artifacts with retry..."
 	@for i in 1 2 3 4 5; do \
