@@ -147,7 +147,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@status="" && conclusion="" &&  \
 	while true; do                                            \
 	  response=$$($(zRBG_CMD_GET_SPECIFIC_RUN));              \
-	  echo "  TRACE: $$response" | grep -i -e "status" -e "conclusion" -e "TRACE" \
+	  echo "  TRACE: $$response" | grep -i -e "status" -e "conclusion" -e "TRACE"; \
 	  status=$$(echo     "$$response" | jq -r '.status');     \
 	  conclusion=$$(echo "$$response" | jq -r '.conclusion'); \
 	  echo "  Status: $$status    Conclusion: $$conclusion";  \
