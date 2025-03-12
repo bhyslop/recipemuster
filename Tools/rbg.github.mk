@@ -153,7 +153,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	  echo "  Status: $$status    Conclusion: $$conclusion";  \
 	  test           "$$status" != "completed" || break;      \
 	  sleep 3;                                                \
-	done; test "$conclusion" == "success" || ($(MBC_SEE_RED) "Error: Workflow fail: $conclusion" && false)
+	done; test "$$conclusion" == "success" || ($(MBC_SEE_RED) "Error: Workflow fail: $$conclusion" && false)
 	$(MBC_STEP) "Git Pull for artifacts with retry..."
 	@for i in 1 2 3 4 5; do \
 	  git fetch --quiet                                                                                &&\
