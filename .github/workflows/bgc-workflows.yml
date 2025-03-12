@@ -105,20 +105,13 @@ jobs:
           provenance: true
           sbom: true
 
-      - name: Tag image
-        run: |
-          docker pull ${{ env.GHCR_PATH }}
-          docker tag  ${{ env.GHCR_PATH }} \
-                      ${{ env.GHCR_PATH }}
-          docker push ${{ env.GHCR_PATH }}
-
       - name: Analyze container with Syft
         run: |
           echo "GHA: Install Syft, pinned version..."
           curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz &&\
             tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/
 
-          echo "GHA: Pull the image..."
+          echo "GHA: Pull the image for analysis..."
           docker pull ${{ env.GHCR_PATH }}
 
           echo "GHA: Run Syft analysis and save to file..."
@@ -139,7 +132,7 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to create rough_digest.txt..."
-          docker pull ${{ env.GHCR_PATH }}
+          # The image is already pulled by the previous step, no need to pull again
           IMAGE_SIZE=$(docker image inspect ${{ env.GHCR_PATH }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ steps.docker_build.outputs.duration }}
