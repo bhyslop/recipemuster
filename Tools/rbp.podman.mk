@@ -29,7 +29,7 @@ export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 export RBM_MACHINE            = pdvm-rbw
-export RBM_CONNECTION         = --connection $(RBM_MACHINE)
+export RBM_CONNECTION         = -c $(RBM_MACHINE)
 
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
@@ -40,7 +40,7 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
 zRBM_PODMAN_RAW_CMD   = podman $(RBM_CONNECTION)
-zRBM_PODMAN_SSH_CMD   = podman $(RBM_CONNECTION) machine ssh $(zRBM_EXPORT_ENV) 
+zRBM_PODMAN_SSH_CMD   = podman machine ssh $(RBM_MACHINE) $(zRBM_EXPORT_ENV) 
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
 zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
@@ -165,7 +165,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
-	podman $(RBM_CONNECTION) run -d                         \
+	podman $(RBM_CONNECTION) run -d                    \
 	  --name $(RBM_SENTRY_CONTAINER)                   \
 	  --network bridge                                 \
 	  --privileged                                     \
