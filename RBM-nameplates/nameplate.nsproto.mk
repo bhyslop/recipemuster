@@ -31,6 +31,6 @@ RBRN_ENCLAVE_NETMASK    = 24
 RBRN_ENCLAVE_SENTRY_IP  = 10.242.0.2
 RBRN_ENCLAVE_BOTTLE_IP  = 10.242.0.3
 
-# Volume Mount Configuratin
+# Volume Mount Configuration
 RBRN_VOLUME_MOUNTS =
 
