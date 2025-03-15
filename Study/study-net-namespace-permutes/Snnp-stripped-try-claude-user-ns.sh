@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Container Network Setup Script with User Namespace
+# Container Network Setup Script with User-accessible Network Namespace
 # Each step is executed discretely with minimal environment passing
 
 set -e  # Exit on error
@@ -25,6 +25,7 @@ function snnp_machine_ssh() {
 function snnp_machine_ssh_sudo() {
     podman machine ssh ${MACHINE} sudo "$@"
 }
+
 
 echo -e "${BOLD}Container Network Setup Script${NC}"
 echo "Setting up ${MONIKER} containers with network isolation"
@@ -96,26 +97,49 @@ echo "RSNS: Sentry namespace setup complete"
 echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
-echo -e "${BOLD}Creating BOTTLE container with cni-podman bridge network${NC}"
-# First let's create a podman network for the bottle container
-echo "Creating custom podman network"
-podman -c ${MACHINE} network create --driver bridge ${MONIKER}-net || echo "Network may already exist"
+echo "RBNS-ALT: Setting up user-accessible network namespace"
+# Create a directory for user-owned network namespaces if it doesn't exist
+USER_NETNS_DIR="/tmp/user_netns"
+snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
 
-# Now launch the bottle container with the network we just created
-echo "Launching BOTTLE container with custom network"
-podman -c ${MACHINE} run -d \
-  --name ${BOTTLE_CONTAINER} \
-  --network ${MONIKER}-net \
-  ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
+# Create the network namespace using unshare which creates a user-accessible namespace
+USER_NETNS_FILE="${USER_NETNS_DIR}/${NET_NAMESPACE}"
+snnp_machine_ssh "touch ${USER_NETNS_FILE}"
+snnp_machine_ssh "unshare --net=${USER_NETNS_FILE} --fork --pid --mount-proc /bin/bash -c 'sleep 999999' & echo \$! > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid"
+sleep 2  # Give the unshare command time to set up
 
-# Get bottle container IP address
-BOTTLE_IP=$(podman -c ${MACHINE} inspect -f '{{.NetworkSettings.Networks.'${MONIKER}'-net.IPAddress}}' ${BOTTLE_CONTAINER})
-echo "BOTTLE container IP: ${BOTTLE_IP}"
+# Get the PID of the unshare process
+UNSHARE_PID=$(snnp_machine_ssh "cat ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid")
+echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
 
-# Set up routing between sentry and bottle
-echo "Setting up routing between SENTRY and BOTTLE"
-snnp_podman_exec_sentry ip route add ${BOTTLE_IP}/32 via ${ENCLAVE_SENTRY_IP}
-snnp_podman_exec_bottle ip route add ${ENCLAVE_SENTRY_IP}/32 via $(podman -c ${MACHINE} network inspect -f '{{range .Subnets}}{{.Gateway}}{{end}}' ${MONIKER}-net)
+echo "RBNS-ALT: Creating veth pair"
+snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
+
+echo "RBNS-ALT: Moving veth endpoint to namespace"
+snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_IN} netns ${UNSHARE_PID}
+
+echo "RBNS-ALT: Configuring interfaces in namespace"
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link set ${ENCLAVE_BOTTLE_IN} name eth1
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip addr add ${ENCLAVE_BOTTLE_IP}/${ENCLAVE_NETMASK} dev eth1
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link set eth1 up
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link set lo up
+
+echo "RBNS-ALT: Connecting veth to bridge"
+snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} master ${ENCLAVE_BRIDGE}
+snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} up
+
+echo "RBNS-ALT: Setting default route in namespace"
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip route add default via ${ENCLAVE_SENTRY_IP}
+
+echo "RBNS-ALT: Check interfaces after namespace setup..."
+snnp_machine_ssh ip link show
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link show
+
+echo "RBNS-ALT: Starting container with the prepared user network namespace"
+snnp_machine_ssh podman run -d \
+    --name ${BOTTLE_CONTAINER} \
+    --network ns:/proc/${UNSHARE_PID}/ns/net \
+    ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
 
 echo -e "${BOLD}Visualizing network setup in podman machine...${NC}"
 echo "RBNI: Network interface information"
@@ -124,23 +148,21 @@ snnp_machine_ssh ip a
 echo "RBNI: Network bridge information" 
 snnp_machine_ssh ip link show type bridge
 
-echo "RBNI: Podman network information"
-podman -c ${MACHINE} network ls
-podman -c ${MACHINE} network inspect ${MONIKER}-net
+echo "RBNI: Network namespace information"
+snnp_machine_ssh "ps aux | grep unshare"
+snnp_machine_ssh "ls -la ${USER_NETNS_DIR}"
 
-echo "RBNI: Container network information"
-podman -c ${MACHINE} inspect -f '{{json .NetworkSettings.Networks}}' ${SENTRY_CONTAINER} | jq
-podman -c ${MACHINE} inspect -f '{{json .NetworkSettings.Networks}}' ${BOTTLE_CONTAINER} | jq
-
-echo -e "${BOLD}Testing connectivity${NC}"
-echo "Testing SENTRY to BOTTLE connectivity"
-snnp_podman_exec_sentry ping -c 3 ${BOTTLE_IP} || echo "Ping from SENTRY to BOTTLE failed"
-
-echo "Testing BOTTLE to SENTRY connectivity"
-snnp_podman_exec_bottle ping -c 3 ${ENCLAVE_SENTRY_IP} || echo "Ping from BOTTLE to SENTRY failed"
+echo "RBNI: Route information"
+snnp_machine_ssh ip route
 
 echo -e "${BOLD}Verifying containers${NC}"
 podman -c ${MACHINE} ps -a
+
+echo "Add a cleanup trap to kill the unshare process when script exits"
+snnp_machine_ssh "echo \"trap 'kill ${UNSHARE_PID}' EXIT\" > ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
+snnp_machine_ssh "chmod +x ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
+echo "Created cleanup script at ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
+echo "When you're done, run: podman machine ssh ${MACHINE} ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
 
 echo -e "${GREEN}${BOLD}Setup script execution complete${NC}"
 

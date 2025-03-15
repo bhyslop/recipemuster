@@ -97,9 +97,8 @@ echo "RSNS: Sentry namespace setup complete"
 echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
-echo "RBNS-ALT: Creating network namespace manually"
-# Create the network namespace in user mode; note that we no longer adjust its permissions.
-snnp_machine_ssh_sudo ip netns add ${NET_NAMESPACE}
+echo "RBNS-ALT: Creating network namespace manually in user space"
+snnp_machine_ssh ip netns add ${NET_NAMESPACE}
 
 echo "RBNS-ALT: Creating veth pair"
 snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
