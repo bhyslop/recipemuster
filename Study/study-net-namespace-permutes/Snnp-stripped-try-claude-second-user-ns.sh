@@ -55,9 +55,9 @@ echo "RBNC: Before cleanup..."
 podman machine ssh ${MACHINE} ip link show
 podman machine ssh ${MACHINE} ip netns list
 
-echo "RBNC2: Removing prior run elements"
-snnp_machine_ssh_sudo ip link  del    eth1@${ENCLAVE_BOTTLE_OUT} || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
-snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT}@eth1 || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
+echo "RBNC2: Removing prior run elements, OUCH"
+snnp_machine_ssh_sudo ip link  del    eth1@${ENCLAVE_BOTTLE_OUT} || echo "RBNC2: could not delete " eth1@${ENCLAVE_BOTTLE_OUT}
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT}@eth1 || echo "RBNC2: could not delete " ${ENCLAVE_BOTTLE_OUT}@eth1
 snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE}          || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
 snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}           || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
 
