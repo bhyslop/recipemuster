@@ -43,8 +43,9 @@ podman -c ${MACHINE} rm -f     ${BOTTLE_CONTAINER} || true
 
 echo -e "${BOLD}Cleaning up old netns and interfaces inside VM${NC}"
 echo "RBNC: Beginning network cleanup script"
-echo "RBNC0: Cleaning up SENTRY interfaces: ${ENCLAVE_SENTRY_OUT}, ${ENCLAVE_SENTRY_IN}"
-echo "RBNC1: Cleaning up BOTTLE interfaces: ${ENCLAVE_BOTTLE_OUT}, ${ENCLAVE_BOTTLE_IN}"
+echo "RBNC: Before cleanup..."
+podman machine ssh ${MACHINE} ip link show
+podman machine ssh ${MACHINE} ip netns list
 echo "RBNC2: Removing bridge: ${ENCLAVE_BRIDGE}"
 
 snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_SENTRY_OUT} || echo "RBNC2: could not delete " ${ENCLAVE_SENTRY_OUT}
@@ -57,6 +58,10 @@ snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}      || echo "RBNC2: coul
 echo "RBNC3: Verifying cleanup"
 snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE_OUT}|${ENCLAVE_BRIDGE}' || echo 'No matching interfaces found'"
 echo "RBNC: Network cleanup complete"
+
+echo "RBNC: After cleanup..."
+podman machine ssh ${MACHINE} ip link show
+podman machine ssh ${MACHINE} ip netns list
 
 echo -e "${BOLD}Launching SENTRY container with bridging for internet${NC}"
 podman -c ${MACHINE} run -d                              \
