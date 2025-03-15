@@ -60,27 +60,11 @@ snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE
 echo "RBNC: Network cleanup complete"
 
 echo -e "${BOLD}Launching SENTRY container with bridging for internet${NC}"
-podman -c ${MACHINE} run -d \
-  --name ${SENTRY_CONTAINER} \
-  --network bridge \
-  --privileged \
+podman -c ${MACHINE} run -d                              \
+  --name ${SENTRY_CONTAINER}                             \
+  --network bridge                                       \
+  --privileged                                           \
   -p ${ENTRY_PORT_WORKSTATION}:${ENTRY_PORT_WORKSTATION} \
-  -e "RBRN_MONIKER=${MONIKER}" \
-  -e "RBRN_ENCLAVE_BASE_IP=${ENCLAVE_BASE_IP}" \
-  -e "RBRN_ENCLAVE_NETMASK=${ENCLAVE_NETMASK}" \
-  -e "RBRN_ENCLAVE_BOTTLE_IP=${ENCLAVE_BOTTLE_IP}" \
-  -e "RBRN_ENCLAVE_SENTRY_IP=${ENCLAVE_SENTRY_IP}" \
-  -e "RBRN_ENTRY_ENABLED=1" \
-  -e "RBRN_ENTRY_PORT_WORKSTATION=${ENTRY_PORT_WORKSTATION}" \
-  -e "RBRN_ENTRY_PORT_ENCLAVE=${ENTRY_PORT_ENCLAVE}" \
-  -e "RBRN_UPLINK_PORT_MIN=10000" \
-  -e "RBRN_UPLINK_DNS_ENABLED=1" \
-  -e "RBRN_UPLINK_ACCESS_ENABLED=1" \
-  -e "RBRN_UPLINK_DNS_GLOBAL=0" \
-  -e "RBRN_UPLINK_ACCESS_GLOBAL=0" \
-  -e "RBRN_UPLINK_ALLOWED_CIDRS=${UPLINK_ALLOWED_CIDRS}" \
-  -e "RBRN_UPLINK_ALLOWED_DOMAINS=${UPLINK_ALLOWED_DOMAINS}" \
-  -e "RBRR_DNS_SERVER=${DNS_SERVER}" \
   ${SENTRY_REPO_PATH}:${SENTRY_IMAGE_TAG}
 
 echo -e "${BOLD}Waiting for SENTRY container${NC}"
