@@ -10,6 +10,23 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
 source "$SCRIPT_DIR/Snnp-constants.sh"
 
+function snnp_podman_exec_sentry() {
+    podman -c ${MACHINE} exec ${SENTRY_CONTAINER} "$@"
+}
+
+function snnp_podman_exec_bottle() {
+    podman -c ${MACHINE} exec ${BOTTLE_CONTAINER} "$@"
+}
+
+function snnp_machine_ssh() {
+    podman machine ssh ${MACHINE} "$@"
+}
+
+function snnp_machine_ssh_sudo() {
+    podman machine ssh ${MACHINE} sudo "$@"
+}
+
+
 echo -e "${BOLD}Container Network Setup Script${NC}"
 echo "Setting up ${MONIKER} containers with network isolation"
 echo ""
