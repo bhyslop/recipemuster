@@ -10,7 +10,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
 source "$SCRIPT_DIR/Snnp-constants.sh"
 
-# PID file for the unshare process
 USER_NETNS_DIR="/tmp/user_netns"
 UNSHARE_PID_FILE="${USER_NETNS_DIR}/${NET_NAMESPACE}.pid"
 
@@ -129,6 +128,12 @@ sleep 2  # Give the unshare command time to set up
 # Get the PID of the unshare process
 UNSHARE_PID=$(snnp_machine_ssh "cat ${UNSHARE_PID_FILE}")
 echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
+
+# After the unshare command and sleep
+echo "Debugging PID file:"
+snnp_machine_ssh "ls -la ${USER_NETNS_DIR}"
+snnp_machine_ssh "cat ${UNSHARE_PID_FILE} || echo 'File not found or empty'"
+snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
 
 echo "RBNS-ALT: Creating veth pair"
 snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
