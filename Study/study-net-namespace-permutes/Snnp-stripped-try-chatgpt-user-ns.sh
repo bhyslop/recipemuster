@@ -154,3 +154,4 @@ podman -c ${MACHINE} ps -a
 
 echo -e "${GREEN}${BOLD}Setup script execution complete${NC}"
 
+
