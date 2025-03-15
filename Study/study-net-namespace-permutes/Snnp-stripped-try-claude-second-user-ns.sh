@@ -56,10 +56,11 @@ podman machine ssh ${MACHINE} ip link show
 podman machine ssh ${MACHINE} ip netns list
 
 echo "RBNC2: Removing prior run elements, OUCH"
-snnp_machine_ssh_sudo ip link  del    eth1@${ENCLAVE_BOTTLE_OUT} || echo "RBNC2: could not delete " eth1@${ENCLAVE_BOTTLE_OUT}
-snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT}@eth1 || echo "RBNC2: could not delete " ${ENCLAVE_BOTTLE_OUT}@eth1
-snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE}          || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
-snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}           || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT}      || echo "RBNC2: could not delete" ${ENCLAVE_BOTTLE_OUT}
+snnp_machine_ssh_sudo ip link  del    eth1@${ENCLAVE_BOTTLE_OUT} || echo "RBNC2: could not delete" eth1@${ENCLAVE_BOTTLE_OUT}
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT}@eth1 || echo "RBNC2: could not delete" ${ENCLAVE_BOTTLE_OUT}@eth1
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE}          || echo "RBNC2: could not delete" ${ENCLAVE_BRIDGE}    
+snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}           || echo "RBNC2: could not delete" ${NET_NAMESPACE}     
 
 echo "Verifying cleanup was successful"
 sleep 2
@@ -146,7 +147,10 @@ snnp_machine_ssh "cat /tmp/unshare.log" || echo 'No log file found'
 echo "RBNS-ALT: Verify the PID is valid"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o cmd="
 
-echo "RBNS-ALT: Creating veth pair"
+echo "RBNS-ALT: Creating veths"
+podman machine ssh ${MACHINE} ip link show
+
+echo "RBNS-ALT: Creating veth pair -> ${ENCLAVE_BOTTLE_OUT} ${ENCLAVE_BOTTLE_IN}"
 snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
 
 echo "RBNS-ALT: Moving veth endpoint to namespace"
