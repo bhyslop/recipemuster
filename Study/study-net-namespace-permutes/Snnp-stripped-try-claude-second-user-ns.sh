@@ -115,7 +115,7 @@ snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
 echo "RBNS-ALT: Create a small script on the remote machine to handle the PID capture correctly"
 snnp_machine_ssh "cat > /tmp/create_netns.sh << 'EOF'
 #!/bin/bash
-echo $$ > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid
+echo \$\$ > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid
 exec sleep infinity
 EOF"
 snnp_machine_ssh "chmod +x /tmp/create_netns.sh"
