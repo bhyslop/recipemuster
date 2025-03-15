@@ -135,20 +135,13 @@ sleep 2
 echo "RBNS-ALT: Now find the sleep infinity PID which is what we actually need"
 UNSHARE_PID=$(snnp_machine_ssh "ps --ppid \$(ps --ppid ${SUDO_PID} -o pid= | tr -d ' ') -o pid= | tr -d ' '")
 echo "RBNS-ALT: Actual sleep process PID: ${UNSHARE_PID}"
-
+g
 echo "RBNS-ALT: Detailed process info for PID ${UNSHARE_PID}:"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o pid,ppid,stat,cmd= || echo 'Process not found'"
 snnp_machine_ssh "ps -ef | grep 'sleep infinity' | grep -v grep || echo 'Sleep process not found'"
 
-echo "RBNS-ALT: Check if PID file exists after waiting"
-snnp_machine_ssh "if [ ! -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid ]; then echo 'ERROR: PID file not created'; exit 1; fi"
-
-echo "RBNS-ALT: Get the correct PID"
-UNSHARE_PID=$(snnp_machine_ssh "cat ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid")
-echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
-
 echo "RBNS-ALT: Checking unshare log for errors:"
-snnp_machine_ssh "cat /tmp/unshare.log || echo 'No log file found'"
+snnp_machine_ssh "cat /tmp/unshare.log" || echo 'No log file found'
 
 echo "RBNS-ALT: Verify the PID is valid"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o cmd="
