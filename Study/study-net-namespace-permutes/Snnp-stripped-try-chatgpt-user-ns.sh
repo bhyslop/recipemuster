@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Simplified Container Network Setup Script (User Network Namespace Version)
+# Simplified Container Network Setup Script (ChatGPT User Network Namespace Version)
 # Each step is executed discretely with minimal environment passing
 
 set -e  # Exit on error
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "SNNP: Get constants from ${SCRIPT_DIR}"
+echo "SNNP: Get constants from" ${SCRIPT_DIR}
 source "$SCRIPT_DIR/Snnp-constants.sh"
 
 function snnp_podman_exec_sentry() {
@@ -27,7 +27,7 @@ function snnp_machine_ssh_sudo() {
 }
 
 
-echo -e "${BOLD}Container Network Setup Script (User Network Namespace)${NC}"
+echo -e "${BOLD}Container Network Setup Script${NC}"
 echo "Setting up ${MONIKER} containers with network isolation"
 echo ""
 
@@ -48,8 +48,8 @@ podman machine ssh ${MACHINE} ip link show
 podman machine ssh ${MACHINE} ip netns list
 
 echo "RBNC2: Removing prior run elements"
-snnp_machine_ssh_sudo ip link del ${ENCLAVE_BRIDGE} || echo "RBNC2: could not delete ${ENCLAVE_BRIDGE}"    
-snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE} || echo "RBNC2: could not delete ${NET_NAMESPACE}"     
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE} || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
+snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}  || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
 
 echo "RBNC3: Verifying cleanup"
 snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE_OUT}|${ENCLAVE_BRIDGE}' || echo 'No matching interfaces found'"
@@ -123,9 +123,9 @@ echo "RBNS-ALT: Check names after..."
 podman machine ssh ${MACHINE} ip link show
 podman machine ssh ${MACHINE} ip netns list
 
-echo -e "${BOLD}Verifying network namespace${NC}"
+echo -e "${BOLD}Verifying network namespace permissions${NC}"
 snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
-snnp_machine_ssh "echo 'Detailed information for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
+snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
 
 # NOTE: In this user network namespace approach we do not attempt to modify
 # the namespace file permissions (the chmod step has been removed).
