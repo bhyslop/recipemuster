@@ -190,7 +190,7 @@ echo "RBNS-ALT: Verifying updated permissions"
 snnp_machine_ssh_sudo ls -la /proc/${UNSHARE_PID}/ns/net
 
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
-snnp_machine_ssh podman run -d \
+snnp_machine_ssh_sudo podman run -d \
     --name ${BOTTLE_CONTAINER} \
     --network ns:/proc/${UNSHARE_PID}/ns/net \
     ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
