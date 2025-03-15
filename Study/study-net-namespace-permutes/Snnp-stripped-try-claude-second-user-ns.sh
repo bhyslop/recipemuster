@@ -126,7 +126,8 @@ echo "RBNS-ALT: Assure creation command well formed"
 snnp_machine_ssh "cat /tmp/create_netns.sh"
 
 echo "RBNS-ALT: Launch the unshare with nohup and disown to prevent the process from being terminated"
-snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /tmp/create_netns.sh > /tmp/unshare.log 2>&1 &"
+UNSHARE_PID=$(snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /bin/sleep infinity > /tmp/unshare.log 2>&1 & echo \$!")
+echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
 
 echo "RBNS-ALT: Add a more robust wait for the PID file"
 echo "Waiting for PID file to be created..."
