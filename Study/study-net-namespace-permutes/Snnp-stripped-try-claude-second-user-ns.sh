@@ -10,6 +10,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
 source "$SCRIPT_DIR/Snnp-constants.sh"
 
+# PID file for the unshare process
+USER_NETNS_DIR="/tmp/user_netns"
+UNSHARE_PID_FILE="${USER_NETNS_DIR}/${NET_NAMESPACE}.pid"
+
 function snnp_podman_exec_sentry() {
     podman -c ${MACHINE} exec ${SENTRY_CONTAINER} "$@"
 }
@@ -34,6 +38,22 @@ echo ""
 echo -e "${BOLD}Checking connection to ${MACHINE}${NC}"
 podman -c ${MACHINE} info > /dev/null || { echo "Unable to connect to machine"; exit 1; }
 echo -e "${GREEN}${BOLD}Connection successful.${NC}"
+
+echo -e "${BOLD}Cleaning up old unshare process${NC}"
+snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
+# Check if PID file exists and kill the process if it does
+snnp_machine_ssh "if [ -f ${UNSHARE_PID_FILE} ]; then 
+    OLD_PID=\$(cat ${UNSHARE_PID_FILE})
+    if kill -0 \${OLD_PID} 2>/dev/null; then
+        echo 'Killing old unshare process with PID '\${OLD_PID}
+        sudo kill \${OLD_PID}
+    else
+        echo 'Old unshare process already terminated'
+    fi
+    rm ${UNSHARE_PID_FILE}
+else
+    echo 'No previous unshare PID file found'
+fi"
 
 echo -e "${BOLD}Stopping any prior containers${NC}"
 podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || echo "Attempt to stop ${SENTRY_CONTAINER} did nothing"
@@ -99,17 +119,15 @@ echo "RBS: SKIPPING sentry setup script"
 
 echo "RBNS-ALT: Setting up user-accessible network namespace"
 # Create a directory for user-owned network namespaces if it doesn't exist
-USER_NETNS_DIR="/tmp/user_netns"
 snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
 
-# Create the network namespace using unshare which creates a user-accessible namespace
-USER_NETNS_FILE="${USER_NETNS_DIR}/${NET_NAMESPACE}"
-snnp_machine_ssh "touch ${USER_NETNS_FILE}"
-snnp_machine_ssh "unshare --net=${USER_NETNS_FILE} --fork --pid --mount-proc /bin/bash -c 'sleep 999999' & echo \$! > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid"
+# Create the network namespace using unshare with sudo which creates a namespace
+echo "RBNS-ALT: Creating network namespace with sudo unshare"
+snnp_machine_ssh_sudo "unshare --net --fork --pid --mount-proc /bin/bash -c 'echo \$\$ > ${UNSHARE_PID_FILE}; exec sleep infinity' &"
 sleep 2  # Give the unshare command time to set up
 
 # Get the PID of the unshare process
-UNSHARE_PID=$(snnp_machine_ssh "cat ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid")
+UNSHARE_PID=$(snnp_machine_ssh "cat ${UNSHARE_PID_FILE}")
 echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
 
 echo "RBNS-ALT: Creating veth pair"
@@ -149,7 +167,7 @@ echo "RBNI: Network bridge information"
 snnp_machine_ssh ip link show type bridge
 
 echo "RBNI: Network namespace information"
-snnp_machine_ssh "ps aux | grep unshare"
+snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
 snnp_machine_ssh "ls -la ${USER_NETNS_DIR}"
 
 echo "RBNI: Route information"
@@ -158,11 +176,6 @@ snnp_machine_ssh ip route
 echo -e "${BOLD}Verifying containers${NC}"
 podman -c ${MACHINE} ps -a
 
-echo "Add a cleanup trap to kill the unshare process when script exits"
-snnp_machine_ssh "echo \"trap 'kill ${UNSHARE_PID}' EXIT\" > ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
-snnp_machine_ssh "chmod +x ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
-echo "Created cleanup script at ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
-echo "When you're done, run: podman machine ssh ${MACHINE} ${USER_NETNS_DIR}/cleanup_${NET_NAMESPACE}.sh"
-
 echo -e "${GREEN}${BOLD}Setup script execution complete${NC}"
+echo "The unshare process (PID: ${UNSHARE_PID}) will be cleaned up automatically on next script run"
 
