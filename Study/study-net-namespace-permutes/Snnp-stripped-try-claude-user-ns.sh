@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Simplified Container Network Setup Script
+# Container Network Setup Script with User Namespace
 # Each step is executed discretely with minimal environment passing
 
 set -e  # Exit on error
@@ -25,7 +25,6 @@ function snnp_machine_ssh() {
 function snnp_machine_ssh_sudo() {
     podman machine ssh ${MACHINE} sudo "$@"
 }
-
 
 echo -e "${BOLD}Container Network Setup Script${NC}"
 echo "Setting up ${MONIKER} containers with network isolation"
@@ -97,50 +96,26 @@ echo "RSNS: Sentry namespace setup complete"
 echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
-echo "RBNS-ALT: Creating network namespace manually"
-snnp_machine_ssh_sudo ip netns add ${NET_NAMESPACE}
+echo -e "${BOLD}Creating BOTTLE container with cni-podman bridge network${NC}"
+# First let's create a podman network for the bottle container
+echo "Creating custom podman network"
+podman -c ${MACHINE} network create --driver bridge ${MONIKER}-net || echo "Network may already exist"
 
-echo "RBNS-ALT: Creating veth pair"
-snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
+# Now launch the bottle container with the network we just created
+echo "Launching BOTTLE container with custom network"
+podman -c ${MACHINE} run -d \
+  --name ${BOTTLE_CONTAINER} \
+  --network ${MONIKER}-net \
+  ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
 
-echo "RBNS-ALT: Moving veth endpoint to namespace"
-snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_IN} netns ${NET_NAMESPACE}
+# Get bottle container IP address
+BOTTLE_IP=$(podman -c ${MACHINE} inspect -f '{{.NetworkSettings.Networks.'${MONIKER}'-net.IPAddress}}' ${BOTTLE_CONTAINER})
+echo "BOTTLE container IP: ${BOTTLE_IP}"
 
-echo "RBNS-ALT: Configuring interfaces in namespace"
-snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip link set ${ENCLAVE_BOTTLE_IN} name eth1
-snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip addr add ${ENCLAVE_BOTTLE_IP}/${ENCLAVE_NETMASK} dev eth1
-snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip link set eth1 up
-snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip link set lo up
-
-echo "RBNS-ALT: Connecting veth to bridge"
-snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} master ${ENCLAVE_BRIDGE}
-snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} up
-
-echo "RBNS-ALT: Setting default route in namespace"
-snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip route add default via ${ENCLAVE_SENTRY_IP}
-
-echo "RBNS-ALT: Check names after..."
-podman machine ssh ${MACHINE} ip link show
-podman machine ssh ${MACHINE} ip netns list
-
-echo -e "${BOLD}Verifying network namespace permissions${NC}"
-snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
-snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
-
-echo "Adjusting network namespace permissions for ${NET_NAMESPACE}"
-snnp_machine_ssh_sudo chmod 666 /var/run/netns/${NET_NAMESPACE}
-echo "New permissions:"
-snnp_machine_ssh "ls -l /var/run/netns"
-
-echo -e "${BOLD}Verifying network namespace permissions AFTER change attempt${NC}"
-snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
-snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
-
-echo "RBNS-ALT: Starting container with the prepared network namespace"
-snnp_machine_ssh podman run -d                    \
-    --name ${BOTTLE_CONTAINER}                    \
-    --network ns:/var/run/netns/${NET_NAMESPACE}  \
-    ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
+# Set up routing between sentry and bottle
+echo "Setting up routing between SENTRY and BOTTLE"
+snnp_podman_exec_sentry ip route add ${BOTTLE_IP}/32 via ${ENCLAVE_SENTRY_IP}
+snnp_podman_exec_bottle ip route add ${ENCLAVE_SENTRY_IP}/32 via $(podman -c ${MACHINE} network inspect -f '{{range .Subnets}}{{.Gateway}}{{end}}' ${MONIKER}-net)
 
 echo -e "${BOLD}Visualizing network setup in podman machine...${NC}"
 echo "RBNI: Network interface information"
@@ -149,11 +124,20 @@ snnp_machine_ssh ip a
 echo "RBNI: Network bridge information" 
 snnp_machine_ssh ip link show type bridge
 
-echo "RBNI: Network namespace information"
-snnp_machine_ssh ip netns list
+echo "RBNI: Podman network information"
+podman -c ${MACHINE} network ls
+podman -c ${MACHINE} network inspect ${MONIKER}-net
 
-echo "RBNI: Route information"
-snnp_machine_ssh ip route
+echo "RBNI: Container network information"
+podman -c ${MACHINE} inspect -f '{{json .NetworkSettings.Networks}}' ${SENTRY_CONTAINER} | jq
+podman -c ${MACHINE} inspect -f '{{json .NetworkSettings.Networks}}' ${BOTTLE_CONTAINER} | jq
+
+echo -e "${BOLD}Testing connectivity${NC}"
+echo "Testing SENTRY to BOTTLE connectivity"
+snnp_podman_exec_sentry ping -c 3 ${BOTTLE_IP} || echo "Ping from SENTRY to BOTTLE failed"
+
+echo "Testing BOTTLE to SENTRY connectivity"
+snnp_podman_exec_bottle ping -c 3 ${ENCLAVE_SENTRY_IP} || echo "Ping from BOTTLE to SENTRY failed"
 
 echo -e "${BOLD}Verifying containers${NC}"
 podman -c ${MACHINE} ps -a
