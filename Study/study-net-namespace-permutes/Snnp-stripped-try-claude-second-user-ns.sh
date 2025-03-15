@@ -36,11 +36,12 @@ echo ""
 
 echo -e "${BOLD}Cleaning up old unshare processes and interfaces${NC}"
 
-echo "Kill any existing unshare processes"
-snnp_machine_ssh_sudo "pkill -f 'unshare.*sleep infinity'" || echo "No unshare processes found"
+echo "Kill ALL existing unshare and sleep infinity processes"
+snnp_machine_ssh_sudo "pkill -9 -f 'sleep infinity'" || echo "No sleep infinity processes found"
+snnp_machine_ssh_sudo "pkill -9 -f 'unshare'"        || echo "No unshare processes found"
 
 echo "Remove PID file if it exists"
-snnp_machine_ssh "rm -f ${UNSHARE_PID_FILE}" || echo "No PID file to remove"
+snnp_machine_ssh "rm -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid" || echo "No PID file to remove"
 
 echo -e "${BOLD}Stopping any prior containers${NC}"
 podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || echo "Attempt to stop ${SENTRY_CONTAINER} did nothing"
@@ -57,6 +58,10 @@ podman machine ssh ${MACHINE} ip netns list
 echo "RBNC2: Removing prior run elements"
 snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE} || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
 snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}  || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
+
+echo "Verifying cleanup was successful"
+sleep 2
+snnp_machine_ssh "ps -ef | grep -E 'unshare|sleep infinity' | grep -v grep || echo 'All processes successfully cleaned up'"
 
 echo "RBNC3: Verifying cleanup"
 snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE_OUT}|${ENCLAVE_BRIDGE}' || echo 'No matching interfaces found'"
@@ -118,16 +123,16 @@ snnp_machine_ssh "chmod +x /tmp/create_netns.sh"
 echo "RBNS-ALT: Assure creation command well formed"
 snnp_machine_ssh "cat /tmp/create_netns.sh"
 
-echo "RBNS-ALT: Kill any existing processes and clean interfaces first"
-snnp_machine_ssh_sudo "pkill -f 'sleep infinity'" || echo "No processes to kill"
-snnp_machine_ssh_sudo "ip link del ${ENCLAVE_BOTTLE_OUT}" || echo "No interface to delete"
-
-echo "RBNS-ALT: Launch the unshare with nohup"
+echo "RBNS-ALT: Launch the unshare with nohup and disown to prevent the process from being terminated"
 snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /tmp/create_netns.sh > /tmp/unshare.log 2>&1 &"
 
 echo "RBNS-ALT: Add a more robust wait for the PID file"
 echo "Waiting for PID file to be created..."
-snnp_machine_ssh "for i in {1..10}; do if [ -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid ]; then break; else sleep 1; echo -n '.'; fi; done; echo ''"
+sleep 5
+
+echo "RBNS-ALT: Detailed process info for PID ${UNSHARE_PID}:"
+snnp_machine_ssh "ps -p ${UNSHARE_PID} -o pid,ppid,stat,cmd= || echo 'Process not found'"
+snnp_machine_ssh "ps -ef | grep 'sleep infinity' | grep -v grep || echo 'Sleep process not found'"
 
 echo "RBNS-ALT: Check if PID file exists after waiting"
 snnp_machine_ssh "if [ ! -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid ]; then echo 'ERROR: PID file not created'; exit 1; fi"
@@ -136,7 +141,11 @@ echo "RBNS-ALT: Get the correct PID"
 UNSHARE_PID=$(snnp_machine_ssh "cat ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid")
 echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
 
+echo "RBNS-ALT: Checking unshare log for errors:"
+snnp_machine_ssh "cat /tmp/unshare.log || echo 'No log file found'"
+
 echo "RBNS-ALT: Verify the PID is valid"
+snnp_machine_ssh "ps aux"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o cmd="
 
 echo "RBNS-ALT: Creating veth pair"
