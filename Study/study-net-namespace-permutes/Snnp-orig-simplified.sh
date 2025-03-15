@@ -119,18 +119,18 @@ snnp_podman_exec_sentry iptables -F
 snnp_podman_exec_sentry iptables -t nat -F
 
 echo "RBS2: Setting default policies"
-snnp_podman_exec_sentry iptables -P INPUT DROP
+snnp_podman_exec_sentry iptables -P INPUT   DROP
 snnp_podman_exec_sentry iptables -P FORWARD DROP
-snnp_podman_exec_sentry iptables -P OUTPUT DROP
+snnp_podman_exec_sentry iptables -P OUTPUT  DROP
 
 echo "RBS3: Configuring loopback access"
-snnp_podman_exec_sentry iptables -A INPUT -i lo -j ACCEPT
+snnp_podman_exec_sentry iptables -A INPUT  -i lo -j ACCEPT
 snnp_podman_exec_sentry iptables -A OUTPUT -o lo -j ACCEPT
 
 echo "RBS4: Setting up connection tracking"
-snnp_podman_exec_sentry iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+snnp_podman_exec_sentry iptables -A INPUT   -m state --state RELATED,ESTABLISHED -j ACCEPT
 snnp_podman_exec_sentry iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-snnp_podman_exec_sentry iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+snnp_podman_exec_sentry iptables -A OUTPUT  -m state --state RELATED,ESTABLISHED -j ACCEPT
 
 echo "RBS5: Creating RBM chains"
 snnp_podman_exec_sentry iptables -N RBM-INGRESS
@@ -138,26 +138,26 @@ snnp_podman_exec_sentry iptables -N RBM-EGRESS
 snnp_podman_exec_sentry iptables -N RBM-FORWARD
 
 echo "RBS6: Setting up chain jumps"
-snnp_podman_exec_sentry iptables -A INPUT -j RBM-INGRESS
-snnp_podman_exec_sentry iptables -A OUTPUT -j RBM-EGRESS
+snnp_podman_exec_sentry iptables -A INPUT   -j RBM-INGRESS
+snnp_podman_exec_sentry iptables -A OUTPUT  -j RBM-EGRESS
 snnp_podman_exec_sentry iptables -A FORWARD -j RBM-FORWARD
 
 echo "RBS7: Allowing ICMP within enclave only"
 snnp_podman_exec_sentry iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT
-snnp_podman_exec_sentry iptables -A RBM-EGRESS -o eth1 -p icmp -j ACCEPT
+snnp_podman_exec_sentry iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT
 
 echo "RBS8: Configuring TCP access for bottled services"
-snnp_podman_exec_sentry iptables -A RBM-EGRESS -o eth1 -p tcp -d ${ENCLAVE_BOTTLE_IP} --dport ${ENTRY_PORT_ENCLAVE} -j ACCEPT
+snnp_podman_exec_sentry iptables -A RBM-EGRESS  -o eth1 -p tcp -d ${ENCLAVE_BOTTLE_IP} --dport ${ENTRY_PORT_ENCLAVE} -j ACCEPT
 snnp_podman_exec_sentry iptables -A RBM-INGRESS -i eth1 -p tcp -s ${ENCLAVE_BOTTLE_IP} --sport ${ENTRY_PORT_ENCLAVE} -j ACCEPT
 
 echo "RBS9: Setting up socat proxy"
-snnp_podman_exec_sentry -d socat TCP-LISTEN:${ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${ENCLAVE_BOTTLE_IP}:${ENTRY_PORT_ENCLAVE}
+podman -c ${MACHINE} exec -d ${SENTRY_CONTAINER} socat TCP-LISTEN:${ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${ENCLAVE_BOTTLE_IP}:${ENTRY_PORT_ENCLAVE}
 sleep 1
 snnp_podman_exec_sentry pgrep -f "socat.*:${ENTRY_PORT_WORKSTATION}" || echo "Socat proxy not started"
 
 echo "RBS10: Blocking ICMP cross-boundary traffic"
-snnp_podman_exec_sentry iptables -A RBM-FORWARD -p icmp -j DROP
-snnp_podman_exec_sentry iptables -A RBM-EGRESS -o eth0 -p icmp -j DROP
+snnp_podman_exec_sentry iptables -A RBM-FORWARD         -p icmp -j DROP
+snnp_podman_exec_sentry iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP
 
 echo "RBS11: Setting up network forwarding"
 snnp_podman_exec_sentry sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
@@ -214,7 +214,7 @@ address=/#/
 EOC"
 
 echo "RBS18: Starting dnsmasq service"
-snnp_podman_exec_sentry -d dnsmasq
+podman -c ${MACHINE} exec -d ${SENTRY_CONTAINER} dnsmasq
 sleep 2
 
 echo "RBS19: Configuring DNS firewall rules"
@@ -312,3 +312,4 @@ echo -e "${BOLD}Verifying containers${NC}"
 podman -c ${MACHINE} ps -a
 
 echo -e "${GREEN}${BOLD}Setup script execution complete${NC}"
+
