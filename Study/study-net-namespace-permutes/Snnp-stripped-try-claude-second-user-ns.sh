@@ -10,8 +10,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
 source "$SCRIPT_DIR/Snnp-constants.sh"
 
-USER_NETNS_DIR="/tmp/user_netns"
-UNSHARE_PID_FILE="${USER_NETNS_DIR}/${NET_NAMESPACE}.pid"
+UNSHARE_PID_DIR="/tmp/unshare_pid_dir"
+UNSHARE_PID_FILE="${UNSHARE_PID_DIR}/${NET_NAMESPACE}.pid"
 
 function snnp_podman_exec_sentry() {
     podman -c ${MACHINE} exec ${SENTRY_CONTAINER} "$@"
@@ -41,7 +41,7 @@ snnp_machine_ssh_sudo "pkill -9 -f 'sleep infinity'" || echo "No sleep infinity 
 snnp_machine_ssh_sudo "pkill -9 -f 'unshare'"        || echo "No unshare processes found"
 
 echo "Remove PID file if it exists"
-snnp_machine_ssh "rm -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid" || echo "No PID file to remove"
+snnp_machine_ssh "rm -f ${UNSHARE_PID_DIR}/${NET_NAMESPACE}.pid" || echo "No PID file to remove"
 
 echo -e "${BOLD}Stopping any prior containers${NC}"
 podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || echo "Attempt to stop ${SENTRY_CONTAINER} did nothing"
@@ -113,12 +113,12 @@ echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
 echo "RBNS-ALT: Setting up user-accessible network namespace"
-snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
+snnp_machine_ssh "mkdir -p ${UNSHARE_PID_DIR}"
 
 echo "RBNS-ALT: Create a small script on the remote machine to handle the PID capture correctly"
 snnp_machine_ssh "cat > /tmp/create_netns.sh << 'EOF'
 #!/bin/bash
-echo \$\$ > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid
+echo \$\$ > ${UNSHARE_PID_DIR}/${NET_NAMESPACE}.pid
 exec sleep infinity
 EOF"
 snnp_machine_ssh "chmod +x /tmp/create_netns.sh"
@@ -183,8 +183,8 @@ echo "RBNS-ALT: Checking permissions on network namespace"
 snnp_machine_ssh_sudo ls -la /proc/${UNSHARE_PID}/ns/net
 
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
-podman -c ${MACHINE} run -d \
-    --name ${BOTTLE_CONTAINER} \
+podman -c ${MACHINE} run -d                  \
+    --name ${BOTTLE_CONTAINER}               \
     --network ns:/proc/${UNSHARE_PID}/ns/net \
     ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
 
@@ -197,7 +197,7 @@ snnp_machine_ssh ip link show type bridge
 
 echo "RBNI: Network namespace information"
 snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
-snnp_machine_ssh "ls -la ${USER_NETNS_DIR}"
+snnp_machine_ssh "ls -la ${UNSHARE_PID_DIR}"
 
 echo "RBNI: Route information"
 snnp_machine_ssh ip route
