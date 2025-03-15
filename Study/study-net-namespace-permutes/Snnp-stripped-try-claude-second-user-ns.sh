@@ -123,7 +123,7 @@ snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
 
 # Create the network namespace using unshare with sudo which creates a namespace
 echo "RBNS-ALT: Creating network namespace with sudo unshare"
-snnp_machine_ssh_sudo "unshare --net --fork --pid --mount-proc /bin/bash -c 'echo \$\$ > ${UNSHARE_PID_FILE}; exec sleep infinity' &"
+snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /bin/bash -c 'echo \$\$ > ${UNSHARE_PID_FILE}; exec sleep infinity' > /dev/null 2>&1 &"
 sleep 2  # Give the unshare command time to set up
 
 # Get the PID of the unshare process
