@@ -125,13 +125,16 @@ snnp_machine_ssh "chmod +x /tmp/create_netns.sh"
 echo "RBNS-ALT: Assure creation command well formed"
 snnp_machine_ssh "cat /tmp/create_netns.sh"
 
-echo "RBNS-ALT: Launch the unshare with nohup and disown to prevent the process from being terminated"
-UNSHARE_PID=$(snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /bin/sleep infinity > /tmp/unshare.log 2>&1 & echo \$!")
-echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
+echo "RBNS-ALT: First capture the sudo process PID"
+SUDO_PID=$(snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /bin/sleep infinity > /tmp/unshare.log 2>&1 & echo \$!")
+echo "RBNS-ALT: Sudo process PID: ${SUDO_PID}"
 
-echo "RBNS-ALT: Add a more robust wait for the PID file"
-echo "Waiting for PID file to be created..."
-sleep 5
+echo "RBNS-ALT: Wait a moment for child processes to spawn"
+sleep 2
+
+echo "RBNS-ALT: Now find the sleep infinity PID which is what we actually need"
+UNSHARE_PID=$(snnp_machine_ssh "ps --ppid \$(ps --ppid ${SUDO_PID} -o pid= | tr -d ' ') -o pid= | tr -d ' '")
+echo "RBNS-ALT: Actual sleep process PID: ${UNSHARE_PID}"
 
 echo "RBNS-ALT: Detailed process info for PID ${UNSHARE_PID}:"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o pid,ppid,stat,cmd= || echo 'Process not found'"
