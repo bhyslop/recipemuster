@@ -122,9 +122,15 @@ echo "RBNS-ALT: Kill any existing processes and clean interfaces first"
 snnp_machine_ssh_sudo "pkill -f 'sleep infinity'" || echo "No processes to kill"
 snnp_machine_ssh_sudo "ip link del ${ENCLAVE_BOTTLE_OUT}" || echo "No interface to delete"
 
-echo "RBNS-ALT: Launch the unshare with the script"
-snnp_machine_ssh_sudo "unshare --net --fork --pid --mount-proc /tmp/create_netns.sh &"
-sleep 2
+echo "RBNS-ALT: Launch the unshare with nohup"
+snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /tmp/create_netns.sh > /tmp/unshare.log 2>&1 &"
+
+echo "RBNS-ALT: Add a more robust wait for the PID file"
+echo "Waiting for PID file to be created..."
+snnp_machine_ssh "for i in {1..10}; do if [ -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid ]; then break; else sleep 1; echo -n '.'; fi; done; echo ''"
+
+echo "RBNS-ALT: Check if PID file exists after waiting"
+snnp_machine_ssh "if [ ! -f ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid ]; then echo 'ERROR: PID file not created'; exit 1; fi"
 
 echo "RBNS-ALT: Get the correct PID"
 UNSHARE_PID=$(snnp_machine_ssh "cat ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid")
