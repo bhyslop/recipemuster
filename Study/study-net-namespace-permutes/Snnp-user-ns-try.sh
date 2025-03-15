@@ -47,13 +47,12 @@ echo "RBNC0: Cleaning up SENTRY interfaces: ${ENCLAVE_SENTRY_OUT}, ${ENCLAVE_SEN
 echo "RBNC1: Cleaning up BOTTLE interfaces: ${ENCLAVE_BOTTLE_OUT}, ${ENCLAVE_BOTTLE_IN}"
 echo "RBNC2: Removing bridge: ${ENCLAVE_BRIDGE}"
 
-snnp_machine_ssh_sudo ip link del ${ENCLAVE_SENTRY_OUT} || true
-snnp_machine_ssh_sudo ip link del ${ENCLAVE_SENTRY_IN} || true
-
-snnp_machine_ssh_sudo ip link del ${ENCLAVE_BOTTLE_OUT} || true
-snnp_machine_ssh_sudo ip link del ${ENCLAVE_BOTTLE_IN} || true
-
-snnp_machine_ssh_sudo ip link del ${ENCLAVE_BRIDGE} || true
+snnp_machine_ssh_sudo ip link  del ${ENCLAVE_SENTRY_OUT} || echo "Deleted" ${ENCLAVE_SENTRY_OUT}
+snnp_machine_ssh_sudo ip link  del ${ENCLAVE_SENTRY_IN}  || echo "Deleted" ${ENCLAVE_SENTRY_IN} 
+snnp_machine_ssh_sudo ip link  del ${ENCLAVE_BOTTLE_OUT} || echo "Deleted" ${ENCLAVE_BOTTLE_OUT}
+snnp_machine_ssh_sudo ip link  del ${ENCLAVE_BOTTLE_IN}  || echo "Deleted" ${ENCLAVE_BOTTLE_IN} 
+snnp_machine_ssh_sudo ip link  del ${ENCLAVE_BRIDGE}     || echo "Deleted" ${ENCLAVE_BRIDGE}    
+snnp_machine_ssh_sudo ip netns add ${NET_NAMESPACE}      || echo "Deleted" ${NET_NAMESPACE}     
 
 echo "RBNC3: Verifying cleanup"
 snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE_OUT}|${ENCLAVE_BRIDGE}' || echo 'No matching interfaces found'"
