@@ -107,24 +107,31 @@ echo "RBS: SKIPPING sentry setup script"
 echo "RBNS-ALT: Setting up user-accessible network namespace"
 snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
 
-echo "RBNS-ALT: Creating network namespace with sudo unshare"
-snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc bash -c 'echo \$\$ > ${UNSHARE_PID_FILE} && exec sleep infinity' > /dev/null 2>&1 &"
-echo "Give the unshare command time to set up"
+echo "RBNS-ALT: Create a small script on the remote machine to handle the PID capture correctly"
+snnp_machine_ssh "cat > /tmp/create_netns.sh << 'EOF'
+#!/bin/bash
+echo $$ > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid
+exec sleep infinity
+EOF"
+snnp_machine_ssh "chmod +x /tmp/create_netns.sh"
+
+echo "RBNS-ALT: Assure creation command well formed"
+snnp_machine_ssh "cat /tmp/create_netns.sh"
+
+echo "RBNS-ALT: Kill any existing processes and clean interfaces first"
+snnp_machine_ssh_sudo "pkill -f 'sleep infinity'" || echo "No processes to kill"
+snnp_machine_ssh_sudo "ip link del ${ENCLAVE_BOTTLE_OUT}" || echo "No interface to delete"
+
+echo "RBNS-ALT: Launch the unshare with the script"
+snnp_machine_ssh_sudo "unshare --net --fork --pid --mount-proc /tmp/create_netns.sh &"
 sleep 2
 
-echo "Get the PID of the unshare process"
-UNSHARE_PID=$(snnp_machine_ssh "cat ${UNSHARE_PID_FILE}")
+echo "RBNS-ALT: Get the correct PID"
+UNSHARE_PID=$(snnp_machine_ssh "cat ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid")
 echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
 
-echo "Debugging PID file:"
-snnp_machine_ssh "ls -la ${USER_NETNS_DIR}"
-snnp_machine_ssh "cat ${UNSHARE_PID_FILE} || echo 'File not found or empty'"
-snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
-
-echo "Debugging PID file additional:"
-snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
-snnp_machine_ssh "cat   ${UNSHARE_PID_FILE} || echo 'File not found or empty'"
-snnp_machine_ssh "ls -l ${UNSHARE_PID_FILE} || echo 'File not found'"
+echo "RBNS-ALT: Verify the PID is valid"
+snnp_machine_ssh "ps -p ${UNSHARE_PID} -o cmd="
 
 echo "RBNS-ALT: Creating veth pair"
 snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
