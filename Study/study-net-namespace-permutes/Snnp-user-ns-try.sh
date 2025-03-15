@@ -225,44 +225,32 @@ snnp_podman_exec_sentry iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d ${D
 echo "RBS: Sentry setup complete"
 
 echo "RBNS-ALT: Creating network namespace manually"
-snnp_machine_ssh_sudo ip netns add ${MONIKER}-ns
+snnp_machine_ssh_sudo ip netns add ${NET_NAMESPACE}
 
 echo "RBNS-ALT: Creating veth pair"
 snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
 
 echo "RBNS-ALT: Moving veth endpoint to namespace"
-snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_IN} netns ${MONIKER}-ns
+snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_IN} netns ${NET_NAMESPACE}
 
 echo "RBNS-ALT: Configuring interfaces in namespace"
-snnp_machine_ssh_sudo ip netns exec ${MONIKER}-ns ip link set ${ENCLAVE_BOTTLE_IN} name eth1
-snnp_machine_ssh_sudo ip netns exec ${MONIKER}-ns ip addr add ${ENCLAVE_BOTTLE_IP}/${ENCLAVE_NETMASK} dev eth1
-snnp_machine_ssh_sudo ip netns exec ${MONIKER}-ns ip link set eth1 up
-snnp_machine_ssh_sudo ip netns exec ${MONIKER}-ns ip link set lo up
+snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip link set ${ENCLAVE_BOTTLE_IN} name eth1
+snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip addr add ${ENCLAVE_BOTTLE_IP}/${ENCLAVE_NETMASK} dev eth1
+snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip link set eth1 up
+snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip link set lo up
 
 echo "RBNS-ALT: Connecting veth to bridge"
 snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} master ${ENCLAVE_BRIDGE}
 snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} up
 
 echo "RBNS-ALT: Setting default route in namespace"
-snnp_machine_ssh_sudo ip netns exec ${MONIKER}-ns ip route add default via ${ENCLAVE_SENTRY_IP}
+snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip route add default via ${ENCLAVE_SENTRY_IP}
 
 echo "RBNS-ALT: Starting container with the prepared network namespace"
-snnp_machine_ssh podman run -d                 \
-    --name ${BOTTLE_CONTAINER}                 \
-    --network ns:/var/run/netns/${MONIKER}-ns  \
-    --privileged                               \
+snnp_machine_ssh podman run -d                    \
+    --name ${BOTTLE_CONTAINER}                    \
+    --network ns:/var/run/netns/${NET_NAMESPACE}  \
     ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
-
-echo "RBNS-ALT: Bottle namespace setup complete"
-
-echo -e "${BOLD}Starting BOTTLE container to get a valid PID${NC}"
-podman -c ${MACHINE} start ${BOTTLE_CONTAINER}
-sleep 2
-
-echo "RBNS: Beginning bottle namespace setup"
-echo "RBNS0: Getting BOTTLE PID"
-BOTTLE_PID=$(podman -c ${MACHINE} inspect -f '{{.State.Pid}}' ${BOTTLE_CONTAINER})
-echo "RBNS1: BOTTLE PID: ${BOTTLE_PID}"
 
 echo -e "${BOLD}Visualizing network setup in podman machine...${NC}"
 echo "RBNI: Network interface information"
