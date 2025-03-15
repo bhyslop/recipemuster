@@ -56,15 +56,17 @@ podman machine ssh ${MACHINE} ip link show
 podman machine ssh ${MACHINE} ip netns list
 
 echo "RBNC2: Removing prior run elements"
-snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE} || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
-snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}  || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
+snnp_machine_ssh_sudo ip link  del    eth1@${ENCLAVE_BOTTLE_OUT} || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT}@eth1 || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
+snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE}          || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
+snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}           || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
 
 echo "Verifying cleanup was successful"
 sleep 2
 snnp_machine_ssh "ps -ef | grep -E 'unshare|sleep infinity' | grep -v grep || echo 'All processes successfully cleaned up'"
 
 echo "RBNC3: Verifying cleanup"
-snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE_OUT}|${ENCLAVE_BRIDGE}' || echo 'No matching interfaces found'"
+snnp_machine_ssh "ip link show | grep -E '${MONIKER}' || echo 'No matching interfaces found'"
 echo "RBNC: Network cleanup complete"
 
 echo "RBNC: After cleanup..."
