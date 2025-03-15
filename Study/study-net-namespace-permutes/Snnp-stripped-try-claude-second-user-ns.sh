@@ -145,7 +145,6 @@ echo "RBNS-ALT: Checking unshare log for errors:"
 snnp_machine_ssh "cat /tmp/unshare.log || echo 'No log file found'"
 
 echo "RBNS-ALT: Verify the PID is valid"
-snnp_machine_ssh "ps aux"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o cmd="
 
 echo "RBNS-ALT: Creating veth pair"
