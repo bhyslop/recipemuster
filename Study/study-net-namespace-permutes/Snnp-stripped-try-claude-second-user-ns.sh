@@ -179,6 +179,16 @@ echo "RBNS-ALT: Check interfaces after namespace setup..."
 snnp_machine_ssh ip link show
 snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link show
 
+echo "RBNS-ALT: Checking permissions on network namespace"
+snnp_machine_ssh_sudo ls -la /proc/${UNSHARE_PID}/ns/net
+
+echo "RBNS-ALT: Attempting to modify permissions on network namespace"
+snnp_machine_ssh_sudo chmod 755 /proc/${UNSHARE_PID}/ns/
+snnp_machine_ssh_sudo chmod 755 /proc/${UNSHARE_PID}/ns/net
+
+echo "RBNS-ALT: Verifying updated permissions"
+snnp_machine_ssh_sudo ls -la /proc/${UNSHARE_PID}/ns/net
+
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
 snnp_machine_ssh podman run -d \
     --name ${BOTTLE_CONTAINER} \
