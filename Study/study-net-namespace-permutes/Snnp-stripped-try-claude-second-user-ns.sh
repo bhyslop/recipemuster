@@ -146,6 +146,12 @@ echo "RBNS-ALT: Connecting veth to bridge"
 snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} master ${ENCLAVE_BRIDGE}
 snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} up
 
+echo "RBNS-ALT: Collect diagnostic info: ip route show shows"
+snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip route show
+
+echo "RBNS-ALT: Collect diagnostic info: sdhow pid file written"
+snnp_machine_ssh_sudo "ps -p ${UNSHARE_PID} -o cmd="
+
 echo "RBNS-ALT: Setting default route in namespace"
 snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip route add default via ${ENCLAVE_SENTRY_IP}
 
