@@ -34,25 +34,13 @@ echo -e "${BOLD}Container Network Setup Script${NC}"
 echo "Setting up ${MONIKER} containers with network isolation"
 echo ""
 
-echo -e "${BOLD}Checking connection to ${MACHINE}${NC}"
-podman -c ${MACHINE} info > /dev/null || { echo "Unable to connect to machine"; exit 1; }
-echo -e "${GREEN}${BOLD}Connection successful.${NC}"
+echo -e "${BOLD}Cleaning up old unshare processes and interfaces${NC}"
 
-echo -e "${BOLD}Cleaning up old unshare process${NC}"
-snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
-# Check if PID file exists and kill the process if it does
-snnp_machine_ssh "if [ -f ${UNSHARE_PID_FILE} ]; then 
-    OLD_PID=\$(cat ${UNSHARE_PID_FILE})
-    if kill -0 \${OLD_PID} 2>/dev/null; then
-        echo 'Killing old unshare process with PID '\${OLD_PID}
-        sudo kill \${OLD_PID}
-    else
-        echo 'Old unshare process already terminated'
-    fi
-    rm ${UNSHARE_PID_FILE}
-else
-    echo 'No previous unshare PID file found'
-fi"
+echo "Kill any existing unshare processes"
+snnp_machine_ssh_sudo "pkill -f 'unshare.*sleep infinity'" || echo "No unshare processes found"
+
+echo "Remove PID file if it exists"
+snnp_machine_ssh "rm -f ${UNSHARE_PID_FILE}" || echo "No PID file to remove"
 
 echo -e "${BOLD}Stopping any prior containers${NC}"
 podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || echo "Attempt to stop ${SENTRY_CONTAINER} did nothing"
@@ -117,23 +105,26 @@ echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
 echo "RBNS-ALT: Setting up user-accessible network namespace"
-# Create a directory for user-owned network namespaces if it doesn't exist
 snnp_machine_ssh "mkdir -p ${USER_NETNS_DIR}"
 
-# Create the network namespace using unshare with sudo which creates a namespace
 echo "RBNS-ALT: Creating network namespace with sudo unshare"
-snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc /bin/bash -c 'echo \$\$ > ${UNSHARE_PID_FILE}; exec sleep infinity' > /dev/null 2>&1 &"
-sleep 2  # Give the unshare command time to set up
+snnp_machine_ssh_sudo "nohup unshare --net --fork --pid --mount-proc bash -c 'echo \$\$ > ${UNSHARE_PID_FILE} && exec sleep infinity' > /dev/null 2>&1 &"
+echo "Give the unshare command time to set up"
+sleep 2
 
-# Get the PID of the unshare process
+echo "Get the PID of the unshare process"
 UNSHARE_PID=$(snnp_machine_ssh "cat ${UNSHARE_PID_FILE}")
 echo "RBNS-ALT: Unshare process PID: ${UNSHARE_PID}"
 
-# After the unshare command and sleep
 echo "Debugging PID file:"
 snnp_machine_ssh "ls -la ${USER_NETNS_DIR}"
 snnp_machine_ssh "cat ${UNSHARE_PID_FILE} || echo 'File not found or empty'"
 snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
+
+echo "Debugging PID file additional:"
+snnp_machine_ssh "ps aux | grep 'sleep infinity' | grep -v grep"
+snnp_machine_ssh "cat   ${UNSHARE_PID_FILE} || echo 'File not found or empty'"
+snnp_machine_ssh "ls -l ${UNSHARE_PID_FILE} || echo 'File not found'"
 
 echo "RBNS-ALT: Creating veth pair"
 snnp_machine_ssh_sudo ip link add ${ENCLAVE_BOTTLE_OUT} type veth peer name ${ENCLAVE_BOTTLE_IN}
