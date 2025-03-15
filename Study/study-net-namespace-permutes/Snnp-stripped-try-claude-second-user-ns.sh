@@ -135,7 +135,7 @@ sleep 2
 echo "RBNS-ALT: Now find the sleep infinity PID which is what we actually need"
 UNSHARE_PID=$(snnp_machine_ssh "ps --ppid \$(ps --ppid ${SUDO_PID} -o pid= | tr -d ' ') -o pid= | tr -d ' '")
 echo "RBNS-ALT: Actual sleep process PID: ${UNSHARE_PID}"
-g
+
 echo "RBNS-ALT: Detailed process info for PID ${UNSHARE_PID}:"
 snnp_machine_ssh "ps -p ${UNSHARE_PID} -o pid,ppid,stat,cmd= || echo 'Process not found'"
 snnp_machine_ssh "ps -ef | grep 'sleep infinity' | grep -v grep || echo 'Sleep process not found'"
