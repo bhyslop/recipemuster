@@ -36,18 +36,18 @@ podman -c ${MACHINE} info > /dev/null || { echo "Unable to connect to machine"; 
 echo -e "${GREEN}${BOLD}Connection successful.${NC}"
 
 echo -e "${BOLD}Stopping any prior containers${NC}"
-podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || true
-podman -c ${MACHINE} rm -f     ${SENTRY_CONTAINER} || true
-podman -c ${MACHINE} stop -t 2 ${BOTTLE_CONTAINER} || true
-podman -c ${MACHINE} rm -f     ${BOTTLE_CONTAINER} || true
+podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || echo "Attempt to stop ${SENTRY_CONTAINER} did nothing"
+podman -c ${MACHINE} rm -f     ${SENTRY_CONTAINER} || echo "Attempt to rm   ${SENTRY_CONTAINER} did nothing"
+podman -c ${MACHINE} stop -t 2 ${BOTTLE_CONTAINER} || echo "Attempt to stop ${BOTTLE_CONTAINER} did nothing"
+podman -c ${MACHINE} rm -f     ${BOTTLE_CONTAINER} || echo "Attempt to rm   ${BOTTLE_CONTAINER} did nothing"
 
 echo -e "${BOLD}Cleaning up old netns and interfaces inside VM${NC}"
 echo "RBNC: Beginning network cleanup script"
 echo "RBNC: Before cleanup..."
 podman machine ssh ${MACHINE} ip link show
 podman machine ssh ${MACHINE} ip netns list
-echo "RBNC2: Removing bridge: ${ENCLAVE_BRIDGE}"
 
+echo "RBNC2: Removing prior run elements"
 snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_SENTRY_OUT} || echo "RBNC2: could not delete " ${ENCLAVE_SENTRY_OUT}
 snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_SENTRY_IN}  || echo "RBNC2: could not delete " ${ENCLAVE_SENTRY_IN} 
 snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BOTTLE_OUT} || echo "RBNC2: could not delete " ${ENCLAVE_BOTTLE_OUT}
@@ -123,6 +123,10 @@ snnp_machine_ssh_sudo ip link set ${ENCLAVE_BOTTLE_OUT} up
 echo "RBNS-ALT: Setting default route in namespace"
 snnp_machine_ssh_sudo ip netns exec ${NET_NAMESPACE} ip route add default via ${ENCLAVE_SENTRY_IP}
 
+echo "RBNS-ALT: Check names after..."
+podman machine ssh ${MACHINE} ip link show
+podman machine ssh ${MACHINE} ip netns list
+
 echo "RBNS-ALT: Starting container with the prepared network namespace"
 snnp_machine_ssh podman run -d                    \
     --name ${BOTTLE_CONTAINER}                    \
@@ -146,7 +150,4 @@ echo -e "${BOLD}Verifying containers${NC}"
 podman -c ${MACHINE} ps -a
 
 echo -e "${GREEN}${BOLD}Setup script execution complete${NC}"
-
-
-
 
