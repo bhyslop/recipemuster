@@ -131,7 +131,7 @@ snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var
 # the namespace file permissions (the chmod step has been removed).
 
 echo "RBNS-ALT: Starting container with the prepared network namespace"
-snnp_machine_ssh podman run -d                    \
+podman -c ${MACHINE} run -d                       \
     --name ${BOTTLE_CONTAINER}                    \
     --network ns:/var/run/netns/${NET_NAMESPACE}  \
     ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
