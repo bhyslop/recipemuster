@@ -8,7 +8,7 @@ set -e  # Exit on error
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
-source "$SCRIPT_DIR/Snnp-constants.sh"
+source "$SCRIPT_DIR/Snnp-common.sh"
 
 function snnp_podman_exec_sentry() {
     podman -c ${MACHINE} exec ${SENTRY_CONTAINER} "$@"
