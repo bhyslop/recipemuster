@@ -95,6 +95,7 @@ snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
 snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
 
 echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: crun: cannot setns '/var/run/netns/nsproto-ns': Operation not permitted: OCI permission denied${NC}"
+
 echo "RBNS-ALT: Starting container with the prepared network namespace"
 podman -c ${MACHINE} run -d                       \
     --name ${BOTTLE_CONTAINER}                    \

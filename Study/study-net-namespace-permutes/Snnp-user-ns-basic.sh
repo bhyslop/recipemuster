@@ -64,6 +64,8 @@ echo "RSNS: Sentry namespace setup complete"
 echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
+echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mount --make-shared /var/run/netns failed: Operation not permitted"
+
 echo "RBNS-ALT: Creating network namespace manually in user space"
 snnp_machine_ssh ip netns add ${NET_NAMESPACE}
 
