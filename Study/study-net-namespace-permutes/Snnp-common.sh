@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Color codes for output
-GREEN='\033[0;32m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
-
+# Color codes for output using tput
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+CYAN=$(tput setaf 6)
+BOLD=$(tput bold)
+NC=$(tput sgr0) # Reset all attributes
 
 MACHINE="pdvm-rbw"
 MONIKER="nsproto"
