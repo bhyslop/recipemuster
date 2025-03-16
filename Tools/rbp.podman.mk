@@ -55,6 +55,7 @@ zRBM_STASH_TAG_SAFE  = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
 zRBM_STASH_SHA_SHORT = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
 RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
+
 rbp_stash_start_rule:
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
 	-podman machine stop  $(RBM_MACHINE)
