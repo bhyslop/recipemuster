@@ -1,63 +1,30 @@
 #!/bin/bash
 
-# Simplified Container Network Setup Script (ChatGPT User Network Namespace Version)
-# Each step is executed discretely with minimal environment passing
+# Copyright 2024 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 set -e  # Exit on error
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
-source "$SCRIPT_DIR/Snnp-constants.sh"
+source "$SCRIPT_DIR/Snnp-common.sh"
 
-function snnp_podman_exec_sentry() {
-    podman -c ${MACHINE} exec ${SENTRY_CONTAINER} "$@"
-}
-
-function snnp_podman_exec_bottle() {
-    podman -c ${MACHINE} exec ${BOTTLE_CONTAINER} "$@"
-}
-
-function snnp_machine_ssh() {
-    podman machine ssh ${MACHINE} "$@"
-}
-
-function snnp_machine_ssh_sudo() {
-    podman machine ssh ${MACHINE} sudo "$@"
-}
-
-
-echo -e "${BOLD}Container Network Setup Script${NC}"
-echo "Setting up ${MONIKER} containers with network isolation"
-echo ""
-
-echo -e "${BOLD}Checking connection to ${MACHINE}${NC}"
-podman -c ${MACHINE} info > /dev/null || { echo "Unable to connect to machine"; exit 1; }
-echo -e "${GREEN}${BOLD}Connection successful.${NC}"
-
-echo -e "${BOLD}Stopping any prior containers${NC}"
-podman -c ${MACHINE} stop -t 2 ${SENTRY_CONTAINER} || echo "Attempt to stop ${SENTRY_CONTAINER} did nothing"
-podman -c ${MACHINE} rm -f     ${SENTRY_CONTAINER} || echo "Attempt to rm   ${SENTRY_CONTAINER} did nothing"
-podman -c ${MACHINE} stop -t 2 ${BOTTLE_CONTAINER} || echo "Attempt to stop ${BOTTLE_CONTAINER} did nothing"
-podman -c ${MACHINE} rm -f     ${BOTTLE_CONTAINER} || echo "Attempt to rm   ${BOTTLE_CONTAINER} did nothing"
-
-echo -e "${BOLD}Cleaning up old netns and interfaces inside VM${NC}"
-echo "RBNC: Beginning network cleanup script"
-echo "RBNC: Before cleanup..."
-podman machine ssh ${MACHINE} ip link show
-podman machine ssh ${MACHINE} ip netns list
-
-echo "RBNC2: Removing prior run elements"
-snnp_machine_ssh_sudo ip link  del    ${ENCLAVE_BRIDGE} || echo "RBNC2: could not delete " ${ENCLAVE_BRIDGE}    
-snnp_machine_ssh_sudo ip netns delete ${NET_NAMESPACE}  || echo "RBNC2: could not delete " ${NET_NAMESPACE}     
-
-echo "RBNC3: Verifying cleanup"
-snnp_machine_ssh "ip link show | grep -E '${ENCLAVE_SENTRY_OUT}|${ENCLAVE_BOTTLE_OUT}|${ENCLAVE_BRIDGE}' || echo 'No matching interfaces found'"
-echo "RBNC: Network cleanup complete"
-
-echo "RBNC: After cleanup..."
-podman machine ssh ${MACHINE} ip link show
-podman machine ssh ${MACHINE} ip netns list
+snnp_verify_machine_connection
+snnp_cleanup_all
 
 echo -e "${BOLD}Launching SENTRY container with bridging for internet${NC}"
 podman -c ${MACHINE} run -d                              \
