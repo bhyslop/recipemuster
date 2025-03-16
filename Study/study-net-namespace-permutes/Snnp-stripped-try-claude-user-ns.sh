@@ -103,8 +103,8 @@ snnp_machine_ssh ip link show
 snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link show
 
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
-snnp_machine_ssh podman run -d \
-    --name ${BOTTLE_CONTAINER} \
+podman run -d                                \
+    --name ${BOTTLE_CONTAINER}               \
     --network ns:/proc/${UNSHARE_PID}/ns/net \
     ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
 

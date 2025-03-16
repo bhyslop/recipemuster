@@ -104,7 +104,7 @@ snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
 snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
 
 echo "RBNS-ALT: Starting container with the prepared network namespace"
-snnp_machine_ssh podman run -d                    \
+podman run -d                                     \
     --name ${BOTTLE_CONTAINER}                    \
     --network ns:/var/run/netns/${NET_NAMESPACE}  \
     ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}

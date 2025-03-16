@@ -94,9 +94,6 @@ echo -e "${BOLD}Verifying network namespace permissions${NC}"
 snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
 snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
 
-# NOTE: In this user network namespace approach we do not attempt to modify
-# the namespace file permissions (the chmod step has been removed).
-
 echo "RBNS-ALT: Starting container with the prepared network namespace"
 podman -c ${MACHINE} run -d                       \
     --name ${BOTTLE_CONTAINER}                    \
