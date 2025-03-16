@@ -94,6 +94,8 @@ echo -e "${BOLD}Verifying network namespace permissions${NC}"
 snnp_machine_ssh "echo 'Listing /var/run/netns:' && ls -l /var/run/netns"
 snnp_machine_ssh "echo 'Detailed permissions for ${NET_NAMESPACE}:' && stat /var/run/netns/${NET_NAMESPACE}"
 
+echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> chmod: changing permissions of '/var/run/netns/nsproto-ns': Operation not permitted${NC}"
+
 echo "Adjusting network namespace permissions for ${NET_NAMESPACE}"
 snnp_machine_ssh_sudo chmod 666 /var/run/netns/${NET_NAMESPACE}
 echo "New permissions:"

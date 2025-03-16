@@ -64,6 +64,8 @@ echo "RSNS: Sentry namespace setup complete"
 echo -e "${BOLD}Configuring SENTRY security${NC}"
 echo "RBS: SKIPPING sentry setup script"
 
+echo -e "${CYAN}EXPECT NEXT TO HANG WITH -> unshare: unshare failed: Operation not permitted${NC}"
+
 echo "RBNS-ALT: Setting up user-accessible network namespace"
 # Create a directory for user-owned network namespaces if it doesn't exist
 USER_NETNS_DIR="/tmp/user_netns"

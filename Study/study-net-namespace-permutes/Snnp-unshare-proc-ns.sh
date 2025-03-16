@@ -134,7 +134,7 @@ snnp_machine_ssh_sudo nsenter -t ${UNSHARE_PID} -n ip link show
 echo "RBNS-ALT: Checking permissions on network namespace"
 snnp_machine_ssh_sudo ls -la /proc/${UNSHARE_PID}/ns/net
 
-echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: cannot find specified network namespace path: faccessat /proc/${UNSHARE_PID}/ns/net: permission denied"
+echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: cannot find specified network namespace path: faccessat /proc/${UNSHARE_PID}/ns/net: permission denied${NC}"
 
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
 podman -c ${MACHINE} run -d                  \
