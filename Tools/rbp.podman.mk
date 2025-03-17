@@ -73,9 +73,37 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
 	  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
-	$(MBC_STEP) "Acquire information about the selected version..."
-	podman machine ssh $(zRBM_STASH_MACHINE) crane manifest $(RBRR_VMDIST_TAG)
-	$(MBC_PASS) "Ready to use machine $(zRBM_UNCONTROLLED_MACHINE)"
+	
+	$(MBC_STEP) "Validating image version against pinned values..."
+	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
+	
+	$(MBC_STEP) "Get index manifest and verify SHA..."
+	$(zRBM_STASH_SSH) "crane digest $(RBRR_VMDIST_TAG) > /tmp/current_index_digest"
+	$(zRBM_STASH_SSH) "cat /tmp/current_index_digest"
+	$(zRBM_STASH_SSH) "test $$(cat /tmp/current_index_digest) = sha256:$(RBRR_VMDIST_INDEX_SHA)" || \
+	  $(MBC_SEE_YELLOW) "WARN: Image index digest mismatch! Expected sha256:$(RBRR_VMDIST_INDEX_SHA)"
+	
+	$(MBC_STEP) "Get platform-specific manifest for x86_64..."
+	$(zRBM_STASH_SSH) "crane manifest $(RBRR_VMDIST_TAG) > /tmp/vm_manifest.json"
+	
+	$(MBC_STEP) "Extract the x86_64 digest from the manifest and check..."
+	$(zRBM_STASH_SSH) "jq -r '.manifests[] | select(.platform.architecture == \"x86_64\") | .digest' /tmp/vm_manifest.json > /tmp/x86_digest"
+	$(zRBM_STASH_SSH) "cat /tmp/x86_digest"
+	$(zRBM_STASH_SSH) "test $$(cat /tmp/x86_digest) = \"sha256:$(RBRR_VMDIST_X86_SHA)\"" || \
+	  $(MBC_SEE_YELLOW) "WARN: x86_64 platform manifest digest mismatch! Expected sha256:$(RBRR_VMDIST_X86_SHA)"
+	
+	$(MBC_STEP) "Get the x86_64 manifest and check for the expected blob SHA..."
+	$(zRBM_STASH_SSH) "crane manifest $$(cat /tmp/x86_digest) > /tmp/platform_manifest.json"
+	$(zRBM_STASH_SSH) "jq -r '.layers[].digest' /tmp/platform_manifest.json > /tmp/blob_digest"
+	$(zRBM_STASH_SSH) "cat /tmp/blob_digest"
+	$(zRBM_STASH_SSH) "test $$(cat /tmp/blob_digest) = \"sha256:$(RBRR_VMDIST_BLOB_SHA)\"" || \
+	  $(MBC_SEE_YELLOW) "WARN: Content blob digest mismatch! Expected sha256:$(RBRR_VMDIST_BLOB_SHA)"
+	
+	$(MBC_STEP) "All image digest checks passed - image matches pinned version"
+	$(MBC_STEP) "Complete image manifest information..."
+	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)
+	$(MBC_PASS) "Ready to use machine $(zRBM_STASH_MACHINE)"
+
 
 rbp_stash_finish_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."

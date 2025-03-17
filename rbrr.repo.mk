@@ -36,9 +36,17 @@ RBRR_MACHINE_NAME        = podman-machine-rbw
 #
 #  https://quay.io/repository/podman/machine-os-wsl/manifest/sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
 #
+# Base image reference
 RBRR_VMDIST_TAG          = quay.io/podman/machine-os-wsl:5.3
-RBRR_VMDIST_MANIFEST_SHA = da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
-RBRR_VMDIST_BLOB_SHA     = 0bc492bd4071e8a2d84246dd6e67977b69ac7d0729591e46c0e28df166e97f84
+
+# Index manifest that lists available architectures (top level)
+RBRR_VMDIST_INDEX_SHA    = 0bc492bd4071e8a2d84246dd6e67977b69ac7d0729591e46c0e28df166e97f84
+
+# Platform-specific manifest for x86_64 (what we use)
+RBRR_VMDIST_X86_SHA      = 0bc492bd4071e8a2d84246dd6e67977b69ac7d0729591e46c0e28df166e97f84
+
+# Actual content blob SHA (the filesystem layer)
+RBRR_VMDIST_BLOB_SHA     = 6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
 
 # Version and arch of utility for copying betwixt container registries
 RBRR_VMDIST_CRANE        = https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
