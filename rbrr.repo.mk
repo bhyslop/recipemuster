@@ -33,7 +33,7 @@ RBRR_MACHINE_NAME        = podman-machine-rbw
 #   Copying blob sha256:6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
 #   Copying config sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
 #   Writing manifest to image destination
-RBRR_VMDIST_TAG          = quay.io/podman/machine-os-wsl:5.3
+RBRR_VMDIST_TAG          = quay.io/podman/machine-os-wsl:5.4
 RBRR_VMDIST_BLOB_SHA     = 6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
 
 # Version and arch of utility for copying betwixt container registries
