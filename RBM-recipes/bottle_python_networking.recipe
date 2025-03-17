@@ -17,7 +17,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends                
     mtr                 `# For network diagnostic tool combining ping and traceroute`   \
     iperf3              `# For network performance testing`                             \
     nftables            `# For newer firewall rule testing`                             \
-    && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages for neuroimaging data analysis
+RUN pip install --no-cache-dir                                             \
+    nibabel              `# Library for reading/writing neuroimaging data` \
+    numpy                `# Required for neuroimaging operations`          \
+  && echo done
 
 # Keep the container alive
 CMD ["tail", "-f", "/dev/null"]
