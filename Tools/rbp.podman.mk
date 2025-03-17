@@ -77,6 +77,9 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 	
+	$(MBC_STEP) "Complete image manifest information..."
+	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)
+
 	$(MBC_STEP) "Get index manifest and verify SHA..."
 	$(zRBM_STASH_SSH) "crane digest $(RBRR_VMDIST_TAG) > /tmp/current_index_digest"
 	$(zRBM_STASH_SSH) "cat /tmp/current_index_digest"
@@ -99,11 +102,7 @@ rbp_stash_start_rule:
 	$(zRBM_STASH_SSH) "test $$(cat /tmp/blob_digest) = \"sha256:$(RBRR_VMDIST_BLOB_SHA)\"" || \
 	  $(MBC_SEE_YELLOW) "WARN: Content blob digest mismatch! Expected sha256:$(RBRR_VMDIST_BLOB_SHA)"
 	
-	$(MBC_STEP) "All image digest checks passed - image matches pinned version"
-	$(MBC_STEP) "Complete image manifest information..."
-	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)
-	$(MBC_PASS) "Ready to use machine $(zRBM_STASH_MACHINE)"
-
+	$(MBC_PASS) "Resolve warnings above to use latest tag for  $(zRBM_STASH_MACHINE)"
 
 rbp_stash_finish_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
