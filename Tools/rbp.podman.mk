@@ -73,6 +73,8 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
 	  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	$(MBC_STEP) "Acquire information about the selected version..."
+	podman machine ssh $(zRBM_STASH_MACHINE) crane manifest $(RBRR_VMDIST_TAG)
 	$(MBC_PASS) "Ready to use machine $(zRBM_UNCONTROLLED_MACHINE)"
 
 rbp_stash_finish_rule:
