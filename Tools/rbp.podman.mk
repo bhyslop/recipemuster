@@ -49,11 +49,13 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
-zRBM_STASH_MACHINE   = pdvm-stash
-zRBM_STASH_SSH       = podman machine ssh $(zRBM_STASH_MACHINE)
-zRBM_STASH_TAG_SAFE  = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
-zRBM_STASH_SHA_SHORT = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
-RBP_STASH_IMAGE      = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
+zRBM_STASH_MACHINE         = pdvm-stash
+zRBM_STASH_SSH             = podman machine ssh $(zRBM_STASH_MACHINE)
+zRBM_STASH_TAG_SAFE        = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
+zRBM_STASH_SHA_SHORT       = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
+zRBM_STASH_RAW_INIT        = $(MBD_TEMP_DIR)/podman-machine-init-raw.txt
+ZRBM_STASH_LATEST_MANIFEST = $(MBD_TEMP_DIR)/pinned-manfest.json
+RBP_STASH_IMAGE            = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
 rbp_stash_start_rule:
@@ -62,7 +64,9 @@ rbp_stash_start_rule:
 	-podman machine stop  $(zRBM_STASH_MACHINE)
 	-podman machine rm -f $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
-	podman machine init   $(zRBM_STASH_MACHINE)
+	podman machine init   $(zRBM_STASH_MACHINE) > $(zRBM_STASH_RAW_INIT)
+	$(MBC_STEP) "Uncontrolled transcript"
+	@cat $(zRBM_STASH_RAW_INIT)
 	podman machine start  $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
 	$(zRBM_STASH_SSH) curl -L $(RBRR_VMDIST_CRANE) -o crane.tar.gz
@@ -77,8 +81,11 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 	
-	$(MBC_STEP) "Complete image manifest information..."
-	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)
+	$(MBC_STEP) "Retrieve latest..."
+	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(ZRBM_STASH_LATEST_MANIFEST)
+	$(MBC_STEP) "Show latest..."
+	@cat $(ZRBM_STASH_LATEST_MANIFEST)
+	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."
 	$(zRBM_STASH_SSH) "crane digest $(RBRR_VMDIST_TAG) > /tmp/current_index_digest"
