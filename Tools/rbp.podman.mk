@@ -64,27 +64,30 @@ rbp_stash_start_rule:
 	-podman machine stop  $(zRBM_STASH_MACHINE)
 	-podman machine rm -f $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
-	podman machine init   $(zRBM_STASH_MACHINE) -vvv 2>&1 > $(zRBM_STASH_RAW_INIT)
+	podman machine init   $(zRBM_STASH_MACHINE) -vvv > $(zRBM_STASH_RAW_INIT) 2>&1
 	$(MBC_STEP) "Uncontrolled transcript"
 	@cat $(zRBM_STASH_RAW_INIT)
 	podman machine start  $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
-	$(zRBM_STASH_SSH) curl -L $(RBRR_VMDIST_CRANE) -o crane.tar.gz
+	$(zRBM_STASH_SSH) curl     -o   crane.tar.gz -L $(RBRR_VMDIST_CRANE)
 	$(zRBM_STASH_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
-	$(MBC_STEP) "Log into your container registry with crane..."
-	source $(RBRR_GITHUB_PAT_ENV) && \
-	  $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	$(MBC_STEP) "Log in to your container registry with podman..."
 	source $(RBRR_GITHUB_PAT_ENV)  && \
 	  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	$(MBC_STEP) "Log into your container registry with crane..."
+	source $(RBRR_GITHUB_PAT_ENV) && \
+	  $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 	
-	$(MBC_STEP) "Retrieve latest..."
+	$(MBC_STEP) "Retrieve latest manifest..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(ZRBM_STASH_LATEST_MANIFEST)
-	$(MBC_STEP) "Show latest..."
+	$(MBC_STEP) "Show latest manifest..."
 	@cat $(ZRBM_STASH_LATEST_MANIFEST) | jq
+
+	$(MBC_STEP) "Show local architecture blob for $(MBS_PODMAN_ARCHITECTURE)..."
+	$(ZRBM_STASH_LATEST_MANIFEST) | jq -r '.manifests[] | select(.platform.architecture == "$(MBS_PODMAN_ARCHITECTURE)") | .digest'
 	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."
