@@ -64,7 +64,7 @@ rbp_stash_start_rule:
 	-podman machine stop  $(zRBM_STASH_MACHINE)
 	-podman machine rm -f $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
-	podman machine init   $(zRBM_STASH_MACHINE) > $(zRBM_STASH_RAW_INIT)
+	podman machine init   $(zRBM_STASH_MACHINE) -vvv 2>&1 > $(zRBM_STASH_RAW_INIT)
 	$(MBC_STEP) "Uncontrolled transcript"
 	@cat $(zRBM_STASH_RAW_INIT)
 	podman machine start  $(zRBM_STASH_MACHINE)
@@ -84,7 +84,7 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Retrieve latest..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(ZRBM_STASH_LATEST_MANIFEST)
 	$(MBC_STEP) "Show latest..."
-	@cat $(ZRBM_STASH_LATEST_MANIFEST)
+	@cat $(ZRBM_STASH_LATEST_MANIFEST) | jq
 	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."
