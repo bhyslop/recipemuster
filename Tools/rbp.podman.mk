@@ -85,6 +85,10 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
+	$(MBC_STEP) "Get top-level manifest digest..."
+	$(zRBM_STASH_SSH) crane digest $(RBRR_VMDIST_TAG) > $(MBD_TEMP_DIR)/podman-top-digest.txt
+	@echo "Top manifest digest: $$(cat $(MBD_TEMP_DIR)/podman-top-digest.txt)"
+
 	$(MBC_STEP) "Retrieve latest index..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
 	$(MBC_STEP) "Show latest index..."
