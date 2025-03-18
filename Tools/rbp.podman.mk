@@ -101,6 +101,8 @@ rbp_stash_start_rule:
 
 	$(MBC_STEP) "Extract blob digests from platform manifest..."
 	jq -r '.layers[].digest' < $(zRBM_STASH_LATEST_PLATFORM)
+
+	$(MBC_STEP) "TODO: REPORT ON WHETHER LATEST MATCHES PINNED."
 	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."
