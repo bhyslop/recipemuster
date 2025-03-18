@@ -69,6 +69,7 @@ rbp_stash_start_rule:
 	podman machine init   $(zRBM_STASH_MACHINE) -vvv > $(zRBM_STASH_RAW_INIT) 2>&1
 	$(MBC_STEP) "Uncontrolled transcript"
 	@cat $(zRBM_STASH_RAW_INIT)
+	$(MBC_STEP) "Start uncontrollled..."
 	podman machine start  $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
 	$(zRBM_STASH_SSH) curl     -o   crane.tar.gz -L $(RBRR_VMDIST_CRANE)
@@ -86,14 +87,14 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Retrieve latest index..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
 	$(MBC_STEP) "Show latest index..."
-	jq $(ZRBM_STASH_LATEST_INDEX)
+	jq < $(zRBM_STASH_LATEST_INDEX)
 
 	$(MBC_STEP) "Extract platform manifest $(RBS_PODMAN_ARCHITECTURE)..."
 	jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest' \
-	   $(ZRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_LATEST_PLATFORM)
+	   < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_LATEST_PLATFORM)
 
 	$(MBC_STEP) "Visualize blob digests for $(zRBM_STASH_LATEST_PLATFORM)..."
-	jq -r '.layers[].digest' $(zRBM_STASH_LATEST_PLATFORM)
+	jq -r '.layers[].digest' < $(zRBM_STASH_LATEST_PLATFORM)
 	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."
