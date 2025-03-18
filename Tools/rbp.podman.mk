@@ -86,7 +86,7 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Retrieve latest index..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
 	$(MBC_STEP) "Show latest index..."
-	@jq < $(ZRBM_STASH_LATEST_INDEX)
+	jq $(ZRBM_STASH_LATEST_INDEX)
 
 	$(MBC_STEP) "Extract platform manifest $(RBS_PODMAN_ARCHITECTURE)..."
 	jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest' \
