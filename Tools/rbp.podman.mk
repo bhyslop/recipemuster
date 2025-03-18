@@ -59,6 +59,7 @@ RBP_STASH_IMAGE            = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_
 
 
 rbp_stash_start_rule:
+	$(MBC_STEP) "Your vm will be for architecture $(RBS_PODMAN_ARCHITECTURE)..."
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
 	-podman machine stop  $(RBM_MACHINE)
 	-podman machine stop  $(zRBM_STASH_MACHINE)
@@ -86,8 +87,8 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Show latest manifest..."
 	@cat $(ZRBM_STASH_LATEST_MANIFEST) | jq
 
-	$(MBC_STEP) "Show local architecture blob for $(MBS_PODMAN_ARCHITECTURE)..."
-	$(ZRBM_STASH_LATEST_MANIFEST) | jq -r '.manifests[] | select(.platform.architecture == "$(MBS_PODMAN_ARCHITECTURE)") | .digest'
+	$(MBC_STEP) "Show local architecture blob for $(RBS_PODMAN_ARCHITECTURE)..."
+	cat $(ZRBM_STASH_LATEST_MANIFEST) | jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest'
 	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."

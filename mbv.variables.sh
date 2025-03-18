@@ -24,7 +24,7 @@
 # variables here.  If you define any variables in terms of other
 # ones, use ${xxx} to expand.
 
-MBV_STATION_FILE=../RBS.STATION.sh
+MBV_STATION_FILE=../MBS.STATION.sh
 
 MBV_TABTARGET_DIR=tt
 
