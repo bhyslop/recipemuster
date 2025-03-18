@@ -54,7 +54,8 @@ zRBM_STASH_SSH             = podman machine ssh $(zRBM_STASH_MACHINE)
 zRBM_STASH_TAG_SAFE        = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
 zRBM_STASH_SHA_SHORT       = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
 zRBM_STASH_RAW_INIT        = $(MBD_TEMP_DIR)/podman-machine-init-raw.txt
-ZRBM_STASH_LATEST_MANIFEST = $(MBD_TEMP_DIR)/pinned-manfest.json
+zRBM_STASH_LATEST_INDEX    = $(MBD_TEMP_DIR)/podman-latest-index.json
+zRBM_STASH_LATEST_PLATFORM = $(MBD_TEMP_DIR)/podman-latest-platform-manifest.json
 RBP_STASH_IMAGE            = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
@@ -82,13 +83,17 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 	
-	$(MBC_STEP) "Retrieve latest manifest..."
-	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(ZRBM_STASH_LATEST_MANIFEST)
-	$(MBC_STEP) "Show latest manifest..."
-	@cat $(ZRBM_STASH_LATEST_MANIFEST) | jq
+	$(MBC_STEP) "Retrieve latest index..."
+	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
+	$(MBC_STEP) "Show latest index..."
+	@jq < $(ZRBM_STASH_LATEST_INDEX)
 
-	$(MBC_STEP) "Show local architecture blob for $(RBS_PODMAN_ARCHITECTURE)..."
-	cat $(ZRBM_STASH_LATEST_MANIFEST) | jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest'
+	$(MBC_STEP) "Extract platform manifest $(RBS_PODMAN_ARCHITECTURE)..."
+	jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest' \
+	   $(ZRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_LATEST_PLATFORM)
+
+	$(MBC_STEP) "Visualize blob digests for $(zRBM_STASH_LATEST_PLATFORM)..."
+	jq -r '.layers[].digest' $(zRBM_STASH_LATEST_PLATFORM)
 	false
 
 	$(MBC_STEP) "Get index manifest and verify SHA..."
