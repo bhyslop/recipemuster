@@ -95,7 +95,7 @@ rbp_stash_start_rule:
 	   < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_PLATFORM_DIGEST)
 
 	$(MBC_STEP) "Fetch platform manifest using digest..."
-	$(zRBM_STASH_SSH) crane manifest $$(cat $(zRBM_STASH_PLATFORM_DIGEST)) > $(zRBM_STASH_LATEST_PLATFORM)
+	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$(cat $(zRBM_STASH_PLATFORM_DIGEST)) > $(zRBM_STASH_LATEST_PLATFORM)
 	$(MBC_STEP) "Show platform manifest..."
 	jq < $(zRBM_STASH_LATEST_PLATFORM)
 
