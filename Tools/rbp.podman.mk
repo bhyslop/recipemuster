@@ -49,15 +49,16 @@ zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
 	@test -f "$(RBM_NAMEPLATE_FILE)" || (echo "Error: Nameplate not found: $(RBM_NAMEPLATE_FILE)" && exit 1)
 
 
-zRBM_STASH_MACHINE         = pdvm-stash
-zRBM_STASH_SSH             = podman machine ssh $(zRBM_STASH_MACHINE)
-zRBM_STASH_TAG_SAFE        = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
-zRBM_STASH_SHA_SHORT       = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
-zRBM_STASH_RAW_INIT        = $(MBD_TEMP_DIR)/podman-machine-init-raw.txt
-zRBM_STASH_LATEST_INDEX    = $(MBD_TEMP_DIR)/podman-latest-index.json
-zRBM_STASH_LATEST_PLATFORM = $(MBD_TEMP_DIR)/podman-latest-platform-manifest.json
-zRBM_STASH_PLATFORM_DIGEST = $(MBD_TEMP_DIR)/podman-latest-platform-digest.json
-RBP_STASH_IMAGE            = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
+zRBM_STASH_MACHINE            = pdvm-stash
+zRBM_STASH_SSH                = podman machine ssh $(zRBM_STASH_MACHINE)
+zRBM_STASH_TAG_SAFE           = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
+zRBM_STASH_SHA_SHORT          = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
+zRBM_STASH_RAW_INIT           = $(MBD_TEMP_DIR)/podman-machine-init-raw.txt
+zRBM_STASH_IMAGE_INDEX_DIGEST = $(MBD_TEMP_DIR)/podman-image-index-digest.txt
+zRBM_STASH_LATEST_INDEX       = $(MBD_TEMP_DIR)/podman-latest-index.json
+zRBM_STASH_LATEST_PLATFORM    = $(MBD_TEMP_DIR)/podman-latest-platform-manifest.json
+zRBM_STASH_PLATFORM_DIGEST    = $(MBD_TEMP_DIR)/podman-latest-platform-digest.json
+RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
 rbp_stash_start_rule:
@@ -86,8 +87,8 @@ rbp_stash_start_rule:
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
 	$(MBC_STEP) "Get top-level manifest digest..."
-	$(zRBM_STASH_SSH) crane digest $(RBRR_VMDIST_TAG) > $(MBD_TEMP_DIR)/podman-top-digest.txt
-	@echo "Top manifest digest: $$(cat $(MBD_TEMP_DIR)/podman-top-digest.txt)"
+	$(zRBM_STASH_SSH) crane digest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_IMAGE_INDEX_DIGEST)
+	@echo "Top manifest digest:"                 $$(cat $(zRBM_STASH_IMAGE_INDEX_DIGEST))
 
 	$(MBC_STEP) "Retrieve latest index..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
