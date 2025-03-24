@@ -54,7 +54,7 @@ zRBM_STASH_SSH                = podman machine ssh $(zRBM_STASH_MACHINE)
 zRBM_STASH_TAG_SAFE           = $(subst :,-,$(subst /,-,$(RBRR_VMDIST_TAG)))
 zRBM_STASH_SHA_SHORT          = $(shell echo $(RBRR_VMDIST_BLOB_SHA) | cut -c1-12)
 zRBM_STASH_RAW_INIT           = $(MBD_TEMP_DIR)/podman-machine-init-raw.txt
-zRBM_STASH_IMAGE_INDEX_DIGEST = $(MBD_TEMP_DIR)/podman-image-index-digest.txt
+zRBM_STASH_IMAGE_INDEX_DIGEST = $(MBD_TEMP_DIR)/podvm-image-index-digest.txt
 zRBM_STASH_LATEST_INDEX       = $(MBD_TEMP_DIR)/podman-latest-index.json
 zRBM_STASH_LATEST_PLATFORM    = $(MBD_TEMP_DIR)/podman-latest-platform-manifest.json
 zRBM_STASH_PLATFORM_DIGEST    = $(MBD_TEMP_DIR)/podman-latest-platform-digest.json
@@ -62,7 +62,7 @@ RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RB
 
 
 rbp_stash_check_rule:
-	$(MBC_STEP) "Your vm will be for architecture $(RBS_PODMAN_ARCHITECTURE)..."
+	$(MBC_STEP) "Your vm will be for architecture:" $(RBS_PODMAN_ARCHITECTURE)
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
 	-podman machine stop  $(RBM_MACHINE)
 	-podman machine stop  $(zRBM_STASH_MACHINE)
@@ -95,9 +95,12 @@ rbp_stash_check_rule:
 	$(MBC_STEP) "Show latest index..."
 	jq < $(zRBM_STASH_LATEST_INDEX)
 
-	$(MBC_STEP) "Extract platform digest for $(RBS_PODMAN_ARCHITECTURE)..."
+	$(MBC_STEP) "Extract platform digest for"               $(RBS_PODMAN_ARCHITECTURE)
 	jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest' \
 	   < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_PLATFORM_DIGEST)
+
+	$(MBC_STEP) "Show platform digest..."
+	cat     $(zRBM_STASH_PLATFORM_DIGEST)
 
 	$(MBC_STEP) "Fetch platform manifest using digest..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$(cat $(zRBM_STASH_PLATFORM_DIGEST)) > $(zRBM_STASH_LATEST_PLATFORM)
