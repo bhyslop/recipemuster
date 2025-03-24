@@ -63,7 +63,7 @@ RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RB
 
 rbp_stash_check_rule:
 	$(MBC_STEP) "Your vm will be for architecture:" $(RBS_PODMAN_ARCHITECTURE)
-	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
+	$(MBC_START) "Download default podman machine to be a safe place to learn about latest machine version"
 	-podman machine stop  $(RBM_MACHINE)
 	-podman machine stop  $(zRBM_STASH_MACHINE)
 	-podman machine rm -f $(zRBM_STASH_MACHINE)
@@ -109,6 +109,8 @@ rbp_stash_check_rule:
 
 	$(MBC_STEP) "Extract blob digests from platform manifest..."
 	jq -r '.layers[].digest' < $(zRBM_STASH_LATEST_PLATFORM)
+
+	$(MBC_STEP) "TEST AND FAIL IF NOT EXACTLY ONE"
 
 	# TODO
 	false
