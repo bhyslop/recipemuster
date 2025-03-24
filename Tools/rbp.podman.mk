@@ -61,7 +61,7 @@ zRBM_STASH_PLATFORM_DIGEST    = $(MBD_TEMP_DIR)/podman-latest-platform-digest.js
 RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
-rbp_stash_start_rule:
+rbp_stash_check_rule:
 	$(MBC_STEP) "Your vm will be for architecture $(RBS_PODMAN_ARCHITECTURE)..."
 	$(MBC_START) "Set up a podman machine just to stash the desired podman vm image in your container repo"
 	-podman machine stop  $(RBM_MACHINE)
@@ -107,34 +107,11 @@ rbp_stash_start_rule:
 	$(MBC_STEP) "Extract blob digests from platform manifest..."
 	jq -r '.layers[].digest' < $(zRBM_STASH_LATEST_PLATFORM)
 
-	$(MBC_STEP) "TODO: REPORT ON WHETHER LATEST MATCHES PINNED NEXT."
+	# TODO
 	false
 
-	$(MBC_STEP) "Get index manifest and verify SHA..."
-	$(zRBM_STASH_SSH) "crane digest $(RBRR_VMDIST_TAG) > /tmp/current_index_digest"
-	$(zRBM_STASH_SSH) "cat /tmp/current_index_digest"
-	$(zRBM_STASH_SSH) "test $$(cat /tmp/current_index_digest) = sha256:$(RBRR_VMDIST_INDEX_SHA)" || \
-	  $(MBC_SEE_YELLOW) "WARN: Image index digest mismatch! Expected sha256:$(RBRR_VMDIST_INDEX_SHA)"
-	
-	$(MBC_STEP) "Get platform-specific manifest for x86_64..."
-	$(zRBM_STASH_SSH) "crane manifest $(RBRR_VMDIST_TAG) > /tmp/vm_manifest.json"
-	
-	$(MBC_STEP) "Extract the x86_64 digest from the manifest and check..."
-	$(zRBM_STASH_SSH) "jq -r '.manifests[] | select(.platform.architecture == \"x86_64\") | .digest' /tmp/vm_manifest.json > /tmp/x86_digest"
-	$(zRBM_STASH_SSH) "cat /tmp/x86_digest"
-	$(zRBM_STASH_SSH) "test $$(cat /tmp/x86_digest) = \"sha256:$(RBRR_VMDIST_X86_SHA)\"" || \
-	  $(MBC_SEE_YELLOW) "WARN: x86_64 platform manifest digest mismatch! Expected sha256:$(RBRR_VMDIST_X86_SHA)"
-	
-	$(MBC_STEP) "Get the x86_64 manifest and check for the expected blob SHA..."
-	$(zRBM_STASH_SSH) "crane manifest $$(cat /tmp/x86_digest) > /tmp/platform_manifest.json"
-	$(zRBM_STASH_SSH) "jq -r '.layers[].digest' /tmp/platform_manifest.json > /tmp/blob_digest"
-	$(zRBM_STASH_SSH) "cat /tmp/blob_digest"
-	$(zRBM_STASH_SSH) "test $$(cat /tmp/blob_digest) = \"sha256:$(RBRR_VMDIST_BLOB_SHA)\"" || \
-	  $(MBC_SEE_YELLOW) "WARN: Content blob digest mismatch! Expected sha256:$(RBRR_VMDIST_BLOB_SHA)"
-	
-	$(MBC_PASS) "Resolve warnings above to use latest tag for  $(zRBM_STASH_MACHINE)"
 
-rbp_stash_finish_rule:
+rbp_stash_update_rule:
 	$(MBC_START) "Finish steps of acquiring a controlled machine version..."
 	@echo "Working with VM distribution: $(RBRR_VMDIST_TAG)"
 

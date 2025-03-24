@@ -62,11 +62,11 @@ rbw-z.%: zrbw_prestop_rule rbp_podman_machine_stop_rule
 rbw-Z.%: zrbw_prenuke_rule rbp_podman_machine_nuke_rule
 	$(MBC_PASS) "Nuke completed."
 
-rbw-va.%: rbp_stash_start_rule
-	$(MBC_PASS) "VM Image acquisition started."
+rbw-vc.%: rbp_stash_check_rule
+	$(MBC_PASS) "VM image check complete."
 
-rbw-vs.%: rbp_stash_finish_rule
-	$(MBC_PASS) "VM Image stash complete."
+rbw-vu.%: rbp_stash_update_rule
+	$(MBC_PASS) "VM Image update complete."
 
 rbw-S.%: rbp_connect_sentry_rule
 	$(MBC_PASS) "No errors."
