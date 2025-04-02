@@ -56,21 +56,21 @@ mbd_setup() {
     source "$variables_file"
     
     # Validate essential variables
-    crgv_string MBV_STATION_FILE        1 256
-    crgv_string MBV_LOG_LAST            1 256
-    crgv_string MBV_LOG_EXT             1 32
-    crgv_string MBV_CONSOLE_MAKEFILE    1 256
-    crgv_string MBV_TABTARGET_DIR       1 256
-    crgv_string MBV_TABTARGET_DELIMITER 1 8
-    crgv_string MBV_TEMP_ROOT_DIR       1 256
+    crgv_string "$variables_file" MBV_STATION_FILE        1 256
+    crgv_string "$variables_file" MBV_LOG_LAST            1 256
+    crgv_string "$variables_file" MBV_LOG_EXT             1 32
+    crgv_string "$variables_file" MBV_CONSOLE_MAKEFILE    1 256
+    crgv_string "$variables_file" MBV_TABTARGET_DIR       1 256
+    crgv_string "$variables_file" MBV_TABTARGET_DELIMITER 1 8
+    crgv_string "$variables_file" MBV_TEMP_ROOT_DIR       1 256
     
     # Source station file
     mbd_show "Sourcing station file"
     source "$MBV_STATION_FILE"
     
     # Validate station variables
-    crgv_string  MBS_LOG_DIR  1 256
-    crgv_decimal MBS_MAX_JOBS 1 128
+    crgv_string  "$MBV_STATION_FILE" MBS_LOG_DIR  1 256
+    crgv_decimal "$MBV_STATION_FILE" MBS_MAX_JOBS 1 128
     
     # Generate timestamp
     MBD_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))

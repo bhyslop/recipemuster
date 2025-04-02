@@ -24,22 +24,24 @@ set -e  # Exit immediately if a command exits with non-zero status
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/crgv.validate.sh"
 
+CONTEXT="NAMEPLATE"
+
 # Registry Configuration
-crgv_xname               RBRR_REGISTRY_OWNER 2 64
-crgv_xname               RBRR_REGISTRY_NAME 2 64
-crgv_string              RBRR_GITHUB_PAT_ENV 1 255
+crgv_xname        "$CONTEXT"       RBRR_REGISTRY_OWNER 2 64
+crgv_xname        "$CONTEXT"       RBRR_REGISTRY_NAME 2 64
+crgv_string       "$CONTEXT"       RBRR_GITHUB_PAT_ENV 1 255
 
 # Build Configuration
-crgv_string              RBRR_BUILD_ARCHITECTURES 1 255
-crgv_string              RBRR_HISTORY_DIR 1 255
-crgv_ipv4                RBRR_DNS_SERVER
-crgv_string              RBRR_NAMEPLATE_PATH 1 255
+crgv_string       "$CONTEXT"       RBRR_BUILD_ARCHITECTURES 1 255
+crgv_string       "$CONTEXT"       RBRR_HISTORY_DIR 1 255
+crgv_ipv4         "$CONTEXT"       RBRR_DNS_SERVER
+crgv_string       "$CONTEXT"       RBRR_NAMEPLATE_PATH 1 255
 
 # Podman configuration
-crgv_string              RBRR_MACHINE_NAME  1 64
-crgv_fqin                RBRR_VMDIST_TAG 1 128
-crgv_string              RBRR_VMDIST_BLOB_SHA 64 64
-crgv_fqin                RBRR_VMDIST_CRANE 1 512
+crgv_string       "$CONTEXT"       RBRR_MACHINE_NAME  1 64
+crgv_fqin         "$CONTEXT"       RBRR_VMDIST_TAG 1 128
+crgv_string       "$CONTEXT"       RBRR_VMDIST_BLOB_SHA 64 64
+crgv_fqin         "$CONTEXT"       RBRR_VMDIST_CRANE 1 512
 
 # Verify directories exist
 if [ ! -d "$RBRR_HISTORY_DIR" ]; then

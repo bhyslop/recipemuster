@@ -24,31 +24,33 @@ set -e  # Exit immediately if a command exits with non-zero status
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/crgv.validate.sh"
 
+CONTEXT="NAMEPLATE"
+
 # Core Service Identity
-crgv_xname              RBRN_MONIKER 2 12
-crgv_string             RBRN_DESCRIPTION  0 120
-crgv_fqin               RBRN_SENTRY_REPO_PATH 1 128
-crgv_fqin               RBRN_BOTTLE_REPO_PATH 1 128
-crgv_fqin               RBRN_SENTRY_IMAGE_TAG 1 128
-crgv_fqin               RBRN_BOTTLE_IMAGE_TAG 1 128
-crgv_bool               RBRN_ENTRY_ENABLED
+crgv_xname       "$CONTEXT"       RBRN_MONIKER 2 12
+crgv_string      "$CONTEXT"       RBRN_DESCRIPTION  0 120
+crgv_fqin        "$CONTEXT"       RBRN_SENTRY_REPO_PATH 1 128
+crgv_fqin        "$CONTEXT"       RBRN_BOTTLE_REPO_PATH 1 128
+crgv_fqin        "$CONTEXT"       RBRN_SENTRY_IMAGE_TAG 1 128
+crgv_fqin        "$CONTEXT"       RBRN_BOTTLE_IMAGE_TAG 1 128
+crgv_bool        "$CONTEXT"       RBRN_ENTRY_ENABLED
 
 # Enclave Network Configuration
-crgv_ipv4               RBRN_ENCLAVE_BASE_IP
-crgv_decimal            RBRN_ENCLAVE_NETMASK 8 30
-crgv_ipv4               RBRN_ENCLAVE_SENTRY_IP
-crgv_ipv4               RBRN_ENCLAVE_BOTTLE_IP
+crgv_ipv4        "$CONTEXT"       RBRN_ENCLAVE_BASE_IP
+crgv_decimal     "$CONTEXT"       RBRN_ENCLAVE_NETMASK 8 30
+crgv_ipv4        "$CONTEXT"       RBRN_ENCLAVE_SENTRY_IP
+crgv_ipv4        "$CONTEXT"       RBRN_ENCLAVE_BOTTLE_IP
 
 # Uplink Configuration
-crgv_port               RBRN_UPLINK_PORT_MIN
-crgv_bool               RBRN_UPLINK_DNS_ENABLED
-crgv_bool               RBRN_UPLINK_ACCESS_ENABLED
-crgv_bool               RBRN_UPLINK_DNS_GLOBAL
-crgv_bool               RBRN_UPLINK_ACCESS_GLOBAL
+crgv_port        "$CONTEXT"       RBRN_UPLINK_PORT_MIN
+crgv_bool        "$CONTEXT"       RBRN_UPLINK_DNS_ENABLED
+crgv_bool        "$CONTEXT"       RBRN_UPLINK_ACCESS_ENABLED
+crgv_bool        "$CONTEXT"       RBRN_UPLINK_DNS_GLOBAL
+crgv_bool        "$CONTEXT"       RBRN_UPLINK_ACCESS_GLOBAL
 
 if [[ $RBRN_ENTRY_ENABLED == 1 ]]; then
-    crgv_port           RBRN_ENTRY_PORT_WORKSTATION
-    crgv_port           RBRN_ENTRY_PORT_ENCLAVE
+    crgv_port    "$CONTEXT"       RBRN_ENTRY_PORT_WORKSTATION
+    crgv_port    "$CONTEXT"       RBRN_ENTRY_PORT_ENCLAVE
     
     # Can I weaken below check?
     test $RBRN_ENTRY_PORT_WORKSTATION -lt                                 $RBRN_UPLINK_PORT_MIN || \
@@ -59,13 +61,13 @@ fi
 
 # These two are mutually exclusive, can do this better
 if [[ $RBRN_UPLINK_ACCESS_ENABLED == 1 && $RBRN_UPLINK_ACCESS_GLOBAL == 0 ]]; then
-    crgv_list_cidr      RBRN_UPLINK_ALLOWED_CIDRS
+    crgv_list_cidr    "$CONTEXT"  RBRN_UPLINK_ALLOWED_CIDRS
 fi
 if [[ $RBRN_UPLINK_DNS_ENABLED == 1 && $RBRN_UPLINK_DNS_GLOBAL == 0 ]]; then
-    crgv_list_domain    RBRN_UPLINK_ALLOWED_DOMAINS
+    crgv_list_domain  "$CONTEXT"  RBRN_UPLINK_ALLOWED_DOMAINS
 fi
 
-crgv_string             RBRN_VOLUME_MOUNTS 0 240
+crgv_string      "$CONTEXT"       RBRN_VOLUME_MOUNTS 0 240
 
 # Success
 exit 0
