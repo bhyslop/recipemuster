@@ -27,8 +27,7 @@ crgv_print_and_die() {
 
 # String validator with optional length constraints
 crgv_string() {
-    local name=$1
-    eval "local val=\${$name:-}" || crgv_print_and_die "Variable '$name' is not defined"
+    local val=${!1}
     local min=$2
     local max=$3
     
