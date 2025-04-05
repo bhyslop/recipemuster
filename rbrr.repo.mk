@@ -61,7 +61,7 @@ RBRR_VMDIST_CRANE        = https://github.com/google/go-containerregistry/releas
 #          Generate this token at https://github.com/settings/tokens with scopes:
 #          - read:packages, write:packages, delete:packages
 #          - repo (for workflow dispatch)
-RBRR_GITHUB_PAT_ENV = ../secrets/github-ghcr-play.env
+RBRR_GITHUB_PAT_ENV = ../station-files/secrets/github-ghcr-play.env
 
 
 # eof
