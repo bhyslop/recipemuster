@@ -61,56 +61,42 @@ zRBM_STASH_PLATFORM_DIGEST    = $(MBD_TEMP_DIR)/podman-latest-platform-digest.js
 RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
-rbp_stash_check_rule:
-	$(MBC_STEP) "Your vm will be for architecture:" $(RBS_PODMAN_ARCHITECTURE)
-	$(MBC_STEP) "Your vm will be for architecture:"
-	$(MBC_SHOW_NORMAL)  "MBC_SHOW_NORMAL"
-	$(MBC_SHOW_WHITE)  "MBC_SHOW_WHITE"
-	$(MBC_SHOW_YELLOW)  "MBC_SHOW_YELLOW"
-	$(MBC_SHOW_RED)  "MBC_SHOW_RED"
-	$(MBC_SHOW_GREEN)  "MBC_SHOW_GREEN"
-	$(MBC_SHOW_CYAN)  "MBC_SHOW_CYAN"
-	$(MBC_SHOW_BLUE)  "MBC_SHOW_BLUE"
-	$(MBC_SHOW_ORANGE)  "MBC_SHOW_ORANGE"
-	$(MBC_SHOW_INDIGO)  "MBC_SHOW_INDIGO"
-	$(MBC_SHOW_VIOLET)  "MBC_SHOW_VIOLET"
-	false
-	$(MBC_START) "Download default podman machine to be a safe place to learn about latest machine version"
-	-podman machine stop  $(RBM_MACHINE)
-	-podman machine stop  $(zRBM_STASH_MACHINE)
-	-podman machine rm -f $(zRBM_STASH_MACHINE)
-	$(MBC_STEP) "Nuke all prior machine cache"
-	rm -rf $(RBS_PODMAN_ROOT_DIR)/machine/*
-	$(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
-	podman machine init  $(zRBM_STASH_MACHINE) > $(zRBM_STASH_RAW_INIT) 2>&1
-	$(MBC_STEP) "Uncontrolled transcript"
-	@cat $(zRBM_STASH_RAW_INIT)
-	$(MBC_STEP) "Start uncontrollled..."
-	podman machine start  $(zRBM_STASH_MACHINE)
-	$(MBC_STEP) "Install crane for bridging your container registry..."
-	$(zRBM_STASH_SSH) curl     -o   crane.tar.gz -L $(RBRR_VMDIST_CRANE)
-	$(zRBM_STASH_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
-	$(MBC_STEP) "Log in to your container registry with podman..."
-	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
-	$(MBC_STEP) "Log into your container registry with crane..."
-	source $(RBRR_GITHUB_PAT_ENV) && \
-	  $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
-	
+rbp_stash_check_rule: mbc_demo_rule
+	@### $(MBC_STEP) "Your vm will be for architecture:" $(RBRS_PODMAN_ARCHITECTURE)
+	@### $(MBC_START) "Download default podman machine to be a safe place to learn about latest machine version"
+	@### -podman machine stop  $(RBM_MACHINE)
+	@### -podman machine stop  $(zRBM_STASH_MACHINE)
+	@### -podman machine rm -f $(zRBM_STASH_MACHINE)
+	@### $(MBC_STEP) "Nuke all prior machine cache"
+	@### rm -rf $(RBRS_PODMAN_ROOT_DIR)/machine/*
+	@### $(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
+	@### podman machine init  $(zRBM_STASH_MACHINE) > $(zRBM_STASH_RAW_INIT) 2>&1
+	@### $(MBC_STEP) "Uncontrolled transcript"
+	@### @cat $(zRBM_STASH_RAW_INIT)
+	@### $(MBC_STEP) "Start uncontrollled..."
+	@### podman machine start  $(zRBM_STASH_MACHINE)
+	@### $(MBC_STEP) "Install crane for bridging your container registry..."
+	@### $(zRBM_STASH_SSH) curl     -o   crane.tar.gz -L $(RBRR_VMDIST_CRANE)
+	@### $(zRBM_STASH_SSH) sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane
+	@### $(MBC_STEP) "Log in to your container registry with podman and crane..."
+	@### source $(RBRR_GITHUB_PAT_ENV)  &&  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	@### source $(RBRR_GITHUB_PAT_ENV) &&   $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
 	$(MBC_STEP) "Get top-level manifest digest..."
 	$(zRBM_STASH_SSH) crane digest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_IMAGE_INDEX_DIGEST)
-	@echo "Top manifest digest:"                 $$(cat $(zRBM_STASH_IMAGE_INDEX_DIGEST))
+	$(MBC_SHOW_CYAN) "Top Manifest Digest:"      $$(cat $(zRBM_STASH_IMAGE_INDEX_DIGEST))
+	$(MBC_SHOW_BLUE) "This matches what I see at https://quay.io/repository/podman/machine-os-wsl?tab=tags"
 
 	$(MBC_STEP) "Retrieve latest index..."
 	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
 	$(MBC_STEP) "Show latest index..."
 	jq < $(zRBM_STASH_LATEST_INDEX)
 
-	$(MBC_STEP) "Extract platform digest for"               $(RBS_PODMAN_ARCHITECTURE)
-	jq -r '.manifests[] | select(.platform.architecture == "$(RBS_PODMAN_ARCHITECTURE)") | .digest' \
+	$(MBC_STEP) "Extract platform digest for"               $(RBRS_PODMAN_ARCHITECTURE)
+	jq -r '.manifests[] | select(.platform.architecture == "$(RBRS_PODMAN_ARCHITECTURE)") | .digest' \
 	   < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_PLATFORM_DIGEST)
 
 	$(MBC_STEP) "Show platform digest..."

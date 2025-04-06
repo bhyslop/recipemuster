@@ -35,8 +35,9 @@ RBRR_MACHINE_NAME        = podman-machine-rbw
 #   Writing manifest to image destination
 #
 #  https://quay.io/repository/podman/machine-os-wsl/manifest/sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
-#
+
 # Base image reference
+# OUCH should I split the pure version part out?
 RBRR_VMDIST_TAG          = quay.io/podman/machine-os-wsl:5.3
 
 # Index manifest that lists available architectures (top level)
