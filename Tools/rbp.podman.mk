@@ -96,24 +96,6 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Show latest index..."
 	jq < $(zRBM_STASH_LATEST_INDEX)
 
-	$(MBC_STEP) "Extract platform digest for"               $(RBRS_PODMAN_ARCHITECTURE)
-	jq -r '.manifests[] | select(.platform.architecture == "$(RBRS_PODMAN_ARCHITECTURE)") | .digest' \
-	   < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_PLATFORM_DIGEST)
-
-	$(MBC_STEP) "Show platform digest..."
-	cat     $(zRBM_STASH_PLATFORM_DIGEST)
-
-	$(MBC_STEP) "Fetch platform manifest using digest..."
-	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$(cat $(zRBM_STASH_PLATFORM_DIGEST)) > $(zRBM_STASH_LATEST_PLATFORM)
-	$(MBC_STEP) "Show platform manifest..."
-	jq < $(zRBM_STASH_LATEST_PLATFORM)
-
-	$(MBC_STEP) "Extract blob digests from platform manifest..."
-	jq -r '.layers[].digest' < $(zRBM_STASH_LATEST_PLATFORM)
-
-	$(MBC_STEP) "TEST AND FAIL IF NOT EXACTLY ONE"
-
-
 	$(MBC_STEP) "Extract all platform manifests..."
 	jq -r '.manifests[].digest' < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_ALL_PLATFORM_DIGESTS)
 
@@ -123,12 +105,8 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Fetch and extract blob digests from all platform manifests..."
 	rm -f $(zRBM_STASH_ALL_BLOB_DIGESTS) || true
 	for digest in $$(cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)); do \
-		echo "Processing platform manifest: $$digest"; \
 		$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$digest  | jq -r '.layers[].digest'; \
 	done
-
-	# TODO
-	false
 
 
 rbp_stash_update_rule:
