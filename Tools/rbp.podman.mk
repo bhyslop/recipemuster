@@ -63,12 +63,26 @@ RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RB
 
 rbp_stash_check_rule:
 	$(MBC_STEP) "Your vm will be for architecture:" $(RBS_PODMAN_ARCHITECTURE)
+	$(MBC_STEP) "Your vm will be for architecture:"
+	$(MBC_SHOW_NORMAL)  "MBC_SHOW_NORMAL"
+	$(MBC_SHOW_WHITE)  "MBC_SHOW_WHITE"
+	$(MBC_SHOW_YELLOW)  "MBC_SHOW_YELLOW"
+	$(MBC_SHOW_RED)  "MBC_SHOW_RED"
+	$(MBC_SHOW_GREEN)  "MBC_SHOW_GREEN"
+	$(MBC_SHOW_CYAN)  "MBC_SHOW_CYAN"
+	$(MBC_SHOW_BLUE)  "MBC_SHOW_BLUE"
+	$(MBC_SHOW_ORANGE)  "MBC_SHOW_ORANGE"
+	$(MBC_SHOW_INDIGO)  "MBC_SHOW_INDIGO"
+	$(MBC_SHOW_VIOLET)  "MBC_SHOW_VIOLET"
+	false
 	$(MBC_START) "Download default podman machine to be a safe place to learn about latest machine version"
 	-podman machine stop  $(RBM_MACHINE)
 	-podman machine stop  $(zRBM_STASH_MACHINE)
 	-podman machine rm -f $(zRBM_STASH_MACHINE)
+	$(MBC_STEP) "Nuke all prior machine cache"
+	rm -rf $(RBS_PODMAN_ROOT_DIR)/machine/*
 	$(MBC_STEP) "Acquire default podman machine (latest for your podman, uncontrolled)..."
-	podman machine init   $(zRBM_STASH_MACHINE) -vvv > $(zRBM_STASH_RAW_INIT) 2>&1
+	podman machine init  $(zRBM_STASH_MACHINE) > $(zRBM_STASH_RAW_INIT) 2>&1
 	$(MBC_STEP) "Uncontrolled transcript"
 	@cat $(zRBM_STASH_RAW_INIT)
 	$(MBC_STEP) "Start uncontrollled..."
