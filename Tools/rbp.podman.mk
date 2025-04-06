@@ -58,6 +58,7 @@ zRBM_STASH_IMAGE_INDEX_DIGEST = $(MBD_TEMP_DIR)/podvm-image-index-digest.txt
 zRBM_STASH_LATEST_INDEX       = $(MBD_TEMP_DIR)/podman-latest-index.json
 zRBM_STASH_LATEST_PLATFORM    = $(MBD_TEMP_DIR)/podman-latest-platform-manifest.json
 zRBM_STASH_PLATFORM_DIGEST    = $(MBD_TEMP_DIR)/podman-latest-platform-digest.json
+zRBM_STASH_ALL_PLATFORM_DIGESTS = $(MBD_TEMP_DIR)/podman-all-platform-digests.json
 RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
@@ -111,6 +112,20 @@ rbp_stash_check_rule: mbc_demo_rule
 	jq -r '.layers[].digest' < $(zRBM_STASH_LATEST_PLATFORM)
 
 	$(MBC_STEP) "TEST AND FAIL IF NOT EXACTLY ONE"
+
+
+	$(MBC_STEP) "Extract all platform manifests..."
+	jq -r '.manifests[].digest' < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_ALL_PLATFORM_DIGESTS)
+
+	$(MBC_STEP) "Show all platform digests..."
+	cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)
+
+	$(MBC_STEP) "Fetch and extract blob digests from all platform manifests..."
+	rm -f $(zRBM_STASH_ALL_BLOB_DIGESTS) || true
+	for digest in $$(cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)); do \
+		echo "Processing platform manifest: $$digest"; \
+		$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$digest  | jq -r '.layers[].digest'; \
+	done
 
 	# TODO
 	false
