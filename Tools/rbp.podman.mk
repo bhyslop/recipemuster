@@ -105,9 +105,9 @@ rbp_stash_check_rule: mbc_demo_rule
 
 	$(MBC_STEP) "Fetch and extract blob digests from all platform manifests..."
 	rm -f $(zRBM_STASH_ALL_BLOB_DIGESTS) || true
-	for digest in $$(cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)); do \
-		$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$digest  | jq -r '.layers[].digest' | sed 's/sha256://g'; \
-	done | tr '\n' '\|' | sed 's/\|$$//' > $(zRBM_STASH_CONCAT_BLOB_DIGESTS)
+	(for digest in $$(cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)); do \
+        $(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$digest | jq -r '.layers[].digest' | sed 's/sha256://g'; \
+    done) | jq -R -s 'split("\n") | map(select(length > 0)) | join("\\|")' > $(zRBM_STASH_CONCAT_BLOB_DIGESTS)
 
 	@echo "Concatenated blob digests:"
 	$(MBC_SHOW_VIOLET) $$(cat $(zRBM_STASH_CONCAT_BLOB_DIGESTS))
