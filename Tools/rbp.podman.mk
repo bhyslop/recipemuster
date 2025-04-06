@@ -107,7 +107,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	rm -f $(zRBM_STASH_ALL_BLOB_DIGESTS) || true
 	for digest in $$(cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)); do \
         $(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$digest | jq -r '.layers[].digest' | sed 's/sha256://g'; \
-	done | jq -R -s 'split("\n") | map(select(length > 0)) | join("\\|")' > $(zRBM_STASH_CONCAT_BLOB_DIGESTS)
+	done | jq -R -s 'split("\n") | map(select(length > 0)) | join("X")' | sed 's/X/\\|/g' > $(zRBM_STASH_CONCAT_BLOB_DIGESTS)
 
 	@echo "Concatenated blob digests:"
 	$(MBC_SHOW_VIOLET) $$(cat $(zRBM_STASH_CONCAT_BLOB_DIGESTS))
