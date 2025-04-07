@@ -84,6 +84,9 @@ rbp_stash_check_rule: mbc_demo_rule
 	@### source $(RBRR_GITHUB_PAT_ENV)  &&  podman -c $(zRBM_STASH_MACHINE) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	@### source $(RBRR_GITHUB_PAT_ENV) &&   $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 
+	$(MBC_STEP) "Install jq using dnf package manager (Fedora's default)"
+	$(zRBM_STASH_SSH) sudo dnf install -y jq --setopt=subscription-manager.disable=1
+
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
