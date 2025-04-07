@@ -55,10 +55,9 @@ IMAGE_BASE="$1"
 IMAGE_REF="$2"
 CRANE="$3"
 
-# Validate crane executable
-if ! command -v "$CRANE" &> /dev/null; then
-  error_exit "Crane executable '$CRANE' not found or not executable."
-fi
+command -v jq       &> /dev/null || error_exit "jq executable not found. Please install jq to process JSON manifests."
+command -v "$CRANE" &> /dev/null || error_exit "Crane executable '$CRANE' not found or not executable."
+
 
 # Create a temporary directory with datestamp and random component
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
