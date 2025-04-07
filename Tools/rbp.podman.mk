@@ -75,7 +75,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	podman machine init  $(zRBM_STASH_MACHINE) > $(zRBM_STASH_RAW_INIT) 2>&1
 	$(MBC_STEP) "Uncontrolled transcript"
 	@cat $(zRBM_STASH_RAW_INIT)
-	$(MBC_STEP) "Start uncontrollled..."
+	$(MBC_STEP) "Start uncontrolled..."
 	podman machine start  $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Install crane for bridging your container registry..."
 	$(zRBM_STASH_SSH) curl     -o   crane.tar.gz -L $(RBRR_VMDIST_CRANE)
@@ -87,30 +87,14 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
-	$(MBC_STEP) "Get top-level manifest digest..."
-	$(zRBM_STASH_SSH) crane digest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_IMAGE_INDEX_DIGEST)
-	$(MBC_SHOW_CYAN) "Top Manifest Digest:"      $$(cat $(zRBM_STASH_IMAGE_INDEX_DIGEST))
+	$(MBC_STEP) "Extracting manifest information..."
+	mkdir -p $(MBD_TEMP_DIR)/vm_manifests
+	$(zRBM_STASH_SSH) ./vm_manifest_extractor.sh $(RBRR_VMDIST_REPO) $(RBRR_VMDIST_TAG) crane $(MBD_TEMP_DIR)/vm_manifests $(MBD_TEMP_DIR)/podman_manifest_info.json
+
+	$(MBC_SHOW_CYAN) "Top Manifest Digest:" $$(jq -r '.index_digest' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
 	$(MBC_SHOW_BLUE) "This matches what I see at https://quay.io/repository/podman/machine-os-wsl?tab=tags"
 
-	$(MBC_STEP) "Retrieve latest index..."
-	$(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG) > $(zRBM_STASH_LATEST_INDEX)
-	$(MBC_STEP) "Show latest index..."
-	jq < $(zRBM_STASH_LATEST_INDEX)
-
-	$(MBC_STEP) "Extract all platform manifests..."
-	jq -r '.manifests[].digest' < $(zRBM_STASH_LATEST_INDEX) > $(zRBM_STASH_ALL_PLATFORM_DIGESTS)
-
-	$(MBC_STEP) "Show all platform digests..."
-	cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)
-
-	$(MBC_STEP) "Fetch and extract blob digests from all platform manifests..."
-	rm -f $(zRBM_STASH_ALL_BLOB_DIGESTS) || true
-	for digest in $$(cat $(zRBM_STASH_ALL_PLATFORM_DIGESTS)); do \
-        $(zRBM_STASH_SSH) crane manifest $(RBRR_VMDIST_TAG)@$$digest | jq -r '.layers[].digest' | sed 's/sha256://g'; \
-	done | jq -R -s 'split("\n") | map(select(length > 0)) | join("X")' | sed 's/X/\\|/g' > $(zRBM_STASH_CONCAT_BLOB_DIGESTS)
-
-	@echo "Concatenated blob digests:"
-	$(MBC_SHOW_VIOLET) $$(cat $(zRBM_STASH_CONCAT_BLOB_DIGESTS))
+	$(MBC_SHOW_VIOLET) "Blob filter pattern:" $$(jq -r '.blob_filter_pattern' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
 
 
 rbp_stash_update_rule:
