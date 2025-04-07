@@ -96,6 +96,10 @@ if ! "$CRANE" manifest "$FULL_REFERENCE" > "$INDEX_FILE" 2>/dev/null; then
   error_exit "Failed to retrieve manifest for $FULL_REFERENCE"
 fi
 
+# Debug - Print the index manifest content
+vme_log "Index manifest content:"
+vme_log "$(cat "$INDEX_FILE")"
+
 # Extract all platform manifests
 ALL_PLATFORM_DIGESTS="${TEMP_DIR}/platform_digests.txt"
 vme_log "Extracting platform digests..."
