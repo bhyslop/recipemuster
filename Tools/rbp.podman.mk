@@ -87,9 +87,11 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
-	$(MBC_STEP) "Extracting manifest information..."
-	mkdir -p $(MBD_TEMP_DIR)/vm_manifests
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/vme.extractor.sh -- $(RBRR_VMDIST_REPO) $(RBRR_VMDIST_TAG) crane /tmp/vm_manifests $(MBD_TEMP_DIR)/podman_manifest_info.json
+	$(MBC_STEP) "Execute the script by piping it directly to the VM and capture JSON output..."
+	$(zRBM_PODMAN_SSH_CMD) "mkdir -p /tmp/vm_manifests"
+	cat $(MBV_TOOLS_DIR)/vme.extractor.sh | \
+	  $(zRBM_PODMAN_SHELL_CMD) -- $(RBRR_VMDIST_REPO) $(RBRR_VMDIST_TAG) crane \
+	  > $(MBD_TEMP_DIR)/podman_manifest_info.json
 
 	$(MBC_SHOW_CYAN) "Top Manifest Digest:" $$(jq -r '.index_digest' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
 	$(MBC_SHOW_BLUE) "This matches what I see at https://quay.io/repository/podman/machine-os-wsl?tab=tags"
