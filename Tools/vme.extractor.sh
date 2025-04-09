@@ -142,6 +142,8 @@ jq -n \
   --arg digest_reference "$DIGEST_REFERENCE" \
   --arg blob_filter_pattern "$BLOB_FILTER_PATTERN" \
   --arg temp_dir "$TEMP_DIR" \
+  --arg short_digest "${INDEX_DIGEST:7:12}" \
+  --arg canonical_tag "stash-$(echo $IMAGE_BASE | tr '/' '-')-$IMAGE_REF-${INDEX_DIGEST:7:12}" \
   '{
     image_base: $image_base,
     image_ref: $image_ref,
@@ -149,7 +151,9 @@ jq -n \
     index_digest: $index_digest,
     digest_reference: $digest_reference,
     blob_filter_pattern: $blob_filter_pattern,
-    temp_dir: $temp_dir
+    temp_dir: $temp_dir,
+    short_digest: $short_digest,
+    canonical_tag: $canonical_tag
   }'
 
 if [ $? -ne 0 ]; then
