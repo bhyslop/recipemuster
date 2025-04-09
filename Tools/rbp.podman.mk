@@ -94,10 +94,10 @@ rbp_stash_check_rule: mbc_demo_rule
 	cat $(MBV_TOOLS_DIR)/vme.extractor.sh | $(zRBM_STASH_SSH) "sh -s quay.io/podman/machine-os-wsl 5.3 crane" \
    	  > $(MBD_TEMP_DIR)/podman_manifest_info.json
 
-	$(MBC_SHOW_CYAN) "Top Manifest Digest:" $$(jq -r '.index_digest' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
-	$(MBC_SHOW_BLUE) "This matches what I see at https://quay.io/repository/podman/machine-os-wsl?tab=tags"
-	$(MBC_SHOW_VIOLET) "Blob filter pattern:" $$(jq -r '.blob_filter_pattern' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
-	$(MBC_SHOW_ORANGE) "Canonical Tag:      " $$(jq -r '.canonical_tag'       < $(MBD_TEMP_DIR)/podman_manifest_info.json)
+	$(MBC_SHOW_BLUE) "What I see at https://quay.io/repository/podman/machine-os-wsl?tab=tags looks like below:"
+	$(MBC_SHOW_CYAN)   "Top Manifest Digest: " $$(jq -r '.index_digest'        < $(MBD_TEMP_DIR)/podman_manifest_info.json)
+	$(MBC_SHOW_VIOLET) "Blob filter pattern: " $$(jq -r '.blob_filter_pattern' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
+	$(MBC_SHOW_ORANGE) "Canonical Tag:       " $$(jq -r '.canonical_tag'       < $(MBD_TEMP_DIR)/podman_manifest_info.json)
 
 	$(MBC_SHOW_ORANGE) "MUST FIX HARDCODES"
 	false
