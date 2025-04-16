@@ -98,6 +98,9 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_SHOW_CYAN)   "Top Manifest Digest: " $$(jq -r '.index_digest'        < $(MBD_TEMP_DIR)/podman_manifest_info.json)
 	$(MBC_SHOW_VIOLET) "Blob filter pattern: " $$(jq -r '.blob_filter_pattern' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
 	$(MBC_SHOW_ORANGE) "Canonical Tag:       " $$(jq -r '.canonical_tag'       < $(MBD_TEMP_DIR)/podman_manifest_info.json)
+	echo
+
+	$(MBC_STEP) "Determine if your selected VM is available and valid in your Github Container Registry..."
 
 	$(MBC_SHOW_RED) "MUST FIX HARDCODES"
 	false
