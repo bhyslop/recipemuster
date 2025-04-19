@@ -281,7 +281,7 @@ vswb_generate_files() {
                 fi
                 
                 # Add file pattern to group
-                GROUPED_PATTERNS["$full_path"]+="            <F N=\"${full_path}/${file_pattern}\" Recurse=\"${recursive}\" Excludes=\"${excludes}\"/>\n"
+                GROUPED_PATTERNS["$full_path"]+="            <F     N=\"${full_path}/${file_pattern}\" Recurse=\"${recursive}\" Excludes=\"${excludes}\"/>\n"
             fi
         done
         
