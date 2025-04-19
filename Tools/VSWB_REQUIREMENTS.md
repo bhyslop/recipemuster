@@ -1,13 +1,13 @@
-# SlickEdit Workspace Builder (VSWB) Requirements - Updated
+# SlickEdit Workspace Builder (VSWB) Requirements - Revised
 
 ## Overview
 
-The SlickEdit Workspace Builder (VSWB) is a set of bash functions designed to generate SlickEdit project files (.vpj) and workspace files (.vpw) from a simple script-based specification. This document outlines the requirements and API for the VSWB system.
+The SlickEdit Workspace Builder (VSWB) is a set of bash functions that generate SlickEdit project files (.vpj) and workspace files (.vpw) from a script-based specification.
 
 ## Components
 
-1. **Builder Script (`vswb_builder.sh`)**: Contains the core functions for defining projects, file patterns, and workspaces
-2. **Instance Scripts**: User-created scripts that use the builder functions to define specific projects and workspaces
+1. **Builder Script (`vswb_builder.sh`)**: Core functions for defining projects, file patterns, and workspaces
+2. **Instance Scripts**: User-created scripts that use the builder functions
 3. **Generated Files**: The .vpj and .vpw files created by the builder
 
 ## Path Structure
@@ -22,10 +22,10 @@ Complete file paths are constructed by combining: `repo_parent_path` + `/` + `re
 
 ## Script Robustness Requirements
 
-1. **Error Handling**: The script must use `set -e` to terminate immediately if any command fails
-2. **Descriptive Echo Statements**: Prefer descriptive echo statements over comments for better debugging and operation visibility
-3. **File Output Method**: Use serial `echo "xxx" >> file` statements rather than HERE documents
-4. **Parameter Validation**: Functions must validate presence of required parameters and fail with clear error messages when invalid
+1. **Error Handling**: The script uses `set -e` to terminate immediately if any command fails
+2. **Descriptive Echo Statements**: The script uses descriptive echo statements instead of comments for better debugging
+3. **File Output Method**: The script uses serial `echo "xxx" >> file` statements rather than HERE documents
+4. **Parameter Validation**: Functions validate parameters and fail with clear error messages when invalid
 
 ## API Reference
 
@@ -39,7 +39,8 @@ Defines a new project that will be stored in a .vpj file.
 - `project_name`: Display name for the project
 
 **Validation:**
-- Both parameters must be non-empty strings
+- `project_id`: Non-empty string
+- `project_name`: Non-empty string
 
 **Example:**
 ```bash
@@ -56,8 +57,10 @@ Adds file patterns to a project with recursive directory scanning.
 - `[excludes]`: Optional patterns to exclude
 
 **Validation:**
-- `project_id` must refer to a previously defined project
-- All other parameters must be valid strings (empty is acceptable for `repo_subpath` and `excludes`)
+- `project_id`: References a previously defined project
+- `repo_subpath`: Valid string (can be empty)
+- `file_pattern`: Non-empty string
+- `excludes`: Valid string (can be empty)
 
 **Example:**
 ```bash
@@ -75,8 +78,10 @@ Adds file patterns to a project without recursive directory scanning.
 - `[excludes]`: Optional patterns to exclude
 
 **Validation:**
-- `project_id` must refer to a previously defined project
-- All other parameters must be valid strings (empty is acceptable for `repo_subpath` and `excludes`)
+- `project_id`: References a previously defined project
+- `repo_subpath`: Valid string (can be empty)
+- `file_pattern`: Non-empty string
+- `excludes`: Valid string (can be empty)
 
 **Example:**
 ```bash
@@ -93,9 +98,9 @@ Adds a specific file to a project.
 - `file_name`: Name of the specific file to add
 
 **Validation:**
-- `project_id` must refer to a previously defined project
-- `file_name` must be a non-empty string
-- `repo_subpath` can be empty but must be a valid string if provided
+- `project_id`: References a previously defined project
+- `repo_subpath`: Valid string (can be empty)
+- `file_name`: Non-empty string
 
 **Example:**
 ```bash
@@ -108,16 +113,16 @@ Initializes a workspace (.vpw) file and associates it with projects.
 **Parameters:**
 - `workspace_id`: Unique identifier for the workspace
 - `workspace_name`: Display name for the workspace
-- `prefix`: Prefix to use for the generated workspace and project files
 - `project_id1 project_id2 ...`: List of project IDs to include in the workspace
 
 **Validation:**
-- `workspace_id`, `workspace_name`, and `prefix` must be non-empty strings
-- All project IDs must refer to previously defined projects
+- `workspace_id`: Non-empty string
+- `workspace_name`: Non-empty string
+- Each project ID: References a previously defined project
 
 **Example:**
 ```bash
-vswb_init_workspace "all" "my-ALL" "myproj" "c-files" "cpp-files" "python-files" "infrastructure"
+vswb_init_workspace "all" "my-ALL" "c-files" "cpp-files" "python-files" "infrastructure"
 ```
 
 #### `vswb_generate_files`
@@ -127,16 +132,20 @@ Generates all SlickEdit project (.vpj) and workspace (.vpw) files.
 - `output_directory`: Directory where files will be created
 - `repo_parent_path`: Relative path to the parent of the repository
 - `repo_name`: Name of the repository directory
+- `prefix`: Prefix to use for all generated workspace and project files
 
 **Validation:**
-- All parameters must be non-empty strings
+- `output_directory`: Non-empty string
+- `repo_parent_path`: Non-empty string
+- `repo_name`: Non-empty string
+- `prefix`: Non-empty string
 - No filesystem validation is performed for these paths
 
 **Note:** This function creates the target directory if it doesn't exist.
 
 **Example:**
 ```bash
-vswb_generate_files "./output" "../.." "my-project"
+vswb_generate_files "./output" "../.." "my-project" "myproj"
 ```
 
 ## Boilerplate Files
@@ -150,11 +159,11 @@ These files provide standard content for the beginning and end of the generated 
 
 ## Output File Structure
 
-The generated files will follow this naming convention:
+The generated files follow this naming convention:
 - Project files: `{prefix}-{project_id}.vpj`
 - Workspace files: `{prefix}-{workspace_id}.vpw`
 
-Where `{prefix}` is explicitly provided in the `vswb_init_workspace` function.
+Where `{prefix}` is explicitly provided in the `vswb_generate_files` function.
 
 ## Usage Example
 
@@ -186,18 +195,17 @@ vswb_add_files_nonrecurse "infrastructure" "" "*.mk"
 vswb_add_files_recurse "infrastructure" "tt" "*.sh"
 
 # Initialize workspaces with their projects
-vswb_init_workspace "all" "my-ALL" "myproj" "c-files" "cpp-files" "python-files" "infrastructure"
-vswb_init_workspace "frontend" "my-frontend" "myproj" "c-files" "cpp-files"
-vswb_init_workspace "scripting" "my-scripting" "myproj" "python-files" "infrastructure"
+vswb_init_workspace "all" "my-ALL" "c-files" "cpp-files" "python-files" "infrastructure"
+vswb_init_workspace "frontend" "my-frontend" "c-files" "cpp-files"
+vswb_init_workspace "scripting" "my-scripting" "python-files" "infrastructure"
 
 # Generate all files
-vswb_generate_files "./output" "../.." "my-project"
+vswb_generate_files "./output" "../.." "my-project" "myproj"
 ```
 
 ## Notes
 
 1. All paths in `vswb_add_*` functions are relative to the repository root
-2. The actual file paths in generated .vpj files will be constructed by combining the repository parent path, repository name, and repository subpath
+2. The actual file paths in generated .vpj files are constructed by combining the repository parent path, repository name, and repository subpath
 3. Multiple workspaces can include the same project files
 4. The Builder script handles directory creation for output files
-
