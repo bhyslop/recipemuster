@@ -31,6 +31,8 @@ Defines a new project.
 - `project_id`: Unique identifier for the project
 - `project_name`: Display name for the project
 
+**Note:** No validation is performed on project_id uniqueness - it's the caller's responsibility to ensure IDs are unique.
+
 **Example:**
 ```bash
 vswb_define_project "c-files" "C Source Files"
@@ -44,6 +46,8 @@ Adds file patterns to a project with recursive directory scanning.
 - `repo_subpath`: Path inside the repository (empty string for root)
 - `file_pattern`: File pattern to match (e.g., "*.c", "Makefile")
 - `[excludes]`: Optional patterns to exclude
+
+**Note:** File patterns are passed as-is to SlickEdit - pattern interpretation is determined by SlickEdit.
 
 **Example:**
 ```bash
@@ -87,6 +91,8 @@ Initializes a workspace and associates it with projects.
 - `workspace_name`: Display name for the workspace
 - `project_id1 project_id2 ...`: List of project IDs to include in the workspace
 
+**Note:** No validation is performed on project existence - it's the caller's responsibility to ensure referenced projects are defined.
+
 **Example:**
 ```bash
 vswb_init_workspace "all" "my-ALL" "c-files" "cpp-files" "python-files" "infrastructure"
@@ -100,6 +106,8 @@ Generates all SlickEdit project and workspace files.
 - `repo_parent_path`: Relative path to the parent of the repository
 - `repo_name`: Name of the repository directory
 
+**Note:** This function creates and empties the target directory if it doesn't exist. No path validation is performed.
+
 **Example:**
 ```bash
 vswb_generate_files "./output" "../.." "my-project"
@@ -109,7 +117,7 @@ vswb_generate_files "./output" "../.." "my-project"
 
 ```bash
 #!/bin/bash
-source ./vswb_builder.sh
+source "$(dirname "${BASH_SOURCE[0]}")/vswb_builder.sh"
 
 # Define projects
 vswb_define_project "c-files" "C Source Files"
@@ -146,12 +154,11 @@ The generated files will follow this naming convention:
 - Project files: `{prefix}-{project_id}.vpj`
 - Workspace files: `{prefix}-{workspace_id}.vpw`
 
-Where `{prefix}` is derived from the workspace name.
+Where `{prefix}` is derived from the workspace name by taking the first part before any hyphen or, if no hyphen exists, using the full workspace name.
 
 ## Notes
 
 1. All paths in `vswb_add_*` functions are relative to the repository root
 2. The actual file paths in generated .vpj files will be constructed by combining the repository parent path, repository name, and repository subpath
 3. Multiple workspaces can include the same project files
-4. The Builder script should validate that all projects referenced in workspaces are defined
-
+4. The Builder script should handle directory creation and cleanup for output files
