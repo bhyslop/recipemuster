@@ -191,8 +191,9 @@ ttx.FixTabtargetExecutability.sh:
 
 bff-s.%:
 	$(MBC_START) "Fetch: Placing file batch on clipboard..."
-	$(MBV_TOOLS_DIR)/bff.fetch.sh
+	$(MBV_TOOLS_DIR)/bff.fetch.sh $(filter-out $@,$(MAKECMDGOALS))
 	$(MBC_PASS) "No errors."
+
 
 #######################################
 #  Visual SlickEdit TabTargets
