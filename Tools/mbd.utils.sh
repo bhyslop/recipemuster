@@ -157,7 +157,8 @@ mbd_process_args() {
     # Store target and extra arguments
     MBD_TARGET=$target
     MBD_EXTRA_ARGS=("$@")
-    
+    MBD_REMAINDER=$(mbd_escape_args "$@")
+
     return 0
 }
 
@@ -191,6 +192,16 @@ mbd_generate_checksum() {
     
     echo "Same log checksum: $checksum" >> "$output_file"
     return 0
+}
+
+mbd_escape_args() {
+    local result=""
+    for arg in "$@"; do
+        # Escape spaces and special characters
+        arg="${arg// /\\ }"
+        result="$result $arg"
+    done
+    echo "$result"
 }
 
 # Generate the make command arguments
