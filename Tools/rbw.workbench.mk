@@ -190,8 +190,8 @@ ttx.FixTabtargetExecutability.sh:
 #
 
 bff-s.%:
-	$(MBC_START) "Fetch: Placing file batch on clipboard with remainder" $(MBD_REMAINDER)
-	$(MBV_TOOLS_DIR)/bff.fetch.sh $(MBD_REMAINDER) | clip
+	$(MBC_START) "Fetch: Placing file batch on clipboard..."
+	$(MBV_TOOLS_DIR)/bff.fetch.sh $(MBD_CLI_ARGS) | clip
 	$(MBC_PASS) "No errors."
 
 

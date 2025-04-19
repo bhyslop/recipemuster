@@ -157,7 +157,7 @@ mbd_process_args() {
     # Store target and extra arguments
     MBD_TARGET=$target
     MBD_EXTRA_ARGS=("$@")
-    MBD_REMAINDER=$(mbd_escape_args "$@")
+    MBD_REMAINDER="$*"
 
     return 0
 }
@@ -194,16 +194,6 @@ mbd_generate_checksum() {
     return 0
 }
 
-mbd_escape_args() {
-    local result=""
-    for arg in "$@"; do
-        # Escape spaces and special characters
-        arg="${arg// /\\ }"
-        result="$result $arg"
-    done
-    echo "$result"
-}
-
 # Generate the make command arguments
 mbd_gen_make_cmd() {
     local makefile=${1:-$MBV_CONSOLE_MAKEFILE}
@@ -231,6 +221,8 @@ mbd_gen_make_cmd() {
     
     # Add extra args
     cmd+=("${MBD_EXTRA_ARGS[@]}")
+
+    cmd+=("MBD_CLI_ARGS='$MBD_REMAINDER'")
     
     # Return the command
     echo "${cmd[@]}"
