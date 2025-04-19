@@ -155,4 +155,3 @@ Where `{prefix}` is derived from the workspace name.
 3. Multiple workspaces can include the same project files
 4. The Builder script should validate that all projects referenced in workspaces are defined
 
-

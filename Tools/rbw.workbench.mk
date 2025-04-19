@@ -159,7 +159,7 @@ rbw-ta.%:
 
 
 #######################################
-#  Tabtarget Maintenance Tabtarget
+#  TabTarget Maintenance TabTargets
 #
 #  Helps you create default form tabtargets in right place.
 
@@ -182,6 +182,16 @@ ttc.CreateTabtarget.sh:
 ttx.FixTabtargetExecutability.sh:
 	$(MBC_START) "Repair windows proclivity to goof up executable privileges"
 	git update-index --chmod=+x $(MBV_TABTARGET_DIR)/*
+	$(MBC_PASS) "No errors."
+
+
+#######################################
+#  Bash File TabTargets
+#
+
+bff-s.%:
+	$(MBC_START) "Fetch: Placing file batch on clipboard..."
+	$(MBV_TOOLS_DIR)/bff.fetch.sh 
 	$(MBC_PASS) "No errors."
 
 
