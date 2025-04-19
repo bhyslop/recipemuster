@@ -1,8 +1,11 @@
 #!/bin/bash
 #
 # SlickEdit Workspace Builder (VSWB) - Builder Script
-# Implementation based on VSWB_REQUIREMENTS.md
+# Implementation based on revised VSWB requirements
 #
+
+# Exit on any error
+set -e
 
 # Global associative arrays for projects, file patterns, and workspaces
 declare -A PROJECTS
@@ -20,6 +23,19 @@ vswb_define_project() {
     local project_id="$1"
     local project_name="$2"
     
+    # Validate parameters
+    if [ -z "$project_id" ]; then
+        echo "ERROR: project_id parameter is required for vswb_define_project"
+        exit 1
+    fi
+    
+    if [ -z "$project_name" ]; then
+        echo "ERROR: project_name parameter is required for vswb_define_project"
+        exit 1
+    fi
+    
+    echo "Defining project: $project_id ($project_name)"
+    
     # Store project metadata 
     PROJECTS["$project_id"]="$project_name"
 }
@@ -36,9 +52,27 @@ vswb_add_files_recurse() {
     local file_pattern="$3"
     local excludes="$4"
     
+    # Validate parameters
+    if [ -z "$project_id" ]; then
+        echo "ERROR: project_id parameter is required for vswb_add_files_recurse"
+        exit 1
+    fi
+    
+    if [ -z "${PROJECTS[$project_id]}" ]; then
+        echo "ERROR: project_id '$project_id' not found - must define project before adding files"
+        exit 1
+    fi
+    
+    if [ -z "$file_pattern" ]; then
+        echo "ERROR: file_pattern parameter is required for vswb_add_files_recurse"
+        exit 1
+    fi
+    
     # Increment and get unique pattern ID
     FILE_PATTERN_COUNTER=$((FILE_PATTERN_COUNTER + 1))
     local pattern_id="${project_id}_${FILE_PATTERN_COUNTER}"
+    
+    echo "Adding recursive pattern '$file_pattern' to project $project_id in path '$repo_subpath'"
     
     # Store file pattern with recursive flag
     FILE_PATTERNS["$pattern_id"]="${project_id}|${repo_subpath}|${file_pattern}|1|${excludes}"
@@ -56,9 +90,27 @@ vswb_add_files_nonrecurse() {
     local file_pattern="$3"
     local excludes="$4"
     
+    # Validate parameters
+    if [ -z "$project_id" ]; then
+        echo "ERROR: project_id parameter is required for vswb_add_files_nonrecurse"
+        exit 1
+    fi
+    
+    if [ -z "${PROJECTS[$project_id]}" ]; then
+        echo "ERROR: project_id '$project_id' not found - must define project before adding files"
+        exit 1
+    fi
+    
+    if [ -z "$file_pattern" ]; then
+        echo "ERROR: file_pattern parameter is required for vswb_add_files_nonrecurse"
+        exit 1
+    fi
+    
     # Increment and get unique pattern ID
     FILE_PATTERN_COUNTER=$((FILE_PATTERN_COUNTER + 1))
     local pattern_id="${project_id}_${FILE_PATTERN_COUNTER}"
+    
+    echo "Adding non-recursive pattern '$file_pattern' to project $project_id in path '$repo_subpath'"
     
     # Store file pattern with non-recursive flag
     FILE_PATTERNS["$pattern_id"]="${project_id}|${repo_subpath}|${file_pattern}|0|${excludes}"
@@ -74,9 +126,27 @@ vswb_add_specific_file() {
     local repo_subpath="$2"
     local file_name="$3"
     
+    # Validate parameters
+    if [ -z "$project_id" ]; then
+        echo "ERROR: project_id parameter is required for vswb_add_specific_file"
+        exit 1
+    fi
+    
+    if [ -z "${PROJECTS[$project_id]}" ]; then
+        echo "ERROR: project_id '$project_id' not found - must define project before adding files"
+        exit 1
+    fi
+    
+    if [ -z "$file_name" ]; then
+        echo "ERROR: file_name parameter is required for vswb_add_specific_file"
+        exit 1
+    fi
+    
     # Increment and get unique pattern ID
     FILE_PATTERN_COUNTER=$((FILE_PATTERN_COUNTER + 1))
     local pattern_id="${project_id}_${FILE_PATTERN_COUNTER}"
+    
+    echo "Adding specific file '$file_name' to project $project_id in path '$repo_subpath'"
     
     # Store specific file pattern with non-recursive flag
     FILE_PATTERNS["$pattern_id"]="${project_id}|${repo_subpath}|${file_name}|0|"
@@ -93,6 +163,32 @@ vswb_init_workspace() {
     shift 2
     local project_ids="$@"
     
+    # Validate parameters
+    if [ -z "$workspace_id" ]; then
+        echo "ERROR: workspace_id parameter is required for vswb_init_workspace"
+        exit 1
+    fi
+    
+    if [ -z "$workspace_name" ]; then
+        echo "ERROR: workspace_name parameter is required for vswb_init_workspace"
+        exit 1
+    fi
+    
+    if [ -z "$project_ids" ]; then
+        echo "ERROR: at least one project_id is required for vswb_init_workspace"
+        exit 1
+    fi
+    
+    # Validate that all project IDs exist
+    for project_id in $project_ids; do
+        if [ -z "${PROJECTS[$project_id]}" ]; then
+            echo "ERROR: project_id '$project_id' not found - must define project before adding to workspace"
+            exit 1
+        fi
+    done
+    
+    echo "Initializing workspace '$workspace_id' ($workspace_name) with projects: $project_ids"
+    
     # Store workspace metadata and associated projects
     WORKSPACES["$workspace_id"]="${workspace_name}|${project_ids}"
 }
@@ -102,36 +198,61 @@ vswb_init_workspace() {
 #   $1: output_directory - Directory where files will be created
 #   $2: repo_parent_path - Relative path to the parent of the repository
 #   $3: repo_name - Name of the repository directory
+#   $4: prefix - Prefix to use for generated files
 vswb_generate_files() {
     local output_directory="$1"
     local repo_parent_path="$2"
     local repo_name="$3"
+    local prefix="$4"
+    
+    # Validate parameters
+    if [ -z "$output_directory" ]; then
+        echo "ERROR: output_directory parameter is required for vswb_generate_files"
+        exit 1
+    fi
+    
+    if [ -z "$repo_parent_path" ]; then
+        echo "ERROR: repo_parent_path parameter is required for vswb_generate_files"
+        exit 1
+    fi
+    
+    if [ -z "$repo_name" ]; then
+        echo "ERROR: repo_name parameter is required for vswb_generate_files"
+        exit 1
+    fi
+    
+    if [ -z "$prefix" ]; then
+        echo "ERROR: prefix parameter is required for vswb_generate_files"
+        exit 1
+    fi
     
     # Create output directory if it doesn't exist
+    echo "Creating output directory: $output_directory"
     mkdir -p "${output_directory}"
     
-    # Get boilerplate content
+    # Get script directory
+    local script_dir="$(dirname "${BASH_SOURCE[0]}")"
+    
+    # Get boilerplate content from script directory
     local boilerplate_top=""
     local boilerplate_bottom=""
     
-    if [ -f "Tools/vswb.boilerplate-top.txt" ]; then
-        boilerplate_top=$(cat "Tools/vswb.boilerplate-top.txt")
+    if [ -f "${script_dir}/vswb.boilerplate-top.txt" ]; then
+        echo "Reading top boilerplate from ${script_dir}/vswb.boilerplate-top.txt"
+        boilerplate_top=$(cat "${script_dir}/vswb.boilerplate-top.txt")
     fi
     
-    if [ -f "Tools/vswb.boilerplate-bottom.txt" ]; then
-        boilerplate_bottom=$(cat "Tools/vswb.boilerplate-bottom.txt")
+    if [ -f "${script_dir}/vswb.boilerplate-bottom.txt" ]; then
+        echo "Reading bottom boilerplate from ${script_dir}/vswb.boilerplate-bottom.txt"
+        boilerplate_bottom=$(cat "${script_dir}/vswb.boilerplate-bottom.txt")
     fi
     
     # Generate project files
     for project_id in "${!PROJECTS[@]}"; do
-        # Extract prefix from project_id
-        local prefix=$(echo "${project_id}" | cut -d '-' -f1)
-        if [ -z "$prefix" ]; then
-            prefix="vswb"
-        fi
-        
         # Project file path
         local project_file_path="${output_directory}/${prefix}-${project_id}.vpj"
+        
+        echo "Generating project file: ${project_file_path}"
         
         # Generate project file
         echo "${boilerplate_top}" > "${project_file_path}"
@@ -160,7 +281,7 @@ vswb_generate_files() {
                 fi
                 
                 # Add file pattern to group
-                GROUPED_PATTERNS["$full_path"]+="            <F     N=\"${full_path}/${file_pattern}\" Recurse=\"${recursive}\" Excludes=\"${excludes}\"/>\n"
+                GROUPED_PATTERNS["$full_path"]+="            <F N=\"${full_path}/${file_pattern}\" Recurse=\"${recursive}\" Excludes=\"${excludes}\"/>\n"
             fi
         done
         
@@ -181,45 +302,26 @@ vswb_generate_files() {
     for workspace_id in "${!WORKSPACES[@]}"; do
         IFS='|' read -r workspace_name project_list <<< "${WORKSPACES[$workspace_id]}"
         
-        # Extract prefix from workspace_name
-        local prefix=$(echo "${workspace_name}" | cut -d '-' -f1)
-        
-        # If no hyphen or if the prefix is empty, use the workspace name
-        if [ -z "$prefix" ] || [[ "$workspace_name" != *-* ]]; then
-            prefix="$workspace_name"
-        fi
-        
-        # Format the prefix to lowercase
-        prefix=$(echo "$prefix" | tr '[:upper:]' '[:lower:]')
-        
         # Workspace file path
         local workspace_file_path="${output_directory}/${prefix}-${workspace_id}.vpw"
         
+        echo "Generating workspace file: ${workspace_file_path}"
+        
         # Generate workspace file
-        cat > "${workspace_file_path}" << EOL
-<!DOCTYPE Workspace SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpw.dtd">
-<Workspace Version="10.0" VendorName="SlickEdit">
-	<Projects>
-EOL
+        echo "<!DOCTYPE Workspace SYSTEM \"http://www.slickedit.com/dtd/vse/10.0/vpw.dtd\">" > "${workspace_file_path}"
+        echo "<Workspace Version=\"10.0\" VendorName=\"SlickEdit\">" >> "${workspace_file_path}"
+        echo "	<Projects>" >> "${workspace_file_path}"
         
         # Add project references
         for project_id in $project_list; do
-            # Use the same prefix naming convention as for project files
-            local project_prefix=$(echo "${project_id}" | cut -d '-' -f1)
-            if [ -z "$project_prefix" ]; then
-                project_prefix="vswb"
-            fi
-            
-            echo "        <Project File=\"${prefix}-${project_id}.vpj\"/>" >> "${workspace_file_path}"
+            echo "		<Project File=\"${prefix}-${project_id}.vpj\"/>" >> "${workspace_file_path}"
         done
         
         # Close workspace file
-        cat >> "${workspace_file_path}" << EOL
-	</Projects>
-</Workspace>
-EOL
+        echo "	</Projects>" >> "${workspace_file_path}"
+        echo "</Workspace>" >> "${workspace_file_path}"
     done
     
-    echo "Generated files in ${output_directory}/"
+    echo "Generated all files in ${output_directory}/"
 }
 
