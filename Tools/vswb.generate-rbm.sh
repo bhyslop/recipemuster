@@ -10,6 +10,6 @@ vswb_add_files_recurse "all" "" "*.mk"
 
 vswb_init_workspace "ALL" "vsusi" "all"
 
-vswb_generate_files "../vswb_test" "../.." "brm_recipemuster" "vsrbm"
+vswb_generate_files "../vswb_test" ".." "brm_recipemuster" "vsrbm"
 
 
