@@ -262,6 +262,18 @@ csu-h.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo fdisk -l && echo \"Sudo works without password!\"'"
 	@echo
+	$(MBC_STEP)        "13. Install NVMe utilities:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo apt update && sudo apt install -y nvme-cli'"
+	@echo
+	$(MBC_STEP)        "14. Identify drives and their partitions:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo lsblk -o NAME,MODEL,SIZE,SERIAL,MOUNTPOINTS && echo -e \"\\nNVMe Details:\" && sudo nvme list'"
+	@echo
+	$(MBC_STEP)        "15. Get detailed partition information:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'echo -e \"\\nPartition Details:\" && sudo fdisk -l | grep -E \"^Disk /dev/nvme|^/dev/nvme\"'"
+	@echo
 	$(MBC_PASS) "No errors."
 
 
