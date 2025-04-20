@@ -314,11 +314,20 @@ csu-h.%:
 	@echo
 	$(MBC_STEP)        "23. Switch to installer interface to complete Ubuntu installation:"
 	$(MBC_RAW_YELLOW)  "                                     Ctrl-Alt-F1"
+	$(MBC_RAW_YELLOW)  "                             xxx SKIPPED STEPS"
 	$(MBC_STEP)        "24. In the Ubuntu installer:"
 	$(MBC_STEP)        "    a. Select 'Manual' partitioning"
-	$(MBC_STEP)        "    b. Find your Windows drive (nvme2n1) and use its EFI partition (nvme2n1p1) as EFI System Partition"
-	$(MBC_STEP)        "    c. Select the RAID device (/dev/md0) and choose 'Use as: Ext4' and mount it as '/'"
-	$(MBC_STEP)        "    d. Complete the installation"
+	$(MBC_STEP)        "    b. Find your Windows drive (nvme2n1) and select its EFI partition (nvme2n1p1)"
+	$(MBC_STEP)        "    c. Set it to mount at '/boot/efi' and ensure it's formatted as vfat"
+	$(MBC_STEP)        "    d. Select the RAID device (/dev/md0) and choose 'Edit'"
+	$(MBC_STEP)        "    e. Select 'Format' and choose 'ext4' as the filesystem type"
+	$(MBC_STEP)        "    f. After formatting options, select the mount point as '/'"
+	$(MBC_STEP)        "    g. If root (/) option is greyed out, complete the format step first"
+	$(MBC_STEP)        "    h. Verify configuration summary shows:"
+	$(MBC_STEP)        "       - EFI partition mounted at /boot/efi"
+	$(MBC_STEP)        "       - RAID array (md0) formatted as ext4 and mounted at /"
+	$(MBC_STEP)        "    i. Select 'Done' to proceed with installation"
+	$(MBC_STEP)        "25. Complete the installation by following the remaining Ubuntu setup prompts"
 	$(MBC_PASS) "No errors."
 
 
