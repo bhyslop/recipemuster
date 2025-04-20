@@ -220,7 +220,7 @@ mbd_gen_make_cmd() {
     done
 
     # Pass *all* of your extra patterns/args via a single variable,
-    # so make won’t interpret them as goals.
+    # so make won't interpret them as goals.
     cmd+=("MBD_CLI_ARGS='$MBD_REMAINDER'")
 
     # Return the command
