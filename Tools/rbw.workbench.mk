@@ -244,21 +244,23 @@ csu-h.%:
 	@echo
 	$(MBC_STEP)        "8. On a second computer, set up env variable with Cerebro's temporary IP:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                                     export CEREBRO_IP_ADDR=xxxx"
+	$(MBC_RAW_ORANGE)  "                        export CEREBRO_IP_ADDR=xxxx"
 	@echo
 	$(MBC_STEP)        "9. Set up passwordless SSH access from your workstation:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                                     ssh-copy-id ubuntu-server@$$CEREBRO_IP_ADDR"
+	$(MBC_RAW_ORANGE)  "                        ssh-copy-id ubuntu-server@\$$CEREBRO_IP_ADDR"
 	@echo
 	$(MBC_STEP)        "10. Verify connection without password:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                                     ssh ubuntu-server@$$CEREBRO_IP_ADDR"
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'uname -a'"
 	@echo
-	$(MBC_STEP)        "11. Disable sudo password for the ubuntu user:"
+	$(MBC_STEP)        "11. Disable sudo password for the ubuntu-server user:"
 	@echo
-	$(MBC_RAW_VIOLET)  "                        echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/ubuntu-nopasswd  &&\\"
-	$(MBC_RAW_VIOLET)  "                        sudo chmod 440 /etc/sudoers.d/ubuntu-nopasswd"
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR \"echo 'ubuntu-server ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/ubuntu-nopasswd && sudo chmod 440 /etc/sudoers.d/ubuntu-nopasswd\""
 	@echo
+	$(MBC_STEP)        "12. Verify sudo works without password by checking disk information:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo fdisk -l && echo \"Sudo works without password!\"'"
 	@echo
 	$(MBC_PASS) "No errors."
 
