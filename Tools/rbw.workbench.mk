@@ -234,23 +234,34 @@ csu-h.%:
 	@echo
 	$(MBC_RAW_CYAN)    "                                     ip addr"
 	@echo
-	$(MBC_STEP)        "    d. Set up SSH for remote access:"
-	@echo
-	$(MBC_RAW_CYAN)    "                                     sudo apt install openssh-server -y"
+	$(MBC_STEP)        "    d. Start ssh server:"
 	@echo
 	$(MBC_RAW_CYAN)    "                                     sudo systemctl start ssh"
 	@echo
-	$(MBC_RAW_CYAN)    "                                     ip addr"
-	@echo
-	$(MBC_STEP)        "    e. Configure a temporary password:"
+	$(MBC_STEP)        "    d. Set an ssh password:"
 	@echo
 	$(MBC_RAW_CYAN)    "                                     sudo passwd ubuntu-server"
 	@echo
-	$(MBC_STEP)        "7. Connect from another computer:"
+	$(MBC_STEP)        "7. On a second computer, set up env variable with Cerebro's temporary IP:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                                     ssh ubuntu-server@[IP_ADDRESS]"
+	$(MBC_RAW_ORANGE)  "                                     export CEREBRO_IP_ADDR=xxxx"
+	@echo
+	$(MBC_STEP)        "7. Set up passwordless SSH access from your workstation:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                                     ssh-copy-id ubuntu-server@$$CEREBRO_IP_ADDR"
+	@echo
+	$(MBC_STEP)        "8. Verify connection without password:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                                     ssh ubuntu-server@$$CEREBRO_IP_ADDR"
+	@echo
+	$(MBC_STEP)        "8. Disable sudo password for the ubuntu user:"
+	@echo
+	$(MBC_RAW_VIOLET)  "                                     echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/ubuntu-nopasswd  &&\\"
+	$(MBC_RAW_VIOLET)  "                                     sudo chmod 440 /etc/sudoers.d/ubuntu-nopasswd"
+	@echo
 	@echo
 	$(MBC_PASS) "No errors."
+
 
 
 #########################################
