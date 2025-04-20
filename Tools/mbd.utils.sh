@@ -202,11 +202,11 @@ mbd_gen_make_cmd() {
     local cmd=("make" "-f" "$makefile" "$MBD_OUTPUT_MODE")
     
     # Add job profile if not empty
-    if [[ -n       "$MBD_JOB_PROFILE" ]]; then
+    if [[       -n "$MBD_JOB_PROFILE" ]]; then
         cmd+=("-j" "$MBD_JOB_PROFILE")
     fi
     
-    # Add target
+    # Add target - ONLY the primary target, not the extra args
     cmd+=("$MBD_TARGET")
     
     # Add essential variables
@@ -218,12 +218,18 @@ mbd_gen_make_cmd() {
     for param in "${MBD_TOKEN_PARAMS[@]}"; do
         cmd+=("$param")
     done
-    
-    # Add extra args
-    cmd+=("${MBD_EXTRA_ARGS[@]}")
 
-    cmd+=("MBD_CLI_ARGS='$MBD_REMAINDER'")
-    
+    # Pass extra args via MBD_CLI_ARGS
+    # Quote the arguments properly to preserve spaces
+    local quoted_args=""
+    if [[ ${#MBD_EXTRA_ARGS[@]} -gt 0 ]]; then
+        for arg in "${MBD_EXTRA_ARGS[@]}"; do
+            quoted_args+="'$arg' "
+        done
+    fi
+
+    cmd+=("MBD_CLI_ARGS=$quoted_args")
+
     # Return the command
     echo "${cmd[@]}"
 }
