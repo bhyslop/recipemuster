@@ -328,6 +328,15 @@ csu-h.%:
 	$(MBC_STEP)        "       - RAID array (md0) formatted as ext4 and mounted at /"
 	$(MBC_STEP)        "    i. Select 'Done' to proceed with installation"
 	$(MBC_STEP)        "25. Complete the installation by following the remaining Ubuntu setup prompts"
+	$(MBC_STEP)        "26. Configure boot priority in MSI BIOS:"
+	$(MBC_STEP)        "    a. Reboot and enter BIOS by pressing Del key during startup"
+	$(MBC_STEP)        "    b. Navigate to the 'Boot' section (shown in the Click BIOS interface)"
+	$(MBC_STEP)        "    c. Select 'Boot Priority' or 'Boot Option #1'"
+	$(MBC_STEP)        "    d. Set 'Ubuntu (WD_BLACK_SN850)' as the first boot option"
+	$(MBC_STEP)        "    e. Set 'Windows Boot Manager (WD_BLAC...)' as the second boot option"
+	$(MBC_STEP)        "    f. Save changes and exit (usually F10 key)"
+	$(MBC_STEP)        "    g. System will now boot to Ubuntu by default, with option to select Windows"
+	$(MBC_PASS) "Successfully completed Cerebro setup with dual-boot configuration."
 	$(MBC_PASS) "No errors."
 
 
