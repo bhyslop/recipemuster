@@ -197,38 +197,31 @@ mbd_generate_checksum() {
 # Generate the make command arguments
 mbd_gen_make_cmd() {
     local makefile=${1:-$MBV_CONSOLE_MAKEFILE}
-    
+
     # Build base command
     local cmd=("make" "-f" "$makefile" "$MBD_OUTPUT_MODE")
-    
+
     # Add job profile if not empty
     if [[       -n "$MBD_JOB_PROFILE" ]]; then
         cmd+=("-j" "$MBD_JOB_PROFILE")
     fi
-    
-    # Add target - ONLY the primary target, not the extra args
+
+    # Add target
     cmd+=("$MBD_TARGET")
-    
+
     # Add essential variables
     cmd+=("MBD_NOW_STAMP=$MBD_NOW_STAMP"
           "MBD_JOB_PROFILE=$MBD_JOB_PROFILE"
           "MBD_TEMP_DIR=$MBD_TEMP_DIR")
-    
+
     # Add token parameters
     for param in "${MBD_TOKEN_PARAMS[@]}"; do
         cmd+=("$param")
     done
 
-    # Pass extra args via MBD_CLI_ARGS
-    # Quote the arguments properly to preserve spaces
-    local quoted_args=""
-    if [[ ${#MBD_EXTRA_ARGS[@]} -gt 0 ]]; then
-        for arg in "${MBD_EXTRA_ARGS[@]}"; do
-            quoted_args+="'$arg' "
-        done
-    fi
-
-    cmd+=("MBD_CLI_ARGS=$quoted_args")
+    # Pass *all* of your extra patterns/args via a single variable,
+    # so make won’t interpret them as goals.
+    cmd+=("MBD_CLI_ARGS='$MBD_REMAINDER'")
 
     # Return the command
     echo "${cmd[@]}"
