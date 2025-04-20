@@ -274,6 +274,16 @@ csu-h.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'echo -e \"\\nPartition Details:\" && sudo fdisk -l | grep -E \"^Disk /dev/nvme|^/dev/nvme\"'"
 	@echo
+	$(MBC_STEP)        "16. Verify partition status for each NVMe drive:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'test \$$(lsblk -no NAME /dev/nvme0n1 | grep -c \"nvme0n1p\") -eq 0 && echo \"PASS: nvme0n1 has no partitions as expected\" || (echo \"FAIL: nvme0n1 has partitions, should be empty\" && exit 1)'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'test \$$(lsblk -no NAME /dev/nvme1n1 | grep -c \"nvme1n1p\") -eq 0 && echo \"PASS: nvme1n1 has no partitions as expected\" || (echo \"FAIL: nvme1n1 has partitions, should be empty\" && exit 1)'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'test \$$(lsblk -no NAME /dev/nvme2n1 | grep -c \"nvme2n1p\") -gt 0 && echo \"PASS: nvme2n1 has Windows partitions as expected\" || (echo \"FAIL: nvme2n1 has no partitions, should have Windows\" && exit 1)'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'test \$$(lsblk -no NAME /dev/nvme3n1 | grep -c \"nvme3n1p\") -eq 0 && echo \"PASS: nvme3n1 has no partitions as expected\" || (echo \"FAIL: nvme3n1 has partitions, should be empty\" && exit 1)'"
+	@echo
 	$(MBC_PASS) "No errors."
 
 
