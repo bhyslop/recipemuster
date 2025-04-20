@@ -206,6 +206,18 @@ vsp-g.%:
 	$(MBC_PASS) "No errors."
 
 
+#######################################
+#  Cerebro Setup TabTargets
+#
+
+
+csu-h.%:
+	$(MBC_START) "Help for setting up Cerebro:"
+	@echo
+	$(MBC_RAW_YELLOW)  "     wsl --shutdown"
+	@echo
+	$(MBC_PASS) "No errors."
+
 
 #########################################
 #  Legacy helpers
