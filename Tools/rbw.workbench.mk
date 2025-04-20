@@ -217,24 +217,39 @@ csu-h.%:
 	$(MBC_STEP)        "1. Acquire Ubuntu Server live ubuntu-24.04.2-live-server-amd64.iso"
 	$(MBC_STEP)        "2. Burn it using rufus-4.7_x86.exe to a newer thumb drive."
 	$(MBC_STEP)        "3. Download new MSI bios, current version is 2025/02/13"
-	$(MBC_STEP)        "3. Place new MSI bios at root of thumb drive renamed ??? MSI.ROM"
-	$(MBC_STEP)        "3. Boot into Cerebro bios using Del Key."
+	$(MBC_STEP)        "4. Place new MSI bios at root of thumb drive renamed ??? MSI.ROM"
+	$(MBC_STEP)        "5. Boot into Cerebro bios using Del Key."
 	$(MBC_RAW_YELLOW)  "                                     Del"
 	$(MBC_STEP)        "    a. Find icon for 'flash mode'."
-	$(MBC_STEP)        "    a. ??? do upgrade."
-	$(MBC_STEP)        "3. Reboot into Cerebro bios."
+	$(MBC_STEP)        "    b. ??? do upgrade."
+	$(MBC_STEP)        "6. Reboot into Cerebro bios."
 	$(MBC_STEP)        "    a. Assure Secure boot enabled."
-	$(MBC_STEP)        "    a. Select Boot from usb key or disk"
-	$(MBC_STEP)        "    a. ??? Select second boot option to pick UEFI boot order."
-	$(MBC_STEP)        "3. Boot into the Ubuntu Server Live image."
+	$(MBC_STEP)        "    b. Select Boot from usb key or disk"
+	$(MBC_STEP)        "    c. ??? Select second boot option to pick UEFI boot order."
+	$(MBC_STEP)        "7. Boot into the Ubuntu Server Live image."
 	$(MBC_STEP)        "    a. Select the ??? try ubuntu option."
-	$(MBC_STEP)        "    a. ??? At 'Wilcommen! Bienvenue!' switch into console:"
+	$(MBC_STEP)        "    b. ??? At 'Wilcommen! Bienvenue!' switch into console:"
 	$(MBC_RAW_YELLOW)  "                                     Ctrl-Alt-F2"
-	$(MBC_STEP)        "    a. Assure live internet access.  You may need to use a USB-C Ethernet adapter:"
+	$(MBC_STEP)        "    c. Assure live internet access. You may need to use a USB-C Ethernet adapter:"
 	@echo
 	$(MBC_RAW_CYAN)    "                                     ip addr"
 	@echo
-	$(MBC_STEP)        "    a. REMOTE ACCESS SETUP STEPS HERE"
+	$(MBC_STEP)        "    d. Set up SSH for remote access:"
+	@echo
+	$(MBC_RAW_CYAN)    "                                     sudo apt install openssh-server -y"
+	@echo
+	$(MBC_RAW_CYAN)    "                                     sudo systemctl start ssh"
+	@echo
+	$(MBC_RAW_CYAN)    "                                     ip addr"
+	@echo
+	$(MBC_STEP)        "    e. Configure a temporary password:"
+	@echo
+	$(MBC_RAW_CYAN)    "                                     sudo passwd ubuntu-server"
+	@echo
+	$(MBC_STEP)        "7. Connect from another computer:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                                     ssh ubuntu-server@[IP_ADDRESS]"
+	@echo
 	$(MBC_PASS) "No errors."
 
 
