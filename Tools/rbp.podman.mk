@@ -60,6 +60,8 @@ zRBM_STASH_LATEST_PLATFORM    = $(MBD_TEMP_DIR)/podman-latest-platform-manifest.
 zRBM_STASH_PLATFORM_DIGEST    = $(MBD_TEMP_DIR)/podman-latest-platform-digest.json
 zRBM_STASH_ALL_PLATFORM_DIGESTS = $(MBD_TEMP_DIR)/podman-all-platform-digests.json
 zRBM_STASH_CONCAT_BLOB_DIGESTS  = $(MBD_TEMP_DIR)/podman-concat-blob-digests.json
+zRBM_STASH_LATEST_EXTRACT     = $(MBD_TEMP_DIR)/podman_manifest_info.json
+zRBM_STASH_CURRENTLY_CHOSEN   = $(MBD_TEMP_DIR)/podman_manifest_chosen.json
 RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME):stash-$(zRBM_STASH_TAG_SAFE)-$(zRBM_STASH_SHA_SHORT)
 
 
@@ -90,19 +92,28 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
+	$(MBC_STEP) "OUCH de-hardcode below"
 	$(MBC_STEP) "Execute the script by piping it directly to the VM and capture the JSON output..."
-	cat $(MBV_TOOLS_DIR)/vme.extractor.sh | $(zRBM_STASH_SSH) "sh -s quay.io/podman/machine-os-wsl 5.3 crane" \
-   	  > $(MBD_TEMP_DIR)/podman_manifest_info.json
+	cat $(MBV_TOOLS_DIR)/vme.extractor.sh | $(zRBM_STASH_SSH) "sh -s quay.io podman/machine-os-wsl 5.3 crane" \
+	  > $(zRBM_STASH_LATEST_EXTRACT)
+
+	$(MBC_STEP) "Visualize" $(zRBM_STASH_LATEST_EXTRACT)
+	cat $(zRBM_STASH_LATEST_EXTRACT) | jq
 
 	$(MBC_SHOW_WHITE) "What I see at https://quay.io/repository/podman/machine-os-wsl?tab=tags looks like below:"
-	$(MBC_SHOW_CYAN)   "Top Manifest Digest: " $$(jq -r '.index_digest'        < $(MBD_TEMP_DIR)/podman_manifest_info.json)
-	$(MBC_SHOW_VIOLET) "Blob filter pattern: " $$(jq -r '.blob_filter_pattern' < $(MBD_TEMP_DIR)/podman_manifest_info.json)
-	$(MBC_SHOW_ORANGE) "Canonical Tag:       " $$(jq -r '.canonical_tag'       < $(MBD_TEMP_DIR)/podman_manifest_info.json)
+	$(MBC_SHOW_CYAN)   "Top Manifest Digest: " $$(jq -r '.index_digest'        < $(zRBM_STASH_LATEST_EXTRACT))
+	$(MBC_SHOW_VIOLET) "Blob filter pattern: " $$(jq -r '.blob_filter_pattern' < $(zRBM_STASH_LATEST_EXTRACT))
+	$(MBC_SHOW_ORANGE) "Canonical Tag:       " $$(jq -r '.canonical_tag'       < $(zRBM_STASH_LATEST_EXTRACT))
 	echo
 
 	$(MBC_STEP) "Determine if your selected VM is available and valid in your Github Container Registry..."
 
-	$(MBC_SHOW_RED) "MUST FIX HARDCODES"
+	$(MBC_STEP) "Extracting manifest for stashed image..."
+	cat $(MBV_TOOLS_DIR)/vme.extractor.sh | $(zRBM_STASH_SSH) "sh -s ghcr.io bhyslop/recipemuster stash-quay.io-podman-machine-os-wsl-5.3-6898117ca935 crane" \
+	  > $(zRBM_STASH_CURRENTLY_CHOSEN)
+	cat $(zRBM_STASH_CURRENTLY_CHOSEN) | jq
+
+	$(MBC_SHOW_RED) "OUCH FINISH"
 	false
 
 

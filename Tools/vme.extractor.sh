@@ -14,28 +14,28 @@ show_help() {
   vme_log "This script is tailored for the unique structure of Podman VM images and may"
   vme_log "not work correctly with other container image types."
   vme_log ""
-  vme_log "Usage: $(basename "$0") <image_base> <image_ref> <crane_executable>"
+  vme_log "Usage: $(basename "$0") <registry> <repository> <tag> <crane_executable>"
   vme_log ""
   vme_log "Parameters:"
-  vme_log "  image_base        - Registry and repository (e.g., quay.io/podman/machine-os-wsl)"
-  vme_log "  image_ref         - Tag or digest (e.g., v4.6.1 or sha256:abc123...)"
+  vme_log "  registry          - Container registry (e.g., ghcr.io)"
+  vme_log "  repository        - Container repository (e.g., bhyslop/recipemuster)"
+  vme_log "  tag               - Image tag (e.g., stash-quay.io-podman-machine-os-wsl-5.3-6898117ca935)"
   vme_log "  crane_executable  - Path to crane executable"
   vme_log ""
   vme_log "Output: JSON object with manifest information is printed to stdout"
   vme_log ""
   vme_log "Output JSON fields:"
-  vme_log "  image_base        - The registry and repository part"
-  vme_log "  image_ref         - The reference specifier provided (tag or digest)"
-  vme_log "  full_reference    - Complete reference combining base and ref"
+  vme_log "  registry          - The registry part"
+  vme_log "  repository        - The repository part"
+  vme_log "  tag               - The tag part"
+  vme_log "  full_reference    - Complete reference combining registry, repository, and tag"
   vme_log "  index_digest      - Top-level manifest hash (with algorithm prefix)"
   vme_log "  digest_reference  - Immutable reference using the index digest"
   vme_log "  blob_filter_pattern - Concatenated blob digests with \| separators for filtering"
+  vme_log "  original_image    - The original image reference extracted from the stash tag (if applicable)"
   vme_log ""
   vme_log "Example:"
-  vme_log "  $(basename "$0") quay.io/podman/machine-os-wsl v4.6.1 /usr/local/bin/crane > output.json"
-  vme_log ""
-  vme_log "Note: This script is specifically designed for Podman VM images and may produce"
-  vme_log "errors if used with container images that have incompatible manifest structures."
+  vme_log "  $(basename "$0") ghcr.io bhyslop/recipemuster stash-quay.io-podman-machine-os-wsl-5.3-6898117ca935 /usr/local/bin/crane > output.json"
   exit 1
 }
 
@@ -46,18 +46,18 @@ error_exit() {
 }
 
 # Check arguments
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 4 ]; then
   show_help
 fi
 
 # Parse arguments
-IMAGE_BASE="$1"
-IMAGE_REF="$2"
-CRANE="$3"
+REGISTRY="$1"
+REPOSITORY="$2"
+TAG="$3"
+CRANE="$4"
 
 command -v jq       &> /dev/null || error_exit "jq executable not found. Please install jq to process JSON manifests."
 command -v "$CRANE" &> /dev/null || error_exit "Crane executable '$CRANE' not found or not executable."
-
 
 # Create a temporary directory with datestamp and random component
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -67,13 +67,37 @@ mkdir -p "$TEMP_DIR" || error_exit "Failed to create temporary directory $TEMP_D
 vme_log "Created temporary directory: $TEMP_DIR"
 
 # Construct full reference
-if [[ "$IMAGE_REF" == sha256:* ]]; then
-  FULL_REFERENCE="${IMAGE_BASE}@${IMAGE_REF}"
-else
-  FULL_REFERENCE="${IMAGE_BASE}:${IMAGE_REF}"
-fi
+FULL_REFERENCE="${REGISTRY}/${REPOSITORY}:${TAG}"
 
 vme_log "Extracting manifest information for: $FULL_REFERENCE"
+
+# Check for stash tag and extract original image information
+ORIGINAL_IMAGE=""
+if [[ "$TAG" == stash-* ]]; then
+  # Extract original image information from the stash tag
+  # Format: stash-registry-repository-tag-digest
+  # Example: stash-quay.io-podman-machine-os-wsl-5.3-6898117ca935
+  
+  # Remove the "stash-" prefix
+  STASH_INFO=${TAG#stash-}
+  
+  # Extract components - this is a simplified approach and may need refinement
+  # based on how complex your tag format is
+  if [[ "$STASH_INFO" =~ (.*)-([^-]+)-([^-]+)$ ]]; then
+    ORIG_PATH="${BASH_REMATCH[1]}"
+    ORIG_TAG="${BASH_REMATCH[2]}"
+    ORIG_DIGEST="${BASH_REMATCH[3]}"
+    
+    # Replace hyphens with slashes in the path except for registry domain hyphens
+    # This is a simplified approach and may need refinement
+    ORIG_PATH_FIXED=$(echo "$ORIG_PATH" | sed 's/-/\//g')
+    
+    ORIGINAL_IMAGE="${ORIG_PATH_FIXED}:${ORIG_TAG}"
+    vme_log "Extracted original image reference: $ORIGINAL_IMAGE"
+  else
+    vme_log "Warning: Could not extract original image information from tag"
+  fi
+fi
 
 # Get top-level manifest digest
 INDEX_DIGEST_FILE="${TEMP_DIR}/index_digest.txt"
@@ -85,7 +109,7 @@ INDEX_DIGEST=$(cat "$INDEX_DIGEST_FILE")
 vme_log "Index digest: $INDEX_DIGEST"
 
 # Construct digest reference
-DIGEST_REFERENCE="${IMAGE_BASE}@${INDEX_DIGEST}"
+DIGEST_REFERENCE="${REGISTRY}/${REPOSITORY}@${INDEX_DIGEST}"
 vme_log "Digest reference: $DIGEST_REFERENCE"
 
 # Retrieve the index manifest
@@ -135,24 +159,28 @@ vme_log "Blob filter pattern created successfully"
 # Create and output JSON
 vme_log "Creating JSON output..."
 jq -n \
-  --arg image_base "$IMAGE_BASE" \
-  --arg image_ref "$IMAGE_REF" \
+  --arg registry "$REGISTRY" \
+  --arg repository "$REPOSITORY" \
+  --arg tag "$TAG" \
   --arg full_reference "$FULL_REFERENCE" \
   --arg index_digest "$INDEX_DIGEST" \
   --arg digest_reference "$DIGEST_REFERENCE" \
   --arg blob_filter_pattern "$BLOB_FILTER_PATTERN" \
-  --arg temp_dir "$TEMP_DIR" \
+  --arg vm_temp_dir "$TEMP_DIR" \
   --arg short_digest "${INDEX_DIGEST:7:12}" \
-  --arg canonical_tag "stash-$(echo $IMAGE_BASE | tr '/' '-')-$IMAGE_REF-${INDEX_DIGEST:7:12}" \
+  --arg original_image "$ORIGINAL_IMAGE" \
+  --arg canonical_tag "stash-$(echo $REGISTRY | tr '/' '-')-$(echo $REPOSITORY | tr '/' '-')-$TAG-${INDEX_DIGEST:7:12}" \
   '{
-    image_base: $image_base,
-    image_ref: $image_ref,
+    registry: $registry,
+    repository: $repository,
+    tag: $tag,
     full_reference: $full_reference,
     index_digest: $index_digest,
     digest_reference: $digest_reference,
     blob_filter_pattern: $blob_filter_pattern,
-    temp_dir: $temp_dir,
+    vm_temp_dir: $vm_temp_dir,
     short_digest: $short_digest,
+    original_image: $original_image,
     canonical_tag: $canonical_tag
   }'
 
@@ -163,3 +191,4 @@ fi
 vme_log "Successfully extracted manifest information"
 vme_log "Temporary directory location (for debugging): $TEMP_DIR"
 exit 0
+
