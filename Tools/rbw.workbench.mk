@@ -284,6 +284,41 @@ csu-h.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'test \$$(lsblk -no NAME /dev/nvme3n1 | grep -c \"nvme3n1p\") -eq 0 && echo \"PASS: nvme3n1 has no partitions as expected\" || (echo \"FAIL: nvme3n1 has partitions, should be empty\" && exit 1)'"
 	@echo
+	$(MBC_STEP)        "17. Create partitions on the three empty drives for RAID:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo parted /dev/nvme0n1 mklabel gpt && sudo parted -a optimal /dev/nvme0n1 mkpart primary 0% 100% && echo \"Partitioned nvme0n1 successfully\"'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo parted /dev/nvme1n1 mklabel gpt && sudo parted -a optimal /dev/nvme1n1 mkpart primary 0% 100% && echo \"Partitioned nvme1n1 successfully\"'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo parted /dev/nvme3n1 mklabel gpt && sudo parted -a optimal /dev/nvme3n1 mkpart primary 0% 100% && echo \"Partitioned nvme3n1 successfully\"'"
+	@echo
+	$(MBC_STEP)        "18. Create the RAID0 array with the three drives:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo mdadm --create /dev/md0 --level=0 --raid-devices=3 /dev/nvme0n1p1 /dev/nvme1n1p1 /dev/nvme3n1p1 && echo \"RAID0 array created successfully\"'"
+	@echo
+	$(MBC_STEP)        "19. Verify the RAID array was created properly:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo mdadm --detail /dev/md0 && echo \"RAID0 verification complete\"'"
+	@echo
+	$(MBC_STEP)        "20. Create filesystem on the RAID array:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo mkfs.ext4 -F /dev/md0 && echo \"Filesystem created on RAID0 array\"'"
+	@echo
+	$(MBC_STEP)        "21. Mount the RAID array to verify access:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo mkdir -p /mnt/raid && sudo mount /dev/md0 /mnt/raid && df -h /mnt/raid && echo \"RAID0 mounted successfully\"'"
+	@echo
+	$(MBC_STEP)        "22. Save RAID configuration for persistence after reboot:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu-server@\$$CEREBRO_IP_ADDR 'sudo mdadm --detail --scan | sudo tee /etc/mdadm/mdadm.conf && echo \"RAID configuration saved\"'"
+	@echo
+	$(MBC_STEP)        "23. Switch to installer interface to complete Ubuntu installation:"
+	$(MBC_RAW_YELLOW)  "                                     Ctrl-Alt-F1"
+	$(MBC_STEP)        "24. In the Ubuntu installer:"
+	$(MBC_STEP)        "    a. Select 'Manual' partitioning"
+	$(MBC_STEP)        "    b. Find your Windows drive (nvme2n1) and use its EFI partition (nvme2n1p1) as EFI System Partition"
+	$(MBC_STEP)        "    c. Select the RAID device (/dev/md0) and choose 'Use as: Ext4' and mount it as '/'"
+	$(MBC_STEP)        "    d. Complete the installation"
 	$(MBC_PASS) "No errors."
 
 
