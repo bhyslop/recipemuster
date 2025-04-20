@@ -230,9 +230,11 @@ csu-h.%:
 	$(MBC_STEP)        "    a. Select the ??? try ubuntu option."
 	$(MBC_STEP)        "    a. ??? At 'Wilcommen! Bienvenue!' switch into console:"
 	$(MBC_RAW_YELLOW)  "                                     Ctrl-Alt-F2"
-	$(MBC_STEP)        "    a. Assure live ip address.  You may need to use a USB-C Ethernet:
-	$(MBC_RAW_YELLOW)  "          ip addr"
+	$(MBC_STEP)        "    a. Assure live internet access.  You may need to use a USB-C Ethernet adapter:"
 	@echo
+	$(MBC_RAW_CYAN)    "                                     ip addr"
+	@echo
+	$(MBC_STEP)        "    a. REMOTE ACCESS SETUP STEPS HERE"
 	$(MBC_PASS) "No errors."
 
 
