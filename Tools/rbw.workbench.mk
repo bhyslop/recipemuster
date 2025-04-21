@@ -384,14 +384,7 @@ csu-hg.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo cp MOK.priv MOK.der /var/lib/shim-signed/mok/'"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia.ko'"
-	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia-modeset.ko'"
-	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia-uvm.ko'"
-	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia-drm.ko'"
-	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'KVER=\$(uname -r) && for MODULE in \$(find /lib/modules/\$KVER -name \"nvidia*.ko\"); do sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der \$MODULE; done'"
 	$(MBC_STEP)        "10. Import the key to the MOK list remotely:"
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo mokutil --import /var/lib/shim-signed/mok/MOK.der'"
