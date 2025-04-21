@@ -386,9 +386,14 @@ csu-hg.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'KVER=\$$(uname -r) && for MODULE in \$$(find /lib/modules/\$$KVER -name \"nvidia*.ko\"); do sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der \$$MODULE; done'"
 	@echo
-	$(MBC_STEP)        "10. Import the key to the MOK list remotely:"
+	$(MBC_STEP)        "10. Import the key to the MOK list remotely (interactive):"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo mokutil --import /var/lib/shim-signed/mok/MOK.der'"
+	$(MBC_RAW_YELLOW)  "                        You will be prompted to create a one-time password for MOK enrollment"
+	$(MBC_RAW_YELLOW)  "                        - Use a simple password you'll remember (at least 8 characters)"
+	$(MBC_RAW_YELLOW)  "                        - This password is only used during the next boot"
+	$(MBC_RAW_YELLOW)  "                        - You'll need to enter this password twice to confirm"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh -t bhyslop@\$$CEREBRO_IP_ADDR 'sudo mokutil --import /var/lib/shim-signed/mok/MOK.der'"
 	@echo
 	$(MBC_STEP)        "11. Reboot the system remotely:"
 	@echo
