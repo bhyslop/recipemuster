@@ -354,7 +354,7 @@ csu-hg.%:
 	@echo
 	$(MBC_STEP)        "3. Disable sudo password for the bhyslop user:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR \"echo 'bhyslop ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/bhyslop-nopasswd && sudo chmod 440 /etc/sudoers.d/bhyslop-nopasswd\""
+	$(MBC_RAW_ORANGE)  "                        echo 'bhyslop ALL=(ALL) NOPASSWD:ALL' > bhyslop-nopasswd && scp bhyslop-nopasswd bhyslop@\$$CEREBRO_IP_ADDR:~/ && ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo mv ~/bhyslop-nopasswd /etc/sudoers.d/ && sudo chmod 440 /etc/sudoers.d/bhyslop-nopasswd && rm -f ~/bhyslop-nopasswd'"
 	@echo
 	$(MBC_STEP)        "3. Check if the GPU is detected remotely:"
 	@echo
