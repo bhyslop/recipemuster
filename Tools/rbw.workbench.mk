@@ -378,14 +378,19 @@ csu-hg.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'openssl req -new -x509 -newkey rsa:2048 -keyout MOK.priv -outform DER -out MOK.der -nodes -days 36500 -subj \"/CN=NVIDIA-Driver/\"'"
 	@echo
-	$(MBC_STEP)        "9. Sign the NVIDIA modules:"
+	$(MBC_STEP)        "9. Sign the NVIDIA modules remotely:"
 	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo mkdir -p /var/lib/shim-signed/mok/'"
+	@echo
 	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo cp MOK.priv MOK.der /var/lib/shim-signed/mok/'"
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der \$(modinfo -n nvidia)'"
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der \$(modinfo -n nvidia_uvm)'"
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der \$(modinfo -n nvidia_drm)'"
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der \$(modinfo -n nvidia_modeset)'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia.ko'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia-modeset.ko'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia-uvm.ko'"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/$(uname -r)/kernel/drivers/video/nvidia/nvidia-drm.ko'"
 	@echo
 	$(MBC_STEP)        "10. Import the key to the MOK list remotely:"
 	@echo
