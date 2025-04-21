@@ -211,7 +211,7 @@ vsp-g.%:
 #
 
 
-csu-h.%:
+csu-hi.%:
 	$(MBC_START) "Help for setting up Cerebro:"
 	@echo
 	$(MBC_STEP)        "1. Acquire Ubuntu Server live ubuntu-24.04.2-live-server-amd64.iso"
@@ -339,6 +339,73 @@ csu-h.%:
 	$(MBC_PASS) "Successfully completed Cerebro setup with dual-boot configuration."
 	$(MBC_PASS) "No errors."
 
+
+csu-hg.%:
+	$(MBC_START) "Help for setting up NVIDIA RTX 5090 drivers on Ubuntu:"
+	@echo
+	$(MBC_STEP)        "1. Boot into Ubuntu installed on the RAID array"
+	$(MBC_STEP)        "2. On a second computer, set up environment variable with Cerebro's IP:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        export CEREBRO_IP_ADDR=xxxx"
+	@echo
+	$(MBC_STEP)        "3. Check if the GPU is detected remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo lspci | grep -i nvidia'"
+	@echo
+	$(MBC_STEP)        "4. Disable Secure Boot temporarily in BIOS (for driver installation):"
+	$(MBC_RAW_YELLOW)  "                                     Del"
+	$(MBC_STEP)        "5. Install required packages remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo apt update && sudo apt install -y dkms build-essential'"
+	@echo
+	$(MBC_STEP)        "6. Add NVIDIA repository remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo add-apt-repository ppa:graphics-drivers/ppa && sudo apt update'"
+	@echo
+	$(MBC_STEP)        "7. Install NVIDIA drivers remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo apt install -y nvidia-driver-555'"
+	@echo
+	$(MBC_STEP)        "8. Generate signing key for Secure Boot remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo mokutil --generate-self-signed-cert'"
+	@echo
+	$(MBC_STEP)        "9. Sign the NVIDIA modules remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia)'"
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_uvm)'"
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_drm)'"
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_modeset)'"
+	@echo
+	$(MBC_STEP)        "10. Import the key to the MOK list remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo mokutil --import /var/lib/shim-signed/mok/MOK.der'"
+	@echo
+	$(MBC_STEP)        "11. Reboot the system remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo reboot'"
+	@echo
+	$(MBC_STEP)        "12. During boot, enroll the MOK key (must be done locally):"
+	$(MBC_STEP)        "    a. Select 'Enroll MOK' from the MOK management screen"
+	$(MBC_STEP)        "    b. Select 'Continue'"
+	$(MBC_STEP)        "    c. Select 'Yes' to enroll the key"
+	$(MBC_STEP)        "    d. Enter the password created during key generation"
+	$(MBC_STEP)        "    e. Select 'Reboot'"
+	$(MBC_STEP)        "13. Re-enable Secure Boot in BIOS:"
+	$(MBC_RAW_YELLOW)  "                                     Del"
+	$(MBC_STEP)        "14. Reconnect to Cerebro and verify driver installation:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'nvidia-smi'"
+	@echo
+	$(MBC_STEP)        "15. Enable PCIe ReBAR support remotely:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo bash -c \"echo \\\"options nvidia NVreg_EnableResizableBAR=1\\\" > /etc/modprobe.d/nvidia-rebar.conf\"'"
+	@echo
+	$(MBC_STEP)        "16. Verify ReBAR status after reboot:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'nvidia-smi -q | grep -i rebar'"
+	@echo
+	$(MBC_PASS) "Successfully installed NVIDIA drivers with Secure Boot and ReBAR support."
 
 
 #########################################
