@@ -372,7 +372,7 @@ csu-hg.%:
 	@echo
 	$(MBC_STEP)        "7. Install NVIDIA drivers remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo apt install -y nvidia-driver-555'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo apt install -y nvidia-driver-570'"
 	@echo
 	$(MBC_STEP)        "8. Generate signing key for Secure Boot remotely:"
 	@echo
