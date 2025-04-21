@@ -348,42 +348,50 @@ csu-hg.%:
 	@echo
 	$(MBC_RAW_ORANGE)  "                        export CEREBRO_IP_ADDR=xxxx"
 	@echo
+	$(MBC_STEP)        "2. Set up passwordless SSH access from your workstation:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh-copy-id bhyslop@\$$CEREBRO_IP_ADDR"
+	@echo
+	$(MBC_STEP)        "3. Disable sudo password for the bhyslop user:"
+	@echo
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR \"echo 'bhyslop ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/bhyslop-nopasswd && sudo chmod 440 /etc/sudoers.d/bhyslop-nopasswd\""
+	@echo
 	$(MBC_STEP)        "3. Check if the GPU is detected remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo lspci | grep -i nvidia'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo lspci | grep -i nvidia'"
 	@echo
 	$(MBC_STEP)        "4. Disable Secure Boot temporarily in BIOS (for driver installation):"
 	$(MBC_RAW_YELLOW)  "                                     Del"
 	$(MBC_STEP)        "5. Install required packages remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo apt update && sudo apt install -y dkms build-essential'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo apt update && sudo apt install -y dkms build-essential'"
 	@echo
 	$(MBC_STEP)        "6. Add NVIDIA repository remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo add-apt-repository ppa:graphics-drivers/ppa && sudo apt update'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo add-apt-repository ppa:graphics-drivers/ppa && sudo apt update'"
 	@echo
 	$(MBC_STEP)        "7. Install NVIDIA drivers remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo apt install -y nvidia-driver-555'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo apt install -y nvidia-driver-555'"
 	@echo
 	$(MBC_STEP)        "8. Generate signing key for Secure Boot remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo mokutil --generate-self-signed-cert'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo mokutil --generate-self-signed-cert'"
 	@echo
 	$(MBC_STEP)        "9. Sign the NVIDIA modules remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia)'"
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_uvm)'"
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_drm)'"
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_modeset)'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia)'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_uvm)'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_drm)'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der $(modinfo -n nvidia_modeset)'"
 	@echo
 	$(MBC_STEP)        "10. Import the key to the MOK list remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo mokutil --import /var/lib/shim-signed/mok/MOK.der'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo mokutil --import /var/lib/shim-signed/mok/MOK.der'"
 	@echo
 	$(MBC_STEP)        "11. Reboot the system remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo reboot'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo reboot'"
 	@echo
 	$(MBC_STEP)        "12. During boot, enroll the MOK key (must be done locally):"
 	$(MBC_STEP)        "    a. Select 'Enroll MOK' from the MOK management screen"
@@ -395,15 +403,15 @@ csu-hg.%:
 	$(MBC_RAW_YELLOW)  "                                     Del"
 	$(MBC_STEP)        "14. Reconnect to Cerebro and verify driver installation:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'nvidia-smi'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'nvidia-smi'"
 	@echo
 	$(MBC_STEP)        "15. Enable PCIe ReBAR support remotely:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'sudo bash -c \"echo \\\"options nvidia NVreg_EnableResizableBAR=1\\\" > /etc/modprobe.d/nvidia-rebar.conf\"'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'sudo bash -c \"echo \\\"options nvidia NVreg_EnableResizableBAR=1\\\" > /etc/modprobe.d/nvidia-rebar.conf\"'"
 	@echo
 	$(MBC_STEP)        "16. Verify ReBAR status after reboot:"
 	@echo
-	$(MBC_RAW_ORANGE)  "                        ssh ubuntu@\$$CEREBRO_IP_ADDR 'nvidia-smi -q | grep -i rebar'"
+	$(MBC_RAW_ORANGE)  "                        ssh bhyslop@\$$CEREBRO_IP_ADDR 'nvidia-smi -q | grep -i rebar'"
 	@echo
 	$(MBC_PASS) "Successfully installed NVIDIA drivers with Secure Boot and ReBAR support."
 
