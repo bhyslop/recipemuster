@@ -236,16 +236,19 @@ vswb_generate_files() {
     # Get boilerplate content from script directory
     local boilerplate_top=""
     local boilerplate_bottom=""
+
+    echo "Reading top boilerplate"
+    boilerplate_top=$(cat "${script_dir}/project-xml-top.txt") || { echo "ERROR: Failed to read top"; exit 1; }
+
+    echo "Reading bottom boilerplate"
+    boilerplate_bottom=$(cat "${script_dir}/project-xml-bottom.txt") || { echo "ERROR: Failed to read bottom"; exit 1; }
+
+    # Ensure output directory exists
+    mkdir -p "$output_directory"
     
-    if [ -f "${script_dir}/vswb.boilerplate-top.txt" ]; then
-        echo "Reading top boilerplate from ${script_dir}/vswb.boilerplate-top.txt"
-        boilerplate_top=$(cat "${script_dir}/vswb.boilerplate-top.txt")
-    fi
-    
-    if [ -f "${script_dir}/vswb.boilerplate-bottom.txt" ]; then
-        echo "Reading bottom boilerplate from ${script_dir}/vswb.boilerplate-bottom.txt"
-        boilerplate_bottom=$(cat "${script_dir}/vswb.boilerplate-bottom.txt")
-    fi
+    echo "Clearing existing .vpw and .vpj files from $output_directory"
+    find "$output_directory" -maxdepth 1 -type f \( -name "*.vpw" -o -name "*.vpj" \) -delete
+    echo "Cleanup complete"
     
     # Generate project files
     for project_id in "${!PROJECTS[@]}"; do
@@ -260,7 +263,8 @@ vswb_generate_files() {
         # Add files section
         echo "    <Files AutoFolders=\"PackageView\">" >> "${project_file_path}"
         
-        # Group file patterns by repo_subpath
+        # Group file patterns by repo_subpath  
+        # FIXED: Declare the array ONCE before building patterns for THIS project
         declare -A GROUPED_PATTERNS
         
         for pattern_id in "${!FILE_PATTERNS[@]}"; do
@@ -296,6 +300,9 @@ vswb_generate_files() {
         echo "    </Files>" >> "${project_file_path}"
         echo "" >> "${project_file_path}"
         echo "${boilerplate_bottom}" >> "${project_file_path}"
+        
+        # IMPORTANT: Clear the array for the next project
+        unset GROUPED_PATTERNS
     done
     
     # Generate workspace files
@@ -324,4 +331,3 @@ vswb_generate_files() {
     
     echo "Generated all files in ${output_directory}/"
 }
-
