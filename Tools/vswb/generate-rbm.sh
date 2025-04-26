@@ -2,7 +2,7 @@
 
 set -e
 
-source "$(dirname "${BASH_SOURCE[0]}")/vswb.builder.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/builder.sh"
 
 vswb_define_project    all           "Unifferentiated Files"
 vswb_add_files_recurse all .                 "*.sh"

@@ -201,7 +201,7 @@ bff-s.%:
 
 vsp-g.%:
 	$(MBC_START) "Regenerating slickedit project..."
-	$(MBV_TOOLS_DIR)/vswb.generate-rbm.sh
+	$(MBV_TOOLS_DIR)/vswb/generate-rbm.sh
 	$(MBC_PASS) "No errors."
 
 
