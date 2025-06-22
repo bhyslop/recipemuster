@@ -19,6 +19,10 @@
 
 set -e
 
+# --- Podman connection configuration ---
+PODMAN_CMD="podman -c pdvm-rbw"
+# ---
+
 # --- Load common constants and functions ---
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "SNNP: Get constants from" ${SCRIPT_DIR}
@@ -32,8 +36,8 @@ SENTRY_SETUP_SCRIPT="/tmp/sentry_setup.sh"
 
 # --- Comprehensive Cleanup ---
 echo -e "${BOLD}Cleaning up previous Pods and Containers...${NC}"
-podman pod stop ${POD_NAME} 2>/dev/null || echo "Pod ${POD_NAME} not running."
-podman pod rm -f ${POD_NAME} 2>/dev/null || echo "Pod ${POD_NAME} not found."
+${PODMAN_CMD} pod stop ${POD_NAME} 2>/dev/null || echo "Pod ${POD_NAME} not running."
+${PODMAN_CMD} pod rm -f ${POD_NAME} 2>/dev/null || echo "Pod ${POD_NAME} not found."
 snnp_cleanup_all # This function from Snnp-common.sh cleans up containers
 echo -e "${GREEN}Cleanup complete.${NC}"
 # ---
@@ -47,14 +51,14 @@ echo -e "${GREEN}Connection successful.${NC}"
 
 # --- Pod Creation ---
 echo -e "${BOLD}Creating Pod: ${POD_NAME}...${NC}"
-podman pod create --name ${POD_NAME} -p ${ENTRY_PORT_WORKSTATION}:${ENTRY_PORT_WORKSTATION}
+${PODMAN_CMD} pod create --name ${POD_NAME} -p ${ENTRY_PORT_WORKSTATION}:${ENTRY_PORT_WORKSTATION}
 echo -e "${GREEN}Pod created successfully.${NC}"
 # ---
 
 # --- Sentry Container Start ---
 echo -e "${BOLD}Starting SENTRY container in Pod...${NC}"
 # SENTRY needs NET_ADMIN to configure the shared network namespace's firewall
-podman run -d --name ${SENTRY_CONTAINER} \
+${PODMAN_CMD} run -d --name ${SENTRY_CONTAINER} \
   --pod ${POD_NAME} \
   --cap-add NET_ADMIN,NET_RAW \
   ${SENTRY_REPO_PATH}:${SENTRY_IMAGE_TAG}
@@ -64,7 +68,7 @@ echo -e "${GREEN}SENTRY container started.${NC}"
 # --- Sentry Configuration Script Injection ---
 echo -e "${BOLD}Injecting SENTRY setup script...${NC}"
 # This script will run inside the Sentry container to set up the firewall
-podman exec ${SENTRY_CONTAINER} bash -c "cat > ${SENTRY_SETUP_SCRIPT}" <<EOF
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} bash -c "cat > ${SENTRY_SETUP_SCRIPT}" <<EOF
 #!/bin/bash
 set -ex
 
@@ -121,15 +125,15 @@ su -s /bin/bash -c "socat -v TCP-LISTEN:8080,fork,reuseaddr SYSTEM:'echo \"\$\$ 
 echo "--- Sentry Internal Setup Complete ---"
 EOF
 
-podman exec ${SENTRY_CONTAINER} chmod +x ${SENTRY_SETUP_SCRIPT}
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} chmod +x ${SENTRY_SETUP_SCRIPT}
 echo -e "${BOLD}Executing SENTRY setup script...${NC}"
-podman exec ${SENTRY_CONTAINER} ${SENTRY_SETUP_SCRIPT}
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} ${SENTRY_SETUP_SCRIPT}
 # ---
 
 # --- Bottle Container Start ---
 echo -e "${BOLD}Starting BOTTLE container in Pod...${NC}"
 # BOTTLE runs as an unprivileged user with NO capabilities.
-podman run -d --name ${BOTTLE_CONTAINER} \
+${PODMAN_CMD} run -d --name ${BOTTLE_CONTAINER} \
   --pod ${POD_NAME} \
   --user bottle-app \
   --cap-drop=ALL \
@@ -142,27 +146,27 @@ sleep 3
 echo -e "${BOLD}--- VERIFICATION ---${NC}"
 
 echo -e "${BOLD}Pod Status:${NC}"
-podman pod ps
+${PODMAN_CMD} pod ps
 
 echo -e "\n${BOLD}Sentry Firewall Rules:${NC}"
-podman exec ${SENTRY_CONTAINER} iptables-save
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} iptables-save
 
 echo -e "\n${BOLD}Testing BOTTLE's network access...${NC}"
 
 echo -e "\n${CYAN}1. Test PING (ICMP) - Should FAIL (default DROP policy)${NC}"
-podman exec ${BOTTLE_CONTAINER} ping -c 1 8.8.8.8 || echo -e "${GREEN}Ping failed as expected.${NC}"
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} ping -c 1 8.8.8.8 || echo -e "${GREEN}Ping failed as expected.${NC}"
 
 echo -e "\n${CYAN}2. Test DNS (dig) - Should be HIJACKED${NC}"
 # We need to install dnsutils in the bottle container for dig
-podman exec ${BOTTLE_CONTAINER} bash -c 'apt-get update && apt-get install -y dnsutils' > /dev/null
-podman exec ${BOTTLE_CONTAINER} dig @8.8.8.8 example.com || true
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} bash -c 'apt-get update && apt-get install -y dnsutils' > /dev/null
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} dig @8.8.8.8 example.com || true
 echo "-> Note: The dig command might show a connection error, but the key is it was redirected. Now check Sentry's mock DNS log:"
-podman exec ${SENTRY_CONTAINER} pkill -0 -f "socat -v UDP-LISTEN:5353" && echo -e "${GREEN}Mock DNS listener is running.${NC}"
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} pkill -0 -f "socat -v UDP-LISTEN:5353" && echo -e "${GREEN}Mock DNS listener is running.${NC}"
 
 echo -e "\n${CYAN}3. Test HTTP (curl) - Should be REDIRECTED${NC}"
-podman exec ${BOTTLE_CONTAINER} curl -v http://example.com || true
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} curl -v http://example.com || true
 echo "-> Note: The curl command failed, but it was redirected. Now check Sentry's mock TCP proxy log:"
-podman exec ${SENTRY_CONTAINER} pkill -0 -f "socat -v TCP-LISTEN:8080" && echo -e "${GREEN}Mock TCP listener is running.${NC}"
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} pkill -0 -f "socat -v TCP-LISTEN:8080" && echo -e "${GREEN}Mock TCP listener is running.${NC}"
 
 echo -e "\n${GREEN}${BOLD}--- VERIFICATION COMPLETE: BOTTLE is successfully firewalled by SENTRY ---${NC}"
-# --- 
+# ---
