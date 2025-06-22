@@ -127,7 +127,7 @@ EOF
 
 ${PODMAN_CMD} exec ${SENTRY_CONTAINER} chmod +x ${SENTRY_SETUP_SCRIPT}
 echo -e "${BOLD}Executing SENTRY setup script...${NC}"
-${PODMAN_CMD} exec ${SENTRY_CONTAINER} ${SENTRY_SETUP_SCRIPT}
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} bash ${SENTRY_SETUP_SCRIPT}
 # ---
 
 # --- Bottle Container Start ---
