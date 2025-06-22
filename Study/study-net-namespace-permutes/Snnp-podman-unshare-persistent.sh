@@ -105,6 +105,8 @@ EOF"
 
 snnp_machine_ssh "chmod +x /tmp/persistent_netns.sh"
 
+echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mkdir /var/run/netns failed: Permission denied (user namespace can't write to /var/run/netns)${NC}"
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns.sh &"
 sleep 3  # Give it time to set up

@@ -88,6 +88,8 @@ EOF"
 
 snnp_machine_ssh "chmod +x /tmp/persistent_netns_v4.sh"
 
+echo -e "${CYAN}EXPECT NEXT TO HANG PERMANENTLY WITH -> nsenter hanging when trying to access podman unshare user namespace${NC}"
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V4: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns_v4.sh &"
 sleep 3  # Give it time to start and save PID

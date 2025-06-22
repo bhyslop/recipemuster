@@ -106,6 +106,8 @@ EOF"
 
 snnp_machine_ssh "chmod +x /tmp/persistent_netns_v2.sh"
 
+echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not permitted (when creating veth pair inside user namespace)${NC}"
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V2: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns_v2.sh &"
 sleep 5  # Give it more time to set up

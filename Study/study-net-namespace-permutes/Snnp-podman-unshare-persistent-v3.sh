@@ -110,6 +110,8 @@ EOF"
 
 snnp_machine_ssh "chmod +x /tmp/persistent_netns_v3.sh"
 
+echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not permitted (interface config) + RTNETLINK answers: No such process (veth move)${NC}"
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V3: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns_v3.sh &"
 sleep 3  # Give it time to start and save PID
