@@ -135,7 +135,6 @@ echo -e "${BOLD}Starting BOTTLE container in Pod...${NC}"
 # BOTTLE runs as an unprivileged user with NO capabilities.
 ${PODMAN_CMD} run -d --name ${BOTTLE_CONTAINER} \
   --pod ${POD_NAME} \
-  --user bottle-app \
   --cap-drop=ALL \
   ${BOTTLE_REPO_PATH}:${BOTTLE_IMAGE_TAG}
 echo -e "${GREEN}BOTTLE container started.${NC}"
