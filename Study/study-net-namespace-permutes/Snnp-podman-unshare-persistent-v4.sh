@@ -152,4 +152,10 @@ podman -c ${MACHINE} ps -a
 echo -e "${GREEN}${BOLD}Setup script execution complete${NC}"
 echo "Note: The persistent namespace process (PID: ${UNSHARE_PID}) is running in the background"
 echo "Namespace available at: /proc/${UNSHARE_PID}/ns/net"
-echo "To clean up, kill process ${UNSHARE_PID}" 
+echo "To clean up, kill process ${UNSHARE_PID}"
+
+echo "Rebuilding Podman machine"
+podman machine stop pdvm-rbw
+podman machine rm pdvm-rbw
+podman machine init --name pdvm-rbw
+podman machine start pdvm-rbw 
