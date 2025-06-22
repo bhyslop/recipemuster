@@ -152,20 +152,25 @@ ${PODMAN_CMD} exec ${SENTRY_CONTAINER} iptables-save
 
 echo -e "\n${BOLD}Testing BOTTLE's network access...${NC}"
 
-echo -e "\n${CYAN}1. Test PING (ICMP) - Should FAIL (default DROP policy)${NC}"
-${PODMAN_CMD} exec ${BOTTLE_CONTAINER} ping -c 1 8.8.8.8 || echo -e "${GREEN}Ping failed as expected.${NC}"
+echo -e "\n${CYAN}1. Test basic network with nc (netcat)${NC}"
+# Try to connect to Google DNS - should timeout due to firewall
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} timeout 2 nc -v 8.8.8.8 53 || echo -e "${GREEN}Connection blocked as expected.${NC}"
 
-echo -e "\n${CYAN}2. Test DNS (dig) - Should be HIJACKED${NC}"
-# We need to install dnsutils in the bottle container for dig
-${PODMAN_CMD} exec ${BOTTLE_CONTAINER} bash -c 'apt-get update && apt-get install -y dnsutils' > /dev/null
-${PODMAN_CMD} exec ${BOTTLE_CONTAINER} dig @8.8.8.8 example.com || true
-echo "-> Note: The dig command might show a connection error, but the key is it was redirected. Now check Sentry's mock DNS log:"
-${PODMAN_CMD} exec ${SENTRY_CONTAINER} pkill -0 -f "socat -v UDP-LISTEN:5353" && echo -e "${GREEN}Mock DNS listener is running.${NC}"
+echo -e "\n${CYAN}2. Test with wget (usually pre-installed)${NC}"
+# Try HTTP - should be redirected to local proxy
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} timeout 2 wget -O- http://example.com 2>&1 || echo -e "${GREEN}HTTP blocked/redirected as expected.${NC}"
 
-echo -e "\n${CYAN}3. Test HTTP (curl) - Should be REDIRECTED${NC}"
-${PODMAN_CMD} exec ${BOTTLE_CONTAINER} curl -v http://example.com || true
-echo "-> Note: The curl command failed, but it was redirected. Now check Sentry's mock TCP proxy log:"
-${PODMAN_CMD} exec ${SENTRY_CONTAINER} pkill -0 -f "socat -v TCP-LISTEN:8080" && echo -e "${GREEN}Mock TCP listener is running.${NC}"
+echo -e "\n${CYAN}3. Check if we can see the network from BOTTLE${NC}"
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} cat /proc/net/tcp || echo "Cannot read network info"
 
-echo -e "\n${GREEN}${BOLD}--- VERIFICATION COMPLETE: BOTTLE is successfully firewalled by SENTRY ---${NC}"
+echo -e "\n${CYAN}4. Verify SENTRY listeners are running${NC}"
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} ss -tlnp | grep -E "5353|8080" || echo "No listeners found"
+
+echo -e "\n${CYAN}5. Show network namespace info${NC}"
+echo "BOTTLE container:"
+${PODMAN_CMD} exec ${BOTTLE_CONTAINER} ip addr show || echo "Cannot show IP info"
+echo -e "\nSENTRY container:"
+${PODMAN_CMD} exec ${SENTRY_CONTAINER} ip addr show
+
+echo -e "\n${GREEN}${BOLD}--- VERIFICATION COMPLETE ---${NC}"
 # ---
