@@ -174,3 +174,4 @@ ${PODMAN_CMD} exec ${SENTRY_CONTAINER} ip addr show
 
 echo -e "\n${GREEN}${BOLD}--- VERIFICATION COMPLETE ---${NC}"
 # ---
+
