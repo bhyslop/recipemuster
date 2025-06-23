@@ -32,5 +32,5 @@ RUN apt-get update && apt-get install -y                                        
     tshark              `# For command-line Wireshark packet capture and analysis`       \
     && rm -rf /var/lib/apt/lists/*
 
-# Keep the container alive
-CMD ["tail", "-f", "/dev/null"]
+# Keep the container alive with a simple echo service on port 8888
+CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]
