@@ -9,7 +9,7 @@ RBRN_DESCRIPTION = Network namespace prototype testing environment for container
 RBRN_SENTRY_REPO_PATH = ghcr.io/bhyslop/recipemuster
 RBRN_BOTTLE_REPO_PATH = ghcr.io/bhyslop/recipemuster
 RBRN_SENTRY_IMAGE_TAG = sentry_ubuntu_large.20241022__130547
-RBRN_BOTTLE_IMAGE_TAG = bottle_ubuntu_test.20241207__190758
+RBRN_BOTTLE_IMAGE_TAG = bottle_ubuntu_test.20250623__215035
 
 # Port Service Configuration
 RBRN_ENTRY_ENABLED          = 1
