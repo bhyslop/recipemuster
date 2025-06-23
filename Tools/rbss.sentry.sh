@@ -58,12 +58,6 @@ if [ "${RBRN_UPLINK_ACCESS_ENABLED}" = "false" ]; then
 else
     echo "RBSp3: Configuring network access"
     
-    echo "RBSp3: Allowing DNS server access for bottle"
-    if [ -n "${RBRR_DNS_SERVER}" ]; then
-        iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp -d ${RBRR_DNS_SERVER} --dport 53 -j ACCEPT || exit 30
-        iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp -d ${RBRR_DNS_SERVER} --dport 53 -j ACCEPT || exit 30
-    fi
-
     if [ "${RBRN_UPLINK_ACCESS_GLOBAL}" = "true" ]; then
         echo "RBSp3: Enabling global access for bottle"
         iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 31
