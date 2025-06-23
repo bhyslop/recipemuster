@@ -139,20 +139,64 @@ else
     cat /etc/dnsmasq.conf
     
     echo "RBSp4: Starting dnsmasq"
-    dnsmasq || exit 42
+    echo "RBSp4: DNSMASQ DEBUG - Shell PID: $$"
+    echo "RBSp4: DNSMASQ DEBUG - Process tree before dnsmasq start:"
+    ps -ef | grep -E "($$|dnsmasq)" || echo "RBSp4: DNSMASQ DEBUG - No relevant processes found"
+    
+    dnsmasq --no-daemon &
+    DNSMASQ_PID=$!
+    echo "RBSp4: DNSMASQ DEBUG - Started dnsmasq with PID: $DNSMASQ_PID"
+    echo "RBSp4: DNSMASQ DEBUG - Background job status:"
+    jobs || echo "RBSp4: DNSMASQ DEBUG - No background jobs"
+    
+    sleep 2
+    echo "RBSp4: DNSMASQ DEBUG - Checking if dnsmasq process is still running:"
+    if kill -0 $DNSMASQ_PID 2>/dev/null; then
+        echo "RBSp4: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is still running"
+    else
+        echo "RBSp4: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is NOT running"
+    fi
+    
+    echo "RBSp4: DNSMASQ DEBUG - Process tree after dnsmasq start:"
+    ps -ef | grep -E "($$|dnsmasq)" || echo "RBSp4: DNSMASQ DEBUG - No relevant processes found"
     
     echo "RBSp4: DNSMASQ DEBUG - dnsmasq started, checking process state"
-    sleep 1
     echo "RBSp4: DNSMASQ DEBUG - New dnsmasq process info:"
     ps aux | grep dnsmasq | grep -v grep || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq process found after start"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Checking process states in detail:"
+    ps -o pid,ppid,state,comm,args | grep -E "(PID|dnsmasq)" || echo "RBSp4: DNSMASQ DEBUG - No detailed process info"
     
     echo "RBSp4: DNSMASQ DEBUG - Checking socket bindings after start:"
     netstat -tlnp | grep :53 || echo "RBSp4: DNSMASQ DEBUG - No socket bindings found"
     
     echo "RBSp4: DNSMASQ DEBUG - Testing dnsmasq connectivity as root:"
-    timeout 3 dig @127.0.0.1 anthropic.com > /tmp/dnsmasq_test.log 2>&1 || echo "RBSp4: DNSMASQ DEBUG - dnsmasq test failed or timed out"
+    echo "RBSp4: DNSMASQ DEBUG - Current user: $(whoami), UID: $(id -u)"
+    echo "RBSp4: DNSMASQ DEBUG - Testing basic connectivity with nc:"
+    timeout 2 nc -zv 127.0.0.1 53 > /tmp/nc_test.log 2>&1
+    NC_EXIT_CODE=$?
+    echo "RBSp4: DNSMASQ DEBUG - nc test exit code: $NC_EXIT_CODE"
+    echo "RBSp4: DNSMASQ DEBUG - nc test output:"
+    cat /tmp/nc_test.log || echo "RBSp4: DNSMASQ DEBUG - No nc test output"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Testing with dig:"
+    timeout 5 dig @127.0.0.1 anthropic.com > /tmp/dnsmasq_test.log 2>&1
+    DIG_EXIT_CODE=$?
+    echo "RBSp4: DNSMASQ DEBUG - dig test exit code: $DIG_EXIT_CODE"
     echo "RBSp4: DNSMASQ DEBUG - dnsmasq test output:"
     cat /tmp/dnsmasq_test.log || echo "RBSp4: DNSMASQ DEBUG - No test output available"
+    
+    if [ $NC_EXIT_CODE -eq 0 ]; then
+        echo "RBSp4: DNSMASQ DEBUG - SUCCESS: Port 53 is reachable"
+    else
+        echo "RBSp4: DNSMASQ DEBUG - FAILURE: Port 53 is NOT reachable"
+        echo "RBSp4: DNSMASQ DEBUG - Checking if dnsmasq is still running after connectivity test:"
+        if kill -0 $DNSMASQ_PID 2>/dev/null; then
+            echo "RBSp4: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is still running after test"
+        else
+            echo "RBSp4: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is NOT running after test"
+        fi
+    fi
     
     echo "RBSp4: DNSMASQ DEBUG - Recent dnsmasq log entries:"
     tail -n 10 /var/log/dnsmasq.log || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq log entries"
@@ -173,4 +217,27 @@ fi
 echo "RBSp5: Security configuration complete"
 echo "RBSp5: DNSMASQ DEBUG - Final process state:"
 ps aux | grep dnsmasq || echo "RBSp5: DNSMASQ DEBUG - No dnsmasq processes in final state"
+
+echo "RBSp5: DNSMASQ DEBUG - Final detailed process analysis:"
+ps -o pid,ppid,state,comm,args | grep -E "(PID|dnsmasq)" || echo "RBSp5: DNSMASQ DEBUG - No detailed process info in final state"
+
+echo "RBSp5: DNSMASQ DEBUG - Final socket bindings:"
+netstat -tlnp | grep :53 || echo "RBSp5: DNSMASQ DEBUG - No socket bindings on port 53 in final state"
+
+echo "RBSp5: DNSMASQ DEBUG - Final background job status:"
+jobs || echo "RBSp5: DNSMASQ DEBUG - No background jobs in final state"
+
+if [ -n "$DNSMASQ_PID" ]; then
+    echo "RBSp5: DNSMASQ DEBUG - Final check of dnsmasq PID $DNSMASQ_PID:"
+    if kill -0 $DNSMASQ_PID 2>/dev/null; then
+        echo "RBSp5: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is RUNNING in final state"
+    else
+        echo "RBSp5: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is NOT RUNNING in final state"
+    fi
+else
+    echo "RBSp5: DNSMASQ DEBUG - DNSMASQ_PID variable is not set"
+fi
+
+echo "RBSp5: DNSMASQ DEBUG - Final dnsmasq log check:"
+tail -n 5 /var/log/dnsmasq.log || echo "RBSp5: DNSMASQ DEBUG - No final dnsmasq log entries"
 
