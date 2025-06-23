@@ -90,7 +90,7 @@ else
     fi
 
     echo "RBSp4: Configuring dnsmasq"
-    echo "listen-address=127.0.0.1"                       > /etc/dnsmasq.conf || exit 41
+    echo "listen-address=0.0.0.0"                          > /etc/dnsmasq.conf || exit 41
     echo "bind-interfaces"                                >> /etc/dnsmasq.conf || exit 41
     echo "port=53"                                        >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=*"                            >> /etc/dnsmasq.conf || exit 41
@@ -194,8 +194,10 @@ else
     echo "RBSp4: Allowing dnsmasq (root) to reach upstream DNS servers"
     iptables -I RBM-EGRESS 1 -p udp --dport 53 -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
     iptables -I RBM-EGRESS 1 -p tcp --dport 53 -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
-    iptables -A RBM-EGRESS    -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
-    iptables -A RBM-EGRESS    -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
+
+    echo "RBSp4: Allowing bottle to reach localhost DNS (inserted before DROP rule)"
+    iptables -I RBM-EGRESS 3  -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
+    iptables -I RBM-EGRESS 4  -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
     iptables -t nat -A OUTPUT -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -j REDIRECT --to-ports 53 || exit 43
     iptables -t nat -A OUTPUT -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -j REDIRECT --to-ports 53 || exit 43
     
