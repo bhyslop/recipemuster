@@ -201,6 +201,9 @@ else
     tail -n 10 /var/log/dnsmasq.log || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq log entries"
 
     echo "RBSp4: Setting up DNS interception"
+    echo "RBSp4: Allowing dnsmasq (root) to reach upstream DNS servers"
+    iptables -I RBM-EGRESS 1 -p udp --dport 53 -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
+    iptables -I RBM-EGRESS 1 -p tcp --dport 53 -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
     iptables -A RBM-EGRESS    -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
     iptables -A RBM-EGRESS    -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
     iptables -t nat -A OUTPUT -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -j REDIRECT --to-ports 53 || exit 43
