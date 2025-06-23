@@ -90,8 +90,7 @@ else
     fi
 
     echo "RBSp4: Configuring dnsmasq"
-    echo "interface=*"                                     > /etc/dnsmasq.conf || exit 41
-    echo "listen-address=127.0.0.1"                       >> /etc/dnsmasq.conf || exit 41
+    echo "listen-address=127.0.0.1"                       > /etc/dnsmasq.conf || exit 41
     echo "bind-interfaces"                                >> /etc/dnsmasq.conf || exit 41
     echo "port=53"                                        >> /etc/dnsmasq.conf || exit 41
     echo "no-dhcp-interface=*"                            >> /etc/dnsmasq.conf || exit 41
