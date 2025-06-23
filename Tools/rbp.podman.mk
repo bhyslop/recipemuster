@@ -204,7 +204,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	podman $(RBM_CONNECTION) pod create \
 	  --name $(RBM_SERVICE_POD) \
 	  --dns 127.0.0.1 \
-	  $(if $(RBRN_ENTRY_ENABLED),-p $(RBRN_ENTRY_PORT_WORKSTATION):$(RBRN_ENTRY_PORT_WORKSTATION))
+	  $(if $(RBRN_ENTRY_ENABLED),-p $(RBRN_ENTRY_PORT_WORKSTATION):$(RBRN_ENTRY_PORT_ENCLAVE))
 
 	$(MBC_STEP) "Launching SENTRY container"
 	podman $(RBM_CONNECTION) run -d \

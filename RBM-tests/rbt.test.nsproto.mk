@@ -65,7 +65,7 @@ ztest_pod_localhost_dns_rule: ztest_basic_network_rule
 	$(MBT_PODMAN_EXEC_BOTTLE) dig @127.0.0.1 anthropic.com
 
 ztest_pod_service_port_rule: ztest_basic_network_rule
-	timeout 10 curl -s --connect-timeout 5 telnet://localhost:$(RBRN_ENTRY_PORT_WORKSTATION) > /dev/null  2>&1
+	timeout 3 bash -c "exec 3<>/dev/tcp/localhost/$(RBRN_ENTRY_PORT_WORKSTATION); echo 'Port is accessible'; exec 3>&-" 2>/dev/null
 
 # DNS resolution tests
 ztest_bottle_dns_allow_anthropic_rule: ztest_basic_network_rule
