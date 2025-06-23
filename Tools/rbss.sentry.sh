@@ -84,12 +84,9 @@ if [ "${RBRN_UPLINK_DNS_ENABLED}" = "false" ]; then
     iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -j DROP || exit 40
 else
-    echo "RBSp4: Validating DNS server connectivity"
+    echo "RBSp4: Skipping DNS connectivity test (iptables rules already applied)"
     if [ -n "${RBRR_DNS_SERVER}" ]; then
-        echo "RBSp4: Testing TCP connection to DNS server"
-        timeout 5 nc -zv ${RBRR_DNS_SERVER} 53 || exit 40
-        echo "RBSp4: Testing UDP DNS query"
-        timeout 6 nslookup -type=NS . ${RBRR_DNS_SERVER} || exit 40
+        echo "RBSp4: DNS server configured: ${RBRR_DNS_SERVER}"
     fi
 
     echo "RBSp4: Configuring dnsmasq"

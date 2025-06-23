@@ -18,6 +18,8 @@
 rbt_test_bottle_service_rule:                \
   ztest_info_rule                            \
   ztest_basic_network_rule                   \
+  ztest_pod_localhost_dns_rule               \
+  ztest_pod_service_port_rule                \
   ztest_bottle_dns_allow_anthropic_rule      \
   ztest_bottle_dns_block_google_rule         \
   ztest_bottle_tcp443_allow_anthropic_rule   \
@@ -55,9 +57,17 @@ ztest_info_rule:
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule
 	$(MBT_PODMAN_EXEC_SENTRY) ps aux | grep dnsmasq
-	false # REVIVE AFTER REFACTOR, no IP anymore
-	$(MBT_PODMAN_EXEC_BOTTLE) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
+	$(MBT_PODMAN_EXEC_BOTTLE) nc -zv 127.0.0.1 53
 	$(MBT_PODMAN_EXEC_SENTRY) iptables -L RBM-INGRESS
+
+# Pod-specific network tests
+ztest_pod_localhost_dns_rule: ztest_basic_network_rule
+	$(MBT_PODMAN_EXEC_BOTTLE) dig @127.0.0.1 anthropic.com
+
+ztest_pod_service_port_rule: ztest_basic_network_rule
+	$(MBT_PODMAN_EXEC_BOTTLE) timeout 2 nc -l $(RBRN_ENTRY_PORT_ENCLAVE) &
+	sleep 1
+	$(MBT_PODMAN_EXEC_SENTRY) nc -zv 127.0.0.1 $(RBRN_ENTRY_PORT_ENCLAVE)
 
 # DNS resolution tests
 ztest_bottle_dns_allow_anthropic_rule: ztest_basic_network_rule
@@ -123,11 +133,10 @@ ztest_bottle_block_packages_rule: ztest_basic_network_rule
 
 # ICMP tests
 ztest_bottle_icmp_sentry_only_rule: ztest_basic_network_rule
-	false # REVIVE AFTER REFACTOR since no more RBRN_ENCLAVE_SENTRY_IP
-	$(MBT_PODMAN_EXEC_BOTTLE_I) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) ping -c 1 -W 1 8.8.8.8
 
 ztest_bottle_icmp_block_beyond_rule: ztest_basic_network_rule
-	$(MBT_PODMAN_EXEC_BOTTLE_I) traceroute -I -m 2 8.8.8.8 2>&1 | grep -q "^[[:space:]]*2[[:space:]]*\* \* \*"
+	! $(MBT_PODMAN_EXEC_BOTTLE_I) traceroute -I -m 1 -w 1 8.8.8.8
 
 
 # eof
