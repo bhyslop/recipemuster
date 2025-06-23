@@ -29,6 +29,11 @@ RBM_MONIKER = $(MBD_PARAMETER_2)
 RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
+# Extract RBG_ARG_RECIPE and RBG_ARG_FQIN_OUTPUT from MBD_CLI_ARGS if not already set
+# MBD_CLI_ARGS format: 'RBG_ARG_RECIPE=path RBG_ARG_FQIN_OUTPUT=path'
+RBG_ARG_RECIPE ?= $(patsubst RBG_ARG_RECIPE=%,%,$(filter RBG_ARG_RECIPE=%,$(MBD_CLI_ARGS)))
+RBG_ARG_FQIN_OUTPUT ?= $(patsubst RBG_ARG_FQIN_OUTPUT=%,%,$(filter RBG_ARG_FQIN_OUTPUT=%,$(MBD_CLI_ARGS)))
+
 # OUCH do better here: is ../station-files well known?
 include ../station-files/RBRS.STATION.mk
 include rbrr.repo.mk
