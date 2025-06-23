@@ -28,9 +28,9 @@ echo "RBSp1: Accepting loopback traffic"
 iptables -I INPUT -i lo -j ACCEPT || exit 10
 
 echo "RBSp1: Setting up connection tracking"
-iptables -I INPUT   2 -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
-iptables -I FORWARD 2 -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
-iptables -I OUTPUT  2 -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
+iptables -A INPUT   -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
+iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
+iptables -A OUTPUT  -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
 
 echo "RBSp1: Creating RBM chains"
 iptables -N RBM-INGRESS || exit 10
@@ -38,9 +38,9 @@ iptables -N RBM-EGRESS  || exit 10
 iptables -N RBM-FORWARD || exit 10
 
 echo "RBSp1: Setting up chain jumps"
-iptables -I INPUT   3 -j RBM-INGRESS || exit 10
-iptables -I OUTPUT  3 -j RBM-EGRESS  || exit 10
-iptables -I FORWARD 3 -j RBM-FORWARD || exit 10
+iptables -A INPUT   -j RBM-INGRESS || exit 10
+iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
+iptables -A FORWARD -j RBM-FORWARD || exit 10
 
 echo "RBSp2: Phase 2 - Port Setup"
 if [ "${RBRN_ENTRY_ENABLED}" = "true" ]; then
