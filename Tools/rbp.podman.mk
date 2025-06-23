@@ -20,7 +20,6 @@
 # Container and network naming
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
 export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
-export RBM_UPLINK_NETWORK     = $(RBM_MONIKER)-uplink
 export RBM_MACHINE            = pdvm-rbw
 export RBM_CONNECTION         = -c $(RBM_MACHINE)
 export RBM_SERVICE_POD        = $(RBM_MONIKER)-pod
@@ -192,58 +191,48 @@ rbp_check_connection:
 rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
-	$(MBC_STEP) "Stopping any prior containers"
-	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_SENTRY_CONTAINER)
-	-podman $(RBM_CONNECTION) rm   -f    $(RBM_SENTRY_CONTAINER)
-	-$(zRBM_PODMAN_RAW_CMD) stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-$(zRBM_PODMAN_RAW_CMD) rm   -f    $(RBM_BOTTLE_CONTAINER)
+	$(MBC_STEP) "Removing any existing pod"
+	-podman $(RBM_CONNECTION) pod rm -f $(RBM_SERVICE_POD)
 
-	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
+	$(MBC_STEP) "Creating new pod"
+	podman $(RBM_CONNECTION) pod create \
+	  --name $(RBM_SERVICE_POD) \
+	  $(if $(RBRN_PORT_ENABLED),-p $(RBRN_ENTRY_PORT_WORKSTATION):$(RBRN_ENTRY_PORT_WORKSTATION))
 
-	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
-	podman $(RBM_CONNECTION) run -d                    \
-	  --name $(RBM_SENTRY_CONTAINER)                   \
-	  --network bridge                                 \
-	  --privileged                                     \
-	  $(if $(RBRN_ENTRY_ENABLED),-p $(RBRN_ENTRY_PORT_WORKSTATION):$(RBRN_ENTRY_PORT_WORKSTATION)) \
-	  $(addprefix -e ,$(RBRR__ROLLUP_ENVIRONMENT_VAR))                                             \
-	  $(addprefix -e ,$(RBRN__ROLLUP_ENVIRONMENT_VAR))                                             \
+	$(MBC_STEP) "Launching SENTRY container"
+	podman $(RBM_CONNECTION) run -d \
+	  --name $(RBM_SENTRY_CONTAINER) \
+	  --pod $(RBM_SERVICE_POD) \
+	  --cap-add NET_ADMIN \
+	  --cap-add NET_RAW \
+	  $(addprefix -e ,$(RBRR__ROLLUP_ENVIRONMENT_VAR)) \
+	  $(addprefix -e ,$(RBRN__ROLLUP_ENVIRONMENT_VAR)) \
 	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG)
 
 	$(MBC_STEP) "Waiting for SENTRY container"
 	sleep 2
-	$(zRBM_PODMAN_SSH_CMD) "podman ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)"
-
-	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
+	podman $(RBM_CONNECTION) ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)
 
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
-	$(MBC_STEP) "Creating but not starting BOTTLE container"
-	$(zRBM_PODMAN_RAW_CMD) create                                    \
-	  --name $(RBM_BOTTLE_CONTAINER)                                 \
-	  --privileged                                                   \
-	  --network none                                                 \
-	  --cap-add net_raw                                              \
-	  --security-opt label=disable                                   \
+	$(MBC_STEP) "Launching BOTTLE container"
+	podman $(RBM_CONNECTION) run -d \
+	  --name $(RBM_BOTTLE_CONTAINER) \
+	  --pod $(RBM_SERVICE_POD) \
+	  --cap-drop ALL \
+	  --user $(RBRR_BOTTLE_UID) \
+	  --restart unless-stopped \
+	  $(RBRN_VOLUME_MOUNTS) \
+	  $(addprefix -e ,$(RBRR__ROLLUP_ENVIRONMENT_VAR)) \
+	  $(addprefix -e ,$(RBRN__ROLLUP_ENVIRONMENT_VAR)) \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
-
-	$(MBC_STEP) "Executing BOTTLE namespace setup using container PID"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
-
-	$(MBC_STEP) "Visualizing network setup in podman machine..."
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
-
-	$(MBC_STEP) "Starting BOTTLE container now that networking is configured"
-	$(zRBM_PODMAN_RAW_CMD) start $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Waiting for BOTTLE container"
 	sleep 2
-	$(zRBM_PODMAN_RAW_CMD) "ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)"
+	podman $(RBM_CONNECTION) ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)
 
-	$(MBC_STEP) "Bottle service should be available now."
+	$(MBC_PASS) "Bottle service should be available now."
 
 rbp_connect_sentry_rule:
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
@@ -253,12 +242,7 @@ rbp_connect_sentry_rule:
 
 rbp_connect_bottle_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
-	$(zRBM_PODMAN_RAW_CMD) sudo podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
-
-
-rbp_observe_networks_rule: zrbp_validate_regimes_rule
-	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(eval $(zRBM_EXPORT_ENV) && /bin/sh < $(MBV_TOOLS_DIR)/rbo.observe.sh)
+	$(zRBM_PODMAN_RAW_CMD) podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
 # eof

@@ -75,9 +75,6 @@ rbw-S.%: rbp_connect_sentry_rule
 rbw-B.%: rbp_connect_bottle_rule
 	$(MBC_PASS) "No errors."
 
-rbw-o.%: rbp_observe_networks_rule
-	$(MBC_PASS) "No errors."
-
 rbw-s.%: rbp_check_connection rbp_start_service_rule
 	$(MBC_STEP) "Completed delegate."
 
