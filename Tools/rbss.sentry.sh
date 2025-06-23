@@ -171,30 +171,20 @@ else
     
     echo "RBSp4: DNSMASQ DEBUG - Testing dnsmasq connectivity as root:"
     echo "RBSp4: DNSMASQ DEBUG - Current user: $(whoami), UID: $(id -u)"
-    echo "RBSp4: DNSMASQ DEBUG - Testing basic connectivity with nc:"
-    timeout 2 nc -zv 127.0.0.1 53 > /tmp/nc_test.log 2>&1
-    NC_EXIT_CODE=$?
-    echo "RBSp4: DNSMASQ DEBUG - nc test exit code: $NC_EXIT_CODE"
-    echo "RBSp4: DNSMASQ DEBUG - nc test output:"
-    cat /tmp/nc_test.log || echo "RBSp4: DNSMASQ DEBUG - No nc test output"
-    
-    echo "RBSp4: DNSMASQ DEBUG - Testing with dig:"
-    timeout 5 dig @127.0.0.1 anthropic.com > /tmp/dnsmasq_test.log 2>&1
-    DIG_EXIT_CODE=$?
-    echo "RBSp4: DNSMASQ DEBUG - dig test exit code: $DIG_EXIT_CODE"
-    echo "RBSp4: DNSMASQ DEBUG - dnsmasq test output:"
-    cat /tmp/dnsmasq_test.log || echo "RBSp4: DNSMASQ DEBUG - No test output available"
-    
-    if [ $NC_EXIT_CODE -eq 0 ]; then
-        echo "RBSp4: DNSMASQ DEBUG - SUCCESS: Port 53 is reachable"
+    echo "RBSp4: DNSMASQ DEBUG - Skipping nc test (known to hang in this environment)"
+    echo "RBSp4: DNSMASQ DEBUG - Testing with dig (non-blocking):"
+    timeout 3 dig @127.0.0.1 anthropic.com +short > /tmp/dnsmasq_test.log 2>&1 &
+    DIG_PID=$!
+    sleep 2
+    if kill -0 $DIG_PID 2>/dev/null; then
+        echo "RBSp4: DNSMASQ DEBUG - dig test is still running, killing it"
+        kill $DIG_PID 2>/dev/null
+        echo "RBSp4: DNSMASQ DEBUG - dig test output (partial):"
+        cat /tmp/dnsmasq_test.log || echo "RBSp4: DNSMASQ DEBUG - No test output available"
     else
-        echo "RBSp4: DNSMASQ DEBUG - FAILURE: Port 53 is NOT reachable"
-        echo "RBSp4: DNSMASQ DEBUG - Checking if dnsmasq is still running after connectivity test:"
-        if kill -0 $DNSMASQ_PID 2>/dev/null; then
-            echo "RBSp4: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is still running after test"
-        else
-            echo "RBSp4: DNSMASQ DEBUG - dnsmasq PID $DNSMASQ_PID is NOT running after test"
-        fi
+        echo "RBSp4: DNSMASQ DEBUG - dig test completed"
+        echo "RBSp4: DNSMASQ DEBUG - dig test output:"
+        cat /tmp/dnsmasq_test.log || echo "RBSp4: DNSMASQ DEBUG - No test output available"
     fi
     
     echo "RBSp4: DNSMASQ DEBUG - Recent dnsmasq log entries:"
