@@ -69,15 +69,14 @@ ztest_pod_service_port_rule: ztest_basic_network_rule
 
 # DNS resolution tests
 ztest_bottle_dns_allow_anthropic_rule: ztest_basic_network_rule
-	$(MBT_PODMAN_EXEC_BOTTLE) nslookup anthropic.com
+	$(MBT_PODMAN_EXEC_BOTTLE) sh -c "dig +short anthropic.com | head -1 | xargs -I {} nc -w 2 -zv {} 443"
 
 ztest_bottle_dns_block_google_rule: ztest_basic_network_rule
 	! $(MBT_PODMAN_EXEC_BOTTLE) nslookup google.com
 
 # TCP connection tests
 ztest_bottle_tcp443_allow_anthropic_rule: ztest_basic_network_rule
-	@ANTHROPIC_IP=$$($(MBT_PODMAN_EXEC_SENTRY) dig +short anthropic.com | head -1) && \
-	  $(MBT_PODMAN_EXEC_BOTTLE) nc -w 2 -zv $$ANTHROPIC_IP 443
+	$(MBT_PODMAN_EXEC_BOTTLE) sh -c "dig +short anthropic.com | head -1 | xargs -I {} nc -w 2 -zv {} 443"
 
 ztest_bottle_tcp443_block_google_rule: ztest_basic_network_rule
 	@GOOGLE_IP=$$($(MBT_PODMAN_EXEC_SENTRY) dig +short google.com | head -1) && \
