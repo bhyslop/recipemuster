@@ -30,6 +30,7 @@ export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
 export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 export RBM_MACHINE            = pdvm-rbw
 export RBM_CONNECTION         = -c $(RBM_MACHINE)
+export RBM_SERVICE_POD        = $(RBM_MONIKER)-pod
 
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))

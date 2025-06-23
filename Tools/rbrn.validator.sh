@@ -35,12 +35,6 @@ crgv_fqin        "$CONTEXT"       RBRN_SENTRY_IMAGE_TAG 1 128
 crgv_fqin        "$CONTEXT"       RBRN_BOTTLE_IMAGE_TAG 1 128
 crgv_bool        "$CONTEXT"       RBRN_ENTRY_ENABLED
 
-# Enclave Network Configuration
-crgv_ipv4        "$CONTEXT"       RBRN_ENCLAVE_BASE_IP
-crgv_decimal     "$CONTEXT"       RBRN_ENCLAVE_NETMASK 8 30
-crgv_ipv4        "$CONTEXT"       RBRN_ENCLAVE_SENTRY_IP
-crgv_ipv4        "$CONTEXT"       RBRN_ENCLAVE_BOTTLE_IP
-
 # Uplink Configuration
 crgv_port        "$CONTEXT"       RBRN_UPLINK_PORT_MIN
 crgv_bool        "$CONTEXT"       RBRN_UPLINK_DNS_ENABLED

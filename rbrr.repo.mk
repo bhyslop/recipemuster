@@ -24,6 +24,7 @@ RBRR_HISTORY_DIR         = RBM-history
 RBRR_NAMEPLATE_PATH      = RBM-nameplates
 RBRR_DNS_SERVER          = 8.8.8.8
 RBRR_MACHINE_NAME        = podman-machine-rbw
+RBRR_BOTTLE_UID          = 1000
 
 # Determined from default podman machine startup chatter
 # 

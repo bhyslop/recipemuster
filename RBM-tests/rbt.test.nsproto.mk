@@ -44,12 +44,10 @@ rbt_test_bottle_service_rule:                \
 ztest_info_rule:
 	@echo "RBM_SENTRY_CONTAINER:   $(RBM_SENTRY_CONTAINER)"
 	@echo "RBM_BOTTLE_CONTAINER:   $(RBM_BOTTLE_CONTAINER)"
-	@echo "RBRN_ENCLAVE_SENTRY_IP: $(RBRN_ENCLAVE_SENTRY_IP)"
 	@echo "MBD_TEMP_DIR:           $(MBD_TEMP_DIR)"
 	@echo "RBM_MACHINE:            $(RBM_MACHINE)"
 	@test -n "$(RBM_SENTRY_CONTAINER)"   || (echo "Error: RBM_SENTRY_CONTAINER   must be set" && exit 1)
 	@test -n "$(RBM_BOTTLE_CONTAINER)"   || (echo "Error: RBM_BOTTLE_CONTAINER   must be set" && exit 1)
-	@test -n "$(RBRN_ENCLAVE_SENTRY_IP)" || (echo "Error: RBRN_ENCLAVE_SENTRY_IP must be set" && exit 1)
 	@test -n "$(MBD_TEMP_DIR)"           || (echo "Error: MBD_TEMP_DIR           must be set" && exit 1)
 	@test -n "$(RBM_MACHINE)"            || (echo "Error: RBM_MACHINE            must be set" && exit 1)
 
@@ -57,6 +55,7 @@ ztest_info_rule:
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule
 	$(MBT_PODMAN_EXEC_SENTRY) ps aux | grep dnsmasq
+	false # REVIVE AFTER REFACTOR, no IP anymore
 	$(MBT_PODMAN_EXEC_BOTTLE) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
 	$(MBT_PODMAN_EXEC_SENTRY) iptables -L RBM-INGRESS
 
@@ -124,6 +123,7 @@ ztest_bottle_block_packages_rule: ztest_basic_network_rule
 
 # ICMP tests
 ztest_bottle_icmp_sentry_only_rule: ztest_basic_network_rule
+	false # REVIVE AFTER REFACTOR since no more RBRN_ENCLAVE_SENTRY_IP
 	$(MBT_PODMAN_EXEC_BOTTLE_I) traceroute -I -m 1 8.8.8.8 2>&1 | grep -q "$(RBRN_ENCLAVE_SENTRY_IP)"
 
 ztest_bottle_icmp_block_beyond_rule: ztest_basic_network_rule

@@ -22,8 +22,6 @@ rbt_test_bottle_service_rule:
 	$(MBC_SHOW_WHITE) "   fact: RBM_SENTRY_CONTAINER        is $(RBM_SENTRY_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBM_BOTTLE_CONTAINER        is $(RBM_BOTTLE_CONTAINER)"
 	$(MBC_SHOW_WHITE) "   fact: RBRN_ENTRY_PORT_WORKSTATION is $(RBRN_ENTRY_PORT_WORKSTATION)"
-	$(MBC_SHOW_WHITE) "   fact: RBRN_ENCLAVE_SENTRY_IP      is $(RBRN_ENCLAVE_SENTRY_IP)"
-	$(MBC_SHOW_WHITE) "   fact: RBRN_ENCLAVE_BOTTLE_IP      is $(RBRN_ENCLAVE_BOTTLE_IP)"
 	$(MBC_SHOW_WHITE) "   fact: MBD_TEMP_DIR                is $(MBD_TEMP_DIR)"
 
 	$(MBC_SHOW_WHITE) "Create test diagram content"
