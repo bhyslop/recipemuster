@@ -3,7 +3,7 @@ set -e
 
 : ${RBRR_BOTTLE_UID:?}             && echo "RBSp0: RBRR_BOTTLE_UID             = ${RBRR_BOTTLE_UID}"
 : ${RBRR_DNS_SERVER:?}             && echo "RBSp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
-: ${RBRN_PORT_ENABLED:?}           && echo "RBSp0: RBRN_PORT_ENABLED           = ${RBRN_PORT_ENABLED}"
+: ${RBRN_ENTRY_ENABLED:?}          && echo "RBSp0: RBRN_ENTRY_ENABLED          = ${RBRN_ENTRY_ENABLED}"
 : ${RBRN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
 : ${RBRN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
 : ${RBRN_UPLINK_DNS_ENABLED:?}     && echo "RBSp0: RBRN_UPLINK_DNS_ENABLED     = ${RBRN_UPLINK_DNS_ENABLED}"
@@ -43,7 +43,7 @@ iptables -I OUTPUT  3 -j RBM-EGRESS  || exit 10
 iptables -I FORWARD 3 -j RBM-FORWARD || exit 10
 
 echo "RBSp2: Phase 2 - Port Setup"
-if [ "${RBRN_PORT_ENABLED}" = "true" ]; then
+if [ "${RBRN_ENTRY_ENABLED}" = "true" ]; then
     echo "RBSp2: Configuring service port access"
     iptables -A RBM-INGRESS -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT || exit 20
     iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 20
