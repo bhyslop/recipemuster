@@ -200,6 +200,10 @@ else
     iptables -L RBM-EGRESS -n || echo "RBSp4: DNSMASQ DEBUG - Failed to list RBM-EGRESS rules"
     echo "RBSp4: DNSMASQ DEBUG - NAT OUTPUT chain:"
     iptables -t nat -L OUTPUT -n || echo "RBSp4: DNSMASQ DEBUG - Failed to list NAT OUTPUT rules"
+
+    # Explicitly block all outbound DNS (TCP/UDP 53) from bottle to any address except 127.0.0.1
+    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
+    iptables -I RBM-EGRESS 2 -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
 fi
 
 echo "RBSp5: Security configuration complete"
