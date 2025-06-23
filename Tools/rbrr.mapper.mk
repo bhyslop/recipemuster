@@ -52,6 +52,7 @@ rbrr_export_github_env:
 	@echo 'echo "RBRR_NAMEPLATE_PATH=$(RBRR_NAMEPLATE_PATH)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_DNS_SERVER=$(RBRR_DNS_SERVER)"                   >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_MACHINE_NAME=$(RBRR_MACHINE_NAME)"               >> $$GITHUB_ENV'
+	@echo 'echo "RBRR_BOTTLE_UID=$(RBRR_BOTTLE_UID)"                   >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_GITHUB_PAT_ENV=$(RBRR_GITHUB_PAT_ENV)"           >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_VMDIST_TAG=$(RBRR_VMDIST_TAG)"                   >> $$GITHUB_ENV'
 	@echo 'echo "RBRR_VMDIST_BLOB_SHA=$(RBRR_VMDIST_BLOB_SHA)"         >> $$GITHUB_ENV'

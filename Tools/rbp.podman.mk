@@ -21,13 +21,6 @@
 export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
 export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
 export RBM_UPLINK_NETWORK     = $(RBM_MONIKER)-uplink
-export RBM_ENCLAVE_NETWORK    = $(RBM_MONIKER)-enclave
-export RBM_ENCLAVE_NAMESPACE  = $(RBM_MONIKER)-ns
-export RBM_ENCLAVE_BRIDGE     = vbr_$(RBM_MONIKER)
-export RBM_ENCLAVE_SENTRY_IN  = vsi_$(RBM_MONIKER)
-export RBM_ENCLAVE_SENTRY_OUT = vso_$(RBM_MONIKER)
-export RBM_ENCLAVE_BOTTLE_IN  = vbi_$(RBM_MONIKER)
-export RBM_ENCLAVE_BOTTLE_OUT = vbo_$(RBM_MONIKER)
 export RBM_MACHINE            = pdvm-rbw
 export RBM_CONNECTION         = -c $(RBM_MACHINE)
 export RBM_SERVICE_POD        = $(RBM_MONIKER)-pod
