@@ -191,6 +191,12 @@ rbp_check_connection:
 rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
 
+	$(MBC_STEP) "Stopping any existing containers"
+	-podman $(RBM_CONNECTION) stop -t 2 $(RBM_SENTRY_CONTAINER)
+	-podman $(RBM_CONNECTION) rm -f $(RBM_SENTRY_CONTAINER)
+	-podman $(RBM_CONNECTION) stop -t 2 $(RBM_BOTTLE_CONTAINER)
+	-podman $(RBM_CONNECTION) rm -f $(RBM_BOTTLE_CONTAINER)
+
 	$(MBC_STEP) "Removing any existing pod"
 	-podman $(RBM_CONNECTION) pod rm -f $(RBM_SERVICE_POD)
 
