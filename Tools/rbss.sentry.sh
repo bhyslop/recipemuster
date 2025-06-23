@@ -117,17 +117,60 @@ else
         echo "address=/#/" >> /etc/dnsmasq.conf || exit 41
     fi
 
+    echo "RBSp4: DNSMASQ DEBUG - Checking for existing dnsmasq processes before start"
+    echo "RBSp4: DNSMASQ DEBUG - Current process list:"
+    ps aux | grep dnsmasq || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq processes found"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Checking for zombie dnsmasq processes:"
+    ps aux | grep dnsmasq | grep -E "(Z|defunct)" || echo "RBSp4: DNSMASQ DEBUG - No zombie dnsmasq processes found"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Checking current socket bindings:"
+    netstat -tlnp | grep :53 || echo "RBSp4: DNSMASQ DEBUG - No processes listening on port 53"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Killing any existing dnsmasq processes"
+    pkill dnsmasq || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq processes to kill"
+    sleep 2
+    
+    echo "RBSp4: DNSMASQ DEBUG - Process list after kill attempt:"
+    ps aux | grep dnsmasq || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq processes remaining"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Starting dnsmasq with debug output"
+    echo "RBSp4: DNSMASQ DEBUG - dnsmasq configuration:"
+    cat /etc/dnsmasq.conf
+    
     echo "RBSp4: Starting dnsmasq"
-    killall dnsmasq 2>/dev/null || true
-    sleep 1
     dnsmasq || exit 42
+    
+    echo "RBSp4: DNSMASQ DEBUG - dnsmasq started, checking process state"
+    sleep 1
+    echo "RBSp4: DNSMASQ DEBUG - New dnsmasq process info:"
+    ps aux | grep dnsmasq | grep -v grep || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq process found after start"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Checking socket bindings after start:"
+    netstat -tlnp | grep :53 || echo "RBSp4: DNSMASQ DEBUG - No socket bindings found"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Testing dnsmasq connectivity as root:"
+    timeout 3 dig @127.0.0.1 anthropic.com > /tmp/dnsmasq_test.log 2>&1 || echo "RBSp4: DNSMASQ DEBUG - dnsmasq test failed or timed out"
+    echo "RBSp4: DNSMASQ DEBUG - dnsmasq test output:"
+    cat /tmp/dnsmasq_test.log || echo "RBSp4: DNSMASQ DEBUG - No test output available"
+    
+    echo "RBSp4: DNSMASQ DEBUG - Recent dnsmasq log entries:"
+    tail -n 10 /var/log/dnsmasq.log || echo "RBSp4: DNSMASQ DEBUG - No dnsmasq log entries"
 
     echo "RBSp4: Setting up DNS interception"
     iptables -A RBM-EGRESS    -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
     iptables -A RBM-EGRESS    -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
     iptables -t nat -A OUTPUT -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -j REDIRECT --to-ports 53 || exit 43
     iptables -t nat -A OUTPUT -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 -j REDIRECT --to-ports 53 || exit 43
+    
+    echo "RBSp4: DNSMASQ DEBUG - Final iptables rules for DNS:"
+    echo "RBSp4: DNSMASQ DEBUG - RBM-EGRESS chain:"
+    iptables -L RBM-EGRESS -n || echo "RBSp4: DNSMASQ DEBUG - Failed to list RBM-EGRESS rules"
+    echo "RBSp4: DNSMASQ DEBUG - NAT OUTPUT chain:"
+    iptables -t nat -L OUTPUT -n || echo "RBSp4: DNSMASQ DEBUG - Failed to list NAT OUTPUT rules"
 fi
 
 echo "RBSp5: Security configuration complete"
+echo "RBSp5: DNSMASQ DEBUG - Final process state:"
+ps aux | grep dnsmasq || echo "RBSp5: DNSMASQ DEBUG - No dnsmasq processes in final state"
 

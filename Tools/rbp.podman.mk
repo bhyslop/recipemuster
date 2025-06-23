@@ -248,7 +248,7 @@ rbp_connect_sentry_rule:
 
 rbp_connect_bottle_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
-	$(zRBM_PODMAN_RAW_CMD) podman exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
+	$(zRBM_PODMAN_RAW_CMD) exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
 # eof

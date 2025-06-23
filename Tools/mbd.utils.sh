@@ -201,6 +201,13 @@ mbd_gen_make_cmd() {
     # Build base command
     local cmd=("make" "-f" "$makefile" "$MBD_OUTPUT_MODE")
 
+    # Add debug flags if verbose is set
+    if [[ "$mbd_verbose" == "1" ]]; then
+        cmd+=("--debug=v")
+    elif [[ "$mbd_verbose" == "2" ]]; then
+        cmd+=("--debug=v" "--trace")
+    fi
+
     # Add job profile if not empty
     if [[       -n "$MBD_JOB_PROFILE" ]]; then
         cmd+=("-j" "$MBD_JOB_PROFILE")
