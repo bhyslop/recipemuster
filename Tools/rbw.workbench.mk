@@ -189,9 +189,9 @@ ttx.FixTabtargetExecutability.sh:
 #  Bash File TabTargets
 #
 
-bff-s.%:
-	$(MBC_START) "Fetch: Placing file batch on clipboard..."
-	$(MBV_TOOLS_DIR)/bff.fetch.sh $(MBD_CLI_ARGS) | clip
+lmci-b.%:
+	$(MBC_START) "Bundle: Placing file batch on clipboard..."
+	$(MBV_TOOLS_DIR)/lmci/bundle.sh $(MBD_CLI_ARGS) | clip
 	$(MBC_PASS) "No errors."
 
 
