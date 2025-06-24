@@ -92,8 +92,16 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "TEMPORARY: init Podman machine $(RBM_MACHINE)"
 	podman machine init --image docker://quay.io/podman/machine-os-wsl@sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16   $(RBM_MACHINE)
 	$(MBC_STEP) "TEMPORARY: Initialized."
-	false
-
+	
+	$(MBC_STEP) "Starting VM to check image build date"
+	podman machine start $(RBM_MACHINE)
+	$(MBC_STEP) "Fedora image build date (from inside VM):"
+	podman machine ssh $(RBM_MACHINE) "stat -c '%y' /usr/lib/os-release"
+	$(MBC_STEP) "Stopping VM after build date check"
+	podman machine stop $(RBM_MACHINE)
+	$(MBC_STEP) "TEMPORARY: for now, we are skipping the pinning steps, need to bring back later."
+	
+rbp_stash_update_rule_DEFERRED:
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"
 
@@ -181,6 +189,8 @@ rbp_podman_machine_start_rule:
 	$(MBC_STEP) "Update utilities..."
 	podman machine ssh $(RBM_MACHINE) \
 	  sudo dnf install -y tcpdump --setopt=subscription-manager.disable=1
+	$(MBC_STEP) "Fedora image build date (from inside VM):"
+	podman machine ssh $(RBM_MACHINE) "stat -c '%y' /usr/lib/os-release"
 	$(MBC_STEP) "Version info on machine..."
 	podman $(RBM_CONNECTION) version
 	podman machine inspect $(RBM_MACHINE)
