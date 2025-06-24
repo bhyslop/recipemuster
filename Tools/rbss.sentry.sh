@@ -186,8 +186,8 @@ else
 
     echo "RBSp4: Setting up DNS interception"
     echo "RBSp4: Allowing dnsmasq (root) to reach upstream DNS servers"
-    iptables -I RBM-EGRESS 1 -p udp --dport 53 -d ${RBRR_DNS_SERVER} ! -m owner --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 43
-    iptables -I RBM-EGRESS 1 -p tcp --dport 53 -d ${RBRR_DNS_SERVER} ! -m owner --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 43
+    iptables -I RBM-EGRESS 1 -p udp --dport 53 -d ${RBRR_DNS_SERVER} -m owner ! --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 43
+    iptables -I RBM-EGRESS 1 -p tcp --dport 53 -d ${RBRR_DNS_SERVER} -m owner ! --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 43
 
     echo "RBSp4: Allowing bottle to reach localhost DNS (inserted before DROP rule)"
     iptables -I RBM-EGRESS 3  -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
