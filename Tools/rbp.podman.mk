@@ -86,6 +86,10 @@ rbp_stash_check_rule: mbc_demo_rule
 	@### source $(RBRR_GITHUB_PAT_ENV)  &&  $(zRBM_STASH_SSH) crane auth    login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
 	@### $(MBC_STEP) "Install jq using dnf package manager (Fedora's default)"
 	@### $(zRBM_STASH_SSH) sudo dnf install -y jq --setopt=subscription-manager.disable=1
+	$(MBC_STEP) "TEMPORARY: Tag below found at ->" https://quay.io/repository/podman/machine-os-wsl?tab=tags
+	$(MBC_STEP) "TEMPORARY: init Podman machine $(RBM_MACHINE)"
+	podman machine init --image docker://quay.io/podman/machine-os-wsl@sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16   $(RBM_MACHINE)
+	$(MBC_STEP) "TEMPORARY: Initialized."
 	false
 
 	$(MBC_STEP) "Validating image version against pinned values..."
@@ -170,10 +174,6 @@ rbp_podman_machine_start_rule:
 	@###
 	@### $(MBC_STEP) "Initialize Podman machine if it doesn't exist"
 	@### podman machine list | grep -q "$(RBM_MACHINE)" || PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_STASH_IMAGE) $(RBM_MACHINE)
-	@###
-	@### Lets use default behaviors from here on out
-	$(MBC_STEP) "TEMPORARY: init Podman machine $(RBM_MACHINE)"
-	podman machine init $(RBM_MACHINE)
 	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
 	$(MBC_STEP) "Update utilities..."
