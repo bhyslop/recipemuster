@@ -61,6 +61,7 @@ RBP_STASH_IMAGE               = $(zRBG_GIT_REGISTRY)/$(RBRR_REGISTRY_OWNER)/$(RB
 rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Your vm will be for architecture:" $(RBRS_PODMAN_ARCHITECTURE)
 	-podman machine stop  $(RBM_MACHINE)
+	-podman machine rm -f $(RBM_MACHINE)
 	-podman machine stop  $(zRBM_STASH_MACHINE)
 	-podman machine rm -f $(zRBM_STASH_MACHINE)
 
