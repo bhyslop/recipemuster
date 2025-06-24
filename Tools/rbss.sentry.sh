@@ -186,8 +186,8 @@ else
 
     echo "RBSp4: Setting up DNS interception"
     echo "RBSp4: Allowing dnsmasq (root) to reach upstream DNS servers"
-    iptables -I RBM-EGRESS 1 -p udp --dport 53 -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
-    iptables -I RBM-EGRESS 1 -p tcp --dport 53 -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
+    iptables -I RBM-EGRESS 1 -p udp --dport 53 -d ${RBRR_DNS_SERVER} ! -m owner --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 43
+    iptables -I RBM-EGRESS 1 -p tcp --dport 53 -d ${RBRR_DNS_SERVER} ! -m owner --uid-owner ${RBRR_BOTTLE_UID} -j ACCEPT || exit 43
 
     echo "RBSp4: Allowing bottle to reach localhost DNS (inserted before DROP rule)"
     iptables -I RBM-EGRESS 3  -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 -d 127.0.0.1 -j ACCEPT    || exit 43
@@ -202,13 +202,20 @@ else
     iptables -t nat -L OUTPUT -n || echo "RBSp4: DNSMASQ DEBUG - Failed to list NAT OUTPUT rules"
 
     echo "RBSp4: Blocking all bottle traffic to unauthorized destinations (except localhost and DNS server)"
-    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} ! -d 127.0.0.1 ! -d ${RBRR_DNS_SERVER} -j DROP || exit 43
+    # Block all bottle traffic first, then allow specific destinations
+    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -j DROP || exit 43
 
     echo "RBSp4: Then explicitly allow each CIDR"
     for cidr in ${RBRN_UPLINK_ALLOWED_CIDRS}; do
         echo "RBSp4: Allowing bottle traffic to ${cidr}"
         iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -d ${cidr} -j ACCEPT || exit 43
     done
+
+    echo "RBSp4: Allowing bottle traffic to localhost"
+    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -d 127.0.0.1 -j ACCEPT || exit 43
+
+    echo "RBSp4: Allowing bottle traffic to DNS server"
+    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
 
     echo "RBSp4: Additional DNS protocol blocking for unauthorized destinations"
     iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
