@@ -201,9 +201,18 @@ else
     echo "RBSp4: DNSMASQ DEBUG - NAT OUTPUT chain:"
     iptables -t nat -L OUTPUT -n || echo "RBSp4: DNSMASQ DEBUG - Failed to list NAT OUTPUT rules"
 
-    # Explicitly block all outbound DNS (TCP/UDP 53) from bottle to any address except 127.0.0.1
-    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
-    iptables -I RBM-EGRESS 2 -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
+    echo "RBSp4: Blocking all bottle traffic to unauthorized destinations (except localhost and DNS server)"
+    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} ! -d 127.0.0.1 ! -d ${RBRR_DNS_SERVER} -j DROP || exit 43
+
+    echo "RBSp4: Then explicitly allow each CIDR"
+    for cidr in ${RBRN_UPLINK_ALLOWED_CIDRS}; do
+        echo "RBSp4: Allowing bottle traffic to ${cidr}"
+        iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -d ${cidr} -j ACCEPT || exit 43
+    done
+
+    echo "RBSp4: Additional DNS protocol blocking for unauthorized destinations"
+    iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
+    iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
 fi
 
 echo "RBSp5: Security configuration complete"
