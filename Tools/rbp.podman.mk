@@ -165,10 +165,10 @@ rbp_podman_machine_start_rule:
 	-podman machine stop $(zRBM_STASH_MACHINE)
 	$(MBC_STEP) "Log version info"
 	podman --version
-	$(MBC_STEP) "Initialize Podman machine if it doesn't exist"
 	@### CACHED VM IMAGE CHECKING AND STASHING BUGGY
 	@###
-	@###podman machine list | grep -q "$(RBM_MACHINE)" || \
+	@### $(MBC_STEP) "Initialize Podman machine if it doesn't exist"
+	@### podman machine list | grep -q "$(RBM_MACHINE)" || \
 	  PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_STASH_IMAGE) $(RBM_MACHINE)
 	@###
 	@### Lets use default behaviors from here on out
