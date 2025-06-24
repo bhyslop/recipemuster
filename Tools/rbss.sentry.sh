@@ -214,9 +214,6 @@ else
     echo "RBSp4: Allowing bottle traffic to localhost"
     iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -d 127.0.0.1 -j ACCEPT || exit 43
 
-    echo "RBSp4: Allowing bottle traffic to DNS server"
-    iptables -I RBM-EGRESS 1 -m owner --uid-owner ${RBRR_BOTTLE_UID} -d ${RBRR_DNS_SERVER} -j ACCEPT || exit 43
-
     echo "RBSp4: Additional DNS protocol blocking for unauthorized destinations"
     iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p udp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
     iptables -A RBM-EGRESS -m owner --uid-owner ${RBRR_BOTTLE_UID} -p tcp --dport 53 ! -d 127.0.0.1 -j DROP || exit 43
