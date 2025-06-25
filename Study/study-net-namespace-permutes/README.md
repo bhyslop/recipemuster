@@ -31,13 +31,14 @@ When testing with a different VM image or after VM corruption:
 For each Podman version to be tested:
 
 1. **Stop VM**: `bash tt/rbw-z.PodmanStop.sh`
-2. **Start VM**: `bash tt/rbw-a.PodmanStart.sh` 
-3. **Run Test Script**: `bash Study/study-net-namespace-permutes/[SCRIPT_NAME].sh`
-4. **Document Results**: Update the script with version documentation block
-5. **Clean Up**: Stop VM before next version
+2. **Run Test Script**: `bash Study/study-net-namespace-permutes/[SCRIPT_NAME].sh`
+3. **Document Results**: **APPEND** a new version documentation block to the script (do not edit existing blocks)
+4. **Clean Up**: Stop VM before next version
+
+**IMPORTANT**: The START command (`tt/rbw-a.PodmanStart.sh`) is excluded from the test cycle because it logs into the container registry from the host, which creates a confound with the test scripts that need to work consistently. The VM should be started once after NUKE and remain running for all tests.
 
 ### Documentation Block Template
-Each script should include this documentation block before the failing command:
+Each script should **APPEND** this documentation block before the failing command (do not edit existing blocks):
 
 ```bash
 # =============================================================================
@@ -54,6 +55,8 @@ Each script should include this documentation block before the failing command:
 # [EXACT_ERROR_MESSAGE]
 # =============================================================================
 ```
+
+**CRITICAL**: VERSION STUDY DOCUMENTATION BLOCKs must be **APPENDED**, not edited. Each test run should add a new block to preserve the complete history of test results across different versions and modes.
 
 ### Scripts to Test
 - `Snnp-base-netns.sh` - Basic network namespace test
@@ -108,6 +111,17 @@ Most tests are expected to fail with permission-related errors:
 - **Current Mode**: Rootful (`Rootful: true`)
 
 ### VM Test Build History
+#### 2025-06-24 - Network Namespace Study Full Characterization
+- **NUKE Date**: 2025-06-24 19:42:28 PDT
+- **VM Build Date**: 2025-04-22 17:00:00.000000000 -0700
+- **Podman Version**: 5.5.2 (client) / 5.5.1 (server)
+- **VM Image SHA**: f6e8175cd5921caa091794719787c2c889837dc74f989f0088ab5c5bde6c5b8e
+- **Mode**: Rootful (`Rootful: true`)
+- **VM Creation Date**: 2025-06-24T19:42:39.4578551-07:00
+- **VM OS**: Fedora Linux 41 (Container Image)
+- **VM Kernel**: 5.15.167.4-microsoft-standard-WSL2
+- **Notes**: NUKE operation completed successfully for full network namespace study characterization. VM configured in rootful mode. All tests ready for execution.
+
 #### 2025-06-24 - Podman 5.5.2 Rootful Update
 - **NUKE Date**: 2025-06-24 19:29:12 PDT
 - **VM Build Date**: 2025-04-22 17:00:00.000000000 -0700
