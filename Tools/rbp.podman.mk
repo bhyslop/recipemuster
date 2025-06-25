@@ -90,7 +90,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	podman --version
 	$(MBC_STEP) "TEMPORARY: Tag below found at ->" https://quay.io/repository/podman/machine-os-wsl?tab=tags
 	$(MBC_STEP) "TEMPORARY: init Podman machine $(RBM_MACHINE)"
-	podman machine init --image docker://quay.io/podman/machine-os-wsl@sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16   $(RBM_MACHINE)
+	podman machine init --image docker://quay.io/podman/machine-os-wsl@sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16 --rootful  $(RBM_MACHINE)
 	$(MBC_STEP) "TEMPORARY: Initialized."
 	
 	$(MBC_STEP) "Starting VM to check image build date"

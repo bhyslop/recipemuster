@@ -4,6 +4,15 @@
 
 This document records the architecture of the RBM Bottle Service DNS enforcement model and documents the root cause of a critical security failure observed during testing. It is intended as a reference for future system design decisions, specifically to avoid repeating assumptions about network enforcement capabilities within container runtimes.
 
+## Version Information
+
+**Test Environment:**
+- **Podman Version**: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+- **VM Build Date**: 2024-11-17 16:00:00.000000000 -0800
+- **VM Image SHA**: da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
+- **Mode**: Rootless (`Rootful: false`)
+- **Test Date**: 2025-06-24
+
 ## Current Architecture: Shared Network Namespace
 
 The Bottle Service architecture relies on a Podman **pod** with a **shared network namespace**. Within this pod:
@@ -31,7 +40,7 @@ SENTRY sets:
   - Allowed CIDRs
   - dnsmasq on `127.0.0.1`
 - A **DROP fallback** for UID 1000 to block all other destinations
-- `REDIRECT` rules in the `nat OUTPUT` chain to intercept BOTTLE’s DNS traffic and force it through dnsmasq
+- `REDIRECT` rules in the `nat OUTPUT` chain to intercept BOTTLE's DNS traffic and force it through dnsmasq
 
 ## Failure Mode
 
@@ -51,7 +60,7 @@ executed **from within the BOTTLE container** succeeds—indicating an outbound 
 
 ## Root Cause
 
-Podman’s pod networking model, particularly in environments using Podman Machine (e.g., WSL2 or macOS virtualization), does **not enforce `OUTPUT` chain rules** for container-initiated traffic.
+Podman's pod networking model, particularly in environments using Podman Machine (e.g., WSL2 or macOS virtualization), does **not enforce `OUTPUT` chain rules** for container-initiated traffic.
 
 This bypass undermines all attempts to control container egress using:
 - `-m owner --uid-owner` rules
@@ -62,12 +71,8 @@ This bypass undermines all attempts to control container egress using:
 
 Container traffic may:
 - Egress through a host-bridge or virtual NIC that **bypasses iptables OUTPUT**
-- Rely on NAT or forwarding rules **inserted outside** the container’s iptables filter path
+- Rely on NAT or forwarding rules **inserted outside** the container's iptables filter path
 
 ## Conclusion
 
-**The assumption that `iptables` OUTPUT rules in a shared Podman pod network namespace can enforce egress control for containers is invalid.**
-
-This invalidates the current RBM enforcement model, which relies on UID-based OUTPUT filtering. The test `ztest_bottle_dns_block_direct_rule` serves as a proof that BOTTLE can egress to unauthorized DNS servers (e.g., 8.8.8.8) even when rules explicitly prohibit it.
-
-Any future architecture must not depend on OUTPUT chain enforcement for container egress within shared Podman pod network namespaces.
+**The assumption that `

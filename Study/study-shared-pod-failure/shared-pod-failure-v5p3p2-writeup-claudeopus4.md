@@ -4,6 +4,15 @@
 
 The Recipe Bottle Makefile system attempted to enforce network security policies using iptables rules within Podman pods. Testing revealed that **Podman's pod networking implementation does not enforce iptables OUTPUT chain rules for container egress traffic**, rendering the entire security model ineffective. This document captures the precise architecture and failure mode for future reference.
 
+## Version Information
+
+**Test Environment:**
+- **Podman Version**: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+- **VM Build Date**: 2024-11-17 16:00:00.000000000 -0800
+- **VM Image SHA**: da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
+- **Mode**: Rootless (`Rootful: false`)
+- **Test Date**: 2025-06-24
+
 ## Current Architecture Overview
 
 ### Container Structure
