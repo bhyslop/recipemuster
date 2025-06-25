@@ -154,6 +154,21 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: cannot find specified network
 # cannot access the namespace file due to permission restrictions
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 18:02:30 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman -c pdvm-rbw run -d --name nsproto-bottle --network ns:/proc/1390/ns/net ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
+# 
+# Expected Error from Next Command:
+# Error: cannot find specified network namespace path: faccessat /proc/1390/ns/net: permission denied
+# =============================================================================
+
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
 podman -c ${MACHINE} run -d                  \
     --name ${BOTTLE_CONTAINER}               \

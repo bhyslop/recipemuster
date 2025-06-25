@@ -106,8 +106,6 @@ EOF"
 
 snnp_machine_ssh "chmod +x /tmp/persistent_netns_v2.sh"
 
-echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not permitted (when creating veth pair inside user namespace)${NC}"
-
 # =============================================================================
 # VERSION STUDY DOCUMENTATION BLOCK
 # =============================================================================
@@ -125,6 +123,25 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not per
 # Note: This test failed at the veth pair creation step inside the user namespace,
 # indicating that even with Podman unshare, network interface creation is restricted
 # in rootless mode
+# =============================================================================
+
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 18:12:17 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman unshare /tmp/persistent_netns_v2.sh
+# 
+# Expected Error from Next Command:
+# RTNETLINK answers: Operation not permitted
+# 
+# Note: This test failed at the veth pair creation step inside the user namespace,
+# indicating that even with Podman unshare, network interface creation is restricted
+# in rootful mode in the Podman 5.3.2 VM environment
 # =============================================================================
 
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V2: Starting persistent namespace in background"

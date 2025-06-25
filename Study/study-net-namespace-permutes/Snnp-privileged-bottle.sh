@@ -111,6 +111,21 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: crun: cannot setns '/var/run/
 # Error: crun: cannot setns '/var/run/netns/nsproto-ns': Operation not permitted: OCI permission denied
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 17:51:13 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman -c pdvm-rbw run -d --name nsproto-bottle --network ns:/var/run/netns/nsproto-ns --privileged ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
+# 
+# Expected Error from Next Command:
+# Error: crun: cannot setns '/var/run/netns/nsproto-ns': Operation not permitted: OCI permission denied
+# =============================================================================
+
 echo "RBNS-ALT: Starting container with the prepared network namespace"
 podman -c ${MACHINE} run -d                       \
     --name ${BOTTLE_CONTAINER}                    \

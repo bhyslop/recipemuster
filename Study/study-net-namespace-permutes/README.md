@@ -67,7 +67,6 @@ Each script should include this documentation block before the failing command:
 - `Snnp-podman-unshare-persistent.sh` - Persistent unshare test
 - `Snnp-podman-unshare-persistent-v2.sh` - Persistent unshare v2 test
 - `Snnp-podman-unshare-persistent-v3.sh` - Persistent unshare v3 test
-- `Snnp-podman-unshare-persistent-v4.sh` - Persistent unshare v4 test
 
 ### Version Information to Capture
 - **Podman Client Version**: `podman --version`
@@ -96,8 +95,7 @@ Most tests are expected to fail with permission-related errors:
 - **Mode significantly impacts network namespace operations** - rootless mode has more restrictions
 - Future studies should systematically compare rootless vs rootful behavior
 
-## Current Test Results
-*[To be populated as tests are run]*
+
 
 ## Appendix: VM Build Information
 

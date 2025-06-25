@@ -92,6 +92,21 @@ snnp_machine_ssh "touch ${USER_NETNS_FILE}"
 # Note: Test hung during VM startup process, likely due to unshare permission issues
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 17:55:00 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootful (Rootful: true)
+# 
+# Command: unshare --net=/tmp/user_netns/nsproto-ns --fork --pid --mount-proc /bin/bash -c 'sleep 999999'
+# 
+# Expected Error from Next Command:
+# unshare: unshare failed: Operation not permitted
+# =============================================================================
+
 snnp_machine_ssh "unshare --net=${USER_NETNS_FILE} --fork --pid --mount-proc /bin/bash -c 'sleep 999999' & echo \$! > ${USER_NETNS_DIR}/${NET_NAMESPACE}.pid"
 sleep 2  # Give the unshare command time to set up
 

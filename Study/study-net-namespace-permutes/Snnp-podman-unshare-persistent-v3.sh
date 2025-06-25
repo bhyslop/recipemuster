@@ -132,6 +132,26 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not per
 # are restricted in rootless mode
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 18:13:38 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman unshare /tmp/persistent_netns_v3.sh
+# 
+# Expected Error from Next Command:
+# RTNETLINK answers: Operation not permitted (interface config)
+# RTNETLINK answers: No such process (veth move)
+# 
+# Note: This test failed at the interface configuration and veth move steps inside the user namespace,
+# indicating that even with Podman unshare, network interface configuration and namespace manipulation
+# are restricted in rootful mode in the Podman 5.3.2 VM environment
+# =============================================================================
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V3: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns_v3.sh &"
 sleep 3  # Give it time to start and save PID
