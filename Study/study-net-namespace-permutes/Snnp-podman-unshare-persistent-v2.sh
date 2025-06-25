@@ -151,6 +151,21 @@ snnp_machine_ssh "chmod +x /tmp/persistent_netns_v2.sh"
 # RTNETLINK answers: Operation not permitted
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 21:21:51 PDT
+# 
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman unshare --net --fork --pid --mount-proc /bin/bash -c 'echo $$ > /tmp/unshare_pid_nsproto-ns && sleep 999999'
+# 
+# Expected Error from Next Command:
+# Error: please use unshare with rootless
+# =============================================================================
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V2: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns_v2.sh &"
 sleep 5  # Give it more time to set up

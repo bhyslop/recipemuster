@@ -141,6 +141,21 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> chmod: changing permissions of '/var
 # chmod: changing permissions of '/var/run/netns/nsproto-ns': Operation not permitted
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 21:01:26 PDT
+# 
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootful (Rootful: true)
+# 
+# Command: chmod 666 /var/run/netns/nsproto-ns
+# 
+# Expected Error from Next Command:
+# chmod: changing permissions of '/var/run/netns/nsproto-ns': Operation not permitted
+# =============================================================================
+
 echo "Adjusting network namespace permissions for ${NET_NAMESPACE}"
 snnp_machine_ssh_sudo chmod 666 /var/run/netns/${NET_NAMESPACE}
 echo "New permissions:"

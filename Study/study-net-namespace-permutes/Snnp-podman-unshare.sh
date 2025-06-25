@@ -154,6 +154,21 @@ echo "RBNS-PODMAN-UNSHARE: Running setup script inside podman unshare"
 # mkdir /var/run/netns failed: Permission denied
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 21:19:24 PDT
+# 
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman unshare --net --fork --pid --mount-proc /bin/bash -c 'sleep 999999'
+# 
+# Expected Error from Next Command:
+# Error: please use unshare with rootless
+# =============================================================================
+
 snnp_machine_ssh "podman unshare /tmp/setup_netns.sh"
 
 echo "RBNS-PODMAN-UNSHARE: Verifying namespace was created"

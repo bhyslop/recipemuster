@@ -114,6 +114,21 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mount --make-shared /var/run/netns f
 # mkdir /var/run/netns failed: Permission denied
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 21:18:19 PDT
+# 
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootful (Rootful: true)
+# 
+# Command: podman -c pdvm-rbw run -d --name nsproto-bottle --network ns:/var/run/netns/nsproto-ns ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
+# 
+# Expected Error from Next Command:
+# Error: crun: cannot setns '/var/run/netns/nsproto-ns': Operation not permitted: OCI permission denied
+# =============================================================================
+
 echo "RBNS-ALT: Creating network namespace manually in user space"
 snnp_machine_ssh ip netns add ${NET_NAMESPACE}
 
