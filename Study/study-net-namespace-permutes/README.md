@@ -97,18 +97,24 @@ Most tests are expected to fail with permission-related errors:
 
 
 
-## Appendix: VM Build Information
+## Appendix: VM Test Build Information
 
-### Current VM Configuration
+### Current VM Test Configuration
 - **VM Image**: `quay.io/podman/machine-os-wsl@sha256:f6e8175cd5921caa091794719787c2c889837dc74f989f0088ab5c5bde6c5b8e`
 - **VM Build Date**: `2025-04-22 17:00:00.000000000 -0700`
-- **VM Creation Date**: `2025-06-24T18:46:25.2112966-07:00`
+- **VM Creation Date**: `2025-06-24T19:29:12.9289691-07:00`
 - **VM OS**: Fedora Linux 41 (Container Image)
 - **VM Kernel**: 5.15.167.4-microsoft-standard-WSL2
-- **Current Mode**: Rootless (`Rootful: false`)
+- **Current Mode**: Rootful (`Rootful: true`)
 
-### VM Build History
-*[Document VM build dates and modes from NUKE operations here]*
+### VM Test Build History
+#### 2025-06-24 - Podman 5.5.2 Rootful Update
+- **NUKE Date**: 2025-06-24 19:29:12 PDT
+- **VM Build Date**: 2025-04-22 17:00:00.000000000 -0700
+- **Podman Version**: 5.5.2 (client) / 5.5.1 (server)
+- **VM Image SHA**: f6e8175cd5921caa091794719787c2c889837dc74f989f0088ab5c5bde6c5b8e
+- **Mode**: Rootful (`Rootful: true`)
+- **Notes**: NUKE operation completed successfully. Updated to Podman 5.5.2 in rootful mode. VM and registry login verified.
 
 #### 2025-06-24 - Podman 5.5.2 Update
 - **NUKE Date**: 2025-06-24 18:29:09 PDT
