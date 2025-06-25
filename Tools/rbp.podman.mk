@@ -188,7 +188,7 @@ rbp_podman_machine_start_rule:
 	podman machine start $(RBM_MACHINE)
 	$(MBC_STEP) "Update utilities..."
 	podman machine ssh $(RBM_MACHINE) \
-	  sudo dnf install -y tcpdump --setopt=subscription-manager.disable=1
+	  sudo dnf install -y tcpdump
 	$(MBC_STEP) "Fedora image build date (from inside VM):"
 	podman machine ssh $(RBM_MACHINE) "stat -c '%y' /usr/lib/os-release"
 	$(MBC_STEP) "Version info on machine..."
