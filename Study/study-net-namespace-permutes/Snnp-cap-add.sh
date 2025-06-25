@@ -103,6 +103,7 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: crun: cannot setns '/var/run/
 # 
 # Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
 # VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootless (Rootful: false)
 # 
 # Command: podman -c pdvm-rbw run -d --name nsproto-bottle --network ns:/var/run/netns/nsproto-ns --cap-add=SYS_ADMIN --cap-add=NET_ADMIN ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
 # 

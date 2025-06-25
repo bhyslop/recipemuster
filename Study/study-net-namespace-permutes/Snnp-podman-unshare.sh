@@ -110,6 +110,7 @@ echo "RBNS-PODMAN-UNSHARE: Running setup script inside podman unshare"
 # 
 # Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
 # VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootless (Rootful: false)
 # 
 # Command: podman unshare /tmp/setup_netns.sh
 # 

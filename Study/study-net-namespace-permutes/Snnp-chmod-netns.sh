@@ -103,6 +103,7 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> chmod: changing permissions of '/var
 # 
 # Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
 # VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootless (Rootful: false)
 # 
 # Command: chmod 666 /var/run/netns/nsproto-ns
 # 

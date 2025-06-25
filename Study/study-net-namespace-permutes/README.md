@@ -3,10 +3,12 @@
 ## Overview
 This directory contains scripts to test network namespace functionality across different Podman versions. The goal is to document how network namespace permissions and capabilities change between Podman releases.
 
+**STUDY PARAMETER**: The execution mode (rootless/rootful) is determined by the VM configuration during NUKE operations. This is a key variable that significantly impacts network namespace functionality and should be documented for each test run.
+
 ## Study Process
 
 ### Prerequisites
-- Podman VM running (`pdvm-rbw`)
+- Podman VM running (`pdvm-rbw`) with documented mode (rootless/rootful)
 - Access to container registry (ghcr.io)
 - Study scripts in this directory
 
@@ -19,9 +21,11 @@ When testing with a different VM image or after VM corruption:
    - This destroys and recreates the VM with the pinned image
    - Captures VM build date information during initialization
    - **Important**: Document the VM build date in the appendix below
+   - **Important**: VM mode (rootless/rootful) is set during initialization
 
 2. **Start VM**: `bash tt/rbw-a.PodmanStart.sh`
 3. **Verify VM Info**: Check that build date matches expected version
+4. **Verify Mode**: Confirm mode (`Rootful: true/false`) in machine inspection
 
 #### Standard Test Cycle
 For each Podman version to be tested:
@@ -78,16 +82,19 @@ Most tests are expected to fail with permission-related errors:
 - `Error: operation not permitted`
 
 ### Study Goals
-1. **Document current failures** in Podman 5.3.2
+1. **Document current failures** in Podman 5.3.2 across different modes (rootless/rootful)
 2. **Test with different Podman versions** to identify when behaviors changed
-3. **Identify workarounds** for network namespace limitations
+3. **Identify workarounds** for network namespace limitations in different modes
 4. **Create regression test suite** for future Podman releases
+5. **Compare rootless vs rootful behavior** to isolate mode-specific limitations
 
 ### Notes
-- All tests run in rootless mode
+- **Mode (rootless/rootful) is a key variable** that should be documented for each test run
 - VM is restarted between tests to ensure clean state
 - Network namespaces are manually created and configured
 - Tests focus on container-to-namespace attachment failures
+- **Mode significantly impacts network namespace operations** - rootless mode has more restrictions
+- Future studies should systematically compare rootless vs rootful behavior
 
 ## Current Test Results
 *[To be populated as tests are run]*
@@ -99,44 +106,22 @@ Most tests are expected to fail with permission-related errors:
 - **VM Build Date**: `2024-11-17 16:00:00.000000000 -0800`
 - **VM OS**: Fedora Linux 40 (Container Image)
 - **VM Kernel**: 5.15.167.4-microsoft-standard-WSL2
+- **Current Mode**: Rootless (`Rootful: false`)
 
 ### VM Build History
-*[Document VM build dates from NUKE operations here]*
+*[Document VM build dates and modes from NUKE operations here]*
 
 #### 2025-06-24 - Network Namespace Study Setup
 - **NUKE Date**: 2025-06-24 16:39:22 PDT
 - **VM Build Date**: 2024-11-17 16:00:00.000000000 -0800
 - **Podman Version**: 5.3.2 (client)
 - **VM Image SHA**: da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
+- **Mode**: Rootless (`Rootful: false`)
 - **Notes**: NUKE operation completed successfully for network namespace study
 
 #### 2025-06-24 - Initial Setup
 - **NUKE Date**: 2025-06-24 16:15:57 PDT
 - **VM Build Date**: 2024-11-17 16:00:00.000000000 -0800
 - **Podman Version**: 5.3.2 (client) / 5.3.1 (server)
+- **Mode**: Rootless (`Rootful: false`)
 - **Notes**: Initial VM setup for network namespace study
-
-# Controlled Test History
-
-## Getting Podman and VM Image Info
-
-```bash
-Tools/rbw.workbench.mk: TEMPORARY: Log version info
-podman --version
-podman.exe version 5.3.2
-Tools/rbw.workbench.mk: TEMPORARY: Tag below found at -> https://quay.io/repository/podman/machine-os-wsl?tab=tags
-Tools/rbw.workbench.mk: TEMPORARY: init Podman machine pdvm-rbw
-podman machine init --image docker://quay.io/podman/machine-os-wsl@sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16   pdvm-rbw
-Looking up Podman Machine image at quay.io/podman/machine-os-wsl@sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16 to create VM
-Getting image source signatures
-Copying blob sha256:6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
-Copying config sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-Writing manifest to image destination
-6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
-Importing operating system into WSL (this may take a few minutes on a new WSL install)...
-The operation completed successfully.
-Configuring system...
-Machine init complete
-```
-
-

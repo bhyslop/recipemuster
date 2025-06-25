@@ -73,6 +73,7 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mount --make-shared /var/run/netns f
 # 
 # Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
 # VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootless (Rootful: false)
 # 
 # Command: mkdir /var/run/netns
 # 

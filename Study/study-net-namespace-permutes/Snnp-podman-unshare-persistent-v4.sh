@@ -97,6 +97,7 @@ echo -e "${CYAN}EXPECT NEXT TO HANG PERMANENTLY WITH -> nsenter hanging when try
 # 
 # Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
 # VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# Mode: Rootless (Rootful: false)
 # 
 # Command: bash tt/rbw-z.PodmanStop.sh && bash tt/rbw-a.PodmanStart.sh && bash Study/study-net-namespace-permutes/Snnp-podman-unshare-persistent-v4.sh
 # 
