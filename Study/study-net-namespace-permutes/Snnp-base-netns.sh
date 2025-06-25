@@ -17,6 +17,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 
 set -e  # Exit on error
+set -x  # Log each line
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -36,7 +37,7 @@ podman -c ${MACHINE} run -d                              \
 
 echo -e "${BOLD}Waiting for SENTRY container${NC}"
 sleep 2
-snnp_machine_ssh "podman ps | grep ${SENTRY_CONTAINER} || (echo 'Container not running' && exit 1)"
+podman -c ${MACHINE} ps | grep ${SENTRY_CONTAINER} || (echo 'Container not running' && exit 1)
 
 echo -e "${BOLD}Executing SENTRY namespace setup script${NC}"
 echo "RSNS: Beginning sentry namespace setup"
