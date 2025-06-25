@@ -66,6 +66,23 @@ echo "RBS: SKIPPING sentry setup script"
 
 echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mount --make-shared /var/run/netns failed: Operation not permitted${NC}"
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 17:01:36 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# 
+# Command: mkdir /var/run/netns
+# 
+# Expected Error from Next Command:
+# mkdir /var/run/netns failed: Permission denied
+# 
+# Note: This test failed at the directory creation step, indicating that even
+# basic user namespace operations are restricted in rootless mode
+# =============================================================================
+
 echo "RBNS-ALT: Creating network namespace manually in user space"
 snnp_machine_ssh ip netns add ${NET_NAMESPACE}
 

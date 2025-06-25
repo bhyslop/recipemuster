@@ -107,6 +107,23 @@ snnp_machine_ssh "chmod +x /tmp/persistent_netns.sh"
 
 echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mkdir /var/run/netns failed: Permission denied (user namespace can't write to /var/run/netns)${NC}"
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 17:04:22 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# 
+# Command: podman unshare /tmp/persistent_netns.sh
+# 
+# Expected Error from Next Command:
+# mkdir /var/run/netns failed: Permission denied
+# 
+# Note: Even persistent network namespace creation using Podman unshare fails
+# at the directory creation step, confirming the fundamental limitation
+# =============================================================================
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns.sh &"
 sleep 3  # Give it time to set up

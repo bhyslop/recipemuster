@@ -102,6 +102,24 @@ EOF"
 snnp_machine_ssh "chmod +x /tmp/setup_netns.sh"
 
 echo "RBNS-PODMAN-UNSHARE: Running setup script inside podman unshare"
+
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 17:03:05 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# 
+# Command: podman unshare /tmp/setup_netns.sh
+# 
+# Expected Error from Next Command:
+# mkdir /var/run/netns failed: Permission denied
+# 
+# Note: Even Podman's own unshare command cannot create network namespaces
+# in rootless mode, indicating this is a fundamental limitation
+# =============================================================================
+
 snnp_machine_ssh "podman unshare /tmp/setup_netns.sh"
 
 echo "RBNS-PODMAN-UNSHARE: Verifying namespace was created"

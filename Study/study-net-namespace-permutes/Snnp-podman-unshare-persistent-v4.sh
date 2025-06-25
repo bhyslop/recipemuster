@@ -90,6 +90,24 @@ snnp_machine_ssh "chmod +x /tmp/persistent_netns_v4.sh"
 
 echo -e "${CYAN}EXPECT NEXT TO HANG PERMANENTLY WITH -> nsenter hanging when trying to access podman unshare user namespace${NC}"
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 17:12:17 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# 
+# Command: bash tt/rbw-z.PodmanStop.sh && bash tt/rbw-a.PodmanStart.sh && bash Study/study-net-namespace-permutes/Snnp-podman-unshare-persistent-v4.sh
+# 
+# Expected Error from Next Command:
+# HANG during VM startup process - command interrupted during "Starting podman and logging in to container registry..."
+# 
+# Note: This test consistently hangs during the VM startup phase, likely due to
+# resource exhaustion or kernel-level issues when running this particular test sequence.
+# The hang occurs before the actual test execution begins.
+# =============================================================================
+
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V4: Starting persistent namespace in background"
 snnp_machine_ssh "podman unshare /tmp/persistent_netns_v4.sh &"
 sleep 3  # Give it time to start and save PID

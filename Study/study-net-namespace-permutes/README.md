@@ -103,6 +103,13 @@ Most tests are expected to fail with permission-related errors:
 ### VM Build History
 *[Document VM build dates from NUKE operations here]*
 
+#### 2025-06-24 - Network Namespace Study Setup
+- **NUKE Date**: 2025-06-24 16:39:22 PDT
+- **VM Build Date**: 2024-11-17 16:00:00.000000000 -0800
+- **Podman Version**: 5.3.2 (client)
+- **VM Image SHA**: da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
+- **Notes**: NUKE operation completed successfully for network namespace study
+
 #### 2025-06-24 - Initial Setup
 - **NUKE Date**: 2025-06-24 16:15:57 PDT
 - **VM Build Date**: 2024-11-17 16:00:00.000000000 -0800

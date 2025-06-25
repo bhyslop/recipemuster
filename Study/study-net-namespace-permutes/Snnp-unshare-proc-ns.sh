@@ -136,6 +136,23 @@ snnp_machine_ssh_sudo ls -la /proc/${UNSHARE_PID}/ns/net
 
 echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: cannot find specified network namespace path: faccessat /proc/${UNSHARE_PID}/ns/net: permission denied${NC}"
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 16:58:29 PDT
+# 
+# Podman Version: 5.3.2 (client) / 5.3.1 (server) (Built: Wed Jan 22 05:42:46 2025)
+# VM Build Date: 2024-11-17 16:00:00.000000000 -0800
+# 
+# Command: podman -c pdvm-rbw run -d --name nsproto-bottle --network ns:/proc/1380/ns/net ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
+# 
+# Expected Error from Next Command:
+# Error: cannot find specified network namespace path: faccessat /proc/1380/ns/net: permission denied
+# 
+# Note: This test successfully created a user network namespace using unshare, but Podman
+# cannot access the namespace file due to permission restrictions
+# =============================================================================
+
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
 podman -c ${MACHINE} run -d                  \
     --name ${BOTTLE_CONTAINER}               \
