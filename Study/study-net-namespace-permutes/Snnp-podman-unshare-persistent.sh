@@ -36,7 +36,7 @@ podman -c ${MACHINE} run -d                              \
 
 echo -e "${BOLD}Waiting for SENTRY container${NC}"
 sleep 2
-podman -c ${MACHINE} ps | grep ${SENTRY_CONTAINER} || (echo 'Container not running' && exit 1)"
+podman -c ${MACHINE} ps | grep ${SENTRY_CONTAINER} || (echo 'Container not running' && exit 1)
 
 echo -e "${BOLD}Executing SENTRY namespace setup script${NC}"
 echo "RSNS: Beginning sentry namespace setup"
