@@ -126,10 +126,6 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not per
 # Expected Error from Next Command:
 # RTNETLINK answers: Operation not permitted (interface config)
 # RTNETLINK answers: No such process (veth move)
-# 
-# Note: This test failed at the interface configuration and veth move steps inside the user namespace,
-# indicating that even with Podman unshare, network interface configuration and namespace manipulation
-# are restricted in rootless mode
 # =============================================================================
 
 # =============================================================================
@@ -146,10 +142,22 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> RTNETLINK answers: Operation not per
 # Expected Error from Next Command:
 # RTNETLINK answers: Operation not permitted (interface config)
 # RTNETLINK answers: No such process (veth move)
+# =============================================================================
+
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 19:20:59 PDT
 # 
-# Note: This test failed at the interface configuration and veth move steps inside the user namespace,
-# indicating that even with Podman unshare, network interface configuration and namespace manipulation
-# are restricted in rootful mode in the Podman 5.3.2 VM environment
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootless (Rootful: false)
+# 
+# Command: podman unshare /tmp/persistent_netns_v3.sh
+# 
+# Expected Error from Next Command:
+# RTNETLINK answers: Operation not permitted (interface config)
+# RTNETLINK answers: No such process (veth move)
 # =============================================================================
 
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT-V3: Starting persistent namespace in background"

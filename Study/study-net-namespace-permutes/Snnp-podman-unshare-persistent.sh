@@ -121,8 +121,6 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mkdir /var/run/netns failed: Permiss
 # Expected Error from Next Command:
 # mkdir /var/run/netns failed: Permission denied
 # 
-# Note: Even persistent network namespace creation using Podman unshare fails
-# at the directory creation step, confirming fundamental rootless limitations
 # =============================================================================
 
 # =============================================================================
@@ -138,10 +136,21 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> mkdir /var/run/netns failed: Permiss
 # 
 # Expected Error from Next Command:
 # mkdir /var/run/netns failed: Permission denied
+# =============================================================================
+
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 19:15:00 PDT
 # 
-# Note: Even persistent network namespace creation using Podman unshare fails
-# at the directory creation step in rootful mode, confirming fundamental
-# limitations in Podman 5.3.2 VM environment
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootless (Rootful: false)
+# 
+# Command: podman unshare /tmp/persistent_netns.sh
+# 
+# Expected Error from Next Command:
+# mkdir /var/run/netns failed: Permission denied
 # =============================================================================
 
 echo "RBNS-PODMAN-UNSHARE-PERSISTENT: Starting persistent namespace in background"

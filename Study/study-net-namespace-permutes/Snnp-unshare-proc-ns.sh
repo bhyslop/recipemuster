@@ -169,6 +169,21 @@ echo -e "${CYAN}EXPECT NEXT TO FAIL WITH -> Error: cannot find specified network
 # Error: cannot find specified network namespace path: faccessat /proc/1390/ns/net: permission denied
 # =============================================================================
 
+# =============================================================================
+# VERSION STUDY DOCUMENTATION BLOCK
+# =============================================================================
+# Date: 2025-06-24 19:05:01 PDT
+# 
+# Podman Version: 5.5.2 (client) / 5.5.1 (server) (Built: Tue Jun 24 09:13:04 2025)
+# VM Build Date: 2025-04-22 17:00:00.000000000 -0700
+# Mode: Rootless (Rootful: false)
+# 
+# Command: podman -c pdvm-rbw run -d --name nsproto-bottle --network ns:/proc/1490/ns/net ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241207__190758
+# 
+# Expected Error from Next Command:
+# Error: cannot find specified network namespace path: faccessat /proc/1490/ns/net: permission denied
+# =============================================================================
+
 echo "RBNS-ALT: Starting container with the prepared user network namespace"
 podman -c ${MACHINE} run -d                  \
     --name ${BOTTLE_CONTAINER}               \
