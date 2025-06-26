@@ -196,9 +196,17 @@ rbp_podman_machine_start_rule:
 	@### podman machine list | grep -q "$(RBM_MACHINE)" || PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_STASH_IMAGE) $(RBM_MACHINE)
 	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
-	$(MBC_STEP) "Update utilities..."
+	$(MBC_STEP) "Install eBPF and Traffic Control utilities for prototype..."
 	podman machine ssh $(RBM_MACHINE) \
-	  sudo dnf install -y tcpdump
+	  sudo dnf install -y \
+	    tcpdump        `# Network packet capture and analysis`                       \
+	    iproute        `# Traffic Control (tc) and network interface management`     \
+	    bpftool        `# eBPF program inspection and manipulation`                  \
+	    clang          `# C compiler for eBPF program development`                   \
+	    llvm           `# LLVM backend for eBPF compilation`                         \
+	    libbpf-devel   `# eBPF library development headers`                          \
+	    kernel-devel   `# Kernel headers for eBPF program compilation`               \
+	    && echo "DONE (subscription manager no longer needed)"
 	$(MBC_STEP) "Fedora image build date (from inside VM):"
 	podman machine ssh $(RBM_MACHINE) "stat -c '%y' /usr/lib/os-release"
 	$(MBC_STEP) "Version info on machine..."
