@@ -286,7 +286,6 @@ rbp_connect_sentry_rule:
 	podman $(RBM_CONNECTION) exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
-
 rbp_connect_bottle_rule: zrbp_validate_regimes_rule
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
 	podman $(RBM_CONNECTION) exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
