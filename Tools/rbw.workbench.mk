@@ -29,11 +29,6 @@ RBM_MONIKER = $(MBD_PARAMETER_2)
 RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
-# Extract RBG_ARG_RECIPE and RBG_ARG_FQIN_OUTPUT from MBD_CLI_ARGS if not already set
-# MBD_CLI_ARGS format: 'RBG_ARG_RECIPE=path RBG_ARG_FQIN_OUTPUT=path'
-RBG_ARG_RECIPE ?= $(patsubst RBG_ARG_RECIPE=%,%,$(filter RBG_ARG_RECIPE=%,$(MBD_CLI_ARGS)))
-RBG_ARG_FQIN_OUTPUT ?= $(patsubst RBG_ARG_FQIN_OUTPUT=%,%,$(filter RBG_ARG_FQIN_OUTPUT=%,$(MBD_CLI_ARGS)))
-
 # OUCH do better here: is ../station-files well known?
 include ../station-files/RBRS.STATION.mk
 include rbrr.repo.mk
@@ -80,6 +75,9 @@ rbw-S.%: rbp_connect_sentry_rule
 rbw-B.%: rbp_connect_bottle_rule
 	$(MBC_PASS) "No errors."
 
+rbw-o.%: rbp_observe_networks_rule
+	$(MBC_PASS) "No errors."
+
 rbw-s.%: rbp_check_connection rbp_start_service_rule
 	$(MBC_STEP) "Completed delegate."
 
@@ -103,8 +101,8 @@ zrbw_prenuke_rule:
 RBT_TESTS_DIR            = RBM-tests
 MBT_PODMAN_BASE          = podman --connection $(RBM_MACHINE)
 MBT_PODMAN_EXEC_SENTRY   = $(MBT_PODMAN_BASE)                         exec    $(RBM_SENTRY_CONTAINER)
-MBT_PODMAN_EXEC_BOTTLE   = $(MBT_PODMAN_BASE)                         exec    $(RBM_BOTTLE_CONTAINER)
-MBT_PODMAN_EXEC_BOTTLE_I = $(MBT_PODMAN_BASE)                         exec -i $(RBM_BOTTLE_CONTAINER)
+MBT_PODMAN_EXEC_BOTTLE   = $(MBT_PODMAN_BASE) machine ssh sudo podman exec    $(RBM_BOTTLE_CONTAINER)
+MBT_PODMAN_EXEC_BOTTLE_I = $(MBT_PODMAN_BASE) machine ssh sudo podman exec -i $(RBM_BOTTLE_CONTAINER)
 
 # Each test defines same rule
 rbw-to.%:  rbt_test_bottle_service_rule

@@ -39,7 +39,6 @@ crgv_string       "$CONTEXT"       RBRR_NAMEPLATE_PATH 1 255
 
 # Podman configuration
 crgv_string       "$CONTEXT"       RBRR_MACHINE_NAME  1 64
-# TODO RBRR_BOTTLE_UID
 crgv_fqin         "$CONTEXT"       RBRR_VMDIST_TAG 1 128
 crgv_string       "$CONTEXT"       RBRR_VMDIST_BLOB_SHA 64 64
 crgv_fqin         "$CONTEXT"       RBRR_VMDIST_CRANE 1 512
