@@ -282,5 +282,4 @@ rbp_connect_bottle_rule: zrbp_validate_regimes_rule
 	$(zRBM_PODMAN_RAW_CMD) exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
 
 
-
 # eof
