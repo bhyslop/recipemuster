@@ -26,10 +26,9 @@ export RBM_CONNECTION           = -c $(RBM_MACHINE)
 export RBM_EBPF_INGRESS_C       = $(MBV_TOOLS_DIR)/rbei.IngressEBPF.c
 export RBM_EBPF_EGRESS_C        = $(MBV_TOOLS_DIR)/rbee.EgressEBPF.c
 export RBM_VETH_NAME            = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-bottle-veth.txt
-export RBM_EBPF_CONFIG          = $(MBD_TEMP_DIR)/rbec.$(RBM_MONIKER).h
+export RBM_EBPF_CONFIG_LINES    = $(MBD_TEMP_DIR)/rbec.$(RBM_MONIKER).h
 export RBM_EBPF_INGRESS_PROGRAM = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-ingress.o
 export RBM_EBPF_EGRESS_PROGRAM  = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-egress.o
-export RBM_PODMAN_GATEWAY       = $(RBRN_ENCLAVE_SENTRY_IP)
 
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
@@ -293,6 +292,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	     | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'                           \
 	     | head -1 | sed 's/://g'                                                  \
 	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG_LINES)
+	echo "}"                                                                       >> $(RBM_EBPF_CONFIG_LINES)
 	echo "// SENTRY container IP - destination for rewritten BOTTLE egress frames" >> $(RBM_EBPF_CONFIG_LINES)
 	printf "#define RBE_SENTRY_IP 0x"                                              >> $(RBM_EBPF_CONFIG_LINES)
 	echo $(RBRN_ENCLAVE_SENTRY_IP) \
@@ -307,11 +307,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	echo                                                                           >> $(RBM_EBPF_CONFIG_LINES)
 
 	$(MBC_STEP) "Compile eBPF egress program"
-	cat $(RBM_EBPF_CONFIG) $(RBM_EBPF_EGRESS_C) | $(zRBM_PODMAN_SSH_CMD) \
+	cat $(RBM_EBPF_CONFIG_LINES) $(RBM_EBPF_EGRESS_C) | $(zRBM_PODMAN_SSH_CMD) \
 	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_EGRESS_PROGRAM)"
 
 	$(MBC_STEP) "Compile eBPF ingress program"  
-	cat $(RBM_EBPF_CONFIG) $(RBM_EBPF_INGRESS_C) | $(zRBM_PODMAN_SSH_CMD) \
+	cat $(RBM_EBPF_CONFIG_LINES) $(RBM_EBPF_INGRESS_C) | $(zRBM_PODMAN_SSH_CMD) \
 	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_INGRESS_PROGRAM)"
 
 	$(MBC_STEP) "Creating but not starting BOTTLE container"
