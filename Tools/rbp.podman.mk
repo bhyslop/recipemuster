@@ -23,7 +23,8 @@ export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
 export RBM_ENCLAVE_NETWORK    = $(RBM_MONIKER)-enclave
 export RBM_MACHINE            = pdvm-rbw
 export RBM_CONNECTION         = -c $(RBM_MACHINE)
-export RBM_EBPF_PROGRAM       = $(MBD_TEMP_DIR)/rbm_gateway.o
+export RBM_EBPF_PROGRAM       = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-gateway.o
+export RBM_EBPF_CONFIG        = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-config.o
 export RBM_PODMAN_GATEWAY     = $(RBRN_ENCLAVE_SENTRY_IP)
 
 # Consolidated passed variables
@@ -268,6 +269,37 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
+	$(MBC_STEP) "Delete prior eBPF config"
+	rm -f $(RBM_EBPF_CONFIG)
+
+	$(MBC_STEP) "Append gateway IP to config"
+	@GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
+	  --format '{{.Subnets.0.Gateway}}'); \
+	echo "#define GATEWAY_IP 0x$$(echo $$GATEWAY_IP | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" >> $(RBM_EBPF_CONFIG)
+
+	$(MBC_STEP) "Append sentry IP to config"
+	echo "#define SENTRY_IP 0x$$(echo $(RBRN_ENCLAVE_SENTRY_IP) | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" >> $(RBM_EBPF_CONFIG)
+
+	$(MBC_STEP) "Get sentry MAC and append to config"
+	SENTRY_MAC=$$(podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) \
+	  ip addr show eth1 | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}' | head -1); \
+	echo "#define SENTRY_MAC {0x$$(echo $$SENTRY_MAC | sed 's/://g' | sed 's/../&, 0x/g' | sed 's/, 0x$$//')}" >> $(RBM_EBPF_CONFIG)
+
+	$(MBC_STEP) "Compile eBPF program with config"
+	cat $(RBM_EBPF_CONFIG) $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
+	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_PROGRAM)"
+
+	$(MBC_STEP) "Creating eBPF config header"
+	@GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
+	  --format '{{.Subnets.0.Gateway}}'); \
+	echo "#define GATEWAY_IP 0x$$(echo $$GATEWAY_IP | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" > $(RBM_EBPF_CONFIG); \
+	echo "#define SENTRY_IP 0x$$(echo $(RBRN_ENCLAVE_SENTRY_IP) | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" >> $(RBM_EBPF_CONFIG); \
+	echo "#define SENTRY_MAC 0x$$(echo $$SENTRY_MAC | tr -d : | sed 's/../&,0x/g' | sed 's/,0x$//')" >> $(RBM_EBPF_CONFIG)
+
+	$(MBC_STEP) "Compiling eBPF gateway program"
+	@cat $(RBM_EBPF_CONFIG) $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
+	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_PROGRAM)"
+
 	$(MBC_STEP) "Creating but not starting BOTTLE container"
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                                 \
@@ -284,7 +316,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	@cat $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
 	  "clang -O2 -target bpf -x c \
 	  -D GATEWAY_IP=0x$(shell printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_BASE_IP).1 | tr '.' ' ')) \
-	  -D SENTRY_IP=0x$(shell printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_SENTRY_IP) | tr '.' ' ')) \
+	  -D SENTRY_IP=0x$(shell  printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_SENTRY_IP) | tr '.' ' ')) \
 	  -c - -o $(RBM_EBPF_PROGRAM)"
 
 	$(MBC_STEP) "Connecting BOTTLE to network"
