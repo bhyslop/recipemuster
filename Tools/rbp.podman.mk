@@ -18,14 +18,17 @@
 # Implements secure containerized service management
 
 # Container and network naming
-export RBM_SENTRY_CONTAINER   = $(RBM_MONIKER)-sentry
-export RBM_BOTTLE_CONTAINER   = $(RBM_MONIKER)-bottle
-export RBM_ENCLAVE_NETWORK    = $(RBM_MONIKER)-enclave
-export RBM_MACHINE            = pdvm-rbw
-export RBM_CONNECTION         = -c $(RBM_MACHINE)
-export RBM_EBPF_PROGRAM       = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-gateway.o
-export RBM_EBPF_CONFIG        = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-config.o
-export RBM_PODMAN_GATEWAY     = $(RBRN_ENCLAVE_SENTRY_IP)
+export RBM_SENTRY_CONTAINER     = $(RBM_MONIKER)-sentry
+export RBM_BOTTLE_CONTAINER     = $(RBM_MONIKER)-bottle
+export RBM_ENCLAVE_NETWORK      = $(RBM_MONIKER)-enclave
+export RBM_MACHINE              = pdvm-rbw
+export RBM_CONNECTION           = -c $(RBM_MACHINE)
+export RBM_EBPF_INGRESS_C       = $(MBV_TOOLS_DIR)/rbei.IngressEBPF.c
+export RBM_EBPF_EGRESS_C        = $(MBV_TOOLS_DIR)/rbee.EgressEBPF.c
+export RBM_EBPF_CONFIG_LINES    = $(MBD_TEMP_DIR)/rbec.$(RBM_MONIKER).h
+export RBM_EBPF_INGRESS_PROGRAM = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-ingress.o
+export RBM_EBPF_EGRESS_PROGRAM  = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-egress.o
+export RBM_PODMAN_GATEWAY       = $(RBRN_ENCLAVE_SENTRY_IP)
 
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
@@ -275,14 +278,24 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Create the eBPF configuration file"
 	rm -f                                                                             $(RBM_EBPF_CONFIG)
 	echo "// Original podman gateway IP that eBPF will bypass for BOTTLE traffic"  >> $(RBM_EBPF_CONFIG)
-	printf "#define RBE_GATEWAY_IP 0x"                                             >> $(RBM_EBPF_CONFIG)
-	podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
-	         --format '{{.Subnets.0.Gateway}}'                      \
-	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG)
-	echo "// SENTRY container IP - destination for rewritten BOTTLE egress frames" >> $(RBM_EBPF_CONFIG)
-	printf "#define RBE_SENTRY_IP 0x"                                              >> $(RBM_EBPF_CONFIG)
-	echo $(RBRN_ENCLAVE_SENTRY_IP) \
-	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG)
+	echo "// Gateway MAC address for ingress L2 frame rewriting"                   >> $(RBM_EBPF_CONFIG)
+	printf "#define RBE_GATEWAY_MAC {0x"                                           >> $(RBM_EBPF_CONFIG)
+	GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK)  \
+	  --format '{{.Subnets.0.Gateway}}');                                          \
+	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) sh -c                    \
+	  "ping -c 1 $$GATEWAY_IP >/dev/null 2>&1 &&                                   \
+	   ip neigh show $$GATEWAY_IP"                                                 \
+	     | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'                           \
+	     | head -1 | sed 's/://g'                                                  \
+	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG)
+	echo "// Gateway MAC address for ingress L2 frame rewriting"                   >> $(RBM_EBPF_CONFIG)
+	printf "#define RBE_GATEWAY_MAC {0x"                                           >> $(RBM_EBPF_CONFIG)
+	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) sh -c \
+	  "ping -c 1 $(RBRN_ENCLAVE_BASE_IP).1 >/dev/null 2>&1 && \
+	ip neigh show $(RBRN_ENCLAVE_BASE_IP).1 | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}' | \
+	   sed 's/://g' | sed 's/../&, 0x/g' | sed 's/, 0x$$//'" >> $(RBM_EBPF_CONFIG)
+	echo "}" >> $(RBM_EBPF_CONFIG)
+
 	echo "// SENTRY container MAC address for L2 frame rewriting"                  >> $(RBM_EBPF_CONFIG)
 	printf "#define RBE_SENTRY_MAC {0x"                                            >> $(RBM_EBPF_CONFIG)
 	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER)                          \
@@ -293,20 +306,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	echo                                                                           >> $(RBM_EBPF_CONFIG)
 	echo                                                                           >> $(RBM_EBPF_CONFIG)
 
-	$(MBC_STEP) "Compile eBPF program with config"
-	cat $(RBM_EBPF_CONFIG) $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
-	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_PROGRAM)"
+	$(MBC_STEP) "Compile eBPF egress program"
+	cat $(RBM_EBPF_CONFIG) $(RBM_EBPF_EGRESS_C) | $(zRBM_PODMAN_SSH_CMD) \
+	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_EGRESS_PROGRAM)"
 
-	$(MBC_STEP) "Creating eBPF config header"
-	@GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
-	  --format '{{.Subnets.0.Gateway}}'); \
-	echo "#define GATEWAY_IP 0x$$(echo $$GATEWAY_IP | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" > $(RBM_EBPF_CONFIG); \
-	echo "#define SENTRY_IP 0x$$(echo $(RBRN_ENCLAVE_SENTRY_IP) | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" >> $(RBM_EBPF_CONFIG); \
-	echo "#define SENTRY_MAC 0x$$(echo $$SENTRY_MAC | tr -d : | sed 's/../&,0x/g' | sed 's/,0x$//')" >> $(RBM_EBPF_CONFIG)
-
-	$(MBC_STEP) "Compiling eBPF gateway program"
-	@cat $(RBM_EBPF_CONFIG) $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
-	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_PROGRAM)"
+	$(MBC_STEP) "Compile eBPF ingress program"  
+	cat $(RBM_EBPF_CONFIG) $(RBM_EBPF_INGRESS_C) | $(zRBM_PODMAN_SSH_CMD) \
+	  "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_INGRESS_PROGRAM)"
 
 	$(MBC_STEP) "Creating but not starting BOTTLE container"
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
@@ -316,25 +322,23 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "Getting BOTTLE PID"
-	@BOTTLE_PID=$$(podman $(RBM_CONNECTION) inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)); \
-	echo "Bottle PID: $$BOTTLE_PID"
-
-	$(MBC_STEP) "Compiling eBPF gateway program"
-	@cat $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
-	  "clang -O2 -target bpf -x c \
-	  -D GATEWAY_IP=0x$(shell printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_BASE_IP).1 | tr '.' ' ')) \
-	  -D SENTRY_IP=0x$(shell  printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_SENTRY_IP) | tr '.' ' ')) \
-	  -c - -o $(RBM_EBPF_PROGRAM)"
-
 	$(MBC_STEP) "Connecting BOTTLE to network"
 	podman $(RBM_CONNECTION) network connect $(RBM_ENCLAVE_NETWORK) $(RBM_BOTTLE_CONTAINER)
 
-	$(MBC_STEP) "Finding BOTTLE veth and attaching eBPF"
-	@BOTTLE_VETH=$$($(zRBM_PODMAN_SSH_CMD) "nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o '@if[0-9]*:' | grep -o '[0-9]*' | head -1 | xargs -I{} ip link | grep '^{}: veth' | cut -d: -f2 | cut -d@ -f1 | tr -d ' '"); \
-	echo "Found bottle veth: $$BOTTLE_VETH"; \
-	$(zRBM_PODMAN_SSH_CMD) "tc qdisc add dev $$BOTTLE_VETH clsact && \
-	  tc filter add dev $$BOTTLE_VETH egress bpf obj $(RBM_EBPF_PROGRAM) sec tc"
+	$(MBC_STEP) "Finding BOTTLE veth interface"
+	$(zRBM_PODMAN_SSH_CMD) 'nsenter -t $$(podman inspect -f "{{.State.Pid}}" $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o "@if[0-9]*:" | grep -o "[0-9]*" | head -1 | xargs -I{} ip link | grep "^{}: veth" | cut -d: -f2 | cut -d@ -f1 | tr -d " " > /tmp/bottle-veth'
+
+	$(MBC_STEP) "Verifying BOTTLE veth was found"
+	$(zRBM_PODMAN_SSH_CMD) 'test -s /tmp/bottle-veth && echo "Found: $$(cat /tmp/bottle-veth)" || (echo "ERROR: Could not find BOTTLE veth" && exit 1)'
+
+	$(MBC_STEP) "Adding clsact qdisc to BOTTLE veth"
+	$(zRBM_PODMAN_SSH_CMD) 'tc qdisc add dev $$(cat /tmp/bottle-veth) clsact'
+
+	$(MBC_STEP) "Attaching eBPF egress filter"
+	$(zRBM_PODMAN_SSH_CMD) 'tc filter add dev $$(cat /tmp/bottle-veth) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc'
+
+	$(MBC_STEP) "Attaching eBPF ingress filter"
+	$(zRBM_PODMAN_SSH_CMD) 'tc filter add dev $$(cat /tmp/bottle-veth) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc'
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
