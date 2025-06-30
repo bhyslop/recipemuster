@@ -237,8 +237,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	-$(zRBM_PODMAN_RAW_CMD) stop -t 2  $(RBM_BOTTLE_CONTAINER)
 	-$(zRBM_PODMAN_RAW_CMD) rm   -f    $(RBM_BOTTLE_CONTAINER)
 
-	$(MBC_STEP) "Cleaning up old netns and interfaces inside VM"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnc.cleanup.sh
+	$(MBC_STEP) "Detaching any existing eBPF programs"
+	-$(zRBM_PODMAN_SSH_CMD) "tc qdisc del dev \$$(ip link | grep -o 'veth[^ ]*' | head -1) clsact 2>/dev/null || true"
+
+	$(MBC_STEP) "Creating enclave network if needed"
+	-podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP).0/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK) 2>/dev/null || true
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman $(RBM_CONNECTION) run -d                    \
@@ -254,8 +257,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 	podman $(RBM_CONNECTION) ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)
 
-	$(MBC_STEP) "Executing SENTRY namespace setup script"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbns.sentry.sh
+	$(MBC_STEP) "Verifying SENTRY got expected IP"
+	@ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
+	  --format '{{.NetworkSettings.Networks.$(RBM_ENCLAVE_NETWORK).IPAddress}}'); \
+	if [ "$$ACTUAL_IP" != "$(RBRN_ENCLAVE_SENTRY_IP)" ]; then \
+	  echo "ERROR: Sentry IP mismatch. Expected $(RBRN_ENCLAVE_SENTRY_IP), got $$ACTUAL_IP"; \
+	  exit 1; \
+	fi
 
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
@@ -268,8 +276,25 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "Executing BOTTLE namespace setup using container PID"
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbnb.bottle.sh
+	$(MBC_STEP) "Getting BOTTLE PID"
+	@BOTTLE_PID=$$(podman $(RBM_CONNECTION) inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)); \
+	echo "Bottle PID: $$BOTTLE_PID"
+
+	$(MBC_STEP) "Compiling eBPF gateway program"
+	@cat $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
+	  "clang -O2 -target bpf -x c \
+	  -D GATEWAY_IP=0x$(shell printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_BASE_IP).1 | tr '.' ' ')) \
+	  -D SENTRY_IP=0x$(shell printf '%02x%02x%02x%02x' $$(echo $(RBRN_ENCLAVE_SENTRY_IP) | tr '.' ' ')) \
+	  -c - -o $(RBM_EBPF_PROGRAM)"
+
+	$(MBC_STEP) "Connecting BOTTLE to network"
+	podman $(RBM_CONNECTION) network connect $(RBM_ENCLAVE_NETWORK) $(RBM_BOTTLE_CONTAINER)
+
+	$(MBC_STEP) "Finding BOTTLE veth and attaching eBPF"
+	@BOTTLE_VETH=$$($(zRBM_PODMAN_SSH_CMD) "nsenter -t $$(podman inspect -f '{{.State.Pid}}' $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o '@if[0-9]*:' | grep -o '[0-9]*' | head -1 | xargs -I{} ip link | grep '^{}: veth' | cut -d: -f2 | cut -d@ -f1 | tr -d ' '"); \
+	echo "Found bottle veth: $$BOTTLE_VETH"; \
+	$(zRBM_PODMAN_SSH_CMD) "tc qdisc add dev $$BOTTLE_VETH clsact && \
+	  tc filter add dev $$BOTTLE_VETH egress bpf obj $(RBM_EBPF_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
