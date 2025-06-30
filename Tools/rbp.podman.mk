@@ -241,8 +241,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Detaching any existing eBPF programs"
 	-$(zRBM_PODMAN_SSH_CMD) "tc qdisc del dev \$$(ip link | grep -o 'veth[^ ]*' | head -1) clsact 2>/dev/null || true"
 
-	$(MBC_STEP) "Creating enclave network if needed"
-	-podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP).0/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK) 2>/dev/null || true
+	$(MBC_STEP) "Removing any existing enclave network"
+	-podman $(RBM_CONNECTION) network rm $(RBM_ENCLAVE_NETWORK)
+
+	$(MBC_STEP) "Creating enclave network"
+	podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP).0/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK)
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman $(RBM_CONNECTION) run -d                    \
@@ -269,21 +272,26 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
-	$(MBC_STEP) "Delete prior eBPF config"
-	rm -f $(RBM_EBPF_CONFIG)
-
-	$(MBC_STEP) "Append gateway IP to config"
-	@GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
-	  --format '{{.Subnets.0.Gateway}}'); \
-	echo "#define GATEWAY_IP 0x$$(echo $$GATEWAY_IP | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" >> $(RBM_EBPF_CONFIG)
-
-	$(MBC_STEP) "Append sentry IP to config"
-	echo "#define SENTRY_IP 0x$$(echo $(RBRN_ENCLAVE_SENTRY_IP) | awk -F. '{printf "%02x%02x%02x%02x", $$4,$$3,$$2,$$1}')" >> $(RBM_EBPF_CONFIG)
-
-	$(MBC_STEP) "Get sentry MAC and append to config"
-	SENTRY_MAC=$$(podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) \
-	  ip addr show eth1 | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}' | head -1); \
-	echo "#define SENTRY_MAC {0x$$(echo $$SENTRY_MAC | sed 's/://g' | sed 's/../&, 0x/g' | sed 's/, 0x$$//')}" >> $(RBM_EBPF_CONFIG)
+	$(MBC_STEP) "Create the eBPF configuration file"
+	rm -f                                                                             $(RBM_EBPF_CONFIG)
+	echo "// Original podman gateway IP that eBPF will bypass for BOTTLE traffic"  >> $(RBM_EBPF_CONFIG)
+	printf "#define RBE_GATEWAY_IP 0x"                                             >> $(RBM_EBPF_CONFIG)
+	podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
+	         --format '{{.Subnets.0.Gateway}}'                      \
+	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG)
+	echo "// SENTRY container IP - destination for rewritten BOTTLE egress frames" >> $(RBM_EBPF_CONFIG)
+	printf "#define RBE_SENTRY_IP 0x"                                              >> $(RBM_EBPF_CONFIG)
+	echo $(RBRN_ENCLAVE_SENTRY_IP) \
+	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG)
+	echo "// SENTRY container MAC address for L2 frame rewriting"                  >> $(RBM_EBPF_CONFIG)
+	printf "#define RBE_SENTRY_MAC {0x"                                            >> $(RBM_EBPF_CONFIG)
+	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER)                          \
+	  ip addr show eth1                                                            \
+	     | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'                           \
+	     | head -1 | sed 's/://g'                                                  \
+	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG)
+	echo                                                                           >> $(RBM_EBPF_CONFIG)
+	echo                                                                           >> $(RBM_EBPF_CONFIG)
 
 	$(MBC_STEP) "Compile eBPF program with config"
 	cat $(RBM_EBPF_CONFIG) $(MBV_TOOLS_DIR)/rbe.EbpfProgram.c | $(zRBM_PODMAN_SSH_CMD) \
