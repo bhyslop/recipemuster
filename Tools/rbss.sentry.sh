@@ -8,6 +8,7 @@ set -x
 : ${RBRN_ENCLAVE_BASE_IP:?}        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
 : ${RBRN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
 : ${RBRN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
+: ${RBRN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
 : ${RBRR_DNS_SERVER:?}             && echo "RBSp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
 : ${RBRN_ENTRY_ENABLED:?}          && echo "RBSp0: RBRN_ENTRY_ENABLED          = ${RBRN_ENTRY_ENABLED}"
 : ${RBRN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
@@ -19,6 +20,8 @@ set -x
 : ${RBRN_UPLINK_ACCESS_GLOBAL:?}   && echo "RBSp0: RBRN_UPLINK_ACCESS_GLOBAL   = ${RBRN_UPLINK_ACCESS_GLOBAL}"
 : ${RBRN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
 : ${RBRN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
+: ${RBM_ENCLAVE_NETWORK:?}         && echo "RBSp0: RBM_ENCLAVE_NETWORK         = ${RBM_ENCLAVE_NETWORK}"
+: ${RBM_SENTRY_CONTAINER:?}        && echo "RBSp0: RBM_SENTRY_CONTAINER        = ${RBM_SENTRY_CONTAINER}"
 
 echo "RBSp1: Connecting to enclave network"
 podman network connect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER) || exit 5
@@ -64,17 +67,25 @@ iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 echo "RBSp2: Phase 2: Port Setup"
 if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
     echo "RBSp2: Configuring TCP access for bottled services"
-    
-    echo "RBSp2: Discover bottle's actual IP"
-    BOTTLE_IP=$(podman inspect $(RBM_BOTTLE_CONTAINER) --format '{{.NetworkSettings.Networks.$(RBM_ENCLAVE_NETWORK).IPAddress}}')
-    echo "RBSp2: Discovered bottle IP: ${BOTTLE_IP}"
-    
+
     echo "RBSp2: Allow direct connections from sentry to bottle for the entry port"
-    iptables -A RBM-EGRESS  -o eth1 -p tcp -d "${BOTTLE_IP}" --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -A RBM-INGRESS -i eth1 -p tcp -s "${BOTTLE_IP}" --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    
-    echo "RBSp2: Setting up socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
-    nohup socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE} >/var/log/socat-proxy.log 2>&1 &
+    iptables -A RBM-EGRESS  -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A RBM-INGRESS -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+
+    echo "RBSp2: Setting up socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
+    nohup socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE} >/var/log/socat-proxy.log 2>&1 &
+
+    echo "RBSp2: Give socat a moment to start"
+    sleep 1
+
+    echo "RBSp2: Verify socat is running"
+    if pgrep -f "socat.*:${RBRN_ENTRY_PORT_WORKSTATION}" >/dev/null; then
+        echo "RBSp2: Socat proxy started successfully"
+    else
+        echo "RBSp2: ERROR - Socat proxy failed to start"
+        cat /var/log/socat-proxy.log
+        exit 26
+    fi
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"
