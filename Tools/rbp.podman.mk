@@ -341,7 +341,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_SSH_CMD) "tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
-	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbni.info.sh
+	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
+
+	$(MBC_STEP) "Starting Bottle in 5 seconds: connect observation now if you need..."
+	@for i in 5 4 3 2 1; do printf "$$i..."; sleep 1; done
+	$(MBC_STEP) "Starting..."
 
 	$(MBC_STEP) "Starting BOTTLE container now that networking is configured"
 	$(zRBM_PODMAN_RAW_CMD) start $(RBM_BOTTLE_CONTAINER)
