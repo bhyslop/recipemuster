@@ -19,6 +19,7 @@
 
 # Container and network naming
 export RBM_SENTRY_CONTAINER     = $(RBM_MONIKER)-sentry
+export RBM_CENSER_CONTAINER     = $(RBM_MONIKER)-censer
 export RBM_BOTTLE_CONTAINER     = $(RBM_MONIKER)-bottle
 export RBM_ENCLAVE_NETWORK      = $(RBM_MONIKER)-enclave
 export RBM_MACHINE              = pdvm-rbw
@@ -238,8 +239,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Stopping any prior containers"
 	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_SENTRY_CONTAINER)
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_SENTRY_CONTAINER)
-	-$(zRBM_PODMAN_RAW_CMD) stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-$(zRBM_PODMAN_RAW_CMD) rm   -f    $(RBM_BOTTLE_CONTAINER)
+	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_CENSER_CONTAINER)
+	-podman $(RBM_CONNECTION) rm   -f    $(RBM_CENSER_CONTAINER)
+	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_BOTTLE_CONTAINER)
+	-podman $(RBM_CONNECTION) rm   -f    $(RBM_BOTTLE_CONTAINER)
 
 	$(MBC_STEP) "Detaching any existing eBPF programs"
 	-$(zRBM_PODMAN_SSH_CMD) "tc qdisc del dev \$$(ip link | grep -o 'veth[^ ]*' | head -1) clsact 2>/dev/null || true"
@@ -277,6 +280,18 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
+
+	$(MBC_STEP) "Starting CENSER container for network namespace staging"
+	podman $(RBM_CONNECTION) run -d \
+	  --name $(RBM_CENSER_CONTAINER) \
+	  --network $(RBM_ENCLAVE_NETWORK) \
+	  --entrypoint /bin/sleep \
+	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG) \
+	  infinity
+
+	$(MBC_STEP) "Waiting for CENSER network initialization"
+	sleep 3
+	podman $(RBM_CONNECTION) ps | grep $(RBM_CENSER_CONTAINER) || (echo 'CENSER container not running' && exit 1)
 
 	$(MBC_STEP) "Create the eBPF configuration file"
 	rm -f                                                                             $(RBM_EBPF_CONFIG_LINES)
@@ -319,39 +334,38 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                                 \
 	  --privileged                                                   \
-	  --network $(RBM_ENCLAVE_NETWORK)                               \
+	  --net=container:$(RBM_CENSER_CONTAINER)                       \
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "BRADTODO: what can we learn about bridge"
+	$(MBC_STEP) "BRADTODO: what can we learn about bridge after CENSER"
 	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
 
 	$(MBC_STEP) "BRADTODO: Show bridge interface"
 	$(zRBM_PODMAN_RAW_CMD) network inspect $(RBM_ENCLAVE_NETWORK) --format '{{.NetworkInterface}}'
 
-	$(MBC_STEP) "BRADTODO: Show all veth interfaces"
+	$(MBC_STEP) "BRADTODO: Show all veth interfaces after CENSER"
 	$(zRBM_PODMAN_SSH_CMD) 'ip link show type veth'
 
 	$(MBC_STEP) "BRADTODO: Show bridge link"
 	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
 
-	$(MBC_STEP) "BRADTODO: Inspect container network settings"
-	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_BOTTLE_CONTAINER) --format '{{json .NetworkSettings}}' | jq '.'
+	$(MBC_STEP) "BRADTODO: Inspect CENSER network settings"
+	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_CENSER_CONTAINER) --format '{{json .NetworkSettings}}' | jq '.'
 
 	$(MBC_STEP) "BRADTODO: List network namespaces"
 	$(zRBM_PODMAN_SSH_CMD) 'ls -la /var/run/netns/ || echo "No netns directory"'
 
-	$(MBC_STEP) "BRADTODO: Show container state"
-	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_BOTTLE_CONTAINER) --format '{{.State.Status}} {{.State.Pid}}'
+	$(MBC_STEP) "BRADTODO: Show CENSER container state"
+	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_CENSER_CONTAINER) --format '{{.State.Status}} {{.State.Pid}}'
 
-	$(MBC_STEP) "Finding BOTTLE veth interface"
-	# UH OH: THIS FAILED --> $(zRBM_PODMAN_SSH_CMD) 'nsenter -t $$(podman inspect -f "{{.State.Pid}}" $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o "@if[0-9]*:" | grep -o "[0-9]*" | head -1 | xargs -I{} ip link | grep "^{}: veth" | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
+	$(MBC_STEP) "Finding CENSER veth interface"
 	$(zRBM_PODMAN_SSH_CMD) 'bridge link show | grep $(BRIDGE_INTERFACE) | tail -1 | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
 
-	$(MBC_STEP) "Verifying BOTTLE veth was found"
-	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find BOTTLE veth" && exit 1)
+	$(MBC_STEP) "Verifying CENSER veth was found"
+	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find CENSER veth" && exit 1)
 
-	$(MBC_STEP) "Adding clsact qdisc to BOTTLE veth"
+	$(MBC_STEP) "Adding clsact qdisc to CENSER veth"
 	$(zRBM_PODMAN_SSH_CMD) "tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
 
 	$(MBC_STEP) "Attaching eBPF egress filter"
