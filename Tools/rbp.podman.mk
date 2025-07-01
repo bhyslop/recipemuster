@@ -264,13 +264,15 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 2
 	podman $(RBM_CONNECTION) ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)
 
-	$(MBC_STEP) "BRADTODO: visualize the sentry ip addr:"
-	podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
-	  --format '{{.NetworkSettings.Networks}}'
+	$(MBC_STEP) "Connecting SENTRY to enclave network"
+	podman $(RBM_CONNECTION) network connect --ip $(RBRN_ENCLAVE_SENTRY_IP) $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
+
+	$(MBC_STEP) "BRADTODO: inspect raw:"
+	podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) 
 
 	$(MBC_STEP) "Verifying SENTRY got expected IP"
-	@ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
-	  --format '{{.NetworkSettings.Networks.$(RBM_ENCLAVE_NETWORK).IPAddress}}'); \
+	ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
+	  --format '{{(index .NetworkSettings.Networks "$(RBM_ENCLAVE_NETWORK)").IPAddress}}'); \
 	if [ "$$ACTUAL_IP" != "$(RBRN_ENCLAVE_SENTRY_IP)" ]; then \
 	  echo "ERROR: Sentry IP mismatch. Expected $(RBRN_ENCLAVE_SENTRY_IP), got $$ACTUAL_IP"; \
 	  exit 1; \
