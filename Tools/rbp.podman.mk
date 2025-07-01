@@ -248,7 +248,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	-podman $(RBM_CONNECTION) network rm $(RBM_ENCLAVE_NETWORK)
 
 	$(MBC_STEP) "Creating enclave network"
-	podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP).0/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK)
+	podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP)/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK)
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman $(RBM_CONNECTION) run -d                    \
@@ -263,6 +263,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Waiting for SENTRY container"
 	sleep 2
 	podman $(RBM_CONNECTION) ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)
+
+	$(MBC_STEP) "BRADTODO: visualize the sentry ip addr:"
+	podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
+	  --format '{{.NetworkSettings.Networks}}'
 
 	$(MBC_STEP) "Verifying SENTRY got expected IP"
 	@ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \

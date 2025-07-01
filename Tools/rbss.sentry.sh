@@ -23,10 +23,6 @@ set -x
 : ${RBM_ENCLAVE_NETWORK:?}         && echo "RBSp0: RBM_ENCLAVE_NETWORK         = ${RBM_ENCLAVE_NETWORK}"
 : ${RBM_SENTRY_CONTAINER:?}        && echo "RBSp0: RBM_SENTRY_CONTAINER        = ${RBM_SENTRY_CONTAINER}"
 
-echo "RBSp1: Connecting to enclave network"
-podman network connect $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER) || exit 5
-sleep 1
-
 echo "RBSp1: Beginning IPTables initialization"
 
 echo "RBSp1: Set ephemeral port range for uplink connections"
