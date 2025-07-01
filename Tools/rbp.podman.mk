@@ -326,6 +326,24 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "BRADTODO: what can we learn about bridge"
 	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
 
+	$(MBC_STEP) "BRADTODO: Show bridge interface"
+	$(zRBM_PODMAN_RAW_CMD) network inspect $(RBM_ENCLAVE_NETWORK) --format '{{.NetworkInterface}}'
+
+	$(MBC_STEP) "BRADTODO: Show all veth interfaces"
+	$(zRBM_PODMAN_SSH_CMD) 'ip link show type veth'
+
+	$(MBC_STEP) "BRADTODO: Show bridge link"
+	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
+
+	$(MBC_STEP) "BRADTODO: Inspect container network settings"
+	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_BOTTLE_CONTAINER) --format '{{json .NetworkSettings}}' | jq '.'
+
+	$(MBC_STEP) "BRADTODO: List network namespaces"
+	$(zRBM_PODMAN_SSH_CMD) 'ls -la /var/run/netns/ || echo "No netns directory"'
+
+	$(MBC_STEP) "BRADTODO: Show container state"
+	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_BOTTLE_CONTAINER) --format '{{.State.Status}} {{.State.Pid}}'
+
 	$(MBC_STEP) "Finding BOTTLE veth interface"
 	# UH OH: THIS FAILED --> $(zRBM_PODMAN_SSH_CMD) 'nsenter -t $$(podman inspect -f "{{.State.Pid}}" $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o "@if[0-9]*:" | grep -o "[0-9]*" | head -1 | xargs -I{} ip link | grep "^{}: veth" | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
 	$(zRBM_PODMAN_SSH_CMD) 'bridge link show | grep $(BRIDGE_INTERFACE) | tail -1 | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
