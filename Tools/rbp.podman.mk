@@ -299,8 +299,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 5
 	$(zRBM_PODMAN_RAW_CMD) container ls
 
-	false
-
 	$(MBC_STEP) "Waiting for CENSER network initialization"
 	sleep 3
 	podman $(RBM_CONNECTION) ps | grep $(RBM_CENSER_CONTAINER) || (echo 'CENSER container not running' && exit 1)
@@ -352,6 +350,9 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "BRADTODO: Check podman network driver"
 	podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) --format '{{.Driver}}'
+
+	$(MBC_STEP) "BRADTODO: Can I see the BOTTLE too now..."
+	$(zRBM_PODMAN_RAW_CMD) container ls
 
 	$(MBC_STEP) "BRADTODO: what can we learn about bridge after CENSER"
 	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
