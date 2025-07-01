@@ -357,13 +357,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find CENSER veth" && exit 1)
 
 	$(MBC_STEP) "Adding clsact qdisc to CENSER veth"
-	$(zRBM_PODMAN_SSH_CMD) "tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
+	$(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact'"
 
 	$(MBC_STEP) "Attaching eBPF egress filter"
-	$(zRBM_PODMAN_SSH_CMD) "tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc"
+	$(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc'"
 
 	$(MBC_STEP) "Attaching eBPF ingress filter"
-	$(zRBM_PODMAN_SSH_CMD) "tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
+	$(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc'"
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
