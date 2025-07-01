@@ -282,7 +282,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
 	$(MBC_STEP) "BRADTODO: List containers before..."
-	podman container ls
+	$(zRBM_PODMAN_RAW_CMD) container ls
 
 	$(MBC_STEP) "Starting CENSER container for network namespace staging"
 	podman $(RBM_CONNECTION) run -d \
@@ -293,7 +293,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  infinity
 
 	$(MBC_STEP) "BRADTODO: List containers after..."
-	podman container ls
+	$(zRBM_PODMAN_RAW_CMD) container ls
+
+	$(MBC_STEP) "BRADTODO: List containers a while later..."
+	sleep 5
+	$(zRBM_PODMAN_RAW_CMD) container ls
 
 	false
 
