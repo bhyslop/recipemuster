@@ -244,11 +244,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_BOTTLE_CONTAINER)
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_BOTTLE_CONTAINER)
 
-	$(MBC_STEP) "Detaching any existing eBPF programs"
-	-$(zRBM_PODMAN_SSH_CMD) "tc qdisc del dev \$$(ip link | grep -o 'veth[^ ]*' | head -1) clsact 2>/dev/null || true"
+	$(MBC_STEP) "Detaching any existing eBPF programs for this moniker"
+	-$(zRBM_PODMAN_SSH_CMD) "for veth in \$$(ip link | grep -o 'veth[^ ]*'); do tc qdisc del dev \$$veth clsact 2>/dev/null || true; done"
 
 	$(MBC_STEP) "Removing any existing enclave network"
-	-podman $(RBM_CONNECTION) network rm $(RBM_ENCLAVE_NETWORK)
+	-podman $(RBM_CONNECTION) network rm -f $(RBM_ENCLAVE_NETWORK)
 
 	$(MBC_STEP) "Creating enclave network"
 	podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP)/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK)
@@ -360,7 +360,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_CENSER_CONTAINER) --format '{{.State.Status}} {{.State.Pid}}'
 
 	$(MBC_STEP) "Finding CENSER veth interface"
-	$(zRBM_PODMAN_SSH_CMD) 'bridge link show | grep $(BRIDGE_INTERFACE) | tail -1 | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
+	$(zRBM_PODMAN_SSH_CMD) "nsenter -t $$(podman $(RBM_CONNECTION) inspect -f '{{.State.Pid}}' $(RBM_CENSER_CONTAINER)) -n ip link | grep -o '@if[0-9]*:' | grep -o '[0-9]*' | head -1 | xargs -I{} ip link | grep '^{}: veth' | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME)
 
 	$(MBC_STEP) "Verifying CENSER veth was found"
 	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find CENSER veth" && exit 1)
