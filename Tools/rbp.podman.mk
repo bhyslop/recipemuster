@@ -23,8 +23,8 @@ export RBM_BOTTLE_CONTAINER     = $(RBM_MONIKER)-bottle
 export RBM_ENCLAVE_NETWORK      = $(RBM_MONIKER)-enclave
 export RBM_MACHINE              = pdvm-rbw
 export RBM_CONNECTION           = -c $(RBM_MACHINE)
-export RBM_EBPF_INGRESS_C       = $(MBV_TOOLS_DIR)/rbei.IngressEBPF.c
-export RBM_EBPF_EGRESS_C        = $(MBV_TOOLS_DIR)/rbee.EgressEBPF.c
+export RBM_EBPF_INGRESS_C       = $(MBV_TOOLS_DIR)/rbei.EbpfIngress.c
+export RBM_EBPF_EGRESS_C        = $(MBV_TOOLS_DIR)/rbee.EbpfEgress.c
 export RBM_VETH_NAME            = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-bottle-veth.txt
 export RBM_EBPF_CONFIG_LINES    = $(MBD_TEMP_DIR)/rbec.$(RBM_MONIKER).h
 export RBM_EBPF_INGRESS_PROGRAM = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-ingress.o
@@ -291,7 +291,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	echo "// Gateway MAC address for ingress L2 frame rewriting"                   >> $(RBM_EBPF_CONFIG_LINES)
 	printf "#define RBE_GATEWAY_MAC {0x"                                           >> $(RBM_EBPF_CONFIG_LINES)
 	GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK)  \
-		 --format '{{(index .Subnets 0).Gateway}}'                           &&\
+		 --format '{{(index .Subnets 0).Gateway}}')                          &&\
 	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) sh -c                    \
 	  "ping -c 1 $$GATEWAY_IP >/dev/null 2>&1 &&                                   \
 	   ip neigh show $$GATEWAY_IP"                                                 \
