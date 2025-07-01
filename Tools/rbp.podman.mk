@@ -374,8 +374,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "BRADTODO: Show CENSER container state"
 	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_CENSER_CONTAINER) --format '{{.State.Status}} {{.State.Pid}}'
-
-	$(MBC_STEP) "BRADTODO: Finding CENSER veth interface"
 	$(MBC_STEP) "BRADTODO: List all network interfaces"
 	$(zRBM_PODMAN_SSH_CMD) "ip link show"
 	$(MBC_STEP) "BRADTODO: Check for veth interfaces with different pattern"
