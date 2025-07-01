@@ -100,6 +100,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "TEMPORARY: init Podman machine $(RBM_MACHINE)"
 	podman machine init \
 	  --image docker://quay.io/podman/machine-os-wsl@sha256:f6e8175cd5921caa091794719787c2c889837dc74f989f0088ab5c5bde6c5b8e \
+	  --rootful \
 	  $(RBM_MACHINE)
 	$(MBC_STEP) "TEMPORARY: Initialized."
 	
@@ -343,27 +344,24 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Creating but not starting BOTTLE container"
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                                 \
-	  --privileged                                                   \
 	  --net=container:$(RBM_CENSER_CONTAINER)                        \
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "Finding CENSER veth interface using podman unshare"
+	$(MBC_STEP) "Finding CENSER veth interface and namespace"
 	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink) &&\
-	  echo "using CENSER_IF_NUM=$$CENSER_IF_NUM next..."                                                   &&\
-	  $(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns ip link show' | grep \"^$$CENSER_IF_NUM:\" | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME)
-
-	$(MBC_STEP) "Verifying CENSER veth was found"
-	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find CENSER veth" && exit 1)
+	  echo "using CENSER_IF_NUM=$$CENSER_IF_NUM next..." &&\
+	  $(zRBM_PODMAN_SSH_CMD) "find /proc -name net -path '*/ns/*' 2>/dev/null | head -1 | xargs -I {} nsenter --net={} ip link show | grep \"^$$CENSER_IF_NUM:\" | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME) &&\
+	  $(zRBM_PODMAN_SSH_CMD) "find /proc -name net -path '*/ns/*' 2>/dev/null | head -1" > $(MBD_TEMP_DIR)/netns-path.txt
 
 	$(MBC_STEP) "Adding clsact qdisc to CENSER veth"
-	$(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact'"
+	$(zRBM_PODMAN_SSH_CMD) "nsenter --net=$$(cat $(MBD_TEMP_DIR)/netns-path.txt) tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
 
 	$(MBC_STEP) "Attaching eBPF egress filter"
-	$(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc'"
+	$(zRBM_PODMAN_SSH_CMD) "nsenter --net=$$(cat $(MBD_TEMP_DIR)/netns-path.txt) tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Attaching eBPF ingress filter"
-	$(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc'"
+	$(zRBM_PODMAN_SSH_CMD) "nsenter --net=$$(cat $(MBD_TEMP_DIR)/netns-path.txt) tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
