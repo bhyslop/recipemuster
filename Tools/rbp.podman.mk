@@ -380,6 +380,8 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_SSH_CMD) "ip link show | grep veth || echo 'No veth found'"
 	$(MBC_STEP) "BRADTODO: Check bridge interfaces"
 	$(zRBM_PODMAN_SSH_CMD) "ip link show master podman1 || echo 'No interfaces on bridge'"
+	$(MBC_STEP) "BRADTODO: WILL THE CONTAINERS DISAPPEAR..."
+	$(zRBM_PODMAN_RAW_CMD) container ls
 	$(MBC_STEP) "BRADTODO: Use podman inspect to find network interface"
 	CENSER_ETH=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) ip link show | grep -E '^[0-9]+: eth' | cut -d: -f2 | tr -d ' ' | grep -v lo) && \
 	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) ip link show $$CENSER_ETH | grep -oE 'link/ether .* brd' | grep -oE '@if[0-9]+' | grep -oE '[0-9]+') && \
