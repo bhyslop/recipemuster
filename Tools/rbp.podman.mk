@@ -281,6 +281,9 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
+	$(MBC_STEP) "BRADTODO: List containers before..."
+	podman container ls
+
 	$(MBC_STEP) "Starting CENSER container for network namespace staging"
 	podman $(RBM_CONNECTION) run -d \
 	  --name $(RBM_CENSER_CONTAINER) \
@@ -288,6 +291,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --entrypoint /bin/sleep \
 	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG) \
 	  infinity
+
+	$(MBC_STEP) "BRADTODO: List containers after..."
+	podman container ls
+
+	false
 
 	$(MBC_STEP) "Waiting for CENSER network initialization"
 	sleep 3
@@ -334,7 +342,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                                 \
 	  --privileged                                                   \
-	  --net=container:$(RBM_CENSER_CONTAINER)                       \
+	  --net=container:$(RBM_CENSER_CONTAINER)                        \
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
