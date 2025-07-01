@@ -200,7 +200,7 @@ rbp_podman_machine_start_rule:
 	podman machine ssh $(RBM_MACHINE) \
 	  sudo dnf install -y \
 	    tcpdump        `# Network packet capture and analysis`                       \
-	    iproute        `# Traffic Control (tc) and network interface management`     \
+	    iproute-tc     `# Traffic Control (tc) and network interface management`     \
 	    bpftool        `# eBPF program inspection and manipulation`                  \
 	    clang          `# C compiler for eBPF program development`                   \
 	    llvm           `# LLVM backend for eBPF compilation`                         \
@@ -212,7 +212,7 @@ rbp_podman_machine_start_rule:
 	$(MBC_STEP) "Version info on machine..."
 	podman $(RBM_CONNECTION) version
 	podman machine inspect $(RBM_MACHINE)
-	podman machine ssh $(RBM_MACHINE) "cat /etc/os-release && uname -r"
+	podman machine ssh     $(RBM_MACHINE) "cat /etc/os-release && uname -r"
 	podman $(RBM_CONNECTION) info
 	$(MBC_PASS) "No errors."
 
@@ -348,50 +348,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "BRADTODO: Check podman network driver"
-	podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) --format '{{.Driver}}'
-
-	$(MBC_STEP) "BRADTODO: Can I see the BOTTLE too now..."
-	$(zRBM_PODMAN_RAW_CMD) container ls
-
-	$(MBC_STEP) "BRADTODO: what can we learn about bridge after CENSER"
-	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
-
-	$(MBC_STEP) "BRADTODO: Show bridge interface"
-	$(zRBM_PODMAN_RAW_CMD) network inspect $(RBM_ENCLAVE_NETWORK) --format '{{.NetworkInterface}}'
-
-	$(MBC_STEP) "BRADTODO: Show all veth interfaces after CENSER"
-	$(zRBM_PODMAN_SSH_CMD) 'ip link show type veth'
-
-	$(MBC_STEP) "BRADTODO: Show bridge link"
-	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
-
-	$(MBC_STEP) "BRADTODO: Inspect CENSER network settings"
-	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_CENSER_CONTAINER) --format '{{json .NetworkSettings}}' | jq '.'
-
-	$(MBC_STEP) "BRADTODO: List network namespaces"
-	$(zRBM_PODMAN_SSH_CMD) 'ls -la /var/run/netns/ || echo "No netns directory"'
-
-	$(MBC_STEP) "BRADTODO: Show CENSER container state"
-	$(zRBM_PODMAN_RAW_CMD) inspect $(RBM_CENSER_CONTAINER) --format '{{.State.Status}} {{.State.Pid}}'
-	$(MBC_STEP) "BRADTODO: List all network interfaces"
-	$(zRBM_PODMAN_SSH_CMD) "ip link show"
-	$(MBC_STEP) "BRADTODO: Check for veth interfaces with different pattern"
-	$(zRBM_PODMAN_SSH_CMD) "ip link show | grep veth || echo 'No veth found'"
-	$(MBC_STEP) "BRADTODO: Check bridge interfaces"
-	$(zRBM_PODMAN_SSH_CMD) "ip link show master podman1 || echo 'No interfaces on bridge'"
-	$(MBC_STEP) "BRADTODO: WILL THE CONTAINERS DISAPPEAR..."
-	$(zRBM_PODMAN_RAW_CMD) container ls
-	$(MBC_STEP) "BRADTODO: Use podman inspect to find network interface"
-	CENSER_ETH=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) ip link show | grep -E '^[0-9]+: eth' | cut -d: -f2 | tr -d ' ' | grep -v lo) && \
-	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) ip link show $$CENSER_ETH | grep -oE 'link/ether .* brd' | grep -oE '@if[0-9]+' | grep -oE '[0-9]+') && \
-	$(zRBM_PODMAN_SSH_CMD) "ip link show | grep \"^$$CENSER_IF_NUM:\" | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME) || \
-	(echo "Failed to find veth using container interface method" && \
-	 $(MBC_STEP) "BRADTODO Fallback: Find most recent veth" && \
-	 $(zRBM_PODMAN_SSH_CMD) "ip -o link show | grep -E 'veth[0-9a-f]+@if' | tail -1 | awk '{print \$$2}' | cut -d@ -f1" > $(RBM_VETH_NAME))
-
-	$(MBC_STEP) "Finding CENSER veth interface"
-	$(zRBM_PODMAN_SSH_CMD) "nsenter -t $$(podman $(RBM_CONNECTION) inspect -f '{{.State.Pid}}' $(RBM_CENSER_CONTAINER)) -n ip link | grep -o '@if[0-9]*:' | grep -o '[0-9]*' | head -1 | xargs -I{} ip link | grep '^{}: veth' | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME)
+	$(MBC_STEP) "Finding CENSER veth interface using podman unshare"
+	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink) &&\
+	  echo "using CENSER_IF_NUM=$$CENSER_IF_NUM next..."                                                   &&\
+	  $(zRBM_PODMAN_SSH_CMD) "su - user -c 'podman unshare --rootless-netns ip link show' | grep \"^$$CENSER_IF_NUM:\" | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME)
 
 	$(MBC_STEP) "Verifying CENSER veth was found"
 	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find CENSER veth" && exit 1)
