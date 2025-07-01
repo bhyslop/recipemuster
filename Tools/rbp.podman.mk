@@ -240,10 +240,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Stopping any prior containers"
 	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_SENTRY_CONTAINER)
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_SENTRY_CONTAINER)
-	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_CENSER_CONTAINER)
-	-podman $(RBM_CONNECTION) rm   -f    $(RBM_CENSER_CONTAINER)
 	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_BOTTLE_CONTAINER)
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_BOTTLE_CONTAINER)
+	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_CENSER_CONTAINER)
+	-podman $(RBM_CONNECTION) rm   -f    $(RBM_CENSER_CONTAINER)
 
 	$(MBC_STEP) "Detaching any existing eBPF programs for this moniker"
 	-$(zRBM_PODMAN_SSH_CMD) "for veth in \$$(ip link | grep -o 'veth[^ ]*'); do tc qdisc del dev \$$veth clsact 2>/dev/null || true; done"
@@ -350,8 +350,8 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "(After quite a lot of experimentation with podman 5.5.2, we have determined the following means of finding the veths)"
 
-$(MBC_STEP) "Finding network namespace and veth"
-	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink)            &&\
+	$(MBC_STEP) "Finding network namespace and veth"
+	  CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink)           &&\
 	  echo "CENSER_IF_NUM=$$CENSER_IF_NUM"                                                                             &&\
 	  AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns)                                                    &&\
 	  echo "AARDVARK_PID=$$AARDVARK_PID"                                                                               &&\
