@@ -272,9 +272,9 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Verifying SENTRY got expected IP"
 	ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
-	  --format '{{(index .NetworkSettings.Networks "$(RBM_ENCLAVE_NETWORK)").IPAddress}}'); \
+	  --format '{{(index .NetworkSettings.Networks "$(RBM_ENCLAVE_NETWORK)").IPAddress}}')  &&\
 	if [ "$$ACTUAL_IP" != "$(RBRN_ENCLAVE_SENTRY_IP)" ]; then \
-	  echo "ERROR: Sentry IP mismatch. Expected $(RBRN_ENCLAVE_SENTRY_IP), got $$ACTUAL_IP"; \
+	  echo "ERROR: Sentry IP mismatch. Expected $(RBRN_ENCLAVE_SENTRY_IP), got $$ACTUAL_IP";  \
 	  exit 1; \
 	fi
 
@@ -286,12 +286,12 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	echo "// Original podman gateway IP that eBPF will bypass for BOTTLE traffic"  >> $(RBM_EBPF_CONFIG_LINES)
 	printf "#define RBE_GATEWAY_IP 0x"                                             >> $(RBM_EBPF_CONFIG_LINES)
 	podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
-		 --format '{{.Subnets.0.Gateway}}'                      \
+		 --format '{{(index .Subnets 0).Gateway}}'              \
 	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG_LINES)
 	echo "// Gateway MAC address for ingress L2 frame rewriting"                   >> $(RBM_EBPF_CONFIG_LINES)
 	printf "#define RBE_GATEWAY_MAC {0x"                                           >> $(RBM_EBPF_CONFIG_LINES)
 	GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK)  \
-	  --format '{{.Subnets.0.Gateway}}');                                          \
+		 --format '{{(index .Subnets 0).Gateway}}'                           &&\
 	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) sh -c                    \
 	  "ping -c 1 $$GATEWAY_IP >/dev/null 2>&1 &&                                   \
 	   ip neigh show $$GATEWAY_IP"                                                 \
