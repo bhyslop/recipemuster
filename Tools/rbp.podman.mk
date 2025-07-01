@@ -267,9 +267,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Connecting SENTRY to enclave network"
 	podman $(RBM_CONNECTION) network connect --ip $(RBRN_ENCLAVE_SENTRY_IP) $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
 
-	$(MBC_STEP) "BRADTODO: inspect raw:"
-	podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) 
-
 	$(MBC_STEP) "Verifying SENTRY got expected IP"
 	ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
 	  --format '{{(index .NetworkSettings.Networks "$(RBM_ENCLAVE_NETWORK)").IPAddress}}')  &&\
@@ -298,7 +295,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	     | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'                           \
 	     | head -1 | sed 's/://g'                                                  \
 	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG_LINES)
-	echo "}"                                                                       >> $(RBM_EBPF_CONFIG_LINES)
 	echo "// SENTRY container IP - destination for rewritten BOTTLE egress frames" >> $(RBM_EBPF_CONFIG_LINES)
 	printf "#define RBE_SENTRY_IP 0x"                                              >> $(RBM_EBPF_CONFIG_LINES)
 	echo $(RBRN_ENCLAVE_SENTRY_IP) \
@@ -312,7 +308,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG_LINES)
 	echo                                                                           >> $(RBM_EBPF_CONFIG_LINES)
 
-	$(MBC_STEP) "Compile eBPF programs"  
+	$(MBC_STEP) "Show the eBPF config file"
+	cat $(RBM_EBPF_CONFIG_LINES)
+
+	$(MBC_STEP) "Compile eBPF programs"
 	cat $(RBM_EBPF_CONFIG_LINES) $(RBM_EBPF_INGRESS_C) | $(zRBM_PODMAN_SSH_CMD) "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_INGRESS_PROGRAM)"
 	cat $(RBM_EBPF_CONFIG_LINES) $(RBM_EBPF_EGRESS_C)  | $(zRBM_PODMAN_SSH_CMD) "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_EGRESS_PROGRAM)"
 
@@ -320,15 +319,16 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                                 \
 	  --privileged                                                   \
-	  --network none                                                 \
+	  --network $(RBM_ENCLAVE_NETWORK)                               \
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "Connecting BOTTLE to network"
-	podman $(RBM_CONNECTION) network connect $(RBM_ENCLAVE_NETWORK) $(RBM_BOTTLE_CONTAINER)
+	$(MBC_STEP) "BRADTODO: what can we learn about bridge"
+	$(zRBM_PODMAN_SSH_CMD) 'bridge link show'
 
 	$(MBC_STEP) "Finding BOTTLE veth interface"
-	$(zRBM_PODMAN_SSH_CMD) 'nsenter -t $$(podman inspect -f "{{.State.Pid}}" $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o "@if[0-9]*:" | grep -o "[0-9]*" | head -1 | xargs -I{} ip link | grep "^{}: veth" | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
+	# UH OH: THIS FAILED --> $(zRBM_PODMAN_SSH_CMD) 'nsenter -t $$(podman inspect -f "{{.State.Pid}}" $(RBM_BOTTLE_CONTAINER)) -n ip link | grep -o "@if[0-9]*:" | grep -o "[0-9]*" | head -1 | xargs -I{} ip link | grep "^{}: veth" | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
+	$(zRBM_PODMAN_SSH_CMD) 'bridge link show | grep $(BRIDGE_INTERFACE) | tail -1 | cut -d: -f2 | cut -d@ -f1 | tr -d " "' > $(RBM_VETH_NAME)
 
 	$(MBC_STEP) "Verifying BOTTLE veth was found"
 	@test -s $(RBM_VETH_NAME) && echo "Found: $$(cat $(RBM_VETH_NAME))" || (echo "ERROR: Could not find BOTTLE veth" && exit 1)
