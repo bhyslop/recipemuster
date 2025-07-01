@@ -348,20 +348,30 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
-	$(MBC_STEP) "Finding CENSER veth interface and namespace"
-	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink) &&\
-	  echo "using CENSER_IF_NUM=$$CENSER_IF_NUM next..." &&\
-	  $(zRBM_PODMAN_SSH_CMD) "find /proc -name net -path '*/ns/*' 2>/dev/null | head -1 | xargs -I {} nsenter --net={} ip link show | grep \"^$$CENSER_IF_NUM:\" | cut -d: -f2 | cut -d@ -f1 | tr -d ' '" > $(RBM_VETH_NAME) &&\
-	  $(zRBM_PODMAN_SSH_CMD) "find /proc -name net -path '*/ns/*' 2>/dev/null | head -1" > $(MBD_TEMP_DIR)/netns-path.txt
+	$(MBC_STEP) "(After quite a lot of experimentation with podman 5.5.2, we have determined the following means of finding the veths)"
+
+$(MBC_STEP) "Finding network namespace and veth"
+	CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink)            &&\
+	  echo "CENSER_IF_NUM=$$CENSER_IF_NUM"                                                                             &&\
+	  AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns)                                                    &&\
+	  echo "AARDVARK_PID=$$AARDVARK_PID"                                                                               &&\
+	  $(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n ip link show | grep \"^$$CENSER_IF_NUM:\" | awk '{print \$$2}' | sed 's/[:@].*//'" > $(RBM_VETH_NAME)
+
+	$(MBC_STEP) "Verify veth name was captured"
+	test -s $(RBM_VETH_NAME) || (echo "ERROR: veth name file is empty" && exit 1)
+	cat $(RBM_VETH_NAME)
 
 	$(MBC_STEP) "Adding clsact qdisc to CENSER veth"
-	$(zRBM_PODMAN_SSH_CMD) "nsenter --net=$$(cat $(MBD_TEMP_DIR)/netns-path.txt) tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
+	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
+	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
 
 	$(MBC_STEP) "Attaching eBPF egress filter"
-	$(zRBM_PODMAN_SSH_CMD) "nsenter --net=$$(cat $(MBD_TEMP_DIR)/netns-path.txt) tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc"
+	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
+	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Attaching eBPF ingress filter"
-	$(zRBM_PODMAN_SSH_CMD) "nsenter --net=$$(cat $(MBD_TEMP_DIR)/netns-path.txt) tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
+	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
+	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
