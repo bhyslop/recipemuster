@@ -343,7 +343,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
 
-	$(MBC_STEP) "Starting Bottle in 5 seconds: connect observation now if you need..."
+	$(MBC_STEP) "Starting BOTTLE in 5 seconds: connect observation now if you need..."
 	@for i in 5 4 3 2 1; do printf "$$i..."; sleep 1; done
 	$(MBC_STEP) "Starting..."
 
