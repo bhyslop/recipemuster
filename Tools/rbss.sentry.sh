@@ -4,7 +4,7 @@ echo "RBS: Beginning sentry setup script"
 set -e
 set -x
 
-# Validate environment variables
+echo "RBSp1: Validate parameters"
 : ${RBRN_ENCLAVE_BASE_IP:?}        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
 : ${RBRN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
 : ${RBRN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
@@ -20,8 +20,6 @@ set -x
 : ${RBRN_UPLINK_ACCESS_GLOBAL:?}   && echo "RBSp0: RBRN_UPLINK_ACCESS_GLOBAL   = ${RBRN_UPLINK_ACCESS_GLOBAL}"
 : ${RBRN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
 : ${RBRN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
-: ${RBM_ENCLAVE_NETWORK:?}         && echo "RBSp0: RBM_ENCLAVE_NETWORK         = ${RBM_ENCLAVE_NETWORK}"
-: ${RBM_SENTRY_CONTAINER:?}        && echo "RBSp0: RBM_SENTRY_CONTAINER        = ${RBM_SENTRY_CONTAINER}"
 
 echo "RBSp1: Beginning IPTables initialization"
 
