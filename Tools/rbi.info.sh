@@ -71,3 +71,4 @@ done
 
 echo ""
 echo "RBI: Network info complete"
+
