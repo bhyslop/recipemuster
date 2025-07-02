@@ -65,9 +65,8 @@ int bottle_ingress(struct __sk_buff *skb)
             __builtin_memcpy(arp->ar_sha, gateway_mac, ETH_ALEN);
         }
         
-        // Recalculate checksums
-        bpf_skb_store_bytes(skb, 0, eth, sizeof(*eth), 0);
-        bpf_skb_store_bytes(skb, sizeof(*eth), arp, sizeof(*arp), 0);
+        // Direct packet modifications are already done above
+        // No need for bpf_skb_store_bytes
         
         return TC_ACT_OK;
     }
@@ -94,7 +93,9 @@ int bottle_ingress(struct __sk_buff *skb)
         // Update checksums
         bpf_l3_csum_replace(skb, sizeof(*eth) + offsetof(struct iphdr, check),
                            bpf_htonl(RBE_SENTRY_IP), bpf_htonl(RBE_GATEWAY_IP), 4);
-        bpf_skb_store_bytes(skb, 0, eth, sizeof(*eth), 0);
+        
+        // Direct packet modifications are already done above
+        // No need for bpf_skb_store_bytes
         
         return TC_ACT_OK;
     }
