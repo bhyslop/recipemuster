@@ -72,6 +72,9 @@ rbw-vu.%: rbp_stash_update_rule
 rbw-S.%: rbp_connect_sentry_rule
 	$(MBC_PASS) "No errors."
 
+rbw-C.%: rbp_connect_censer_rule
+	$(MBC_PASS) "No errors."
+
 rbw-B.%: rbp_connect_bottle_rule
 	$(MBC_PASS) "No errors."
 

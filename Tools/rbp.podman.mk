@@ -373,6 +373,9 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
 	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
 
+	$(MBC_STEP) "Flush any existing ARP entries and restart networking in CENSER"
+	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all"
+
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	echo "DEFERRED FOR NOW."  #$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
 
@@ -392,6 +395,11 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 rbp_connect_sentry_rule:
 	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
 	podman $(RBM_CONNECTION) exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
+	$(MBC_PASS) "Done, no errors."
+
+rbp_connect_censer_rule: zrbp_validate_regimes_rule
+	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to CENSER"
+	podman $(RBM_CONNECTION) exec -it $(RBM_CENSER_CONTAINER) /bin/bash
 	$(MBC_PASS) "Done, no errors."
 
 rbp_connect_bottle_rule: zrbp_validate_regimes_rule
