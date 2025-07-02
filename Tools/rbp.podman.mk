@@ -252,7 +252,10 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	-podman $(RBM_CONNECTION) network rm -f $(RBM_ENCLAVE_NETWORK)
 
 	$(MBC_STEP) "Creating enclave network"
-	podman $(RBM_CONNECTION) network create --subnet=$(RBRN_ENCLAVE_BASE_IP)/$(RBRN_ENCLAVE_NETMASK) $(RBM_ENCLAVE_NETWORK)
+	podman $(RBM_CONNECTION) network create                     \
+	  --internal                                                \
+	  --subnet=$(RBRN_ENCLAVE_BASE_IP)/$(RBRN_ENCLAVE_NETMASK)  \
+	  $(RBM_ENCLAVE_NETWORK)
 
 	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
 	podman $(RBM_CONNECTION) run -d                    \
