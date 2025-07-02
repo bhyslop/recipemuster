@@ -365,7 +365,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
 	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
 
-	$(MBC_STEP) "Attaching eBPF egress filter"
+	$(MBC_STEP) "Attaching eBPF egress filter next"
 	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
 	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc"
 
