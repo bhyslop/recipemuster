@@ -93,7 +93,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "TEMPORARY: Tag below found at ->" https://quay.io/repository/podman/machine-os-wsl?tab=tags
 	$(MBC_STEP) "TEMPORARY: init Podman machine $(RBM_MACHINE)"
 	podman machine init \
-	  --image docker://quay.io/podman/machine-os-wsl@sha256:f6e8175cd5921caa091794719787c2c889837dc74f989f0088ab5c5bde6c5b8e \
+	  --image docker://quay.io/podman/machine-os-wsl@sha256:d22349b4325a43779bf97287be4e90e6085eed9ffc3481fd0f894c6425ae7b98 \
 	  --rootful \
 	  $(RBM_MACHINE)
 	$(MBC_STEP) "TEMPORARY: Initialized."
