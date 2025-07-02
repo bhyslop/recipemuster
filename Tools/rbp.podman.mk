@@ -24,12 +24,6 @@ export RBM_BOTTLE_CONTAINER     = $(RBM_MONIKER)-bottle
 export RBM_ENCLAVE_NETWORK      = $(RBM_MONIKER)-enclave
 export RBM_MACHINE              = pdvm-rbw
 export RBM_CONNECTION           = -c $(RBM_MACHINE)
-export RBM_EBPF_INGRESS_C       = $(MBV_TOOLS_DIR)/rbei.EbpfIngress.c
-export RBM_EBPF_EGRESS_C        = $(MBV_TOOLS_DIR)/rbee.EbpfEgress.c
-export RBM_VETH_NAME            = $(MBD_TEMP_DIR)/rbm-$(RBM_MONIKER)-bottle-veth.txt
-export RBM_EBPF_CONFIG_LINES    = $(MBD_TEMP_DIR)/rbec.$(RBM_MONIKER).h
-export RBM_EBPF_INGRESS_PROGRAM = /tmp/rbm-$(RBM_MONIKER)-ingress.o
-export RBM_EBPF_EGRESS_PROGRAM  = /tmp/rbm-$(RBM_MONIKER)-egress.o
 
 # Consolidated passed variables
 zRBM_ROLLUP_ENV = $(filter RBM_%,$(.VARIABLES))
@@ -197,17 +191,6 @@ rbp_podman_machine_start_rule:
 	@### podman machine list | grep -q "$(RBM_MACHINE)" || PODMAN_MACHINE_CGROUP=systemd podman machine init --image docker://$(RBP_STASH_IMAGE) $(RBM_MACHINE)
 	$(MBC_STEP) "Start up Podman machine $(RBM_MACHINE)"
 	podman machine start $(RBM_MACHINE)
-	$(MBC_STEP) "Install eBPF and Traffic Control utilities for prototype..."
-	podman machine ssh $(RBM_MACHINE) \
-	  sudo dnf install -y \
-	    tcpdump        `# Network packet capture and analysis`                       \
-	    iproute-tc     `# Traffic Control (tc) and network interface management`     \
-	    bpftool        `# eBPF program inspection and manipulation`                  \
-	    clang          `# C compiler for eBPF program development`                   \
-	    llvm           `# LLVM backend for eBPF compilation`                         \
-	    libbpf-devel   `# eBPF library development headers`                          \
-	    kernel-devel   `# Kernel headers for eBPF program compilation`               \
-	    && echo "DONE (subscription manager no longer needed)"
 	$(MBC_STEP) "Fedora image build date (from inside VM):"
 	podman machine ssh $(RBM_MACHINE) "stat -c '%y' /usr/lib/os-release"
 	$(MBC_STEP) "Version info on machine..."
@@ -244,9 +227,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_BOTTLE_CONTAINER)
 	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_CENSER_CONTAINER)
 	-podman $(RBM_CONNECTION) rm   -f    $(RBM_CENSER_CONTAINER)
-
-	$(MBC_STEP) "Detaching any existing eBPF programs for this moniker"
-	-$(zRBM_PODMAN_SSH_CMD) "for veth in \$$(ip link | grep -o 'veth[^ ]*'); do tc qdisc del dev \$$veth clsact 2>/dev/null || true; done"
 
 	$(MBC_STEP) "Removing any existing enclave network"
 	-podman $(RBM_CONNECTION) network rm -f $(RBM_ENCLAVE_NETWORK)
@@ -299,74 +279,12 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 3
 	podman $(RBM_CONNECTION) ps | grep $(RBM_CENSER_CONTAINER) || (echo 'CENSER container not running' && exit 1)
 
-	$(MBC_STEP) "Create the eBPF configuration file"
-	rm -f                                                                             $(RBM_EBPF_CONFIG_LINES)
-	echo "// Original podman gateway IP that eBPF will bypass for BOTTLE traffic"  >> $(RBM_EBPF_CONFIG_LINES)
-	printf "#define RBE_GATEWAY_IP 0x"                                             >> $(RBM_EBPF_CONFIG_LINES)
-	podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK) \
-		 --format '{{(index .Subnets 0).Gateway}}'              \
-	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG_LINES)
-	echo "// Gateway MAC address for ingress L2 frame rewriting"                   >> $(RBM_EBPF_CONFIG_LINES)
-	printf "#define RBE_GATEWAY_MAC {0x"                                           >> $(RBM_EBPF_CONFIG_LINES)
-	GATEWAY_IP=$$(podman $(RBM_CONNECTION) network inspect $(RBM_ENCLAVE_NETWORK)  \
-		 --format '{{(index .Subnets 0).Gateway}}')                          &&\
-	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER) sh -c                    \
-	  "ping -c 1 $$GATEWAY_IP >/dev/null 2>&1 &&                                   \
-	   ip neigh show $$GATEWAY_IP"                                                 \
-	     | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'                           \
-	     | head -1 | sed 's/://g'                                                  \
-	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG_LINES)
-	echo "// SENTRY container IP - destination for rewritten BOTTLE egress frames" >> $(RBM_EBPF_CONFIG_LINES)
-	printf "#define RBE_SENTRY_IP 0x"                                              >> $(RBM_EBPF_CONFIG_LINES)
-	echo $(RBRN_ENCLAVE_SENTRY_IP) \
-	     | awk -F. '{printf "%02x%02x%02x%02x\n", $$4,$$3,$$2,$$1}'                >> $(RBM_EBPF_CONFIG_LINES)
-	echo "// SENTRY container MAC address for L2 frame rewriting"                  >> $(RBM_EBPF_CONFIG_LINES)
-	printf "#define RBE_SENTRY_MAC {0x"                                            >> $(RBM_EBPF_CONFIG_LINES)
-	podman $(RBM_CONNECTION) exec $(RBM_SENTRY_CONTAINER)                          \
-	  ip addr show eth1                                                            \
-	     | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'                           \
-	     | head -1 | sed 's/://g'                                                  \
-	     | sed 's/../&, 0x/g' | sed 's/, 0x$$/}/'                                  >> $(RBM_EBPF_CONFIG_LINES)
-	echo                                                                           >> $(RBM_EBPF_CONFIG_LINES)
-
-	$(MBC_STEP) "Show the eBPF config file"
-	cat $(RBM_EBPF_CONFIG_LINES)
-
-	$(MBC_STEP) "Compile eBPF programs"
-	cat $(RBM_EBPF_CONFIG_LINES) $(RBM_EBPF_INGRESS_C) | $(zRBM_PODMAN_SSH_CMD) "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_INGRESS_PROGRAM)"
-	cat $(RBM_EBPF_CONFIG_LINES) $(RBM_EBPF_EGRESS_C)  | $(zRBM_PODMAN_SSH_CMD) "clang -O2 -target bpf -x c -c - -o $(RBM_EBPF_EGRESS_PROGRAM)"
-
 	$(MBC_STEP) "Creating but not starting BOTTLE container"
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
 	  --name $(RBM_BOTTLE_CONTAINER)                                 \
 	  --net=container:$(RBM_CENSER_CONTAINER)                        \
 	  --security-opt label=disable                                   \
 	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
-
-	$(MBC_STEP) "(After quite a lot of experimentation with podman 5.5.2, we have determined the following means of finding the veths)"
-
-	$(MBC_STEP) "Finding network namespace and veth"
-	  CENSER_IF_NUM=$$(podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) cat /sys/class/net/eth0/iflink)           &&\
-	  echo "CENSER_IF_NUM=$$CENSER_IF_NUM"                                                                             &&\
-	  AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns)                                                    &&\
-	  echo "AARDVARK_PID=$$AARDVARK_PID"                                                                               &&\
-	  $(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n ip link show | grep \"^$$CENSER_IF_NUM:\" | awk '{print \$$2}' | sed 's/[:@].*//'" > $(RBM_VETH_NAME)
-
-	$(MBC_STEP) "Verify veth name was captured"
-	test -s $(RBM_VETH_NAME) || (echo "ERROR: veth name file is empty" && exit 1)
-	cat     $(RBM_VETH_NAME)
-
-	$(MBC_STEP) "Adding clsact qdisc to CENSER veth"
-	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
-	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc qdisc add dev $$(cat $(RBM_VETH_NAME)) clsact"
-
-	$(MBC_STEP) "Attaching eBPF egress filter next"
-	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
-	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) egress bpf obj $(RBM_EBPF_EGRESS_PROGRAM) sec tc"
-
-	$(MBC_STEP) "Attaching eBPF ingress filter"
-	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
-	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
 
 	$(MBC_STEP) "Rewrite CENSER to use SENTRY as gateway"
 	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "echo 'nameserver $(RBRN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
