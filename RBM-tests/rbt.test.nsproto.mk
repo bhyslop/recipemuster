@@ -57,7 +57,7 @@ ztest_info_rule:
 # Basic network setup verification - must run after info but before other tests
 ztest_basic_network_rule: ztest_info_rule
 	$(MBT_PODMAN_EXEC_SENTRY) ps aux | grep dnsmasq
-	$(MBT_PODMAN_EXEC_BOTTLE) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
+	$(MBT_PODMAN_EXEC_CENSER) ping $(RBRN_ENCLAVE_SENTRY_IP) -c 2
 	$(MBT_PODMAN_EXEC_SENTRY) iptables -L RBM-INGRESS
 
 # DNS resolution tests
