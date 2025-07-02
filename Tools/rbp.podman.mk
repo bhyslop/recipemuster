@@ -269,7 +269,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Starting CENSER container for network namespace staging"
 	podman $(RBM_CONNECTION) run -d                     \
 	  --name $(RBM_CENSER_CONTAINER)                    \
-	  --network $(RBM_ENCLAVE_NETWORK)                  \
+	  --network $(RBM_ENCLAVE_NETWORK):ip=$(RBRN_ENCLAVE_BOTTLE_IP) \
 	  --privileged                                      \
 	  --entrypoint /bin/sleep                           \
 	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG) \
