@@ -1,5 +1,6 @@
 # © 2024 Scale Invariant.  All rights reserved.
 
+
 # Core Service Definition
 RBRN_MONIKER     = pluml
 RBRN_DESCRIPTION = Local PlantUML Server
@@ -27,10 +28,10 @@ RBRN_UPLINK_ALLOWED_CIDRS   = 160.79.104.0/23
 RBRN_UPLINK_ALLOWED_DOMAINS = anthropic.com
 
 # Network Configuration
-RBRN_ENCLAVE_BASE_IP    = 10.242.0.0
+RBRN_ENCLAVE_BASE_IP    = 10.242.1.0
 RBRN_ENCLAVE_NETMASK    = 24
-RBRN_ENCLAVE_SENTRY_IP  = 10.242.0.2
-RBRN_ENCLAVE_BOTTLE_IP  = 10.242.0.3
+RBRN_ENCLAVE_SENTRY_IP  = 10.242.1.2
+RBRN_ENCLAVE_BOTTLE_IP  = 10.242.1.3
 
 # Volume Mount Configuration
 
