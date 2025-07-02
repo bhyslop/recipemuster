@@ -254,6 +254,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Creating enclave network"
 	podman $(RBM_CONNECTION) network create                     \
 	  --internal                                                \
+	  --disable-dns                                             \
 	  --subnet=$(RBRN_ENCLAVE_BASE_IP)/$(RBRN_ENCLAVE_NETMASK)  \
 	  $(RBM_ENCLAVE_NETWORK)
 
@@ -285,9 +286,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Configuring SENTRY security"
 	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
 
-	$(MBC_STEP) "BRADTODO: List containers before..."
-	$(zRBM_PODMAN_RAW_CMD) container ls
-
 	$(MBC_STEP) "Starting CENSER container for network namespace staging"
 	podman $(RBM_CONNECTION) run -d                     \
 	  --name $(RBM_CENSER_CONTAINER)                    \
@@ -296,13 +294,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	  --entrypoint /bin/sleep                           \
 	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG) \
 	  infinity
-
-	$(MBC_STEP) "BRADTODO: List containers after..."
-	$(zRBM_PODMAN_RAW_CMD) container ls
-
-	$(MBC_STEP) "BRADTODO: List containers a while later..."
-	sleep 5
-	$(zRBM_PODMAN_RAW_CMD) container ls
 
 	$(MBC_STEP) "Waiting for CENSER network initialization"
 	sleep 3
@@ -363,7 +354,7 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Verify veth name was captured"
 	test -s $(RBM_VETH_NAME) || (echo "ERROR: veth name file is empty" && exit 1)
-	cat $(RBM_VETH_NAME)
+	cat     $(RBM_VETH_NAME)
 
 	$(MBC_STEP) "Adding clsact qdisc to CENSER veth"
 	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
@@ -376,6 +367,9 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Attaching eBPF ingress filter"
 	AARDVARK_PID=$$($(zRBM_PODMAN_SSH_CMD) pgrep -f aardvark-dns) &&\
 	$(zRBM_PODMAN_SSH_CMD) "sudo nsenter -t $$AARDVARK_PID -n tc filter add dev $$(cat $(RBM_VETH_NAME)) ingress bpf obj $(RBM_EBPF_INGRESS_PROGRAM) sec tc"
+
+	$(MBC_STEP) "Rewrite CENSER to use SENTRY as gateway"
+	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "echo 'nameserver $(RBRN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
 
 	$(MBC_STEP) "Flush any existing ARP entries and restart networking in CENSER"
 	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all"
