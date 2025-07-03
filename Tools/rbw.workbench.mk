@@ -140,9 +140,9 @@ rbw-tg.%:
 	$(MBC_STEP) "Validate list during..."
 	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_STEP) "Validate retrieval..."
-	tt/rbg-r.RetrieveImage.sh $$(cat $(zRBC_FQIN_FILE))
+	RBG_ARG_TAG=$$(cat $(zRBC_FQIN_FILE)) tt/rbg-r.RetrieveImage.sh
 	$(MBC_STEP) "Validate deletion..."
-	tt/rbg-d.DeleteImageFromRegistry.sh $$(cat $(zRBC_FQIN_FILE)) RBG_ARG_SKIP_DELETE_CONFIRMATION=SKIP
+	RBG_ARG_FQIN=$$(cat $(zRBC_FQIN_FILE)) RBG_ARG_SKIP_DELETE_CONFIRMATION=SKIP tt/rbg-d.DeleteImageFromRegistry.sh
 	$(MBC_STEP) "Validate list after..."
 	tt/rbg-l.ListCurrentRegistryImages.sh
 	$(MBC_PASS) "No errors."
