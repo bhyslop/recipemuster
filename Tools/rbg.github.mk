@@ -173,6 +173,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "MissingBuidDirDebug: Search pattern = $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*"
 	@echo "MissingBuidDirDebug: Found directories:"
 	@ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null || echo "  None found with pattern"
+	@echo "DEBUG: Running find command: $(zRBG_FIND_LATEST_BUILD_DIR)"
 	@$(zRBG_FIND_LATEST_BUILD_DIR) > $(MBD_TEMP_DIR)/latest_build_dir.txt
 	@build_dir=$$(cat $(MBD_TEMP_DIR)/latest_build_dir.txt)
 	@echo "MissingBuidDirDebug: Selected build directory = $$build_dir"
