@@ -194,15 +194,14 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "MissingBuidDirDebug: end"
 	@cmp "$(RBG_ARG_RECIPE)" "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
 	$(MBC_STEP) "Extracting FQIN..."
-	@fqin_file="$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt"
-	@test -f "$$fqin_file" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
-	@fqin_contents=$$(cat "$$fqin_file")
+	@test -f "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
+	@fqin_contents=$$(cat "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt")
 	@$(MBC_SEE_YELLOW) "Built container FQIN: $$fqin_contents"
-	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp "$$fqin_file" "$(RBG_ARG_FQIN_OUTPUT)"
+	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt" "$(RBG_ARG_FQIN_OUTPUT)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(RBG_ARG_FQIN_OUTPUT)"
 
 	$(MBC_STEP) "Verifying image availability in registry..."
-	@tag=$$(echo "$$fqin_contents" | cut -d: -f2)
+	@tag=$$(echo "$$(cat "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt")" | cut -d: -f2)
 	@echo "  Waiting for tag: $$tag to become available..."
 	@for i in 1 2 3 4 5; do \
 	  $(zRBG_CMD_LIST_PACKAGE_VERSIONS) | jq -e '.[] | select(.metadata.container.tags[] | contains("'$$tag'"))' > /dev/null && break; \
