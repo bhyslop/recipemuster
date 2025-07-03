@@ -279,13 +279,6 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	sleep 3
 	podman $(RBM_CONNECTION) ps | grep $(RBM_CENSER_CONTAINER) || (echo 'CENSER container not running' && exit 1)
 
-	$(MBC_STEP) "Creating but not starting BOTTLE container"
-	$(zRBM_PODMAN_RAW_CMD) create                                    \
-	  --name $(RBM_BOTTLE_CONTAINER)                                 \
-	  --net=container:$(RBM_CENSER_CONTAINER)                        \
-	  --security-opt label=disable                                   \
-	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
-
 	$(MBC_STEP) "Rewrite CENSER to use SENTRY as gateway"
 	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "echo 'nameserver $(RBRN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
 
@@ -296,6 +289,13 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 
 	$(MBC_STEP) "Flush any existing ARP entries and restart networking in CENSER"
 	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all"
+
+	$(MBC_STEP) "Creating but not starting BOTTLE container"
+	$(zRBM_PODMAN_RAW_CMD) create                                    \
+	  --name $(RBM_BOTTLE_CONTAINER)                                 \
+	  --net=container:$(RBM_CENSER_CONTAINER)                        \
+	  --security-opt label=disable                                   \
+	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
 
 	$(MBC_STEP) "Visualizing network setup in podman machine..."
 	echo "DEFERRED FOR NOW."  #$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
