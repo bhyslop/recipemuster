@@ -184,6 +184,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "DEBUG: Temp file contents:"
 	@cat $(MBD_TEMP_DIR)/build_dir.txt
 	@echo "MissingBuidDirDebug: Selected build directory = $$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)"
+	@echo "DEBUG: Checking for FQIN file: $$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt"
 	@test -s "$(MBD_TEMP_DIR)/build_dir.txt" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
 	@test -d "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)" || ($(MBC_SEE_RED) "Error: Build directory '$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)' is not a valid directory" && false)
 	@echo "MissingBuidDirDebug: Comparing recipes:"
