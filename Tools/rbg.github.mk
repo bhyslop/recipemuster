@@ -285,5 +285,4 @@ rbg-d.%: zbgc_argcheck_rule zbgc_collect_rule
 	$(MBC_PASS) "No errors."
 
 
-
 # eof
