@@ -167,7 +167,9 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "MissingBuidDirDebug: Search pattern = $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*"
 	@echo "MissingBuidDirDebug: Found directories:"
 	@ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null || echo "  None found with pattern"
+	@echo "DEBUG: About to call get_latest_build_dir function"
 	@build_dir=$(call get_latest_build_dir)
+	@echo "DEBUG: Function call completed, build_dir='$$build_dir'"
 	@echo "MissingBuidDirDebug: Selected build directory = $$build_dir"
 	@test -n "$$build_dir" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
 	@test -d "$$build_dir" || ($(MBC_SEE_RED) "Error: Build directory '$$build_dir' is not a valid directory" && false)
