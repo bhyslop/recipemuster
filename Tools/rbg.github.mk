@@ -179,7 +179,9 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "DEBUG: Current working directory: $$(pwd)"
 	@echo "DEBUG: Testing find command directly:"
 	@find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1
-	@build_dir=$$(find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1)
+	@echo "DEBUG: Storing result in temp file..."
+	@find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1 > $(MBD_TEMP_DIR)/build_dir.txt
+	@build_dir=$$(cat $(MBD_TEMP_DIR)/build_dir.txt)
 	@echo "DEBUG: Function call completed, build_dir='$$build_dir'"
 	@echo "MissingBuidDirDebug: Selected build directory = $$build_dir"
 	@test -n "$$build_dir" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
