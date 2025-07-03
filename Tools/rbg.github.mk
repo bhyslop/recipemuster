@@ -51,15 +51,9 @@ zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
 
-# Define a function that finds the latest build directory - call this in recipes
 define zRBG_FIND_LATEST_BUILD_DIR
 find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1
 endef
-
-# For backward compatibility, keep the variable but it will be stale
-zRBG_VERIFY_BUILD_DIR     = $(shell find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1)
-zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
-zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
 
 zRBG_REPO_PREFIX = $(zRBG_GITAPI_URL)/repos/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)
 
@@ -174,6 +168,8 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "MissingBuidDirDebug: Found directories:"
 	@ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null || echo "  None found with pattern"
 	@echo "DEBUG: Running find command: $(zRBG_FIND_LATEST_BUILD_DIR)"
+	@echo "DEBUG: Current directory: $$(pwd)"
+	@echo "DEBUG: RBM-history exists: $$(test -d RBM-history && echo "YES" || echo "NO")"
 	@$(zRBG_FIND_LATEST_BUILD_DIR) > $(MBD_TEMP_DIR)/latest_build_dir.txt
 	@build_dir=$$(cat $(MBD_TEMP_DIR)/latest_build_dir.txt)
 	@echo "MissingBuidDirDebug: Selected build directory = $$build_dir"
