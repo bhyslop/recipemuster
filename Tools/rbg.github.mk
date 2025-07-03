@@ -183,17 +183,17 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1 > $(MBD_TEMP_DIR)/build_dir.txt
 	@echo "DEBUG: Temp file contents:"
 	@cat $(MBD_TEMP_DIR)/build_dir.txt
-	@echo "MissingBuidDirDebug: Selected build directory = $$(cat $(MBD_TEMP_DIR)/build_dir.txt)"
+	@echo "MissingBuidDirDebug: Selected build directory = $$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)"
 	@test -s "$(MBD_TEMP_DIR)/build_dir.txt" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
-	@test -d "$$(cat $(MBD_TEMP_DIR)/build_dir.txt)" || ($(MBC_SEE_RED) "Error: Build directory '$$(cat $(MBD_TEMP_DIR)/build_dir.txt)' is not a valid directory" && false)
+	@test -d "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)" || ($(MBC_SEE_RED) "Error: Build directory '$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)' is not a valid directory" && false)
 	@echo "MissingBuidDirDebug: Comparing recipes:"
 	@echo "  Source recipe: $(RBG_ARG_RECIPE)"
-	@echo "  Build recipe: $$(cat $(MBD_TEMP_DIR)/build_dir.txt)/recipe.txt"
-	@test -f "$$(cat $(MBD_TEMP_DIR)/build_dir.txt)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe.txt not found in $$(cat $(MBD_TEMP_DIR)/build_dir.txt)" && false)
+	@echo "  Build recipe: $$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/recipe.txt"
+	@test -f "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe.txt not found in $$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)" && false)
 	@echo "MissingBuidDirDebug: end"
-	@cmp "$(RBG_ARG_RECIPE)" "$$(cat $(MBD_TEMP_DIR)/build_dir.txt)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
+	@cmp "$(RBG_ARG_RECIPE)" "$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
 	$(MBC_STEP) "Extracting FQIN..."
-	@fqin_file="$$(cat $(MBD_TEMP_DIR)/build_dir.txt)/docker_inspect_RepoTags_0.txt"
+	@fqin_file="$$(cat $(MBD_TEMP_DIR)/build_dir.txt | xargs)/docker_inspect_RepoTags_0.txt"
 	@test -f "$$fqin_file" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
 	@fqin_contents=$$(cat "$$fqin_file")
 	@$(MBC_SEE_YELLOW) "Built container FQIN: $$fqin_contents"
