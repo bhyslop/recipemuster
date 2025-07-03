@@ -282,13 +282,12 @@ rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
 	$(MBC_STEP) "Rewrite CENSER to use SENTRY as gateway"
 	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "echo 'nameserver $(RBRN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
 
-	$(MBC_STEP) "Configure default route in CENSER"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route add default via $(RBRN_ENCLAVE_SENTRY_IP)"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route | grep -q '^default via $(RBRN_ENCLAVE_SENTRY_IP)'"
-
 	$(MBC_STEP) "Flush any existing ARP entries and restart networking in CENSER"
 	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all"
+
+	$(MBC_STEP) "Configure default route in CENSER"
+	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route add default via $(RBRN_ENCLAVE_SENTRY_IP)"
+	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route | grep -q '^default via $(RBRN_ENCLAVE_SENTRY_IP)' || { echo 'ERROR: Failed to set default route in CENSER'; exit 1; }"
 
 	$(MBC_STEP) "Creating but not starting BOTTLE container"
 	$(zRBM_PODMAN_RAW_CMD) create                                    \
