@@ -156,11 +156,18 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	done; test "$$conclusion" == "success" || ($(MBC_SEE_RED) "Error: Workflow fail: $$conclusion" && false)
 	$(MBC_STEP) "Git Pull for artifacts with retry..."
 	@for i in 9 8 7 6 5 4 3 2 1 0; do \
-	  git fetch --quiet                                                                                &&\
-	  if [ $$(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then git pull && break; fi  &&\
-	  echo "  Waiting for remote changes (attempt $$i)"                                                &&\
-	  [ $$i -eq 0 ] && ($(MBC_SEE_RED) "Error: No new commits after many attempts" && false)           &&\
-	  sleep 5; done
+	  echo "  Attempt $$i: Checking for remote changes..."; \
+	  git fetch --quiet; \
+	  if [ $$(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then \
+	    echo "  Found new commits, pulling..."; \
+	    git pull; \
+	    echo "  Pull successful, breaking loop"; \
+	    break; \
+	  fi; \
+	  echo "  No new commits yet, waiting 5 seconds (attempt $$i)"; \
+	  [ $$i -eq 0 ] && ($(MBC_SEE_RED) "Error: No new commits after many attempts" && false); \
+	  sleep 5; \
+	done
 	$(MBC_STEP) "Verifying build output..."
 	@echo "MissingBuidDirDebug: RBRR_HISTORY_DIR = $(RBRR_HISTORY_DIR)"
 	@echo "MissingBuidDirDebug: Recipe basename = $(basename $(zRBG_RECIPE_BASENAME))"
