@@ -51,10 +51,9 @@ zRBG_DELETE_RESULT_CONTENTS = $$(cat $(zRBG_DELETE_RESULT_CACHE))
 
 zRBG_RECIPE_BASENAME  = $(shell basename $(RBG_ARG_RECIPE))
 
-zRBG_VERIFY_BUILD_DIR     = find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1
-# ERROR Need to execute above in place below, can I do this without $(shell xxx) ?
-zRBG_VERIFY_FQIN_FILE     = $(zRBG_VERIFY_BUILD_DIR)/docker_inspect_RepoTags_0.txt
-zRBG_VERIFY_FQIN_CONTENTS = $$(cat $(zRBG_VERIFY_FQIN_FILE))
+define get_latest_build_dir
+$(shell find $(RBRR_HISTORY_DIR) -name "$(basename $(notdir $(RBG_ARG_RECIPE)))*" -type d -print | sort -r | head -n1)
+endef
 
 zRBG_REPO_PREFIX = $(zRBG_GITAPI_URL)/repos/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)
 
@@ -168,25 +167,28 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	@echo "MissingBuidDirDebug: Search pattern = $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*"
 	@echo "MissingBuidDirDebug: Found directories:"
 	@ls -td $(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))* 2>/dev/null || echo "  None found with pattern"
-	@echo "MissingBuidDirDebug: Selected build directory = $(zRBG_VERIFY_BUILD_DIR)"
-	@test -n "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
-	@test -d "$(zRBG_VERIFY_BUILD_DIR)" || ($(MBC_SEE_RED) "Error: Build directory '$(zRBG_VERIFY_BUILD_DIR)' is not a valid directory" && false)
+	@build_dir=$(call get_latest_build_dir)
+	@echo "MissingBuidDirDebug: Selected build directory = $$build_dir"
+	@test -n "$$build_dir" || ($(MBC_SEE_RED) "Error: Missing build directory - No directory found matching pattern '$(RBRR_HISTORY_DIR)/$(basename $(zRBG_RECIPE_BASENAME))*'" && false)
+	@test -d "$$build_dir" || ($(MBC_SEE_RED) "Error: Build directory '$$build_dir' is not a valid directory" && false)
 	@echo "MissingBuidDirDebug: Comparing recipes:"
 	@echo "  Source recipe: $(RBG_ARG_RECIPE)"
-	@echo "  Build recipe: $(zRBG_VERIFY_BUILD_DIR)/recipe.txt"
-	@test -f "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe.txt not found in $(zRBG_VERIFY_BUILD_DIR)" && false)
+	@echo "  Build recipe: $$build_dir/recipe.txt"
+	@test -f "$$build_dir/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe.txt not found in $$build_dir" && false)
 	@echo "MissingBuidDirDebug: end"
-	@cmp "$(RBG_ARG_RECIPE)" "$(zRBG_VERIFY_BUILD_DIR)/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
+	@cmp "$(RBG_ARG_RECIPE)" "$$build_dir/recipe.txt" || ($(MBC_SEE_RED) "Error: recipe mismatch" && false)
 	$(MBC_STEP) "Extracting FQIN..."
-	@test -f "$(zRBG_VERIFY_FQIN_FILE)" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
-	@$(MBC_SEE_YELLOW) "Built container FQIN: $(zRBG_VERIFY_FQIN_CONTENTS)"
-	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp  "$(zRBG_VERIFY_FQIN_FILE)"  "$(RBG_ARG_FQIN_OUTPUT)"
+	@fqin_file="$$build_dir/docker_inspect_RepoTags_0.txt"
+	@test -f "$$fqin_file" || ($(MBC_SEE_RED) "Error: Could not find FQIN in build output" && false)
+	@fqin_contents=$$(cat "$$fqin_file")
+	@$(MBC_SEE_YELLOW) "Built container FQIN: $$fqin_contents"
+	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || cp "$$fqin_file" "$(RBG_ARG_FQIN_OUTPUT)"
 	@test -z "$(RBG_ARG_FQIN_OUTPUT)" || $(MBC_SEE_YELLOW) "Wrote FQIN to $(RBG_ARG_FQIN_OUTPUT)"
 
 	$(MBC_STEP) "Verifying image availability in registry..."
-	@tag=$$(echo "$(zRBG_VERIFY_FQIN_CONTENTS)" | cut -d: -f2); \
-	echo "  Waiting for tag: $$tag to become available..."; \
-	for i in 1 2 3 4 5; do \
+	@tag=$$(echo "$$fqin_contents" | cut -d: -f2)
+	@echo "  Waiting for tag: $$tag to become available..."
+	@for i in 1 2 3 4 5; do \
 	  $(zRBG_CMD_LIST_PACKAGE_VERSIONS) | jq -e '.[] | select(.metadata.container.tags[] | contains("'$$tag'"))' > /dev/null && break; \
 	  echo "  Image not yet available, attempt $$i of 5"; \
 	  [ $$i -eq 5 ] && ($(MBC_SEE_RED) "Error: Image '$$tag' not available in registry after 5 attempts" && false); \
