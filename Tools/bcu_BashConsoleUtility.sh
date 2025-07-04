@@ -32,32 +32,32 @@ bcu_info() {
 }
 
 bcu_warn() {
-    echo -e "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@" >&2
+    echo -e "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
 }
 
 bcu_die() {
-    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $@" >&2
+    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $@"
     exit 1
 }
 
 bcu_start() {
-    echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" >&2
+    echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
 }
 
 bcu_step() {
-    echo -e "${ZBCU_YELLOW}---${ZBCU_RESET} $@" >&2
+    echo -e "${ZBCU_YELLOW}---${ZBCU_RESET} $@" || bcu_die
 }
 
 bcu_pass() {
-    echo -e "${ZBCU_GREEN}?${ZBCU_RESET} $@" >&2
+    echo -e "${ZBCU_GREEN}?${ZBCU_RESET} $@" || bcu_die
 }
 
 bcu_doc_brief() {
-    [[ -n "${ZBCU_HELP_CMD}" ]] && echo "  $1"
+    [[ -z "${ZBCU_HELP_CMD}" ]] || echo "  $1"
 }
 
 bcu_doc_param() {
-    [[ -n "${ZBCU_HELP_CMD}" ]] && echo "    $1 - $2"
+    [[ -z "${ZBCU_HELP_CMD}" ]] || echo "    $1 - $2"
 }
 
 bcu_doc_done() {
