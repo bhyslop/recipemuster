@@ -19,8 +19,6 @@
 
 set -e
 
-echo "HERE"
-
 # Find script directory and source utilities
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/bcu_BashConsoleUtility.sh"
@@ -40,18 +38,18 @@ zrbg_curl_headers() {
 }
 
 rbg_build() {
+    # Document command
     bcu_doc_brief "Build container from recipe"
     bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
     bcu_doc_done && return
-    
+
+    # Execute command
     set -e
     
-    local recipe="${1:-}"
-    [[ -z "$recipe" ]] && bcu_die "Usage: rbg_build <recipe_file>"
-    [[ ! -f "$recipe" ]] && bcu_die "Recipe file not found: $recipe"
-    
-    local basename=$(basename "$recipe")
-    [[ "$basename" =~ [A-Z] ]] && bcu_die "Recipe basename must not contain uppercase letters: $basename"
+    local recipe_file="${1:-}"
+ERROR FIX INVERT
+    [[ -z "$recipe_file" ]] && bcu_die "Usage: rbg_build <recipe_file>"
+    [[ ! -f "$recipe_file" ]] && bcu_die "Recipe file not found: $recipe_file"
     
     bcu_start "Build container from $recipe"
     bcu_warn "Not implemented yet"
@@ -59,9 +57,11 @@ rbg_build() {
 }
 
 rbg_list() {
+    # Document command
     bcu_doc_brief "List registry images"
     bcu_doc_done && return
-    
+
+    # Execute command
     set -e
     
     bcu_start "List registry images"
@@ -87,23 +87,14 @@ rbg_retrieve() {
     bcu_pass "Retrieve completed"
 }
 
-echo "BRADTODO: Before help..."
-
-# Help command that extracts docs
 rbg_help() {
-    echo "BRADTODO: Entering rbg_help function here"
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
-    echo "BRADTODO: After bcu_doc_brief"
     bcu_doc_done && return
-    echo "BRADTODO: After bcu_doc_done check"
     
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
     echo "Commands:"
     
-    echo "BRADTODO: Functions available:"
-    declare -F
-    echo "Starting help loop"
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3 | grep -v rbg_help); do
         echo "Calling: $cmd"
         bcu_set_help_mode "$cmd"
@@ -111,11 +102,7 @@ rbg_help() {
         bcu_set_help_mode
         echo
     done
-    echo "Finished help loop"
-    echo "BRADTODO: Exiting rbg_help function"
 }
-
-echo "BRADTODO: Main dispatch..."
 
 # Main dispatch
 cmd="${1:-}"
