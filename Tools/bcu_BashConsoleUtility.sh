@@ -18,67 +18,56 @@
 # Bash Console Utility Library
 
 # Color codes
-BCU_RED='\033[0;31m'
-BCU_GREEN='\033[0;32m'
-BCU_YELLOW='\033[0;33m'
-BCU_BLUE='\033[0;34m'
-BCU_RESET='\033[0m'
+ZBCU_RED='\033[0;31m'
+ZBCU_GREEN='\033[0;32m'
+ZBCU_YELLOW='\033[0;33m'
+ZBCU_BLUE='\033[0;34m'
+ZBCU_RESET='\033[0m'
 
-BCU_HELP_MODE=0
+# Help mode: if ZBCU_HELP_CMD is empty, not in help mode; if set, in help mode for that command
+ZBCU_HELP_CMD=""
 
-# Core output functions
 bcu_info() {
     echo "$@" >&2
 }
 
-bcu_trace() {
-    [[ "${BCU_TRACE:-0}" == "1" ]] && echo "${BCU_BLUE}TRACE:${BCU_RESET} $@" >&2
-}
-
 bcu_warn() {
-    echo -e "${BCU_YELLOW}WARNING:${BCU_RESET} $@" >&2
+    echo -e "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@" >&2
 }
 
 bcu_die() {
-    echo -e "${BCU_RED}ERROR:${BCU_RESET} $@" >&2
+    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $@" >&2
     exit 1
 }
 
-# Progress indicators
 bcu_start() {
-    echo -e "${BCU_BLUE}===${BCU_RESET} $@ ${BCU_BLUE}===${BCU_RESET}" >&2
+    echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" >&2
 }
 
 bcu_step() {
-    echo -e "${BCU_YELLOW}---${BCU_RESET} $@" >&2
+    echo -e "${ZBCU_YELLOW}---${ZBCU_RESET} $@" >&2
 }
 
 bcu_pass() {
-    echo -e "${BCU_GREEN}?${BCU_RESET} $@" >&2
+    echo -e "${ZBCU_GREEN}?${ZBCU_RESET} $@" >&2
 }
 
 bcu_doc_brief() {
-    [[ "${BCU_HELP_MODE:-0}" == "1" ]] && echo "  $1"
+    [[ -n "${ZBCU_HELP_CMD}" ]] && echo "  $1"
 }
 
 bcu_doc_param() {
-    [[ "${BCU_HELP_MODE:-0}" == "1" ]] && echo "    $1 - $2"
+    [[ -n "${ZBCU_HELP_CMD}" ]] && echo "    $1 - $2"
 }
 
 bcu_doc_done() {
-    [[ "${BCU_HELP_MODE:-0}" == "1" ]] && return 0
+    [[ -n "${ZBCU_HELP_CMD}" ]] && return 0
     return 1
 }
 
-bcu_enter_help_mode() {
+bcu_set_help_mode() {
     local cmd_name="${1:-}"
-    BCU_HELP_MODE=1
-    BCU_HELP_CMD="$cmd_name"
-}
-
-bcu_exit_help_mode() {
-    BCU_HELP_MODE=0
-    BCU_HELP_CMD=""
+    ZBCU_HELP_CMD="$cmd_name"
 }
 
 bcu_require_var() {

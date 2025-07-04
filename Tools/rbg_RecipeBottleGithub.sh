@@ -91,8 +91,11 @@ echo "BRADTODO: Before help..."
 
 # Help command that extracts docs
 rbg_help() {
+    echo "DEBUG: Entering rbg_help function"
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
+    echo "DEBUG: After bcu_doc_brief"
     bcu_doc_done && return
+    echo "DEBUG: After bcu_doc_done check"
     
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
@@ -104,11 +107,12 @@ rbg_help() {
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3 | grep -v rbg_help); do
         echo "Calling: $cmd"
         bcu_enter_help_mode "$cmd"
-        $cmd 2>/dev/null
+        $cmd
         bcu_exit_help_mode
         echo
     done
     echo "Finished help loop"
+    echo "DEBUG: Exiting rbg_help function"
 }
 
 echo "BRADTODO: After help lets get the declare list..."
@@ -125,9 +129,14 @@ shift || true
 if declare -F "$cmd" >/dev/null && [[ "$cmd" =~ ^rbg_[a-z_]+$ ]]; then
     "$cmd" "$@"
 else
-    [[ -n "$cmd" ]] && bcu_warn "Unknown command: $cmd"
-    rbg_help
-    exit 1
+    if [[ -n "$cmd" ]]; then
+        bcu_warn "Unknown command: $cmd"
+        rbg_help
+        exit 1
+    else
+        rbg_help
+        exit 0
+    fi
 fi
 
 # eof
