@@ -1,0 +1,109 @@
+#!/bin/bash
+# Copyright 2025 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle GitHub - Container Registry Management
+
+set -e
+
+# Find script directory and source utilities
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "$SCRIPT_DIR/bcu_BashConsoleUtility.sh"
+
+# Internal constants
+ZRBG_GIT_REGISTRY="ghcr.io"
+ZRBG_GITAPI_URL="https://api.github.com"
+
+# Internal helper functions
+zrbg_curl_headers() {
+    echo "-H \"Authorization: token \$RBV_PAT\" -H 'Accept: application/vnd.github.v3+json'"
+}
+
+# Command: Build container from recipe
+rbg_build() {
+    local recipe="${1:-}"
+    [[ -z "$recipe" ]] && bcu_die "Usage: rbg_build <recipe_file>"
+    [[ ! -f "$recipe" ]] && bcu_die "Recipe file not found: $recipe"
+    
+    # Validate uppercase in basename
+    local basename=$(basename "$recipe")
+    [[ "$basename" =~ [A-Z] ]] && bcu_die "Recipe basename must not contain uppercase letters: $basename"
+    
+    # Validate all RBRR variables
+    source "$SCRIPT_DIR/rbrr.validator.sh"
+    
+    bcu_start "Build container from $recipe"
+    bcu_warn "Not implemented yet"
+    bcu_pass "Build completed"
+}
+
+# Command: List registry images
+rbg_list() {
+    # Validate all RBRR variables
+    source "$SCRIPT_DIR/rbrr.validator.sh"
+    
+    bcu_start "List registry images"
+    bcu_warn "Not implemented yet"
+    bcu_pass "List completed"
+}
+
+# Command: Delete registry image
+rbg_delete() {
+    local fqin="${1:-}"
+    [[ -z "$fqin" ]] && bcu_die "Usage: rbg_delete <fully_qualified_image_name>"
+    
+    # Validate all RBRR variables
+    source "$SCRIPT_DIR/rbrr.validator.sh"
+    
+    bcu_start "Delete image: $fqin"
+    bcu_warn "Not implemented yet"
+    bcu_pass "Delete completed"
+}
+
+# Command: Retrieve (pull) registry image
+rbg_retrieve() {
+    local fqin="${1:-}"
+    [[ -z "$fqin" ]] && bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
+    
+    # Validate all RBRR variables
+    source "$SCRIPT_DIR/rbrr.validator.sh"
+    
+    bcu_start "Retrieve image: $fqin"
+    bcu_warn "Not implemented yet"
+    bcu_pass "Retrieve completed"
+}
+
+# Command: Show help
+rbg_help() {
+    bcu_info "Recipe Bottle GitHub - Container Registry Management"
+    bcu_info "Commands: rbg_build, rbg_list, rbg_delete, rbg_retrieve, rbg_help"
+}
+
+# Main dispatch
+cmd="${1:-}"
+shift || true
+
+# Check if function exists and matches our pattern
+if declare -F "$cmd" >/dev/null && [[ "$cmd" =~ ^rbg_[a-z_]+$ ]]; then
+    "$cmd" "$@"
+else
+    [[ -n "$cmd" ]] && bcu_warn "Unknown command: $cmd"
+    rbg_help
+    exit 1
+fi
+
+# eof
+
