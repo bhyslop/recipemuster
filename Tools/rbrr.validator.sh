@@ -60,7 +60,6 @@ for arch in $RBRR_BUILD_ARCHITECTURES; do
 done
 
 # Success
-exit 0
 
 
 # eof
