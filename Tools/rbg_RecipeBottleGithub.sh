@@ -91,7 +91,7 @@ echo "BRADTODO: Before help..."
 
 # Help command that extracts docs
 rbg_help() {
-    echo "BRADTODO: Entering rbg_help function"
+    echo "BRADTODO: Entering rbg_help function here"
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
     echo "BRADTODO: After bcu_doc_brief"
     bcu_doc_done && return
@@ -114,10 +114,6 @@ rbg_help() {
     echo "Finished help loop"
     echo "BRADTODO: Exiting rbg_help function"
 }
-
-echo "BRADTODO: After help lets get the declare list..."
-
-declare -F
 
 echo "BRADTODO: Main dispatch..."
 
