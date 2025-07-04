@@ -71,7 +71,14 @@ bcu_doc_done() {
 }
 
 bcu_enter_help_mode() {
+    local cmd_name="${1:-}"
     BCU_HELP_MODE=1
+    BCU_HELP_CMD="$cmd_name"
+}
+
+bcu_exit_help_mode() {
+    BCU_HELP_MODE=0
+    BCU_HELP_CMD=""
 }
 
 bcu_require_var() {

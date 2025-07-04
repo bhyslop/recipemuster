@@ -19,6 +19,8 @@
 
 set -e
 
+echo "HERE"
+
 # Find script directory and source utilities
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/bcu_BashConsoleUtility.sh"
@@ -85,19 +87,35 @@ rbg_retrieve() {
     bcu_pass "Retrieve completed"
 }
 
+echo "BRADTODO: Before help..."
+
 # Help command that extracts docs
 rbg_help() {
+    bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
+    bcu_doc_done && return
+    
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
     echo "Commands:"
     
-    bcu_enter_help_mode
+    echo "DEBUG: Functions available:"
+    declare -F
+    echo "Starting help loop"
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3 | grep -v rbg_help); do
+        echo "Calling: $cmd"
+        bcu_enter_help_mode "$cmd"
         $cmd 2>/dev/null
+        bcu_exit_help_mode
         echo
     done
-    bcu_exit_help_mode
+    echo "Finished help loop"
 }
+
+echo "BRADTODO: After help lets get the declare list..."
+
+declare -F
+
+echo "BRADTODO: Main dispatch..."
 
 # Main dispatch
 cmd="${1:-}"
