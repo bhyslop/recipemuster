@@ -27,8 +27,13 @@ source "$SCRIPT_DIR/bcu_BashConsoleUtility.sh"
 ZRBG_GIT_REGISTRY="ghcr.io"
 ZRBG_GITAPI_URL="https://api.github.com"
 
+# All repo variables are needed
+source "$SCRIPT_DIR/rbrr.validator.sh"
+
+
 # Internal helper functions
 zrbg_curl_headers() {
+    set -e
     echo "-H \"Authorization: token \$RBV_PAT\" -H 'Accept: application/vnd.github.v3+json'"
 }
 
@@ -42,9 +47,6 @@ rbg_build() {
     local basename=$(basename "$recipe")
     [[ "$basename" =~ [A-Z] ]] && bcu_die "Recipe basename must not contain uppercase letters: $basename"
     
-    # Validate all RBRR variables
-    source "$SCRIPT_DIR/rbrr.validator.sh"
-    
     bcu_start "Build container from $recipe"
     bcu_warn "Not implemented yet"
     bcu_pass "Build completed"
@@ -52,9 +54,6 @@ rbg_build() {
 
 # Command: List registry images
 rbg_list() {
-    # Validate all RBRR variables
-    source "$SCRIPT_DIR/rbrr.validator.sh"
-    
     bcu_start "List registry images"
     bcu_warn "Not implemented yet"
     bcu_pass "List completed"
@@ -65,9 +64,6 @@ rbg_delete() {
     local fqin="${1:-}"
     [[ -z "$fqin" ]] && bcu_die "Usage: rbg_delete <fully_qualified_image_name>"
     
-    # Validate all RBRR variables
-    source "$SCRIPT_DIR/rbrr.validator.sh"
-    
     bcu_start "Delete image: $fqin"
     bcu_warn "Not implemented yet"
     bcu_pass "Delete completed"
@@ -77,10 +73,7 @@ rbg_delete() {
 rbg_retrieve() {
     local fqin="${1:-}"
     [[ -z "$fqin" ]] && bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
-    
-    # Validate all RBRR variables
-    source "$SCRIPT_DIR/rbrr.validator.sh"
-    
+
     bcu_start "Retrieve image: $fqin"
     bcu_warn "Not implemented yet"
     bcu_pass "Retrieve completed"
@@ -89,7 +82,6 @@ rbg_retrieve() {
 # Command: Show help
 rbg_help() {
     bcu_info "Recipe Bottle GitHub - Container Registry Management"
-    bcu_info "Commands: rbg_build, rbg_list, rbg_delete, rbg_retrieve, rbg_help"
 }
 
 # Main dispatch
