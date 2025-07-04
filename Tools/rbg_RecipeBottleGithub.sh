@@ -37,13 +37,17 @@ zrbg_curl_headers() {
     echo "-H \"Authorization: token \$RBV_PAT\" -H 'Accept: application/vnd.github.v3+json'"
 }
 
-# Command: Build container from recipe
 rbg_build() {
+    bcu_doc_brief "Build container from recipe"
+    bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
+    bcu_doc_done && return
+    
+    set -e
+    
     local recipe="${1:-}"
     [[ -z "$recipe" ]] && bcu_die "Usage: rbg_build <recipe_file>"
     [[ ! -f "$recipe" ]] && bcu_die "Recipe file not found: $recipe"
     
-    # Validate uppercase in basename
     local basename=$(basename "$recipe")
     [[ "$basename" =~ [A-Z] ]] && bcu_die "Recipe basename must not contain uppercase letters: $basename"
     
@@ -52,14 +56,17 @@ rbg_build() {
     bcu_pass "Build completed"
 }
 
-# Command: List registry images
 rbg_list() {
+    bcu_doc_brief "List registry images"
+    bcu_doc_done && return
+    
+    set -e
+    
     bcu_start "List registry images"
     bcu_warn "Not implemented yet"
     bcu_pass "List completed"
 }
 
-# Command: Delete registry image
 rbg_delete() {
     local fqin="${1:-}"
     [[ -z "$fqin" ]] && bcu_die "Usage: rbg_delete <fully_qualified_image_name>"
@@ -69,7 +76,6 @@ rbg_delete() {
     bcu_pass "Delete completed"
 }
 
-# Command: Retrieve (pull) registry image
 rbg_retrieve() {
     local fqin="${1:-}"
     [[ -z "$fqin" ]] && bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
@@ -79,9 +85,18 @@ rbg_retrieve() {
     bcu_pass "Retrieve completed"
 }
 
-# Command: Show help
+# Help command that extracts docs
 rbg_help() {
-    bcu_info "Recipe Bottle GitHub - Container Registry Management"
+    echo "Recipe Bottle GitHub - Container Registry Management"
+    echo
+    echo "Commands:"
+    
+    bcu_enter_help_mode
+    for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3 | grep -v rbg_help); do
+        $cmd 2>/dev/null
+        echo
+    done
+    bcu_exit_help_mode
 }
 
 # Main dispatch

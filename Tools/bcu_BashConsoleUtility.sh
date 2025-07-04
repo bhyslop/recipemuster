@@ -24,6 +24,8 @@ BCU_YELLOW='\033[0;33m'
 BCU_BLUE='\033[0;34m'
 BCU_RESET='\033[0m'
 
+BCU_HELP_MODE=0
+
 # Core output functions
 bcu_info() {
     echo "$@" >&2
@@ -55,7 +57,23 @@ bcu_pass() {
     echo -e "${BCU_GREEN}?${BCU_RESET} $@" >&2
 }
 
-# Utility functions
+bcu_doc_brief() {
+    [[ "${BCU_HELP_MODE:-0}" == "1" ]] && echo "  $1"
+}
+
+bcu_doc_param() {
+    [[ "${BCU_HELP_MODE:-0}" == "1" ]] && echo "    $1 - $2"
+}
+
+bcu_doc_done() {
+    [[ "${BCU_HELP_MODE:-0}" == "1" ]] && return 0
+    return 1
+}
+
+bcu_enter_help_mode() {
+    BCU_HELP_MODE=1
+}
+
 bcu_require_var() {
     local varname="$1"
     if [[ -z "${!varname}" ]]; then
