@@ -91,28 +91,28 @@ echo "BRADTODO: Before help..."
 
 # Help command that extracts docs
 rbg_help() {
-    echo "DEBUG: Entering rbg_help function"
+    echo "BRADTODO: Entering rbg_help function"
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
-    echo "DEBUG: After bcu_doc_brief"
+    echo "BRADTODO: After bcu_doc_brief"
     bcu_doc_done && return
-    echo "DEBUG: After bcu_doc_done check"
+    echo "BRADTODO: After bcu_doc_done check"
     
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
     echo "Commands:"
     
-    echo "DEBUG: Functions available:"
+    echo "BRADTODO: Functions available:"
     declare -F
     echo "Starting help loop"
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3 | grep -v rbg_help); do
         echo "Calling: $cmd"
-        bcu_enter_help_mode "$cmd"
+        bcu_set_help_mode "$cmd"
         $cmd
-        bcu_exit_help_mode
+        bcu_set_help_mode
         echo
     done
     echo "Finished help loop"
-    echo "DEBUG: Exiting rbg_help function"
+    echo "BRADTODO: Exiting rbg_help function"
 }
 
 echo "BRADTODO: After help lets get the declare list..."
