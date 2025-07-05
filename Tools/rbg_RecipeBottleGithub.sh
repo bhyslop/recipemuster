@@ -22,6 +22,7 @@ set -e
 # Find script directory and source utilities
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/bcu_BashConsoleUtility.sh"
+source "$SCRIPT_DIR/crgv.validate.sh"
 
 # Internal constants
 ZRBG_GIT_REGISTRY="ghcr.io"
@@ -38,65 +39,87 @@ zrbg_curl_headers() {
 }
 
 rbg_build() {
-    # Document command
+    set -e
+
     bcu_doc_brief "Build container from recipe"
     bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
-    bcu_doc_done && return
+    bcu_doc_shown || return 0
 
-    # Execute command
-    set -e
-    
     local recipe_file="${1:-}"
-ERROR FIX INVERT
-    [[ -z "$recipe_file" ]] && bcu_die "Usage: rbg_build <recipe_file>"
-    [[ ! -f "$recipe_file" ]] && bcu_die "Recipe file not found: $recipe_file"
+    [[ -n "$recipe_file" ]] || bcu_die "Usage: rbg_build <recipe_file>"
+    [[ -f "$recipe_file" ]] || bcu_die "Recipe file not found: $recipe_file"
     
-    bcu_start "Build container from $recipe"
+    bcu_step "Build container from $recipe_file"
     bcu_warn "Not implemented yet"
     bcu_pass "Build completed"
 }
 
 rbg_list() {
-    # Document command
-    bcu_doc_brief "List registry images"
-    bcu_doc_done && return
-
-    # Execute command
     set -e
+
+    bcu_doc_brief "List registry images"
+    bcu_doc_shown || return 0
     
-    bcu_start "List registry images"
+    bcu_step "List registry images"
     bcu_warn "Not implemented yet"
     bcu_pass "List completed"
 }
 
 rbg_delete() {
+    set -e
+
+    bcu_doc_brief "Delete image from registry"
+    bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
+    bcu_doc_shown || return 0
+
     local fqin="${1:-}"
-    [[ -z "$fqin" ]] && bcu_die "Usage: rbg_delete <fully_qualified_image_name>"
+    [[ -n "$fqin" ]] || bcu_die "Usage: rbg_delete <fully_qualified_image_name>"
     
-    bcu_start "Delete image: $fqin"
+    # Validate FQIN format
+    FQIN_TEMP="$fqin"
+    crgv_fqin "rbg_delete" "FQIN_TEMP" 1 512
+    
+    bcu_step "Delete image: $fqin"
     bcu_warn "Not implemented yet"
     bcu_pass "Delete completed"
 }
 
 rbg_retrieve() {
-    local fqin="${1:-}"
-    [[ -z "$fqin" ]] && bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
+    set -e
 
-    bcu_start "Retrieve image: $fqin"
+    bcu_doc_brief "Retrieve image from registry"
+    bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
+    bcu_doc_shown || return 0
+
+    local fqin="${1:-}"
+    [[ -n "$fqin" ]] || bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
+    
+    # Validate FQIN format
+    FQIN_TEMP="$fqin"
+    crgv_fqin "rbg_retrieve" "FQIN_TEMP" 1 512
+
+    bcu_step "Retrieve image: $fqin"
     bcu_warn "Not implemented yet"
     bcu_pass "Retrieve completed"
 }
 
 rbg_help() {
+    set -e
+    
+    echo BRADTODO "in help with ZBCU_HELP_CMD=$ZBCU_HELP_CMD"
+    
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
-    bcu_doc_done && return
+    echo BRADTODO "after brief with ZBCU_HELP_CMD=$ZBCU_HELP_CMD"
+    bcu_doc_shown || return 0
+    
+    echo BRADTODO "during help with ZBCU_HELP_CMD=$ZBCU_HELP_CMD"
+    
     
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
     echo "Commands:"
     
-    for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3 | grep -v rbg_help); do
-        echo "Calling: $cmd"
+    for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
         bcu_set_help_mode "$cmd"
         $cmd
         bcu_set_help_mode

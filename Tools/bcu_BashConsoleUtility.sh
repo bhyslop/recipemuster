@@ -28,41 +28,67 @@ ZBCU_RESET='\033[0m'
 ZBCU_HELP_CMD=""
 
 bcu_info() {
-    echo "$@" >&2
+    set +x
+    echo "$@"
 }
 
 bcu_warn() {
+    set +x
     echo -e "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
 }
 
 bcu_die() {
+    set +x
     echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $@"
     exit 1
 }
 
-bcu_start() {
+bcu_step() {
+    set +x
     echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
 }
 
-bcu_step() {
-    echo -e "${ZBCU_YELLOW}---${ZBCU_RESET} $@" || bcu_die
-}
-
 bcu_pass() {
+    set +x
     echo -e "${ZBCU_GREEN}?${ZBCU_RESET} $@" || bcu_die
 }
 
+zbcu_do_execute() {
+    echo "zbcu_do_execute entered..."
+    [[ -z "${ZBCU_HELP_CMD}" ]] || return 0
+    echo "zbcu_do_execute exiting with FALSE..."
+    return 1
+}
+
 bcu_doc_brief() {
-    [[ -z "${ZBCU_HELP_CMD}" ]] || echo "  $1"
+    set +x
+    echo "bcu_doc_brief entered..."
+    zbcu_do_execute && echo "bcu_doc_brief return TRUE" || echo "bcu_doc_brief return FALSE"
+    echo "bcu_doc_brief testing..."
+    zbcu_do_execute || return 0
+    echo "bcu_doc_brief displaying..."
+    echo "  ${ZBCU_HELP_CMD}"
+    echo "    brief: $1"
+}
+
+bcu_doc_lines() {
+    set +x
+    zbcu_do_execute || return 0
+    echo "           $1"
 }
 
 bcu_doc_param() {
-    [[ -z "${ZBCU_HELP_CMD}" ]] || echo "    $1 - $2"
+    set +x
+    zbcu_do_execute || return 0
+    echo "           $1 - $2"
 }
 
-bcu_doc_done() {
-    [[ -n "${ZBCU_HELP_CMD}" ]] && return 0
-    return 1
+
+# Idiomatic last step of documentation in the bash api.  
+# Usage:
+#    bcu_doc_shown || return 0
+bcu_doc_shown() {
+    zbcu_do_execute
 }
 
 bcu_set_help_mode() {
