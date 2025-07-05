@@ -24,11 +24,7 @@ ZBCU_INCLUDED=1
 # Color codes
 zbcu_color() {
   # More robust terminal detection for Cygwin and other environments
-  if [[ -n "$TERM" && "$TERM" != "dumb" ]]; then
-    printf '\033[%sm' "$1"
-  else
-    printf ''
-  fi
+  test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''
 }
 ZBCU_RED=$(    zbcu_color '0;31' )
 ZBCU_GREEN=$(  zbcu_color '0;32' )
