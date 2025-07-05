@@ -54,17 +54,13 @@ bcu_pass() {
 }
 
 zbcu_do_execute() {
-    echo "zbcu_do_execute entered..."
-    [[ -z "${ZBCU_HELP_CMD}" ]] || return 0
-    echo "zbcu_do_execute exiting with FALSE..."
-    return 1
+    [[ -z "${ZBCU_HELP_CMD}" ]] && return 0  # Normal mode
+    return 1  # Help mode
 }
+
 
 bcu_doc_brief() {
     set +x
-    echo "bcu_doc_brief entered..."
-    zbcu_do_execute && echo "bcu_doc_brief return TRUE" || echo "bcu_doc_brief return FALSE"
-    echo "bcu_doc_brief testing..."
     zbcu_do_execute || return 0
     echo "bcu_doc_brief displaying..."
     echo "  ${ZBCU_HELP_CMD}"
