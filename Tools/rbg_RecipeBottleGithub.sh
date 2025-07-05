@@ -114,10 +114,9 @@ rbg_help() {
     echo "Commands:"
     
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
-        bcu_set_help_mode "$cmd"
-        $cmd
-        bcu_set_help_mode
         echo
+        bcu_set_doc_mode "$cmd"
+        $cmd
     done
 }
 

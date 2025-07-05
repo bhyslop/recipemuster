@@ -37,10 +37,13 @@ ZBCU_BLUE=$(   zbcu_color '0;34' )
 ZBCU_RESET=$(  zbcu_color '0'    )
 
 # Help mode: if ZBCU_HELP_CMD is empty, not in help mode; if set, in help mode for that command
-ZBCU_HELP_CMD=""
 
 # Global context variable for error messages
 ZBCU_CONTEXT=""
+
+# Help mode flag and command name storage
+ZBCU_DOC_MODE=false
+ZBCU_DOC_COMMAND=""
 
 bcu_info() {
     set +x
@@ -80,15 +83,15 @@ bcu_pass() {
 }
 
 zbcu_do_execute() {
-    [[ -z "${ZBCU_HELP_CMD}" ]] || return 0  # Normal mode
-    return 1  # Help mode
+    [[ "$ZBCU_DOC_MODE" == "true" ]] && return 0  # Help mode
+    return 1  # Normal mode
 }
 
 
 bcu_doc_brief() {
     set +x
     zbcu_do_execute || return 0
-    echo "  ${ZBCU_HELP_CMD}"
+    echo "  ${ZBCU_DOC_COMMAND}"
     echo "    brief: $1"
 }
 
@@ -113,9 +116,10 @@ bcu_doc_shown() {
     return 1
 }
 
-bcu_set_help_mode() {
+bcu_set_doc_mode() {
     local cmd_name="${1:-}"
-    ZBCU_HELP_CMD="$cmd_name"
+    ZBCU_DOC_MODE=true
+    ZBCU_DOC_COMMAND="$cmd_name"
 }
 
 bcu_require_var() {
