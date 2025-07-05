@@ -18,6 +18,10 @@
 # Bash Validation Utility Library
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 
+# Multiple inclusion guard
+[[ -n "${ZBVU_INCLUDED:-}" ]] && return 0
+ZBVU_INCLUDED=1
+
 # Global context variable
 ZBVU_CONTEXT=""
 

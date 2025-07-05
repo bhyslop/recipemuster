@@ -17,12 +17,19 @@
 #
 # Bash Console Utility Library
 
+# Multiple inclusion guard
+[[ -n "${ZBCU_INCLUDED:-}" ]] && return 0
+ZBCU_INCLUDED=1
+
 # Color codes
-ZBCU_RED='\033[0;31m'
-ZBCU_GREEN='\033[0;32m'
-ZBCU_YELLOW='\033[0;33m'
-ZBCU_BLUE='\033[0;34m'
-ZBCU_RESET='\033[0m'
+zbcu_color() {
+  test -t 1 && test "$TERM" != "dumb" && printf '[%sm' "$1" || printf ''
+}
+ZBCU_RED=$(    zbcu_color '0;31' )
+ZBCU_GREEN=$(  zbcu_color '0;32' )
+ZBCU_YELLOW=$( zbcu_color '0;33' )
+ZBCU_BLUE=$(   zbcu_color '0;34' )
+ZBCU_RESET=$(  zbcu_color '0'    )
 
 # Help mode: if ZBCU_HELP_CMD is empty, not in help mode; if set, in help mode for that command
 ZBCU_HELP_CMD=""
