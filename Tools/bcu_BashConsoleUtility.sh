@@ -41,9 +41,8 @@ ZBCU_RESET=$(  zbcu_color '0'    )
 # Global context variable for error messages
 ZBCU_CONTEXT=""
 
-# Help mode flag and command name storage
+# Help mode flag
 ZBCU_DOC_MODE=false
-ZBCU_DOC_COMMAND=""
 
 bcu_info() {
     set +x
@@ -91,7 +90,7 @@ zbcu_do_execute() {
 bcu_doc_brief() {
     set +x
     zbcu_do_execute || return 0
-    echo "  ${ZBCU_DOC_COMMAND}"
+    echo "  ${ZBCU_CONTEXT}"
     echo "    brief: $1"
 }
 
@@ -117,9 +116,7 @@ bcu_doc_shown() {
 }
 
 bcu_set_doc_mode() {
-    local cmd_name="${1:-}"
     ZBCU_DOC_MODE=true
-    ZBCU_DOC_COMMAND="$cmd_name"
 }
 
 bcu_require_var() {

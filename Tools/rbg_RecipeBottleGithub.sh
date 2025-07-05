@@ -115,7 +115,8 @@ rbg_help() {
     
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
         echo
-        bcu_set_doc_mode "$cmd"
+        bcu_set_context "$cmd"
+        bcu_set_doc_mode
         $cmd
     done
 }
@@ -126,6 +127,7 @@ shift || true
 
 # Check if function exists and matches our pattern
 if declare -F "$cmd" >/dev/null && [[ "$cmd" =~ ^rbg_[a-z_]+$ ]]; then
+    bcu_set_context "$cmd"
     "$cmd" "$@"
 else
     if [[ -n "$cmd" ]]; then
