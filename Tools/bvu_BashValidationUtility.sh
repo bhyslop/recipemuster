@@ -22,19 +22,8 @@
 [[ -n "${ZBVU_INCLUDED:-}" ]] && return 0
 ZBVU_INCLUDED=1
 
-# Global context variable
-ZBVU_CONTEXT=""
-
-# Set validation context for error messages
-bvu_context() {
-    ZBVU_CONTEXT="$1"
-}
-
-# Internal error handler
-zbvu_die() {
-    echo "ERROR: [$ZBVU_CONTEXT] $*" >&2
-    exit 1
-}
+# Source the console utility library
+source "$(dirname "$0")/bcu_BashConsoleUtility.sh"
 
 # Validate and return a string
 bvu_string() {
@@ -43,12 +32,12 @@ bvu_string() {
     local max="${3:-255}"
     
     # Check not empty
-    test -n "$value" || zbvu_die "string must not be empty"
+    test -n "$value" || bcu_die "string must not be empty"
     
     # Check length constraints
     local len=${#value}
-    test $len -ge $min || zbvu_die "string must be at least $min chars, got '$value' ($len)"
-    test $len -le $max || zbvu_die "string must be no more than $max chars, got '$value' ($len)"
+    test $len -ge $min || bcu_die "string must be at least $min chars, got '$value' ($len)"
+    test $len -le $max || bcu_die "string must be no more than $max chars, got '$value' ($len)"
     
     echo "$value"
 }
@@ -60,16 +49,16 @@ bvu_xname() {
     local max="${3:-64}"
     
     # Check not empty
-    test -n "$value" || zbvu_die "xname must not be empty"
+    test -n "$value" || bcu_die "xname must not be empty"
     
     # Check length constraints
     local len=${#value}
-    test $len -ge $min || zbvu_die "xname must be at least $min chars, got '$value' ($len)"
-    test $len -le $max || zbvu_die "xname must be no more than $max chars, got '$value' ($len)"
+    test $len -ge $min || bcu_die "xname must be at least $min chars, got '$value' ($len)"
+    test $len -le $max || bcu_die "xname must be no more than $max chars, got '$value' ($len)"
     
     # Must start with letter and contain only allowed chars
     echo "$value" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$' || \
-        zbvu_die "xname must start with letter and contain only letters, numbers, underscore, hyphen, got '$value'"
+        bcu_die "xname must start with letter and contain only letters, numbers, underscore, hyphen, got '$value'"
     
     echo "$value"
 }
@@ -81,16 +70,16 @@ bvu_fqin() {
     local max="${3:-512}"
     
     # Check not empty
-    test -n "$value" || zbvu_die "fqin must not be empty"
+    test -n "$value" || bcu_die "fqin must not be empty"
     
     # Check length constraints
     local len=${#value}
-    test $len -ge $min || zbvu_die "fqin must be at least $min chars, got '$value' ($len)"
-    test $len -le $max || zbvu_die "fqin must be no more than $max chars, got '$value' ($len)"
+    test $len -ge $min || bcu_die "fqin must be at least $min chars, got '$value' ($len)"
+    test $len -le $max || bcu_die "fqin must be no more than $max chars, got '$value' ($len)"
     
     # Allow letters, numbers, dots, hyphens, underscores, forward slashes, colons
     echo "$value" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$' || \
-        zbvu_die "fqin must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '$value'"
+        bcu_die "fqin must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '$value'"
     
     echo "$value"
 }

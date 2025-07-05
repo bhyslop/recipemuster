@@ -34,6 +34,9 @@ ZBCU_RESET=$(  zbcu_color '0'    )
 # Help mode: if ZBCU_HELP_CMD is empty, not in help mode; if set, in help mode for that command
 ZBCU_HELP_CMD=""
 
+# Global context variable for error messages
+ZBCU_CONTEXT=""
+
 bcu_info() {
     set +x
     echo "$@"
@@ -48,6 +51,16 @@ bcu_die() {
     set +x
     echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $@"
     exit 1
+}
+
+bcu_set_context() {
+    local old_context="$ZBCU_CONTEXT"
+    ZBCU_CONTEXT="$1"
+    echo "$old_context"
+}
+
+bcu_get_context() {
+    echo "$ZBCU_CONTEXT"
 }
 
 bcu_step() {
