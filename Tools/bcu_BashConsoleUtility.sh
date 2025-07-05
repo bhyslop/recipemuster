@@ -32,9 +32,7 @@ ZBCU_YELLOW=$( zbcu_color '0;33' )
 ZBCU_BLUE=$(   zbcu_color '0;34' )
 ZBCU_RESET=$(  zbcu_color '0'    )
 
-# Help mode: if ZBCU_HELP_CMD is empty, not in help mode; if set, in help mode for that command
-
-# Global context variable for error messages
+# Global context variable for info and error messages
 ZBCU_CONTEXT=""
 
 # Help mode flag
