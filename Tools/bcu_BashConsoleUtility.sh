@@ -23,7 +23,12 @@ ZBCU_INCLUDED=1
 
 # Color codes
 zbcu_color() {
-  test -t 1 && test "$TERM" != "dumb" && printf '[%sm' "$1" || printf ''
+  # More robust terminal detection for Cygwin and other environments
+  if [[ -n "$TERM" && "$TERM" != "dumb" ]]; then
+    printf '\033[%sm' "$1"
+  else
+    printf ''
+  fi
 }
 ZBCU_RED=$(    zbcu_color '0;31' )
 ZBCU_GREEN=$(  zbcu_color '0;32' )
@@ -49,7 +54,8 @@ bcu_warn() {
 
 bcu_die() {
     set +x
-    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $@"
+    local context="${ZBCU_CONTEXT:-}"
+    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
     exit 1
 }
 
