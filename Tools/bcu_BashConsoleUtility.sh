@@ -54,12 +54,13 @@ bcu_pass() {
 }
 
 zbcu_do_execute() {
-    [[ -z "${ZBCU_HELP_CMD}" ]] && return 0  # Normal mode
+    [[ -z "${ZBCU_HELP_CMD}" ]] || return 0  # Normal mode
     return 1  # Help mode
 }
 
 
 bcu_doc_brief() {
+    echo "bcu_doc_brief enter with ZBCU_HELP_CMD=${ZBCU_HELP_CMD}"
     set +x
     zbcu_do_execute || return 0
     echo "bcu_doc_brief displaying..."
@@ -84,7 +85,8 @@ bcu_doc_param() {
 # Usage:
 #    bcu_doc_shown || return 0
 bcu_doc_shown() {
-    zbcu_do_execute
+    zbcu_do_execute || return 0
+    return 1
 }
 
 bcu_set_help_mode() {
