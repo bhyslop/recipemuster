@@ -106,14 +106,8 @@ rbg_retrieve() {
 rbg_help() {
     set -e
     
-    echo BRADTODO "in help with ZBCU_HELP_CMD=$ZBCU_HELP_CMD"
-    
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
-    echo BRADTODO "after brief with ZBCU_HELP_CMD=$ZBCU_HELP_CMD"
     bcu_doc_shown || return 0
-    
-    echo BRADTODO "during help with ZBCU_HELP_CMD=$ZBCU_HELP_CMD"
-    
     
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo

@@ -60,10 +60,8 @@ zbcu_do_execute() {
 
 
 bcu_doc_brief() {
-    echo "bcu_doc_brief enter with ZBCU_HELP_CMD=${ZBCU_HELP_CMD}"
     set +x
     zbcu_do_execute || return 0
-    echo "bcu_doc_brief displaying..."
     echo "  ${ZBCU_HELP_CMD}"
     echo "    brief: $1"
 }
