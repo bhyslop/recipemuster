@@ -26,11 +26,15 @@ zbcu_color() {
   # More robust terminal detection for Cygwin and other environments
   test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''
 }
-ZBCU_RED=$(    zbcu_color '0;31' )
-ZBCU_GREEN=$(  zbcu_color '0;32' )
-ZBCU_YELLOW=$( zbcu_color '0;33' )
-ZBCU_BLUE=$(   zbcu_color '0;34' )
-ZBCU_RESET=$(  zbcu_color '0'    )
+ZBCU_BLACK=$(   zbcu_color '1;30' )
+ZBCU_RED=$(     zbcu_color '1;31' )
+ZBCU_GREEN=$(   zbcu_color '1;32' )
+ZBCU_YELLOW=$(  zbcu_color '1;33' )
+ZBCU_BLUE=$(    zbcu_color '1;34' )
+ZBCU_MAGENTA=$( zbcu_color '1;35' )
+ZBCU_CYAN=$(    zbcu_color '1;36' )
+ZBCU_WHITE=$(   zbcu_color '1;37' )
+ZBCU_RESET=$(   zbcu_color '0'    )
 
 # Global context variable for info and error messages
 ZBCU_CONTEXT=""
@@ -56,9 +60,7 @@ bcu_die() {
 }
 
 bcu_set_context() {
-    local old_context="$ZBCU_CONTEXT"
     ZBCU_CONTEXT="$1"
-    echo "$old_context"
 }
 
 bcu_get_context() {
@@ -80,11 +82,14 @@ zbcu_do_execute() {
     return 1  # Normal mode
 }
 
+ZBCU_USAGE_STRING="UNFILLED"
 
 bcu_doc_brief() {
     set +x
+    ZBCU_USAGE_STRING="${ZBCU_CONTEXT}"
     zbcu_do_execute || return 0
-    echo "  ${ZBCU_CONTEXT}"
+    echo
+    echo "  ${ZBCU_WHITE}${ZBCU_CONTEXT}${ZBCU_RESET}"
     echo "    brief: $1"
 }
 
@@ -96,21 +101,41 @@ bcu_doc_lines() {
 
 bcu_doc_param() {
     set +x
+    ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} <<$1>>"
     zbcu_do_execute || return 0
-    echo "           $1 - $2"
+    echo "    param: $1 - $2"
 }
 
+bcu_doc_oparm() {
+    set +x
+    ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} [<<$1>>]"
+    zbcu_do_execute || return 0
+    echo "    param: $1 - $2"
+}
+
+zbcu_usage() {
+    echo -e "    usage: ${ZBCU_CYAN}${ZBCU_USAGE_STRING}${ZBCU_RESET}"
+}
 
 # Idiomatic last step of documentation in the bash api.  
 # Usage:
 #    bcu_doc_shown || return 0
 bcu_doc_shown() {
     zbcu_do_execute || return 0
+    zbcu_usage
     return 1
 }
 
 bcu_set_doc_mode() {
     ZBCU_DOC_MODE=true
+}
+
+bcu_usage_die() {
+    set +x
+    local context="${ZBCU_CONTEXT:-}"
+    local usage=$(zbcu_usage)
+    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $usage"
+    exit 1
 }
 
 bcu_require_var() {

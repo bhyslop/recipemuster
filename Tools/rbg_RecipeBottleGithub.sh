@@ -46,7 +46,7 @@ rbg_build() {
     bcu_doc_shown || return 0
 
     local recipe_file="${1:-}"
-    [[ -n "$recipe_file" ]] || bcu_die "Usage: rbg_build <recipe_file>"
+    [[ -n "$recipe_file" ]] || bcu_usage_die
     [[ -f "$recipe_file" ]] || bcu_die "Recipe file not found: $recipe_file"
     
     bcu_step "Build container from $recipe_file"
@@ -73,7 +73,7 @@ rbg_delete() {
     bcu_doc_shown || return 0
 
     local fqin="${1:-}"
-    [[ -n "$fqin" ]] || bcu_die "Usage: rbg_delete <fully_qualified_image_name>"
+    [[ -n "$fqin" ]] || bcu_usage_die
     
     # Validate FQIN format
     FQIN_TEMP="$fqin"
@@ -109,14 +109,14 @@ rbg_help() {
     bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
     bcu_doc_shown || return 0
     
+    bcu_set_doc_mode
+    
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
     echo "Commands:"
     
     for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
-        echo
         bcu_set_context "$cmd"
-        bcu_set_doc_mode
         $cmd
     done
 }
