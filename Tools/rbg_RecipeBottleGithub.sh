@@ -41,14 +41,19 @@ zrbg_curl_headers() {
 rbg_build() {
     set -e
 
+    # Name parameters, perhaps provide defaults for optional ones
+    local recipe_file="${1:-}"
+
+    # Handle documentation mode
     bcu_doc_brief "Build container from recipe"
     bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
     bcu_doc_shown || return 0
 
-    local     recipe_file="${1:-}"
+    # Argument validation
     test -n "$recipe_file" || bcu_usage_die
     test -f "$recipe_file" || bcu_die "Recipe file not found: $recipe_file"
-    
+
+    # Command execution
     bcu_step "Build container from $recipe_file"
     bcu_warn "Not implemented yet"
     bcu_pass "Build completed"
@@ -57,9 +62,11 @@ rbg_build() {
 rbg_list() {
     set -e
 
+    # Handle documentation mode
     bcu_doc_brief "List registry images"
     bcu_doc_shown || return 0
-    
+
+    # Command execution
     bcu_step "List registry images"
     bcu_warn "Not implemented yet"
     bcu_pass "List completed"
@@ -68,17 +75,19 @@ rbg_list() {
 rbg_delete() {
     set -e
 
+    # Name parameters, perhaps provide defaults for optional ones
+    local     fqin="${1:-}"
+
+    # Handle documentation mode
     bcu_doc_brief "Delete image from registry"
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
     bcu_doc_shown || return 0
 
-    local     fqin="${1:-}"
+    # Argument validation
     test -n "$fqin" || bcu_usage_die
-    
-    # Validate FQIN format
-    FQIN_TEMP="$fqin"
-    crgv_fqin "rbg_delete" "FQIN_TEMP" 1 512
-    
+    crgv_fqin "rbg_delete" "$fqin" 1 512
+
+    # Command execution
     bcu_step "Delete image: $fqin"
     bcu_warn "Not implemented yet"
     bcu_pass "Delete completed"
@@ -87,15 +96,19 @@ rbg_delete() {
 rbg_retrieve() {
     set -e
 
+    # Name parameters, perhaps provide defaults for optional ones
+    local     fqin="${1:-}"
+ 
+    # Handle documentation mode
     bcu_doc_brief "Retrieve image from registry"
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
     bcu_doc_shown || return 0
 
-    local     fqin="${1:-}"
+    # Argument validation
     test -n "$fqin" || bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
-    
     crgv_fqin "rbg_retrieve" "$fqin" 1 512
 
+    # Command execution
     bcu_step "Retrieve image: $fqin"
     bcu_warn "Not implemented yet"
     bcu_pass "Retrieve completed"
@@ -103,32 +116,37 @@ rbg_retrieve() {
 
 rbg_help() {
     set -e
-    
-    bcu_doc_brief "Show help for Recipe Bottle GitHub commands"
+
+    # Handle documentation mode
+    bcu_doc_brief "Show help for available commands"
     bcu_doc_shown || return 0
-    
+
+    # Perform documentation
+    shift $#
     bcu_set_doc_mode
-    
+
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
     echo "Commands:"
-    
+
     for zrbg_command in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
-        bcu_set_context "$zrbg_command"
+        bcu_context "$zrbg_command"
         $zrbg_command
     done
 }
 
-# Main dispatch
+# Detect command, if any
 zrbg_command="${1:-}"
 shift || true
 
-# Check if function exists and matches our pattern
-if declare -F "$zrbg_command" >/dev/null && echo "$zrbg_command" | grep -q '^rbg_[a-z_]*$'; then
-    bcu_set_context "$zrbg_command"
+# Attempt execution
+if declare -F   "$zrbg_command" >/dev/null &&\
+           echo "$zrbg_command" | grep -q '^rbg_[a-z_]*$'; then
+    bcu_context "$zrbg_command"
     "$zrbg_command" "$@"
 else
-    test -z "$zrbg_command" || bcu_warn "Unknown command: $zrbg_command"
+    # Emit documentation
+    test -z     "$zrbg_command" || bcu_warn "Unknown command: $zrbg_command"
     rbg_help
     exit 1
 fi

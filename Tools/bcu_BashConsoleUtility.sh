@@ -59,7 +59,7 @@ bcu_die() {
     exit 1
 }
 
-bcu_set_context() {
+bcu_context() {
     ZBCU_CONTEXT="$1"
 }
 
