@@ -103,14 +103,14 @@ bcu_doc_param() {
     set +x
     ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} <<$1>>"
     zbcu_do_execute || return 0
-    echo "    param: $1 - $2"
+    echo "    required: $1 - $2"
 }
 
 bcu_doc_oparm() {
     set +x
     ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} [<<$1>>]"
     zbcu_do_execute || return 0
-    echo "    param: $1 - $2"
+    echo "    optional: $1 - $2"
 }
 
 zbcu_usage() {
