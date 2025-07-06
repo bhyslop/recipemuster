@@ -74,9 +74,23 @@ bcu_pass() {
 }
 
 zbcu_do_execute() {
-    [[ "$ZBCU_DOC_MODE" == "true" ]] && return 0  # Documentation mode
-    return 1  # Execution mode
+    test "$ZBCU_DOC_MODE" = "true" && return 0 || return 1
 }
+
+bcu_doc_env() {
+    set +x
+    local env_var_name="${1}"
+    local env_var_info="${2}"
+
+    echo "  ${ZBCU_MAGENTA}${env_var_name}${ZBCU_RESET}:  ${env_var_info}"
+}
+
+bcu_env_done() {
+    zbcu_do_execute || return 0
+    echo
+    return 1
+}
+
 
 ZBCU_USAGE_STRING="UNFILLED"
 
@@ -132,27 +146,6 @@ bcu_usage_die() {
     local usage=$(zbcu_usage)
     echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $usage"
     exit 1
-}
-
-bcu_require_var() {
-    local varname="$1"
-    if [[ -z "${!varname}" ]]; then
-        bcu_die "Required variable $varname is not set"
-    fi
-}
-
-bcu_require_file() {
-    local filepath="$1"
-    if [[ ! -f "$filepath" ]]; then
-        bcu_die "Required file not found: $filepath"
-    fi
-}
-
-bcu_require_dir() {
-    local dirpath="$1"
-    if [[ ! -d "$dirpath" ]]; then
-        bcu_die "Required directory not found: $dirpath"
-    fi
 }
 
 

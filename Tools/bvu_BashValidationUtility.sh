@@ -25,6 +25,22 @@ ZBVU_INCLUDED=1
 # Source the console utility library
 source "$(dirname "$0")/bcu_BashConsoleUtility.sh"
 
+bvu_file_exists() {
+    local filepath="$1"
+    test -f "$filepath" || bcu_die "Required file not found: $filepath"
+}
+
+bvu_dir_exists() {
+    local dirpath="$1"
+    test -d "$dirpath" || bcu_die "Required directory not found: $dirpath"
+}
+
+bvu_dir_empty() {
+    local dirpath="$1"
+    test -d          "$dirpath"               || bcu_die "Required directory not found: $dirpath"
+    test -z "$(ls -A "$dirpath" 2>/dev/null)" || bcu_die "Directory must be empty: $dirpath"
+}
+
 # Validate and return a string
 bvu_string() {
     local value="$1"

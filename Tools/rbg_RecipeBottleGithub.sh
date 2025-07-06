@@ -20,21 +20,35 @@
 set -e
 
 # Find script directory and source utilities
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "$SCRIPT_DIR/bcu_BashConsoleUtility.sh"
-source "$SCRIPT_DIR/crgv.validate.sh"
+ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${ZRBG_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
+source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBG_SCRIPT_DIR}/crgv.validate.sh"
 
 # Internal constants
 ZRBG_GIT_REGISTRY="ghcr.io"
 ZRBG_GITAPI_URL="https://api.github.com"
 
-# All repo variables are needed
-source "$SCRIPT_DIR/rbrr.validator.sh"
+# Document, establish, validate environment
+zrbg_env() {
 
+    # Handle documentation mode
+    bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
+    bcu_doc_env "RBG_NOW_STAMP " "Timestamp for per run branding"
+    bcu_doc_env "RBG_RBRR_FILE " "File containing the RBRR constants"
+
+    bcu_env_done || return 0
+
+    # Validate environment
+    bvu_file_exists "${RBG_RBRR_FILE}"
+    source          "${RBG_RBRR_FILE}"
+    source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
+}
 
 # Internal helper functions
 zrbg_curl_headers() {
     set -e
+
     echo "-H \"Authorization: token \$RBV_PAT\" -H 'Accept: application/vnd.github.v3+json'"
 }
 
@@ -127,6 +141,9 @@ rbg_help() {
 
     echo "Recipe Bottle GitHub - Container Registry Management"
     echo
+    echo "Environment vars needed:"
+    zrbg_env
+
     echo "Commands:"
 
     for zrbg_command in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
@@ -143,6 +160,8 @@ shift || true
 if declare -F   "$zrbg_command" >/dev/null &&\
            echo "$zrbg_command" | grep -q '^rbg_[a-z_]*$'; then
     bcu_context "$zrbg_command"
+
+    zrbg_env
     "$zrbg_command" "$@"
 else
     # Emit documentation
