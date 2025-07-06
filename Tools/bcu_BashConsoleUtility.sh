@@ -63,10 +63,6 @@ bcu_set_context() {
     ZBCU_CONTEXT="$1"
 }
 
-bcu_get_context() {
-    echo "$ZBCU_CONTEXT"
-}
-
 bcu_step() {
     set +x
     echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
@@ -78,8 +74,8 @@ bcu_pass() {
 }
 
 zbcu_do_execute() {
-    [[ "$ZBCU_DOC_MODE" == "true" ]] && return 0  # Help mode
-    return 1  # Normal mode
+    [[ "$ZBCU_DOC_MODE" == "true" ]] && return 0  # Documentation mode
+    return 1  # Execution mode
 }
 
 ZBCU_USAGE_STRING="UNFILLED"

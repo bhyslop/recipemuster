@@ -45,9 +45,9 @@ rbg_build() {
     bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
     bcu_doc_shown || return 0
 
-    local recipe_file="${1:-}"
-    [[ -n "$recipe_file" ]] || bcu_usage_die
-    [[ -f "$recipe_file" ]] || bcu_die "Recipe file not found: $recipe_file"
+    local     recipe_file="${1:-}"
+    test -n "$recipe_file" || bcu_usage_die
+    test -f "$recipe_file" || bcu_die "Recipe file not found: $recipe_file"
     
     bcu_step "Build container from $recipe_file"
     bcu_warn "Not implemented yet"
@@ -72,8 +72,8 @@ rbg_delete() {
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
     bcu_doc_shown || return 0
 
-    local fqin="${1:-}"
-    [[ -n "$fqin" ]] || bcu_usage_die
+    local     fqin="${1:-}"
+    test -n "$fqin" || bcu_usage_die
     
     # Validate FQIN format
     FQIN_TEMP="$fqin"
@@ -91,12 +91,10 @@ rbg_retrieve() {
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
     bcu_doc_shown || return 0
 
-    local fqin="${1:-}"
-    [[ -n "$fqin" ]] || bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
+    local     fqin="${1:-}"
+    test -n "$fqin" || bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
     
-    # Validate FQIN format
-    FQIN_TEMP="$fqin"
-    crgv_fqin "rbg_retrieve" "FQIN_TEMP" 1 512
+    crgv_fqin "rbg_retrieve" "$fqin" 1 512
 
     bcu_step "Retrieve image: $fqin"
     bcu_warn "Not implemented yet"
@@ -115,30 +113,26 @@ rbg_help() {
     echo
     echo "Commands:"
     
-    for cmd in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
-        bcu_set_context "$cmd"
-        $cmd
+    for zrbg_command in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
+        bcu_set_context "$zrbg_command"
+        $zrbg_command
     done
 }
 
 # Main dispatch
-cmd="${1:-}"
+zrbg_command="${1:-}"
 shift || true
 
 # Check if function exists and matches our pattern
-if declare -F "$cmd" >/dev/null && [[ "$cmd" =~ ^rbg_[a-z_]+$ ]]; then
-    bcu_set_context "$cmd"
-    "$cmd" "$@"
+if declare -F "$zrbg_command" >/dev/null && echo "$zrbg_command" | grep -q '^rbg_[a-z_]*$'; then
+    bcu_set_context "$zrbg_command"
+    "$zrbg_command" "$@"
 else
-    if [[ -n "$cmd" ]]; then
-        bcu_warn "Unknown command: $cmd"
-        rbg_help
-        exit 1
-    else
-        rbg_help
-        exit 0
-    fi
+    test -z "$zrbg_command" || bcu_warn "Unknown command: $zrbg_command"
+    rbg_help
+    exit 1
 fi
+
 
 # eof
 
