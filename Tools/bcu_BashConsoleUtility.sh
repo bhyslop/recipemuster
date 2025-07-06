@@ -74,7 +74,7 @@ bcu_step() {
 
 bcu_pass() {
     set +x
-    echo -e "${ZBCU_GREEN}?${ZBCU_RESET} $@" || bcu_die
+    echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" || bcu_die
 }
 
 zbcu_do_execute() {
