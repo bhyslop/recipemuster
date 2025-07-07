@@ -41,64 +41,293 @@ bvu_dir_empty() {
     test -z "$(ls -A "$dirpath" 2>/dev/null)" || bcu_die "Directory must be empty: $dirpath"
 }
 
-# Validate and return a string
-bvu_string() {
-    local value="$1"
-    local min="${2:-1}"
-    local max="${3:-255}"
+# Generic environment variable wrapper
+bvu_env_wrapper() {
+    local func_name=$1
+    local varname=$2
+    eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
+    shift 2
     
-    # Check not empty
-    test -n "$value" || bcu_die "string must not be empty"
-    
-    # Check length constraints
-    local len=${#value}
-    test $len -ge $min || bcu_die "string must be at least $min chars, got '$value' ($len)"
-    test $len -le $max || bcu_die "string must be no more than $max chars, got '$value' ($len)"
-    
-    echo "$value"
+    ${func_name} "$varname" "$val" "$@"
 }
 
-# Validate and return a cross-context name (system-safe identifier)
-bvu_xname() {
-    local value="$1"
-    local min="${2:-2}"
-    local max="${3:-64}"
+# Generic optional wrapper - returns empty if value is empty
+bvu_opt_wrapper() {
+    local func_name=$1
+    local varname=$2
+    eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
     
-    # Check not empty
-    test -n "$value" || bcu_die "xname must not be empty"
+    # Empty is always valid for optional
+    test -z "$val" && return 0
     
+    shift 2
+    ${func_name} "$varname" "$val" "$@"
+}
+
+# String validator with optional length constraints
+bvu_val_string() {
+    local varname=$1
+    local val=$2
+    local min=$3
+    local max=$4
+    local default=$5
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    # Allow empty if min=0
+    if [ "$min" = "0" -a -z "$val" ]; then
+        echo "$val"
+        return 0
+    fi
+
+    # Otherwise must not be empty
+    test -n "$val" || bcu_die "$varname must not be empty"
+
+    # Check length constraints if max provided
+    if [ -n "$max" ]; then
+        test ${#val} -ge $min || bcu_die "$varname must be at least $min chars, got '${val}' (${#val})"
+        test ${#val} -le $max || bcu_die "$varname must be no more than $max chars, got '${val}' (${#val})"
+    fi
+    
+    echo "$val"
+}
+
+# Cross-context name validator (system-safe identifier)
+bvu_val_xname() {
+    local varname=$1
+    local val=$2
+    local min=$3
+    local max=$4
+    local default=$5
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    # Allow empty if min=0
+    if [ "$min" = "0" -a -z "$val" ]; then
+        echo "$val"
+        return 0
+    fi
+
+    # Otherwise must not be empty
+    test -n "$val" || bcu_die "$varname must not be empty"
+
     # Check length constraints
-    local len=${#value}
-    test $len -ge $min || bcu_die "xname must be at least $min chars, got '$value' ($len)"
-    test $len -le $max || bcu_die "xname must be no more than $max chars, got '$value' ($len)"
-    
+    test ${#val} -ge $min || bcu_die "$varname must be at least $min chars, got '${val}' (${#val})"
+    test ${#val} -le $max || bcu_die "$varname must be no more than $max chars, got '${val}' (${#val})"
+
     # Must start with letter and contain only allowed chars
-    echo "$value" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$' || \
-        bcu_die "xname must start with letter and contain only letters, numbers, underscore, hyphen, got '$value'"
+    test $(echo "$val" | grep -E '^[a-zA-Z][a-zA-Z0-9_-]*$') || \
+        bcu_die "$varname must start with letter and contain only letters, numbers, underscore, hyphen, got '$val'"
     
-    echo "$value"
+    echo "$val"
 }
 
-# Validate and return a Fully Qualified Image Name
-bvu_fqin() {
-    local value="$1"
-    local min="${2:-1}"
-    local max="${3:-512}"
-    
-    # Check not empty
-    test -n "$value" || bcu_die "fqin must not be empty"
-    
+# Fully Qualified Image Name component validator
+bvu_val_fqin() {
+    local varname=$1
+    local val=$2
+    local min=$3
+    local max=$4
+    local default=$5
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    # Allow empty if min=0
+    if [ "$min" = "0" -a -z "$val" ]; then
+        echo "$val"
+        return 0
+    fi
+
+    # Otherwise must not be empty
+    test -n "$val" || bcu_die "$varname must not be empty"
+
     # Check length constraints
-    local len=${#value}
-    test $len -ge $min || bcu_die "fqin must be at least $min chars, got '$value' ($len)"
-    test $len -le $max || bcu_die "fqin must be no more than $max chars, got '$value' ($len)"
-    
+    test ${#val} -ge $min || bcu_die "$varname must be at least $min chars, got '${val}' (${#val})"
+    test ${#val} -le $max || bcu_die "$varname must be no more than $max chars, got '${val}' (${#val})"
+
     # Allow letters, numbers, dots, hyphens, underscores, forward slashes, colons
-    echo "$value" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$' || \
-        bcu_die "fqin must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '$value'"
+    test $(echo "$val" | grep -E '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$') || \
+        bcu_die "$varname must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '$val'"
     
-    echo "$value"
+    echo "$val"
 }
+
+# Boolean validator
+bvu_val_bool() {
+    local varname=$1
+    local val=$2
+    local default=$3
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    test -n "$val" || bcu_die "$varname must not be empty"
+    test "$val" = "0" -o "$val" = "1" || bcu_die "$varname must be 0 or 1, got: '$val'"
+    
+    echo "$val"
+}
+
+# Decimal range validator
+bvu_val_decimal() {
+    local varname=$1
+    local val=$2
+    local min=$3
+    local max=$4
+    local default=$5
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    test -n "$val" || bcu_die "$varname must not be empty"
+    test $val -ge $min -a $val -le $max || bcu_die "$varname value '$val' must be between $min and $max"
+    
+    echo "$val"
+}
+
+# IPv4 validator
+bvu_val_ipv4() {
+    local varname=$1
+    local val=$2
+    local default=$3
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    test -n "$val" || bcu_die "$varname must not be empty"
+    test $(echo $val | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$') || bcu_die "$varname has invalid IPv4 format: '$val'"
+    
+    echo "$val"
+}
+
+# CIDR validator
+bvu_val_cidr() {
+    local varname=$1
+    local val=$2
+    local default=$3
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    test -n "$val" || bcu_die "$varname must not be empty"
+    test $(echo $val | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$') || bcu_die "$varname has invalid CIDR format: '$val'"
+    
+    echo "$val"
+}
+
+# Domain validator
+bvu_val_domain() {
+    local varname=$1
+    local val=$2
+    local default=$3
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    test -n "$val" || bcu_die "$varname must not be empty"
+    test $(echo $val | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$') || bcu_die "$varname has invalid domain format: '$val'"
+    
+    echo "$val"
+}
+
+# Port validator
+bvu_val_port() {
+    local varname=$1
+    local val=$2
+    local default=$3
+
+    # Use default if value is empty and default provided
+    if [ -z "$val" -a -n "$default" ]; then
+        val="$default"
+    fi
+
+    test -n "$val" || bcu_die "$varname must not be empty"
+    test $val -ge 1 -a $val -le 65535 || bcu_die "$varname value '$val' must be between 1 and 65535"
+    
+    echo "$val"
+}
+
+# List validators
+bvu_val_list_ipv4() {
+    local varname=$1
+    local val=$2
+
+    test -z "$val" && return 0  # Empty lists allowed
+
+    local item_num=0
+    for item in $val; do
+        item_num=$((item_num + 1))
+        test $(echo $item | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$') || bcu_die "$varname item #$item_num has invalid IPv4 format: '$item'"
+    done
+}
+
+bvu_val_list_cidr() {
+    local varname=$1
+    local val=$2
+
+    test -z "$val" && return 0  # Empty lists allowed
+
+    local item_num=0
+    for item in $val; do
+        item_num=$((item_num + 1))
+        test $(echo $item | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$') || bcu_die "$varname item #$item_num has invalid CIDR format: '$item'"
+    done
+}
+
+bvu_val_list_domain() {
+    local varname=$1
+    local val=$2
+
+    test -z "$val" && return 0  # Empty lists allowed
+
+    local item_num=0
+    for item in $val; do
+        item_num=$((item_num + 1))
+        test $(echo $item | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$') || bcu_die "$varname item #$item_num has invalid domain format: '$item'"
+    done
+}
+
+# Environment variable validators
+bvu_env_string()      { bvu_env_wrapper "bvu_val_string" "$@"; }
+bvu_env_xname()       { bvu_env_wrapper "bvu_val_xname" "$@"; }
+bvu_env_fqin()        { bvu_env_wrapper "bvu_val_fqin" "$@"; }
+bvu_env_bool()        { bvu_env_wrapper "bvu_val_bool" "$@"; }
+bvu_env_decimal()     { bvu_env_wrapper "bvu_val_decimal" "$@"; }
+bvu_env_ipv4()        { bvu_env_wrapper "bvu_val_ipv4" "$@"; }
+bvu_env_cidr()        { bvu_env_wrapper "bvu_val_cidr" "$@"; }
+bvu_env_domain()      { bvu_env_wrapper "bvu_val_domain" "$@"; }
+bvu_env_port()        { bvu_env_wrapper "bvu_val_port" "$@"; }
+
+# Environment list validators
+bvu_env_list_ipv4()   { bvu_env_wrapper "bvu_val_list_ipv4" "$@"; }
+bvu_env_list_cidr()   { bvu_env_wrapper "bvu_val_list_cidr" "$@"; }
+bvu_env_list_domain() { bvu_env_wrapper "bvu_val_list_domain" "$@"; }
+
+# Optional validators
+bvu_opt_bool()        { bvu_opt_wrapper "bvu_val_bool" "$@"; }
+bvu_opt_range()       { bvu_opt_wrapper "bvu_val_decimal" "$@"; }
+bvu_opt_ipv4()        { bvu_opt_wrapper "bvu_val_ipv4" "$@"; }
+bvu_opt_cidr()        { bvu_opt_wrapper "bvu_val_cidr" "$@"; }
+bvu_opt_domain()      { bvu_opt_wrapper "bvu_val_domain" "$@"; }
+bvu_opt_port()        { bvu_opt_wrapper "bvu_val_port" "$@"; }
 
 # eof
 
