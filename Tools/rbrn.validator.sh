@@ -21,8 +21,8 @@
 set -e  # Exit immediately if a command exits with non-zero status
 
 # Find tools in same directory
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "$SCRIPT_DIR/bvu_BashValidationUtility.sh"
+ZRBRN_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${ZRBRN_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 # Core Service Identity
 bvu_env_xname       RBRN_MONIKER                 2     12

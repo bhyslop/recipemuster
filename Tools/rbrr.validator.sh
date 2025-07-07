@@ -21,8 +21,8 @@
 set -e  # Exit immediately if a command exits with non-zero status
 
 # Find tools in same directory
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "$SCRIPT_DIR/bvu_BashValidationUtility.sh"
+ZRBRR_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${ZRBRR_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 # Registry Configuration
 bvu_env_xname       RBRR_REGISTRY_OWNER          2     64
