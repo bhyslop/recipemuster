@@ -25,30 +25,30 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/bvu_BashValidationUtility.sh"
 
 # Registry Configuration
-bvu_env_xname       RBRR_REGISTRY_OWNER 2 64
-bvu_env_xname       RBRR_REGISTRY_NAME 2 64
-bvu_env_string      RBRR_GITHUB_PAT_ENV 1 255
+bvu_env_xname       RBRR_REGISTRY_OWNER          2     64
+bvu_env_xname       RBRR_REGISTRY_NAME           2     64
+bvu_env_string      RBRR_GITHUB_PAT_ENV          1    255
 
 # Build Configuration
-bvu_env_string      RBRR_BUILD_ARCHITECTURES 1 255
-bvu_env_string      RBRR_HISTORY_DIR 1 255
+bvu_env_string      RBRR_BUILD_ARCHITECTURES     1    255
+bvu_env_string      RBRR_HISTORY_DIR             1    255
 bvu_env_ipv4        RBRR_DNS_SERVER
-bvu_env_string      RBRR_NAMEPLATE_PATH 1 255
+bvu_env_string      RBRR_NAMEPLATE_PATH          1    255
 
 # Podman configuration
-bvu_env_string      RBRR_MACHINE_NAME 1 64
-bvu_env_fqin        RBRR_VMDIST_TAG 1 128
-bvu_env_string      RBRR_VMDIST_BLOB_SHA 64 64
-bvu_env_fqin        RBRR_VMDIST_CRANE 1 512
+bvu_env_string      RBRR_MACHINE_NAME            1     64
+bvu_env_fqin        RBRR_VMDIST_TAG              1    128
+bvu_env_string      RBRR_VMDIST_BLOB_SHA        64     64
+bvu_env_fqin        RBRR_VMDIST_CRANE            1    512
 
 # Verify directories exist
-bvu_dir_exists "$RBRR_HISTORY_DIR"
-bvu_dir_exists "$RBRR_NAMEPLATE_PATH"
+bvu_dir_exists "${RBRR_HISTORY_DIR}"
+bvu_dir_exists "${RBRR_NAMEPLATE_PATH}"
 
 # Validate build architectures format (platform identifiers)
-for arch in $RBRR_BUILD_ARCHITECTURES; do
-    if ! echo "$arch" | grep -q '^[a-z0-9]\+/[a-z0-9]\+$'; then
-        bcu_die "Invalid architecture format in RBRR_BUILD_ARCHITECTURES: $arch. Expected format: os/arch (e.g., linux/amd64)"
+for zrbrr_arch in $RBRR_BUILD_ARCHITECTURES; do
+    if ! echo "${zrbrr_arch}" | grep -q '^[a-z0-9]\+/[a-z0-9]\+$'; then
+        bcu_die "Invalid architecture format in RBRR_BUILD_ARCHITECTURES: ${zrbrr_arch}. Expected format: os/arch (e.g., linux/amd64)"
     fi
 done
 

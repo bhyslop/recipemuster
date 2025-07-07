@@ -25,17 +25,17 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/bvu_BashValidationUtility.sh"
 
 # Core Service Identity
-bvu_env_xname       RBRN_MONIKER 2 12
-bvu_env_string      RBRN_DESCRIPTION 0 120
-bvu_env_fqin        RBRN_SENTRY_REPO_PATH 1 128
-bvu_env_fqin        RBRN_BOTTLE_REPO_PATH 1 128
-bvu_env_fqin        RBRN_SENTRY_IMAGE_TAG 1 128
-bvu_env_fqin        RBRN_BOTTLE_IMAGE_TAG 1 128
+bvu_env_xname       RBRN_MONIKER                 2     12
+bvu_env_string      RBRN_DESCRIPTION             0    120
+bvu_env_fqin        RBRN_SENTRY_REPO_PATH        1    128
+bvu_env_fqin        RBRN_BOTTLE_REPO_PATH        1    128
+bvu_env_fqin        RBRN_SENTRY_IMAGE_TAG        1    128
+bvu_env_fqin        RBRN_BOTTLE_IMAGE_TAG        1    128
 bvu_env_bool        RBRN_ENTRY_ENABLED
 
 # Enclave Network Configuration
 bvu_env_ipv4        RBRN_ENCLAVE_BASE_IP
-bvu_env_decimal     RBRN_ENCLAVE_NETMASK 8 30
+bvu_env_decimal     RBRN_ENCLAVE_NETMASK         8     30
 bvu_env_ipv4        RBRN_ENCLAVE_SENTRY_IP
 bvu_env_ipv4        RBRN_ENCLAVE_BOTTLE_IP
 
