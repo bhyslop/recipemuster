@@ -27,14 +27,32 @@ source "${ZBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
 
 # Print error and return failure
 btu_fail() {
-    bcu_context "${ZBTU_CONTEXT:-TEST}"
-    echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} $1"
+    set +x
+    local context="${ZBTU_CONTEXT:-TEST}"
+    zbcu_print -1 "${ZBCU_RED}FAIL:${ZBCU_RESET} [$context] $1"
     shift
-    while [ $# -gt 0 ]; do
-        echo "$1"
-        shift
-    done
+    zbcu_print -1 "$@"
     return 1
+}
+
+# Fail if condition is true (non-zero)
+btu_fail_if() {
+    local condition="$1"
+    shift
+
+    test "$condition" -ne 0 || return 0
+
+    btu_fail "$@"
+}
+
+# Fail unless condition is true (zero)
+btu_fail_unless() {
+    local condition="$1"
+    shift
+
+    test "$condition" -eq 0 && return 0
+
+    btu_fail "$@"
 }
 
 # Trace function - respects BCU_VERBOSE
@@ -46,26 +64,22 @@ btu_trace() {
 btu_expect_ok_stdout() {
     local expected="$1"
     shift
-    
+
     # Run in subshell, capture output and status
     local output
     local status
     output=$("$@" 2>&1)
     status=$?
-    
-    if [ $status -ne 0 ]; then
-        btu_fail "Command failed with status $status" \
-                 "Command: $*" \
-                 "Output: $output"
-    fi
-    
-    if [ "$output" != "$expected" ]; then
-        btu_fail "Output mismatch" \
-                 "Command: $*" \
-                 "Expected: '$expected'" \
-                 "Got:      '$output'"
-    fi
-    
+
+    btu_fail_if $status "Command failed with status $status" \
+                        "Command: $*" \
+                        "Output: $output"
+
+    btu_fail_unless "$output" = "$expected" "Output mismatch" \
+                                            "Command: $*" \
+                                            "Expected: '$expected'" \
+                                            "Got:      '$output'"
+
     return 0
 }
 
@@ -76,27 +90,24 @@ btu_expect_die() {
     local status
     output=$("$@" 2>&1)
     status=$?
-    
-    if [ $status -eq 0 ]; then
-        btu_fail "Expected failure but got success" \
-                 "Command: $*" \
-                 "Output: $output"
-    fi
-    
+
+    btu_fail_unless $status "Expected failure but got success" \
+                            "Command: $*" \
+                            "Output: $output"
+
     return 0
 }
 
 # Run single test case in clean subshell
 btu_case() {
     local test_name="$1"
-    
+
     # Check if function exists
-    if ! declare -F "$test_name" >/dev/null; then
-        bcu_die "Test function not found: $test_name"
-    fi
-    
+    declare -F "$test_name" >/dev/null
+    bcu_die_if $? "Test function not found: $test_name"
+
     btu_trace "Running: $test_name"
-    
+
     # Run test in subshell with BCU_VERBOSE passed through
     (
         export BCU_VERBOSE="${BCU_VERBOSE:-0}"
@@ -104,12 +115,10 @@ btu_case() {
         "$test_name"
     )
     local status=$?
-    
-    if [ $status -ne 0 ]; then
-        bcu_context "$test_name"
-        bcu_die "Test failed"
-    fi
-    
+
+    bcu_context "$test_name"
+    bcu_die_if $status "Test failed"
+
     test "${BCU_VERBOSE:-0}" -ge 1 && bcu_pass "PASSED: $test_name"
     return 0
 }
@@ -118,12 +127,12 @@ btu_case() {
 btu_execute() {
     local prefix="$1"
     local specific_test="$2"
-    
+
     if [ -n "$specific_test" ]; then
         # Run specific test
-        if ! echo "$specific_test" | grep -q "^${prefix}"; then
-            bcu_die "Test '$specific_test' does not start with required prefix '$prefix'"
-        fi
+        echo "$specific_test" | grep -q "^${prefix}"
+        bcu_die_if $? "Test '$specific_test' does not start with required prefix '$prefix'"
+
         btu_case "$specific_test"
     else
         # Run all tests with prefix
@@ -132,12 +141,10 @@ btu_execute() {
             found=1
             btu_case "$test"
         done
-        
-        if [ $found -eq 0 ]; then
-            bcu_die "No test functions found with prefix '$prefix'"
-        fi
+
+        bcu_die_unless $found "No test functions found with prefix '$prefix'"
     fi
-    
+
     test "${BCU_VERBOSE:-0}" -ge 1 && bcu_pass "All tests passed"
 }
 

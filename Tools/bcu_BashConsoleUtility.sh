@@ -44,18 +44,18 @@ ZBCU_DOC_MODE=false
 
 bcu_info() {
     set +x
-    echo "$@"
+    zbcu_print 0 "$@"
 }
 
 bcu_warn() {
     set +x
-    echo -e "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
+    zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
 }
 
 bcu_die() {
     set +x
     local context="${ZBCU_CONTEXT:-}"
-    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
+    zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
     exit 1
 }
 
@@ -126,7 +126,7 @@ zbcu_usage() {
     echo -e "    usage: ${ZBCU_CYAN}${ZBCU_USAGE_STRING}${ZBCU_RESET}"
 }
 
-# Idiomatic last step of documentation in the bash api.  
+# Idiomatic last step of documentation in the bash api.
 # Usage:
 #    bcu_doc_shown || return 0
 bcu_doc_shown() {
@@ -147,18 +147,54 @@ bcu_usage_die() {
     exit 1
 }
 
+#!/bin/bash
+# New BCU functions to be added to bcu_BashConsoleUtility.sh
+
+# Multi-line print function with verbosity control
+# Usage: zbcu_print <min_verbosity> <line1> [<line2> ...]
+# min_verbosity: -1 = always print, 0+ = minimum BCU_VERBOSE level required
+zbcu_print() {
+    local min_verbosity="$1"
+    shift
+
+    # Always print if min_verbosity is -1, otherwise check BCU_VERBOSE
+    if [ "$min_verbosity" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "$min_verbosity" ]; then
+        while [ $# -gt 0 ]; do
+            echo "$1"
+            shift
+        done
+    fi
+}
+
+# Die if condition is true (non-zero)
+# Usage: bcu_die_if <condition> <message1> [<message2> ...]
 bcu_die_if() {
     local condition="$1"
     shift
-    test $condition -ne 0 || return 0
-    
+
+    test "$condition" -ne 0 || return 0
+
+    set +x
     local context="${ZBCU_CONTEXT:-}"
-    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+    zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
     shift
-    while [ $# -gt 0 ]; do
-        echo "$1"
-        shift
-    done
+    zbcu_print -1 "$@"
+    exit 1
+}
+
+# Die unless condition is true (zero)
+# Usage: bcu_die_unless <condition> <message1> [<message2> ...]
+bcu_die_unless() {
+    local condition="$1"
+    shift
+
+    test "$condition" -eq 0 && return 0
+
+    set +x
+    local context="${ZBCU_CONTEXT:-}"
+    zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+    shift
+    zbcu_print -1 "$@"
     exit 1
 }
 

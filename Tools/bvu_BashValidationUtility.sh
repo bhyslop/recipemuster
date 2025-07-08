@@ -47,7 +47,7 @@ bvu_env_wrapper() {
     local varname=$2
     eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
     shift 2
-    
+
     ${func_name} "$varname" "$val" "$@"
 }
 
@@ -56,10 +56,10 @@ bvu_opt_wrapper() {
     local func_name=$1
     local varname=$2
     eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
-    
+
     # Empty is always valid for optional
     test -z "$val" && return 0
-    
+
     shift 2
     ${func_name} "$varname" "$val" "$@"
 }
@@ -91,7 +91,7 @@ bvu_val_string() {
         test ${#val} -ge $min || bcu_die "$varname must be at least $min chars, got '${val}' (${#val})"
         test ${#val} -le $max || bcu_die "$varname must be no more than $max chars, got '${val}' (${#val})"
     fi
-    
+
     echo "$val"
 }
 
@@ -124,7 +124,7 @@ bvu_val_xname() {
     # Must start with letter and contain only allowed chars
     test $(echo "$val" | grep -E '^[a-zA-Z][a-zA-Z0-9_-]*$') || \
         bcu_die "$varname must start with letter and contain only letters, numbers, underscore, hyphen, got '$val'"
-    
+
     echo "$val"
 }
 
@@ -157,7 +157,7 @@ bvu_val_fqin() {
     # Allow letters, numbers, dots, hyphens, underscores, forward slashes, colons
     test $(echo "$val" | grep -E '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$') || \
         bcu_die "$varname must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '$val'"
-    
+
     echo "$val"
 }
 
@@ -174,7 +174,7 @@ bvu_val_bool() {
 
     test -n "$val" || bcu_die "$varname must not be empty"
     test "$val" = "0" -o "$val" = "1" || bcu_die "$varname must be 0 or 1, got: '$val'"
-    
+
     echo "$val"
 }
 
@@ -193,7 +193,7 @@ bvu_val_decimal() {
 
     test -n "$val" || bcu_die "$varname must not be empty"
     test $val -ge $min -a $val -le $max || bcu_die "$varname value '$val' must be between $min and $max"
-    
+
     echo "$val"
 }
 
@@ -210,7 +210,7 @@ bvu_val_ipv4() {
 
     test -n "$val" || bcu_die "$varname must not be empty"
     test $(echo $val | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}$') || bcu_die "$varname has invalid IPv4 format: '$val'"
-    
+
     echo "$val"
 }
 
@@ -227,7 +227,7 @@ bvu_val_cidr() {
 
     test -n "$val" || bcu_die "$varname must not be empty"
     test $(echo $val | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$') || bcu_die "$varname has invalid CIDR format: '$val'"
-    
+
     echo "$val"
 }
 
@@ -244,7 +244,7 @@ bvu_val_domain() {
 
     test -n "$val" || bcu_die "$varname must not be empty"
     test $(echo $val | grep -E '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$') || bcu_die "$varname has invalid domain format: '$val'"
-    
+
     echo "$val"
 }
 
@@ -261,7 +261,7 @@ bvu_val_port() {
 
     test -n "$val" || bcu_die "$varname must not be empty"
     test $val -ge 1 -a $val -le 65535 || bcu_die "$varname value '$val' must be between 1 and 65535"
-    
+
     echo "$val"
 }
 
