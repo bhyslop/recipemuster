@@ -15,161 +15,125 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle GitHub - Container Registry Management
+# Bash Test Utility Library
 
-set -e
+# Multiple inclusion guard
+[[ -n "${ZBTU_INCLUDED:-}" ]] && return 0
+ZBTU_INCLUDED=1
 
-# Find script directory and source utilities
-ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBG_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
-source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBG_SCRIPT_DIR}/crgv.validate.sh"
+# Source the console utility library
+ZBTU_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${ZBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
 
-# Internal constants
-ZRBG_GIT_REGISTRY="ghcr.io"
-ZRBG_GITAPI_URL="https://api.github.com"
-
-# Document, establish, validate environment
-zrbg_env() {
-
-    # Handle documentation mode
-    bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
-    bcu_doc_env "RBG_NOW_STAMP " "Timestamp for per run branding"
-    bcu_doc_env "RBG_RBRR_FILE " "File containing the RBRR constants"
-
-    bcu_env_done || return 0
-
-    # Validate environment
-    bvu_file_exists "${RBG_RBRR_FILE}"
-    source          "${RBG_RBRR_FILE}"
-    source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
+# Trace function - respects BCU_VERBOSE
+btu_trace() {
+    test "${BCU_VERBOSE:-0}" -ge 1 && echo "$@"
 }
 
-# Internal helper functions
-zrbg_curl_headers() {
-    set -e
-
-    echo "-H \"Authorization: token \$RBV_PAT\" -H 'Accept: application/vnd.github.v3+json'"
+# Run command in subshell, expect success and specific stdout
+btu_expect_ok_stdout() {
+    local expected="$1"
+    shift
+    
+    # Run in subshell, capture output and status
+    local output
+    local status
+    output=$("$@" 2>&1)
+    status=$?
+    
+    if [ $status -ne 0 ]; then
+        echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} Command failed with status $status"
+        echo "Command: $*"
+        echo "Output: $output"
+        return 1
+    fi
+    
+    if [ "$output" != "$expected" ]; then
+        echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} Output mismatch"
+        echo "Command: $*"
+        echo "Expected: '$expected'"
+        echo "Got:      '$output'"
+        return 1
+    fi
+    
+    return 0
 }
 
-rbg_build() {
-    set -e
-
-    # Name parameters, perhaps provide defaults for optional ones
-    local recipe_file="${1:-}"
-
-    # Handle documentation mode
-    bcu_doc_brief "Build container from recipe"
-    bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
-    bcu_doc_shown || return 0
-
-    # Argument validation
-    test -n "$recipe_file" || bcu_usage_die
-    test -f "$recipe_file" || bcu_die "Recipe file not found: $recipe_file"
-
-    # Command execution
-    bcu_step "Build container from $recipe_file"
-    bcu_warn "Not implemented yet"
-    bcu_pass "Build completed"
+# Run command in subshell, expect failure
+btu_expect_die() {
+    # Run in subshell, capture status
+    local output
+    local status
+    output=$("$@" 2>&1)
+    status=$?
+    
+    if [ $status -eq 0 ]; then
+        echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} Expected failure but got success"
+        echo "Command: $*"
+        echo "Output: $output"
+        return 1
+    fi
+    
+    return 0
 }
 
-rbg_list() {
-    set -e
-
-    # Handle documentation mode
-    bcu_doc_brief "List registry images"
-    bcu_doc_shown || return 0
-
-    # Command execution
-    bcu_step "List registry images"
-    bcu_warn "Not implemented yet"
-    bcu_pass "List completed"
+# Run single test case in clean subshell
+btu_case() {
+    local test_name="$1"
+    
+    # Check if function exists
+    if ! declare -F "$test_name" >/dev/null; then
+        echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} Test function not found: $test_name"
+        exit 1
+    fi
+    
+    btu_trace "Running: $test_name"
+    
+    # Run test in subshell with BCU_VERBOSE passed through
+    (
+        export BCU_VERBOSE="${BCU_VERBOSE:-0}"
+        test "${BCU_VERBOSE:-0}" -ge 2 && set -x
+        "$test_name"
+    )
+    local status=$?
+    
+    if [ $status -ne 0 ]; then
+        echo -e "${ZBCU_RED}FAILED:${ZBCU_RESET} $test_name"
+        exit 1
+    fi
+    
+    test "${BCU_VERBOSE:-0}" -ge 1 && echo -e "${ZBCU_GREEN}PASSED:${ZBCU_RESET} $test_name"
+    return 0
 }
 
-rbg_delete() {
-    set -e
-
-    # Name parameters, perhaps provide defaults for optional ones
-    local     fqin="${1:-}"
-
-    # Handle documentation mode
-    bcu_doc_brief "Delete image from registry"
-    bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
-    bcu_doc_shown || return 0
-
-    # Argument validation
-    test -n "$fqin" || bcu_usage_die
-    crgv_fqin "rbg_delete" "$fqin" 1 512
-
-    # Command execution
-    bcu_step "Delete image: $fqin"
-    bcu_warn "Not implemented yet"
-    bcu_pass "Delete completed"
+# Main test executor
+btu_execute() {
+    local prefix="$1"
+    local specific_test="$2"
+    
+    if [ -n "$specific_test" ]; then
+        # Run specific test
+        if ! echo "$specific_test" | grep -q "^${prefix}"; then
+            echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} Test '$specific_test' does not start with required prefix '$prefix'"
+            exit 1
+        fi
+        btu_case "$specific_test"
+    else
+        # Run all tests with prefix
+        local found=0
+        for test in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
+            found=1
+            btu_case "$test"
+        done
+        
+        if [ $found -eq 0 ]; then
+            echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} No test functions found with prefix '$prefix'"
+            exit 1
+        fi
+    fi
+    
+    test "${BCU_VERBOSE:-0}" -ge 1 && echo -e "${ZBCU_GREEN}All tests passed${ZBCU_RESET}"
 }
-
-rbg_retrieve() {
-    set -e
-
-    # Name parameters, perhaps provide defaults for optional ones
-    local     fqin="${1:-}"
- 
-    # Handle documentation mode
-    bcu_doc_brief "Retrieve image from registry"
-    bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
-    bcu_doc_shown || return 0
-
-    # Argument validation
-    test -n "$fqin" || bcu_die "Usage: rbg_retrieve <fully_qualified_image_name>"
-    crgv_fqin "rbg_retrieve" "$fqin" 1 512
-
-    # Command execution
-    bcu_step "Retrieve image: $fqin"
-    bcu_warn "Not implemented yet"
-    bcu_pass "Retrieve completed"
-}
-
-rbg_help() {
-    set -e
-
-    # Handle documentation mode
-    bcu_doc_brief "Show help for available commands"
-    bcu_doc_shown || return 0
-
-    # Perform documentation
-    shift $#
-    bcu_set_doc_mode
-
-    echo "Recipe Bottle GitHub - Container Registry Management"
-    echo
-    echo "Environment vars needed:"
-    zrbg_env
-
-    echo "Commands:"
-
-    for zrbg_command in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
-        bcu_context "$zrbg_command"
-        $zrbg_command
-    done
-}
-
-# Detect command, if any
-zrbg_command="${1:-}"
-shift || true
-
-# Attempt execution
-if declare -F   "$zrbg_command" >/dev/null &&\
-           echo "$zrbg_command" | grep -q '^rbg_[a-z_]*$'; then
-    bcu_context "$zrbg_command"
-
-    zrbg_env
-    "$zrbg_command" "$@"
-else
-    # Emit documentation
-    test -z     "$zrbg_command" || bcu_warn "Unknown command: $zrbg_command"
-    rbg_help
-    exit 1
-fi
-
 
 # eof
 
