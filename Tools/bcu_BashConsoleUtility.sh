@@ -147,6 +147,21 @@ bcu_usage_die() {
     exit 1
 }
 
+bcu_die_if() {
+    local condition="$1"
+    shift
+    test $condition -ne 0 || return 0
+    
+    local context="${ZBCU_CONTEXT:-}"
+    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+    shift
+    while [ $# -gt 0 ]; do
+        echo "$1"
+        shift
+    done
+    exit 1
+}
+
 
 # eof
 

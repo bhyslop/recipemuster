@@ -25,6 +25,18 @@ ZBTU_INCLUDED=1
 ZBTU_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
 
+# Print error and return failure
+btu_fail() {
+    bcu_context "${ZBTU_CONTEXT:-TEST}"
+    echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} $1"
+    shift
+    while [ $# -gt 0 ]; do
+        echo "$1"
+        shift
+    done
+    return 1
+}
+
 # Trace function - respects BCU_VERBOSE
 btu_trace() {
     test "${BCU_VERBOSE:-0}" -ge 1 && echo "$@"
@@ -42,18 +54,16 @@ btu_expect_ok_stdout() {
     status=$?
     
     if [ $status -ne 0 ]; then
-        echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} Command failed with status $status"
-        echo "Command: $*"
-        echo "Output: $output"
-        return 1
+        btu_fail "Command failed with status $status" \
+                 "Command: $*" \
+                 "Output: $output"
     fi
     
     if [ "$output" != "$expected" ]; then
-        echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} Output mismatch"
-        echo "Command: $*"
-        echo "Expected: '$expected'"
-        echo "Got:      '$output'"
-        return 1
+        btu_fail "Output mismatch" \
+                 "Command: $*" \
+                 "Expected: '$expected'" \
+                 "Got:      '$output'"
     fi
     
     return 0
@@ -68,10 +78,9 @@ btu_expect_die() {
     status=$?
     
     if [ $status -eq 0 ]; then
-        echo -e "${ZBCU_RED}FAIL:${ZBCU_RESET} Expected failure but got success"
-        echo "Command: $*"
-        echo "Output: $output"
-        return 1
+        btu_fail "Expected failure but got success" \
+                 "Command: $*" \
+                 "Output: $output"
     fi
     
     return 0
@@ -83,8 +92,7 @@ btu_case() {
     
     # Check if function exists
     if ! declare -F "$test_name" >/dev/null; then
-        echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} Test function not found: $test_name"
-        exit 1
+        bcu_die "Test function not found: $test_name"
     fi
     
     btu_trace "Running: $test_name"
@@ -98,11 +106,11 @@ btu_case() {
     local status=$?
     
     if [ $status -ne 0 ]; then
-        echo -e "${ZBCU_RED}FAILED:${ZBCU_RESET} $test_name"
-        exit 1
+        bcu_context "$test_name"
+        bcu_die "Test failed"
     fi
     
-    test "${BCU_VERBOSE:-0}" -ge 1 && echo -e "${ZBCU_GREEN}PASSED:${ZBCU_RESET} $test_name"
+    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_pass "PASSED: $test_name"
     return 0
 }
 
@@ -114,8 +122,7 @@ btu_execute() {
     if [ -n "$specific_test" ]; then
         # Run specific test
         if ! echo "$specific_test" | grep -q "^${prefix}"; then
-            echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} Test '$specific_test' does not start with required prefix '$prefix'"
-            exit 1
+            bcu_die "Test '$specific_test' does not start with required prefix '$prefix'"
         fi
         btu_case "$specific_test"
     else
@@ -127,12 +134,11 @@ btu_execute() {
         done
         
         if [ $found -eq 0 ]; then
-            echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} No test functions found with prefix '$prefix'"
-            exit 1
+            bcu_die "No test functions found with prefix '$prefix'"
         fi
     fi
     
-    test "${BCU_VERBOSE:-0}" -ge 1 && echo -e "${ZBCU_GREEN}All tests passed${ZBCU_RESET}"
+    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_pass "All tests passed"
 }
 
 # eof
