@@ -75,7 +75,7 @@ btu_expect_ok_stdout() {
                         "Command: $*" \
                         "Output: $output"
 
-    btu_fail_unless "$output" = "$expected" "Output mismatch" \
+    test "$output" = "$expected" || btu_fail "Output mismatch" \
                                             "Command: $*" \
                                             "Expected: '$expected'" \
                                             "Got:      '$output'"

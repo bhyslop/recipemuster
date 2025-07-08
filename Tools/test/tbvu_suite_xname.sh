@@ -2,9 +2,10 @@
 # Test suite for BVU xname validation functions
 
 # Source the libraries from parent directory
-source "$(dirname "$0")/../bcu_BashConsoleUtility.sh"
-source "$(dirname "$0")/../btu_BashTestUtility.sh"
-source "$(dirname "$0")/../bvu_BashValidationUtility.sh"
+ZTBTU_SCRIPT_DIR="$(dirname \"${BASH_SOURCE[0]}\")/.."
+source "${ZTBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
+source "${ZTBTU_SCRIPT_DIR}/btu_BashTestUtility.sh"
+source "${ZTBTU_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 tbvu_case_xname_valid() {
     set +x
