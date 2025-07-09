@@ -27,7 +27,7 @@ source "${ZBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
 
 # Print error and return failure
 btu_fail() {
-    set +x
+    set -e
     local context="${ZBTU_CONTEXT:-TEST}"
     zbcu_print -1 "${ZBCU_RED}FAIL:${ZBCU_RESET} [$context] $1"
     shift

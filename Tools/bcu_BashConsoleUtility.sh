@@ -43,17 +43,17 @@ ZBCU_CONTEXT=""
 ZBCU_DOC_MODE=false
 
 bcu_info() {
-    set +x
+    set -e
     zbcu_print 0 "$@"
 }
 
 bcu_warn() {
-    set +x
+    set -e
     zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
 }
 
 bcu_die() {
-    set +x
+    set -e
     local context="${ZBCU_CONTEXT:-}"
     zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
     exit 1
@@ -64,12 +64,12 @@ bcu_context() {
 }
 
 bcu_step() {
-    set +x
+    set -e
     echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
 }
 
 bcu_pass() {
-    set +x
+    set -e
     echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" || bcu_die
 }
 
@@ -78,7 +78,7 @@ zbcu_do_execute() {
 }
 
 bcu_doc_env() {
-    set +x
+    set -e
     local env_var_name="${1}"
     local env_var_info="${2}"
 
@@ -94,7 +94,7 @@ bcu_env_done() {
 ZBCU_USAGE_STRING="UNFILLED"
 
 bcu_doc_brief() {
-    set +x
+    set -e
     ZBCU_USAGE_STRING="${ZBCU_CONTEXT}"
     zbcu_do_execute || return 0
     echo
@@ -103,20 +103,20 @@ bcu_doc_brief() {
 }
 
 bcu_doc_lines() {
-    set +x
+    set -e
     zbcu_do_execute || return 0
     echo "           $1"
 }
 
 bcu_doc_param() {
-    set +x
+    set -e
     ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} <<$1>>"
     zbcu_do_execute || return 0
     echo "    required: $1 - $2"
 }
 
 bcu_doc_oparm() {
-    set +x
+    set -e
     ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} [<<$1>>]"
     zbcu_do_execute || return 0
     echo "    optional: $1 - $2"
@@ -140,7 +140,7 @@ bcu_set_doc_mode() {
 }
 
 bcu_usage_die() {
-    set +x
+    set -e
     local context="${ZBCU_CONTEXT:-}"
     local usage=$(zbcu_usage)
     echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $usage"
@@ -174,7 +174,7 @@ bcu_die_if() {
 
     test "$condition" -ne 0 || return 0
 
-    set +x
+    set -e
     local context="${ZBCU_CONTEXT:-}"
     zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
     shift
@@ -190,7 +190,7 @@ bcu_die_unless() {
 
     test "$condition" -eq 0 && return 0
 
-    set +x
+    set -e
     local context="${ZBCU_CONTEXT:-}"
     zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
     shift
