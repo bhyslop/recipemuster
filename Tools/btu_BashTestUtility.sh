@@ -170,23 +170,16 @@ btu_expect_fatal() {
 btu_case() {
   set -e
 
-  echo "BRADTRACE: btu_case start"
-
   local test_name="$1"
-
-  echo "BRADTRACE: btu_case seco"
 
   declare -F "$test_name" >/dev/null || btu_fatal "Test function not found: $test_name"
   btu_section "START: $test_name"
 
-  echo "BRADTRACE: btu_case turd"
   set +e
   (
     "$test_name"
   )
   set -e
-
-  echo "BRADTRACE: btu_case qat"
 
   local status=$?
   btu_trace "Ran: $test_name and got status:$status"
@@ -205,23 +198,16 @@ btu_execute() {
   local prefix="$1"
   local specific_test="$2"
 
-  echo "BRADTRACE: exec start"
-
   if [ -n "$specific_test" ]; then
-    echo "BRADTRACE: exec firb"
     echo "$specific_test" | grep -q "^${prefix}" || btu_fatal \
       "Test '$specific_test' does not start with required prefix '$prefix'"
     btu_case "$specific_test"
-    echo "BRADTRACE: exec firbret"
   else
-    echo "BRADTRACE: exec secb"
     local found=0
     for one_case in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
-    echo "BRADTRACE: exec one_case ${one_case}"
       found=1
       btu_case "$one_case"
     done
-    echo "BRADTRACE: exec secob"
     btu_fatal_on_success $found "No test functions found with prefix '$prefix'"
   fi
 
