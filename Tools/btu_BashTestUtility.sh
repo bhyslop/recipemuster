@@ -164,11 +164,15 @@ btu_case() {
   declare -F "$test_name" >/dev/null || btu_fatal "Test function not found: $test_name"
   btu_trace "Running: $test_name"
 
+  set +e
   (
     export BTU_VERBOSE="${BTU_VERBOSE:-0}"
     "$test_name"
   )
+  set -e
+
   local status=$?
+  btu_trace "Ran: $test_name and got status:$status"
   btu_fatal_on_error $status "Test failed: $test_name"
 
   btu_trace "Finished: $test_name with status: $status"
