@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # Copyright 2025 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,139 +22,113 @@
 [[ -n "${ZBTU_INCLUDED:-}" ]] && return 0
 ZBTU_INCLUDED=1
 
-# Source the console utility library
-ZBTU_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
+# Color codes
+btu_color() { test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''; }
+ZBTU_RED=$(    btu_color '1;31' )
+ZBTU_GREEN=$(  btu_color '1;32' )
+ZBTU_RESET=$(  btu_color '0'    )
 
-# Print error and return failure
-btu_fail() {
-    set -e
-    local context="${ZBTU_CONTEXT:-TEST}"
-    bcu_print -1 "${ZBCU_RED}FAIL:${ZBCU_RESET} [$context] $1"
-    shift
-    bcu_print -1 "$@"
-    return 1
-}
-
-# Fail if condition is true (non-zero)
-btu_fail_if() {
-    set -e
-    local condition="$1"
-    shift
-
-    test "$condition" -ne 0 || return 0
-
-    btu_fail "$@"
-}
-
-# Fail unless condition is true (zero)
-btu_fail_unless() {
-    set -e
-    local condition="$1"
-    shift
-
-    test "$condition" -eq 0 && return 0
-
-    btu_fail "$@"
-}
-
-# Trace function - respects BCU_VERBOSE
+# Verbosity-controlled trace
 btu_trace() {
-    set -e
-    test "${BCU_VERBOSE:-0}" -ge 1 && echo "$@" >&2
+  test "${BTU_VERBOSE:-0}" -ge 1 && echo "$@" >&2
 }
 
-# Run command in subshell, expect success and specific stdout
+# Fatal error message and exit
+btu_fatal() {
+  echo "${ZBTU_RED}FATAL:${ZBTU_RESET} $1" >&2
+  shift
+  for line in "$@"; do echo "$line" >&2; done
+  exit 1
+}
+
+# Fatal if condition is true (non-zero)
+btu_fatal_if() {
+  local condition="$1"
+  shift
+  test "$condition" -ne 0 && btu_fatal "$@"
+}
+
+# Fatal unless condition is true (zero)
+btu_fatal_unless() {
+  local condition="$1"
+  shift
+  test "$condition" -eq 0 || btu_fatal "$@"
+}
+
+# Expect success and specific stdout
 btu_expect_ok_stdout() {
-    set -e
-    local expected="$1"
-    shift
+  local expected="$1"
+  shift
 
-    # Run in subshell, capture output and status
-    local output
-    local status
-    output=$("$@" 2>&1)
-    status=$?
+  local output status
+  output=$("$@" 2>&1)
+  status=$?
 
-    btu_fail_if $status "Command failed with status $status" \
+  btu_fatal_if $status "Command failed with status $status" \
                         "Command: $*" \
                         "Output: $output"
 
-    test "$output" = "$expected" || btu_fail "Output mismatch" \
-                                            "Command: $*" \
+  test "$output" = "$expected" || btu_fatal "Output mismatch"       \
+                                            "Command: $*"           \
                                             "Expected: '$expected'" \
                                             "Got:      '$output'"
-
-    return 0
 }
 
-# Run command in subshell, expect failure
+# Expect success (ignore stdout)
+btu_expect_ok() {
+  "$@" > /dev/null 2>&1
+  local status=$?
+  btu_fatal_if $status "Command failed with status $status" \
+                       "Command: $*"
+}
+
+# Expect failure
 btu_expect_die() {
-    set -e
-    # Run in subshell, capture status
-    local output
-    local status
-    output=$("$@" 2>&1)
-    status=$?
-    echo "[DEBUG] btu_expect_die: status=$status, command=$*" 1>&2
-    btu_fail_unless $status "Expected failure but got success" \
-                            "Command: $*" \
-                            "Output: $output"
+  local output status
+  output=$("$@" 2>&1)
+  status=$?
 
-    return 0
+  btu_fatal_unless $status "Expected failure but got success" \
+                           "Command: $*"                      \
+                           "Output: $output"
 }
 
-# Run single test case in clean subshell
+# Run single test case in subshell
 btu_case() {
-    set -e
-    local test_name="$1"
+  local test_name="$1"
 
-    # Check if function exists
-    declare -F "$test_name" >/dev/null
-    bcu_die_if $? "Test function not found: $test_name"
+  declare -F "$test_name" >/dev/null || btu_fatal "Test function not found: $test_name"
+  btu_trace "Running: $test_name"
 
-    btu_trace "Running: $test_name"
+  (
+    export BTU_VERBOSE="${BTU_VERBOSE:-0}"
+    "$test_name"
+  )
+  local status=$?
+  btu_fatal_if $status "Test failed: $test_name"
 
-    # Run test in subshell with BCU_VERBOSE passed through
-    (
-        export BCU_VERBOSE="${BCU_VERBOSE:-0}"
-        test "${BCU_VERBOSE:-0}" -ge 2 && zbcu_enable_trace
-        "$test_name"
-    )
-    local status=$?
-
-    bcu_context "$test_name"
-    bcu_die_if $status "Test failed"
-
-    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_success "PASSED: $test_name"
-    return 0
+  test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} $test_name" >&2
 }
 
-# Main test executor
+# Run all or specific tests
 btu_execute() {
-    set -e
-    local prefix="$1"
-    local specific_test="$2"
+  local prefix="$1"
+  local specific_test="$2"
 
-    if [ -n "$specific_test" ]; then
-        # Run specific test
-        echo "$specific_test" | grep -q "^${prefix}"
-        bcu_die_if $? "Test '$specific_test' does not start with required prefix '$prefix'"
+  if [ -n "$specific_test" ]; then
+    echo "$specific_test" | grep -q "^${prefix}" || btu_fatal \
+      "Test '$specific_test' does not start with required prefix '$prefix'"
+    btu_case "$specific_test"
+  else
+    local found=0
+    for test in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
+      found=1
+      btu_case "$test"
+    done
+    btu_fatal_unless $found "No test functions found with prefix '$prefix'"
+  fi
 
-        btu_case "$specific_test"
-    else
-        # Run all tests with prefix
-        local found=0
-        for test in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
-            found=1
-            btu_case "$test"
-        done
-
-        bcu_die_unless $found "No test functions found with prefix '$prefix'"
-    fi
-
-    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_success "All tests passed"
+  test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}All tests passed${ZBTU_RESET}" >&2
 }
 
 # eof
-
