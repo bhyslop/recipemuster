@@ -60,21 +60,19 @@ btu_fatal() {
 
 
 # Fatal if condition is true (non-zero)
-btu_fatal_if() {
+btu_fatal_on_error() {
   set -e
   local condition="$1"
   shift
-  btu_trace "BRADTRACE: enter with condition=$condition"
-
-  test "$condition" -ne 0 || ZBTU_STACK_DEPTH=3 btu_fatal "$@"
+  test "$condition" -eq 0 || { ZBTU_STACK_DEPTH=3 btu_fatal "$@"; }
 }
 
 # Fatal unless condition is true (zero)
-btu_fatal_unless() {
+btu_fatal_on_success() {
   set -e
   local condition="$1"
   shift
-  test "$condition" -eq 0 || ZBTU_STACK_DEPTH=3 btu_fatal "$@"
+  test "$condition" -ne 0 || { ZBTU_STACK_DEPTH=3 btu_fatal "$@"; }
 }
 
 # Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
@@ -105,23 +103,16 @@ btu_expect_ok_stdout() {
   local expected="$1"
   shift
 
-  btu_trace "BRADTRACE: Expecting ok..."
-
   zbtu_invoke "$@"
 
-  btu_trace "BRADTRACE: back from invoke... ZBTU_STATUS=$ZBTU_STATUS"
-
-  btu_fatal_if $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
+  btu_fatal_on_error $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
                             "Command: $*"                             \
                             "STDERR: $ZBTU_STDERR"
-
-  btu_trace "BRADTRACE: back from first fatlif..."
 
   test "$ZBTU_STDOUT" = "$expected" || btu_fatal "Output mismatch"       \
                                                  "Command: $*"           \
                                                  "Expected: '$expected'" \
                                                  "Got:      '$ZBTU_STDOUT'"
-  btu_trace "BRADTRACE: leeaving ok_stdou..."
 }
 
 # Expect success (ignore stdout)
@@ -130,7 +121,7 @@ btu_expect_ok() {
 
   zbtu_invoke "$@"
 
-  btu_fatal_if $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
+  btu_fatal_on_error $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
                             "Command: $*"                             \
                             "STDERR: $ZBTU_STDERR"
 }
@@ -141,7 +132,7 @@ btu_expect_fatal() {
 
   zbtu_invoke "$@"
 
-  btu_fatal_unless $ZBTU_STATUS "Expected failure but got success" \
+  btu_fatal_on_success $ZBTU_STATUS "Expected failure but got success" \
                                 "Command: $*"                      \
                                 "STDOUT: $ZBTU_STDOUT"             \
                                 "STDERR: $ZBTU_STDERR"
@@ -161,7 +152,7 @@ btu_case() {
     "$test_name"
   )
   local status=$?
-  btu_fatal_if $status "Test failed: $test_name"
+  btu_fatal_on_error $status "Test failed: $test_name"
 
   btu_trace "Finished: $test_name with status: $status"
   test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} $test_name" >&2
@@ -184,7 +175,7 @@ btu_execute() {
       found=1
       btu_case "$test"
     done
-    btu_fatal_unless $found "No test functions found with prefix '$prefix'"
+    btu_fatal_on_success $found "No test functions found with prefix '$prefix'"
   fi
 
   test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}All tests passed${ZBTU_RESET}" >&2
