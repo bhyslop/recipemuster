@@ -43,13 +43,13 @@ tbvu_case_xname_invalid_chars() {
 tbvu_case_xname_length() {
     set -e
 
-    # Too short
+    btu_info "Too short"
     btu_expect_fatal bvu_val_xname "var" "ab" 3 10
 
-    # Too long
+    btu_info "Too long"
     btu_expect_fatal bvu_val_xname "var" "abcdefghijk" 1 10
 
-    # Exactly at limits
+    btu_info "Exactly at limits"
     btu_expect_ok_stdout "abc"        bvu_val_xname "var" "abc"        3  10
     btu_expect_ok_stdout "abcdefghij" bvu_val_xname "var" "abcdefghij" 10 10
 }
@@ -57,44 +57,44 @@ tbvu_case_xname_length() {
 tbvu_case_xname_defaults() {
     set -e
 
-    btu_trace "Empty with default"
+    btu_info "Empty with default"
     btu_expect_ok_stdout "mydefault" bvu_val_xname "var" "" 1 10 "mydefault"
 
-    btu_trace "Non-empty ignores default"
+    btu_info "Non-empty ignores default"
     btu_expect_ok_stdout "actual" bvu_val_xname "var" "actual" 1 10 "mydefault"
 
-    btu_trace "Empty with min=0 and default"
+    btu_info "Empty with min=0 and default"
     btu_expect_ok_stdout "mydefault" bvu_val_xname "var" "" 0 10 "mydefault"
 
-    btu_trace "Case completed"
+    btu_info "Case completed"
 }
 
 tbvu_case_xname_empty_optional() {
     set -e
 
-    # Empty allowed when min=0
+    btu_info "Empty allowed when min=0"
     btu_expect_ok_stdout "" bvu_val_xname "var" "" 0 10
 
-    # Empty not allowed when min>0
+    btu_info "Empty not allowed when min>0"
     btu_expect_fatal bvu_val_xname "var" "" 1 10
 }
 
 tbvu_case_xname_env_wrapper() {
     set -e
 
-    # Valid value
+    btu_info "Valid value"
     export TEST_VAR="myname"
     btu_expect_ok_stdout "myname" bvu_env_xname "TEST_VAR" 1 10
 
-    # Invalid value
+    btu_info "Invalid value"
     export TEST_VAR="123invalid"
     btu_expect_fatal bvu_env_xname "TEST_VAR" 1 10
 
-    # Empty with default
+    btu_info "Empty with default"
     export TEST_VAR=""
     btu_expect_ok_stdout "default123" bvu_env_xname "TEST_VAR" 1 10 "default123"
 
-    # Unset variable
+    btu_info "Unset variable"
     unset TEST_VAR
     btu_expect_fatal bvu_env_xname "TEST_VAR" 1 10
 }

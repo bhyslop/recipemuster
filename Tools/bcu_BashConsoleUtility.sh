@@ -18,7 +18,7 @@
 # Bash Console Utility Library
 
 # Multiple inclusion guard
-[[ -n "${ZBCU_INCLUDED:-}" ]] && return 0
+test -z "${ZBCU_INCLUDED:-}" || return 0
 ZBCU_INCLUDED=1
 
 # Color codes
@@ -198,7 +198,7 @@ bcu_die_unless() {
     local condition="$1"
     shift
 
-    test "$condition" -eq 0 && return 0
+    test "$condition" -eq 0 || return 0
 
     set -e
     local context="${ZBCU_CONTEXT:-}"

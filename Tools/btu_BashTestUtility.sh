@@ -19,11 +19,12 @@
 # Bash Test Utility Library
 
 # Multiple inclusion guard
-[[ -n "${ZBTU_INCLUDED:-}" ]] && return 0
+test -z "${ZBTU_INCLUDED:-}" || return 0
 ZBTU_INCLUDED=1
 
 # Color codes
 btu_color() { test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''; }
+ZBTU_WHITE=$(  btu_color '1;37' )
 ZBTU_RED=$(    btu_color '1;31' )
 ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
@@ -45,7 +46,7 @@ zbtu_render_lines() {
   fi
 
   local visible_prefix="$prefix"
-  test -n "$color" && prefix="${color}${prefix}${ZBTU_RESET}"
+  test -z "$color" || prefix="${color}${prefix}${ZBTU_RESET}"
   indent="$(printf '%*s' "$(echo -e "$visible_prefix" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
 
   local first=1
@@ -59,13 +60,23 @@ zbtu_render_lines() {
   done
 }
 
-btu_trace() {
+btu_section() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
+  zbtu_render_lines "info " "${ZBTU_WHITE}" 2 "$@"
+}
+
+btu_info() {
+  test "${BTU_VERBOSE:-0}" -ge 1 || return 0
+  zbtu_render_lines "info " "" 2 "$@"
+}
+
+btu_trace() {
+  test "${BTU_VERBOSE:-0}" -ge 2 || return 0
   zbtu_render_lines "trace" "" 2 "$@"
 }
 
 btu_fatal() {
-  zbtu_render_lines "ERROR" "$ZBTU_RED" 2 "$@"
+  zbtu_render_lines "ERROR" "${ZBTU_RED}" 2 "$@"
   exit 1
 }
 
@@ -159,47 +170,62 @@ btu_expect_fatal() {
 btu_case() {
   set -e
 
+  echo "BRADTRACE: btu_case start"
+
   local test_name="$1"
 
-  declare -F "$test_name" >/dev/null || btu_fatal "Test function not found: $test_name"
-  btu_trace "Running: $test_name"
+  echo "BRADTRACE: btu_case seco"
 
+  declare -F "$test_name" >/dev/null || btu_fatal "Test function not found: $test_name"
+  btu_section "START: $test_name"
+
+  echo "BRADTRACE: btu_case turd"
   set +e
   (
-    export BTU_VERBOSE="${BTU_VERBOSE:-0}"
     "$test_name"
   )
   set -e
+
+  echo "BRADTRACE: btu_case qat"
 
   local status=$?
   btu_trace "Ran: $test_name and got status:$status"
   btu_fatal_on_error $status "Test failed: $test_name"
 
   btu_trace "Finished: $test_name with status: $status"
-  test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} $test_name" >&2
+  test "${BTU_VERBOSE:-0}" -le 0 || echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} $test_name" >&2
 }
 
 # Run all or specific tests
 btu_execute() {
   set -e
 
+  export BTU_VERBOSE="${BTU_VERBOSE:-0}"
+
   local prefix="$1"
   local specific_test="$2"
 
+  echo "BRADTRACE: exec start"
+
   if [ -n "$specific_test" ]; then
+    echo "BRADTRACE: exec firb"
     echo "$specific_test" | grep -q "^${prefix}" || btu_fatal \
       "Test '$specific_test' does not start with required prefix '$prefix'"
     btu_case "$specific_test"
+    echo "BRADTRACE: exec firbret"
   else
+    echo "BRADTRACE: exec secb"
     local found=0
-    for test in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
+    for one_case in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
+    echo "BRADTRACE: exec one_case ${one_case}"
       found=1
-      btu_case "$test"
+      btu_case "$one_case"
     done
+    echo "BRADTRACE: exec secob"
     btu_fatal_on_success $found "No test functions found with prefix '$prefix'"
   fi
 
-  test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}All tests passed${ZBTU_RESET}" >&2
+  echo "${ZBTU_GREEN}All tests passed${ZBTU_RESET}" >&2
 }
 
 
