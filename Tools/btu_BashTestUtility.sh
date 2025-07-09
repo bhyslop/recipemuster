@@ -158,6 +158,8 @@ btu_expect_ok() {
 btu_expect_fatal() {
   set -e
 
+  btu_info "BRADTRACE: expecting fatal on $@"
+
   zbtu_invoke "$@"
 
   btu_fatal_on_success $ZBTU_STATUS "Expected failure but got success" \

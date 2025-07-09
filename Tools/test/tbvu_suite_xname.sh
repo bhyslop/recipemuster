@@ -24,7 +24,9 @@ tbvu_case_xname_invalid_start() {
 
     btu_expect_fatal bvu_val_xname "var" "1abc"  1 10
     btu_expect_fatal bvu_val_xname "var" "_test" 1 10
-    btu_expect_fatal bvu_val_xname "var" "-name" 1 10
+    btu_info "BEFORE PASSING CASE."
+    btu_expect_fatal bvu_val_xname "var" "name" 1 10
+    btu_info "AFTER PASSING CASE."
     btu_expect_fatal bvu_val_xname "var" "123"   1 10
     btu_expect_fatal bvu_val_xname "var" ""      1 10
 }
