@@ -57,14 +57,16 @@ tbvu_case_xname_length() {
 tbvu_case_xname_defaults() {
     set -e
 
-    # Empty with default
+    btu_trace "Empty with default"
     btu_expect_ok_stdout "mydefault" bvu_val_xname "var" "" 1 10 "mydefault"
 
-    # Non-empty ignores default
+    btu_trace "Non-empty ignores default"
     btu_expect_ok_stdout "actual" bvu_val_xname "var" "actual" 1 10 "mydefault"
 
-    # Empty with min=0 and default
+    btu_trace "Empty with min=0 and default"
     btu_expect_ok_stdout "mydefault" bvu_val_xname "var" "" 0 10 "mydefault"
+
+    btu_trace "Case completed"
 }
 
 tbvu_case_xname_empty_optional() {
