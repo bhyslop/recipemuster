@@ -162,7 +162,7 @@ bcu_usage_die() {
 }
 
 # Multi-line print function with verbosity control
-# Now sends output to stderr to avoid interfering with stdout returns
+# Sends output to stderr to avoid interfering with stdout returns
 bcu_print() {
     local min_verbosity="$1"
     shift
