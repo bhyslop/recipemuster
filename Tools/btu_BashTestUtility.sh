@@ -93,7 +93,7 @@ btu_fatal_on_success() {
   set -e
   local condition="$1"
   shift
-  test "$condition" -ne 0 || { ZBTU_STACK_DEPTH=3 btu_fatal "$@"; }
+  test "$condition" -ne 0 || { ZBTU_STACK_DEPTH=1 btu_fatal "$@"; }
 }
 
 # Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
@@ -104,22 +104,27 @@ btu_fatal_on_success() {
 zbtu_invoke() {
   btu_trace "Invoking: $*"
 
-  local tmp_stdout tmp_stderr
   tmp_stdout="$(mktemp)"
   tmp_stderr="$(mktemp)"
 
-  btu_trace "Calling: $*"
-  set +e
-  "$@" >"$tmp_stdout" 2>"$tmp_stderr"
-  ZBTU_STATUS=$?
-  set -e
+  ZBTU_STATUS=$(
+    (
+      set +e
+      "$@" >"$tmp_stdout" 2>"$tmp_stderr"
+      code=$?
+      echo "$code"
+      exit 0
+    ) || echo "__subshell_failed__"
+  )
 
-  ZBTU_STDOUT=$(<"$tmp_stdout")
-  ZBTU_STDERR=$(<"$tmp_stderr")
-
-  btu_trace "Exit status: $ZBTU_STATUS"
-  btu_trace "STDOUT: $ZBTU_STDOUT"
-  btu_trace "STDERR: $ZBTU_STDERR"
+  if [ "$ZBTU_STATUS" = "__subshell_failed__" ] || [ -z "$ZBTU_STATUS" ]; then
+    ZBTU_STATUS=127
+    ZBTU_STDOUT=""
+    ZBTU_STDERR="zbtu_invoke: command caused shell to exit before status could be captured"
+  else
+    ZBTU_STDOUT=$(<"$tmp_stdout")
+    ZBTU_STDERR=$(<"$tmp_stderr")
+  fi
 
   rm -f "$tmp_stdout" "$tmp_stderr"
 }
@@ -158,14 +163,12 @@ btu_expect_ok() {
 btu_expect_fatal() {
   set -e
 
-  btu_info "BRADTRACE: expecting fatal on $@"
-
   zbtu_invoke "$@"
 
   btu_fatal_on_success $ZBTU_STATUS "Expected failure but got success" \
-                                "Command: $*"                      \
-                                "STDOUT: $ZBTU_STDOUT"             \
-                                "STDERR: $ZBTU_STDERR"
+                                    "Command: $*"                      \
+                                    "STDOUT: $ZBTU_STDOUT"             \
+                                    "STDERR: $ZBTU_STDERR"
 }
 
 # Run single test case in subshell
@@ -173,17 +176,15 @@ btu_case() {
   set -e
 
   local test_name="$1"
-
   declare -F "$test_name" >/dev/null || btu_fatal "Test function not found: $test_name"
   btu_section "START: $test_name"
 
-  set +e
+  local status
   (
+    set -e
     "$test_name"
   )
-  set -e
-
-  local status=$?
+  status=$?
   btu_trace "Ran: $test_name and got status:$status"
   btu_fatal_on_error $status "Test failed: $test_name"
 
