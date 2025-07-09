@@ -28,36 +28,46 @@ ZBTU_RED=$(    btu_color '1;31' )
 ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
 
-# Emit caller context information: filename:line in function
-# Accepts one optional arg: stack depth (default=2)
-zbtu_localize() {
-  set -e
-  local frame="${1:-${ZBTU_STACK_DEPTH:-2}}"
-  local file="${BASH_SOURCE[$frame]}"
-  local line="${BASH_LINENO[$((frame - 1))]}"
-  local func="${FUNCNAME[$frame]}"
-  echo "$file($line): in $func()" >&2
-}
+# Generic renderer for aligned multi-line messages
+# Usage: zbtu_render_lines PREFIX [COLOR] [STACK_DEPTH] LINES...
+zbtu_render_lines() {
+  local label="$1"; shift
+  local color="$1"; shift
+  local depth="$1"; shift
 
-# Verbosity-controlled trace
-btu_trace() {
-  set -e
-  test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  echo "$@" >&2
-  if test "${BTU_VERBOSE:-0}" -ge 2; then
-    zbtu_localize 2
+  local prefix file line indent
+  if test "${BTU_VERBOSE:-0}" -eq 1; then
+    prefix="$label:"
+  else
+    file="${BASH_SOURCE[$depth]}"
+    line="${BASH_LINENO[$((depth - 1))]}"
+    prefix="$label:$(basename "$file"):$line"
   fi
+
+  local visible_prefix="$prefix"
+  test -n "$color" && prefix="${color}${prefix}${ZBTU_RESET}"
+  indent="$(printf '%*s' "$(echo -e "$visible_prefix" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
+
+  local first=1
+  for line in "$@"; do
+    if test $first -eq 1; then
+      echo "$prefix $line" >&2
+      first=0
+    else
+      echo "$indent $line" >&2
+    fi
+  done
 }
 
-# Fatal error message and exit
+btu_trace() {
+  test "${BTU_VERBOSE:-0}" -ge 1 || return 0
+  zbtu_render_lines "trace" "" 2 "$@"
+}
+
 btu_fatal() {
-  echo "${ZBTU_RED}FATAL:${ZBTU_RESET} $1" >&2
-  zbtu_localize 2
-  shift
-  for line in "$@"; do echo "$line" >&2; done
+  zbtu_render_lines "ERROR" "$ZBTU_RED" 2 "$@"
   exit 1
 }
-
 
 # Fatal if condition is true (non-zero)
 btu_fatal_on_error() {
