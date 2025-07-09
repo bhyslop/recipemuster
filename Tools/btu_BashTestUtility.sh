@@ -29,14 +29,33 @@ ZBTU_RED=$(    btu_color '1;31' )
 ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
 
+zbtu_stack_push() {
+  test -n "${ZBTU_STACK_DEPTH:-}" && return 0
+  local btuframes=4
+  local actual_depth="${#BASH_SOURCE[@]}"
+  ZBTU_STACK_DEPTH=$(( actual_depth - btuframes ))
+}
+
+zbtu_stack_pop() {
+  # Only clear if we were the one who set it
+  local btuframes=4
+  local actual_depth="${#BASH_SOURCE[@]}"
+  local expected=$(( actual_depth - btuframes ))
+
+  if test "${ZBTU_STACK_DEPTH:-unset}" = "$expected"; then
+    unset ZBTU_STACK_DEPTH
+  fi
+}
+
 # Generic renderer for aligned multi-line messages
 # Usage: zbtu_render_lines PREFIX [COLOR] [STACK_DEPTH] LINES...
 zbtu_render_lines() {
   local label="$1"; shift
   local color="$1"; shift
-  local depth="$1"; shift
 
   local prefix file line indent
+  local depth="${ZBTU_STACK_DEPTH:-2}"
+
   if test "${BTU_VERBOSE:-0}" -eq 1; then
     prefix="$label:"
   else
@@ -62,38 +81,48 @@ zbtu_render_lines() {
 
 btu_section() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_render_lines "info " "${ZBTU_WHITE}" 2 "$@"
+  zbtu_stack_push
+  zbtu_render_lines "info " "${ZBTU_WHITE}" "$@"
+  zbtu_stack_pop
 }
 
 btu_info() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_render_lines "info " "" 2 "$@"
+  zbtu_stack_push
+  zbtu_render_lines "info " "" "$@"
+  zbtu_stack_pop
 }
 
 btu_trace() {
   test "${BTU_VERBOSE:-0}" -ge 2 || return 0
-  zbtu_render_lines "trace" "" 2 "$@"
+  zbtu_stack_push
+  zbtu_render_lines "trace" "" "$@"
+  zbtu_stack_pop
 }
 
 btu_fatal() {
-  zbtu_render_lines "ERROR" "${ZBTU_RED}" 2 "$@"
+  zbtu_stack_push
+  zbtu_render_lines "ERROR" "${ZBTU_RED}" "$@"
+  zbtu_stack_pop
   exit 1
 }
 
-# Fatal if condition is true (non-zero)
 btu_fatal_on_error() {
   set -e
   local condition="$1"
   shift
-  test "$condition" -eq 0 || { ZBTU_STACK_DEPTH=3 btu_fatal "$@"; }
+  test "$condition" -eq 0 && return 0
+  zbtu_stack_push
+  btu_fatal "$@"
 }
 
-# Fatal unless condition is true (zero)
 btu_fatal_on_success() {
   set -e
   local condition="$1"
   shift
-  test "$condition" -ne 0 || { ZBTU_STACK_DEPTH=1 btu_fatal "$@"; }
+  test "$condition" -ne 0 && return 0
+  zbtu_stack_push
+  btu_fatal "$@"
 }
 
 # Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
@@ -129,9 +158,9 @@ zbtu_invoke() {
   rm -f "$tmp_stdout" "$tmp_stderr"
 }
 
-# Expect success and specific stdout
 btu_expect_ok_stdout() {
   set -e
+  zbtu_stack_push
 
   local expected="$1"
   shift
@@ -139,29 +168,33 @@ btu_expect_ok_stdout() {
   zbtu_invoke "$@"
 
   btu_fatal_on_error $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
-                            "Command: $*"                             \
-                            "STDERR: $ZBTU_STDERR"
+                                  "Command: $*"                             \
+                                  "STDERR: $ZBTU_STDERR"
 
   test "$ZBTU_STDOUT" = "$expected" || btu_fatal "Output mismatch"       \
                                                  "Command: $*"           \
                                                  "Expected: '$expected'" \
                                                  "Got:      '$ZBTU_STDOUT'"
+
+  zbtu_stack_pop
 }
 
-# Expect success (ignore stdout)
 btu_expect_ok() {
   set -e
+  zbtu_stack_push
 
   zbtu_invoke "$@"
 
   btu_fatal_on_error $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
-                            "Command: $*"                             \
-                            "STDERR: $ZBTU_STDERR"
+                                  "Command: $*"                             \
+                                  "STDERR: $ZBTU_STDERR"
+
+  zbtu_stack_pop
 }
 
-# Expect failure
 btu_expect_fatal() {
   set -e
+  zbtu_stack_push
 
   zbtu_invoke "$@"
 
@@ -169,10 +202,12 @@ btu_expect_fatal() {
                                     "Command: $*"                      \
                                     "STDOUT: $ZBTU_STDOUT"             \
                                     "STDERR: $ZBTU_STDERR"
+
+  zbtu_stack_pop
 }
 
 # Run single test case in subshell
-btu_case() {
+zbtu_case() {
   set -e
 
   local test_name="$1"
@@ -204,12 +239,12 @@ btu_execute() {
   if [ -n "$specific_test" ]; then
     echo "$specific_test" | grep -q "^${prefix}" || btu_fatal \
       "Test '$specific_test' does not start with required prefix '$prefix'"
-    btu_case "$specific_test"
+    zbtu_case "$specific_test"
   else
     local found=0
     for one_case in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
       found=1
-      btu_case "$one_case"
+      zbtu_case "$one_case"
     done
     btu_fatal_on_success $found "No test functions found with prefix '$prefix'"
   fi
