@@ -37,6 +37,7 @@ btu_fail() {
 
 # Fail if condition is true (non-zero)
 btu_fail_if() {
+    set -e
     local condition="$1"
     shift
 
@@ -47,6 +48,7 @@ btu_fail_if() {
 
 # Fail unless condition is true (zero)
 btu_fail_unless() {
+    set -e
     local condition="$1"
     shift
 
@@ -57,11 +59,13 @@ btu_fail_unless() {
 
 # Trace function - respects BCU_VERBOSE
 btu_trace() {
-    test "${BCU_VERBOSE:-0}" -ge 1 && echo "$@"
+    set -e
+    test "${BCU_VERBOSE:-0}" -ge 1 && echo "$@" >&2
 }
 
 # Run command in subshell, expect success and specific stdout
 btu_expect_ok_stdout() {
+    set -e
     local expected="$1"
     shift
 
@@ -85,6 +89,7 @@ btu_expect_ok_stdout() {
 
 # Run command in subshell, expect failure
 btu_expect_die() {
+    set -e
     # Run in subshell, capture status
     local output
     local status
@@ -100,6 +105,7 @@ btu_expect_die() {
 
 # Run single test case in clean subshell
 btu_case() {
+    set -e
     local test_name="$1"
 
     # Check if function exists
@@ -111,7 +117,7 @@ btu_case() {
     # Run test in subshell with BCU_VERBOSE passed through
     (
         export BCU_VERBOSE="${BCU_VERBOSE:-0}"
-        test "${BCU_VERBOSE:-0}" -ge 2 && set -x
+        test "${BCU_VERBOSE:-0}" -ge 2 && zbcu_enable_trace
         "$test_name"
     )
     local status=$?
@@ -119,12 +125,13 @@ btu_case() {
     bcu_context "$test_name"
     bcu_die_if $status "Test failed"
 
-    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_pass "PASSED: $test_name"
+    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_success "PASSED: $test_name"
     return 0
 }
 
 # Main test executor
 btu_execute() {
+    set -e
     local prefix="$1"
     local specific_test="$2"
 
@@ -145,7 +152,7 @@ btu_execute() {
         bcu_die_unless $found "No test functions found with prefix '$prefix'"
     fi
 
-    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_pass "All tests passed"
+    test "${BCU_VERBOSE:-0}" -ge 1 && bcu_success "All tests passed"
 }
 
 # eof

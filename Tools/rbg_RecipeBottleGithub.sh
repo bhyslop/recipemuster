@@ -70,7 +70,7 @@ rbg_build() {
     # Command execution
     bcu_step "Build container from $recipe_file"
     bcu_warn "Not implemented yet"
-    bcu_pass "Build completed"
+    bcu_success "Build completed"
 }
 
 rbg_list() {
@@ -83,7 +83,7 @@ rbg_list() {
     # Command execution
     bcu_step "List registry images"
     bcu_warn "Not implemented yet"
-    bcu_pass "List completed"
+    bcu_success "List completed"
 }
 
 rbg_delete() {
@@ -104,7 +104,7 @@ rbg_delete() {
     # Command execution
     bcu_step "Delete image: $fqin"
     bcu_warn "Not implemented yet"
-    bcu_pass "Delete completed"
+    bcu_success "Delete completed"
 }
 
 rbg_retrieve() {
@@ -125,7 +125,7 @@ rbg_retrieve() {
     # Command execution
     bcu_step "Retrieve image: $fqin"
     bcu_warn "Not implemented yet"
-    bcu_pass "Retrieve completed"
+    bcu_success "Retrieve completed"
 }
 
 rbg_help() {

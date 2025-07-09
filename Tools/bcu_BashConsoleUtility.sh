@@ -68,9 +68,23 @@ bcu_step() {
     echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
 }
 
-bcu_pass() {
+bcu_success() {
     set -e
-    echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" || bcu_die
+    echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" >&2 || bcu_die
+}
+
+# Enable trace to stderr safely if supported
+zbcu_enable_trace() {
+    # Only supported in Bash >= 4.1
+    if [[ ${BASH_VERSINFO[0]} -gt 4 ]] || { [[ ${BASH_VERSINFO[0]} -eq 4 ]] && [[ ${BASH_VERSINFO[1]} -ge 1 ]]; }; then
+        export BASH_XTRACEFD=2
+    fi
+    set -x
+}
+
+# Disable trace
+zbcu_disable_trace() {
+    set +x
 }
 
 zbcu_do_execute() {
@@ -147,12 +161,8 @@ bcu_usage_die() {
     exit 1
 }
 
-#!/bin/bash
-# New BCU functions to be added to bcu_BashConsoleUtility.sh
-
 # Multi-line print function with verbosity control
-# Usage: zbcu_print <min_verbosity> <line1> [<line2> ...]
-# min_verbosity: -1 = always print, 0+ = minimum BCU_VERBOSE level required
+# Now sends output to stderr to avoid interfering with stdout returns
 zbcu_print() {
     local min_verbosity="$1"
     shift
@@ -160,7 +170,7 @@ zbcu_print() {
     # Always print if min_verbosity is -1, otherwise check BCU_VERBOSE
     if [ "$min_verbosity" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "$min_verbosity" ]; then
         while [ $# -gt 0 ]; do
-            echo "$1"
+            echo "$1" >&2
             shift
         done
     fi
