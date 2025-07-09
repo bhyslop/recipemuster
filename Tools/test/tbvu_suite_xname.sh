@@ -22,32 +22,32 @@ tbvu_case_xname_valid() {
 tbvu_case_xname_invalid_start() {
     set -e
 
-    btu_expect_die bvu_val_xname "var" "1abc"  1 10
-    btu_expect_die bvu_val_xname "var" "_test" 1 10
-    btu_expect_die bvu_val_xname "var" "-name" 1 10
-    btu_expect_die bvu_val_xname "var" "123"   1 10
-    btu_expect_die bvu_val_xname "var" ""      1 10
+    btu_expect_fatal bvu_val_xname "var" "1abc"  1 10
+    btu_expect_fatal bvu_val_xname "var" "_test" 1 10
+    btu_expect_fatal bvu_val_xname "var" "-name" 1 10
+    btu_expect_fatal bvu_val_xname "var" "123"   1 10
+    btu_expect_fatal bvu_val_xname "var" ""      1 10
 }
 
 tbvu_case_xname_invalid_chars() {
     set -e
 
-    btu_expect_die bvu_val_xname "var" "my.name"     1  10
-    btu_expect_die bvu_val_xname "var" "test@var"    1  10
-    btu_expect_die bvu_val_xname "var" "hello world" 1  10
-    btu_expect_die bvu_val_xname "var" "a$b"         1  10
-    btu_expect_die bvu_val_xname "var" "test/path"   1  10
-    btu_expect_die bvu_val_xname "var" "name:tag"    1  10
+    btu_expect_fatal bvu_val_xname "var" "my.name"     1  10
+    btu_expect_fatal bvu_val_xname "var" "test@var"    1  10
+    btu_expect_fatal bvu_val_xname "var" "hello world" 1  10
+    btu_expect_fatal bvu_val_xname "var" "a$b"         1  10
+    btu_expect_fatal bvu_val_xname "var" "test/path"   1  10
+    btu_expect_fatal bvu_val_xname "var" "name:tag"    1  10
 }
 
 tbvu_case_xname_length() {
     set -e
 
     # Too short
-    btu_expect_die bvu_val_xname "var" "ab" 3 10
+    btu_expect_fatal bvu_val_xname "var" "ab" 3 10
 
     # Too long
-    btu_expect_die bvu_val_xname "var" "abcdefghijk" 1 10
+    btu_expect_fatal bvu_val_xname "var" "abcdefghijk" 1 10
 
     # Exactly at limits
     btu_expect_ok_stdout "abc"        bvu_val_xname "var" "abc"        3  10
@@ -74,7 +74,7 @@ tbvu_case_xname_empty_optional() {
     btu_expect_ok_stdout "" bvu_val_xname "var" "" 0 10
 
     # Empty not allowed when min>0
-    btu_expect_die bvu_val_xname "var" "" 1 10
+    btu_expect_fatal bvu_val_xname "var" "" 1 10
 }
 
 tbvu_case_xname_env_wrapper() {
@@ -86,7 +86,7 @@ tbvu_case_xname_env_wrapper() {
 
     # Invalid value
     export TEST_VAR="123invalid"
-    btu_expect_die bvu_env_xname "TEST_VAR" 1 10
+    btu_expect_fatal bvu_env_xname "TEST_VAR" 1 10
 
     # Empty with default
     export TEST_VAR=""
@@ -94,7 +94,7 @@ tbvu_case_xname_env_wrapper() {
 
     # Unset variable
     unset TEST_VAR
-    btu_expect_die bvu_env_xname "TEST_VAR" 1 10
+    btu_expect_fatal bvu_env_xname "TEST_VAR" 1 10
 }
 
 # Execute tests

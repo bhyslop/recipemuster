@@ -28,31 +28,68 @@ ZBTU_RED=$(    btu_color '1;31' )
 ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
 
+# Emit caller context information: filename:line in function
+# Accepts one optional arg: stack depth (default=2)
+zbtu_localize() {
+  local frame="${1:-${ZBTU_STACK_DEPTH:-2}}"
+  local file="${BASH_SOURCE[$frame]}"
+  local line="${BASH_LINENO[$((frame - 1))]}"
+  local func="${FUNCNAME[$frame]}"
+  echo "$file($line): in $func()" >&2
+}
+
 # Verbosity-controlled trace
 btu_trace() {
-  test "${BTU_VERBOSE:-0}" -ge 1 && echo "$@" >&2
+  test "${BTU_VERBOSE:-0}" -ge 1 || return 0
+  echo "$@" >&2
+  if test "${BTU_VERBOSE:-0}" -ge 2; then
+    zbtu_localize 2
+  fi
 }
 
 # Fatal error message and exit
 btu_fatal() {
   echo "${ZBTU_RED}FATAL:${ZBTU_RESET} $1" >&2
+  zbtu_localize 2
   shift
   for line in "$@"; do echo "$line" >&2; done
   exit 1
 }
 
+
 # Fatal if condition is true (non-zero)
 btu_fatal_if() {
   local condition="$1"
   shift
-  test "$condition" -ne 0 && btu_fatal "$@"
+  test "$condition" -ne 0 && ZBTU_STACK_DEPTH=3 btu_fatal "$@"
 }
 
 # Fatal unless condition is true (zero)
 btu_fatal_unless() {
   local condition="$1"
   shift
-  test "$condition" -eq 0 || btu_fatal "$@"
+  test "$condition" -eq 0 || ZBTU_STACK_DEPTH=3 btu_fatal "$@"
+}
+
+# Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
+# Globals set:
+#   ZBTU_STDOUT  — command stdout
+#   ZBTU_STDERR  — command stderr
+#   ZBTU_STATUS  — command exit code
+zbtu_invoke() {
+  local tmp_stdout tmp_stderr
+  tmp_stdout="$(mktemp)"
+  tmp_stderr="$(mktemp)"
+
+  set +e
+  "$@" >"$tmp_stdout" 2>"$tmp_stderr"
+  ZBTU_STATUS=$?
+  set -e
+
+  ZBTU_STDOUT=$(<"$tmp_stdout")
+  ZBTU_STDERR=$(<"$tmp_stderr")
+
+  rm -f "$tmp_stdout" "$tmp_stderr"
 }
 
 # Expect success and specific stdout
@@ -60,37 +97,35 @@ btu_expect_ok_stdout() {
   local expected="$1"
   shift
 
-  local output status
-  output=$("$@" 2>&1)
-  status=$?
+  zbtu_invoke "$@"
 
-  btu_fatal_if $status "Command failed with status $status" \
-                        "Command: $*" \
-                        "Output: $output"
+  btu_fatal_if $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
+                            "Command: $*"                             \
+                            "STDERR: $ZBTU_STDERR"
 
-  test "$output" = "$expected" || btu_fatal "Output mismatch"       \
-                                            "Command: $*"           \
-                                            "Expected: '$expected'" \
-                                            "Got:      '$output'"
+  test "$ZBTU_STDOUT" = "$expected" || btu_fatal "Output mismatch"       \
+                                                 "Command: $*"           \
+                                                 "Expected: '$expected'" \
+                                                 "Got:      '$ZBTU_STDOUT'"
 }
 
 # Expect success (ignore stdout)
 btu_expect_ok() {
-  "$@" > /dev/null 2>&1
-  local status=$?
-  btu_fatal_if $status "Command failed with status $status" \
-                       "Command: $*"
+  zbtu_invoke "$@"
+
+  btu_fatal_if $ZBTU_STATUS "Command failed with status $ZBTU_STATUS" \
+                            "Command: $*"                             \
+                            "STDERR: $ZBTU_STDERR"
 }
 
 # Expect failure
-btu_expect_die() {
-  local output status
-  output=$("$@" 2>&1)
-  status=$?
+btu_expect_fatal() {
+  zbtu_invoke "$@"
 
-  btu_fatal_unless $status "Expected failure but got success" \
-                           "Command: $*"                      \
-                           "Output: $output"
+  btu_fatal_unless $ZBTU_STATUS "Expected failure but got success" \
+                                "Command: $*"                      \
+                                "STDOUT: $ZBTU_STDOUT"             \
+                                "STDERR: $ZBTU_STDERR"
 }
 
 # Run single test case in subshell
@@ -107,6 +142,7 @@ btu_case() {
   local status=$?
   btu_fatal_if $status "Test failed: $test_name"
 
+  btu_trace "Finished: $test_name with status: $status"
   test "${BTU_VERBOSE:-0}" -ge 1 && echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} $test_name" >&2
 }
 
