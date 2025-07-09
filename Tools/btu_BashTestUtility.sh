@@ -91,10 +91,13 @@ btu_fatal_on_success() {
 #   ZBTU_STDERR  — command stderr
 #   ZBTU_STATUS  — command exit code
 zbtu_invoke() {
+  btu_trace "Invoking: $*"
+
   local tmp_stdout tmp_stderr
   tmp_stdout="$(mktemp)"
   tmp_stderr="$(mktemp)"
 
+  btu_trace "Calling: $*"
   set +e
   "$@" >"$tmp_stdout" 2>"$tmp_stderr"
   ZBTU_STATUS=$?
@@ -102,6 +105,10 @@ zbtu_invoke() {
 
   ZBTU_STDOUT=$(<"$tmp_stdout")
   ZBTU_STDERR=$(<"$tmp_stderr")
+
+  btu_trace "Exit status: $ZBTU_STATUS"
+  btu_trace "STDOUT: $ZBTU_STDOUT"
+  btu_trace "STDERR: $ZBTU_STDERR"
 
   rm -f "$tmp_stdout" "$tmp_stderr"
 }
