@@ -90,7 +90,7 @@ btu_expect_die() {
     local status
     output=$("$@" 2>&1)
     status=$?
-
+    echo "[DEBUG] btu_expect_die: status=$status, command=$*" 1>&2
     btu_fail_unless $status "Expected failure but got success" \
                             "Command: $*" \
                             "Output: $output"
