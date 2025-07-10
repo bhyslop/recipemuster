@@ -183,7 +183,7 @@ btu_execute() {
 
   export BTU_VERBOSE="${BTU_VERBOSE:-0}"
 
-  # Enable bash trace to stderr if BTU_VERBOSE is 3 or higher and bash supports
+  # Enable bash trace to stderr if BTU_VERBOSE is 3 or higher and bash >= 4.1
   if [[ "${BTU_VERBOSE}" -ge 3 ]]; then
     if [[ "${BASH_VERSINFO[0]}" -gt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 1 ]]; then
       export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '

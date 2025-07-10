@@ -128,48 +128,8 @@ rbg_retrieve() {
     bcu_success "Retrieve completed"
 }
 
-rbg_help() {
-    set -e
-
-    # Handle documentation mode
-    bcu_doc_brief "Show help for available commands"
-    bcu_doc_shown || return 0
-
-    # Perform documentation
-    shift $#
-    bcu_set_doc_mode
-
-    echo "Recipe Bottle GitHub - Container Registry Management"
-    echo
-    echo "Environment vars needed:"
-    zrbg_env
-
-    echo "Commands:"
-
-    for zrbg_command in $(declare -F | grep -E '^declare -f rbg_[a-z_]+$' | cut -d' ' -f3); do
-        bcu_context "$zrbg_command"
-        $zrbg_command
-    done
-}
-
-# Detect command, if any
-zrbg_command="${1:-}"
-shift || true
-
-# Attempt execution
-if declare -F   "$zrbg_command" >/dev/null &&\
-           echo "$zrbg_command" | grep -q '^rbg_[a-z_]*$'; then
-    bcu_context "$zrbg_command"
-
-    zrbg_env
-    "$zrbg_command" "$@"
-else
-    # Emit documentation
-    test -z     "$zrbg_command" || bcu_warn "Unknown command: $zrbg_command"
-    rbg_help
-    exit 1
-fi
-
+zrbg_env
+bcu_execute "rbg_" "Recipe Bottle GitHub" zrbg_env "$@"
 
 # eof
 

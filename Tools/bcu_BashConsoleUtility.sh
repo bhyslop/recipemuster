@@ -24,7 +24,7 @@ ZBCU_INCLUDED=1
 # Color codes
 zbcu_color() {
   # More robust terminal detection for Cygwin and other environments
-  test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''
+  test -n "${TERM}" && test "${TERM}" != "dumb" && printf '\033[%sm' "$1" || printf ''
 }
 ZBCU_BLACK=$(   zbcu_color '1;30' )
 ZBCU_RED=$(     zbcu_color '1;31' )
@@ -88,7 +88,7 @@ zbcu_disable_trace() {
 }
 
 zbcu_do_execute() {
-    test "$ZBCU_DOC_MODE" = "true" && return 0 || return 1
+    test "${ZBCU_DOC_MODE}" = "true" && return 0 || return 1
 }
 
 bcu_doc_env() {
@@ -168,7 +168,7 @@ bcu_print() {
     shift
 
     # Always print if min_verbosity is -1, otherwise check BCU_VERBOSE
-    if [ "$min_verbosity" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "$min_verbosity" ]; then
+    if [ "${min_verbosity}" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
         while [ $# -gt 0 ]; do
             echo "$1" >&2
             shift
@@ -182,7 +182,7 @@ bcu_die_if() {
     local condition="$1"
     shift
 
-    test "$condition" -ne 0 || return 0
+    test "${condition}" -ne 0 || return 0
 
     set -e
     local context="${ZBCU_CONTEXT:-}"
@@ -198,7 +198,7 @@ bcu_die_unless() {
     local condition="$1"
     shift
 
-    test "$condition" -eq 0 || return 0
+    test "${condition}" -eq 0 || return 0
 
     set -e
     local context="${ZBCU_CONTEXT:-}"
@@ -208,6 +208,46 @@ bcu_die_unless() {
     exit 1
 }
 
+zbcu_show_help() {
+    local prefix="$1"
+    local title="$2"
+    local env_check="$3"
+    
+    bcu_set_doc_mode    
+    
+    echo "$title"
+    echo
+    echo "Environment Variables:"
+    "${env_check}"
+    echo
+    echo "Commands:"
+    
+    for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
+        bcu_context "${cmd}"
+        "${cmd}"
+    done
+}
+
+bcu_execute() {
+    set -e
+    local prefix="$1"
+    local title="$2"
+    local env_check="$3"
+    local command="${4:-}"
+    shift 4 || shift $#
+
+    # Validate and execute command if named, else show help
+    if declare -F   "${prefix}${command}" >/dev/null &&\
+       echo         "${prefix}${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
+        bcu_context "${prefix}${command}"
+        "${prefix}${command}" "$@"
+    else
+        test -z "${command}" || bcu_warn "Unknown command: ${command}"
+
+        zbcu_show_help "${prefix}" "${title}" "${env_check}"
+        exit 1
+    fi
+}
 
 # eof
 
