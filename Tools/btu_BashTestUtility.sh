@@ -18,42 +18,16 @@
 #
 # Bash Test Utility Library
 
-# ============================================================================
 # Multiple inclusion guard
-# ----------------------------------------------------------------------------
-# A simple, POSIX?compatible header?guard to prevent accidental re?sourcing.
-# ============================================================================
-
 test -z "${ZBTU_INCLUDED:-}" || return 0
 ZBTU_INCLUDED=1
 
-# ============================================================================
-# Colours
-# ----------------------------------------------------------------------------
-# These are only emitted if stdout is a TTY and TERM is not "dumb" so that the
-# library degrades gracefully in scripts and CI logs.
-# ============================================================================
-
-btu_color() {
-  test -t 1 && test "${TERM:-}" != "dumb" && printf '\033[%sm' "$1" || printf ''
-}
-
+# Color codes
+btu_color() { test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''; }
 ZBTU_WHITE=$(  btu_color '1;37' )
 ZBTU_RED=$(    btu_color '1;31' )
 ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
-
-# ============================================================================
-# Lightweight call?stack tracker
-# ----------------------------------------------------------------------------
-#   * zbtu_stack_push – records the current file:line into $ZBTU_LOC if empty
-#   * zbtu_stack_pop  – clears $ZBTU_LOC when the matching handle is popped
-#
-#  NOTE: These functions *must* run in the current shell.  Do **not** wrap
-#        them in $( ) or back?ticks, otherwise they execute in a subshell and
-#        the global variable is lost.  Call them directly, then capture the
-#        resulting value from $ZBTU_LOC.
-# ============================================================================
 
 zbtu_stack_push() {
   local file="${BASH_SOURCE[0]}"
@@ -68,8 +42,7 @@ zbtu_stack_push() {
     echo "BRADTRACE: skipped locale ${ident}" >&2
   fi
 
-  # The caller captures this from $ZBTU_LOC, so also return it for convenience.
-  printf '%s\n' "${ident}"
+  echo "$ident"
 }
 
 zbtu_stack_pop() {
@@ -83,45 +56,37 @@ zbtu_stack_pop() {
   fi
 }
 
-# ============================================================================
-# Pretty printing helpers
-# ============================================================================
-
-# Render aligned, possibly coloured, multi?line messages to stderr.
-# Usage: zbtu_render_lines PREFIX [COLOUR] LINES…
+# Generic renderer for aligned multi-line messages
+# Usage: zbtu_render_lines PREFIX [COLOR] [STACK_DEPTH] LINES...
 zbtu_render_lines() {
   local label="$1"; shift
-  local colour="$1"; shift
+  local color="$1"; shift
 
-  local prefix visible_prefix indent line file frame
-  frame="${ZBTU_STACK_DEPTH:-2}"
-  file="${BASH_SOURCE[${frame}]}"
-  line="${BASH_LINENO[${frame}]}"
+  local prefix file line indent
+  local frame="${ZBTU_STACK_DEPTH:-2}"
+  file="${BASH_SOURCE[$frame]}"
+  line="${BASH_LINENO[$frame]}"
 
   if test "${BTU_VERBOSE:-0}" -eq 1; then
-    prefix="${label}:"
+    prefix="$label:"
   else
-    prefix="${label}:$(basename "${file}"):${line}"
+    prefix="$label:$(basename "$file"):$line"
   fi
 
-  visible_prefix="${prefix}"
-  test -z "${colour}" || prefix="${colour}${prefix}${ZBTU_RESET}"
-  indent="$(printf '%*s' "$(echo -e "${visible_prefix}" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
+  local visible_prefix="$prefix"
+  test -z "$color" || prefix="${color}${prefix}${ZBTU_RESET}"
+  indent="$(printf '%*s' "$(echo -e "$visible_prefix" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
 
   local first=1
   for line in "$@"; do
-    if test ${first} -eq 1; then
-      echo "${prefix} ${line}" >&2
+    if test $first -eq 1; then
+      echo "$prefix $line" >&2
       first=0
     else
-      echo "${indent} ${line}" >&2
+      echo "$indent $line" >&2
     fi
   done
 }
-
-# ============================================================================
-# Public logging helpers (section/info/trace/fatal)
-# ============================================================================
 
 btu_section() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
@@ -167,18 +132,16 @@ btu_fatal_on_success() {
   btu_fatal "$@"
 }
 
-# ============================================================================
-# Command invocation helpers
-# ============================================================================
-#   zbtu_invoke – runs a command under set ?e, capturing stdout/stderr/status
-# ============================================================================
-
+# Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
+# Globals set:
+#   ZBTU_STDOUT  — command stdout
+#   ZBTU_STDERR  — command stderr
+#   ZBTU_STATUS  — command exit code
 zbtu_invoke() {
   btu_trace "Invoking: $*"
 
-  local tmp_stdout tmp_stderr
-  tmp_stdout="$(mktemp)"
-  tmp_stderr="$(mktemp)"
+  local tmp_stdout="$(mktemp)"
+  local tmp_stderr="$(mktemp)"
 
   ZBTU_STATUS=$( (
       set +e
@@ -200,10 +163,6 @@ zbtu_invoke() {
   rm -f "${tmp_stdout}" "${tmp_stderr}"
 }
 
-# ============================================================================
-# Expectations helpers
-# ============================================================================
-
 btu_expect_ok_stdout() {
   set -e
   zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
@@ -213,13 +172,13 @@ btu_expect_ok_stdout() {
   zbtu_invoke "$@"
 
   btu_fatal_on_error "${ZBTU_STATUS}" "Command failed with status ${ZBTU_STATUS}" \
-                                   "Command: $*"                             \
-                                   "STDERR: ${ZBTU_STDERR}"
+                                      "Command: $*"                               \
+                                      "STDERR: ${ZBTU_STDERR}"
 
-  test "${ZBTU_STDOUT}" = "${expected}" || btu_fatal "Output mismatch"       \
-                                                 "Command: $*"           \
-                                                 "Expected: '${expected}'" \
-                                                 "Got:      '${ZBTU_STDOUT}'"
+  test "${ZBTU_STDOUT}" = "${expected}" || btu_fatal "Output mismatch"            \
+                                                     "Command: $*"                \
+                                                     "Expected: '${expected}'"    \
+                                                     "Got:      '${ZBTU_STDOUT}'"
 
   zbtu_stack_pop "${zbtu_token}"
 }
@@ -231,8 +190,8 @@ btu_expect_ok() {
   zbtu_invoke "$@"
 
   btu_fatal_on_error "${ZBTU_STATUS}" "Command failed with status ${ZBTU_STATUS}" \
-                                   "Command: $*"                             \
-                                   "STDERR: ${ZBTU_STDERR}"
+                                      "Command: $*"                               \
+                                      "STDERR: ${ZBTU_STDERR}"
 
   zbtu_stack_pop "${zbtu_token}"
 }
@@ -244,18 +203,14 @@ btu_expect_fatal() {
   zbtu_invoke "$@"
 
   btu_fatal_on_success "${ZBTU_STATUS}" "Expected failure but got success" \
-                                     "Command: $*"                      \
-                                     "STDOUT: ${ZBTU_STDOUT}"             \
-                                     "STDERR: ${ZBTU_STDERR}"
+                                        "Command: $*"                      \
+                                        "STDOUT: ${ZBTU_STDOUT}"           \
+                                        "STDERR: ${ZBTU_STDERR}"
 
   zbtu_stack_pop "${zbtu_token}"
 }
 
-# ============================================================================
-# Test?case harness
-# ============================================================================
-
-# Run a single test case in a subshell so that 'set -e' only affects it.
+# Run single test case in subshell
 zbtu_case() {
   set -e
 
@@ -277,7 +232,7 @@ zbtu_case() {
   test "${BTU_VERBOSE:-0}" -le 0 || echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} ${test_name}" >&2
 }
 
-# Discover and run test cases with the given prefix (or a specific test name).
+# Run all or specific tests
 btu_execute() {
   set -e
 
