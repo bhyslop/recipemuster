@@ -196,9 +196,9 @@ btu_execute() {
   local specific_test="$2"
   local count=0
 
-  if [[ -n "${specific_test}" ]]; then
-    echo "${specific_test}" | grep -q "^${prefix}" || btu_fatal \
-      "Test '${specific_test}' does not start with required prefix '${prefix}'"
+  if [[ -n    "${specific_test}" ]]; then
+    echo      "${specific_test}" | grep -q "^${prefix}" || \
+         echo "${specific_test} mismatch to '${prefix}' but trying..."
     zbtu_case "${specific_test}"
     count=1
   else
