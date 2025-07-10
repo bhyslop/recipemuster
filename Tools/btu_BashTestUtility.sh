@@ -183,23 +183,36 @@ btu_execute() {
 
   export BTU_VERBOSE="${BTU_VERBOSE:-0}"
 
+  # Enable bash trace to stderr if BTU_VERBOSE is 3 or higher and bash supports
+  if [[ "${BTU_VERBOSE}" -ge 3 ]]; then
+    if [[ "${BASH_VERSINFO[0]}" -gt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 1 ]]; then
+      export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
+      export BASH_XTRACEFD=2
+      set -x
+    fi
+  fi
+
   local prefix="$1"
   local specific_test="$2"
+  local count=0
 
   if [[ -n "${specific_test}" ]]; then
     echo "${specific_test}" | grep -q "^${prefix}" || btu_fatal \
       "Test '${specific_test}' does not start with required prefix '${prefix}'"
     zbtu_case "${specific_test}"
+    count=1
   else
     local found=0
     for one_case in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
       found=1
       zbtu_case "${one_case}"
+      ((count++))
     done
     btu_fatal_on_success "${found}" "No test functions found with prefix '${prefix}'"
   fi
 
-  echo "${ZBTU_GREEN}All tests passed${ZBTU_RESET}" >&2
+  echo "${ZBTU_GREEN}All tests passed (${count} case$(test ${count} -eq 1 || echo 's'))${ZBTU_RESET}" >&2
 }
 
 # eof
+
