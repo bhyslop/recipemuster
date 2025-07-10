@@ -73,7 +73,7 @@ for file in "${files[@]}"; do
     
     # Create a temporary file
     tmpfile=$(mktemp)
-    
+
     # Process the file: strip trailing whitespace and ensure final newline
     sed 's/[[:space:]]*$//' "$file" > "$tmpfile"
     
@@ -84,7 +84,10 @@ for file in "${files[@]}"; do
     
     # Replace original file only if there were changes
     if ! cmp -s "$file" "$tmpfile"; then
+      # Save original file mode
+      mode=$(stat -c '%a' "$file")
       mv "$tmpfile" "$file"
+      chmod "$mode" "$file"
       echo "Stripped whitespace: $file" >&2
     else
       rm "$tmpfile"
