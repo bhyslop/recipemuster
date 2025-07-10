@@ -7,6 +7,14 @@ source "${ZTBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
 source "${ZTBTU_SCRIPT_DIR}/btu_BashTestUtility.sh"
 source "${ZTBTU_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
+tbvu_util_echo_bob() { echo "bob"; }
+
+tbvu_case_debug() {
+    set -e
+
+    btu_expect_ok_stdout "bob" tbvu_util_echo_bob
+}
+
 tbvu_case_xname_valid() {
     set -e
 

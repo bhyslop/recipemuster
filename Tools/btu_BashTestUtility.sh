@@ -30,20 +30,29 @@ ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
 
 zbtu_stack_push() {
-  test -n "${ZBTU_STACK_DEPTH:-}" && return 0
-  local btuframes=4
-  local actual_depth="${#BASH_SOURCE[@]}"
-  ZBTU_STACK_DEPTH=$(( actual_depth - btuframes ))
+  local file="${BASH_SOURCE[0]}"
+  local line="${BASH_LINENO[1]}"
+  local ident="${file}:${line}"
+
+  echo "BRADTRACE: PUSH ZBTU_LOC:(${ZBTU_LOC}) ident:($ident)"   >&2
+  if [[ -z "${ZBTU_LOC}" ]]; then
+    export ZBTU_LOC="$ident"
+    echo "BRADTRACE: SET LOCALE $ident is ${ZBTU_LOC}"  >&2
+  else
+    echo "BRADTRACE: skipped locale $ident"  >&2
+  fi
+
+  echo "$ident"
 }
 
 zbtu_stack_pop() {
-  # Only clear if we were the one who set it
-  local btuframes=4
-  local actual_depth="${#BASH_SOURCE[@]}"
-  local expected=$(( actual_depth - btuframes ))
-
-  if test "${ZBTU_STACK_DEPTH:-unset}" = "$expected"; then
-    unset ZBTU_STACK_DEPTH
+  local handle="$1"
+  echo "BRADTRACE: POP  ZBTU_LOC:(${ZBTU_LOC}) handle:($handle)"   >&2
+  if [[ "$handle" == "$ZBTU_LOC" ]]; then
+    unset ZBTU_LOC
+    echo "BRADTRACE: CLEARED LOCALE $handle"   >&2
+  else
+    echo "BRADTRACE: uncleared locale $handle" >&2
   fi
 }
 
@@ -54,13 +63,13 @@ zbtu_render_lines() {
   local color="$1"; shift
 
   local prefix file line indent
-  local depth="${ZBTU_STACK_DEPTH:-2}"
+  local frame="${ZBTU_STACK_DEPTH:-2}"
+  file="${BASH_SOURCE[$frame]}"
+  line="${BASH_LINENO[$frame]}"
 
   if test "${BTU_VERBOSE:-0}" -eq 1; then
     prefix="$label:"
   else
-    file="${BASH_SOURCE[$depth]}"
-    line="${BASH_LINENO[$((depth - 1))]}"
     prefix="$label:$(basename "$file"):$line"
   fi
 
@@ -81,29 +90,29 @@ zbtu_render_lines() {
 
 btu_section() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
   zbtu_render_lines "info " "${ZBTU_WHITE}" "$@"
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_info() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
   zbtu_render_lines "info " "" "$@"
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_trace() {
   test "${BTU_VERBOSE:-0}" -ge 2 || return 0
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
   zbtu_render_lines "trace" "" "$@"
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_fatal() {
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
   zbtu_render_lines "ERROR" "${ZBTU_RED}" "$@"
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
   exit 1
 }
 
@@ -112,7 +121,7 @@ btu_fatal_on_error() {
   local condition="$1"
   shift
   test "$condition" -eq 0 && return 0
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
   btu_fatal "$@"
 }
 
@@ -121,7 +130,7 @@ btu_fatal_on_success() {
   local condition="$1"
   shift
   test "$condition" -ne 0 && return 0
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
   btu_fatal "$@"
 }
 
@@ -139,6 +148,7 @@ zbtu_invoke() {
   ZBTU_STATUS=$(
     (
       set +e
+      export ZBTU_LOC="$ZBTU_LOC"
       "$@" >"$tmp_stdout" 2>"$tmp_stderr"
       code=$?
       echo "$code"
@@ -160,7 +170,7 @@ zbtu_invoke() {
 
 btu_expect_ok_stdout() {
   set -e
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
 
   local expected="$1"
   shift
@@ -176,12 +186,12 @@ btu_expect_ok_stdout() {
                                                  "Expected: '$expected'" \
                                                  "Got:      '$ZBTU_STDOUT'"
 
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_expect_ok() {
   set -e
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
 
   zbtu_invoke "$@"
 
@@ -189,12 +199,12 @@ btu_expect_ok() {
                                   "Command: $*"                             \
                                   "STDERR: $ZBTU_STDERR"
 
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_expect_fatal() {
   set -e
-  zbtu_stack_push
+  local zbtu_token="$(zbtu_stack_push)"
 
   zbtu_invoke "$@"
 
@@ -203,7 +213,7 @@ btu_expect_fatal() {
                                     "STDOUT: $ZBTU_STDOUT"             \
                                     "STDERR: $ZBTU_STDERR"
 
-  zbtu_stack_pop
+  zbtu_stack_pop "${zbtu_token}"
 }
 
 # Run single test case in subshell
@@ -217,6 +227,7 @@ zbtu_case() {
   local status
   (
     set -e
+    export ZBTU_LOC="$ZBTU_LOC"
     "$test_name"
   )
   status=$?
