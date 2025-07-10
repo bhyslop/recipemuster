@@ -206,7 +206,7 @@ btu_execute() {
     for one_case in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
       found=1
       zbtu_case "${one_case}"
-      ((count++))
+      count=$((count + 1))
     done
     btu_fatal_on_success "${found}" "No test functions found with prefix '${prefix}'"
   fi
