@@ -128,8 +128,7 @@ rbg_retrieve() {
     bcu_success "Retrieve completed"
 }
 
-zrbg_env
-bcu_execute "rbg_" "Recipe Bottle GitHub" zrbg_env "$@"
+bcu_execute "rbg_" "Recipe Bottle GitHub - Container Registry Management" zrbg_env "$@"
 
 # eof
 

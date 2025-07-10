@@ -211,20 +211,22 @@ bcu_die_unless() {
 zbcu_show_help() {
     local prefix="$1"
     local title="$2"
-    local env_check="$3"
-    
-    bcu_set_doc_mode    
+    local env_func="$3"
     
     echo "$title"
     echo
-    echo "Environment Variables:"
-    "${env_check}"
-    echo
+    
+    if [ -n "$env_func" ]; then
+        echo "Environment Variables:"
+        "$env_func"
+        echo
+    fi
+    
     echo "Commands:"
     
     for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
-        bcu_context "${cmd}"
-        "${cmd}"
+        bcu_context "$cmd"
+        "$cmd"
     done
 }
 
@@ -232,19 +234,21 @@ bcu_execute() {
     set -e
     local prefix="$1"
     local title="$2"
-    local env_check="$3"
+    local env_func="$3"
     local command="${4:-}"
-    shift 4 || shift $#
+    shift 3; [ -n "$command" ] && shift || true
 
     # Validate and execute command if named, else show help
-    if declare -F   "${prefix}${command}" >/dev/null &&\
-       echo         "${prefix}${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
-        bcu_context "${prefix}${command}"
-        "${prefix}${command}" "$@"
+    if [ -n         "${command}" ]            &&\
+       declare -F   "${command}" >/dev/null   &&\
+       echo         "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
+        bcu_context "${command}"
+        [ -n "${env_func}" ] && "${env_func}"
+        "${command}" "$@"
     else
         test -z "${command}" || bcu_warn "Unknown command: ${command}"
-
-        zbcu_show_help "${prefix}" "${title}" "${env_check}"
+        bcu_set_doc_mode
+        zbcu_show_help "${prefix}" "${title}" "${env_func}"
         exit 1
     fi
 }
