@@ -29,46 +29,13 @@ ZBTU_RED=$(    btu_color '1;31' )
 ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
 
-zbtu_stack_push() {
-
-  local depth=${#BASH_SOURCE[@]}
-  local stack_dump=""
-  for (( i=1; i<depth; i++ )); do   # skip frame 0 (this function itself)
-    local f="${BASH_SOURCE[$i]}"
-    local l="${BASH_LINENO[$((i-1))]}"  # BASH_LINENO is offset by one
-    stack_dump+="[$i] ${f}:${l}\n"
-  done
-  echo -e "BRADTRACE: STACK DUMP (most?recent call first):\n${stack_dump}" >&2
-
-  local file="${BASH_SOURCE[3]}"
-  local line="${BASH_LINENO[2]}"
-  local ident="${file}:${line}"
-
-  if [[ -z "${ZBTU_LOC}" ]]; then
-    export ZBTU_LOC="${ident}"
-  fi
-}
-
-zbtu_stack_pop() {
-  local handle="$1"
-  if [[ "${handle}" == "${ZBTU_LOC}" ]]; then
-    unset ZBTU_LOC
-  fi
-}
-
 # Generic renderer for aligned multi-line messages
 # Usage: zbtu_render_lines PREFIX [COLOR] [STACK_DEPTH] LINES...
 zbtu_render_lines() {
   local label="$1"; shift
   local color="$1"; shift
 
-  local prefix
-
-  if test "${BTU_VERBOSE:-0}" -eq 1; then
-    prefix="$label:"
-  else
-    prefix="$label:${ZBTU_LOC}"
-  fi
+  local prefix="$label:"
 
   local visible_prefix="$prefix"
   test -z "$color" || prefix="${color}${prefix}${ZBTU_RESET}"
@@ -87,29 +54,21 @@ zbtu_render_lines() {
 
 btu_section() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
   zbtu_render_lines "info " "${ZBTU_WHITE}" "$@"
-  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_info() {
   test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
   zbtu_render_lines "info " "" "$@"
-  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_trace() {
   test "${BTU_VERBOSE:-0}" -ge 2 || return 0
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
   zbtu_render_lines "trace" "" "$@"
-  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_fatal() {
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
   zbtu_render_lines "ERROR" "${ZBTU_RED}" "$@"
-  zbtu_stack_pop "${zbtu_token}"
   exit 1
 }
 
@@ -117,7 +76,6 @@ btu_fatal_on_error() {
   set -e
   local condition="$1"; shift
   test "${condition}" -eq 0 && return 0
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
   btu_fatal "$@"
 }
 
@@ -125,7 +83,6 @@ btu_fatal_on_success() {
   set -e
   local condition="$1"; shift
   test "${condition}" -ne 0 && return 0
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
   btu_fatal "$@"
 }
 
@@ -142,7 +99,6 @@ zbtu_invoke() {
 
   ZBTU_STATUS=$( (
       set +e
-      export ZBTU_LOC="${ZBTU_LOC}"
       "$@" >"${tmp_stdout}" 2>"${tmp_stderr}"
       printf '%s' "$?"
       exit 0
@@ -162,7 +118,6 @@ zbtu_invoke() {
 
 btu_expect_ok_stdout() {
   set -e
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
 
   local expected="$1"; shift
 
@@ -176,26 +131,20 @@ btu_expect_ok_stdout() {
                                                      "Command: $*"                \
                                                      "Expected: '${expected}'"    \
                                                      "Got:      '${ZBTU_STDOUT}'"
-
-  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_expect_ok() {
   set -e
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
 
   zbtu_invoke "$@"
 
   btu_fatal_on_error "${ZBTU_STATUS}" "Command failed with status ${ZBTU_STATUS}" \
                                       "Command: $*"                               \
                                       "STDERR: ${ZBTU_STDERR}"
-
-  zbtu_stack_pop "${zbtu_token}"
 }
 
 btu_expect_fatal() {
   set -e
-  zbtu_stack_push; local zbtu_token="${ZBTU_LOC}"
 
   zbtu_invoke "$@"
 
@@ -203,8 +152,6 @@ btu_expect_fatal() {
                                         "Command: $*"                      \
                                         "STDOUT: ${ZBTU_STDOUT}"           \
                                         "STDERR: ${ZBTU_STDERR}"
-
-  zbtu_stack_pop "${zbtu_token}"
 }
 
 # Run single test case in subshell
@@ -214,16 +161,11 @@ zbtu_case() {
   local test_name="$1"
   declare -F "${test_name}" >/dev/null || btu_fatal "Test function not found: ${test_name}"
 
-  local file="${BASH_SOURCE[1]}"
-  local line="${BASH_LINENO[0]}"
-  export ZBTU_LOC="${file}:${line}"
-
   btu_section "START: ${test_name}"
 
   local status
   (
     set -e
-    export ZBTU_LOC="${ZBTU_LOC}"
     "${test_name}"
   )
 
