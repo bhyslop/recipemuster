@@ -30,29 +30,29 @@ ZBTU_GREEN=$(  btu_color '1;32' )
 ZBTU_RESET=$(  btu_color '0'    )
 
 zbtu_stack_push() {
-  local file="${BASH_SOURCE[0]}"
-  local line="${BASH_LINENO[1]}"
+
+  local depth=${#BASH_SOURCE[@]}
+  local stack_dump=""
+  for (( i=1; i<depth; i++ )); do   # skip frame 0 (this function itself)
+    local f="${BASH_SOURCE[$i]}"
+    local l="${BASH_LINENO[$((i-1))]}"  # BASH_LINENO is offset by one
+    stack_dump+="[$i] ${f}:${l}\n"
+  done
+  echo -e "BRADTRACE: STACK DUMP (most?recent call first):\n${stack_dump}" >&2
+
+  local file="${BASH_SOURCE[3]}"
+  local line="${BASH_LINENO[2]}"
   local ident="${file}:${line}"
 
-  echo "BRADTRACE: PUSH ZBTU_LOC:(${ZBTU_LOC}) ident:(${ident})" >&2
   if [[ -z "${ZBTU_LOC}" ]]; then
     export ZBTU_LOC="${ident}"
-    echo "BRADTRACE: SET LOCALE ${ident} is ${ZBTU_LOC}" >&2
-  else
-    echo "BRADTRACE: skipped locale ${ident}" >&2
   fi
-
-  echo "$ident"
 }
 
 zbtu_stack_pop() {
   local handle="$1"
-  echo "BRADTRACE: POP  ZBTU_LOC:(${ZBTU_LOC}) handle:(${handle})" >&2
   if [[ "${handle}" == "${ZBTU_LOC}" ]]; then
     unset ZBTU_LOC
-    echo "BRADTRACE: CLEARED LOCALE ${handle}" >&2
-  else
-    echo "BRADTRACE: uncleared locale ${handle}" >&2
   fi
 }
 
@@ -62,20 +62,17 @@ zbtu_render_lines() {
   local label="$1"; shift
   local color="$1"; shift
 
-  local prefix file line indent
-  local frame="${ZBTU_STACK_DEPTH:-2}"
-  file="${BASH_SOURCE[$frame]}"
-  line="${BASH_LINENO[$frame]}"
+  local prefix
 
   if test "${BTU_VERBOSE:-0}" -eq 1; then
     prefix="$label:"
   else
-    prefix="$label:$(basename "$file"):$line"
+    prefix="$label:${ZBTU_LOC}"
   fi
 
   local visible_prefix="$prefix"
   test -z "$color" || prefix="${color}${prefix}${ZBTU_RESET}"
-  indent="$(printf '%*s' "$(echo -e "$visible_prefix" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
+  local indent="$(printf '%*s' "$(echo -e "$visible_prefix" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
 
   local first=1
   for line in "$@"; do
