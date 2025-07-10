@@ -43,214 +43,225 @@ ZBCU_CONTEXT=""
 ZBCU_DOC_MODE=false
 
 bcu_info() {
-    set -e
-    bcu_print 0 "$@"
+  set -e
+  bcu_print 0 "$@"
 }
 
 bcu_warn() {
-    set -e
-    bcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
+  set -e
+  bcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
 }
 
 bcu_die() {
-    set -e
-    local context="${ZBCU_CONTEXT:-}"
-    bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
-    exit 1
+  set -e
+  local context="${ZBCU_CONTEXT:-}"
+  bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
+  exit 1
 }
 
 bcu_context() {
-    ZBCU_CONTEXT="$1"
+  ZBCU_CONTEXT="$1"
 }
 
 bcu_step() {
-    set -e
-    echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
+  set -e
+  echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
 }
 
 bcu_success() {
-    set -e
-    echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" >&2 || bcu_die
+  set -e
+  echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" >&2 || bcu_die
 }
 
 # Enable trace to stderr safely if supported
 zbcu_enable_trace() {
-    # Only supported in Bash >= 4.1
-    if [[ ${BASH_VERSINFO[0]} -gt 4 ]] || { [[ ${BASH_VERSINFO[0]} -eq 4 ]] && [[ ${BASH_VERSINFO[1]} -ge 1 ]]; }; then
-        export BASH_XTRACEFD=2
-    fi
-    set -x
+  # Only supported in Bash >= 4.1
+  if [[ ${BASH_VERSINFO[0]} -gt 4 ]] || { [[ ${BASH_VERSINFO[0]} -eq 4 ]] && [[ ${BASH_VERSINFO[1]} -ge 1 ]]; }; then
+      export BASH_XTRACEFD=2
+  fi
+  set -x
 }
 
 # Disable trace
 zbcu_disable_trace() {
-    set +x
+  set +x
 }
 
 zbcu_do_execute() {
-    test "${ZBCU_DOC_MODE}" = "true" && return 0 || return 1
+  test "${ZBCU_DOC_MODE}" = "true" && return 0 || return 1
 }
 
 bcu_doc_env() {
-    set -e
-    local env_var_name="${1}"
-    local env_var_info="${2}"
+  set -e
+  local env_var_name="${1}"
+  local env_var_info="${2}"
 
-    echo "  ${ZBCU_MAGENTA}${env_var_name}${ZBCU_RESET}:  ${env_var_info}"
+  echo "  ${ZBCU_MAGENTA}${env_var_name}${ZBCU_RESET}:  ${env_var_info}"
 }
 
 bcu_env_done() {
-    zbcu_do_execute || return 0
-    echo
-    return 1
+  zbcu_do_execute || return 0
+  echo
+  return 1
 }
 
 ZBCU_USAGE_STRING="UNFILLED"
 
 bcu_doc_brief() {
-    set -e
-    ZBCU_USAGE_STRING="${ZBCU_CONTEXT}"
-    zbcu_do_execute || return 0
-    echo
-    echo "  ${ZBCU_WHITE}${ZBCU_CONTEXT}${ZBCU_RESET}"
-    echo "    brief: $1"
+  set -e
+  ZBCU_USAGE_STRING="${ZBCU_CONTEXT}"
+  zbcu_do_execute || return 0
+  echo
+  echo "  ${ZBCU_WHITE}${ZBCU_CONTEXT}${ZBCU_RESET}"
+  echo "    brief: $1"
 }
 
 bcu_doc_lines() {
-    set -e
-    zbcu_do_execute || return 0
-    echo "           $1"
+  set -e
+  zbcu_do_execute || return 0
+  echo "           $1"
 }
 
 bcu_doc_param() {
-    set -e
-    ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} <<$1>>"
-    zbcu_do_execute || return 0
-    echo "    required: $1 - $2"
+  set -e
+  ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} <<$1>>"
+  zbcu_do_execute || return 0
+  echo "    required: $1 - $2"
 }
 
 bcu_doc_oparm() {
-    set -e
-    ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} [<<$1>>]"
-    zbcu_do_execute || return 0
-    echo "    optional: $1 - $2"
+  set -e
+  ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} [<<$1>>]"
+  zbcu_do_execute || return 0
+  echo "    optional: $1 - $2"
 }
 
 zbcu_usage() {
-    echo -e "    usage: ${ZBCU_CYAN}${ZBCU_USAGE_STRING}${ZBCU_RESET}"
+  echo -e "    usage: ${ZBCU_CYAN}${ZBCU_USAGE_STRING}${ZBCU_RESET}"
 }
 
 # Idiomatic last step of documentation in the bash api.
 # Usage:
 #    bcu_doc_shown || return 0
 bcu_doc_shown() {
-    zbcu_do_execute || return 0
-    zbcu_usage
-    return 1
+  zbcu_do_execute || return 0
+  zbcu_usage
+  return 1
 }
 
 bcu_set_doc_mode() {
-    ZBCU_DOC_MODE=true
+  ZBCU_DOC_MODE=true
 }
 
 bcu_usage_die() {
-    set -e
-    local context="${ZBCU_CONTEXT:-}"
-    local usage=$(zbcu_usage)
-    echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $usage"
-    exit 1
+  set -e
+  local context="${ZBCU_CONTEXT:-}"
+  local usage=$(zbcu_usage)
+  echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $usage"
+  exit 1
 }
 
 # Multi-line print function with verbosity control
 # Sends output to stderr to avoid interfering with stdout returns
 bcu_print() {
-    local min_verbosity="$1"
-    shift
+  local min_verbosity="$1"
+  shift
 
-    # Always print if min_verbosity is -1, otherwise check BCU_VERBOSE
-    if [ "${min_verbosity}" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
-        while [ $# -gt 0 ]; do
-            echo "$1" >&2
-            shift
-        done
-    fi
+  # Always print if min_verbosity is -1, otherwise check BCU_VERBOSE
+  if [ "${min_verbosity}" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
+    while [ $# -gt 0 ]; do
+      echo "$1" >&2
+      shift
+    done
+  fi
 }
 
 # Die if condition is true (non-zero)
 # Usage: bcu_die_if <condition> <message1> [<message2> ...]
 bcu_die_if() {
-    local condition="$1"
-    shift
+  local condition="$1"
+  shift
 
-    test "${condition}" -ne 0 || return 0
+  test "${condition}" -ne 0 || return 0
 
-    set -e
-    local context="${ZBCU_CONTEXT:-}"
-    bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
-    shift
-    bcu_print -1 "$@"
-    exit 1
+  set -e
+  local context="${ZBCU_CONTEXT:-}"
+  bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+  shift
+  bcu_print -1 "$@"
+  exit 1
 }
 
 # Die unless condition is true (zero)
 # Usage: bcu_die_unless <condition> <message1> [<message2> ...]
 bcu_die_unless() {
-    local condition="$1"
-    shift
+  local condition="$1"
+  shift
 
-    test "${condition}" -eq 0 || return 0
+  test "${condition}" -eq 0 || return 0
 
-    set -e
-    local context="${ZBCU_CONTEXT:-}"
-    bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
-    shift
-    bcu_print -1 "$@"
-    exit 1
+  set -e
+  local context="${ZBCU_CONTEXT:-}"
+  bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+  shift
+  bcu_print -1 "$@"
+  exit 1
 }
 
 zbcu_show_help() {
-    local prefix="$1"
-    local title="$2"
-    local env_func="$3"
+  local prefix="$1"
+  local title="$2"
+  local env_func="$3"
     
-    echo "$title"
+  echo "$title"
+  echo
+    
+  if [ -n "$env_func" ]; then
+    echo "Environment Variables:"
+    "$env_func"
     echo
+  fi
     
-    if [ -n "$env_func" ]; then
-        echo "Environment Variables:"
-        "$env_func"
-        echo
-    fi
+  echo "Commands:"
     
-    echo "Commands:"
-    
-    for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
-        bcu_context "$cmd"
-        "$cmd"
-    done
+  for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
+    bcu_context "$cmd"
+    "$cmd"
+  done
 }
 
 bcu_execute() {
-    set -e
-    local prefix="$1"
-    local title="$2"
-    local env_func="$3"
-    local command="${4:-}"
-    shift 3; [ -n "$command" ] && shift || true
+  set -e
+  local prefix="$1"
+  local title="$2"
+  local env_func="$3"
+  local command="${4:-}"
+  shift 3; [ -n "$command" ] && shift || true
 
-    # Validate and execute command if named, else show help
-    if [ -n         "${command}" ]            &&\
-       declare -F   "${command}" >/dev/null   &&\
-       echo         "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
-        bcu_context "${command}"
-        [ -n "${env_func}" ] && "${env_func}"
-        "${command}" "$@"
-    else
-        test -z "${command}" || bcu_warn "Unknown command: ${command}"
-        bcu_set_doc_mode
-        zbcu_show_help "${prefix}" "${title}" "${env_func}"
-        exit 1
+  export BCU_VERBOSE="${BCU_VERBOSE:-0}"
+
+  # Enable bash trace to stderr if BCU_VERBOSE is 3 or higher and bash >= 4.1
+  if [[ "${BCU_VERBOSE}" -ge 3 ]]; then
+    if [[ "${BASH_VERSINFO[0]}" -gt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 1 ]]; then
+      export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
+      export BASH_XTRACEFD=2
+      set -x
     fi
+  fi
+
+  # Validate and execute command if named, else show help
+  if [ -n       "${command}" ]            &&\
+    declare -F  "${command}" >/dev/null   &&\
+    echo        "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
+    bcu_context "${command}"
+    [ -n "${env_func}" ] && "${env_func}"
+    "${command}" "$@"
+  else
+    test -z "${command}" || bcu_warn "Unknown command: ${command}"
+    bcu_set_doc_mode
+    zbcu_show_help "${prefix}" "${title}" "${env_func}"
+    exit 1
+  fi
 }
 
 # eof
