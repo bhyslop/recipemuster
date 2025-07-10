@@ -96,10 +96,17 @@ bcu_doc_env() {
 
   local env_var_name="${1}"
   local env_var_info="${2}"
+  
+  # Trim trailing spaces from variable name
+  env_var_name="${env_var_name%% *}"
 
-  zbcu_do_execute || return 0
+  # In doc mode, show documentation first
+  if zbcu_do_execute; then
+    echo "  ${ZBCU_MAGENTA}${1}${ZBCU_RESET}:  ${env_var_info}"
+  fi
 
-  echo "  ${ZBCU_MAGENTA}${env_var_name}${ZBCU_RESET}:  ${env_var_info}"
+  # Always check if variable is set (using trimmed name)
+  eval "test -n \"\${${env_var_name}:-}\"" || bcu_warn "${env_var_name} is not set"
 }
 
 bcu_env_done() {
