@@ -45,7 +45,7 @@ tbvu_case_xname_invalid_chars() {
     btu_expect_fatal bvu_val_xname "var" "my.name"     1  10
     btu_expect_fatal bvu_val_xname "var" "test@var"    1  10
     btu_expect_fatal bvu_val_xname "var" "hello world" 1  10
-    btu_expect_fatal bvu_val_xname "var" "a$b"         1  10
+    btu_expect_fatal bvu_val_xname "var" 'a$b'         1  10
     btu_expect_fatal bvu_val_xname "var" "test/path"   1  10
     btu_expect_fatal bvu_val_xname "var" "name:tag"    1  10
 }
