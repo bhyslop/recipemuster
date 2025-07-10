@@ -49,7 +49,7 @@ bvu_env_wrapper() {
     eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
     shift 2
 
-    ${func_name} "$varname" "$val" "$@"
+    ${func_name} "$varname" "$val" "$@" >/dev/null
 }
 
 # Generic optional wrapper - returns empty if value is empty
