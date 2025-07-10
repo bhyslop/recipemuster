@@ -213,6 +213,11 @@ zbtu_case() {
 
   local test_name="$1"
   declare -F "${test_name}" >/dev/null || btu_fatal "Test function not found: ${test_name}"
+
+  local file="${BASH_SOURCE[1]}"
+  local line="${BASH_LINENO[0]}"
+  export ZBTU_LOC="${file}:${line}"
+
   btu_section "START: ${test_name}"
 
   local status
@@ -221,6 +226,7 @@ zbtu_case() {
     export ZBTU_LOC="${ZBTU_LOC}"
     "${test_name}"
   )
+
   status=$?
   btu_trace "Ran: ${test_name} and got status:${status}"
   btu_fatal_on_error "${status}" "Test failed: ${test_name}"
