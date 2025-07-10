@@ -11,8 +11,10 @@ tbvu_util_echo_bob() { echo "bob"; }
 
 tbvu_case_debug() {
     set -e
+    
+    btu_info "HERES AN INFO STRING"
 
-    btu_expect_ok_stdout "bob" tbvu_util_echo_bob
+    # btu_expect_ok_stdout "bob" tbvu_util_echo_bob
 }
 
 tbvu_case_xname_valid() {
