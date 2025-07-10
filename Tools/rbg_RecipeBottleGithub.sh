@@ -112,7 +112,7 @@ rbg_retrieve() {
 
     # Name parameters, perhaps provide defaults for optional ones
     local     fqin="${1:-}"
- 
+
     # Handle documentation mode
     bcu_doc_brief "Retrieve image from registry"
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"

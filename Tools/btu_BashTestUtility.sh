@@ -193,13 +193,13 @@ btu_execute() {
   fi
 
   local prefix="$1"
-  local specific_test="$2"
+  local the_case="$2"
   local count=0
 
-  if [[ -n    "${specific_test}" ]]; then
-    echo      "${specific_test}" | grep -q "^${prefix}" || \
-         echo "${specific_test} mismatch to '${prefix}' but trying..."
-    zbtu_case "${specific_test}"
+  if [[ -n    "${the_case}" ]]; then
+    echo      "${the_case}" | grep -q "^${prefix}" || \
+         echo "${the_case} mismatch to '${prefix}' but trying..."
+    zbtu_case "${the_case}"
     count=1
   else
     local found=0
@@ -215,4 +215,3 @@ btu_execute() {
 }
 
 # eof
-

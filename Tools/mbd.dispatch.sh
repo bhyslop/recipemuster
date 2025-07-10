@@ -21,9 +21,9 @@
 #  - Set verbose mode with MBD_VERBOSE=1 or MBD_VERBOSE=2 before command
 #
 # Commentary:
-#   This script is the main dispatch entry point that leverages the 
+#   This script is the main dispatch entry point that leverages the
 #   mbd.utils.sh utility functions to set up the environment and execute
-#   make with the necessary parameters, while maintaining a cleaner 
+#   make with the necessary parameters, while maintaining a cleaner
 #   approach than the original implementation.
 
 set -euo pipefail
@@ -57,7 +57,7 @@ mbd_show "Executing make command"
 # Execute make with the generated command
 set +e
 zMBD_STATUS_FILE="$MBD_TEMP_DIR/status-$$"
-{ 
+{
     eval "$make_cmd" 2>&1
     echo $? > "$zMBD_STATUS_FILE"
     mbd_show "Make status: $(cat $zMBD_STATUS_FILE)"

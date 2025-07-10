@@ -77,7 +77,7 @@ bcu_success() {
 zbcu_enable_trace() {
   # Only supported in Bash >= 4.1
   if [[ ${BASH_VERSINFO[0]} -gt 4 ]] || { [[ ${BASH_VERSINFO[0]} -eq 4 ]] && [[ ${BASH_VERSINFO[1]} -ge 1 ]]; }; then
-      export BASH_XTRACEFD=2
+    export BASH_XTRACEFD=2
   fi
   set -x
 }
@@ -93,8 +93,11 @@ zbcu_do_execute() {
 
 bcu_doc_env() {
   set -e
+
   local env_var_name="${1}"
   local env_var_info="${2}"
+
+  zbcu_do_execute || return 0
 
   echo "  ${ZBCU_MAGENTA}${env_var_name}${ZBCU_RESET}:  ${env_var_info}"
 }
@@ -212,18 +215,18 @@ zbcu_show_help() {
   local prefix="$1"
   local title="$2"
   local env_func="$3"
-    
+
   echo "$title"
   echo
-    
+
   if [ -n "$env_func" ]; then
     echo "Environment Variables:"
     "$env_func"
     echo
   fi
-    
+
   echo "Commands:"
-    
+
   for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
     bcu_context "$cmd"
     "$cmd"
@@ -265,4 +268,3 @@ bcu_execute() {
 }
 
 # eof
-

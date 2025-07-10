@@ -46,7 +46,7 @@ iptables -A OUTPUT  -m state --state RELATED,ESTABLISHED -j ACCEPT || exit 10
 
 echo "RBSp1: Creating RBM chains"
 iptables -N RBM-INGRESS || exit 10
-iptables -N RBM-EGRESS  || exit 10 
+iptables -N RBM-EGRESS  || exit 10
 iptables -N RBM-FORWARD || exit 10
 
 echo "RBSp1: Setting up chain jumps"
@@ -55,7 +55,7 @@ iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
 iptables -A FORWARD -j RBM-FORWARD || exit 10
 
 echo "RBSp2: Allowing ICMP within enclave only"
-iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20 
+iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
 iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp2: Phase 2: Port Setup"

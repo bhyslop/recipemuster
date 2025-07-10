@@ -77,21 +77,21 @@ if [[ "$TAG" == stash-* ]]; then
   # Extract original image information from the stash tag
   # Format: stash-registry-repository-tag-digest
   # Example: stash-quay.io-podman-machine-os-wsl-5.3-6898117ca935
-  
+
   # Remove the "stash-" prefix
   STASH_INFO=${TAG#stash-}
-  
+
   # Extract components - this is a simplified approach and may need refinement
   # based on how complex your tag format is
   if [[ "$STASH_INFO" =~ (.*)-([^-]+)-([^-]+)$ ]]; then
     ORIG_PATH="${BASH_REMATCH[1]}"
     ORIG_TAG="${BASH_REMATCH[2]}"
     ORIG_DIGEST="${BASH_REMATCH[3]}"
-    
+
     # Replace hyphens with slashes in the path except for registry domain hyphens
     # This is a simplified approach and may need refinement
     ORIG_PATH_FIXED=$(echo "$ORIG_PATH" | sed 's/-/\//g')
-    
+
     ORIGINAL_IMAGE="${ORIG_PATH_FIXED}:${ORIG_TAG}"
     vme_log "Extracted original image reference: $ORIGINAL_IMAGE"
   else

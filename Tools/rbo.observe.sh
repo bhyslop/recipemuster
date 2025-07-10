@@ -64,15 +64,15 @@ prefix_sentry() {
 echo "RBO: Starting network capture processes"
 
 echo "RBO: Starting bottle/censer shared namespace capture (using CENSER container)"
-podman --connection ${RBM_MACHINE} exec ${RBM_CENSER_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth0 2>&1 | 
+podman --connection ${RBM_MACHINE} exec ${RBM_CENSER_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth0 2>&1 |
     prefix_bottle &
 
 echo "RBO: Starting bridge perspective capture"
-podman --connection ${RBM_MACHINE} machine ssh "sudo -n tcpdump ${TCPDUMP_OPTS} -i ${BRIDGE_INTERFACE}" 2>&1 | 
+podman --connection ${RBM_MACHINE} machine ssh "sudo -n tcpdump ${TCPDUMP_OPTS} -i ${BRIDGE_INTERFACE}" 2>&1 |
     prefix_bridge &
 
 echo "RBO: Starting sentry enclave interface capture"
-podman --connection ${RBM_MACHINE} exec ${RBM_SENTRY_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth1 2>&1 | 
+podman --connection ${RBM_MACHINE} exec ${RBM_SENTRY_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth1 2>&1 |
     prefix_sentry &
 
 echo "RBO: All capture processes started"
