@@ -216,7 +216,7 @@ rbg-b.%: zbgc_argcheck_rule zbgc_recipe_argument_check
 	$(MBC_PASS) "No errors."
 
 
-rbg-l.%: zbgc_argcheck_rule zbgc_collect_rule
+rbg_list_rule: zbgc_argcheck_rule zbgc_collect_rule
 	$(MBC_START) "List Current Registry Images"
 	$(MBC_STEP) "Processing collected JSON data..."
 	@echo "Package: $(RBRR_REGISTRY_NAME)"

@@ -29,6 +29,11 @@ RBM_MONIKER = $(MBD_PARAMETER_2)
 RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
+RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
+                              RBG_NOW_STAMP="$(MBD_NOW_STAMP)"  \
+			      RBG_RBRR_FILE="rbrr.repo.sh"      \
+			      $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
+
 # OUCH do better here: is ../station-files well known?
 include ../station-files/RBRS.STATION.mk
 include rbrr.repo.mk
@@ -46,6 +51,16 @@ RBW_RECIPES_DIR  = RBM-recipes
 
 default:
 	$(MBC_SHOW_RED) "NO TARGET SPECIFIED.  Check" $(MBV_TABTARGET_DIR) "directory for options." && $(MBC_FAIL)
+
+
+#######################################
+#  Github Container Registry
+#
+
+rbw-l.%:
+	$(MBC_START) "List Current Registry Images"
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_list
+	$(MBC_PASS) "No errors."
 
 
 #######################################

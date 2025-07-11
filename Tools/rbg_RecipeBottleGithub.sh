@@ -40,6 +40,9 @@ zrbg_env() {
     bcu_env_done || return 0
 
     # Validate environment
+    bvu_dir_exists  "${RBG_TEMP_DIR}"
+    bvu_dir_empty   "${RBG_TEMP_DIR}"
+    bvu_env_xname      RBG_NOW_STAMP     
     bvu_file_exists "${RBG_RBRR_FILE}"
     source          "${RBG_RBRR_FILE}"
     source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
