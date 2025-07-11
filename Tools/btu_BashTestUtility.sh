@@ -188,9 +188,10 @@ btu_execute() {
 
   # Validate temp directory parameter
   local root_temp_dir="$1"
-  test -n "${root_temp_dir}" || btu_fatal "Usage: script.sh <root_temp_dir> [test_case]"
-  test -d "${root_temp_dir}" || btu_fatal "Root temp directory does not exist: ${root_temp_dir}"
-  test -w "${root_temp_dir}" || btu_fatal "Root temp directory is not writable: ${root_temp_dir}"
+  test -n "${root_temp_dir}"            || btu_fatal "Usage: script.sh <root_temp_dir> [test_case]"
+  test -d "${root_temp_dir}"            || btu_fatal "Root temp dir does not exist: ${root_temp_dir}"
+  test -w "${root_temp_dir}"            || btu_fatal "Root temp dir is not writable: ${root_temp_dir}"
+  test -z "$(ls -A "${root_temp_dir}")" || btu_fatal "Root temp dir is not empty: ${root_temp_dir}"
 
   export ZBTU_ROOT_TEMP_DIR="${root_temp_dir}"
   export BTU_VERBOSE="${BTU_VERBOSE:-0}"
