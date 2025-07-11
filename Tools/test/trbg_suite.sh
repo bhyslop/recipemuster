@@ -31,11 +31,11 @@ trbg_invoke_rbg() {
     # Generate timestamp for this RBG invocation
     local rbg_now_stamp="$(date +%Y%m%d__%H%M%S)"
     
-    RBG_TEMP_DIR="${rbg_temp_dir}" \
-    RBG_NOW_STAMP="${rbg_now_stamp}" \
-    RBG_RBRR_FILE="rbrr.repo.sh" \
-    "${ZTRBG_SCRIPT_DIR}/rbg_RecipeBottleGithub.sh" \
-    "${rbg_command}" "$@"
+    RBG_TEMP_DIR="${rbg_temp_dir}"                    \
+      RBG_NOW_STAMP="${rbg_now_stamp}"                \
+      RBG_RBRR_FILE="rbrr.repo.sh"                    \
+      "${ZTRBG_SCRIPT_DIR}/rbg_RecipeBottleGithub.sh" \
+      "${rbg_command}" "$@"
 }
 
 trbg_case_github_workflow() {
