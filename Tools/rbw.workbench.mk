@@ -57,9 +57,21 @@ default:
 #  Github Container Registry
 #
 
+RBG_ARG_TAG =
+
+rbw-hg.%:
+	$(MBC_START) "Github Command Help"
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH)
+	$(MBC_PASS) "No errors."
+
 rbw-l.%:
 	$(MBC_START) "List Current Registry Images"
 	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_list
+	$(MBC_PASS) "No errors."
+
+rbw-r.%:
+	$(MBC_START) "Retrieve Image From Registry given $(RBG_ARG_TAG)"
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(RBG_ARG_TAG)
 	$(MBC_PASS) "No errors."
 
 
