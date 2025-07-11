@@ -308,7 +308,7 @@ zRBW_DOC_CONSOLIDATOR_PYTHON = Study/study-strip-podman-docs/spd.strip-podman-do
 
 zRBW_DOC_CONSOLIDATION_IMAGE = ghcr.io/bhyslop/recipemuster:bottle_deftextpro.20250227__172342
 
-rbw-dph.DigestPodmanHtml.sh:
+rbw-D.DigestPodmanHtml.sh:
 	echo path is -> $(zRBW_PODMAN_INSTALL_WIN)
 	podman -c podman-machine-default run --rm \
 	  -v '$(zRBW_PODMAN_INSTALL_WIN)':/podman-remote:ro \
