@@ -214,6 +214,11 @@ lmci-b.%:
 	$(MBV_TOOLS_DIR)/lmci/bundle.sh $(MBD_CLI_ARGS) | clip
 	$(MBC_PASS) "No errors."
 
+lmci-s.%:
+	$(MBC_START) "Strip: Cut trailing whitespace and assure terminal newline..."
+	$(MBV_TOOLS_DIR)/lmci/strip.sh $(MBD_CLI_ARGS)
+	$(MBC_PASS) "No errors."
+
 
 #######################################
 #  Visual SlickEdit TabTargets
