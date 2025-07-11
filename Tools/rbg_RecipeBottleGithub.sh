@@ -42,7 +42,7 @@ zrbg_env() {
     # Validate environment
     bvu_dir_exists  "${RBG_TEMP_DIR}"
     bvu_dir_empty   "${RBG_TEMP_DIR}"
-    bvu_env_xname      RBG_NOW_STAMP     
+    bvu_env_string     RBG_NOW_STAMP   1 128   # weak validation but infrastructure managed
     bvu_file_exists "${RBG_RBRR_FILE}"
     source          "${RBG_RBRR_FILE}"
     source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
