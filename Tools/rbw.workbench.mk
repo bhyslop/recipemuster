@@ -74,6 +74,11 @@ rbw-r.%:
 	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
+rbw-b.%:
+	$(MBC_START) "Build Container From Recipe given $(MBD_CLI_ARGS)"
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_build $(MBD_CLI_ARGS)
+	$(MBC_PASS) "No errors."
+
 rbw-d.%:
 	$(MBC_START) "Delete Image From Registry given $(MBD_CLI_ARGS)"
 	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_delete $(MBD_CLI_ARGS)
