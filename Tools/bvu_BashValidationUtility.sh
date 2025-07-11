@@ -73,6 +73,11 @@ bvu_val_string() {
     local max=$4
     local default=$5
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+    test -n "$min"     || bcu_die "min parameter is required for varname '$varname'"
+    test -n "$max"     || bcu_die "max parameter is required for varname '$varname'"
+
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
         val="$default"
@@ -103,6 +108,11 @@ bvu_val_xname() {
     local min=$3
     local max=$4
     local default=$5
+
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+    test -n "$min"     || bcu_die "min parameter is required for varname '$varname'"
+    test -n "$max"     || bcu_die "max parameter is required for varname '$varname'"
 
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
@@ -137,6 +147,11 @@ bvu_val_fqin() {
     local max=$4
     local default=$5
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+    test -n "$min"     || bcu_die "min parameter is required for varname '$varname'"
+    test -n "$max"     || bcu_die "max parameter is required for varname '$varname'"
+
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
         val="$default"
@@ -168,6 +183,9 @@ bvu_val_bool() {
     local val=$2
     local default=$3
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
         val="$default"
@@ -187,6 +205,11 @@ bvu_val_decimal() {
     local max=$4
     local default=$5
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+    test -n "$min"     || bcu_die "min parameter is required for varname '$varname'"
+    test -n "$max"     || bcu_die "max parameter is required for varname '$varname'"
+
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
         val="$default"
@@ -203,6 +226,9 @@ bvu_val_ipv4() {
     local varname=$1
     local val=$2
     local default=$3
+
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
 
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
@@ -221,6 +247,9 @@ bvu_val_cidr() {
     local val=$2
     local default=$3
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
         val="$default"
@@ -237,6 +266,9 @@ bvu_val_domain() {
     local varname=$1
     local val=$2
     local default=$3
+
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
 
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
@@ -255,6 +287,9 @@ bvu_val_port() {
     local val=$2
     local default=$3
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+
     # Use default if value is empty and default provided
     if [ -z "$val" -a -n "$default" ]; then
         val="$default"
@@ -271,6 +306,9 @@ bvu_val_list_ipv4() {
     local varname=$1
     local val=$2
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+
     test -z "$val" && return 0  # Empty lists allowed
 
     local item_num=0
@@ -284,6 +322,9 @@ bvu_val_list_cidr() {
     local varname=$1
     local val=$2
 
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
+
     test -z "$val" && return 0  # Empty lists allowed
 
     local item_num=0
@@ -296,6 +337,9 @@ bvu_val_list_cidr() {
 bvu_val_list_domain() {
     local varname=$1
     local val=$2
+
+    # Validate required parameters
+    test -n "$varname" || bcu_die "varname parameter is required"
 
     test -z "$val" && return 0  # Empty lists allowed
 
