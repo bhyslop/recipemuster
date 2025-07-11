@@ -158,29 +158,41 @@ btu_expect_fatal() {
 zbtu_case() {
   set -e
 
-  local test_name="$1"
-  declare -F "${test_name}" >/dev/null || btu_fatal "Test function not found: ${test_name}"
+  local case_name="$1"
+  declare -F "${case_name}" >/dev/null || btu_fatal "Test function not found: ${case_name}"
 
-  btu_section "START: ${test_name}"
+  btu_section "START: ${case_name}"
+
+  # Create per-test temp directory
+  local case_temp_dir="${ZBTU_ROOT_TEMP_DIR}/${case_name}"
+  mkdir -p "${case_temp_dir}" || btu_fatal "Failed to create test temp dir: ${case_temp_dir}"
 
   local status
   (
     set -e
-    "${test_name}"
+    export BTU_TEMP_DIR="${case_temp_dir}"
+    "${case_name}"
   )
 
   status=$?
-  btu_trace "Ran: ${test_name} and got status:${status}"
-  btu_fatal_on_error "${status}" "Test failed: ${test_name}"
+  btu_trace "Ran: ${case_name} and got status:${status}"
+  btu_fatal_on_error "${status}" "Test failed: ${case_name}"
 
-  btu_trace "Finished: ${test_name} with status: ${status}"
-  test "${BTU_VERBOSE:-0}" -le 0 || echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} ${test_name}" >&2
+  btu_trace "Finished: ${case_name} with status: ${status}"
+  test "${BTU_VERBOSE:-0}" -le 0 || echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} ${case_name}" >&2
 }
 
 # Run all or specific tests
 btu_execute() {
   set -e
 
+  # Validate temp directory parameter
+  local root_temp_dir="$1"
+  test -n "${root_temp_dir}" || btu_fatal "Usage: script.sh <root_temp_dir> [test_case]"
+  test -d "${root_temp_dir}" || btu_fatal "Root temp directory does not exist: ${root_temp_dir}"
+  test -w "${root_temp_dir}" || btu_fatal "Root temp directory is not writable: ${root_temp_dir}"
+
+  export ZBTU_ROOT_TEMP_DIR="${root_temp_dir}"
   export BTU_VERBOSE="${BTU_VERBOSE:-0}"
 
   # Enable bash trace to stderr if BTU_VERBOSE is 3 or higher and bash >= 4.1
@@ -192,8 +204,8 @@ btu_execute() {
     fi
   fi
 
-  local prefix="$1"
-  local the_case="$2"
+  local prefix="$2"
+  local the_case="$3"
   local count=0
 
   if [[ -n    "${the_case}" ]]; then
