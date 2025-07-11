@@ -170,18 +170,7 @@ zRBC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
 rbw-tg.%:
 	$(MBC_START) "Test github action build, retrieval, use"
-	$(MBC_STEP) "Validate list before..."
-	tt/rbw-l.ListCurrentRegistryImages.sh
-	$(MBC_STEP) "Validate build..."
-	tt/rbw-b.BuildWithRecipe.sh $(RBW_RECIPES_DIR)/$(zRBC_TEST_RECIPE) $(zRBC_FQIN_FILE)
-	$(MBC_STEP) "Validate list during..."
-	tt/rbw-l.ListCurrentRegistryImages.sh
-	$(MBC_STEP) "Validate retrieval..."
-	RBG_ARG_TAG=$$(cat $(zRBC_FQIN_FILE)) tt/rbw-r.RetrieveImage.sh
-	$(MBC_STEP) "Validate deletion..."
-	RBG_ARG_FQIN=$$(cat $(zRBC_FQIN_FILE)) RBG_ARG_SKIP_DELETE_CONFIRMATION=SKIP tt/rbw-d.DeleteImageFromRegistry.sh
-	$(MBC_STEP) "Validate list after..."
-	tt/rbw-l.ListCurrentRegistryImages.sh
+	$(MBV_TOOLS_DIR)/test/trbg_suite.sh $(MBD_TEMP_DIR)
 	$(MBC_PASS) "No errors."
 
 rbw-tf.%:
