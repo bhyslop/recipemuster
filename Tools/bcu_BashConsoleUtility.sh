@@ -96,7 +96,7 @@ bcu_doc_env() {
 
   local env_var_name="${1}"
   local env_var_info="${2}"
-  
+
   # Trim trailing spaces from variable name
   env_var_name="${env_var_name%% *}"
 
