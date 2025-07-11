@@ -25,19 +25,25 @@ source "${ZRBG_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/crgv.validate.sh"
 
-# Internal constants
+######################################################################
+# Module Variables (ZRBG_*)
+# These variables are used across multiple functions within this module
+# Naming convention: ZRBG_<PURPOSE>
 ZRBG_GIT_REGISTRY="ghcr.io"
 ZRBG_GITAPI_URL="https://api.github.com"
-
-# Module variables (ZRBG_*)
-# These variables are used across multiple functions within this module
-# Naming convention: ZRBG_<PURPOSE> for constants and paths
 ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
 ZRBG_COLLECT_FULL_JSON="${RBG_TEMP_DIR}/RBG_COMBINED__${RBG_NOW_STAMP}.json"
 ZRBG_COLLECT_TEMP_PAGE="${RBG_TEMP_DIR}/RBG_PAGE__${RBG_NOW_STAMP}.json"
 
+
+######################################################################
+# Internal Functions (zrbg_*)
+# These are helper functions used internally by the module
+# Naming convention: zrbg_<action>_<object>
+
 # Document, establish, validate environment
-zrbg_env() {
+zrbg_validate_envvars() {
+    set -e
 
     # Handle documentation mode
     bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
@@ -54,10 +60,6 @@ zrbg_env() {
     source          "${RBG_RBRR_FILE}"
     source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
 }
-
-# Internal utility functions (zrbg_*)
-# These are helper functions used internally by the module
-# Naming convention: zrbg_<action>_<object> for clarity
 
 # Validate GitHub PAT environment
 zrbg_validate_pat() {
@@ -129,6 +131,11 @@ zrbg_curl_headers() {
 
     echo "-H \"Authorization: token \$RBV_PAT\" -H 'Accept: application/vnd.github.v3+json'"
 }
+
+######################################################################
+# External Functions (rbg_*)
+# These are functions used from outside this module
+# Naming convention: rbg_<action>
 
 rbg_build() {
     set -e
@@ -232,6 +239,6 @@ rbg_retrieve() {
     bcu_success "Retrieve completed"
 }
 
-bcu_execute "rbg_" "Recipe Bottle GitHub - Container Registry Management" zrbg_env "$@"
+bcu_execute rbg_ "Recipe Bottle GitHub - Container Registry Management" zrbg_validate_envvars "$@"
 
 # eof
