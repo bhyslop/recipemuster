@@ -70,8 +70,8 @@ rbw-l.%:
 	$(MBC_PASS) "No errors."
 
 rbw-r.%:
-	$(MBC_START) "Retrieve Image From Registry given $(RBG_ARG_TAG)"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(RBG_ARG_TAG)
+	$(MBC_START) "Retrieve Image From Registry given $(MBD_CLI_ARGS)"
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 

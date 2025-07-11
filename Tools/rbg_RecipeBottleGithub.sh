@@ -401,7 +401,7 @@ rbg_delete() {
 
     # Argument validation
     test -n "$fqin" || bcu_usage_die
-    crgv_fqin "rbg_delete" "$fqin" 1 512
+    bvu_val_fqin "fqin" "$fqin" 1 512
 
     # Validate GitHub PAT
     zrbg_validate_pat
@@ -472,7 +472,7 @@ rbg_retrieve() {
 
     # Argument validation
     test -n "$fqin" || bcu_usage_die
-    crgv_fqin "rbg_retrieve" "$fqin" 1 512
+    bvu_val_fqin "fqin" "$fqin" 1 512
 
     # Validate GitHub PAT
     zrbg_validate_pat
