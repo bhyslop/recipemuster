@@ -205,6 +205,7 @@ rbg_build() {
     test -n "$recipe_file" || bcu_usage_die
     test -f "$recipe_file" || bcu_die "Recipe file not found: $recipe_file"
 
+    # Perform command
     local recipe_basename=$(basename "$recipe_file")
     echo "$recipe_basename" | grep -q '[A-Z]' && \
         bcu_die "Basename of '$recipe_file' contains uppercase letters so cannot use in image name"
@@ -316,6 +317,7 @@ rbg_list() {
     bcu_doc_brief "List registry images"
     bcu_doc_shown || return 0
 
+    # Perform command
     zrbg_validate_pat
     zrbg_collect_all_versions
 
@@ -355,6 +357,7 @@ rbg_delete() {
     test -n "$fqin" || bcu_usage_die
     bvu_val_fqin "fqin" "$fqin" 1 512
 
+    # Perform command
     zrbg_validate_pat
     bcu_step "Delete image from GitHub Container Registry"
     zrbg_check_git_status
@@ -446,6 +449,7 @@ rbg_retrieve() {
     test -n "$fqin" || bcu_usage_die
     bvu_val_fqin "fqin" "$fqin" 1 512
 
+    # Perform command
     zrbg_validate_pat
     bcu_step "Pull image from GitHub Container Registry"
     zrbg_registry_login
