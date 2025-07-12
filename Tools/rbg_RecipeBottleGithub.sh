@@ -220,16 +220,14 @@ rbg_build() {
     # Check git status
     zrbg_check_git_status
 
-    # Trigger workflow dispatch
+    bcu_info "Trigger workflow dispatch..."
     local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
     local dispatch_data='{"event_type": "build_containers", "client_payload": {"dockerfile": "'"$recipe_file"'"}}'
     zrbg_curl_post "$dispatch_url" "$dispatch_data"
 
-    # Pause for GitHub to process
     bcu_info "Pausing for GitHub to process the dispatch event..."
     sleep 5
 
-    # Get workflow run ID
     bcu_info "Retrieve workflow run ID..."
     local runs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
     zrbg_curl_get "$runs_url" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
@@ -239,7 +237,6 @@ rbg_build() {
     bcu_info "Workflow online at:"
     echo -e "${ZBCU_YELLOW}   https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}${ZBCU_RESET}"
 
-    # Poll for completion
     bcu_info "Polling to completion..."
     local status=""
     local conclusion=""
@@ -260,7 +257,6 @@ rbg_build() {
 
     test "$conclusion" = "success" || bcu_die "Workflow fail: $conclusion"
 
-    # Git pull with retry
     bcu_info "Git Pull for artifacts with retry..."
     local i
     for i in 9 8 7 6 5 4 3 2 1 0; do
@@ -279,19 +275,15 @@ rbg_build() {
         sleep 5
     done
 
-    # Verify build output
     bcu_info "Verifying build output..."
 
-    # Find latest build directory
     local build_dir=$(zrbg_get_latest_build_dir "$recipe_basename")
     test -n "$build_dir" || bcu_die "Missing build directory - No directory found matching pattern '${RBRR_HISTORY_DIR}/${recipe_basename%.*}*'"
     test -d "$build_dir" || bcu_die "Build directory '$build_dir' is not a valid directory"
 
-    # Compare recipes
     test -f "$build_dir/recipe.txt" || bcu_die "recipe.txt not found in $build_dir"
     cmp "$recipe_file" "$build_dir/recipe.txt" || bcu_die "recipe mismatch"
 
-    # Extract FQIN
     bcu_info "Extracting FQIN..."
     local fqin_file="$build_dir/docker_inspect_RepoTags_0.txt"
     test -f "$fqin_file" || bcu_die "Could not find FQIN in build output"
@@ -299,13 +291,11 @@ rbg_build() {
     local fqin_contents=$(cat "$fqin_file")
     echo -e "${ZBCU_YELLOW}Built container FQIN: $fqin_contents${ZBCU_RESET}"
 
-    # Output FQIN if requested
     if [ -n "${RBG_ARG_FQIN_OUTPUT:-}" ]; then
         cp "$fqin_file" "${RBG_ARG_FQIN_OUTPUT}"
         echo -e "${ZBCU_YELLOW}Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}${ZBCU_RESET}"
     fi
 
-    # Verify image availability
     bcu_info "Verifying image availability in registry..."
     local tag=$(echo "$fqin_contents" | cut -d: -f2)
     echo "  Waiting for tag: $tag to become available..."
@@ -319,12 +309,10 @@ rbg_build() {
         sleep 5
     done
 
-    # Get logs
     bcu_info "Pull logs..."
     local logs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}/logs"
     zrbg_curl_get "$logs_url" > "${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
 
-    # Cleanup
     bcu_info "Everything went right, delete the run cache..."
     rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 
@@ -373,7 +361,7 @@ rbg_delete() {
     local fqin="${1:-}"
 
     # Handle documentation mode
-    bcu_doc_brief "Delete image from registry"
+    bcu_doc_brief "Delete image from registry and clean orphans"
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
     bcu_doc_shown || return 0
 
@@ -388,51 +376,79 @@ rbg_delete() {
     bcu_step "Delete Container Registry Image"
     echo "Deleting image: $fqin"
 
-    # Extract tag
-    echo "Extracting tag from FQIN..."
+    zrbg_check_git_status
+
+    local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
+    local dispatch_data='{"event_type": "delete_container", "client_payload": {"fqin": "'"$fqin"'"}}'
+    zrbg_curl_post "$dispatch_url" "$dispatch_data"
+
+    bcu_info "Pausing for GitHub to process the dispatch event..."
+    sleep 5
+
+    bcu_info "Retrieve workflow run ID..."
+    local runs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
+    zrbg_curl_get "$runs_url" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+    test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
+
+    local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
+    bcu_info "Delete workflow online at:"
+    echo -e "${ZBCU_YELLOW}   https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}${ZBCU_RESET}"
+
+    bcu_info "Polling to completion..."
+    local status=""
+    local conclusion=""
+    while true; do
+        local run_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}"
+        local response=$(zrbg_curl_get "$run_url")
+
+        echo "  TRACE: $response" | grep -i -e "status" -e "conclusion" -e "TRACE"
+
+        status=$(echo "$response" | jq -r '.status')
+        conclusion=$(echo "$response" | jq -r '.conclusion')
+
+        echo "  Status: $status    Conclusion: $conclusion"
+
+        test "$status" != "completed" || break
+        sleep 3
+    done
+
+    test "$conclusion" = "success" || bcu_die "Workflow fail: $conclusion"
+
+    bcu_info "Git Pull for deletion history..."
+    local i
+    for i in 9 8 7 6 5 4 3 2 1 0; do
+        echo "  Attempt $i: Checking for remote changes..."
+        git fetch --quiet
+
+        if [ $(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then
+            echo "  Found new commits, pulling..."
+            git pull
+            echo "  Pull successful"
+            break
+        fi
+
+        echo "  No new commits yet, waiting 3 seconds (attempt $i)"
+        [ $i -eq 0 ] && echo "  Note: No deletion history recorded (might be expected for external images)"
+        sleep 3
+    done
+
+    bcu_info "Pull logs..."
+    local logs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}/logs"
+    zrbg_curl_get "$logs_url" > "${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+
+    bcu_info "Verifying deletion..."
     local tag=$(echo "$fqin" | sed 's/.*://')
-    echo "Using tag: '$tag'"
-    test -n "$tag" || bcu_die "Could not extract a valid tag from FQIN $fqin"
 
-    # Collect all versions
-    zrbg_collect_all_versions
-
-    # Find version ID for tag
-    echo "DEBUG: Collecting tag and ID mapping..."
-    jq -r '.[] | select(.metadata.container.tags != null) | .id as $id | .metadata.container.tags[] as $tag | [$id, $tag] | @tsv' \
-        "${ZRBG_COLLECT_FULL_JSON}" > "${RBG_TEMP_DIR}/all_tags_with_ids.txt"
-
-    echo "DEBUG: Searching for tag '$tag' in extracted mapping..."
-    grep "${tag}$" "${RBG_TEMP_DIR}/all_tags_with_ids.txt" | cut -f1 > "${ZRBG_DELETE_VERSION_ID_CACHE}" || true
-
-    local match_count=$(wc -l < "${ZRBG_DELETE_VERSION_ID_CACHE}" | tr -d ' ')
-    echo "DEBUG: Found ${match_count} exact matching version(s)"
-    echo "DEBUG: Matching version IDs:"
-    cat "${ZRBG_DELETE_VERSION_ID_CACHE}"
-
-    test "$match_count" -eq 1 || bcu_die "Expected exactly 1 matching version, found $match_count"
-
-    local version_id=$(cat "${ZRBG_DELETE_VERSION_ID_CACHE}")
-    echo "Found version ID: $version_id"
-
-    # Confirm deletion unless skipped
-    if [ "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP" ]; then
-        zrbg_confirm_action "Confirm delete image?" || bcu_die "WONT DELETE"
+    echo "  Checking that tag '$tag' is gone..."
+    if zrbg_curl_get "${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100" | \
+        jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
+        bcu_die "Tag '$tag' still exists in registry after deletion"
     fi
 
-    # Delete image version
-    bcu_info "Deleting image version..."
-    local delete_url="${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${version_id}"
-    zrbg_curl_delete "$delete_url" > "${ZRBG_DELETE_RESULT_CACHE}" 2>&1
+    echo "  Confirmed: Tag '$tag' has been deleted"
 
-    # Check result
-    grep -q "HTTP_STATUS:204" "${ZRBG_DELETE_RESULT_CACHE}" || \
-        bcu_die "Failed to delete image version. HTTP Status: $(grep 'HTTP_STATUS' "${ZRBG_DELETE_RESULT_CACHE}" || echo 'unknown')"
-
-    echo "Successfully deleted image version."
-
-    # Cleanup
-    rm "${ZRBG_DELETE_VERSION_ID_CACHE}" "${ZRBG_DELETE_RESULT_CACHE}"
+    bcu_info "Cleanup..."
+    rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 
     bcu_success "No errors."
 }

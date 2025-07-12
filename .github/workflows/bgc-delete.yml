@@ -1,0 +1,257 @@
+name: BGC Container Delete Workflow
+
+on:
+  repository_dispatch:
+    types: [delete_container]
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate configuration files
+        shell: bash
+        run: |
+          echo "GHA: about to validate configuration files..."
+          source ./mbv.variables.sh
+          echo "MBV_TOOLS_DIR=$MBV_TOOLS_DIR" >> $GITHUB_ENV
+
+      - name: Load repository configuration
+        shell: bash
+        run: |
+          echo "GHA: about to load repository configuration..."
+          make -f ${{ env.MBV_TOOLS_DIR }}/rbrr.mapper.mk rbrr_export_github_env | bash
+          echo "GHA: Environment variables have been submitted, available in next step."
+
+      - name: Validate configuration
+        shell: bash
+        run: |
+          echo "GHA: about to validate repository configuration..."
+          bash ${{ env.MBV_TOOLS_DIR }}/rbrr.validator.sh
+
+      - name: Set and validate FQIN
+        shell: bash
+        run: |
+          echo "GHA: about to set and validate FQIN..."
+          test -n "${{ github.event.client_payload.fqin }}" ||\
+            (echo "GHA: Error: FQIN not provided in client_payload" && false)
+          echo "FQIN=${{ github.event.client_payload.fqin }}" >> $GITHUB_ENV
+          echo "GHA: FQIN to delete: ${{ github.event.client_payload.fqin }}"
+
+      - name: Extract tag from FQIN
+        shell: bash
+        run: |
+          echo "GHA: Extracting tag from FQIN..."
+          TAG=$(echo "${{ env.FQIN }}" | sed 's/.*://')
+          test -n "$TAG" || (echo "GHA: Error: Could not extract tag from FQIN" && false)
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "GHA: Tag to delete: $TAG"
+
+      - name: Pre-delete metrics
+        shell: bash
+        run: |
+          echo "=== PRE-DELETE METRICS ==="
+          echo "GHA: Collecting initial metrics..."
+          
+          # Fetch all versions with pagination
+          PAGE=1
+          echo "[]" > /tmp/all_versions.json
+          
+          while true; do
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                 -H "Accept: application/vnd.github.v3+json" \
+                 "https://api.github.com/user/packages/container/${{ env.RBRR_REGISTRY_NAME }}/versions?per_page=100&page=${PAGE}" \
+                 > /tmp/page.json
+            
+            ITEMS=$(jq '. | length' /tmp/page.json)
+            test "$ITEMS" -ne 0 || break
+            
+            jq -s '.[0] + .[1]' /tmp/all_versions.json /tmp/page.json > /tmp/all_versions.tmp
+            mv /tmp/all_versions.tmp /tmp/all_versions.json
+            
+            PAGE=$((PAGE + 1))
+          done
+          
+          # Calculate metrics
+          TOTAL=$(jq '. | length' /tmp/all_versions.json)
+          TAGGED=$(jq '[.[] | select(.metadata.container.tags | length > 0)] | length' /tmp/all_versions.json)
+          UNTAGGED=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions.json)
+          
+          echo "Total versions: $TOTAL"
+          echo "Tagged versions: $TAGGED"
+          echo "Untagged versions: $UNTAGGED"
+          echo ""
+          
+          # Save for comparison
+          echo "PRE_TOTAL=$TOTAL" >> $GITHUB_ENV
+          echo "PRE_TAGGED=$TAGGED" >> $GITHUB_ENV
+          echo "PRE_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
+
+      - name: Find version ID for tag
+        shell: bash
+        run: |
+          echo "GHA: Finding version ID for tag '${{ env.TAG }}'..."
+          
+          # Find exact match for tag
+          jq -r '.[] | select(.metadata.container.tags != null) | select(.metadata.container.tags[] == "${{ env.TAG }}") | .id' \
+            /tmp/all_versions.json > /tmp/version_id.txt
+          
+          MATCH_COUNT=$(wc -l < /tmp/version_id.txt | tr -d ' ')
+          echo "GHA: Found $MATCH_COUNT matching version(s)"
+          
+          test "$MATCH_COUNT" -eq 1 || (echo "GHA: Error: Expected exactly 1 match, found $MATCH_COUNT" && false)
+          
+          VERSION_ID=$(cat /tmp/version_id.txt)
+          echo "VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
+          echo "GHA: Version ID to delete: $VERSION_ID"
+
+      - name: Delete tagged version
+        shell: bash
+        run: |
+          echo "=== DELETING TAG: ${{ env.TAG }} ==="
+          echo "GHA: Deleting version ID ${{ env.VERSION_ID }}..."
+          
+          HTTP_CODE=$(curl -X DELETE -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -w "%{http_code}" \
+            -o /tmp/delete_result.txt \
+            "https://api.github.com/user/packages/container/${{ env.RBRR_REGISTRY_NAME }}/versions/${{ env.VERSION_ID }}")
+          
+          test "$HTTP_CODE" -eq 204 || (echo "GHA: Error: Delete failed with HTTP $HTTP_CODE" && cat /tmp/delete_result.txt && false)
+          echo "GHA: Version ID ${{ env.VERSION_ID }} deleted successfully"
+          echo ""
+
+      - name: Post-delete metrics
+        shell: bash
+        run: |
+          echo "=== POST-DELETE METRICS ==="
+          echo "GHA: Waiting for deletion to propagate..."
+          sleep 5
+          
+          # Fetch updated versions
+          PAGE=1
+          echo "[]" > /tmp/all_versions_post.json
+          
+          while true; do
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                 -H "Accept: application/vnd.github.v3+json" \
+                 "https://api.github.com/user/packages/container/${{ env.RBRR_REGISTRY_NAME }}/versions?per_page=100&page=${PAGE}" \
+                 > /tmp/page.json
+            
+            ITEMS=$(jq '. | length' /tmp/page.json)
+            test "$ITEMS" -ne 0 || break
+            
+            jq -s '.[0] + .[1]' /tmp/all_versions_post.json /tmp/page.json > /tmp/all_versions_post.tmp
+            mv /tmp/all_versions_post.tmp /tmp/all_versions_post.json
+            
+            PAGE=$((PAGE + 1))
+          done
+          
+          # Calculate metrics
+          TOTAL=$(jq '. | length' /tmp/all_versions_post.json)
+          TAGGED=$(jq '[.[] | select(.metadata.container.tags | length > 0)] | length' /tmp/all_versions_post.json)
+          UNTAGGED=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions_post.json)
+          
+          echo "Total versions: $TOTAL (was ${{ env.PRE_TOTAL }})"
+          echo "Tagged versions: $TAGGED (was ${{ env.PRE_TAGGED }}, change: $((TAGGED - PRE_TAGGED)))"
+          echo "Untagged versions: $UNTAGGED (was ${{ env.PRE_UNTAGGED }}, change: $((UNTAGGED - PRE_UNTAGGED)))"
+          echo ""
+          
+          # Save for final comparison
+          echo "POST_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
+
+      - name: Clean orphaned versions
+        shell: bash
+        run: |
+          echo "=== ORPHAN CLEANUP ==="
+          echo "GHA: Found ${{ env.POST_UNTAGGED }} orphaned versions to clean..."
+          
+          if [ "${{ env.POST_UNTAGGED }}" -eq 0 ]; then
+            echo "GHA: No orphaned versions to clean"
+          else
+            # Get all untagged version IDs
+            jq -r '.[] | select(.metadata.container.tags | length == 0) | .id' \
+              /tmp/all_versions_post.json > /tmp/orphan_ids.txt
+            
+            DELETED_COUNT=0
+            FAILED_COUNT=0
+            
+            while IFS= read -r orphan_id; do
+              echo -n "GHA: Deleting orphan ID ${orphan_id}... "
+              
+              HTTP_CODE=$(curl -X DELETE -s \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                -w "%{http_code}" \
+                -o /tmp/delete_orphan_result.txt \
+                "https://api.github.com/user/packages/container/${{ env.RBRR_REGISTRY_NAME }}/versions/${orphan_id}")
+              
+              if [ "$HTTP_CODE" -eq 204 ]; then
+                echo "deleted"
+                DELETED_COUNT=$((DELETED_COUNT + 1))
+              else
+                echo "failed (HTTP $HTTP_CODE)"
+                FAILED_COUNT=$((FAILED_COUNT + 1))
+              fi
+              
+              # Rate limit protection
+              sleep 0.5
+            done < /tmp/orphan_ids.txt
+            
+            echo ""
+            echo "GHA: Deleted $DELETED_COUNT orphaned versions"
+            test "$FAILED_COUNT" -eq 0 || echo "GHA: Warning: Failed to delete $FAILED_COUNT orphaned versions"
+            
+            echo "ORPHANS_DELETED=$DELETED_COUNT" >> $GITHUB_ENV
+          fi
+
+      - name: Final metrics
+        shell: bash
+        run: |
+          echo ""
+          echo "=== FINAL METRICS ==="
+          echo "GHA: Fetching final state..."
+          sleep 3
+          
+          # Quick count of remaining versions
+          REMAINING=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                           -H "Accept: application/vnd.github.v3+json" \
+                           "https://api.github.com/user/packages/container/${{ env.RBRR_REGISTRY_NAME }}/versions?per_page=1" \
+                           -D - | grep -i "link:" | grep -oE 'page=[0-9]+' | tail -1 | cut -d= -f2 || echo "1")
+          
+          echo "Total versions deleted: $((PRE_TOTAL - REMAINING))"
+          echo "- Tagged version: 1"
+          echo "- Orphaned versions: ${ORPHANS_DELETED:-0}"
+          echo "Remaining versions: ~$REMAINING (estimated)"
+          echo ""
+          echo "GHA: Delete operation completed successfully"
+
+      - name: Record deletion in history
+        shell: bash
+        run: |
+          echo "GHA: Recording deletion in history..."
+          TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
+          DELETE_DIR="${{ env.RBRR_HISTORY_DIR }}/_deletions/${TIMESTAMP}_${{ env.TAG }}"
+          
+          mkdir -p "$DELETE_DIR"
+          echo "${{ env.FQIN }}" > "$DELETE_DIR/deleted_fqin.txt"
+          echo "${{ env.TAG }}" > "$DELETE_DIR/deleted_tag.txt"
+          echo "${{ env.VERSION_ID }}" > "$DELETE_DIR/deleted_version_id.txt"
+          echo "${ORPHANS_DELETED:-0}" > "$DELETE_DIR/orphans_deleted_count.txt"
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > "$DELETE_DIR/deletion_timestamp.txt"
+          
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add "$DELETE_DIR"
+          git commit -m "Record deletion of ${{ env.TAG }}"
+          git push
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
