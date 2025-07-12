@@ -42,20 +42,19 @@ ZBCU_CONTEXT=""
 # Help mode flag
 ZBCU_DOC_MODE=false
 
-bcu_info() {
-  set -e
-  bcu_print 0 "$@"
-}
+bcu_step()   { zbcu_print 0 "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}"; }
 
-bcu_warn() {
-  set -e
-  bcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"
-}
+bcu_info()   { zbcu_print 1 "$@"; }
+
+bcu_debug()  { zbcu_print 2 "$@"; }
+
+bcu_trace()  { zbcu_print 3 "$@"; }
+
+bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
 
 bcu_die() {
-  set -e
   local context="${ZBCU_CONTEXT:-}"
-  bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
+  zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
   exit 1
 }
 
@@ -63,10 +62,6 @@ bcu_context() {
   ZBCU_CONTEXT="$1"
 }
 
-bcu_step() {
-  set -e
-  echo -e "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}" || bcu_die
-}
 
 bcu_success() {
   set -e
@@ -173,7 +168,7 @@ bcu_usage_die() {
 
 # Multi-line print function with verbosity control
 # Sends output to stderr to avoid interfering with stdout returns
-bcu_print() {
+zbcu_print() {
   local min_verbosity="$1"
   shift
 
@@ -196,9 +191,9 @@ bcu_die_if() {
 
   set -e
   local context="${ZBCU_CONTEXT:-}"
-  bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+  zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
   shift
-  bcu_print -1 "$@"
+  zbcu_print -1 "$@"
   exit 1
 }
 
@@ -212,9 +207,9 @@ bcu_die_unless() {
 
   set -e
   local context="${ZBCU_CONTEXT:-}"
-  bcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
+  zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
   shift
-  bcu_print -1 "$@"
+  zbcu_print -1 "$@"
   exit 1
 }
 
