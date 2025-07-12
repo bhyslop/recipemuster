@@ -1,8 +1,8 @@
-name: BGC Single Container Build Workflow
+name: BGC Image Build Workflow
 
 on:
   repository_dispatch:
-    types: [build_containers]
+    types: [build_images]
 
 jobs:
   build:
@@ -14,7 +14,6 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to validate configuration files..."
-          # Source MBV variables
           source ./mbv.variables.sh
           echo "MBV_TOOLS_DIR=$MBV_TOOLS_DIR" >> $GITHUB_ENV
 
@@ -22,7 +21,6 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to load repository configuration..."
-          # Use the new rbrr_export_github_env rule to export all variables
           make -f ${{ env.MBV_TOOLS_DIR }}/rbrr.mapper.mk rbrr_export_github_env | bash
           echo "GHA: Environment variables have been submitted, available in next step."
 
@@ -42,7 +40,7 @@ jobs:
             (echo "GHA: Error: Dockerfile not found at path: ${{ github.event.client_payload.dockerfile }}" && false)
           echo "DOCKERFILE=${{ github.event.client_payload.dockerfile }}" >> $GITHUB_ENV
 
-      - name: Generate build metadata
+      - name: Generate image build metadata
         shell: bash
         run: |
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
@@ -74,7 +72,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if tag exists
+      - name: Check if image tag exists
         shell: bash
         run: |
           echo "GHA: about to check if tag exists..."
@@ -82,7 +80,7 @@ jobs:
             (echo "GHA: Error: Tag ${{ env.BUILD_LABEL }} already exists" && false)
           echo "GHA: Tag does not exist, proceeding with build"
 
-      - name: Create history directory
+      - name: Create history directory for image
         shell: bash
         run: |
           echo "GHA: about to create history directory..."
@@ -93,7 +91,7 @@ jobs:
           echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt ||\
             (echo "GHA: Error: Failed to create commit.txt" && false)
 
-      - name: Build and push
+      - name: Build and push image
         id: docker_build
         uses: docker/build-push-action@v6.9.0
         with:
@@ -105,7 +103,7 @@ jobs:
           provenance: true
           sbom: true
 
-      - name: Analyze container with Syft
+      - name: Analyze built image with Syft
         run: |
           echo "GHA: Install Syft, pinned version..."
           curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz &&\
@@ -132,14 +130,13 @@ jobs:
         shell: bash
         run: |
           echo "GHA: about to create rough_digest.txt..."
-          # The image is already pulled by the previous step, no need to pull again
           IMAGE_SIZE=$(docker image inspect ${{ env.GHCR_PATH }} --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           BUILD_DURATION=${{ steps.docker_build.outputs.duration }}
           echo "Image size: ${IMAGE_SIZE_MB}MB"      > ${{ env.HISTORY_DIR }}/rough_digest.txt
           echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/rough_digest.txt
 
-      - name: Save image digest information to separate files
+      - name: Extract and save image digest metadata
         shell: bash
         run: |
           echo "GHA: Creating separate files for different image digest information"
@@ -150,21 +147,22 @@ jobs:
           docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].Created'                 > ${{ env.HISTORY_DIR }}/docker_inspect_Created.txt
           echo "GHA: Image digest information saved to separate files"
 
-      - name: Commit history directory
+      - name: Commit image build history
         shell: bash
         run: |
-          echo "GHA: about to commit history directory..."
+          echo "GHA: about to commit image build history..."
           git config --local user.email "github-actions[bot]@users.noreply.github.com" ||\
             (echo "GHA: Error: Failed to set git user email" && false)
           git config --local user.name "github-actions[bot]" ||\
             (echo "GHA: Error: Failed to set git user name" && false)
           git add ${{ env.HISTORY_DIR }} ||\
             (echo "GHA: Error: Failed to stage history directory" && false)
-          git commit -m "Add build history for ${{ env.BUILD_LABEL }}" ||\
-            (echo "GHA: Error: Failed to commit history directory" && false)
+          git commit -m "Add image build history for ${{ env.BUILD_LABEL }}" ||\
+            (echo "GHA: Error: Failed to commit image build history" && false)
           git push ||\
             (echo "GHA: Error: Failed to push changes" && false)
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
+

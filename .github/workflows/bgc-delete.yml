@@ -1,8 +1,8 @@
-name: BGC Container Delete Workflow
+name: BGC Image Delete Workflow
 
 on:
   repository_dispatch:
-    types: [delete_container]
+    types: [delete_image]
 
 jobs:
   delete:
@@ -109,10 +109,10 @@ jobs:
           echo "VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
           echo "GHA: Version ID to delete: $VERSION_ID"
 
-      - name: Delete tagged version
+      - name: Delete tagged image version
         shell: bash
         run: |
-          echo "=== DELETING TAG: ${{ env.TAG }} ==="
+          echo "=== DELETING IMAGE TAG: ${{ env.TAG }} ==="
           echo "GHA: Deleting version ID ${{ env.VERSION_ID }}..."
           
           HTTP_CODE=$(curl -X DELETE -s \
@@ -165,11 +165,11 @@ jobs:
           # Save for final comparison
           echo "POST_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
 
-      - name: Clean orphaned versions
+      - name: Clean untagged image versions
         shell: bash
         run: |
           echo "=== ORPHAN CLEANUP ==="
-          echo "GHA: Found ${{ env.POST_UNTAGGED }} orphaned versions to clean..."
+          echo "GHA: Found ${{ env.POST_UNTAGGED }} untagged image versions to clean..."
           
           if [ "${{ env.POST_UNTAGGED }}" -eq 0 ]; then
             echo "GHA: No orphaned versions to clean"
@@ -213,7 +213,6 @@ jobs:
       - name: Final metrics
         shell: bash
         run: |
-          echo ""
           echo "=== FINAL METRICS ==="
           echo "GHA: Fetching final state..."
           sleep 3
@@ -231,10 +230,10 @@ jobs:
           echo ""
           echo "GHA: Delete operation completed successfully"
 
-      - name: Record deletion in history
+      - name: Record image deletion in history
         shell: bash
         run: |
-          echo "GHA: Recording deletion in history..."
+          echo "GHA: Recording image deletion in history..."
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
           DELETE_DIR="${{ env.RBRR_HISTORY_DIR }}/_deletions/${TIMESTAMP}_${{ env.TAG }}"
           

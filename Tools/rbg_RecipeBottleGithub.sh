@@ -15,11 +15,10 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle GitHub - Container Registry Management
+# Recipe Bottle GitHub - Image Registry Management
 
 set -e
 
-# Find script directory and source utilities
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
@@ -198,7 +197,7 @@ rbg_build() {
     local recipe_file="${1:-}"
 
     # Handle documentation mode
-    bcu_doc_brief "Build container from recipe"
+    bcu_doc_brief "Build image from recipe"
     bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
     bcu_doc_shown || return 0
 
@@ -207,25 +206,21 @@ rbg_build() {
     test -f "$recipe_file" || bcu_die "Recipe file not found: $recipe_file"
 
     local recipe_basename=$(basename "$recipe_file")
-    # Check for uppercase letters in basename
     echo "$recipe_basename" | grep -q '[A-Z]' && \
-        bcu_die "Basename of '$recipe_file' contains uppercase letters"
+        bcu_die "Basename of '$recipe_file' contains uppercase letters so cannot use in image name"
 
-    # Validate GitHub PAT
     zrbg_validate_pat
 
-    # Command execution
-    bcu_step "Trigger Build of $recipe_file"
+    bcu_step "Trigger image build from $recipe_file"
 
-    # Check git status
     zrbg_check_git_status
 
     bcu_info "Trigger workflow dispatch..."
     local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
-    local dispatch_data='{"event_type": "build_containers", "client_payload": {"dockerfile": "'"$recipe_file"'"}}'
+    local dispatch_data='{"event_type": "build_images", "client_payload": {"dockerfile": "'$recipe_file'"}}'
     zrbg_curl_post "$dispatch_url" "$dispatch_data"
 
-    bcu_info "Pausing for GitHub to process the dispatch event..."
+    bcu_info "Polling for completion..."
     sleep 5
 
     bcu_info "Retrieve workflow run ID..."
@@ -276,12 +271,10 @@ rbg_build() {
     done
 
     bcu_info "Verifying build output..."
-
     local build_dir=$(zrbg_get_latest_build_dir "$recipe_basename")
-    test -n "$build_dir" || bcu_die "Missing build directory - No directory found matching pattern '${RBRR_HISTORY_DIR}/${recipe_basename%.*}*'"
-    test -d "$build_dir" || bcu_die "Build directory '$build_dir' is not a valid directory"
-
-    test -f "$build_dir/recipe.txt" || bcu_die "recipe.txt not found in $build_dir"
+    test -n "$build_dir" || bcu_die "Missing build directory"
+    test -d "$build_dir" || bcu_die "Invalid build directory"
+    test -f "$build_dir/recipe.txt" || bcu_die "recipe.txt not found"
     cmp "$recipe_file" "$build_dir/recipe.txt" || bcu_die "recipe mismatch"
 
     bcu_info "Extracting FQIN..."
@@ -289,17 +282,16 @@ rbg_build() {
     test -f "$fqin_file" || bcu_die "Could not find FQIN in build output"
 
     local fqin_contents=$(cat "$fqin_file")
-    echo -e "${ZBCU_YELLOW}Built container FQIN: $fqin_contents${ZBCU_RESET}"
+    bcu_info "Built image FQIN: $fqin_contents"
 
     if [ -n "${RBG_ARG_FQIN_OUTPUT:-}" ]; then
         cp "$fqin_file" "${RBG_ARG_FQIN_OUTPUT}"
-        echo -e "${ZBCU_YELLOW}Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}${ZBCU_RESET}"
+        bcu_info "Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}"
     fi
 
     bcu_info "Verifying image availability in registry..."
     local tag=$(echo "$fqin_contents" | cut -d: -f2)
-    echo "  Waiting for tag: $tag to become available..."
-
+    echo "Waiting for tag: $tag to become available..."
     for i in 1 2 3 4 5; do
         zrbg_curl_get "${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100" | \
             jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null && break
@@ -324,16 +316,10 @@ rbg_list() {
     bcu_doc_brief "List registry images"
     bcu_doc_shown || return 0
 
-    # Validate GitHub PAT
     zrbg_validate_pat
-
-    # Collect all versions with pagination
     zrbg_collect_all_versions
 
-    # Display results
     bcu_step "List Current Registry Images"
-    bcu_info "Processing collected JSON data..."
-
     echo "Package: ${RBRR_REGISTRY_NAME}"
     echo -e "${ZBCU_YELLOW}    https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}${ZBCU_RESET}"
     echo "Versions:"
@@ -369,20 +355,14 @@ rbg_delete() {
     test -n "$fqin" || bcu_usage_die
     bvu_val_fqin "fqin" "$fqin" 1 512
 
-    # Validate GitHub PAT
     zrbg_validate_pat
-
-    # Command execution
-    bcu_step "Delete Container Registry Image"
-    echo "Deleting image: $fqin"
-
+    bcu_step "Delete image from GitHub Container Registry"
     zrbg_check_git_status
 
     local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
-    local dispatch_data='{"event_type": "delete_container", "client_payload": {"fqin": "'"$fqin"'"}}'
+    local dispatch_data='{"event_type": "delete_image", "client_payload": {"fqin": "'$fqin'"}}'
     zrbg_curl_post "$dispatch_url" "$dispatch_data"
-
-    bcu_info "Pausing for GitHub to process the dispatch event..."
+    bcu_info "Delete dispatch submitted"
     sleep 5
 
     bcu_info "Retrieve workflow run ID..."
@@ -458,7 +438,7 @@ rbg_retrieve() {
     local fqin="${1:-}"
 
     # Handle documentation mode
-    bcu_doc_brief "Retrieve image from registry"
+    bcu_doc_brief "Pull image from registry"
     bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
     bcu_doc_shown || return 0
 
@@ -466,23 +446,15 @@ rbg_retrieve() {
     test -n "$fqin" || bcu_usage_die
     bvu_val_fqin "fqin" "$fqin" 1 512
 
-    # Validate GitHub PAT
     zrbg_validate_pat
-
-    # Command execution
-    bcu_step "Retrieve Container Registry Image"
-
-    # Login to registry
+    bcu_step "Pull image from GitHub Container Registry"
     zrbg_registry_login
-
-    # Pull image
     bcu_info "Fetch image..."
     podman pull "$fqin"
-
     bcu_success "No errors."
 }
 
-bcu_execute rbg_ "Recipe Bottle GitHub - Container Registry Management" zrbg_validate_envvars "$@"
+bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_validate_envvars "$@"
 
 # eof
 
