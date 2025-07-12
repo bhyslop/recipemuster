@@ -21,7 +21,7 @@
 
 # Source the libraries from parent directory
 ZTBTU_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
-source "${ZTBTU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
+source "${ZTBTU_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZTBTU_SCRIPT_DIR}/btu_BashTestUtility.sh"
 source "${ZTBTU_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 

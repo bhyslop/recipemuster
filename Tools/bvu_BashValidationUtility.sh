@@ -24,7 +24,7 @@ ZBVU_INCLUDED=1
 
 # Source the console utility library
 ZBVU_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZBVU_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
+source "${ZBVU_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 
 bvu_file_exists() {
     local filepath="$1"

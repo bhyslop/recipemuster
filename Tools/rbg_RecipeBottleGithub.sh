@@ -21,7 +21,7 @@ set -e
 
 # Find script directory and source utilities
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBG_SCRIPT_DIR}/bcu_BashConsoleUtility.sh"
+source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 ######################################################################
