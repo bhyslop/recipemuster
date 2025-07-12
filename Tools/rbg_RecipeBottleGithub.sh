@@ -362,6 +362,11 @@ rbg_delete() {
     bcu_step "Delete image from GitHub Container Registry"
     zrbg_check_git_status
 
+    # Confirm deletion unless skipped
+    if [ "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP" ]; then
+        zrbg_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
+    fi
+
     local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
     local dispatch_data='{"event_type": "delete_image", "client_payload": {"fqin": "'$fqin'"}}'
     zrbg_curl_post "$dispatch_url" "$dispatch_data"
