@@ -45,8 +45,6 @@ ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
 
 # Document, establish, validate environment
 zrbg_validate_envvars() {
-    set -e
-
     # Handle documentation mode
     bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
     bcu_doc_env "RBG_NOW_STAMP " "Timestamp for per run branding"
@@ -65,8 +63,6 @@ zrbg_validate_envvars() {
 
 # Validate GitHub PAT environment
 zrbg_validate_pat() {
-    set -e
-
     test -f "${RBRR_GITHUB_PAT_ENV}" || bcu_die "GitHub PAT env file not found at ${RBRR_GITHUB_PAT_ENV}"
 
     # Load and check PAT exists
@@ -77,7 +73,6 @@ zrbg_validate_pat() {
 # Perform authenticated GET request
 # Usage: zrbg_curl_get <url>
 zrbg_curl_get() {
-    set -e
     local url="$1"
 
     source "${RBRR_GITHUB_PAT_ENV}"
@@ -89,7 +84,6 @@ zrbg_curl_get() {
 # Perform authenticated POST request
 # Usage: zrbg_curl_post <url> <data>
 zrbg_curl_post() {
-    set -e
     local url="$1"
     local data="$2"
 
@@ -103,7 +97,6 @@ zrbg_curl_post() {
 # Perform authenticated DELETE request
 # Usage: zrbg_curl_delete <url>
 zrbg_curl_delete() {
-    set -e
     local url="$1"
 
     source "${RBRR_GITHUB_PAT_ENV}"
@@ -116,8 +109,6 @@ zrbg_curl_delete() {
 # Collect all package versions with pagination
 # Outputs: Combined JSON file at ZRBG_COLLECT_FULL_JSON
 zrbg_collect_all_versions() {
-    set -e
-
     bcu_step "Fetching all registry images with pagination to ${ZRBG_COLLECT_FULL_JSON}"
 
     # Initialize empty array
@@ -156,8 +147,6 @@ zrbg_collect_all_versions() {
 
 # Check git repository status
 zrbg_check_git_status() {
-    set -e
-
     bcu_info "Make sure your local repo is up to date with github variant..."
 
     git fetch
@@ -174,7 +163,6 @@ zrbg_check_git_status() {
 # Find the latest build directory for a recipe
 # Usage: zrbg_get_latest_build_dir <recipe_basename>
 zrbg_get_latest_build_dir() {
-    set -e
     local recipe_basename="$1"
     local basename_no_ext="${recipe_basename%.*}"
 
@@ -185,7 +173,6 @@ zrbg_get_latest_build_dir() {
 # Usage: zrbg_confirm_action <prompt_message>
 # Returns 0 if confirmed, 1 if not
 zrbg_confirm_action() {
-    set -e
     local prompt="$1"
 
     echo -e "${ZBCU_YELLOW}${prompt}${ZBCU_RESET}"
@@ -195,8 +182,6 @@ zrbg_confirm_action() {
 
 # Login to container registry
 zrbg_registry_login() {
-    set -e
-
     bcu_step "Log in to container registry"
 
     source "${RBRR_GITHUB_PAT_ENV}"
@@ -209,8 +194,6 @@ zrbg_registry_login() {
 # Naming convention: rbg_<action>
 
 rbg_build() {
-    set -e
-
     # Name parameters
     local recipe_file="${1:-}"
 
@@ -349,8 +332,6 @@ rbg_build() {
 }
 
 rbg_list() {
-    set -e
-
     # Handle documentation mode
     bcu_doc_brief "List registry images"
     bcu_doc_shown || return 0
@@ -388,8 +369,6 @@ rbg_list() {
 }
 
 rbg_delete() {
-    set -e
-
     # Name parameters
     local fqin="${1:-}"
 
@@ -459,8 +438,6 @@ rbg_delete() {
 }
 
 rbg_retrieve() {
-    set -e
-
     # Name parameters
     local fqin="${1:-}"
 
