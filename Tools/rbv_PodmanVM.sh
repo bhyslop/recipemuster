@@ -27,22 +27,24 @@ source "${ZRBV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 # Module Variables (ZRBV_*)
 ZRBV_GIT_REGISTRY="ghcr.io"
 
+ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
+ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
+
+ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
+
+
 ######################################################################
 # Internal Functions (zrbv_*)
 
 # Generate brand file content
-zrbv_generate_brand_content() {
-  local temp_file="${RBV_TEMP_DIR}/brand_content.txt"
-
-  echo "Write all RBV_CHOSEN_* variables to temp file" || bgc_die "TODO"
-
-  (
-    echo "# Recipe Bottle VM Brand File"
-    echo ""
-    env | grep "^RBV_CHOSEN_" | sort
-  ) > "$temp_file"
-
-  echo "$temp_file"
+zrbv_generate_brand_file() {
+  echo "# Recipe Bottle VM Brand File"                   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "#"                                               >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "PODMAN_VERSION: ${RBRR_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_ORIGIN: ${RBRR_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_FQIN:   ${RBRR_CHOSEN_VMIMAGE_FQIN}"     >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_SHA:    ${RBRR_CHOSEN_VMIMAGE_SHA}"      >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
 # Parse podman init output for natural choice
@@ -351,9 +353,9 @@ rbv_init() {
   bcu_step "Starting VM temporarily..."
   podman machine start "$RBRR_OPERATIONAL_MACHINE"
 
-  bcu_step "Writing brand file to /etc/recipe-bottle-brand-file.txt..."
-  local brand_content=$(zrbv_generate_brand_content)
-  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo tee /etc/recipe-bottle-brand-file.txt" < "$brand_content"
+  bcu_step "Writing brand file to -> ${ZRBV_EMPLACED_BRAND_FILE}"
+  zrbv_generate_brand_file
+  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" < "${ZRBV_GENERATED_BRAND_FILE}"
 
   bcu_step "Stopping VM..."
   podman machine stop "$RBRR_OPERATIONAL_MACHINE"
@@ -372,25 +374,22 @@ rbv_start() {
   bcu_step "Starting operational VM..."
   podman machine start "$RBRR_OPERATIONAL_MACHINE"
 
-  bcu_step "Reading brand file from /etc/recipe-bottle-brand-file.txt..."
+  bcu_step "Reading brand file from -> ${ZRBV_EMPLACED_BRAND_FILE}"
   local brand_file="${RBV_TEMP_DIR}/current_brand.txt"
-  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat /etc/recipe-bottle-brand-file.txt" > "$brand_file" || \
+  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat ${ZRBV_EMPLACED_BRAND_FILE}" > "${ZRBV_FOUND_BRAND_FILE}" || \
     bcu_die "Failed to read brand file. VM may not have been initialized with rbv_init"
 
-  bcu_step "Comparing brand file with current RBRR_CHOSEN values..."
-  local expected_brand=$(zrbv_generate_brand_content)
+  bcu_step "Comparing generated and found brand files..."
+  zrbv_generate_brand_file
 
-  # Compare only the RBV_CHOSEN lines
-  bcu_die "TODO transform to better pattern and no sort please"
-  grep "^RBV_CHOSEN_" "$brand_file"     | sort > "${RBV_TEMP_DIR}/brand_actual.txt"
-  grep "^RBV_CHOSEN_" "$expected_brand" | sort > "${RBV_TEMP_DIR}/brand_expected.txt"
-
-  if ! cmp -s "${RBV_TEMP_DIR}/brand_actual.txt" "${RBV_TEMP_DIR}/brand_expected.txt"; then
+  if [[ "$(cat ${ZRBV_GENERATED_BRAND_FILE})" == "$(cat ${ZRBV_FOUND_BRAND_FILE})" ]]; then
+    echo "Files are identical"
+  else
     bcu_warn "Brand file mismatch detected!"
     bcu_info "Expected:"
-    cat "${RBV_TEMP_DIR}/brand_expected.txt"
+    cat "${ZRBV_GENERATED_BRAND_FILE}"
     bcu_info "Actual:"
-    cat "${RBV_TEMP_DIR}/brand_actual.txt"
+    cat "${ZRBV_FOUND_BRAND_FILE}"
     bcu_die "Brand file doesn't match current RBRR_CHOSEN values"
   fi
 
