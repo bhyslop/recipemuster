@@ -164,10 +164,10 @@ rbv_nuke() {
   test "$confirm" = "YES" || bcu_die "Nuke not confirmed, exit without change"
 
   bcu_step "Stopping all containers..."
-  podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed."
+  podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed; okay if machine not started."
 
   bcu_step "Removing all containers..."
-  podman rm -a -f || bcu_die "Attempt to remove all containers failed."
+  podman rm -a -f || bcu_warn "Attempt to remove all containers failed; okay if machine not started."
 
   bcu_step "Removing all podman machines..."
   for vm in $(podman machine list -q); do
