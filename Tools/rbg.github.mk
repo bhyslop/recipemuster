@@ -57,7 +57,7 @@ endef
 
 zRBG_REPO_PREFIX = $(zRBG_GITAPI_URL)/repos/$(RBRR_REGISTRY_OWNER)/$(RBRR_REGISTRY_NAME)
 
-zRBG_CURL_HEADERS = -H "Authorization: token $$RBV_PAT" \
+zRBG_CURL_HEADERS = -H "Authorization: token $$RBRG_PAT"        \
                     -H 'Accept: application/vnd.github.v3+json'
 
 zRBG_CMD_TRIGGER_BUILD = source $(RBRR_GITHUB_PAT_ENV) && curl -X POST $(zRBG_CURL_HEADERS) \
@@ -83,7 +83,7 @@ zRBG_CMD_DELETE_VERSION = source $(RBRR_GITHUB_PAT_ENV) && curl -X DELETE -s $(z
 
 zbgc_argcheck_rule: rbrr_validate
 	@test -f "$(RBRR_GITHUB_PAT_ENV)" || ($(MBC_SEE_RED) "Error: GitHub PAT env file not found at $(RBRR_GITHUB_PAT_ENV)" && false)
-	@(source $(RBRR_GITHUB_PAT_ENV) && test -n "$$RBV_PAT" || ($(MBC_SEE_RED) "Error: RBV_PAT missing" && false))
+	@(source $(RBRR_GITHUB_PAT_ENV) && test -n "$$RBRG_PAT" || ($(MBC_SEE_RED) "Error: RBRG_PAT missing" && false))
 	@test -n "$(zRBG_GITAPI_URL)" || ($(MBC_SEE_RED) "Error: zRBG_GITAPI_URL unset" && false)
 
 
@@ -233,7 +233,7 @@ rbg_list_rule: zbgc_argcheck_rule zbgc_collect_rule
 rbg_container_registry_login_rule: zbgc_argcheck_rule
 	$(MBC_START) "Log in to container registry"
 	source $(RBRR_GITHUB_PAT_ENV)  && \
-	  podman $(RBM_CONNECTION) login $(zRBG_GIT_REGISTRY) -u $$RBV_USERNAME -p $$RBV_PAT
+	  podman $(RBM_CONNECTION) login $(zRBG_GIT_REGISTRY) -u $$RBRG_USERNAME -p $$RBRG_PAT
 	$(MBC_PASS) "No errors."
 
 

@@ -2,7 +2,7 @@
 # Debug script to examine the full structure of version objects
 
 # Load your credentials
-source ../secrets/github-ghcr-play.env
+source ../secrets/rbs-github.env
 
 # Create a temp directory if it doesn't exist
 mkdir -p ./debug_output
@@ -12,13 +12,13 @@ mkdir -p ./debug_output
 echo "Fetching specific version details..."
 
 # Version with a tag (from your output)
-curl -s -H "Authorization: token $RBV_PAT" \
+curl -s -H "Authorization: token $RBRG_PAT" \
      -H 'Accept: application/vnd.github.v3+json' \
      "https://api.github.com/user/packages/container/recipemuster/versions/370577712" \
      > ./debug_output/version_with_tag.json
 
 # Version without a tag (from your output)
-curl -s -H "Authorization: token $RBV_PAT" \
+curl -s -H "Authorization: token $RBRG_PAT" \
      -H 'Accept: application/vnd.github.v3+json' \
      "https://api.github.com/user/packages/container/recipemuster/versions/370577627" \
      > ./debug_output/version_without_tag.json
@@ -32,7 +32,7 @@ jq '{id, name, metadata}' ./debug_output/version_without_tag.json
 
 # Let's also check the full list with more fields
 echo -e "\nFetching full version list with name field..."
-curl -s -H "Authorization: token $RBV_PAT" \
+curl -s -H "Authorization: token $RBRG_PAT" \
      -H 'Accept: application/vnd.github.v3+json' \
      'https://api.github.com/user/packages/container/recipemuster/versions?per_page=10' \
      > ./debug_output/versions_with_name.json

@@ -66,7 +66,7 @@ zrbg_validate_pat() {
 
     # Load and check PAT exists
     source "${RBRR_GITHUB_PAT_ENV}"
-    test -n "${RBV_PAT:-}" || bcu_die "RBV_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+    test -n "${RBRG_PAT:-}" || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
 }
 
 # Perform authenticated GET request
@@ -75,7 +75,7 @@ zrbg_curl_get() {
     local url="$1"
 
     source "${RBRR_GITHUB_PAT_ENV}"
-    curl -s -H "Authorization: token ${RBV_PAT}" \
+    curl -s -H "Authorization: token ${RBRG_PAT}"       \
             -H 'Accept: application/vnd.github.v3+json' \
             "$url"
 }
@@ -87,9 +87,9 @@ zrbg_curl_post() {
     local data="$2"
 
     source "${RBRR_GITHUB_PAT_ENV}"
-    curl -X POST -H "Authorization: token ${RBV_PAT}" \
+    curl -X POST -H "Authorization: token ${RBRG_PAT}"       \
                  -H 'Accept: application/vnd.github.v3+json' \
-                 "$url" \
+                 "$url"                                      \
                  -d "$data"
 }
 
@@ -99,9 +99,9 @@ zrbg_curl_delete() {
     local url="$1"
 
     source "${RBRR_GITHUB_PAT_ENV}"
-    curl -X DELETE -s -H "Authorization: token ${RBV_PAT}" \
+    curl -X DELETE -s -H "Authorization: token ${RBRG_PAT}"       \
                       -H 'Accept: application/vnd.github.v3+json' \
-                      "$url" \
+                      "$url"                                      \
                       -w "\nHTTP_STATUS:%{http_code}\n"
 }
 
@@ -184,7 +184,7 @@ zrbg_registry_login() {
     bcu_step "Log in to container registry"
 
     source "${RBRR_GITHUB_PAT_ENV}"
-    podman login "${ZRBG_GIT_REGISTRY}" -u "${RBV_USERNAME}" -p "${RBV_PAT}"
+    podman login "${ZRBG_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
 ######################################################################

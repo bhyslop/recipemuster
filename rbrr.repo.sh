@@ -56,19 +56,19 @@ export RBRR_VMDIST_CRANE=https://github.com/google/go-containerregistry/releases
 # File containing user specific secrets for accessing the container registry.  Must have
 # contents expressed as bash variables (i.e. no spaces around '=') as follows...
 #
-#     RBV_USERNAME=yyyy
-#     RBV_PAT=ghp_zzzzzz
+#     RBRG_USERNAME=yyyy
+#     RBRG_PAT=ghp_zzzzzz
 #
 # ...where...
 #
-#     RBV_USERNAME: GitHub username required for container registry (ghcr.io) login
-#     RBV_PAT: GitHub Personal Access Token used for both:
+#     RBRG_USERNAME: GitHub username required for container registry (ghcr.io) login
+#     RBRG_PAT: GitHub Personal Access Token used for both:
 #              1. GitHub API authentication (for building/listing/deleting images)
 #              2. Container registry authentication (for pulling images)
 #              Generate this token at https://github.com/settings/tokens with scopes:
 #              - read:packages, write:packages, delete:packages
 #              - repo (for workflow dispatch)
-export RBRR_GITHUB_PAT_ENV=../station-files/secrets/github-ghcr-play.env
+export RBRR_GITHUB_PAT_ENV=../station-files/secrets/rbs-github.env
 
 
 # eof

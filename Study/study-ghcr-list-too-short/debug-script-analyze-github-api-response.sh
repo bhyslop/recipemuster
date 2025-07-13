@@ -2,14 +2,14 @@
 # Debug script to analyze GitHub API response structure
 
 # Load your credentials
-source ../secrets/github-ghcr-play.env
+source ../secrets/rbs-github.env
 
 # Create a temp directory if it doesn't exist
 mkdir -p ./debug_output
 
 # Fetch the raw API response
 echo "Fetching API response..."
-curl -s -H "Authorization: token $RBV_PAT" \
+curl -s -H "Authorization: token $RBRG_PAT"      \
      -H 'Accept: application/vnd.github.v3+json' \
      'https://api.github.com/user/packages/container/recipemuster/versions?per_page=100' \
      > ./debug_output/raw_response.json
@@ -50,8 +50,8 @@ echo -e "\nTotal tag entries: $(jq '[.[] | select(.metadata.container.tags != nu
 
 # Check if there's pagination info in the response headers
 echo -e "\nFetching headers to check for pagination..."
-curl -s -I -H "Authorization: token $RBV_PAT" \
-     -H 'Accept: application/vnd.github.v3+json' \
+curl -s -I -H "Authorization: token $RBRG_PAT"       \
+     -H 'Accept: application/vnd.github.v3+json'     \
      'https://api.github.com/user/packages/container/recipemuster/versions?per_page=100' \
      > ./debug_output/response_headers.txt
 

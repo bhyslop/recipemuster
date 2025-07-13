@@ -80,8 +80,8 @@ zrbv_validate_pat() {
   test -f "${RBRR_GITHUB_PAT_ENV}" || bcu_die "GitHub PAT env file not found at ${RBRR_GITHUB_PAT_ENV}"
   source  "${RBRR_GITHUB_PAT_ENV}"
 
-  test -n "${RBV_PAT:-}"      || bcu_die "RBV_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-  test -n "${RBV_USERNAME:-}" || bcu_die "RBV_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+  test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+  test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
 }
 
 # Stop and remove a VM if it exists
@@ -116,10 +116,10 @@ zrbv_registry_login() {
   source "${RBRR_GITHUB_PAT_ENV}"
 
   # Login with podman
-  podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBV_USERNAME}" -p "${RBV_PAT}"
+  podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 
   # Login with crane
-  podman machine ssh "$vm_name" "crane auth login ${ZRBV_GIT_REGISTRY} -u ${RBV_USERNAME} -p ${RBV_PAT}"
+  podman machine ssh "$vm_name" "crane auth login ${ZRBV_GIT_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}"
 }
 
 ######################################################################
