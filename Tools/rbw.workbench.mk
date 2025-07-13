@@ -31,8 +31,13 @@ RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 
 RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                               RBG_NOW_STAMP="$(MBD_NOW_STAMP)"  \
-			      RBG_RBRR_FILE="rbrr.repo.sh"      \
-			      $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
+                              RBG_RBRR_FILE="rbrr.repo.sh"      \
+                              $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
+
+RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \
+                          RBV_NOW_STAMP="$(MBD_NOW_STAMP)"  \
+                          RBG_RBRR_FILE="rbrr.repo.sh"      \
+                          $(MBV_TOOLS_DIR)/rbv_PodmanVM.sh
 
 # OUCH do better here: is ../station-files well known?
 include ../station-files/RBRS.STATION.mk
@@ -62,6 +67,11 @@ RBG_ARG_TAG =
 rbw-hg.%:
 	$(MBC_START) "Github Command Help"
 	$(RBM_RECIPE_BOTTLE_GITHUB_SH)
+	$(MBC_PASS) "No errors."
+
+rbw-hv.%:
+	$(MBC_START) "Github Command Help"
+	$(RBM_RECIPE_BOTTLE_VM_SH)
 	$(MBC_PASS) "No errors."
 
 rbw-l.%:
@@ -100,7 +110,9 @@ rbw-z.%: zrbw_prestop_rule rbp_podman_machine_stop_rule
 rbw-Z.%: zrbw_prenuke_rule rbp_podman_machine_nuke_rule
 	$(MBC_PASS) "Nuke completed."
 
-rbw-N.%: rbp_stash_check_rule
+rbw-N.%:
+	$(MBC_START) "New nuke..."
+	$(MBV_TOOLS_DIR)/rbv_PodmanVM.sh rbv_nuke
 	$(MBC_PASS) "VM image check complete."
 
 rbw-vu.%: rbp_stash_update_rule
