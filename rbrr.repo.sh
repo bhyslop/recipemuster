@@ -23,6 +23,16 @@ export RBRR_BUILD_ARCHITECTURES=linux/amd64
 export RBRR_HISTORY_DIR=RBM-history
 export RBRR_NAMEPLATE_PATH=RBM-nameplates
 export RBRR_DNS_SERVER=8.8.8.8
+
+export RBRR_STASH_MACHINE=rbw-stash
+export RBRR_OPERATIONAL_MACHINE=rbw-op
+export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
+export RBRR_CHOSEN_PODMAN_VERSION=5.5                             # Chosen podman version (e.g. 5.4 or 5.5)
+export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Either 'quay.io/podman/machine-os' or 'quay.io/podman/machine-os-wsl'
+export RBRR_CHOSEN_VMIMAGE_FQIN=${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION} # concretize, eventually
+export RBRR_CHOSEN_VMIMAGE_SHA=                                   # concretize, eventually
+export RBRR_CHOSEN_IDENTITY=begining                              # concretize, eventually
+
 export RBRR_MACHINE_NAME=podman-machine-rbw
 
 # Determined from default podman machine startup chatter

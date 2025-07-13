@@ -34,7 +34,8 @@ ZRBV_GIT_REGISTRY="ghcr.io"
 zrbv_generate_brand_content() {
   local temp_file="${RBV_TEMP_DIR}/brand_content.txt"
 
-  # Write all RBV_CHOSEN_* variables to temp file
+  echo "Write all RBV_CHOSEN_* variables to temp file" || bgc_die "TODO"
+
   (
     echo "# Recipe Bottle VM Brand File"
     echo ""
@@ -127,42 +128,19 @@ zrbv_registry_login() {
 
 zrbv_validate_envvars() {
   # Handle documentation mode
-  bcu_doc_env "RBV_TEMP_DIR              " "Empty temporary directory"
-  bcu_doc_env "RBV_RBRR_FILE             " "File containing the RBRR constants"
-  bcu_doc_env "RBV_STASH_MACHINE         " "Podman virtual machine name used for creating and managing stash"
-  bcu_doc_env "RBV_OPERATIONAL_MACHINE   " "Podman virtual machine name used for controlled operation"
-  bcu_doc_env "RBV_CHOSEN_VMIMAGE_BASE   " "Either 'quay.io/podman/machine-os' or 'quay.io/podman/machine-os-wsl'"
-  bcu_doc_env "RBV_CHOSEN_PODMAN_VERSION " "Chosen podman version (e.g. 5.4 or 5.5)"
-  bcu_doc_env "RBV_CHOSEN_PODMAN_FQIN    " "Quay tag, quay digest, or GHCR stash FQIN"
-  bcu_doc_env "RBV_CHOSEN_PODMAN_SHA     " "Optional SHA of selected VM image"
-  bcu_doc_env "RBV_CHOSEN_CRANE_TAR_GZ   " "URL for crane tool tarball"
-  bcu_doc_env "RBV_CHOSEN_IDENTITY       " "User-defined version marker for brand file"
-  bcu_doc_env "RBRR_GITHUB_PAT_ENV       " "Path to GitHub PAT environment file"
-  bcu_doc_env "RBRR_REGISTRY_OWNER       " "GitHub registry owner"
-  bcu_doc_env "RBRR_REGISTRY_NAME        " "GitHub registry name"
+  bcu_doc_env "RBV_TEMP_DIR               " "Empty temporary directory"
+  bcu_doc_env "RBV_RBRR_FILE              " "File containing the RBRR constants"
 
   bcu_env_done || return 0
 
   # Validate environment
   bvu_dir_exists  "${RBV_TEMP_DIR}"
   bvu_dir_empty   "${RBV_TEMP_DIR}"
-  bvu_env_string     RBG_NOW_STAMP   1 128   # weak validation but infrastructure managed
-  bvu_file_exists "${RBG_RBRR_FILE}"
-  source          "${RBG_RBRR_FILE}"
+  bvu_file_exists "${RBV_RBRR_FILE}"
+  source          "${RBV_RBRR_FILE}"
   source "${ZRBV_SCRIPT_DIR}/rbrr.validator.sh"
 
-  bvu_env_xname  RBV_STASH_MACHINE               1     64
-  bvu_env_xname  RBV_OPERATIONAL_MACHINE         1     64
-  bvu_env_string RBV_CHOSEN_VMIMAGE_BASE         1    128
-  bvu_env_string RBV_CHOSEN_PODMAN_VERSION       1     16
-  bvu_env_string RBV_CHOSEN_PODMAN_FQIN          1    256
-  bvu_env_fqin   RBV_CHOSEN_PODMAN_SHA           1    256
-  bvu_env_string RBV_CHOSEN_CRANE_TAR_GZ         1    256
-  bvu_env_string RBV_CHOSEN_IDENTITY             1    128
   bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
-
-  # Use provided crane URL or default
-  RBV_CHOSEN_CRANE_TAR_GZ="${RBV_CHOSEN_CRANE_TAR_GZ:-$ZRBV_CRANE_URL}"
 }
 
 rbv_nuke() {
@@ -175,7 +153,7 @@ rbv_nuke() {
   # Perform command
   bcu_step "WARNING: This will destroy all podman VMs and cache"
   read -p "Type YES to confirm: " confirm
-  test "$confirm" = "YES" || bcu_die "Aborted"
+  test "$confirm" = "YES" || bcu_die "Nuke not confirmed, exit without change"
 
   bcu_step "Stopping all containers..."
   podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed."
@@ -197,9 +175,9 @@ rbv_nuke() {
 
 rbv_check() {
   # Handle documentation mode
-  bcu_doc_brief "Compare RBV_CHOSEN values against podman's natural choice"
+  bcu_doc_brief "Compare RBRR_CHOSEN values against podman's natural choice"
   bcu_doc_lines "Creates temporary stash VM to discover latest"
-  bcu_doc_lines "Compares against RBV_CHOSEN environment variables"
+  bcu_doc_lines "Compares against RBRR_CHOSEN environment variables"
   bcu_doc_lines "Shows what stash name would be for latest version"
   bcu_doc_lines "Does NOT affect operational VM"
   bcu_doc_shown || return 0
@@ -208,11 +186,11 @@ rbv_check() {
   zrbv_validate_pat
 
   bcu_step "Removing any existing stash VM..."
-  zrbv_remove_vm "$RBV_STASH_MACHINE"
+  zrbv_remove_vm "$RBRR_STASH_MACHINE"
 
   bcu_step "Creating stash VM with natural podman init..."
   local init_output="${RBV_TEMP_DIR}/podman_init_output.txt"
-  podman machine init "$RBV_STASH_MACHINE" > "$init_output" 2>&1
+  podman machine init "$RBRR_STASH_MACHINE" > "$init_output" 2>&1
 
   bcu_step "Parsing 'Looking up' line for actual tag..."
   local natural_tag=$(zrbv_parse_natural_choice "$(cat "$init_output")")
@@ -220,33 +198,33 @@ rbv_check() {
   bcu_info "Natural choice: $natural_tag"
 
   bcu_step "Starting stash VM..."
-  podman machine start "$RBV_STASH_MACHINE"
+  podman machine start "$RBRR_STASH_MACHINE"
 
   bcu_step "Installing crane in userspace..."
-  zrbv_install_crane  "$RBV_STASH_MACHINE"
-  zrbv_registry_login "$RBV_STASH_MACHINE"
+  zrbv_install_crane  "$RBRR_STASH_MACHINE"
+  zrbv_registry_login "$RBRR_STASH_MACHINE"
 
   bcu_step "Using crane to get digest of natural choice..."
-  local natural_digest=$(podman machine ssh "$RBV_STASH_MACHINE" "crane digest $natural_tag")
+  local natural_digest=$(podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag")
   local natural_sha_short=$(echo "$natural_digest" | cut -c8-19)
   bcu_info "Natural digest: $natural_digest"
 
-  bcu_step "Comparing natural choice with RBV_CHOSEN_PODMAN_VERSION..."
-  if [ "$natural_version" = "$RBV_CHOSEN_PODMAN_VERSION" ]; then
+  bcu_step "Comparing natural choice with RBRR_CHOSEN_PODMAN_VERSION..."
+  if [ "$natural_version" = "$RBRR_CHOSEN_PODMAN_VERSION" ]; then
     bcu_info "Version matches: $natural_version"
   else
-    bcu_warn "Version mismatch: natural=$natural_version, chosen=$RBV_CHOSEN_PODMAN_VERSION"
+    bcu_warn "Version mismatch: natural=$natural_version, chosen=$RBRR_CHOSEN_PODMAN_VERSION"
   fi
 
-  bcu_step "Comparing digest with RBV_CHOSEN_PODMAN_SHA..."
-  if [ -n "$RBV_CHOSEN_PODMAN_SHA" ]; then
-    if [ "$natural_digest" = "$RBV_CHOSEN_PODMAN_SHA" ]; then
+  bcu_step "Comparing digest with RBRR_CHOSEN_VMIMAGE_SHA..."
+  if [ -n "$RBRR_CHOSEN_VMIMAGE_SHA" ]; then
+    if [ "$natural_digest" = "$RBRR_CHOSEN_VMIMAGE_SHA" ]; then
       bcu_info "SHA matches"
     else
-      bcu_warn "SHA mismatch: natural=$natural_digest, chosen=$RBV_CHOSEN_PODMAN_SHA"
+      bcu_warn "SHA mismatch: natural=$natural_digest, chosen=$RBRR_CHOSEN_VMIMAGE_SHA"
     fi
   else
-    bcu_info "No RBV_CHOSEN_PODMAN_SHA to compare"
+    bcu_info "No RBRR_CHOSEN_VMIMAGE_SHA to compare"
   fi
 
   bcu_step "Generating canonical stash name for latest..."
@@ -255,10 +233,10 @@ rbv_check() {
   bcu_info "Canonical stash name: $stash_fqin"
 
   bcu_step "Checking if this stash exists in GHCR..."
-  if podman machine ssh "$RBV_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null 2>&1; then
+  if podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null 2>&1; then
     bcu_info "Status: CURRENT (stash exists)"
   else
-    if [ "$natural_version" != "$RBV_CHOSEN_PODMAN_VERSION" ]; then
+    if [ "$natural_version" != "$RBRR_CHOSEN_PODMAN_VERSION" ]; then
       bcu_info "Status: UPDATE_AVAILABLE (newer version: $natural_version)"
     else
       bcu_info "Status: NOT_STASHED (need to run rbv_stash)"
@@ -266,15 +244,15 @@ rbv_check() {
   fi
 
   bcu_step "Stopping stash VM..."
-  podman machine stop "$RBV_STASH_MACHINE"
+  podman machine stop "$RBRR_STASH_MACHINE"
 
   bcu_success "Check complete"
 }
 
 rbv_stash() {
   # Handle documentation mode
-  bcu_doc_brief "Validate RBV_CHOSEN values and create GHCR stash"
-  bcu_doc_lines "Ensures RBV_CHOSEN values match podman's natural choice"
+  bcu_doc_brief "Validate RBRR_CHOSEN values and create GHCR stash"
+  bcu_doc_lines "Ensures RBRR_CHOSEN values match podman's natural choice"
   bcu_doc_lines "Copies exact version to GHCR with canonical name"
   bcu_doc_lines "Destructive: removes all VMs before starting"
   bcu_doc_shown || return 0
@@ -283,41 +261,41 @@ rbv_stash() {
   zrbv_validate_pat
 
   bcu_step "Removing operational VM..."
-  zrbv_remove_vm "$RBV_OPERATIONAL_MACHINE"
+  zrbv_remove_vm "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Removing stash VM..."
-  zrbv_remove_vm "$RBV_STASH_MACHINE"
+  zrbv_remove_vm "$RBRR_STASH_MACHINE"
 
   bcu_step "Creating stash VM with natural podman init..."
   local init_output="${RBV_TEMP_DIR}/podman_init_output.txt"
-  podman machine init "$RBV_STASH_MACHINE" > "$init_output" 2>&1
+  podman machine init "$RBRR_STASH_MACHINE" > "$init_output" 2>&1
 
   bcu_step "Parsing init output for tag..."
   local natural_tag=$(zrbv_parse_natural_choice "$(cat "$init_output")")
   local natural_version=$(zrbv_extract_version "$natural_tag")
   bcu_info "Natural tag: $natural_tag"
 
-  bcu_step "Validating matches RBV_CHOSEN_PODMAN_VERSION..."
-  local expected_tag="${RBV_CHOSEN_VMIMAGE_BASE}:${RBV_CHOSEN_PODMAN_VERSION}"
+  bcu_step "Validating matches RBRR_CHOSEN_PODMAN_VERSION..."
+  local expected_tag="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
   test "$natural_tag" = "$expected_tag" || \
     bcu_die "Natural choice ($natural_tag) doesn't match expected ($expected_tag)"
 
   bcu_step "Starting stash VM..."
-  podman machine start "$RBV_STASH_MACHINE"
+  podman machine start "$RBRR_STASH_MACHINE"
 
   bcu_step "Installing crane in userspace..."
-  zrbv_install_crane "$RBV_STASH_MACHINE"
-  zrbv_registry_login "$RBV_STASH_MACHINE"
+  zrbv_install_crane "$RBRR_STASH_MACHINE"
+  zrbv_registry_login "$RBRR_STASH_MACHINE"
 
   bcu_step "Getting digest with crane..."
-  local digest=$(podman machine ssh "$RBV_STASH_MACHINE" "crane digest $natural_tag")
+  local digest=$(podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag")
   local sha_short=$(echo "$digest" | cut -c8-19)
   bcu_info "Digest: $digest"
 
-  bcu_step "Validating matches RBV_CHOSEN_PODMAN_SHA..."
-  if [ -n "$RBV_CHOSEN_PODMAN_SHA" ]; then
-    test "$digest" = "$RBV_CHOSEN_PODMAN_SHA" || \
-      bcu_die "Digest ($digest) doesn't match RBV_CHOSEN_PODMAN_SHA ($RBV_CHOSEN_PODMAN_SHA)"
+  bcu_step "Validating matches RBRR_CHOSEN_VMIMAGE_SHA..."
+  if [ -n "$RBRR_CHOSEN_VMIMAGE_SHA" ]; then
+    test "$digest" = "$RBRR_CHOSEN_VMIMAGE_SHA" || \
+      bcu_die "Digest ($digest) doesn't match RBRR_CHOSEN_VMIMAGE_SHA ($RBRR_CHOSEN_VMIMAGE_SHA)"
   fi
 
   bcu_step "Generating canonical stash name..."
@@ -326,52 +304,52 @@ rbv_stash() {
   bcu_info "Stash FQIN: $stash_fqin"
 
   bcu_step "Checking if already exists in GHCR..."
-  if podman machine ssh "$RBV_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null 2>&1; then
+  if podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null 2>&1; then
     bcu_info "Stash already exists, skipping copy"
   else
     bcu_step "Copying with crane from quay to GHCR..."
-    podman machine ssh "$RBV_STASH_MACHINE" "crane copy $natural_tag $stash_fqin"
+    podman machine ssh "$RBRR_STASH_MACHINE" "crane copy $natural_tag $stash_fqin"
 
     bcu_step "Verifying copy with crane manifest..."
-    podman machine ssh "$RBV_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null || \
+    podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null || \
       bcu_die "Failed to verify stash in GHCR"
   fi
 
   bcu_step "Stopping stash VM..."
-  podman machine stop "$RBV_STASH_MACHINE"
+  podman machine stop "$RBRR_STASH_MACHINE"
 
   bcu_success "Stash complete: $stash_fqin"
 }
 
 rbv_init() {
   # Handle documentation mode
-  bcu_doc_brief "Initialize operational VM using RBV_CHOSEN_PODMAN_FQIN"
+  bcu_doc_brief "Initialize operational VM using RBRR_CHOSEN_VMIMAGE_FQIN"
   bcu_doc_lines "Creates new operational VM from configured image"
-  bcu_doc_lines "Writes brand file with all RBV_CHOSEN values"
+  bcu_doc_lines "Writes brand file with all RBRR_CHOSEN values"
   bcu_doc_lines "Refuses if operational VM already exists"
   bcu_doc_shown || return 0
 
   # Perform command
   bcu_step "Checking if operational VM exists..."
-  podman machine list | grep -q "$RBV_OPERATIONAL_MACHINE" && \
+  podman machine list | grep -q "$RBRR_OPERATIONAL_MACHINE" && \
     bcu_die "Operational VM already exists. Remove it first with rbv_nuke or manually"
 
-  bcu_step "Validating RBV_CHOSEN_PODMAN_FQIN format..."
-  echo "$RBV_CHOSEN_PODMAN_FQIN" | grep -q ":" || \
-    bcu_die "Invalid FQIN format: $RBV_CHOSEN_PODMAN_FQIN"
+  bcu_step "Validating RBRR_CHOSEN_VMIMAGE_FQIN format..."
+  echo "$RBRR_CHOSEN_VMIMAGE_FQIN" | grep -q ":" || \
+    bcu_die "Invalid FQIN format: $RBRR_CHOSEN_VMIMAGE_FQIN"
 
-  bcu_step "Initializing: podman machine init --image docker://${RBV_CHOSEN_PODMAN_FQIN}..."
-  podman machine init --rootful --image "docker://${RBV_CHOSEN_PODMAN_FQIN}" "$RBV_OPERATIONAL_MACHINE"
+  bcu_step "Initializing: podman machine init --image docker://${RBRR_CHOSEN_VMIMAGE_FQIN}..."
+  podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Starting VM temporarily..."
-  podman machine start "$RBV_OPERATIONAL_MACHINE"
+  podman machine start "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Writing brand file to /etc/recipe-bottle-brand-file.txt..."
   local brand_content=$(zrbv_generate_brand_content)
-  podman machine ssh "$RBV_OPERATIONAL_MACHINE" "sudo tee /etc/recipe-bottle-brand-file.txt" < "$brand_content"
+  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo tee /etc/recipe-bottle-brand-file.txt" < "$brand_content"
 
   bcu_step "Stopping VM..."
-  podman machine stop "$RBV_OPERATIONAL_MACHINE"
+  podman machine stop "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_success "VM initialized with brand file"
 }
@@ -379,23 +357,24 @@ rbv_init() {
 rbv_start() {
   # Handle documentation mode
   bcu_doc_brief "Start operational podman machine"
-  bcu_doc_lines "Verifies brand file matches RBV_CHOSEN values"
+  bcu_doc_lines "Verifies brand file matches RBRR_CHOSEN values"
   bcu_doc_lines "Fails if brand file missing or mismatched"
   bcu_doc_shown || return 0
 
   # Perform command
   bcu_step "Starting operational VM..."
-  podman machine start "$RBV_OPERATIONAL_MACHINE"
+  podman machine start "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Reading brand file from /etc/recipe-bottle-brand-file.txt..."
   local brand_file="${RBV_TEMP_DIR}/current_brand.txt"
-  podman machine ssh "$RBV_OPERATIONAL_MACHINE" "sudo cat /etc/recipe-bottle-brand-file.txt" > "$brand_file" || \
+  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat /etc/recipe-bottle-brand-file.txt" > "$brand_file" || \
     bcu_die "Failed to read brand file. VM may not have been initialized with rbv_init"
 
-  bcu_step "Comparing brand file with current RBV_CHOSEN values..."
+  bcu_step "Comparing brand file with current RBRR_CHOSEN values..."
   local expected_brand=$(zrbv_generate_brand_content)
 
   # Compare only the RBV_CHOSEN lines
+  bcu_die "TODO transform to better pattern and no sort please"
   grep "^RBV_CHOSEN_" "$brand_file"     | sort > "${RBV_TEMP_DIR}/brand_actual.txt"
   grep "^RBV_CHOSEN_" "$expected_brand" | sort > "${RBV_TEMP_DIR}/brand_expected.txt"
 
@@ -405,7 +384,7 @@ rbv_start() {
     cat "${RBV_TEMP_DIR}/brand_expected.txt"
     bcu_info "Actual:"
     cat "${RBV_TEMP_DIR}/brand_actual.txt"
-    bcu_die "Brand file doesn't match current RBV_CHOSEN values"
+    bcu_die "Brand file doesn't match current RBRR_CHOSEN values"
   fi
 
   bcu_success "VM started and brand verified"
@@ -418,7 +397,7 @@ rbv_stop() {
 
   # Perform command
   bcu_step "Stopping operational VM..."
-  podman machine stop "$RBV_OPERATIONAL_MACHINE"
+  podman machine stop "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_success "VM stopped"
 }

@@ -36,7 +36,7 @@ RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
 
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                           RBV_NOW_STAMP="$(MBD_NOW_STAMP)"  \
-                          RBG_RBRR_FILE="rbrr.repo.sh"      \
+                          RBV_RBRR_FILE="rbrr.repo.sh"      \
                           $(MBV_TOOLS_DIR)/rbv_PodmanVM.sh
 
 # OUCH do better here: is ../station-files well known?

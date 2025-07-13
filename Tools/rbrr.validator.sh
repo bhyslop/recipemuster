@@ -30,10 +30,15 @@ bvu_env_string      RBRR_HISTORY_DIR             1    255
 bvu_env_ipv4        RBRR_DNS_SERVER
 bvu_env_string      RBRR_NAMEPLATE_PATH          1    255
 
-bvu_env_string      RBRR_MACHINE_NAME            1     64
-bvu_env_fqin        RBRR_VMDIST_TAG              1    128
-bvu_env_string      RBRR_VMDIST_BLOB_SHA        64     64
-bvu_env_fqin        RBRR_VMDIST_CRANE            1    512
+bvu_env_string      RBRR_STASH_MACHINE           1     64
+bvu_env_string      RBRR_OPERATIONAL_MACHINE     1     64
+bvu_env_string      RBRR_CRANE_TAR_GZ            1    512
+bvu_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
+bvu_env_string      RBRR_CHOSEN_VMIMAGE_ORIGIN   1    128
+bvu_env_string      RBRR_CHOSEN_VMIMAGE_FQIN     1    256
+bvu_env_fqin        RBRR_CHOSEN_VMIMAGE_SHA      0    256
+bvu_env_string      RBRR_CHOSEN_IDENTITY         1    128
+
 
 bvu_dir_exists "${RBRR_HISTORY_DIR}"
 bvu_dir_exists "${RBRR_NAMEPLATE_PATH}"
