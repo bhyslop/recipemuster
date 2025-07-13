@@ -128,6 +128,7 @@ zrbv_registry_login() {
 zrbv_validate_envvars() {
   # Handle documentation mode
   bcu_doc_env "RBV_TEMP_DIR              " "Empty temporary directory"
+  bcu_doc_env "RBV_RBRR_FILE             " "File containing the RBRR constants"
   bcu_doc_env "RBV_STASH_MACHINE         " "Podman virtual machine name used for creating and managing stash"
   bcu_doc_env "RBV_OPERATIONAL_MACHINE   " "Podman virtual machine name used for controlled operation"
   bcu_doc_env "RBV_CHOSEN_VMIMAGE_BASE   " "Either 'quay.io/podman/machine-os' or 'quay.io/podman/machine-os-wsl'"
@@ -143,8 +144,13 @@ zrbv_validate_envvars() {
   bcu_env_done || return 0
 
   # Validate environment
-  bvu_dir_exists "${RBV_TEMP_DIR}"
-  bvu_dir_empty  "${RBV_TEMP_DIR}"
+  bvu_dir_exists  "${RBV_TEMP_DIR}"
+  bvu_dir_empty   "${RBV_TEMP_DIR}"
+  bvu_env_string     RBG_NOW_STAMP   1 128   # weak validation but infrastructure managed
+  bvu_file_exists "${RBG_RBRR_FILE}"
+  source          "${RBG_RBRR_FILE}"
+  source "${ZRBV_SCRIPT_DIR}/rbrr.validator.sh"
+
   bvu_env_xname  RBV_STASH_MACHINE               1     64
   bvu_env_xname  RBV_OPERATIONAL_MACHINE         1     64
   bvu_env_string RBV_CHOSEN_VMIMAGE_BASE         1    128

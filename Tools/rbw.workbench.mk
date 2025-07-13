@@ -112,7 +112,7 @@ rbw-Z.%: zrbw_prenuke_rule rbp_podman_machine_nuke_rule
 
 rbw-N.%:
 	$(MBC_START) "New nuke..."
-	$(MBV_TOOLS_DIR)/rbv_PodmanVM.sh rbv_nuke
+	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_nuke
 	$(MBC_PASS) "VM image check complete."
 
 rbw-vu.%: rbp_stash_update_rule
