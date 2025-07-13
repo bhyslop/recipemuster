@@ -130,6 +130,7 @@ zrbv_validate_envvars() {
   # Handle documentation mode
   bcu_doc_env "RBV_TEMP_DIR               " "Empty temporary directory"
   bcu_doc_env "RBV_RBRR_FILE              " "File containing the RBRR constants"
+  bcu_doc_env "RBV_RBRS_FILE              " "File containing the RBRS constants"
 
   bcu_env_done || return 0
 
@@ -137,8 +138,13 @@ zrbv_validate_envvars() {
   bvu_dir_exists  "${RBV_TEMP_DIR}"
   bvu_dir_empty   "${RBV_TEMP_DIR}"
   bvu_file_exists "${RBV_RBRR_FILE}"
-  source          "${RBV_RBRR_FILE}"
+  bvu_file_exists "${RBV_RBRS_FILE}"
+
+  source              "${RBV_RBRR_FILE}"
   source "${ZRBV_SCRIPT_DIR}/rbrr.validator.sh"
+
+  source              "${RBV_RBRS_FILE}"
+  source "${ZRBV_SCRIPT_DIR}/rbrs.validator.sh"
 
   bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
 }

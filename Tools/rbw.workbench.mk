@@ -28,6 +28,7 @@ RBM_MONIKER = $(MBD_PARAMETER_2)
 # Submake config: Where to find derived nameplate and test files
 RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
+RBM_STATION_SH     = ../station-files/rbrs-station.sh
 
 RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                               RBG_NOW_STAMP="$(MBD_NOW_STAMP)"  \
@@ -37,10 +38,10 @@ RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                           RBV_NOW_STAMP="$(MBD_NOW_STAMP)"  \
                           RBV_RBRR_FILE="rbrr.repo.sh"      \
+                          RBV_RBRS_FILE="$(RBM_STATION_SH)" \
                           $(MBV_TOOLS_DIR)/rbv_PodmanVM.sh
 
-# OUCH do better here: is ../station-files well known?
-include ../station-files/RBRS.STATION.mk
+
 include rbrr.repo.mk
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
