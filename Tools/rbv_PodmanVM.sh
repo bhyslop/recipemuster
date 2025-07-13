@@ -29,6 +29,7 @@ ZRBV_GIT_REGISTRY="ghcr.io"
 
 ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
 ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
+ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
 
 ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
@@ -198,11 +199,10 @@ rbv_check() {
   zrbv_remove_vm "$RBRR_STASH_MACHINE"
 
   bcu_step "Creating stash VM with natural podman init..."
-  local init_output="${RBV_TEMP_DIR}/podman_init_output.txt"
-  podman machine init "$RBRR_STASH_MACHINE" > "$init_output" 2>&1
+  podman machine init "$RBRR_STASH_MACHINE" > "$ZRBV_INIT_OUTPUT_FILE" 2>&1
 
   bcu_step "Parsing 'Looking up' line for actual tag..."
-  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$init_output")")
+  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_INIT_OUTPUT_FILE")")
   local natural_version=$(zrbv_extract_version "$natural_tag")
   bcu_info "Natural choice: $natural_tag"
 
@@ -276,11 +276,10 @@ rbv_stash() {
   zrbv_remove_vm "$RBRR_STASH_MACHINE"
 
   bcu_step "Creating stash VM with natural podman init..."
-  local init_output="${RBV_TEMP_DIR}/podman_init_output.txt"
-  podman machine init "$RBRR_STASH_MACHINE" > "$init_output" 2>&1
+  podman machine init "$RBRR_STASH_MACHINE" > "$ZRBV_INIT_OUTPUT_FILE" 2>&1
 
   bcu_step "Parsing init output for tag..."
-  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$init_output")")
+  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_INIT_OUTPUT_FILE")")
   local natural_version=$(zrbv_extract_version "$natural_tag")
   bcu_info "Natural tag: $natural_tag"
 
@@ -375,7 +374,6 @@ rbv_start() {
   podman machine start "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Reading brand file from -> ${ZRBV_EMPLACED_BRAND_FILE}"
-  local brand_file="${RBV_TEMP_DIR}/current_brand.txt"
   podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat ${ZRBV_EMPLACED_BRAND_FILE}" > "${ZRBV_FOUND_BRAND_FILE}" || \
     bcu_die "Failed to read brand file. VM may not have been initialized with rbv_init"
 
