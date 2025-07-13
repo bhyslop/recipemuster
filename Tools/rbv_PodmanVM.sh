@@ -157,7 +157,9 @@ rbv_nuke() {
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "WARNING: This will destroy all podman VMs and cache"
+  bvu_dir_exists "${RBRS_PODMAN_ROOT_DIR}" || bcu_warn "Podman directory not found."
+
+  bcu_step "WARNING: This will destroy all podman VMs and cache found in ${RBRS_PODMAN_ROOT_DIR}"
   read -p "Type YES to confirm: " confirm
   test "$confirm" = "YES" || bcu_die "Nuke not confirmed, exit without change"
 
@@ -173,8 +175,7 @@ rbv_nuke() {
   done
 
   bcu_step "Deleting VM cache directory..."
-  rm -rf "$HOME/.local/share/containers/podman/machine"/*
-  rm -rf "$HOME/.config/containers/podman/machine"/*
+  rm -rf "${RBRS_PODMAN_ROOT_DIR}/machine"/*
 
   bcu_success "Podman VM environment reset complete"
 }
