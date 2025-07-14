@@ -63,11 +63,11 @@ zrbv_generate_brand_file() {
 # Confirm YES parameter or prompt user
 zrbv_confirm_yes() {
   local confirm_param="$1"
-  
+
   if [[ "$confirm_param" == "YES" ]]; then
     return 0
   fi
-  
+
   read -p "Type YES to confirm: " confirm
   if [[ "$confirm" == "YES" ]]; then
     return 0
@@ -87,18 +87,22 @@ zrbv_extract_natural_tag() {
   test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
-# Generate mirror tag using yq and RBRR values
+# Generate mirror tag using crane digest
 zrbv_generate_mirror_tag() {
-  # Get digest and extract short SHA
-  local sha_short=$(yq eval '.digest' "${ZRBV_CRANE_DIGEST_FILE}" | cut -c8-19)
+  # Read digest directly from file and extract short SHA
+  local digest
+  read -r digest < "${ZRBV_CRANE_DIGEST_FILE}" || bcu_die "Failed to read digest from ${ZRBV_CRANE_DIGEST_FILE}"
+  test -n "$digest" || bcu_die "Failed to read digest from ${ZRBV_CRANE_DIGEST_FILE}"
+
+  # Extract short SHA using parameter expansion instead of cut
+  local sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
+  test -n "$sha_short" || bcu_die "Failed to extract short SHA from digest: $digest"
 
   # Build canonical mirror tag
   local raw="stash-quay.io-podman-machine-os-wsl-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
-
   # Sanitize for use as tag
   raw=${raw//\//-}
   raw=${raw//:/-}
-
   # Write full FQIN to file
   echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
 }
@@ -148,9 +152,9 @@ zrbv_reset_stash() {
   zrbv_remove_vm "$RBRR_STASH_MACHINE"
 
   bcu_step "Creating stash VM with natural podman init..."
-  podman machine init --log-level=debug "$RBRR_STASH_MACHINE"      \
-                                     2> "$ZRBV_STASH_INIT_STDERR"  \
-    ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"  \
+  podman machine init --log-level=debug      "$RBRR_STASH_MACHINE"      \
+                                          2> "$ZRBV_STASH_INIT_STDERR"  \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"  \
     || bcu_die "Bad init."
 
   bcu_step "Starting stash VM..."
@@ -325,9 +329,9 @@ rbv_mirror() {
   zrbv_remove_vm "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Creating operational VM with natural podman init..."
-  podman machine init --log-level=debug "$RBRR_OPERATIONAL_MACHINE"     \
-                                     2> "$ZRBV_OPERATIONAL_INIT_STDERR" \
-    ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_OPERATIONAL_INIT_STDOUT" \
+  podman machine init --log-level=debug      "$RBRR_OPERATIONAL_MACHINE"     \
+                                          2> "$ZRBV_OPERATIONAL_INIT_STDERR" \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_OPERATIONAL_INIT_STDOUT" \
     || bcu_die "Bad init."
 
   bcu_step "Starting operational VM..."
