@@ -116,8 +116,10 @@ rbw-N.%:
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_nuke
 	$(MBC_PASS) "VM image check complete."
 
-rbw-vu.%: rbp_stash_update_rule
-	$(MBC_PASS) "VM Image update complete."
+rbw-m.%:
+	$(MBC_START) "Mirror latest podman image..."
+	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_mirror
+	$(MBC_PASS) "VM image check complete."
 
 rbw-S.%: rbp_connect_sentry_rule
 	$(MBC_PASS) "No errors."
