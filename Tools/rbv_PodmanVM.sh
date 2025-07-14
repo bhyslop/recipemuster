@@ -96,9 +96,9 @@ zrbv_error_if_different() {
     return 0
   else
     bcu_warn "File content mismatch detected!"
-    bcu_info "File 1 contents:"
+    bcu_info "File 1 ($file1) contents:"
     cat "$file1"
-    bcu_info "File 2 contents:"
+    bcu_info "File 2 ($file2) contents:"
     cat "$file2"
     return 1
   fi
