@@ -74,7 +74,9 @@ zrbv_generate_stash_name() {
   local sha_short="$4"
 
   local raw="stash-${registry}-${repo}-${tag}-${sha_short}"
-  raw=${raw//[\/:]/-}  # Replace all '/' and ':' with '-'
+
+  raw=${raw//\//-}
+  raw=${raw//:/-}
 
   printf '%s\n' "$raw"
 }
@@ -292,7 +294,7 @@ rbv_stash() {
   podman machine start "$RBRR_STASH_MACHINE"
 
   bcu_step "Installing crane in userspace..."
-  zrbv_install_crane "$RBRR_STASH_MACHINE"
+  zrbv_install_crane  "$RBRR_STASH_MACHINE"
   zrbv_registry_login "$RBRR_STASH_MACHINE"
 
   bcu_step "Getting digest with crane..."
