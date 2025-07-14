@@ -38,12 +38,14 @@ ZRBV_OPERATIONAL_INIT_STDERR="${RBV_TEMP_DIR}/operational_init_stderr.txt"
 
 ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
-ZRBV_CRANE_DIGEST_FILE="${RBV_TEMP_DIR}/crane_digest.txt"
+ZRBV_CRANE_ORIGIN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_origin_digest.txt"
+ZRBV_CRANE_FQIN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_fqin_digest.txt"
 ZRBV_CRANE_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/crane_manifest_check.txt"
 ZRBV_CRANE_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_copy_output.txt"
 ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
 
 ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
+
 
 
 ######################################################################
@@ -87,12 +89,13 @@ zrbv_extract_natural_tag() {
   test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
+
 # Generate mirror tag using crane digest
 zrbv_generate_mirror_tag() {
   # Read digest directly from file and extract short SHA
   local digest
-  read -r digest < "${ZRBV_CRANE_DIGEST_FILE}" || bcu_die "Failed to read digest from ${ZRBV_CRANE_DIGEST_FILE}"
-  test -n "$digest" || bcu_die "Failed to read digest from ${ZRBV_CRANE_DIGEST_FILE}"
+  read -r digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
+  test -n "$digest" || bcu_die "Failed to detect ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
   # Extract short SHA using parameter expansion instead of cut
   local sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
@@ -147,9 +150,15 @@ zrbv_remove_vm() {
   fi
 }
 
-# Reset stash VM - stop, remove, and reinit with captured output
-zrbv_reset_stash() {
-  zrbv_remove_vm "$RBRR_STASH_MACHINE"
+# rbv_stash_create - Create a fresh stash machine with crane installed
+function rbv_stash_create() {
+  bcu_info "Creating stash machine: $RBRR_STASH_MACHINE"
+
+  bcu_info "Stop existing machine if running"
+  podman machine stop "${zrbv_machine_name}" || bcu_warn "Attempt to stop existing did nothing."
+
+  bcu_info "Removing any existing machine..."
+  podman machine rm -f "${zrbv_machine_name}" || bcu_warn "Attempt to rm existing did nothing."
 
   bcu_step "Creating stash VM with natural podman init..."
   podman machine init --log-level=debug      "$RBRR_STASH_MACHINE"      \
@@ -157,21 +166,17 @@ zrbv_reset_stash() {
        | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"  \
     || bcu_die "Bad init."
 
-  bcu_step "Starting stash VM..."
-  podman machine start "$RBRR_STASH_MACHINE" || bcu_die "Failed to start stash VM"
+  bcu_step "Starting stash machine..."
+  podman machine start "${zrbv_machine_name}"  || bcu_die "Failed to start stash machine"
 
-  return 0
-}
+  bcu_step "Installing crane..."
+  podman machine ssh "${zrbv_machine_name}" -- \
+      "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" || bcu_die "crane fail"
 
-# Install crane in VM
-zrbv_install_crane() {
-  local vm_name="$1"
+  bcu_step "Verify crane installation..."
+  podman machine ssh "${zrbv_machine_name}" -- "crane version" || bcu_die "crane confirm fail."
 
-  bcu_info "Installing crane in $vm_name..."
-  podman machine ssh "$vm_name" "curl -o crane.tar.gz -L ${RBRR_CRANE_TAR_GZ}"
-  podman machine ssh "$vm_name" "sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane"
-  podman machine ssh "$vm_name" "rm crane.tar.gz"
-  podman machine ssh "$vm_name" "crane version"
+  bcu_success "Stash machine ready with crane installed"
 }
 
 # Login to registry in VM
@@ -243,62 +248,57 @@ rbv_nuke() {
   bcu_success "Podman VM environment reset complete"
 }
 
-# rbv_check - Check for newer upstream VM images
 function rbv_check() {
-    local zrbv_upstream_sha
-    local zrbv_fqin_sha
-    local zrbv_temp_machine="rbv-check-temp"
-    local zrbv_temp_file="${RBV_TEMP_DIR}/rbv_check_output.txt"
-    
-    echo "Checking for newer VM images..."
-    
-    # Create temporary VM with crane (use existing stash machine logic)
-    rbv_stash_create "${zrbv_temp_machine}" || bcu_die "Failed to create temp machine"
-    
-    # Query upstream for latest SHA
-    echo "Querying ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..."
+  local warning_count=0
+
+  bcu_step "Checking for newer VM images..."
+
+  bcu_step "Prepare fresh stash machine with crane..."
+  rbv_stash_create || bcu_die "Failed to create temp machine"
+
+  bcu_step "Querying origin ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..."
+  podman machine ssh "$RBRR_STASH_MACHINE" -- \
+    crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
+      > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
+
+  # Check if CHOSEN_SHA is empty and provide guidance
+  if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
+    bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
+    ((warning_count++))
+    bcu_warn "To set CHOSEN_SHA, use: export RBRR_CHOSEN_VMIMAGE_SHA=$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
+    ((warning_count++))
+    bcu_warn "To use a mirrored FQIN, also set: export RBRR_CHOSEN_VMIMAGE_FQIN=<your-mirror-registry>/<image>:<tag>"
+    ((warning_count++))
+  fi
+
+  bcu_step "If chosen FQIN differs from standard origin:version, do more checks..."
+  if [[ ! "${RBRR_CHOSEN_VMIMAGE_FQIN}" =~ ^"${RBRR_CHOSEN_VMIMAGE_ORIGIN}:" ]]; then
+    bcu_info "Checking custom FQIN: ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
     podman machine ssh "${zrbv_temp_machine}" -- \
-        crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" > "${zrbv_temp_file}" 2>&1
-    
-    if [[ ! -s "${zrbv_temp_file}" ]]; then
-        podman machine rm -f "${zrbv_temp_machine}" >/dev/null 2>&1
-        bcu_die "Failed to query upstream image"
+      crane digest "${RBRR_CHOSEN_VMIMAGE_FQIN}" \
+        > ${ZRBV_CRANE_FQIN_DIGEST_FILE} || bcu_die "Failed to query fqin image"
+
+    if [[ "$(cat ${ZRBV_CRANE_FQIN_DIGEST_FILE})" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
+      bcu_warn "FQIN SHA ($(cat ${ZRBV_CRANE_FQIN_DIGEST_FILE})) differs from upstream SHA ($(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}))"
+      ((warning_count++))
     fi
-    
-    zrbv_upstream_sha=`cat "${zrbv_temp_file}"`
-    
-    # Check if FQIN differs from standard origin:version
-    if [[ ! "${RBRR_CHOSEN_VMIMAGE_FQIN}" =~ ^"${RBRR_CHOSEN_VMIMAGE_ORIGIN}:" ]]; then
-        echo "Checking custom FQIN: ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
-        podman machine ssh "${zrbv_temp_machine}" -- \
-            crane digest "${RBRR_CHOSEN_VMIMAGE_FQIN}" > "${zrbv_temp_file}" 2>&1
-        
-        if [[ ! -s "${zrbv_temp_file}" ]]; then
-            podman machine rm -f "${zrbv_temp_machine}" >/dev/null 2>&1
-            bcu_die "Failed to query FQIN image"
-        fi
-        
-        zrbv_fqin_sha=`cat "${zrbv_temp_file}"`
-        
-        if [[ "${zrbv_fqin_sha}" != "${zrbv_upstream_sha}" ]]; then
-            echo "WARNING: FQIN SHA (${zrbv_fqin_sha}) differs from upstream SHA (${zrbv_upstream_sha})"
-        fi
-    fi
-    
-    # Cleanup temp VM
-    podman machine rm -f "${zrbv_temp_machine}" >/dev/null 2>&1
-    
-    # Report findings
-    echo "Current configured SHA: ${RBRR_CHOSEN_VMIMAGE_SHA:-<not set>}"
-    echo "Latest upstream SHA: ${zrbv_upstream_sha}"
-    
-    if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-        echo "ACTION REQUIRED: Set RBRR_CHOSEN_VMIMAGE_SHA to: ${zrbv_upstream_sha}"
-    elif [[ "${RBRR_CHOSEN_VMIMAGE_SHA}" != "${zrbv_upstream_sha}" ]]; then
-        echo "UPDATE AVAILABLE: New SHA available: ${zrbv_upstream_sha}"
-    else
-        echo "Up to date!"
-    fi
+  fi
+
+  bcu_info "Current configured SHA: ${RBRR_CHOSEN_VMIMAGE_SHA:-<not set>}"
+  bcu_info "Latest upstream SHA: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
+
+  if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
+    bcu_warn "ACTION REQUIRED: Set RBRR_CHOSEN_VMIMAGE_SHA to: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
+    ((warning_count++))
+  elif [[ "${RBRR_CHOSEN_VMIMAGE_SHA}" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
+    bcu_info "UPDATE AVAILABLE: New SHA available: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
+  else
+    bcu_info "Up to date!"
+  fi
+
+  if [[ $warning_count -gt 0 ]]; then
+    bcu_die "Found $warning_count warning(s) during VM image check. Please address the issues above."
+  fi
 }
 
 # rbv_mirror - Mirror VM image to GHCR
@@ -309,9 +309,9 @@ function rbv_mirror() {
     local zrbv_init_output
     local zrbv_init_sha
     local zrbv_temp_file="${RBV_TEMP_DIR}/rbv_mirror_output.txt"
-    
+
     echo "Mirroring VM image to GHCR..."
-    
+
     # Validate preconditions if using standard origin
     if [[ "${RBRR_CHOSEN_VMIMAGE_FQIN}" =~ ^"${RBRR_CHOSEN_VMIMAGE_ORIGIN}:" ]]; then
         if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
@@ -321,20 +321,20 @@ function rbv_mirror() {
                 bcu_die "Failed to query origin image"
             fi
             zrbv_origin_sha=`cat "${zrbv_temp_file}"`
-            
+
             if [[ "${zrbv_origin_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
                 bcu_die "RBRR_CHOSEN_VMIMAGE_SHA (${RBRR_CHOSEN_VMIMAGE_SHA}) does not match origin SHA (${zrbv_origin_sha}). Run rbv_check first"
             fi
         fi
     fi
-    
+
     # Generate GHCR tag
     zrbv_ghcr_tag=`zrbv_generate_mirror_tag`
-    
+
     # Check if already mirrored
     echo "Checking if already mirrored to ${zrbv_ghcr_tag}..."
     crane digest "${zrbv_ghcr_tag}" > "${zrbv_temp_file}" 2>&1
-    
+
     if [[ -s "${zrbv_temp_file}" ]]; then
         zrbv_ghcr_sha=`cat "${zrbv_temp_file}"`
         if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]] && [[ "${zrbv_ghcr_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
@@ -343,11 +343,11 @@ function rbv_mirror() {
         echo "Image already mirrored with matching SHA"
         return 0
     fi
-    
+
     # Mirror the image
     echo "Copying ${RBRR_CHOSEN_VMIMAGE_FQIN} to ${zrbv_ghcr_tag}..."
     crane copy "${RBRR_CHOSEN_VMIMAGE_FQIN}" "${zrbv_ghcr_tag}" || bcu_die "Failed to copy image"
-    
+
     # Verify the copy if SHA is defined
     if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
         crane digest "${zrbv_ghcr_tag}" > "${zrbv_temp_file}" 2>&1
@@ -355,25 +355,25 @@ function rbv_mirror() {
             bcu_die "Failed to query mirrored image"
         fi
         zrbv_ghcr_sha=`cat "${zrbv_temp_file}"`
-        
+
         if [[ "${zrbv_ghcr_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
             bcu_die "Mirrored image SHA (${zrbv_ghcr_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_SHA})"
         fi
     fi
-    
+
     # Verify podman sees it correctly
     echo "Verifying podman machine init with mirrored image..."
     podman machine init --image "${RBRR_CHOSEN_VMIMAGE_FQIN}" test-mirror > "${zrbv_temp_file}" 2>&1
     cat "${zrbv_temp_file}" | ./Tools/rbupmis_Scrub.sh > "${RBV_TEMP_DIR}/rbv_mirror_sha.txt" 2>&1
     podman machine rm -f test-mirror >/dev/null 2>&1
-    
+
     if [[ -s "${RBV_TEMP_DIR}/rbv_mirror_sha.txt" ]]; then
         zrbv_init_sha=`cat "${RBV_TEMP_DIR}/rbv_mirror_sha.txt"`
         if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]] && [[ "${zrbv_init_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
             bcu_die "Podman init SHA (${zrbv_init_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_SHA})"
         fi
     fi
-    
+
     echo "Mirror successful!"
 }
 
