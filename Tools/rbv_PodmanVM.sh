@@ -31,6 +31,11 @@ ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
 ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
 ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
 
+ZRBV_STASH_INIT_STDOUT="${RBV_TEMP_DIR}/stash_init_stdout.txt"
+ZRBV_STASH_INIT_STDERR="${RBV_TEMP_DIR}/stash_init_stderr.txt"
+ZRBV_OPERATIONAL_INIT_STDOUT="${RBV_TEMP_DIR}/operational_init_stdout.txt"
+ZRBV_OPERATIONAL_INIT_STDERR="${RBV_TEMP_DIR}/operational_init_stderr.txt"
+
 ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
 
@@ -102,6 +107,24 @@ zrbv_remove_vm() {
   else
     bcu_info             "VM $vm_name does not exist. Nothing to remove."
   fi
+}
+
+# Reset stash VM - stop, remove, and reinit with captured output
+zrbv_reset_stash() {
+  bcu_step "Stopping stash VM..."
+  podman machine stop "$RBRR_STASH_MACHINE" || bcu_warn "Failed to stop stash VM"
+
+  bcu_step "Removing stash VM..."
+  podman machine rm -f "$RBRR_STASH_MACHINE" || bcu_warn "Failed to remove stash VM"
+
+  bcu_step "Creating stash VM with natural podman init..."
+  podman machine init --log-level=debug "$RBRR_STASH_MACHINE" \
+    > "$ZRBV_STASH_INIT_STDOUT" 2> "$ZRBV_STASH_INIT_STDERR"
+
+  bcu_step "Starting stash VM..."
+  podman machine start "$RBRR_STASH_MACHINE" || bcu_die "Failed to start stash VM"
+
+  return 0
 }
 
 # Install crane in VM
@@ -197,19 +220,12 @@ rbv_check() {
   # Perform command
   zrbv_validate_pat
 
-  bcu_step "Removing any existing stash VM..."
-  zrbv_remove_vm "$RBRR_STASH_MACHINE"
-
-  bcu_step "Creating stash VM with natural podman init..."
-  podman machine init "$RBRR_STASH_MACHINE" > "$ZRBV_INIT_OUTPUT_FILE" 2>&1
+  zrbv_reset_stash || bcu_die "Failed to reset stash VM"
 
   bcu_step "Parsing 'Looking up' line for actual tag..."
-  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_INIT_OUTPUT_FILE")")
+  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_STASH_INIT_STDOUT")")
   local natural_version=$(zrbv_extract_version "$natural_tag")
   bcu_info "Natural choice: $natural_tag"
-
-  bcu_step "Starting stash VM..."
-  podman machine start "$RBRR_STASH_MACHINE"
 
   bcu_step "Installing crane in userspace..."
   zrbv_install_crane  "$RBRR_STASH_MACHINE"
@@ -271,17 +287,34 @@ rbv_stash() {
   # Perform command
   zrbv_validate_pat
 
+  bcu_step "Stopping operational VM..."
+  podman machine stop "$RBRR_OPERATIONAL_MACHINE" || bcu_warn "Failed to stop operational VM"
+
   bcu_step "Removing operational VM..."
-  zrbv_remove_vm "$RBRR_OPERATIONAL_MACHINE"
+  podman machine rm -f "$RBRR_OPERATIONAL_MACHINE" || bcu_warn "Failed to remove operational VM"
 
-  bcu_step "Removing stash VM..."
-  zrbv_remove_vm "$RBRR_STASH_MACHINE"
+  bcu_step "Creating operational VM with natural podman init..."
+  podman machine init --log-level=debug "$RBRR_OPERATIONAL_MACHINE" \
+    > "$ZRBV_OPERATIONAL_INIT_STDOUT" 2> "$ZRBV_OPERATIONAL_INIT_STDERR"
 
-  bcu_step "Creating stash VM with natural podman init..."
-  podman machine init "$RBRR_STASH_MACHINE" > "$ZRBV_INIT_OUTPUT_FILE" 2>&1
+  bcu_step "Starting operational VM..."
+  podman machine start "$RBRR_OPERATIONAL_MACHINE"
+
+  bcu_step "Stopping operational VM to proceed with stash..."
+  podman machine stop "$RBRR_OPERATIONAL_MACHINE"
+
+  zrbv_reset_stash || bcu_die "Failed to reset stash VM"
+
+  bcu_step "Comparing operational and stash init stdout..."
+  if [[ "$(cat ${ZRBV_OPERATIONAL_INIT_STDOUT})" == "$(cat ${ZRBV_STASH_INIT_STDOUT})" ]]; then
+    bcu_info "Init outputs match"
+  else
+    bcu_warn "Init output mismatch detected!"
+    bcu_die "Operational and stash VMs have different init outputs"
+  fi
 
   bcu_step "Parsing init output for tag..."
-  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_INIT_OUTPUT_FILE")")
+  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_STASH_INIT_STDOUT")")
   local natural_version=$(zrbv_extract_version "$natural_tag")
   bcu_info "Natural tag: $natural_tag"
 
@@ -289,9 +322,6 @@ rbv_stash() {
   local expected_tag="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
   test "$natural_tag" = "$expected_tag" || \
     bcu_die "Natural choice ($natural_tag) doesn't match expected ($expected_tag)"
-
-  bcu_step "Starting stash VM..."
-  podman machine start "$RBRR_STASH_MACHINE"
 
   bcu_step "Installing crane in userspace..."
   zrbv_install_crane  "$RBRR_STASH_MACHINE"
