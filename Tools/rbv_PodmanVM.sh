@@ -149,8 +149,9 @@ zrbv_reset_stash() {
 
   bcu_step "Creating stash VM with natural podman init..."
   podman machine init --log-level=debug "$RBRR_STASH_MACHINE"      \
-                                     >  "$ZRBV_STASH_INIT_STDOUT"  \
-                                     2> "$ZRBV_STASH_INIT_STDERR"
+                                     2> "$ZRBV_STASH_INIT_STDERR"  \
+    ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"  \
+    || bcu_die "Bad init."
 
   bcu_step "Starting stash VM..."
   podman machine start "$RBRR_STASH_MACHINE" || bcu_die "Failed to start stash VM"
@@ -300,7 +301,7 @@ rbv_check() {
     if [ "$natural_tag" != "$expected_tag" ]; then
       bcu_info "Status: UPDATE_AVAILABLE (newer version available)"
     else
-      bcu_info "Status: NOT_MIRRORED (need to run rbv_stash)"
+      bcu_info "Status: NOT_MIRRORED (need to run rbv_mirror)"
     fi
   fi
 
@@ -310,7 +311,7 @@ rbv_check() {
   bcu_success "Check complete"
 }
 
-rbv_stash() {
+rbv_mirror() {
   # Handle documentation mode
   bcu_doc_brief "Validate RBRR_CHOSEN values and create GHCR mirror"
   bcu_doc_lines "Ensures RBRR_CHOSEN values match podman's natural choice"
@@ -325,8 +326,9 @@ rbv_stash() {
 
   bcu_step "Creating operational VM with natural podman init..."
   podman machine init --log-level=debug "$RBRR_OPERATIONAL_MACHINE"     \
-                                     >  "$ZRBV_OPERATIONAL_INIT_STDOUT" \
-                                     2> "$ZRBV_OPERATIONAL_INIT_STDERR"
+                                     2> "$ZRBV_OPERATIONAL_INIT_STDERR" \
+    ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_OPERATIONAL_INIT_STDOUT" \
+    || bcu_die "Bad init."
 
   bcu_step "Starting operational VM..."
   podman machine start "$RBRR_OPERATIONAL_MACHINE"
