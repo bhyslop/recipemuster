@@ -118,8 +118,9 @@ zrbv_reset_stash() {
   podman machine rm -f "$RBRR_STASH_MACHINE" || bcu_warn "Failed to remove stash VM"
 
   bcu_step "Creating stash VM with natural podman init..."
-  podman machine init --log-level=debug "$RBRR_STASH_MACHINE" \
-    > "$ZRBV_STASH_INIT_STDOUT" 2> "$ZRBV_STASH_INIT_STDERR"
+  podman machine init --log-level=debug "$RBRR_STASH_MACHINE"      \
+                                     >  "$ZRBV_STASH_INIT_STDOUT"  \
+                                     2> "$ZRBV_STASH_INIT_STDERR"
 
   bcu_step "Starting stash VM..."
   podman machine start "$RBRR_STASH_MACHINE" || bcu_die "Failed to start stash VM"
@@ -144,10 +145,10 @@ zrbv_registry_login() {
 
   source "${RBRR_GITHUB_PAT_ENV}"
 
-  # Login with podman
+  bcu_step "Login with podman..."
   podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 
-  # Login with crane
+  bcu_step "Login with crane..."
   podman machine ssh "$vm_name" "crane auth login ${ZRBV_GIT_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}"
 }
 
@@ -294,8 +295,9 @@ rbv_stash() {
   podman machine rm -f "$RBRR_OPERATIONAL_MACHINE" || bcu_warn "Failed to remove operational VM"
 
   bcu_step "Creating operational VM with natural podman init..."
-  podman machine init --log-level=debug "$RBRR_OPERATIONAL_MACHINE" \
-    > "$ZRBV_OPERATIONAL_INIT_STDOUT" 2> "$ZRBV_OPERATIONAL_INIT_STDERR"
+  podman machine init --log-level=debug "$RBRR_OPERATIONAL_MACHINE"     \
+                                     >  "$ZRBV_OPERATIONAL_INIT_STDOUT" \
+                                     2> "$ZRBV_OPERATIONAL_INIT_STDERR"
 
   bcu_step "Starting operational VM..."
   podman machine start "$RBRR_OPERATIONAL_MACHINE"
@@ -386,7 +388,8 @@ rbv_init() {
 
   bcu_step "Writing brand file to -> ${ZRBV_EMPLACED_BRAND_FILE}"
   zrbv_generate_brand_file
-  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" < "${ZRBV_GENERATED_BRAND_FILE}"
+  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" \
+                                                       < "${ZRBV_GENERATED_BRAND_FILE}"
 
   bcu_step "Stopping VM..."
   podman machine stop "$RBRR_OPERATIONAL_MACHINE"
@@ -406,8 +409,9 @@ rbv_start() {
   podman machine start "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Reading brand file from -> ${ZRBV_EMPLACED_BRAND_FILE}"
-  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat ${ZRBV_EMPLACED_BRAND_FILE}" > "${ZRBV_FOUND_BRAND_FILE}" || \
-    bcu_die "Failed to read brand file. VM may not have been initialized with rbv_init"
+  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat ${ZRBV_EMPLACED_BRAND_FILE}" \
+                                                           > "${ZRBV_FOUND_BRAND_FILE}" || \
+    bcu_die "Failed to read brand file.  Is VM initialized?"
 
   bcu_step "Comparing generated and found brand files..."
   zrbv_generate_brand_file
@@ -440,6 +444,7 @@ rbv_stop() {
 
 # Execute command
 bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_validate_envvars "$@"
+
 
 # eof
 
