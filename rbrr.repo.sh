@@ -33,35 +33,6 @@ export RBRR_CHOSEN_VMIMAGE_FQIN=${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODM
 export RBRR_CHOSEN_VMIMAGE_SHA=                                   # concretize, eventually
 export RBRR_CHOSEN_IDENTITY=begining                              # concretize, eventually
 
-export RBRR_MACHINE_NAME=podman-machine-rbw
-
-# Determined from default podman machine startup chatter
-# 
-# Reference:
-#   Looking up Podman Machine image at quay.io/podman/machine-os-wsl:5.3 to create VM
-#   Getting image source signatures
-#   Copying blob sha256:6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
-#   Copying config sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-#   Writing manifest to image destination
-#
-#  https://quay.io/repository/podman/machine-os-wsl/manifest/sha256:da977f55af1f69b6e4655b5a8faccc47b40034b29740f2d50e2b4d33cc1a7e16
-
-# Base image reference
-# OUCH should I split the pure version part out?
-export RBRR_VMDIST_TAG=quay.io/podman/machine-os-wsl:5.3
-
-# Index manifest that lists available architectures (top level)
-export RBRR_VMDIST_INDEX_SHA=0bc492bd4071e8a2d84246dd6e67977b69ac7d0729591e46c0e28df166e97f84
-
-# Platform-specific manifest for x86_64 (what we use)
-export RBRR_VMDIST_X86_SHA=0bc492bd4071e8a2d84246dd6e67977b69ac7d0729591e46c0e28df166e97f84
-
-# Actual content blob SHA (the filesystem layer)
-export RBRR_VMDIST_BLOB_SHA=6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
-
-# Version and arch of utility for copying betwixt container registries
-export RBRR_VMDIST_CRANE=https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
-
 
 # File containing user specific secrets for accessing the container registry.  Must have
 # contents expressed as bash variables (i.e. no spaces around '=') as follows...
