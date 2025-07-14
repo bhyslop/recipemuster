@@ -60,6 +60,22 @@ zrbv_generate_brand_file() {
   echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
+# Confirm YES parameter or prompt user
+zrbv_confirm_yes() {
+  local confirm_param="$1"
+  
+  if [[ "$confirm_param" == "YES" ]]; then
+    return 0
+  fi
+  
+  read -p "Type YES to confirm: " confirm
+  if [[ "$confirm" == "YES" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 # Extract natural tag from podman init output
 zrbv_extract_natural_tag() {
   local init_output_file="$1"
@@ -97,9 +113,9 @@ zrbv_error_if_different() {
   else
     bcu_warn "File content mismatch detected!"
     bcu_info "File 1 ($file1) contents:"
-    cat "$file1"
+    cat              "$file1"
     bcu_info "File 2 ($file2) contents:"
-    cat "$file2"
+    cat              "$file2"
     return 1
   fi
 }
@@ -171,9 +187,9 @@ zrbv_registry_login() {
 
 zrbv_validate_envvars() {
   # Handle documentation mode
-  bcu_doc_env "RBV_TEMP_DIR               " "Empty temporary directory"
-  bcu_doc_env "RBV_RBRR_FILE              " "File containing the RBRR constants"
-  bcu_doc_env "RBV_RBRS_FILE              " "File containing the RBRS constants"
+  bcu_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
+  bcu_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
+  bcu_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
 
   bcu_env_done || return 0
 
@@ -203,8 +219,7 @@ rbv_nuke() {
   bvu_dir_exists "${RBRS_PODMAN_ROOT_DIR}" || bcu_warn "Podman directory not found."
 
   bcu_step "WARNING: This will destroy all podman VMs and cache found in ${RBRS_PODMAN_ROOT_DIR}"
-  read -p "Type YES to confirm: " confirm
-  test "$confirm" = "YES" || bcu_die "Nuke not confirmed, exit without change"
+  zrbv_confirm_yes "$1" || bcu_die "Nuke not confirmed, exit without change"
 
   bcu_step "Stopping all containers..."
   podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed; okay if machine not started."
@@ -246,7 +261,7 @@ rbv_check() {
   zrbv_install_crane  "$RBRR_STASH_MACHINE"
   zrbv_registry_login "$RBRR_STASH_MACHINE"
 
-  bcu_step "Using crane to get digest of natural choice..."
+  bcu_step "Using crane to get digest of natural_tag -> $natural_tag"
   podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag" > "${ZRBV_CRANE_DIGEST_FILE}"
   local natural_digest=$(cat "${ZRBV_CRANE_DIGEST_FILE}")
   bcu_info "Natural digest: $natural_digest"
