@@ -36,6 +36,13 @@ ZRBV_STASH_INIT_STDERR="${RBV_TEMP_DIR}/stash_init_stderr.txt"
 ZRBV_OPERATIONAL_INIT_STDOUT="${RBV_TEMP_DIR}/operational_init_stdout.txt"
 ZRBV_OPERATIONAL_INIT_STDERR="${RBV_TEMP_DIR}/operational_init_stderr.txt"
 
+ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
+ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
+ZRBV_CRANE_DIGEST_FILE="${RBV_TEMP_DIR}/crane_digest.txt"
+ZRBV_CRANE_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/crane_manifest_check.txt"
+ZRBV_CRANE_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_copy_output.txt"
+ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
+
 ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
 
@@ -53,37 +60,48 @@ zrbv_generate_brand_file() {
   echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
-# Parse podman init output for natural choice
-zrbv_parse_natural_choice() {
-  local init_output="$1"
+# Extract natural tag from podman init output
+zrbv_extract_natural_tag() {
+  local init_output_file="$1"
 
-  # Look for "Looking up Podman Machine image at" line
-  local natural_tag=$(echo "$init_output" | grep "Looking up Podman Machine image at" | \
-    sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/')
+  grep "Looking up Podman Machine image at" "$init_output_file" | \
+    sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/' \
+    > "${ZRBV_NATURAL_TAG_FILE}"
 
-  test -n "$natural_tag" || bcu_die "Failed to parse natural choice from init output"
-  echo "$natural_tag"
+  test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
-# Extract version from tag (e.g., "5.5" from "quay.io/podman/machine-os-wsl:5.5")
-zrbv_extract_version() {
-    local tag="$1"
-    echo "$tag" | cut -d: -f2
-}
+# Generate mirror tag using yq and RBRR values
+zrbv_generate_mirror_tag() {
+  # Get digest and extract short SHA
+  local sha_short=$(yq eval '.digest' "${ZRBV_CRANE_DIGEST_FILE}" | cut -c8-19)
 
-# Generate canonical stash name
-zrbv_generate_stash_name() {
-  local registry="$1"
-  local repo="$2"
-  local tag="$3"
-  local sha_short="$4"
+  # Build canonical mirror tag
+  local raw="stash-quay.io-podman-machine-os-wsl-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
 
-  local raw="stash-${registry}-${repo}-${tag}-${sha_short}"
-
+  # Sanitize for use as tag
   raw=${raw//\//-}
   raw=${raw//:/-}
 
-  printf '%s\n' "$raw"
+  # Write full FQIN to file
+  echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
+}
+
+# Compare two files and return error if different
+zrbv_error_if_different() {
+  local file1="$1"
+  local file2="$2"
+
+  if [[ "$(cat "$file1")" == "$(cat "$file2")" ]]; then
+    return 0
+  else
+    bcu_warn "File content mismatch detected!"
+    bcu_info "File 1 contents:"
+    cat "$file1"
+    bcu_info "File 2 contents:"
+    cat "$file2"
+    return 1
+  fi
 }
 
 # Validate GitHub PAT environment
@@ -111,11 +129,7 @@ zrbv_remove_vm() {
 
 # Reset stash VM - stop, remove, and reinit with captured output
 zrbv_reset_stash() {
-  bcu_step "Stopping stash VM..."
-  podman machine stop "$RBRR_STASH_MACHINE" || bcu_warn "Failed to stop stash VM"
-
-  bcu_step "Removing stash VM..."
-  podman machine rm -f "$RBRR_STASH_MACHINE" || bcu_warn "Failed to remove stash VM"
+  zrbv_remove_vm "$RBRR_STASH_MACHINE"
 
   bcu_step "Creating stash VM with natural podman init..."
   podman machine init --log-level=debug "$RBRR_STASH_MACHINE"      \
@@ -133,7 +147,7 @@ zrbv_install_crane() {
   local vm_name="$1"
 
   bcu_info "Installing crane in $vm_name..."
-  podman machine ssh "$vm_name" "curl -o crane.tar.gz -L $ZRBV_CRANE_URL"
+  podman machine ssh "$vm_name" "curl -o crane.tar.gz -L ${RBRR_CRANE_TAR_GZ}"
   podman machine ssh "$vm_name" "sudo tar -xzf crane.tar.gz -C /usr/local/bin/ crane"
   podman machine ssh "$vm_name" "rm crane.tar.gz"
   podman machine ssh "$vm_name" "crane version"
@@ -214,7 +228,7 @@ rbv_check() {
   bcu_doc_brief "Compare RBRR_CHOSEN values against podman's natural choice"
   bcu_doc_lines "Creates temporary stash VM to discover latest"
   bcu_doc_lines "Compares against RBRR_CHOSEN environment variables"
-  bcu_doc_lines "Shows what stash name would be for latest version"
+  bcu_doc_lines "Shows what mirror tag would be for latest version"
   bcu_doc_lines "Does NOT affect operational VM"
   bcu_doc_shown || return 0
 
@@ -223,9 +237,9 @@ rbv_check() {
 
   zrbv_reset_stash || bcu_die "Failed to reset stash VM"
 
-  bcu_step "Parsing 'Looking up' line for actual tag..."
-  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_STASH_INIT_STDOUT")")
-  local natural_version=$(zrbv_extract_version "$natural_tag")
+  bcu_step "Extracting natural tag from init output..."
+  zrbv_extract_natural_tag "$ZRBV_STASH_INIT_STDOUT"
+  local natural_tag=$(cat "${ZRBV_NATURAL_TAG_FILE}")
   bcu_info "Natural choice: $natural_tag"
 
   bcu_step "Installing crane in userspace..."
@@ -233,15 +247,16 @@ rbv_check() {
   zrbv_registry_login "$RBRR_STASH_MACHINE"
 
   bcu_step "Using crane to get digest of natural choice..."
-  local natural_digest=$(podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag")
-  local natural_sha_short=$(echo "$natural_digest" | cut -c8-19)
+  podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag" > "${ZRBV_CRANE_DIGEST_FILE}"
+  local natural_digest=$(cat "${ZRBV_CRANE_DIGEST_FILE}")
   bcu_info "Natural digest: $natural_digest"
 
-  bcu_step "Comparing natural choice with RBRR_CHOSEN_PODMAN_VERSION..."
-  if [ "$natural_version" = "$RBRR_CHOSEN_PODMAN_VERSION" ]; then
-    bcu_info "Version matches: $natural_version"
+  bcu_step "Comparing natural tag with expected RBRR values..."
+  local expected_tag="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
+  if [ "$natural_tag" = "$expected_tag" ]; then
+    bcu_info "Tag matches expected: $expected_tag"
   else
-    bcu_warn "Version mismatch: natural=$natural_version, chosen=$RBRR_CHOSEN_PODMAN_VERSION"
+    bcu_warn "Tag mismatch: natural=$natural_tag, expected=$expected_tag"
   fi
 
   bcu_step "Comparing digest with RBRR_CHOSEN_VMIMAGE_SHA..."
@@ -255,19 +270,22 @@ rbv_check() {
     bcu_info "No RBRR_CHOSEN_VMIMAGE_SHA to compare"
   fi
 
-  bcu_step "Generating canonical stash name for latest..."
-  local stash_name=$(zrbv_generate_stash_name "quay.io" "podman/machine-os-wsl" "$natural_version" "$natural_sha_short")
-  local stash_fqin="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${stash_name}"
-  bcu_info "Canonical stash name: $stash_fqin"
+  bcu_step "Generating canonical mirror tag for latest..."
+  zrbv_generate_mirror_tag
+  local mirror_fqin=$(cat "${ZRBV_MIRROR_TAG_FILE}")
+  bcu_info "Canonical mirror tag: $mirror_fqin"
 
-  bcu_step "Checking if this stash exists in GHCR..."
-  if podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null 2>&1; then
-    bcu_info "Status: CURRENT (stash exists)"
+  bcu_step "Checking if this mirror exists in GHCR..."
+  podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $mirror_fqin" \
+    > "${ZRBV_CRANE_MANIFEST_CHECK_FILE}" 2>&1
+
+  if [ $? -eq 0 ]; then
+    bcu_info "Status: CURRENT (mirror exists)"
   else
-    if [ "$natural_version" != "$RBRR_CHOSEN_PODMAN_VERSION" ]; then
-      bcu_info "Status: UPDATE_AVAILABLE (newer version: $natural_version)"
+    if [ "$natural_tag" != "$expected_tag" ]; then
+      bcu_info "Status: UPDATE_AVAILABLE (newer version available)"
     else
-      bcu_info "Status: NOT_STASHED (need to run rbv_stash)"
+      bcu_info "Status: NOT_MIRRORED (need to run rbv_stash)"
     fi
   fi
 
@@ -279,7 +297,7 @@ rbv_check() {
 
 rbv_stash() {
   # Handle documentation mode
-  bcu_doc_brief "Validate RBRR_CHOSEN values and create GHCR stash"
+  bcu_doc_brief "Validate RBRR_CHOSEN values and create GHCR mirror"
   bcu_doc_lines "Ensures RBRR_CHOSEN values match podman's natural choice"
   bcu_doc_lines "Copies exact version to GHCR with canonical name"
   bcu_doc_lines "Destructive: removes all VMs before starting"
@@ -288,11 +306,7 @@ rbv_stash() {
   # Perform command
   zrbv_validate_pat
 
-  bcu_step "Stopping operational VM..."
-  podman machine stop "$RBRR_OPERATIONAL_MACHINE" || bcu_warn "Failed to stop operational VM"
-
-  bcu_step "Removing operational VM..."
-  podman machine rm -f "$RBRR_OPERATIONAL_MACHINE" || bcu_warn "Failed to remove operational VM"
+  zrbv_remove_vm "$RBRR_OPERATIONAL_MACHINE"
 
   bcu_step "Creating operational VM with natural podman init..."
   podman machine init --log-level=debug "$RBRR_OPERATIONAL_MACHINE"     \
@@ -308,19 +322,15 @@ rbv_stash() {
   zrbv_reset_stash || bcu_die "Failed to reset stash VM"
 
   bcu_step "Comparing operational and stash init stdout..."
-  if [[ "$(cat ${ZRBV_OPERATIONAL_INIT_STDOUT})" == "$(cat ${ZRBV_STASH_INIT_STDOUT})" ]]; then
-    bcu_info "Init outputs match"
-  else
-    bcu_warn "Init output mismatch detected!"
+  zrbv_error_if_different "${ZRBV_OPERATIONAL_INIT_STDOUT}" "${ZRBV_STASH_INIT_STDOUT}" || \
     bcu_die "Operational and stash VMs have different init outputs"
-  fi
 
-  bcu_step "Parsing init output for tag..."
-  local natural_tag=$(zrbv_parse_natural_choice "$(cat "$ZRBV_STASH_INIT_STDOUT")")
-  local natural_version=$(zrbv_extract_version "$natural_tag")
+  bcu_step "Extracting tag from init output..."
+  zrbv_extract_natural_tag "$ZRBV_STASH_INIT_STDOUT"
+  local natural_tag=$(cat "${ZRBV_NATURAL_TAG_FILE}")
   bcu_info "Natural tag: $natural_tag"
 
-  bcu_step "Validating matches RBRR_CHOSEN_PODMAN_VERSION..."
+  bcu_step "Validating matches RBRR_CHOSEN values..."
   local expected_tag="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
   test "$natural_tag" = "$expected_tag" || \
     bcu_die "Natural choice ($natural_tag) doesn't match expected ($expected_tag)"
@@ -330,8 +340,8 @@ rbv_stash() {
   zrbv_registry_login "$RBRR_STASH_MACHINE"
 
   bcu_step "Getting digest with crane..."
-  local digest=$(podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag")
-  local sha_short=$(echo "$digest" | cut -c8-19)
+  podman machine ssh "$RBRR_STASH_MACHINE" "crane digest $natural_tag" > "${ZRBV_CRANE_DIGEST_FILE}"
+  local digest=$(cat "${ZRBV_CRANE_DIGEST_FILE}")
   bcu_info "Digest: $digest"
 
   bcu_step "Validating matches RBRR_CHOSEN_VMIMAGE_SHA..."
@@ -340,27 +350,32 @@ rbv_stash() {
       bcu_die "Digest ($digest) doesn't match RBRR_CHOSEN_VMIMAGE_SHA ($RBRR_CHOSEN_VMIMAGE_SHA)"
   fi
 
-  bcu_step "Generating canonical stash name..."
-  local stash_name=$(zrbv_generate_stash_name "quay.io" "podman/machine-os-wsl" "$natural_version" "$sha_short")
-  local stash_fqin="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${stash_name}"
-  bcu_info "Stash FQIN: $stash_fqin"
+  bcu_step "Generating canonical mirror tag..."
+  zrbv_generate_mirror_tag
+  local mirror_fqin=$(cat "${ZRBV_MIRROR_TAG_FILE}")
+  bcu_info "Mirror FQIN: $mirror_fqin"
 
   bcu_step "Checking if already exists in GHCR..."
-  if podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null 2>&1; then
-    bcu_info "Stash already exists, skipping copy"
+  podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $mirror_fqin" \
+    > "${ZRBV_CRANE_MANIFEST_CHECK_FILE}" 2>&1
+
+  if [ $? -eq 0 ]; then
+    bcu_info "Mirror already exists, skipping copy"
   else
     bcu_step "Copying with crane from quay to GHCR..."
-    podman machine ssh "$RBRR_STASH_MACHINE" "crane copy $natural_tag $stash_fqin"
+    podman machine ssh "$RBRR_STASH_MACHINE" "crane copy $natural_tag $mirror_fqin" \
+      > "${ZRBV_CRANE_COPY_OUTPUT_FILE}" 2>&1
 
     bcu_step "Verifying copy with crane manifest..."
-    podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $stash_fqin" >/dev/null || \
-      bcu_die "Failed to verify stash in GHCR"
+    podman machine ssh "$RBRR_STASH_MACHINE" "crane manifest $mirror_fqin" \
+      > "${ZRBV_CRANE_VERIFY_OUTPUT_FILE}" 2>&1 || \
+      bcu_die "Failed to verify mirror in GHCR"
   fi
 
   bcu_step "Stopping stash VM..."
   podman machine stop "$RBRR_STASH_MACHINE"
 
-  bcu_success "Stash complete: $stash_fqin"
+  bcu_success "Stash complete: $mirror_fqin"
 }
 
 rbv_init() {
@@ -416,16 +431,8 @@ rbv_start() {
   bcu_step "Comparing generated and found brand files..."
   zrbv_generate_brand_file
 
-  if [[ "$(cat ${ZRBV_GENERATED_BRAND_FILE})" == "$(cat ${ZRBV_FOUND_BRAND_FILE})" ]]; then
-    echo "Files are identical"
-  else
-    bcu_warn "Brand file mismatch detected!"
-    bcu_info "Expected:"
-    cat "${ZRBV_GENERATED_BRAND_FILE}"
-    bcu_info "Actual:"
-    cat "${ZRBV_FOUND_BRAND_FILE}"
+  zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" || \
     bcu_die "Brand file doesn't match current RBRR_CHOSEN values"
-  fi
 
   bcu_success "VM started and brand verified"
 }
