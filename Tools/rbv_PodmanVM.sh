@@ -38,6 +38,7 @@ ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
 ZRBV_OPERATIONAL_INIT_STDOUT="${RBV_TEMP_DIR}/operational_init_stdout.txt"
 ZRBV_OPERATIONAL_INIT_STDERR="${RBV_TEMP_DIR}/operational_init_stderr.txt"
 
+ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
 ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
 ZRBV_CRANE_ORIGIN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_origin_digest.txt"
@@ -310,17 +311,23 @@ function rbv_check() {
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
 
-  bcu_step "Prepare mirror tag..." #
+  bcu_step "Prepare ultra bash safe alternatives..." #
   zrbv_generate_mirror_tag
   local   mirror_tag
   read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
+  
+  local   origin_digest
+  read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"    
+
+  local   proposed_identity; date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_FILE}"
+  read -r proposed_identity                        < "${ZRBV_IDENTITY_FILE}"
 
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
     bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
     ((warning_count++)) || true
-    bcu_code "export RBRR_CHOSEN_VMIMAGE_SHA=$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
-    bcu_warn "Did we get here?"
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_SHA=${origin_digest}"
+    bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}"
   fi
 
   bcu_warn "STOPPING HERE TO FOCUS ON BASE CASES."
