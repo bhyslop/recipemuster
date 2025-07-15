@@ -318,7 +318,7 @@ function rbv_check() {
 
   local     chosen_digest="NOT_FOUND"
   if [[ -f                  "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" ]]; then
-    read -r chosen_digest < "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}"
+    read -r chosen_digest < "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed chosen digest retrieve"
   fi
 
   bcu_step "Prepare ultra bash safe latest vars..."
