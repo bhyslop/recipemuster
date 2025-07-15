@@ -27,11 +27,10 @@ export RBRR_DNS_SERVER=8.8.8.8
 export RBRR_IGNITE_MACHINE_NAME=rbw-igniter
 export RBRR_DEPLOY_MACHINE_NAME=rbw-deploy
 export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
-export RBRR_CHOSEN_PODMAN_VERSION=5.5                             # Chosen podman version (e.g. 5.4 or 5.5)
-export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Either 'quay.io/podman/machine-os' or 'quay.io/podman/machine-os-wsl'
-export RBRR_CHOSEN_VMIMAGE_FQIN=${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION} # concretize, eventually
-export RBRR_CHOSEN_VMIMAGE_DIGEST=                                # concretize, eventually
-export RBRR_CHOSEN_IDENTITY=begining                              # concretize, eventually
+export RBRR_CHOSEN_PODMAN_VERSION=5.5
+export RBRR_CHOSEN_VMIMAGE_FQIN=ghcr.io/bhyslop/recipemuster:mirror-quay.io-podman-machine-os-wsl-5.5-6c10a974aa7c
+export RBRR_CHOSEN_VMIMAGE_DIGEST=sha256:6c10a974aa7c16ff4834b28f318c200015569938f625f09ae4df33799227bdfe
+export RBRR_CHOSEN_IDENTITY=20250715-111441
 
 
 # File containing user specific secrets for accessing the container registry.  Must have
