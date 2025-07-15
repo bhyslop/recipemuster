@@ -27,6 +27,8 @@ source "${ZRBV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 # Module Variables (ZRBV_*)
 ZRBV_GIT_REGISTRY="ghcr.io"
 
+ZRBV_VERSION_FILE="${RBV_TEMP_DIR}/podman_version.txt"
+
 ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
 ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
 ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
@@ -50,6 +52,23 @@ ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
 ######################################################################
 # Internal Functions (zrbv_*)
+
+function zrbv_verify_podman_version() {
+  podman --version 2>/dev/null > "${ZRBV_VERSION_FILE}" || bcu_die "Podman not in PATH"
+  
+  local host_podman_version
+  read -r _ _ host_podman_version < "${ZRBV_VERSION_FILE}"
+
+  local host_podman_mm="${host_podman_version%.*}"
+
+  bcu_step "Podman version check: chosen is $RBRR_CHOSEN_PODMAN_VERSION, found is ${host_podman_mm}"
+
+  if [[ "$host_podman_mm" != "$RBRR_CHOSEN_PODMAN_VERSION" ]]; then
+    bcu_die "Podman version mismatch: host has ${host_podman_mm};" "  RBRR_CHOSEN_PODMAN_VERSION=${RBRR_CHOSEN_PODMAN_VERSION}"
+  fi
+
+  return 0
+}
 
 # Generate brand file content
 zrbv_generate_brand_file() {
@@ -150,7 +169,7 @@ zrbv_remove_vm() {
   fi
 }
 
-# rbv_stash_create - Create a fresh stash machine with crane installed
+# Create a fresh stash machine with crane installed
 function rbv_stash_create() {
   bcu_info "Creating stash machine: $RBRR_STASH_MACHINE"
 
@@ -248,31 +267,11 @@ rbv_nuke() {
   bcu_success "Podman VM environment reset complete"
 }
 
-function zrbv_verify_podman_version() {
-  local host_podman_full=$(podman --version 2>/dev/null) || bcu_die "Podman not in PATH"
-  
-  local host_podman_version
-  read -r _ _ host_podman_version <<< "$host_podman_full"
-
-  local host_podman_mm="${host_podman_version%.*}"
-
-  bcu_step "Podman version check: chosen is $RBRR_CHOSEN_PODMAN_VERSION, found is ${host_podman_mm}"
-
-  if [[ "$host_podman_mm" != "$RBRR_CHOSEN_PODMAN_VERSION" ]]; then
-    bcu_die "Podman version mismatch: host has ${host_podman_mm};" "  RBRR_CHOSEN_PODMAN_VERSION=${RBRR_CHOSEN_PODMAN_VERSION}"
-  fi
-
-  return 0
-}
-
 function rbv_check() {
   local warning_count=0
 
   bcu_step "Verify host Podman major.minor version..." #
   zrbv_verify_podman_version || bcu_die "Podman version mismatch."
-
-  false
-  bcu_die "Should not get here."
 
   bcu_step "Checking for newer VM images..." #
 
