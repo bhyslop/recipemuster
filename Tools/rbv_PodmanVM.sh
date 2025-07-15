@@ -259,6 +259,8 @@ function rbv_check() {
 
   local host_podman_mm="${host_podman_version%.*}"
 
+  bcu_step "Podman version check: chosen is $RBRR_CHOSEN_PODMAN_VERSION, found is ${host_podman_mm}"
+
   if [[ "$host_podman_mm" != "$RBRR_CHOSEN_PODMAN_VERSION" ]]; then
     bcu_die "Podman version mismatch: host has ${host_podman_mm};" "  RBRR_CHOSEN_PODMAN_VERSION=${RBRR_CHOSEN_PODMAN_VERSION}"
   fi
