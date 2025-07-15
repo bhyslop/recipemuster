@@ -425,7 +425,7 @@ rbv_init() {
   podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
     bcu_die "Operational VM already exists. Remove it first with rbv_nuke or manually"
 
-  bcu_step "Initializing: podman machine init with ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
+  bcu_step "Initializing: init machie from image: ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
   podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" \
                                             "${RBRR_DEPLOY_MACHINE_NAME}"      \
                                           2> "$ZRBV_DEPLOY_INIT_STDERR"        \
