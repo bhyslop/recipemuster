@@ -30,7 +30,7 @@ export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases
 export RBRR_CHOSEN_PODMAN_VERSION=5.5                             # Chosen podman version (e.g. 5.4 or 5.5)
 export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Either 'quay.io/podman/machine-os' or 'quay.io/podman/machine-os-wsl'
 export RBRR_CHOSEN_VMIMAGE_FQIN=${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION} # concretize, eventually
-export RBRR_CHOSEN_VMIMAGE_SHA=                                   # concretize, eventually
+export RBRR_CHOSEN_VMIMAGE_DIGEST=                                # concretize, eventually
 export RBRR_CHOSEN_IDENTITY=begining                              # concretize, eventually
 
 

@@ -54,6 +54,29 @@ ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 ######################################################################
 # Internal Functions (zrbv_*)
 
+zrbv_validate_envvars() {
+  # Handle documentation mode
+  bcu_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
+  bcu_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
+  bcu_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
+
+  bcu_env_done || return 0
+
+  # Validate environment
+  bvu_dir_exists  "${RBV_TEMP_DIR}"
+  bvu_dir_empty   "${RBV_TEMP_DIR}"
+  bvu_file_exists "${RBV_RBRR_FILE}"
+  bvu_file_exists "${RBV_RBRS_FILE}"
+
+  source              "${RBV_RBRR_FILE}"
+  source "${ZRBV_SCRIPT_DIR}/rbrr.validator.sh"
+
+  source              "${RBV_RBRS_FILE}"
+  source "${ZRBV_SCRIPT_DIR}/rbrs.validator.sh"
+
+  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
+}
+
 function zrbv_verify_podman_version() {
   podman --version 2>/dev/null > "${ZRBV_VERSION_FILE}" || bcu_die "Podman not in PATH"
   
@@ -78,7 +101,7 @@ zrbv_generate_brand_file() {
   echo "PODMAN_VERSION: ${RBRR_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
   echo "VMIMAGE_ORIGIN: ${RBRR_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
   echo "VMIMAGE_FQIN:   ${RBRR_CHOSEN_VMIMAGE_FQIN}"     >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_SHA:    ${RBRR_CHOSEN_VMIMAGE_SHA}"      >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_DIGEST: ${RBRR_CHOSEN_VMIMAGE_DIGEST}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
   echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
@@ -211,29 +234,6 @@ zrbv_registry_login() {
 ######################################################################
 # External Functions (rbv_*)
 
-zrbv_validate_envvars() {
-  # Handle documentation mode
-  bcu_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
-  bcu_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
-  bcu_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
-
-  bcu_env_done || return 0
-
-  # Validate environment
-  bvu_dir_exists  "${RBV_TEMP_DIR}"
-  bvu_dir_empty   "${RBV_TEMP_DIR}"
-  bvu_file_exists "${RBV_RBRR_FILE}"
-  bvu_file_exists "${RBV_RBRS_FILE}"
-
-  source              "${RBV_RBRR_FILE}"
-  source "${ZRBV_SCRIPT_DIR}/rbrr.validator.sh"
-
-  source              "${RBV_RBRS_FILE}"
-  source "${ZRBV_SCRIPT_DIR}/rbrs.validator.sh"
-
-  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
-}
-
 rbv_nuke() {
   # Handle documentation mode
   bcu_doc_brief "Completely reset the podman virtual machine environment"
@@ -289,11 +289,11 @@ function rbv_check() {
   # In the glorious future, I'd like this to support other configurations:
   #
   # * Users can set their chosen FQIN to the quay.io tagged version and leave
-  #   their chosen SHA unset: go with God and latest!  I wish them the best of
+  #   their chosen digest unset: go with God and latest!  I wish them the best of
   #   luck with this.
   #
   # * Users can set their chosen FQIN to the quay.io tagged version but then also
-  #   configure their chosen SHA.  This and perhaps some deft chosen identity 
+  #   configure their chosen digest.  This and perhaps some deft chosen identity 
   #   can give them more information when checking available VM images: how old
   #   is their image if it isn't latest?  They assume the risk and obligation to
   #   manage their own cache and exposure to VM evolution.
@@ -311,7 +311,7 @@ function rbv_check() {
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
 
-  bcu_step "Prepare ultra bash safe alternatives..." #
+  bcu_step "Prepare ultra bash safe latest vars..." #
   zrbv_generate_mirror_tag
   local   mirror_tag
   read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
@@ -322,11 +322,13 @@ function rbv_check() {
   local   proposed_identity; date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_FILE}"
   read -r proposed_identity                        < "${ZRBV_IDENTITY_FILE}"
 
-  if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-    bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
+  if [[ -z "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
+    bcu_warn "RBRR_CHOSEN_VMIMAGE_DIGEST is not set!"
     ((warning_count++)) || true
+    bcu_code "# New contents for -> ${RBV_RBRR_FILE}"
+    bcu_code "#"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
-    bcu_code "export RBRR_CHOSEN_VMIMAGE_SHA=${origin_digest}"
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_DIGEST=${origin_digest}"
     bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}"
   fi
 
@@ -346,13 +348,13 @@ function rbv_check() {
     fi
   fi
 
-  bcu_info "Current configured SHA: ${RBRR_CHOSEN_VMIMAGE_SHA:-<not set>}"
+  bcu_info "Current configured SHA: ${RBRR_CHOSEN_VMIMAGE_DIGEST:-<not set>}"
   bcu_info "Latest upstream SHA: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
 
-  if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-    bcu_warn "ACTION REQUIRED: Set RBRR_CHOSEN_VMIMAGE_SHA to: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
+  if [[ -z "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
+    bcu_warn "ACTION REQUIRED: Set RBRR_CHOSEN_VMIMAGE_DIGEST to: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
     ((warning_count++)) || true
-  elif [[ "${RBRR_CHOSEN_VMIMAGE_SHA}" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
+  elif [[ "${RBRR_CHOSEN_VMIMAGE_DIGEST}" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
     bcu_info "UPDATE AVAILABLE: New SHA available: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
   else
     bcu_info "Up to date!"
@@ -382,7 +384,7 @@ function rbv_mirror() {
 
   # Validate preconditions if using standard origin
   if [[ "${RBRR_CHOSEN_VMIMAGE_FQIN}" =~ ^"${RBRR_CHOSEN_VMIMAGE_ORIGIN}:" ]]; then
-    if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
+    if [[ -n "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
       # Get origin SHA to verify
       crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" > "${zrbv_temp_file}" 2>&1
       if [[ ! -s "${zrbv_temp_file}" ]]; then
@@ -390,8 +392,8 @@ function rbv_mirror() {
       fi
       zrbv_origin_sha=`cat "${zrbv_temp_file}"`
 
-      if [[ "${zrbv_origin_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-        bcu_die "RBRR_CHOSEN_VMIMAGE_SHA (${RBRR_CHOSEN_VMIMAGE_SHA}) does not match origin SHA (${zrbv_origin_sha}). Run rbv_check first"
+      if [[ "${zrbv_origin_sha}" != "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
+        bcu_die "RBRR_CHOSEN_VMIMAGE_DIGEST (${RBRR_CHOSEN_VMIMAGE_DIGEST}) does not match origin SHA (${zrbv_origin_sha}). Run rbv_check first"
       fi
     fi
   fi
@@ -405,8 +407,8 @@ function rbv_mirror() {
 
   if [[ -s "${zrbv_temp_file}" ]]; then
     zrbv_ghcr_sha=`cat "${zrbv_temp_file}"`
-    if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]] && [[ "${zrbv_ghcr_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-      bcu_die "Existing GHCR image SHA (${zrbv_ghcr_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_SHA})"
+    if [[ -n "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]] && [[ "${zrbv_ghcr_sha}" != "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
+      bcu_die "Existing GHCR image SHA (${zrbv_ghcr_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_DIGEST})"
     fi
     echo "Image already mirrored with matching SHA"
     return 0
@@ -417,15 +419,15 @@ function rbv_mirror() {
   crane copy "${RBRR_CHOSEN_VMIMAGE_FQIN}" "${zrbv_ghcr_tag}" || bcu_die "Failed to copy image"
 
   # Verify the copy if SHA is defined
-  if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
+  if [[ -n "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
     crane digest "${zrbv_ghcr_tag}" > "${zrbv_temp_file}" 2>&1
     if [[ ! -s "${zrbv_temp_file}" ]]; then
       bcu_die "Failed to query mirrored image"
     fi
     zrbv_ghcr_sha=`cat "${zrbv_temp_file}"`
 
-    if [[ "${zrbv_ghcr_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-      bcu_die "Mirrored image SHA (${zrbv_ghcr_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_SHA})"
+    if [[ "${zrbv_ghcr_sha}" != "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
+      bcu_die "Mirrored image SHA (${zrbv_ghcr_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_DIGEST})"
     fi
   fi
 
@@ -437,8 +439,8 @@ function rbv_mirror() {
 
   if [[ -s "${RBV_TEMP_DIR}/rbv_mirror_sha.txt" ]]; then
     zrbv_init_sha=`cat "${RBV_TEMP_DIR}/rbv_mirror_sha.txt"`
-    if [[ -n "${RBRR_CHOSEN_VMIMAGE_SHA}" ]] && [[ "${zrbv_init_sha}" != "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
-      bcu_die "Podman init SHA (${zrbv_init_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_SHA})"
+    if [[ -n "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]] && [[ "${zrbv_init_sha}" != "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
+      bcu_die "Podman init SHA (${zrbv_init_sha}) does not match expected SHA (${RBRR_CHOSEN_VMIMAGE_DIGEST})"
     fi
   fi
 
