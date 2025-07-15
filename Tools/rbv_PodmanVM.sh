@@ -372,6 +372,11 @@ rbv_mirror() {
   bcu_step "Login to registry..."
   zrbv_registry_login "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login to registry"
 
+  local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
+  bcu_step "Querying origin ${origin_fqin}..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${origin_fqin}" \
+      > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
+
   bcu_step "Prepare mirror tag..."
   zrbv_generate_mirror_tag
   local   mirror_tag
@@ -379,12 +384,6 @@ rbv_mirror() {
 
   local   origin_digest
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
-
-  local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
-
-  bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${origin_fqin}" \
-      > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   bcu_step "Checking if mirror already exists..."
   if podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
