@@ -280,9 +280,6 @@ function rbv_check() {
   ### bcu_step "Prepare fresh ignite machine with crane..."
   ### rbv_ignite_create || bcu_die "Failed to create temp machine"
 
-  bcu_warn "STOPPING HERE TO COMMENT OUT ABOVE."
-  bcu_die "Should not get here."
-
   bcu_step "Querying origin ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..." #
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
@@ -290,9 +287,11 @@ function rbv_check() {
 
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
     bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
-    ((warning_count++))
+    ((warning_count++)) || true
+    bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_SHA=$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=<your-mirror-registry>/<image>:<tag>"
+    bcu_warn "Did we get here?"
   fi
 
   bcu_warn "STOPPING HERE TO FOCUS ON BASE CASES."
@@ -307,7 +306,7 @@ function rbv_check() {
 
     if [[ "$(cat ${ZRBV_CRANE_FQIN_DIGEST_FILE})" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
       bcu_warn "FQIN SHA ($(cat ${ZRBV_CRANE_FQIN_DIGEST_FILE})) differs from upstream SHA ($(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}))"
-      ((warning_count++))
+      ((warning_count++)) || true
     fi
   fi
 
@@ -316,7 +315,7 @@ function rbv_check() {
 
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
     bcu_warn "ACTION REQUIRED: Set RBRR_CHOSEN_VMIMAGE_SHA to: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
-    ((warning_count++))
+    ((warning_count++)) || true
   elif [[ "${RBRR_CHOSEN_VMIMAGE_SHA}" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
     bcu_info "UPDATE AVAILABLE: New SHA available: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
   else
