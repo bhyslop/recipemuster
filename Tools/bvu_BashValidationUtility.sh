@@ -71,7 +71,7 @@ bvu_val_string() {
   local val=$2
   local min=$3
   local max=$4
-  local default=$5
+  local default=${5-}  # empty permitted
 
   # Validate required parameters
   test -n "$varname" || bcu_die "varname parameter is required"
@@ -107,7 +107,7 @@ bvu_val_xname() {
   local val=$2
   local min=$3
   local max=$4
-  local default=$5
+  local default=${5-}  # empty permitted
 
   # Validate required parameters
   test -n "$varname" || bcu_die "varname parameter is required"
@@ -145,7 +145,7 @@ bvu_val_fqin() {
   local val=$2
   local min=$3
   local max=$4
-  local default=$5
+  local default=${5-}  # empty permitted
 
   # Validate required parameters
   test -n "$varname" || bcu_die "varname parameter is required"
@@ -225,7 +225,7 @@ bvu_val_decimal() {
 bvu_val_ipv4() {
   local varname=$1
   local val=$2
-  local default=$3
+  local default=${3-}  # empty permitted
 
   # Validate required parameters
   test -n "$varname" || bcu_die "varname parameter is required"

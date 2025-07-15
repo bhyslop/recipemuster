@@ -303,18 +303,23 @@ function rbv_check() {
 
   bcu_step "Checking for newer VM images..."
 
-  ### bcu_step "Prepare fresh ignite machine with crane..."
-  ### rbv_ignite_create || bcu_die "Failed to create temp machine"
+  ###TEMP_COMMENT_OUT bcu_step "Prepare fresh ignite machine with crane..."
+  ###TEMP_COMMENT_OUT rbv_ignite_create || bcu_die "Failed to create temp machine"
 
   local origin_fqin="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
 
   bcu_step "Querying origin ${origin_fqin}..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${origin_fqin}" \
-      > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
+      > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   local  chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${chosen_fqin}" \
-      > ${ZRBV_CRANE_CHOSEN_DIGEST_FILE} || bcu_warn "Failed to query chosen image"
+      > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed to query chosen image"
+
+  local     chosen_digest="NOT_FOUND"
+  if [[ -f                  "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" ]]; then
+    read -r chosen_digest < "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}"
+  fi
 
   bcu_step "Prepare ultra bash safe latest vars..."
   zrbv_generate_mirror_tag
@@ -335,19 +340,25 @@ function rbv_check() {
     advise_change=true
   fi
 
+  if [[ "${origin_digest}" != "${chosen_digest}" ]]; then
+    bcu_warn "Digest mismatch: origin (${origin_digest}) does not match chosen (${chosen_digest})"
+    ((warning_count++)) || true
+    advise_change=true
+  fi
+
   if $advise_change; then
     bcu_code "# New contents for -> ${RBV_RBRR_FILE}"
     bcu_code "#"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_DIGEST=${origin_digest}"
-    bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}"
+    bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}  # use this to remember update date"
   fi
 
   if [[ $warning_count -gt 0 ]]; then
     bcu_die "Found $warning_count warning(s)."
   fi
 
-  bcu_die "MUST RESTORE COMMENTED OUT DOWNLOADS"
+  bcu_die "MUST RESTORE TEMP_COMMENT_OUT"
 }
 
 # rbv_mirror - Mirror VM image to GHCR
