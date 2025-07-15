@@ -277,8 +277,8 @@ function rbv_check() {
 
   bcu_step "Checking for newer VM images..." #
 
-  bcu_step "Prepare fresh ignite machine with crane..."
-  rbv_ignite_create || bcu_die "Failed to create temp machine"
+  ### bcu_step "Prepare fresh ignite machine with crane..."
+  ### rbv_ignite_create || bcu_die "Failed to create temp machine"
 
   bcu_warn "STOPPING HERE TO COMMENT OUT ABOVE."
   bcu_die "Should not get here."
