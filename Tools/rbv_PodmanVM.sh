@@ -173,10 +173,10 @@ zrbv_remove_vm() {
 function rbv_stash_create() {
   bcu_info "Creating stash machine: $RBRR_STASH_MACHINE"
 
-  bcu_info "Stop existing machine if running"
+  bcu_step "Stop existing stash machine if running"
   podman machine stop "${zrbv_machine_name}" || bcu_warn "Attempt to stop existing did nothing."
 
-  bcu_info "Removing any existing machine..."
+  bcu_step "Removing any existing stash machine..."
   podman machine rm -f "${zrbv_machine_name}" || bcu_warn "Attempt to rm existing did nothing."
 
   bcu_step "Creating stash VM with natural podman init..."
@@ -278,6 +278,9 @@ function rbv_check() {
   bcu_step "Prepare fresh stash machine with crane..."
   rbv_stash_create || bcu_die "Failed to create temp machine"
 
+  bcu_warn "STOPPING HERE TO COMMENT OUT ABOVE."
+  bcu_die "Should not get here."
+
   bcu_step "Querying origin ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..." #
   podman machine ssh "$RBRR_STASH_MACHINE" -- \
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
@@ -290,7 +293,7 @@ function rbv_check() {
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=<your-mirror-registry>/<image>:<tag>"
   fi
 
-  false
+  bcu_warn "STOPPING HERE TO FOCUS ON BASE CASES."
   bcu_die "Should not get here."
 
   bcu_step "If chosen FQIN differs from standard origin:version, do more checks..."
@@ -321,6 +324,8 @@ function rbv_check() {
   if [[ $warning_count -gt 0 ]]; then
     bcu_die "Found $warning_count warning(s) during VM image check. Please address the issues above."
   fi
+
+  bcu_die "MUST RESTORE COMMENTED OUT DOWNLOADS"
 }
 
 # rbv_mirror - Mirror VM image to GHCR
