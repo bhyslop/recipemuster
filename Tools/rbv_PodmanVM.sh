@@ -42,7 +42,7 @@ ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
 ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
 ZRBV_CRANE_ORIGIN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_origin_digest.txt"
-ZRBV_CRANE_FQIN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_fqin_digest.txt"
+ZRBV_CRANE_CHOSEN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_chosen_digest.txt"
 ZRBV_CRANE_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/crane_manifest_check.txt"
 ZRBV_CRANE_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_copy_output.txt"
 ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
@@ -306,16 +306,21 @@ function rbv_check() {
   ### bcu_step "Prepare fresh ignite machine with crane..."
   ### rbv_ignite_create || bcu_die "Failed to create temp machine"
 
-  bcu_step "Querying origin ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..." #
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-    crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
+  local origin_fqin="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
+
+  bcu_step "Querying origin ${origin_fqin}..." #
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${origin_fqin}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
+
+  local chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${chosen_fqin}" \
+      > ${ZRBV_CRANE_CHOSEN_DIGEST_FILE} || bcu_warn "Failed to query chosen image"
 
   bcu_step "Prepare ultra bash safe latest vars..." #
   zrbv_generate_mirror_tag
   local   mirror_tag
   read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
-  
+
   local   origin_digest
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"    
 
