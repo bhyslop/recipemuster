@@ -251,6 +251,21 @@ rbv_nuke() {
 function rbv_check() {
   local warning_count=0
 
+  bcu_step "Verify host Podman major.minor version..."
+  local host_podman_full=$(podman --version 2>/dev/null) || bcu_die "Podman not in PATH"
+  
+  local host_podman_version
+  read -r _ _ host_podman_version <<< "$host_podman_full"
+
+  local host_podman_mm="${host_podman_version%.*}"
+
+  if [[ "$host_podman_mm" != "$RBRR_CHOSEN_PODMAN_VERSION" ]]; then
+    bcu_die "Podman version mismatch: host has ${host_podman_mm};" "  RBRR_CHOSEN_PODMAN_VERSION=${RBRR_CHOSEN_PODMAN_VERSION}"
+  fi
+
+  false
+  bcu_die "Should not get here."
+
   bcu_step "Checking for newer VM images..."
 
   bcu_step "Prepare fresh stash machine with crane..."
@@ -265,11 +280,12 @@ function rbv_check() {
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
     bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
     ((warning_count++))
-    bcu_warn "To set CHOSEN_SHA, use: export RBRR_CHOSEN_VMIMAGE_SHA=$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
-    ((warning_count++))
-    bcu_warn "To use a mirrored FQIN, also set: export RBRR_CHOSEN_VMIMAGE_FQIN=<your-mirror-registry>/<image>:<tag>"
-    ((warning_count++))
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_SHA=$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=<your-mirror-registry>/<image>:<tag>"
   fi
+
+  false
+  bcu_die "Should not get here."
 
   bcu_step "If chosen FQIN differs from standard origin:version, do more checks..."
   if [[ ! "${RBRR_CHOSEN_VMIMAGE_FQIN}" =~ ^"${RBRR_CHOSEN_VMIMAGE_ORIGIN}:" ]]; then

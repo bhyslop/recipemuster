@@ -116,8 +116,13 @@ rbw-N.%:
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_nuke
 	$(MBC_PASS) "VM image check complete."
 
+rbw-c.%:
+	$(MBC_START) "Check on latest podman VM image..."
+	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_check
+	$(MBC_PASS) "VM image check complete."
+
 rbw-m.%:
-	$(MBC_START) "Mirror latest podman image..."
+	$(MBC_START) "Mirror latest podman VM image..."
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_mirror
 	$(MBC_PASS) "VM image check complete."
 

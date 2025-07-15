@@ -44,6 +44,8 @@ ZBCU_DOC_MODE=false
 
 bcu_step()   { zbcu_print 0 "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}"; }
 
+bcu_code()   { zbcu_print 0 "${ZBCU_CYAN}$@${ZBCU_RESET}"; }
+
 bcu_info()   { zbcu_print 1 "$@"; }
 
 bcu_debug()  { zbcu_print 2 "$@"; }
