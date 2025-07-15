@@ -298,25 +298,25 @@ function rbv_check() {
   #   is their image if it isn't latest?  They assume the risk and obligation to
   #   manage their own cache and exposure to VM evolution.
 
-  bcu_step "Verify host Podman major.minor version..." #
+  bcu_step "Verify host Podman major.minor version..."
   zrbv_verify_podman_version || bcu_die "Podman version mismatch."
 
-  bcu_step "Checking for newer VM images..." #
+  bcu_step "Checking for newer VM images..."
 
   ### bcu_step "Prepare fresh ignite machine with crane..."
   ### rbv_ignite_create || bcu_die "Failed to create temp machine"
 
   local origin_fqin="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
 
-  bcu_step "Querying origin ${origin_fqin}..." #
+  bcu_step "Querying origin ${origin_fqin}..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${origin_fqin}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
 
-  local chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
+  local  chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${chosen_fqin}" \
       > ${ZRBV_CRANE_CHOSEN_DIGEST_FILE} || bcu_warn "Failed to query chosen image"
 
-  bcu_step "Prepare ultra bash safe latest vars..." #
+  bcu_step "Prepare ultra bash safe latest vars..."
   zrbv_generate_mirror_tag
   local   mirror_tag
   read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
@@ -327,9 +327,15 @@ function rbv_check() {
   local   proposed_identity; date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_FILE}"
   read -r proposed_identity                        < "${ZRBV_IDENTITY_FILE}"
 
+  local advise_change=false
+
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
     bcu_warn "RBRR_CHOSEN_VMIMAGE_DIGEST is not set!"
     ((warning_count++)) || true
+    advise_change=true
+  fi
+
+  if $advise_change; then
     bcu_code "# New contents for -> ${RBV_RBRR_FILE}"
     bcu_code "#"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
@@ -337,36 +343,8 @@ function rbv_check() {
     bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}"
   fi
 
-  bcu_warn "STOPPING HERE TO FOCUS ON BASE CASES."
-  bcu_die "Should not get here."
-
-  bcu_step "If chosen FQIN differs from standard origin:version, do more checks..."
-  if [[ ! "${RBRR_CHOSEN_VMIMAGE_FQIN}" =~ ^"${RBRR_CHOSEN_VMIMAGE_ORIGIN}:" ]]; then
-    bcu_info "Checking custom FQIN: ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
-    podman machine ssh "${zrbv_temp_machine}" -- \
-      crane digest "${RBRR_CHOSEN_VMIMAGE_FQIN}" \
-        > ${ZRBV_CRANE_FQIN_DIGEST_FILE} || bcu_die "Failed to query fqin image"
-
-    if [[ "$(cat ${ZRBV_CRANE_FQIN_DIGEST_FILE})" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
-      bcu_warn "FQIN SHA ($(cat ${ZRBV_CRANE_FQIN_DIGEST_FILE})) differs from upstream SHA ($(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}))"
-      ((warning_count++)) || true
-    fi
-  fi
-
-  bcu_info "Current configured SHA: ${RBRR_CHOSEN_VMIMAGE_DIGEST:-<not set>}"
-  bcu_info "Latest upstream SHA: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
-
-  if [[ -z "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
-    bcu_warn "ACTION REQUIRED: Set RBRR_CHOSEN_VMIMAGE_DIGEST to: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
-    ((warning_count++)) || true
-  elif [[ "${RBRR_CHOSEN_VMIMAGE_DIGEST}" != "$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})" ]]; then
-    bcu_info "UPDATE AVAILABLE: New SHA available: $(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
-  else
-    bcu_info "Up to date!"
-  fi
-
   if [[ $warning_count -gt 0 ]]; then
-    bcu_die "Found $warning_count warning(s) during VM image check. Please address the issues above."
+    bcu_die "Found $warning_count warning(s)."
   fi
 
   bcu_die "MUST RESTORE COMMENTED OUT DOWNLOADS"
