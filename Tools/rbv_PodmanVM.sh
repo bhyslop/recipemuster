@@ -406,11 +406,11 @@ rbv_mirror() {
         || bcu_die "Failed to copy image to GHCR"
   fi
 
-  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
-
   bcu_step "Verifying mirror digest..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
       > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
+
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
 
   local   verified_digest
   read -r verified_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"
