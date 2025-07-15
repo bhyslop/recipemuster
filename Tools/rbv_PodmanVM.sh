@@ -183,7 +183,7 @@ zrbv_remove_vm() {
 
   if podman machine inspect "$vm_name" > "${ZRBV_PODMAN_INSPECT_PREFIX}${vm_name}.txt"; then
     bcu_info       "Stopping $vm_name..."
-    podman machine stop     "$vm_name" || bcu_warn "Failed to stop $vm_name"
+    podman machine stop     "$vm_name" || bcu_warn "Failed to stop $vm_name during _remove_vm"
     bcu_info       "Removing $vm_name..."
     podman machine rm -f    "$vm_name" || bcu_die "Failed to remove $vm_name"
   else
@@ -315,6 +315,8 @@ rbv_check() {
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${chosen_fqin}" \
       > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed to query chosen image"
 
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _check"
+
   local     chosen_digest="NOT_FOUND"
   if [[ -f                  "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" ]]; then
     read -r chosen_digest < "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed chosen digest retrieve"
@@ -404,6 +406,8 @@ rbv_mirror() {
         || bcu_die "Failed to copy image to GHCR"
   fi
 
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
+
   bcu_step "Verifying mirror digest..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
       > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
@@ -443,7 +447,7 @@ rbv_init() {
   podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
     bcu_die "Operational VM already exists. Remove it first with rbv_nuke or manually"
 
-  bcu_step "Initializing: init machie from image: ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
+  bcu_step "Initializing: init machine from image ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
   podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" \
                                             "${RBRR_DEPLOY_MACHINE_NAME}"      \
                                           2> "$ZRBV_DEPLOY_INIT_STDERR"        \
