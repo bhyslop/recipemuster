@@ -30,8 +30,8 @@ bvu_env_string      RBRR_HISTORY_DIR             1    255
 bvu_env_ipv4        RBRR_DNS_SERVER
 bvu_env_string      RBRR_NAMEPLATE_PATH          1    255
 
-bvu_env_string      RBRR_STASH_MACHINE_NAME      1     64
-bvu_env_string      RBRR_OPERATIONAL_MACHINE     1     64
+bvu_env_string      RBRR_IGNITE_MACHINE_NAME     1     64
+bvu_env_string      RBRR_DEPLOY_MACHINE_NAME     1     64
 bvu_env_string      RBRR_CRANE_TAR_GZ            1    512
 bvu_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
 bvu_env_string      RBRR_CHOSEN_VMIMAGE_ORIGIN   1    128

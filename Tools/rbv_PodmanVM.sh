@@ -33,8 +33,8 @@ ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
 ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
 ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
 
-ZRBV_STASH_INIT_STDOUT="${RBV_TEMP_DIR}/stash_init_stdout.txt"
-ZRBV_STASH_INIT_STDERR="${RBV_TEMP_DIR}/stash_init_stderr.txt"
+ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
+ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
 ZRBV_OPERATIONAL_INIT_STDOUT="${RBV_TEMP_DIR}/operational_init_stdout.txt"
 ZRBV_OPERATIONAL_INIT_STDERR="${RBV_TEMP_DIR}/operational_init_stderr.txt"
 
@@ -120,8 +120,10 @@ zrbv_generate_mirror_tag() {
   local sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
   test -n "$sha_short" || bcu_die "Failed to extract short SHA from digest: $digest"
 
+  bcu_die "below is horrid. fix mirror as variable and use the ORIGN"
+
   # Build canonical mirror tag
-  local raw="stash-quay.io-podman-machine-os-wsl-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
+  local raw="mirror-quay.io-podman-machine-os-wsl-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
   # Sanitize for use as tag
   raw=${raw//\//-}
   raw=${raw//:/-}
@@ -169,33 +171,33 @@ zrbv_remove_vm() {
   fi
 }
 
-# Create a fresh stash machine with crane installed
-function rbv_stash_create() {
-  bcu_info "Creating stash machine: ${RBRR_STASH_MACHINE_NAME}"
+# Create a fresh ignite machine with crane installed
+function rbv_ignite_create() {
+  bcu_info "Creating ignite machine: ${RBRR_IGNITE_MACHINE_NAME}"
 
-  bcu_step "Stop existing stash machine if running"
-  podman machine stop "${RBRR_STASH_MACHINE_NAME}" || bcu_warn "Attempt to stop existing did nothing."
+  bcu_step "Stop existing ignite machine if running"
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Attempt to stop existing did nothing."
 
-  bcu_step "Removing any existing stash machine..."
-  podman machine rm -f "${RBRR_STASH_MACHINE_NAME}" || bcu_warn "Attempt to rm existing did nothing."
+  bcu_step "Removing any existing ignite machine..."
+  podman machine rm -f "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Attempt to rm existing did nothing."
 
-  bcu_step "Creating stash VM with natural podman init..."
-  podman machine init --log-level=debug     "${RBRR_STASH_MACHINE_NAME}" \
-                                          2> "$ZRBV_STASH_INIT_STDERR"   \
-       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"   \
+  bcu_step "Creating ignite VM with natural podman init..."
+  podman machine init --log-level=debug     "${RBRR_IGNITE_MACHINE_NAME}" \
+                                          2> "$ZRBV_IGNITE_INIT_STDERR"   \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_IGNITE_INIT_STDOUT"   \
     || bcu_die "Bad init."
 
-  bcu_step "Starting stash machine..."
-  podman machine start "${RBRR_STASH_MACHINE_NAME}" || bcu_die "Failed to start stash machine"
+  bcu_step "Starting ignite machine..."
+  podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
 
   bcu_step "Installing crane..."
-  podman machine ssh "${RBRR_STASH_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" || bcu_die "crane fail"
 
   bcu_step "Verify crane installation..."
-  podman machine ssh "${RBRR_STASH_MACHINE_NAME}" -- "crane version" || bcu_die "crane confirm fail."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane version" || bcu_die "crane confirm fail."
 
-  bcu_success "Stash machine ready with crane installed"
+  bcu_success "Ignite machine ready with crane installed"
 }
 
 # Login to registry in VM
@@ -275,14 +277,14 @@ function rbv_check() {
 
   bcu_step "Checking for newer VM images..." #
 
-  bcu_step "Prepare fresh stash machine with crane..."
-  rbv_stash_create || bcu_die "Failed to create temp machine"
+  bcu_step "Prepare fresh ignite machine with crane..."
+  rbv_ignite_create || bcu_die "Failed to create temp machine"
 
   bcu_warn "STOPPING HERE TO COMMENT OUT ABOVE."
   bcu_die "Should not get here."
 
   bcu_step "Querying origin ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..." #
-  podman machine ssh "${RBRR_STASH_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
 
@@ -418,7 +420,7 @@ rbv_init() {
 
   # Perform command
   bcu_step "Checking if operational VM exists..."
-  podman machine list | grep -q "$RBRR_OPERATIONAL_MACHINE" && \
+  podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
     bcu_die "Operational VM already exists. Remove it first with rbv_nuke or manually"
 
   bcu_step "Validating RBRR_CHOSEN_VMIMAGE_FQIN format..."
@@ -426,18 +428,18 @@ rbv_init() {
     bcu_die "Invalid FQIN format: $RBRR_CHOSEN_VMIMAGE_FQIN"
 
   bcu_step "Initializing: podman machine init --image docker://${RBRR_CHOSEN_VMIMAGE_FQIN}..."
-  podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" "$RBRR_OPERATIONAL_MACHINE"
+  podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_step "Starting VM temporarily..."
-  podman machine start "$RBRR_OPERATIONAL_MACHINE"
+  podman machine start "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_step "Writing brand file to -> ${ZRBV_EMPLACED_BRAND_FILE}"
   zrbv_generate_brand_file
-  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" \
-                                                       < "${ZRBV_GENERATED_BRAND_FILE}"
+  podman machine ssh "${RBRR_DEPLOY_MACHINE_NAME}" "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" \
+                                                         < "${ZRBV_GENERATED_BRAND_FILE}"
 
   bcu_step "Stopping VM..."
-  podman machine stop "$RBRR_OPERATIONAL_MACHINE"
+  podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_success "VM initialized with brand file"
 }
@@ -451,11 +453,11 @@ rbv_start() {
 
   # Perform command
   bcu_step "Starting operational VM..."
-  podman machine start "$RBRR_OPERATIONAL_MACHINE"
+  podman machine start "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_step "Reading brand file from -> ${ZRBV_EMPLACED_BRAND_FILE}"
-  podman machine ssh "$RBRR_OPERATIONAL_MACHINE" "sudo cat ${ZRBV_EMPLACED_BRAND_FILE}" \
-                                                           > "${ZRBV_FOUND_BRAND_FILE}" || \
+  podman machine ssh "${RBRR_DEPLOY_MACHINE_NAME}" "sudo cat ${ZRBV_EMPLACED_BRAND_FILE}" \
+                                                             > "${ZRBV_FOUND_BRAND_FILE}" || \
     bcu_die "Failed to read brand file.  Is VM initialized?"
 
   bcu_step "Comparing generated and found brand files..."
@@ -474,7 +476,7 @@ rbv_stop() {
 
   # Perform command
   bcu_step "Stopping operational VM..."
-  podman machine stop "$RBRR_OPERATIONAL_MACHINE"
+  podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_success "VM stopped"
 }
