@@ -267,7 +267,7 @@ rbv_nuke() {
 function rbv_check() {
   local warning_count=0
 
-  # There are many things I want this to do but now is not the time for this.
+  # There are many things I want this to do here but now is not the time.
   #
   # This has gotten sophisticated since I was bitten hard by the RedHat practice
   # of generating new podman VM images quite frequently, moving the tag each
@@ -306,14 +306,14 @@ function rbv_check() {
   ###TEMP_COMMENT_OUT bcu_step "Prepare fresh ignite machine with crane..."
   ###TEMP_COMMENT_OUT rbv_ignite_create || bcu_die "Failed to create temp machine"
 
-  local origin_fqin="${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}"
+  local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
+  local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
 
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${origin_fqin}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${origin_fqin}" \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
-  local  chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- crane digest "${chosen_fqin}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${chosen_fqin}" \
       > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed to query chosen image"
 
   local     chosen_digest="NOT_FOUND"
