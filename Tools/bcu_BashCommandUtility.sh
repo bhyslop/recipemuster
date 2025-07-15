@@ -17,6 +17,8 @@
 #
 # Bash Console Utility Library
 
+set -euo pipefail
+
 # Multiple inclusion guard
 test -z "${ZBCU_INCLUDED:-}" || return 0
 ZBCU_INCLUDED=1
