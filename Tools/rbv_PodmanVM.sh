@@ -171,29 +171,29 @@ zrbv_remove_vm() {
 
 # Create a fresh stash machine with crane installed
 function rbv_stash_create() {
-  bcu_info "Creating stash machine: $RBRR_STASH_MACHINE"
+  bcu_info "Creating stash machine: ${RBRR_STASH_MACHINE_NAME}"
 
   bcu_step "Stop existing stash machine if running"
-  podman machine stop "${zrbv_machine_name}" || bcu_warn "Attempt to stop existing did nothing."
+  podman machine stop "${RBRR_STASH_MACHINE_NAME}" || bcu_warn "Attempt to stop existing did nothing."
 
   bcu_step "Removing any existing stash machine..."
-  podman machine rm -f "${zrbv_machine_name}" || bcu_warn "Attempt to rm existing did nothing."
+  podman machine rm -f "${RBRR_STASH_MACHINE_NAME}" || bcu_warn "Attempt to rm existing did nothing."
 
   bcu_step "Creating stash VM with natural podman init..."
-  podman machine init --log-level=debug      "$RBRR_STASH_MACHINE"      \
-                                          2> "$ZRBV_STASH_INIT_STDERR"  \
-       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"  \
+  podman machine init --log-level=debug     "${RBRR_STASH_MACHINE_NAME}" \
+                                          2> "$ZRBV_STASH_INIT_STDERR"   \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_STASH_INIT_STDOUT"   \
     || bcu_die "Bad init."
 
   bcu_step "Starting stash machine..."
-  podman machine start "${zrbv_machine_name}"  || bcu_die "Failed to start stash machine"
+  podman machine start "${RBRR_STASH_MACHINE_NAME}" || bcu_die "Failed to start stash machine"
 
   bcu_step "Installing crane..."
-  podman machine ssh "${zrbv_machine_name}" -- \
+  podman machine ssh "${RBRR_STASH_MACHINE_NAME}" -- \
       "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" || bcu_die "crane fail"
 
   bcu_step "Verify crane installation..."
-  podman machine ssh "${zrbv_machine_name}" -- "crane version" || bcu_die "crane confirm fail."
+  podman machine ssh "${RBRR_STASH_MACHINE_NAME}" -- "crane version" || bcu_die "crane confirm fail."
 
   bcu_success "Stash machine ready with crane installed"
 }
@@ -282,7 +282,7 @@ function rbv_check() {
   bcu_die "Should not get here."
 
   bcu_step "Querying origin ${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}..." #
-  podman machine ssh "$RBRR_STASH_MACHINE" -- \
+  podman machine ssh "${RBRR_STASH_MACHINE_NAME}" -- \
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
 

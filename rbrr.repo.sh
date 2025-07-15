@@ -24,7 +24,7 @@ export RBRR_HISTORY_DIR=RBM-history
 export RBRR_NAMEPLATE_PATH=RBM-nameplates
 export RBRR_DNS_SERVER=8.8.8.8
 
-export RBRR_STASH_MACHINE=rbw-stash
+export RBRR_STASH_MACHINE_NAME=rbw-stash
 export RBRR_OPERATIONAL_MACHINE=rbw-op
 export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
 export RBRR_CHOSEN_PODMAN_VERSION=5.5                             # Chosen podman version (e.g. 5.4 or 5.5)
