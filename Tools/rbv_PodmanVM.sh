@@ -35,8 +35,8 @@ ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
 
 ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
 ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
-ZRBV_OPERATIONAL_INIT_STDOUT="${RBV_TEMP_DIR}/operational_init_stdout.txt"
-ZRBV_OPERATIONAL_INIT_STDERR="${RBV_TEMP_DIR}/operational_init_stderr.txt"
+ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
+ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
 
 ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
 ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
@@ -193,11 +193,8 @@ zrbv_remove_vm() {
 rbv_ignite_create() {
   bcu_info "Creating ignite machine: ${RBRR_IGNITE_MACHINE_NAME}"
 
-  bcu_step "Stop existing ignite machine if running"
-  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Attempt to stop existing did nothing."
-
   bcu_step "Removing any existing ignite machine..."
-  podman machine rm -f "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Attempt to rm existing did nothing."
+  zrbv_remove_vm "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Removal failed."
 
   bcu_step "Creating ignite VM with natural podman init..."
   podman machine init --log-level=debug     "${RBRR_IGNITE_MACHINE_NAME}" \
@@ -255,7 +252,7 @@ rbv_nuke() {
 
   bcu_step "Removing all podman machines..."
   for vm in $(podman machine list -q); do
-      zrbv_remove_vm "$vm" || bcu_die "Attempt to remove VM $vm failed."
+    zrbv_remove_vm "$vm" || bcu_die "Attempt to remove VM $vm failed."
   done
 
   bcu_step "Deleting VM cache directory..."
@@ -428,12 +425,12 @@ rbv_init() {
   podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
     bcu_die "Operational VM already exists. Remove it first with rbv_nuke or manually"
 
-  bcu_step "Validating RBRR_CHOSEN_VMIMAGE_FQIN format..."
-  echo "$RBRR_CHOSEN_VMIMAGE_FQIN" | grep -q ":" || \
-    bcu_die "Invalid FQIN format: $RBRR_CHOSEN_VMIMAGE_FQIN"
-
-  bcu_step "Initializing: podman machine init --image docker://${RBRR_CHOSEN_VMIMAGE_FQIN}..."
-  podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" "${RBRR_DEPLOY_MACHINE_NAME}"
+  bcu_step "Initializing: podman machine init with ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
+  podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" \
+                                            "${RBRR_DEPLOY_MACHINE_NAME}"      \
+                                          2> "$ZRBV_DEPLOY_INIT_STDERR"        \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_DEPLOY_INIT_STDOUT"        \
+    || bcu_die "Bad init."
 
   bcu_step "Starting VM temporarily..."
   podman machine start "${RBRR_DEPLOY_MACHINE_NAME}"
