@@ -303,8 +303,8 @@ function rbv_check() {
 
   bcu_step "Checking for newer VM images..."
 
-  ###TEMP_COMMENT_OUT bcu_step "Prepare fresh ignite machine with crane..."
-  ###TEMP_COMMENT_OUT rbv_ignite_create || bcu_die "Failed to create temp machine"
+  bcu_step "Prepare fresh ignite machine with crane..."
+  rbv_ignite_create || bcu_die "Failed to create temp machine"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
@@ -363,7 +363,7 @@ function rbv_check() {
     bcu_die "Found $warning_count warning(s)."
   fi
 
-  bcu_die "MUST RESTORE TEMP_COMMENT_OUT"
+  bcu_success "No updates available."
 }
 
 # rbv_mirror - Mirror VM image to GHCR
