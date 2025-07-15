@@ -111,23 +111,17 @@ zrbv_extract_natural_tag() {
 
 # Generate mirror tag using crane digest
 zrbv_generate_mirror_tag() {
-  # Read digest directly from file and extract short SHA
-  local digest
-  read -r digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
-  test -n "$digest" || bcu_die "Failed to detect ${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
+  local     digest
+  read -r   digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read crane file"
+  test -n "$digest"                                     || bcu_die "Failed to test crane file"
 
-  # Extract short SHA using parameter expansion instead of cut
-  local sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
+  local     sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
   test -n "$sha_short" || bcu_die "Failed to extract short SHA from digest: $digest"
 
-  bcu_die "below is horrid. fix mirror as variable and use the ORIGN"
-
-  # Build canonical mirror tag
-  local raw="mirror-quay.io-podman-machine-os-wsl-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
-  # Sanitize for use as tag
+  local raw="mirror-${RBRR_CHOSEN_VMIMAGE_ORIGIN}-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
   raw=${raw//\//-}
   raw=${raw//:/-}
-  # Write full FQIN to file
+
   echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
 }
 
@@ -285,12 +279,16 @@ function rbv_check() {
     crane digest "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}" \
       > ${ZRBV_CRANE_ORIGIN_DIGEST_FILE} || bcu_die "Failed to query origin image"
 
+  bcu_step "Prepare mirror tag..." #
+  zrbv_generate_mirror_tag
+  local   mirror_tag
+  read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
+
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_SHA}" ]]; then
     bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
     ((warning_count++)) || true
-    bcu_warn "RBRR_CHOSEN_VMIMAGE_SHA is not set!"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_SHA=$(cat ${ZRBV_CRANE_ORIGIN_DIGEST_FILE})"
-    bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=<your-mirror-registry>/<image>:<tag>"
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
     bcu_warn "Did we get here?"
   fi
 
