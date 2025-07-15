@@ -38,6 +38,7 @@ ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
 ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
 ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
 
+ZRBV_PODMAN_INSPECT_PREFIX="${RBV_TEMP_DIR}/podman_inspect_"
 ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
 ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
@@ -179,7 +180,7 @@ zrbv_validate_pat() {
 zrbv_remove_vm() {
   local vm_name="$1"
 
-  if podman machine inspect "$vm_name"; then
+  if podman machine inspect "$vm_name" > "${ZRBV_PODMAN_INSPECT_PREFIX}${vm_name}.txt"; then
     bcu_info       "Stopping $vm_name..."
     podman machine stop     "$vm_name" || bcu_warn "Failed to stop $vm_name"
     bcu_info       "Removing $vm_name..."
@@ -380,6 +381,10 @@ rbv_mirror() {
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
+
+  bcu_step "Querying origin ${origin_fqin}..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${origin_fqin}" \
+      > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   bcu_step "Checking if mirror already exists..."
   if podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
