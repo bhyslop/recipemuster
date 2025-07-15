@@ -382,21 +382,22 @@ rbv_mirror() {
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
 
   bcu_step "Checking if mirror already exists..."
-  local mirror_digest=""
   if podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
                           > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"; then
-    read -r mirror_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || true
+    local   mirror_digest
+    read -r mirror_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"
 
     if [[ "${mirror_digest}" == "${origin_digest}" ]]; then
-      bcu_success "Mirror already exists with matching digest: ${origin_digest}"
-      return 0
+      bcu_step "Mirror already exists with matching digest: ${origin_digest}"
+    else
+      bcu_die "Mirror exists at ${mirror_tag} with different digest: found ${mirror_digest}, expected ${origin_digest}"
     fi
+  else
+    bcu_step "Mirror doesn't exist, copying image to GHCR..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "crane copy ${origin_fqin}@${origin_digest} ${mirror_tag}" \
+        || bcu_die "Failed to copy image to GHCR"
   fi
-
-  bcu_step "Copying image to GHCR..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane copy ${origin_fqin}@${origin_digest} ${mirror_tag}" \
-      || bcu_die "Failed to copy image to GHCR"
 
   bcu_step "Verifying mirror digest..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
@@ -408,6 +409,18 @@ rbv_mirror() {
   if [[ "${verified_digest}" != "${origin_digest}" ]]; then
     bcu_die "Mirror verification failed: expected ${origin_digest}, got ${verified_digest}"
   fi
+
+  bcu_step "Validating mirror by comparing VM initialization outputs..."
+
+  bcu_step "Removing any existing deploy machine..."
+  zrbv_remove_vm "${RBRR_DEPLOY_MACHINE_NAME}" || bcu_die "Failed to remove deploy machine"
+
+  bcu_step "Initializing deploy machine with mirrored image..."
+  rbv_init || bcu_die "Failed to init deploy machine with mirror"
+
+  bcu_step "Assure ignite and deploy init output match..."
+  zrbv_error_if_different "${ZRBV_IGNITE_INIT_STDOUT}" \
+                          "${ZRBV_DEPLOY_INIT_STDOUT}" || bcu_die "Init outputs differ"
 
   bcu_success "Successfully mirrored image to ${mirror_tag}"
 }
