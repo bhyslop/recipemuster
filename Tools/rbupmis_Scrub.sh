@@ -16,11 +16,13 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 
-# Scrub output from `podman machine init` for comparison
-
-# In some environments there are null characters, and the hint
-#    at the end is a function of the podman machine name: bad
-#    for assuring vm environment is what we expect.
+# Podman Machine Init Scrubber
+#
+#  This project builds confidence that the default podman VM image
+#  retrieved by podman is the same as the one selected by this project
+#  as determined from other means.  This script here removes the
+#  accidental aspects so that we can compare the big sha that is
+#  displayed to tag the VM version in use precisely.
 
 # Reference stdout from podman machine init, below:
 #
