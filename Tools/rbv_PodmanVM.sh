@@ -431,8 +431,8 @@ rbv_mirror() {
     fi
   else
     bcu_step "Mirror doesn't exist, copying image to GHCR..."
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --            \
-        "crane copy ${origin_fqin}@${origin_digest} ${mirror_tag}" \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "crane copy ${origin_fqin} ${mirror_tag}"       \
         || bcu_die "Failed to copy image to GHCR"
   fi
 
