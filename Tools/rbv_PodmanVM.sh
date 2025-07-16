@@ -454,16 +454,16 @@ rbv_mirror() {
 
 rbv_init() {
   # Handle documentation mode
-  bcu_doc_brief "Initialize operational VM using RBRR_CHOSEN_VMIMAGE_FQIN"
-  bcu_doc_lines "Creates new operational VM from configured image"
+  bcu_doc_brief "Initialize deploy VM using RBRR_CHOSEN_VMIMAGE_FQIN"
+  bcu_doc_lines "Creates new deploy VM from configured image"
   bcu_doc_lines "Writes brand file with all RBRR_CHOSEN values"
-  bcu_doc_lines "Refuses if operational VM already exists"
+  bcu_doc_lines "Refuses if deploy VM already exists"
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "Checking if operational VM exists..."
+  bcu_step "Checking if deploy VM exists..."
   podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
-    bcu_die "Operational VM already exists. Remove it first with rbv_nuke or manually"
+    bcu_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
 
   bcu_step "Initializing: init machine from image ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
   podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" \
@@ -488,13 +488,13 @@ rbv_init() {
 
 rbv_start() {
   # Handle documentation mode
-  bcu_doc_brief "Start operational podman machine"
+  bcu_doc_brief "Start deploy podman VM"
   bcu_doc_lines "Verifies brand file matches RBRR_CHOSEN values"
   bcu_doc_lines "Fails if brand file missing or mismatched"
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "Starting operational VM..."
+  bcu_step "Starting deploy VM..."
   podman machine start "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_step "Reading brand file from -> ${ZRBV_EMPLACED_BRAND_FILE}"
@@ -513,11 +513,11 @@ rbv_start() {
 
 rbv_stop() {
   # Handle documentation mode
-  bcu_doc_brief "Stop operational podman machine"
+  bcu_doc_brief "Stop deploy podman machine"
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "Stopping operational VM..."
+  bcu_step "Stopping deploy VM..."
   podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}"
 
   bcu_success "VM stopped"
