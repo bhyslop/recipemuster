@@ -269,6 +269,7 @@ bcu_execute() {
     test -z "${command}" || bcu_warn "Unknown command: ${command}"
     bcu_set_doc_mode
     zbcu_show_help "${prefix}" "${title}" "${env_func}"
+    echo
     exit 1
   fi
 }

@@ -235,8 +235,12 @@ zrbv_registry_login() {
 # External Functions (rbv_*)
 
 rbv_nuke() {
+  # Name parameters
+  local yes_opt="${1:-}"
+
   # Handle documentation mode
   bcu_doc_brief "Completely reset the podman virtual machine environment"
+  bcu_doc_oparm "yes_opt" "If 'YES', then skip confirmation step"
   bcu_doc_lines "Destroys ALL containers, VMs, and VM cache"
   bcu_doc_lines "Requires explicit YES confirmation"
   bcu_doc_shown || return 0
@@ -245,7 +249,7 @@ rbv_nuke() {
   bvu_dir_exists "${RBRS_PODMAN_ROOT_DIR}" || bcu_warn "Podman directory not found."
 
   bcu_step "WARNING: This will destroy all podman VMs and cache found in ${RBRS_PODMAN_ROOT_DIR}"
-  zrbv_confirm_yes "$1" || bcu_die "Nuke not confirmed, exit without change"
+  zrbv_confirm_yes "$yes_opt" || bcu_die "Nuke not confirmed, exit without change"
 
   bcu_step "Stopping all containers..."
   podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed; okay if machine not started."
