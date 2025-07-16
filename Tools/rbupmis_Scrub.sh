@@ -22,6 +22,20 @@
 #    at the end is a function of the podman machine name: bad
 #    for assuring vm environment is what we expect.
 
+# Reference stdout from podman machine init, below:
+#
+# Looking up Podman Machine image at quay.io/podman/machine-os-wsl:5.5 to create VM
+# 35e8036263febe8a2a7250dc83581a85f1771e9e49c4ccddfc0d7989473802fc
+# Importing operating system into WSL (this may take a few minutes on a new WSL install)...
+# The operation completed successfully.
+# Configuring system...
+# Machine init complete
+# To start your machine run:
+# 
+#         podman machine start rbw-example
+# 
+
+
 set -euo pipefail
 
 outfile="$1"
