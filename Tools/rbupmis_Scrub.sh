@@ -37,11 +37,9 @@
 #         podman machine start rbw-example
 # 
 
-
 set -euo pipefail
 
 outfile="$1"
-match="To start your machine run:"
 
 # Ensure output file is empty
 > "$outfile"
@@ -50,8 +48,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   # Strip nulls from line
   clean_line="${line//$'\x00'/}"
 
-  # Stop writing at match
-  [[ "$clean_line" == "$match" ]] && break
+  # Skip lines matching...
+  [[ "$clean_line" == "Looking up Podman Machine image at"* ]] && continue
+  [[ "$clean_line" == *"podman machine start"*              ]] && continue
 
   echo "$clean_line" >> "$outfile"
 done
