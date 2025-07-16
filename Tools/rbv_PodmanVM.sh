@@ -208,11 +208,13 @@ rbv_ignite_create() {
   podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
 
   bcu_step "Installing crane..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" || bcu_die "crane fail"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                        \
+      "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
+      || bcu_die "crane fail"
 
   bcu_step "Verify crane installation..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane version" || bcu_die "crane confirm fail."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane version" || bcu_die "crane confirm fail."
 
   bcu_success "Ignite machine ready with crane installed"
 }
@@ -309,10 +311,12 @@ rbv_check() {
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
 
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${origin_fqin}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane digest ${origin_fqin}"                   \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${chosen_fqin}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane digest ${chosen_fqin}"                   \
       > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed to query chosen image"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _check"
@@ -377,7 +381,8 @@ rbv_mirror() {
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${origin_fqin}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane digest ${origin_fqin}"                   \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   bcu_step "Prepare mirror tag..."
@@ -389,8 +394,9 @@ rbv_mirror() {
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
   bcu_step "Checking if mirror already exists..."
-  if podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
-                          > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"; then
+  if podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane digest ${mirror_tag}"                       \
+      > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"; then
     local   mirror_digest
     read -r mirror_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"
 
@@ -401,13 +407,14 @@ rbv_mirror() {
     fi
   else
     bcu_step "Mirror doesn't exist, copying image to GHCR..."
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --            \
         "crane copy ${origin_fqin}@${origin_digest} ${mirror_tag}" \
         || bcu_die "Failed to copy image to GHCR"
   fi
 
   bcu_step "Verifying mirror digest..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "crane digest ${mirror_tag}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane digest ${mirror_tag}"                    \
       > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
