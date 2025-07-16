@@ -218,7 +218,7 @@ zrbv_ignite_create() {
   bcu_success "Ignite machine ready with crane installed"
 }
 
-# Login podman to github container registry in VM
+# Login podman to github container registry in podman VM
 zrbv_login_ghcr() {
   local vm_name="$1"
 
@@ -228,7 +228,7 @@ zrbv_login_ghcr() {
   podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
-# Login crane to github container registry in VM
+# Login crane to github container registry in podman VM
 zrbv_login_crane() {
   local vm_name="$1"
 
