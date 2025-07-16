@@ -191,7 +191,7 @@ zrbv_remove_vm() {
 }
 
 # Create a fresh ignite machine with crane installed
-rbv_ignite_create() {
+zrbv_ignite_create() {
   bcu_info "Creating ignite machine: ${RBRR_IGNITE_MACHINE_NAME}"
 
   bcu_step "Removing any existing ignite machine..."
@@ -310,7 +310,7 @@ rbv_check() {
   bcu_step "Checking for newer VM images..."
 
   bcu_step "Prepare fresh ignite machine with crane..."
-  rbv_ignite_create || bcu_die "Failed to create temp machine"
+  zrbv_ignite_create || bcu_die "Failed to create temp machine"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
@@ -385,7 +385,7 @@ rbv_mirror() {
 
   # Perform command
   bcu_step "Prepare fresh ignite machine with crane..."
-  rbv_ignite_create || bcu_die "Failed to create temp machine"
+  zrbv_ignite_create || bcu_die "Failed to create temp machine"
 
   bcu_step "Login to registry..."
   zrbv_registry_login "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login to registry"
