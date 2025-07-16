@@ -218,14 +218,21 @@ zrbv_ignite_create() {
   bcu_success "Ignite machine ready with crane installed"
 }
 
-# Login to registry in VM
-zrbv_registry_login() {
+# Login podman to github container registry in VM
+zrbv_login_ghcr() {
   local vm_name="$1"
 
   source "${RBRR_GITHUB_PAT_ENV}"
 
   bcu_step "Login with podman..."
   podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
+}
+
+# Login crane to github container registry in VM
+zrbv_login_crane() {
+  local vm_name="$1"
+
+  source "${RBRR_GITHUB_PAT_ENV}"
 
   bcu_step "Login with crane..."
   podman machine ssh "$vm_name" "crane auth login ${ZRBV_GIT_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}"
@@ -259,6 +266,7 @@ rbv_nuke() {
 
   bcu_step "Removing all podman machines..."
   for vm in $(podman machine list -q); do
+    vm="${vm%\*}"  # Remove trailing asterisk indicating 'current vm'
     zrbv_remove_vm "$vm" || bcu_die "Attempt to remove VM $vm failed."
   done
 
@@ -392,7 +400,8 @@ rbv_mirror() {
   zrbv_ignite_create || bcu_die "Failed to create temp machine"
 
   bcu_step "Login to registry..."
-  zrbv_registry_login "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login to registry"
+  zrbv_login_ghcr  "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
+  zrbv_login_crane "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login crane to registry"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
@@ -468,6 +477,9 @@ rbv_init() {
   bcu_step "Checking if deploy VM exists..."
   podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
     bcu_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
+
+  bcu_step "Log podman into -> ${ZRBV_GIT_REGISTRY}"
+  zrbv_login_ghcr  "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
 
   bcu_step "Initializing: init machine from image ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
   podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" \
