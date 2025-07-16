@@ -30,9 +30,9 @@ export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases
 export RBRR_CHOSEN_PODMAN_VERSION=5.5
 export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.io/podman/machine-os
 
-export RBRR_CHOSEN_VMIMAGE_FQIN=ghcr.io/bhyslop/recipemuster:mirror-quay.io-podman-machine-os-wsl-5.5-54ec98577c8f
-export RBRR_CHOSEN_VMIMAGE_DIGEST=sha256:54ec98577c8ff7bb3d20f5a23b732f1e41ea87040fc1f3b2f4704e7946da84b5
-export RBRR_CHOSEN_IDENTITY=20250715-161139
+export RBRR_CHOSEN_VMIMAGE_FQIN=ghcr.io/bhyslop/recipemuster:mirror-quay.io-podman-machine-os-wsl-5.5-9169f2e96a44
+export RBRR_CHOSEN_VMIMAGE_DIGEST=sha256:9169f2e96a4431473ea0f68483d45a4873b205da15af4126e8f3cc14d6960da6
+export RBRR_CHOSEN_IDENTITY=20250716-051203
 
 # File containing user specific secrets for accessing the container registry.  Must have
 # contents expressed as bash variables (i.e. no spaces around '=') as follows...
