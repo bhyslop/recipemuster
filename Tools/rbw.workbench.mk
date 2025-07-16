@@ -71,7 +71,7 @@ rbw-hg.%:
 	$(MBC_PASS) "No errors."
 
 rbw-hv.%:
-	$(MBC_START) "Github Command Help"
+	$(MBC_START) "Podman VM Command Help"
 	$(RBM_RECIPE_BOTTLE_VM_SH)
 	$(MBC_PASS) "No errors."
 
@@ -124,6 +124,11 @@ rbw-c.%:
 rbw-m.%:
 	$(MBC_START) "Mirror latest podman VM image..."
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_mirror
+	$(MBC_PASS) "VM image check complete."
+
+rbw-i.%:
+	$(MBC_START) "Initialize podman VM..."
+	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_init
 	$(MBC_PASS) "VM image check complete."
 
 rbw-S.%: rbp_connect_sentry_rule

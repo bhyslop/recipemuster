@@ -82,9 +82,8 @@ zrbv_validate_envvars() {
 zrbv_verify_podman_version() {
   podman --version > "${ZRBV_VERSION_FILE}" || bcu_die "Podman not in PATH"
 
-  local host_podman_version
-  read -r _ _ host_podman_version < "${ZRBV_VERSION_FILE}"
-
+  local                   host_podman_version
+  read -r _ _             host_podman_version < "${ZRBV_VERSION_FILE}"
   local host_podman_mm="${host_podman_version%.*}"
 
   bcu_step "Podman version check: chosen is $RBRR_CHOSEN_PODMAN_VERSION, found is ${host_podman_mm}"
@@ -266,6 +265,12 @@ rbv_nuke() {
 }
 
 rbv_check() {
+  # Handle documentation mode
+  bcu_doc_brief "Check to see if a new podman VM is available"
+  bcu_doc_lines "TODO"
+  bcu_doc_shown || return 0
+
+  # Perform command
   local warning_count=0
 
   # There are many things I want this to do here but now is not the time.
@@ -373,6 +378,12 @@ rbv_check() {
 
 # Mirror VM image to GHCR
 rbv_mirror() {
+  # Handle documentation mode
+  bcu_doc_brief "Attempt to copy the currently selected origin FQIN to designated mirror"
+  bcu_doc_lines "TODO"
+  bcu_doc_shown || return 0
+
+  # Perform command
   bcu_step "Prepare fresh ignite machine with crane..."
   rbv_ignite_create || bcu_die "Failed to create temp machine"
 
