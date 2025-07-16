@@ -85,14 +85,15 @@ jobs:
           TAGGED=$(jq '[.[] | select(.metadata.container.tags | length > 0)] | length' /tmp/all_versions.json)
           UNTAGGED=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions.json)
           
-          echo "Total versions: $TOTAL"
-          echo "Tagged versions: $TAGGED"
-          echo "Untagged versions: $UNTAGGED"
-          echo ""
+          echo "## Pre-Delete Metrics"              >> $GITHUB_STEP_SUMMARY
+          echo "- **Total versions:** $TOTAL"       >> $GITHUB_STEP_SUMMARY
+          echo "- **Tagged versions:** $TAGGED"     >> $GITHUB_STEP_SUMMARY
+          echo "- **Untagged versions:** $UNTAGGED" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           # Save for comparison
-          echo "PRE_TOTAL=$TOTAL" >> $GITHUB_ENV
-          echo "PRE_TAGGED=$TAGGED" >> $GITHUB_ENV
+          echo "PRE_TOTAL=$TOTAL"       >> $GITHUB_ENV
+          echo "PRE_TAGGED=$TAGGED"     >> $GITHUB_ENV
           echo "PRE_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
 
       - name: Find version ID for tag
@@ -161,10 +162,11 @@ jobs:
           TAGGED=$(jq '[.[] | select(.metadata.container.tags | length > 0)] | length' /tmp/all_versions_post.json)
           UNTAGGED=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions_post.json)
           
-          echo "Total versions: $TOTAL (was ${{ env.PRE_TOTAL }})"
-          echo "Tagged versions: $TAGGED (was ${{ env.PRE_TAGGED }}, change: $((TAGGED - PRE_TAGGED)))"
-          echo "Untagged versions: $UNTAGGED (was ${{ env.PRE_UNTAGGED }}, change: $((UNTAGGED - PRE_UNTAGGED)))"
-          echo ""
+          echo "## Post-Delete Metrics"                                                                                 >> $GITHUB_STEP_SUMMARY
+          echo "- **Total versions:** $TOTAL (was ${{ env.PRE_TOTAL }})"                                                >> $GITHUB_STEP_SUMMARY
+          echo "- **Tagged versions:** $TAGGED (was ${{ env.PRE_TAGGED }}, change: $((TAGGED - PRE_TAGGED)))"           >> $GITHUB_STEP_SUMMARY
+          echo "- **Untagged versions:** $UNTAGGED (was ${{ env.PRE_UNTAGGED }}, change: $((UNTAGGED - PRE_UNTAGGED)))" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           # Save for final comparison
           echo "POST_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
