@@ -38,7 +38,7 @@ ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
 ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
 ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
 
-ZRBV_PODMAN_INSPECT_PREFIX="${RBV_TEMP_DIR}/podman_inspect_"
+ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
 ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
 ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
@@ -180,7 +180,7 @@ zrbv_validate_pat() {
 zrbv_remove_vm() {
   local vm_name="$1"
 
-  if podman machine inspect "$vm_name" > "${ZRBV_PODMAN_INSPECT_PREFIX}${vm_name}.txt"; then
+  if podman machine inspect "$vm_name" > "${ZRBV_PODMAN_REMOVE_PREFIX}${vm_name}.txt"; then
     bcu_info       "Stopping $vm_name..."
     podman machine stop     "$vm_name" || bcu_warn "Failed to stop $vm_name during _remove_vm"
     bcu_info       "Removing $vm_name..."
