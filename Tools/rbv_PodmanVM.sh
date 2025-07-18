@@ -51,6 +51,8 @@ ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
 
 ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
+ZRBV_MACH_IMAGE_FILENAME="/tmp/${RBRR_CHOSEN_VMIMAGE_FQIN}.tar"
+ZRBV_HOST_IMAGE_FILENAME="${RBRS_VMIMAGE_CACHE_DIR}/${RBRR_CHOSEN_VMIMAGE_FQIN}.tar"
 
 
 ######################################################################
@@ -483,75 +485,58 @@ rbv_fetch() {
   bcu_step "Ensure ignite VM is running..."
   zrbv_ignite_bootstrap false
 
-  local chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
-  local expected_digest="${RBRR_CHOSEN_VMIMAGE_DIGEST}"
-  local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
+  bcu_step "Querying digest from ignite VM..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane digest ${mirror_tag}"                    \
+      > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
 
-  bcu_step "Querying digest from VM for ${chosen_fqin}..."
-  local actual_digest
-  actual_digest=$(podman machine ssh "$vm_name" -- crane digest "$chosen_fqin") || {
-    bcu_warn "Failed to query digest from VM"
-    return 0
-  }
-
-  if [ "$actual_digest" != "$expected_digest" ]; then
-    bcu_warn "Digest mismatch: VM sees $actual_digest, expected $expected_digest - skipping cache"
-    return 0
-  fi
-
-  local image_filename="${expected_digest}.tar"
-  local vm_image_path="/tmp/${image_filename}"
-  local host_cache_path="${RBRS_VMIMAGE_CACHE_DIR}/${image_filename}"
+  test "${RBRR_CHOSEN_VMIMAGE_DIGEST}" == "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || \
+    bcu_die "Digest mismatch."
 
   bcu_step "Saving image to VM filesystem..."
-  podman machine ssh "$vm_name" -- crane save "$chosen_fqin" "$vm_image_path" || {
-    bcu_warn "Failed to save image inside VM"
-    return 0
-  }
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      crane save "${RBRR_CHOSEN_VMIMAGE_FQIN}" "${ZRBV_MACH_IMAGE_FILENAME}" ||\
+    bcu_die "Failed to save image inside VM"
 
   bcu_step "Computing VM-side checksum..."
   local    vm_checksum
-  read -r  vm_checksum _ < <(podman machine ssh "$vm_name" -- sha256sum "$vm_image_path") || bcu_die "vm checksum"
+  read -r  vm_checksum _ < <(podman machine ssh "$vm_name" -- sha256sum "${ZRBV_MACH_IMAGE_FILENAME}") || bcu_die "vm checksum"
   test "${#vm_checksum}" -eq 64 || bcu_die "Invalid VM checksum length: ${#vm_checksum}"
 
-  if [ -f "$host_cache_path" ]; then
+  if [ -f "${ZRBV_HOST_IMAGE_FILENAME}" ]; then
     bcu_step "Host cache already exists - verifying checksum..."
     local    host_checksum
-    read -r  host_checksum _ < <(sha256sum "$host_cache_path") || bcu_die "host checksum"
+    read -r  host_checksum _ < <(sha256sum "${ZRBV_HOST_IMAGE_FILENAME}") || bcu_die "host checksum"
     test "${#host_checksum}" -eq 64 || bcu_die "Invalid host checksum length: ${#host_checksum}"
 
     if [ "$vm_checksum" = "$host_checksum" ]; then
       bcu_info "Host cache valid for ${expected_digest}"
-      podman machine ssh "$vm_name" -- rm -f "$vm_image_path" || true
+      podman machine ssh "$vm_name" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}"
       return 0
     fi
 
-    bcu_die "Checksum mismatch for cached image:" \
-            "  VM:   $vm_checksum"
-            "  Host: $host_checksum"
-            "To fix: rm \"$host_cache_path\""
+    bcu_die "Checksum mismatch for cached image:"          \
+            "  VM:   $vm_checksum"                         \
+            "  Host: $host_checksum"                       \
+            "To fix: rm \"${ZRBV_HOST_IMAGE_FILENAME}\""
   fi
 
   bcu_step "Copying image from VM to host cache..."
-  mkdir -p "$RBRS_VMIMAGE_CACHE_DIR" || bcu_die "Failed to create cache directory"
-  podman machine ssh "$vm_name" -- cat "$vm_image_path" > "$host_cache_path" || \
+  mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to assure cache directory"
+  podman machine ssh "$vm_name" -- cat "${ZRBV_MACH_IMAGE_FILENAME}" > "${ZRBV_HOST_IMAGE_FILENAME}" || \
     bcu_die "Failed to copy image from VM to host"
 
   bcu_step "Verifying host-side checksum..."
   local    verify_checksum
-  read -r  verify_checksum _ < <(sha256sum "$host_cache_path") || bcu_die "final checksum"
+  read -r  verify_checksum _ < <(sha256sum "${ZRBV_HOST_IMAGE_FILENAME}") || bcu_die "final checksum"
   test "${#verify_checksum}" -eq 64 || bcu_die "Invalid verification checksum length: ${#verify_checksum}"
 
-
-  if [ "$vm_checksum" != "$verify_checksum" ]; then
-    rm -f "$host_cache_path"
-    bcu_die "Copy verification failed — checksums do not match"
-  fi
+  test "${vm_checksum}" == "${verify_checksum}" || bcu_die "Copy verification failed"
 
   bcu_success "Cached ${expected_digest} at ${host_cache_path}"
 
   bcu_step "Cleaning up VM temporary file..."
-  podman machine ssh "$vm_name" -- rm -f "$vm_image_path" || true
+  podman machine ssh "$vm_name" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}" || true
 }
 
 rbv_init() {
