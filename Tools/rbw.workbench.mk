@@ -126,6 +126,11 @@ rbw-m.%:
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_mirror
 	$(MBC_PASS) "VM image check complete."
 
+rbw-f.%:
+	$(MBC_START) "Fetch chosen podman VM image..."
+	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_fetch
+	$(MBC_PASS) "VM image check complete."
+
 rbw-i.%:
 	$(MBC_START) "Initialize podman VM..."
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_init

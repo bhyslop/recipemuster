@@ -190,18 +190,30 @@ zrbv_remove_vm() {
   fi
 }
 
-# Create a fresh ignite machine with crane installed
-zrbv_ignite_create() {
-  bcu_info "Creating ignite machine: ${RBRR_IGNITE_MACHINE_NAME}"
+# Prepare ignite machine: start if present, or fully reinit if force_reinit=true
+zrbv_ignite_bootstrap() {
+  local force_reinit="${1}"
 
-  bcu_step "Removing any existing ignite machine..."
-  zrbv_remove_vm "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Removal failed."
+  bcu_info "Bootstrapping ignite machine: ${RBRR_IGNITE_MACHINE_NAME}"
 
-  bcu_step "Creating ignite VM with natural podman init..."
-  podman machine init --log-level=debug     "${RBRR_IGNITE_MACHINE_NAME}" \
-                                          2> "$ZRBV_IGNITE_INIT_STDERR"   \
-       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_IGNITE_INIT_STDOUT"   \
-    || bcu_die "Bad init."
+  if podman machine inspect "${RBRR_IGNITE_MACHINE_NAME}" &>/dev/null; then
+    bcu_info "Stopping existing ignite machine (if running)..."
+    podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" 2>/dev/null || \
+      bcu_die "Could not stop existing ignite VM cleanly"
+  fi
+
+  if [ "$force_reinit" = true ]; then
+    bcu_step "Removing existing ignite machine due to force_reinit..."
+    zrbv_remove_vm "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Removal failed."
+  fi
+
+  if ! podman machine inspect "${RBRR_IGNITE_MACHINE_NAME}" &>/dev/null; then
+    bcu_step "Creating ignite VM with natural podman init..."
+    podman machine init --log-level=debug     "${RBRR_IGNITE_MACHINE_NAME}" \
+                                            2> "$ZRBV_IGNITE_INIT_STDERR"   \
+         | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_IGNITE_INIT_STDOUT"   \
+      || bcu_die "Bad init."
+  fi
 
   bcu_step "Starting ignite machine..."
   podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
@@ -217,6 +229,7 @@ zrbv_ignite_create() {
 
   bcu_success "Ignite machine ready with crane installed"
 }
+
 
 # Login podman to github container registry in podman VM
 zrbv_login_ghcr() {
@@ -322,7 +335,7 @@ rbv_check() {
   bcu_step "Checking for newer VM images..."
 
   bcu_step "Prepare fresh ignite machine with crane..."
-  zrbv_ignite_create || bcu_die "Failed to create temp machine"
+  zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
@@ -397,7 +410,7 @@ rbv_mirror() {
 
   # Perform command
   bcu_step "Prepare fresh ignite machine with crane..."
-  zrbv_ignite_create || bcu_die "Failed to create temp machine"
+  zrbv_ignite_bootstrap true || bcu_die "Failed to create temp machine"
 
   bcu_step "Login to registry..."
   zrbv_login_ghcr  "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
@@ -463,6 +476,82 @@ rbv_mirror() {
                           "${ZRBV_DEPLOY_INIT_STDOUT}" || bcu_die "Init outputs differ"
 
   bcu_success "Successfully mirrored image to ${mirror_tag}"
+}
+
+# Attempt to cache the VM image from the chosen FQIN using crane inside ignite VM
+rbv_fetch() {
+  bcu_step "Ensure ignite VM is running..."
+  zrbv_ignite_bootstrap false
+
+  local chosen_fqin="${RBRR_CHOSEN_VMIMAGE_FQIN}"
+  local expected_digest="${RBRR_CHOSEN_VMIMAGE_DIGEST}"
+  local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
+
+  bcu_step "Querying digest from VM for ${chosen_fqin}..."
+  local actual_digest
+  actual_digest=$(podman machine ssh "$vm_name" -- crane digest "$chosen_fqin") || {
+    bcu_warn "Failed to query digest from VM"
+    return 0
+  }
+
+  if [ "$actual_digest" != "$expected_digest" ]; then
+    bcu_warn "Digest mismatch: VM sees $actual_digest, expected $expected_digest - skipping cache"
+    return 0
+  fi
+
+  local image_filename="${expected_digest}.tar"
+  local vm_image_path="/tmp/${image_filename}"
+  local host_cache_path="${RBRS_VMIMAGE_CACHE_DIR}/${image_filename}"
+
+  bcu_step "Saving image to VM filesystem..."
+  podman machine ssh "$vm_name" -- crane save "$chosen_fqin" "$vm_image_path" || {
+    bcu_warn "Failed to save image inside VM"
+    return 0
+  }
+
+  bcu_step "Computing VM-side checksum..."
+  local    vm_checksum
+  read -r  vm_checksum _ < <(podman machine ssh "$vm_name" -- sha256sum "$vm_image_path") || bcu_die "vm checksum"
+  test "${#vm_checksum}" -eq 64 || bcu_die "Invalid VM checksum length: ${#vm_checksum}"
+
+  if [ -f "$host_cache_path" ]; then
+    bcu_step "Host cache already exists - verifying checksum..."
+    local    host_checksum
+    read -r  host_checksum _ < <(sha256sum "$host_cache_path") || bcu_die "host checksum"
+    test "${#host_checksum}" -eq 64 || bcu_die "Invalid host checksum length: ${#host_checksum}"
+
+    if [ "$vm_checksum" = "$host_checksum" ]; then
+      bcu_info "Host cache valid for ${expected_digest}"
+      podman machine ssh "$vm_name" -- rm -f "$vm_image_path" || true
+      return 0
+    fi
+
+    bcu_die "Checksum mismatch for cached image:" \
+            "  VM:   $vm_checksum"
+            "  Host: $host_checksum"
+            "To fix: rm \"$host_cache_path\""
+  fi
+
+  bcu_step "Copying image from VM to host cache..."
+  mkdir -p "$RBRS_VMIMAGE_CACHE_DIR" || bcu_die "Failed to create cache directory"
+  podman machine ssh "$vm_name" -- cat "$vm_image_path" > "$host_cache_path" || \
+    bcu_die "Failed to copy image from VM to host"
+
+  bcu_step "Verifying host-side checksum..."
+  local    verify_checksum
+  read -r  verify_checksum _ < <(sha256sum "$host_cache_path") || bcu_die "final checksum"
+  test "${#verify_checksum}" -eq 64 || bcu_die "Invalid verification checksum length: ${#verify_checksum}"
+
+
+  if [ "$vm_checksum" != "$verify_checksum" ]; then
+    rm -f "$host_cache_path"
+    bcu_die "Copy verification failed — checksums do not match"
+  fi
+
+  bcu_success "Cached ${expected_digest} at ${host_cache_path}"
+
+  bcu_step "Cleaning up VM temporary file..."
+  podman machine ssh "$vm_name" -- rm -f "$vm_image_path" || true
 }
 
 rbv_init() {
