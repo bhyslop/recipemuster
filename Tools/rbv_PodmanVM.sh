@@ -499,7 +499,7 @@ rbv_fetch() {
 
   bcu_step "Saving image to VM filesystem..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      crane save "${RBRR_CHOSEN_VMIMAGE_FQIN}" "${ZRBV_MACH_IMAGE_FILENAME}" ||\
+      "crane pull --format docker ${RBRR_CHOSEN_VMIMAGE_FQIN} ${ZRBV_MACH_IMAGE_FILENAME}" \
     bcu_die "Failed to save image inside VM"
 
   bcu_step "Computing VM-side checksum..."
