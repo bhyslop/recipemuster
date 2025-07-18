@@ -214,19 +214,22 @@ zrbv_ignite_bootstrap() {
                                             2> "$ZRBV_IGNITE_INIT_STDERR"   \
          | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_IGNITE_INIT_STDOUT"   \
       || bcu_die "Bad init."
+
+    bcu_step "Starting ignite machine..."
+    podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
+
+    bcu_step "Installing crane..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                        \
+        "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
+        || bcu_die "crane fail"
+
+    bcu_step "Verify crane installation..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "crane version" || bcu_die "crane confirm fail."
+  else
+    bcu_step "Restarting ignite machine..."
+    podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to restart ignite machine"
   fi
-
-  bcu_step "Starting ignite machine..."
-  podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
-
-  bcu_step "Installing crane..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                        \
-      "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
-      || bcu_die "crane fail"
-
-  bcu_step "Verify crane installation..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane version" || bcu_die "crane confirm fail."
 
   bcu_success "Ignite machine ready with crane installed"
 }
