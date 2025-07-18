@@ -487,11 +487,13 @@ rbv_fetch() {
 
   bcu_step "Querying digest from ignite VM..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${mirror_tag}"                    \
+      "crane digest ${RBRR_CHOSEN_VMIMAGE_FQIN}"      \
       > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
 
-  test "${RBRR_CHOSEN_VMIMAGE_DIGEST}" == "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || \
-    bcu_die "Digest mismatch."
+  local   mirror_digest
+  read -r mirror_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to read mirror digest"
+  test  "$mirror_digest" = "${RBRR_CHOSEN_VMIMAGE_DIGEST}" || \
+    bcu_die "Digest mismatch: expected ${RBRR_CHOSEN_VMIMAGE_DIGEST}, got ${mirror_digest}"
 
   bcu_step "Saving image to VM filesystem..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
@@ -531,7 +533,7 @@ rbv_fetch() {
   read -r  verify_checksum _ < <(sha256sum "${ZRBV_HOST_IMAGE_FILENAME}") || bcu_die "final checksum"
   test "${#verify_checksum}" -eq 64 || bcu_die "Invalid verification checksum length: ${#verify_checksum}"
 
-  test "${vm_checksum}" == "${verify_checksum}" || bcu_die "Copy verification failed"
+  test "${vm_checksum}" = "${verify_checksum}" || bcu_die "Copy verification failed"
 
   bcu_success "Cached ${expected_digest} at ${host_cache_path}"
 
