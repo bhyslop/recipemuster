@@ -447,7 +447,7 @@ rbv_mirror() {
 
   bcu_step "Pulling VM image to tarball..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo copy --all docker://${origin_fqin} docker-archive:${ZRBV_MACH_IMAGE_FILENAME}" \
+      "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_MACH_IMAGE_FILENAME}" \
       || bcu_die "Failed to pull VM image to tarball"
 
   bcu_step "Generating brand file..."
