@@ -507,6 +507,9 @@ rbv_mirror() {
       "cd ${ZRBV_VM_BUILD_DIR} && podman build -t ${mirror_tag} -f Dockerfile ." \
       || bcu_die "Failed to build container image"
 
+  bcu_die "STOP HERE FOR DEBUGGING TARBALL PRODUCTION."
+
+
   bcu_step "Pushing container image to GHCR..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "podman push ${mirror_tag}"                     \
