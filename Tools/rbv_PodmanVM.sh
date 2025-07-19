@@ -255,7 +255,6 @@ zrbv_ignite_bootstrap() {
   bcu_success "Ignite machine ready with skopeo installed"
 }
 
-
 # Login podman to github container registry in podman VM
 zrbv_login_ghcr() {
   local vm_name="$1"
@@ -504,7 +503,7 @@ rbv_mirror() {
       "cat ${ZRBV_VM_BUILD_DIR}/${ZRBV_BRAND_FILENAME}"
 
   bcu_die "STOP HERE FOR DEBUGGING TARBALL PRODUCTION.  NEED TO PACKAGE AND PUSH CONTAINER"
-}
+}                           
 
 # Fetch VM image from GHCR container
 rbv_fetch() {
