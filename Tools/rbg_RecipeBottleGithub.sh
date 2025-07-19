@@ -87,10 +87,14 @@ zrbg_curl_post() {
   local data="$2"
 
   source "${RBRR_GITHUB_PAT_ENV}"
-  curl -X POST -H "Authorization: token ${RBRG_PAT}"       \
-               -H 'Accept: application/vnd.github.v3+json' \
-               "$url"                                      \
-               -d "$data"
+  curl                                             \
+       -s                                          \
+       -X POST                                     \
+       -H "Authorization: token ${RBRG_PAT}"       \
+       -H 'Accept: application/vnd.github.v3+json' \
+       "$url"                                      \
+       -d "$data"                                  \
+    || bcu_die "Curl failed."
 }
 
 # Perform authenticated DELETE request
@@ -216,7 +220,7 @@ rbg_build() {
 
   zrbg_check_git_status
 
-  bcu_info "Trigger workflow dispatch..."
+  bcu_step "Triggering GitHub Actions workflow for image build"
   local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   local dispatch_data='{"event_type": "build_images", "client_payload": {"dockerfile": "'$recipe_file'"}}'
   zrbg_curl_post "$dispatch_url" "$dispatch_data"
@@ -365,6 +369,7 @@ rbg_delete() {
       zrbg_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
   fi
 
+  bcu_step "Triggering GitHub Actions workflow for image deletion"
   local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   local dispatch_data='{"event_type": "delete_image", "client_payload": {"fqin": "'$fqin'"}}'
   zrbg_curl_post "$dispatch_url" "$dispatch_data"
