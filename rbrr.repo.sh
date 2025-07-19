@@ -34,7 +34,6 @@ export RBRR_CHOSEN_VMIMAGE_FQIN=ghcr.io/bhyslop/recipemuster:mirror-quay.io-podm
 export RBRR_CHOSEN_VMIMAGE_DIGEST=sha256:d31938c5d746baee62a0e8cf1d9cb8bf6ac30371b8fa34b85bd04781e270d003
 export RBRR_CHOSEN_IDENTITY=20250719-072438
 
-
 # File containing user specific secrets for accessing the container registry.  Must have
 # contents expressed as bash variables (i.e. no spaces around '=') as follows...
 #

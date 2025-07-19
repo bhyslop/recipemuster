@@ -398,16 +398,11 @@ rbv_check() {
   fi
 
   if $advise_change; then
-    if [[ "${RBRR_CHOSEN_VMIMAGE_FQIN}"   == "${mirror_tag}"    && \
-          "${RBRR_CHOSEN_VMIMAGE_DIGEST}" == "${origin_digest}" ]]; then
-      bcu_step "Digest and FQIN match; skipping update. Identity is unchanged."
-    else
-      bcu_code "# New contents for -> ${RBV_RBRR_FILE}"
-      bcu_code "#"
-      bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
-      bcu_code "export RBRR_CHOSEN_VMIMAGE_DIGEST=${origin_digest}"
-      bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}  # use this to remember update date"
-    fi
+    bcu_code "# New contents for -> ${RBV_RBRR_FILE}"
+    bcu_code "#"
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
+    bcu_code "export RBRR_CHOSEN_VMIMAGE_DIGEST=${origin_digest}"
+    bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}  # use this to remember update date"
   fi
 
   if [[ $warning_count -gt 0 ]]; then
