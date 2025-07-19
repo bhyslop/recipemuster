@@ -457,6 +457,16 @@ rbv_mirror() {
   local   origin_digest
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
+  # Validate configuration matches what we're about to mirror
+  bcu_step "Validating configuration matches origin..."
+  if [[ "${RBRR_CHOSEN_VMIMAGE_FQIN}" != "${mirror_tag}" ]]; then
+    bcu_die "Configuration mismatch: RBRR_CHOSEN_VMIMAGE_FQIN=${RBRR_CHOSEN_VMIMAGE_FQIN}" "  Expected: ${mirror_tag}"
+  fi
+
+  if [[ "${RBRR_CHOSEN_VMIMAGE_DIGEST}" != "${origin_digest}" ]]; then
+    bcu_die "Configuration mismatch: RBRR_CHOSEN_VMIMAGE_DIGEST=${RBRR_CHOSEN_VMIMAGE_DIGEST}" "  Expected: ${origin_digest}"
+  fi
+
   bcu_step "Pulling VM image to OCI archive in build directory..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_VM_BUILD_DIR}/oci-archive" \
