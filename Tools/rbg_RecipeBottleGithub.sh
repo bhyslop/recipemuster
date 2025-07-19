@@ -240,8 +240,6 @@ rbg_build() {
     local run_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}"
     local response=$(zrbg_curl_get "$run_url")
 
-    echo "  TRACE: $response" | grep -i -e "status" -e "conclusion" -e "TRACE"
-
     status=$(echo "$response" | jq -r '.status')
     conclusion=$(echo "$response" | jq -r '.conclusion')
 
@@ -388,8 +386,6 @@ rbg_delete() {
   while true; do
     local run_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}"
     local response=$(zrbg_curl_get "$run_url")
-
-    echo "  TRACE: $response" | grep -i -e "status" -e "conclusion" -e "TRACE"
 
     status=$(echo "$response" | jq -r '.status')
     conclusion=$(echo "$response" | jq -r '.conclusion')

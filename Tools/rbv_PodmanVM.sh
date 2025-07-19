@@ -457,10 +457,15 @@ rbv_mirror() {
   local   origin_digest
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
-  bcu_step "Pulling VM image to tarball in build directory..."
+  bcu_step "Pulling VM image to OCI archive in build directory..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_VM_BUILD_DIR}/${ZRBV_TARBALL_FILENAME}" \
-      || bcu_die "Failed to pull VM image to tarball"
+      "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_VM_BUILD_DIR}/oci-archive" \
+      || bcu_die "Failed to pull VM image to OCI archive"
+
+  bcu_step "Extracting VM image from OCI archive..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cd ${ZRBV_VM_BUILD_DIR} && tar -cf ${ZRBV_TARBALL_FILENAME} oci-archive/" \
+      || bcu_die "Failed to create tarball from OCI archive"
 
   bcu_step "Generating brand file..."
   zrbv_generate_brand_file
