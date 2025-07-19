@@ -67,12 +67,12 @@ zrbv_validate_envvars() {
   ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
   ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
   ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
-  ZRBV_CRANE_ORIGIN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_origin_digest.txt"
-  ZRBV_CRANE_CHOSEN_DIGEST_FILE="${RBV_TEMP_DIR}/crane_chosen_digest.txt"
-  ZRBV_CRANE_MIRROR_DIGEST_FILE="${RBV_TEMP_DIR}/crane_mirror_digest.txt"
-  ZRBV_CRANE_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/crane_manifest_check.txt"
-  ZRBV_CRANE_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_copy_output.txt"
-  ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
+  ZRBV_ORIGIN_DIGEST_FILE="${RBV_TEMP_DIR}/origin_digest.txt"
+  ZRBV_CHOSEN_DIGEST_FILE="${RBV_TEMP_DIR}/chosen_digest.txt"
+  ZRBV_MIRROR_DIGEST_FILE="${RBV_TEMP_DIR}/mirror_digest.txt"
+  ZRBV_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/manifest_check.txt"
+  ZRBV_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/copy_output.txt"
+  ZRBV_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/verify_output.txt"
 
   ZRBV_TEMPORARY_CONTAINER_FILE="${RBV_TEMP_DIR}/temporary_container_id.txt"
 
@@ -145,33 +145,31 @@ zrbv_get_image_digest() {
   local vm_name="$1"
   local fqin="$2"
   local output_file="$3"
-  
+
   podman machine ssh "$vm_name" --                          \
       "skopeo inspect docker://${fqin} | jq -r .Digest"     \
       > "$output_file" || return 1
-  
+
   # Verify we got a valid digest
   local digest
   read -r digest < "$output_file"
   [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || return 1
-  
+
   return 0
 }
 
 # Generate mirror tag using crane digest
 zrbv_generate_mirror_tag() {
-  local     digest
-  read -r   digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read digest file"
-  
-  # Validate digest format
-  [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || bcu_die "Invalid digest format: $digest"
-  
-  local     sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
-  
+  local   digest
+  read -r digest < "${ZRBV_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read digest file"
+  [[    "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]   || bcu_die "Invalid digest format: $digest"
+
+  local sha_short="${digest:7:12}" # Extract characters 8-19 (0-indexed)
+
   local raw="mirror-${RBRR_CHOSEN_VMIMAGE_ORIGIN}-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
   raw=${raw//\//-}
   raw=${raw//:/-}
-  
+
   echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
 }
 
@@ -242,15 +240,6 @@ zrbv_ignite_bootstrap() {
     bcu_step "Starting ignite machine..."
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
 
-    bcu_step "Installing crane..."
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                        \
-        "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
-        || bcu_die "crane fail"
-
-    bcu_step "Verify crane installation..."
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-        "crane version" || bcu_die "crane confirm fail."
-
     bcu_step "Installing tools..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
         "sudo dnf install -y skopeo jq" || bcu_die "tools install fail"
@@ -263,7 +252,7 @@ zrbv_ignite_bootstrap() {
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to restart ignite machine"
   fi
 
-  bcu_success "Ignite machine ready with crane and skopeo installed"
+  bcu_success "Ignite machine ready with skopeo installed"
 }
 
 
@@ -451,7 +440,7 @@ rbv_mirror() {
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "Prepare fresh ignite machine with crane and skopeo..."
+  bcu_step "Prepare fresh ignite machine with skopeo..."
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
   bcu_step "Creating build directory..."
@@ -461,13 +450,12 @@ rbv_mirror() {
 
   bcu_step "Login to registry..."
   zrbv_login_ghcr  "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
-  zrbv_login_crane "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login crane to registry"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
   zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
                         "$origin_fqin"                     \
-                        "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" \
+                        "${ZRBV_ORIGIN_DIGEST_FILE}" \
       || bcu_die "Failed to query origin image digest"
 
   bcu_step "Prepare mirror tag..."
@@ -476,7 +464,7 @@ rbv_mirror() {
   read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
 
   local   origin_digest
-  read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
+  read -r origin_digest < "${ZRBV_ORIGIN_DIGEST_FILE}"
 
   # Validate configuration matches what we're about to mirror
   bcu_step "Validating configuration matches origin..."
@@ -503,21 +491,19 @@ rbv_mirror() {
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                       \
       "printf 'FROM scratch\nADD * /\n' > ${ZRBV_VM_BUILD_DIR}/Dockerfile"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                            \
-      "cd ${ZRBV_VM_BUILD_DIR} && podman build -t ${mirror_tag} -f Dockerfile ." \
-      || bcu_die "Failed to build container image"
-
-  bcu_die "STOP HERE FOR DEBUGGING TARBALL PRODUCTION."
-
-
-  bcu_step "Pushing container image to GHCR..."
+  bcu_step "Inspecting build directory contents..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman push ${mirror_tag}"                     \
-      || bcu_die "Failed to push container image"
+      "ls -la ${ZRBV_VM_BUILD_DIR}/"
 
-  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
+  bcu_step "Checking tarball size..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "du -h ${ZRBV_VM_BUILD_DIR}/${ZRBV_TARBALL_FILENAME}"
 
-  bcu_success "Successfully packaged and pushed image to ${mirror_tag}"
+  bcu_step "Verifying brand file content..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cat ${ZRBV_VM_BUILD_DIR}/${ZRBV_BRAND_FILENAME}"
+
+  bcu_die "STOP HERE FOR DEBUGGING TARBALL PRODUCTION.  NEED TO PACKAGE AND PUSH CONTAINER"
 }
 
 # Fetch VM image from GHCR container
