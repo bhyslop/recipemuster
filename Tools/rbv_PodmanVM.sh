@@ -459,6 +459,7 @@ rbv_mirror() {
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "printf 'FROM scratch\nADD vm-image.tar ${ZRBV_CONTAINER_TARBALL_PATH}\nADD brand.txt ${ZRBV_CONTAINER_BRAND_PATH}\n' > /tmp/Dockerfile"
 
+ERROR
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "cd /tmp && podman build -t ${mirror_tag} -f Dockerfile --context-dir /tmp ." \
       || bcu_die "Failed to build container image"
