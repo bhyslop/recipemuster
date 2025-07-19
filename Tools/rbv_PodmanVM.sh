@@ -399,7 +399,7 @@ rbv_check() {
   if $advise_change; then
     if [[ "${RBRR_CHOSEN_VMIMAGE_FQIN}"   == "${mirror_tag}"    && \
           "${RBRR_CHOSEN_VMIMAGE_DIGEST}" == "${origin_digest}" ]]; then
-      bcu_step "Current RBRR_CHOSEN_VMIMAGE_xxx are up to date."
+      bcu_step "Digest and FQIN match; skipping update. Identity is unchanged."
     else
       bcu_code "# New contents for -> ${RBV_RBRR_FILE}"
       bcu_code "#"
@@ -495,26 +495,26 @@ rbv_fetch() {
 
   bcu_step "Pulling container image from GHCR..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman pull ${RBRR_CHOSEN_VMIMAGE_FQIN}" \
+      "podman pull ${RBRR_CHOSEN_VMIMAGE_FQIN}"       \
       || bcu_die "Failed to pull container image"
 
   bcu_step "Mounting container image..."
   local mount_point
   mount_point=$(podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman image mount ${RBRR_CHOSEN_VMIMAGE_FQIN}") \
+      "podman image mount ${RBRR_CHOSEN_VMIMAGE_FQIN}")             \
       || bcu_die "Failed to mount container image"
 
   bcu_step "Extracting tarball and brand file..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "cp ${mount_point}${ZRBV_CONTAINER_TARBALL_PATH} ${ZRBV_MACH_IMAGE_FILENAME}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                  \
+      cp "${mount_point}${ZRBV_CONTAINER_TARBALL_PATH}" "${ZRBV_MACH_IMAGE_FILENAME}"  \
       || bcu_die "Failed to extract VM tarball"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                          \
       "cp ${mount_point}${ZRBV_CONTAINER_BRAND_PATH} /tmp/extracted_brand.txt" \
       || bcu_die "Failed to extract brand file"
 
   bcu_step "Unmounting container image..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --    \
       "podman image unmount ${RBRR_CHOSEN_VMIMAGE_FQIN}" \
       || bcu_warn "Failed to unmount container image"
 
