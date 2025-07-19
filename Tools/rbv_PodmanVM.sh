@@ -467,15 +467,10 @@ rbv_mirror() {
     bcu_die "Configuration mismatch: RBRR_CHOSEN_VMIMAGE_DIGEST=${RBRR_CHOSEN_VMIMAGE_DIGEST}" "  Expected: ${origin_digest}"
   fi
 
-  bcu_step "Pulling VM image to OCI archive in build directory..."
+  bcu_step "Pulling VM image to docker archive in build directory..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_VM_BUILD_DIR}/oci-archive" \
-      || bcu_die "Failed to pull VM image to OCI archive"
-
-  bcu_step "Extracting VM image from OCI archive..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "cd ${ZRBV_VM_BUILD_DIR} && skopeo copy oci-archive:oci-archive docker-archive:${ZRBV_TARBALL_FILENAME}" \
-      || bcu_die "Failed to extract VM image from OCI archive"
+      "skopeo copy --all docker://${origin_fqin} docker-archive:${ZRBV_VM_BUILD_DIR}/${ZRBV_TARBALL_FILENAME}" \
+      || bcu_die "Failed to pull VM image to docker archive"
 
   bcu_step "Generating brand file..."
   zrbv_generate_brand_file
