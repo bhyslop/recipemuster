@@ -226,12 +226,20 @@ zrbv_ignite_bootstrap() {
     bcu_step "Verify crane installation..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
         "crane version" || bcu_die "crane confirm fail."
+
+    bcu_step "Installing skopeo..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "sudo dnf install -y skopeo" || bcu_die "skopeo fail"
+
+    bcu_step "Verify skopeo installation..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "skopeo --version" || bcu_die "skopeo confirm fail."
   else
     bcu_step "Restarting ignite machine..."
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to restart ignite machine"
   fi
 
-  bcu_success "Ignite machine ready with crane installed"
+  bcu_success "Ignite machine ready with crane and skopeo installed"
 }
 
 
@@ -338,7 +346,7 @@ rbv_check() {
 
   bcu_step "Checking for newer VM images..."
 
-  bcu_step "Prepare fresh ignite machine with crane..."
+  bcu_step "Prepare fresh ignite machine with crane and skopeo..."
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
@@ -413,7 +421,7 @@ rbv_mirror() {
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "Prepare fresh ignite machine with crane..."
+  bcu_step "Prepare fresh ignite machine with crane and skopeo..."
   zrbv_ignite_bootstrap true || bcu_die "Failed to create temp machine"
 
   bcu_step "Login to registry..."
