@@ -77,10 +77,10 @@ zrbv_validate_envvars() {
   ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
   ZRBV_TARBALL_FILENAME="vm-image.tar"
+  ZRBV_BRAND_FILENAME="brand.txt"
   ZRBV_MACH_IMAGE_FILENAME="/tmp/${RBRR_CHOSEN_VMIMAGE_DIGEST}.tar"
   ZRBV_HOST_IMAGE_FILENAME="${RBRS_VMIMAGE_CACHE_DIR}/${RBRR_CHOSEN_VMIMAGE_DIGEST}.tar"
 
-  ZRBV_CONTAINER_BRAND_PATH="/brand.txt"
   ZRBV_VM_BUILD_DIR="vm-build"
 }
 
@@ -458,20 +458,21 @@ rbv_mirror() {
 
   bcu_step "Generating brand file..."
   zrbv_generate_brand_file
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat > ${ZRBV_VM_BUILD_DIR}/brand.txt" \
-                                                         < "${ZRBV_GENERATED_BRAND_FILE}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --     \
+      "cat > ${ZRBV_VM_BUILD_DIR}/${ZRBV_BRAND_FILENAME}" \
+                     < "${ZRBV_GENERATED_BRAND_FILE}"
 
   bcu_step "Creating container image with wildcard ADD..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                       \
       "printf 'FROM scratch\nADD * /\n' > ${ZRBV_VM_BUILD_DIR}/Dockerfile"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                            \
       "cd ${ZRBV_VM_BUILD_DIR} && podman build -t ${mirror_tag} -f Dockerfile ." \
       || bcu_die "Failed to build container image"
 
   bcu_step "Pushing container image to GHCR..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman push ${mirror_tag}" \
+      "podman push ${mirror_tag}"                     \
       || bcu_die "Failed to push container image"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
@@ -511,12 +512,14 @@ rbv_fetch() {
       || bcu_die "Failed to mount container image"
 
   bcu_step "Extracting tarball and brand file..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                               \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                          \
       "cp ${mount_point}/${ZRBV_TARBALL_FILENAME} ${ZRBV_MACH_IMAGE_FILENAME}" \
       || bcu_die "Failed to extract VM tarball"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                          \
-      "cp ${mount_point}${ZRBV_CONTAINER_BRAND_PATH} /tmp/extracted_brand.txt" \
+  bcu_step "Extracting brand file directly to host..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+          "cat ${mount_point}/${ZRBV_BRAND_FILENAME}" \
+                     > "${ZRBV_FOUND_BRAND_FILE}" \
       || bcu_die "Failed to extract brand file"
 
   bcu_step "Unmounting container image..."
@@ -525,8 +528,6 @@ rbv_fetch() {
       || bcu_warn "Failed to unmount container image"
 
   bcu_step "Comparing brand files..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat /tmp/extracted_brand.txt" \
-                                                       > "${ZRBV_FOUND_BRAND_FILE}"
 
   zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" || \
     bcu_die "Brand file mismatch - container package doesn't match current RBRR settings"
