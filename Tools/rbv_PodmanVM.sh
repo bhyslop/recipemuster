@@ -357,12 +357,12 @@ rbv_check() {
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
 
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${origin_fqin}"                   \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
+      "skopeo inspect docker://${origin_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${chosen_fqin}"                   \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
+      "skopeo inspect docker://${chosen_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
       > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed to query chosen image"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _check"
@@ -439,8 +439,8 @@ rbv_mirror() {
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo inspect docker://${origin_fqin} --raw | jq -r '.digest // .manifests[0].digest'"                   \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
+      "skopeo inspect docker://${origin_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   bcu_step "Prepare mirror tag..."
@@ -493,9 +493,6 @@ rbv_fetch() {
 
   bcu_step "Login to registry..."
   zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
-
-  local   mirror_tag
-  read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}" || bcu_die "Failed to read mirror tag"
 
   bcu_step "Generating expected brand file..."
   zrbv_generate_brand_file
