@@ -76,11 +76,12 @@ zrbv_validate_envvars() {
 
   ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
+  ZRBV_TARBALL_FILENAME="vm-image.tar"
   ZRBV_MACH_IMAGE_FILENAME="/tmp/${RBRR_CHOSEN_VMIMAGE_DIGEST}.tar"
   ZRBV_HOST_IMAGE_FILENAME="${RBRS_VMIMAGE_CACHE_DIR}/${RBRR_CHOSEN_VMIMAGE_DIGEST}.tar"
 
-  ZRBV_CONTAINER_TARBALL_PATH="/vm-image.tar"
   ZRBV_CONTAINER_BRAND_PATH="/brand.txt"
+  ZRBV_VM_BUILD_DIR="vm-build"
 }
 
 zrbv_verify_podman_version() {
@@ -427,6 +428,11 @@ rbv_mirror() {
   bcu_step "Prepare fresh ignite machine with crane and skopeo..."
   zrbv_ignite_bootstrap true || bcu_die "Failed to create temp machine"
 
+  bcu_step "Creating build directory..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "rm -rf ${ZRBV_VM_BUILD_DIR} && mkdir -p ${ZRBV_VM_BUILD_DIR}" \
+      || bcu_die "Failed to create build directory"
+
   bcu_step "Login to registry..."
   zrbv_login_ghcr  "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
   zrbv_login_crane "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login crane to registry"
@@ -445,23 +451,22 @@ rbv_mirror() {
   local   origin_digest
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
-  bcu_step "Pulling VM image to tarball..."
+  bcu_step "Pulling VM image to tarball in build directory..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_MACH_IMAGE_FILENAME}" \
+      "skopeo copy --all docker://${origin_fqin} oci-archive:${ZRBV_VM_BUILD_DIR}/${ZRBV_TARBALL_FILENAME}" \
       || bcu_die "Failed to pull VM image to tarball"
 
   bcu_step "Generating brand file..."
   zrbv_generate_brand_file
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat > /tmp/brand.txt" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat > ${ZRBV_VM_BUILD_DIR}/brand.txt" \
                                                          < "${ZRBV_GENERATED_BRAND_FILE}"
 
-  bcu_step "Creating container image with tarball and brand file..."
+  bcu_step "Creating container image with wildcard ADD..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "printf 'FROM scratch\nADD vm-image.tar ${ZRBV_CONTAINER_TARBALL_PATH}\nADD brand.txt ${ZRBV_CONTAINER_BRAND_PATH}\n' > /tmp/Dockerfile"
+      "printf 'FROM scratch\nADD * /\n' > ${ZRBV_VM_BUILD_DIR}/Dockerfile"
 
-ERROR
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "cd /tmp && podman build -t ${mirror_tag} -f Dockerfile --context-dir /tmp ." \
+      "cd ${ZRBV_VM_BUILD_DIR} && podman build -t ${mirror_tag} -f Dockerfile ." \
       || bcu_die "Failed to build container image"
 
   bcu_step "Pushing container image to GHCR..."
@@ -507,7 +512,7 @@ rbv_fetch() {
 
   bcu_step "Extracting tarball and brand file..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                               \
-      "cp ${mount_point}${ZRBV_CONTAINER_TARBALL_PATH} ${ZRBV_MACH_IMAGE_FILENAME}" \
+      "cp ${mount_point}/${ZRBV_TARBALL_FILENAME} ${ZRBV_MACH_IMAGE_FILENAME}" \
       || bcu_die "Failed to extract VM tarball"
 
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                          \
