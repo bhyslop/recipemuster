@@ -232,7 +232,7 @@ zrbv_ignite_bootstrap() {
 
     bcu_step "Installing tools..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-        "sudo dnf install -y skopeo jk" || bcu_die "tools install fail"
+        "sudo dnf install -y skopeo jq" || bcu_die "tools install fail"
 
     bcu_step "Verify skopeo installation..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
