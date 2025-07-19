@@ -434,7 +434,7 @@ rbv_mirror() {
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo inspect docker://${origin_fqin} --format '{{.Digest}}'"                   \
+      "skopeo inspect docker://${origin_fqin} --raw | jq -r '.digest // .manifests[0].digest'"                   \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   bcu_step "Prepare mirror tag..."
@@ -447,7 +447,7 @@ rbv_mirror() {
 
   bcu_step "Pulling VM image to tarball..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "skopeo copy docker://${origin_fqin} docker-archive:${ZRBV_MACH_IMAGE_FILENAME}" \
+      "skopeo copy --all docker://${origin_fqin} docker-archive:${ZRBV_MACH_IMAGE_FILENAME}" \
       || bcu_die "Failed to pull VM image to tarball"
 
   bcu_step "Generating brand file..."
@@ -505,8 +505,8 @@ rbv_fetch() {
       || bcu_die "Failed to mount container image"
 
   bcu_step "Extracting tarball and brand file..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                  \
-      cp "${mount_point}${ZRBV_CONTAINER_TARBALL_PATH}" "${ZRBV_MACH_IMAGE_FILENAME}"  \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                               \
+      "cp ${mount_point}${ZRBV_CONTAINER_TARBALL_PATH} ${ZRBV_MACH_IMAGE_FILENAME}" \
       || bcu_die "Failed to extract VM tarball"
 
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                          \
@@ -520,7 +520,7 @@ rbv_fetch() {
 
   bcu_step "Comparing brand files..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat /tmp/extracted_brand.txt" \
-                                                         > "${ZRBV_FOUND_BRAND_FILE}"
+                                                       > "${ZRBV_FOUND_BRAND_FILE}"
 
   zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" || \
     bcu_die "Brand file mismatch - container package doesn't match current RBRR settings"
