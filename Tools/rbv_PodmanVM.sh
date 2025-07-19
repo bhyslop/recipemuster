@@ -74,6 +74,8 @@ zrbv_validate_envvars() {
   ZRBV_CRANE_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_copy_output.txt"
   ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
 
+  ZRBV_TEMPORARY_CONTAINER_FILE="${RBV_TEMP_DIR}/temporary_container_id.txt"
+
   ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
 
   ZRBV_TARBALL_FILENAME="vm-image.tar"
@@ -506,27 +508,28 @@ rbv_fetch() {
       "podman pull ${RBRR_CHOSEN_VMIMAGE_FQIN}"       \
       || bcu_die "Failed to pull container image"
 
-  bcu_step "Mounting container image..."
-  local mount_point
-  mount_point=$(podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman image mount ${RBRR_CHOSEN_VMIMAGE_FQIN}")             \
-      || bcu_die "Failed to mount container image"
+  bcu_step "Creating temporary container from image..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                  \
+      "podman create ${RBRR_CHOSEN_VMIMAGE_FQIN}" > "${ZRBV_TEMPORARY_CONTAINER_FILE}" \
+      || bcu_die "Failed to create container from image"
 
-  bcu_step "Extracting tarball and brand file..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                          \
-      "cp ${mount_point}/${ZRBV_TARBALL_FILENAME} ${ZRBV_MACH_IMAGE_FILENAME}" \
+  local   container_id
+  read -r container_id < "${ZRBV_TEMPORARY_CONTAINER_FILE}" || bcu_die "Failed read ID"
+
+  bcu_step "Extracting VM tarball from container..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                   \
+      "podman cp ${container_id}:/${ZRBV_TARBALL_FILENAME} ${ZRBV_MACH_IMAGE_FILENAME}" \
       || bcu_die "Failed to extract VM tarball"
 
-  bcu_step "Extracting brand file directly to host..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-          "cat ${mount_point}/${ZRBV_BRAND_FILENAME}" \
-                     > "${ZRBV_FOUND_BRAND_FILE}" \
+  bcu_step "Extracting brand file to host..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                    \
+      "podman cp ${container_id}:/${ZRBV_BRAND_FILENAME} -" > "${ZRBV_FOUND_BRAND_FILE}" \
       || bcu_die "Failed to extract brand file"
 
-  bcu_step "Unmounting container image..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --    \
-      "podman image unmount ${RBRR_CHOSEN_VMIMAGE_FQIN}" \
-      || bcu_warn "Failed to unmount container image"
+  bcu_step "Removing temporary container..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman rm -f ${container_id}"                  \
+      || bcu_warn "Failed to remove temp container"
 
   bcu_step "Comparing brand files..."
 
