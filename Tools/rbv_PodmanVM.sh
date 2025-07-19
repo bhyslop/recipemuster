@@ -140,20 +140,38 @@ zrbv_extract_natural_tag() {
   test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
+# Get image digest using skopeo inspect
+zrbv_get_image_digest() {
+  local vm_name="$1"
+  local fqin="$2"
+  local output_file="$3"
+  
+  podman machine ssh "$vm_name" --                          \
+      "skopeo inspect docker://${fqin} | jq -r .Digest"     \
+      > "$output_file" || return 1
+  
+  # Verify we got a valid digest
+  local digest
+  read -r digest < "$output_file"
+  [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || return 1
+  
+  return 0
+}
 
 # Generate mirror tag using crane digest
 zrbv_generate_mirror_tag() {
   local     digest
-  read -r   digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read crane file"
-  test -n "$digest"                                     || bcu_die "Failed to test crane file"
-
+  read -r   digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read digest file"
+  
+  # Validate digest format
+  [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || bcu_die "Invalid digest format: $digest"
+  
   local     sha_short="${digest:7:12}"  # Extract characters 8-19 (0-indexed)
-  test -n "$sha_short" || bcu_die "Failed to extract short SHA from digest: $digest"
-
+  
   local raw="mirror-${RBRR_CHOSEN_VMIMAGE_ORIGIN}-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
   raw=${raw//\//-}
   raw=${raw//:/-}
-
+  
   echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
 }
 
@@ -359,13 +377,15 @@ rbv_check() {
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
 
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
-      "skopeo inspect docker://${origin_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
-      > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
+  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
+                        "$origin_fqin"                     \
+                        "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" \
+      || bcu_die "Failed to query origin image digest"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
-      "skopeo inspect docker://${chosen_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
-      > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" 2>/dev/null || echo "NOT_FOUND" > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}"
+  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
+                        "$chosen_fqin"                     \
+                        "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" \
+      2>/dev/null || echo "NOT_FOUND" > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _check"
 
@@ -445,9 +465,10 @@ rbv_mirror() {
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
-      "skopeo inspect docker://${origin_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
-      > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
+  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
+                        "$origin_fqin"                     \
+                        "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" \
+      || bcu_die "Failed to query origin image digest"
 
   bcu_step "Prepare mirror tag..."
   zrbv_generate_mirror_tag
