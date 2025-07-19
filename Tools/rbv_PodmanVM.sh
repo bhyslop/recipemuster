@@ -432,7 +432,7 @@ rbv_mirror() {
 
   # Perform command
   bcu_step "Prepare fresh ignite machine with crane and skopeo..."
-  zrbv_ignite_bootstrap true || bcu_die "Failed to create temp machine"
+  zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
   bcu_step "Creating build directory..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
@@ -474,8 +474,8 @@ rbv_mirror() {
 
   bcu_step "Extracting VM image from OCI archive..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "cd ${ZRBV_VM_BUILD_DIR} && tar -cf ${ZRBV_TARBALL_FILENAME} oci-archive/" \
-      || bcu_die "Failed to create tarball from OCI archive"
+      "cd ${ZRBV_VM_BUILD_DIR} && skopeo copy oci-archive:oci-archive docker-archive:${ZRBV_TARBALL_FILENAME}" \
+      || bcu_die "Failed to extract VM image from OCI archive"
 
   bcu_step "Generating brand file..."
   zrbv_generate_brand_file
@@ -530,6 +530,10 @@ rbv_fetch() {
 
   local   container_id
   read -r container_id < "${ZRBV_TEMPORARY_CONTAINER_FILE}" || bcu_die "Failed read ID"
+
+  # DEBUG: List container contents
+  bcu_step "DEBUG: Container contents:"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "podman cp ${container_id}:/ - | tar -t"
 
   bcu_step "Extracting VM tarball from container..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                   \
