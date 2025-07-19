@@ -363,7 +363,7 @@ rbv_check() {
 
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                 \
       "skopeo inspect docker://${chosen_fqin} --raw | sha256sum | cut -d' ' -f1 | sed 's/^/sha256:/'" \
-      > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed to query chosen image"
+      > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" 2>/dev/null || echo "NOT_FOUND" > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _check"
 
@@ -384,6 +384,7 @@ rbv_check() {
   read -r proposed_identity                        < "${ZRBV_IDENTITY_FILE}"
 
   local advise_change=false
+  local mirror_missing=false
 
   if [[ -z "${RBRR_CHOSEN_VMIMAGE_DIGEST}" ]]; then
     bcu_warn "RBRR_CHOSEN_VMIMAGE_DIGEST is not set!"
@@ -391,10 +392,18 @@ rbv_check() {
     advise_change=true
   fi
 
-  if [[ "${origin_digest}" != "${chosen_digest}" ]]; then
+  if [[ "${chosen_digest}" == "NOT_FOUND" ]]; then
+    bcu_warn "Mirror image not found: ${RBRR_CHOSEN_VMIMAGE_FQIN}"
+    ((warning_count++)) || true
+    mirror_missing=true
+  elif [[ "${origin_digest}" != "${chosen_digest}" ]]; then
     bcu_warn "Digest mismatch: origin (${origin_digest}) does not match chosen (${chosen_digest})"
     ((warning_count++)) || true
     advise_change=true
+  fi
+
+  if $mirror_missing; then
+    bcu_warn "Mirror image needs to be created. Run: rbv_mirror"
   fi
 
   if $advise_change; then
@@ -402,7 +411,7 @@ rbv_check() {
     bcu_code "#"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_FQIN=${mirror_tag}"
     bcu_code "export RBRR_CHOSEN_VMIMAGE_DIGEST=${origin_digest}"
-    bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}  # use this to remember update date"
+    bcu_code "export RBRR_CHOSEN_IDENTITY=${proposed_identity}  # update date"
   fi
 
   if [[ $warning_count -gt 0 ]]; then
