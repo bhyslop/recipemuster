@@ -51,18 +51,18 @@ zrbv_validate_envvars() {
 
   # Module Variables (ZRBV_*)
   ZRBV_GIT_REGISTRY="ghcr.io"
-  
+
   ZRBV_VERSION_FILE="${RBV_TEMP_DIR}/podman_version.txt"
-  
+
   ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
   ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
   ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
-  
+
   ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
   ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
   ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
   ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
-  
+
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
   ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
   ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
@@ -73,11 +73,14 @@ zrbv_validate_envvars() {
   ZRBV_CRANE_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/crane_manifest_check.txt"
   ZRBV_CRANE_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_copy_output.txt"
   ZRBV_CRANE_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/crane_verify_output.txt"
-  
+
   ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
-  
+
   ZRBV_MACH_IMAGE_FILENAME="/tmp/${RBRR_CHOSEN_VMIMAGE_FQIN}.tar"
   ZRBV_HOST_IMAGE_FILENAME="${RBRS_VMIMAGE_CACHE_DIR}/${RBRR_CHOSEN_VMIMAGE_FQIN}.tar"
+
+  ZRBV_CONTAINER_TARBALL_PATH="/vm-image.tar"
+  ZRBV_CONTAINER_BRAND_PATH="/brand.txt"
 }
 
 zrbv_verify_podman_version() {
@@ -416,7 +419,7 @@ rbv_check() {
 # Mirror VM image to GHCR
 rbv_mirror() {
   # Handle documentation mode
-  bcu_doc_brief "Attempt to copy the currently selected origin FQIN to designated mirror"
+  bcu_doc_brief "Package VM image and brand file into container image, push to GHCR"
   bcu_doc_lines "TODO"
   bcu_doc_shown || return 0
 
@@ -431,7 +434,7 @@ rbv_mirror() {
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${origin_fqin}"                   \
+      "skopeo inspect docker://${origin_fqin} --format '{{.Digest}}'"                   \
       > "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to query origin image"
 
   bcu_step "Prepare mirror tag..."
@@ -442,77 +445,89 @@ rbv_mirror() {
   local   origin_digest
   read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
 
-  bcu_step "Checking if mirror already exists..."
-  if podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${mirror_tag}"                       \
-      > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"; then
-    local   mirror_digest
-    read -r mirror_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"
-
-    if [[ "${mirror_digest}" == "${origin_digest}" ]]; then
-      bcu_step "Mirror already exists with matching digest: ${origin_digest}"
-    else
-      bcu_die "Mirror exists at ${mirror_tag} with different digest: found ${mirror_digest}, expected ${origin_digest}"
-    fi
-  else
-    bcu_step "Mirror doesn't exist, copying image to GHCR..."
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-        "crane copy ${origin_fqin} ${mirror_tag}"       \
-        || bcu_die "Failed to copy image to GHCR"
-  fi
-
-  bcu_step "Verifying mirror digest..."
+  bcu_step "Pulling VM image to tarball..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${mirror_tag}"                    \
-      > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
+      "skopeo copy docker://${origin_fqin} docker-archive:${ZRBV_MACH_IMAGE_FILENAME}" \
+      || bcu_die "Failed to pull VM image to tarball"
+
+  bcu_step "Generating brand file..."
+  zrbv_generate_brand_file
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat > /tmp/brand.txt" \
+                                                         < "${ZRBV_GENERATED_BRAND_FILE}"
+
+  bcu_step "Creating container image with tarball and brand file..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "printf 'FROM scratch\nADD vm-image.tar ${ZRBV_CONTAINER_TARBALL_PATH}\nADD brand.txt ${ZRBV_CONTAINER_BRAND_PATH}\n' > /tmp/Dockerfile"
+
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cd /tmp && podman build -t ${mirror_tag} -f Dockerfile --context-dir /tmp ." \
+      || bcu_die "Failed to build container image"
+
+  bcu_step "Pushing container image to GHCR..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman push ${mirror_tag}" \
+      || bcu_die "Failed to push container image"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _mirror"
 
-  local   verified_digest
-  read -r verified_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}"
-
-  if [[ "${verified_digest}" != "${origin_digest}" ]]; then
-    bcu_die "Mirror verification failed: expected ${origin_digest}, got ${verified_digest}"
-  fi
-
-  bcu_step "Validating mirror by comparing VM initialization outputs..."
-
-  bcu_step "Removing any existing deploy machine..."
-  zrbv_remove_vm "${RBRR_DEPLOY_MACHINE_NAME}" || bcu_die "Failed to remove deploy machine"
-
-  bcu_step "Initializing deploy machine with mirrored image..."
-  rbv_init || bcu_die "Failed to init deploy machine with mirror"
-
-  bcu_step "Assure ignite and deploy init output match..."
-  zrbv_error_if_different "${ZRBV_IGNITE_INIT_STDOUT}" \
-                          "${ZRBV_DEPLOY_INIT_STDOUT}" || bcu_die "Init outputs differ"
-
-  bcu_success "Successfully mirrored image to ${mirror_tag}"
+  bcu_success "Successfully packaged and pushed image to ${mirror_tag}"
 }
 
-# Attempt to cache the VM image from the chosen FQIN using crane inside ignite VM
+# Fetch VM image from GHCR container
 rbv_fetch() {
+  # Handle documentation mode
+  bcu_doc_brief "Fetch VM image from GHCR container package"
+  bcu_doc_lines "TODO"
+  bcu_doc_shown || return 0
+
+  # Perform command
   bcu_step "Ensure ignite VM is running..."
   zrbv_ignite_bootstrap false
 
-  bcu_step "Querying digest from ignite VM..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane digest ${RBRR_CHOSEN_VMIMAGE_FQIN}"      \
-      > "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to query mirror image"
+  bcu_step "Login to registry..."
+  zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
 
-  local   mirror_digest
-  read -r mirror_digest < "${ZRBV_CRANE_MIRROR_DIGEST_FILE}" || bcu_die "Failed to read mirror digest"
-  test  "$mirror_digest" = "${RBRR_CHOSEN_VMIMAGE_DIGEST}" || \
-    bcu_die "Digest mismatch: expected ${RBRR_CHOSEN_VMIMAGE_DIGEST}, got ${mirror_digest}"
+  local   mirror_tag
+  read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}" || bcu_die "Failed to read mirror tag"
 
-  bcu_step "Saving image to VM filesystem..."
+  bcu_step "Generating expected brand file..."
+  zrbv_generate_brand_file
+
+  bcu_step "Pulling container image from GHCR..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane pull --format docker ${RBRR_CHOSEN_VMIMAGE_FQIN} ${ZRBV_MACH_IMAGE_FILENAME}" \
-    bcu_die "Failed to save image inside VM"
+      "podman pull ${RBRR_CHOSEN_VMIMAGE_FQIN}" \
+      || bcu_die "Failed to pull container image"
+
+  bcu_step "Mounting container image..."
+  local mount_point
+  mount_point=$(podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman image mount ${RBRR_CHOSEN_VMIMAGE_FQIN}") \
+      || bcu_die "Failed to mount container image"
+
+  bcu_step "Extracting tarball and brand file..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cp ${mount_point}${ZRBV_CONTAINER_TARBALL_PATH} ${ZRBV_MACH_IMAGE_FILENAME}" \
+      || bcu_die "Failed to extract VM tarball"
+
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cp ${mount_point}${ZRBV_CONTAINER_BRAND_PATH} /tmp/extracted_brand.txt" \
+      || bcu_die "Failed to extract brand file"
+
+  bcu_step "Unmounting container image..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman image unmount ${RBRR_CHOSEN_VMIMAGE_FQIN}" \
+      || bcu_warn "Failed to unmount container image"
+
+  bcu_step "Comparing brand files..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" "cat /tmp/extracted_brand.txt" \
+                                                         > "${ZRBV_FOUND_BRAND_FILE}"
+
+  zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" || \
+    bcu_die "Brand file mismatch - container package doesn't match current RBRR settings"
 
   bcu_step "Computing VM-side checksum..."
   local    vm_checksum
-  read -r  vm_checksum _ < <(podman machine ssh "$vm_name" -- sha256sum "${ZRBV_MACH_IMAGE_FILENAME}") || bcu_die "vm checksum"
+  read -r  vm_checksum _ < <(podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- sha256sum "${ZRBV_MACH_IMAGE_FILENAME}") || bcu_die "vm checksum"
   test "${#vm_checksum}" -eq 64 || bcu_die "Invalid VM checksum length: ${#vm_checksum}"
 
   if [ -f "${ZRBV_HOST_IMAGE_FILENAME}" ]; then
@@ -522,8 +537,9 @@ rbv_fetch() {
     test "${#host_checksum}" -eq 64 || bcu_die "Invalid host checksum length: ${#host_checksum}"
 
     if [ "$vm_checksum" = "$host_checksum" ]; then
-      bcu_info "Host cache valid for ${expected_digest}"
-      podman machine ssh "$vm_name" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}"
+      bcu_info "Host cache valid for ${RBRR_CHOSEN_VMIMAGE_DIGEST}"
+      podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}"
+      podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _fetch"
       return 0
     fi
 
@@ -535,7 +551,7 @@ rbv_fetch() {
 
   bcu_step "Copying image from VM to host cache..."
   mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to assure cache directory"
-  podman machine ssh "$vm_name" -- cat "${ZRBV_MACH_IMAGE_FILENAME}" > "${ZRBV_HOST_IMAGE_FILENAME}" || \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- cat "${ZRBV_MACH_IMAGE_FILENAME}" > "${ZRBV_HOST_IMAGE_FILENAME}" || \
     bcu_die "Failed to copy image from VM to host"
 
   bcu_step "Verifying host-side checksum..."
@@ -545,16 +561,18 @@ rbv_fetch() {
 
   test "${vm_checksum}" = "${verify_checksum}" || bcu_die "Copy verification failed"
 
-  bcu_success "Cached ${expected_digest} at ${host_cache_path}"
+  bcu_success "Cached ${RBRR_CHOSEN_VMIMAGE_DIGEST} at ${ZRBV_HOST_IMAGE_FILENAME}"
 
   bcu_step "Cleaning up VM temporary file..."
-  podman machine ssh "$vm_name" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}" || true
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}" || true
+
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _fetch"
 }
 
 rbv_init() {
   # Handle documentation mode
-  bcu_doc_brief "Initialize deploy VM using RBRR_CHOSEN_VMIMAGE_FQIN"
-  bcu_doc_lines "Creates new deploy VM from configured image"
+  bcu_doc_brief "Initialize deploy VM using local cached VM image"
+  bcu_doc_lines "Creates new deploy VM from cached image tarball"
   bcu_doc_lines "Writes brand file with all RBRR_CHOSEN values"
   bcu_doc_lines "Refuses if deploy VM already exists"
   bcu_doc_shown || return 0
@@ -564,11 +582,11 @@ rbv_init() {
   podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
     bcu_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
 
-  bcu_step "Log podman into -> ${ZRBV_GIT_REGISTRY}"
-  zrbv_login_ghcr  "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to login podman to registry"
+  bcu_step "Verifying cached image exists..."
+  test -f "${ZRBV_HOST_IMAGE_FILENAME}" || bcu_die "Cached VM image not found at ${ZRBV_HOST_IMAGE_FILENAME}. Run rbv_fetch first."
 
-  bcu_step "Initializing: init machine from image ${RBRR_CHOSEN_VMIMAGE_FQIN}..."
-  podman machine init --rootful --image "docker://${RBRR_CHOSEN_VMIMAGE_FQIN}" \
+  bcu_step "Initializing: init machine from cached image ${ZRBV_HOST_IMAGE_FILENAME}..."
+  podman machine init --rootful --image "${ZRBV_HOST_IMAGE_FILENAME}" \
                                             "${RBRR_DEPLOY_MACHINE_NAME}"      \
                                           2> "$ZRBV_DEPLOY_INIT_STDERR"        \
        | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_DEPLOY_INIT_STDOUT"        \
