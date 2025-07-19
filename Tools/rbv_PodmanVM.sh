@@ -230,9 +230,9 @@ zrbv_ignite_bootstrap() {
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
         "crane version" || bcu_die "crane confirm fail."
 
-    bcu_step "Installing skopeo..."
+    bcu_step "Installing tools..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-        "sudo dnf install -y skopeo" || bcu_die "skopeo fail"
+        "sudo dnf install -y skopeo jk" || bcu_die "tools install fail"
 
     bcu_step "Verify skopeo installation..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
