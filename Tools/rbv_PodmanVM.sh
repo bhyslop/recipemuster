@@ -104,7 +104,9 @@ zrbv_verify_podman_version() {
 
 # Generate brand file content
 zrbv_generate_brand_file() {
-  echo "# Recipe Bottle VM Brand File"                   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  test ! -f "${ZRBV_GENERATED_BRAND_FILE}" || bcu_die 'file already exists'
+
+  echo "# Recipe Bottle VM Brand File"                    > "${ZRBV_GENERATED_BRAND_FILE}"
   echo "#"                                               >> "${ZRBV_GENERATED_BRAND_FILE}"
   echo "PODMAN_VERSION: ${RBRR_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
   echo "VMIMAGE_ORIGIN: ${RBRR_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
@@ -183,9 +185,9 @@ zrbv_error_if_different() {
     return 0
   else
     bcu_warn "File content mismatch detected!"
-    bcu_info "File 1 ($file1) contents:"
+    bcu_warn "File 1 ($file1) contents:"
     cat              "$file1"
-    bcu_info "File 2 ($file2) contents:"
+    bcu_warn "File 2 ($file2) contents:"
     cat              "$file2"
     return 1
   fi
@@ -569,7 +571,6 @@ rbv_fetch() {
       || bcu_warn "Failed to remove temp container"
 
   bcu_step "Comparing brand files..."
-  zrbv_generate_brand_file
   zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" \
       || bcu_die "Brand file mismatch - container package doesn't match current RBRR settings"
 
