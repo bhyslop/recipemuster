@@ -259,6 +259,17 @@ zrbv_ignite_bootstrap() {
     bcu_step "Verify skopeo installation..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
         "skopeo --version" || bcu_die "skopeo confirm fail."
+
+    bcu_step "Installing oras v1.2.3 into ignite VM..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "curl -sSfL https://github.com/oras-project/oras/releases/download/v1.2.3/oras_1.2.3_linux_amd64.tar.gz | tar -xz oras && sudo install -m 0755 oras /usr/local/bin/oras" \
+      || bcu_die "oras install fail"
+
+    bcu_step "Verifying oras installation..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "oras version" || bcu_die "oras confirm fail"
+
+
   else
     bcu_step "Restarting ignite machine..."
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to restart ignite machine"
