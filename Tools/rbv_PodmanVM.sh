@@ -17,7 +17,7 @@
 #
 # Recipe Bottle VM - Podman Virtual Machine Management
 
-set -e
+set -euo pipefail
 
 ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBV_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
@@ -366,21 +366,21 @@ rbv_check() {
   local chosen_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_FQIN}")
 
   bcu_step "Querying origin ${origin_fqin}..."
-  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
-                        "$origin_fqin"                     \
-                        "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}" \
+  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}" \
+                        "$origin_fqin"                \
+                        "${ZRBV_ORIGIN_DIGEST_FILE}"  \
       || bcu_die "Failed to query origin image digest"
 
-  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
-                        "$chosen_fqin"                     \
-                        "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" \
-      2>/dev/null || echo "NOT_FOUND" > "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}"
+  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}" \
+                        "$chosen_fqin"                \
+                        "${ZRBV_CHOSEN_DIGEST_FILE}"  \
+      2>/dev/null || echo "NOT_FOUND" > "${ZRBV_CHOSEN_DIGEST_FILE}"
 
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _check"
 
   local     chosen_digest="NOT_FOUND"
-  if [[ -f                  "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" ]]; then
-    read -r chosen_digest < "${ZRBV_CRANE_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed chosen digest retrieve"
+  if [[ -f                  "${ZRBV_CHOSEN_DIGEST_FILE}" ]]; then
+    read -r chosen_digest < "${ZRBV_CHOSEN_DIGEST_FILE}" || bcu_warn "Failed chosen digest retrieve"
   fi
 
   bcu_step "Prepare ultra bash safe latest vars..."
@@ -389,7 +389,7 @@ rbv_check() {
   read -r mirror_tag < "${ZRBV_MIRROR_TAG_FILE}"
 
   local   origin_digest
-  read -r origin_digest < "${ZRBV_CRANE_ORIGIN_DIGEST_FILE}"
+  read -r origin_digest < "${ZRBV_ORIGIN_DIGEST_FILE}"
 
   local   proposed_identity; date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_FILE}"
   read -r proposed_identity                        < "${ZRBV_IDENTITY_FILE}"
@@ -444,7 +444,7 @@ rbv_mirror() {
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
   bcu_step "Creating build directory..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                \
       "rm -rf ${ZRBV_VM_BUILD_DIR} && mkdir -p ${ZRBV_VM_BUILD_DIR}" \
       || bcu_die "Failed to create build directory"
 
@@ -453,9 +453,9 @@ rbv_mirror() {
 
   local origin_fqin=$(printf '%q' "${RBRR_CHOSEN_VMIMAGE_ORIGIN}:${RBRR_CHOSEN_PODMAN_VERSION}")
   bcu_step "Querying origin ${origin_fqin}..."
-  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}"      \
-                        "$origin_fqin"                     \
-                        "${ZRBV_ORIGIN_DIGEST_FILE}" \
+  zrbv_get_image_digest "${RBRR_IGNITE_MACHINE_NAME}" \
+                        "$origin_fqin"                \
+                        "${ZRBV_ORIGIN_DIGEST_FILE}"  \
       || bcu_die "Failed to query origin image digest"
 
   bcu_step "Prepare mirror tag..."
@@ -468,13 +468,10 @@ rbv_mirror() {
 
   # Validate configuration matches what we're about to mirror
   bcu_step "Validating configuration matches origin..."
-  if [[ "${RBRR_CHOSEN_VMIMAGE_FQIN}" != "${mirror_tag}" ]]; then
-    bcu_die "Configuration mismatch: RBRR_CHOSEN_VMIMAGE_FQIN=${RBRR_CHOSEN_VMIMAGE_FQIN}" "  Expected: ${mirror_tag}"
-  fi
-
-  if [[ "${RBRR_CHOSEN_VMIMAGE_DIGEST}" != "${origin_digest}" ]]; then
-    bcu_die "Configuration mismatch: RBRR_CHOSEN_VMIMAGE_DIGEST=${RBRR_CHOSEN_VMIMAGE_DIGEST}" "  Expected: ${origin_digest}"
-  fi
+  test         "${RBRR_CHOSEN_VMIMAGE_FQIN}" = "${mirror_tag}" \
+    || bcu_die "${RBRR_CHOSEN_VMIMAGE_FQIN} not ${mirror_tag} tag"
+  test         "${RBRR_CHOSEN_VMIMAGE_DIGEST}" = "${origin_digest}" \
+    || bcu_die "${RBRR_CHOSEN_VMIMAGE_DIGEST} not ${origin_digest} digest"
 
   bcu_step "Pulling VM image to docker archive in build directory..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
@@ -487,7 +484,7 @@ rbv_mirror() {
       "cat > ${ZRBV_VM_BUILD_DIR}/${ZRBV_BRAND_FILENAME}" \
                      < "${ZRBV_GENERATED_BRAND_FILE}"
 
-  bcu_step "Creating container image with wildcard ADD..."
+  bcu_step "Creating dockerfile for degenerate container with wildcard ADD..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                       \
       "printf 'FROM scratch\nADD * /\n' > ${ZRBV_VM_BUILD_DIR}/Dockerfile"
 
@@ -573,7 +570,7 @@ rbv_fetch() {
 
     if [ "$vm_checksum" = "$host_checksum" ]; then
       bcu_info "Host cache valid for ${RBRR_CHOSEN_VMIMAGE_DIGEST}"
-      podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}"
+      podman machine ssh  "${RBRR_IGNITE_MACHINE_NAME}" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}"
       podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _fetch"
       return 0
     fi
