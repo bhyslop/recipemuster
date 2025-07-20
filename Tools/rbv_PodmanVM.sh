@@ -243,6 +243,15 @@ zrbv_ignite_bootstrap() {
     bcu_step "Starting ignite machine..."
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to start ignite machine"
 
+    bcu_step "Installing crane..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                        \
+        "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
+        || bcu_die "crane fail"
+
+    bcu_step "Verify crane installation..."
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "crane version" || bcu_die "crane confirm fail."
+
     bcu_step "Installing tools..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
         "sudo dnf install -y skopeo jq" || bcu_die "tools install fail"
@@ -442,7 +451,7 @@ rbv_mirror() {
   bcu_doc_shown || return 0
 
   # Perform command
-  bcu_step "Prepare fresh ignite machine with skopeo..."
+  bcu_step "Prepare fresh ignite machine with crane and skopeo..."
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
   bcu_step "Creating build directory..."
