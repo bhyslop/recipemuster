@@ -486,7 +486,7 @@ rbv_mirror() {
 
   bcu_step "Creating dockerfile for degenerate container with wildcard ADD..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                       \
-      "printf 'FROM scratch\nADD * /\n' > ${ZRBV_VM_BUILD_DIR}/Dockerfile"
+      "printf 'FROM scratch\nCOPY * /\n' > ${ZRBV_VM_BUILD_DIR}/Dockerfile"
 
   bcu_step "Inspecting build directory contents..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
