@@ -500,7 +500,24 @@ rbv_mirror() {
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "cat ${ZRBV_VM_BUILD_DIR}/${ZRBV_BRAND_FILENAME}"
 
-  bcu_die "STOP HERE FOR DEBUGGING TARBALL PRODUCTION.  NEED TO PACKAGE AND PUSH CONTAINER"
+  bcu_step "Building container image..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
+      "cd ${ZRBV_VM_BUILD_DIR} && podman build -t ${mirror_tag} ." \
+      || bcu_die "Failed to build container image"
+
+  bcu_step "Pushing container to GHCR..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman push ${mirror_tag}"                     \
+      || bcu_die "Failed to push container to GHCR"
+
+  # bcu_step "Cleaning up build directory..."
+  # podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  #     "rm -rf ${ZRBV_VM_BUILD_DIR}"                   \
+  #     || bcu_warn "Failed to clean build directory"
+
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite"
+
+  bcu_success "VM image mirrored to ${mirror_tag}"
 }                           
 
 # Fetch VM image from GHCR container
@@ -553,9 +570,9 @@ rbv_fetch() {
       || bcu_warn "Failed to remove temp container"
 
   bcu_step "Comparing brand files..."
-
-  zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" || \
-    bcu_die "Brand file mismatch - container package doesn't match current RBRR settings"
+  zrbv_generate_brand_file
+  zrbv_error_if_different "${ZRBV_GENERATED_BRAND_FILE}" "${ZRBV_FOUND_BRAND_FILE}" \
+      || bcu_die "Brand file mismatch - container package doesn't match current RBRR settings"
 
   bcu_step "Computing VM-side checksum..."
   local    vm_checksum
@@ -571,7 +588,7 @@ rbv_fetch() {
     if [ "$vm_checksum" = "$host_checksum" ]; then
       bcu_info "Host cache valid for ${RBRR_CHOSEN_VMIMAGE_DIGEST}"
       podman machine ssh  "${RBRR_IGNITE_MACHINE_NAME}" -- rm -f "${ZRBV_MACH_IMAGE_FILENAME}"
-      podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during _fetch"
+      podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite during fetch"
       return 0
     fi
 
@@ -583,8 +600,9 @@ rbv_fetch() {
 
   bcu_step "Copying image from VM to host cache..."
   mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to assure cache directory"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- cat "${ZRBV_MACH_IMAGE_FILENAME}" > "${ZRBV_HOST_IMAGE_FILENAME}" || \
-    bcu_die "Failed to copy image from VM to host"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                   \
+      cat "${ZRBV_MACH_IMAGE_FILENAME}" > "${ZRBV_HOST_IMAGE_FILENAME}" \
+    || bcu_die "Failed to copy image from VM to host"
 
   bcu_step "Verifying host-side checksum..."
   local    verify_checksum
@@ -618,10 +636,10 @@ rbv_init() {
   test -f "${ZRBV_HOST_IMAGE_FILENAME}" || bcu_die "Cached VM image not found at ${ZRBV_HOST_IMAGE_FILENAME}. Run rbv_fetch first."
 
   bcu_step "Initializing: init machine from cached image ${ZRBV_HOST_IMAGE_FILENAME}..."
-  podman machine init --rootful --image "${ZRBV_HOST_IMAGE_FILENAME}" \
-                                            "${RBRR_DEPLOY_MACHINE_NAME}"      \
-                                          2> "$ZRBV_DEPLOY_INIT_STDERR"        \
-       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_DEPLOY_INIT_STDOUT"        \
+  podman machine init --rootful --image "${ZRBV_HOST_IMAGE_FILENAME}"     \
+                                            "${RBRR_DEPLOY_MACHINE_NAME}" \
+                                          2> "$ZRBV_DEPLOY_INIT_STDERR"   \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_DEPLOY_INIT_STDOUT"   \
     || bcu_die "Bad init."
 
   bcu_step "Starting VM temporarily..."
