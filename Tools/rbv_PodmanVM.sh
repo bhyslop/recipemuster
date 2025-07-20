@@ -269,7 +269,6 @@ zrbv_ignite_bootstrap() {
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "oras version" || bcu_die "oras confirm fail"
 
-
   else
     bcu_step "Restarting ignite machine..."
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Failed to restart ignite machine"
