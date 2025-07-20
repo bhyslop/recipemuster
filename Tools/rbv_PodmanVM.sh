@@ -146,16 +146,17 @@ zrbv_get_image_digest() {
   local fqin="$2"
   local output_file="$3"
 
-  podman machine ssh "$vm_name" --                          \
-      "skopeo inspect docker://${fqin} | jq -r .Digest"     \
-      > "$output_file" || return 1
+  local temp_hash_file="${output_file}.hash"
+  
+  podman machine ssh "$vm_name" --                                             \
+      "skopeo inspect --raw docker://${fqin} | sha256sum | cut -d' ' -f1"      \
+      > "$temp_hash_file" || bcu_die "Failed to get raw manifest for ${fqin}"
 
-  # Verify we got a valid digest
-  local digest
-  read -r digest < "$output_file"
-  [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || return 1
+  local   hash
+  read -r hash < "$temp_hash_file"   || bcu_die "Failed to read hash from temp file"
+  [[    "$hash" =~ ^[a-f0-9]{64}$ ]] || bcu_die "Invalid hash format for ${fqin}: $hash"
 
-  return 0
+  echo "sha256:${hash}" > "$output_file"
 }
 
 # Generate mirror tag using crane digest
