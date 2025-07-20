@@ -550,8 +550,7 @@ rbv_fetch() {
   local   container_id
   read -r container_id < "${ZRBV_TEMPORARY_CONTAINER_FILE}" || bcu_die "Failed read ID"
 
-  # DEBUG: List container contents
-  bcu_step "DEBUG: Container contents:"
+  bcu_step "List container contents:"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- "podman cp ${container_id}:/ - | tar -t"
 
   bcu_step "Extracting VM tarball from container..."
@@ -561,8 +560,8 @@ rbv_fetch() {
 
   bcu_step "Extracting brand file to host..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                    \
-      "podman cp ${container_id}:/${ZRBV_BRAND_FILENAME} -" > "${ZRBV_FOUND_BRAND_FILE}" \
-      || bcu_die "Failed to extract brand file"
+    "podman cp ${container_id}:/${ZRBV_BRAND_FILENAME} /tmp/bt.txt && cat /tmp/bt.txt"   \
+         > "${ZRBV_FOUND_BRAND_FILE}" || bcu_die "Failed extraction of brand file."
 
   bcu_step "Removing temporary container..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
