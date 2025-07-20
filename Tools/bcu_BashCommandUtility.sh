@@ -44,7 +44,7 @@ ZBCU_CONTEXT=""
 # Help mode flag
 ZBCU_DOC_MODE=false
 
-bcu_step()   { zbcu_print 0 "${ZBCU_BLUE}===${ZBCU_RESET} $@ ${ZBCU_BLUE}===${ZBCU_RESET}"; }
+bcu_step()   { zbcu_print 0 "${ZBCU_WHITE}$@${ZBCU_RESET}"; }
 
 bcu_code()   { zbcu_print 0 "${ZBCU_CYAN}$@${ZBCU_RESET}"; }
 
