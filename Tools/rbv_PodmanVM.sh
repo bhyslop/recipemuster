@@ -24,7 +24,6 @@ source "${ZRBV_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 
-
 ######################################################################
 # Internal Functions (zrbv_*)
 
@@ -50,41 +49,13 @@ zrbv_validate_envvars() {
 
   bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
 
-  # Module Variables (ZRBV_*)
+  # Module Variables (ZRBV_*) - only keeping used ones
   ZRBV_GIT_REGISTRY="ghcr.io"
-
-  ZRBV_VERSION_FILE="${RBV_TEMP_DIR}/podman_version.txt"
-
-  ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/brand_generated.txt"
-  ZRBV_FOUND_BRAND_FILE="${RBV_TEMP_DIR}/brand_found.txt"
-  ZRBV_INIT_OUTPUT_FILE="${RBV_TEMP_DIR}/podman_init_output.txt"
 
   ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
   ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
-  ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
-  ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
 
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
-  ZRBV_IDENTITY_FILE="${RBV_TEMP_DIR}/identity_date.txt"
-  ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
-  ZRBV_MIRROR_TAG_FILE="${RBV_TEMP_DIR}/mirror_tag.txt"
-  ZRBV_ORIGIN_DIGEST_FILE="${RBV_TEMP_DIR}/origin_digest.txt"
-  ZRBV_CHOSEN_DIGEST_FILE="${RBV_TEMP_DIR}/chosen_digest.txt"
-  ZRBV_MIRROR_DIGEST_FILE="${RBV_TEMP_DIR}/mirror_digest.txt"
-  ZRBV_MANIFEST_CHECK_FILE="${RBV_TEMP_DIR}/manifest_check.txt"
-  ZRBV_COPY_OUTPUT_FILE="${RBV_TEMP_DIR}/copy_output.txt"
-  ZRBV_VERIFY_OUTPUT_FILE="${RBV_TEMP_DIR}/verify_output.txt"
-
-  ZRBV_TEMPORARY_CONTAINER_FILE="${RBV_TEMP_DIR}/temporary_container_id.txt"
-
-  ZRBV_EMPLACED_BRAND_FILE=/etc/brand-emplaced.txt
-
-  ZRBV_TARBALL_FILENAME="vm-image.tar"
-  ZRBV_BRAND_FILENAME="brand.txt"
-  ZRBV_MACH_IMAGE_FILENAME="/tmp/${RBRR_CHOSEN_VMIMAGE_DIGEST#sha256:}.tar"
-  ZRBV_HOST_IMAGE_FILENAME="${RBRS_VMIMAGE_CACHE_DIR}/${RBRR_CHOSEN_VMIMAGE_DIGEST#sha256:}.tar"
-
-  ZRBV_VM_BUILD_DIR="vm-build"
 }
 
 # Generate brand file content
