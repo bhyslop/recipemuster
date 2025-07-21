@@ -273,7 +273,7 @@ zrbv_process_manifest_family() {
 
     echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
     echo "${platform_spec}" >> "${available_images_file}"
-    
+
     # Store digest for later download
     echo "${platform_spec}:${digest}" >> "${RBV_TEMP_DIR}/platform_digests.txt"
   done < "${entries_file}"
@@ -292,11 +292,11 @@ zrbv_download_needed_images() {
 
   for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
     bcu_step "Processing needed image: ${needed_image}"
-    
+
     bcu_step "re: ${needed_image}: Find the digest for this platform spec..."
-    local digest=$(grep "^${needed_image}:" "${platform_digests_file}" | cut -d: -f2-) 
+    local digest=$(grep "^${needed_image}:" "${platform_digests_file}" | cut -d: -f2-)
     test -n "$digest" || bcu_die "No digest found for ${needed_image}"
-    
+
     bcu_info "Manifest digest: ${digest}"
 
     bcu_step "re: ${needed_image}: Determine source FQIN based on prefix..."
@@ -318,12 +318,12 @@ zrbv_download_needed_images() {
     local blob_info=$(podman machine ssh "$vm_name" -- \
       "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
       || bcu_die "Failed to extract blob info for ${needed_image}"
-    
+
     test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
-    
+
     local blob_digest=$(echo "$blob_info" | cut -d: -f1-2)  # Include sha256: prefix
     local media_type=$(echo "$blob_info" | cut -d: -f3-)
-    
+
     bcu_info "Blob digest: ${blob_digest}"
     bcu_info "Media type: ${media_type}"
 
@@ -347,9 +347,9 @@ zrbv_download_needed_images() {
     bcu_step "re: ${needed_image}: Copy from VM to host..."
     local host_file="${RBRS_VMIMAGE_CACHE_DIR}/podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${needed_image}.${extension}"
     bcu_step "Copying ${needed_image} from VM to host..."
-    
+
     mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
-    
+
     podman machine ssh "$vm_name" -- "cat ${vm_blob_file}" > "${host_file}" \
       || bcu_die "Failed to copy ${needed_image} to host"
 
