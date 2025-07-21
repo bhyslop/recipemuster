@@ -713,6 +713,73 @@ rbv_stop() {
   bcu_success "VM stopped"
 }
 
+rbv_experiment() {
+  # Handle documentation mode
+  bcu_doc_brief "Display raw manifests for WSL and standard machine-os images"
+  bcu_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
+  bcu_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
+  bcu_doc_lines "Generates all potential container image names for caching"
+  bcu_doc_shown || return 0
+
+  # Perform command
+  bcu_step "Prepare fresh ignite machine with crane and tools..."
+  zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
+
+  local wsl_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
+  local std_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
+
+  local wsl_manifest_file="${RBV_TEMP_DIR}/wsl_manifest.json"
+  local std_manifest_file="${RBV_TEMP_DIR}/std_manifest.json"
+  local wsl_entries_file="${RBV_TEMP_DIR}/wsl_entries.json"
+  local std_entries_file="${RBV_TEMP_DIR}/std_entries.json"
+
+  bcu_step "Retrieving manifest for WSL image: ${wsl_fqin}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane manifest ${wsl_fqin} | jq ." > "${wsl_manifest_file}" \
+      || bcu_die "Failed to retrieve WSL manifest"
+
+  bcu_step "Retrieving manifest for standard image: ${std_fqin}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "crane manifest ${std_fqin} | jq ." > "${std_manifest_file}" \
+      || bcu_die "Failed to retrieve standard manifest"
+
+  bcu_step "WSL Manifest:"
+  cat "${wsl_manifest_file}"
+
+  bcu_step "Standard Manifest:"
+  cat "${std_manifest_file}"
+
+  bcu_step "Extract manifest entries for processing"
+  jq -r '.manifests[] | @base64' "${wsl_manifest_file}" > "${wsl_entries_file}" || bcu_die "Failed to extract WSL entries"
+  jq -r '.manifests[] | @base64' "${std_manifest_file}" > "${std_entries_file}" || bcu_die "Failed to extract standard entries"
+
+  bcu_step "Potential container image names for caching:"
+
+  bcu_step "WSL family images:"
+  while IFS= read -r entry; do
+    local decoded=$(echo "${entry}" | base64 -d)
+    local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
+    local digest=$(echo "${decoded}" | jq -r '.digest')
+    local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
+    local digest_short="${digest:7:8}"  # sha256: prefix removed, first 8 chars
+    
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-wsl-${arch}-${disktype}-${digest_short}"
+  done < "${wsl_entries_file}"
+
+  bcu_step "Standard family images:"
+  while IFS= read -r entry; do
+    local decoded=$(echo "${entry}" | base64 -d)
+    local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
+    local digest=$(echo "${decoded}" | jq -r '.digest')
+    local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
+    local digest_short="${digest:7:8}"  # sha256: prefix removed, first 8 chars
+    
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-std-${arch}-${disktype}-${digest_short}"
+  done < "${std_entries_file}"
+
+  bcu_success "Manifests retrieved and container names generated successfully"
+}
+
 # Execute command
 bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_validate_envvars "$@"
 
