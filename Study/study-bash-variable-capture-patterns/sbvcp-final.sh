@@ -6,14 +6,14 @@ set -e
 #   This should always return exit code 23 with no output.
 
 failing_cmd() {
-    echo "output_from_failing_cmd"
-    return 1
+  echo "output_from_failing_cmd"
+  return 1
 }
 
 test_function() {
-    local var
-    var=$(failing_cmd) || exit 23
-    echo "This line should never execute: var='$var'"
+  local var
+  var=$(failing_cmd) || exit 23
+  echo "This line should never execute: var='$var'"
 }
 
 test_function
