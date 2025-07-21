@@ -762,7 +762,6 @@ rbv_experiment() {
 
   bcu_step "Potential container image names for caching:"
 
-  # Process WSL entries
   bcu_step "Machine-OS-WSL family images:"
   while IFS= read -r entry; do
     local decoded=$(echo "${entry}" | base64 -d)
@@ -774,7 +773,6 @@ rbv_experiment() {
     echo "${platform_spec}" >> "${available_images_file}"
   done < "${wsl_entries_file}"
 
-  # Process Standard entries
   bcu_step "Machine-OS standard family images:"
   while IFS= read -r entry; do
     local decoded=$(echo "${entry}" | base64 -d)
@@ -786,7 +784,6 @@ rbv_experiment() {
     echo "${platform_spec}" >> "${available_images_file}"
   done < "${std_entries_file}"
 
-  # Validate needed disk images are available
   bcu_step "Validating RBRR_NEEDED_DISK_IMAGES availability..."
 
   local missing_images=""
