@@ -313,12 +313,12 @@ zrbv_download_needed_images() {
 
     bcu_step "Fetching individual manifest for ${needed_image}..."
     podman machine ssh "$vm_name" -- \
-      "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
+        "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
       || bcu_die "Failed to fetch manifest for ${needed_image}"
 
     bcu_step "re: ${needed_image}: Extract blob digest and mediaType for disk image layer..."
     local blob_info=$(podman machine ssh "$vm_name" -- \
-      "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar|qcow2|machine\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
+        "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar|qcow2|machine\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
       || bcu_die "Failed to extract blob info for ${needed_image}"
 
     test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
