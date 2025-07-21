@@ -257,13 +257,120 @@ rbv_stop() {
   bcu_die "BRADTODO: ELIDED."
 }
 
+# Process manifest entries and add platform specs to available_images_file
+zrbv_process_manifest_family() {
+  local entries_file="$1"
+  local prefix="$2"
+  local family_name="$3"
+
+  bcu_step "${family_name} family images:"
+  while IFS= read -r entry; do
+    local decoded=$(echo "${entry}" | base64 -d)
+    local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
+    local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
+    local platform_spec="${prefix}_${arch}_${disktype}"
+    local digest=$(echo "${decoded}" | jq -r '.digest')
+
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
+    echo "${platform_spec}" >> "${available_images_file}"
+    
+    # Store digest for later download
+    echo "${platform_spec}:${digest}" >> "${RBV_TEMP_DIR}/platform_digests.txt"
+  done < "${entries_file}"
+}
+
+# Download needed disk images from VM to host
+zrbv_download_needed_images() {
+  local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
+  local vm_temp_dir="/tmp/rbv-downloads"
+  local platform_digests_file="${RBV_TEMP_DIR}/platform_digests.txt"
+
+  bcu_step "Setting up VM download directory..."
+  podman machine ssh "$vm_name" --                       \
+      "rm -rf ${vm_temp_dir} && mkdir -p ${vm_temp_dir}" \
+    || bcu_die "Failed to create VM temp directory"
+
+  for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
+    bcu_step "Processing needed image: ${needed_image}"
+    
+    bcu_step "re: ${needed_image}: Find the digest for this platform spec..."
+    local digest=$(grep "^${needed_image}:" "${platform_digests_file}" | cut -d: -f2-) 
+    test -n "$digest" || bcu_die "No digest found for ${needed_image}"
+    
+    bcu_info "Manifest digest: ${digest}"
+
+    bcu_step "re: ${needed_image}: Determine source FQIN based on prefix..."
+    local source_fqin
+    if [[ "$needed_image" == mow_* ]]; then
+      source_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
+    else
+      source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
+    fi
+
+    bcu_step "re: ${needed_image}: Fetch individual manifest to get blob info..."
+    local manifest_file="${vm_temp_dir}/${needed_image}_manifest.json"
+    bcu_step "Fetching individual manifest for ${needed_image}..."
+    podman machine ssh "$vm_name" -- \
+      "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
+      || bcu_die "Failed to fetch manifest for ${needed_image}"
+
+    bcu_step "re: ${needed_image}: Extract blob digest and mediaType for disk image layer..."
+    local blob_info=$(podman machine ssh "$vm_name" -- \
+      "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
+      || bcu_die "Failed to extract blob info for ${needed_image}"
+    
+    test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
+    
+    local blob_digest=$(echo "$blob_info" | cut -d: -f1-2)  # Include sha256: prefix
+    local media_type=$(echo "$blob_info" | cut -d: -f3-)
+    
+    bcu_info "Blob digest: ${blob_digest}"
+    bcu_info "Media type: ${media_type}"
+
+    bcu_step "re: ${needed_image}: Determine file extension from media type..."
+    local extension="tar"
+    if [[ "$media_type" == *"zstd"* ]]; then
+      extension="tar.zst"
+    elif [[ "$media_type" == *"gzip"* ]]; then
+      extension="tar.gz"
+    elif [[ "$media_type" == *"xz"* ]]; then
+      extension="tar.xz"
+    fi
+
+    bcu_step "re: ${needed_image}: Download blob to VM..."
+    local vm_blob_file="${vm_temp_dir}/${needed_image}.${extension}"
+    bcu_step "Downloading blob for ${needed_image}..."
+    podman machine ssh "$vm_name" --                                 \
+        "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
+      || bcu_die "Failed to download blob for ${needed_image}"
+
+    bcu_step "re: ${needed_image}: Copy from VM to host..."
+    local host_file="${RBRS_VMIMAGE_CACHE_DIR}/podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${needed_image}.${extension}"
+    bcu_step "Copying ${needed_image} from VM to host..."
+    
+    mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
+    
+    podman machine ssh "$vm_name" -- "cat ${vm_blob_file}" > "${host_file}" \
+      || bcu_die "Failed to copy ${needed_image} to host"
+
+    bcu_info "Downloaded: ${host_file}"
+    bcu_info "Expected blob digest for podman machine init: ${blob_digest}"
+  done
+
+  bcu_step "Cleaning up VM download directory..."
+  podman machine ssh "$vm_name" -- \
+      "rm -rf ${vm_temp_dir}"      \
+    || bcu_warn "Failed to clean up VM temp directory"
+}
+
 rbv_experiment() {
   # Handle documentation mode
-  bcu_doc_brief "Display raw manifests for WSL and standard machine-os images"
+  bcu_doc_brief "Display raw manifests for WSL and standard machine-os images, then download needed disk images"
   bcu_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
   bcu_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
   bcu_doc_lines "Generates all potential container image names for caching"
   bcu_doc_lines "Validates that all RBRR_NEEDED_DISK_IMAGES are available"
+  bcu_doc_lines "Downloads needed disk images to RBRS_VMIMAGE_CACHE_DIR"
   bcu_doc_shown || return 0
 
   # Perform command
@@ -281,13 +388,13 @@ rbv_experiment() {
   local available_images_file="${RBV_TEMP_DIR}/available_disk_images.txt"
 
   bcu_step "Retrieving manifest for WSL image: ${wsl_fqin}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane manifest ${wsl_fqin} | jq ." > "${wsl_manifest_file}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                \
+        "crane manifest ${wsl_fqin} | jq ." > "${wsl_manifest_file}" \
       || bcu_die "Failed to retrieve WSL manifest"
 
   bcu_step "Retrieving manifest for standard image: ${std_fqin}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "crane manifest ${std_fqin} | jq ." > "${std_manifest_file}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                \
+        "crane manifest ${std_fqin} | jq ." > "${std_manifest_file}" \
       || bcu_die "Failed to retrieve standard manifest"
 
   # Display the manifests
@@ -297,36 +404,17 @@ rbv_experiment() {
   bcu_step "Standard Manifest:"
   cat "${std_manifest_file}"
 
-  # Extract manifest entries for processing
+  bcu_step "Extract manifest entries for processing..."
   jq -r '.manifests[] | @base64' "${wsl_manifest_file}" > "${wsl_entries_file}" || bcu_die "Failed to extract WSL entries"
   jq -r '.manifests[] | @base64' "${std_manifest_file}" > "${std_entries_file}" || bcu_die "Failed to extract standard entries"
 
-  # Clear available images file
+  bcu_step "Clear available images and platform digests files..."
   > "${available_images_file}"
+  > "${RBV_TEMP_DIR}/platform_digests.txt"
 
   bcu_step "Potential container image names for caching:"
-
-  bcu_step "Machine-OS-WSL family images:"
-  while IFS= read -r entry; do
-    local decoded=$(echo "${entry}" | base64 -d)
-    local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
-    local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
-    local platform_spec="mow_${arch}_${disktype}"
-
-    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
-    echo "${platform_spec}" >> "${available_images_file}"
-  done < "${wsl_entries_file}"
-
-  bcu_step "Machine-OS standard family images:"
-  while IFS= read -r entry; do
-    local decoded=$(echo "${entry}" | base64 -d)
-    local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
-    local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
-    local platform_spec="mos_${arch}_${disktype}"
-
-    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
-    echo "${platform_spec}" >> "${available_images_file}"
-  done < "${std_entries_file}"
+  zrbv_process_manifest_family "${wsl_entries_file}" "mow" "Machine-OS-WSL"
+  zrbv_process_manifest_family "${std_entries_file}" "mos" "Machine-OS standard"
 
   bcu_step "Validating RBRR_NEEDED_DISK_IMAGES availability..."
 
@@ -340,12 +428,17 @@ rbv_experiment() {
   done
 
   if [[ -n "${missing_images}" ]]; then
-    bcu_die "Missing required disk images:${missing_images}" \
-            "Available images:" \
+    bcu_die "Missing required disk images:${missing_images}"      \
+            "Available images:"                                   \
             "$(cat "${available_images_file}" | sed 's/^/  /')"
   fi
 
   bcu_success "All needed disk images are available in upstream manifests"
+
+  bcu_step "Downloading needed disk images..."
+  zrbv_download_needed_images || bcu_die "Failed to download needed images"
+
+  bcu_success "All needed disk images downloaded to ${RBRS_VMIMAGE_CACHE_DIR}"
 }
 
 # Execute command
