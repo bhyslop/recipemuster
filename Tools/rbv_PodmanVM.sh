@@ -149,7 +149,7 @@ zrbv_get_image_digest() {
   local output_file="$3"
 
   local temp_hash_file="${output_file}.hash"
-  
+
   podman machine ssh "$vm_name" --                                             \
       "skopeo inspect --raw docker://${fqin} | sha256sum | cut -d' ' -f1"      \
       > "$temp_hash_file" || bcu_die "Failed to get raw manifest for ${fqin}"
@@ -540,7 +540,7 @@ rbv_mirror() {
   podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || bcu_warn "Failed to stop ignite"
 
   bcu_success "VM image mirrored to ${mirror_tag}"
-}                           
+}
 
 # Fetch VM image from GHCR container
 rbv_fetch() {
@@ -719,6 +719,7 @@ rbv_experiment() {
   bcu_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
   bcu_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
   bcu_doc_lines "Generates all potential container image names for caching"
+  bcu_doc_lines "Validates that all RBRR_NEEDED_DISK_IMAGES are available"
   bcu_doc_shown || return 0
 
   # Perform command
@@ -728,10 +729,12 @@ rbv_experiment() {
   local wsl_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
   local std_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
 
+  # Temporary files for manifest processing
   local wsl_manifest_file="${RBV_TEMP_DIR}/wsl_manifest.json"
   local std_manifest_file="${RBV_TEMP_DIR}/std_manifest.json"
   local wsl_entries_file="${RBV_TEMP_DIR}/wsl_entries.json"
   local std_entries_file="${RBV_TEMP_DIR}/std_entries.json"
+  local available_images_file="${RBV_TEMP_DIR}/available_disk_images.txt"
 
   bcu_step "Retrieving manifest for WSL image: ${wsl_fqin}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
@@ -743,41 +746,65 @@ rbv_experiment() {
       "crane manifest ${std_fqin} | jq ." > "${std_manifest_file}" \
       || bcu_die "Failed to retrieve standard manifest"
 
+  # Display the manifests
   bcu_step "WSL Manifest:"
   cat "${wsl_manifest_file}"
 
   bcu_step "Standard Manifest:"
   cat "${std_manifest_file}"
 
-  bcu_step "Extract manifest entries for processing"
+  # Extract manifest entries for processing
   jq -r '.manifests[] | @base64' "${wsl_manifest_file}" > "${wsl_entries_file}" || bcu_die "Failed to extract WSL entries"
   jq -r '.manifests[] | @base64' "${std_manifest_file}" > "${std_entries_file}" || bcu_die "Failed to extract standard entries"
 
+  # Clear available images file
+  > "${available_images_file}"
+
   bcu_step "Potential container image names for caching:"
 
-  bcu_step "WSL family images:"
+  # Process WSL entries
+  bcu_step "Machine-OS-WSL family images:"
   while IFS= read -r entry; do
     local decoded=$(echo "${entry}" | base64 -d)
     local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
-    local digest=$(echo "${decoded}" | jq -r '.digest')
     local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
-    local digest_short="${digest:7:8}"  # sha256: prefix removed, first 8 chars
-    
-    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-wsl-${arch}-${disktype}-${digest_short}"
+    local platform_spec="mow_${arch}_${disktype}"
+
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
+    echo "${platform_spec}" >> "${available_images_file}"
   done < "${wsl_entries_file}"
 
-  bcu_step "Standard family images:"
+  # Process Standard entries
+  bcu_step "Machine-OS standard family images:"
   while IFS= read -r entry; do
     local decoded=$(echo "${entry}" | base64 -d)
     local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
-    local digest=$(echo "${decoded}" | jq -r '.digest')
     local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
-    local digest_short="${digest:7:8}"  # sha256: prefix removed, first 8 chars
-    
-    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-std-${arch}-${disktype}-${digest_short}"
+    local platform_spec="mos_${arch}_${disktype}"
+
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
+    echo "${platform_spec}" >> "${available_images_file}"
   done < "${std_entries_file}"
 
-  bcu_success "Manifests retrieved and container names generated successfully"
+  # Validate needed disk images are available
+  bcu_step "Validating RBRR_NEEDED_DISK_IMAGES availability..."
+
+  local missing_images=""
+  for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
+    if ! grep -q "^${needed_image}$" "${available_images_file}"; then
+      missing_images="${missing_images} ${needed_image}"
+    else
+      bcu_info "? Found needed image: ${needed_image}"
+    fi
+  done
+
+  if [[ -n "${missing_images}" ]]; then
+    bcu_die "Missing required disk images:${missing_images}" \
+            "Available images:" \
+            "$(cat "${available_images_file}" | sed 's/^/  /')"
+  fi
+
+  bcu_success "All needed disk images are available in upstream manifests"
 }
 
 # Execute command
