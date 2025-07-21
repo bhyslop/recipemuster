@@ -310,10 +310,28 @@ zrbv_download_needed_images() {
 
     bcu_step "re: ${needed_image}: Fetch individual manifest to get blob info..."
     local manifest_file="${vm_temp_dir}/${needed_image}_manifest.json"
+
     bcu_step "Fetching individual manifest for ${needed_image}..."
     podman machine ssh "$vm_name" -- \
       "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
       || bcu_die "Failed to fetch manifest for ${needed_image}"
+
+    bcu_step "DEBUG: Full manifest for ${needed_image}:"
+    podman machine ssh "$vm_name" -- "cat ${manifest_file} | jq ."
+
+    bcu_step "DEBUG: All layers in ${needed_image} manifest:"
+    podman machine ssh "$vm_name" -- \
+      "jq -r '.layers[] | \"\(.digest) \(.size) \(.mediaType) \(.annotations // {})\"' ${manifest_file}"
+
+    bcu_step "DEBUG: Largest layer in ${needed_image}:"
+    podman machine ssh "$vm_name" -- \
+      "jq -r '.layers | sort_by(.size) | reverse | .[0] | \"\(.digest) \(.size) \(.mediaType)\"' ${manifest_file}"
+
+    bcu_step "re: ${needed_image}: Extract blob digest and mediaType for disk image layer..."
+
+    bcu_step "DEBUG: Layers matching disk/raw/tar criteria for ${needed_image}:"
+    podman machine ssh "$vm_name" -- \
+      "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar\")) | \"\(.digest) \(.size) \(.mediaType)\"' ${manifest_file}"
 
     bcu_step "re: ${needed_image}: Extract blob digest and mediaType for disk image layer..."
     local blob_info=$(podman machine ssh "$vm_name" -- \
@@ -324,6 +342,13 @@ zrbv_download_needed_images() {
 
     local blob_digest=$(echo "$blob_info" | cut -d: -f1-2)  # Include sha256: prefix
     local media_type=$(echo "$blob_info" | cut -d: -f3-)
+    local blob_size=$(podman machine ssh "$vm_name" -- \
+      "jq -r '.layers[] | select(.digest == \"${blob_digest}\") | .size' ${manifest_file}")
+
+    bcu_info "DEBUG: Selected blob size: ${blob_size} bytes"
+    if (( blob_size < 10000000 )); then
+      bcu_warn "DEBUG: Suspiciously small blob size: ${blob_size} bytes"
+    fi
 
     bcu_info "Blob digest: ${blob_digest}"
     bcu_info "Media type: ${media_type}"
