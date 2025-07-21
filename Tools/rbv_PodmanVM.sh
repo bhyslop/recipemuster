@@ -65,7 +65,8 @@ zrbv_generate_brand_file() {
 
 # Confirm YES parameter or prompt user
 zrbv_confirm_yes() {
-  bcu_die "BRADTODO: ELIDED."
+  bcu_step "BRADTODO: ELIDED."
+  return 0
 }
 
 # Extract natural tag from podman init output
