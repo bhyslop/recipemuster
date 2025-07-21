@@ -1,5 +1,26 @@
 #!/bin/bash
 
+# RESULTS SUMMARY:
+# ================
+# FAILS - no error detection or propagation:
+# - local var=$(cmd) || handler                   # || applies to 'local', not cmd; $?=0 on failure
+# - read var < <(cmd) || handler                  # read always succeeds; $?=0 on cmd failure  
+# - read var < <(cmd || handler)                  # handler runs in subshell, no propagation
+# - read var < <(cmd || exit 1)                   # exit only affects subshell, no propagation
+#
+# WORKS - detects failures and propagates error codes:
+# - if var=$(cmd); then...else...fi               # conditional catches failure; $?=handler_exit_code
+# - local var; var=$(cmd) || handler              # separate declaration works; $?=handler_exit_code
+# - var=$(cmd); [[ $? -ne 0 ]] && handler         # explicit check works; $?=handler_exit_code
+# - exec N< <(cmd); read var <&N; wait $!         # wait catches background exit; $?=handler_exit_code
+#
+# WORKS - manual status checking (no automatic propagation):
+# - { read var; read status; } < <(cmd; echo $?)  # captures exit code for manual checking; $?=0
+#
+# KEY INSIGHT: Most process substitution patterns mask command failures completely.
+# The popular one-liner local var=$(cmd) || handler is broken - use separate declaration instead.
+
+
 good_cmd() {
     echo "success_output"
     return 0
