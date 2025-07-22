@@ -57,10 +57,10 @@ zrbv_environment() {
   ZRBV_PLATFORM_DIGESTS="${RBV_TEMP_DIR}/platform_digests.txt"
 
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
-  ZRBV_MOW_MANIFEST_PREFIX="${RBV_TEMP_DIR}/mow_manifest"
-  ZRBV_MOS_MANIFEST_PREFIX="${RBV_TEMP_DIR}/mos_manifest"
-  ZRBV_MOW_ENTRIES_PREFIX="${RBV_TEMP_DIR}/mow_entries"
-  ZRBV_MOS_ENTRIES_PREFIX="${RBV_TEMP_DIR}/mos_entries"
+  ZRBV_MOW_MANIFEST_JSON="${RBV_TEMP_DIR}/mow_manifest.json"
+  ZRBV_MOS_MANIFEST_JSON="${RBV_TEMP_DIR}/mos_manifest.json"
+  ZRBV_MOW_ENTRIES_JSON="${RBV_TEMP_DIR}/mow_entries.json"
+  ZRBV_MOS_ENTRIES_JSON="${RBV_TEMP_DIR}/mos_entries.json"
   ZRBV_MOW_DECODED_PREFIX="${RBV_TEMP_DIR}/mow_decoded_"
   ZRBV_MOS_DECODED_PREFIX="${RBV_TEMP_DIR}/mos_decoded_"
 
@@ -184,33 +184,14 @@ zrbv_login_ghcr() {
   podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
-# Login crane to github container registry in podman VM
-zrbv_login_crane() {
-  local vm_name="$1"
-
-  source "${RBRR_GITHUB_PAT_ENV}"
-
-  bcu_step "Login with crane..."
-  podman machine ssh "$vm_name" "crane auth login ${ZRBV_GIT_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}"
-}
-
 # Helper function to process one image type
 zrbv_process_image_type() {
-  local prefix="$1"         # "mow" or "mos"
-  local fqin="$2"           # Full image name
-  local family_name="$3"    # Display name
-
-  local manifest_file manifest_prefix entries_file entries_prefix
-  if [ "$prefix" = "mow" ]; then
-    manifest_prefix="${ZRBV_MOW_MANIFEST_PREFIX}"
-    entries_prefix="${ZRBV_MOW_ENTRIES_PREFIX}"
-  else
-    manifest_prefix="${ZRBV_MOS_MANIFEST_PREFIX}"
-    entries_prefix="${ZRBV_MOS_ENTRIES_PREFIX}"
-  fi
-
-  manifest_file="${manifest_prefix}.json"
-  entries_file="${entries_prefix}.json"
+  local manifest_file="$1"      # Manifest file path
+  local entries_file="$2"       # Entries file path  
+  local decoded_prefix="$3"     # Decoded prefix for output files
+  local prefix="$4"             # Prefix for platform spec (mow/mos)
+  local fqin="$5"               # Full image name
+  local family_name="$6"        # Display name
 
   bcu_step "Retrieving manifest for ${family_name} image: ${fqin}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --        \
@@ -223,21 +204,15 @@ zrbv_process_image_type() {
   bcu_step "Extract manifest entries for ${family_name}..."
   jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" || bcu_die "Failed to extract ${family_name} entries"
 
-  zrbv_process_manifest_family "${entries_file}" "${prefix}" "${family_name}"
+  zrbv_process_manifest_family "${entries_file}" "${decoded_prefix}" "${prefix}" "${family_name}"
 }
 
 # Updated zrbv_process_manifest_family using ZRBV_ variables
 zrbv_process_manifest_family() {
   local entries_file="$1"
-  local prefix="$2"
-  local family_name="$3"
-
-  local decoded_prefix
-  if [ "$prefix" = "mow" ]; then
-    decoded_prefix="${ZRBV_MOW_DECODED_PREFIX}"
-  else
-    decoded_prefix="${ZRBV_MOS_DECODED_PREFIX}"
-  fi
+  local decoded_prefix="$2"
+  local prefix="$3"
+  local family_name="$4"
 
   bcu_step "${family_name} family images:"
   local entry_num=0
@@ -350,11 +325,19 @@ rbv_experiment() {
   bcu_step "Potential container image names for caching:"
 
   # Process each image type
-  zrbv_process_image_type "mow" \
+  zrbv_process_image_type        \
+    "${ZRBV_MOW_MANIFEST_JSON}"  \
+    "${ZRBV_MOW_ENTRIES_JSON}"   \
+    "${ZRBV_MOW_DECODED_PREFIX}" \
+    "mow" \
     "quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS-WSL"
 
-  zrbv_process_image_type "mos" \
+  zrbv_process_image_type        \
+    "${ZRBV_MOS_MANIFEST_JSON}"  \
+    "${ZRBV_MOS_ENTRIES_JSON}"   \
+    "${ZRBV_MOS_DECODED_PREFIX}" \
+    "mos" \
     "quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS standard"
 
@@ -452,8 +435,8 @@ rbv_experiment() {
         "echo 'FROM scratch' > ${dockerfile}"  \
       || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
-    podman machine ssh "$vm_name" --                                                                  \
-        "echo 'COPY blob_${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}"     \
+    podman machine ssh "$vm_name" --                                                              \
+        "echo 'COPY blob_${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}" \
       || bcu_die "Failed to add COPY to Dockerfile for ${needed_image}"
 
     local local_tag="localhost/podvm-${needed_image}:${timestamp}"
@@ -477,18 +460,18 @@ rbv_experiment() {
   bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built and added to manifest"
 
   bcu_step "Pushing manifest to GHCR: ${final_tag}"
-  podman machine ssh "$vm_name" --                                   \
+  podman machine ssh "$vm_name" --                                  \
       "podman manifest push ${manifest_name} docker://${final_tag}" \
     || bcu_die "Failed to push manifest to GHCR"
 
   bcu_step "Cleaning up local manifest..."
-  podman machine ssh "$vm_name" -- \
+  podman machine ssh "$vm_name" --          \
       "podman manifest rm ${manifest_name}" \
     || bcu_warn "Failed to remove local manifest"
 
   bcu_step "Cleaning up VM directory..."
   podman machine ssh "$vm_name" -- \
-      "rm -rf ${ZRBV_VM_TEMP_DIR}"      \
+      "rm -rf ${ZRBV_VM_TEMP_DIR}" \
     || bcu_warn "Failed to clean up VM temp directory"
 
   bcu_success "All disk images uploaded to GHCR as: ${final_tag}"
