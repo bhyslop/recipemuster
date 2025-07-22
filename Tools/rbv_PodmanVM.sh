@@ -194,6 +194,29 @@ zrbv_login_crane() {
   podman machine ssh "$vm_name" "crane auth login ${ZRBV_GIT_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}"
 }
 
+# Helper function to process one image type
+zrbv_process_image_type() {
+  local prefix="$1"         # "mow" or "mos"
+  local fqin="$2"           # Full image name
+  local family_name="$3"    # Display name
+  
+  local manifest_file="${RBV_TEMP_DIR}/${prefix}_manifest.json"
+  local entries_file="${RBV_TEMP_DIR}/${prefix}_entries.json"
+  
+  bcu_step "Retrieving manifest for ${family_name} image: ${fqin}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --        \
+        "crane manifest ${fqin} | jq ." > "${manifest_file}" \
+      || bcu_die "Failed to retrieve ${family_name} manifest"
+
+  bcu_step "${family_name} Manifest:"
+  cat "${manifest_file}"
+
+  bcu_step "Extract manifest entries for ${family_name}..."
+  jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" || bcu_die "Failed to extract ${family_name} entries"
+  
+  zrbv_process_manifest_family "${entries_file}" "${prefix}" "${family_name}"
+}
+
 ######################################################################
 # External Functions (rbv_*)
 
@@ -323,21 +346,20 @@ zrbv_download_needed_images() {
 
     test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
 
-    local blob_digest=$(echo "$blob_info" | cut -d: -f1-2)  # Include sha256: prefix
-    local media_type=$(echo "$blob_info" | cut -d: -f3-)
+   local blob_digest="${blob_info%:*}"        # Remove last :field, keeps sha256:hash
+   local temp="${blob_info#*:}"               # Remove first field (sha256:)
+   local media_type="${temp#*:}"              # Remove next field (hash:)
 
     bcu_info "Blob digest: ${blob_digest}"
-    bcu_info "Media type: ${media_type}"
+    bcu_info "Media type:  ${media_type}"
 
     bcu_step "re: ${needed_image}: Determine file extension from media type..."
     local extension="tar"
-    if [[ "$media_type" == *"zstd"* ]]; then
-      extension="tar.zst"
-    elif [[ "$media_type" == *"gzip"* ]]; then
-      extension="tar.gz"
-    elif [[ "$media_type" == *"xz"* ]]; then
-      extension="tar.xz"
-    fi
+    case "$media_type" in
+      *zstd*) extension="tar.zst" ;;
+      *gzip*) extension="tar.gz"  ;;
+      *xz*)   extension="tar.xz"  ;;
+    esac
 
     bcu_step "re: ${needed_image}: Download blob to VM..."
     local vm_blob_file="${vm_temp_dir}/${needed_image}.${extension}"
@@ -379,44 +401,22 @@ rbv_experiment() {
   bcu_step "Prepare fresh ignite machine with crane and tools..."
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
-  local wsl_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
-  local std_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
-
-  # Temporary files for manifest processing
-  local wsl_manifest_file="${RBV_TEMP_DIR}/wsl_manifest.json"
-  local std_manifest_file="${RBV_TEMP_DIR}/std_manifest.json"
-  local wsl_entries_file="${RBV_TEMP_DIR}/wsl_entries.json"
-  local std_entries_file="${RBV_TEMP_DIR}/std_entries.json"
   local available_images_file="${RBV_TEMP_DIR}/available_disk_images.txt"
-
-  bcu_step "Retrieving manifest for WSL image: ${wsl_fqin}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                \
-        "crane manifest ${wsl_fqin} | jq ." > "${wsl_manifest_file}" \
-      || bcu_die "Failed to retrieve WSL manifest"
-
-  bcu_step "Retrieving manifest for standard image: ${std_fqin}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                \
-        "crane manifest ${std_fqin} | jq ." > "${std_manifest_file}" \
-      || bcu_die "Failed to retrieve standard manifest"
-
-  # Display the manifests
-  bcu_step "WSL Manifest:"
-  cat "${wsl_manifest_file}"
-
-  bcu_step "Standard Manifest:"
-  cat "${std_manifest_file}"
-
-  bcu_step "Extract manifest entries for processing..."
-  jq -r '.manifests[] | @base64' "${wsl_manifest_file}" > "${wsl_entries_file}" || bcu_die "Failed to extract WSL entries"
-  jq -r '.manifests[] | @base64' "${std_manifest_file}" > "${std_entries_file}" || bcu_die "Failed to extract standard entries"
 
   bcu_step "Clear available images and platform digests files..."
   > "${available_images_file}"
   > "${RBV_TEMP_DIR}/platform_digests.txt"
 
   bcu_step "Potential container image names for caching:"
-  zrbv_process_manifest_family "${wsl_entries_file}" "mow" "Machine-OS-WSL"
-  zrbv_process_manifest_family "${std_entries_file}" "mos" "Machine-OS standard"
+  
+  # Process each image type
+  zrbv_process_image_type "mow" \
+    "quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}" \
+    "Machine-OS-WSL"
+    
+  zrbv_process_image_type "mos" \
+    "quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}" \
+    "Machine-OS standard"
 
   bcu_step "Validating RBRR_NEEDED_DISK_IMAGES availability..."
 
@@ -442,10 +442,6 @@ rbv_experiment() {
 
   bcu_success "All needed disk images downloaded to ${RBRS_VMIMAGE_CACHE_DIR}"
 }
-
-# Execute command
-bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_environment "$@"
-
 
 # eof
 
