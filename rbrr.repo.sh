@@ -28,8 +28,7 @@ export RBRR_IGNITE_MACHINE_NAME=rbw-vm-ignite
 export RBRR_DEPLOY_MACHINE_NAME=rbw-vm-deploy
 export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
 
-# mos_x86_64_qemu mos_aarch64_applehv  also
-export RBRR_NEEDED_DISK_IMAGES="mow_x86_64_wsl"
+export RBRR_NEEDED_DISK_IMAGES="mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_applehv"
 
 export RBRR_CHOSEN_PODMAN_VERSION=5.5
 export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.io/podman/machine-os

@@ -283,24 +283,34 @@ rbv_stop() {
 # Process manifest entries and add platform specs to available_images_file
 zrbv_process_manifest_family() {
   local entries_file="$1"
-  local prefix="$2"
+  local prefix="$2"  
   local family_name="$3"
 
   bcu_step "${family_name} family images:"
+  local entry_num=0
   while IFS= read -r entry; do
-    local decoded=$(echo "${entry}" | base64 -d)
-    local arch=$(echo "${decoded}" | jq -r '.platform.architecture')
-    local disktype=$(echo "${decoded}" | jq -r '.annotations.disktype // "base"')
+    entry_num=$((entry_num + 1))
+    local       decoded="${RBV_TEMP_DIR}/${prefix}_${entry_num}_decoded.json"
+    local     arch_file="${RBV_TEMP_DIR}/${prefix}_${entry_num}_arch.txt"
+    local disktype_file="${RBV_TEMP_DIR}/${prefix}_${entry_num}_disktype.txt"
+    local   digest_file="${RBV_TEMP_DIR}/${prefix}_${entry_num}_digest.txt"
+
+    base64 -d <<< "${entry}"              > "${decoded}"
+    jq -r '.platform.architecture'          "${decoded}" > "${arch_file}"
+    jq -r '.annotations.disktype // "base"' "${decoded}" > "${disktype_file}"
+    jq -r '.digest'                         "${decoded}" > "${digest_file}"
+
+    local arch disktype digest
+    arch=$(<"${arch_file}")
+    disktype=$(<"${disktype_file}")
+    digest=$(<"${digest_file}")
     local platform_spec="${prefix}_${arch}_${disktype}"
-    local digest=$(echo "${decoded}" | jq -r '.digest')
 
     echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
     echo "${platform_spec}" >> "${available_images_file}"
-
-    # Store digest for later download
     echo "${platform_spec}:${digest}" >> "${RBV_TEMP_DIR}/platform_digests.txt"
   done < "${entries_file}"
-}
+}   
 
 # Download needed disk images from VM to host
 zrbv_download_needed_images() {
