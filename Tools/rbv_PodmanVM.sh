@@ -48,13 +48,26 @@ zrbv_environment() {
 
   bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
 
-  # Module Variables (ZRBV_*) - only keeping used ones
+  # Module Variables (ZRBV_*)
   ZRBV_GIT_REGISTRY="ghcr.io"
 
   ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
   ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
+  ZRBV_AVAILABLE_IMAGES="${RBV_TEMP_DIR}/available_disk_images.txt"
+  ZRBV_PLATFORM_DIGESTS="${RBV_TEMP_DIR}/platform_digests.txt"
 
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
+  ZRBV_MOW_MANIFEST_PREFIX="${RBV_TEMP_DIR}/mow_manifest"
+  ZRBV_MOS_MANIFEST_PREFIX="${RBV_TEMP_DIR}/mos_manifest"
+  ZRBV_MOW_ENTRIES_PREFIX="${RBV_TEMP_DIR}/mow_entries"
+  ZRBV_MOS_ENTRIES_PREFIX="${RBV_TEMP_DIR}/mos_entries"
+  ZRBV_MOW_DECODED_PREFIX="${RBV_TEMP_DIR}/mow_decoded_"
+  ZRBV_MOS_DECODED_PREFIX="${RBV_TEMP_DIR}/mos_decoded_"
+
+  ZRBV_VM_TEMP_DIR="/tmp/rbv-upload"
+  ZRBV_VM_MANIFEST_PREFIX="${ZRBV_VM_TEMP_DIR}/manifest_"
+  ZRBV_VM_BLOB_PREFIX="${ZRBV_VM_TEMP_DIR}/blob_"
+  ZRBV_VM_DOCKERFILE_PREFIX="${ZRBV_VM_TEMP_DIR}/Dockerfile."
 }
 
 # Generate brand file content
@@ -199,8 +212,17 @@ zrbv_process_image_type() {
   local fqin="$2"           # Full image name
   local family_name="$3"    # Display name
 
-  local manifest_file="${RBV_TEMP_DIR}/${prefix}_manifest.json"
-  local entries_file="${RBV_TEMP_DIR}/${prefix}_entries.json"
+  local manifest_file manifest_prefix entries_file entries_prefix
+  if [ "$prefix" = "mow" ]; then
+    manifest_prefix="${ZRBV_MOW_MANIFEST_PREFIX}"
+    entries_prefix="${ZRBV_MOW_ENTRIES_PREFIX}"
+  else
+    manifest_prefix="${ZRBV_MOS_MANIFEST_PREFIX}"
+    entries_prefix="${ZRBV_MOS_ENTRIES_PREFIX}"
+  fi
+
+  manifest_file="${manifest_prefix}.json"
+  entries_file="${entries_prefix}.json"
 
   bcu_step "Retrieving manifest for ${family_name} image: ${fqin}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --        \
@@ -214,6 +236,45 @@ zrbv_process_image_type() {
   jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" || bcu_die "Failed to extract ${family_name} entries"
 
   zrbv_process_manifest_family "${entries_file}" "${prefix}" "${family_name}"
+}
+
+# Updated zrbv_process_manifest_family using ZRBV_ variables
+zrbv_process_manifest_family() {
+  local entries_file="$1"
+  local prefix="$2"
+  local family_name="$3"
+
+  local decoded_prefix
+  if [ "$prefix" = "mow" ]; then
+    decoded_prefix="${ZRBV_MOW_DECODED_PREFIX}"
+  else
+    decoded_prefix="${ZRBV_MOS_DECODED_PREFIX}"
+  fi
+
+  bcu_step "${family_name} family images:"
+  local entry_num=0
+  while IFS= read -r entry; do
+    entry_num=$((entry_num + 1))
+    local       decoded="${decoded_prefix}${entry_num}.json"
+    local     arch_file="${decoded_prefix}${entry_num}_arch.txt"
+    local disktype_file="${decoded_prefix}${entry_num}_disktype.txt"
+    local   digest_file="${decoded_prefix}${entry_num}_digest.txt"
+
+    base64 -d <<< "${entry}"              > "${decoded}"
+    jq -r '.platform.architecture'          "${decoded}" > "${arch_file}"
+    jq -r '.annotations.disktype // "base"' "${decoded}" > "${disktype_file}"
+    jq -r '.digest'                         "${decoded}" > "${digest_file}"
+
+    local arch disktype digest
+    arch=$(<"${arch_file}")
+    disktype=$(<"${disktype_file}")
+    digest=$(<"${digest_file}")
+    local platform_spec="${prefix}_${arch}_${disktype}"
+
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
+    echo "${platform_spec}" >> "${ZRBV_AVAILABLE_IMAGES}"
+    echo "${platform_spec}:${digest}" >> "${ZRBV_PLATFORM_DIGESTS}"
+  done < "${entries_file}"
 }
 
 ######################################################################
@@ -280,38 +341,6 @@ rbv_stop() {
   bcu_die "BRADTODO: ELIDED."
 }
 
-# Process manifest entries and add platform specs to available_images_file
-zrbv_process_manifest_family() {
-  local entries_file="$1"
-  local prefix="$2"
-  local family_name="$3"
-
-  bcu_step "${family_name} family images:"
-  local entry_num=0
-  while IFS= read -r entry; do
-    entry_num=$((entry_num + 1))
-    local       decoded="${RBV_TEMP_DIR}/${prefix}_${entry_num}_decoded.json"
-    local     arch_file="${RBV_TEMP_DIR}/${prefix}_${entry_num}_arch.txt"
-    local disktype_file="${RBV_TEMP_DIR}/${prefix}_${entry_num}_disktype.txt"
-    local   digest_file="${RBV_TEMP_DIR}/${prefix}_${entry_num}_digest.txt"
-
-    base64 -d <<< "${entry}"              > "${decoded}"
-    jq -r '.platform.architecture'          "${decoded}" > "${arch_file}"
-    jq -r '.annotations.disktype // "base"' "${decoded}" > "${disktype_file}"
-    jq -r '.digest'                         "${decoded}" > "${digest_file}"
-
-    local arch disktype digest
-    arch=$(<"${arch_file}")
-    disktype=$(<"${disktype_file}")
-    digest=$(<"${digest_file}")
-    local platform_spec="${prefix}_${arch}_${disktype}"
-
-    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
-    echo "${platform_spec}" >> "${available_images_file}"
-    echo "${platform_spec}:${digest}" >> "${RBV_TEMP_DIR}/platform_digests.txt"
-  done < "${entries_file}"
-}
-
 rbv_experiment() {
   # Handle documentation mode
   bcu_doc_brief "Process manifests for WSL and standard machine-os images, then upload needed disk images to GHCR"
@@ -326,11 +355,9 @@ rbv_experiment() {
   bcu_step "Prepare fresh ignite machine with crane and tools..."
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
-  local available_images_file="${RBV_TEMP_DIR}/available_disk_images.txt"
-
   bcu_step "Clear available images and platform digests files..."
-  > "${available_images_file}"
-  > "${RBV_TEMP_DIR}/platform_digests.txt"
+  > "${ZRBV_AVAILABLE_IMAGES}"
+  > "${ZRBV_PLATFORM_DIGESTS}"
 
   bcu_step "Potential container image names for caching:"
 
@@ -347,7 +374,7 @@ rbv_experiment() {
 
   local missing_images=""
   for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
-    if ! grep -q "^${needed_image}$" "${available_images_file}"; then
+    if ! grep -q "^${needed_image}$" "${ZRBV_AVAILABLE_IMAGES}"; then
       missing_images="${missing_images} ${needed_image}"
     else
       bcu_info "? Found needed image: ${needed_image}"
@@ -357,15 +384,13 @@ rbv_experiment() {
   if [[ -n "${missing_images}" ]]; then
     bcu_die "Missing required disk images:${missing_images}"      \
             "Available images:"                                   \
-            "$(cat "${available_images_file}" | sed 's/^/  /')"
+            "$(cat "${ZRBV_AVAILABLE_IMAGES}" | sed 's/^/  /')"
   fi
 
   bcu_success "All needed disk images are available in upstream manifests"
 
   # Upload disk images to GHCR
   local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
-  local vm_temp_dir="/tmp/rbv-upload"
-  local platform_digests_file="${RBV_TEMP_DIR}/platform_digests.txt"
   local timestamp=$(date +%Y%m%d_%H%M%S)
   local base_tag="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}"
   local final_tag="${base_tag}-${timestamp}"
@@ -373,8 +398,8 @@ rbv_experiment() {
   bcu_step "Final manifest will be: ${final_tag}"
 
   bcu_step "Setting up VM upload directory..."
-  podman machine ssh "$vm_name" --                       \
-      "rm -rf ${vm_temp_dir} && mkdir -p ${vm_temp_dir}" \
+  podman machine ssh "$vm_name" --                            \
+      "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
     || bcu_die "Failed to create VM temp directory"
 
   # Login to GHCR (needed for push phase)
@@ -389,11 +414,9 @@ rbv_experiment() {
   for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
     bcu_step "Building image for: ${needed_image}"
 
-    # Get digest
-    local      digest=$(grep "^${needed_image}:" "${platform_digests_file}" | cut -d: -f2-)
+    local      digest=$(grep "^${needed_image}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
     test -n "${digest}" || bcu_die "No digest found for ${needed_image}"
 
-    # Determine source FQIN
     local source_fqin
     if [[ "$needed_image" == mow_* ]]; then
       source_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
@@ -401,13 +424,11 @@ rbv_experiment() {
       source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
     fi
 
-    # Fetch individual manifest
-    local manifest_file="${vm_temp_dir}/${needed_image}_manifest.json"
+    local manifest_file="${ZRBV_VM_MANIFEST_PREFIX}${needed_image}.json"
     podman machine ssh "$vm_name" --                                 \
         "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
       || bcu_die "Failed to fetch manifest for ${needed_image}"
 
-    # Extract blob info
     local blob_info=$(podman machine ssh "$vm_name" -- \
         "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar|qcow2|machine\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
       || bcu_die "Failed to extract blob info for ${needed_image}"
@@ -418,7 +439,6 @@ rbv_experiment() {
     local temp="${blob_info#*:}"
     local media_type="${temp#*:}"
 
-    # Determine file extension
     local extension="tar"
     case "$media_type" in
       *zstd*) extension="tar.zst" ;;
@@ -426,36 +446,32 @@ rbv_experiment() {
       *xz*)   extension="tar.xz"  ;;
     esac
 
-    # Download blob to VM
-    local vm_blob_file="${vm_temp_dir}/${needed_image}.${extension}"
+    local vm_blob_file="${ZRBV_VM_BLOB_PREFIX}${needed_image}.${extension}"
     podman machine ssh "$vm_name" --                                 \
         "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
       || bcu_die "Failed to download blob for ${needed_image}"
 
-    # Create Dockerfile
-    local dockerfile="${vm_temp_dir}/Dockerfile.${needed_image}"
+    local dockerfile="${ZRBV_VM_DOCKERFILE_PREFIX}${needed_image}"
     podman machine ssh "$vm_name" --           \
         "echo 'FROM scratch' > ${dockerfile}"  \
       || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
-    podman machine ssh "$vm_name" --                                                          \
-        "echo 'COPY ${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}"  \
+    podman machine ssh "$vm_name" --                                                                  \
+        "echo 'COPY blob_${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}"     \
       || bcu_die "Failed to add COPY to Dockerfile for ${needed_image}"
 
-    # Build image (no push yet)
     local temp_tag="${base_tag}-temp-${needed_image}-${timestamp}"
     temp_tags="${temp_tags} ${temp_tag}"
 
-    podman machine ssh "$vm_name" --                                                        \
-        "cd ${vm_temp_dir} && podman build -f Dockerfile.${needed_image} -t ${temp_tag} ."  \
+    podman machine ssh "$vm_name" --                                                            \
+        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f Dockerfile.${needed_image} -t ${temp_tag} ."  \
       || bcu_die "Failed to build image for ${needed_image}"
 
-    bcu_info "? Built: ${temp_tag}"
+    bcu_info "Built: ${temp_tag}"
   done
 
   bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built successfully"
 
-  # Phase 2: Push all images
   bcu_step "Pushing all images to GHCR..."
   for temp_tag in ${temp_tags}; do
     bcu_step "Pushing: ${temp_tag##*/}"
@@ -466,7 +482,6 @@ rbv_experiment() {
 
   bcu_success "All container images pushed successfully"
 
-  # Phase 3: Create manifest list
   bcu_step "Creating manifest list: ${final_tag}"
   for temp_tag in ${temp_tags}; do
     podman machine ssh "$vm_name" --                      \
@@ -483,7 +498,7 @@ rbv_experiment() {
 
   bcu_step "Cleaning up VM directory..."
   podman machine ssh "$vm_name" -- \
-      "rm -rf ${vm_temp_dir}"      \
+      "rm -rf ${ZRBV_VM_TEMP_DIR}"      \
     || bcu_warn "Failed to clean up VM temp directory"
 
   bcu_success "All disk images uploaded to GHCR as: ${final_tag}"
