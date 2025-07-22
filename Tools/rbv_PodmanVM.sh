@@ -198,10 +198,10 @@ zrbv_process_image_type() {
   local prefix="$1"         # "mow" or "mos"
   local fqin="$2"           # Full image name
   local family_name="$3"    # Display name
-  
+
   local manifest_file="${RBV_TEMP_DIR}/${prefix}_manifest.json"
   local entries_file="${RBV_TEMP_DIR}/${prefix}_entries.json"
-  
+
   bcu_step "Retrieving manifest for ${family_name} image: ${fqin}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --        \
         "crane manifest ${fqin} | jq ." > "${manifest_file}" \
@@ -212,7 +212,7 @@ zrbv_process_image_type() {
 
   bcu_step "Extract manifest entries for ${family_name}..."
   jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" || bcu_die "Failed to extract ${family_name} entries"
-  
+
   zrbv_process_manifest_family "${entries_file}" "${prefix}" "${family_name}"
 }
 
@@ -283,7 +283,7 @@ rbv_stop() {
 # Process manifest entries and add platform specs to available_images_file
 zrbv_process_manifest_family() {
   local entries_file="$1"
-  local prefix="$2"  
+  local prefix="$2"
   local family_name="$3"
 
   bcu_step "${family_name} family images:"
@@ -310,100 +310,16 @@ zrbv_process_manifest_family() {
     echo "${platform_spec}" >> "${available_images_file}"
     echo "${platform_spec}:${digest}" >> "${RBV_TEMP_DIR}/platform_digests.txt"
   done < "${entries_file}"
-}   
-
-# Download needed disk images from VM to host
-zrbv_download_needed_images() {
-  local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
-  local vm_temp_dir="/tmp/rbv-downloads"
-  local platform_digests_file="${RBV_TEMP_DIR}/platform_digests.txt"
-
-  bcu_step "Setting up VM download directory..."
-  podman machine ssh "$vm_name" --                       \
-      "rm -rf ${vm_temp_dir} && mkdir -p ${vm_temp_dir}" \
-    || bcu_die "Failed to create VM temp directory"
-
-  for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
-    bcu_step "Processing needed image: ${needed_image}"
-
-    bcu_step "re: ${needed_image}: Find the digest for this platform spec..."
-    local digest=$(grep "^${needed_image}:" "${platform_digests_file}" | cut -d: -f2-)
-    test -n "$digest" || bcu_die "No digest found for ${needed_image}"
-
-    bcu_info "Manifest digest: ${digest}"
-
-    bcu_step "re: ${needed_image}: Determine source FQIN based on prefix..."
-    local source_fqin
-    if [[ "$needed_image" == mow_* ]]; then
-      source_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
-    else
-      source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
-    fi
-
-    bcu_step "re: ${needed_image}: Fetch individual manifest to get blob info..."
-    local manifest_file="${vm_temp_dir}/${needed_image}_manifest.json"
-
-    bcu_step "Fetching individual manifest for ${needed_image}..."
-    podman machine ssh "$vm_name" -- \
-        "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
-      || bcu_die "Failed to fetch manifest for ${needed_image}"
-
-    bcu_step "re: ${needed_image}: Extract blob digest and mediaType for disk image layer..."
-    local blob_info=$(podman machine ssh "$vm_name" -- \
-        "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar|qcow2|machine\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
-      || bcu_die "Failed to extract blob info for ${needed_image}"
-
-    test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
-
-   local blob_digest="${blob_info%:*}"        # Remove last :field, keeps sha256:hash
-   local temp="${blob_info#*:}"               # Remove first field (sha256:)
-   local media_type="${temp#*:}"              # Remove next field (hash:)
-
-    bcu_info "Blob digest: ${blob_digest}"
-    bcu_info "Media type:  ${media_type}"
-
-    bcu_step "re: ${needed_image}: Determine file extension from media type..."
-    local extension="tar"
-    case "$media_type" in
-      *zstd*) extension="tar.zst" ;;
-      *gzip*) extension="tar.gz"  ;;
-      *xz*)   extension="tar.xz"  ;;
-    esac
-
-    bcu_step "re: ${needed_image}: Download blob to VM..."
-    local vm_blob_file="${vm_temp_dir}/${needed_image}.${extension}"
-    bcu_step "Downloading blob for ${needed_image}..."
-    podman machine ssh "$vm_name" --                                 \
-        "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
-      || bcu_die "Failed to download blob for ${needed_image}"
-
-    bcu_step "re: ${needed_image}: Copy from VM to host..."
-    local host_file="${RBRS_VMIMAGE_CACHE_DIR}/podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${needed_image}.${extension}"
-    bcu_step "Copying ${needed_image} from VM to host..."
-
-    mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
-
-    podman machine ssh "$vm_name" -- "cat ${vm_blob_file}" > "${host_file}" \
-      || bcu_die "Failed to copy ${needed_image} to host"
-
-    bcu_info "Downloaded: ${host_file}"
-    bcu_info "Expected blob digest for podman machine init: ${blob_digest}"
-  done
-
-  bcu_step "Cleaning up VM download directory..."
-  podman machine ssh "$vm_name" -- \
-      "rm -rf ${vm_temp_dir}"      \
-    || bcu_warn "Failed to clean up VM temp directory"
 }
 
 rbv_experiment() {
   # Handle documentation mode
-  bcu_doc_brief "Display raw manifests for WSL and standard machine-os images, then download needed disk images"
+  bcu_doc_brief "Process manifests for WSL and standard machine-os images, then upload needed disk images to GHCR"
   bcu_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
   bcu_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
-  bcu_doc_lines "Generates all potential container image names for caching"
   bcu_doc_lines "Validates that all RBRR_NEEDED_DISK_IMAGES are available"
-  bcu_doc_lines "Downloads needed disk images to RBRS_VMIMAGE_CACHE_DIR"
+  bcu_doc_lines "Downloads needed disk images and packages them as container images"
+  bcu_doc_lines "Builds all images locally first, then uploads to GHCR with combined manifest list"
   bcu_doc_shown || return 0
 
   # Perform command
@@ -417,12 +333,12 @@ rbv_experiment() {
   > "${RBV_TEMP_DIR}/platform_digests.txt"
 
   bcu_step "Potential container image names for caching:"
-  
+
   # Process each image type
   zrbv_process_image_type "mow" \
     "quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS-WSL"
-    
+
   zrbv_process_image_type "mos" \
     "quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS standard"
@@ -446,10 +362,131 @@ rbv_experiment() {
 
   bcu_success "All needed disk images are available in upstream manifests"
 
-  bcu_step "Downloading needed disk images..."
-  zrbv_download_needed_images || bcu_die "Failed to download needed images"
+  # Upload disk images to GHCR
+  local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
+  local vm_temp_dir="/tmp/rbv-upload"
+  local platform_digests_file="${RBV_TEMP_DIR}/platform_digests.txt"
+  local timestamp=$(date +%Y%m%d_%H%M%S)
+  local base_tag="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}"
+  local final_tag="${base_tag}-${timestamp}"
 
-  bcu_success "All needed disk images downloaded to ${RBRS_VMIMAGE_CACHE_DIR}"
+  bcu_step "Final manifest will be: ${final_tag}"
+
+  bcu_step "Setting up VM upload directory..."
+  podman machine ssh "$vm_name" --                       \
+      "rm -rf ${vm_temp_dir} && mkdir -p ${vm_temp_dir}" \
+    || bcu_die "Failed to create VM temp directory"
+
+  # Login to GHCR (needed for push phase)
+  zrbv_validate_pat || bcu_die "PAT validation failed"
+  zrbv_login_crane "$vm_name" || bcu_die "Crane login failed"
+  zrbv_login_ghcr  "$vm_name" || bcu_die "Podman login failed"
+
+  local temp_tags=""
+
+  # Phase 1: Build all images locally
+  bcu_step "Building all container images locally..."
+  for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
+    bcu_step "Building image for: ${needed_image}"
+
+    # Get digest
+    local      digest=$(grep "^${needed_image}:" "${platform_digests_file}" | cut -d: -f2-)
+    test -n "${digest}" || bcu_die "No digest found for ${needed_image}"
+
+    # Determine source FQIN
+    local source_fqin
+    if [[ "$needed_image" == mow_* ]]; then
+      source_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
+    else
+      source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
+    fi
+
+    # Fetch individual manifest
+    local manifest_file="${vm_temp_dir}/${needed_image}_manifest.json"
+    podman machine ssh "$vm_name" --                                 \
+        "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
+      || bcu_die "Failed to fetch manifest for ${needed_image}"
+
+    # Extract blob info
+    local blob_info=$(podman machine ssh "$vm_name" -- \
+        "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar|qcow2|machine\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
+      || bcu_die "Failed to extract blob info for ${needed_image}"
+
+    test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
+
+    local blob_digest="${blob_info%:*}"
+    local temp="${blob_info#*:}"
+    local media_type="${temp#*:}"
+
+    # Determine file extension
+    local extension="tar"
+    case "$media_type" in
+      *zstd*) extension="tar.zst" ;;
+      *gzip*) extension="tar.gz"  ;;
+      *xz*)   extension="tar.xz"  ;;
+    esac
+
+    # Download blob to VM
+    local vm_blob_file="${vm_temp_dir}/${needed_image}.${extension}"
+    podman machine ssh "$vm_name" --                                 \
+        "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
+      || bcu_die "Failed to download blob for ${needed_image}"
+
+    # Create Dockerfile
+    local dockerfile="${vm_temp_dir}/Dockerfile.${needed_image}"
+    podman machine ssh "$vm_name" --           \
+        "echo 'FROM scratch' > ${dockerfile}"  \
+      || bcu_die "Failed to create Dockerfile for ${needed_image}"
+
+    podman machine ssh "$vm_name" --                                                          \
+        "echo 'COPY ${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}"  \
+      || bcu_die "Failed to add COPY to Dockerfile for ${needed_image}"
+
+    # Build image (no push yet)
+    local temp_tag="${base_tag}-temp-${needed_image}-${timestamp}"
+    temp_tags="${temp_tags} ${temp_tag}"
+
+    podman machine ssh "$vm_name" --                                                        \
+        "cd ${vm_temp_dir} && podman build -f Dockerfile.${needed_image} -t ${temp_tag} ."  \
+      || bcu_die "Failed to build image for ${needed_image}"
+
+    bcu_info "? Built: ${temp_tag}"
+  done
+
+  bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built successfully"
+
+  # Phase 2: Push all images
+  bcu_step "Pushing all images to GHCR..."
+  for temp_tag in ${temp_tags}; do
+    bcu_step "Pushing: ${temp_tag##*/}"
+    podman machine ssh "$vm_name" --  \
+        "podman push ${temp_tag}"     \
+      || bcu_die "Failed to push ${temp_tag}"
+  done
+
+  bcu_success "All container images pushed successfully"
+
+  # Phase 3: Create manifest list
+  bcu_step "Creating manifest list: ${final_tag}"
+  for temp_tag in ${temp_tags}; do
+    podman machine ssh "$vm_name" --                      \
+        "crane index append -m ${temp_tag} ${final_tag}"  \
+      || bcu_die "Failed to add ${temp_tag} to manifest list"
+  done
+
+  bcu_step "Cleaning up temporary tags..."
+  for temp_tag in ${temp_tags}; do
+    podman machine ssh "$vm_name" -- \
+        "crane delete ${temp_tag}"   \
+      || bcu_warn "Failed to delete temp tag ${temp_tag}"
+  done
+
+  bcu_step "Cleaning up VM directory..."
+  podman machine ssh "$vm_name" -- \
+      "rm -rf ${vm_temp_dir}"      \
+    || bcu_warn "Failed to clean up VM temp directory"
+
+  bcu_success "All disk images uploaded to GHCR as: ${final_tag}"
 }
 
 # Execute command
