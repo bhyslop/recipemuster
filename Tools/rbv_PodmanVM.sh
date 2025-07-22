@@ -68,6 +68,9 @@ zrbv_environment() {
   ZRBV_VM_MANIFEST_PREFIX="${ZRBV_VM_TEMP_DIR}/manifest_"
   ZRBV_VM_BLOB_PREFIX="${ZRBV_VM_TEMP_DIR}/blob_"
   ZRBV_VM_DOCKERFILE_PREFIX="${ZRBV_VM_TEMP_DIR}/Dockerfile."
+
+  ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
+  ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
 }
 
 # Generate brand file content
@@ -348,7 +351,7 @@ rbv_experiment() {
   bcu_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
   bcu_doc_lines "Validates that all RBRR_NEEDED_DISK_IMAGES are available"
   bcu_doc_lines "Downloads needed disk images and packages them as container images"
-  bcu_doc_lines "Builds all images locally first, then uploads to GHCR with combined manifest list"
+  bcu_doc_lines "Builds all images locally, creates local manifest list, then single push to GHCR"
   bcu_doc_shown || return 0
 
   # Perform command
@@ -389,11 +392,11 @@ rbv_experiment() {
 
   bcu_success "All needed disk images are available in upstream manifests"
 
-  # Upload disk images to GHCR
   local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
   local timestamp=$(date +%Y%m%d_%H%M%S)
   local base_tag="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}"
   local final_tag="${base_tag}-${timestamp}"
+  local manifest_name="podvm-manifest-${timestamp}"
 
   bcu_step "Final manifest will be: ${final_tag}"
 
@@ -402,17 +405,17 @@ rbv_experiment() {
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
     || bcu_die "Failed to create VM temp directory"
 
-  # Login to GHCR (needed for push phase)
   zrbv_validate_pat || bcu_die "PAT validation failed"
-  zrbv_login_crane "$vm_name" || bcu_die "Crane login failed"
-  zrbv_login_ghcr  "$vm_name" || bcu_die "Podman login failed"
+  zrbv_login_ghcr "$vm_name" || bcu_die "Podman login failed"
 
-  local temp_tags=""
+  bcu_step "Creating local manifest list: ${manifest_name}"
+  podman machine ssh "$vm_name" --               \
+      "podman manifest create ${manifest_name}"  \
+    || bcu_die "Failed to create local manifest"
 
-  # Phase 1: Build all images locally
-  bcu_step "Building all container images locally..."
+  bcu_step "Building container images and adding to local manifest..."
   for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
-    bcu_step "Building image for: ${needed_image}"
+    bcu_step "Processing: ${needed_image}"
 
     local      digest=$(grep "^${needed_image}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
     test -n "${digest}" || bcu_die "No digest found for ${needed_image}"
@@ -429,9 +432,17 @@ rbv_experiment() {
         "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
       || bcu_die "Failed to fetch manifest for ${needed_image}"
 
-    local blob_info=$(podman machine ssh "$vm_name" -- \
-        "jq -r '.layers[] | select(.annotations.\"org.opencontainers.image.title\" // .mediaType | test(\"disk|raw|tar|qcow2|machine\")) | .digest + \":\" + .mediaType' ${manifest_file} | head -1") \
-      || bcu_die "Failed to extract blob info for ${needed_image}"
+    bcu_step "Extracting disk blob info for ${needed_image}..."
+    podman machine ssh "$vm_name" --                                 \
+        "jq -r '.layers[]' ${manifest_file}" > "${ZRBV_LAYERS_JSON}" \
+      || bcu_die "Failed to extract layers for ${needed_image}"
+
+    jq -r 'select(.annotations."org.opencontainers.image.title" // .mediaType | test("disk|raw|tar|qcow2|machine")) | .digest + ":" + .mediaType' \
+           "${ZRBV_LAYERS_JSON}" > "${ZRBV_BLOB_INFO}" \
+      || bcu_die "Failed to find disk blob for ${needed_image}"
+
+    local blob_info
+    IFS= read -r blob_info < "${ZRBV_BLOB_INFO}" || true
 
     test -n "$blob_info" || bcu_die "No disk blob found in manifest for ${needed_image}"
 
@@ -460,41 +471,35 @@ rbv_experiment() {
         "echo 'COPY blob_${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}"     \
       || bcu_die "Failed to add COPY to Dockerfile for ${needed_image}"
 
-    local temp_tag="${base_tag}-temp-${needed_image}-${timestamp}"
-    temp_tags="${temp_tags} ${temp_tag}"
+    local local_tag="localhost/podvm-${needed_image}:${timestamp}"
 
-    podman machine ssh "$vm_name" --                                                            \
-        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f Dockerfile.${needed_image} -t ${temp_tag} ."  \
+    podman machine ssh "$vm_name" --                                                              \
+        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f Dockerfile.${needed_image} -t ${local_tag} ."  \
       || bcu_die "Failed to build image for ${needed_image}"
 
-    bcu_info "Built: ${temp_tag}"
+    local arch=$(echo "$needed_image" | cut -d_ -f2)
+    local variant=""
+    local os="linux"
+
+    # Add to manifest with proper platform info
+    podman machine ssh "$vm_name" --                                                  \
+        "podman manifest add ${manifest_name} ${local_tag} --arch ${arch} --os ${os}" \
+      || bcu_die "Failed to add ${local_tag} to manifest"
+
+    bcu_info "Added to manifest: ${needed_image} (${arch})"
   done
 
-  bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built successfully"
+  bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built and added to manifest"
 
-  bcu_step "Pushing all images to GHCR..."
-  for temp_tag in ${temp_tags}; do
-    bcu_step "Pushing: ${temp_tag##*/}"
-    podman machine ssh "$vm_name" --  \
-        "podman push ${temp_tag}"     \
-      || bcu_die "Failed to push ${temp_tag}"
-  done
+  bcu_step "Pushing manifest to GHCR: ${final_tag}"
+  podman machine ssh "$vm_name" --                                   \
+      "podman manifest push ${manifest_name} docker://${final_tag}" \
+    || bcu_die "Failed to push manifest to GHCR"
 
-  bcu_success "All container images pushed successfully"
-
-  bcu_step "Creating manifest list: ${final_tag}"
-  for temp_tag in ${temp_tags}; do
-    podman machine ssh "$vm_name" --                      \
-        "crane index append -m ${temp_tag} ${final_tag}"  \
-      || bcu_die "Failed to add ${temp_tag} to manifest list"
-  done
-
-  bcu_step "Cleaning up temporary tags..."
-  for temp_tag in ${temp_tags}; do
-    podman machine ssh "$vm_name" -- \
-        "crane delete ${temp_tag}"   \
-      || bcu_warn "Failed to delete temp tag ${temp_tag}"
-  done
+  bcu_step "Cleaning up local manifest..."
+  podman machine ssh "$vm_name" -- \
+      "podman manifest rm ${manifest_name}" \
+    || bcu_warn "Failed to remove local manifest"
 
   bcu_step "Cleaning up VM directory..."
   podman machine ssh "$vm_name" -- \
