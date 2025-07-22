@@ -27,7 +27,7 @@ source "${ZRBV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 ######################################################################
 # Internal Functions (zrbv_*)
 
-zrbv_validate_envvars() {
+zrbv_environment() {
   # Handle documentation mode
   bcu_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
   bcu_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
@@ -131,9 +131,9 @@ zrbv_ignite_bootstrap() {
 
   if ! podman machine inspect "${RBRR_IGNITE_MACHINE_NAME}" &>/dev/null; then
     bcu_step "Creating ignite VM with natural podman init..."
-    podman machine init --log-level=debug     "${RBRR_IGNITE_MACHINE_NAME}" \
-                                            2> "$ZRBV_IGNITE_INIT_STDERR"   \
-         | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "$ZRBV_IGNITE_INIT_STDOUT"   \
+    podman machine init --log-level=debug      "${RBRR_IGNITE_MACHINE_NAME}" \
+                                            2> "${ZRBV_IGNITE_INIT_STDERR}"  \
+         | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "${ZRBV_IGNITE_INIT_STDOUT}"  \
       || bcu_die "Bad init."
 
     bcu_step "Starting ignite machine..."
@@ -444,7 +444,7 @@ rbv_experiment() {
 }
 
 # Execute command
-bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_validate_envvars "$@"
+bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_environment "$@"
 
 
 # eof
