@@ -23,7 +23,6 @@ ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBV_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
-
 ######################################################################
 # Internal Functions (zrbv_*)
 
@@ -442,6 +441,10 @@ rbv_experiment() {
 
   bcu_success "All needed disk images downloaded to ${RBRS_VMIMAGE_CACHE_DIR}"
 }
+
+# Execute command
+bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_environment "$@"
+
 
 # eof
 
