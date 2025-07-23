@@ -53,8 +53,11 @@ zrbv_environment() {
 
   ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
   ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
+  ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
+  ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
   ZRBV_AVAILABLE_IMAGES="${RBV_TEMP_DIR}/available_disk_images.txt"
   ZRBV_PLATFORM_DIGESTS="${RBV_TEMP_DIR}/platform_digests.txt"
+  ZRBV_EMPLACED_BRAND_FILE="${RBV_TEMP_DIR}/emplaced_brand_file.txt"
 
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
   ZRBV_MOW_MANIFEST_JSON="${RBV_TEMP_DIR}/mow_manifest.json"
@@ -72,7 +75,9 @@ zrbv_environment() {
   ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
   ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
 
-  ZRBV_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-"
+  ZRBV_MANIFEST_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-manifest-"
+  ZRBV_MAP_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-map-"
+  ZRBV_PLATFORM_MAP_FILE="${RBV_TEMP_DIR}/platform-map.txt"
 }
 
 # Generate brand file content
@@ -324,8 +329,8 @@ rbv_mirror() {
 rbv_fetch() {
   # Handle documentation mode
   bcu_doc_brief "Fetch platform-specific VM image from GHCR to local cache"
-  bcu_doc_lines "Starts ignite VM temporarily to access podman image cache"
-  bcu_doc_lines "Pulls container image for RBRS_VM_PLATFORM from GHCR"
+  bcu_doc_lines "Pulls map container to find platform digest"
+  bcu_doc_lines "Pulls platform-specific container image by digest"
   bcu_doc_lines "Extracts disk image to RBRS_VMIMAGE_CACHE_DIR"
   bcu_doc_lines "Always overwrites existing cached image"
   bcu_doc_shown || return 0
@@ -333,8 +338,6 @@ rbv_fetch() {
   # Perform command
   bcu_step "Validating platform configuration..."
   test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
-  echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" || \
-    bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
 
   bcu_step "Ensuring cache directory exists..."
   mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
@@ -346,42 +349,51 @@ rbv_fetch() {
   zrbv_validate_pat || bcu_die "PAT validation failed"
   zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "GHCR login failed"
 
-  local manifest_tag="${ZRBV_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
-  local manifest_file="${RBV_TEMP_DIR}/manifest.json"
+  local map_tag="${ZRBV_MAP_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
+  local manifest_tag="${ZRBV_MANIFEST_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
 
-  bcu_step "Fetching manifest for ${manifest_tag}..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" manifest inspect "${manifest_tag}" > "${manifest_file}" || \
-    bcu_die "Failed to fetch manifest"
+  bcu_step "Pulling platform map container: ${map_tag}..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${map_tag}" || \
+    bcu_die "Failed to pull map container"
 
-  bcu_step "Finding platform entry for ${RBRS_VM_PLATFORM}..."
-  # Extract disktype from platform (e.g., mow_x86_64_wsl -> wsl)
-  local disktype="${RBRS_VM_PLATFORM##*_}"
-  # Extract arch from platform (e.g., mow_x86_64_wsl -> x86_64)
-  local arch=$(echo "${RBRS_VM_PLATFORM}" | cut -d_ -f2)
+  bcu_step "Creating temporary container to extract platform map..."
+  local container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${map_tag}")
+  test -n "${container_id}" || bcu_die "Failed to create map container"
 
-  local platform_entry="${RBV_TEMP_DIR}/platform_entry.json"
-  jq -r --arg arch "${arch}" --arg dt "${disktype}" \
-    '.manifests[] | select(.platform.architecture == $arch and (.annotations.disktype // "base") == $dt)' \
-    "${manifest_file}" > "${platform_entry}" || bcu_die "Failed to find platform in manifest"
+  bcu_step "Extracting platform map..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${container_id}:/platform-map.txt" - | \
+    tar -xO > "${ZRBV_PLATFORM_MAP_FILE}" || \
+    bcu_die "Failed to extract platform map"
 
-  test -s "${platform_entry}" || bcu_die "Platform ${RBRS_VM_PLATFORM} not found in manifest"
+  bcu_step "Finding digest for platform: ${RBRS_VM_PLATFORM}..."
+  local platform_digest=""
+  while IFS=' ' read -r platform digest; do
+    if [[ "${platform}" == "${RBRS_VM_PLATFORM}" ]]; then
+      platform_digest="${digest}"
+      break
+    fi
+  done < "${ZRBV_PLATFORM_MAP_FILE}"
 
-  local digest=$(jq -r '.digest' "${platform_entry}")
-  test -n "${digest}" || bcu_die "No digest found for platform"
+  test -n "${platform_digest}" || \
+    bcu_die "Platform ${RBRS_VM_PLATFORM} not found in map" \
+            "Available platforms:" \
+            "$(cat "${ZRBV_PLATFORM_MAP_FILE}" | cut -d' ' -f1 | sed 's/^/  /')"
 
-  bcu_step "Pulling platform image by digest: ${digest}..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${manifest_tag}@${digest}" || \
+  bcu_info "Found digest for ${RBRS_VM_PLATFORM}: ${platform_digest}"
+
+  bcu_step "Pulling platform image by digest..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${manifest_tag}@${platform_digest}" || \
     bcu_die "Failed to pull image from GHCR"
 
   bcu_step "Creating temporary container to extract disk image..."
-  local container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${manifest_tag}@${digest}")
-  test -n "${container_id}" || bcu_die "Failed to create container"
+  local extract_container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${manifest_tag}@${platform_digest}")
+  test -n "${extract_container_id}" || bcu_die "Failed to create extract container"
 
   local extract_dir="${RBV_TEMP_DIR}/extract"
   mkdir -p "${extract_dir}"
 
   bcu_step "Extracting container contents..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" export "${container_id}" | tar -x -C "${extract_dir}" || \
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" export "${extract_container_id}" | tar -x -C "${extract_dir}" || \
     bcu_die "Failed to extract container contents"
 
   # We know the file will be disk-image.* based on how experiment builds it
@@ -404,9 +416,11 @@ rbv_fetch() {
   bcu_step "Moving disk image to cache: ${cache_file}"
   mv -f "${disk_image}" "${cache_file}" || bcu_die "Failed to move disk image to cache"
 
-  bcu_step "Cleaning up temporary container..."
+  bcu_step "Cleaning up temporary containers..."
   podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${container_id}" || \
-    bcu_warn "Failed to remove temp container"
+    bcu_warn "Failed to remove map container"
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${extract_container_id}" || \
+    bcu_warn "Failed to remove extract container"
 
   rm -rf "${extract_dir}"
 
@@ -539,7 +553,8 @@ rbv_experiment() {
   bcu_success "All needed disk images are available in upstream manifests"
 
   local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
-  local base_tag="${ZRBV_TAG_PREFIX}${new_identity}"
+  local manifest_tag="${ZRBV_MANIFEST_TAG_PREFIX}${new_identity}"
+  local map_tag="${ZRBV_MAP_TAG_PREFIX}${new_identity}"
   local manifest_name="podvm-manifest-${new_identity}"
 
   bcu_step "Final manifest will be: ${manifest_name}"
@@ -632,11 +647,44 @@ rbv_experiment() {
     bcu_info "Added to manifest: ${needed_image} (${arch})"
   done
 
-  bcu_success "All ${#RBRR_MANIFEST_PLATFORMS} container images built and added to manifest"
+  bcu_step "All ${#RBRR_MANIFEST_PLATFORMS} container images built and added to manifest"
 
-  bcu_step "Pushing manifest to GHCR: ${manifest_name}"
-  podman machine ssh "$vm_name" --                                 \
-      "podman manifest push ${manifest_name} docker://${base_tag}" \
+  bcu_step "Creating platform map file..."
+  > "${ZRBV_PLATFORM_MAP_FILE}"
+  for platform in ${RBRR_MANIFEST_PLATFORMS}; do
+    local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
+    echo "${platform} ${digest}" >> "${ZRBV_PLATFORM_MAP_FILE}"
+  done
+
+  bcu_step "Platform map contents:"
+  cat "${ZRBV_PLATFORM_MAP_FILE}"
+
+  bcu_step "Building map container..."
+  
+  bcu_step "Copying platform map to VM..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${ZRBV_PLATFORM_MAP_FILE}" - | \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cat > ${ZRBV_VM_TEMP_DIR}/platform-map.txt"      \
+    || bcu_die "Failed to copy platform map to VM"
+
+  bcu_step "Creating Dockerfile for map container..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                                      \
+      "cd ${ZRBV_VM_TEMP_DIR} && echo 'FROM scratch' > Dockerfile.map && echo 'COPY platform-map.txt /' >> Dockerfile.map" \
+    || bcu_die "Failed to create map Dockerfile"
+
+  bcu_step "Building map container..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                               \
+      "cd ${ZRBV_VM_TEMP_DIR} && podman build -f Dockerfile.map -t map-container:${new_identity} ." \
+    || bcu_die "Failed to build map container"
+
+  bcu_step "Pushing map container to GHCR: ${map_tag}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman push map-container:${new_identity} docker://${map_tag}" \
+    || bcu_die "Failed to push map container to GHCR"
+
+  bcu_step "Pushing manifest to GHCR: ${manifest_tag}"
+  podman machine ssh "$vm_name" --                                     \
+      "podman manifest push ${manifest_name} docker://${manifest_tag}" \
     || bcu_die "Failed to push manifest to GHCR"
 
   bcu_step "Cleaning up local manifest..."
@@ -654,8 +702,15 @@ rbv_experiment() {
   bcu_code "# Add to ${RBV_RBRR_FILE}:"
   bcu_code "export RBRR_CHOSEN_IDENTITY=${new_identity}  # ${RBRR_MANIFEST_PLATFORMS}"
   bcu_code ""
+  bcu_step "# To delete old versions, run:"
+  bcu_code ""
+  bcu_code "podman manifest rm ${manifest_tag}"
+  bcu_code "podman manifest rm ${map_tag}"
+  bcu_code ""
 
-  bcu_success "All disk images uploaded to GHCR as: ${base_tag}"
+  bcu_success "Uploaded to GHCR:"
+  bcu_info "  Manifest: ${manifest_tag}"
+  bcu_info "  Map:      ${map_tag}"
 }
 
 # Execute command
