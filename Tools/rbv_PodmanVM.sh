@@ -125,13 +125,13 @@ zrbv_validate_pat() {
 zrbv_remove_vm() {
   local vm_name="$1"
 
-  if podman machine inspect "$vm_name" > "${ZRBV_PODMAN_REMOVE_PREFIX}${vm_name}.txt"; then
-    bcu_info       "Stopping $vm_name..."
-    podman machine stop     "$vm_name" || bcu_warn "Failed to stop $vm_name during _remove_vm"
-    bcu_info       "Removing $vm_name..."
-    podman machine rm -f    "$vm_name" || bcu_die "Failed to remove $vm_name"
+  if podman machine inspect "${vm_name}" > "${ZRBV_PODMAN_REMOVE_PREFIX}${vm_name}.txt"; then
+    bcu_info       "Stopping ${vm_name}..."
+    podman machine stop     "${vm_name}" || bcu_warn "Failed to stop ${vm_name} during _remove_vm"
+    bcu_info       "Removing ${vm_name}..."
+    podman machine rm -f    "${vm_name}" || bcu_die "Failed to remove ${vm_name}"
   else
-    bcu_info             "VM $vm_name does not exist. Nothing to remove."
+    bcu_info             "VM ${vm_name} does not exist. Nothing to remove."
   fi
 }
 
@@ -143,8 +143,8 @@ zrbv_ignite_bootstrap() {
 
   if podman machine inspect "${RBRR_IGNITE_MACHINE_NAME}" &>/dev/null; then
     bcu_info "Stopping existing ignite machine (if running)..."
-    podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" 2>/dev/null || \
-      bcu_die "Could not stop existing ignite VM cleanly"
+    podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" 2>/dev/null \
+      || bcu_die "Could not stop existing ignite VM cleanly"
   fi
 
   if [ "$force_reinit" = true ]; then
@@ -189,7 +189,7 @@ zrbv_login_ghcr() {
   source "${RBRR_GITHUB_PAT_ENV}"
 
   bcu_step "Login with podman..."
-  podman -c "$vm_name" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
+  podman -c "${vm_name}" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
 # Helper function to process one image type
@@ -210,7 +210,8 @@ zrbv_process_image_type() {
   cat "${manifest_file}"
 
   bcu_step "Extract manifest entries for ${family_name}..."
-  jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" || bcu_die "Failed to extract ${family_name} entries"
+  jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" \
+    || bcu_die "Failed to extract ${family_name} entries"
 
   zrbv_process_manifest_family "${entries_file}" "${decoded_prefix}" "${prefix}" "${family_name}"
 }
@@ -321,166 +322,8 @@ zrbv_check() {
   #   manage their own cache and exposure to VM evolution.
 }
 
-# Mirror VM image to GHCR
+# Mirror VM images to GHCR
 rbv_mirror() {
-  bcu_die "BRADTODO: ELIDED."
-}
-
-# Fetch VM image from GHCR container
-rbv_fetch() {
-  # Handle documentation mode
-  bcu_doc_brief "Fetch platform-specific VM image from GHCR to local cache"
-  bcu_doc_lines "Pulls map container to find platform digest"
-  bcu_doc_lines "Pulls platform-specific container image by digest"
-  bcu_doc_lines "Extracts disk image to RBRS_VMIMAGE_CACHE_DIR"
-  bcu_doc_lines "Always overwrites existing cached image"
-  bcu_doc_shown || return 0
-
-  # Perform command
-  bcu_step "Validating platform configuration..."
-  test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
-
-  bcu_step "Ensuring cache directory exists..."
-  mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
-
-  bcu_step "Starting ignite VM to access podman image cache..."
-  zrbv_ignite_bootstrap false || bcu_die "Failed to start ignite machine"
-
-  bcu_step "Login to GitHub Container Registry..."
-  zrbv_validate_pat || bcu_die "PAT validation failed"
-  zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "GHCR login failed"
-
-  local map_tag="${ZRBV_MAP_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
-  local manifest_tag="${ZRBV_MANIFEST_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
-
-  bcu_step "Pulling platform map container: ${map_tag}..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${map_tag}" || \
-    bcu_die "Failed to pull map container"
-
-  bcu_step "Creating temporary container to extract platform map..."
-  local container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${map_tag}")
-  test -n "${container_id}" || bcu_die "Failed to create map container"
-
-  bcu_step "Extracting platform map..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${container_id}:/platform-map.txt" - | \
-    tar -xO > "${ZRBV_PLATFORM_MAP_FILE}" || \
-    bcu_die "Failed to extract platform map"
-
-  bcu_step "Finding digest for platform: ${RBRS_VM_PLATFORM}..."
-  local platform_digest=""
-  while IFS=' ' read -r platform digest original_ext; do
-    if [[ "${platform}" == "${RBRS_VM_PLATFORM}" ]]; then
-      platform_digest="${digest}"
-      platform_extension="${original_ext}"
-      break
-    fi
-  done < "${ZRBV_PLATFORM_MAP_FILE}"
-
-  test -n "${platform_digest}" || \
-    bcu_die "Platform ${RBRS_VM_PLATFORM} not found in map" \
-            "Available platforms:" \
-            "$(cat "${ZRBV_PLATFORM_MAP_FILE}" | cut -d' ' -f1 | sed 's/^/  /')"
-
-  bcu_info "Found digest for ${RBRS_VM_PLATFORM}: ${platform_digest}"
-
-  bcu_step "Pulling platform image by digest..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${manifest_tag}@${platform_digest}" || \
-    bcu_die "Failed to pull image from GHCR"
-
-  bcu_step "Creating temporary container to extract disk image..."
-  local extract_container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${manifest_tag}@${platform_digest}")
-  test -n "${extract_container_id}" || bcu_die "Failed to create extract container"
-
-  local extract_dir="${RBV_TEMP_DIR}/extract"
-  mkdir -p "${extract_dir}"
-
-  bcu_step "Extracting container contents..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" export "${extract_container_id}" | tar -x -C "${extract_dir}" || \
-    bcu_die "Failed to extract container contents"
-
-  local disk_image="${extract_dir}/disk-image.tar"
-  local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
-
-  bcu_step "Moving disk image to cache: ${cache_file}"
-  mv -f "${disk_image}" "${cache_file}" || bcu_die "Failed to move disk image to cache"
-
-  bcu_step "Cleaning up temporary containers..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${container_id}" || \
-    bcu_warn "Failed to remove map container"
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${extract_container_id}" || \
-    bcu_warn "Failed to remove extract container"
-
-  rm -rf "${extract_dir}"
-
-  bcu_step "Stopping ignite VM..."
-  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || \
-    bcu_warn "Failed to stop ignite machine"
-
-  bcu_success "VM image cached at: ${cache_file}"
-}
-
-rbv_init() {
-  # Handle documentation mode
-  bcu_doc_brief "Initialize deploy VM from cached platform-specific image"
-  bcu_doc_lines "Uses cached disk image from RBRS_VMIMAGE_CACHE_DIR"
-  bcu_doc_lines "Initializes deploy VM with rootful mode"
-  bcu_doc_lines "Writes brand file with all RBRR_CHOSEN values"
-  bcu_doc_lines "Refuses if deploy VM already exists"
-  bcu_doc_lines "Requires rbv_fetch to be run first"
-  bcu_doc_shown || return 0
-
-  # Perform command
-  bcu_step "Checking if deploy VM exists..."
-  podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
-    bcu_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
-
-  bcu_step "Validating platform configuration..."
-  test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
-  echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" || \
-    bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
-
-  local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
-
-  bcu_step "Checking for cached VM image..."
-  test -f "${cache_file}" || \
-    bcu_die "VM image not found in cache: ${cache_file}" \
-            "Run 'rbv_fetch' first to download the VM image"
-
-  bcu_step "Initializing machine from cached image..."
-  podman machine init --rootful --image "${cache_file}" "${RBRR_DEPLOY_MACHINE_NAME}" \
-                                          2> "${ZRBV_DEPLOY_INIT_STDERR}"             \
-       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "${ZRBV_DEPLOY_INIT_STDOUT}"             \
-    || bcu_die "Failed to initialize VM"
-
-  bcu_step "Starting VM to write brand file..."
-  podman machine start "${RBRR_DEPLOY_MACHINE_NAME}" || bcu_die "Failed to start deploy VM"
-
-  bcu_step "Generating brand file content..."
-  local brand_file="${RBV_TEMP_DIR}/brand.txt"
-  zrbv_generate_brand_file > "${brand_file}" \
-    || bcu_die "Failed to generate brand file"
-
-  bcu_step "Writing brand file to VM: ${ZRBV_EMPLACED_BRAND_FILE}"
-  podman machine ssh "${RBRR_DEPLOY_MACHINE_NAME}" \
-      "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" < "${brand_file}" > /dev/null \
-    || bcu_die "Failed to write brand file to VM"
-
-  bcu_step "Stopping VM..."
-  podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}" || \
-    bcu_die "Failed to stop deploy VM"
-
-  bcu_success "Deploy VM initialized with brand file"
-}
-
-rbv_start() {
-  bcu_die "BRADTODO: ELIDED."
-}
-
-rbv_stop() {
-  bcu_die "BRADTODO: ELIDED."
-}
-
-rbv_experiment() {
   # Handle documentation mode
   bcu_doc_brief "Process manifests for WSL and standard machine-os images, then upload needed disk images to GHCR"
   bcu_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
@@ -534,9 +377,8 @@ rbv_experiment() {
   done
 
   if [[ -n "${missing_images}" ]]; then
-    bcu_die "Missing required disk images:${missing_images}"      \
-            "Available images:"                                   \
-            "$(cat "${ZRBV_AVAILABLE_IMAGES}" | sed 's/^/  /')"
+    bcu_die "Missing required disk images:${missing_images}" \
+            "Available images: ${ZRBV_AVAILABLE_IMAGES}"
   fi
 
   bcu_success "All needed disk images are available in upstream manifests"
@@ -549,15 +391,15 @@ rbv_experiment() {
   bcu_step "Final manifest will be: ${manifest_name}"
 
   bcu_step "Setting up VM upload directory..."
-  podman machine ssh "$vm_name" --                            \
+  podman machine ssh "${vm_name}" --                               \
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
     || bcu_die "Failed to create VM temp directory"
 
   zrbv_validate_pat || bcu_die "PAT validation failed"
-  zrbv_login_ghcr "$vm_name" || bcu_die "Podman login failed"
+  zrbv_login_ghcr "${vm_name}" || bcu_die "Podman login failed"
 
   bcu_step "Creating local manifest list: ${manifest_name}"
-  podman machine ssh "$vm_name" --               \
+  podman machine ssh "${vm_name}" --             \
       "podman manifest create ${manifest_name}"  \
     || bcu_die "Failed to create local manifest"
 
@@ -576,12 +418,12 @@ rbv_experiment() {
     fi
 
     local manifest_file="${ZRBV_VM_MANIFEST_PREFIX}${needed_image}.json"
-    podman machine ssh "$vm_name" --                                 \
+    podman machine ssh "${vm_name}" --                               \
         "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
       || bcu_die "Failed to fetch manifest for ${needed_image}"
 
     bcu_step "Extracting disk blob info for ${needed_image}..."
-    podman machine ssh "$vm_name" --                                 \
+    podman machine ssh "${vm_name}" --                               \
         "jq -r '.layers[]' ${manifest_file}" > "${ZRBV_LAYERS_JSON}" \
       || bcu_die "Failed to extract layers for ${needed_image}"
 
@@ -608,28 +450,28 @@ rbv_experiment() {
     echo "${needed_image}:${extension}" >> "${ZRBV_PLATFORM_EXTENSIONS}"
 
     local vm_blob_file="${ZRBV_VM_BLOB_PREFIX}${needed_image}.${extension}"
-    podman machine ssh "$vm_name" --                                 \
+    podman machine ssh "${vm_name}" --                               \
         "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
       || bcu_die "Failed to download blob for ${needed_image}"
 
     local dockerfile_name="Dockerfile.${needed_image}"
     local dockerfile_path="${ZRBV_VM_TEMP_DIR}/${dockerfile_name}"
 
-    podman machine ssh "$vm_name" --                                                                           \
+    podman machine ssh "${vm_name}" --                                                                         \
         "printf 'FROM scratch\nCOPY blob_${needed_image}.${extension} /disk-image.tar\n' > ${dockerfile_path}" \
       || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
     local local_tag="localhost/podvm-${needed_image}:${new_identity}"
 
-    podman machine ssh "$vm_name" --                                                              \
-        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${dockerfile_name} -t ${local_tag} ."  \
+    podman machine ssh "${vm_name}" --                                                   \
+        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${dockerfile_name} -t ${local_tag} ." \
       || bcu_die "Failed to build image for ${needed_image}"
 
     local arch=$(echo "$needed_image" | cut -d_ -f2)
     local variant=""
     local os="linux"
 
-    podman machine ssh "$vm_name" --                                                  \
+    podman machine ssh "${vm_name}" --                                                \
         "podman manifest add ${manifest_name} ${local_tag} --arch ${arch} --os ${os}" \
       || bcu_die "Failed to add ${local_tag} to manifest"
 
@@ -672,18 +514,18 @@ rbv_experiment() {
     || bcu_die "Failed to push map container to GHCR"
 
   bcu_step "Pushing manifest to GHCR: ${manifest_tag}"
-  podman machine ssh "$vm_name" --                                     \
+  podman machine ssh "${vm_name}" --                                   \
       "podman manifest push ${manifest_name} docker://${manifest_tag}" \
     || bcu_die "Failed to push manifest to GHCR"
 
   bcu_step "Cleaning up local manifest..."
-  podman machine ssh "$vm_name" --          \
+  podman machine ssh "${vm_name}" --        \
       "podman manifest rm ${manifest_name}" \
     || bcu_warn "Failed to remove local manifest"
 
   bcu_step "Cleaning up VM directory..."
-  podman machine ssh "$vm_name" -- \
-      "rm -rf ${ZRBV_VM_TEMP_DIR}" \
+  podman machine ssh "${vm_name}" -- \
+      "rm -rf ${ZRBV_VM_TEMP_DIR}"   \
     || bcu_warn "Failed to clean up VM temp directory"
 
   bcu_step "Update your RBRR configuration:"
@@ -700,6 +542,161 @@ rbv_experiment() {
   bcu_success "Uploaded to GHCR:"
   bcu_info "  Manifest: ${manifest_tag}"
   bcu_info "  Map:      ${map_tag}"
+}
+
+# Fetch VM image from GHCR container
+rbv_fetch() {
+  # Handle documentation mode
+  bcu_doc_brief "Fetch platform-specific VM image from GHCR to local cache"
+  bcu_doc_lines "Pulls map container to find platform digest"
+  bcu_doc_lines "Pulls platform-specific container image by digest"
+  bcu_doc_lines "Extracts disk image to RBRS_VMIMAGE_CACHE_DIR"
+  bcu_doc_lines "Always overwrites existing cached image"
+  bcu_doc_shown || return 0
+
+  # Perform command
+  bcu_step "Validating platform configuration..."
+  test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
+
+  bcu_step "Ensuring cache directory exists..."
+  mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
+
+  bcu_step "Starting ignite VM to access podman image cache..."
+  zrbv_ignite_bootstrap false || bcu_die "Failed to start ignite machine"
+
+  bcu_step "Login to GitHub Container Registry..."
+  zrbv_validate_pat || bcu_die "PAT validation failed"
+  zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "GHCR login failed"
+
+  local map_tag="${ZRBV_MAP_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
+  local manifest_tag="${ZRBV_MANIFEST_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
+
+  bcu_step "Pulling platform map container: ${map_tag}..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${map_tag}" \
+    || bcu_die "Failed to pull map container"
+
+  bcu_step "Creating temporary container to extract platform map..."
+  local container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${map_tag}")
+  test -n "${container_id}" || bcu_die "Failed to create map container"
+
+  bcu_step "Extracting platform map..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${container_id}:/platform-map.txt" - | \
+    tar -xO > "${ZRBV_PLATFORM_MAP_FILE}" \
+    || bcu_die "Failed to extract platform map"
+
+  bcu_step "Finding digest for platform: ${RBRS_VM_PLATFORM}..."
+  local platform_digest=""
+  while IFS=' ' read -r platform digest original_ext; do
+    if [[ "${platform}" == "${RBRS_VM_PLATFORM}" ]]; then
+      platform_digest="${digest}"
+      platform_extension="${original_ext}"
+      break
+    fi
+  done < "${ZRBV_PLATFORM_MAP_FILE}"
+
+  test -n "${platform_digest}"                                 \
+    || bcu_die "Platform ${RBRS_VM_PLATFORM} not found in map" \
+            "Available platforms:" \
+            "$(cat "${ZRBV_PLATFORM_MAP_FILE}" | cut -d' ' -f1 | sed 's/^/  /')"
+
+  bcu_info "Found digest for ${RBRS_VM_PLATFORM}: ${platform_digest}"
+
+  bcu_step "Pulling platform image by digest..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${manifest_tag}@${platform_digest}" \
+    || bcu_die "Failed to pull image from GHCR"
+
+  bcu_step "Creating temporary container to extract disk image..."
+  local extract_container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${manifest_tag}@${platform_digest}")
+  test -n "${extract_container_id}" || bcu_die "Failed to create extract container"
+
+  local extract_dir="${RBV_TEMP_DIR}/extract"
+  mkdir -p "${extract_dir}"
+
+  bcu_step "Extracting container contents..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" export "${extract_container_id}" | tar -x -C "${extract_dir}" \
+    || bcu_die "Failed to extract container contents"
+
+  local disk_image="${extract_dir}/disk-image.tar"
+  local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
+
+  bcu_step "Moving disk image to cache: ${cache_file}"
+  mv -f "${disk_image}" "${cache_file}" || bcu_die "Failed to move disk image to cache"
+
+  bcu_step "Cleaning up temporary containers..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${container_id}" \
+    || bcu_warn "Failed to remove map container"
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${extract_container_id}" \
+    || bcu_warn "Failed to remove extract container"
+
+  rm -rf "${extract_dir}"
+
+  bcu_step "Stopping ignite VM..."
+  podman machine stop "${RBRR_IGNITE_MACHINE_NAME}" || \
+    bcu_warn "Failed to stop ignite machine"
+
+  bcu_success "VM image cached at: ${cache_file}"
+}
+
+rbv_init() {
+  # Handle documentation mode
+  bcu_doc_brief "Initialize deploy VM from cached platform-specific image"
+  bcu_doc_lines "Uses cached disk image from RBRS_VMIMAGE_CACHE_DIR"
+  bcu_doc_lines "Initializes deploy VM with rootful mode"
+  bcu_doc_lines "Writes brand file with all RBRR_CHOSEN values"
+  bcu_doc_lines "Refuses if deploy VM already exists"
+  bcu_doc_lines "Requires rbv_fetch to be run first"
+  bcu_doc_shown || return 0
+
+  # Perform command
+  bcu_step "Checking if deploy VM exists..."
+  if podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}"; then
+    bcu_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
+  fi
+
+  bcu_step "Validating platform configuration..."
+  test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
+  echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" \
+    || bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
+
+  local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
+
+  bcu_step "Checking for cached VM image..."
+  test -f "${cache_file}" \
+    || bcu_die "VM image not found in cache: ${cache_file}" \
+               "Run 'rbv_fetch' first to download the VM image"
+
+  bcu_step "Initializing machine from cached image..."
+  podman machine init --rootful --image "${cache_file}" "${RBRR_DEPLOY_MACHINE_NAME}" \
+                                          2> "${ZRBV_DEPLOY_INIT_STDERR}"             \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "${ZRBV_DEPLOY_INIT_STDOUT}"             \
+    || bcu_die "Failed to initialize VM"
+
+  bcu_step "Starting VM to write brand file..."
+  podman machine start "${RBRR_DEPLOY_MACHINE_NAME}" || bcu_die "Failed to start deploy VM"
+
+  bcu_step "Generating brand file content..."
+  local brand_file="${RBV_TEMP_DIR}/brand.txt"
+  zrbv_generate_brand_file > "${brand_file}" \
+    || bcu_die "Failed to generate brand file"
+
+  bcu_step "Writing brand file to VM: ${ZRBV_EMPLACED_BRAND_FILE}"
+  podman machine ssh "${RBRR_DEPLOY_MACHINE_NAME}" \
+      "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" < "${brand_file}" > /dev/null \
+    || bcu_die "Failed to write brand file to VM"
+
+  bcu_step "Stopping VM..."
+  podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}" \
+    || bcu_die "Failed to stop deploy VM"
+
+  bcu_success "Deploy VM initialized with brand file"
+}
+
+rbv_start() {
+  bcu_die "BRADTODO: ELIDED."
+}
+
+rbv_stop() {
+  bcu_die "BRADTODO: ELIDED."
 }
 
 # Execute command
