@@ -33,9 +33,8 @@ export RBRR_NEEDED_DISK_IMAGES="mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_apple
 export RBRR_CHOSEN_PODMAN_VERSION=5.5
 export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.io/podman/machine-os
 
-export RBRR_CHOSEN_VMIMAGE_FQIN=ghcr.io/bhyslop/recipemuster:mirror-quay.io-podman-machine-os-wsl-5.5-0eb1eb99efda
-export RBRR_CHOSEN_VMIMAGE_DIGEST=sha256:0eb1eb99efdaf592c899249adfc3fff5c2e241c747dd87c1541a761551268dc6
 export RBRR_CHOSEN_IDENTITY=20250720-082409  # update date
+
 
 # File containing user specific secrets for accessing the container registry.  Must have
 # contents expressed as bash variables (i.e. no spaces around '=') as follows...
