@@ -78,7 +78,13 @@ zrbv_environment() {
 
   ZRBV_MANIFEST_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-manifest-"
   ZRBV_MAP_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-map-"
-  ZRBV_PLATFORM_MAP_FILE="${RBV_TEMP_DIR}/platform-map.txt"
+
+
+  ZRBV_MAP_CONTAINER_ID="${RBV_TEMP_DIR}/map_container_id.txt"
+  ZRBV_PLATFORM_MAP_FILENAME="platform-map.txt"
+  ZRBV_VM_PLATFORM_MAP="${ZRBV_VM_TEMP_DIR}/${ZRBV_PLATFORM_MAP_FILENAME}"
+  ZRBV_PLATFORM_MAP_FILE="${RBV_TEMP_DIR}/${ZRBV_PLATFORM_MAP_FILENAME}"
+
   ZRBV_MAP_PLATFORM="map/none"
   ZRBV_MAP_DOCKERFILE="${RBV_TEMP_DIR}/Dockerfile.map"
 }
@@ -383,7 +389,7 @@ rbv_mirror() {
             "Available images: ${ZRBV_AVAILABLE_IMAGES}"
   fi
 
-  bcu_success "All needed disk images are available in upstream manifests"
+  bcu_step "All needed disk images are available in upstream manifests"
 
   local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
   local manifest_tag="${ZRBV_MANIFEST_TAG_PREFIX}${new_identity}"
@@ -391,8 +397,8 @@ rbv_mirror() {
 
   bcu_step "Final manifest will be: ${manifest_name}"
 
-  bcu_step "Setting up VM upload directory..."
-  podman machine ssh "${vm_name}" --                               \
+  bcu_step "Setting up VM temporary dir..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
     || bcu_die "Failed to create VM temp directory"
 
@@ -400,8 +406,8 @@ rbv_mirror() {
   zrbv_login_ghcr "${vm_name}" || bcu_die "Podman login failed"
 
   bcu_step "Creating local manifest list: ${manifest_name}"
-  podman machine ssh "${vm_name}" --             \
-      "podman manifest create ${manifest_name}"  \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman manifest create ${manifest_name}"       \
     || bcu_die "Failed to create local manifest"
 
   bcu_step "Building container images and adding to local manifest..."
@@ -419,12 +425,12 @@ rbv_mirror() {
     fi
 
     local manifest_file="${ZRBV_VM_MANIFEST_PREFIX}${needed_image}.json"
-    podman machine ssh "${vm_name}" --                               \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
         "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
       || bcu_die "Failed to fetch manifest for ${needed_image}"
 
     bcu_step "Extracting disk blob info for ${needed_image}..."
-    podman machine ssh "${vm_name}" --                               \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
         "jq -r '.layers[]' ${manifest_file}" > "${ZRBV_LAYERS_JSON}" \
       || bcu_die "Failed to extract layers for ${needed_image}"
 
@@ -451,20 +457,20 @@ rbv_mirror() {
     echo "${needed_image}:${extension}" >> "${ZRBV_PLATFORM_EXTENSIONS}"
 
     local vm_blob_file="${ZRBV_VM_BLOB_PREFIX}${needed_image}.${extension}"
-    podman machine ssh "${vm_name}" --                               \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
         "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
       || bcu_die "Failed to download blob for ${needed_image}"
 
     local dockerfile_name="Dockerfile.${needed_image}"
     local dockerfile_path="${ZRBV_VM_TEMP_DIR}/${dockerfile_name}"
 
-    podman machine ssh "${vm_name}" --                                                                         \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                        \
         "printf 'FROM scratch\nCOPY blob_${needed_image}.${extension} /disk-image.tar\n' > ${dockerfile_path}" \
       || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
     local local_tag="localhost/podvm-${needed_image}:${new_identity}"
 
-    podman machine ssh "${vm_name}" --                                                   \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                  \
         "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${dockerfile_name} -t ${local_tag} ." \
       || bcu_die "Failed to build image for ${needed_image}"
 
@@ -472,7 +478,7 @@ rbv_mirror() {
     local variant=""
     local os="linux"
 
-    podman machine ssh "${vm_name}" --                                                \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                               \
         "podman manifest add ${manifest_name} ${local_tag} --arch ${arch} --os ${os}" \
       || bcu_die "Failed to add ${local_tag} to manifest"
 
@@ -495,13 +501,13 @@ rbv_mirror() {
   bcu_step "Adding platform map to manifest..."
 
   bcu_step "Copying platform map to VM..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${ZRBV_PLATFORM_MAP_FILE}" - | \
+  cat "${ZRBV_PLATFORM_MAP_FILE}" | \
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "cat > ${ZRBV_VM_TEMP_DIR}/platform-map.txt"      \
+      "cat > ${ZRBV_VM_PLATFORM_MAP}"                   \
     || bcu_die "Failed to copy platform map to VM"
 
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                               \
-      "cd ${ZRBV_VM_TEMP_DIR} && printf 'FROM scratch\nCOPY platform-map.txt /\n' > Dockerfile.map" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                            \
+      "cd ${ZRBV_VM_TEMP_DIR} && printf 'FROM scratch\nCOPY ${ZRBV_PLATFORM_MAP_FILENAME} /\n' > Dockerfile.map" \
     || bcu_die "Failed to create map Dockerfile"
 
   bcu_step "Building map container..."
@@ -510,24 +516,19 @@ rbv_mirror() {
     || bcu_die "Failed to build map container"
 
   bcu_step "Adding map to manifest with platform map/none..."
-  podman machine ssh "${vm_name}" --                                                            \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                           \
       "podman manifest add ${manifest_name} map-container:${new_identity} --arch none --os map" \
     || bcu_die "Failed to add map to manifest"
 
   bcu_step "Pushing manifest to GHCR: ${manifest_tag}"
-  podman machine ssh "${vm_name}" --                                   \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                  \
       "podman manifest push ${manifest_name} docker://${manifest_tag}" \
     || bcu_die "Failed to push manifest to GHCR"
 
   bcu_step "Cleaning up local manifest..."
-  podman machine ssh "${vm_name}" --        \
-      "podman manifest rm ${manifest_name}" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "podman manifest rm ${manifest_name}"           \
     || bcu_warn "Failed to remove local manifest"
-
-  bcu_step "Cleaning up VM directory..."
-  podman machine ssh "${vm_name}" -- \
-      "rm -rf ${ZRBV_VM_TEMP_DIR}"   \
-    || bcu_warn "Failed to clean up VM temp directory"
 
   bcu_step "Update your RBRR configuration:"
   bcu_code ""
@@ -575,10 +576,19 @@ rbv_fetch() {
 
   local container_id=$(<"${ZRBV_MAP_CONTAINER_ID}")
 
+  bcu_step "Setting up VM temporary dir..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
+      "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
+    || bcu_die "Failed to create VM temp directory"
+
   bcu_step "Extracting platform map..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${container_id}:/platform-map.txt" - | \
-    tar -xO > "${ZRBV_PLATFORM_MAP_FILE}" \
-    || bcu_die "Failed to extract platform map"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                 \
+      "podman cp ${container_id}:/${ZRBV_PLATFORM_MAP_FILENAME} ${ZRBV_VM_TEMP_DIR}/" \
+    || bcu_die "Failed to extract platform map to VM"
+
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --             \
+      "cat ${ZRBV_VM_PLATFORM_MAP}" > "${ZRBV_PLATFORM_MAP_FILE}" \
+    || bcu_die "Failed to copy platform map from VM"
 
   bcu_step "Creating platform digest lookup files..."
   while IFS=' ' read -r platform digest original_ext; do
