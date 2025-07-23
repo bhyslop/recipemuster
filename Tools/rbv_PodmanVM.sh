@@ -641,8 +641,8 @@ rbv_experiment() {
   bcu_step "Creating platform map file..."
   > "${ZRBV_PLATFORM_MAP_FILE}"
   for platform in ${RBRR_MANIFEST_PLATFORMS}; do
-    local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2)
-    local ext=$(grep "^${platform}:" "${ZRBV_PLATFORM_EXTENSIONS}" | cut -d: -f2)
+    local digest=$(grep "^${needed_image}:" "${ZRBV_PLATFORM_DIGESTS}"    | cut -d: -f2)
+    local ext=$(grep    "^${platform}:"     "${ZRBV_PLATFORM_EXTENSIONS}" | cut -d: -f2)
     echo "${platform} ${digest} ${ext}" >> "${ZRBV_PLATFORM_MAP_FILE}"
   done
 
