@@ -333,6 +333,8 @@ rbv_fetch() {
   # Perform command
   bcu_step "Validating platform configuration..."
   test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
+  echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" || \
+    bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
 
   bcu_step "Ensuring cache directory exists..."
   mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || bcu_die "Failed to create cache directory"
@@ -344,14 +346,35 @@ rbv_fetch() {
   zrbv_validate_pat || bcu_die "PAT validation failed"
   zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "GHCR login failed"
 
-  local image_tag="${ZRBV_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
+  local manifest_tag="${ZRBV_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
+  local manifest_file="${RBV_TEMP_DIR}/manifest.json"
 
-  bcu_step "Pulling platform image: ${image_tag} (${RBRS_VM_PLATFORM})..."
-  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${image_tag}" || \
+  bcu_step "Fetching manifest for ${manifest_tag}..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" manifest inspect "${manifest_tag}" > "${manifest_file}" || \
+    bcu_die "Failed to fetch manifest"
+
+  bcu_step "Finding platform entry for ${RBRS_VM_PLATFORM}..."
+  # Extract disktype from platform (e.g., mow_x86_64_wsl -> wsl)
+  local disktype="${RBRS_VM_PLATFORM##*_}"
+  # Extract arch from platform (e.g., mow_x86_64_wsl -> x86_64)
+  local arch=$(echo "${RBRS_VM_PLATFORM}" | cut -d_ -f2)
+
+  local platform_entry="${RBV_TEMP_DIR}/platform_entry.json"
+  jq -r --arg arch "${arch}" --arg dt "${disktype}" \
+    '.manifests[] | select(.platform.architecture == $arch and (.annotations.disktype // "base") == $dt)' \
+    "${manifest_file}" > "${platform_entry}" || bcu_die "Failed to find platform in manifest"
+
+  test -s "${platform_entry}" || bcu_die "Platform ${RBRS_VM_PLATFORM} not found in manifest"
+
+  local digest=$(jq -r '.digest' "${platform_entry}")
+  test -n "${digest}" || bcu_die "No digest found for platform"
+
+  bcu_step "Pulling platform image by digest: ${digest}..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${manifest_tag}@${digest}" || \
     bcu_die "Failed to pull image from GHCR"
 
   bcu_step "Creating temporary container to extract disk image..."
-  local container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${image_tag}")
+  local container_id=$(podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${manifest_tag}@${digest}")
   test -n "${container_id}" || bcu_die "Failed to create container"
 
   local extract_dir="${RBV_TEMP_DIR}/extract"
@@ -361,18 +384,30 @@ rbv_fetch() {
   podman -c "${RBRR_IGNITE_MACHINE_NAME}" export "${container_id}" | tar -x -C "${extract_dir}" || \
     bcu_die "Failed to extract container contents"
 
-  local disk_image=$(find "${extract_dir}" -name "disk-image.*" | head -1)
-  test -n "${disk_image}" || bcu_die "No disk image found in container"
+  # We know the file will be disk-image.* based on how experiment builds it
+  local extension
+  if ls "${extract_dir}"/disk-image.tar.zst >/dev/null 2>&1; then
+    extension="tar.zst"
+  elif ls "${extract_dir}"/disk-image.tar.gz >/dev/null 2>&1; then
+    extension="tar.gz"
+  elif ls "${extract_dir}"/disk-image.tar.xz >/dev/null 2>&1; then
+    extension="tar.xz"
+  elif ls "${extract_dir}"/disk-image.tar >/dev/null 2>&1; then
+    extension="tar"
+  else
+    bcu_die "No disk image found in container"
+  fi
 
+  local disk_image="${extract_dir}/disk-image.${extension}"
   local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
-  
+
   bcu_step "Moving disk image to cache: ${cache_file}"
   mv -f "${disk_image}" "${cache_file}" || bcu_die "Failed to move disk image to cache"
 
   bcu_step "Cleaning up temporary container..."
   podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${container_id}" || \
     bcu_warn "Failed to remove temp container"
-  
+
   rm -rf "${extract_dir}"
 
   bcu_step "Stopping ignite VM..."
@@ -403,7 +438,7 @@ rbv_init() {
     bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
 
   local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
-  
+
   bcu_step "Checking for cached VM image..."
   test -f "${cache_file}" || \
     bcu_die "VM image not found in cache: ${cache_file}" \
