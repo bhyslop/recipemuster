@@ -367,9 +367,10 @@ rbv_fetch() {
 
   bcu_step "Finding digest for platform: ${RBRS_VM_PLATFORM}..."
   local platform_digest=""
-  while IFS=' ' read -r platform digest; do
+  while IFS=' ' read -r platform digest original_ext; do
     if [[ "${platform}" == "${RBRS_VM_PLATFORM}" ]]; then
       platform_digest="${digest}"
+      platform_extension="${original_ext}"
       break
     fi
   done < "${ZRBV_PLATFORM_MAP_FILE}"
@@ -396,21 +397,7 @@ rbv_fetch() {
   podman -c "${RBRR_IGNITE_MACHINE_NAME}" export "${extract_container_id}" | tar -x -C "${extract_dir}" || \
     bcu_die "Failed to extract container contents"
 
-  # We know the file will be disk-image.* based on how experiment builds it
-  local extension
-  if ls "${extract_dir}"/disk-image.tar.zst >/dev/null 2>&1; then
-    extension="tar.zst"
-  elif ls "${extract_dir}"/disk-image.tar.gz >/dev/null 2>&1; then
-    extension="tar.gz"
-  elif ls "${extract_dir}"/disk-image.tar.xz >/dev/null 2>&1; then
-    extension="tar.xz"
-  elif ls "${extract_dir}"/disk-image.tar >/dev/null 2>&1; then
-    extension="tar"
-  else
-    bcu_die "No disk image found in container"
-  fi
-
-  local disk_image="${extract_dir}/disk-image.${extension}"
+  local disk_image="${extract_dir}/disk-image.tar"
   local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
 
   bcu_step "Moving disk image to cache: ${cache_file}"
@@ -624,8 +611,8 @@ rbv_experiment() {
     local dockerfile_name="Dockerfile.${needed_image}"
     local dockerfile_path="${ZRBV_VM_TEMP_DIR}/${dockerfile_name}"
 
-    podman machine ssh "$vm_name" --                                                                                    \
-        "printf 'FROM scratch\nCOPY blob_${needed_image}.${extension} /disk-image.${extension}\n' > ${dockerfile_path}" \
+    podman machine ssh "$vm_name" --                                                                           \
+        "printf 'FROM scratch\nCOPY blob_${needed_image}.${extension} /disk-image.tar\n' > ${dockerfile_path}" \
       || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
     local local_tag="localhost/podvm-${needed_image}:${new_identity}"
@@ -651,14 +638,14 @@ rbv_experiment() {
   > "${ZRBV_PLATFORM_MAP_FILE}"
   for platform in ${RBRR_MANIFEST_PLATFORMS}; do
     local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
-    echo "${platform} ${digest}" >> "${ZRBV_PLATFORM_MAP_FILE}"
+    echo "${platform} ${digest} ${extension}" >> "${ZRBV_PLATFORM_MAP_FILE}"
   done
 
   bcu_step "Platform map contents:"
   cat "${ZRBV_PLATFORM_MAP_FILE}"
 
   bcu_step "Building map container..."
-  
+
   bcu_step "Copying platform map to VM..."
   podman -c "${RBRR_IGNITE_MACHINE_NAME}" cp "${ZRBV_PLATFORM_MAP_FILE}" - | \
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
