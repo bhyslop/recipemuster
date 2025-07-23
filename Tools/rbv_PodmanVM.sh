@@ -189,7 +189,7 @@ zrbv_login_ghcr() {
 # Helper function to process one image type
 zrbv_process_image_type() {
   local manifest_file="$1"      # Manifest file path
-  local entries_file="$2"       # Entries file path  
+  local entries_file="$2"       # Entries file path
   local decoded_prefix="$3"     # Decoded prefix for output files
   local prefix="$4"             # Prefix for platform spec (mow/mos)
   local fqin="$5"               # Full image name
@@ -344,8 +344,8 @@ rbv_init() {
   echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" || \
     bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
 
-  local image_tag="${ZRBV_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}"
-  
+  local image_tag="${ZRBV_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}"
+
   bcu_step "Pulling platform image: ${image_tag} (${RBRS_VM_PLATFORM})..."
   podman pull "${image_tag}" || bcu_die "Failed to pull image from GHCR"
 
@@ -353,23 +353,23 @@ rbv_init() {
   local container_id=$(podman create "${image_tag}")
   local extract_dir="${RBV_TEMP_DIR}/extract"
   mkdir -p "${extract_dir}"
-  
+
   podman export "${container_id}" | tar -x -C "${extract_dir}" || \
     bcu_die "Failed to extract container contents"
-  
+
   local disk_image=$(find "${extract_dir}" -name "disk-image.*" | head -1)
   test -n "${disk_image}" || bcu_die "No disk image found in container"
-  
+
   local cache_file="${RBRS_PODMAN_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
   mv "${disk_image}" "${cache_file}" || bcu_die "Failed to move disk image to cache"
-  
+
   podman rm "${container_id}" || bcu_warn "Failed to remove temp container"
   rm -rf "${extract_dir}"
 
   bcu_step "Initializing machine from extracted image..."
   podman machine init --rootful --image "${cache_file}" "${RBRR_DEPLOY_MACHINE_NAME}" \
-                                       2> "${ZRBV_DEPLOY_INIT_STDERR}"                \
-       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "${ZRBV_DEPLOY_INIT_STDOUT}"          \
+                                          2> "${ZRBV_DEPLOY_INIT_STDERR}"             \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "${ZRBV_DEPLOY_INIT_STDOUT}"             \
     || bcu_die "Bad init."
 
   bcu_step "Starting VM temporarily..."
@@ -566,8 +566,10 @@ rbv_experiment() {
     || bcu_warn "Failed to clean up VM temp directory"
 
   bcu_step "Update your RBRR configuration:"
+  bcu_code ""
   bcu_code "# Add to ${RBV_RBRR_FILE}:"
   bcu_code "export RBRR_CHOSEN_IDENTITY=${new_identity}  # ${RBRR_MANIFEST_PLATFORMS}"
+  bcu_code ""
 
   bcu_success "All disk images uploaded to GHCR as: ${base_tag}"
 }
