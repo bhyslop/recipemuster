@@ -458,7 +458,7 @@ rbv_experiment() {
   local base_tag="${ZRBV_TAG_PREFIX}${new_identity}"
   local manifest_name="podvm-manifest-${new_identity}"
 
-  bcu_step "Final manifest will be: ${final_tag}"
+  bcu_step "Final manifest will be: ${manifest_name}"
 
   bcu_step "Setting up VM upload directory..."
   podman machine ssh "$vm_name" --                            \
@@ -550,7 +550,7 @@ rbv_experiment() {
 
   bcu_success "All ${#RBRR_MANIFEST_PLATFORMS} container images built and added to manifest"
 
-  bcu_step "Pushing manifest to GHCR: ${final_tag}"
+  bcu_step "Pushing manifest to GHCR: ${manifest_name}"
   podman machine ssh "$vm_name" --                                 \
       "podman manifest push ${manifest_name} docker://${base_tag}" \
     || bcu_die "Failed to push manifest to GHCR"
