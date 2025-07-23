@@ -71,6 +71,8 @@ zrbv_environment() {
 
   ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
   ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
+
+  ZRBV_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-"
 }
 
 # Generate brand file content
@@ -278,8 +280,37 @@ rbv_nuke() {
   bcu_success "Podman VM environment reset complete"
 }
 
-rbv_check() {
-  bcu_die "BRADTODO: ELIDED."
+zrbv_check() {
+  # There are many things I want this to do here but now is not the time.
+  #
+  # This has gotten sophisticated since I was bitten hard by the RedHat practice
+  # of generating new podman VM images quite frequently, moving the tag each
+  # time: I suffered a serious regression when a retag of their 5.2 VM image
+  # stopped supporting critical features upon which I depended.  That is the
+  # primary motivation for using VM images that I cache rather than trusting
+  # theirs.  The charitable interpretation here is that they are sealing critical
+  # security holes and I want them to be brilliant at that after all.
+  #
+  # On to my solution:
+  #
+  # For now, I'll support precisely my use case, where I want this function
+  # to tell me if there is a new origin VM base image and how to configure to
+  # capture a mirror of it if I want it.  I also want it to validate my current
+  # mirror image by digest.  I'll always work out of my mirror, and I'll always
+  # lock the sha.  My chosen FQIN will always be my latest mirror.  I'll delete
+  # mirrors when I darn well choose.
+  #
+  # In the glorious future, I'd like this to support other configurations:
+  #
+  # * Users can set their chosen FQIN to the quay.io tagged version and leave
+  #   their chosen digest unset: go with God and latest!  I wish them the best of
+  #   luck with this.
+  #
+  # * Users can set their chosen FQIN to the quay.io tagged version but then also
+  #   configure their chosen digest.  This and perhaps some deft chosen identity
+  #   can give them more information when checking available VM images: how old
+  #   is their image if it isn't latest?  They assume the risk and obligation to
+  #   manage their own cache and exposure to VM evolution.
 }
 
 # Mirror VM image to GHCR
@@ -322,6 +353,10 @@ rbv_experiment() {
   > "${ZRBV_AVAILABLE_IMAGES}"
   > "${ZRBV_PLATFORM_DIGESTS}"
 
+  bcu_step "Generate new identity for this build..."
+  local new_identity=$(date +'%Y%m%d-%H%M%S')
+  bcu_info "New identity: ${new_identity}"
+
   bcu_step "Potential container image names for caching:"
 
   # Process each image type
@@ -329,7 +364,7 @@ rbv_experiment() {
     "${ZRBV_MOW_MANIFEST_JSON}"  \
     "${ZRBV_MOW_ENTRIES_JSON}"   \
     "${ZRBV_MOW_DECODED_PREFIX}" \
-    "mow" \
+    "mow"                        \
     "quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS-WSL"
 
@@ -337,7 +372,7 @@ rbv_experiment() {
     "${ZRBV_MOS_MANIFEST_JSON}"  \
     "${ZRBV_MOS_ENTRIES_JSON}"   \
     "${ZRBV_MOS_DECODED_PREFIX}" \
-    "mos" \
+    "mos"                        \
     "quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS standard"
 
@@ -361,10 +396,8 @@ rbv_experiment() {
   bcu_success "All needed disk images are available in upstream manifests"
 
   local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
-  local timestamp=$(date +%Y%m%d_%H%M%S)
-  local base_tag="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}"
-  local final_tag="${base_tag}-${timestamp}"
-  local manifest_name="podvm-manifest-${timestamp}"
+  local base_tag="${ZRBV_TAG_PREFIX}${new_identity}"
+  local manifest_name="podvm-manifest-${new_identity}"
 
   bcu_step "Final manifest will be: ${final_tag}"
 
@@ -439,7 +472,7 @@ rbv_experiment() {
         "echo 'COPY blob_${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}" \
       || bcu_die "Failed to add COPY to Dockerfile for ${needed_image}"
 
-    local local_tag="localhost/podvm-${needed_image}:${timestamp}"
+    local local_tag="localhost/podvm-${needed_image}:${new_identity}"
 
     podman machine ssh "$vm_name" --                                                              \
         "cd ${ZRBV_VM_TEMP_DIR} && podman build -f Dockerfile.${needed_image} -t ${local_tag} ."  \
@@ -449,7 +482,6 @@ rbv_experiment() {
     local variant=""
     local os="linux"
 
-    # Add to manifest with proper platform info
     podman machine ssh "$vm_name" --                                                  \
         "podman manifest add ${manifest_name} ${local_tag} --arch ${arch} --os ${os}" \
       || bcu_die "Failed to add ${local_tag} to manifest"
@@ -460,8 +492,8 @@ rbv_experiment() {
   bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built and added to manifest"
 
   bcu_step "Pushing manifest to GHCR: ${final_tag}"
-  podman machine ssh "$vm_name" --                                  \
-      "podman manifest push ${manifest_name} docker://${final_tag}" \
+  podman machine ssh "$vm_name" --                                 \
+      "podman manifest push ${manifest_name} docker://${base_tag}" \
     || bcu_die "Failed to push manifest to GHCR"
 
   bcu_step "Cleaning up local manifest..."
@@ -474,7 +506,11 @@ rbv_experiment() {
       "rm -rf ${ZRBV_VM_TEMP_DIR}" \
     || bcu_warn "Failed to clean up VM temp directory"
 
-  bcu_success "All disk images uploaded to GHCR as: ${final_tag}"
+  bcu_step "Update your RBRR configuration:"
+  bcu_code "# Add to ${RBV_RBRR_FILE}:"
+  bcu_code "export RBRR_CHOSEN_IDENTITY=${new_identity}  # ${RBRR_NEEDED_DISK_IMAGES}"
+
+  bcu_success "All disk images uploaded to GHCR as: ${base_tag}"
 }
 
 # Execute command
