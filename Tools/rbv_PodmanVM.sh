@@ -281,6 +281,8 @@ rbv_nuke() {
 }
 
 zrbv_check() {
+  bcu_die "Unimplemented"
+
   # There are many things I want this to do here but now is not the time.
   #
   # This has gotten sophisticated since I was bitten hard by the RedHat practice
