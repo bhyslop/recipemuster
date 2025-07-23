@@ -621,19 +621,17 @@ rbv_experiment() {
         "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
       || bcu_die "Failed to download blob for ${needed_image}"
 
-    local dockerfile="${ZRBV_VM_DOCKERFILE_PREFIX}${needed_image}"
-    podman machine ssh "$vm_name" --           \
-        "echo 'FROM scratch' > ${dockerfile}"  \
-      || bcu_die "Failed to create Dockerfile for ${needed_image}"
+    local dockerfile_name="Dockerfile.${needed_image}"
+    local dockerfile_path="${ZRBV_VM_TEMP_DIR}/${dockerfile_name}"
 
-    podman machine ssh "$vm_name" --                                                              \
-        "echo 'COPY blob_${needed_image}.${extension} /disk-image.${extension}' >> ${dockerfile}" \
-      || bcu_die "Failed to add COPY to Dockerfile for ${needed_image}"
+    podman machine ssh "$vm_name" --                                                                                    \
+        "printf 'FROM scratch\nCOPY blob_${needed_image}.${extension} /disk-image.${extension}\n' > ${dockerfile_path}" \
+      || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
     local local_tag="localhost/podvm-${needed_image}:${new_identity}"
 
     podman machine ssh "$vm_name" --                                                              \
-        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f Dockerfile.${needed_image} -t ${local_tag} ."  \
+        "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${dockerfile_name} -t ${local_tag} ."  \
       || bcu_die "Failed to build image for ${needed_image}"
 
     local arch=$(echo "$needed_image" | cut -d_ -f2)
@@ -667,9 +665,8 @@ rbv_experiment() {
       "cat > ${ZRBV_VM_TEMP_DIR}/platform-map.txt"      \
     || bcu_die "Failed to copy platform map to VM"
 
-  bcu_step "Creating Dockerfile for map container..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                                      \
-      "cd ${ZRBV_VM_TEMP_DIR} && echo 'FROM scratch' > Dockerfile.map && echo 'COPY platform-map.txt /' >> Dockerfile.map" \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                               \
+      "cd ${ZRBV_VM_TEMP_DIR} && printf 'FROM scratch\nCOPY platform-map.txt /\n' > Dockerfile.map" \
     || bcu_die "Failed to create map Dockerfile"
 
   bcu_step "Building map container..."
@@ -678,7 +675,7 @@ rbv_experiment() {
     || bcu_die "Failed to build map container"
 
   bcu_step "Pushing map container to GHCR: ${map_tag}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                 \
       "podman push map-container:${new_identity} docker://${map_tag}" \
     || bcu_die "Failed to push map container to GHCR"
 
