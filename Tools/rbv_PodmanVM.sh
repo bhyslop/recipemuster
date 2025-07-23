@@ -57,6 +57,7 @@ zrbv_environment() {
   ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
   ZRBV_AVAILABLE_IMAGES="${RBV_TEMP_DIR}/available_disk_images.txt"
   ZRBV_PLATFORM_DIGESTS="${RBV_TEMP_DIR}/platform_digests.txt"
+  ZRBV_PLATFORM_EXTENSIONS="${RBV_TEMP_DIR}/platform_extensions.txt"
   ZRBV_EMPLACED_BRAND_FILE="${RBV_TEMP_DIR}/emplaced_brand_file.txt"
 
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
@@ -242,7 +243,7 @@ zrbv_process_manifest_family() {
     local platform_spec="${prefix}_${arch}_${disktype}"
 
     echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
-    echo "${platform_spec}" >> "${ZRBV_AVAILABLE_IMAGES}"
+    echo "${platform_spec}"           >> "${ZRBV_AVAILABLE_IMAGES}"
     echo "${platform_spec}:${digest}" >> "${ZRBV_PLATFORM_DIGESTS}"
   done < "${entries_file}"
 }
@@ -496,6 +497,7 @@ rbv_experiment() {
   bcu_step "Clear available images and platform digests files..."
   > "${ZRBV_AVAILABLE_IMAGES}"
   > "${ZRBV_PLATFORM_DIGESTS}"
+  > "${ZRBV_PLATFORM_EXTENSIONS}"
 
   bcu_step "Generate new identity for this build..."
   local new_identity=$(date +'%Y%m%d-%H%M%S')
@@ -603,6 +605,8 @@ rbv_experiment() {
       *xz*)   extension="tar.xz"  ;;
     esac
 
+    echo "${needed_image}:${extension}" >> "${ZRBV_PLATFORM_EXTENSIONS}"
+
     local vm_blob_file="${ZRBV_VM_BLOB_PREFIX}${needed_image}.${extension}"
     podman machine ssh "$vm_name" --                                 \
         "crane blob ${source_fqin}@${blob_digest} > ${vm_blob_file}" \
@@ -637,8 +641,9 @@ rbv_experiment() {
   bcu_step "Creating platform map file..."
   > "${ZRBV_PLATFORM_MAP_FILE}"
   for platform in ${RBRR_MANIFEST_PLATFORMS}; do
-    local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
-    echo "${platform} ${digest} ${extension}" >> "${ZRBV_PLATFORM_MAP_FILE}"
+    local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2)
+    local ext=$(grep "^${platform}:" "${ZRBV_PLATFORM_EXTENSIONS}" | cut -d: -f2)
+    echo "${platform} ${digest} ${ext}" >> "${ZRBV_PLATFORM_MAP_FILE}"
   done
 
   bcu_step "Platform map contents:"
