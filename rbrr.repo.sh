@@ -33,7 +33,7 @@ export RBRR_MANIFEST_PLATFORMS="mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_apple
 export RBRR_CHOSEN_PODMAN_VERSION=5.5
 export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.io/podman/machine-os
 
-export RBRR_CHOSEN_IDENTITY=20250722-183001  # mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_applehv
+export RBRR_CHOSEN_IDENTITY=20250723-081241  # mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_applehv
 
 
 # File containing user specific secrets for accessing the container registry.  Must have

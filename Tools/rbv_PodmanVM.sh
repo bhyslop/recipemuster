@@ -490,7 +490,7 @@ rbv_mirror() {
   bcu_step "Creating platform map file..."
   > "${ZRBV_PLATFORM_MAP_FILE}"
   for platform in ${RBRR_MANIFEST_PLATFORMS}; do
-    local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2)
+    local digest=$(grep "^${platform}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
     local ext=$(grep "^${platform}:" "${ZRBV_PLATFORM_EXTENSIONS}" | cut -d: -f2)
     echo "${platform} ${digest} ${ext}" >> "${ZRBV_PLATFORM_MAP_FILE}"
   done
@@ -607,6 +607,41 @@ rbv_fetch() {
 
   local platform_digest=$(<"${digest_file}")
   local platform_extension=$(<"${ext_file}")
+
+  bcu_step "Pulling platform-specific container by digest..."
+  local platform_tag="${manifest_tag}@${platform_digest}"
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${platform_tag}" \
+    || bcu_die "Failed to pull platform container: ${platform_tag}"
+
+  bcu_step "Creating temporary container from platform image..."
+  local temp_container_id="${RBV_TEMP_DIR}/platform_container_id.txt"
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" create "${platform_tag}" > "${temp_container_id}" \
+    || bcu_die "Failed to create temporary container"
+
+  local container_id=$(<"${temp_container_id}")
+
+  bcu_step "Extracting disk image from container..."
+  local vm_temp_disk="${ZRBV_VM_TEMP_DIR}/extracted_disk_image.tar"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --             \
+      "podman cp ${container_id}:/disk-image.tar ${vm_temp_disk}" \
+    || bcu_die "Failed to extract disk image from container"
+
+  local cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
+  bcu_step "Copying disk image to cache directory as -> ${cache_file}"
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "cat ${vm_temp_disk}" > "${cache_file}"         \
+    || bcu_die "Failed to copy disk image to cache"
+
+  bcu_step "Cleaning up temporary container..."
+  podman -c "${RBRR_IGNITE_MACHINE_NAME}" rm "${container_id}" \
+    || bcu_warn "Failed to remove temporary container"
+
+  bcu_step "Removing temporary files in VM..."
+  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+      "rm -f ${vm_temp_disk}"                         \
+    || bcu_warn "Failed to remove temporary disk file"
+
+  bcu_success "VM image cached: ${cache_file}"
 }
 
 rbv_init() {
