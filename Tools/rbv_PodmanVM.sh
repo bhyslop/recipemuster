@@ -411,7 +411,7 @@ rbv_mirror() {
     test -n "${digest}" || bcu_die "No digest found for ${needed_image}"
 
     local source_fqin
-    if [[ "$needed_image" == mow_* ]]; then
+    if [[ "${needed_image}" == mow_* ]]; then
       source_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
     else
       source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
@@ -467,7 +467,7 @@ rbv_mirror() {
         "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${dockerfile_name} -t ${local_tag} ." \
       || bcu_die "Failed to build image for ${needed_image}"
 
-    local arch=$(echo "$needed_image" | cut -d_ -f2)
+    local arch=$(echo "${needed_image}" | cut -d_ -f2)
     local variant=""
     local os="linux"
 
