@@ -28,12 +28,12 @@ export RBRR_IGNITE_MACHINE_NAME=rbw-vm-ignite
 export RBRR_DEPLOY_MACHINE_NAME=rbw-vm-deploy
 export RBRR_CRANE_TAR_GZ=https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
 
-export RBRR_MANIFEST_PLATFORMS="mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_applehv"
+export RBRR_MANIFEST_PLATFORMS="mow_x86_64_wsl" # "mos_x86_64_qemu mos_aarch64_applehv"
 
 export RBRR_CHOSEN_PODMAN_VERSION=5.5
 export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.io/podman/machine-os
 
-export RBRR_CHOSEN_IDENTITY=20250723-081241  # mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_applehv
+export RBRR_CHOSEN_IDENTITY=20250723-084227  # mow_x86_64_wsl mos_x86_64_qemu mos_aarch64_applehv
 
 
 # File containing user specific secrets for accessing the container registry.  Must have
