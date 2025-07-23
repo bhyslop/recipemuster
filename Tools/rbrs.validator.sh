@@ -23,6 +23,7 @@ source "${ZRBRS_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 bvu_env_string      RBRS_PODMAN_ROOT_DIR         1     64
 bvu_env_string      RBRS_VMIMAGE_CACHE_DIR       1     64
+bvu_env_string      RBRS_VM_PLATFORM             1     64
 
 
 # eof

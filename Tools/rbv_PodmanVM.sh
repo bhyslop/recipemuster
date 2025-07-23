@@ -324,7 +324,64 @@ rbv_fetch() {
 }
 
 rbv_init() {
-  bcu_die "BRADTODO: ELIDED."
+  # Handle documentation mode
+  bcu_doc_brief "Initialize deploy VM by pulling platform-specific image from GHCR"
+  bcu_doc_lines "Pulls container image for RBRS_VM_PLATFORM from GHCR"
+  bcu_doc_lines "Extracts disk image and initializes deploy VM"
+  bcu_doc_lines "Writes brand file with all RBRR_CHOSEN values"
+  bcu_doc_lines "Refuses if deploy VM already exists"
+  bcu_doc_shown || return 0
+
+  # Perform command
+  bcu_step "Checking if deploy VM exists..."
+  podman machine list | grep -q "${RBRR_DEPLOY_MACHINE_NAME}" && \
+    bcu_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
+
+  bcu_step "Validating platform configuration..."
+  test -n "${RBRS_VM_PLATFORM}" || bcu_die "RBRS_VM_PLATFORM not set in station config"
+  echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" || \
+    bcu_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
+
+  local image_tag="${ZRBV_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}"
+  
+  bcu_step "Pulling platform image: ${image_tag} (${RBRS_VM_PLATFORM})..."
+  podman pull "${image_tag}" || bcu_die "Failed to pull image from GHCR"
+
+  bcu_step "Extracting disk image from container..."
+  local container_id=$(podman create "${image_tag}")
+  local extract_dir="${RBV_TEMP_DIR}/extract"
+  mkdir -p "${extract_dir}"
+  
+  podman export "${container_id}" | tar -x -C "${extract_dir}" || \
+    bcu_die "Failed to extract container contents"
+  
+  local disk_image=$(find "${extract_dir}" -name "disk-image.*" | head -1)
+  test -n "${disk_image}" || bcu_die "No disk image found in container"
+  
+  local cache_file="${RBRS_PODMAN_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
+  mv "${disk_image}" "${cache_file}" || bcu_die "Failed to move disk image to cache"
+  
+  podman rm "${container_id}" || bcu_warn "Failed to remove temp container"
+  rm -rf "${extract_dir}"
+
+  bcu_step "Initializing machine from extracted image..."
+  podman machine init --rootful --image "${cache_file}" "${RBRR_DEPLOY_MACHINE_NAME}" \
+                                       2> "${ZRBV_DEPLOY_INIT_STDERR}"                \
+       | ${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh "${ZRBV_DEPLOY_INIT_STDOUT}"          \
+    || bcu_die "Bad init."
+
+  bcu_step "Starting VM temporarily..."
+  podman machine start "${RBRR_DEPLOY_MACHINE_NAME}"
+
+  bcu_step "Writing brand file to -> ${ZRBV_EMPLACED_BRAND_FILE}"
+  zrbv_generate_brand_file
+  podman machine ssh "${RBRR_DEPLOY_MACHINE_NAME}" "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" \
+                                                         < "${ZRBV_GENERATED_BRAND_FILE}"
+
+  bcu_step "Stopping VM..."
+  podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}"
+
+  bcu_success "VM initialized with brand file"
 }
 
 rbv_start() {
@@ -340,7 +397,7 @@ rbv_experiment() {
   bcu_doc_brief "Process manifests for WSL and standard machine-os images, then upload needed disk images to GHCR"
   bcu_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
   bcu_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
-  bcu_doc_lines "Validates that all RBRR_NEEDED_DISK_IMAGES are available"
+  bcu_doc_lines "Validates that all RBRR_MANIFEST_PLATFORMS are available"
   bcu_doc_lines "Downloads needed disk images and packages them as container images"
   bcu_doc_lines "Builds all images locally, creates local manifest list, then single push to GHCR"
   bcu_doc_shown || return 0
@@ -376,10 +433,10 @@ rbv_experiment() {
     "quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS standard"
 
-  bcu_step "Validating RBRR_NEEDED_DISK_IMAGES availability..."
+  bcu_step "Validating RBRR_MANIFEST_PLATFORMS availability..."
 
   local missing_images=""
-  for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
+  for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
     if ! grep -q "^${needed_image}$" "${ZRBV_AVAILABLE_IMAGES}"; then
       missing_images="${missing_images} ${needed_image}"
     else
@@ -415,7 +472,7 @@ rbv_experiment() {
     || bcu_die "Failed to create local manifest"
 
   bcu_step "Building container images and adding to local manifest..."
-  for needed_image in ${RBRR_NEEDED_DISK_IMAGES}; do
+  for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
     bcu_step "Processing: ${needed_image}"
 
     local      digest=$(grep "^${needed_image}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
@@ -489,7 +546,7 @@ rbv_experiment() {
     bcu_info "Added to manifest: ${needed_image} (${arch})"
   done
 
-  bcu_success "All ${#RBRR_NEEDED_DISK_IMAGES} container images built and added to manifest"
+  bcu_success "All ${#RBRR_MANIFEST_PLATFORMS} container images built and added to manifest"
 
   bcu_step "Pushing manifest to GHCR: ${final_tag}"
   podman machine ssh "$vm_name" --                                 \
@@ -508,7 +565,7 @@ rbv_experiment() {
 
   bcu_step "Update your RBRR configuration:"
   bcu_code "# Add to ${RBV_RBRR_FILE}:"
-  bcu_code "export RBRR_CHOSEN_IDENTITY=${new_identity}  # ${RBRR_NEEDED_DISK_IMAGES}"
+  bcu_code "export RBRR_CHOSEN_IDENTITY=${new_identity}  # ${RBRR_MANIFEST_PLATFORMS}"
 
   bcu_success "All disk images uploaded to GHCR as: ${base_tag}"
 }

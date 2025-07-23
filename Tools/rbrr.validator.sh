@@ -35,8 +35,6 @@ bvu_env_string      RBRR_DEPLOY_MACHINE_NAME     1     64
 bvu_env_string      RBRR_CRANE_TAR_GZ            1    512
 bvu_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
 bvu_env_string      RBRR_CHOSEN_VMIMAGE_ORIGIN   1    128
-bvu_env_string      RBRR_CHOSEN_VMIMAGE_FQIN     1    256
-bvu_env_fqin        RBRR_CHOSEN_VMIMAGE_DIGEST   0    256
 bvu_env_string      RBRR_CHOSEN_IDENTITY         1    128
 
 
