@@ -390,7 +390,7 @@ rbv_mirror() {
   zrbv_validate_pat || bcu_die "PAT validation failed"
   zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Podman login failed"
 
-  bcu_step "Building container images and adding to local manifest..."
+  bcu_step "Building container images..."
   for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
     bcu_step "Processing: ${needed_image}"
 
@@ -404,14 +404,8 @@ rbv_mirror() {
       source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
     fi
 
-    local manifest_file="${ZRBV_VM_MANIFEST_PREFIX}${needed_image}.json"
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
-        "crane manifest ${source_fqin}@${digest} > ${manifest_file}" \
-      || bcu_die "Failed to fetch manifest for ${needed_image}"
-
-    bcu_step "Extracting disk blob info for ${needed_image}..."
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
-        "jq -r '.layers[]' ${manifest_file}" > "${ZRBV_LAYERS_JSON}" \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                       \
+        "crane manifest ${source_fqin}@${digest} | jq -r '.layers[]'" > "${ZRBV_LAYERS_JSON}" \
       || bcu_die "Failed to extract layers for ${needed_image}"
 
     jq -r 'select(.annotations."org.opencontainers.image.title" // .mediaType | test("disk|raw|tar|qcow2|machine")) | .digest + ":" + .mediaType' \
