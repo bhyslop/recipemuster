@@ -480,6 +480,7 @@ rbg_image_info() {
   local api="https://ghcr.io/v2/${repo}"
   local scope="repository:${repo}:pull"
   local token_url="https://ghcr.io/token?scope=repository:${repo}:pull&service=ghcr.io"
+  local accept_header="Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json"
   local bearer_token
   bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${token_url}" | jq -r '.token') || \
     bcu_die "Failed to obtain bearer token"
@@ -489,6 +490,13 @@ rbg_image_info() {
   bcu_step "Test bearer access..."
   curl -v -i -H "${headers}" https://ghcr.io/v2/
   echo "BRADDBG: 'CONTINUING' after " $?
+
+  bcu_step "Test known malformed..."
+  curl -v -H "${headers}" -H "${accept_header}" \
+     https://ghcr.io/v2/bhyslop/recipemuster/manifests/rbtest_python_networking.20250312__132844
+
+  echo "BRADDBG: 'DYING HERE' after " $?
+  false
 
   bcu_step "Fetching all registry images with pagination to $combined_json"
   curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "$combined_json" || \
@@ -506,7 +514,7 @@ rbg_image_info() {
 
     bcu_info "  Tag: $tag"
 
-    curl -sfL -H "${headers}" \
+    curl -v -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
       "$api/manifests/${tag}" -o "$manifest_file" || {
         bcu_warn "  Skipping $tag: failed to fetch manifest"
