@@ -464,6 +464,104 @@ rbg_retrieve() {
   bcu_success "No errors."
 }
 
+rbg_image_info() {
+  
+  bcu_doc_brief "Inspect all images to extract layer info and deduplicated size"
+  bcu_doc_shown || return 0
+
+  zrbg_validate_pat
+  zrbg_collect_all_versions
+
+  bcu_step "Collecting manifest + config JSON for each tag"
+
+  local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
+  local api="https://ghcr.io/v2/${repo}"
+
+  local auth_base64 headers
+  auth_base64=$(printf "%s:%s" "${RBRG_USERNAME}" "${RBRG_PAT}" | base64)
+  headers=(-H "Authorization: Basic ${auth_base64}")
+
+  local tags_seen
+  tags_seen=()
+
+  jq empty "${ZRBG_COLLECT_FULL_JSON}" || bcu_die "Invalid JSON in ${ZRBG_COLLECT_FULL_JSON}"
+
+  jq -c '.[] | select(.metadata.container.tags | length > 0) |
+         .metadata.container | {digest, tags: .tags}' "${ZRBG_COLLECT_FULL_JSON}" |
+  while read -r entry; do
+    local digest tag
+    digest=$(jq -r '.digest' <<<"$entry") || continue
+
+    for tag in $(jq -r '.tags[]' <<<"$entry"); do
+      # Bash-only tag sanitization
+      local safe_tag
+      safe_tag=${tag//\//_}
+      safe_tag=${safe_tag//:/_}
+
+      local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
+      local config_file="${RBG_TEMP_DIR}/config__${safe_tag}.json"
+
+      bcu_info "  Tag: ${tag} ? Digest: ${digest}"
+
+      curl -s "${headers[@]}" \
+           -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+           "${api}/manifests/${digest}" \
+           -o "${manifest_file}" || bcu_die "Failed to get manifest for ${tag}"
+
+      local config_digest
+      config_digest=$(jq -r '.config.digest' "${manifest_file}")
+
+      curl -s "${headers[@]}" \
+           "${api}/blobs/${config_digest}" \
+           -o "${config_file}" || bcu_die "Failed to get config for ${tag}"
+
+      jq -n --arg tag "${tag}" \
+         --slurpfile mf "${manifest_file}" \
+         --slurpfile cf "${config_file}" '
+        {
+          tag: $tag,
+          digest: $mf[0].config.digest,
+          layers: $mf[0].layers,
+          config: {
+            created: $cf[0].created,
+            architecture: $cf[0].architecture,
+            os: $cf[0].os
+          }
+        }' > "${RBG_TEMP_DIR}/imageinfo__${safe_tag}.json"
+
+      tags_seen=("${tags_seen[@]}" "${safe_tag}")
+    done
+  done
+
+  bcu_step "Analyzing layers and deduplicated size"
+
+  jq -s '
+    reduce .[] as $img (
+      {};
+      reduce $img.layers[] as $layer (
+        .;
+        .[$layer.digest] |= (
+          . // {size: $layer.size, tags: []} |
+          .tags += [$img.tag]
+        )
+      )
+    )
+  ' "${RBG_TEMP_DIR}"/imageinfo__*.json > "${RBG_TEMP_DIR}/rbg_layer_map.json"
+
+  jq '
+    to_entries[] |
+    {digest: .key, size: .value.size, tags: .value.tags}
+  ' "${RBG_TEMP_DIR}/rbg_layer_map.json" |
+  jq -s '
+    . as $layers |
+    (["Layer Digest", "Size (bytes)", "Used by Tags"] | @tsv),
+    ($layers[] | [.digest, (.size|tostring), (.tags | join(", "))] | @tsv),
+    "",
+    "Total deduplicated size:",
+    ($layers | map(.size) | add)
+  '
+}
+
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_validate_envvars "$@"
 
 # eof

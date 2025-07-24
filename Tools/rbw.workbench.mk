@@ -80,6 +80,11 @@ rbw-l.%:
 	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_list
 	$(MBC_PASS) "No errors."
 
+rbw-II.%:
+	$(MBC_START) "List Registry Image Info"
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_image_info
+	$(MBC_PASS) "No errors."
+
 rbw-r.%:
 	$(MBC_START) "Retrieve Image From Registry given $(MBD_CLI_ARGS)"
 	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(MBD_CLI_ARGS)
