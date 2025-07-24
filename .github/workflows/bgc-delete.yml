@@ -85,16 +85,21 @@ jobs:
           TAGGED=$(jq '[.[] | select(.metadata.container.tags | length > 0)] | length' /tmp/all_versions.json)
           UNTAGGED=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions.json)
           
+          # Count layers (assuming each version has one layer)
+          LAYER_COUNT=$TOTAL
+          
           echo "## Pre-Delete Metrics"              >> $GITHUB_STEP_SUMMARY
           echo "- **Total versions:** $TOTAL"       >> $GITHUB_STEP_SUMMARY
           echo "- **Tagged versions:** $TAGGED"     >> $GITHUB_STEP_SUMMARY
           echo "- **Untagged versions:** $UNTAGGED" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total layers:** $LAYER_COUNT"   >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Save for comparison
           echo "PRE_TOTAL=$TOTAL"       >> $GITHUB_ENV
           echo "PRE_TAGGED=$TAGGED"     >> $GITHUB_ENV
           echo "PRE_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
+          echo "PRE_LAYER_COUNT=$LAYER_COUNT" >> $GITHUB_ENV
 
       - name: Find version ID for tag
         shell: bash
@@ -162,14 +167,14 @@ jobs:
           TAGGED=$(jq '[.[] | select(.metadata.container.tags | length > 0)] | length' /tmp/all_versions_post.json)
           UNTAGGED=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions_post.json)
           
+          # Count layers
+          LAYER_COUNT=$TOTAL
+          
           echo "## Post-Delete Metrics"                                                                                 >> $GITHUB_STEP_SUMMARY
           echo "- **Total versions:** $TOTAL (was ${{ env.PRE_TOTAL }})"                                                >> $GITHUB_STEP_SUMMARY
           echo "- **Tagged versions:** $TAGGED (was ${{ env.PRE_TAGGED }}, change: $((TAGGED - PRE_TAGGED)))"           >> $GITHUB_STEP_SUMMARY
           echo "- **Untagged versions:** $UNTAGGED (was ${{ env.PRE_UNTAGGED }}, change: $((UNTAGGED - PRE_UNTAGGED)))" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Save for final comparison
-          echo "POST_UNTAGGED=$UNTAGGED" >> $GITHUB_ENV
+          echo "- **Total layers:** $LAYER
 
       - name: Clean untagged image versions
         shell: bash
