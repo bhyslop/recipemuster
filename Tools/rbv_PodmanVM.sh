@@ -71,7 +71,6 @@ zrbv_environment() {
   ZRBV_VM_TEMP_DIR="/tmp/rbv-upload"
   ZRBV_VM_MANIFEST_PREFIX="${ZRBV_VM_TEMP_DIR}/manifest_"
   ZRBV_VM_BLOB_PREFIX="${ZRBV_VM_TEMP_DIR}/blob_"
-  ZRBV_VM_DOCKERFILE_PREFIX="${ZRBV_VM_TEMP_DIR}/Dockerfile."
 
   ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
   ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
@@ -457,8 +456,16 @@ rbv_mirror() {
     local dockerfile_name="Dockerfile.${needed_image}"
     local dockerfile_path="${ZRBV_VM_TEMP_DIR}/${dockerfile_name}"
 
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                                        \
-        "printf 'FROM scratch\nCOPY blob_${needed_image}.${extension} /disk-image.tar\n' > ${dockerfile_path}" \
+    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --             \
+        "echo '${new_identity}' > ${ZRBV_VM_TEMP_DIR}/identity.txt" \
+      || bcu_die "Failed to create identity file"
+
+    {
+        echo "FROM scratch"
+        echo "COPY blob_${needed_image}.${extension} /disk-image.tar"
+        echo "COPY identity.txt /identity.txt"
+    } | podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
+        "cat > ${dockerfile_path}"                          \
       || bcu_die "Failed to create Dockerfile for ${needed_image}"
 
     local local_tag="localhost/podvm-${needed_image}:${new_identity}"
