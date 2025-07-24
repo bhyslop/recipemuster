@@ -195,12 +195,12 @@ zrbv_login_ghcr() {
 
 # Helper function to process one image type
 zrbv_process_image_type() {
-  local manifest_file="$1"      # Manifest file path
-  local entries_file="$2"       # Entries file path
-  local decoded_prefix="$3"     # Decoded prefix for output files
-  local prefix="$4"             # Prefix for platform spec (mow/mos)
-  local fqin="$5"               # Full image name
-  local family_name="$6"        # Display name
+  local manifest_file="$1"
+  local entries_file="$2"
+  local decoded_prefix="$3"
+  local prefix="$4"
+  local fqin="$5"
+  local family_name="$6"
 
   bcu_step "Retrieving manifest for ${family_name} image: ${fqin}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --        \
@@ -213,16 +213,6 @@ zrbv_process_image_type() {
   bcu_step "Extract manifest entries for ${family_name}..."
   jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" \
     || bcu_die "Failed to extract ${family_name} entries"
-
-  zrbv_process_manifest_family "${entries_file}" "${decoded_prefix}" "${prefix}" "${family_name}" "${fqin}"
-}
-
-zrbv_process_manifest_family() {
-  local entries_file="$1"
-  local decoded_prefix="$2"
-  local prefix="$3"
-  local family_name="$4"
-  local source_fqin="$5"
 
   bcu_step "${family_name} family images:"
   local entry_num=0
@@ -242,10 +232,11 @@ zrbv_process_manifest_family() {
     arch=$(<"${arch_file}")
     disktype=$(<"${disktype_file}")
     digest=$(<"${digest_file}")
+    
     local platform_spec="${prefix}_${arch}_${disktype}"
 
     echo "${digest}"      > "${ZRBV_FACT_DIGEST_PREFIX}${platform_spec}"
-    echo "${source_fqin}" > "${ZRBV_FACT_SOURCE_PREFIX}${platform_spec}"
+    echo "${fqin}"        > "${ZRBV_FACT_SOURCE_PREFIX}${platform_spec}"
     echo "${arch}"        > "${ZRBV_FACT_ARCH_PREFIX}${platform_spec}"
     echo "${disktype}"    > "${ZRBV_FACT_DISKTYPE_PREFIX}${platform_spec}"
 
