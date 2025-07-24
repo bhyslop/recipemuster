@@ -55,9 +55,13 @@ zrbv_environment() {
   ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
   ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
   ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
-  ZRBV_AVAILABLE_IMAGES="${RBV_TEMP_DIR}/available_disk_images.txt"
-  ZRBV_PLATFORM_DIGESTS="${RBV_TEMP_DIR}/platform_digests.txt"
-  ZRBV_PLATFORM_EXTENSIONS="${RBV_TEMP_DIR}/platform_extensions.txt"
+
+  ZRBV_FACT_DIGEST_PREFIX="${RBV_TEMP_DIR}/fact-digest-"
+  ZRBV_FACT_SOURCE_PREFIX="${RBV_TEMP_DIR}/fact-source-"
+  ZRBV_FACT_EXTENSION_PREFIX="${RBV_TEMP_DIR}/fact-extension-"
+  ZRBV_FACT_ARCH_PREFIX="${RBV_TEMP_DIR}/fact-arch-"
+  ZRBV_FACT_DISKTYPE_PREFIX="${RBV_TEMP_DIR}/fact-disktype-"
+
   ZRBV_EMPLACED_BRAND_FILE="${RBV_TEMP_DIR}/emplaced_brand_file.txt"
 
   ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
@@ -210,15 +214,15 @@ zrbv_process_image_type() {
   jq -r '.manifests[] | @base64' "${manifest_file}" > "${entries_file}" \
     || bcu_die "Failed to extract ${family_name} entries"
 
-  zrbv_process_manifest_family "${entries_file}" "${decoded_prefix}" "${prefix}" "${family_name}"
+  zrbv_process_manifest_family "${entries_file}" "${decoded_prefix}" "${prefix}" "${family_name}" "${fqin}"
 }
 
-# Updated zrbv_process_manifest_family using ZRBV_ variables
 zrbv_process_manifest_family() {
   local entries_file="$1"
   local decoded_prefix="$2"
   local prefix="$3"
   local family_name="$4"
+  local source_fqin="$5"
 
   bcu_step "${family_name} family images:"
   local entry_num=0
@@ -240,9 +244,12 @@ zrbv_process_manifest_family() {
     digest=$(<"${digest_file}")
     local platform_spec="${prefix}_${arch}_${disktype}"
 
+    echo "${digest}"      > "${ZRBV_FACT_DIGEST_PREFIX}${platform_spec}"
+    echo "${source_fqin}" > "${ZRBV_FACT_SOURCE_PREFIX}${platform_spec}"
+    echo "${arch}"        > "${ZRBV_FACT_ARCH_PREFIX}${platform_spec}"
+    echo "${disktype}"    > "${ZRBV_FACT_DISKTYPE_PREFIX}${platform_spec}"
+
     echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${platform_spec}"
-    echo "${platform_spec}"           >> "${ZRBV_AVAILABLE_IMAGES}"
-    echo "${platform_spec}:${digest}" >> "${ZRBV_PLATFORM_DIGESTS}"
   done < "${entries_file}"
 }
 
@@ -336,11 +343,6 @@ rbv_mirror() {
   bcu_step "Prepare fresh ignite machine with crane and tools..."
   zrbv_ignite_bootstrap false || bcu_die "Failed to create temp machine"
 
-  bcu_step "Clear available images and platform digests files..."
-  > "${ZRBV_AVAILABLE_IMAGES}"
-  > "${ZRBV_PLATFORM_DIGESTS}"
-  > "${ZRBV_PLATFORM_EXTENSIONS}"
-
   bcu_step "Generate new identity for this build..."
   local new_identity=$(date +'%Y%m%d-%H%M%S')
   bcu_info "New identity: ${new_identity}"
@@ -368,7 +370,7 @@ rbv_mirror() {
 
   local missing_images=""
   for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
-    if ! grep -q "^${needed_image}$" "${ZRBV_AVAILABLE_IMAGES}"; then
+    if [[ ! -f "${ZRBV_FACT_DIGEST_PREFIX}${needed_image}" ]]; then
       missing_images="${missing_images} ${needed_image}"
     else
       bcu_info "Found needed image: ${needed_image}"
@@ -376,8 +378,7 @@ rbv_mirror() {
   done
 
   if [[ -n "${missing_images}" ]]; then
-    bcu_die "Missing required disk images:${missing_images}" \
-            "Available images: ${ZRBV_AVAILABLE_IMAGES}"
+    bcu_die "Missing required disk images:${missing_images}"
   fi
 
   bcu_step "All needed disk images are available in upstream manifests"
@@ -394,15 +395,9 @@ rbv_mirror() {
   for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
     bcu_step "Processing: ${needed_image}"
 
-    local      digest=$(grep "^${needed_image}:" "${ZRBV_PLATFORM_DIGESTS}" | cut -d: -f2-)
-    test -n "${digest}" || bcu_die "No digest found for ${needed_image}"
-
-    local source_fqin
-    if [[ "${needed_image}" == mow_* ]]; then
-      source_fqin="quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}"
-    else
-      source_fqin="quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}"
-    fi
+    # Read facts
+    local digest=$(<"${ZRBV_FACT_DIGEST_PREFIX}${needed_image}")
+    local source_fqin=$(<"${ZRBV_FACT_SOURCE_PREFIX}${needed_image}")
 
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                                       \
         "crane manifest ${source_fqin}@${digest} | jq -r '.layers[]'" > "${ZRBV_LAYERS_JSON}" \
@@ -428,7 +423,7 @@ rbv_mirror() {
       *xz*)   extension="tar.xz"  ;;
     esac
 
-    echo "${needed_image}:${extension}" >> "${ZRBV_PLATFORM_EXTENSIONS}"
+    echo "${extension}" > "${ZRBV_FACT_EXTENSION_PREFIX}${needed_image}"
 
     local vm_blob_file="${ZRBV_VM_BLOB_PREFIX}${needed_image}.${extension}"
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
