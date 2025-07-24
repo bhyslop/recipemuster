@@ -478,24 +478,17 @@ rbg_image_info() {
   local combined_json="$RBG_TEMP_DIR/RBG_COMBINED__${RBG_NOW_STAMP}.json"
   local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   local api="https://ghcr.io/v2/${repo}"
-  local auth_base64 headers
-
-
-  echo "BRADDBG: RBRG_USERNAME=$RBRG_USERNAME"
-  echo "BRADDBG: RBRG_PAT=$RBRG_PAT"
-
   local scope="repository:${repo}:pull"
-  local token_url="https://ghcr.io/token?service=ghcr.io&scope=${scope}"
+  local token_url="https://ghcr.io/token?scope=repository:${repo}:pull&service=ghcr.io"
   local bearer_token
   bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${token_url}" | jq -r '.token') || \
     bcu_die "Failed to obtain bearer token"
+  local headers
   headers="Authorization: Bearer ${bearer_token}"
 
+  bcu_step "Test bearer access..."
   curl -v -i -H "${headers}" https://ghcr.io/v2/
-
   echo "BRADDBG: 'CONTINUING' after " $?
-
-  false
 
   bcu_step "Fetching all registry images with pagination to $combined_json"
   curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "$combined_json" || \
@@ -513,7 +506,7 @@ rbg_image_info() {
 
     bcu_info "  Tag: $tag"
 
-    curl -sfL $headers \
+    curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
       "$api/manifests/${tag}" -o "$manifest_file" || {
         bcu_warn "  Skipping $tag: failed to fetch manifest"
@@ -527,7 +520,7 @@ rbg_image_info() {
       continue
     fi
 
-    curl -sfL $headers "$api/blobs/${config_digest}" -o "$config_file" || {
+    curl -sfL -H "${headers}" "$api/blobs/${config_digest}" -o "$config_file" || {
       bcu_warn "  Skipping $tag: failed to fetch config blob"
       continue
     }
