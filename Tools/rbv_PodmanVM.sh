@@ -75,8 +75,7 @@ zrbv_environment() {
   ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
   ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
 
-  ZRBV_MANIFEST_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-manifest-${RBRR_CHOSEN_PODMAN_VERSION}-"
-  ZRBV_VMIMAGE_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-vmimage-${RBRR_CHOSEN_PODMAN_VERSION}-"
+  ZRBV_VMIMAGE_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-"
 }
 
 # Generate brand file content
@@ -383,24 +382,13 @@ rbv_mirror() {
 
   bcu_step "All needed disk images are available in upstream manifests"
 
-  local vm_name="${RBRR_IGNITE_MACHINE_NAME}"
-  local manifest_tag="${ZRBV_MANIFEST_TAG_PREFIX}${new_identity}"
-  local manifest_name="podvm-manifest-${new_identity}"
-
-  bcu_step "Final manifest will be: ${manifest_name}"
-
   bcu_step "Setting up VM temporary dir..."
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --              \
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
     || bcu_die "Failed to create VM temp directory"
 
   zrbv_validate_pat || bcu_die "PAT validation failed"
-  zrbv_login_ghcr "${vm_name}" || bcu_die "Podman login failed"
-
-  bcu_step "Creating local manifest list: ${manifest_name}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman manifest create ${manifest_name}"       \
-    || bcu_die "Failed to create local manifest"
+  zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || bcu_die "Podman login failed"
 
   bcu_step "Building container images and adding to local manifest..."
   for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
@@ -474,23 +462,9 @@ rbv_mirror() {
         "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${dockerfile_name} -t ${local_tag} ." \
       || bcu_die "Failed to build image for ${needed_image}"
 
-    local arch=$(echo "${needed_image}" | cut -d_ -f2)
-    local variant=""
-    local os="linux"
-
-    podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                               \
-        "podman manifest add ${manifest_name} ${local_tag} --arch ${arch} --os ${os}" \
-      || bcu_die "Failed to add ${local_tag} to manifest"
-
-    bcu_info "Added to manifest: ${needed_image} (${arch})"
   done
 
-  bcu_step "All ${#RBRR_MANIFEST_PLATFORMS} container images built and added to manifest"
-
-  bcu_step "Pushing manifest to GHCR: ${manifest_tag}"
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                  \
-      "podman manifest push ${manifest_name} docker://${manifest_tag}" \
-    || bcu_die "Failed to push manifest to GHCR"
+  bcu_step "All container images built"
 
   bcu_step "Tagging individual platform images..."
   for needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
@@ -503,18 +477,12 @@ rbv_mirror() {
       || bcu_die "Failed to push platform tag for ${needed_image}"
   done
 
-  bcu_step "Cleaning up local manifest..."
-  podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
-      "podman manifest rm ${manifest_name}"           \
-    || bcu_warn "Failed to remove local manifest"
-
   bcu_step "Update your RBRR configuration:"
   bcu_code ""
   bcu_code "# Add to ${RBV_RBRR_FILE}:"
   bcu_code "export RBRR_CHOSEN_IDENTITY=${new_identity}  # ${RBRR_MANIFEST_PLATFORMS}"
   bcu_code ""
 
-  bcu_success "Uploaded to GHCR manifest: ${manifest_tag}"
   bcu_success "Platform tags created for: ${RBRR_MANIFEST_PLATFORMS}"
 }
 
