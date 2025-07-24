@@ -515,7 +515,7 @@ rbg_image_info() {
 
     local config_digest
     config_digest=$(jq -r '.config.digest' "$manifest_file")
-    if [ -z "$config_digest" ] || [ "$config_digest" = "null" ]; then
+    if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
       bcu_warn "  Skipping $tag: could not extract config digest"
       continue
     fi
@@ -525,11 +525,15 @@ rbg_image_info() {
       continue
     }
 
+    local manifest_json config_json
+    manifest_json=$(cat "$manifest_file") || bcu_die "Failed to read manifest"
+    config_json=$(cat "$config_file") || bcu_die "Failed to read config"
+    
     jq -n \
       --arg tag "$tag" \
       --arg digest "$config_digest" \
-      --argfile manifest "$manifest_file" \
-      --argfile config "$config_file" '
+      --argjson manifest "$manifest_json" \
+      --argjson config "$config_json" '
       {
         tag: $tag,
         digest: $digest,
