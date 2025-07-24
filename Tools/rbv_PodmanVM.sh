@@ -232,7 +232,6 @@ zrbv_process_image_type() {
     arch=$(<"${arch_file}")
     disktype=$(<"${disktype_file}")
     digest=$(<"${digest_file}")
-    
     local platform_spec="${prefix}_${arch}_${disktype}"
 
     echo "${digest}"      > "${ZRBV_FACT_DIGEST_PREFIX}${platform_spec}"
@@ -284,40 +283,8 @@ rbv_nuke() {
 
 zrbv_check() {
   bcu_die "Unimplemented"
-
-  # There are many things I want this to do here but now is not the time.
-  #
-  # This has gotten sophisticated since I was bitten hard by the RedHat practice
-  # of generating new podman VM images quite frequently, moving the tag each
-  # time: I suffered a serious regression when a retag of their 5.2 VM image
-  # stopped supporting critical features upon which I depended.  That is the
-  # primary motivation for using VM images that I cache rather than trusting
-  # theirs.  The charitable interpretation here is that they are sealing critical
-  # security holes and I want them to be brilliant at that after all.
-  #
-  # On to my solution:
-  #
-  # For now, I'll support precisely my use case, where I want this function
-  # to tell me if there is a new origin VM base image and how to configure to
-  # capture a mirror of it if I want it.  I also want it to validate my current
-  # mirror image by digest.  I'll always work out of my mirror, and I'll always
-  # lock the sha.  My chosen FQIN will always be my latest mirror.  I'll delete
-  # mirrors when I darn well choose.
-  #
-  # In the glorious future, I'd like this to support other configurations:
-  #
-  # * Users can set their chosen FQIN to the quay.io tagged version and leave
-  #   their chosen digest unset: go with God and latest!  I wish them the best of
-  #   luck with this.
-  #
-  # * Users can set their chosen FQIN to the quay.io tagged version but then also
-  #   configure their chosen digest.  This and perhaps some deft chosen identity
-  #   can give them more information when checking available VM images: how old
-  #   is their image if it isn't latest?  They assume the risk and obligation to
-  #   manage their own cache and exposure to VM evolution.
 }
 
-# Mirror VM images to GHCR
 # Mirror VM images to GHCR
 rbv_mirror() {
   # Handle documentation mode
