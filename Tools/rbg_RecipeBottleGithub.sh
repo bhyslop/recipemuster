@@ -68,6 +68,11 @@ zrbg_environment() {
   ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
 
+  # Manifest types
+  ZRBG_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
+  ZRBG_MTYPE_OCI="application/vnd.oci.image.index.v1+json"  
+  ZRBG_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
+
   # GHCR v2 API
   ZRBG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
@@ -525,8 +530,8 @@ rbg_image_info() {
     local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
 
     bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
-    curl -sfL -H "${headers}" \
-      -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+    curl -sfL -H "${headers}"                                         \
+      -H "Accept: ${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST}"              \
       "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
         bcu_warn "  Failed to fetch manifest for ${tag}"                         \
                  "  This image is UNUSABLE - manifest is missing or corrupted"   \
@@ -537,8 +542,8 @@ rbg_image_info() {
     local media_type
     media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_file}")
 
-    if [[ "$media_type" == "application/vnd.docker.distribution.manifest.list.v2+json" ]] || \
-       [[ "$media_type" == "application/vnd.oci.image.index.v1+json" ]]; then
+    if [[ "${media_type}" == "${ZRBG_MTYPE_DLIST}" ]] || \
+       [[ "${media_type}" == "${ZRBG_MTYPE_OCI}"   ]]; then
       bcu_info "  Multi-platform image detected"
 
       local platform_idx=0
@@ -553,8 +558,8 @@ rbg_image_info() {
         bcu_info "    Processing platform: ${platform_info}"
 
         local platform_manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
-        curl -sfL -H "${headers}" \
-          -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+        curl -sfL -H "${headers}"        \
+          -H "Accept: ${ZRBG_MTYPE_DV2}" \
           "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" -o "${platform_manifest_file}" || {
             bcu_warn "    Failed to fetch platform manifest, skipping"
             ((platform_idx++))
@@ -566,8 +571,8 @@ rbg_image_info() {
         ((platform_idx++))
       done <<< "$manifests"
 
-    elif [[ "$media_type" == "application/vnd.docker.distribution.manifest.v2+json" ]] || \
-         [[ "$media_type" == "2" ]]; then
+    elif [[ "${media_type}" == "${ZRBG_MTYPE_DV2}" ]] || \
+         [[ "${media_type}" == "2"                 ]]; then
 
       bcu_info "  Single platform image"
       zrbg_process_single_manifest "${tag}" "${manifest_file}" ""
