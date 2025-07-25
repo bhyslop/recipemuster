@@ -139,7 +139,7 @@ zrbg_collect_all_versions() {
 
     bcu_info "  Appending page ${page} to combined JSON..."
     jq -s '.[0] + .[1]' "${ZRBG_COLLECT_FULL_JSON}" "${ZRBG_COLLECT_TEMP_PAGE}" > \
-        "${ZRBG_COLLECT_FULL_JSON}.tmp"
+       "${ZRBG_COLLECT_FULL_JSON}.tmp"
     mv "${ZRBG_COLLECT_FULL_JSON}.tmp" "${ZRBG_COLLECT_FULL_JSON}"
 
     page=$((page + 1))
@@ -278,25 +278,25 @@ rbg_build() {
 
   bcu_info "Extracting FQIN..."
   local fqin_file="$build_dir/docker_inspect_RepoTags_0.txt"
-  test -f "$fqin_file" || bcu_die "Could not find FQIN in build output"
+  test -f "${fqin_file}" || bcu_die "Could not find FQIN in build output"
 
-  local fqin_contents=$(cat "$fqin_file")
-  bcu_info "Built image FQIN: $fqin_contents"
+  local fqin_contents=$(cat "${fqin_file}")
+  bcu_info "Built image FQIN: ${fqin_contents}"
 
-  if [ -n "${RBG_ARG_FQIN_OUTPUT:-}" ]; then
-    cp "$fqin_file" "${RBG_ARG_FQIN_OUTPUT}"
+  if [ -n                  "${RBG_ARG_FQIN_OUTPUT:-}" ]; then
+    cp "${fqin_file}"      "${RBG_ARG_FQIN_OUTPUT}"
     bcu_info "Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}"
   fi
 
   bcu_info "Verifying image availability in registry..."
-  local tag=$(echo "$fqin_contents" | cut -d: -f2)
+  local tag="${fqin_contents#*:}"
   echo "Waiting for tag: $tag to become available..."
   for i in 1 2 3 4 5; do
     zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
       jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null && break
 
     echo "  Image not yet available, attempt $i of 5"
-    [ $i -eq 5 ] && bcu_die "Image '$tag' not available in registry after 5 attempts"
+    test $i -ne 5 || bcu_die "Image '$tag' not available in registry after 5 attempts"
     sleep 5
   done
 
