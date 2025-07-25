@@ -627,7 +627,33 @@ rbg_image_info() {
   local image_detail
   image_detail="../temp-Tools/rbw.workbench.mk/temp-20250725-075015-1092-652/IMAGE_DETAILS.json"
   bcu_step "Lets start work on ${image_detail}"
-  cat "${image_detail}"
+
+  jq -r '
+    [.[].layers[] | {digest, size}] |
+    group_by(.digest) |
+    map({
+      digest: .[0].digest,
+      size: .[0].size,
+      used_by: length
+    }) |
+    sort_by(-.size) |
+    .[]
+    | [.digest, .size, (.size / 1024 / 1024 | floor), .used_by] | @tsv
+  ' "${image_detail}" |
+  awk 'BEGIN {
+         total = 0;
+         printf "%-70s  %12s  %8s  %s\n", "Digest", "Bytes", "MB", "UsedBy"
+         print "----------------------------------------------------------------------"
+       }
+       {
+         printf "%-70s  %12d  %8d  %s\n", $1, $2, $3, $4
+         total += $2
+         count++
+       }
+       END {
+         printf "\nTotal unique layers: %d\n", count
+         printf "Total deduplicated size: %.2f MB\n", total / 1024 / 1024
+       }'
 
   bcu_die "Not done."
 }
