@@ -17,33 +17,16 @@
 #
 # Recipe Bottle GitHub - Image Registry Management
 
-set -e
+set -euo pipefail
 
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 ######################################################################
-# Module Variables (ZRBG_*)
-# These variables are used across multiple functions within this module
-# Naming convention: ZRBG_<PURPOSE>
-ZRBG_GIT_REGISTRY="ghcr.io"
-ZRBG_GITAPI_URL="https://api.github.com"
-ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
-ZRBG_COLLECT_FULL_JSON="${RBG_TEMP_DIR}/RBG_COMBINED__${RBG_NOW_STAMP}.json"
-ZRBG_COLLECT_TEMP_PAGE="${RBG_TEMP_DIR}/RBG_PAGE__${RBG_NOW_STAMP}.json"
-ZRBG_CURRENT_WORKFLOW_RUN_CACHE="${RBG_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBG_NOW_STAMP}.txt"
-ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
-ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
-
-
-######################################################################
 # Internal Functions (zrbg_*)
-# These are helper functions used internally by the module
-# Naming convention: zrbg_<action>_<object>
 
-# Document, establish, validate environment
-zrbg_validate_envvars() {
+zrbg_environment() {
   # Handle documentation mode
   bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
   bcu_doc_env "RBG_NOW_STAMP " "Timestamp for per run branding"
@@ -56,17 +39,43 @@ zrbg_validate_envvars() {
   bvu_dir_empty   "${RBG_TEMP_DIR}"
   bvu_env_string     RBG_NOW_STAMP   1 128   # weak validation but infrastructure managed
   bvu_file_exists "${RBG_RBRR_FILE}"
-  source          "${RBG_RBRR_FILE}"
+
+  source              "${RBG_RBRR_FILE}"
   source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
-}
 
-# Validate GitHub PAT environment
-zrbg_validate_pat() {
-  test -f "${RBRR_GITHUB_PAT_ENV}" || bcu_die "GitHub PAT env file not found at ${RBRR_GITHUB_PAT_ENV}"
+  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
+  source          "${RBRR_GITHUB_PAT_ENV}"
 
-  # Load and check PAT exists
-  source "${RBRR_GITHUB_PAT_ENV}"
-  test -n "${RBRG_PAT:-}" || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+  # Extract PAT credentials
+  test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+  test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+
+  # Module Variables (ZRBG_*)
+
+  # Base URLs
+  ZRBG_GIT_REGISTRY="ghcr.io"
+  ZRBG_GITAPI_URL="https://api.github.com"
+  ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
+
+  # Derived URLs
+  ZRBG_DISPATCH_URL="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
+  ZRBG_RUNS_URL_BASE="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
+  ZRBG_PACKAGES_URL="${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions"
+  ZRBG_IMAGE_PREFIX="${ZRBG_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
+  ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
+  ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
+
+  # GHCR v2 API
+  ZRBG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
+  ZRBG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
+
+  # Temp files
+  ZRBG_COLLECT_FULL_JSON="${RBG_TEMP_DIR}/RBG_COMBINED__${RBG_NOW_STAMP}.json"
+  ZRBG_COLLECT_TEMP_PAGE="${RBG_TEMP_DIR}/RBG_PAGE__${RBG_NOW_STAMP}.json"
+  ZRBG_CURRENT_WORKFLOW_RUN_CACHE="${RBG_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBG_NOW_STAMP}.txt"
+  ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
+  ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
+  ZRBG_WORKFLOW_LOGS="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
 }
 
 # Perform authenticated GET request
@@ -74,7 +83,6 @@ zrbg_validate_pat() {
 zrbg_curl_get() {
   local url="$1"
 
-  source "${RBRR_GITHUB_PAT_ENV}"
   curl -s -H "Authorization: token ${RBRG_PAT}"       \
           -H 'Accept: application/vnd.github.v3+json' \
           "$url"
@@ -86,7 +94,6 @@ zrbg_curl_post() {
   local url="$1"
   local data="$2"
 
-  source "${RBRR_GITHUB_PAT_ENV}"
   curl                                             \
        -s                                          \
        -X POST                                     \
@@ -102,7 +109,6 @@ zrbg_curl_post() {
 zrbg_curl_delete() {
   local url="$1"
 
-  source "${RBRR_GITHUB_PAT_ENV}"
   curl -X DELETE -s -H "Authorization: token ${RBRG_PAT}"       \
                     -H 'Accept: application/vnd.github.v3+json' \
                     "$url"                                      \
@@ -123,18 +129,14 @@ zrbg_collect_all_versions() {
   while true; do
     bcu_info "  Fetching page ${page}..."
 
-    # Get page of results
-    local url="${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100&page=${page}"
+    local url="${ZRBG_PACKAGES_URL}?per_page=100&page=${page}"
     zrbg_curl_get "$url" > "${ZRBG_COLLECT_TEMP_PAGE}"
 
-    # Count items
     local items=$(jq '. | length' "${ZRBG_COLLECT_TEMP_PAGE}")
     bcu_info "  Saw ${items} items on page ${page}..."
 
-    # Break if no items
     test "${items}" -ne 0 || break
 
-    # Append to combined JSON
     bcu_info "  Appending page ${page} to combined JSON..."
     jq -s '.[0] + .[1]' "${ZRBG_COLLECT_FULL_JSON}" "${ZRBG_COLLECT_TEMP_PAGE}" > \
         "${ZRBG_COLLECT_FULL_JSON}.tmp"
@@ -154,11 +156,9 @@ zrbg_check_git_status() {
 
   git fetch
 
-  # Check if branch is up to date
   git status -uno | grep -q 'Your branch is up to date' || \
       bcu_die "ERROR: Your repo is not cleanly aligned with github variant.\n       Commit or otherwise match to proceed (prevents merge\n       conflicts with image history tracking)."
 
-  # Check for uncommitted changes
   git diff-index --quiet HEAD -- || \
       bcu_die "ERROR: Your repo is not cleanly aligned with github variant.\n       Commit or otherwise match to proceed (prevents merge\n       conflicts with image history tracking)."
 }
@@ -187,7 +187,6 @@ zrbg_confirm_action() {
 zrbg_registry_login() {
   bcu_step "Log in to container registry"
 
-  source "${RBRR_GITHUB_PAT_ENV}"
   podman login "${ZRBG_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
@@ -214,34 +213,31 @@ rbg_build() {
   echo "$recipe_basename" | grep -q '[A-Z]' && \
       bcu_die "Basename of '$recipe_file' contains uppercase letters so cannot use in image name"
 
-  zrbg_validate_pat
-
   bcu_step "Trigger image build from $recipe_file"
 
   zrbg_check_git_status
 
   bcu_step "Triggering GitHub Actions workflow for image build"
-  local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   local dispatch_data='{"event_type": "build_images", "client_payload": {"dockerfile": "'$recipe_file'"}}'
-  zrbg_curl_post "$dispatch_url" "$dispatch_data"
+  zrbg_curl_post "$ZRBG_DISPATCH_URL" "$dispatch_data"
 
   bcu_info "Polling for completion..."
   sleep 5
 
   bcu_info "Retrieve workflow run ID..."
-  local runs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
+  local runs_url="${ZRBG_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
   zrbg_curl_get "$runs_url" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
   test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
 
   local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
   bcu_info "Workflow online at:"
-  echo -e "${ZBCU_YELLOW}   https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}${ZBCU_RESET}"
+  echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
 
   bcu_info "Polling to completion..."
   local status=""
   local conclusion=""
   while true; do
-    local run_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}"
+    local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
     local response=$(zrbg_curl_get "$run_url")
 
     status=$(echo "$response" | jq -r '.status')
@@ -296,7 +292,7 @@ rbg_build() {
   local tag=$(echo "$fqin_contents" | cut -d: -f2)
   echo "Waiting for tag: $tag to become available..."
   for i in 1 2 3 4 5; do
-    zrbg_curl_get "${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100" | \
+    zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
       jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null && break
 
     echo "  Image not yet available, attempt $i of 5"
@@ -305,8 +301,7 @@ rbg_build() {
   done
 
   bcu_info "Pull logs..."
-  local logs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}/logs"
-  zrbg_curl_get "$logs_url" > "${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+  zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
 
   bcu_info "Everything went right, delete the run cache..."
   rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
@@ -320,19 +315,18 @@ rbg_list() {
   bcu_doc_shown || return 0
 
   # Perform command
-  zrbg_validate_pat
   zrbg_collect_all_versions
 
   bcu_step "List Current Registry Images"
   echo "Package: ${RBRR_REGISTRY_NAME}"
-  echo -e "${ZBCU_YELLOW}    https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}${ZBCU_RESET}"
+  echo -e "${ZBCU_YELLOW}    ${ZRBG_GITHUB_PACKAGES_URL}${ZBCU_RESET}"
   echo "Versions:"
 
   # Format header
   printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
 
   # Process and display versions
-  jq -r '.[] | select(.metadata.container.tags | length > 0) | .id as $id | .metadata.container.tags[] as $tag | [$id, "'"${ZRBG_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"':" + $tag] | @tsv' \
+  jq -r '.[] | select(.metadata.container.tags | length > 0) | .id as $id | .metadata.container.tags[] as $tag | [$id, "'"${ZRBG_IMAGE_PREFIX}"':" + $tag] | @tsv' \
     "${ZRBG_COLLECT_FULL_JSON}" | sort -k2 -r | while IFS=$'\t' read -r id tag; do
     printf "%-13s %s\n" "$id" "$tag"
   done
@@ -360,7 +354,6 @@ rbg_delete() {
   bvu_val_fqin "fqin" "$fqin" 1 512
 
   # Perform command
-  zrbg_validate_pat
   bcu_step "Delete image from GitHub Container Registry"
   zrbg_check_git_status
 
@@ -370,38 +363,37 @@ rbg_delete() {
   fi
 
   bcu_step "Triggering GitHub Actions workflow for image deletion"
-  local dispatch_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   local dispatch_data='{"event_type": "delete_image", "client_payload": {"fqin": "'$fqin'"}}'
-  zrbg_curl_post "$dispatch_url" "$dispatch_data"
+  zrbg_curl_post "${ZRBG_DISPATCH_URL}" "${dispatch_data}"
   bcu_info "Delete dispatch submitted"
   sleep 5
 
   bcu_info "Retrieve workflow run ID..."
-  local runs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
-  zrbg_curl_get "$runs_url" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+  local runs_url="${ZRBG_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
+  zrbg_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
   test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
 
   local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
   bcu_info "Delete workflow online at:"
-  echo -e "${ZBCU_YELLOW}   https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}${ZBCU_RESET}"
+  echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
 
   bcu_info "Polling to completion..."
   local status=""
   local conclusion=""
   while true; do
-    local run_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}"
-    local response=$(zrbg_curl_get "$run_url")
+    local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
+    local response=$(zrbg_curl_get "${run_url}")
 
-    status=$(echo "$response" | jq -r '.status')
-    conclusion=$(echo "$response" | jq -r '.conclusion')
+    status=$(echo     "${response}" | jq -r '.status')
+    conclusion=$(echo "${response}" | jq -r '.conclusion')
 
-    echo "  Status: $status    Conclusion: $conclusion"
+    echo "  Status: ${status}    Conclusion: $conclusion"
 
-    test "$status" != "completed" || break
+    test "${status}" != "completed" || break
     sleep 3
   done
 
-  test "$conclusion" = "success" || bcu_die "Workflow fail: $conclusion"
+  test "${conclusion}" = "success" || bcu_die "Workflow fail: $conclusion"
 
   bcu_info "Git Pull for deletion history..."
   local i
@@ -422,14 +414,13 @@ rbg_delete() {
   done
 
   bcu_info "Pull logs..."
-  local logs_url="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/${run_id}/logs"
-  zrbg_curl_get "$logs_url" > "${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+  zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
 
   bcu_info "Verifying deletion..."
   local tag=$(echo "$fqin" | sed 's/.*://')
 
   echo "  Checking that tag '$tag' is gone..."
-  if zrbg_curl_get "${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100" | \
+  if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
       jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
       bcu_die "Tag '$tag' still exists in registry after deletion"
   fi
@@ -456,7 +447,6 @@ rbg_retrieve() {
   bvu_val_fqin "fqin" "$fqin" 1 512
 
   # Perform command
-  zrbg_validate_pat
   bcu_step "Pull image from GitHub Container Registry"
   zrbg_registry_login
   bcu_info "Fetch image..."
@@ -473,15 +463,12 @@ rbg_image_info() {
   bcu_doc_shown || return 0
 
   bcu_step "Assure pat prepared"
-  zrbg_validate_pat
 
-  local combined_json="$RBG_TEMP_DIR/RBG_COMBINED__${RBG_NOW_STAMP}.json"
+  local combined_json="${RBG_TEMP_DIR}/RBG_COMBINED__${RBG_NOW_STAMP}.json"
   local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  local api="https://ghcr.io/v2/${repo}"
   local scope="repository:${repo}:pull"
-  local token_url="https://ghcr.io/token?scope=repository:${repo}:pull&service=ghcr.io"
   local bearer_token
-  bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${token_url}" | jq -r '.token') || \
+  bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" | jq -r '.token') || \
     bcu_die "Failed to obtain bearer token"
   local headers
   headers="Authorization: Bearer ${bearer_token}"
@@ -490,50 +477,50 @@ rbg_image_info() {
   curl -v -i -H "${headers}" https://ghcr.io/v2/
   echo "BRADDBG: 'CONTINUING' after " $?
 
-  bcu_step "Fetching all registry images with pagination to $combined_json"
-  curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "$combined_json" || \
+  bcu_step "Fetching all registry images with pagination to ${combined_json}"
+  curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "${combined_json}" || \
     bcu_die "Failed to fetch tag list"
 
   bcu_info "Pagination complete."
   bcu_step "Collecting manifest + config JSON for each tag"
 
   local tag
-  for tag in $(jq -r '.tags[]' "$combined_json"); do
+  for   tag in $(jq -r '.tags[]' "${combined_json}"); do
     local safe_tag="${tag//\//_}"
-    local manifest_file="$RBG_TEMP_DIR/manifest__${safe_tag}.json"
-    local config_file="$RBG_TEMP_DIR/config__${safe_tag}.json"
-    local imageinfo_file="$RBG_TEMP_DIR/imageinfo__${safe_tag}.json"
+    local  manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
+    local    config_file="${RBG_TEMP_DIR}/config__${safe_tag}.json"
+    local imageinfo_file="${RBG_TEMP_DIR}/imageinfo__${safe_tag}.json"
 
     bcu_info "  Tag: $tag"
 
     curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
-      "$api/manifests/${tag}" -o "$manifest_file" || {
+      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
         bcu_warn "  Skipping $tag: failed to fetch manifest"
         continue
       }
 
     local config_digest
-    config_digest=$(jq -r '.config.digest' "$manifest_file")
+    config_digest=$(jq -r '.config.digest' "${manifest_file}")
     if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
       bcu_warn "  Skipping $tag: could not extract config digest"
       continue
     fi
 
-    curl -sfL -H "${headers}" "$api/blobs/${config_digest}" -o "$config_file" || {
+    curl -sfL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" -o "${config_file}" || {
       bcu_warn "  Skipping $tag: failed to fetch config blob"
       continue
     }
 
     local manifest_json config_json
-    manifest_json=$(cat "$manifest_file") || bcu_die "Failed to read manifest"
-    config_json=$(cat "$config_file") || bcu_die "Failed to read config"
-    
+    manifest_json=$(cat "${manifest_file}") || bcu_die "Failed to read manifest"
+    config_json=$(cat   "${config_file}")   || bcu_die "Failed to read config"
+
     jq -n \
-      --arg tag "$tag" \
-      --arg digest "$config_digest" \
-      --argjson manifest "$manifest_json" \
-      --argjson config "$config_json" '
+      --arg tag          "$tag"             \
+      --arg digest       "${config_digest}" \
+      --argjson manifest "${manifest_json}" \
+      --argjson config   "${config_json}" '
       {
         tag: $tag,
         digest: $digest,
@@ -549,7 +536,7 @@ rbg_image_info() {
   return 0
 }
 
-bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_validate_envvars "$@"
+bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
 
 # eof
 
