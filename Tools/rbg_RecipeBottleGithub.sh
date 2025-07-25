@@ -630,8 +630,6 @@ rbg_image_info() {
 
   bcu_step "Lets start work on ${image_detail}"
 
-
-
   jq '
     # For each image, emit {digest, size, tag} for each layer
     .[] 
@@ -650,9 +648,25 @@ rbg_image_info() {
     | sort_by(-.size)
   ' > "${ZRBG_IMAGE_STATS_FILE}" || bcu_die "Failed to generate ${ZRBG_IMAGE_STATS_FILE}"
 
-  XXX_PUT_RENDERING_HEREE
+  bcu_step "Rendering human-readable layer usage summary..."
 
-  bcu_die "Not done."
+  total_bytes=0
+  total_layers=0
+
+  printf "%-70s %12s %8s\n" "Layer Digest" "Bytes" "UsedBy"
+  printf "%-70s %12s %8s\n" "------------" "-----" "-------"
+
+  jq -r '.[] | [.digest, .size, .used_by] | @tsv' "${ZRBG_IMAGE_STATS_FILE}" |
+  while IFS=$'\t' read -r digest size used_by; do
+    printf "%-70s %12d %8d\n" "$digest" "$size" "$used_by"
+    total_bytes=$((total_bytes + size))
+    total_layers=$((total_layers + 1))
+  done
+
+  printf "\nTotal unique layers: %d\n" "${total_layers}"
+  printf "Total deduplicated size: %d MB\n" "$((total_bytes / 1024 / 1024))"
+
+  bcu_success "No errors."
 }
 
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
