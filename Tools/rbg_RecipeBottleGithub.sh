@@ -651,18 +651,21 @@ rbg_image_info() {
   jq -r '
     .[]
     | select(.used_by > 1)
-    | "Layer: \(.digest) (used by \(.used_by) tags)\n" + (.tags | map("  - " + .) | join("\n"))
+    | "Layer: \(.digest[0:19]) (used by \(.used_by) tags, \(.size) bytes)\n"
+      + (.tags | map("  - " + .) | join("\n"))
   ' "${ZRBG_IMAGE_STATS_FILE}"
 
   bcu_step "Rendering human-readable layer usage summary..."
   total_bytes=0
   total_layers=0
 
-  printf "%-70s %12s %8s\n" "Layer Digest" "Bytes" "UsedBy"
-  printf "%-70s %12s %8s\n" "------------" "-----" "-------"
+  printf "%-22s %12s %8s\n" "Layer Digest" "Bytes" "UsedBy"
+  printf "%-22s %12s %8s\n" "------------" "-----" "-------"
 
   while IFS=$'\t' read -r digest size used_by; do
-    printf "%-70s %12d %8d\n" "$digest" "$size" "$used_by"
+    short_digest="${digest:0:19}"  # Includes 'sha256:' + 12 chars
+    printf "%-22s %12d %8d\n" "$short_digest" "$size" "$used_by"
+
     total_bytes=$((total_bytes + size))
     total_layers=$((total_layers + 1))
   done < <(jq -r '.[] | [.digest, .size, .used_by] | @tsv' "${ZRBG_IMAGE_STATS_FILE}")
