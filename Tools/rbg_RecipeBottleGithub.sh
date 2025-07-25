@@ -127,16 +127,23 @@ zrbg_curl_delete() {
 # Collect all image records (version_id, tag, fqin) with pagination
 #
 # Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
-# Schema of IMAGE_RECORDS.json
-# [
-#   {
-#     "version_id": <int>,              # GitHub Packages version ID (numeric)
-#     "tag": <string>,                  # Container image tag (e.g., "podvm-vmimage-5.5-20250723-092042-mow_x86_64_wsl")
-#     "fqin": <string>                  # Fully qualified image name (e.g., "ghcr.io/bhyslop/recipemuster:<tag>")
-#   },
-#   ...
-# ]
 #
+# IMAGE_RECORDS.json
+# ------------------
+# A JSON array of image tag metadata objects as returned by the GitHub Container Registry (GHCR) API.
+# This is the raw tag listing from the GHCR repository, used as input to downstream inspection.
+#
+# Each object has the following structure:
+# {
+#   "name": "<tag>",                  # The tag string (e.g., "v5.5-20250725-abc_x86_64")
+#   "digest": "<manifest-digest>",   # Digest of the top-level manifest associated with the tag
+#   "updated_at": "<iso-timestamp>"  # Last modified timestamp (from GHCR metadata)
+# }
+#
+# Notes:
+# - This file does not include layer or config information.
+# - This is a direct mapping of GHCR's paginated tag listing.
+# - Downstream code uses this as a seed to resolve manifests and blobs.
 zrbg_collect_image_records() {
   bcu_step "Fetching all image records with pagination to ${ZRBG_IMAGE_RECORDS_FILE}"
 
@@ -514,7 +521,7 @@ rbg_retrieve() {
 }
 
 # Gather image info from GHCR tags only (Bash 3.2 compliant)
-rbg_image_info_PRELUDE() {
+rbg_image_info() {
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
     "Creates image detail entries for each tag/platform combination, extracts creation date," \
@@ -592,50 +599,61 @@ rbg_image_info_PRELUDE() {
     fi
   done
 
-  # Schema of IMAGE_DETAILS.json
-  # [
-  #   {
-  #     "tag": <string>,                  # Image tag (e.g., "bottle_rust.20241201__213634")
-  #     "digest": <string>,               # Image digest (e.g., "sha256:abcd...")
-  #     "layers": [                       # Ordered list of image layers
-  #       {
-  #         "mediaType": <string>,        # Layer media type (usually gzip-compressed OCI layer)
-  #         "size": <int>,                # Layer size in bytes
-  #         "digest": <string>            # Digest of this layer
-  #       },
-  #       ...
-  #     ],
-  #     "config": {
-  #       "created": <string>,           # ISO timestamp of image creation
-  #       "architecture": <string>,      # Architecture (e.g., "amd64")
-  #       "os": <string>                 # Operating system (e.g., "linux")
-  #     }
-  #   },
-  #   ...
-  # ]
+  # IMAGE_DETAILS.json
+  # ------------------
+  # A JSON array of objects, each representing a single image tag (possibly platform-specific),
+  # with detailed metadata extracted from GHCR's manifest and config blobs.
+  #
+  # Each object has the following structure:
+  # {
+  #   "tag": "<tag>",                   # Tag name (e.g., "myimage-20250725-linux_amd64")
+  #   "digest": "<manifest-digest>",   # Top-level manifest digest (usually for this tag+platform)
+  #   "created": "<iso-timestamp>",    # Creation timestamp extracted from config blob
+  #   "size": <int-bytes>,             # Total compressed size of the image (sum of layer sizes)
+  #   "layers": [                      # Array of individual image layers
+  #     {
+  #       "digest": "<layer-digest>",  # Content digest of the layer
+  #       "size": <int-bytes>          # Compressed size in bytes
+  #     },
+  #     ...
+  #   ]
+  # }
+  #
+  # Notes:
+  # - The array includes one entry per tag/platform combination.
+  # - "size" includes all layers and the config object.
+  # - "created" is taken from the image config, not the tag timestamp.
 
-  local total_details=$(jq '. | length' "${ZRBG_IMAGE_DETAIL_FILE}")
-  bcu_success "Processed ${total_details} image details"
-}
 
-rbg_image_info() {
-  bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
-  bcu_doc_lines \
-    "Creates image detail entries for each tag/platform combination, extracts creation date," \
-    "layers, and layer sizes. Handles both single and multi-platform images."
-  bcu_doc_shown || return 0
+  bcu_step "Comprehensive image info next ${ZRBG_IMAGE_DETAIL_FILE}"
 
-  local image_detail
-  image_detail="../temp-Tools/rbw.workbench.mk/temp-20250725-075015-1092-652/IMAGE_DETAILS.json"
-
-  bcu_step "Comprehensive image info next ${image_detail}"
+  # IMAGE_STATS.json
+  # ----------------
+  # A JSON array of objects, each representing a distinct deduplicated image layer,
+  # aggregated across all analyzed image tags.
+  #
+  # Each object has the following structure:
+  # {
+  #   "digest": "<layer-digest>",     # Full sha256 digest identifying the layer
+  #   "size": <int-bytes>,            # Size of the layer in bytes
+  #   "used_by": <int>,               # Number of tags using this layer
+  #   "tags": [                       # List of tag strings that use this layer
+  #     "<tag>",
+  #     ...
+  #   ]
+  # }
+  #
+  # Notes:
+  # - The array is sorted descending by size (largest layers first).
+  # - The digest includes the "sha256:" prefix.
+  # - Tags come directly from IMAGE_DETAILS entries.
 
   jq '
     .[]
     | {tag} as $t
     | .layers[]
     | {digest, size, tag: $t.tag}
-  ' "${image_detail}" |
+  ' "${ZRBG_IMAGE_DETAIL_FILE}" |
   jq -s '
     group_by(.digest)
     | map({
