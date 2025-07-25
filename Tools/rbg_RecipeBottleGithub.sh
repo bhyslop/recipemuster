@@ -464,63 +464,7 @@ rbg_retrieve() {
   bcu_success "No errors."
 }
 
-zrbg_extract_manifest_info() {
-  local tag="$1"
-  local digest="$2"
-  local platform="$3"
-
-  local safe_tag="${tag}"
-  local suffix="${platform:+_${platform//\//_}}"
-
-  local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}${suffix}.json"
-  local config_file="${RBG_TEMP_DIR}/config__${safe_tag}${suffix}.json"
-  local imageinfo_file="${RBG_TEMP_DIR}/imageinfo__${safe_tag}${suffix}.json"
-
-  local repo="${ZRB_IMAGEINFO_REPO}"
-  local api="https://ghcr.io/v2/${repo}"
-  local token_url="https://ghcr.io/token?scope=repository:${repo}:pull&service=ghcr.io"
-
-  local bearer_token
-  bearer_token=$(curl -sfL -u "${ZRB_IMAGEINFO_GITHUB_ACTOR}:${ZRB_IMAGEINFO_GITHUB_TOKEN}" "$token_url" | jq -r .token) || {
-    bcu_warn "  Skipping ${tag} [${platform}]: failed to get bearer token"
-    return
-  }
-
-  local headers="Authorization: Bearer ${bearer_token}"
-
-  # Extract config digest from manifest file (already fetched)
-  local config_digest
-  config_digest=$(jq -r .config.digest "$manifest_file") || {
-    bcu_warn "  Skipping ${tag} [${platform}]: malformed manifest file"
-    return
-  }
-
-  # Fetch config blob
-  curl -sfL -H "${headers}" \
-    "$api/blobs/${config_digest}" \
-    -o "$config_file" || {
-      bcu_warn "  Skipping ${tag} [${platform}]: failed to fetch config blob"
-      return
-  }
-
-  # Create imageinfo summary
-  jq -n --arg tag "$tag" \
-        --arg platform "$platform" \
-        --arg digest "$digest" \
-        --arg config_digest "$config_digest" \
-        --slurpfile manifest "$manifest_file" \
-        --slurpfile config "$config_file" \
-        '{
-          tag: $tag,
-          platform: $platform,
-          manifest_digest: $digest,
-          config_digest: $config_digest,
-          manifest: $manifest[0],
-          config: $config[0]
-        }' > "$imageinfo_file"
-}
-
-
+# Gather image info from GHCR tags only (Bash 3.2 compliant)
 rbg_image_info() {
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
@@ -536,15 +480,18 @@ rbg_image_info() {
   local api="https://ghcr.io/v2/${repo}"
   local scope="repository:${repo}:pull"
   local token_url="https://ghcr.io/token?scope=repository:${repo}:pull&service=ghcr.io"
-  local accept_header="Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json"
-
   local bearer_token
   bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${token_url}" | jq -r '.token') || \
     bcu_die "Failed to obtain bearer token"
-  local headers="Authorization: Bearer ${bearer_token}"
+  local headers
+  headers="Authorization: Bearer ${bearer_token}"
+
+  bcu_step "Test bearer access..."
+  curl -v -i -H "${headers}" https://ghcr.io/v2/
+  echo "BRADDBG: 'CONTINUING' after " $?
 
   bcu_step "Fetching all registry images with pagination to $combined_json"
-  curl -sfL -H "${headers}" "${api}/tags/list" -o "$combined_json" || \
+  curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "$combined_json" || \
     bcu_die "Failed to fetch tag list"
 
   bcu_info "Pagination complete."
@@ -554,39 +501,52 @@ rbg_image_info() {
   for tag in $(jq -r '.tags[]' "$combined_json"); do
     local safe_tag="${tag//\//_}"
     local manifest_file="$RBG_TEMP_DIR/manifest__${safe_tag}.json"
+    local config_file="$RBG_TEMP_DIR/config__${safe_tag}.json"
+    local imageinfo_file="$RBG_TEMP_DIR/imageinfo__${safe_tag}.json"
 
     bcu_info "  Tag: $tag"
 
     curl -sfL -H "${headers}" \
-      -H "${accept_header}" \
+      -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
       "$api/manifests/${tag}" -o "$manifest_file" || {
         bcu_warn "  Skipping $tag: failed to fetch manifest"
         continue
       }
 
-    local media_type
-    media_type=$(jq -r .mediaType "$manifest_file")
-
-    if [[ "$media_type" == "application/vnd.oci.image.index.v1+json" || "$media_type" == "application/vnd.docker.distribution.manifest.list.v2+json" ]]; then
-      local index_count
-      index_count=$(jq '.manifests | length' "$manifest_file")
-      for ((i=0; i<index_count; i++)); do
-        local digest arch os
-        digest=$(jq -r ".manifests[$i].digest" "$manifest_file")
-        arch=$(jq -r ".manifests[$i].platform.architecture" "$manifest_file")
-        os=$(jq -r ".manifests[$i].platform.os" "$manifest_file")
-        zrbg_extract_manifest_info "$tag" "$digest" "${arch}_${os}"
-      done
-    elif [[ "$media_type" == "application/vnd.docker.distribution.manifest.v2+json" ]]; then
-      local digest
-      digest=$(jq -r '.config.digest' "$manifest_file")
-      zrbg_extract_manifest_info "$tag" "$digest" ""
-    else
-      bcu_warn "  Skipping $tag: unrecognized mediaType: $media_type"
+    local config_digest
+    config_digest=$(jq -r '.config.digest' "$manifest_file")
+    if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
+      bcu_warn "  Skipping $tag: could not extract config digest"
+      continue
     fi
+
+    curl -sfL -H "${headers}" "$api/blobs/${config_digest}" -o "$config_file" || {
+      bcu_warn "  Skipping $tag: failed to fetch config blob"
+      continue
+    }
+
+    local manifest_json config_json
+    manifest_json=$(cat "$manifest_file") || bcu_die "Failed to read manifest"
+    config_json=$(cat "$config_file") || bcu_die "Failed to read config"
+    
+    jq -n \
+      --arg tag "$tag" \
+      --arg digest "$config_digest" \
+      --argjson manifest "$manifest_json" \
+      --argjson config "$config_json" '
+      {
+        tag: $tag,
+        digest: $digest,
+        layers: $manifest.layers,
+        config: {
+          created: $config.created,
+          architecture: $config.architecture,
+          os: $config.os
+        }
+      }' > "$imageinfo_file"
   done
 
-  bcu_success "No errors."
+  return 0
 }
 
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_validate_envvars "$@"
