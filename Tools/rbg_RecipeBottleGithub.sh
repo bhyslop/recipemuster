@@ -124,7 +124,18 @@ zrbg_curl_delete() {
 }
 
 # Collect all image records (version_id, tag, fqin) with pagination
+#
 # Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
+# Schema of IMAGE_RECORDS.json
+# [
+#   {
+#     "version_id": <int>,              # GitHub Packages version ID (numeric)
+#     "tag": <string>,                  # Container image tag (e.g., "podvm-vmimage-5.5-20250723-092042-mow_x86_64_wsl")
+#     "fqin": <string>                  # Fully qualified image name (e.g., "ghcr.io/bhyslop/recipemuster:<tag>")
+#   },
+#   ...
+# ]
+#
 zrbg_collect_image_records() {
   bcu_step "Fetching all image records with pagination to ${ZRBG_IMAGE_RECORDS_FILE}"
 
@@ -579,6 +590,28 @@ rbg_image_info_PRELUDE() {
       bcu_warn "  Unknown manifest type: ${media_type}, skipping"
     fi
   done
+
+  # Schema of IMAGE_DETAILS.json
+  # [
+  #   {
+  #     "tag": <string>,                  # Image tag (e.g., "bottle_rust.20241201__213634")
+  #     "digest": <string>,               # Image digest (e.g., "sha256:abcd...")
+  #     "layers": [                       # Ordered list of image layers
+  #       {
+  #         "mediaType": <string>,        # Layer media type (usually gzip-compressed OCI layer)
+  #         "size": <int>,                # Layer size in bytes
+  #         "digest": <string>            # Digest of this layer
+  #       },
+  #       ...
+  #     ],
+  #     "config": {
+  #       "created": <string>,           # ISO timestamp of image creation
+  #       "architecture": <string>,      # Architecture (e.g., "amd64")
+  #       "os": <string>                 # Operating system (e.g., "linux")
+  #     }
+  #   },
+  #   ...
+  # ]
 
   local total_details=$(jq '. | length' "${ZRBG_IMAGE_DETAIL_FILE}")
   bcu_success "Processed ${total_details} image details"
