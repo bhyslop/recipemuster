@@ -505,7 +505,6 @@ rbg_image_info() {
     "layers, and layer sizes. Handles both single and multi-platform images."
   bcu_doc_shown || return 0
 
-  # Use existing function to collect all image records
   zrbg_collect_image_records
 
   bcu_step "Obtain bearer token for GHCR"
@@ -519,7 +518,7 @@ rbg_image_info() {
 
   bcu_step "Processing each tag for image details"
   local tag
-  # Extract unique tags from the collected image records
+
   for tag in $(jq -r '.[].tag' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -u); do
     bcu_info "Processing tag: ${tag}"
     local safe_tag="${tag//\//_}"
@@ -529,7 +528,9 @@ rbg_image_info() {
     curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json" \
       "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
-        bcu_warn "  Failed to fetch manifest for ${tag}, skipping"
+        bcu_warn "  Failed to fetch manifest for ${tag}"                         \
+                 "  This image is UNUSABLE - manifest is missing or corrupted"   \
+                 "  RECOMMENDED ACTION: Delete this image"
         continue
       }
 
