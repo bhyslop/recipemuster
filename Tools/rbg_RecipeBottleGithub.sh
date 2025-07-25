@@ -227,6 +227,7 @@ zrbg_registry_login() {
 }
 
 # Execute GitHub Actions workflow and wait for completion
+# Execute GitHub Actions workflow and wait for completion
 zrbg_execute_workflow() {
   local event_type="${1}"
   local payload_json="${2}"
@@ -245,51 +246,69 @@ zrbg_execute_workflow() {
   zrbg_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
   test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
 
-  local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
+  local run_id
+  run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
   bcu_info "Workflow online at:"
   echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
 
   bcu_info "Polling to completion..."
   local status=""
   local conclusion=""
+
   while true; do
     local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
-    local response=$(zrbg_curl_get "${run_url}")
+    local response
+    response=$(zrbg_curl_get "${run_url}")
 
     status=$(echo "${response}" | jq -r '.status')
     conclusion=$(echo "${response}" | jq -r '.conclusion')
 
     echo "  Status: ${status}    Conclusion: ${conclusion}"
 
-    test "${status}" != "completed" || break
+    if [ "${status}" = "completed" ]; then
+      break
+    fi
+
     sleep 3
   done
 
   test "${conclusion}" = "success" || bcu_die "Workflow fail: ${conclusion}"
 
-  local retry_wait=5
-
-  bcu_info "Git pull with retry..."
   bcu_info "${success_message}"
-  local i
-  for i in 9 8 7 6 5 4 3 2 1 0; do
-    echo "  Attempt ${i}: Checking for remote changes..."
+  bcu_info "Git pull with retry..."
+
+  local retry_wait=5
+  local max_attempts=30
+  local i=0
+  local found=0
+
+  while [ ${i} -lt ${max_attempts} ]; do
+    echo "  Attempt $((i + 1)): Checking for remote changes..."
     git fetch --quiet
 
-    if [ $(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then
+    local count
+    count=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
+
+    if [ "${count}" -gt 0 ]; then
       echo "  Found new commits, pulling..."
       git pull
       echo "  Pull successful"
+      found=1
       break
     fi
 
-    echo "  No new commits yet, waiting ${retry_wait} seconds (attempt ${i})"
-    test ${i} -ne 0 || {echo "  ${no_commits_msg}"; bcu_die "No commits found"}
+    echo "  No new commits yet, waiting ${retry_wait} seconds (attempt $((i + 1)))"
     sleep ${retry_wait}
+    i=$((i + 1))
   done
 
+  if [ ${found} -ne 1 ]; then
+    echo "  ${no_commits_msg}"
+    bcu_die "No commits found"
+  fi
+
   bcu_info "Everything went right, delete the run cache..."
-  rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+  rm -f "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 }
 
 # Helper function to process a single manifest
