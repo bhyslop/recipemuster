@@ -656,12 +656,11 @@ rbg_image_info() {
   printf "%-70s %12s %8s\n" "Layer Digest" "Bytes" "UsedBy"
   printf "%-70s %12s %8s\n" "------------" "-----" "-------"
 
-  jq -r '.[] | [.digest, .size, .used_by] | @tsv' "${ZRBG_IMAGE_STATS_FILE}" |
   while IFS=$'\t' read -r digest size used_by; do
     printf "%-70s %12d %8d\n" "$digest" "$size" "$used_by"
     total_bytes=$((total_bytes + size))
     total_layers=$((total_layers + 1))
-  done
+  done < <(jq -r '.[] | [.digest, .size, .used_by] | @tsv' "${ZRBG_IMAGE_STATS_FILE}")
 
   printf "\nTotal unique layers: %d\n" "${total_layers}"
   printf "Total deduplicated size: %d MB\n" "$((total_bytes / 1024 / 1024))"
