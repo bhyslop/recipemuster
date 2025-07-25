@@ -294,13 +294,13 @@ zrbg_process_single_manifest() {
   config_json=$(cat "${config_file}")
 
   if [ -n "${platform}" ]; then
-  bcu_info "tag ${tag}: Multi-platform entry..."
+    bcu_info "tag ${tag}: Multi-platform entry..."
     jq -n \
-      --arg tag "${tag}" \
-      --arg platform "${platform}" \
-      --arg digest "${config_digest}" \
+      --arg tag          "${tag}"           \
+      --arg platform     "${platform}"      \
+      --arg digest       "${config_digest}" \
       --argjson manifest "${manifest_json}" \
-      --argjson config "${config_json}" '
+      --argjson config   "${config_json}" '
       {
         tag: $tag,
         platform: $platform,
@@ -313,12 +313,12 @@ zrbg_process_single_manifest() {
         }
       }' > "${temp_detail}"
   else
-  bcu_info "tag ${tag}: Single platform entry (no platform field)..."
+    bcu_info "tag ${tag}: Single platform entry (no platform field)..."
     jq -n \
-      --arg tag "${tag}" \
-      --arg digest "${config_digest}" \
+      --arg     tag      "${tag}"           \
+      --arg     digest   "${config_digest}" \
       --argjson manifest "${manifest_json}" \
-      --argjson config "${config_json}" '
+      --argjson config   "${config_json}" '
       {
         tag: $tag,
         digest: $digest,
@@ -330,7 +330,6 @@ zrbg_process_single_manifest() {
         }
       }' > "${temp_detail}"
   fi
-
 
   bcu_info "tag ${tag}: Append to image details file..."
   jq -s '.[0] + [.[1]]' "${ZRBG_IMAGE_DETAIL_FILE}" "${temp_detail}" > "${ZRBG_IMAGE_DETAIL_FILE}.tmp"
@@ -527,22 +526,18 @@ rbg_image_info() {
     local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
 
     bcu_step "Request both single and multi-platform manifest types for ->" ${safe_tag}
-    local http_code
-    http_code=$(curl -sfL -H "${headers}" \
+    curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json" \
-      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" -w "%{http_code}")
-
-    if [ "$http_code" != "200" ]; then
-      bcu_warn "  Failed to fetch manifest for ${tag} (HTTP ${http_code}), skipping"
-      continue
-    fi
+      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
+        bcu_warn "  Failed to fetch manifest for ${tag}, skipping"
+        continue
+      }
 
     local media_type
     media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_file}")
 
     if [[ "$media_type" == "application/vnd.docker.distribution.manifest.list.v2+json" ]] || \
        [[ "$media_type" == "application/vnd.oci.image.index.v1+json" ]]; then
-
       bcu_info "  Multi-platform image detected"
 
       local platform_idx=0
@@ -556,6 +551,7 @@ rbg_image_info() {
 
         bcu_info "    Processing platform: ${platform_info}"
 
+        # Fetch platform-specific manifest
         local platform_manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
         curl -sfL -H "${headers}" \
           -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
@@ -565,6 +561,7 @@ rbg_image_info() {
             continue
           }
 
+        # Process this platform's manifest
         zrbg_process_single_manifest "${tag}" "${platform_manifest_file}" "${platform_info}"
 
         ((platform_idx++))
