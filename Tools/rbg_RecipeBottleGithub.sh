@@ -309,13 +309,13 @@ rbg_build() {
 
   bcu_info "Verifying image availability in registry..."
   local tag="${fqin_contents#*:}"
-  echo "Waiting for tag: $tag to become available..."
+  echo "Waiting for tag: ${tag} to become available..."
   for i in 1 2 3 4 5; do
     zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
       jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null && break
 
     echo "  Image not yet available, attempt $i of 5"
-    test $i -ne 5 || bcu_die "Image '$tag' not available in registry after 5 attempts"
+    test $i -ne 5 || bcu_die "Image '${tag}' not available in registry after 5 attempts"
     sleep 5
   done
 
@@ -344,7 +344,7 @@ rbg_list() {
   # Process and display versions
   jq -r '.[] | select(.metadata.container.tags | length > 0) | .id as $id | .metadata.container.tags[] as $tag | [$id, "'"${ZRBG_IMAGE_PREFIX}"':" + $tag] | @tsv' \
     "${ZRBG_COLLECT_FULL_JSON}" | sort -k2 -r | while IFS=$'\t' read -r id tag; do
-    printf "%-13s %s\n" "$id" "$tag"
+    printf "%-13s %s\n" "$id" "${tag}"
   done
 
   echo "${ZBCU_RESET}"
@@ -387,13 +387,13 @@ rbg_delete() {
   bcu_info "Verifying deletion..."
   local tag=$(echo "$fqin" | sed 's/.*://')
 
-  echo "  Checking that tag '$tag' is gone..."
+  echo "  Checking that tag '${tag}' is gone..."
   if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
     jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
-    bcu_die "Tag '$tag' still exists in registry after deletion"
+    bcu_die "Tag '${tag}' still exists in registry after deletion"
   fi
 
-  echo "  Confirmed: Tag '$tag' has been deleted"
+  echo "  Confirmed: Tag '${tag}' has been deleted"
 
   bcu_success "No errors."
 }
@@ -456,24 +456,24 @@ rbg_image_info() {
     local    config_file="${RBG_TEMP_DIR}/config__${safe_tag}.json"
     local imageinfo_file="${RBG_TEMP_DIR}/imageinfo__${safe_tag}.json"
 
-    bcu_info "  Tag: $tag"
+    bcu_info "  Tag: ${tag}"
 
     curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
       "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
-        bcu_warn "  Skipping $tag: failed to fetch manifest"
+        bcu_warn "  Skipping ${tag}: failed to fetch manifest"
         continue
       }
 
     local config_digest
     config_digest=$(jq -r '.config.digest' "${manifest_file}")
     if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
-      bcu_warn "  Skipping $tag: could not extract config digest"
+      bcu_warn "  Skipping ${tag}: could not extract config digest"
       continue
     fi
 
     curl -sfL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" -o "${config_file}" || {
-      bcu_warn "  Skipping $tag: failed to fetch config blob"
+      bcu_warn "  Skipping ${tag}: failed to fetch config blob"
       continue
     }
 
@@ -482,7 +482,7 @@ rbg_image_info() {
     config_json=$(cat   "${config_file}")   || bcu_die "Failed to read config"
 
     jq -n \
-      --arg tag          "$tag"             \
+      --arg tag          "${tag}"           \
       --arg digest       "${config_digest}" \
       --argjson manifest "${manifest_json}" \
       --argjson config   "${config_json}" '
