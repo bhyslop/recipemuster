@@ -628,14 +628,13 @@ rbg_image_info() {
   local image_detail
   image_detail="../temp-Tools/rbw.workbench.mk/temp-20250725-075015-1092-652/IMAGE_DETAILS.json"
 
-  bcu_step "Lets start work on ${image_detail}"
+  bcu_step "Comprehensive image info next ${image_detail}"
 
   jq '
-    # For each image, emit {digest, size, tag} for each layer
-    .[] 
-    | {tag, layers} 
-    | .layers[] 
-    | {digest, size, tag}
+    .[]
+    | {tag} as $t
+    | .layers[]
+    | {digest, size, tag: $t.tag}
   ' "${image_detail}" |
   jq -s '
     group_by(.digest)
@@ -643,13 +642,19 @@ rbg_image_info() {
         digest: .[0].digest,
         size: .[0].size,
         used_by: length,
-        tags: map(.tag)
+        tags: [ .[] | .tag ]
       })
     | sort_by(-.size)
   ' > "${ZRBG_IMAGE_STATS_FILE}" || bcu_die "Failed to generate ${ZRBG_IMAGE_STATS_FILE}"
 
-  bcu_step "Rendering human-readable layer usage summary..."
+  bcu_step "Listing shared layers and the tags that use them..."
+  jq -r '
+    .[]
+    | select(.used_by > 1)
+    | "Layer: \(.digest) (used by \(.used_by) tags)\n" + (.tags | map("  - " + .) | join("\n"))
+  ' "${ZRBG_IMAGE_STATS_FILE}"
 
+  bcu_step "Rendering human-readable layer usage summary..."
   total_bytes=0
   total_layers=0
 
