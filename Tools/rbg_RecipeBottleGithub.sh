@@ -497,12 +497,16 @@ rbg_retrieve() {
 }
 
 # Gather image info from GHCR tags only (Bash 3.2 compliant)
+# Gather image info from GHCR tags only (Bash 3.2 compliant)
 rbg_image_info() {
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
     "Creates image detail entries for each tag/platform combination, extracts creation date," \
     "layers, and layer sizes. Handles both single and multi-platform images."
   bcu_doc_shown || return 0
+
+  # Use existing function to collect all image records
+  zrbg_collect_image_records
 
   bcu_step "Obtain bearer token for GHCR"
   local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
@@ -513,19 +517,15 @@ rbg_image_info() {
 
   echo "[]" > "${ZRBG_IMAGE_DETAIL_FILE}"
 
-  bcu_step "Fetching tag list from GHCR"
-  local tag_list_file="${RBG_TEMP_DIR}/tag_list.json"
-  curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "${tag_list_file}" || \
-    bcu_die "Failed to fetch tag list"
-
   bcu_step "Processing each tag for image details"
   local tag
-  for tag in $(jq -r '.tags[]' "${tag_list_file}"); do
+  # Extract unique tags from the collected image records
+  for tag in $(jq -r '.[].tag' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -u); do
     bcu_info "Processing tag: ${tag}"
     local safe_tag="${tag//\//_}"
     local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
 
-    bcu_step "Request both single and multi-platform manifest types for ->" ${safe_tag}
+    bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
     curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json" \
       "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
@@ -551,7 +551,6 @@ rbg_image_info() {
 
         bcu_info "    Processing platform: ${platform_info}"
 
-        # Fetch platform-specific manifest
         local platform_manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
         curl -sfL -H "${headers}" \
           -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
@@ -561,7 +560,6 @@ rbg_image_info() {
             continue
           }
 
-        # Process this platform's manifest
         zrbg_process_single_manifest "${tag}" "${platform_manifest_file}" "${platform_info}"
 
         ((platform_idx++))
@@ -569,7 +567,7 @@ rbg_image_info() {
 
     elif [[ "$media_type" == "application/vnd.docker.distribution.manifest.v2+json" ]] || \
          [[ "$media_type" == "2" ]]; then
-      # Single platform image
+
       bcu_info "  Single platform image"
       zrbg_process_single_manifest "${tag}" "${manifest_file}" ""
     else
