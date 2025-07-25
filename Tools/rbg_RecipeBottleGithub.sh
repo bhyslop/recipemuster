@@ -526,15 +526,17 @@ rbg_image_info() {
     local safe_tag="${tag//\//_}"
     local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
 
-    bcu_step "Request both single and multi-platform manifest types..."
-    curl -sfL -H "${headers}" \
+    bcu_step "Request both single and multi-platform manifest types for ->" ${safe_tag}
+    local http_code
+    http_code=$(curl -sfL -H "${headers}" \
       -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json" \
-      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
-        bcu_warn "  Failed to fetch manifest for ${tag}, skipping"
-        continue
-      }
+      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" -w "%{http_code}")
 
-    # Check manifest type
+    if [ "$http_code" != "200" ]; then
+      bcu_warn "  Failed to fetch manifest for ${tag} (HTTP ${http_code}), skipping"
+      continue
+    fi
+
     local media_type
     media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_file}")
 
