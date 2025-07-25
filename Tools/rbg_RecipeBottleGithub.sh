@@ -482,18 +482,18 @@ rbg_image_info() {
     config_json=$(cat   "${config_file}")   || bcu_die "Failed to read config"
 
     jq -n \
-      --arg tag          "${tag}"           \
-      --arg digest       "${config_digest}" \
+      --arg     tag      "${tag}"           \
+      --arg     digest   "${config_digest}" \
       --argjson manifest "${manifest_json}" \
       --argjson config   "${config_json}" '
       {
-        tag: $tag,
+        tag:    $tag,
         digest: $digest,
         layers: $manifest.layers,
         config: {
-          created: $config.created,
+          created:      $config.created,
           architecture: $config.architecture,
-          os: $config.os
+          os:   $config.os
         }
       }' > "$imageinfo_file"
   done
