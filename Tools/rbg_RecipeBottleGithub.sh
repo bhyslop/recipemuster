@@ -70,7 +70,7 @@ zrbg_environment() {
 
   # Manifest types
   ZRBG_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
-  ZRBG_MTYPE_OCI="application/vnd.oci.image.index.v1+json"  
+  ZRBG_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
   ZRBG_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
 
   # GHCR v2 API
@@ -588,4 +588,3 @@ rbg_image_info() {
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
 
 # eof
-
