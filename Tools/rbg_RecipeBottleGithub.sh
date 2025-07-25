@@ -502,8 +502,7 @@ rbg_retrieve() {
 }
 
 # Gather image info from GHCR tags only (Bash 3.2 compliant)
-# Gather image info from GHCR tags only (Bash 3.2 compliant)
-rbg_image_info() {
+rbg_image_info_PRELUDE() {
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
     "Creates image detail entries for each tag/platform combination, extracts creation date," \
@@ -583,6 +582,21 @@ rbg_image_info() {
 
   local total_details=$(jq '. | length' "${ZRBG_IMAGE_DETAIL_FILE}")
   bcu_success "Processed ${total_details} image details"
+}
+
+rbg_image_info() {
+  bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
+  bcu_doc_lines \
+    "Creates image detail entries for each tag/platform combination, extracts creation date," \
+    "layers, and layer sizes. Handles both single and multi-platform images."
+  bcu_doc_shown || return 0
+
+  local image_detail
+  image_detail="../temp-Tools/rbw.workbench.mk/temp-20250725-075015-1092-652/IMAGE_DETAILS.json"
+  bcu_step "Lets start work on ${image_detail}"
+  cat "${image_detail}"
+
+  bcu_die "Not done."
 }
 
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
