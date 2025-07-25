@@ -67,6 +67,7 @@ zrbg_environment() {
 
   ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
+  ZRBG_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
 
   # Manifest types
   ZRBG_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
@@ -626,34 +627,30 @@ rbg_image_info() {
 
   local image_detail
   image_detail="../temp-Tools/rbw.workbench.mk/temp-20250725-075015-1092-652/IMAGE_DETAILS.json"
+
   bcu_step "Lets start work on ${image_detail}"
 
-  jq -r '
-    [.[].layers[] | {digest, size}] |
-    group_by(.digest) |
-    map({
-      digest: .[0].digest,
-      size: .[0].size,
-      used_by: length
-    }) |
-    sort_by(-.size) |
-    .[]
-    | [.digest, .size, (.size / 1024 / 1024 | floor), .used_by] | @tsv
+
+
+  jq '
+    # For each image, emit {digest, size, tag} for each layer
+    .[] 
+    | {tag, layers} 
+    | .layers[] 
+    | {digest, size, tag}
   ' "${image_detail}" |
-  awk 'BEGIN {
-         total = 0;
-         printf "%-70s  %12s  %8s  %s\n", "Digest", "Bytes", "MB", "UsedBy"
-         print "----------------------------------------------------------------------"
-       }
-       {
-         printf "%-70s  %12d  %8d  %s\n", $1, $2, $3, $4
-         total += $2
-         count++
-       }
-       END {
-         printf "\nTotal unique layers: %d\n", count
-         printf "Total deduplicated size: %.2f MB\n", total / 1024 / 1024
-       }'
+  jq -s '
+    group_by(.digest)
+    | map({
+        digest: .[0].digest,
+        size: .[0].size,
+        used_by: length,
+        tags: map(.tag)
+      })
+    | sort_by(-.size)
+  ' > "${ZRBG_IMAGE_STATS_FILE}" || bcu_die "Failed to generate ${ZRBG_IMAGE_STATS_FILE}"
+
+  XXX_PUT_RENDERING_HEREE
 
   bcu_die "Not done."
 }
