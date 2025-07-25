@@ -65,6 +65,8 @@ zrbg_environment() {
   ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
   ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
 
+  ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS__${RBG_NOW_STAMP}.json"
+
   # GHCR v2 API
   ZRBG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
@@ -115,17 +117,19 @@ zrbg_curl_delete() {
                     -w "\nHTTP_STATUS:%{http_code}\n"
 }
 
-# Collect all package versions with pagination
-# Outputs: Combined JSON file at ZRBG_COLLECT_FULL_JSON
-zrbg_collect_all_versions() {
-  bcu_step "Fetching all registry images with pagination to ${ZRBG_COLLECT_FULL_JSON}"
+# Collect all image records (version_id, tag, fqin) with pagination
+# Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
+zrbg_collect_image_records() {
+  bcu_step "Fetching all image records with pagination to ${ZRBG_IMAGE_RECORDS_FILE}"
 
   # Initialize empty array
-  echo "[]" > "${ZRBG_COLLECT_FULL_JSON}"
+  echo "[]" > "${ZRBG_IMAGE_RECORDS_FILE}"
 
   bcu_info "Retrieving paged results..."
 
   local page=1
+  local temp_records="${RBG_TEMP_DIR}/temp_records_${RBG_NOW_STAMP}.json"
+  
   while true; do
     bcu_info "  Fetching page ${page}..."
 
@@ -137,16 +141,23 @@ zrbg_collect_all_versions() {
 
     test "${items}" -ne 0 || break
 
-    bcu_info "  Appending page ${page} to combined JSON..."
-    jq -s '.[0] + .[1]' "${ZRBG_COLLECT_FULL_JSON}" "${ZRBG_COLLECT_TEMP_PAGE}" > \
-       "${ZRBG_COLLECT_FULL_JSON}.tmp"
-    mv "${ZRBG_COLLECT_FULL_JSON}.tmp" "${ZRBG_COLLECT_FULL_JSON}"
+    # Transform to simplified records
+    jq -r --arg prefix "${ZRBG_IMAGE_PREFIX}" \
+      '[.[] | select(.metadata.container.tags | length > 0) | 
+       .id as $id | .metadata.container.tags[] as $tag | 
+       {version_id: $id, tag: $tag, fqin: ($prefix + ":" + $tag)}]' \
+      "${ZRBG_COLLECT_TEMP_PAGE}" > "${temp_records}"
+
+    # Merge with existing records
+    jq -s '.[0] + .[1]' "${ZRBG_IMAGE_RECORDS_FILE}" "${temp_records}" > \
+       "${ZRBG_IMAGE_RECORDS_FILE}.tmp"
+    mv "${ZRBG_IMAGE_RECORDS_FILE}.tmp" "${ZRBG_IMAGE_RECORDS_FILE}"
 
     page=$((page + 1))
   done
 
-  local total=$(jq '. | length' "${ZRBG_COLLECT_FULL_JSON}")
-  bcu_info "  Retrieved ${total} total items"
+  local total=$(jq '. | length' "${ZRBG_IMAGE_RECORDS_FILE}")
+  bcu_info "  Retrieved ${total} total image records"
   bcu_success "Pagination complete."
 }
 
@@ -331,26 +342,23 @@ rbg_list() {
   bcu_doc_shown || return 0
 
   # Perform command
-  zrbg_collect_all_versions
+  zrbg_collect_image_records
 
   bcu_step "List Current Registry Images"
   echo "Package: ${RBRR_REGISTRY_NAME}"
   echo -e "${ZBCU_YELLOW}    ${ZRBG_GITHUB_PACKAGES_URL}${ZBCU_RESET}"
   echo "Versions:"
 
-  # Format header
   printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
 
-  # Process and display versions
-  jq -r '.[] | select(.metadata.container.tags | length > 0) | .id as $id | .metadata.container.tags[] as $tag | [$id, "'"${ZRBG_IMAGE_PREFIX}"':" + $tag] | @tsv' \
-    "${ZRBG_COLLECT_FULL_JSON}" | sort -k2 -r | while IFS=$'\t' read -r id tag; do
-    printf "%-13s %s\n" "$id" "${tag}"
+  jq -r '.[] | [.version_id, .fqin] | @tsv' "${ZRBG_IMAGE_RECORDS_FILE}" | \
+    sort -k2 -r | while IFS=$'\t' read -r id fqin; do
+    printf "%-13s %s\n" "$id" "${fqin}"
   done
 
   echo "${ZBCU_RESET}"
 
-  # Count total versions
-  local total=$(jq '[.[] | select(.metadata.container.tags | length > 0) | .metadata.container.tags | length] | add // 0' "${ZRBG_COLLECT_FULL_JSON}")
+  local total=$(jq '. | length' "${ZRBG_IMAGE_RECORDS_FILE}")
   bcu_info "Total image versions: ${total}"
 
   bcu_success "No errors."
