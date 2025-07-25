@@ -65,7 +65,8 @@ zrbg_environment() {
   ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
   ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
 
-  ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS__${RBG_NOW_STAMP}.json"
+  ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
+  ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
 
   # GHCR v2 API
   ZRBG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
@@ -129,7 +130,7 @@ zrbg_collect_image_records() {
 
   local page=1
   local temp_records="${RBG_TEMP_DIR}/temp_records_${RBG_NOW_STAMP}.json"
-  
+
   while true; do
     bcu_info "  Fetching page ${page}..."
 
@@ -143,8 +144,8 @@ zrbg_collect_image_records() {
 
     # Transform to simplified records
     jq -r --arg prefix "${ZRBG_IMAGE_PREFIX}" \
-      '[.[] | select(.metadata.container.tags | length > 0) | 
-       .id as $id | .metadata.container.tags[] as $tag | 
+      '[.[] | select(.metadata.container.tags | length > 0) |
+       .id as $id | .metadata.container.tags[] as $tag |
        {version_id: $id, tag: $tag, fqin: ($prefix + ":" + $tag)}]' \
       "${ZRBG_COLLECT_TEMP_PAGE}" > "${temp_records}"
 
@@ -265,6 +266,75 @@ zrbg_execute_workflow() {
 
   bcu_info "Everything went right, delete the run cache..."
   rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+}
+
+# Helper function to process a single manifest
+zrbg_process_single_manifest() {
+  local tag="$1"
+  local manifest_file="$2"
+  local platform="$3"  # Empty for single-platform
+
+  local config_digest
+  config_digest=$(jq -r '.config.digest' "${manifest_file}")
+
+  if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
+    bcu_warn "    Could not extract config digest, skipping"
+    return
+  fi
+
+  local config_file="${manifest_file%.json}_config.json"
+  curl -sfL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" -o "${config_file}" || {
+    bcu_warn "    Failed to fetch config blob, skipping"
+    return
+  }
+
+  local temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
+  local manifest_json config_json
+  manifest_json=$(cat "${manifest_file}")
+  config_json=$(cat "${config_file}")
+
+  if [ -n "${platform}" ]; then
+  bcu_info "tag ${tag}: Multi-platform entry..."
+    jq -n \
+      --arg tag "${tag}" \
+      --arg platform "${platform}" \
+      --arg digest "${config_digest}" \
+      --argjson manifest "${manifest_json}" \
+      --argjson config "${config_json}" '
+      {
+        tag: $tag,
+        platform: $platform,
+        digest: $digest,
+        layers: $manifest.layers,
+        config: {
+          created: $config.created,
+          architecture: $config.architecture,
+          os: $config.os
+        }
+      }' > "${temp_detail}"
+  else
+  bcu_info "tag ${tag}: Single platform entry (no platform field)..."
+    jq -n \
+      --arg tag "${tag}" \
+      --arg digest "${config_digest}" \
+      --argjson manifest "${manifest_json}" \
+      --argjson config "${config_json}" '
+      {
+        tag: $tag,
+        digest: $digest,
+        layers: $manifest.layers,
+        config: {
+          created: $config.created,
+          architecture: $config.architecture,
+          os: $config.os
+        }
+      }' > "${temp_detail}"
+  fi
+
+
+  bcu_info "tag ${tag}: Append to image details file..."
+  jq -s '.[0] + [.[1]]' "${ZRBG_IMAGE_DETAIL_FILE}" "${temp_detail}" > "${ZRBG_IMAGE_DETAIL_FILE}.tmp"
+  mv "${ZRBG_IMAGE_DETAIL_FILE}.tmp" "${ZRBG_IMAGE_DETAIL_FILE}"
 }
 
 ######################################################################
@@ -431,82 +501,85 @@ rbg_retrieve() {
 rbg_image_info() {
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
-    "Creates manifest/config JSON files for each image tag, extracts creation date," \
-    "layers, and layer sizes. Aggregates info into a combined summary later."
+    "Creates image detail entries for each tag/platform combination, extracts creation date," \
+    "layers, and layer sizes. Handles both single and multi-platform images."
   bcu_doc_shown || return 0
 
-  bcu_step "Assure pat prepared"
-
-  local combined_json="${RBG_TEMP_DIR}/RBG_COMBINED__${RBG_NOW_STAMP}.json"
+  bcu_step "Obtain bearer token for GHCR"
   local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  local scope="repository:${repo}:pull"
   local bearer_token
   bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" | jq -r '.token') || \
     bcu_die "Failed to obtain bearer token"
-  local headers
-  headers="Authorization: Bearer ${bearer_token}"
+  local headers="Authorization: Bearer ${bearer_token}"
 
-  bcu_step "Test bearer access..."
-  curl -v -i -H "${headers}" https://ghcr.io/v2/
-  echo "BRADDBG: 'CONTINUING' after " $?
+  echo "[]" > "${ZRBG_IMAGE_DETAIL_FILE}"
 
-  bcu_step "Fetching all registry images with pagination to ${combined_json}"
-  curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "${combined_json}" || \
+  bcu_step "Fetching tag list from GHCR"
+  local tag_list_file="${RBG_TEMP_DIR}/tag_list.json"
+  curl -sfL -H "${headers}" "https://ghcr.io/v2/${repo}/tags/list" -o "${tag_list_file}" || \
     bcu_die "Failed to fetch tag list"
 
-  bcu_info "Pagination complete."
-  bcu_step "Collecting manifest + config JSON for each tag"
-
+  bcu_step "Processing each tag for image details"
   local tag
-  for   tag in $(jq -r '.tags[]' "${combined_json}"); do
+  for tag in $(jq -r '.tags[]' "${tag_list_file}"); do
+    bcu_info "Processing tag: ${tag}"
     local safe_tag="${tag//\//_}"
-    local  manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
-    local    config_file="${RBG_TEMP_DIR}/config__${safe_tag}.json"
-    local imageinfo_file="${RBG_TEMP_DIR}/imageinfo__${safe_tag}.json"
+    local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
 
-    bcu_info "  Tag: ${tag}"
-
+    bcu_step "Request both single and multi-platform manifest types..."
     curl -sfL -H "${headers}" \
-      -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+      -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json" \
       "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" || {
-        bcu_warn "  Skipping ${tag}: failed to fetch manifest"
+        bcu_warn "  Failed to fetch manifest for ${tag}, skipping"
         continue
       }
 
-    local config_digest
-    config_digest=$(jq -r '.config.digest' "${manifest_file}")
-    if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
-      bcu_warn "  Skipping ${tag}: could not extract config digest"
-      continue
+    # Check manifest type
+    local media_type
+    media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_file}")
+
+    if [[ "$media_type" == "application/vnd.docker.distribution.manifest.list.v2+json" ]] || \
+       [[ "$media_type" == "application/vnd.oci.image.index.v1+json" ]]; then
+
+      bcu_info "  Multi-platform image detected"
+
+      local platform_idx=0
+      local manifests
+      manifests=$(jq -c '.manifests[]' "${manifest_file}")
+
+      while IFS= read -r platform_manifest; do
+        local platform_digest platform_info
+        platform_digest=$(echo "${platform_manifest}" | jq -r '.digest')
+        platform_info=$(echo   "${platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"')
+
+        bcu_info "    Processing platform: ${platform_info}"
+
+        local platform_manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
+        curl -sfL -H "${headers}" \
+          -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+          "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" -o "${platform_manifest_file}" || {
+            bcu_warn "    Failed to fetch platform manifest, skipping"
+            ((platform_idx++))
+            continue
+          }
+
+        zrbg_process_single_manifest "${tag}" "${platform_manifest_file}" "${platform_info}"
+
+        ((platform_idx++))
+      done <<< "$manifests"
+
+    elif [[ "$media_type" == "application/vnd.docker.distribution.manifest.v2+json" ]] || \
+         [[ "$media_type" == "2" ]]; then
+      # Single platform image
+      bcu_info "  Single platform image"
+      zrbg_process_single_manifest "${tag}" "${manifest_file}" ""
+    else
+      bcu_warn "  Unknown manifest type: ${media_type}, skipping"
     fi
-
-    curl -sfL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" -o "${config_file}" || {
-      bcu_warn "  Skipping ${tag}: failed to fetch config blob"
-      continue
-    }
-
-    local manifest_json config_json
-    manifest_json=$(cat "${manifest_file}") || bcu_die "Failed to read manifest"
-    config_json=$(cat   "${config_file}")   || bcu_die "Failed to read config"
-
-    jq -n \
-      --arg     tag      "${tag}"           \
-      --arg     digest   "${config_digest}" \
-      --argjson manifest "${manifest_json}" \
-      --argjson config   "${config_json}" '
-      {
-        tag:    $tag,
-        digest: $digest,
-        layers: $manifest.layers,
-        config: {
-          created:      $config.created,
-          architecture: $config.architecture,
-          os:   $config.os
-        }
-      }' > "$imageinfo_file"
   done
 
-  return 0
+  local total_details=$(jq '. | length' "${ZRBG_IMAGE_DETAIL_FILE}")
+  bcu_success "Processed ${total_details} image details"
 }
 
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
