@@ -190,6 +190,72 @@ zrbg_registry_login() {
   podman login "${ZRBG_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
+# Execute GitHub Actions workflow and wait for completion
+zrbg_execute_workflow() {
+  local event_type="${1}"
+  local payload_json="${2}"
+  local success_message="${3:-Workflow completed}"
+  local no_commits_msg="${4:-No new commits after many attempts}"
+
+  bcu_info "Trigger workflow..."
+  local dispatch_data='{"event_type": "'${event_type}'", "client_payload": '${payload_json}'}'
+  zrbg_curl_post "${ZRBG_DISPATCH_URL}" "${dispatch_data}"
+
+  bcu_info "Polling for completion..."
+  sleep 5
+
+  bcu_info "Retrieve workflow run ID..."
+  local runs_url="${ZRBG_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
+  zrbg_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+  test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
+
+  local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
+  bcu_info "Workflow online at:"
+  echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
+
+  bcu_info "Polling to completion..."
+  local status=""
+  local conclusion=""
+  while true; do
+    local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
+    local response=$(zrbg_curl_get "${run_url}")
+
+    status=$(echo "${response}" | jq -r '.status')
+    conclusion=$(echo "${response}" | jq -r '.conclusion')
+
+    echo "  Status: ${status}    Conclusion: ${conclusion}"
+
+    test "${status}" != "completed" || break
+    sleep 3
+  done
+
+  test "${conclusion}" = "success" || bcu_die "Workflow fail: ${conclusion}"
+
+  local retry_wait=5
+
+  bcu_info "Git pull with retry..."
+  bcu_info "${success_message}"
+  local i
+  for i in 9 8 7 6 5 4 3 2 1 0; do
+    echo "  Attempt ${i}: Checking for remote changes..."
+    git fetch --quiet
+
+    if [ $(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then
+      echo "  Found new commits, pulling..."
+      git pull
+      echo "  Pull successful"
+      break
+    fi
+
+    echo "  No new commits yet, waiting ${retry_wait} seconds (attempt ${i})"
+    test ${i} -ne 0 || {echo "  ${no_commits_msg}"; bcu_die "No commits found"}
+    sleep ${retry_wait}
+  done
+
+  bcu_info "Everything went right, delete the run cache..."
+  rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+}
+
 ######################################################################
 # External Functions (rbg_*)
 # These are functions used from outside this module
@@ -218,56 +284,9 @@ rbg_build() {
   zrbg_check_git_status
 
   bcu_step "Triggering GitHub Actions workflow for image build"
-  local dispatch_data='{"event_type": "build_images", "client_payload": {"dockerfile": "'$recipe_file'"}}'
-  zrbg_curl_post "$ZRBG_DISPATCH_URL" "$dispatch_data"
-
-  bcu_info "Polling for completion..."
-  sleep 5
-
-  bcu_info "Retrieve workflow run ID..."
-  local runs_url="${ZRBG_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
-  zrbg_curl_get "$runs_url" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
-  test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
-
-  local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
-  bcu_info "Workflow online at:"
-  echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
-
-  bcu_info "Polling to completion..."
-  local status=""
-  local conclusion=""
-  while true; do
-    local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
-    local response=$(zrbg_curl_get "$run_url")
-
-    status=$(echo "$response" | jq -r '.status')
-    conclusion=$(echo "$response" | jq -r '.conclusion')
-
-    echo "  Status: $status    Conclusion: $conclusion"
-
-    test "$status" != "completed" || break
-    sleep 3
-  done
-
-  test "$conclusion" = "success" || bcu_die "Workflow fail: $conclusion"
-
-  bcu_info "Git Pull for artifacts with retry..."
-  local i
-  for i in 9 8 7 6 5 4 3 2 1 0; do
-    echo "  Attempt $i: Checking for remote changes..."
-    git fetch --quiet
-
-    if [ $(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then
-      echo "  Found new commits, pulling..."
-      git pull
-      echo "  Pull successful, breaking loop"
-      break
-    fi
-
-    echo "  No new commits yet, waiting 5 seconds (attempt $i)"
-    [ $i -eq 0 ] && bcu_die "No new commits after many attempts"
-    sleep 5
-  done
+  zrbg_execute_workflow "build_images"                         \
+                        '{"dockerfile": "'$recipe_file'"}'     \
+                        "Git Pull for artifacts with retry..."
 
   bcu_info "Verifying build output..."
   local build_dir=$(zrbg_get_latest_build_dir "$recipe_basename")
@@ -302,9 +321,6 @@ rbg_build() {
 
   bcu_info "Pull logs..."
   zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
-
-  bcu_info "Everything went right, delete the run cache..."
-  rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 
   bcu_success "No errors."
 }
@@ -359,76 +375,25 @@ rbg_delete() {
 
   # Confirm deletion unless skipped
   if [ "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP" ]; then
-      zrbg_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
+    zrbg_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
   fi
 
   bcu_step "Triggering GitHub Actions workflow for image deletion"
-  local dispatch_data='{"event_type": "delete_image", "client_payload": {"fqin": "'$fqin'"}}'
-  zrbg_curl_post "${ZRBG_DISPATCH_URL}" "${dispatch_data}"
-  bcu_info "Delete dispatch submitted"
-  sleep 5
-
-  bcu_info "Retrieve workflow run ID..."
-  local runs_url="${ZRBG_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
-  zrbg_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
-  test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
-
-  local run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
-  bcu_info "Delete workflow online at:"
-  echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
-
-  bcu_info "Polling to completion..."
-  local status=""
-  local conclusion=""
-  while true; do
-    local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
-    local response=$(zrbg_curl_get "${run_url}")
-
-    status=$(echo     "${response}" | jq -r '.status')
-    conclusion=$(echo "${response}" | jq -r '.conclusion')
-
-    echo "  Status: ${status}    Conclusion: $conclusion"
-
-    test "${status}" != "completed" || break
-    sleep 3
-  done
-
-  test "${conclusion}" = "success" || bcu_die "Workflow fail: $conclusion"
-
-  bcu_info "Git Pull for deletion history..."
-  local i
-  for i in 9 8 7 6 5 4 3 2 1 0; do
-    echo "  Attempt $i: Checking for remote changes..."
-    git fetch --quiet
-
-    if [ $(git rev-list --count HEAD..origin/main 2>/dev/null) -gt 0 ]; then
-      echo "  Found new commits, pulling..."
-      git pull
-      echo "  Pull successful"
-      break
-    fi
-
-    echo "  No new commits yet, waiting 3 seconds (attempt $i)"
-    [ $i -eq 0 ] && echo "  Note: No deletion history recorded (might be expected for external images)"
-    sleep 3
-  done
-
-  bcu_info "Pull logs..."
-  zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
+  zrbg_execute_workflow "delete_image"                         \
+                        '{"fqin": "'$fqin'"}'                  \
+                        "Git Pull for deletion history..."     \
+                        "No deletion history recorded"
 
   bcu_info "Verifying deletion..."
   local tag=$(echo "$fqin" | sed 's/.*://')
 
   echo "  Checking that tag '$tag' is gone..."
   if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
-      jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
-      bcu_die "Tag '$tag' still exists in registry after deletion"
+    jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
+    bcu_die "Tag '$tag' still exists in registry after deletion"
   fi
 
   echo "  Confirmed: Tag '$tag' has been deleted"
-
-  bcu_info "Cleanup..."
-  rm "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 
   bcu_success "No errors."
 }
