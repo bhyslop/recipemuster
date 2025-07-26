@@ -815,6 +815,12 @@ rbg_image_info() {
   bcu_success "No errors."
 }
 
+
+
+# TODO consider https://claude.ai/chat/08305214-7b72-42e9-9079-3f8ab5f17c2f
+
+
+
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
 
 
