@@ -371,7 +371,11 @@ zrbg_process_single_manifest() {
   local temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
   local manifest_json config_json
   manifest_json="$(<"${manifest_file}")"
-  config_json="$(<"${config_out}")"
+  config_json=$(jq '. + {
+    created: (.created // "1970-01-01T00:00:00Z"),
+    architecture: (.architecture // "unknown"),
+    os: (.os // "unknown")
+  }' "${config_out}")
 
   echo "${manifest_json}" | jq -e '.layers and (.layers | type == "array")' >/dev/null \
     || bcu_die "Missing or invalid .layers array in manifest: ${manifest_file}"
