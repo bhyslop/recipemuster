@@ -307,6 +307,9 @@ zrbg_execute_workflow() {
     bcu_die "No commits found"
   fi
 
+  bcu_info "Pull logs..."
+  zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
+
   bcu_info "Everything went right, delete the run cache..."
   rm -f "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 }
@@ -413,9 +416,9 @@ rbg_build() {
 
   bcu_info "Verifying build output..."
   local build_dir=$(zrbg_get_latest_build_dir "$recipe_basename")
-  test -n "$build_dir" || bcu_die "Missing build directory"
-  test -d "$build_dir" || bcu_die "Invalid build directory"
-  test -f "$build_dir/recipe.txt" || bcu_die "recipe.txt not found"
+  test -n "$build_dir"                       || bcu_die "Missing build directory"
+  test -d "$build_dir"                       || bcu_die "Invalid build directory"
+  test -f "$build_dir/recipe.txt"            || bcu_die "recipe.txt not found"
   cmp "$recipe_file" "$build_dir/recipe.txt" || bcu_die "recipe mismatch"
 
   bcu_info "Extracting FQIN..."
@@ -441,9 +444,6 @@ rbg_build() {
     test $i -ne 5 || bcu_die "Image '${tag}' not available in registry after 5 attempts"
     sleep 5
   done
-
-  bcu_info "Pull logs..."
-  zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
 
   bcu_success "No errors."
 }
