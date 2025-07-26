@@ -192,11 +192,15 @@ zrbg_check_git_status() {
 
   git fetch
 
-  git status -uno | grep -q 'Your branch is up to date' || \
-      bcu_die "ERROR: Your repo is not cleanly aligned with github variant.\n       Commit or otherwise match to proceed (prevents merge\n       conflicts with image history tracking)."
+  git status -uno | grep -q 'Your branch is up to date'                \
+    || bcu_die "ERROR: Your repo is behind the remote branch."         \
+               "       Pull latest changes to proceed (prevents merge" \
+               "       conflicts with image history tracking)."
 
-  git diff-index --quiet HEAD -- || \
-      bcu_die "ERROR: Your repo is not cleanly aligned with github variant.\n       Commit or otherwise match to proceed (prevents merge\n       conflicts with image history tracking)."
+  git diff-index --quiet HEAD --                                           \
+    || bcu_die "ERROR: Your repo has uncommitted changes."                 \
+               "       Commit or stash changes to proceed (prevents merge" \
+               "       conflicts with image history tracking)."
 }
 
 # Find the latest build directory for a recipe
