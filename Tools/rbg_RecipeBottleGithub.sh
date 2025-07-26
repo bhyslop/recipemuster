@@ -346,7 +346,7 @@ zrbg_process_single_manifest() {
     bcu_warn "    null config.digest in manifest: ${manifest_file}"
     bcu_warn "    Content:"
     cat "${manifest_file}" >&2
-    bcu_die "CANNOT PROCEED."
+    bcu_warn "SKIPPING FOR NOW UNTIL WE FIGURE OUT WHY THIS CORRUPTION HAPPENS."
     return 0
   }
 
