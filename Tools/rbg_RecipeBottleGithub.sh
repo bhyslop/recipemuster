@@ -69,10 +69,14 @@ zrbg_environment() {
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
   ZRBG_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
 
-  # Manifest types
+  # Media types
   ZRBG_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
   ZRBG_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
   ZRBG_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
+  ZRBG_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
+  ZRBG_ACCEPT_MANIFEST_MTYPES="${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI},${ZRBG_MTYPE_OCM}"
+
+  ZRBG_MTYPE_GHV3="application/vnd.github.v3+json"
 
   # GHCR v2 API
   ZRBG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
@@ -92,8 +96,8 @@ zrbg_environment() {
 zrbg_curl_get() {
   local url="$1"
 
-  curl -s -H "Authorization: token ${RBRG_PAT}"       \
-          -H 'Accept: application/vnd.github.v3+json' \
+  curl -s -H "Authorization: token ${RBRG_PAT}" \
+          -H "Accept: ${ZRBG_MTYPE_GHV3}"       \
           "$url"
 }
 
@@ -107,7 +111,7 @@ zrbg_curl_post() {
        -s                                          \
        -X POST                                     \
        -H "Authorization: token ${RBRG_PAT}"       \
-       -H 'Accept: application/vnd.github.v3+json' \
+       -H "Accept: ${ZRBG_MTYPE_GHV3}"             \
        "$url"                                      \
        -d "$data"                                  \
     || bcu_die "Curl failed."
@@ -119,7 +123,7 @@ zrbg_curl_delete() {
   local url="$1"
 
   curl -X DELETE -s -H "Authorization: token ${RBRG_PAT}"       \
-                    -H 'Accept: application/vnd.github.v3+json' \
+                    -H "Accept: ${ZRBG_MTYPE_GHV3}"             \
                     "$url"                                      \
                     -w "\nHTTP_STATUS:%{http_code}\n"
 }
@@ -324,6 +328,8 @@ zrbg_process_single_manifest() {
   local tag="$1"
   local manifest_file="$2"
   local platform="$3"  # Empty for single-platform
+  local headers="$4"
+
 
   # Diagnostic: Check file exists
   test -f "${manifest_file}" || bcu_die "Manifest file does not exist: ${manifest_file}"
@@ -620,9 +626,9 @@ rbg_image_info() {
 
     bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
 
-    curl -sL -H "${headers}"                                               \
-      -H "Accept: ${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI}" \
-      "${ZRBG_GHCR_V2_API}/manifests/${tag}"                               \
+    curl -sL -H "${headers}"                         \
+         -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}" \
+         "${ZRBG_GHCR_V2_API}/manifests/${tag}"      \
           >"${manifest_out}" 2>"${manifest_err}" && \
       jq . "${manifest_out}" >/dev/null          || {
         bcu_warn "  Failed to fetch or parse manifest for ${tag}"
@@ -653,9 +659,9 @@ rbg_image_info() {
         local platform_out="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
         local platform_err="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.err"
 
-        curl -sL -H "${headers}"                                 \
-          -H "Accept: ${ZRBG_MTYPE_DV2}"                         \
-            "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}"   \
+        curl -sL -H "${headers}"                                \
+             -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}"        \
+             "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" \
               >"${platform_out}" 2>"${platform_err}"          && \
           jq . "${platform_out}" >/dev/null                   || {
             bcu_warn "    Failed to fetch platform manifest"
@@ -668,7 +674,7 @@ rbg_image_info() {
             continue
           }
 
-        zrbg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}"
+        zrbg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}" "${headers}"
 
         ((platform_idx++))
       done <<< "$manifests"
@@ -677,7 +683,7 @@ rbg_image_info() {
          [[ "${media_type}" == "2"                 ]]; then
 
       bcu_info "  Single platform image"
-      zrbg_process_single_manifest "${tag}" "${manifest_out}" ""
+      zrbg_process_single_manifest "${tag}" "${manifest_out}" "" "${headers}"
     else
       bcu_warn "  Unknown manifest type: ${media_type}, skipping"
     fi
