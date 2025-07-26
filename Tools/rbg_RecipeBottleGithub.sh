@@ -571,34 +571,34 @@ rbg_image_info() {
     local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
 
     bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
-    local got_manifest=0
-    for accept_type in "${ZRBG_MTYPE_DV2}" "${ZRBG_MTYPE_DLIST}" "${ZRBG_MTYPE_OCI}"; do
-        bcu_info "  Trying Accept: ${accept_type}"
-        
-        local response_code
-        response_code=$(curl -L -H "${headers}" \
-            -H "Accept: ${accept_type}" \
-            -o "${manifest_file}.tmp" \
-            -w "%{http_code}" \
-            "${ZRBG_GHCR_V2_API}/manifests/${tag}" 2>&1)
-        
-        bcu_info "    HTTP Response Code: ${response_code}"
-        
-        if [[ "${response_code}" == "200" ]]; then
-            bcu_info "    Success! Got manifest"
-            mv "${manifest_file}.tmp" "${manifest_file}"
-            got_manifest=1
-            break
-        fi
-    done
     
-    if [[ ${got_manifest} -eq 0 ]]; then
-        bcu_warn "  Failed to fetch manifest for ${tag}"                         \
-                 "  This image is UNUSABLE - manifest is missing or corrupted"   \
-                 "  RECOMMENDED ACTION: Delete this image"
+    # First try with combined Accept headers (original approach)
+    if curl -sfL -H "${headers}" \
+      -H "Accept: ${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI}" \
+      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" 2>/dev/null; then
+        # Success - continue normally
+        :
+    else
+        # Failed - now try with diagnostics
+        bcu_warn "  Initial manifest fetch failed, trying with diagnostics..."
+        
+        # Check what error we get without -f flag
+        local error_output
+        error_output=$(curl -sL -H "${headers}" \
+          -H "Accept: ${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST}" \
+          -w "\nHTTP_CODE:%{http_code}" \
+          "${ZRBG_GHCR_V2_API}/manifests/${tag}" 2>&1)
+        
+        local http_code=$(echo "$error_output" | grep "HTTP_CODE:" | cut -d: -f2)
+        bcu_warn "    HTTP Status Code: ${http_code}"
+        bcu_warn "    First 200 chars of response: ${error_output:0:200}"
+        
+        bcu_warn "  Failed to fetch manifest for ${tag}"
+        bcu_warn "  This image is UNUSABLE - manifest is missing or corrupted"
+        bcu_warn "  RECOMMENDED ACTION: Delete this image"
         continue
     fi
-
+        
     local media_type
     media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_file}")
 
