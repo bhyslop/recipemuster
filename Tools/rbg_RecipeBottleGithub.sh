@@ -346,7 +346,7 @@ zrbg_process_single_manifest() {
     bcu_warn "    null config.digest in manifest: ${manifest_file}"
     bcu_warn "    Content:"
     cat "${manifest_file}" >&2
-    bcu_warn "SKIPPING (though this is only a temporary workaround)."
+    bcu_die "CANNOT PROCEED."
     return 0
   }
 
