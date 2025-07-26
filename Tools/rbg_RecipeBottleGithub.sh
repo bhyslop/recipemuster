@@ -346,7 +346,8 @@ zrbg_process_single_manifest() {
     bcu_warn "    null config.digest in manifest: ${manifest_file}"
     bcu_warn "    Content:"
     cat "${manifest_file}" >&2
-    bcu_die "CANNOT PROCEED."
+    bcu_warn "SKIPPING (though this is only a temporary workaround)."
+    return 0
   }
 
   local config_out="${manifest_file%.json}_config.json"
@@ -771,6 +772,19 @@ rbg_image_info() {
       })
     | sort_by(-.size)
   ' > "${ZRBG_IMAGE_STATS_FILE}" || bcu_die "Failed to generate ${ZRBG_IMAGE_STATS_FILE}"
+
+  bcu_step "Listing layers per tag..."
+    jq -r '
+      .[] |
+      "\nTag: \(.tag)" +
+      if .platform then " (\(.platform))" else "" end +
+      "\nCreated: \(.config.created)" +
+      "\nTotal size: \((.layers | map(.size) | add) // 0) bytes" +
+      "\nLayers:" +
+      (.layers | to_entries | map(
+        "\n  [\(.key + 1)] \(.value.digest[0:19])... \(.value.size) bytes"
+      ) | join(""))
+    ' "${ZRBG_IMAGE_DETAIL_FILE}"
 
   bcu_step "Listing shared layers and the tags that use them..."
   jq -r '
