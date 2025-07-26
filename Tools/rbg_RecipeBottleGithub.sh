@@ -376,8 +376,11 @@ zrbg_process_single_manifest() {
   echo "${manifest_json}" | jq -e '.layers and (.layers | type == "array")' >/dev/null \
     || bcu_die "Missing or invalid .layers array in manifest: ${manifest_file}"
 
-  echo "${config_json}" | jq -e '.created and .architecture and .os' >/dev/null \
-    || bcu_die "Missing required fields in config blob: ${config_out}"
+  echo "${config_json}" | jq -e '.created and .architecture and .os' >/dev/null || {
+    bcu_warn "Missing required fields in config blob"
+    bcu_warn "    BLOB: $(<"${config_out}")"
+    bcu_die  "Cannot continue."
+  }
 
   echo "${config_json}" | jq -e '(.created // empty) and (.architecture // empty) and (.os // empty)' >/dev/null \
     || bcu_die "Null or missing fields in config blob: ${config_out}"
@@ -421,7 +424,17 @@ zrbg_process_single_manifest() {
   fi
 
   bcu_info "tag ${tag}: Append to image details file..."
-  jq -s '.[0] + [.[1]]' "${ZRBG_IMAGE_DETAIL_FILE}" "${temp_detail}" > "${ZRBG_IMAGE_DETAIL_FILE}.tmp"
+  jq -e . "${temp_detail}"            >/dev/null || bcu_die "Invalid temp_detail.json: ${temp_detail}"
+  jq -e . "${ZRBG_IMAGE_DETAIL_FILE}" >/dev/null || bcu_die "Invalid IMAGE_DETAIL_FILE: ${ZRBG_IMAGE_DETAIL_FILE}"
+
+  jq -s '
+    if (.[0] | type) == "array" and (.[1] | type) == "object" then
+      .[0] + [.[1]]
+    else
+      error("Invalid JSON types for merge")
+    end
+  '  "${ZRBG_IMAGE_DETAIL_FILE}" "${temp_detail}" \
+   > "${ZRBG_IMAGE_DETAIL_FILE}.tmp" || bcu_die "Failed to merge image detail JSON"
   mv "${ZRBG_IMAGE_DETAIL_FILE}.tmp" "${ZRBG_IMAGE_DETAIL_FILE}"
 }
 
@@ -645,7 +658,7 @@ rbg_image_info() {
        [[ "${media_type}" == "${ZRBG_MTYPE_OCI}"   ]]; then
       bcu_info "  Multi-platform image detected"
 
-      local platform_idx=0
+      local platform_idx=1
       local manifests
       manifests=$(jq -c '.manifests[]' "${manifest_out}")
 
