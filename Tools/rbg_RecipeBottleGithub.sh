@@ -251,7 +251,8 @@ zrbg_execute_workflow() {
   test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
 
   local run_id
-  run_id=$(cat "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
+  run_id=$(<"${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
+
   bcu_info "Workflow online at:"
   echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
 
@@ -324,24 +325,56 @@ zrbg_process_single_manifest() {
   local manifest_file="$2"
   local platform="$3"  # Empty for single-platform
 
+  # Diagnostic: Check file exists
+  test -f "${manifest_file}" || bcu_die "Manifest file does not exist: ${manifest_file}"
+
+  # Diagnostic: Validate JSON
+  jq . "${manifest_file}" >/dev/null 2>&1 || bcu_die "Invalid JSON in manifest file: ${manifest_file}"
+
   local config_digest
   config_digest=$(jq -r '.config.digest' "${manifest_file}")
 
-  if [ -z "${config_digest}" ] || [ "${config_digest}" = "null" ]; then
-    bcu_warn "    Could not extract config digest, skipping"
-    return
-  fi
+  test -n "${config_digest}" || bcu_die "Missing config.digest ${config_digest}"
 
-  local config_file="${manifest_file%.json}_config.json"
-  curl -sfL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" -o "${config_file}" || {
-    bcu_warn "    Failed to fetch config blob, skipping"
-    return
+  test "${config_digest}" != "null" || {
+    bcu_warn "    null config.digest in manifest: ${manifest_file}"
+    bcu_warn "    Content:"
+    cat "${manifest_file}" >&2
+    bcu_die "CANNOT PROCEED."
+  }
+
+  local config_out="${manifest_file%.json}_config.json"
+  local config_err="${manifest_file%.json}_config.err"
+
+  curl -sL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" \
+        >"${config_out}" 2>"${config_err}" && \
+    jq . "${config_out}" >/dev/null || {
+      bcu_warn "    Failed to fetch or parse config blob"
+      bcu_warn "    Digest: ${config_digest}"
+      bcu_warn "    STDERR: $(<"${config_err}")"
+      bcu_warn "    STDOUT: $(<"${config_out}")"
+      bcu_die "CANNOT PROCEED."
+    }
+
+  test -n "${config_digest}" && test "${config_digest}" != "null" || {
+    bcu_warn "    Failed to fetch or parse config blob"
+    bcu_warn "    Digest: ${config_digest}"
+    bcu_die "CANNOT PROCEED."
   }
 
   local temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
   local manifest_json config_json
-  manifest_json=$(cat "${manifest_file}")
-  config_json=$(cat "${config_file}")
+  manifest_json="$(<"${manifest_file}")"
+  config_json="$(<"${config_out}")"
+
+  echo "${manifest_json}" | jq -e '.layers and (.layers | type == "array")' >/dev/null \
+    || bcu_die "Missing or invalid .layers array in manifest: ${manifest_file}"
+
+  echo "${config_json}" | jq -e '.created and .architecture and .os' >/dev/null \
+    || bcu_die "Missing required fields in config blob: ${config_out}"
+
+  echo "${config_json}" | jq -e '(.created // empty) and (.architecture // empty) and (.os // empty)' >/dev/null \
+    || bcu_die "Null or missing fields in config blob: ${config_out}"
 
   if [ -n "${platform}" ]; then
     bcu_info "tag ${tag}: Multi-platform entry..."
@@ -429,7 +462,9 @@ rbg_build() {
   local fqin_file="$build_dir/docker_inspect_RepoTags_0.txt"
   test -f "${fqin_file}" || bcu_die "Could not find FQIN in build output"
 
-  local fqin_contents=$(cat "${fqin_file}")
+  local fqin_contents
+  fqin_contents=$(<"${fqin_file}")
+
   bcu_info "Built image FQIN: ${fqin_contents}"
 
   if [ -n                  "${RBG_ARG_FQIN_OUTPUT:-}" ]; then
@@ -544,6 +579,7 @@ rbg_retrieve() {
 }
 
 # Gather image info from GHCR tags only (Bash 3.2 compliant)
+# Gather image info from GHCR tags only (Bash 3.2 compliant)
 rbg_image_info() {
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
@@ -556,8 +592,19 @@ rbg_image_info() {
   bcu_step "Obtain bearer token for GHCR"
   local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   local bearer_token
-  bearer_token=$(curl -sfL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" | jq -r '.token') || \
-    bcu_die "Failed to obtain bearer token"
+  local token_out="${RBG_TEMP_DIR}/bearer_token.out"
+  local token_err="${RBG_TEMP_DIR}/bearer_token.err"
+
+  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
+    bearer_token=$(jq -r '.token' "${token_out}") && \
+    test -n "${bearer_token}" && \
+    test "${bearer_token}" != "null" || {
+      bcu_warn "Failed to obtain bearer token"
+      bcu_warn "STDERR: $(<"${token_err}")"
+      bcu_warn "STDOUT: $(<"${token_out}")"
+      bcu_die "Cannot proceed without bearer token"
+    }
+
   local headers="Authorization: Bearer ${bearer_token}"
 
   echo "[]" > "${ZRBG_IMAGE_DETAIL_FILE}"
@@ -568,39 +615,25 @@ rbg_image_info() {
   for tag in $(jq -r '.[].tag' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -u); do
     bcu_info "Processing tag: ${tag}"
     local safe_tag="${tag//\//_}"
-    local manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
+    local manifest_out="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
+    local manifest_err="${RBG_TEMP_DIR}/manifest__${safe_tag}.err"
 
     bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
-    
-    # First try with combined Accept headers (original approach)
-    if curl -sfL -H "${headers}" \
+
+    curl -sL -H "${headers}"                                               \
       -H "Accept: ${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI}" \
-      "${ZRBG_GHCR_V2_API}/manifests/${tag}" -o "${manifest_file}" 2>/dev/null; then
-        # Success - continue normally
-        :
-    else
-        # Failed - now try with diagnostics
-        bcu_warn "  Initial manifest fetch failed, trying with diagnostics..."
-        
-        # Check what error we get without -f flag
-        local error_output
-        error_output=$(curl -sL -H "${headers}" \
-          -H "Accept: ${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST}" \
-          -w "\nHTTP_CODE:%{http_code}" \
-          "${ZRBG_GHCR_V2_API}/manifests/${tag}" 2>&1)
-        
-        local http_code=$(echo "$error_output" | grep "HTTP_CODE:" | cut -d: -f2)
-        bcu_warn "    HTTP Status Code: ${http_code}"
-        bcu_warn "    First 200 chars of response: ${error_output:0:200}"
-        
-        bcu_warn "  Failed to fetch manifest for ${tag}"
-        bcu_warn "  This image is UNUSABLE - manifest is missing or corrupted"
-        bcu_warn "  RECOMMENDED ACTION: Delete this image"
+      "${ZRBG_GHCR_V2_API}/manifests/${tag}"                               \
+          >"${manifest_out}" 2>"${manifest_err}" && \
+      jq . "${manifest_out}" >/dev/null          || {
+        bcu_warn "  Failed to fetch or parse manifest for ${tag}"
+        bcu_warn "  STDERR: $(<"${manifest_err}")"
+        bcu_warn "  STDOUT: $(<"${manifest_out}")"
+        bcu_die  "  This image appears corrupted - RECOMMENDED ACTION: Delete this tag"
         continue
-    fi
-        
+      }
+
     local media_type
-    media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_file}")
+    media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_out}")
 
     if [[ "${media_type}" == "${ZRBG_MTYPE_DLIST}" ]] || \
        [[ "${media_type}" == "${ZRBG_MTYPE_OCI}"   ]]; then
@@ -608,7 +641,7 @@ rbg_image_info() {
 
       local platform_idx=0
       local manifests
-      manifests=$(jq -c '.manifests[]' "${manifest_file}")
+      manifests=$(jq -c '.manifests[]' "${manifest_out}")
 
       while IFS= read -r platform_manifest; do
         local platform_digest platform_info
@@ -617,16 +650,25 @@ rbg_image_info() {
 
         bcu_info "    Processing platform: ${platform_info}"
 
-        local platform_manifest_file="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
-        curl -sfL -H "${headers}"        \
-          -H "Accept: ${ZRBG_MTYPE_DV2}" \
-          "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" -o "${platform_manifest_file}" || {
-            bcu_warn "    Failed to fetch platform manifest, skipping"
+        local platform_out="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
+        local platform_err="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.err"
+
+        curl -sL -H "${headers}"                                 \
+          -H "Accept: ${ZRBG_MTYPE_DV2}"                         \
+            "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}"   \
+              >"${platform_out}" 2>"${platform_err}"          && \
+          jq . "${platform_out}" >/dev/null                   || {
+            bcu_warn "    Failed to fetch platform manifest"
+            bcu_warn "    Platform: ${platform_info}"
+            bcu_warn "    Digest: ${platform_digest}"
+            bcu_warn "    STDERR: $(<"${platform_err}")"
+            bcu_warn "    STDOUT: $(<"${platform_out}")"
+
             ((platform_idx++))
             continue
           }
 
-        zrbg_process_single_manifest "${tag}" "${platform_manifest_file}" "${platform_info}"
+        zrbg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}"
 
         ((platform_idx++))
       done <<< "$manifests"
@@ -635,7 +677,7 @@ rbg_image_info() {
          [[ "${media_type}" == "2"                 ]]; then
 
       bcu_info "  Single platform image"
-      zrbg_process_single_manifest "${tag}" "${manifest_file}" ""
+      zrbg_process_single_manifest "${tag}" "${manifest_out}" ""
     else
       bcu_warn "  Unknown manifest type: ${media_type}, skipping"
     fi
