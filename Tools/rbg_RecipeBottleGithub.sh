@@ -756,9 +756,13 @@ rbg_image_info() {
   # {
   #   "digest": "<layer-digest>",     # Full sha256 digest identifying the layer
   #   "size": <int-bytes>,            # Size of the layer in bytes
-  #   "used_by": <int>,               # Number of tags using this layer
-  #   "tags": [                       # List of tag strings that use this layer
-  #     "<tag>",
+  #   "tag_count": <int>,             # Number of unique tags using this layer
+  #   "total_usage": <int>,           # Total times this layer appears across all tags
+  #   "tag_details": [                # Array showing usage breakdown per tag
+  #     {
+  #       "tag": "<tag>",             # Tag name using this layer
+  #       "count": <int>              # How many times layer appears in this tag
+  #     },
   #     ...
   #   ]
   # }
@@ -766,7 +770,8 @@ rbg_image_info() {
   # Notes:
   # - The array is sorted descending by size (largest layers first).
   # - The digest includes the "sha256:" prefix.
-  # - Tags come directly from IMAGE_DETAILS entries.
+  # - tag_count counts unique tags; total_usage counts all layer occurrences.
+  # - A layer can appear multiple times in the same tag (empty/duplicate layers).
 
   jq '
     .[]
@@ -775,12 +780,20 @@ rbg_image_info() {
     | {digest, size, tag: $t.tag}
   ' "${ZRBG_IMAGE_DETAIL_FILE}" |
   jq -s '
-    group_by(.digest)
+    group_by([.digest, .tag])
     | map({
         digest: .[0].digest,
         size: .[0].size,
-        used_by: length,
-        tags: [ .[] | .tag ]
+        tag: .[0].tag,
+        count: length
+      })
+    | group_by(.digest)
+    | map({
+        digest: .[0].digest,
+        size: .[0].size,
+        tag_count: length,
+        total_usage: (map(.count) | add),
+        tag_details: map({tag: .tag, count: .count})
       })
     | sort_by(-.size)
   ' > "${ZRBG_IMAGE_STATS_FILE}" || bcu_die "Failed to generate ${ZRBG_IMAGE_STATS_FILE}"
@@ -801,25 +814,28 @@ rbg_image_info() {
   bcu_step "Listing shared layers and the tags that use them..."
   jq -r '
     .[]
-    | select(.used_by > 1)
-    | "Layer: \(.digest[0:19]) (used by \(.used_by) tags, \(.size) bytes)\n"
-      + (.tags | map("  - " + .) | join("\n"))
+    | select(.tag_count > 1 or .total_usage > 1)
+    | "Layer: \(.digest[0:19]) (used by \(.tag_count) tag(s), \(.size) bytes)"
+    + if .total_usage > .tag_count then " [\(.total_usage) total uses]" else "" end
+    + "\n" + (.tag_details | map(
+        "  - " + .tag + if .count > 1 then " (\(.count) times)" else "" end
+      ) | join("\n"))
   ' "${ZRBG_IMAGE_STATS_FILE}"
 
-  bcu_step "Rendering human-readable layer usage summary..."
+  bcu_step "Rendering layer usage summary..."
   total_bytes=0
   total_layers=0
 
-  printf "%-22s %12s %8s\n" "Layer Digest" "Bytes" "UsedBy"
-  printf "%-22s %12s %8s\n" "------------" "-----" "-------"
+  printf "%-22s %12s %8s %8s\n" "Layer Digest" "Bytes" "Tags" "Uses"
+  printf "%-22s %12s %8s %8s\n" "------------" "-----" "----" "----"
 
-  while IFS=$'\t' read -r digest size used_by; do
+  while IFS=$'\t' read -r digest size tag_count total_usage; do
     short_digest="${digest:0:19}"  # Includes 'sha256:' + 12 chars
-    printf "%-22s %12d %8d\n" "$short_digest" "$size" "$used_by"
+    printf "%-22s %12d %8d %8d\n" "$short_digest" "$size" "$tag_count" "$total_usage"
 
     total_bytes=$((total_bytes + size))
     total_layers=$((total_layers + 1))
-  done < <(jq -r '.[] | [.digest, .size, .used_by] | @tsv' "${ZRBG_IMAGE_STATS_FILE}")
+  done < <(jq -r '.[] | [.digest, .size, .tag_count, .total_usage] | @tsv' "${ZRBG_IMAGE_STATS_FILE}")
 
   printf "\nTotal unique layers: %d\n" "${total_layers}"
   printf "Total deduplicated size: %d MB\n" "$((total_bytes / 1024 / 1024))"
