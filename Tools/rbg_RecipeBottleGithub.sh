@@ -813,13 +813,9 @@ rbg_image_info() {
 
   bcu_step "Listing shared layers and the tags that use them..."
   jq -r '
-    .[]
-    | select(.tag_count > 1 or .total_usage > 1)
-    | "Layer: \(.digest[0:19]) (used by \(.tag_count) tag(s), \(.size) bytes)"
-    + if .total_usage > .tag_count then " [\(.total_usage) total uses]" else "" end
-    + "\n" + (.tag_details | map(
-        "  - " + .tag + if .count > 1 then " (\(.count) times)" else "" end
-      ) | join("\n"))
+    .[] | select(.tag_count > 1 or .total_usage > 1) |
+    "Layer: \(.digest[0:19]) (used by \(.tag_count) tag(s), \(.size) bytes)\n" +
+    (.tag_details | map("  - \(.tag)" + if .count > 1 then " (\(.count) times)" else "" end) | join("\n"))
   ' "${ZRBG_IMAGE_STATS_FILE}"
 
   bcu_step "Rendering layer usage summary..."
