@@ -603,12 +603,16 @@ rbg_retrieve() {
 }
 
 # Gather image info from GHCR tags only (Bash 3.2 compliant)
-# Gather image info from GHCR tags only (Bash 3.2 compliant)
 rbg_image_info() {
+  # Name parameters
+  local filter="${1:-}"
+
+  # Handle documentation mode
   bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
   bcu_doc_lines \
     "Creates image detail entries for each tag/platform combination, extracts creation date," \
     "layers, and layer sizes. Handles both single and multi-platform images."
+  bcu_doc_oparm "filter" "only process tags containing this string, if provided"
   bcu_doc_shown || return 0
 
   zrbg_collect_image_records
@@ -633,10 +637,16 @@ rbg_image_info() {
 
   echo "[]" > "${ZRBG_IMAGE_DETAIL_FILE}"
 
-  bcu_step "Processing each tag for image details"
+  bcu_step "Processing each tag for image details with filter:${filter}"
   local tag
 
   for tag in $(jq -r '.[].tag' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -u); do
+
+    if [ -n "${filter}" ] && [[ "${tag}" != *"${filter}"* ]]; then
+      bcu_info "Skipping tag: ${tag}"
+      continue
+    fi
+
     bcu_info "Processing tag: ${tag}"
     local safe_tag="${tag//\//_}"
     local manifest_out="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
@@ -814,11 +824,6 @@ rbg_image_info() {
 
   bcu_success "No errors."
 }
-
-
-
-# TODO consider https://claude.ai/chat/08305214-7b72-42e9-9079-3f8ab5f17c2f
-
 
 
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
