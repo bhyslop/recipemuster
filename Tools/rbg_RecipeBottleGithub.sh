@@ -75,6 +75,7 @@ zrbg_environment() {
   ZRBG_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
   ZRBG_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
   ZRBG_ACCEPT_MANIFEST_MTYPES="${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI},${ZRBG_MTYPE_OCM}"
+  ZRBG_SCHEMA_V2="2" # Docker Registry HTTP API V2 Schema 2 format - an older manifest format
 
   ZRBG_MTYPE_GHV3="application/vnd.github.v3+json"
 
@@ -708,7 +709,8 @@ rbg_image_info() {
       done <<< "$manifests"
 
     elif [[ "${media_type}" == "${ZRBG_MTYPE_DV2}" ]] || \
-         [[ "${media_type}" == "2"                 ]]; then
+         [[ "${media_type}" == "${ZRBG_MTYPE_OCM}" ]] || \
+         [[ "${media_type}" == "${ZRBG_SCHEMA_V2}" ]]; then
 
       bcu_info "  Single platform image"
       zrbg_process_single_manifest "${tag}" "${manifest_out}" "" "${headers}"
