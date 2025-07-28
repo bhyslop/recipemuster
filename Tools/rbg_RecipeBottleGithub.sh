@@ -839,8 +839,6 @@ rbg_image_info() {
   bcu_success "No errors."
 }
 
-
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
-
 
 # eof
