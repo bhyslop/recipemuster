@@ -28,7 +28,7 @@ zrbcg_environment() {
   # Handle documentation mode
   bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
   bcu_doc_env "RBG_RBRR_FILE " "File containing the RBRR constants"
-  
+
   bcu_env_done || return 0
 
   # Validate environment
@@ -54,7 +54,11 @@ zrbcg_environment() {
   ZRBCG_IMAGE_PREFIX="${ZRBCG_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBCG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
-  
+
+  # Container runtime variables (set by rbcg_login)
+  ZRBCG_RUNTIME=""
+  ZRBCG_CONNECTION=""
+
   # Media types
   ZRBCG_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
   ZRBCG_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
@@ -63,6 +67,17 @@ zrbcg_environment() {
   ZRBCG_ACCEPT_MANIFEST_MTYPES="${ZRBCG_MTYPE_DV2},${ZRBCG_MTYPE_DLIST},${ZRBCG_MTYPE_OCI},${ZRBCG_MTYPE_OCM}"
   ZRBCG_SCHEMA_V2="2"
   ZRBCG_MTYPE_GHV3="application/vnd.github.v3+json"
+}
+
+# Build container command with runtime and connection
+zrbcg_build_container_cmd() {
+  local base_cmd="$1"
+
+  if [ "${ZRBCG_RUNTIME}" = "podman" ] && [ -n "${ZRBCG_CONNECTION}" ]; then
+    echo "podman --connection=${ZRBCG_CONNECTION} ${base_cmd}"
+  else
+    echo "${ZRBCG_RUNTIME} ${base_cmd}"
+  fi
 }
 
 # Perform authenticated GET request to GitHub API
@@ -85,7 +100,7 @@ zrbcg_get_bearer_token() {
     test "${bearer_token}" != "null" || {
       bcu_die "Failed to obtain bearer token"
     }
-  
+
   echo "${bearer_token}"
 }
 
@@ -94,7 +109,7 @@ zrbcg_process_single_manifest() {
   local tag="$1"
   local manifest_file="$2"
   local platform="$3"
-  local headers="$4"
+  local bearer_token="$4"
   local temp_detail="$5"
 
   local config_digest
@@ -106,11 +121,12 @@ zrbcg_process_single_manifest() {
   }
 
   local config_out="${manifest_file%.json}_config.json"
-  curl -sL -H "${headers}" "${ZRBCG_GHCR_V2_API}/blobs/${config_digest}" >"${config_out}" 2>/dev/null && \
-    jq . "${config_out}" >/dev/null || {
-      bcu_warn "Failed to fetch config blob"
-      return 1
-    }
+
+  # Use new subfunction
+  x xxc "${config_digest}" "${bearer_token}" "${config_out}" || {
+    bcu_warn "Failed to fetch config blob"
+    return 1
+  }
 
   local manifest_json config_json
   manifest_json="$(<"${manifest_file}")"
@@ -163,38 +179,46 @@ zrbcg_process_single_manifest() {
 # External Functions (rbcg_*)
 
 rbcg_login() {
+  local runtime="${1:-}"
+  local connection_string="${2:-}"
+
   # Handle documentation mode
   bcu_doc_brief "Login to GHCR"
+  bcu_doc_param "runtime" "Container runtime to use (docker or podman)"
+  bcu_doc_oparm "connection_string" "Connection string for podman remote connections"
   bcu_doc_shown || return 0
 
+  # Argument validation
+  test -n "$runtime" || bcu_usage_die
+
+  # Store runtime settings
+  ZRBCG_RUNTIME="${runtime}"
+  ZRBCG_CONNECTION="${connection_string}"
+
   bcu_step "Login to GitHub Container Registry"
-  podman login "${ZRBCG_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
+  local login_cmd=$(zrbcg_build_container_cmd "login ${ZRBCG_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}")
+  eval "${login_cmd}"
   bcu_success "Logged in to ${ZRBCG_REGISTRY}"
 }
 
 rbcg_push() {
   local tag="${1:-}"
-  local dockerfile_path="${2:-}"
-  local platforms="${3:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Push image to GHCR (called from within GitHub Action)"
-  bcu_doc_param "tag" "Image tag"
-  bcu_doc_param "dockerfile_path" "Path to Dockerfile (for metadata)"
-  bcu_doc_oparm "platforms" "Target platforms (default: linux/amd64)"
+  bcu_doc_brief "Push image to GHCR"
+  bcu_doc_param "tag" "Image tag to push"
   bcu_doc_shown || return 0
 
   # Argument validation
   test -n "$tag" || bcu_usage_die
-  test -n "$dockerfile_path" || bcu_usage_die
-  
-  # This function is called from within GitHub Actions
-  # The actual build/push is handled by docker/build-push-action
-  # This is a placeholder for registry abstraction
-  
-  bcu_info "Push operation for ${tag} would be handled by GitHub Actions"
-  bcu_info "Dockerfile: ${dockerfile_path}"
-  bcu_info "Platforms: ${platforms:-default}"
+
+  local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
+  bcu_step "Push image ${fqin}"
+
+  local push_cmd=$(zrbcg_build_container_cmd "push ${fqin}")
+  eval "${push_cmd}"
+
+  bcu_success "Image pushed successfully"
 }
 
 rbcg_pull() {
@@ -210,7 +234,10 @@ rbcg_pull() {
 
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Pull image ${fqin}"
-  podman pull "${fqin}"
+
+  local pull_cmd=$(zrbcg_build_container_cmd "pull ${fqin}")
+  eval "${pull_cmd}"
+
   bcu_success "Image pulled successfully"
 }
 
@@ -230,25 +257,25 @@ rbcg_delete() {
 
   bcu_warn "GHCR DELETE HAS KNOWN ISSUES WITH LAYER MANAGEMENT"
   bcu_warn "Shared layers may be incorrectly deleted or orphaned"
-  
+
   bcu_step "Delete tag ${tag} from GHCR"
-  
+
   # Find version ID for tag
   local version_id
   version_id=$(zrbcg_curl_get "${ZRBCG_PACKAGES_URL}?per_page=100" | \
     jq -r '.[] | select(.metadata.container.tags[] | contains("'"${tag}"'")) | .id' | head -n1)
-  
+
   test -n "${version_id}" || bcu_die "Tag ${tag} not found"
-  
+
   local delete_url="${ZRBCG_PACKAGES_URL}/${version_id}"
   local response
   response=$(curl -X DELETE -s -H "Authorization: token ${RBRG_PAT}" \
                                -H "Accept: ${ZRBCG_MTYPE_GHV3}"      \
-                               "${delete_url}"                        \
+                               "${delete_url}"                       \
                                -w "\nHTTP_STATUS:%{http_code}\n")
-  
+
   echo "${response}" | grep -q "HTTP_STATUS:204" || bcu_die "Delete failed"
-  
+
   bcu_success "Tag deleted (layer cleanup unreliable on GHCR)"
 }
 
@@ -261,7 +288,7 @@ rbcg_exists() {
   bcu_doc_lines "Returns exit code 0 if exists, 1 if not"
   bcu_doc_shown || return 0
 
-  # Argument validation  
+  # Argument validation
   test -n "$tag" || bcu_usage_die
 
   # Check using GitHub API
@@ -270,21 +297,21 @@ rbcg_exists() {
 }
 
 rbcg_tags() {
-  local output_json="${1:-}"
+  local output_IMAGE_RECORDS_json="${1:-}"
 
   # Handle documentation mode
   bcu_doc_brief "List all tags in GHCR repository"
-  bcu_doc_param "output_json" "Path to write tags JSON (RBC_TAGS_SCHEMA)"
+  bcu_doc_param "output_IMAGE_RECORDS_json"  "Path to write tags JSON (IMAGE_RECORDS schema)"
   bcu_doc_shown || return 0
 
   # Argument validation
-  test -n "$output_json" || bcu_usage_die
+  test -n "$output_IMAGE_RECORDS_json" || bcu_usage_die
 
   bcu_step "Fetching all tags from GHCR"
-  
+
   # Initialize empty array
-  echo "[]" > "${output_json}"
-  
+  echo "[]" > "${output_IMAGE_RECORDS_json}"
+
   local page=1
   local temp_page="${RBG_TEMP_DIR}/temp_page.json"
   local temp_tags="${RBG_TEMP_DIR}/temp_tags.json"
@@ -292,151 +319,201 @@ rbcg_tags() {
   while true; do
     local url="${ZRBCG_PACKAGES_URL}?per_page=100&page=${page}"
     zrbcg_curl_get "$url" > "${temp_page}"
-    
+
     local items=$(jq '. | length' "${temp_page}")
     test "${items}" -ne 0 || break
-    
+
     # Extract tags without version_id
     jq -r '[.[] | select(.metadata.container.tags | length > 0) |
             .metadata.container.tags[] as $tag |
             {tag: $tag, fqin: ("'${ZRBCG_IMAGE_PREFIX}':" + $tag)}]' \
       "${temp_page}" > "${temp_tags}"
-    
+
     # Merge with existing
-    jq -s '.[0] + .[1]' "${output_json}" "${temp_tags}" > "${output_json}.tmp"
-    mv "${output_json}.tmp" "${output_json}"
-    
+    jq -s '.[0] + .[1]' "${output_IMAGE_RECORDS_json}" "${temp_tags}" > "${output_IMAGE_RECORDS_json}.tmp"
+    mv "${output_IMAGE_RECORDS_json}.tmp" "${output_IMAGE_RECORDS_json}"
+
     page=$((page + 1))
   done
-  
-  local total=$(jq '. | length' "${output_json}")
+
+  local total=$(jq '. | length' "${output_IMAGE_RECORDS_json}")
   bcu_success "Retrieved ${total} tags"
 }
 
-rbcg_inspect() {
-  local tag="${1:-}"
-  local output_json="${2:-}"
+rbcg_fetch_config_blob() {
+  local config_digest="${1:-}"
+  local bearer_token="${2:-}"
+  local output_config_ocijson="${3:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Get raw manifest and config for a tag"
-  bcu_doc_param "tag" "Image tag to inspect"
-  bcu_doc_param "output_json" "Path to write manifest JSON (RBC_MANIFEST_SCHEMA)"
+  bcu_doc_brief "Fetch OCI config blob from GHCR registry"
+  bcu_doc_param "config_digest"          "SHA256 digest of config blob (e.g., sha256:abc123...)"
+  bcu_doc_param "bearer_token"           "Bearer token for GHCR authentication"
+  bcu_doc_param "output_config_ocijson"  "Path to write OCI config JSON"
+  bcu_doc_lines \
+    "Retrieves an OCI/Docker image configuration blob from GHCR's blob store." \
+    "The output follows OCI Image Configuration Specification." \
+    "Key fields: architecture, os, created, rootfs.type, rootfs.diff_ids[]," \
+    "config.Env[], config.Cmd[], config.WorkingDir, config.User, history[]" \
+    "This blob contains the image metadata and layer history."
+  bcu_doc_shown || return 0
+
+  # Argument validation
+  test -n "$config_digest" || bcu_usage_die
+  test -n "$bearer_token" || bcu_usage_die
+  test -n "$output_config_ocijson" || bcu_usage_die
+
+  local headers="Authorization: Bearer ${bearer_token}"
+
+  curl -sL -H "${headers}" \
+       "${ZRBCG_GHCR_V2_API}/blobs/${config_digest}" \
+       > "${output_config_ocijson}" 2>/dev/null
+
+  # Validate JSON
+  jq . "${output_config_ocijson}" >/dev/null 2>&1
+}
+
+rbcg_fetch_manifest() {
+  local tag="${1:-}"
+  local bearer_token="${2:-}"
+  local output_manifest_ocijson="${3:-}"
+
+  # Handle documentation mode
+  bcu_doc_brief "Fetch OCI manifest from GHCR registry"
+  bcu_doc_param "tag"                      "Image tag or manifest digest to fetch"
+  bcu_doc_param "bearer_token"             "Bearer token for GHCR authentication"
+  bcu_doc_param "output_manifest_ocijson"  "Path to write OCI manifest JSON"
+  bcu_doc_lines \
+    "Retrieves an OCI/Docker manifest from GHCR's v2 registry API." \
+    "The output follows OCI Image Manifest Specification or Docker Manifest v2 Schema." \
+    "For multi-platform images, returns a manifest list (mediaType: application/vnd.docker.distribution.manifest.list.v2+json)" \
+    "For single-platform images, returns a manifest (mediaType: application/vnd.docker.distribution.manifest.v2+json)" \
+    "Key fields: schemaVersion, mediaType, config.digest, layers[], manifests[] (for lists)"
   bcu_doc_shown || return 0
 
   # Argument validation
   test -n "$tag" || bcu_usage_die
-  test -n "$output_json" || bcu_usage_die
+  test -n "$bearer_token" || bcu_usage_die
+  test -n "$output_manifest_ocijson" || bcu_usage_die
 
-  bcu_step "Fetching manifest for tag ${tag}"
-  
-  local bearer_token
-  bearer_token=$(zrbcg_get_bearer_token)
   local headers="Authorization: Bearer ${bearer_token}"
-  
+
   curl -sL -H "${headers}" \
        -H "Accept: ${ZRBCG_ACCEPT_MANIFEST_MTYPES}" \
        "${ZRBCG_GHCR_V2_API}/manifests/${tag}" \
-       > "${output_json}"
-  
-  jq . "${output_json}" >/dev/null || bcu_die "Failed to fetch manifest"
-  
-  bcu_success "Manifest saved to ${output_json}"
+       > "${output_manifest_ocijson}" 2>/dev/null
+
+  # Validate JSON
+  jq . "${output_manifest_ocijson}" >/dev/null 2>&1
 }
 
-rbcg_layers() {
-  local details_json="${1:-}"
-  local stats_json="${2:-}"
-  local filter="${3:-}"
+rbcg_inspect() {
+  local tag="${1:-}"
+  local output_MANIFEST_json="${2:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Extract layer information from all tags"
-  bcu_doc_param "details_json" "Path to write layer details (RBC_DETAILS_SCHEMA)"
-  bcu_doc_param "stats_json" "Path to write layer statistics (RBC_STATS_SCHEMA)"
-  bcu_doc_oparm "filter" "Only process tags containing this string"
+  bcu_doc_brief "Get raw manifest and config for a tag"
+  bcu_doc_param "tag"                   "Image tag to inspect"
+  bcu_doc_param "output_MANIFEST_json"  "Path to write manifest JSON"
   bcu_doc_shown || return 0
 
   # Argument validation
-  test -n "$details_json" || bcu_usage_die
-  test -n "$stats_json" || bcu_usage_die
+  test -n "$tag" || bcu_usage_die
+  test -n "$output_MANIFEST_json" || bcu_usage_die
+
+  bcu_step "Fetching manifest for tag ${tag}"
+
+  local bearer_token
+  bearer_token=$(zrbcg_get_bearer_token)
+
+  # Use new subfunction
+  rbcg_fetch_manifest "${tag}" "${bearer_token}" "${output_MANIFEST_json}" || \
+    bcu_die "Failed to fetch manifest"
+
+  bcu_success "Manifest saved to ${output_MANIFEST_json}"
+}
+
+rbcg_layers() {
+  local input_IMAGE_RECORDS_json="${1:-}"
+  local output_IMAGE_DETAILS_json="${2:-}"
+  local output_IMAGE_STATS_json="${3:-}"
+
+  # Handle documentation mode
+  bcu_doc_brief "Extract layer information from specified tags"
+  bcu_doc_param "input_IMAGE_RECORDS_json"   "Path to JSON file containing tags to analyze"
+  bcu_doc_param "output_IMAGE_DETAILS_json"  "Path to write layer details"
+  bcu_doc_param "output_IMAGE_STATS_json"    "Path to write layer statistics"
+  bcu_doc_shown || return 0
+
+  # Argument validation
+  test -n "$input_IMAGE_RECORDS_json"  || bcu_usage_die
+  test -n "$output_IMAGE_DETAILS_json" || bcu_usage_die
+  test -n "$output_IMAGE_STATS_json"   || bcu_usage_die
 
   bcu_step "Analyzing image layers"
-  
-  # Get all tags first
-  local tags_file="${RBG_TEMP_DIR}/all_tags.json"
-  rbcg_tags "${tags_file}"
-  
+
   # Get bearer token
   local bearer_token
   bearer_token=$(zrbcg_get_bearer_token)
-  local headers="Authorization: Bearer ${bearer_token}"
-  
+
   # Initialize details file
-  echo "[]" > "${details_json}"
-  
-  # Process each tag
+  echo "[]" > "${output_IMAGE_DETAILS_json}"
+
+  # Process each tag from input file
   local tag
-  for tag in $(jq -r '.[].tag' "${tags_file}" | sort -u); do
-    
-    if [ -n "${filter}" ] && [[ "${tag}" != *"${filter}"* ]]; then
-      continue
-    fi
-    
+  for tag in $(jq -r '.[].tag' "${input_IMAGE_RECORDS_json}" | sort -u); do
+
     bcu_info "Processing tag: ${tag}"
-    
+
     local safe_tag="${tag//\//_}"
     local manifest_out="${RBG_TEMP_DIR}/manifest_${safe_tag}.json"
     local temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
-    
-    # Fetch manifest
-    curl -sL -H "${headers}" \
-         -H "Accept: ${ZRBCG_ACCEPT_MANIFEST_MTYPES}" \
-         "${ZRBCG_GHCR_V2_API}/manifests/${tag}" \
-         > "${manifest_out}" 2>/dev/null || continue
-    
+
+    # Use new subfunction to fetch manifest
+    rbcg_fetch_manifest "${tag}" "${bearer_token}" "${manifest_out}" || continue
+
     # Check media type
     local media_type
     media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_out}")
-    
+
     if [[ "${media_type}" == "${ZRBCG_MTYPE_DLIST}" ]] || \
-       [[ "${media_type}" == "${ZRBCG_MTYPE_OCI}" ]]; then
+       [[ "${media_type}" == "${ZRBCG_MTYPE_OCI}"   ]]; then
       # Multi-platform
       local manifests
       manifests=$(jq -c '.manifests[]' "${manifest_out}")
-      
+
       while IFS= read -r platform_manifest; do
         local platform_digest platform_info
         platform_digest=$(echo "${platform_manifest}" | jq -r '.digest')
         platform_info=$(echo "${platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"')
-        
+
         local platform_out="${RBG_TEMP_DIR}/platform_${safe_tag}.json"
-        
-        curl -sL -H "${headers}" \
-             -H "Accept: ${ZRBCG_ACCEPT_MANIFEST_MTYPES}" \
-             "${ZRBCG_GHCR_V2_API}/manifests/${platform_digest}" \
-             > "${platform_out}" 2>/dev/null || continue
-        
-        if zrbcg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}" "${headers}" "${temp_detail}"; then
-          jq -s '.[0] + [.[1]]' "${details_json}" "${temp_detail}" > "${details_json}.tmp"
-          mv "${details_json}.tmp" "${details_json}"
+
+        # Use subfunction to fetch platform manifest
+        rbcg_fetch_manifest "${platform_digest}" "${bearer_token}" "${platform_out}" || continue
+
+        if zrbcg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}" "${bearer_token}" "${temp_detail}"; then
+          jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}" "${temp_detail}" > "${output_IMAGE_DETAILS_json}.tmp"
+          mv "${output_IMAGE_DETAILS_json}.tmp" "${output_IMAGE_DETAILS_json}"
         fi
       done <<< "$manifests"
-      
+
     else
       # Single platform
-      if zrbcg_process_single_manifest "${tag}" "${manifest_out}" "" "${headers}" "${temp_detail}"; then
-        jq -s '.[0] + [.[1]]' "${details_json}" "${temp_detail}" > "${details_json}.tmp"
-        mv "${details_json}.tmp" "${details_json}"
+      if zrbcg_process_single_manifest "${tag}" "${manifest_out}" "" "${bearer_token}" "${temp_detail}"; then
+        jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}" "${temp_detail}" > "${output_IMAGE_DETAILS_json}.tmp"
+        mv "${output_IMAGE_DETAILS_json}.tmp" "${output_IMAGE_DETAILS_json}"
       fi
     fi
   done
-  
+
   # Generate stats
   jq '
     .[]
     | {tag} as $t
     | .layers[]
     | {digest, size, tag: $t.tag}
-  ' "${details_json}" |
+  ' "${output_IMAGE_DETAILS_json}" |
   jq -s '
     group_by([.digest, .tag])
     | map({
@@ -454,8 +531,8 @@ rbcg_layers() {
         tag_details: map({tag: .tag, count: .count})
       })
     | sort_by(-.size)
-  ' > "${stats_json}"
-  
+  ' > "${output_IMAGE_STATS_json}"
+
   bcu_success "Layer analysis complete"
 }
 
