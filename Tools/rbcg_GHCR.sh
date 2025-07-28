@@ -123,7 +123,7 @@ zrbcg_process_single_manifest() {
   local config_out="${manifest_file%.json}_config.json"
 
   # Use new subfunction
-  x xxc "${config_digest}" "${bearer_token}" "${config_out}" || {
+  rbcg_fetch_config_blob "${config_digest}" "${bearer_token}" "${config_out}" || {
     bcu_warn "Failed to fetch config blob"
     return 1
   }
