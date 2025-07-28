@@ -122,7 +122,7 @@ zrbcg_process_single_manifest() {
 
   local config_out="${manifest_file%.json}_config.json"
 
-  # Use new subfunction
+  # Use proper function call (bug fix)
   rbcg_fetch_config_blob "${config_digest}" "${bearer_token}" "${config_out}" || {
     bcu_warn "Failed to fetch config blob"
     return 1
@@ -323,10 +323,11 @@ rbcg_tags() {
     local items=$(jq '. | length' "${temp_page}")
     test "${items}" -ne 0 || break
 
-    # Extract tags without version_id
+    # Extract tags with version_id for compatibility
     jq -r '[.[] | select(.metadata.container.tags | length > 0) |
+            .id as $version_id |
             .metadata.container.tags[] as $tag |
-            {tag: $tag, fqin: ("'${ZRBCG_IMAGE_PREFIX}':" + $tag)}]' \
+            {version_id: $version_id, tag: $tag, fqin: ("'${ZRBCG_IMAGE_PREFIX}':" + $tag)}]' \
       "${temp_page}" > "${temp_tags}"
 
     # Merge with existing
@@ -537,4 +538,6 @@ rbcg_layers() {
 }
 
 bcu_execute rbcg_ "Recipe Bottle Container GitHub - GHCR Implementation" zrbcg_environment "$@"
+
+# eof
 

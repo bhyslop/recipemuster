@@ -22,6 +22,7 @@ set -euo pipefail
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBG_SCRIPT_DIR}/rbcg_GHCR.sh"  # Load registry implementation
 
 ######################################################################
 # Internal Functions (zrbg_*)
@@ -52,16 +53,13 @@ zrbg_environment() {
 
   # Module Variables (ZRBG_*)
 
-  # Base URLs
-  ZRBG_GIT_REGISTRY="ghcr.io"
+  # Base URLs for GitHub Actions
   ZRBG_GITAPI_URL="https://api.github.com"
   ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
 
   # Derived URLs
   ZRBG_DISPATCH_URL="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   ZRBG_RUNS_URL_BASE="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
-  ZRBG_PACKAGES_URL="${ZRBG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions"
-  ZRBG_IMAGE_PREFIX="${ZRBG_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
   ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
 
@@ -69,27 +67,16 @@ zrbg_environment() {
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
   ZRBG_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
 
-  # Media types
-  ZRBG_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
-  ZRBG_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
-  ZRBG_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
-  ZRBG_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
-  ZRBG_ACCEPT_MANIFEST_MTYPES="${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI},${ZRBG_MTYPE_OCM}"
-  ZRBG_SCHEMA_V2="2" # Docker Registry HTTP API V2 Schema 2 format - an older manifest format
-
+  # Media type for GitHub API
   ZRBG_MTYPE_GHV3="application/vnd.github.v3+json"
 
-  # GHCR v2 API
-  ZRBG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  ZRBG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
-
   # Temp files
-  ZRBG_COLLECT_FULL_JSON="${RBG_TEMP_DIR}/RBG_COMBINED__${RBG_NOW_STAMP}.json"
-  ZRBG_COLLECT_TEMP_PAGE="${RBG_TEMP_DIR}/RBG_PAGE__${RBG_NOW_STAMP}.json"
   ZRBG_CURRENT_WORKFLOW_RUN_CACHE="${RBG_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBG_NOW_STAMP}.txt"
-  ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
-  ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
   ZRBG_WORKFLOW_LOGS="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+
+  # Container runtime (default to podman)
+  ZRBG_RUNTIME="${RBG_RUNTIME:-podman}"
+  ZRBG_CONNECTION="${RBG_CONNECTION:-}"
 }
 
 # Perform authenticated GET request
@@ -116,79 +103,6 @@ zrbg_curl_post() {
        "$url"                                      \
        -d "$data"                                  \
     || bcu_die "Curl failed."
-}
-
-# Perform authenticated DELETE request
-# Usage: zrbg_curl_delete <url>
-zrbg_curl_delete() {
-  local url="$1"
-
-  curl -X DELETE -s -H "Authorization: token ${RBRG_PAT}"       \
-                    -H "Accept: ${ZRBG_MTYPE_GHV3}"             \
-                    "$url"                                      \
-                    -w "\nHTTP_STATUS:%{http_code}\n"
-}
-
-# Collect all image records (version_id, tag, fqin) with pagination
-#
-# Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
-#
-# IMAGE_RECORDS.json
-# ------------------
-# A JSON array of image tag metadata objects as returned by the GitHub Container Registry (GHCR) API.
-# This is the raw tag listing from the GHCR repository, used as input to downstream inspection.
-#
-# Each object has the following structure:
-# {
-#   "name": "<tag>",                  # The tag string (e.g., "v5.5-20250725-abc_x86_64")
-#   "digest": "<manifest-digest>",   # Digest of the top-level manifest associated with the tag
-#   "updated_at": "<iso-timestamp>"  # Last modified timestamp (from GHCR metadata)
-# }
-#
-# Notes:
-# - This file does not include layer or config information.
-# - This is a direct mapping of GHCR's paginated tag listing.
-# - Downstream code uses this as a seed to resolve manifests and blobs.
-zrbg_collect_image_records() {
-  bcu_step "Fetching all image records with pagination to ${ZRBG_IMAGE_RECORDS_FILE}"
-
-  # Initialize empty array
-  echo "[]" > "${ZRBG_IMAGE_RECORDS_FILE}"
-
-  bcu_info "Retrieving paged results..."
-
-  local page=1
-  local temp_records="${RBG_TEMP_DIR}/temp_records_${RBG_NOW_STAMP}.json"
-
-  while true; do
-    bcu_info "  Fetching page ${page}..."
-
-    local url="${ZRBG_PACKAGES_URL}?per_page=100&page=${page}"
-    zrbg_curl_get "$url" > "${ZRBG_COLLECT_TEMP_PAGE}"
-
-    local items=$(jq '. | length' "${ZRBG_COLLECT_TEMP_PAGE}")
-    bcu_info "  Saw ${items} items on page ${page}..."
-
-    test "${items}" -ne 0 || break
-
-    # Transform to simplified records
-    jq -r --arg prefix "${ZRBG_IMAGE_PREFIX}" \
-      '[.[] | select(.metadata.container.tags | length > 0) |
-       .id as $id | .metadata.container.tags[] as $tag |
-       {version_id: $id, tag: $tag, fqin: ($prefix + ":" + $tag)}]' \
-      "${ZRBG_COLLECT_TEMP_PAGE}" > "${temp_records}"
-
-    # Merge with existing records
-    jq -s '.[0] + .[1]' "${ZRBG_IMAGE_RECORDS_FILE}" "${temp_records}" > \
-       "${ZRBG_IMAGE_RECORDS_FILE}.tmp"
-    mv "${ZRBG_IMAGE_RECORDS_FILE}.tmp" "${ZRBG_IMAGE_RECORDS_FILE}"
-
-    page=$((page + 1))
-  done
-
-  local total=$(jq '. | length' "${ZRBG_IMAGE_RECORDS_FILE}")
-  bcu_info "  Retrieved ${total} total image records"
-  bcu_success "Pagination complete."
 }
 
 # Check git repository status
@@ -228,14 +142,6 @@ zrbg_confirm_action() {
   test "$confirm" = "YES"
 }
 
-# Login to container registry
-zrbg_registry_login() {
-  bcu_step "Log in to container registry"
-
-  podman login "${ZRBG_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
-}
-
-# Execute GitHub Actions workflow and wait for completion
 # Execute GitHub Actions workflow and wait for completion
 zrbg_execute_workflow() {
   local event_type="${1}"
@@ -324,126 +230,6 @@ zrbg_execute_workflow() {
   rm -f "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
 }
 
-# Helper function to process a single manifest
-zrbg_process_single_manifest() {
-  local tag="$1"
-  local manifest_file="$2"
-  local platform="$3"  # Empty for single-platform
-  local headers="$4"
-
-
-  # Diagnostic: Check file exists
-  test -f "${manifest_file}" || bcu_die "Manifest file does not exist: ${manifest_file}"
-
-  # Diagnostic: Validate JSON
-  jq . "${manifest_file}" >/dev/null 2>&1 || bcu_die "Invalid JSON in manifest file: ${manifest_file}"
-
-  local config_digest
-  config_digest=$(jq -r '.config.digest' "${manifest_file}")
-
-  test -n "${config_digest}" || bcu_die "Missing config.digest ${config_digest}"
-
-  test "${config_digest}" != "null" || {
-    bcu_warn "    null config.digest in manifest: ${manifest_file}"
-    bcu_warn "    Content:"
-    cat "${manifest_file}" >&2
-    bcu_warn "SKIPPING FOR NOW UNTIL WE FIGURE OUT WHY THIS CORRUPTION HAPPENS."
-    return 0
-  }
-
-  local config_out="${manifest_file%.json}_config.json"
-  local config_err="${manifest_file%.json}_config.err"
-
-  curl -sL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" \
-        >"${config_out}" 2>"${config_err}" && \
-    jq . "${config_out}" >/dev/null || {
-      bcu_warn "    Failed to fetch or parse config blob"
-      bcu_warn "    Digest: ${config_digest}"
-      bcu_warn "    STDERR: $(<"${config_err}")"
-      bcu_warn "    STDOUT: $(<"${config_out}")"
-      bcu_die "CANNOT PROCEED."
-    }
-
-  test -n "${config_digest}" && test "${config_digest}" != "null" || {
-    bcu_warn "    Failed to fetch or parse config blob"
-    bcu_warn "    Digest: ${config_digest}"
-    bcu_die "CANNOT PROCEED."
-  }
-
-  local temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
-  local manifest_json config_json
-  manifest_json="$(<"${manifest_file}")"
-  config_json=$(jq '. + {
-    created: (.created // "1970-01-01T00:00:00Z"),
-    architecture: (.architecture // "unknown"),
-    os: (.os // "unknown")
-  }' "${config_out}")
-
-  echo "${manifest_json}" | jq -e '.layers and (.layers | type == "array")' >/dev/null \
-    || bcu_die "Missing or invalid .layers array in manifest: ${manifest_file}"
-
-  echo "${config_json}" | jq -e '.created and .architecture and .os' >/dev/null || {
-    bcu_warn "Missing required fields in config blob"
-    bcu_warn "    BLOB: $(<"${config_out}")"
-    bcu_die  "Cannot continue."
-  }
-
-  echo "${config_json}" | jq -e '(.created // empty) and (.architecture // empty) and (.os // empty)' >/dev/null \
-    || bcu_die "Null or missing fields in config blob: ${config_out}"
-
-  if [ -n "${platform}" ]; then
-    bcu_info "tag ${tag}: Multi-platform entry..."
-    jq -n \
-      --arg tag          "${tag}"           \
-      --arg platform     "${platform}"      \
-      --arg digest       "${config_digest}" \
-      --argjson manifest "${manifest_json}" \
-      --argjson config   "${config_json}" '
-      {
-        tag: $tag,
-        platform: $platform,
-        digest: $digest,
-        layers: $manifest.layers,
-        config: {
-          created: $config.created,
-          architecture: $config.architecture,
-          os: $config.os
-        }
-      }' > "${temp_detail}"
-  else
-    bcu_info "tag ${tag}: Single platform entry (no platform field)..."
-    jq -n \
-      --arg     tag      "${tag}"           \
-      --arg     digest   "${config_digest}" \
-      --argjson manifest "${manifest_json}" \
-      --argjson config   "${config_json}" '
-      {
-        tag: $tag,
-        digest: $digest,
-        layers: $manifest.layers,
-        config: {
-          created: $config.created,
-          architecture: $config.architecture,
-          os: $config.os
-        }
-      }' > "${temp_detail}"
-  fi
-
-  bcu_info "tag ${tag}: Append to image details file..."
-  jq -e . "${temp_detail}"            >/dev/null || bcu_die "Invalid temp_detail.json: ${temp_detail}"
-  jq -e . "${ZRBG_IMAGE_DETAIL_FILE}" >/dev/null || bcu_die "Invalid IMAGE_DETAIL_FILE: ${ZRBG_IMAGE_DETAIL_FILE}"
-
-  jq -s '
-    if (.[0] | type) == "array" and (.[1] | type) == "object" then
-      .[0] + [.[1]]
-    else
-      error("Invalid JSON types for merge")
-    end
-  '  "${ZRBG_IMAGE_DETAIL_FILE}" "${temp_detail}" \
-   > "${ZRBG_IMAGE_DETAIL_FILE}.tmp" || bcu_die "Failed to merge image detail JSON"
-  mv "${ZRBG_IMAGE_DETAIL_FILE}.tmp" "${ZRBG_IMAGE_DETAIL_FILE}"
-}
-
 ######################################################################
 # External Functions (rbg_*)
 # These are functions used from outside this module
@@ -501,8 +287,7 @@ rbg_build() {
   local tag="${fqin_contents#*:}"
   echo "Waiting for tag: ${tag} to become available..."
   for i in 1 2 3 4 5; do
-    zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
-      jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null && break
+    rbcg_exists "${tag}" && break
 
     echo "  Image not yet available, attempt $i of 5"
     test $i -ne 5 || bcu_die "Image '${tag}' not available in registry after 5 attempts"
@@ -517,8 +302,8 @@ rbg_list() {
   bcu_doc_brief "List registry images"
   bcu_doc_shown || return 0
 
-  # Perform command
-  zrbg_collect_image_records
+  # Use registry implementation to get tags
+  rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}"
 
   bcu_step "List Current Registry Images"
   echo "Package: ${RBRR_REGISTRY_NAME}"
@@ -572,8 +357,7 @@ rbg_delete() {
   local tag=$(echo "$fqin" | sed 's/.*://')
 
   echo "  Checking that tag '${tag}' is gone..."
-  if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
-    jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
+  if rbcg_exists "${tag}"; then
     bcu_die "Tag '${tag}' still exists in registry after deletion"
   fi
 
@@ -597,9 +381,13 @@ rbg_retrieve() {
 
   # Perform command
   bcu_step "Pull image from GitHub Container Registry"
-  zrbg_registry_login
-  bcu_info "Fetch image..."
-  podman pull "$fqin"
+  
+  # Login and pull using registry implementation
+  rbcg_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}"
+  
+  local tag="${fqin#*:}"
+  rbcg_pull "${tag}"
+  
   bcu_success "No errors."
 }
 
@@ -616,187 +404,18 @@ rbg_image_info() {
   bcu_doc_oparm "filter" "only process tags containing this string, if provided"
   bcu_doc_shown || return 0
 
-  zrbg_collect_image_records
+  # Get tags from registry
+  rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}"
 
-  bcu_step "Obtain bearer token for GHCR"
-  local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  local bearer_token
-  local token_out="${RBG_TEMP_DIR}/bearer_token.out"
-  local token_err="${RBG_TEMP_DIR}/bearer_token.err"
+  # Filter if requested
+  if [ -n "${filter}" ]; then
+    jq --arg filter "${filter}" '[.[] | select(.tag | contains($filter))]' \
+      "${ZRBG_IMAGE_RECORDS_FILE}" > "${ZRBG_IMAGE_RECORDS_FILE}.filtered"
+    mv "${ZRBG_IMAGE_RECORDS_FILE}.filtered" "${ZRBG_IMAGE_RECORDS_FILE}"
+  fi
 
-  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
-    bearer_token=$(jq -r '.token' "${token_out}") && \
-    test -n "${bearer_token}" && \
-    test "${bearer_token}" != "null" || {
-      bcu_warn "Failed to obtain bearer token"
-      bcu_warn "STDERR: $(<"${token_err}")"
-      bcu_warn "STDOUT: $(<"${token_out}")"
-      bcu_die "Cannot proceed without bearer token"
-    }
-
-  local headers="Authorization: Bearer ${bearer_token}"
-
-  echo "[]" > "${ZRBG_IMAGE_DETAIL_FILE}"
-
-  bcu_step "Processing each tag for image details with filter:${filter}"
-  local tag
-
-  for tag in $(jq -r '.[].tag' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -u); do
-
-    if [ -n "${filter}" ] && [[ "${tag}" != *"${filter}"* ]]; then
-      bcu_info "Skipping tag: ${tag}"
-      continue
-    fi
-
-    bcu_info "Processing tag: ${tag}"
-    local safe_tag="${tag//\//_}"
-    local manifest_out="${RBG_TEMP_DIR}/manifest__${safe_tag}.json"
-    local manifest_err="${RBG_TEMP_DIR}/manifest__${safe_tag}.err"
-
-    bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
-
-    curl -sL -H "${headers}"                         \
-         -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}" \
-         "${ZRBG_GHCR_V2_API}/manifests/${tag}"      \
-          >"${manifest_out}" 2>"${manifest_err}" && \
-      jq . "${manifest_out}" >/dev/null          || {
-        bcu_warn "  Failed to fetch or parse manifest for ${tag}"
-        bcu_warn "  STDERR: $(<"${manifest_err}")"
-        bcu_warn "  STDOUT: $(<"${manifest_out}")"
-        bcu_die  "  This image appears corrupted - RECOMMENDED ACTION: Delete this tag"
-        continue
-      }
-
-    local media_type
-    media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_out}")
-
-    if [[ "${media_type}" == "${ZRBG_MTYPE_DLIST}" ]] || \
-       [[ "${media_type}" == "${ZRBG_MTYPE_OCI}"   ]]; then
-      bcu_info "  Multi-platform image detected"
-
-      local platform_idx=1
-      local manifests
-      manifests=$(jq -c '.manifests[]' "${manifest_out}")
-
-      while IFS= read -r platform_manifest; do
-        local platform_digest platform_info
-        platform_digest=$(echo "${platform_manifest}" | jq -r '.digest')
-        platform_info=$(echo   "${platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"')
-
-        bcu_info "    Processing platform: ${platform_info}"
-
-        local platform_out="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
-        local platform_err="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.err"
-
-        curl -sL -H "${headers}"                                \
-             -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}"        \
-             "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" \
-              >"${platform_out}" 2>"${platform_err}"          && \
-          jq . "${platform_out}" >/dev/null                   || {
-            bcu_warn "    Failed to fetch platform manifest"
-            bcu_warn "    Platform: ${platform_info}"
-            bcu_warn "    Digest: ${platform_digest}"
-            bcu_warn "    STDERR: $(<"${platform_err}")"
-            bcu_warn "    STDOUT: $(<"${platform_out}")"
-
-            ((platform_idx++))
-            continue
-          }
-
-        zrbg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}" "${headers}"
-
-        ((platform_idx++))
-      done <<< "$manifests"
-
-    elif [[ "${media_type}" == "${ZRBG_MTYPE_DV2}" ]] || \
-         [[ "${media_type}" == "${ZRBG_MTYPE_OCM}" ]] || \
-         [[ "${media_type}" == "${ZRBG_SCHEMA_V2}" ]]; then
-
-      bcu_info "  Single platform image"
-      zrbg_process_single_manifest "${tag}" "${manifest_out}" "" "${headers}"
-    else
-      bcu_warn "  Unknown manifest type: ${media_type}, skipping"
-    fi
-  done
-
-  # IMAGE_DETAILS.json
-  # ------------------
-  # A JSON array of objects, each representing a single image tag (possibly platform-specific),
-  # with detailed metadata extracted from GHCR's manifest and config blobs.
-  #
-  # Each object has the following structure:
-  # {
-  #   "tag": "<tag>",                   # Tag name (e.g., "myimage-20250725-linux_amd64")
-  #   "digest": "<manifest-digest>",   # Top-level manifest digest (usually for this tag+platform)
-  #   "created": "<iso-timestamp>",    # Creation timestamp extracted from config blob
-  #   "size": <int-bytes>,             # Total compressed size of the image (sum of layer sizes)
-  #   "layers": [                      # Array of individual image layers
-  #     {
-  #       "digest": "<layer-digest>",  # Content digest of the layer
-  #       "size": <int-bytes>          # Compressed size in bytes
-  #     },
-  #     ...
-  #   ]
-  # }
-  #
-  # Notes:
-  # - The array includes one entry per tag/platform combination.
-  # - "size" includes all layers and the config object.
-  # - "created" is taken from the image config, not the tag timestamp.
-
-
-  bcu_step "Comprehensive image info next ${ZRBG_IMAGE_DETAIL_FILE}"
-
-  # IMAGE_STATS.json
-  # ----------------
-  # A JSON array of objects, each representing a distinct deduplicated image layer,
-  # aggregated across all analyzed image tags.
-  #
-  # Each object has the following structure:
-  # {
-  #   "digest": "<layer-digest>",     # Full sha256 digest identifying the layer
-  #   "size": <int-bytes>,            # Size of the layer in bytes
-  #   "tag_count": <int>,             # Number of unique tags using this layer
-  #   "total_usage": <int>,           # Total times this layer appears across all tags
-  #   "tag_details": [                # Array showing usage breakdown per tag
-  #     {
-  #       "tag": "<tag>",             # Tag name using this layer
-  #       "count": <int>              # How many times layer appears in this tag
-  #     },
-  #     ...
-  #   ]
-  # }
-  #
-  # Notes:
-  # - The array is sorted descending by size (largest layers first).
-  # - The digest includes the "sha256:" prefix.
-  # - tag_count counts unique tags; total_usage counts all layer occurrences.
-  # - A layer can appear multiple times in the same tag (empty/duplicate layers).
-
-  jq '
-    .[]
-    | {tag} as $t
-    | .layers[]
-    | {digest, size, tag: $t.tag}
-  ' "${ZRBG_IMAGE_DETAIL_FILE}" |
-  jq -s '
-    group_by([.digest, .tag])
-    | map({
-        digest: .[0].digest,
-        size: .[0].size,
-        tag: .[0].tag,
-        count: length
-      })
-    | group_by(.digest)
-    | map({
-        digest: .[0].digest,
-        size: .[0].size,
-        tag_count: length,
-        total_usage: (map(.count) | add),
-        tag_details: map({tag: .tag, count: .count})
-      })
-    | sort_by(-.size)
-  ' > "${ZRBG_IMAGE_STATS_FILE}" || bcu_die "Failed to generate ${ZRBG_IMAGE_STATS_FILE}"
+  # Use registry implementation to analyze layers
+  rbcg_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}"
 
   bcu_step "Listing layers per tag..."
     jq -r '
@@ -842,3 +461,4 @@ rbg_image_info() {
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
 
 # eof
+
