@@ -22,7 +22,7 @@ set -euo pipefail
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBG_SCRIPT_DIR}/rbcg_GHCR.sh"  # Load registry implementation
+source "${ZRBG_SCRIPT_DIR}/rbcg_GHCR.sh"
 
 ######################################################################
 # Internal Functions (zrbg_*)
@@ -53,7 +53,7 @@ zrbg_environment() {
 
   # Module Variables (ZRBG_*)
 
-  # Base URLs for GitHub Actions
+  # Base URLs
   ZRBG_GITAPI_URL="https://api.github.com"
   ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
 
@@ -72,10 +72,12 @@ zrbg_environment() {
 
   # Temp files
   ZRBG_CURRENT_WORKFLOW_RUN_CACHE="${RBG_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBG_NOW_STAMP}.txt"
+  ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
+  ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
   ZRBG_WORKFLOW_LOGS="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
 
   # Container runtime (default to podman)
-  ZRBG_RUNTIME="${RBG_RUNTIME:-podman}"
+  ZRBG_RUNTIME="${RBRR_RUNTIME}"
   ZRBG_CONNECTION="${RBG_CONNECTION:-}"
 }
 
@@ -287,7 +289,7 @@ rbg_build() {
   local tag="${fqin_contents#*:}"
   echo "Waiting for tag: ${tag} to become available..."
   for i in 1 2 3 4 5; do
-    rbcg_exists "${tag}" && break
+    ! rbcg_exists "${tag}" || break
 
     echo "  Image not yet available, attempt $i of 5"
     test $i -ne 5 || bcu_die "Image '${tag}' not available in registry after 5 attempts"
@@ -357,7 +359,8 @@ rbg_delete() {
   local tag=$(echo "$fqin" | sed 's/.*://')
 
   echo "  Checking that tag '${tag}' is gone..."
-  if rbcg_exists "${tag}"; then
+  if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
+    jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
     bcu_die "Tag '${tag}' still exists in registry after deletion"
   fi
 
@@ -413,6 +416,31 @@ rbg_image_info() {
       "${ZRBG_IMAGE_RECORDS_FILE}" > "${ZRBG_IMAGE_RECORDS_FILE}.filtered"
     mv "${ZRBG_IMAGE_RECORDS_FILE}.filtered" "${ZRBG_IMAGE_RECORDS_FILE}"
   fi
+  # IMAGE_STATS.json
+  # ----------------
+  # A JSON array of objects, each representing a distinct deduplicated image layer,
+  # aggregated across all analyzed image tags.
+  #
+  # Each object has the following structure:
+  # {
+  #   "digest": "<layer-digest>",     # Full sha256 digest identifying the layer
+  #   "size": <int-bytes>,            # Size of the layer in bytes
+  #   "tag_count": <int>,             # Number of unique tags using this layer
+  #   "total_usage": <int>,           # Total times this layer appears across all tags
+  #   "tag_details": [                # Array showing usage breakdown per tag
+  #     {
+  #       "tag": "<tag>",             # Tag name using this layer
+  #       "count": <int>              # How many times layer appears in this tag
+  #     },
+  #     ...
+  #   ]
+  # }
+  #
+  # Notes:
+  # - The array is sorted descending by size (largest layers first).
+  # - The digest includes the "sha256:" prefix.
+  # - tag_count counts unique tags; total_usage counts all layer occurrences.
+  # - A layer can appear multiple times in the same tag (empty/duplicate layers).
 
   # Use registry implementation to analyze layers
   rbcg_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}"
@@ -461,4 +489,3 @@ rbg_image_info() {
 bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
 
 # eof
-

@@ -122,7 +122,7 @@ zrbcg_process_single_manifest() {
 
   local config_out="${manifest_file%.json}_config.json"
 
-  # Use proper function call (bug fix)
+  # Use new subfunction
   rbcg_fetch_config_blob "${config_digest}" "${bearer_token}" "${config_out}" || {
     bcu_warn "Failed to fetch config blob"
     return 1
@@ -323,7 +323,7 @@ rbcg_tags() {
     local items=$(jq '. | length' "${temp_page}")
     test "${items}" -ne 0 || break
 
-    # Extract tags with version_id for compatibility
+    # Extract tags without version_id
     jq -r '[.[] | select(.metadata.container.tags | length > 0) |
             .id as $version_id |
             .metadata.container.tags[] as $tag |
@@ -484,26 +484,32 @@ rbcg_layers() {
       manifests=$(jq -c '.manifests[]' "${manifest_out}")
 
       while IFS= read -r platform_manifest; do
-        local platform_digest platform_info
-        platform_digest=$(echo "${platform_manifest}" | jq -r '.digest')
-        platform_info=$(echo "${platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"')
+        local platform_digest os_arch
+
+        { read -r platform_digest os_arch; } < <(
+          jq -e -r '.digest, "\(.platform.os)/\(.platform.architecture)"' <<<"${platform_manifest}") \
+            || bcu_die "Invalid platform_manifest JSON"
 
         local platform_out="${RBG_TEMP_DIR}/platform_${safe_tag}.json"
 
         # Use subfunction to fetch platform manifest
         rbcg_fetch_manifest "${platform_digest}" "${bearer_token}" "${platform_out}" || continue
 
-        if zrbcg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}" "${bearer_token}" "${temp_detail}"; then
-          jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}" "${temp_detail}" > "${output_IMAGE_DETAILS_json}.tmp"
-          mv "${output_IMAGE_DETAILS_json}.tmp" "${output_IMAGE_DETAILS_json}"
+        if zrbcg_process_single_manifest "${tag}" "${platform_out}" "${os_arch}" "${bearer_token}" "${temp_detail}"; then
+          jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}"                                     "${temp_detail}" \
+                              > "${output_IMAGE_DETAILS_json}.tmp"
+          mv                    "${output_IMAGE_DETAILS_json}.tmp" \
+                                "${output_IMAGE_DETAILS_json}"
         fi
       done <<< "$manifests"
 
     else
       # Single platform
       if zrbcg_process_single_manifest "${tag}" "${manifest_out}" "" "${bearer_token}" "${temp_detail}"; then
-        jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}" "${temp_detail}" > "${output_IMAGE_DETAILS_json}.tmp"
-        mv "${output_IMAGE_DETAILS_json}.tmp" "${output_IMAGE_DETAILS_json}"
+        jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}"                           "${temp_detail}" \
+                            > "${output_IMAGE_DETAILS_json}.tmp"
+        mv                    "${output_IMAGE_DETAILS_json}.tmp" \
+                              "${output_IMAGE_DETAILS_json}"
       fi
     fi
   done
