@@ -107,6 +107,27 @@ zrbg_curl_post() {
     || bcu_die "Curl failed."
 }
 
+# Collect all image records (version_id, tag, fqin) with pagination
+#
+# Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
+#
+# IMAGE_RECORDS.json
+# ------------------
+# A JSON array of image tag metadata objects as returned by the GitHub Container Registry (GHCR) API.
+# This is the raw tag listing from the GHCR repository, used as input to downstream inspection.
+#
+# Each object has the following structure:
+# {
+#   "name": "<tag>",                  # The tag string (e.g., "v5.5-20250725-abc_x86_64")
+#   "digest": "<manifest-digest>",   # Digest of the top-level manifest associated with the tag
+#   "updated_at": "<iso-timestamp>"  # Last modified timestamp (from GHCR metadata)
+# }
+#
+# Notes:
+# - This file does not include layer or config information.
+# - This is a direct mapping of GHCR's paginated tag listing.
+# - Downstream code uses this as a seed to resolve manifests and blobs.
+
 # Check git repository status
 zrbg_check_git_status() {
   bcu_info "Make sure your local repo is up to date with github variant..."
