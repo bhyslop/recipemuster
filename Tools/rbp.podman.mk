@@ -22,7 +22,7 @@ export RBM_SENTRY_CONTAINER     = $(RBM_MONIKER)-sentry
 export RBM_CENSER_CONTAINER     = $(RBM_MONIKER)-censer
 export RBM_BOTTLE_CONTAINER     = $(RBM_MONIKER)-bottle
 export RBM_ENCLAVE_NETWORK      = $(RBM_MONIKER)-enclave
-export RBM_MACHINE              = pdvm-rbw
+export RBM_MACHINE              = rbw-vm-deploy
 export RBM_CONNECTION           = -c $(RBM_MACHINE)
 
 # Consolidated passed variables

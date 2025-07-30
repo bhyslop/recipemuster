@@ -65,16 +65,11 @@ rbcg_start() {
   ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
   ZRBCG_AUTH_TOKEN=""
 
-  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
-                                    -u "${RBRG_USERNAME}"    \
-                                    -p "${RBRG_PAT}"         \
-                  || bcu_die "Failed cmd"
-
   bcu_step "Login to GitHub Container Registry"
-  ${runtime_cmd} login "${ZRBCG_REGISTRY}" \
-                 -u "${RBRG_USERNAME}"     \
-                 -p "${RBRG_PAT}"          \
-            || bcu_die "Failed cmd"
+  ${RBC_RUNTIME} ${RBC_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
+                                     -u "${RBRG_USERNAME}"    \
+                                     -p "${RBRG_PAT}"         \
+                  || bcu_die "Failed cmd"
   bcu_step "Logged in to ${ZRBCG_REGISTRY}"
 
   bcu_step "Obtaining bearer token for registry API"
@@ -105,7 +100,7 @@ rbcg_push() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Push image ${fqin}"
 
-  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
+  ${RBC_RUNTIME} ${RBC_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
 
   bcu_step "Image pushed successfully"
 }
@@ -124,7 +119,7 @@ rbcg_pull() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Pull image ${fqin}"
 
-  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
+  ${RBC_RUNTIME} ${RBC_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
 
   bcu_step "Image pulled successfully"
 }
