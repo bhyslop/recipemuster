@@ -60,6 +60,14 @@ zrbc_environment() {
     quay)  source "${ZRBC_SCRIPT_DIR}/rbcq_Quay.sh" ;;
   esac
 
+  # Source GitHub PAT credentials for Action
+  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
+  source          "${RBRR_GITHUB_PAT_ENV}"
+
+  # Extract and validate PAT credentials
+  test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+  test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+
   # Module Variables (ZRBC_*)
 
   # Base URLs (GHCR-specific, but kept for GitHub Actions workflows)
