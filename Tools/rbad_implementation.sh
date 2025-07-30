@@ -17,20 +17,22 @@
 
 set -euo pipefail
 
-ZRBADI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-
 ######################################################################
 # Environment Validation
 
-rbadi_validate_env() {
-  # Core variables required by all functions
-  test -n "${RBRR_REGISTRY_OWNER:-}" || { echo "Error: RBRR_REGISTRY_OWNER not set" >&2; return 1; }
-  test -n "${RBRR_REGISTRY_NAME:-}"  || { echo "Error: RBRR_REGISTRY_NAME not set" >&2; return 1; }
-  test -n "${RBRR_HISTORY_DIR:-}"    || { echo "Error: RBRR_HISTORY_DIR not set" >&2; return 1; }
-  test -n "${RBRG_PAT:-}"           || { echo "Error: RBRG_PAT not set" >&2; return 1; }
-  test -n "${RBRG_USERNAME:-}"      || { echo "Error: RBRG_USERNAME not set" >&2; return 1; }
-  test -n "${RBAD_TEMP_DIR:-}"      || { echo "Error: RBAD_TEMP_DIR not set" >&2; return 1; }
-  test -n "${RBAD_NOW_STAMP:-}"     || { echo "Error: RBAD_NOW_STAMP not set" >&2; return 1; }
+zrbad_start() {
+  test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
+  test -n "${RBRR_HISTORY_DIR:-}"    || bcu_die "RBRR_HISTORY_DIR not set"
+  test -n "${RBRG_PAT:-}"            || bcu_die "RBRG_PAT not set"
+  test -n "${RBRG_USERNAME:-}"       || bcu_die "RBRG_USERNAME not set"
+  test -n "${RBAD_TEMP_DIR:-}"       || bcu_die "RBAD_TEMP_DIR not set"
+  test -n "${RBAD_NOW_STAMP:-}"      || bcu_die "RBAD_NOW_STAMP not set"
+
+  ZRBAD_DISPATCH_URL="${RBADI_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
+  ZRBAD_RUNS_URL_BASE="${RBADI_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
+  ZRBAD_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
+  ZRBAD_RUN_CACHE="${RBAD_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBAD_NOW_STAMP}.txt"
 
   return 0
 }
@@ -38,26 +40,6 @@ rbadi_validate_env() {
 ######################################################################
 # Module Variables
 
-# GitHub API configuration
-RBADI_GITAPI_URL="https://api.github.com"
-RBADI_REPO_PREFIX="${RBADI_GITAPI_URL}/repos"
-RBADI_MTYPE_GHV3="application/vnd.github.v3+json"
-
-# Derived URLs (set after validation)
-RBADI_DISPATCH_URL=""
-RBADI_RUNS_URL_BASE=""
-RBADI_GITHUB_ACTIONS_URL=""
-
-# Temp files
-RBADI_CURRENT_WORKFLOW_RUN_CACHE=""
-
-# Initialize module variables after validation
-rbadi_init_vars() {
-  RBADI_DISPATCH_URL="${RBADI_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
-  RBADI_RUNS_URL_BASE="${RBADI_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
-  RBADI_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
-  RBADI_CURRENT_WORKFLOW_RUN_CACHE="${RBAD_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBAD_NOW_STAMP}.txt"
-}
 
 ######################################################################
 # GitHub API Functions (rbadi_*)
@@ -80,7 +62,7 @@ rbadi_curl_post() {
        -s                                       \
        -X POST                                  \
        -H "Authorization: token ${RBRG_PAT}"    \
-       -H "Accept: ${RBADI_MTYPE_GHV3}"        \
+       -H "Accept: ${RBADI_MTYPE_GHV3}"         \
        "$url"                                   \
        -d "$data"                               \
     || { echo "Error: Curl failed" >&2; return 1; }
