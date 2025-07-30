@@ -362,6 +362,9 @@ rbc_build() {
   test -n "${recipe_file}" || bcu_usage_die
   test -f "${recipe_file}" || bcu_die "Recipe file not found: ${recipe_file}"
 
+  bcu_info "Connecting to container repository..."
+  zrbc_start
+
   # Perform command
   local  recipe_basename=$(basename "${recipe_file}")
   echo "$recipe_basename" | grep -q '[A-Z]' && \
