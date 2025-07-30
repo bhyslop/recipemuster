@@ -28,9 +28,11 @@ source "${ZRBC_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 zrbc_environment() {
   # Handle documentation mode
-  bcu_doc_env "RBC_TEMP_DIR  " "Empty temporary directory"
-  bcu_doc_env "RBC_NOW_STAMP " "Timestamp for per run branding"
-  bcu_doc_env "RBC_RBRR_FILE " "File containing the RBRR constants"
+  bcu_doc_env "RBC_TEMP_DIR    " "Empty temporary directory"
+  bcu_doc_env "RBC_NOW_STAMP   " "Timestamp for per run branding"
+  bcu_doc_env "RBC_RBRR_FILE   " "File containing the RBRR constants"
+  bcu_doc_env "RBC_RUNTIME     " "Container runtime to use"
+  bcu_doc_env "RBC_RUNTIME_ARG " "Argument to container runtime"
 
   bcu_env_done || return 0
 
@@ -127,15 +129,13 @@ zrbc_environment() {
 }
 
 # Initialize registry session with authentication
-zrbc_start_registry() {
-  local runtime="$1"
-  local connection="${2:-}"
+zrbc_start() {
 
   case "${RBRR_REGISTRY}" in
-    ghcr) rbcg_start "${runtime}" "${connection}" ;;
-    ecr)  rbce_start "${runtime}" "${connection}" ;;
-    acr)  rbca_start "${runtime}" "${connection}" ;;
-    quay) rbcq_start "${runtime}" "${connection}" ;;
+    ghcr) rbcg_start ;;
+    ecr)  rbce_start ;;
+    acr)  rbca_start ;;
+    quay) rbcq_start ;;
     *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
   esac
 }
@@ -552,7 +552,7 @@ rbc_retrieve() {
   bcu_step "Pull image from Container Registry"
 
   # Login using registry implementation
-  zrbc_start_registry "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
+  zrbc_start "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
 
   local tag="${fqin#*:}"
   case "${RBRR_REGISTRY}" in
@@ -585,7 +585,7 @@ rbc_layers() {
   bcu_step "Analyzing image layers"
 
   # Initialize registry session
-  zrbc_start_registry "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
+  zrbc_start "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
 
   # Initialize details file
   echo "[]" > "${output_IMAGE_DETAILS_json}"

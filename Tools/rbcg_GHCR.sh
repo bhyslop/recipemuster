@@ -26,15 +26,15 @@ source "${ZRBCG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 zrbcg_environment() {
   # Handle documentation mode
-  bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
-  bcu_doc_env "RBG_RBRR_FILE " "File containing the RBRR constants"
+  bcu_doc_env "RBC_TEMP_DIR  " "Empty temporary directory"
+  bcu_doc_env "RBC_RBRR_FILE " "File containing the RBRR constants"
 
   bcu_env_done || return 0
 
   # Validate environment
-  bvu_dir_exists  "${RBG_TEMP_DIR}"
-  bvu_dir_empty   "${RBG_TEMP_DIR}"
-  bvu_file_exists "${RBG_RBRR_FILE}"
+  bvu_dir_exists  "${RBC_TEMP_DIR}"
+  bvu_dir_empty   "${RBC_TEMP_DIR}"
+  bvu_file_exists "${RBC_RBRR_FILE}"
 
   # Source RBRR configuration (already done by caller)
   source "${ZRBCG_SCRIPT_DIR}/rbrr.validator.sh"
@@ -55,21 +55,9 @@ zrbcg_environment() {
   ZRBCG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
 
-  # Container runtime variables (set by rbcg_start)
-  ZRBCG_RUNTIME=""
-  ZRBCG_CONNECTION=""
+  # Container runtime variables
+  test -n "${RBC_RUNTIME:-}" || bcu_die "RBC_RUNTIME missing"
   ZRBCG_AUTH_TOKEN=""
-}
-
-# Build container command with runtime and connection
-zrbcg_build_container_cmd() {
-  local base_cmd="$1"
-
-  if [ "${ZRBCG_RUNTIME}" = "podman" ] && [ -n "${ZRBCG_CONNECTION}" ]; then
-    echo "podman --connection=${ZRBCG_CONNECTION} ${base_cmd}"
-  else
-    echo "${ZRBCG_RUNTIME} ${base_cmd}"
-  fi
 }
 
 # Perform authenticated GET request to GitHub API
@@ -80,26 +68,10 @@ zrbcg_curl_get() {
           "$url"
 }
 
-# Get bearer token for GHCR registry operations
-zrbcg_get_bearer_token() {
-  local token_out="${RBG_TEMP_DIR}/bearer_token.out"
-  local token_err="${RBG_TEMP_DIR}/bearer_token.err"
-  local bearer_token
-
-  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBCG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
-    bearer_token=$(jq -r '.token' "${token_out}") && \
-    test -n "${bearer_token}"                     && \
-    test    "${bearer_token}" != "null" || bcu_die "Failed to obtain bearer token"
-
-  echo "${bearer_token}"
-}
-
 ######################################################################
 # External Functions (rbcg_*)
 
 rbcg_start() {
-  local runtime="${1:-}"
-  local connection_string="${2:-}"
 
   # Handle documentation mode
   bcu_doc_brief "Initialize GHCR session with login and token setup"
@@ -115,13 +87,23 @@ rbcg_start() {
   ZRBCG_CONNECTION="${connection_string}"
 
   bcu_step "Login to GitHub Container Registry"
-  local login_cmd
-  login_cmd=$(zrbcg_build_container_cmd "login ${ZRBCG_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}") || bcu_die "Failed cmd"
-  eval "${login_cmd}"
+  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
+                                    -u "${RBRG_USERNAME}"    \
+                                    -p "${RBRG_PAT}"         \
+                  || bcu_die "Failed cmd"
   bcu_step "Logged in to ${ZRBCG_REGISTRY}"
 
   bcu_step "Obtaining bearer token for registry API"
-  ZRBCG_AUTH_TOKEN=$(zrbcg_get_bearer_token)
+  local token_out="${RBC_TEMP_DIR}/bearer_token.out"
+  local token_err="${RBC_TEMP_DIR}/bearer_token.err"
+  local bearer_token
+
+  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBCG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
+               bearer_token=$(jq -r '.token'                       "${token_out}")                 && \
+    test -n "${bearer_token}"                                                                      && \
+    test    "${bearer_token}" != "null" || bcu_die "Failed to obtain bearer token"
+
+  ZRBCG_AUTH_TOKEN="${bearer_token}"
   bcu_step "Bearer token obtained"
 }
 
@@ -139,9 +121,7 @@ rbcg_push() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Push image ${fqin}"
 
-  local push_cmd
-  push_cmd=$(zrbcg_build_container_cmd "push ${fqin}") || bcu_die "Failed push cmd build"
-  eval "${push_cmd}"
+  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
 
   bcu_step "Image pushed successfully"
 }
@@ -160,9 +140,7 @@ rbcg_pull() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Pull image ${fqin}"
 
-  local pull_cmd
-  pull_cmd=$(zrbcg_build_container_cmd "pull ${fqin}") || bcu_die "Failed pull cmd build"
-  eval "${pull_cmd}"
+  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
 
   bcu_step "Image pulled successfully"
 }
@@ -239,8 +217,8 @@ rbcg_tags() {
   echo "[]" > "${output_IMAGE_RECORDS_json}"
 
   local page=1
-  local temp_page="${RBG_TEMP_DIR}/temp_page.json"
-  local temp_tags="${RBG_TEMP_DIR}/temp_tags.json"
+  local temp_page="${RBC_TEMP_DIR}/temp_page.json"
+  local temp_tags="${RBC_TEMP_DIR}/temp_tags.json"
 
   while true; do
     local url="${ZRBCG_PACKAGES_URL}?per_page=100&page=${page}"
