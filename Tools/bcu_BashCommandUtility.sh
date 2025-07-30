@@ -239,6 +239,15 @@ zbcu_show_help() {
   done
 }
 
+bcu_require() {
+  local prompt="$1"
+  local required_value="$2"
+
+  echo -e "${ZBCU_YELLOW}${prompt}${ZBCU_RESET}"
+  read -p "Type ${required_value}: " input
+  test "$input" = "$required_value" || bcu_die "prompt not confirmed."
+}
+
 bcu_execute() {
   set -e
   local prefix="$1"

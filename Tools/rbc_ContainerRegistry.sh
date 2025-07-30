@@ -192,10 +192,7 @@ zrbc_get_latest_build_dir() {
 # Prompt for confirmation
 zrbc_confirm_action() {
   local prompt="$1"
-
-  echo -e "${ZBCU_YELLOW}${prompt}${ZBCU_RESET}"
-  read -p "Type YES: " confirm
-  test "$confirm" = "YES"
+  bcu_require "$prompt" "YES"
 }
 
 # Process a single manifest
