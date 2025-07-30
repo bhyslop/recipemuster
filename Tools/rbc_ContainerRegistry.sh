@@ -487,7 +487,7 @@ rbc_delete() {
   local tag=$(echo "$fqin" | sed 's/.*://')
 
   bcu_step "Deleting image from ${RBRR_REGISTRY} registry"
-  
+
   # Use registry-specific delete operation
   case "${RBRR_REGISTRY}" in
     ghcr)  bcu_die "Unsupported since GHCR deletion does not manage layers safely." ;;
@@ -734,7 +734,10 @@ rbc_image_info() {
   bcu_success "No errors."
 }
 
-bcu_execute rbc_ "Recipe Bottle Container - Container Registry Management" zrbc_environment "$@"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  # This allows sourcing this module in another that is being executed
+  bcu_execute rbc_ "Recipe Bottle Container - Container Registry Management" zrbc_environment "$@"
+fi
+
 
 # eof
-
