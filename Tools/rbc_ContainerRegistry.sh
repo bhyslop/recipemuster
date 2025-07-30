@@ -31,8 +31,6 @@ zrbc_environment() {
   bcu_doc_env "RBC_TEMP_DIR    " "Empty temporary directory"
   bcu_doc_env "RBC_NOW_STAMP   " "Timestamp for per run branding"
   bcu_doc_env "RBC_RBRR_FILE   " "File containing the RBRR constants"
-  bcu_doc_env "RBC_RUNTIME     " "Container runtime to use"
-  bcu_doc_env "RBC_RUNTIME_ARG " "Argument to container runtime"
 
   bcu_env_done || return 0
 
@@ -432,7 +430,10 @@ rbc_list() {
   bcu_doc_brief "List registry images"
   bcu_doc_shown || return 0
 
-  # Use registry implementation to get tags
+  bcu_info "Set up container registry"
+  zrbc_start
+
+  bcu_info "Use registry implementation to get tags"
   case "${RBRR_REGISTRY}" in
     ghcr) rbcg_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
     ecr)  rbce_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
@@ -535,7 +536,7 @@ rbc_retrieve() {
   bcu_step "Pull image from Container Registry"
 
   # Login using registry implementation
-  zrbc_start "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
+  zrbc_start
 
   local tag="${fqin#*:}"
   case "${RBRR_REGISTRY}" in
@@ -568,7 +569,7 @@ rbc_layers() {
   bcu_step "Analyzing image layers"
 
   # Initialize registry session
-  zrbc_start "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
+  zrbc_start
 
   # Initialize details file
   echo "[]" > "${output_IMAGE_DETAILS_json}"

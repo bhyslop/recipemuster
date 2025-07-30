@@ -24,33 +24,6 @@ source "${ZRBCG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 ######################################################################
 # Internal Functions (zrbcg_*)
 
-zrbcg_environment() {
-
-  # Validate environment
-  bvu_dir_exists  "${RBC_TEMP_DIR}"
-  bvu_dir_empty   "${RBC_TEMP_DIR}"
-  bvu_file_exists "${RBC_RBRR_FILE}"
-
-  # Source GitHub PAT credentials
-  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
-  source          "${RBRR_GITHUB_PAT_ENV}"
-
-  # Extract and validate PAT credentials
-  test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-  test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
-
-  # Module Variables (ZRBCG_*)
-  ZRBCG_REGISTRY="ghcr.io"
-  ZRBCG_GITAPI_URL="https://api.github.com"
-  ZRBCG_PACKAGES_URL="${ZRBCG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions"
-  ZRBCG_IMAGE_PREFIX="${ZRBCG_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  ZRBCG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
-
-  # Container runtime variables
-  test -n "${RBC_RUNTIME:-}" || bcu_die "RBC_RUNTIME missing"
-  ZRBCG_AUTH_TOKEN=""
-}
 
 # Perform authenticated GET request to GitHub API
 zrbcg_curl_get() {
@@ -64,6 +37,8 @@ zrbcg_curl_get() {
 # External Functions (rbcg_*)
 
 rbcg_start() {
+  local runtime="${1:-}"
+  local connection_string="${2:-}"
 
   # Handle documentation mode
   bcu_doc_brief "Initialize GHCR session with login and token setup"
@@ -74,15 +49,45 @@ rbcg_start() {
   # Argument validation
   test -n "$runtime" || bcu_usage_die
 
+  # Environment validation
+  bvu_dir_exists  "${RBC_TEMP_DIR}"
+  bvu_dir_empty   "${RBC_TEMP_DIR}"
+  bvu_file_exists "${RBC_RBRR_FILE}"
+
+  # Source GitHub PAT credentials
+  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
+  source          "${RBRR_GITHUB_PAT_ENV}"
+
+  # Extract and validate PAT credentials
+  test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+  test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+
+  # Container runtime validation and setup
+  test -n "${RBC_RUNTIME:-}" || bcu_die "RBC_RUNTIME missing"
+  
+  # Module Variables (ZRBCG_*)
+  ZRBCG_REGISTRY="ghcr.io"
+  ZRBCG_GITAPI_URL="https://api.github.com"
+  ZRBCG_PACKAGES_URL="${ZRBCG_GITAPI_URL}/user/packages/container/${RBRR_REGISTRY_NAME}/versions"
+  ZRBCG_IMAGE_PREFIX="${ZRBCG_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
+  ZRBCG_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
+  ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
+  ZRBCG_AUTH_TOKEN=""
+
   # Store runtime settings
   ZRBCG_RUNTIME="${runtime}"
   ZRBCG_CONNECTION="${connection_string}"
 
-  bcu_step "Login to GitHub Container Registry"
   ${RBC_RUNTIME} {RBC_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
                                     -u "${RBRG_USERNAME}"    \
                                     -p "${RBRG_PAT}"         \
                   || bcu_die "Failed cmd"
+
+  bcu_step "Login to GitHub Container Registry"
+  ${runtime_cmd} login "${ZRBCG_REGISTRY}" \
+                 -u "${RBRG_USERNAME}"     \
+                 -p "${RBRG_PAT}"          \
+            || bcu_die "Failed cmd"
   bcu_step "Logged in to ${ZRBCG_REGISTRY}"
 
   bcu_step "Obtaining bearer token for registry API"
