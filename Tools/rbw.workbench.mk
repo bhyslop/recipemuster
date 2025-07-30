@@ -30,10 +30,10 @@ RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 RBM_STATION_SH     = ../station-files/rbrs-station.sh
 
-RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
-                              RBG_NOW_STAMP="$(MBD_NOW_STAMP)"  \
-                              RBG_RBRR_FILE="rbrr.repo.sh"      \
-                              $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
+RBM_RECIPE_BOTTLE_GITHUB_SH = RBC_TEMP_DIR="$(MBD_TEMP_DIR)"    \
+                              RBC_NOW_STAMP="$(MBD_NOW_STAMP)"  \
+                              RBC_RBRR_FILE="rbrr.repo.sh"      \
+                              $(MBV_TOOLS_DIR)/rbc_ContainerRegistry.sh
 
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                           RBV_NOW_STAMP="$(MBD_NOW_STAMP)"  \
@@ -47,7 +47,6 @@ include rbrr.repo.mk
 -include $(RBM_TEST_FILE)
 include $(RBV_GITHUB_PAT_ENV)
 include $(MBV_TOOLS_DIR)/mbc.console.mk
-include $(MBV_TOOLS_DIR)/rbg.github.mk
 include $(MBV_TOOLS_DIR)/rbrr.mapper.mk
 include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
 include $(MBV_TOOLS_DIR)/rbp.podman.mk
@@ -63,7 +62,7 @@ default:
 #  Github Container Registry
 #
 
-RBG_ARG_TAG =
+RBC_ARG_TAG =
 
 rbw-hg.%:
 	$(MBC_START) "Github Command Help"
@@ -77,27 +76,27 @@ rbw-hv.%:
 
 rbw-l.%:
 	$(MBC_START) "List Current Registry Images"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_list
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbc_list
 	$(MBC_PASS) "No errors."
 
 rbw-II.%:
 	$(MBC_START) "List Registry Image Info"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_image_info $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbc_image_info $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-r.%:
 	$(MBC_START) "Retrieve Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbc_retrieve $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-b.%:
 	$(MBC_START) "Build Container From Recipe given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_build $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbc_build $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-d.%:
 	$(MBC_START) "Delete Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_delete $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbc_delete $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 
@@ -107,7 +106,7 @@ rbw-d.%:
 # These rules are designed to allow the pattern match to parameterize
 # the operation via $(RBM_MONIKER).
 
-rbw-a.%: zrbw_prestart_rule rbp_podman_machine_start_rule rbg_container_registry_login_rule rbp_check_connection
+rbw-a.%: zrbw_prestart_rule rbp_podman_machine_start_rule rbp_check_connection
 	$(MBC_PASS) "Podman started and logged into container registry."
 
 rbw-z.%: zrbw_prestop_rule rbp_podman_machine_stop_rule
