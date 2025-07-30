@@ -15,33 +15,33 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle GitHub - Image Registry Management
+# Recipe Bottle Container - Container Registry Management
 
 set -euo pipefail
 
-ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+ZRBC_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${ZRBC_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBC_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
 ######################################################################
-# Internal Functions (zrbg_*)
+# Internal Functions (zrbc_*)
 
-zrbg_environment() {
+zrbc_environment() {
   # Handle documentation mode
-  bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
-  bcu_doc_env "RBG_NOW_STAMP " "Timestamp for per run branding"
-  bcu_doc_env "RBG_RBRR_FILE " "File containing the RBRR constants"
+  bcu_doc_env "RBC_TEMP_DIR  " "Empty temporary directory"
+  bcu_doc_env "RBC_NOW_STAMP " "Timestamp for per run branding"
+  bcu_doc_env "RBC_RBRR_FILE " "File containing the RBRR constants"
 
   bcu_env_done || return 0
 
   # Validate environment
-  bvu_dir_exists  "${RBG_TEMP_DIR}"
-  bvu_dir_empty   "${RBG_TEMP_DIR}"
-  bvu_env_string     RBG_NOW_STAMP   1 128   # weak validation but infrastructure managed
-  bvu_file_exists "${RBG_RBRR_FILE}"
+  bvu_dir_exists  "${RBC_TEMP_DIR}"
+  bvu_dir_empty   "${RBC_TEMP_DIR}"
+  bvu_env_string     RBC_NOW_STAMP   1 128   # weak validation but infrastructure managed
+  bvu_file_exists "${RBC_RBRR_FILE}"
 
-  source              "${RBG_RBRR_FILE}"
-  source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
+  source              "${RBC_RBRR_FILE}"
+  source "${ZRBC_SCRIPT_DIR}/rbrr.validator.sh"
 
   # Validate registry selection
   test -n "${RBRR_REGISTRY:-}" || bcu_die "RBRR_REGISTRY not set"
@@ -53,37 +53,43 @@ zrbg_environment() {
   # Source registry-specific driver
   case "${RBRR_REGISTRY}" in
     ghcr)
-      source "${ZRBG_SCRIPT_DIR}/rbcg_GHCR.sh"
+      source "${ZRBC_SCRIPT_DIR}/rbcg_GHCR.sh"
       bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
       source          "${RBRR_GITHUB_PAT_ENV}"
       test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
       test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
       ;;
     ecr)
-      source "${ZRBG_SCRIPT_DIR}/rbce_ECR.sh"
+      source "${ZRBC_SCRIPT_DIR}/rbce_ECR.sh"
       # ECR-specific validation would go here
       ;;
     acr)
-      source "${ZRBG_SCRIPT_DIR}/rbca_ACR.sh"
+      source "${ZRBC_SCRIPT_DIR}/rbca_ACR.sh"
       # ACR-specific validation would go here
       ;;
     quay)
-      source "${ZRBG_SCRIPT_DIR}/rbcq_Quay.sh"
+      source "${ZRBC_SCRIPT_DIR}/rbcq_Quay.sh"
       # Quay-specific validation would go here
       ;;
   esac
 
-  # Module Variables (ZRBG_*)
+  # Module Variables (ZRBC_*)
 
   # Base URLs (GHCR-specific, but kept for GitHub Actions workflows)
-  ZRBG_GITAPI_URL="https://api.github.com"
-  ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
+  ZRBC_GITAPI_URL="https://api.github.com"
+  ZRBC_REPO_PREFIX="${ZRBC_GITAPI_URL}/repos"
 
   # Derived URLs (GHCR-specific, but kept for GitHub Actions workflows)
-  ZRBG_DISPATCH_URL="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
-  ZRBG_RUNS_URL_BASE="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
-  ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
-  ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
+  ZRBC_DISPATCH_URL="${ZRBC_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
+  ZRBC_RUNS_URL_BASE="${ZRBC_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
+  ZRBC_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
+  ZRBC_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
+
+  # OCI Registry v2 API Standard Media Types
+  RBC_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
+  RBC_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
+  RBC_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
+  RBC_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
 
   # Schema Documentation for IMAGE_RECORDS.json
   # ------------------------------------------
@@ -102,37 +108,49 @@ zrbg_environment() {
   # - This file does not include layer or config information
   # - Downstream code uses this as a seed to resolve manifests and blobs
 
-  ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
-  ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
-  ZRBG_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
+  ZRBC_IMAGE_RECORDS_FILE="${RBC_TEMP_DIR}/IMAGE_RECORDS.json"
+  ZRBC_IMAGE_DETAIL_FILE="${RBC_TEMP_DIR}/IMAGE_DETAILS.json"
+  ZRBC_IMAGE_STATS_FILE="${RBC_TEMP_DIR}/IMAGE_STATS.json"
 
   # Media type for GitHub API
-  ZRBG_MTYPE_GHV3="application/vnd.github.v3+json"
+  ZRBC_MTYPE_GHV3="application/vnd.github.v3+json"
 
   # Temp files
-  ZRBG_CURRENT_WORKFLOW_RUN_CACHE="${RBG_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBG_NOW_STAMP}.txt"
-  ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
-  ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
-  ZRBG_WORKFLOW_LOGS="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+  ZRBC_CURRENT_WORKFLOW_RUN_CACHE="${RBC_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBC_NOW_STAMP}.txt"
+  ZRBC_DELETE_VERSION_ID_CACHE="${RBC_TEMP_DIR}/RBC_VERSION_ID__${RBC_NOW_STAMP}.txt"
+  ZRBC_DELETE_RESULT_CACHE="${RBC_TEMP_DIR}/RBC_DELETE__${RBC_NOW_STAMP}.txt"
+  ZRBC_WORKFLOW_LOGS="${RBC_TEMP_DIR}/workflow_logs__${RBC_NOW_STAMP}.txt"
 
   # Container runtime (default to podman)
-  ZRBG_RUNTIME="${RBRR_RUNTIME}"
-  ZRBG_CONNECTION="${RBG_CONNECTION:-}"
+  ZRBC_RUNTIME="${RBRR_RUNTIME}"
+  ZRBC_CONNECTION="${RBC_CONNECTION:-}"
 }
 
-# Perform authenticated GET request
-# Usage: zrbg_curl_get <url>
-zrbg_curl_get() {
+# Initialize registry session with authentication
+zrbc_start_registry() {
+  local runtime="$1"
+  local connection="${2:-}"
+
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_start "${runtime}" "${connection}" ;;
+    ecr)  rbce_start "${runtime}" "${connection}" ;;
+    acr)  rbca_start "${runtime}" "${connection}" ;;
+    quay) rbcq_start "${runtime}" "${connection}" ;;
+    *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
+  esac
+}
+
+# Perform authenticated GET request (GHCR-specific, kept for GitHub workflows)
+zrbc_curl_get() {
   local url="$1"
 
   curl -s -H "Authorization: token ${RBRG_PAT}" \
-          -H "Accept: ${ZRBG_MTYPE_GHV3}"       \
+          -H "Accept: ${ZRBC_MTYPE_GHV3}"       \
           "$url"
 }
 
-# Perform authenticated POST request
-# Usage: zrbg_curl_post <url> <data>
-zrbg_curl_post() {
+# Perform authenticated POST request (GHCR-specific, kept for GitHub workflows)
+zrbc_curl_post() {
   local url="$1"
   local data="$2"
 
@@ -140,14 +158,14 @@ zrbg_curl_post() {
        -s                                          \
        -X POST                                     \
        -H "Authorization: token ${RBRG_PAT}"       \
-       -H "Accept: ${ZRBG_MTYPE_GHV3}"             \
+       -H "Accept: ${ZRBC_MTYPE_GHV3}"             \
        "$url"                                      \
        -d "$data"                                  \
     || bcu_die "Curl failed."
 }
 
 # Check git repository status
-zrbg_check_git_status() {
+zrbc_check_git_status() {
   bcu_info "Make sure your local repo is up to date with github variant..."
 
   git fetch
@@ -164,8 +182,7 @@ zrbg_check_git_status() {
 }
 
 # Find the latest build directory for a recipe
-# Usage: zrbg_get_latest_build_dir <recipe_basename>
-zrbg_get_latest_build_dir() {
+zrbc_get_latest_build_dir() {
   local recipe_basename="$1"
   local basename_no_ext="${recipe_basename%.*}"
 
@@ -173,9 +190,7 @@ zrbg_get_latest_build_dir() {
 }
 
 # Prompt for confirmation
-# Usage: zrbg_confirm_action <prompt_message>
-# Returns 0 if confirmed, 1 if not
-zrbg_confirm_action() {
+zrbc_confirm_action() {
   local prompt="$1"
 
   echo -e "${ZBCU_YELLOW}${prompt}${ZBCU_RESET}"
@@ -183,8 +198,84 @@ zrbg_confirm_action() {
   test "$confirm" = "YES"
 }
 
+# Process a single manifest (extracted from rbcg_layers)
+zrbc_process_single_manifest() {
+  local tag="$1"
+  local manifest_file="$2"
+  local platform="$3"
+  local temp_detail="$4"
+
+  local config_digest
+  config_digest=$(jq -r '.config.digest' "${manifest_file}")
+
+  test -n "${config_digest}" && test "${config_digest}" != "null" || {
+    bcu_warn "null config.digest in manifest"
+    return 1
+  }
+
+  local config_out="${manifest_file%.json}_config.json"
+
+  # Use registry-specific config blob fetch
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_fetch_config_blob "${config_digest}" "${config_out}" ;;
+    ecr)  rbce_fetch_config_blob "${config_digest}" "${config_out}" ;;
+    acr)  rbca_fetch_config_blob "${config_digest}" "${config_out}" ;;
+    quay) rbcq_fetch_config_blob "${config_digest}" "${config_out}" ;;
+    *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
+  esac || {
+    bcu_warn "Failed to fetch config blob"
+    return 1
+  }
+
+  local manifest_json config_json
+  manifest_json="$(<"${manifest_file}")"
+  config_json=$(jq '. + {
+    created: (.created // "1970-01-01T00:00:00Z"),
+    architecture: (.architecture // "unknown"),
+    os: (.os // "unknown")
+  }' "${config_out}")
+
+  if [ -n "${platform}" ]; then
+    jq -n \
+      --arg tag          "${tag}"           \
+      --arg platform     "${platform}"      \
+      --arg digest       "${config_digest}" \
+      --argjson manifest "${manifest_json}" \
+      --argjson config   "${config_json}" '
+      {
+        tag: $tag,
+        platform: $platform,
+        digest: $digest,
+        layers: $manifest.layers,
+        config: {
+          created: $config.created,
+          architecture: $config.architecture,
+          os: $config.os
+        }
+      }' > "${temp_detail}"
+  else
+    jq -n \
+      --arg     tag      "${tag}"           \
+      --arg     digest   "${config_digest}" \
+      --argjson manifest "${manifest_json}" \
+      --argjson config   "${config_json}" '
+      {
+        tag: $tag,
+        digest: $digest,
+        layers: $manifest.layers,
+        config: {
+          created: $config.created,
+          architecture: $config.architecture,
+          os: $config.os
+        }
+      }' > "${temp_detail}"
+  fi
+
+  return 0
+}
+
 # Execute GitHub Actions workflow and wait for completion
-zrbg_execute_workflow() {
+zrbc_execute_workflow() {
   local event_type="${1}"
   local payload_json="${2}"
   local success_message="${3:-Workflow completed}"
@@ -192,30 +283,30 @@ zrbg_execute_workflow() {
 
   bcu_info "Trigger workflow..."
   local dispatch_data='{"event_type": "'${event_type}'", "client_payload": '${payload_json}'}'
-  zrbg_curl_post "${ZRBG_DISPATCH_URL}" "${dispatch_data}"
+  zrbc_curl_post "${ZRBC_DISPATCH_URL}" "${dispatch_data}"
 
   bcu_info "Polling for completion..."
   sleep 5
 
   bcu_info "Retrieve workflow run ID..."
-  local runs_url="${ZRBG_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
-  zrbg_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
-  test -s "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
+  local runs_url="${ZRBC_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
+  zrbc_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBC_CURRENT_WORKFLOW_RUN_CACHE}"
+  test -s "${ZRBC_CURRENT_WORKFLOW_RUN_CACHE}" || bcu_die "Failed to get workflow run ID"
 
   local run_id
-  run_id=$(<"${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}")
+  run_id=$(<"${ZRBC_CURRENT_WORKFLOW_RUN_CACHE}")
 
   bcu_info "Workflow online at:"
-  echo -e "${ZBCU_YELLOW}   ${ZRBG_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
+  echo -e "${ZBCU_YELLOW}   ${ZRBC_GITHUB_ACTIONS_URL}${run_id}${ZBCU_RESET}"
 
   bcu_info "Polling to completion..."
   local status=""
   local conclusion=""
 
   while true; do
-    local run_url="${ZRBG_RUNS_URL_BASE}/${run_id}"
+    local run_url="${ZRBC_RUNS_URL_BASE}/${run_id}"
     local response
-    response=$(zrbg_curl_get "${run_url}")
+    response=$(zrbc_curl_get "${run_url}")
 
     status=$(echo "${response}" | jq -r '.status')
     conclusion=$(echo "${response}" | jq -r '.conclusion')
@@ -265,19 +356,16 @@ zrbg_execute_workflow() {
   fi
 
   bcu_info "Pull logs..."
-  zrbg_curl_get "${ZRBG_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBG_WORKFLOW_LOGS}"
+  zrbc_curl_get "${ZRBC_RUNS_URL_BASE}/${run_id}/logs" > "${ZRBC_WORKFLOW_LOGS}"
 
   bcu_info "Everything went right, delete the run cache..."
-  rm -f "${ZRBG_CURRENT_WORKFLOW_RUN_CACHE}"
+  rm -f "${ZRBC_CURRENT_WORKFLOW_RUN_CACHE}"
 }
 
 ######################################################################
-# External Functions (rbg_*)
-# These are functions used from outside this module
-# Naming convention: rbg_<action>
+# External Functions (rbc_*)
 
-rbg_build() {
-  # Name parameters
+rbc_build() {
   local recipe_file="${1:-}"
 
   # Handle documentation mode
@@ -296,15 +384,15 @@ rbg_build() {
 
   bcu_step "Trigger image build from $recipe_file"
 
-  zrbg_check_git_status
+  zrbc_check_git_status
 
   bcu_step "Triggering GitHub Actions workflow for image build"
-  zrbg_execute_workflow "build_images"                         \
+  zrbc_execute_workflow "build_images"                         \
                         '{"dockerfile": "'$recipe_file'"}'     \
                         "Git Pull for artifacts with retry..."
 
   bcu_info "Verifying build output..."
-  local build_dir=$(zrbg_get_latest_build_dir "$recipe_basename")
+  local build_dir=$(zrbc_get_latest_build_dir "$recipe_basename")
   test -n "$build_dir"                       || bcu_die "Missing build directory"
   test -d "$build_dir"                       || bcu_die "Invalid build directory"
   test -f "$build_dir/recipe.txt"            || bcu_die "recipe.txt not found"
@@ -319,9 +407,9 @@ rbg_build() {
 
   bcu_info "Built image FQIN: ${fqin_contents}"
 
-  if [ -n                  "${RBG_ARG_FQIN_OUTPUT:-}" ]; then
-    cp "${fqin_file}"      "${RBG_ARG_FQIN_OUTPUT}"
-    bcu_info "Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}"
+  if [ -n                  "${RBC_ARG_FQIN_OUTPUT:-}" ]; then
+    cp "${fqin_file}"      "${RBC_ARG_FQIN_OUTPUT}"
+    bcu_info "Wrote FQIN to ${RBC_ARG_FQIN_OUTPUT}"
   fi
 
   bcu_info "Verifying image availability in registry..."
@@ -343,17 +431,17 @@ rbg_build() {
   bcu_success "No errors."
 }
 
-rbg_list() {
+rbc_list() {
   # Handle documentation mode
   bcu_doc_brief "List registry images"
   bcu_doc_shown || return 0
 
   # Use registry implementation to get tags
   case "${RBRR_REGISTRY}" in
-    ghcr) rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
-    ecr)  rbce_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
-    acr)  rbca_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
-    quay) rbcq_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    ghcr) rbcg_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
+    ecr)  rbce_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
+    acr)  rbca_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
+    quay) rbcq_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
   esac
 
   bcu_step "List Current Registry Images"
@@ -361,7 +449,7 @@ rbg_list() {
 
   # Display URL based on registry type
   case "${RBRR_REGISTRY}" in
-    ghcr) echo -e "${ZBCU_YELLOW}    ${ZRBG_GITHUB_PACKAGES_URL}${ZBCU_RESET}" ;;
+    ghcr) echo -e "${ZBCU_YELLOW}    ${ZRBC_GITHUB_PACKAGES_URL}${ZBCU_RESET}" ;;
     ecr)  echo -e "${ZBCU_YELLOW}    ECR Console URL${ZBCU_RESET}" ;;
     acr)  echo -e "${ZBCU_YELLOW}    ACR Console URL${ZBCU_RESET}" ;;
     quay) echo -e "${ZBCU_YELLOW}    Quay Console URL${ZBCU_RESET}" ;;
@@ -370,29 +458,28 @@ rbg_list() {
   echo "Versions:"
 
   # Check if ghcr_version_id exists in the schema
-  if [ "${RBRR_REGISTRY}" = "ghcr" ] && jq -e '.[0] | has("ghcr_version_id")' "${ZRBG_IMAGE_RECORDS_FILE}" >/dev/null 2>&1; then
+  if [ "${RBRR_REGISTRY}" = "ghcr" ] && jq -e '.[0] | has("ghcr_version_id")' "${ZRBC_IMAGE_RECORDS_FILE}" >/dev/null 2>&1; then
     printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
-    jq -r '.[] | [.ghcr_version_id, .fqin] | @tsv' "${ZRBG_IMAGE_RECORDS_FILE}" | \
+    jq -r '.[] | [.ghcr_version_id, .fqin] | @tsv' "${ZRBC_IMAGE_RECORDS_FILE}" | \
       sort -k2 -r | while IFS=$'\t' read -r id fqin; do
       printf "%-13s %s\n" "$id" "${fqin}"
     done
   else
     printf "%-70s\n" "Fully Qualified Image Name"
-    jq -r '.[].fqin' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -r | while read -r fqin; do
+    jq -r '.[].fqin' "${ZRBC_IMAGE_RECORDS_FILE}" | sort -r | while read -r fqin; do
       printf "%s\n" "${fqin}"
     done
   fi
 
   echo "${ZBCU_RESET}"
 
-  local total=$(jq '. | length' "${ZRBG_IMAGE_RECORDS_FILE}")
+  local total=$(jq '. | length' "${ZRBC_IMAGE_RECORDS_FILE}")
   bcu_info "Total image versions: ${total}"
 
   bcu_success "No errors."
 }
 
-rbg_delete() {
-  # Name parameters
+rbc_delete() {
   local fqin="${1:-}"
 
   # Handle documentation mode
@@ -406,15 +493,15 @@ rbg_delete() {
 
   # Perform command
   bcu_step "Delete image from Container Registry"
-  zrbg_check_git_status
+  zrbc_check_git_status
 
   # Confirm deletion unless skipped
-  if [ "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP" ]; then
-    zrbg_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
+  if [ "${RBC_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP" ]; then
+    zrbc_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
   fi
 
   bcu_step "Triggering GitHub Actions workflow for image deletion"
-  zrbg_execute_workflow "delete_image"                         \
+  zrbc_execute_workflow "delete_image"                         \
                         '{"fqin": "'$fqin'"}'                  \
                         "Git Pull for deletion history..."     \
                         "No deletion history recorded"
@@ -427,7 +514,7 @@ rbg_delete() {
   # Use registry-specific existence check
   case "${RBRR_REGISTRY}" in
     ghcr)
-      if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
+      if zrbc_curl_get "${ZRBCG_PACKAGES_URL}?per_page=100" | \
         jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
         bcu_die "Tag '${tag}' still exists in registry after deletion"
       fi
@@ -449,8 +536,7 @@ rbg_delete() {
   bcu_success "No errors."
 }
 
-rbg_retrieve() {
-  # Name parameters
+rbc_retrieve() {
   local fqin="${1:-}"
 
   # Handle documentation mode
@@ -465,13 +551,8 @@ rbg_retrieve() {
   # Perform command
   bcu_step "Pull image from Container Registry"
 
-  # Login and pull using registry implementation
-  case "${RBRR_REGISTRY}" in
-    ghcr) rbcg_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
-    ecr)  rbce_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
-    acr)  rbca_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
-    quay) rbcq_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
-  esac
+  # Login using registry implementation
+  zrbc_start_registry "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
 
   local tag="${fqin#*:}"
   case "${RBRR_REGISTRY}" in
@@ -484,9 +565,128 @@ rbg_retrieve() {
   bcu_success "No errors."
 }
 
+rbc_layers() {
+  local input_IMAGE_RECORDS_json="${1:-}"
+  local output_IMAGE_DETAILS_json="${2:-}"
+  local output_IMAGE_STATS_json="${3:-}"
+
+  # Handle documentation mode
+  bcu_doc_brief "Extract layer information from specified tags"
+  bcu_doc_param "input_IMAGE_RECORDS_json"   "Path to JSON file containing tags to analyze"
+  bcu_doc_param "output_IMAGE_DETAILS_json"  "Path to write layer details"
+  bcu_doc_param "output_IMAGE_STATS_json"    "Path to write layer statistics"
+  bcu_doc_shown || return 0
+
+  # Argument validation
+  test -n "$input_IMAGE_RECORDS_json"  || bcu_usage_die
+  test -n "$output_IMAGE_DETAILS_json" || bcu_usage_die
+  test -n "$output_IMAGE_STATS_json"   || bcu_usage_die
+
+  bcu_step "Analyzing image layers"
+
+  # Initialize registry session
+  zrbc_start_registry "${ZRBC_RUNTIME}" "${ZRBC_CONNECTION}"
+
+  # Initialize details file
+  echo "[]" > "${output_IMAGE_DETAILS_json}"
+
+  # Process each tag from input file
+  local tag
+  for tag in $(jq -r '.[].tag' "${input_IMAGE_RECORDS_json}" | sort -u); do
+
+    bcu_info "Processing tag: ${tag}"
+
+    local safe_tag="${tag//\//_}"
+    local manifest_out="${RBC_TEMP_DIR}/manifest_${safe_tag}.json"
+    local temp_detail="${RBC_TEMP_DIR}/temp_detail.json"
+
+    # Use registry-specific manifest fetch
+    case "${RBRR_REGISTRY}" in
+      ghcr) rbcg_fetch_manifest "${tag}" "${manifest_out}" ;;
+      ecr)  rbce_fetch_manifest "${tag}" "${manifest_out}" ;;
+      acr)  rbca_fetch_manifest "${tag}" "${manifest_out}" ;;
+      quay) rbcq_fetch_manifest "${tag}" "${manifest_out}" ;;
+      *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
+    esac || continue
+
+    # Check media type
+    local media_type
+    media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_out}")
+
+    if [[ "${media_type}" == "${RBC_MTYPE_DLIST}" ]] || \
+       [[ "${media_type}" == "${RBC_MTYPE_OCI}"   ]]; then
+      # Multi-platform
+      local manifests
+      manifests=$(jq -c '.manifests[]' "${manifest_out}")
+
+      while IFS= read -r platform_manifest; do
+        local platform_digest os_arch
+
+        { read -r platform_digest os_arch; } < <(
+          jq -e -r '.digest, "\(.platform.os)/\(.platform.architecture)"' <<<"${platform_manifest}") \
+            || bcu_die "Invalid platform_manifest JSON"
+
+        local platform_out="${RBC_TEMP_DIR}/platform_${safe_tag}.json"
+
+        # Use registry-specific manifest fetch for platform
+        case "${RBRR_REGISTRY}" in
+          ghcr) rbcg_fetch_manifest "${platform_digest}" "${platform_out}" ;;
+          ecr)  rbce_fetch_manifest "${platform_digest}" "${platform_out}" ;;
+          acr)  rbca_fetch_manifest "${platform_digest}" "${platform_out}" ;;
+          quay) rbcq_fetch_manifest "${platform_digest}" "${platform_out}" ;;
+          *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
+        esac || continue
+
+        if zrbc_process_single_manifest "${tag}" "${platform_out}" "${os_arch}" "${temp_detail}"; then
+          jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}"                                     "${temp_detail}" \
+                              > "${output_IMAGE_DETAILS_json}.tmp"
+          mv                    "${output_IMAGE_DETAILS_json}.tmp" \
+                                "${output_IMAGE_DETAILS_json}"
+        fi
+      done <<< "$manifests"
+
+    else
+      # Single platform
+      if zrbc_process_single_manifest "${tag}" "${manifest_out}" "" "${temp_detail}"; then
+        jq -s '.[0] + [.[1]]' "${output_IMAGE_DETAILS_json}"                           "${temp_detail}" \
+                            > "${output_IMAGE_DETAILS_json}.tmp"
+        mv                    "${output_IMAGE_DETAILS_json}.tmp" \
+                              "${output_IMAGE_DETAILS_json}"
+      fi
+    fi
+  done
+
+  # Generate stats
+  jq '
+    .[]
+    | {tag} as $t
+    | .layers[]
+    | {digest, size, tag: $t.tag}
+  ' "${output_IMAGE_DETAILS_json}" |
+  jq -s '
+    group_by([.digest, .tag])
+    | map({
+        digest: .[0].digest,
+        size: .[0].size,
+        tag: .[0].tag,
+        count: length
+      })
+    | group_by(.digest)
+    | map({
+        digest: .[0].digest,
+        size: .[0].size,
+        tag_count: length,
+        total_usage: (map(.count) | add),
+        tag_details: map({tag: .tag, count: .count})
+      })
+    | sort_by(-.size)
+  ' > "${output_IMAGE_STATS_json}"
+
+  bcu_success "Layer analysis complete"
+}
+
 # Gather image info from registry tags only (Bash 3.2 compliant)
-rbg_image_info() {
-  # Name parameters
+rbc_image_info() {
   local filter="${1:-}"
 
   # Handle documentation mode
@@ -499,26 +699,21 @@ rbg_image_info() {
 
   # Get tags from registry
   case "${RBRR_REGISTRY}" in
-    ghcr) rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
-    ecr)  rbce_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
-    acr)  rbca_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
-    quay) rbcq_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    ghcr) rbcg_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
+    ecr)  rbce_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
+    acr)  rbca_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
+    quay) rbcq_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
   esac
 
   # Filter if requested
   if [ -n "${filter}" ]; then
     jq --arg filter "${filter}" '[.[] | select(.tag | contains($filter))]' \
-      "${ZRBG_IMAGE_RECORDS_FILE}" > "${ZRBG_IMAGE_RECORDS_FILE}.filtered"
-    mv "${ZRBG_IMAGE_RECORDS_FILE}.filtered" "${ZRBG_IMAGE_RECORDS_FILE}"
+      "${ZRBC_IMAGE_RECORDS_FILE}" > "${ZRBC_IMAGE_RECORDS_FILE}.filtered"
+    mv "${ZRBC_IMAGE_RECORDS_FILE}.filtered" "${ZRBC_IMAGE_RECORDS_FILE}"
   fi
 
-  # Use registry implementation to analyze layers
-  case "${RBRR_REGISTRY}" in
-    ghcr) rbcg_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
-    ecr)  rbce_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
-    acr)  rbca_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
-    quay) rbcq_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
-  esac
+  # Use generic layer analysis
+  rbc_layers "${ZRBC_IMAGE_RECORDS_FILE}" "${ZRBC_IMAGE_DETAIL_FILE}" "${ZRBC_IMAGE_STATS_FILE}"
 
   bcu_step "Listing layers per tag..."
     jq -r '
@@ -531,14 +726,14 @@ rbg_image_info() {
       (.layers | to_entries | map(
         "\n  [\(.key + 1)] \(.value.digest[0:19])... \(.value.size) bytes"
       ) | join(""))
-    ' "${ZRBG_IMAGE_DETAIL_FILE}"
+    ' "${ZRBC_IMAGE_DETAIL_FILE}"
 
   bcu_step "Listing shared layers and the tags that use them..."
   jq -r '
     .[] | select(.tag_count > 1 or .total_usage > 1) |
     "Layer: \(.digest[0:19]) (used by \(.tag_count) tag(s), \(.size) bytes)\n" +
     (.tag_details | map("  - \(.tag)" + if .count > 1 then " (\(.count) times)" else "" end) | join("\n"))
-  ' "${ZRBG_IMAGE_STATS_FILE}"
+  ' "${ZRBC_IMAGE_STATS_FILE}"
 
   bcu_step "Rendering layer usage summary..."
   total_bytes=0
@@ -553,7 +748,7 @@ rbg_image_info() {
 
     total_bytes=$((total_bytes + size))
     total_layers=$((total_layers + 1))
-  done < <(jq -r '.[] | [.digest, .size, .tag_count, .total_usage] | @tsv' "${ZRBG_IMAGE_STATS_FILE}")
+  done < <(jq -r '.[] | [.digest, .size, .tag_count, .total_usage] | @tsv' "${ZRBC_IMAGE_STATS_FILE}")
 
   printf "\nTotal unique layers: %d\n" "${total_layers}"
   printf "Total deduplicated size: %d MB\n" "$((total_bytes / 1024 / 1024))"
@@ -561,6 +756,7 @@ rbg_image_info() {
   bcu_success "No errors."
 }
 
-bcu_execute rbg_ "Recipe Bottle GitHub - Image Registry Management" zrbg_environment "$@"
+bcu_execute rbc_ "Recipe Bottle Container - Container Registry Management" zrbc_environment "$@"
 
 # eof
+
