@@ -529,7 +529,7 @@ rbc_retrieve() {
   # Perform command
   bcu_step "Pull image from Container Registry"
 
-  # Login using registry implementation
+  bcu_step "Login using registry implementation..."
   zrbc_start
 
   local tag="${fqin#*:}"
@@ -562,23 +562,20 @@ rbc_layers() {
 
   bcu_step "Analyzing image layers"
 
-  # Initialize registry session
+  bcu_step "Login using registry implementation..."
   zrbc_start
 
-  # Initialize details file
   echo "[]" > "${output_IMAGE_DETAILS_json}"
 
-  # Process each tag from input file
   local tag
   for tag in $(jq -r '.[].tag' "${input_IMAGE_RECORDS_json}" | sort -u); do
 
-    bcu_info "Processing tag: ${tag}"
+    bcu_step "Processing tag: ${tag}"
 
     local safe_tag="${tag//\//_}"
     local manifest_out="${RBC_TEMP_DIR}/manifest_${safe_tag}.json"
     local temp_detail="${RBC_TEMP_DIR}/temp_detail.json"
 
-    # Use registry-specific manifest fetch
     case "${RBRR_REGISTRY}" in
       ghcr) rbcg_fetch_manifest "${tag}" "${manifest_out}" ;;
       ecr)  rbce_fetch_manifest "${tag}" "${manifest_out}" ;;
@@ -587,7 +584,6 @@ rbc_layers() {
       *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
     esac || continue
 
-    # Check media type
     local media_type
     media_type=$(jq -r '.mediaType // .schemaVersion' "${manifest_out}")
 
@@ -634,7 +630,6 @@ rbc_layers() {
     fi
   done
 
-  # Generate stats
   jq '
     .[]
     | {tag} as $t
@@ -675,7 +670,10 @@ rbc_image_info() {
   bcu_doc_oparm "filter" "only process tags containing this string, if provided"
   bcu_doc_shown || return 0
 
-  # Get tags from registry
+  bcu_step "Login using registry implementation..."
+  zrbc_start
+
+  bcu_step "Get tags from registry..."
   case "${RBRR_REGISTRY}" in
     ghcr) rbcg_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
     ecr)  rbce_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
@@ -683,14 +681,12 @@ rbc_image_info() {
     quay) rbcq_tags "${ZRBC_IMAGE_RECORDS_FILE}" ;;
   esac
 
-  # Filter if requested
   if [ -n "${filter}" ]; then
     jq --arg filter "${filter}" '[.[] | select(.tag | contains($filter))]' \
       "${ZRBC_IMAGE_RECORDS_FILE}" > "${ZRBC_IMAGE_RECORDS_FILE}.filtered"
     mv "${ZRBC_IMAGE_RECORDS_FILE}.filtered" "${ZRBC_IMAGE_RECORDS_FILE}"
   fi
 
-  # Use generic layer analysis
   rbc_layers "${ZRBC_IMAGE_RECORDS_FILE}" "${ZRBC_IMAGE_DETAIL_FILE}" "${ZRBC_IMAGE_STATS_FILE}"
 
   bcu_step "Listing layers per tag..."
