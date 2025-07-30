@@ -37,21 +37,12 @@ zrbcg_curl_get() {
 # External Functions (rbcg_*)
 
 rbcg_start() {
-  local runtime="${1:-}"
-  local connection_string="${2:-}"
-
   # Handle documentation mode
   bcu_doc_brief "Initialize GHCR session with login and token setup"
-  bcu_doc_param "runtime" "Container runtime to use (docker or podman)"
-  bcu_doc_oparm "connection_string" "Connection string for podman remote connections"
   bcu_doc_shown || return 0
-
-  # Argument validation
-  test -n "$runtime" || bcu_usage_die
 
   # Environment validation
   bvu_dir_exists  "${RBC_TEMP_DIR}"
-  bvu_dir_empty   "${RBC_TEMP_DIR}"
   bvu_file_exists "${RBC_RBRR_FILE}"
 
   # Source GitHub PAT credentials
@@ -62,9 +53,6 @@ rbcg_start() {
   test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
   test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
 
-  # Container runtime validation and setup
-  test -n "${RBC_RUNTIME:-}" || bcu_die "RBC_RUNTIME missing"
-  
   # Module Variables (ZRBCG_*)
   ZRBCG_REGISTRY="ghcr.io"
   ZRBCG_GITAPI_URL="https://api.github.com"
@@ -74,13 +62,9 @@ rbcg_start() {
   ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
   ZRBCG_AUTH_TOKEN=""
 
-  # Store runtime settings
-  ZRBCG_RUNTIME="${runtime}"
-  ZRBCG_CONNECTION="${connection_string}"
-
-  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
-                                    -u "${RBRG_USERNAME}"    \
-                                    -p "${RBRG_PAT}"         \
+  ${RBRR_RUNTIME} {RBRR_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
+                                      -u "${RBRG_USERNAME}"    \
+                                      -p "${RBRG_PAT}"         \
                   || bcu_die "Failed cmd"
 
   bcu_step "Login to GitHub Container Registry"
@@ -118,7 +102,7 @@ rbcg_push() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Push image ${fqin}"
 
-  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
+  ${RBRR_RUNTIME} {RBRR_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
 
   bcu_step "Image pushed successfully"
 }
@@ -137,7 +121,7 @@ rbcg_pull() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Pull image ${fqin}"
 
-  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
+  ${RBRR_RUNTIME} {RBRR_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
 
   bcu_step "Image pulled successfully"
 }

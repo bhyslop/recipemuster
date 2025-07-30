@@ -52,25 +52,10 @@ zrbc_environment() {
 
   # Source registry-specific driver
   case "${RBRR_REGISTRY}" in
-    ghcr)
-      source "${ZRBC_SCRIPT_DIR}/rbcg_GHCR.sh"
-      bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
-      source          "${RBRR_GITHUB_PAT_ENV}"
-      test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-      test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
-      ;;
-    ecr)
-      source "${ZRBC_SCRIPT_DIR}/rbce_ECR.sh"
-      # ECR-specific validation would go here
-      ;;
-    acr)
-      source "${ZRBC_SCRIPT_DIR}/rbca_ACR.sh"
-      # ACR-specific validation would go here
-      ;;
-    quay)
-      source "${ZRBC_SCRIPT_DIR}/rbcq_Quay.sh"
-      # Quay-specific validation would go here
-      ;;
+    ghcr)  source "${ZRBC_SCRIPT_DIR}/rbcg_GHCR.sh" ;;
+    ecr)   source "${ZRBC_SCRIPT_DIR}/rbce_ECR.sh"  ;;
+    acr)   source "${ZRBC_SCRIPT_DIR}/rbca_ACR.sh"  ;;
+    quay)  source "${ZRBC_SCRIPT_DIR}/rbcq_Quay.sh" ;;
   esac
 
   # Module Variables (ZRBC_*)
@@ -119,10 +104,6 @@ zrbc_environment() {
   ZRBC_DELETE_VERSION_ID_CACHE="${RBC_TEMP_DIR}/RBC_VERSION_ID__${RBC_NOW_STAMP}.txt"
   ZRBC_DELETE_RESULT_CACHE="${RBC_TEMP_DIR}/RBC_DELETE__${RBC_NOW_STAMP}.txt"
   ZRBC_WORKFLOW_LOGS="${RBC_TEMP_DIR}/workflow_logs__${RBC_NOW_STAMP}.txt"
-
-  # Container runtime (default to podman)
-  ZRBC_RUNTIME="${RBRR_RUNTIME}"
-  ZRBC_CONNECTION="${RBC_CONNECTION:-}"
 }
 
 # Initialize registry session with authentication
