@@ -25,19 +25,11 @@ source "${ZRBCG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 # Internal Functions (zrbcg_*)
 
 zrbcg_environment() {
-  # Handle documentation mode
-  bcu_doc_env "RBC_TEMP_DIR  " "Empty temporary directory"
-  bcu_doc_env "RBC_RBRR_FILE " "File containing the RBRR constants"
-
-  bcu_env_done || return 0
 
   # Validate environment
   bvu_dir_exists  "${RBC_TEMP_DIR}"
   bvu_dir_empty   "${RBC_TEMP_DIR}"
   bvu_file_exists "${RBC_RBRR_FILE}"
-
-  # Source RBRR configuration (already done by caller)
-  source "${ZRBCG_SCRIPT_DIR}/rbrr.validator.sh"
 
   # Source GitHub PAT credentials
   bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"

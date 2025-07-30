@@ -85,7 +85,6 @@ zrbc_environment() {
   ZRBC_DISPATCH_URL="${ZRBC_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   ZRBC_RUNS_URL_BASE="${ZRBC_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
   ZRBC_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
-  ZRBC_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
 
   # OCI Registry v2 API Standard Media Types
   RBC_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
@@ -443,14 +442,6 @@ rbc_list() {
 
   bcu_step "List Current Registry Images"
   echo "Package: ${RBRR_REGISTRY_NAME}"
-
-  # Display URL based on registry type
-  case "${RBRR_REGISTRY}" in
-    ghcr) echo -e "${ZBCU_YELLOW}    ${ZRBC_GITHUB_PACKAGES_URL}${ZBCU_RESET}" ;;
-    ecr)  echo -e "${ZBCU_YELLOW}    ECR Console URL${ZBCU_RESET}" ;;
-    acr)  echo -e "${ZBCU_YELLOW}    ACR Console URL${ZBCU_RESET}" ;;
-    quay) echo -e "${ZBCU_YELLOW}    Quay Console URL${ZBCU_RESET}" ;;
-  esac
 
   echo "Versions:"
 
