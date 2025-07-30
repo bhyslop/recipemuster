@@ -347,9 +347,10 @@ rbcr_image_info() {
   bcu_success "No errors."
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  # This allows sourcing this module in another that is being executed
-  bcu_execute rbcr_ "Recipe Bottle Container Registry - Container Registry Management" zrbcr_environment "$@"
-fi
+
+test "${BASH_SOURCE[0]}" != "${0}" || bcu_die "This file must be directly executed, not sourced."
+
+bcu_execute rbcr_ "Recipe Bottle Container Registry - Container Registry Management" zrbcr_environment "$@"
+
 
 # eof

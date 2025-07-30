@@ -204,9 +204,8 @@ rbad_wait() {
   bcu_success "Workflow completed successfully."
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  # This allows sourcing this module in another that is being executed
-  bcu_execute rbad_ "Recipe Bottle Action Dispatch - GitHub Actions Workflow Management" zrbad_environment "$@"
-fi
+test "${BASH_SOURCE[0]}" != "${0}" || bcu_die "This file must be directly executed, not sourced."
+
+bcu_execute rbad_ "Recipe Bottle Action Dispatch - GitHub Actions Workflow Management" zrbad_environment "$@"
 
 # eof
