@@ -113,7 +113,7 @@ zrbc_environment() {
   ZRBC_IMAGE_STATS_FILE="${RBC_TEMP_DIR}/IMAGE_STATS.json"
 
   # Media type for GitHub API
-  ZRBC_MTYPE_GHV3="application/vnd.github.v3+json"
+  RBC_MTYPE_GHV3="application/vnd.github.v3+json"
 
   # Temp files
   ZRBC_CURRENT_WORKFLOW_RUN_CACHE="${RBC_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBC_NOW_STAMP}.txt"
@@ -140,16 +140,16 @@ zrbc_start_registry() {
   esac
 }
 
-# Perform authenticated GET request (GHCR-specific, kept for GitHub workflows)
+# Perform authenticated GET request (GitHub Action workflow triggering/ querying)
 zrbc_curl_get() {
   local url="$1"
 
   curl -s -H "Authorization: token ${RBRG_PAT}" \
-          -H "Accept: ${ZRBC_MTYPE_GHV3}"       \
+          -H "Accept: ${RBC_MTYPE_GHV3}"        \
           "$url"
 }
 
-# Perform authenticated POST request (GHCR-specific, kept for GitHub workflows)
+# Perform authenticated POST request (GitHub Action workflow triggering/ querying)
 zrbc_curl_post() {
   local url="$1"
   local data="$2"
@@ -158,7 +158,7 @@ zrbc_curl_post() {
        -s                                          \
        -X POST                                     \
        -H "Authorization: token ${RBRG_PAT}"       \
-       -H "Accept: ${ZRBC_MTYPE_GHV3}"             \
+       -H "Accept: ${RBC_MTYPE_GHV3}"              \
        "$url"                                      \
        -d "$data"                                  \
     || bcu_die "Curl failed."
@@ -198,7 +198,7 @@ zrbc_confirm_action() {
   test "$confirm" = "YES"
 }
 
-# Process a single manifest (extracted from rbcg_layers)
+# Process a single manifest
 zrbc_process_single_manifest() {
   local tag="$1"
   local manifest_file="$2"

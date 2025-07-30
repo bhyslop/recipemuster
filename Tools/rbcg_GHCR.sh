@@ -59,9 +59,6 @@ zrbcg_environment() {
   ZRBCG_RUNTIME=""
   ZRBCG_CONNECTION=""
   ZRBCG_AUTH_TOKEN=""
-
-  # GitHub API media type
-  ZRBCG_MTYPE_GHV3="application/vnd.github.v3+json"
 }
 
 # Build container command with runtime and connection
@@ -79,7 +76,7 @@ zrbcg_build_container_cmd() {
 zrbcg_curl_get() {
   local url="$1"
   curl -s -H "Authorization: token ${RBRG_PAT}" \
-          -H "Accept: ${ZRBCG_MTYPE_GHV3}"      \
+          -H "Accept: ${RBC_MTYPE_GHV3}"        \
           "$url"
 }
 
@@ -91,10 +88,8 @@ zrbcg_get_bearer_token() {
 
   curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBCG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
     bearer_token=$(jq -r '.token' "${token_out}") && \
-    test -n "${bearer_token}" && \
-    test "${bearer_token}" != "null" || {
-      bcu_die "Failed to obtain bearer token"
-    }
+    test -n "${bearer_token}"                     && \
+    test    "${bearer_token}" != "null" || bcu_die "Failed to obtain bearer token"
 
   echo "${bearer_token}"
 }
@@ -120,13 +115,14 @@ rbcg_start() {
   ZRBCG_CONNECTION="${connection_string}"
 
   bcu_step "Login to GitHub Container Registry"
-  local login_cmd=$(zrbcg_build_container_cmd "login ${ZRBCG_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}")
+  local login_cmd
+  login_cmd=$(zrbcg_build_container_cmd "login ${ZRBCG_REGISTRY} -u ${RBRG_USERNAME} -p ${RBRG_PAT}") || bcu_die "Failed cmd"
   eval "${login_cmd}"
-  bcu_success "Logged in to ${ZRBCG_REGISTRY}"
+  bcu_step "Logged in to ${ZRBCG_REGISTRY}"
 
   bcu_step "Obtaining bearer token for registry API"
   ZRBCG_AUTH_TOKEN=$(zrbcg_get_bearer_token)
-  bcu_success "Bearer token obtained"
+  bcu_step "Bearer token obtained"
 }
 
 rbcg_push() {
@@ -143,10 +139,11 @@ rbcg_push() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Push image ${fqin}"
 
-  local push_cmd=$(zrbcg_build_container_cmd "push ${fqin}")
+  local push_cmd
+  push_cmd=$(zrbcg_build_container_cmd "push ${fqin}") || bcu_die "Failed push cmd build"
   eval "${push_cmd}"
 
-  bcu_success "Image pushed successfully"
+  bcu_step "Image pushed successfully"
 }
 
 rbcg_pull() {
@@ -163,10 +160,11 @@ rbcg_pull() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Pull image ${fqin}"
 
-  local pull_cmd=$(zrbcg_build_container_cmd "pull ${fqin}")
+  local pull_cmd
+  pull_cmd=$(zrbcg_build_container_cmd "pull ${fqin}") || bcu_die "Failed pull cmd build"
   eval "${pull_cmd}"
 
-  bcu_success "Image pulled successfully"
+  bcu_step "Image pulled successfully"
 }
 
 rbcg_delete() {
@@ -198,13 +196,13 @@ rbcg_delete() {
   local delete_url="${ZRBCG_PACKAGES_URL}/${version_id}"
   local response
   response=$(curl -X DELETE -s -H "Authorization: token ${RBRG_PAT}" \
-                               -H "Accept: ${ZRBCG_MTYPE_GHV3}"      \
+                               -H "Accept: ${RBC_MTYPE_GHV3}"        \
                                "${delete_url}"                       \
                                -w "\nHTTP_STATUS:%{http_code}\n")
 
   echo "${response}" | grep -q "HTTP_STATUS:204" || bcu_die "Delete failed"
 
-  bcu_success "Tag deleted (layer cleanup unreliable on GHCR)"
+  bcu_step "Tag deleted (layer cleanup unreliable on GHCR)"
 }
 
 rbcg_exists() {
@@ -266,7 +264,8 @@ rbcg_tags() {
   done
 
   local total=$(jq '. | length' "${output_IMAGE_RECORDS_json}")
-  bcu_success "Retrieved ${total} tags"
+
+  bcu_step "Retrieved ${total} tags"
 }
 
 rbcg_fetch_config_blob() {
@@ -353,10 +352,10 @@ rbcg_inspect() {
   bcu_step "Fetching manifest for tag ${tag}"
 
   # Use fetch function (requires auth token from rbcg_start)
-  rbcg_fetch_manifest "${tag}" "${output_MANIFEST_json}" || \
-    bcu_die "Failed to fetch manifest"
+  rbcg_fetch_manifest "${tag}" "${output_MANIFEST_json}" \
+    || bcu_die "Failed to fetch manifest"
 
-  bcu_success "Manifest saved to ${output_MANIFEST_json}"
+  bcu_step "Manifest saved to ${output_MANIFEST_json}"
 }
 
 bcu_execute rbcg_ "Recipe Bottle Container GitHub - GHCR Implementation" zrbcg_environment "$@"
