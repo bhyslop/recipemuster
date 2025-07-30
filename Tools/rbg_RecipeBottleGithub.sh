@@ -22,7 +22,6 @@ set -euo pipefail
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBG_SCRIPT_DIR}/rbcg_GHCR.sh"
 
 ######################################################################
 # Internal Functions (zrbg_*)
@@ -44,24 +43,64 @@ zrbg_environment() {
   source              "${RBG_RBRR_FILE}"
   source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
 
-  bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
-  source          "${RBRR_GITHUB_PAT_ENV}"
+  # Validate registry selection
+  test -n "${RBRR_REGISTRY:-}" || bcu_die "RBRR_REGISTRY not set"
+  case "${RBRR_REGISTRY}" in
+    ghcr|ecr|acr|quay) ;;
+    *) bcu_die "Unknown registry: ${RBRR_REGISTRY}" ;;
+  esac
 
-  # Extract PAT credentials
-  test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-  test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+  # Source registry-specific driver
+  case "${RBRR_REGISTRY}" in
+    ghcr)
+      source "${ZRBG_SCRIPT_DIR}/rbcg_GHCR.sh"
+      bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
+      source          "${RBRR_GITHUB_PAT_ENV}"
+      test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+      test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+      ;;
+    ecr)
+      source "${ZRBG_SCRIPT_DIR}/rbce_ECR.sh"
+      # ECR-specific validation would go here
+      ;;
+    acr)
+      source "${ZRBG_SCRIPT_DIR}/rbca_ACR.sh"
+      # ACR-specific validation would go here
+      ;;
+    quay)
+      source "${ZRBG_SCRIPT_DIR}/rbcq_Quay.sh"
+      # Quay-specific validation would go here
+      ;;
+  esac
 
   # Module Variables (ZRBG_*)
 
-  # Base URLs
+  # Base URLs (GHCR-specific, but kept for GitHub Actions workflows)
   ZRBG_GITAPI_URL="https://api.github.com"
   ZRBG_REPO_PREFIX="${ZRBG_GITAPI_URL}/repos"
 
-  # Derived URLs
+  # Derived URLs (GHCR-specific, but kept for GitHub Actions workflows)
   ZRBG_DISPATCH_URL="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   ZRBG_RUNS_URL_BASE="${ZRBG_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
   ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
   ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
+
+  # Schema Documentation for IMAGE_RECORDS.json
+  # ------------------------------------------
+  # A JSON array of image tag metadata objects. This is the raw tag listing
+  # from the container registry, used as input to downstream inspection.
+  #
+  # Each object has the following structure:
+  # {
+  #   "tag": "<tag>",                        # The tag string (e.g., "v5.5-20250725-abc_x86_64")
+  #   "fqin": "<fully-qualified-image-name>", # Full image reference (e.g., "ghcr.io/owner/repo:tag")
+  #   "ghcr_version_id": "<version-id>"      # OPTIONAL: GHCR-specific version identifier
+  # }
+  #
+  # Notes:
+  # - ghcr_version_id is only present when RBRR_REGISTRY="ghcr"
+  # - This file does not include layer or config information
+  # - Downstream code uses this as a seed to resolve manifests and blobs
 
   ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
@@ -72,6 +111,8 @@ zrbg_environment() {
 
   # Temp files
   ZRBG_CURRENT_WORKFLOW_RUN_CACHE="${RBG_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBG_NOW_STAMP}.txt"
+  ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
+  ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
   ZRBG_WORKFLOW_LOGS="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
 
   # Container runtime (default to podman)
@@ -104,27 +145,6 @@ zrbg_curl_post() {
        -d "$data"                                  \
     || bcu_die "Curl failed."
 }
-
-# Collect all image records (version_id, tag, fqin) with pagination
-#
-# Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
-#
-# IMAGE_RECORDS.json
-# ------------------
-# A JSON array of image tag metadata objects as returned by the GitHub Container Registry (GHCR) API.
-# This is the raw tag listing from the GHCR repository, used as input to downstream inspection.
-#
-# Each object has the following structure:
-# {
-#   "name": "<tag>",                  # The tag string (e.g., "v5.5-20250725-abc_x86_64")
-#   "digest": "<manifest-digest>",   # Digest of the top-level manifest associated with the tag
-#   "updated_at": "<iso-timestamp>"  # Last modified timestamp (from GHCR metadata)
-# }
-#
-# Notes:
-# - This file does not include layer or config information.
-# - This is a direct mapping of GHCR's paginated tag listing.
-# - Downstream code uses this as a seed to resolve manifests and blobs.
 
 # Check git repository status
 zrbg_check_git_status() {
@@ -308,7 +328,12 @@ rbg_build() {
   local tag="${fqin_contents#*:}"
   echo "Waiting for tag: ${tag} to become available..."
   for i in 1 2 3 4 5; do
-    ! rbcg_exists "${tag}" || break
+    case "${RBRR_REGISTRY}" in
+      ghcr) ! rbcg_exists "${tag}" || break ;;
+      ecr)  ! rbce_exists "${tag}" || break ;;
+      acr)  ! rbca_exists "${tag}" || break ;;
+      quay) ! rbcq_exists "${tag}" || break ;;
+    esac
 
     echo "  Image not yet available, attempt $i of 5"
     test $i -ne 5 || bcu_die "Image '${tag}' not available in registry after 5 attempts"
@@ -324,19 +349,39 @@ rbg_list() {
   bcu_doc_shown || return 0
 
   # Use registry implementation to get tags
-  rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}"
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    ecr)  rbce_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    acr)  rbca_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    quay) rbcq_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+  esac
 
   bcu_step "List Current Registry Images"
   echo "Package: ${RBRR_REGISTRY_NAME}"
-  echo -e "${ZBCU_YELLOW}    ${ZRBG_GITHUB_PACKAGES_URL}${ZBCU_RESET}"
+
+  # Display URL based on registry type
+  case "${RBRR_REGISTRY}" in
+    ghcr) echo -e "${ZBCU_YELLOW}    ${ZRBG_GITHUB_PACKAGES_URL}${ZBCU_RESET}" ;;
+    ecr)  echo -e "${ZBCU_YELLOW}    ECR Console URL${ZBCU_RESET}" ;;
+    acr)  echo -e "${ZBCU_YELLOW}    ACR Console URL${ZBCU_RESET}" ;;
+    quay) echo -e "${ZBCU_YELLOW}    Quay Console URL${ZBCU_RESET}" ;;
+  esac
+
   echo "Versions:"
 
-  printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
-
-  jq -r '.[] | [.version_id, .fqin] | @tsv' "${ZRBG_IMAGE_RECORDS_FILE}" | \
-    sort -k2 -r | while IFS=$'\t' read -r id fqin; do
-    printf "%-13s %s\n" "$id" "${fqin}"
-  done
+  # Check if ghcr_version_id exists in the schema
+  if [ "${RBRR_REGISTRY}" = "ghcr" ] && jq -e '.[0] | has("ghcr_version_id")' "${ZRBG_IMAGE_RECORDS_FILE}" >/dev/null 2>&1; then
+    printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
+    jq -r '.[] | [.ghcr_version_id, .fqin] | @tsv' "${ZRBG_IMAGE_RECORDS_FILE}" | \
+      sort -k2 -r | while IFS=$'\t' read -r id fqin; do
+      printf "%-13s %s\n" "$id" "${fqin}"
+    done
+  else
+    printf "%-70s\n" "Fully Qualified Image Name"
+    jq -r '.[].fqin' "${ZRBG_IMAGE_RECORDS_FILE}" | sort -r | while read -r fqin; do
+      printf "%s\n" "${fqin}"
+    done
+  fi
 
   echo "${ZBCU_RESET}"
 
@@ -360,7 +405,7 @@ rbg_delete() {
   bvu_val_fqin "fqin" "$fqin" 1 512
 
   # Perform command
-  bcu_step "Delete image from GitHub Container Registry"
+  bcu_step "Delete image from Container Registry"
   zrbg_check_git_status
 
   # Confirm deletion unless skipped
@@ -378,10 +423,26 @@ rbg_delete() {
   local tag=$(echo "$fqin" | sed 's/.*://')
 
   echo "  Checking that tag '${tag}' is gone..."
-  if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
-    jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
-    bcu_die "Tag '${tag}' still exists in registry after deletion"
-  fi
+
+  # Use registry-specific existence check
+  case "${RBRR_REGISTRY}" in
+    ghcr)
+      if zrbg_curl_get "${ZRBG_PACKAGES_URL}?per_page=100" | \
+        jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
+        bcu_die "Tag '${tag}' still exists in registry after deletion"
+      fi
+      ;;
+    ecr|acr|quay)
+      # For non-GHCR registries, use the registry driver's exists function
+      if case "${RBRR_REGISTRY}" in
+           ecr)  rbce_exists "${tag}" ;;
+           acr)  rbca_exists "${tag}" ;;
+           quay) rbcq_exists "${tag}" ;;
+         esac; then
+        bcu_die "Tag '${tag}' still exists in registry after deletion"
+      fi
+      ;;
+  esac
 
   echo "  Confirmed: Tag '${tag}' has been deleted"
 
@@ -402,24 +463,34 @@ rbg_retrieve() {
   bvu_val_fqin "fqin" "$fqin" 1 512
 
   # Perform command
-  bcu_step "Pull image from GitHub Container Registry"
-  
+  bcu_step "Pull image from Container Registry"
+
   # Login and pull using registry implementation
-  rbcg_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}"
-  
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
+    ecr)  rbce_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
+    acr)  rbca_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
+    quay) rbcq_login "${ZRBG_RUNTIME}" "${ZRBG_CONNECTION}" ;;
+  esac
+
   local tag="${fqin#*:}"
-  rbcg_pull "${tag}"
-  
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_pull "${tag}" ;;
+    ecr)  rbce_pull "${tag}" ;;
+    acr)  rbca_pull "${tag}" ;;
+    quay) rbcq_pull "${tag}" ;;
+  esac
+
   bcu_success "No errors."
 }
 
-# Gather image info from GHCR tags only (Bash 3.2 compliant)
+# Gather image info from registry tags only (Bash 3.2 compliant)
 rbg_image_info() {
   # Name parameters
   local filter="${1:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Extracts per-image and per-layer info from GHCR tags using GitHub API"
+  bcu_doc_brief "Extracts per-image and per-layer info from registry tags"
   bcu_doc_lines \
     "Creates image detail entries for each tag/platform combination, extracts creation date," \
     "layers, and layer sizes. Handles both single and multi-platform images."
@@ -427,7 +498,12 @@ rbg_image_info() {
   bcu_doc_shown || return 0
 
   # Get tags from registry
-  rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}"
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    ecr)  rbce_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    acr)  rbca_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+    quay) rbcq_tags "${ZRBG_IMAGE_RECORDS_FILE}" ;;
+  esac
 
   # Filter if requested
   if [ -n "${filter}" ]; then
@@ -435,34 +511,14 @@ rbg_image_info() {
       "${ZRBG_IMAGE_RECORDS_FILE}" > "${ZRBG_IMAGE_RECORDS_FILE}.filtered"
     mv "${ZRBG_IMAGE_RECORDS_FILE}.filtered" "${ZRBG_IMAGE_RECORDS_FILE}"
   fi
-  # IMAGE_STATS.json
-  # ----------------
-  # A JSON array of objects, each representing a distinct deduplicated image layer,
-  # aggregated across all analyzed image tags.
-  #
-  # Each object has the following structure:
-  # {
-  #   "digest": "<layer-digest>",     # Full sha256 digest identifying the layer
-  #   "size": <int-bytes>,            # Size of the layer in bytes
-  #   "tag_count": <int>,             # Number of unique tags using this layer
-  #   "total_usage": <int>,           # Total times this layer appears across all tags
-  #   "tag_details": [                # Array showing usage breakdown per tag
-  #     {
-  #       "tag": "<tag>",             # Tag name using this layer
-  #       "count": <int>              # How many times layer appears in this tag
-  #     },
-  #     ...
-  #   ]
-  # }
-  #
-  # Notes:
-  # - The array is sorted descending by size (largest layers first).
-  # - The digest includes the "sha256:" prefix.
-  # - tag_count counts unique tags; total_usage counts all layer occurrences.
-  # - A layer can appear multiple times in the same tag (empty/duplicate layers).
 
   # Use registry implementation to analyze layers
-  rbcg_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}"
+  case "${RBRR_REGISTRY}" in
+    ghcr) rbcg_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
+    ecr)  rbce_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
+    acr)  rbca_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
+    quay) rbcq_layers "${ZRBG_IMAGE_RECORDS_FILE}" "${ZRBG_IMAGE_DETAIL_FILE}" "${ZRBG_IMAGE_STATS_FILE}" ;;
+  esac
 
   bcu_step "Listing layers per tag..."
     jq -r '
