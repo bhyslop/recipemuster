@@ -336,7 +336,5 @@ rbcg_inspect() {
   bcu_step "Manifest saved to ${output_MANIFEST_json}"
 }
 
-bcu_execute rbcg_ "Recipe Bottle Container GitHub - GHCR Implementation" zrbcg_environment "$@"
-
 # eof
 

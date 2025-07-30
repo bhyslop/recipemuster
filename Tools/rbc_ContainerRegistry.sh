@@ -497,36 +497,31 @@ rbc_delete() {
     zrbc_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
   fi
 
-  bcu_step "Triggering GitHub Actions workflow for image deletion"
-  zrbc_execute_workflow "delete_image"                         \
-                        '{"fqin": "'$fqin'"}'                  \
-                        "Git Pull for deletion history..."     \
-                        "No deletion history recorded"
-
-  bcu_info "Verifying deletion..."
+  # Extract tag from fqin
   local tag=$(echo "$fqin" | sed 's/.*://')
 
+  bcu_step "Deleting image from ${RBRR_REGISTRY} registry"
+  
+  # Use registry-specific delete operation
+  case "${RBRR_REGISTRY}" in
+    ghcr)  bcu_die "Unsupported since GHCR deletion does not manage layers safely." ;;
+    ecr)   rbce_delete "${tag}" || bcu_die "Failed to delete from ECR"              ;;
+    acr)   rbca_delete "${tag}" || bcu_die "Failed to delete from ACR"              ;;
+    quay)  rbcq_delete "${tag}" || bcu_die "Failed to delete from Quay"             ;;
+    *)     bcu_die "Unknown registry: ${RBRR_REGISTRY}"                             ;;
+  esac
+
+  bcu_info "Verifying deletion..."
   echo "  Checking that tag '${tag}' is gone..."
 
   # Use registry-specific existence check
-  case "${RBRR_REGISTRY}" in
-    ghcr)
-      if zrbc_curl_get "${ZRBCG_PACKAGES_URL}?per_page=100" | \
-        jq -e '.[] | select(.metadata.container.tags[] | contains("'"$tag"'"))' > /dev/null 2>&1; then
-        bcu_die "Tag '${tag}' still exists in registry after deletion"
-      fi
-      ;;
-    ecr|acr|quay)
-      # For non-GHCR registries, use the registry driver's exists function
-      if case "${RBRR_REGISTRY}" in
-           ecr)  rbce_exists "${tag}" ;;
-           acr)  rbca_exists "${tag}" ;;
-           quay) rbcq_exists "${tag}" ;;
-         esac; then
-        bcu_die "Tag '${tag}' still exists in registry after deletion"
-      fi
-      ;;
-  esac
+  if case "${RBRR_REGISTRY}" in
+       ecr)  rbce_exists "${tag}" ;;
+       acr)  rbca_exists "${tag}" ;;
+       quay) rbcq_exists "${tag}" ;;
+     esac; then
+    bcu_die "Tag '${tag}' still exists in registry after deletion"
+  fi
 
   echo "  Confirmed: Tag '${tag}' has been deleted"
 
