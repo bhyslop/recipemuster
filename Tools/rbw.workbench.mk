@@ -33,6 +33,8 @@ RBM_STATION_SH     = ../station-files/rbrs-station.sh
 RBM_RECIPE_BOTTLE_CONTAINER_SH = RBC_TEMP_DIR="$(MBD_TEMP_DIR)"                \
                                  RBC_NOW_STAMP="$(MBD_NOW_STAMP)"              \
                                  RBC_RBRR_FILE="rbrr.repo.sh"                  \
+				 RBC_RUNTIME="podman"                          \
+				 RBC_RUNTIME_ARG="--connection=rbw-vm-deploy"  \
                                    $(MBV_TOOLS_DIR)/rbc_ContainerRegistry.sh
 
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \

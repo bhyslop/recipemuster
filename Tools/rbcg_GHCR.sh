@@ -45,6 +45,9 @@ rbcg_start() {
   bvu_dir_exists  "${RBC_TEMP_DIR}"
   bvu_file_exists "${RBC_RBRR_FILE}"
 
+  test -n "${RBC_RUNTIME}"       || bcu_die "RBC_RUNTIME missing"
+  test -n "${RBC_RUNTIME_ARG+x}" || bcu_die "RBC_RUNTIME_ARG not set"
+
   # Source GitHub PAT credentials
   bvu_file_exists "${RBRR_GITHUB_PAT_ENV}"
   source          "${RBRR_GITHUB_PAT_ENV}"
@@ -62,9 +65,9 @@ rbcg_start() {
   ZRBCG_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
   ZRBCG_AUTH_TOKEN=""
 
-  ${RBRR_RUNTIME} {RBRR_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
-                                      -u "${RBRG_USERNAME}"    \
-                                      -p "${RBRG_PAT}"         \
+  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} login "${ZRBCG_REGISTRY}" \
+                                    -u "${RBRG_USERNAME}"    \
+                                    -p "${RBRG_PAT}"         \
                   || bcu_die "Failed cmd"
 
   bcu_step "Login to GitHub Container Registry"
@@ -102,7 +105,7 @@ rbcg_push() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Push image ${fqin}"
 
-  ${RBRR_RUNTIME} {RBRR_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
+  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} push "${fqin}" || bcu_die "Failed push"
 
   bcu_step "Image pushed successfully"
 }
@@ -121,7 +124,7 @@ rbcg_pull() {
   local fqin="${ZRBCG_IMAGE_PREFIX}:${tag}"
   bcu_step "Pull image ${fqin}"
 
-  ${RBRR_RUNTIME} {RBRR_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
+  ${RBC_RUNTIME} {RBC_RUNTIME_ARG} pull "${fqin}" || bcu_die "Failed pull"
 
   bcu_step "Image pulled successfully"
 }

@@ -36,9 +36,6 @@ export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.
 
 export RBRR_CHOSEN_IDENTITY=20250723-092042  # mow_x86_64_wsl mow_aarch64_wsl
 
-export RBRR_RUNTIME="podman"
-export RBRR_RUNTIME_ARG="--connection=${RBRR_DEPLOY_MACHINE_NAME}"
-
 
 # File containing user specific secrets for accessing the container registry.  Must have
 # contents expressed as bash variables (i.e. no spaces around '=') as follows...

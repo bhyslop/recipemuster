@@ -31,6 +31,8 @@ zrbc_environment() {
   bcu_doc_env "RBC_TEMP_DIR    " "Empty temporary directory"
   bcu_doc_env "RBC_NOW_STAMP   " "Timestamp for per run branding"
   bcu_doc_env "RBC_RBRR_FILE   " "File containing the RBRR constants"
+  bcu_doc_env "RBC_RUNTIME     " "Container Runtime to use"
+  bcu_doc_env "RBC_RUNTIME_ARG " "Container Runtime argument, optional"
 
   bcu_env_done || return 0
 
@@ -349,32 +351,32 @@ rbc_build() {
   bcu_doc_shown || return 0
 
   # Argument validation
-  test -n "$recipe_file" || bcu_usage_die
-  test -f "$recipe_file" || bcu_die "Recipe file not found: $recipe_file"
+  test -n "${recipe_file}" || bcu_usage_die
+  test -f "${recipe_file}" || bcu_die "Recipe file not found: ${recipe_file}"
 
   # Perform command
-  local recipe_basename=$(basename "$recipe_file")
+  local  recipe_basename=$(basename "${recipe_file}")
   echo "$recipe_basename" | grep -q '[A-Z]' && \
-      bcu_die "Basename of '$recipe_file' contains uppercase letters so cannot use in image name"
+      bcu_die "Basename of '${recipe_file}' contains uppercase letters so cannot use in image name"
 
-  bcu_step "Trigger image build from $recipe_file"
+  bcu_step "Trigger image build from ${recipe_file}"
 
   zrbc_check_git_status
 
   bcu_step "Triggering GitHub Actions workflow for image build"
   zrbc_execute_workflow "build_images"                         \
-                        '{"dockerfile": "'$recipe_file'"}'     \
+                        '{"dockerfile": "'${recipe_file}'"}'   \
                         "Git Pull for artifacts with retry..."
 
   bcu_info "Verifying build output..."
-  local build_dir=$(zrbc_get_latest_build_dir "$recipe_basename")
-  test -n "$build_dir"                       || bcu_die "Missing build directory"
-  test -d "$build_dir"                       || bcu_die "Invalid build directory"
-  test -f "$build_dir/recipe.txt"            || bcu_die "recipe.txt not found"
-  cmp "$recipe_file" "$build_dir/recipe.txt" || bcu_die "recipe mismatch"
+  local      build_dir=$(zrbc_get_latest_build_dir "$recipe_basename")
+  test -n "${build_dir}"                         || bcu_die "Missing build directory"
+  test -d "${build_dir}"                         || bcu_die "Invalid build directory"
+  test -f "${build_dir}/recipe.txt"              || bcu_die "recipe.txt not found"
+  cmp "${recipe_file}" "${build_dir}/recipe.txt" || bcu_die "recipe mismatch"
 
   bcu_info "Extracting FQIN..."
-  local fqin_file="$build_dir/docker_inspect_RepoTags_0.txt"
+  local fqin_file="${build_dir}/docker_inspect_RepoTags_0.txt"
   test -f "${fqin_file}" || bcu_die "Could not find FQIN in build output"
 
   local fqin_contents
