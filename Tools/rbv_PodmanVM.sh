@@ -100,8 +100,8 @@ zrbv_extract_natural_tag() {
   test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
-# Compare two files and return error if different
-zrbv_error_if_different() {
+# Compare two files and return error code if different
+zrbv_is_different_predicate() {
   local z_file1="$1"
   local z_file2="$2"
 
