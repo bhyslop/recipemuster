@@ -33,9 +33,9 @@
 # Configuring system...
 # Machine init complete
 # To start your machine run:
-# 
+#
 #         podman machine start rbw-example
-# 
+#
 
 set -euo pipefail
 

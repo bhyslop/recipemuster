@@ -235,8 +235,8 @@ rbw-ta.%:
 #
 #  Helps you create default form tabtargets in right place.
 
-# Parameter from the tabtarget: what is the full name of the new tabtarget, no directory 
-RBC_TABTARGET_NAME   = 
+# Parameter from the tabtarget: what is the full name of the new tabtarget, no directory
+RBC_TABTARGET_NAME   =
 
 zRBC_TABTARGET_FILE  = $(MBV_TABTARGET_DIR)/$(RBC_TABTARGET_NAME)
 zRBC_DISPATCH_SCRIPT = $(MBV_TOOLS_DIR)/mbd.dispatch.sh

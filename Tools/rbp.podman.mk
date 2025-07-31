@@ -34,7 +34,7 @@ zRBM_EXPORT_ENV := "$(foreach v,$(RBRN__ROLLUP_ENVIRONMENT_VAR),export $v;) " \
                    "PODMAN_IGNORE_CGROUPSV1_WARNING=1 "
 
 zRBM_PODMAN_RAW_CMD   = podman $(RBM_CONNECTION)
-zRBM_PODMAN_SSH_CMD   = podman machine ssh $(RBM_MACHINE) $(zRBM_EXPORT_ENV) 
+zRBM_PODMAN_SSH_CMD   = podman machine ssh $(RBM_MACHINE) $(zRBM_EXPORT_ENV)
 zRBM_PODMAN_SHELL_CMD = $(zRBM_PODMAN_SSH_CMD) /bin/sh
 
 zrbp_validate_regimes_rule: rbrn_validate rbrr_validate
@@ -97,7 +97,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	  --rootful \
 	  $(RBM_MACHINE)
 	$(MBC_STEP) "TEMPORARY: Initialized."
-	
+
 	$(MBC_STEP) "Starting VM to check image build date"
 	podman machine start $(RBM_MACHINE)
 	$(MBC_STEP) "Fedora image build date (from inside VM):"
@@ -105,7 +105,7 @@ rbp_stash_check_rule: mbc_demo_rule
 	$(MBC_STEP) "Stopping VM after build date check"
 	podman machine stop $(RBM_MACHINE)
 	$(MBC_STEP) "TEMPORARY: for now, we are skipping the pinning steps, need to bring back later."
-	
+
 rbp_stash_update_rule_DEFERRED:
 	$(MBC_STEP) "Validating image version against pinned values..."
 	@echo "Checking tag: $(RBRR_VMDIST_TAG)"

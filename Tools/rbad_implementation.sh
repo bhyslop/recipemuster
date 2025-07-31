@@ -17,10 +17,8 @@
 
 set -euo pipefail
 
-######################################################################
-# Environment Validation
 
-zrbad_start() {
+zrbad_init() {
   test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
   test -n "${RBRR_HISTORY_DIR:-}"    || bcu_die "RBRR_HISTORY_DIR not set"
@@ -32,25 +30,33 @@ zrbad_start() {
   ZRBAD_DISPATCH_URL="${RBADI_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/dispatches"
   ZRBAD_RUNS_URL_BASE="${RBADI_REPO_PREFIX}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs"
   ZRBAD_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
+  ZRBAD_CURL_CACHE="${RBAD_TEMP_DIR}/ZRBAD_CURL_GET_CACHE"
   ZRBAD_RUN_CACHE="${RBAD_TEMP_DIR}/CURR_WORKFLOW_RUN__${RBAD_NOW_STAMP}.txt"
-
-  return 0
+  ZRBAD_MTYPE_GHV3="application/vnd.github.v3+json"
+  ZRBAD_INITIALIZATION_COMPLETE="Initialization complete"
 }
 
-######################################################################
-# Module Variables
+zrbad_is_initialized() {
+  test "${ZRBAD_INITIALIZATION_COMPLETE:-}" = "Initialization complete" \
+    || bcu_die "zrbad_init() not called"
+}
 
 
 ######################################################################
 # GitHub API Functions (rbadi_*)
 
 # Perform authenticated GET request
-rbadi_curl_get() {
+zrbad_curl_get() {
   local url="$1"
 
-  curl -s -H "Authorization: token ${RBRG_PAT}" \
-          -H "Accept: ${RBADI_MTYPE_GHV3}"     \
-          "$url"
+  zrbad_is_initialized || bcu_die "Needed variables not set."
+
+  curl -s                                    \
+       -H "Authorization: token ${RBRG_PAT}" \
+       -H "Accept: ${ZRBAD_MTYPE_GHV3}"      \
+       "${url}"                              \
+                   > "${ZRBAD_CURL_CACHE}"   \
+    || bcu_die "Curl get failed."
 }
 
 # Perform authenticated POST request
@@ -58,23 +64,23 @@ rbadi_curl_post() {
   local url="$1"
   local data="$2"
 
-  curl                                          \
-       -s                                       \
+  zrbad_is_initialized || bcu_die "Needed variables not set."
+
+  curl -s                                       \
        -X POST                                  \
        -H "Authorization: token ${RBRG_PAT}"    \
-       -H "Accept: ${RBADI_MTYPE_GHV3}"         \
+       -H "Accept: ${ZRBAD_MTYPE_GHV3}"         \
        "$url"                                   \
        -d "$data"                               \
-    || { echo "Error: Curl failed" >&2; return 1; }
+    || bcu_die "Curl post failed"
 }
 
 # Dispatch a workflow
 rbadi_dispatch_workflow() {
-  rbadi_validate_env || return 1
-  rbadi_init_vars
-
   local event_type="$1"
   local payload_json="$2"
+
+  zrbad_is_initialized || bcu_die "Needed variables not set."
 
   local dispatch_data='{"event_type": "'${event_type}'", "client_payload": '${payload_json}'}'
   rbadi_curl_post "${RBADI_DISPATCH_URL}" "${dispatch_data}"
@@ -82,11 +88,12 @@ rbadi_dispatch_workflow() {
 
 # Get latest workflow run ID
 rbadi_get_latest_run_id() {
-  rbadi_validate_env || return 1
-  rbadi_init_vars
+
+  zrbad_is_initialized || bcu_die "Needed variables not set."
 
   local runs_url="${RBADI_RUNS_URL_BASE}?event=repository_dispatch&branch=main&per_page=1"
-  rbadi_curl_get "${runs_url}" | jq -r '.workflow_runs[0].id'
+  zrbad_curl_get "${runs_url}"
+  jq -r '.workflow_runs[0].id' < "${ZRBAD_CURL_CACHE}"
 }
 
 # Wait for workflow to complete
@@ -107,8 +114,9 @@ rbadi_wait_for_workflow() {
 
   while true; do
     local run_url="${RBADI_RUNS_URL_BASE}/${run_id}"
+    rbadi_curl_get "${run_url}"
     local response
-    response=$(rbadi_curl_get "${run_url}")
+    response=$()
 
     status=$(echo "${response}" | jq -r '.status')
     conclusion=$(echo "${response}" | jq -r '.conclusion')
