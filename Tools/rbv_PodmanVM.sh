@@ -23,6 +23,8 @@ ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBV_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 
+
+
 ######################################################################
 # Internal Functions (zrbv_*)
 
@@ -84,33 +86,93 @@ zrbv_environment() {
 
 # Generate brand file content
 zrbv_generate_brand_file() {
-  bcu_die "BRADTODO: ELIDED."
+  test ! -f "${ZRBV_GENERATED_BRAND_FILE}" || bcu_die 'file already exists'
+
+  echo "# Recipe Bottle VM Brand File"                    > "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "#"                                               >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "PODMAN_VERSION: ${RBRR_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_ORIGIN: ${RBRR_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_FQIN:   ${RBRR_CHOSEN_VMIMAGE_FQIN}"     >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_DIGEST: ${RBRR_CHOSEN_VMIMAGE_DIGEST}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
 # Confirm YES parameter or prompt user
 zrbv_confirm_yes() {
-  bcu_step "BRADTODO: ELIDED."
-  return 0
+  local confirm_param="$1"
+
+  if [[ "$confirm_param" == "YES" ]]; then
+    return 0
+  fi
+
+  read -p "Type YES to confirm: " confirm
+  if [[ "$confirm" == "YES" ]]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 # Extract natural tag from podman init output
 zrbv_extract_natural_tag() {
-  bcu_die "BRADTODO: ELIDED."
+  local init_output_file="$1"
+
+  grep "Looking up Podman Machine image at" "$init_output_file" | \
+    sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/' \
+    > "${ZRBV_NATURAL_TAG_FILE}"
+
+  test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
 # Get image digest using skopeo inspect
 zrbv_get_image_digest() {
-  bcu_die "BRADTODO: ELIDED."
+  local vm_name="$1"
+  local fqin="$2"
+  local output_file="$3"
+
+  local temp_hash_file="${output_file}.hash"
+
+  podman machine ssh "$vm_name" --                                             \
+      "skopeo inspect --raw docker://${fqin} | sha256sum | cut -d' ' -f1"      \
+      > "$temp_hash_file" || bcu_die "Failed to get raw manifest for ${fqin}"
+
+  local   hash
+  read -r hash < "$temp_hash_file"   || bcu_die "Failed to read hash from temp file"
+  [[    "$hash" =~ ^[a-f0-9]{64}$ ]] || bcu_die "Invalid hash format for ${fqin}: $hash"
+
+  echo "sha256:${hash}" > "$output_file"
 }
 
 # Generate mirror tag using crane digest
 zrbv_generate_mirror_tag() {
-  bcu_die "BRADTODO: ELIDED."
+  local   digest
+  read -r digest < "${ZRBV_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read digest file"
+  [[    "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]   || bcu_die "Invalid digest format: $digest"
+
+  local sha_short="${digest:7:12}" # Extract characters 8-19 (0-indexed)
+
+  local raw="mirror-${RBRR_CHOSEN_VMIMAGE_ORIGIN}-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
+  raw=${raw//\//-}
+  raw=${raw//:/-}
+
+  echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
 }
 
 # Compare two files and return error if different
 zrbv_error_if_different() {
-  bcu_die "BRADTODO: ELIDED."
+  local file1="$1"
+  local file2="$2"
+
+  if [[ "$(cat "$file1")" == "$(cat "$file2")" ]]; then
+    return 0
+  else
+    bcu_warn "File content mismatch detected!"
+    bcu_warn "File 1 ($file1) contents:"
+    cat              "$file1"
+    bcu_warn "File 2 ($file2) contents:"
+    cat              "$file2"
+    return 1
+  fi
 }
 
 # Validate GitHub PAT environment
@@ -557,7 +619,15 @@ rbv_start() {
 }
 
 rbv_stop() {
-  bcu_die "BRADTODO: ELIDED."
+  # Handle documentation mode
+  bcu_doc_brief "Stop deploy podman machine"
+  bcu_doc_shown || return 0
+
+  # Perform command
+  bcu_step "Stopping deploy VM..."
+  podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}"
+
+  bcu_success "VM stopped"
 }
 
 # Execute command
