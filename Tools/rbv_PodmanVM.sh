@@ -108,40 +108,6 @@ zrbv_extract_natural_tag() {
   test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
 }
 
-# Get image digest using skopeo inspect
-zrbv_get_image_digest() {
-  local vm_name="$1"
-  local fqin="$2"
-  local output_file="$3"
-
-  local temp_hash_file="${output_file}.hash"
-
-  podman machine ssh "$vm_name" --                                             \
-      "skopeo inspect --raw docker://${fqin} | sha256sum | cut -d' ' -f1"      \
-      > "$temp_hash_file" || bcu_die "Failed to get raw manifest for ${fqin}"
-
-  local   hash
-  read -r hash < "$temp_hash_file"   || bcu_die "Failed to read hash from temp file"
-  [[    "$hash" =~ ^[a-f0-9]{64}$ ]] || bcu_die "Invalid hash format for ${fqin}: $hash"
-
-  echo "sha256:${hash}" > "$output_file"
-}
-
-# Generate mirror tag using crane digest
-zrbv_generate_mirror_tag() {
-  local   digest
-  read -r digest < "${ZRBV_ORIGIN_DIGEST_FILE}" || bcu_die "Failed to read digest file"
-  [[    "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]   || bcu_die "Invalid digest format: $digest"
-
-  local sha_short="${digest:7:12}" # Extract characters 8-19 (0-indexed)
-
-  local raw="mirror-${RBRR_CHOSEN_VMIMAGE_ORIGIN}-${RBRR_CHOSEN_PODMAN_VERSION}-${sha_short}"
-  raw=${raw//\//-}
-  raw=${raw//:/-}
-
-  echo "${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${raw}" > "${ZRBV_MIRROR_TAG_FILE}"
-}
-
 # Compare two files and return error if different
 zrbv_error_if_different() {
   local file1="$1"
@@ -309,15 +275,13 @@ rbv_nuke() {
   bcu_step "WARNING: This will destroy all podman VMs and cache found in ${RBRS_PODMAN_ROOT_DIR}"
   
   # Skip confirmation if YES was passed as parameter
-  if [[ "$yes_opt" != "YES" ]]; then
-    bcu_require "This will destroy all podman VMs and cache. Confirm to proceed:" "YES"
-  fi
+  test "$yes_opt" = "YES" || bcu_require "This will destroy all podman VMs and cache!" "YES"
 
   bcu_step "Stopping all containers..."
-  podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed; okay if machine not started."
+  podman stop -a  || bcu_warn "Attempt to stop all containers failed; normal if machine not started."
 
   bcu_step "Removing all containers..."
-  podman rm -a -f || bcu_warn "Attempt to remove all containers failed; okay if machine not started."
+  podman rm -a -f || bcu_warn "Attempt to remove all containers failed; normal if machine not started."
 
   bcu_step "Removing all podman machines..."
   for vm in $(podman machine list -q); do
