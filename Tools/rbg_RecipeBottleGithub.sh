@@ -75,20 +75,73 @@ zrbg_environment() {
   ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
   ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
 
-  # JSON output files
-  # IMAGE_RECORDS.json - JSON array of image tag metadata from GHCR API
-  # Each object: {tag: "<tag>", fqin: "<registry>/<owner>/<repo>:<tag>"}
+  # A JSON array of image tag metadata objects as returned by the GitHub Container Registry (GHCR) API.
+  # This is the raw tag listing from the GHCR repository, used as input to downstream inspection.
+  #
+  # Each object has the following structure:
+  # {
+  #   "version_id": <int>,             # GHCR package version ID
+  #   "tag": "<tag>",                  # The tag string (e.g., "v5.5-20250725-abc_x86_64")
+  #   "fqin": "<full-image-name>"      # Fully qualified image name (e.g., "ghcr.io/owner/repo:tag")
+  # }
+  #
+  # Notes:
+  # - This file does not include layer or config information.
+  # - This is a direct mapping of GHCR's paginated tag listing.
+  # - Downstream code uses this as a seed to resolve manifests and blobs.
   ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
 
-  # IMAGE_DETAILS.json - JSON array of per-tag/platform image details
-  # Each object: {tag: "<tag>", platform: "<os>/<arch>", digest: "<sha256>",
-  #               layers: [{digest: "<sha256>", size: <bytes>}],
-  #               config: {created: "<iso>", architecture: "<arch>", os: "<os>"}}
+  # A JSON array of objects, each representing a single image tag (possibly platform-specific),
+  # with detailed metadata extracted from GHCR's manifest and config blobs.
+  #
+  # Each object has the following structure:
+  # {
+  #   "tag": "<tag>",                   # Tag name (e.g., "myimage-20250725-linux_amd64")
+  #   "platform": "<os>/<arch>",        # Platform string (only present for multi-platform images)
+  #   "digest": "<config-digest>",      # SHA256 digest of the image config blob
+  #   "layers": [                       # Array of individual image layers
+  #     {
+  #       "digest": "<layer-digest>",   # Content digest of the layer
+  #       "size": <int-bytes>           # Compressed size in bytes
+  #     },
+  #     ...
+  #   ],
+  #   "config": {                       # Extracted from OCI config blob
+  #     "created": "<iso-timestamp>",   # Creation timestamp
+  #     "architecture": "<arch>",       # CPU architecture
+  #     "os": "<os>"                    # Operating system
+  #   }
+  # }
+  #
+  # Notes:
+  # - The array includes one entry per tag/platform combination.
+  # - "digest" refers to the config blob digest, not the manifest digest.
+  # - "created" is taken from the image config, not the tag timestamp.
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
 
-  # IMAGE_STATS.json - JSON array of deduplicated layer statistics
-  # Each object: {digest: "<sha256>", size: <bytes>, tag_count: <int>,
-  #               total_usage: <int>, tag_details: [{tag: "<tag>", count: <int>}]}
+  # A JSON array of objects, each representing a distinct deduplicated image layer,
+  # aggregated across all analyzed image tags.
+  #
+  # Each object has the following structure:
+  # {
+  #   "digest": "<layer-digest>",      # Full sha256 digest identifying the layer
+  #   "size": <int-bytes>,             # Size of the layer in bytes
+  #   "tag_count": <int>,              # Number of unique tags using this layer
+  #   "total_usage": <int>,            # Total times this layer appears across all tags
+  #   "tag_details": [                 # Array showing usage breakdown per tag
+  #     {
+  #       "tag": "<tag>",              # Tag name using this layer
+  #       "count": <int>               # How many times layer appears in this tag
+  #     },
+  #     ...
+  #   ]
+  # }
+  #
+  # Notes:
+  # - The array is sorted descending by size (largest layers first).
+  # - The digest includes the "sha256:" prefix.
+  # - tag_count counts unique tags; total_usage counts all layer occurrences.
+  # - A layer can appear multiple times in the same tag (empty/duplicate layers).
   ZRBG_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
 
   # Media types
