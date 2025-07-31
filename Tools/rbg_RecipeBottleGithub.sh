@@ -19,6 +19,10 @@
 
 set -euo pipefail
 
+# Multiple inclusion guard
+[[ -n "${ZRBG_INCLUDED:-}" ]] && return 0
+ZRBG_INCLUDED=1
+
 ZRBG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source "${ZRBG_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBG_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
@@ -31,6 +35,8 @@ zrbg_environment() {
   bcu_doc_env "RBG_TEMP_DIR  " "Empty temporary directory"
   bcu_doc_env "RBG_NOW_STAMP " "Timestamp for per run branding"
   bcu_doc_env "RBG_RBRR_FILE " "File containing the RBRR constants"
+  bcu_doc_env "RBG_RUNTIME   " "Container runtime (docker/podman)"
+  bcu_doc_env "RBG_RUNTIME_ARG" "Container runtime arguments (optional)"
 
   bcu_env_done || return 0
 
@@ -39,6 +45,10 @@ zrbg_environment() {
   bvu_dir_empty   "${RBG_TEMP_DIR}"
   bvu_env_string     RBG_NOW_STAMP   1 128   # weak validation but infrastructure managed
   bvu_file_exists "${RBG_RBRR_FILE}"
+  bvu_env_string     RBG_RUNTIME     1 20 "podman"
+
+  # Optional runtime args
+  RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
 
   source              "${RBG_RBRR_FILE}"
   source "${ZRBG_SCRIPT_DIR}/rbrr.validator.sh"
@@ -65,8 +75,20 @@ zrbg_environment() {
   ZRBG_GITHUB_ACTIONS_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/actions/runs/"
   ZRBG_GITHUB_PACKAGES_URL="https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}"
 
+  # JSON output files
+  # IMAGE_RECORDS.json - JSON array of image tag metadata from GHCR API
+  # Each object: {tag: "<tag>", fqin: "<registry>/<owner>/<repo>:<tag>"}
   ZRBG_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
+
+  # IMAGE_DETAILS.json - JSON array of per-tag/platform image details
+  # Each object: {tag: "<tag>", platform: "<os>/<arch>", digest: "<sha256>",
+  #               layers: [{digest: "<sha256>", size: <bytes>}],
+  #               config: {created: "<iso>", architecture: "<arch>", os: "<os>"}}
   ZRBG_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
+
+  # IMAGE_STATS.json - JSON array of deduplicated layer statistics
+  # Each object: {digest: "<sha256>", size: <bytes>, tag_count: <int>,
+  #               total_usage: <int>, tag_details: [{tag: "<tag>", count: <int>}]}
   ZRBG_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
 
   # Media types
@@ -76,7 +98,6 @@ zrbg_environment() {
   ZRBG_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
   ZRBG_ACCEPT_MANIFEST_MTYPES="${ZRBG_MTYPE_DV2},${ZRBG_MTYPE_DLIST},${ZRBG_MTYPE_OCI},${ZRBG_MTYPE_OCM}"
   ZRBG_SCHEMA_V2="2" # Docker Registry HTTP API V2 Schema 2 format - an older manifest format
-
   ZRBG_MTYPE_GHV3="application/vnd.github.v3+json"
 
   # GHCR v2 API
@@ -90,6 +111,21 @@ zrbg_environment() {
   ZRBG_DELETE_VERSION_ID_CACHE="${RBG_TEMP_DIR}/RBG_VERSION_ID__${RBG_NOW_STAMP}.txt"
   ZRBG_DELETE_RESULT_CACHE="${RBG_TEMP_DIR}/RBG_DELETE__${RBG_NOW_STAMP}.txt"
   ZRBG_WORKFLOW_LOGS="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+
+  # Obtain bearer token for GHCR v2 API
+  bcu_step "Obtaining bearer token for GHCR registry API"
+  local token_out="${RBG_TEMP_DIR}/bearer_token.out"
+  local token_err="${RBG_TEMP_DIR}/bearer_token.err"
+
+  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
+    ZRBG_AUTH_TOKEN=$(jq -r '.token' "${token_out}") && \
+    test -n "${ZRBG_AUTH_TOKEN}" && \
+    test "${ZRBG_AUTH_TOKEN}" != "null" || {
+      bcu_warn "Failed to obtain bearer token for GHCR API"
+      bcu_warn "STDERR: $(<"${token_err}")"
+      bcu_warn "STDOUT: $(<"${token_out}")"
+      bcu_die "Cannot proceed without bearer token"
+    }
 }
 
 # Perform authenticated GET request
@@ -115,7 +151,7 @@ zrbg_curl_post() {
        -H "Accept: ${ZRBG_MTYPE_GHV3}"             \
        "$url"                                      \
        -d "$data"                                  \
-    || bcu_die "Curl failed."
+    || bcu_die "POST request to GitHub API failed"
 }
 
 # Perform authenticated DELETE request
@@ -132,23 +168,6 @@ zrbg_curl_delete() {
 # Collect all image records (version_id, tag, fqin) with pagination
 #
 # Outputs: JSON file at ZRBG_IMAGE_RECORDS_FILE
-#
-# IMAGE_RECORDS.json
-# ------------------
-# A JSON array of image tag metadata objects as returned by the GitHub Container Registry (GHCR) API.
-# This is the raw tag listing from the GHCR repository, used as input to downstream inspection.
-#
-# Each object has the following structure:
-# {
-#   "name": "<tag>",                  # The tag string (e.g., "v5.5-20250725-abc_x86_64")
-#   "digest": "<manifest-digest>",   # Digest of the top-level manifest associated with the tag
-#   "updated_at": "<iso-timestamp>"  # Last modified timestamp (from GHCR metadata)
-# }
-#
-# Notes:
-# - This file does not include layer or config information.
-# - This is a direct mapping of GHCR's paginated tag listing.
-# - Downstream code uses this as a seed to resolve manifests and blobs.
 zrbg_collect_image_records() {
   bcu_step "Fetching all image records with pagination to ${ZRBG_IMAGE_RECORDS_FILE}"
 
@@ -232,10 +251,9 @@ zrbg_confirm_action() {
 zrbg_registry_login() {
   bcu_step "Log in to container registry"
 
-  podman login "${ZRBG_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
+  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG} login "${ZRBG_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
-# Execute GitHub Actions workflow and wait for completion
 # Execute GitHub Actions workflow and wait for completion
 zrbg_execute_workflow() {
   local event_type="${1}"
@@ -300,21 +318,21 @@ zrbg_execute_workflow() {
     count=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
 
     if [ "${count}" -gt 0 ]; then
-      echo "  Found new commits, pulling..."
+      echo "  Found ${count} new commits, pulling..."
       git pull
       echo "  Pull successful"
       found=1
       break
     fi
 
-    echo "  No new commits yet, waiting ${retry_wait} seconds (attempt $((i + 1)))"
+    echo "  No new commits yet, waiting ${retry_wait} seconds (attempt $((i + 1)) of ${max_attempts})"
     sleep ${retry_wait}
     i=$((i + 1))
   done
 
   if [ ${found} -ne 1 ]; then
     echo "  ${no_commits_msg}"
-    bcu_die "No commits found"
+    bcu_die "Expected git commits from workflow not found"
   fi
 
   bcu_info "Pull logs..."
@@ -329,8 +347,6 @@ zrbg_process_single_manifest() {
   local tag="$1"
   local manifest_file="$2"
   local platform="$3"  # Empty for single-platform
-  local headers="$4"
-
 
   # Diagnostic: Check file exists
   test -f "${manifest_file}" || bcu_die "Manifest file does not exist: ${manifest_file}"
@@ -354,20 +370,20 @@ zrbg_process_single_manifest() {
   local config_out="${manifest_file%.json}_config.json"
   local config_err="${manifest_file%.json}_config.err"
 
-  curl -sL -H "${headers}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" \
+  curl -sL -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}" "${ZRBG_GHCR_V2_API}/blobs/${config_digest}" \
         >"${config_out}" 2>"${config_err}" && \
     jq . "${config_out}" >/dev/null || {
       bcu_warn "    Failed to fetch or parse config blob"
       bcu_warn "    Digest: ${config_digest}"
       bcu_warn "    STDERR: $(<"${config_err}")"
       bcu_warn "    STDOUT: $(<"${config_out}")"
-      bcu_die "CANNOT PROCEED."
+      bcu_die "Failed to retrieve config blob from GHCR"
     }
 
   test -n "${config_digest}" && test "${config_digest}" != "null" || {
     bcu_warn "    Failed to fetch or parse config blob"
     bcu_warn "    Digest: ${config_digest}"
-    bcu_die "CANNOT PROCEED."
+    bcu_die "Config blob validation failed"
   }
 
   local temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
@@ -385,7 +401,7 @@ zrbg_process_single_manifest() {
   echo "${config_json}" | jq -e '.created and .architecture and .os' >/dev/null || {
     bcu_warn "Missing required fields in config blob"
     bcu_warn "    BLOB: $(<"${config_out}")"
-    bcu_die  "Cannot continue."
+    bcu_die  "Config blob missing required fields"
   }
 
   echo "${config_json}" | jq -e '(.created // empty) and (.architecture // empty) and (.os // empty)' >/dev/null \
@@ -599,7 +615,7 @@ rbg_retrieve() {
   bcu_step "Pull image from GitHub Container Registry"
   zrbg_registry_login
   bcu_info "Fetch image..."
-  podman pull "$fqin"
+  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG} pull "$fqin"
   bcu_success "No errors."
 }
 
@@ -617,24 +633,6 @@ rbg_image_info() {
   bcu_doc_shown || return 0
 
   zrbg_collect_image_records
-
-  bcu_step "Obtain bearer token for GHCR"
-  local repo="${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  local bearer_token
-  local token_out="${RBG_TEMP_DIR}/bearer_token.out"
-  local token_err="${RBG_TEMP_DIR}/bearer_token.err"
-
-  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBG_TOKEN_URL}" >"${token_out}" 2>"${token_err}" && \
-    bearer_token=$(jq -r '.token' "${token_out}") && \
-    test -n "${bearer_token}" && \
-    test "${bearer_token}" != "null" || {
-      bcu_warn "Failed to obtain bearer token"
-      bcu_warn "STDERR: $(<"${token_err}")"
-      bcu_warn "STDOUT: $(<"${token_out}")"
-      bcu_die "Cannot proceed without bearer token"
-    }
-
-  local headers="Authorization: Bearer ${bearer_token}"
 
   echo "[]" > "${ZRBG_IMAGE_DETAIL_FILE}"
 
@@ -655,7 +653,7 @@ rbg_image_info() {
 
     bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
 
-    curl -sL -H "${headers}"                         \
+    curl -sL -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}" \
          -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}" \
          "${ZRBG_GHCR_V2_API}/manifests/${tag}"      \
           >"${manifest_out}" 2>"${manifest_err}" && \
@@ -688,7 +686,7 @@ rbg_image_info() {
         local platform_out="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
         local platform_err="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.err"
 
-        curl -sL -H "${headers}"                                \
+        curl -sL -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}" \
              -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}"        \
              "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" \
               >"${platform_out}" 2>"${platform_err}"          && \
@@ -703,7 +701,7 @@ rbg_image_info() {
             continue
           }
 
-        zrbg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}" "${headers}"
+        zrbg_process_single_manifest "${tag}" "${platform_out}" "${platform_info}"
 
         ((platform_idx++))
       done <<< "$manifests"
@@ -713,65 +711,13 @@ rbg_image_info() {
          [[ "${media_type}" == "${ZRBG_SCHEMA_V2}" ]]; then
 
       bcu_info "  Single platform image"
-      zrbg_process_single_manifest "${tag}" "${manifest_out}" "" "${headers}"
+      zrbg_process_single_manifest "${tag}" "${manifest_out}" ""
     else
       bcu_warn "  Unknown manifest type: ${media_type}, skipping"
     fi
   done
 
-  # IMAGE_DETAILS.json
-  # ------------------
-  # A JSON array of objects, each representing a single image tag (possibly platform-specific),
-  # with detailed metadata extracted from GHCR's manifest and config blobs.
-  #
-  # Each object has the following structure:
-  # {
-  #   "tag": "<tag>",                   # Tag name (e.g., "myimage-20250725-linux_amd64")
-  #   "digest": "<manifest-digest>",   # Top-level manifest digest (usually for this tag+platform)
-  #   "created": "<iso-timestamp>",    # Creation timestamp extracted from config blob
-  #   "size": <int-bytes>,             # Total compressed size of the image (sum of layer sizes)
-  #   "layers": [                      # Array of individual image layers
-  #     {
-  #       "digest": "<layer-digest>",  # Content digest of the layer
-  #       "size": <int-bytes>          # Compressed size in bytes
-  #     },
-  #     ...
-  #   ]
-  # }
-  #
-  # Notes:
-  # - The array includes one entry per tag/platform combination.
-  # - "size" includes all layers and the config object.
-  # - "created" is taken from the image config, not the tag timestamp.
-
-
   bcu_step "Comprehensive image info next ${ZRBG_IMAGE_DETAIL_FILE}"
-
-  # IMAGE_STATS.json
-  # ----------------
-  # A JSON array of objects, each representing a distinct deduplicated image layer,
-  # aggregated across all analyzed image tags.
-  #
-  # Each object has the following structure:
-  # {
-  #   "digest": "<layer-digest>",     # Full sha256 digest identifying the layer
-  #   "size": <int-bytes>,            # Size of the layer in bytes
-  #   "tag_count": <int>,             # Number of unique tags using this layer
-  #   "total_usage": <int>,           # Total times this layer appears across all tags
-  #   "tag_details": [                # Array showing usage breakdown per tag
-  #     {
-  #       "tag": "<tag>",             # Tag name using this layer
-  #       "count": <int>              # How many times layer appears in this tag
-  #     },
-  #     ...
-  #   ]
-  # }
-  #
-  # Notes:
-  # - The array is sorted descending by size (largest layers first).
-  # - The digest includes the "sha256:" prefix.
-  # - tag_count counts unique tags; total_usage counts all layer occurrences.
-  # - A layer can appear multiple times in the same tag (empty/duplicate layers).
 
   jq '
     .[]

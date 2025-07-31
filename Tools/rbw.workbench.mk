@@ -30,12 +30,12 @@ RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 RBM_STATION_SH     = ../station-files/rbrs-station.sh
 
-RBM_RECIPE_BOTTLE_CONTAINER_SH = RBC_TEMP_DIR="$(MBD_TEMP_DIR)"                \
-                                 RBC_NOW_STAMP="$(MBD_NOW_STAMP)"              \
-                                 RBC_RBRR_FILE="rbrr.repo.sh"                  \
-				 RBC_RUNTIME="podman"                          \
-				 RBC_RUNTIME_ARG="--connection=rbw-vm-deploy"  \
-                                   $(MBV_TOOLS_DIR)/rbc_ContainerRegistry.sh
+RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
+                              RBG_NOW_STAMP="$(MBD_NOW_STAMP)"  \
+                              RBG_RBRR_FILE="rbrr.repo.sh"      \
+                              RBG_RUNTIME="podman"                          \
+                              RBG_RUNTIME_ARG="--connection=rbw-vm-deploy"  \
+                              $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
 
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                           RBV_NOW_STAMP="$(MBD_NOW_STAMP)"  \
@@ -64,11 +64,11 @@ default:
 #  Github Container Registry
 #
 
-RBC_ARG_TAG =
+RBG_ARG_TAG =
 
 rbw-hg.%:
 	$(MBC_START) "Github Command Help"
-	$(RBM_RECIPE_BOTTLE_CONTAINER_SH)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH)
 	$(MBC_PASS) "No errors."
 
 rbw-hv.%:
@@ -78,27 +78,27 @@ rbw-hv.%:
 
 rbw-l.%:
 	$(MBC_START) "List Current Registry Images"
-	$(RBM_RECIPE_BOTTLE_CONTAINER_SH) rbc_list
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_list
 	$(MBC_PASS) "No errors."
 
 rbw-II.%:
 	$(MBC_START) "List Registry Image Info"
-	$(RBM_RECIPE_BOTTLE_CONTAINER_SH) rbc_image_info $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_image_info $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-r.%:
 	$(MBC_START) "Retrieve Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_CONTAINER_SH) rbc_retrieve $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_retrieve $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-b.%:
 	$(MBC_START) "Build Container From Recipe given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_CONTAINER_SH) rbc_build $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_build $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-d.%:
 	$(MBC_START) "Delete Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_CONTAINER_SH) rbc_delete $(MBD_CLI_ARGS)
+	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_delete $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 
