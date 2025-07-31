@@ -97,22 +97,6 @@ zrbv_generate_brand_file() {
   echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
-# Confirm YES parameter or prompt user
-zrbv_confirm_yes() {
-  local confirm_param="$1"
-
-  if [[ "$confirm_param" == "YES" ]]; then
-    return 0
-  fi
-
-  read -p "Type YES to confirm: " confirm
-  if [[ "$confirm" == "YES" ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 # Extract natural tag from podman init output
 zrbv_extract_natural_tag() {
   local init_output_file="$1"
@@ -323,7 +307,11 @@ rbv_nuke() {
   bvu_dir_exists "${RBRS_PODMAN_ROOT_DIR}" || bcu_warn "Podman directory not found."
 
   bcu_step "WARNING: This will destroy all podman VMs and cache found in ${RBRS_PODMAN_ROOT_DIR}"
-  zrbv_confirm_yes "$yes_opt" || bcu_die "Nuke not confirmed, exit without change"
+  
+  # Skip confirmation if YES was passed as parameter
+  if [[ "$yes_opt" != "YES" ]]; then
+    bcu_require "This will destroy all podman VMs and cache. Confirm to proceed:" "YES"
+  fi
 
   bcu_step "Stopping all containers..."
   podman stop -a  || bcu_warn "Attempt to stop all containers did not succeed; okay if machine not started."
@@ -341,10 +329,6 @@ rbv_nuke() {
   rm -rf "${RBRS_PODMAN_ROOT_DIR}/machine"/*
 
   bcu_success "Podman VM environment reset complete"
-}
-
-zrbv_check() {
-  bcu_die "Unimplemented"
 }
 
 # Mirror VM images to GHCR
@@ -615,19 +599,27 @@ rbv_init() {
 }
 
 rbv_start() {
-  bcu_die "BRADTODO: ELIDED."
+  # Handle documentation mode
+  bcu_doc_brief "Start Deploy VM"
+  bcu_doc_shown || return 0
+
+  # Perform command
+  bcu_step "Starting Deploy VM..."
+  podman machine start "${RBRR_DEPLOY_MACHINE_NAME}"
+
+  bcu_success "Deploy VM started"
 }
 
 rbv_stop() {
   # Handle documentation mode
-  bcu_doc_brief "Stop deploy podman machine"
+  bcu_doc_brief "Stop Deploy VM"
   bcu_doc_shown || return 0
 
   # Perform command
   bcu_step "Stopping deploy VM..."
   podman machine stop "${RBRR_DEPLOY_MACHINE_NAME}"
 
-  bcu_success "VM stopped"
+  bcu_success "Deploy VM stopped"
 }
 
 # Execute command
