@@ -706,11 +706,13 @@ rbg_image_info() {
 
     bcu_step "Request both single and multi-platform manifest types for -> ${safe_tag}"
 
-    curl -sL -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}" \
-         -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}" \
-         "${ZRBG_GHCR_V2_API}/manifests/${tag}"      \
-          >"${manifest_out}" 2>"${manifest_err}" && \
-      jq . "${manifest_out}" >/dev/null          || {
+    curl -sL                                           \
+         -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}" \
+         -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}"   \
+         "${ZRBG_GHCR_V2_API}/manifests/${tag}"        \
+             >"${manifest_out}" 2>"${manifest_err}"    \
+      && jq . "${manifest_out}" >/dev/null             \
+      || {
         bcu_warn "  Failed to fetch or parse manifest for ${tag}"
         bcu_warn "  STDERR: $(<"${manifest_err}")"
         bcu_warn "  STDOUT: $(<"${manifest_out}")"
@@ -739,11 +741,13 @@ rbg_image_info() {
         local platform_out="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.json"
         local platform_err="${RBG_TEMP_DIR}/manifest__${safe_tag}__${platform_idx}.err"
 
-        curl -sL -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}" \
+        curl -sL                                                \
+             -H "Authorization: Bearer ${ZRBG_AUTH_TOKEN}"      \
              -H "Accept: ${ZRBG_ACCEPT_MANIFEST_MTYPES}"        \
              "${ZRBG_GHCR_V2_API}/manifests/${platform_digest}" \
-              >"${platform_out}" 2>"${platform_err}"          && \
-          jq . "${platform_out}" >/dev/null                   || {
+                 >"${platform_out}" 2>"${platform_err}"         \
+          && jq . "${platform_out}" >/dev/null                  \
+          || {
             bcu_warn "    Failed to fetch platform manifest"
             bcu_warn "    Platform: ${platform_info}"
             bcu_warn "    Digest: ${platform_digest}"
