@@ -289,17 +289,6 @@ zrbg_get_latest_build_dir() {
   find "${RBRR_HISTORY_DIR}" -name "${basename_no_ext}*" -type d -print | sort -r | head -n1
 }
 
-# Prompt for confirmation
-# Usage: zrbg_confirm_action <prompt_message>
-# Returns 0 if confirmed, 1 if not
-zrbg_confirm_action() {
-  local prompt="$1"
-
-  echo -e "${ZBCU_YELLOW}${prompt}${ZBCU_RESET}"
-  read -p "Type YES: " confirm
-  test "$confirm" = "YES"
-}
-
 # Login to container registry
 zrbg_registry_login() {
   bcu_step "Log in to container registry"
@@ -628,7 +617,8 @@ rbg_delete() {
 
   # Confirm deletion unless skipped
   if [ "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP" ]; then
-    zrbg_confirm_action "Confirm delete image ${fqin}?" || bcu_die "WONT DELETE"
+    bcu_warn "BE AWARE THAT GHCR DELETIONS CAN DAMAGE OTHER IMAGES."
+    bcu_require "Confirm delete image ${fqin}?" "YES"
   fi
 
   bcu_step "Triggering GitHub Actions workflow for image deletion"
