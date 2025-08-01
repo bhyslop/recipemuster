@@ -93,8 +93,8 @@ zrbv_generate_brand_file() {
 zrbv_extract_natural_tag() {
   local z_init_output_file="$1"
 
-  grep "Looking up Podman Machine image at" "${z_init_output_file}" | \
-    sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/' \
+  grep "Looking up Podman Machine image at" "${z_init_output_file}"        \
+    | sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/' \
     > "${ZRBV_NATURAL_TAG_FILE}"
 
   test -s "${ZRBV_NATURAL_TAG_FILE}" || bcu_die "Failed to extract natural tag from init output"
@@ -104,15 +104,18 @@ zrbv_extract_natural_tag() {
 zrbv_is_different_predicate() {
   local z_file1="$1"
   local z_file2="$2"
-
-  if test "$(cat "${z_file1}")" = "$(cat "${z_file2}")"; then
+  
+  local z_content1="$(<"${z_file1}")"
+  local z_content2="$(<"${z_file2}")"
+  
+  if test "${z_content1}" = "${z_content2}"; then
     return 0
   else
     bcu_warn "File content mismatch detected!"
     bcu_warn "File 1 (${z_file1}) contents:"
-    cat              "${z_file1}"
+    echo "${z_content1}"
     bcu_warn "File 2 (${z_file2}) contents:"
-    cat              "${z_file2}"
+    echo "${z_content2}"
     return 1
   fi
 }
