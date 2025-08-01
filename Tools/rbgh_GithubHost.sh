@@ -110,7 +110,7 @@ rbgh_build_workflow() {
   # Dispatch workflow
   bcu_step "Triggering GitHub Actions workflow for image build"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
-                "build_images" '{"dockerfile": "'${z_recipe_file}'"}'
+                "rbgr_build" '{"dockerfile": "'${z_recipe_file}'"}'
   
   # Wait for completion
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"
@@ -178,7 +178,7 @@ rbgh_delete_workflow() {
   # Dispatch workflow
   bcu_step "Triggering GitHub Actions workflow for image deletion"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
-                "delete_image" '{"fqin": "'${z_fqin}'"}'
+                "rbgr_delete" '{"fqin": "'${z_fqin}'"}'
   
   # Wait for completion
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"

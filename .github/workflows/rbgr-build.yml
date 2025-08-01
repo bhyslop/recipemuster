@@ -1,0 +1,172 @@
+name: BGC Image Build Workflow
+
+on:
+  repository_dispatch:
+    types: [build_images]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate configuration files
+        shell: bash
+        run: |
+          echo "GHA: about to validate configuration files..."
+          source ./mbv.variables.sh
+          echo "MBV_TOOLS_DIR=$MBV_TOOLS_DIR" >> $GITHUB_ENV
+
+      - name: Load repository configuration
+        shell: bash
+        run: |
+          echo "GHA: about to load repository configuration..."
+          source ./rbrr.repo.sh
+          # Export all RBRR_ variables to GITHUB_ENV
+          env | grep '^RBRR_' | while IFS='=' read -r name value; do
+            echo "${name}=${value}" >> $GITHUB_ENV
+          done
+          echo "GHA: Environment variables have been submitted, available in next step."
+
+      - name: Validate configuration
+        shell: bash
+        run: |
+          echo "GHA: about to validate repository configuration..."
+          bash ${{ env.MBV_TOOLS_DIR }}/rbrr.validator.sh
+
+      - name: Set and validate Dockerfile path
+        shell: bash
+        run: |
+          echo "GHA: about to set and validate Dockerfile path..."
+          test -n "${{ github.event.client_payload.dockerfile }}" ||\
+            (echo "GHA: Error: Dockerfile path not provided in client_payload" && false)
+          test -f "${{ github.event.client_payload.dockerfile }}" ||\
+            (echo "GHA: Error: Dockerfile not found at path: ${{ github.event.client_payload.dockerfile }}" && false)
+          echo "DOCKERFILE=${{ github.event.client_payload.dockerfile }}" >> $GITHUB_ENV
+
+      - name: Generate image build metadata
+        shell: bash
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
+          FULL_FILENAME=$(basename ${{ env.DOCKERFILE }})
+          FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
+          BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${TIMESTAMP}"
+          echo "BUILD_LABEL=$BUILD_LABEL" >> $GITHUB_ENV
+          echo "GHCR_PATH=ghcr.io/${{ env.RBRR_REGISTRY_OWNER }}/${{ env.RBRR_REGISTRY_NAME }}:$BUILD_LABEL" >> $GITHUB_ENV
+          echo "HISTORY_DIR=${{ env.RBRR_HISTORY_DIR }}/$BUILD_LABEL" >> $GITHUB_ENV
+          echo "GHA: Var TIMESTAMP=$TIMESTAMP"
+          echo "GHA: Var FULL_FILENAME=$FULL_FILENAME"
+          echo "GHA: Var FILENAME_WITHOUT_EXT=$FILENAME_WITHOUT_EXT"
+          echo "GHA: Var BUILD_LABEL=$BUILD_LABEL"
+          echo "GHA: Var GHCR_PATH=$GHCR_PATH"
+          echo "GHA: Var HISTORY_DIR=${{ env.RBRR_HISTORY_DIR }}/$BUILD_LABEL"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if image tag exists
+        shell: bash
+        run: |
+          echo "GHA: about to check if tag exists..."
+          docker manifest inspect ${{ env.GHCR_PATH }} > /dev/null 2>&1 &&\
+            (echo "GHA: Error: Tag ${{ env.BUILD_LABEL }} already exists" && false)
+          echo "GHA: Tag does not exist, proceeding with build"
+
+      - name: Create history directory for image
+        shell: bash
+        run: |
+          echo "GHA: about to create history directory..."
+          mkdir -p ${{ env.HISTORY_DIR }} ||\
+            (echo "GHA: Error: Failed to create history directory" && false)
+          cp ${{ env.DOCKERFILE }} ${{ env.HISTORY_DIR }}/recipe.txt ||\
+            (echo "GHA: Error: Failed to copy Dockerfile to history directory" && false)
+          echo ${{ github.sha }} > ${{ env.HISTORY_DIR }}/commit.txt ||\
+            (echo "GHA: Error: Failed to create commit.txt" && false)
+
+      - name: Build and push image
+        id: docker_build
+        uses: docker/build-push-action@v6.9.0
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          push: true
+          tags: ${{ env.GHCR_PATH }}
+          platforms: ${{ env.RBRR_BUILD_ARCHITECTURES }}
+          provenance: true
+          sbom: true
+
+      - name: Analyze built image with Syft
+        run: |
+          echo "GHA: Install Syft, pinned version..."
+          curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz &&\
+            tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/
+
+          echo "GHA: Pull the image for analysis..."
+          docker pull ${{ env.GHCR_PATH }}
+
+          echo "GHA: Run Syft analysis and save to file..."
+          syft ${{ env.GHCR_PATH }} -o json > ${{ env.HISTORY_DIR }}/syft_analysis.json
+
+          echo "GHA: Generate a summary report..."
+          echo "Package analysis summary:" > ${{ env.HISTORY_DIR }}/package_summary.txt
+          jq -r '.artifacts[] | "\(.name) \(.version)"' ${{ env.HISTORY_DIR }}/syft_analysis.json |\
+            sort | uniq -c | sort -rn | head -n 20 >> ${{ env.HISTORY_DIR }}/package_summary.txt
+
+          echo "GHA: Display the summary..."
+          cat ${{ env.HISTORY_DIR }}/package_summary.txt
+
+          echo "Full Syft analysis saved to ${{ env.HISTORY_DIR }}/syft_analysis.json"
+          echo "Package summary saved to ${{ env.HISTORY_DIR }}/package_summary.txt"
+
+      - name: Create rough_digest.txt
+        shell: bash
+        run: |
+          echo "GHA: about to create rough_digest.txt..."
+          IMAGE_SIZE=$(docker image inspect ${{ env.GHCR_PATH }} --format='{{.Size}}')
+          IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
+          BUILD_DURATION=${{ steps.docker_build.outputs.duration }}
+          echo "Image size: ${IMAGE_SIZE_MB}MB"      > ${{ env.HISTORY_DIR }}/rough_digest.txt
+          echo "Build duration: ${BUILD_DURATION}s" >> ${{ env.HISTORY_DIR }}/rough_digest.txt
+
+      - name: Extract and save image digest metadata
+        shell: bash
+        run: |
+          echo "GHA: Creating separate files for different image digest information"
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].Id | sub("sha256:"; "")' > ${{ env.HISTORY_DIR }}/docker_inspect_Id.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].RepoTags[0] // empty'    > ${{ env.HISTORY_DIR }}/docker_inspect_RepoTags_0.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].RepoTags[1] // empty'    > ${{ env.HISTORY_DIR }}/docker_inspect_RepoTags_1.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].RepoDigests[-1]'         > ${{ env.HISTORY_DIR }}/docker_inspect_RepoDigests_last.txt
+          docker inspect ${{ env.GHCR_PATH }} | jq -r '.[0].Created'                 > ${{ env.HISTORY_DIR }}/docker_inspect_Created.txt
+          echo "GHA: Image digest information saved to separate files"
+
+      - name: Commit image build history
+        shell: bash
+        run: |
+          echo "GHA: about to commit image build history..."
+          git config --local user.email "github-actions[bot]@users.noreply.github.com" ||\
+            (echo "GHA: Error: Failed to set git user email" && false)
+          git config --local user.name "github-actions[bot]" ||\
+            (echo "GHA: Error: Failed to set git user name" && false)
+          git add ${{ env.HISTORY_DIR }} ||\
+            (echo "GHA: Error: Failed to stage history directory" && false)
+          git commit -m "Add image build history for ${{ env.BUILD_LABEL }}" ||\
+            (echo "GHA: Error: Failed to commit image build history" && false)
+          git push ||\
+            (echo "GHA: Error: Failed to push changes" && false)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
