@@ -19,7 +19,7 @@ zrbim_kindle() {
 }
 
 zrbim_sentinel() {
-  test "${ZRBIM_KINDLED:-}" = "1" || bcu_die "Module rbim not started - call zrbim_kindle first"
+  test "${ZRBIM_KINDLED:-}" = "1" || bcu_die "Module rbim not kindled - call zrbim_kindle first"
 }
 
 ######################################################################

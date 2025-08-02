@@ -30,7 +30,7 @@ zrbga_kindle() {
 }
 
 zrbga_sentinel() {
-  test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not started - call zrbga_kindle first"
+  test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbga_kindle first"
 }
 
 zrbga_curl_api() {
@@ -69,9 +69,9 @@ rbga_dispatch() {
   zrbga_sentinel
 
   # Validate parameters
-  test -n "${z_repo_owner}" || bcu_die "Repository owner required"
-  test -n "${z_repo_name}" || bcu_die "Repository name required"
-  test -n "${z_event_type}" || bcu_die "Event type required"
+  test -n "${z_repo_owner}"   || bcu_die "Repository owner required"
+  test -n "${z_repo_name}"    || bcu_die "Repository name required"
+  test -n "${z_event_type}"   || bcu_die "Event type required"
   test -n "${z_payload_json}" || bcu_die "Payload JSON required"
 
   # Dispatch workflow

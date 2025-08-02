@@ -72,7 +72,7 @@ zrbv_kindle() {
 
 zrbv_sentinel() {
   # Guard that kindle ran before function execution
-  test "${ZRBV_KINDLED:-}" = "1" || bcu_die "Module rbv not started - call zrbv_kindle first"
+  test "${ZRBV_KINDLED:-}" = "1" || bcu_die "Module rbv not kindled - call zrbv_kindle first"
 }
 
 # Generate brand file content

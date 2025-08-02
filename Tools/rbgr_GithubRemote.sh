@@ -24,7 +24,7 @@ zrbgr_kindle() {
 }
 
 zrbgr_sentinel() {
-  test "${ZRBGR_KINDLED:-}" = "1" || bcu_die "Module rbgr not started - call zrbgr_kindle first"
+  test "${ZRBGR_KINDLED:-}" = "1" || bcu_die "Module rbgr not kindled - call zrbgr_kindle first"
 }
 
 ######################################################################

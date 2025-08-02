@@ -85,7 +85,7 @@ rbw-hv.%:
 
 rbw-l.%:
 	$(MBC_START) "List Current Registry Images"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_list
+	$(RBW_IMAGE_MANAGEMENT_SH) rbim_list
 	$(MBC_PASS) "No errors."
 
 rbw-II.%:

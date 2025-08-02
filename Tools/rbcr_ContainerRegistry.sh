@@ -70,15 +70,16 @@ zrbcr_kindle() {
 }
 
 zrbcr_sentinel() {
-  test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not started - call zrbcr_kindle first"
+  test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not kindled - call zrbcr_kindle first"
 }
 
 zrbcr_curl_github_api() {
   local z_url="$1"
 
-  curl -s -H "Authorization: token ${RBRG_PAT}" \
-          -H "Accept: ${ZRBCR_MTYPE_GHV3}"       \
-          "${z_url}"
+  curl -s                                    \
+       -H "Authorization: token ${RBRG_PAT}" \
+       -H "Accept: ${ZRBCR_MTYPE_GHV3}"      \
+       "${z_url}"
 }
 
 zrbcr_process_single_manifest() {
