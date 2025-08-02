@@ -26,8 +26,8 @@ zrbcr_kindle() {
     # GitHub Actions mode - use environment variables directly
     bcu_info "Running in GitHub Actions - using GITHUB_TOKEN"
     test -n "${GITHUB_TOKEN:-}" || bcu_die "GITHUB_TOKEN not set in GitHub Actions"
-    RBRG_PAT="${GITHUB_TOKEN}"
-    RBRG_USERNAME="${GITHUB_ACTOR:-github-actions}"
+    ZRBCR_GITHUB_TOKEN="${GITHUB_TOKEN}"
+    ZRBCR_REGISTRY_USERNAME="${GITHUB_ACTOR:-github-actions}"
   else
     # Local mode - source PAT file
     bcu_info "Running locally - sourcing PAT file"
@@ -36,6 +36,8 @@ zrbcr_kindle() {
     source "${RBRR_GITHUB_PAT_ENV}"
     test -n "${RBRG_PAT:-}" || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
     test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+    ZRBCR_GITHUB_TOKEN="${RBRG_PAT}"
+    ZRBCR_REGISTRY_USERNAME="${RBRG_USERNAME}"
   fi
 
   # Module Variables (ZRBCR_*)
@@ -52,30 +54,51 @@ zrbcr_kindle() {
   ZRBCR_SCHEMA_V2="2"
   ZRBCR_MTYPE_GHV3="application/vnd.github.v3+json"
 
+  # Curl headers
+  ZRBCR_HEADER_AUTH_TOKEN="Authorization: token ${ZRBCR_GITHUB_TOKEN}"
+  ZRBCR_HEADER_ACCEPT_GH="Accept: ${ZRBCR_MTYPE_GHV3}"
+  ZRBCR_HEADER_ACCEPT_MANIFEST="Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}"
+
+  # File prefixes for all operations
+  ZRBCR_KINDLE_TOKEN_PREFIX="${RBG_TEMP_DIR}/kindle_bearer_token"
+  ZRBCR_LIST_PAGE_PREFIX="${RBG_TEMP_DIR}/list_page_"
+  ZRBCR_LIST_RECORDS_PREFIX="${RBG_TEMP_DIR}/list_records_"
+  ZRBCR_MANIFEST_PREFIX="${RBG_TEMP_DIR}/manifest_"
+  ZRBCR_CONFIG_PREFIX="${RBG_TEMP_DIR}/config_"
+  ZRBCR_DELETE_PREFIX="${RBG_TEMP_DIR}/delete_"
+  ZRBCR_VERSION_PREFIX="${RBG_TEMP_DIR}/version_"
+  ZRBCR_DETAIL_PREFIX="${RBG_TEMP_DIR}/detail_"
+
   # Output files
   ZRBCR_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
   ZRBCR_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
   ZRBCR_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
   ZRBCR_FQIN_FILE="${RBG_TEMP_DIR}/FQIN.txt"
 
+  # File index counter
+  ZRBCR_FILE_INDEX=0
+
   # Obtain bearer token for registry operations
   bcu_step "Obtaining bearer token for registry API"
-  local z_token_out="${RBG_TEMP_DIR}/bearer_token.out"
-  local z_token_err="${RBG_TEMP_DIR}/bearer_token.err"
+  local z_token_out="${ZRBCR_KINDLE_TOKEN_PREFIX}.out"
+  local z_token_err="${ZRBCR_KINDLE_TOKEN_PREFIX}.err"
 
-  curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBCR_TOKEN_URL}" >"${z_token_out}" 2>"${z_token_err}" && \
-    ZRBCR_REGISTRY_AUTH_TOKEN=$(jq -r '.token' "${z_token_out}") && \
-    test -n "${ZRBCR_REGISTRY_AUTH_TOKEN}" && \
-    test "${ZRBCR_REGISTRY_AUTH_TOKEN}" != "null" || {
+  curl -sL -u "${ZRBCR_REGISTRY_USERNAME}:${ZRBCR_GITHUB_TOKEN}" "${ZRBCR_TOKEN_URL}" >"${z_token_out}" 2>"${z_token_err}" && \
+    ZRBCR_REGISTRY_TOKEN=$(jq -r '.token' "${z_token_out}") && \
+    test -n "${ZRBCR_REGISTRY_TOKEN}" && \
+    test "${ZRBCR_REGISTRY_TOKEN}" != "null" || {
       bcu_warn "Failed to obtain bearer token"
       bcu_warn "STDERR: $(<"${z_token_err}")"
       bcu_warn "STDOUT: $(<"${z_token_out}")"
       bcu_die "Cannot proceed without bearer token"
     }
 
+  # Registry auth header
+  ZRBCR_HEADER_AUTH_BEARER="Authorization: Bearer ${ZRBCR_REGISTRY_TOKEN}"
+
   # Login to registry
   bcu_step "Log in to container registry"
-  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_REGISTRY_HOST}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
+  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_REGISTRY_HOST}" -u "${ZRBCR_REGISTRY_USERNAME}" -p "${ZRBCR_GITHUB_TOKEN}"
 
   ZRBCR_KINDLED=1
 }
@@ -87,10 +110,15 @@ zrbcr_sentinel() {
 zrbcr_curl_github_api() {
   local z_url="$1"
 
-  curl -s                                    \
-       -H "Authorization: token ${RBRG_PAT}" \
-       -H "Accept: ${ZRBCR_MTYPE_GHV3}"      \
+  curl -s                         \
+       -H "${ZRBCR_HEADER_AUTH_TOKEN}" \
+       -H "${ZRBCR_HEADER_ACCEPT_GH}"  \
        "${z_url}"
+}
+
+zrbcr_get_next_index() {
+  ZRBCR_FILE_INDEX=$((ZRBCR_FILE_INDEX + 1))
+  printf "%03d" "${ZRBCR_FILE_INDEX}"
 }
 
 zrbcr_process_single_manifest() {
@@ -109,10 +137,12 @@ zrbcr_process_single_manifest() {
   }
 
   # Fetch config blob
-  local z_config_out="${z_manifest_file%.json}_config.json"
-  local z_config_err="${z_manifest_file%.json}_config.err"
+  local z_idx
+  z_idx=$(zrbcr_get_next_index)
+  local z_config_out="${ZRBCR_CONFIG_PREFIX}${z_idx}.json"
+  local z_config_err="${ZRBCR_CONFIG_PREFIX}${z_idx}.err"
 
-  curl -sL -H "Authorization: Bearer ${ZRBCR_REGISTRY_AUTH_TOKEN}" "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
+  curl -sL -H "${ZRBCR_HEADER_AUTH_BEARER}" "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
         >"${z_config_out}" 2>"${z_config_err}" && \
     jq . "${z_config_out}" >/dev/null || {
       bcu_warn "Failed to fetch config blob"
@@ -120,7 +150,7 @@ zrbcr_process_single_manifest() {
     }
 
   # Build detail entry
-  local z_temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
+  local z_temp_detail="${ZRBCR_DETAIL_PREFIX}$(zrbcr_get_next_index).json"
   local z_manifest_json z_config_json
   z_manifest_json="$(<"${z_manifest_file}")"
   z_config_json=$(jq '. + {
@@ -198,11 +228,12 @@ rbcr_list_tags() {
   echo "[]" > "${ZRBCR_IMAGE_RECORDS_FILE}"
 
   local z_page=1
-  local z_temp_page="${RBG_TEMP_DIR}/temp_page.json"
-  local z_temp_records="${RBG_TEMP_DIR}/temp_records.json"
 
   while true; do
     bcu_info "Fetching page ${z_page}..."
+
+    local z_temp_page="${ZRBCR_LIST_PAGE_PREFIX}${z_page}.json"
+    local z_temp_records="${ZRBCR_LIST_RECORDS_PREFIX}${z_page}.json"
 
     local z_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100&page=${z_page}"
     zrbcr_curl_github_api "${z_url}" > "${z_temp_page}"
@@ -243,13 +274,14 @@ rbcr_get_manifest() {
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
 
-  local z_safe_tag="${z_tag//\//_}"
-  local z_manifest_out="${RBG_TEMP_DIR}/manifest__${z_safe_tag}.json"
-  local z_manifest_err="${RBG_TEMP_DIR}/manifest__${z_safe_tag}.err"
+  local z_idx
+  z_idx=$(zrbcr_get_next_index)
+  local z_manifest_out="${ZRBCR_MANIFEST_PREFIX}${z_idx}.json"
+  local z_manifest_err="${ZRBCR_MANIFEST_PREFIX}${z_idx}.err"
 
   curl -sL \
-       -H "Authorization: Bearer ${ZRBCR_REGISTRY_AUTH_TOKEN}" \
-       -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
+       -H "${ZRBCR_HEADER_AUTH_BEARER}" \
+       -H "${ZRBCR_HEADER_ACCEPT_MANIFEST}" \
        "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_tag}" \
        >"${z_manifest_out}" 2>"${z_manifest_err}" \
     && jq . "${z_manifest_out}" >/dev/null \
@@ -277,12 +309,14 @@ rbcr_get_manifest() {
 
       bcu_info "Processing platform: ${z_platform_info}"
 
-      local z_platform_out="${RBG_TEMP_DIR}/manifest__${z_safe_tag}__${z_platform_idx}.json"
-      local z_platform_err="${RBG_TEMP_DIR}/manifest__${z_safe_tag}__${z_platform_idx}.err"
+      local z_platform_idx_str
+      z_platform_idx_str=$(zrbcr_get_next_index)
+      local z_platform_out="${ZRBCR_MANIFEST_PREFIX}${z_platform_idx_str}.json"
+      local z_platform_err="${ZRBCR_MANIFEST_PREFIX}${z_platform_idx_str}.err"
 
       curl -sL \
-           -H "Authorization: Bearer ${ZRBCR_REGISTRY_AUTH_TOKEN}" \
-           -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
+           -H "${ZRBCR_HEADER_AUTH_BEARER}" \
+           -H "${ZRBCR_HEADER_ACCEPT_MANIFEST}" \
            "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_platform_digest}" \
            >"${z_platform_out}" 2>"${z_platform_err}" \
         && jq . "${z_platform_out}" >/dev/null \
@@ -314,9 +348,11 @@ rbcr_get_config() {
   test -n "${z_digest}" || bcu_die "Digest parameter required"
 
   # Fetch config blob
-  local z_config_out="${RBG_TEMP_DIR}/config_${z_digest//[^a-zA-Z0-9]/_}.json"
+  local z_idx
+  z_idx=$(zrbcr_get_next_index)
+  local z_config_out="${ZRBCR_CONFIG_PREFIX}${z_idx}.json"
 
-  curl -sL -H "Authorization: Bearer ${ZRBCR_REGISTRY_AUTH_TOKEN}" \
+  curl -sL -H "${ZRBCR_HEADER_AUTH_BEARER}" \
        "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_digest}" > "${z_config_out}"
 }
 
@@ -337,15 +373,15 @@ rbcr_delete() {
 
   # Delete via GitHub API
   local z_delete_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_version_id}"
-  local z_result="${RBG_TEMP_DIR}/delete_result.txt"
-  local z_status_file="${RBG_TEMP_DIR}/delete_status.txt"
+  local z_result="${ZRBCR_DELETE_PREFIX}result.txt"
+  local z_status_file="${ZRBCR_DELETE_PREFIX}status.txt"
 
   # Use -w to write status to separate file to avoid subshell
-  curl -X DELETE -s                       \
-    -H "Authorization: token ${RBRG_PAT}" \
-    -H "Accept: ${ZRBCR_MTYPE_GHV3}"      \
-    -w "%{http_code}"                     \
-    -o "${z_result}"                      \
+  curl -X DELETE -s \
+    -H "${ZRBCR_HEADER_AUTH_TOKEN}" \
+    -H "${ZRBCR_HEADER_ACCEPT_GH}" \
+    -w "%{http_code}" \
+    -o "${z_result}" \
     "${z_delete_url}" > "${z_status_file}"
 
   local z_http_code
@@ -399,7 +435,7 @@ rbcr_get_version_id() {
   test -n "${z_tag}" || bcu_die "Tag parameter required"
 
   # Find version ID
-  ZRBCR_VERSION_ID_FILE="${RBG_TEMP_DIR}/version_id.txt"
+  ZRBCR_VERSION_ID_FILE="${ZRBCR_VERSION_PREFIX}id.txt"
 
   rbcr_list_tags
 
