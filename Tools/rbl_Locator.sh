@@ -6,7 +6,12 @@
 
 set -euo pipefail
 
+test -z "${ZRBL_SOURCED:-}" || bcu_die "Module rbl multiply sourced - check sourcing hierarchy"
+ZRBL_SOURCED=1
+
 zrbl_kindle() {
+  test -z "${ZRBL_KINDLED:-}" || bcu_die "Module rbl already kindled"
+
   ZRBL_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
   RBL_RBRR_FILE="${ZRBL_SCRIPT_DIR}/../rbrr_RecipeBottleRegimeRepo.sh"
   export RBL_RBRR_FILE
@@ -15,7 +20,7 @@ zrbl_kindle() {
 }
 
 zrbl_sentinel() {
-  test "${ZRBGH_KINDLED:-}" = "1" || bcu_die "Module rbgh not kindled - call zrbgh_kindle first"
+  test "${ZRBL_KINDLED:-}" = "1" || bcu_die "Module rbl not kindled - call zrbl_kindle first"
 }
 
 # eof
