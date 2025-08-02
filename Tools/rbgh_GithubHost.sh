@@ -16,9 +16,9 @@ ZRBGH_INCLUDED=1
 zrbgh_kindle() {
   # Check required environment
   test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}" || bcu_die "RBRR_REGISTRY_NAME not set"
-  test -n "${RBRR_HISTORY_DIR:-}" || bcu_die "RBRR_HISTORY_DIR not set"
-  test -n "${RBG_TEMP_DIR:-}" || bcu_die "RBG_TEMP_DIR not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
+  test -n "${RBRR_HISTORY_DIR:-}"    || bcu_die "RBRR_HISTORY_DIR not set"
+  test -n "${RBG_TEMP_DIR:-}"        || bcu_die "RBG_TEMP_DIR not set"
 
   # Module Variables (ZRBGH_*)
   ZRBGH_BUILD_DIR_LATEST_FILE="${RBG_TEMP_DIR}/latest_build_dir.txt"
@@ -96,7 +96,7 @@ rbgh_check_git_status() {
 
   if test "${z_commits_ahead}" -gt 0; then
     bcu_die "Your repo is ahead of the remote branch by ${z_commits_ahead} commit(s). Push changes to proceed: git push"
-  elif test "${z_commits_behind}" -gt 0; then  
+  elif test "${z_commits_behind}" -gt 0; then
     bcu_die "Your repo is behind the remote branch by ${z_commits_behind} commit(s). Pull latest changes to proceed: git pull"
   fi
 
