@@ -28,7 +28,7 @@ ZRBV_INCLUDED=1
 
 zrbv_kindle() {
   # Build module variables from furnished environment (already validated by CLI)
-  
+
   # Module Variables (ZRBV_*)
   ZRBV_GIT_REGISTRY="ghcr.io"
 
@@ -66,7 +66,7 @@ zrbv_kindle() {
 
   # Additional temp file paths
   ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-  
+
   ZRBV_KINDLED=1
 }
 
@@ -103,10 +103,10 @@ zrbv_extract_natural_tag() {
 zrbv_is_different_predicate() {
   local z_file1="$1"
   local z_file2="$2"
-  
+
   local z_content1="$(<"${z_file1}")"
   local z_content2="$(<"${z_file2}")"
-  
+
   if test "${z_content1}" = "${z_content2}"; then
     return 0
   else
@@ -267,7 +267,7 @@ rbv_nuke() {
   bvu_dir_exists "${RBRS_PODMAN_ROOT_DIR}" || bcu_warn "Podman directory not found."
 
   bcu_step "WARNING: This will destroy all podman VMs and cache found in ${RBRS_PODMAN_ROOT_DIR}"
-  
+
   # Skip confirmation if YES was passed as parameter
   test "${z_yes_opt}" = "YES" || bcu_require "This will destroy all podman VMs and cache!" "YES"
 

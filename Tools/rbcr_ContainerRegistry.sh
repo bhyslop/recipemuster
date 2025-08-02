@@ -21,7 +21,7 @@ zrbcr_kindle() {
   test -n "${RBRR_GITHUB_PAT_ENV:-}" || bcu_die "RBRR_GITHUB_PAT_ENV not set"
   test -n "${RBG_RUNTIME:-}" || bcu_die "RBG_RUNTIME not set"
   test -n "${RBG_TEMP_DIR:-}" || bcu_die "RBG_TEMP_DIR not set"
-  
+
   # Source PAT file
   source "${RBRR_GITHUB_PAT_ENV}"
   test -n "${RBRG_PAT:-}" || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
@@ -31,7 +31,7 @@ zrbcr_kindle() {
   ZRBCR_GIT_REGISTRY="ghcr.io"
   ZRBCR_GHCR_V2_API="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
   ZRBCR_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
-  
+
   # Media types
   ZRBCR_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
   ZRBCR_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
@@ -40,18 +40,18 @@ zrbcr_kindle() {
   ZRBCR_ACCEPT_MANIFEST_MTYPES="${ZRBCR_MTYPE_DV2},${ZRBCR_MTYPE_DLIST},${ZRBCR_MTYPE_OCI},${ZRBCR_MTYPE_OCM}"
   ZRBCR_SCHEMA_V2="2"
   ZRBCR_MTYPE_GHV3="application/vnd.github.v3+json"
-  
+
   # Output files
   ZRBCR_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
   ZRBCR_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
   ZRBCR_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
   ZRBCR_FQIN_FILE="${RBG_TEMP_DIR}/FQIN.txt"
-  
+
   # Obtain bearer token
   bcu_step "Obtaining bearer token for registry API"
   local z_token_out="${RBG_TEMP_DIR}/bearer_token.out"
   local z_token_err="${RBG_TEMP_DIR}/bearer_token.err"
-  
+
   curl -sL -u "${RBRG_USERNAME}:${RBRG_PAT}" "${ZRBCR_TOKEN_URL}" >"${z_token_out}" 2>"${z_token_err}" && \
     ZRBCR_AUTH_TOKEN=$(jq -r '.token' "${z_token_out}") && \
     test -n "${ZRBCR_AUTH_TOKEN}" && \
@@ -61,11 +61,11 @@ zrbcr_kindle() {
       bcu_warn "STDOUT: $(<"${z_token_out}")"
       bcu_die "Cannot proceed without bearer token"
     }
-  
+
   # Login to registry
   bcu_step "Log in to container registry"
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
-  
+
   ZRBCR_KINDLED=1
 }
 
@@ -75,7 +75,7 @@ zrbcr_sentinel() {
 
 zrbcr_curl_github_api() {
   local z_url="$1"
-  
+
   curl -s -H "Authorization: token ${RBRG_PAT}" \
           -H "Accept: ${ZRBCR_MTYPE_GHV3}"       \
           "${z_url}"
@@ -85,28 +85,28 @@ zrbcr_process_single_manifest() {
   local z_tag="$1"
   local z_manifest_file="$2"
   local z_platform="$3"  # Empty for single-platform
-  
+
   # Get config digest
   local z_config_digest
   z_config_digest=$(jq -r '.config.digest' "${z_manifest_file}")
-  
+
   test -n "${z_config_digest}" || bcu_die "Missing config.digest"
   test "${z_config_digest}" != "null" || {
     bcu_warn "null config.digest in manifest"
     return 0
   }
-  
+
   # Fetch config blob
   local z_config_out="${z_manifest_file%.json}_config.json"
   local z_config_err="${z_manifest_file%.json}_config.err"
-  
+
   curl -sL -H "Authorization: Bearer ${ZRBCR_AUTH_TOKEN}" "${ZRBCR_GHCR_V2_API}/blobs/${z_config_digest}" \
         >"${z_config_out}" 2>"${z_config_err}" && \
     jq . "${z_config_out}" >/dev/null || {
       bcu_warn "Failed to fetch config blob"
       bcu_die "Failed to retrieve config blob from registry"
     }
-  
+
   # Build detail entry
   local z_temp_detail="${RBG_TEMP_DIR}/temp_detail.json"
   local z_manifest_json z_config_json
@@ -116,7 +116,7 @@ zrbcr_process_single_manifest() {
     architecture: (.architecture // "unknown"),
     os: (.os // "unknown")
   }' "${z_config_out}")
-  
+
   if test -n "${z_platform}"; then
     jq -n \
       --arg tag          "${z_tag}"           \
@@ -152,7 +152,7 @@ zrbcr_process_single_manifest() {
         }
       }' > "${z_temp_detail}"
   fi
-  
+
   # Append to detail file
   jq -s '.[0] + [.[1]]' "${ZRBCR_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
     > "${ZRBCR_IMAGE_DETAIL_FILE}.tmp" || bcu_die "Failed to merge image detail"
@@ -165,13 +165,13 @@ zrbcr_process_single_manifest() {
 rbcr_make_fqin() {
   # Name parameters
   local z_tag="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
-  
+
   # Write FQIN to file
   echo "${ZRBCR_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${z_tag}" > "${ZRBCR_FQIN_FILE}"
 }
@@ -179,43 +179,43 @@ rbcr_make_fqin() {
 rbcr_list_tags() {
   # Ensure module started
   zrbcr_sentinel
-  
+
   bcu_step "Fetching all image records with pagination"
-  
+
   # Initialize empty array
   echo "[]" > "${ZRBCR_IMAGE_RECORDS_FILE}"
-  
+
   local z_page=1
   local z_temp_page="${RBG_TEMP_DIR}/temp_page.json"
   local z_temp_records="${RBG_TEMP_DIR}/temp_records.json"
-  
+
   while true; do
     bcu_info "Fetching page ${z_page}..."
-    
+
     local z_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100&page=${z_page}"
     zrbcr_curl_github_api "${z_url}" > "${z_temp_page}"
-    
+
     local z_items
     z_items=$(jq '. | length' "${z_temp_page}")
     bcu_info "Saw ${z_items} items on page ${z_page}"
-    
+
     test "${z_items}" -ne 0 || break
-    
+
     # Transform to simplified records
     jq -r --arg prefix "${ZRBCR_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}" \
       '[.[] | select(.metadata.container.tags | length > 0) |
        .id as $id | .metadata.container.tags[] as $tag |
        {version_id: $id, tag: $tag, fqin: ($prefix + ":" + $tag)}]' \
       "${z_temp_page}" > "${z_temp_records}"
-    
+
     # Merge with existing
     jq -s '.[0] + .[1]' "${ZRBCR_IMAGE_RECORDS_FILE}" "${z_temp_records}" > \
        "${ZRBCR_IMAGE_RECORDS_FILE}.tmp"
     mv "${ZRBCR_IMAGE_RECORDS_FILE}.tmp" "${ZRBCR_IMAGE_RECORDS_FILE}"
-    
+
     z_page=$((z_page + 1))
   done
-  
+
   local z_total
   z_total=$(jq '. | length' "${ZRBCR_IMAGE_RECORDS_FILE}")
   bcu_info "Retrieved ${z_total} total image records"
@@ -224,17 +224,17 @@ rbcr_list_tags() {
 rbcr_get_manifest() {
   # Name parameters
   local z_tag="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
-  
+
   local z_safe_tag="${z_tag//\//_}"
   local z_manifest_out="${RBG_TEMP_DIR}/manifest__${z_safe_tag}.json"
   local z_manifest_err="${RBG_TEMP_DIR}/manifest__${z_safe_tag}.err"
-  
+
   curl -sL \
        -H "Authorization: Bearer ${ZRBCR_AUTH_TOKEN}" \
        -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
@@ -245,29 +245,29 @@ rbcr_get_manifest() {
       bcu_warn "Failed to fetch manifest for ${z_tag}"
       bcu_die "This image appears corrupted"
     }
-  
+
   local z_media_type
   z_media_type=$(jq -r '.mediaType // .schemaVersion' "${z_manifest_out}")
-  
+
   if [[ "${z_media_type}" == "${ZRBCR_MTYPE_DLIST}" ]] || \
      [[ "${z_media_type}" == "${ZRBCR_MTYPE_OCI}" ]]; then
-    
+
     bcu_info "Multi-platform image detected"
-    
+
     local z_platform_idx=1
     local z_manifests
     z_manifests=$(jq -c '.manifests[]' "${z_manifest_out}")
-    
+
     while IFS= read -r z_platform_manifest; do
       local z_platform_digest z_platform_info
       z_platform_digest=$(echo "${z_platform_manifest}" | jq -r '.digest')
       z_platform_info=$(echo "${z_platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"')
-      
+
       bcu_info "Processing platform: ${z_platform_info}"
-      
+
       local z_platform_out="${RBG_TEMP_DIR}/manifest__${z_safe_tag}__${z_platform_idx}.json"
       local z_platform_err="${RBG_TEMP_DIR}/manifest__${z_safe_tag}__${z_platform_idx}.err"
-      
+
       curl -sL \
            -H "Authorization: Bearer ${ZRBCR_AUTH_TOKEN}" \
            -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
@@ -279,12 +279,12 @@ rbcr_get_manifest() {
           ((z_platform_idx++))
           continue
         }
-      
+
       zrbcr_process_single_manifest "${z_tag}" "${z_platform_out}" "${z_platform_info}"
-      
+
       ((z_platform_idx++))
     done <<< "${z_manifests}"
-    
+
   else
     bcu_info "Single platform image"
     zrbcr_process_single_manifest "${z_tag}" "${z_manifest_out}" ""
@@ -294,16 +294,16 @@ rbcr_get_manifest() {
 rbcr_get_config() {
   # Name parameters
   local z_digest="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_digest}" || bcu_die "Digest parameter required"
-  
+
   # Fetch config blob
   local z_config_out="${RBG_TEMP_DIR}/config_${z_digest//[^a-zA-Z0-9]/_}.json"
-  
+
   curl -sL -H "Authorization: Bearer ${ZRBCR_AUTH_TOKEN}" \
        "${ZRBCR_GHCR_V2_API}/blobs/${z_digest}" > "${z_config_out}"
 }
@@ -311,22 +311,22 @@ rbcr_get_config() {
 rbcr_delete() {
   # Name parameters
   local z_tag="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
-  
+
   # Get version ID for tag
   rbcr_get_version_id "${z_tag}"
   local z_version_id
   z_version_id=$(<"${ZRBCR_VERSION_ID_FILE}")
-  
+
   # Delete via GitHub API
   local z_delete_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_version_id}"
   local z_result="${RBG_TEMP_DIR}/delete_result.txt"
-  
+
   local z_http_code
   z_http_code=$(curl -X DELETE -s \
     -H "Authorization: token ${RBRG_PAT}" \
@@ -334,7 +334,7 @@ rbcr_delete() {
     "${z_delete_url}" \
     -w "\nHTTP_STATUS:%{http_code}\n" \
     -o "${z_result}")
-  
+
   z_http_code=$(grep "HTTP_STATUS:" "${z_result}" | cut -d: -f2)
   test "${z_http_code}" = "204" || bcu_die "Delete failed with HTTP ${z_http_code}"
 }
@@ -342,13 +342,13 @@ rbcr_delete() {
 rbcr_pull() {
   # Name parameters
   local z_fqin="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_fqin}" || bcu_die "FQIN parameter required"
-  
+
   bcu_info "Fetch image..."
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} pull "${z_fqin}"
 }
@@ -356,13 +356,13 @@ rbcr_pull() {
 rbcr_exists_predicate() {
   # Name parameters
   local z_tag="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
-  
+
   # Check if tag exists
   local z_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100"
   zrbcr_curl_github_api "${z_url}" | \
@@ -372,21 +372,21 @@ rbcr_exists_predicate() {
 rbcr_get_version_id() {
   # Name parameters
   local z_tag="${1:-}"
-  
+
   # Ensure module started
   zrbcr_sentinel
-  
+
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
-  
+
   # Find version ID
   ZRBCR_VERSION_ID_FILE="${RBG_TEMP_DIR}/version_id.txt"
-  
+
   rbcr_list_tags
-  
+
   jq -r '.[] | select(.tag == "'"${z_tag}"'") | .version_id' \
     "${ZRBCR_IMAGE_RECORDS_FILE}" > "${ZRBCR_VERSION_ID_FILE}"
-  
+
   test -s "${ZRBCR_VERSION_ID_FILE}" || bcu_die "Version ID not found for tag: ${z_tag}"
 }
 

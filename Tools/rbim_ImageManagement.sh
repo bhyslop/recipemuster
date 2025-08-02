@@ -49,10 +49,10 @@ rbim_build() {
 
   # Perform command
   bcu_step "Build image from ${z_recipe_file}"
-  
+
   rbgh_check_git_status
   rbgh_build_workflow "${z_recipe_file}"
-  
+
   bcu_success "No errors."
 }
 
@@ -66,30 +66,30 @@ rbim_list() {
 
   # Perform command
   bcu_step "List Current Registry Images"
-  
+
   # Get all image records
   rbcr_list_tags
-  
+
   # Display results
   local z_records_file="${ZRBCR_IMAGE_RECORDS_FILE}"
-  
+
   echo "Package: ${RBRR_REGISTRY_NAME}"
   echo -e "${ZBCU_YELLOW}    https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}${ZBCU_RESET}"
   echo "Versions:"
-  
+
   printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
-  
+
   jq -r '.[] | [.version_id, .fqin] | @tsv' "${z_records_file}" | \
     sort -k2 -r | while IFS=$'\t' read -r id fqin; do
     printf "%-13s %s\n" "$id" "${fqin}"
   done
-  
+
   echo "${ZBCU_RESET}"
-  
+
   local z_total
   z_total=$(jq '. | length' "${z_records_file}")
   bcu_info "Total image versions: ${z_total}"
-  
+
   bcu_success "No errors."
 }
 
@@ -111,17 +111,17 @@ rbim_delete() {
 
   # Perform command
   bcu_step "Delete image from registry"
-  
+
   rbgh_check_git_status
-  
+
   # Confirm deletion unless skipped
   if test "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP"; then
     bcu_warn "BE AWARE THAT GHCR DELETIONS CAN DAMAGE OTHER IMAGES."
     bcu_require "Confirm delete image ${z_fqin}?" "YES"
   fi
-  
+
   rbgh_delete_workflow "${z_fqin}"
-  
+
   bcu_success "No errors."
 }
 
@@ -143,9 +143,9 @@ rbim_retrieve() {
 
   # Perform command
   bcu_step "Pull image from registry"
-  
+
   rbcr_pull "${z_fqin}"
-  
+
   bcu_success "No errors."
 }
 
@@ -166,29 +166,29 @@ rbim_image_info() {
 
   # Perform command
   bcu_step "Analyzing image information"
-  
+
   # Get all tags
   rbcr_list_tags
-  
+
   # Initialize detail file
   echo "[]" > "${ZRBCR_IMAGE_DETAIL_FILE}"
-  
+
   local z_tag
   for z_tag in $(jq -r '.[].tag' "${ZRBCR_IMAGE_RECORDS_FILE}" | sort -u); do
-    
+
     if test -n "${z_filter}" && [[ "${z_tag}" != *"${z_filter}"* ]]; then
       bcu_info "Skipping tag: ${z_tag}"
       continue
     fi
-    
+
     bcu_info "Processing tag: ${z_tag}"
     rbcr_get_manifest "${z_tag}"
-    
+
   done
-  
+
   # Generate statistics
   bcu_step "Generating layer statistics"
-  
+
   jq '
     .[]
     | {tag} as $t
@@ -213,7 +213,7 @@ rbim_image_info() {
       })
     | sort_by(-.size)
   ' > "${ZRBCR_IMAGE_STATS_FILE}" || bcu_die "Failed to generate statistics"
-  
+
   # Display results
   bcu_step "Listing layers per tag..."
   jq -r '
@@ -227,7 +227,7 @@ rbim_image_info() {
       "\n  [\(.key + 1)] \(.value.digest[0:19])... \(.value.size) bytes"
     ) | join(""))
   ' "${ZRBCR_IMAGE_DETAIL_FILE}"
-  
+
   bcu_success "No errors."
 }
 

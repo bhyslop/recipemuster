@@ -27,9 +27,9 @@ zrbgr_furnish() {
   bcu_doc_env "RBG_TEMP_DIR             " "Empty temporary directory"
   bcu_doc_env "GITHUB_TOKEN             " "GitHub token for API access"
   bcu_doc_env "GITHUB_SHA               " "Git commit SHA (optional, defaults to 'unknown')"
-  
+
   bcu_env_done || return 0
-  
+
   # Validate environment
   bvu_env_string "RBRR_BUILD_ARCHITECTURES" 1 512
   bvu_dir_exists "${RBRR_HISTORY_DIR}"
@@ -41,13 +41,13 @@ zrbgr_furnish() {
   bvu_dir_exists "${RBG_TEMP_DIR}"
   bvu_dir_empty "${RBG_TEMP_DIR}"
   bvu_env_string "GITHUB_TOKEN" 1 512
-  
+
   # Optional environment
   GITHUB_SHA="${GITHUB_SHA:-unknown}"
-  
+
   # Start dependent modules
   zrbcr_kindle
-  
+
   # Start implementation module
   zrbgr_kindle
 }
