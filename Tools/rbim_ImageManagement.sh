@@ -250,8 +250,14 @@ rbim_image_info() {
     z_total_layers=$((z_total_layers + 1))
   done < <(jq -r '.[] | [.digest, .size, .tag_count, .total_usage] | @tsv' "${ZRBCR_IMAGE_STATS_FILE}")
 
-  printf "\nTotal unique layers: %d\n" "${z_total_layers}"
-  printf "Total deduplicated size: %d MB\n" "$((z_total_bytes / 1024 / 1024))"
+  if test -n "${z_filter}"; then
+    printf "\nTotal unique layers (filtered): %d\n" "${z_total_layers}"
+    printf "Total deduplicated size (filtered): %d MB\n" "$((z_total_bytes / 1024 / 1024))"
+    printf "Filter: tags containing '%s'\n" "${z_filter}"
+  else
+    printf "\nTotal unique layers: %d\n" "${z_total_layers}"
+    printf "Total deduplicated size: %d MB\n" "$((z_total_bytes / 1024 / 1024))"
+  fi
 
   bcu_success "No errors."
 }
