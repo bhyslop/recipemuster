@@ -88,6 +88,18 @@ rbgh_check_git_status() {
 
   git fetch
 
+# Replace the existing ahead/behind detection in rbgh_check_git_status with:
+
+  local z_commits_ahead z_commits_behind
+  z_commits_ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
+  z_commits_behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+
+  if test "${z_commits_ahead}" -gt 0; then
+    bcu_die "Your repo is ahead of the remote branch by ${z_commits_ahead} commit(s). Push changes to proceed: git push"
+  elif test "${z_commits_behind}" -gt 0; then  
+    bcu_die "Your repo is behind the remote branch by ${z_commits_behind} commit(s). Pull latest changes to proceed: git pull"
+  fi
+
   git status -uno | grep -q 'Your branch is up to date' || \
     bcu_die "ERROR: Your repo is behind the remote branch. Pull latest changes to proceed."
 
