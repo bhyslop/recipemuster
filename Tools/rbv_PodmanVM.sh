@@ -67,13 +67,12 @@ zrbv_kindle() {
   # Additional temp file paths
   ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
   
-  # Set startup guard
-  ZRBV_STARTED=1
+  ZRBV_KINDLED=1
 }
 
 zrbv_sentinel() {
   # Guard that kindle ran before function execution
-  test "${ZRBV_STARTED:-}" = "1" || bcu_die "Module rbv not started - call zrbv_kindle first"
+  test "${ZRBV_KINDLED:-}" = "1" || bcu_die "Module rbv not started - call zrbv_kindle first"
 }
 
 # Generate brand file content

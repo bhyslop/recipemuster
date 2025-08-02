@@ -66,12 +66,11 @@ zrbcr_kindle() {
   bcu_step "Log in to container registry"
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
   
-  # Set startup guard
-  ZRBCR_STARTED=1
+  ZRBCR_KINDLED=1
 }
 
 zrbcr_sentinel() {
-  test "${ZRBCR_STARTED:-}" = "1" || bcu_die "Module rbcr not started - call zrbcr_kindle first"
+  test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not started - call zrbcr_kindle first"
 }
 
 zrbcr_curl_github_api() {

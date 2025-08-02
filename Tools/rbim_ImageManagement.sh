@@ -15,11 +15,11 @@ ZRBIM_INCLUDED=1
 
 zrbim_kindle() {
   # Module variables
-  ZRBIM_STARTED=1
+  ZRBIM_KINDLED=1
 }
 
 zrbim_sentinel() {
-  test "${ZRBIM_STARTED:-}" = "1" || bcu_die "Module rbim not started - call zrbim_kindle first"
+  test "${ZRBIM_KINDLED:-}" = "1" || bcu_die "Module rbim not started - call zrbim_kindle first"
 }
 
 ######################################################################

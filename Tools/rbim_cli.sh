@@ -11,11 +11,10 @@ ZRBIM_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 # Source all dependencies (CLI files handle all sourcing)
 source "${ZRBIM_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBIM_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbim_RecipeBottleImageManagement.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbcr_RecipeBottleContainerRegistry.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbga_RecipeBottleGithubActions.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbgh_RecipeBottleGithubHost.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbgr_RecipeBottleGithubRunner.sh"
+source "${ZRBIM_CLI_SCRIPT_DIR}/rbim_ImageManagement.sh"
+source "${ZRBIM_CLI_SCRIPT_DIR}/rbcr_ContainerRegistry.sh"
+source "${ZRBIM_CLI_SCRIPT_DIR}/rbga_GithubActions.sh"
+source "${ZRBIM_CLI_SCRIPT_DIR}/rbgh_GithubHost.sh"
 
 # CLI-specific environment function
 zrbim_furnish() {
@@ -46,7 +45,6 @@ zrbim_furnish() {
   zrbcr_kindle
   zrbga_kindle
   zrbgh_kindle
-  zrbgr_kindle
   zrbim_kindle
 }
 

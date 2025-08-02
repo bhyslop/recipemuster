@@ -16,16 +16,15 @@ ZRBGR_INCLUDED=1
 zrbgr_kindle() {
   # Check required environment
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
-  test -n "${RBRR_HISTORY_DIR:-}" || bcu_die "RBRR_HISTORY_DIR not set"
-  test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}" || bcu_die "RBRR_REGISTRY_NAME not set"
+  test -n "${RBRR_HISTORY_DIR:-}"         || bcu_die "RBRR_HISTORY_DIR not set"
+  test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
   
-  # Set startup guard
-  ZRBGR_STARTED=1
+  ZRBGR_KINDLED=1
 }
 
 zrbgr_sentinel() {
-  test "${ZRBGR_STARTED:-}" = "1" || bcu_die "Module rbgr not started - call zrbgr_kindle first"
+  test "${ZRBGR_KINDLED:-}" = "1" || bcu_die "Module rbgr not started - call zrbgr_kindle first"
 }
 
 ######################################################################

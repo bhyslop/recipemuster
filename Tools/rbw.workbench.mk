@@ -37,6 +37,13 @@ RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                               RBG_RUNTIME_ARG="--connection=rbw-vm-deploy"  \
                               $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
 
+RBW_IMAGE_MANAGEMENT_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"                  \
+                          RBG_NOW_STAMP="$(MBD_NOW_STAMP)"                \
+                          RBG_RBRR_FILE="rbrr.repo.sh"                    \
+                          RBG_RUNTIME="podman"                            \
+                          RBG_RUNTIME_ARG="--connection=rbw-vm-deploy"    \
+                          $(MBV_TOOLS_DIR)/rbim_cli.sh
+
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"    \
                           RBV_NOW_STAMP="$(MBD_NOW_STAMP)"  \
                           RBV_RBRR_FILE="rbrr.repo.sh"      \
@@ -66,9 +73,9 @@ default:
 
 RBG_ARG_TAG =
 
-rbw-hg.%:
-	$(MBC_START) "Github Command Help"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH)
+rbw-hi.%:
+	$(MBC_START) "Image Management Command Help"
+	$(RBW_IMAGE_MANAGEMENT_SH)
 	$(MBC_PASS) "No errors."
 
 rbw-hv.%:

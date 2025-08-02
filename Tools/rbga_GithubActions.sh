@@ -23,16 +23,14 @@ zrbga_kindle() {
   ZRBGA_GITAPI_URL="https://api.github.com"
   ZRBGA_MTYPE_GHV3="application/vnd.github.v3+json"
   
-  # Temp files
   ZRBGA_WORKFLOW_RUN_ID_FILE="${RBG_TEMP_DIR}/workflow_run_id__${RBG_NOW_STAMP}.txt"
   ZRBGA_WORKFLOW_LOGS_FILE="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
   
-  # Set startup guard
-  ZRBGA_STARTED=1
+  ZRBGA_KINDLED=1
 }
 
 zrbga_sentinel() {
-  test "${ZRBGA_STARTED:-}" = "1" || bcu_die "Module rbga not started - call zrbga_kindle first"
+  test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not started - call zrbga_kindle first"
 }
 
 zrbga_curl_api() {

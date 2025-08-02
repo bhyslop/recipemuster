@@ -23,12 +23,11 @@ zrbgh_kindle() {
   # Module Variables (ZRBGH_*)
   ZRBGH_BUILD_DIR_LATEST_FILE="${RBG_TEMP_DIR}/latest_build_dir.txt"
   
-  # Set startup guard
-  ZRBGH_STARTED=1
+  ZRBGH_KINDLED=1
 }
 
 zrbgh_sentinel() {
-  test "${ZRBGH_STARTED:-}" = "1" || bcu_die "Module rbgh not started - call zrbgh_kindle first"
+  test "${ZRBGH_KINDLED:-}" = "1" || bcu_die "Module rbgh not started - call zrbgh_kindle first"
 }
 
 zrbgh_get_latest_build_dir() {
