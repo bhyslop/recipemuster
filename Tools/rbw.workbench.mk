@@ -100,7 +100,7 @@ rbw-r.%:
 
 rbw-b.%:
 	$(MBC_START) "Build Container From Recipe given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_build $(MBD_CLI_ARGS)
+	$(RBW_IMAGE_MANAGEMENT_SH) rbim_build $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-d.%:
