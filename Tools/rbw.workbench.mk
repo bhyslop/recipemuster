@@ -90,7 +90,7 @@ rbw-l.%:
 
 rbw-II.%:
 	$(MBC_START) "List Registry Image Info"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_image_info $(MBD_CLI_ARGS)
+	$(RBW_IMAGE_MANAGEMENT_SH) rbim_image_info $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 rbw-r.%:

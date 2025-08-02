@@ -181,7 +181,7 @@ rbim_image_info() {
       continue
     fi
 
-    bcu_info "Processing tag: ${z_tag}"
+    bcu_step "Processing tag: ${z_tag}"
     rbcr_get_manifest "${z_tag}"
 
   done
@@ -227,6 +227,31 @@ rbim_image_info() {
       "\n  [\(.key + 1)] \(.value.digest[0:19])... \(.value.size) bytes"
     ) | join(""))
   ' "${ZRBCR_IMAGE_DETAIL_FILE}"
+
+  bcu_step "Listing shared layers and the tags that use them..."
+  jq -r '
+    .[] | select(.tag_count > 1 or .total_usage > 1) |
+    "Layer: \(.digest[0:19])... (used by \(.tag_count) tag(s), \(.size) bytes)\n" +
+    (.tag_details | map("  - \(.tag)" + if .count > 1 then " (\(.count) times)" else "" end) | join("\n"))
+  ' "${ZRBCR_IMAGE_STATS_FILE}"
+
+  bcu_step "Rendering layer usage summary..."
+  local z_total_bytes=0
+  local z_total_layers=0
+
+  printf "%-22s %12s %8s %8s\n" "Layer Digest" "Bytes" "Tags" "Uses"
+  printf "%-22s %12s %8s %8s\n" "------------" "-----" "----" "----"
+
+  while IFS=$'\t' read -r z_digest z_size z_tag_count z_total_usage; do
+    z_short_digest="${z_digest:0:19}..."  # Includes 'sha256:' + 12 chars + ...
+    printf "%-22s %12d %8d %8d\n" "${z_short_digest}" "${z_size}" "${z_tag_count}" "${z_total_usage}"
+
+    z_total_bytes=$((z_total_bytes + z_size))
+    z_total_layers=$((z_total_layers + 1))
+  done < <(jq -r '.[] | [.digest, .size, .tag_count, .total_usage] | @tsv' "${ZRBCR_IMAGE_STATS_FILE}")
+
+  printf "\nTotal unique layers: %d\n" "${z_total_layers}"
+  printf "Total deduplicated size: %d MB\n" "$((z_total_bytes / 1024 / 1024))"
 
   bcu_success "No errors."
 }
