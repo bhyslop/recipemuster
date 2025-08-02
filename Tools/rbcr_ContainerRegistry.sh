@@ -342,13 +342,18 @@ rbcr_delete() {
 
 rbcr_pull() {
   # Name parameters
-  local z_fqin="${1:-}"
+  local z_tag="${1:-}"
 
   # Ensure module started
   zrbcr_sentinel
 
   # Validate parameters
-  test -n "${z_fqin}" || bcu_die "FQIN parameter required"
+  test -n "${z_tag}" || bcu_die "Tag parameter required"
+
+  # Construct FQIN from tag
+  rbcr_make_fqin "${z_tag}"
+  local z_fqin
+  z_fqin=$(<"${ZRBCR_FQIN_FILE}")
 
   bcu_info "Fetch image..."
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} pull "${z_fqin}"

@@ -127,24 +127,24 @@ rbim_delete() {
 
 rbim_retrieve() {
   # Name parameters
-  local z_fqin="${1:-}"
+  local z_tag="${1:-}"
 
   # Handle documentation mode
   bcu_doc_brief "Pull image from registry"
-  bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
+  bcu_doc_param "tag" "Image tag"
   bcu_doc_shown || return 0
 
   # Ensure module started
   zrbim_sentinel
 
   # Validate parameters
-  test -n "${z_fqin}" || bcu_usage_die
-  bvu_val_fqin "fqin" "${z_fqin}" 1 512
+  test -n "${z_tag}" || bcu_usage_die
+  bvu_val_string "tag" "${z_tag}" 1 256
 
   # Perform command
   bcu_step "Pull image from registry"
 
-  rbcr_pull "${z_fqin}"
+  rbcr_pull "${z_tag}"
 
   bcu_success "No errors."
 }
