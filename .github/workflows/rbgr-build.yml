@@ -31,9 +31,8 @@ jobs:
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${TIMESTAMP}"
 
-          # RBGR handles all environment setup, validation, and registry login
-          ./Tools/rbgr_cli.sh build_image "$DOCKERFILE"
-          ./Tools/rbgr_cli.sh record_history "$BUILD_LABEL"
+          ./Tools/rbgr_cli.sh rbgr_build_image "$DOCKERFILE"
+          ./Tools/rbgr_cli.sh rbgr_record_history "$BUILD_LABEL"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
