@@ -33,7 +33,7 @@ trbg_invoke_rbg() {
 
     RBG_TEMP_DIR="${rbg_temp_dir}"                    \
       RBG_NOW_STAMP="${rbg_now_stamp}"                \
-      RBG_RBRR_FILE="rbrr.repo.sh"                    \
+      RBG_RBRR_FILE="rbrr_RecipeBottleRegimeRepo.sh"  \
       "${ZTRBG_SCRIPT_DIR}/rbg_RecipeBottleGithub.sh" \
       "${rbg_command}" "$@"
 }
