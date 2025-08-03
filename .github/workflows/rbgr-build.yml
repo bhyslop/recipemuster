@@ -24,6 +24,13 @@ jobs:
           RBG_RUNTIME: docker
         shell: bash
         run: |
+          # Create unique temp directory in workspace
+          export RBG_TEMP_DIR="${{ github.workspace }}/.rbg-temp-${{ github.run_id }}-${{ github.run_attempt }}"
+
+          # Ensure it's completely empty
+          rm -rf   "${RBG_TEMP_DIR}"
+          mkdir -p "${RBG_TEMP_DIR}"
+
           # Extract build label from dockerfile path
           DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
           FULL_FILENAME=$(basename "$DOCKERFILE")
