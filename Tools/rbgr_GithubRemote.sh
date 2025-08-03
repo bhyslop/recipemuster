@@ -67,13 +67,13 @@ rbgr_build_image() {
 
   # Build and push image
   bcu_step "Building multi-platform image"
-  docker buildx build \
-    --push \
-    --tag "${z_ghcr_path}" \
+  docker buildx build                        \
+    --push                                   \
+    --tag "${z_ghcr_path}"                   \
     --platform "${RBRR_BUILD_ARCHITECTURES}" \
-    --provenance=true \
-    --sbom=true \
-    --file "${z_dockerfile}" \
+    --provenance=true                        \
+    --sbom=true                              \
+    --file "${z_dockerfile}"                 \
     . || bcu_die "Docker build failed"
 
   # Run Syft analysis
@@ -102,9 +102,9 @@ rbgr_build_image() {
 
   # Extract digest metadata
   docker inspect "${z_ghcr_path}" | jq -r '.[0].Id | sub("sha256:"; "")' > "${z_history_dir}/docker_inspect_Id.txt"
-  docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoTags[0] // empty' > "${z_history_dir}/docker_inspect_RepoTags_0.txt"
-  docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoDigests[-1]' > "${z_history_dir}/docker_inspect_RepoDigests_last.txt"
-  docker inspect "${z_ghcr_path}" | jq -r '.[0].Created' > "${z_history_dir}/docker_inspect_Created.txt"
+  docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoTags[0] // empty'    > "${z_history_dir}/docker_inspect_RepoTags_0.txt"
+  docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoDigests[-1]'         > "${z_history_dir}/docker_inspect_RepoDigests_last.txt"
+  docker inspect "${z_ghcr_path}" | jq -r '.[0].Created'                 > "${z_history_dir}/docker_inspect_Created.txt"
 }
 
 rbgr_record_history() {
@@ -154,9 +154,9 @@ rbgr_delete_image() {
   z_timestamp=$(date +'%Y%m%d__%H%M%S')
   local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${z_timestamp}_${z_tag}"
 
-  mkdir -p "${z_delete_dir}"
-  echo "${z_fqin}" > "${z_delete_dir}/deleted_fqin.txt"
-  echo "${z_tag}" > "${z_delete_dir}/deleted_tag.txt"
+  mkdir -p                        "${z_delete_dir}"
+  echo "${z_fqin}"              > "${z_delete_dir}/deleted_fqin.txt"
+  echo "${z_tag}"               > "${z_delete_dir}/deleted_tag.txt"
   date -u +"%Y-%m-%dT%H:%M:%SZ" > "${z_delete_dir}/deletion_timestamp.txt"
 }
 
