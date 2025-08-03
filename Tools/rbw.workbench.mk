@@ -51,7 +51,6 @@ RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"                   \
                           $(MBV_TOOLS_DIR)/rbv_PodmanVM.sh
 
 
-include rbrr.repo.mk
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
 include $(RBV_GITHUB_PAT_ENV)
