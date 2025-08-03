@@ -18,36 +18,10 @@ jobs:
         with:
           buildkitd-flags: --debug
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up environment
-        shell: bash
-        run: |
-          # Load configuration
-          source ./mbv.variables.sh
-          source ./rbrr.repo.sh
-
-          # Export required environment
-          echo "RBRR_BUILD_ARCHITECTURES=$RBRR_BUILD_ARCHITECTURES" >> $GITHUB_ENV
-          echo "RBRR_HISTORY_DIR=$RBRR_HISTORY_DIR" >> $GITHUB_ENV
-          echo "RBRR_REGISTRY_OWNER=$RBRR_REGISTRY_OWNER" >> $GITHUB_ENV
-          echo "RBRR_REGISTRY_NAME=$RBRR_REGISTRY_NAME" >> $GITHUB_ENV
-          echo "RBRR_REGISTRY=$RBRR_REGISTRY" >> $GITHUB_ENV
-          echo "RBRR_GITHUB_PAT_ENV=$RBRR_GITHUB_PAT_ENV" >> $GITHUB_ENV
-          echo "RBG_RUNTIME=docker" >> $GITHUB_ENV
-          echo "RBG_TEMP_DIR=/tmp/rbgr_$$" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          echo "MBV_TOOLS_DIR=$MBV_TOOLS_DIR" >> $GITHUB_ENV
-
-          # Create temp directory
-          mkdir -p /tmp/rbgr_$$
-
       - name: Build image and record history
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RBG_RUNTIME: docker
         shell: bash
         run: |
           # Extract build label from dockerfile path
@@ -57,17 +31,9 @@ jobs:
           TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${TIMESTAMP}"
 
-          # Run build
-          ${{ env.MBV_TOOLS_DIR }}/rbgr_cli.sh build_image "$DOCKERFILE"
-
-          # Record history
-          ${{ env.MBV_TOOLS_DIR }}/rbgr_cli.sh record_history "$BUILD_LABEL"
-
-      - name: Cleanup
-        if: always()
-        shell: bash
-        run: |
-          rm -rf "${{ env.RBG_TEMP_DIR }}"
+          # RBGR handles all environment setup, validation, and registry login
+          ./Tools/rbgr_cli.sh build_image "$DOCKERFILE"
+          ./Tools/rbgr_cli.sh record_history "$BUILD_LABEL"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

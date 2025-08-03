@@ -30,11 +30,11 @@ RBM_NAMEPLATE_FILE = $(RBRR_NAMEPLATE_PATH)/nameplate.$(RBM_MONIKER).mk
 RBM_TEST_FILE      = RBM-tests/rbt.test.$(RBM_MONIKER).mk
 RBM_STATION_SH     = ../station-files/rbrs-station.sh
 
-RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"               \
-                              RBG_NOW_STAMP="$(MBD_NOW_STAMP)"             \
-                              RBG_RBRR_FILE="rbrr.repo.sh"                 \
-                              RBG_RUNTIME="podman"                         \
-                              RBG_RUNTIME_ARG="--connection=rbw-vm-deploy" \
+RBM_RECIPE_BOTTLE_GITHUB_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"                 \
+                              RBG_NOW_STAMP="$(MBD_NOW_STAMP)"               \
+                              RBG_RBRR_FILE="rbrr_RecipeBottleRegimeRepo.sh" \
+                              RBG_RUNTIME="podman"                           \
+                              RBG_RUNTIME_ARG="--connection=rbw-vm-deploy"   \
                               $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
 
 RBW_IMAGE_MANAGEMENT_SH = RBG_TEMP_DIR="$(MBD_TEMP_DIR)"                   \
