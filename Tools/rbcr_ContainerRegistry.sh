@@ -60,7 +60,6 @@ zrbcr_kindle() {
   ZRBCR_HEADER_ACCEPT_MANIFEST="Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}"
 
   # File prefixes for all operations
-  ZRBCR_KINDLE_TOKEN_PREFIX="${RBG_TEMP_DIR}/kindle_bearer_token"
   ZRBCR_LIST_PAGE_PREFIX="${RBG_TEMP_DIR}/list_page_"
   ZRBCR_LIST_RECORDS_PREFIX="${RBG_TEMP_DIR}/list_records_"
   ZRBCR_MANIFEST_PREFIX="${RBG_TEMP_DIR}/manifest_"
@@ -78,20 +77,10 @@ zrbcr_kindle() {
   # File index counter
   ZRBCR_FILE_INDEX=0
 
-  # Obtain bearer token for registry operations
   bcu_step "Obtaining bearer token for registry API"
-  local z_token_out="${ZRBCR_KINDLE_TOKEN_PREFIX}.out"
-  local z_token_err="${ZRBCR_KINDLE_TOKEN_PREFIX}.err"
-
-  curl -sL -u "${ZRBCR_REGISTRY_USERNAME}:${ZRBCR_GITHUB_TOKEN}" "${ZRBCR_TOKEN_URL}" >"${z_token_out}" 2>"${z_token_err}" && \
-    ZRBCR_REGISTRY_TOKEN=$(jq -r '.token' "${z_token_out}") && \
-    test -n "${ZRBCR_REGISTRY_TOKEN}" && \
-    test "${ZRBCR_REGISTRY_TOKEN}" != "null" || {
-      bcu_warn "Failed to obtain bearer token"
-      bcu_warn "STDERR: $(<"${z_token_err}")"
-      bcu_warn "STDOUT: $(<"${z_token_out}")"
-      bcu_die "Cannot proceed without bearer token"
-    }
+  local z_bearer_token
+  z_bearer_token=$(zrbcr_get_bearer_token_subshell) || bcu_die "Cannot proceed without bearer token"
+  ZRBCR_REGISTRY_TOKEN="${z_bearer_token}"
 
   # Registry auth header
   ZRBCR_HEADER_AUTH_BEARER="Authorization: Bearer ${ZRBCR_REGISTRY_TOKEN}"
@@ -107,10 +96,24 @@ zrbcr_sentinel() {
   test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not kindled - call zrbcr_kindle first"
 }
 
+zrbcr_get_bearer_token_subshell() {
+  # Fetch token and extract in memory only
+  local z_response
+  z_response=$(curl -sL -u "${ZRBCR_REGISTRY_USERNAME}:${ZRBCR_GITHUB_TOKEN}" \
+    "${ZRBCR_TOKEN_URL}" 2>/dev/null) || return 1
+
+  local z_token
+  z_token=$(echo "${z_response}" | jq -r '.token' 2>/dev/null) || return 1
+
+  test -n "${z_token}"           || return 1
+  test    "${z_token}" != "null" || return 1
+  echo    "${z_token}"
+}
+
 zrbcr_curl_github_api() {
   local z_url="$1"
 
-  curl -s                         \
+  curl -s                              \
        -H "${ZRBCR_HEADER_AUTH_TOKEN}" \
        -H "${ZRBCR_HEADER_ACCEPT_GH}"  \
        "${z_url}"
