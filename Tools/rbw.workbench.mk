@@ -216,7 +216,7 @@ zRBC_FQIN_CONTENTS = $$(cat $(zRBC_FQIN_FILE))
 
 rbw-tg.%:
 	$(MBC_START) "Test github action build, retrieval, use"
-	$(MBV_TOOLS_DIR)/test/trbg_suite.sh $(MBD_TEMP_DIR)
+	$(MBV_TOOLS_DIR)/test/trbim_suite.sh $(MBD_TEMP_DIR)
 	$(MBC_PASS) "No errors."
 
 rbw-tf.%:
