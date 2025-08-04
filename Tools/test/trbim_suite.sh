@@ -23,6 +23,9 @@
 ZTRBIM_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
 source "${ZTRBIM_SCRIPT_DIR}/btu_BashTestUtility.sh"
 
+# Source RBRR configuration to get machine names
+source "${ZTRBIM_SCRIPT_DIR}/../rbrr_RecipeBottleRegimeRepo.sh" || btu_fatal "Failed to source RBRR configuration"
+
 # Helper function to invoke RBIM with proper environment
 ztrbim_invoke_rbim() {
   local z_rbg_temp_dir="$1"; shift
@@ -32,10 +35,11 @@ ztrbim_invoke_rbim() {
   local z_rbg_now_stamp
   z_rbg_now_stamp="$(date +%Y%m%d__%H%M%S)"
 
-  RBG_TEMP_DIR="${z_rbg_temp_dir}"     \
-  RBG_NOW_STAMP="${z_rbg_now_stamp}"   \
-  RBG_RUNTIME="podman"                 \
-    "${ZTRBIM_SCRIPT_DIR}/rbim_cli.sh" \
+  RBG_TEMP_DIR="${z_rbg_temp_dir}"                            \
+  RBG_NOW_STAMP="${z_rbg_now_stamp}"                          \
+  RBG_RUNTIME="podman"                                        \
+  RBG_RUNTIME_ARG="--connection=${RBRR_DEPLOY_MACHINE_NAME}"  \
+    "${ZTRBIM_SCRIPT_DIR}/rbim_cli.sh"                        \
     "${z_rbim_command}" "$@"
 }
 
