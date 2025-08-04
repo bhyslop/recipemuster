@@ -118,10 +118,14 @@ rbgh_build_workflow() {
   test -n "${z_recipe_file}" || bcu_die "Recipe file required"
   test -f "${z_recipe_file}" || bcu_die "Recipe file not found: ${z_recipe_file}"
 
+  # Get current commit hash
+  local z_commit_ref
+  z_commit_ref=$(git rev-parse HEAD) || bcu_die "Failed to get current commit hash"
+
   # Dispatch workflow
   bcu_step "Triggering GitHub Actions workflow for image build"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
-                "rbgr_build" '{"dockerfile": "'${z_recipe_file}'"}'
+                "rbgr_build" '{"dockerfile": "'${z_recipe_file}'", "ref": "'${z_commit_ref}'"}'
 
   # Wait for completion
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"
@@ -186,10 +190,14 @@ rbgh_delete_workflow() {
   # Validate parameters
   test -n "${z_fqin}" || bcu_die "FQIN required"
 
+  # Get current commit hash
+  local z_commit_ref
+  z_commit_ref=$(git rev-parse HEAD) || bcu_die "Failed to get current commit hash"
+
   # Dispatch workflow
   bcu_step "Triggering GitHub Actions workflow for image deletion"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
-                "rbgr_delete" '{"fqin": "'${z_fqin}'"}'
+                "rbgr_delete" '{"fqin": "'${z_fqin}'", "ref": "'${z_commit_ref}'"}'
 
   # Wait for completion
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"

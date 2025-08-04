@@ -22,6 +22,20 @@ zrbgr_kindle() {
   test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
 
+  if test -n "${GITHUB_ACTIONS:-}"; then
+    local z_workflow_file=".github/workflows/${GITHUB_WORKFLOW}.yml"
+    local z_current_sha z_main_sha
+
+    z_current_sha=$(git rev-parse HEAD:"${z_workflow_file}" 2>/dev/null) \
+      || bcu_die "Workflow ${z_workflow_file} not found in checked out ref"
+
+    z_main_sha=$(git rev-parse origin/main:"${z_workflow_file}" 2>/dev/null) \
+      || bcu_die "Workflow ${z_workflow_file} not found in main branch"
+
+    test "${z_current_sha}" = "${z_main_sha}" \
+      || bcu_die "Workflow ${GITHUB_WORKFLOW} differs between main and checked out ref - using main version"
+  fi
+
   # Module Variables (ZRBGR_*)
   ZRBGR_ALL_VERSIONS_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.json"
   ZRBGR_PAGE_FILE="${RBG_TEMP_DIR}/rbgr_page.json"
