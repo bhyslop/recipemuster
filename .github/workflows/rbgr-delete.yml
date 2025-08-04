@@ -13,49 +13,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up environment
-        shell: bash
-        run: |
-          # Load configuration
-          source ./mbv.variables.sh
-          source ./rbrr.repo.sh
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-          # Export required environment
-          echo "RBRR_BUILD_ARCHITECTURES=$RBRR_BUILD_ARCHITECTURES" >> $GITHUB_ENV
-          echo "RBRR_HISTORY_DIR=$RBRR_HISTORY_DIR" >> $GITHUB_ENV
-          echo "RBRR_REGISTRY_OWNER=$RBRR_REGISTRY_OWNER" >> $GITHUB_ENV
-          echo "RBRR_REGISTRY_NAME=$RBRR_REGISTRY_NAME" >> $GITHUB_ENV
-          echo "RBRR_REGISTRY=$RBRR_REGISTRY" >> $GITHUB_ENV
-          echo "RBRR_GITHUB_PAT_ENV=$RBRR_GITHUB_PAT_ENV" >> $GITHUB_ENV
-          echo "RBG_RUNTIME=docker" >> $GITHUB_ENV
-          echo "RBG_TEMP_DIR=/tmp/rbgr_$$" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          echo "MBV_TOOLS_DIR=$MBV_TOOLS_DIR" >> $GITHUB_ENV
-
-          # Create temp directory
-          mkdir -p /tmp/rbgr_$$
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
 
       - name: Delete image and clean orphans
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RBG_RUNTIME: docker
         shell: bash
         run: |
+          # Create unique temp directory in workspace
+          export RBG_TEMP_DIR="${{ github.workspace }}/.rbg-temp-${{ github.run_id }}-${{ github.run_attempt }}"
+
+          # Ensure it's completely empty
+          rm -rf   "${RBG_TEMP_DIR}"
+          mkdir -p "${RBG_TEMP_DIR}"
+
+          # Generate timestamp (required by CLI)
+          export RBG_NOW_STAMP=$(date +'%Y%m%d__%H%M%S')
+
           # Delete image
-          ${{ env.MBV_TOOLS_DIR }}/rbgr_cli.sh delete_image "${{ github.event.client_payload.fqin }}"
+          ./Tools/rbgr_cli.sh rbgr_delete_image "${{ github.event.client_payload.fqin }}"
+
+          # Clean temp directory for next CLI call
+          rm -rf   "${RBG_TEMP_DIR}"/*
 
           # Clean orphans
-          ${{ env.MBV_TOOLS_DIR }}/rbgr_cli.sh clean_orphans
+          ./Tools/rbgr_cli.sh rbgr_clean_orphans
 
-          # Commit deletion history
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add "${{ env.RBRR_HISTORY_DIR }}/_deletions"
-          git commit -m "Record deletion of image" || echo "No deletion history to commit"
-          git push || echo "No changes to push"
-
-      - name: Cleanup
-        if: always()
+      - name: Commit deletion history
         shell: bash
         run: |
-          rm -rf "${{ env.RBG_TEMP_DIR }}"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add . || echo "No changes to add"
+          git commit -m "Record deletion of image ${{ github.event.client_payload.fqin }}" || echo "No changes to commit"
+          git push || echo "No changes to push"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
