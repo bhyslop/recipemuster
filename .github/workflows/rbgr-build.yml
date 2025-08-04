@@ -1,4 +1,4 @@
-name: RBGR Image Build Workflow
+name: rbgr-build
 
 on:
   repository_dispatch:

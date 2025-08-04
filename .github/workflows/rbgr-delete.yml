@@ -1,4 +1,4 @@
-name: RBGR Image Delete Workflow
+name: rbgr-delete
 
 on:
   repository_dispatch:
