@@ -530,7 +530,7 @@ rbg_build() {
   zrbg_check_git_status
 
   bcu_step "Triggering GitHub Actions workflow for image build"
-  zrbg_execute_workflow "build_images"                         \
+  zrbg_execute_workflow "rbgr_build"                           \
                         '{"dockerfile": "'$recipe_file'"}'     \
                         "Git Pull for artifacts with retry..."
 
@@ -622,7 +622,7 @@ rbg_delete() {
   fi
 
   bcu_step "Triggering GitHub Actions workflow for image deletion"
-  zrbg_execute_workflow "delete_image"                         \
+  zrbg_execute_workflow "rbgr_delete"                          \
                         '{"fqin": "'$fqin'"}'                  \
                         "Git Pull for deletion history..."     \
                         "No deletion history recorded"
