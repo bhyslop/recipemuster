@@ -31,14 +31,14 @@ jobs:
           rm -rf   "${RBG_TEMP_DIR}"
           mkdir -p "${RBG_TEMP_DIR}"
 
-          # Extract build label from dockerfile path
+          # Generate build label once and use consistently
           DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
           FULL_FILENAME=$(basename "$DOCKERFILE")
           FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
           export RBG_NOW_STAMP=$(date +'%Y%m%d__%H%M%S')
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${RBG_NOW_STAMP}"
 
-          ./Tools/rbgr_cli.sh rbgr_build_image "$DOCKERFILE"
+          ./Tools/rbgr_cli.sh rbgr_build_image "$DOCKERFILE" "$BUILD_LABEL"
           ./Tools/rbgr_cli.sh rbgr_record_history "$BUILD_LABEL"
 
 concurrency:

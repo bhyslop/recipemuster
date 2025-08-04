@@ -42,6 +42,13 @@ zrbgr_sentinel() {
 rbgr_build_image() {
   # Name parameters
   local z_dockerfile="${1:-}"
+  local z_build_label="${2:-}"
+
+  # Handle documentation mode
+  bcu_doc_brief "Build and push container image"
+  bcu_doc_param "dockerfile" "Path to Dockerfile"
+  bcu_doc_param "build_label" "Build label for image tag"
+  bcu_doc_shown || return 0
 
   # Ensure module started
   zrbgr_sentinel
@@ -49,12 +56,7 @@ rbgr_build_image() {
   # Validate parameters
   test -n "${z_dockerfile}" || bcu_die "Dockerfile path required"
   test -f "${z_dockerfile}" || bcu_die "Dockerfile not found: ${z_dockerfile}"
-
-  # Generate build metadata
-  local z_full_filename
-  z_full_filename=$(basename "${z_dockerfile}")
-  local z_filename_no_ext="${z_full_filename%.*}"
-  local z_build_label="${z_filename_no_ext}.${RBG_NOW_STAMP}"
+  test -n "${z_build_label}" || bcu_die "Build label required"
 
   # Create FQIN using rbcr
   rbcr_make_fqin "${z_build_label}"
@@ -112,6 +114,8 @@ rbgr_build_image() {
   docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoTags[0] // empty'    > "${z_history_dir}/docker_inspect_RepoTags_0.txt"
   docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoDigests[-1]'         > "${z_history_dir}/docker_inspect_RepoDigests_last.txt"
   docker inspect "${z_ghcr_path}" | jq -r '.[0].Created'                 > "${z_history_dir}/docker_inspect_Created.txt"
+
+  bcu_success "Image built successfully: ${z_build_label}"
 }
 
 rbgr_record_history() {
