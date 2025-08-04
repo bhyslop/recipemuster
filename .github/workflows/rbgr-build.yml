@@ -39,6 +39,10 @@ jobs:
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${RBG_NOW_STAMP}"
 
           ./Tools/rbgr_cli.sh rbgr_build_image "$DOCKERFILE" "$BUILD_LABEL"
+
+          # Clean temp directory for next CLI call
+          rm -rf   "${RBG_TEMP_DIR}"/*
+
           ./Tools/rbgr_cli.sh rbgr_record_history "$BUILD_LABEL"
 
 concurrency:
