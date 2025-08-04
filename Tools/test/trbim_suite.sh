@@ -59,12 +59,12 @@ trbim_case_github_workflow() {
            "${z_retrieve_dir}" "${z_delete_dir}" "${z_list3_dir}"
 
   btu_info "Step 1: List registry images before build"
-  btu_expect_ok ztrbim_invoke_rbim "${z_list1_dir}" list
+  btu_expect_ok ztrbim_invoke_rbim "${z_list1_dir}" rbim_list
 
   btu_info "Step 2: Build container from recipe"
   local z_fqin_file="${z_build_dir}/fqin_output.txt"
   RBG_ARG_FQIN_OUTPUT="${z_fqin_file}" \
-  btu_expect_ok ztrbim_invoke_rbim "${z_build_dir}" build "${z_recipe_file}"
+  btu_expect_ok ztrbim_invoke_rbim "${z_build_dir}" rbim_build "${z_recipe_file}"
 
   test -f "${z_fqin_file}" || btu_fatal "FQIN output file not created: ${z_fqin_file}"
   local z_fqin
@@ -77,17 +77,17 @@ trbim_case_github_workflow() {
   local z_tag="${z_fqin##*:}"
 
   btu_info "Step 3: List registry images after build"
-  btu_expect_ok ztrbim_invoke_rbim "${z_list2_dir}" list
+  btu_expect_ok ztrbim_invoke_rbim "${z_list2_dir}" rbim_list
 
   btu_info "Step 4: Retrieve image from registry"
-  btu_expect_ok ztrbim_invoke_rbim "${z_retrieve_dir}" retrieve "${z_tag}"
+  btu_expect_ok ztrbim_invoke_rbim "${z_retrieve_dir}" rbim_retrieve "${z_tag}"
 
   btu_info "Step 5: Delete image from registry"
   RBG_ARG_SKIP_DELETE_CONFIRMATION="SKIP" \
-  btu_expect_ok ztrbim_invoke_rbim "${z_delete_dir}" delete "${z_fqin}"
+  btu_expect_ok ztrbim_invoke_rbim "${z_delete_dir}" rbim_delete "${z_fqin}"
 
   btu_info "Step 6: List registry images after deletion"
-  btu_expect_ok ztrbim_invoke_rbim "${z_list3_dir}" list
+  btu_expect_ok ztrbim_invoke_rbim "${z_list3_dir}" rbim_list
 
   btu_info "GitHub workflow integration test completed successfully"
 }
@@ -99,14 +99,14 @@ trbim_case_image_info() {
   mkdir -p "${z_info_dir}"
 
   # Run image_info without filter
-  btu_expect_ok ztrbim_invoke_rbim "${z_info_dir}" image_info
+  btu_expect_ok ztrbim_invoke_rbim "${z_info_dir}" rbim_image_info
 
   # Run image_info with filter (if images exist with 'test' in the name)
   local z_info_filtered_dir="${BTU_TEMP_DIR}/image_info_filtered"
   mkdir -p "${z_info_filtered_dir}"
 
   btu_info "Running image_info with filter 'test'"
-  btu_expect_ok ztrbim_invoke_rbim "${z_info_filtered_dir}" image_info "test"
+  btu_expect_ok ztrbim_invoke_rbim "${z_info_filtered_dir}" rbim_image_info "test"
 
   btu_info "Image info test completed successfully"
 }
