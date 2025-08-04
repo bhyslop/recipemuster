@@ -35,8 +35,8 @@ jobs:
           DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
           FULL_FILENAME=$(basename "$DOCKERFILE")
           FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
-          TIMESTAMP=$(date +'%Y%m%d__%H%M%S')
-          BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${TIMESTAMP}"
+          export RBG_NOW_STAMP=$(date +'%Y%m%d__%H%M%S')
+          BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${RBG_NOW_STAMP}"
 
           ./Tools/rbgr_cli.sh rbgr_build_image "$DOCKERFILE"
           ./Tools/rbgr_cli.sh rbgr_record_history "$BUILD_LABEL"

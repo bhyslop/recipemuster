@@ -15,10 +15,19 @@ ZRBGR_INCLUDED=1
 
 zrbgr_kindle() {
   # Check required environment
+  test -n "${RBG_TEMP_DIR:-}"             || bcu_die "RBG_TEMP_DIR not set"
+  test -n "${RBG_NOW_STAMP:-}"            || bcu_die "RBG_NOW_STAMP not set"
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
   test -n "${RBRR_HISTORY_DIR:-}"         || bcu_die "RBRR_HISTORY_DIR not set"
   test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
+
+  # Module Variables (ZRBGR_*)
+  ZRBGR_ALL_VERSIONS_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.json"
+  ZRBGR_PAGE_FILE="${RBG_TEMP_DIR}/rbgr_page.json"
+  ZRBGR_ALL_VERSIONS_TMP_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.tmp"
+  ZRBGR_DELETE_RESULT_FILE="${RBG_TEMP_DIR}/rbgr_delete_result.txt"
+  ZRBGR_HTTP_CODE_FILE="${RBG_TEMP_DIR}/rbgr_delete_http_code.txt"
 
   ZRBGR_KINDLED=1
 }
@@ -42,12 +51,10 @@ rbgr_build_image() {
   test -f "${z_dockerfile}" || bcu_die "Dockerfile not found: ${z_dockerfile}"
 
   # Generate build metadata
-  local z_timestamp
-  z_timestamp=$(date +'%Y%m%d__%H%M%S')
   local z_full_filename
   z_full_filename=$(basename "${z_dockerfile}")
   local z_filename_no_ext="${z_full_filename%.*}"
-  local z_build_label="${z_filename_no_ext}.${z_timestamp}"
+  local z_build_label="${z_filename_no_ext}.${RBG_NOW_STAMP}"
 
   # Create FQIN using rbcr
   rbcr_make_fqin "${z_build_label}"
@@ -150,9 +157,7 @@ rbgr_delete_image() {
   rbcr_delete "${z_tag}"
 
   # Record deletion
-  local z_timestamp
-  z_timestamp=$(date +'%Y%m%d__%H%M%S')
-  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${z_timestamp}_${z_tag}"
+  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${RBG_NOW_STAMP}_${z_tag}"
 
   mkdir -p                        "${z_delete_dir}"
   echo "${z_fqin}"              > "${z_delete_dir}/deleted_fqin.txt"
@@ -168,27 +173,27 @@ rbgr_clean_orphans() {
 
   # Get all versions with pagination
   local z_page=1
-  echo "[]" > /tmp/all_versions.json
+  echo "[]" > "${ZRBGR_ALL_VERSIONS_FILE}"
 
   while true; do
     curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
          -H "Accept: application/vnd.github.v3+json" \
          "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100&page=${z_page}" \
-         > /tmp/page.json
+         > "${ZRBGR_PAGE_FILE}"
 
     local z_items
-    z_items=$(jq '. | length' /tmp/page.json)
+    z_items=$(jq '. | length' "${ZRBGR_PAGE_FILE}")
     test "${z_items}" -ne 0 || break
 
-    jq -s '.[0] + .[1]' /tmp/all_versions.json /tmp/page.json > /tmp/all_versions.tmp
-    mv /tmp/all_versions.tmp /tmp/all_versions.json
+    jq -s '.[0] + .[1]' "${ZRBGR_ALL_VERSIONS_FILE}" "${ZRBGR_PAGE_FILE}" > "${ZRBGR_ALL_VERSIONS_TMP_FILE}"
+    mv "${ZRBGR_ALL_VERSIONS_TMP_FILE}" "${ZRBGR_ALL_VERSIONS_FILE}"
 
     z_page=$((z_page + 1))
   done
 
   # Get untagged versions
   local z_orphan_count
-  z_orphan_count=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' /tmp/all_versions.json)
+  z_orphan_count=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' "${ZRBGR_ALL_VERSIONS_FILE}")
 
   if test "${z_orphan_count}" -eq 0; then
     bcu_info "No orphaned versions to clean"
@@ -201,17 +206,21 @@ rbgr_clean_orphans() {
   local z_deleted_count=0
   local z_orphan_id
 
-  jq -r '.[] | select(.metadata.container.tags | length == 0) | .id' /tmp/all_versions.json | \
+  jq -r '.[] | select(.metadata.container.tags | length == 0) | .id' "${ZRBGR_ALL_VERSIONS_FILE}" | \
   while read -r z_orphan_id; do
-    echo -n "Deleting orphan ID ${z_orphan_id}... "
+    bcu_step "Deleting orphan ID ${z_orphan_id}... "
+
+    curl -X DELETE -s                               \
+        -H "Authorization: token ${GITHUB_TOKEN}"   \
+        -H "Accept: application/vnd.github.v3+json" \
+        -w "%{http_code}"                           \
+        -o "${ZRBGR_DELETE_RESULT_FILE}"            \
+        "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_orphan_id}" \
+        > "${ZRBGR_HTTP_CODE_FILE}"                 \
+      || bcu_die "Failed to delete orphan"
 
     local z_http_code
-    z_http_code=$(curl -X DELETE -s \
-      -H "Authorization: token ${GITHUB_TOKEN}" \
-      -H "Accept: application/vnd.github.v3+json" \
-      -w "%{http_code}" \
-      -o /tmp/delete_result.txt \
-      "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_orphan_id}")
+    z_http_code=$(<"${ZRBGR_HTTP_CODE_FILE}")
 
     if test "${z_http_code}" = "204"; then
       echo "deleted"
