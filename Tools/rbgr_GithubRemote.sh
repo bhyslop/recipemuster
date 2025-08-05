@@ -22,26 +22,33 @@ zrbgr_kindle() {
   test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
 
-  if test -n "${GITHUB_ACTIONS:-}"; then
-    local z_workflow_file=".github/workflows/${GITHUB_WORKFLOW}.yml"
-    local z_current_sha z_main_sha
-
-    z_current_sha=$(git rev-parse HEAD:"${z_workflow_file}" 2>/dev/null) \
-      || bcu_die "Workflow ${z_workflow_file} not found in checked out ref"
-
-    z_main_sha=$(git rev-parse origin/main:"${z_workflow_file}" 2>/dev/null) \
-      || bcu_die "Workflow ${z_workflow_file} not found in main branch"
-
-    test "${z_current_sha}" = "${z_main_sha}" \
-      || bcu_die "Workflow ${GITHUB_WORKFLOW} differs between main and checked out ref - using main version"
-  fi
-
   # Module Variables (ZRBGR_*)
   ZRBGR_ALL_VERSIONS_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.json"
   ZRBGR_PAGE_FILE="${RBG_TEMP_DIR}/rbgr_page.json"
   ZRBGR_ALL_VERSIONS_TMP_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.tmp"
   ZRBGR_DELETE_RESULT_FILE="${RBG_TEMP_DIR}/rbgr_delete_result.txt"
   ZRBGR_HTTP_CODE_FILE="${RBG_TEMP_DIR}/rbgr_delete_http_code.txt"
+  ZRBGR_MAIN_WORKFLOW_FILE="${RBG_TEMP_DIR}/main_workflow.yml"
+
+  if test -n "${GITHUB_ACTIONS:-}"; then
+    local z_workflow_file=".github/workflows/${GITHUB_WORKFLOW}.yml"
+    
+    bcu_step "Extract workflow from current HEAD"
+    test -f "${z_workflow_file}" \
+      || bcu_die "Workflow ${z_workflow_file} not found in checked out ref"
+    
+    bcu_step "Fetch just the main ref (lightweight)"
+    git fetch --depth=1 origin main 2>/dev/null \
+      || bcu_die "Failed to fetch main branch reference"
+    
+    bcu_step "Extract workflow from main to temp file"
+    git show origin/main:"${z_workflow_file}" > "${ZRBGR_MAIN_WORKFLOW_FILE}" 2>/dev/null \
+      || bcu_die "Workflow ${z_workflow_file} not found in main branch"
+    
+    bcu_step "Compare files"
+    diff -q "${z_workflow_file}" "${ZRBGR_MAIN_WORKFLOW_FILE}" >/dev/null \
+      || bcu_die "Workflow ${GITHUB_WORKFLOW} differs between main and checked out ref"
+  fi
 
   ZRBGR_KINDLED=1
 }
