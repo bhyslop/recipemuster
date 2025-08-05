@@ -15,8 +15,19 @@ jobs:
 
       - name: Verify main hasn't moved
         run: |
-          test "$(git rev-parse HEAD)" = "${{ github.event.client_payload.ref }}" || \
-            { echo "ERROR: main has moved since dispatch (expected ${{ github.event.client_payload.ref }})"; exit 1; }
+          z_current_ref="$(git rev-parse HEAD)"
+          z_expected_ref="${{ github.event.client_payload.ref }}"
+
+          echo "Current HEAD: ${z_current_ref}"
+          echo "Expected ref: ${z_expected_ref}"
+
+          test "${z_current_ref}" = "${z_expected_ref}" \
+            || { 
+                 echo "ERROR: main has moved since dispatch"
+                 echo "  Current:  ${z_current_ref}"
+                 echo "  Expected: ${z_expected_ref}"
+                 exit 1
+               }
 
       - name: Delete image and clean orphans
         env:
