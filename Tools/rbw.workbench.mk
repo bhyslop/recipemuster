@@ -103,7 +103,7 @@ rbw-b.%:
 
 rbw-d.%:
 	$(MBC_START) "Delete Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBM_RECIPE_BOTTLE_GITHUB_SH) rbg_delete $(MBD_CLI_ARGS)
+	$(RBW_IMAGE_MANAGEMENT_SH) rbim_delete $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 
