@@ -7,13 +7,15 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBCR_INCLUDED:-}" || bcu_die "Module rbcr multiply included - check sourcing hierarchy"
-ZRBCR_INCLUDED=1
+test -z "${ZRBCR_SOURCED:-}" || bcu_die "Module rbcr multiply sourced - check sourcing hierarchy"
+ZRBCR_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbcr_*)
 
 zrbcr_kindle() {
+  test -z "${ZRBCR_KINDLED:-}" || bcu_die "Module rbcr already kindled"
+
   # Check required environment
   test -n "${RBRR_REGISTRY:-}"       || bcu_die "RBRR_REGISTRY not set"
   test -n "${RBRR_GAR_PROJECT_ID:-}" || bcu_die "RBRR_GAR_PROJECT_ID not set"
@@ -80,17 +82,21 @@ zrbcr_sentinel() {
 }
 
 zrbcr_base64url_encode() {
-  # Base64url encoding (no padding, URL-safe chars)
+  zrbcr_sentinel
+
+  bcu_info "Base64url encoding (no padding, URL-safe chars)"
   base64 -w 0 | tr '+/' '-_' | tr -d '='
 }
 
 zrbcr_refresh_token() {
+  zrbcr_sentinel
+
   local z_now z_exp z_header z_claim z_jwt_unsigned z_signature z_jwt
 
-  # JWT header
+  bcu_info "Building JWT header"
   z_header='{"alg":"RS256","typ":"JWT"}'
 
-  # JWT claims (1 hour expiry)
+  bcu_info "Building JWT claims (1 hour expiry)"
   z_now=$(date +%s)
   z_exp=$((z_now + 3600))
 
@@ -130,11 +136,15 @@ zrbcr_refresh_token() {
 }
 
 zrbcr_get_next_index() {
+  zrbcr_sentinel
+
   ZRBCR_FILE_INDEX=$((ZRBCR_FILE_INDEX + 1))
-  printf "%03d" "${ZRBCR_FILE_INDEX}"
+  printf "%03d" "${ZRBCR_FILE_INDEX}" || bcu_die "Failed to format file index"
 }
 
 zrbcr_curl_registry() {
+  zrbcr_sentinel
+
   local z_url="$1"
   local z_token
   z_token=$(<"${ZRBCR_TOKEN_FILE}")
@@ -146,6 +156,8 @@ zrbcr_curl_registry() {
 }
 
 zrbcr_process_single_manifest() {
+  zrbcr_sentinel
+
   local z_tag="$1"
   local z_manifest_file="$2"
   local z_platform="$3"  # Empty for single-platform
@@ -168,6 +180,7 @@ zrbcr_process_single_manifest() {
   zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
     >"${z_config_out}" || bcu_die "Failed to fetch config blob"
 
+  bcu_info "Validating config JSON"
   jq . "${z_config_out}" >/dev/null || bcu_die "Invalid config JSON"
 
   # Build detail entry
@@ -217,20 +230,24 @@ zrbcr_process_single_manifest() {
   fi
 
   # Append to detail file
+  bcu_info "Merging image detail"
   jq -s '.[0] + [.[1]]' "${ZRBCR_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
     > "${ZRBCR_IMAGE_DETAIL_FILE}.tmp" || bcu_die "Failed to merge image detail"
-  mv "${ZRBCR_IMAGE_DETAIL_FILE}.tmp" "${ZRBCR_IMAGE_DETAIL_FILE}"
+  mv "${ZRBCR_IMAGE_DETAIL_FILE}.tmp" "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
 }
 
 ######################################################################
 # External Functions (rbcr_*)
 
 rbcr_make_fqin() {
-  # Name parameters
+  zrbcr_sentinel
+
   local z_tag="${1:-}"
 
-  # Ensure module started
-  zrbcr_sentinel
+  # Documentation block
+  bcu_doc_brief "Create fully qualified image name"
+  bcu_doc_param "tag" "Image tag to qualify"
+  bcu_doc_shown || return 0
 
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
@@ -240,8 +257,11 @@ rbcr_make_fqin() {
 }
 
 rbcr_list_tags() {
-  # Ensure module started
   zrbcr_sentinel
+
+  # Documentation block
+  bcu_doc_brief "List all available image tags from registry"
+  bcu_doc_shown || return 0
 
   bcu_step "Fetching image tags from GAR"
 
@@ -262,11 +282,14 @@ rbcr_list_tags() {
 }
 
 rbcr_get_manifest() {
-  # Name parameters
+  zrbcr_sentinel
+
   local z_tag="${1:-}"
 
-  # Ensure module started
-  zrbcr_sentinel
+  # Documentation block
+  bcu_doc_brief "Fetch and process manifest for an image tag"
+  bcu_doc_param "tag" "Image tag to fetch manifest for"
+  bcu_doc_shown || return 0
 
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
@@ -283,8 +306,8 @@ rbcr_get_manifest() {
   local z_media_type
   z_media_type=$(jq -r '.mediaType // .schemaVersion' "${z_manifest_out}")
 
-  if [[ "${z_media_type}" == "${ZRBCR_MTYPE_DLIST}" ]] || \
-     [[ "${z_media_type}" == "${ZRBCR_MTYPE_OCI}" ]]; then
+  if test "${z_media_type}" = "${ZRBCR_MTYPE_DLIST}" || \
+     test "${z_media_type}" = "${ZRBCR_MTYPE_OCI}"; then
 
     bcu_info "Multi-platform image detected"
 
@@ -320,11 +343,14 @@ rbcr_get_manifest() {
 }
 
 rbcr_get_config() {
-  # Name parameters
+  zrbcr_sentinel
+
   local z_digest="${1:-}"
 
-  # Ensure module started
-  zrbcr_sentinel
+  # Documentation block
+  bcu_doc_brief "Fetch configuration blob for a digest"
+  bcu_doc_param "digest" "Digest of config blob to fetch"
+  bcu_doc_shown || return 0
 
   # Validate parameters
   test -n "${z_digest}" || bcu_die "Digest parameter required"
@@ -341,11 +367,14 @@ rbcr_get_config() {
 }
 
 rbcr_delete() {
-  # Name parameters
+  zrbcr_sentinel
+
   local z_tag="${1:-}"
 
-  # Ensure module started
-  zrbcr_sentinel
+  # Documentation block
+  bcu_doc_brief "Delete an image tag from the registry"
+  bcu_doc_param "tag" "Image tag to delete"
+  bcu_doc_shown || return 0
 
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
@@ -389,11 +418,14 @@ rbcr_delete() {
 }
 
 rbcr_pull() {
-  # Name parameters
+  zrbcr_sentinel
+
   local z_tag="${1:-}"
 
-  # Ensure module started
-  zrbcr_sentinel
+  # Documentation block
+  bcu_doc_brief "Pull an image from the registry"
+  bcu_doc_param "tag" "Image tag to pull"
+  bcu_doc_shown || return 0
 
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
@@ -408,11 +440,9 @@ rbcr_pull() {
 }
 
 rbcr_exists_predicate() {
-  # Name parameters
-  local z_tag="${1:-}"
-
-  # Ensure module started
   zrbcr_sentinel
+
+  local z_tag="${1:-}"
 
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
