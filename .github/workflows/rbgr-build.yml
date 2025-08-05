@@ -26,25 +26,28 @@ jobs:
           RBG_RUNTIME: docker
         shell: bash
         run: |
-          # Create unique temp directory in workspace
+          echo "Create unique temp directory in workspace"
           export RBG_TEMP_DIR="${{ github.workspace }}/.rbg-temp-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "Created RBG_TEMP_DIR=${RBG_TEMP_DIR}"
 
-          # Ensure it's completely empty
+          echo "Ensure it's completely empty"
           rm -rf   "${RBG_TEMP_DIR}"
           mkdir -p "${RBG_TEMP_DIR}"
 
-          # Generate build label once and use consistently
+          echo "Generate build label once and use consistently"
           DOCKERFILE="${{ github.event.client_payload.dockerfile }}"
           FULL_FILENAME=$(basename "$DOCKERFILE")
           FILENAME_WITHOUT_EXT="${FULL_FILENAME%.*}"
           export RBG_NOW_STAMP=$(date +'%Y%m%d__%H%M%S')
           BUILD_LABEL="${FILENAME_WITHOUT_EXT}.${RBG_NOW_STAMP}"
 
-          ./Tools/rbgr_cli.sh rbgr_build_image "$DOCKERFILE" "$BUILD_LABEL"
+          echo "Kick off build of "            "${DOCKERFILE}" "${BUILD_LABEL}"
+          ./Tools/rbgr_cli.sh rbgr_build_image "${DOCKERFILE}" "${BUILD_LABEL}"
 
-          # Clean temp directory for next CLI call
+          echo "Clean temp directory for next CLI call"
           rm -rf   "${RBG_TEMP_DIR}"/*
 
+          echo "And now record history"
           ./Tools/rbgr_cli.sh rbgr_record_history "$BUILD_LABEL"
 
 concurrency:
