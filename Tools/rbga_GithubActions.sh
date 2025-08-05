@@ -129,9 +129,12 @@ rbga_wait_completion() {
     z_status=$(echo "${z_response}" | jq -r '.status')
     z_conclusion=$(echo "${z_response}" | jq -r '.conclusion')
 
-    echo "  Status: ${z_status}    Conclusion: ${z_conclusion}"
+    bcu_step "  Status: ${z_status}"
 
-    test "${z_status}" = "completed" && break
+    if test "${z_status}" = "completed"; then
+    bcu_step "    Conclusion: ${z_conclusion}"
+      break
+    fi
 
     sleep 3
   done
