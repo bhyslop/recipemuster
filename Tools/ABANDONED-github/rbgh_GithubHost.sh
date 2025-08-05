@@ -142,9 +142,9 @@ rbgh_build_workflow() {
   local z_build_dir
   z_build_dir=$(<"${ZRBGH_BUILD_DIR_LATEST_FILE}")
 
-  test -n "${z_build_dir}" || bcu_die "Missing build directory"
-  test -d "${z_build_dir}" || bcu_die "Invalid build directory"
-  test -f "${z_build_dir}/recipe.txt" || bcu_die "recipe.txt not found"
+  test -n "${z_build_dir}"                           || bcu_die "Missing build directory"
+  test -d "${z_build_dir}"                           || bcu_die "Invalid build directory"
+  test -f "${z_build_dir}/recipe.txt"                || bcu_die "recipe.txt not found"
   cmp "${z_recipe_file}" "${z_build_dir}/recipe.txt" || bcu_die "recipe mismatch"
 
   # Extract FQIN
