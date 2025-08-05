@@ -2,7 +2,7 @@
 # Copyright 2025 Scale Invariant, Inc.
 # Licensed under the Apache License, Version 2.0
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
-# Recipe Bottle Container Registry - Registry interface
+# Recipe Bottle Container Registry - Google Artifact Registry interface
 
 set -euo pipefail
 
@@ -16,34 +16,23 @@ ZRBCR_INCLUDED=1
 zrbcr_kindle() {
   # Check required environment
   test -n "${RBRR_REGISTRY:-}"       || bcu_die "RBRR_REGISTRY not set"
-  test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
+  test -n "${RBRR_GAR_PROJECT_ID:-}" || bcu_die "RBRR_GAR_PROJECT_ID not set"
+  test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION not set"
+  test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY not set"
   test -n "${RBG_RUNTIME:-}"         || bcu_die "RBG_RUNTIME not set"
   test -n "${RBG_TEMP_DIR:-}"        || bcu_die "RBG_TEMP_DIR not set"
 
-  # Detect environment and set auth variables
-  if test -n "${GITHUB_ACTIONS:-}"; then
-    # GitHub Actions mode - use environment variables directly
-    bcu_info "Running in GitHub Actions - using GITHUB_TOKEN"
-    test -n "${GITHUB_TOKEN:-}" || bcu_die "GITHUB_TOKEN not set in GitHub Actions"
-    ZRBCR_GITHUB_TOKEN="${GITHUB_TOKEN}"
-    ZRBCR_REGISTRY_USERNAME="${GITHUB_ACTOR:-github-actions}"
-  else
-    # Local mode - source PAT file
-    bcu_info "Running locally - sourcing PAT file"
-    test -n "${RBRR_GITHUB_PAT_ENV:-}" || bcu_die "RBRR_GITHUB_PAT_ENV not set"
-    test -f "${RBRR_GITHUB_PAT_ENV}" || bcu_die "PAT file not found: ${RBRR_GITHUB_PAT_ENV}"
-    source "${RBRR_GITHUB_PAT_ENV}"
-    test -n "${RBRG_PAT:-}" || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-    test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
-    ZRBCR_GITHUB_TOKEN="${RBRG_PAT}"
-    ZRBCR_REGISTRY_USERNAME="${RBRG_USERNAME}"
-  fi
+  # Source GAR credentials
+  test -n "${RBRR_GAR_SERVICE_ENV:-}" || bcu_die "RBRR_GAR_SERVICE_ENV not set"
+  test -f "${RBRR_GAR_SERVICE_ENV}"   || bcu_die "GAR service env file not found: ${RBRR_GAR_SERVICE_ENV}"
+  source "${RBRR_GAR_SERVICE_ENV}"
+  test -n "${RBRG_GAR_SERVICE_ACCOUNT_KEY:-}" || bcu_die "RBRG_GAR_SERVICE_ACCOUNT_KEY missing from ${RBRR_GAR_SERVICE_ENV}"
+  test -f "${RBRG_GAR_SERVICE_ACCOUNT_KEY}"   || bcu_die "Service account key file not found: ${RBRG_GAR_SERVICE_ACCOUNT_KEY}"
 
   # Module Variables (ZRBCR_*)
-  ZRBCR_REGISTRY_HOST="ghcr.io"
-  ZRBCR_REGISTRY_API_BASE="https://ghcr.io/v2/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}"
-  ZRBCR_TOKEN_URL="https://ghcr.io/token?scope=repository:${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:pull&service=ghcr.io"
+  ZRBCR_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
+  ZRBCR_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  ZRBCR_REGISTRY_API_BASE="https://${ZRBCR_REGISTRY_HOST}/v2/${ZRBCR_REGISTRY_PATH}"
 
   # Media types
   ZRBCR_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
@@ -51,43 +40,37 @@ zrbcr_kindle() {
   ZRBCR_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
   ZRBCR_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
   ZRBCR_ACCEPT_MANIFEST_MTYPES="${ZRBCR_MTYPE_DV2},${ZRBCR_MTYPE_DLIST},${ZRBCR_MTYPE_OCI},${ZRBCR_MTYPE_OCM}"
-  ZRBCR_SCHEMA_V2="2"
-  ZRBCR_MTYPE_GHV3="application/vnd.github.v3+json"
-
-  # Curl headers
-  ZRBCR_HEADER_AUTH_TOKEN="Authorization: token ${ZRBCR_GITHUB_TOKEN}"
-  ZRBCR_HEADER_ACCEPT_GH="Accept: ${ZRBCR_MTYPE_GHV3}"
-  ZRBCR_HEADER_ACCEPT_MANIFEST="Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}"
 
   # File prefixes for all operations
-  ZRBCR_LIST_PAGE_PREFIX="${RBG_TEMP_DIR}/list_page_"
-  ZRBCR_LIST_RECORDS_PREFIX="${RBG_TEMP_DIR}/list_records_"
   ZRBCR_MANIFEST_PREFIX="${RBG_TEMP_DIR}/manifest_"
   ZRBCR_CONFIG_PREFIX="${RBG_TEMP_DIR}/config_"
   ZRBCR_DELETE_PREFIX="${RBG_TEMP_DIR}/delete_"
-  ZRBCR_VERSION_PREFIX="${RBG_TEMP_DIR}/version_"
   ZRBCR_DETAIL_PREFIX="${RBG_TEMP_DIR}/detail_"
+  ZRBCR_TOKEN_PREFIX="${RBG_TEMP_DIR}/token_"
+  ZRBCR_JWT_PREFIX="${RBG_TEMP_DIR}/jwt_"
 
   # Output files
   ZRBCR_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
   ZRBCR_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
   ZRBCR_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
   ZRBCR_FQIN_FILE="${RBG_TEMP_DIR}/FQIN.txt"
+  ZRBCR_TOKEN_FILE="${ZRBCR_TOKEN_PREFIX}access.txt"
 
   # File index counter
   ZRBCR_FILE_INDEX=0
 
-  bcu_step "Obtaining bearer token for registry API"
-  local z_bearer_token
-  z_bearer_token=$(zrbcr_get_bearer_token_subshell) || bcu_die "Cannot proceed without bearer token"
-  ZRBCR_REGISTRY_TOKEN="${z_bearer_token}"
+  # Extract service account details
+  ZRBCR_SA_EMAIL=$(jq -r '.client_email' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}")
+  ZRBCR_SA_KEY_FILE="${ZRBCR_JWT_PREFIX}private.pem"
+  jq -r '.private_key' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_KEY_FILE}"
 
-  # Registry auth header
-  ZRBCR_HEADER_AUTH_BEARER="Authorization: Bearer ${ZRBCR_REGISTRY_TOKEN}"
+  bcu_step "Obtaining OAuth token for GAR API"
+  zrbcr_refresh_token || bcu_die "Cannot proceed without OAuth token"
 
   # Login to registry
   bcu_step "Log in to container registry"
-  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_REGISTRY_HOST}" -u "${ZRBCR_REGISTRY_USERNAME}" -p "${ZRBCR_GITHUB_TOKEN}"
+  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_REGISTRY_HOST}" \
+    -u oauth2accesstoken -p "$(<"${ZRBCR_TOKEN_FILE}")"
 
   ZRBCR_KINDLED=1
 }
@@ -96,32 +79,70 @@ zrbcr_sentinel() {
   test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not kindled - call zrbcr_kindle first"
 }
 
-zrbcr_get_bearer_token_subshell() {
-  # Fetch token and extract in memory only
-  local z_response
-  z_response=$(curl -sL -u "${ZRBCR_REGISTRY_USERNAME}:${ZRBCR_GITHUB_TOKEN}" \
-    "${ZRBCR_TOKEN_URL}" 2>/dev/null) || return 1
-
-  local z_token
-  z_token=$(echo "${z_response}" | jq -r '.token' 2>/dev/null) || return 1
-
-  test -n "${z_token}"           || return 1
-  test    "${z_token}" != "null" || return 1
-  echo    "${z_token}"
+zrbcr_base64url_encode() {
+  # Base64url encoding (no padding, URL-safe chars)
+  base64 -w 0 | tr '+/' '-_' | tr -d '='
 }
 
-zrbcr_curl_github_api() {
-  local z_url="$1"
+zrbcr_refresh_token() {
+  local z_now z_exp z_header z_claim z_jwt_unsigned z_signature z_jwt
 
-  curl -s                              \
-       -H "${ZRBCR_HEADER_AUTH_TOKEN}" \
-       -H "${ZRBCR_HEADER_ACCEPT_GH}"  \
-       "${z_url}"
+  # JWT header
+  z_header='{"alg":"RS256","typ":"JWT"}'
+
+  # JWT claims (1 hour expiry)
+  z_now=$(date +%s)
+  z_exp=$((z_now + 3600))
+
+  z_claim=$(jq -n \
+    --arg iss "${ZRBCR_SA_EMAIL}" \
+    --arg scope "https://www.googleapis.com/auth/cloud-platform" \
+    --arg aud "https://oauth2.googleapis.com/token" \
+    --arg iat "${z_now}" \
+    --arg exp "${z_exp}" \
+    '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}')
+
+  # Build JWT
+  z_header_enc=$(echo -n "${z_header}" | zrbcr_base64url_encode)
+  z_claim_enc=$(echo -n "${z_claim}" | zrbcr_base64url_encode)
+  z_jwt_unsigned="${z_header_enc}.${z_claim_enc}"
+
+  # Sign JWT
+  z_signature=$(echo -n "${z_jwt_unsigned}" | \
+    openssl dgst -sha256 -sign "${ZRBCR_SA_KEY_FILE}" | \
+    zrbcr_base64url_encode)
+
+  z_jwt="${z_jwt_unsigned}.${z_signature}"
+
+  # Exchange JWT for access token
+  local z_response="${ZRBCR_TOKEN_PREFIX}response.json"
+  curl -s -X POST https://oauth2.googleapis.com/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
+    > "${z_response}" || bcu_die "Failed to obtain OAuth token"
+
+  # Extract access token
+  jq -r '.access_token' "${z_response}" > "${ZRBCR_TOKEN_FILE}"
+  test -s "${ZRBCR_TOKEN_FILE}" || bcu_die "Failed to extract access token"
+
+  # Store expiry for potential refresh logic
+  ZRBCR_TOKEN_EXPIRY="${z_exp}"
 }
 
 zrbcr_get_next_index() {
   ZRBCR_FILE_INDEX=$((ZRBCR_FILE_INDEX + 1))
   printf "%03d" "${ZRBCR_FILE_INDEX}"
+}
+
+zrbcr_curl_registry() {
+  local z_url="$1"
+  local z_token
+  z_token=$(<"${ZRBCR_TOKEN_FILE}")
+
+  curl -sL \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
+    "${z_url}"
 }
 
 zrbcr_process_single_manifest() {
@@ -143,14 +164,11 @@ zrbcr_process_single_manifest() {
   local z_idx
   z_idx=$(zrbcr_get_next_index)
   local z_config_out="${ZRBCR_CONFIG_PREFIX}${z_idx}.json"
-  local z_config_err="${ZRBCR_CONFIG_PREFIX}${z_idx}.err"
 
-  curl -sL -H "${ZRBCR_HEADER_AUTH_BEARER}" "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
-        >"${z_config_out}" 2>"${z_config_err}" && \
-    jq . "${z_config_out}" >/dev/null || {
-      bcu_warn "Failed to fetch config blob"
-      bcu_die "Failed to retrieve config blob from registry"
-    }
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
+    >"${z_config_out}" || bcu_die "Failed to fetch config blob"
+
+  jq . "${z_config_out}" >/dev/null || bcu_die "Invalid config JSON"
 
   # Build detail entry
   local z_temp_detail="${ZRBCR_DETAIL_PREFIX}$(zrbcr_get_next_index).json"
@@ -218,49 +236,25 @@ rbcr_make_fqin() {
   test -n "${z_tag}" || bcu_die "Tag parameter required"
 
   # Write FQIN to file
-  echo "${ZRBCR_REGISTRY_HOST}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${z_tag}" > "${ZRBCR_FQIN_FILE}"
+  echo "${ZRBCR_REGISTRY_HOST}/${ZRBCR_REGISTRY_PATH}/${z_tag}" > "${ZRBCR_FQIN_FILE}"
 }
 
 rbcr_list_tags() {
   # Ensure module started
   zrbcr_sentinel
 
-  bcu_step "Fetching all image records with pagination"
+  bcu_step "Fetching image tags from GAR"
 
-  # Initialize empty array
-  echo "[]" > "${ZRBCR_IMAGE_RECORDS_FILE}"
+  # GAR uses Docker Registry v2 API - list tags endpoint
+  local z_tags_response="${RBG_TEMP_DIR}/tags_response.json"
 
-  local z_page=1
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/tags/list" > "${z_tags_response}" \
+    || bcu_die "Failed to fetch tags list"
 
-  while true; do
-    bcu_info "Fetching page ${z_page}..."
-
-    local z_temp_page="${ZRBCR_LIST_PAGE_PREFIX}${z_page}.json"
-    local z_temp_records="${ZRBCR_LIST_RECORDS_PREFIX}${z_page}.json"
-
-    local z_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100&page=${z_page}"
-    zrbcr_curl_github_api "${z_url}" > "${z_temp_page}"
-
-    local z_items
-    z_items=$(jq '. | length' "${z_temp_page}")
-    bcu_info "Saw ${z_items} items on page ${z_page}"
-
-    test "${z_items}" -ne 0 || break
-
-    # Transform to simplified records
-    jq -r --arg prefix "${ZRBCR_REGISTRY_HOST}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}" \
-      '[.[] | select(.metadata.container.tags | length > 0) |
-       .id as $id | .metadata.container.tags[] as $tag |
-       {version_id: $id, tag: $tag, fqin: ($prefix + ":" + $tag)}]' \
-      "${z_temp_page}" > "${z_temp_records}"
-
-    # Merge with existing
-    jq -s '.[0] + .[1]' "${ZRBCR_IMAGE_RECORDS_FILE}" "${z_temp_records}" > \
-       "${ZRBCR_IMAGE_RECORDS_FILE}.tmp"
-    mv "${ZRBCR_IMAGE_RECORDS_FILE}.tmp" "${ZRBCR_IMAGE_RECORDS_FILE}"
-
-    z_page=$((z_page + 1))
-  done
+  # Transform to records format matching GHCR output
+  jq -r --arg prefix "${ZRBCR_REGISTRY_HOST}/${ZRBCR_REGISTRY_PATH}" \
+    '[.tags[] | {tag: ., fqin: ($prefix + "/" + .)}]' \
+    "${z_tags_response}" > "${ZRBCR_IMAGE_RECORDS_FILE}"
 
   local z_total
   z_total=$(jq '. | length' "${ZRBCR_IMAGE_RECORDS_FILE}")
@@ -280,18 +274,11 @@ rbcr_get_manifest() {
   local z_idx
   z_idx=$(zrbcr_get_next_index)
   local z_manifest_out="${ZRBCR_MANIFEST_PREFIX}${z_idx}.json"
-  local z_manifest_err="${ZRBCR_MANIFEST_PREFIX}${z_idx}.err"
 
-  curl -sL \
-       -H "${ZRBCR_HEADER_AUTH_BEARER}" \
-       -H "${ZRBCR_HEADER_ACCEPT_MANIFEST}" \
-       "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_tag}" \
-       >"${z_manifest_out}" 2>"${z_manifest_err}" \
-    && jq . "${z_manifest_out}" >/dev/null \
-    || {
-      bcu_warn "Failed to fetch manifest for ${z_tag}"
-      bcu_die "This image appears corrupted"
-    }
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_tag}" \
+    >"${z_manifest_out}" || bcu_die "Failed to fetch manifest for ${z_tag}"
+
+  jq . "${z_manifest_out}" >/dev/null || bcu_die "Invalid manifest JSON"
 
   local z_media_type
   z_media_type=$(jq -r '.mediaType // .schemaVersion' "${z_manifest_out}")
@@ -315,19 +302,11 @@ rbcr_get_manifest() {
       local z_platform_idx_str
       z_platform_idx_str=$(zrbcr_get_next_index)
       local z_platform_out="${ZRBCR_MANIFEST_PREFIX}${z_platform_idx_str}.json"
-      local z_platform_err="${ZRBCR_MANIFEST_PREFIX}${z_platform_idx_str}.err"
 
-      curl -sL \
-           -H "${ZRBCR_HEADER_AUTH_BEARER}" \
-           -H "${ZRBCR_HEADER_ACCEPT_MANIFEST}" \
-           "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_platform_digest}" \
-           >"${z_platform_out}" 2>"${z_platform_err}" \
-        && jq . "${z_platform_out}" >/dev/null \
-        || {
-          bcu_warn "Failed to fetch platform manifest"
-          ((z_platform_idx++))
-          continue
-        }
+      zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_platform_digest}" \
+        >"${z_platform_out}" || bcu_die "Failed to fetch platform manifest"
+
+      jq . "${z_platform_out}" >/dev/null || bcu_die "Invalid platform manifest JSON"
 
       zrbcr_process_single_manifest "${z_tag}" "${z_platform_out}" "${z_platform_info}"
 
@@ -355,8 +334,10 @@ rbcr_get_config() {
   z_idx=$(zrbcr_get_next_index)
   local z_config_out="${ZRBCR_CONFIG_PREFIX}${z_idx}.json"
 
-  curl -sL -H "${ZRBCR_HEADER_AUTH_BEARER}" \
-       "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_digest}" > "${z_config_out}"
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_digest}" \
+    > "${z_config_out}" || bcu_die "Failed to fetch config blob"
+
+  jq . "${z_config_out}" >/dev/null || bcu_die "Invalid config JSON"
 }
 
 rbcr_delete() {
@@ -369,27 +350,42 @@ rbcr_delete() {
   # Validate parameters
   test -n "${z_tag}" || bcu_die "Tag parameter required"
 
-  # Get version ID for tag
-  rbcr_get_version_id "${z_tag}"
-  local z_version_id
-  z_version_id=$(<"${ZRBCR_VERSION_ID_FILE}")
+  bcu_step "Fetching manifest digest for deletion"
 
-  # Delete via GitHub API
-  local z_delete_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_version_id}"
-  local z_result="${ZRBCR_DELETE_PREFIX}result.txt"
+  # Get manifest with digest header
+  local z_manifest_headers="${ZRBCR_DELETE_PREFIX}headers.txt"
+  local z_token
+  z_token=$(<"${ZRBCR_TOKEN_FILE}")
+
+  curl -sL -I \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
+    "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_tag}" \
+    > "${z_manifest_headers}" || bcu_die "Failed to fetch manifest headers"
+
+  # Extract digest from Docker-Content-Digest header
+  local z_digest
+  z_digest=$(grep -i "docker-content-digest:" "${z_manifest_headers}" | \
+    sed 's/.*: //' | tr -d '\r\n')
+
+  test -n "${z_digest}" || bcu_die "Failed to extract manifest digest"
+
+  bcu_info "Deleting manifest: ${z_digest}"
+
+  # Delete by digest
   local z_status_file="${ZRBCR_DELETE_PREFIX}status.txt"
 
-  # Use -w to write status to separate file to avoid subshell
   curl -X DELETE -s \
-    -H "${ZRBCR_HEADER_AUTH_TOKEN}" \
-    -H "${ZRBCR_HEADER_ACCEPT_GH}" \
+    -H "Authorization: Bearer ${z_token}" \
     -w "%{http_code}" \
-    -o "${z_result}" \
-    "${z_delete_url}" > "${z_status_file}"
+    -o /dev/null \
+    "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_digest}" \
+    > "${z_status_file}"
 
   local z_http_code
   z_http_code=$(<"${z_status_file}")
-  test "${z_http_code}" = "204" || bcu_die "Delete failed with HTTP ${z_http_code}"
+  test "${z_http_code}" = "202" || test "${z_http_code}" = "204" || \
+    bcu_die "Delete failed with HTTP ${z_http_code}"
 }
 
 rbcr_pull() {
@@ -422,32 +418,12 @@ rbcr_exists_predicate() {
   test -n "${z_tag}" || bcu_die "Tag parameter required"
 
   # Check if tag exists
-  local z_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100"
-  zrbcr_curl_github_api "${z_url}" | \
-    jq -e '.[] | select(.metadata.container.tags[] | contains("'"${z_tag}"'"))' > /dev/null
-}
+  local z_tags_response="${RBG_TEMP_DIR}/exists_check.json"
 
-rbcr_get_version_id() {
-  # Name parameters
-  local z_tag="${1:-}"
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/tags/list" > "${z_tags_response}" 2>/dev/null || return 1
 
-  # Ensure module started
-  zrbcr_sentinel
-
-  # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
-
-  # Find version ID
-  ZRBCR_VERSION_ID_FILE="${ZRBCR_VERSION_PREFIX}id.txt"
-
-  rbcr_list_tags
-
-  jq -r '.[] | select(.tag == "'"${z_tag}"'") | .version_id' \
-    "${ZRBCR_IMAGE_RECORDS_FILE}" > "${ZRBCR_VERSION_ID_FILE}"
-
-  test -s "${ZRBCR_VERSION_ID_FILE}" || bcu_die "Version ID not found for tag: ${z_tag}"
+  jq -e '.tags[] | select(. == "'"${z_tag}"'")' "${z_tags_response}" > /dev/null
 }
 
 # eof
-
 
