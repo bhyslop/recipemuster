@@ -190,14 +190,22 @@ rbgh_delete_workflow() {
   # Validate parameters
   test -n "${z_fqin}" || bcu_die "FQIN required"
 
-  # Get current commit hash
   local z_commit_ref
   z_commit_ref=$(git rev-parse HEAD) || bcu_die "Failed to get current commit hash"
 
-  # Dispatch workflow
-  bcu_step "Triggering GitHub Actions workflow for image deletion"
-  rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
-                "rbgr_delete" '{"fqin": "'${z_fqin}'", "ref": "'${z_commit_ref}'"}'
+  bcu_step "Preparing GitHub Actions deletion arguments"
+  local z_escaped_fqin="${z_fqin//\\/\\\\}"
+  z_escaped_fqin="${z_escaped_fqin//\"/\\\"}"
+
+  local z_escaped_ref="${z_commit_ref//\\/\\\\}"
+  z_escaped_ref="${z_escaped_ref//\"/\\\"}"
+
+  printf '{"fqin": "%s", "ref": "%s"}' "${z_escaped_fqin}" "${z_escaped_ref}" > "${RBG_TEMP_DIR}/delete_payload.json"
+  local z_payload
+  z_payload=$(<"${RBG_TEMP_DIR}/delete_payload.json")
+
+  bcu_step "Triggering GitHub Actions deletion with z_payload=${z_payload}"
+  rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" "rbgr_delete" "${z_payload}"
 
   # Wait for completion
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"
