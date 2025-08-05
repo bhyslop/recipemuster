@@ -9,8 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.client_payload.ref }}
+
+      - name: Verify main hasn't moved
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.client_payload.ref }}" || \
+            { echo "ERROR: main has moved since dispatch (expected ${{ github.event.client_payload.ref }})"; exit 1; }
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
