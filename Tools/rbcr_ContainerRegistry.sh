@@ -317,14 +317,10 @@ zrbcr_process_single_manifest() {
   jq -s '.[0] + [.[1]]' "${ZRBCR_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
     > "${z_detail_tmp}" || bcu_die "Failed to merge image detail"
   mv  "${z_detail_tmp}" "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
-
-  bcu_die "BRADISSUE: DISQUIET ABOVE NOT ABS FILE NAME"
 }
 
 zrbcr_exists_predicate() {
   zrbcr_sentinel
-
-  bcu_die "BRADISSUE: THIS FUNCTION LOOKS MALFORMED: USE BEFORE READ?"
 
   local z_tag="$1"
 
@@ -424,9 +420,8 @@ rbcr_get_manifest() {
   jq -r '.mediaType // .schemaVersion' "${z_manifest_out}" > "${z_media_type_file}" \
     || bcu_die "Failed to extract media type"
 
-  local z_media_type
-  z_media_type=$(<"${z_media_type_file}")
-  test -n "${z_media_type}" || bcu_die "Media type is empty"
+  local z_media_type=$(<"${z_media_type_file}")
+  test -n "${z_media_type}" || bcu_die "Failed to read or empty: ${z_media_type_file}"
 
   if test "${z_media_type}" = "${ZRBCR_MTYPE_DLIST}" || \
      test "${z_media_type}" = "${ZRBCR_MTYPE_OCI}"; then
@@ -437,22 +432,21 @@ rbcr_get_manifest() {
     jq -c '.manifests[]' "${z_manifest_out}" > "${z_manifests_file}" \
       || bcu_die "Failed to extract manifests"
 
+    local z_platform_idx=0
     while IFS= read -r z_platform_manifest; do
       local z_platform_digest_file="${ZRBCR_MANIFEST_PREFIX}digest_${z_platform_idx}.txt"
-      echo "${z_platform_manifest}" | jq -r '.digest' > "${z_platform_digest_file}" || bcu_die "Failed to extract platform digest"
+      jq -r '.digest' <<<"${z_platform_manifest}" > "${z_platform_digest_file}" \
+        || bcu_die "Failed to extract platform digest"
 
-      local z_platform_digest
-      z_platform_digest=$(<"${z_platform_digest_file}")
-      test -n "${z_platform_digest}" || bcu_die "Platform digest is empty"
+      local z_platform_digest=$(<"${z_platform_digest_file}")
+      test -n "${z_platform_digest}" || bcu_die "Failed to read or empty: ${z_platform_digest_file}"
 
       local z_platform_info_file="${ZRBCR_MANIFEST_PREFIX}info_${z_platform_idx}.txt"
-      echo "${z_platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"' > "${z_platform_info_file}" || bcu_die "Failed to extract platform info"
+      jq -r '"\(.platform.os)/\(.platform.architecture)"' <<<"${z_platform_manifest}" > "${z_platform_info_file}" \
+        || bcu_die "Failed to extract platform info"
 
-      bcu_die "BRADISSUE: I DONT LIKE ECHO ABOVE, what caused it?  is there better?"
-
-      local z_platform_info
-      z_platform_info=$(<"${z_platform_info_file}")
-      test -n "${z_platform_info}" || bcu_die "Platform info is empty"
+      local z_platform_info=$(<"${z_platform_info_file}")
+      test -n "${z_platform_info}" || bcu_die "Failed to read or empty: ${z_platform_info_file}"
 
       bcu_info "Processing platform: ${z_platform_info}"
 
