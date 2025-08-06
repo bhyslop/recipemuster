@@ -200,11 +200,6 @@ zrbcr_refresh_token() {
   test -n "${z_token_check}" || bcu_die "Access token is empty"
   test "${z_token_check}" != "null" || bcu_die "Access token is null"
 
-  # Store expiry for potential refresh logic
-  ZRBCR_TOKEN_EXPIRY="${z_exp}"
-
-  bcu_die "BRADISSUE: IS THE EXPIRY CASE WORTH EVEN HANDLING?"
-
   bcu_success "OAuth token obtained"
 }
 
@@ -240,8 +235,6 @@ zrbcr_process_single_manifest() {
   # Get config digest
   local z_config_digest_file="${ZRBCR_CONFIG_PREFIX}digest.txt"
   jq -r '.config.digest' "${z_manifest_file}" > "${z_config_digest_file}" || bcu_die "Failed to extract config digest"
-
-  bcu_die "BRADISSUE: EXPLORE DISCOMFORT WITH LOCALLY NAMED FILES instead of globally named"
 
   local z_config_digest
   z_config_digest=$(<"${z_config_digest_file}")
