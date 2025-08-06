@@ -49,6 +49,9 @@ zrbcr_kindle() {
   ZRBCR_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBCR_REGISTRY_API_BASE="https://${ZRBCR_REGISTRY_HOST}/v2/${ZRBCR_REGISTRY_PATH}"
 
+  # Store path to service account JSON for capture functions
+  ZRBCR_SA_KEY_JSON="${RBRG_GAR_SERVICE_ACCOUNT_KEY}"
+
   # Media types
   ZRBCR_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
   ZRBCR_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
@@ -77,19 +80,6 @@ zrbcr_kindle() {
   # File index counter
   ZRBCR_FILE_INDEX=0
 
-  # Extract service account details
-  ZRBCR_SA_EMAIL_FILE="${ZRBCR_JWT_PREFIX}email.txt"
-  jq -r '.client_email' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_EMAIL_FILE}" \
-    || bcu_die "Failed to extract service account email"
-  ZRBCR_SA_EMAIL=$(<"${ZRBCR_SA_EMAIL_FILE}")
-  test -n "${ZRBCR_SA_EMAIL}" || bcu_die "Service account email is empty"
-
-  ZRBCR_SA_KEY_FILE="${ZRBCR_JWT_PREFIX}private.pem"
-  jq -r '.private_key' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_KEY_FILE}" \
-    || bcu_die "Failed to extract private key"
-
-  bcu_die "BRADISSUE: MAKE SURE TO REPAIR ABOVE ISSUE"
-
   # Initialize detail file
   echo "[]" > "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to initialize detail file"
 
@@ -113,19 +103,23 @@ zrbcr_sentinel() {
   test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not kindled - call zrbcr_kindle first"
 }
 
-zrbcr_base64url_encode_capture() {
+zrbcr_get_sa_email_capture() {
   zrbcr_sentinel
+  jq -r '.client_email' "${ZRBCR_SA_KEY_JSON}" || return 1
+}
 
-  # Reads from stdin, outputs base64url encoded string
-  local z_b64
-  z_b64=$(base64 -w 0) || return 1
+zrbcr_sign_jwt_capture() {
+  zrbcr_sentinel
+  local z_jwt_unsigned="$1"
 
-  # Replace + with -, / with _, and remove =
-  z_b64="${z_b64//+/-}"
-  z_b64="${z_b64//\//_}"
-  z_b64="${z_b64//=/}"
+  # Extract key and sign in memory
+  local z_key
+  z_key=$(jq -r '.private_key' "${ZRBCR_SA_KEY_JSON}") || return 1
 
-  echo "${z_b64}"
+  # Sign and encode
+  echo -n "${z_jwt_unsigned}" | \
+    openssl dgst -sha256 -sign <(echo "${z_key}") -binary | \
+    base64 -w 0 | tr '+/' '-_' | tr -d '=' || return 1
 }
 
 zrbcr_refresh_token() {
@@ -142,52 +136,38 @@ zrbcr_refresh_token() {
   z_now=$(date +%s)
   z_exp=$((z_now + 3600))
 
-  bcu_info "Build claims file"
-  local z_claim_file="${ZRBCR_JWT_PREFIX}claims.json"
-  jq -n                                                            \
-      --arg iss "${ZRBCR_SA_EMAIL}"                                \
+  # Get email using capture function
+  local z_sa_email
+  z_sa_email=$(zrbcr_get_sa_email_capture) || bcu_die "Failed to get service account email"
+
+  bcu_info "Build claims"
+  z_claim=$(jq -n \
+      --arg iss "${z_sa_email}" \
       --arg scope "https://www.googleapis.com/auth/cloud-platform" \
-      --arg aud "https://oauth2.googleapis.com/token"              \
-      --arg iat "${z_now}"                                         \
-      --arg exp "${z_exp}"                                         \
-      '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}' > "${z_claim_file}" \
+      --arg aud "https://oauth2.googleapis.com/token" \
+      --arg iat "${z_now}" \
+      --arg exp "${z_exp}" \
+      '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}') \
     || bcu_die "Failed to build JWT claims"
 
-  z_claim=$(<"${z_claim_file}")
-  test -n "${z_claim}" || bcu_die "Claims file is empty"
-
   bcu_info "Build JWT"
-  local z_header_enc_file="${ZRBCR_BASE64_PREFIX}header.txt"
-  echo -n "${z_header}" | zrbcr_base64url_encode_capture > "${z_header_enc_file}" \
-    || bcu_die "Failed to encode header"
   local z_header_enc
-  z_header_enc=$(<"${z_header_enc_file}")
-  test -n "${z_header_enc}" || bcu_die "Header encoding is empty"
+  z_header_enc=$(echo -n "${z_header}" | base64 -w 0 | tr '+/' '-_' | tr -d '=') || bcu_die "Failed to encode header"
 
-  local z_claim_enc_file="${ZRBCR_BASE64_PREFIX}claim.txt"
-  echo -n "${z_claim}" | zrbcr_base64url_encode_capture > "${z_claim_enc_file}" \
-    || bcu_die "Failed to encode claim"
   local z_claim_enc
-  z_claim_enc=$(<"${z_claim_enc_file}")
-  test -n "${z_claim_enc}" || bcu_die "Claim encoding is empty"
+  z_claim_enc=$(echo -n "${z_claim}" | base64 -w 0 | tr '+/' '-_' | tr -d '=') || bcu_die "Failed to encode claim"
 
   z_jwt_unsigned="${z_header_enc}.${z_claim_enc}"
 
   bcu_info "Sign JWT"
-  local z_signature_file="${ZRBCR_BASE64_PREFIX}signature.txt"
-  echo -n "${z_jwt_unsigned}" | \
-    openssl dgst -sha256 -sign "${ZRBCR_SA_KEY_FILE}" | \
-    zrbcr_base64url_encode_capture > "${z_signature_file}" || bcu_die "Failed to sign JWT"
-
-  z_signature=$(<"${z_signature_file}")
-  test -n "${z_signature}" || bcu_die "Signature is empty"
+  z_signature=$(zrbcr_sign_jwt_capture "${z_jwt_unsigned}") || bcu_die "Failed to sign JWT"
 
   z_jwt="${z_jwt_unsigned}.${z_signature}"
 
   bcu_info "Exchange JWT for access token"
   local z_response="${ZRBCR_TOKEN_PREFIX}response.json"
-  curl -s -X POST https://oauth2.googleapis.com/token                              \
-    -H "Content-Type: application/x-www-form-urlencoded"                           \
+  curl -s -X POST https://oauth2.googleapis.com/token \
+    -H "Content-Type: application/x-www-form-urlencoded" \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${z_response}" || bcu_die "Failed to obtain OAuth token"
 
