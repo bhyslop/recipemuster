@@ -41,9 +41,42 @@ export RBRR_GAR_PROJECT_ID=your-project-id
 export RBRR_GAR_LOCATION=us-central1
 export RBRR_GAR_REPOSITORY=recipemuster
 
-# Path to GAR secrets file containing:
-#   RBRG_GAR_SERVICE_ACCOUNT_KEY=/path/to/service-account-key.json
-export RBRR_GAR_SERVICE_ENV=../station-files/secrets/rbs-gar.env
+# Google Cloud Service Account Configuration
+#
+# Three distinct roles with least-privilege access:
+#
+# 1. REGISTRY READER (rbcr operations - pull/list/inspect)
+#    - Used by: Developers pulling images, CI/CD systems
+#    - Permissions: roles/artifactregistry.reader on GAR repository
+#    - Token lifetime: 300 seconds (5 minutes)
+#
+# 2. BUILD SUBMITTER (rbgc operations - submit builds)  
+#    - Used by: Release engineers, authorized build triggers
+#    - Permissions: roles/cloudbuild.builds.editor + roles/storage.admin on staging bucket
+#    - Token lifetime: 600 seconds (10 minutes for upload + submit)
+#
+# 3. BUILD RUNTIME (Cloud Build service account - NOT configured here)
+#    - Used by: Cloud Build itself during execution
+#    - Permissions: roles/artifactregistry.writer on GAR + source access
+#    - Managed by: Google Cloud IAM, not local secrets
+#    - Configure via: gcloud projects add-iam-policy-binding
+#
+# Path to GAR reader secrets file containing:
+#   RBRG_GAR_SERVICE_ACCOUNT_KEY=/path/to/gar-reader-key.json
+export RBRR_GAR_SERVICE_ENV=../station-files/secrets/rbs-gar-reader.env
 
+# Path to Cloud Build submitter secrets file containing:
+#   RBRG_GCB_SERVICE_ACCOUNT_KEY=/path/to/gcb-submitter-key.json
+#   RBRG_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
+export RBRR_GCB_SERVICE_ENV=../station-files/secrets/rbs-gcb-submitter.env
+
+# Token lifetime in seconds (300-3600 allowed by Google)
+export RBRR_TOKEN_LIFETIME_SECONDS=300
+
+# Cloud Build configuration (no secrets - uses default SA at runtime)
+export RBRR_GCB_PROJECT_ID=${RBRR_GAR_PROJECT_ID}  # Often same project
+export RBRR_GCB_REGION=us-central1                 # Build execution region
+export RBRR_GCB_MACHINE_TYPE=e2-highcpu-8          # Build machine type
+export RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 
 # eof
