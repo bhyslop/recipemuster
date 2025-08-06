@@ -88,7 +88,7 @@ zrbcr_kindle() {
   jq -r '.private_key' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_KEY_FILE}" \
     || bcu_die "Failed to extract private key"
 
-  bcu_die "MAKE SURE TO REPAIR ABOVE ISSUE"
+  bcu_die "BRADISSUE: MAKE SURE TO REPAIR ABOVE ISSUE"
 
   # Initialize detail file
   echo "[]" > "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to initialize detail file"
@@ -96,7 +96,6 @@ zrbcr_kindle() {
   # Obtain OAuth token
   zrbcr_refresh_token || bcu_die "Cannot proceed without OAuth token"
 
-  # Login to registry
   bcu_step "Log in to container registry"
   local z_token
   z_token=$(<"${ZRBCR_TOKEN_FILE}")
@@ -204,7 +203,7 @@ zrbcr_refresh_token() {
   # Store expiry for potential refresh logic
   ZRBCR_TOKEN_EXPIRY="${z_exp}"
 
-  bcu_die "Consder expiry case."
+  bcu_die "BRADISSUE: IS THE EXPIRY CASE WORTH EVEN HANDLING?"
 
   bcu_success "OAuth token obtained"
 }
@@ -242,7 +241,7 @@ zrbcr_process_single_manifest() {
   local z_config_digest_file="${ZRBCR_CONFIG_PREFIX}digest.txt"
   jq -r '.config.digest' "${z_manifest_file}" > "${z_config_digest_file}" || bcu_die "Failed to extract config digest"
 
-  bcu_die "EXPLORE DISCOMFORT WITH LOCALLY NAMED FILES instead of globally named"
+  bcu_die "BRADISSUE: EXPLORE DISCOMFORT WITH LOCALLY NAMED FILES instead of globally named"
 
   local z_config_digest
   z_config_digest=$(<"${z_config_digest_file}")
@@ -260,8 +259,8 @@ zrbcr_process_single_manifest() {
   zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" > "${z_config_out}" \
     || bcu_die "Failed to fetch config blob"
 
-  bcu_info "Validating config JSON"
-  jq . "${z_config_out}" >/dev/null || bcu_die "Invalid config JSON"
+  # Validating config JSON
+  jq . "${z_config_out}" > /dev/null || bcu_die "Invalid config JSON"
 
   # Build detail entry
   local z_detail_idx
@@ -272,7 +271,7 @@ zrbcr_process_single_manifest() {
   z_manifest_json=$(<"${z_manifest_file}")
   test -n "${z_manifest_json}" || bcu_die "Manifest JSON is empty"
 
-  bcu_die "CONSIDER IF ABOVE IS TOO STRINGENT, MONOLINE?"
+  bcu_die "BRADISSUE: CONSIDER IF ABOVE IS TOO STRINGENT, MONOLINE?"
 
   # Normalize config with defaults
   local z_config_normalized="${ZRBCR_CONFIG_PREFIX}normalized_${z_idx}.json"
@@ -286,7 +285,7 @@ zrbcr_process_single_manifest() {
   z_config_json=$(<"${z_config_normalized}")
   test -n "${z_config_json}" || bcu_die "Normalized config is empty"
 
-  bcu_die "AGAIN ABOVE MULTILINE.  Needed?"
+  bcu_die "BRADISSUE: AGAIN ABOVE MULTILINE.  Needed?"
 
   if test -n "${z_platform}"; then
     jq -n \
@@ -331,13 +330,13 @@ zrbcr_process_single_manifest() {
     > "${z_detail_tmp}" || bcu_die "Failed to merge image detail"
   mv  "${z_detail_tmp}" "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
 
-  bcu_die "DISQUIET ABOVE NOT ABS FILE NAME"
+  bcu_die "BRADISSUE: DISQUIET ABOVE NOT ABS FILE NAME"
 }
 
 zrbcr_exists_predicate() {
   zrbcr_sentinel
 
-  bcu_die "THIS FUNCTION LOOKS MALFORMED: USE BEFORE READ?"
+  bcu_die "BRADISSUE: THIS FUNCTION LOOKS MALFORMED: USE BEFORE READ?"
 
   local z_tag="$1"
 
@@ -461,7 +460,7 @@ rbcr_get_manifest() {
       local z_platform_info_file="${ZRBCR_MANIFEST_PREFIX}info_${z_platform_idx}.txt"
       echo "${z_platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"' > "${z_platform_info_file}" || bcu_die "Failed to extract platform info"
 
-      bcu_die "I DONT LIKE ECHO ABOVE, what caused it?  is there better?"
+      bcu_die "BRADISSUE: I DONT LIKE ECHO ABOVE, what caused it?  is there better?"
 
       local z_platform_info
       z_platform_info=$(<"${z_platform_info_file}")
@@ -544,9 +543,8 @@ rbcr_delete() {
 
   # Extract digest from Docker-Content-Digest header
   local z_digest_file="${ZRBCR_DELETE_PREFIX}digest.txt"
-  grep -i "docker-content-digest:" "${z_manifest_headers}" \
-      | sed 's/.*: //' | tr -d '\r\n' > "${z_digest_file}" \
-    || bcu_die "Failed to extract digest header"
+  grep -i "docker-content-digest:" "${z_manifest_headers}" | \
+    sed 's/.*: //' | tr -d '\r\n' > "${z_digest_file}" || bcu_die "Failed to extract digest header"
 
   local z_digest
   z_digest=$(<"${z_digest_file}")
