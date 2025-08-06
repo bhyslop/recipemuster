@@ -17,7 +17,6 @@
 #
 # Recipe Bottle Repository Configuration - Base Values
 
-export RBRR_REGISTRY=gar
 export RBRR_REGISTRY_OWNER=bhyslop
 export RBRR_REGISTRY_NAME=recipemuster
 export RBRR_BUILD_ARCHITECTURES=linux/amd64

@@ -15,7 +15,6 @@ ZRBCR_INCLUDED=1
 
 zrbcr_kindle() {
   # Check required environment
-  test -n "${RBRR_REGISTRY:-}"       || bcu_die "RBRR_REGISTRY not set"
   test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
   test -n "${RBG_RUNTIME:-}"         || bcu_die "RBG_RUNTIME not set"

@@ -17,7 +17,6 @@ zrbcr_kindle() {
   test -z "${ZRBCR_KINDLED:-}" || bcu_die "Module rbcr already kindled"
 
   # Check required environment
-  test -n "${RBRR_REGISTRY:-}"       || bcu_die "RBRR_REGISTRY not set"
   test -n "${RBRR_GAR_PROJECT_ID:-}" || bcu_die "RBRR_GAR_PROJECT_ID not set"
   test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION not set"
   test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY not set"
@@ -27,7 +26,7 @@ zrbcr_kindle() {
   # Source GAR credentials
   test -n "${RBRR_GAR_SERVICE_ENV:-}" || bcu_die "RBRR_GAR_SERVICE_ENV not set"
   test -f "${RBRR_GAR_SERVICE_ENV}"   || bcu_die "GAR service env file not found: ${RBRR_GAR_SERVICE_ENV}"
-  source "${RBRR_GAR_SERVICE_ENV}"
+  source  "${RBRR_GAR_SERVICE_ENV}"
   test -n "${RBRG_GAR_SERVICE_ACCOUNT_KEY:-}" || bcu_die "RBRG_GAR_SERVICE_ACCOUNT_KEY missing from ${RBRR_GAR_SERVICE_ENV}"
   test -f "${RBRG_GAR_SERVICE_ACCOUNT_KEY}"   || bcu_die "Service account key file not found: ${RBRG_GAR_SERVICE_ACCOUNT_KEY}"
 
@@ -167,7 +166,7 @@ zrbcr_process_single_manifest() {
   z_config_digest=$(jq -r '.config.digest' "${z_manifest_file}")
 
   test -n "${z_config_digest}" || bcu_die "Missing config.digest"
-  test "${z_config_digest}" != "null" || {
+  test    "${z_config_digest}" != "null" || {
     bcu_warn "null config.digest in manifest"
     return 0
   }
