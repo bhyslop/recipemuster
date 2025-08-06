@@ -260,11 +260,8 @@ zrbcr_process_single_manifest() {
   z_detail_idx=$(zrbcr_get_next_index_capture) || bcu_die "Failed to get detail index"
   local z_temp_detail="${ZRBCR_DETAIL_PREFIX}${z_detail_idx}.json"
 
-  local z_manifest_json z_config_json
-  z_manifest_json=$(<"${z_manifest_file}")
+  local z_manifest_json=$(<"${z_manifest_file}")
   test -n "${z_manifest_json}" || bcu_die "Manifest JSON is empty"
-
-  bcu_die "BRADISSUE: CONSIDER IF ABOVE IS TOO STRINGENT, MONOLINE?"
 
   # Normalize config with defaults
   local z_config_normalized="${ZRBCR_CONFIG_PREFIX}normalized_${z_idx}.json"
@@ -275,10 +272,8 @@ zrbcr_process_single_manifest() {
       }' "${z_config_out}" > "${z_config_normalized}" \
     || bcu_die "Failed to normalize config"
 
-  z_config_json=$(<"${z_config_normalized}")
+  local z_config_json=$(<"${z_config_normalized}")
   test -n "${z_config_json}" || bcu_die "Normalized config is empty"
-
-  bcu_die "BRADISSUE: AGAIN ABOVE MULTILINE.  Needed?"
 
   if test -n "${z_platform}"; then
     jq -n \
