@@ -313,7 +313,7 @@ zrbcr_process_single_manifest() {
 
   # Append to detail file
   bcu_info "Merging image detail"
-  local z_detail_tmp="${ZRBCR_IMAGE_DETAIL_FILE}.tmp"
+  local    z_detail_tmp="${ZRBCR_IMAGE_DETAIL_FILE}.tmp"
   jq -s '.[0] + [.[1]]' "${ZRBCR_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
     > "${z_detail_tmp}" || bcu_die "Failed to merge image detail"
   mv  "${z_detail_tmp}" "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
