@@ -79,12 +79,16 @@ zrbcr_kindle() {
 
   # Extract service account details
   ZRBCR_SA_EMAIL_FILE="${ZRBCR_JWT_PREFIX}email.txt"
-  jq -r '.client_email' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_EMAIL_FILE}" || bcu_die "Failed to extract service account email"
+  jq -r '.client_email' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_EMAIL_FILE}" \
+    || bcu_die "Failed to extract service account email"
   ZRBCR_SA_EMAIL=$(<"${ZRBCR_SA_EMAIL_FILE}")
   test -n "${ZRBCR_SA_EMAIL}" || bcu_die "Service account email is empty"
 
   ZRBCR_SA_KEY_FILE="${ZRBCR_JWT_PREFIX}private.pem"
-  jq -r '.private_key' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_KEY_FILE}" || bcu_die "Failed to extract private key"
+  jq -r '.private_key' "${RBRG_GAR_SERVICE_ACCOUNT_KEY}" > "${ZRBCR_SA_KEY_FILE}" \
+    || bcu_die "Failed to extract private key"
+
+  bcu_die "MAKE SURE TO REPAIR ABOVE ISSUE"
 
   # Initialize detail file
   echo "[]" > "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to initialize detail file"
@@ -93,12 +97,15 @@ zrbcr_kindle() {
   zrbcr_refresh_token || bcu_die "Cannot proceed without OAuth token"
 
   # Login to registry
+  bcu_step "Log in to container registry"
   local z_token
   z_token=$(<"${ZRBCR_TOKEN_FILE}")
   test -n "${z_token}" || bcu_die "Token file is empty"
 
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBCR_REGISTRY_HOST}" \
-    -u oauth2accesstoken -p "${z_token}" || bcu_die "Failed to login to registry"
+                                            -u oauth2accesstoken     \
+                                            -p "${z_token}"          \
+    || bcu_die "Failed to login to registry"
 
   ZRBCR_KINDLED=1
 }
@@ -111,7 +118,15 @@ zrbcr_base64url_encode_capture() {
   zrbcr_sentinel
 
   # Reads from stdin, outputs base64url encoded string
-  base64 -w 0 | tr '+/' '-_' | tr -d '='
+  local z_b64
+  z_b64=$(base64 -w 0) || return 1
+
+  # Replace + with -, / with _, and remove =
+  z_b64="${z_b64//+/-}"
+  z_b64="${z_b64//\//_}"
+  z_b64="${z_b64//=/}"
+
+  echo "${z_b64}"
 }
 
 zrbcr_refresh_token() {
@@ -121,43 +136,45 @@ zrbcr_refresh_token() {
 
   local z_now z_exp z_header z_claim z_jwt_unsigned z_signature z_jwt
 
-  bcu_debug "Building JWT header"
+  bcu_info "Building JWT header"
   z_header='{"alg":"RS256","typ":"JWT"}'
 
-  bcu_debug "Building JWT claims (1 hour expiry)"
+  bcu_info "Building JWT claims (1 hour expiry)"
   z_now=$(date +%s)
   z_exp=$((z_now + 3600))
 
-  # Build claims file
+  bcu_info "Build claims file"
   local z_claim_file="${ZRBCR_JWT_PREFIX}claims.json"
-  jq -n \
-    --arg iss "${ZRBCR_SA_EMAIL}" \
-    --arg scope "https://www.googleapis.com/auth/cloud-platform" \
-    --arg aud "https://oauth2.googleapis.com/token" \
-    --arg iat "${z_now}" \
-    --arg exp "${z_exp}" \
-    '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}' \
-    > "${z_claim_file}" || bcu_die "Failed to build JWT claims"
+  jq -n                                                            \
+      --arg iss "${ZRBCR_SA_EMAIL}"                                \
+      --arg scope "https://www.googleapis.com/auth/cloud-platform" \
+      --arg aud "https://oauth2.googleapis.com/token"              \
+      --arg iat "${z_now}"                                         \
+      --arg exp "${z_exp}"                                         \
+      '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}' > "${z_claim_file}" \
+    || bcu_die "Failed to build JWT claims"
 
   z_claim=$(<"${z_claim_file}")
   test -n "${z_claim}" || bcu_die "Claims file is empty"
 
-  # Build JWT
+  bcu_info "Build JWT"
   local z_header_enc_file="${ZRBCR_BASE64_PREFIX}header.txt"
-  echo -n "${z_header}" | zrbcr_base64url_encode_capture > "${z_header_enc_file}" || bcu_die "Failed to encode header"
+  echo -n "${z_header}" | zrbcr_base64url_encode_capture > "${z_header_enc_file}" \
+    || bcu_die "Failed to encode header"
   local z_header_enc
   z_header_enc=$(<"${z_header_enc_file}")
   test -n "${z_header_enc}" || bcu_die "Header encoding is empty"
 
   local z_claim_enc_file="${ZRBCR_BASE64_PREFIX}claim.txt"
-  echo -n "${z_claim}" | zrbcr_base64url_encode_capture > "${z_claim_enc_file}" || bcu_die "Failed to encode claim"
+  echo -n "${z_claim}" | zrbcr_base64url_encode_capture > "${z_claim_enc_file}" \
+    || bcu_die "Failed to encode claim"
   local z_claim_enc
   z_claim_enc=$(<"${z_claim_enc_file}")
   test -n "${z_claim_enc}" || bcu_die "Claim encoding is empty"
 
   z_jwt_unsigned="${z_header_enc}.${z_claim_enc}"
 
-  # Sign JWT
+  bcu_info "Sign JWT"
   local z_signature_file="${ZRBCR_BASE64_PREFIX}signature.txt"
   echo -n "${z_jwt_unsigned}" | \
     openssl dgst -sha256 -sign "${ZRBCR_SA_KEY_FILE}" | \
@@ -168,15 +185,16 @@ zrbcr_refresh_token() {
 
   z_jwt="${z_jwt_unsigned}.${z_signature}"
 
-  # Exchange JWT for access token
+  bcu_info "Exchange JWT for access token"
   local z_response="${ZRBCR_TOKEN_PREFIX}response.json"
-  curl -s -X POST https://oauth2.googleapis.com/token \
-    -H "Content-Type: application/x-www-form-urlencoded" \
+  curl -s -X POST https://oauth2.googleapis.com/token                              \
+    -H "Content-Type: application/x-www-form-urlencoded"                           \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${z_response}" || bcu_die "Failed to obtain OAuth token"
 
-  # Extract access token
-  jq -r '.access_token' "${z_response}" > "${ZRBCR_TOKEN_FILE}" || bcu_die "Failed to extract access token"
+  bcu_info "Extract access token"
+  jq -r '.access_token' "${z_response}" > "${ZRBCR_TOKEN_FILE}" \
+    || bcu_die "Failed to extract access token"
 
   local z_token_check
   z_token_check=$(<"${ZRBCR_TOKEN_FILE}")
@@ -186,6 +204,8 @@ zrbcr_refresh_token() {
   # Store expiry for potential refresh logic
   ZRBCR_TOKEN_EXPIRY="${z_exp}"
 
+  bcu_die "Consder expiry case."
+
   bcu_success "OAuth token obtained"
 }
 
@@ -193,7 +213,7 @@ zrbcr_get_next_index_capture() {
   zrbcr_sentinel
 
   ZRBCR_FILE_INDEX=$((ZRBCR_FILE_INDEX + 1))
-  printf "%03d" "${ZRBCR_FILE_INDEX}"
+  printf "%03d"    "${ZRBCR_FILE_INDEX}"
 }
 
 zrbcr_curl_registry() {
@@ -204,10 +224,11 @@ zrbcr_curl_registry() {
   z_token=$(<"${ZRBCR_TOKEN_FILE}")
   test -n "${z_token}" || bcu_die "Token is empty"
 
-  curl -sL \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
-    "${z_url}" || bcu_die "Registry API call failed: ${z_url}"
+  curl -sL                                          \
+      -H "Authorization: Bearer ${z_token}"         \
+      -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}"  \
+      "${z_url}"                                    \
+    || bcu_die "Registry API call failed: ${z_url}"
 }
 
 zrbcr_process_single_manifest() {
@@ -220,6 +241,8 @@ zrbcr_process_single_manifest() {
   # Get config digest
   local z_config_digest_file="${ZRBCR_CONFIG_PREFIX}digest.txt"
   jq -r '.config.digest' "${z_manifest_file}" > "${z_config_digest_file}" || bcu_die "Failed to extract config digest"
+
+  bcu_die "EXPLORE DISCOMFORT WITH LOCALLY NAMED FILES instead of globally named"
 
   local z_config_digest
   z_config_digest=$(<"${z_config_digest_file}")
@@ -234,11 +257,11 @@ zrbcr_process_single_manifest() {
   z_idx=$(zrbcr_get_next_index_capture) || bcu_die "Failed to get next index"
   local z_config_out="${ZRBCR_CONFIG_PREFIX}${z_idx}.json"
 
-  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
-    > "${z_config_out}" || bcu_die "Failed to fetch config blob"
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" > "${z_config_out}" \
+    || bcu_die "Failed to fetch config blob"
 
-  bcu_debug "Validating config JSON"
-  jq . "${z_config_out}" > /dev/null || bcu_die "Invalid config JSON"
+  bcu_info "Validating config JSON"
+  jq . "${z_config_out}" >/dev/null || bcu_die "Invalid config JSON"
 
   # Build detail entry
   local z_detail_idx
@@ -249,16 +272,21 @@ zrbcr_process_single_manifest() {
   z_manifest_json=$(<"${z_manifest_file}")
   test -n "${z_manifest_json}" || bcu_die "Manifest JSON is empty"
 
+  bcu_die "CONSIDER IF ABOVE IS TOO STRINGENT, MONOLINE?"
+
   # Normalize config with defaults
   local z_config_normalized="${ZRBCR_CONFIG_PREFIX}normalized_${z_idx}.json"
   jq '. + {
-    created: (.created // "1970-01-01T00:00:00Z"),
-    architecture: (.architecture // "unknown"),
-    os: (.os // "unknown")
-  }' "${z_config_out}" > "${z_config_normalized}" || bcu_die "Failed to normalize config"
+        created: (.created // "1970-01-01T00:00:00Z"),
+        architecture: (.architecture // "unknown"),
+        os: (.os // "unknown")
+      }' "${z_config_out}" > "${z_config_normalized}" \
+    || bcu_die "Failed to normalize config"
 
   z_config_json=$(<"${z_config_normalized}")
   test -n "${z_config_json}" || bcu_die "Normalized config is empty"
+
+  bcu_die "AGAIN ABOVE MULTILINE.  Needed?"
 
   if test -n "${z_platform}"; then
     jq -n \
@@ -297,15 +325,19 @@ zrbcr_process_single_manifest() {
   fi
 
   # Append to detail file
-  bcu_debug "Merging image detail"
+  bcu_info "Merging image detail"
   local z_detail_tmp="${ZRBCR_IMAGE_DETAIL_FILE}.tmp"
   jq -s '.[0] + [.[1]]' "${ZRBCR_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
     > "${z_detail_tmp}" || bcu_die "Failed to merge image detail"
-  mv "${z_detail_tmp}" "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
+  mv  "${z_detail_tmp}" "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
+
+  bcu_die "DISQUIET ABOVE NOT ABS FILE NAME"
 }
 
 zrbcr_exists_predicate() {
   zrbcr_sentinel
+
+  bcu_die "THIS FUNCTION LOOKS MALFORMED: USE BEFORE READ?"
 
   local z_tag="$1"
 
@@ -317,10 +349,12 @@ zrbcr_exists_predicate() {
   z_token=$(<"${ZRBCR_TOKEN_FILE}")
   test -n "${z_token}" || return 1
 
-  curl -sL \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
-    "${ZRBCR_REGISTRY_API_BASE}/tags/list" > "${z_tags_response}" 2>/dev/null || return 1
+  curl -sL                                         \
+      -H "Authorization: Bearer ${z_token}"        \
+      -H "Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}" \
+      "${ZRBCR_REGISTRY_API_BASE}/tags/list"       \
+      > "${z_tags_response}" 2>/dev/null           \
+    || return 1
 
   jq -e '.tags[] | select(. == "'"${z_tag}"'")' "${z_tags_response}" > /dev/null
 }
@@ -342,7 +376,8 @@ rbcr_make_fqin() {
   test -n "${z_tag}" || bcu_die "Tag parameter required"
 
   # Write FQIN to file
-  echo "${ZRBCR_REGISTRY_HOST}/${ZRBCR_REGISTRY_PATH}/${z_tag}" > "${ZRBCR_FQIN_FILE}" || bcu_die "Failed to write FQIN"
+  echo "${ZRBCR_REGISTRY_HOST}/${ZRBCR_REGISTRY_PATH}/${z_tag}" > "${ZRBCR_FQIN_FILE}" \
+    || bcu_die "Failed to write FQIN"
 }
 
 rbcr_list_tags() {
@@ -362,8 +397,9 @@ rbcr_list_tags() {
 
   # Transform to records format matching GHCR output
   jq -r --arg prefix "${ZRBCR_REGISTRY_HOST}/${ZRBCR_REGISTRY_PATH}" \
-    '[.tags[] | {tag: ., fqin: ($prefix + "/" + .)}]' \
-    "${z_tags_response}" > "${ZRBCR_IMAGE_RECORDS_FILE}" || bcu_die "Failed to transform tags"
+      '[.tags[] | {tag: ., fqin: ($prefix + "/" + .)}]'              \
+      "${z_tags_response}" > "${ZRBCR_IMAGE_RECORDS_FILE}"           \
+    || bcu_die "Failed to transform tags"
 
   local z_total_file="${ZRBCR_TAGS_PREFIX}total.txt"
   jq '. | length' "${ZRBCR_IMAGE_RECORDS_FILE}" > "${z_total_file}" || bcu_die "Failed to count tags"
@@ -392,13 +428,14 @@ rbcr_get_manifest() {
   z_idx=$(zrbcr_get_next_index_capture) || bcu_die "Failed to get index"
   local z_manifest_out="${ZRBCR_MANIFEST_PREFIX}${z_idx}.json"
 
-  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_tag}" \
-    > "${z_manifest_out}" || bcu_die "Failed to fetch manifest for ${z_tag}"
+  zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/manifests/${z_tag}" > "${z_manifest_out}" \
+    || bcu_die "Failed to fetch manifest for ${z_tag}"
 
-  jq . "${z_manifest_out}" > /dev/null || bcu_die "Invalid manifest JSON"
+  jq . "${z_manifest_out}" >/dev/null || bcu_die "Invalid manifest JSON"
 
   local z_media_type_file="${ZRBCR_MANIFEST_PREFIX}mediatype_${z_idx}.txt"
-  jq -r '.mediaType // .schemaVersion' "${z_manifest_out}" > "${z_media_type_file}" || bcu_die "Failed to extract media type"
+  jq -r '.mediaType // .schemaVersion' "${z_manifest_out}" > "${z_media_type_file}" \
+    || bcu_die "Failed to extract media type"
 
   local z_media_type
   z_media_type=$(<"${z_media_type_file}")
@@ -410,9 +447,9 @@ rbcr_get_manifest() {
     bcu_info "Multi-platform image detected"
 
     local z_manifests_file="${ZRBCR_MANIFEST_PREFIX}list_${z_idx}.jsonl"
-    jq -c '.manifests[]' "${z_manifest_out}" > "${z_manifests_file}" || bcu_die "Failed to extract manifests"
+    jq -c '.manifests[]' "${z_manifest_out}" > "${z_manifests_file}" \
+      || bcu_die "Failed to extract manifests"
 
-    local z_platform_idx=1
     while IFS= read -r z_platform_manifest; do
       local z_platform_digest_file="${ZRBCR_MANIFEST_PREFIX}digest_${z_platform_idx}.txt"
       echo "${z_platform_manifest}" | jq -r '.digest' > "${z_platform_digest_file}" || bcu_die "Failed to extract platform digest"
@@ -423,6 +460,8 @@ rbcr_get_manifest() {
 
       local z_platform_info_file="${ZRBCR_MANIFEST_PREFIX}info_${z_platform_idx}.txt"
       echo "${z_platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"' > "${z_platform_info_file}" || bcu_die "Failed to extract platform info"
+
+      bcu_die "I DONT LIKE ECHO ABOVE, what caused it?  is there better?"
 
       local z_platform_info
       z_platform_info=$(<"${z_platform_info_file}")
@@ -471,6 +510,8 @@ rbcr_get_config() {
   zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_digest}" \
     > "${z_config_out}" || bcu_die "Failed to fetch config blob"
 
+  bcu_die "HOW IS THIS SUPPOSED TO WORK BELOW?"
+
   jq . "${z_config_out}" > /dev/null || bcu_die "Invalid config JSON"
 }
 
@@ -503,8 +544,9 @@ rbcr_delete() {
 
   # Extract digest from Docker-Content-Digest header
   local z_digest_file="${ZRBCR_DELETE_PREFIX}digest.txt"
-  grep -i "docker-content-digest:" "${z_manifest_headers}" | \
-    sed 's/.*: //' | tr -d '\r\n' > "${z_digest_file}" || bcu_die "Failed to extract digest header"
+  grep -i "docker-content-digest:" "${z_manifest_headers}" \
+      | sed 's/.*: //' | tr -d '\r\n' > "${z_digest_file}" \
+    || bcu_die "Failed to extract digest header"
 
   local z_digest
   z_digest=$(<"${z_digest_file}")
