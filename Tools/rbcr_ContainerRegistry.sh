@@ -191,7 +191,7 @@ zrbcr_refresh_token() {
   curl -s -X POST https://oauth2.googleapis.com/token                                 \
        -H "Content-Type: application/x-www-form-urlencoded"                           \
        -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
-       > "${z_response}" 
+       > "${z_response}"                                                              \
     || bcu_die "Failed to obtain OAuth token"
 
   bcu_info "Extract access token"
