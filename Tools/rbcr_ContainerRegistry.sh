@@ -122,54 +122,77 @@ zrbcr_sign_jwt_capture() {
     base64 -w 0 | tr '+/' '-_' | tr -d '=' || return 1
 }
 
+zrbcr_base64url_encode_capture() {
+  zrbcr_sentinel
+  local z_input="$1"
+  
+  # Base64 encode (unavoidable external command)
+  local z_b64
+  z_b64=$(printf "%s" "${z_input}" | base64 -w 0) || return 1
+  
+  local z_result="${z_b64}"
+  z_result="${z_result//+/-}"    # Replace + with -
+  z_result="${z_result//\//_}"   # Replace / with _  
+  z_result="${z_result//=/}"     # Remove =
+  
+  echo "${z_result}"
+}
+
 zrbcr_refresh_token() {
   zrbcr_sentinel
 
   bcu_step "Obtaining OAuth token for GAR API"
 
-  local z_now z_exp z_header z_claim z_jwt_unsigned z_signature z_jwt
-
   bcu_info "Building JWT header"
-  z_header='{"alg":"RS256","typ":"JWT"}'
+  local z_header='{"alg":"RS256","typ":"JWT"}'
 
   bcu_info "Building JWT claims (1 hour expiry)"
-  z_now=$(date +%s)
-  z_exp=$((z_now + 3600))
+  date +%s          > "${ZRBCR_JWT_PREFIX}timestamp.txt" || bcu_die "Failed to get timestamp"
+  local      z_now=$(<"${ZRBCR_JWT_PREFIX}timestamp.txt")
+  test -n "${z_now}" || bcu_die "Failed to read timestamp"
 
-  # Get email using capture function
+  local z_exp=$((z_now + 3600))
+
+  bcu_info "Get email using capture function"
   local z_sa_email
   z_sa_email=$(zrbcr_get_sa_email_capture) || bcu_die "Failed to get service account email"
 
   bcu_info "Build claims"
-  z_claim=$(jq -n \
-      --arg iss "${z_sa_email}" \
+  jq -n                                                            \
+      --arg iss "${z_sa_email}"                                    \
       --arg scope "https://www.googleapis.com/auth/cloud-platform" \
-      --arg aud "https://oauth2.googleapis.com/token" \
-      --arg iat "${z_now}" \
-      --arg exp "${z_exp}" \
-      '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}') \
+      --arg aud "https://oauth2.googleapis.com/token"              \
+      --arg iat "${z_now}"                                         \
+      --arg exp "${z_exp}"                                         \
+      '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}' \
+      > "${ZRBCR_JWT_PREFIX}claims.json"                           \
     || bcu_die "Failed to build JWT claims"
+
+  local z_claims=$(<"${ZRBCR_JWT_PREFIX}claims.json")
+  test -n "${z_claims}" || bcu_die "Failed to read or empty: ${ZRBCR_JWT_PREFIX}claims.json"
 
   bcu_info "Build JWT"
   local z_header_enc
-  z_header_enc=$(echo -n "${z_header}" | base64 -w 0 | tr '+/' '-_' | tr -d '=') || bcu_die "Failed to encode header"
+  z_header_enc=$(zrbcr_base64url_encode_capture "${z_header}") || bcu_die "Failed to encode header"
 
-  local z_claim_enc
-  z_claim_enc=$(echo -n "${z_claim}" | base64 -w 0 | tr '+/' '-_' | tr -d '=') || bcu_die "Failed to encode claim"
+  local z_claims_enc
+  z_claims_enc=$(zrbcr_base64url_encode_capture "${z_claims}") || bcu_die "Failed to encode claims"
 
-  z_jwt_unsigned="${z_header_enc}.${z_claim_enc}"
+  local z_jwt_unsigned="${z_header_enc}.${z_claims_enc}"
 
   bcu_info "Sign JWT"
+  local z_signature
   z_signature=$(zrbcr_sign_jwt_capture "${z_jwt_unsigned}") || bcu_die "Failed to sign JWT"
 
-  z_jwt="${z_jwt_unsigned}.${z_signature}"
+  local z_jwt="${z_jwt_unsigned}.${z_signature}"
 
   bcu_info "Exchange JWT for access token"
   local z_response="${ZRBCR_TOKEN_PREFIX}response.json"
-  curl -s -X POST https://oauth2.googleapis.com/token \
-    -H "Content-Type: application/x-www-form-urlencoded" \
-    -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
-    > "${z_response}" || bcu_die "Failed to obtain OAuth token"
+  curl -s -X POST https://oauth2.googleapis.com/token                                 \
+       -H "Content-Type: application/x-www-form-urlencoded"                           \
+       -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
+       > "${z_response}" 
+    || bcu_die "Failed to obtain OAuth token"
 
   bcu_info "Extract access token"
   jq -r '.access_token' "${z_response}" > "${ZRBCR_TOKEN_FILE}" \
@@ -177,8 +200,8 @@ zrbcr_refresh_token() {
 
   local z_token_check
   z_token_check=$(<"${ZRBCR_TOKEN_FILE}")
-  test -n "${z_token_check}" || bcu_die "Access token is empty"
-  test "${z_token_check}" != "null" || bcu_die "Access token is null"
+  test -n "${z_token_check}"           || bcu_die "Access token is empty"
+  test    "${z_token_check}" != "null" || bcu_die "Access token is null"
 
   bcu_success "OAuth token obtained"
 }
