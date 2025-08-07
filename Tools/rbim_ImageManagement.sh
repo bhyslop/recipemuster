@@ -89,17 +89,14 @@ zrbim_verify_git_clean() {
   bcu_step "Verifying git repository state"
 
   bcu_log "Check for uncommitted changes"
-  bcu_info "Checking for uncommitted changes"
   git diff-index --quiet HEAD -- || bcu_die "Uncommitted changes detected - commit or stash first"
 
   bcu_log "Check for untracked files"
-  bcu_info "Checking for untracked files"
   git ls-files --others --exclude-standard > "${ZRBIM_GIT_UNPUSHED_FILE}" || bcu_die "Failed to check untracked files"
   local z_untracked=$(<"${ZRBIM_GIT_UNPUSHED_FILE}")
   test -z "${z_untracked}" || bcu_die "Untracked files present - commit or clean first"
 
   bcu_log "Check if all commits are pushed"
-  bcu_info "Checking if all commits are pushed"
   git fetch --quiet
   git rev-list @{u}..HEAD --count > "${ZRBIM_GIT_UNPUSHED_FILE}" 2>/dev/null || echo "0" > "${ZRBIM_GIT_UNPUSHED_FILE}"
   local z_unpushed=$(<"${ZRBIM_GIT_UNPUSHED_FILE}")
@@ -329,10 +326,11 @@ zrbim_retrieve_metadata() {
   local z_package_path="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}/packages/${z_tag}"
 
   bcu_log "Download metadata artifact"
-  curl -s \
-    -H "Authorization: Bearer ${z_token}" \
-    "${ZRBIM_GAR_API_BASE}/${z_package_path}/versions/metadata:download" \
-    -o "${ZRBIM_METADATA_ARCHIVE}" || bcu_die "Failed to download metadata"
+  curl -s                                                                   \
+       -H "Authorization: Bearer ${z_token}"                                \
+       "${ZRBIM_GAR_API_BASE}/${z_package_path}/versions/metadata:download" \
+       -o "${ZRBIM_METADATA_ARCHIVE}"                                       \
+     || bcu_die "Failed to download metadata"
 
   bcu_log "Validate metadata archive"
   test -f "${ZRBIM_METADATA_ARCHIVE}" || bcu_die "Metadata archive not created"
