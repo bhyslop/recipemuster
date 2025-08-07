@@ -50,7 +50,7 @@ export RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 
 # Service Account Configuration
 #
-# Uses RBRS (Recipe Bottle Regime Service) for service account credentials.
+# Uses RBRA (Recipe Bottle Regime Alphabet) for Google service account credentials.
 # Each service has distinct permissions following least-privilege:
 #
 # 1. GAR READER - Pull/list/inspect container images
