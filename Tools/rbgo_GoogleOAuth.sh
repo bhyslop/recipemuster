@@ -39,7 +39,9 @@ zrbgo_kindle() {
   test -n "${RBG_TEMP_DIR:-}" || bcu_die "RBG_TEMP_DIR not set"
   test -d "${RBG_TEMP_DIR}"   || bcu_die "RBG_TEMP_DIR not a directory"
 
-  bcu_die "BRADTRACE: There are several other vars from RBRR that need to be tested for being set and nonzero length (but not validated here): do that"
+  bcu_log "Validate RBRR configuration variables"
+  test -n "${RBRR_GAR_RBRA_FILE:-}" || bcu_die "RBRR_GAR_RBRA_FILE not set"
+  test -n "${RBRR_GCB_RBRA_FILE:-}" || bcu_die "RBRR_GCB_RBRA_FILE not set"
 
   bcu_log "Set Module Variables (ZRBGO_*)"
   ZRBGO_JWT_HEADER_FILE="${RBG_TEMP_DIR}/rbgo_jwt_header.json"
@@ -54,7 +56,18 @@ zrbgo_kindle() {
   bcu_log "Default scope for all Google Cloud services"
   ZRBGO_DEFAULT_SCOPE="https://www.googleapis.com/auth/cloud-platform"
 
-  bcu_die "BRADTRACE: I think we should have a bcu_step that announces which of the keys have key files on the local system.  Do not source them, just detect them and print out if present or absent."
+  bcu_log "Check service account environment files"
+  if test -f "${RBRR_GAR_RBRA_FILE:-}"; then
+    bcu_info "Google Artifact Registry service account env file: present"
+  else
+    bcu_info "Google Artifact Registry service account env file: ABSENT"
+  fi
+
+  if test -f "${RBRR_GCB_RBRA_FILE:-}"; then
+    bcu_info "Google Cloud Build service account env file: present"
+  else
+    bcu_info "Google Cloud Build service account env file: absent"
+  fi
 
   ZRBGO_KINDLED=1
 }
@@ -184,33 +197,24 @@ rbgo_get_token_capture() {
   zrbgo_sentinel
 
   local z_service_env_file="$1"
-  local z_lifetime_seconds="${2:-${RBRR_TOKEN_LIFETIME_SECONDS:-300}}"
 
-  bcu_log "Validate lifetime bounds (Google allows 300-3600)"
-  test "${z_lifetime_seconds}" -ge 300  || return 1
-  test "${z_lifetime_seconds}" -le 3600 || return 1
-
-  bcu_log "Source service account key path from env file"
+  bcu_log "Source service account credentials"
   source "${z_service_env_file}" || return 1
 
-  bcu_die "BRADTRACE: below looks wrong: shouldn't there be a parameter to pick? Both of these will be set in environment"
+  bcu_log "Validate required RBRS variables"
+  test -n "${RBRA_SERVICE_ACCOUNT_KEY:-}" || return 1
+  test -n "${RBRA_TOKEN_LIFETIME_SEC:-}"  || return 1
 
-  bcu_log "Find which key variable was set"
-  local z_key_json
-  if test -n "${RBRG_GAR_SERVICE_ACCOUNT_KEY:-}"; then
-    z_key_json="${RBRG_GAR_SERVICE_ACCOUNT_KEY}"
-  elif test -n "${RBRG_GCB_SERVICE_ACCOUNT_KEY:-}"; then
-    z_key_json="${RBRG_GCB_SERVICE_ACCOUNT_KEY}"
-  else
-    return 1
-  fi
+  bcu_log "Validate lifetime bounds (Google allows 300-3600)"
+  test "${RBRA_TOKEN_LIFETIME_SEC}" -ge 300  || return 1
+  test "${RBRA_TOKEN_LIFETIME_SEC}" -le 3600 || return 1
 
   bcu_log "Validate key file exists"
-  test -f "${z_key_json}" || return 1
+  test -f "${RBRA_SERVICE_ACCOUNT_KEY}" || return 1
 
   bcu_log "Validate JSON structure"
   local z_validation_file="${ZRBGO_VALIDATION_PREFIX}structure.txt"
-  jq -r 'has("client_email") and has("private_key")' "${z_key_json}" \
+  jq -r 'has("client_email") and has("private_key")' "${RBRA_SERVICE_ACCOUNT_KEY}" \
     > "${z_validation_file}" 2>/dev/null || return 1
 
   local z_valid=$(<"${z_validation_file}")
@@ -218,16 +222,14 @@ rbgo_get_token_capture() {
 
   bcu_log "Build JWT"
   local z_jwt
-  z_jwt=$(zrbgo_build_jwt_capture "${z_key_json}" "${z_lifetime_seconds}") || return 1
+  z_jwt=$(zrbgo_build_jwt_capture "${RBRA_SERVICE_ACCOUNT_KEY}" "${RBRA_TOKEN_LIFETIME_SEC}") || return 1
 
   bcu_log "Exchange for OAuth token"
   local z_token
   z_token=$(zrbgo_exchange_jwt_capture "${z_jwt}") || return 1
 
-  bcu_log "Single output at end"
   echo "${z_token}"
 }
-
 
 # eof
 

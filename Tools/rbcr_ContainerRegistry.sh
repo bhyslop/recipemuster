@@ -38,11 +38,8 @@ zrbcr_kindle() {
   test -n "${RBG_TEMP_DIR:-}"        || bcu_die "RBG_TEMP_DIR not set"
 
   # Source GAR credentials
-  test -n "${RBRR_GAR_SERVICE_ENV:-}" || bcu_die "RBRR_GAR_SERVICE_ENV not set"
-  test -f "${RBRR_GAR_SERVICE_ENV}"   || bcu_die "GAR service env file not found: ${RBRR_GAR_SERVICE_ENV}"
-  source  "${RBRR_GAR_SERVICE_ENV}"
-  test -n "${RBRG_GAR_SERVICE_ACCOUNT_KEY:-}" || bcu_die "RBRG_GAR_SERVICE_ACCOUNT_KEY missing from ${RBRR_GAR_SERVICE_ENV}"
-  test -f "${RBRG_GAR_SERVICE_ACCOUNT_KEY}"   || bcu_die "Service account key file not found: ${RBRG_GAR_SERVICE_ACCOUNT_KEY}"
+  test -n "${RBRR_GAR_RBRA_FILE:-}"   || bcu_die "RBRR_GAR_RBRA_FILE not set"
+  test -f "${RBRR_GAR_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_GAR_RBRA_FILE}"
 
   # Module Variables (ZRBCR_*)
   ZRBCR_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
