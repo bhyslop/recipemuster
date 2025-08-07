@@ -1,58 +1,65 @@
 #!/bin/bash
+#
 # Copyright 2025 Scale Invariant, Inc.
-# Licensed under the Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
-# Recipe Bottle Image Management - Command Line Interface
+#
 
 set -euo pipefail
 
-ZRBIM_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+ZRBIM_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-# Source all dependencies (CLI files handle all sourcing)
+# Source all dependencies
 source "${ZRBIM_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBIM_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBIM_CLI_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbim_ImageManagement.sh"
+source "${ZRBIM_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
 source "${ZRBIM_CLI_SCRIPT_DIR}/rbcr_ContainerRegistry.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbga_GithubActions.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbgh_GithubHost.sh"
+source "${ZRBIM_CLI_SCRIPT_DIR}/rbim_ImageManagement.sh"
 
-# CLI-specific environment function
 zrbim_furnish() {
-  # Handle documentation mode
-  bcu_doc_env "RBG_TEMP_DIR    " "Empty temporary directory"
-  bcu_doc_env "RBG_NOW_STAMP   " "Timestamp for per run branding"
-  bcu_doc_env "RBG_RUNTIME     " "Container runtime (docker/podman)"
-  bcu_doc_env "RBG_RUNTIME_ARG " "Container runtime arguments (optional)"
+  bcu_doc_env "BDU_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  bcu_doc_env "BDU_NOW_STAMP        " "Bash Dispatch Utility provided string unique between invocations"
+  bcu_doc_env "RBG_RUNTIME          " "Container runtime (docker/podman)"
+  bcu_doc_env "RBG_RUNTIME_ARG      " "Container runtime arguments (optional)"
 
   bcu_env_done || return 0
 
-  # Validate environment
-  bvu_dir_exists  "${RBG_TEMP_DIR}"
-  bvu_dir_empty   "${RBG_TEMP_DIR}"
-  bvu_env_string  RBG_NOW_STAMP  1 128
-  bvu_env_string  RBG_RUNTIME    1 20 "podman"
+  # Validate BDU environment
+  bvu_dir_exists "${BDU_TEMP_DIR}"
+  bvu_dir_empty  "${BDU_TEMP_DIR}"
+  test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
 
-  # Optional runtime args
+  # Container runtime settings
+  RBG_RUNTIME="${RBG_RUNTIME:-podman}"
   RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
 
-  # Get regime file location
+  # Use RBL to locate and source RBRR file
   zrbl_kindle
+  test -f "${RBL_RBRR_FILE}" || bcu_die "RBRR file not found: ${RBL_RBRR_FILE}"
+  source  "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR file"
+  
+  # Validate RBRR variables using validator
+  source "${ZRBIM_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
 
-  # Validate and source regime file
-  test -f      "${RBL_RBRR_FILE}" \
-    || bcu_die "${RBL_RBRR_FILE} Regime file not found"
-  source       "${RBL_RBRR_FILE}"
-  source "${ZRBIM_CLI_SCRIPT_DIR}/rbrr.validator.sh"
-
-  # Start all modules
+  # Kindle modules in dependency order
+  zrbgo_kindle
   zrbcr_kindle
-  zrbga_kindle
-  zrbgh_kindle
   zrbim_kindle
 }
 
-# Execute command
 bcu_execute rbim_ "Recipe Bottle Image Management" zrbim_furnish "$@"
 
 # eof

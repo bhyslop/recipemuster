@@ -38,7 +38,7 @@ zrbcr_kindle() {
   test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION not set"
   test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY not set"
   test -n "${RBG_RUNTIME:-}"         || bcu_die "RBG_RUNTIME not set"
-  test -n "${RBG_TEMP_DIR:-}"        || bcu_die "RBG_TEMP_DIR not set"
+  test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
 
   # Verify GAR service account file is configured
   test -n "${RBRR_GAR_RBRA_FILE:-}"   || bcu_die "RBRR_GAR_RBRA_FILE not set"
@@ -57,19 +57,19 @@ zrbcr_kindle() {
   ZRBCR_ACCEPT_MANIFEST_MTYPES="${ZRBCR_MTYPE_DV2},${ZRBCR_MTYPE_DLIST},${ZRBCR_MTYPE_OCI},${ZRBCR_MTYPE_OCM}"
 
   # File prefixes for all operations
-  ZRBCR_MANIFEST_PREFIX="${RBG_TEMP_DIR}/rbcr_manifest_"
-  ZRBCR_CONFIG_PREFIX="${RBG_TEMP_DIR}/rbcr_config_"
-  ZRBCR_DELETE_PREFIX="${RBG_TEMP_DIR}/rbcr_delete_"
-  ZRBCR_DETAIL_PREFIX="${RBG_TEMP_DIR}/rbcr_detail_"
-  ZRBCR_TOKEN_PREFIX="${RBG_TEMP_DIR}/rbcr_token_"
-  ZRBCR_TAGS_PREFIX="${RBG_TEMP_DIR}/rbcr_tags_"
-  ZRBCR_EXISTS_PREFIX="${RBG_TEMP_DIR}/rbcr_exists_"
+  ZRBCR_MANIFEST_PREFIX="${BDU_TEMP_DIR}/rbcr_manifest_"
+  ZRBCR_CONFIG_PREFIX="${BDU_TEMP_DIR}/rbcr_config_"
+  ZRBCR_DELETE_PREFIX="${BDU_TEMP_DIR}/rbcr_delete_"
+  ZRBCR_DETAIL_PREFIX="${BDU_TEMP_DIR}/rbcr_detail_"
+  ZRBCR_TOKEN_PREFIX="${BDU_TEMP_DIR}/rbcr_token_"
+  ZRBCR_TAGS_PREFIX="${BDU_TEMP_DIR}/rbcr_tags_"
+  ZRBCR_EXISTS_PREFIX="${BDU_TEMP_DIR}/rbcr_exists_"
 
   # Output files
-  ZRBCR_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/rbcr_IMAGE_RECORDS.json"
-  ZRBCR_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/rbcr_IMAGE_DETAILS.json"
-  ZRBCR_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/rbcr_IMAGE_STATS.json"
-  ZRBCR_FQIN_FILE="${RBG_TEMP_DIR}/rbcr_FQIN.txt"
+  ZRBCR_IMAGE_RECORDS_FILE="${BDU_TEMP_DIR}/rbcr_IMAGE_RECORDS.json"
+  ZRBCR_IMAGE_DETAIL_FILE="${BDU_TEMP_DIR}/rbcr_IMAGE_DETAILS.json"
+  ZRBCR_IMAGE_STATS_FILE="${BDU_TEMP_DIR}/rbcr_IMAGE_STATS.json"
+  ZRBCR_FQIN_FILE="${BDU_TEMP_DIR}/rbcr_FQIN.txt"
   ZRBCR_TOKEN_FILE="${ZRBCR_TOKEN_PREFIX}access.txt"
 
   # File index counter

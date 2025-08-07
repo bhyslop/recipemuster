@@ -36,19 +36,19 @@ zrbgo_kindle() {
   which curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
 
   bcu_log "Check environment"
-  test -n "${RBG_TEMP_DIR:-}" || bcu_die "RBG_TEMP_DIR not set"
-  test -d "${RBG_TEMP_DIR}"   || bcu_die "RBG_TEMP_DIR not a directory"
+  test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set"
+  test -d "${BDU_TEMP_DIR}"   || bcu_die "BDU_TEMP_DIR not a directory"
 
   bcu_log "Validate RBRR configuration variables"
   test -n "${RBRR_GAR_RBRA_FILE:-}" || bcu_die "RBRR_GAR_RBRA_FILE not set"
   test -n "${RBRR_GCB_RBRA_FILE:-}" || bcu_die "RBRR_GCB_RBRA_FILE not set"
 
   bcu_log "Set Module Variables (ZRBGO_*)"
-  ZRBGO_JWT_HEADER_FILE="${RBG_TEMP_DIR}/rbgo_jwt_header.json"
-  ZRBGO_JWT_CLAIMS_FILE="${RBG_TEMP_DIR}/rbgo_jwt_claims.json"
-  ZRBGO_JWT_TIMESTAMP_FILE="${RBG_TEMP_DIR}/rbgo_jwt_timestamp.txt"
-  ZRBGO_OAUTH_RESPONSE_FILE="${RBG_TEMP_DIR}/rbgo_oauth_response.json"
-  ZRBGO_VALIDATION_PREFIX="${RBG_TEMP_DIR}/rbgo_validation_"
+  ZRBGO_JWT_HEADER_FILE="${BDU_TEMP_DIR}/rbgo_jwt_header.json"
+  ZRBGO_JWT_CLAIMS_FILE="${BDU_TEMP_DIR}/rbgo_jwt_claims.json"
+  ZRBGO_JWT_TIMESTAMP_FILE="${BDU_TEMP_DIR}/rbgo_jwt_timestamp.txt"
+  ZRBGO_OAUTH_RESPONSE_FILE="${BDU_TEMP_DIR}/rbgo_oauth_response.json"
+  ZRBGO_VALIDATION_PREFIX="${BDU_TEMP_DIR}/rbgo_validation_"
 
   bcu_log "OAuth endpoint"
   ZRBGO_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"

@@ -18,8 +18,8 @@ source "${ZRBGR_CLI_SCRIPT_DIR}/rbgr_GithubRemote.sh"
 # CLI-specific environment function
 zrbgr_furnish() {
   # Handle documentation mode
-  bcu_doc_env "RBG_TEMP_DIR   " "Empty temporary directory"
-  bcu_doc_env "RBG_NOW_STAMP  " "Timestamp for per run branding"
+  bcu_doc_env "BDU_TEMP_DIR   " "Empty temporary directory"
+  bcu_doc_env "BDU_NOW_STAMP  " "Timestamp for per run branding"
   bcu_doc_env "GITHUB_TOKEN   " "GitHub token for API access"
   bcu_doc_env "GITHUB_SHA     " "Git commit SHA (optional, defaults to 'unknown')"
 
@@ -28,9 +28,8 @@ zrbgr_furnish() {
   # Get regime file location
   zrbl_kindle
 
-  bvu_dir_exists  "${RBG_TEMP_DIR}"
-  bvu_dir_empty   "${RBG_TEMP_DIR}"
-  bvu_env_string     RBG_NOW_STAMP  1 128
+  bvu_dir_exists  "${BDU_TEMP_DIR}"
+  bvu_env_string     BDU_NOW_STAMP  1 128
 
   # Validate and source regime file
   test -f "${RBL_RBRR_FILE}" || bcu_die "Regime file not found: ${RBL_RBRR_FILE}"

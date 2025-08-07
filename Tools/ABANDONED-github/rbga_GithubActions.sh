@@ -16,15 +16,15 @@ ZRBGA_INCLUDED=1
 zrbga_kindle() {
   # Check required environment
   test -n "${RBRG_PAT:-}"      || bcu_die "RBRG_PAT not set"
-  test -n "${RBG_TEMP_DIR:-}"  || bcu_die "RBG_TEMP_DIR not set"
-  test -n "${RBG_NOW_STAMP:-}" || bcu_die "RBG_NOW_STAMP not set"
+  test -n "${BDU_TEMP_DIR:-}"  || bcu_die "BDU_TEMP_DIR not set"
+  test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set"
 
   # Module Variables (ZRBGA_*)
   ZRBGA_GITAPI_URL="https://api.github.com"
   ZRBGA_MTYPE_GHV3="application/vnd.github.v3+json"
 
-  ZRBGA_WORKFLOW_RUN_ID_FILE="${RBG_TEMP_DIR}/workflow_run_id__${RBG_NOW_STAMP}.txt"
-  ZRBGA_WORKFLOW_LOGS_FILE="${RBG_TEMP_DIR}/workflow_logs__${RBG_NOW_STAMP}.txt"
+  ZRBGA_WORKFLOW_RUN_ID_FILE="${BDU_TEMP_DIR}/workflow_run_id__${BDU_NOW_STAMP}.txt"
+  ZRBGA_WORKFLOW_LOGS_FILE="${BDU_TEMP_DIR}/workflow_logs__${BDU_NOW_STAMP}.txt"
 
   ZRBGA_KINDLED=1
 }

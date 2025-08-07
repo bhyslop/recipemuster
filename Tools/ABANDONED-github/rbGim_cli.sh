@@ -20,17 +20,17 @@ source "${ZRBIM_CLI_SCRIPT_DIR}/rbgh_GithubHost.sh"
 # CLI-specific environment function
 zrbim_furnish() {
   # Handle documentation mode
-  bcu_doc_env "RBG_TEMP_DIR    " "Empty temporary directory"
-  bcu_doc_env "RBG_NOW_STAMP   " "Timestamp for per run branding"
+  bcu_doc_env "BDU_TEMP_DIR    " "Empty temporary directory"
+  bcu_doc_env "BDU_NOW_STAMP   " "Timestamp for per run branding"
   bcu_doc_env "RBG_RUNTIME     " "Container runtime (docker/podman)"
   bcu_doc_env "RBG_RUNTIME_ARG " "Container runtime arguments (optional)"
 
   bcu_env_done || return 0
 
   # Validate environment
-  bvu_dir_exists  "${RBG_TEMP_DIR}"
-  bvu_dir_empty   "${RBG_TEMP_DIR}"
-  bvu_env_string  RBG_NOW_STAMP  1 128
+  bvu_dir_exists  "${BDU_TEMP_DIR}"
+  bvu_dir_empty   "${BDU_TEMP_DIR}"
+  bvu_env_string  BDU_NOW_STAMP  1 128
   bvu_env_string  RBG_RUNTIME    1 20 "podman"
 
   # Optional runtime args

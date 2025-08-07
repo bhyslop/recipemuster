@@ -15,19 +15,19 @@ ZRBGR_INCLUDED=1
 
 zrbgr_kindle() {
   # Check required environment
-  test -n "${RBG_TEMP_DIR:-}"             || bcu_die "RBG_TEMP_DIR not set"
-  test -n "${RBG_NOW_STAMP:-}"            || bcu_die "RBG_NOW_STAMP not set"
+  test -n "${BDU_TEMP_DIR:-}"             || bcu_die "BDU_TEMP_DIR not set"
+  test -n "${BDU_NOW_STAMP:-}"            || bcu_die "BDU_NOW_STAMP not set"
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
   test -n "${RBRR_HISTORY_DIR:-}"         || bcu_die "RBRR_HISTORY_DIR not set"
   test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
 
   # Module Variables (ZRBGR_*)
-  ZRBGR_ALL_VERSIONS_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.json"
-  ZRBGR_PAGE_FILE="${RBG_TEMP_DIR}/rbgr_page.json"
-  ZRBGR_ALL_VERSIONS_TMP_FILE="${RBG_TEMP_DIR}/rbgr_all_versions.tmp"
-  ZRBGR_DELETE_RESULT_FILE="${RBG_TEMP_DIR}/rbgr_delete_result.txt"
-  ZRBGR_HTTP_CODE_FILE="${RBG_TEMP_DIR}/rbgr_delete_http_code.txt"
+  ZRBGR_ALL_VERSIONS_FILE="${BDU_TEMP_DIR}/rbgr_all_versions.json"
+  ZRBGR_PAGE_FILE="${BDU_TEMP_DIR}/rbgr_page.json"
+  ZRBGR_ALL_VERSIONS_TMP_FILE="${BDU_TEMP_DIR}/rbgr_all_versions.tmp"
+  ZRBGR_DELETE_RESULT_FILE="${BDU_TEMP_DIR}/rbgr_delete_result.txt"
+  ZRBGR_HTTP_CODE_FILE="${BDU_TEMP_DIR}/rbgr_delete_http_code.txt"
 
   ZRBGR_KINDLED=1
 }
@@ -161,7 +161,7 @@ rbgr_delete_image() {
   rbcr_delete "${z_tag}"
 
   # Record deletion
-  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${RBG_NOW_STAMP}_${z_tag}"
+  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${BDU_NOW_STAMP}_${z_tag}"
 
   mkdir -p                        "${z_delete_dir}"
   echo "${z_fqin}"              > "${z_delete_dir}/deleted_fqin.txt"

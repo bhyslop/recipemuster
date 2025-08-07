@@ -18,7 +18,7 @@ zrbcr_kindle() {
   test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
   test -n "${RBG_RUNTIME:-}"         || bcu_die "RBG_RUNTIME not set"
-  test -n "${RBG_TEMP_DIR:-}"        || bcu_die "RBG_TEMP_DIR not set"
+  test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
 
   # Detect environment and set auth variables
   if test -n "${GITHUB_ACTIONS:-}"; then
@@ -59,19 +59,19 @@ zrbcr_kindle() {
   ZRBCR_HEADER_ACCEPT_MANIFEST="Accept: ${ZRBCR_ACCEPT_MANIFEST_MTYPES}"
 
   # File prefixes for all operations
-  ZRBCR_LIST_PAGE_PREFIX="${RBG_TEMP_DIR}/list_page_"
-  ZRBCR_LIST_RECORDS_PREFIX="${RBG_TEMP_DIR}/list_records_"
-  ZRBCR_MANIFEST_PREFIX="${RBG_TEMP_DIR}/manifest_"
-  ZRBCR_CONFIG_PREFIX="${RBG_TEMP_DIR}/config_"
-  ZRBCR_DELETE_PREFIX="${RBG_TEMP_DIR}/delete_"
-  ZRBCR_VERSION_PREFIX="${RBG_TEMP_DIR}/version_"
-  ZRBCR_DETAIL_PREFIX="${RBG_TEMP_DIR}/detail_"
+  ZRBCR_LIST_PAGE_PREFIX="${BDU_TEMP_DIR}/list_page_"
+  ZRBCR_LIST_RECORDS_PREFIX="${BDU_TEMP_DIR}/list_records_"
+  ZRBCR_MANIFEST_PREFIX="${BDU_TEMP_DIR}/manifest_"
+  ZRBCR_CONFIG_PREFIX="${BDU_TEMP_DIR}/config_"
+  ZRBCR_DELETE_PREFIX="${BDU_TEMP_DIR}/delete_"
+  ZRBCR_VERSION_PREFIX="${BDU_TEMP_DIR}/version_"
+  ZRBCR_DETAIL_PREFIX="${BDU_TEMP_DIR}/detail_"
 
   # Output files
-  ZRBCR_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/IMAGE_RECORDS.json"
-  ZRBCR_IMAGE_DETAIL_FILE="${RBG_TEMP_DIR}/IMAGE_DETAILS.json"
-  ZRBCR_IMAGE_STATS_FILE="${RBG_TEMP_DIR}/IMAGE_STATS.json"
-  ZRBCR_FQIN_FILE="${RBG_TEMP_DIR}/FQIN.txt"
+  ZRBCR_IMAGE_RECORDS_FILE="${BDU_TEMP_DIR}/IMAGE_RECORDS.json"
+  ZRBCR_IMAGE_DETAIL_FILE="${BDU_TEMP_DIR}/IMAGE_DETAILS.json"
+  ZRBCR_IMAGE_STATS_FILE="${BDU_TEMP_DIR}/IMAGE_STATS.json"
+  ZRBCR_FQIN_FILE="${BDU_TEMP_DIR}/FQIN.txt"
 
   # File index counter
   ZRBCR_FILE_INDEX=0
