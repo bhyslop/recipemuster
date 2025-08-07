@@ -50,7 +50,7 @@ zrbim_furnish() {
   zrbl_kindle
   test -f "${RBL_RBRR_FILE}" || bcu_die "RBRR file not found: ${RBL_RBRR_FILE}"
   source  "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR file"
-  
+
   # Validate RBRR variables using validator
   source "${ZRBIM_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
 
