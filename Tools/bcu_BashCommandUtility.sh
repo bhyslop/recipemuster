@@ -56,6 +56,8 @@ bcu_trace()  { zbcu_print 3 "$@"; }
 
 bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
 
+bcu_log()    { zbcu_log "LOG: " "---- " "$@"; }
+
 bcu_die() {
   local context="${ZBCU_CONTEXT:-}"
   zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
@@ -184,6 +186,23 @@ zbcu_print() {
     done
   fi
 }
+
+zbcu_log() {
+  test -n "${BDU_TEMP_DIR:-}" || return 0  # No log if no temp dir
+
+  local z_prefix="$1"
+  local z_rest_prefix="$2"
+  shift 2 || return 0
+
+  local z_outfile="${BDU_TEMP_DIR}/transcript.txt"
+
+  while [ $# -gt 0 ]; do
+    printf '%s%s\n' "${z_prefix}" "$1" >> "${z_outfile}"
+    z_prefix="${z_rest_prefix}"
+    shift
+  done
+}
+
 
 # Die if condition is true (non-zero)
 # Usage: bcu_die_if <condition> <message1> [<message2> ...]
