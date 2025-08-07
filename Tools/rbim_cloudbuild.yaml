@@ -1,0 +1,91 @@
+# Google Cloud Build configuration for Recipe Bottle images
+# Expects substitutions: _DOCKERFILE, _TAG, _MONIKER, _PLATFORMS, _GAR_LOCATION, _GAR_PROJECT, _GAR_REPOSITORY
+
+steps:
+  # Build and push multi-platform image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-push'
+    args:
+      - 'buildx'
+      - 'build'
+      - '--push'
+      - '--platform=${_PLATFORMS}'
+      - '--tag=${_GAR_LOCATION}-docker.pkg.dev/${_GAR_PROJECT}/${_GAR_REPOSITORY}/${_TAG}'
+      - '--label=moniker=${_MONIKER}'
+      - '--label=git.commit=${_GIT_COMMIT}'
+      - '--label=git.branch=${_GIT_BRANCH}'
+      - '--label=git.repo=${_GIT_REPO}'
+      - '--label=recipe=${_RECIPE_NAME}'
+      - '--file=${_DOCKERFILE}'
+      - '.'
+
+  # Pull image for analysis
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'pull-for-analysis'
+    args:
+      - 'pull'
+      - '${_GAR_LOCATION}-docker.pkg.dev/${_GAR_PROJECT}/${_GAR_REPOSITORY}/${_TAG}'
+
+  # Run Syft analysis
+  - name: 'anchore/syft:v1.14.1'
+    id: 'syft-analysis'
+    args:
+      - '${_GAR_LOCATION}-docker.pkg.dev/${_GAR_PROJECT}/${_GAR_REPOSITORY}/${_TAG}'
+      - '-o'
+      - 'json=/workspace/syft_analysis.json'
+
+  # Create metadata archive
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'create-metadata'
+    script: |
+      #!/bin/bash
+      set -euo pipefail
+
+      # Create metadata directory
+      mkdir -p /workspace/metadata
+
+      # Copy artifacts
+      cp ${_DOCKERFILE} /workspace/metadata/recipe.txt
+      cp /workspace/syft_analysis.json /workspace/metadata/
+
+      # Create build info
+      cat > /workspace/metadata/build_info.json <<EOF
+      {
+        "tag": "${_TAG}",
+        "moniker": "${_MONIKER}",
+        "git_commit": "${_GIT_COMMIT}",
+        "git_branch": "${_GIT_BRANCH}",
+        "git_repo": "${_GIT_REPO}",
+        "build_id": "${BUILD_ID}",
+        "build_timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+        "platforms": "${_PLATFORMS}"
+      }
+      EOF
+
+      # Create package summary from Syft
+      jq -r '.artifacts[] | "\(.name) \(.version)"' /workspace/syft_analysis.json | \
+        sort | uniq -c | sort -rn | head -n 20 > /workspace/metadata/package_summary.txt
+
+      # Archive metadata
+      tar -czf /workspace/${_TAG}_metadata.tar.gz -C /workspace/metadata .
+
+  # Upload metadata as generic artifact
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'upload-metadata'
+    args:
+      - 'artifacts'
+      - 'generic'
+      - 'upload'
+      - '--location=${_GAR_LOCATION}'
+      - '--repository=${_GAR_REPOSITORY}'
+      - '--project=${_GAR_PROJECT}'
+      - '--package=${_TAG}'
+      - '--version=metadata'
+      - '--source=/workspace/${_TAG}_metadata.tar.gz'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: 'GCS_ONLY'
+
+timeout: '1200s'
+
