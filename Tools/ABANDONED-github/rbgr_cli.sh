@@ -51,7 +51,8 @@ zrbgr_furnish() {
 }
 
 # Execute command
-bcu_execute rbgr_ "Recipe Bottle GitHub Runner - Remote runner steps" zrbgr_furnish "$@"
+bcu_execute rbgr_ "Recipe Bottle GitHub Remote - Remote runner steps" zrbgr_furnish "$@"
 
 # eof
+
 
