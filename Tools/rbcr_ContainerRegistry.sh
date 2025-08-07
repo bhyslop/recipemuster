@@ -30,6 +30,9 @@ ZRBCR_SOURCED=1
 zrbcr_kindle() {
   test -z "${ZRBCR_KINDLED:-}" || bcu_die "Module rbcr already kindled"
 
+  # Verify RBGO is available
+  test "${ZRBGO_KINDLED:-}" = "1" || bcu_die "Module rbgo not kindled - must kindle rbgo before rbcr"
+
   # Check required environment
   test -n "${RBRR_GAR_PROJECT_ID:-}" || bcu_die "RBRR_GAR_PROJECT_ID not set"
   test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION not set"
@@ -37,7 +40,7 @@ zrbcr_kindle() {
   test -n "${RBG_RUNTIME:-}"         || bcu_die "RBG_RUNTIME not set"
   test -n "${RBG_TEMP_DIR:-}"        || bcu_die "RBG_TEMP_DIR not set"
 
-  # Source GAR credentials
+  # Verify GAR service account file is configured
   test -n "${RBRR_GAR_RBRA_FILE:-}"   || bcu_die "RBRR_GAR_RBRA_FILE not set"
   test -f "${RBRR_GAR_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_GAR_RBRA_FILE}"
 
@@ -45,9 +48,6 @@ zrbcr_kindle() {
   ZRBCR_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
   ZRBCR_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBCR_REGISTRY_API_BASE="https://${ZRBCR_REGISTRY_HOST}/v2/${ZRBCR_REGISTRY_PATH}"
-
-  # Store path to service account JSON for capture functions
-  ZRBCR_SA_KEY_JSON="${RBRG_GAR_SERVICE_ACCOUNT_KEY}"
 
   # Media types
   ZRBCR_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
@@ -62,10 +62,8 @@ zrbcr_kindle() {
   ZRBCR_DELETE_PREFIX="${RBG_TEMP_DIR}/rbcr_delete_"
   ZRBCR_DETAIL_PREFIX="${RBG_TEMP_DIR}/rbcr_detail_"
   ZRBCR_TOKEN_PREFIX="${RBG_TEMP_DIR}/rbcr_token_"
-  ZRBCR_JWT_PREFIX="${RBG_TEMP_DIR}/rbcr_jwt_"
   ZRBCR_TAGS_PREFIX="${RBG_TEMP_DIR}/rbcr_tags_"
   ZRBCR_EXISTS_PREFIX="${RBG_TEMP_DIR}/rbcr_exists_"
-  ZRBCR_BASE64_PREFIX="${RBG_TEMP_DIR}/rbcr_base64_"
 
   # Output files
   ZRBCR_IMAGE_RECORDS_FILE="${RBG_TEMP_DIR}/rbcr_IMAGE_RECORDS.json"
@@ -80,7 +78,7 @@ zrbcr_kindle() {
   # Initialize detail file
   echo "[]" > "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to initialize detail file"
 
-  # Obtain OAuth token
+  # Obtain OAuth token using RBGO
   zrbcr_refresh_token || bcu_die "Cannot proceed without OAuth token"
 
   bcu_step "Log in to container registry"
@@ -100,105 +98,17 @@ zrbcr_sentinel() {
   test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not kindled - call zrbcr_kindle first"
 }
 
-zrbcr_get_sa_email_capture() {
-  zrbcr_sentinel
-  jq -r '.client_email' "${ZRBCR_SA_KEY_JSON}" || return 1
-}
-
-zrbcr_sign_jwt_capture() {
-  zrbcr_sentinel
-  local z_jwt_unsigned="$1"
-
-  # Extract key and sign in memory
-  local z_key
-  z_key=$(jq -r '.private_key' "${ZRBCR_SA_KEY_JSON}") || return 1
-
-  # Sign and encode
-  echo -n "${z_jwt_unsigned}" | \
-    openssl dgst -sha256 -sign <(echo "${z_key}") -binary | \
-    base64 -w 0 | tr '+/' '-_' | tr -d '=' || return 1
-}
-
-zrbcr_base64url_encode_capture() {
-  zrbcr_sentinel
-  local z_input="$1"
-  
-  # Base64 encode (unavoidable external command)
-  local z_b64
-  z_b64=$(printf "%s" "${z_input}" | base64 -w 0) || return 1
-  
-  local z_result="${z_b64}"
-  z_result="${z_result//+/-}"    # Replace + with -
-  z_result="${z_result//\//_}"   # Replace / with _  
-  z_result="${z_result//=/}"     # Remove =
-  
-  echo "${z_result}"
-}
-
 zrbcr_refresh_token() {
   zrbcr_sentinel
 
   bcu_step "Obtaining OAuth token for GAR API"
 
-  bcu_info "Building JWT header"
-  local z_header='{"alg":"RS256","typ":"JWT"}'
+  # Use RBGO to get the token
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_GAR_RBRA_FILE}") || bcu_die "Failed to get OAuth token from RBGO"
 
-  bcu_info "Building JWT claims (1 hour expiry)"
-  date +%s          > "${ZRBCR_JWT_PREFIX}timestamp.txt" || bcu_die "Failed to get timestamp"
-  local      z_now=$(<"${ZRBCR_JWT_PREFIX}timestamp.txt")
-  test -n "${z_now}" || bcu_die "Failed to read timestamp"
-
-  local z_exp=$((z_now + 3600))
-
-  bcu_info "Get email using capture function"
-  local z_sa_email
-  z_sa_email=$(zrbcr_get_sa_email_capture) || bcu_die "Failed to get service account email"
-
-  bcu_info "Build claims"
-  jq -n                                                            \
-      --arg iss "${z_sa_email}"                                    \
-      --arg scope "https://www.googleapis.com/auth/cloud-platform" \
-      --arg aud "https://oauth2.googleapis.com/token"              \
-      --arg iat "${z_now}"                                         \
-      --arg exp "${z_exp}"                                         \
-      '{"iss":$iss,"scope":$scope,"aud":$aud,"iat":($iat|tonumber),"exp":($exp|tonumber)}' \
-      > "${ZRBCR_JWT_PREFIX}claims.json"                           \
-    || bcu_die "Failed to build JWT claims"
-
-  local z_claims=$(<"${ZRBCR_JWT_PREFIX}claims.json")
-  test -n "${z_claims}" || bcu_die "Failed to read or empty: ${ZRBCR_JWT_PREFIX}claims.json"
-
-  bcu_info "Build JWT"
-  local z_header_enc
-  z_header_enc=$(zrbcr_base64url_encode_capture "${z_header}") || bcu_die "Failed to encode header"
-
-  local z_claims_enc
-  z_claims_enc=$(zrbcr_base64url_encode_capture "${z_claims}") || bcu_die "Failed to encode claims"
-
-  local z_jwt_unsigned="${z_header_enc}.${z_claims_enc}"
-
-  bcu_info "Sign JWT"
-  local z_signature
-  z_signature=$(zrbcr_sign_jwt_capture "${z_jwt_unsigned}") || bcu_die "Failed to sign JWT"
-
-  local z_jwt="${z_jwt_unsigned}.${z_signature}"
-
-  bcu_info "Exchange JWT for access token"
-  local z_response="${ZRBCR_TOKEN_PREFIX}response.json"
-  curl -s -X POST https://oauth2.googleapis.com/token                                 \
-       -H "Content-Type: application/x-www-form-urlencoded"                           \
-       -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
-       > "${z_response}"                                                              \
-    || bcu_die "Failed to obtain OAuth token"
-
-  bcu_info "Extract access token"
-  jq -r '.access_token' "${z_response}" > "${ZRBCR_TOKEN_FILE}" \
-    || bcu_die "Failed to extract access token"
-
-  local z_token_check
-  z_token_check=$(<"${ZRBCR_TOKEN_FILE}")
-  test -n "${z_token_check}"           || bcu_die "Access token is empty"
-  test    "${z_token_check}" != "null" || bcu_die "Access token is null"
+  # Store token in RBCR's expected location
+  echo "${z_token}" > "${ZRBCR_TOKEN_FILE}" || bcu_die "Failed to write token file"
 
   bcu_success "OAuth token obtained"
 }
@@ -207,7 +117,7 @@ zrbcr_get_next_index_capture() {
   zrbcr_sentinel
 
   ZRBCR_FILE_INDEX=$((ZRBCR_FILE_INDEX + 1))
-  printf "%03d"    "${ZRBCR_FILE_INDEX}"
+  printf "%03d" "${ZRBCR_FILE_INDEX}"
 }
 
 zrbcr_curl_registry() {
@@ -491,9 +401,9 @@ rbcr_get_config() {
   zrbcr_curl_registry "${ZRBCR_REGISTRY_API_BASE}/blobs/${z_digest}" \
     > "${z_config_out}" || bcu_die "Failed to fetch config blob"
 
-  bcu_die "HOW IS THIS SUPPOSED TO WORK BELOW?"
-
   jq . "${z_config_out}" > /dev/null || bcu_die "Invalid config JSON"
+
+  bcu_success "Config blob fetched to ${z_config_out}"
 }
 
 rbcr_delete() {
