@@ -215,33 +215,22 @@ zrbim_submit_build() {
   local z_recipe_name="${z_dockerfile_name%.*}"
 
   bcu_log "Create build config with substitutions (no storageSource for inline upload)"
-  jq -n                                            \
-    --arg dockerfile "${z_dockerfile_name}"        \
-    --arg tag "${z_tag}"                           \
-    --arg moniker "${z_moniker}"                   \
-    --arg platforms "${RBRR_BUILD_ARCHITECTURES}"  \
-    --arg gar_location "${RBRR_GAR_LOCATION}"      \
-    --arg gar_project "${RBRR_GAR_PROJECT_ID}"     \
-    --arg gar_repository "${RBRR_GAR_REPOSITORY}"  \
-    --arg git_commit "${z_git_commit}"             \
-    --arg git_branch "${z_git_branch}"             \
-    --arg git_repo "${z_git_repo}"                 \
-    --arg recipe_name "${z_recipe_name}"           \
-    '{
-      "substitutions": {
-        "_DOCKERFILE": $dockerfile,
-        "_TAG": $tag,
-        "_MONIKER": $moniker,
-        "_PLATFORMS": $platforms,
-        "_GAR_LOCATION": $gar_location,
-        "_GAR_PROJECT": $gar_project,
-        "_GAR_REPOSITORY": $gar_repository,
-        "_GIT_COMMIT": $git_commit,
-        "_GIT_BRANCH": $git_branch,
-        "_GIT_REPO": $git_repo,
-        "_RECIPE_NAME": $recipe_name
-      }
-    }' > "${ZRBIM_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
+  jq -n '{
+        "substitutions": {
+          "RBIM_DOCKERFILE":     "'"${z_dockerfile_name}"'",
+          "RBIM_TAG":            "'"${z_tag}"'",
+          "RBIM_MONIKER":        "'"${z_moniker}"'",
+          "RBIM_PLATFORMS":      "'"${RBRR_BUILD_ARCHITECTURES}"'",
+          "RBIM_GAR_LOCATION":   "'"${RBRR_GAR_LOCATION}"'",
+          "RBIM_GAR_PROJECT":    "'"${RBRR_GAR_PROJECT_ID}"'",
+          "RBIM_GAR_REPOSITORY": "'"${RBRR_GAR_REPOSITORY}"'",
+          "RBIM_GIT_COMMIT":     "'"${z_git_commit}"'",
+          "RBIM_GIT_BRANCH":     "'"${z_git_branch}"'",
+          "RBIM_GIT_REPO":       "'"${z_git_repo}"'",
+          "RBIM_RECIPE_NAME":    "'"${z_recipe_name}"'"
+        }
+      }' > "${ZRBIM_BUILD_CONFIG_FILE}" \
+    || bcu_die "Failed to create build config"
 
   bcu_log "Submit build with inline source upload"
   curl -X POST \
