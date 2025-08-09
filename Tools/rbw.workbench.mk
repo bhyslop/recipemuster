@@ -268,7 +268,7 @@ ttx.FixTabtargetExecutability.sh:
 
 lmci-b.%:
 	$(MBC_START) "Bundle: Placing file batch on clipboard..."
-	$(MBV_TOOLS_DIR)/lmci/bundle.sh $(MBD_CLI_ARGS) | clip
+	$(MBV_TOOLS_DIR)/lmci/bundle.sh $(MBD_CLI_ARGS) | putclip
 	$(MBC_PASS) "No errors."
 
 lmci-s.%:

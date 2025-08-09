@@ -23,8 +23,6 @@ zrbgr_furnish() {
   bcu_doc_env "GITHUB_TOKEN   " "GitHub token for API access"
   bcu_doc_env "GITHUB_SHA     " "Git commit SHA (optional, defaults to 'unknown')"
 
-  bcu_env_done || return 0
-
   # Get regime file location
   zrbl_kindle
 

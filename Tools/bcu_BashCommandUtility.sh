@@ -110,12 +110,6 @@ bcu_doc_env() {
   eval "test -n \"\${${env_var_name}:-}\"" || bcu_warn "${env_var_name} is not set"
 }
 
-bcu_env_done() {
-  zbcu_do_execute || return 0
-  echo
-  return 1
-}
-
 ZBCU_USAGE_STRING="UNFILLED"
 
 bcu_doc_brief() {

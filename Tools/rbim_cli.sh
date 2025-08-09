@@ -35,8 +35,6 @@ zrbim_furnish() {
   bcu_doc_env "RBG_RUNTIME     " "Container runtime (docker/podman)"
   bcu_doc_env "RBG_RUNTIME_ARG " "Container runtime arguments (optional)"
 
-  bcu_env_done || return 0
-
   # Validate BDU environment
   bvu_dir_exists "${BDU_TEMP_DIR}"
   bvu_dir_empty  "${BDU_TEMP_DIR}"

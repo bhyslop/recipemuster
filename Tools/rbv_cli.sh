@@ -33,8 +33,6 @@ zrbv_furnish() {
   bcu_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
   bcu_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
 
-  bcu_env_done || return 0
-
   # Validate environment
   bvu_dir_exists  "${RBV_TEMP_DIR}"
   bvu_dir_empty   "${RBV_TEMP_DIR}"
