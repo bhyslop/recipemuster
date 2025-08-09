@@ -30,13 +30,25 @@ ZRBMP_SOURCED=1
 zrbmp_kindle() {
   test -z "${ZRBMP_KINDLED:-}" || bcu_die "Module rbmp already kindled"
 
+  # Validate environment
+  test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR is unset or empty"
+  test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
+
+  # Source RBL module to get RBRR file location
+  zrbl_kindle
+  bvu_file_exists "${RBL_RBRR_FILE}"
+  source "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+
   # Define ANSI color codes
   ZRBMP_COLOR_RESET="\033[0m"
-  ZRBMP_COLOR_SECTION="\033[1;37m"   # Bright white for sections
+  ZRBMP_COLOR_SECTION="\033[1;37m"  # Bright white for sections
   ZRBMP_COLOR_COMMAND="\033[36m"     # Cyan for commands to type
   ZRBMP_COLOR_WEBSITE="\033[35m"     # Magenta for website text
   ZRBMP_COLOR_WARNING="\033[1;33m"   # Bright yellow for warnings
   ZRBMP_COLOR_CRITICAL="\033[1;31m"  # Bright red for critical warnings
+
+  # Define file paths
+  ZRBMP_TEMP_FILE="${BDU_TEMP_DIR}/rbmp_temp.txt"
 
   ZRBMP_KINDLED=1
 }
@@ -45,44 +57,66 @@ zrbmp_sentinel() {
   test "${ZRBMP_KINDLED:-}" = "1" || bcu_die "Module rbmp not kindled - call zrbmp_kindle first"
 }
 
+# Display helper functions - deliberate BCG exception for readability
+# These are display-only functions where inline color matters
+
 zrbmp_section() {
   zrbmp_sentinel
-  local z_title="${1}"
-  echo -e "${ZRBMP_COLOR_SECTION}## ${z_title}${ZRBMP_COLOR_RESET}"
-  echo
+  echo -e "\n${ZRBMP_COLOR_SECTION}# ${1}${ZRBMP_COLOR_RESET}\n"
 }
 
 zrbmp_subsection() {
   zrbmp_sentinel
-  local z_title="${1}"
-  echo -e "${ZRBMP_COLOR_SECTION}### ${z_title}${ZRBMP_COLOR_RESET}"
-  echo
+  echo -e "\n${ZRBMP_COLOR_SECTION}## ${1}${ZRBMP_COLOR_RESET}\n"
+}
+
+zrbmp_subsubsection() {
+  zrbmp_sentinel
+  echo -e "${ZRBMP_COLOR_SECTION}### ${1}${ZRBMP_COLOR_RESET}\n"
+}
+
+zrbmp_normal() {
+  zrbmp_sentinel
+  echo "${1}"
+}
+
+zrbmp_nc() {
+  zrbmp_sentinel
+  # Normal text + command
+  echo -e "${1}${ZRBMP_COLOR_COMMAND}${2}${ZRBMP_COLOR_RESET}"
+}
+
+zrbmp_nw() {
+  zrbmp_sentinel
+  # Normal text + website text
+  echo -e "${1}${ZRBMP_COLOR_WEBSITE}${2}${ZRBMP_COLOR_RESET}"
+}
+
+zrbmp_nwn() {
+  zrbmp_sentinel
+  # Normal + website + normal
+  echo -e "${1}${ZRBMP_COLOR_WEBSITE}${2}${ZRBMP_COLOR_RESET}${3}"
+}
+
+zrbmp_ncn() {
+  zrbmp_sentinel
+  # Normal + command + normal
+  echo -e "${1}${ZRBMP_COLOR_COMMAND}${2}${ZRBMP_COLOR_RESET}${3}"
 }
 
 zrbmp_command() {
   zrbmp_sentinel
-  local z_cmd="${1}"
-  echo -e "   ${ZRBMP_COLOR_COMMAND}${z_cmd}${ZRBMP_COLOR_RESET}"
-}
-
-zrbmp_website() {
-  zrbmp_sentinel
-  local z_text="${1}"
-  echo -e "   ${ZRBMP_COLOR_WEBSITE}${z_text}${ZRBMP_COLOR_RESET}"
+  echo -e "${ZRBMP_COLOR_COMMAND}${1}${ZRBMP_COLOR_RESET}"
 }
 
 zrbmp_warning() {
   zrbmp_sentinel
-  local z_text="${1}"
-  echo -e "${ZRBMP_COLOR_WARNING}⚠️  WARNING: ${z_text}${ZRBMP_COLOR_RESET}"
-  echo
+  echo -e "\n${ZRBMP_COLOR_WARNING}⚠️  WARNING: ${1}${ZRBMP_COLOR_RESET}\n"
 }
 
 zrbmp_critical() {
   zrbmp_sentinel
-  local z_text="${1}"
-  echo -e "${ZRBMP_COLOR_CRITICAL}🔴 CRITICAL SECURITY WARNING: ${z_text}${ZRBMP_COLOR_RESET}"
-  echo
+  echo -e "\n${ZRBMP_COLOR_CRITICAL}🔴 CRITICAL SECURITY WARNING: ${1}${ZRBMP_COLOR_RESET}\n"
 }
 
 ######################################################################
@@ -94,168 +128,117 @@ rbmp_show_setup() {
   bcu_doc_brief "Display the manual GCP provisioner setup procedure"
   bcu_doc_shown || return 0
 
-  # Header
   zrbmp_section "Google Cloud Platform Setup"
-
-  echo "Bootstrap GCP infrastructure by creating a temporary provisioner service account with Project Owner privileges."
-  echo "The provisioner will automate the creation of operational service accounts and infrastructure configuration."
-  echo
-
-  zrbmp_section "Prerequisites"
-  echo "- Credit card for GCP account verification (won't be charged on free tier)"
-  echo "- Email address not already associated with GCP"
-  echo
-  echo "---"
-  echo
-
+  
+  zrbmp_subsection "Overview"
+  zrbmp_normal "Bootstrap GCP infrastructure by creating a temporary provisioner service account with Project Owner privileges."
+  zrbmp_normal "The provisioner will automate the creation of operational service accounts and infrastructure configuration."
+  
+  zrbmp_subsection "Prerequisites"
+  zrbmp_normal "- Credit card for GCP account verification (won't be charged on free tier)"
+  zrbmp_normal "- Email address not already associated with GCP"
+  zrbmp_normal ""
+  zrbmp_normal "---"
+  
   zrbmp_section "Manual Provisioner Setup Procedure"
-  echo
-  echo "Recipe Bottle setup requires a manual bootstrap procedure to enable enough control"
-  echo
-  echo "Open a web browser to:"
-  zrbmp_command "https://cloud.google.com/free"
-  echo
-
-  echo "1. **Establish Account**"
-  echo "   1. Click"
-  zrbmp_website "Get started for free"
-  echo "   2. Sign in with Google account or create new"
-  echo "   3. Provide:"
-  echo "      - Country"
-  echo "      - Organization type:"
-  zrbmp_website "Individual"
-  echo "      - Credit card (verification only)"
-  echo "   4. Accept terms →"
-  zrbmp_website "Start my free trial"
-  echo "   5. Expect Google Cloud Console to open."
-  echo
-
-  echo "2. **Create New Project**"
-  echo "   1. Top bar project dropdown →"
-  zrbmp_website "New Project"
-  echo "   2. Configure:"
-  echo "      - Project name:"
-  zrbmp_command "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}"
-  echo "      - Leave organization as"
-  zrbmp_website "No organization"
-  echo "   3."
-  zrbmp_website "Create"
-  echo "      → Wait for notification"
-  zrbmp_website "Creating project..."
-  echo "      to complete"
-  echo "   4. Select project from dropdown when ready"
-  echo
-
-  echo "3. **Create Provisioner Service Account**"
-  echo "   1. Navigate to IAM & Admin section"
-  echo "   2. Left sidebar →"
-  zrbmp_website "IAM & Admin"
-  echo "      →"
-  zrbmp_website "Service Accounts"
-  echo "   3. If prompted about APIs, click"
-  zrbmp_website "Enable API"
-  echo "   4. Wait for"
-  zrbmp_website "Identity and Access Management (IAM) API"
-  echo "      to enable"
-  echo
-
-  echo "4. **Create the Provisioner**"
-  echo "   1. Click"
-  zrbmp_website "+ CREATE SERVICE ACCOUNT"
-  echo "      at top"
-  echo "   2. Service account details:"
-  echo "      - Service account name:"
-  zrbmp_command "rbra-provisioner"
-  echo "      - Service account ID: (auto-fills as"
-  zrbmp_website "rbra-provisioner"
-  echo "      )"
-  echo "      - Description:"
-  zrbmp_command "Temporary provisioner for infrastructure setup - DELETE AFTER USE"
-  echo "   3. Click"
-  zrbmp_website "CREATE AND CONTINUE"
-  echo
-
-  echo "5. **Assign Project Owner Role:**"
-  echo
+  
+  zrbmp_normal "Recipe Bottle setup requires a manual bootstrap procedure to enable enough control"
+  zrbmp_normal ""
+  zrbmp_nc "Open a web browser to " "https://cloud.google.com/free"
+  zrbmp_normal ""
+  
+  zrbmp_normal "1. **Establish Account**"
+  zrbmp_nw "   1. Click " "\"Get started for free\""
+  zrbmp_normal "   1. Sign in with Google account or create new"
+  zrbmp_normal "   1. Provide:"
+  zrbmp_normal "      - Country"
+  zrbmp_nw "      - Organization type: " "Individual"
+  zrbmp_normal "      - Credit card (verification only)"
+  zrbmp_nw "   1. Accept terms → " "Start my free trial"
+  zrbmp_normal "   1. Expect Google Cloud Console to open."
+  
+  zrbmp_normal "1. **Create New Project**"
+  zrbmp_nw "   1. Top bar project dropdown → " "New Project"
+  zrbmp_normal "   1. Configure:"
+  zrbmp_nc "      - Project name: " "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}"
+  zrbmp_nw "      - Leave organization as " "\"No organization\""
+  zrbmp_nwn "   1. Create → Wait for notification " "\"Creating project...\"" " to complete"
+  zrbmp_normal "   1. Select project from dropdown when ready"
+  
+  zrbmp_normal "1. **Create Provisioner Service Account**"
+  zrbmp_normal "   1. Navigate to IAM & Admin section"
+  zrbmp_nw "   1. Left sidebar → " "IAM & Admin → Service Accounts"
+  zrbmp_nw "   1. If prompted about APIs, click " "\"Enable API\""
+  zrbmp_nw "   1. Wait for " "\"Identity and Access Management (IAM) API\" to enable"
+  
+  zrbmp_normal "1. **Create the Provisioner**"
+  zrbmp_nw "   1. Click " "\"+ CREATE SERVICE ACCOUNT\" at top"
+  zrbmp_normal "   1. Service account details:"
+  zrbmp_nc "      - Service account name: " "rbra-provisioner"
+  zrbmp_nwn "      - Service account ID: (auto-fills as " "rbra-provisioner" ")"
+  zrbmp_nc "      - Description: " "Temporary provisioner for infrastructure setup - DELETE AFTER USE"
+  zrbmp_nw "   1. Click " "\"CREATE AND CONTINUE\""
+  
+  zrbmp_normal "1. Assign Project Owner Role:"
+  
   zrbmp_critical "This grants complete project control. Delete immediately after setup."
-  echo
-  echo "   Grant access section:"
-  echo "   1. Click"
-  zrbmp_website "Select a role"
-  echo "      dropdown"
-  echo "   2. In filter box, type:"
-  zrbmp_command "owner"
-  echo "   3. Select:"
-  zrbmp_website "Basic → Owner"
-  echo "   4. Click"
-  zrbmp_website "CONTINUE"
-  echo "   5. Grant users access section: Skip (click"
-  zrbmp_website "DONE"
-  echo "      )"
-  echo
-  echo "   Service account list now shows:"
-  zrbmp_website "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
-  echo
-
-  zrbmp_subsection "6. Generate Service Account Key"
-  echo
-  echo "From service accounts list:"
-  echo "   1. Click on"
-  zrbmp_website "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
-  echo "   2. Top tabs →"
-  zrbmp_website "KEYS"
-  echo "   3. Click"
-  zrbmp_website "ADD KEY"
-  echo "      →"
-  zrbmp_website "Create new key"
-  echo "   4. Key type:"
-  zrbmp_website "JSON"
-  echo "      (should be selected)"
-  echo "   5. Click"
-  zrbmp_website "CREATE"
-  echo
-  echo "   Browser downloads:"
-  zrbmp_website "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}-[random].json"
-  echo
-  echo "   6. Click"
-  zrbmp_website "CLOSE"
-  echo "      on download confirmation"
-  echo
-
-  zrbmp_subsection "7. Configure Local Environment"
-  echo
-  echo "Open terminal [LOCAL-SETUP]:"
-  echo
-  echo -e "${ZRBMP_COLOR_COMMAND}# Create secrets directory structure"
-  echo "mkdir -p ../station-files/secrets"
-  echo "cd ../station-files/secrets"
-  echo
-  echo "# Move downloaded key (adjust path to your Downloads folder)"
-  echo "mv ~/Downloads/${RBRR_GAR_PROJECT_ID:-recipemuster-prod}-*.json rbra-provisioner-key.json"
-  echo
-  echo "# Verify key structure"
-  echo "jq -r '.type' rbra-provisioner-key.json"
-  echo "# Should output: service_account"
-  echo
-  echo "# Create RBRA environment file"
-  echo "cat > rbra-provisioner.env << 'EOF'"
-  echo "RBRA_SERVICE_ACCOUNT_KEY=../station-files/secrets/rbra-provisioner-key.json"
-  echo "RBRA_TOKEN_LIFETIME_SEC=1800"
-  echo "EOF"
-  echo
-  echo "# Set restrictive permissions"
-  echo "chmod 600 rbra-provisioner-key.json"
-  echo -e "chmod 600 rbra-provisioner.env${ZRBMP_COLOR_RESET}"
-  echo
-
-  echo "---"
-  echo
+  
+  zrbmp_normal "Grant access section:"
+  zrbmp_nw "1. Click " "\"Select a role\" dropdown"
+  zrbmp_nc "2. In filter box, type: " "owner"
+  zrbmp_nw "3. Select: " "Basic → Owner"
+  zrbmp_nw "4. Click " "\"CONTINUE\""
+  zrbmp_nw "5. Grant users access section: Skip (click " "\"DONE\")"
+  zrbmp_normal ""
+  zrbmp_nw "Service account list now shows " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
+  
+  zrbmp_subsubsection "4. Generate Service Account Key"
+  
+  zrbmp_normal "From service accounts list:"
+  zrbmp_nw "1. Click on " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
+  zrbmp_nw "2. Top tabs → " "KEYS"
+  zrbmp_nw "3. Click " "\"ADD KEY\" → \"Create new key\""
+  zrbmp_nw "4. Key type: " "JSON (should be selected)"
+  zrbmp_nw "5. Click " "\"CREATE\""
+  zrbmp_normal ""
+  zrbmp_nw "Browser downloads: " "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}-[random].json"
+  zrbmp_normal ""
+  zrbmp_nw "6. Click " "\"CLOSE\" on download confirmation"
+  
+  zrbmp_subsubsection "5. Configure Local Environment"
+  
+  zrbmp_normal "Open terminal ⟨LOCAL-SETUP⟩:"
+  zrbmp_normal ""
+  zrbmp_command "# Create secrets directory structure"
+  zrbmp_command "mkdir -p ../station-files/secrets"
+  zrbmp_command "cd ../station-files/secrets"
+  zrbmp_command ""
+  zrbmp_command "# Move downloaded key (adjust path to your Downloads folder)"
+  zrbmp_command "mv ~/Downloads/${RBRR_GAR_PROJECT_ID:-recipemuster-prod}-*.json rbra-provisioner-key.json"
+  zrbmp_command ""
+  zrbmp_command "# Verify key structure"
+  zrbmp_command "jq -r '.type' rbra-provisioner-key.json"
+  zrbmp_command "# Should output: service_account"
+  zrbmp_command ""
+  zrbmp_command "# Create RBRA environment file"
+  zrbmp_command "cat > rbra-provisioner.env << 'EOF'"
+  zrbmp_command "RBRA_SERVICE_ACCOUNT_KEY=../station-files/secrets/rbra-provisioner-key.json"
+  zrbmp_command "RBRA_TOKEN_LIFETIME_SEC=1800"
+  zrbmp_command "EOF"
+  zrbmp_command ""
+  zrbmp_command "# Set restrictive permissions"
+  zrbmp_command "chmod 600 rbra-provisioner-key.json"
+  zrbmp_command "chmod 600 rbra-provisioner.env"
+  
+  zrbmp_normal ""
+  zrbmp_normal "---"
+  
   zrbmp_warning "Remember to delete the provisioner service account after infrastructure setup is complete!"
-  echo
-  echo "The provisioner environment file is now configured at:"
-  zrbmp_command "${RBRR_PROVISIONER_RBRA_FILE:-../station-files/secrets/rbra-provisioner.env}"
-  echo
-
+  
+  zrbmp_normal "The provisioner environment file is now configured at:"
+  zrbmp_nc "" "${RBRR_PROVISIONER_RBRA_FILE:-../station-files/secrets/rbra-provisioner.env}"
+  zrbmp_normal ""
+  
   bcu_success "Manual setup procedure displayed"
 }
 
@@ -266,50 +249,40 @@ rbmp_show_teardown() {
   bcu_doc_shown || return 0
 
   zrbmp_section "Provisioner Teardown Procedure"
-
+  
   zrbmp_critical "Execute this immediately after infrastructure setup is complete!"
-
-  echo "1. **Delete Service Account Key from GCP Console**"
-  echo "   1. Navigate to"
-  zrbmp_website "IAM & Admin → Service Accounts"
-  echo "   2. Click on"
-  zrbmp_website "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
-  echo "   3. Go to"
-  zrbmp_website "KEYS"
-  echo "      tab"
-  echo "   4. Find the key created earlier"
-  echo "   5. Click the three dots menu →"
-  zrbmp_website "Delete"
-  echo "   6. Confirm deletion"
-  echo
-
-  echo "2. **Delete Service Account**"
-  echo "   1. Return to Service Accounts list"
-  echo "   2. Check the box next to"
-  zrbmp_website "rbra-provisioner"
-  echo "   3. Click"
-  zrbmp_website "DELETE"
-  echo "      at top"
-  echo "   4. Type the confirmation text"
-  echo "   5. Click"
-  zrbmp_website "DELETE"
-  echo
-
-  echo "3. **Remove Local Files**"
-  echo
+  
+  zrbmp_normal "1. **Delete Service Account Key from GCP Console**"
+  zrbmp_nw "   1. Navigate to " "IAM & Admin → Service Accounts"
+  zrbmp_nw "   2. Click on " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
+  zrbmp_nw "   3. Go to " "KEYS tab"
+  zrbmp_normal "   4. Find the key created earlier"
+  zrbmp_nw "   5. Click the three dots menu → " "Delete"
+  zrbmp_normal "   6. Confirm deletion"
+  zrbmp_normal ""
+  
+  zrbmp_normal "2. **Delete Service Account**"
+  zrbmp_normal "   1. Return to Service Accounts list"
+  zrbmp_nw "   2. Check the box next to " "rbra-provisioner"
+  zrbmp_nw "   3. Click " "DELETE at top"
+  zrbmp_normal "   4. Type the confirmation text"
+  zrbmp_nw "   5. Click " "DELETE"
+  zrbmp_normal ""
+  
+  zrbmp_normal "3. **Remove Local Files**"
   zrbmp_command "# Remove provisioner credentials"
   zrbmp_command "cd ../station-files/secrets"
   zrbmp_command "shred -vuz rbra-provisioner-key.json"
   zrbmp_command "shred -vuz rbra-provisioner.env"
-  echo
-
-  echo "4. **Verify Removal**"
-  echo "   - Check GCP Console shows no rbra-provisioner service account"
-  echo "   - Verify local files are removed:"
-  echo
+  zrbmp_normal ""
+  
+  zrbmp_normal "4. **Verify Removal**"
+  zrbmp_normal "   - Check GCP Console shows no rbra-provisioner service account"
+  zrbmp_normal "   - Verify local files are removed:"
   zrbmp_command "ls -la ../station-files/secrets/ | grep provisioner"
-  echo "   (should return nothing)"
-  echo
-
+  zrbmp_normal "   (should return nothing)"
+  zrbmp_normal ""
+  
   bcu_success "Teardown procedure displayed"
 }
+
