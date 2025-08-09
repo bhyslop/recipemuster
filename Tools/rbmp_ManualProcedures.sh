@@ -30,11 +30,6 @@ ZRBMP_SOURCED=1
 zrbmp_kindle() {
   test -z "${ZRBMP_KINDLED:-}" || bcu_die "Module rbmp already kindled"
 
-  # Source RBL module to get RBRR file location
-  zrbl_kindle
-  bvu_file_exists "${RBL_RBRR_FILE}"
-  source "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
-
   # Define ANSI color codes
   ZRBMP_COLOR_RESET="\033[0m"
   ZRBMP_COLOR_SECTION="\033[1;37m"   # Bright white for sections
@@ -42,9 +37,6 @@ zrbmp_kindle() {
   ZRBMP_COLOR_WEBSITE="\033[35m"     # Magenta for website text
   ZRBMP_COLOR_WARNING="\033[1;33m"   # Bright yellow for warnings
   ZRBMP_COLOR_CRITICAL="\033[1;31m"  # Bright red for critical warnings
-
-  # Define file paths
-  ZRBMP_TEMP_FILE="${BDU_TEMP_DIR}/rbmp_temp.txt"
 
   ZRBMP_KINDLED=1
 }

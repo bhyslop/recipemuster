@@ -24,12 +24,15 @@ ZRBMP_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
 source "${ZRBMP_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBMP_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBMP_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBMP_SCRIPT_DIR}/rbmp_ManualProcedures.sh"
 
 zrbmp_furnish() {
-
   zrbl_kindle
+  bvu_file_exists "${RBL_RBRR_FILE}"
+  source "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+
   zrbmp_kindle
 }
 
