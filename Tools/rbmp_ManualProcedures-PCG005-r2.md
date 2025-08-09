@@ -10,46 +10,41 @@ The provisioner will automate the creation of operational service accounts and i
 
 ---
 
-## Phase 1: Manual Provisioner Setup (Required First)
+## Manual Provisioner Setup Procedure
 
-### 1. Create GCP Account and Project
+Recipe Bottle setup requires a manual bootstrap procedure to enable enough control 
 
-Open browser, navigate to https://cloud.google.com/free
+Open a web browser to https://cloud.google.com/free
 
-1. Click "Get started for free"
-2. Sign in with Google account or create new
-3. Provide:
-   - Country
-   - Organization type: Individual
-   - Credit card (verification only)
-4. Accept terms → Start my free trial
-
-After account creation, Google Cloud Console opens.
-
-Create new project:
-1. Top bar project dropdown → New Project
-2. Configure:
-   - Project name: `recipemuster-prod`
-   - Leave organization as "No organization"
-3. Create → Wait for notification "Creating project..." to complete
-4. Select project from dropdown when ready
-
-### 2. Create Provisioner Service Account
-
-Navigate to IAM & Admin section:
-1. Left sidebar → IAM & Admin → Service Accounts
-2. If prompted about APIs, click "Enable API"
-3. Wait for "Identity and Access Management (IAM) API" to enable
-
-Create the provisioner:
-1. Click "+ CREATE SERVICE ACCOUNT" at top
-2. Service account details:
-   - Service account name: `rbra-provisioner`
-   - Service account ID: (auto-fills as `rbra-provisioner`)
-   - Description: `Temporary provisioner for infrastructure setup - DELETE AFTER USE`
-3. Click "CREATE AND CONTINUE"
-
-### 3. Assign Project Owner Role
+1. **Establish Account**
+   1. Click "Get started for free"
+   1. Sign in with Google account or create new
+   1. Provide:
+      - Country
+      - Organization type: Individual
+      - Credit card (verification only)
+   1. Accept terms → Start my free trial
+   1. Expect Google Cloud Console to open.
+1. **Create New Project**
+   1. Top bar project dropdown → New Project
+   1. Configure:
+      - Project name: `recipemuster-prod`
+      - Leave organization as "No organization"
+   1. Create → Wait for notification "Creating project..." to complete
+   1. Select project from dropdown when ready
+1. **Create Provisioner Service Account**
+   1. Navigate to IAM & Admin section
+   1. Left sidebar → IAM & Admin → Service Accounts
+   1. If prompted about APIs, click "Enable API"
+   1. Wait for "Identity and Access Management (IAM) API" to enable
+1. **Create the Provisioner**
+   1. Click "+ CREATE SERVICE ACCOUNT" at top
+   1. Service account details:
+      - Service account name: `rbra-provisioner`
+      - Service account ID: (auto-fills as `rbra-provisioner`)
+      - Description: `Temporary provisioner for infrastructure setup - DELETE AFTER USE`
+   1. Click "CREATE AND CONTINUE"
+1. Assign Project Owner Role:
 
 ⚠️ **CRITICAL SECURITY WARNING**: This grants complete project control. Delete immediately after setup.
 
