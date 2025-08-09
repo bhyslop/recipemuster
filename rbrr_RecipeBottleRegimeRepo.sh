@@ -66,5 +66,13 @@ export RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 export RBRR_GAR_RBRA_FILE=../station-files/secrets/rbrs-gar.env
 export RBRR_GCB_RBRA_FILE=../station-files/secrets/rbrs-gcb.env
 
+# PROVISIONER - DANGEROUS - Setup only, delete after use
+#    - Permissions: roles/owner (PROJECT OWNER - FULL CONTROL)
+#    - Token lifetime: 1800 seconds (30 minutes for complex setup)
+#    - File contains: RBRA_SERVICE_ACCOUNT_KEY, RBRA_TOKEN_LIFETIME_SEC
+#
+# WARNING: Delete this file and revoke key after initial setup
+export RBRR_PROVISIONER_RBRA_FILE=../station-files/secrets/rbra-provisioner.env
+
 
 # eof
