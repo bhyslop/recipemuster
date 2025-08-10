@@ -167,14 +167,14 @@ rbmp_show_setup() {
   zrbmp_nc     "   2. In filter box, type: " "owner"
   zrbmp_nwnw   "   3. Select: " "Basic" " → " "Owner"
   zrbmp_nw     "   4. Click → " "CONTINUE"
-  zrbmp_nw     "   5. Grant users access section: Skip by clicking → " "DONE"
+  zrbmp_nwnw   "   5. Skip " "Principals with access" " by clicking → " "DONE"
   zrbmp_e
   zrbmp_s2     "7. Generate Service Account Key:"
   zrbmp_n      "From service accounts list:"
-  zrbmp_nw     "   1. Click on " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  zrbmp_nw     "   1. Click on text of " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
   zrbmp_nw     "   2. Top tabs → " "KEYS"
   zrbmp_nwnw   "   3. Click " "ADD KEY" " → " "Create new key"
-  zrbmp_nw     "   4. Key type: " "JSON (should be selected)"
+  zrbmp_nwn    "   4. Key type: " "JSON" " (should be selected)"
   zrbmp_nw     "   5. Click " "CREATE"
   zrbmp_e
   zrbmp_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
