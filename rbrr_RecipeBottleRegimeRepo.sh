@@ -37,7 +37,7 @@ export RBRR_CHOSEN_IDENTITY=20250723-092042  # mow_x86_64_wsl mow_aarch64_wsl
 
 
 # Google Cloud Platform configuration (shared by all GCP services)
-export RBRR_GCP_PROJECT_ID=brm_recipemuster_proj
+export RBRR_GCP_PROJECT_ID=brm-recipemuster-proj
 export RBRR_GCP_REGION=us-central1
 
 # Google Artifact Registry settings
