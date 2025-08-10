@@ -50,6 +50,7 @@ zrbmp_kindle() {
   fi
 
   ZRBMP_PROVISIONER_ROLE="rbra-provisioner"
+  ZRBMP_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
   ZRBMP_KINDLED=1
 }
@@ -63,12 +64,13 @@ zrbmp_s2() { zrbmp_show "${ZRBMP_S}${1}${ZRBMP_R}"; }
 zrbmp_s3() { zrbmp_show "${ZRBMP_S}${1}${ZRBMP_R}"; }
 
 zrbmp_e()    { zrbmp_show; }
-zrbmp_n()    { zrbmp_show "${1}";                                                     }
-zrbmp_nc()   { zrbmp_show "${1}${ZRBMP_C}${2}${ZRBMP_R}";                             }
-zrbmp_ncn()  { zrbmp_show "${1}${ZRBMP_C}${2}${ZRBMP_R}${3}";                         }
-zrbmp_nw()   { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}";                             }
-zrbmp_nwn()  { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}";                         }
-zrbmp_nwnw() { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}${ZRBMP_W}${4}${ZRBMP_R}"; }
+zrbmp_n()    { zrbmp_show "${1}";                                                      }
+zrbmp_nc()   { zrbmp_show "${1}${ZRBMP_C}${2}${ZRBMP_R}";                              }
+zrbmp_ncn()  { zrbmp_show "${1}${ZRBMP_C}${2}${ZRBMP_R}${3}";                          }
+zrbmp_nw()   { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}";                              }
+zrbmp_nwn()  { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}";                          }
+zrbmp_nwne() { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}${ZRBMP_CR}${4}${ZRBMP_R}"; }
+zrbmp_nwnw() { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}${ZRBMP_W}${4}${ZRBMP_R}";  }
 
 zrbmp_ne()   { zrbmp_show "${1}${ZRBMP_CR}${2}${ZRBMP_R}"; }
 
@@ -82,8 +84,6 @@ zrbmp_critic()  { zrbmp_show "\n${ZRBMP_CR}🔴 CRITICAL SECURITY WARNING: ${1}$
 rbmp_show_setup() {
   zrbmp_sentinel
   
-  local z_rbrr_file="../station-files/rbrr_RecipeBottleRegimeRepo.sh"
-
   bcu_doc_brief "Display the manual GCP provisioner setup procedure"
   bcu_doc_shown || return 0
 
@@ -112,9 +112,10 @@ rbmp_show_setup() {
   zrbmp_n      "   5. Expect Google Cloud Console to open."
   zrbmp_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
   zrbmp_e
-  zrbmp_s2     "2. Configure Project ID and Region:"
+  local z_configure_pid_step="2. Configure Project ID and Region"
+  zrbmp_s2     "${z_configure_pid_step}:"
   zrbmp_n      "   Before creating the project, you must choose a unique project ID."
-  zrbmp_nc     "   1. Edit your RBRR configuration file: " "${z_rbrr_file}"
+  zrbmp_nc     "   1. Edit your RBRR configuration file: " "${ZRBMP_RBRR_FILE}"
   zrbmp_n      "   2. Set RBRR_GCP_PROJECT_ID to a unique value:"
   zrbmp_n      "      - Must be globally unique across all GCP"
   zrbmp_n      "      - 6-30 characters, lowercase letters, numbers, hyphens"
@@ -131,17 +132,12 @@ rbmp_show_setup() {
   zrbmp_n      "   Confirm you're in the Google Cloud Console (not the marketing site)"
   zrbmp_nw     "   1. Top bar project dropdown → " "New Project"
   zrbmp_n      "   2. Configure:"
-  zrbmp_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
+  zrbmp_nc     "      - Project name currently in ${ZRBMP_RBRR_FILE}: " "${RBRR_GCP_PROJECT_ID}"
   zrbmp_nw     "      - Leave organization as -> " "No organization"
   zrbmp_nw     "   3. Click " "CREATE"
-  zrbmp_e
-  zrbmp_ne     "   ERROR: If \"The project ID is already taken\":" " STOP HERE"
-  zrbmp_n      "         1. Cancel project creation"
-  zrbmp_nc     "         2. Edit " "${z_rbrr_file}" " with a different project ID"
-  zrbmp_n      "         3. Restart from Step 3"
-  zrbmp_e
-  zrbmp_nwn    "   4. Wait for notification -> " "Creating project..." " to complete"
-  zrbmp_n      "   5. Select project from dropdown when ready"
+  zrbmp_nwne   "   4. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
+  zrbmp_nwn    "   5. Wait for notification -> " "Creating project..." " to complete"
+  zrbmp_n      "   6. Select project from dropdown when ready"
   zrbmp_e
   zrbmp_s2     "4. Navigate to Service Accounts:"
   zrbmp_n      "   1. Ensure your new project is selected in the top dropdown"
