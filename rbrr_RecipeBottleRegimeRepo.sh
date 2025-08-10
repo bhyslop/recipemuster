@@ -38,7 +38,7 @@ export RBRR_CHOSEN_IDENTITY=20250723-092042  # mow_x86_64_wsl mow_aarch64_wsl
 
 # Google Cloud Platform configuration (shared by all GCP services)
 export RBRR_GCP_PROJECT_ID=brm-recipemuster-proj
-export RBRR_GCP_REGION=us-central1
+export RBRR_GCP_REGION=us-central1  # PRoject doesn't have a region but our services do
 
 # Google Artifact Registry settings
 export RBRR_GAR_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
@@ -52,31 +52,47 @@ export RBRR_GCB_MACHINE_TYPE=e2-highcpu-8
 export RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 export RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 
-# Service Account Configuration
-#
-# Uses RBRA (Recipe Bottle Regime Alphabet) for Google service account credentials.
-# Each service has distinct permissions following least-privilege:
-#
-# 1. GAR READER - Pull/list/inspect container images
-#    - Permissions: roles/artifactregistry.reader
-#    - Token lifetime: 300 seconds (5 minutes)
-#    - File contains: RBRA_SERVICE_ACCOUNT_KEY, RBRA_TOKEN_LIFETIME_SEC
-#
-# 2. GCB SUBMITTER - Submit builds to Cloud Build
-#    - Permissions: roles/cloudbuild.builds.editor + storage.admin on staging
-#    - Token lifetime: 600 seconds (10 minutes)
-#    - File contains: RBRA_SERVICE_ACCOUNT_KEY, RBRA_TOKEN_LIFETIME_SEC
-#
-export RBRR_GAR_RBRA_FILE=../station-files/secrets/rbrs-gar.env
-export RBRR_GCB_RBRA_FILE=../station-files/secrets/rbrs-gcb.env
 
-# PROVISIONER - DANGEROUS - Setup only, delete after use
-#    - Permissions: roles/owner (PROJECT OWNER - FULL CONTROL)
-#    - Token lifetime: 1800 seconds (30 minutes for complex setup)
-#    - File contains: RBRA_SERVICE_ACCOUNT_KEY, RBRA_TOKEN_LIFETIME_SEC
+# Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format
 #
-# WARNING: Delete this file and revoke key after initial setup
+# RBRA files are bash-sourceable environment files containing extracted 
+# Google service account credentials. No JSON parsing required at runtime.
+#
+# Required RBRA environment variables:
+#   RBRA_CLIENT_EMAIL       - Service account email (e.g., sa-name@project.iam.gserviceaccount.com)
+#   RBRA_PRIVATE_KEY        - RSA private key in PEM format (includes newlines as \n)
+#   RBRA_PROJECT_ID         - GCP project ID for context
+#   RBRA_TOKEN_LIFETIME_SEC - OAuth token lifetime in seconds (300-3600)
+#
+# Creation process:
+#   1. Download service account JSON from GCP Console
+#   2. Extract fields: jq -r '.client_email' key.json
+#   3. Create RBRA file with proper escaping for RBRA_PRIVATE_KEY
+#   4. Delete original JSON file
+#   5. chmod 600 the RBRA file
+#
+# Security notes:
+#   - RBRA files contain raw credentials - protect like passwords
+#   - Never commit RBRA files to version control
+#   - Use shortest reasonable TOKEN_LIFETIME_SEC for each role
+#
+# Service accounts by role:
+#
+# 1. GAR READER - Pull/list container images
+export RBRR_GAR_RBRA_FILE=../station-files/secrets/rbra-gar-reader.env
+#    Permissions: roles/artifactregistry.reader
+#    Token lifetime: 300 seconds (quick pulls)
+#
+# 2. GCB SUBMITTER - Submit Cloud Build jobs  
+export RBRR_GCB_RBRA_FILE=../station-files/secrets/rbra-gcb-submitter.env
+#    Permissions: roles/cloudbuild.builds.editor + storage.admin on staging
+#    Token lifetime: 600 seconds (build submission)
+#
+# 3. PROVISIONER - PROJECT OWNER - Delete after infrastructure setup!
 export RBRR_PROVISIONER_RBRA_FILE=../station-files/secrets/rbra-provisioner.env
+#    Permissions: roles/owner (FULL PROJECT CONTROL)
+#    Token lifetime: 1800 seconds (complex setup operations)
+#    WARNING: This grants complete project control. Delete immediately after use.
 
 
 # eof

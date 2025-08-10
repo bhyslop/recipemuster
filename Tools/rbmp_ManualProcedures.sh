@@ -52,6 +52,14 @@ zrbmp_kindle() {
   ZRBMP_PROVISIONER_ROLE="rbra-provisioner"
   ZRBMP_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
+  ZRBMP_GAR_READER_NAME="rbra-gar-reader"
+  ZRBMP_GAR_READER_EMAIL="${ZRBMP_GAR_READER_NAME}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+
+  ZRBMP_GCB_SUBMITTER_NAME="rbra-gcb-submitter"
+  ZRBMP_GCB_SUBMITTER_EMAIL="${ZRBMP_GCB_SUBMITTER_NAME}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+
+  ZRBMP_PREFIX="${BDU_TEMP_DIR}/rbmp_"
+
   ZRBMP_KINDLED=1
 }
 
@@ -78,12 +86,88 @@ zrbmp_cmd()     { zrbmp_show "${ZRBMP_C}${1}${ZRBMP_R}";                        
 zrbmp_warning() { zrbmp_show "\n${ZRBMP_WN}⚠️  WARNING: ${1}${ZRBMP_R}\n"; }
 zrbmp_critic()  { zrbmp_show "\n${ZRBMP_CR}🔴 CRITICAL SECURITY WARNING: ${1}${ZRBMP_R}\n"; }
 
+zrbmp_extract_json_to_rbra() {
+  zrbmp_sentinel
+
+  local z_json_path="$1"
+  local z_rbra_path="$2"
+  local z_lifetime_sec="$3"
+
+  test -f "${z_json_path}" || bcu_die "Service account JSON not found: ${z_json_path}"
+
+  bcu_info "Extracting service account credentials from JSON"
+
+  # Extract fields
+  local z_client_email
+  z_client_email=$(jq -r '.client_email' "${z_json_path}") || bcu_die "Failed to extract client_email"
+  test -n "${z_client_email}" || bcu_die "Empty client_email in JSON"
+  test "${z_client_email}" != "null" || bcu_die "Null client_email in JSON"
+
+  local z_private_key
+  z_private_key=$(jq -r '.private_key' "${z_json_path}") || bcu_die "Failed to extract private_key"
+  test -n "${z_private_key}" || bcu_die "Empty private_key in JSON"
+  test "${z_private_key}" != "null" || bcu_die "Null private_key in JSON"
+
+  local z_project_id
+  z_project_id=$(jq -r '.project_id' "${z_json_path}") || bcu_die "Failed to extract project_id"
+  test -n "${z_project_id}" || bcu_die "Empty project_id in JSON"
+  test "${z_project_id}" != "null" || bcu_die "Null project_id in JSON"
+
+  # Verify project matches
+  test "${z_project_id}" = "${RBRR_GCP_PROJECT_ID}" || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${RBRR_GCP_PROJECT_ID}'"
+
+  # Write RBRA file
+  cat > "${z_rbra_path}" << EOF
+RBRA_CLIENT_EMAIL="${z_client_email}"
+RBRA_PRIVATE_KEY="${z_private_key}"
+RBRA_PROJECT_ID="${z_project_id}"
+RBRA_TOKEN_LIFETIME_SEC=${z_lifetime_sec}
+EOF
+
+  test -f "${z_rbra_path}" || bcu_die "Failed to write RBRA file: ${z_rbra_path}"
+
+  bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
+}
+
+zrbmp_delete_service_account() {
+  zrbmp_sentinel
+
+  local z_sa_email="$1"
+
+  bcu_info "Attempting to delete service account: ${z_sa_email}"
+
+  # Get OAuth token
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_PROVISIONER_RBRA_FILE}") || bcu_die "Failed to get provisioner token"
+
+  # Delete via REST API
+  local z_response_file="${ZRBMP_PREFIX}delete_response.json"
+  local z_http_code_file="${ZRBMP_PREFIX}delete_code.txt"
+
+  curl -s -X DELETE \
+    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_sa_email}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -o "${z_response_file}" \
+    -w "%{http_code}" > "${z_http_code_file}" 2>/dev/null
+
+  local z_http_code=$(<"${z_http_code_file}")
+
+  if test "${z_http_code}" = "200" -o "${z_http_code}" = "204"; then
+    bcu_step "Deleted service account: ${z_sa_email}"
+  elif test "${z_http_code}" = "404"; then
+    bcu_step "Service account not found (already deleted): ${z_sa_email}"
+  else
+    bcu_step "Failed to delete (HTTP ${z_http_code}): ${z_sa_email}"
+    test -s "${z_response_file}" && jq -r '.error.message // "No error message"' "${z_response_file}"
+  fi
+}
+
 ######################################################################
 # External Functions (rbmp_*)
 
 rbmp_show_setup() {
   zrbmp_sentinel
-  
+
   bcu_doc_brief "Display the manual GCP provisioner setup procedure"
   bcu_doc_shown || return 0
 
@@ -250,4 +334,117 @@ rbmp_show_teardown() {
 
   bcu_success "Teardown procedure displayed"
 }
+
+rbmp_convert_provisioner_json() {
+  zrbmp_sentinel
+
+  local z_json_path="${1:-}"
+
+  bcu_doc_brief "Convert provisioner service account JSON to RBRA format"
+  bcu_doc_param "json_path" "Path to downloaded provisioner JSON file"
+  bcu_doc_shown || return 0
+
+  test -n "${z_json_path}" || bcu_die "JSON path required"
+
+  bcu_step "Converting provisioner JSON to RBRA format"
+
+  zrbmp_extract_json_to_rbra \
+    "${z_json_path}" \
+    "${RBRR_PROVISIONER_RBRA_FILE}" \
+    "1800"
+
+  bcu_success "Provisioner RBRA file created: ${RBRR_PROVISIONER_RBRA_FILE}"
+}
+
+rbmp_create_service_accounts() {
+  zrbmp_sentinel
+
+  bcu_doc_brief "Create GAR reader and GCB submitter service accounts"
+  bcu_doc_shown || return 0
+
+  bcu_step "Creating service accounts for operational roles"
+
+  # Get OAuth token from provisioner
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_PROVISIONER_RBRA_FILE}") || bcu_die "Failed to get provisioner token"
+
+  # Create GAR reader
+  bcu_info "Creating GAR reader service account"
+  local z_request_file="${ZRBMP_PREFIX}create_gar_request.json"
+  local z_response_file="${ZRBMP_PREFIX}create_gar_response.json"
+
+  cat > "${z_request_file}" << EOF
+{
+  "accountId": "${ZRBMP_GAR_READER_NAME}",
+  "serviceAccount": {
+    "displayName": "Recipe Bottle GAR Reader",
+    "description": "Read-only access to Google Artifact Registry"
+  }
+}
+EOF
+
+  curl -s -X POST \
+    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d @"${z_request_file}" \
+    -o "${z_response_file}" 2>/dev/null
+
+  if jq -e '.email' "${z_response_file}" >/dev/null 2>&1; then
+    bcu_step "Created GAR reader: ${ZRBMP_GAR_READER_EMAIL}"
+  else
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${z_response_file}")
+    bcu_warn "GAR reader creation issue: ${z_error}"
+  fi
+
+  # Create GCB submitter
+  bcu_info "Creating GCB submitter service account"
+  local z_request_file="${ZRBMP_PREFIX}create_gcb_request.json"
+  local z_response_file="${ZRBMP_PREFIX}create_gcb_response.json"
+
+  cat > "${z_request_file}" << EOF
+{
+  "accountId": "${ZRBMP_GCB_SUBMITTER_NAME}",
+  "serviceAccount": {
+    "displayName": "Recipe Bottle GCB Submitter",
+    "description": "Submit builds to Google Cloud Build"
+  }
+}
+EOF
+
+  curl -s -X POST \
+    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d @"${z_request_file}" \
+    -o "${z_response_file}" 2>/dev/null
+
+  if jq -e '.email' "${z_response_file}" >/dev/null 2>&1; then
+    bcu_step "Created GCB submitter: ${ZRBMP_GCB_SUBMITTER_EMAIL}"
+  else
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${z_response_file}")
+    bcu_warn "GCB submitter creation issue: ${z_error}"
+  fi
+
+  bcu_success "Service account creation completed"
+  bcu_info "Next: Generate keys and assign IAM roles for these accounts"
+}
+
+rbmp_cleanup_service_accounts() {
+  zrbmp_sentinel
+
+  bcu_doc_brief "Delete operational service accounts (cleanup)"
+  bcu_doc_shown || return 0
+
+  bcu_step "Cleaning up operational service accounts"
+
+  zrbmp_delete_service_account "${ZRBMP_GAR_READER_EMAIL}"
+  zrbmp_delete_service_account "${ZRBMP_GCB_SUBMITTER_EMAIL}"
+
+  bcu_success "Service account cleanup completed"
+}
+
+# eof
 
