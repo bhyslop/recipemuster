@@ -70,6 +70,8 @@ zrbmp_nw()   { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}";                       
 zrbmp_nwn()  { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}";                         }
 zrbmp_nwnw() { zrbmp_show "${1}${ZRBMP_W}${2}${ZRBMP_R}${3}${ZRBMP_W}${4}${ZRBMP_R}"; }
 
+zrbmp_ne()   { zrbmp_show "${1}${ZRBMP_CR}${2}${ZRBMP_R}"; }
+
 zrbmp_cmd()     { zrbmp_show "${ZRBMP_C}${1}${ZRBMP_R}";                                 }
 zrbmp_warning() { zrbmp_show "\n${ZRBMP_WN}⚠️  WARNING: ${1}${ZRBMP_R}\n"; }
 zrbmp_critic()  { zrbmp_show "\n${ZRBMP_CR}🔴 CRITICAL SECURITY WARNING: ${1}${ZRBMP_R}\n"; }
@@ -79,6 +81,8 @@ zrbmp_critic()  { zrbmp_show "\n${ZRBMP_CR}🔴 CRITICAL SECURITY WARNING: ${1}$
 
 rbmp_show_setup() {
   zrbmp_sentinel
+  
+  local z_rbrr_file="../station-files/rbrr_RecipeBottleRegimeRepo.sh"
 
   bcu_doc_brief "Display the manual GCP provisioner setup procedure"
   bcu_doc_shown || return 0
@@ -106,47 +110,77 @@ rbmp_show_setup() {
   zrbmp_n      "      - Credit card (verification only)"
   zrbmp_nw     "   4. Accept terms → " "Start my free trial"
   zrbmp_n      "   5. Expect Google Cloud Console to open."
-  zrbmp_s2     "2. Create New Project:"
+  zrbmp_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
+  zrbmp_e
+  zrbmp_s2     "2. Configure Project ID and Region:"
+  zrbmp_n      "   Before creating the project, you must choose a unique project ID."
+  zrbmp_nc     "   1. Edit your RBRR configuration file: " "${z_rbrr_file}"
+  zrbmp_n      "   2. Set RBRR_GCP_PROJECT_ID to a unique value:"
+  zrbmp_n      "      - Must be globally unique across all GCP"
+  zrbmp_n      "      - 6-30 characters, lowercase letters, numbers, hyphens"
+  zrbmp_n      "      - Cannot start/end with hyphen"
+  zrbmp_nc     "      - Suggested pattern: " "yourname-recipemuster-proj"
+  zrbmp_n      "   3. Choose RBRR_GCP_REGION based on your location:"
+  zrbmp_nc     "      - US Central: " "us-central1 (default)"
+  zrbmp_nc     "      - US East: " "us-east1"
+  zrbmp_nc     "      - Europe: " "europe-west1"
+  zrbmp_nc     "      - Asia: " "asia-northeast1"
+  zrbmp_n      "   4. Save the file before proceeding"
+  zrbmp_e
+  zrbmp_s2     "3. Create New Project:"
+  zrbmp_n      "   Confirm you're in the Google Cloud Console (not the marketing site)"
   zrbmp_nw     "   1. Top bar project dropdown → " "New Project"
   zrbmp_n      "   2. Configure:"
   zrbmp_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
   zrbmp_nw     "      - Leave organization as -> " "No organization"
-  zrbmp_nwn    "   3. Create → Wait for notification -> " "Creating project..." " to complete"
-  zrbmp_n      "   4. Select project from dropdown when ready"
-  zrbmp_s2     "3. Create Provisioner Service Account:"
-  zrbmp_n      "   1. Navigate to IAM & Admin section"
+  zrbmp_nw     "   3. Click " "CREATE"
+  zrbmp_e
+  zrbmp_ne     "   ERROR: If \"The project ID is already taken\":" " STOP HERE"
+  zrbmp_n      "         1. Cancel project creation"
+  zrbmp_nc     "         2. Edit " "${z_rbrr_file}" " with a different project ID"
+  zrbmp_n      "         3. Restart from Step 3"
+  zrbmp_e
+  zrbmp_nwn    "   4. Wait for notification -> " "Creating project..." " to complete"
+  zrbmp_n      "   5. Select project from dropdown when ready"
+  zrbmp_e
+  zrbmp_s2     "4. Navigate to Service Accounts:"
+  zrbmp_n      "   1. Ensure your new project is selected in the top dropdown"
   zrbmp_nw     "   2. Left sidebar → " "IAM & Admin → Service Accounts"
   zrbmp_nw     "   3. If prompted about APIs, click -> " "Enable API"
   zrbmp_nw     "   4. Wait for " "Identity and Access Management (IAM) API to enable"
-  zrbmp_s2     "4. Create the Provisioner:"
+  zrbmp_e
+  zrbmp_s2     "5. Create the Provisioner:"
   zrbmp_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
   zrbmp_n      "   2. Service account details:"
   zrbmp_nc     "      - Service account name: " "${ZRBMP_PROVISIONER_ROLE}"
   zrbmp_nwn    "      - Service account ID: (auto-fills as " "${ZRBMP_PROVISIONER_ROLE}" ")"
   zrbmp_nc     "      - Description: " "Temporary provisioner for infrastructure setup - DELETE AFTER USE"
   zrbmp_nw     "   3. Click -> " "CREATE AND CONTINUE"
-  zrbmp_n      "5. Assign Project Owner Role:"
+  zrbmp_e
+  zrbmp_s2     "6. Assign Project Owner Role:"
   zrbmp_critic "This grants complete project control. Delete immediately after setup."
   zrbmp_n      "Grant access section:"
-  zrbmp_nw     "1. Click dropdown " "Select a role"
-  zrbmp_nc     "2. In filter box, type: " "owner"
-  zrbmp_nw     "3. Select: " "Basic → Owner"
-  zrbmp_nw     "4. Click -> " "CONTINUE"
-  zrbmp_nw     "5. Grant users access section: Skip by clicking -> " "DONE"
+  zrbmp_nw     "   1. Click dropdown " "Select a role"
+  zrbmp_nc     "   2. In filter box, type: " "owner"
+  zrbmp_nw     "   3. Select: " "Basic → Owner"
+  zrbmp_nw     "   4. Click -> " "CONTINUE"
+  zrbmp_nw     "   5. Grant users access section: Skip by clicking -> " "DONE"
   zrbmp_e
   zrbmp_nw     "Service account list now shows " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
-  zrbmp_s3     "6. Generate Service Account Key"
+  zrbmp_e
+  zrbmp_s2     "7. Generate Service Account Key:"
   zrbmp_n      "From service accounts list:"
-  zrbmp_nw     "1. Click on " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
-  zrbmp_nw     "2. Top tabs → " "KEYS"
-  zrbmp_nwnw   "3. Click " "ADD KEY"  " → " "Create new key"
-  zrbmp_nw     "4. Key type: " "JSON (should be selected)"
-  zrbmp_nw     "5. Click " "CREATE"
+  zrbmp_nw     "   1. Click on " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  zrbmp_nw     "   2. Top tabs → " "KEYS"
+  zrbmp_nwnw   "   3. Click " "ADD KEY"  " → " "Create new key"
+  zrbmp_nw     "   4. Key type: " "JSON (should be selected)"
+  zrbmp_nw     "   5. Click " "CREATE"
   zrbmp_e
   zrbmp_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
   zrbmp_e
-  zrbmp_nwn    "6. Click " "CLOSE" " on download confirmation"
-  zrbmp_s3     "7. Configure Local Environment"
+  zrbmp_nwn    "   6. Click " "CLOSE" " on download confirmation"
+  zrbmp_e
+  zrbmp_s2     "8. Configure Local Environment:"
   zrbmp_n      "Open terminal ⟨LOCAL-SETUP⟩:"
   zrbmp_e
   zrbmp_cmd    "# Create secrets directory structure"
