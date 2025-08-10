@@ -121,7 +121,7 @@ rbmp_show_setup() {
   zrbmp_s2     "4. Create the Provisioner:"
   zrbmp_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
   zrbmp_n      "   2. Service account details:"
-  zrbmp_nc     "      - Service account name: " "${z_prov_role_name}"
+  zrbmp_nc     "      - Service account name: " "${ZRBMP_PROVISIONER_ROLE}"
   zrbmp_nwn    "      - Service account ID: (auto-fills as " "${ZRBMP_PROVISIONER_ROLE}" ")"
   zrbmp_nc     "      - Description: " "Temporary provisioner for infrastructure setup - DELETE AFTER USE"
   zrbmp_nw     "   3. Click -> " "CREATE AND CONTINUE"
