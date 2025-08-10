@@ -133,7 +133,7 @@ rbmp_show_setup() {
   zrbmp_nc     "   Go directly to: " "https://console.cloud.google.com/"
   zrbmp_n      "   Sign in with the same Google account you just set up"
   zrbmp_n      "   1. Open the Google Cloud Console main menu:"
-  zrbmp_nw     "      - Click the ☰ hamburger menu in the top-left corner"
+  zrbmp_nwn    "      - Click the " "☰" " hamburger menu in the top-left corner"
   zrbmp_nw     "      - Scroll down to " "IAM & Admin"
   zrbmp_nw     "      - Click → " "Manage resources"
   zrbmp_n      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
@@ -147,8 +147,8 @@ rbmp_show_setup() {
   zrbmp_n      "   7. Select project from dropdown when ready"
   zrbmp_e
   zrbmp_s2     "4. Navigate to Service Accounts:"
-  zrbmp_n      "   Ensure your new project is selected in the top dropdown"
-  zrbmp_nw     "   1. Left sidebar → " "IAM & Admin → Service Accounts"
+  zrbmp_nwn    "   Ensure your new project is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
+  zrbmp_nwnw   "   1. Left sidebar → " "IAM & Admin" " → " "Service Accounts"
   zrbmp_nw     "   2. If prompted about APIs, click → " "Enable API"
   zrbmp_n      "      TODO: This step is brittle — enabling IAM API may happen automatically or be blocked by org policy."
   zrbmp_nw     "   3. Wait for " "Identity and Access Management (IAM) API to enable"
@@ -162,11 +162,10 @@ rbmp_show_setup() {
   zrbmp_nw     "   3. Click → " "CREATE AND CONTINUE"
   zrbmp_e
   zrbmp_s2     "6. Assign Project Owner Role:"
-  zrbmp_critic "This grants complete project control. Delete immediately after setup."
   zrbmp_n      "Grant access section:"
   zrbmp_nw     "   1. Click dropdown " "Select a role"
   zrbmp_nc     "   2. In filter box, type: " "owner"
-  zrbmp_nw     "   3. Select: " "Basic → Owner"
+  zrbmp_nwnw   "   3. Select: " "Basic" " → " "Owner"
   zrbmp_nw     "   4. Click → " "CONTINUE"
   zrbmp_nw     "   5. Grant users access section: Skip by clicking → " "DONE"
   zrbmp_e
