@@ -54,11 +54,11 @@ zrbmp_kindle() {
 
 zrbmp_sentinel() { test "${ZRBMP_KINDLED:-}" = "1" || bcu_die "Module rbmp not kindled - call zrbmp_kindle first"; }
 
-zrbmp_show() { zrbmp_sentinel; echo -e "${1}"; }
+zrbmp_show() { zrbmp_sentinel; echo -e "${1:-}"; }
 
-zrbmp_s1() { zrbmp_show "${ZRBMP_S}# ${1}${ZRBMP_R}"; }
-zrbmp_s2() { zrbmp_show "${ZRBMP_S}## ${1}${ZRBMP_R}"; }
-zrbmp_s3() { zrbmp_show "${ZRBMP_S}### ${1}${ZRBMP_R}"; }
+zrbmp_s1() { zrbmp_show "${ZRBMP_S}${1}${ZRBMP_R}"; }
+zrbmp_s2() { zrbmp_show "${ZRBMP_S}${1}${ZRBMP_R}"; }
+zrbmp_s3() { zrbmp_show "${ZRBMP_S}${1}${ZRBMP_R}"; }
 
 zrbmp_e()    { zrbmp_show; }
 zrbmp_n()    { zrbmp_show "${1}";                                                     }
@@ -81,11 +81,11 @@ rbmp_show_setup() {
   bcu_doc_brief "Display the manual GCP provisioner setup procedure"
   bcu_doc_shown || return 0
 
-  zrbmp_s1     "Google Cloud Platform Setup"
-  zrbmp_s2     "Overview"
+  zrbmp_s1     "# Google Cloud Platform Setup"
+  zrbmp_s2     "## Overview"
   zrbmp_n      "Bootstrap GCP infrastructure by creating a temporary provisioner service account with Project Owner privileges."
   zrbmp_n      "The provisioner will automate the creation of operational service accounts and infrastructure configuration."
-  zrbmp_s2     "Prerequisites"
+  zrbmp_s2     "## Prerequisites"
   zrbmp_n      "- Credit card for GCP account verification (won't be charged on free tier)"
   zrbmp_n      "- Email address not already associated with GCP"
   zrbmp_e
@@ -104,19 +104,19 @@ rbmp_show_setup() {
   zrbmp_n      "      - Credit card (verification only)"
   zrbmp_nw     "   4. Accept terms → " "Start my free trial"
   zrbmp_n      "   5. Expect Google Cloud Console to open."
-  zrbmp_s2     "2. Create New Project"
+  zrbmp_s2     "2. Create New Project:"
   zrbmp_nw     "   1. Top bar project dropdown → " "New Project"
   zrbmp_n      "   2. Configure:"
   zrbmp_nc     "      - Project name: " "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}"
   zrbmp_nw     "      - Leave organization as -> " "No organization"
   zrbmp_nwn    "   3. Create → Wait for notification -> " "Creating project..." " to complete"
   zrbmp_n      "   4. Select project from dropdown when ready"
-  zrbmp_s2     "3. Create Provisioner Service Account"
+  zrbmp_s2     "3. Create Provisioner Service Account:"
   zrbmp_n      "   1. Navigate to IAM & Admin section"
   zrbmp_nw     "   2. Left sidebar → " "IAM & Admin → Service Accounts"
   zrbmp_nw     "   3. If prompted about APIs, click -> " "Enable API"
   zrbmp_nw     "   4. Wait for " "Identity and Access Management (IAM) API to enable"
-  zrbmp_s2     "4. Create the Provisioner"
+  zrbmp_s2     "4. Create the Provisioner:"
   zrbmp_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
   zrbmp_n      "   2. Service account details:"
   zrbmp_nc     "      - Service account name: " "rbra-provisioner"
@@ -186,7 +186,7 @@ rbmp_show_teardown() {
 
   zrbmp_critic "Execute this immediately after infrastructure setup is complete!"
 
-  zrbmp_s2     "1. Delete Service Account Key from GCP Console"
+  zrbmp_s2     "1. Delete Service Account Key from GCP Console:"
   zrbmp_nw     "   1. Navigate to " "IAM & Admin → Service Accounts"
   zrbmp_nw     "   2. Click on " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
   zrbmp_nw     "   3. Go to " "KEYS tab"
@@ -194,20 +194,20 @@ rbmp_show_teardown() {
   zrbmp_nw     "   5. Click the three dots menu → " "Delete"
   zrbmp_n      "   6. Confirm deletion"
   zrbmp_e
-  zrbmp_s2     "2. Delete Service Account"
+  zrbmp_s2     "2. Delete Service Account:"
   zrbmp_n      "   1. Return to Service Accounts list"
   zrbmp_nw     "   2. Check the box next to " "rbra-provisioner"
   zrbmp_nw     "   3. Click " "DELETE at top"
   zrbmp_n      "   4. Type the confirmation text"
   zrbmp_nw     "   5. Click " "DELETE"
   zrbmp_e
-  zrbmp_s2     "3. Remove Local Files"
+  zrbmp_s2     "3. Remove Local Files:"
   zrbmp_cmd    "# Remove provisioner credentials"
   zrbmp_cmd    "cd ../station-files/secrets"
   zrbmp_cmd    "shred -vuz rbra-provisioner-key.json"
   zrbmp_cmd    "shred -vuz rbra-provisioner.env"
   zrbmp_e
-  zrbmp_s2     "4. Verify Removal"
+  zrbmp_s2     "4. Verify Removal:"
   zrbmp_n      "   - Check GCP Console shows no rbra-provisioner service account"
   zrbmp_n      "   - Verify local files are removed:"
   zrbmp_cmd    "ls -la ../station-files/secrets/ | grep provisioner"
