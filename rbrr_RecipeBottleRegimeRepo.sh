@@ -36,15 +36,19 @@ export RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.
 export RBRR_CHOSEN_IDENTITY=20250723-092042  # mow_x86_64_wsl mow_aarch64_wsl
 
 
-# Google Artifact Registry settings
-export RBRR_GAR_PROJECT_ID=your-project-id
-export RBRR_GAR_LOCATION=us-central1
-export RBRR_GAR_REPOSITORY=recipemuster
+# Google Cloud Platform configuration (shared by all GCP services)
+export RBRR_GCP_PROJECT_ID=brm_recipemuster_proj
+export RBRR_GCP_REGION=us-central1
 
-# Google Cloud Build settings
-export RBRR_GCB_PROJECT_ID=${RBRR_GAR_PROJECT_ID}  # Often same project
-export RBRR_GCB_REGION=us-central1                 # Build execution region
-export RBRR_GCB_MACHINE_TYPE=e2-highcpu-8          # Build machine type
+# Google Artifact Registry settings
+export RBRR_GAR_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
+export RBRR_GAR_LOCATION="${RBRR_GCP_REGION}"
+export RBRR_GAR_REPOSITORY=brm_recipemuster_gar
+
+# Google Cloud Build settings  
+export RBRR_GCB_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
+export RBRR_GCB_REGION="${RBRR_GCP_REGION}"
+export RBRR_GCB_MACHINE_TYPE=e2-highcpu-8
 export RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 export RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 

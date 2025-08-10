@@ -49,6 +49,8 @@ zrbmp_kindle() {
     ZRBMP_CR=""
   fi
 
+  ZRBMP_PROVISIONER_ROLE="rbra-provisioner"
+
   ZRBMP_KINDLED=1
 }
 
@@ -96,7 +98,7 @@ rbmp_show_setup() {
   zrbmp_nc     "Open a web browser to " "https://cloud.google.com/free"
   zrbmp_e
   zrbmp_s2     "1. Establish Account:"
-  zrbmp_nw     "   1. Click ->" "Get started for free"
+  zrbmp_nw     "   1. Click -> " "Get started for free"
   zrbmp_n      "   2. Sign in with Google account or create new"
   zrbmp_n      "   3. Provide:"
   zrbmp_n      "      - Country"
@@ -107,7 +109,7 @@ rbmp_show_setup() {
   zrbmp_s2     "2. Create New Project:"
   zrbmp_nw     "   1. Top bar project dropdown → " "New Project"
   zrbmp_n      "   2. Configure:"
-  zrbmp_nc     "      - Project name: " "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}"
+  zrbmp_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
   zrbmp_nw     "      - Leave organization as -> " "No organization"
   zrbmp_nwn    "   3. Create → Wait for notification -> " "Creating project..." " to complete"
   zrbmp_n      "   4. Select project from dropdown when ready"
@@ -119,8 +121,8 @@ rbmp_show_setup() {
   zrbmp_s2     "4. Create the Provisioner:"
   zrbmp_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
   zrbmp_n      "   2. Service account details:"
-  zrbmp_nc     "      - Service account name: " "rbra-provisioner"
-  zrbmp_nwn    "      - Service account ID: (auto-fills as " "rbra-provisioner" ")"
+  zrbmp_nc     "      - Service account name: " "${z_prov_role_name}"
+  zrbmp_nwn    "      - Service account ID: (auto-fills as " "${ZRBMP_PROVISIONER_ROLE}" ")"
   zrbmp_nc     "      - Description: " "Temporary provisioner for infrastructure setup - DELETE AFTER USE"
   zrbmp_nw     "   3. Click -> " "CREATE AND CONTINUE"
   zrbmp_n      "5. Assign Project Owner Role:"
@@ -132,16 +134,16 @@ rbmp_show_setup() {
   zrbmp_nw     "4. Click -> " "CONTINUE"
   zrbmp_nw     "5. Grant users access section: Skip by clicking -> " "DONE"
   zrbmp_e
-  zrbmp_nw     "Service account list now shows " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
+  zrbmp_nw     "Service account list now shows " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
   zrbmp_s3     "6. Generate Service Account Key"
   zrbmp_n      "From service accounts list:"
-  zrbmp_nw     "1. Click on " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
+  zrbmp_nw     "1. Click on " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
   zrbmp_nw     "2. Top tabs → " "KEYS"
   zrbmp_nwnw   "3. Click " "ADD KEY"  " → " "Create new key"
   zrbmp_nw     "4. Key type: " "JSON (should be selected)"
   zrbmp_nw     "5. Click " "CREATE"
   zrbmp_e
-  zrbmp_nw     "Browser downloads: " "${RBRR_GAR_PROJECT_ID:-recipemuster-prod}-[random].json"
+  zrbmp_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
   zrbmp_e
   zrbmp_nwn    "6. Click " "CLOSE" " on download confirmation"
   zrbmp_s3     "7. Configure Local Environment"
@@ -152,25 +154,25 @@ rbmp_show_setup() {
   zrbmp_cmd    "cd ../station-files/secrets"
   zrbmp_e
   zrbmp_cmd    "# Move downloaded key (adjust path to your Downloads folder)"
-  zrbmp_cmd    "mv ~/Downloads/${RBRR_GAR_PROJECT_ID:-recipemuster-prod}-*.json rbra-provisioner-key.json"
+  zrbmp_cmd    "mv ~/Downloads/${RBRR_GCP_PROJECT_ID}-*.json ${ZRBMP_PROVISIONER_ROLE}-key.json"
   zrbmp_e
   zrbmp_cmd    "# Verify key structure"
-  zrbmp_cmd    "jq -r '.type' rbra-provisioner-key.json"
+  zrbmp_cmd    "jq -r '.type' ${ZRBMP_PROVISIONER_ROLE}-key.json"
   zrbmp_cmd    "# Should output: service_account"
   zrbmp_e
   zrbmp_cmd    "# Create RBRA environment file"
-  zrbmp_cmd    "cat > rbra-provisioner.env << 'EOF'"
-  zrbmp_cmd    "RBRA_SERVICE_ACCOUNT_KEY=../station-files/secrets/rbra-provisioner-key.json"
+  zrbmp_cmd    "cat > ${ZRBMP_PROVISIONER_ROLE}.env << 'EOF'"
+  zrbmp_cmd    "RBRA_SERVICE_ACCOUNT_KEY=../station-files/secrets/${ZRBMP_PROVISIONER_ROLE}-key.json"
   zrbmp_cmd    "RBRA_TOKEN_LIFETIME_SEC=1800"
   zrbmp_cmd    "EOF"
   zrbmp_e
   zrbmp_cmd    "# Set restrictive permissions"
-  zrbmp_cmd    "chmod 600 rbra-provisioner-key.json"
-  zrbmp_cmd    "chmod 600 rbra-provisioner.env"
+  zrbmp_cmd    "chmod 600 ${ZRBMP_PROVISIONER_ROLE}-key.json"
+  zrbmp_cmd    "chmod 600 ${ZRBMP_PROVISIONER_ROLE}.env"
   zrbmp_e
   zrbmp_warning "Remember to delete the provisioner service account after infrastructure setup is complete!"
   zrbmp_n      "The provisioner environment file is now configured at:"
-  zrbmp_nc     "" "${RBRR_PROVISIONER_RBRA_FILE:-../station-files/secrets/rbra-provisioner.env}"
+  zrbmp_nc     "" "${RBRR_PROVISIONER_RBRA_FILE:-../station-files/secrets/${ZRBMP_PROVISIONER_ROLE}.env}"
   zrbmp_e
 
   bcu_success "Manual setup procedure displayed"
@@ -182,13 +184,13 @@ rbmp_show_teardown() {
   bcu_doc_brief "Display the procedure for removing the provisioner after setup"
   bcu_doc_shown || return 0
 
-  zrbmp_s1   "Provisioner Teardown Procedure"
+  zrbmp_s1     "Provisioner Teardown Procedure"
 
   zrbmp_critic "Execute this immediately after infrastructure setup is complete!"
 
   zrbmp_s2     "1. Delete Service Account Key from GCP Console:"
   zrbmp_nw     "   1. Navigate to " "IAM & Admin → Service Accounts"
-  zrbmp_nw     "   2. Click on " "rbra-provisioner@${RBRR_GAR_PROJECT_ID:-recipemuster-prod}.iam.gserviceaccount.com"
+  zrbmp_nw     "   2. Click on " "${ZRBMP_PROVISIONER_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
   zrbmp_nw     "   3. Go to " "KEYS tab"
   zrbmp_n      "   4. Find the key created earlier"
   zrbmp_nw     "   5. Click the three dots menu → " "Delete"
@@ -196,7 +198,7 @@ rbmp_show_teardown() {
   zrbmp_e
   zrbmp_s2     "2. Delete Service Account:"
   zrbmp_n      "   1. Return to Service Accounts list"
-  zrbmp_nw     "   2. Check the box next to " "rbra-provisioner"
+  zrbmp_nw     "   2. Check the box next to " "${ZRBMP_PROVISIONER_ROLE}"
   zrbmp_nw     "   3. Click " "DELETE at top"
   zrbmp_n      "   4. Type the confirmation text"
   zrbmp_nw     "   5. Click " "DELETE"
@@ -204,11 +206,11 @@ rbmp_show_teardown() {
   zrbmp_s2     "3. Remove Local Files:"
   zrbmp_cmd    "# Remove provisioner credentials"
   zrbmp_cmd    "cd ../station-files/secrets"
-  zrbmp_cmd    "shred -vuz rbra-provisioner-key.json"
-  zrbmp_cmd    "shred -vuz rbra-provisioner.env"
+  zrbmp_cmd    "shred -vuz ${ZRBMP_PROVISIONER_ROLE}-key.json"
+  zrbmp_cmd    "shred -vuz ${ZRBMP_PROVISIONER_ROLE}.env"
   zrbmp_e
   zrbmp_s2     "4. Verify Removal:"
-  zrbmp_n      "   - Check GCP Console shows no rbra-provisioner service account"
+  zrbmp_n      "   - Check GCP Console shows no ${ZRBMP_PROVISIONER_ROLE} service account"
   zrbmp_n      "   - Verify local files are removed:"
   zrbmp_cmd    "ls -la ../station-files/secrets/ | grep provisioner"
   zrbmp_n      "   (should return nothing)"
