@@ -36,7 +36,6 @@ zrbga_kindle() {
   fi
 
   if [ "$z_use_color" = "1" ]; then
-    # Terminal supports colors
     ZRBGA_R="\033[0m"         # Reset
     ZRBGA_S="\033[1;37m"      # Section (bright white)
     ZRBGA_C="\033[36m"        # Command (cyan)
@@ -44,13 +43,12 @@ zrbga_kindle() {
     ZRBGA_WN="\033[1;33m"     # Warning (bright yellow)
     ZRBGA_CR="\033[1;31m"     # Critical (bright red)
   else
-    # No color support or colors disabled
-    ZRBGA_R=""
-    ZRBGA_S=""
-    ZRBGA_C=""
-    ZRBGA_W=""
-    ZRBGA_WN=""
-    ZRBGA_CR=""
+    ZRBGA_R=""                # No color, or disabled
+    ZRBGA_S=""                # No color, or disabled
+    ZRBGA_C=""                # No color, or disabled
+    ZRBGA_W=""                # No color, or disabled
+    ZRBGA_WN=""               # No color, or disabled
+    ZRBGA_CR=""               # No color, or disabled
   fi
 
   ZRBGA_ADMIN_ROLE="rbga-admin"
