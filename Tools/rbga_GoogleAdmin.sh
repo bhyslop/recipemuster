@@ -280,27 +280,6 @@ rbga_show_setup() {
   bcu_success "Manual setup procedure displayed"
 }
 
-rbga_convert_admin_json() {
-  zrbga_sentinel
-
-  local z_json_path="${1:-}"
-
-  bcu_doc_brief "Convert admin service account JSON to RBRA format"
-  bcu_doc_param "json_path" "Path to downloaded admin JSON file"
-  bcu_doc_shown || return 0
-
-  test -n "${z_json_path}" || bcu_die "JSON path required"
-
-  bcu_step "Converting admin JSON to RBRA format"
-
-  zrbga_extract_json_to_rbra \
-    "${z_json_path}" \
-    "${RBRR_ADMIN_RBRA_FILE}" \
-    "1800"
-
-  bcu_success "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
-}
-
 rbga_list_service_accounts() {
   zrbga_sentinel
 
@@ -489,21 +468,6 @@ rbga_delete_service_account() {
 
   bcu_success "Delete operation completed"
 }
-
-rbga_cleanup_subordinates() {
-  zrbga_sentinel
-
-  bcu_doc_brief "Delete all subordinate service accounts (GAR reader and GCB submitter)"
-  bcu_doc_shown || return 0
-
-  bcu_step "Cleaning up subordinate service accounts"
-
-  rbga_delete_service_account "${ZRBGA_GAR_READER_EMAIL}"
-  rbga_delete_service_account "${ZRBGA_GCB_SUBMITTER_EMAIL}"
-
-  bcu_success "Subordinate cleanup completed"
-}
-
 
 
 # eof
