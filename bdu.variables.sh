@@ -13,31 +13,26 @@
 # limitations under the License.
 
 ##########################################
-# Makefile Bash Variables File
+# Bash Dispatch Utility Variables File
 #
-# This is a reference variables file defined when mapping the RBM
-# makefile system into a repo.  The stock dispatch script
-# uses this to set up the dispatch environment.
+# This is a reference variables file for the BDU dispatch system.
+# The dispatch script uses this to set up the environment.
 #
-# This file is bilingual: it is interpreted by both bash and make.
-# Therefore: no spaces are allowed around `=`.  Also, only declare
-# variables here.  If you define any variables in terms of other
-# ones, use ${xxx} to expand.
+# This file is sourced by bash. No spaces are allowed around `=`.
+# Only declare variables here. If you define any variables in terms
+# of others, use ${xxx} to expand.
 
-MBV_STATION_FILE=../station-files/MBS.STATION.sh
+BDU_STATION_FILE=../station-files/BDS.STATION.sh
 
-MBV_TABTARGET_DIR=tt
+BDU_TABTARGET_DIR=tt
 
-MBV_TABTARGET_DELIMITER=.
+BDU_TABTARGET_DELIMITER=.
 
-MBV_TOOLS_DIR=Tools
+BDU_TOOLS_DIR=Tools
 
-MBV_CONSOLE_MAKEFILE=${MBV_TOOLS_DIR}/rbw.workbench.mk
+BDU_TEMP_ROOT_DIR=../temp-bdu
 
-MBV_TEMP_ROOT_DIR=../temp-${MBV_CONSOLE_MAKEFILE}
+BDU_LOG_LAST=last
 
-MBV_LOG_LAST=last
-
-MBV_LOG_EXT=txt
-
+BDU_LOG_EXT=txt
 

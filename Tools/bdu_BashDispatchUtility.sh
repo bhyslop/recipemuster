@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # Copyright 2025 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,285 +16,196 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Bash Console Utility Library
+# Bash Dispatch Utility - Direct bash dispatch without make
 
 set -euo pipefail
 
-# Multiple inclusion guard
-test -z "${ZBCU_INCLUDED:-}" || return 0
-ZBCU_INCLUDED=1
+# Initialize verbose level
+BDU_VERBOSE=${BDU_VERBOSE:-0}
 
-# Color codes
-zbcu_color() {
-  # More robust terminal detection for Cygwin and other environments
-  test -n "${TERM}" && test "${TERM}" != "dumb" && printf '\033[%sm' "$1" || printf ''
-}
-ZBCU_BLACK=$(   zbcu_color '1;30' )
-ZBCU_RED=$(     zbcu_color '1;31' )
-ZBCU_GREEN=$(   zbcu_color '1;32' )
-ZBCU_YELLOW=$(  zbcu_color '1;33' )
-ZBCU_BLUE=$(    zbcu_color '1;34' )
-ZBCU_MAGENTA=$( zbcu_color '1;35' )
-ZBCU_CYAN=$(    zbcu_color '1;36' )
-ZBCU_WHITE=$(   zbcu_color '1;37' )
-ZBCU_RESET=$(   zbcu_color '0'    )
+# Source validation utilities
+source "$(dirname "$0")/crgv.validate.sh"
 
-# Global context variable for info and error messages
-ZBCU_CONTEXT=""
-
-# Help mode flag
-ZBCU_DOC_MODE=false
-
-bcu_step()   { zbcu_print 0 "${ZBCU_WHITE}$@${ZBCU_RESET}"; }
-
-bcu_code()   { zbcu_print 0 "${ZBCU_CYAN}$@${ZBCU_RESET}"; }
-
-bcu_info()   { zbcu_print 1 "$@"; }
-
-bcu_debug()  { zbcu_print 2 "$@"; }
-
-bcu_trace()  { zbcu_print 3 "$@"; }
-
-bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
-
-bcu_log()    { zbcu_log "${BASH_SOURCE[1]}:${BASH_LINENO[0]}: " " ---- " "$@"; }
-
-bcu_die() {
-  local context="${ZBCU_CONTEXT:-}"
-  zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $@"
-  exit 1
+# Utility function for verbose output
+bdu_show() {
+    test "$BDU_VERBOSE" != "1" || echo "BDUSHOW: $*"
 }
 
-bcu_context() {
-  ZBCU_CONTEXT="$1"
-}
+# Enable trace mode if verbose level is 2
+if [[ "$BDU_VERBOSE" == "2" ]]; then
+    set -x
+fi
 
-
-bcu_success() {
-  set -e
-  echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" >&2 || bcu_die
-}
-
-# Enable trace to stderr safely if supported
-zbcu_enable_trace() {
-  # Only supported in Bash >= 4.1
-  if [[ ${BASH_VERSINFO[0]} -gt 4 ]] || { [[ ${BASH_VERSINFO[0]} -eq 4 ]] && [[ ${BASH_VERSINFO[1]} -ge 1 ]]; }; then
-    export BASH_XTRACEFD=2
-  fi
-  set -x
-}
-
-# Disable trace
-zbcu_disable_trace() {
-  set +x
-}
-
-zbcu_do_execute() {
-  test "${ZBCU_DOC_MODE}" = "true" && return 0 || return 1
-}
-
-bcu_doc_env() {
-  set -e
-
-  local env_var_name="${1}"
-  local env_var_info="${2}"
-
-  # Trim trailing spaces from variable name
-  env_var_name="${env_var_name%% *}"
-
-  # In doc mode, show documentation first
-  if zbcu_do_execute; then
-    echo "  ${ZBCU_MAGENTA}${1}${ZBCU_RESET}:  ${env_var_info}"
-  fi
-
-  # Always check if variable is set (using trimmed name)
-  eval "test -n \"\${${env_var_name}:-}\"" || bcu_warn "${env_var_name} is not set"
-}
-
-ZBCU_USAGE_STRING="UNFILLED"
-
-bcu_doc_brief() {
-  set -e
-  ZBCU_USAGE_STRING="${ZBCU_CONTEXT}"
-  zbcu_do_execute || return 0
-  echo
-  echo "  ${ZBCU_WHITE}${ZBCU_CONTEXT}${ZBCU_RESET}"
-  echo "    brief: $1"
-}
-
-bcu_doc_lines() {
-  set -e
-  zbcu_do_execute || return 0
-  echo "           $1"
-}
-
-bcu_doc_param() {
-  set -e
-  ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} <<$1>>"
-  zbcu_do_execute || return 0
-  echo "    required: $1 - $2"
-}
-
-bcu_doc_oparm() {
-  set -e
-  ZBCU_USAGE_STRING="${ZBCU_USAGE_STRING} [<<$1>>]"
-  zbcu_do_execute || return 0
-  echo "    optional: $1 - $2"
-}
-
-zbcu_usage() {
-  echo -e "    usage: ${ZBCU_CYAN}${ZBCU_USAGE_STRING}${ZBCU_RESET}"
-}
-
-# Idiomatic last step of documentation in the bash api.
-# Usage:
-#    bcu_doc_shown || return 0
-bcu_doc_shown() {
-  zbcu_do_execute || return 0
-  zbcu_usage
-  return 1
-}
-
-bcu_set_doc_mode() {
-  ZBCU_DOC_MODE=true
-}
-
-bcu_usage_die() {
-  set -e
-  local context="${ZBCU_CONTEXT:-}"
-  local usage=$(zbcu_usage)
-  echo -e "${ZBCU_RED}ERROR:${ZBCU_RESET} $usage"
-  exit 1
-}
-
-# Multi-line print function with verbosity control
-# Sends output to stderr to avoid interfering with stdout returns
-zbcu_print() {
-  local min_verbosity="$1"
-  shift
-
-  # Always print if min_verbosity is -1, otherwise check BCU_VERBOSE
-  if [ "${min_verbosity}" -eq -1 ] || [ "${BCU_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
-    while [ $# -gt 0 ]; do
-      echo "$1" >&2
-      shift
-    done
-  fi
-}
-
-zbcu_log() {
-  test -n "${BDU_TEMP_DIR:-}" || return 0  # No log if no temp dir
-
-  local z_prefix="$1"
-  local z_rest_prefix="$2"
-  shift 2 || return 0
-
-  local z_outfile="${BDU_TEMP_DIR}/transcript.txt"
-
-  while [ $# -gt 0 ]; do
-    printf '%s%s\n' "${z_prefix}" "$1" >> "${z_outfile}"
-    z_prefix="${z_rest_prefix}"
-    shift
-  done
-}
-
-
-# Die if condition is true (non-zero)
-# Usage: bcu_die_if <condition> <message1> [<message2> ...]
-bcu_die_if() {
-  local condition="$1"
-  shift
-
-  test "${condition}" -ne 0 || return 0
-
-  set -e
-  local context="${ZBCU_CONTEXT:-}"
-  zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
-  shift
-  zbcu_print -1 "$@"
-  exit 1
-}
-
-# Die unless condition is true (zero)
-# Usage: bcu_die_unless <condition> <message1> [<message2> ...]
-bcu_die_unless() {
-  local condition="$1"
-  shift
-
-  test "${condition}" -eq 0 || return 0
-
-  set -e
-  local context="${ZBCU_CONTEXT:-}"
-  zbcu_print -1 "${ZBCU_RED}ERROR:${ZBCU_RESET} [$context] $1"
-  shift
-  zbcu_print -1 "$@"
-  exit 1
-}
-
-zbcu_show_help() {
-  local prefix="$1"
-  local title="$2"
-  local env_func="$3"
-
-  echo "$title"
-  echo
-
-  if [ -n "$env_func" ]; then
-    echo "Environment Variables:"
-    "$env_func"
-    echo
-  fi
-
-  echo "Commands:"
-
-  for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
-    bcu_context "$cmd"
-    "$cmd"
-  done
-}
-
-bcu_require() {
-  local prompt="$1"
-  local required_value="$2"
-
-  echo -e "${ZBCU_YELLOW}${prompt}${ZBCU_RESET}"
-  read -p "Type ${required_value}: " input
-  test "$input" = "$required_value" || bcu_die "prompt not confirmed."
-}
-
-bcu_execute() {
-  set -e
-  local prefix="$1"
-  local title="$2"
-  local env_func="$3"
-  local command="${4:-}"
-  shift 3; [ -n "$command" ] && shift || true
-
-  export BCU_VERBOSE="${BCU_VERBOSE:-0}"
-
-  # Enable bash trace to stderr if BCU_VERBOSE is 3 or higher and bash >= 4.1
-  if [[ "${BCU_VERBOSE}" -ge 3 ]]; then
-    if [[ "${BASH_VERSINFO[0]}" -gt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 1 ]]; then
-      export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
-      export BASH_XTRACEFD=2
-      set -x
+# Source configuration and setup environment
+bdu_setup() {
+    bdu_show "Starting BDU setup"
+    
+    # Source main variables file
+    local variables_file="./bdu.variables.sh"
+    source "$variables_file"
+    
+    # Validate essential variables
+    crgv_string "$variables_file" BDU_STATION_FILE        1 256
+    crgv_string "$variables_file" BDU_LOG_LAST            1 256
+    crgv_string "$variables_file" BDU_LOG_EXT             1 32
+    crgv_string "$variables_file" BDU_TABTARGET_DIR       1 256
+    crgv_string "$variables_file" BDU_TABTARGET_DELIMITER 1 8
+    crgv_string "$variables_file" BDU_TEMP_ROOT_DIR       1 256
+    crgv_string "$variables_file" BDU_TOOLS_DIR           1 256
+    
+    # Source station file
+    bdu_show "Sourcing station file: $BDU_STATION_FILE"
+    source "$BDU_STATION_FILE"
+    
+    # Validate station variables
+    crgv_string "$BDU_STATION_FILE" BDS_LOG_DIR 1 256
+    
+    # Generate timestamp
+    BDU_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))
+    bdu_show "Generated timestamp: $BDU_NOW_STAMP"
+    
+    # Setup temporary directory
+    BDU_TEMP_DIR="$BDU_TEMP_ROOT_DIR/temp-$BDU_NOW_STAMP"
+    mkdir -p "$BDU_TEMP_DIR"
+    
+    # Validate temporary directory
+    if [[ ! -d "$BDU_TEMP_DIR" ]]; then
+        echo "ERROR: Failed to create temporary directory: $BDU_TEMP_DIR" >&2
+        return 1
     fi
-  fi
-
-  # Validate and execute command if named, else show help
-  if [ -n       "${command}" ]            &&\
-    declare -F  "${command}" >/dev/null   &&\
-    echo        "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
-    bcu_context "${command}"
-    [ -n "${env_func}" ] && "${env_func}"
-    "${command}" "$@"
-  else
-    test -z "${command}" || bcu_warn "Unknown command: ${command}"
-    bcu_set_doc_mode
-    zbcu_show_help "${prefix}" "${title}" "${env_func}"
-    echo
-    exit 1
-  fi
+    
+    if [[ -n "$(find "$BDU_TEMP_DIR" -mindepth 1 -print -quit 2>/dev/null)" ]]; then
+        echo "ERROR: Temporary directory is not empty: $BDU_TEMP_DIR" >&2
+        return 1
+    fi
+    
+    # Get Git context
+    BDU_GIT_CONTEXT=$(git describe --always --dirty --tags --long 2>/dev/null || echo "git-unavailable")
+    bdu_show "Git context: $BDU_GIT_CONTEXT"
+    
+    # Export for child processes
+    export BDU_TEMP_DIR
+    export BDU_NOW_STAMP
+    
+    return 0
 }
 
-# eof
+# Process command-line arguments
+bdu_process_args() {
+    local target=$1
+    shift
+    
+    bdu_show "Processing target: $target"
+    
+    # Extract tokens from tabtarget
+    IFS="$BDU_TABTARGET_DELIMITER" read -ra tokens <<< "$target"
+    bdu_show "Split tokens: ${tokens[*]}"
+    
+    # Store primary command token
+    BDU_COMMAND="${tokens[0]}"
+    
+    # Create tag for log files
+    local tag="${tokens[0]}-${tokens[2]:-unknown}"
+    
+    # Setup log paths
+    BDU_LOG_LAST="$BDS_LOG_DIR/$BDU_LOG_LAST.$BDU_LOG_EXT"
+    BDU_LOG_SAME="$BDS_LOG_DIR/same-${tag}.$BDU_LOG_EXT"
+    BDU_LOG_HIST="$BDS_LOG_DIR/hist-${tag}-$BDU_NOW_STAMP.$BDU_LOG_EXT"
+    
+    # Prepare log directories
+    mkdir -p "$BDS_LOG_DIR"
+    
+    # Initialize log files
+    > "$BDU_LOG_LAST"
+    > "$BDU_LOG_SAME"
+    > "$BDU_LOG_HIST"
+    
+    # Store target and extra arguments
+    BDU_TARGET="$target"
+    BDU_CLI_ARGS="$*"
+    
+    return 0
+}
+
+# Function to curate logs for the 'same' log file (normalized output)
+bdu_curate_same() {
+    # Convert to unix line endings, strip colors, normalize temp dir, remove VOLATILE lines
+    sed -e 's/\r/\n/g' \
+        -e '/^$/d' \
+        -e 's/\x1b[\[][0-9;]*[a-zA-Z]//g' \
+        -e 's/\x1b[(][A-Z]//g' \
+        -e "s|$BDU_TEMP_DIR|BDU_EPHEMERAL_DIR|g" \
+        -e '/VOLATILE/d'
+}
+
+# Function to curate logs for the historical log file (with timestamps)
+bdu_curate_hist() {
+    while read -r line; do
+        printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$line"
+    done
+}
+
+# Generate and log checksum for a file
+bdu_generate_checksum() {
+    local file=$1
+    local output_file=$2
+    
+    # Try multiple checksum commands (platform-dependent)
+    local checksum=$(sha256sum            "$file" 2>/dev/null ||
+                     openssl dgst -sha256 "$file" 2>/dev/null ||
+                     echo "checksum-unavailable")
+    
+    echo "Same log checksum: $checksum" >> "$output_file"
+    return 0
+}
+
+# Main execution
+main() {
+    bdu_show "Starting BDU dispatch"
+    
+    # Setup environment
+    bdu_setup || (echo "ERROR: Environment setup failed" >&2 && exit 1)
+    bdu_show "Environment setup complete"
+    
+    # Process arguments
+    bdu_process_args "$@" || (echo "ERROR: Argument processing failed" >&2 && exit 1)
+    bdu_show "Arguments processed"
+    
+    # Build RBK command
+    local rbk_cmd="$BDU_TOOLS_DIR/rbk_Coordinator.sh"
+    bdu_show "RBK command: $rbk_cmd $BDU_COMMAND $BDU_CLI_ARGS"
+    
+    # Log command to all log files
+    echo "log files: $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
+    echo "command: $rbk_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
+    echo "command: $rbk_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_SAME"
+    echo "command: $rbk_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_HIST"
+    echo "Git context: $BDU_GIT_CONTEXT" >> "$BDU_LOG_HIST"
+    
+    bdu_show "Executing RBK coordinator"
+    
+    # Execute RBK with logging
+    set +e
+    zBDU_STATUS_FILE="$BDU_TEMP_DIR/status-$$"
+    {
+        "$rbk_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS 2>&1
+        echo $? > "$zBDU_STATUS_FILE"
+        bdu_show "RBK status: $(cat $zBDU_STATUS_FILE)"
+    } | tee -a "$BDU_LOG_LAST" >(bdu_curate_same >> "$BDU_LOG_SAME") \
+                               >(bdu_curate_hist >> "$BDU_LOG_HIST")
+    zBDU_EXIT_STATUS=$(cat "$zBDU_STATUS_FILE")
+    rm                     "$zBDU_STATUS_FILE"
+    set -e
+    
+    # Generate checksum for the log file
+    bdu_generate_checksum "$BDU_LOG_SAME" "$BDU_LOG_HIST"
+    bdu_show "Checksum generated"
+    
+    bdu_show "BDU completed with status: $zBDU_EXIT_STATUS"
+    
+    exit "$zBDU_EXIT_STATUS"
+}
+
+# Run main with all arguments
+main "$@"
+
