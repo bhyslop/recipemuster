@@ -280,6 +280,27 @@ rbga_show_setup() {
   bcu_success "Manual setup procedure displayed"
 }
 
+rbga_convert_admin_json() {
+  zrbga_sentinel
+
+  local z_json_path="${1:-}"
+
+  bcu_doc_brief "Convert admin service account JSON to RBRA format"
+  bcu_doc_param "json_path" "Path to downloaded admin JSON file"
+  bcu_doc_shown || return 0
+
+  test -n "${z_json_path}" || bcu_die "JSON path required"
+
+  bcu_step "Converting admin JSON to RBRA format"
+
+  zrbga_extract_json_to_rbra \
+    "${z_json_path}" \
+    "${RBRR_ADMIN_RBRA_FILE}" \
+    "1800"
+
+  bcu_success "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
+}
+
 rbga_list_service_accounts() {
   zrbga_sentinel
 
