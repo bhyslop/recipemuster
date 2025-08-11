@@ -109,10 +109,10 @@ EOF
   z_claims_enc=$(zrbgo_base64url_encode_capture "$(<"${ZRBGO_JWT_CLAIMS_FILE}")") || return 1
 
   # Create unsigned JWT
-  echo "${z_header_enc}.${z_claims_enc}" > "${ZRBGO_JWT_UNSIGNED_FILE}"
+  printf '%s' "${z_header_enc}.${z_claims_enc}" > "${ZRBGO_JWT_UNSIGNED_FILE}"
 
   # Convert literal \n to actual newlines for openssl
-  echo -e "${RBRA_PRIVATE_KEY}" > "${ZRBGO_PRIVATE_KEY_FILE}"
+  printf '%s\n' "${RBRA_PRIVATE_KEY}" > "${ZRBGO_PRIVATE_KEY_FILE}"
 
   # Sign with RSA256
   openssl dgst -sha256 -sign "${ZRBGO_PRIVATE_KEY_FILE}" \
