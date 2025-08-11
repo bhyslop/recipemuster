@@ -88,11 +88,10 @@ export RBRR_GCB_RBRA_FILE=../station-files/secrets/rbra-gcb-submitter.env
 #    Permissions: roles/cloudbuild.builds.editor + storage.admin on staging
 #    Token lifetime: 600 seconds (build submission)
 #
-# 3. PROVISIONER - PROJECT OWNER - Delete after infrastructure setup!
-export RBRR_PROVISIONER_RBRA_FILE=../station-files/secrets/rbra-provisioner.env
+# 3. ADMIN - PROJECT OWNER
+export RBRR_ADMIN_RBRA_FILE=../station-files/secrets/rbra-admin.env
 #    Permissions: roles/owner (FULL PROJECT CONTROL)
 #    Token lifetime: 1800 seconds (complex setup operations)
-#    WARNING: This grants complete project control. Delete immediately after use.
 
 
 # eof
