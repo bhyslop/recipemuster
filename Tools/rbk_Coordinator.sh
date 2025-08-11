@@ -139,8 +139,7 @@ rbk_route() {
     esac
 }
 
-# Main execution
-main() {
+rbk_main() {
     local z_command="${1:-}"
     shift || true
     
@@ -152,6 +151,7 @@ main() {
     rbk_route "$z_command" "$@"
 }
 
-# Execute main
-main "$@"
+rbk_main "$@"
+
+# eof
 

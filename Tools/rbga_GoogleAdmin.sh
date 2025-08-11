@@ -30,8 +30,12 @@ ZRBGA_SOURCED=1
 zrbga_kindle() {
   test -z "${ZRBGA_KINDLED:-}" || bcu_die "Module rbga already kindled"
 
-  # Check terminal color support and adjust accordingly
-  if [ -t 1 ] && [ "${TERM}" != "dumb" ] && [ "${NO_COLOR:-}" = "" ]; then
+  local z_use_color=0
+  if [ -z "${NO_COLOR:-}" ] && [ "${BDU_COLOR:-0}" = "1" ]; then
+    z_use_color=1
+  fi
+
+  if [ "$z_use_color" = "1" ]; then
     # Terminal supports colors
     ZRBGA_R="\033[0m"         # Reset
     ZRBGA_S="\033[1;37m"      # Section (bright white)
