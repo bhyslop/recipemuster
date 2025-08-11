@@ -78,7 +78,7 @@ rbk_route() {
       rbk_show "Routing to rbga_cli.sh rbga_show_setup"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_show_setup $z_args
       ;;
-    rbw-ac)
+    rbw-aIA)
       rbk_show "Routing to rbga_cli.sh rbga_initialize_admin"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_initialize_admin $z_args
       ;;

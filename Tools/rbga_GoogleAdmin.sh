@@ -287,6 +287,7 @@ rbga_initialize_admin() {
     "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/iam.googleapis.com:enable" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
+    -d '{}' \
     -o "${ZRBGA_PREFIX}api_enable_response.json" \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_enable_code.txt" 2>/dev/null
 
