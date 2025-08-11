@@ -358,11 +358,13 @@ rbga_list_service_accounts() {
 rbga_create_gar_reader() {
   zrbga_sentinel
 
-  local z_instance="${1:-default}"
+  local z_instance="${1:-}"
 
   bcu_doc_brief "Create GAR reader service account instance"
-  bcu_doc_param "instance" "Instance name (default: 'default')"
+  bcu_doc_param "instance" "Instance name (required)"
   bcu_doc_shown || return 0
+
+  test -n "${z_instance}" || bcu_die "Instance name required"
 
   local z_account_name="rbga-gar-reader-${z_instance}"
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
@@ -398,8 +400,10 @@ rbga_create_gar_reader() {
   local z_http_code
   z_http_code=$(<"${ZRBGA_CREATE_CODE}")
 
-  if test "${z_http_code}" = "200" || test "${z_http_code}" = "409"; then
-    bcu_success "GAR reader ready: ${z_account_email}"
+  if test "${z_http_code}" = "200"; then
+    bcu_success "Created GAR reader: ${z_account_email}"
+  elif test "${z_http_code}" = "409"; then
+    bcu_die "GAR reader already exists: ${z_account_email}"
   else
     local z_error
     z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
@@ -410,11 +414,13 @@ rbga_create_gar_reader() {
 rbga_create_gcb_submitter() {
   zrbga_sentinel
 
-  local z_instance="${1:-default}"
+  local z_instance="${1:-}"
 
   bcu_doc_brief "Create GCB submitter service account instance"
-  bcu_doc_param "instance" "Instance name (default: 'default')"
+  bcu_doc_param "instance" "Instance name (required)"
   bcu_doc_shown || return 0
+
+  test -n "${z_instance}" || bcu_die "Instance name required"
 
   local z_account_name="rbga-gcb-submitter-${z_instance}"
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
@@ -450,8 +456,10 @@ rbga_create_gcb_submitter() {
   local z_http_code
   z_http_code=$(<"${ZRBGA_CREATE_CODE}")
 
-  if test "${z_http_code}" = "200" || test "${z_http_code}" = "409"; then
-    bcu_success "GCB submitter ready: ${z_account_email}"
+  if test "${z_http_code}" = "200"; then
+    bcu_success "Created GCB submitter: ${z_account_email}"
+  elif test "${z_http_code}" = "409"; then
+    bcu_die "GCB submitter already exists: ${z_account_email}"
   else
     local z_error
     z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
