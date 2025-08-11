@@ -286,7 +286,7 @@ rbga_list_service_accounts() {
   bcu_doc_shown || return 0
 
   bcu_step "Listing service accounts in project: ${RBRR_GCP_PROJECT_ID}"
-d
+
   # Get OAuth token from admin
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
