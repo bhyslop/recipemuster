@@ -107,7 +107,7 @@ zrbga_get_token_capture() {
   z_token=$(rbgo_get_token_capture "${RBRR_ADMIN_RBRA_FILE}") || return 1
 
   test -n "${z_token}" || return 1
-  echo "${z_token}"
+  echo    "${z_token}"
 }
 
 zrbga_extract_json_to_rbra() {
@@ -311,7 +311,7 @@ rbga_list_service_accounts() {
 
   # Get OAuth token from admin
   local z_token
-  z_token=$(zrbga_get_token_capture) || bcu_die "Failed to get admin token"
+  z_token=$(zrbga_get_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
   # List service accounts via REST API
   curl -s -X GET \
