@@ -100,7 +100,7 @@ zrbga_cmd()     { zrbga_show "${ZRBGA_C}${1}${ZRBGA_R}"; }
 zrbga_warning() { zrbga_show "\n${ZRBGA_WN}⚠️  WARNING: ${1}${ZRBGA_R}\n"; }
 zrbga_critic()  { zrbga_show "\n${ZRBGA_CR}🔴 CRITICAL SECURITY WARNING: ${1}${ZRBGA_R}\n"; }
 
-zrbga_get_token_capture() {
+zrbga_get_admin_token_capture() {
   zrbga_sentinel
 
   local z_token
@@ -308,10 +308,10 @@ rbga_list_service_accounts() {
   bcu_doc_shown || return 0
 
   bcu_step "Listing service accounts in project: ${RBRR_GCP_PROJECT_ID}"
-
+d
   # Get OAuth token from admin
   local z_token
-  z_token=$(zrbga_get_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
   # List service accounts via REST API
   curl -s -X GET \
@@ -356,7 +356,7 @@ rbga_create_gar_reader() {
 
   # Get OAuth token from admin
   local z_token
-  z_token=$(zrbga_get_token_capture) || bcu_die "Failed to get admin token"
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   # Create request JSON using jq
   jq -n \
@@ -408,7 +408,7 @@ rbga_create_gcb_submitter() {
 
   # Get OAuth token from admin
   local z_token
-  z_token=$(zrbga_get_token_capture) || bcu_die "Failed to get admin token"
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   # Create request JSON using jq
   jq -n \
@@ -465,7 +465,7 @@ rbga_delete_service_account() {
 
   # Get OAuth token from admin
   local z_token
-  z_token=$(zrbga_get_token_capture) || bcu_die "Failed to get admin token"
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   # Delete via REST API
   curl -s -X DELETE \

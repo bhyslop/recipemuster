@@ -33,22 +33,22 @@ rbk_route() {
   local z_command="$1"
   shift
   local z_args="$*"
-  
+
   rbk_show "Routing command: $z_command with args: $z_args"
-  
+
   # Verify BDU environment variables are present
   if [ -z "${BDU_TEMP_DIR:-}" ]; then
     echo "ERROR: BDU_TEMP_DIR not set - must be called from BDU" >&2
     exit 1
   fi
-  
+
   if [ -z "${BDU_NOW_STAMP:-}" ]; then
     echo "ERROR: BDU_NOW_STAMP not set - must be called from BDU" >&2
     exit 1
   fi
-  
+
   rbk_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP"
-  
+
   # Route based on command prefix
   case "$z_command" in
     # Image management commands (rbim)
@@ -72,7 +72,7 @@ rbk_route() {
       rbk_show "Routing to rbim_cli.sh rbim_delete"
       exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_delete $z_args
       ;;
-      
+
     # Google admin commands (rbga)
     rbw-ag)
       rbk_show "Routing to rbga_cli.sh rbga_show_setup"
@@ -98,7 +98,7 @@ rbk_route() {
       rbk_show "Routing to rbga_cli.sh rbga_delete_service_account"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args
       ;;
-      
+
     # Help/documentation commands
     rbw-him)
       rbk_show "Routing to rbim_cli.sh (help)"
@@ -108,7 +108,7 @@ rbk_route() {
       rbk_show "Routing to rbga_cli.sh (help)"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" $z_args
       ;;
-      
+
     # Unknown command
     *)
       echo "ERROR: Unknown command: $z_command" >&2
@@ -120,12 +120,12 @@ rbk_route() {
 rbk_main() {
   local z_command="${1:-}"
   shift || true
-  
+
   if [ -z "$z_command" ]; then
     echo "ERROR: No command specified" >&2
     exit 1
   fi
-  
+
   rbk_route "$z_command" "$@"
 }
 

@@ -64,13 +64,6 @@ export RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 #   RBRA_PROJECT_ID         - GCP project ID for context
 #   RBRA_TOKEN_LIFETIME_SEC - OAuth token lifetime in seconds (300-3600)
 #
-# Creation process:
-#   1. Download service account JSON from GCP Console
-#   2. Extract fields: jq -r '.client_email' key.json
-#   3. Create RBRA file with proper escaping for RBRA_PRIVATE_KEY
-#   4. Delete original JSON file
-#   5. chmod 600 the RBRA file
-#
 # Security notes:
 #   - RBRA files contain raw credentials - protect like passwords
 #   - Never commit RBRA files to version control
