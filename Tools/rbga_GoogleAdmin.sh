@@ -85,16 +85,17 @@ zrbga_s1() { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
 zrbga_s2() { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
 zrbga_s3() { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
 
-zrbga_e()    { zrbga_show; }
-zrbga_n()    { zrbga_show "${1}"; }
-zrbga_nc()   { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}"; }
-zrbga_ncn()  { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}${3}"; }
-zrbga_nw()   { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}"; }
-zrbga_nwn()  { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}"; }
-zrbga_nwne() { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_CR}${4}${ZRBGA_R}"; }
-zrbga_nwnw() { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}"; }
+zrbga_e()       { zrbga_show; }
+zrbga_n()       { zrbga_show "${1}"; }
+zrbga_nc()      { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}"; }
+zrbga_ncn()     { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}${3}"; }
+zrbga_nw()      { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}"; }
+zrbga_nwn()     { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}"; }
+zrbga_nwne()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_CR}${4}${ZRBGA_R}"; }
+zrbga_nwnw()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}"; }
+zrbga_nwnwn()   { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}${5}"; }
 
-zrbga_ne()   { zrbga_show "${1}${ZRBGA_CR}${2}${ZRBGA_R}"; }
+zrbga_ne()      { zrbga_show "${1}${ZRBGA_CR}${2}${ZRBGA_R}"; }
 
 zrbga_cmd()     { zrbga_show "${ZRBGA_C}${1}${ZRBGA_R}"; }
 zrbga_warning() { zrbga_show "\n${ZRBGA_WN}⚠️  WARNING: ${1}${ZRBGA_R}\n"; }
@@ -220,7 +221,7 @@ rbga_show_setup() {
   zrbga_n      "   7. Select project from dropdown when ready"
   zrbga_e
   zrbga_s2     "4. Navigate to Service Accounts:"
-  zrbga_nwn    "   Ensure your new project is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
+  zrbga_nwnwn  "   Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
   zrbga_nwnw   "   1. Left sidebar → " "IAM & Admin" " → " "Service Accounts"
   zrbga_nw     "   2. If prompted about APIs, click → " "Enable API"
   zrbga_n      "      TODO: This step is brittle — enabling IAM API may happen automatically or be blocked by org policy."
