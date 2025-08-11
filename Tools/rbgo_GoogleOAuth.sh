@@ -138,6 +138,9 @@ zrbgo_exchange_jwt_capture() {
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
 
+  # Debug: Show the actual response
+  bcu_log "OAuth Response: $(cat "${ZRBGO_OAUTH_RESPONSE_FILE}")"
+
   # Extract access token
   local z_token
   z_token=$(grep -o '"access_token":"[^"]*' "${ZRBGO_OAUTH_RESPONSE_FILE}" | cut -d'"' -f4) || return 1

@@ -201,6 +201,7 @@ bdu_main() {
 
   # Log command to all log files
   echo "log files: $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
+  echo "temp dir:  ${BDU_TEMP_DIR}"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_SAME"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_HIST"
