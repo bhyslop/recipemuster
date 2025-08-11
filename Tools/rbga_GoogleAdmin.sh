@@ -81,18 +81,18 @@ zrbga_show() {
   echo -e "${1:-}"
 }
 
-zrbga_s1() { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
-zrbga_s2() { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
-zrbga_s3() { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
+zrbga_s1()      { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
+zrbga_s2()      { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
+zrbga_s3()      { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
 
-zrbga_e()       { zrbga_show; }
-zrbga_n()       { zrbga_show "${1}"; }
-zrbga_nc()      { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}"; }
-zrbga_ncn()     { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}${3}"; }
-zrbga_nw()      { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}"; }
-zrbga_nwn()     { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}"; }
-zrbga_nwne()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_CR}${4}${ZRBGA_R}"; }
-zrbga_nwnw()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}"; }
+zrbga_e()       { zrbga_show "";                                                             }
+zrbga_n()       { zrbga_show "${1}";                                                         }
+zrbga_nc()      { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}";                                 }
+zrbga_ncn()     { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}${3}";                             }
+zrbga_nw()      { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}";                                 }
+zrbga_nwn()     { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}";                             }
+zrbga_nwne()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_CR}${4}${ZRBGA_R}";    }
+zrbga_nwnw()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}";     }
 zrbga_nwnwn()   { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}${5}"; }
 
 zrbga_ne()      { zrbga_show "${1}${ZRBGA_CR}${2}${ZRBGA_R}"; }
@@ -258,12 +258,12 @@ rbga_show_setup() {
   bcu_success "Manual setup procedure displayed"
 }
 
-rbga_convert_admin_json() {
+rbga_initialize_admin() {
   zrbga_sentinel
 
   local z_json_path="${1:-}"
 
-  bcu_doc_brief "Convert admin service account JSON to RBRA format"
+  bcu_doc_brief "Initialize admin account and enable required APIs"
   bcu_doc_param "json_path" "Path to downloaded admin JSON file"
   bcu_doc_shown || return 0
 
@@ -276,7 +276,37 @@ rbga_convert_admin_json() {
     "${RBRR_ADMIN_RBRA_FILE}" \
     "1800"
 
-  bcu_success "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
+  bcu_step "Enabling IAM API for service account management"
+
+  bcu_step "Get token using the newly created RBRA"
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_step "Enable IAM API (required for service account operations)"
+  curl -s -X POST \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/iam.googleapis.com:enable" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -o "${ZRBGA_PREFIX}api_enable_response.json" \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_enable_code.txt" 2>/dev/null
+
+  local z_http_code
+  z_http_code=$(<"${ZRBGA_PREFIX}api_enable_code.txt")
+
+  if test "${z_http_code}" = "200"; then
+    bcu_info "IAM API enabled successfully"
+  elif test "${z_http_code}" = "409"; then
+    bcu_info "IAM API already enabled"
+  else
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_enable_response.json") || z_error="Parse error"
+    bcu_die "Failed to enable IAM API (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  bcu_success "Admin initialization complete"
+
+  bcu_info "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
+  bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
 }
 
 rbga_list_service_accounts() {
@@ -327,20 +357,26 @@ rbga_list_service_accounts() {
 rbga_create_gar_reader() {
   zrbga_sentinel
 
-  bcu_doc_brief "Create GAR reader service account"
+  local z_instance="${1:-default}"
+
+  bcu_doc_brief "Create GAR reader service account instance"
+  bcu_doc_param "instance" "Instance name (default: 'default')"
   bcu_doc_shown || return 0
 
-  bcu_step "Creating GAR reader service account"
+  local z_account_name="rbga-gar-reader-${z_instance}"
+  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+
+  bcu_step "Creating GAR reader service account: ${z_account_name}"
 
   # Get OAuth token from admin
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  # Create request JSON using jq
+  # Create request JSON
   jq -n \
-    --arg account_id "${ZRBGA_GAR_READER_NAME}" \
-    --arg display_name "Recipe Bottle GAR Reader" \
-    --arg description "Read-only access to Google Artifact Registry" \
+    --arg account_id "${z_account_name}" \
+    --arg display_name "Recipe Bottle GAR Reader (${z_instance})" \
+    --arg description "Read-only access to Google Artifact Registry - instance: ${z_instance}" \
     '{
       accountId: $account_id,
       serviceAccount: {
@@ -358,41 +394,41 @@ rbga_create_gar_reader() {
     -o "${ZRBGA_CREATE_RESPONSE}" \
     -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
 
-  local z_http_code=$(<"${ZRBGA_CREATE_CODE}")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
+  local z_http_code
+  z_http_code=$(<"${ZRBGA_CREATE_CODE}")
 
-  if test "${z_http_code}" = "200"; then
-    local z_email
-    z_email=$(jq -r '.email' "${ZRBGA_CREATE_RESPONSE}") || bcu_die "Failed to extract email"
-    bcu_info "Created service account: ${z_email}"
-  elif test "${z_http_code}" = "409"; then
-    bcu_warn "GAR reader already exists: ${ZRBGA_GAR_READER_EMAIL}"
+  if test "${z_http_code}" = "200" || test "${z_http_code}" = "409"; then
+    bcu_success "GAR reader ready: ${z_account_email}"
   else
     local z_error
     z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
     bcu_die "Failed to create GAR reader (HTTP ${z_http_code}): ${z_error}"
   fi
-
-  bcu_success "GAR reader service account ready"
 }
 
 rbga_create_gcb_submitter() {
   zrbga_sentinel
 
-  bcu_doc_brief "Create GCB submitter service account"
+  local z_instance="${1:-default}"
+
+  bcu_doc_brief "Create GCB submitter service account instance"
+  bcu_doc_param "instance" "Instance name (default: 'default')"
   bcu_doc_shown || return 0
 
-  bcu_step "Creating GCB submitter service account"
+  local z_account_name="rbga-gcb-submitter-${z_instance}"
+  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+
+  bcu_step "Creating GCB submitter service account: ${z_account_name}"
 
   # Get OAuth token from admin
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  # Create request JSON using jq
+  # Create request JSON
   jq -n \
-    --arg account_id "${ZRBGA_GCB_SUBMITTER_NAME}" \
-    --arg display_name "Recipe Bottle GCB Submitter" \
-    --arg description "Submit builds to Google Cloud Build" \
+    --arg account_id "${z_account_name}" \
+    --arg display_name "Recipe Bottle GCB Submitter (${z_instance})" \
+    --arg description "Submit builds to Google Cloud Build - instance: ${z_instance}" \
     '{
       accountId: $account_id,
       serviceAccount: {
@@ -410,22 +446,16 @@ rbga_create_gcb_submitter() {
     -o "${ZRBGA_CREATE_RESPONSE}" \
     -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
 
-  local z_http_code=$(<"${ZRBGA_CREATE_CODE}")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
+  local z_http_code
+  z_http_code=$(<"${ZRBGA_CREATE_CODE}")
 
-  if test "${z_http_code}" = "200"; then
-    local z_email
-    z_email=$(jq -r '.email' "${ZRBGA_CREATE_RESPONSE}") || bcu_die "Failed to extract email"
-    bcu_info "Created service account: ${z_email}"
-  elif test "${z_http_code}" = "409"; then
-    bcu_warn "GCB submitter already exists: ${ZRBGA_GCB_SUBMITTER_EMAIL}"
+  if test "${z_http_code}" = "200" || test "${z_http_code}" = "409"; then
+    bcu_success "GCB submitter ready: ${z_account_email}"
   else
     local z_error
     z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
     bcu_die "Failed to create GCB submitter (HTTP ${z_http_code}): ${z_error}"
   fi
-
-  bcu_success "GCB submitter service account ready"
 }
 
 rbga_delete_service_account() {
