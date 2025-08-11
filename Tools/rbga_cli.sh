@@ -27,12 +27,14 @@ source "${ZRBGA_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBGA_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
+source "${ZRBGA_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
 
 zrbga_furnish() {
   zrbl_kindle
   bvu_file_exists "${RBL_RBRR_FILE}"
   source "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
 
+  zrbgo_kindle
   zrbga_kindle
 }
 
