@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ##########################################
-# Bash Dispatch Utility Variables File
+# Bash Dispatch Regime Variables File
 #
 # This is a reference variables file for the BDU dispatch system.
 # The dispatch script uses this to set up the environment.
@@ -22,17 +22,19 @@
 # Only declare variables here. If you define any variables in terms
 # of others, use ${xxx} to expand.
 
-BDU_STATION_FILE=../station-files/BDS.STATION.sh
+BDRV_STATION_FILE=../station-files/BDS.STATION.sh
 
-BDU_TABTARGET_DIR=tt
+BDRV_TABTARGET_DIR=tt
 
-BDU_TABTARGET_DELIMITER=.
+BDRV_TABTARGET_DELIMITER=.
 
-BDU_TOOLS_DIR=Tools
+BDRV_TOOLS_DIR=Tools
 
-BDU_TEMP_ROOT_DIR=../temp-bdu
+BDRV_COORDINATOR_SCRIPT=${BDRV_TOOLS_DIR}/rbk_Coordinator.sh
 
-BDU_LOG_LAST=last
+BDRV_TEMP_ROOT_DIR=../temp-bdu
 
-BDU_LOG_EXT=txt
+BDRV_LOG_LAST=last
+
+BDRV_LOG_EXT=txt
 
