@@ -227,27 +227,24 @@ rbga_show_setup() {
   zrbga_n      "      TODO: This step is brittle — enabling IAM API may happen automatically or be blocked by org policy."
   zrbga_nw     "   3. Wait for " "Identity and Access Management (IAM) API to enable"
   zrbga_e
-  zrbga_s2     "5. Create the Admin Account:"
+  zrbga_s2     "5. Create the Admin Service Account:"
   zrbga_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
   zrbga_n      "   2. Service account details:"
   zrbga_nc     "      - Service account name: " "${ZRBGA_ADMIN_ROLE}"
   zrbga_nwn    "      - Service account ID: (auto-fills as " "${ZRBGA_ADMIN_ROLE}" ")"
   zrbga_nc     "      - Description: " "Admin account for infrastructure management"
-  zrbga_nw     "   3. Click → " "CREATE AND CONTINUE"
-  zrbga_e
-  zrbga_s2     "6. Assign Project Owner Role:"
-  zrbga_n      "Grant access section:"
-  zrbga_nw     "   1. Click dropdown " "Select a role"
-  zrbga_nc     "   2. In filter box, type: " "owner"
-  zrbga_nwnw   "   3. Select: " "Basic" " → " "Owner"
-  zrbga_nw     "   4. Click → " "CONTINUE"
-  zrbga_nwnw   "   5. Skip " "Principals with access" " by clicking → " "DONE"
+  zrbga_nw     "   3. Click → " "Create and continue"
+  zrbga_nwnw   "   4. At " "Permissions (optional)" " pick dropdown " "Select a role"
+  zrbga_nc     "      - In filter box, type: " "owner"
+  zrbga_nwnw   "      - Select: " "Basic" " → " "Owner"
+  zrbga_nw     "   5. Click → " "Continue"
+  zrbga_nwnw   "   6. Skip " "Principals with access" " by clicking → " "Done"
   zrbga_e
   zrbga_s2     "7. Generate Service Account Key:"
   zrbga_n      "From service accounts list:"
   zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
-  zrbga_nw     "   2. Top tabs → " "KEYS"
-  zrbga_nwnw   "   3. Click " "ADD KEY" " → " "Create new key"
+  zrbga_nw     "   2. Top tabs → " "Keys"
+  zrbga_nwnw   "   3. Click " "Add key" " → " "Create new key"
   zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
   zrbga_nw     "   5. Click " "CREATE"
   zrbga_e
@@ -255,27 +252,7 @@ rbga_show_setup() {
   zrbga_nwn    "   6. Click " "CLOSE" " on download confirmation"
   zrbga_e
   zrbga_s2     "8. Configure Local Environment:"
-  zrbga_cmd    "# Create secrets directory structure"
-  zrbga_cmd    "mkdir -p ../station-files/secrets"
-  zrbga_cmd    "cd ../station-files/secrets"
-  zrbga_e
-  zrbga_cmd    "# Move downloaded key (adjust path to your Downloads folder)"
-  zrbga_cmd    "mv ~/Downloads/${RBRR_GCP_PROJECT_ID}-*.json ${ZRBGA_ADMIN_ROLE}-key.json"
-  zrbga_e
-  zrbga_cmd    "# Verify key structure"
-  zrbga_cmd    "jq -r '.type' ${ZRBGA_ADMIN_ROLE}-key.json"
-  zrbga_cmd    "# Should output: service_account"
-  zrbga_e
-  zrbga_cmd    "# Create RBRA environment file"
-  zrbga_cmd    "echo 'RBRA_SERVICE_ACCOUNT_KEY=../station-files/secrets/${ZRBGA_ADMIN_ROLE}-key.json' > ${ZRBGA_ADMIN_ROLE}.env"
-  zrbga_cmd    "echo 'RBRA_TOKEN_LIFETIME_SEC=1800' >> ${ZRBGA_ADMIN_ROLE}.env"
-  zrbga_e
-  zrbga_cmd    "# Set restrictive permissions"
-  zrbga_cmd    "chmod 600 ${ZRBGA_ADMIN_ROLE}-key.json"
-  zrbga_cmd    "chmod 600 ${ZRBGA_ADMIN_ROLE}.env"
-  zrbga_e
-  zrbga_n      "The admin environment file is now configured at:"
-  zrbga_nc     "" "${RBRR_ADMIN_RBRA_FILE:-../station-files/secrets/${ZRBGA_ADMIN_ROLE}.env}"
+  zrbga_n      "Browser downloaded key.  Run the command to ingest it into your ADMIN RBRA file."
   zrbga_e
 
   bcu_success "Manual setup procedure displayed"
