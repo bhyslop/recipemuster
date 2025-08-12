@@ -139,7 +139,7 @@ zrbgo_exchange_jwt_capture() {
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
 
   # Debug: Show the actual response
-  bcu_log "OAuth Response: $(cat "${ZRBGO_OAUTH_RESPONSE_FILE}")"
+  bcu_log "OAuth token exchange completed"
 
   # Extract access token
   local z_token
