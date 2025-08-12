@@ -31,9 +31,9 @@ zrbgo_kindle() {
   test -z "${ZRBGO_KINDLED:-}" || bcu_die "Module rbgo already kindled"
 
   bcu_log_args "Validate required tools"
-  which openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
-  which curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
-  which base64  >/dev/null 2>&1 || bcu_die "base64 not found - required for encoding"
+  command -v openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
+  command -v curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
+  command -v base64  >/dev/null 2>&1 || bcu_die "base64 not found - required for encoding"
 
   bcu_log_args "Check environment"
   test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set"
@@ -74,56 +74,55 @@ zrbgo_build_jwt_capture() {
 
   local z_rbra_file="$1"
 
-  # Source RBRA file
+  bcu_log_args "Source RBRA file"
   source "${z_rbra_file}" || return 1
 
-  # Validate required variables
+  bcu_log_args "Validate required variables"
   test -n "${RBRA_CLIENT_EMAIL:-}" || return 1
   test -n "${RBRA_PRIVATE_KEY:-}" || return 1
   test -n "${RBRA_TOKEN_LIFETIME_SEC:-}" || return 1
 
-  # Build JWT header
+  bcu_log_args "Build JWT header"
   echo '{"alg":"RS256","typ":"JWT"}' > "${ZRBGO_JWT_HEADER_FILE}"
 
-  # Calculate timestamps
+  bcu_log_args "Calculate timestamps"
   local z_now
   z_now=$(date +%s) || return 1
   local z_exp=$((z_now + RBRA_TOKEN_LIFETIME_SEC))
 
-  # Build JWT claims
-  cat > "${ZRBGO_JWT_CLAIMS_FILE}" << EOF
-{
-  "iss": "${RBRA_CLIENT_EMAIL}",
-  "scope": "${ZRBGO_DEFAULT_SCOPE}",
-  "aud": "${ZRBGO_OAUTH_TOKEN_URL}",
-  "iat": ${z_now},
-  "exp": ${z_exp}
-}
-EOF
+  bcu_log_args "Build JWT claims"
+  jq -n                                  \
+    --arg iss "${RBRA_CLIENT_EMAIL}"     \
+    --arg scope "${ZRBGO_DEFAULT_SCOPE}" \
+    --arg aud "${ZRBGO_OAUTH_TOKEN_URL}" \
+    --argjson iat "${z_now}"             \
+    --argjson exp "${z_exp}"             \
+    '{iss: $iss, scope: $scope, aud: $aud, iat: $iat, exp: $exp}' \
+    > "${ZRBGO_JWT_CLAIMS_FILE}" || return 1
 
-  # Encode header and claims
+  bcu_log_args "Encode header and claims"
   local z_header_enc
   z_header_enc=$(zrbgo_base64url_encode_capture "$(<"${ZRBGO_JWT_HEADER_FILE}")") || return 1
 
   local z_claims_enc
   z_claims_enc=$(zrbgo_base64url_encode_capture "$(<"${ZRBGO_JWT_CLAIMS_FILE}")") || return 1
 
-  # Create unsigned JWT
+  bcu_log_args "Create unsigned JWT"
   printf '%s' "${z_header_enc}.${z_claims_enc}" > "${ZRBGO_JWT_UNSIGNED_FILE}"
 
-  # Convert literal \n to actual newlines for openssl
+  bcu_log_args "Convert literal \n to actual newlines for openssl"
   printf '%s\n' "${RBRA_PRIVATE_KEY}" > "${ZRBGO_PRIVATE_KEY_FILE}"
 
-  # Sign with RSA256
+  bcu_log_args "Sign with RSA256"
   openssl dgst -sha256 -sign "${ZRBGO_PRIVATE_KEY_FILE}" \
     -out "${ZRBGO_JWT_SIGNATURE_FILE}" \
     "${ZRBGO_JWT_UNSIGNED_FILE}" 2>/dev/null || return 1
 
-  # Base64url encode signature
+  bcu_log_args "Base64url encode signature"
   local z_signature
   z_signature=$(base64 -w 0 < "${ZRBGO_JWT_SIGNATURE_FILE}" | tr '+/' '-_' | tr -d '=') || return 1
 
-  # Return complete JWT
+  bcu_log_args "Return complete JWT"
   echo "${z_header_enc}.${z_claims_enc}.${z_signature}"
 }
 
@@ -132,19 +131,24 @@ zrbgo_exchange_jwt_capture() {
 
   local z_jwt="$1"
 
-  # Exchange JWT for OAuth token
+  bcu_log_args "Exchange JWT for OAuth token"
   curl -s -X POST "${ZRBGO_OAUTH_TOKEN_URL}" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
 
-  # Debug: Show the actual response
+  bcu_log_args "Debug: Show the actual response"
   jq 'del(.access_token, .refresh_token) | with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
     "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null | bcu_log_pipe || bcu_log_args "OAuth response parsing failed"
+    bcu_log_args "OAuth response parsing failed"
+  }
+
+  bcu_log_args "Only log if jq succeeded"
+  test -f "${ZRBGO_OAUTH_DEBUG_FILE}" && cat "${ZRBGO_OAUTH_DEBUG_FILE}" | bcu_log_pipe
 
   bcu_log_args "OAuth token exchange completed"
 
-  # Extract access token
+  bcu_log_args "Extract access token"
   local z_token
   z_token=$(grep -o '"access_token":"[^"]*' "${ZRBGO_OAUTH_RESPONSE_FILE}" | cut -d'"' -f4) || return 1
   test -n "${z_token}" || return 1
@@ -159,6 +163,11 @@ rbgo_get_token_capture() {
   zrbgo_sentinel
 
   local z_rbra_file="$1"
+
+  # Documentation block
+  bcu_doc_brief "Exchange service account credentials for OAuth2 access token"
+  bcu_doc_param "rbra_file" "Path to RBRA credentials file containing RBRA_* variables"
+  bcu_doc_shown || return 0
 
   bcu_log_args "Validate RBRA file exists"
   test -f "${z_rbra_file}" || return 1
