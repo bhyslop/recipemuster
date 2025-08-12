@@ -68,6 +68,10 @@ zrbga_kindle() {
   ZRBGA_CREATE_CODE="${ZRBGA_PREFIX}create_code.txt"
   ZRBGA_DELETE_RESPONSE="${ZRBGA_PREFIX}delete_response.json"
   ZRBGA_DELETE_CODE="${ZRBGA_PREFIX}delete_code.txt"
+  ZRBGA_KEY_RESPONSE="${ZRBGA_PREFIX}key_response.json"
+  ZRBGA_KEY_CODE="${ZRBGA_PREFIX}key_code.txt"
+  ZRBGA_ROLE_RESPONSE="${ZRBGA_PREFIX}role_response.json"
+  ZRBGA_ROLE_CODE="${ZRBGA_PREFIX}role_code.txt"
 
   ZRBGA_KINDLED=1
 }
@@ -98,8 +102,8 @@ zrbga_nwnwn()   { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZR
 zrbga_ne()      { zrbga_show "${1}${ZRBGA_CR}${2}${ZRBGA_R}"; }
 
 zrbga_cmd()     { zrbga_show "${ZRBGA_C}${1}${ZRBGA_R}"; }
-zrbga_warning() { zrbga_show "\n${ZRBGA_WN}⚠️  WARNING: ${1}${ZRBGA_R}\n"; }
-zrbga_critic()  { zrbga_show "\n${ZRBGA_CR}🔴 CRITICAL SECURITY WARNING: ${1}${ZRBGA_R}\n"; }
+zrbga_warning() { zrbga_show "\n${ZRBGA_WN}??  WARNING: ${1}${ZRBGA_R}\n"; }
+zrbga_critic()  { zrbga_show "\n${ZRBGA_CR}? CRITICAL SECURITY WARNING: ${1}${ZRBGA_R}\n"; }
 
 zrbga_get_admin_token_capture() {
   zrbga_sentinel
@@ -156,6 +160,169 @@ zrbga_extract_json_to_rbra() {
   bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
 }
 
+zrbga_create_service_account_with_key() {
+  zrbga_sentinel
+
+  local z_account_name="$1"
+  local z_display_name="$2"
+  local z_description="$3"
+  local z_instance="$4"
+
+  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+
+  bcu_log_args "Get OAuth token from admin"
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_log_args "Create request JSON for ${z_account_name}"
+  jq -n \
+    --arg account_id "${z_account_name}" \
+    --arg display_name "${z_display_name}" \
+    --arg description "${z_description}" \
+    '{
+      accountId: $account_id,
+      serviceAccount: {
+        displayName: $display_name,
+        description: $description
+      }
+    }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
+
+  bcu_log_args "Create service account via REST API"
+  curl -s -X POST \
+    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d @"${ZRBGA_CREATE_REQUEST}" \
+    -o "${ZRBGA_CREATE_RESPONSE}" \
+    -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
+
+  local z_http_code
+  z_http_code=$(<"${ZRBGA_CREATE_CODE}")
+
+  if test "${z_http_code}" = "409"; then
+    bcu_die "Service account already exists: ${z_account_email}"
+  elif test "${z_http_code}" != "200"; then
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
+    bcu_die "Failed to create service account (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  bcu_log_args "Service account created: ${z_account_email}"
+
+  bcu_log_args "Generate service account key"
+  curl -s -X POST \
+    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}/keys" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' \
+    -o "${ZRBGA_KEY_RESPONSE}" \
+    -w "%{http_code}" > "${ZRBGA_KEY_CODE}" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_KEY_CODE}")
+
+  if test "${z_http_code}" != "200"; then
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_KEY_RESPONSE}") || z_error="Parse error"
+    bcu_die "Failed to generate key (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  bcu_log_args "Extract and decode key data"
+  local z_key_json="${BDU_TEMP_DIR}/rbga_key_${z_instance}.json"
+  jq -r '.privateKeyData' "${ZRBGA_KEY_RESPONSE}" | base64 -d > "${z_key_json}" \
+    || bcu_die "Failed to extract/decode key data"
+
+  bcu_log_args "Convert JSON key to RBRA format"
+  local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_${z_account_name##rbga-}.rbra"
+  z_rbra_file="${z_rbra_file//-/_}"  # Replace hyphens with underscores
+
+  # Extract JSON fields and write RBRA
+  local z_client_email
+  z_client_email=$(jq -r '.client_email' "${z_key_json}") || bcu_die "Failed to extract client_email"
+  test -n "${z_client_email}" || bcu_die "Empty client_email in key JSON"
+
+  local z_private_key
+  z_private_key=$(jq -r '.private_key' "${z_key_json}") || bcu_die "Failed to extract private_key"
+  test -n "${z_private_key}" || bcu_die "Empty private_key in key JSON"
+
+  local z_project_id
+  z_project_id=$(jq -r '.project_id' "${z_key_json}") || bcu_die "Failed to extract project_id"
+  test -n "${z_project_id}" || bcu_die "Empty project_id in key JSON"
+
+  bcu_log_args "Write RBRA file: ${z_rbra_file}"
+  echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""  > "${z_rbra_file}"
+  echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""   >> "${z_rbra_file}"
+  echo "RBRA_PROJECT_ID=\"${z_project_id}\""     >> "${z_rbra_file}"
+  echo "RBRA_TOKEN_LIFETIME_SEC=1800"            >> "${z_rbra_file}"
+
+  test -f "${z_rbra_file}" || bcu_die "Failed to write RBRA file"
+
+  # Clean up temp key JSON
+  rm -f "${z_key_json}"
+
+  bcu_info "RBRA file written: ${z_rbra_file}"
+}
+
+zrbga_add_iam_role() {
+  zrbga_sentinel
+
+  local z_account_email="$1"
+  local z_role="$2"
+
+  bcu_log_args "Adding IAM role ${z_role} to ${z_account_email}"
+
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  # Get current IAM policy
+  bcu_log_args "Get current IAM policy"
+  curl -s -X POST \
+    "https://cloudresourcemanager.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}:getIamPolicy" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d '{}' \
+    -o "${ZRBGA_ROLE_RESPONSE}" \
+    -w "%{http_code}" > "${ZRBGA_ROLE_CODE}" 2>/dev/null
+
+  local z_http_code
+  z_http_code=$(<"${ZRBGA_ROLE_CODE}")
+
+  if test "${z_http_code}" != "200"; then
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_ROLE_RESPONSE}") || z_error="Parse error"
+    bcu_die "Failed to get IAM policy (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  # Add new binding to policy
+  bcu_log_args "Update IAM policy with new role binding"
+  local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
+
+  jq --arg role "${z_role}" \
+     --arg member "serviceAccount:${z_account_email}" \
+     '.bindings += [{role: $role, members: [$member]}]' \
+     "${ZRBGA_ROLE_RESPONSE}" > "${z_updated_policy}" \
+     || bcu_die "Failed to update IAM policy"
+
+  # Set updated IAM policy
+  bcu_log_args "Set updated IAM policy"
+  curl -s -X POST \
+    "https://cloudresourcemanager.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}:setIamPolicy" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d "{\"policy\": $(cat "${z_updated_policy}")}" \
+    -o "${ZRBGA_ROLE_RESPONSE}" \
+    -w "%{http_code}" > "${ZRBGA_ROLE_CODE}" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_ROLE_CODE}")
+
+  if test "${z_http_code}" != "200"; then
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_ROLE_RESPONSE}") || z_error="Parse error"
+    bcu_die "Failed to set IAM policy (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  bcu_log_args "Successfully added role ${z_role}"
+}
+
 ######################################################################
 # External Functions (rbga_*)
 
@@ -182,7 +349,7 @@ rbga_show_setup() {
   zrbga_critic "This procedure is for PERSONAL Google accounts only."
   zrbga_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
   zrbga_n      "you must follow your IT/admin process to create projects, attach billing,"
-  zrbga_n      "and assign permissions — those steps are NOT covered here."
+  zrbga_n      "and assign permissions � those steps are NOT covered here."
   zrbga_e
   zrbga_s2     "1. Establish Account:"
   zrbga_nc     "   Open a browser to: " "https://cloud.google.com/free"
@@ -192,7 +359,7 @@ rbga_show_setup() {
   zrbga_n      "      - Country"
   zrbga_nw     "      - Organization type: " "Individual"
   zrbga_n      "      - Credit card (verification only)"
-  zrbga_nw     "   4. Accept terms → " "Start my free trial"
+  zrbga_nw     "   4. Accept terms ? " "Start my free trial"
   zrbga_n      "   5. Expect Google Cloud Console to open"
   zrbga_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
   zrbga_e
@@ -211,24 +378,24 @@ rbga_show_setup() {
   zrbga_nc     "   Go directly to: " "https://console.cloud.google.com/"
   zrbga_n      "   Sign in with the same Google account you just set up"
   zrbga_n      "   1. Open the Google Cloud Console main menu:"
-  zrbga_nwn    "      - Click the " "☰" " hamburger menu in the top-left corner"
+  zrbga_nwn    "      - Click the " "?" " hamburger menu in the top-left corner"
   zrbga_nw     "      - Scroll down to " "IAM & Admin"
-  zrbga_nw     "      - Click → " "Manage resources"
+  zrbga_nw     "      - Click ? " "Manage resources"
   zrbga_n      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
-  zrbga_nw     "   2. On the Manage resources page, click → " "CREATE PROJECT"
+  zrbga_nw     "   2. On the Manage resources page, click ? " "CREATE PROJECT"
   zrbga_n      "   3. Configure:"
   zrbga_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
   zrbga_nw     "      - Organization: " "No organization"
   zrbga_nw     "   4. Click " "CREATE"
   zrbga_nwne   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
-  zrbga_nwn    "   6. Wait for notification → " "Creating project..." " to complete"
+  zrbga_nwn    "   6. Wait for notification ? " "Creating project..." " to complete"
   zrbga_n      "   7. Select project from dropdown when ready"
   zrbga_e
   zrbga_s2     "4. Navigate to Service Accounts:"
   zrbga_nwnwn  "   Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
-  zrbga_nwnw   "   1. Left sidebar → " "IAM & Admin" " → " "Service Accounts"
-  zrbga_nw     "   2. If prompted about APIs, click → " "Enable API"
-  zrbga_n      "      TODO: This step is brittle — enabling IAM API may happen automatically or be blocked by org policy."
+  zrbga_nwnw   "   1. Left sidebar ? " "IAM & Admin" " ? " "Service Accounts"
+  zrbga_nw     "   2. If prompted about APIs, click ? " "Enable API"
+  zrbga_n      "      TODO: This step is brittle � enabling IAM API may happen automatically or be blocked by org policy."
   zrbga_nw     "   3. Wait for " "Identity and Access Management (IAM) API to enable"
   zrbga_e
   zrbga_s2     "5. Create the Admin Service Account:"
@@ -237,18 +404,18 @@ rbga_show_setup() {
   zrbga_nc     "      - Service account name: " "${ZRBGA_ADMIN_ROLE}"
   zrbga_nwn    "      - Service account ID: (auto-fills as " "${ZRBGA_ADMIN_ROLE}" ")"
   zrbga_nc     "      - Description: " "Admin account for infrastructure management"
-  zrbga_nw     "   3. Click → " "Create and continue"
+  zrbga_nw     "   3. Click ? " "Create and continue"
   zrbga_nwnw   "   4. At " "Permissions (optional)" " pick dropdown " "Select a role"
   zrbga_nc     "      - In filter box, type: " "owner"
-  zrbga_nwnw   "      - Select: " "Basic" " → " "Owner"
-  zrbga_nw     "   5. Click → " "Continue"
-  zrbga_nwnw   "   6. Skip " "Principals with access" " by clicking → " "Done"
+  zrbga_nwnw   "      - Select: " "Basic" " ? " "Owner"
+  zrbga_nw     "   5. Click ? " "Continue"
+  zrbga_nwnw   "   6. Skip " "Principals with access" " by clicking ? " "Done"
   zrbga_e
   zrbga_s2     "7. Generate Service Account Key:"
   zrbga_n      "From service accounts list:"
   zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
-  zrbga_nw     "   2. Top tabs → " "Keys"
-  zrbga_nwnw   "   3. Click " "Add key" " → " "Create new key"
+  zrbga_nw     "   2. Top tabs ? " "Keys"
+  zrbga_nwnw   "   3. Click " "Add key" " ? " "Create new key"
   zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
   zrbga_nw     "   5. Click " "CREATE"
   zrbga_e
@@ -369,50 +536,24 @@ rbga_create_gar_reader() {
   bcu_doc_shown || return 0
 
   test -n "${z_instance}" || bcu_die "Instance name required"
+  test -n "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR not set"
+  test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
   local z_account_name="rbga-gar-reader-${z_instance}"
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
 
   bcu_step "Creating GAR reader service account: ${z_account_name}"
 
-  bcu_log_args "Get OAuth token from admin"
-  local z_token
-  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+  zrbga_create_service_account_with_key \
+    "${z_account_name}" \
+    "Recipe Bottle GAR Reader (${z_instance})" \
+    "Read-only access to Google Artifact Registry - instance: ${z_instance}" \
+    "${z_instance}"
 
-  bcu_log_args "Create request JSON"
-  jq -n \
-    --arg account_id "${z_account_name}" \
-    --arg display_name "Recipe Bottle GAR Reader (${z_instance})" \
-    --arg description "Read-only access to Google Artifact Registry - instance: ${z_instance}" \
-    '{
-      accountId: $account_id,
-      serviceAccount: {
-        displayName: $display_name,
-        description: $description
-      }
-    }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
+  bcu_step "Adding Artifact Registry Reader role"
+  zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.reader"
 
-  bcu_log_args "Create service account"
-  curl -s -X POST \
-    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d @"${ZRBGA_CREATE_REQUEST}" \
-    -o "${ZRBGA_CREATE_RESPONSE}" \
-    -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
-
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_CREATE_CODE}")
-
-  if test "${z_http_code}" = "200"; then
-    bcu_success "Created GAR reader: ${z_account_email}"
-  elif test "${z_http_code}" = "409"; then
-    bcu_die "GAR reader already exists: ${z_account_email}"
-  else
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
-    bcu_die "Failed to create GAR reader (HTTP ${z_http_code}): ${z_error}"
-  fi
+  bcu_success "GAR reader created with RBRA file: ${BDU_OUTPUT_DIR}/${z_instance}_gar_reader.rbra"
 }
 
 rbga_create_gcb_submitter() {
@@ -425,50 +566,27 @@ rbga_create_gcb_submitter() {
   bcu_doc_shown || return 0
 
   test -n "${z_instance}" || bcu_die "Instance name required"
+  test -n "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR not set"
+  test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
   local z_account_name="rbga-gcb-submitter-${z_instance}"
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
 
   bcu_step "Creating GCB submitter service account: ${z_account_name}"
 
-  bcu_log_args "Get OAuth token from admin"
-  local z_token
-  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+  zrbga_create_service_account_with_key \
+    "${z_account_name}" \
+    "Recipe Bottle GCB Submitter (${z_instance})" \
+    "Submit builds to Google Cloud Build - instance: ${z_instance}" \
+    "${z_instance}"
 
-  bcu_log_args "Create request JSON"
-  jq -n \
-    --arg account_id "${z_account_name}" \
-    --arg display_name "Recipe Bottle GCB Submitter (${z_instance})" \
-    --arg description "Submit builds to Google Cloud Build - instance: ${z_instance}" \
-    '{
-      accountId: $account_id,
-      serviceAccount: {
-        displayName: $display_name,
-        description: $description
-      }
-    }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
+  bcu_step "Adding Cloud Build Editor role"
+  zrbga_add_iam_role "${z_account_email}" "roles/cloudbuild.builds.editor"
 
-  bcu_log_args "Create service account"
-  curl -s -X POST \
-    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d @"${ZRBGA_CREATE_REQUEST}" \
-    -o "${ZRBGA_CREATE_RESPONSE}" \
-    -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
+  bcu_step "Adding Artifact Registry Writer role"
+  zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.writer"
 
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_CREATE_CODE}")
-
-  if test "${z_http_code}" = "200"; then
-    bcu_success "Created GCB submitter: ${z_account_email}"
-  elif test "${z_http_code}" = "409"; then
-    bcu_die "GCB submitter already exists: ${z_account_email}"
-  else
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
-    bcu_die "Failed to create GCB submitter (HTTP ${z_http_code}): ${z_error}"
-  fi
+  bcu_success "GCB submitter created with RBRA file: ${BDU_OUTPUT_DIR}/${z_instance}_gcb_submitter.rbra"
 }
 
 rbga_delete_service_account() {
