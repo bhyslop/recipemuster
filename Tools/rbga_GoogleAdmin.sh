@@ -122,29 +122,33 @@ zrbga_extract_json_to_rbra() {
 
   bcu_info "Extracting service account credentials from JSON"
 
-  # Extract fields
+  bcu_log_args "Extract fields"
   local z_client_email
-  z_client_email=$(jq -r '.client_email' "${z_json_path}") || bcu_die "Failed to extract client_email"
-  test -n "${z_client_email}" || bcu_die "Empty client_email in JSON"
-  test "${z_client_email}" != "null" || bcu_die "Null client_email in JSON"
+  z_client_email=$(jq -r '.client_email' "${z_json_path}") \
+                                        || bcu_die "Failed to extract client_email"
+  test -n "${z_client_email}"           || bcu_die "Empty client_email in JSON"
+  test    "${z_client_email}" != "null" || bcu_die "Null client_email in JSON"
 
   local z_private_key
-  z_private_key=$(jq -r '.private_key' "${z_json_path}") || bcu_die "Failed to extract private_key"
-  test -n "${z_private_key}" || bcu_die "Empty private_key in JSON"
-  test "${z_private_key}" != "null" || bcu_die "Null private_key in JSON"
+  z_private_key=$(jq -r '.private_key' "${z_json_path}") \
+                                       || bcu_die "Failed to extract private_key"
+  test -n "${z_private_key}"           || bcu_die "Empty private_key in JSON"
+  test    "${z_private_key}" != "null" || bcu_die "Null private_key in JSON"
 
   local z_project_id
-  z_project_id=$(jq -r '.project_id' "${z_json_path}") || bcu_die "Failed to extract project_id"
-  test -n "${z_project_id}" || bcu_die "Empty project_id in JSON"
-  test "${z_project_id}" != "null" || bcu_die "Null project_id in JSON"
+  z_project_id=$(jq -r '.project_id' "${z_json_path}") \
+                                      || bcu_die "Failed to extract project_id"
+  test -n "${z_project_id}"           || bcu_die "Empty project_id in JSON"
+  test    "${z_project_id}" != "null" || bcu_die "Null project_id in JSON"
 
-  # Verify project matches
-  test "${z_project_id}" = "${RBRR_GCP_PROJECT_ID}" || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${RBRR_GCP_PROJECT_ID}'"
+  bcu_log_args "Verify project matches"
+  test "${z_project_id}" = "${RBRR_GCP_PROJECT_ID}" \
+    || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${RBRR_GCP_PROJECT_ID}'"
 
-  # Write RBRA file
-  echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\"" > "${z_rbra_path}"
-  echo "RBRA_PRIVATE_KEY=\"${z_private_key}\"" >> "${z_rbra_path}"
-  echo "RBRA_PROJECT_ID=\"${z_project_id}\"" >> "${z_rbra_path}"
+  bcu_log_args "Write RBRA file"
+  echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""    > "${z_rbra_path}"
+  echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""     >> "${z_rbra_path}"
+  echo "RBRA_PROJECT_ID=\"${z_project_id}\""       >> "${z_rbra_path}"
   echo "RBRA_TOKEN_LIFETIME_SEC=${z_lifetime_sec}" >> "${z_rbra_path}"
 
   test -f "${z_rbra_path}" || bcu_die "Failed to write RBRA file: ${z_rbra_path}"
@@ -318,11 +322,11 @@ rbga_list_service_accounts() {
 
   bcu_step "Listing service accounts in project: ${RBRR_GCP_PROJECT_ID}"
 
-  # Get OAuth token from admin
+  bcu_log_args "Get OAuth token from admin"
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
-  # List service accounts via REST API
+  bcu_log_args "List service accounts via REST API"
   curl -s -X GET \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
     -H "Authorization: Bearer ${z_token}" \
@@ -338,7 +342,7 @@ rbga_list_service_accounts() {
     bcu_die "Failed to list service accounts (HTTP ${z_http_code}): ${z_error}"
   fi
 
-  # Check if accounts exist
+  bcu_log_args "Check if accounts exist"
   local z_count
   z_count=$(jq -r '.accounts | length' "${ZRBGA_LIST_RESPONSE}") || bcu_die "Failed to parse response"
 
@@ -347,8 +351,8 @@ rbga_list_service_accounts() {
     return 0
   fi
 
-  # Display accounts
-  bcu_info "Found ${z_count} service account(s):"
+  bcu_log_args "Display accounts"
+  bcu_step "Found ${z_count} service account(s):"
 
   jq -r '.accounts[] | "  \(.email) - \(.displayName // "(no display name)")"' "${ZRBGA_LIST_RESPONSE}" || bcu_die "Failed to format accounts"
 
@@ -371,11 +375,11 @@ rbga_create_gar_reader() {
 
   bcu_step "Creating GAR reader service account: ${z_account_name}"
 
-  # Get OAuth token from admin
+  bcu_log_args "Get OAuth token from admin"
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  # Create request JSON
+  bcu_log_args "Create request JSON"
   jq -n \
     --arg account_id "${z_account_name}" \
     --arg display_name "Recipe Bottle GAR Reader (${z_instance})" \
@@ -388,7 +392,7 @@ rbga_create_gar_reader() {
       }
     }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
 
-  # Create service account
+  bcu_log_args "Create service account"
   curl -s -X POST \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
     -H "Authorization: Bearer ${z_token}" \
@@ -427,11 +431,11 @@ rbga_create_gcb_submitter() {
 
   bcu_step "Creating GCB submitter service account: ${z_account_name}"
 
-  # Get OAuth token from admin
+  bcu_log_args "Get OAuth token from admin"
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  # Create request JSON
+  bcu_log_args "Create request JSON"
   jq -n \
     --arg account_id "${z_account_name}" \
     --arg display_name "Recipe Bottle GCB Submitter (${z_instance})" \
@@ -444,7 +448,7 @@ rbga_create_gcb_submitter() {
       }
     }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
 
-  # Create service account
+  bcu_log_args "Create service account"
   curl -s -X POST \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
     -H "Authorization: Bearer ${z_token}" \
@@ -480,11 +484,11 @@ rbga_delete_service_account() {
 
   bcu_step "Deleting service account: ${z_sa_email}"
 
-  # Get OAuth token from admin
+  bcu_log_args "Get OAuth token from admin"
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  # Delete via REST API
+  bcu_log_args "Delete via REST API"
   curl -s -X DELETE \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_sa_email}" \
     -H "Authorization: Bearer ${z_token}" \
