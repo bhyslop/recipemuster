@@ -30,16 +30,16 @@ ZRBGO_SOURCED=1
 zrbgo_kindle() {
   test -z "${ZRBGO_KINDLED:-}" || bcu_die "Module rbgo already kindled"
 
-  bcu_log "Validate required tools"
+  bcu_log_args "Validate required tools"
   which openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
   which curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
   which base64  >/dev/null 2>&1 || bcu_die "base64 not found - required for encoding"
 
-  bcu_log "Check environment"
+  bcu_log_args "Check environment"
   test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set"
   test -d "${BDU_TEMP_DIR}"   || bcu_die "BDU_TEMP_DIR not a directory"
 
-  bcu_log "Set Module Variables (ZRBGO_*)"
+  bcu_log_args "Set Module Variables (ZRBGO_*)"
   ZRBGO_JWT_HEADER_FILE="${BDU_TEMP_DIR}/rbgo_jwt_header.json"
   ZRBGO_JWT_CLAIMS_FILE="${BDU_TEMP_DIR}/rbgo_jwt_claims.json"
   ZRBGO_JWT_UNSIGNED_FILE="${BDU_TEMP_DIR}/rbgo_jwt_unsigned.txt"
@@ -47,10 +47,10 @@ zrbgo_kindle() {
   ZRBGO_OAUTH_RESPONSE_FILE="${BDU_TEMP_DIR}/rbgo_oauth_response.json"
   ZRBGO_PRIVATE_KEY_FILE="${BDU_TEMP_DIR}/rbgo_private_key.pem"
 
-  bcu_log "OAuth endpoint"
+  bcu_log_args "OAuth endpoint"
   ZRBGO_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
 
-  bcu_log "Default scope for all Google Cloud services"
+  bcu_log_args "Default scope for all Google Cloud services"
   ZRBGO_DEFAULT_SCOPE="https://www.googleapis.com/auth/cloud-platform"
 
   ZRBGO_KINDLED=1
@@ -140,9 +140,9 @@ zrbgo_exchange_jwt_capture() {
 
   # Debug: Show the actual response
   jq 'del(.access_token, .refresh_token) | with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
-    "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null | bcu_log_pipe || bcu_log "OAuth response parsing failed"
+    "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null | bcu_log_pipe || bcu_log_args "OAuth response parsing failed"
 
-  bcu_log "OAuth token exchange completed"
+  bcu_log_args "OAuth token exchange completed"
 
   # Extract access token
   local z_token
@@ -160,14 +160,14 @@ rbgo_get_token_capture() {
 
   local z_rbra_file="$1"
 
-  bcu_log "Validate RBRA file exists"
+  bcu_log_args "Validate RBRA file exists"
   test -f "${z_rbra_file}" || return 1
 
-  bcu_log "Build JWT"
+  bcu_log_args "Build JWT"
   local z_jwt
   z_jwt=$(zrbgo_build_jwt_capture "${z_rbra_file}") || return 1
 
-  bcu_log "Exchange for OAuth token"
+  bcu_log_args "Exchange for OAuth token"
   local z_token
   z_token=$(zrbgo_exchange_jwt_capture "${z_jwt}") || return 1
 

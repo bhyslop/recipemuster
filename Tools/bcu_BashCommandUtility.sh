@@ -56,7 +56,7 @@ bcu_trace()  { zbcu_print 3 "$@"; }
 
 bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
 
-bcu_log()    {
+bcu_log_args()    {
   printf '%s\n' "$@" | zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- "
 }
 
