@@ -56,7 +56,13 @@ bcu_trace()  { zbcu_print 3 "$@"; }
 
 bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
 
-bcu_log()    { zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- " "$@"; }
+bcu_log()    {
+  printf '%s\n' "$@" | zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- "
+}
+
+bcu_log_pipe() {
+  zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- "
+}
 
 bcu_die() {
   local context="${ZBCU_CONTEXT:-}"
@@ -181,19 +187,17 @@ zbcu_print() {
   fi
 }
 
+# Core logging implementation - always reads from stdin
 zbcu_log() {
-  test -n "${BDU_TEMP_DIR:-}" || return 0  # No log if no temp dir
+  test -n "${BDU_TEMP_DIR:-}" || return 0
 
   local z_prefix="$1"
   local z_rest_prefix="$2"
-  shift 2 || return 0
-
   local z_outfile="${BDU_TEMP_DIR}/transcript.txt"
 
-  while [ $# -gt 0 ]; do
-    printf '%s%s\n' "${z_prefix}" "$1" >> "${z_outfile}"
+  while IFS= read -r z_line; do
+    printf '%s%s\n' "${z_prefix}" "${z_line}" >> "${z_outfile}"
     z_prefix="${z_rest_prefix}"
-    shift
   done
 }
 

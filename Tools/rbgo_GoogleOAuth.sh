@@ -139,6 +139,9 @@ zrbgo_exchange_jwt_capture() {
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
 
   # Debug: Show the actual response
+  jq 'del(.access_token, .refresh_token) | with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
+    "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null | bcu_log_pipe || bcu_log "OAuth response parsing failed"
+
   bcu_log "OAuth token exchange completed"
 
   # Extract access token
