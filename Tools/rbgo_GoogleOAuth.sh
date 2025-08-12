@@ -137,14 +137,10 @@ zrbgo_exchange_jwt_capture() {
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
 
-  bcu_log_args "Debug: Show the actual response"
+  bcu_log_args "Debug: Show the actual response (minus secrets)"
   jq 'del(.access_token, .refresh_token) | with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
     "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null | bcu_log_pipe || bcu_log_args "OAuth response parsing failed"
     bcu_log_args "OAuth response parsing failed"
-  }
-
-  bcu_log_args "Only log if jq succeeded"
-  test -f "${ZRBGO_OAUTH_DEBUG_FILE}" && cat "${ZRBGO_OAUTH_DEBUG_FILE}" | bcu_log_pipe
 
   bcu_log_args "OAuth token exchange completed"
 
