@@ -193,19 +193,53 @@ zrbga_create_service_account_with_key() {
   local z_http_code
   z_http_code=$(<"${ZRBGA_CREATE_CODE}")
 
+  bcu_log_args "Service account creation HTTP response: ${z_http_code}"
+  
   if test "${z_http_code}" = "409"; then
     bcu_die "Service account already exists: ${z_account_email}"
   elif test "${z_http_code}" != "200"; then
     local z_error
     z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_CREATE_RESPONSE}") || z_error="Parse error"
+    bcu_log_args "Service account creation failed. Response: $(cat "${ZRBGA_CREATE_RESPONSE}")"
     bcu_die "Failed to create service account (HTTP ${z_http_code}): ${z_error}"
   fi
 
   bcu_log_args "Service account created: ${z_account_email}"
 
-  bcu_log_args "Silly wait for service account propagation"
-  bcu_step     "Silly wait for service account propagation"
-  sleep 5
+  bcu_log_args "Wait for service account propagation and verify existence"
+  bcu_step     "Wait for service account propagation and verify existence"
+  
+  # Wait and verify the service account exists before proceeding
+  local z_retry_count=0
+  local z_max_retries=10
+  local z_verify_success=false
+  
+  while [ $z_retry_count -lt $z_max_retries ]; do
+    sleep 3
+    z_retry_count=$((z_retry_count + 1))
+    
+    # Try to get the service account to verify it exists
+    curl -s -X GET \
+      "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -o "${ZRBGA_PREFIX}verify_response.json" \
+      -w "%{http_code}" > "${ZRBGA_PREFIX}verify_code.txt" 2>/dev/null
+    
+    local z_verify_code
+    z_verify_code=$(<"${ZRBGA_PREFIX}verify_code.txt")
+    
+    if test "${z_verify_code}" = "200"; then
+      z_verify_success=true
+      bcu_log_args "Service account verified after ${z_retry_count} attempts"
+      break
+    else
+      bcu_log_args "Service account not ready yet (attempt ${z_retry_count}/${z_max_retries}, HTTP ${z_verify_code})"
+    fi
+  done
+  
+  if [ "$z_verify_success" = false ]; then
+    bcu_die "Service account verification failed after ${z_max_retries} attempts"
+  fi
 
   bcu_step     "Generate service account key"
   bcu_log_args "Generate service account key"
