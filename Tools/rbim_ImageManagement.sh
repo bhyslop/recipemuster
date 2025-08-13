@@ -270,8 +270,9 @@ zrbim_submit_build() {
   z_build_id=$(<"${ZRBIM_BUILD_ID_FILE}") || bcu_die "Failed to read build ID"
   test -n "${z_build_id}" || bcu_die "Build ID is empty"
 
+  local z_console_url="${ZRBIM_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
-  bcu_info "View at: ${ZRBIM_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
+  bcu_link "Open build in Cloud Console" "${z_console_url}"
 }
 
 zrbim_wait_build_completion() {

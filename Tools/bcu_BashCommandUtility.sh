@@ -322,4 +322,28 @@ bcu_execute() {
   fi
 }
 
+# --- Hyperlink helpers (OSC-8), falls back to plain text when disabled ---
+# Disable with: export BDU_NO_HYPERLINKS=1
+zbcu_hyperlink() {
+  local z_text="${1:-}"
+  local z_url="${2:-}"
+  if [ -n "${BDU_NO_HYPERLINKS:-}" ]; then
+    printf '%s <%s>' "${z_text}" "${z_url}"
+    return 0
+  fi
+  # OSC-8: \e]8;;URL\e\TEXT\e]8;;\e\
+  printf '\033]8;;%s\033\\%s\033]8;;\033\\' "${z_url}" "${z_text}"
+}
+
+# bcu_link "Text" "URL"  (prints to stderr like other user-visible messages)
+bcu_link() {
+  zbcu_tag_args 3 "bcu_link    " "$1 -> $2"
+  # Always show at verbosity >= 0 (same visibility as bcu_step)
+  if [ "${BCU_VERBOSE:-0}" -ge 0 ]; then
+    zbcu_hyperlink "${1:-}" "${2:-}" >&2
+    echo >&2
+  fi
+}
+
+
 # eof
