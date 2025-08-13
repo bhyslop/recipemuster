@@ -209,6 +209,11 @@ zrbga_create_service_account_with_key() {
 
   bcu_log_args "Service account created: ${z_account_email}"
 
+  bcu_log_args "Silly wait for service account propagation"
+  bcu_step     "Silly wait for service account propagation"
+  sleep 5
+
+  bcu_step     "Generate service account key"
   bcu_log_args "Generate service account key"
   curl -s -X POST \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}/keys" \
@@ -232,10 +237,10 @@ zrbga_create_service_account_with_key() {
     || bcu_die "Failed to extract/decode key data"
 
   bcu_log_args "Convert JSON key to RBRA format"
-  local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_${z_account_name##rbga-}.rbra"
-  z_rbra_file="${z_rbra_file//-/_}"  # Replace hyphens with underscores
+  local z_account_suffix="${z_account_name##rbga-}"
+  z_account_suffix="${z_account_suffix//-/_}"  # Replace hyphens with underscores in account name only
+  local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_${z_account_suffix}.rbra"
 
-  # Extract JSON fields and write RBRA
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_key_json}") || bcu_die "Failed to extract client_email"
   test -n "${z_client_email}" || bcu_die "Empty client_email in key JSON"
