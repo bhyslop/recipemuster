@@ -44,25 +44,25 @@ ZBCU_CONTEXT=""
 # Help mode flag
 ZBCU_DOC_MODE=false
 
-bcu_step()   { zbcu_print 0 "${ZBCU_WHITE}$@${ZBCU_RESET}"; }
-
-bcu_code()   { zbcu_print 0 "${ZBCU_CYAN}$@${ZBCU_RESET}"; }
-
-bcu_info()   { zbcu_print 1 "$@"; }
-
-bcu_debug()  { zbcu_print 2 "$@"; }
-
-bcu_trace()  { zbcu_print 3 "$@"; }
-
-bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
-
-bcu_log_args()    {
+bcu_log_args() {
   printf '%s\n' "$@" | zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- "
 }
 
 bcu_log_pipe() {
   zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- "
 }
+
+bcu_step()   { zbcu_print 0 "${ZBCU_WHITE}$@${ZBCU_RESET}"; bcu_log_args "$@"; }
+
+bcu_code()   { zbcu_print 0 "${ZBCU_CYAN}$@${ZBCU_RESET}"; bcu_log_args "$@"; }
+
+bcu_info()   { zbcu_print 1 "$@"; bcu_log_args "$@"; }
+
+bcu_debug()  { zbcu_print 2 "$@"; bcu_log_args "$@"; }
+
+bcu_trace()  { zbcu_print 3 "$@"; bcu_log_args "$@"; }
+
+bcu_warn()   { zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; bcu_log_args "$@"; }
 
 bcu_die() {
   local context="${ZBCU_CONTEXT:-}"

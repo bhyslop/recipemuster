@@ -30,7 +30,7 @@ source "${ZRBGA_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
 
 zrbga_furnish() {
-  
+
   bcu_doc_env "BDU_TEMP_DIR   " "Temporary directory for intermediate files"
   bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
 

@@ -164,11 +164,11 @@ zrbga_create_service_account_with_key() {
 
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
 
-  bcu_log_args "Get OAuth token from admin"
+  bcu_step "Get OAuth token from admin"
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_log_args "Create request JSON for ${z_account_name}"
+  bcu_step "Create request JSON for ${z_account_name}"
   jq -n \
     --arg account_id "${z_account_name}" \
     --arg display_name "${z_display_name}" \
@@ -181,7 +181,7 @@ zrbga_create_service_account_with_key() {
       }
     }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
 
-  bcu_log_args "Create service account via REST API"
+  bcu_step "Create service account via REST API"
   curl -s -X POST \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
     -H "Authorization: Bearer ${z_token}" \
@@ -194,7 +194,7 @@ zrbga_create_service_account_with_key() {
   z_http_code=$(<"${ZRBGA_CREATE_CODE}")
 
   bcu_log_args "Service account creation HTTP response: ${z_http_code}"
-  
+
   if test "${z_http_code}" = "409"; then
     bcu_die "Service account already exists: ${z_account_email}"
   elif test "${z_http_code}" != "200"; then
@@ -204,30 +204,29 @@ zrbga_create_service_account_with_key() {
     bcu_die "Failed to create service account (HTTP ${z_http_code}): ${z_error}"
   fi
 
-  bcu_log_args "Service account created: ${z_account_email}"
+  bcu_info "Service account created: ${z_account_email}"
 
-  bcu_log_args "Wait for service account propagation and verify existence"
   bcu_step     "Wait for service account propagation and verify existence"
-  
+
   # Wait and verify the service account exists before proceeding
   local z_retry_count=0
   local z_max_retries=10
   local z_verify_success=false
-  
+
   while [ $z_retry_count -lt $z_max_retries ]; do
     sleep 3
     z_retry_count=$((z_retry_count + 1))
-    
+
     # Try to get the service account to verify it exists
     curl -s -X GET \
       "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}" \
       -H "Authorization: Bearer ${z_token}" \
       -o "${ZRBGA_PREFIX}verify_response.json" \
       -w "%{http_code}" > "${ZRBGA_PREFIX}verify_code.txt" 2>/dev/null
-    
+
     local z_verify_code
     z_verify_code=$(<"${ZRBGA_PREFIX}verify_code.txt")
-    
+
     if test "${z_verify_code}" = "200"; then
       z_verify_success=true
       bcu_log_args "Service account verified after ${z_retry_count} attempts"
@@ -236,13 +235,12 @@ zrbga_create_service_account_with_key() {
       bcu_log_args "Service account not ready yet (attempt ${z_retry_count}/${z_max_retries}, HTTP ${z_verify_code})"
     fi
   done
-  
+
   if [ "$z_verify_success" = false ]; then
     bcu_die "Service account verification failed after ${z_max_retries} attempts"
   fi
 
   bcu_step     "Generate service account key"
-  bcu_log_args "Generate service account key"
   curl -s -X POST \
     "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}/keys" \
     -H "Authorization: Bearer ${z_token}" \
@@ -259,12 +257,12 @@ zrbga_create_service_account_with_key() {
     bcu_die "Failed to generate key (HTTP ${z_http_code}): ${z_error}"
   fi
 
-  bcu_log_args "Extract and decode key data"
+  bcu_step "Extract and decode key data"
   local z_key_json="${BDU_TEMP_DIR}/rbga_key_${z_instance}.json"
   jq -r '.privateKeyData' "${ZRBGA_KEY_RESPONSE}" | base64 -d > "${z_key_json}" \
     || bcu_die "Failed to extract/decode key data"
 
-  bcu_log_args "Convert JSON key to RBRA format"
+  bcu_step "Convert JSON key to RBRA format"
   local z_account_suffix="${z_account_name##rbga-}"
   z_account_suffix="${z_account_suffix//-/_}"  # Replace hyphens with underscores in account name only
   local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_${z_account_suffix}.rbra"
@@ -281,7 +279,7 @@ zrbga_create_service_account_with_key() {
   z_project_id=$(jq -r '.project_id' "${z_key_json}") || bcu_die "Failed to extract project_id"
   test -n "${z_project_id}" || bcu_die "Empty project_id in key JSON"
 
-  bcu_log_args "Write RBRA file: ${z_rbra_file}"
+  bcu_step "Write RBRA file: ${z_rbra_file}"
   echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""  > "${z_rbra_file}"
   echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""   >> "${z_rbra_file}"
   echo "RBRA_PROJECT_ID=\"${z_project_id}\""     >> "${z_rbra_file}"
