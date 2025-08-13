@@ -447,12 +447,10 @@ rbga_initialize_admin() {
 
   bcu_step "Converting admin JSON to RBRA format"
 
-  zrbga_extract_json_to_rbra \
-    "${z_json_path}" \
+  zrbga_extract_json_to_rbra  \
+    "${z_json_path}"          \
     "${RBRR_ADMIN_RBRA_FILE}" \
     "1800"
-
-  bcu_step "Enabling IAM API for service account management"
 
   bcu_step "Get token using the newly created RBRA"
   local z_token
@@ -464,11 +462,11 @@ rbga_initialize_admin() {
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d '{}' \
-    -o "${ZRBGA_PREFIX}api_enable_response.json" \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_enable_code.txt" 2>/dev/null
+    -o "${ZRBGA_PREFIX}api_iam_enable_response.json" \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_enable_code.txt" 2>/dev/null
 
   local z_http_code
-  z_http_code=$(<"${ZRBGA_PREFIX}api_enable_code.txt")
+  z_http_code=$(<"${ZRBGA_PREFIX}api_iam_enable_code.txt")
 
   if test "${z_http_code}" = "200"; then
     bcu_info "IAM API enabled successfully"
@@ -476,8 +474,79 @@ rbga_initialize_admin() {
     bcu_info "IAM API already enabled"
   else
     local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_enable_response.json") || z_error="Parse error"
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_iam_enable_response.json") || z_error="Parse error"
     bcu_die "Failed to enable IAM API (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
+  curl -s -X POST \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudresourcemanager.googleapis.com:enable" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Content-Type: application/json" \
+    -d '{}' \
+    -o "${ZRBGA_PREFIX}api_crm_enable_response.json" \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_enable_code.txt" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_PREFIX}api_crm_enable_code.txt")
+
+  if test "${z_http_code}" = "200"; then
+    bcu_info "Cloud Resource Manager API enabled successfully"
+  elif test "${z_http_code}" = "409"; then
+    bcu_info "Cloud Resource Manager API already enabled"
+  else
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_crm_enable_response.json") || z_error="Parse error"
+    bcu_die "Failed to enable Cloud Resource Manager API (HTTP ${z_http_code}): ${z_error}"
+  fi
+
+  local z_prop_delay_seconds=45
+  bcu_step "Waiting ${z_prop_delay_seconds} seconds for API changes to propagate"
+  bcu_info "This delay ensures APIs are fully available across all Google regions"
+  local z_countdown
+  for z_countdown in $(seq ${z_prop_delay_seconds} -1 1); do
+    printf "\rTime remaining: %2d seconds" "${z_countdown}"
+    sleep 1
+  done
+  printf "\rAPI propagation wait complete                    \n"
+
+  bcu_step "Verifying API enablement"
+  curl -s -X GET \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/iam.googleapis.com" \
+    -H "Authorization: Bearer ${z_token}" \
+    -o "${ZRBGA_PREFIX}api_iam_verify_response.json" \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_verify_code.txt" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_PREFIX}api_iam_verify_code.txt")
+  if test "${z_http_code}" = "200"; then
+    local z_state
+    z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_iam_verify_response.json")
+    if test "${z_state}" = "ENABLED"; then
+      bcu_info "IAM API verified: ENABLED"
+    else
+      bcu_die "IAM API not enabled. State: ${z_state}"
+    fi
+  else
+    bcu_die "Failed to verify IAM API (HTTP ${z_http_code})"
+  fi
+
+  bcu_step "Verify Cloud Resource Manager API..."
+  curl -s -X GET \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudresourcemanager.googleapis.com" \
+    -H "Authorization: Bearer ${z_token}" \
+    -o "${ZRBGA_PREFIX}api_crm_verify_response.json" \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_verify_code.txt" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_PREFIX}api_crm_verify_code.txt")
+  if test "${z_http_code}" = "200"; then
+    local z_state
+    z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_crm_verify_response.json")
+    if test "${z_state}" = "ENABLED"; then
+      bcu_info "Cloud Resource Manager API verified: ENABLED"
+    else
+      bcu_die "Cloud Resource Manager API not enabled. State: ${z_state}"
+    fi
+  else
+    bcu_die "Failed to verify Cloud Resource Manager API (HTTP ${z_http_code})"
   fi
 
   bcu_success "Admin initialization complete"
