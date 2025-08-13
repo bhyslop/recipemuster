@@ -20,17 +20,17 @@ zrbha_kindle() {
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set"
 
   # Module Variables (zrbha_*)
-  zrbha_GITAPI_URL="https://api.github.com"
-  zrbha_MTYPE_GHV3="application/vnd.github.v3+json"
+  ZRBHA_GITAPI_URL="https://api.github.com"
+  ZRBHA_MTYPE_GHV3="application/vnd.github.v3+json"
 
-  zrbha_WORKFLOW_RUN_ID_FILE="${BDU_TEMP_DIR}/workflow_run_id__${BDU_NOW_STAMP}.txt"
-  zrbha_WORKFLOW_LOGS_FILE="${BDU_TEMP_DIR}/workflow_logs__${BDU_NOW_STAMP}.txt"
+  ZRBHA_WORKFLOW_RUN_ID_FILE="${BDU_TEMP_DIR}/workflow_run_id__${BDU_NOW_STAMP}.txt"
+  ZRBHA_WORKFLOW_LOGS_FILE="${BDU_TEMP_DIR}/workflow_logs__${BDU_NOW_STAMP}.txt"
 
-  zrbha_KINDLED=1
+  ZRBHA_KINDLED=1
 }
 
 zrbha_sentinel() {
-  test "${zrbha_KINDLED:-}" = "1" || bcu_die "Module rbgA not kindled - call zrbha_kindle first"
+  test "${ZRBHA_KINDLED:-}" = "1" || bcu_die "Module rbha not kindled - call zrbha_kindle first"
 }
 
 zrbha_curl_api() {
@@ -38,7 +38,7 @@ zrbha_curl_api() {
 
   curl -s                                    \
        -H "Authorization: token ${RBRG_PAT}" \
-       -H "Accept: ${zrbha_MTYPE_GHV3}"      \
+       -H "Accept: ${ZRBHA_MTYPE_GHV3}"      \
        "${z_url}"
 }
 
@@ -49,16 +49,16 @@ zrbha_curl_post() {
   curl -s                                    \
        -X POST                               \
        -H "Authorization: token ${RBRG_PAT}" \
-       -H "Accept: ${zrbha_MTYPE_GHV3}"      \
+       -H "Accept: ${ZRBHA_MTYPE_GHV3}"      \
        "${z_url}"                            \
        -d "${z_data}"                        \
     || bcu_die "POST request to GitHub API failed"
 }
 
 ######################################################################
-# External Functions (rbgA_*)
+# External Functions (rbha_*)
 
-rbgA_dispatch() {
+rbha_dispatch() {
   # Name parameters
   local z_repo_owner="${1:-}"
   local z_repo_name="${2:-}"
@@ -76,7 +76,7 @@ rbgA_dispatch() {
 
   # Dispatch workflow
   bcu_info "Trigger workflow..."
-  local z_dispatch_url="${zrbha_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/dispatches"
+  local z_dispatch_url="${ZRBHA_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/dispatches"
   local z_dispatch_data='{"event_type": "'${z_event_type}'", "client_payload": '${z_payload_json}'}'
 
   zrbha_curl_post "${z_dispatch_url}" "${z_dispatch_data}"
@@ -87,19 +87,19 @@ rbgA_dispatch() {
 
   # Get workflow run ID
   bcu_info "Retrieve workflow run ID..."
-  local z_runs_url="${zrbha_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
-  zrbha_curl_api "${z_runs_url}" | jq -r '.workflow_runs[0].id' > "${zrbha_WORKFLOW_RUN_ID_FILE}"
+  local z_runs_url="${ZRBHA_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
+  zrbha_curl_api "${z_runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBHA_WORKFLOW_RUN_ID_FILE}"
 
-  test -s "${zrbha_WORKFLOW_RUN_ID_FILE}" || bcu_die "Failed to get workflow run ID"
+  test -s "${ZRBHA_WORKFLOW_RUN_ID_FILE}" || bcu_die "Failed to get workflow run ID"
 
   local z_run_id
-  z_run_id=$(<"${zrbha_WORKFLOW_RUN_ID_FILE}")
+  z_run_id=$(<"${ZRBHA_WORKFLOW_RUN_ID_FILE}")
 
   bcu_info "Workflow online at:"
   echo -e "${ZBCU_YELLOW}   https://github.com/${z_repo_owner}/${z_repo_name}/actions/runs/${z_run_id}${ZBCU_RESET}"
 }
 
-rbgA_wait_completion() {
+rbha_wait_completion() {
   # Name parameters
   local z_repo_owner="${1:-}"
   local z_repo_name="${2:-}"
@@ -112,9 +112,9 @@ rbgA_wait_completion() {
   test -n "${z_repo_name}" || bcu_die "Repository name required"
 
   # Get run ID
-  test -s "${zrbha_WORKFLOW_RUN_ID_FILE}" || bcu_die "No workflow run ID found - dispatch first"
+  test -s "${ZRBHA_WORKFLOW_RUN_ID_FILE}" || bcu_die "No workflow run ID found - dispatch first"
   local z_run_id
-  z_run_id=$(<"${zrbha_WORKFLOW_RUN_ID_FILE}")
+  z_run_id=$(<"${ZRBHA_WORKFLOW_RUN_ID_FILE}")
 
   # Poll for completion
   bcu_info "Polling to completion..."
@@ -122,7 +122,7 @@ rbgA_wait_completion() {
   local z_conclusion=""
 
   while true; do
-    local z_run_url="${zrbha_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs/${z_run_id}"
+    local z_run_url="${ZRBHA_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs/${z_run_id}"
     local z_response
     z_response=$(zrbha_curl_api "${z_run_url}")
 
@@ -142,10 +142,10 @@ rbgA_wait_completion() {
   test "${z_conclusion}" = "success" || bcu_die "Workflow fail: ${z_conclusion}"
 
   # Clean up run ID file on success
-  rm -f "${zrbha_WORKFLOW_RUN_ID_FILE}"
+  rm -f "${ZRBHA_WORKFLOW_RUN_ID_FILE}"
 }
 
-rbgA_get_logs() {
+rbha_get_logs() {
   # Name parameters
   local z_repo_owner="${1:-}"
   local z_repo_name="${2:-}"
@@ -161,8 +161,8 @@ rbgA_get_logs() {
 
   # Get logs
   bcu_info "Pull logs..."
-  local z_logs_url="${zrbha_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs/${z_run_id}/logs"
-  zrbha_curl_api "${z_logs_url}" > "${zrbha_WORKFLOW_LOGS_FILE}"
+  local z_logs_url="${ZRBHA_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs/${z_run_id}/logs"
+  zrbha_curl_api "${z_logs_url}" > "${ZRBHA_WORKFLOW_LOGS_FILE}"
 }
 
 # eof

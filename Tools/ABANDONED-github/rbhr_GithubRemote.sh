@@ -7,13 +7,13 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGR_INCLUDED:-}" || bcu_die "Module rbgr multiply included - check sourcing hierarchy"
-ZRBGR_INCLUDED=1
+test -z "${ZRBHR_INCLUDED:-}" || bcu_die "Module rbgr multiply included - check sourcing hierarchy"
+ZRBHR_INCLUDED=1
 
 ######################################################################
-# Internal Functions (zrbgr_*)
+# Internal Functions (zrbhr_*)
 
-zrbgr_kindle() {
+zrbhr_kindle() {
   # Check required environment
   test -n "${BDU_TEMP_DIR:-}"             || bcu_die "BDU_TEMP_DIR not set"
   test -n "${BDU_NOW_STAMP:-}"            || bcu_die "BDU_NOW_STAMP not set"
@@ -22,24 +22,24 @@ zrbgr_kindle() {
   test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
 
-  # Module Variables (ZRBGR_*)
-  ZRBGR_ALL_VERSIONS_FILE="${BDU_TEMP_DIR}/rbgr_all_versions.json"
-  ZRBGR_PAGE_FILE="${BDU_TEMP_DIR}/rbgr_page.json"
-  ZRBGR_ALL_VERSIONS_TMP_FILE="${BDU_TEMP_DIR}/rbgr_all_versions.tmp"
-  ZRBGR_DELETE_RESULT_FILE="${BDU_TEMP_DIR}/rbgr_delete_result.txt"
-  ZRBGR_HTTP_CODE_FILE="${BDU_TEMP_DIR}/rbgr_delete_http_code.txt"
+  # Module Variables (ZRBHR_*)
+  ZRBHR_ALL_VERSIONS_FILE="${BDU_TEMP_DIR}/rbhr_all_versions.json"
+  ZRBHR_PAGE_FILE="${BDU_TEMP_DIR}/rbhr_page.json"
+  ZRBHR_ALL_VERSIONS_TMP_FILE="${BDU_TEMP_DIR}/rbhr_all_versions.tmp"
+  ZRBHR_DELETE_RESULT_FILE="${BDU_TEMP_DIR}/rbhr_delete_result.txt"
+  ZRBHR_HTTP_CODE_FILE="${BDU_TEMP_DIR}/rbhr_delete_http_code.txt"
 
-  ZRBGR_KINDLED=1
+  ZRBHR_KINDLED=1
 }
 
-zrbgr_sentinel() {
-  test "${ZRBGR_KINDLED:-}" = "1" || bcu_die "Module rbgr not kindled - call zrbgr_kindle first"
+zrbhr_sentinel() {
+  test "${ZRBHR_KINDLED:-}" = "1" || bcu_die "Module rbgr not kindled - call zrbhr_kindle first"
 }
 
 ######################################################################
-# External Functions (rbgr_*)
+# External Functions (rbhr_*)
 
-rbgr_build_image() {
+rbhr_build_image() {
   # Name parameters
   local z_dockerfile="${1:-}"
   local z_build_label="${2:-}"
@@ -51,7 +51,7 @@ rbgr_build_image() {
   bcu_doc_shown || return 0
 
   # Ensure module started
-  zrbgr_sentinel
+  zrbhr_sentinel
 
   # Validate parameters
   test -n "${z_dockerfile}" || bcu_die "Dockerfile path required"
@@ -118,12 +118,12 @@ rbgr_build_image() {
   bcu_success "Image built successfully: ${z_build_label}"
 }
 
-rbgr_record_history() {
+rbhr_record_history() {
   # Name parameters
   local z_build_label="${1:-}"
 
   # Ensure module started
-  zrbgr_sentinel
+  zrbhr_sentinel
 
   # Validate parameters
   test -n "${z_build_label}" || bcu_die "Build label required"
@@ -143,12 +143,12 @@ rbgr_record_history() {
   git push || bcu_die "Failed to push changes"
 }
 
-rbgr_delete_image() {
+rbhr_delete_image() {
   # Name parameters
   local z_fqin="${1:-}"
 
   # Ensure module started
-  zrbgr_sentinel
+  zrbhr_sentinel
 
   # Validate parameters
   test -n "${z_fqin}" || bcu_die "FQIN required"
@@ -169,35 +169,35 @@ rbgr_delete_image() {
   date -u +"%Y-%m-%dT%H:%M:%SZ" > "${z_delete_dir}/deletion_timestamp.txt"
 }
 
-rbgr_clean_orphans() {
+rbhr_clean_orphans() {
   # Ensure module started
-  zrbgr_sentinel
+  zrbhr_sentinel
 
   bcu_step "Cleaning orphaned image versions"
 
   # Get all versions with pagination
   local z_page=1
-  echo "[]" > "${ZRBGR_ALL_VERSIONS_FILE}"
+  echo "[]" > "${ZRBHR_ALL_VERSIONS_FILE}"
 
   while true; do
     curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
          -H "Accept: application/vnd.github.v3+json" \
          "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100&page=${z_page}" \
-         > "${ZRBGR_PAGE_FILE}"
+         > "${ZRBHR_PAGE_FILE}"
 
     local z_items
-    z_items=$(jq '. | length' "${ZRBGR_PAGE_FILE}")
+    z_items=$(jq '. | length' "${ZRBHR_PAGE_FILE}")
     test "${z_items}" -ne 0 || break
 
-    jq -s '.[0] + .[1]' "${ZRBGR_ALL_VERSIONS_FILE}" "${ZRBGR_PAGE_FILE}" > "${ZRBGR_ALL_VERSIONS_TMP_FILE}"
-    mv "${ZRBGR_ALL_VERSIONS_TMP_FILE}" "${ZRBGR_ALL_VERSIONS_FILE}"
+    jq -s '.[0] + .[1]' "${ZRBHR_ALL_VERSIONS_FILE}" "${ZRBHR_PAGE_FILE}" > "${ZRBHR_ALL_VERSIONS_TMP_FILE}"
+    mv "${ZRBHR_ALL_VERSIONS_TMP_FILE}" "${ZRBHR_ALL_VERSIONS_FILE}"
 
     z_page=$((z_page + 1))
   done
 
   # Get untagged versions
   local z_orphan_count
-  z_orphan_count=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' "${ZRBGR_ALL_VERSIONS_FILE}")
+  z_orphan_count=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' "${ZRBHR_ALL_VERSIONS_FILE}")
 
   if test "${z_orphan_count}" -eq 0; then
     bcu_info "No orphaned versions to clean"
@@ -210,7 +210,7 @@ rbgr_clean_orphans() {
   local z_deleted_count=0
   local z_orphan_id
 
-  jq -r '.[] | select(.metadata.container.tags | length == 0) | .id' "${ZRBGR_ALL_VERSIONS_FILE}" | \
+  jq -r '.[] | select(.metadata.container.tags | length == 0) | .id' "${ZRBHR_ALL_VERSIONS_FILE}" | \
   while read -r z_orphan_id; do
     bcu_step "Deleting orphan ID ${z_orphan_id}... "
 
@@ -218,13 +218,13 @@ rbgr_clean_orphans() {
         -H "Authorization: token ${GITHUB_TOKEN}"   \
         -H "Accept: application/vnd.github.v3+json" \
         -w "%{http_code}"                           \
-        -o "${ZRBGR_DELETE_RESULT_FILE}"            \
+        -o "${ZRBHR_DELETE_RESULT_FILE}"            \
         "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_orphan_id}" \
-        > "${ZRBGR_HTTP_CODE_FILE}"                 \
+        > "${ZRBHR_HTTP_CODE_FILE}"                 \
       || bcu_die "Failed to delete orphan"
 
     local z_http_code
-    z_http_code=$(<"${ZRBGR_HTTP_CODE_FILE}")
+    z_http_code=$(<"${ZRBHR_HTTP_CODE_FILE}")
 
     if test "${z_http_code}" = "204"; then
       echo "deleted"

@@ -7,38 +7,38 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGH_INCLUDED:-}" || bcu_die "Module rbgh multiply included - check sourcing hierarchy"
-ZRBGH_INCLUDED=1
+test -z "${ZRBHH_INCLUDED:-}" || bcu_die "Module rbhh multiply included - check sourcing hierarchy"
+ZRBHH_INCLUDED=1
 
 ######################################################################
-# Internal Functions (zrbgh_*)
+# Internal Functions (zrbhh_*)
 
-zrbgh_kindle() {
+zrbhh_kindle() {
   # Check required environment
   test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
   test -n "${RBRR_HISTORY_DIR:-}"    || bcu_die "RBRR_HISTORY_DIR not set"
   test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
 
-  # Module Variables (ZRBGH_*)
-  ZRBGH_BUILD_DIR_LATEST_FILE="${BDU_TEMP_DIR}/latest_build_dir.txt"
+  # Module Variables (ZRBHH_*)
+  ZRBHH_BUILD_DIR_LATEST_FILE="${BDU_TEMP_DIR}/latest_build_dir.txt"
 
-  ZRBGH_KINDLED=1
+  ZRBHH_KINDLED=1
 }
 
-zrbgh_sentinel() {
-  test "${ZRBGH_KINDLED:-}" = "1" || bcu_die "Module rbgh not kindled - call zrbgh_kindle first"
+zrbhh_sentinel() {
+  test "${ZRBHH_KINDLED:-}" = "1" || bcu_die "Module rbhh not kindled - call zrbhh_kindle first"
 }
 
-zrbgh_get_latest_build_dir() {
+zrbhh_get_latest_build_dir() {
   local z_recipe_basename="$1"
   local z_basename_no_ext="${z_recipe_basename%.*}"
 
   find "${RBRR_HISTORY_DIR}" -name "${z_basename_no_ext}*" -type d -print | \
-    sort -r | head -n1 > "${ZRBGH_BUILD_DIR_LATEST_FILE}"
+    sort -r | head -n1 > "${ZRBHH_BUILD_DIR_LATEST_FILE}"
 }
 
-zrbgh_pull_with_retry() {
+zrbhh_pull_with_retry() {
   local z_success_msg="${1:-Git pull completed}"
   local z_no_commits_msg="${2:-No new commits after many attempts}"
 
@@ -78,17 +78,17 @@ zrbgh_pull_with_retry() {
 }
 
 ######################################################################
-# External Functions (rbgh_*)
+# External Functions (rbhh_*)
 
-rbgh_check_git_status() {
+rbhh_check_git_status() {
   # Ensure module started
-  zrbgh_sentinel
+  zrbhh_sentinel
 
   bcu_info "Make sure your local repo is up to date..."
 
   git fetch
 
-# Replace the existing ahead/behind detection in rbgh_check_git_status with:
+# Replace the existing ahead/behind detection in rbhh_check_git_status with:
 
   local z_commits_ahead z_commits_behind
   z_commits_ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
@@ -107,12 +107,12 @@ rbgh_check_git_status() {
     bcu_die "ERROR: Your repo has uncommitted changes. Commit or stash changes to proceed."
 }
 
-rbgh_build_workflow() {
+rbhh_build_workflow() {
   # Name parameters
   local z_recipe_file="${1:-}"
 
   # Ensure module started
-  zrbgh_sentinel
+  zrbhh_sentinel
 
   # Validate parameters
   test -n "${z_recipe_file}" || bcu_die "Recipe file required"
@@ -131,16 +131,16 @@ rbgh_build_workflow() {
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"
 
   # Pull artifacts
-  zrbgh_pull_with_retry "Build artifacts retrieved"
+  zrbhh_pull_with_retry "Build artifacts retrieved"
 
   # Verify build output
   bcu_info "Verifying build output..."
   local z_recipe_basename
   z_recipe_basename=$(basename "${z_recipe_file}")
 
-  zrbgh_get_latest_build_dir "${z_recipe_basename}"
+  zrbhh_get_latest_build_dir "${z_recipe_basename}"
   local z_build_dir
-  z_build_dir=$(<"${ZRBGH_BUILD_DIR_LATEST_FILE}")
+  z_build_dir=$(<"${ZRBHH_BUILD_DIR_LATEST_FILE}")
 
   test -n "${z_build_dir}"                           || bcu_die "Missing build directory"
   test -d "${z_build_dir}"                           || bcu_die "Invalid build directory"
@@ -180,12 +180,12 @@ rbgh_build_workflow() {
   done
 }
 
-rbgh_delete_workflow() {
+rbhh_delete_workflow() {
   # Name parameters
   local z_fqin="${1:-}"
 
   # Ensure module started
-  zrbgh_sentinel
+  zrbhh_sentinel
 
   # Validate parameters
   test -n "${z_fqin}" || bcu_die "FQIN required"
@@ -211,7 +211,7 @@ rbgh_delete_workflow() {
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"
 
   # Pull deletion history
-  zrbgh_pull_with_retry "Deletion history retrieved" "No deletion history recorded"
+  zrbhh_pull_with_retry "Deletion history retrieved" "No deletion history recorded"
 
   # Verify deletion
   bcu_info "Verifying deletion..."

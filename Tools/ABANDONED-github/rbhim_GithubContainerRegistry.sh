@@ -7,25 +7,25 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBIM_INCLUDED:-}" || bcu_die "Module rbim multiply included - check sourcing hierarchy"
-ZRBIM_INCLUDED=1
+test -z "${ZRBHIM_INCLUDED:-}" || bcu_die "Module rbhim multiply included - check sourcing hierarchy"
+ZRBHIM_INCLUDED=1
 
 ######################################################################
-# Internal Functions (zrbim_*)
+# Internal Functions (zrbhim_*)
 
-zrbim_kindle() {
+zrbhim_kindle() {
   # Module variables
-  ZRBIM_KINDLED=1
+  ZRBHIM_KINDLED=1
 }
 
-zrbim_sentinel() {
-  test "${ZRBIM_KINDLED:-}" = "1" || bcu_die "Module rbim not kindled - call zrbim_kindle first"
+zrbhim_sentinel() {
+  test "${ZRBHIM_KINDLED:-}" = "1" || bcu_die "Module rbhim not kindled - call zrbhim_kindle first"
 }
 
 ######################################################################
-# External Functions (rbim_*)
+# External Functions (rbhim_*)
 
-rbim_build() {
+rbhim_build() {
   # Name parameters
   local z_recipe_file="${1:-}"
 
@@ -35,7 +35,7 @@ rbim_build() {
   bcu_doc_shown || return 0
 
   # Ensure module started
-  zrbim_sentinel
+  zrbhim_sentinel
 
   # Validate parameters
   test -n "${z_recipe_file}" || bcu_usage_die
@@ -56,13 +56,13 @@ rbim_build() {
   bcu_success "No errors."
 }
 
-rbim_list() {
+rbhim_list() {
   # Handle documentation mode
   bcu_doc_brief "List registry images"
   bcu_doc_shown || return 0
 
   # Ensure module started
-  zrbim_sentinel
+  zrbhim_sentinel
 
   # Perform command
   bcu_step "List Current Registry Images"
@@ -93,7 +93,7 @@ rbim_list() {
   bcu_success "No errors."
 }
 
-rbim_delete() {
+rbhim_delete() {
   # Name parameters
   local z_fqin="${1:-}"
 
@@ -103,7 +103,7 @@ rbim_delete() {
   bcu_doc_shown || return 0
 
   # Ensure module started
-  zrbim_sentinel
+  zrbhim_sentinel
 
   # Validate parameters
   test -n "${z_fqin}" || bcu_usage_die
@@ -125,7 +125,7 @@ rbim_delete() {
   bcu_success "No errors."
 }
 
-rbim_retrieve() {
+rbhim_retrieve() {
   # Name parameters
   local z_tag="${1:-}"
 
@@ -135,7 +135,7 @@ rbim_retrieve() {
   bcu_doc_shown || return 0
 
   # Ensure module started
-  zrbim_sentinel
+  zrbhim_sentinel
 
   # Validate parameters
   test -n "${z_tag}" || bcu_usage_die
@@ -149,7 +149,7 @@ rbim_retrieve() {
   bcu_success "No errors."
 }
 
-rbim_image_info() {
+rbhim_image_info() {
   # Name parameters
   local z_filter="${1:-}"
 
@@ -162,7 +162,7 @@ rbim_image_info() {
   bcu_doc_shown || return 0
 
   # Ensure module started
-  zrbim_sentinel
+  zrbhim_sentinel
 
   # Perform command
   bcu_step "Analyzing image information"
