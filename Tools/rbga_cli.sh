@@ -30,15 +30,19 @@ source "${ZRBGA_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
 
 zrbga_furnish() {
+  
+  bcu_doc_env "BDU_TEMP_DIR   " "Temporary directory for intermediate files"
+  bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
+
   zrbl_kindle
   bvu_file_exists "${RBL_RBRR_FILE}"
-  source "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+  source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
 
   zrbgo_kindle
   zrbga_kindle
 }
 
-bcu_execute rbga_ "Manual Setup Procedures" zrbga_furnish "$@"
+bcu_execute rbga_ "Google Admin Procedures" zrbga_furnish "$@"
 
 
 # eof
