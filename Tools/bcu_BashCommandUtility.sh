@@ -44,13 +44,13 @@ ZBCU_CONTEXT=""
 # Help mode flag
 ZBCU_DOC_MODE=false
 
-
 ######################################################################
 # Internal logging helpers
 
+# Usage: zbcu_make_tag <depth> "<label>"
+#   Computes ZBCU_TAG for the given stack depth/label (no I/O).
 # Usage: zbcu_tag_args <depth> "<label>" [arg...]
-#   Computes ZBCU_TAG for the given stack depth/label and logs args
-#   directly to the transcript.
+#   Computes ZBCU_TAG and logs args directly to the transcript.
 #
 # Bash stack quirk:
 #   BASH_SOURCE[i] / FUNCNAME[i] index the current frame,
@@ -58,15 +58,27 @@ ZBCU_DOC_MODE=false
 #   For depth=N callers:
 #       file = BASH_SOURCE[N]
 #       line = BASH_LINENO[N-1]
+zbcu_make_tag() {
+  local z_d="${1:-1}"
+  shift
+  local z_label="${1:-}"
+  local z_file="${BASH_SOURCE[$z_d]}"
+  local z_line
+  if (( z_d > 0 )); then
+    z_line="${BASH_LINENO[$((z_d-1))]}"
+  else
+    z_line="${LINENO}"
+  fi
+  z_file="${z_file##*/}"
+  ZBCU_TAG="${z_label}${z_file}:${z_line}: "
+}
+
 zbcu_tag_args() {
   local z_d="${1:-1}"
   shift
   local z_label="${1:-}"
   shift
-  local z_file="${BASH_SOURCE[$z_d]}"
-  local z_line="${BASH_LINENO[$((z_d-1))]}"
-  z_file="${z_file##*/}"
-  ZBCU_TAG="${z_label}${z_file}:${z_line}: "
+  zbcu_make_tag "${z_d}" "${z_label}"
   printf '%s\n' "$@" | zbcu_log "${ZBCU_TAG}" " ---- "
 }
 
@@ -74,18 +86,18 @@ zbcu_tag_args() {
 # Public logging wrappers
 
 bcu_log_args() { zbcu_tag_args 1 "bcu_log_args " "$@"; }
-bcu_log_pipe() { zbcu_log "${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}: " " ---- "; }
+bcu_log_pipe() { zbcu_make_tag 1 "bcu_log_pipe "; zbcu_log "${ZBCU_TAG}" " ---- "; }
 
-bcu_step()     { zbcu_tag_args 1 "bcu_step     " "$@"; zbcu_print 0 "${ZBCU_WHITE}$@${ZBCU_RESET}"; }
-bcu_code()     { zbcu_tag_args 1 "bcu_code     " "$@"; zbcu_print 0 "${ZBCU_CYAN}$@${ZBCU_RESET}"; }
+bcu_step()     { zbcu_tag_args 1 "bcu_step     " "$@"; zbcu_print 0 "${ZBCU_WHITE}$*${ZBCU_RESET}"; }
+bcu_code()     { zbcu_tag_args 1 "bcu_code     " "$@"; zbcu_print 0 "${ZBCU_CYAN}$*${ZBCU_RESET}"; }
 bcu_info()     { zbcu_tag_args 1 "bcu_info     " "$@"; zbcu_print 1 "$@"; }
 bcu_debug()    { zbcu_tag_args 1 "bcu_debug    " "$@"; zbcu_print 2 "$@"; }
 bcu_trace()    { zbcu_tag_args 1 "bcu_trace    " "$@"; zbcu_print 3 "$@"; }
-bcu_warn()     { zbcu_tag_args 1 "bcu_warn     " "$@"; zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $@"; }
-bcu_success()  { zbcu_tag_args 1 "bcu_success  " "$@"; echo -e "${ZBCU_GREEN}$@${ZBCU_RESET}" >&2 || bcu_die; }
+bcu_warn()     { zbcu_tag_args 1 "bcu_warn     " "$@"; zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $*"; }
+bcu_success()  { zbcu_tag_args 1 "bcu_success  " "$@"; printf '%b\n' "${ZBCU_GREEN}$*${ZBCU_RESET}" >&2 || bcu_die; }
 bcu_die() {
-  zbcu_tag_args                1 "bcu_die      " "ERROR: [${ZBCU_CONTEXT:-}] $@"
-  zbcu_print -1          "${ZBCU_RED}ERROR:${ZBCU_RESET} [${ZBCU_CONTEXT:-}] $@"
+  zbcu_tag_args                1 "bcu_die      " "ERROR: [${ZBCU_CONTEXT:-}] $*"
+  zbcu_print -1          "${ZBCU_RED}ERROR:${ZBCU_RESET} [${ZBCU_CONTEXT:-}] $*"
   exit 1
 }
 
