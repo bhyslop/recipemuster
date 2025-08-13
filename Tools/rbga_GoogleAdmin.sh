@@ -54,12 +54,6 @@ zrbga_kindle() {
   ZRBGA_ADMIN_ROLE="rbga-admin"
   ZRBGA_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
-  ZRBGA_GAR_READER_NAME="rbga-gar-reader"
-  ZRBGA_GAR_READER_EMAIL="${ZRBGA_GAR_READER_NAME}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
-
-  ZRBGA_GCB_SUBMITTER_NAME="rbga-gcb-submitter"
-  ZRBGA_GCB_SUBMITTER_EMAIL="${ZRBGA_GCB_SUBMITTER_NAME}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
-
   ZRBGA_PREFIX="${BDU_TEMP_DIR}/rbga_"
   ZRBGA_LIST_RESPONSE="${ZRBGA_PREFIX}list_response.json"
   ZRBGA_LIST_CODE="${ZRBGA_PREFIX}list_code.txt"
@@ -627,12 +621,13 @@ rbga_create_gar_reader() {
   bcu_step "Adding Artifact Registry Reader role"
   zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.reader"
 
-  # Calculate the actual RBRA filename that was created
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_gar_reader_${z_instance}.rbra"
 
-  bcu_success "GAR reader created successfully"
-  bcu_info "To install the RBRA file, run:"
-  bcu_code "cp \"${z_actual_rbra_file}\" \"${RBRR_GAR_RBRA_FILE}\""
+  bcu_step "To install the RBRA file locally, run:"
+  bcu_code ""
+  bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_GAR_RBRA_FILE}\""
+  bcu_code ""
+  bcu_success "GAR reader created successfully at -> ${z_actual_rbra_file}"
 }
 
 rbga_create_gcb_submitter() {
@@ -665,12 +660,13 @@ rbga_create_gcb_submitter() {
   bcu_step "Adding Artifact Registry Writer role"
   zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.writer"
 
-  # Calculate the actual RBRA filename that was created
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_gcb_submitter_${z_instance}.rbra"
 
-  bcu_success "GCB submitter created successfully"
-  bcu_info "To install the RBRA file, run:"
-  bcu_code "cp \"${z_actual_rbra_file}\" \"${RBRR_GCB_RBRA_FILE}\""
+  bcu_step "To install the RBRA file locally, run:"
+  bcu_code ""
+  bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_GCB_RBRA_FILE}\""
+  bcu_code ""
+  bcu_success "GCB submitter created successfully at -> ${z_actual_rbra_file}"
 }
 
 rbga_delete_service_account() {
