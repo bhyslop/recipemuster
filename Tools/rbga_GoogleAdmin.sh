@@ -354,7 +354,7 @@ rbga_show_setup() {
   zrbga_critic "This procedure is for PERSONAL Google accounts only."
   zrbga_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
   zrbga_n      "you must follow your IT/admin process to create projects, attach billing,"
-  zrbga_n      "and assign permissions — those steps are NOT covered here."
+  zrbga_n      "and assign permissions - those steps are NOT covered here."
   zrbga_e
   zrbga_s2     "1. Establish Account:"
   zrbga_nc     "   Open a browser to: " "https://cloud.google.com/free"
@@ -400,7 +400,7 @@ rbga_show_setup() {
   zrbga_nwnwn  "   Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
   zrbga_nwnw   "   1. Left sidebar ? " "IAM & Admin" " ? " "Service Accounts"
   zrbga_nw     "   2. If prompted about APIs, click ? " "Enable API"
-  zrbga_n      "      TODO: This step is brittle — enabling IAM API may happen automatically or be blocked by org policy."
+  zrbga_n      "      TODO: This step is brittle - enabling IAM API may happen automatically or be blocked by org policy."
   zrbga_nw     "   3. Wait for " "Identity and Access Management (IAM) API to enable"
   zrbga_e
   zrbga_s2     "5. Create the Admin Service Account:"
@@ -627,7 +627,12 @@ rbga_create_gar_reader() {
   bcu_step "Adding Artifact Registry Reader role"
   zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.reader"
 
-  bcu_success "GAR reader created with RBRA file: ${BDU_OUTPUT_DIR}/${z_instance}_gar_reader.rbra"
+  # Calculate the actual RBRA filename that was created
+  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_gar_reader_${z_instance}.rbra"
+
+  bcu_success "GAR reader created successfully"
+  bcu_info "To install the RBRA file, run:"
+  bcu_code "cp \"${z_actual_rbra_file}\" \"${RBRR_GAR_RBRA_FILE}\""
 }
 
 rbga_create_gcb_submitter() {
@@ -660,7 +665,12 @@ rbga_create_gcb_submitter() {
   bcu_step "Adding Artifact Registry Writer role"
   zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.writer"
 
-  bcu_success "GCB submitter created with RBRA file: ${BDU_OUTPUT_DIR}/${z_instance}_gcb_submitter.rbra"
+  # Calculate the actual RBRA filename that was created
+  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_gcb_submitter_${z_instance}.rbra"
+
+  bcu_success "GCB submitter created successfully"
+  bcu_info "To install the RBRA file, run:"
+  bcu_code "cp \"${z_actual_rbra_file}\" \"${RBRR_GCB_RBRA_FILE}\""
 }
 
 rbga_delete_service_account() {
