@@ -621,7 +621,14 @@ rbga_list_service_accounts() {
   bcu_log_args "Display accounts"
   bcu_step "Found ${z_count} service account(s):"
 
-  jq -r '.accounts[] | "  \(.email) - \(.displayName // "(no display name)")"' "${ZRBGA_LIST_RESPONSE}" || bcu_die "Failed to format accounts"
+  bcu_log_args "Calculate max email width for right-justification"
+  local z_max_width
+  z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGA_LIST_RESPONSE}" | sort -n | tail -1) || bcu_die "Failed to calculate max width"
+  
+  bcu_log_args "Display with right-justified email column"
+  jq -r --argjson width "${z_max_width}" \
+    '.accounts[] | "  " + (.email | tostring | ((" " * ($width - length)) + .)) + " - " + (.displayName // "(no display name)")' \
+    "${ZRBGA_LIST_RESPONSE}" || bcu_die "Failed to format accounts"
 
   bcu_success "Service account listing completed"
 }

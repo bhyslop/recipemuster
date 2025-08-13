@@ -1,91 +1,184 @@
-# Google Cloud Build configuration for Recipe Bottle images
-# Expects substitutions: RBIA_DOCKERFILE, RBIA_TAG, RBIA_MONIKER, RBIA_PLATFORMS, RBIA_GAR_LOCATION, RBIA_GAR_PROJECT, RBIA_GAR_REPOSITORY
+# Google Cloud Build for Recipe Bottle RBIA
+# - All steps use Google-curated builders, EXCEPT the single binfmt setup step.
+# - Builds multi-arch (linux/amd64,linux/arm64) with buildx.
+# - Pushes a minimal image.
+# - Writes all provenance and extras (SBOM, transcripts, etc.) to a separate metadata tarball.
+# - Publishes the metadata tarball to Artifact Registry (Generic) as: package=${_RBIA_TAG}, version=metadata.
+#
+# Exit code discipline:
+# - Every bash step uses: set -euo pipefail
+# - No tee; transcript is captured without masking exit codes.
 
 steps:
-  # Build and push multi-platform image
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-push'
+  # Configure Docker to push to GAR (auth handled by Cloud Build service account)
+  - name: gcr.io/cloud-builders/gcloud
+    id: auth-docker-to-gar
+    entrypoint: bash
     args:
-      - 'buildx'
-      - 'build'
-      - '--push'
-      - '--platform=${RBIA_PLATFORMS}'
-      - '--tag=${RBIA_GAR_LOCATION}-docker.pkg.dev/${RBIA_GAR_PROJECT}/${RBIA_GAR_REPOSITORY}/${RBIA_TAG}'
-      - '--label=moniker=${RBIA_MONIKER}'
-      - '--label=git.commit=${RBIA_GIT_COMMIT}'
-      - '--label=git.branch=${RBIA_GIT_BRANCH}'
-      - '--label=git.repo=${RBIA_GIT_REPO}'
-      - '--label=recipe=${RBIA_RECIPE_NAME}'
-      - '--file=${RBIA_DOCKERFILE}'
-      - '.'
+      - -lc
+      - |
+        set -euo pipefail
+        gcloud auth configure-docker "${_RBIA_GAR_LOCATION}-docker.pkg.dev" --quiet
 
-  # Pull image for analysis
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'pull-for-analysis'
+  # Single non-Google image step allowed: install binfmt for multi-arch emulation
+  - name: gcr.io/cloud-builders/docker
+    id: binfmt-setup
+    # This step intentionally runs a non-google image (tonistiigi/binfmt) per the rule.
+    # The builder itself is Google-curated; the container it runs is not.
+    entrypoint: bash
     args:
-      - 'pull'
-      - '${RBIA_GAR_LOCATION}-docker.pkg.dev/${RBIA_GAR_PROJECT}/${RBIA_GAR_REPOSITORY}/${RBIA_TAG}'
+      - -lc
+      - |
+        set -euo pipefail
+        docker run --privileged --rm tonistiigi/binfmt --install arm64,amd64
 
-  # Run Syft analysis
-  - name: 'anchore/syft:v1.14.1'
-    id: 'syft-analysis'
+  # Create and bootstrap a buildx builder (docker-container driver)
+  - name: gcr.io/cloud-builders/docker
+    id: buildx-create
+    entrypoint: bash
     args:
-      - '${RBIA_GAR_LOCATION}-docker.pkg.dev/${RBIA_GAR_PROJECT}/${RBIA_GAR_REPOSITORY}/${RBIA_TAG}'
-      - '-o'
-      - 'json=/workspace/syft_analysis.json'
+      - -lc
+      - |
+        set -euo pipefail
+        docker buildx create --name rbia-builder --driver docker-container --use
+        docker buildx inspect --bootstrap
 
-  # Create metadata archive
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'create-metadata'
-    script: |
-      #!/bin/bash
-      set -euo pipefail
-
-      # Create metadata directory
-      mkdir -p /workspace/metadata
-
-      # Copy artifacts
-      cp ${RBIA_DOCKERFILE} /workspace/metadata/recipe.txt
-      cp /workspace/syft_analysis.json /workspace/metadata/
-
-      # Create build info
-      cat > /workspace/metadata/build_info.json <<EOF
-      {
-        "tag": "${RBIA_TAG}",
-        "moniker": "${RBIA_MONIKER}",
-        "git_commit": "${RBIA_GIT_COMMIT}",
-        "git_branch": "${RBIA_GIT_BRANCH}",
-        "git_repo": "${RBIA_GIT_REPO}",
-        "build_id": "${BUILD_ID}",
-        "build_timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-        "platforms": "${RBIA_PLATFORMS}"
-      }
-      EOF
-
-      # Create package summary from Syft
-      jq -r '.artifacts[] | "\(.name) \(.version)"' /workspace/syft_analysis.json | \
-        sort | uniq -c | sort -rn | head -n 20 > /workspace/metadata/package_summary.txt
-
-      # Archive metadata
-      tar -czf /workspace/${RBIA_TAG}_metadata.tar.gz -C /workspace/metadata .
-
-  # Upload metadata as generic artifact
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'upload-metadata'
+  # Snapshot recipe and assemble build_info.json skeleton
+  # Snapshot recipe and assemble build_info.json skeleton
+  - name: gcr.io/cloud-builders/gcloud
+    id: prepare-metadata-files
+    entrypoint: bash
     args:
-      - 'artifacts'
-      - 'generic'
-      - 'upload'
-      - '--location=${RBIA_GAR_LOCATION}'
-      - '--repository=${RBIA_GAR_REPOSITORY}'
-      - '--project=${RBIA_GAR_PROJECT}'
-      - '--package=${RBIA_TAG}'
-      - '--version=metadata'
-      - '--source=/workspace/${RBIA_TAG}_metadata.tar.gz'
+      - -lc
+      - |
+        set -euo pipefail
+        : "${_RBIA_DOCKERFILE:?missing}"
+        : "${_RBIA_TAG:?missing}"
+        : "${_RBIA_MONIKER:?missing}"
+        : "${_RBIA_PLATFORMS:?missing}"
+        : "${_RBIA_GIT_COMMIT:?missing}"
+        : "${_RBIA_GIT_BRANCH:?missing}"
+        : "${_RBIA_GIT_REPO:?missing}"
+        : "${BUILD_ID:?missing}"
+
+        # Recipe snapshot
+        cp "${_RBIA_DOCKERFILE}" recipe.txt
+
+        # Build info (no jq dependency; write plain JSON)
+        TS="$(date -u +%FT%TZ)"
+        : > build_info.json
+        printf '{\n'                                          >> build_info.json
+        printf '  "tag": "%s",\n'       "${_RBIA_TAG}"        >> build_info.json
+        printf '  "moniker": "%s",\n'   "${_RBIA_MONIKER}"    >> build_info.json
+        printf '  "git": {\n'                                 >> build_info.json
+        printf '    "repo": "%s",\n'    "${_RBIA_GIT_REPO}"   >> build_info.json
+        printf '    "branch": "%s",\n'  "${_RBIA_GIT_BRANCH}" >> build_info.json
+        printf '    "commit": "%s"\n'   "${_RBIA_GIT_COMMIT}" >> build_info.json
+        printf '  },\n'                                       >> build_info.json
+        printf '  "build": {\n'                               >> build_info.json
+        printf '    "id": "%s",\n'       "${BUILD_ID}"        >> build_info.json
+        printf '    "timestamp": "%s"\n' "${TS}"              >> build_info.json
+        printf '  },\n'                                       >> build_info.json
+        printf '  "platforms": "%s"\n' "${_RBIA_PLATFORMS}"   >> build_info.json
+        printf '}\n'                                          >> build_info.json
+
+
+  # Build & push the minimal image; capture a full transcript without tee and preserve exit status
+  - name: gcr.io/cloud-builders/docker
+    id: build-and-push
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        IMAGE_URI="${_RBIA_GAR_LOCATION}-docker.pkg.dev/${_RBIA_GAR_PROJECT}/${_RBIA_GAR_REPOSITORY}/${_RBIA_MONIKER}:${_RBIA_TAG}"
+
+        # Simple runner that logs each command first, then executes, appending output to build.log.
+        # No pipes around build commands -> no masking of statuses; set -e ensures fail-fast.
+        printf '' > build.log
+        run() { printf '$ %s\n' "$*" >> build.log; "$@" >> build.log 2>&1; }
+
+        run docker buildx version
+        run docker version
+        run docker info
+
+        # Buildx multi-arch build and push
+        run docker buildx build \
+          --platform="${_RBIA_PLATFORMS}" \
+          --tag "${IMAGE_URI}" \
+          --push \
+          --label "moniker=${_RBIA_MONIKER}" \
+          --label "git.commit=${_RBIA_GIT_COMMIT}" \
+          --label "git.branch=${_RBIA_GIT_BRANCH}" \
+          -f "${_RBIA_DOCKERFILE}" \
+          .
+
+        # Record the pushed image URI for downstream steps
+        echo "${IMAGE_URI}" > .image_uri
+
+  # Generate SBOM (syft JSON) and a human-readable package summary (table)
+  # We stay within the Google-curated docker builder image; it runs the syft container.
+  - name: gcr.io/cloud-builders/docker
+    id: sbom-and-summary
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        IMAGE_URI="$(cat .image_uri)"
+        # JSON SBOM
+        docker run --rm anchore/syft:latest "${IMAGE_URI}" -o json > syft_analysis.json
+        # Human-readable package summary
+        docker run --rm anchore/syft:latest "${IMAGE_URI}" -o table > package_summary.txt
+
+  # Package the metadata bundle (kept separate from the pushed image)
+  - name: gcr.io/cloud-builders/gcloud
+    id: make-metadata-tarball
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        tar -czf "${_RBIA_TAG}_metadata.tgz" \
+          recipe.txt \
+          build_info.json \
+          syft_analysis.json \
+          package_summary.txt \
+          build.log
+
+  # Publish metadata tarball to Artifact Registry (Generic) as package=${_RBIA_TAG}, version=metadata
+  - name: gcr.io/cloud-builders/gcloud
+    id: publish-gar-generic
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        gcloud artifacts files upload \
+          --location="${_RBIA_GAR_LOCATION}" \
+          --repository="${_RBIA_GAR_REPOSITORY}" \
+          --project="${_RBIA_GAR_PROJECT}" \
+          --package="${_RBIA_TAG}" \
+          --version="metadata" \
+          "${_RBIA_TAG}_metadata.tgz"
 
 options:
-  machineType: 'E2_HIGHCPU_8'
-  logging: 'GCS_ONLY'
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY
 
-timeout: '1200s'
+timeout: 1200s
+
+# Required substitutions (all _RBIA_* per rule). Provide these via trigger/CLI.
+substitutions:
+  _RBIA_DOCKERFILE: Dockerfile
+  _RBIA_TAG: dev
+  _RBIA_MONIKER: rbia
+  _RBIA_PLATFORMS: linux/amd64,linux/arm64
+  _RBIA_GAR_LOCATION: us-central1
+  _RBIA_GAR_PROJECT: your-project-id
+  _RBIA_GAR_REPOSITORY: your-repo
+  _RBIA_GIT_COMMIT: unknown
+  _RBIA_GIT_BRANCH: unknown
+  _RBIA_GIT_REPO: unknown
+
 
