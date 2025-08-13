@@ -81,6 +81,9 @@ bdu_setup() {
     return 1
   fi
 
+  # Setup transcript file path
+  BDU_TRANSCRIPT="${BDU_TEMP_DIR}/transcript.txt"
+
   # Setup output directory (fixed location, cleared on each run)
   BDU_OUTPUT_DIR="$BDRV_OUTPUT_ROOT_DIR/current"
 
@@ -112,6 +115,7 @@ bdu_setup() {
   export BDU_TEMP_DIR
   export BDU_OUTPUT_DIR
   export BDU_NOW_STAMP
+  export BDU_TRANSCRIPT
 
   return 0
 }
@@ -226,7 +230,7 @@ bdu_main() {
 
   # Log command to all log files
   echo "log files:   $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
-  echo "temp dir:    ${BDU_TEMP_DIR}"
+  echo "transcript:  ${BDU_TRANSCRIPT}"
   echo "output dir:  ${BDU_OUTPUT_DIR}"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_SAME"

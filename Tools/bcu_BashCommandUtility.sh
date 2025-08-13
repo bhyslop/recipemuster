@@ -59,14 +59,14 @@ ZBCU_DOC_MODE=false
 #   For depth=N callers:
 #       file = BASH_SOURCE[N]
 #       line = BASH_LINENO[N-1]
+# Usage: zbcu_make_tag <depth> "<label>"
+#   Computes ZBCU_TAG for the given stack depth/label (no I/O).
+#   Note: With depth=0 or too-deep stacks, file/line may be empty (by design).
 zbcu_make_tag() {
-  local z_d="${1:-1}"
-  shift
-  local z_label="${1:-}"
-  shift
-  local z_file="${BASH_SOURCE[$z_d]}"
-  local z_line="${BASH_LINENO[$((z_d-1))]}"
-  z_file="${z_file##*/}"
+  local -i z_d="${1:-1}"
+  local    z_label="${2:-}"
+  local    z_file="${BASH_SOURCE[z_d]##*/}"
+  local    z_line="${BASH_LINENO[z_d-1]}"
   ZBCU_TAG="${z_label}${z_file}:${z_line}: "
 }
 
@@ -82,18 +82,18 @@ zbcu_tag_args() {
 ######################################################################
 # Public logging wrappers
 
-bcu_log_args() { zbcu_tag_args 1 "bcu_log_args " "$@"; }
-bcu_log_pipe() { zbcu_make_tag 1 "bcu_log_pipe "; zbcu_log "${ZBCU_TAG}" " ---- "; }
+bcu_log_args() { zbcu_tag_args 3 "bcu_log_args " "$@"; }
+bcu_log_pipe() { zbcu_make_tag 3 "bcu_log_pipe "; zbcu_log "${ZBCU_TAG}" " ---- "; }
 
-bcu_step()     { zbcu_tag_args 1 "bcu_step     " "$@"; zbcu_print 0 "${ZBCU_WHITE}$*${ZBCU_RESET}"; }
-bcu_code()     { zbcu_tag_args 1 "bcu_code     " "$@"; zbcu_print 0 "${ZBCU_CYAN}$*${ZBCU_RESET}"; }
-bcu_info()     { zbcu_tag_args 1 "bcu_info     " "$@"; zbcu_print 1 "$@"; }
-bcu_debug()    { zbcu_tag_args 1 "bcu_debug    " "$@"; zbcu_print 2 "$@"; }
-bcu_trace()    { zbcu_tag_args 1 "bcu_trace    " "$@"; zbcu_print 3 "$@"; }
-bcu_warn()     { zbcu_tag_args 1 "bcu_warn     " "$@"; zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $*"; }
-bcu_success()  { zbcu_tag_args 1 "bcu_success  " "$@"; printf '%b\n' "${ZBCU_GREEN}$*${ZBCU_RESET}" >&2 || bcu_die; }
+bcu_step()     { zbcu_tag_args 3 "bcu_step     " "$@"; zbcu_print 0 "${ZBCU_WHITE}$*${ZBCU_RESET}"; }
+bcu_code()     { zbcu_tag_args 3 "bcu_code     " "$@"; zbcu_print 0 "${ZBCU_CYAN}$*${ZBCU_RESET}"; }
+bcu_info()     { zbcu_tag_args 3 "bcu_info     " "$@"; zbcu_print 1 "$@"; }
+bcu_debug()    { zbcu_tag_args 3 "bcu_debug    " "$@"; zbcu_print 2 "$@"; }
+bcu_trace()    { zbcu_tag_args 3 "bcu_trace    " "$@"; zbcu_print 3 "$@"; }
+bcu_warn()     { zbcu_tag_args 3 "bcu_warn     " "$@"; zbcu_print 0 "${ZBCU_YELLOW}WARNING:${ZBCU_RESET} $*"; }
+bcu_success()  { zbcu_tag_args 3 "bcu_success  " "$@"; printf '%b\n' "${ZBCU_GREEN}$*${ZBCU_RESET}" >&2 || bcu_die; }
 bcu_die() {
-  zbcu_tag_args                1 "bcu_die      " "ERROR: [${ZBCU_CONTEXT:-}] $*"
+  zbcu_tag_args                3 "bcu_die      " "ERROR: [${ZBCU_CONTEXT:-}] $*"
   zbcu_print -1          "${ZBCU_RED}ERROR:${ZBCU_RESET} [${ZBCU_CONTEXT:-}] $*"
   exit 1
 }
@@ -211,11 +211,11 @@ zbcu_print() {
 
 # Core logging implementation - always reads from stdin
 zbcu_log() {
-  test -n "${BDU_TEMP_DIR:-}" || return 0
+  test -n "${BDU_TRANSCRIPT:-}" || return 0
 
   local z_prefix="$1"
   local z_rest_prefix="$2"
-  local z_outfile="${BDU_TEMP_DIR}/transcript.txt"
+  local z_outfile="${BDU_TRANSCRIPT}"
 
   while IFS= read -r z_line; do
     printf '%s%s\n' "${z_prefix}" "${z_line}" >> "${z_outfile}"
