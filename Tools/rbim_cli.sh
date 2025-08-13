@@ -30,10 +30,8 @@ source "${ZRBIM_CLI_SCRIPT_DIR}/rbcr_ContainerRegistry.sh"
 source "${ZRBIM_CLI_SCRIPT_DIR}/rbim_ImageManagement.sh"
 
 zrbim_furnish() {
-  bcu_doc_env "BDU_TEMP_DIR    " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  bcu_doc_env "BDU_NOW_STAMP   " "Bash Dispatch Utility provided string unique between invocations"
-  bcu_doc_env "RBG_RUNTIME     " "Container runtime (docker/podman)"
-  bcu_doc_env "RBG_RUNTIME_ARG " "Container runtime arguments (optional)"
+  bcu_doc_env "BDU_TEMP_DIR  " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  bcu_doc_env "BDU_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
 
   # Validate BDU environment
   bvu_dir_exists "${BDU_TEMP_DIR}"
