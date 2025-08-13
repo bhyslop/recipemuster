@@ -51,6 +51,7 @@ bdu_setup() {
   crgv_string "$variables_file" BDRV_TABTARGET_DIR       1 256
   crgv_string "$variables_file" BDRV_TABTARGET_DELIMITER 1 8
   crgv_string "$variables_file" BDRV_TEMP_ROOT_DIR       1 256
+  crgv_string "$variables_file" BDRV_OUTPUT_ROOT_DIR     1 256
   crgv_string "$variables_file" BDRV_TOOLS_DIR           1 256
   crgv_string "$variables_file" BDRV_COORDINATOR_SCRIPT  1 256
 
@@ -80,12 +81,36 @@ bdu_setup() {
     return 1
   fi
 
+  # Setup output directory (fixed location, cleared on each run)
+  BDU_OUTPUT_DIR="$BDRV_OUTPUT_ROOT_DIR/current"
+
+  # Clear if exists, then create fresh
+  if [[ -d "$BDU_OUTPUT_DIR" ]]; then
+    bdu_show "Clearing existing output directory: $BDU_OUTPUT_DIR"
+    rm -rf "$BDU_OUTPUT_DIR"
+  fi
+  mkdir -p "$BDU_OUTPUT_DIR"
+
+  # Validate output directory
+  if [[ ! -d "$BDU_OUTPUT_DIR" ]]; then
+    echo "ERROR: Failed to create output directory: $BDU_OUTPUT_DIR" >&2
+    return 1
+  fi
+
+  if [[ -n "$(find "$BDU_OUTPUT_DIR" -mindepth 1 -print -quit 2>/dev/null)" ]]; then
+    echo "ERROR: Output directory is not empty: $BDU_OUTPUT_DIR" >&2
+    return 1
+  fi
+
+  bdu_show "Output directory ready: $BDU_OUTPUT_DIR"
+
   # Get Git context
   BDU_GIT_CONTEXT=$(git describe --always --dirty --tags --long 2>/dev/null || echo "git-unavailable")
   bdu_show "Git context: $BDU_GIT_CONTEXT"
 
   # Export for child processes
   export BDU_TEMP_DIR
+  export BDU_OUTPUT_DIR
   export BDU_NOW_STAMP
 
   return 0
@@ -200,8 +225,9 @@ bdu_main() {
   bdu_show "Coordinator command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS"
 
   # Log command to all log files
-  echo "log files: $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
-  echo "temp dir:  ${BDU_TEMP_DIR}"
+  echo "log files:   $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
+  echo "temp dir:    ${BDU_TEMP_DIR}"
+  echo "output dir:  ${BDU_OUTPUT_DIR}"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_SAME"
   echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_HIST"

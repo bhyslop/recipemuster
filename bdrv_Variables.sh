@@ -34,6 +34,8 @@ BDRV_COORDINATOR_SCRIPT=${BDRV_TOOLS_DIR}/rbk_Coordinator.sh
 
 BDRV_TEMP_ROOT_DIR=../temp-bdu
 
+BDRV_OUTPUT_ROOT_DIR=../output-bdu
+
 BDRV_LOG_LAST=last
 
 BDRV_LOG_EXT=txt
