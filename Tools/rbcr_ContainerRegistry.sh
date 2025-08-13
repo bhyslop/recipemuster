@@ -48,6 +48,8 @@ zrbcr_kindle() {
   ZRBCR_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
   ZRBCR_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBCR_REGISTRY_API_BASE="https://${ZRBCR_REGISTRY_HOST}/v2/${ZRBCR_REGISTRY_PATH}"
+  ZRBCR_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
+  ZRBCR_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   # Media types
   ZRBCR_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
@@ -71,6 +73,7 @@ zrbcr_kindle() {
   ZRBCR_IMAGE_STATS_FILE="${BDU_TEMP_DIR}/rbcr_IMAGE_STATS.json"
   ZRBCR_FQIN_FILE="${BDU_TEMP_DIR}/rbcr_FQIN.txt"
   ZRBCR_TOKEN_FILE="${ZRBCR_TOKEN_PREFIX}access.txt"
+  ZRBCR_METADATA_ARCHIVE="${BDU_TEMP_DIR}/rbcr_metadata.tgz"
 
   # File index counter
   ZRBCR_FILE_INDEX=0
@@ -78,8 +81,8 @@ zrbcr_kindle() {
   # Initialize detail file
   echo "[]" > "${ZRBCR_IMAGE_DETAIL_FILE}" || bcu_die "Failed to initialize detail file"
 
-  # Obtain OAuth token using RBGO
-  zrbcr_refresh_token || bcu_die "Cannot proceed without OAuth token"
+  # Obtain initial OAuth token before sentinel is active
+  zrbcr_refresh_token_bootstrap || bcu_die "Cannot proceed without OAuth token"
 
   bcu_step "Log in to container registry"
   local z_token
@@ -97,6 +100,60 @@ zrbcr_kindle() {
 zrbcr_sentinel() {
   test "${ZRBCR_KINDLED:-}" = "1" || bcu_die "Module rbcr not kindled - call zrbcr_kindle first"
 }
+
+zrbcr_refresh_token_bootstrap() {
+  # No sentinel: used only from kindle before KINDLED=1
+  bcu_log_args "Obtaining OAuth token for GAR API (bootstrap)"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBRR_GAR_RBRA_FILE}") || bcu_die "Failed to get OAuth token from RBGO"
+  echo "${z_token}" > "${ZRBCR_TOKEN_FILE}" || bcu_die "Failed to write token file"
+}
+
+# Download the GAR metadata archive for a given tag
+rbcr_download_metadata() {
+  zrbcr_sentinel
+
+  local z_tag="${1:-}"
+
+  bcu_doc_brief "Download GAR build metadata archive for a tag"
+  bcu_doc_param "tag" "Image tag to fetch metadata for"
+  bcu_doc_shown || return 0
+
+  test -n "${z_tag}" || bcu_die "Tag parameter required"
+
+  # Refresh token (post-kindle) to avoid expiry surprises
+  zrbcr_refresh_token
+
+  local z_token
+  z_token=$(<"${ZRBCR_TOKEN_FILE}") || bcu_die "Token read failed"
+  test -n "${z_token}" || bcu_die "Empty token"
+
+  local z_package_path="${ZRBCR_GAR_API_BASE}/${ZRBCR_GAR_PACKAGE_BASE}/packages/${z_tag}"
+
+  bcu_step "Downloading GAR metadata for: ${z_tag}"
+  curl -s \
+       -H "Authorization: Bearer ${z_token}" \
+       "${z_package_path}/versions/metadata:download" \
+       -o "${ZRBCR_METADATA_ARCHIVE}" \
+    || bcu_die "Failed to download metadata"
+
+  test -f "${ZRBCR_METADATA_ARCHIVE}" || bcu_die "Metadata archive not created"
+  test -s "${ZRBCR_METADATA_ARCHIVE}" || bcu_die "Metadata archive is empty"
+
+  local z_extract_dir="${BDU_TEMP_DIR}/rbcr_metadata_${z_tag}"
+  rm -rf "${z_extract_dir}" || bcu_warn "Failed to clean previous extract dir"
+  mkdir -p "${z_extract_dir}" || bcu_die "Failed to create extract directory"
+  tar -xzf "${ZRBCR_METADATA_ARCHIVE}" -C "${z_extract_dir}" || bcu_die "Failed to extract metadata"
+
+  if test -f "${z_extract_dir}/package_summary.txt"; then
+    bcu_info "Top packages in image:"
+    head -5 "${z_extract_dir}/package_summary.txt" || bcu_warn "Failed to show package summary"
+  fi
+
+  bcu_success "Metadata retrieved to ${z_extract_dir}"
+}
+
+
 
 zrbcr_refresh_token() {
   zrbcr_sentinel

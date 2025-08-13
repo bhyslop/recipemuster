@@ -45,6 +45,8 @@ zrbim_kindle() {
   bcu_log_args "Verify service account files"
   test -n "${RBRR_GCB_RBRA_FILE:-}" || bcu_die "RBRR_GCB_RBRA_FILE not set"
   test -f "${RBRR_GCB_RBRA_FILE}"   || bcu_die "GCB service env file not found: ${RBRR_GCB_RBRA_FILE}"
+  test -n "${RBRR_GAR_RBRA_FILE:-}" || bcu_die "RBRR_GAR_RBRA_FILE not set"
+  test -f "${RBRR_GAR_RBRA_FILE}"   || bcu_die "GAR service env file not found: ${RBRR_GAR_RBRA_FILE}"
 
   # Module Variables (ZRBIM_*)
   ZRBIM_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
@@ -332,39 +334,8 @@ zrbim_retrieve_metadata() {
 
   local z_tag="$1"
 
-  bcu_step "Retrieving build metadata from GAR"
-
-  bcu_log_args "Get fresh token for GAR"
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_GAR_RBRA_FILE}") || bcu_die "Failed to get GAR OAuth token"
-
-  bcu_log_args "Construct package path"
-  local z_package_path="${ZRBIM_GAR_API_BASE}/${ZRBIM_GAR_PACKAGE_BASE}/packages/${z_tag}"
-
-  bcu_log_args "Download metadata artifact"
-  curl -s \
-       -H "Authorization: Bearer ${z_token}" \
-       "${z_package_path}/versions/metadata:download" \
-       -o "${ZRBIM_METADATA_ARCHIVE}" \
-    || bcu_die "Failed to download metadata"
-
-  test -f "${ZRBIM_METADATA_ARCHIVE}" || bcu_die "Metadata archive not created"
-  test -s "${ZRBIM_METADATA_ARCHIVE}" || bcu_die "Metadata archive is empty"
-
-  bcu_log_args "Extract metadata"
-  local z_extract_dir="${BDU_TEMP_DIR}/rbim_metadata"
-  rm -rf   "${z_extract_dir}" || bcu_warn "Failed to clean previous extract dir"
-  mkdir -p "${z_extract_dir}" || bcu_die "Failed to create extract directory"
-
-  tar -xzf "${ZRBIM_METADATA_ARCHIVE}" -C "${z_extract_dir}" || bcu_die "Failed to extract metadata"
-
-  bcu_log_args "Display key information if available"
-  if test -f "${z_extract_dir}/package_summary.txt"; then
-    bcu_info "Top packages in image:"
-    head -5 "${z_extract_dir}/package_summary.txt" || bcu_warn "Failed to show package summary"
-  fi
-
-  bcu_success "Metadata retrieved to ${z_extract_dir}"
+  bcu_step "Retrieving build metadata via RBCR"
+  rbcr_download_metadata "${z_tag}"
 }
 
 zrbim_validate_moniker_predicate() {
