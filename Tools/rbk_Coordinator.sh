@@ -64,7 +64,7 @@ rbk_route() {
       rbk_show "Routing to rbim_cli.sh rbim_retrieve"
       exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_retrieve $z_args
       ;;
-    rbw-b)
+    rbw-iB)
       rbk_show "Routing to rbim_cli.sh rbim_build"
       exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_build $z_args
       ;;
