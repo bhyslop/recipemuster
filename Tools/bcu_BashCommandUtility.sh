@@ -44,6 +44,7 @@ ZBCU_CONTEXT=""
 # Help mode flag
 ZBCU_DOC_MODE=false
 
+
 ######################################################################
 # Internal logging helpers
 
@@ -62,13 +63,9 @@ zbcu_make_tag() {
   local z_d="${1:-1}"
   shift
   local z_label="${1:-}"
+  shift
   local z_file="${BASH_SOURCE[$z_d]}"
-  local z_line
-  if (( z_d > 0 )); then
-    z_line="${BASH_LINENO[$((z_d-1))]}"
-  else
-    z_line="${LINENO}"
-  fi
+  local z_line="${BASH_LINENO[$((z_d-1))]}"
   z_file="${z_file##*/}"
   ZBCU_TAG="${z_label}${z_file}:${z_line}: "
 }
