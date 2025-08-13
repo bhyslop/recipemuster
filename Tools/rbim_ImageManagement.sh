@@ -34,7 +34,7 @@ zrbim_kindle() {
   bvu_dir_exists "${BDU_TEMP_DIR}"
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
 
-  bcu_log_args "Check required GCB environment variables"
+  bcu_log_args "Check required GCB/GAR environment variables"
   test -n "${RBRR_GCB_PROJECT_ID:-}"      || bcu_die "RBRR_GCB_PROJECT_ID not set"
   test -n "${RBRR_GCB_REGION:-}"          || bcu_die "RBRR_GCB_REGION not set"
   test -n "${RBRR_GAR_PROJECT_ID:-}"      || bcu_die "RBRR_GAR_PROJECT_ID not set"
@@ -54,7 +54,10 @@ zrbim_kindle() {
   ZRBIM_GCB_PROJECT_BUILDS_URL="${ZRBIM_GCB_API_BASE}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
   ZRBIM_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
-  ZRBIM_CLOUDBUILD_YAML="${ZRBIM_CLI_SCRIPT_DIR}/rbia_cloudbuild.yaml"
+  # RBIA file presumed to be in the same Tools directory as this implementation
+  local z_self_dir="${BASH_SOURCE[0]%/*}"
+  ZRBIM_RBIA_FILE="${z_self_dir}/rbia_cloudbuild.yaml"
+  test -f "${ZRBIM_RBIA_FILE}" || bcu_die "RBIA file not found in Tools: ${ZRBIM_RBIA_FILE}"
 
   bcu_log_args "Define temp files for build operations"
   ZRBIM_BUILD_CONTEXT_TAR="${BDU_TEMP_DIR}/rbim_build_context.tar.gz"
@@ -63,19 +66,19 @@ zrbim_kindle() {
   ZRBIM_BUILD_STATUS_FILE="${BDU_TEMP_DIR}/rbim_build_status.json"
   ZRBIM_BUILD_LOG_FILE="${BDU_TEMP_DIR}/rbim_build_log.txt"
   ZRBIM_BUILD_RESPONSE_FILE="${BDU_TEMP_DIR}/rbim_build_response.json"
-  ZRBIM_METADATA_ARCHIVE="${BDU_TEMP_DIR}/rbim_metadata.tar.gz"
+  ZRBIM_METADATA_ARCHIVE="${BDU_TEMP_DIR}/rbim_metadata.tgz"
 
   bcu_log_args "Define git info files"
   ZRBIM_GIT_INFO_FILE="${BDU_TEMP_DIR}/rbim_git_info.json"
   ZRBIM_GIT_COMMIT_FILE="${BDU_TEMP_DIR}/rbim_git_commit.txt"
   ZRBIM_GIT_BRANCH_FILE="${BDU_TEMP_DIR}/rbim_git_branch.txt"
   ZRBIM_GIT_REPO_FILE="${BDU_TEMP_DIR}/rbim_git_repo_url.txt"
-  ZRBIM_GIT_UNPUSHED_FILE="${BDU_TEMP_DIR}/rbim_git_unpushed.txt"
+  ZRBIM_GIT_UNTRACKED_FILE="${BDU_TEMP_DIR}/rbim_git_untracked.txt"
   ZRBIM_GIT_REMOTE_FILE="${BDU_TEMP_DIR}/rbim_git_remote.txt"
 
   bcu_log_args "Define staging and size files"
   ZRBIM_STAGING_DIR="${BDU_TEMP_DIR}/rbim_staging"
-  ZRBIM_CONTEXT_SIZE_FILE="${BDU_TEMP_DIR}/rbim_context_size.txt"
+  ZRBIM_CONTEXT_SIZE_FILE="${BDU_TEMP_DIR}/rbim_context_size_bytes.txt"
 
   bcu_log_args "Define validation files"
   ZRBIM_MONIKER_VALID_FILE="${BDU_TEMP_DIR}/rbim_moniker_valid.txt"
@@ -98,14 +101,17 @@ zrbim_verify_git_clean() {
   git diff-index --quiet HEAD -- || bcu_die "Uncommitted changes detected - commit or stash first"
 
   bcu_log_args "Check for untracked files"
-  git ls-files --others --exclude-standard > "${ZRBIM_GIT_UNPUSHED_FILE}" || bcu_die "Failed to check untracked files"
-  local z_untracked=$(<"${ZRBIM_GIT_UNPUSHED_FILE}")
+  git ls-files --others --exclude-standard > "${ZRBIM_GIT_UNTRACKED_FILE}" || bcu_die "Failed to check untracked files"
+  local z_untracked=""
+  z_untracked=$(<"${ZRBIM_GIT_UNTRACKED_FILE}") || bcu_die "Failed to read untracked list"
   test -z "${z_untracked}" || bcu_die "Untracked files present - commit or clean first"
 
   bcu_log_args "Check if all commits are pushed"
-  git fetch --quiet
-  git rev-list @{u}..HEAD --count > "${ZRBIM_GIT_UNPUSHED_FILE}" 2>/dev/null || echo "0" > "${ZRBIM_GIT_UNPUSHED_FILE}"
-  local z_unpushed=$(<"${ZRBIM_GIT_UNPUSHED_FILE}")
+  git fetch --quiet || bcu_die "git fetch failed"
+  # If upstream missing, treat as 0 ahead
+  git rev-list @{u}..HEAD --count > "${ZRBIM_GIT_UNTRACKED_FILE}" 2>/dev/null || echo "0" > "${ZRBIM_GIT_UNTRACKED_FILE}"
+  local z_unpushed=""
+  z_unpushed=$(<"${ZRBIM_GIT_UNTRACKED_FILE}") || bcu_die "Failed to read ahead count"
   test "${z_unpushed}" -eq 0 || bcu_die "Local commits not pushed (${z_unpushed} commits ahead)"
 
   bcu_log_args "Get git metadata"
@@ -114,21 +120,27 @@ zrbim_verify_git_clean() {
 
   bcu_log_args "Get first available remote"
   git remote | head -1 > "${ZRBIM_GIT_REMOTE_FILE}" || bcu_die "No git remotes configured"
-  local z_remote=$(<"${ZRBIM_GIT_REMOTE_FILE}")
+  local z_remote=""
+  z_remote=$(<"${ZRBIM_GIT_REMOTE_FILE}") || bcu_die "Failed to read remote name"
   test -n "${z_remote}" || bcu_die "No git remotes found"
 
   bcu_log_args "Get repo URL from remote: ${z_remote}"
   git config --get "remote.${z_remote}.url" > "${ZRBIM_GIT_REPO_FILE}" || bcu_die "Failed to get repo URL"
 
-  local z_commit=$(<"${ZRBIM_GIT_COMMIT_FILE}")
-  local z_branch=$(<"${ZRBIM_GIT_BRANCH_FILE}")
-  local z_repo_url=$(<"${ZRBIM_GIT_REPO_FILE}")
+  local z_commit=""
+  local z_branch=""
+  local z_repo_url=""
+  z_commit=$(<"${ZRBIM_GIT_COMMIT_FILE}") || bcu_die "Failed to read commit"
+  z_branch=$(<"${ZRBIM_GIT_BRANCH_FILE}") || bcu_die "Failed to read branch"
+  z_repo_url=$(<"${ZRBIM_GIT_REPO_FILE}") || bcu_die "Failed to read repo url"
 
   test -n "${z_commit}"   || bcu_die "Git commit is empty"
   test -n "${z_branch}"   || bcu_die "Git branch is empty"
   test -n "${z_repo_url}" || bcu_die "Git repo URL is empty"
 
   bcu_log_args "Extract owner/repo from URL (handles both HTTPS and SSH)"
+  # Example HTTPS: https://github.com/owner/repo.git
+  # Example SSH  : git@github.com:owner/repo.git
   local z_repo="${z_repo_url#*github.com[:/]}"
   z_repo="${z_repo%.git}"
 
@@ -136,7 +148,7 @@ zrbim_verify_git_clean() {
   jq -n                        \
     --arg commit "${z_commit}" \
     --arg branch "${z_branch}" \
-    --arg repo   "${z_repo}" \
+    --arg repo   "${z_repo}"   \
     '{"commit": $commit, "branch": $branch, "repo": $repo}' \
     > "${ZRBIM_GIT_INFO_FILE}" || bcu_die "Failed to write git info"
 
@@ -152,37 +164,32 @@ zrbim_package_context() {
   bcu_step "Packaging build context"
 
   bcu_log_args "Create temp directory for context"
-  rm -rf "${ZRBIM_STAGING_DIR}"
-  mkdir -p "${ZRBIM_STAGING_DIR}" \
-    || bcu_die "Failed to create staging directory"
+  rm -rf "${ZRBIM_STAGING_DIR}" || bcu_warn "Failed to clean existing staging directory"
+  mkdir -p "${ZRBIM_STAGING_DIR}" || bcu_die "Failed to create staging directory"
 
   bcu_log_args "Copy context to staging"
-  cp -r "${z_context_dir}/." "${ZRBIM_STAGING_DIR}/" \
-    || bcu_die "Failed to copy context"
+  cp -r "${z_context_dir}/." "${ZRBIM_STAGING_DIR}/" || bcu_die "Failed to copy context"
 
   bcu_log_args "Copy Dockerfile to context root if not already there"
   local z_dockerfile_name="${z_dockerfile##*/}"
-  cp "${z_dockerfile}" "${ZRBIM_STAGING_DIR}/${z_dockerfile_name}" \
-    || bcu_die "Failed to copy Dockerfile"
+  cp "${z_dockerfile}" "${ZRBIM_STAGING_DIR}/${z_dockerfile_name}" || bcu_die "Failed to copy Dockerfile"
 
-  bcu_log_args "Copy Cloud Build YAML to context"
-  cp "${ZRBIM_CLOUDBUILD_YAML}" "${ZRBIM_STAGING_DIR}/cloudbuild.yaml" \
-    || bcu_die "Failed to copy Cloud Build YAML"
+  bcu_log_args "Copy RBIA Cloud Build YAML to context (fixed name: cloudbuild.yaml)"
+  cp "${ZRBIM_RBIA_FILE}" "${ZRBIM_STAGING_DIR}/cloudbuild.yaml" || bcu_die "Failed to copy RBIA file"
 
   bcu_log_args "Create tarball"
-  tar -czf "${ZRBIM_BUILD_CONTEXT_TAR}" -C "${ZRBIM_STAGING_DIR}" . \
-    || bcu_die "Failed to create context archive"
+  tar -czf "${ZRBIM_BUILD_CONTEXT_TAR}" -C "${ZRBIM_STAGING_DIR}" . || bcu_die "Failed to create context archive"
 
   bcu_log_args "Clean up staging"
-  rm -rf "${ZRBIM_STAGING_DIR}"
+  rm -rf "${ZRBIM_STAGING_DIR}" || bcu_warn "Failed to cleanup staging directory"
 
-  bcu_log_args "Get size for info"
-  local z_size
-  z_size=$(ls -lh "${ZRBIM_BUILD_CONTEXT_TAR}" | { read -r _ _ _ _ z_s _; echo "${z_s}"; }) \
-    || bcu_die "Failed to get context size"
-  test -n "${z_size}" || bcu_die "Context size is empty"
+  bcu_log_args "Compute archive size (bytes) using temp file"
+  wc -c < "${ZRBIM_BUILD_CONTEXT_TAR}" > "${ZRBIM_CONTEXT_SIZE_FILE}" || bcu_die "Failed to compute context size"
+  local z_size_bytes=""
+  z_size_bytes=$(<"${ZRBIM_CONTEXT_SIZE_FILE}") || bcu_die "Failed to read context size"
+  test -n "${z_size_bytes}" || bcu_die "Context size is empty"
 
-  bcu_info "Build context packaged: ${z_size}"
+  bcu_info "Build context packaged: ${z_size_bytes} bytes"
 }
 
 zrbim_submit_build() {
@@ -195,7 +202,7 @@ zrbim_submit_build() {
   bcu_step "Submitting build to Google Cloud Build"
 
   bcu_log_args "Get OAuth token using capture function"
-  local z_token
+  local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_GCB_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
   bcu_log_args "Read git info from file"
@@ -203,9 +210,12 @@ zrbim_submit_build() {
   jq -r '.branch' "${ZRBIM_GIT_INFO_FILE}" > "${ZRBIM_GIT_BRANCH_FILE}" || bcu_die "Failed to extract git branch"
   jq -r '.repo'   "${ZRBIM_GIT_INFO_FILE}" > "${ZRBIM_GIT_REPO_FILE}"   || bcu_die "Failed to extract git repo"
 
-  local z_git_commit=$(<"${ZRBIM_GIT_COMMIT_FILE}")
-  local z_git_branch=$(<"${ZRBIM_GIT_BRANCH_FILE}")
-  local z_git_repo=$(<"${ZRBIM_GIT_REPO_FILE}")
+  local z_git_commit=""
+  local z_git_branch=""
+  local z_git_repo=""
+  z_git_commit=$(<"${ZRBIM_GIT_COMMIT_FILE}") || bcu_die "Failed to read git commit"
+  z_git_branch=$(<"${ZRBIM_GIT_BRANCH_FILE}") || bcu_die "Failed to read git branch"
+  z_git_repo=$(<"${ZRBIM_GIT_REPO_FILE}")     || bcu_die "Failed to read git repo"
 
   test -n "${z_git_commit}" || bcu_die "Git commit is empty"
   test -n "${z_git_branch}" || bcu_die "Git branch is empty"
@@ -214,50 +224,50 @@ zrbim_submit_build() {
   bcu_log_args "Extract recipe name without extension"
   local z_recipe_name="${z_dockerfile_name%.*}"
 
-  bcu_log_args "Create build config with substitutions (no storageSource for inline upload)"
+  bcu_log_args "Create build config with RBIA substitutions (no storageSource for inline upload)"
   jq -n '{
         "substitutions": {
-          "RBIM_DOCKERFILE":     "'"${z_dockerfile_name}"'",
-          "RBIM_TAG":            "'"${z_tag}"'",
-          "RBIM_MONIKER":        "'"${z_moniker}"'",
-          "RBIM_PLATFORMS":      "'"${RBRR_BUILD_ARCHITECTURES}"'",
-          "RBIM_GAR_LOCATION":   "'"${RBRR_GAR_LOCATION}"'",
-          "RBIM_GAR_PROJECT":    "'"${RBRR_GAR_PROJECT_ID}"'",
-          "RBIM_GAR_REPOSITORY": "'"${RBRR_GAR_REPOSITORY}"'",
-          "RBIM_GIT_COMMIT":     "'"${z_git_commit}"'",
-          "RBIM_GIT_BRANCH":     "'"${z_git_branch}"'",
-          "RBIM_GIT_REPO":       "'"${z_git_repo}"'",
-          "RBIM_RECIPE_NAME":    "'"${z_recipe_name}"'"
+          "_RBIA_DOCKERFILE":     "'"${z_dockerfile_name}"'",
+          "_RBIA_TAG":            "'"${z_tag}"'",
+          "_RBIA_MONIKER":        "'"${z_moniker}"'",
+          "_RBIA_PLATFORMS":      "'"${RBRR_BUILD_ARCHITECTURES}"'",
+          "_RBIA_GAR_LOCATION":   "'"${RBRR_GAR_LOCATION}"'",
+          "_RBIA_GAR_PROJECT":    "'"${RBRR_GAR_PROJECT_ID}"'",
+          "_RBIA_GAR_REPOSITORY": "'"${RBRR_GAR_REPOSITORY}"'",
+          "_RBIA_GIT_COMMIT":     "'"${z_git_commit}"'",
+          "_RBIA_GIT_BRANCH":     "'"${z_git_branch}"'",
+          "_RBIA_GIT_REPO":       "'"${z_git_repo}"'",
+          "_RBIA_RECIPE_NAME":    "'"${z_recipe_name}"'"
         }
-      }' > "${ZRBIM_BUILD_CONFIG_FILE}" \
-    || bcu_die "Failed to create build config"
+      }' > "${ZRBIM_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
 
   bcu_log_args "Submit build with inline source upload"
-  curl -X POST \
-       -H "Authorization: Bearer ${z_token}"                            \
-       -H "Content-Type: application/json"                              \
-       -H "x-goog-upload-protocol: multipart"                           \
-       -F "metadata=@${ZRBIM_BUILD_CONFIG_FILE};type=application/json"  \
-       -F "source=@${ZRBIM_BUILD_CONTEXT_TAR};type=application/gzip"    \
-       "${ZRBIM_GCB_PROJECT_BUILDS_URL}"                                \
-       > "${ZRBIM_BUILD_RESPONSE_FILE}" 2>/dev/null                     \
-     || bcu_die "Failed to submit build"
+  curl -s -X POST                                               \
+       -H "Authorization: Bearer ${z_token}"                    \
+       -H "Content-Type: application/json"                      \
+       -H "x-goog-upload-protocol: multipart"                   \
+       -F "metadata=@${ZRBIM_BUILD_CONFIG_FILE};type=application/json" \
+       -F "source=@${ZRBIM_BUILD_CONTEXT_TAR};type=application/gzip"   \
+       "${ZRBIM_GCB_PROJECT_BUILDS_URL}"                        \
+       > "${ZRBIM_BUILD_RESPONSE_FILE}" \
+    || bcu_die "Failed to submit build"
 
   bcu_log_args "Validate response file"
   test -f "${ZRBIM_BUILD_RESPONSE_FILE}" || bcu_die "Build response file not created"
   test -s "${ZRBIM_BUILD_RESPONSE_FILE}" || bcu_die "Build response file is empty"
 
   bcu_log_args "Extract build ID from response"
-  jq -r '.name' "${ZRBIM_BUILD_RESPONSE_FILE}" > "${ZRBIM_BUILD_ID_FILE}" \
-    || bcu_die "Failed to extract build name"
+  jq -r '.name' "${ZRBIM_BUILD_RESPONSE_FILE}" > "${ZRBIM_BUILD_ID_FILE}" || bcu_die "Failed to extract build name"
 
-  bcu_log_args "Parse build ID from full path (portable sed)"
-  sed 's|.*/||' "${ZRBIM_BUILD_ID_FILE}" > "${ZRBIM_BUILD_ID_TMP_FILE}" \
-    || bcu_die "Failed to parse build ID"
-  mv "${ZRBIM_BUILD_ID_TMP_FILE}" "${ZRBIM_BUILD_ID_FILE}" \
-    || bcu_die "Failed to move parsed build ID"
+  bcu_log_args "Parse build ID from full path using parameter expansion"
+  local z_full=""
+  z_full=$(<"${ZRBIM_BUILD_ID_FILE}") || bcu_die "Failed to read build name path"
+  local z_only="${z_full##*/}"
+  printf '%s' "${z_only}" > "${ZRBIM_BUILD_ID_TMP_FILE}" || bcu_die "Failed to write temp build ID"
+  mv "${ZRBIM_BUILD_ID_TMP_FILE}" "${ZRBIM_BUILD_ID_FILE}" || bcu_die "Failed to finalize build ID"
 
-  local z_build_id=$(<"${ZRBIM_BUILD_ID_FILE}")
+  local z_build_id=""
+  z_build_id=$(<"${ZRBIM_BUILD_ID_FILE}") || bcu_die "Failed to read build ID"
   test -n "${z_build_id}" || bcu_die "Build ID is empty"
 
   bcu_info "Build submitted: ${z_build_id}"
@@ -269,11 +279,12 @@ zrbim_wait_build_completion() {
 
   bcu_step "Waiting for build completion"
 
-  local z_build_id=$(<"${ZRBIM_BUILD_ID_FILE}")
-  test -n "${z_build_id}" || bcu_die "No build ID found"
+  local z_build_id=""
+  z_build_id=$(<"${ZRBIM_BUILD_ID_FILE}") || bcu_die "No build ID found"
+  test -n "${z_build_id}" || bcu_die "Build ID file empty"
 
   bcu_log_args "Get fresh token for polling"
-  local z_token
+  local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_GCB_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
   local z_status="PENDING"
@@ -281,35 +292,30 @@ zrbim_wait_build_completion() {
   local z_max_attempts=240  # 20 minutes with 5 second intervals
 
   while true; do
-    bcu_log_args "Check if build status is terminal"
     case "${z_status}" in
       PENDING|QUEUED|WORKING)
-        bcu_log_args "Build still running, status: ${z_status}"
         ;;
       *)
-        bcu_log_args "Build reached terminal status: ${z_status}"
         break
         ;;
     esac
 
     sleep 5
     z_attempts=$((z_attempts + 1))
-
     test ${z_attempts} -le ${z_max_attempts} || bcu_die "Build timeout after ${z_max_attempts} attempts"
 
     bcu_log_args "Fetch build status (attempt ${z_attempts}/${z_max_attempts})"
-    curl -s                                              \
-         -H "Authorization: Bearer ${z_token}"           \
+    curl -s \
+         -H "Authorization: Bearer ${z_token}" \
          "${ZRBIM_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
-         > "${ZRBIM_BUILD_STATUS_FILE}"                  \
-       || bcu_die "Failed to get build status"
+         > "${ZRBIM_BUILD_STATUS_FILE}" \
+      || bcu_die "Failed to get build status"
 
-    bcu_log_args "Validate status response"
     test -f "${ZRBIM_BUILD_STATUS_FILE}" || bcu_die "Build status file not created"
     test -s "${ZRBIM_BUILD_STATUS_FILE}" || bcu_die "Build status file is empty"
 
     jq -r '.status' "${ZRBIM_BUILD_STATUS_FILE}" > "${ZRBIM_STATUS_CHECK_FILE}" || bcu_die "Failed to extract status"
-    z_status=$(<"${ZRBIM_STATUS_CHECK_FILE}")
+    z_status=$(<"${ZRBIM_STATUS_CHECK_FILE}") || bcu_die "Failed to read status"
     test -n "${z_status}" || bcu_die "Status is empty"
 
     bcu_info "Build status: ${z_status} (attempt ${z_attempts}/${z_max_attempts})"
@@ -328,26 +334,25 @@ zrbim_retrieve_metadata() {
   bcu_step "Retrieving build metadata from GAR"
 
   bcu_log_args "Get fresh token for GAR"
-  local z_token
+  local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_GAR_RBRA_FILE}") || bcu_die "Failed to get GAR OAuth token"
 
   bcu_log_args "Construct package path"
   local z_package_path="${ZRBIM_GAR_API_BASE}/${ZRBIM_GAR_PACKAGE_BASE}/packages/${z_tag}"
 
   bcu_log_args "Download metadata artifact"
-  curl -s                                             \
-       -H "Authorization: Bearer ${z_token}"          \
+  curl -s \
+       -H "Authorization: Bearer ${z_token}" \
        "${z_package_path}/versions/metadata:download" \
-       -o "${ZRBIM_METADATA_ARCHIVE}"                 \
-     || bcu_die "Failed to download metadata"
+       -o "${ZRBIM_METADATA_ARCHIVE}" \
+    || bcu_die "Failed to download metadata"
 
-  bcu_log_args "Validate metadata archive"
   test -f "${ZRBIM_METADATA_ARCHIVE}" || bcu_die "Metadata archive not created"
   test -s "${ZRBIM_METADATA_ARCHIVE}" || bcu_die "Metadata archive is empty"
 
   bcu_log_args "Extract metadata"
   local z_extract_dir="${BDU_TEMP_DIR}/rbim_metadata"
-  rm -rf   "${z_extract_dir}"
+  rm -rf   "${z_extract_dir}" || bcu_warn "Failed to clean previous extract dir"
   mkdir -p "${z_extract_dir}" || bcu_die "Failed to create extract directory"
 
   tar -xzf "${ZRBIM_METADATA_ARCHIVE}" -C "${z_extract_dir}" || bcu_die "Failed to extract metadata"
@@ -355,7 +360,7 @@ zrbim_retrieve_metadata() {
   bcu_log_args "Display key information if available"
   if test -f "${z_extract_dir}/package_summary.txt"; then
     bcu_info "Top packages in image:"
-    head -5 "${z_extract_dir}/package_summary.txt"
+    head -5 "${z_extract_dir}/package_summary.txt" || bcu_warn "Failed to show package summary"
   fi
 
   bcu_success "Metadata retrieved to ${z_extract_dir}"
@@ -386,9 +391,9 @@ rbim_build() {
 
   # Documentation block
   bcu_doc_brief "Build container image using Google Cloud Build"
-  bcu_doc_param "dockerfile" "Path to Dockerfile"
+  bcu_doc_param "dockerfile"  "Path to Dockerfile"
   bcu_doc_param "context_dir" "Build context directory"
-  bcu_doc_param "moniker" "Service moniker (e.g., srjcl, pluml)"
+  bcu_doc_param "moniker"     "Service moniker (e.g., srjcl, pluml)"
   bcu_doc_shown || return 0
 
   bcu_log_args "Validate parameters"
@@ -411,7 +416,7 @@ rbim_build() {
   # Verify git state
   zrbim_verify_git_clean
 
-  # Package build context
+  # Package build context (includes RBIA file as cloudbuild.yaml)
   zrbim_package_context "${z_dockerfile}" "${z_context_dir}"
 
   # Submit build
@@ -447,7 +452,8 @@ rbim_list() {
   jq -r '.[] | .tag' "${z_records_file}" | sort -r | head -20
 
   jq '. | length' "${z_records_file}" > "${ZRBIM_STATUS_CHECK_FILE}" || bcu_die "Failed to count images"
-  local z_total=$(<"${ZRBIM_STATUS_CHECK_FILE}")
+  local z_total=""
+  z_total=$(<"${ZRBIM_STATUS_CHECK_FILE}") || bcu_die "Failed to read total count"
   test -n "${z_total}" || bcu_die "Total count is empty"
 
   bcu_info "Total images: ${z_total}"
