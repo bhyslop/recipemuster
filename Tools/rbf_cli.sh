@@ -51,7 +51,6 @@ zrbf_furnish() {
 
   # Kindle modules in dependency order
   zrbgo_kindle
-  zrbcr_kindle
   zrbf_kindle
 }
 
