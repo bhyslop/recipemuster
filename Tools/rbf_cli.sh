@@ -19,17 +19,16 @@
 
 set -euo pipefail
 
-ZRBIM_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+ZRBF_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBIM_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbcr_ContainerRegistry.sh"
-source "${ZRBIM_CLI_SCRIPT_DIR}/rbim_ImageManagement.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
-zrbim_furnish() {
+zrbf_furnish() {
   bcu_doc_env "BDU_TEMP_DIR  " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   bcu_doc_env "BDU_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
 
@@ -48,15 +47,15 @@ zrbim_furnish() {
   source  "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR file"
 
   # Validate RBRR variables using validator
-  source "${ZRBIM_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
+  source "${ZRBF_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
 
   # Kindle modules in dependency order
   zrbgo_kindle
   zrbcr_kindle
-  zrbim_kindle
+  zrbf_kindle
 }
 
-bcu_execute rbim_ "Recipe Bottle Image Management" zrbim_furnish "$@"
+bcu_execute rbf_ "Recipe Bottle Foundry" zrbf_furnish "$@"
 
 # eof
 

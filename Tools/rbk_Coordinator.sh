@@ -51,26 +51,26 @@ rbk_route() {
 
   # Route based on command prefix
   case "$z_command" in
-    # Image management commands (rbim)
+    # Image management commands (rbf)
     rbw-l)
-      rbk_show "Routing to rbim_cli.sh rbim_list"
-      exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_list $z_args
+      rbk_show "Routing to rbf_cli.sh rbf_list"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list $z_args
       ;;
     rbw-II)
-      rbk_show "Routing to rbim_cli.sh rbim_image_info"
-      exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_image_info $z_args
+      rbk_show "Routing to rbf_cli.sh rbf_image_info"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_image_info $z_args
       ;;
     rbw-r)
-      rbk_show "Routing to rbim_cli.sh rbim_retrieve"
-      exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_retrieve $z_args
+      rbk_show "Routing to rbf_cli.sh rbf_retrieve"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve $z_args
       ;;
     rbw-iB)
-      rbk_show "Routing to rbim_cli.sh rbim_build"
-      exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_build $z_args
+      rbk_show "Routing to rbf_cli.sh rbf_build"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build $z_args
       ;;
     rbw-d)
-      rbk_show "Routing to rbim_cli.sh rbim_delete"
-      exec "$RBK_SCRIPT_DIR/rbim_cli.sh" rbim_delete $z_args
+      rbk_show "Routing to rbf_cli.sh rbf_delete"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args
       ;;
 
     # Google admin commands (rbga)
@@ -101,8 +101,8 @@ rbk_route() {
 
     # Help/documentation commands
     rbw-him)
-      rbk_show "Routing to rbim_cli.sh (help)"
-      exec "$RBK_SCRIPT_DIR/rbim_cli.sh" $z_args
+      rbk_show "Routing to rbf_cli.sh (help)"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" $z_args
       ;;
     rbw-hga)
       rbk_show "Routing to rbga_cli.sh (help)"

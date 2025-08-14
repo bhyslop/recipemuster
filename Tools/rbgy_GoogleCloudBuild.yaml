@@ -3,7 +3,7 @@
 # - Builds multi-arch (linux/amd64,linux/arm64) with buildx.
 # - Pushes a minimal image.
 # - Writes all provenance and extras (SBOM, transcripts, etc.) to a separate metadata tarball.
-# - Publishes the metadata tarball to Artifact Registry (Generic) as: package=${_RBIA_TAG}, version=metadata.
+# - Publishes the metadata tarball to Artifact Registry (Generic) as: package=${_RBGY_TAG}, version=metadata.
 #
 # Exit code discipline:
 # - Every bash step uses: set -euo pipefail
@@ -18,7 +18,7 @@ steps:
       - -lc
       - |
         set -euo pipefail
-        gcloud auth configure-docker "${_RBIA_GAR_LOCATION}-docker.pkg.dev" --quiet
+        gcloud auth configure-docker "${_RBGY_GAR_LOCATION}-docker.pkg.dev" --quiet
 
   # Single non-Google image step allowed: install binfmt for multi-arch emulation
   - name: gcr.io/cloud-builders/docker
@@ -52,34 +52,34 @@ steps:
       - -lc
       - |
         set -euo pipefail
-        : "${_RBIA_DOCKERFILE:?missing}"
-        : "${_RBIA_TAG:?missing}"
-        : "${_RBIA_MONIKER:?missing}"
-        : "${_RBIA_PLATFORMS:?missing}"
-        : "${_RBIA_GIT_COMMIT:?missing}"
-        : "${_RBIA_GIT_BRANCH:?missing}"
-        : "${_RBIA_GIT_REPO:?missing}"
+        : "${_RBGY_DOCKERFILE:?missing}"
+        : "${_RBGY_TAG:?missing}"
+        : "${_RBGY_MONIKER:?missing}"
+        : "${_RBGY_PLATFORMS:?missing}"
+        : "${_RBGY_GIT_COMMIT:?missing}"
+        : "${_RBGY_GIT_BRANCH:?missing}"
+        : "${_RBGY_GIT_REPO:?missing}"
         : "${BUILD_ID:?missing}"
 
         # Recipe snapshot
-        cp "${_RBIA_DOCKERFILE}" recipe.txt
+        cp "${_RBGY_DOCKERFILE}" recipe.txt
 
         # Build info (no jq dependency; write plain JSON)
         TS="$(date -u +%FT%TZ)"
         : > build_info.json
         printf '{\n'                                          >> build_info.json
-        printf '  "tag": "%s",\n'       "${_RBIA_TAG}"        >> build_info.json
-        printf '  "moniker": "%s",\n'   "${_RBIA_MONIKER}"    >> build_info.json
+        printf '  "tag": "%s",\n'       "${_RBGY_TAG}"        >> build_info.json
+        printf '  "moniker": "%s",\n'   "${_RBGY_MONIKER}"    >> build_info.json
         printf '  "git": {\n'                                 >> build_info.json
-        printf '    "repo": "%s",\n'    "${_RBIA_GIT_REPO}"   >> build_info.json
-        printf '    "branch": "%s",\n'  "${_RBIA_GIT_BRANCH}" >> build_info.json
-        printf '    "commit": "%s"\n'   "${_RBIA_GIT_COMMIT}" >> build_info.json
+        printf '    "repo": "%s",\n'    "${_RBGY_GIT_REPO}"   >> build_info.json
+        printf '    "branch": "%s",\n'  "${_RBGY_GIT_BRANCH}" >> build_info.json
+        printf '    "commit": "%s"\n'   "${_RBGY_GIT_COMMIT}" >> build_info.json
         printf '  },\n'                                       >> build_info.json
         printf '  "build": {\n'                               >> build_info.json
         printf '    "id": "%s",\n'       "${BUILD_ID}"        >> build_info.json
         printf '    "timestamp": "%s"\n' "${TS}"              >> build_info.json
         printf '  },\n'                                       >> build_info.json
-        printf '  "platforms": "%s"\n' "${_RBIA_PLATFORMS}"   >> build_info.json
+        printf '  "platforms": "%s"\n' "${_RBGY_PLATFORMS}"   >> build_info.json
         printf '}\n'                                          >> build_info.json
 
 
@@ -91,7 +91,7 @@ steps:
       - -lc
       - |
         set -euo pipefail
-        IMAGE_URI="${_RBIA_GAR_LOCATION}-docker.pkg.dev/${_RBIA_GAR_PROJECT}/${_RBIA_GAR_REPOSITORY}/${_RBIA_MONIKER}:${_RBIA_TAG}"
+        IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_TAG}"
 
         # Simple runner that logs each command first, then executes, appending output to build.log.
         # No pipes around build commands -> no masking of statuses; set -e ensures fail-fast.
@@ -104,13 +104,13 @@ steps:
 
         # Buildx multi-arch build and push
         run docker buildx build \
-          --platform="${_RBIA_PLATFORMS}" \
+          --platform="${_RBGY_PLATFORMS}" \
           --tag "${IMAGE_URI}" \
           --push \
-          --label "moniker=${_RBIA_MONIKER}" \
-          --label "git.commit=${_RBIA_GIT_COMMIT}" \
-          --label "git.branch=${_RBIA_GIT_BRANCH}" \
-          -f "${_RBIA_DOCKERFILE}" \
+          --label "moniker=${_RBGY_MONIKER}" \
+          --label "git.commit=${_RBGY_GIT_COMMIT}" \
+          --label "git.branch=${_RBGY_GIT_BRANCH}" \
+          -f "${_RBGY_DOCKERFILE}" \
           .
 
         # Record the pushed image URI for downstream steps
@@ -139,14 +139,14 @@ steps:
       - -lc
       - |
         set -euo pipefail
-        tar -czf "${_RBIA_TAG}_metadata.tgz" \
+        tar -czf "${_RBGY_TAG}_metadata.tgz" \
           recipe.txt \
           build_info.json \
           syft_analysis.json \
           package_summary.txt \
           build.log
 
-  # Publish metadata tarball to Artifact Registry (Generic) as package=${_RBIA_TAG}, version=metadata
+  # Publish metadata tarball to Artifact Registry (Generic) as package=${_RBGY_TAG}, version=metadata
   - name: gcr.io/cloud-builders/gcloud
     id: publish-gar-generic
     entrypoint: bash
@@ -155,12 +155,12 @@ steps:
       - |
         set -euo pipefail
         gcloud artifacts files upload \
-          --location="${_RBIA_GAR_LOCATION}" \
-          --repository="${_RBIA_GAR_REPOSITORY}" \
-          --project="${_RBIA_GAR_PROJECT}" \
-          --package="${_RBIA_TAG}" \
+          --location="${_RBGY_GAR_LOCATION}" \
+          --repository="${_RBGY_GAR_REPOSITORY}" \
+          --project="${_RBGY_GAR_PROJECT}" \
+          --package="${_RBGY_TAG}" \
           --version="metadata" \
-          "${_RBIA_TAG}_metadata.tgz"
+          "${_RBGY_TAG}_metadata.tgz"
 
 options:
   machineType: E2_HIGHCPU_8
@@ -168,17 +168,17 @@ options:
 
 timeout: 1200s
 
-# Required substitutions (all _RBIA_* per rule). Provide these via trigger/CLI.
+# Required substitutions (all _RBGY_* per rule). Provide these via trigger/CLI.
 substitutions:
-  _RBIA_DOCKERFILE: Dockerfile
-  _RBIA_TAG: dev
-  _RBIA_MONIKER: rbia
-  _RBIA_PLATFORMS: linux/amd64,linux/arm64
-  _RBIA_GAR_LOCATION: us-central1
-  _RBIA_GAR_PROJECT: your-project-id
-  _RBIA_GAR_REPOSITORY: your-repo
-  _RBIA_GIT_COMMIT: unknown
-  _RBIA_GIT_BRANCH: unknown
-  _RBIA_GIT_REPO: unknown
+  _RBGY_DOCKERFILE: Dockerfile
+  _RBGY_TAG: dev
+  _RBGY_MONIKER: rbia
+  _RBGY_PLATFORMS: linux/amd64,linux/arm64
+  _RBGY_GAR_LOCATION: us-central1
+  _RBGY_GAR_PROJECT: your-project-id
+  _RBGY_GAR_REPOSITORY: your-repo
+  _RBGY_GIT_COMMIT: unknown
+  _RBGY_GIT_BRANCH: unknown
+  _RBGY_GIT_REPO: unknown
 
 

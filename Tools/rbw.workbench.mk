@@ -37,13 +37,6 @@ RBM_RECIPE_BOTTLE_GITHUB_SH = BDU_TEMP_DIR="$(MBD_TEMP_DIR)"                 \
                               RBG_RUNTIME_ARG="--connection=rbw-vm-deploy"   \
                               $(MBV_TOOLS_DIR)/rbg_RecipeBottleGithub.sh
 
-RBW_IMAGE_MANAGEMENT_SH = BDU_TEMP_DIR="$(MBD_TEMP_DIR)"                   \
-                          BDU_NOW_STAMP="$(MBD_NOW_STAMP)"                 \
-                          RBG_RBRR_FILE="rbrr_RecipeBottleRegimeRepo.sh"   \
-                          RBG_RUNTIME="podman"                             \
-                          RBG_RUNTIME_ARG="--connection=rbw-vm-deploy"     \
-                          $(MBV_TOOLS_DIR)/rbim_cli.sh
-
 RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"                   \
                           RBV_NOW_STAMP="$(MBD_NOW_STAMP)"                 \
                           RBV_RBRR_FILE="rbrr_RecipeBottleRegimeRepo.sh"   \
@@ -71,39 +64,9 @@ default:
 
 RBG_ARG_TAG =
 
-rbw-hi.%:
-	$(MBC_START) "Image Management Command Help"
-	$(RBW_IMAGE_MANAGEMENT_SH)
-	$(MBC_PASS) "No errors."
-
 rbw-hv.%:
 	$(MBC_START) "Podman VM Command Help"
 	$(RBM_RECIPE_BOTTLE_VM_SH)
-	$(MBC_PASS) "No errors."
-
-rbw-l.%:
-	$(MBC_START) "List Current Registry Images"
-	$(RBW_IMAGE_MANAGEMENT_SH) rbim_list
-	$(MBC_PASS) "No errors."
-
-rbw-II.%:
-	$(MBC_START) "List Registry Image Info"
-	$(RBW_IMAGE_MANAGEMENT_SH) rbim_image_info $(MBD_CLI_ARGS)
-	$(MBC_PASS) "No errors."
-
-rbw-r.%:
-	$(MBC_START) "Retrieve Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBW_IMAGE_MANAGEMENT_SH) rbim_retrieve $(MBD_CLI_ARGS)
-	$(MBC_PASS) "No errors."
-
-rbw-b.%:
-	$(MBC_START) "Build Container From Recipe given $(MBD_CLI_ARGS)"
-	$(RBW_IMAGE_MANAGEMENT_SH) rbim_build $(MBD_CLI_ARGS)
-	$(MBC_PASS) "No errors."
-
-rbw-d.%:
-	$(MBC_START) "Delete Image From Registry given $(MBD_CLI_ARGS)"
-	$(RBW_IMAGE_MANAGEMENT_SH) rbim_delete $(MBD_CLI_ARGS)
 	$(MBC_PASS) "No errors."
 
 
