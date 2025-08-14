@@ -64,7 +64,7 @@ zrbf_kindle() {
 
   # RBFA file presumed to be in the same Tools directory as this implementation
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGY_FILE="${z_self_dir}/rbfa_cloudbuild.yaml"
+  ZRBF_RBGY_FILE="${z_self_dir}/rbgy_GoogleCloudBuild.yaml"
   test -f "${ZRBF_RBGY_FILE}" || bcu_die "RBFA file not found in Tools: ${ZRBF_RBGY_FILE}"
 
   bcu_log_args "Define temp files for build operations"
