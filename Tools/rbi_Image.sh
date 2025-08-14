@@ -40,8 +40,8 @@ zrbi_kindle() {
   test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
 
   # Verify GAR service account file is configured
-  test -n "${RBRR_GAR_RBRA_FILE:-}"   || bcu_die "RBRR_GAR_RBRA_FILE not set"
-  test -f "${RBRR_GAR_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_GAR_RBRA_FILE}"
+  test -n "${RBRR_RETRIEVER_RBRA_FILE:-}"   || bcu_die "RBRR_RETRIEVER_RBRA_FILE not set"
+  test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
 
   # Module Variables (ZRBI_*)
   ZRBI_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
@@ -93,7 +93,7 @@ zrbi_refresh_token() {
   # No sentinel check - called from kindle before KINDLED=1
   bcu_log_args "Obtaining OAuth token for GAR API"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_GAR_RBRA_FILE}") || bcu_die "Failed to get OAuth token from RBGO"
+  z_token=$(rbgo_get_token_capture "${RBRR_RETRIEVER_RBRA_FILE}") || bcu_die "Failed to get OAuth token from RBGO"
   echo "${z_token}" > "${ZRBI_TOKEN_FILE}" || bcu_die "Failed to write token file"
 }
 

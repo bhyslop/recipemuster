@@ -71,17 +71,17 @@ export RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 #
 # Service accounts by role:
 #
-# 1. GAR READER - Pull/list container images
-export RBRR_GAR_RBRA_FILE=../station-files/secrets/rbra-gar-reader.env
+# 1. Pull/list container images
+export RBRR_RETRIEVER_RBRA_FILE=../station-files/secrets/rbra-retriever.env
 #    Permissions: roles/artifactregistry.reader
 #    Token lifetime: 300 seconds (quick pulls)
 #
-# 2. GCB SUBMITTER - Submit Cloud Build jobs  
-export RBRR_GCB_RBRA_FILE=../station-files/secrets/rbra-gcb-submitter.env
+# 2. Submit Cloud Build image jobs, delete images
+export RBRR_DIRECTOR_RBRA_FILE=../station-files/secrets/rbra-director.env
 #    Permissions: roles/cloudbuild.builds.editor + storage.admin on staging
 #    Token lifetime: 600 seconds (build submission)
 #
-# 3. ADMIN - PROJECT OWNER
+# 3. PROJECT OWNER
 export RBRR_ADMIN_RBRA_FILE=../station-files/secrets/rbra-admin.env
 #    Permissions: roles/owner (FULL PROJECT CONTROL)
 #    Token lifetime: 1800 seconds (complex setup operations)

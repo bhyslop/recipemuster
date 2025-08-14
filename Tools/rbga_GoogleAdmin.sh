@@ -633,12 +633,12 @@ rbga_list_service_accounts() {
   bcu_success "Service account listing completed"
 }
 
-rbga_create_gar_reader() {
+rbga_create_retriever() {
   zrbga_sentinel
 
   local z_instance="${1:-}"
 
-  bcu_doc_brief "Create GAR reader service account instance"
+  bcu_doc_brief "Create Retriever service account instance"
   bcu_doc_param "instance" "Instance name (required)"
   bcu_doc_shown || return 0
 
@@ -646,35 +646,35 @@ rbga_create_gar_reader() {
   test -n "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR not set"
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
-  local z_account_name="rbga-gar-reader-${z_instance}"
+  local z_account_name="rbga-retriever-${z_instance}"
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
 
-  bcu_step "Creating GAR reader service account: ${z_account_name}"
+  bcu_step "Creating Retriever service account: ${z_account_name}"
 
   zrbga_create_service_account_with_key \
     "${z_account_name}" \
-    "Recipe Bottle GAR Reader (${z_instance})" \
+    "Recipe Bottle Retriever (${z_instance})" \
     "Read-only access to Google Artifact Registry - instance: ${z_instance}" \
     "${z_instance}"
 
   bcu_step "Adding Artifact Registry Reader role"
   zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.reader"
 
-  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_gar_reader_${z_instance}.rbra"
+  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_retriever_${z_instance}.rbra"
 
   bcu_step "To install the RBRA file locally, run:"
   bcu_code ""
-  bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_GAR_RBRA_FILE}\""
+  bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_RETRIEVER_RBRA_FILE}\""
   bcu_code ""
-  bcu_success "GAR reader created successfully at -> ${z_actual_rbra_file}"
+  bcu_success "Retriever created successfully at -> ${z_actual_rbra_file}"
 }
 
-rbga_create_gcb_submitter() {
+rbga_create_director() {
   zrbga_sentinel
 
   local z_instance="${1:-}"
 
-  bcu_doc_brief "Create GCB submitter service account instance"
+  bcu_doc_brief "Create Director service account instance"
   bcu_doc_param "instance" "Instance name (required)"
   bcu_doc_shown || return 0
 
@@ -682,15 +682,15 @@ rbga_create_gcb_submitter() {
   test -n "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR not set"
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
-  local z_account_name="rbga-gcb-submitter-${z_instance}"
+  local z_account_name="rbga-director-${z_instance}"
   local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
 
-  bcu_step "Creating GCB submitter service account: ${z_account_name}"
+  bcu_step "Creating Director service account: ${z_account_name}"
 
   zrbga_create_service_account_with_key \
     "${z_account_name}" \
-    "Recipe Bottle GCB Submitter (${z_instance})" \
-    "Submit builds to Google Cloud Build - instance: ${z_instance}" \
+    "Recipe Bottle Director (${z_instance})" \
+    "Create/destroy container images for ${z_instance}" \
     "${z_instance}"
 
   bcu_step "Adding Cloud Build Editor role"
@@ -699,13 +699,13 @@ rbga_create_gcb_submitter() {
   bcu_step "Adding Artifact Registry Writer role"
   zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.writer"
 
-  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_gcb_submitter_${z_instance}.rbra"
+  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_director_${z_instance}.rbra"
 
   bcu_step "To install the RBRA file locally, run:"
   bcu_code ""
-  bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_GCB_RBRA_FILE}\""
+  bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_DIRECTOR_RBRA_FILE}\""
   bcu_code ""
-  bcu_success "GCB submitter created successfully at -> ${z_actual_rbra_file}"
+  bcu_success "Director created successfully at -> ${z_actual_rbra_file}"
 }
 
 rbga_delete_service_account() {

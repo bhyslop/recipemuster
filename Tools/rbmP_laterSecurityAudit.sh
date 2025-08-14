@@ -38,7 +38,7 @@ This document outlines safeguards for using a **temporary high-privilege “prov
 ## 4. Least Privilege for Permanent Accounts
 
 * **Role Narrowing**
-  Use the provisioner only to create permanent, least-privilege service accounts (e.g., GAR Reader, GCB Submitter).
+  Use the provisioner only to create permanent, least-privilege service accounts (e.g., Retriever, Director).
   Assign only the granular roles needed for each service.
 * **Token Switching**
   Once permanent accounts exist, switch all operations to their credentials; never continue using the provisioner.

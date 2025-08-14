@@ -52,8 +52,8 @@ bvu_env_string      RBRR_GCB_TIMEOUT             2     10  # e.g., 1200s
 bvu_env_string      RBRR_GCB_STAGING_BUCKET      5    255  # gs://bucket-name
 
 # Service Account Configuration Files
-bvu_env_string      RBRR_GAR_RBRA_FILE           1    512  # Path to GAR service account env
-bvu_env_string      RBRR_GCB_RBRA_FILE           1    512  # Path to GCB service account env
+bvu_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512  # Path to GAR service account env
+bvu_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512  # Path to GCB service account env
 
 # Validate directories exist
 bvu_dir_exists "${RBRR_HISTORY_DIR}"

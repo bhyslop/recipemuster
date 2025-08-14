@@ -87,12 +87,12 @@ rbk_route() {
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_list_service_accounts $z_args
       ;;
     rbw-aCR)
-      rbk_show "Routing to rbga_cli.sh rbga_create_gar_reader"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_gar_reader $z_args
+      rbk_show "Routing to rbga_cli.sh rbga_create_retriever"
+      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever $z_args
       ;;
     rbw-aCS)
-      rbk_show "Routing to rbga_cli.sh rbga_create_gcb_submitter"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_gcb_submitter $z_args
+      rbk_show "Routing to rbga_cli.sh rbga_create_director"
+      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director $z_args
       ;;
     rbw-aD)
       rbk_show "Routing to rbga_cli.sh rbga_delete_service_account"

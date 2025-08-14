@@ -43,8 +43,8 @@ zrbf_kindle() {
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
 
   bcu_log_args "Verify service account files"
-  test -n "${RBRR_GCB_RBRA_FILE:-}" || bcu_die "RBRR_GCB_RBRA_FILE not set"
-  test -f "${RBRR_GCB_RBRA_FILE}"   || bcu_die "GCB service env file not found: ${RBRR_GCB_RBRA_FILE}"
+  test -n "${RBRR_DIRECTOR_RBRA_FILE:-}" || bcu_die "RBRR_DIRECTOR_RBRA_FILE not set"
+  test -f "${RBRR_DIRECTOR_RBRA_FILE}"   || bcu_die "GCB service env file not found: ${RBRR_DIRECTOR_RBRA_FILE}"
 
   # Module Variables (ZRBF_*)
   ZRBF_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
@@ -214,7 +214,7 @@ zrbf_submit_build() {
 
   bcu_log_args "Get OAuth token using capture function"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_GCB_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
   bcu_log_args "Read git info from file"
   jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_COMMIT_FILE}" || bcu_die "Failed to extract git commit"
@@ -297,7 +297,7 @@ zrbf_wait_build_completion() {
 
   bcu_log_args "Get fresh token for polling"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_GCB_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
   local z_status="PENDING"
   local z_attempts=0
@@ -415,10 +415,10 @@ rbf_delete() {
 
   bcu_step "Fetching manifest digest for deletion"
 
-  # Get OAuth token using GCB Submitter credentials
+  # Get OAuth token using Director credentials
   # Note: This requires GCB service account to have artifactregistry.repoAdmin role
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_GCB_RBRA_FILE}") || bcu_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get OAuth token"
   echo "${z_token}" > "${ZRBF_TOKEN_FILE}" || bcu_die "Failed to write token file"
 
   # Get manifest with digest header
