@@ -48,12 +48,6 @@ zrbgo_kindle() {
   ZRBGO_OAUTH_RESPONSE_FILE="${BDU_TEMP_DIR}/rbgo_oauth_response.json"
   ZRBGO_PRIVATE_KEY_FILE="${BDU_TEMP_DIR}/rbgo_private_key.pem"
 
-  bcu_log_args "OAuth endpoint"
-  ZRBGO_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
-
-  bcu_log_args "Default scope for all Google Cloud services"
-  ZRBGO_DEFAULT_SCOPE="https://www.googleapis.com/auth/cloud-platform"
-
   ZRBGO_KINDLED=1
 }
 
@@ -95,12 +89,12 @@ zrbgo_build_jwt_capture() {
   local z_exp=$((z_now + RBRA_TOKEN_LIFETIME_SEC))
 
   bcu_log_args "Build JWT claims"
-  jq -n                                    \
-    --arg iss   "${RBRA_CLIENT_EMAIL}"     \
-    --arg scope "${ZRBGO_DEFAULT_SCOPE}"   \
-    --arg aud   "${ZRBGO_OAUTH_TOKEN_URL}" \
-    --argjson iat "${z_now}"               \
-    --argjson exp "${z_exp}"               \
+  jq -n                                         \
+    --arg iss   "${RBRA_CLIENT_EMAIL}"          \
+    --arg scope "${RBGC_SCOPE_CLOUD_PLATFORM}"  \
+    --arg aud   "${RBGC_OAUTH_TOKEN_URL}"       \
+    --argjson iat "${z_now}"                    \
+    --argjson exp "${z_exp}"                    \
     '{iss: $iss, scope: $scope, aud: $aud, iat: $iat, exp: $exp}' \
     > "${ZRBGO_JWT_CLAIMS_FILE}" || return 1
 
@@ -135,8 +129,8 @@ zrbgo_exchange_jwt_capture() {
   local z_jwt="$1"
 
   bcu_log_args "Exchange JWT for OAuth token"
-  curl -s -X POST "${ZRBGO_OAUTH_TOKEN_URL}" \
-    -H "Content-Type: application/x-www-form-urlencoded" \
+  curl -s -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
+    -H "Content-Type: application/x-www-form-urlencoded"                           \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
 
@@ -182,6 +176,4 @@ rbgo_get_token_capture() {
   printf '%s\n' "${z_token}"
 }
 
-
 # eof
-
