@@ -1,11 +1,11 @@
 #!/bin/bash
-# RBI SPLIT IMPLEMENTATION PLAN
+# RBN SPLIT IMPLEMENTATION PLAN
 # =============================
 # This script should be split into two execution contexts to avoid namespace/command issues
 #
 # PART 1: Host Execution (using podman connection)
 # -------------------------------------------------
-# Execute from makefile with: podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /path/to/rbi-host.sh
+# Execute from makefile with: podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /path/to/rbn-host.sh
 # Or inline the commands directly in the makefile
 #
 # Commands that work from host:
@@ -16,7 +16,7 @@
 #
 # PART 2: VM Execution with Namespace Access
 # ------------------------------------------
-# Execute from makefile with: $(zRBM_PODMAN_SSH_CMD) < rbi-vm.sh
+# Execute from makefile with: $(zRBM_PODMAN_SSH_CMD) < rbn-vm.sh
 # Must find aardvark-dns PID and use nsenter for network visibility
 #
 # Commands that require VM + namespace:
@@ -37,30 +37,30 @@ set -e
 echo "NEEDS REPAIRS.  Concept above."  &&  false
 
 # Validate required environment variables
-: ${RBM_MONIKER:?}              && echo "RBI: RBM_MONIKER              = ${RBM_MONIKER}"
-: ${RBM_ENCLAVE_NETWORK:?}      && echo "RBI: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
-: ${RBM_SENTRY_CONTAINER:?}     && echo "RBI: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
-: ${RBM_BOTTLE_CONTAINER:?}     && echo "RBI: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
+: ${RBM_MONIKER:?}              && echo "RBN: RBM_MONIKER              = ${RBM_MONIKER}"
+: ${RBM_ENCLAVE_NETWORK:?}      && echo "RBN: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
+: ${RBM_SENTRY_CONTAINER:?}     && echo "RBN: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
+: ${RBM_BOTTLE_CONTAINER:?}     && echo "RBN: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
 
-echo "RBI: Network Configuration:"
+echo "RBN: Network Configuration:"
 echo "================================"
 
-echo "RBI: Enclave Network:"
+echo "RBN: Enclave Network:"
 podman network inspect ${RBM_ENCLAVE_NETWORK} --format 'Gateway: {{(index .Subnets 0).Gateway}}, Subnet: {{(index .Subnets 0).Subnet}}, Bridge: {{.NetworkInterface}}'
 echo ""
 
-echo "RBI: SENTRY Container Networks:"
+echo "RBN: SENTRY Container Networks:"
 podman inspect ${RBM_SENTRY_CONTAINER} --format '{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}: {{$conf.IPAddress}}{{println}}{{end}}'
 
-echo "RBI: BOTTLE Container Networks:"
+echo "RBN: BOTTLE Container Networks:"
 podman inspect ${RBM_BOTTLE_CONTAINER} --format '{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}: {{$conf.IPAddress}}{{println}}{{end}}' 2>/dev/null || echo "(not yet created)"
 echo ""
 
-echo "RBI: Container veth interfaces:"
+echo "RBN: Container veth interfaces:"
 ip link show | grep -E "veth[0-9a-f]+" | grep -v "@" || echo "No veth interfaces found"
 echo ""
 
-echo "RBI: TC filters on container interfaces:"
+echo "RBN: TC filters on container interfaces:"
 for veth in $(ip link show | grep -oE "veth[0-9a-f]+" | sort -u); do
     if tc qdisc show dev $veth 2>/dev/null | grep -q clsact; then
         echo "  $veth:"
@@ -70,5 +70,5 @@ for veth in $(ip link show | grep -oE "veth[0-9a-f]+" | sort -u); do
 done
 
 echo ""
-echo "RBI: Network info complete"
+echo "RBN: Network info complete"
 
