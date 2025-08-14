@@ -142,13 +142,15 @@ bdu_process_args() {
   BDU_LOG_SAME="$BDS_LOG_DIR/same-${tag}.$BDRV_LOG_EXT"
   BDU_LOG_HIST="$BDS_LOG_DIR/hist-${tag}-$BDU_NOW_STAMP.$BDRV_LOG_EXT"
 
-  # Prepare log directories
-  mkdir -p "$BDS_LOG_DIR"
-
-  # Initialize log files
-  > "$BDU_LOG_LAST"
-  > "$BDU_LOG_SAME"
-  > "$BDU_LOG_HIST"
+  # Prepare/initialize log files unless logging disabled
+  if [[ -z "${BDU_NO_LOG:-}" ]]; then
+    # Prepare log directories
+    mkdir -p "$BDS_LOG_DIR"
+    # Initialize log files
+    > "$BDU_LOG_LAST"
+    > "$BDU_LOG_SAME"
+    > "$BDU_LOG_HIST"
+  fi
 
   # Store target and extra arguments
   BDU_TARGET="$target"
@@ -228,33 +230,48 @@ bdu_main() {
   local coordinator_cmd="$BDRV_COORDINATOR_SCRIPT"
   bdu_show "Coordinator command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS"
 
-  # Log command to all log files
-  echo "log files:   $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
+  # Log command to all log files (or disable)
+  if [[ -n "${BDU_NO_LOG:-}" ]]; then
+    echo "logs:        disabled"
+  else
+    echo "log files:   $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
+    echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
+    echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_SAME"
+    echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_HIST"
+    echo "Git context: $BDU_GIT_CONTEXT" >> "$BDU_LOG_HIST"
+  fi
   echo "transcript:  ${BDU_TRANSCRIPT}"
   echo "output dir:  ${BDU_OUTPUT_DIR}"
-  echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
-  echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_SAME"
-  echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_HIST"
-  echo "Git context: $BDU_GIT_CONTEXT" >> "$BDU_LOG_HIST"
 
   bdu_show "Executing coordinator"
 
   # Execute coordinator with logging
   set +e
   zBDU_STATUS_FILE="$BDU_TEMP_DIR/status-$$"
-  {
-    "$coordinator_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS 2>&1
-    echo $? > "$zBDU_STATUS_FILE"
-    bdu_show "Coordinator status: $(cat $zBDU_STATUS_FILE)"
-  } | tee -a "$BDU_LOG_LAST" >(bdu_curate_same >> "$BDU_LOG_SAME") \
-                             >(bdu_curate_hist >> "$BDU_LOG_HIST")
+  if [[ -n "${BDU_NO_LOG:-}" ]]; then
+    {
+      "$coordinator_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS
+      echo $? > "$zBDU_STATUS_FILE"
+      bdu_show "Coordinator status: $(cat $zBDU_STATUS_FILE)"
+    }
+  else
+    {
+      "$coordinator_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS
+      echo $? > "$zBDU_STATUS_FILE"
+      bdu_show "Coordinator status: $(cat $zBDU_STATUS_FILE)"
+    } | tee -a "$BDU_LOG_LAST" >(bdu_curate_same >> "$BDU_LOG_SAME") \
+                               >(bdu_curate_hist >> "$BDU_LOG_HIST")
+  fi
+
   zBDU_EXIT_STATUS=$(cat "$zBDU_STATUS_FILE")
   rm                     "$zBDU_STATUS_FILE"
   set -e
 
-  # Generate checksum for the log file
-  bdu_generate_checksum "$BDU_LOG_SAME" "$BDU_LOG_HIST"
-  bdu_show "Checksum generated"
+  # Generate checksum for the log files (only when enabled)
+  if [[ -z "${BDU_NO_LOG:-}" ]]; then
+    bdu_generate_checksum "$BDU_LOG_SAME" "$BDU_LOG_HIST"
+    bdu_show "Checksum generated"
+  fi
 
   bdu_show "BDU completed with status: $zBDU_EXIT_STATUS"
 

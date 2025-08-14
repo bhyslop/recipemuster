@@ -102,8 +102,8 @@ zrbga_nwnwn()   { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZR
 zrbga_ne()      { zrbga_show "${1}${ZRBGA_CR}${2}${ZRBGA_R}"; }
 
 zrbga_cmd()     { zrbga_show "${ZRBGA_C}${1}${ZRBGA_R}"; }
-zrbga_warning() { zrbga_show "\n${ZRBGA_WN}??  WARNING: ${1}${ZRBGA_R}\n"; }
-zrbga_critic()  { zrbga_show "\n${ZRBGA_CR}? CRITICAL SECURITY WARNING: ${1}${ZRBGA_R}\n"; }
+zrbga_warning() { zrbga_show "\n${ZRBGA_WN}  WARNING: ${1}${ZRBGA_R}\n"; }
+zrbga_critic()  { zrbga_show "\n${ZRBGA_CR} CRITICAL SECURITY WARNING: ${1}${ZRBGA_R}\n"; }
 
 zrbga_get_admin_token_capture() {
   zrbga_sentinel
@@ -393,7 +393,7 @@ rbga_show_setup() {
   zrbga_n      "      - Country"
   zrbga_nw     "      - Organization type: " "Individual"
   zrbga_n      "      - Credit card (verification only)"
-  zrbga_nw     "   4. Accept terms ? " "Start my free trial"
+  zrbga_nw     "   4. Accept terms -> " "Start my free trial"
   zrbga_n      "   5. Expect Google Cloud Console to open"
   zrbga_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
   zrbga_e
@@ -412,23 +412,23 @@ rbga_show_setup() {
   zrbga_nc     "   Go directly to: " "${RBGC_CONSOLE_URL}"
   zrbga_n      "   Sign in with the same Google account you just set up"
   zrbga_n      "   1. Open the Google Cloud Console main menu:"
-  zrbga_nwn    "      - Click the " "?" " hamburger menu in the top-left corner"
+  zrbga_nwn    "      - Click the " "->" " hamburger menu in the top-left corner"
   zrbga_nw     "      - Scroll down to " "IAM & Admin"
-  zrbga_nw     "      - Click ? " "Manage resources"
+  zrbga_nw     "      - Click -> " "Manage resources"
   zrbga_n      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
-  zrbga_nw     "   2. On the Manage resources page, click ? " "CREATE PROJECT"
+  zrbga_nw     "   2. On the Manage resources page, click -> " "CREATE PROJECT"
   zrbga_n      "   3. Configure:"
   zrbga_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
   zrbga_nw     "      - Organization: " "No organization"
   zrbga_nw     "   4. Click " "CREATE"
   zrbga_nwne   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
-  zrbga_nwn    "   6. Wait for notification ? " "Creating project..." " to complete"
+  zrbga_nwn    "   6. Wait for notification -> " "Creating project..." " to complete"
   zrbga_n      "   7. Select project from dropdown when ready"
   zrbga_e
   zrbga_s2     "4. Navigate to Service Accounts:"
   zrbga_nwnwn  "   Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
-  zrbga_nwnw   "   1. Left sidebar ? " "IAM & Admin" " ? " "Service Accounts"
-  zrbga_nw     "   2. If prompted about APIs, click ? " "Enable API"
+  zrbga_nwnw   "   1. Left sidebar -> " "IAM & Admin" " -> " "Service Accounts"
+  zrbga_nw     "   2. If prompted about APIs, click -> " "Enable API"
   zrbga_n      "      TODO: This step is brittle - enabling IAM API may happen automatically or be blocked by org policy."
   zrbga_nw     "   3. Wait for " "Identity and Access Management (IAM) API to enable"
   zrbga_e
@@ -438,18 +438,18 @@ rbga_show_setup() {
   zrbga_nc     "      - Service account name: " "${ZRBGA_ADMIN_ROLE}"
   zrbga_nwn    "      - Service account ID: (auto-fills as " "${ZRBGA_ADMIN_ROLE}" ")"
   zrbga_nc     "      - Description: " "Admin account for infrastructure management"
-  zrbga_nw     "   3. Click ? " "Create and continue"
+  zrbga_nw     "   3. Click -> " "Create and continue"
   zrbga_nwnw   "   4. At " "Permissions (optional)" " pick dropdown " "Select a role"
   zrbga_nc     "      - In filter box, type: " "owner"
-  zrbga_nwnw   "      - Select: " "Basic" " ? " "Owner"
-  zrbga_nw     "   5. Click ? " "Continue"
-  zrbga_nwnw   "   6. Skip " "Principals with access" " by clicking ? " "Done"
+  zrbga_nwnw   "      - Select: " "Basic" " -> " "Owner"
+  zrbga_nw     "   5. Click -> " "Continue"
+  zrbga_nwnw   "   6. Skip " "Principals with access" " by clicking -> " "Done"
   zrbga_e
   zrbga_s2     "7. Generate Service Account Key:"
   zrbga_n      "From service accounts list:"
   zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  zrbga_nw     "   2. Top tabs ? " "Keys"
-  zrbga_nwnw   "   3. Click " "Add key" " ? " "Create new key"
+  zrbga_nw     "   2. Top tabs -> " "Keys"
+  zrbga_nwnw   "   3. Click " "Add key" " -> " "Create new key"
   zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
   zrbga_nw     "   5. Click " "CREATE"
   zrbga_e
