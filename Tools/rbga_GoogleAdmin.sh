@@ -624,7 +624,7 @@ rbga_list_service_accounts() {
   bcu_log_args "Calculate max email width for right-justification"
   local z_max_width
   z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGA_LIST_RESPONSE}" | sort -n | tail -1) || bcu_die "Failed to calculate max width"
-  
+
   bcu_log_args "Display with right-justified email column"
   jq -r --argjson width "${z_max_width}" \
     '.accounts[] | "  " + (.email | tostring | ((" " * ($width - length)) + .)) + " - " + (.displayName // "(no display name)")' \
