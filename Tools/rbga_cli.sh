@@ -26,8 +26,9 @@ ZRBGA_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBGA_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBGA_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
+source "${ZRBGA_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
+source "${ZRBGA_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
 
 zrbga_furnish() {
 
@@ -38,6 +39,7 @@ zrbga_furnish() {
   bvu_file_exists "${RBL_RBRR_FILE}"
   source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
 
+  zrbgc_kindle
   zrbgo_kindle
   zrbga_kindle
 }
@@ -46,3 +48,4 @@ bcu_execute rbga_ "Google Admin Procedures" zrbga_furnish "$@"
 
 
 # eof
+

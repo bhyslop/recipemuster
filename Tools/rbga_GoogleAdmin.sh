@@ -30,6 +30,9 @@ ZRBGA_SOURCED=1
 zrbga_kindle() {
   test -z "${ZRBGA_KINDLED:-}" || bcu_die "Module rbga already kindled"
 
+  bcu_log_args "Ensure RBGC is kindled first"
+  zrbgc_sentinel
+
   local z_use_color=0
   if [ -z "${NO_COLOR:-}" ] && [ "${BDU_COLOR:-0}" = "1" ]; then
     z_use_color=1
@@ -162,7 +165,7 @@ zrbga_create_service_account_with_key() {
   local z_description="$3"
   local z_instance="$4"
 
-  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
   bcu_step "Get OAuth token from admin"
   local z_token
@@ -183,7 +186,7 @@ zrbga_create_service_account_with_key() {
 
   bcu_step "Create service account via REST API"
   curl -s -X POST \
-    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d @"${ZRBGA_CREATE_REQUEST}" \
@@ -219,7 +222,7 @@ zrbga_create_service_account_with_key() {
 
     # Try to get the service account to verify it exists
     curl -s -X GET \
-      "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}" \
+      "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}/${z_account_email}" \
       -H "Authorization: Bearer ${z_token}" \
       -o "${ZRBGA_PREFIX}verify_response.json" \
       -w "%{http_code}" > "${ZRBGA_PREFIX}verify_code.txt" 2>/dev/null
@@ -242,7 +245,7 @@ zrbga_create_service_account_with_key() {
 
   bcu_step     "Generate service account key"
   curl -s -X POST \
-    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_account_email}/keys" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' \
@@ -307,7 +310,7 @@ zrbga_add_iam_role() {
   # Get current IAM policy
   bcu_log_args "Get current IAM policy"
   curl -s -X POST \
-    "https://cloudresourcemanager.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}:getIamPolicy" \
+    "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d '{}' \
@@ -336,7 +339,7 @@ zrbga_add_iam_role() {
   # Set updated IAM policy
   bcu_log_args "Set updated IAM policy"
   curl -s -X POST \
-    "https://cloudresourcemanager.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}:setIamPolicy" \
+    "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d "{\"policy\": $(cat "${z_updated_policy}")}" \
@@ -375,7 +378,7 @@ rbga_show_setup() {
   zrbga_s1     "Manual Admin Setup Procedure"
   zrbga_n      "Recipe Bottle setup requires a manual bootstrap procedure to enable admin control"
   zrbga_e
-  zrbga_nc     "Open a web browser to " "https://cloud.google.com/free"
+  zrbga_nc     "Open a web browser to " "${RBGC_SIGNUP_URL}"
 
   zrbga_critic "This procedure is for PERSONAL Google accounts only."
   zrbga_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
@@ -383,7 +386,7 @@ rbga_show_setup() {
   zrbga_n      "and assign permissions - those steps are NOT covered here."
   zrbga_e
   zrbga_s2     "1. Establish Account:"
-  zrbga_nc     "   Open a browser to: " "https://cloud.google.com/free"
+  zrbga_nc     "   Open a browser to: " "${RBGC_SIGNUP_URL}"
   zrbga_nw     "   1. Click -> " "Get started for free"
   zrbga_n      "   2. Sign in with your Google account or create a new one"
   zrbga_n      "   3. Provide:"
@@ -406,7 +409,7 @@ rbga_show_setup() {
   zrbga_n      "   4. Save the file before proceeding"
   zrbga_e
   zrbga_s2     "3. Create New Project:"
-  zrbga_nc     "   Go directly to: " "https://console.cloud.google.com/"
+  zrbga_nc     "   Go directly to: " "${RBGC_CONSOLE_URL}"
   zrbga_n      "   Sign in with the same Google account you just set up"
   zrbga_n      "   1. Open the Google Cloud Console main menu:"
   zrbga_nwn    "      - Click the " "?" " hamburger menu in the top-left corner"
@@ -444,7 +447,7 @@ rbga_show_setup() {
   zrbga_e
   zrbga_s2     "7. Generate Service Account Key:"
   zrbga_n      "From service accounts list:"
-  zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
   zrbga_nw     "   2. Top tabs ? " "Keys"
   zrbga_nwnw   "   3. Click " "Add key" " ? " "Create new key"
   zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
@@ -484,7 +487,7 @@ rbga_initialize_admin() {
 
   bcu_step "Enable IAM API (required for service account operations)"
   curl -s -X POST \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/iam.googleapis.com:enable" \
+    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_IAM}${RBGC_SERVICEUSAGE_ENABLE_SUFFIX}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d '{}' \
@@ -506,7 +509,7 @@ rbga_initialize_admin() {
 
   bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
   curl -s -X POST \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudresourcemanager.googleapis.com:enable" \
+    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_CRM}${RBGC_SERVICEUSAGE_ENABLE_SUFFIX}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d '{}' \
@@ -537,7 +540,7 @@ rbga_initialize_admin() {
 
   bcu_step "Verifying API enablement"
   curl -s -X GET \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/iam.googleapis.com" \
+    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_IAM}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_PREFIX}api_iam_verify_response.json" \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_verify_code.txt" 2>/dev/null
@@ -557,7 +560,7 @@ rbga_initialize_admin() {
 
   bcu_step "Verify Cloud Resource Manager API..."
   curl -s -X GET \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudresourcemanager.googleapis.com" \
+    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_CRM}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_PREFIX}api_crm_verify_response.json" \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_verify_code.txt" 2>/dev/null
@@ -595,7 +598,7 @@ rbga_list_service_accounts() {
 
   bcu_log_args "List service accounts via REST API"
   curl -s -X GET \
-    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_LIST_RESPONSE}" \
     -w "%{http_code}" > "${ZRBGA_LIST_CODE}" 2>/dev/null
@@ -647,7 +650,7 @@ rbga_create_retriever() {
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
   local z_account_name="rbga-retriever-${z_instance}"
-  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
   bcu_step "Creating Retriever service account: ${z_account_name}"
 
@@ -658,7 +661,7 @@ rbga_create_retriever() {
     "${z_instance}"
 
   bcu_step "Adding Artifact Registry Reader role"
-  zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.reader"
+  zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_retriever_${z_instance}.rbra"
 
@@ -683,7 +686,7 @@ rbga_create_director() {
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
   local z_account_name="rbga-director-${z_instance}"
-  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.iam.gserviceaccount.com"
+  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
   bcu_step "Creating Director service account: ${z_account_name}"
 
@@ -694,10 +697,10 @@ rbga_create_director() {
     "${z_instance}"
 
   bcu_step "Adding Cloud Build Editor role"
-  zrbga_add_iam_role "${z_account_email}" "roles/cloudbuild.builds.editor"
+  zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
 
   bcu_step "Adding Artifact Registry Writer role"
-  zrbga_add_iam_role "${z_account_email}" "roles/artifactregistry.writer"
+  zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_director_${z_instance}.rbra"
 
@@ -727,7 +730,7 @@ rbga_delete_service_account() {
 
   bcu_log_args "Delete via REST API"
   curl -s -X DELETE \
-    "https://iam.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/serviceAccounts/${z_sa_email}" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}/${z_sa_email}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_DELETE_RESPONSE}" \
     -w "%{http_code}" > "${ZRBGA_DELETE_CODE}" 2>/dev/null
@@ -750,4 +753,3 @@ rbga_delete_service_account() {
 
 
 # eof
-

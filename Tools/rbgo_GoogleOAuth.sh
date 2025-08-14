@@ -30,6 +30,9 @@ ZRBGO_SOURCED=1
 zrbgo_kindle() {
   test -z "${ZRBGO_KINDLED:-}" || bcu_die "Module rbgo already kindled"
 
+  bcu_log_args "Ensure RBGC is kindled first"
+  zrbgc_sentinel
+
   bcu_log_args "Validate required tools"
   command -v openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
   command -v curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
