@@ -30,6 +30,9 @@ ZRBGA_SOURCED=1
 zrbga_kindle() {
   test -z "${ZRBGA_KINDLED:-}" || bcu_die "Module rbga already kindled"
 
+  test -n "${RBRR_GCP_PROJECT_ID:-}"     || bcu_die "RBRR_GCP_PROJECT_ID is not set"
+  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || bcu_die "RBRR_GCP_PROJECT_ID is empty"
+
   bcu_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
 
@@ -56,6 +59,8 @@ zrbga_kindle() {
 
   ZRBGA_ADMIN_ROLE="rbga-admin"
   ZRBGA_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
+
+  ZRBGA_API_SERVICE_ACCOUNTS="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}"
 
   ZRBGA_PREFIX="${BDU_TEMP_DIR}/rbga_"
   ZRBGA_LIST_RESPONSE="${ZRBGA_PREFIX}list_response.json"
@@ -185,12 +190,12 @@ zrbga_create_service_account_with_key() {
     }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
 
   bcu_step "Create service account via REST API"
-  curl -s -X POST \
-    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d @"${ZRBGA_CREATE_REQUEST}" \
-    -o "${ZRBGA_CREATE_RESPONSE}" \
+  curl -s -X POST                          \
+    "${ZRBGA_API_SERVICE_ACCOUNTS}"        \
+    -H "Authorization: Bearer ${z_token}"  \
+    -H "Content-Type: application/json"    \
+    -d @"${ZRBGA_CREATE_REQUEST}"          \
+    -o "${ZRBGA_CREATE_RESPONSE}"          \
     -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
 
   local z_http_code
@@ -222,7 +227,7 @@ zrbga_create_service_account_with_key() {
 
     # Try to get the service account to verify it exists
     curl -s -X GET \
-      "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}/${z_account_email}" \
+      "${ZRBGA_API_SERVICE_ACCOUNTS}/${z_account_email}" \
       -H "Authorization: Bearer ${z_token}" \
       -o "${ZRBGA_PREFIX}verify_response.json" \
       -w "%{http_code}" > "${ZRBGA_PREFIX}verify_code.txt" 2>/dev/null
@@ -245,7 +250,7 @@ zrbga_create_service_account_with_key() {
 
   bcu_step     "Generate service account key"
   curl -s -X POST \
-    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+    "${ZRBGA_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
     -H "Authorization: Bearer ${z_token}" \
     -H "Content-Type: application/json" \
     -d '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' \
@@ -598,7 +603,7 @@ rbga_list_service_accounts() {
 
   bcu_log_args "List service accounts via REST API"
   curl -s -X GET \
-    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}" \
+    "${ZRBGA_API_SERVICE_ACCOUNTS}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_LIST_RESPONSE}" \
     -w "%{http_code}" > "${ZRBGA_LIST_CODE}" 2>/dev/null
@@ -730,7 +735,7 @@ rbga_delete_service_account() {
 
   bcu_log_args "Delete via REST API"
   curl -s -X DELETE \
-    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_SERVICE_ACCOUNTS}/${z_sa_email}" \
+    "${ZRBGA_API_SERVICE_ACCOUNTS}/${z_sa_email}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_DELETE_RESPONSE}" \
     -w "%{http_code}" > "${ZRBGA_DELETE_CODE}" 2>/dev/null
