@@ -114,7 +114,7 @@ zrbi_curl_registry() {
 
   curl -sL                                          \
       -H "Authorization: Bearer ${z_token}"         \
-      -H "Accept: ${ZRBI_ACCEPT_MANIFEST_MTYPES}"  \
+      -H "Accept: ${ZRBI_ACCEPT_MANIFEST_MTYPES}"   \
       "${z_url}"                                    \
     || bcu_die "Registry API call failed: ${z_url}"
 }
@@ -362,10 +362,10 @@ rbi_metadata() {
   local z_package_path="${ZRBI_GAR_API_BASE}/${ZRBI_GAR_PACKAGE_BASE}/packages/${z_tag}"
 
   bcu_step "Downloading GAR metadata for: ${z_tag}"
-  curl -s \
-       -H "Authorization: Bearer ${z_token}" \
+  curl -s                                             \
+       -H "Authorization: Bearer ${z_token}"          \
        "${z_package_path}/versions/metadata:download" \
-       -o "${ZRBI_METADATA_ARCHIVE}" \
+       -o "${ZRBI_METADATA_ARCHIVE}"                  \
     || bcu_die "Failed to download metadata"
 
   test -f "${ZRBI_METADATA_ARCHIVE}" || bcu_die "Metadata archive not created"

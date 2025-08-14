@@ -253,14 +253,14 @@ zrbf_submit_build() {
       }' > "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
 
   bcu_log_args "Submit build with inline source upload"
-  curl -s -X POST                                               \
-       -H "Authorization: Bearer ${z_token}"                    \
-       -H "Content-Type: application/json"                      \
-       -H "x-goog-upload-protocol: multipart"                   \
-       -F "metadata=@${ZRBF_BUILD_CONFIG_FILE};type=application/json" \
-       -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"   \
-       "${ZRBF_GCB_PROJECT_BUILDS_URL}"                        \
-       > "${ZRBF_BUILD_RESPONSE_FILE}" \
+  curl -s -X POST                                                         \
+       -H "Authorization: Bearer ${z_token}"                              \
+       -H "Content-Type: application/json"                                \
+       -H "x-goog-upload-protocol: multipart"                             \
+       -F "metadata=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"     \
+       -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"       \
+       "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
+       > "${ZRBF_BUILD_RESPONSE_FILE}"                                    \
     || bcu_die "Failed to submit build"
 
   bcu_log_args "Validate response file"
@@ -317,10 +317,10 @@ zrbf_wait_build_completion() {
     test ${z_attempts} -le ${z_max_attempts} || bcu_die "Build timeout after ${z_max_attempts} attempts"
 
     bcu_log_args "Fetch build status (attempt ${z_attempts}/${z_max_attempts})"
-    curl -s \
-         -H "Authorization: Bearer ${z_token}" \
-         "${ZRBF_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
-         > "${ZRBF_BUILD_STATUS_FILE}" \
+    curl -s                                                \
+         -H "Authorization: Bearer ${z_token}"             \
+         "${ZRBF_GCB_PROJECT_BUILDS_URL}/${z_build_id}"    \
+         > "${ZRBF_BUILD_STATUS_FILE}"                     \
       || bcu_die "Failed to get build status"
 
     test -f "${ZRBF_BUILD_STATUS_FILE}" || bcu_die "Build status file not created"
@@ -424,10 +424,10 @@ rbf_delete() {
   # Get manifest with digest header
   local z_manifest_headers="${ZRBF_DELETE_PREFIX}headers.txt"
 
-  curl -sL -I \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
-    "${ZRBF_REGISTRY_API_BASE}/manifests/${z_tag}" \
+  curl -sL -I                                         \
+    -H "Authorization: Bearer ${z_token}"             \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"       \
+    "${ZRBF_REGISTRY_API_BASE}/manifests/${z_tag}"    \
     > "${z_manifest_headers}" || bcu_die "Failed to fetch manifest headers"
 
   # Extract digest from Docker-Content-Digest header
@@ -444,10 +444,10 @@ rbf_delete() {
   # Delete by digest
   local z_status_file="${ZRBF_DELETE_PREFIX}status.txt"
 
-  curl -X DELETE -s \
-    -H "Authorization: Bearer ${z_token}" \
-    -w "%{http_code}" \
-    -o /dev/null \
+  curl -X DELETE -s                                   \
+    -H "Authorization: Bearer ${z_token}"             \
+    -w "%{http_code}"                                 \
+    -o /dev/null                                      \
     "${ZRBF_REGISTRY_API_BASE}/manifests/${z_digest}" \
     > "${z_status_file}" || bcu_die "DELETE request failed"
 

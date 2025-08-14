@@ -168,7 +168,7 @@ zrbga_create_service_account_with_key() {
   local z_description="$3"
   local z_instance="$4"
 
-  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step "Get OAuth token from admin"
   local z_token
@@ -310,14 +310,13 @@ zrbga_add_iam_role() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  # Get current IAM policy
-  bcu_log_args "Get current IAM policy"
-  curl -s -X POST \
-    "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d '{}' \
-    -o "${ZRBGA_ROLE_RESPONSE}" \
+  bcu_log_args "Get current IAM policy" #
+  curl -s -X POST                           \
+    "${RBGC_API_CRM_GET_IAM_POLICY}"        \
+    -H "Authorization: Bearer ${z_token}"   \
+    -H "Content-Type: application/json"     \
+    -d '{}'                                 \
+    -o "${ZRBGA_ROLE_RESPONSE}"             \
     -w "%{http_code}" > "${ZRBGA_ROLE_CODE}" 2>/dev/null
 
   local z_http_code
@@ -329,24 +328,22 @@ zrbga_add_iam_role() {
     bcu_die "Failed to get IAM policy (HTTP ${z_http_code}): ${z_error}"
   fi
 
-  # Add new binding to policy
-  bcu_log_args "Update IAM policy with new role binding"
+  bcu_log_args "Update IAM policy with new role binding" #
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
 
-  jq --arg role "${z_role}" \
-     --arg member "serviceAccount:${z_account_email}" \
-     '.bindings += [{role: $role, members: [$member]}]' \
-     "${ZRBGA_ROLE_RESPONSE}" > "${z_updated_policy}" \
+  jq --arg role "${z_role}"                                \
+     --arg member "serviceAccount:${z_account_email}"      \
+     '.bindings += [{role: $role, members: [$member]}]'    \
+     "${ZRBGA_ROLE_RESPONSE}" > "${z_updated_policy}"      \
      || bcu_die "Failed to update IAM policy"
 
-  # Set updated IAM policy
-  bcu_log_args "Set updated IAM policy"
-  curl -s -X POST \
-    "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d "{\"policy\": $(cat "${z_updated_policy}")}" \
-    -o "${ZRBGA_ROLE_RESPONSE}" \
+  bcu_log_args "Set updated IAM policy" #
+  curl -s -X POST                                     \
+    "${RBGC_API_CRM_SET_IAM_POLICY}"                  \
+    -H "Authorization: Bearer ${z_token}"             \
+    -H "Content-Type: application/json"               \
+    -d "{\"policy\": $(cat "${z_updated_policy}")}"   \
+    -o "${ZRBGA_ROLE_RESPONSE}"                       \
     -w "%{http_code}" > "${ZRBGA_ROLE_CODE}" 2>/dev/null
 
   z_http_code=$(<"${ZRBGA_ROLE_CODE}")
@@ -450,7 +447,7 @@ rbga_show_setup() {
   zrbga_e
   zrbga_s2     "7. Generate Service Account Key:"
   zrbga_n      "From service accounts list:"
-  zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
   zrbga_nw     "   2. Top tabs ? " "Keys"
   zrbga_nwnw   "   3. Click " "Add key" " ? " "Create new key"
   zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
@@ -489,12 +486,12 @@ rbga_initialize_admin() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step "Enable IAM API (required for service account operations)"
-  curl -s -X POST \
-    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_IAM}${RBGC_SERVICEUSAGE_ENABLE_SUFFIX}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d '{}' \
-    -o "${ZRBGA_PREFIX}api_iam_enable_response.json" \
+  curl -s -X POST                                     \
+    "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}"             \
+    -H "Authorization: Bearer ${z_token}"             \
+    -H "Content-Type: application/json"               \
+    -d '{}'                                           \
+    -o "${ZRBGA_PREFIX}api_iam_enable_response.json"  \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_enable_code.txt" 2>/dev/null
 
   local z_http_code
@@ -511,12 +508,12 @@ rbga_initialize_admin() {
   fi
 
   bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
-  curl -s -X POST \
-    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_CRM}${RBGC_SERVICEUSAGE_ENABLE_SUFFIX}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Content-Type: application/json" \
-    -d '{}' \
-    -o "${ZRBGA_PREFIX}api_crm_enable_response.json" \
+  curl -s -X POST                                     \
+    "${RBGC_API_SERVICEUSAGE_ENABLE_CRM}"             \
+    -H "Authorization: Bearer ${z_token}"             \
+    -H "Content-Type: application/json"               \
+    -d '{}'                                           \
+    -o "${ZRBGA_PREFIX}api_crm_enable_response.json"  \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_enable_code.txt" 2>/dev/null
 
   z_http_code=$(<"${ZRBGA_PREFIX}api_crm_enable_code.txt")
@@ -542,10 +539,10 @@ rbga_initialize_admin() {
   printf "\rAPI propagation wait complete                    \n"
 
   bcu_step "Verifying API enablement"
-  curl -s -X GET \
-    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_IAM}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -o "${ZRBGA_PREFIX}api_iam_verify_response.json" \
+  curl -s -X GET                                      \
+    "${RBGC_API_SERVICEUSAGE_VERIFY_IAM}"             \
+    -H "Authorization: Bearer ${z_token}"             \
+    -o "${ZRBGA_PREFIX}api_iam_verify_response.json"  \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_verify_code.txt" 2>/dev/null
 
   z_http_code=$(<"${ZRBGA_PREFIX}api_iam_verify_code.txt")
@@ -563,7 +560,7 @@ rbga_initialize_admin() {
 
   bcu_step "Verify Cloud Resource Manager API..."
   curl -s -X GET \
-    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/${RBGC_SERVICE_CRM}" \
+    "${RBGC_API_SERVICEUSAGE_VERIFY_CRM}" \
     -H "Authorization: Bearer ${z_token}" \
     -o "${ZRBGA_PREFIX}api_crm_verify_response.json" \
     -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_verify_code.txt" 2>/dev/null
@@ -600,7 +597,7 @@ rbga_list_service_accounts() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
   bcu_log_args "List service accounts via REST API"
-  curl -s -X GET \
+  curl -s -X GET                            \
     "${RBGC_API_SERVICE_ACCOUNTS}"          \
     -H "Authorization: Bearer ${z_token}"   \
     -o "${ZRBGA_LIST_RESPONSE}"             \
@@ -653,7 +650,7 @@ rbga_create_retriever() {
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
   local z_account_name="rbga-retriever-${z_instance}"
-  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step "Creating Retriever service account: ${z_account_name}"
 
@@ -689,7 +686,7 @@ rbga_create_director() {
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
   local z_account_name="rbga-director-${z_instance}"
-  local z_account_email="${z_account_name}@${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step "Creating Director service account: ${z_account_name}"
 
