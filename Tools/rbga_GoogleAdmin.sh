@@ -270,8 +270,7 @@ zrbga_create_service_account_with_key() {
 
   bcu_step "Convert JSON key to RBRA format"
   local z_account_suffix="${z_account_name##rbga-}"
-  z_account_suffix="${z_account_suffix//-/_}"  # Replace hyphens with underscores in account name only
-  local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_${z_account_suffix}.rbra"
+  local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_key_json}") || bcu_die "Failed to extract client_email"
@@ -451,7 +450,7 @@ rbga_show_setup() {
   zrbga_nw     "   2. Top tabs -> " "Keys"
   zrbga_nwnw   "   3. Click " "Add key" " -> " "Create new key"
   zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
-  zrbga_nw     "   5. Click " "CREATE"
+  zrbga_nw     "   5. Click " "Create"
   zrbga_e
   zrbga_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
   zrbga_nwn    "   6. Click " "CLOSE" " on download confirmation"
@@ -472,7 +471,7 @@ rbga_initialize_admin() {
   bcu_doc_param "json_path" "Path to downloaded admin JSON file"
   bcu_doc_shown || return 0
 
-  test -n "${z_json_path}" || bcu_die "JSON path required"
+  test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
   bcu_step "Converting admin JSON to RBRA format"
 
@@ -663,7 +662,7 @@ rbga_create_retriever() {
   bcu_step "Adding Artifact Registry Reader role"
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"
 
-  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_retriever_${z_instance}.rbra"
+  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
   bcu_step "To install the RBRA file locally, run:"
   bcu_code ""
@@ -702,7 +701,7 @@ rbga_create_director() {
   bcu_step "Adding Artifact Registry Writer role"
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
-  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}_director_${z_instance}.rbra"
+  local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
   bcu_step "To install the RBRA file locally, run:"
   bcu_code ""
