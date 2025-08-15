@@ -72,6 +72,8 @@ zrbga_kindle() {
   ZRBGA_KEY_CODE="${ZRBGA_PREFIX}key_code.txt"
   ZRBGA_ROLE_RESPONSE="${ZRBGA_PREFIX}role_response.json"
   ZRBGA_ROLE_CODE="${ZRBGA_PREFIX}role_code.txt"
+  ZRBGA_REPO_ROLE_RESPONSE="${ZRBGA_PREFIX}repo_role_response.json"
+  ZRBGA_REPO_ROLE_CODE="${ZRBGA_PREFIX}repo_role_code.txt"
 
   ZRBGA_KINDLED=1
 }
@@ -356,6 +358,73 @@ zrbga_add_iam_role() {
   bcu_log_args "Successfully added role ${z_role}"
 }
 
+zrbga_add_repo_iam_role() {
+  zrbga_sentinel
+
+  local z_account_email="${1:-}"
+  local z_location="${2:-}"
+  local z_repository="${3:-}"
+  local z_role="${4:-}"
+
+  test -n "${z_account_email}" || bcu_die "Service account email required"
+  test -n "${z_location}"      || bcu_die "RBRR_GAR_LOCATION is required"
+  test -n "${z_repository}"    || bcu_die "RBRR_GAR_REPOSITORY is required"
+  test -n "${z_role}"          || bcu_die "Role is required"
+
+  bcu_log_args "Adding repo-scoped IAM role ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
+
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repository}"
+  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
+  local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
+
+  bcu_log_args "Get current repo IAM policy"
+  curl -s -X POST                           \
+    "${z_get_url}"                          \
+    -H "Authorization: Bearer ${z_token}"   \
+    -H "Content-Type: application/json"     \
+    -d '{}'                                 \
+    -o "${ZRBGA_REPO_ROLE_RESPONSE}"        \
+    -w "%{http_code}" > "${ZRBGA_REPO_ROLE_CODE}" 2>/dev/null
+
+  local z_http_code
+  z_http_code=$(<"${ZRBGA_REPO_ROLE_CODE}")
+  test "${z_http_code}" = "200" || bcu_die "Failed to get repo IAM policy (HTTP ${z_http_code})"
+
+  bcu_log_args "Update repo IAM policy"
+  local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_updated_policy.json"
+  jq --arg role   "${z_role}"                                      \
+     --arg member "serviceAccount:${z_account_email}"              \
+     '
+       .bindings = (.bindings // []) |
+       if ( [ .bindings[]?.role ] | index($role) ) then
+         .bindings = ( .bindings | map(
+           if .role == $role then .members = ( (.members // []) + [$member] | unique )
+           else .
+           end))
+       else
+         .bindings += [{role: $role, members: [$member]}]
+       end
+     ' "${ZRBGA_REPO_ROLE_RESPONSE}" > "${z_updated_policy}" || bcu_die "Failed to update policy json"
+
+  bcu_log_args "Set updated repo IAM policy"
+  curl -s -X POST                                     \
+    "${z_set_url}"                                    \
+    -H "Authorization: Bearer ${z_token}"             \
+    -H "Content-Type: application/json"               \
+    -d "{\"policy\": $(cat "${z_updated_policy}")}"   \
+    -o "${ZRBGA_REPO_ROLE_RESPONSE}"                  \
+    -w "%{http_code}" > "${ZRBGA_REPO_ROLE_CODE}" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_REPO_ROLE_CODE}")
+  test "${z_http_code}" = "200" || bcu_die "Failed to set repo IAM policy (HTTP ${z_http_code})"
+
+  bcu_log_args "Successfully added repo-scoped role ${z_role}"
+}
+
+
 ######################################################################
 # External Functions (rbga_*)
 
@@ -527,6 +596,26 @@ rbga_initialize_admin() {
     bcu_die "Failed to enable Cloud Resource Manager API (HTTP ${z_http_code}): ${z_error}"
   fi
 
+  bcu_step "Enable Artifact Registry API (required for repo-scoped IAM + image operations)"
+  curl -s -X POST                                     \
+    "${RBGC_API_SERVICEUSAGE_ENABLE_ARTIFACTREGISTRY}" \
+    -H "Authorization: Bearer ${z_token}"             \
+    -H "Content-Type: application/json"               \
+    -d '{}'                                           \
+    -o "${ZRBGA_PREFIX}api_art_enable_response.json"  \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_art_enable_code.txt" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_PREFIX}api_art_enable_code.txt")
+  if test "${z_http_code}" = "200"; then
+    bcu_info "Artifact Registry API enabled successfully"
+  elif test "${z_http_code}" = "409"; then
+    bcu_info "Artifact Registry API already enabled"
+  else
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_art_enable_response.json") || z_error="Parse error"
+    bcu_die "Failed to enable Artifact Registry API (HTTP ${z_http_code}): ${z_error}"
+  fi
+
   local z_prop_delay_seconds=45
   bcu_step "Waiting ${z_prop_delay_seconds} seconds for API changes to propagate"
   bcu_info "This delay ensures APIs are fully available across all Google regions"
@@ -575,6 +664,26 @@ rbga_initialize_admin() {
     fi
   else
     bcu_die "Failed to verify Cloud Resource Manager API (HTTP ${z_http_code})"
+  fi
+
+  bcu_step "Verify Artifact Registry API..."
+  curl -s -X GET \
+    "${RBGC_API_SERVICEUSAGE_VERIFY_ARTIFACTREGISTRY}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -o "${ZRBGA_PREFIX}api_art_verify_response.json" \
+    -w "%{http_code}" > "${ZRBGA_PREFIX}api_art_verify_code.txt" 2>/dev/null
+
+  z_http_code=$(<"${ZRBGA_PREFIX}api_art_verify_code.txt")
+  if test "${z_http_code}" = "200"; then
+    local z_state
+    z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_art_verify_response.json")
+    if test "${z_state}" = "ENABLED"; then
+      bcu_info "Artifact Registry API verified: ENABLED"
+    else
+      bcu_die "Artifact Registry API not enabled. State: ${z_state}"
+    fi
+  else
+    bcu_die "Failed to verify Artifact Registry API (HTTP ${z_http_code})"
   fi
 
   bcu_success "Admin initialization complete"
@@ -689,17 +798,20 @@ rbga_create_director() {
 
   bcu_step "Creating Director service account: ${z_account_name}"
 
-  zrbga_create_service_account_with_key \
-    "${z_account_name}" \
-    "Recipe Bottle Director (${z_instance})" \
-    "Create/destroy container images for ${z_instance}" \
+  zrbga_create_service_account_with_key                    \
+    "${z_account_name}"                                    \
+    "Recipe Bottle Director (${z_instance})"               \
+    "Create/destroy container images for ${z_instance}"    \
     "${z_instance}"
 
-  bcu_step "Adding Cloud Build Editor role"
+  bcu_step "Adding Cloud Build Editor role (project scope)"
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
 
-  bcu_step "Adding Artifact Registry Writer role"
-  zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+  bcu_step "Grant Artifact Registry Writer (repo-scoped)"
+  zrbga_add_repo_iam_role "${z_account_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+
+  bcu_step "Grant Artifact Registry Admin (repo-scoped) for delete in own repo"
+  zrbga_add_repo_iam_role "${z_account_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
