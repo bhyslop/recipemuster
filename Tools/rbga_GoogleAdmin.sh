@@ -36,31 +36,13 @@ zrbga_kindle() {
   bcu_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
 
-  local z_use_color=0
-  if [ -z "${NO_COLOR:-}" ] && [ "${BDU_COLOR:-0}" = "1" ]; then
-    z_use_color=1
-  fi
-
-  if [ "$z_use_color" = "1" ]; then
-    ZRBGA_R="\033[0m"         # Reset
-    ZRBGA_S="\033[1;37m"      # Section (bright white)
-    ZRBGA_C="\033[36m"        # Command (cyan)
-    ZRBGA_W="\033[35m"        # Website (magenta)
-    ZRBGA_WN="\033[1;33m"     # Warning (bright yellow)
-    ZRBGA_CR="\033[1;31m"     # Critical (bright red)
-  else
-    ZRBGA_R=""                # No color, or disabled
-    ZRBGA_S=""                # No color, or disabled
-    ZRBGA_C=""                # No color, or disabled
-    ZRBGA_W=""                # No color, or disabled
-    ZRBGA_WN=""               # No color, or disabled
-    ZRBGA_CR=""               # No color, or disabled
-  fi
-
   ZRBGA_ADMIN_ROLE="rbga-admin"
   ZRBGA_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
   ZRBGA_PREFIX="${BDU_TEMP_DIR}/rbga_"
+  ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
+  printf '{}' > "${ZRBGA_EMPTY_JSON}"
+
   ZRBGA_LIST_RESPONSE="${ZRBGA_PREFIX}list_response.json"
   ZRBGA_LIST_CODE="${ZRBGA_PREFIX}list_code.txt"
   ZRBGA_CREATE_REQUEST="${ZRBGA_PREFIX}create_request.json"
@@ -87,25 +69,43 @@ zrbga_show() {
   echo -e "${1:-}"
 }
 
-zrbga_s1()      { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
-zrbga_s2()      { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
-zrbga_s3()      { zrbga_show "${ZRBGA_S}${1}${ZRBGA_R}"; }
+# JSON REST helper (hardcoded headers)
+# Usage:
+#   zrbga_http_json "METHOD" "URL" "TOKEN" "OUT_JSON" "OUT_CODE" ["BODY_FILE"] ["ACCEPT"]
+zrbga_http_json() {
+  zrbga_sentinel
+  local z_method="$1"
+  local z_url="$2"
+  local z_token="$3"
+  local z_out_json="$4"
+  local z_out_code="$5"
+  local z_body_file="${6:-}"
+  local z_accept="${7:-application/json}"
 
-zrbga_e()       { zrbga_show "";                                                             }
-zrbga_n()       { zrbga_show "${1}";                                                         }
-zrbga_nc()      { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}";                                 }
-zrbga_ncn()     { zrbga_show "${1}${ZRBGA_C}${2}${ZRBGA_R}${3}";                             }
-zrbga_nw()      { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}";                                 }
-zrbga_nwn()     { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}";                             }
-zrbga_nwne()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_CR}${4}${ZRBGA_R}";    }
-zrbga_nwnw()    { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}";     }
-zrbga_nwnwn()   { zrbga_show "${1}${ZRBGA_W}${2}${ZRBGA_R}${3}${ZRBGA_W}${4}${ZRBGA_R}${5}"; }
+  test -n "${z_method}"   || bcu_die "zrbga_http_json: method required"
+  test -n "${z_url}"      || bcu_die "zrbga_http_json: url required"
+  test -n "${z_token}"    || bcu_die "zrbga_http_json: token required"
+  test -n "${z_out_json}" || bcu_die "zrbga_http_json: out_json required"
+  test -n "${z_out_code}" || bcu_die "zrbga_http_json: out_code required"
 
-zrbga_ne()      { zrbga_show "${1}${ZRBGA_CR}${2}${ZRBGA_R}"; }
-
-zrbga_cmd()     { zrbga_show "${ZRBGA_C}${1}${ZRBGA_R}"; }
-zrbga_warning() { zrbga_show "\n${ZRBGA_WN}  WARNING: ${1}${ZRBGA_R}\n"; }
-zrbga_critic()  { zrbga_show "\n${ZRBGA_CR} CRITICAL SECURITY WARNING: ${1}${ZRBGA_R}\n"; }
+  if test -n "${z_body_file}"; then
+    curl -s -X "${z_method}"                         \
+      -H "Authorization: Bearer ${z_token}"          \
+      -H "Content-Type: application/json"            \
+      -H "Accept: ${z_accept}"                       \
+      -d @"${z_body_file}"                           \
+      "${z_url}"                                     \
+      -o "${z_out_json}"                             \
+      -w "%{http_code}" > "${z_out_code}" 2>/dev/null
+  else
+    curl -s -X "${z_method}"                         \
+      -H "Authorization: Bearer ${z_token}"          \
+      -H "Accept: ${z_accept}"                       \
+      "${z_url}"                                     \
+      -o "${z_out_json}"                             \
+      -w "%{http_code}" > "${z_out_code}" 2>/dev/null
+  fi
+}
 
 zrbga_get_admin_token_capture() {
   zrbga_sentinel
@@ -190,13 +190,8 @@ zrbga_create_service_account_with_key() {
     }' > "${ZRBGA_CREATE_REQUEST}" || bcu_die "Failed to create request JSON"
 
   bcu_step "Create service account via REST API"
-  curl -s -X POST                           \
-    "${RBGC_API_SERVICE_ACCOUNTS}"          \
-    -H "Authorization: Bearer ${z_token}"   \
-    -H "Content-Type: application/json"     \
-    -d @"${ZRBGA_CREATE_REQUEST}"           \
-    -o "${ZRBGA_CREATE_RESPONSE}"           \
-    -w "%{http_code}" > "${ZRBGA_CREATE_CODE}" 2>/dev/null
+  zrbga_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
+    "${ZRBGA_CREATE_RESPONSE}" "${ZRBGA_CREATE_CODE}" "${ZRBGA_CREATE_REQUEST}"
 
   local z_http_code
   z_http_code=$(<"${ZRBGA_CREATE_CODE}")
@@ -226,11 +221,9 @@ zrbga_create_service_account_with_key() {
     z_retry_count=$((z_retry_count + 1))
 
     # Try to get the service account to verify it exists
-    curl -s -X GET                                         \
-      "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}"    \
-      -H "Authorization: Bearer ${z_token}"                \
-      -o "${ZRBGA_PREFIX}verify_response.json"             \
-      -w "%{http_code}" > "${ZRBGA_PREFIX}verify_code.txt" 2>/dev/null
+    zrbga_http_json "GET" \
+      "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
+      "${ZRBGA_PREFIX}verify_response.json" "${ZRBGA_PREFIX}verify_code.txt"
 
     local z_verify_code
     z_verify_code=$(<"${ZRBGA_PREFIX}verify_code.txt")
@@ -249,13 +242,14 @@ zrbga_create_service_account_with_key() {
   fi
 
   bcu_step     "Generate service account key"
-  curl -s -X POST                                                         \
-    "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"    \
-    -H "Authorization: Bearer ${z_token}"                                 \
-    -H "Content-Type: application/json"                                   \
-    -d '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}'               \
-    -o "${ZRBGA_KEY_RESPONSE}"                                            \
-    -w "%{http_code}" > "${ZRBGA_KEY_CODE}" 2>/dev/null
+  local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
+  printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
+  zrbga_http_json "POST" \
+    "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+    "${z_token}" \
+    "${ZRBGA_KEY_RESPONSE}" \
+    "${ZRBGA_KEY_CODE}" \
+    "${z_key_req}"
 
   z_http_code=$(<"${ZRBGA_KEY_CODE}")
 
@@ -312,13 +306,8 @@ zrbga_add_iam_role() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_log_args "Get current IAM policy" #
-  curl -s -X POST                           \
-    "${RBGC_API_CRM_GET_IAM_POLICY}"        \
-    -H "Authorization: Bearer ${z_token}"   \
-    -H "Content-Type: application/json"     \
-    -d '{}'                                 \
-    -o "${ZRBGA_ROLE_RESPONSE}"             \
-    -w "%{http_code}" > "${ZRBGA_ROLE_CODE}" 2>/dev/null
+  zrbga_http_json "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_token}" \
+    "${ZRBGA_ROLE_RESPONSE}" "${ZRBGA_ROLE_CODE}" "${ZRBGA_EMPTY_JSON}"
 
   local z_http_code
   z_http_code=$(<"${ZRBGA_ROLE_CODE}")
@@ -339,13 +328,11 @@ zrbga_add_iam_role() {
      || bcu_die "Failed to update IAM policy"
 
   bcu_log_args "Set updated IAM policy" #
-  curl -s -X POST                                     \
-    "${RBGC_API_CRM_SET_IAM_POLICY}"                  \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Content-Type: application/json"               \
-    -d "{\"policy\": $(cat "${z_updated_policy}")}"   \
-    -o "${ZRBGA_ROLE_RESPONSE}"                       \
-    -w "%{http_code}" > "${ZRBGA_ROLE_CODE}" 2>/dev/null
+  local z_set_body="${BDU_TEMP_DIR}/rbga_set_policy_body.json"
+  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
+    || bcu_die "Failed to build setIamPolicy body"
+  zrbga_http_json "POST" "${RBGC_API_CRM_SET_IAM_POLICY}" "${z_token}" \
+    "${ZRBGA_ROLE_RESPONSE}" "${ZRBGA_ROLE_CODE}" "${z_set_body}"
 
   z_http_code=$(<"${ZRBGA_ROLE_CODE}")
 
@@ -381,13 +368,8 @@ zrbga_add_repo_iam_role() {
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
   bcu_log_args "Get current repo IAM policy"
-  curl -s -X POST                           \
-    "${z_get_url}"                          \
-    -H "Authorization: Bearer ${z_token}"   \
-    -H "Content-Type: application/json"     \
-    -d '{}'                                 \
-    -o "${ZRBGA_REPO_ROLE_RESPONSE}"        \
-    -w "%{http_code}" > "${ZRBGA_REPO_ROLE_CODE}" 2>/dev/null
+  zrbga_http_json "POST" "${z_get_url}" "${z_token}" \
+    "${ZRBGA_REPO_ROLE_RESPONSE}" "${ZRBGA_REPO_ROLE_CODE}" "${ZRBGA_EMPTY_JSON}"
 
   local z_http_code
   z_http_code=$(<"${ZRBGA_REPO_ROLE_CODE}")
@@ -410,13 +392,11 @@ zrbga_add_repo_iam_role() {
      ' "${ZRBGA_REPO_ROLE_RESPONSE}" > "${z_updated_policy}" || bcu_die "Failed to update policy json"
 
   bcu_log_args "Set updated repo IAM policy"
-  curl -s -X POST                                     \
-    "${z_set_url}"                                    \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Content-Type: application/json"               \
-    -d "{\"policy\": $(cat "${z_updated_policy}")}"   \
-    -o "${ZRBGA_REPO_ROLE_RESPONSE}"                  \
-    -w "%{http_code}" > "${ZRBGA_REPO_ROLE_CODE}" 2>/dev/null
+  local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
+  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
+    || bcu_die "Failed to build repo setIamPolicy body"
+  zrbga_http_json "POST" "${z_set_url}" "${z_token}" \
+    "${ZRBGA_REPO_ROLE_RESPONSE}" "${ZRBGA_REPO_ROLE_CODE}" "${z_repo_set_body}"
 
   z_http_code=$(<"${ZRBGA_REPO_ROLE_CODE}")
   test "${z_http_code}" = "200" || bcu_die "Failed to set repo IAM policy (HTTP ${z_http_code})"
@@ -427,109 +407,6 @@ zrbga_add_repo_iam_role() {
 
 ######################################################################
 # External Functions (rbga_*)
-
-rbga_show_setup() {
-  zrbga_sentinel
-
-  bcu_doc_brief "Display the manual GCP admin setup procedure"
-  bcu_doc_shown || return 0
-
-  zrbga_s1     "# Google Cloud Platform Setup"
-  zrbga_s2     "## Overview"
-  zrbga_n      "Bootstrap GCP infrastructure by creating an admin service account with Project Owner privileges."
-  zrbga_n      "The admin account will manage operational service accounts and infrastructure configuration."
-  zrbga_s2     "## Prerequisites"
-  zrbga_n      "- Credit card for GCP account verification (won't be charged on free tier)"
-  zrbga_n      "- Email address not already associated with GCP"
-  zrbga_e
-  zrbga_n      "---"
-  zrbga_s1     "Manual Admin Setup Procedure"
-  zrbga_n      "Recipe Bottle setup requires a manual bootstrap procedure to enable admin control"
-  zrbga_e
-  zrbga_nc     "Open a web browser to " "${RBGC_SIGNUP_URL}"
-
-  zrbga_critic "This procedure is for PERSONAL Google accounts only."
-  zrbga_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
-  zrbga_n      "you must follow your IT/admin process to create projects, attach billing,"
-  zrbga_n      "and assign permissions - those steps are NOT covered here."
-  zrbga_e
-  zrbga_s2     "1. Establish Account:"
-  zrbga_nc     "   Open a browser to: " "${RBGC_SIGNUP_URL}"
-  zrbga_nw     "   1. Click -> " "Get started for free"
-  zrbga_n      "   2. Sign in with your Google account or create a new one"
-  zrbga_n      "   3. Provide:"
-  zrbga_n      "      - Country"
-  zrbga_nw     "      - Organization type: " "Individual"
-  zrbga_n      "      - Credit card (verification only)"
-  zrbga_nw     "   4. Accept terms -> " "Start my free trial"
-  zrbga_n      "   5. Expect Google Cloud Console to open"
-  zrbga_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
-  zrbga_e
-  local z_configure_pid_step="2. Configure Project ID and Region"
-  zrbga_s2     "${z_configure_pid_step}:"
-  zrbga_n      "   Before creating the project, choose a unique Project ID."
-  zrbga_nc     "   1. Edit your RBRR configuration file: " "${ZRBGA_RBRR_FILE}"
-  zrbga_n      "   2. Set RBRR_GCP_PROJECT_ID to a unique value:"
-  zrbga_n      "      - Must be globally unique across all GCP"
-  zrbga_n      "      - 6-30 characters, lowercase letters, numbers, hyphens"
-  zrbga_n      "      - Cannot start/end with hyphen"
-  zrbga_n      "   3. Set RBRR_GCP_REGION based on your location (see project documentation)"
-  zrbga_n      "   4. Save the file before proceeding"
-  zrbga_e
-  zrbga_s2     "3. Create New Project:"
-  zrbga_nc     "   Go directly to: " "${RBGC_CONSOLE_URL}"
-  zrbga_n      "   Sign in with the same Google account you just set up"
-  zrbga_n      "   1. Open the Google Cloud Console main menu:"
-  zrbga_nwn    "      - Click the " "->" " hamburger menu in the top-left corner"
-  zrbga_nw     "      - Scroll down to " "IAM & Admin"
-  zrbga_nw     "      - Click -> " "Manage resources"
-  zrbga_n      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
-  zrbga_nw     "   2. On the Manage resources page, click -> " "CREATE PROJECT"
-  zrbga_n      "   3. Configure:"
-  zrbga_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
-  zrbga_nw     "      - Organization: " "No organization"
-  zrbga_nw     "   4. Click " "CREATE"
-  zrbga_nwne   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
-  zrbga_nwn    "   6. Wait for notification -> " "Creating project..." " to complete"
-  zrbga_n      "   7. Select project from dropdown when ready"
-  zrbga_e
-  zrbga_s2     "4. Navigate to Service Accounts:"
-  zrbga_nwnwn  "   Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
-  zrbga_nwnw   "   1. Left sidebar -> " "IAM & Admin" " -> " "Service Accounts"
-  zrbga_nw     "   2. If prompted about APIs, click -> " "Enable API"
-  zrbga_n      "      TODO: This step is brittle - enabling IAM API may happen automatically or be blocked by org policy."
-  zrbga_nw     "   3. Wait for " "Identity and Access Management (IAM) API to enable"
-  zrbga_e
-  zrbga_s2     "5. Create the Admin Service Account:"
-  zrbga_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
-  zrbga_n      "   2. Service account details:"
-  zrbga_nc     "      - Service account name: " "${ZRBGA_ADMIN_ROLE}"
-  zrbga_nwn    "      - Service account ID: (auto-fills as " "${ZRBGA_ADMIN_ROLE}" ")"
-  zrbga_nc     "      - Description: " "Admin account for infrastructure management"
-  zrbga_nw     "   3. Click -> " "Create and continue"
-  zrbga_nwnw   "   4. At " "Permissions (optional)" " pick dropdown " "Select a role"
-  zrbga_nc     "      - In filter box, type: " "owner"
-  zrbga_nwnw   "      - Select: " "Basic" " -> " "Owner"
-  zrbga_nw     "   5. Click -> " "Continue"
-  zrbga_nwnw   "   6. Skip " "Principals with access" " by clicking -> " "Done"
-  zrbga_e
-  zrbga_s2     "7. Generate Service Account Key:"
-  zrbga_n      "From service accounts list:"
-  zrbga_nw     "   1. Click on text of " "${ZRBGA_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  zrbga_nw     "   2. Top tabs -> " "Keys"
-  zrbga_nwnw   "   3. Click " "Add key" " -> " "Create new key"
-  zrbga_nwn    "   4. Key type: " "JSON" " (should be selected)"
-  zrbga_nw     "   5. Click " "Create"
-  zrbga_e
-  zrbga_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
-  zrbga_nwn    "   6. Click " "CLOSE" " on download confirmation"
-  zrbga_e
-  zrbga_s2     "8. Configure Local Environment:"
-  zrbga_n      "Browser downloaded key.  Run the command to ingest it into your ADMIN RBRA file."
-  zrbga_e
-
-  bcu_success "Manual setup procedure displayed"
-}
 
 rbga_initialize_admin() {
   zrbga_sentinel
@@ -554,13 +431,9 @@ rbga_initialize_admin() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step "Enable IAM API (required for service account operations)"
-  curl -s -X POST                                     \
-    "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}"             \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Content-Type: application/json"               \
-    -d '{}'                                           \
-    -o "${ZRBGA_PREFIX}api_iam_enable_response.json"  \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_enable_code.txt" 2>/dev/null
+  zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}" "${z_token}" \
+    "${ZRBGA_PREFIX}api_iam_enable_response.json" \
+    "${ZRBGA_PREFIX}api_iam_enable_code.txt" "${ZRBGA_EMPTY_JSON}"
 
   local z_http_code
   z_http_code=$(<"${ZRBGA_PREFIX}api_iam_enable_code.txt")
@@ -576,13 +449,9 @@ rbga_initialize_admin() {
   fi
 
   bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
-  curl -s -X POST                                     \
-    "${RBGC_API_SERVICEUSAGE_ENABLE_CRM}"             \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Content-Type: application/json"               \
-    -d '{}'                                           \
-    -o "${ZRBGA_PREFIX}api_crm_enable_response.json"  \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_enable_code.txt" 2>/dev/null
+  zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_CRM}" "${z_token}" \
+    "${ZRBGA_PREFIX}api_crm_enable_response.json" \
+    "${ZRBGA_PREFIX}api_crm_enable_code.txt" "${ZRBGA_EMPTY_JSON}"
 
   z_http_code=$(<"${ZRBGA_PREFIX}api_crm_enable_code.txt")
 
@@ -597,13 +466,9 @@ rbga_initialize_admin() {
   fi
 
   bcu_step "Enable Artifact Registry API (required for repo-scoped IAM + image operations)"
-  curl -s -X POST                                     \
-    "${RBGC_API_SERVICEUSAGE_ENABLE_ARTIFACTREGISTRY}" \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Content-Type: application/json"               \
-    -d '{}'                                           \
-    -o "${ZRBGA_PREFIX}api_art_enable_response.json"  \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_art_enable_code.txt" 2>/dev/null
+  zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_ARTIFACTREGISTRY}" "${z_token}" \
+    "${ZRBGA_PREFIX}api_art_enable_response.json" \
+    "${ZRBGA_PREFIX}api_art_enable_code.txt" "${ZRBGA_EMPTY_JSON}"
 
   z_http_code=$(<"${ZRBGA_PREFIX}api_art_enable_code.txt")
   if test "${z_http_code}" = "200"; then
@@ -627,13 +492,11 @@ rbga_initialize_admin() {
   printf "\rAPI propagation wait complete                    \n"
 
   bcu_step "Verifying API enablement"
-  curl -s -X GET                                      \
-    "${RBGC_API_SERVICEUSAGE_VERIFY_IAM}"             \
-    -H "Authorization: Bearer ${z_token}"             \
-    -o "${ZRBGA_PREFIX}api_iam_verify_response.json"  \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_iam_verify_code.txt" 2>/dev/null
+  zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_IAM}" "${z_token}" \
+    "${ZRBGA_PREFIX}api_iam_verify_response.json" \
+    "${ZRBGA_PREFIX}api_iam_verify_code.txt"
 
-  z_http_code=$(<"${ZRBGA_PREFIX}api_iam_verify_code.txt")
+  z_http_code=$(<"${ZRBGA_PREFIX}api_iam_verify_code.txt}")
   if test "${z_http_code}" = "200"; then
     local z_state
     z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_iam_verify_response.json")
@@ -647,13 +510,11 @@ rbga_initialize_admin() {
   fi
 
   bcu_step "Verify Cloud Resource Manager API..."
-  curl -s -X GET \
-    "${RBGC_API_SERVICEUSAGE_VERIFY_CRM}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -o "${ZRBGA_PREFIX}api_crm_verify_response.json" \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_crm_verify_code.txt" 2>/dev/null
+  zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_CRM}" "${z_token}" \
+    "${ZRBGA_PREFIX}api_crm_verify_response.json" \
+    "${ZRBGA_PREFIX}api_crm_verify_code.txt"
 
-  z_http_code=$(<"${ZRBGA_PREFIX}api_crm_verify_code.txt")
+  z_http_code=$(<"${ZRBGA_PREFIX}api_crm_verify_code.txt}")
   if test "${z_http_code}" = "200"; then
     local z_state
     z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_crm_verify_response.json")
@@ -667,13 +528,11 @@ rbga_initialize_admin() {
   fi
 
   bcu_step "Verify Artifact Registry API..."
-  curl -s -X GET \
-    "${RBGC_API_SERVICEUSAGE_VERIFY_ARTIFACTREGISTRY}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -o "${ZRBGA_PREFIX}api_art_verify_response.json" \
-    -w "%{http_code}" > "${ZRBGA_PREFIX}api_art_verify_code.txt" 2>/dev/null
+  zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_ARTIFACTREGISTRY}" "${z_token}" \
+    "${ZRBGA_PREFIX}api_art_verify_response.json" \
+    "${ZRBGA_PREFIX}api_art_verify_code.txt"
 
-  z_http_code=$(<"${ZRBGA_PREFIX}api_art_verify_code.txt")
+  z_http_code=$(<"${ZRBGA_PREFIX}api_art_verify_code.txt}")
   if test "${z_http_code}" = "200"; then
     local z_state
     z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_art_verify_response.json")
@@ -705,11 +564,8 @@ rbga_list_service_accounts() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
   bcu_log_args "List service accounts via REST API"
-  curl -s -X GET                            \
-    "${RBGC_API_SERVICE_ACCOUNTS}"          \
-    -H "Authorization: Bearer ${z_token}"   \
-    -o "${ZRBGA_LIST_RESPONSE}"             \
-    -w "%{http_code}" > "${ZRBGA_LIST_CODE}" 2>/dev/null
+  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
+    "${ZRBGA_LIST_RESPONSE}" "${ZRBGA_LIST_CODE}"
 
   local z_http_code=$(<"${ZRBGA_LIST_CODE}")
   test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
@@ -840,11 +696,8 @@ rbga_delete_service_account() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_log_args "Delete via REST API"
-  curl -s -X DELETE                                   \
-    "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}"      \
-    -H "Authorization: Bearer ${z_token}"             \
-    -o "${ZRBGA_DELETE_RESPONSE}"                     \
-    -w "%{http_code}" > "${ZRBGA_DELETE_CODE}" 2>/dev/null
+  zrbga_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
+    "${ZRBGA_DELETE_RESPONSE}" "${ZRBGA_DELETE_CODE}"
 
   local z_http_code=$(<"${ZRBGA_DELETE_CODE}")
   test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
@@ -862,5 +715,5 @@ rbga_delete_service_account() {
   bcu_success "Delete operation completed"
 }
 
-
 # eof
+

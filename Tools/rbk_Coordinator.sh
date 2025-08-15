@@ -75,8 +75,8 @@ rbk_route() {
 
     # Google admin commands (rbga)
     rbw-ag)
-      rbk_show "Routing to rbga_cli.sh rbga_show_setup"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_show_setup $z_args
+      rbk_show "Routing to rbgp_cli.sh rbga_show_setup"
+      exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_show_setup $z_args
       ;;
     rbw-aIA)
       rbk_show "Routing to rbga_cli.sh rbga_initialize_admin"
@@ -90,7 +90,7 @@ rbk_route() {
       rbk_show "Routing to rbga_cli.sh rbga_create_retriever"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever $z_args
       ;;
-    rbw-aCS)
+    rbw-aCD)
       rbk_show "Routing to rbga_cli.sh rbga_create_director"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director $z_args
       ;;
