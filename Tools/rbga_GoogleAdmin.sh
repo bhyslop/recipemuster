@@ -111,30 +111,38 @@ zrbga_http_json() {
   fi
 }
 
-
-# Expect: CODE in ok_codes, else parse error from JSON and die
-# Usage: zrbga_http_expect "Enable IAM API" api_iam_enable 200 409
+# Enhanced version of zrbga_http_expect
+# Usage: zrbga_http_expect "context" "infix" success_code [warn_code [warn_message]]
 zrbga_http_expect() {
   zrbga_sentinel
-  local z_ctx="$1" z_infix="$2"; shift 2
+  local z_ctx="$1" 
+  local z_infix="$2"
+  local z_success_code="$3"
+  local z_warn_code="${4:-}"
+  local z_warn_message="${5:-already exists}"
+  
   local z_code_file="${ZRBGA_PREFIX}${z_infix}_code.txt"
   local z_json_file="${ZRBGA_PREFIX}${z_infix}_response.json"
 
   local z_code
   z_code=$(<"${z_code_file}") || bcu_die "${z_ctx}: failed to read HTTP code"
 
-  local z_ok
-  for z_ok in "$@"; do
-    if test "${z_code}" = "${z_ok}"; then
-      return 0
-    fi
-  done
+  bcu_log_args "Check success" #
+  if test "${z_code}" = "${z_success_code}"; then
+    return 0
+  fi
+  
+  bcu_log_args "Check warn case" #
+  if test -n "${z_warn_code}" && test "${z_code}" = "${z_warn_code}"; then
+    bcu_warn "${z_ctx}: ${z_warn_message}"
+    return 0
+  fi
 
+  bcu_log_args "Error case" #
   local z_err
   z_err=$(jq -r '.error.message // "Unknown error"' "${z_json_file}") || z_err="Parse error"
   bcu_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
 }
-
 
 zrbga_get_admin_token_capture() {
   zrbga_sentinel
@@ -436,55 +444,19 @@ rbga_initialize_admin() {
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}" "${z_token}" \
     "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_PREFIX}api_iam_enable_code.txt")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
-
-  if test "${z_http_code}" = "200"; then
-    bcu_info "IAM API enabled successfully"
-  elif test "${z_http_code}" = "409"; then
-    bcu_info "IAM API already enabled"
-  else
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_iam_enable_response.json") || z_error="Parse error"
-    bcu_die "Failed to enable IAM API (HTTP ${z_http_code}): ${z_error}"
-  fi
+  zrbga_http_expect "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}" 200 409 "already enabled"
 
   bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_CRM}" "${z_token}" \
     "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_PREFIX}api_crm_enable_code.txt")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
-
-  if test "${z_http_code}" = "200"; then
-    bcu_info "Cloud Resource Manager API enabled successfully"
-  elif test "${z_http_code}" = "409"; then
-    bcu_info "Cloud Resource Manager API already enabled"
-  else
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_crm_enable_response.json") || z_error="Parse error"
-    bcu_die "Failed to enable Cloud Resource Manager API (HTTP ${z_http_code}): ${z_error}"
-  fi
+  zrbga_http_expect "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 200 409 "already enabled"  
 
   bcu_step "Enable Artifact Registry API (required for repo-scoped IAM + image operations)"
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_ARTIFACTREGISTRY}" "${z_token}" \
     "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_PREFIX}api_art_enable_code.txt")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
-
-  if test "${z_http_code}" = "200"; then
-    bcu_info "Artifact Registry API enabled successfully"
-  elif test "${z_http_code}" = "409"; then
-    bcu_info "Artifact Registry API already enabled"
-  else
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}api_art_enable_response.json") || z_error="Parse error"
-    bcu_die "Failed to enable Artifact Registry API (HTTP ${z_http_code}): ${z_error}"
-  fi
+  zrbga_http_expect "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 200 409 "already enabled"
 
   local z_prop_delay_seconds=45
   bcu_step "Waiting ${z_prop_delay_seconds} seconds for API changes to propagate"
