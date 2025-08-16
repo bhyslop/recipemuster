@@ -36,9 +36,6 @@ zrbga_kindle() {
   bcu_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
 
-  ZRBGA_ADMIN_ROLE="rbga-admin"
-  ZRBGA_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
-
   ZRBGA_PREFIX="${BDU_TEMP_DIR}/rbga_"
   ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
   printf '{}' > "${ZRBGA_EMPTY_JSON}"
@@ -329,13 +326,13 @@ zrbga_add_iam_role() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_log_args "Get current IAM policy" #
+  bcu_log_args "Get current IAM policy"
   zrbga_http_json "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_token}" \
     "${ZRBGA_INFIX_ROLE}" "${ZRBGA_EMPTY_JSON}"
 
   zrbga_http_require_ok "Get IAM policy" "${ZRBGA_INFIX_ROLE}"
 
-  bcu_log_args "Update IAM policy with new role binding" #
+  bcu_log_args "Update IAM policy with new role binding"
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
 
   jq --arg role   "${z_role}"                                      \
@@ -353,7 +350,7 @@ zrbga_add_iam_role() {
      ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}" \
      > "${z_updated_policy}" || bcu_die "Failed to update IAM policy"
 
-  bcu_log_args "Set updated IAM policy" #
+  bcu_log_args "Set updated IAM policy"
   local z_set_body="${BDU_TEMP_DIR}/rbga_set_policy_body.json"
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
     || bcu_die "Failed to build setIamPolicy body"
