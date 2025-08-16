@@ -33,12 +33,6 @@ zrbgo_kindle() {
   bcu_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
 
-  bcu_log_args "Validate required tools"
-  command -v openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
-  command -v curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
-  command -v base64  >/dev/null 2>&1 || bcu_die "base64 not found - required for encoding"
-  command -v jq      >/dev/null 2>&1 || bcu_die "jq not found - required for JSON parsing"
-
   bcu_log_args "Check environment"
   test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set"
   test -d "${BDU_TEMP_DIR}"   || bcu_die "BDU_TEMP_DIR not a directory"

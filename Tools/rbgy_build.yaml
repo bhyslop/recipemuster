@@ -1,16 +1,14 @@
 # Google Cloud Build for Recipe Bottle RBIA
-# - All steps use Google-curated builders, EXCEPT the single binfmt setup step.
-# - Builds multi-arch (linux/amd64,linux/arm64) with buildx.
-# - Pushes a minimal image.
-# - Writes all provenance and extras (SBOM, transcripts, etc.) to a separate metadata tarball.
-# - Publishes the metadata tarball to Artifact Registry (Generic) as: package=${_RBGY_TAG}, version=metadata.
 #
-# Exit code discipline:
-# - Every bash step uses: set -euo pipefail
-# - No tee; transcript is captured without masking exit codes.
+# Policy:
+# - Build & push are performed using Google-curated builder images.
+# - Any third-party containers (jq, syft) are used ONLY AFTER the image has been created and pushed,
+#   so they cannot contaminate the produced image.
+# - OPTIONAL: an OFF-by-default binfmt step is provided for multi-arch emulation; enabling it will
+#   run a third-party container BEFORE the image is created (tonistiigi/binfmt). Leave it disabled
+#   to adhere strictly to the policy.
 
 steps:
-  # Configure Docker to push to GAR (auth handled by Cloud Build service account)
   - name: gcr.io/cloud-builders/gcloud
     id: auth-docker-to-gar
     entrypoint: bash
@@ -20,19 +18,23 @@ steps:
         set -euo pipefail
         gcloud auth configure-docker "${_RBGY_GAR_LOCATION}-docker.pkg.dev" --quiet
 
-  # Single non-Google image step allowed: install binfmt for multi-arch emulation
+  # OPTIONAL (OFF by default): Install QEMU binfmt for cross-arch builds.
+  # WARNING: This runs a non-Google container BEFORE the image is created.
+  # Keep _RBGY_ENABLE_BINFMT=0 to comply with "non-Google only after image creation".
   - name: gcr.io/cloud-builders/docker
-    id: binfmt-setup
-    # This step intentionally runs a non-google image (tonistiigi/binfmt) per the rule.
-    # The builder itself is Google-curated; the container it runs is not.
+    id: binfmt-setup-optional
     entrypoint: bash
     args:
       - -lc
       - |
         set -euo pipefail
-        docker run --privileged --rm tonistiigi/binfmt --install arm64,amd64
+        if test "${_RBGY_ENABLE_BINFMT:-0}" = "1"; then
+          test -n "${_RBGY_BINFMT_REF}" || (echo "_RBGY_BINFMT_REF missing" >&2; exit 1)
+          docker run --privileged --rm "${_RBGY_BINFMT_REF}" --install arm64,amd64
+        else
+          echo "binfmt disabled by policy (_RBGY_ENABLE_BINFMT!=1)"
+        fi
 
-  # Create and bootstrap a buildx builder (docker-container driver)
   - name: gcr.io/cloud-builders/docker
     id: buildx-create
     entrypoint: bash
@@ -43,47 +45,6 @@ steps:
         docker buildx create --name rbia-builder --driver docker-container --use
         docker buildx inspect --bootstrap
 
-  # Snapshot recipe and assemble build_info.json skeleton
-  # Snapshot recipe and assemble build_info.json skeleton
-  - name: gcr.io/cloud-builders/gcloud
-    id: prepare-metadata-files
-    entrypoint: bash
-    args:
-      - -lc
-      - |
-        set -euo pipefail
-        : "${_RBGY_DOCKERFILE:?missing}"
-        : "${_RBGY_TAG:?missing}"
-        : "${_RBGY_MONIKER:?missing}"
-        : "${_RBGY_PLATFORMS:?missing}"
-        : "${_RBGY_GIT_COMMIT:?missing}"
-        : "${_RBGY_GIT_BRANCH:?missing}"
-        : "${_RBGY_GIT_REPO:?missing}"
-        : "${BUILD_ID:?missing}"
-
-        # Recipe snapshot
-        cp "${_RBGY_DOCKERFILE}" recipe.txt
-
-        # Build info (no jq dependency; write plain JSON)
-        TS="$(date -u +%FT%TZ)"
-        : > build_info.json
-        printf '{\n'                                          >> build_info.json
-        printf '  "tag": "%s",\n'       "${_RBGY_TAG}"        >> build_info.json
-        printf '  "moniker": "%s",\n'   "${_RBGY_MONIKER}"    >> build_info.json
-        printf '  "git": {\n'                                 >> build_info.json
-        printf '    "repo": "%s",\n'    "${_RBGY_GIT_REPO}"   >> build_info.json
-        printf '    "branch": "%s",\n'  "${_RBGY_GIT_BRANCH}" >> build_info.json
-        printf '    "commit": "%s"\n'   "${_RBGY_GIT_COMMIT}" >> build_info.json
-        printf '  },\n'                                       >> build_info.json
-        printf '  "build": {\n'                               >> build_info.json
-        printf '    "id": "%s",\n'       "${BUILD_ID}"        >> build_info.json
-        printf '    "timestamp": "%s"\n' "${TS}"              >> build_info.json
-        printf '  },\n'                                       >> build_info.json
-        printf '  "platforms": "%s"\n' "${_RBGY_PLATFORMS}"   >> build_info.json
-        printf '}\n'                                          >> build_info.json
-
-
-  # Build & push the minimal image; capture a full transcript without tee and preserve exit status
   - name: gcr.io/cloud-builders/docker
     id: build-and-push
     entrypoint: bash
@@ -91,18 +52,30 @@ steps:
       - -lc
       - |
         set -euo pipefail
+        # One-var-per-line checks
+        test -n "${_RBGY_DOCKERFILE}"     || (echo "_RBGY_DOCKERFILE missing"     >&2; exit 1)
+        test -n "${_RBGY_TAG}"            || (echo "_RBGY_TAG missing"            >&2; exit 1)
+        test -n "${_RBGY_MONIKER}"        || (echo "_RBGY_MONIKER missing"        >&2; exit 1)
+        test -n "${_RBGY_PLATFORMS}"      || (echo "_RBGY_PLATFORMS missing"      >&2; exit 1)
+        test -n "${_RBGY_GAR_LOCATION}"   || (echo "_RBGY_GAR_LOCATION missing"   >&2; exit 1)
+        test -n "${_RBGY_GAR_PROJECT}"    || (echo "_RBGY_GAR_PROJECT missing"    >&2; exit 1)
+        test -n "${_RBGY_GAR_REPOSITORY}" || (echo "_RBGY_GAR_REPOSITORY missing" >&2; exit 1)
+        test -n "${_RBGY_GIT_COMMIT}"     || (echo "_RBGY_GIT_COMMIT missing"     >&2; exit 1)
+        test -n "${_RBGY_GIT_BRANCH}"     || (echo "_RBGY_GIT_BRANCH missing"     >&2; exit 1)
+        test -n "${_RBGY_GIT_REPO}"       || (echo "_RBGY_GIT_REPO missing"       >&2; exit 1)
+
+        # Build target URI
         IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_TAG}"
 
-        # Simple runner that logs each command first, then executes, appending output to build.log.
-        # No pipes around build commands -> no masking of statuses; set -e ensures fail-fast.
-        printf '' > build.log
-        run() { printf '$ %s\n' "$*" >> build.log; "$@" >> build.log 2>&1; }
+        # Simple command logger: no tee (preserve exit statuses)
+        : > build.log
+        run() { echo "\$ $* " >> build.log; "$@" >> build.log 2>&1; }
 
         run docker buildx version
         run docker version
         run docker info
 
-        # Buildx multi-arch build and push
+        # Multi-arch build (requires native workers or binfmt if enabled)
         run docker buildx build \
           --platform="${_RBGY_PLATFORMS}" \
           --tag "${IMAGE_URI}" \
@@ -113,11 +86,44 @@ steps:
           -f "${_RBGY_DOCKERFILE}" \
           .
 
-        # Record the pushed image URI for downstream steps
         echo "${IMAGE_URI}" > .image_uri
 
-  # Generate SBOM (syft JSON) and a human-readable package summary (table)
-  # We stay within the Google-curated docker builder image; it runs the syft container.
+  # METADATA (POST-BUILD): assemble build_info.json with jq (third-party), after the push.
+  - name: "${_RBGY_JQ_REF}"
+    id: assemble-metadata
+    entrypoint: sh
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        test -n "${_RBGY_TAG}"        || (echo "_RBGY_TAG missing"        >&2; exit 1)
+        test -n "${_RBGY_MONIKER}"    || (echo "_RBGY_MONIKER missing"    >&2; exit 1)
+        test -n "${_RBGY_GIT_COMMIT}" || (echo "_RBGY_GIT_COMMIT missing" >&2; exit 1)
+        test -n "${_RBGY_GIT_BRANCH}" || (echo "_RBGY_GIT_BRANCH missing" >&2; exit 1)
+        test -n "${_RBGY_GIT_REPO}"   || (echo "_RBGY_GIT_REPO missing"   >&2; exit 1)
+        test -n "${_RBGY_PLATFORMS}"  || (echo "_RBGY_PLATFORMS missing"  >&2; exit 1)
+        test -n "${BUILD_ID}"         || (echo "BUILD_ID missing"         >&2; exit 1)
+
+        cp "${_RBGY_DOCKERFILE}" recipe.txt
+        TS="$(date -u +%FT%TZ)"
+        jq -n                                    \
+          --arg tag       "${_RBGY_TAG}"         \
+          --arg moniker   "${_RBGY_MONIKER}"     \
+          --arg repo      "${_RBGY_GIT_REPO}"    \
+          --arg branch    "${_RBGY_GIT_BRANCH}"  \
+          --arg commit    "${_RBGY_GIT_COMMIT}"  \
+          --arg build_id  "${BUILD_ID}"          \
+          --arg ts        "${TS}"                \
+          --arg platforms "${_RBGY_PLATFORMS}"   \
+          '{
+            tag: $tag,
+            moniker: $moniker,
+            git: { repo: $repo, branch: $branch, commit: $commit },
+            build: { id: $build_id, timestamp: $ts },
+            platforms: $platforms
+          }' > build_info.json
+
+  # SBOM (POST-BUILD): syft runs after push; third-party container cannot contaminate the image.
   - name: gcr.io/cloud-builders/docker
     id: sbom-and-summary
     entrypoint: bash
@@ -125,13 +131,11 @@ steps:
       - -lc
       - |
         set -euo pipefail
+        test -n "${_RBGY_SYFT_REF}" || (echo "_RBGY_SYFT_REF missing" >&2; exit 1)
         IMAGE_URI="$(cat .image_uri)"
-        # JSON SBOM
-        docker run --rm anchore/syft:latest "${IMAGE_URI}" -o json > syft_analysis.json
-        # Human-readable package summary
-        docker run --rm anchore/syft:latest "${IMAGE_URI}" -o table > package_summary.txt
+        docker run --rm "${_RBGY_SYFT_REF}" "${IMAGE_URI}" -o json  > syft_analysis.json
+        docker run --rm "${_RBGY_SYFT_REF}" "${IMAGE_URI}" -o table > package_summary.txt
 
-  # Package the metadata bundle (kept separate from the pushed image)
   - name: gcr.io/cloud-builders/gcloud
     id: make-metadata-tarball
     entrypoint: bash
@@ -146,7 +150,6 @@ steps:
           package_summary.txt \
           build.log
 
-  # Publish metadata tarball to Artifact Registry (Generic) as package=${_RBGY_TAG}, version=metadata
   - name: gcr.io/cloud-builders/gcloud
     id: publish-gar-generic
     entrypoint: bash
@@ -168,8 +171,8 @@ options:
 
 timeout: 1200s
 
-# Required substitutions (all _RBGY_* per rule). Provide these via trigger/CLI.
 substitutions:
+  # Required inputs
   _RBGY_DOCKERFILE: Dockerfile
   _RBGY_TAG: dev
   _RBGY_MONIKER: rbia
@@ -179,6 +182,5 @@ substitutions:
   _RBGY_GAR_REPOSITORY: your-repo
   _RBGY_GIT_COMMIT: unknown
   _RBGY_GIT_BRANCH: unknown
-  _RBGY_GIT_REPO: unknown
-
+  _RBGY_GIT
 
