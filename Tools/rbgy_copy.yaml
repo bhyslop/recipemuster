@@ -1,0 +1,36 @@
+steps:
+  - name: gcr.io/cloud-builders/gcloud
+    id: auth-docker-to-gar
+    entrypoint: bash
+    args: ['-lc', 'set -euo pipefail; gcloud auth configure-docker "${_GAR_LOCATION}-docker.pkg.dev" --quiet']
+
+  - name: gcr.io/go-containerregistry/gcrane
+    id: copy
+    entrypoint: /bin/sh
+    args:
+      - -c
+      - |
+        set -eu
+        SRC="${_SRC_IMAGE}"   # e.g. docker.io/library/busybox:1.37
+        DEST="${_GAR_LOCATION}-docker.pkg.dev/${_GAR_PROJECT}/${_GAR_REPOSITORY}/${_DEST_PATH}:${_DEST_TAG}"
+        # For private sources you can: gcrane auth login docker.io -u "$DOCKER_USER" -p "$DOCKER_PASS"
+        gcrane cp "${SRC}" "${DEST}"
+        echo "${DEST}" > copied.txt
+
+  - name: gcr.io/cloud-builders/gcloud
+    id: note
+    entrypoint: bash
+    args: ['-lc', 'set -euo pipefail; echo "Copied to: $(cat copied.txt)"' ]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+timeout: 600s
+substitutions:
+  _GAR_LOCATION: us-central1
+  _GAR_PROJECT: your-project-id
+  _GAR_REPOSITORY: your-repo
+  _DEST_PATH: imported/busybox
+  _DEST_TAG: 1.37
+  _SRC_IMAGE: docker.io/library/busybox:1.37
+
+

@@ -12,6 +12,12 @@ ZRBL_SOURCED=1
 zrbl_kindle() {
   test -z "${ZRBL_KINDLED:-}" || bcu_die "Module rbl already kindled"
 
+  bcu_log_args "Validate required tools"
+  command -v openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
+  command -v curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
+  command -v base64  >/dev/null 2>&1 || bcu_die "base64 not found - required for encoding"
+  command -v jq      >/dev/null 2>&1 || bcu_die "jq not found - required for JSON parsing"
+
   ZRBL_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
   RBL_RBRR_FILE="${ZRBL_SCRIPT_DIR}/../rbrr_RecipeBottleRegimeRepo.sh"
   export RBL_RBRR_FILE
