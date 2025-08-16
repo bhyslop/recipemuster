@@ -60,6 +60,9 @@ zrbga_kindle() {
   ZRBGA_INFIX_LIST="list"
   ZRBGA_INFIX_DELETE="delete"
 
+  ZRBGA_POSTFIX_JSON="_response.json"
+  ZRBGA_POSTFIX_CODE="_code.txt"
+
   ZRBGA_KINDLED=1
 }
 
@@ -89,8 +92,8 @@ zrbga_http_json() {
   test -n "${z_token}"  || bcu_die "zrbga_http_json: token required"
   test -n "${z_infix}"  || bcu_die "zrbga_http_json: infix required"
 
-  local z_out_json="${ZRBGA_PREFIX}${z_infix}_response.json"
-  local z_out_code="${ZRBGA_PREFIX}${z_infix}_code.txt"
+  local z_out_json="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+  local z_out_code="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
 
   if test -n "${z_body_file}"; then
     curl -s -X "${z_method}"                         \
@@ -119,8 +122,8 @@ zrbga_http_require_ok() {
   local z_warn_code="${3:-}"
   local z_warn_message="${4:-already exists}"
   
-  local z_code_file="${ZRBGA_PREFIX}${z_infix}_code.txt"
-  local z_json_file="${ZRBGA_PREFIX}${z_infix}_response.json"
+  local z_code_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
+  local z_json_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
 
   local z_code
   z_code=$(<"${z_code_file}") || bcu_die "${z_ctx}: failed to read HTTP code"
@@ -143,17 +146,6 @@ zrbga_http_require_ok() {
   local z_err
   z_err=$(jq -r '.error.message // "Unknown error"' "${z_json_file}") || z_err="Parse error"
   bcu_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
-}
-
-zrbga_http_ok_predicate() {
-  zrbga_sentinel
-  local z_infix="$1"; shift
-  local z_ok="${1:-200}"           # single expected code; keep simple for 3.2
-  local z_code_file="${ZRBGA_PREFIX}${z_infix}_code.txt"
-  local z_code
-  z_code=$(<"${z_code_file}") || return 1
-  test "${z_code}" = "${z_ok}" && return 0
-  return 1
 }
 
 zrbga_get_admin_token_capture() {
@@ -226,10 +218,10 @@ zrbga_create_service_account_with_key() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step "Create request JSON for ${z_account_name}"
-  jq -n \
-    --arg account_id "${z_account_name}" \
-    --arg display_name "${z_display_name}" \
-    --arg description "${z_description}" \
+  jq -n                                      \
+    --arg account_id "${z_account_name}"     \
+    --arg display_name "${z_display_name}"   \
+    --arg description "${z_description}"     \
     '{
       accountId: $account_id,
       serviceAccount: {
@@ -242,49 +234,17 @@ zrbga_create_service_account_with_key() {
   zrbga_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGA_INFIX_CREATE}" "${ZRBGA_PREFIX}create_request.json"
 
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_PREFIX}create_code.txt")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
-
-  if test "${z_http_code}" = "409"; then
-    bcu_die "Service account already exists: ${z_account_email}"
-  elif test "${z_http_code}" != "200"; then
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}create_response.json") || z_error="Parse error"
-    bcu_log_args "Service account creation failed. Response: $(cat "${ZRBGA_PREFIX}create_response.json")"
-    bcu_die "Failed to create service account (HTTP ${z_http_code}): ${z_error}"
-  fi
+  zrbga_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}"
 
   bcu_info "Service account created: ${z_account_email}"
 
   bcu_step     "Wait for service account propagation and verify existence"
 
-  # Wait and verify the service account exists before proceeding
-  local z_retry_count=0
-  local z_max_retries=10
-  local z_verify_success=false
-
-  while [ $z_retry_count -lt $z_max_retries ]; do
-    sleep 3
-    z_retry_count=$((z_retry_count + 1))
-
-    # Try to get the service account to verify it exists
-    zrbga_http_json "GET" \
-      "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
-      "${ZRBGA_INFIX_VERIFY}"
-
-    if zrbga_http_ok_predicate "${ZRBGA_INFIX_VERIFY}" "200"; then
-      z_verify_success=true
-      bcu_log_args "Service account verified after ${z_retry_count} attempts"
-      break
-    else
-      bcu_log_args "Service account not ready yet (attempt ${z_retry_count}/${z_max_retries})"
-    fi
-  done
-
-  if [ "$z_verify_success" = false ]; then
-    bcu_die "Service account verification failed after ${z_max_retries} attempts"
-  fi
+  bcu_step "Wait briefly for service account to propagate"
+  sleep 15
+  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
+    "${ZRBGA_INFIX_VERIFY}" ""
+  zrbga_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
   bcu_step     "Generate service account key"
   local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
