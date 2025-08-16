@@ -33,7 +33,7 @@ zrbga_kindle() {
   test -n "${RBRR_GCP_PROJECT_ID:-}"     || bcu_die "RBRR_GCP_PROJECT_ID is not set"
   test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || bcu_die "RBRR_GCP_PROJECT_ID is empty"
 
-  bcu_log_args "Ensure RBGC is kindled first"
+  bcu_log_args 'Ensure RBGC is kindled first'
   zrbgc_sentinel
 
   ZRBGA_PREFIX="${BDU_TEMP_DIR}/rbga_"
@@ -134,7 +134,7 @@ zrbga_http_json() {
       || z_curl_status=$?
   fi
 
-  bcu_log_args "Curl status ${z_curl_status}"
+  bcu_log_args 'Curl status' "${z_curl_status}"
   bcu_log_pipe < "${z_code_errs}"
 
   test "${z_curl_status}" -eq 0 || bcu_die "HTTP request failed (network/SSL/DNS)"
@@ -193,7 +193,7 @@ zrbga_extract_json_to_rbra() {
 
   bcu_info "Extracting service account credentials from JSON"
 
-  bcu_log_args "Extract fields"
+  bcu_log_args 'Extract fields'
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_json_path}") \
                                         || bcu_die "Failed to extract client_email"
@@ -212,11 +212,11 @@ zrbga_extract_json_to_rbra() {
   test -n "${z_project_id}"           || bcu_die "Empty project_id in JSON"
   test    "${z_project_id}" != "null" || bcu_die "Null project_id in JSON"
 
-  bcu_log_args "Verify project matches"
+  bcu_log_args 'Verify project matches'
   test "${z_project_id}" = "${RBRR_GCP_PROJECT_ID}" \
     || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${RBRR_GCP_PROJECT_ID}'"
 
-  bcu_log_args "Write RBRA file"
+  bcu_log_args 'Write RBRA file'
   echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""    > "${z_rbra_path}"
   echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""     >> "${z_rbra_path}"
   echo "RBRA_PROJECT_ID=\"${z_project_id}\""       >> "${z_rbra_path}"
@@ -237,7 +237,7 @@ zrbga_create_service_account_with_key() {
 
   local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
-  bcu_step "Get OAuth token from admin"
+  bcu_step 'Get OAuth token from admin'
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
@@ -254,20 +254,20 @@ zrbga_create_service_account_with_key() {
       }
     }' > "${ZRBGA_PREFIX}create_request.json" || bcu_die "Failed to create request JSON"
 
-  bcu_step "Create service account via REST API"
+  bcu_step 'Create service account via REST API'
   zrbga_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGA_INFIX_CREATE}" "${ZRBGA_PREFIX}create_request.json"
   zrbga_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}"
 
   bcu_info "Service account created: ${z_account_email}"
 
-  bcu_step "Wait briefly for service account to propagate"
+  bcu_step 'Wait briefly for service account to propagate'
   sleep 15
   zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
     "${ZRBGA_INFIX_VERIFY}"
   zrbga_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
-  bcu_step "Generate service account key"
+  bcu_step 'Generate service account key'
   local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
   zrbga_http_json "POST" \
@@ -277,18 +277,18 @@ zrbga_create_service_account_with_key() {
     "${z_key_req}"
   zrbga_http_require_ok "Generate service account key" "${ZRBGA_INFIX_KEY}"
 
-  bcu_step "Extract and decode key data"
+  bcu_step 'Extract and decode key data'
   local z_key_b64
   z_key_b64=$(zrbga_json_field_capture "${ZRBGA_INFIX_KEY}" '.privateKeyData') \
     || bcu_die "Failed to extract privateKeyData"
   local z_key_json="${BDU_TEMP_DIR}/rbga_key_${z_instance}.json"
-  bcu_log_args "Tolerate macos base64 difference"
+  bcu_log_args 'Tolerate macos base64 difference'
   if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
        printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
       || bcu_die "Failed to decode key data"
   fi
 
-  bcu_step "Convert JSON key to RBRA format"
+  bcu_step 'Convert JSON key to RBRA format'
   local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
   local z_client_email
@@ -303,13 +303,13 @@ zrbga_create_service_account_with_key() {
   z_project_id=$(jq -r '.project_id' "${z_key_json}") || bcu_die "Failed to extract project_id"
   test -n "${z_project_id}" || bcu_die "Empty project_id in key JSON"
 
-  bcu_step "Write RBRA file: ${z_rbra_file}"
+  bcu_step 'Write RBRA file' "${z_rbra_file}"
   echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""  > "${z_rbra_file}"
   echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""   >> "${z_rbra_file}"
   echo "RBRA_PROJECT_ID=\"${z_project_id}\""     >> "${z_rbra_file}"
   echo "RBRA_TOKEN_LIFETIME_SEC=1800"            >> "${z_rbra_file}"
 
-  test -f "${z_rbra_file}" || bcu_die "Failed to write RBRA file"
+  test -f "${z_rbra_file}" || bcu_die "Failed to write RBRA file ${z_rbra_file}"
 
   rm -f "${z_key_json}"
   bcu_info "RBRA file written: ${z_rbra_file}"
@@ -326,13 +326,13 @@ zrbga_add_iam_role() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_log_args "Get current IAM policy"
+  bcu_log_args 'Get current IAM policy'
   zrbga_http_json "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_token}" \
     "${ZRBGA_INFIX_ROLE}" "${ZRBGA_EMPTY_JSON}"
 
   zrbga_http_require_ok "Get IAM policy" "${ZRBGA_INFIX_ROLE}"
 
-  bcu_log_args "Update IAM policy with new role binding"
+  bcu_log_args 'Update IAM policy with new role binding'
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
 
   jq --arg role   "${z_role}"                                      \
@@ -350,7 +350,7 @@ zrbga_add_iam_role() {
      ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}" \
      > "${z_updated_policy}" || bcu_die "Failed to update IAM policy"
 
-  bcu_log_args "Set updated IAM policy"
+  bcu_log_args 'Set updated IAM policy'
   local z_set_body="${BDU_TEMP_DIR}/rbga_set_policy_body.json"
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
     || bcu_die "Failed to build setIamPolicy body"
@@ -359,7 +359,7 @@ zrbga_add_iam_role() {
 
   zrbga_http_require_ok "Set IAM policy" "${ZRBGA_INFIX_ROLE_SET}"
 
-  bcu_log_args "Successfully added role ${z_role}"
+  bcu_log_args 'Successfully added role' "${z_role}"
 }
 
 zrbga_add_repo_iam_role() {
@@ -375,7 +375,8 @@ zrbga_add_repo_iam_role() {
   test -n "${z_repository}"    || bcu_die "RBRR_GAR_REPOSITORY is required"
   test -n "${z_role}"          || bcu_die "Role is required"
 
-  bcu_log_args "Adding repo-scoped IAM role ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
+  bcu_log_args 'Adding repo-scoped IAM role' \
+               " ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
 
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
@@ -384,13 +385,13 @@ zrbga_add_repo_iam_role() {
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
-  bcu_log_args "Get current repo IAM policy"
+  bcu_log_args 'Get current repo IAM policy'
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" \
     "${ZRBGA_INFIX_REPO_ROLE}" "${ZRBGA_EMPTY_JSON}"
 
   zrbga_http_require_ok "Get repo IAM policy" "${ZRBGA_INFIX_REPO_ROLE}"
 
-  bcu_log_args "Update repo IAM policy"
+  bcu_log_args 'Update repo IAM policy'
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_updated_policy.json"
   jq --arg role   "${z_role}"                                      \
      --arg member "serviceAccount:${z_account_email}"              \
@@ -407,7 +408,7 @@ zrbga_add_repo_iam_role() {
      ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_ROLE}${ZRBGA_POSTFIX_JSON}" \
      > "${z_updated_policy}" || bcu_die "Failed to update policy json"
 
-  bcu_log_args "Set updated repo IAM policy"
+  bcu_log_args 'Set updated repo IAM policy'
   local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
     || bcu_die "Failed to build repo setIamPolicy body"
@@ -416,7 +417,7 @@ zrbga_add_repo_iam_role() {
 
   zrbga_http_require_ok "Set repo IAM policy" "${ZRBGA_INFIX_REPO_ROLE_SET}"
 
-  bcu_log_args "Successfully added repo-scoped role ${z_role}"
+  bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
 }
 
 
@@ -433,34 +434,33 @@ rbga_initialize_admin() {
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
-  bcu_step "Converting admin JSON to RBRA format"
+  bcu_step 'Converting admin JSON to RBRA format'
   zrbga_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
 
-  bcu_step "Get token using the newly created RBRA"
+  bcu_step 'Get token using the newly created RBRA'
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_step "Enable IAM API (required for service account operations)"
+  bcu_step 'Enable IAM API (required for service account operations)'
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}" "${z_token}" \
     "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}" 409 "already enabled"
 
-  bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
+  bcu_step 'Enable Cloud Resource Manager API (required for IAM policy operations)'
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_CRM}" "${z_token}" \
     "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 409 "already enabled"
 
-  bcu_step "Enable Artifact Registry API (required for repo-scoped IAM + image operations)"
+  bcu_step 'Enable Artifact Registry API (required for repo-scoped IAM + image operations)'
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_ARTIFACTREGISTRY}" "${z_token}" \
     "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
 
   local z_prop_delay_seconds=45
   bcu_step "Waiting ${z_prop_delay_seconds} seconds for API changes to propagate"
-  bcu_info "This delay ensures APIs are fully available across all Google regions"
   sleep "${z_prop_delay_seconds}"
 
-  bcu_step "Verifying API enablement"
+  bcu_step 'Verifying API enablement'
 
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_IAM}" "${z_token}" \
     "${ZRBGA_INFIX_API_IAM_VERIFY}"
@@ -468,21 +468,21 @@ rbga_initialize_admin() {
   local z_state
   z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_IAM_VERIFY}" '.state') || z_state="UNKNOWN"
   test "${z_state}" = "ENABLED" || bcu_die "IAM API not enabled. State: ${z_state}"
-  bcu_log_args "IAM API verified: ENABLED"
+  bcu_log_args 'IAM API verified: ENABLED'
 
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_CRM}" "${z_token}" \
     "${ZRBGA_INFIX_API_CRM_VERIFY}"
   zrbga_http_require_ok "Verify Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_VERIFY}"
   z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_CRM_VERIFY}" '.state') || z_state="UNKNOWN"
   test "${z_state}" = "ENABLED" || bcu_die "Cloud Resource Manager API not enabled. State: ${z_state}"
-  bcu_log_args "Cloud Resource Manager API verified: ENABLED"
+  bcu_log_args 'Cloud Resource Manager API verified: ENABLED'
 
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_ARTIFACTREGISTRY}" "${z_token}" \
     "${ZRBGA_INFIX_API_ART_VERIFY}"
   zrbga_http_require_ok "Verify Artifact Registry API" "${ZRBGA_INFIX_API_ART_VERIFY}"
   z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_ART_VERIFY}" '.state') || z_state="UNKNOWN"
   test "${z_state}" = "ENABLED" || bcu_die "Artifact Registry API not enabled. State: ${z_state}"
-  bcu_log_args "Artifact Registry API verified: ENABLED"
+  bcu_log_args 'Artifact Registry API verified: ENABLED'
 
   bcu_success "Admin initialization complete"
   bcu_info "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
@@ -497,11 +497,11 @@ rbga_list_service_accounts() {
 
   bcu_step "Listing service accounts in project: ${RBRR_GCP_PROJECT_ID}"
 
-  bcu_log_args "Get OAuth token from admin"
+  bcu_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
-  bcu_log_args "List service accounts via REST API"
+  bcu_log_args 'List service accounts via REST API'
   zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_LIST}"
   zrbga_http_require_ok "List service accounts" "${ZRBGA_INFIX_LIST}"
 
@@ -551,12 +551,12 @@ rbga_create_retriever() {
     "Read-only access to Google Artifact Registry - instance: ${z_instance}" \
     "${z_instance}"
 
-  bcu_step "Adding Artifact Registry Reader role"
+  bcu_step 'Adding Artifact Registry Reader role'
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
-  bcu_step "To install the RBRA file locally, run:"
+  bcu_step 'To install the RBRA file locally, run:'
   bcu_code ""
   bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_RETRIEVER_RBRA_FILE}\""
   bcu_code ""
@@ -587,18 +587,18 @@ rbga_create_director() {
     "Create/destroy container images for ${z_instance}"    \
     "${z_instance}"
 
-  bcu_step "Adding Cloud Build Editor role (project scope)"
+  bcu_step 'Adding Cloud Build Editor role (project scope)'
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
 
-  bcu_step "Grant Artifact Registry Writer (repo-scoped)"
+  bcu_step 'Grant Artifact Registry Writer (repo-scoped)'
   zrbga_add_repo_iam_role "${z_account_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
-  bcu_step "Grant Artifact Registry Admin (repo-scoped) for delete in own repo"
+  bcu_step 'Grant Artifact Registry Admin (repo-scoped) for delete in own repo'
   zrbga_add_repo_iam_role "${z_account_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
-  bcu_step "To install the RBRA file locally, run:"
+  bcu_step 'To install the RBRA file locally, run:'
   bcu_code ""
   bcu_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_DIRECTOR_RBRA_FILE}\""
   bcu_code ""
@@ -618,11 +618,11 @@ rbga_delete_service_account() {
 
   bcu_step "Deleting service account: ${z_sa_email}"
 
-  bcu_log_args "Get OAuth token from admin"
+  bcu_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_log_args "Delete via REST API"
+  bcu_log_args 'Delete via REST API'
   zrbga_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
     "${ZRBGA_INFIX_DELETE}"
 
