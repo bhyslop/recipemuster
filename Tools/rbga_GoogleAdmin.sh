@@ -128,9 +128,6 @@ zrbga_http_require_ok() {
   local z_code
   z_code=$(<"${z_code_file}") || bcu_die "${z_ctx}: failed to read HTTP code"
 
-  local z_code
-  z_code=$(<"${z_code_file}") || bcu_die "Missing HTTP status for ${z_ctx}"
-
   bcu_log_args "Accept the common success trio by default" #
   case "${z_code}" in
     200|201|204) return 0 ;;
@@ -243,7 +240,7 @@ zrbga_create_service_account_with_key() {
   bcu_step "Wait briefly for service account to propagate"
   sleep 15
   zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
-    "${ZRBGA_INFIX_VERIFY}" ""
+    "${ZRBGA_INFIX_VERIFY}"
   zrbga_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
   bcu_step     "Generate service account key"
@@ -263,7 +260,6 @@ zrbga_create_service_account_with_key() {
     || bcu_die "Failed to extract/decode key data"
 
   bcu_step "Convert JSON key to RBRA format"
-  local z_account_suffix="${z_account_name##rbga-}"
   local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
   local z_client_email
@@ -364,7 +360,7 @@ zrbga_add_repo_iam_role() {
      --arg member "serviceAccount:${z_account_email}"              \
      '
        .bindings = (.bindings // []) |
-       if ( [ .bindings[]?.role ] | index($role) ) then
+       if ( ([ .bindings[]? | .role ] | index($role)) ) then
          .bindings = ( .bindings | map(
            if .role == $role then .members = ( (.members // []) + [$member] | unique )
            else .
@@ -626,19 +622,8 @@ rbga_delete_service_account() {
   zrbga_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
     "${ZRBGA_INFIX_DELETE}"
 
-  local z_http_code
-  z_http_code=$(<"${ZRBGA_PREFIX}delete_code.txt")
-  test -n "${z_http_code}" || bcu_die "Failed to read HTTP code"
-
-  if test "${z_http_code}" = "200" || test "${z_http_code}" = "204"; then
-    bcu_info "Deleted service account: ${z_sa_email}"
-  elif test "${z_http_code}" = "404"; then
-    bcu_warn "Service account not found (already deleted): ${z_sa_email}"
-  else
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${ZRBGA_PREFIX}delete_response.json") || z_error="Parse error"
-    bcu_die "Failed to delete (HTTP ${z_http_code}): ${z_error}"
-  fi
+  zrbga_http_require_ok "Delete service account" "${ZRBGA_INFIX_DELETE}" \
+    404 "not found (already deleted)"
 
   bcu_success "Delete operation completed"
 }
