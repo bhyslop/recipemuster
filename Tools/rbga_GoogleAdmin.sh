@@ -80,38 +80,55 @@ zrbga_show() {
 #   zrbga_http_json "METHOD" "URL" "TOKEN" "INFIX" ["BODY_FILE"] ["ACCEPT"]
 zrbga_http_json() {
   zrbga_sentinel
-  local z_method="$1"
-  local z_url="$2"
-  local z_token="$3"
-  local z_infix="$4"
+
+  local z_method="${1}"
+  local z_url="${2}"
+  local z_token="${3}"
+  local z_infix="${4}"
   local z_body_file="${5:-}"
-  local z_accept="${6:-application/json}"
 
-  test -n "${z_method}" || bcu_die "zrbga_http_json: method required"
-  test -n "${z_url}"    || bcu_die "zrbga_http_json: url required"
-  test -n "${z_token}"  || bcu_die "zrbga_http_json: token required"
-  test -n "${z_infix}"  || bcu_die "zrbga_http_json: infix required"
+  local z_code_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+  local z_code_errs="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}.stderr"
+  local z_resp_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
 
-  local z_out_json="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
-  local z_out_code="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
+  local z_curl_status=0
 
   if test -n "${z_body_file}"; then
-    curl -s -X "${z_method}"                         \
-      -H "Authorization: Bearer ${z_token}"          \
-      -H "Content-Type: application/json"            \
-      -H "Accept: ${z_accept}"                       \
-      -d @"${z_body_file}"                           \
-      "${z_url}"                                     \
-      -o "${z_out_json}"                             \
-      -w "%{http_code}" > "${z_out_code}" 2>/dev/null
+    curl                                              \
+        -sS                                           \
+        -X "${z_method}"                              \
+        -H "Authorization: Bearer ${z_token}"         \
+        -H "Content-Type: application/json"           \
+        -d @"${z_body_file}"                          \
+        -o "${z_resp_file}"                           \
+        -w "%{http_code}"                             \
+        "${z_url}" > "${z_code_file}"                 \
+                  2> "${z_code_errs}"                 \
+      || z_curl_status=$?
   else
-    curl -s -X "${z_method}"                         \
-      -H "Authorization: Bearer ${z_token}"          \
-      -H "Accept: ${z_accept}"                       \
-      "${z_url}"                                     \
-      -o "${z_out_json}"                             \
-      -w "%{http_code}" > "${z_out_code}" 2>/dev/null
+    curl                                              \
+        -sS                                           \
+        -X "${z_method}"                              \
+        -H "Authorization: Bearer ${z_token}"         \
+        -H "Content-Type: application/json"           \
+        -o "${z_resp_file}"                           \
+        -w "%{http_code}"                             \
+        "${z_url}" > "${z_code_file}"                 \
+                  2> "${z_code_errs}"                 \
+      || z_curl_status=$?
   fi
+  local z_curl_status=$?
+
+  bcu_log_args "Curl status ${z_curl_status}"
+  bcu_log_pipe < "${z_code_errs}"
+
+  test "${z_curl_status}" -eq 0 || bcu_die "HTTP request failed (network/SSL/DNS)"
+
+  local z_code
+  z_code=$(<"${z_code_file}") || bcu_die "Failed to read code file"
+  test -n "${z_code}"         || bcu_die "Empty HTTP code from curl"
+
+  bcu_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
 }
 
 # Usage: zrbga_http_require_ok "context" "infix" [warn_code [warn_message]]
