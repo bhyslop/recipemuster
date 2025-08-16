@@ -70,11 +70,6 @@ zrbga_sentinel() {
   test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbga_kindle first"
 }
 
-zrbga_show() {
-  zrbga_sentinel
-  echo -e "${1:-}"
-}
-
 # Usage: zrbga_json_field_capture "infix" "jq_expr"
 zrbga_json_field_capture() {
   zrbga_sentinel
@@ -99,7 +94,7 @@ zrbga_http_code_capture() {
 
 # JSON REST helper (hardcoded headers)
 # Usage:
-#   zrbga_http_json "METHOD" "URL" "TOKEN" "INFIX" ["BODY_FILE"] ["ACCEPT"]
+#   zrbga_http_json "METHOD" "URL" "TOKEN" "INFIX" ["BODY_FILE"]
 zrbga_http_json() {
   zrbga_sentinel
 
@@ -109,9 +104,9 @@ zrbga_http_json() {
   local z_infix="${4}"
   local z_body_file="${5:-}"
 
-  local z_code_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
-  local z_code_errs="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}.stderr"
-  local z_resp_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
+  local z_resp_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+  local z_code_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
+  local z_code_errs="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}.stderr"
 
   local z_curl_status=0
 
@@ -121,6 +116,7 @@ zrbga_http_json() {
         -X "${z_method}"                              \
         -H "Authorization: Bearer ${z_token}"         \
         -H "Content-Type: application/json"           \
+        -H "Accept: application/json"                 \
         -d @"${z_body_file}"                          \
         -o "${z_resp_file}"                           \
         -w "%{http_code}"                             \
@@ -133,13 +129,13 @@ zrbga_http_json() {
         -X "${z_method}"                              \
         -H "Authorization: Bearer ${z_token}"         \
         -H "Content-Type: application/json"           \
+        -H "Accept: application/json"                 \
         -o "${z_resp_file}"                           \
         -w "%{http_code}"                             \
         "${z_url}" > "${z_code_file}"                 \
                   2> "${z_code_errs}"                 \
       || z_curl_status=$?
   fi
-  local z_curl_status=$?
 
   bcu_log_args "Curl status ${z_curl_status}"
   bcu_log_pipe < "${z_code_errs}"
@@ -289,7 +285,11 @@ zrbga_create_service_account_with_key() {
   z_key_b64=$(zrbga_json_field_capture "${ZRBGA_INFIX_KEY}" '.privateKeyData') \
     || bcu_die "Failed to extract privateKeyData"
   local z_key_json="${BDU_TEMP_DIR}/rbga_key_${z_instance}.json"
-  printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" || bcu_die "Failed to decode key data"
+  bcu_log_args "Tolerate macos base64 difference"
+  if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
+       printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
+      || bcu_die "Failed to decode key data"
+  fi
 
   bcu_step "Convert JSON key to RBRA format"
   local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
@@ -338,11 +338,20 @@ zrbga_add_iam_role() {
   bcu_log_args "Update IAM policy with new role binding" #
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
 
-  jq --arg role "${z_role}"                                     \
-     --arg member "serviceAccount:${z_account_email}"           \
-     '.bindings += [{role: $role, members: [$member]}]'         \
-    "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}"   \
-    > "${z_updated_policy}" || bcu_die "Failed to update IAM policy"
+  jq --arg role   "${z_role}"                                      \
+     --arg member "serviceAccount:${z_account_email}"              \
+     '
+       .bindings = (.bindings // []) |
+       if ( ([ .bindings[]? | .role ] | index($role)) ) then
+         .bindings = ( .bindings | map(
+           if .role == $role then .members = ( (.members // []) + [$member] | unique )
+           else .
+           end))
+       else
+         .bindings += [{role: $role, members: [$member]}]
+       end
+     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}" \
+     > "${z_updated_policy}" || bcu_die "Failed to update IAM policy"
 
   bcu_log_args "Set updated IAM policy" #
   local z_set_body="${BDU_TEMP_DIR}/rbga_set_policy_body.json"
@@ -452,12 +461,7 @@ rbga_initialize_admin() {
   local z_prop_delay_seconds=45
   bcu_step "Waiting ${z_prop_delay_seconds} seconds for API changes to propagate"
   bcu_info "This delay ensures APIs are fully available across all Google regions"
-  local z_countdown
-  for z_countdown in $(seq ${z_prop_delay_seconds} -1 1); do
-    printf "\rTime remaining: %2d seconds" "${z_countdown}"
-    sleep 1
-  done
-  printf "\rAPI propagation wait complete                    \n"
+  sleep "${z_prop_delay_seconds}"
 
   bcu_step "Verifying API enablement"
 
