@@ -156,31 +156,26 @@ zrbga_http_json() {
 # Usage: zrbga_http_require_ok "context" "infix" [warn_code [warn_message]]
 zrbga_http_require_ok() {
   zrbga_sentinel
-  local z_ctx="$1" 
+  local z_ctx="$1"
   local z_infix="$2"
   local z_warn_code="${3:-}"
   local z_warn_message="${4:-already exists}"
-  
-  local z_code_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
-  local z_json_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
 
   local z_code
-  z_code=$(<"${z_code_file}") || bcu_die "${z_ctx}: failed to read HTTP code"
+  z_code=$(zrbga_http_code_capture "${z_infix}") \
+    || bcu_die "${z_ctx}: failed to read HTTP code"
 
-  bcu_log_args "Accept the common success trio by default" #
   case "${z_code}" in
     200|201|204) return 0 ;;
   esac
 
-  bcu_log_args "Check warn case" #
   if test -n "${z_warn_code}" && test "${z_code}" = "${z_warn_code}"; then
     bcu_warn "${z_ctx}: ${z_warn_message}"
     return 0
   fi
 
-  bcu_log_args "Error case" #
   local z_err
-  z_err=$(jq -r '.error.message // "Unknown error"' "${z_json_file}") || z_err="Parse error"
+  z_err=$(zrbga_json_field_capture "${z_infix}" '.error.message') || z_err="Parse error"
   bcu_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
 }
 
@@ -269,12 +264,9 @@ zrbga_create_service_account_with_key() {
   bcu_step "Create service account via REST API"
   zrbga_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGA_INFIX_CREATE}" "${ZRBGA_PREFIX}create_request.json"
-
   zrbga_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}"
 
   bcu_info "Service account created: ${z_account_email}"
-
-  bcu_step     "Wait for service account propagation and verify existence"
 
   bcu_step "Wait briefly for service account to propagate"
   sleep 15
@@ -282,7 +274,7 @@ zrbga_create_service_account_with_key() {
     "${ZRBGA_INFIX_VERIFY}"
   zrbga_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
-  bcu_step     "Generate service account key"
+  bcu_step "Generate service account key"
   local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
   zrbga_http_json "POST" \
@@ -290,13 +282,14 @@ zrbga_create_service_account_with_key() {
     "${z_token}" \
     "${ZRBGA_INFIX_KEY}" \
     "${z_key_req}"
-
   zrbga_http_require_ok "Generate service account key" "${ZRBGA_INFIX_KEY}"
 
   bcu_step "Extract and decode key data"
+  local z_key_b64
+  z_key_b64=$(zrbga_json_field_capture "${ZRBGA_INFIX_KEY}" '.privateKeyData') \
+    || bcu_die "Failed to extract privateKeyData"
   local z_key_json="${BDU_TEMP_DIR}/rbga_key_${z_instance}.json"
-  jq -r '.privateKeyData' "${ZRBGA_PREFIX}key_response.json" | base64 -d > "${z_key_json}" \
-    || bcu_die "Failed to extract/decode key data"
+  printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" || bcu_die "Failed to decode key data"
 
   bcu_step "Convert JSON key to RBRA format"
   local z_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
@@ -321,9 +314,7 @@ zrbga_create_service_account_with_key() {
 
   test -f "${z_rbra_file}" || bcu_die "Failed to write RBRA file"
 
-  # Clean up temp key JSON
   rm -f "${z_key_json}"
-
   bcu_info "RBRA file written: ${z_rbra_file}"
 }
 
@@ -347,11 +338,11 @@ zrbga_add_iam_role() {
   bcu_log_args "Update IAM policy with new role binding" #
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
 
-  jq --arg role "${z_role}"                                \
-     --arg member "serviceAccount:${z_account_email}"      \
-     '.bindings += [{role: $role, members: [$member]}]'    \
-     "${ZRBGA_PREFIX}role_response.json" > "${z_updated_policy}"      \
-     || bcu_die "Failed to update IAM policy"
+  jq --arg role "${z_role}"                                     \
+     --arg member "serviceAccount:${z_account_email}"           \
+     '.bindings += [{role: $role, members: [$member]}]'         \
+    "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}"   \
+    > "${z_updated_policy}" || bcu_die "Failed to update IAM policy"
 
   bcu_log_args "Set updated IAM policy" #
   local z_set_body="${BDU_TEMP_DIR}/rbga_set_policy_body.json"
@@ -407,7 +398,8 @@ zrbga_add_repo_iam_role() {
        else
          .bindings += [{role: $role, members: [$member]}]
        end
-     ' "${ZRBGA_PREFIX}repo_role_response.json" > "${z_updated_policy}" || bcu_die "Failed to update policy json"
+     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_ROLE}${ZRBGA_POSTFIX_JSON}" \
+     > "${z_updated_policy}" || bcu_die "Failed to update policy json"
 
   bcu_log_args "Set updated repo IAM policy"
   local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
@@ -424,7 +416,6 @@ zrbga_add_repo_iam_role() {
 
 ######################################################################
 # External Functions (rbga_*)
-
 rbga_initialize_admin() {
   zrbga_sentinel
 
@@ -437,11 +428,7 @@ rbga_initialize_admin() {
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
   bcu_step "Converting admin JSON to RBRA format"
-
-  zrbga_extract_json_to_rbra  \
-    "${z_json_path}"          \
-    "${RBRR_ADMIN_RBRA_FILE}" \
-    "1800"
+  zrbga_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
 
   bcu_step "Get token using the newly created RBRA"
   local z_token
@@ -450,19 +437,16 @@ rbga_initialize_admin() {
   bcu_step "Enable IAM API (required for service account operations)"
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}" "${z_token}" \
     "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-
   zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}" 409 "already enabled"
 
   bcu_step "Enable Cloud Resource Manager API (required for IAM policy operations)"
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_CRM}" "${z_token}" \
     "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-
-  zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 409 "already enabled"  
+  zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 409 "already enabled"
 
   bcu_step "Enable Artifact Registry API (required for repo-scoped IAM + image operations)"
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_ARTIFACTREGISTRY}" "${z_token}" \
     "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-
   zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
 
   local z_prop_delay_seconds=45
@@ -476,46 +460,30 @@ rbga_initialize_admin() {
   printf "\rAPI propagation wait complete                    \n"
 
   bcu_step "Verifying API enablement"
+
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_IAM}" "${z_token}" \
     "${ZRBGA_INFIX_API_IAM_VERIFY}"
-
   zrbga_http_require_ok "Verify IAM API" "${ZRBGA_INFIX_API_IAM_VERIFY}"
   local z_state
-  z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_iam_verify_response.json")
-  if test "${z_state}" = "ENABLED"; then
-    bcu_info "IAM API verified: ENABLED"
-  else
-    bcu_die "IAM API not enabled. State: ${z_state}"
-  fi
+  z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_IAM_VERIFY}" '.state') || z_state="UNKNOWN"
+  test "${z_state}" = "ENABLED" || bcu_die "IAM API not enabled. State: ${z_state}"
+  bcu_log_args "IAM API verified: ENABLED"
 
-  bcu_step "Verify Cloud Resource Manager API..."
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_CRM}" "${z_token}" \
     "${ZRBGA_INFIX_API_CRM_VERIFY}"
-
   zrbga_http_require_ok "Verify Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_VERIFY}"
-  local z_state
-  z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_crm_verify_response.json")
-  if test "${z_state}" = "ENABLED"; then
-    bcu_info "Cloud Resource Manager API verified: ENABLED"
-  else
-    bcu_die "Cloud Resource Manager API not enabled. State: ${z_state}"
-  fi
+  z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_CRM_VERIFY}" '.state') || z_state="UNKNOWN"
+  test "${z_state}" = "ENABLED" || bcu_die "Cloud Resource Manager API not enabled. State: ${z_state}"
+  bcu_log_args "Cloud Resource Manager API verified: ENABLED"
 
-  bcu_step "Verify Artifact Registry API..."
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_ARTIFACTREGISTRY}" "${z_token}" \
     "${ZRBGA_INFIX_API_ART_VERIFY}"
-
   zrbga_http_require_ok "Verify Artifact Registry API" "${ZRBGA_INFIX_API_ART_VERIFY}"
-  local z_state
-  z_state=$(jq -r '.state // "UNKNOWN"' "${ZRBGA_PREFIX}api_art_verify_response.json")
-  if test "${z_state}" = "ENABLED"; then
-    bcu_info "Artifact Registry API verified: ENABLED"
-  else
-    bcu_die "Artifact Registry API not enabled. State: ${z_state}"
-  fi
+  z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_ART_VERIFY}" '.state') || z_state="UNKNOWN"
+  test "${z_state}" = "ENABLED" || bcu_die "Artifact Registry API not enabled. State: ${z_state}"
+  bcu_log_args "Artifact Registry API verified: ENABLED"
 
   bcu_success "Admin initialization complete"
-
   bcu_info "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
   bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
 }
@@ -533,31 +501,27 @@ rbga_list_service_accounts() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
   bcu_log_args "List service accounts via REST API"
-  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
-    "${ZRBGA_INFIX_LIST}"
-
+  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_LIST}"
   zrbga_http_require_ok "List service accounts" "${ZRBGA_INFIX_LIST}"
 
-  bcu_log_args "Check if accounts exist"
   local z_count
-  z_count=$(jq -r '.accounts | length' "${ZRBGA_PREFIX}list_response.json") || bcu_die "Failed to parse response"
+  z_count=$(zrbga_json_field_capture "${ZRBGA_INFIX_LIST}" '.accounts | length') \
+    || bcu_die "Failed to parse response"
 
-  if test "${z_count}" = "0" || test "${z_count}" = "null"; then
+  if test "${z_count}" = "0"; then
     bcu_info "No service accounts found in project"
     return 0
   fi
 
-  bcu_log_args "Display accounts"
   bcu_step "Found ${z_count} service account(s):"
 
-  bcu_log_args "Calculate max email width for right-justification"
   local z_max_width
-  z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGA_PREFIX}list_response.json" | sort -n | tail -1) || bcu_die "Failed to calculate max width"
+  z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGA_PREFIX}${ZRBGA_INFIX_LIST}${ZRBGA_POSTFIX_JSON}" | sort -n | tail -1) \
+    || bcu_die "Failed to calculate max width"
 
-  bcu_log_args "Display with right-justified email column"
   jq -r --argjson width "${z_max_width}" \
     '.accounts[] | "  " + (.email | tostring | ((" " * ($width - length)) + .)) + " - " + (.displayName // "(no display name)")' \
-    "${ZRBGA_PREFIX}list_response.json" || bcu_die "Failed to format accounts"
+    "${ZRBGA_PREFIX}${ZRBGA_INFIX_LIST}${ZRBGA_POSTFIX_JSON}" || bcu_die "Failed to format accounts"
 
   bcu_success "Service account listing completed"
 }
