@@ -75,6 +75,28 @@ zrbga_show() {
   echo -e "${1:-}"
 }
 
+# Usage: zrbga_json_field_capture "infix" "jq_expr"
+zrbga_json_field_capture() {
+  zrbga_sentinel
+  local z_infix="${1}"
+  local z_jq="${2}"
+  local z_json_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+  local z_result
+  z_result=$(jq -r "${z_jq}" "${z_json_file}")          || return 1
+  test -n "${z_result}" && test "${z_result}" != "null" || return 1
+  echo "${z_result}"
+}
+
+zrbga_http_code_capture() {
+  zrbga_sentinel
+  local z_infix="${1}"
+  local z_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}"
+  local z_code
+  z_code=$(<"${z_file}") || return 1
+  test -n "${z_code}"    || return 1
+  echo "${z_code}"
+}
+
 # JSON REST helper (hardcoded headers)
 # Usage:
 #   zrbga_http_json "METHOD" "URL" "TOKEN" "INFIX" ["BODY_FILE"] ["ACCEPT"]
