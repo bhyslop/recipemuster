@@ -606,16 +606,28 @@ rbga_destroy_admin() {
   bcu_doc_brief "Destroy project-specific GAR resources and related repo-scoped IAM. Leaves project-wide APIs and SAs unchanged."
   bcu_doc_shown || return 0
 
-  bcu_step 'Preflight: all required APIs enabled'
+  bcu_step 'Mint admin OAuth token'
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
+  bcu_step 'Preflight: all required APIs enabled'
   local z_missing=""
   local z_api=""
-  for z_api in "${RBGC_API_SU_VERIFY_GAR}" "${RBGC_API_SU_VERIFY_CLOUDRESMGR}" "${RBGC_API_SU_VERIFY_CLOUDBUILD}"
+  local z_state=""
+  for z_api in                       \
+    "${RBGC_API_SU_VERIFY_CRM}"      \
+    "${RBGC_API_SU_VERIFY_GAR}"      \
+    "${RBGC_API_SU_VERIFY_IAM}"      \
+    "${RBGC_API_SU_VERIFY_BUILD}"    \
+    "${RBGC_API_SU_VERIFY_ANALYSIS}" \
+    "${RBGC_API_SU_VERIFY_STORAGE}"
   do
-    zrbga_http_json "GET" "${z_api}" "${z_token}" "${ZRBGA_INFIX_API_CHECK}"
-    if test "$(zrbga_json_field_capture           "${ZRBGA_INFIX_API_CHECK}" '.state')" != "ENABLED"; then
-      z_missing="${z_missing} $(basename "${z_api}")"
-    fi
+    local z_service="${z_api##*/}"
+    local z_infix="api_verify_${z_service}"
+
+    zrbga_http_json "GET" "${z_api}" "${z_token}" "${z_infix}"
+    z_state=$(zrbga_json_field_capture            "${z_infix}" '.state') || z_state=""
+    test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
   done
 
   if test -n "${z_missing}"; then
@@ -625,10 +637,6 @@ rbga_destroy_admin() {
   bcu_step 'Confirm'
   bcu_require "Confirm full reset of this project?" "YES"
   bcu_require "Be very very sure!" "I-AM-SURE"
-
-  bcu_step 'Mint admin OAuth token'
-  local z_token
-  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Discover Project Number Cloud Build SA (to prune repo binding cleanly)'
 
