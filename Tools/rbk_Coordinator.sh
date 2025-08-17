@@ -64,54 +64,19 @@ rbk_route() {
       rbk_show "Routing to rbf_cli.sh rbf_retrieve"
       exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve $z_args
       ;;
-    rbw-iB)
-      rbk_show "Routing to rbf_cli.sh rbf_build"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build $z_args
-      ;;
-    rbw-d)
-      rbk_show "Routing to rbf_cli.sh rbf_delete"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args
-      ;;
 
-    # Google admin commands (rbga)
-    rbw-ag)
-      rbk_show "Routing to rbgp_cli.sh rbga_show_setup"
-      exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_show_setup $z_args
-      ;;
-    rbw-aIA)
-      rbk_show "Routing to rbga_cli.sh rbga_initialize_admin"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_initialize_admin $z_args
-      ;;
-    rbw-al)
-      rbk_show "Routing to rbga_cli.sh rbga_list_service_accounts"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_list_service_accounts $z_args
-      ;;
-    rbw-aCR)
-      rbk_show "Routing to rbga_cli.sh rbga_create_retriever"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever $z_args
-      ;;
-    rbw-aCD)
-      rbk_show "Routing to rbga_cli.sh rbga_create_director"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director $z_args
-      ;;
-    rbw-aB)
-      rbk_show "Routing to rbga_cli.sh rbga_delete_service_account"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args
-      ;;
-    rbw-aD)
-      rbk_show "Routing to rbga_cli.sh rbga_delete_service_account"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args
-      ;;
+    # Google admin commands
+    rbw-ag)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_show_setup             $z_args ;;
+    rbw-aIA) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_initialize_admin       $z_args ;;
+    rbw-aID) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_admin          $z_args ;;
+    rbw-al)  exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_list_service_accounts  $z_args ;;
+    rbw-aCR) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever       $z_args ;;
+    rbw-aCD) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director        $z_args ;;
+    rbw-aD)  exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args ;;
 
     # Foundry commands
-    rbw-fB)
-      rbk_show "Routing to rbf_cli.sh rbf_build"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build $z_args
-      ;;
-    rbw-fD)
-      rbk_show "Routing to rbf_cli.sh rbf_delete"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args
-      ;;
+    rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build  $z_args ;;
+    rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args ;;
 
     # Help/documentation commands
     rbw-him)

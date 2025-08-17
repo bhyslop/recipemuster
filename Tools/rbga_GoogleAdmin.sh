@@ -605,6 +605,10 @@ rbga_destroy_admin() {
   bcu_doc_brief "Destroy project-specific GAR resources and related repo-scoped IAM. Leaves project-wide APIs and SAs unchanged."
   bcu_doc_shown || return 0
 
+  bcu_step 'Confirm'
+  bcu_require "Confirm full reset of this project?" "YES"
+  bcu_require "Be very very sure, type" "I AM SURE"
+
   bcu_step 'Mint admin OAuth token'
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
