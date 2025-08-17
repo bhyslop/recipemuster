@@ -553,22 +553,28 @@ rbga_initialize_admin() {
   test "$(zrbga_json_field_capture                 "${ZRBGA_INFIX_API_STORAGE_VERIFY}" '.state')" = "ENABLED" \
     || bcu_die "Cloud Storage not enabled"
 
-  bcu_step 'Create Docker format Artifact Registry repo '"${RBRR_GAR_REPOSITORY}"' in '"${RBRR_GAR_LOCATION}"
+  bcu_step 'Create/verify Docker format Artifact Registry repo'" ${RBRR_GAR_REPOSITORY} in ${RBRR_GAR_LOCATION}"
 
-  local z_delete_code
-  zrbga_http_json "DELETE" \
-    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}?force=true" \
-                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
-  z_delete_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
-  case "${z_delete_code}" in
-    200|204) bcu_info "Repository deleted" ;;
-    404)     bcu_warn "Repository not found (already deleted)" ;;
-    *)
-      local z_err
-      z_err=$(zrbga_json_field_capture    "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
-      bcu_die "Failed to delete repository: ${z_err}"
-      ;;
-  esac
+  test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION is not set"
+  test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY is not set"
+
+  local z_parent="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}"
+  local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
+  local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}"
+  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
+
+  local z_create_body="${BDU_TEMP_DIR}/rbga_create_repo_body.json"
+  jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
+
+  bcu_step 'Create repo (idempotent)'
+  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
+  zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
+
+  bcu_step 'Verify repository exists and is DOCKER format'
+  zrbga_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
+  zrbga_http_require_ok "Verify repository"         "${ZRBGA_INFIX_VERIFY_REPO}"
+  test "$(zrbga_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
+    || bcu_die "Repository exists but not DOCKER format"
 
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" \
@@ -588,8 +594,8 @@ rbga_initialize_admin() {
   z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
 
+  bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
   local z_cb_sa_email="${z_project_number}@cloudbuild.gserviceaccount.com"
-  bcu_step "Grant Artifact Registry Writer to Cloud Build SA on repo"
   zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
   bcu_info    "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
@@ -610,7 +616,7 @@ rbga_destroy_admin() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_step 'Preflight: all required APIs enabled'
+  bcu_step 'Preflight: Determine if all required APIs enabled'
   local z_missing=""
   local z_api=""
   local z_state=""
