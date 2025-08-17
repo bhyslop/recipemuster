@@ -48,7 +48,7 @@ RBRR_GAR_REPOSITORY=brm-recipemuster-gar
 # Google Cloud Build settings  
 RBRR_GCB_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
 RBRR_GCB_REGION="${RBRR_GCP_REGION}"
-RBRR_GCB_MACHINE_TYPE=e2-highcpu-8
+RBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8          # Google Cloud Build machine type (enum form as in API, not gcloud CLI)
 RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 
 ########################################################################

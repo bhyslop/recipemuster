@@ -648,7 +648,7 @@ rbga_initialize_admin() {
   bcu_info "Cloud Build SA granted writer on repo: ${z_cb_sa_email}"
   bcu_warn "RBRR file stashed. Consider deleting carriage JSON:"
   bcu_code ""
-  bcu_code "    rm \"z_json_path\""
+  bcu_code "    rm \"${z_json_path}\""
   bcu_code ""
 
   bcu_success 'Admin initialization complete'

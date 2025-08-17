@@ -171,8 +171,6 @@ substitutions:
   _RBGY_TIMEOUT: 1200s
 
   # Post-build tool pins (values provided by rbf_submit_build)
-  _RBGY_MACHINE_TYPE: E2_HIGHCPU_8
-  _RBGY_TIMEOUT: 1200s
   _RBGY_JQ_REF: ""
   _RBGY_SYFT_REF: ""
   _RBGY_GCRANE_REF: ""

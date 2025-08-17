@@ -46,7 +46,7 @@ substitutions:
   _DEST_TAG: 1.37
   _SRC_IMAGE: docker.io/library/busybox:1.37
 
-  # Build options driven by RBRR (optional for copy jobs)
+  # Build options (API-native)
   _RBGY_MACHINE_TYPE: E2_HIGHCPU_8
   _RBGY_TIMEOUT: 600s
 
