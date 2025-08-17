@@ -94,9 +94,23 @@ rbk_route() {
       rbk_show "Routing to rbga_cli.sh rbga_create_director"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director $z_args
       ;;
+    rbw-aB)
+      rbk_show "Routing to rbga_cli.sh rbga_delete_service_account"
+      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args
+      ;;
     rbw-aD)
       rbk_show "Routing to rbga_cli.sh rbga_delete_service_account"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args
+      ;;
+
+    # Foundry commands
+    rbw-fB)
+      rbk_show "Routing to rbf_cli.sh rbf_build"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build $z_args
+      ;;
+    rbw-fD)
+      rbk_show "Routing to rbf_cli.sh rbf_delete"
+      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args
       ;;
 
     # Help/documentation commands

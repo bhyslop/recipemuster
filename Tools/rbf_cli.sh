@@ -25,6 +25,7 @@ ZRBF_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBF_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
@@ -34,7 +35,6 @@ zrbf_furnish() {
 
   bcu_log_args 'Validate BDU environment"'
   bvu_dir_exists "${BDU_TEMP_DIR}"
-  bvu_dir_empty  "${BDU_TEMP_DIR}"
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
 
   bcu_log_args 'Validate required tools"'
@@ -53,6 +53,7 @@ zrbf_furnish() {
   source "${ZRBF_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
 
   bcu_log_args 'Kindle modules in dependency order"'
+  zrbgc_kindle
   zrbgo_kindle
   zrbf_kindle
 }

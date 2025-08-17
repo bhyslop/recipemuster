@@ -83,7 +83,7 @@ RBRR_SYFT_IMAGE_REF="docker.io/anchore/syft:v1.20.0"
 # Only set when you explicitly allow non-Google containers *before* image creation.
 # Populate with a known-good digest from a released cut (>=3 months old).
 RBRR_BINFMT_IMAGE_REF="docker.io/tonistiigi/binfmt@sha256:<PIN_IF_ENABLED>"
-RBRR_ENABLE_BINFMT="1"   # 0 = disabled (policy default), 1 = enable when required
+RBRR_ENABLE_BINFMT="0"   # 0 = disabled (policy default), 1 = enable when required
 
 
 # Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format
