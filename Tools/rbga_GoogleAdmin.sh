@@ -65,6 +65,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_VERIFY_REPO="verify_repo"
   ZRBGA_INFIX_DELETE_REPO="delete_repo"
   ZRBGA_INFIX_REPO_POLICY="repo_policy"
+  ZRBGA_INFIX_RPOLICY_SET="repo_policy_set"
   ZRBGA_INFIX_LIST="list"
   ZRBGA_INFIX_DELETE="delete"
 
@@ -339,8 +340,7 @@ zrbga_add_iam_role() {
 
   bcu_log_args 'Get current IAM policy'
   zrbga_http_json "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_token}" \
-    "${ZRBGA_INFIX_ROLE}" "${ZRBGA_EMPTY_JSON}"
-
+                                         "${ZRBGA_INFIX_ROLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Get IAM policy" "${ZRBGA_INFIX_ROLE}"
 
   bcu_log_args 'Update IAM policy with new role binding'
@@ -366,8 +366,7 @@ zrbga_add_iam_role() {
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
     || bcu_die "Failed to build setIamPolicy body"
   zrbga_http_json "POST" "${RBGC_API_CRM_SET_IAM_POLICY}" "${z_token}" \
-    "${ZRBGA_INFIX_ROLE_SET}" "${z_set_body}"
-
+                                         "${ZRBGA_INFIX_ROLE_SET}" "${z_set_body}"
   zrbga_http_require_ok "Set IAM policy" "${ZRBGA_INFIX_ROLE_SET}"
 
   bcu_log_args 'Successfully added role' "${z_role}"
@@ -398,8 +397,7 @@ zrbga_add_repo_iam_role() {
 
   bcu_log_args 'Get current repo IAM policy'
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" \
-    "${ZRBGA_INFIX_REPO_ROLE}" "${ZRBGA_EMPTY_JSON}"
-
+                                              "${ZRBGA_INFIX_REPO_ROLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Get repo IAM policy" "${ZRBGA_INFIX_REPO_ROLE}"
 
   bcu_log_args 'Update repo IAM policy'
@@ -424,8 +422,7 @@ zrbga_add_repo_iam_role() {
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
     || bcu_die "Failed to build repo setIamPolicy body"
   zrbga_http_json "POST" "${z_set_url}" "${z_token}" \
-    "${ZRBGA_INFIX_REPO_ROLE_SET}" "${z_repo_set_body}"
-
+                                              "${ZRBGA_INFIX_REPO_ROLE_SET}" "${z_repo_set_body}"
   zrbga_http_require_ok "Set repo IAM policy" "${ZRBGA_INFIX_REPO_ROLE_SET}"
 
   bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
@@ -506,7 +503,7 @@ rbga_initialize_admin() {
   zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_GAR}" "${z_token}" "${ZRBGA_INFIX_API_ART_VERIFY}"
   zrbga_http_require_ok "Verify Artifact Registry API"           "${ZRBGA_INFIX_API_ART_VERIFY}"
   test "$(zrbga_json_field_capture                               "${ZRBGA_INFIX_API_ART_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "AR not enabled"
+    || bcu_die "Artifact Registry not enabled"
 
   bcu_step 'Verify Cloud Build API'
   zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_BUILD}" \
@@ -543,7 +540,8 @@ rbga_initialize_admin() {
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}" \
     "${z_token}"                            "${ZRBGA_INFIX_VERIFY_REPO}"
   zrbga_http_require_ok "Verify repository" "${ZRBGA_INFIX_VERIFY_REPO}"
-  test "$(zrbga_json_field_capture repo_verify '.format')" = "DOCKER" || bcu_die "Repo exists but not DOCKER format"
+  test "$(zrbga_json_field_capture          "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
+    || bcu_die "Repository exists but not DOCKER format"
 
   bcu_step 'Compute Cloud Build SA and grant repo-scoped writer'
 
@@ -580,7 +578,7 @@ rbga_destroy_admin() {
   bcu_step 'Discover Project Number Cloud Build SA (to prune repo binding cleanly)'
 
   zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  zrbga_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}"
+  zrbga_http_require_ok "Get project info"                         "${ZRBGA_INFIX_PROJECT_INFO}"
   local z_project_number
   z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
@@ -594,7 +592,7 @@ rbga_destroy_admin() {
 
   bcu_step 'Fetch current repo IAM policy'
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_REPO_POLICY}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Get repo IAM policy"        "${ZRBGA_INFIX_REPO_POLICY}"
+  zrbga_http_require_ok "Get repo IAM policy"        "${ZRBGA_INFIX_REPO_POLICY}" 404 "repo not found (already deleted)"
 
   bcu_step 'Strip Cloud Build SA from artifactregistry.writer binding'
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
@@ -607,23 +605,22 @@ rbga_destroy_admin() {
          else . end
        ] |
        .bindings = [ .bindings[] | select((.members // []) | length > 0) ]
-     ' "${ZRBGA_PREFIX}repo_policy${ZRBGA_POSTFIX_JSON}" > "${z_updated_policy}" \
+     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_POLICY}${ZRBGA_POSTFIX_JSON}" > "${z_updated_policy}" \
      || bcu_die "Failed to prune writer binding"
 
   local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
     || bcu_die "Failed to build repo setIamPolicy body"
-  zrbga_http_json "POST" "${z_set_url}" "${z_token}" "repo_policy_set" "${z_repo_set_body}"
-  zrbga_http_require_ok "Set repo IAM policy" "repo_policy_set"
+  zrbga_http_json "POST" "${z_set_url}" "${z_token}" "${ZRBGA_INFIX_RPOLICY_SET}" "${z_repo_set_body}"
+  zrbga_http_require_ok "Set repo IAM policy"        "${ZRBGA_INFIX_RPOLICY_SET}"
 
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
 
   bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBRR_GAR_LOCATION}"
+  local z_delete_code
   zrbga_http_json "DELETE" \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}" \
-    "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
-
-  local z_delete_code
+                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
   z_delete_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
   case "${z_delete_code}" in
     200|204) bcu_info "Repository deleted" ;;
@@ -652,7 +649,7 @@ rbga_list_service_accounts() {
 
   bcu_log_args 'List service accounts via REST API'
   zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_LIST}"
-  zrbga_http_require_ok "List service accounts" "${ZRBGA_INFIX_LIST}"
+  zrbga_http_require_ok "List service accounts"                     "${ZRBGA_INFIX_LIST}"
 
   local z_count
   z_count=$(zrbga_json_field_capture "${ZRBGA_INFIX_LIST}" '.accounts | length') \
@@ -773,8 +770,7 @@ rbga_delete_service_account() {
 
   bcu_log_args 'Delete via REST API'
   zrbga_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
-    "${ZRBGA_INFIX_DELETE}"
-
+                                                 "${ZRBGA_INFIX_DELETE}"
   zrbga_http_require_ok "Delete service account" "${ZRBGA_INFIX_DELETE}" \
     404 "not found (already deleted)"
 
