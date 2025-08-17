@@ -472,7 +472,21 @@ zrbga_add_repo_iam_role() {
   bcu_log_args 'Get current repo IAM policy'
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" \
                                               "${ZRBGA_INFIX_REPO_ROLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Get repo IAM policy" "${ZRBGA_INFIX_REPO_ROLE}"
+  
+  local z_get_code
+  z_get_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_REPO_ROLE}") || z_get_code=""
+  
+  if test "${z_get_code}" = "404"; then
+    # 404 means repo exists but has no IAM policy yet - this is normal for new repos
+    bcu_log_args 'No IAM policy exists yet (404), initializing with empty bindings'
+    echo '{"bindings":[]}' > "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_ROLE}${ZRBGA_POSTFIX_JSON}"
+  elif test "${z_get_code}" != "200"; then
+    local z_err="HTTP ${z_get_code}"
+    if jq -e . "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_ROLE}${ZRBGA_POSTFIX_JSON}" >/dev/null 2>&1; then
+      z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_REPO_ROLE}" '.error.message') || z_err="HTTP ${z_get_code}"
+    fi
+    bcu_die "Get repo IAM policy failed: ${z_err}"
+  fi
 
   bcu_log_args 'Update repo IAM policy'
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_updated_policy.json"
@@ -501,7 +515,6 @@ zrbga_add_repo_iam_role() {
 
   bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
 }
-
 
 ######################################################################
 # External Functions (rbga_*)
