@@ -603,8 +603,15 @@ rbga_initialize_admin() {
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
   bcu_step 'Create repo (idempotent)'
+  local z_create_code
   zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
   zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
+  z_create_code=$(zrbga_http_code_capture               "${ZRBGA_INFIX_CREATE_REPO}") || z_create_code="000"
+  if test "${z_create_code}" = "200" || test "${z_create_code}" = "201"; then
+    local z_repo_prop_s="15"
+    bcu_step "Wait ${z_repo_prop_s}s for repository to propagate"
+    sleep         "${z_repo_prop_s}"
+  fi
 
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
