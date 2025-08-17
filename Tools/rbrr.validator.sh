@@ -49,11 +49,16 @@ bvu_env_gname       RBRR_GCB_PROJECT_ID          6     63  # Usually same as GAR
 bvu_env_gname       RBRR_GCB_REGION              1     32  # GCP build region (loose gname check; API enforces real rules)
 bvu_env_gname       RBRR_GCB_MACHINE_TYPE        1     64  # Machine type like e2-highcpu-8 (loose gname check)
 bvu_env_string      RBRR_GCB_TIMEOUT             2     10  # e.g., 1200s
-bvu_env_string      RBRR_GCB_STAGING_BUCKET      5    255  # gs://bucket-name
 
 # Service Account Configuration Files
 bvu_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512  # Path to GAR service account env
 bvu_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512  # Path to GCB service account env
+
+# Validating GCB image pins (digest-pinned)
+bvu_env_odref       RBRR_GCB_JQ_IMAGE_REF
+bvu_env_odref       RBRR_GCB_SYFT_IMAGE_REF
+bvu_env_odref       RBRR_GCB_GCRANE_IMAGE_REF
+bvu_env_odref       RBRR_GCB_ORAS_IMAGE_REF
 
 # Validate directories exist
 bvu_dir_exists "${RBRR_HISTORY_DIR}"
@@ -78,15 +83,11 @@ if ! echo "${RBRR_GCB_TIMEOUT}" | grep -q '^[0-9]\+s$'; then
     bcu_die "Invalid RBRR_GCB_TIMEOUT format. Must be a number followed by 's' (e.g., 1200s)"
 fi
 
-# Validate GCS bucket format (must start with gs://)
-if ! echo "${RBRR_GCB_STAGING_BUCKET}" | grep -q '^gs://[a-z0-9][a-z0-9._-]*[a-z0-9]$'; then
-    bcu_die "Invalid RBRR_GCB_STAGING_BUCKET format. Must start with gs:// and follow GCS naming rules"
-fi
-
 # Validate Podman version format (e.g., 5.5 or 5.5.1)
 if ! echo "${RBRR_CHOSEN_PODMAN_VERSION}" | grep -q '^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$'; then
     bcu_die "Invalid RBRR_CHOSEN_PODMAN_VERSION format. Expected semantic version like 5.5 or 5.5.1"
 fi
+
 
 # eof
 

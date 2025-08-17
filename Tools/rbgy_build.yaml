@@ -1,12 +1,9 @@
 # Google Cloud Build for Recipe Bottle RBIA
 #
 # Policy:
-# - Build & push are performed using Google-curated builder images.
-# - Any third-party containers (jq, syft) are used ONLY AFTER the image has been created and pushed,
-#   so they cannot contaminate the produced image.
-# - OPTIONAL: an OFF-by-default binfmt step is provided for multi-arch emulation; enabling it will
-#   run a third-party container BEFORE the image is created (tonistiigi/binfmt). Leave it disabled
-#   to adhere strictly to the policy.
+# - Build & push use Google-curated builders.
+# - Third-party containers (jq, syft, gcrane, oras) run ONLY AFTER the image is created and pushed.
+# - No binfmt or GCS usage.
 
 steps:
   - name: gcr.io/cloud-builders/gcloud
@@ -17,23 +14,6 @@ steps:
       - |
         set -euo pipefail
         gcloud auth configure-docker "${_RBGY_GAR_LOCATION}-docker.pkg.dev" --quiet
-
-  # OPTIONAL (OFF by default): Install QEMU binfmt for cross-arch builds.
-  # WARNING: This runs a non-Google container BEFORE the image is created.
-  # Keep _RBGY_ENABLE_BINFMT=0 to comply with "non-Google only after image creation".
-  - name: gcr.io/cloud-builders/docker
-    id: binfmt-setup-optional
-    entrypoint: bash
-    args:
-      - -lc
-      - |
-        set -euo pipefail
-        if test "${_RBGY_ENABLE_BINFMT:-0}" = "1"; then
-          test -n "${_RBGY_BINFMT_REF}" || (echo "_RBGY_BINFMT_REF missing" >&2; exit 1)
-          docker run --privileged --rm "${_RBGY_BINFMT_REF}" --install arm64,amd64
-        else
-          echo "binfmt disabled by policy (_RBGY_ENABLE_BINFMT!=1)"
-        fi
 
   - name: gcr.io/cloud-builders/docker
     id: buildx-create
@@ -64,10 +44,8 @@ steps:
         test -n "${_RBGY_GIT_BRANCH}"     || (echo "_RBGY_GIT_BRANCH missing"     >&2; exit 1)
         test -n "${_RBGY_GIT_REPO}"       || (echo "_RBGY_GIT_REPO missing"       >&2; exit 1)
 
-        # Build target URI
         IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_TAG}"
 
-        # Simple command logger: no tee (preserve exit statuses)
         : > build.log
         run() { echo "\$ $* " >> build.log; "$@" >> build.log 2>&1; }
 
@@ -75,7 +53,6 @@ steps:
         run docker version
         run docker info
 
-        # Multi-arch build (requires native workers or binfmt if enabled)
         run docker buildx build \
           --platform="${_RBGY_PLATFORMS}" \
           --tag "${IMAGE_URI}" \
@@ -88,7 +65,7 @@ steps:
 
         echo "${IMAGE_URI}" > .image_uri
 
-  # METADATA (POST-BUILD): assemble build_info.json with jq (third-party), after the push.
+  # METADATA (POST-BUILD): assemble build_info.json with jq
   - name: "${_RBGY_JQ_REF}"
     id: assemble-metadata
     entrypoint: sh
@@ -101,8 +78,6 @@ steps:
         test -n "${_RBGY_GIT_COMMIT}" || (echo "_RBGY_GIT_COMMIT missing" >&2; exit 1)
         test -n "${_RBGY_GIT_BRANCH}" || (echo "_RBGY_GIT_BRANCH missing" >&2; exit 1)
         test -n "${_RBGY_GIT_REPO}"   || (echo "_RBGY_GIT_REPO missing"   >&2; exit 1)
-        test -n "${_RBGY_PLATFORMS}"  || (echo "_RBGY_PLATFORMS missing"  >&2; exit 1)
-        test -n "${BUILD_ID}"         || (echo "BUILD_ID missing"         >&2; exit 1)
 
         cp "${_RBGY_DOCKERFILE}" recipe.txt
         TS="$(date -u +%FT%TZ)"
@@ -112,18 +87,17 @@ steps:
           --arg repo      "${_RBGY_GIT_REPO}"    \
           --arg branch    "${_RBGY_GIT_BRANCH}"  \
           --arg commit    "${_RBGY_GIT_COMMIT}"  \
-          --arg build_id  "${BUILD_ID}"          \
           --arg ts        "${TS}"                \
           --arg platforms "${_RBGY_PLATFORMS}"   \
           '{
             tag: $tag,
             moniker: $moniker,
             git: { repo: $repo, branch: $branch, commit: $commit },
-            build: { id: $build_id, timestamp: $ts },
+            build: { timestamp: $ts },
             platforms: $platforms
           }' > build_info.json
 
-  # SBOM (POST-BUILD): syft runs after push; third-party container cannot contaminate the image.
+  # SBOM (POST-BUILD)
   - name: gcr.io/cloud-builders/docker
     id: sbom-and-summary
     entrypoint: bash
@@ -136,34 +110,44 @@ steps:
         docker run --rm "${_RBGY_SYFT_REF}" "${IMAGE_URI}" -o json  > syft_analysis.json
         docker run --rm "${_RBGY_SYFT_REF}" "${IMAGE_URI}" -o table > package_summary.txt
 
-  - name: gcr.io/cloud-builders/gcloud
-    id: make-metadata-tarball
-    entrypoint: bash
+  # Resolve the pushed image DIGEST (for referrers)
+  - name: "${_RBGY_GCRANE_REF}"
+    id: resolve-digest
+    entrypoint: sh
     args:
-      - -lc
+      - -c
       - |
         set -euo pipefail
-        tar -czf "${_RBGY_TAG}_metadata.tgz" \
-          recipe.txt \
-          build_info.json \
-          syft_analysis.json \
-          package_summary.txt \
-          build.log
+        IMAGE_URI="$(cat .image_uri)"
+        gcrane digest "${IMAGE_URI}" > .image_digest
+        echo "Resolved digest: $(cat .image_digest)"
 
-  - name: gcr.io/cloud-builders/gcloud
-    id: publish-gar-generic
-    entrypoint: bash
+  # Attach metadata & SBOM as OCI referrers in the SAME GAR repo
+  - name: "${_RBGY_ORAS_REF}"
+    id: attach-referrers
+    entrypoint: sh
     args:
-      - -lc
+      - -c
       - |
         set -euo pipefail
-        gcloud artifacts files upload \
-          --location="${_RBGY_GAR_LOCATION}" \
-          --repository="${_RBGY_GAR_REPOSITORY}" \
-          --project="${_RBGY_GAR_PROJECT}" \
-          --package="${_RBGY_TAG}" \
-          --version="metadata" \
-          "${_RBGY_TAG}_metadata.tgz"
+        test -s .image_digest || (echo "missing image digest" >&2; exit 1)
+        IMAGE_DIGEST="$(cat .image_digest)"
+        SUBJECT="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}@${IMAGE_DIGEST}"
+
+        # Attach build_info.json
+        oras attach "${SUBJECT}" build_info.json \
+          --artifact-type "application/vnd.recipemuster.build-info+json" \
+          --annotation "org.opencontainers.image.title=build_info.json"
+
+        # Attach SBOM (Syft)
+        oras attach "${SUBJECT}" syft_analysis.json \
+          --artifact-type "application/vnd.syft+json" \
+          --annotation "org.opencontainers.image.title=syft_analysis.json"
+
+        # (Optional) attach the human-readable package summary
+        oras attach "${SUBJECT}" package_summary.txt \
+          --artifact-type "text/plain" \
+          --annotation "org.opencontainers.image.title=package_summary.txt"
 
 options:
   machineType: E2_HIGHCPU_8
@@ -176,11 +160,17 @@ substitutions:
   _RBGY_DOCKERFILE: Dockerfile
   _RBGY_TAG: dev
   _RBGY_MONIKER: rbia
-  _RBGY_PLATFORMS: linux/amd64,linux/arm64
+  _RBGY_PLATFORMS: linux/amd64
   _RBGY_GAR_LOCATION: us-central1
   _RBGY_GAR_PROJECT: your-project-id
   _RBGY_GAR_REPOSITORY: your-repo
   _RBGY_GIT_COMMIT: unknown
   _RBGY_GIT_BRANCH: unknown
-  _RBGY_GIT
+  _RBGY_GIT_REPO: unknown
+
+  # Post-build tool pins (values provided by rbf_submit_build)
+  _RBGY_JQ_REF: ""
+  _RBGY_SYFT_REF: ""
+  _RBGY_GCRANE_REF: ""
+  _RBGY_ORAS_REF: ""
 

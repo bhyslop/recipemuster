@@ -339,6 +339,42 @@ bvu_val_port() {
   echo "$val"
 }
 
+# OCI/Docker image reference that MUST be digest-pinned (…@sha256:<64hex>)
+# Examples:
+#   ghcr.io/jqlang/jq@sha256:4f34c6d2...5091ce6f91
+#   gcr.io/go-containerregistry/gcrane@sha256:b6f6b7...3dc5025
+#   docker.io/anchore/syft@sha256:8ad91b3...e91b9e018
+bvu_val_odref() {
+  local varname=$1
+  local val=$2
+  local default=${3-}  # empty permitted only if caller provides default
+
+  test -n "$varname" || bcu_die "varname parameter is required"
+
+  # Defaulting
+  if [ -z "$val" -a -n "$default" ]; then
+    val="$default"
+  fi
+
+  # Must not be empty
+  test -n "$val" || bcu_die "$varname must not be empty"
+
+  # No whitespace
+  echo "$val" | grep -Eq '^\S+$' || bcu_die "$varname must not contain whitespace, got '$val'"
+
+  # Require an @sha256:<64-hex> digest suffix
+  echo "$val" | grep -Eq '@sha256:[0-9a-fA-F]{64}$' \
+    || bcu_die "$varname must be digest-pinned (…@sha256:<64-hex>), got '$val'"
+
+  # Basic sanity for the image path (very permissive, avoids false negatives)
+  #   start with alnum, may include dots, dashes, underscores, slashes, and colons (for registry:port / tag segment before @)
+  echo "$val" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._/-:]*@sha256:[0-9a-fA-F]{64}$' \
+    || bcu_die "$varname has invalid image reference format, got '$val'"
+
+  echo "$val"
+}
+
+
 # List validators
 bvu_val_list_ipv4() {
   local varname=$1
@@ -399,6 +435,7 @@ bvu_env_ipv4()               { bvu_env_wrapper "bvu_val_ipv4"             "$@"; 
 bvu_env_cidr()               { bvu_env_wrapper "bvu_val_cidr"             "$@"; }
 bvu_env_domain()             { bvu_env_wrapper "bvu_val_domain"           "$@"; }
 bvu_env_port()               { bvu_env_wrapper "bvu_val_port"             "$@"; }
+bvu_env_odref()              { bvu_env_wrapper "bvu_val_odref"            "$@"; }
 
 # Environment list validators
 bvu_env_list_ipv4()          { bvu_env_wrapper "bvu_val_list_ipv4"        "$@"; }

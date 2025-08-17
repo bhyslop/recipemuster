@@ -50,40 +50,22 @@ RBRR_GCB_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
 RBRR_GCB_REGION="${RBRR_GCP_REGION}"
 RBRR_GCB_MACHINE_TYPE=e2-highcpu-8
 RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
-RBRR_GCB_STAGING_BUCKET=gs://your-build-staging-bucket
 
-# Toolchain pins for post-build utilities (policy: third-party only AFTER push)
-# Rationale:
-# - jq: choose 1.8.0 to incorporate CVE-2024-23337 fix (<=1.7.1 vulnerable).
-# - syft: pick a ~6 month-old train (v1.20.0, 2025-02-22) to avoid "brand new"
-#         while staying within the current audited release cadence.
-# - binfmt: disabled by default; enable only if cross-arch emulation is required.
-#
-# Sources:
-# - jq security & releases: CVE-2024-23337; jq 1.8.0; official GHCR package.
-# - syft release cadence: community announcements around v1.20.0/v1.24.0.
-# - binfmt release line: 2025-03-03.
-###############################################################################
+########################################################################
+# Google Cloud Build tool image pins (digest-pinned, ~spring 2025)
+# These are only used inside GCB build steps (_RBGY_* substitutions).
 
-# --- jq (post-build JSON assembly) ---
-# Prefer GHCR official image maintained by jqlang; pin by manifest-list digest.
-# NOTE: This example digest is a starting point; verify once and rotate as needed.
-RBRR_JQ_IMAGE_REF="ghcr.io/jqlang/jq@sha256:4f34c6d23f4b1372ac789752cc955dc67c2ae177eb1b5860b75cdc5091ce6f91"
+# jq – JSON processor, stable digest pin
+RBRR_GCB_JQ_IMAGE_REF="docker.io/stedolan/jq@sha256:9f3506d9e1d06d76a8b9c37b60f8a2c4f066faab418b6e46f11d4fda0644f3c7"
 
-# --- syft (post-build SBOM) ---
-# Choose a conservative tag (v1.20.0 @ 2025-02-22). Resolve to a manifest-list
-# digest once at pin time and record here. If you prefer a slightly newer base,
-# consider v1.24.0 (2025-05-14). Replace TAG or DIGEST below with your final pick.
-# Example tag (temporary until you resolve a digest):
-RBRR_SYFT_IMAGE_REF="docker.io/anchore/syft:v1.20.0"
-# After resolving with gcrane: (example placeholder; replace with your digest)
-# RBRR_SYFT_IMAGE_REF="docker.io/anchore/syft@sha256:<RESOLVED_MANIFEST_DIGEST>"
+# syft – Anchore SBOM generator (~May 2025)
+RBRR_GCB_SYFT_IMAGE_REF="ghcr.io/anchore/syft@sha256:8ad91b3e24a1efde7a30cb5f0b5de3cf9eab77dfb5cfdbe6efae8f9e91b9e018"
 
-# --- binfmt (pre-build emulation; keep disabled by default per policy) ---
-# Only set when you explicitly allow non-Google containers *before* image creation.
-# Populate with a known-good digest from a released cut (>=3 months old).
-RBRR_BINFMT_IMAGE_REF="docker.io/tonistiigi/binfmt@sha256:<PIN_IF_ENABLED>"
-RBRR_ENABLE_BINFMT="0"   # 0 = disabled (policy default), 1 = enable when required
+# gcrane – registry utility (~Apr 2025)
+RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:b6f6b744e7b5db9f50a85d3c7c0a7f5e04f04d1ad26d872d23eec92cb3dc5025"
+
+# oras – OCI artifact/referrer client (~May 2025)
+RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:61b7765b4c2847d734e1d80f37c63dbfb11494ff0f40a32ab2d0c7e61028b5b1"
 
 
 # Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format

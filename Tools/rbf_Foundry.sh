@@ -64,7 +64,7 @@ zrbf_kindle() {
 
   # RBFA file presumed to be in the same Tools directory as this implementation
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGY_FILE="${z_self_dir}/rbgy_GoogleCloudBuild.yaml"
+  ZRBF_RBGY_FILE="${z_self_dir}/rbgy_build.yaml"
   test -f "${ZRBF_RBGY_FILE}" || bcu_die "RBFA file not found in Tools: ${ZRBF_RBGY_FILE}"
 
   bcu_log_args "Define temp files for build operations"
@@ -210,9 +210,9 @@ zrbf_submit_build() {
   local z_tag="$2"
   local z_moniker="$3"
 
-  bcu_step "Submitting build to Google Cloud Build"
+  bcu_step 'Submitting build to Google Cloud Build'
 
-  bcu_log_args "Get OAuth token using capture function"
+  bcu_log_args 'Get OAuth token using capture function'
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
@@ -232,27 +232,47 @@ zrbf_submit_build() {
   test -n "${z_git_branch}" || bcu_die "Git branch is empty"
   test -n "${z_git_repo}"   || bcu_die "Git repo is empty"
 
-  bcu_log_args "Extract recipe name without extension"
+  bcu_log_args 'Extract recipe name without extension'
   local z_recipe_name="${z_dockerfile_name%.*}"
 
-  bcu_log_args "Create build config with RBFA substitutions (no storageSource for inline upload)"
-  jq -n '{
-        "substitutions": {
-          "_RBGY_DOCKERFILE":     "'"${z_dockerfile_name}"'",
-          "_RBGY_TAG":            "'"${z_tag}"'",
-          "_RBGY_MONIKER":        "'"${z_moniker}"'",
-          "_RBGY_PLATFORMS":      "'"${RBRR_BUILD_ARCHITECTURES}"'",
-          "_RBGY_GAR_LOCATION":   "'"${RBRR_GAR_LOCATION}"'",
-          "_RBGY_GAR_PROJECT":    "'"${RBRR_GAR_PROJECT_ID}"'",
-          "_RBGY_GAR_REPOSITORY": "'"${RBRR_GAR_REPOSITORY}"'",
-          "_RBGY_GIT_COMMIT":     "'"${z_git_commit}"'",
-          "_RBGY_GIT_BRANCH":     "'"${z_git_branch}"'",
-          "_RBGY_GIT_REPO":       "'"${z_git_repo}"'",
-          "_RBGY_RECIPE_NAME":    "'"${z_recipe_name}"'"
-        }
-      }' > "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
+  bcu_log_args 'Create build config with RBFA substitutions'
+  jq -n                                                         \
+    --arg zjq_dockerfile     "${z_dockerfile_name}"             \
+    --arg zjq_tag            "${z_tag}"                         \
+    --arg zjq_moniker        "${z_moniker}"                     \
+    --arg zjq_platforms      "${RBRR_BUILD_ARCHITECTURES}"      \
+    --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
+    --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
+    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
+    --arg zjq_git_commit     "${z_git_commit}"                  \
+    --arg zjq_git_branch     "${z_git_branch}"                  \
+    --arg zjq_git_repo       "${z_git_repo}"                    \
+    --arg zjq_recipe_name    "${z_recipe_name}"                 \
+    --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
+    --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
+    --arg zjq_gcrane_ref     "${RBRR_GCB_GCRANE_IMAGE_REF:-}"   \
+    --arg zjq_oras_ref       "${RBRR_GCB_ORAS_IMAGE_REF:-}"     \
+    '{
+      substitutions: {
+        _RBGY_DOCKERFILE:     $zjq_dockerfile,
+        _RBGY_TAG:            $zjq_tag,
+        _RBGY_MONIKER:        $zjq_moniker,
+        _RBGY_PLATFORMS:      $zjq_platforms,
+        _RBGY_GAR_LOCATION:   $zjq_gar_location,
+        _RBGY_GAR_PROJECT:    $zjq_gar_project,
+        _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
+        _RBGY_GIT_COMMIT:     $zjq_git_commit,
+        _RBGY_GIT_BRANCH:     $zjq_git_branch,
+        _RBGY_GIT_REPO:       $zjq_git_repo,
+        _RBGY_RECIPE_NAME:    $zjq_recipe_name,
+        _RBGY_JQ_REF:         $zjq_jq_ref,
+        _RBGY_SYFT_REF:       $zjq_syft_ref,
+        _RBGY_GCRANE_REF:     $zjq_gcrane_ref,
+        _RBGY_ORAS_REF:       $zjq_oras_ref
+      }
+    }' > "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
 
-  bcu_log_args "Submit build with inline source upload"
+  bcu_log_args 'Submit build with inline source upload'
   curl -s -X POST                                                         \
        -H "Authorization: Bearer ${z_token}"                              \
        -H "Content-Type: application/json"                                \
@@ -263,14 +283,14 @@ zrbf_submit_build() {
        > "${ZRBF_BUILD_RESPONSE_FILE}"                                    \
     || bcu_die "Failed to submit build"
 
-  bcu_log_args "Validate response file"
+  bcu_log_args 'Validate response file'
   test -f "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Build response file not created"
   test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Build response file is empty"
 
   bcu_log_args "Extract build ID from response"
   jq -r '.name' "${ZRBF_BUILD_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to extract build name"
 
-  bcu_log_args "Parse build ID from full path using parameter expansion"
+  bcu_log_args 'Parse build ID from full path using parameter expansion'
   local z_full=""
   z_full=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build name path"
   local z_only="${z_full##*/}"
@@ -385,13 +405,13 @@ rbf_build() {
 
   bcu_info "Building image: ${z_tag}"
 
-  # Verify git state
+  # Verify git state + capture metadata
   zrbf_verify_git_clean
 
   # Package build context (includes RBFA file as cloudbuild.yaml)
   zrbf_package_context "${z_dockerfile}" "${z_context_dir}"
 
-  # Submit build
+  # Submit build with substitutions (uses RBRR_GCB_* pins)
   zrbf_submit_build "${z_dockerfile_name}" "${z_tag}" "${z_moniker}"
 
   # Wait for completion
