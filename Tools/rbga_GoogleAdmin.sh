@@ -643,10 +643,13 @@ rbga_initialize_admin() {
   local z_cb_sa_email="${z_project_number}@cloudbuild.gserviceaccount.com"
   zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
-  bcu_info    "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
-  bcu_info    "GAR: ${RBRR_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
-  bcu_info    "Cloud Build SA granted writer on repo: ${z_cb_sa_email}"
-  bcu_warn    "Consider deleting source JSON after verification: ${z_json_path}"
+  bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
+  bcu_info "GAR: ${RBRR_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
+  bcu_info "Cloud Build SA granted writer on repo: ${z_cb_sa_email}"
+  bcu_warn "RBRR file stashed. Consider deleting carriage JSON:"
+  bcu_code ""
+  bcu_code "    rm \"z_json_path\""
+  bcu_code ""
 
   bcu_success 'Admin initialization complete'
 }
