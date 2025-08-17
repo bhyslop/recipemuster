@@ -448,8 +448,8 @@ rbga_initialize_admin() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  ######################################################################
-  # Enable required APIs (idempotent)
+  bcu_step 'Enable required APIs (idempotent)'
+
   bcu_step 'Enable IAM API'
   zrbga_http_json "POST" "${RBGC_API_SERVICEUSAGE_ENABLE_IAM}" "${z_token}" \
     "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
@@ -487,8 +487,8 @@ rbga_initialize_admin() {
   bcu_step "Wait ${z_prop_delay_seconds}s for API propagation"
   sleep "${z_prop_delay_seconds}"
 
-  ######################################################################
-  # Verify enablement
+  bcu_step 'Verify Enablement of required APIs'
+
   bcu_step 'Verify IAM API'
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_IAM}" "${z_token}" "${ZRBGA_INFIX_API_IAM_VERIFY}"
   zrbga_http_require_ok "Verify IAM API" "${ZRBGA_INFIX_API_IAM_VERIFY}"
@@ -525,9 +525,8 @@ rbga_initialize_admin() {
   zrbga_http_require_ok "Verify Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
   test "$(zrbga_json_field_capture "${ZRBGA_INFIX_API_STORAGE_VERIFY}" '.state')" = "ENABLED" || bcu_die "Cloud Storage not enabled"
 
-  ######################################################################
-  # Create primary GAR repository (Docker), then verify format
-  bcu_step "Create Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBRR_GAR_LOCATION}"
+  bcu_step 'Create Docker format Artifact Registry repo '"${RBRR_GAR_REPOSITORY}"' in ${RBRR_GAR_LOCATION}'
+
   local z_repo_body="${BDU_TEMP_DIR}/rbga_create_repo.json"
   jq -n --arg format "DOCKER" '{format: $format}' > "${z_repo_body}"
   zrbga_http_json "POST" \
@@ -542,8 +541,8 @@ rbga_initialize_admin() {
   zrbga_http_require_ok "Verify repository" "repo_verify"
   test "$(zrbga_json_field_capture repo_verify '.format')" = "DOCKER" || bcu_die "Repo exists but not DOCKER format"
 
-  ######################################################################
-  # Compute Cloud Build SA and grant repo-scoped writer
+  bcu_step 'Compute Cloud Build SA and grant repo-scoped writer'
+
   bcu_step 'Discover Project Number'
   zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
   zrbga_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}"
@@ -555,13 +554,12 @@ rbga_initialize_admin() {
   bcu_step "Grant Artifact Registry Writer to Cloud Build SA on repo"
   zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
-  ######################################################################
-  # Summary
-  bcu_success "Admin initialization complete"
   bcu_info    "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
   bcu_info    "GAR: ${RBRR_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
   bcu_info    "Cloud Build SA granted writer on repo: ${z_cb_sa_email}"
   bcu_warn    "Consider deleting source JSON after verification: ${z_json_path}"
+
+  bcu_success 'Admin initialization complete'
 }
 
 rbga_destroy_admin() {
@@ -574,9 +572,8 @@ rbga_destroy_admin() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  ######################################################################
-  # Discover Project Number for Cloud Build SA (to prune repo binding cleanly)
-  bcu_step 'Discover Project Number'
+  bcu_step 'Discover Project Number Cloud Build SA (to prune repo binding cleanly)'
+
   zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
   zrbga_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}"
   local z_project_number
@@ -588,8 +585,8 @@ rbga_destroy_admin() {
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
-  ######################################################################
-  # Prune Cloud Build SA writer binding (idempotent; harmless if missing)
+  bcu_step 'Prune Cloud Build SA writer binding (idempotent; harmless if missing)'
+
   bcu_step 'Fetch current repo IAM policy'
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" "repo_policy" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Get repo IAM policy" "repo_policy"
@@ -614,14 +611,13 @@ rbga_destroy_admin() {
   zrbga_http_json "POST" "${z_set_url}" "${z_token}" "repo_policy_set" "${z_repo_set_body}"
   zrbga_http_require_ok "Set repo IAM policy" "repo_policy_set"
 
-  ######################################################################
-  # Delete the GAR repository (removes remaining repo-scoped bindings/data)
+  bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
+
   bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBRR_GAR_LOCATION}"
   zrbga_http_json "DELETE" \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}" \
     "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
 
-  # Tolerate already-deleted repos; fail on other errors
   case "$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}" || echo)" in
     200|204) bcu_info "Repository deleted" ;;
     404)     bcu_warn "Repository not found (already deleted)" ;;
@@ -632,7 +628,7 @@ rbga_destroy_admin() {
       ;;
   esac
 
-  bcu_success "RBGA project resources destroyed (APIs left enabled; SAs untouched)"
+  bcu_success 'RBGA project resources destroyed (APIs left enabled; SAs untouched)'
 }
 
 rbga_list_service_accounts() {
@@ -641,7 +637,7 @@ rbga_list_service_accounts() {
   bcu_doc_brief "List all service accounts in the project"
   bcu_doc_shown || return 0
 
-  bcu_step "Listing service accounts in project: ${RBRR_GCP_PROJECT_ID}"
+  bcu_step 'Listing service accounts in project: '"${RBRR_GCP_PROJECT_ID}"
 
   bcu_log_args 'Get OAuth token from admin'
   local z_token
