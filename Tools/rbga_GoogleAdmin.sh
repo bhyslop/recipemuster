@@ -81,6 +81,42 @@ zrbga_sentinel() {
   test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbga_kindle first"
 }
 
+######################################################################
+# Capture: list required services that are NOT enabled (blank = all enabled)
+# arg1: OAuth access token (required, non-empty)
+# stdout: space-separated short service names; blank if all enabled
+# rc: 0 on success; 1 on internal/processing failure
+zrbga_required_apis_missing_capture() {
+  zrbga_sentinel
+
+  local z_token="${1:-}"
+  test -n "${z_token}" || { echo ""; return 1; }
+
+  local z_missing=""
+  local z_api=""
+  local z_service=""
+  local z_infix=""
+  local z_state=""
+
+  for z_api in                       \
+    "${RBGC_API_SU_VERIFY_CRM}"      \
+    "${RBGC_API_SU_VERIFY_GAR}"      \
+    "${RBGC_API_SU_VERIFY_IAM}"      \
+    "${RBGC_API_SU_VERIFY_BUILD}"    \
+    "${RBGC_API_SU_VERIFY_ANALYSIS}" \
+    "${RBGC_API_SU_VERIFY_STORAGE}"
+  do
+    z_service="${z_api##*/}"
+    z_infix="${ZRBGA_INFIX_API_CHECK}_${z_service}"
+
+    zrbga_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || return 1
+    z_state=$(zrbga_json_field_capture "${z_infix}" ".state") || z_state=""
+    test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
+  done
+
+  printf '%s' "${z_missing# }"
+}
+
 # Usage: zrbga_json_field_capture "infix" "jq_expr"
 zrbga_json_field_capture() {
   zrbga_sentinel
