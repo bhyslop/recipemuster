@@ -139,6 +139,44 @@ bvu_val_xname() {
   echo "$val"
 }
 
+# Google-style resource identifier (lowercase, digits, hyphens)
+# Must start with a letter, end with letter/digit.
+# Examples: GCP project IDs, GAR repo IDs.
+bvu_val_gname() {
+  local varname=$1
+  local val=$2
+  local min=$3
+  local max=$4
+  local default=${5-}  # empty permitted
+
+  # Required params
+  test -n "$varname" || bcu_die "varname parameter is required"
+  test -n "$min"     || bcu_die "min parameter is required for varname '$varname'"
+  test -n "$max"     || bcu_die "max parameter is required for varname '$varname'"
+
+  # Defaulting
+  if [ -z "$val" -a -n "$default" ]; then
+    val="$default"
+  fi
+
+  # Allow empty if min=0
+  if [ "$min" = "0" -a -z "$val" ]; then
+    echo "$val"
+    return 0
+  fi
+
+  # Non-empty and length window
+  test -n "$val" || bcu_die "$varname must not be empty"
+  test ${#val} -ge $min || bcu_die "$varname must be at least $min chars, got '${val}' (${#val})"
+  test ${#val} -le $max || bcu_die "$varname must be no more than $max chars, got '${val}' (${#val})"
+
+  # Pattern: ^[a-z][a-z0-9-]*[a-z0-9]$
+  test "$(echo "$val" | grep -E '^[a-z][a-z0-9-]*[a-z0-9]$')" || \
+    bcu_die "$varname must match ^[a-z][a-z0-9-]*[a-z0-9]$ (lowercase letters, digits, hyphens; start with a letter; end with letter/digit), got '$val'"
+
+  echo "$val"
+}
+
 # Fully Qualified Image Name component validator
 bvu_val_fqin() {
   local varname=$1
@@ -353,6 +391,7 @@ bvu_val_list_domain() {
 # Environment variable validators
 bvu_env_string()             { bvu_env_wrapper "bvu_val_string"           "$@"; }
 bvu_env_xname()              { bvu_env_wrapper "bvu_val_xname"            "$@"; }
+bvu_env_gname()              { bvu_env_wrapper "bvu_val_gname"            "$@"; }
 bvu_env_fqin()               { bvu_env_wrapper "bvu_val_fqin"             "$@"; }
 bvu_env_bool()               { bvu_env_wrapper "bvu_val_bool"             "$@"; }
 bvu_env_decimal()            { bvu_env_wrapper "bvu_val_decimal"          "$@"; }

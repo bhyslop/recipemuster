@@ -43,7 +43,7 @@ RBRR_GCP_REGION=us-central1  # PRoject doesn't have a region but our services do
 # Google Artifact Registry settings
 RBRR_GAR_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
 RBRR_GAR_LOCATION="${RBRR_GCP_REGION}"
-RBRR_GAR_REPOSITORY=brm_recipemuster_gar
+RBRR_GAR_REPOSITORY=brm-recipemuster-gar
 
 # Google Cloud Build settings  
 RBRR_GCB_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"

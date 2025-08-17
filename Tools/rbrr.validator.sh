@@ -40,14 +40,14 @@ bvu_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
 bvu_env_string      RBRR_CHOSEN_IDENTITY         1    128
 
 # Google Artifact Registry Configuration
-bvu_env_string      RBRR_GAR_PROJECT_ID          6     63  # GCP project IDs: 6-63 chars
-bvu_env_string      RBRR_GAR_LOCATION            1     64  # GCP regions like us-central1
-bvu_env_xname       RBRR_GAR_REPOSITORY          1     64  # Repository name
+bvu_env_gname       RBRR_GAR_PROJECT_ID          6     63  # GCP project ID (loose gname check; API enforces real rules)
+bvu_env_gname       RBRR_GAR_LOCATION            1     32  # GCP region (loose gname check; API enforces real rules)
+bvu_env_gname       RBRR_GAR_REPOSITORY          1     63  # GAR repo id (loose gname check; API enforces real rules)
 
 # Google Cloud Build Configuration
-bvu_env_string      RBRR_GCB_PROJECT_ID          6     63  # Usually same as GAR project
-bvu_env_string      RBRR_GCB_REGION              1     64  # Build execution region
-bvu_env_string      RBRR_GCB_MACHINE_TYPE        1     64  # e.g., e2-highcpu-8
+bvu_env_gname       RBRR_GCB_PROJECT_ID          6     63  # Usually same as GAR project (loose gname check)
+bvu_env_gname       RBRR_GCB_REGION              1     32  # GCP build region (loose gname check; API enforces real rules)
+bvu_env_gname       RBRR_GCB_MACHINE_TYPE        1     64  # Machine type like e2-highcpu-8 (loose gname check)
 bvu_env_string      RBRR_GCB_TIMEOUT             2     10  # e.g., 1200s
 bvu_env_string      RBRR_GCB_STAGING_BUCKET      5    255  # gs://bucket-name
 
@@ -73,29 +73,6 @@ for zrbrr_platform in ${RBRR_MANIFEST_PLATFORMS}; do
     fi
 done
 
-# Validate GCP project ID format (6-63 chars, lowercase letters, numbers, hyphens)
-if ! echo "${RBRR_GAR_PROJECT_ID}" | grep -q '^[a-z][a-z0-9-]\{5,62\}$'; then
-    bcu_die "Invalid RBRR_GAR_PROJECT_ID format. Must be 6-63 chars, start with letter, contain only lowercase letters, numbers, and hyphens"
-fi
-
-if ! echo "${RBRR_GCB_PROJECT_ID}" | grep -q '^[a-z][a-z0-9-]\{5,62\}$'; then
-    bcu_die "Invalid RBRR_GCB_PROJECT_ID format. Must be 6-63 chars, start with letter, contain only lowercase letters, numbers, and hyphens"
-fi
-
-# Validate GCP region format (lowercase with hyphens and numbers)
-if ! echo "${RBRR_GAR_LOCATION}" | grep -q '^[a-z]\+[a-z0-9-]*[0-9]$'; then
-    bcu_die "Invalid RBRR_GAR_LOCATION format. Expected GCP region like us-central1"
-fi
-
-if ! echo "${RBRR_GCB_REGION}" | grep -q '^[a-z]\+[a-z0-9-]*[0-9]$'; then
-    bcu_die "Invalid RBRR_GCB_REGION format. Expected GCP region like us-central1"
-fi
-
-# Validate machine type format (e.g., e2-highcpu-8, n2-standard-4)
-if ! echo "${RBRR_GCB_MACHINE_TYPE}" | grep -q '^[a-z][a-z0-9]*-[a-z]\+-[0-9]\+$'; then
-    bcu_die "Invalid RBRR_GCB_MACHINE_TYPE format. Expected format like e2-highcpu-8 or n2-standard-4"
-fi
-
 # Validate timeout format (number followed by 's' for seconds)
 if ! echo "${RBRR_GCB_TIMEOUT}" | grep -q '^[0-9]\+s$'; then
     bcu_die "Invalid RBRR_GCB_TIMEOUT format. Must be a number followed by 's' (e.g., 1200s)"
@@ -112,3 +89,4 @@ if ! echo "${RBRR_CHOSEN_PODMAN_VERSION}" | grep -q '^[0-9]\+\.[0-9]\+\(\.[0-9]\
 fi
 
 # eof
+
