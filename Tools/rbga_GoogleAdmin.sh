@@ -67,6 +67,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_REPO_POLICY="repo_policy"
   ZRBGA_INFIX_RPOLICY_SET="repo_policy_set"
   ZRBGA_INFIX_LIST="list"
+  ZRBGA_INFIX_API_CHECK="api_checking"
   ZRBGA_INFIX_DELETE="delete"
   ZRBGA_INFIX_LIST_KEYS="list_keys"
 
@@ -605,9 +606,25 @@ rbga_destroy_admin() {
   bcu_doc_brief "Destroy project-specific GAR resources and related repo-scoped IAM. Leaves project-wide APIs and SAs unchanged."
   bcu_doc_shown || return 0
 
+  bcu_step 'Preflight: all required APIs enabled'
+
+  local z_missing=""
+  local z_api=""
+  for z_api in "${RBGC_API_SU_VERIFY_GAR}" "${RBGC_API_SU_VERIFY_CLOUDRESMGR}" "${RBGC_API_SU_VERIFY_CLOUDBUILD}"
+  do
+    zrbga_http_json "GET" "${z_api}" "${z_token}" "${ZRBGA_INFIX_API_CHECK}"
+    if test "$(zrbga_json_field_capture           "${ZRBGA_INFIX_API_CHECK}" '.state')" != "ENABLED"; then
+      z_missing="${z_missing} $(basename "${z_api}")"
+    fi
+  done
+
+  if test -n "${z_missing}"; then
+    bcu_die "Required APIs not enabled: ${z_missing}. Run rbga_initialize_admin to enable them, then re-run destroy."
+  fi
+
   bcu_step 'Confirm'
   bcu_require "Confirm full reset of this project?" "YES"
-  bcu_require "Be very very sure, type" "I AM SURE"
+  bcu_require "Be very very sure!" "I-AM-SURE"
 
   bcu_step 'Mint admin OAuth token'
   local z_token
