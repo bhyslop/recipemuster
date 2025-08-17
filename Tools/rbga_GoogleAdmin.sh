@@ -97,6 +97,7 @@ zrbga_required_apis_missing_capture() {
   local z_service=""
   local z_infix=""
   local z_state=""
+  local z_code=""
 
   for z_api in                       \
     "${RBGC_API_SU_VERIFY_CRM}"      \
@@ -109,9 +110,19 @@ zrbga_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGA_INFIX_API_CHECK}_${z_service}"
 
-    zrbga_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || return 1
-    z_state=$(zrbga_json_field_capture "${z_infix}" ".state") || z_state=""
-    test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
+    zrbga_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
+
+    bcu_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
+    z_code=$(zrbga_http_code_capture "${z_infix}") || z_code=""
+    test -n "${z_code}" || return 1
+
+    if test "${z_code}" = "200"; then
+      z_state=$(zrbga_json_field_capture "${z_infix}" ".state") || z_state=""
+      test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
+    else
+      bcu_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled'
+      z_missing="${z_missing} ${z_service}"
+    fi
   done
 
   printf '%s' "${z_missing# }"
@@ -494,6 +505,9 @@ zrbga_add_repo_iam_role() {
 
 ######################################################################
 # External Functions (rbga_*)
+#!/bin/bash
+# Refactored rbga_initialize_admin
+
 rbga_initialize_admin() {
   zrbga_sentinel
 
@@ -512,82 +526,55 @@ rbga_initialize_admin() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_step 'Enable required APIs (idempotent)'
+  bcu_step 'Check which required APIs need enabling'
+  local z_missing
+  z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to check API status"
 
-  bcu_step 'Enable IAM API'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
-                                         "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}" 409 "already enabled"
+  if test -n "${z_missing}"; then
+    bcu_info "APIs needing enablement: ${z_missing}"
 
-  bcu_step 'Enable Cloud Resource Manager API'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CRM}" "${z_token}" \
-                                                            "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 409 "already enabled"
+    bcu_step 'Enable required APIs (idempotent)'
 
-  bcu_step 'Enable Artifact Registry API'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_GAR}" "${z_token}" \
-                                                       "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
+    bcu_step 'Enable IAM API'
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
+                                           "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}" 409 "already enabled"
 
-  bcu_step 'Enable Cloud Build API'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
-                                                 "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}" 409 "already enabled"
+    bcu_step 'Enable Cloud Resource Manager API'
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CRM}" "${z_token}" \
+                                                              "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 409 "already enabled"
 
-  bcu_step 'Enable Container Analysis API'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
-                                                        "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" 409 "already enabled"
+    bcu_step 'Enable Artifact Registry API'
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_GAR}" "${z_token}" \
+                                                         "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
 
-  bcu_step 'Enable Cloud Storage API (build bucket deps)'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
-                                                   "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" 409 "already enabled"
+    bcu_step 'Enable Cloud Build API'
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
+                                                   "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}" 409 "already enabled"
 
-  local z_prop_delay_seconds=45
-  bcu_step "Wait ${z_prop_delay_seconds}s for API propagation"
-  sleep "${z_prop_delay_seconds}"
+    bcu_step 'Enable Container Analysis API'
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
+                                                          "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" 409 "already enabled"
 
-  bcu_step 'Verify Enablement of required APIs'
+    bcu_step 'Enable Cloud Storage API (build bucket deps)'
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
+                                                     "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" 409 "already enabled"
 
-  bcu_step 'Verify IAM API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_IAM}" "${z_token}" "${ZRBGA_INFIX_API_IAM_VERIFY}"
-  zrbga_http_require_ok "Verify IAM API"                         "${ZRBGA_INFIX_API_IAM_VERIFY}"
-  test "$(zrbga_json_field_capture                               "${ZRBGA_INFIX_API_IAM_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "IAM not enabled"
+    local z_prop_delay_seconds=45
+    bcu_step "Wait ${z_prop_delay_seconds}s for API propagation"
+    sleep "${z_prop_delay_seconds}"
 
-  bcu_step 'Verify Cloud Resource Manager API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_CRM}" "${z_token}" "${ZRBGA_INFIX_API_CRM_VERIFY}"
-  zrbga_http_require_ok "Verify Cloud Resource Manager API"      "${ZRBGA_INFIX_API_CRM_VERIFY}"
-  test "$(zrbga_json_field_capture                               "${ZRBGA_INFIX_API_CRM_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "CRM not enabled"
-
-  bcu_step 'Verify Artifact Registry API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_GAR}" "${z_token}" "${ZRBGA_INFIX_API_ART_VERIFY}"
-  zrbga_http_require_ok "Verify Artifact Registry API"           "${ZRBGA_INFIX_API_ART_VERIFY}"
-  test "$(zrbga_json_field_capture                               "${ZRBGA_INFIX_API_ART_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "Artifact Registry not enabled"
-
-  bcu_step 'Verify Cloud Build API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_BUILD}" \
-                                    "${z_token}" "${ZRBGA_INFIX_API_BUILD_VERIFY}"
-  zrbga_http_require_ok "Verify Cloud Build API" "${ZRBGA_INFIX_API_BUILD_VERIFY}"
-  test "$(zrbga_json_field_capture               "${ZRBGA_INFIX_API_BUILD_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "Cloud Build not enabled"
-
-  bcu_step 'Verify Container Analysis API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_ANALYSIS}" \
-                                           "${z_token}" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
-  zrbga_http_require_ok "Verify Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
-  test "$(zrbga_json_field_capture                      "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "Container Analysis not enabled"
-
-  bcu_step 'Verify Cloud Storage API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_STORAGE}" \
-                                      "${z_token}" "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
-  zrbga_http_require_ok "Verify Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
-  test "$(zrbga_json_field_capture                 "${ZRBGA_INFIX_API_STORAGE_VERIFY}" '.state')" = "ENABLED" \
-    || bcu_die "Cloud Storage not enabled"
+    bcu_step 'Verify all APIs are now enabled'
+    z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to verify API status"
+    test -z "${z_missing}" || bcu_die "APIs still not enabled after waiting: ${z_missing}"
+  else
+    bcu_info "All required APIs already enabled"
+  fi
 
   bcu_step 'Create/verify Docker format Artifact Registry repo'" ${RBRR_GAR_REPOSITORY} in ${RBRR_GAR_LOCATION}"
 
@@ -612,14 +599,6 @@ rbga_initialize_admin() {
   test "$(zrbga_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
 
-  bcu_step 'Verify repository exists and is DOCKER format'
-  zrbga_http_json "GET" \
-    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}" \
-    "${z_token}"                            "${ZRBGA_INFIX_VERIFY_REPO}"
-  zrbga_http_require_ok "Verify repository" "${ZRBGA_INFIX_VERIFY_REPO}"
-  test "$(zrbga_json_field_capture          "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
-    || bcu_die "Repository exists but not DOCKER format"
-
   bcu_step 'Compute Cloud Build SA and grant repo-scoped writer'
 
   bcu_step 'Discover Project Number'
@@ -642,6 +621,8 @@ rbga_initialize_admin() {
   bcu_success 'Admin initialization complete'
 }
 
+# Refactored rbga_destroy_admin
+
 rbga_destroy_admin() {
   zrbga_sentinel
 
@@ -653,24 +634,8 @@ rbga_destroy_admin() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Preflight: Determine if all required APIs enabled'
-  local z_missing=""
-  local z_api=""
-  local z_state=""
-  for z_api in                       \
-    "${RBGC_API_SU_VERIFY_CRM}"      \
-    "${RBGC_API_SU_VERIFY_GAR}"      \
-    "${RBGC_API_SU_VERIFY_IAM}"      \
-    "${RBGC_API_SU_VERIFY_BUILD}"    \
-    "${RBGC_API_SU_VERIFY_ANALYSIS}" \
-    "${RBGC_API_SU_VERIFY_STORAGE}"
-  do
-    local z_service="${z_api##*/}"
-    local z_infix="api_verify_${z_service}"
-
-    zrbga_http_json "GET" "${z_api}" "${z_token}" "${z_infix}"
-    z_state=$(zrbga_json_field_capture            "${z_infix}" '.state') || z_state=""
-    test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
-  done
+  local z_missing
+  z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to check API status"
 
   if test -n "${z_missing}"; then
     bcu_die "Required APIs not enabled: ${z_missing}. Run rbga_initialize_admin to enable them, then re-run destroy."
@@ -700,12 +665,13 @@ rbga_destroy_admin() {
   zrbga_http_require_ok "Get repo IAM policy"        "${ZRBGA_INFIX_REPO_POLICY}" 404 "repo not found (already deleted)"
 
   bcu_log_args 'Guard the prune+set when the repo is already gone'
-  z_get_code="$(zrbga_http_code_capture "${ZRBGA_INFIX_REPO_POLICY}")" || z_get_code="000"
+  local z_get_code
+  z_get_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_REPO_POLICY}") || z_get_code="000"
   if test "${z_get_code}" = "404"; then
     bcu_warn "Repo missing; skip writer-binding prune."
   else
     bcu_step 'Strip Cloud Build SA from artifactregistry.writer binding'
-    z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
+    local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
     jq --arg role "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}" \
        --arg member "${z_cb_sa_member}" \
        '
@@ -718,7 +684,7 @@ rbga_destroy_admin() {
        ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_POLICY}${ZRBGA_POSTFIX_JSON}" > "${z_updated_policy}" \
       || bcu_die "Failed to prune writer binding"
 
-    z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
+    local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
     jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
       || bcu_die "Failed to build repo setIamPolicy body"
 
