@@ -261,11 +261,11 @@ zrbga_create_service_account_with_key() {
 
   bcu_info "Service account created: ${z_account_email}"
 
-  bcu_step 'Wait briefly for service account to propagate'
-  sleep 15
-  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
-    "${ZRBGA_INFIX_VERIFY}"
-  zrbga_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
+  local z_service_prop_s="15"
+  bcu_step 'Wait '"${z_service_prop_s}"' for service account to propagate'
+  sleep           "${z_service_prop_s}"
+  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
+  zrbga_http_require_ok "Verify service account"                                       "${ZRBGA_INFIX_VERIFY}"
 
   bcu_step 'Generate service account key'
   local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
@@ -470,6 +470,7 @@ rbga_initialize_admin() {
   test "${z_state}" = "ENABLED" || bcu_die "IAM API not enabled. State: ${z_state}"
   bcu_log_args 'IAM API verified: ENABLED'
 
+  bcu_step 'Verify Cloud Resource Manager API'
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_CRM}" "${z_token}" \
     "${ZRBGA_INFIX_API_CRM_VERIFY}"
   zrbga_http_require_ok "Verify Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_VERIFY}"
@@ -477,12 +478,23 @@ rbga_initialize_admin() {
   test "${z_state}" = "ENABLED" || bcu_die "Cloud Resource Manager API not enabled. State: ${z_state}"
   bcu_log_args 'Cloud Resource Manager API verified: ENABLED'
 
+  bcu_step 'Verify Artifact Registry API'
   zrbga_http_json "GET" "${RBGC_API_SERVICEUSAGE_VERIFY_ARTIFACTREGISTRY}" "${z_token}" \
     "${ZRBGA_INFIX_API_ART_VERIFY}"
   zrbga_http_require_ok "Verify Artifact Registry API" "${ZRBGA_INFIX_API_ART_VERIFY}"
   z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_ART_VERIFY}" '.state') || z_state="UNKNOWN"
   test "${z_state}" = "ENABLED" || bcu_die "Artifact Registry API not enabled. State: ${z_state}"
   bcu_log_args 'Artifact Registry API verified: ENABLED'
+
+  bcu_step 'Create Artifact Registry repository'
+  local z_repo_body="${BDU_TEMP_DIR}/rbga_create_repo.json"
+  jq -n --arg format "DOCKER" '{format: $format}' > "${z_repo_body}"
+  zrbga_http_json "POST" \
+    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_CREATE_REPO}" \
+    "${z_repo_body}"
+  zrbga_http_require_ok "Create repository" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
 
   bcu_success "Admin initialization complete"
   bcu_info "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
