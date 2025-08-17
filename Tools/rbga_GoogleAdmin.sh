@@ -632,25 +632,32 @@ rbga_destroy_admin() {
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_REPO_POLICY}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Get repo IAM policy"        "${ZRBGA_INFIX_REPO_POLICY}" 404 "repo not found (already deleted)"
 
-  bcu_step 'Strip Cloud Build SA from artifactregistry.writer binding'
-  local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
-  jq --arg role "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}" \
-     --arg member "${z_cb_sa_member}" \
-     '
-       .bindings = (.bindings // []) |
-       .bindings = [ .bindings[] |
-         if .role == $role then .members = ((.members // []) | map(select(. != $member)))
-         else . end
-       ] |
-       .bindings = [ .bindings[] | select((.members // []) | length > 0) ]
-     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_POLICY}${ZRBGA_POSTFIX_JSON}" > "${z_updated_policy}" \
-     || bcu_die "Failed to prune writer binding"
+  bcu_log_args 'Guard the prune+set when the repo is already gone'
+  z_get_code="$(zrbga_http_code_capture "${ZRBGA_INFIX_REPO_POLICY}")" || z_get_code="000"
+  if test "${z_get_code}" = "404"; then
+    bcu_warn "Repo missing; skip writer-binding prune."
+  else
+    bcu_step 'Strip Cloud Build SA from artifactregistry.writer binding'
+    z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
+    jq --arg role "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}" \
+       --arg member "${z_cb_sa_member}" \
+       '
+         .bindings = (.bindings // []) |
+         .bindings = [ .bindings[] |
+           if .role == $role then .members = ((.members // []) | map(select(. != $member)))
+           else . end
+         ] |
+         .bindings = [ .bindings[] | select((.members // []) | length > 0) ]
+       ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_REPO_POLICY}${ZRBGA_POSTFIX_JSON}" > "${z_updated_policy}" \
+      || bcu_die "Failed to prune writer binding"
 
-  local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
-  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
-    || bcu_die "Failed to build repo setIamPolicy body"
-  zrbga_http_json "POST" "${z_set_url}" "${z_token}" "${ZRBGA_INFIX_RPOLICY_SET}" "${z_repo_set_body}"
-  zrbga_http_require_ok "Set repo IAM policy"        "${ZRBGA_INFIX_RPOLICY_SET}"
+    z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
+    jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
+      || bcu_die "Failed to build repo setIamPolicy body"
+
+    zrbga_http_json "POST" "${z_set_url}" "${z_token}" "${ZRBGA_INFIX_RPOLICY_SET}" "${z_repo_set_body}"
+    zrbga_http_require_ok "Set repo IAM policy"        "${ZRBGA_INFIX_RPOLICY_SET}"
+  fi
 
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
 
