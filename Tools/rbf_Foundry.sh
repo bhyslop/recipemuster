@@ -247,6 +247,8 @@ zrbf_submit_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
+    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
     --arg zjq_recipe_name    "${z_recipe_name}"                 \
     --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
     --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
@@ -264,6 +266,8 @@ zrbf_submit_build() {
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
         _RBGY_GIT_REPO:       $zjq_git_repo,
+        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
+        _RBGY_TIMEOUT:        $zjq_timeout,
         _RBGY_RECIPE_NAME:    $zjq_recipe_name,
         _RBGY_JQ_REF:         $zjq_jq_ref,
         _RBGY_SYFT_REF:       $zjq_syft_ref,

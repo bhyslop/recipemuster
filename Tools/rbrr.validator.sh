@@ -54,6 +54,10 @@ bvu_env_string      RBRR_GCB_TIMEOUT             2     10  # e.g., 1200s
 bvu_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512  # Path to GAR service account env
 bvu_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512  # Path to GCB service account env
 
+# Cloud Build misc
+bvu_env_string      RBRR_GCB_MACHINE_TYPE        3     64 # Cloud Build machine type (API-native form, e.g., E2_HIGHCPU_8)
+bvu_env_string      RBRR_GCB_TIMEOUT             2     10 # Cloud Build timeout (seconds form, e.g., 600s, 1200s)
+
 # Validating GCB image pins (digest-pinned)
 bvu_env_odref       RBRR_GCB_JQ_IMAGE_REF
 bvu_env_odref       RBRR_GCB_SYFT_IMAGE_REF
