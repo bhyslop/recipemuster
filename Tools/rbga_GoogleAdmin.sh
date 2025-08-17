@@ -68,6 +68,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_RPOLICY_SET="repo_policy_set"
   ZRBGA_INFIX_LIST="list"
   ZRBGA_INFIX_DELETE="delete"
+  ZRBGA_INFIX_LIST_KEYS="list_keys"
 
   ZRBGA_POSTFIX_JSON="_response.json"
   ZRBGA_POSTFIX_CODE="_code.txt"
@@ -269,7 +270,7 @@ zrbga_create_service_account_with_key() {
   bcu_step 'Create service account via REST API'
   zrbga_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGA_INFIX_CREATE}" "${ZRBGA_PREFIX}create_request.json"
-  zrbga_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}"
+  zrbga_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
 
   bcu_info "Service account created: ${z_account_email}"
 
@@ -278,6 +279,31 @@ zrbga_create_service_account_with_key() {
   sleep           "${z_service_prop_s}"
   zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
   zrbga_http_require_ok "Verify service account"                                       "${ZRBGA_INFIX_VERIFY}"
+
+  bcu_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
+
+  bcu_log_args 'List keys'
+  zrbga_http_json "GET" \
+    "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+    "${z_token}" "${ZRBGA_INFIX_LIST_KEYS}"
+  zrbga_http_require_ok "List service account keys" "${ZRBGA_INFIX_LIST_KEYS}"
+
+  bcu_log_args 'Count existing user-managed keys'
+  local z_user_keys
+  z_user_keys=$(jq -r '[.keys[]? | select(.keyType=="USER_MANAGED")] | length' \
+                 "${ZRBGA_PREFIX}${ZRBGA_INFIX_LIST_KEYS}${ZRBGA_POSTFIX_JSON}") \
+    || bcu_die "Failed to parse service account keys"
+
+  if test "${z_user_keys}" -gt 0; then
+    bcu_log_args 'Provide a console URL to delete keys manually, then rerun this command'
+    local z_sa_email_enc="${z_account_email//@/%40}"
+    local z_keys_url="${RBGC_CONSOLE_URL}iam-admin/serviceaccounts/details/${z_sa_email_enc}?project=${RBRR_GCP_PROJECT_ID}"
+
+    bcu_warn "Found ${z_user_keys} existing USER_MANAGED key(s) on ${z_account_email}."
+    bcu_info "Open Console, select the **Keys** tab, delete old keys, then rerun:"
+    bcu_info "  ${z_keys_url}"
+    bcu_die  "Aborting to avoid minting additional keys."
+  fi
 
   bcu_step 'Generate service account key'
   local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
@@ -437,7 +463,7 @@ rbga_initialize_admin() {
   local z_json_path="${1:-}"
 
   bcu_doc_brief "Initialize RBGA for this project: enable/verify APIs, create GAR repo, and grant Cloud Build SA."
-  bcu_doc_param "json_path" "Path to downloaded admin JSON key (will converted to RBRA)"
+  bcu_doc_param "json_path" "Path to downloaded admin JSON key (will be converted to RBRA)"
   bcu_doc_shown || return 0
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
@@ -526,14 +552,22 @@ rbga_initialize_admin() {
   test "$(zrbga_json_field_capture                 "${ZRBGA_INFIX_API_STORAGE_VERIFY}" '.state')" = "ENABLED" \
     || bcu_die "Cloud Storage not enabled"
 
-  bcu_step 'Create Docker format Artifact Registry repo '"${RBRR_GAR_REPOSITORY}"' in ${RBRR_GAR_LOCATION}'
+  bcu_step 'Create Docker format Artifact Registry repo '"${RBRR_GAR_REPOSITORY}"' in '"${RBRR_GAR_LOCATION}"
 
-  local z_repo_body="${BDU_TEMP_DIR}/rbga_create_repo.json"
-  jq -n --arg format "DOCKER" '{format: $format}' > "${z_repo_body}"
-  zrbga_http_json "POST" \
-    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}" \
-    "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_repo_body}"
-  zrbga_http_require_ok "Create repository" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
+  local z_delete_code
+  zrbga_http_json "DELETE" \
+    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}?force=true" \
+                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
+  z_delete_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
+  case "${z_delete_code}" in
+    200|204) bcu_info "Repository deleted" ;;
+    404)     bcu_warn "Repository not found (already deleted)" ;;
+    *)
+      local z_err
+      z_err=$(zrbga_json_field_capture    "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
+      bcu_die "Failed to delete repository: ${z_err}"
+      ;;
+  esac
 
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" \
