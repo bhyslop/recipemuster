@@ -81,6 +81,24 @@ zrbga_sentinel() {
   test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbga_kindle first"
 }
 
+# Predicate: Check if resource was newly created and apply propagation delay
+# Usage: if zrbga_newly_created_delay "infix" "resource_type" "15"; then ...
+zrbga_newly_created_delay() {
+  zrbga_sentinel
+
+  local z_infix="${1}"
+  local z_resource="${2}"
+  local z_delay="${3}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${z_infix}") || return 1
+
+  if test "${z_code}" = "200" || test "${z_code}" = "201"; then
+    bcu_step "Resource ${z_resource} newly created, waiting ${z_delay}s for propagation"
+    sleep "${z_delay}"
+  fi
+}
+
 ######################################################################
 # Capture: list required services that are NOT enabled (blank = all enabled)
 # arg1: OAuth access token (required, non-empty)
@@ -319,14 +337,12 @@ zrbga_create_service_account_with_key() {
   zrbga_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGA_INFIX_CREATE}" "${ZRBGA_PREFIX}create_request.json"
   zrbga_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
-
+  zrbga_newly_created_delay                      "${ZRBGA_INFIX_CREATE}" "service account" 15
   bcu_info "Service account created: ${z_account_email}"
 
-  local z_service_prop_s="15"
-  bcu_step 'Wait '"${z_service_prop_s}"' for service account to propagate'
-  sleep           "${z_service_prop_s}"
-  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
-  zrbga_http_require_ok "Verify service account"                                       "${ZRBGA_INFIX_VERIFY}"
+  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" \
+                                    "${z_token}" "${ZRBGA_INFIX_VERIFY}"
+  zrbga_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
   bcu_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
 
@@ -472,10 +488,10 @@ zrbga_add_repo_iam_role() {
   bcu_log_args 'Get current repo IAM policy'
   zrbga_http_json "POST" "${z_get_url}" "${z_token}" \
                                               "${ZRBGA_INFIX_REPO_ROLE}" "${ZRBGA_EMPTY_JSON}"
-  
+
   local z_get_code
   z_get_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_REPO_ROLE}") || z_get_code=""
-  
+
   if test "${z_get_code}" = "404"; then
     # 404 means repo exists but has no IAM policy yet - this is normal for new repos
     bcu_log_args 'No IAM policy exists yet (404), initializing with empty bindings'
@@ -603,15 +619,9 @@ rbga_initialize_admin() {
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
   bcu_step 'Create repo (idempotent)'
-  local z_create_code
   zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
   zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
-  z_create_code=$(zrbga_http_code_capture               "${ZRBGA_INFIX_CREATE_REPO}") || z_create_code="000"
-  if test "${z_create_code}" = "200" || test "${z_create_code}" = "201"; then
-    local z_repo_prop_s="15"
-    bcu_step "Wait ${z_repo_prop_s}s for repository to propagate"
-    sleep         "${z_repo_prop_s}"
-  fi
+  zrbga_newly_created_delay                             "${ZRBGA_INFIX_CREATE_REPO}" "repository" 15
 
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
