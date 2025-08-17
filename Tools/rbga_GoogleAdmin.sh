@@ -62,7 +62,9 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_STORAGE_VERIFY="api_storage_verify"
   ZRBGA_INFIX_PROJECT_INFO="project_info"
   ZRBGA_INFIX_CREATE_REPO="create_repo"
+  ZRBGA_INFIX_VERIFY_REPO="verify_repo"
   ZRBGA_INFIX_DELETE_REPO="delete_repo"
+  ZRBGA_INFIX_REPO_POLICY="repo_policy"
   ZRBGA_INFIX_LIST="list"
   ZRBGA_INFIX_DELETE="delete"
 
@@ -438,7 +440,7 @@ rbga_initialize_admin() {
   local z_json_path="${1:-}"
 
   bcu_doc_brief "Initialize RBGA for this project: enable/verify APIs, create GAR repo, and grant Cloud Build SA."
-  bcu_doc_param "json_path" "Path to downloaded admin JSON key (converted to RBRA)"
+  bcu_doc_param "json_path" "Path to downloaded admin JSON key (will converted to RBRA)"
   bcu_doc_shown || return 0
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
@@ -473,7 +475,7 @@ rbga_initialize_admin() {
   zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}" 409 "already enabled"
 
   bcu_step 'Enable Container Analysis API'
-  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CONTAINERANALYSIS}" "${z_token}" \
+  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
                                                         "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" 409 "already enabled"
 
@@ -514,7 +516,7 @@ rbga_initialize_admin() {
     || bcu_die "Cloud Build not enabled"
 
   bcu_step 'Verify Container Analysis API'
-  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_CONTAINERANALYSIS}" \
+  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_ANALYSIS}" \
                                            "${z_token}" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
   zrbga_http_require_ok "Verify Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
   test "$(zrbga_json_field_capture                      "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}" '.state')" = "ENABLED" \
@@ -539,8 +541,8 @@ rbga_initialize_admin() {
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}" \
-    "${z_token}" "repo_verify"
-  zrbga_http_require_ok "Verify repository" "repo_verify"
+    "${z_token}"                            "${ZRBGA_INFIX_VERIFY_REPO}"
+  zrbga_http_require_ok "Verify repository" "${ZRBGA_INFIX_VERIFY_REPO}"
   test "$(zrbga_json_field_capture repo_verify '.format')" = "DOCKER" || bcu_die "Repo exists but not DOCKER format"
 
   bcu_step 'Compute Cloud Build SA and grant repo-scoped writer'
@@ -591,8 +593,8 @@ rbga_destroy_admin() {
   bcu_step 'Prune Cloud Build SA writer binding (idempotent; harmless if missing)'
 
   bcu_step 'Fetch current repo IAM policy'
-  zrbga_http_json "POST" "${z_get_url}" "${z_token}" "repo_policy" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Get repo IAM policy" "repo_policy"
+  zrbga_http_json "POST" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_REPO_POLICY}" "${ZRBGA_EMPTY_JSON}"
+  zrbga_http_require_ok "Get repo IAM policy"        "${ZRBGA_INFIX_REPO_POLICY}"
 
   bcu_step 'Strip Cloud Build SA from artifactregistry.writer binding'
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
