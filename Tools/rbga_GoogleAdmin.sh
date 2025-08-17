@@ -468,21 +468,18 @@ rbga_initialize_admin() {
   zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
 
   bcu_step 'Enable Cloud Build API'
-  zrbga_http_json "POST" \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:enable" \
-                                    "${z_token}" "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
+                                                 "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}" 409 "already enabled"
 
   bcu_step 'Enable Container Analysis API'
-  zrbga_http_json "POST" \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/containeranalysis.googleapis.com:enable" \
-                                           "${z_token}" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CONTAINERANALYSIS}" "${z_token}" \
+                                                        "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" 409 "already enabled"
 
   bcu_step 'Enable Cloud Storage API (build bucket deps)'
-  zrbga_http_json "POST" \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/storage.googleapis.com:enable" \
-                                      "${z_token}" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+  zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
+                                                   "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" 409 "already enabled"
 
   local z_prop_delay_seconds=45
@@ -510,24 +507,21 @@ rbga_initialize_admin() {
     || bcu_die "AR not enabled"
 
   bcu_step 'Verify Cloud Build API'
-  zrbga_http_json "GET" \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com" \
+  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_BUILD}" \
                                     "${z_token}" "${ZRBGA_INFIX_API_BUILD_VERIFY}"
   zrbga_http_require_ok "Verify Cloud Build API" "${ZRBGA_INFIX_API_BUILD_VERIFY}"
   test "$(zrbga_json_field_capture               "${ZRBGA_INFIX_API_BUILD_VERIFY}" '.state')" = "ENABLED" \
     || bcu_die "Cloud Build not enabled"
 
   bcu_step 'Verify Container Analysis API'
-  zrbga_http_json "GET" \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/containeranalysis.googleapis.com" \
-    "${z_token}"                                        "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
+  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_CONTAINERANALYSIS}" \
+                                           "${z_token}" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
   zrbga_http_require_ok "Verify Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}"
   test "$(zrbga_json_field_capture                      "${ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY}" '.state')" = "ENABLED" \
     || bcu_die "Container Analysis not enabled"
 
   bcu_step 'Verify Cloud Storage API'
-  zrbga_http_json "GET" \
-    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/storage.googleapis.com" \
+  zrbga_http_json "GET" "${RBGC_API_SU_VERIFY_STORAGE}" \
                                       "${z_token}" "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
   zrbga_http_require_ok "Verify Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
   test "$(zrbga_json_field_capture                 "${ZRBGA_INFIX_API_STORAGE_VERIFY}" '.state')" = "ENABLED" \
