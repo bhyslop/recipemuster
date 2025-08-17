@@ -56,6 +56,13 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_ART_VERIFY="api_art_verify"
   ZRBGA_INFIX_LIST="list"
   ZRBGA_INFIX_DELETE="delete"
+  ZRBGA_INFIX_API_BUILD_ENABLE="api_build_enable"
+  ZRBGA_INFIX_API_BUILD_VERIFY="api_build_verify"
+  ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
+  ZRBGA_INFIX_API_STORAGE_VERIFY="api_storage_verify"
+  ZRBGA_INFIX_PROJECT_INFO="project_info"
+  ZRBGA_INFIX_CREATE_REPO="create_repo"
+  ZRBGA_INFIX_DELETE_REPO="delete_repo"
 
   ZRBGA_POSTFIX_JSON="_response.json"
   ZRBGA_POSTFIX_CODE="_code.txt"
@@ -456,6 +463,22 @@ rbga_initialize_admin() {
     "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
   zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
 
+  bcu_step 'Enable Cloud Build API (required for build submission)'
+  zrbga_http_json "POST" \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:enable" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_API_BUILD_ENABLE}" \
+    "${ZRBGA_EMPTY_JSON}"
+  zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}" 409 "already enabled"
+
+  bcu_step 'Enable Cloud Storage API (may be needed internally by Cloud Build)'
+  zrbga_http_json "POST" \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/storage.googleapis.com:enable" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_API_STORAGE_ENABLE}" \
+    "${ZRBGA_EMPTY_JSON}"
+  zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" 409 "already enabled"
+
   local z_prop_delay_seconds=45
   bcu_step "Waiting ${z_prop_delay_seconds} seconds for API changes to propagate"
   sleep "${z_prop_delay_seconds}"
@@ -486,6 +509,45 @@ rbga_initialize_admin() {
   test "${z_state}" = "ENABLED" || bcu_die "Artifact Registry API not enabled. State: ${z_state}"
   bcu_log_args 'Artifact Registry API verified: ENABLED'
 
+  bcu_step 'Verify Cloud Build API'
+  zrbga_http_json "GET" \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_API_BUILD_VERIFY}"
+  zrbga_http_require_ok "Verify Cloud Build API" "${ZRBGA_INFIX_API_BUILD_VERIFY}"
+  z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_BUILD_VERIFY}" '.state') || z_state="UNKNOWN"
+  test "${z_state}" = "ENABLED" || bcu_die "Cloud Build API not enabled. State: ${z_state}"
+  bcu_log_args 'Cloud Build API verified: ENABLED'
+
+  bcu_step 'Verify Cloud Storage API'
+  zrbga_http_json "GET" \
+    "https://serviceusage.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}/services/storage.googleapis.com" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
+  zrbga_http_require_ok "Verify Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_VERIFY}"
+  z_state=$(zrbga_json_field_capture "${ZRBGA_INFIX_API_STORAGE_VERIFY}" '.state') || z_state="UNKNOWN"
+  test "${z_state}" = "ENABLED" || bcu_die "Cloud Storage API not enabled. State: ${z_state}"
+  bcu_log_args 'Cloud Storage API verified: ENABLED'
+
+  bcu_step 'Get project number for Cloud Build service account'
+  zrbga_http_json "GET" \
+    "https://cloudresourcemanager.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_PROJECT_INFO}"
+  zrbga_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}"
+
+  local z_project_number
+  z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
+    || bcu_die "Failed to extract project number"
+  bcu_info "Project number: ${z_project_number}"
+
+  bcu_step 'Grant Cloud Build service account access to Artifact Registry'
+  local z_gcb_service_account="${z_project_number}@cloudbuild.gserviceaccount.com"
+  zrbga_add_repo_iam_role "${z_gcb_service_account}" \
+    "${RBRR_GAR_LOCATION}" \
+    "${RBRR_GAR_REPOSITORY}" \
+    "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+
   bcu_step 'Create Artifact Registry repository'
   local z_repo_body="${BDU_TEMP_DIR}/rbga_create_repo.json"
   jq -n --arg format "DOCKER" '{format: $format}' > "${z_repo_body}"
@@ -499,6 +561,38 @@ rbga_initialize_admin() {
   bcu_success "Admin initialization complete"
   bcu_info "Admin RBRA file created: ${RBRR_ADMIN_RBRA_FILE}"
   bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
+}
+
+rbga_destroy_admin() {
+  zrbga_sentinel
+
+  bcu_doc_brief "Destroy project-specific GAR and GCB resources"
+  bcu_doc_shown || return 0
+
+  bcu_step 'Get OAuth token from admin'
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_step 'Delete Artifact Registry repository'
+  zrbga_http_json "DELETE" \
+    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}" \
+    "${z_token}" \
+    "${ZRBGA_INFIX_DELETE_REPO}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_code="000"
+
+  case "${z_code}" in
+    200|204) bcu_info "Repository deleted successfully" ;;
+    404) bcu_warn "Repository not found (already deleted)" ;;
+    *)
+      local z_err
+      z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
+      bcu_die "Failed to delete repository (HTTP ${z_code}): ${z_err}"
+      ;;
+  esac
+
+  bcu_success "Project resources destroyed (APIs remain enabled for other projects)"
 }
 
 rbga_list_service_accounts() {
