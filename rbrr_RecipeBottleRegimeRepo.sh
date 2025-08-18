@@ -35,6 +35,8 @@ RBRR_CHOSEN_VMIMAGE_ORIGIN=quay.io/podman/machine-os-wsl   # Alt is quay.io/podm
 
 RBRR_CHOSEN_IDENTITY=20250723-092042  # mow_x86_64_wsl mow_aarch64_wsl
 
+# Reference directory containing specs for all vessels: relative to project root
+RBRR_VESSEL_DIR=rbev-vessels
 
 # Google Cloud Platform configuration (shared by all GCP services)
 RBRR_GCP_PROJECT_ID=brm-recipemuster-proj
