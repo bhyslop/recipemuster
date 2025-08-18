@@ -40,7 +40,6 @@ zrbf_kindle() {
   test -n "${RBRR_GAR_PROJECT_ID:-}"      || bcu_die "RBRR_GAR_PROJECT_ID not set"
   test -n "${RBRR_GAR_LOCATION:-}"        || bcu_die "RBRR_GAR_LOCATION not set"
   test -n "${RBRR_GAR_REPOSITORY:-}"      || bcu_die "RBRR_GAR_REPOSITORY not set"
-  test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
   test -n "${RBRR_VESSEL_DIR:-}"          || bcu_die "RBRR_VESSEL_DIR not set"
 
   bcu_log_args 'Verify service account files'
@@ -310,11 +309,11 @@ zrbf_submit_build() {
   local z_recipe_name="${z_dockerfile_name%.*}"
 
   bcu_log_args 'Create build config with RBGY substitutions'
-  jq -n                                                         \
+    jq -n                                                         \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_tag            "${z_tag}"                         \
     --arg zjq_moniker        "${z_sigil}"                       \
-    --arg zjq_platforms      "${RBRR_BUILD_ARCHITECTURES}"      \
+    --arg zjq_platforms      "${RBRV_PLATFORMS}"                \
     --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
     --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
@@ -528,6 +527,15 @@ rbf_build() {
   bcu_log_args "Resolve paths from vessel configuration"
   test -f "${RBRV_CONJURE_DOCKERFILE}" || bcu_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
   test -d "${RBRV_CONJURE_BLDCONTEXT}" || bcu_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
+
+  bcu_log_args "Enforce vessel binfmt policy"
+  if test "${RBRV_BINFMT_POLICY}" = "forbid"; then
+    local z_native="$(uname -s | tr A-Z a-z)/$(uname -m)"
+    case " ${RBRV_PLATFORMS} " in
+      *"${z_native}"*) : ;;  # native arch allowed
+      *) bcu_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_PLATFORMS='${RBRV_PLATFORMS}'" ;;
+    esac
+  fi
 
   bcu_log_args "Generate build tag using vessel sigil"
   local z_tag="${RBRV_SIGIL}.${BDU_NOW_STAMP}"

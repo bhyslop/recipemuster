@@ -36,6 +36,12 @@ fi
 if test -n       "${RBRV_CONJURE_DOCKERFILE:-}"; then
     bvu_env_string  RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
     bvu_env_string  RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
+    bvu_env_string  RBRV_PLATFORMS               1    512  # Space-separated platforms (e.g. "linux/amd64 linux/arm64")
+    bvu_env_string  RBRV_BINFMT_POLICY           1     16  # Either "allow" or "forbid"
+    case "${RBRV_BINFMT_POLICY}" in
+        allow|forbid) : ;;
+        *) bcu_die "Invalid RBRV_BINFMT_POLICY: '${RBRV_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
+    esac
 fi
 
 # Validate at least one operation mode is configured
@@ -44,12 +50,11 @@ if test -z "${RBRV_BIND_IMAGE:-}" && test -z "${RBRV_CONJURE_DOCKERFILE:-}"; the
 fi
 
 # Validate sigil matches directory name (if we can determine it)
-# This assumes the rbrv.env file is in vessels/{sigil}/rbrv.env
 if test -n "${BASH_SOURCE[1]:-}"; then
     ZRBRV_ENV_PATH="${BASH_SOURCE[1]}"
     ZRBRV_DIR_NAME="${ZRBRV_ENV_PATH%/*}"
     ZRBRV_DIR_NAME="${ZRBRV_DIR_NAME##*/}"
-    
+
     if test "${ZRBRV_DIR_NAME}" != "${RBRV_SIGIL}"; then
         bcu_die "RBRV_SIGIL '${RBRV_SIGIL}' must match vessel directory name '${ZRBRV_DIR_NAME}'"
     fi

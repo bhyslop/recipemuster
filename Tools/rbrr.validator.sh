@@ -25,7 +25,6 @@ source "${ZRBRR_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 # Container Registry Configuration
 bvu_env_xname       RBRR_REGISTRY_OWNER          2     64
 bvu_env_xname       RBRR_REGISTRY_NAME           2     64
-bvu_env_string      RBRR_BUILD_ARCHITECTURES     1    255
 bvu_env_string      RBRR_HISTORY_DIR             1    255
 bvu_env_string      RBRR_NAMEPLATE_PATH          1    255
 bvu_env_string      RBRR_VESSEL_DIR              1    255
@@ -67,13 +66,6 @@ bvu_env_odref       RBRR_GCB_ORAS_IMAGE_REF
 # Validate directories exist
 bvu_dir_exists "${RBRR_HISTORY_DIR}"
 bvu_dir_exists "${RBRR_NAMEPLATE_PATH}"
-
-# Validate architecture format (os/arch)
-for zrbrr_arch in ${RBRR_BUILD_ARCHITECTURES}; do
-    if ! echo "${zrbrr_arch}" | grep -q '^[a-z0-9]\+/[a-z0-9_]\+$'; then
-        bcu_die "Invalid architecture format in RBRR_BUILD_ARCHITECTURES: ${zrbrr_arch}. Expected format: os/arch (e.g., linux/amd64)"
-    fi
-done
 
 # Validate manifest platforms format (space-separated identifiers)
 for zrbrr_platform in ${RBRR_MANIFEST_PLATFORMS}; do
