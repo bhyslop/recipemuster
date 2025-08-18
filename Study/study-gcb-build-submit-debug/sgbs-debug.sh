@@ -5,8 +5,20 @@ MY_TEMP="../../tmp-study-sgbs"
 rm -rf "${MY_TEMP}"
 mkdir -p "${MY_TEMP}"
 
-z_url="${1:?URL required}"
+# Accept either a full upload URL or a project id for $1
+z_url_input="${1:?URL or PROJECT required}"
 z_token="${2:?Token required}"
+
+case "${z_url_input}" in
+  http://*|https://*)
+    z_url="${z_url_input}"
+    ;;
+  *)
+    # If a project id was provided, construct the upload endpoint
+    z_url="https://cloudbuild.googleapis.com/upload/v1/projects/${z_url_input}/builds"
+    ;;
+esac
+
 z_boundary="__test_$$_${RANDOM}"
 
 echo "SGBS: temp dir: ${MY_TEMP}"
@@ -20,8 +32,15 @@ EOF
 echo "SGBS: build.json:"
 cat "${MY_TEMP}/build.json"
 
+# Create a tiny cloudbuild.yaml in the temp dir so tar doesn't depend on CWD
 echo "SGBS: 2) make a tiny tar.gz with cloudbuild.yaml at root"
-tar -C . -czf "${MY_TEMP}/src.tgz" cloudbuild.yaml
+cat > "${MY_TEMP}/cloudbuild.yaml" <<'EOF'
+steps:
+- name: gcr.io/cloud-builders/busybox
+  args: ["echo","study upload OK"]
+EOF
+
+tar -C "${MY_TEMP}" -czf "${MY_TEMP}/src.tgz" cloudbuild.yaml
 ls -l "${MY_TEMP}/src.tgz"
 
 echo "SGBS: 3) construct the multipart"
