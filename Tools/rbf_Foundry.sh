@@ -353,37 +353,39 @@ zrbf_submit_build() {
     }' > "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
 
   bcu_log_args 'Submit build with inline source upload'
-  curl -s -X POST                                                         \
-       -H "Authorization: Bearer ${z_token}"                              \
-       -H "Content-Type: application/json"                                \
-       -H "x-goog-upload-protocol: multipart"                             \
-       -F "metadata=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"     \
-       -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"       \
-       "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
-       > "${ZRBF_BUILD_RESPONSE_FILE}"                                    \
-    || bcu_die "Failed to submit build"
-
-  bcu_log_args 'Validate response file'
-  test -f "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Build response file not created"
-  test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Build response file is empty"
-
-  bcu_log_args "Extract build ID from response"
-  jq -r '.name' "${ZRBF_BUILD_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to extract build name"
-
-  bcu_log_args 'Parse build ID from full path using parameter expansion'
-  local z_full=""
-  z_full=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build name path"
-  local z_only="${z_full##*/}"
-  printf '%s' "${z_only}" > "${ZRBF_BUILD_ID_TMP_FILE}" || bcu_die "Failed to write temp build ID"
-  mv "${ZRBF_BUILD_ID_TMP_FILE}" "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to finalize build ID"
-
-  local z_build_id=""
-  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build ID"
-  test -n "${z_build_id}" || bcu_die "Build ID is empty"
-
+  curl -sS -X POST                                                   \
+    -H "Authorization: Bearer ${z_token}"                            \
+    -H "Content-Type: application/json"                              \
+    -H "x-goog-upload-protocol: multipart"                           \
+    -F "metadata=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"   \
+    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"     \
+    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
+    -w "%{http_code}"                                                \
+    "${ZRBF_GCB_PROJECT_BUILDS_URL}" > "${BDU_TEMP_DIR}/rbf_build_http_code.txt"
+  
+  z_http=$(<"${BDU_TEMP_DIR}/rbf_build_http_code.txt")
+  test -n "${z_http}" || bcu_die "No HTTP status from Cloud Build create"
+  test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Empty Cloud Build response"
+  
+  bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
+  if [ "${z_http}" != "200" ]; then
+    z_err=$(jq -r '.error.message // "Unknown error (no message)"' "${ZRBF_BUILD_RESPONSE_FILE}")
+    bcu_die "Cloud Build create failed (HTTP ${z_http}): ${z_err}"
+  fi
+  
+  bcu_log_args 'Parse Long-Running Operation (LRO)'
+  jq -r '.name // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${BDU_TEMP_DIR}/rbf_operation_name.txt"
+  
+  bcu_log_args 'Build ID is under operation.metadata.build.id'
+  jq -r '.metadata.build.id // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}"
+  
+  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}")
+  test -n "${z_build_id}" || bcu_die "Cloud Build did not return a build id in operation.metadata.build.id"
+  
+  bcu_log_args 'Now make the Console link with a real BUILD ID'
   local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
-  bcu_link "Open build in Cloud Console" "${z_console_url}"
+  bcu_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 }
 
 zrbf_submit_copy() {
@@ -455,7 +457,7 @@ zrbf_submit_copy() {
 
   local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
   bcu_info "Copy submitted: ${z_build_id}"
-  bcu_link "Open copy in Cloud Console" "${z_console_url}"
+  bcu_link "Click to " "Open copy in Cloud Console" "${z_console_url}"
 }
 
 zrbf_wait_build_completion() {

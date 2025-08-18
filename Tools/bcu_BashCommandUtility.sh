@@ -327,20 +327,37 @@ bcu_execute() {
 zbcu_hyperlink() {
   local z_text="${1:-}"
   local z_url="${2:-}"
+
+  # ANSI codes for blue underlined text
+  local z_blue_underline='\033[34m\033[4m'
+  local z_reset='\033[0m'
+
   if [ -n "${BDU_NO_HYPERLINKS:-}" ]; then
-    printf '%s <%s>' "${z_text}" "${z_url}"
+    # Fallback: blue underlined text with URL in angle brackets
+    printf '%s%s%s <%s>' "${z_blue_underline}" "${z_text}" "${z_reset}" "${z_url}"
     return 0
   fi
-  # OSC-8: \e]8;;URL\e\TEXT\e]8;;\e\
-  printf '\033]8;;%s\033\\%s\033]8;;\033\\' "${z_url}" "${z_text}"
+
+  # OSC-8 with blue underline formatting
+  printf '%s\033]8;;%s\033\\%s\033]8;;\033\\%s' \
+    "${z_blue_underline}" "${z_url}" "${z_text}" "${z_reset}"
 }
 
-# bcu_link "Text" "URL"  (prints to stderr like other user-visible messages)
+# bcu_link "Prefix text" "Link text" "URL"  (prints to stderr like other user-visible messages)
 bcu_link() {
-  zbcu_tag_args 3 "bcu_link    " "$1 -> $2"
+  local z_prefix="${1:-}"
+  local z_text="${2:-}"
+  local z_url="${3:-}"
+
+  zbcu_tag_args 3 "bcu_link    " "${z_prefix} ${z_text} -> ${z_url}"
+
   # Always show at verbosity >= 0 (same visibility as bcu_step)
   if [ "${BCU_VERBOSE:-0}" -ge 0 ]; then
-    zbcu_hyperlink "${1:-}" "${2:-}" >&2
+    # Print prefix text if provided
+    test -n "${z_prefix}" && printf '%s ' "${z_prefix}" >&2
+
+    # Print formatted hyperlink
+    zbcu_hyperlink "${z_text}" "${z_url}" >&2
     echo >&2
   fi
 }
