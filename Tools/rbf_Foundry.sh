@@ -369,13 +369,12 @@ zrbf_submit_build() {
   
   bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
   if [ "${z_http}" != "200" ]; then
+    bcu_log_args "Raw response body on error follows:"
+    bcu_log_pipe < "${ZRBF_BUILD_RESPONSE_FILE}"
     z_err=$(jq -r '
-      if .error then
-        (.error.message // "Unknown error")
-        + (if (.error.details[0].fieldViolations // empty) then "" else
-            " [" + ((.error.details[0].fieldViolations[] | .field + ": " + .description) | join("; ")) + "]"
-          end)
-      else "Unknown error (no .error)" end' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null || echo "Unknown error")
+      if .error then (.error.message // "Unknown error")
+      else "Unknown error (no .error in response)" end
+    ' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null || echo "Unknown error")
     bcu_die "Cloud Build create failed (HTTP ${z_http}): ${z_err}"
   fi
   
