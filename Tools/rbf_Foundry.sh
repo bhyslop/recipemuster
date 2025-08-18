@@ -358,10 +358,10 @@ zrbf_submit_build() {
     -H "x-goog-upload-protocol: multipart"                           \
     -H "Accept: application/json"                                    \
     -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"      \
-    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"     \
+    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream" \
     -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
     -w "%{http_code}"                                                \
-    "${ZRBF_GCB_PROJECT_BUILDS_URL}" > "${BDU_TEMP_DIR}/rbf_build_http_code.txt"
+    "${ZRBF_GCB_PROJECT_BUILDS_URL}?uploadType=multipart" > "${BDU_TEMP_DIR}/rbf_build_http_code.txt"
   
   z_http=$(<"${BDU_TEMP_DIR}/rbf_build_http_code.txt")
   test -n "${z_http}" || bcu_die "No HTTP status from Cloud Build create"
@@ -437,8 +437,8 @@ zrbf_submit_copy() {
        -H "x-goog-upload-protocol: multipart"                             \
        -H "Accept: application/json"                                      \
        -F "build=@${ZRBF_COPY_CONFIG_FILE};type=application/json"         \
-       -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/gzip"        \
-       "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
+       -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/octet-stream"\
+       "${ZRBF_GCB_PROJECT_BUILDS_URL}?uploadType=multipart"              \
        > "${ZRBF_COPY_RESPONSE_FILE}"                                     \
     || bcu_die "Failed to submit copy build"
 
