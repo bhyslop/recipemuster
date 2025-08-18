@@ -142,7 +142,10 @@ zrbf_load_vessel() {
   source "${z_validator_dir}/rbrv.validator.sh" || bcu_die "Failed to validate vessel configuration"
 
   bcu_log_args 'Validate vessel directory matches sigil'
-  local z_dir_name="${z_vessel_dir##*/}"
+  local z_vessel_dir_clean="${z_vessel_dir%/}"  # Strip any trailing slash
+  local z_dir_name="${z_vessel_dir_clean##*/}"  # Extract directory name
+  bcu_log_args "  z_vessel_dir = ${z_vessel_dir}"
+  bcu_log_args "  z_dir_name   = ${z_dir_name}"
   test "${z_dir_name}" = "${RBRV_SIGIL}" || bcu_die "Vessel sigil '${RBRV_SIGIL}' does not match directory name '${z_dir_name}'"
 
   bcu_log_args 'Validate vessel path matches expected pattern'

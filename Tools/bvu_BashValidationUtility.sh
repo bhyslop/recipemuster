@@ -339,41 +339,42 @@ bvu_val_port() {
   echo "$val"
 }
 
-# OCI/Docker image reference that MUST be digest-pinned (…@sha256:<64hex>)
+# OCI/Docker image reference that MUST be digest-pinned
+# Accepts:
+#   - Any registry host: letters, digits, dots, hyphens; optional :port
+#   - Repository path: one or more slash-separated lowercase segments [a-z0-9._-]
+#   - Mandatory digest: @sha256:<64 lowercase hex>
+#
 # Examples:
-#   ghcr.io/jqlang/jq@sha256:4f34c6d2...5091ce6f91
-#   gcr.io/go-containerregistry/gcrane@sha256:b6f6b7...3dc5025
-#   docker.io/anchore/syft@sha256:8ad91b3...e91b9e018
+#   docker.io/stedolan/jq@sha256:...
+#   ghcr.io/anchore/syft@sha256:...
+#   gcr.io/go-containerregistry/gcrane@sha256:...
+#   us-central1-docker.pkg.dev/my-proj/my-repo/tool@sha256:...
 bvu_val_odref() {
   local varname=$1
   local val=$2
-  local default=${3-}  # empty permitted only if caller provides default
+  local default=${3-}  # empty permitted (only if caller wants to allow empty)
 
   test -n "$varname" || bcu_die "varname parameter is required"
 
-  # Defaulting
+  # Defaulting when allowed by caller
   if [ -z "$val" -a -n "$default" ]; then
     val="$default"
   fi
 
-  # Must not be empty
+  # Must not be empty here (use bvu_opt_odref for optional)
   test -n "$val" || bcu_die "$varname must not be empty"
 
-  # No whitespace
-  echo "$val" | grep -Eq '^\S+$' || bcu_die "$varname must not contain whitespace, got '$val'"
-
-  # Require an @sha256:<64-hex> digest suffix
-  echo "$val" | grep -Eq '@sha256:[0-9a-fA-F]{64}$' \
-    || bcu_die "$varname must be digest-pinned (…@sha256:<64-hex>), got '$val'"
-
-  # Basic sanity for the image path (very permissive, avoids false negatives)
-  #   start with alnum, may include dots, dashes, underscores, slashes, and colons (for registry:port / tag segment before @)
-  echo "$val" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._/-:]*@sha256:[0-9a-fA-F]{64}$' \
-    || bcu_die "$varname has invalid image reference format, got '$val'"
+  # Enforce digest-pinned image ref:
+  #   host[:port]/repo(/subrepo)@sha256:64hex
+  #   - host: [a-z0-9.-]+ with optional :port
+  #   - each repo segment: [a-z0-9._-]+ (lowercase)
+  #   - digest algo fixed to sha256 with 64 lowercase hex chars
+  local _re='^[a-z0-9.-]+(:[0-9]{2,5})?/([a-z0-9._-]+/)*[a-z0-9._-]+@sha256:[0-9a-f]{64}$'
+  echo "$val" | grep -Eq "$_re" || bcu_die "$varname has invalid image reference format (require host[:port]/repo@sha256:<64hex>), got '$val'"
 
   echo "$val"
 }
-
 
 # List validators
 bvu_val_list_ipv4() {

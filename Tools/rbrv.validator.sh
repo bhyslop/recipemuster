@@ -51,16 +51,5 @@ if test -z "${RBRV_BIND_IMAGE:-}" && test -z "${RBRV_CONJURE_DOCKERFILE:-}"; the
     bcu_die "Vessel must define either RBRV_BIND_IMAGE (for binding) or RBRV_CONJURE_DOCKERFILE (for conjuring)"
 fi
 
-# Validate sigil matches directory name (if we can determine it)
-if test -n "${BASH_SOURCE[1]:-}"; then
-    ZRBRV_ENV_PATH="${BASH_SOURCE[1]}"
-    ZRBRV_DIR_NAME="${ZRBRV_ENV_PATH%/*}"
-    ZRBRV_DIR_NAME="${ZRBRV_DIR_NAME##*/}"
-
-    if test "${ZRBRV_DIR_NAME}" != "${RBRV_SIGIL}"; then
-        bcu_die "RBRV_SIGIL '${RBRV_SIGIL}' must match vessel directory name '${ZRBRV_DIR_NAME}'"
-    fi
-fi
-
 # eof
 
