@@ -150,8 +150,9 @@ steps:
           --annotation "org.opencontainers.image.title=package_summary.txt"
 
 options:
-  machineType: ${_RBGY_MACHINE_TYPE}
+  machineType: "${_RBGY_MACHINE_TYPE}"
   logging: CLOUD_LOGGING_ONLY
+timeout: "${_RBGY_TIMEOUT}"
 
 timeout: ${_RBGY_TIMEOUT}
 

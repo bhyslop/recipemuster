@@ -355,8 +355,8 @@ zrbf_submit_build() {
   bcu_log_args 'Submit build with inline source upload'
   curl -sS -X POST                                                   \
     -H "Authorization: Bearer ${z_token}"                            \
-    -H "Content-Type: application/json"                              \
     -H "x-goog-upload-protocol: multipart"                           \
+    -H "Accept: application/json"                                    \
     -F "metadata=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"   \
     -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"     \
     -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
@@ -369,7 +369,13 @@ zrbf_submit_build() {
   
   bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
   if [ "${z_http}" != "200" ]; then
-    z_err=$(jq -r '.error.message // "Unknown error (no message)"' "${ZRBF_BUILD_RESPONSE_FILE}")
+    z_err=$(jq -r '
+      if .error then
+        (.error.message // "Unknown error")
+        + (if (.error.details[0].fieldViolations // empty) then "" else
+            " [" + ((.error.details[0].fieldViolations[] | .field + ": " + .description) | join("; ")) + "]"
+          end)
+      else "Unknown error (no .error)" end' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null || echo "Unknown error")
     bcu_die "Cloud Build create failed (HTTP ${z_http}): ${z_err}"
   fi
   
@@ -427,10 +433,10 @@ zrbf_submit_copy() {
   zrbf_package_copy_context
 
   bcu_log_args 'Submit copy build with packaged context'
-  curl -s -X POST                                                         \
+  curl -sS -X POST                                                        \
        -H "Authorization: Bearer ${z_token}"                              \
-       -H "Content-Type: application/json"                                \
        -H "x-goog-upload-protocol: multipart"                             \
+       -H "Accept: application/json"                                      \
        -F "metadata=@${ZRBF_COPY_CONFIG_FILE};type=application/json"      \
        -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/gzip"        \
        "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
