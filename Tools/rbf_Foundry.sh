@@ -354,21 +354,36 @@ zrbf_submit_build() {
         _RBGY_GCRANE_REF:     $zjq_gcrane_ref,
         _RBGY_ORAS_REF:       $zjq_oras_ref
       }
-    }' > "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
+    }' >  "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
+  test -s "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config file is empty"
 
-  bcu_log_args 'Submit build with inline source upload'
-  curl -sS -X POST                                                        \
-    -H "Authorization: Bearer ${z_token}"                                 \
-    -H "x-goog-upload-protocol: multipart"                                \
-    -H "Accept: application/json"                                         \
-    -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"           \
-    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream"  \
-    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
-    -w "%{http_code}"                                                     \
+  bcu_log_args 'Build a multipart/related body: part 1 = build JSON, part 2 = tar.gz'
+  local z_boundary="__rbf_cb_$$_${BDU_NOW_STAMP}"
+  local z_body_file="${BDU_TEMP_DIR}/rbf_build_mpart.body"
+  : > "${z_body_file}"
+
+  {
+    printf -- "--%s\r\n" "${z_boundary}"
+    printf "Content-Type: application/json; charset=UTF-8\r\n\r\n"
+    cat "${ZRBF_BUILD_CONFIG_FILE}"
+    printf "\r\n--%s\r\n" "${z_boundary}"
+    printf "Content-Type: application/octet-stream\r\n\r\n"
+    cat "${ZRBF_BUILD_CONTEXT_TAR}"
+    printf "\r\n--%s--\r\n" "${z_boundary}"
+  } >> "${z_body_file}"
+
+  bcu_log_args 'Submit build'
+  curl -sS -X POST                                                   \
+    -H "Authorization: Bearer ${z_token}"                            \
+    -H "Accept: application/json"                                    \
+    -H "Content-Type: multipart/related; boundary=${z_boundary}"     \
+    --data-binary @"${z_body_file}"                                  \
+    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
+    -w "%{http_code}"                                                \
     "${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart" > "${ZRBF_BUILD_HTTP_CODE}"
   
   z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
-  test -n "${z_http}" || bcu_die "No HTTP status from Cloud Build create"
+  test -n "${z_http}"                   || bcu_die "No HTTP status from Cloud Build create"
   test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Empty Cloud Build response"
   
   bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
@@ -400,73 +415,7 @@ zrbf_submit_build() {
 zrbf_submit_copy() {
   zrbf_sentinel
 
-  local z_src_image="$1"
-  local z_dest_path="$2"
-  local z_dest_tag="$3"
-
-  bcu_step 'Submitting copy to Google Cloud Build'
-
-  bcu_log_args 'Get OAuth token using capture function'
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
-
-  bcu_log_args 'Create copy config with RBGY substitutions'
-  jq -n                                                         \
-    --arg zjq_src_image      "${z_src_image}"                   \
-    --arg zjq_dest_path      "${z_dest_path}"                   \
-    --arg zjq_dest_tag       "${z_dest_tag}"                    \
-    --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
-    --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
-    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
-    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
-    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
-    '{
-      substitutions: {
-        _SRC_IMAGE:           $zjq_src_image,
-        _DEST_PATH:           $zjq_dest_path,
-        _DEST_TAG:            $zjq_dest_tag,
-        _RBGY_GAR_LOCATION:   $zjq_gar_location,
-        _RBGY_GAR_PROJECT:    $zjq_gar_project,
-        _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
-        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
-        _RBGY_TIMEOUT:        $zjq_timeout
-      }
-    }' > "${ZRBF_COPY_CONFIG_FILE}" || bcu_die "Failed to create copy config"
-
-  zrbf_package_copy_context
-
-  bcu_log_args 'Submit copy build with packaged context'
-  curl -sS -X POST                                                             \
-       -H "Authorization: Bearer ${z_token}"                                   \
-       -H "x-goog-upload-protocol: multipart"                                  \
-       -H "Accept: application/json"                                           \
-       -F "build=@${ZRBF_COPY_CONFIG_FILE};type=application/json"              \
-       -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/octet-stream"     \
-       "${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart"            \
-       > "${ZRBF_COPY_RESPONSE_FILE}"                                          \
-    || bcu_die "Failed to submit copy build"
-
-  bcu_log_args 'Validate response file'
-  test -f "${ZRBF_COPY_RESPONSE_FILE}" || bcu_die "Copy response file not created"
-  test -s "${ZRBF_COPY_RESPONSE_FILE}" || bcu_die "Copy response file is empty"
-
-  bcu_log_args "Extract build ID from response"
-  jq -r '.name' "${ZRBF_COPY_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to extract build name"
-
-  bcu_log_args 'Parse build ID from full path using parameter expansion'
-  local z_full=""
-  z_full=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build name path"
-  local z_only="${z_full##*/}"
-  printf '%s' "${z_only}" > "${ZRBF_BUILD_ID_TMP_FILE}" || bcu_die "Failed to write temp build ID"
-  mv "${ZRBF_BUILD_ID_TMP_FILE}" "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to finalize build ID"
-
-  local z_build_id=""
-  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build ID"
-  test -n "${z_build_id}" || bcu_die "Build ID is empty"
-
-  local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
-  bcu_info "Copy submitted: ${z_build_id}"
-  bcu_link "Click to " "Open copy in Cloud Console" "${z_console_url}"
+  bcu_die 'ELIDED FOR NOW'
 }
 
 zrbf_wait_build_completion() {
@@ -575,34 +524,7 @@ rbf_build() {
 rbf_copy() {
   zrbf_sentinel
 
-  local z_vessel_dir="${1:-}"
-
-  # Documentation block
-  bcu_doc_brief "Copy container image from vessel binding to registry"
-  bcu_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
-  bcu_doc_shown || return 0
-
-  bcu_log_args "Validate parameters"
-  test -n "${z_vessel_dir}" || bcu_die "Vessel directory required"
-
-  # Load and validate vessel
-  zrbf_load_vessel "${z_vessel_dir}"
-
-  bcu_log_args "Verify vessel has binding configuration"
-  test -n "${RBRV_BIND_IMAGE:-}" || bcu_die "Vessel '${RBRV_SIGIL}' is not configured for binding (no RBRV_BIND_IMAGE)"
-
-  bcu_log_args "Generate copy tag using vessel sigil"
-  local z_tag="${RBRV_SIGIL}.${BDU_NOW_STAMP}"
-
-  bcu_info "Copying vessel image: ${RBRV_BIND_IMAGE} -> ${RBRV_SIGIL}:${z_tag}"
-
-  # Submit copy build
-  zrbf_submit_copy "${RBRV_BIND_IMAGE}" "${RBRV_SIGIL}" "${z_tag}"
-
-  # Wait for completion
-  zrbf_wait_build_completion
-
-  bcu_success "Vessel image copied: ${RBRV_SIGIL}:${z_tag}"
+  bcu_die 'ELIDED FOR NOW'
 }
 
 rbf_delete() {
