@@ -357,7 +357,7 @@ zrbf_submit_build() {
     -H "Authorization: Bearer ${z_token}"                            \
     -H "x-goog-upload-protocol: multipart"                           \
     -H "Accept: application/json"                                    \
-    -F "metadata=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"   \
+    -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"      \
     -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/gzip"     \
     -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
     -w "%{http_code}"                                                \
@@ -437,7 +437,7 @@ zrbf_submit_copy() {
        -H "Authorization: Bearer ${z_token}"                              \
        -H "x-goog-upload-protocol: multipart"                             \
        -H "Accept: application/json"                                      \
-       -F "metadata=@${ZRBF_COPY_CONFIG_FILE};type=application/json"      \
+       -F "build=@${ZRBF_COPY_CONFIG_FILE};type=application/json"         \
        -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/gzip"        \
        "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
        > "${ZRBF_COPY_RESPONSE_FILE}"                                     \
