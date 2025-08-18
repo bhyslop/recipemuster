@@ -51,7 +51,10 @@ zrbf_kindle() {
   ZRBF_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
   ZRBF_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
 
+  ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
+
   ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
+  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
   ZRBF_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   bcu_log_args 'Registry API endpoints for delete'
@@ -76,6 +79,7 @@ zrbf_kindle() {
   ZRBF_BUILD_STATUS_FILE="${BDU_TEMP_DIR}/rbf_build_status.json"
   ZRBF_BUILD_LOG_FILE="${BDU_TEMP_DIR}/rbf_build_log.txt"
   ZRBF_BUILD_RESPONSE_FILE="${BDU_TEMP_DIR}/rbf_build_response.json"
+  ZRBF_BUILD_HTTP_CODE="${BDU_TEMP_DIR}/rbf_build_http_code.txt"
 
   bcu_log_args 'Define copy staging files'
   ZRBF_COPY_STAGING_DIR="${BDU_TEMP_DIR}/rbf_copy_staging"
@@ -353,17 +357,17 @@ zrbf_submit_build() {
     }' > "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
 
   bcu_log_args 'Submit build with inline source upload'
-  curl -sS -X POST                                                   \
-    -H "Authorization: Bearer ${z_token}"                            \
-    -H "x-goog-upload-protocol: multipart"                           \
-    -H "Accept: application/json"                                    \
-    -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"      \
-    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream" \
-    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
-    -w "%{http_code}"                                                \
-    "${ZRBF_GCB_PROJECT_BUILDS_URL}?uploadType=multipart" > "${BDU_TEMP_DIR}/rbf_build_http_code.txt"
+  curl -sS -X POST                                                        \
+    -H "Authorization: Bearer ${z_token}"                                 \
+    -H "x-goog-upload-protocol: multipart"                                \
+    -H "Accept: application/json"                                         \
+    -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json"           \
+    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream"  \
+    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
+    -w "%{http_code}"                                                     \
+    "${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart" > "${ZRBF_BUILD_HTTP_CODE}"
   
-  z_http=$(<"${BDU_TEMP_DIR}/rbf_build_http_code.txt")
+  z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
   test -n "${z_http}" || bcu_die "No HTTP status from Cloud Build create"
   test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Empty Cloud Build response"
   
@@ -432,14 +436,14 @@ zrbf_submit_copy() {
   zrbf_package_copy_context
 
   bcu_log_args 'Submit copy build with packaged context'
-  curl -sS -X POST                                                        \
-       -H "Authorization: Bearer ${z_token}"                              \
-       -H "x-goog-upload-protocol: multipart"                             \
-       -H "Accept: application/json"                                      \
-       -F "build=@${ZRBF_COPY_CONFIG_FILE};type=application/json"         \
-       -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/octet-stream"\
-       "${ZRBF_GCB_PROJECT_BUILDS_URL}?uploadType=multipart"              \
-       > "${ZRBF_COPY_RESPONSE_FILE}"                                     \
+  curl -sS -X POST                                                             \
+       -H "Authorization: Bearer ${z_token}"                                   \
+       -H "x-goog-upload-protocol: multipart"                                  \
+       -H "Accept: application/json"                                           \
+       -F "build=@${ZRBF_COPY_CONFIG_FILE};type=application/json"              \
+       -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/octet-stream"     \
+       "${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart"            \
+       > "${ZRBF_COPY_RESPONSE_FILE}"                                          \
     || bcu_die "Failed to submit copy build"
 
   bcu_log_args 'Validate response file'
