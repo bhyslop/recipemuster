@@ -562,33 +562,24 @@ rbf_study() {
   bcu_doc_brief "Run minimal Cloud Build multipart study in-place"
   bcu_doc_shown || return 0
 
-  bcu_step 'Mint Cloud Build OAuth token (Director)'
+  bcu_step "Mint Cloud Build OAuth token (Director)"
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
+
   test -n "${RBRR_GCB_PROJECT_ID:-}" || bcu_die "RBRR_GCB_PROJECT_ID not set"
   test -n "${RBRR_GCB_REGION:-}"     || bcu_die "RBRR_GCB_REGION not set"
 
-  bcu_step 'Execute study script from its own directory'
+  bcu_step "Execute study script from its own directory with parameters"
   local z_tools_dir="${BASH_SOURCE[0]%/*}"
   local z_repo_root="${z_tools_dir%/*}"
   local z_study_dir="${z_repo_root}/Study/study-gcb-build-submit-debug"
   local z_script="${z_study_dir}/sgbs-debug.sh"
   test -f "${z_script}" || bcu_die "Study script not found: ${z_script}"
 
-  bcu_step 'Escape token for sed replacement (| delimiter; escape \, &, and |)'
-  local z_tok="${z_token}"
-  z_tok="${z_tok//\\/\\\\}"
-  z_tok="${z_tok//&/\\&}"
-  z_tok="${z_tok//|/\\|}"
+  ( cd "${z_study_dir}" && ./sgbs-debug.sh "${RBRR_GCB_PROJECT_ID}" "${RBRR_GCB_REGION}" "${z_token}" ) \
+    || bcu_die "Study script failed"
 
-  ( cd "${z_study_dir}" \
-    && sed -e "s|PROJECT|${RBRR_GCB_PROJECT_ID}|g" \
-           -e "s|REGION|${RBRR_GCB_REGION}|g" \
-           -e "s|TOKEN|${z_tok}|g" \
-           "sgbs-debug.sh" \
-       | bash ) || bcu_die "Study script failed"
-
-  bcu_success 'Study run completed'
+  bcu_success "Study run completed"
 }
 
 rbf_delete() {
