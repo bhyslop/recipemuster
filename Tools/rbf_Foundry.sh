@@ -385,7 +385,7 @@ zrbf_submit_build() {
     -H "Accept: application/json"                                         \
     -H "Content-Type: multipart/related; boundary=${z_boundary}"          \
     --data-binary @"${z_body_file}"                                       \
-    -D "${BDU_TEMP_DIR}/rbf_build_resp_headers.txt"                       \
+    -D "${z_resp_headers}"                                                \
     -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
     -w "%{http_code}"                                                     \
     "${z_url}" > "${ZRBF_BUILD_HTTP_CODE}"
