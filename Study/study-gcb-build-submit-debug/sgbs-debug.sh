@@ -5,9 +5,14 @@ MY_TEMP="../../tmp-study-sgbs"
 rm -rf "${MY_TEMP}"
 mkdir -p "${MY_TEMP}"
 
-# Ignore first arg; always use the proper regional upload URL
-z_url="https://cloudbuild.googleapis.com/upload/v1/projects/brm-recipemuster-proj/locations/us-central1/builds"
-z_token="${2:?Token required}"
+# Accept only the OAuth token
+z_token="${1:?Token required}"
+
+# Hardcode GCP project/region and build upload URL
+z_project="brm-recipemuster-proj"
+z_region="us-central1"
+z_url="https://cloudbuild.googleapis.com/upload/v1/projects/${z_project}/locations/${z_region}/builds"
+
 z_boundary="__test_$$_${RANDOM}"
 
 echo "SGBS: temp dir: ${MY_TEMP}"

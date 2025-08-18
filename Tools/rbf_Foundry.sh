@@ -576,8 +576,7 @@ rbf_study() {
   local z_script="${z_study_dir}/sgbs-debug.sh"
   test -f "${z_script}" || bcu_die "Study script not found: ${z_script}"
 
-  ( cd "${z_study_dir}" && ./sgbs-debug.sh "${RBRR_GCB_PROJECT_ID}" "${RBRR_GCB_REGION}" "${z_token}" ) \
-    || bcu_die "Study script failed"
+  ( cd "${z_study_dir}" && ./sgbs-debug.sh "${z_token}" ) || bcu_die "Study script failed"
 
   bcu_success "Study run completed"
 }
