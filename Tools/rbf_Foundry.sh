@@ -372,12 +372,18 @@ zrbf_submit_build() {
     printf "\r\n--%s--\r\n" "${z_boundary}"
   } >> "${z_body_file}"
 
-  bcu_log_args 'Submit build'
+  bcu_log_args 'Submit build (multipart/form-data with build + source parts)'
+  # Save headers for debugging
   local z_resp_headers="${BDU_TEMP_DIR}/rbf_build_http_headers.txt"
+
+  # Sanity: build JSON is valid & non-empty
+  jq empty "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config is not valid JSON"
+  test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
 
   curl -sS -X POST \
     -H "Authorization: Bearer ${z_token}" \
     -H "Accept: application/json" \
+    --http1.1 \
     -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json" \
     -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream" \
     -D "${z_resp_headers}" \
@@ -394,7 +400,6 @@ zrbf_submit_build() {
     bcu_log_args "Response headers:"
     bcu_log_pipe < "${z_resp_headers}"
 
-    bcu_log_args 'Try to parse JSON error; if it fails, show a raw tail of the body'
     if ! z_err=$(jq -r 'if .error then (.error.message // "Unknown error") else "Unknown error (no .error in response)" end' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null); then
       bcu_log_args "Non-JSON response body (tail, 1KB):"
       tail -c 1024 "${ZRBF_BUILD_RESPONSE_FILE}" | bcu_log_pipe
