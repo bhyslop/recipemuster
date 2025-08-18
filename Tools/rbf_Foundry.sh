@@ -296,7 +296,7 @@ zrbf_submit_build() {
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
-  bcu_log_args "Read git info from file"
+  bcu_log_args 'Read git info from file'
   jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_COMMIT_FILE}" || bcu_die "Failed to extract git commit"
   jq -r '.branch' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_BRANCH_FILE}" || bcu_die "Failed to extract git branch"
   jq -r '.repo'   "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_REPO_FILE}"   || bcu_die "Failed to extract git repo"
@@ -373,39 +373,48 @@ zrbf_submit_build() {
   } >> "${z_body_file}"
 
   bcu_log_args 'Submit build'
-  curl -sS -X POST                                                   \
-    -H "Authorization: Bearer ${z_token}"                            \
-    -H "Accept: application/json"                                    \
-    -H "Content-Type: multipart/related; boundary=${z_boundary}"     \
-    --data-binary @"${z_body_file}"                                  \
-    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                 \
-    -w "%{http_code}"                                                \
+  local z_resp_headers="${BDU_TEMP_DIR}/rbf_build_http_headers.txt"
+
+  curl -sS -X POST \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: application/json" \
+    -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json" \
+    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream" \
+    -D "${z_resp_headers}" \
+    -o "${ZRBF_BUILD_RESPONSE_FILE}" \
+    -w "%{http_code}" \
     "${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart" > "${ZRBF_BUILD_HTTP_CODE}"
-  
+
   z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
   test -n "${z_http}"                   || bcu_die "No HTTP status from Cloud Build create"
   test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Empty Cloud Build response"
-  
+
   bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
   if [ "${z_http}" != "200" ]; then
-    bcu_log_args "Raw response body on error follows:"
-    bcu_log_pipe < "${ZRBF_BUILD_RESPONSE_FILE}"
-    z_err=$(jq -r '
-      if .error then (.error.message // "Unknown error")
-      else "Unknown error (no .error in response)" end
-    ' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null || echo "Unknown error")
+    bcu_log_args "Response headers:"
+    bcu_log_pipe < "${z_resp_headers}"
+
+    bcu_log_args 'Try to parse JSON error; if it fails, show a raw tail of the body'
+    if ! z_err=$(jq -r 'if .error then (.error.message // "Unknown error") else "Unknown error (no .error in response)" end' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null); then
+      bcu_log_args "Non-JSON response body (tail, 1KB):"
+      tail -c 1024 "${ZRBF_BUILD_RESPONSE_FILE}" | bcu_log_pipe
+      z_err="Unknown error (non-JSON response)"
+    else
+      bcu_log_args "Raw response body on error follows:"
+      bcu_log_pipe < "${ZRBF_BUILD_RESPONSE_FILE}"
+    fi
     bcu_die "Cloud Build create failed (HTTP ${z_http}): ${z_err}"
   fi
-  
+
   bcu_log_args 'Parse Long-Running Operation (LRO)'
   jq -r '.name // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${BDU_TEMP_DIR}/rbf_operation_name.txt"
-  
+
   bcu_log_args 'Build ID is under operation.metadata.build.id'
   jq -r '.metadata.build.id // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}"
-  
+
   z_build_id=$(<"${ZRBF_BUILD_ID_FILE}")
   test -n "${z_build_id}" || bcu_die "Cloud Build did not return a build id in operation.metadata.build.id"
-  
+
   bcu_log_args 'Now make the Console link with a real BUILD ID'
   local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
