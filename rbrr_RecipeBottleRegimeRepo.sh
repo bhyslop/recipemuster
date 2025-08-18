@@ -57,16 +57,16 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 # Google Cloud Build tool image pins (digest-pinned, ~spring 2025)
 # These are only used inside GCB build steps (_RBGY_* substitutions).
 
-# jq – JSON processor, stable digest pin
+# jq: JSON processor, stable digest pin
 RBRR_GCB_JQ_IMAGE_REF="docker.io/stedolan/jq@sha256:9f3506d9e1d06d76a8b9c37b60f8a2c4f066faab418b6e46f11d4fda0644f3c7"
 
-# syft – Anchore SBOM generator (~May 2025)
+# syft: Anchore SBOM generator (~May 2025)
 RBRR_GCB_SYFT_IMAGE_REF="ghcr.io/anchore/syft@sha256:8ad91b3e24a1efde7a30cb5f0b5de3cf9eab77dfb5cfdbe6efae8f9e91b9e018"
 
-# gcrane – registry utility (~Apr 2025)
+# gcrane: registry utility (~Apr 2025)
 RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:b6f6b744e7b5db9f50a85d3c7c0a7f5e04f04d1ad26d872d23eec92cb3dc5025"
 
-# oras – OCI artifact/referrer client (~May 2025)
+# oras: OCI artifact/referrer client (~May 2025)
 RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:61b7765b4c2847d734e1d80f37c63dbfb11494ff0f40a32ab2d0c7e61028b5b1"
 
 

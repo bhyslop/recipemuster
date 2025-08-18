@@ -34,7 +34,7 @@ zrbf_kindle() {
   bvu_dir_exists "${BDU_TEMP_DIR}"
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
 
-  bcu_log_args "Check required GCB/GAR environment variables"
+  bcu_log_args 'Check required GCB/GAR environment variables'
   test -n "${RBRR_GCB_PROJECT_ID:-}"      || bcu_die "RBRR_GCB_PROJECT_ID not set"
   test -n "${RBRR_GCB_REGION:-}"          || bcu_die "RBRR_GCB_REGION not set"
   test -n "${RBRR_GAR_PROJECT_ID:-}"      || bcu_die "RBRR_GAR_PROJECT_ID not set"
@@ -43,11 +43,11 @@ zrbf_kindle() {
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
   test -n "${RBRR_VESSEL_DIR:-}"          || bcu_die "RBRR_VESSEL_DIR not set"
 
-  bcu_log_args "Verify service account files"
+  bcu_log_args 'Verify service account files'
   test -n "${RBRR_DIRECTOR_RBRA_FILE:-}" || bcu_die "RBRR_DIRECTOR_RBRA_FILE not set"
   test -f "${RBRR_DIRECTOR_RBRA_FILE}"   || bcu_die "GCB service env file not found: ${RBRR_DIRECTOR_RBRA_FILE}"
 
-  # Module Variables (ZRBF_*)
+  bcu_log_args 'Module Variables (ZRBF_*)'
   ZRBF_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
   ZRBF_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
   ZRBF_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
@@ -55,22 +55,22 @@ zrbf_kindle() {
   ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
   ZRBF_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
-  # Registry API endpoints for delete
+  bcu_log_args 'Registry API endpoints for delete'
   ZRBF_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
   ZRBF_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBF_REGISTRY_API_BASE="https://${ZRBF_REGISTRY_HOST}/v2/${ZRBF_REGISTRY_PATH}"
 
-  # Media types for delete operation
+  bcu_log_args 'Media types for delete operation'
   ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
-  # RBGY files presumed to be in the same Tools directory as this implementation
+  bcu_log_args 'RBGY files presumed to be in the same Tools directory as this implementation'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   ZRBF_RBGY_BUILD_FILE="${z_self_dir}/rbgy_build.yaml"
   ZRBF_RBGY_COPY_FILE="${z_self_dir}/rbgy_copy.yaml"
   test -f "${ZRBF_RBGY_BUILD_FILE}" || bcu_die "RBGY build file not found in Tools: ${ZRBF_RBGY_BUILD_FILE}"
   test -f "${ZRBF_RBGY_COPY_FILE}"  || bcu_die "RBGY copy file not found in Tools: ${ZRBF_RBGY_COPY_FILE}"
 
-  bcu_log_args "Define temp files for build operations"
+  bcu_log_args 'Define temp files for build operations'
   ZRBF_BUILD_CONTEXT_TAR="${BDU_TEMP_DIR}/rbf_build_context.tar.gz"
   ZRBF_BUILD_CONFIG_FILE="${BDU_TEMP_DIR}/rbf_build_config.json"
   ZRBF_BUILD_ID_FILE="${BDU_TEMP_DIR}/rbf_build_id.txt"
@@ -78,7 +78,11 @@ zrbf_kindle() {
   ZRBF_BUILD_LOG_FILE="${BDU_TEMP_DIR}/rbf_build_log.txt"
   ZRBF_BUILD_RESPONSE_FILE="${BDU_TEMP_DIR}/rbf_build_response.json"
 
-  bcu_log_args "Define git info files"
+  bcu_log_args 'Define copy staging files'
+  ZRBF_COPY_STAGING_DIR="${BDU_TEMP_DIR}/rbf_copy_staging"
+  ZRBF_COPY_CONTEXT_TAR="${BDU_TEMP_DIR}/rbf_copy_context.tar.gz"
+
+  bcu_log_args 'Define git info files'
   ZRBF_GIT_INFO_FILE="${BDU_TEMP_DIR}/rbf_git_info.json"
   ZRBF_GIT_COMMIT_FILE="${BDU_TEMP_DIR}/rbf_git_commit.txt"
   ZRBF_GIT_BRANCH_FILE="${BDU_TEMP_DIR}/rbf_git_branch.txt"
@@ -86,25 +90,31 @@ zrbf_kindle() {
   ZRBF_GIT_UNTRACKED_FILE="${BDU_TEMP_DIR}/rbf_git_untracked.txt"
   ZRBF_GIT_REMOTE_FILE="${BDU_TEMP_DIR}/rbf_git_remote.txt"
 
-  bcu_log_args "Define staging and size files"
+  bcu_log_args 'Define staging and size files'
   ZRBF_STAGING_DIR="${BDU_TEMP_DIR}/rbf_staging"
   ZRBF_CONTEXT_SIZE_FILE="${BDU_TEMP_DIR}/rbf_context_size_bytes.txt"
 
-  bcu_log_args "Define validation files"
+  bcu_log_args 'Define validation files'
   ZRBF_STATUS_CHECK_FILE="${BDU_TEMP_DIR}/rbf_status_check.txt"
   ZRBF_BUILD_ID_TMP_FILE="${BDU_TEMP_DIR}/rbf_build_id_tmp.txt"
 
-  bcu_log_args "Define delete operation files"
+  bcu_log_args 'Define delete operation files'
   ZRBF_DELETE_PREFIX="${BDU_TEMP_DIR}/rbf_delete_"
   ZRBF_TOKEN_FILE="${BDU_TEMP_DIR}/rbf_token.txt"
 
-  bcu_log_args "Define copy operation files"
+  bcu_log_args 'Define copy operation files'
   ZRBF_COPY_CONFIG_FILE="${BDU_TEMP_DIR}/rbf_copy_config.json"
   ZRBF_COPY_RESPONSE_FILE="${BDU_TEMP_DIR}/rbf_copy_response.json"
 
-  # Vessel-related files
+  bcu_log_args 'Vessel-related files'
   ZRBF_VESSEL_ENV_FILE="${BDU_TEMP_DIR}/rbf_vessel_env.txt"
   ZRBF_VESSEL_SIGIL_FILE="${BDU_TEMP_DIR}/rbf_vessel_sigil.txt"
+
+  bcu_log_args 'For now lets double check these'
+  test -n "${RBRR_GCB_JQ_IMAGE_REF:-}"     || bcu_die "RBRR_GCB_JQ_IMAGE_REF not set"
+  test -n "${RBRR_GCB_SYFT_IMAGE_REF:-}"   || bcu_die "RBRR_GCB_SYFT_IMAGE_REF not set"
+  test -n "${RBRR_GCB_GCRANE_IMAGE_REF:-}" || bcu_die "RBRR_GCB_GCRANE_IMAGE_REF not set"
+  test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || bcu_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 
   ZRBF_KINDLED=1
 }
@@ -118,25 +128,25 @@ zrbf_load_vessel() {
 
   local z_vessel_dir="$1"
 
-  bcu_log_args "Validate vessel directory exists"
+  bcu_log_args 'Validate vessel directory exists'
   test -d "${z_vessel_dir}" || bcu_die "Vessel directory not found: ${z_vessel_dir}"
 
-  bcu_log_args "Check for rbrv.env file"
+  bcu_log_args 'Check for rbrv.env file'
   local z_vessel_env="${z_vessel_dir}/rbrv.env"
   test -f "${z_vessel_env}" || bcu_die "Vessel configuration not found: ${z_vessel_env}"
 
-  bcu_log_args "Source vessel configuration"
+  bcu_log_args 'Source vessel configuration'
   source "${z_vessel_env}" || bcu_die "Failed to source vessel config: ${z_vessel_env}"
 
-  bcu_log_args "Validate vessel configuration"
+  bcu_log_args 'Validate vessel configuration'
   local z_validator_dir="${BASH_SOURCE[0]%/*}"
   source "${z_validator_dir}/rbrv.validator.sh" || bcu_die "Failed to validate vessel configuration"
 
-  bcu_log_args "Validate vessel directory matches sigil"
+  bcu_log_args 'Validate vessel directory matches sigil'
   local z_dir_name="${z_vessel_dir##*/}"
   test "${z_dir_name}" = "${RBRV_SIGIL}" || bcu_die "Vessel sigil '${RBRV_SIGIL}' does not match directory name '${z_dir_name}'"
 
-  bcu_log_args "Validate vessel path matches expected pattern"
+  bcu_log_args 'Validate vessel path matches expected pattern'
   local z_expected_vessel_dir="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}"
   local z_vessel_realpath=""
   z_vessel_realpath=$(cd "${z_vessel_dir}" && pwd) || bcu_die "Failed to resolve vessel directory path"
@@ -144,7 +154,7 @@ zrbf_load_vessel() {
   z_expected_realpath=$(cd "${z_expected_vessel_dir}" && pwd) || bcu_die "Failed to resolve expected vessel path"
   test "${z_vessel_realpath}" = "${z_expected_realpath}" || bcu_die "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
 
-  # Store loaded vessel info for use by commands
+  bcu_log_args 'Store loaded vessel info for use by commands'
   echo "${RBRV_SIGIL}" > "${ZRBF_VESSEL_SIGIL_FILE}" || bcu_die "Failed to store vessel sigil"
 
   bcu_info "Loaded vessel: ${RBRV_SIGIL}"
@@ -155,34 +165,33 @@ zrbf_verify_git_clean() {
 
   bcu_step "Verifying git repository state"
 
-  bcu_log_args "Check for uncommitted changes"
+  bcu_log_args 'Check for uncommitted changes'
   git diff-index --quiet HEAD -- || bcu_die "Uncommitted changes detected - commit or stash first"
 
-  bcu_log_args "Check for untracked files"
+  bcu_log_args 'Check for untracked files'
   git ls-files --others --exclude-standard > "${ZRBF_GIT_UNTRACKED_FILE}" || bcu_die "Failed to check untracked files"
   local z_untracked=""
   z_untracked=$(<"${ZRBF_GIT_UNTRACKED_FILE}") || bcu_die "Failed to read untracked list"
   test -z "${z_untracked}" || bcu_die "Untracked files present - commit or clean first"
 
-  bcu_log_args "Check if all commits are pushed"
+  bcu_log_args 'Check if all commits are pushed'
   git fetch --quiet || bcu_die "git fetch failed"
-  # If upstream missing, treat as 0 ahead
   git rev-list @{u}..HEAD --count > "${ZRBF_GIT_UNTRACKED_FILE}" 2>/dev/null || echo "0" > "${ZRBF_GIT_UNTRACKED_FILE}"
   local z_unpushed=""
   z_unpushed=$(<"${ZRBF_GIT_UNTRACKED_FILE}") || bcu_die "Failed to read ahead count"
   test "${z_unpushed}" -eq 0 || bcu_die "Local commits not pushed (${z_unpushed} commits ahead)"
 
-  bcu_log_args "Get git metadata"
+  bcu_log_args 'Get git metadata'
   git rev-parse HEAD              > "${ZRBF_GIT_COMMIT_FILE}" || bcu_die "Failed to get commit SHA"
   git rev-parse --abbrev-ref HEAD > "${ZRBF_GIT_BRANCH_FILE}" || bcu_die "Failed to get branch name"
 
-  bcu_log_args "Get first available remote"
+  bcu_log_args 'Get first available remote'
   git remote | head -1 > "${ZRBF_GIT_REMOTE_FILE}" || bcu_die "No git remotes configured"
   local z_remote=""
   z_remote=$(<"${ZRBF_GIT_REMOTE_FILE}") || bcu_die "Failed to read remote name"
   test -n "${z_remote}" || bcu_die "No git remotes found"
 
-  bcu_log_args "Get repo URL from remote: ${z_remote}"
+  bcu_log_args 'Get repo URL from remote: ${z_remote}'
   git config --get "remote.${z_remote}.url" > "${ZRBF_GIT_REPO_FILE}" || bcu_die "Failed to get repo URL"
 
   local z_commit=""
@@ -196,13 +205,13 @@ zrbf_verify_git_clean() {
   test -n "${z_branch}"   || bcu_die "Git branch is empty"
   test -n "${z_repo_url}" || bcu_die "Git repo URL is empty"
 
-  bcu_log_args "Extract owner/repo from URL (handles both HTTPS and SSH)"
+  bcu_log_args 'Extract owner/repo from URL (handles both HTTPS and SSH)'
   # Example HTTPS: https://github.com/owner/repo.git
   # Example SSH  : git@github.com:owner/repo.git
   local z_repo="${z_repo_url#*github.com[:/]}"
   z_repo="${z_repo%.git}"
 
-  bcu_log_args "Write git info JSON"
+  bcu_log_args 'Write git info JSON'
   jq -n                        \
     --arg commit "${z_commit}" \
     --arg branch "${z_branch}" \
@@ -220,20 +229,20 @@ zrbf_package_context() {
   local z_context_dir="$2"
   local z_yaml_file="$3"
 
-  bcu_step "Packaging build context"
+  bcu_step 'Packaging build context'
 
-  bcu_log_args "Create temp directory for context"
+  bcu_log_args 'Create temp directory for context'
   rm -rf "${ZRBF_STAGING_DIR}" || bcu_warn "Failed to clean existing staging directory"
   mkdir -p "${ZRBF_STAGING_DIR}" || bcu_die "Failed to create staging directory"
 
-  bcu_log_args "Copy context to staging"
+  bcu_log_args 'Copy context to staging'
   cp -r "${z_context_dir}/." "${ZRBF_STAGING_DIR}/" || bcu_die "Failed to copy context"
 
-  bcu_log_args "Copy Dockerfile to context root if not already there"
+  bcu_log_args 'Copy Dockerfile to context root if not already there'
   local z_dockerfile_name="${z_dockerfile##*/}"
   cp "${z_dockerfile}" "${ZRBF_STAGING_DIR}/${z_dockerfile_name}" || bcu_die "Failed to copy Dockerfile"
 
-  bcu_log_args "Copy RBGY YAML to context (fixed name: cloudbuild.yaml)"
+  bcu_log_args 'Copy RBGY YAML to context (fixed name: cloudbuild.yaml)'
   cp "${z_yaml_file}" "${ZRBF_STAGING_DIR}/cloudbuild.yaml" || bcu_die "Failed to copy RBGY file"
 
   bcu_log_args "Create tarball"
@@ -242,13 +251,30 @@ zrbf_package_context() {
   bcu_log_args "Clean up staging"
   rm -rf "${ZRBF_STAGING_DIR}" || bcu_warn "Failed to cleanup staging directory"
 
-  bcu_log_args "Compute archive size (bytes) using temp file"
+  bcu_log_args 'Compute archive size (bytes) using temp file'
   wc -c < "${ZRBF_BUILD_CONTEXT_TAR}" > "${ZRBF_CONTEXT_SIZE_FILE}" || bcu_die "Failed to compute context size"
   local z_size_bytes=""
   z_size_bytes=$(<"${ZRBF_CONTEXT_SIZE_FILE}") || bcu_die "Failed to read context size"
   test -n "${z_size_bytes}" || bcu_die "Context size is empty"
 
   bcu_info "Build context packaged: ${z_size_bytes} bytes"
+}
+
+zrbf_package_copy_context() {
+  zrbf_sentinel
+  bcu_step 'Packaging copy context'
+
+  rm -rf "${ZRBF_COPY_STAGING_DIR}" || bcu_warn "Failed to clean existing copy staging directory"
+  mkdir -p "${ZRBF_COPY_STAGING_DIR}" || bcu_die "Failed to create copy staging directory"
+
+  bcu_log_args 'Copy rbgy_copy.yaml into the root as cloudbuild.yaml'
+  cp "${ZRBF_RBGY_COPY_FILE}" "${ZRBF_COPY_STAGING_DIR}/cloudbuild.yaml" \
+    || bcu_die "Failed to copy RBGY copy YAML"
+
+  tar -czf "${ZRBF_COPY_CONTEXT_TAR}" -C "${ZRBF_COPY_STAGING_DIR}" . \
+    || bcu_die "Failed to create copy context archive"
+
+  rm -rf "${ZRBF_COPY_STAGING_DIR}" || bcu_warn "Failed to cleanup copy staging directory"
 }
 
 zrbf_submit_build() {
@@ -394,13 +420,15 @@ zrbf_submit_copy() {
       }
     }' > "${ZRBF_COPY_CONFIG_FILE}" || bcu_die "Failed to create copy config"
 
-  bcu_log_args 'Submit copy build with inline YAML'
+  zrbf_package_copy_context
+
+  bcu_log_args 'Submit copy build with packaged context'
   curl -s -X POST                                                         \
        -H "Authorization: Bearer ${z_token}"                              \
        -H "Content-Type: application/json"                                \
        -H "x-goog-upload-protocol: multipart"                             \
        -F "metadata=@${ZRBF_COPY_CONFIG_FILE};type=application/json"      \
-       -F "source=@${ZRBF_RBGY_COPY_FILE};type=application/x-yaml"        \
+       -F "source=@${ZRBF_COPY_CONTEXT_TAR};type=application/gzip"        \
        "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
        > "${ZRBF_COPY_RESPONSE_FILE}"                                     \
     || bcu_die "Failed to submit copy build"
@@ -431,13 +459,13 @@ zrbf_submit_copy() {
 zrbf_wait_build_completion() {
   zrbf_sentinel
 
-  bcu_step "Waiting for build completion"
+  bcu_step 'Waiting for build completion'
 
   local z_build_id=""
   z_build_id=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "No build ID found"
   test -n "${z_build_id}" || bcu_die "Build ID file empty"
 
-  bcu_log_args "Get fresh token for polling"
+  bcu_log_args 'Get fresh token for polling'
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
@@ -446,15 +474,9 @@ zrbf_wait_build_completion() {
   local z_max_attempts=240  # 20 minutes with 5 second intervals
 
   while true; do
-    case "${z_status}" in
-      PENDING|QUEUED|WORKING)
-        ;;
-      *)
-        break
-        ;;
-    esac
-
+    case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
     sleep 5
+
     z_attempts=$((z_attempts + 1))
     test ${z_attempts} -le ${z_max_attempts} || bcu_die "Build timeout after ${z_max_attempts} attempts"
 
@@ -477,7 +499,7 @@ zrbf_wait_build_completion() {
 
   test "${z_status}" = "SUCCESS" || bcu_die "Build failed with status: ${z_status}"
 
-  bcu_success "Build completed successfully"
+  bcu_success 'Build completed successfully'
 }
 
 ######################################################################
