@@ -41,6 +41,7 @@ zrbf_kindle() {
   test -n "${RBRR_GAR_LOCATION:-}"        || bcu_die "RBRR_GAR_LOCATION not set"
   test -n "${RBRR_GAR_REPOSITORY:-}"      || bcu_die "RBRR_GAR_REPOSITORY not set"
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
+  test -n "${RBRR_VESSEL_DIR:-}"          || bcu_die "RBRR_VESSEL_DIR not set"
 
   bcu_log_args "Verify service account files"
   test -n "${RBRR_DIRECTOR_RBRA_FILE:-}" || bcu_die "RBRR_DIRECTOR_RBRA_FILE not set"
@@ -62,10 +63,12 @@ zrbf_kindle() {
   # Media types for delete operation
   ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
-  # RBFA file presumed to be in the same Tools directory as this implementation
+  # RBGY files presumed to be in the same Tools directory as this implementation
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGY_FILE="${z_self_dir}/rbgy_build.yaml"
-  test -f "${ZRBF_RBGY_FILE}" || bcu_die "RBFA file not found in Tools: ${ZRBF_RBGY_FILE}"
+  ZRBF_RBGY_BUILD_FILE="${z_self_dir}/rbgy_build.yaml"
+  ZRBF_RBGY_COPY_FILE="${z_self_dir}/rbgy_copy.yaml"
+  test -f "${ZRBF_RBGY_BUILD_FILE}" || bcu_die "RBGY build file not found in Tools: ${ZRBF_RBGY_BUILD_FILE}"
+  test -f "${ZRBF_RBGY_COPY_FILE}"  || bcu_die "RBGY copy file not found in Tools: ${ZRBF_RBGY_COPY_FILE}"
 
   bcu_log_args "Define temp files for build operations"
   ZRBF_BUILD_CONTEXT_TAR="${BDU_TEMP_DIR}/rbf_build_context.tar.gz"
@@ -88,7 +91,6 @@ zrbf_kindle() {
   ZRBF_CONTEXT_SIZE_FILE="${BDU_TEMP_DIR}/rbf_context_size_bytes.txt"
 
   bcu_log_args "Define validation files"
-  ZRBF_MONIKER_VALID_FILE="${BDU_TEMP_DIR}/rbf_moniker_valid.txt"
   ZRBF_STATUS_CHECK_FILE="${BDU_TEMP_DIR}/rbf_status_check.txt"
   ZRBF_BUILD_ID_TMP_FILE="${BDU_TEMP_DIR}/rbf_build_id_tmp.txt"
 
@@ -96,11 +98,56 @@ zrbf_kindle() {
   ZRBF_DELETE_PREFIX="${BDU_TEMP_DIR}/rbf_delete_"
   ZRBF_TOKEN_FILE="${BDU_TEMP_DIR}/rbf_token.txt"
 
+  bcu_log_args "Define copy operation files"
+  ZRBF_COPY_CONFIG_FILE="${BDU_TEMP_DIR}/rbf_copy_config.json"
+  ZRBF_COPY_RESPONSE_FILE="${BDU_TEMP_DIR}/rbf_copy_response.json"
+
+  # Vessel-related files
+  ZRBF_VESSEL_ENV_FILE="${BDU_TEMP_DIR}/rbf_vessel_env.txt"
+  ZRBF_VESSEL_SIGIL_FILE="${BDU_TEMP_DIR}/rbf_vessel_sigil.txt"
+
   ZRBF_KINDLED=1
 }
 
 zrbf_sentinel() {
   test "${ZRBF_KINDLED:-}" = "1" || bcu_die "Module rbf not kindled - call zrbf_kindle first"
+}
+
+zrbf_load_vessel() {
+  zrbf_sentinel
+
+  local z_vessel_dir="$1"
+
+  bcu_log_args "Validate vessel directory exists"
+  test -d "${z_vessel_dir}" || bcu_die "Vessel directory not found: ${z_vessel_dir}"
+
+  bcu_log_args "Check for rbrv.env file"
+  local z_vessel_env="${z_vessel_dir}/rbrv.env"
+  test -f "${z_vessel_env}" || bcu_die "Vessel configuration not found: ${z_vessel_env}"
+
+  bcu_log_args "Source vessel configuration"
+  source "${z_vessel_env}" || bcu_die "Failed to source vessel config: ${z_vessel_env}"
+
+  bcu_log_args "Validate vessel configuration"
+  local z_validator_dir="${BASH_SOURCE[0]%/*}"
+  source "${z_validator_dir}/rbrv.validator.sh" || bcu_die "Failed to validate vessel configuration"
+
+  bcu_log_args "Validate vessel directory matches sigil"
+  local z_dir_name="${z_vessel_dir##*/}"
+  test "${z_dir_name}" = "${RBRV_SIGIL}" || bcu_die "Vessel sigil '${RBRV_SIGIL}' does not match directory name '${z_dir_name}'"
+
+  bcu_log_args "Validate vessel path matches expected pattern"
+  local z_expected_vessel_dir="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}"
+  local z_vessel_realpath=""
+  z_vessel_realpath=$(cd "${z_vessel_dir}" && pwd) || bcu_die "Failed to resolve vessel directory path"
+  local z_expected_realpath=""
+  z_expected_realpath=$(cd "${z_expected_vessel_dir}" && pwd) || bcu_die "Failed to resolve expected vessel path"
+  test "${z_vessel_realpath}" = "${z_expected_realpath}" || bcu_die "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
+
+  # Store loaded vessel info for use by commands
+  echo "${RBRV_SIGIL}" > "${ZRBF_VESSEL_SIGIL_FILE}" || bcu_die "Failed to store vessel sigil"
+
+  bcu_info "Loaded vessel: ${RBRV_SIGIL}"
 }
 
 zrbf_verify_git_clean() {
@@ -171,6 +218,7 @@ zrbf_package_context() {
 
   local z_dockerfile="$1"
   local z_context_dir="$2"
+  local z_yaml_file="$3"
 
   bcu_step "Packaging build context"
 
@@ -185,8 +233,8 @@ zrbf_package_context() {
   local z_dockerfile_name="${z_dockerfile##*/}"
   cp "${z_dockerfile}" "${ZRBF_STAGING_DIR}/${z_dockerfile_name}" || bcu_die "Failed to copy Dockerfile"
 
-  bcu_log_args "Copy RBFA Cloud Build YAML to context (fixed name: cloudbuild.yaml)"
-  cp "${ZRBF_RBGY_FILE}" "${ZRBF_STAGING_DIR}/cloudbuild.yaml" || bcu_die "Failed to copy RBFA file"
+  bcu_log_args "Copy RBGY YAML to context (fixed name: cloudbuild.yaml)"
+  cp "${z_yaml_file}" "${ZRBF_STAGING_DIR}/cloudbuild.yaml" || bcu_die "Failed to copy RBGY file"
 
   bcu_log_args "Create tarball"
   tar -czf "${ZRBF_BUILD_CONTEXT_TAR}" -C "${ZRBF_STAGING_DIR}" . || bcu_die "Failed to create context archive"
@@ -208,7 +256,7 @@ zrbf_submit_build() {
 
   local z_dockerfile_name="$1"
   local z_tag="$2"
-  local z_moniker="$3"
+  local z_sigil="$3"
 
   bcu_step 'Submitting build to Google Cloud Build'
 
@@ -235,11 +283,11 @@ zrbf_submit_build() {
   bcu_log_args 'Extract recipe name without extension'
   local z_recipe_name="${z_dockerfile_name%.*}"
 
-  bcu_log_args 'Create build config with RBFA substitutions'
+  bcu_log_args 'Create build config with RBGY substitutions'
   jq -n                                                         \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_tag            "${z_tag}"                         \
-    --arg zjq_moniker        "${z_moniker}"                     \
+    --arg zjq_moniker        "${z_sigil}"                       \
     --arg zjq_platforms      "${RBRR_BUILD_ARCHITECTURES}"      \
     --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
     --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
@@ -310,6 +358,76 @@ zrbf_submit_build() {
   bcu_link "Open build in Cloud Console" "${z_console_url}"
 }
 
+zrbf_submit_copy() {
+  zrbf_sentinel
+
+  local z_src_image="$1"
+  local z_dest_path="$2"
+  local z_dest_tag="$3"
+
+  bcu_step 'Submitting copy to Google Cloud Build'
+
+  bcu_log_args 'Get OAuth token using capture function'
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
+
+  bcu_log_args 'Create copy config with RBGY substitutions'
+  jq -n                                                         \
+    --arg zjq_src_image      "${z_src_image}"                   \
+    --arg zjq_dest_path      "${z_dest_path}"                   \
+    --arg zjq_dest_tag       "${z_dest_tag}"                    \
+    --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
+    --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
+    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
+    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
+    '{
+      substitutions: {
+        _SRC_IMAGE:           $zjq_src_image,
+        _DEST_PATH:           $zjq_dest_path,
+        _DEST_TAG:            $zjq_dest_tag,
+        _RBGY_GAR_LOCATION:   $zjq_gar_location,
+        _RBGY_GAR_PROJECT:    $zjq_gar_project,
+        _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
+        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
+        _RBGY_TIMEOUT:        $zjq_timeout
+      }
+    }' > "${ZRBF_COPY_CONFIG_FILE}" || bcu_die "Failed to create copy config"
+
+  bcu_log_args 'Submit copy build with inline YAML'
+  curl -s -X POST                                                         \
+       -H "Authorization: Bearer ${z_token}"                              \
+       -H "Content-Type: application/json"                                \
+       -H "x-goog-upload-protocol: multipart"                             \
+       -F "metadata=@${ZRBF_COPY_CONFIG_FILE};type=application/json"      \
+       -F "source=@${ZRBF_RBGY_COPY_FILE};type=application/x-yaml"        \
+       "${ZRBF_GCB_PROJECT_BUILDS_URL}"                                   \
+       > "${ZRBF_COPY_RESPONSE_FILE}"                                     \
+    || bcu_die "Failed to submit copy build"
+
+  bcu_log_args 'Validate response file'
+  test -f "${ZRBF_COPY_RESPONSE_FILE}" || bcu_die "Copy response file not created"
+  test -s "${ZRBF_COPY_RESPONSE_FILE}" || bcu_die "Copy response file is empty"
+
+  bcu_log_args "Extract build ID from response"
+  jq -r '.name' "${ZRBF_COPY_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to extract build name"
+
+  bcu_log_args 'Parse build ID from full path using parameter expansion'
+  local z_full=""
+  z_full=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build name path"
+  local z_only="${z_full##*/}"
+  printf '%s' "${z_only}" > "${ZRBF_BUILD_ID_TMP_FILE}" || bcu_die "Failed to write temp build ID"
+  mv "${ZRBF_BUILD_ID_TMP_FILE}" "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to finalize build ID"
+
+  local z_build_id=""
+  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}") || bcu_die "Failed to read build ID"
+  test -n "${z_build_id}" || bcu_die "Build ID is empty"
+
+  local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
+  bcu_info "Copy submitted: ${z_build_id}"
+  bcu_link "Open copy in Cloud Console" "${z_console_url}"
+}
+
 zrbf_wait_build_completion() {
   zrbf_sentinel
 
@@ -362,66 +480,85 @@ zrbf_wait_build_completion() {
   bcu_success "Build completed successfully"
 }
 
-zrbf_validate_moniker_predicate() {
-  zrbf_sentinel
-
-  local z_moniker="$1"
-
-  bcu_log_args "Check moniker format: lowercase alphanumeric with dash/underscore"
-  if [[ "${z_moniker}" =~ ^[a-z0-9_-]+$ ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 ######################################################################
 # External Functions (rbf_*)
 
 rbf_build() {
   zrbf_sentinel
 
-  local z_dockerfile="${1:-}"
-  local z_context_dir="${2:-}"
-  local z_moniker="${3:-}"
+  local z_vessel_dir="${1:-}"
 
   # Documentation block
-  bcu_doc_brief "Build container image using Google Cloud Build"
-  bcu_doc_param "dockerfile"  "Path to Dockerfile"
-  bcu_doc_param "context_dir" "Build context directory"
-  bcu_doc_param "moniker"     "Service moniker (e.g., srjcl, pluml)"
+  bcu_doc_brief "Build container image from vessel using Google Cloud Build"
+  bcu_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   bcu_doc_shown || return 0
 
   bcu_log_args "Validate parameters"
-  test -n "${z_dockerfile}"  || bcu_die "Dockerfile required"
-  test -f "${z_dockerfile}"  || bcu_die "Dockerfile not found: ${z_dockerfile}"
-  test -n "${z_context_dir}" || bcu_die "Context directory required"
-  test -d "${z_context_dir}" || bcu_die "Context directory not found: ${z_context_dir}"
-  test -n "${z_moniker}"     || bcu_die "Moniker required"
+  test -n "${z_vessel_dir}" || bcu_die "Vessel directory required"
 
-  bcu_log_args "Validate moniker format"
-  zrbf_validate_moniker_predicate "${z_moniker}" || bcu_die "Moniker must be lowercase alphanumeric with dash/underscore"
+  # Load and validate vessel
+  zrbf_load_vessel "${z_vessel_dir}"
 
-  bcu_log_args "Generate build tag"
-  local z_dockerfile_name="${z_dockerfile##*/}"
-  local z_recipe_base="${z_dockerfile_name%.*}"
-  local z_tag="${z_recipe_base}.${z_moniker}.${BDU_NOW_STAMP}"
+  bcu_log_args "Verify vessel has conjuring configuration"
+  test -n "${RBRV_CONJURE_DOCKERFILE:-}" || bcu_die "Vessel '${RBRV_SIGIL}' is not configured for conjuring (no RBRV_CONJURE_DOCKERFILE)"
+  test -n "${RBRV_CONJURE_BLDCONTEXT:-}" || bcu_die "Vessel '${RBRV_SIGIL}' is not configured for conjuring (no RBRV_CONJURE_BLDCONTEXT)"
 
-  bcu_info "Building image: ${z_tag}"
+  bcu_log_args "Resolve paths from vessel configuration"
+  test -f "${RBRV_CONJURE_DOCKERFILE}" || bcu_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
+  test -d "${RBRV_CONJURE_BLDCONTEXT}" || bcu_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
+
+  bcu_log_args "Generate build tag using vessel sigil"
+  local z_tag="${RBRV_SIGIL}.${BDU_NOW_STAMP}"
+
+  bcu_info "Building vessel image: ${RBRV_SIGIL} -> ${z_tag}"
 
   # Verify git state + capture metadata
   zrbf_verify_git_clean
 
-  # Package build context (includes RBFA file as cloudbuild.yaml)
-  zrbf_package_context "${z_dockerfile}" "${z_context_dir}"
+  # Package build context (includes RBGY file as cloudbuild.yaml)
+  zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}" "${ZRBF_RBGY_BUILD_FILE}"
 
   # Submit build with substitutions (uses RBRR_GCB_* pins)
-  zrbf_submit_build "${z_dockerfile_name}" "${z_tag}" "${z_moniker}"
+  local z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
+  zrbf_submit_build "${z_dockerfile_name}" "${z_tag}" "${RBRV_SIGIL}"
 
   # Wait for completion
   zrbf_wait_build_completion
 
-  bcu_success "Image built: ${z_tag}"
+  bcu_success "Vessel image built: ${z_tag}"
+}
+
+rbf_copy() {
+  zrbf_sentinel
+
+  local z_vessel_dir="${1:-}"
+
+  # Documentation block
+  bcu_doc_brief "Copy container image from vessel binding to registry"
+  bcu_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  bcu_doc_shown || return 0
+
+  bcu_log_args "Validate parameters"
+  test -n "${z_vessel_dir}" || bcu_die "Vessel directory required"
+
+  # Load and validate vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  bcu_log_args "Verify vessel has binding configuration"
+  test -n "${RBRV_BIND_IMAGE:-}" || bcu_die "Vessel '${RBRV_SIGIL}' is not configured for binding (no RBRV_BIND_IMAGE)"
+
+  bcu_log_args "Generate copy tag using vessel sigil"
+  local z_tag="${RBRV_SIGIL}.${BDU_NOW_STAMP}"
+
+  bcu_info "Copying vessel image: ${RBRV_BIND_IMAGE} -> ${RBRV_SIGIL}:${z_tag}"
+
+  # Submit copy build
+  zrbf_submit_copy "${RBRV_BIND_IMAGE}" "${RBRV_SIGIL}" "${z_tag}"
+
+  # Wait for completion
+  zrbf_wait_build_completion
+
+  bcu_success "Vessel image copied: ${RBRV_SIGIL}:${z_tag}"
 }
 
 rbf_delete() {
