@@ -365,10 +365,10 @@ zrbf_submit_build() {
   {
     printf -- "--%s\r\n" "${z_boundary}"
     printf "Content-Type: application/json; charset=UTF-8\r\n\r\n"
-    cat "${ZRBF_BUILD_CONFIG_FILE}"
+    cat    "${ZRBF_BUILD_CONFIG_FILE}"
     printf "\r\n--%s\r\n" "${z_boundary}"
     printf "Content-Type: application/x-gzip\r\n\r\n"
-    cat "${ZRBF_BUILD_CONTEXT_TAR}"
+    cat    "${ZRBF_BUILD_CONTEXT_TAR}"
     printf "\r\n--%s--\r\n" "${z_boundary}"
   } >> "${z_body_file}"
 
