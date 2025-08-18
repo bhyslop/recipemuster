@@ -367,29 +367,28 @@ zrbf_submit_build() {
     printf "Content-Type: application/json; charset=UTF-8\r\n\r\n"
     cat "${ZRBF_BUILD_CONFIG_FILE}"
     printf "\r\n--%s\r\n" "${z_boundary}"
-    printf "Content-Type: application/octet-stream\r\n\r\n"
+    printf "Content-Type: application/x-gzip\r\n\r\n"
     cat "${ZRBF_BUILD_CONTEXT_TAR}"
     printf "\r\n--%s--\r\n" "${z_boundary}"
   } >> "${z_body_file}"
 
   bcu_log_args 'Submit build (multipart/form-data with build + source parts)'
-  # Save headers for debugging
   local z_resp_headers="${BDU_TEMP_DIR}/rbf_build_http_headers.txt"
 
-  # Sanity: build JSON is valid & non-empty
   jq empty "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config is not valid JSON"
   test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
 
-  curl -sS -X POST \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: application/json" \
-    --http1.1 \
-    -F "build=@${ZRBF_BUILD_CONFIG_FILE};type=application/json" \
-    -F "source=@${ZRBF_BUILD_CONTEXT_TAR};type=application/octet-stream" \
-    -D "${z_resp_headers}" \
-    -o "${ZRBF_BUILD_RESPONSE_FILE}" \
-    -w "%{http_code}" \
-    "${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart" > "${ZRBF_BUILD_HTTP_CODE}"
+  local z_url="${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?projectId=${RBRR_GCB_PROJECT_ID}&uploadType=multipart"
+
+  curl -sS -X POST                                                        \
+    -H "Authorization: Bearer ${z_token}"                                 \
+    -H "Accept: application/json"                                         \
+    -H "Content-Type: multipart/related; boundary=${z_boundary}"          \
+    --data-binary @"${z_body_file}"                                       \
+    -D "${BDU_TEMP_DIR}/rbf_build_resp_headers.txt"                       \
+    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
+    -w "%{http_code}"                                                     \
+    "${z_url}" > "${ZRBF_BUILD_HTTP_CODE}"
 
   z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
   test -n "${z_http}"                   || bcu_die "No HTTP status from Cloud Build create"
