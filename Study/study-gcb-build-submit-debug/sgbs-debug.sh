@@ -71,6 +71,8 @@ echo "SGBS: body head (first 200 bytes)"; head -c 200 "${MY_TEMP}/body.bin" | od
 echo
 echo "SGBS: boundary probe"; (grep -a -n -- "--${z_boundary}" "${MY_TEMP}/body.bin" || true) | sed 's/^/  ln /'
 
+echo "SGBS: Checking for CRLF vs LF:"
+file "${MY_TEMP}/body.bin"
 
 echo "SGBS: files:"
 ls -l "${MY_TEMP}"
@@ -85,8 +87,7 @@ curl -v \
   -X POST \
   -H "Authorization: Bearer ${z_token}" \
   -H "Content-Type: multipart/related; boundary=${z_boundary}" \
-  -H "X-Goog-Upload-Protocol: multipart" \
-  -H "X-Goog-Upload-File-Name: source.tar.gz" \
+  -H "Accept: application/json" \
   --data-binary @"${MY_TEMP}/body.bin" \
   -D "${MY_TEMP}/resp.headers" \
   -o "${MY_TEMP}/resp.body" \
@@ -96,6 +97,14 @@ curl -v \
 echo "SGBS: HTTP code: $(<"${MY_TEMP}/resp.code")"
 echo "SGBS: response headers:"; sed 's/^/  /' "${MY_TEMP}/resp.headers" | head -n 50
 echo "SGBS: response body head:"; head -c 500 "${MY_TEMP}/resp.body"; echo
+
+# After the curl, if code is 200, show the logUrl for convenience
+if test "$(tr -d '\r\n' < "${MY_TEMP}/resp.code")" = "200"; then
+  echo "SGBS: build accepted."
+  # Quick-and-dirty pull of logUrl (works even without jq)
+  z_log_url=$(grep -ao '"logUrl"[^"]*"[^"]*"' "${MY_TEMP}/resp.body" | head -n1 | sed 's/.*"logUrl":"\([^"]*\)".*/\1/')
+  test -n "${z_log_url}" && echo "SGBS: logUrl: ${z_log_url}"
+fi
 
 echo "SGBS: End."
 
