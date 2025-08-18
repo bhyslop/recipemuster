@@ -367,7 +367,7 @@ zrbf_submit_build() {
     printf "Content-Type: application/json; charset=UTF-8\r\n\r\n"
     cat    "${ZRBF_BUILD_CONFIG_FILE}"
     printf "\r\n--%s\r\n" "${z_boundary}"
-    printf "Content-Type: application/x-gzip\r\n\r\n"
+    printf "Content-Type: application/gzip\r\n\r\n"
     cat    "${ZRBF_BUILD_CONTEXT_TAR}"
     printf "\r\n--%s--\r\n" "${z_boundary}"
   } >> "${z_body_file}"
@@ -378,12 +378,14 @@ zrbf_submit_build() {
   jq empty "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config is not valid JSON"
   test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
 
-  local z_url="${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?projectId=${RBRR_GCB_PROJECT_ID}&uploadType=multipart"
+  local z_url="${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart&alt=json"
 
   curl -sS -X POST                                                        \
     -H "Authorization: Bearer ${z_token}"                                 \
     -H "Accept: application/json"                                         \
     -H "Content-Type: multipart/related; boundary=${z_boundary}"          \
+    -H "X-Goog-Upload-Protocol: multipart"                                \
+    -H "X-Goog-Upload-File-Name: source.tar.gz"                           \
     --data-binary @"${z_body_file}"                                       \
     -D "${z_resp_headers}"                                                \
     -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
