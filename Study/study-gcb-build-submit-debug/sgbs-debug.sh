@@ -5,20 +5,9 @@ MY_TEMP="../../tmp-study-sgbs"
 rm -rf "${MY_TEMP}"
 mkdir -p "${MY_TEMP}"
 
-# Accept either a full upload URL or a project id for $1
-z_url_input="${1:?URL or PROJECT required}"
+# Ignore first arg; always use the proper regional upload URL
+z_url="https://cloudbuild.googleapis.com/upload/v1/projects/brm-recipemuster-proj/locations/us-central1/builds"
 z_token="${2:?Token required}"
-
-case "${z_url_input}" in
-  http://*|https://*)
-    z_url="${z_url_input}"
-    ;;
-  *)
-    # If a project id was provided, construct the upload endpoint
-    z_url="https://cloudbuild.googleapis.com/upload/v1/projects/${z_url_input}/builds"
-    ;;
-esac
-
 z_boundary="__test_$$_${RANDOM}"
 
 echo "SGBS: temp dir: ${MY_TEMP}"
