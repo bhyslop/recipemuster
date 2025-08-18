@@ -28,6 +28,7 @@ bvu_env_xname       RBRR_REGISTRY_NAME           2     64
 bvu_env_string      RBRR_BUILD_ARCHITECTURES     1    255
 bvu_env_string      RBRR_HISTORY_DIR             1    255
 bvu_env_string      RBRR_NAMEPLATE_PATH          1    255
+bvu_env_string      RBRR_VESSEL_DIR              1    255
 bvu_env_ipv4        RBRR_DNS_SERVER
 
 # Machine Configuration
@@ -38,6 +39,8 @@ bvu_env_string      RBRR_MANIFEST_PLATFORMS      1    512
 bvu_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
 bvu_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
 bvu_env_string      RBRR_CHOSEN_IDENTITY         1    128
+bvu_env_gname       RBRR_GCP_PROJECT_ID          6     63  # Base GCP project ID
+bvu_env_gname       RBRR_GCP_REGION              1     32  # Base GCP region
 
 # Google Artifact Registry Configuration
 bvu_env_gname       RBRR_GAR_PROJECT_ID          6     63  # GCP project ID (loose gname check; API enforces real rules)
@@ -51,6 +54,7 @@ bvu_env_gname       RBRR_GCB_MACHINE_TYPE        1     64  # Machine type like e
 bvu_env_string      RBRR_GCB_TIMEOUT             2     10  # e.g., 1200s
 
 # Service Account Configuration Files
+bvu_env_string      RBRR_ADMIN_RBRA_FILE         1    512  # Path to administrative service account env
 bvu_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512  # Path to GAR service account env
 bvu_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512  # Path to GCB service account env
 
