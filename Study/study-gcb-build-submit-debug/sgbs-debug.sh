@@ -1,109 +1,145 @@
 #!/bin/bash
+# Study: Cloud Build submit via GCS + JSON (single path)
+# Usage:
+#   ./sgbs-debug.sh "<OAUTH_TOKEN>" [PROJECT_ID] [REGION] [TAR_PATH]
+# If TAR_PATH is omitted, a tiny cloudbuild.yaml tarball is created for you.
 set -euo pipefail
 
-MY_TEMP="../../tmp-study-sgbs"
+# ---- Inputs -----------------------------------------------------------------
+z_token="${1:?Token required (OAuth2 access token)}"
+z_project="${2:-brm-recipemuster-proj}"
+z_region="${3:-us-central1}"
+z_tar_in="${4:-}"
+
+# ---- Scratch ----------------------------------------------------------------
+MY_TEMP="../../../tmp-study-sgbs"
 rm -rf "${MY_TEMP}"
 mkdir -p "${MY_TEMP}"
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+z_bucket="${z_project}_cloudbuild"
+z_object="source/sgbs-${STAMP}.tgz"
 
-# Accept only the OAuth token
-z_token="${1:?Token required}"
+# ---- Endpoints --------------------------------------------------------------
+z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=$(printf %s "${z_object}" | sed 's/:/%3A/g;s,/,%,g' | sed 's/%2F/\//g')" # keep slashes
+z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds"
 
-# Hardcode GCP project/region and build upload URL
-z_project="brm-recipemuster-proj"
-z_region="us-central1"
-z_url="https://cloudbuild.googleapis.com/upload/v1/projects/${z_project}/locations/${z_region}/builds"
+echo "SGBS: project/region: ${z_project}/${z_region}"
+echo "SGBS: bucket/object:  gs://${z_bucket}/${z_object}"
+echo "SGBS: GCS upload:     ${z_gcs_upload}"
+echo "SGBS: CB create:      ${z_cb_create}"
 
-z_boundary="__test_$$_${RANDOM}"
-
-z_url_upload="https://cloudbuild.googleapis.com/upload/v1/projects/${z_project}/builds"
-z_url_query="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds?uploadType=multipart"
-
-echo "SGBS: url (current): ${z_url}"
-echo "SGBS: url (upload endpoint): ${z_url_upload}"
-echo "SGBS: url (query uploadType): ${z_url_query}"
-
-
-echo "SGBS: temp dir: ${MY_TEMP}"
-echo "SGBS: url: ${z_url}"
-echo "SGBS: boundary: ${z_boundary}"
-
-echo "SGBS: 1) build metadata (cloudbuild substitutions)"
-cat > "${MY_TEMP}/build.json" <<EOF
-{"options": {"substitutionOption": "ALLOW_LOOSE"}}
-EOF
-echo "SGBS: build.json:"
-cat "${MY_TEMP}/build.json"
-
-# Create a tiny cloudbuild.yaml in the temp dir so tar doesn't depend on CWD
-echo "SGBS: 2) make a tiny tar.gz with cloudbuild.yaml at root"
-cat > "${MY_TEMP}/cloudbuild.yaml" <<'EOF'
+# ---- Prepare a tarball (or use the one provided) ----------------------------
+if [[ -z "${z_tar_in}" ]]; then
+  echo "SGBS: No TAR_PATH provided -> making a tiny tar with cloudbuild.yaml at root"
+  cat > "${MY_TEMP}/cloudbuild.yaml" <<'YAML'
 steps:
 - name: gcr.io/cloud-builders/busybox
   args: ["echo","study upload OK"]
-EOF
+YAML
+  tar -C "${MY_TEMP}" -czf "${MY_TEMP}/src.tgz" cloudbuild.yaml
+  z_tar="${MY_TEMP}/src.tgz"
+else
+  echo "SGBS: Using provided TAR_PATH: ${z_tar_in}"
+  z_tar="${z_tar_in}"
+fi
 
-tar -C "${MY_TEMP}" -czf "${MY_TEMP}/src.tgz" cloudbuild.yaml
-ls -l "${MY_TEMP}/src.tgz"
+ls -l "${z_tar}"
+echo "SGBS: tar sha256: $(openssl dgst -sha256 "${z_tar}" | awk '{print $2}')"
 
-echo "SGBS: 2b) tar contents of src.tgz"
-tar -tzf "${MY_TEMP}/src.tgz" | sed 's/^/  - /'
+# ---- 1) Upload tar.gz to GCS (objects.insert: uploadType=media) ------------
+echo "SGBS: === GCS upload ==="
+: > "${MY_TEMP}/gcs.headers"
+: > "${MY_TEMP}/gcs.body"
+: > "${MY_TEMP}/gcs.code"
 
-echo "SGBS: 3) construct the multipart"
-{
-  echo "--${z_boundary}"
-  echo "Content-Type: application/json; charset=UTF-8"
-  echo
-  cat "${MY_TEMP}/build.json"
-  echo
-  echo "--${z_boundary}"
-  echo "Content-Type: application/octet-stream"
-  echo "Content-Disposition: form-data; name=\"file\"; filename=\"source.tar.gz\""
-  echo
-  cat "${MY_TEMP}/src.tgz"
-  echo
-  echo "--${z_boundary}--"
-} > "${MY_TEMP}/body.bin"
-
-
-echo "SGBS: body length: $(wc -c < "${MY_TEMP}/body.bin")"
-echo "SGBS: body sha256: $(openssl dgst -sha256 "${MY_TEMP}/body.bin" | awk '{print $2}')"
-echo "SGBS: body head (first 200 bytes)"; head -c 200 "${MY_TEMP}/body.bin" | od -An -tx1
-echo
-echo "SGBS: boundary probe"; (grep -a -n -- "--${z_boundary}" "${MY_TEMP}/body.bin" || true) | sed 's/^/  ln /'
-
-echo "SGBS: Checking for CRLF vs LF:"
-file "${MY_TEMP}/body.bin"
-
-echo "SGBS: files:"
-ls -l "${MY_TEMP}"
-echo "SGBS: body length: $(wc -c < "${MY_TEMP}/body.bin")"
-
-echo "SGBS: 4) POST (mode: header-only multipart to ${z_url})"
-: > "${MY_TEMP}/resp.headers"
-: > "${MY_TEMP}/resp.body"
-: > "${MY_TEMP}/resp.code"
-
-curl -v \
-  -X POST \
+curl -sS -X POST \
   -H "Authorization: Bearer ${z_token}" \
-  -H "Content-Type: multipart/related; boundary=${z_boundary}" \
-  -H "Accept: application/json" \
-  --data-binary @"${MY_TEMP}/body.bin" \
-  -D "${MY_TEMP}/resp.headers" \
-  -o "${MY_TEMP}/resp.body" \
+  -H "Content-Type: application/gzip" \
+  --data-binary @"${z_tar}" \
+  -D "${MY_TEMP}/gcs.headers" \
+  -o "${MY_TEMP}/gcs.body" \
   -w "%{http_code}" \
-  "${z_url}" > "${MY_TEMP}/resp.code" 2>&1 || echo "SGBS: curl failed with status $?"
+  "${z_gcs_upload}" > "${MY_TEMP}/gcs.code" || echo "SGBS: curl (GCS) exited nonzero"
 
-echo "SGBS: HTTP code: $(<"${MY_TEMP}/resp.code")"
-echo "SGBS: response headers:"; sed 's/^/  /' "${MY_TEMP}/resp.headers" | head -n 50
-echo "SGBS: response body head:"; head -c 500 "${MY_TEMP}/resp.body"; echo
+echo "SGBS: GCS HTTP code: $(<"${MY_TEMP}/gcs.code")"
+echo "SGBS: GCS response headers (first 20):"; sed 's/^/  /' "${MY_TEMP}/gcs.headers" | head -n 20
+echo "SGBS: GCS response body head:"; head -c 400 "${MY_TEMP}/gcs.body"; echo
 
-# After the curl, if code is 200, show the logUrl for convenience
-if test "$(tr -d '\r\n' < "${MY_TEMP}/resp.code")" = "200"; then
-  echo "SGBS: build accepted."
-  # Quick-and-dirty pull of logUrl (works even without jq)
-  z_log_url=$(grep -ao '"logUrl"[^"]*"[^"]*"' "${MY_TEMP}/resp.body" | head -n1 | sed 's/.*"logUrl":"\([^"]*\)".*/\1/')
-  test -n "${z_log_url}" && echo "SGBS: logUrl: ${z_log_url}"
+gcs_code="$(tr -d '\r\n' < "${MY_TEMP}/gcs.code")"
+if [[ "${gcs_code}" != "200" && "${gcs_code}" != "201" ]]; then
+  echo "SGBS: GCS upload failed (expect 200/201). Stop." >&2
+  exit 1
+fi
+
+# ---- 2) Build JSON for Cloud Build create -----------------------------------
+echo "SGBS: === Build JSON (storageSource -> cloudbuild.yaml at root) ==="
+cat > "${MY_TEMP}/build.json" <<JSON
+{
+  "source": {
+    "storageSource": {
+      "bucket": "${z_bucket}",
+      "object": "${z_object}"
+    }
+  },
+  "options": { "substitutionOption": "ALLOW_LOOSE" },
+  "substitutions": {}
+}
+JSON
+
+cat "${MY_TEMP}/build.json" | sed 's/^/  /'
+
+# ---- 3) Call builds.create (JSON only) --------------------------------------
+echo "SGBS: === Cloud Build create ==="
+: > "${MY_TEMP}/cb.headers"
+: > "${MY_TEMP}/cb.body"
+: > "${MY_TEMP}/cb.code"
+
+curl -sS -X POST \
+  -H "Authorization: Bearer ${z_token}" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json; charset=UTF-8" \
+  --data-binary @"${MY_TEMP}/build.json" \
+  -D "${MY_TEMP}/cb.headers" \
+  -o "${MY_TEMP}/cb.body" \
+  -w "%{http_code}" \
+  "${z_cb_create}" > "${MY_TEMP}/cb.code" || echo "SGBS: curl (CB) exited nonzero"
+
+cb_code="$(tr -d '\r\n' < "${MY_TEMP}/cb.code")"
+echo "SGBS: CB HTTP code: ${cb_code}"
+echo "SGBS: CB response headers (first 30):"; sed 's/^/  /' "${MY_TEMP}/cb.headers" | head -n 30
+echo "SGBS: CB response body head:"; head -c 600 "${MY_TEMP}/cb.body"; echo
+
+if [[ "${cb_code}" != "200" ]]; then
+  echo "SGBS: builds.create did not return 200. Stop." >&2
+  exit 1
+fi
+
+# ---- 4) Try to extract Operation + build id ---------------------------------
+echo "SGBS: === Parse operation ==="
+build_id=""
+op_name=""
+log_url=""
+
+if command -v jq >/dev/null 2>&1; then
+  op_name="$(jq -r '.name // empty' "${MY_TEMP}/cb.body")"
+  build_id="$(jq -r '.metadata.build.id // empty' "${MY_TEMP}/cb.body")"
+  log_url="$(jq -r '.metadata.build.logUrl // empty' "${MY_TEMP}/cb.body")"
+else
+  # crude fallbacks
+  op_name="$(grep -ao '"name" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"name"[^\"]*"\([^\"]*\)".*/\1/')"
+  build_id="$(grep -ao '"id" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"id"[^\"]*"\([^\"]*\)".*/\1/')"
+  log_url="$(grep -ao '"logUrl" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"logUrl"[^\"]*"\([^\"]*\)".*/\1/')"
+fi
+
+echo "SGBS: operation.name: ${op_name:-<empty>}"
+echo "SGBS: metadata.build.id: ${build_id:-<empty>}"
+echo "SGBS: metadata.build.logUrl: ${log_url:-<empty>}"
+
+if [[ -n "${build_id}" ]]; then
+  console_url="https://console.cloud.google.com/cloud-build/builds/${build_id}?project=${z_project}"
+  echo "SGBS: Console: ${console_url}"
+else
+  echo "SGBS: (No build id yet; inspect ${MY_TEMP}/cb.body for details.)"
 fi
 
 echo "SGBS: End."
