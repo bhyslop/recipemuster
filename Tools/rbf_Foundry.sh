@@ -54,7 +54,7 @@ zrbf_kindle() {
   ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
 
   ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
-  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
+  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBRR_GCB_PROJECT_ID}/builds"
   ZRBF_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   bcu_log_args 'Registry API endpoints for delete'
@@ -379,11 +379,25 @@ zrbf_submit_build() {
   test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
 
   local z_url="${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart&alt=json"
+  bcu_log_args "Upload URL: ${z_url}"
+  bcu_log_args "Multipart boundary: ${z_boundary}"
+  bcu_log_args "Multipart body head (200 bytes):"
+  head -c 200 "${z_body_file}" | od -An -vtc | bcu_log_pipe
+
+  bcu_log_args 'precompute length - helps some FEs; harmless otherwise'
+  local z_len=""
+  z_len=$(wc -c < "${z_body_file}") || z_len=""
+  bcu_log_args "Length is ${z_len}"
 
   curl -sS -X POST                                                        \
     -H "Authorization: Bearer ${z_token}"                                 \
     -H "Accept: application/json"                                         \
     -H "Content-Type: multipart/related; boundary=${z_boundary}"          \
+    -H "X-Goog-Upload-Protocol: multipart"                                \
+    -H "X-Goog-Upload-File-Name: source.tar.gz"                           \
+    ${z_len:+-H "Content-Length: ${z_len}"}                               \
+    --http1.1                                                             \
+    -H "Expect:"                                                          \
     -H "X-Goog-Upload-Protocol: multipart"                                \
     -H "X-Goog-Upload-File-Name: source.tar.gz"                           \
     --data-binary @"${z_body_file}"                                       \
