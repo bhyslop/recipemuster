@@ -309,11 +309,11 @@ zrbf_submit_build() {
   local z_recipe_name="${z_dockerfile_name%.*}"
 
   bcu_log_args 'Create build config with RBGY substitutions'
-    jq -n                                                         \
+    jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_tag            "${z_tag}"                         \
     --arg zjq_moniker        "${z_sigil}"                       \
-    --arg zjq_platforms      "${RBRV_PLATFORMS}"                \
+    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
     --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
     --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
@@ -529,11 +529,11 @@ rbf_build() {
   test -d "${RBRV_CONJURE_BLDCONTEXT}" || bcu_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
 
   bcu_log_args "Enforce vessel binfmt policy"
-  if test "${RBRV_BINFMT_POLICY}" = "forbid"; then
+  if test "${RBRV_CONJURE_BINFMT_POLICY}" = "forbid"; then
     local z_native="$(uname -s | tr A-Z a-z)/$(uname -m)"
-    case " ${RBRV_PLATFORMS} " in
+    case " ${RBRV_CONJURE_PLATFORMS} " in
       *"${z_native}"*) : ;;  # native arch allowed
-      *) bcu_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_PLATFORMS='${RBRV_PLATFORMS}'" ;;
+      *) bcu_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}'" ;;
     esac
   fi
 

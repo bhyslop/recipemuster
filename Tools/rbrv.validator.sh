@@ -36,11 +36,13 @@ fi
 if test -n       "${RBRV_CONJURE_DOCKERFILE:-}"; then
     bvu_env_string  RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
     bvu_env_string  RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
-    bvu_env_string  RBRV_PLATFORMS               1    512  # Space-separated platforms (e.g. "linux/amd64 linux/arm64")
-    bvu_env_string  RBRV_BINFMT_POLICY           1     16  # Either "allow" or "forbid"
-    case "${RBRV_BINFMT_POLICY}" in
+    
+    # Platform configuration - only meaningful for builds
+    bvu_env_string  RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms (e.g. "linux/amd64 linux/arm64")
+    bvu_env_string  RBRV_CONJURE_BINFMT_POLICY   1     16  # Either "allow" or "forbid"
+    case "${RBRV_CONJURE_BINFMT_POLICY}" in
         allow|forbid) : ;;
-        *) bcu_die "Invalid RBRV_BINFMT_POLICY: '${RBRV_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
+        *) bcu_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
     esac
 fi
 
