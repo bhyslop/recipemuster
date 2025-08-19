@@ -42,13 +42,9 @@ bvu_env_gname       RBRR_GCP_PROJECT_ID          6     63  # Base GCP project ID
 bvu_env_gname       RBRR_GCP_REGION              1     32  # Base GCP region
 
 # Google Artifact Registry Configuration
-bvu_env_gname       RBRR_GAR_PROJECT_ID          6     63  # GCP project ID (loose gname check; API enforces real rules)
-bvu_env_gname       RBRR_GAR_LOCATION            1     32  # GCP region (loose gname check; API enforces real rules)
 bvu_env_gname       RBRR_GAR_REPOSITORY          1     63  # GAR repo id (loose gname check; API enforces real rules)
 
 # Google Cloud Build Configuration
-bvu_env_gname       RBRR_GCB_PROJECT_ID          6     63  # Usually same as GAR project (loose gname check)
-bvu_env_gname       RBRR_GCB_REGION              1     32  # GCP build region (loose gname check; API enforces real rules)
 bvu_env_string      RBRR_GCB_MACHINE_TYPE        3     64  # Cloud Build machine type (API-native form, e.g., E2_HIGHCPU_8)
 bvu_env_string      RBRR_GCB_TIMEOUT             2     10  # Cloud Build timeout (seconds form, e.g., 600s, 1200s)
 

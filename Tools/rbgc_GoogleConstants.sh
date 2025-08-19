@@ -31,6 +31,15 @@ ZRBGC_SOURCED=1
 zrbgc_kindle() {
   test -z "${ZRBGC_KINDLED:-}" || bcu_die "Module rbgc already kindled"
 
+  # Service-specific aliases
+  RBGC_GAR_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
+  RBGC_GAR_LOCATION="${RBRR_GCP_REGION}"
+  RBGC_GCB_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
+  RBGC_GCB_REGION="${RBRR_GCP_REGION}"
+
+  # Google Cloud Storage bucket
+  RBGC_GCS_BUCKET="${RBRR_GCP_PROJECT_ID}-artifacts"
+
   # ------------------------------------------------------------------
   # URL roots & well-known endpoints (fully expanded)
   # ------------------------------------------------------------------

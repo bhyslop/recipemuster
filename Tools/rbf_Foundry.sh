@@ -35,12 +35,7 @@ zrbf_kindle() {
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
 
   bcu_log_args 'Check required GCB/GAR environment variables'
-  test -n "${RBRR_GCB_PROJECT_ID:-}"      || bcu_die "RBRR_GCB_PROJECT_ID not set"
-  test -n "${RBRR_GCB_REGION:-}"          || bcu_die "RBRR_GCB_REGION not set"
-  test -n "${RBRR_GAR_PROJECT_ID:-}"      || bcu_die "RBRR_GAR_PROJECT_ID not set"
-  test -n "${RBRR_GAR_LOCATION:-}"        || bcu_die "RBRR_GAR_LOCATION not set"
-  test -n "${RBRR_GAR_REPOSITORY:-}"      || bcu_die "RBRR_GAR_REPOSITORY not set"
-  test -n "${RBRR_VESSEL_DIR:-}"          || bcu_die "RBRR_VESSEL_DIR not set"
+  zrbgc_sentinel
 
   bcu_log_args 'Verify service account files'
   test -n "${RBRR_DIRECTOR_RBRA_FILE:-}" || bcu_die "RBRR_DIRECTOR_RBRA_FILE not set"
@@ -53,13 +48,13 @@ zrbf_kindle() {
 
   ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
 
-  ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBRR_GCB_PROJECT_ID}/locations/${RBRR_GCB_REGION}/builds"
-  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBRR_GCB_PROJECT_ID}/builds"
-  ZRBF_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
+  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGC_GCB_PROJECT_ID}/builds"
+  ZRBF_GAR_PACKAGE_BASE="projects/${RBGC_GAR_PROJECT_ID}/locations/${RBGC_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   bcu_log_args 'Registry API endpoints for delete'
-  ZRBF_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
-  ZRBF_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  ZRBF_REGISTRY_HOST="${RBGC_GAR_LOCATION}-docker.pkg.dev"
+  ZRBF_REGISTRY_PATH="${RBGC_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBF_REGISTRY_API_BASE="https://${ZRBF_REGISTRY_HOST}/v2/${ZRBF_REGISTRY_PATH}"
 
   bcu_log_args 'Media types for delete operation'
@@ -321,8 +316,8 @@ zrbf_submit_build() {
     --arg zjq_tag            "${z_tag}"                         \
     --arg zjq_moniker        "${z_sigil}"                       \
     --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
-    --arg zjq_gar_location   "${RBRR_GAR_LOCATION}"             \
-    --arg zjq_gar_project    "${RBRR_GAR_PROJECT_ID}"           \
+    --arg zjq_gar_location   "${RBGC_GAR_LOCATION}"             \
+    --arg zjq_gar_project    "${RBGC_GAR_PROJECT_ID}"           \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
@@ -436,7 +431,7 @@ zrbf_submit_build() {
   test -n "${z_build_id}" || bcu_die "Cloud Build did not return a build id in operation.metadata.build.id"
 
   bcu_log_args 'Now make the Console link with a real BUILD ID'
-  local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBRR_GCB_PROJECT_ID}"
+  local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBGC_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
   bcu_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 }
@@ -566,8 +561,7 @@ rbf_study() {
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
-  test -n "${RBRR_GCB_PROJECT_ID:-}" || bcu_die "RBRR_GCB_PROJECT_ID not set"
-  test -n "${RBRR_GCB_REGION:-}"     || bcu_die "RBRR_GCB_REGION not set"
+  zrbgc_sentinel
 
   bcu_step "Execute study script from its own directory with parameters"
   local z_tools_dir="${BASH_SOURCE[0]%/*}"

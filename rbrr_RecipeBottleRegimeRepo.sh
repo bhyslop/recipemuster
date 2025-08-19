@@ -39,17 +39,13 @@ RBRR_VESSEL_DIR=rbev-vessels
 
 # Google Cloud Platform configuration (shared by all GCP services)
 RBRR_GCP_PROJECT_ID=brm-recipemuster-proj
-RBRR_GCP_REGION=us-central1  # PRoject doesn't have a region but our services do
+RBRR_GCP_REGION=us-central1  # Project doesn't have a region but our services do
 
 # Google Artifact Registry settings
-RBRR_GAR_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
-RBRR_GAR_LOCATION="${RBRR_GCP_REGION}"
 RBRR_GAR_REPOSITORY=brm-recipemuster-gar
 
 # Google Cloud Build settings  
-RBRR_GCB_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
-RBRR_GCB_REGION="${RBRR_GCP_REGION}"
-RBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8          # Google Cloud Build machine type (enum form as in API, not gcloud CLI)
+RBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8          # Google Cloud Build machine type (enum form as in web API, not gcloud CLI)
 RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 
 ########################################################################

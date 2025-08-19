@@ -471,7 +471,7 @@ zrbga_add_repo_iam_role() {
   local z_role="${4:-}"
 
   test -n "${z_account_email}" || bcu_die "Service account email required"
-  test -n "${z_location}"      || bcu_die "RBRR_GAR_LOCATION is required"
+  test -n "${z_location}"      || bcu_die "Location is required"
   test -n "${z_repository}"    || bcu_die "RBRR_GAR_REPOSITORY is required"
   test -n "${z_role}"          || bcu_die "Role is required"
 
@@ -605,12 +605,12 @@ rbga_initialize_admin() {
     bcu_info "All required APIs already enabled"
   fi
 
-  bcu_step 'Create/verify Docker format Artifact Registry repo'" ${RBRR_GAR_REPOSITORY} in ${RBRR_GAR_LOCATION}"
+  bcu_step 'Create/verify Docker format Artifact Registry repo'" ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
 
-  test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION is not set"
+  test -n "${RBGC_GAR_LOCATION:-}"   || bcu_die "RBGC_GAR_LOCATION is not set"
   test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY is not set"
 
-  local z_parent="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}"
+  local z_parent="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBGC_GAR_LOCATION}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
@@ -641,10 +641,10 @@ rbga_initialize_admin() {
 
   bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
   local z_cb_sa_email="${z_project_number}@cloudbuild.gserviceaccount.com"
-  zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+  zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
   bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
-  bcu_info "GAR: ${RBRR_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
+  bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
   bcu_info "Cloud Build SA granted writer on repo: ${z_cb_sa_email}"
   bcu_warn "RBRR file stashed. Consider deleting carriage JSON:"
   bcu_code ""
@@ -687,7 +687,7 @@ rbga_destroy_admin() {
     || bcu_die "Failed to extract project number"
 
   local z_cb_sa_member="serviceAccount:${z_project_number}@cloudbuild.gserviceaccount.com"
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBRR_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
+  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBGC_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
@@ -727,7 +727,7 @@ rbga_destroy_admin() {
 
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
 
-  bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBRR_GAR_LOCATION}"
+  bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBGC_GAR_LOCATION}"
   local z_delete_code
   zrbga_http_json "DELETE" \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}" \
@@ -848,10 +848,10 @@ rbga_create_director() {
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
 
   bcu_step 'Grant Artifact Registry Writer (repo-scoped)'
-  zrbga_add_repo_iam_role "${z_account_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+  zrbga_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
   bcu_step 'Grant Artifact Registry Admin (repo-scoped) for delete in own repo'
-  zrbga_add_repo_iam_role "${z_account_email}" "${RBRR_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
+  zrbga_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 

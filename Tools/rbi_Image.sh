@@ -34,8 +34,6 @@ zrbi_kindle() {
   test "${ZRBGO_KINDLED:-}" = "1" || bcu_die "Module rbgo not kindled - must kindle rbgo before rbi"
 
   # Check required environment
-  test -n "${RBRR_GAR_PROJECT_ID:-}" || bcu_die "RBRR_GAR_PROJECT_ID not set"
-  test -n "${RBRR_GAR_LOCATION:-}"   || bcu_die "RBRR_GAR_LOCATION not set"
   test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY not set"
   test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
 
@@ -44,11 +42,11 @@ zrbi_kindle() {
   test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
 
   # Module Variables (ZRBI_*)
-  ZRBI_REGISTRY_HOST="${RBRR_GAR_LOCATION}-docker.pkg.dev"
-  ZRBI_REGISTRY_PATH="${RBRR_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  ZRBI_REGISTRY_HOST="${RBGC_GAR_LOCATION}-docker.pkg.dev"
+  ZRBI_REGISTRY_PATH="${RBGC_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBI_REGISTRY_API_BASE="https://${ZRBI_REGISTRY_HOST}/v2/${ZRBI_REGISTRY_PATH}"
   ZRBI_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
-  ZRBI_GAR_PACKAGE_BASE="projects/${RBRR_GAR_PROJECT_ID}/locations/${RBRR_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  ZRBI_GAR_PACKAGE_BASE="projects/${RBGC_GAR_PROJECT_ID}/locations/${RBGC_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   # Media types
   ZRBI_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
