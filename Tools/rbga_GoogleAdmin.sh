@@ -70,6 +70,12 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_CHECK="api_checking"
   ZRBGA_INFIX_DELETE="delete"
   ZRBGA_INFIX_LIST_KEYS="list_keys"
+  ZRBGA_INFIX_BUCKET_CREATE="bucket_create"
+  ZRBGA_INFIX_BUCKET_DELETE="bucket_delete"
+  ZRBGA_INFIX_BUCKET_LIST="bucket_list"
+  ZRBGA_INFIX_BUCKET_IAM="bucket_iam"
+  ZRBGA_INFIX_BUCKET_IAM_SET="bucket_iam_set"
+  ZRBGA_INFIX_OBJECT_DELETE="object_delete"
 
   ZRBGA_POSTFIX_JSON="_response.json"
   ZRBGA_POSTFIX_CODE="_code.txt"
@@ -532,6 +538,208 @@ zrbga_add_repo_iam_role() {
   bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
 }
 
+
+zrbga_create_gcs_bucket() {
+  zrbga_sentinel
+
+  local z_token="${1}"
+  local z_bucket_name="${2}"
+
+  bcu_log_args 'Create bucket request JSON for '"${z_bucket_name}"
+  local z_bucket_req="${BDU_TEMP_DIR}/rbga_bucket_create_req.json"
+  jq -n --arg name "${z_bucket_name}" \
+        --arg location "${RBGC_GAR_LOCATION}" \
+    '{
+      name: $name,
+      location: $location,
+      storageClass: "STANDARD"
+    }' > "${z_bucket_req}" || bcu_die "Failed to create bucket request JSON"
+
+  bcu_log_args 'Send bucket creation request'
+  zrbga_http_json "POST" "${RBGC_API_GCS_BUCKET_CREATE}" "${z_token}" \
+    "${ZRBGA_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_CREATE}") \
+    || bcu_die "Failed to read bucket creation HTTP code"
+
+  case "${z_code}" in
+    200|201)
+      bcu_info "Bucket created: ${z_bucket_name}"
+      return 0
+      ;;
+    409)
+      bcu_warn "Bucket already exists: ${z_bucket_name}"
+      return 0
+      ;;
+    *)
+      local z_err
+      z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_BUCKET_CREATE}" '.error.message') \
+        || z_err="HTTP ${z_code}"
+      bcu_die "Failed to create bucket: ${z_err}"
+      ;;
+  esac
+}
+
+zrbga_list_bucket_objects_capture() {
+  zrbga_sentinel
+
+  local z_token="${1}"
+  local z_bucket_name="${2}"
+
+  bcu_log_args 'List objects in bucket'
+  local z_list_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o"
+  zrbga_http_json "GET" "${z_list_url}" "${z_token}" "${ZRBGA_INFIX_BUCKET_LIST}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_LIST}") || return 1
+
+  if test "${z_code}" != "200"; then
+    return 1
+  fi
+
+  bcu_log_args 'Extract object names'
+  local z_objects
+  z_objects=$(jq -r '.items[]?.name // empty' \
+    "${ZRBGA_PREFIX}${ZRBGA_INFIX_BUCKET_LIST}${ZRBGA_POSTFIX_JSON}") || return 1
+
+  echo "${z_objects}"
+}
+
+zrbga_empty_gcs_bucket() {
+  zrbga_sentinel
+
+  local z_token="${1}"
+  local z_bucket_name="${2}"
+
+  bcu_log_args 'Get list of objects to delete'
+  local z_objects
+  z_objects=$(zrbga_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || {
+    bcu_log_args 'No objects found or bucket not accessible'
+    return 0
+  }
+
+  if test -z "${z_objects}"; then
+    bcu_log_args 'Bucket is empty'
+    return 0
+  fi
+
+  bcu_log_args 'Delete each object'
+  local z_object
+  local z_delete_url
+  local z_delete_code
+  while IFS= read -r z_object; do
+    test -n "${z_object}" || continue
+
+    bcu_log_args "Deleting object: ${z_object}"
+    z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object}"
+
+    zrbga_http_json "DELETE" "${z_delete_url}" "${z_token}" "${ZRBGA_INFIX_OBJECT_DELETE}"
+
+    z_delete_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_OBJECT_DELETE}") || z_delete_code=""
+
+    case "${z_delete_code}" in
+      204|404) bcu_log_args "Object deleted or not found: ${z_object}" ;;
+      *) bcu_warn "Failed to delete object ${z_object} (HTTP ${z_delete_code})" ;;
+    esac
+  done <<< "${z_objects}"
+}
+
+zrbga_delete_gcs_bucket() {
+  zrbga_sentinel
+
+  local z_token="${1}"
+  local z_bucket_name="${2}"
+
+  bcu_log_args 'Empty bucket before deletion: '"${z_bucket_name}"
+  zrbga_empty_gcs_bucket "${z_token}" "${z_bucket_name}"
+
+  bcu_log_args 'Delete the bucket'
+  local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
+  zrbga_http_json "DELETE" "${z_delete_url}" "${z_token}" "${ZRBGA_INFIX_BUCKET_DELETE}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_DELETE}") \
+    || z_code=""
+
+  case "${z_code}" in
+    204)
+      bcu_info "Bucket deleted: ${z_bucket_name}"
+      return 0
+      ;;
+    404)
+      bcu_warn "Bucket not found (already deleted): ${z_bucket_name}"
+      return 0
+      ;;
+    409)
+      bcu_warn "Bucket not empty or has retention policy: ${z_bucket_name}"
+      return 0
+      ;;
+    *)
+      local z_err
+      z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_BUCKET_DELETE}" '.error.message') \
+        || z_err="HTTP ${z_code}"
+      bcu_warn "Failed to delete bucket: ${z_err}"
+      return 0
+      ;;
+  esac
+}
+
+zrbga_add_bucket_iam_role() {
+  zrbga_sentinel
+
+  local z_bucket_name="${1}"
+  local z_account_email="${2}"
+  local z_role="${3}"
+  local z_token="${4}"
+
+  bcu_log_args "Adding bucket IAM role ${z_role} to ${z_account_email}"
+
+  bcu_log_args 'Get current bucket IAM policy'
+  local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
+  zrbga_http_json "GET" "${z_iam_url}" "${z_token}" "${ZRBGA_INFIX_BUCKET_IAM}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_IAM}") || z_code=""
+
+  if test "${z_code}" != "200"; then
+    bcu_log_args 'Initialize empty IAM policy for bucket'
+    echo '{"bindings":[]}' > "${ZRBGA_PREFIX}${ZRBGA_INFIX_BUCKET_IAM}${ZRBGA_POSTFIX_JSON}"
+  fi
+
+  bcu_log_args 'Update bucket IAM policy'
+  local z_updated="${BDU_TEMP_DIR}/rbga_bucket_iam_updated.json"
+  jq --arg role "${z_role}" \
+     --arg member "serviceAccount:${z_account_email}" \
+     '
+       .bindings = (.bindings // []) |
+       if ( ([ .bindings[]? | .role ] | index($role)) ) then
+         .bindings = ( .bindings | map(
+           if .role == $role then .members = ( (.members // []) + [$member] | unique )
+           else .
+           end))
+       else
+         .bindings += [{role: $role, members: [$member]}]
+       end
+     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_BUCKET_IAM}${ZRBGA_POSTFIX_JSON}" \
+     > "${z_updated}" || bcu_die "Failed to update bucket IAM policy"
+
+  bcu_log_args 'Set updated bucket IAM policy'
+  zrbga_http_json "PUT" "${z_iam_url}" "${z_token}" \
+    "${ZRBGA_INFIX_BUCKET_IAM_SET}" "${z_updated}"
+
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_IAM_SET}") || z_code=""
+
+  if test "${z_code}" != "200"; then
+    local z_err
+    z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_BUCKET_IAM_SET}" '.error.message') \
+      || z_err="HTTP ${z_code}"
+    bcu_die "Failed to set bucket IAM policy: ${z_err}"
+  fi
+
+  bcu_log_args "Successfully added bucket role ${z_role}"
+}
+
 ######################################################################
 # External Functions (rbga_*)
 #!/bin/bash
@@ -605,6 +813,22 @@ rbga_initialize_admin() {
     bcu_info "All required APIs already enabled"
   fi
 
+  bcu_step 'Discover Project Number'
+  local z_project_number
+  zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" \
+                                 "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
+  zrbga_http_require_ok "Get project info"    "${ZRBGA_INFIX_PROJECT_INFO}"
+  z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
+    || bcu_die "Failed to extract project number"
+
+  bcu_step 'Create/verify Cloud Storage bucket'
+  zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
+
+  bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
+  local z_cb_sa_for_bucket="${z_project_number}@cloudbuild.gserviceaccount.com"
+  zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa_for_bucket}" \
+    "roles/storage.objectAdmin" "${z_token}"
+
   bcu_step 'Create/verify Docker format Artifact Registry repo'" ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
 
   test -n "${RBGC_GAR_LOCATION:-}"   || bcu_die "RBGC_GAR_LOCATION is not set"
@@ -631,14 +855,6 @@ rbga_initialize_admin() {
 
   bcu_step 'Compute Cloud Build SA and grant repo-scoped writer'
 
-  bcu_step 'Discover Project Number'
-  local z_project_number
-  zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" \
-                                 "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  zrbga_http_require_ok "Get project info"    "${ZRBGA_INFIX_PROJECT_INFO}"
-  z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
-    || bcu_die "Failed to extract project number"
-
   bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
   local z_cb_sa_email="${z_project_number}@cloudbuild.gserviceaccount.com"
   zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
@@ -653,8 +869,6 @@ rbga_initialize_admin() {
 
   bcu_success 'Admin initialization complete'
 }
-
-# Refactored rbga_destroy_admin
 
 rbga_destroy_admin() {
   zrbga_sentinel
@@ -742,6 +956,9 @@ rbga_destroy_admin() {
       bcu_die "Failed to delete repository: ${z_err}"
       ;;
   esac
+
+  bcu_step 'Delete Cloud Storage bucket'
+  zrbga_delete_gcs_bucket "${z_token}"  "${RBGC_GCS_BUCKET}"
 
   bcu_success 'RBGA project resources destroyed (APIs left enabled; SAs untouched)'
 }
