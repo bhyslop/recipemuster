@@ -1004,6 +1004,9 @@ rbga_destroy_admin() {
     done <<< "${z_emails_to_delete}"
   fi
 
+  bcu_step 'Waiting 45s for IAM deletion propagation'
+  sleep 45
+
   bcu_success 'RBGA nuclear destruction complete (admin account preserved)'
 }
 
