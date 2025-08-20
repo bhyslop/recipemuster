@@ -49,7 +49,7 @@ zrbf_kindle() {
   ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
 
   ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
-  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGC_GCB_PROJECT_ID}/builds"
+  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
   ZRBF_GAR_PACKAGE_BASE="projects/${RBGC_GAR_PROJECT_ID}/locations/${RBGC_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   bcu_log_args 'Registry API endpoints for delete'

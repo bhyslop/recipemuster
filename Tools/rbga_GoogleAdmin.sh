@@ -96,57 +96,52 @@ zrbga_urlencode_capture() {
   zrbga_sentinel
   local z_s="${1:-}"
   local z_out=""
-  local z_i z_c z_hex
+  local z_i=0
+  local z_c
+  local z_hex
+
   bcu_log_args "Percent encoding -> ${z_s}"
-  # Percent-encode everything except unreserved [A-Za-z0-9-_.~]
-  for (( z_i=0; z_i<${#z_s}; z_i++ )); do
+
+  while test ${z_i} -lt ${#z_s}; do
     z_c="${z_s:z_i:1}"
     case "${z_c}" in
-      [a-zA-Z0-9._~-]) z_out="${z_out}${z_c}" ;;
+      [A-Za-z0-9._~\-]) z_out="${z_out}${z_c}" ;;
       *) printf -v z_hex '%%%02X' "'${z_c}"; z_out="${z_out}${z_hex}" ;;
     esac
+    z_i=$((z_i + 1))
   done
-  bcu_log_args "Encoded  ${z_out}"
-  test -n               "${z_out}" || return 1
-  echo                  "${z_out}"
+
+  bcu_log_args "Encoded ${z_out}"
+  test -n "${z_out}" || return 1
+  echo "${z_out}"
 }
 
-# Internal: Return updated IAM policy JSON with $member added to $role (idempotent).
 zrbga_jq_add_member_to_role_capture() {
   zrbga_sentinel
 
   local z_infix="${1:-}"
   local z_role="${2:-}"
   local z_member="${3:-}"
+  local z_etag_opt="${4:-}"
 
-  # Basic validation (quiet on failure per *_capture contract)
+  local z_policy_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+
   test -n "${z_policy_file}" || return 1
   test -f "${z_policy_file}" || return 1
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
 
-  local z_policy_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
-
-  # Perform update with jq, preserving binding order and ensuring member is unique
-  # Strategy:
-  # - Ensure .bindings exists
-  # - If role binding exists: append member then unique (keeps first occurrence order)
-  # - Else: append a new binding with the member
   local z_out=""
   z_out=$(
-    jq --arg role "${z_role}" --arg member "${z_member}" '
+    jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
       .bindings = (.bindings // []) |
-      if ( [ .bindings[]? | .role ] | index($role) )
-      then
-        .bindings |= ( map(
-          if .role == $role
-          then .members = ( (.members // []) + [$member] | unique )
-          else .
-          end
-        ))
-      else
-        .bindings += [{role: $role, members: [$member]}]
+      if ([.bindings[]? | .role] | index($role))
+      then .bindings |= map(if .role == $role
+                            then .members = ((.members // []) + [$member] | unique)
+                            else . end)
+      else .bindings += [{role: $role, members: [$member]}]
       end
+      | (if $etag != "" then .etag = $etag else . end)
     ' "${z_policy_file}"
   ) || return 1
 
@@ -1009,7 +1004,7 @@ zrbga_empty_gcs_bucket() {
   done <<< "${z_objects}"
 }
 
-zrbga_delete_gcs_bucket() {
+zrbga_delete_gcs_bucket_predicate() {
   zrbga_sentinel
 
   local z_token="${1}"
@@ -1323,7 +1318,7 @@ rbga_destroy_admin() {
   esac
 
   bcu_step 'Delete Cloud Storage bucket'
-  zrbga_delete_gcs_bucket "${z_token}"  "${RBGC_GCS_BUCKET}"
+  zrbga_delete_gcs_bucket_predicate "${z_token}"  "${RBGC_GCS_BUCKET}"
 
   bcu_step 'Delete all service accounts except admin'
 
