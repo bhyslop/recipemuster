@@ -898,43 +898,43 @@ zrbga_list_bucket_objects_capture() {
 # Ensure Cloud Build service agent exists and admin can trigger builds
 zrbga_ensure_cloudbuild_service_agent() {
   zrbga_sentinel
-  
+
   local z_token="${1}"
   local z_project_number="${2}"
-  
+
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  
+
   bcu_step 'Ensure Cloud Build service agent exists'
   local z_create_code
   local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
   zrbga_http_json "POST"  "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
   z_create_code=$(zrbga_http_code_capture                "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}") || z_create_code=""
-  
+
   case "${z_create_code}" in
     200)     bcu_info "Cloud Build service agent created successfully" ;;
     400|409) bcu_log_args "Service agent already exists (${z_create_code})" ;;
     *)       bcu_die "Service agent creation failed with ${z_create_code} - Cloud Build API issue" ;;
   esac
-  
+
   bcu_step 'Waiting 30s for service agent propagation'
   sleep             30
-  
+
   bcu_step 'Grant Cloud Build Service Agent role'
   zrbga_add_iam_role "${z_cb_service_agent}" "roles/cloudbuild.serviceAgent"
-  
+
   bcu_step 'Grant admin necessary permissions to trigger builds'
   bcu_step "Grant admin Cloud Build permissions"
-  
+
   bcu_step 'Admin needs serviceAccountUser on the service agent'
   zrbga_add_sa_iam_role "${z_cb_service_agent}" "${z_admin_sa_email}" "roles/iam.serviceAccountUser"
-  
+
   bcu_step 'Admin needs Cloud Build Editor for builds.create'
   zrbga_add_iam_role "${z_admin_sa_email}" "roles/cloudbuild.builds.editor"
-  
+
   bcu_step 'Admin needs viewer for build visibility'
   zrbga_add_iam_role "${z_admin_sa_email}" "roles/viewer"
-  
+
   bcu_info "Cloud Build service agent configured with admin permissions"
 }
 
