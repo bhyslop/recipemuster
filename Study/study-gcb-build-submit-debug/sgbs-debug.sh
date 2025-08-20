@@ -25,12 +25,12 @@ echo  "---- Bucket probe -------------------------------------------------"
 curl -sS -H "Authorization: Bearer ${z_token}" \
   "https://storage.googleapis.com/storage/v1/b?project=${z_project}"
 
-
 echo  "---- Bucket existence check -------------------------------------------------"
 echo "SGBS: Bucket ${z_bucket} check skipped due to lack of permissions."
 
 echo  "---- Endpoints --------------------------------------------------------------"
-z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=$(printf %s "${z_object}" | sed 's/:/%3A/g;s,/,%,g' | sed 's/%2F/\//g')" # keep slashes
+# FIX: preserve slashes; do not transform them (previous sed replaced '/' with '%')
+z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=${z_object}"
 z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds"
 
 echo "SGBS: project/region: ${z_project}/${z_region}"
@@ -79,6 +79,20 @@ gcs_code="$(tr -d '\r\n' < "${MY_TEMP}/gcs.code")"
 if test "${gcs_code}" != "200" && test "${gcs_code}" != "201"; then
   echo "SGBS: GCS upload failed (expect 200/201). Stop." >&2
   exit 1
+fi
+
+# FIX: adopt the exact stored object name that GCS reports (prevents NOT_FOUND later)
+stored_name=""
+if command -v jq >/dev/null 2>&1; then
+  stored_name="$(jq -r '.name // empty' "${MY_TEMP}/gcs.body")"
+else
+  stored_name="$(grep -ao '"name" *: *"[^"]*"' "${MY_TEMP}/gcs.body" | head -n1 | sed 's/.*"name"[^\"]*"\([^\"]*\)".*/\1/')"
+fi
+test -n "${stored_name}" || { echo "SGBS: Could not parse stored object name from GCS response"; exit 1; }
+
+if test "${stored_name}" != "${z_object}"; then
+  echo "SGBS: WARNING: requested object '${z_object}' but GCS stored as '${stored_name}' — using stored name."
+  z_object="${stored_name}"
 fi
 
 echo  "---- 2) Build JSON for Cloud Build create -----------------------------------"
