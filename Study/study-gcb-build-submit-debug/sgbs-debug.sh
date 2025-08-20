@@ -21,6 +21,18 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 z_bucket="brm-recipemuster-proj_cloudbuild"
 z_object="source/sgbs-${STAMP}.tgz"
 
+# ---- Bucket existence check -------------------------------------------------
+echo "SGBS: === Check bucket exists ==="
+z_bucket_check_code="$(curl -sS -o /dev/null -w "%{http_code}" \
+  -H "Authorization: Bearer ${z_token}" \
+  "https://storage.googleapis.com/storage/v1/b/${z_bucket}")"
+
+if test "${z_bucket_check_code}" != "200"; then
+  echo "SGBS: Bucket ${z_bucket} not found or inaccessible (HTTP ${z_bucket_check_code}). Stop." >&2
+  exit 1
+fi
+echo "SGBS: Bucket ${z_bucket} exists and is accessible."
+
 # ---- Endpoints --------------------------------------------------------------
 z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=$(printf %s "${z_object}" | sed 's/:/%3A/g;s,/,%,g' | sed 's/%2F/\//g')" # keep slashes
 z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds"
