@@ -111,6 +111,49 @@ zrbga_urlencode_capture() {
   echo                  "${z_out}"
 }
 
+# Internal: Return updated IAM policy JSON with $member added to $role (idempotent).
+zrbga_jq_add_member_to_role_capture() {
+  zrbga_sentinel
+
+  local z_infix="${1:-}"
+  local z_role="${2:-}"
+  local z_member="${3:-}"
+
+  # Basic validation (quiet on failure per *_capture contract)
+  test -n "${z_policy_file}" || return 1
+  test -f "${z_policy_file}" || return 1
+  test -n "${z_role}"        || return 1
+  test -n "${z_member}"      || return 1
+
+  local z_policy_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+
+  # Perform update with jq, preserving binding order and ensuring member is unique
+  # Strategy:
+  # - Ensure .bindings exists
+  # - If role binding exists: append member then unique (keeps first occurrence order)
+  # - Else: append a new binding with the member
+  local z_out=""
+  z_out=$(
+    jq --arg role "${z_role}" --arg member "${z_member}" '
+      .bindings = (.bindings // []) |
+      if ( [ .bindings[]? | .role ] | index($role) )
+      then
+        .bindings |= ( map(
+          if .role == $role
+          then .members = ( (.members // []) + [$member] | unique )
+          else .
+          end
+        ))
+      else
+        .bindings += [{role: $role, members: [$member]}]
+      end
+    ' "${z_policy_file}"
+  ) || return 1
+
+  test -n "${z_out}" || return 1
+  printf '%s\n' "${z_out}"
+}
+
 # Predicate: Check if resource was newly created and apply propagation delay
 # Usage: if zrbga_newly_created_delay "infix" "resource_type" "15"; then ...
 zrbga_newly_created_delay() {
@@ -291,6 +334,37 @@ zrbga_http_require_ok() {
   fi
 
   bcu_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
+}
+
+# Usage:
+#   zrbga_http_json_ok \
+#     "Label for logs/context" \        # label (required)
+#     "${token}" \                      # OAuth token (required)
+#     "POST" \                          # HTTP method (required)
+#     "https://..." \                   # URL (required)
+#     "INFIX" \                         # file infix for output (required)
+#     "" \                              # body file path, or "" if none
+#     "" \                              # tolerated warn code (e.g. 409), or "" if none
+#     ""                                # tolerated warn message, or "" if none
+zrbga_http_json_ok() {
+  zrbga_sentinel
+
+  local z_label="$1"        # descriptive label
+  local z_token="$2"        # OAuth token
+  local z_method="$3"       # HTTP verb
+  local z_url="$4"          # full URL
+  local z_infix="$5"        # infix for response file naming
+  local z_body_file="$6"    # optional: path to request body JSON file, or "" if none
+  local z_warn_code="$7"    # optional: tolerated HTTP code (e.g. 409), or "" if none
+  local z_warn_message="$8" # optional: tolerated warning message, or "" if none
+
+  bcu_log_args "${z_label}"
+
+  # Perform HTTP request (body file may be "")
+  zrbga_http_json "${z_method}" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
+
+  # Enforce success (warn/ignore if optional params provided)
+  zrbga_http_require_ok "${z_label}" "${z_infix}" "${z_warn_code:-}" "${z_warn_message:-}"
 }
 
 zrbga_get_admin_token_capture() {
@@ -502,6 +576,113 @@ zrbga_add_iam_role() {
   zrbga_http_require_ok "Set IAM policy" "${ZRBGA_INFIX_ROLE_SET}"
 
   bcu_log_args 'Successfully added role' "${z_role}"
+}
+
+# Add project-scoped IAM role and verify via strong read-back.
+# Params:
+#   $1  z_parent_infix   Parent infix to namespace temps (e.g., "role-add-admin")
+#   $2  z_token          OAuth bearer token
+#   $3  z_email          Member service account email (e.g., "sa@proj.iam.gserviceaccount.com")
+#   $4  z_role           Role to grant (e.g., "roles/storage.objectAdmin")
+zrbga_new_add_iam_role() {
+  zrbga_sentinel
+
+  local z_parent_infix="${1:-}"
+  local z_token="${2:-}"
+  local z_email="${3:-}"
+  local z_role="${4:-}"
+
+  test -n "${z_parent_infix}" || bcu_die "Parent infix required"
+  test -n "${z_token}"        || bcu_die "Token required"
+  test -n "${z_email}"        || bcu_die "Service account email required"
+  test -n "${z_role}"         || bcu_die "Role required"
+
+  local z_label="Add IAM role ${z_role} to ${z_email}"
+  local z_member="serviceAccount:${z_email}"
+
+  # Child infixes
+  local z_infix_get="${z_parent_infix}-get"
+  local z_infix_set="${z_parent_infix}-set"
+  local z_infix_updated="${z_parent_infix}-updated"
+
+  # 1) GET current project IAM policy (no body)
+  zrbga_http_json_ok "${z_label}: get policy" "${z_token}" \
+    "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_infix_get}" "" "" ""
+
+  # Capture baseline etag (may be empty/absent)
+  local z_etag_base=""
+  z_etag_base=$(zrbga_json_field_capture "${z_infix_get}" '.etag') || z_etag_base=""
+
+  # 2) Build updated policy (add member to role) using jq helper
+  #    Input policy file is ${ZRBGA_PREFIX}${z_infix_get}${ZRBGA_POSTFIX_JSON}
+  #    Output updated policy goes to ${BDU_TEMP_DIR}/… file (we avoid heredocs)
+  local z_updated_file="${BDU_TEMP_DIR}/rbga_${z_infix_updated}.json"
+  zrbga_jq_add_member_to_role_capture "${z_infix_get}" "${z_role}" "${z_member}" "${z_etag_base}" > "${z_updated_file}" \
+    || bcu_die "Failed to produce updated IAM policy"
+
+  # Wrap into setIamPolicy body: {"policy": <updated>}
+  local z_set_body="${BDU_TEMP_DIR}/rbga_${z_infix_set}_body.json"
+  jq -n --slurpfile p "${z_updated_file}" '{policy:$p[0]}' > "${z_set_body}" \
+    || bcu_die "Failed to construct setIamPolicy body"
+
+  # 3) POST setIamPolicy (pass body file)
+  zrbga_http_json_ok "${z_label}: set policy" "${z_token}" \
+    "POST" "${RBGC_API_CRM_SET_IAM_POLICY}" "${z_infix_set}" "${z_set_body}" "" ""
+
+  # 4) Strong eventual-consistency check.
+  #    Poll getIamPolicy until BOTH:
+  #      a) etag differs from baseline (or baseline was empty and now present), AND
+  #      b) binding role==z_role includes member==z_member
+  #    Each poll uses an infix of the form "<parent>-poll-<elapsed>s".
+  local z_elapsed=0
+  local z_found=0
+  local z_etag_now=""
+
+  while :; do
+    # Derive per-iteration infix
+    local z_loop_infix="${z_parent_infix}-poll-${z_elapsed}s"
+
+    # GET latest policy (no body)
+    zrbga_http_json_ok "${z_label}: verify (${z_elapsed}s)" "${z_token}" \
+      "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_loop_infix}" "" "" ""
+
+    # Check role binding contains member
+    if jq -e --arg r "${z_role}" --arg m "${z_member}" \
+         '[.bindings[]? | select(.role==$r) | (.members // [])[]?] | index($m) | type=="number"' \
+         "${ZRBGA_PREFIX}${z_loop_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null 2>&1; then
+      z_found=1
+    else
+      z_found=0
+    fi
+
+    # Capture etag
+    z_etag_now=$(zrbga_json_field_capture "${z_loop_infix}" '.etag') || z_etag_now=""
+
+    # Decide success:
+    #  - If baseline etag existed: require etag change AND member present
+    #  - If baseline etag empty: require any non-empty etag AND member present
+    if test "${z_found}" = "1"; then
+      if test -n "${z_etag_base}"; then
+        if test -n "${z_etag_now}" && test "${z_etag_now}" != "${z_etag_base}"; then
+          bcu_log_args "Observed role binding and etag change (${z_etag_base} -> ${z_etag_now})"
+          break
+        fi
+      else
+        if test -n "${z_etag_now}"; then
+          bcu_log_args "Observed role binding and new etag (${z_etag_now})"
+          break
+        fi
+      fi
+    fi
+
+    test "${z_elapsed}" -le "${RBGC_MAX_CONSISTENCY_SEC}" \
+      || bcu_die "IAM policy not observed consistent after ${RBGC_MAX_CONSISTENCY_SEC}s"
+
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$(( z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC ))
+  done
+
+  bcu_log_args "Successfully added ${z_role} to ${z_member}"
 }
 
 zrbga_add_repo_iam_role() {

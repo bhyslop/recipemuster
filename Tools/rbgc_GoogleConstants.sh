@@ -42,6 +42,10 @@ zrbgc_kindle() {
   # Google Cloud Storage bucket
   RBGC_GCS_BUCKET="${RBRR_GCP_PROJECT_ID}-artifacts"
 
+  # Timeouts
+  RBGC_MAX_CONSISTENCY_SEC=90
+  RBGC_EVENTUAL_CONSISTENCY_SEC=3
+
   # ------------------------------------------------------------------
   # URL roots & well-known endpoints (fully expanded)
   # ------------------------------------------------------------------
