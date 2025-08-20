@@ -57,6 +57,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_ART_VERIFY="api_art_verify"
   ZRBGA_INFIX_API_BUILD_ENABLE="api_build_enable"
   ZRBGA_INFIX_API_BUILD_VERIFY="api_build_verify"
+  ZRBGA_INFIX_CB_SA_ACCOUNT_GEN="cb_account_gen"
   ZRBGA_INFIX_CB_PRIME="cb_prime"
   ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
@@ -724,16 +725,15 @@ zrbga_ensure_cloudbuild_service_agent() {
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
   
   bcu_step 'Ensure Cloud Build service agent exists'
-  local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
-  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}_agent_create" "${ZRBGA_EMPTY_JSON}"
-  
   local z_create_code
-  z_create_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_CB_PRIME}_agent_create") || z_create_code=""
+  local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
+  zrbga_http_json "POST"  "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
+  z_create_code=$(zrbga_http_code_capture                "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}") || z_create_code=""
   
   case "${z_create_code}" in
-    200) bcu_info "Cloud Build service agent created successfully" ;;
+    200)     bcu_info "Cloud Build service agent created successfully" ;;
     400|409) bcu_log_args "Service agent already exists (${z_create_code})" ;;
-    *) bcu_warn "Service agent creation returned ${z_create_code}, continuing" ;;
+    *)       bcu_die "Service agent creation failed with ${z_create_code} - Cloud Build API issue" ;;
   esac
   
   bcu_step 'Waiting 30s for service agent propagation'
