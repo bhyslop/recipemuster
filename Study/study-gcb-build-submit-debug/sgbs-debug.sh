@@ -31,7 +31,7 @@ echo "SGBS: Bucket ${z_bucket} check skipped due to lack of permissions."
 echo  "---- Endpoints --------------------------------------------------------------"
 # FIX: preserve slashes; do not transform them (previous sed replaced '/' with '%')
 z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=${z_object}"
-z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds"
+z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/builds"
 
 echo "SGBS: project/region: ${z_project}/${z_region}"
 echo "SGBS: bucket/object:  gs://${z_bucket}/${z_object}"
@@ -89,6 +89,8 @@ else
   stored_name="$(grep -ao '"name" *: *"[^"]*"' "${MY_TEMP}/gcs.body" | head -n1 | sed 's/.*"name"[^\"]*"\([^\"]*\)".*/\1/')"
 fi
 test -n "${stored_name}" || { echo "SGBS: Could not parse stored object name from GCS response"; exit 1; }
+
+echo "SGBS: using stored object name from GCS: ${z_object}"
 
 if test "${stored_name}" != "${z_object}"; then
   echo "SGBS: WARNING: requested object '${z_object}' but GCS stored as '${stored_name}' - using stored name."
