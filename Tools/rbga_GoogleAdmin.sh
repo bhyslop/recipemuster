@@ -557,6 +557,73 @@ zrbga_add_repo_iam_role() {
   bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
 }
 
+
+zrbga_add_sa_iam_role() {
+  zrbga_sentinel
+
+  local z_target_sa_email="$1"
+  local z_member_sa_email="$2"
+  local z_role="$3"
+
+  bcu_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_sa_email}"
+
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_log_args 'Verify target SA exists'
+  local z_target_encoded
+  z_target_encoded=$(zrbga_urlencode_capture "${z_target_sa_email}") || bcu_die "Failed to encode SA email"
+  zrbga_http_json "GET" "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
+    "${z_token}" "${ZRBGA_INFIX_VERIFY}"
+  local z_verify_code
+  z_verify_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_VERIFY}") || z_verify_code=""
+  if test "${z_verify_code}" != "200"; then
+    bcu_die "Target service account does not exist: ${z_target_sa_email}"
+  fi
+
+  local z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
+
+  bcu_log_args 'Get current SA IAM policy'
+  zrbga_http_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+    "${ZRBGA_INFIX_ROLE}" "${ZRBGA_EMPTY_JSON}"
+
+  local z_code
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_ROLE}") || z_code=""
+  if test "${z_code}" != "200"; then
+    bcu_log_args 'No IAM policy exists yet, initializing'
+    echo '{"bindings":[]}' > "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}"
+  fi
+
+  bcu_log_args 'Update SA IAM policy with new role binding'
+  local z_updated_policy="${BDU_TEMP_DIR}/rbga_sa_updated_policy.json"
+
+  jq --arg role "${z_role}"                                \
+     --arg member "serviceAccount:${z_member_sa_email}"    \
+     '
+       .bindings = (.bindings // []) |
+       if ( ([ .bindings[]? | .role ] | index($role)) ) then
+         .bindings = ( .bindings | map(
+           if .role == $role then .members = ( (.members // []) + [$member] | unique )
+           else .
+           end))
+       else
+         .bindings += [{role: $role, members: [$member]}]
+       end
+     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}" \
+     > "${z_updated_policy}" || bcu_die "Failed to update SA IAM policy"
+
+  bcu_log_args 'Set updated SA IAM policy'
+  local z_set_body="${BDU_TEMP_DIR}/rbga_sa_set_policy_body.json"
+  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
+    || bcu_die "Failed to build SA setIamPolicy body"
+
+  zrbga_http_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
+    "${ZRBGA_INFIX_ROLE_SET}" "${z_set_body}"
+  zrbga_http_require_ok "Set SA IAM policy" "${ZRBGA_INFIX_ROLE_SET}"
+
+  bcu_log_args 'Successfully granted SA role' "${z_role}"
+}
+
 zrbga_create_gcs_bucket() {
   zrbga_sentinel
 
@@ -1108,11 +1175,27 @@ rbga_create_director() {
     "Create/destroy container images for ${z_instance}"    \
     "${z_instance}"
 
+  bcu_step 'Get OAuth token from admin'
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_step 'Get project number for Cloud Build SA'
+  zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
+  zrbga_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}"
+
+  local z_project_number
+  z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
+    || bcu_die "Failed to extract project number"
+
   bcu_step 'Adding Cloud Build Editor role (project scope)'
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
 
   bcu_step 'Adding Project Viewer role (enables builds.create visibility)'
   zrbga_add_iam_role "${z_account_email}" "roles/viewer"
+
+  bcu_step 'Grant serviceAccountUser on Cloud Build runtime SA'
+  local z_cb_runtime_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
+  zrbga_add_sa_iam_role "${z_cb_runtime_sa}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   bcu_step 'Grant Artifact Registry Writer (repo-scoped)'
   zrbga_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
@@ -1121,8 +1204,6 @@ rbga_create_director() {
   zrbga_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
   bcu_step 'Grant Storage Admin on Cloud Build artifacts bucket'
-  local z_token
-  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
   zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" \
                             "roles/storage.admin" "${z_token}"
 
