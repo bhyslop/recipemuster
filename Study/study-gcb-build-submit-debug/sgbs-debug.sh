@@ -31,7 +31,7 @@ echo "SGBS: Bucket ${z_bucket} check skipped due to lack of permissions."
 echo  "---- Endpoints --------------------------------------------------------------"
 # FIX: preserve slashes; do not transform them (previous sed replaced '/' with '%')
 z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=${z_object}"
-z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/builds"
+z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds"
 
 echo "SGBS: project/region: ${z_project}/${z_region}"
 echo "SGBS: bucket/object:  gs://${z_bucket}/${z_object}"
