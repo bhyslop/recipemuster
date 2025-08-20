@@ -58,6 +58,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_BUILD_ENABLE="api_build_enable"
   ZRBGA_INFIX_API_BUILD_VERIFY="api_build_verify"
   ZRBGA_INFIX_CB_PRIME="cb_prime"
+  ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY="api_containeranalysis_verify"
   ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
@@ -712,6 +713,50 @@ zrbga_list_bucket_objects_capture() {
   done
 }
 
+# Ensure Cloud Build service agent exists and admin can trigger builds
+zrbga_ensure_cloudbuild_service_agent() {
+  zrbga_sentinel
+  
+  local z_token="${1}"
+  local z_project_number="${2}"
+  
+  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
+  
+  bcu_step 'Ensure Cloud Build service agent exists'
+  local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
+  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}_agent_create" "${ZRBGA_EMPTY_JSON}"
+  
+  local z_create_code
+  z_create_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_CB_PRIME}_agent_create") || z_create_code=""
+  
+  case "${z_create_code}" in
+    200) bcu_info "Cloud Build service agent created successfully" ;;
+    400|409) bcu_log_args "Service agent already exists (${z_create_code})" ;;
+    *) bcu_warn "Service agent creation returned ${z_create_code}, continuing" ;;
+  esac
+  
+  bcu_step 'Waiting 30s for service agent propagation'
+  sleep             30
+  
+  bcu_step 'Grant Cloud Build Service Agent role'
+  zrbga_add_iam_role "${z_cb_service_agent}" "roles/cloudbuild.serviceAgent"
+  
+  bcu_step 'Grant admin necessary permissions to trigger builds'
+  bcu_step "Grant admin Cloud Build permissions"
+  
+  bcu_step 'Admin needs serviceAccountUser on the service agent'
+  zrbga_add_sa_iam_role "${z_cb_service_agent}" "${z_admin_sa_email}" "roles/iam.serviceAccountUser"
+  
+  bcu_step 'Admin needs Cloud Build Editor for builds.create'
+  zrbga_add_iam_role "${z_admin_sa_email}" "roles/cloudbuild.builds.editor"
+  
+  bcu_step 'Admin needs viewer for build visibility'
+  zrbga_add_iam_role "${z_admin_sa_email}" "roles/viewer"
+  
+  bcu_info "Cloud Build service agent configured with admin permissions"
+}
+
 zrbga_prime_cloud_build() {
   zrbga_sentinel
 
@@ -876,6 +921,7 @@ rbga_initialize_admin() {
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
+  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
   local z_prime_pause_sec=120
 
   bcu_step 'Convert admin JSON to RBRA'
@@ -940,9 +986,8 @@ rbga_initialize_admin() {
   z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
 
-  bcu_step 'Grant project-wide serviceAccountViewer to admin (allows SA reads during priming)'
-  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  zrbga_add_iam_role "${z_admin_sa_email}" "roles/iam.serviceAccountViewer"
+  bcu_step 'Directly create the cloudbuild service agent'
+  zrbga_ensure_cloudbuild_service_agent "${z_token}" "${z_project_number}"
 
   bcu_step 'Grant Cloud Build invoke permissions to admin (idempotent)'
   zrbga_add_iam_role "${z_admin_sa_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
