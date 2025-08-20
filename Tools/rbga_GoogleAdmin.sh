@@ -961,19 +961,15 @@ rbga_initialize_admin() {
 
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
-  bcu_step 'Create repo (idempotent)'
-  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
-  zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
-  zrbga_newly_created_delay                             "${ZRBGA_INFIX_CREATE_REPO}" "repository" 15
+  bcu_step 'One-time propagation pause ${z_prime_pause_sec}s before Cloud Build priming'
+  bcu_step "  About to sleep ${z_prime_pause_sec}s"
+  sleep "${z_prime_pause_sec}"
 
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
   zrbga_http_require_ok "Verify repository"         "${ZRBGA_INFIX_VERIFY_REPO}"
   test "$(zrbga_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
-
-  bcu_step "One-time propagation pause ${z_prime_pause_sec}s before Cloud Build priming"
-  sleep "${z_prime_pause_sec}"
 
   bcu_step 'Verify Cloud Build runtime SA is readable after propagation pause'
   local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
