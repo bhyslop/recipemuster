@@ -1123,12 +1123,6 @@ rbga_create_director() {
   zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" \
                             "roles/storage.admin" "${z_token}"
 
-  bcu_step 'Grant Storage Admin on Cloud Build artifacts bucket'
-  local z_token
-  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
-  zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" \
-                            "roles/storage.admin" "${z_token}"
-
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
   bcu_step 'To install the RBRA file locally, run:'
