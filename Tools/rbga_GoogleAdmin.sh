@@ -43,6 +43,7 @@ zrbga_kindle() {
   # Infix values for HTTP operations
   ZRBGA_INFIX_CREATE="create"
   ZRBGA_INFIX_VERIFY="verify"
+  ZRBGA_INFIX_SA_IAM_VERIFY="another_sa_iamverify"
   ZRBGA_INFIX_KEY="key"
   ZRBGA_INFIX_ROLE="role"
   ZRBGA_INFIX_ROLE_SET="role_set"
@@ -56,6 +57,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_ART_VERIFY="api_art_verify"
   ZRBGA_INFIX_API_BUILD_ENABLE="api_build_enable"
   ZRBGA_INFIX_API_BUILD_VERIFY="api_build_verify"
+  ZRBGA_INFIX_CB_PRIME="cb_prime"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY="api_containeranalysis_verify"
   ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
@@ -557,7 +559,6 @@ zrbga_add_repo_iam_role() {
   bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
 }
 
-
 zrbga_add_sa_iam_role() {
   zrbga_sentinel
 
@@ -567,19 +568,23 @@ zrbga_add_sa_iam_role() {
 
   bcu_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_sa_email}"
 
+  # Caller must have already primed Cloud Build if this is the runtime SA.
+  # We do a hard existence check and crash if not accessible.
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_log_args 'Verify target SA exists'
   local z_target_encoded
-  z_target_encoded=$(zrbga_urlencode_capture "${z_target_sa_email}") || bcu_die "Failed to encode SA email"
-  zrbga_http_json "GET" "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
-    "${z_token}" "${ZRBGA_INFIX_VERIFY}"
+  z_target_encoded=$(zrbga_urlencode_capture "${z_target_sa_email}") \
+    || bcu_die "Failed to encode SA email"
+
   local z_verify_code
-  z_verify_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_VERIFY}") || z_verify_code=""
-  if test "${z_verify_code}" != "200"; then
-    bcu_die "Target service account does not exist: ${z_target_sa_email}"
-  fi
+  zrbga_http_json "GET" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
+                             "${z_token}" "${ZRBGA_INFIX_SA_IAM_VERIFY}"
+  z_verify_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_SA_IAM_VERIFY}") || z_verify_code=""
+  test "${z_verify_code}" = "200" || \
+    bcu_die "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
 
   local z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
 
@@ -596,16 +601,14 @@ zrbga_add_sa_iam_role() {
 
   bcu_log_args 'Update SA IAM policy with new role binding'
   local z_updated_policy="${BDU_TEMP_DIR}/rbga_sa_updated_policy.json"
-
-  jq --arg role "${z_role}"                                \
+  jq --arg role   "${z_role}"                              \
      --arg member "serviceAccount:${z_member_sa_email}"    \
      '
        .bindings = (.bindings // []) |
        if ( ([ .bindings[]? | .role ] | index($role)) ) then
          .bindings = ( .bindings | map(
            if .role == $role then .members = ( (.members // []) + [$member] | unique )
-           else .
-           end))
+           else . end))
        else
          .bindings += [{role: $role, members: [$member]}]
        end
@@ -694,6 +697,38 @@ zrbga_list_bucket_objects_capture() {
     test -n "${z_page_token}" || break
     z_first=$((z_first + 1))
   done
+}
+
+zrbga_prime_cloud_build() {
+  zrbga_sentinel
+
+  local z_token="${1:-}"
+  test -n "${z_token}" || bcu_die "zrbga_prime_cloud_build: token required"
+
+  bcu_log_args 'Create degenerate build body with jq'
+  local z_body="${BDU_TEMP_DIR}/rbga_cb_prime_body.json"
+  jq -n --arg mt "${RBRR_GCB_MACHINE_TYPE:-E2_HIGHCPU_8}" --arg to "${RBRR_GCB_TIMEOUT:-300s}" '
+    {
+      steps: [
+        {
+          name: "gcr.io/cloud-builders/gcloud",
+          entrypoint: "bash",
+          args: ["-lc", "true"]  # intentionally no-op
+        }
+      ],
+      options: { machineType: $mt, logging: "CLOUD_LOGGING_ONLY" },
+      timeout: $to
+    }' > "${z_body}" || bcu_die "Failed to write cb prime body"
+
+  local z_url="${RBGC_API_ROOT_CRM%/}/../cloudbuild.googleapis.com/v1/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
+
+  zrbga_http_json "POST" "${z_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
+  zrbga_http_require_ok "Prime Cloud Build" "${ZRBGA_INFIX_CB_PRIME}"
+
+  bcu_log_args 'Primed Cloud Build; sleeping 10s for SA provisioning'
+  sleep 10
+
+  bcu_log_args 'Prime complete.'
 }
 
 zrbga_empty_gcs_bucket() {
@@ -895,6 +930,9 @@ rbga_initialize_admin() {
 
   bcu_step 'Create/verify Cloud Storage bucket'
   zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
+
+  bcu_step 'Trigger degenerate build to assure builder account creation'
+  zrbga_prime_cloud_build "${z_token}"
 
   bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
   local z_cb_sa_for_bucket="${z_project_number}@cloudbuild.gserviceaccount.com"
