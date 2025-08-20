@@ -944,6 +944,10 @@ rbga_initialize_admin() {
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
   zrbga_add_iam_role "${z_admin_sa_email}" "roles/iam.serviceAccountViewer"
 
+  bcu_step 'Grant Cloud Build invoke permissions to admin (idempotent)'
+  zrbga_add_iam_role "${z_admin_sa_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
+  zrbga_add_iam_role "${z_admin_sa_email}" "roles/serviceusage.serviceUsageConsumer"
+
   bcu_step 'Create/verify Cloud Storage bucket'
   zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
 
