@@ -901,14 +901,6 @@ rbga_initialize_admin() {
   zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa_for_bucket}" \
     "roles/storage.objectAdmin" "${z_token}"
 
-  bcu_step 'Discover Project Number'
-  local z_project_number
-  zrbga_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" \
-                                 "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  zrbga_http_require_ok "Get project info"    "${ZRBGA_INFIX_PROJECT_INFO}"
-  z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
-    || bcu_die "Failed to extract project number"
-
   bcu_step     'Create/verify Docker format Artifact Registry repo'
   bcu_log_args "  The repo is ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
 
