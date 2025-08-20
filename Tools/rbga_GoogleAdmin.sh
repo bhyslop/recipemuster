@@ -876,7 +876,7 @@ rbga_initialize_admin() {
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
-  local z_prime_pause_sec=90
+  local z_prime_pause_sec=120
 
   bcu_step 'Convert admin JSON to RBRA'
   zrbga_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
@@ -964,7 +964,6 @@ rbga_initialize_admin() {
   bcu_step 'Create DOCKER format repo'
   zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
   zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
-  zrbga_newly_created_delay "${ZRBGA_INFIX_CREATE_REPO}" "repository" 15
 
   bcu_step 'One-time propagation pause ${z_prime_pause_sec}s before Cloud Build priming'
   bcu_step "  About to sleep ${z_prime_pause_sec}s"
@@ -980,7 +979,6 @@ rbga_initialize_admin() {
   local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
   local z_cb_sa_enc
   z_cb_sa_enc=$(zrbga_urlencode_capture "${z_cb_sa}") || bcu_die "Failed to encode SA email"
-
   local z_peek_code
   zrbga_http_json "GET" "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_enc}" \
                            "${z_token}" "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}"
