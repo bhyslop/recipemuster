@@ -5,23 +5,28 @@
 # If TAR_PATH is omitted, a tiny cloudbuild.yaml tarball is created for you.
 set -euo pipefail
 
-# ---- Inputs -----------------------------------------------------------------
+echo  "---- Inputs -----------------------------------------------------------------"
 z_token="${1:?Token required (OAuth2 access token)}"
 z_project="${2:-brm-recipemuster-proj}"
 z_region="${3:-us-central1}"
 z_tar_in="${4:-}"
 
-# ---- Scratch ----------------------------------------------------------------
+echo  " ---- Scratch ----------------------------------------------------------------"
 MY_TEMP="../../../tmp-study-sgbs"
 rm -rf "${MY_TEMP}"
 mkdir -p "${MY_TEMP}"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 
-# Hardcode bucket from apparatus (created during admin init)
+echo  "Hardcode bucket from apparatus (created during admin init)"
 z_bucket="brm-recipemuster-proj_cloudbuild"
 z_object="source/sgbs-${STAMP}.tgz"
 
-# ---- Bucket existence check -------------------------------------------------
+echo  "---- Bucket probe -------------------------------------------------"
+curl -sS -H "Authorization: Bearer ${z_token}" \
+  "https://storage.googleapis.com/storage/v1/b?project=${z_project}"
+
+
+echo  "---- Bucket existence check -------------------------------------------------"
 echo "SGBS: === Check bucket exists ==="
 z_bucket_check_code="$(curl -sS -o /dev/null -w "%{http_code}" \
   -H "Authorization: Bearer ${z_token}" \
@@ -33,7 +38,7 @@ if test "${z_bucket_check_code}" != "200"; then
 fi
 echo "SGBS: Bucket ${z_bucket} exists and is accessible."
 
-# ---- Endpoints --------------------------------------------------------------
+echo  "---- Endpoints --------------------------------------------------------------"
 z_gcs_upload="https://storage.googleapis.com/upload/storage/v1/b/${z_bucket}/o?uploadType=media&name=$(printf %s "${z_object}" | sed 's/:/%3A/g;s,/,%,g' | sed 's/%2F/\//g')" # keep slashes
 z_cb_create="https://cloudbuild.googleapis.com/v1/projects/${z_project}/locations/${z_region}/builds"
 
@@ -42,7 +47,7 @@ echo "SGBS: bucket/object:  gs://${z_bucket}/${z_object}"
 echo "SGBS: GCS upload:     ${z_gcs_upload}"
 echo "SGBS: CB create:      ${z_cb_create}"
 
-# ---- Prepare a tarball (or use the one provided) ----------------------------
+echo  "---- Prepare a tarball (or use the one provided) ----------------------------"
 if test -z "${z_tar_in}"; then
   echo "SGBS: No TAR_PATH provided -> making a tiny tar with cloudbuild.yaml at root"
   cat > "${MY_TEMP}/cloudbuild.yaml" <<'YAML'
@@ -60,7 +65,7 @@ fi
 ls -l "${z_tar}"
 echo "SGBS: tar sha256: $(openssl dgst -sha256 "${z_tar}" | awk '{print $2}')"
 
-# ---- 1) Upload tar.gz to GCS (objects.insert: uploadType=media) ------------
+echo  "---- 1) Upload tar.gz to GCS (objects.insert: uploadType=media) ------------"
 echo "SGBS: === GCS upload ==="
 : > "${MY_TEMP}/gcs.headers"
 : > "${MY_TEMP}/gcs.body"
@@ -85,7 +90,7 @@ if test "${gcs_code}" != "200" && test "${gcs_code}" != "201"; then
   exit 1
 fi
 
-# ---- 2) Build JSON for Cloud Build create -----------------------------------
+echo  "---- 2) Build JSON for Cloud Build create -----------------------------------"
 echo "SGBS: === Build JSON (storageSource -> cloudbuild.yaml at root) ==="
 cat > "${MY_TEMP}/build.json" <<JSON
 {
@@ -102,7 +107,7 @@ JSON
 
 cat "${MY_TEMP}/build.json" | sed 's/^/  /'
 
-# ---- 3) Call builds.create (JSON only) --------------------------------------
+echo  "---- 3) Call builds.create (JSON only) --------------------------------------"
 echo "SGBS: === Cloud Build create ==="
 : > "${MY_TEMP}/cb.headers"
 : > "${MY_TEMP}/cb.body"
@@ -128,7 +133,7 @@ if test "${cb_code}" != "200"; then
   exit 1
 fi
 
-# ---- 4) Try to extract Operation + build id ---------------------------------
+echo  "---- 4) Try to extract Operation + build id ---------------------------------"
 echo "SGBS: === Parse operation ==="
 build_id=""
 op_name=""
@@ -139,9 +144,9 @@ if command -v jq >/dev/null 2>&1; then
   build_id="$(jq -r '.metadata.build.id // empty' "${MY_TEMP}/cb.body")"
   log_url="$(jq -r '.metadata.build.logUrl // empty' "${MY_TEMP}/cb.body")"
 else
-  op_name="$(grep -ao '"name" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"name"[^\"]*"\([^\"]*\)".*/\1/')"
-  build_id="$(grep -ao '"id" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"id"[^\"]*"\([^\"]*\)".*/\1/')"
-  log_url="$(grep -ao '"logUrl" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"logUrl"[^\"]*"\([^\"]*\)".*/\1/')"
+  op_name="$(grep  -ao '"name" *: *"[^"]*"' "${MY_TEMP}/cb.body"   | head -n1 | sed 's/.*"name"[^\"]*"\([^\"]*\)".*/\1/')"
+  build_id="$(grep -ao '"id" *: *"[^"]*"' "${MY_TEMP}/cb.body"     | head -n1 | sed 's/.*"id"[^\"]*"\([^\"]*\)".*/\1/')"
+  log_url="$(grep  -ao '"logUrl" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"logUrl"[^\"]*"\([^\"]*\)".*/\1/')"
 fi
 
 echo "SGBS: operation.name: ${op_name:-<empty>}"
