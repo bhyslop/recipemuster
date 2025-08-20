@@ -53,6 +53,9 @@ zrbgc_kindle() {
   RBGC_CONSOLE_URL="https://console.cloud.google.com/"
   RBGC_SIGNUP_URL="https://cloud.google.com/free"
 
+  RBGC_API_ROOT_CLOUDBUILD="https://cloudbuild.googleapis.com"
+  RBGC_CLOUDBUILD_V1="/v1"
+
   # ------------------------------------------------------------------
   # OAuth scopes
   # ------------------------------------------------------------------

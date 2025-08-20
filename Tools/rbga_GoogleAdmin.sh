@@ -273,8 +273,20 @@ zrbga_http_require_ok() {
     return 0
   fi
 
-  local z_err
-  z_err=$(zrbga_json_field_capture "${z_infix}" '.error.message') || z_err="Parse error"
+  local z_err=""
+  local z_response_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+
+  if jq -e . "${z_response_file}" >/dev/null 2>&1; then
+    z_err=$(zrbga_json_field_capture "${z_infix}" '.error.message') || z_err="Unknown error"
+  else
+    local z_content=$(<"${z_response_file}")
+    test -n "${z_content}" || z_content=""
+    z_err="${z_content:0:200}"
+    z_err="${z_err//$'\n'/ }"
+    z_err="${z_err//$'\r'/ }"
+    test -n "${z_err}" || z_err="Non-JSON error body"
+  fi
+
   bcu_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
 }
 
@@ -720,7 +732,7 @@ zrbga_prime_cloud_build() {
       timeout: $to
     }' > "${z_body}" || bcu_die "Failed to write cb prime body"
 
-  local z_url="${RBGC_API_ROOT_CRM%/}/../cloudbuild.googleapis.com/v1/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
+  local z_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
 
   zrbga_http_json "POST" "${z_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
   zrbga_http_require_ok "Prime Cloud Build" "${ZRBGA_INFIX_CB_PRIME}"
