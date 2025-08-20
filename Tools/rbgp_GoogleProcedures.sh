@@ -57,7 +57,6 @@ zrbgp_kindle() {
     ZRBGP_CR=""               # No color, or disabled
   fi
 
-  ZRBGP_ADMIN_ROLE="rbgp-admin"
   ZRBGP_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
   ZRBGP_PREFIX="${BDU_TEMP_DIR}/rbgp_"
@@ -186,8 +185,8 @@ rbgp_show_setup() {
   zrbgp_s2     "5. Create the Admin Service Account:"
   zrbgp_nw     "   1. At top, click " "+ CREATE SERVICE ACCOUNT"
   zrbgp_n      "   2. Service account details:"
-  zrbgp_nc     "      - Service account name: " "${ZRBGP_ADMIN_ROLE}"
-  zrbgp_nwn    "      - Service account ID: (auto-fills as " "${ZRBGP_ADMIN_ROLE}" ")"
+  zrbgp_nc     "      - Service account name: " "${RBGC_ADMIN_ROLE}"
+  zrbgp_nwn    "      - Service account ID: (auto-fills as " "${RBGC_ADMIN_ROLE}" ")"
   zrbgp_nc     "      - Description: " "Admin account for infrastructure management"
   zrbgp_nw     "   3. Click -> " "Create and continue"
   zrbgp_nwnw   "   4. At " "Permissions (optional)" " pick dropdown " "Select a role"
@@ -198,7 +197,7 @@ rbgp_show_setup() {
   zrbgp_e
   zrbgp_s2     "7. Generate Service Account Key:"
   zrbgp_n      "From service accounts list:"
-  zrbgp_nw     "   1. Click on text of " "${ZRBGP_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
+  zrbgp_nw     "   1. Click on text of " "${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
   zrbgp_nw     "   2. Top tabs -> " "Keys"
   zrbgp_nwnw   "   3. Click " "Add key" " -> " "Create new key"
   zrbgp_nwn    "   4. Key type: " "JSON" " (should be selected)"

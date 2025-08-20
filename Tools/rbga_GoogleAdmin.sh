@@ -972,7 +972,39 @@ rbga_destroy_admin() {
   bcu_step 'Delete Cloud Storage bucket'
   zrbga_delete_gcs_bucket "${z_token}"  "${RBGC_GCS_BUCKET}"
 
-  bcu_success 'RBGA project resources destroyed (APIs left enabled; SAs untouched)'
+  bcu_step 'Delete all service accounts except admin'
+
+  bcu_log_args 'List all service accounts'
+  zrbga_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_LIST}"
+  zrbga_http_require_ok "List service accounts" "${ZRBGA_INFIX_LIST}"
+
+  bcu_log_args 'Extract emails to delete (all except admin)'
+  local z_admin_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
+  local z_emails_to_delete
+  z_emails_to_delete=$(jq -r --arg admin "${z_admin_email}" \
+    '.accounts[]? | select(.email != $admin) | .email' \
+    "${ZRBGA_PREFIX}${ZRBGA_INFIX_LIST}${ZRBGA_POSTFIX_JSON}") || z_emails_to_delete=""
+
+  if test -n "${z_emails_to_delete}"; then
+    local z_sa_email
+    local z_del_code
+    while IFS= read -r z_sa_email; do
+      test -n "${z_sa_email}" || continue
+      bcu_log_args "Deleting service account: ${z_sa_email}"
+
+      zrbga_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" \
+        "${z_token}" "${ZRBGA_INFIX_DELETE}"
+
+      z_del_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE}") || z_del_code=""
+      case "${z_del_code}" in
+        200|204) bcu_log_args "Deleted: ${z_sa_email}" ;;
+        404)     bcu_log_args "Already gone: ${z_sa_email}" ;;
+        *)       bcu_warn "Failed to delete ${z_sa_email} (HTTP ${z_del_code}), continuing" ;;
+      esac
+    done <<< "${z_emails_to_delete}"
+  fi
+
+  bcu_success 'RBGA nuclear destruction complete (admin account preserved)'
 }
 
 rbga_list_service_accounts() {
@@ -1086,7 +1118,13 @@ rbga_create_director() {
   local z_token
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
   zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" \
-    "roles/storage.admin" "${z_token}"
+                            "roles/storage.admin" "${z_token}"
+
+  bcu_step 'Grant Storage Admin on Cloud Build artifacts bucket'
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+  zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" \
+                            "roles/storage.admin" "${z_token}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 

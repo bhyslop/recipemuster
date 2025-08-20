@@ -31,6 +31,8 @@ ZRBGC_SOURCED=1
 zrbgc_kindle() {
   test -z "${ZRBGC_KINDLED:-}" || bcu_die "Module rbgc already kindled"
 
+  RBGC_ADMIN_ROLE="rbga-admin"
+
   # Service-specific aliases
   RBGC_GAR_PROJECT_ID="${RBRR_GCP_PROJECT_ID}"
   RBGC_GAR_LOCATION="${RBRR_GCP_REGION}"
