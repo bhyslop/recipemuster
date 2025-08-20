@@ -16,7 +16,9 @@ MY_TEMP="../../../tmp-study-sgbs"
 rm -rf "${MY_TEMP}"
 mkdir -p "${MY_TEMP}"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-z_bucket="${z_project}_cloudbuild"
+
+# Hardcode bucket from apparatus (created during admin init)
+z_bucket="brm-recipemuster-proj_cloudbuild"
 z_object="source/sgbs-${STAMP}.tgz"
 
 # ---- Endpoints --------------------------------------------------------------
@@ -29,7 +31,7 @@ echo "SGBS: GCS upload:     ${z_gcs_upload}"
 echo "SGBS: CB create:      ${z_cb_create}"
 
 # ---- Prepare a tarball (or use the one provided) ----------------------------
-if [[ -z "${z_tar_in}" ]]; then
+if test -z "${z_tar_in}"; then
   echo "SGBS: No TAR_PATH provided -> making a tiny tar with cloudbuild.yaml at root"
   cat > "${MY_TEMP}/cloudbuild.yaml" <<'YAML'
 steps:
@@ -66,7 +68,7 @@ echo "SGBS: GCS response headers (first 20):"; sed 's/^/  /' "${MY_TEMP}/gcs.hea
 echo "SGBS: GCS response body head:"; head -c 400 "${MY_TEMP}/gcs.body"; echo
 
 gcs_code="$(tr -d '\r\n' < "${MY_TEMP}/gcs.code")"
-if [[ "${gcs_code}" != "200" && "${gcs_code}" != "201" ]]; then
+if test "${gcs_code}" != "200" && test "${gcs_code}" != "201"; then
   echo "SGBS: GCS upload failed (expect 200/201). Stop." >&2
   exit 1
 fi
@@ -109,7 +111,7 @@ echo "SGBS: CB HTTP code: ${cb_code}"
 echo "SGBS: CB response headers (first 30):"; sed 's/^/  /' "${MY_TEMP}/cb.headers" | head -n 30
 echo "SGBS: CB response body head:"; head -c 600 "${MY_TEMP}/cb.body"; echo
 
-if [[ "${cb_code}" != "200" ]]; then
+if test "${cb_code}" != "200"; then
   echo "SGBS: builds.create did not return 200. Stop." >&2
   exit 1
 fi
@@ -125,7 +127,6 @@ if command -v jq >/dev/null 2>&1; then
   build_id="$(jq -r '.metadata.build.id // empty' "${MY_TEMP}/cb.body")"
   log_url="$(jq -r '.metadata.build.logUrl // empty' "${MY_TEMP}/cb.body")"
 else
-  # crude fallbacks
   op_name="$(grep -ao '"name" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"name"[^\"]*"\([^\"]*\)".*/\1/')"
   build_id="$(grep -ao '"id" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"id"[^\"]*"\([^\"]*\)".*/\1/')"
   log_url="$(grep -ao '"logUrl" *: *"[^"]*"' "${MY_TEMP}/cb.body" | head -n1 | sed 's/.*"logUrl"[^\"]*"\([^\"]*\)".*/\1/')"
@@ -135,7 +136,7 @@ echo "SGBS: operation.name: ${op_name:-<empty>}"
 echo "SGBS: metadata.build.id: ${build_id:-<empty>}"
 echo "SGBS: metadata.build.logUrl: ${log_url:-<empty>}"
 
-if [[ -n "${build_id}" ]]; then
+if test -n "${build_id}"; then
   console_url="https://console.cloud.google.com/cloud-build/builds/${build_id}?project=${z_project}"
   echo "SGBS: Console: ${console_url}"
 else
