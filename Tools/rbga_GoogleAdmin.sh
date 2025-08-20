@@ -965,9 +965,12 @@ rbga_initialize_admin() {
   zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
   zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
 
-  bcu_step 'One-time propagation pause ${z_prime_pause_sec}s before Cloud Build priming'
+  bcu_step 'One-time propagation pause before Cloud Build priming'
   bcu_step "  About to sleep ${z_prime_pause_sec}s"
   sleep "${z_prime_pause_sec}"
+
+  bcu_step 'Trigger degenerate build to assure builder account creation'
+  zrbga_prime_cloud_build "${z_token}"
 
   bcu_step 'Verify repository exists and is DOCKER format'
   zrbga_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
@@ -984,9 +987,6 @@ rbga_initialize_admin() {
                            "${z_token}" "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}"
   z_peek_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
   test "${z_peek_code}" = "200" || bcu_die "Cloud Build runtime SA not readable after fixed pause (HTTP ${z_peek_code})"
-
-  bcu_step 'Trigger degenerate build to assure builder account creation'
-  zrbga_prime_cloud_build "${z_token}"
 
   bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
   zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectAdmin" "${z_token}"
