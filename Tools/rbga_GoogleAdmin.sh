@@ -64,6 +64,7 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_STORAGE_VERIFY="api_storage_verify"
   ZRBGA_INFIX_PROJECT_INFO="project_info"
   ZRBGA_INFIX_CREATE_REPO="create_repo"
+  ZRBGA_INFIX_CB_RUNTIME_SA_PEEK="cb_runtime_sa_peek"
   ZRBGA_INFIX_VERIFY_REPO="verify_repo"
   ZRBGA_INFIX_DELETE_REPO="delete_repo"
   ZRBGA_INFIX_REPO_POLICY="repo_policy"
@@ -875,6 +876,8 @@ rbga_initialize_admin() {
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
+  local z_prime_pause_sec=90
+
   bcu_step 'Convert admin JSON to RBRA'
   zrbga_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
 
@@ -888,8 +891,6 @@ rbga_initialize_admin() {
 
   if test -n "${z_missing}"; then
     bcu_info "APIs needing enablement: ${z_missing}"
-
-    bcu_step 'Enable required APIs (idempotent)'
 
     bcu_step 'Enable IAM API'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
@@ -921,9 +922,8 @@ rbga_initialize_admin() {
                                                      "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
     zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" 409 "already enabled"
 
-    local z_prop_delay_seconds=45
-    bcu_step "Wait ${z_prop_delay_seconds}s for API propagation"
-    sleep "${z_prop_delay_seconds}"
+    bcu_step 'Wait 45s for API propagation'
+    sleep 45
 
     bcu_step 'Verify all APIs are now enabled'
     z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to verify API status"
@@ -947,15 +947,7 @@ rbga_initialize_admin() {
   bcu_step 'Create/verify Cloud Storage bucket'
   zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
 
-  bcu_step 'Trigger degenerate build to assure builder account creation'
-  zrbga_prime_cloud_build "${z_token}"
-
-  bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
-  local z_cb_sa_for_bucket="${z_project_number}@cloudbuild.gserviceaccount.com"
-  zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa_for_bucket}" \
-    "roles/storage.objectAdmin" "${z_token}"
-
-  bcu_step     'Create/verify Docker format Artifact Registry repo'
+  bcu_step 'Create/verify Docker format Artifact Registry repo'
   bcu_log_args "  The repo is ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
 
   test -n "${RBGC_GAR_LOCATION:-}"   || bcu_die "RBGC_GAR_LOCATION is not set"
@@ -965,8 +957,8 @@ rbga_initialize_admin() {
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
-
   local z_create_body="${BDU_TEMP_DIR}/rbga_create_repo_body.json"
+
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
   bcu_step 'Create repo (idempotent)'
@@ -980,13 +972,32 @@ rbga_initialize_admin() {
   test "$(zrbga_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
 
+  bcu_step "One-time propagation pause ${z_prime_pause_sec}s before Cloud Build priming"
+  sleep "${z_prime_pause_sec}"
+
+  bcu_step 'Verify Cloud Build runtime SA is readable after propagation pause'
+  local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
+  local z_cb_sa_enc
+  z_cb_sa_enc=$(zrbga_urlencode_capture "${z_cb_sa}") || bcu_die "Failed to encode SA email"
+
+  local z_peek_code
+  zrbga_http_json "GET" "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_enc}" \
+                           "${z_token}" "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}"
+  z_peek_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
+  test "${z_peek_code}" = "200" || bcu_die "Cloud Build runtime SA not readable after fixed pause (HTTP ${z_peek_code})"
+
+  bcu_step 'Trigger degenerate build to assure builder account creation'
+  zrbga_prime_cloud_build "${z_token}"
+
+  bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
+  zrbga_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectAdmin" "${z_token}"
+
   bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
-  local z_cb_sa_email="${z_project_number}@cloudbuild.gserviceaccount.com"
-  zrbga_add_repo_iam_role "${z_cb_sa_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+  zrbga_add_repo_iam_role "${z_cb_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
   bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
   bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
-  bcu_info "Cloud Build SA granted writer on repo: ${z_cb_sa_email}"
+  bcu_info "Cloud Build SA granted writer on repo: ${z_cb_sa}"
   bcu_warn "RBRR file stashed. Consider deleting carriage JSON:"
   bcu_code ""
   bcu_code "    rm \"${z_json_path}\""
