@@ -961,6 +961,11 @@ rbga_initialize_admin() {
 
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
+  bcu_step 'Create DOCKER format repo'
+  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
+  zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
+  zrbga_newly_created_delay "${ZRBGA_INFIX_CREATE_REPO}" "repository" 15
+
   bcu_step 'One-time propagation pause ${z_prime_pause_sec}s before Cloud Build priming'
   bcu_step "  About to sleep ${z_prime_pause_sec}s"
   sleep "${z_prime_pause_sec}"
