@@ -91,7 +91,7 @@ fi
 test -n "${stored_name}" || { echo "SGBS: Could not parse stored object name from GCS response"; exit 1; }
 
 if test "${stored_name}" != "${z_object}"; then
-  echo "SGBS: WARNING: requested object '${z_object}' but GCS stored as '${stored_name}' — using stored name."
+  echo "SGBS: WARNING: requested object '${z_object}' but GCS stored as '${stored_name}' - using stored name."
   z_object="${stored_name}"
 fi
 
