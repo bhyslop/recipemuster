@@ -615,7 +615,7 @@ zrbga_new_add_iam_role() {
 
   # 2) Build updated policy (add member to role) using jq helper
   #    Input policy file is ${ZRBGA_PREFIX}${z_infix_get}${ZRBGA_POSTFIX_JSON}
-  #    Output updated policy goes to ${BDU_TEMP_DIR}/… file (we avoid heredocs)
+  #    Output updated policy goes to ${BDU_TEMP_DIR} file (we avoid heredocs)
   local z_updated_file="${BDU_TEMP_DIR}/rbga_${z_infix_updated}.json"
   zrbga_jq_add_member_to_role_capture "${z_infix_get}" "${z_role}" "${z_member}" "${z_etag_base}" > "${z_updated_file}" \
     || bcu_die "Failed to produce updated IAM policy"
