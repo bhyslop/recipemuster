@@ -1111,6 +1111,9 @@ rbga_create_director() {
   bcu_step 'Adding Cloud Build Editor role (project scope)'
   zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
 
+  bcu_step 'Adding Project Viewer role (enables builds.create visibility)'
+  zrbga_add_iam_role "${z_account_email}" "roles/viewer"
+
   bcu_step 'Grant Artifact Registry Writer (repo-scoped)'
   zrbga_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
 
