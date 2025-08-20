@@ -940,10 +940,9 @@ rbga_initialize_admin() {
   z_project_number=$(zrbga_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
 
-  bcu_step 'Grant serviceAccountViewer on Cloud Build runtime SA to admin'
-  local z_cb_runtime_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
+  bcu_step 'Grant project-wide serviceAccountViewer to admin (allows SA reads during priming)'
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  zrbga_add_sa_iam_role "${z_cb_runtime_sa}" "${z_admin_sa_email}" "roles/iam.serviceAccountViewer"
+  zrbga_add_iam_role "${z_admin_sa_email}" "roles/iam.serviceAccountViewer"
 
   bcu_step 'Create/verify Cloud Storage bucket'
   zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
