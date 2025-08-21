@@ -150,7 +150,7 @@ zrbga_jq_add_member_to_role_capture() {
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
 
-  # NEW: hard requirement — never do setIamPolicy without an etag
+  # NEW: hard requirement - never do setIamPolicy without an etag
   test -n "${z_etag_opt}"    || return 1
 
   local z_out=""
@@ -163,7 +163,7 @@ zrbga_jq_add_member_to_role_capture() {
                             else . end)
       else .bindings += [{role: $role, members: [$member]}]
       end
-      # NEW: always set the etag we read — this is the optimistic concurrency guard
+      # NEW: always set the etag we read - this is the optimistic concurrency guard
       | .etag = $etag
     ' "${z_policy_file}"
   ) || return 1
