@@ -18,6 +18,20 @@
 #
 # Recipe Bottle Google Admin - Implementation
 
+
+# ----------------------------------------------------------------------
+# Operational Invariants (RBGA is single writer; 409 is fatal)
+#
+# - Single admin actor: All RBGA operations are executed by a single admin
+#   identity. There are no concurrent writers in the same project.
+# - Pristine-state expectation: RBGA init/creation flows assume the project
+#   is pristine for the resources they manage. If a resource "already exists"
+#   (HTTP 409), that's treated as state drift or prior manual activity.
+# - Policy: All HTTP 409 Conflict responses are fatal (bcu_die). We do not
+#   treat 409 as idempotent success anywhere in RBGA.
+#   If you see a 409, resolve state drift first (destroy/reset), then rerun.
+# ----------------------------------------------------------------------
+
 set -euo pipefail
 
 # Multiple inclusion detection
@@ -1119,41 +1133,45 @@ rbga_initialize_admin() {
   z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Check which required APIs need enabling'
-  local z_missing
-  z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to check API status"
+  local z_missing=""
+  z_missing=$(zrbga_required_apis_missing_capture "${z_token}") \
+    || bcu_die "Failed to check API status"
 
   if test -n "${z_missing}"; then
     bcu_info "APIs needing enablement: ${z_missing}"
 
+    # Invariant: API enable is gated by the preflight above.
+    # Any 409 here means the preflight or our assumptions are wrong -> die.
+
     bcu_step 'Enable IAM API'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
                                            "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}" 409 "already enabled"
+    zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}"
 
     bcu_step 'Enable Cloud Resource Manager API'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CRM}" "${z_token}" \
                                                               "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}" 409 "already enabled"
+    zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}"
 
     bcu_step 'Enable Artifact Registry API'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_GAR}" "${z_token}" \
                                                          "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}" 409 "already enabled"
+    zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}"
 
     bcu_step 'Enable Cloud Build API'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
                                                    "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}" 409 "already enabled"
+    zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}"
 
     bcu_step 'Enable Container Analysis API'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
                                                           "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" 409 "already enabled"
+    zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}"
 
     bcu_step 'Enable Cloud Storage API (build bucket deps)'
     zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
                                                      "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" 409 "already enabled"
+    zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}"
 
     bcu_step 'Wait 45s for API propagation'
     sleep 45
