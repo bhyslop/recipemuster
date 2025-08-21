@@ -67,14 +67,21 @@ echo "Processing ${#files[@]} files:" >&2
 # Function to check if file is likely text (not binary)
 is_text_file() {
   local file="$1"
-  # Use file command to check if it's text
   if command -v file >/dev/null 2>&1; then
-    file -b --mime-encoding "$file" 2>/dev/null | grep -qE '^(us-ascii|utf-8|utf-16|iso-8859|text)'
+    # Prefer MIME type (treat shell scripts as text)
+    local mtype
+    mtype=$(file -b --mime-type "$file" 2>/dev/null)
+    case "${mtype}" in
+      text/*|application/x-sh|application/x-shellscript) return 0 ;;
+    esac
+    # Fallback: encoding heuristic (broaden to include unknown-8bit & utf-16 variants)
+    file -b --mime-encoding "$file" 2>/dev/null | \
+      grep -qE '^(us-ascii|utf-8|utf-16(le|be)?|iso-8859(-[0-9]+)?|unknown-8bit)$'
     return $?
   else
-    # Fallback: check for null bytes in first 512 bytes
+    # Last resort: null-byte probe
     head -c 512 "$file" 2>/dev/null | grep -q $'\x00'
-    return $((1 - $?))  # Invert result (no null = text)
+    return $((1 - $?))  # No NULs => text
   fi
 }
 
