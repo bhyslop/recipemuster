@@ -73,7 +73,6 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_BUILD_VERIFY="api_build_verify"
   ZRBGA_INFIX_CB_SA_ACCOUNT_GEN="cb_account_gen"
   ZRBGA_INFIX_CB_PRIME="cb_prime"
-  ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
   ZRBGA_INFIX_API_CONTAINERANALYSIS_VERIFY="api_containeranalysis_verify"
   ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
@@ -413,7 +412,6 @@ zrbga_wait_lro_capture() {
   local z_elapsed=0
   local z_infix=""
   local z_done=""
-  local z_err=""
 
   while :; do
     z_infix="${z_parent}-lro-${z_elapsed}s"
@@ -424,18 +422,11 @@ zrbga_wait_lro_capture() {
     local z_code=""
     z_code=$(zrbga_http_code_capture "${z_infix}") || return 1
     case "${z_code}" in
-      200) : ;;
-      429|500|502|503|504)
-        bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"
-        ;;
-      *)
-        bcu_log_args "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"
-        echo "${z_infix}"
-        return 1
-        ;;
+      200)                      :                                                             ;;
+      429|408|500|502|503|504)  bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"  ;;
+      *)                        bcu_die "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"          ;;
     esac
 
-    local z_done=""
     z_done=$(zrbga_json_field_capture "${z_infix}" ".done" 2>/dev/null) || z_done=""
     if test "${z_done}" = "true"; then
       bcu_log_args 'Error?'
@@ -451,14 +442,14 @@ zrbga_wait_lro_capture() {
       return 0
     fi
 
-    bcu_log_args'Not done: check timeout and sleep'
+    bcu_log_args 'Not done: check timeout and sleep'
     if test "${z_elapsed}" -ge "${z_max}"; then
       bcu_log_args "LRO timeout at ${z_elapsed}s (max ${z_max}s)"
       echo "${z_infix}"
       return 1
     fi
 
-    # Clamp poll interval >= 1 and not overshooting max too far
+    bcu_log_args 'Clamp poll interval >= 1 and not overshooting max too far'
     test  "${z_poll}" -ge 1 || z_poll=1
     sleep "${z_poll}"
     z_elapsed=$((z_elapsed + z_poll))
@@ -678,10 +669,13 @@ zrbga_add_iam_role() {
 
 # Add project-scoped IAM role and verify via strong read-back.
 # Params:
-#   $1  z_parent_infix   Parent infix to namespace temps (e.g., "role-add-admin")
-#   $2  z_token          OAuth bearer token
-#   $3  z_email          Member service account email (e.g., "sa@proj.iam.gserviceaccount.com")
-#   $4  z_role           Role to grant (e.g., "roles/storage.objectAdmin")
+#   $1  label
+#   $2  token
+#   $3  get_url   (:getIamPolicy)
+#   $4  set_url   (:setIamPolicy)
+#   $5  role
+#   $6  member    (e.g., "serviceAccount:NAME@PROJECT.iam.gserviceaccount.com")
+#   $7  parent_infix (optional; default "newrole")
 zrbga_new_add_iam_role() {
   zrbga_sentinel
 
@@ -703,13 +697,17 @@ zrbga_new_add_iam_role() {
 
   bcu_log_args '1) GET policy (v3)'
   local z_get_infix="${z_parent_infix}-get"
-  zrbga_http_json_ok "${z_label} (get policy)" "${z_token}" "GET" \
-    "${z_get_url}" "${z_get_infix}" ""
+  local z_get_body="${ZRBGA_PREFIX}${z_parent_infix}_get_body.json"
+  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
+  zrbga_http_json_ok "${z_label} (get policy)" "${z_token}" "POST" \
+    "${z_get_url}" "${z_get_infix}" "${z_get_body}"
 
   bcu_log_args 'Extract etag; require non-empty'
   local z_etag=""
   z_etag=$(zrbga_json_field_capture "${z_get_infix}" ".etag") || bcu_die "Missing etag"
   test -n "${z_etag}" || bcu_die "Empty etag"
+
+  bcu_log_args "Using etag ${z_etag}"
 
   bcu_log_args '2) Build new policy JSON in temp (bindings unique; version=3; keep etag)'
   local z_new_policy_json=""
@@ -747,12 +745,16 @@ zrbga_new_add_iam_role() {
   z_elapsed=0
   while :; do
     local z_verify_infix="${z_parent_infix}-verify-${z_elapsed}s"
-    zrbga_http_json_ok "${z_label} (verify)" "${z_token}" "GET" "${z_get_url}" "${z_verify_infix}" ""
+    zrbga_http_json_ok "${z_label} (verify)" "${z_token}" "POST" \
+                       "${z_get_url}" "${z_verify_infix}" "${z_get_body}"
 
     if jq -e --arg r "${z_role}" --arg m "${z_member}" \
          '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
          "${ZRBGA_PREFIX}${z_verify_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null; then
       bcu_log_args "Observed ${z_role} for ${z_member}"
+
+      bcu_log_args "Post-set etag $(zrbga_json_field_capture "${z_verify_infix}" ".etag" 2>/dev/null || echo "")"
+
       return 0
     fi
 
