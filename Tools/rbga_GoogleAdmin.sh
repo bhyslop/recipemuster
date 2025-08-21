@@ -85,6 +85,11 @@ zrbga_kindle() {
   ZRBGA_POSTFIX_JSON="_response.json"
   ZRBGA_POSTFIX_CODE="_code.txt"
 
+  # Silly but keeps llms happy
+  test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}"     || bcu_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
+  test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"          || bcu_die "RBGC_MAX_CONSISTENCY_SEC unset"
+
+
   ZRBGA_KINDLED=1
 }
 
@@ -131,6 +136,9 @@ zrbga_jq_add_member_to_role_capture() {
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
 
+  # NEW: hard requirement — never do setIamPolicy without an etag
+  test -n "${z_etag_opt}"    || return 1
+
   local z_out=""
   z_out=$(
     jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
@@ -141,13 +149,15 @@ zrbga_jq_add_member_to_role_capture() {
                             else . end)
       else .bindings += [{role: $role, members: [$member]}]
       end
-      | (if $etag != "" then .etag = $etag else . end)
+      # NEW: always set the etag we read — this is the optimistic concurrency guard
+      | .etag = $etag
     ' "${z_policy_file}"
   ) || return 1
 
   test -n "${z_out}" || return 1
   printf '%s\n' "${z_out}"
 }
+
 
 # Predicate: Check if resource was newly created and apply propagation delay
 # Usage: if zrbga_newly_created_delay "infix" "resource_type" "15"; then ...
@@ -604,9 +614,10 @@ zrbga_new_add_iam_role() {
   zrbga_http_json_ok "${z_label}: get policy" "${z_token}" \
     "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_infix_get}" "" "" ""
 
-  # Capture baseline etag (may be empty/absent)
+  # Capture baseline etag and require it (never write without one)
   local z_etag_base=""
   z_etag_base=$(zrbga_json_field_capture "${z_infix_get}" '.etag') || z_etag_base=""
+  test -n "${z_etag_base}" || bcu_die "getIamPolicy returned no etag; refusing unsafe setIamPolicy"
 
   # 2) Build updated policy (add member to role) using jq helper
   #    Input policy file is ${ZRBGA_PREFIX}${z_infix_get}${ZRBGA_POSTFIX_JSON}
