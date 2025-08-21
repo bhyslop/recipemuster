@@ -1041,19 +1041,14 @@ zrbga_ensure_cloudbuild_service_agent() {
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step 'Ensure Cloud Build service agent exists'
-  local z_create_code
   local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
-  zrbga_http_json "POST"  "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
-  z_create_code=$(zrbga_http_code_capture                "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}") || z_create_code=""
 
-  case "${z_create_code}" in
-    200)     bcu_info "Cloud Build service agent created successfully" ;;
-    400|409) bcu_log_args "Service agent already exists (${z_create_code})" ;;
-    *)       bcu_die "Service agent creation failed with ${z_create_code} - Cloud Build API issue" ;;
-  esac
+  # generateServiceIdentity can return LRO
+  zrbga_http_json_lro_ok "Generate Cloud Build service identity" "${z_token}" \
+    "${z_create_url}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
 
   bcu_step 'Waiting 30s for service agent propagation'
-  sleep             30
+  sleep 30
 
   bcu_step 'Grant Cloud Build Service Agent role'
   zrbga_add_iam_role "${z_cb_service_agent}" "roles/cloudbuild.serviceAgent"
@@ -1096,8 +1091,9 @@ zrbga_prime_cloud_build() {
 
   local z_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
 
-  zrbga_http_json "POST" "${z_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
-  zrbga_http_require_ok "Prime Cloud Build" "${ZRBGA_INFIX_CB_PRIME}"
+  # Cloud Build always returns LRO - use LRO-aware function
+  zrbga_http_json_lro_ok "Prime Cloud Build" "${z_token}" \
+    "${z_url}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
 
   bcu_log_args 'Primed Cloud Build; sleeping 10s for SA provisioning'
   sleep 10
@@ -1255,38 +1251,30 @@ rbga_initialize_admin() {
   if test -n "${z_missing}"; then
     bcu_info "APIs needing enablement: ${z_missing}"
 
-    # Invariant: API enable is gated by the preflight above.
-    # Any 409 here means the preflight or our assumptions are wrong -> die.
-
+    # API enables can return LROs - use LRO-aware function
     bcu_step 'Enable IAM API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
-                                           "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}"
+    zrbga_http_json_lro_ok "Enable IAM API" "${z_token}" \
+      "${RBGC_API_SU_ENABLE_IAM}" "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
     bcu_step 'Enable Cloud Resource Manager API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CRM}" "${z_token}" \
-                                                              "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}"
+    zrbga_http_json_lro_ok "Enable Cloud Resource Manager API" "${z_token}" \
+      "${RBGC_API_SU_ENABLE_CRM}" "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
     bcu_step 'Enable Artifact Registry API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_GAR}" "${z_token}" \
-                                                         "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}"
+    zrbga_http_json_lro_ok "Enable Artifact Registry API" "${z_token}" \
+      "${RBGC_API_SU_ENABLE_GAR}" "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
     bcu_step 'Enable Cloud Build API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
-                                                   "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}"
+    zrbga_http_json_lro_ok "Enable Cloud Build API" "${z_token}" \
+      "${RBGC_API_SU_ENABLE_BUILD}" "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
     bcu_step 'Enable Container Analysis API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
-                                                          "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}"
+    zrbga_http_json_lro_ok "Enable Container Analysis API" "${z_token}" \
+      "${RBGC_API_SU_ENABLE_ANALYSIS}" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
     bcu_step 'Enable Cloud Storage API (build bucket deps)'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
-                                                     "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}"
+    zrbga_http_json_lro_ok "Enable Cloud Storage API" "${z_token}" \
+      "${RBGC_API_SU_ENABLE_STORAGE}" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
 
     bcu_step 'Wait 45s for API propagation'
     sleep 45
@@ -1331,8 +1319,9 @@ rbga_initialize_admin() {
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
   bcu_step 'Create DOCKER format repo'
-  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
-  zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
+  # Repo creation can return LRO - use LRO-aware function
+  zrbga_http_json_lro_ok "Create Artifact Registry repo" "${z_token}" \
+    "${z_create_url}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
 
   bcu_step 'One-time propagation pause before Cloud Build priming'
   bcu_step "  About to sleep ${z_prime_pause_sec}s"
@@ -1446,20 +1435,10 @@ rbga_destroy_admin() {
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
 
   bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBGC_GAR_LOCATION}"
-  local z_delete_code
-  zrbga_http_json "DELETE" \
+  # Repository deletion can return LRO
+  zrbga_http_json_lro_ok "Delete repository" "${z_token}" \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}" \
-                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
-  z_delete_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
-  case "${z_delete_code}" in
-    200|204) bcu_info "Repository deleted" ;;
-    404)     bcu_warn "Repository not found (already deleted)" ;;
-    *)
-      local z_err
-      z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
-      bcu_die "Failed to delete repository: ${z_err}"
-      ;;
-  esac
+    "${ZRBGA_INFIX_DELETE_REPO}" ""
 
   bcu_step 'Delete Cloud Storage bucket'
   zrbga_delete_gcs_bucket_predicate "${z_token}"  "${RBGC_GCS_BUCKET}"
