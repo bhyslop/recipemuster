@@ -386,6 +386,62 @@ zrbga_http_json_ok() {
   zrbga_http_require_ok "${z_label}" "${z_infix}" "${z_warn_code:-}" "${z_warn_message:-}"
 }
 
+# Poll a Google LRO until done (success or error)
+# Args:
+#   $1  token                (Bearer)
+#   $2  op_url               (e.g., https://cloudbuild.googleapis.com/v1/operations/xyz)
+#   $3  parent_infix         (namespace, e.g., "cb_prime")
+#   $4  poll_sec             (optional; default ${RBGC_EVENTUAL_CONSISTENCY_SEC})
+#   $5  max_sec              (optional; default ${RBGC_MAX_CONSISTENCY_SEC})
+# Output (stdout on success): final poll infix so caller can find files
+# Return: 0 on success; 1 on error/timeout (files preserved for forensics)
+zrbga_wait_lro_capture() {
+  zrbga_sentinel
+
+  local z_token="${1:-}"
+  local z_op_url="${2:-}"
+  local z_parent="${3:-}"
+  local z_poll="${4:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
+  local z_max="${5:-${RBGC_MAX_CONSISTENCY_SEC}}"
+
+  test -n "${z_token}"   || return 1
+  test -n "${z_op_url}"  || return 1
+  test -n "${z_parent}"  || return 1
+  test -n "${z_poll}"    || return 1
+  test -n "${z_max}"     || return 1
+
+  local z_elapsed=0
+  local z_infix=""
+  local z_done=""
+  local z_err=""
+
+  while :; do
+    z_infix="${z_parent}-lro-${z_elapsed}s"
+
+    # GET operation status; reuse project’s HTTP helper + infix file scheme
+    zrbga_http_json_ok "LRO poll (${z_elapsed}s)" "${z_token}" \
+      "GET" "${z_op_url}" "${z_infix}" "" "" ""
+
+    # done?
+    z_done=$(zrbga_json_field_capture "${z_infix}" '.done') || z_done=""
+    if test "${z_done}" = "true"; then
+      # explicit error?
+      if jq -e '.error' "${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null 2>&1; then
+        # leave artifacts; signal failure to caller
+        echo "${z_infix}"
+        return 1
+      fi
+      # success: caller can read response via ${infix}_response.json
+      echo "${z_infix}"
+      return 0
+    fi
+
+    test "${z_elapsed}" -lt "${z_max}" || { echo "${z_infix}"; return 1; }
+    sleep "${z_poll}"
+    z_elapsed=$(( z_elapsed + z_poll ))
+  done
+}
+
 zrbga_get_admin_token_capture() {
   zrbga_sentinel
 
