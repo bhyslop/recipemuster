@@ -143,14 +143,10 @@ zrbga_jq_add_member_to_role_capture() {
   local z_etag_opt="${4:-}"
 
   local z_policy_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
-
-  test -n "${z_policy_file}" || return 1
   test -f "${z_policy_file}" || return 1
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
-
-  # NEW: hard requirement - never do setIamPolicy without an etag
-  test -n "${z_etag_opt}"    || return 1
+  test -n "${z_etag_opt}"    || return 1  # hard requirement
 
   local z_out=""
   z_out=$(
@@ -162,15 +158,14 @@ zrbga_jq_add_member_to_role_capture() {
                             else . end)
       else .bindings += [{role: $role, members: [$member]}]
       end
-      # NEW: always set the etag we read - this is the optimistic concurrency guard
       | .etag = $etag
+      | .version = 3
     ' "${z_policy_file}"
   ) || return 1
 
   test -n "${z_out}" || return 1
   printf '%s\n' "${z_out}"
 }
-
 
 # Predicate: Check if resource was newly created and apply propagation delay
 # Usage: if zrbga_newly_created_delay "infix" "resource_type" "15"; then ...
@@ -195,46 +190,40 @@ zrbga_newly_created_delay() {
 # arg1: OAuth access token (required, non-empty)
 # stdout: space-separated short service names; blank if all enabled
 # rc: 0 on success; 1 on internal/processing failure
+# stdout: newline-separated short service names; blank if all enabled
 zrbga_required_apis_missing_capture() {
   zrbga_sentinel
 
   local z_token="${1:-}"
   test -n "${z_token}" || { echo ""; return 1; }
 
+  # Optional explicit list (env var short names), else default set
+  local z_list="${2:-}"
+  if test -z "${z_list}"; then
+    z_list="cloudresourcemanager.googleapis.com artifactregistry.googleapis.com iam.googleapis.com cloudbuild.googleapis.com containeranalysis.googleapis.com storage.googleapis.com"
+  fi
+
   local z_missing=""
-  local z_api=""
   local z_service=""
-  local z_infix=""
-  local z_state=""
-  local z_code=""
+  for z_service in ${z_list}; do
+    local z_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/${z_service}"
+    local z_infix="${ZRBGA_INFIX_API_CHECK}_${z_service%%.*}"
 
-  for z_api in                       \
-    "${RBGC_API_SU_VERIFY_CRM}"      \
-    "${RBGC_API_SU_VERIFY_GAR}"      \
-    "${RBGC_API_SU_VERIFY_IAM}"      \
-    "${RBGC_API_SU_VERIFY_BUILD}"    \
-    "${RBGC_API_SU_VERIFY_ANALYSIS}" \
-    "${RBGC_API_SU_VERIFY_STORAGE}"
-  do
-    z_service="${z_api##*/}"
-    z_infix="${ZRBGA_INFIX_API_CHECK}_${z_service}"
-
-    zrbga_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
-
-    bcu_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
+    zrbga_http_json "GET" "${z_url}" "${z_token}" "${z_infix}" || true
+    local z_code=""
     z_code=$(zrbga_http_code_capture "${z_infix}") || z_code=""
     test -n "${z_code}" || return 1
 
     if test "${z_code}" = "200"; then
-      z_state=$(zrbga_json_field_capture "${z_infix}" ".state") || z_state=""
-      test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
+      local z_state=""
+      z_state=$(zrbga_json_field_capture "${z_infix}" ".state" 2>/dev/null) || z_state=""
+      test "${z_state}" = "ENABLED" || z_missing="${z_missing}${z_missing:+$'\n'}${z_service%%.*}"
     else
-      bcu_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled'
-      z_missing="${z_missing} ${z_service}"
+      z_missing="${z_missing}${z_missing:+$'\n'}${z_service%%.*}"
     fi
   done
 
-  printf '%s' "${z_missing# }"
+  printf '%s' "${z_missing}"
 }
 
 # Usage: zrbga_json_field_capture "infix" "jq_expr"
@@ -276,31 +265,23 @@ zrbga_http_json() {
   local z_code_errs="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_CODE}.stderr"
 
   local z_curl_status=0
-
+  # Force HTTP/1.1, disable "Expect: 100-continue" stalls, always set Accept
   if test -n "${z_body_file}"; then
-    curl                                              \
-        -sS                                           \
-        -X "${z_method}"                              \
-        -H "Authorization: Bearer ${z_token}"         \
-        -H "Content-Type: application/json"           \
-        -H "Accept: application/json"                 \
-        -d @"${z_body_file}"                          \
-        -o "${z_resp_file}"                           \
-        -w "%{http_code}"                             \
-        "${z_url}" > "${z_code_file}"                 \
-                  2> "${z_code_errs}"                 \
+    curl -sS --http1.1 -X "${z_method}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json" \
+      -H "Expect:" \
+      --data-binary @"${z_body_file}" \
+      -o "${z_resp_file}" -w "%{http_code}" "${z_url}" > "${z_code_file}" 2> "${z_code_errs}" \
       || z_curl_status=$?
   else
-    curl                                              \
-        -sS                                           \
-        -X "${z_method}"                              \
-        -H "Authorization: Bearer ${z_token}"         \
-        -H "Content-Type: application/json"           \
-        -H "Accept: application/json"                 \
-        -o "${z_resp_file}"                           \
-        -w "%{http_code}"                             \
-        "${z_url}" > "${z_code_file}"                 \
-                  2> "${z_code_errs}"                 \
+    curl -sS --http1.1 -X "${z_method}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json" \
+      -H "Expect:" \
+      -o "${z_resp_file}" -w "%{http_code}" "${z_url}" > "${z_code_file}" 2> "${z_code_errs}" \
       || z_curl_status=$?
   fi
 
@@ -315,6 +296,7 @@ zrbga_http_json() {
 
   bcu_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
 }
+
 
 # Usage: zrbga_http_require_ok "context" "infix" [warn_code [warn_message]]
 zrbga_http_require_ok() {
@@ -337,14 +319,14 @@ zrbga_http_require_ok() {
     return 0
   fi
 
-  local z_err=""
   local z_response_file="${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}"
+  local z_err=""
 
   if jq -e . "${z_response_file}" >/dev/null 2>&1; then
     z_err=$(zrbga_json_field_capture "${z_infix}" '.error.message') || z_err="Unknown error"
   else
-    local z_content=$(<"${z_response_file}")
-    test -n "${z_content}" || z_content=""
+    local z_content=""
+    z_content=$(<"${z_response_file}") || z_content=""
     z_err="${z_content:0:200}"
     z_err="${z_err//$'\n'/ }"
     z_err="${z_err//$'\r'/ }"
@@ -366,22 +348,17 @@ zrbga_http_require_ok() {
 #     ""                                # tolerated warn message, or "" if none
 zrbga_http_json_ok() {
   zrbga_sentinel
-
-  local z_label="$1"        # descriptive label
-  local z_token="$2"        # OAuth token
-  local z_method="$3"       # HTTP verb
-  local z_url="$4"          # full URL
-  local z_infix="$5"        # infix for response file naming
-  local z_body_file="$6"    # optional: path to request body JSON file, or "" if none
-  local z_warn_code="$7"    # optional: tolerated HTTP code (e.g. 409), or "" if none
-  local z_warn_message="$8" # optional: tolerated warning message, or "" if none
+  local z_label="$1"
+  local z_token="$2"
+  local z_method="$3"
+  local z_url="$4"
+  local z_infix="$5"
+  local z_body_file="${6:-}"
+  local z_warn_code="${7:-}"
+  local z_warn_message="${8:-}"
 
   bcu_log_args "${z_label}"
-
-  # Perform HTTP request (body file may be "")
   zrbga_http_json "${z_method}" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
-
-  # Enforce success (warn/ignore if optional params provided)
   zrbga_http_require_ok "${z_label}" "${z_infix}" "${z_warn_code:-}" "${z_warn_message:-}"
 }
 
@@ -410,47 +387,48 @@ zrbga_wait_lro_capture() {
   test -n "${z_max}"     || return 1
 
   local z_elapsed=0
-  local z_infix=""
-  local z_done=""
+  local z_sleep="${z_poll}"
+  test "${z_sleep}" -ge 1 || z_sleep=1
 
   while :; do
-    z_infix="${z_parent}-lro-${z_elapsed}s"
-
+    local z_infix="${z_parent}-lro-${z_elapsed}s"
     zrbga_http_json "GET" "${z_op_url}" "${z_token}" "${z_infix}"
 
-    bcu_log_args 'If HTTP not 200, treat as transient unless clearly fatal'
     local z_code=""
     z_code=$(zrbga_http_code_capture "${z_infix}") || return 1
     case "${z_code}" in
-      200)                     :                                                                   ;;
-      429|408|500|502|503|504) bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"        ;;
-      *)                       bcu_log_args "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"; return 1 ;;
+      200) : ;;
+      408|429|500|502|503|504)
+        bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"
+        ;;
+      *)
+        bcu_log_args "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"
+        return 1
+        ;;
     esac
 
+    local z_done=""
     z_done=$(zrbga_json_field_capture "${z_infix}" ".done" 2>/dev/null) || z_done=""
     if test "${z_done}" = "true"; then
-      bcu_log_args 'Error?'
       local z_err_msg=""
       z_err_msg=$(zrbga_json_field_capture "${z_infix}" ".error.message" 2>/dev/null) || z_err_msg=""
-      if test -n "${z_err_msg}"; then
-        bcu_log_args "LRO error at ${z_elapsed}s: ${z_err_msg}"
-        return 1
-      fi
-      bcu_log_args 'Success'
+      test -z "${z_err_msg}" || { bcu_log_args "LRO error: ${z_err_msg}"; return 1; }
       echo "${z_infix}"
       return 0
     fi
 
-    bcu_log_args 'Not done: check timeout and sleep'
-    if test "${z_elapsed}" -ge "${z_max}"; then
-      bcu_log_args "LRO timeout at ${z_elapsed}s (max ${z_max}s)"
-      return 1
-    fi
+    test "${z_elapsed}" -ge "${z_max}" && { bcu_log_args "LRO timeout at ${z_elapsed}s"; return 1; }
 
-    bcu_log_args 'Clamp poll interval >= 1 and not overshooting max too far'
-    test  "${z_poll}" -ge 1 || z_poll=1
-    sleep "${z_poll}"
-    z_elapsed=$((z_elapsed + z_poll))
+    sleep "${z_sleep}"
+    z_elapsed=$((z_elapsed + z_sleep))
+    # simple capped backoff (1,2,4,8,...) but never exceed 10s nor z_max/8
+    if test "${z_sleep}" -lt 10; then
+      z_sleep=$((z_sleep * 2))
+      local z_cap=$((z_max / 8))
+      test "${z_cap}"   -ge 1  || z_cap=1
+      test "${z_sleep}" -le 10 || z_sleep=10
+      test "${z_sleep}" -le "${z_cap}" || z_sleep="${z_cap}"
+    fi
   done
 }
 
@@ -474,40 +452,28 @@ zrbga_http_json_lro_ok() {
 
   bcu_log_args "${z_label}"
 
-  bcu_log_args '1) Fire the POST and enforce HTTP success.'
   zrbga_http_json "POST" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
   zrbga_http_require_ok "${z_label}" "${z_infix}"
 
-  bcu_log_args '2) Detect operation name (LRO) in a few common layouts.'
   local z_op_name=""
   z_op_name=$(jq -r '.name // .operation.name // empty' \
               "${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}") || z_op_name=""
 
-  test -n "${z_op_name}" || return 0  # Not an LRO -> done
+  test -n "${z_op_name}" || return 0
 
-  bcu_log_args '3) Persist op name for forensics.'
   printf '%s\n' "${z_op_name}" > "${ZRBGA_PREFIX}${z_infix}_op.txt"
 
-  bcu_log_args '4) Build operation URL.'
   local z_op_url=""
   case "${z_op_name}" in
     https://* ) z_op_url="${z_op_name}" ;;
     projects/*/locations/*/operations/* )
-      # Cloud Build relative op name
-      z_op_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/${z_op_name}"
-      ;;
+      z_op_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/${z_op_name}" ;;
     operations/* )
-      # Generic relative fallback -> derive from parent URL
-      # Strip trailing "/something" (usually resource collection) twice.
-      z_op_url="${z_url%/*/*}/${z_op_name}"
-      ;;
+      z_op_url="${z_url%/*/*}/${z_op_name}" ;;
     * )
-      bcu_die "${z_label}: unexpected operation name shape '${z_op_name}'"
-      ;;
+      bcu_die "${z_label}: unexpected operation name shape '${z_op_name}'" ;;
   esac
-  test -n "${z_op_url}" || return 0
 
-  bcu_log_args '5) Wait for completion; fail fast on LRO error/timeout.'
   zrbga_wait_lro_capture "${z_token}" "${z_op_url}" "${z_infix}" "${z_poll}" "${z_max}" >/dev/null \
     || bcu_die "${z_label}: operation failed"
 }
@@ -735,85 +701,67 @@ zrbga_add_iam_role() {
 zrbga_new_add_iam_role() {
   zrbga_sentinel
 
-  local z_label="${1:-}"           # for logs
+  local z_label="${1:-}"
   local z_token="${2:-}"
-  local z_get_url="${3:-}"         # ...:getIamPolicy?options.requestedPolicyVersion=3
-  local z_set_url="${4:-}"         # ...:setIamPolicy
+  local z_get_url="${3:-}"
+  local z_set_url="${4:-}"
   local z_role="${5:-}"
   local z_member="${6:-}"
   local z_parent_infix="${7:-newrole}"
 
-  test -n "${z_token}"  || bcu_die "token required"
-  test -n "${z_get_url}"|| bcu_die "get url required"
-  test -n "${z_set_url}"|| bcu_die "set url required"
-  test -n "${z_role}"   || bcu_die "role required"
-  test -n "${z_member}" || bcu_die "member required"
+  test -n "${z_token}"   || bcu_die "token required"
+  test -n "${z_get_url}" || bcu_die "get url required"
+  test -n "${z_set_url}" || bcu_die "set url required"
+  test -n "${z_role}"    || bcu_die "role required"
+  test -n "${z_member}"  || bcu_die "member required"
 
   bcu_log_args "${z_label}: add ${z_member} to ${z_role}"
 
-  bcu_log_args '1) GET policy (v3)'
   local z_get_infix="${z_parent_infix}-get"
   local z_get_body="${ZRBGA_PREFIX}${z_parent_infix}_get_body.json"
   printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
-  zrbga_http_json_ok "${z_label} (get policy)" "${z_token}" "POST" \
-    "${z_get_url}" "${z_get_infix}" "${z_get_body}"
 
-  bcu_log_args 'Extract etag; require non-empty'
+  zrbga_http_json_ok "${z_label} (get policy)" "${z_token}" "POST" "${z_get_url}" "${z_get_infix}" "${z_get_body}"
+
   local z_etag=""
   z_etag=$(zrbga_json_field_capture "${z_get_infix}" ".etag") || bcu_die "Missing etag"
-  test -n "${z_etag}" || bcu_die "Empty etag"
 
-  bcu_log_args "Using etag ${z_etag}"
-
-  bcu_log_args '2) Build new policy JSON in temp (bindings unique; version=3; keep etag)'
   local z_new_policy_json=""
   z_new_policy_json=$(zrbga_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
     || bcu_die "Failed to compose policy JSON"
-  bcu_log_args 'Ensure version=3'
-  z_new_policy_json=$(jq '.version=3' <<<"${z_new_policy_json}") || bcu_die "Failed to set version=3"
 
   local z_set_body="${ZRBGA_PREFIX}${z_parent_infix}_set_body.json"
   printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
 
-  bcu_log_args '3) setIamPolicy (fatal on 409/412 by policy)'
   local z_elapsed=0
-  local z_set_infix=""
   while :; do
-    z_set_infix="${z_parent_infix}-set-${z_elapsed}s"
+    local z_set_infix="${z_parent_infix}-set-${z_elapsed}s"
     zrbga_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
-
     local z_code=""
     z_code=$(zrbga_http_code_capture "${z_set_infix}") || bcu_die "No HTTP code"
     case "${z_code}" in
-      200)                 break ;;
-      412)                 bcu_die "${z_label}: precondition failed (etag mismatch)"    ;;
-      429|500|502|503|504) bcu_log_args "Transient ${z_code} at ${z_elapsed}s; retry"   ;;
-      409)                 bcu_die "${z_label}: HTTP 409 Conflict (fatal by invariant)" ;;
-      *)                   zrbga_http_require_ok "${z_label} (set policy)" "${z_set_infix}" "" ;;
+      200) break ;;
+      412) bcu_die "${z_label}: precondition failed (etag mismatch)" ;;
+      409) bcu_die "${z_label}: HTTP 409 Conflict (fatal by invariant)" ;;
+      429|500|502|503|504) bcu_log_args "Transient ${z_code} at ${z_elapsed}s; retry" ;;
+      *) zrbga_http_require_ok "${z_label} (set policy)" "${z_set_infix}" "" ;;
     esac
-
     test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && bcu_die "${z_label}: timeout setting policy"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 
-  bcu_log_args '4) Verify membership within bounded wait'
+  # Strong read?back verify
   z_elapsed=0
   while :; do
     local z_verify_infix="${z_parent_infix}-verify-${z_elapsed}s"
-    zrbga_http_json_ok "${z_label} (verify)" "${z_token}" "POST" \
-                       "${z_get_url}" "${z_verify_infix}" "${z_get_body}"
-
+    zrbga_http_json_ok "${z_label} (verify)" "${z_token}" "POST" "${z_get_url}" "${z_verify_infix}" "${z_get_body}"
     if jq -e --arg r "${z_role}" --arg m "${z_member}" \
          '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
          "${ZRBGA_PREFIX}${z_verify_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null; then
       bcu_log_args "Observed ${z_role} for ${z_member}"
-
-      bcu_log_args "Post-set etag $(zrbga_json_field_capture "${z_verify_infix}" ".etag" 2>/dev/null || echo "")"
-
       return 0
     fi
-
     test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && bcu_die "${z_label}: verify timeout"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
@@ -1041,14 +989,19 @@ zrbga_ensure_cloudbuild_service_agent() {
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step 'Ensure Cloud Build service agent exists'
+  local z_create_code
   local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
+  zrbga_http_json "POST"  "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
+  z_create_code=$(zrbga_http_code_capture                "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}") || z_create_code=""
 
-  # generateServiceIdentity can return LRO
-  zrbga_http_json_lro_ok "Generate Cloud Build service identity" "${z_token}" \
-    "${z_create_url}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
+  case "${z_create_code}" in
+    200)     bcu_info "Cloud Build service agent created successfully" ;;
+    400|409) bcu_log_args "Service agent already exists (${z_create_code})" ;;
+    *)       bcu_die "Service agent creation failed with ${z_create_code} - Cloud Build API issue" ;;
+  esac
 
   bcu_step 'Waiting 30s for service agent propagation'
-  sleep 30
+  sleep             30
 
   bcu_step 'Grant Cloud Build Service Agent role'
   zrbga_add_iam_role "${z_cb_service_agent}" "roles/cloudbuild.serviceAgent"
@@ -1091,9 +1044,8 @@ zrbga_prime_cloud_build() {
 
   local z_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
 
-  # Cloud Build always returns LRO - use LRO-aware function
-  zrbga_http_json_lro_ok "Prime Cloud Build" "${z_token}" \
-    "${z_url}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
+  zrbga_http_json "POST" "${z_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
+  zrbga_http_require_ok "Prime Cloud Build" "${ZRBGA_INFIX_CB_PRIME}"
 
   bcu_log_args 'Primed Cloud Build; sleeping 10s for SA provisioning'
   sleep 10
@@ -1175,48 +1127,35 @@ zrbga_add_bucket_iam_role() {
 
   bcu_log_args "Adding bucket IAM role ${z_role} to ${z_account_email}"
 
-  local z_code
-
-  bcu_log_args 'Get current bucket IAM policy'
   local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
   zrbga_http_json "GET" "${z_iam_url}" "${z_token}" "${ZRBGA_INFIX_BUCKET_IAM}"
-  z_code=$(zrbga_http_code_capture                  "${ZRBGA_INFIX_BUCKET_IAM}") || z_code=""
+  local z_code=""
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_IAM}") || z_code=""
+
   if test "${z_code}" != "200"; then
     bcu_log_args 'Initialize empty IAM policy for bucket'
     echo '{"bindings":[]}' > "${ZRBGA_PREFIX}${ZRBGA_INFIX_BUCKET_IAM}${ZRBGA_POSTFIX_JSON}"
   fi
 
-  bcu_log_args 'Update bucket IAM policy'
+  local z_etag=""
+  z_etag=$(zrbga_json_field_capture "${ZRBGA_INFIX_BUCKET_IAM}" '.etag' 2>/dev/null) || z_etag=""
+
   local z_updated="${BDU_TEMP_DIR}/rbga_bucket_iam_updated.json"
-  local z_etag
-  z_etag=$(zrbga_json_field_capture "${ZRBGA_INFIX_BUCKET_IAM}" '.etag') || z_etag=""
-  jq --arg role "${z_role}"                           \
-     --arg member "serviceAccount:${z_account_email}" \
-     --arg etag "${z_etag}"                           \
-     '
-       .bindings = (.bindings // []) |
-       if ( ([ .bindings[]? | .role ] | index($role)) ) then
-         .bindings = ( .bindings | map(
-           if .role == $role then .members = ( (.members // []) + [$member] | unique )
-           else .
-           end))
-       else
-         .bindings += [{role: $role, members: [$member]}]
-       end
-       | ( if $etag != "" then .etag = $etag else . end )
-     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_BUCKET_IAM}${ZRBGA_POSTFIX_JSON}" \
-     > "${z_updated}" || bcu_die "Failed to update bucket IAM policy"
+  jq --arg role "${z_role}" --arg member "serviceAccount:${z_account_email}" --arg etag "${z_etag}" '
+     .bindings = (.bindings // []) |
+     if ([.bindings[]? | .role] | index($role))
+     then .bindings |= map(if .role == $role
+                           then .members = ((.members // []) + [$member] | unique)
+                           else . end)
+     else .bindings += [{role: $role, members: [$member]}]
+     end
+     | (if $etag != "" then .etag = $etag else . end)
+  ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_BUCKET_IAM}${ZRBGA_POSTFIX_JSON}" > "${z_updated}" \
+    || bcu_die "Failed to update bucket IAM policy"
 
-  local z_err
-
-  bcu_log_args 'Set updated bucket IAM policy'
-  zrbga_http_json "PUT" "${z_iam_url}" "${z_token}" \
-                                   "${ZRBGA_INFIX_BUCKET_IAM_SET}" "${z_updated}"
-  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_IAM_SET}")                  || z_code=""
-  z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_BUCKET_IAM_SET}" '.error.message') || z_err="HTTP ${z_code}"
-  test "${z_code}" = "200" || bcu_die "Failed to set bucket IAM policy: ${z_err}"
-
-  bcu_log_args "Successfully added bucket role ${z_role}"
+  zrbga_http_json "PUT" "${z_iam_url}" "${z_token}" "${ZRBGA_INFIX_BUCKET_IAM_SET}" "${z_updated}"
+  z_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_BUCKET_IAM_SET}") || z_code=""
+  test "${z_code}" = "200" || bcu_die "Failed to set bucket IAM policy (HTTP ${z_code})"
 }
 
 ######################################################################
@@ -1251,30 +1190,38 @@ rbga_initialize_admin() {
   if test -n "${z_missing}"; then
     bcu_info "APIs needing enablement: ${z_missing}"
 
-    # API enables can return LROs - use LRO-aware function
+    # Invariant: API enable is gated by the preflight above.
+    # Any 409 here means the preflight or our assumptions are wrong -> die.
+
     bcu_step 'Enable IAM API'
-    zrbga_http_json_lro_ok "Enable IAM API" "${z_token}" \
-      "${RBGC_API_SU_ENABLE_IAM}" "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
+                                           "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}"
 
     bcu_step 'Enable Cloud Resource Manager API'
-    zrbga_http_json_lro_ok "Enable Cloud Resource Manager API" "${z_token}" \
-      "${RBGC_API_SU_ENABLE_CRM}" "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CRM}" "${z_token}" \
+                                                              "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}"
 
     bcu_step 'Enable Artifact Registry API'
-    zrbga_http_json_lro_ok "Enable Artifact Registry API" "${z_token}" \
-      "${RBGC_API_SU_ENABLE_GAR}" "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_GAR}" "${z_token}" \
+                                                         "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}"
 
     bcu_step 'Enable Cloud Build API'
-    zrbga_http_json_lro_ok "Enable Cloud Build API" "${z_token}" \
-      "${RBGC_API_SU_ENABLE_BUILD}" "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
+                                                   "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}"
 
     bcu_step 'Enable Container Analysis API'
-    zrbga_http_json_lro_ok "Enable Container Analysis API" "${z_token}" \
-      "${RBGC_API_SU_ENABLE_ANALYSIS}" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
+                                                          "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}"
 
     bcu_step 'Enable Cloud Storage API (build bucket deps)'
-    zrbga_http_json_lro_ok "Enable Cloud Storage API" "${z_token}" \
-      "${RBGC_API_SU_ENABLE_STORAGE}" "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
+                                                     "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
+    zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}"
 
     bcu_step 'Wait 45s for API propagation'
     sleep 45
@@ -1319,9 +1266,8 @@ rbga_initialize_admin() {
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
   bcu_step 'Create DOCKER format repo'
-  # Repo creation can return LRO - use LRO-aware function
-  zrbga_http_json_lro_ok "Create Artifact Registry repo" "${z_token}" \
-    "${z_create_url}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
+  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
+  zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
 
   bcu_step 'One-time propagation pause before Cloud Build priming'
   bcu_step "  About to sleep ${z_prime_pause_sec}s"
@@ -1435,10 +1381,20 @@ rbga_destroy_admin() {
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
 
   bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBGC_GAR_LOCATION}"
-  # Repository deletion can return LRO
-  zrbga_http_json_lro_ok "Delete repository" "${z_token}" \
+  local z_delete_code
+  zrbga_http_json "DELETE" \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}" \
-    "${ZRBGA_INFIX_DELETE_REPO}" ""
+                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
+  z_delete_code=$(zrbga_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
+  case "${z_delete_code}" in
+    200|204) bcu_info "Repository deleted" ;;
+    404)     bcu_warn "Repository not found (already deleted)" ;;
+    *)
+      local z_err
+      z_err=$(zrbga_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
+      bcu_die "Failed to delete repository: ${z_err}"
+      ;;
+  esac
 
   bcu_step 'Delete Cloud Storage bucket'
   zrbga_delete_gcs_bucket_predicate "${z_token}"  "${RBGC_GCS_BUCKET}"

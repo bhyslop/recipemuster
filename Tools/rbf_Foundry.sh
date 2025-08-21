@@ -311,7 +311,7 @@ zrbf_submit_build() {
   local z_recipe_name="${z_dockerfile_name%.*}"
 
   bcu_log_args 'Create build config with RBGY substitutions'
-  jq -n                                                       \
+    jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_tag            "${z_tag}"                         \
     --arg zjq_moniker        "${z_sigil}"                       \
@@ -376,6 +376,8 @@ zrbf_submit_build() {
   local z_url="${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart&alt=json"
   bcu_log_args "Upload URL: ${z_url}"
   bcu_log_args "Multipart boundary: ${z_boundary}"
+  bcu_log_args "Multipart body head (200 bytes):"
+  head -c 200 "${z_body_file}" | od -An -vtc | bcu_log_pipe
 
   bcu_log_args 'precompute length - helps some FEs; harmless otherwise'
   local z_len=""
@@ -391,22 +393,23 @@ zrbf_submit_build() {
     ${z_len:+-H "Content-Length: ${z_len}"}                               \
     --http1.1                                                             \
     -H "Expect:"                                                          \
+    -H "X-Goog-Upload-Protocol: multipart"                                \
+    -H "X-Goog-Upload-File-Name: source.tar.gz"                           \
     --data-binary @"${z_body_file}"                                       \
     -D "${z_resp_headers}"                                                \
     -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
     -w "%{http_code}"                                                     \
     "${z_url}" > "${ZRBF_BUILD_HTTP_CODE}"
 
-  local z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
+  z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
   test -n "${z_http}"                   || bcu_die "No HTTP status from Cloud Build create"
   test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Empty Cloud Build response"
 
-  bcu_log_args 'If not 200 OK, show the API error and stop'
+  bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
   if [ "${z_http}" != "200" ]; then
     bcu_log_args "Response headers:"
     bcu_log_pipe < "${z_resp_headers}"
 
-    local z_err
     if ! z_err=$(jq -r 'if .error then (.error.message // "Unknown error") else "Unknown error (no .error in response)" end' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null); then
       bcu_log_args "Non-JSON response body (tail, 1KB):"
       tail -c 1024 "${ZRBF_BUILD_RESPONSE_FILE}" | bcu_log_pipe
@@ -419,25 +422,15 @@ zrbf_submit_build() {
   fi
 
   bcu_log_args 'Parse Long-Running Operation (LRO)'
-  local z_op_name
-  z_op_name=$(jq -r '.name // empty' "${ZRBF_BUILD_RESPONSE_FILE}") || bcu_die "Failed to extract operation name"
-  test -n "${z_op_name}" || bcu_die "No operation name in response"
+  jq -r '.name // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${BDU_TEMP_DIR}/rbf_operation_name.txt"
 
   bcu_log_args 'Build ID is under operation.metadata.build.id'
   jq -r '.metadata.build.id // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}"
 
-  local z_build_id=$(<"${ZRBF_BUILD_ID_FILE}")
+  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}")
   test -n "${z_build_id}" || bcu_die "Cloud Build did not return a build id in operation.metadata.build.id"
 
-  # Wait for LRO completion using the operation name
-  bcu_log_args 'Wait for operation to complete'
-  local z_op_url="${ZRBF_GCB_API_BASE}/${z_op_name}"
-  local z_final_infix=""
-  z_final_infix=$(zrbga_wait_lro_capture "${z_token}" "${z_op_url}" "build_submit" \
-    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" "${RBGC_MAX_CONSISTENCY_SEC}") \
-    || bcu_die "Build submission operation failed"
-
-  bcu_log_args 'Make the Console link with the BUILD ID'
+  bcu_log_args 'Now make the Console link with a real BUILD ID'
   local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBGC_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
   bcu_link "Click to " "Open build in Cloud Console" "${z_console_url}"
