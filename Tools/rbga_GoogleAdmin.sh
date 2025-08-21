@@ -393,7 +393,7 @@ zrbga_http_json_ok() {
 #   $4  poll_sec             (optional; default ${RBGC_EVENTUAL_CONSISTENCY_SEC})
 #   $5  max_sec              (optional; default ${RBGC_MAX_CONSISTENCY_SEC})
 # Output (stdout on success): final poll infix so caller can find files
-# Return: 0 on success; 1 on error/timeout (files preserved for forensics)
+# Return: 0 on success; 1 on error/timeout
 zrbga_wait_lro_capture() {
   zrbga_sentinel
 
@@ -422,9 +422,9 @@ zrbga_wait_lro_capture() {
     local z_code=""
     z_code=$(zrbga_http_code_capture "${z_infix}") || return 1
     case "${z_code}" in
-      200)                      :                                                             ;;
-      429|408|500|502|503|504)  bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"  ;;
-      *)                        bcu_die "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"          ;;
+      200)                     :                                                                   ;;
+      429|408|500|502|503|504) bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"        ;;
+      *)                       bcu_log_args "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"; return 1 ;;
     esac
 
     z_done=$(zrbga_json_field_capture "${z_infix}" ".done" 2>/dev/null) || z_done=""
@@ -434,7 +434,6 @@ zrbga_wait_lro_capture() {
       z_err_msg=$(zrbga_json_field_capture "${z_infix}" ".error.message" 2>/dev/null) || z_err_msg=""
       if test -n "${z_err_msg}"; then
         bcu_log_args "LRO error at ${z_elapsed}s: ${z_err_msg}"
-        echo "${z_infix}"
         return 1
       fi
       bcu_log_args 'Success'
@@ -445,7 +444,6 @@ zrbga_wait_lro_capture() {
     bcu_log_args 'Not done: check timeout and sleep'
     if test "${z_elapsed}" -ge "${z_max}"; then
       bcu_log_args "LRO timeout at ${z_elapsed}s (max ${z_max}s)"
-      echo "${z_infix}"
       return 1
     fi
 
@@ -454,6 +452,64 @@ zrbga_wait_lro_capture() {
     sleep "${z_poll}"
     z_elapsed=$((z_elapsed + z_poll))
   done
+}
+
+# POST + (optional) Google LRO wait, with op-name breadcrumb.
+# Dies on HTTP/LRO failure. No stdout output (internal helper).
+# Files it writes (using INFIX):
+#   ${ZRBGA_PREFIX}${infix}${ZRBGA_POSTFIX_JSON}   # initial POST response
+#   ${ZRBGA_PREFIX}${infix}${ZRBGA_POSTFIX_CODE}   # HTTP code
+#   ${ZRBGA_PREFIX}${infix}_op.txt                 # operation name (if LRO)
+#   ${ZRBGA_PREFIX}${infix}-lro-<t>s{.json,.txt}   # poll snapshots (if LRO)
+zrbga_http_json_lro_ok() {
+  zrbga_sentinel
+
+  local z_label="${1}"
+  local z_token="${2}"
+  local z_url="${3}"
+  local z_infix="${4}"
+  local z_body_file="${5:-}"
+  local z_poll="${6:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
+  local z_max="${7:-${RBGC_MAX_CONSISTENCY_SEC}}"
+
+  bcu_log_args "${z_label}"
+
+  bcu_log_args '1) Fire the POST and enforce HTTP success.'
+  zrbga_http_json "POST" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
+  zrbga_http_require_ok "${z_label}" "${z_infix}"
+
+  bcu_log_args '2) Detect operation name (LRO) in a few common layouts.'
+  local z_op_name=""
+  z_op_name=$(jq -r '.name // .operation.name // empty' \
+              "${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}") || z_op_name=""
+
+  test -n "${z_op_name}" || return 0  # Not an LRO -> done
+
+  bcu_log_args '3) Persist op name for forensics.'
+  printf '%s\n' "${z_op_name}" > "${ZRBGA_PREFIX}${z_infix}_op.txt"
+
+  bcu_log_args '4) Build operation URL.'
+  local z_op_url=""
+  case "${z_op_name}" in
+    https://* ) z_op_url="${z_op_name}" ;;
+    projects/*/locations/*/operations/* )
+      # Cloud Build relative op name
+      z_op_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/${z_op_name}"
+      ;;
+    operations/* )
+      # Generic relative fallback -> derive from parent URL
+      # Strip trailing "/something" (usually resource collection) twice.
+      z_op_url="${z_url%/*/*}/${z_op_name}"
+      ;;
+    * )
+      bcu_die "${z_label}: unexpected operation name shape '${z_op_name}'"
+      ;;
+  esac
+  test -n "${z_op_url}" || return 0
+
+  bcu_log_args '5) Wait for completion; fail fast on LRO error/timeout.'
+  zrbga_wait_lro_capture "${z_token}" "${z_op_url}" "${z_infix}" "${z_poll}" "${z_max}" >/dev/null \
+    || bcu_die "${z_label}: operation failed"
 }
 
 zrbga_get_admin_token_capture() {
