@@ -418,27 +418,50 @@ zrbga_wait_lro_capture() {
   while :; do
     z_infix="${z_parent}-lro-${z_elapsed}s"
 
-    # GET operation status; reuse project’s HTTP helper + infix file scheme
-    zrbga_http_json_ok "LRO poll (${z_elapsed}s)" "${z_token}" \
-      "GET" "${z_op_url}" "${z_infix}" "" "" ""
+    zrbga_http_json "GET" "${z_op_url}" "${z_token}" "${z_infix}"
 
-    # done?
-    z_done=$(zrbga_json_field_capture "${z_infix}" '.done') || z_done=""
+    bcu_log_args 'If HTTP not 200, treat as transient unless clearly fatal'
+    local z_code=""
+    z_code=$(zrbga_http_code_capture "${z_infix}") || return 1
+    case "${z_code}" in
+      200) : ;;
+      429|500|502|503|504)
+        bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"
+        ;;
+      *)
+        bcu_log_args "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"
+        echo "${z_infix}"
+        return 1
+        ;;
+    esac
+
+    local z_done=""
+    z_done=$(zrbga_json_field_capture "${z_infix}" ".done" 2>/dev/null) || z_done=""
     if test "${z_done}" = "true"; then
-      # explicit error?
-      if jq -e '.error' "${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null 2>&1; then
-        # leave artifacts; signal failure to caller
+      bcu_log_args 'Error?'
+      local z_err_msg=""
+      z_err_msg=$(zrbga_json_field_capture "${z_infix}" ".error.message" 2>/dev/null) || z_err_msg=""
+      if test -n "${z_err_msg}"; then
+        bcu_log_args "LRO error at ${z_elapsed}s: ${z_err_msg}"
         echo "${z_infix}"
         return 1
       fi
-      # success: caller can read response via ${infix}_response.json
+      bcu_log_args 'Success'
       echo "${z_infix}"
       return 0
     fi
 
-    test "${z_elapsed}" -lt "${z_max}" || { echo "${z_infix}"; return 1; }
+    bcu_log_args'Not done: check timeout and sleep'
+    if test "${z_elapsed}" -ge "${z_max}"; then
+      bcu_log_args "LRO timeout at ${z_elapsed}s (max ${z_max}s)"
+      echo "${z_infix}"
+      return 1
+    fi
+
+    # Clamp poll interval >= 1 and not overshooting max too far
+    test  "${z_poll}" -ge 1 || z_poll=1
     sleep "${z_poll}"
-    z_elapsed=$(( z_elapsed + z_poll ))
+    z_elapsed=$((z_elapsed + z_poll))
   done
 }
 
@@ -662,103 +685,81 @@ zrbga_add_iam_role() {
 zrbga_new_add_iam_role() {
   zrbga_sentinel
 
-  local z_parent_infix="${1:-}"
+  local z_label="${1:-}"           # for logs
   local z_token="${2:-}"
-  local z_email="${3:-}"
-  local z_role="${4:-}"
+  local z_get_url="${3:-}"         # ...:getIamPolicy?options.requestedPolicyVersion=3
+  local z_set_url="${4:-}"         # ...:setIamPolicy
+  local z_role="${5:-}"
+  local z_member="${6:-}"
+  local z_parent_infix="${7:-newrole}"
 
-  test -n "${z_parent_infix}" || bcu_die "Parent infix required"
-  test -n "${z_token}"        || bcu_die "Token required"
-  test -n "${z_email}"        || bcu_die "Service account email required"
-  test -n "${z_role}"         || bcu_die "Role required"
+  test -n "${z_token}"  || bcu_die "token required"
+  test -n "${z_get_url}"|| bcu_die "get url required"
+  test -n "${z_set_url}"|| bcu_die "set url required"
+  test -n "${z_role}"   || bcu_die "role required"
+  test -n "${z_member}" || bcu_die "member required"
 
-  local z_label="Add IAM role ${z_role} to ${z_email}"
-  local z_member="serviceAccount:${z_email}"
+  bcu_log_args "${z_label}: add ${z_member} to ${z_role}"
 
-  # Child infixes
-  local z_infix_get="${z_parent_infix}-get"
-  local z_infix_set="${z_parent_infix}-set"
-  local z_infix_updated="${z_parent_infix}-updated"
+  bcu_log_args '1) GET policy (v3)'
+  local z_get_infix="${z_parent_infix}-get"
+  zrbga_http_json_ok "${z_label} (get policy)" "${z_token}" "GET" \
+    "${z_get_url}" "${z_get_infix}" ""
 
-  # 1) GET current project IAM policy (no body)
-  zrbga_http_json_ok "${z_label}: get policy" "${z_token}" \
-    "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_infix_get}" "" "" ""
+  bcu_log_args 'Extract etag; require non-empty'
+  local z_etag=""
+  z_etag=$(zrbga_json_field_capture "${z_get_infix}" ".etag") || bcu_die "Missing etag"
+  test -n "${z_etag}" || bcu_die "Empty etag"
 
-  # Capture baseline etag and require it (never write without one)
-  local z_etag_base=""
-  z_etag_base=$(zrbga_json_field_capture "${z_infix_get}" '.etag') || z_etag_base=""
-  test -n "${z_etag_base}" || bcu_die "getIamPolicy returned no etag; refusing unsafe setIamPolicy"
+  bcu_log_args '2) Build new policy JSON in temp (bindings unique; version=3; keep etag)'
+  local z_new_policy_json=""
+  z_new_policy_json=$(zrbga_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
+    || bcu_die "Failed to compose policy JSON"
+  bcu_log_args 'Ensure version=3'
+  z_new_policy_json=$(jq '.version=3' <<<"${z_new_policy_json}") || bcu_die "Failed to set version=3"
 
-  # 2) Build updated policy (add member to role) using jq helper
-  #    Input policy file is ${ZRBGA_PREFIX}${z_infix_get}${ZRBGA_POSTFIX_JSON}
-  #    Output updated policy goes to ${BDU_TEMP_DIR} file (we avoid heredocs)
-  local z_updated_file="${BDU_TEMP_DIR}/rbga_${z_infix_updated}.json"
-  zrbga_jq_add_member_to_role_capture "${z_infix_get}" "${z_role}" "${z_member}" "${z_etag_base}" > "${z_updated_file}" \
-    || bcu_die "Failed to produce updated IAM policy"
+  local z_set_body="${ZRBGA_PREFIX}${z_parent_infix}_set_body.json"
+  printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
 
-  # Wrap into setIamPolicy body: {"policy": <updated>}
-  local z_set_body="${BDU_TEMP_DIR}/rbga_${z_infix_set}_body.json"
-  jq -n --slurpfile p "${z_updated_file}" '{policy:$p[0]}' > "${z_set_body}" \
-    || bcu_die "Failed to construct setIamPolicy body"
-
-  # 3) POST setIamPolicy (pass body file)
-  zrbga_http_json_ok "${z_label}: set policy" "${z_token}" \
-    "POST" "${RBGC_API_CRM_SET_IAM_POLICY}" "${z_infix_set}" "${z_set_body}" "" ""
-
-  # 4) Strong eventual-consistency check.
-  #    Poll getIamPolicy until BOTH:
-  #      a) etag differs from baseline (or baseline was empty and now present), AND
-  #      b) binding role==z_role includes member==z_member
-  #    Each poll uses an infix of the form "<parent>-poll-<elapsed>s".
+  bcu_log_args '3) setIamPolicy (fatal on 409/412 by policy)'
   local z_elapsed=0
-  local z_found=0
-  local z_etag_now=""
-
+  local z_set_infix=""
   while :; do
-    # Derive per-iteration infix
-    local z_loop_infix="${z_parent_infix}-poll-${z_elapsed}s"
+    z_set_infix="${z_parent_infix}-set-${z_elapsed}s"
+    zrbga_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
 
-    # GET latest policy (no body)
-    zrbga_http_json_ok "${z_label}: verify (${z_elapsed}s)" "${z_token}" \
-      "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_loop_infix}" "" "" ""
+    local z_code=""
+    z_code=$(zrbga_http_code_capture "${z_set_infix}") || bcu_die "No HTTP code"
+    case "${z_code}" in
+      200)                 break ;;
+      412)                 bcu_die "${z_label}: precondition failed (etag mismatch)"    ;;
+      429|500|502|503|504) bcu_log_args "Transient ${z_code} at ${z_elapsed}s; retry"   ;;
+      409)                 bcu_die "${z_label}: HTTP 409 Conflict (fatal by invariant)" ;;
+      *)                   zrbga_http_require_ok "${z_label} (set policy)" "${z_set_infix}" "" ;;
+    esac
 
-    # Check role binding contains member
-    if jq -e --arg r "${z_role}" --arg m "${z_member}" \
-         '[.bindings[]? | select(.role==$r) | (.members // [])[]?] | index($m) | type=="number"' \
-         "${ZRBGA_PREFIX}${z_loop_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null 2>&1; then
-      z_found=1
-    else
-      z_found=0
-    fi
-
-    # Capture etag
-    z_etag_now=$(zrbga_json_field_capture "${z_loop_infix}" '.etag') || z_etag_now=""
-
-    # Decide success:
-    #  - If baseline etag existed: require etag change AND member present
-    #  - If baseline etag empty: require any non-empty etag AND member present
-    if test "${z_found}" = "1"; then
-      if test -n "${z_etag_base}"; then
-        if test -n "${z_etag_now}" && test "${z_etag_now}" != "${z_etag_base}"; then
-          bcu_log_args "Observed role binding and etag change (${z_etag_base} -> ${z_etag_now})"
-          break
-        fi
-      else
-        if test -n "${z_etag_now}"; then
-          bcu_log_args "Observed role binding and new etag (${z_etag_now})"
-          break
-        fi
-      fi
-    fi
-
-    test "${z_elapsed}" -le "${RBGC_MAX_CONSISTENCY_SEC}" \
-      || bcu_die "IAM policy not observed consistent after ${RBGC_MAX_CONSISTENCY_SEC}s"
-
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && bcu_die "${z_label}: timeout setting policy"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-    z_elapsed=$(( z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC ))
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 
-  bcu_log_args "Successfully added ${z_role} to ${z_member}"
+  bcu_log_args '4) Verify membership within bounded wait'
+  z_elapsed=0
+  while :; do
+    local z_verify_infix="${z_parent_infix}-verify-${z_elapsed}s"
+    zrbga_http_json_ok "${z_label} (verify)" "${z_token}" "GET" "${z_get_url}" "${z_verify_infix}" ""
+
+    if jq -e --arg r "${z_role}" --arg m "${z_member}" \
+         '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
+         "${ZRBGA_PREFIX}${z_verify_infix}${ZRBGA_POSTFIX_JSON}" >/dev/null; then
+      bcu_log_args "Observed ${z_role} for ${z_member}"
+      return 0
+    fi
+
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && bcu_die "${z_label}: verify timeout"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
 }
 
 zrbga_add_repo_iam_role() {
