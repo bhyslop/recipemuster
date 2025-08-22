@@ -671,82 +671,60 @@ zrbga_create_service_account_with_key() {
   bcu_info "RBRA file written: ${z_rbra_file}"
 }
 
+# Add a project-scoped IAM role binding with optimistic concurrency and strong read-back.
+#
+# Contract / Behavior:
+# - Reads policy (v3), preserves returned etag, and writes via setIamPolicy using that etag.
+# - Retries set on transient HTTP (429/500/502/503/504) within RBGC_* bounds; dies on 409/412.
+# - Verifies binding presence by re-GET within bounded wait; dies on timeout.
+#
+# Invariants:
+# - Single writer regime; HTTP 409 is fatal (state drift). HTTP 412 indicates etag mismatch and is fatal.
+# - Never sends setIamPolicy without an etag.
+#
+# Parameters:
+#   $1  label           (string) Log context for diagnostics.
+#   $2  token           (string) OAuth bearer (do not write to disk).
+#   $3  resource_base   (string) Base resource URL, e.g.:
+#                       "https://cloudresourcemanager.googleapis.com/v1/projects/${RBRR_GCP_PROJECT_ID}"
+#                       The function derives:
+#                         GET: "${resource_base}:getIamPolicy"
+#                         SET: "${resource_base}:setIamPolicy"
+#   $4  role            (string) Role to grant, e.g. "roles/viewer".
+#   $5  member          (string) Member, e.g. "serviceAccount:name@project.iam.gserviceaccount.com".
+#   $6  parent_infix    (string, optional) Forensic namespace for temp files; default "newrole".
+#
+# Input/Output Files:
+# - Uses module temp prefixes from kindle; writes JSON/code artifacts for each HTTP call (forensics).
+#
+# Returns:
+# - 0 on success after verifying binding; dies (bcu_die) with actionable message on failure.
+#
+# Notes:
+# - Always POST the body {"options":{"requestedPolicyVersion":3}} to getIamPolicy; do not rely on query params.
+# - Validate only resource_base (single source of truth) and derive URLs internally.
 zrbga_add_iam_role() {
   zrbga_sentinel
-
-  local z_account_email="$1"
-  local z_role="$2"
-
-  bcu_log_args "Adding IAM role ${z_role} to ${z_account_email}"
-
-  local z_token
-  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  bcu_log_args 'Get current IAM policy'
-  zrbga_http_json "POST" "${RBGC_API_CRM_GET_IAM_POLICY}" "${z_token}" \
-                                         "${ZRBGA_INFIX_ROLE}" "${ZRBGA_EMPTY_JSON}"
-  zrbga_http_require_ok "Get IAM policy" "${ZRBGA_INFIX_ROLE}"
-
-  bcu_log_args 'Update IAM policy with new role binding'
-  local z_updated_policy="${BDU_TEMP_DIR}/rbga_updated_policy.json"
-
-  jq --arg role   "${z_role}"                                      \
-     --arg member "serviceAccount:${z_account_email}"              \
-     '
-       .bindings = (.bindings // []) |
-       if ( ([ .bindings[]? | .role ] | index($role)) ) then
-         .bindings = ( .bindings | map(
-           if .role == $role then .members = ( (.members // []) + [$member] | unique )
-           else .
-           end))
-       else
-         .bindings += [{role: $role, members: [$member]}]
-       end
-     ' "${ZRBGA_PREFIX}${ZRBGA_INFIX_ROLE}${ZRBGA_POSTFIX_JSON}" \
-     > "${z_updated_policy}" || bcu_die "Failed to update IAM policy"
-
-  bcu_log_args 'Set updated IAM policy'
-  local z_set_body="${BDU_TEMP_DIR}/rbga_set_policy_body.json"
-  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
-    || bcu_die "Failed to build setIamPolicy body"
-  zrbga_http_json "POST" "${RBGC_API_CRM_SET_IAM_POLICY}" "${z_token}" \
-                                         "${ZRBGA_INFIX_ROLE_SET}" "${z_set_body}"
-  zrbga_http_require_ok "Set IAM policy" "${ZRBGA_INFIX_ROLE_SET}"
-
-  bcu_log_args 'Successfully added role' "${z_role}"
-}
-
-# Add project-scoped IAM role and verify via strong read-back.
-# Params:
-#   $1  label
-#   $2  token
-#   $3  get_url   (:getIamPolicy)
-#   $4  set_url   (:setIamPolicy)
-#   $5  role
-#   $6  member    (e.g., "serviceAccount:NAME@PROJECT.iam.gserviceaccount.com")
-#   $7  parent_infix (optional; default "newrole")
-zrbga_new_add_iam_role() {
-  zrbga_sentinel
-
-  local z_label="${1:-}"           # for logs
+  
+  local z_label="${1:-}"
   local z_token="${2:-}"
-  local z_get_url="${3:-}"         # ...:getIamPolicy?options.requestedPolicyVersion=3
-  local z_set_url="${4:-}"         # ...:setIamPolicy
-  local z_role="${5:-}"
-  local z_member="${6:-}"
-  local z_parent_infix="${7:-newrole}"
+  local z_resource="${3:-}"  # resource_base: Base resource URL
+  local z_role="${4:-}"
+  local z_member="${5:-}"
+  local z_parent_infix="${6:-newrole}"
+  local z_get_url="${z_resource}:getIamPolicy"
+  local z_set_url="${z_resource}:setIamPolicy"
 
-  test -n "${z_token}"  || bcu_die "token required"
-  test -n "${z_get_url}"|| bcu_die "get url required"
-  test -n "${z_set_url}"|| bcu_die "set url required"
-  test -n "${z_role}"   || bcu_die "role required"
-  test -n "${z_member}" || bcu_die "member required"
+  test -n "${z_token}"    || bcu_die "token required"
+  test -n "${z_resource}" || bcu_die "resource required"
+  test -n "${z_role}"     || bcu_die "role required"
+  test -n "${z_member}"   || bcu_die "member required"
 
   bcu_log_args "${z_label}: add ${z_member} to ${z_role}"
 
   bcu_log_args '1) GET policy (v3)'
-  local z_get_infix="${z_parent_infix}-get"
   local z_get_body="${ZRBGA_PREFIX}${z_parent_infix}_get_body.json"
+  local z_get_infix="${z_parent_infix}-get"
   printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
   zrbga_http_json_ok "${z_label} (get policy)" "${z_token}" "POST" \
     "${z_get_url}" "${z_get_infix}" "${z_get_body}"
@@ -1047,7 +1025,13 @@ zrbga_ensure_cloudbuild_service_agent() {
     "60"
 
   bcu_step 'Grant Cloud Build Service Agent role'
-  zrbga_add_iam_role "${z_cb_service_agent}" "roles/cloudbuild.serviceAgent"
+  zrbga_add_iam_role                        \
+    "Grant Cloud Build Service Agent role"  \
+    "${z_token}"                            \
+    "${RBGC_PROJECT_RESOURCE}"              \
+    "roles/cloudbuild.serviceAgent"         \
+    "serviceAccount:${z_cb_service_agent}"  \
+    "cb-agent"
 
   bcu_step 'Grant admin necessary permissions to trigger builds'
   bcu_step "Grant admin Cloud Build permissions"
@@ -1055,11 +1039,22 @@ zrbga_ensure_cloudbuild_service_agent() {
   bcu_step 'Admin needs serviceAccountUser on the service agent'
   zrbga_add_sa_iam_role "${z_cb_service_agent}" "${z_admin_sa_email}" "roles/iam.serviceAccountUser"
 
-  bcu_step 'Admin needs Cloud Build Editor for builds.create'
-  zrbga_add_iam_role "${z_admin_sa_email}" "roles/cloudbuild.builds.editor"
+  bcu_step 'Admin needs Cloud Build Editor for builds.create and viz'
+  zrbga_add_iam_role                        \
+    "Grant admin Cloud Build Editor"        \
+    "${z_token}"                            \
+    "${RBGC_PROJECT_RESOURCE}"              \
+    "roles/cloudbuild.builds.editor"        \
+    "serviceAccount:${z_admin_sa_email}"    \
+    "admin-cb"
 
-  bcu_step 'Admin needs viewer for build visibility'
-  zrbga_add_iam_role "${z_admin_sa_email}" "roles/viewer"
+  zrbga_add_iam_role                        \
+    "Grant admin Viewer"                    \
+    "${z_token}"                            \
+    "${RBGC_PROJECT_RESOURCE}"              \
+    "roles/viewer"                          \
+    "serviceAccount:${z_admin_sa_email}"    \
+    "admin-viewer"
 
   bcu_info "Cloud Build service agent configured with admin permissions"
 }
@@ -1347,8 +1342,21 @@ rbga_initialize_admin() {
   zrbga_ensure_cloudbuild_service_agent "${z_token}" "${z_project_number}"
 
   bcu_step 'Grant Cloud Build invoke permissions to admin (idempotent)'
-  zrbga_add_iam_role "${z_admin_sa_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
-  zrbga_add_iam_role "${z_admin_sa_email}" "roles/serviceusage.serviceUsageConsumer"
+  zrbga_add_iam_role                             \
+    "Grant Cloud Build invoke permissions"       \
+    "${z_token}"                                 \
+    "${RBGC_PROJECT_RESOURCE}"                   \
+    "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"      \
+    "serviceAccount:${z_admin_sa_email}"         \
+    "admin-cb-invoke"
+
+  zrbga_add_iam_role                             \
+    "Grant Service Usage Consumer"               \
+    "${z_token}"                                 \
+    "${RBGC_PROJECT_RESOURCE}"                   \
+    "roles/serviceusage.serviceUsageConsumer"    \
+    "serviceAccount:${z_admin_sa_email}"         \
+    "admin-su"
 
   bcu_step 'Create/verify Cloud Storage bucket'
   zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
@@ -1610,8 +1618,17 @@ rbga_create_retriever() {
     "Read-only access to Google Artifact Registry - instance: ${z_instance}" \
     "${z_instance}"
 
+  local z_token
+  z_token=$(zrbga_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
   bcu_step 'Adding Artifact Registry Reader role'
-  zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"
+  zrbga_add_iam_role                        \
+    "Grant Artifact Registry Reader"        \
+    "${z_token}"                            \
+    "${RBGC_PROJECT_RESOURCE}"              \
+    "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
+    "serviceAccount:${z_account_email}"     \
+    "retriever-reader"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
@@ -1659,10 +1676,21 @@ rbga_create_director() {
     || bcu_die "Failed to extract project number"
 
   bcu_step 'Adding Cloud Build Editor role (project scope)'
-  zrbga_add_iam_role "${z_account_email}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"
+  zrbga_add_iam_role                        \
+    "Grant Cloud Build Editor"              \
+    "${z_token}"                            \
+    "${RBGC_PROJECT_RESOURCE}"              \
+    "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
+    "serviceAccount:${z_account_email}"     \
+    "director-cb"
 
-  bcu_step 'Adding Project Viewer role (enables builds.create visibility)'
-  zrbga_add_iam_role "${z_account_email}" "roles/viewer"
+  zrbga_add_iam_role                        \
+    "Grant Project Viewer"                  \
+    "${z_token}"                            \
+    "${RBGC_PROJECT_RESOURCE}"              \
+    "roles/viewer"                          \
+    "serviceAccount:${z_account_email}"     \
+    "director-viewer"
 
   bcu_step 'Grant serviceAccountUser on Cloud Build runtime SA'
   local z_cb_runtime_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
