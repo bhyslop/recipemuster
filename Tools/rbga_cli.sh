@@ -16,19 +16,21 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Manual Procedures - Command Line Interface
+# Recipe Bottle Google Admin - Command Line Interface
 
 set -euo pipefail
 
-ZRBGA_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+ZRBGA_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGA_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGA_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbgu_GoogleUtility.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbgi_GoogleIAM.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
 
 zrbga_furnish() {
 
@@ -41,11 +43,12 @@ zrbga_furnish() {
 
   zrbgc_kindle
   zrbgo_kindle
+  zrbgu_kindle
+  zrbgi_kindle
   zrbga_kindle
 }
 
 bcu_execute rbga_ "Google Admin Procedures" zrbga_furnish "$@"
-
 
 # eof
 
