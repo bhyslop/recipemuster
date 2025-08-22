@@ -466,7 +466,7 @@ zrbga_wait_lro_capture() {
 #  8 op_name_prefix          # e.g., "operations/" or "projects/.../operations/"
 #  9 poll_sec                # optional
 # 10 max_sec                 # optional
-zrbga_http_json_lro_ok2() {
+zrbga_http_json_lro_ok() {
   zrbga_sentinel
 
   local z_label="${1}"; local z_token="${2}"; local z_post_url="${3}"
