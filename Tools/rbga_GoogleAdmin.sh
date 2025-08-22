@@ -1032,8 +1032,8 @@ zrbga_ensure_cloudbuild_service_agent() {
 
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  local z_gen_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/cloudbuild.googleapis.com:generateServiceIdentity"
-  
+  local z_gen_url="${RBGC_API_CB_GENERATE_SA}"
+
   zrbga_http_json_lro_ok                                   \
     "Generate Cloud Build service agent"                   \
     "${z_token}"                                           \
