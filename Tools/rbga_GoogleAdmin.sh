@@ -1245,6 +1245,7 @@ rbga_initialize_admin() {
   z_missing=$(zrbga_required_apis_missing_capture "${z_token}") \
     || bcu_die "Failed to check API status"
 
+
   if test -n "${z_missing}"; then
     bcu_info "APIs needing enablement: ${z_missing}"
 
@@ -1252,44 +1253,82 @@ rbga_initialize_admin() {
     # Any 409 here means the preflight or our assumptions are wrong -> die.
 
     bcu_step 'Enable IAM API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_IAM}" "${z_token}" \
-                                           "${ZRBGA_INFIX_API_IAM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable IAM API" "${ZRBGA_INFIX_API_IAM_ENABLE}"
+    zrbga_http_json_lro_ok                                      \
+      "Enable IAM API"                                          \
+      "${z_token}"                                              \
+      "${RBGC_API_SU_ENABLE_IAM}"                               \
+      "${ZRBGA_INFIX_API_IAM_ENABLE}"                           \
+      "${ZRBGA_EMPTY_JSON}"                                     \
+      ".name"                                                   \
+      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
+      "operations/"                                             \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
 
     bcu_step 'Enable Cloud Resource Manager API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_CRM}" "${z_token}" \
-                                                              "${ZRBGA_INFIX_API_CRM_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Resource Manager API" "${ZRBGA_INFIX_API_CRM_ENABLE}"
+    zrbga_http_json_lro_ok                                      \
+      "Enable Cloud Resource Manager API"                       \
+      "${z_token}"                                              \
+      "${RBGC_API_SU_ENABLE_CRM}"                               \
+      "${ZRBGA_INFIX_API_CRM_ENABLE}"                           \
+      "${ZRBGA_EMPTY_JSON}"                                     \
+      ".name"                                                   \
+      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
+      "operations/"                                             \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
 
     bcu_step 'Enable Artifact Registry API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_GAR}" "${z_token}" \
-                                                         "${ZRBGA_INFIX_API_ART_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Artifact Registry API" "${ZRBGA_INFIX_API_ART_ENABLE}"
+    zrbga_http_json_lro_ok                                      \
+      "Enable Artifact Registry API"                            \
+      "${z_token}"                                              \
+      "${RBGC_API_SU_ENABLE_GAR}"                               \
+      "${ZRBGA_INFIX_API_ART_ENABLE}"                           \
+      "${ZRBGA_EMPTY_JSON}"                                     \
+      ".name"                                                   \
+      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
+      "operations/"                                             \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
 
     bcu_step 'Enable Cloud Build API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_BUILD}" "${z_token}" \
-                                                   "${ZRBGA_INFIX_API_BUILD_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Build API" "${ZRBGA_INFIX_API_BUILD_ENABLE}"
+    zrbga_http_json_lro_ok                                      \
+      "Enable Cloud Build API"                                  \
+      "${z_token}"                                              \
+      "${RBGC_API_SU_ENABLE_BUILD}"                             \
+      "${ZRBGA_INFIX_API_BUILD_ENABLE}"                         \
+      "${ZRBGA_EMPTY_JSON}"                                     \
+      ".name"                                                   \
+      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
+      "operations/"                                             \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
 
     bcu_step 'Enable Container Analysis API'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_ANALYSIS}" "${z_token}" \
-                                                          "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Container Analysis API" "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}"
+    zrbga_http_json_lro_ok                                      \
+      "Enable Container Analysis API"                           \
+      "${z_token}"                                              \
+      "${RBGC_API_SU_ENABLE_ANALYSIS}"                          \
+      "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}"             \
+      "${ZRBGA_EMPTY_JSON}"                                     \
+      ".name"                                                   \
+      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
+      "operations/"                                             \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
 
     bcu_step 'Enable Cloud Storage API (build bucket deps)'
-    zrbga_http_json "POST" "${RBGC_API_SU_ENABLE_STORAGE}" "${z_token}" \
-                                                     "${ZRBGA_INFIX_API_STORAGE_ENABLE}" "${ZRBGA_EMPTY_JSON}"
-    zrbga_http_require_ok "Enable Cloud Storage API" "${ZRBGA_INFIX_API_STORAGE_ENABLE}"
-
-    bcu_step 'Wait 45s for API propagation'
-    sleep 45
-
-    bcu_step 'Verify all APIs are now enabled'
-    z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to verify API status"
-    test -z "${z_missing}" || bcu_die "APIs still not enabled after waiting: ${z_missing}"
-  else
-    bcu_info "All required APIs already enabled"
-  fi
+    zrbga_http_json_lro_ok                                      \
+      "Enable Cloud Storage API"                                \
+      "${z_token}"                                              \
+      "${RBGC_API_SU_ENABLE_STORAGE}"                           \
+      "${ZRBGA_INFIX_API_STORAGE_ENABLE}"                       \
+      "${ZRBGA_EMPTY_JSON}"                                     \
+      ".name"                                                   \
+      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
+      "operations/"                                             \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
 
   bcu_step 'Discover Project Number'
   local z_project_number
