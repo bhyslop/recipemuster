@@ -33,8 +33,9 @@ zrbgu_kindle() {
   # Validate dependencies
   bvu_dir_exists "${BDU_TEMP_DIR}"
   
-  # Ensure RBGC is kindled first
+  # Ensure dependencies kindled first
   zrbgc_sentinel
+  zrbgo_sentinel
 
   # Module prefix for temp files
   ZRBGU_PREFIX="${BDU_TEMP_DIR}/rbgu_"
