@@ -250,8 +250,8 @@ zrbga_create_service_account_no_key() {
   local z_account_name="${1:-}"
   local z_display_name="${2:-}"
 
-  test -n "${z_account_name}"  || bcu_die "Service account name required"
-  test -n "${z_display_name}"  || bcu_die "Display name required"
+  test -n "${z_account_name}" || bcu_die "Service account name required"
+  test -n "${z_display_name}" || bcu_die "Display name required"
 
   bcu_log_args 'Get OAuth token from admin'
   local z_token
@@ -260,16 +260,19 @@ zrbga_create_service_account_no_key() {
   local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step "Create service account (no key): ${z_account_name}"
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}/" "${z_token}" "${ZRBGA_INFIX_CREATE}" \
-    "${ZRBGU_PREFIX}${ZRBGA_INFIX_CREATE}${ZRBGU_POSTFIX_BODY}"
-  printf '{"accountId":"%s","serviceAccount":{"displayName":"%s"}}' \
-         "${z_account_name}" "${z_display_name}" \
-         > "${ZRBGU_PREFIX}${ZRBGA_INFIX_CREATE}${ZRBGU_POSTFIX_BODY}"
+  # write body FIRST
+  local z_body="${BDU_TEMP_DIR}/rbga_sa_create_nokey.json"
+  jq -n --arg account_id   "${z_account_name}" \
+        --arg display_name "${z_display_name}" '
+    { accountId: $account_id, serviceAccount: { displayName: $display_name } }
+  ' > "${z_body}" || bcu_die "Failed to build SA create body"
+
+  # correct endpoint (no trailing slash)
+  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_CREATE}" "${z_body}"
   rbgu_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
 
   bcu_log_args 'Verify service account'
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
-                                          "${ZRBGA_INFIX_VERIFY}"
+  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
   rbgu_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
   bcu_success "Service account ensured (no keys): ${z_account_email}"
@@ -720,7 +723,6 @@ rbga_initialize_admin() {
   zrbga_create_service_account_no_key "${RBGC_MASON_NAME}" "RBGA Mason (build executor)"
 
   bcu_log_args 'Compute Cloud Build runtime SA and Mason email'
-  local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
   local z_mason_sa="${RBGC_MASON_EMAIL}"
 
   bcu_step 'Allow Cloud Build to impersonate Mason (TokenCreator on Mason)'
@@ -734,7 +736,8 @@ rbga_initialize_admin() {
   rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectAdmin"
 
   bcu_step 'Grant Project Viewer to Mason'
-  rbgi_add_project_iam_role "Grant Project Viewer" "${z_mason_sa}" "roles/viewer"
+  rbgi_add_project_iam_role "Grant Project Viewer" "${z_token}" "${RBGC_PROJECT_RESOURCE}" \
+                            "roles/viewer" "serviceAccount:${z_mason_sa}" "mason-viewer"
 
   bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
   bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
@@ -1015,16 +1018,6 @@ rbga_create_director() {
 
   bcu_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
   rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
-
-  bcu_step 'Grant Artifact Registry Writer (repo-scoped)'
-  rbgi_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
-
-  bcu_step 'Grant Artifact Registry Admin (repo-scoped) for delete in own repo'
-  rbgi_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
-
-  bcu_step 'Grant Storage Admin on Cloud Build artifacts bucket'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" \
-                            "roles/storage.admin" "${z_token}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 

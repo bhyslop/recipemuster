@@ -33,6 +33,8 @@ zrbgc_kindle() {
 
   # Basic Configuration
   RBGC_ADMIN_ROLE="rbga-admin"
+  RBGC_MASON_NAME="rbga-mason"
+  RBGC_MASON_EMAIL="${RBGC_MASON_NAME}@${RBGC_SA_EMAIL_FULL}"
   RBGC_GCS_BUCKET="${RBRR_GCP_PROJECT_ID}-artifacts"
 
   # Service-specific Aliases
