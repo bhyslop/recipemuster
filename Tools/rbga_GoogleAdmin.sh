@@ -454,61 +454,54 @@ zrbga_wait_lro_capture() {
   done
 }
 
-# POST + (optional) Google LRO wait, with op-name breadcrumb.
-# Dies on HTTP/LRO failure. No stdout output (internal helper).
-# Files it writes (using INFIX):
-#   ${ZRBGA_PREFIX}${infix}${ZRBGA_POSTFIX_JSON}   # initial POST response
-#   ${ZRBGA_PREFIX}${infix}${ZRBGA_POSTFIX_CODE}   # HTTP code
-#   ${ZRBGA_PREFIX}${infix}_op.txt                 # operation name (if LRO)
-#   ${ZRBGA_PREFIX}${infix}-lro-<t>s{.json,.txt}   # poll snapshots (if LRO)
-zrbga_http_json_lro_ok() {
+# POST + strict LRO handling (no heuristics)
+# Args:
+#  1 label
+#  2 token
+#  3 post_url                # where we send the POST
+#  4 resp_infix              # file namespace
+#  5 body_file               # optional
+#  6 expected_op_field       # jq path to op name: ".name" (default) or ".operation.name"
+#  7 op_root_base            # e.g., "https://serviceusage.googleapis.com/v1"
+#  8 op_name_prefix          # e.g., "operations/" or "projects/.../operations/"
+#  9 poll_sec                # optional
+# 10 max_sec                 # optional
+zrbga_http_json_lro_ok2() {
   zrbga_sentinel
 
-  local z_label="${1}"
-  local z_token="${2}"
-  local z_url="${3}"
-  local z_infix="${4}"
-  local z_body_file="${5:-}"
-  local z_poll="${6:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
-  local z_max="${7:-${RBGC_MAX_CONSISTENCY_SEC}}"
+  local z_label="${1}"; local z_token="${2}"; local z_post_url="${3}"
+  local z_infix="${4}"; local z_body="${5:-}"
+  local z_op_field="${6:-.name}"
+  local z_op_root="${7:-}"; local z_op_prefix="${8:-}"
+  local z_poll="${9:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
+  local z_max="${10:-${RBGC_MAX_CONSISTENCY_SEC}}"
 
-  bcu_log_args "${z_label}"
+  test -n "${z_op_root}"   || bcu_die "${z_label}: op_root_base required"
+  test -n "${z_op_prefix}" || bcu_die "${z_label}: op_name_prefix required"
 
   bcu_log_args '1) Fire the POST and enforce HTTP success.'
-  zrbga_http_json "POST" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
+  zrbga_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body:-}"
   zrbga_http_require_ok "${z_label}" "${z_infix}"
 
-  bcu_log_args '2) Detect operation name (LRO) in a few common layouts.'
+  bcu_log_args '2) Extract op name (or return if not an LRO)'
   local z_op_name=""
-  z_op_name=$(jq -r '.name // .operation.name // empty' \
-              "${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}") || z_op_name=""
+  z_op_name=$(jq -r "${z_op_field} // empty" "${ZRBGA_PREFIX}${z_infix}${ZRBGA_POSTFIX_JSON}") || z_op_name=""
+  test -n "${z_op_name}" || return 0
 
-  test -n "${z_op_name}" || return 0  # Not an LRO -> done
-
-  bcu_log_args '3) Persist op name for forensics.'
-  printf '%s\n' "${z_op_name}" > "${ZRBGA_PREFIX}${z_infix}_op.txt"
-
-  bcu_log_args '4) Build operation URL.'
-  local z_op_url=""
+  bcu_log_args '3) Assert expected shape and build absolute poll URL deterministically'
   case "${z_op_name}" in
-    https://* ) z_op_url="${z_op_name}" ;;
-    projects/*/locations/*/operations/* )
-      # Cloud Build relative op name
-      z_op_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/${z_op_name}"
-      ;;
-    operations/* )
-      # Generic relative fallback -> derive from parent URL
-      # Strip trailing "/something" (usually resource collection) twice.
-      z_op_url="${z_url%/*/*}/${z_op_name}"
-      ;;
-    * )
-      bcu_die "${z_label}: unexpected operation name shape '${z_op_name}'"
+    https://*) : ;;  # absolute ok, but still assert prefix match if provided
+    *)
+      case "${z_op_name}" in
+        ${z_op_prefix}*) z_op_name="${z_op_root}/${z_op_name}" ;;
+        *) bcu_die "${z_label}: unexpected op name '${z_op_name}' (wanted prefix '${z_op_prefix}')"
+      esac
       ;;
   esac
-  test -n "${z_op_url}" || return 0
 
-  bcu_log_args '5) Wait for completion; fail fast on LRO error/timeout.'
-  zrbga_wait_lro_capture "${z_token}" "${z_op_url}" "${z_infix}" "${z_poll}" "${z_max}" >/dev/null \
+  bcu_log_args '4) Record and poll'
+  printf '%s\n' "${z_op_name}" > "${ZRBGA_PREFIX}${z_infix}_op.txt"
+  zrbga_wait_lro_capture "${z_token}" "${z_op_name}" "${z_infix}" "${z_poll}" "${z_max}" >/dev/null \
     || bcu_die "${z_label}: operation failed"
 }
 
