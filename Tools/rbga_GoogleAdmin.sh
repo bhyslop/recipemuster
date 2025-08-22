@@ -1032,8 +1032,9 @@ zrbga_ensure_cloudbuild_service_agent() {
 
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
+  local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}/cloudbuild.googleapis.com${RBGC_SERVICEUSAGE_ENABLE_SUFFIX}"
 
-  bcu_step 'Grant Cloud Build Service Agent role'
+  bcu_step 'Generate Cloud Build service agent'
   zrbga_http_json_lro_ok                                   \
     "Generate Cloud Build service agent"                   \
     "${z_token}"                                           \
@@ -1042,7 +1043,7 @@ zrbga_ensure_cloudbuild_service_agent() {
     "${ZRBGA_EMPTY_JSON}"                                  \
     ".name"                                                \
     "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}" \
-    "operations/"                                          \
+    "${RBGC_OP_PREFIX_GLOBAL}"                             \
     "5"                                                    \
     "60"
 
@@ -1095,7 +1096,7 @@ zrbga_prime_cloud_build() {
     "${z_body}"                                            \
     ".name"                                                \
     "${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}"     \
-    "operations/"                                          \
+    "${RBGC_OP_PREFIX_GLOBAL}"                             \
     "10"                                                   \
     "300"
 
@@ -1265,7 +1266,7 @@ rbga_initialize_admin() {
       "${ZRBGA_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "operations/"                                             \
+      "${RBGC_OP_PREFIX_GLOBAL}"                                \
       "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
       "${RBGC_MAX_CONSISTENCY_SEC}"
 
@@ -1278,7 +1279,7 @@ rbga_initialize_admin() {
       "${ZRBGA_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "operations/"                                             \
+      "${RBGC_OP_PREFIX_GLOBAL}"                                \
       "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
       "${RBGC_MAX_CONSISTENCY_SEC}"
 
@@ -1304,7 +1305,7 @@ rbga_initialize_admin() {
       "${ZRBGA_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "operations/"                                             \
+      "${RBGC_OP_PREFIX_GLOBAL}"                                \
       "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
       "${RBGC_MAX_CONSISTENCY_SEC}"
 
@@ -1317,7 +1318,7 @@ rbga_initialize_admin() {
       "${ZRBGA_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "operations/"                                             \
+      "${RBGC_OP_PREFIX_GLOBAL}"                                \
       "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
       "${RBGC_MAX_CONSISTENCY_SEC}"
 
@@ -1330,9 +1331,10 @@ rbga_initialize_admin() {
       "${ZRBGA_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "operations/"                                             \
+      "${RBGC_OP_PREFIX_GLOBAL}"                                \
       "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
       "${RBGC_MAX_CONSISTENCY_SEC}"
+  fi
 
   bcu_step 'Discover Project Number'
   local z_project_number
@@ -1375,7 +1377,7 @@ rbga_initialize_admin() {
     "${z_create_body}"                                               \
     ".operation.name"                                                \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}"   \
-    "operations/"                                                    \
+    "${RBGC_OP_PREFIX_GLOBAL}"                                       \
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 

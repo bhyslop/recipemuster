@@ -104,6 +104,7 @@ zrbgc_kindle() {
   RBGC_SERVICEUSAGE_ENABLE_SUFFIX=":enable"
 
   RBGC_API_ROOT_SERVICEUSAGE="https://serviceusage.googleapis.com"
+  RBGC_OP_PREFIX_GLOBAL="operations/"
 
   # ------------------------------------------------------------------
   # Artifact Registry (GAR) composition bits (concatenate at call-sites)
