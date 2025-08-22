@@ -66,7 +66,7 @@ zrbgi_kindle() {
   ZRBGI_INFIX_BUCKET_IAM="bucket_iam"
   ZRBGI_INFIX_BUCKET_IAM_SET="bucket_iam_set"
 
-  ZRBGI_POSTFIX_JSON="_response.json"
+  ZRBGI_POSTFIX_JSON="_i_resp.json"
 
   ZRBGI_KINDLED=1
 }
@@ -191,10 +191,9 @@ rbgi_add_repo_iam_role() {
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
   bcu_log_args 'Get current repo IAM policy'
-  rbgu_http_json "POST" "${z_get_url}" "${z_token}" \
-                                              "${ZRBGI_INFIX_REPO_ROLE}" "${ZRBGI_EMPTY_JSON}"
-
   local z_get_code
+  rbgu_http_json "POST" "${z_get_url}" "${z_token}" \
+                                      "${ZRBGI_INFIX_REPO_ROLE}" "${ZRBGI_EMPTY_JSON}"
   z_get_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_REPO_ROLE}") || z_get_code=""
 
   if test "${z_get_code}" = "404"; then
@@ -203,7 +202,7 @@ rbgi_add_repo_iam_role() {
     echo '{"bindings":[]}' > "${ZRBGI_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGI_POSTFIX_JSON}"
   elif test "${z_get_code}" != "200"; then
     local z_err="HTTP ${z_get_code}"
-    if jq -e . "${ZRBGI_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGI_POSTFIX_JSON}" >/dev/null 2>&1; then
+    if jq -e .         "${ZRBGI_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGI_POSTFIX_JSON}" >/dev/null 2>&1; then
       z_err=$(rbgu_json_field_capture "${ZRBGI_INFIX_REPO_ROLE}" '.error.message') || z_err="HTTP ${z_get_code}"
     fi
     bcu_die "Get repo IAM policy failed: ${z_err}"
@@ -231,7 +230,7 @@ rbgi_add_repo_iam_role() {
   jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
     || bcu_die "Failed to build repo setIamPolicy body"
   rbgu_http_json "POST" "${z_set_url}" "${z_token}" \
-                                              "${ZRBGI_INFIX_REPO_ROLE_SET}" "${z_repo_set_body}"
+                                             "${ZRBGI_INFIX_REPO_ROLE_SET}" "${z_repo_set_body}"
   rbgu_http_require_ok "Set repo IAM policy" "${ZRBGI_INFIX_REPO_ROLE_SET}"
 
   bcu_log_args 'Successfully added repo-scoped role' "${z_role}"
@@ -259,7 +258,7 @@ rbgi_add_sa_iam_role() {
   local z_verify_code
   rbgu_http_json "GET" \
     "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
-                             "${z_token}" "${ZRBGI_INFIX_SA_IAM_VERIFY}"
+                            "${z_token}" "${ZRBGI_INFIX_SA_IAM_VERIFY}"
   z_verify_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_SA_IAM_VERIFY}") || z_verify_code=""
   test "${z_verify_code}" = "200" || \
     bcu_die "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
@@ -299,7 +298,7 @@ rbgi_add_sa_iam_role() {
     || bcu_die "Failed to build SA setIamPolicy body"
 
   rbgu_http_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
-    "${ZRBGI_INFIX_ROLE_SET}" "${z_set_body}"
+                                           "${ZRBGI_INFIX_ROLE_SET}" "${z_set_body}"
   rbgu_http_require_ok "Set SA IAM policy" "${ZRBGI_INFIX_ROLE_SET}"
 
   bcu_log_args 'Successfully granted SA role' "${z_role}"
@@ -351,7 +350,7 @@ rbgi_add_bucket_iam_role() {
 
   bcu_log_args 'Set updated bucket IAM policy'
   rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" \
-                                   "${ZRBGI_INFIX_BUCKET_IAM_SET}" "${z_updated}"
+                                  "${ZRBGI_INFIX_BUCKET_IAM_SET}" "${z_updated}"
   z_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_BUCKET_IAM_SET}")                  || z_code=""
   z_err=$(rbgu_json_field_capture "${ZRBGI_INFIX_BUCKET_IAM_SET}" '.error.message') || z_err="HTTP ${z_code}"
   test "${z_code}" = "200" || bcu_die "Failed to set bucket IAM policy: ${z_err}"

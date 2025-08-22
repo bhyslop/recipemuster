@@ -42,8 +42,8 @@ zrbgu_kindle() {
   printf '{}' > "${ZRBGU_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  ZRBGU_POSTFIX_JSON="_response.json"
-  ZRBGU_POSTFIX_CODE="_code.txt"
+  ZRBGU_POSTFIX_JSON="_u_resp.json"
+  ZRBGU_POSTFIX_CODE="_u_code.txt"
 
   # Validate eventual consistency settings from rbgc
   test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || bcu_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
@@ -97,8 +97,6 @@ rbgu_jq_add_member_to_role_capture() {
   test -f "${z_policy_file}" || return 1
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
-
-  # Hard requirement - never do setIamPolicy without an etag
   test -n "${z_etag_opt}"    || return 1
 
   local z_out=""
@@ -183,9 +181,9 @@ rbgu_wait_lro_capture() {
     local z_code=""
     z_code=$(rbgu_http_code_capture "${z_infix}") || return 1
     case "${z_code}" in
-      200)                     :                                                                   ;;
-      429|408|500|502|503|504) bcu_log_args "LRO transient HTTP ${z_code} at ${z_elapsed}s"        ;;
-      *)                       bcu_log_args "LRO non-OK HTTP ${z_code} at ${z_elapsed}s"; return 1 ;;
+      200)                     :                                                                    ;;
+      429|408|500|502|503|504) bcu_log_args "HTTP ${z_code} at ${z_elapsed}s LRO transient "        ;;
+      *)                       bcu_log_args "HTTP ${z_code} at ${z_elapsed}s LRO non_OK "; return 1 ;;
     esac
 
     z_done=$(rbgu_json_field_capture "${z_infix}" ".done" 2>/dev/null) || z_done=""
