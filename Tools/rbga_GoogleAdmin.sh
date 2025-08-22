@@ -244,6 +244,37 @@ zrbga_create_service_account_with_key() {
   bcu_info "RBRA file written: ${z_rbra_file}"
 }
 
+zrbga_create_service_account_no_key() {
+  zrbga_sentinel
+
+  local z_account_name="${1:-}"
+  local z_display_name="${2:-}"
+
+  test -n "${z_account_name}"  || bcu_die "Service account name required"
+  test -n "${z_display_name}"  || bcu_die "Display name required"
+
+  bcu_log_args 'Get OAuth token from admin'
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+
+  bcu_step "Create service account (no key): ${z_account_name}"
+  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}/" "${z_token}" "${ZRBGA_INFIX_CREATE}" \
+    "${ZRBGU_PREFIX}${ZRBGA_INFIX_CREATE}${ZRBGU_POSTFIX_BODY}"
+  printf '{"accountId":"%s","serviceAccount":{"displayName":"%s"}}' \
+         "${z_account_name}" "${z_display_name}" \
+         > "${ZRBGU_PREFIX}${ZRBGA_INFIX_CREATE}${ZRBGU_POSTFIX_BODY}"
+  rbgu_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
+
+  bcu_log_args 'Verify service account'
+  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
+                                          "${ZRBGA_INFIX_VERIFY}"
+  rbgu_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
+
+  bcu_success "Service account ensured (no keys): ${z_account_email}"
+}
+
 # Ensure Cloud Build service agent exists and admin can trigger builds
 zrbga_ensure_cloudbuild_service_agent() {
   zrbga_sentinel
@@ -407,6 +438,22 @@ zrbga_list_bucket_objects_capture() {
     test -n "${z_page_token}" || break
     z_first=$((z_first + 1))
   done
+}
+
+zrbga_get_project_number_capture() {
+  zrbga_sentinel
+
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture) || return 1
+
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}" || return 1
+
+  local z_project_number
+  z_project_number=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
+  test -n "${z_project_number}" || return 1
+
+  echo "${z_project_number}"
 }
 
 zrbga_empty_gcs_bucket() {
@@ -588,11 +635,7 @@ rbga_initialize_admin() {
 
   bcu_step 'Discover Project Number'
   local z_project_number
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" \
-                                 "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info"    "${ZRBGA_INFIX_PROJECT_INFO}"
-  z_project_number=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
-    || bcu_die "Failed to extract project number"
+  z_project_number=$(zrbga_get_project_number_capture) || bcu_die "Failed to get project number"
 
   bcu_step 'Directly create the cloudbuild service agent'
   zrbga_ensure_cloudbuild_service_agent "${z_token}" "${z_project_number}"
@@ -672,6 +715,26 @@ rbga_initialize_admin() {
 
   bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
   rbgi_add_repo_iam_role "${z_cb_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
+
+  bcu_step 'Ensure Mason service account exists (no keys)'
+  zrbga_create_service_account_no_key "${RBGC_MASON_NAME}" "RBGA Mason (build executor)"
+
+  bcu_log_args 'Compute Cloud Build runtime SA and Mason email'
+  local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
+  local z_mason_sa="${RBGC_MASON_EMAIL}"
+
+  bcu_step 'Allow Cloud Build to impersonate Mason (TokenCreator on Mason)'
+  rbgi_add_sa_iam_role "${z_mason_sa}" "${z_cb_sa}" "roles/iam.serviceAccountTokenCreator"
+
+  bcu_step 'Grant Artifact Registry Admin (repo-scoped) to Mason'
+  rbgi_add_repo_iam_role "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
+    "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
+
+  bcu_step 'Grant Storage Object Admin on artifacts bucket to Mason'
+  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectAdmin"
+
+  bcu_step 'Grant Project Viewer to Mason'
+  rbgi_add_project_iam_role "Grant Project Viewer" "${z_mason_sa}" "roles/viewer"
 
   bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
   bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
@@ -947,9 +1010,11 @@ rbga_create_director() {
     "serviceAccount:${z_account_email}"     \
     "director-viewer"
 
-  bcu_step 'Grant serviceAccountUser on Cloud Build runtime SA'
-  local z_cb_runtime_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
-  rbgi_add_sa_iam_role "${z_cb_runtime_sa}" "${z_account_email}" "roles/iam.serviceAccountUser"
+  bcu_step 'Grant serviceAccountUser on Mason'
+  rbgi_add_sa_iam_role "${RBGC_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
+
+  bcu_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
+  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
 
   bcu_step 'Grant Artifact Registry Writer (repo-scoped)'
   rbgi_add_repo_iam_role "${z_account_email}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"

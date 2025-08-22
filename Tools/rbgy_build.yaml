@@ -150,8 +150,9 @@ steps:
           --annotation "org.opencontainers.image.title=package_summary.txt"
 
 options:
-  machineType: "${_RBGY_MACHINE_TYPE}"
   logging: CLOUD_LOGGING_ONLY
+  machineType: "${_RBGY_MACHINE_TYPE}"
+  serviceAccount: "${_RBGY_SERVICE_ACCOUNT}"
 
 timeout: "${_RBGY_TIMEOUT}"
 
@@ -167,6 +168,7 @@ substitutions:
   _RBGY_GIT_COMMIT: unknown
   _RBGY_GIT_BRANCH: unknown
   _RBGY_GIT_REPO: unknown
+  _RBGY_SERVICE_ACCOUNT: ""
   _RBGY_MACHINE_TYPE: E2_HIGHCPU_8
   _RBGY_TIMEOUT: 1200s
 

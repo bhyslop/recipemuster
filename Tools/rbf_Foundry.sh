@@ -322,6 +322,7 @@ zrbf_submit_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
+    --arg zjq_service_account "${RBGC_MASON_EMAIL}"             \
     --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
     --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
     --arg zjq_recipe_name    "${z_recipe_name}"                 \
@@ -341,6 +342,7 @@ zrbf_submit_build() {
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
         _RBGY_GIT_REPO:       $zjq_git_repo,
+        _RBGY_SERVICE_ACCOUNT: $zjq_service_account,
         _RBGY_MACHINE_TYPE:   $zjq_machine_type,
         _RBGY_TIMEOUT:        $zjq_timeout,
         _RBGY_RECIPE_NAME:    $zjq_recipe_name,
