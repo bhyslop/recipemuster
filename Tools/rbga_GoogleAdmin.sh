@@ -1033,20 +1033,18 @@ zrbga_ensure_cloudbuild_service_agent() {
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
 
-  bcu_step 'Ensure Cloud Build service agent exists'
-  local z_create_code
-  local z_create_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${RBRR_GCP_PROJECT_ID}/services/cloudbuild.googleapis.com:generateServiceIdentity"
-  zrbga_http_json "POST"  "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}" "${ZRBGA_EMPTY_JSON}"
-  z_create_code=$(zrbga_http_code_capture                "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}") || z_create_code=""
-
-  case "${z_create_code}" in
-    200)     bcu_info "Cloud Build service agent created successfully" ;;
-    400|409) bcu_log_args "Service agent already exists (${z_create_code})" ;;
-    *)       bcu_die "Service agent creation failed with ${z_create_code} - Cloud Build API issue" ;;
-  esac
-
-  bcu_step 'Waiting 30s for service agent propagation'
-  sleep             30
+  bcu_step 'Grant Cloud Build Service Agent role'
+  zrbga_http_json_lro_ok                                   \
+    "Generate Cloud Build service agent"                   \
+    "${z_token}"                                           \
+    "${z_create_url}"                                      \
+    "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}"                     \
+    "${ZRBGA_EMPTY_JSON}"                                  \
+    ".name"                                                \
+    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}" \
+    "operations/"                                          \
+    "5"                                                    \
+    "60"
 
   bcu_step 'Grant Cloud Build Service Agent role'
   zrbga_add_iam_role "${z_cb_service_agent}" "roles/cloudbuild.serviceAgent"
@@ -1089,11 +1087,17 @@ zrbga_prime_cloud_build() {
 
   local z_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
 
-  zrbga_http_json "POST" "${z_url}" "${z_token}" "${ZRBGA_INFIX_CB_PRIME}" "${z_body}"
-  zrbga_http_require_ok "Prime Cloud Build" "${ZRBGA_INFIX_CB_PRIME}"
-
-  bcu_log_args 'Primed Cloud Build; sleeping 10s for SA provisioning'
-  sleep 10
+  zrbga_http_json_lro_ok                                   \
+    "Prime Cloud Build"                                    \
+    "${z_token}"                                           \
+    "${z_url}"                                             \
+    "${ZRBGA_INFIX_CB_PRIME}"                              \
+    "${z_body}"                                            \
+    ".name"                                                \
+    "${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}"     \
+    "operations/"                                          \
+    "10"                                                   \
+    "300"
 
   bcu_log_args 'Prime complete.'
 }
@@ -1363,8 +1367,17 @@ rbga_initialize_admin() {
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
   bcu_step 'Create DOCKER format repo'
-  zrbga_http_json "POST" "${z_create_url}" "${z_token}" "${ZRBGA_INFIX_CREATE_REPO}" "${z_create_body}"
-  zrbga_http_require_ok "Create Artifact Registry repo" "${ZRBGA_INFIX_CREATE_REPO}" 409 "already exists"
+  zrbga_http_json_lro_ok                                             \
+    "Create Artifact Registry repo"                                  \
+    "${z_token}"                                                     \
+    "${z_create_url}"                                                \
+    "${ZRBGA_INFIX_CREATE_REPO}"                                     \
+    "${z_create_body}"                                               \
+    ".operation.name"                                                \
+    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}"   \
+    "operations/"                                                    \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
+    "${RBGC_MAX_CONSISTENCY_SEC}"
 
   bcu_step 'One-time propagation pause before Cloud Build priming'
   bcu_step "  About to sleep ${z_prime_pause_sec}s"
