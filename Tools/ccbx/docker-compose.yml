@@ -12,7 +12,7 @@ services:
     ports:
       - "8888:22"
     env_file:
-      - ../secrets/CCBX_CLAUDE.env
+      - ../../../secrets/CCBX_CLAUDE.env
     volumes:
       # Workspace mount (parent of repo directory)
       - ../../../:/workspace

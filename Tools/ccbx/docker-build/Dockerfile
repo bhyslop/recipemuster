@@ -20,8 +20,10 @@ RUN apt-get update && apt-get install -y                                        
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user with configurable UID/GID
-RUN groupadd -g ${USER_GID} claude && \
-    useradd -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash claude
+RUN if ! getent group ${USER_GID}; then groupadd -g ${USER_GID} claude; fi && \
+    if ! id -u claude >/dev/null 2>&1; then                                   \
+        useradd -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash claude;         \
+    fi
 
 # Set empty password for user claude
 RUN passwd -d claude
@@ -30,27 +32,27 @@ RUN passwd -d claude
 RUN ssh-keygen -A
 
 # Configure SSH daemon
-RUN mkdir /var/run/sshd && \
-    echo "Port 22" >> /etc/ssh/sshd_config && \
-    echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
-    echo "PermitEmptyPasswords yes" >> /etc/ssh/sshd_config && \
+RUN mkdir /var/run/sshd                                         && \
+    echo "Port 22"                    >> /etc/ssh/sshd_config   && \
+    echo "PermitRootLogin no"         >> /etc/ssh/sshd_config   && \
+    echo "PermitEmptyPasswords yes"   >> /etc/ssh/sshd_config   && \
     echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 
 # Configure PAM for permissive authentication
-RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd && \
+RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd     && \
     echo "auth sufficient pam_permit.so" >> /etc/pam.d/sshd
 
 # Download and install Claude Code v1.0.89
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89 && \
-    mv /root/.local/bin/claude-code /usr/local/bin/claude-code && \
-    chmod +x /usr/local/bin/claude-code
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89      && \
+    mv /root/.local/bin/claude-code /usr/local/bin/claude-code       && \
+    chmod +x                        /usr/local/bin/claude-code
 
 # Set working directory
 WORKDIR /workspace
 
 # Copy entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x       /usr/local/bin/entrypoint.sh
 
 # Expose SSH port
 EXPOSE 22
