@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  claudecodebox:
+    container_name: ClaudeCodeBox
+    build:
+      context: ./docker-build
+      dockerfile: Dockerfile
+    ports:
+      - "8888:22"  # Map host port 8888 to container SSH port 22
+    env_file:
+      - ../secrets/CCBX_CLAUDE.env  # Contains ANTHROPIC_API_KEY
+    volumes:
+      # Workspace: Bind mount parent of repo directory
+      - ../../../:/workspace
+      # Claude config markdown file
+      - ./CLAUDE.md:/workspace/MyRepo/CLAUDE.md
+      # Named volumes for persistence
+      - claude-config:/home/claude/.claude
+      - claude-cache:/home/claude/.cache
+    networks:
+      - claude-network
+    restart: unless-stopped
+
+volumes:
+  claude-config:
+    driver: local
+  claude-cache:
+    driver: local
+
+networks:
+  claude-network:
+    driver: bridge
+    internal: true  # Not accessible from outside host
+

@@ -77,6 +77,8 @@ RUN apt-get update && apt-get install -y                                        
 - Set WORKDIR to `/workspace`
 
 ### Entrypoint
+- Copy `entrypoint.sh` from build context using COPY instruction
+- Do not generate inline - use the separate file from docker-build/
 - Custom entrypoint script to:
   - Start SSH daemon
   - Verify Claude Code installation
