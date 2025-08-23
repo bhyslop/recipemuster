@@ -6,15 +6,14 @@ Containerized environment for running Claude Code on Windows via SSH, avoiding C
 ## Directory Structure
 ```
 Tools/ccbx/
-??? requirements.md          # This document
-??? docker-build/           # Build context directory
-?   ??? Dockerfile
-?   ??? entrypoint.sh      # SSH setup and Claude Code initialization
-??? docker-compose.yml
-??? .claude-config/         # Persisted Claude config (volume mounted)
-??? README.md              # Usage instructions
-../secrets/
-??? CCBX_CLAUDE.env        # API key (gitignored)
+├── requirements.md         # This document
+├── docker-build/           # Build context directory
+│   ├── Dockerfile
+│   └── entrypoint.sh       # SSH setup and Claude Code initialization
+├── docker-compose.yml
+├── .env                    # Environment variables (gitignored)
+├── .claude-config/         # Persisted Claude config (volume mounted)
+└── README.md               # Usage instructions
 ```
 
 ## Dockerfile Requirements
@@ -27,25 +26,25 @@ Tools/ccbx/
 - Configure passwordless SSH access for user `claude`
 - Set appropriate permissions for Claude Code operations
 
+### Required Installs
+
+The following utilities must be installed in the container based on the specific requirements discussed:
+
+- **openssh-server** - Required for SSH access to the container
+- **git** - For version control operations
+- **curl** - For downloading Claude Code and making API calls
+- **jq** - For JSON parsing in scripts
+- **make** - For build automation
+- **bash** - Shell environment (may already be present in base image)
+- **python3.11** - Python runtime as requested, stable version not bleeding edge
+
 ### Package Installation
 Following the established style guide with inline comments:
 ```dockerfile
-RUN apt-get update && apt-get install -y                                           \
-    openssh-server      `# For SSH access to the container`                        \
-    git                 `# For version control operations`                         \
-    curl                `# For downloading Claude Code and API calls`              \
-    wget                `# Alternative download tool`                              \
-    jq                  `# For JSON parsing in scripts`                            \
-    make                `# For build automation`                                   \
-    bash                `# Shell environment`                                      \
-    vim                 `# Text editor for in-container editing`                   \
-    python3.11          `# Python runtime for scripts`                             \
-    python3.11-venv     `# Virtual environment support`                            \
-    python3-pip         `# Python package manager`                                 \
-    sudo                `# For privilege escalation when needed`                   \
-    ca-certificates     `# For HTTPS connections`                                  \
-    gnupg               `# For package verification`                               \
-    lsb-release         `# For distribution detection`                             \
+RUN apt-get update && apt-get install -y                                                 \
+    «package-xxx»       `# «rationale-xxx»`                                              \
+    «package-yyy»       `# «rationale-yyy»`                                              \
+    «package-zzz»       `# «rationale-zzz»`                                              \
     && rm -rf /var/lib/apt/lists/*
 ```
 
