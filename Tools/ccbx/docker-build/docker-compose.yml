@@ -6,14 +6,17 @@ services:
     build:
       context: ./docker-build
       dockerfile: Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
     ports:
-      - "8888:22"  # Map host port 8888 to container SSH port 22
+      - "8888:22"
     env_file:
-      - ../secrets/CCBX_CLAUDE.env  # Contains ANTHROPIC_API_KEY
+      - ../secrets/CCBX_CLAUDE.env
     volumes:
-      # Workspace: Bind mount parent of repo directory
+      # Workspace mount (parent of repo directory)
       - ../../../:/workspace
-      # Claude config markdown file
+      # Claude instructions file
       - ./CLAUDE.md:/workspace/MyRepo/CLAUDE.md
       # Named volumes for persistence
       - claude-config:/home/claude/.claude
@@ -24,12 +27,12 @@ services:
 
 volumes:
   claude-config:
-    driver: local
+    name: claude-config
   claude-cache:
-    driver: local
+    name: claude-cache
 
 networks:
   claude-network:
+    name: claude-network
     driver: bridge
-    internal: true  # Not accessible from outside host
 

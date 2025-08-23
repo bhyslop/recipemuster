@@ -1,28 +1,63 @@
-#!/bin/bash
-set -e
+FROM ubuntu:24.04
 
-# Start SSH daemon
-echo "Starting SSH daemon..."
-/usr/sbin/sshd -D &
-SSH_PID=$!
+# Build arguments for user ID/GID
+ARG USER_UID=1000
+ARG USER_GID=1000
 
-# Verify Claude Code installation
-if [ -x "/usr/local/bin/claude-code" ]; then
-    echo "Claude Code is installed at /usr/local/bin/claude-code"
-    /usr/local/bin/claude-code --version || echo "Version check failed (may need authentication)"
-else
-    echo "Warning: Claude Code not found or not executable"
-fi
+# Install required packages
+RUN apt-get update && apt-get install -y                                                 \
+    nodejs              `# Required runtime for Claude Code`                             \
+    npm                 `# Package manager for Claude Code installation`                 \
+    curl                `# For downloading Claude Code installer and API calls`          \
+    openssh-server      `# Required for SSH access to the container`                     \
+    git                 `# For version control operations`                               \
+    jq                  `# For JSON parsing in scripts`                                  \
+    make                `# For build automation`                                         \
+    vim                 `# Basic text editor for debugging/inspection`                   \
+    ripgrep             `# Fast search tool (Claude Code may use this)`                  \
+    python3             `# Python 3.12.3 (default in Ubuntu 24.04)`                      \
+    python-is-python3   `# Optional symlink for /usr/bin/python compatibility`           \
+    && rm -rf /var/lib/apt/lists/*
 
-# Export environment variables if they exist
-if [ -n "$ANTHROPIC_API_KEY" ]; then
-    export ANTHROPIC_API_KEY
-    echo "ANTHROPIC_API_KEY is set"
-fi
+# Create non-root user with configurable UID/GID
+RUN groupadd -g ${USER_GID} claude && \
+    useradd -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash claude
 
-echo "Container ready. SSH available on port 22 (mapped to host port 8888)"
-echo "Connect with: ssh -p 8888 claude@localhost"
+# Set empty password for user claude
+RUN passwd -d claude
 
-# Keep container running
-wait $SSH_PID
+# Generate SSH host keys
+RUN ssh-keygen -A
+
+# Configure SSH daemon
+RUN mkdir /var/run/sshd && \
+    echo "Port 22" >> /etc/ssh/sshd_config && \
+    echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
+    echo "PermitEmptyPasswords yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+
+# Configure PAM for permissive authentication
+RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd && \
+    echo "auth sufficient pam_permit.so" >> /etc/pam.d/sshd
+
+# Download and install Claude Code v1.0.89
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89 && \
+    mv /root/.local/bin/claude-code /usr/local/bin/claude-code && \
+    chmod +x /usr/local/bin/claude-code
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Expose SSH port
+EXPOSE 22
+
+# Run as root to support SSH daemon
+USER root
+
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 

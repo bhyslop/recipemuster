@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Start SSH daemon
 echo "Starting SSH daemon..."
@@ -7,21 +6,38 @@ echo "Starting SSH daemon..."
 SSH_PID=$!
 
 # Verify Claude Code installation
-if [ -x "/usr/local/bin/claude-code" ]; then
+echo "Verifying Claude Code installation..."
+if [ -x /usr/local/bin/claude-code ]; then
     echo "Claude Code is installed at /usr/local/bin/claude-code"
-    /usr/local/bin/claude-code --version || echo "Version check failed (may need authentication)"
+    /usr/local/bin/claude-code --version 2>/dev/null || echo "Claude Code version check failed (may need authentication)"
 else
-    echo "Warning: Claude Code not found or not executable"
+    echo "ERROR: Claude Code not found or not executable"
+    exit 1
 fi
 
-# Export environment variables if they exist
+# Export environment variables for Claude Code
+if [ -f /workspace/MyRepo/CLAUDE.md ]; then
+    echo "Claude instructions file found at /workspace/MyRepo/CLAUDE.md"
+fi
+
+# Export ANTHROPIC_API_KEY if set
 if [ -n "$ANTHROPIC_API_KEY" ]; then
     export ANTHROPIC_API_KEY
-    echo "ANTHROPIC_API_KEY is set"
+    echo "ANTHROPIC_API_KEY is configured"
+else
+    echo "WARNING: ANTHROPIC_API_KEY is not set"
 fi
 
-echo "Container ready. SSH available on port 22 (mapped to host port 8888)"
-echo "Connect with: ssh -p 8888 claude@localhost"
+# Set up environment for SSH sessions
+echo "export PATH=/usr/local/bin:\$PATH" >> /home/claude/.bashrc
+echo "export ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> /home/claude/.bashrc
+echo "cd /workspace" >> /home/claude/.bashrc
+
+# Ensure proper permissions
+chown -R claude:claude /home/claude
+
+echo "Container is ready. SSH access available on port 22"
+echo "Connect using: ssh -p 8888 claude@localhost"
 
 # Keep container running
 wait $SSH_PID
