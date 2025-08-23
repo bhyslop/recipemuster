@@ -96,6 +96,8 @@ zrbgc_kindle() {
   # Artifact Registry (GAR) Composition
   RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 
+  RBGC_PROJECT_RESOURCE="${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}"
+
   # Canonical Role IDs
   RBGC_ROLE_ARTIFACTREGISTRY_READER="roles/artifactregistry.reader"
   RBGC_ROLE_ARTIFACTREGISTRY_WRITER="roles/artifactregistry.writer"
