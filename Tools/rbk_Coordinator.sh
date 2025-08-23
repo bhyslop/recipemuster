@@ -89,6 +89,14 @@ rbk_route() {
     ccbx-B)
       cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose build --no-cache && docker-compose up -d
       ;;
+    ccbx-c)
+      # Connect to container and launch claude-code
+      # Source the .env file to get the port
+      if [ -f "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
+        source "$RBK_SCRIPT_DIR/ccbx/.env"
+      fi
+      ssh -p ${CCBX_SSH_PORT:-8888} -t claude@localhost "claude-code"
+      ;;
 
     # Help/documentation commands
     rbw-him)
