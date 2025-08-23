@@ -24,6 +24,7 @@ ZRBGA_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
 source "${ZRBGA_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBGA_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
 source "${ZRBGA_SCRIPT_DIR}/rbgp_GoogleProcedures.sh"
