@@ -382,13 +382,13 @@ zrbga_create_gcs_bucket() {
 
   bcu_log_args 'Create bucket request JSON for '"${z_bucket_name}"
   local z_bucket_req="${BDU_TEMP_DIR}/rbga_bucket_create_req.json"
-  jq -n --arg name "${z_bucket_name}"            \
-        --arg location "${RBGC_GAR_LOCATION}"    \
-    '{
-      name: $name,
-      location: $location,
-      storageClass: "STANDARD"
-    }' > "${z_bucket_req}" || bcu_die "Failed to create bucket request JSON"
+  jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
+{
+  name: $name,
+  location: $location,
+  storageClass: "STANDARD",
+  lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
+}' > "${z_bucket_req}" || bcu_die "Failed to create bucket request JSON"
 
   bcu_log_args 'Send bucket creation request'
   local z_code
@@ -714,7 +714,7 @@ rbga_initialize_admin() {
   test "${z_peek_code}" = "200" || bcu_die "Cloud Build runtime SA not readable after fixed pause (HTTP ${z_peek_code})"
 
   bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectAdmin" "${z_token}"
+  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectViewer" "${z_token}"
 
   bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
   rbgi_add_repo_iam_role "${z_cb_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
@@ -733,7 +733,7 @@ rbga_initialize_admin() {
     "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
   bcu_step 'Grant Storage Object Admin on artifacts bucket to Mason'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectAdmin"
+  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectViewer" "${z_token}"
 
   bcu_step 'Grant Project Viewer to Mason'
   rbgi_add_project_iam_role "Grant Project Viewer" "${z_token}" "${RBGC_PROJECT_RESOURCE}" \
@@ -1017,7 +1017,8 @@ rbga_create_director() {
   rbgi_add_sa_iam_role "${RBGC_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   bcu_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
+  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator" "${z_token}"
+  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer" "${z_token}"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 

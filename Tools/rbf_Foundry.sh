@@ -48,6 +48,17 @@ zrbf_kindle() {
 
   ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
 
+  # GCS endpoints (build-source uploads)
+  ZRBF_GCS_API_BASE="https://storage.googleapis.com/storage/v1"
+  ZRBF_GCS_UPLOAD_BASE="https://storage.googleapis.com/upload/storage/v1"
+
+  # Temp files for object naming and requests
+  ZRBF_TARBALL_NAME_FILE="${BDU_TEMP_DIR}/rbf_tarball_name.txt"
+  ZRBF_GCS_OBJECT_FILE="${BDU_TEMP_DIR}/rbf_gcs_object.txt"
+  ZRBF_BUILD_REQUEST_FILE="${BDU_TEMP_DIR}/rbf_build_request.json"
+  ZRBF_GCS_UPLOAD_RESP="${BDU_TEMP_DIR}/rbf_gcs_upload_resp.json"
+  ZRBF_GCS_UPLOAD_HTTP="${BDU_TEMP_DIR}/rbf_gcs_upload_http.txt"
+
   ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
   ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
   ZRBF_GAR_PACKAGE_BASE="projects/${RBGC_GAR_PROJECT_ID}/locations/${RBGC_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
@@ -258,6 +269,13 @@ zrbf_package_context() {
   z_size_bytes=$(<"${ZRBF_CONTEXT_SIZE_FILE}") || bcu_die "Failed to read context size"
   test -n "${z_size_bytes}" || bcu_die "Context size is empty"
 
+  # Size policy: warn >1MB; die >10MB
+  if test "${z_size_bytes}" -gt 10485760; then
+    bcu_die  "Context tarball too large: ${z_size_bytes} bytes (>10MB limit)"
+  elif test "${z_size_bytes}" -gt 1048576; then
+    bcu_warn "Context tarball large: ${z_size_bytes} bytes (>1MB warning)"
+  fi
+
   bcu_info "Build context packaged: ${z_size_bytes} bytes"
 }
 
@@ -278,165 +296,103 @@ zrbf_package_copy_context() {
   rm -rf "${ZRBF_COPY_STAGING_DIR}" || bcu_warn "Failed to cleanup copy staging directory"
 }
 
-zrbf_submit_build() {
+zrbf_compose_tarball_name() {
   zrbf_sentinel
+  test -s "${ZRBF_VESSEL_SIGIL_FILE}" || bcu_die "Vessel sigil file missing"
+  local z_sigil=""
+  z_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}") || bcu_die "Failed to read vessel sigil"
+  test -n "${z_sigil}" || bcu_die "Empty vessel sigil"
 
-  local z_dockerfile_name="$1"
-  local z_tag="$2"
-  local z_sigil="$3"
+  # Flat namespace (no subdirectories), BDU_NOW_STAMP for source artifact
+  local z_name="${z_sigil}.${BDU_NOW_STAMP}.source.tar.gz"
+  echo "${z_name}" > "${ZRBF_TARBALL_NAME_FILE}"      || bcu_die "Failed to write tarball name"
+  echo "${RBGC_GCS_BUCKET}/${z_name}" > "${ZRBF_GCS_OBJECT_FILE}" || bcu_die "Failed to write bucket/object"
+  bcu_log_args "Tarball object: ${z_name}"
+}
 
-  bcu_step 'Submitting build to Google Cloud Build'
+zrbf_upload_context_to_gcs() {
+  zrbf_sentinel
+  bcu_step "Uploading build context tarball to GCS staging bucket"
 
-  bcu_log_args 'Get OAuth token using capture function'
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get OAuth token"
+
+  local z_obj_name=""
+  z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || bcu_die "Missing tarball name"
+  test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
+
+  local z_url="${ZRBF_GCS_UPLOAD_BASE}/b/${RBGC_GCS_BUCKET}/o?uploadType=media&name=${z_obj_name}"
+
+  curl -sS -X POST                                 \
+    -H "Authorization: Bearer ${z_token}"          \
+    -H "Content-Type: application/gzip"            \
+    -H "Accept: application/json"                  \
+    --data-binary @"${ZRBF_BUILD_CONTEXT_TAR}"     \
+    -o "${ZRBF_GCS_UPLOAD_RESP}"                   \
+    -w "%{http_code}"                              \
+    "${z_url}" > "${ZRBF_GCS_UPLOAD_HTTP}" || bcu_die "Upload request failed"
+
+  local z_http=""
+  z_http=$(<"${ZRBF_GCS_UPLOAD_HTTP}") || bcu_die "No HTTP status from GCS upload"
+  test "${z_http}" = "200" || bcu_die "GCS upload failed (HTTP ${z_http})"
+
+  bcu_success "Uploaded: gs://${RBGC_GCS_BUCKET}/${z_obj_name}"
+}
+
+zrbf_compose_build_request_json() {
+  zrbf_sentinel
+  jq empty "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config is not valid JSON"
+
+  local z_obj_name=""
+  z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || bcu_die "Missing tarball name"
+
+  jq -n --slurpfile sub "${ZRBF_BUILD_CONFIG_FILE}"            \
+    --arg bucket "${RBGC_GCS_BUCKET}"                           \
+    --arg object "${z_obj_name}"                                 \
+    --arg sa     "${RBGC_MASON_EMAIL}"                           \
+    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"                      \
+    --arg to     "${RBRR_GCB_TIMEOUT}"                           \
+    '{
+      source: { storageSource: { bucket: $bucket, object: $object } },
+      substitutions: ($sub[0].substitutions),
+      options: { logging: "CLOUD_LOGGING_ONLY", machineType: $mtype },
+      serviceAccount: $sa,
+      timeout: $to
+    }' > "${ZRBF_BUILD_REQUEST_FILE}" || bcu_die "Failed to compose build request json"
+}
+
+zrbf_submit_build_json() {
+  zrbf_sentinel
+  bcu_step 'Submitting build (JSON) to Google Cloud Build'
+
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || bcu_die "Failed to get GCB OAuth token"
 
-  bcu_log_args 'Read git info from file'
-  jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_COMMIT_FILE}" || bcu_die "Failed to extract git commit"
-  jq -r '.branch' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_BRANCH_FILE}" || bcu_die "Failed to extract git branch"
-  jq -r '.repo'   "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_REPO_FILE}"   || bcu_die "Failed to extract git repo"
+  curl -sS -X POST                              \
+    -H "Authorization: Bearer ${z_token}"       \
+    -H "Content-Type: application/json"         \
+    -H "Accept: application/json"               \
+    --data-binary @"${ZRBF_BUILD_REQUEST_FILE}" \
+    -o "${ZRBF_BUILD_RESPONSE_FILE}"            \
+    -w "%{http_code}"                           \
+    "${ZRBF_GCB_PROJECT_BUILDS_URL}" > "${ZRBF_BUILD_HTTP_CODE}" || bcu_die "Build create request failed"
 
-  local z_git_commit=""
-  local z_git_branch=""
-  local z_git_repo=""
-  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}") || bcu_die "Failed to read git commit"
-  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}") || bcu_die "Failed to read git branch"
-  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")     || bcu_die "Failed to read git repo"
-
-  test -n "${z_git_commit}" || bcu_die "Git commit is empty"
-  test -n "${z_git_branch}" || bcu_die "Git branch is empty"
-  test -n "${z_git_repo}"   || bcu_die "Git repo is empty"
-
-  bcu_log_args 'Extract recipe name without extension'
-  local z_recipe_name="${z_dockerfile_name%.*}"
-
-  bcu_log_args 'Create build config with RBGY substitutions'
-    jq -n                                                       \
-    --arg zjq_dockerfile     "${z_dockerfile_name}"             \
-    --arg zjq_tag            "${z_tag}"                         \
-    --arg zjq_moniker        "${z_sigil}"                       \
-    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
-    --arg zjq_gar_location   "${RBGC_GAR_LOCATION}"             \
-    --arg zjq_gar_project    "${RBGC_GAR_PROJECT_ID}"           \
-    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
-    --arg zjq_git_commit     "${z_git_commit}"                  \
-    --arg zjq_git_branch     "${z_git_branch}"                  \
-    --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_service_account "${RBGC_MASON_EMAIL}"             \
-    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
-    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
-    --arg zjq_recipe_name    "${z_recipe_name}"                 \
-    --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
-    --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
-    --arg zjq_gcrane_ref     "${RBRR_GCB_GCRANE_IMAGE_REF:-}"   \
-    --arg zjq_oras_ref       "${RBRR_GCB_ORAS_IMAGE_REF:-}"     \
-    '{
-      substitutions: {
-        _RBGY_DOCKERFILE:     $zjq_dockerfile,
-        _RBGY_TAG:            $zjq_tag,
-        _RBGY_MONIKER:        $zjq_moniker,
-        _RBGY_PLATFORMS:      $zjq_platforms,
-        _RBGY_GAR_LOCATION:   $zjq_gar_location,
-        _RBGY_GAR_PROJECT:    $zjq_gar_project,
-        _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
-        _RBGY_GIT_COMMIT:     $zjq_git_commit,
-        _RBGY_GIT_BRANCH:     $zjq_git_branch,
-        _RBGY_GIT_REPO:       $zjq_git_repo,
-        _RBGY_SERVICE_ACCOUNT: $zjq_service_account,
-        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
-        _RBGY_TIMEOUT:        $zjq_timeout,
-        _RBGY_RECIPE_NAME:    $zjq_recipe_name,
-        _RBGY_JQ_REF:         $zjq_jq_ref,
-        _RBGY_SYFT_REF:       $zjq_syft_ref,
-        _RBGY_GCRANE_REF:     $zjq_gcrane_ref,
-        _RBGY_ORAS_REF:       $zjq_oras_ref
-      }
-    }' >  "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
-  test -s "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config file is empty"
-
-  bcu_log_args 'Build a multipart/related body: part 1 = build JSON, part 2 = tar.gz'
-  local z_boundary="__rbf_cb_$$_${BDU_NOW_STAMP}"
-  local z_body_file="${BDU_TEMP_DIR}/rbf_build_mpart.body"
-  : > "${z_body_file}"
-
-  {
-    printf -- "--%s\r\n" "${z_boundary}"
-    printf "Content-Type: application/json; charset=UTF-8\r\n\r\n"
-    cat    "${ZRBF_BUILD_CONFIG_FILE}"
-    printf "\r\n--%s\r\n" "${z_boundary}"
-    printf "Content-Type: application/gzip\r\n\r\n"
-    cat    "${ZRBF_BUILD_CONTEXT_TAR}"
-    printf "\r\n--%s--\r\n" "${z_boundary}"
-  } >> "${z_body_file}"
-
-  bcu_log_args 'Submit build (multipart/form-data with build + source parts)'
-  local z_resp_headers="${BDU_TEMP_DIR}/rbf_build_http_headers.txt"
-
-  jq empty "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Build config is not valid JSON"
-  test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
-
-  local z_url="${ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL}?uploadType=multipart&alt=json"
-  bcu_log_args "Upload URL: ${z_url}"
-  bcu_log_args "Multipart boundary: ${z_boundary}"
-  bcu_log_args "Multipart body head (200 bytes):"
-  head -c 200 "${z_body_file}" | od -An -vtc | bcu_log_pipe
-
-  bcu_log_args 'precompute length - helps some FEs; harmless otherwise'
-  local z_len=""
-  z_len=$(wc -c < "${z_body_file}") || z_len=""
-  bcu_log_args "Length is ${z_len}"
-
-  curl -sS -X POST                                                        \
-    -H "Authorization: Bearer ${z_token}"                                 \
-    -H "Accept: application/json"                                         \
-    -H "Content-Type: multipart/related; boundary=${z_boundary}"          \
-    -H "X-Goog-Upload-Protocol: multipart"                                \
-    -H "X-Goog-Upload-File-Name: source.tar.gz"                           \
-    ${z_len:+-H "Content-Length: ${z_len}"}                               \
-    --http1.1                                                             \
-    -H "Expect:"                                                          \
-    -H "X-Goog-Upload-Protocol: multipart"                                \
-    -H "X-Goog-Upload-File-Name: source.tar.gz"                           \
-    --data-binary @"${z_body_file}"                                       \
-    -D "${z_resp_headers}"                                                \
-    -o "${ZRBF_BUILD_RESPONSE_FILE}"                                      \
-    -w "%{http_code}"                                                     \
-    "${z_url}" > "${ZRBF_BUILD_HTTP_CODE}"
-
-  z_http=$(<"${ZRBF_BUILD_HTTP_CODE}")
-  test -n "${z_http}"                   || bcu_die "No HTTP status from Cloud Build create"
+  local z_http=""
+  z_http=$(<"${ZRBF_BUILD_HTTP_CODE}") || bcu_die "No HTTP status from Cloud Build create"
+  test "${z_http}" = "200" -o "${z_http}" = "201" || bcu_die "Cloud Build create failed (HTTP ${z_http})"
   test -s "${ZRBF_BUILD_RESPONSE_FILE}" || bcu_die "Empty Cloud Build response"
 
-  bcu_log_args 'If not 200 OK, show the API error and stop BEFORE making a Console URL'
-  if [ "${z_http}" != "200" ]; then
-    bcu_log_args "Response headers:"
-    bcu_log_pipe < "${z_resp_headers}"
+  # Accept Operation or Build; prefer metadata.build.id else .id
+  local z_build_id=""
+  z_build_id=$(jq -r '(.metadata.build.id // .id // empty)' "${ZRBF_BUILD_RESPONSE_FILE}") || z_build_id=""
+  test -n "${z_build_id}" || bcu_die "Build id not found in response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to persist build id"
 
-    if ! z_err=$(jq -r 'if .error then (.error.message // "Unknown error") else "Unknown error (no .error in response)" end' "${ZRBF_BUILD_RESPONSE_FILE}" 2>/dev/null); then
-      bcu_log_args "Non-JSON response body (tail, 1KB):"
-      tail -c 1024 "${ZRBF_BUILD_RESPONSE_FILE}" | bcu_log_pipe
-      z_err="Unknown error (non-JSON response)"
-    else
-      bcu_log_args "Raw response body on error follows:"
-      bcu_log_pipe < "${ZRBF_BUILD_RESPONSE_FILE}"
-    fi
-    bcu_die "Cloud Build create failed (HTTP ${z_http}): ${z_err}"
-  fi
-
-  bcu_log_args 'Parse Long-Running Operation (LRO)'
-  jq -r '.name // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${BDU_TEMP_DIR}/rbf_operation_name.txt"
-
-  bcu_log_args 'Build ID is under operation.metadata.build.id'
-  jq -r '.metadata.build.id // empty' "${ZRBF_BUILD_RESPONSE_FILE}" > "${ZRBF_BUILD_ID_FILE}"
-
-  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}")
-  test -n "${z_build_id}" || bcu_die "Cloud Build did not return a build id in operation.metadata.build.id"
-
-  bcu_log_args 'Now make the Console link with a real BUILD ID'
   local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBGC_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
   bcu_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 }
+
 
 zrbf_submit_copy() {
   zrbf_sentinel
@@ -537,11 +493,72 @@ rbf_build() {
   # Package build context (includes RBGY file as cloudbuild.yaml)
   zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}" "${ZRBF_RBGY_BUILD_FILE}"
 
-  # Submit build with substitutions (uses RBRR_GCB_* pins)
+  # Prepare RBGY substitutions file
   local z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
-  zrbf_submit_build "${z_dockerfile_name}" "${z_tag}" "${RBRV_SIGIL}"
 
-  # Wait for completion
+  bcu_log_args 'Read git info from file'
+  jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_COMMIT_FILE}" || bcu_die "Failed to extract git commit"
+  jq -r '.branch' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_BRANCH_FILE}" || bcu_die "Failed to extract git branch"
+  jq -r '.repo'   "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_REPO_FILE}"   || bcu_die "Failed to extract git repo"
+
+  local z_git_commit=""
+  local z_git_branch=""
+  local z_git_repo=""
+  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}") || bcu_die "Failed to read git commit"
+  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}") || bcu_die "Failed to read git branch"
+  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")     || bcu_die "Failed to read git repo"
+
+  test -n "${z_git_commit}" || bcu_die "Git commit is empty"
+  test -n "${z_git_branch}" || bcu_die "Git branch is empty"
+  test -n "${z_git_repo}"   || bcu_die "Git repo is empty"
+
+  bcu_log_args 'Extract recipe name without extension'
+  local z_recipe_name="${z_dockerfile_name%.*}"
+
+  bcu_log_args 'Create build config with RBGY substitutions'
+  jq -n                                                       \
+    --arg zjq_dockerfile     "${z_dockerfile_name}"             \
+    --arg zjq_moniker        "${RBRV_SIGIL}"                    \
+    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
+    --arg zjq_gar_location   "${RBGC_GAR_LOCATION}"             \
+    --arg zjq_gar_project    "${RBGC_GAR_PROJECT_ID}"           \
+    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
+    --arg zjq_git_commit     "${z_git_commit}"                  \
+    --arg zjq_git_branch     "${z_git_branch}"                  \
+    --arg zjq_git_repo       "${z_git_repo}"                    \
+    --arg zjq_service_account "${RBGC_MASON_EMAIL}"             \
+    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
+    --arg zjq_recipe_name    "${z_recipe_name}"                 \
+    --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
+    --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
+    '{
+      substitutions: {
+        _RBGY_DOCKERFILE:     $zjq_dockerfile,
+        _RBGY_MONIKER:        $zjq_moniker,
+        _RBGY_PLATFORMS:      $zjq_platforms,
+        _RBGY_GAR_LOCATION:   $zjq_gar_location,
+        _RBGY_GAR_PROJECT:    $zjq_gar_project,
+        _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
+        _RBGY_GIT_COMMIT:     $zjq_git_commit,
+        _RBGY_GIT_BRANCH:     $zjq_git_branch,
+        _RBGY_GIT_REPO:       $zjq_git_repo,
+        _RBGY_SERVICE_ACCOUNT: $zjq_service_account,
+        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
+        _RBGY_TIMEOUT:        $zjq_timeout,
+        _RBGY_RECIPE_NAME:    $zjq_recipe_name,
+        _RBGY_JQ_REF:         $zjq_jq_ref,
+        _RBGY_SYFT_REF:       $zjq_syft_ref
+      }
+    }' >  "${ZRBF_BUILD_CONFIG_FILE}" || bcu_die "Failed to create build config"
+
+  # Stage & submit new flow
+  zrbf_compose_tarball_name
+  zrbf_upload_context_to_gcs
+  zrbf_compose_build_request_json
+  zrbf_submit_build_json
+
+  # Wait for completion (5s x 240 = 20m, no backoff)
   zrbf_wait_build_completion
 
   bcu_success "Vessel image built: ${z_tag}"
