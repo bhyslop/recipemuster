@@ -82,14 +82,17 @@ zrbgi_sentinel() {
 rbgi_add_project_iam_role() {
   zrbgi_sentinel
   
-  local z_label="${1:-}"
-  local z_token="${2:-}"
-  local z_resource="${3:-}"  # resource_base: Base resource URL
-  local z_role="${4:-}"
-  local z_member="${5:-}"
-  local z_parent_infix="${6:-newrole}"
-  local z_get_url="${z_resource}:getIamPolicy"
-  local z_set_url="${z_resource}:setIamPolicy"
+  local z_label="${1}"
+  local z_token="${2}"
+  local z_resource="${3}"  # resource_base: Base resource URL
+  local z_role="${4}"
+  local z_member="${5}"
+  local z_parent_infix="${6}"
+
+  local z_resource_path="${z_resource#/}"  # strip leading slash if present
+  local z_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/${z_resource_path}"
+  local z_get_url="${z_base}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
+  local z_set_url="${z_base}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
 
   test -n "${z_token}"    || bcu_die "token required"
   test -n "${z_resource}" || bcu_die "resource required"
