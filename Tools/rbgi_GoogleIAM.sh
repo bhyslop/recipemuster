@@ -99,6 +99,7 @@ rbgi_add_project_iam_role() {
   bcu_log_args "${z_label}: add ${z_member} to ${z_role}"
 
   bcu_log_args '1) GET policy (v3)'
+  bcu_log_args "GET_POLICY_URL_DEBUG z_resource:${z_resource} z_get_url:${z_get_url}"
   local z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
   local z_get_infix="${z_parent_infix}-get"
   printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
