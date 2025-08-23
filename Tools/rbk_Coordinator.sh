@@ -79,6 +79,17 @@ rbk_route() {
     rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args ;;
     rbw-fS)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_study  $z_args ;;
 
+    # Claude Code Box (ccbx) Docker commands
+    ccbx-a)
+      cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose up -d
+      ;;
+    ccbx-z)
+      cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose down
+      ;;
+    ccbx-B)
+      cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose build --no-cache && docker-compose up -d
+      ;;
+
     # Help/documentation commands
     rbw-him)
       rbk_show "Routing to rbf_cli.sh (help)"
