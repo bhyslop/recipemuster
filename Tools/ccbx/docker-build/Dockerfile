@@ -48,8 +48,8 @@ RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd     &
 
 # Download and install Claude Code v1.0.89
 RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89      && \
-    mv /root/.local/bin/claude-code /usr/local/bin/claude-code       && \
-    chmod +x                        /usr/local/bin/claude-code
+    mv /root/.local/bin/claude /usr/local/bin/claude-code            && \
+    chmod +x                   /usr/local/bin/claude-code
 
 # Set working directory
 WORKDIR /workspace
