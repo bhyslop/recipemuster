@@ -318,8 +318,8 @@ rbgu_http_json_ok() {
   local z_url="$4"
   local z_infix="$5"
   local z_body_file="$6"
-  local z_warn_code="$7"
-  local z_warn_message="$8"
+  local z_warn_code="${7:-}"
+  local z_warn_message="${8:-}"
 
   bcu_log_args "${z_label}"
 
