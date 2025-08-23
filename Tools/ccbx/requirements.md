@@ -11,7 +11,6 @@ Tools/ccbx/
 │   ├── Dockerfile
 │   └── entrypoint.sh       # SSH setup and Claude Code initialization
 ├── docker-compose.yml
-├── .env                    # Environment variables (gitignored)
 ├── .claude-config/         # Persisted Claude config (volume mounted)
 └── README.md               # Usage instructions
 ```
@@ -103,7 +102,7 @@ The service `claudecodebox` requires:
 
 ### Network Configuration
 - Use bridge network named `claude-network`
-- Mark as internal (not accessible from outside host)
+- Allow external internet access for API calls
 
 ## Security Considerations
 - Container network is internal-only (not exposed beyond host)
