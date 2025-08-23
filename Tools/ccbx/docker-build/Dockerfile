@@ -47,9 +47,10 @@ RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd     &
     echo "auth sufficient pam_permit.so" >> /etc/pam.d/sshd
 
 # Download and install Claude Code v1.0.89
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89      && \
-    mv /root/.local/bin/claude /usr/local/bin/claude-code            && \
-    chmod +x                   /usr/local/bin/claude-code
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89                     && \
+    cp -r /root/.local/share/claude /usr/local/share/                               && \
+    ln -sf   /usr/local/share/claude/versions/1.0.89 /usr/local/bin/claude-code     && \
+    chmod +x /usr/local/share/claude/versions/1.0.89
 
 # Set working directory
 WORKDIR /workspace

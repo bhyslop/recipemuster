@@ -21,20 +21,21 @@ if [ -f /workspace/MyRepo/CLAUDE.md ]; then
 fi
 
 # Export ANTHROPIC_API_KEY if set
-if [ -n "$ANTHROPIC_API_KEY" ]; then
+if [ -n  "$ANTHROPIC_API_KEY" ]; then
     export ANTHROPIC_API_KEY
-    echo "ANTHROPIC_API_KEY is configured"
+    echo  "ANTHROPIC_API_KEY is configured"
 else
     echo "WARNING: ANTHROPIC_API_KEY is not set"
 fi
 
 # Set up environment for SSH sessions
-echo "export PATH=/usr/local/bin:\$PATH" >> /home/claude/.bashrc
-echo "export ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> /home/claude/.bashrc
-echo "cd /workspace" >> /home/claude/.bashrc
+CLAUDE_HOME=$(getent passwd claude | cut -d: -f6)
+echo "export PATH=/usr/local/bin:\$PATH"              >> ${CLAUDE_HOME}/.bashrc
+echo "export ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY"    >> ${CLAUDE_HOME}/.bashrc
+echo "cd /workspace"                                  >> ${CLAUDE_HOME}/.bashrc
 
 # Ensure proper permissions
-chown -R claude:claude /home/claude
+chown -R claude:claude ${CLAUDE_HOME}
 
 echo "Container is ready. SSH access available on port 22"
 echo "Connect using: ssh -p 8888 claude@localhost"
