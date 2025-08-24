@@ -367,15 +367,22 @@ rbgu_http_json_lro_ok() {
       ;;
   esac
 
-  bcu_log_args '3) Assert expected shape and build absolute poll URL deterministically'
-  local z_poll_path=""
-  if test "${z_op_name#${z_op_prefix}}" != "${z_op_name}"; then
-    z_poll_path="${z_op_name}"
+  bcu_log_args '3) Build poll URL based on operation name format'
+  local z_poll_url=""
+  if [[ "${z_name}" =~ ^projects/.*/locations/.*/operations/ ]]; then
+    bcu_log_args '  Regional operation with fully-qualified name'
+    z_poll_url="${z_api_root}${z_api_ver}/${z_name}"
+  elif [[ "${z_name}" =~ ^projects/.*/operations/ ]]; then
+    bcu_log_args '  Global operation with project prefix'
+    z_poll_url="${z_api_root}${z_api_ver}/${z_name}"
+  elif test -n "${z_op_prefix}"; then
+    bcu_log_args '  Legacy format - apply prefix'
+    z_poll_url="${z_api_root}${z_api_ver}/${z_op_prefix}${z_name}"
   else
-    z_poll_path="${z_op_prefix}${z_op_name}"
+    bcu_log_args '  No prefix provided, use name as-is under versioned root'
+    z_poll_url="${z_api_root}${z_api_ver}/${z_name}"
   fi
-  test -n "${z_poll_path}" || bcu_die "${z_label}: empty LRO name after extraction"
-  local z_poll_url="${z_poll_root}/${z_poll_path}"
+  bcu_log_args "Poll URL: ${z_poll_url}"
 
   bcu_log_args '4) Poll until done or timeout'
   local z_elapsed=0

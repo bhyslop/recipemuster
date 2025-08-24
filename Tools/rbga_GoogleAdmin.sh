@@ -363,7 +363,7 @@ zrbga_prime_cloud_build() {
     "${z_body}"                                            \
     ".name"                                                \
     "${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}"     \
-    "${RBGC_OP_PREFIX_GLOBAL}"                             \
+    ""                                                     \
     "10"                                                   \
     "300"
 
