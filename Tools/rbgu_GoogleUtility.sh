@@ -58,7 +58,51 @@ zrbgu_sentinel() {
 }
 
 ######################################################################
+# Predicate Functions
+
+rbgu_json_valid_predicate() {
+  zrbgu_sentinel
+  local z_infix="${1:-}"
+  test -n "${z_infix}" || return 1
+
+  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  test -f "${z_json_file}" || return 1
+
+  jq -e . "${z_json_file}" >/dev/null 2>&1
+}
+
+rbgu_role_member_exists_predicate() {
+  zrbgu_sentinel
+  local z_infix="${1:-}"
+  local z_role="${2:-}"
+  local z_member="${3:-}"
+
+  test -n "${z_infix}" || return 1
+  test -n "${z_role}"  || return 1
+  test -n "${z_member}" || return 1
+
+  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  test -f "${z_json_file}" || return 1
+
+  jq -e --arg r "${z_role}" --arg m "${z_member}" \
+    '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
+    "${z_json_file}" >/dev/null 2>&1
+}
+
+######################################################################
 # Capture Functions
+
+rbgu_error_message_capture() {
+  zrbgu_sentinel
+  local z_infix="${1:-}"
+  test -n "${z_infix}" || return 1
+
+  if rbgu_json_valid_predicate "${z_infix}"; then
+    rbgu_json_field_capture "${z_infix}" '.error.message' 2>/dev/null || return 1
+  else
+    return 1
+  fi
+}
 
 rbgu_urlencode_capture() {
   zrbgu_sentinel
@@ -84,6 +128,14 @@ rbgu_urlencode_capture() {
   echo "${z_out}"
 }
 
+# Add member to IAM policy role binding with version=3 enforcement
+#
+# RBGU IAM Policy Standard: All IAM policies are standardized to version=3
+# to ensure consistent conditional role binding support across Google Cloud APIs.
+# This is enforced by default in all policy operations to prevent version drift.
+#
+# Args: infix role member [etag_optional]
+# Returns: JSON policy string with added member and version=3
 rbgu_jq_add_member_to_role_capture() {
   zrbgu_sentinel
 
@@ -98,11 +150,12 @@ rbgu_jq_add_member_to_role_capture() {
   test -f "${z_policy_file}" || return 1
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
-  test -n "${z_etag_opt}"    || return 1
 
   local z_out=""
   z_out=$(
     jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
+      # Enforce RBGU standard: version=3 for all IAM policies
+      .version = 3 |
       .bindings = (.bindings // []) |
       if ([.bindings[]? | .role] | index($role))
       then .bindings |= map(if .role == $role
@@ -110,8 +163,8 @@ rbgu_jq_add_member_to_role_capture() {
                             else . end)
       else .bindings += [{role: $role, members: [$member]}]
       end
-      # Always set the etag we read - this is the optimistic concurrency guard
-      | .etag = $etag
+      # Set etag if provided (optimistic concurrency)
+      | (if $etag != "" then .etag = $etag else . end)
     ' "${z_policy_file}"
   ) || return 1
 
@@ -212,6 +265,37 @@ rbgu_wait_lro_capture() {
     sleep "${z_poll}"
     z_elapsed=$((z_elapsed + z_poll))
   done
+}
+
+# JSON file writer helper (vanilla empty policy)
+rbgu_write_vanilla_json() {
+  zrbgu_sentinel
+  local z_infix="${1:-}"
+  test -n "${z_infix}" || return 1
+
+  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  printf '{"bindings":[]}\n' > "${z_json_file}" || return 1
+  test -f "${z_json_file}" || return 1
+}
+
+# Apply jq filter to file, writing result to same or different file
+rbgu_jq_file_to_file_ok() {
+  zrbgu_sentinel
+  local z_source_infix="${1:-}"
+  local z_target_infix="${2:-}"
+  local z_jq_filter="${3:-}"
+
+  test -n "${z_source_infix}" || return 1
+  test -n "${z_target_infix}"  || return 1
+  test -n "${z_jq_filter}"     || return 1
+
+  local z_source_file="${ZRBGU_PREFIX}${z_source_infix}${ZRBGU_POSTFIX_JSON}"
+  local z_target_file="${ZRBGU_PREFIX}${z_target_infix}${ZRBGU_POSTFIX_JSON}"
+
+  test -f "${z_source_file}" || return 1
+
+  jq "${z_jq_filter}" "${z_source_file}" > "${z_target_file}" || return 1
+  test -f "${z_target_file}" || return 1
 }
 
 ######################################################################

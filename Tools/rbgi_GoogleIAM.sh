@@ -45,7 +45,7 @@ zrbgi_kindle() {
 
   # Validate dependencies
   bvu_dir_exists "${BDU_TEMP_DIR}"
-  
+
   # Ensure dependencies are kindled
   zrbgc_sentinel
   zrbgu_sentinel
@@ -81,20 +81,22 @@ zrbgi_sentinel() {
 # Add a project-scoped IAM role binding with optimistic concurrency and strong read-back.
 rbgi_add_project_iam_role() {
   zrbgi_sentinel
-  
-  local z_label="${1}"
-  local z_token="${2}"
-  local z_resource="${3}"  # resource_base: Base resource URL
-  local z_role="${4}"
-  local z_member="${5}"
-  local z_parent_infix="${6}"
+
+  local z_token="${1:-}"
+  local z_label="${2:-}"
+  local z_resource="${3:-}"  # resource_base: Base resource URL
+  local z_role="${4:-}"
+  local z_member="${5:-}"
+  local z_parent_infix="${6:-}"
+
+  test -n "${z_token}" || bcu_die "Token required"
+  bcu_log_args "Using admin token (value not logged)"
 
   local z_resource_path="${z_resource#/}"  # strip leading slash if present
   local z_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/${z_resource_path}"
   local z_get_url="${z_base}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
   local z_set_url="${z_base}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
 
-  test -n "${z_token}"    || bcu_die "token required"
   test -n "${z_resource}" || bcu_die "resource required"
   test -n "${z_role}"     || bcu_die "role required"
   test -n "${z_member}"   || bcu_die "member required"
@@ -120,8 +122,6 @@ rbgi_add_project_iam_role() {
   local z_new_policy_json=""
   z_new_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
     || bcu_die "Failed to compose policy JSON"
-  bcu_log_args 'Ensure version=3'
-  z_new_policy_json=$(jq '.version=3' <<<"${z_new_policy_json}") || bcu_die "Failed to set version=3"
 
   local z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
   printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
@@ -155,9 +155,7 @@ rbgi_add_project_iam_role() {
     rbgu_http_json_ok "${z_label} (verify)" "${z_token}" "POST" \
                        "${z_get_url}" "${z_verify_infix}" "${z_get_body}"
 
-    if jq -e --arg r "${z_role}" --arg m "${z_member}" \
-         '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
-         "${ZRBGU_PREFIX}${z_verify_infix}${ZRBGU_POSTFIX_JSON}" >/dev/null; then
+    if rbgu_role_member_exists_predicate "${z_verify_infix}" "${z_role}" "${z_member}"; then
       bcu_log_args "Observed ${z_role} for ${z_member}"
 
       bcu_log_args "Post-set etag $(rbgu_json_field_capture "${z_verify_infix}" ".etag" 2>/dev/null || echo "")"
@@ -174,15 +172,19 @@ rbgi_add_project_iam_role() {
 rbgi_add_repo_iam_role() {
   zrbgi_sentinel
 
-  local z_account_email="${1:-}"
-  local z_location="${2:-}"
-  local z_repository="${3:-}"
-  local z_role="${4:-}"
+  local z_token="${1:-}"
+  local z_account_email="${2:-}"
+  local z_location="${3:-}"
+  local z_repository="${4:-}"
+  local z_role="${5:-}"
 
+  test -n "${z_token}"         || bcu_die "Token required"
   test -n "${z_account_email}" || bcu_die "Service account email required"
   test -n "${z_location}"      || bcu_die "Location is required"
   test -n "${z_repository}"    || bcu_die "Repository is required"
   test -n "${z_role}"          || bcu_die "Role is required"
+
+  bcu_log_args "Using admin token (value not logged)"
 
   local z_resource="projects/${RBRR_GCP_PROJECT_ID}/locations/${z_location}/repositories/${z_repository}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
@@ -191,47 +193,29 @@ rbgi_add_repo_iam_role() {
   bcu_log_args 'Adding repo-scoped IAM role' \
                " ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
 
-  local z_token
-  z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
   bcu_log_args 'Get current repo IAM policy'
-  local z_get_code
   rbgu_http_json "POST" "${z_get_url}" "${z_token}" \
                                       "${ZRBGI_INFIX_REPO_ROLE}" "${ZRBGI_EMPTY_JSON}"
-  z_get_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_REPO_ROLE}") || z_get_code=""
 
+  local z_get_code
+  z_get_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_REPO_ROLE}") || z_get_code=""
   if test "${z_get_code}" = "404"; then
     # 404 means repo exists but has no IAM policy yet - this is normal for new repos
     bcu_log_args 'No IAM policy exists yet (404), initializing with empty bindings'
-    echo '{"bindings":[]}' > "${ZRBGU_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGU_POSTFIX_JSON}"
-  elif test "${z_get_code}" != "200"; then
-    local z_err="HTTP ${z_get_code}"
-    if jq -e .         "${ZRBGU_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGU_POSTFIX_JSON}" >/dev/null 2>&1; then
-      z_err=$(rbgu_json_field_capture "${ZRBGI_INFIX_REPO_ROLE}" '.error.message') || z_err="HTTP ${z_get_code}"
-    fi
-    bcu_die "Get repo IAM policy failed: ${z_err}"
+    rbgu_write_vanilla_json "${ZRBGI_INFIX_REPO_ROLE}"
+  else
+    rbgu_http_require_ok "Get repo IAM policy" "${ZRBGI_INFIX_REPO_ROLE}"
   fi
 
   bcu_log_args 'Update repo IAM policy'
-  local z_updated_policy="${BDU_TEMP_DIR}/rbgi_repo_updated_policy.json"
-  jq --arg role   "${z_role}"                                      \
-     --arg member "serviceAccount:${z_account_email}"              \
-     '
-       .bindings = (.bindings // []) |
-       if ( ([ .bindings[]? | .role ] | index($role)) ) then
-         .bindings = ( .bindings | map(
-           if .role == $role then .members = ( (.members // []) + [$member] | unique )
-           else .
-           end))
-       else
-         .bindings += [{role: $role, members: [$member]}]
-       end
-     ' "${ZRBGU_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGU_POSTFIX_JSON}" \
-     > "${z_updated_policy}" || bcu_die "Failed to update policy json"
+  local z_updated_policy_json=""
+  z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${ZRBGI_INFIX_REPO_ROLE}" \
+    "${z_role}" "serviceAccount:${z_account_email}" "") \
+    || bcu_die "Failed to update policy JSON"
 
   bcu_log_args 'Set updated repo IAM policy'
   local z_repo_set_body="${BDU_TEMP_DIR}/rbgi_repo_set_policy_body.json"
-  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
+  printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_repo_set_body}" \
     || bcu_die "Failed to build repo setIamPolicy body"
   rbgu_http_json "POST" "${z_set_url}" "${z_token}" \
                                              "${ZRBGI_INFIX_REPO_ROLE_SET}" "${z_repo_set_body}"
@@ -243,16 +227,18 @@ rbgi_add_repo_iam_role() {
 rbgi_add_sa_iam_role() {
   zrbgi_sentinel
 
-  local z_target_sa_email="$1"
-  local z_member_sa_email="$2"
-  local z_role="$3"
+  local z_token="${1:-}"
+  local z_target_sa_email="${2:-}"
+  local z_member_sa_email="${3:-}"
+  local z_role="${4:-}"
 
+  test -n "${z_token}" || bcu_die "Token required"
+
+  bcu_log_args "Using admin token (value not logged)"
   bcu_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_sa_email}"
 
   # Caller must have already primed Cloud Build if this is the runtime SA.
   # We do a hard existence check and crash if not accessible.
-  local z_token
-  z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_log_args 'Verify target SA exists'
   local z_target_encoded
@@ -277,28 +263,18 @@ rbgi_add_sa_iam_role() {
   z_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_ROLE}") || z_code=""
   if test "${z_code}" != "200"; then
     bcu_log_args 'No IAM policy exists yet, initializing'
-    echo '{"bindings":[]}' > "${ZRBGU_PREFIX}${ZRBGI_INFIX_ROLE}${ZRBGU_POSTFIX_JSON}"
+    rbgu_write_vanilla_json "${ZRBGI_INFIX_ROLE}"
   fi
 
   bcu_log_args 'Update SA IAM policy with new role binding'
-  local z_updated_policy="${BDU_TEMP_DIR}/rbgi_sa_updated_policy.json"
-  jq --arg role   "${z_role}"                              \
-     --arg member "serviceAccount:${z_member_sa_email}"    \
-     '
-       .bindings = (.bindings // []) |
-       if ( ([ .bindings[]? | .role ] | index($role)) ) then
-         .bindings = ( .bindings | map(
-           if .role == $role then .members = ( (.members // []) + [$member] | unique )
-           else . end))
-       else
-         .bindings += [{role: $role, members: [$member]}]
-       end
-     ' "${ZRBGU_PREFIX}${ZRBGI_INFIX_ROLE}${ZRBGU_POSTFIX_JSON}" \
-     > "${z_updated_policy}" || bcu_die "Failed to update SA IAM policy"
+  local z_updated_policy_json=""
+  z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${ZRBGI_INFIX_ROLE}" \
+    "${z_role}" "serviceAccount:${z_member_sa_email}" "") \
+    || bcu_die "Failed to update SA IAM policy"
 
   bcu_log_args 'Set updated SA IAM policy'
   local z_set_body="${BDU_TEMP_DIR}/rbgi_sa_set_policy_body.json"
-  jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_set_body}" \
+  printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" \
     || bcu_die "Failed to build SA setIamPolicy body"
 
   rbgu_http_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
@@ -311,11 +287,14 @@ rbgi_add_sa_iam_role() {
 rbgi_add_bucket_iam_role() {
   zrbgi_sentinel
 
-  local z_bucket_name="${1}"
-  local z_account_email="${2}"
-  local z_role="${3}"
-  local z_token="${4}"
+  local z_token="${1:-}"
+  local z_bucket_name="${2:-}"
+  local z_account_email="${3:-}"
+  local z_role="${4:-}"
 
+  test -n "${z_token}" || bcu_die "Token required"
+
+  bcu_log_args "Using admin token (value not logged)"
   bcu_log_args "Adding bucket IAM role ${z_role} to ${z_account_email}"
 
   local z_code
@@ -326,38 +305,25 @@ rbgi_add_bucket_iam_role() {
   z_code=$(rbgu_http_code_capture                  "${ZRBGI_INFIX_BUCKET_IAM}") || z_code=""
   if test "${z_code}" != "200"; then
     bcu_log_args 'Initialize empty IAM policy for bucket'
-    echo '{"bindings":[]}' > "${ZRBGU_PREFIX}${ZRBGI_INFIX_BUCKET_IAM}${ZRBGU_POSTFIX_JSON}"
+    rbgu_write_vanilla_json "${ZRBGI_INFIX_BUCKET_IAM}"
   fi
 
   bcu_log_args 'Update bucket IAM policy'
-  local z_updated="${BDU_TEMP_DIR}/rbgi_bucket_iam_updated.json"
   local z_etag
   z_etag=$(rbgu_json_field_capture "${ZRBGI_INFIX_BUCKET_IAM}" '.etag') || z_etag=""
-  jq --arg role "${z_role}"                           \
-     --arg member "serviceAccount:${z_account_email}" \
-     --arg etag "${z_etag}"                           \
-     '
-       .bindings = (.bindings // []) |
-       if ( ([ .bindings[]? | .role ] | index($role)) ) then
-         .bindings = ( .bindings | map(
-           if .role == $role then .members = ( (.members // []) + [$member] | unique )
-           else .
-           end))
-       else
-         .bindings += [{role: $role, members: [$member]}]
-       end
-       | ( if $etag != "" then .etag = $etag else . end )
-     ' "${ZRBGU_PREFIX}${ZRBGI_INFIX_BUCKET_IAM}${ZRBGU_POSTFIX_JSON}" \
-     > "${z_updated}" || bcu_die "Failed to update bucket IAM policy"
-
-  local z_err
+  local z_updated_policy_json=""
+  z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${ZRBGI_INFIX_BUCKET_IAM}" \
+    "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+    || bcu_die "Failed to update bucket IAM policy"
 
   bcu_log_args 'Set updated bucket IAM policy'
+  local z_bucket_set_body="${BDU_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
+  printf '%s\n' "${z_updated_policy_json}" > "${z_bucket_set_body}" \
+    || bcu_die "Failed to write bucket policy body"
+
   rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" \
-                                  "${ZRBGI_INFIX_BUCKET_IAM_SET}" "${z_updated}"
-  z_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_BUCKET_IAM_SET}")                  || z_code=""
-  z_err=$(rbgu_json_field_capture "${ZRBGI_INFIX_BUCKET_IAM_SET}" '.error.message') || z_err="HTTP ${z_code}"
-  test "${z_code}" = "200" || bcu_die "Failed to set bucket IAM policy: ${z_err}"
+                                  "${ZRBGI_INFIX_BUCKET_IAM_SET}" "${z_bucket_set_body}"
+  rbgu_http_require_ok "Set bucket IAM policy" "${ZRBGI_INFIX_BUCKET_IAM_SET}"
 
   bcu_log_args "Successfully added bucket role ${z_role}"
 }
