@@ -332,44 +332,6 @@ zrbga_ensure_cloudbuild_service_agent() {
   bcu_info "Cloud Build service agent configured with admin permissions"
 }
 
-zrbga_prime_cloud_build() {
-  zrbga_sentinel
-
-  local z_token="${1:-}"
-  test -n "${z_token}" || bcu_die "zrbga_prime_cloud_build: token required"
-
-  bcu_log_args 'Create degenerate build body with jq'
-  local z_body="${BDU_TEMP_DIR}/rbga_cb_prime_body.json"
-  jq -n --arg mt "${RBRR_GCB_MACHINE_TYPE:-E2_HIGHCPU_8}" --arg to "${RBRR_GCB_TIMEOUT:-300s}" '
-    {
-      steps: [
-        {
-          name: "gcr.io/cloud-builders/gcloud",
-          entrypoint: "bash",
-          args: ["-lc", "true"]  # intentionally no-op
-        }
-      ],
-      options: { machineType: $mt, logging: "CLOUD_LOGGING_ONLY" },
-      timeout: $to
-    }' > "${z_body}" || bcu_die "Failed to write cb prime body"
-
-  local z_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
-
-  rbgu_http_json_lro_ok                                    \
-    "Prime Cloud Build"                                    \
-    "${z_token}"                                           \
-    "${z_url}"                                             \
-    "${ZRBGA_INFIX_CB_PRIME}"                              \
-    "${z_body}"                                            \
-    ".name"                                                \
-    "${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}"     \
-    ""                                                     \
-    "10"                                                   \
-    "300"
-
-  bcu_log_args 'Prime complete.'
-}
-
 zrbga_create_gcs_bucket() {
   zrbga_sentinel
 
@@ -685,24 +647,33 @@ rbga_initialize_admin() {
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
-  bcu_step 'Trigger degenerate build to assure builder account creation'
-  zrbga_prime_cloud_build "${z_token}"
-
   bcu_step 'Verify repository exists and is DOCKER format'
   rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
   rbgu_http_require_ok "Verify repository"         "${ZRBGA_INFIX_VERIFY_REPO}"
   test "$(rbgu_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
 
-  bcu_step 'Verify Cloud Build runtime SA is readable after propagation pause'
+  bcu_step 'Verify Cloud Build runtime SA is readable after propagation'
   local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
   local z_cb_sa_enc
   z_cb_sa_enc=$(rbgu_urlencode_capture "${z_cb_sa}") || bcu_die "Failed to encode SA email"
+
+  bcu_step '  Bounded retry for runtime SA visibility...'
+  local z_elapsed=0
   local z_peek_code
-  rbgu_http_json "GET" "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_enc}" \
-                           "${z_token}" "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}"
-  z_peek_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
-  test "${z_peek_code}" = "200" || bcu_die "Cloud Build runtime SA not readable after fixed pause (HTTP ${z_peek_code})"
+  while :; do
+    rbgu_http_json "GET" \
+      "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_enc}" \
+                            "${z_token}" "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}"
+    z_peek_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
+    test "${z_peek_code}" = "200" && break
+    
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && \
+      bcu_die "Cloud Build runtime SA not accessible after ${RBGC_MAX_CONSISTENCY_SEC}s (HTTP ${z_peek_code})"
+    
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
 
   bcu_step 'Grant Storage Object Viewer to Cloud Build SA on bucket'
   rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectViewer" "${z_token}"
