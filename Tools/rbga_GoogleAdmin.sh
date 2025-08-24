@@ -533,7 +533,6 @@ rbga_initialize_admin() {
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  local z_prime_pause_sec=120
 
   bcu_step 'Convert admin JSON to RBRA'
   rbgu_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
@@ -685,10 +684,6 @@ rbga_initialize_admin() {
     "${RBGC_OP_PREFIX_GLOBAL}"                                       \
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
     "${RBGC_MAX_CONSISTENCY_SEC}"
-
-  bcu_step 'One-time propagation pause before Cloud Build priming'
-  bcu_step "  About to sleep ${z_prime_pause_sec}s"
-  sleep "${z_prime_pause_sec}"
 
   bcu_step 'Trigger degenerate build to assure builder account creation'
   zrbga_prime_cloud_build "${z_token}"
