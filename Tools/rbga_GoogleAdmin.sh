@@ -312,9 +312,6 @@ zrbga_ensure_cloudbuild_service_agent() {
   bcu_step 'Grant admin necessary permissions to trigger builds'
   bcu_step "Grant admin Cloud Build permissions"
 
-  bcu_step 'Admin needs serviceAccountUser on the service agent'
-  rbgi_add_sa_iam_role "${z_cb_service_agent}" "${z_admin_sa_email}" "roles/iam.serviceAccountUser"
-
   bcu_step 'Admin needs Cloud Build Editor for builds.create and viz'
   rbgi_add_project_iam_role                 \
     "Grant admin Cloud Build Editor"        \
