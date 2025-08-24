@@ -950,5 +950,133 @@ rbga_delete_service_account() {
   bcu_success "Delete operation completed"
 }
 
+rbga_destroy_project() {
+  zrbga_sentinel
+  bcu_doc_brief "DANGER: Permanently destroy the entire GCP project. Cannot be undone after 30 days."
+  bcu_doc_shown || return 0
+
+  if [[ "${DEBUG_ONLY:-0}" != "1" ]]; then
+    bcu_die "This dangerous operation requires DEBUG_ONLY=1 environment variable"
+  fi
+
+  bcu_step 'Mint admin OAuth token'
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_step 'Triple confirmation required'
+  bcu_warn ""
+  bcu_warn "========================================================================"
+  bcu_warn "CRITICAL WARNING: You are about to PERMANENTLY DELETE the entire project:"
+  bcu_warn "  Project: ${RBRR_GCP_PROJECT_ID}"
+  bcu_warn "This will:"
+  bcu_warn "  - Delete ALL resources in the project"
+  bcu_warn "  - Delete ALL data permanently"
+  bcu_warn "  - Break billing associations"
+  bcu_warn "  - Make the project unusable immediately"
+  bcu_warn "  - Cannot be undone after 30-day grace period"
+  bcu_warn "========================================================================"
+  bcu_warn ""
+
+  bcu_require "Type the exact project ID to confirm deletion" "${RBRR_GCP_PROJECT_ID}"
+  bcu_require "Confirm you understand this DELETES EVERYTHING in the project" "DELETE-EVERYTHING"
+  bcu_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
+
+  bcu_step 'Check for liens (will block deletion)'
+  local z_liens_file="${BDU_TEMP_DIR}/liens_check.json"
+  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${z_liens_file}"
+  rbgu_http_require_ok "List liens" "${z_liens_file}"
+
+  local z_lien_count
+  z_lien_count=$(jq -r '.liens // [] | length' "${z_liens_file}") || bcu_die "Failed to parse liens response"
+
+  if [[ "${z_lien_count}" -gt 0 ]]; then
+    bcu_step 'BLOCKED: Liens exist on project'
+    bcu_warn "Project has ${z_lien_count} lien(s) that prevent deletion"
+    bcu_warn "You must remove all liens first:"
+    bcu_code "  gcloud resource-manager liens list --project=${RBRR_GCP_PROJECT_ID}"
+    bcu_code "  gcloud resource-manager liens delete LIEN_NAME --project=${RBRR_GCP_PROJECT_ID}"
+    bcu_warn "Then re-run this command."
+    bcu_die "Cannot proceed with active liens"
+  fi
+
+  bcu_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
+  local z_delete_file="${BDU_TEMP_DIR}/project_delete.json"
+  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_PROJECT}" "${z_token}" "${z_delete_file}"
+  rbgu_http_require_ok "Delete project" "${z_delete_file}"
+
+  bcu_step 'Verify deletion state'
+  local z_project_file="${BDU_TEMP_DIR}/project_state.json"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${z_project_file}"
+  rbgu_http_require_ok "Get project state" "${z_project_file}"
+
+  local z_lifecycle_state
+  z_lifecycle_state=$(jq -r '.lifecycleState // "UNKNOWN"' "${z_project_file}") || bcu_die "Failed to parse project state"
+
+  if [[ "${z_lifecycle_state}" == "DELETE_REQUESTED" ]]; then
+    bcu_success "Project successfully marked for deletion"
+    bcu_step "Project Status: ${z_lifecycle_state}"
+    bcu_step "Grace period: Up to 30 days"
+    bcu_code "To restore (if still possible): rbga_restore_project"
+    bcu_step "WARNING: Project is now unusable but may remain visible in listings"
+  else
+    bcu_die "Unexpected project state after deletion: ${z_lifecycle_state}"
+  fi
+}
+
+rbga_restore_project() {
+  zrbga_sentinel
+  bcu_doc_brief "Attempt to restore a deleted project within the 30-day grace period"
+  bcu_doc_shown || return 0
+
+  bcu_step 'Mint admin OAuth token'
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
+
+  bcu_step 'Check current project state'
+  local z_project_file="${BDU_TEMP_DIR}/project_state.json"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${z_project_file}"
+
+  if ! rbgu_http_is_ok "${z_project_file}"; then
+    bcu_die "Cannot access project - it may have been permanently deleted or never existed"
+  fi
+
+  local z_lifecycle_state
+  z_lifecycle_state=$(jq -r '.lifecycleState // "UNKNOWN"' "${z_project_file}") || bcu_die "Failed to parse project state"
+
+  if [[ "${z_lifecycle_state}" != "DELETE_REQUESTED" ]]; then
+    bcu_die "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
+  fi
+
+  bcu_step 'Confirm restoration'
+  bcu_log_args "Project Status: ${z_lifecycle_state}"
+  bcu_log_args "Attempting to restore project: ${RBRR_GCP_PROJECT_ID}"
+  bcu_log_args "WARNING: Restore may fail if deletion process has already started"
+  bcu_require "Confirm restoration of project" "RESTORE"
+
+  bcu_step 'Attempt project restoration'
+  local z_restore_file="${BDU_TEMP_DIR}/project_restore.json"
+  rbgu_http_json "POST" "${RBGC_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${z_restore_file}"
+
+  if rbgu_http_is_ok "${z_restore_file}"; then
+    bcu_step 'Verify restoration'
+    rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${z_project_file}"
+    rbgu_http_require_ok "Get restored project state" "${z_project_file}"
+
+    z_lifecycle_state=$(jq -r '.lifecycleState // "UNKNOWN"' "${z_project_file}") || bcu_die "Failed to parse restored project state"
+
+    if [[ "${z_lifecycle_state}" == "ACTIVE" ]]; then
+      bcu_success "Project successfully restored to ACTIVE state"
+      bcu_log_args "Project Status: ${z_lifecycle_state}"
+      bcu_log_args "Project is now usable again"
+    else
+      bcu_die "Restoration completed but project state is unexpected: ${z_lifecycle_state}"
+    fi
+  else
+    local z_error_msg
+    z_error_msg=$(jq -r '.error.message // "Unknown error"' "${z_restore_file}") || z_error_msg="Failed to parse error"
+    bcu_die "Project restoration failed: ${z_error_msg}"
+  fi
+}
+
 # eof
 
