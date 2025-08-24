@@ -203,10 +203,10 @@ rbgi_add_repo_iam_role() {
   if test "${z_get_code}" = "404"; then
     # 404 means repo exists but has no IAM policy yet - this is normal for new repos
     bcu_log_args 'No IAM policy exists yet (404), initializing with empty bindings'
-    echo '{"bindings":[]}' > "${ZRBGI_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGI_POSTFIX_JSON}"
+    echo '{"bindings":[]}' > "${ZRBGU_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGU_POSTFIX_JSON}"
   elif test "${z_get_code}" != "200"; then
     local z_err="HTTP ${z_get_code}"
-    if jq -e .         "${ZRBGI_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGI_POSTFIX_JSON}" >/dev/null 2>&1; then
+    if jq -e .         "${ZRBGU_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGU_POSTFIX_JSON}" >/dev/null 2>&1; then
       z_err=$(rbgu_json_field_capture "${ZRBGI_INFIX_REPO_ROLE}" '.error.message') || z_err="HTTP ${z_get_code}"
     fi
     bcu_die "Get repo IAM policy failed: ${z_err}"
@@ -226,7 +226,7 @@ rbgi_add_repo_iam_role() {
        else
          .bindings += [{role: $role, members: [$member]}]
        end
-     ' "${ZRBGI_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGI_POSTFIX_JSON}" \
+     ' "${ZRBGU_PREFIX}${ZRBGI_INFIX_REPO_ROLE}${ZRBGU_POSTFIX_JSON}" \
      > "${z_updated_policy}" || bcu_die "Failed to update policy json"
 
   bcu_log_args 'Set updated repo IAM policy'
@@ -277,7 +277,7 @@ rbgi_add_sa_iam_role() {
   z_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_ROLE}") || z_code=""
   if test "${z_code}" != "200"; then
     bcu_log_args 'No IAM policy exists yet, initializing'
-    echo '{"bindings":[]}' > "${ZRBGI_PREFIX}${ZRBGI_INFIX_ROLE}${ZRBGI_POSTFIX_JSON}"
+    echo '{"bindings":[]}' > "${ZRBGU_PREFIX}${ZRBGI_INFIX_ROLE}${ZRBGU_POSTFIX_JSON}"
   fi
 
   bcu_log_args 'Update SA IAM policy with new role binding'
@@ -293,7 +293,7 @@ rbgi_add_sa_iam_role() {
        else
          .bindings += [{role: $role, members: [$member]}]
        end
-     ' "${ZRBGI_PREFIX}${ZRBGI_INFIX_ROLE}${ZRBGI_POSTFIX_JSON}" \
+     ' "${ZRBGU_PREFIX}${ZRBGI_INFIX_ROLE}${ZRBGU_POSTFIX_JSON}" \
      > "${z_updated_policy}" || bcu_die "Failed to update SA IAM policy"
 
   bcu_log_args 'Set updated SA IAM policy'
@@ -326,7 +326,7 @@ rbgi_add_bucket_iam_role() {
   z_code=$(rbgu_http_code_capture                  "${ZRBGI_INFIX_BUCKET_IAM}") || z_code=""
   if test "${z_code}" != "200"; then
     bcu_log_args 'Initialize empty IAM policy for bucket'
-    echo '{"bindings":[]}' > "${ZRBGI_PREFIX}${ZRBGI_INFIX_BUCKET_IAM}${ZRBGI_POSTFIX_JSON}"
+    echo '{"bindings":[]}' > "${ZRBGU_PREFIX}${ZRBGI_INFIX_BUCKET_IAM}${ZRBGU_POSTFIX_JSON}"
   fi
 
   bcu_log_args 'Update bucket IAM policy'
@@ -347,7 +347,7 @@ rbgi_add_bucket_iam_role() {
          .bindings += [{role: $role, members: [$member]}]
        end
        | ( if $etag != "" then .etag = $etag else . end )
-     ' "${ZRBGI_PREFIX}${ZRBGI_INFIX_BUCKET_IAM}${ZRBGI_POSTFIX_JSON}" \
+     ' "${ZRBGU_PREFIX}${ZRBGI_INFIX_BUCKET_IAM}${ZRBGU_POSTFIX_JSON}" \
      > "${z_updated}" || bcu_die "Failed to update bucket IAM policy"
 
   local z_err
