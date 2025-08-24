@@ -83,6 +83,10 @@ zrbga_kindle() {
   ZRBGA_INFIX_BUCKET_DELETE="bucket_delete"
   ZRBGA_INFIX_BUCKET_LIST="bucket_list"
   ZRBGA_INFIX_OBJECT_DELETE="object_delete"
+  ZRBGA_INFIX_LIST_LIENS="list_liens"
+  ZRBGA_INFIX_PROJECT_DELETE="project_delete"
+  ZRBGA_INFIX_PROJECT_STATE="project_state"
+  ZRBGA_INFIX_PROJECT_RESTORE="project_restore"
 
   ZRBGA_KINDLED=1
 }
@@ -982,12 +986,11 @@ rbga_destroy_project() {
   bcu_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   bcu_step 'Check for liens (will block deletion)'
-  local z_liens_file="${BDU_TEMP_DIR}/liens_check.json"
-  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${z_liens_file}"
-  rbgu_http_require_ok "List liens" "${z_liens_file}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGA_INFIX_LIST_LIENS}"
+  rbgu_http_require_ok "List liens" "${ZRBGA_INFIX_LIST_LIENS}"
 
   local z_lien_count
-  z_lien_count=$(jq -r '.liens // [] | length' "${z_liens_file}") || bcu_die "Failed to parse liens response"
+  z_lien_count=$(rbgu_json_field_capture "${ZRBGA_INFIX_LIST_LIENS}" '.liens // [] | length') || bcu_die "Failed to parse liens response"
 
   if [[ "${z_lien_count}" -gt 0 ]]; then
     bcu_step 'BLOCKED: Liens exist on project'
@@ -1000,17 +1003,15 @@ rbga_destroy_project() {
   fi
 
   bcu_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
-  local z_delete_file="${BDU_TEMP_DIR}/project_delete.json"
-  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_PROJECT}" "${z_token}" "${z_delete_file}"
-  rbgu_http_require_ok "Delete project" "${z_delete_file}"
+  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_DELETE}"
+  rbgu_http_require_ok "Delete project" "${ZRBGA_INFIX_PROJECT_DELETE}"
 
   bcu_step 'Verify deletion state'
-  local z_project_file="${BDU_TEMP_DIR}/project_state.json"
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${z_project_file}"
-  rbgu_http_require_ok "Get project state" "${z_project_file}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_STATE}"
+  rbgu_http_require_ok "Get project state" "${ZRBGA_INFIX_PROJECT_STATE}"
 
   local z_lifecycle_state
-  z_lifecycle_state=$(jq -r '.lifecycleState // "UNKNOWN"' "${z_project_file}") || bcu_die "Failed to parse project state"
+  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
 
   if [[ "${z_lifecycle_state}" == "DELETE_REQUESTED" ]]; then
     bcu_success "Project successfully marked for deletion"
@@ -1033,15 +1034,14 @@ rbga_restore_project() {
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Check current project state'
-  local z_project_file="${BDU_TEMP_DIR}/project_state.json"
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${z_project_file}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_STATE}"
 
-  if ! rbgu_http_is_ok "${z_project_file}"; then
+  if ! rbgu_http_is_ok "${ZRBGA_INFIX_PROJECT_STATE}"; then
     bcu_die "Cannot access project - it may have been permanently deleted or never existed"
   fi
 
   local z_lifecycle_state
-  z_lifecycle_state=$(jq -r '.lifecycleState // "UNKNOWN"' "${z_project_file}") || bcu_die "Failed to parse project state"
+  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
 
   if [[ "${z_lifecycle_state}" != "DELETE_REQUESTED" ]]; then
     bcu_die "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
@@ -1054,15 +1054,14 @@ rbga_restore_project() {
   bcu_require "Confirm restoration of project" "RESTORE"
 
   bcu_step 'Attempt project restoration'
-  local z_restore_file="${BDU_TEMP_DIR}/project_restore.json"
-  rbgu_http_json "POST" "${RBGC_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${z_restore_file}"
+  rbgu_http_json "POST" "${RBGC_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_RESTORE}"
 
-  if rbgu_http_is_ok "${z_restore_file}"; then
+  if rbgu_http_is_ok "${ZRBGA_INFIX_PROJECT_RESTORE}"; then
     bcu_step 'Verify restoration'
-    rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${z_project_file}"
-    rbgu_http_require_ok "Get restored project state" "${z_project_file}"
+    rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_STATE}"
+    rbgu_http_require_ok "Get restored project state" "${ZRBGA_INFIX_PROJECT_STATE}"
 
-    z_lifecycle_state=$(jq -r '.lifecycleState // "UNKNOWN"' "${z_project_file}") || bcu_die "Failed to parse restored project state"
+    z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse restored project state"
 
     if [[ "${z_lifecycle_state}" == "ACTIVE" ]]; then
       bcu_success "Project successfully restored to ACTIVE state"
@@ -1073,7 +1072,7 @@ rbga_restore_project() {
     fi
   else
     local z_error_msg
-    z_error_msg=$(jq -r '.error.message // "Unknown error"' "${z_restore_file}") || z_error_msg="Failed to parse error"
+    z_error_msg=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
     bcu_die "Project restoration failed: ${z_error_msg}"
   fi
 }
