@@ -38,7 +38,7 @@ RBRR_CHOSEN_IDENTITY=20250723-092042  # mow_x86_64_wsl mow_aarch64_wsl
 RBRR_VESSEL_DIR=rbev-vessels
 
 # Google Cloud Platform configuration (shared by all GCP services)
-RBRR_GCP_PROJECT_ID=brm-03
+RBRR_GCP_PROJECT_ID=brm-04
 RBRR_GCP_REGION=us-central1  # Project doesn't have a region but our services do
 
 # Google Artifact Registry settings
