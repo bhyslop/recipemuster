@@ -349,38 +349,34 @@ rbgu_http_json_lro_ok() {
   rbgu_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body}"
   rbgu_http_require_ok "${z_label}" "${z_infix}"
 
-  # Check for immediate-done response
   local z_done=""
   z_done=$(rbgu_json_field_capture "${z_infix}" ".done") || z_done=""
   test "${z_done}" = "true" && {
-    bcu_log_args 'Immediate-done response ? success (no polling)'
+    bcu_log_args 'Immediate-done response -> success (no polling)'
     return 0
   }
 
   bcu_log_args '2) Extract op name (or return if not an LRO)'
-  local z_op_name=""
-  z_op_name=$(rbgu_json_field_capture "${z_infix}" "${z_name_jq}") || z_op_name=""
-  case "${z_op_name}" in
-    ""|null)
-      bcu_log_args 'No LRO name present ? treat as non-LRO success'
-      return 0
-      ;;
-  esac
-
+  local z_name
+  z_name=$(rbgu_json_field_capture "${z_infix}" "${z_name_jq}") || z_name=""
+  test -n "${z_name}" || {
+    bcu_log_args 'No LRO name present - treat as non-LRO success'
+    return 0
+  }
   bcu_log_args '3) Build poll URL based on operation name format'
   local z_poll_url=""
   if [[ "${z_name}" =~ ^projects/.*/locations/.*/operations/ ]]; then
     bcu_log_args '  Regional operation with fully-qualified name'
-    z_poll_url="${z_api_root}${z_api_ver}/${z_name}"
+    z_poll_url="${z_poll_root}/${z_name}"
   elif [[ "${z_name}" =~ ^projects/.*/operations/ ]]; then
     bcu_log_args '  Global operation with project prefix'
-    z_poll_url="${z_api_root}${z_api_ver}/${z_name}"
-  elif test -n "${z_op_prefix}"; then
-    bcu_log_args '  Legacy format - apply prefix'
-    z_poll_url="${z_api_root}${z_api_ver}/${z_op_prefix}${z_name}"
+    z_poll_url="${z_poll_root}/${z_name}"
+  elif test -n "${z_op_prefix}" && [[ ! "${z_name}" =~ ^${z_op_prefix} ]]; then
+    bcu_log_args '  Legacy format - apply prefix (not already present)'
+    z_poll_url="${z_poll_root}/${z_op_prefix}${z_name}"
   else
-    bcu_log_args '  No prefix provided, use name as-is under versioned root'
-    z_poll_url="${z_api_root}${z_api_ver}/${z_name}"
+    bcu_log_args '  Use name as-is under versioned root'
+    z_poll_url="${z_poll_root}/${z_name}"
   fi
   bcu_log_args "Poll URL: ${z_poll_url}"
 

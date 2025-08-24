@@ -172,8 +172,7 @@ rbgp_show_setup() {
   zrbgp_nw     "      - Organization: " "No organization"
   zrbgp_nw     "   4. Click " "CREATE"
   zrbgp_nwne   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
-  zrbgp_nwn    "   6. Wait for notification -> " "Creating project..." " to complete"
-  zrbgp_n      "   7. Select project from dropdown when ready"
+  zrbgp_nwn    "   6. If popup, wait for notification -> " "Creating project..." " to complete"
   zrbgp_e
   zrbgp_s2     "4. Create the Admin Service Account:"
   zrbgp_nwnwn  "   1. Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
