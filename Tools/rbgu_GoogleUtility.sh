@@ -32,7 +32,7 @@ zrbgu_kindle() {
 
   # Validate dependencies
   bvu_dir_exists "${BDU_TEMP_DIR}"
-  
+
   # Ensure dependencies kindled first
   zrbgc_sentinel
   zrbgo_sentinel
@@ -334,40 +334,71 @@ rbgu_http_json_ok() {
 rbgu_http_json_lro_ok() {
   zrbgu_sentinel
 
-  local z_label="${1}"; local z_token="${2}"; local z_post_url="${3}"
-  local z_infix="${4}"; local z_body="${5:-}"
-  local z_op_field="${6:-.name}"
-  local z_op_root="${7:-}"; local z_op_prefix="${8:-}"
-  local z_poll="${9:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
-  local z_max="${10:-${RBGC_MAX_CONSISTENCY_SEC}}"
+  local z_label="${1}"
+  local z_token="${2}"
+  local z_post_url="${3}"
+  local z_infix="${4}"
+  local z_body="${5}"
+  local z_name_jq="${6}"
+  local z_poll_root="${7}"
+  local z_op_prefix="${8}"
+  local z_poll_interval="${9}"
+  local z_timeout="${10}"
 
-  test -n "${z_op_root}"   || bcu_die "${z_label}: op_root_base required"
-  test -n "${z_op_prefix}" || bcu_die "${z_label}: op_name_prefix required"
-
-  bcu_log_args '1) Fire the POST and enforce HTTP success.'
-  rbgu_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body:-}"
+  bcu_log_args '1) POST the request'
+  rbgu_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body}"
   rbgu_http_require_ok "${z_label}" "${z_infix}"
+
+  # Check for immediate-done response
+  local z_done=""
+  z_done=$(rbgu_json_field_capture "${z_infix}" ".done") || z_done=""
+  test "${z_done}" = "true" && {
+    bcu_log_args 'Immediate-done response ? success (no polling)'
+    return 0
+  }
 
   bcu_log_args '2) Extract op name (or return if not an LRO)'
   local z_op_name=""
-  z_op_name=$(jq -r "${z_op_field} // empty" "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}") || z_op_name=""
-  test -n "${z_op_name}" || return 0
-
-  bcu_log_args '3) Assert expected shape and build absolute poll URL deterministically'
+  z_op_name=$(rbgu_json_field_capture "${z_infix}" "${z_name_jq}") || z_op_name=""
   case "${z_op_name}" in
-    https://*) : ;;  # absolute ok, but still assert prefix match if provided
-    *)
-      case "${z_op_name}" in
-        ${z_op_prefix}*) z_op_name="${z_op_root}/${z_op_name}" ;;
-        *) bcu_die "${z_label}: unexpected op name '${z_op_name}' (wanted prefix '${z_op_prefix}')"
-      esac
+    ""|null)
+      bcu_log_args 'No LRO name present ? treat as non-LRO success'
+      return 0
       ;;
   esac
 
-  bcu_log_args '4) Record and poll'
-  printf '%s\n' "${z_op_name}" > "${ZRBGU_PREFIX}${z_infix}_op.txt"
-  rbgu_wait_lro_capture "${z_token}" "${z_op_name}" "${z_infix}" "${z_poll}" "${z_max}" >/dev/null \
-    || bcu_die "${z_label}: operation failed"
+  bcu_log_args '3) Assert expected shape and build absolute poll URL deterministically'
+  local z_poll_path=""
+  if test "${z_op_name#${z_op_prefix}}" != "${z_op_name}"; then
+    z_poll_path="${z_op_name}"
+  else
+    z_poll_path="${z_op_prefix}${z_op_name}"
+  fi
+  test -n "${z_poll_path}" || bcu_die "${z_label}: empty LRO name after extraction"
+  local z_poll_url="${z_poll_root}/${z_poll_path}"
+
+  bcu_log_args '4) Poll until done or timeout'
+  local z_elapsed=0
+  while :; do
+    sleep "${z_poll_interval}"
+    z_elapsed=$((z_elapsed + z_poll_interval))
+
+    local z_poll_infix="${z_infix}-poll-${z_elapsed}s"
+    rbgu_http_json "GET" "${z_poll_url}" "${z_token}" "${z_poll_infix}"
+
+    local z_code=""
+    z_code=$(rbgu_http_code_capture "${z_poll_infix}") || z_code=""
+    test "${z_code}" = "200" || bcu_die "${z_label}: poll failed (HTTP ${z_code})"
+
+    z_done=$(rbgu_json_field_capture "${z_poll_infix}" ".done") || z_done=""
+    test "${z_done}" = "true" && {
+      bcu_log_args "${z_label}: operation completed after ${z_elapsed}s"
+      return 0
+    }
+
+    test "${z_elapsed}" -ge "${z_timeout}" && bcu_die "${z_label}: timeout after ${z_timeout}s"
+    bcu_log_args "Still running at ${z_elapsed}s..."
+  done
 }
 
 # Predicate: Check if resource was newly created and apply propagation delay
