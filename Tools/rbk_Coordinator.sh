@@ -72,7 +72,9 @@ rbk_route() {
     rbw-al)  exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_list_service_accounts  $z_args ;;
     rbw-aCR) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever       $z_args ;;
     rbw-aCD) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director        $z_args ;;
-    rbw-aD)  exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args ;;
+    rbw-aDS) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account $z_args ;;
+    rbw-aPO) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_project        $z_args ;;
+    rbw-aPr) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_restore_project        $z_args ;;
 
     # Foundry commands
     rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build  $z_args ;;
