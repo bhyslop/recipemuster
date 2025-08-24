@@ -342,8 +342,8 @@ rbgu_http_json_lro_ok() {
   local z_name_jq="${6}"
   local z_poll_root="${7}"
   local z_op_prefix="${8}"
-  local z_poll_interval="${9}"
-  local z_timeout="${10}"
+  local z_poll_interval="${9:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
+  local z_timeout="${10:-${RBGC_MAX_CONSISTENCY_SEC}}"
 
   bcu_log_args '1) POST the request'
   rbgu_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body}"
