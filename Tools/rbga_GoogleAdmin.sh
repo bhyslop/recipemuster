@@ -641,7 +641,7 @@ rbga_initialize_admin() {
     "${z_create_url}"                                                \
     "${ZRBGA_INFIX_CREATE_REPO}"                                     \
     "${z_create_body}"                                               \
-    ".operation.name"                                                \
+    ".name"                                                          \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}"   \
     "${RBGC_OP_PREFIX_GLOBAL}"                                       \
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
@@ -668,7 +668,7 @@ rbga_initialize_admin() {
     z_peek_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
     test "${z_peek_code}" = "200" && break
     
-    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && \
+    test "${z_elapsed}" -le "${RBGC_MAX_CONSISTENCY_SEC}" || \
       bcu_die "Cloud Build runtime SA not accessible after ${RBGC_MAX_CONSISTENCY_SEC}s (HTTP ${z_peek_code})"
     
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
