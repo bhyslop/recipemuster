@@ -71,7 +71,6 @@ zrbga_kindle() {
   ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
   ZRBGA_INFIX_PROJECT_INFO="project_info"
   ZRBGA_INFIX_CREATE_REPO="create_repo"
-  ZRBGA_INFIX_CB_RUNTIME_SA_PEEK="cb_runtime_sa_peek"
   ZRBGA_INFIX_VERIFY_REPO="verify_repo"
   ZRBGA_INFIX_DELETE_REPO="delete_repo"
   ZRBGA_INFIX_REPO_POLICY="repo_policy"
@@ -653,42 +652,14 @@ rbga_initialize_admin() {
   test "$(rbgu_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
 
-  bcu_step 'Verify Cloud Build runtime SA is readable after propagation'
-  local z_cb_sa="${z_project_number}@cloudbuild.gserviceaccount.com"
-  local z_cb_sa_enc
-  z_cb_sa_enc=$(rbgu_urlencode_capture "${z_cb_sa}") || bcu_die "Failed to encode SA email"
-
-  bcu_step '  Bounded retry for runtime SA visibility...'
-  local z_elapsed=0
-  local z_peek_code
-  while :; do
-    rbgu_http_json "GET" \
-      "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_enc}" \
-                            "${z_token}" "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}"
-    z_peek_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
-    test "${z_peek_code}" = "200" && break
-    
-    test "${z_elapsed}" -le "${RBGC_MAX_CONSISTENCY_SEC}" || \
-      bcu_die "Cloud Build runtime SA not accessible after ${RBGC_MAX_CONSISTENCY_SEC}s (HTTP ${z_peek_code})"
-    
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
-  done
-
-  bcu_step 'Grant Storage Object Viewer to Cloud Build SA on bucket'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectViewer" "${z_token}"
-
-  bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'
-  rbgi_add_repo_iam_role "${z_cb_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"
-
   bcu_step 'Ensure Mason service account exists (no keys)'
   zrbga_create_service_account_no_key "${RBGC_MASON_NAME}" "RBGA Mason (build executor)"
 
-  bcu_log_args 'Compute Cloud Build runtime SA and Mason email'
   local z_mason_sa="${RBGC_MASON_EMAIL}"
+  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
 
-  bcu_step 'Allow Cloud Build to impersonate Mason (TokenCreator on Mason)'
-  rbgi_add_sa_iam_role "${z_mason_sa}" "${z_cb_sa}" "roles/iam.serviceAccountTokenCreator"
+  bcu_step 'Allow Cloud Build service agent to impersonate Mason (TokenCreator on Mason)'
+  rbgi_add_sa_iam_role "${z_mason_sa}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
   bcu_step 'Grant Artifact Registry Admin (repo-scoped) to Mason'
   rbgi_add_repo_iam_role "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
@@ -703,7 +674,7 @@ rbga_initialize_admin() {
 
   bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
   bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
-  bcu_info "Cloud Build SA granted writer on repo: ${z_cb_sa}"
+  bcu_info "Mason SA configured with repo access"
   bcu_warn "RBRR file stashed. Consider deleting carriage JSON:"
   bcu_code ""
   bcu_code "    rm \"${z_json_path}\""
@@ -734,7 +705,7 @@ rbga_destroy_admin() {
   bcu_require "Confirm full reset of this project?" "YES"
   bcu_require "Be very very sure!" "I-AM-SURE"
 
-  bcu_step 'Discover Project Number Cloud Build SA (to prune repo binding cleanly)'
+  bcu_step 'Discover Project Number'
 
   rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info"                         "${ZRBGA_INFIX_PROJECT_INFO}"
@@ -742,48 +713,10 @@ rbga_destroy_admin() {
   z_project_number=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
 
-  local z_cb_sa_member="serviceAccount:${z_project_number}@cloudbuild.gserviceaccount.com"
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBGC_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
-  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
-  local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
-
-  bcu_step 'Prune Cloud Build SA writer binding (idempotent; harmless if missing)'
-
-  bcu_step 'Fetch current repo IAM policy'
-  rbgu_http_json "POST" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_REPO_POLICY}" "${ZRBGA_EMPTY_JSON}"
-  rbgu_http_require_ok "Get repo IAM policy"        "${ZRBGA_INFIX_REPO_POLICY}" 404 "repo not found (already deleted)"
-
-  bcu_log_args 'Guard the prune+set when the repo is already gone'
-  local z_get_code
-  z_get_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_REPO_POLICY}") || z_get_code="000"
-  if test "${z_get_code}" = "404"; then
-    bcu_warn "Repo missing; skip writer-binding prune."
-  else
-    bcu_step 'Strip Cloud Build SA from artifactregistry.writer binding'
-    local z_updated_policy="${BDU_TEMP_DIR}/rbga_repo_policy_pruned.json"
-    jq --arg role "${RBGC_ROLE_ARTIFACTREGISTRY_WRITER}"   \
-       --arg member "${z_cb_sa_member}"                    \
-       '
-         .bindings = (.bindings // []) |
-         .bindings = [ .bindings[] |
-           if .role == $role then .members = ((.members // []) | map(select(. != $member)))
-           else . end
-         ] |
-         .bindings = [ .bindings[] | select((.members // []) | length > 0) ]
-       ' "${ZRBGU_PREFIX}${ZRBGA_INFIX_REPO_POLICY}${ZRBGU_POSTFIX_JSON}" > "${z_updated_policy}" \
-      || bcu_die "Failed to prune writer binding"
-
-    local z_repo_set_body="${BDU_TEMP_DIR}/rbga_repo_set_policy_body.json"
-    jq -n --slurpfile p "${z_updated_policy}" '{policy:$p[0]}' > "${z_repo_set_body}" \
-      || bcu_die "Failed to build repo setIamPolicy body"
-
-    rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${ZRBGA_INFIX_RPOLICY_SET}" "${z_repo_set_body}"
-    rbgu_http_require_ok "Set repo IAM policy"        "${ZRBGA_INFIX_RPOLICY_SET}"
-  fi
-
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
 
-  bcu_step "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBGC_GAR_LOCATION}"
+  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBGC_GAR_LOCATION}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
+  bcu_log_args "Delete Artifact Registry repo '${RBRR_GAR_REPOSITORY}' in ${RBGC_GAR_LOCATION}"
   local z_delete_code
   rbgu_http_json "DELETE"                                                           \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"    \

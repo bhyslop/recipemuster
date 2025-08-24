@@ -184,15 +184,15 @@ rbgi_add_repo_iam_role() {
   test -n "${z_repository}"    || bcu_die "Repository is required"
   test -n "${z_role}"          || bcu_die "Role is required"
 
+  local z_resource="projects/${RBRR_GCP_PROJECT_ID}/locations/${z_location}/repositories/${z_repository}"
+  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
+  local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
+
   bcu_log_args 'Adding repo-scoped IAM role' \
                " ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
 
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repository}"
-  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
-  local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
   bcu_log_args 'Get current repo IAM policy'
   local z_get_code
