@@ -178,7 +178,7 @@ rbgp_show_setup() {
   zrbgp_s2     "4. Create the Admin Service Account:"
   zrbgp_nwnwn  "   Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
   zrbgp_nwnw   "   1. Left sidebar -> " "IAM & Admin" " -> " "Service Accounts"
-  zrbgp_nw     "   2. If prompted about APIs:"
+  zrbgp_n      "   2. If prompted about APIs:"
   zrbgp_nw     "      1. click -> " "Enable API"
   zrbgp_n      "          TODO: This step is brittle - enabling IAM API may happen automatically or be blocked by org policy."
   zrbgp_nw     "      2. Wait for " "Identity and Access Management (IAM) API to enable"
