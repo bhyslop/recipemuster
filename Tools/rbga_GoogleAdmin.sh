@@ -274,8 +274,13 @@ zrbga_create_service_account_no_key() {
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_CREATE}" "${z_body}"
   rbgu_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
 
+  bcu_log_args 'Allow IAM propagation, then verify using URL-encoded email'
+  rbgu_newly_created_delay "${ZRBGA_INFIX_CREATE}" "service account" 15
+
   bcu_log_args 'Verify service account'
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
+  local z_account_email_enc
+  z_account_email_enc=$(rbgu_urlencode_capture "${z_account_email}") || bcu_die "Failed to encode SA email"
+  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email_enc}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
   rbgu_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
 
   bcu_success "Service account ensured (no keys): ${z_account_email}"
