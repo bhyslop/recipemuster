@@ -287,19 +287,18 @@ zrbga_ensure_cloudbuild_service_agent() {
 
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  local z_gen_url="${RBGC_API_CB_GENERATE_SA}"
+  local z_gen_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${z_project_number}/services/cloudbuild.googleapis.com:generateServiceIdentity"
 
-  rbgu_http_json_lro_ok                                    \
-    "Generate Cloud Build service agent"                   \
-    "${z_token}"                                           \
-    "${z_gen_url}"                                         \
-    "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}"                     \
-    "${ZRBGA_EMPTY_JSON}"                                  \
-    ".name"                                                \
-    "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}" \
-    "${RBGC_OP_PREFIX_GLOBAL}"                             \
-    "5"                                                    \
-    "60"
+  rbgu_http_json_lro_ok                                              \
+       "Generate Cloud Build service agent"                          \
+       "${z_token}"                                                  \
+       "${z_gen_url}"                                                \
+       "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}"                            \
+       "${ZRBGA_EMPTY_JSON}"                                         \
+       ".name"                                                       \
+       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}"   \
+       "5"                                                           \
+       "60"
 
   bcu_step 'Grant Cloud Build Service Agent role'
   rbgi_add_project_iam_role                 \
@@ -713,7 +712,7 @@ rbga_initialize_admin() {
   z_peek_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_CB_RUNTIME_SA_PEEK}") || z_peek_code="000"
   test "${z_peek_code}" = "200" || bcu_die "Cloud Build runtime SA not readable after fixed pause (HTTP ${z_peek_code})"
 
-  bcu_step 'Grant Storage Object Admin to Cloud Build SA on bucket'
+  bcu_step 'Grant Storage Object Viewer to Cloud Build SA on bucket'
   rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_cb_sa}" "roles/storage.objectViewer" "${z_token}"
 
   bcu_step 'Grant Artifact Registry Writer to Cloud Build SA on repo'

@@ -72,6 +72,7 @@ zrbgc_kindle() {
   RBGC_IAM_V1="/v1"
   RBGC_CRM_V1="/v1"
   RBGC_SERVICEUSAGE_V1="/v1"
+  RBGC_SERVICEUSAGE_V1BETA1="/v1beta1"
   RBGC_ARTIFACTREGISTRY_V1="/v1"
   RBGC_CLOUDBUILD_V1="/v1"
   RBGC_STORAGE_JSON_V1="/storage/v1"
@@ -135,9 +136,6 @@ zrbgc_kindle() {
   RBGC_API_SU_VERIFY_BUILD="${RBGC_API_BASE_SERVICEUSAGE}/cloudbuild.googleapis.com"
   RBGC_API_SU_VERIFY_ANALYSIS="${RBGC_API_BASE_SERVICEUSAGE}/containeranalysis.googleapis.com"
   RBGC_API_SU_VERIFY_STORAGE="${RBGC_API_BASE_SERVICEUSAGE}/storage.googleapis.com"
-
-  # Cloud Build Service Agent Generation
-  RBGC_API_CB_GENERATE_SA="${RBGC_API_BASE_SERVICEUSAGE}/cloudbuild.googleapis.com:generateServiceIdentity"
 
   # Google Cloud Storage (GCS) APIs
   RBGC_API_GCS_BUCKETS="${RBGC_API_BASE_GCS}/b"
