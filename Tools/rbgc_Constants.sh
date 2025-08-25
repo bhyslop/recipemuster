@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Google Constants - Implementation (no printf required)
+# Recipe Bottle GCP Constants - Implementation (no printf required)
 
 set -euo pipefail
 

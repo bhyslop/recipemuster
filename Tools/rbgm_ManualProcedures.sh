@@ -16,19 +16,19 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Google Procedures - Implementation
+# Recipe Bottle GCP Manual Procedures - Implementation
 
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGP_SOURCED:-}" || bcu_die "Module rbgp multiply sourced - check sourcing hierarchy"
-ZRBGP_SOURCED=1
+test -z "${ZRBGM_SOURCED:-}" || bcu_die "Module rbgm multiply sourced - check sourcing hierarchy"
+ZRBGM_SOURCED=1
 
 ######################################################################
-# Internal Functions (zrbgp_*)
+# Internal Functions (zrbgm_*)
 
-zrbgp_kindle() {
-  test -z "${ZRBGP_KINDLED:-}" || bcu_die "Module rbgp already kindled"
+zrbgm_kindle() {
+  test -z "${ZRBGM_KINDLED:-}" || bcu_die "Module rbgm already kindled"
 
   test -n "${RBRR_GCP_PROJECT_ID:-}"     || bcu_die "RBRR_GCP_PROJECT_ID is not set"
   test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || bcu_die "RBRR_GCP_PROJECT_ID is empty"
@@ -42,171 +42,171 @@ zrbgp_kindle() {
   fi
 
   if [ "$z_use_color" = "1" ]; then
-    ZRBGP_R="\033[0m"         # Reset
-    ZRBGP_S="\033[1;37m"      # Section (bright white)
-    ZRBGP_C="\033[36m"        # Command (cyan)
-    ZRBGP_W="\033[35m"        # Website (magenta)
-    ZRBGP_WN="\033[1;33m"     # Warning (bright yellow)
-    ZRBGP_CR="\033[1;31m"     # Critical (bright red)
+    ZRBGM_R="\033[0m"         # Reset
+    ZRBGM_S="\033[1;37m"      # Section (bright white)
+    ZRBGM_C="\033[36m"        # Command (cyan)
+    ZRBGM_W="\033[35m"        # Website (magenta)
+    ZRBGM_WN="\033[1;33m"     # Warning (bright yellow)
+    ZRBGM_CR="\033[1;31m"     # Critical (bright red)
   else
-    ZRBGP_R=""                # No color, or disabled
-    ZRBGP_S=""                # No color, or disabled
-    ZRBGP_C=""                # No color, or disabled
-    ZRBGP_W=""                # No color, or disabled
-    ZRBGP_WN=""               # No color, or disabled
-    ZRBGP_CR=""               # No color, or disabled
+    ZRBGM_R=""                # No color, or disabled
+    ZRBGM_S=""                # No color, or disabled
+    ZRBGM_C=""                # No color, or disabled
+    ZRBGM_W=""                # No color, or disabled
+    ZRBGM_WN=""               # No color, or disabled
+    ZRBGM_CR=""               # No color, or disabled
   fi
 
-  ZRBGP_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
+  ZRBGM_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
-  ZRBGP_PREFIX="${BDU_TEMP_DIR}/rbgp_"
-  ZRBGP_LIST_RESPONSE="${ZRBGP_PREFIX}list_response.json"
-  ZRBGP_LIST_CODE="${ZRBGP_PREFIX}list_code.txt"
-  ZRBGP_CREATE_REQUEST="${ZRBGP_PREFIX}create_request.json"
-  ZRBGP_CREATE_RESPONSE="${ZRBGP_PREFIX}create_response.json"
-  ZRBGP_CREATE_CODE="${ZRBGP_PREFIX}create_code.txt"
-  ZRBGP_DELETE_RESPONSE="${ZRBGP_PREFIX}delete_response.json"
-  ZRBGP_DELETE_CODE="${ZRBGP_PREFIX}delete_code.txt"
-  ZRBGP_KEY_RESPONSE="${ZRBGP_PREFIX}key_response.json"
-  ZRBGP_KEY_CODE="${ZRBGP_PREFIX}key_code.txt"
-  ZRBGP_ROLE_RESPONSE="${ZRBGP_PREFIX}role_response.json"
-  ZRBGP_ROLE_CODE="${ZRBGP_PREFIX}role_code.txt"
-  ZRBGP_REPO_ROLE_RESPONSE="${ZRBGP_PREFIX}repo_role_response.json"
-  ZRBGP_REPO_ROLE_CODE="${ZRBGP_PREFIX}repo_role_code.txt"
+  ZRBGM_PREFIX="${BDU_TEMP_DIR}/rbgm_"
+  ZRBGM_LIST_RESPONSE="${ZRBGM_PREFIX}list_response.json"
+  ZRBGM_LIST_CODE="${ZRBGM_PREFIX}list_code.txt"
+  ZRBGM_CREATE_REQUEST="${ZRBGM_PREFIX}create_request.json"
+  ZRBGM_CREATE_RESPONSE="${ZRBGM_PREFIX}create_response.json"
+  ZRBGM_CREATE_CODE="${ZRBGM_PREFIX}create_code.txt"
+  ZRBGM_DELETE_RESPONSE="${ZRBGM_PREFIX}delete_response.json"
+  ZRBGM_DELETE_CODE="${ZRBGM_PREFIX}delete_code.txt"
+  ZRBGM_KEY_RESPONSE="${ZRBGM_PREFIX}key_response.json"
+  ZRBGM_KEY_CODE="${ZRBGM_PREFIX}key_code.txt"
+  ZRBGM_ROLE_RESPONSE="${ZRBGM_PREFIX}role_response.json"
+  ZRBGM_ROLE_CODE="${ZRBGM_PREFIX}role_code.txt"
+  ZRBGM_REPO_ROLE_RESPONSE="${ZRBGM_PREFIX}repo_role_response.json"
+  ZRBGM_REPO_ROLE_CODE="${ZRBGM_PREFIX}repo_role_code.txt"
 
-  ZRBGP_KINDLED=1
+  ZRBGM_KINDLED=1
 }
 
-zrbgp_sentinel() {
-  test "${ZRBGP_KINDLED:-}" = "1" || bcu_die "Module rbgp not kindled - call zrbgp_kindle first"
+zrbgm_sentinel() {
+  test "${ZRBGM_KINDLED:-}" = "1" || bcu_die "Module rbgm not kindled - call zrbgm_kindle first"
 }
 
-zrbgp_show() {
-  zrbgp_sentinel
+zrbgm_show() {
+  zrbgm_sentinel
   echo -e "${1:-}"
 }
 
-zrbgp_s1()      { zrbgp_show "${ZRBGP_S}${1}${ZRBGP_R}"; }
-zrbgp_s2()      { zrbgp_show "${ZRBGP_S}${1}${ZRBGP_R}"; }
-zrbgp_s3()      { zrbgp_show "${ZRBGP_S}${1}${ZRBGP_R}"; }
+zrbgm_s1()      { zrbgm_show "${ZRBGM_S}${1}${ZRBGM_R}"; }
+zrbgm_s2()      { zrbgm_show "${ZRBGM_S}${1}${ZRBGM_R}"; }
+zrbgm_s3()      { zrbgm_show "${ZRBGM_S}${1}${ZRBGM_R}"; }
 
-zrbgp_e()       { zrbgp_show "";                                                             }
-zrbgp_n()       { zrbgp_show "${1}";                                                         }
-zrbgp_nc()      { zrbgp_show "${1}${ZRBGP_C}${2}${ZRBGP_R}";                                 }
-zrbgp_ncn()     { zrbgp_show "${1}${ZRBGP_C}${2}${ZRBGP_R}${3}";                             }
-zrbgp_nw()      { zrbgp_show "${1}${ZRBGP_W}${2}${ZRBGP_R}";                                 }
-zrbgp_nwn()     { zrbgp_show "${1}${ZRBGP_W}${2}${ZRBGP_R}${3}";                             }
-zrbgp_nwne()    { zrbgp_show "${1}${ZRBGP_W}${2}${ZRBGP_R}${3}${ZRBGP_CR}${4}${ZRBGP_R}";    }
-zrbgp_nwnw()    { zrbgp_show "${1}${ZRBGP_W}${2}${ZRBGP_R}${3}${ZRBGP_W}${4}${ZRBGP_R}";     }
-zrbgp_nwnwn()   { zrbgp_show "${1}${ZRBGP_W}${2}${ZRBGP_R}${3}${ZRBGP_W}${4}${ZRBGP_R}${5}"; }
+zrbgm_e()       { zrbgm_show "";                                                             }
+zrbgm_n()       { zrbgm_show "${1}";                                                         }
+zrbgm_nc()      { zrbgm_show "${1}${ZRBGM_C}${2}${ZRBGM_R}";                                 }
+zrbgm_ncn()     { zrbgm_show "${1}${ZRBGM_C}${2}${ZRBGM_R}${3}";                             }
+zrbgm_nw()      { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}";                                 }
+zrbgm_nwn()     { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}";                             }
+zrbgm_nwne()    { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_CR}${4}${ZRBGM_R}";    }
+zrbgm_nwnw()    { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_W}${4}${ZRBGM_R}";     }
+zrbgm_nwnwn()   { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_W}${4}${ZRBGM_R}${5}"; }
 
-zrbgp_ne()      { zrbgp_show "${1}${ZRBGP_CR}${2}${ZRBGP_R}"; }
+zrbgm_ne()      { zrbgm_show "${1}${ZRBGM_CR}${2}${ZRBGM_R}"; }
 
-zrbgp_cmd()     { zrbgp_show "${ZRBGP_C}${1}${ZRBGP_R}"; }
-zrbgp_warning() { zrbgp_show "\n${ZRBGP_WN}  WARNING: ${1}${ZRBGP_R}\n"; }
-zrbgp_critic()  { zrbgp_show "\n${ZRBGP_CR} CRITICAL SECURITY WARNING: ${1}${ZRBGP_R}\n"; }
+zrbgm_cmd()     { zrbgm_show "${ZRBGM_C}${1}${ZRBGM_R}"; }
+zrbgm_warning() { zrbgm_show "\n${ZRBGM_WN}  WARNING: ${1}${ZRBGM_R}\n"; }
+zrbgm_critic()  { zrbgm_show "\n${ZRBGM_CR} CRITICAL SECURITY WARNING: ${1}${ZRBGM_R}\n"; }
 
 
 ######################################################################
-# External Functions (rbgp_*)
+# External Functions (rbgm_*)
 
-rbgp_show_setup() {
-  zrbgp_sentinel
+rbgm_show_setup() {
+  zrbgm_sentinel
 
   bcu_doc_brief "Display the manual GCP admin setup procedure"
   bcu_doc_shown || return 0
 
-  zrbgp_s1     "# Google Cloud Platform Setup"
-  zrbgp_s2     "## Overview"
-  zrbgp_n      "Bootstrap GCP infrastructure by creating an admin service account with Project Owner privileges."
-  zrbgp_n      "The admin account will manage operational service accounts and infrastructure configuration."
-  zrbgp_s2     "## Prerequisites"
-  zrbgp_n      "- Credit card for GCP account verification (won't be charged on free tier)"
-  zrbgp_n      "- Email address not already associated with GCP"
-  zrbgp_e
-  zrbgp_n      "---"
-  zrbgp_s1     "Manual Admin Setup Procedure"
-  zrbgp_n      "Recipe Bottle setup requires a manual bootstrap procedure to enable admin control"
-  zrbgp_e
-  zrbgp_nc     "Open a web browser to " "${RBGC_SIGNUP_URL}"
+  zrbgm_s1     "# Google Cloud Platform Setup"
+  zrbgm_s2     "## Overview"
+  zrbgm_n      "Bootstrap GCP infrastructure by creating an admin service account with Project Owner privileges."
+  zrbgm_n      "The admin account will manage operational service accounts and infrastructure configuration."
+  zrbgm_s2     "## Prerequisites"
+  zrbgm_n      "- Credit card for GCP account verification (won't be charged on free tier)"
+  zrbgm_n      "- Email address not already associated with GCP"
+  zrbgm_e
+  zrbgm_n      "---"
+  zrbgm_s1     "Manual Admin Setup Procedure"
+  zrbgm_n      "Recipe Bottle setup requires a manual bootstrap procedure to enable admin control"
+  zrbgm_e
+  zrbgm_nc     "Open a web browser to " "${RBGC_SIGNUP_URL}"
 
-  zrbgp_critic "This procedure is for PERSONAL Google accounts only."
-  zrbgp_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
-  zrbgp_n      "you must follow your IT/admin process to create projects, attach billing,"
-  zrbgp_n      "and assign permissions - those steps are NOT covered here."
-  zrbgp_e
-  zrbgp_s2     "1. Establish Account:"
-  zrbgp_nc     "   Open a browser to: " "${RBGC_SIGNUP_URL}"
-  zrbgp_nw     "   1. Click -> " "Get started for free"
-  zrbgp_n      "   2. Sign in with your Google account or create a new one"
-  zrbgp_n      "   3. Provide:"
-  zrbgp_n      "      - Country"
-  zrbgp_nw     "      - Organization type: " "Individual"
-  zrbgp_n      "      - Credit card (verification only)"
-  zrbgp_nw     "   4. Accept terms -> " "Start my free trial"
-  zrbgp_n      "   5. Expect Google Cloud Console to open"
-  zrbgp_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
-  zrbgp_e
+  zrbgm_critic "This procedure is for PERSONAL Google accounts only."
+  zrbgm_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
+  zrbgm_n      "you must follow your IT/admin process to create projects, attach billing,"
+  zrbgm_n      "and assign permissions - those steps are NOT covered here."
+  zrbgm_e
+  zrbgm_s2     "1. Establish Account:"
+  zrbgm_nc     "   Open a browser to: " "${RBGC_SIGNUP_URL}"
+  zrbgm_nw     "   1. Click -> " "Get started for free"
+  zrbgm_n      "   2. Sign in with your Google account or create a new one"
+  zrbgm_n      "   3. Provide:"
+  zrbgm_n      "      - Country"
+  zrbgm_nw     "      - Organization type: " "Individual"
+  zrbgm_n      "      - Credit card (verification only)"
+  zrbgm_nw     "   4. Accept terms -> " "Start my free trial"
+  zrbgm_n      "   5. Expect Google Cloud Console to open"
+  zrbgm_nwn    "   6. You should see: " "Welcome, [Your Name]" " with a 'Set Up Foundation' button"
+  zrbgm_e
   local z_configure_pid_step="2. Configure Project ID and Region"
-  zrbgp_s2     "${z_configure_pid_step}:"
-  zrbgp_n      "   Before creating the project, choose a unique Project ID."
-  zrbgp_nc     "   1. Edit your RBRR configuration file: " "${ZRBGP_RBRR_FILE}"
-  zrbgp_n      "   2. Set RBRR_GCP_PROJECT_ID to a unique value:"
-  zrbgp_n      "      - Must be globally unique across all GCP"
-  zrbgp_n      "      - 6-30 characters, lowercase letters, numbers, hyphens"
-  zrbgp_n      "      - Cannot start/end with hyphen"
-  zrbgp_n      "   3. Set RBRR_GCP_REGION based on your location (see project documentation)"
-  zrbgp_n      "   4. Save the file before proceeding"
-  zrbgp_e
-  zrbgp_s2     "3. Create New Project:"
-  zrbgp_nc     "   Go directly to: " "${RBGC_CONSOLE_URL}"
-  zrbgp_n      "   Sign in with the same Google account you just set up"
-  zrbgp_n      "   1. Open the Google Cloud Console main menu:"
-  zrbgp_nwn    "      - Click the " "->" " hamburger menu in the top-left corner"
-  zrbgp_nw     "      - Scroll down to " "IAM & Admin"
-  zrbgp_nw     "      - Click -> " "Manage resources"
-  zrbgp_n      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
-  zrbgp_nw     "   2. On the Manage resources page, click -> " "CREATE PROJECT"
-  zrbgp_n      "   3. Configure:"
-  zrbgp_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
-  zrbgp_nw     "      - Organization: " "No organization"
-  zrbgp_nw     "   4. Click " "CREATE"
-  zrbgp_nwne   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
-  zrbgp_nwn    "   6. If popup, wait for notification -> " "Creating project..." " to complete"
-  zrbgp_e
-  zrbgp_s2     "4. Create the Admin Service Account:"
-  zrbgp_nwnwn  "   1. Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
-  zrbgp_nwnw   "   2. Left sidebar -> " "IAM & Admin" " -> " "Service Accounts"
-  zrbgp_n      "   3. If prompted about APIs:"
-  zrbgp_nw     "      1. click -> " "Enable API"
-  zrbgp_n      "          TODO: This step is brittle - enabling IAM API may happen automatically or be blocked by org policy."
-  zrbgp_nw     "      2. Wait for " "Identity and Access Management (IAM) API to enable"
-  zrbgp_nw     "   4. At top, click " "+ CREATE SERVICE ACCOUNT"
-  zrbgp_n      "   5. Service account details:"
-  zrbgp_nc     "      - Service account name: " "${RBGC_ADMIN_ROLE}"
-  zrbgp_nwn    "      - Service account ID: (auto-fills as " "${RBGC_ADMIN_ROLE}" ")"
-  zrbgp_nc     "      - Description: " "Admin account for infrastructure management"
-  zrbgp_nw     "   6. Click -> " "Create and continue"
-  zrbgp_nwnw   "   7. At " "Permissions (optional)" " pick dropdown " "Select a role"
-  zrbgp_nc     "      - In filter box, type: " "owner"
-  zrbgp_nwnw   "      - Select: " "Basic" " -> " "Owner"
-  zrbgp_nw     "   8. Click -> " "Continue"
-  zrbgp_nwnw   "   9. Skip " "Principals with access" " by clicking -> " "Done"
-  zrbgp_e
-  zrbgp_s2     "7. Generate Service Account Key:"
-  zrbgp_n      "From service accounts list:"
-  zrbgp_nw     "   1. Click on text of " "${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  zrbgp_nw     "   2. Top tabs -> " "Keys"
-  zrbgp_nwnw   "   3. Click " "Add key" " -> " "Create new key"
-  zrbgp_nwn    "   4. Key type: " "JSON" " (should be selected)"
-  zrbgp_nw     "   5. Click " "Create"
-  zrbgp_e
-  zrbgp_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
-  zrbgp_nwn    "   6. Click " "CLOSE" " on download confirmation"
-  zrbgp_e
-  zrbgp_s2     "8. Configure Local Environment:"
-  zrbgp_n      "Browser downloaded key.  Run the command to ingest it into your ADMIN RBRA file."
-  zrbgp_e
+  zrbgm_s2     "${z_configure_pid_step}:"
+  zrbgm_n      "   Before creating the project, choose a unique Project ID."
+  zrbgm_nc     "   1. Edit your RBRR configuration file: " "${ZRBGM_RBRR_FILE}"
+  zrbgm_n      "   2. Set RBRR_GCP_PROJECT_ID to a unique value:"
+  zrbgm_n      "      - Must be globally unique across all GCP"
+  zrbgm_n      "      - 6-30 characters, lowercase letters, numbers, hyphens"
+  zrbgm_n      "      - Cannot start/end with hyphen"
+  zrbgm_n      "   3. Set RBRR_GCP_REGION based on your location (see project documentation)"
+  zrbgm_n      "   4. Save the file before proceeding"
+  zrbgm_e
+  zrbgm_s2     "3. Create New Project:"
+  zrbgm_nc     "   Go directly to: " "${RBGC_CONSOLE_URL}"
+  zrbgm_n      "   Sign in with the same Google account you just set up"
+  zrbgm_n      "   1. Open the Google Cloud Console main menu:"
+  zrbgm_nwn    "      - Click the " "->" " hamburger menu in the top-left corner"
+  zrbgm_nw     "      - Scroll down to " "IAM & Admin"
+  zrbgm_nw     "      - Click -> " "Manage resources"
+  zrbgm_n      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
+  zrbgm_nw     "   2. On the Manage resources page, click -> " "CREATE PROJECT"
+  zrbgm_n      "   3. Configure:"
+  zrbgm_nc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
+  zrbgm_nw     "      - Organization: " "No organization"
+  zrbgm_nw     "   4. Click " "CREATE"
+  zrbgm_nwne   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
+  zrbgm_nwn    "   6. If popup, wait for notification -> " "Creating project..." " to complete"
+  zrbgm_e
+  zrbgm_s2     "4. Create the Admin Service Account:"
+  zrbgm_nwnwn  "   1. Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
+  zrbgm_nwnw   "   2. Left sidebar -> " "IAM & Admin" " -> " "Service Accounts"
+  zrbgm_n      "   3. If prompted about APIs:"
+  zrbgm_nw     "      1. click -> " "Enable API"
+  zrbgm_n      "          TODO: This step is brittle - enabling IAM API may happen automatically or be blocked by org policy."
+  zrbgm_nw     "      2. Wait for " "Identity and Access Management (IAM) API to enable"
+  zrbgm_nw     "   4. At top, click " "+ CREATE SERVICE ACCOUNT"
+  zrbgm_n      "   5. Service account details:"
+  zrbgm_nc     "      - Service account name: " "${RBGC_ADMIN_ROLE}"
+  zrbgm_nwn    "      - Service account ID: (auto-fills as " "${RBGC_ADMIN_ROLE}" ")"
+  zrbgm_nc     "      - Description: " "Admin account for infrastructure management"
+  zrbgm_nw     "   6. Click -> " "Create and continue"
+  zrbgm_nwnw   "   7. At " "Permissions (optional)" " pick dropdown " "Select a role"
+  zrbgm_nc     "      - In filter box, type: " "owner"
+  zrbgm_nwnw   "      - Select: " "Basic" " -> " "Owner"
+  zrbgm_nw     "   8. Click -> " "Continue"
+  zrbgm_nwnw   "   9. Skip " "Principals with access" " by clicking -> " "Done"
+  zrbgm_e
+  zrbgm_s2     "7. Generate Service Account Key:"
+  zrbgm_n      "From service accounts list:"
+  zrbgm_nw     "   1. Click on text of " "${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
+  zrbgm_nw     "   2. Top tabs -> " "Keys"
+  zrbgm_nwnw   "   3. Click " "Add key" " -> " "Create new key"
+  zrbgm_nwn    "   4. Key type: " "JSON" " (should be selected)"
+  zrbgm_nw     "   5. Click " "Create"
+  zrbgm_e
+  zrbgm_nw     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
+  zrbgm_nwn    "   6. Click " "CLOSE" " on download confirmation"
+  zrbgm_e
+  zrbgm_s2     "8. Configure Local Environment:"
+  zrbgm_n      "Browser downloaded key.  Run the command to ingest it into your ADMIN RBRA file."
+  zrbgm_e
 
   bcu_success "Manual setup procedure displayed"
 }
