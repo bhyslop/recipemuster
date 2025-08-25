@@ -702,7 +702,7 @@ rbgg_destroy_admin() {
   bcu_warn ""
   bcu_warn "This ensures clean, complete resource cleanup without partial states."
   bcu_warn "========================================================================"
-  
+
   bcu_require "Continue with deprecated partial cleanup (not recommended)" "CONTINUE-DEPRECATED"
 
   bcu_step 'Mint admin OAuth token'
@@ -984,7 +984,7 @@ rbgg_destroy_project() {
   bcu_warn "The Payor module provides additional features like lien management,"
   bcu_warn "billing detachment, and project restoration capabilities."
   bcu_warn "========================================================================"
-  
+
   bcu_die "Function moved to Payor module - use rbgp_project_delete"
 
   if [[ "${DEBUG_ONLY:-0}" != "1" ]]; then
