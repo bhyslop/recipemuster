@@ -12,7 +12,7 @@ When working on `rbw-RBAGS-AdminGoogleSpec.adoc`, follow MIND-ROE principles fro
 - **Precise Definitions**: Each term anchors meaning within RB domain
 
 Key files:
-- Primary: `/workspace/recipebottle-admin/rbw-RBGS-GoogleSpec.adoc`
+- Primary: `/workspace/recipebottle-admin/rbw-RBAGS-AdminGoogleSpec.adoc`
 - Reference: `/workspace/cnmp_CellNodeMessagePrototype/lenses/a-roe-MIND-cmodel-semantic.adoc`
 
 ### 3. Tool Development
