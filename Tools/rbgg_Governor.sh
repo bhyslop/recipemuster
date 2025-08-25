@@ -24,25 +24,25 @@
 #
 # - Single admin actor: All RBGG operations are executed by a single admin
 #   identity. There are no concurrent writers in the same project.
-# - Pristine-state expectation: RBGA init/creation flows assume the project
+# - Pristine-state expectation: RBGG init/creation flows assume the project
 #   is pristine for the resources they manage. If a resource "already exists"
 #   (HTTP 409), that's treated as state drift or prior manual activity.
 # - Policy: All HTTP 409 Conflict responses are fatal (bcu_die). We do not
-#   treat 409 as idempotent success anywhere in RBGA.
+#   treat 409 as idempotent success anywhere in RBGG.
 #   If you see a 409, resolve state drift first (destroy/reset), then rerun.
 # ----------------------------------------------------------------------
 
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGA_SOURCED:-}" || bcu_die "Module rbga multiply sourced - check sourcing hierarchy"
-ZRBGA_SOURCED=1
+test -z "${ZRBGG_SOURCED:-}" || bcu_die "Module rbgg multiply sourced - check sourcing hierarchy"
+ZRBGG_SOURCED=1
 
 ######################################################################
-# Internal Functions (zrbga_*)
+# Internal Functions (zrbgg_*)
 
-zrbga_kindle() {
-  test -z "${ZRBGA_KINDLED:-}" || bcu_die "Module rbga already kindled"
+zrbgg_kindle() {
+  test -z "${ZRBGG_KINDLED:-}" || bcu_die "Module rbgg already kindled"
 
   test -n "${RBRR_GCP_PROJECT_ID:-}"     || bcu_die "RBRR_GCP_PROJECT_ID is not set"
   test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || bcu_die "RBRR_GCP_PROJECT_ID is empty"
@@ -53,52 +53,52 @@ zrbga_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGA_PREFIX="${BDU_TEMP_DIR}/rbga_"
-  ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
-  printf '{}' > "${ZRBGA_EMPTY_JSON}"
+  ZRBGG_PREFIX="${BDU_TEMP_DIR}/rbgg_"
+  ZRBGG_EMPTY_JSON="${ZRBGG_PREFIX}empty.json"
+  printf '{}' > "${ZRBGG_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  ZRBGA_INFIX_CREATE="create"
-  ZRBGA_INFIX_VERIFY="verify"
-  ZRBGA_INFIX_KEY="key"
-  ZRBGA_INFIX_API_IAM_ENABLE="api_iam_enable"
-  ZRBGA_INFIX_API_CRM_ENABLE="api_crm_enable"
-  ZRBGA_INFIX_API_ART_ENABLE="api_art_enable"
-  ZRBGA_INFIX_API_BUILD_ENABLE="api_build_enable"
-  ZRBGA_INFIX_CB_SA_ACCOUNT_GEN="cb_account_gen"
-  ZRBGA_INFIX_CB_PRIME="cb_prime"
-  ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
-  ZRBGA_INFIX_API_STORAGE_ENABLE="api_storage_enable"
-  ZRBGA_INFIX_PROJECT_INFO="project_info"
-  ZRBGA_INFIX_CREATE_REPO="create_repo"
-  ZRBGA_INFIX_VERIFY_REPO="verify_repo"
-  ZRBGA_INFIX_DELETE_REPO="delete_repo"
-  ZRBGA_INFIX_REPO_POLICY="repo_policy"
-  ZRBGA_INFIX_RPOLICY_SET="repo_policy_set"
-  ZRBGA_INFIX_LIST="list"
-  ZRBGA_INFIX_API_CHECK="api_checking"
-  ZRBGA_INFIX_DELETE="delete"
-  ZRBGA_INFIX_LIST_KEYS="list_keys"
-  ZRBGA_INFIX_BUCKET_CREATE="bucket_create"
-  ZRBGA_INFIX_BUCKET_DELETE="bucket_delete"
-  ZRBGA_INFIX_BUCKET_LIST="bucket_list"
-  ZRBGA_INFIX_OBJECT_DELETE="object_delete"
-  ZRBGA_INFIX_LIST_LIENS="list_liens"
-  ZRBGA_INFIX_PROJECT_DELETE="project_delete"
-  ZRBGA_INFIX_PROJECT_STATE="project_state"
-  ZRBGA_INFIX_PROJECT_RESTORE="project_restore"
+  ZRBGG_INFIX_CREATE="create"
+  ZRBGG_INFIX_VERIFY="verify"
+  ZRBGG_INFIX_KEY="key"
+  ZRBGG_INFIX_API_IAM_ENABLE="api_iam_enable"
+  ZRBGG_INFIX_API_CRM_ENABLE="api_crm_enable"
+  ZRBGG_INFIX_API_ART_ENABLE="api_art_enable"
+  ZRBGG_INFIX_API_BUILD_ENABLE="api_build_enable"
+  ZRBGG_INFIX_CB_SA_ACCOUNT_GEN="cb_account_gen"
+  ZRBGG_INFIX_CB_PRIME="cb_prime"
+  ZRBGG_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
+  ZRBGG_INFIX_API_STORAGE_ENABLE="api_storage_enable"
+  ZRBGG_INFIX_PROJECT_INFO="project_info"
+  ZRBGG_INFIX_CREATE_REPO="create_repo"
+  ZRBGG_INFIX_VERIFY_REPO="verify_repo"
+  ZRBGG_INFIX_DELETE_REPO="delete_repo"
+  ZRBGG_INFIX_REPO_POLICY="repo_policy"
+  ZRBGG_INFIX_RPOLICY_SET="repo_policy_set"
+  ZRBGG_INFIX_LIST="list"
+  ZRBGG_INFIX_API_CHECK="api_checking"
+  ZRBGG_INFIX_DELETE="delete"
+  ZRBGG_INFIX_LIST_KEYS="list_keys"
+  ZRBGG_INFIX_BUCKET_CREATE="bucket_create"
+  ZRBGG_INFIX_BUCKET_DELETE="bucket_delete"
+  ZRBGG_INFIX_BUCKET_LIST="bucket_list"
+  ZRBGG_INFIX_OBJECT_DELETE="object_delete"
+  ZRBGG_INFIX_LIST_LIENS="list_liens"
+  ZRBGG_INFIX_PROJECT_DELETE="project_delete"
+  ZRBGG_INFIX_PROJECT_STATE="project_state"
+  ZRBGG_INFIX_PROJECT_RESTORE="project_restore"
 
-  ZRBGA_KINDLED=1
+  ZRBGG_KINDLED=1
 }
 
-zrbga_sentinel() {
-  test "${ZRBGA_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbga_kindle first"
+zrbgg_sentinel() {
+  test "${ZRBGG_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbgg_kindle first"
 }
 
 ######################################################################
 # Capture: list required services that are NOT enabled (blank = all enabled)
-zrbga_required_apis_missing_capture() {
-  zrbga_sentinel
+zrbgg_required_apis_missing_capture() {
+  zrbgg_sentinel
 
   local z_token="${1:-}"
   test -n "${z_token}" || { echo ""; return 1; }
@@ -119,7 +119,7 @@ zrbga_required_apis_missing_capture() {
     "${RBGC_API_SU_VERIFY_STORAGE}"
   do
     z_service="${z_api##*/}"
-    z_infix="${ZRBGA_INFIX_API_CHECK}_${z_service}"
+    z_infix="${ZRBGG_INFIX_API_CHECK}_${z_service}"
 
     rbgu_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
 
@@ -139,8 +139,8 @@ zrbga_required_apis_missing_capture() {
   printf '%s' "${z_missing# }"
 }
 
-zrbga_create_service_account_with_key() {
-  zrbga_sentinel
+zrbgg_create_service_account_with_key() {
+  zrbgg_sentinel
 
   local z_account_name="$1"
   local z_display_name="$2"
@@ -164,31 +164,31 @@ zrbga_create_service_account_with_key() {
         displayName: $display_name,
         description: $description
       }
-    }' > "${ZRBGA_PREFIX}create_request.json" || bcu_die "Failed to create request JSON"
+    }' > "${ZRBGG_PREFIX}create_request.json" || bcu_die "Failed to create request JSON"
 
   bcu_step 'Create service account via REST API'
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
-    "${ZRBGA_INFIX_CREATE}" "${ZRBGA_PREFIX}create_request.json"
-  rbgu_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
-  rbgu_newly_created_delay                      "${ZRBGA_INFIX_CREATE}" "service account" 15
+    "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
+  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}" 409 "already exists"
+  rbgu_newly_created_delay                      "${ZRBGG_INFIX_CREATE}" "service account" 15
   bcu_info "Service account created: ${z_account_email}"
 
   rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" \
-                                   "${z_token}" "${ZRBGA_INFIX_VERIFY}"
-  rbgu_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
+                                   "${z_token}" "${ZRBGG_INFIX_VERIFY}"
+  rbgu_http_require_ok "Verify service account" "${ZRBGG_INFIX_VERIFY}"
 
   bcu_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
 
   bcu_log_args 'List keys'
   rbgu_http_json "GET"                                                        \
     "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
-                                      "${z_token}" "${ZRBGA_INFIX_LIST_KEYS}"
-  rbgu_http_require_ok "List service account keys" "${ZRBGA_INFIX_LIST_KEYS}"
+                                      "${z_token}" "${ZRBGG_INFIX_LIST_KEYS}"
+  rbgu_http_require_ok "List service account keys" "${ZRBGG_INFIX_LIST_KEYS}"
 
   bcu_log_args 'Count existing user-managed keys'
   local z_user_keys
   z_user_keys=$(jq -r '[.keys[]? | select(.keyType=="USER_MANAGED")] | length' \
-                 "${ZRBGU_PREFIX}${ZRBGA_INFIX_LIST_KEYS}${ZRBGU_POSTFIX_JSON}") \
+                 "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST_KEYS}${ZRBGU_POSTFIX_JSON}") \
     || bcu_die "Failed to parse service account keys"
 
   if test "${z_user_keys}" -gt 0; then
@@ -203,17 +203,17 @@ zrbga_create_service_account_with_key() {
   fi
 
   bcu_step 'Generate service account key'
-  local z_key_req="${BDU_TEMP_DIR}/rbga_key_request.json"
+  local z_key_req="${BDU_TEMP_DIR}/rbgg_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
-                                         "${z_token}" "${ZRBGA_INFIX_KEY}" "${z_key_req}"
-  rbgu_http_require_ok "Generate service account key" "${ZRBGA_INFIX_KEY}"
+                                         "${z_token}" "${ZRBGG_INFIX_KEY}" "${z_key_req}"
+  rbgu_http_require_ok "Generate service account key" "${ZRBGG_INFIX_KEY}"
 
   bcu_step 'Extract and decode key data'
   local z_key_b64
-  z_key_b64=$(rbgu_json_field_capture "${ZRBGA_INFIX_KEY}" '.privateKeyData') \
+  z_key_b64=$(rbgu_json_field_capture "${ZRBGG_INFIX_KEY}" '.privateKeyData') \
     || bcu_die "Failed to extract privateKeyData"
-  local z_key_json="${BDU_TEMP_DIR}/rbga_key_${z_instance}.json"
+  local z_key_json="${BDU_TEMP_DIR}/rbgg_key_${z_instance}.json"
   bcu_log_args 'Tolerate macos base64 difference'
   if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
        printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
@@ -247,8 +247,8 @@ zrbga_create_service_account_with_key() {
   bcu_info "RBRA file written: ${z_rbra_file}"
 }
 
-zrbga_create_service_account_no_key() {
-  zrbga_sentinel
+zrbgg_create_service_account_no_key() {
+  zrbgg_sentinel
 
   local z_account_name="${1:-}"
   local z_display_name="${2:-}"
@@ -264,31 +264,31 @@ zrbga_create_service_account_no_key() {
 
   bcu_step "Create service account (no key): ${z_account_name}"
   # write body FIRST
-  local z_body="${BDU_TEMP_DIR}/rbga_sa_create_nokey.json"
+  local z_body="${BDU_TEMP_DIR}/rbgg_sa_create_nokey.json"
   jq -n --arg account_id   "${z_account_name}" \
         --arg display_name "${z_display_name}" '
     { accountId: $account_id, serviceAccount: { displayName: $display_name } }
   ' > "${z_body}" || bcu_die "Failed to build SA create body"
 
   # correct endpoint (no trailing slash)
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_CREATE}" "${z_body}"
-  rbgu_http_require_ok "Create service account" "${ZRBGA_INFIX_CREATE}" 409 "already exists"
+  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_CREATE}" "${z_body}"
+  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}" 409 "already exists"
 
   bcu_log_args 'Allow IAM propagation, then verify using URL-encoded email'
-  rbgu_newly_created_delay "${ZRBGA_INFIX_CREATE}" "service account" 15
+  rbgu_newly_created_delay "${ZRBGG_INFIX_CREATE}" "service account" 15
 
   bcu_log_args 'Verify service account'
   local z_account_email_enc
   z_account_email_enc=$(rbgu_urlencode_capture "${z_account_email}") || bcu_die "Failed to encode SA email"
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email_enc}" "${z_token}" "${ZRBGA_INFIX_VERIFY}"
-  rbgu_http_require_ok "Verify service account" "${ZRBGA_INFIX_VERIFY}"
+  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email_enc}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
+  rbgu_http_require_ok "Verify service account" "${ZRBGG_INFIX_VERIFY}"
 
   bcu_success "Service account ensured (no keys): ${z_account_email}"
 }
 
 # Ensure Cloud Build service agent exists and admin can trigger builds
-zrbga_ensure_cloudbuild_service_agent() {
-  zrbga_sentinel
+zrbgg_ensure_cloudbuild_service_agent() {
+  zrbgg_sentinel
 
   local z_token="${1}"
   local z_project_number="${2}"
@@ -301,8 +301,8 @@ zrbga_ensure_cloudbuild_service_agent() {
        "Generate Cloud Build service agent"                          \
        "${z_token}"                                                  \
        "${z_gen_url}"                                                \
-       "${ZRBGA_INFIX_CB_SA_ACCOUNT_GEN}"                            \
-       "${ZRBGA_EMPTY_JSON}"                                         \
+       "${ZRBGG_INFIX_CB_SA_ACCOUNT_GEN}"                            \
+       "${ZRBGG_EMPTY_JSON}"                                         \
        ".name"                                                       \
        "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}"   \
        "5"                                                           \
@@ -340,14 +340,14 @@ zrbga_ensure_cloudbuild_service_agent() {
   bcu_info "Cloud Build service agent configured with admin permissions"
 }
 
-zrbga_create_gcs_bucket() {
-  zrbga_sentinel
+zrbgg_create_gcs_bucket() {
+  zrbgg_sentinel
 
   local z_token="${1}"
   local z_bucket_name="${2}"
 
   bcu_log_args 'Create bucket request JSON for '"${z_bucket_name}"
-  local z_bucket_req="${BDU_TEMP_DIR}/rbga_bucket_create_req.json"
+  local z_bucket_req="${BDU_TEMP_DIR}/rbgg_bucket_create_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
 {
   name: $name,
@@ -360,9 +360,9 @@ zrbga_create_gcs_bucket() {
   local z_code
   local z_err
   rbgu_http_json "POST" "${RBGC_API_GCS_BUCKET_CREATE}" "${z_token}" \
-                                   "${ZRBGA_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
-  z_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_BUCKET_CREATE}") || bcu_die "Bad bucket creation HTTP code"
-  z_err=$(rbgu_json_field_capture "${ZRBGA_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+                                   "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
+  z_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || bcu_die "Bad bucket creation HTTP code"
+  z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) bcu_info "Bucket ${z_bucket_name} created";        return 0 ;;
@@ -371,8 +371,8 @@ zrbga_create_gcs_bucket() {
   esac
 }
 
-zrbga_list_bucket_objects_capture() {
-  zrbga_sentinel
+zrbgg_list_bucket_objects_capture() {
+  zrbgg_sentinel
 
   local z_token="${1}"
   local z_bucket_name="${2}"
@@ -392,7 +392,7 @@ zrbga_list_bucket_objects_capture() {
     fi
 
     bcu_log_args 'Use a unique infix per page to avoid clobbering files'
-    local z_infix="${ZRBGA_INFIX_BUCKET_LIST}${z_first}"
+    local z_infix="${ZRBGG_INFIX_BUCKET_LIST}${z_first}"
     rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_infix}"
 
     local z_code
@@ -409,31 +409,31 @@ zrbga_list_bucket_objects_capture() {
   done
 }
 
-zrbga_get_project_number_capture() {
-  zrbga_sentinel
+zrbgg_get_project_number_capture() {
+  zrbgg_sentinel
 
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}" || return 1
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Get project info" "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
+  z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
   test -n "${z_project_number}" || return 1
 
   echo "${z_project_number}"
 }
 
-zrbga_empty_gcs_bucket() {
-  zrbga_sentinel
+zrbgg_empty_gcs_bucket() {
+  zrbgg_sentinel
 
   local z_token="${1}"
   local z_bucket_name="${2}"
 
   bcu_log_args 'Get list of objects to delete'
   local z_objects
-  z_objects=$(zrbga_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || {
+  z_objects=$(zrbgg_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || {
     bcu_log_args 'No objects found or bucket not accessible'
     return 0
   }
@@ -454,8 +454,8 @@ zrbga_empty_gcs_bucket() {
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
     rbgu_http_json "DELETE" "${z_delete_url}" \
-                              "${z_token}" "${ZRBGA_INFIX_OBJECT_DELETE}"
-    z_delete_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_OBJECT_DELETE}") || z_delete_code=""
+                              "${z_token}" "${ZRBGG_INFIX_OBJECT_DELETE}"
+    z_delete_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_OBJECT_DELETE}") || z_delete_code=""
     case "${z_delete_code}" in
       204|404) bcu_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       bcu_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
@@ -463,23 +463,23 @@ zrbga_empty_gcs_bucket() {
   done <<< "${z_objects}"
 }
 
-zrbga_delete_gcs_bucket_predicate() {
-  zrbga_sentinel
+zrbgg_delete_gcs_bucket_predicate() {
+  zrbgg_sentinel
 
   local z_token="${1}"
   local z_bucket_name="${2}"
 
   bcu_log_args 'Empty bucket before deletion: '"${z_bucket_name}"
-  zrbga_empty_gcs_bucket "${z_token}" "${z_bucket_name}"
+  zrbgg_empty_gcs_bucket "${z_token}" "${z_bucket_name}"
 
   bcu_log_args 'Delete the bucket'
   local z_code
   local z_err
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
   rbgu_http_json "DELETE" "${z_delete_url}" \
-                      "${z_token}" "${ZRBGA_INFIX_BUCKET_DELETE}"
-  z_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_BUCKET_DELETE}") || z_code=""
-  z_err=$(rbgu_json_field_capture "${ZRBGA_INFIX_BUCKET_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
+                      "${z_token}" "${ZRBGG_INFIX_BUCKET_DELETE}"
+  z_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_BUCKET_DELETE}") || z_code=""
+  z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
   case "${z_code}" in
     204) bcu_info "Bucket ${z_bucket_name} deleted";                           return 0 ;;
     404) bcu_warn "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;
@@ -489,10 +489,10 @@ zrbga_delete_gcs_bucket_predicate() {
 }
 
 ######################################################################
-# External Functions (rbga_*)
+# External Functions (rbgg_*)
 
-rbga_initialize_admin() {
-  zrbga_sentinel
+rbgg_initialize_admin() {
+  zrbgg_sentinel
 
   local z_json_path="${1:-}"
 
@@ -513,7 +513,7 @@ rbga_initialize_admin() {
 
   bcu_step 'Check which required APIs need enabling'
   local z_missing=""
-  z_missing=$(zrbga_required_apis_missing_capture "${z_token}") \
+  z_missing=$(zrbgg_required_apis_missing_capture "${z_token}") \
     || bcu_die "Failed to check API status"
 
   if test -n "${z_missing}"; then
@@ -527,8 +527,8 @@ rbga_initialize_admin() {
       "Enable IAM API"                                          \
       "${z_token}"                                              \
       "${RBGC_API_SU_ENABLE_IAM}"                               \
-      "${ZRBGA_INFIX_API_IAM_ENABLE}"                           \
-      "${ZRBGA_EMPTY_JSON}"                                     \
+      "${ZRBGG_INFIX_API_IAM_ENABLE}"                           \
+      "${ZRBGG_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
       "${RBGC_OP_PREFIX_GLOBAL}"                                \
@@ -540,8 +540,8 @@ rbga_initialize_admin() {
       "Enable Cloud Resource Manager API"                       \
       "${z_token}"                                              \
       "${RBGC_API_SU_ENABLE_CRM}"                               \
-      "${ZRBGA_INFIX_API_CRM_ENABLE}"                           \
-      "${ZRBGA_EMPTY_JSON}"                                     \
+      "${ZRBGG_INFIX_API_CRM_ENABLE}"                           \
+      "${ZRBGG_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
       "${RBGC_OP_PREFIX_GLOBAL}"                                \
@@ -553,8 +553,8 @@ rbga_initialize_admin() {
       "Enable Artifact Registry API"                            \
       "${z_token}"                                              \
       "${RBGC_API_SU_ENABLE_GAR}"                               \
-      "${ZRBGA_INFIX_API_ART_ENABLE}"                           \
-      "${ZRBGA_EMPTY_JSON}"                                     \
+      "${ZRBGG_INFIX_API_ART_ENABLE}"                           \
+      "${ZRBGG_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
       "${RBGC_OP_PREFIX_GLOBAL}"                                \
@@ -566,8 +566,8 @@ rbga_initialize_admin() {
       "Enable Cloud Build API"                                  \
       "${z_token}"                                              \
       "${RBGC_API_SU_ENABLE_BUILD}"                             \
-      "${ZRBGA_INFIX_API_BUILD_ENABLE}"                         \
-      "${ZRBGA_EMPTY_JSON}"                                     \
+      "${ZRBGG_INFIX_API_BUILD_ENABLE}"                         \
+      "${ZRBGG_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
       "${RBGC_OP_PREFIX_GLOBAL}"                                \
@@ -579,8 +579,8 @@ rbga_initialize_admin() {
       "Enable Container Analysis API"                           \
       "${z_token}"                                              \
       "${RBGC_API_SU_ENABLE_ANALYSIS}"                          \
-      "${ZRBGA_INFIX_API_CONTAINERANALYSIS_ENABLE}"             \
-      "${ZRBGA_EMPTY_JSON}"                                     \
+      "${ZRBGG_INFIX_API_CONTAINERANALYSIS_ENABLE}"             \
+      "${ZRBGG_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
       "${RBGC_OP_PREFIX_GLOBAL}"                                \
@@ -592,8 +592,8 @@ rbga_initialize_admin() {
       "Enable Cloud Storage API"                                \
       "${z_token}"                                              \
       "${RBGC_API_SU_ENABLE_STORAGE}"                           \
-      "${ZRBGA_INFIX_API_STORAGE_ENABLE}"                       \
-      "${ZRBGA_EMPTY_JSON}"                                     \
+      "${ZRBGG_INFIX_API_STORAGE_ENABLE}"                       \
+      "${ZRBGG_EMPTY_JSON}"                                     \
       ".name"                                                   \
       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
       "${RBGC_OP_PREFIX_GLOBAL}"                                \
@@ -603,10 +603,10 @@ rbga_initialize_admin() {
 
   bcu_step 'Discover Project Number'
   local z_project_number
-  z_project_number=$(zrbga_get_project_number_capture) || bcu_die "Failed to get project number"
+  z_project_number=$(zrbgg_get_project_number_capture) || bcu_die "Failed to get project number"
 
   bcu_step 'Directly create the cloudbuild service agent'
-  zrbga_ensure_cloudbuild_service_agent "${z_token}" "${z_project_number}"
+  zrbgg_ensure_cloudbuild_service_agent "${z_token}" "${z_project_number}"
 
   bcu_step 'Grant Cloud Build invoke permissions to admin (idempotent)'
   rbgi_add_project_iam_role                      \
@@ -626,7 +626,7 @@ rbga_initialize_admin() {
     "admin-su"
 
   bcu_step 'Create/verify Cloud Storage bucket'
-  zrbga_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
+  zrbgg_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
 
   bcu_step 'Create/verify Docker format Artifact Registry repo'
   bcu_log_args "  The repo is ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
@@ -638,7 +638,7 @@ rbga_initialize_admin() {
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
-  local z_create_body="${BDU_TEMP_DIR}/rbga_create_repo_body.json"
+  local z_create_body="${BDU_TEMP_DIR}/rbgg_create_repo_body.json"
 
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
@@ -647,7 +647,7 @@ rbga_initialize_admin() {
     "Create Artifact Registry repo"                                  \
     "${z_token}"                                                     \
     "${z_create_url}"                                                \
-    "${ZRBGA_INFIX_CREATE_REPO}"                                     \
+    "${ZRBGG_INFIX_CREATE_REPO}"                                     \
     "${z_create_body}"                                               \
     ".name"                                                          \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}"   \
@@ -656,13 +656,13 @@ rbga_initialize_admin() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   bcu_step 'Verify repository exists and is DOCKER format'
-  rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_VERIFY_REPO}"
-  rbgu_http_require_ok "Verify repository"         "${ZRBGA_INFIX_VERIFY_REPO}"
-  test "$(rbgu_json_field_capture                  "${ZRBGA_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
+  rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGG_INFIX_VERIFY_REPO}"
+  rbgu_http_require_ok "Verify repository"         "${ZRBGG_INFIX_VERIFY_REPO}"
+  test "$(rbgu_json_field_capture                  "${ZRBGG_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
 
   bcu_step 'Ensure Mason service account exists (no keys)'
-  zrbga_create_service_account_no_key "${RBGC_MASON_NAME}" "RBGA Mason (build executor)"
+  rgbs_sa_create "${RBGC_MASON_NAME}" "RBGG Mason (build executor)"
 
   local z_mason_sa="${RBGC_MASON_EMAIL}"
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
@@ -671,11 +671,11 @@ rbga_initialize_admin() {
   rbgi_add_sa_iam_role "${z_mason_sa}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
   bcu_step 'Grant Artifact Registry Admin (repo-scoped) to Mason'
-  rbgi_add_repo_iam_role "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
+  rbgi_add_repo_iam_role "${z_token}" "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
     "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
   bcu_step 'Grant Storage Object Admin on artifacts bucket to Mason'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectViewer" "${z_token}"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectViewer"
 
   bcu_step 'Grant Project Viewer to Mason'
   rbgi_add_project_iam_role "Grant Project Viewer" "${z_token}" "${RBGC_PROJECT_RESOURCE}" \
@@ -692,8 +692,8 @@ rbga_initialize_admin() {
   bcu_success 'Admin initialization complete'
 }
 
-rbga_destroy_admin() {
-  zrbga_sentinel
+rbgg_destroy_admin() {
+  zrbgg_sentinel
 
   bcu_doc_brief "Destroy project-specific GAR resources and related repo-scoped IAM. Leaves project-wide APIs and SAs unchanged."
   bcu_doc_shown || return 0
@@ -704,10 +704,10 @@ rbga_destroy_admin() {
 
   bcu_step 'Preflight: Determine if all required APIs enabled'
   local z_missing
-  z_missing=$(zrbga_required_apis_missing_capture "${z_token}") || bcu_die "Failed to check API status"
+  z_missing=$(zrbgg_required_apis_missing_capture "${z_token}") || bcu_die "Failed to check API status"
 
   if test -n "${z_missing}"; then
-    bcu_die "Required APIs not enabled: ${z_missing}. Run rbga_initialize_admin to enable them, then re-run destroy."
+    bcu_die "Required APIs not enabled: ${z_missing}. Run rbgg_initialize_admin to enable them, then re-run destroy."
   fi
 
   bcu_step 'Confirm'
@@ -716,10 +716,10 @@ rbga_destroy_admin() {
 
   bcu_step 'Discover Project Number'
 
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info"                         "${ZRBGA_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}"
   local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
+  z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
 
   bcu_step 'Delete the GAR repository (removes remaining repo-scoped bindings/data)'
@@ -729,33 +729,33 @@ rbga_destroy_admin() {
   local z_delete_code
   rbgu_http_json "DELETE"                                                           \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"    \
-                            "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
-  z_delete_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
+                            "${z_token}" "${ZRBGG_INFIX_DELETE_REPO}"
+  z_delete_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_DELETE_REPO}") || z_delete_code="000"
   case "${z_delete_code}" in
     200|204) bcu_info "Repository deleted" ;;
     404)     bcu_warn "Repository not found (already deleted)" ;;
     *)
       local z_err
-      z_err=$(rbgu_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
+      z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
       bcu_die "Failed to delete repository: ${z_err}"
       ;;
   esac
 
   bcu_step 'Delete Cloud Storage bucket'
-  zrbga_delete_gcs_bucket_predicate "${z_token}"  "${RBGC_GCS_BUCKET}"
+  zrbgg_delete_gcs_bucket_predicate "${z_token}"  "${RBGC_GCS_BUCKET}"
 
   bcu_step 'Delete all service accounts except admin'
 
   bcu_log_args 'List all service accounts'
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_LIST}"
-  rbgu_http_require_ok "List service accounts"                     "${ZRBGA_INFIX_LIST}"
+  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_LIST}"
+  rbgu_http_require_ok "List service accounts"                     "${ZRBGG_INFIX_LIST}"
 
   bcu_log_args 'Extract emails to delete (all except admin)'
   local z_admin_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
   local z_emails_to_delete
   z_emails_to_delete=$(jq -r --arg admin "${z_admin_email}" \
     '.accounts[]? | select(.email != $admin) | .email' \
-    "${ZRBGU_PREFIX}${ZRBGA_INFIX_LIST}${ZRBGU_POSTFIX_JSON}") || z_emails_to_delete=""
+    "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST}${ZRBGU_POSTFIX_JSON}") || z_emails_to_delete=""
 
   if test -n "${z_emails_to_delete}"; then
     local z_sa_email
@@ -765,8 +765,8 @@ rbga_destroy_admin() {
       bcu_log_args "Deleting service account: ${z_sa_email}"
 
       rbgu_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" \
-                             "${z_token}" "${ZRBGA_INFIX_DELETE}"
-      z_del_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_DELETE}") || z_del_code=""
+                             "${z_token}" "${ZRBGG_INFIX_DELETE}"
+      z_del_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_DELETE}") || z_del_code=""
       case "${z_del_code}" in
         200|204) bcu_log_args "Deleted: ${z_sa_email}" ;;
         404)     bcu_log_args "Already gone: ${z_sa_email}" ;;
@@ -781,8 +781,8 @@ rbga_destroy_admin() {
   bcu_success 'RBGA nuclear destruction complete (admin account preserved)'
 }
 
-rbga_list_service_accounts() {
-  zrbga_sentinel
+rbgg_list_service_accounts() {
+  zrbgg_sentinel
 
   bcu_doc_brief "List all service accounts in the project"
   bcu_doc_shown || return 0
@@ -794,11 +794,11 @@ rbga_list_service_accounts() {
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token (rc=$?)"
 
   bcu_log_args 'List service accounts via REST API'
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGA_INFIX_LIST}"
-  rbgu_http_require_ok "List service accounts"                     "${ZRBGA_INFIX_LIST}"
+  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_LIST}"
+  rbgu_http_require_ok "List service accounts"                     "${ZRBGG_INFIX_LIST}"
 
   local z_count
-  z_count=$(rbgu_json_field_capture "${ZRBGA_INFIX_LIST}" '.accounts | length') \
+  z_count=$(rbgu_json_field_capture "${ZRBGG_INFIX_LIST}" '.accounts | length') \
     || bcu_die "Failed to parse response"
 
   if test "${z_count}" = "0"; then
@@ -809,18 +809,18 @@ rbga_list_service_accounts() {
   bcu_step "Found ${z_count} service account(s):"
 
   local z_max_width
-  z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGU_PREFIX}${ZRBGA_INFIX_LIST}${ZRBGU_POSTFIX_JSON}" | sort -n | tail -1) \
+  z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST}${ZRBGU_POSTFIX_JSON}" | sort -n | tail -1) \
     || bcu_die "Failed to calculate max width"
 
   jq -r --argjson width "${z_max_width}" \
     '.accounts[] | "  " + (.email | tostring | ((" " * ($width - length)) + .)) + " - " + (.displayName // "(no display name)")' \
-    "${ZRBGU_PREFIX}${ZRBGA_INFIX_LIST}${ZRBGU_POSTFIX_JSON}" || bcu_die "Failed to format accounts"
+    "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST}${ZRBGU_POSTFIX_JSON}" || bcu_die "Failed to format accounts"
 
   bcu_success "Service account listing completed"
 }
 
-rbga_create_retriever() {
-  zrbga_sentinel
+rbgg_create_retriever() {
+  zrbgg_sentinel
 
   local z_instance="${1:-}"
 
@@ -837,7 +837,7 @@ rbga_create_retriever() {
 
   bcu_step "Creating Retriever service account: ${z_account_name}"
 
-  zrbga_create_service_account_with_key                                        \
+  zrbgg_create_service_account_with_key                                        \
     "${z_account_name}"                                                        \
     "Recipe Bottle Retriever (${z_instance})"                                  \
     "Read-only access to Google Artifact Registry - instance: ${z_instance}"   \
@@ -864,8 +864,8 @@ rbga_create_retriever() {
   bcu_success "Retriever created successfully at -> ${z_actual_rbra_file}"
 }
 
-rbga_create_director() {
-  zrbga_sentinel
+rbgg_create_director() {
+  zrbgg_sentinel
 
   local z_instance="${1:-}"
 
@@ -882,7 +882,7 @@ rbga_create_director() {
 
   bcu_step "Creating Director service account: ${z_account_name}"
 
-  zrbga_create_service_account_with_key                    \
+  zrbgg_create_service_account_with_key                    \
     "${z_account_name}"                                    \
     "Recipe Bottle Director (${z_instance})"               \
     "Create/destroy container images for ${z_instance}"    \
@@ -893,11 +893,11 @@ rbga_create_director() {
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Get project number for Cloud Build SA'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info" "${ZRBGA_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Get project info" "${ZRBGG_INFIX_PROJECT_INFO}"
 
   local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_INFO}" '.projectNumber') \
+  z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') \
     || bcu_die "Failed to extract project number"
 
   bcu_step 'Adding Cloud Build Editor role (project scope)'
@@ -921,8 +921,8 @@ rbga_create_director() {
   rbgi_add_sa_iam_role "${RBGC_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   bcu_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator" "${z_token}"
-  rbgi_add_bucket_iam_role "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer" "${z_token}"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
@@ -933,8 +933,8 @@ rbga_create_director() {
   bcu_success "Director created successfully at -> ${z_actual_rbra_file}"
 }
 
-rbga_delete_service_account() {
-  zrbga_sentinel
+rbgg_delete_service_account() {
+  zrbgg_sentinel
 
   local z_sa_email="${1:-}"
 
@@ -952,15 +952,15 @@ rbga_delete_service_account() {
 
   bcu_log_args 'Delete via REST API'
   rbgu_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
-                                                 "${ZRBGA_INFIX_DELETE}"
-  rbgu_http_require_ok "Delete service account" "${ZRBGA_INFIX_DELETE}" \
+                                                 "${ZRBGG_INFIX_DELETE}"
+  rbgu_http_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
     404 "not found (already deleted)"
 
   bcu_success "Delete operation completed"
 }
 
-rbga_destroy_project() {
-  zrbga_sentinel
+rbgg_destroy_project() {
+  zrbgg_sentinel
   bcu_doc_brief "DANGER: Permanently destroy the entire GCP project. Cannot be undone after 30 days."
   bcu_doc_shown || return 0
 
@@ -991,11 +991,11 @@ rbga_destroy_project() {
   bcu_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   bcu_step 'Check for liens (will block deletion)'
-  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGA_INFIX_LIST_LIENS}"
-  rbgu_http_require_ok "List liens" "${ZRBGA_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbgu_http_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
-  z_lien_count=$(rbgu_json_field_capture "${ZRBGA_INFIX_LIST_LIENS}" '.liens // [] | length') || bcu_die "Failed to parse liens response"
+  z_lien_count=$(rbgu_json_field_capture "${ZRBGG_INFIX_LIST_LIENS}" '.liens // [] | length') || bcu_die "Failed to parse liens response"
 
   if [[ "${z_lien_count}" -gt 0 ]]; then
     bcu_step 'BLOCKED: Liens exist on project'
@@ -1008,29 +1008,29 @@ rbga_destroy_project() {
   fi
 
   bcu_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
-  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_DELETE}"
-  rbgu_http_require_ok "Delete project" "${ZRBGA_INFIX_PROJECT_DELETE}"
+  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
+  rbgu_http_require_ok "Delete project" "${ZRBGG_INFIX_PROJECT_DELETE}"
 
   bcu_step 'Verify deletion state'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_STATE}"
-  rbgu_http_require_ok "Get project state" "${ZRBGA_INFIX_PROJECT_STATE}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbgu_http_require_ok "Get project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
+  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
 
   if [[ "${z_lifecycle_state}" == "DELETE_REQUESTED" ]]; then
     bcu_success "Project successfully marked for deletion"
     bcu_step "Project Status: ${z_lifecycle_state}"
     bcu_step "Grace period: Up to 30 days"
-    bcu_code "To restore (if still possible): rbga_restore_project"
+    bcu_code "To restore (if still possible): rbgg_restore_project"
     bcu_step "WARNING: Project is now unusable but may remain visible in listings"
   else
     bcu_die "Unexpected project state after deletion: ${z_lifecycle_state}"
   fi
 }
 
-rbga_restore_project() {
-  zrbga_sentinel
+rbgg_restore_project() {
+  zrbgg_sentinel
   bcu_doc_brief "Attempt to restore a deleted project within the 30-day grace period"
   bcu_doc_shown || return 0
 
@@ -1039,14 +1039,14 @@ rbga_restore_project() {
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Check current project state'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_STATE}"
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
 
-  if ! rbgu_http_is_ok "${ZRBGA_INFIX_PROJECT_STATE}"; then
+  if ! rbgu_http_is_ok "${ZRBGG_INFIX_PROJECT_STATE}"; then
     bcu_die "Cannot access project - it may have been permanently deleted or never existed"
   fi
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
+  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
 
   if [[ "${z_lifecycle_state}" != "DELETE_REQUESTED" ]]; then
     bcu_die "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
@@ -1059,14 +1059,14 @@ rbga_restore_project() {
   bcu_require "Confirm restoration of project" "RESTORE"
 
   bcu_step 'Attempt project restoration'
-  rbgu_http_json "POST" "${RBGC_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_RESTORE}"
+  rbgu_http_json "POST" "${RBGC_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
 
-  if rbgu_http_is_ok "${ZRBGA_INFIX_PROJECT_RESTORE}"; then
+  if rbgu_http_is_ok "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
     bcu_step 'Verify restoration'
-    rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGA_INFIX_PROJECT_STATE}"
-    rbgu_http_require_ok "Get restored project state" "${ZRBGA_INFIX_PROJECT_STATE}"
+    rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+    rbgu_http_require_ok "Get restored project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
-    z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse restored project state"
+    z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse restored project state"
 
     if [[ "${z_lifecycle_state}" == "ACTIVE" ]]; then
       bcu_success "Project successfully restored to ACTIVE state"
@@ -1077,7 +1077,7 @@ rbga_restore_project() {
     fi
   else
     local z_error_msg
-    z_error_msg=$(rbgu_json_field_capture "${ZRBGA_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
+    z_error_msg=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
     bcu_die "Project restoration failed: ${z_error_msg}"
   fi
 }

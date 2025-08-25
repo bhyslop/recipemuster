@@ -16,23 +16,27 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Google Admin - Command Line Interface
+# Recipe Bottle GCP Governor - Command Line Interface
 
 set -euo pipefail
 
-ZRBGA_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+ZRBGG_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGA_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbgu_GoogleUtility.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbgi_GoogleIAM.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbga_GoogleAdmin.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgu_GoogleUtility.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgi_GoogleIAM.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rgbs_ServiceAccounts.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgb_Buckets.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbga_ArtifactRegistry.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgg_Governor.sh"
 
-zrbga_furnish() {
+zrbgg_furnish() {
 
   bcu_doc_env "BDU_TEMP_DIR   " "Temporary directory for intermediate files"
   bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
@@ -45,10 +49,14 @@ zrbga_furnish() {
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle
+  zrgbs_kindle
+  zrbgb_kindle
   zrbga_kindle
+  zrbgp_kindle
+  zrbgg_kindle
 }
 
-bcu_execute rbga_ "Google Admin Procedures" zrbga_furnish "$@"
+bcu_execute rbgg_ "Governor Procedures" zrbgg_furnish "$@"
 
 # eof
 

@@ -16,20 +16,20 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Google Procedures - Command Line Interface
+# Recipe Bottle GCP Manual Procedures - Command Line Interface
 
 set -euo pipefail
 
-ZRBGA_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+ZRBGM_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGA_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGA_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
-source "${ZRBGA_SCRIPT_DIR}/rbgp_GoogleProcedures.sh"
+source "${ZRBGM_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+source "${ZRBGM_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
 
-zrbgp_furnish() {
+zrbgm_furnish() {
 
   bcu_doc_env "BDU_TEMP_DIR   " "Temporary directory for intermediate files"
   bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
@@ -39,10 +39,10 @@ zrbgp_furnish() {
   source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
 
   zrbgc_kindle
-  zrbgp_kindle
+  zrbgm_kindle
 }
 
-bcu_execute rbgp_ "Google Procedures" zrbgp_furnish "$@"
+bcu_execute rbgm_ "Manual Procedures" zrbgm_furnish "$@"
 
 
 # eof
