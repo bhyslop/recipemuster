@@ -16,13 +16,13 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Google Admin - Implementation
+# Recipe Bottle GCP Governor - Project Orchestration
 
 
 # ----------------------------------------------------------------------
-# Operational Invariants (RBGA is single writer; 409 is fatal)
+# Operational Invariants (RBGG is single writer; 409 is fatal)
 #
-# - Single admin actor: All RBGA operations are executed by a single admin
+# - Single admin actor: All RBGG operations are executed by a single admin
 #   identity. There are no concurrent writers in the same project.
 # - Pristine-state expectation: RBGA init/creation flows assume the project
 #   is pristine for the resources they manage. If a resource "already exists"
