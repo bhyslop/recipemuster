@@ -176,7 +176,7 @@ rbgb_bucket_create() {
 
   case "${z_code}" in
     200|201) bcu_success "Bucket ${z_bucket_name} created";        return 0 ;;
-    409)     bcu_info    "Bucket ${z_bucket_name} already exists"; return 0 ;;
+    409)     bcu_die     "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
     *)       bcu_die     "Failed to create bucket: ${z_err}"                ;;
   esac
 }

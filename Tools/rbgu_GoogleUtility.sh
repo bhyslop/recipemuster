@@ -541,10 +541,12 @@ rbgu_extract_json_to_rbra() {
     || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${RBRR_GCP_PROJECT_ID}'"
 
   bcu_log_args 'Write RBRA file'
-  echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""    > "${z_rbra_path}"
-  echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""     >> "${z_rbra_path}"
-  echo "RBRA_PROJECT_ID=\"${z_project_id}\""       >> "${z_rbra_path}"
-  echo "RBRA_TOKEN_LIFETIME_SEC=${z_lifetime_sec}" >> "${z_rbra_path}"
+  {
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "$z_lifetime_sec"
+  } > "${z_rbra_path}" || bcu_die "Failed to write RBRA file ${z_rbra_path}"
 
   test -f "${z_rbra_path}" || bcu_die "Failed to write RBRA file: ${z_rbra_path}"
 

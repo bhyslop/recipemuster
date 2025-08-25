@@ -92,7 +92,7 @@ zrbgg_kindle() {
 }
 
 zrbgg_sentinel() {
-  test "${ZRBGG_KINDLED:-}" = "1" || bcu_die "Module rbga not kindled - call zrbgg_kindle first"
+  test "${ZRBGG_KINDLED:-}" = "1" || bcu_die "Module rbgg not kindled - call zrbgg_kindle first"
 }
 
 ######################################################################
@@ -169,7 +169,7 @@ zrbgg_create_service_account_with_key() {
   bcu_step 'Create service account via REST API'
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
-  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}" 409 "already exists"
+  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
   rbgu_newly_created_delay                      "${ZRBGG_INFIX_CREATE}" "service account" 15
   bcu_info "Service account created: ${z_account_email}"
 
@@ -236,10 +236,12 @@ zrbgg_create_service_account_with_key() {
   test -n "${z_project_id}" || bcu_die "Empty project_id in key JSON"
 
   bcu_step 'Write RBRA file' "${z_rbra_file}"
-  echo "RBRA_CLIENT_EMAIL=\"${z_client_email}\""  > "${z_rbra_file}"
-  echo "RBRA_PRIVATE_KEY=\"${z_private_key}\""   >> "${z_rbra_file}"
-  echo "RBRA_PROJECT_ID=\"${z_project_id}\""     >> "${z_rbra_file}"
-  echo "RBRA_TOKEN_LIFETIME_SEC=1800"            >> "${z_rbra_file}"
+  {
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=1800\n'
+  } > "${z_rbra_file}" || bcu_die "Failed to write RBRA file ${z_rbra_file}"
 
   test -f "${z_rbra_file}" || bcu_die "Failed to write RBRA file ${z_rbra_file}"
 
@@ -272,7 +274,7 @@ zrbgg_create_service_account_no_key() {
 
   # correct endpoint (no trailing slash)
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_CREATE}" "${z_body}"
-  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}" 409 "already exists"
+  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
 
   bcu_log_args 'Allow IAM propagation, then verify using URL-encoded email'
   rbgu_newly_created_delay "${ZRBGG_INFIX_CREATE}" "service account" 15
@@ -305,6 +307,7 @@ zrbgg_ensure_cloudbuild_service_agent() {
        "${ZRBGG_EMPTY_JSON}"                                         \
        ".name"                                                       \
        "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}"   \
+       "${RBGC_OP_PREFIX_GLOBAL}"                                    \
        "5"                                                           \
        "60"
 
@@ -317,18 +320,7 @@ zrbgg_ensure_cloudbuild_service_agent() {
     "serviceAccount:${z_cb_service_agent}"  \
     "cb-agent"
 
-  bcu_step 'Grant admin necessary permissions to trigger builds'
-  bcu_step "Grant admin Cloud Build permissions"
-
-  bcu_step 'Admin needs Cloud Build Editor for builds.create and viz'
-  rbgi_add_project_iam_role                 \
-    "Grant admin Cloud Build Editor"        \
-    "${z_token}"                            \
-    "${RBGC_PROJECT_RESOURCE}"              \
-    "roles/cloudbuild.builds.editor"        \
-    "serviceAccount:${z_admin_sa_email}"    \
-    "admin-cb"
-
+  bcu_step 'Grant admin Viewer for Cloud Build service visibility'
   rbgi_add_project_iam_role                 \
     "Grant admin Viewer"                    \
     "${z_token}"                            \
@@ -365,9 +357,9 @@ zrbgg_create_gcs_bucket() {
   z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
-    200|201) bcu_info "Bucket ${z_bucket_name} created";        return 0 ;;
-    409)     bcu_warn "Bucket ${z_bucket_name} already exists"; return 0 ;;
-    *)       bcu_die "Failed to create bucket: ${z_err}"                 ;;
+    200|201) bcu_info "Bucket ${z_bucket_name} created";                    return 0 ;;
+    409)     bcu_die  "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
+    *)       bcu_die  "Failed to create bucket: ${z_err}"                             ;;
   esac
 }
 
@@ -674,7 +666,7 @@ rbgg_initialize_admin() {
   rbgi_add_repo_iam_role "${z_token}" "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
     "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
-  bcu_step 'Grant Storage Object Admin on artifacts bucket to Mason'
+  bcu_step 'Grant Storage Object Viewer on artifacts bucket to Mason'
   rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectViewer"
 
   bcu_step 'Grant Project Viewer to Mason'
@@ -695,8 +687,23 @@ rbgg_initialize_admin() {
 rbgg_destroy_admin() {
   zrbgg_sentinel
 
-  bcu_doc_brief "Destroy project-specific GAR resources and related repo-scoped IAM. Leaves project-wide APIs and SAs unchanged."
+  bcu_doc_brief "DEPRECATED: Use rbgp_project_delete for complete project deletion instead of partial cleanup"
   bcu_doc_shown || return 0
+
+  bcu_warn "========================================================================"
+  bcu_warn "DEPRECATION NOTICE: rbgg_destroy_admin is deprecated"
+  bcu_warn "========================================================================"
+  bcu_warn ""
+  bcu_warn "This function performs partial cleanup which can leave projects in"
+  bcu_warn "inconsistent states. The preferred approach is complete project deletion."
+  bcu_warn ""
+  bcu_warn "Instead, use:"
+  bcu_warn "  rbgp_project_delete  - Full project deletion (30-day grace period)"
+  bcu_warn ""
+  bcu_warn "This ensures clean, complete resource cleanup without partial states."
+  bcu_warn "========================================================================"
+  
+  bcu_require "Continue with deprecated partial cleanup (not recommended)" "CONTINUE-DEPRECATED"
 
   bcu_step 'Mint admin OAuth token'
   local z_token
@@ -961,8 +968,24 @@ rbgg_delete_service_account() {
 
 rbgg_destroy_project() {
   zrbgg_sentinel
-  bcu_doc_brief "DANGER: Permanently destroy the entire GCP project. Cannot be undone after 30 days."
+  bcu_doc_brief "DEPRECATED: Use rbgp_project_delete instead - moved to Payor module for billing/destructive ops"
   bcu_doc_shown || return 0
+
+  bcu_warn "========================================================================"
+  bcu_warn "DEPRECATION NOTICE: rbgg_destroy_project is deprecated"
+  bcu_warn "========================================================================"
+  bcu_warn ""
+  bcu_warn "Project deletion has been moved to the Payor module which handles"
+  bcu_warn "all billing and destructive lifecycle operations."
+  bcu_warn ""
+  bcu_warn "Use instead:"
+  bcu_warn "  rbgp_project_delete - Full project deletion with proper safeguards"
+  bcu_warn ""
+  bcu_warn "The Payor module provides additional features like lien management,"
+  bcu_warn "billing detachment, and project restoration capabilities."
+  bcu_warn "========================================================================"
+  
+  bcu_die "Function moved to Payor module - use rbgp_project_delete"
 
   if [[ "${DEBUG_ONLY:-0}" != "1" ]]; then
     bcu_die "This dangerous operation requires DEBUG_ONLY=1 environment variable"

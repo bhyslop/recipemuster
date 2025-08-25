@@ -87,7 +87,7 @@ zrgbs_create_service_account_with_key() {
   bcu_step 'Create service account via REST API'
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRGBS_INFIX_CREATE}" "${ZRGBS_PREFIX}create_request.json"
-  rbgu_http_require_ok "Create service account" "${ZRGBS_INFIX_CREATE}" 409 "already exists"
+  rbgu_http_require_ok "Create service account" "${ZRGBS_INFIX_CREATE}"
   rbgu_newly_created_delay                      "${ZRGBS_INFIX_CREATE}" "service account" 15
   bcu_info "Service account created: ${z_account_email}"
 
@@ -169,7 +169,7 @@ zrgbs_create_service_account_no_key() {
   ' > "${z_body}" || bcu_die "Failed to build SA create body"
 
   rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRGBS_INFIX_CREATE}" "${z_body}"
-  rbgu_http_require_ok "Create service account" "${ZRGBS_INFIX_CREATE}" 409 "already exists"
+  rbgu_http_require_ok "Create service account" "${ZRGBS_INFIX_CREATE}"
 
   bcu_log_args 'Allow IAM propagation, then verify using URL-encoded email'
   rbgu_newly_created_delay "${ZRGBS_INFIX_CREATE}" "service account" 15
