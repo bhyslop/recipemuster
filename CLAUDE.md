@@ -2,7 +2,7 @@
 
 ## Activity Menu
 
-### 1. MIND-Guided RBGS Updates
+### 1. MIND-Guided RBAGS Updates
 When working on `rbw-RBAGS-AdminGoogleSpec.adoc`, follow MIND-ROE principles from `a-roe-MIND-cmodel-semantic.adoc`:
 
 - **Linked Terms**: Use proper cross-references like `{at_user}` on separate lines
