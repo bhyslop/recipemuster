@@ -3,7 +3,7 @@
 ## Activity Menu
 
 ### 1. MIND-Guided RBGS Updates
-When working on `rbw-RBGS-GoogleSpec.adoc`, follow MIND-ROE principles from `../cnmp_CellNodeMessagePrototype/lenses/a-roe-MIND-cmodel-semantic.adoc`:
+When working on `rbw-RBGS-GoogleSpec.adoc`, follow MIND-ROE principles from `a-roe-MIND-cmodel-semantic.adoc`:
 
 - **Linked Terms**: Use proper cross-references like `{at_user}` on separate lines
 - **RB-Specific**: Focus on Recipe Bottle instances, not generic Google concepts
@@ -14,9 +14,6 @@ When working on `rbw-RBGS-GoogleSpec.adoc`, follow MIND-ROE principles from `../
 Key files:
 - Primary: `/workspace/recipebottle-admin/rbw-RBGS-GoogleSpec.adoc`
 - Reference: `/workspace/cnmp_CellNodeMessagePrototype/lenses/a-roe-MIND-cmodel-semantic.adoc`
-
-### 2. General RBGS Work
-Standard updates to Recipe Bottle Google Specification without MIND constraints.
 
 ### 3. Tool Development
 Working on shell scripts in `Tools/` directory for RB operations.
