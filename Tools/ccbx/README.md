@@ -46,7 +46,7 @@ docker-compose up -d
 
 ```
 Tools/ccbx/
-├── docker-build/
+├── build-context/
 │   ├── Dockerfile         # Container definition
 │   └── entrypoint.sh      # Startup script
 ├── docker-compose.yml     # Service configuration

@@ -17,7 +17,24 @@ RUN apt-get update && apt-get install -y                                        
     ripgrep             `# Fast search tool (Claude Code may use this)`                  \
     python3             `# Python 3.12.3 (default in Ubuntu 24.04)`                      \
     python-is-python3   `# Optional symlink for /usr/bin/python compatibility`           \
+    ruby                `# Required for Asciidoctor`                                     \
+    ruby-dev            `# Ruby development headers for native extensions`               \
+    build-essential     `# Compiler tools for Ruby native extensions`                    \
+    tidy                `# HTML formatter and validator`                                 \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Ruby-based documentation tools
+RUN gem install                                                                          \
+    asciidoctor         `# Modern AsciiDoc processor`                                    \
+    asciidoctor-pdf     `# PDF generation from AsciiDoc`                                 \
+    && gem cleanup
+
+# Install Node.js-based HTML tools globally
+RUN npm install -g                                                                       \
+    html-minifier       `# HTML minification with extensive options`                     \
+    prettier            `# Code formatter with HTML support`                             \
+    htmlhint            `# HTML linter for validation`                                   \
+    && npm cache clean --force
 
 # Create non-root user with configurable UID/GID
 # Ubuntu 24.04 has ubuntu:1000:1000 by default, so we reuse or override
