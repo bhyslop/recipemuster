@@ -14,8 +14,6 @@ services:
     volumes:
       # Workspace mount (parent of repo directory)
       - ../../../:/workspace
-      # Claude instructions file
-      - ./CLAUDE.md:/workspace/MyRepo/CLAUDE.md
       # Named volumes for persistence
       - claude-config:/home/claude/.claude
       - claude-cache:/home/claude/.cache
