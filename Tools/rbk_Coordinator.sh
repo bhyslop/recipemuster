@@ -94,7 +94,7 @@ rbk_route() {
     ccbx-c)
       # Connect to container and launch claude-code
       # Source the .env file to get the port
-      if [ -f "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
+      if [ -f  "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
         source "$RBK_SCRIPT_DIR/ccbx/.env"
       fi
       ssh -p ${CCBX_SSH_PORT:-8888} -t claude@localhost "cd /workspace/brm_recipemuster  &&  claude-code"
