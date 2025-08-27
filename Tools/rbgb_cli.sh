@@ -28,7 +28,7 @@ source "${ZRBGB_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
-source "${ZRBGB_CLI_SCRIPT_DIR}/rbgu_GoogleUtility.sh"
+source "${ZRBGB_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbgi_GoogleIAM.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbgb_Buckets.sh"
 

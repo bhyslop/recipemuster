@@ -28,7 +28,7 @@ source "${ZRGBS_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
-source "${ZRGBS_CLI_SCRIPT_DIR}/rbgu_GoogleUtility.sh"
+source "${ZRGBS_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rgbs_ServiceAccounts.sh"
 
 # Initialize modules

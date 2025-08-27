@@ -49,7 +49,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBGM** → `rbgm_ManualProcedures.sh`
 - **RBGO** → `rbgo_GoogleOAuth.sh`
 - **RBGP** → `rbgp_Payor.sh`
-- **RBGU** → `rbgu_GoogleUtility.sh`
+- **RBGU** → `rbgu_Utility.sh`
 - **RBI**  → `rbi_Image.sh`
 - **RBK**  → `rbk_Coordinator.sh`
 - **RBL**  → `rbl_Locator.sh`
