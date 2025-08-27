@@ -110,6 +110,139 @@ zrbgm_critic()  { zrbgm_show "\n${ZRBGM_CR} CRITICAL SECURITY WARNING: ${1}${ZRB
 ######################################################################
 # External Functions (rbgm_*)
 
+rbgm_show_payor_establishment() {
+  zrbgm_sentinel
+
+  bcu_doc_brief "Display the manual Payor Establishment procedure"
+  bcu_doc_shown || return 0
+
+  zrbgm_s1     "# Payor Establishment Procedure"
+  zrbgm_s2     "## Overview"
+  zrbgm_n      "Establish the Payor role for Recipe Bottle infrastructure by creating a dedicated"
+  zrbgm_n      "administrative project, configuring billing, and creating the Payor service account."
+  zrbgm_n      "The Payor manages billing and project lifecycle operations for Recipe Bottle depots."
+  zrbgm_s2     "## Prerequisites"
+  zrbgm_n      "- Active Google Cloud account with billing enabled"
+  zrbgm_n      "- Organization or Folder permissions for project creation"
+  zrbgm_n      "- Credit card attached to Google Cloud billing account"
+  zrbgm_e
+
+  zrbgm_critic "This procedure is for PERSONAL Google accounts only."
+  zrbgm_n      "If your account is managed by an ORGANIZATION (e.g., Google Workspace),"
+  zrbgm_n      "you must follow your IT/admin process to create projects, attach billing,"
+  zrbgm_n      "and assign permissions - those steps are NOT covered here."
+  zrbgm_e
+
+  zrbgm_s1     "Manual Payor Establishment Procedure"
+  zrbgm_n      "Recipe Bottle Payor setup requires manual configuration before API operations can proceed."
+  zrbgm_e
+
+  zrbgm_s2     "1. Configure Payor Regime Variables:"
+  zrbgm_n      "   Before creating resources, configure the Payor regime in your environment."
+  zrbgm_nc     "   1. Edit your RBRR configuration file: " "${ZRBGM_RBRR_FILE}"
+  zrbgm_n      "   2. Set the following RBRP (Recipe Bottle Regime Payor) variables:"
+  zrbgm_nc     "      - RBRP_PAYOR_PROJECT_ID: " "unique-payor-project-id"
+  zrbgm_n      "        (6-30 characters, lowercase letters, numbers, hyphens)"
+  zrbgm_n      "        (Cannot start/end with hyphen, globally unique across GCP)"
+  zrbgm_nc     "      - RBRP_PARENT_TYPE: " "organization"
+  zrbgm_nc     "        or RBRP_PARENT_TYPE: " "folder"
+  zrbgm_nc     "      - RBRP_PARENT_ID: " "123456789012"
+  zrbgm_n      "        (numeric ID of your organization or folder)"
+  zrbgm_n      "   3. Leave RBRP_BILLING_ACCOUNT_ID blank for now - will set in step 4"
+  zrbgm_n      "   4. Save the file before proceeding"
+  zrbgm_e
+
+  zrbgm_s2     "2. Create Payor Project:"
+  zrbgm_nc     "   Open browser to: " "https://console.cloud.google.com/projectcreate"
+  zrbgm_n      "   1. Configure new project:"
+  zrbgm_nc     "      - Project name: " "Recipe Bottle Payor"
+  zrbgm_nc     "      - Project ID: " "use your RBRP_PAYOR_PROJECT_ID value"
+  zrbgm_n      "      - Organization/Folder: select your parent resource"
+  zrbgm_nw     "   2. Click " "CREATE"
+  zrbgm_nwne   "   3. If " "The project ID is already taken" " : " "FAIL - choose different RBRP_PAYOR_PROJECT_ID"
+  zrbgm_nwn    "   4. Wait for " "Creating project..." " notification to complete"
+  zrbgm_e
+
+  zrbgm_s2     "3. Enable Billing Account:"
+  zrbgm_nc     "   Go to: " "https://console.cloud.google.com/billing"
+  zrbgm_n      "   1. Check existing billing accounts:"
+  zrbgm_nw     "      - Look for accounts with status " "Open"
+  zrbgm_n      "      - Note the billing account ID (format: XXXXXX-XXXXXX-XXXXXX)"
+  zrbgm_n      "   2. If no open billing accounts exist:"
+  zrbgm_nc     "      - Go to: " "https://console.cloud.google.com/billing/create"
+  zrbgm_n      "      - Follow prompts to create new billing account"
+  zrbgm_n      "      - Attach credit card for payment method"
+  zrbgm_n      "   3. Record the billing account ID for configuration"
+  zrbgm_e
+
+  zrbgm_s2     "4. Update Billing Configuration:"
+  zrbgm_nc     "   Return to your RBRR configuration file: " "${ZRBGM_RBRR_FILE}"
+  zrbgm_nc     "   1. Set RBRP_BILLING_ACCOUNT_ID: " "XXXXXX-XXXXXX-XXXXXX"
+  zrbgm_n      "      (use the billing account ID from step 3)"
+  zrbgm_n      "   2. Save the file"
+  zrbgm_e
+
+  zrbgm_s2     "5. Link Billing to Payor Project:"
+  zrbgm_nc     "   Go to: " "https://console.cloud.google.com/billing/linkedaccount"
+  zrbgm_nwnwn  "   1. Ensure billing account " "matches RBRP_BILLING_ACCOUNT_ID" " in top dropdown"
+  zrbgm_nw     "   2. Click " "LINK A PROJECT"
+  zrbgm_nwnw   "   3. Select project: " "use your RBRP_PAYOR_PROJECT_ID" " from dropdown"
+  zrbgm_nw     "   4. Click " "SET ACCOUNT"
+  zrbgm_nwn    "   5. Verify project appears in " "Linked projects" " table"
+  zrbgm_e
+
+  zrbgm_s2     "6. Create Payor Service Account:"
+  zrbgm_nc     "   Go to: " "https://console.cloud.google.com/iam-admin/serviceaccounts"
+  zrbgm_nwnwn  "   1. Ensure project " "matches RBRP_PAYOR_PROJECT_ID" " in top dropdown"
+  zrbgm_nw     "   2. Click " "+ CREATE SERVICE ACCOUNT"
+  zrbgm_n      "   3. Service account details:"
+  zrbgm_nc     "      - Service account name: " "payor"
+  zrbgm_nc     "      - Service account ID: " "payor"
+  zrbgm_nc     "      - Description: " "Payor role for billing and project lifecycle operations"
+  zrbgm_nw     "   4. Click " "CREATE AND CONTINUE"
+  zrbgm_nwnw   "   5. Grant roles - select from dropdown " "Select a role" ":"
+  zrbgm_nc     "      - Type in filter: " "owner"
+  zrbgm_nwnw   "      - Select: " "Basic" " -> " "Owner"
+  zrbgm_nw     "   6. Click " "CONTINUE"
+  zrbgm_nwnw   "   7. Skip optional access settings - click " "DONE"
+  zrbgm_e
+
+  zrbgm_s2     "7. Grant Billing Permissions to Payor:"
+  zrbgm_nc     "   Return to: " "https://console.cloud.google.com/billing"
+  zrbgm_nwnwn  "   1. Select billing account " "matching RBRP_BILLING_ACCOUNT_ID" " from list"
+  zrbgm_nw     "   2. Left sidebar -> " "Account Management"
+  zrbgm_nw     "   3. Click " "+ ADD PRINCIPAL"
+  zrbgm_n      "   4. Configure IAM binding:"
+  zrbgm_nc     "      - New principals: " "payor@[RBRP_PAYOR_PROJECT_ID].iam.gserviceaccount.com"
+  zrbgm_nc     "      - Role: " "Billing Admin"
+  zrbgm_nw     "   5. Click " "SAVE"
+  zrbgm_e
+
+  zrbgm_s2     "8. Generate Payor Service Account Key:"
+  zrbgm_nc     "   Return to: " "https://console.cloud.google.com/iam-admin/serviceaccounts"
+  zrbgm_nwnwn  "   1. Ensure project " "matches RBRP_PAYOR_PROJECT_ID" " in top dropdown"
+  zrbgm_nw     "   2. Click on the " "payor" " service account email"
+  zrbgm_nw     "   3. Top tabs -> " "KEYS"
+  zrbgm_nwnw   "   4. Click " "ADD KEY" " -> " "Create new key"
+  zrbgm_nwn    "   5. Key type: " "JSON" " (should be selected)"
+  zrbgm_nw     "   6. Click " "CREATE"
+  zrbgm_e
+  zrbgm_nw     "Browser downloads: " "[RBRP_PAYOR_PROJECT_ID]-[random].json"
+  zrbgm_nwn    "   7. Click " "CLOSE" " on download confirmation"
+  zrbgm_e
+
+  zrbgm_s2     "9. Configure Payor RBRA File:"
+  zrbgm_n      "   The downloaded JSON key needs to be converted to RBRA format."
+  zrbgm_n      "   Use the appropriate Recipe Bottle tool to generate the Payor RBRA file"
+  zrbgm_n      "   from the downloaded JSON key file."
+  zrbgm_e
+
+  zrbgm_warning "Manual setup complete. You can now run Recipe Bottle Payor API operations."
+  zrbgm_n      "Verify configuration by testing Payor operations before proceeding to depot creation."
+
+  bcu_success "Payor establishment procedure displayed"
+}
+
 rbgm_LEGACY_setup_admin() {
   zrbgm_sentinel
 
