@@ -206,67 +206,6 @@ rbgu_get_admin_token_capture() {
   echo    "${z_token}"
 }
 
-# Poll a Google LRO until done (success or error)
-rbgu_wait_lro_capture() {
-  zrbgu_sentinel
-
-  local z_token="${1:-}"
-  local z_op_url="${2:-}"
-  local z_parent="${3:-}"
-  local z_poll="${4:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
-  local z_max="${5:-${RBGC_MAX_CONSISTENCY_SEC}}"
-
-  test -n "${z_token}"   || return 1
-  test -n "${z_op_url}"  || return 1
-  test -n "${z_parent}"  || return 1
-  test -n "${z_poll}"    || return 1
-  test -n "${z_max}"     || return 1
-
-  local z_elapsed=0
-  local z_infix=""
-  local z_done=""
-
-  while :; do
-    z_infix="${z_parent}-lro-${z_elapsed}s"
-
-    rbgu_http_json "GET" "${z_op_url}" "${z_token}" "${z_infix}"
-
-    bcu_log_args 'If HTTP not 200, treat as transient unless clearly fatal'
-    local z_code=""
-    z_code=$(rbgu_http_code_capture "${z_infix}") || return 1
-    case "${z_code}" in
-      200)                     :                                                                    ;;
-      429|408|500|502|503|504) bcu_log_args "HTTP ${z_code} at ${z_elapsed}s LRO transient "        ;;
-      *)                       bcu_log_args "HTTP ${z_code} at ${z_elapsed}s LRO non_OK "; return 1 ;;
-    esac
-
-    z_done=$(rbgu_json_field_capture "${z_infix}" ".done" 2>/dev/null) || z_done=""
-    if test "${z_done}" = "true"; then
-      bcu_log_args 'Error?'
-      local z_err_msg=""
-      z_err_msg=$(rbgu_json_field_capture "${z_infix}" ".error.message" 2>/dev/null) || z_err_msg=""
-      if test -n "${z_err_msg}"; then
-        bcu_log_args "LRO error at ${z_elapsed}s: ${z_err_msg}"
-        return 1
-      fi
-      bcu_log_args 'Success'
-      echo "${z_infix}"
-      return 0
-    fi
-
-    bcu_log_args 'Not done: check timeout and sleep'
-    if test "${z_elapsed}" -ge "${z_max}"; then
-      bcu_log_args "LRO timeout at ${z_elapsed}s (max ${z_max}s)"
-      return 1
-    fi
-
-    bcu_log_args 'Clamp poll interval >= 1 and not overshooting max too far'
-    test  "${z_poll}" -ge 1 || z_poll=1
-    sleep "${z_poll}"
-    z_elapsed=$((z_elapsed + z_poll))
-  done
-}
-
 # JSON file writer helper (vanilla empty policy)
 rbgu_write_vanilla_json() {
   zrbgu_sentinel
@@ -275,7 +214,7 @@ rbgu_write_vanilla_json() {
 
   local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
   printf '{"bindings":[]}\n' > "${z_json_file}" || return 1
-  test -f "${z_json_file}" || return 1
+  test -f                      "${z_json_file}" || return 1
 }
 
 # Apply jq filter to file, writing result to same or different file
@@ -286,8 +225,8 @@ rbgu_jq_file_to_file_ok() {
   local z_jq_filter="${3:-}"
 
   test -n "${z_source_infix}" || return 1
-  test -n "${z_target_infix}"  || return 1
-  test -n "${z_jq_filter}"     || return 1
+  test -n "${z_target_infix}" || return 1
+  test -n "${z_jq_filter}"    || return 1
 
   local z_source_file="${ZRBGU_PREFIX}${z_source_infix}${ZRBGU_POSTFIX_JSON}"
   local z_target_file="${ZRBGU_PREFIX}${z_target_infix}${ZRBGU_POSTFIX_JSON}"
