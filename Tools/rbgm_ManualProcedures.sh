@@ -110,7 +110,7 @@ zrbgm_critic()  { zrbgm_show "\n${ZRBGM_CR} CRITICAL SECURITY WARNING: ${1}${ZRB
 ######################################################################
 # External Functions (rbgm_*)
 
-rbgm_show_setup() {
+rbgm_LEGACY_setup_admin() {
   zrbgm_sentinel
 
   bcu_doc_brief "Display the manual GCP admin setup procedure"

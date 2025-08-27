@@ -66,7 +66,7 @@ rbk_route() {
       ;;
 
     # Google admin commands
-    rbw-ag)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_show_setup             $z_args ;;
+    rbw-ag)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_show_setup             $z_args ;;
     rbw-aIA) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_initialize_admin       $z_args ;;
     rbw-aID) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_admin          $z_args ;;
     rbw-al)  exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_list_service_accounts  $z_args ;;
