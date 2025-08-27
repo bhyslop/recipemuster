@@ -27,7 +27,7 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 

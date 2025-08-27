@@ -26,7 +26,7 @@ source "${ZRBF_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
-source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
 zrbf_furnish() {
