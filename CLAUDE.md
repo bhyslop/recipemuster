@@ -45,7 +45,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBGB** → `rbgb_Buckets.sh`
 - **RBGC** → `rbgc_Constants.sh`
 - **RBGG** → `rbgg_Governor.sh`
-- **RBGI** → `rbgi_GoogleIAM.sh`
+- **RBGI** → `rbgi_IAM.sh`
 - **RBGM** → `rbgm_ManualProcedures.sh`
 - **RBGO** → `rbgo_GoogleOAuth.sh`
 - **RBGP** → `rbgp_Payor.sh`

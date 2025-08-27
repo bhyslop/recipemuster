@@ -29,7 +29,7 @@ source "${ZRBGA_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbgo_GoogleOAuth.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/rbgi_GoogleIAM.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbga_ArtifactRegistry.sh"
 
 # Initialize modules
