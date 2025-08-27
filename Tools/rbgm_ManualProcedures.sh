@@ -57,6 +57,7 @@ zrbgm_kindle() {
     ZRBGM_CR=""               # No color, or disabled
   fi
 
+  ZRBGM_RBRP_FILE="./rbrp.env"
   ZRBGM_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
   ZRBGM_PREFIX="${BDU_TEMP_DIR}/rbgm_"
@@ -139,7 +140,7 @@ rbgm_show_payor_establishment() {
 
   zrbgm_s2     "1. Configure Payor Regime Variables:"
   zrbgm_n      "   Before creating resources, configure the Payor regime in your environment."
-  zrbgm_nc     "   1. Edit your RBRR configuration file: " "${ZRBGM_RBRR_FILE}"
+  zrbgm_nc     "   1. Edit your RBRP configuration file: " "${ZRBGM_RBRP_FILE}"
   zrbgm_n      "   2. Set the following RBRP (Recipe Bottle Regime Payor) variables:"
   zrbgm_nc     "      - RBRP_PAYOR_PROJECT_ID: " "unique-payor-project-id"
   zrbgm_n      "        (6-30 characters, lowercase letters, numbers, hyphens)"
