@@ -470,25 +470,25 @@ rbgp_create_gcs_bucket() {
   bcu_log_args 'Create bucket request JSON for '"${z_bucket_name}"
   local z_bucket_req="${BDU_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
-{
-  name: $name,
-  location: $location,
-  storageClass: "STANDARD",
-  lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
-}' > "${z_bucket_req}" || bcu_die "Failed to create bucket request JSON"
+    {
+      name: $name,
+      location: $location,
+      storageClass: "STANDARD",
+      lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
+    }' > "${z_bucket_req}" || bcu_die "Failed to create bucket request JSON"
 
   bcu_log_args 'Send bucket creation request'
   local z_code
   local z_err
   rbgu_http_json "POST" "${RBGC_API_GCS_BUCKET_CREATE}" "${z_token}" \
-                                   "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
+                                  "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || bcu_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGP_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
-    200|201) bcu_info "Bucket ${z_bucket_name} created";                    return 0 ;;
+    200|201) bcu_info "Bucket ${z_bucket_name} created";                         return 0 ;;
     409)     bcu_die  "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
-    *)       bcu_die  "Failed to create bucket: ${z_err}"                             ;;
+    *)       bcu_die  "Failed to create bucket: ${z_err}"                                 ;;
   esac
 }
 
