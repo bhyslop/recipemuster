@@ -490,7 +490,7 @@ rbgg_create_retriever() {
   test -n "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR not set"
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
-  local z_account_name="rbga-retriever-${z_instance}"
+  local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step "Creating Retriever service account: ${z_account_name}"
@@ -535,7 +535,7 @@ rbgg_create_director() {
   test -n "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR not set"
   test -d "${BDU_OUTPUT_DIR}" || bcu_die "BDU_OUTPUT_DIR does not exist: ${BDU_OUTPUT_DIR}"
 
-  local z_account_name="rbga-director-${z_instance}"
+  local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
   bcu_step "Creating Director service account: ${z_account_name}"

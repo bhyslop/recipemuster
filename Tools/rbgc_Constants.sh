@@ -35,6 +35,10 @@ zrbgc_kindle() {
   RBGC_ADMIN_ROLE="rbw-admin"
   RBGC_MASON_NAME="rbw-mason"
   RBGC_PAYOR_ROLE="rbw-payor"
+
+  # Multi-instance Service Account Prefixes
+  RBGC_DIRECTOR_PREFIX="director"
+  RBGC_RETRIEVER_PREFIX="retriever"
   RBGC_GCS_BUCKET="${RBRR_GCP_PROJECT_ID}-artifacts"
 
   # Service-specific Aliases
