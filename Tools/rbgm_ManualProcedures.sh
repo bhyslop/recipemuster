@@ -46,14 +46,14 @@ zrbgm_kindle() {
     ZRBGM_S="\033[1;37m"      # Section (bright white)
     ZRBGM_C="\033[36m"        # Command (cyan)
     ZRBGM_W="\033[35m"        # Website (magenta)
-    ZRBGM_WN="\033[1;33m"     # Warning (bright yellow)
+    ZRBGM_Y="\033[1;33m"      # Warning (bright yellow)
     ZRBGM_CR="\033[1;31m"     # Critical (bright red)
   else
     ZRBGM_R=""                # No color, or disabled
     ZRBGM_S=""                # No color, or disabled
     ZRBGM_C=""                # No color, or disabled
     ZRBGM_W=""                # No color, or disabled
-    ZRBGM_WN=""               # No color, or disabled
+    ZRBGM_Y=""                # No color, or disabled
     ZRBGM_CR=""               # No color, or disabled
   fi
 
@@ -101,11 +101,11 @@ zrbgm_nwn()     { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}";                
 zrbgm_nwne()    { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_CR}${4}${ZRBGM_R}";    }
 zrbgm_nwnw()    { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_W}${4}${ZRBGM_R}";     }
 zrbgm_nwnwn()   { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_W}${4}${ZRBGM_R}${5}"; }
+zrbgm_ny()      { zrbgm_show "${1}${ZRBGM_Y}${2}${ZRBGM_R}";                                 }
 
 zrbgm_ne()      { zrbgm_show "${1}${ZRBGM_CR}${2}${ZRBGM_R}"; }
 
 zrbgm_cmd()     { zrbgm_show "${ZRBGM_C}${1}${ZRBGM_R}"; }
-zrbgm_warning() { zrbgm_show "\n${ZRBGM_WN}  WARNING: ${1}${ZRBGM_R}\n"; }
 zrbgm_critic()  { zrbgm_show "\n${ZRBGM_CR} CRITICAL SECURITY WARNING: ${1}${ZRBGM_R}\n"; }
 
 
@@ -155,25 +155,23 @@ rbgm_show_payor_establishment() {
   zrbgm_nc     "          " "RBRP_PARENT_ID=none"
   zrbgm_e
   zrbgm_s2     "4. Configure Billing Account:"
+  zrbgm_ny     "    " "not sure this is right"
   zrbgm_nw     "   1. Go to: " "https://console.cloud.google.com/billing"
-  zrbgm_nw     "   2. Ensure project " "matches RBRP_PAYOR_PROJECT_ID" " in top dropdown"
-  zrbgm_nw     "   3. Examine the " "Billing accounts" " table:"
-  zrbgm_nwnw   "      - Column " "Account ID" " shows format " "XXXXXX-XXXXXX-XXXXXX"
-  zrbgm_nwnw   "      - Column " "Status" " shows " "Open" " (active) or Closed"
-  zrbgm_nwn    "   4. Update " "${ZRBGM_RBRP_FILE}" " with billing account:"
   zrbgm_n      "      If no billing accounts exist:"
   zrbgm_nw     "          a. Click " "CREATE ACCOUNT"
-  zrbgm_nc     "          b. Account name: " "Recipe Bottle Billing"
-  zrbgm_n      "          c. Configure payment method and submit"
-  zrbgm_nw     "          d. Copy new " "Account ID" " from table"
+  zrbgm_n      "          b. Configure payment method and submit"
+  zrbgm_nw     "          c. Copy new " "Account ID" " from table"
   zrbgm_n      "      else if single Open account exists:"
   zrbgm_nw     "          a. Copy the " "Account ID" " value"
   zrbgm_n      "      else if multiple Open accounts exist:"
   zrbgm_n      "          a. Choose account for Recipe Bottle funding"
   zrbgm_nw     "          b. Copy chosen " "Account ID" " value"
+  zrbgm_nw     "   5. Go to: " "https://console.cloud.google.com/billing/projects"
+  zrbgm_nwn    "   6. Find project row with ID matching your " "RBRP_PAYOR_PROJECT_ID" "(not name)"
   zrbgm_ncnw   "      Record as: " "RBRP_BILLING_ACCOUNT_ID=" " # " "Value from Account ID column"
   zrbgm_e
   zrbgm_s2     "5. Link Billing to Payor Project:"
+  zrbgm_ny     "   " "my free trial seemed to have autolinked"
   zrbgm_n      "   Now link your billing account to the newly created project."
   zrbgm_nc     "   Go to: " "https://console.cloud.google.com/billing/linkedaccount"
   zrbgm_n      "   1. Select the correct billing account:"
@@ -191,7 +189,7 @@ rbgm_show_payor_establishment() {
   zrbgm_e
   zrbgm_s2     "6. Create Payor Service Account:"
   zrbgm_nc     "   Go to: " "https://console.cloud.google.com/iam-admin/serviceaccounts"
-  zrbgm_nwn    "   1. Ensure project " "matches RBRP_PAYOR_PROJECT_ID" " in top dropdown"
+  zrbgm_nwn    "   1. Ensure project with name corresponding to " "RBRP_PAYOR_PROJECT_ID" " in top project picker"
   zrbgm_nw     "   2. Click " "+ CREATE SERVICE ACCOUNT"
   zrbgm_n      "   3. Service account details:"
   zrbgm_nc     "      - Service account name: " "payor"
@@ -199,20 +197,21 @@ rbgm_show_payor_establishment() {
   zrbgm_nc     "      - Description: " "Payor role for billing and project lifecycle operations"
   zrbgm_nw     "   4. Click " "CREATE AND CONTINUE"
   zrbgm_nwn    "   5. Grant roles - select from dropdown " "Select a role" ":"
-  zrbgm_nc     "      - Type in filter: " "owner"
-  zrbgm_nwn    "      - Select: " "Basic" " -> " "Owner"
+  zrbgm_nw     "      - Select from right side -> " "Owner"
   zrbgm_nw     "   6. Click " "CONTINUE"
-  zrbgm_nw     "   7. Skip optional access settings - click " "DONE"
+  zrbgm_nw     "   7. Skip Principals with access and click " "DONE"
   zrbgm_e
   zrbgm_s2     "7. Grant Billing Permissions to Payor:"
   zrbgm_nc     "   Return to: " "https://console.cloud.google.com/billing"
   zrbgm_nwn    "   1. Select billing account " "matching RBRP_BILLING_ACCOUNT_ID" " from list"
   zrbgm_nw     "   2. Left sidebar -> " "Account Management"
-  zrbgm_nw     "   3. Click " "+ ADD PRINCIPAL"
-  zrbgm_n      "   4. Configure IAM binding:"
+  zrbgm_nw     "   3. Assure RHS info panel open; if you see " "Show info panel" " then click it"
+  zrbgm_nw     "   4. From info panel click " "+ ADD PRINCIPAL"
+  zrbgm_n      "   5. Configure IAM binding:"
+  zrbgm_ny     "    "  "TODO HERE"
   zrbgm_nc     "      - New principals: " "payor@[RBRP_PAYOR_PROJECT_ID].iam.gserviceaccount.com"
   zrbgm_nc     "      - Role: " "Billing Admin"
-  zrbgm_nw     "   5. Click " "SAVE"
+  zrbgm_nw     "   6. Click " "SAVE"
   zrbgm_e
   zrbgm_s2     "8. Generate Payor Service Account Key:"
   zrbgm_nc     "   Return to: " "https://console.cloud.google.com/iam-admin/serviceaccounts"
@@ -231,8 +230,7 @@ rbgm_show_payor_establishment() {
   zrbgm_n      "   Use the appropriate Recipe Bottle tool to generate the Payor RBRA file"
   zrbgm_n      "   from the downloaded JSON key file."
   zrbgm_e
-
-  zrbgm_warning "Manual setup complete. You can now run Recipe Bottle Payor API operations."
+  zrbgm_ny     " " "Manual setup complete. You can now run Recipe Bottle Payor API operations."
   zrbgm_n      "Verify configuration by testing Payor operations before proceeding to depot creation."
 
   bcu_success "Payor establishment procedure displayed"
