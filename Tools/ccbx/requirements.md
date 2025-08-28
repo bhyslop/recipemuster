@@ -52,6 +52,7 @@ The following utilities are installed in the container based on the specific req
 - **html-minifier** - Node.js-based HTML minification tool (installed via npm)
 - **prettier** - Multi-language code formatter with HTML support (installed via npm)
 - **htmlhint** - HTML linter for validation (installed via npm)
+- **diff-dom** - DOM tree diffing for HTML comparison (installed via npm)
 
 Note: Python 3.11 specifically is not available in Ubuntu 24.04 default repositories at this time.
 

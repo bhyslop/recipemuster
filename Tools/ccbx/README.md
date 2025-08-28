@@ -104,6 +104,24 @@ claude-code help
 claude-code status
 ```
 
+## Available Tools
+
+The container includes various development and HTML processing tools:
+
+### HTML Processing
+- **diff-dom** - DOM tree diffing for HTML comparison
+- **html-minifier** - HTML minification
+- **prettier** - Code formatting
+- **htmlhint** - HTML validation
+- **tidy** - Classic HTML formatter
+
+### Documentation
+- **asciidoctor** - AsciiDoc to HTML/PDF processing
+- **asciidoctor-pdf** - PDF generation from AsciiDoc
+
+### Development
+- Standard development tools (git, vim, ripgrep, jq, make)
+
 ## Troubleshooting
 
 ### Permission Issues

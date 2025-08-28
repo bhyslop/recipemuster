@@ -34,6 +34,7 @@ RUN npm install -g                                                              
     html-minifier       `# HTML minification with extensive options`                     \
     prettier            `# Code formatter with HTML support`                             \
     htmlhint            `# HTML linter for validation`                                   \
+    diff-dom            `# DOM tree diffing for HTML comparison`                         \
     && npm cache clean --force
 
 # Create non-root user with configurable UID/GID
