@@ -236,7 +236,7 @@ rbgm_show_payor_establishment() {
   zrbgm_d      "   5. Configure IAM binding:"
   zrbgm_dy     "    "  "TODO HERE"
   zrbgm_dc     "      - New principals: " "${RBGC_PAYOR_ROLE}@${RBRP_PAYOR_PROJECT_ID}.iam.gserviceaccount.com"
-  zrbgm_dc     "      - Role: " "Billing Admin"
+  zrbgm_dc     "      - Role: " "Billing Account Administrator"
   zrbgm_dm     "   6. Click " "SAVE"
   zrbgm_e
   zrbgm_s2     "8. Generate Payor Service Account Key:"
