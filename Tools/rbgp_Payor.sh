@@ -50,16 +50,9 @@ zrbgp_kindle() {
   ZRBGP_INFIX_DELETE_LIEN="delete_lien"
   ZRBGP_INFIX_BILLING_ATTACH="billing_attach"
   ZRBGP_INFIX_BILLING_DETACH="billing_detach"
-  ZRBGP_INFIX_API_IAM_ENABLE="api_iam_enable"
-  ZRBGP_INFIX_API_CRM_ENABLE="api_crm_enable"
-  ZRBGP_INFIX_API_ART_ENABLE="api_art_enable"
-  ZRBGP_INFIX_API_BUILD_ENABLE="api_build_enable"
-  ZRBGP_INFIX_API_CONTAINERANALYSIS_ENABLE="api_containeranalysis_enable"
-  ZRBGP_INFIX_API_STORAGE_ENABLE="api_storage_enable"
   ZRBGP_INFIX_CREATE_REPO="create_repo"
   ZRBGP_INFIX_VERIFY_REPO="verify_repo"
   ZRBGP_INFIX_PROJECT_INFO="project_info"
-  ZRBGP_INFIX_CB_SA_ACCOUNT_GEN="cb_account_gen"
   ZRBGP_INFIX_BUCKET_CREATE="bucket_create"
   ZRBGP_INFIX_API_CHECK="api_checking"
 
@@ -417,49 +410,6 @@ rbgp_get_project_number_capture() {
   echo "${z_project_number}"
 }
 
-# Ensure Cloud Build service agent exists and admin can trigger builds
-rbgp_ensure_cloudbuild_service_agent() { # ITCH_SHOULDNT_THIS_BE_DELETED_AND_WE_USE_MESON?
-  zrbgp_sentinel
-
-  local z_token="${1}"
-  local z_project_number="${2}"
-
-  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
-  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  local z_gen_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${z_project_number}/services/cloudbuild.googleapis.com:generateServiceIdentity"
-
-  rbgu_http_json_lro_ok                                              \
-       "Generate Cloud Build service agent"                          \
-       "${z_token}"                                                  \
-       "${z_gen_url}"                                                \
-       "${ZRBGP_INFIX_CB_SA_ACCOUNT_GEN}"                            \
-       "${ZRBGP_EMPTY_JSON}"                                         \
-       ".name"                                                       \
-       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}"   \
-       "${RBGC_OP_PREFIX_GLOBAL}"                                    \
-       "5"                                                           \
-       "60"
-
-  bcu_step 'Grant Cloud Build Service Agent role'
-  rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
-    "Grant Cloud Build Service Agent role"  \
-    "${RBGC_PROJECT_RESOURCE}"              \
-    "roles/cloudbuild.serviceAgent"         \
-    "serviceAccount:${z_cb_service_agent}"  \
-    "cb-agent"
-
-  bcu_step 'Grant admin Viewer for Cloud Build service visibility'
-  rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
-    "Grant admin Viewer"                    \
-    "${RBGC_PROJECT_RESOURCE}"              \
-    "roles/viewer"                          \
-    "serviceAccount:${z_admin_sa_email}"    \
-    "admin-viewer"
-
-  bcu_info "Cloud Build service agent configured with admin permissions"
-}
 
 rbgp_create_gcs_bucket() {
   zrbgp_sentinel
@@ -495,142 +445,51 @@ rbgp_create_gcs_bucket() {
 rbgp_project_create() {
   zrbgp_sentinel
 
-  local z_json_path="${1:-}"
+  local z_json_path="$1"
 
-  bcu_doc_brief "Initialize GCP project infrastructure: enable/verify APIs, create GAR repo, and grant Cloud Build SA."
+  bcu_doc_brief "Create depot project infrastructure following RBAGS specification"
   bcu_doc_param "json_path" "Path to downloaded admin JSON key (will be converted to RBRA)"
   bcu_doc_shown || return 0
 
   test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
 
-  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-
   bcu_step 'Convert admin JSON to RBRA'
   rbgu_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
 
-  bcu_step 'Mint admin OAuth token'
+  bcu_step 'Load Payor credentials from RBRA file'
+  source "${RBRR_ADMIN_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
+
+  bcu_step 'Execute JWT OAuth exchange with loaded RBRA credentials'
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
-  bcu_step 'Check which required APIs need enabling'
-  local z_missing=""
-  z_missing=$(rbgp_required_apis_missing_capture "${z_token}") \
-    || bcu_die "Failed to check API status"
+  bcu_step 'Validate project exists and is active'
+  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}"
+  
+  local z_lifecycle_state
+  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
+  test "${z_lifecycle_state}" = "ACTIVE" || bcu_die "Project state is ${z_lifecycle_state}, expected ACTIVE"
 
-  if test -n "${z_missing}"; then
-    bcu_info "APIs needing enablement: ${z_missing}"
-
-    # Invariant: API enable is gated by the preflight above.
-    # Any 409 here means the preflight or our assumptions are wrong -> die.
-
-    bcu_step 'Enable IAM API'
-    rbgu_http_json_lro_ok                                       \
-      "Enable IAM API"                                          \
-      "${z_token}"                                              \
-      "${RBGC_API_SU_ENABLE_IAM}"                               \
-      "${ZRBGP_INFIX_API_IAM_ENABLE}"                           \
-      "${ZRBGP_EMPTY_JSON}"                                     \
-      ".name"                                                   \
-      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "${RBGC_OP_PREFIX_GLOBAL}"                                \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-
-    bcu_step 'Enable Cloud Resource Manager API'
-    rbgu_http_json_lro_ok                                       \
-      "Enable Cloud Resource Manager API"                       \
-      "${z_token}"                                              \
-      "${RBGC_API_SU_ENABLE_CRM}"                               \
-      "${ZRBGP_INFIX_API_CRM_ENABLE}"                           \
-      "${ZRBGP_EMPTY_JSON}"                                     \
-      ".name"                                                   \
-      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "${RBGC_OP_PREFIX_GLOBAL}"                                \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-
-    bcu_step 'Enable Artifact Registry API'
-    rbgu_http_json_lro_ok                                       \
-      "Enable Artifact Registry API"                            \
-      "${z_token}"                                              \
-      "${RBGC_API_SU_ENABLE_GAR}"                               \
-      "${ZRBGP_INFIX_API_ART_ENABLE}"                           \
-      "${ZRBGP_EMPTY_JSON}"                                     \
-      ".name"                                                   \
-      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "${RBGC_OP_PREFIX_GLOBAL}"                                \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-
-    bcu_step 'Enable Cloud Build API'
-    rbgu_http_json_lro_ok                                       \
-      "Enable Cloud Build API"                                  \
-      "${z_token}"                                              \
-      "${RBGC_API_SU_ENABLE_BUILD}"                             \
-      "${ZRBGP_INFIX_API_BUILD_ENABLE}"                         \
-      "${ZRBGP_EMPTY_JSON}"                                     \
-      ".name"                                                   \
-      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "${RBGC_OP_PREFIX_GLOBAL}"                                \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-
-    bcu_step 'Enable Container Analysis API'
-    rbgu_http_json_lro_ok                                       \
-      "Enable Container Analysis API"                           \
-      "${z_token}"                                              \
-      "${RBGC_API_SU_ENABLE_ANALYSIS}"                          \
-      "${ZRBGP_INFIX_API_CONTAINERANALYSIS_ENABLE}"             \
-      "${ZRBGP_EMPTY_JSON}"                                     \
-      ".name"                                                   \
-      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "${RBGC_OP_PREFIX_GLOBAL}"                                \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-
-    bcu_step 'Enable Cloud Storage API (build bucket deps)'
-    rbgu_http_json_lro_ok                                       \
-      "Enable Cloud Storage API"                                \
-      "${z_token}"                                              \
-      "${RBGC_API_SU_ENABLE_STORAGE}"                           \
-      "${ZRBGP_INFIX_API_STORAGE_ENABLE}"                       \
-      "${ZRBGP_EMPTY_JSON}"                                     \
-      ".name"                                                   \
-      "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}"    \
-      "${RBGC_OP_PREFIX_GLOBAL}"                                \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                        \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-  fi
-
-  bcu_step 'Discover Project Number'
+  bcu_step 'Get project number'
   local z_project_number
-  z_project_number=$(rbgp_get_project_number_capture) || bcu_die "Failed to get project number"
+  z_project_number=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.projectNumber') || bcu_die "Failed to get project number"
+  test -n "${z_project_number}" || bcu_die "Project number is empty"
 
-  bcu_step 'Directly create the cloudbuild service agent'
-  rbgp_ensure_cloudbuild_service_agent "${z_token}" "${z_project_number}"
+  bcu_step 'Grant Payor service account required depot project permissions'
+  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
+  rbgi_add_project_iam_role "${z_token}" "Grant admin Viewer" "${RBGC_PROJECT_RESOURCE}" \
+    "roles/viewer" "serviceAccount:${z_admin_sa_email}" "admin-viewer"
+  rbgi_add_project_iam_role "${z_token}" "Grant Cloud Build invoke permissions" "${RBGC_PROJECT_RESOURCE}" \
+    "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" "serviceAccount:${z_admin_sa_email}" "admin-cb-invoke"
+  rbgi_add_project_iam_role "${z_token}" "Grant Service Usage Consumer" "${RBGC_PROJECT_RESOURCE}" \
+    "roles/serviceusage.serviceUsageConsumer" "serviceAccount:${z_admin_sa_email}" "admin-su"
 
-  bcu_step 'Grant Cloud Build invoke permissions to admin (idempotent)'
-  rbgi_add_project_iam_role                      \
-    "Grant Cloud Build invoke permissions"       \
-    "${z_token}"                                 \
-    "${RBGC_PROJECT_RESOURCE}"                   \
-    "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}"      \
-    "serviceAccount:${z_admin_sa_email}"         \
-    "admin-cb-invoke"
-
-  rbgi_add_project_iam_role                      \
-    "Grant Service Usage Consumer"               \
-    "${z_token}"                                 \
-    "${RBGC_PROJECT_RESOURCE}"                   \
-    "roles/serviceusage.serviceUsageConsumer"    \
-    "serviceAccount:${z_admin_sa_email}"         \
-    "admin-su"
-
-  bcu_step 'Create/verify Cloud Storage bucket'
+  bcu_step 'Create build bucket'
   rbgp_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
 
-  bcu_step 'Create/verify Docker format Artifact Registry repo'
-  bcu_log_args "  The repo is ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
+  bcu_step 'Create container repository'
+  bcu_log_args "Creating repository ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
 
   test -n "${RBGC_GAR_LOCATION:-}"   || bcu_die "RBGC_GAR_LOCATION is not set"
   test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY is not set"
@@ -639,11 +498,10 @@ rbgp_project_create() {
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
-  local z_create_body="${BDU_TEMP_DIR}/rbgp_create_repo_body.json"
+  local z_create_body="${ZRBGP_PREFIX}create_repo_body.json"
 
   jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
 
-  bcu_step 'Create DOCKER format repo'
   rbgu_http_json_lro_ok                                              \
     "Create Artifact Registry repo"                                  \
     "${z_token}"                                                     \
@@ -656,41 +514,37 @@ rbgp_project_create() {
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
-  bcu_step 'Verify repository exists and is DOCKER format'
+  bcu_step 'Verify repository format configuration'
   rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGP_INFIX_VERIFY_REPO}"
-  rbgu_http_require_ok "Verify repository"         "${ZRBGP_INFIX_VERIFY_REPO}"
-  test "$(rbgu_json_field_capture                  "${ZRBGP_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
+  rbgu_http_require_ok "Verify repository" "${ZRBGP_INFIX_VERIFY_REPO}"
+  test "$(rbgu_json_field_capture "${ZRBGP_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
     || bcu_die "Repository exists but not DOCKER format"
 
-  bcu_step 'Ensure Mason service account exists (no keys)'
+  bcu_step 'Create Mason service account (no keys)'
   rgbs_sa_create "${RBGC_MASON_NAME}" "RBGG Mason (build executor)"
 
   local z_mason_sa="${RBGC_MASON_EMAIL}"
+
+  bcu_step 'Allow Cloud Build service agent to impersonate Mason'
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
-  bcu_step 'Allow Cloud Build service agent to impersonate Mason (TokenCreator on Mason)'
-  rbgi_add_sa_iam_role "${z_mason_sa}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
-
-  bcu_step 'Grant Artifact Registry Admin (repo-scoped) to Mason'
+  bcu_step 'Configure Mason permissions'
   rbgi_add_repo_iam_role "${z_token}" "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
     "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
 
-  bcu_step 'Grant Storage Object Viewer on artifacts bucket to Mason'
   rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectViewer"
 
-  bcu_step 'Grant Project Viewer to Mason'
-  rbgi_add_project_iam_role "Grant Project Viewer" "${z_token}" "${RBGC_PROJECT_RESOURCE}" \
-                            "roles/viewer" "serviceAccount:${z_mason_sa}" "mason-viewer"
+  rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "${RBGC_PROJECT_RESOURCE}" \
+    "roles/viewer" "serviceAccount:${z_mason_sa}" "mason-viewer"
 
   bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
   bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
-  bcu_info "Mason SA configured with repo access"
-  bcu_warn "RBRR file stashed. Consider deleting carriage JSON:"
-  bcu_code ""
+  bcu_info "Mason SA: ${z_mason_sa}"
+  bcu_warn "Consider deleting downloaded JSON key:"
   bcu_code "    rm \"${z_json_path}\""
-  bcu_code ""
 
-  bcu_success 'Project creation complete'
+  bcu_success 'Depot project creation complete'
 }
 
 # eof
