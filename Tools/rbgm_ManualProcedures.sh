@@ -57,6 +57,7 @@ zrbgm_kindle() {
     ZRBGM_CR=""               # No color, or disabled
   fi
 
+  # ITCH_LINK_TO_RBL
   ZRBGM_RBRP_FILE="./rbrp.env"
   ZRBGM_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
@@ -192,8 +193,8 @@ rbgm_show_payor_establishment() {
   zrbgm_nwn    "   1. Ensure project with name corresponding to " "RBRP_PAYOR_PROJECT_ID" " in top project picker"
   zrbgm_nw     "   2. Click " "+ CREATE SERVICE ACCOUNT"
   zrbgm_n      "   3. Service account details:"
-  zrbgm_nc     "      - Service account name: " "payor"
-  zrbgm_nc     "      - Service account ID: " "payor"
+  zrbgm_nc     "      - Service account name: " "payor" # ITCH_NAME
+  zrbgm_nc     "      - Service account ID: " "payor" # ITCH_NAME
   zrbgm_nc     "      - Description: " "Payor role for billing and project lifecycle operations"
   zrbgm_nw     "   4. Click " "CREATE AND CONTINUE"
   zrbgm_nwn    "   5. Grant roles - select from dropdown " "Select a role" ":"
@@ -209,7 +210,7 @@ rbgm_show_payor_establishment() {
   zrbgm_nw     "   4. From info panel click " "+ ADD PRINCIPAL"
   zrbgm_n      "   5. Configure IAM binding:"
   zrbgm_ny     "    "  "TODO HERE"
-  zrbgm_nc     "      - New principals: " "payor@[RBRP_PAYOR_PROJECT_ID].iam.gserviceaccount.com"
+  zrbgm_nc     "      - New principals: " "payor@${RBRP_PAYOR_PROJECT_ID}.iam.gserviceaccount.com" # ITCH_NAME
   zrbgm_nc     "      - Role: " "Billing Admin"
   zrbgm_nw     "   6. Click " "SAVE"
   zrbgm_e

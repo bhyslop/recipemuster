@@ -35,8 +35,12 @@ zrbgm_furnish() {
   bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
 
   zrbl_kindle
+
   bvu_file_exists "${RBL_RBRR_FILE}"
   source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+
+  bvu_file_exists "${RBL_RBRP_FILE}"
+  source          "${RBL_RBRP_FILE}" || bcu_die "Failed to source RBRP regime file"
 
   zrbgc_kindle
   zrbgm_kindle
