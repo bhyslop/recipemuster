@@ -95,6 +95,7 @@ zrbgm_e()       { zrbgm_show "";                                                
 zrbgm_n()       { zrbgm_show "${1}";                                                         }
 zrbgm_nc()      { zrbgm_show "${1}${ZRBGM_C}${2}${ZRBGM_R}";                                 }
 zrbgm_ncn()     { zrbgm_show "${1}${ZRBGM_C}${2}${ZRBGM_R}${3}";                             }
+zrbgm_ncnw()    { zrbgm_show "${1}${ZRBGM_C}${2}${ZRBGM_R}${3}${ZRBGM_W}${4}${ZRBGM_R}";     }
 zrbgm_nw()      { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}";                                 }
 zrbgm_nwn()     { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}";                             }
 zrbgm_nwne()    { zrbgm_show "${1}${ZRBGM_W}${2}${ZRBGM_R}${3}${ZRBGM_CR}${4}${ZRBGM_R}";    }
@@ -140,17 +141,18 @@ rbgm_show_payor_establishment() {
   zrbgm_nw     "   1. Go to: " "https://console.cloud.google.com/cloud-resource-manager"
   zrbgm_nwnw   "   2. To the right of your project, click " "hamburger menu" " -> " "Settings"
   zrbgm_nw     "   3. Expect display of 'Project Info Card' displaying " "Project name, Project ID, Project number"
-  zrbgm_nw     "   4. Place the following in " "${ZRBGM_RBRP_FILE}"
-  zrbgm_ncn    "       " "RBRP_PAYOR_PROJECT_ID=" " # Value from 'Project number'"
-  zrbgm_nw     "   5. If 'Project Info Card' has a clickable field 'Organization', place the following in " "${ZRBGM_RBRP_FILE}"
-  zrbgm_nc     "      " "RBRP_PARENT_TYPE=organization"
-  zrbgm_ncn    "      " "RBRP_PARENT_ID=" " # Value from 'Organization id'"
-  zrbgm_nw     "   6. Else if 'Project Info Card' has a clickable field 'Parent folder', place the following in " "${ZRBGM_RBRP_FILE}"
-  zrbgm_nc     "      " "RBRP_PARENT_TYPE=folder"
-  zrbgm_ncn    "      " "RBRP_PARENT_ID=" " # Value from 'Folder id'"
-  zrbgm_nw     "   7. Else, place the following in " "${ZRBGM_RBRP_FILE}"
-  zrbgm_nc     "      " "RBRP_PARENT_TYPE=none"
-  zrbgm_nc     "      " "RBRP_PARENT_ID=none"
+  zrbgm_nwn    "   4. Update " "${ZRBGM_RBRP_FILE}" " with payor project:"
+  zrbgm_ncnw   "          " "RBRP_PAYOR_PROJECT_ID=" " # " "Value from Project ID"
+  zrbgm_nwn    "   4. Update " "${ZRBGM_RBRP_FILE}" " with parent info:"
+  zrbgm_n      "      If 'Project Info Card' has a clickable field 'Organization':"
+  zrbgm_nc     "          " "RBRP_PARENT_TYPE=organization"
+  zrbgm_ncnw   "          " "RBRP_PARENT_ID=" " # " "Value from Organization id"
+  zrbgm_n      "      else if 'Project Info Card' has a clickable field 'Parent folder':"
+  zrbgm_nc     "          " "RBRP_PARENT_TYPE=folder"
+  zrbgm_ncnw   "          " "RBRP_PARENT_ID=" " # " "Value from Folder id"
+  zrbgm_nw     "      else, place the following in " "${ZRBGM_RBRP_FILE}"
+  zrbgm_nc     "          " "RBRP_PARENT_TYPE=none"
+  zrbgm_nc     "          " "RBRP_PARENT_ID=none"
   zrbgm_e
   zrbgm_s2     "4. Locate and Configure Billing Account:"
   zrbgm_n      "   With your project created, now configure billing for it."
