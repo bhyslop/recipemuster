@@ -34,6 +34,7 @@ zrbgc_kindle() {
   # Basic Configuration
   RBGC_ADMIN_ROLE="rbgg-admin"
   RBGC_MASON_NAME="rbga-mason"
+  RBGC_PAYOR_ROLE="payor"
   RBGC_GCS_BUCKET="${RBRR_GCP_PROJECT_ID}-artifacts"
 
   # Service-specific Aliases
