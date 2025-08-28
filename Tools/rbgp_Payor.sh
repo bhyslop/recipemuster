@@ -418,7 +418,7 @@ rbgp_get_project_number_capture() {
 }
 
 # Ensure Cloud Build service agent exists and admin can trigger builds
-rbgp_ensure_cloudbuild_service_agent() {
+rbgp_ensure_cloudbuild_service_agent() { # ITCH_SHOULDNT_THIS_BE_DELETED_AND_WE_USE_MESON?
   zrbgp_sentinel
 
   local z_token="${1}"

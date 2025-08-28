@@ -254,6 +254,7 @@ rbgm_show_payor_establishment() {
   zrbgm_s2     "9. Configure Payor RBRA File:"
   zrbgm_d      "   The downloaded JSON key needs to be converted to RBRA format."
   zrbgm_d      "   Use the appropriate Recipe Bottle tool to generate the Payor RBRA file"
+  # ITCH_THIS_OUGHT_TO_SAY_RIGHT_BASH_COMMAND
   zrbgm_d      "   from the downloaded JSON key file."
   zrbgm_e
   zrbgm_dy     " " "Manual setup complete. You can now run Recipe Bottle Payor API operations."
@@ -262,7 +263,7 @@ rbgm_show_payor_establishment() {
   bcu_success "Payor establishment procedure displayed"
 }
 
-rbgm_LEGACY_setup_admin() {
+rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_sentinel
 
   bcu_doc_brief "Display the manual GCP admin setup procedure"

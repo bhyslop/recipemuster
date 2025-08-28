@@ -288,50 +288,6 @@ zrbgg_create_service_account_no_key() {
   bcu_success "Service account ensured (no keys): ${z_account_email}"
 }
 
-# Ensure Cloud Build service agent exists and admin can trigger builds
-zrbgg_ensure_cloudbuild_service_agent() {
-  zrbgg_sentinel
-
-  local z_token="${1}"
-  local z_project_number="${2}"
-
-  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
-  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  local z_gen_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${z_project_number}/services/cloudbuild.googleapis.com:generateServiceIdentity"
-
-  rbgu_http_json_lro_ok                                              \
-       "Generate Cloud Build service agent"                          \
-       "${z_token}"                                                  \
-       "${z_gen_url}"                                                \
-       "${ZRBGG_INFIX_CB_SA_ACCOUNT_GEN}"                            \
-       "${ZRBGG_EMPTY_JSON}"                                         \
-       ".name"                                                       \
-       "${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}"   \
-       "${RBGC_OP_PREFIX_GLOBAL}"                                    \
-       "5"                                                           \
-       "60"
-
-  bcu_step 'Grant Cloud Build Service Agent role'
-  rbgi_add_project_iam_role                 \
-    "Grant Cloud Build Service Agent role"  \
-    "${z_token}"                            \
-    "${RBGC_PROJECT_RESOURCE}"              \
-    "roles/cloudbuild.serviceAgent"         \
-    "serviceAccount:${z_cb_service_agent}"  \
-    "cb-agent"
-
-  bcu_step 'Grant admin Viewer for Cloud Build service visibility'
-  rbgi_add_project_iam_role                 \
-    "Grant admin Viewer"                    \
-    "${z_token}"                            \
-    "${RBGC_PROJECT_RESOURCE}"              \
-    "roles/viewer"                          \
-    "serviceAccount:${z_admin_sa_email}"    \
-    "admin-viewer"
-
-  bcu_info "Cloud Build service agent configured with admin permissions"
-}
-
 zrbgg_create_gcs_bucket() {
   zrbgg_sentinel
 
