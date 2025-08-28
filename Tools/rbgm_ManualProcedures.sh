@@ -61,6 +61,8 @@ zrbgm_kindle() {
   ZRBGM_RBRP_FILE="./rbrp.env"
   ZRBGM_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
+  ZRBGM_PAYOR_SA_NAME="payor"
+
   ZRBGM_PREFIX="${BDU_TEMP_DIR}/rbgm_"
   ZRBGM_LIST_RESPONSE="${ZRBGM_PREFIX}list_response.json"
   ZRBGM_LIST_CODE="${ZRBGM_PREFIX}list_code.txt"
@@ -217,8 +219,8 @@ rbgm_show_payor_establishment() {
   zrbgm_dmd    "   1. Ensure project with name corresponding to " "RBRP_PAYOR_PROJECT_ID" " in top project picker"
   zrbgm_dm     "   2. Click " "+ CREATE SERVICE ACCOUNT"
   zrbgm_d      "   3. Service account details:"
-  zrbgm_dc     "      - Service account name: " "payor" # ITCH_NAME
-  zrbgm_dc     "      - Service account ID: " "payor" # ITCH_NAME
+  zrbgm_dc     "      - Service account name: " "${ZRBGM_PAYOR_SA_NAME}"
+  zrbgm_dc     "      - Service account ID: " "${ZRBGM_PAYOR_SA_NAME}"
   zrbgm_dc     "      - Description: " "Payor role for billing and project lifecycle operations"
   zrbgm_dm     "   4. Click " "CREATE AND CONTINUE"
   zrbgm_dmd    "   5. Grant roles - select from dropdown " "Select a role" ":"
@@ -234,14 +236,14 @@ rbgm_show_payor_establishment() {
   zrbgm_dm     "   4. From info panel click " "+ ADD PRINCIPAL"
   zrbgm_d      "   5. Configure IAM binding:"
   zrbgm_dy     "    "  "TODO HERE"
-  zrbgm_dc     "      - New principals: " "payor@${RBRP_PAYOR_PROJECT_ID}.iam.gserviceaccount.com" # ITCH_NAME
+  zrbgm_dc     "      - New principals: " "${ZRBGM_PAYOR_SA_NAME}@${RBRP_PAYOR_PROJECT_ID}.iam.gserviceaccount.com"
   zrbgm_dc     "      - Role: " "Billing Admin"
   zrbgm_dm     "   6. Click " "SAVE"
   zrbgm_e
   zrbgm_s2     "8. Generate Payor Service Account Key:"
   zrbgm_dld    "   Return to: " "Google Cloud Service Accounts" "https://console.cloud.google.com/iam-admin/serviceaccounts?project=${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_dmd    "   1. Ensure project " "matches RBRP_PAYOR_PROJECT_ID" " in top dropdown"
-  zrbgm_dm     "   2. Click on the " "payor" " service account email"
+  zrbgm_dm     "   2. Click on the " "${ZRBGM_PAYOR_SA_NAME}" " service account email"
   zrbgm_dm     "   3. Top tabs -> " "KEYS"
   zrbgm_dmdm   "   4. Click " "ADD KEY" " -> " "Create new key"
   zrbgm_dmd    "   5. Key type: " "JSON" " (should be selected)"
