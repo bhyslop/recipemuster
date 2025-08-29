@@ -306,19 +306,8 @@ rbgp_payor_install() {
   bcu_log_args "RBRA file will be created at: ${z_rbra_file}"
 
   bcu_step 'Convert JSON key to RBRA format using existing utility'
-  # Temporarily set RBRR_GCP_PROJECT_ID for rbgu_extract_json_to_rbra validation
-  local z_saved_rbrr="${RBRR_GCP_PROJECT_ID:-}"
-  export RBRR_GCP_PROJECT_ID="${z_project_id}"
-  
-  # Use standard RBGU utility with 3600 second token lifetime
-  rbgu_extract_json_to_rbra "${z_json_key_file}" "${z_rbra_file}" "3600"
-  
-  # Restore original RBRR_GCP_PROJECT_ID
-  if [ -n "${z_saved_rbrr}" ]; then
-    export RBRR_GCP_PROJECT_ID="${z_saved_rbrr}"
-  else
-    unset RBRR_GCP_PROJECT_ID
-  fi
+  # Use standard RBGU utility with project validation and 3600 second token lifetime
+  rbgu_extract_json_to_rbra "${z_json_key_file}" "${z_rbra_file}" "3600" "${z_project_id}"
 
   bcu_step 'Set secure RBRA file permissions'
   chmod 600 "${z_rbra_file}" || bcu_die "Failed to set RBRA file permissions"

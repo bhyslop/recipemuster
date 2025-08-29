@@ -470,6 +470,7 @@ rbgu_extract_json_to_rbra() {
   local z_json_path="$1"
   local z_rbra_path="$2"
   local z_lifetime_sec="$3"
+  local z_expected_project_id="${4:-}"
 
   test -f "${z_json_path}" || bcu_die "Service account JSON not found: ${z_json_path}"
 
@@ -494,10 +495,13 @@ rbgu_extract_json_to_rbra() {
   test -n "${z_project_id}"           || bcu_die "Empty project_id in JSON"
   test    "${z_project_id}" != "null" || bcu_die "Null project_id in JSON"
 
-  bcu_log_args 'Verify project matches'
-  test -n "${RBRR_GCP_PROJECT_ID:-}" || bcu_die "RBRR_GCP_PROJECT_ID not set"
-  test "${z_project_id}" = "${RBRR_GCP_PROJECT_ID}" \
-    || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${RBRR_GCP_PROJECT_ID}'"
+  if [ -n "${z_expected_project_id}" ]; then
+    bcu_log_args "Verify project matches expected: ${z_expected_project_id}"
+    test "${z_project_id}" = "${z_expected_project_id}" \
+      || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${z_expected_project_id}'"
+  else
+    bcu_log_args "No project validation - accepting JSON project_id: ${z_project_id}"
+  fi
 
   bcu_log_args 'Write RBRA file'
   {
