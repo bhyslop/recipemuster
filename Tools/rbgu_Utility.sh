@@ -206,6 +206,26 @@ rbgu_get_admin_token_capture() {
   echo    "${z_token}"
 }
 
+rbgu_authenticate_role_capture() {
+  zrbgu_sentinel
+
+  local z_rbra_file="${1}"
+  
+  test -n "${z_rbra_file}" || return 1
+  test -f "${z_rbra_file}" || return 1
+  
+  bcu_log_args "Authenticating with RBRA file: ${z_rbra_file}"
+  
+  source "${z_rbra_file}" || return 1
+  
+  local z_token
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || return 1
+  
+  test -n "${z_token}" || return 1
+  
+  echo "${z_token}"
+}
+
 # JSON file writer helper (vanilla empty policy)
 rbgu_write_vanilla_json() {
   zrbgu_sentinel

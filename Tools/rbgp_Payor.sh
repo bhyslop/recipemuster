@@ -63,25 +63,6 @@ zrbgp_sentinel() {
   test "${ZRBGP_KINDLED:-}" = "1" || bcu_die "Module rbgp not kindled - call zrbgp_kindle first"
 }
 
-zrbgp_authenticate_role_capture() {
-  zrbgp_sentinel
-
-  local z_rbra_file="${1}"
-  
-  test -n "${z_rbra_file}" || return 1
-  test -f "${z_rbra_file}" || return 1
-  
-  bcu_log_args "Authenticating with RBRA file: ${z_rbra_file}"
-  
-  source "${z_rbra_file}" || return 1
-  
-  local z_token
-  z_token=$(rbgu_get_admin_token_capture "${z_rbra_file}") || return 1
-  
-  test -n "${z_token}" || return 1
-  
-  echo "${z_token}"
-}
 
 ######################################################################
 # External Functions (rbgp_*)
@@ -315,7 +296,7 @@ rbgp_depot_create() {
   # Validate region exists in Artifact Registry locations
   bcu_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
-  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor for region validation"
+  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor for region validation"
   
   local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
@@ -338,7 +319,7 @@ rbgp_depot_create() {
   test -n "${RBRP_PARENT_ID:-}" || bcu_die "RBRP_PARENT_ID is not set"
   
   local z_token
-  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   # Step 3: Generate Depot Project ID
   bcu_step 'Generate depot project ID'
@@ -552,7 +533,7 @@ rbgp_depot_destroy() {
   test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
   
   local z_token
-  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   bcu_step 'Validate target depot'
   test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
@@ -677,7 +658,7 @@ rbgp_depot_list() {
   test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
   
   local z_token
-  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   bcu_step 'Query depot projects'
   local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
