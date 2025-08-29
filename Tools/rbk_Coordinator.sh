@@ -28,6 +28,26 @@ rbk_show() {
   test "${BDU_VERBOSE:-0}" != "1" || echo "RBKSHOW: $*"
 }
 
+# Connect to CCBX container with optional remote command
+rbk_ccbx_connect() {
+  local z_remote_command="${1:-}"
+  
+  rbk_show "Connecting to CCBX container with command: ${z_remote_command:-default}"
+  
+  # Source the .env file to get the port
+  if [ -f "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
+    source "$RBK_SCRIPT_DIR/ccbx/.env"
+  fi
+  
+  # Default command if none provided
+  if [ -z "$z_remote_command" ]; then
+    z_remote_command="cd /workspace/brm_recipemuster  &&  claude-code"
+  fi
+  
+  # Connect via SSH with dynamic port and execute remote command
+  ssh -p "${CCBX_SSH_PORT:-8888}" -t claude@localhost "$z_remote_command"
+}
+
 # Simple routing function
 rbk_route() {
   local z_command="$1"
@@ -105,12 +125,15 @@ rbk_route() {
       cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose build --no-cache && docker-compose up -d
       ;;
     ccbx-c)
-      # Connect to container and launch claude-code
-      # Source the .env file to get the port
-      if [ -f  "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
-        source "$RBK_SCRIPT_DIR/ccbx/.env"
-      fi
-      ssh -p ${CCBX_SSH_PORT:-8888} -t claude@localhost "cd /workspace/brm_recipemuster  &&  claude-code"
+      rbk_ccbx_connect
+      ;;
+    ccbx-s)
+      # Connect to container with shell only
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && bash"
+      ;;
+    ccbx-g)
+      # Connect to container and run git status
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && git status"
       ;;
 
     # Help/documentation commands
