@@ -528,6 +528,41 @@ rbgp_depot_destroy() {
   bcu_doc_param "depot_project_id" "The depot project ID to destroy"
   bcu_doc_shown || return 0
 
+  # Step 1: Safety Confirmation (RBAGS compliance)
+  bcu_step 'Safety confirmation required'
+  test "${DEBUG_ONLY:-}" = "1" || bcu_die "DEBUG_ONLY=1 environment variable required for execution"
+  test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
+  
+  bcu_info ""
+  bcu_info "==============================================="
+  bcu_info "           DANGER: DEPOT DESTRUCTION"
+  bcu_info "==============================================="
+  bcu_info "Target depot: ${z_depot_project_id}"
+  bcu_info ""
+  bcu_info "This operation will PERMANENTLY DESTROY:"
+  bcu_info "  • Depot project and ALL contained resources"
+  bcu_info "  • Mason service account and credentials"
+  bcu_info "  • Container repository and ALL images"
+  bcu_info "  • Build bucket and ALL artifacts"
+  bcu_info "  • Governor, Director, Retriever service accounts"
+  bcu_info "  • ALL IAM bindings and permissions"
+  bcu_info ""
+  bcu_info "Project will enter 30-day retention period."
+  bcu_info "Billing will be immediately stopped."
+  bcu_info ""
+  bcu_info "==============================================="
+  bcu_info ""
+  
+  printf "To confirm destruction, type the exact depot project ID: "
+  read -r z_confirmation
+  
+  if [ "${z_confirmation}" != "${z_depot_project_id}" ]; then
+    bcu_die "Confirmation failed. Expected '${z_depot_project_id}', got '${z_confirmation}'"
+  fi
+  
+  bcu_info "Confirmation received. Proceeding with depot destruction."
+  bcu_info ""
+
   bcu_step 'Authenticate as Payor'
   test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
   test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
