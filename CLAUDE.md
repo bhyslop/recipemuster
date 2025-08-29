@@ -38,6 +38,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBRR**  → `rbw-RBRR-RegimeRepo.adoc`
 - **RBS**   → `rbw-RBS-Specification.adoc`
 - **CRR**   → `crg-CRR-ConfigRegimeRequirements.adoc`
+- **MPCR**  → `rbw-MPCR-MemoPayorCrisisRecovery.md`
 
 ### Tools Directory (`Tools/`)
 - **RBF**  → `rbf_Foundry.sh`
