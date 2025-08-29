@@ -63,6 +63,26 @@ zrbgp_sentinel() {
   test "${ZRBGP_KINDLED:-}" = "1" || bcu_die "Module rbgp not kindled - call zrbgp_kindle first"
 }
 
+zrbgp_authenticate_role_capture() {
+  zrbgp_sentinel
+
+  local z_rbra_file="${1}"
+  
+  test -n "${z_rbra_file}" || return 1
+  test -f "${z_rbra_file}" || return 1
+  
+  bcu_log_args "Authenticating with RBRA file: ${z_rbra_file}"
+  
+  source "${z_rbra_file}" || return 1
+  
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture "${z_rbra_file}") || return 1
+  
+  test -n "${z_token}" || return 1
+  
+  echo "${z_token}"
+}
+
 ######################################################################
 # External Functions (rbgp_*)
 
@@ -79,11 +99,8 @@ zrbgp_billing_attach() {
 
   bcu_step "Attaching billing account: ${z_billing_account}"
 
-  bcu_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  bcu_log_args 'Attach billing account'
   local z_billing_body="${BDU_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBRR_GCP_PROJECT_ID}" \
@@ -109,11 +126,8 @@ zrbgp_billing_detach() {
 
   bcu_step "Detaching billing account from project"
 
-  bcu_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  bcu_log_args 'Detach billing account'
   local z_billing_body="${BDU_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBRR_GCP_PROJECT_ID}" \
     '{
@@ -139,11 +153,8 @@ zrbgp_liens_list() {
 
   bcu_step "Listing liens on project: ${RBRR_GCP_PROJECT_ID}"
 
-  bcu_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  bcu_log_args 'List liens'
   rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
@@ -175,11 +186,8 @@ zrbgp_lien_delete() {
 
   bcu_step "Deleting lien: ${z_lien_name}"
 
-  bcu_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  bcu_log_args 'Delete lien'
   rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${z_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
   rbgu_http_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
 
@@ -307,7 +315,7 @@ rbgp_depot_create() {
   # Validate region exists in Artifact Registry locations
   bcu_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token for region validation"
+  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor for region validation"
   
   local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
@@ -320,19 +328,17 @@ rbgp_depot_create() {
     bcu_die "Invalid region. Valid regions: ${z_valid_regions}"
   fi
 
-  # Step 2: Authenticate as Payor  
   bcu_step 'Authenticate as Payor'
   test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
   test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
   
-  # Load RBRP configuration
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
   test -n "${RBRP_BILLING_ACCOUNT_ID:-}" || bcu_die "RBRP_BILLING_ACCOUNT_ID is not set"
   test -n "${RBRP_PARENT_TYPE:-}" || bcu_die "RBRP_PARENT_TYPE is not set"
   test -n "${RBRP_PARENT_ID:-}" || bcu_die "RBRP_PARENT_ID is not set"
   
-  source "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
-  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token"
+  local z_token
+  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   # Step 3: Generate Depot Project ID
   bcu_step 'Generate depot project ID'
@@ -541,16 +547,13 @@ rbgp_depot_destroy() {
   bcu_doc_param "depot_project_id" "The depot project ID to destroy"
   bcu_doc_shown || return 0
 
-  # Step 1: Authenticate as Payor
   bcu_step 'Authenticate as Payor'
   test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
   test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
   
-  source "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
   local z_token
-  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token"
+  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
-  # Step 2: Validate Target Depot
   bcu_step 'Validate target depot'
   test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
   
@@ -669,16 +672,13 @@ rbgp_depot_list() {
   bcu_doc_brief "List all depot instances and their status"
   bcu_doc_shown || return 0
 
-  # Step 1: Authenticate as Payor
   bcu_step 'Authenticate as Payor'
   test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
   test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
   
-  source "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
   local z_token
-  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token"
+  z_token=$(zrbgp_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
-  # Step 2: Query depot projects
   bcu_step 'Query depot projects'
   local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
   local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects?filter=${z_filter// /%20}"
