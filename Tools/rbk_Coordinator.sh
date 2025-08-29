@@ -87,7 +87,7 @@ rbk_route() {
 
     # Payor commands (high-privilege)
     rbw-PC)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_create             $z_args ;;
-    rbw-PI)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_payor_install            $z_args ;;
+    rbw-PI)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_create             $z_args ;;
     rbw-PD)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_destroy            $z_args ;;
     rbw-PE)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_show_payor_establishment $z_args ;;
 
