@@ -275,8 +275,8 @@ rbgp_payor_install() {
 
   bcu_doc_brief "Install Payor credentials from JSON key file following RBAGS specification"
   bcu_doc_param "json_key_file" "Path to downloaded Payor service account JSON key file"
-  bcu_doc_note "REQUIREMENT: The Payor project must have Cloud Resource Manager API enabled"
-  bcu_doc_note "            for depot management operations (create, list, destroy)"
+  bcu_doc_lines "REQUIREMENT: The Payor project must have Cloud Resource Manager API enabled"
+  bcu_doc_lines "            for depot management operations (create, list, destroy)"
   bcu_doc_shown || return 0
 
   bcu_step 'Validate input parameters'
@@ -327,6 +327,18 @@ rbgp_payor_install() {
   local z_test_token
   z_test_token=$(rbgu_authenticate_role_capture "${z_rbra_file}") || bcu_die "Failed to authenticate with generated RBRA file"
   test -n "${z_test_token}" || bcu_die "Authentication test returned empty token"
+
+  bcu_step 'Enable Cloud Resource Manager API for depot management'
+  local z_crm_api_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${z_project_id}/services/${RBGC_SERVICE_CRM}:enable"
+  rbgu_http_json "POST" "${z_crm_api_url}" "${z_test_token}" "payor_enable_crm" "${ZRBGP_EMPTY_JSON}"
+  
+  local z_enable_code
+  z_enable_code=$(rbgu_http_code_capture "payor_enable_crm") || bcu_die "Failed to get API enablement response code"
+  case "${z_enable_code}" in
+    200|201) bcu_info "Cloud Resource Manager API enabled successfully" ;;
+    400)     bcu_info "Cloud Resource Manager API already enabled" ;;
+    *)       bcu_die "Failed to enable Cloud Resource Manager API: HTTP ${z_enable_code}" ;;
+  esac
 
   bcu_success "Payor installation completed successfully"
   bcu_info "Project ID: ${z_project_id}"
