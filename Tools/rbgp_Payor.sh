@@ -317,16 +317,29 @@ rbgp_payor_install() {
   z_test_token=$(rbgu_authenticate_role_capture "${z_rbra_file}") || bcu_die "Failed to authenticate with generated RBRA file"
   test -n "${z_test_token}" || bcu_die "Authentication test returned empty token"
 
-  bcu_step 'Enable Cloud Resource Manager API for depot management'
+  bcu_step 'Enable required APIs for depot management and infrastructure validation'
+  
+  # Enable Cloud Resource Manager API for depot project creation
   local z_crm_api_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${z_project_id}/services/${RBGC_SERVICE_CRM}:enable"
   rbgu_http_json "POST" "${z_crm_api_url}" "${z_test_token}" "payor_enable_crm" "${ZRBGP_EMPTY_JSON}"
   
   local z_enable_code
-  z_enable_code=$(rbgu_http_code_capture "payor_enable_crm") || bcu_die "Failed to get API enablement response code"
+  z_enable_code=$(rbgu_http_code_capture "payor_enable_crm") || bcu_die "Failed to get CRM API enablement response code"
   case "${z_enable_code}" in
     200|201) bcu_info "Cloud Resource Manager API enabled successfully" ;;
     400)     bcu_info "Cloud Resource Manager API already enabled" ;;
     *)       bcu_die "Failed to enable Cloud Resource Manager API: HTTP ${z_enable_code}" ;;
+  esac
+  
+  # Enable Artifact Registry API for infrastructure validation (region validation, service availability checks)
+  local z_gar_api_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${z_project_id}/services/${RBGC_SERVICE_ARTIFACTREGISTRY}:enable"
+  rbgu_http_json "POST" "${z_gar_api_url}" "${z_test_token}" "payor_enable_gar" "${ZRBGP_EMPTY_JSON}"
+  
+  z_enable_code=$(rbgu_http_code_capture "payor_enable_gar") || bcu_die "Failed to get GAR API enablement response code"
+  case "${z_enable_code}" in
+    200|201) bcu_info "Artifact Registry API enabled successfully" ;;
+    400)     bcu_info "Artifact Registry API already enabled" ;;
+    *)       bcu_die "Failed to enable Artifact Registry API: HTTP ${z_enable_code}" ;;
   esac
 
   bcu_success "Payor installation completed successfully"
