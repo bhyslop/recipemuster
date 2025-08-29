@@ -34,6 +34,13 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 zrbgp_furnish() {
   bcu_log_args 'Initialize modules'
   zrbl_kindle
+
+  bvu_file_exists "${RBL_RBRR_FILE}"
+  source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+
+  bvu_file_exists "${RBL_RBRP_FILE}"
+  source          "${RBL_RBRP_FILE}" || bcu_die "Failed to source RBRP regime file"
+
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle

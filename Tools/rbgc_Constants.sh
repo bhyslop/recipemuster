@@ -69,6 +69,7 @@ zrbgc_kindle() {
   # API Version Paths
   RBGC_IAM_V1="/v1"
   RBGC_CRM_V1="/v1"
+  RBGC_CRM_V3="/v3"
   RBGC_SERVICEUSAGE_V1="/v1"
   RBGC_SERVICEUSAGE_V1BETA1="/v1beta1"
   RBGC_ARTIFACTREGISTRY_V1="/v1"

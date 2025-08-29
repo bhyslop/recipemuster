@@ -275,6 +275,8 @@ rbgp_payor_install() {
 
   bcu_doc_brief "Install Payor credentials from JSON key file following RBAGS specification"
   bcu_doc_param "json_key_file" "Path to downloaded Payor service account JSON key file"
+  bcu_doc_note "REQUIREMENT: The Payor project must have Cloud Resource Manager API enabled"
+  bcu_doc_note "            for depot management operations (create, list, destroy)"
   bcu_doc_shown || return 0
 
   bcu_step 'Validate input parameters'
@@ -299,7 +301,8 @@ rbgp_payor_install() {
   test "${z_client_email}" = "${z_expected_payor_email}" || bcu_die "Expected Payor service account email: ${z_expected_payor_email}, got: ${z_client_email}"
 
   bcu_step 'Generate RBRA file path'
-  local z_rbra_file="${BDU_OUTPUT_DIR}/${z_project_id}-payor.rbra"
+  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
+  local z_rbra_file="${RBRP_PAYOR_RBRA_FILE}"
   bcu_log_args "RBRA file will be created at: ${z_rbra_file}"
 
   bcu_step 'Convert JSON key to RBRA format using existing utility'
@@ -331,8 +334,8 @@ rbgp_payor_install() {
   bcu_info "RBRA File: ${z_rbra_file}"
   bcu_info ""
   bcu_info "Next steps:"
-  bcu_info "1. Set RBRR_PAYOR_RBRA_FILE=${z_rbra_file} in your regime configuration"
-  bcu_info "2. Set RBRP_PAYOR_PROJECT_ID=${z_project_id} in your regime configuration"
+  bcu_info "1. RBRP_PAYOR_RBRA_FILE is already configured to use this file location"
+  bcu_info "2. Set RBRP_PAYOR_PROJECT_ID=${z_project_id} in your payor configuration if needed"
   bcu_info "3. Use rbgp_depot_create to create new depot infrastructure"
 }
 
@@ -362,7 +365,7 @@ rbgp_depot_create() {
   # Validate region exists in Artifact Registry locations
   bcu_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor for region validation"
+  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor for region validation"
   
   local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
@@ -376,8 +379,8 @@ rbgp_depot_create() {
   fi
 
   bcu_step 'Authenticate as Payor'
-  test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
-  test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
+  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
+  test -f "${RBRP_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRP_PAYOR_RBRA_FILE}"
   
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
   test -n "${RBRP_BILLING_ACCOUNT_ID:-}" || bcu_die "RBRP_BILLING_ACCOUNT_ID is not set"
@@ -385,7 +388,7 @@ rbgp_depot_create() {
   test -n "${RBRP_PARENT_ID:-}" || bcu_die "RBRP_PARENT_ID is not set"
   
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   bcu_step 'Generate depot project ID'
   local z_timestamp
@@ -618,11 +621,11 @@ rbgp_depot_destroy() {
   bcu_info ""
 
   bcu_step 'Authenticate as Payor'
-  test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
-  test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
+  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
+  test -f "${RBRP_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRP_PAYOR_RBRA_FILE}"
   
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   bcu_step 'Validate target depot'
   test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
@@ -739,15 +742,15 @@ rbgp_depot_list() {
   bcu_doc_shown || return 0
 
   bcu_step 'Authenticate as Payor'
-  test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
-  test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
+  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
+  test -f "${RBRP_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRP_PAYOR_RBRA_FILE}"
   
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
 
   bcu_step 'Query depot projects'
   local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
-  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects?filter=${z_filter// /%20}"
+  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects?filter=${z_filter// /%20}"
   rbgu_http_json "GET" "${z_list_url}" "${z_token}" "depot_list_projects"
   rbgu_http_require_ok "List depot projects" "depot_list_projects"
   
