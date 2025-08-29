@@ -695,4 +695,228 @@ rbgp_depot_create() {
   bcu_info "Depot ready for Governor creation"
 }
 
+rbgp_depot_destroy() {
+  zrbgp_sentinel
+
+  local z_depot_project_id="${1:-}"
+
+  bcu_doc_brief "DANGER: Permanently destroy an entire depot infrastructure"
+  bcu_doc_param "depot_project_id" "The depot project ID to destroy"
+  bcu_doc_shown || return 0
+
+  # Step 1: Authenticate as Payor
+  bcu_step 'Authenticate as Payor'
+  test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
+  test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
+  
+  source "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token"
+
+  # Step 2: Validate Target Depot
+  bcu_step 'Validate target depot'
+  test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
+  
+  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_validate"
+  rbgu_http_require_ok "Validate depot project" "depot_destroy_validate"
+  
+  local z_lifecycle_state
+  z_lifecycle_state=$(rbgu_json_field_capture "depot_destroy_validate" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project lifecycle state"
+  
+  if [ "${z_lifecycle_state}" != "ACTIVE" ]; then
+    if [ "${z_lifecycle_state}" = "DELETE_REQUESTED" ]; then
+      bcu_die "Project already marked for deletion"
+    else
+      bcu_die "Project state is ${z_lifecycle_state} - can only destroy ACTIVE projects"
+    fi
+  fi
+
+  # Step 3: Check for and remove liens
+  bcu_step 'Check for and remove liens'
+  local z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${z_depot_project_id}"
+  rbgu_http_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
+  rbgu_http_require_ok "List liens" "depot_destroy_liens_list"
+  
+  local z_lien_count
+  z_lien_count=$(rbgu_json_field_capture "depot_destroy_liens_list" '.liens // [] | length') || bcu_die "Failed to parse liens response"
+  
+  if [ "${z_lien_count}" -gt 0 ]; then
+    bcu_log_args "Found ${z_lien_count} lien(s) - removing them"
+    local z_lien_names
+    z_lien_names=$(rbgu_json_field_capture "depot_destroy_liens_list" '.liens[].name' | tr '\n' ' ') || bcu_die "Failed to extract lien names"
+    
+    for z_lien_name in ${z_lien_names}; do
+      if [ -n "${z_lien_name}" ]; then
+        bcu_log_args "Removing lien: ${z_lien_name}"
+        local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
+        rbgu_http_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
+        rbgu_http_require_ok "Delete lien" "depot_destroy_lien_delete"
+      fi
+    done
+  fi
+
+  # Step 4: Initiate depot deletion
+  bcu_step 'Initiate depot deletion'
+  local z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
+  
+  local z_delete_response
+  z_delete_response=$(rbgu_http_code_capture "depot_destroy_delete") || bcu_die "Failed to get deletion response code"
+  
+  if [ "${z_delete_response}" = "200" ] || [ "${z_delete_response}" = "204" ]; then
+    bcu_log_args "Project deletion initiated successfully"
+  else
+    local z_error_msg
+    z_error_msg=$(rbgu_json_field_capture "depot_destroy_delete" '.error.message // "Unknown error"') || z_error_msg="HTTP ${z_delete_response}"
+    bcu_die "Failed to initiate project deletion: ${z_error_msg}"
+  fi
+
+  # Step 5: Verify deletion transition
+  bcu_step 'Verify deletion state transition'
+  local z_max_attempts=12
+  local z_attempt=1
+  local z_final_state=""
+  
+  while [ "${z_attempt}" -le "${z_max_attempts}" ]; do
+    sleep 5
+    bcu_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})"
+    
+    rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check"
+    
+    if rbgu_http_is_ok "depot_destroy_state_check"; then
+      z_final_state=$(rbgu_json_field_capture "depot_destroy_state_check" '.lifecycleState // "UNKNOWN"') || z_final_state="UNKNOWN"
+      
+      if [ "${z_final_state}" = "DELETE_REQUESTED" ]; then
+        break
+      fi
+    fi
+    
+    z_attempt=$((z_attempt + 1))
+  done
+  
+  if [ "${z_final_state}" != "DELETE_REQUESTED" ]; then
+    bcu_die "Failed to verify deletion state transition. Current state: ${z_final_state}"
+  fi
+
+  # Step 6: Optional immediate billing stop
+  bcu_step 'Immediate billing stop'
+  local z_billing_body="${BDU_TEMP_DIR}/rbgp_billing_stop.json"
+  jq -n \
+    --arg projectId "${z_depot_project_id}" \
+    '{
+      projectId: $projectId,
+      billingEnabled: false
+    }' > "${z_billing_body}" || bcu_die "Failed to build billing stop body"
+
+  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_depot_project_id}:setBillingInfo"
+  rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_destroy_billing_stop" "${z_billing_body}"
+  
+  if rbgu_http_is_ok "depot_destroy_billing_stop"; then
+    bcu_log_args "Billing immediately stopped"
+  else
+    bcu_log_args "Warning: Could not immediately stop billing (normal if deletion already in progress)"
+  fi
+
+  # Success
+  bcu_success "Depot ${z_depot_project_id} successfully marked for deletion"
+  bcu_info "Project Status: DELETE_REQUESTED"
+  bcu_info "Grace period: Up to 30 days"
+  bcu_info "Project is now unusable but may remain visible in listings"
+  bcu_info "All infrastructure (Mason SA, repository, bucket) will be automatically removed"
+}
+
+rbgp_depot_list() {
+  zrbgp_sentinel
+
+  bcu_doc_brief "List all depot instances and their status"
+  bcu_doc_shown || return 0
+
+  # Step 1: Authenticate as Payor
+  bcu_step 'Authenticate as Payor'
+  test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
+  test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
+  
+  source "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token"
+
+  # Step 2: Query depot projects
+  bcu_step 'Query depot projects'
+  local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
+  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects?filter=${z_filter// /%20}"
+  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "depot_list_projects"
+  rbgu_http_require_ok "List depot projects" "depot_list_projects"
+  
+  local z_project_count
+  z_project_count=$(rbgu_json_field_capture "depot_list_projects" '.projects // [] | length') || z_project_count=0
+
+  if [ "${z_project_count}" -eq 0 ]; then
+    bcu_info "No active depot projects found"
+    return 0
+  fi
+
+  # Step 3: Validate each depot and display summary
+  bcu_step "Validating ${z_project_count} depot(s)"
+  
+  local z_depot_index=0
+  local z_complete_count=0
+  local z_broken_count=0
+  
+  bcu_info ""
+  bcu_info "=== DEPOT SUMMARY ==="
+  
+  while [ "${z_depot_index}" -lt "${z_project_count}" ]; do
+    local z_project_id
+    z_project_id=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].projectId") || continue
+    
+    local z_display_name  
+    z_display_name=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].displayName") || z_display_name="N/A"
+    
+    # Extract depot name from project ID pattern rbw-NAME-TIMESTAMP
+    local z_depot_name=""
+    if printf '%s' "${z_project_id}" | grep -qE '^rbw-[a-z0-9-]+-[0-9]{12}$'; then
+      z_depot_name=$(printf '%s' "${z_project_id}" | sed 's/^rbw-\(.*\)-[0-9]\{12\}$/\1/')
+    fi
+    
+    # Check depot components
+    local z_status="CHECKING"
+    local z_region="unknown"
+    
+    # Try to detect region and validate components
+    local z_mason_expected="rbw-${z_depot_name}-mason"
+    local z_repo_expected="rbw-${z_depot_name}-repository"  
+    local z_bucket_expected="rbw-${z_depot_name}-bucket"
+    
+    # Quick validation - check if Mason service account exists
+    local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
+    rbgu_http_json "GET" "${z_mason_url}" "${z_token}" "depot_list_mason_${z_depot_index}" || true
+    
+    if rbgu_http_is_ok "depot_list_mason_${z_depot_index}"; then
+      z_status="COMPLETE"
+      z_complete_count=$((z_complete_count + 1))
+    else
+      z_status="BROKEN"
+      z_broken_count=$((z_broken_count + 1))
+    fi
+    
+    # Display depot info
+    printf "%-25s %-20s %-15s %s\n" "${z_project_id}" "${z_depot_name:-N/A}" "${z_region}" "${z_status}"
+    
+    z_depot_index=$((z_depot_index + 1))
+  done
+  
+  bcu_info ""
+  bcu_info "=== SUMMARY ==="
+  bcu_info "Total depots: ${z_project_count}"
+  bcu_info "Complete: ${z_complete_count}"
+  bcu_info "Broken: ${z_broken_count}"
+  
+  if [ "${z_broken_count}" -gt 0 ]; then
+    bcu_info ""
+    bcu_info "Note: BROKEN depots may have missing resources (Mason SA, repository, or bucket)"
+    bcu_info "Consider investigating broken depots or destroying them if no longer needed"
+  fi
+}
+
 # eof
