@@ -32,7 +32,11 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 
 # Initialize modules
-rbl_kindle_all
+zrbl_kindle
+zrbgc_kindle
+zrbgo_kindle
+zrbgu_kindle
+zrbgp_kindle
 
 bdu_dispatch "$@"
 
