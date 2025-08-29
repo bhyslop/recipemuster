@@ -25,7 +25,8 @@ ZRBF_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBF_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
-source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_GoogleConstants.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
@@ -54,6 +55,7 @@ zrbf_furnish() {
 
   bcu_log_args 'Kindle modules in dependency order'
   zrbgc_kindle
+  zrbgd_kindle
   zrbgo_kindle
   zrbf_kindle
 }

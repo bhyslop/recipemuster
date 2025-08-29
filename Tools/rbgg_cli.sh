@@ -27,6 +27,7 @@ source "${ZRBGG_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
@@ -42,10 +43,8 @@ zrbgg_furnish() {
   bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
 
   zrbl_kindle
-  bvu_file_exists "${RBL_RBRR_FILE}"
-  source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
-
   zrbgc_kindle
+  zrbgd_kindle
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle

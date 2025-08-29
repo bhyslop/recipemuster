@@ -307,7 +307,7 @@ zrbgg_create_gcs_bucket() {
   bcu_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                    "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || bcu_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
@@ -363,7 +363,7 @@ zrbgg_get_project_number_capture() {
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info" "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
@@ -551,7 +551,7 @@ rbgg_create_director() {
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Get project number for Cloud Build SA'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info" "${ZRBGG_INFIX_PROJECT_INFO}"
 
   local z_project_number
@@ -579,8 +579,8 @@ rbgg_create_director() {
   rbgi_add_sa_iam_role "${RBGC_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   bcu_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
 
   local z_actual_rbra_file="${BDU_OUTPUT_DIR}/${z_instance}.rbra"
 
@@ -665,7 +665,7 @@ rbgg_destroy_project() {
   bcu_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   bcu_step 'Check for liens (will block deletion)'
-  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -682,11 +682,11 @@ rbgg_destroy_project() {
   fi
 
   bcu_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
-  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
+  rbgu_http_json "DELETE" "${RBGD_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
   rbgu_http_require_ok "Delete project" "${ZRBGG_INFIX_PROJECT_DELETE}"
 
   bcu_step 'Verify deletion state'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
   rbgu_http_require_ok "Get project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   local z_lifecycle_state
@@ -713,7 +713,7 @@ rbgg_restore_project() {
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
 
   bcu_step 'Check current project state'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   if ! rbgu_http_is_ok "${ZRBGG_INFIX_PROJECT_STATE}"; then
     bcu_die "Cannot access project - it may have been permanently deleted or never existed"
@@ -733,11 +733,11 @@ rbgg_restore_project() {
   bcu_require "Confirm restoration of project" "RESTORE"
 
   bcu_step 'Attempt project restoration'
-  rbgu_http_json "POST" "${RBGC_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
+  rbgu_http_json "POST" "${RBGD_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
 
   if rbgu_http_is_ok "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
     bcu_step 'Verify restoration'
-    rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+    rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
     rbgu_http_require_ok "Get restored project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
     z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse restored project state"

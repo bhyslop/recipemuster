@@ -30,9 +30,6 @@ ZRBGP_SOURCED=1
 zrbgp_kindle() {
   test -z "${ZRBGP_KINDLED:-}" || bcu_die "Module rbgp already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || bcu_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || bcu_die "RBRR_GCP_PROJECT_ID is empty"
-
   bcu_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
   zrbgo_sentinel
@@ -136,7 +133,7 @@ zrbgp_liens_list() {
 
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-  rbgu_http_json "GET" "${RBGC_API_CRM_LIST_LIENS}?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -226,7 +223,7 @@ zrbgp_get_project_number_capture() {
   local z_token
   z_token=$(rbgu_get_admin_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
@@ -256,7 +253,7 @@ zrbgp_create_gcs_bucket() {
   bcu_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBRR_GCP_PROJECT_ID}" "${z_token}" \
                                   "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || bcu_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGP_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"

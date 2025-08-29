@@ -169,7 +169,7 @@ rbgb_bucket_create() {
   bcu_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                    "${ZRBGB_INFIX_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGB_INFIX_CREATE}") || bcu_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGB_INFIX_CREATE}" '.error.message') || z_err="HTTP ${z_code}"

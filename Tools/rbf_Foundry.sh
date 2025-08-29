@@ -59,13 +59,13 @@ zrbf_kindle() {
   ZRBF_GCS_UPLOAD_RESP="${BDU_TEMP_DIR}/rbf_gcs_upload_resp.json"
   ZRBF_GCS_UPLOAD_HTTP="${BDU_TEMP_DIR}/rbf_gcs_upload_http.txt"
 
-  ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
-  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGC_GCB_PROJECT_ID}/locations/${RBGC_GCB_REGION}/builds"
-  ZRBF_GAR_PACKAGE_BASE="projects/${RBGC_GAR_PROJECT_ID}/locations/${RBGC_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
+  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
+  ZRBF_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   bcu_log_args 'Registry API endpoints for delete'
-  ZRBF_REGISTRY_HOST="${RBGC_GAR_LOCATION}-docker.pkg.dev"
-  ZRBF_REGISTRY_PATH="${RBGC_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  ZRBF_REGISTRY_HOST="${RBGD_GAR_LOCATION}-docker.pkg.dev"
+  ZRBF_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBF_REGISTRY_API_BASE="https://${ZRBF_REGISTRY_HOST}/v2/${ZRBF_REGISTRY_PATH}"
 
   bcu_log_args 'Media types for delete operation'
@@ -306,7 +306,7 @@ zrbf_compose_tarball_name() {
   # Flat namespace (no subdirectories), BDU_NOW_STAMP for source artifact
   local z_name="${z_sigil}.${BDU_NOW_STAMP}.source.tar.gz"
   echo "${z_name}" > "${ZRBF_TARBALL_NAME_FILE}"      || bcu_die "Failed to write tarball name"
-  echo "${RBGC_GCS_BUCKET}/${z_name}" > "${ZRBF_GCS_OBJECT_FILE}" || bcu_die "Failed to write bucket/object"
+  echo "${RBGD_GCS_BUCKET}/${z_name}" > "${ZRBF_GCS_OBJECT_FILE}" || bcu_die "Failed to write bucket/object"
   bcu_log_args "Tarball object: ${z_name}"
 }
 
@@ -321,7 +321,7 @@ zrbf_upload_context_to_gcs() {
   z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || bcu_die "Missing tarball name"
   test -s "${ZRBF_BUILD_CONTEXT_TAR}" || bcu_die "Context tar is empty"
 
-  local z_url="${ZRBF_GCS_UPLOAD_BASE}/b/${RBGC_GCS_BUCKET}/o?uploadType=media&name=${z_obj_name}"
+  local z_url="${ZRBF_GCS_UPLOAD_BASE}/b/${RBGD_GCS_BUCKET}/o?uploadType=media&name=${z_obj_name}"
 
   curl -sS -X POST                                 \
     -H "Authorization: Bearer ${z_token}"          \
@@ -336,7 +336,7 @@ zrbf_upload_context_to_gcs() {
   z_http=$(<"${ZRBF_GCS_UPLOAD_HTTP}") || bcu_die "No HTTP status from GCS upload"
   test "${z_http}" = "200" || bcu_die "GCS upload failed (HTTP ${z_http})"
 
-  bcu_success "Uploaded: gs://${RBGC_GCS_BUCKET}/${z_obj_name}"
+  bcu_success "Uploaded: gs://${RBGD_GCS_BUCKET}/${z_obj_name}"
 }
 
 zrbf_compose_build_request_json() {
@@ -347,7 +347,7 @@ zrbf_compose_build_request_json() {
   z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || bcu_die "Missing tarball name"
 
   jq -n --slurpfile sub "${ZRBF_BUILD_CONFIG_FILE}"            \
-    --arg bucket "${RBGC_GCS_BUCKET}"                           \
+    --arg bucket "${RBGD_GCS_BUCKET}"                           \
     --arg object "${z_obj_name}"                                 \
     --arg sa     "${RBGC_MASON_EMAIL}"                           \
     --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"                      \
@@ -388,7 +388,7 @@ zrbf_submit_build_json() {
   test -n "${z_build_id}" || bcu_die "Build id not found in response"
   echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || bcu_die "Failed to persist build id"
 
-  local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBGC_GCB_PROJECT_ID}"
+  local z_console_url="${ZRBF_CLOUD_QUERY_BASE}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   bcu_info "Build submitted: ${z_build_id}"
   bcu_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 }
@@ -520,8 +520,8 @@ rbf_build() {
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_moniker        "${RBRV_SIGIL}"                    \
     --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
-    --arg zjq_gar_location   "${RBGC_GAR_LOCATION}"             \
-    --arg zjq_gar_project    "${RBGC_GAR_PROJECT_ID}"           \
+    --arg zjq_gar_location   "${RBGD_GAR_LOCATION}"             \
+    --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}"           \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \

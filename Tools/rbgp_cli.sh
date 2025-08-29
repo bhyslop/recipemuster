@@ -31,13 +31,15 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 
-# Initialize modules
-zrbl_kindle
-zrbgc_kindle
-zrbgo_kindle
-zrbgu_kindle
-zrbgp_kindle
+zrbgp_furnish() {
+  bcu_log_args 'Initialize modules'
+  zrbl_kindle
+  zrbgc_kindle
+  zrbgo_kindle
+  zrbgu_kindle
+  zrbgp_kindle
+}
 
-bdu_dispatch "$@"
+bcu_execute rbgp_ "Recipe Bottle Payor" zrbgp_furnish "$@"
 
 # eof

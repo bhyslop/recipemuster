@@ -42,11 +42,11 @@ zrbi_kindle() {
   test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
 
   # Module Variables (ZRBI_*)
-  ZRBI_REGISTRY_HOST="${RBGC_GAR_LOCATION}-docker.pkg.dev"
-  ZRBI_REGISTRY_PATH="${RBGC_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  ZRBI_REGISTRY_HOST="${RBGD_GAR_LOCATION}-docker.pkg.dev"
+  ZRBI_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   ZRBI_REGISTRY_API_BASE="https://${ZRBI_REGISTRY_HOST}/v2/${ZRBI_REGISTRY_PATH}"
   ZRBI_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
-  ZRBI_GAR_PACKAGE_BASE="projects/${RBGC_GAR_PROJECT_ID}/locations/${RBGC_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  ZRBI_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   # Media types
   ZRBI_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
