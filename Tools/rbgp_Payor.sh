@@ -442,109 +442,257 @@ rbgp_create_gcs_bucket() {
   esac
 }
 
-rbgp_project_create() {
+rbgp_depot_create() {
   zrbgp_sentinel
 
-  local z_json_path="$1"
+  local z_depot_name="${1:-}"
+  local z_region="${2:-}"
 
-  bcu_doc_brief "Create depot project infrastructure following RBAGS specification"
-  bcu_doc_param "json_path" "Path to downloaded admin JSON key (will be converted to RBRA)"
+  bcu_doc_brief "Create new depot infrastructure following RBAGS specification"
+  bcu_doc_param "depot_name" "Depot name (lowercase/numbers/hyphens, max 20 chars)"
+  bcu_doc_param "region" "GCP region for depot resources"
   bcu_doc_shown || return 0
 
-  test -n "${z_json_path}" || bcu_die "First argument must be path to downloaded JSON key file."
-
-  bcu_step 'Convert admin JSON to RBRA'
-  rbgu_extract_json_to_rbra "${z_json_path}" "${RBRR_ADMIN_RBRA_FILE}" "1800"
-
-  bcu_step 'Load Payor credentials from RBRA file'
-  source "${RBRR_ADMIN_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
-
-  bcu_step 'Execute JWT OAuth exchange with loaded RBRA credentials'
-  local z_token
-  z_token=$(rbgu_get_admin_token_capture) || bcu_die "Failed to get admin token"
-
-  bcu_step 'Validate project exists and is active'
-  rbgu_http_json "GET" "${RBGC_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}"
+  # Step 1: Validate Input Parameters
+  bcu_step 'Validate input parameters'
+  test -n "${z_depot_name}" || bcu_die "Depot name required as first argument"
+  test -n "${z_region}" || bcu_die "Region required as second argument"
   
-  local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse project state"
-  test "${z_lifecycle_state}" = "ACTIVE" || bcu_die "Project state is ${z_lifecycle_state}, expected ACTIVE"
+  # Validate depot name format
+  if ! printf '%s' "${z_depot_name}" | grep -qE '^[a-z0-9-]+$'; then
+    bcu_die "Depot name must contain only lowercase letters, numbers, and hyphens"
+  fi
+  
+  if [ "${#z_depot_name}" -gt 20 ]; then
+    bcu_die "Depot name must be 20 characters or less"
+  fi
 
-  bcu_step 'Get project number'
-  local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.projectNumber') || bcu_die "Failed to get project number"
-  test -n "${z_project_number}" || bcu_die "Project number is empty"
+  # Validate region exists in Artifact Registry locations
+  bcu_log_args 'Validating region exists in Artifact Registry locations'
+  local z_token
+  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token for region validation"
+  
+  local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
+  rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
+  rbgu_http_require_ok "Validate region" "region_validation"
+  
+  local z_valid_regions
+  z_valid_regions=$(rbgu_json_field_capture "region_validation" '.locations[].locationId' | tr '\n' ' ') || bcu_die "Failed to parse region list"
+  
+  if ! printf '%s' "${z_valid_regions}" | grep -qw "${z_region}"; then
+    bcu_die "Invalid region. Valid regions: ${z_valid_regions}"
+  fi
 
-  bcu_step 'Grant Payor service account required depot project permissions'
-  local z_admin_sa_email="${RBGC_ADMIN_ROLE}@${RBGC_SA_EMAIL_FULL}"
-  rbgi_add_project_iam_role "${z_token}" "Grant admin Viewer" "${RBGC_PROJECT_RESOURCE}" \
-    "roles/viewer" "serviceAccount:${z_admin_sa_email}" "admin-viewer"
-  rbgi_add_project_iam_role "${z_token}" "Grant Cloud Build invoke permissions" "${RBGC_PROJECT_RESOURCE}" \
-    "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" "serviceAccount:${z_admin_sa_email}" "admin-cb-invoke"
-  rbgi_add_project_iam_role "${z_token}" "Grant Service Usage Consumer" "${RBGC_PROJECT_RESOURCE}" \
-    "roles/serviceusage.serviceUsageConsumer" "serviceAccount:${z_admin_sa_email}" "admin-su"
+  # Step 2: Authenticate as Payor  
+  bcu_step 'Authenticate as Payor'
+  test -n "${RBRR_PAYOR_RBRA_FILE:-}" || bcu_die "RBRR_PAYOR_RBRA_FILE is not set"
+  test -f "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRR_PAYOR_RBRA_FILE}"
+  
+  # Load RBRP configuration
+  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
+  test -n "${RBRP_BILLING_ACCOUNT_ID:-}" || bcu_die "RBRP_BILLING_ACCOUNT_ID is not set"
+  test -n "${RBRP_PARENT_TYPE:-}" || bcu_die "RBRP_PARENT_TYPE is not set"
+  test -n "${RBRP_PARENT_ID:-}" || bcu_die "RBRP_PARENT_ID is not set"
+  
+  source "${RBRR_PAYOR_RBRA_FILE}" || bcu_die "Failed to source Payor RBRA credentials"
+  z_token=$(rbgu_get_admin_token_capture "${RBRR_PAYOR_RBRA_FILE}") || bcu_die "Failed to get payor token"
 
-  bcu_step 'Create build bucket'
-  rbgp_create_gcs_bucket "${z_token}" "${RBGC_GCS_BUCKET}"
+  # Step 3: Generate Depot Project ID
+  bcu_step 'Generate depot project ID'
+  local z_timestamp
+  z_timestamp=$(date +%Y%m%d%H%M) || bcu_die "Failed to generate timestamp"
+  local z_depot_project_id="rbw-${z_depot_name}-${z_timestamp}"
+  
+  if [ "${#z_depot_project_id}" -gt 30 ]; then
+    bcu_die "Generated project ID too long (${#z_depot_project_id} > 30): ${z_depot_project_id}"
+  fi
+  
+  bcu_log_args "Generated depot project ID: ${z_depot_project_id}"
 
-  bcu_step 'Create container repository'
-  bcu_log_args "Creating repository ${RBRR_GAR_REPOSITORY} in ${RBGC_GAR_LOCATION}"
+  # Step 4: Create Depot Project
+  bcu_step 'Create depot project'
+  local z_create_project_body="${BDU_TEMP_DIR}/rbgp_create_project.json"
+  local z_parent_resource=""
+  
+  if [ "${RBRP_PARENT_TYPE}" != "none" ]; then
+    z_parent_resource="${RBRP_PARENT_TYPE}s/${RBRP_PARENT_ID}"
+  fi
+  
+  jq -n \
+    --arg projectId "${z_depot_project_id}" \
+    --arg displayName "RB Depot: ${z_depot_name}" \
+    --arg parent "${z_parent_resource}" \
+    '{
+      projectId: $projectId,
+      displayName: $displayName
+    } + (if $parent != "" then {parent: $parent} else {} end)' > "${z_create_project_body}" || bcu_die "Failed to build project creation body"
 
-  test -n "${RBGC_GAR_LOCATION:-}"   || bcu_die "RBGC_GAR_LOCATION is not set"
-  test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY is not set"
-
-  local z_parent="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${RBGC_GAR_LOCATION}"
-  local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${RBRR_GAR_REPOSITORY}"
-  local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${RBRR_GAR_REPOSITORY}"
-  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
-  local z_create_body="${ZRBGP_PREFIX}create_repo_body.json"
-
-  jq -n '{format:"DOCKER"}' > "${z_create_body}" || bcu_die "Failed to build create-repo body"
-
-  rbgu_http_json_lro_ok                                              \
-    "Create Artifact Registry repo"                                  \
-    "${z_token}"                                                     \
-    "${z_create_url}"                                                \
-    "${ZRBGP_INFIX_CREATE_REPO}"                                     \
-    "${z_create_body}"                                               \
-    ".name"                                                          \
-    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}"   \
-    "${RBGC_OP_PREFIX_GLOBAL}"                                       \
-    "${RBGC_EVENTUAL_CONSISTENCY_SEC}"                               \
+  local z_create_project_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
+  rbgu_http_json_lro_ok \
+    "Create depot project" \
+    "${z_token}" \
+    "${z_create_project_url}" \
+    "depot_project_create" \
+    "${z_create_project_body}" \
+    ".name" \
+    "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}" \
+    "operations/" \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
-  bcu_step 'Verify repository format configuration'
-  rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGP_INFIX_VERIFY_REPO}"
-  rbgu_http_require_ok "Verify repository" "${ZRBGP_INFIX_VERIFY_REPO}"
-  test "$(rbgu_json_field_capture "${ZRBGP_INFIX_VERIFY_REPO}" '.format')" = "DOCKER" \
-    || bcu_die "Repository exists but not DOCKER format"
+  # Step 5: Link Billing Account
+  bcu_step 'Link billing account'
+  local z_billing_body="${BDU_TEMP_DIR}/rbgp_billing_link.json"
+  jq -n \
+    --arg billingAccountName "billingAccounts/${RBRP_BILLING_ACCOUNT_ID}" \
+    --arg projectId "${z_depot_project_id}" \
+    '{
+      billingAccountName: $billingAccountName,
+      projectId: $projectId,
+      billingEnabled: true
+    }' > "${z_billing_body}" || bcu_die "Failed to build billing link body"
 
-  bcu_step 'Create Mason service account (no keys)'
-  rgbs_sa_create "${RBGC_MASON_NAME}" "RBGG Mason (build executor)"
+  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_depot_project_id}:setBillingInfo"
+  rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
+  rbgu_http_require_ok "Link billing account" "depot_billing_link"
 
-  local z_mason_sa="${RBGC_MASON_EMAIL}"
+  # Step 6: Get Depot Project Number
+  bcu_step 'Get depot project number'
+  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_project_info"
+  rbgu_http_require_ok "Get project info" "depot_project_info"
+  
+  local z_project_number
+  z_project_number=$(rbgu_json_field_capture "depot_project_info" '.projectNumber') || bcu_die "Failed to get project number"
+  test -n "${z_project_number}" || bcu_die "Project number is empty"
 
-  bcu_step 'Allow Cloud Build service agent to impersonate Mason'
-  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
-  rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
+  # Step 7: Enable Depot Project APIs
+  bcu_step 'Enable depot project APIs'
+  local z_api_services="artifactregistry cloudbuild containeranalysis storage iam serviceusage"
+  for z_service in ${z_api_services}; do
+    bcu_log_args "Enabling API: ${z_service}"
+    local z_enable_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${z_depot_project_id}/services/${z_service}.googleapis.com:enable"
+    rbgu_http_json "POST" "${z_enable_url}" "${z_token}" "enable_${z_service}" "${ZRBGP_EMPTY_JSON}"
+    
+    if rbgu_http_is_ok "enable_${z_service}"; then
+      bcu_log_args "API ${z_service} enabled successfully"
+    else
+      local z_error_code
+      z_error_code=$(rbgu_http_code_capture "enable_${z_service}") || z_error_code="unknown"
+      if [ "${z_error_code}" = "400" ]; then
+        bcu_log_args "API ${z_service} already enabled"
+      else
+        bcu_die "Failed to enable API ${z_service}: HTTP ${z_error_code}"
+      fi
+    fi
+  done
 
+  # Step 8: Grant Payor Permissions on Depot
+  bcu_step 'Grant Payor permissions on depot'
+  local z_payor_sa_email="${RBRA_CLIENT_EMAIL}"
+  rbgi_add_project_iam_role "${z_token}" "Grant Payor Viewer" "projects/${z_depot_project_id}" \
+    "roles/viewer" "serviceAccount:${z_payor_sa_email}" "payor-viewer"
+  rbgi_add_project_iam_role "${z_token}" "Grant Payor Cloud Build Editor" "projects/${z_depot_project_id}" \
+    "roles/cloudbuild.builds.editor" "serviceAccount:${z_payor_sa_email}" "payor-cb-editor"
+  rbgi_add_project_iam_role "${z_token}" "Grant Payor Service Usage Consumer" "projects/${z_depot_project_id}" \
+    "roles/serviceusage.serviceUsageConsumer" "serviceAccount:${z_payor_sa_email}" "payor-su-consumer"
+
+  # Step 9: Create Build Bucket
+  bcu_step 'Create build bucket'
+  local z_build_bucket="rbw-${z_depot_name}-bucket"
+  local z_bucket_req="${BDU_TEMP_DIR}/rbgp_bucket_create_req.json"
+  jq -n \
+    --arg name "${z_build_bucket}" \
+    --arg location "${z_region}" \
+    --arg project "${z_depot_project_id}" \
+    '{
+      name: $name,
+      location: $location,
+      storageClass: "STANDARD",
+      lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
+    }' > "${z_bucket_req}" || bcu_die "Failed to create bucket request JSON"
+
+  local z_bucket_create_url="${RBGC_API_ROOT_GCS}${RBGC_GCS_V1}/b?project=${z_depot_project_id}"
+  rbgu_http_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
+  
+  local z_bucket_code
+  z_bucket_code=$(rbgu_http_code_capture "depot_bucket_create") || bcu_die "Bad bucket creation HTTP code"
+  case "${z_bucket_code}" in
+    200|201) bcu_log_args "Build bucket ${z_build_bucket} created" ;;
+    409)     bcu_die "Build bucket ${z_build_bucket} already exists" ;;
+    *)       bcu_die "Failed to create build bucket: HTTP ${z_bucket_code}" ;;
+  esac
+
+  # Step 10: Create Container Repository
+  bcu_step 'Create container repository'
+  local z_repository_name="rbw-${z_depot_name}-repository"
+  local z_parent="projects/${z_depot_project_id}/locations/${z_region}"
+  local z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${z_repository_name}"
+  local z_create_repo_body="${BDU_TEMP_DIR}/rbgp_create_repo.json"
+  
+  jq -n '{format:"DOCKER"}' > "${z_create_repo_body}" || bcu_die "Failed to build create-repo body"
+
+  rbgu_http_json_lro_ok \
+    "Create container repository" \
+    "${z_token}" \
+    "${z_create_repo_url}" \
+    "depot_repo_create" \
+    "${z_create_repo_body}" \
+    ".name" \
+    "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}" \
+    "${RBGC_OP_PREFIX_GLOBAL}" \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+    "${RBGC_MAX_CONSISTENCY_SEC}"
+
+  # Step 11: Create Mason Service Account
+  bcu_step 'Create Mason service account'
+  local z_mason_name="rbw-${z_depot_name}-mason"
+  local z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
+  local z_create_sa_body="${BDU_TEMP_DIR}/rbgp_create_mason.json"
+  
+  jq -n \
+    --arg accountId "${z_mason_name}" \
+    --arg displayName "${z_mason_display_name}" \
+    '{
+      accountId: $accountId,
+      displayName: $displayName
+    }' > "${z_create_sa_body}" || bcu_die "Failed to build Mason creation body"
+
+  local z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  rbgu_http_json "POST" "${z_create_sa_url}" "${z_token}" "depot_mason_create" "${z_create_sa_body}"
+  rbgu_http_require_ok "Create Mason service account" "depot_mason_create"
+  
+  local z_mason_sa_email
+  z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || bcu_die "Failed to get Mason email"
+
+  # Step 12: Configure Mason Permissions
   bcu_step 'Configure Mason permissions'
-  rbgi_add_repo_iam_role "${z_token}" "${z_mason_sa}" "${RBGC_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" \
-    "${RBGC_ROLE_ARTIFACTREGISTRY_ADMIN}"
+  # Repository admin
+  local z_repo_resource="${z_parent}/repositories/${z_repository_name}"
+  rbgi_add_repo_iam_role "${z_token}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
+    "roles/artifactregistry.admin"
+  
+  # Bucket viewer
+  rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_email}" "roles/storage.objectViewer"
+  
+  # Project viewer
+  rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${z_depot_project_id}" \
+    "roles/viewer" "serviceAccount:${z_mason_sa_email}" "mason-viewer"
 
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGC_GCS_BUCKET}" "${z_mason_sa}" "roles/storage.objectViewer"
+  # Step 13: Enable Cloud Build service agent to impersonate Mason
+  bcu_step 'Enable Cloud Build service agent to impersonate Mason'
+  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
-  rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "${RBGC_PROJECT_RESOURCE}" \
-    "roles/viewer" "serviceAccount:${z_mason_sa}" "mason-viewer"
-
-  bcu_info "RBRA (admin): ${RBRR_ADMIN_RBRA_FILE}"
-  bcu_info "GAR: ${RBGC_GAR_LOCATION}/${RBRR_GAR_REPOSITORY} (DOCKER)"
-  bcu_info "Mason SA: ${z_mason_sa}"
-  bcu_warn "Consider deleting downloaded JSON key:"
-  bcu_code "    rm \"${z_json_path}\""
-
-  bcu_success 'Depot project creation complete'
+  # Display Depot Configuration
+  bcu_step 'Display depot configuration'
+  bcu_success 'Depot creation successful'
+  bcu_info "Required RBRR configuration values:"
+  bcu_info "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
+  bcu_info "  RBRR_GCP_REGION=${z_region}"
+  bcu_info "  RBRR_GAR_REPOSITORY=${z_repository_name}"
+  bcu_info "Mason service account: ${z_mason_sa_email}"
+  bcu_info "Depot ready for Governor creation"
 }
 
 # eof
