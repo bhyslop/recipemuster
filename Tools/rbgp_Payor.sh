@@ -66,7 +66,7 @@ zrbgp_sentinel() {
 ######################################################################
 # External Functions (rbgp_*)
 
-rbgp_billing_attach() {
+zrbgp_billing_attach() {
   zrbgp_sentinel
 
   local z_billing_account="${1:-}"
@@ -101,7 +101,7 @@ rbgp_billing_attach() {
   bcu_success "Billing account ${z_billing_account} attached to project"
 }
 
-rbgp_billing_detach() {
+zrbgp_billing_detach() {
   zrbgp_sentinel
 
   bcu_doc_brief "Detach billing account from the project"
@@ -254,7 +254,7 @@ rbgp_project_undelete() {
   fi
 }
 
-rbgp_liens_list() {
+zrbgp_liens_list() {
   zrbgp_sentinel
 
   bcu_doc_brief "List all liens on the project"
@@ -285,7 +285,7 @@ rbgp_liens_list() {
   return 0
 }
 
-rbgp_lien_delete() {
+zrbgp_lien_delete() {
   zrbgp_sentinel
 
   local z_lien_name="${1:-}"
@@ -352,7 +352,7 @@ rbgp_billing_account_create_manual() {
 
 ######################################################################
 # Capture: list required services that are NOT enabled (blank = all enabled)
-rbgp_required_apis_missing_capture() {
+zrbgp_required_apis_missing_capture() {
   zrbgp_sentinel
 
   local z_token="${1:-}"
@@ -394,7 +394,7 @@ rbgp_required_apis_missing_capture() {
   printf '%s' "${z_missing# }"
 }
 
-rbgp_get_project_number_capture() {
+zrbgp_get_project_number_capture() {
   zrbgp_sentinel
 
   local z_token
@@ -411,7 +411,7 @@ rbgp_get_project_number_capture() {
 }
 
 
-rbgp_create_gcs_bucket() {
+zrbgp_create_gcs_bucket() {
   zrbgp_sentinel
 
   local z_token="${1}"
