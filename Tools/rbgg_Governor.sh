@@ -308,7 +308,7 @@ zrbgg_create_gcs_bucket() {
   local z_code
   local z_err
   rbgu_http_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
-                                   "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
+                                  "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || bcu_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
@@ -364,7 +364,7 @@ zrbgg_get_project_number_capture() {
   z_token=$(rbgu_get_admin_token_capture) || return 1
 
   rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info" "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
+  rbgu_http_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
   z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
@@ -552,7 +552,7 @@ rbgg_create_director() {
 
   bcu_step 'Get project number for Cloud Build SA'
   rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}"
 
   local z_project_number
   z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') \
@@ -734,11 +734,10 @@ rbgg_restore_project() {
 
   bcu_step 'Attempt project restoration'
   rbgu_http_json "POST" "${RBGD_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
-
-  if rbgu_http_is_ok "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
+  if rbgu_http_is_ok                                                    "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
     bcu_step 'Verify restoration'
     rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
-    rbgu_http_require_ok "Get restored project state" "${ZRBGG_INFIX_PROJECT_STATE}"
+    rbgu_http_require_ok "Get restored project state"               "${ZRBGG_INFIX_PROJECT_STATE}"
 
     z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || bcu_die "Failed to parse restored project state"
 
