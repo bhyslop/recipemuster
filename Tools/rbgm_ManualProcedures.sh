@@ -231,74 +231,65 @@ rbgm_payor_establish() {
   zrbgm_dmd    "   Update " "${ZRBGM_RBRP_FILE}" " with your payor project values:"
   zrbgm_dc     "      " "RBRP_PAYOR_PROJECT_ID=rbw-payor  # or your chosen project ID"
   zrbgm_dc     "      " "RBRP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX  # from step 3"
-  zrbgm_d      "   Note: RBRP_OAUTH_CLIENT_ID will be set by rbgp_payor_install command"
+  zrbgm_d      "   Note: RBRP_OAUTH_CLIENT_ID will be set by credential installation"
   zrbgm_e
-  zrbgm_s2     "9. Install OAuth Credentials:"
-  zrbgm_d      "   Use the Recipe Bottle command to install OAuth credentials:"
-  zrbgm_dc     "      " "rbgp_payor_install /path/to/payor-oauth.json"
-  zrbgm_d      "   This will:"
-  zrbgm_d      "   - Guide you through the OAuth authorization flow"
-  zrbgm_d      "   - Store secure credentials in ~/.rbw/rbro.env"
-  zrbgm_d      "   - Test the authentication"
-  zrbgm_d      "   - Initialize depot tracking"
-  zrbgm_e
-  zrbgm_dy     " " "Manual setup complete. OAuth-based Payor is ready for depot operations."
-  zrbgm_d      "Verify by testing depot creation before proceeding to production use."
+  zrbgm_dy     " " "Project setup complete. Use rbgm_payor_refresh to install credentials."
+  zrbgm_d      "Next step: Run rbgm_payor_refresh to install OAuth credentials and complete setup."
 
   bcu_success "OAuth Payor establishment procedure displayed"
 }
 
-rbgm_show_payor_oauth_refresh() {
+rbgm_payor_refresh() {
   zrbgm_sentinel
 
-  bcu_doc_brief "Display the manual Payor OAuth refresh procedure"
+  bcu_doc_brief "Display the manual Payor OAuth credential installation/refresh procedure"
   bcu_doc_shown || return 0
 
-  zrbgm_s1     "Manual Payor OAuth Refresh Procedure"
-  zrbgm_d      "Use this when OAuth credentials expire or are compromised."
+  zrbgm_s1     "Manual Payor OAuth Credential Installation/Refresh Procedure"
+  zrbgm_d      "Use this for initial credential setup after payor establishment or to refresh expired/compromised credentials."
   zrbgm_d      "Testing mode refresh tokens expire after 6 months of non-use."
   zrbgm_e
-  zrbgm_s2     "When to refresh:"
+  zrbgm_s2     "When to use this procedure:"
+  zrbgm_d      "  - Initial setup after running rbgm_payor_establish"
   zrbgm_d      "  - Payor operations return 401/403 errors"
   zrbgm_d      "  - OAuth client secret compromised"
-  zrbgm_d      "  - OAuth client deleted from Console"
   zrbgm_d      "  - 6+ months since last Payor operation"
   zrbgm_e
-  zrbgm_s2     "1. Navigate to OAuth Client:"
-  zrbgm_dld    "   Go to: " "Credentials for Payor Project" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
-  zrbgm_dm     "   1. Find existing " "Recipe Bottle Payor" " OAuth client"
-  zrbgm_d      "   2. If client missing: re-run full establishment procedure"
+  zrbgm_s2     "1. Obtain OAuth Credentials:"
+  zrbgm_d      "   For initial setup:"
+  zrbgm_d      "      - Use JSON file downloaded during rbgm_payor_establish"
+  zrbgm_d      "   For refresh/renewal:"
+  zrbgm_dld    "      - Go to: " "Credentials for Payor Project" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  zrbgm_dm     "      - Find existing " "Recipe Bottle Payor" " OAuth client"
+  zrbgm_d      "      - If client missing: re-run rbgm_payor_establish"
+  zrbgm_dm     "      - Click the " "download" " icon next to OAuth client"
+  zrbgm_d      "      - Or to regenerate secret if compromised:"
+  zrbgm_dm     "        a. Click the " "edit" " icon (pencil)"
+  zrbgm_dm     "        b. Click " "RESET SECRET" " if available"
+  zrbgm_dm     "        c. Click " "SAVE"
+  zrbgm_dm     "        d. Click " "DOWNLOAD JSON"
+  zrbgm_d      "      - Save as: " "payor-oauth-$(date +%Y%m%d).json"
   zrbgm_e
-  zrbgm_s2     "2. Download New Credentials:"
-  zrbgm_dm     "   1. Click the " "download" " icon next to OAuth client"
-  zrbgm_d      "   2. Or to regenerate secret if compromised:"
-  zrbgm_dm     "      a. Click the " "edit" " icon (pencil)"
-  zrbgm_dm     "      b. Click " "RESET SECRET" " if available"
-  zrbgm_dm     "      c. Click " "SAVE"
-  zrbgm_dm     "      d. Click " "DOWNLOAD JSON"
-  zrbgm_e
-  zrbgm_s2     "3. Save New Credentials File:"
-  zrbgm_d      "   Save as timestamped filename for tracking:"
-  zrbgm_dc     "      " "payor-oauth-$(date +%Y%m%d).json"
-  zrbgm_e
-  zrbgm_s2     "4. Reinstall OAuth Credentials:"
-  zrbgm_d      "   Run the payor install command with new file:"
-  zrbgm_dc     "      " "rbgp_payor_install /path/to/payor-oauth-[timestamp].json"
+  zrbgm_s2     "2. Install/Refresh OAuth Credentials:"
+  zrbgm_d      "   Run the payor install command:"
+  zrbgm_dc     "      " "rbgp_payor_install /path/to/payor-oauth.json"
   zrbgm_d      "   This will:"
-  zrbgm_d      "   - Prompt for fresh authorization (re-consent required)"
-  zrbgm_d      "   - Overwrite existing ~/.rbw/rbro.env credentials"
-  zrbgm_d      "   - Test the new authentication"
+  zrbgm_d      "   - Guide you through OAuth authorization flow"
+  zrbgm_d      "   - Store secure credentials in ~/.rbw/rbro.env"
+  zrbgm_d      "   - Update RBRP_OAUTH_CLIENT_ID in rbrp.env"
+  zrbgm_d      "   - Test the authentication"
+  zrbgm_d      "   - Initialize depot tracking"
   zrbgm_d      "   - Reset the 6-month expiration timer"
   zrbgm_e
-  zrbgm_s2     "5. Verify New Credentials:"
+  zrbgm_s2     "3. Verify Installation:"
   zrbgm_d      "   Test with a simple operation:"
   zrbgm_dc     "      " "rbgp_depot_list"
   zrbgm_d      "   Should display current depots without authentication errors."
   zrbgm_e
-  zrbgm_dy     " " "OAuth refresh complete. Payor operations should work normally."
+  zrbgm_dy     " " "OAuth credentials installed/refreshed. Payor operations should work normally."
   zrbgm_d      "Prevention: Run any Payor operation monthly to prevent expiration."
 
-  bcu_success "OAuth refresh procedure displayed"
+  bcu_success "OAuth credential installation/refresh procedure displayed"
 }
 
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
