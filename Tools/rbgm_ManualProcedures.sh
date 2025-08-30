@@ -126,7 +126,7 @@ zrbgm_dld() {
 ######################################################################
 # External Functions (rbgm_*)
 
-rbgm_show_payor_establishment() {
+rbgm_payor_establish() {
   zrbgm_sentinel
 
   bcu_doc_brief "Display the manual Payor Establishment procedure for OAuth authentication"
