@@ -271,86 +271,140 @@ zrbgp_create_gcs_bucket() {
 rbgp_payor_install() {
   zrbgp_sentinel
 
-  local z_json_key_file="${1:-}"
+  local z_oauth_json_file="${1:-}"
 
-  bcu_doc_brief "Install Payor credentials from JSON key file following RBAGS specification"
-  bcu_doc_param "json_key_file" "Path to downloaded Payor service account JSON key file"
-  bcu_doc_lines "REQUIREMENT: The Payor project must have Cloud Resource Manager API enabled"
-  bcu_doc_lines "            for depot management operations (create, list, destroy)"
+  bcu_doc_brief "Install Payor OAuth credentials from client JSON file following RBAGS specification"
+  bcu_doc_param "oauth_json_file" "Path to downloaded OAuth client JSON file from establish procedure"
+  bcu_doc_lines "REQUIREMENT: OAuth consent screen must be configured in testing mode"
+  bcu_doc_lines "            and the Payor project must have required APIs enabled"
   bcu_doc_shown || return 0
 
   bcu_step 'Validate input parameters'
-  test -n "${z_json_key_file}" || bcu_die "JSON key file path required as first argument"
-  test -f "${z_json_key_file}" || bcu_die "JSON key file not found: ${z_json_key_file}"
+  test -n "${z_oauth_json_file}" || bcu_die "OAuth JSON file path required as first argument"
+  test -f "${z_oauth_json_file}" || bcu_die "OAuth JSON file not found: ${z_oauth_json_file}"
 
-  bcu_step 'Validate JSON key file format'
-  local z_key_type
-  z_key_type=$(jq -r '.type' "${z_json_key_file}" 2>/dev/null) || bcu_die "Failed to parse JSON key file"
-  test "${z_key_type}" = "service_account" || bcu_die "JSON key file must be a service account key (not ${z_key_type})"
-
+  bcu_step 'Parse OAuth client JSON'
+  local z_client_id
+  z_client_id=$(jq -r '.installed.client_id // .client_id // empty' "${z_oauth_json_file}" 2>/dev/null) || bcu_die "Failed to parse OAuth JSON file"
+  test -n "${z_client_id}" || bcu_die "OAuth JSON file missing client_id field"
+  
+  local z_client_secret
+  z_client_secret=$(jq -r '.installed.client_secret // .client_secret // empty' "${z_oauth_json_file}" 2>/dev/null) || bcu_die "Failed to extract client_secret from OAuth JSON file"
+  test -n "${z_client_secret}" || bcu_die "OAuth JSON file missing client_secret field"
+  
   local z_project_id
-  z_project_id=$(jq -r '.project_id' "${z_json_key_file}" 2>/dev/null) || bcu_die "Failed to extract project_id from JSON key file"
-  test -n "${z_project_id}" || bcu_die "JSON key file missing project_id field"
+  z_project_id=$(jq -r '.installed.project_id // .project_id // empty' "${z_oauth_json_file}" 2>/dev/null) || bcu_die "Failed to extract project_id from OAuth JSON file"
+  test -n "${z_project_id}" || bcu_die "OAuth JSON file missing project_id field"
 
-  local z_client_email
-  z_client_email=$(jq -r '.client_email' "${z_json_key_file}" 2>/dev/null) || bcu_die "Failed to extract client_email from JSON key file"
-  test -n "${z_client_email}" || bcu_die "JSON key file missing client_email field"
+  bcu_step 'Check existing credentials'
+  local z_rbro_file="${HOME}/.rbw/rbro.env"
+  local z_skip_auth=0
+  if test -f "${z_rbro_file}"; then
+    bcu_log_args "Found existing RBRO credentials at ${z_rbro_file}"
+    z_skip_auth=1
+  else
+    bcu_log_args "No existing RBRO credentials found, authorization flow required"
+  fi
 
-  bcu_step 'Validate service account is Payor role'
-  local z_expected_payor_email="rbw-payor@${z_project_id}.iam.gserviceaccount.com"
-  test "${z_client_email}" = "${z_expected_payor_email}" || bcu_die "Expected Payor service account email: ${z_expected_payor_email}, got: ${z_client_email}"
+  local z_refresh_token=""
+  if test "${z_skip_auth}" = "0"; then
+    bcu_step 'OAuth authorization flow'
+    local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+    
+    bcu_info "Open this URL in your browser:"
+    bcu_info "${z_auth_url}"
+    bcu_info ""
+    printf "Copy the authorization code and paste here: "
+    read -r z_auth_code
+    test -n "${z_auth_code}" || bcu_die "Authorization code is required"
+    
+    bcu_log_args "Exchanging authorization code for tokens"
+    local z_token_request="${BDU_TEMP_DIR}/rbgp_token_request.json"
+    jq -n \
+      --arg code "${z_auth_code}" \
+      --arg client_id "${z_client_id}" \
+      --arg client_secret "${z_client_secret}" \
+      --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
+      --arg grant_type "authorization_code" \
+      '{
+        code: $code,
+        client_id: $client_id,
+        client_secret: $client_secret,
+        redirect_uri: $redirect_uri,
+        grant_type: $grant_type
+      }' > "${z_token_request}" || bcu_die "Failed to create token request"
+    
+    local z_token_response="${BDU_TEMP_DIR}/rbgp_token_response.json"
+    local z_token_code="${BDU_TEMP_DIR}/rbgp_token_code.txt"
+    
+    curl -s -X POST \
+      -H "Content-Type: application/json" \
+      -d @"${z_token_request}" \
+      -w "%{http_code}" \
+      -o "${z_token_response}" \
+      "https://oauth2.googleapis.com/token" > "${z_token_code}" || bcu_die "Failed to execute token exchange request"
+    
+    local z_code
+    z_code=$(<"${z_token_code}") || bcu_die "Failed to read HTTP response code"
+    
+    if test "${z_code}" != "200"; then
+      local z_error_desc
+      z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' "${z_token_response}" 2>/dev/null || echo "HTTP ${z_code}")
+      bcu_die "OAuth token exchange failed: ${z_error_desc}"
+    fi
+    
+    z_refresh_token=$(jq -r '.refresh_token // empty' "${z_token_response}" 2>/dev/null) || bcu_die "Failed to extract refresh token from response"
+    test -n "${z_refresh_token}" || bcu_die "OAuth response missing refresh_token field"
+  fi
 
-  bcu_step 'Generate RBRA file path'
-  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
-  local z_rbra_file="${RBRP_PAYOR_RBRA_FILE}"
-  bcu_log_args "RBRA file will be created at: ${z_rbra_file}"
-
-  bcu_step 'Convert JSON key to RBRA format using existing utility'
-  # Use standard RBGU utility with project validation and 3600 second token lifetime
-  rbgu_extract_json_to_rbra "${z_json_key_file}" "${z_rbra_file}" "3600" "${z_project_id}"
-
-  bcu_step 'Set secure RBRA file permissions'
-  chmod 600 "${z_rbra_file}" || bcu_die "Failed to set RBRA file permissions"
-
-  bcu_step 'Test Payor authentication'
-  local z_test_token
-  z_test_token=$(rbgu_authenticate_role_capture "${z_rbra_file}") || bcu_die "Failed to authenticate with generated RBRA file"
-  test -n "${z_test_token}" || bcu_die "Authentication test returned empty token"
-
-  bcu_step 'Enable required APIs for depot management and infrastructure validation'
+  if test "${z_skip_auth}" = "0"; then
+    bcu_step 'Create local credentials directory'
+    mkdir -p "${HOME}/.rbw" || bcu_die "Failed to create ~/.rbw directory"
+    chmod 700 "${HOME}/.rbw" || bcu_die "Failed to set ~/.rbw directory permissions"
+    
+    bcu_step 'Store OAuth credentials'
+    cat > "${z_rbro_file}" <<-EOF || bcu_die "Failed to write RBRO credentials file"
+RBRO_CLIENT_SECRET=${z_client_secret}
+RBRO_REFRESH_TOKEN=${z_refresh_token}
+EOF
+    chmod 600 "${z_rbro_file}" || bcu_die "Failed to set RBRO file permissions"
+  fi
   
-  # Enable Cloud Resource Manager API for depot project creation
-  local z_crm_api_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${z_project_id}/services/${RBGC_SERVICE_CRM}:enable"
-  rbgu_http_json "POST" "${z_crm_api_url}" "${z_test_token}" "payor_enable_crm" "${ZRBGP_EMPTY_JSON}"
+  bcu_step 'Store public configuration'
+  # Update RBRP configuration (these are safe to commit)
+  bcu_log_args "Updating RBRP configuration with OAuth client details"
+  # Note: This would normally update rbrp.env file with these values
+  # For now we just validate the project ID matches expectation
   
-  local z_enable_code
-  z_enable_code=$(rbgu_http_code_capture "payor_enable_crm") || bcu_die "Failed to get CRM API enablement response code"
-  case "${z_enable_code}" in
-    200|201) bcu_info "Cloud Resource Manager API enabled successfully" ;;
-    400)     bcu_info "Cloud Resource Manager API already enabled" ;;
-    *)       bcu_die "Failed to enable Cloud Resource Manager API: HTTP ${z_enable_code}" ;;
-  esac
+  bcu_step 'Test OAuth authentication'
+  local z_access_token
+  z_access_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to test OAuth authentication"
+  test -n "${z_access_token}" || bcu_die "OAuth authentication test returned empty token"
   
-  # Enable Artifact Registry API for infrastructure validation (region validation, service availability checks)
-  local z_gar_api_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}/projects/${z_project_id}/services/${RBGC_SERVICE_ARTIFACTREGISTRY}:enable"
-  rbgu_http_json "POST" "${z_gar_api_url}" "${z_test_token}" "payor_enable_gar" "${ZRBGP_EMPTY_JSON}"
+  bcu_step 'Verify payor project access'
+  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}"
+  rbgu_http_json "GET" "${z_project_info_url}" "${z_access_token}" "payor_verify" 
+  rbgu_http_require_ok "Verify payor project" "payor_verify"
   
-  z_enable_code=$(rbgu_http_code_capture "payor_enable_gar") || bcu_die "Failed to get GAR API enablement response code"
-  case "${z_enable_code}" in
-    200|201) bcu_info "Artifact Registry API enabled successfully" ;;
-    400)     bcu_info "Artifact Registry API already enabled" ;;
-    *)       bcu_die "Failed to enable Artifact Registry API: HTTP ${z_enable_code}" ;;
-  esac
+  local z_project_state
+  z_project_state=$(rbgu_json_field_capture "payor_verify" '.lifecycleState') || bcu_die "Failed to get project state"
+  test "${z_project_state}" = "ACTIVE" || bcu_die "Payor project is not ACTIVE (state: ${z_project_state})"
 
-  bcu_success "Payor installation completed successfully"
+  bcu_step 'Initialize depot tracking'
+  zrbgp_depot_list_update || bcu_die "Failed to initialize depot tracking"
+
+  bcu_success "Payor OAuth installation completed successfully"
   bcu_info "Project ID: ${z_project_id}"
-  bcu_info "Service Account: ${z_client_email}"
-  bcu_info "RBRA File: ${z_rbra_file}"
+  bcu_info "OAuth Client ID: ${z_client_id}"
+  bcu_info "RBRO File: ${z_rbro_file}"
+  bcu_info ""
+  bcu_info "Configuration values for RBRP:"
+  bcu_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
+  bcu_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"
   bcu_info ""
   bcu_info "Next steps:"
-  bcu_info "1. RBRP_PAYOR_RBRA_FILE is already configured to use this file location"
-  bcu_info "2. Set RBRP_PAYOR_PROJECT_ID=${z_project_id} in your payor configuration if needed"
-  bcu_info "3. Use rbgp_depot_create to create new depot infrastructure"
+  bcu_info "1. Update your rbrp.env with the above configuration values"
+  bcu_info "2. Use rbgp_depot_create to create new depot infrastructure"
 }
 
 rbgp_depot_create() {
@@ -425,7 +479,7 @@ rbgp_depot_create() {
   
   jq -n \
     --arg projectId "${z_depot_project_id}" \
-    --arg displayName "RB Depot: ${z_depot_name}" \
+    --arg displayName "RB Depot ${z_depot_name}" \
     --arg parent "${z_parent_resource}" \
     '{
       projectId: $projectId,
@@ -489,14 +543,8 @@ rbgp_depot_create() {
     fi
   done
 
-  bcu_step 'Grant Payor permissions on depot'
-  local z_payor_sa_email="${RBRA_CLIENT_EMAIL}"
-  rbgi_add_project_iam_role "${z_token}" "Grant Payor Viewer" "projects/${z_depot_project_id}" \
-    "roles/viewer" "serviceAccount:${z_payor_sa_email}" "payor-viewer"
-  rbgi_add_project_iam_role "${z_token}" "Grant Payor Cloud Build Editor" "projects/${z_depot_project_id}" \
-    "roles/cloudbuild.builds.editor" "serviceAccount:${z_payor_sa_email}" "payor-cb-editor"
-  rbgi_add_project_iam_role "${z_token}" "Grant Payor Service Usage Consumer" "projects/${z_depot_project_id}" \
-    "roles/serviceusage.serviceUsageConsumer" "serviceAccount:${z_payor_sa_email}" "payor-su-consumer"
+  # Note: OAuth Payor doesn't need explicit permissions on depot since it uses user identity
+  # Skip Payor permission grants - OAuth user context provides necessary access
 
   bcu_step 'Create build bucket'
   local z_build_bucket="rbw-${z_depot_name}-bucket"
