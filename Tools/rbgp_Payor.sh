@@ -62,6 +62,125 @@ zrbgp_sentinel() {
 
 
 ######################################################################
+# OAuth Authentication Functions (zrbgp_oauth_*)
+
+zrbgp_oauth_refresh_exchange_capture() {
+  zrbgp_sentinel
+
+  bcu_log_args "Loading RBRO credentials for OAuth token refresh"
+  local z_rbro_file="${HOME}/.rbw/rbro.env"
+  test -d "${HOME}/.rbw" || bcu_die "RBRO directory missing - run rbgp_payor_install"
+  test -f "${z_rbro_file}" || bcu_die "RBRO credentials missing - run rbgp_payor_install"
+  
+  # Check file permissions
+  local z_perms
+  z_perms=$(stat -c %a "${z_rbro_file}" 2>/dev/null) || bcu_die "Failed to check RBRO file permissions"
+  if [ "${z_perms}" != "600" ]; then
+    bcu_log_args "Warning: RBRO file permissions should be 600, found ${z_perms}"
+  fi
+  
+  # Source RBRO credentials
+  # shellcheck source=/dev/null
+  source "${z_rbro_file}" || bcu_die "Failed to source RBRO credentials"
+  
+  test -n "${RBRO_CLIENT_SECRET:-}" || bcu_die "RBRO_CLIENT_SECRET missing from ${z_rbro_file}"
+  test -n "${RBRO_REFRESH_TOKEN:-}" || bcu_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID not set in environment"
+
+  bcu_log_args "Constructing OAuth token refresh request"
+  local z_token_request="${BDU_TEMP_DIR}/rbgp_oauth_refresh.json"
+  jq -n \
+    --arg refresh_token "${RBRO_REFRESH_TOKEN}" \
+    --arg client_id "${RBRP_OAUTH_CLIENT_ID}" \
+    --arg client_secret "${RBRO_CLIENT_SECRET}" \
+    --arg grant_type "refresh_token" \
+    '{
+      refresh_token: $refresh_token,
+      client_id: $client_id,
+      client_secret: $client_secret,
+      grant_type: $grant_type
+    }' > "${z_token_request}" || bcu_die "Failed to create OAuth refresh request"
+
+  local z_token_response="${BDU_TEMP_DIR}/rbgp_oauth_refresh_response.json"
+  local z_token_code="${BDU_TEMP_DIR}/rbgp_oauth_refresh_code.txt"
+  
+  bcu_log_args "Exchanging refresh token for access token"
+  curl -s -X POST \
+    -H "Content-Type: application/json" \
+    -d @"${z_token_request}" \
+    -w "%{http_code}" \
+    -o "${z_token_response}" \
+    "https://oauth2.googleapis.com/token" > "${z_token_code}" || bcu_die "Failed to execute OAuth refresh request"
+  
+  local z_code
+  z_code=$(<"${z_token_code}") || bcu_die "Failed to read OAuth response code"
+  
+  if [ "${z_code}" != "200" ]; then
+    local z_error_desc
+    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' "${z_token_response}" 2>/dev/null || echo "HTTP ${z_code}")
+    if [ "${z_code}" = "400" ] || [ "${z_code}" = "401" ]; then
+      bcu_die "OAuth credentials expired or invalid - run rbgp_payor_oauth_refresh: ${z_error_desc}"
+    else
+      bcu_die "OAuth token refresh failed: ${z_error_desc}"
+    fi
+  fi
+  
+  local z_access_token
+  z_access_token=$(jq -r '.access_token // empty' "${z_token_response}" 2>/dev/null) || bcu_die "Failed to extract access token"
+  test -n "${z_access_token}" || bcu_die "OAuth response missing access_token"
+  
+  echo "${z_access_token}"
+}
+
+zrbgp_depot_list_update() {
+  zrbgp_sentinel
+
+  bcu_log_args "Updating depot project tracking in RBRP configuration"
+  
+  # Get OAuth access token
+  local z_access_token
+  z_access_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to authenticate for depot list update"
+  
+  # Query active depot projects
+  local z_filter="projectId:rbw-depot-* AND lifecycleState:ACTIVE"
+  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects?filter=${z_filter// /%20}"
+  rbgu_http_json "GET" "${z_list_url}" "${z_access_token}" "depot_list_tracking"
+  rbgu_http_require_ok "Query depot projects" "depot_list_tracking" || bcu_die "Failed to query depot projects"
+  
+  # Extract and validate depot project IDs
+  local z_depot_ids=""
+  local z_project_count
+  z_project_count=$(rbgu_json_field_capture "depot_list_tracking" '.projects // [] | length') || z_project_count=0
+  
+  if [ "${z_project_count}" -gt 0 ]; then
+    local z_index=0
+    while [ "${z_index}" -lt "${z_project_count}" ]; do
+      local z_project_id
+      z_project_id=$(rbgu_json_field_capture "depot_list_tracking" ".projects[${z_index}].projectId") || continue
+      
+      # Validate depot project ID pattern
+      if printf '%s' "${z_project_id}" | grep -qE '^rbw-[a-z0-9-]+-[0-9]{12}$'; then
+        z_depot_ids="${z_depot_ids} ${z_project_id}"
+      else
+        bcu_log_args "Warning: Skipping project with invalid depot pattern: ${z_project_id}"
+      fi
+      
+      z_index=$((z_index + 1))
+    done
+  fi
+  
+  # Update RBRP configuration
+  # Note: This would normally update rbrp.env file
+  # For now, we'll export to environment and log the result
+  export RBRP_DEPOT_PROJECT_IDS="${z_depot_ids# }"
+  
+  bcu_log_args "Updated RBRP_DEPOT_PROJECT_IDS: '${RBRP_DEPOT_PROJECT_IDS}'"
+  bcu_log_args "Found ${z_project_count} depot projects, ${z_depot_ids:+ $(($(printf '%s' "${z_depot_ids}" | wc -w))):+0} valid"
+  
+  return 0
+}
+
+######################################################################
 # External Functions (rbgp_*)
 
 zrbgp_billing_attach() {
@@ -433,7 +552,7 @@ rbgp_depot_create() {
   # Validate region exists in Artifact Registry locations
   bcu_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor for region validation"
+  z_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to authenticate as Payor for region validation"
   
   local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
@@ -447,16 +566,12 @@ rbgp_depot_create() {
   fi
 
   bcu_step 'Authenticate as Payor'
-  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
-  test -f "${RBRP_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRP_PAYOR_RBRA_FILE}"
-  
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
   test -n "${RBRP_BILLING_ACCOUNT_ID:-}" || bcu_die "RBRP_BILLING_ACCOUNT_ID is not set"
-  test -n "${RBRP_PARENT_TYPE:-}" || bcu_die "RBRP_PARENT_TYPE is not set"
-  test -n "${RBRP_PARENT_ID:-}" || bcu_die "RBRP_PARENT_ID is not set"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
   
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
 
   bcu_step 'Generate depot project ID'
   local z_timestamp
@@ -471,20 +586,15 @@ rbgp_depot_create() {
 
   bcu_step 'Create depot project'
   local z_create_project_body="${BDU_TEMP_DIR}/rbgp_create_project.json"
-  local z_parent_resource=""
   
-  if [ "${RBRP_PARENT_TYPE}" != "none" ]; then
-    z_parent_resource="${RBRP_PARENT_TYPE}s/${RBRP_PARENT_ID}"
-  fi
-  
+  # OAuth users create projects without parent (per MPCR)
   jq -n \
     --arg projectId "${z_depot_project_id}" \
     --arg displayName "RB Depot ${z_depot_name}" \
-    --arg parent "${z_parent_resource}" \
     '{
       projectId: $projectId,
       displayName: $displayName
-    } + (if $parent != "" then {parent: $parent} else {} end)' > "${z_create_project_body}" || bcu_die "Failed to build project creation body"
+    }' > "${z_create_project_body}" || bcu_die "Failed to build project creation body"
 
   local z_create_project_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
   rbgu_http_json_lro_ok \
@@ -628,6 +738,9 @@ rbgp_depot_create() {
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
+  bcu_step 'Update depot tracking'
+  zrbgp_depot_list_update || bcu_die "Failed to update depot tracking after creation"
+
   # Display Depot Configuration
   bcu_step 'Display depot configuration'
   bcu_success 'Depot creation successful'
@@ -683,11 +796,11 @@ rbgp_depot_destroy() {
   bcu_info ""
 
   bcu_step 'Authenticate as Payor'
-  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
-  test -f "${RBRP_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRP_PAYOR_RBRA_FILE}"
+  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
   
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
 
   bcu_step 'Validate target depot'
   test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
@@ -789,6 +902,9 @@ rbgp_depot_destroy() {
     bcu_log_args "Warning: Could not immediately stop billing (normal if deletion already in progress)"
   fi
 
+  bcu_step 'Update depot tracking'
+  zrbgp_depot_list_update || bcu_log_args "Warning: Failed to update depot tracking after deletion"
+
   # Success
   bcu_success "Depot ${z_depot_project_id} successfully marked for deletion"
   bcu_info "Project Status: DELETE_REQUESTED"
@@ -804,11 +920,11 @@ rbgp_depot_list() {
   bcu_doc_shown || return 0
 
   bcu_step 'Authenticate as Payor'
-  test -n "${RBRP_PAYOR_RBRA_FILE:-}" || bcu_die "RBRP_PAYOR_RBRA_FILE is not set"
-  test -f "${RBRP_PAYOR_RBRA_FILE}" || bcu_die "Payor RBRA file not found: ${RBRP_PAYOR_RBRA_FILE}"
+  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
   
   local z_token
-  z_token=$(rbgu_authenticate_role_capture "${RBRP_PAYOR_RBRA_FILE}") || bcu_die "Failed to authenticate as Payor"
+  z_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
 
   bcu_step 'Query depot projects'
   local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
@@ -884,6 +1000,43 @@ rbgp_depot_list() {
     bcu_info "Note: BROKEN depots may have missing resources (Mason SA, repository, or bucket)"
     bcu_info "Consider investigating broken depots or destroying them if no longer needed"
   fi
+}
+
+rbgp_payor_oauth_refresh() {
+  zrbgp_sentinel
+
+  bcu_doc_brief "Refresh expired OAuth credentials following RBAGS manual procedure"
+  bcu_doc_lines "Use this when OAuth tokens expire after 6 months or are compromised"
+  bcu_doc_lines "Requires downloading new OAuth JSON from Google Cloud Console"
+  bcu_doc_shown || return 0
+
+  bcu_step 'Display OAuth refresh procedure'
+  bcu_info ""
+  bcu_info "=== Manual Payor OAuth Refresh Procedure ==="
+  bcu_info ""
+  bcu_info "OAuth credentials need to be refreshed. Follow these steps:"
+  bcu_info ""
+  bcu_info "1. Navigate to APIs & Services > Credentials in Payor Project"
+  bcu_info "   Console URL: https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  bcu_info ""
+  bcu_info "2. Find existing 'Recipe Bottle Payor' OAuth client"
+  bcu_info ""  
+  bcu_info "3. Download new JSON credentials:"
+  bcu_info "   - Click the download icon next to the OAuth client"
+  bcu_info "   - Or regenerate client secret if compromised"
+  bcu_info ""
+  bcu_info "4. Save as timestamped file:"
+  bcu_info "   - Example: payor-oauth-$(date +%Y%m%d).json"
+  bcu_info ""
+  bcu_info "5. Run installation command with new JSON:"
+  bcu_info "   rbgp_payor_install /path/to/payor-oauth-[timestamp].json"
+  bcu_info ""
+  bcu_info "This will regenerate OAuth credentials and update RBRO file."
+  bcu_info ""
+  
+  bcu_success "OAuth refresh procedure displayed"
+  bcu_info "Note: OAuth refresh tokens expire after 6 months of non-use in testing mode"
+  bcu_info "Any successful payor operation resets the 6-month timer"
 }
 
 # eof
