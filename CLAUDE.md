@@ -82,6 +82,7 @@ Full read and edit access is pre-approved for all files in:
 - **TITL**    → `wrs-TITL-TestInfrastructureTaskLens.claudex`
 - **TLG**     → `wrs-TLG-TaskLensGuide.md`
 - **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
+- **GADS**    → `gad-GADS-GoogleAsciidocDifferSpecification.adoc`
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
