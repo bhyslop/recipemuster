@@ -516,5 +516,153 @@ rbgu_extract_json_to_rbra() {
   bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
 }
 
+######################################################################
+# RBTOE Pattern Functions
+
+# RBTOE: API Enable Pattern
+# Ensures a specified Google Cloud API is enabled in a project with idempotent behavior
+rbgu_api_enable() {
+  zrbgu_sentinel
+  
+  local z_api_service="${1}"
+  local z_project_id="${2}"
+  local z_token="${3}"
+  
+  test -n "${z_api_service}" || bcu_die "rbgu_api_enable: API service name required"
+  test -n "${z_project_id}" || bcu_die "rbgu_api_enable: project ID required"
+  test -n "${z_token}" || bcu_die "rbgu_api_enable: access token required"
+  
+  bcu_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
+  
+  local z_infix="api-enable-${z_api_service}"
+  local z_enable_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:enable"
+  
+  # Attempt to enable the API
+  rbgu_http_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
+  
+  local z_code
+  z_code=$(rbgu_http_code_capture "${z_infix}") || bcu_die "rbgu_api_enable: failed to read HTTP code"
+  
+  case "${z_code}" in
+    200|201|204) 
+      bcu_log_args "API enable request successful (HTTP ${z_code})"
+      ;;
+    400)
+      # Check if already enabled
+      local z_err
+      z_err=$(rbgu_error_message_capture "${z_infix}") || z_err="Unknown error"
+      if [[ "${z_err}" =~ already.enabled ]] || [[ "${z_err}" =~ "already enabled" ]]; then
+        bcu_log_args "API ${z_api_service} already enabled"
+        return 0
+      else
+        bcu_die "rbgu_api_enable (HTTP ${z_code}): ${z_err}"
+      fi
+      ;;
+    *)
+      local z_err
+      z_err=$(rbgu_error_message_capture "${z_infix}") || z_err="Unknown error"
+      bcu_die "rbgu_api_enable (HTTP ${z_code}): ${z_err}"
+      ;;
+  esac
+  
+  # Check if this returned an LRO that needs polling
+  local z_operation_name
+  z_operation_name=$(rbgu_json_field_capture "${z_infix}" ".name") || z_operation_name=""
+  
+  if [ -n "${z_operation_name}" ]; then
+    bcu_log_args "API enable returned LRO, polling for completion"
+    # Use the LRO polling mechanism
+    local z_poll_root="https://serviceusage.googleapis.com/v1"
+    rbgu_http_json_lro_ok \
+      "API Enable ${z_api_service}" \
+      "${z_token}" \
+      "${z_enable_url}" \
+      "${z_infix}" \
+      "" \
+      ".name" \
+      "${z_poll_root}" \
+      ""
+  fi
+  
+  # Verify API is enabled
+  local z_verify_infix="api-verify-${z_api_service}"
+  local z_verify_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com"
+  
+  rbgu_http_json "GET" "${z_verify_url}" "${z_token}" "${z_verify_infix}" ""
+  rbgu_http_require_ok "API Enable Verify ${z_api_service}" "${z_verify_infix}"
+  
+  local z_state
+  z_state=$(rbgu_json_field_capture "${z_verify_infix}" ".state") || bcu_die "Failed to read API state"
+  
+  if [ "${z_state}" != "ENABLED" ]; then
+    bcu_die "API ${z_api_service} not enabled after request (state: ${z_state})"
+  fi
+  
+  bcu_log_args "API ${z_api_service} confirmed enabled"
+}
+
+# RBTOE: RBRA Load Pattern
+# Sources an RBRA file and validates required fields
+rbgu_rbra_load() {
+  zrbgu_sentinel
+  
+  local z_rbra_file="${1}"
+  
+  test -n "${z_rbra_file}" || bcu_die "rbgu_rbra_load: RBRA file path required"
+  test -f "${z_rbra_file}" || bcu_die "rbgu_rbra_load: RBRA file not found: ${z_rbra_file}"
+  
+  bcu_log_args "Loading and validating RBRA credentials from ${z_rbra_file}"
+  
+  # Source the RBRA file
+  # shellcheck source=/dev/null
+  source "${z_rbra_file}" || bcu_die "rbgu_rbra_load: failed to source RBRA file"
+  
+  # Validate required fields
+  test -n "${RBRA_CLIENT_EMAIL:-}" || bcu_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL missing from ${z_rbra_file}"
+  test -n "${RBRA_PRIVATE_KEY:-}" || bcu_die "rbgu_rbra_load: RBRA_PRIVATE_KEY missing from ${z_rbra_file}"
+  test -n "${RBRA_PROJECT_ID:-}" || bcu_die "rbgu_rbra_load: RBRA_PROJECT_ID missing from ${z_rbra_file}"
+  
+  # Check for null values
+  test "${RBRA_CLIENT_EMAIL}" != "null" || bcu_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL is null in ${z_rbra_file}"
+  test "${RBRA_PRIVATE_KEY}" != "null" || bcu_die "rbgu_rbra_load: RBRA_PRIVATE_KEY is null in ${z_rbra_file}"
+  test "${RBRA_PROJECT_ID}" != "null" || bcu_die "rbgu_rbra_load: RBRA_PROJECT_ID is null in ${z_rbra_file}"
+  
+  bcu_log_args "RBRA validation successful: ${RBRA_CLIENT_EMAIL} in project ${RBRA_PROJECT_ID}"
+}
+
+# RBTOE: RBRO Load Pattern
+# Loads and validates RBRO credentials
+rbgu_rbro_load() {
+  zrbgu_sentinel
+  
+  local z_rbro_dir="${HOME}/.rbw"
+  local z_rbro_file="${z_rbro_dir}/rbro.env"
+  
+  bcu_log_args "Loading RBRO OAuth credentials"
+  
+  # Check directory exists
+  test -d "${z_rbro_dir}" || bcu_die "RBRO directory missing - run rbgp_payor_install"
+  
+  # Check file exists
+  test -f "${z_rbro_file}" || bcu_die "RBRO credentials missing - run rbgp_payor_install"
+  
+  # Check file permissions
+  local z_perms
+  z_perms=$(stat -c %a "${z_rbro_file}" 2>/dev/null) || bcu_die "Failed to check RBRO file permissions"
+  if [ "${z_perms}" != "600" ]; then
+    bcu_warn "RBRO file permissions should be 600, found ${z_perms}"
+  fi
+  
+  # Source RBRO credentials
+  # shellcheck source=/dev/null
+  source "${z_rbro_file}" || bcu_die "Failed to source RBRO credentials"
+  
+  # Validate required fields
+  test -n "${RBRO_CLIENT_SECRET:-}" || bcu_die "RBRO_CLIENT_SECRET missing from ${z_rbro_file}"
+  test -n "${RBRO_REFRESH_TOKEN:-}" || bcu_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
+  
+  bcu_log_args "RBRO validation successful"
+}
+
 # eof
 
