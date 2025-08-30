@@ -83,6 +83,7 @@ Full read and edit access is pre-approved for all files in:
 - **TLG**     → `wrs-TLG-TaskLensGuide.md`
 - **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
 - **GADS**    → `gad-GADS-GoogleAsciidocDifferSpecification.adoc`
+- **GADP**    → `gad-GADP-GoogleAsciidocDifferPlanner.md`
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
