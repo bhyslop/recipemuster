@@ -64,7 +64,7 @@ zrbgp_sentinel() {
 ######################################################################
 # OAuth Authentication Functions (zrbgp_oauth_*)
 
-zrbgp_oauth_refresh_exchange_capture() {
+zrbgp_refresh_capture() {
   zrbgp_sentinel
 
   bcu_log_args "Loading RBRO credentials for OAuth token refresh"
@@ -134,7 +134,7 @@ zrbgp_oauth_refresh_exchange_capture() {
 
 # RBTOE: Payor OAuth Authentication Pattern
 # Establishes Payor OAuth context by loading RBRO credentials and obtaining access token
-rbgp_payor_oauth_authenticate_capture() {
+zrbgp_authenticate_capture() {
   zrbgp_sentinel
   
   bcu_log_args "Establishing Payor OAuth authentication context"
@@ -147,7 +147,7 @@ rbgp_payor_oauth_authenticate_capture() {
   
   # Exchange refresh token for access token
   local z_access_token
-  z_access_token=$(zrbgp_oauth_refresh_exchange_capture) || bcu_die "Failed to exchange OAuth refresh token"
+  z_access_token=$(zrbgp_refresh_capture) || bcu_die "Failed to exchange OAuth refresh token"
   
   test -n "${z_access_token}" || bcu_die "Empty access token from OAuth exchange"
   
@@ -162,7 +162,7 @@ zrbgp_depot_list_update() {
   
   # Get OAuth access token
   local z_access_token
-  z_access_token=$(rbgp_payor_oauth_authenticate_capture) || bcu_die "Failed to authenticate for depot list update"
+  z_access_token=$(zrbgp_authenticate_capture) || bcu_die "Failed to authenticate for depot list update"
   
   # Query active depot projects
   local z_filter="projectId:rbw-depot-* AND lifecycleState:ACTIVE"
@@ -520,7 +520,7 @@ EOF
   
   bcu_step 'Test OAuth authentication'
   local z_access_token
-  z_access_token=$(rbgp_payor_oauth_authenticate_capture) || bcu_die "Failed to test OAuth authentication"
+  z_access_token=$(zrbgp_authenticate_capture) || bcu_die "Failed to test OAuth authentication"
   test -n "${z_access_token}" || bcu_die "OAuth authentication test returned empty token"
   
   bcu_step 'Verify payor project access'
@@ -575,7 +575,7 @@ rbgp_depot_create() {
   # Validate region exists in Artifact Registry locations
   bcu_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
-  z_token=$(rbgp_payor_oauth_authenticate_capture) || bcu_die "Failed to authenticate as Payor for region validation"
+  z_token=$(zrbgp_authenticate_capture) || bcu_die "Failed to authenticate as Payor for region validation"
   
   local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
@@ -594,7 +594,7 @@ rbgp_depot_create() {
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
   
   local z_token
-  z_token=$(rbgp_payor_oauth_authenticate_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
+  z_token=$(zrbgp_authenticate_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
 
   bcu_step 'Generate depot project ID'
   local z_timestamp
@@ -809,7 +809,7 @@ rbgp_depot_destroy() {
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
   
   local z_token
-  z_token=$(rbgp_payor_oauth_authenticate_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
+  z_token=$(zrbgp_authenticate_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
 
   bcu_step 'Validate target depot'
   test -n "${z_depot_project_id}" || bcu_die "Depot project ID required as first argument"
@@ -930,10 +930,10 @@ rbgp_depot_list() {
 
   bcu_step 'Authenticate as Payor'
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || bcu_die "RBRP_PAYOR_PROJECT_ID is not set"
-  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}"  || bcu_die "RBRP_OAUTH_CLIENT_ID is not set"
   
   local z_token
-  z_token=$(rbgp_payor_oauth_authenticate_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
+  z_token=$(zrbgp_authenticate_capture) || bcu_die "Failed to authenticate as Payor via OAuth"
 
   bcu_step 'Query depot projects'
   local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
