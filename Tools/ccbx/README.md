@@ -108,12 +108,8 @@ claude-code status
 
 The container includes various development and HTML processing tools:
 
-### HTML Processing
-- **diff-dom** - DOM tree diffing for HTML comparison
-- **html-minifier** - HTML minification
-- **prettier** - Code formatting
-- **htmlhint** - HTML validation
-- **tidy** - Classic HTML formatter
+### Python HTML Processing
+- **beautifulsoup4** - HTML parsing and manipulation library
 
 ### Documentation
 - **asciidoctor** - AsciiDoc to HTML/PDF processing

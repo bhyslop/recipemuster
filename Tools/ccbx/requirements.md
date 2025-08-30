@@ -39,6 +39,7 @@ The following utilities are installed in the container based on the specific req
 
 #### Python
 - **python3** - Python 3.12.3 (default in Ubuntu 24.04)
+- **python3-pip** - Python package installer
 - **python-is-python3** - Optional symlink for /usr/bin/python compatibility
 
 #### Documentation Tools
@@ -47,12 +48,8 @@ The following utilities are installed in the container based on the specific req
 - **build-essential** - Compiler toolchain for building Ruby native extensions
 - **asciidoctor** - Modern AsciiDoc to HTML/PDF processor (installed via gem)
 
-#### HTML Processing Tools
-- **tidy** - Classic HTML formatter and validator
-- **html-minifier** - Node.js-based HTML minification tool (installed via npm)
-- **prettier** - Multi-language code formatter with HTML support (installed via npm)
-- **htmlhint** - HTML linter for validation (installed via npm)
-- **diff-dom** - DOM tree diffing for HTML comparison (installed via npm)
+#### Python HTML Processing
+- **beautifulsoup4** - Python HTML parsing and manipulation library (installed via pip)
 
 Note: Python 3.11 specifically is not available in Ubuntu 24.04 default repositories at this time.
 
