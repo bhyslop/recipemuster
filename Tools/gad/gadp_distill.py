@@ -170,6 +170,14 @@ def create_error_html(error_message, source_dir):
 </body>
 </html>"""
 
+def calculate_distinct_count(commits):
+    """Calculate count of unique SHA256 values in commits."""
+    sha256_values = set()
+    for commit in commits:
+        if "html_sha256" in commit:
+            sha256_values.add(commit["html_sha256"])
+    return len(sha256_values)
+
 def load_manifest(manifest_path):
     """Load existing manifest or create new structure."""
     if manifest_path.exists():
@@ -179,10 +187,16 @@ def load_manifest(manifest_path):
         except (json.JSONDecodeError, IOError):
             gadp_fail(f"Failed to parse existing manifest: {manifest_path}")
     
-    return {"branch": "", "asciidoc": "", "commits": []}
+    return {
+        "branch": "", 
+        "asciidoc": "", 
+        "distinct_sha256_count": 0,
+        "last_processed_hash": "",
+        "commits": []
+    }
 
 def update_manifest(manifest_path, branch, asciidoc_filename, commit_data):
-    """Update manifest with new commit entry."""
+    """Update manifest with new commit entry and state tracking fields."""
     manifest = load_manifest(manifest_path)
     
     # Update top-level fields
@@ -191,6 +205,11 @@ def update_manifest(manifest_path, branch, asciidoc_filename, commit_data):
     
     # Add new commit entry
     manifest["commits"].append(commit_data)
+    
+    # Update distinct SHA256 count
+    manifest["distinct_sha256_count"] = calculate_distinct_count(manifest["commits"])
+    
+    # Note: last_processed_hash is managed by factory, not distill
     
     # Write updated manifest
     with open(manifest_path, 'w') as f:

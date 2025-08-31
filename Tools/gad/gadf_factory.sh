@@ -37,7 +37,7 @@ gadf_fail() {
 gadf_adoc_filename=""
 gadf_directory=""
 gadf_branch="main"
-gadf_since_days="7"
+gadf_max_unique_commits="5"
 gadf_once="false"
 
 while [[ $# -gt 0 ]]; do
@@ -57,10 +57,10 @@ while [[ $# -gt 0 ]]; do
             test -n "${gadf_branch}" || gadf_fail "Error: --branch requires a branch name"
             shift 2
             ;;
-        --since-days)
-            gadf_since_days="${2:-}"
-            test -n "${gadf_since_days}" || gadf_fail "Error: --since-days requires a number"
-            [[ "${gadf_since_days}" =~ ^[0-9]+$ ]] || gadf_fail "Error: --since-days must be a positive number"
+        --max-unique-commits)
+            gadf_max_unique_commits="${2:-}"
+            test -n "${gadf_max_unique_commits}" || gadf_fail "Error: --max-unique-commits requires a number"
+            [[ "${gadf_max_unique_commits}" =~ ^[0-9]+$ ]] || gadf_fail "Error: --max-unique-commits must be a positive number"
             shift 2
             ;;
         --once)
@@ -68,7 +68,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         *)
-            gadf_fail "Error: Unknown argument '${1}'. Usage: --file <filename> --directory <path> [--branch <name>] [--since-days <number>] [--once]"
+            gadf_fail "Error: Unknown argument '${1}'. Usage: --file <filename> --directory <path> [--branch <name>] [--max-unique-commits <number>] [--once]"
             ;;
     esac
 done
@@ -110,87 +110,140 @@ gadf_adoc_relpath="${gadf_adoc_filename#${gadf_repo_dir}/}"
 gadf_extract_dir="${gadf_directory}/.factory-extract"
 gadf_distill_dir="${gadf_directory}/.factory-distill"
 gadf_output_dir="${gadf_directory}/output"
-gadf_memory_file="${gadf_directory}/.factory-state"
+gadf_manifest_file="${gadf_output_dir}/manifest.json"
 
 gadf_step "Creating GAD directory structure"
 mkdir -p "${gadf_extract_dir}" "${gadf_distill_dir}" "${gadf_output_dir}"
+
+# Delete existing manifest if present (ensures fresh start)
+if [[ -f "${gadf_manifest_file}" ]]; then
+    gadf_step "Deleting existing manifest for fresh start"
+    rm -f "${gadf_manifest_file}"
+fi
 
 # Clean workspace per single-threaded premise
 gadf_step "Cleaning workspace"
 rm -rf "${gadf_extract_dir:?}"/* "${gadf_distill_dir:?}"/* 2>/dev/null || true
 
-# Read last processed commit
-gadf_last_commit=""
-if [[ -f "${gadf_memory_file}" ]]; then
-    gadf_last_commit="$(cat "${gadf_memory_file}")"
-fi
-
-gadf_step "Discovering commits on branch '${gadf_branch}' since ${gadf_since_days} days ago"
-
-# Get commit list since last processed commit or since-days
-gadf_commit_args=()
-if [[ -n "${gadf_last_commit}" ]]; then
-    gadf_commit_args=("${gadf_last_commit}..${gadf_branch}")
-else
-    gadf_commit_args=("--since=${gadf_since_days} days ago" "${gadf_branch}")
-fi
-
-# Get commits in reverse order (oldest first for processing)
-mapfile -t gadf_commits < <(git log --reverse --format="%H" "${gadf_commit_args[@]}")
-
-if [[ ${#gadf_commits[@]} -eq 0 ]]; then
-    gadf_step "No new commits to process"
-    exit 0
-fi
-
-gadf_step "Processing ${#gadf_commits[@]} commits"
-
-# Process each commit
-for gadf_commit in "${gadf_commits[@]}"; do
-    gadf_step "Processing commit ${gadf_commit:0:8}"
+# Factory render sequence function
+gadf_render() {
+    local commit_hash="${1}"
+    
+    gadf_step "Executing render sequence for commit ${commit_hash:0:8}"
     
     # Clean temporary directories
     rm -rf "${gadf_extract_dir:?}"/* "${gadf_distill_dir:?}"/* 2>/dev/null || true
     
     # Extract commit files via git archive
-    git archive "${gadf_commit}" | tar -xf - -C "${gadf_extract_dir}" || gadf_fail "Failed to extract commit ${gadf_commit}"
+    git archive "${commit_hash}" | tar -xf - -C "${gadf_extract_dir}" || gadf_fail "Failed to extract commit ${commit_hash}"
     
     # Check if AsciiDoc file exists in this commit
     gadf_extracted_adoc="${gadf_extract_dir}/${gadf_adoc_relpath}"
     if [[ ! -f "${gadf_extracted_adoc}" ]]; then
-        gadf_warn "AsciiDoc file '${gadf_adoc_relpath}' not found in commit ${gadf_commit}, skipping"
-        continue
+        gadf_warn "AsciiDoc file '${gadf_adoc_relpath}' not found in commit ${commit_hash}, skipping"
+        return
     fi
     
     # Run asciidoctor
-    gadf_step "Running asciidoctor on ${gadf_adoc_filename}"
-    asciidoctor -a reproducible "${gadf_extracted_adoc}" -D "${gadf_distill_dir}" || gadf_fail "Asciidoctor failed for commit ${gadf_commit}"
+    gadf_step "Running asciidoctor"
+    asciidoctor -a reproducible "${gadf_extracted_adoc}" -D "${gadf_distill_dir}" || gadf_fail "Asciidoctor failed for commit ${commit_hash}"
     
     # Get commit metadata
-    gadf_commit_timestamp="$(git log -1 --format="%cd" --date=format:"%Y%m%d%H%M%S" "${gadf_commit}")"
-    gadf_commit_message="$(git log -1 --format="%s" "${gadf_commit}")"
+    gadf_commit_timestamp="$(git log -1 --format="%cd" --date=format:"%Y%m%d%H%M%S" "${commit_hash}")"
+    gadf_commit_message="$(git log -1 --format="%s" "${commit_hash}")"
     
-    # Call Python distill with AsciiDoc filename
-    gadf_step "Distilling HTML for commit ${gadf_commit:0:8}"
+    # Call Python distill
+    gadf_step "Running distill script"
     python "${gadf_distill_script}" \
         "${gadf_distill_dir}" \
         "${gadf_output_dir}" \
         "${gadf_branch}" \
-        "${gadf_commit}" \
+        "${commit_hash}" \
         "${gadf_commit_timestamp}" \
         "${gadf_commit_message}" \
         "${gadf_adoc_filename}" \
-        || gadf_fail "Python distill failed for commit ${gadf_commit}"
-    
-    # Update memory file
-    echo -n "${gadf_commit}" > "${gadf_memory_file}"
-    
-    # Exit after first commit if --once specified
-    if [[ "${gadf_once:-false}" == "true" ]]; then
-        gadf_step "Exiting after single commit (--once mode)"
-        break
+        || gadf_fail "Python distill failed for commit ${commit_hash}"
+}
+
+# Read distinct count from manifest using jq
+get_distinct_count() {
+    if [[ -f "${gadf_manifest_file}" ]] && command -v jq >/dev/null 2>&1; then
+        jq -r '.distinct_sha256_count // 0' "${gadf_manifest_file}" 2>/dev/null || echo "0"
+    else
+        echo "0"
     fi
-done
+}
+
+# Read last processed hash from manifest using jq
+get_last_processed() {
+    if [[ -f "${gadf_manifest_file}" ]] && command -v jq >/dev/null 2>&1; then
+        jq -r '.last_processed_hash // ""' "${gadf_manifest_file}" 2>/dev/null || echo ""
+    else
+        echo ""
+    fi
+}
+
+# Set last processed hash in manifest using jq
+set_last_processed() {
+    local new_hash="${1}"
+    if [[ -f "${gadf_manifest_file}" ]] && command -v jq >/dev/null 2>&1; then
+        local temp_file="$(mktemp)"
+        jq --arg hash "${new_hash}" '.last_processed_hash = $hash' "${gadf_manifest_file}" > "${temp_file}" && mv "${temp_file}" "${gadf_manifest_file}"
+    fi
+}
+
+# Initial population: process commits backwards from HEAD until distinct count reaches max
+gadf_step "Starting initial population"
+gadf_head_commit="$(git rev-parse "${gadf_branch}")"
+
+while IFS= read -r commit_hash; do
+    # Check if AsciiDoc file exists in this commit
+    if git show "${commit_hash}:${gadf_adoc_relpath}" >/dev/null 2>&1; then
+        # Execute render sequence
+        gadf_render "${commit_hash}"
+        
+        # Check distinct count
+        current_count="$(get_distinct_count)"
+        gadf_step "Current distinct count: ${current_count}"
+        
+        if [[ "${current_count}" -ge "${gadf_max_unique_commits}" ]]; then
+            gadf_step "Reached maximum unique commits (${gadf_max_unique_commits})"
+            break
+        fi
+    fi
+done < <(git log --format="%H" "${gadf_branch}" -100)
+
+# Set last processed hash to HEAD
+set_last_processed "${gadf_head_commit}"
+
+# Incremental watch mode (unless --once is specified)
+if [[ "${gadf_once:-false}" != "true" ]]; then
+    gadf_step "Entering incremental watch mode (polling every 3 seconds)"
+    
+    while true; do
+        sleep 3
+        
+        # Get current HEAD and last processed
+        current_head="$(git rev-parse "${gadf_branch}")"
+        last_processed="$(get_last_processed)"
+        
+        if [[ -n "${last_processed}" && "${current_head}" != "${last_processed}" ]]; then
+            gadf_step "Detected new commits beyond ${last_processed:0:8}"
+            
+            # Process each new commit
+            while IFS= read -r commit_hash; do
+                if [[ -n "${commit_hash}" ]] && git show "${commit_hash}:${gadf_adoc_relpath}" >/dev/null 2>&1; then
+                    gadf_render "${commit_hash}"
+                fi
+            done < <(git log --reverse --format="%H" "${last_processed}..${gadf_branch}")
+            
+            # Update last processed to current HEAD
+            set_last_processed "${current_head}"
+        fi
+    done
+else
+    gadf_step "Once mode: exiting after initial population"
+fi
 
 # Copy inspector to output directory for self-contained results
 gadf_inspector_source="$(dirname "${BASH_SOURCE[0]}")/gadi_inspector.html"
