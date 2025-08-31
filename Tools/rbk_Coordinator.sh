@@ -139,8 +139,13 @@ rbk_route() {
 
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
-      # Run GAD factory in ccbx container with --once flag for debugging
-      rbk_ccbx_connect "cd /workspace/brm_recipemuster && Tools/gad/gadf_factory.sh --once $*"
+      # Run GAD factory in ccbx container with hardcoded parameters
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && Tools/gad/gadf_factory.sh --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --since-days 1 --once"
+      ;;
+    gadcf-l)
+      # Run GAD factory locally (inside container) with hardcoded parameters
+      rbk_show "Running GAD factory locally"
+      Tools/gad/gadf_factory.sh --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --since-days 1 --once
       ;;
     gadi-i)
       # Open GAD inspector in browser (requires factory output)
