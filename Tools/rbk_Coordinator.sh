@@ -140,12 +140,12 @@ rbk_route() {
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
       # Run GAD factory in ccbx container with hardcoded parameters
-      rbk_ccbx_connect "cd /workspace/brm_recipemuster && Tools/gad/gadf_factory.sh --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --since-days 1 --once"
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && Tools/gad/gadf_factory.sh --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --since-days 1 --once"
       ;;
-    gadcf-l)
+    gadcf)
       # Run GAD factory locally (inside container) with hardcoded parameters
       rbk_show "Running GAD factory locally"
-      Tools/gad/gadf_factory.sh --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --since-days 1 --once
+      Tools/gad/gadf_factory.sh --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --since-days 1 --once
       ;;
     gadi-i)
       # Open GAD inspector in browser (requires factory output)
