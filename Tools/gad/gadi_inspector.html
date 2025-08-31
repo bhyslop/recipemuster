@@ -279,9 +279,11 @@
                 this.manifest = null;
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
+                this.eventSource = null;
                 
                 this.initializeElements();
                 this.setupEventListeners();
+                this.setupSSEConnection();
                 this.loadManifest();
             }
             
@@ -334,11 +336,38 @@
                 window.addEventListener('hashchange', () => this.parseUrlHash());
             }
             
+            setupSSEConnection() {
+                traceBuffer.append('[SSE]', 'Setting up Server-Sent Events connection');
+                
+                try {
+                    this.eventSource = new EventSource('/events');
+                    
+                    this.eventSource.addEventListener('connected', (event) => {
+                        traceBuffer.append('[SSE]', 'Connected to Factory SSE stream');
+                    });
+                    
+                    this.eventSource.addEventListener('refresh', (event) => {
+                        traceBuffer.append('[SSE]', 'Received refresh event from Factory');
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'new_commit') {
+                            this.loadManifest();
+                        }
+                    });
+                    
+                    this.eventSource.addEventListener('error', (event) => {
+                        traceBuffer.append('[SSE]', 'SSE connection error - Factory may not be running');
+                    });
+                    
+                } catch (error) {
+                    traceBuffer.append('[SSE]', `Failed to establish SSE connection: ${error.message}`);
+                }
+            }
+
             async loadManifest() {
                 traceBuffer.append('[MANIFEST]', 'Loading start');
                 
                 try {
-                    const response = await fetch('manifest.json');
+                    const response = await fetch('/output/manifest.json');
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
@@ -353,7 +382,7 @@
                     traceBuffer.append('[MANIFEST]', `Load failure: ${error.message}`);
                     this.elements.renderedPane.innerHTML = `
                         <div class="error">
-                            <h3>Failed to load manifest.json</h3>
+                            <h3>Failed to load /output/manifest.json</h3>
                             <p>${error.message}</p>
                         </div>
                     `;
@@ -504,8 +533,8 @@
                 
                 try {
                     const [fromResponse, toResponse] = await Promise.all([
-                        fetch(fromCommit.html_file),
-                        fetch(toCommit.html_file)
+                        fetch(`/output/${fromCommit.html_file}`),
+                        fetch(`/output/${toCommit.html_file}`)
                     ]);
                     
                     if (!fromResponse.ok || !toResponse.ok) {

@@ -60,9 +60,8 @@ Full read and edit access is pre-approved for all files in:
 - **BDU**  → `bdu_BashDispatchUtility.sh`
 - **BTU**  → `btu_BashTestUtility.sh`
 - **BVU**  → `bvu_BashValidationUtility.sh`
-- **GADF** → `gad/gadf_factory.sh`
+- **GADF** → `gad/gadf_factory.py`
 - **GADI** → `gad/gadi_inspector.html`
-- **GADP** → `gad/gadp_distill.py`
 
 ### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
 - **ANCIENT** → `a-roe-ANCIENT.md`
