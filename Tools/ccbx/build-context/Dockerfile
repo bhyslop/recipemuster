@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y                                        
     python3             `# Python 3.12.3 (default in Ubuntu 24.04)`                      \
     python3-pip         `# Python package installer`                                     \
     python-is-python3   `# Optional symlink for /usr/bin/python compatibility`           \
+    python3-bs4         `# HTML parsing and manipulation library (BeautifulSoup via apt)`\
     ruby                `# Required for Asciidoctor`                                     \
     ruby-dev            `# Ruby development headers for native extensions`               \
     build-essential     `# Compiler tools for Ruby native extensions`                    \
@@ -28,10 +29,6 @@ RUN gem install                                                                 
     asciidoctor         `# Modern AsciiDoc processor`                                    \
     asciidoctor-pdf     `# PDF generation from AsciiDoc`                                 \
     && gem cleanup
-
-# Install Python HTML processing library
-RUN pip3 install --no-cache-dir                                                         \
-    beautifulsoup4      `# HTML parsing and manipulation library`
 
 # Create non-root user with configurable UID/GID
 # Ubuntu 24.04 has ubuntu:1000:1000 by default, so we reuse or override
