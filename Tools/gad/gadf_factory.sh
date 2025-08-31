@@ -81,6 +81,10 @@ test -n "${gadf_directory}" || gadf_fail "Error: --directory is required"
 gadf_adoc_filename="$(realpath "${gadf_adoc_filename}")"
 gadf_directory="$(realpath "${gadf_directory}" 2>/dev/null || echo "$(pwd)/${gadf_directory}")"
 
+# Capture absolute path to distill script before changing directories
+gadf_script_dir="$(dirname "${BASH_SOURCE[0]}")"
+gadf_distill_script="$(realpath "${gadf_script_dir}/gadp_distill.py")"
+
 # Ensure directory exists (create if needed)
 mkdir -p "${gadf_directory}"
 
@@ -168,7 +172,7 @@ for gadf_commit in "${gadf_commits[@]}"; do
     
     # Call Python distill with AsciiDoc filename
     gadf_step "Distilling HTML for commit ${gadf_commit:0:8}"
-    python "$(dirname "${BASH_SOURCE[0]}")/gadp_distill.py" \
+    python "${gadf_distill_script}" \
         "${gadf_distill_dir}" \
         "${gadf_output_dir}" \
         "${gadf_branch}" \
