@@ -82,6 +82,13 @@ def normalize_text_content(element_copy, original_element):
         if normalized and normalized != content:
             content.replace_with(normalized)
 
+def normalize_list_numbers(soup):
+    """Set all ordered list items to value='1' to eliminate renumbering noise."""
+    for ol in soup.find_all('ol'):
+        for li in ol.find_all('li', recursive=False):
+            li['value'] = '1'
+    return soup
+
 def normalize_html(html_content):
     """Normalize HTML content per GADS whitespace and metadata requirements using safe DOM processing."""
     original_soup = BeautifulSoup(html_content, 'html.parser')
@@ -116,6 +123,9 @@ def normalize_html(html_content):
         normalized = re.sub(r'^(Figure|Table|Listing)\s+\d+[\.:]\s*', '', text)
         if normalized != text:
             element.string = normalized
+    
+    # Normalize ordered list numbers to eliminate renumbering noise
+    new_soup = normalize_list_numbers(new_soup)
     
     # Normalize whitespace in prose contexts using safe processing
     prose_elements = new_soup.find_all(['p', 'li', 'td', 'th', 'div'])
