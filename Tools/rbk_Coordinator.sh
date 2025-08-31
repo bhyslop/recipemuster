@@ -137,6 +137,19 @@ rbk_route() {
       rbk_ccbx_connect "cd /workspace/brm_recipemuster && git status"
       ;;
 
+    # GAD (Git AsciiDoc Diff) commands
+    gadf-f)
+      # Run GAD factory in ccbx container with --once flag for debugging
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && Tools/gad/gadf_factory.sh --once $*"
+      ;;
+    gadi-i)
+      # Open GAD inspector in browser (requires factory output)
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && python3 -m http.server 8080 --directory ./output &" &
+      sleep 2
+      echo "Opening GAD inspector at http://localhost:8080/gadi_inspector.html"
+      echo "Note: Ensure GAD factory has been run first to generate output/"
+      ;;
+
     # Help/documentation commands
     rbw-him)
       rbk_show "Routing to rbf_cli.sh (help)"
