@@ -110,10 +110,16 @@ The service `claudecodebox` requires:
 - Use bridge network named `claude-network`
 - Allow external internet access for API calls
 
-## Security Considerations
+### Port Mapping
+- SSH port: localhost:8888 → container:22 (for Claude Code access)
+- Web port: localhost:8080 → container:8080 (for GAD Factory HTTP server)
+
+## Security Considerations  
 - Container network is internal-only (not exposed beyond host)
 - SSH accessible only via localhost:8888
+- GAD Factory web server accessible only via localhost:8080
 - Passwordless SSH is explicitly required and acceptable given internal-only access - this is a deliberate design choice for friction-free development within the isolated container environment
+- Web server provides CORS-free access to GAD Inspector interface
 - API key stored in ../secrets/CCBX_CLAUDE.env
 
 ## Volume Persistence

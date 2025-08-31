@@ -1,0 +1,675 @@
+#!/usr/bin/env python
+"""
+GAD Factory - Python implementation per GADMCR specification
+
+Copyright 2025 Scale Invariant, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Author: GAD Implementation <generated@scaleinvariant.org>
+"""
+
+import sys
+import os
+import json
+import hashlib
+import re
+import subprocess
+import threading
+import time
+import logging
+import argparse
+from pathlib import Path
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
+from bs4 import BeautifulSoup, Comment
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger(__name__)
+
+def gadfl_step(message):
+    """GADS-compliant step reporting."""
+    logger.info(message)
+
+def gadfl_warn(message):
+    """GADS-compliant warning reporting."""
+    logger.warning(f"\033[33m{message}\033[0m")
+
+def gadfl_fail(message):
+    """GADS-compliant fatal error reporting."""
+    logger.error(f"\033[31m{message}\033[0m")
+    sys.exit(1)
+
+class SSEHandler:
+    """Manages Server-Sent Events connections."""
+    
+    def __init__(self):
+        self.clients = set()
+    
+    def add_client(self, client):
+        self.clients.add(client)
+    
+    def remove_client(self, client):
+        self.clients.discard(client)
+    
+    def broadcast_refresh(self):
+        """Broadcast refresh event to all connected clients."""
+        event_data = 'event: refresh\ndata: {"type": "new_commit"}\n\n'
+        disconnected = set()
+        
+        for client in self.clients:
+            try:
+                client.wfile.write(event_data.encode())
+                client.wfile.flush()
+            except (BrokenPipeError, ConnectionAbortedError, OSError):
+                disconnected.add(client)
+        
+        # Clean up disconnected clients
+        for client in disconnected:
+            self.clients.discard(client)
+
+class GADRequestHandler(SimpleHTTPRequestHandler):
+    """Custom HTTP handler for GAD Factory."""
+    
+    def __init__(self, *args, factory_instance=None, **kwargs):
+        self.factory = factory_instance
+        super().__init__(*args, **kwargs)
+    
+    def do_GET(self):
+        if self.path == '/':
+            # Serve Inspector from source location
+            self.serve_inspector()
+        elif self.path == '/events':
+            # Handle SSE endpoint
+            self.serve_sse()
+        elif self.path.startswith('/output/'):
+            # Serve output files
+            self.serve_output_file()
+        else:
+            # Default handling
+            super().do_GET()
+    
+    def serve_inspector(self):
+        """Serve Inspector HTML from source location."""
+        try:
+            inspector_path = self.factory.inspector_source_path
+            with open(inspector_path, 'rb') as f:
+                content = f.read()
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_error(404, "Inspector not found")
+    
+    def serve_sse(self):
+        """Handle Server-Sent Events endpoint."""
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/event-stream')
+        self.send_header('Cache-Control', 'no-cache')
+        self.send_header('Connection', 'keep-alive')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        
+        # Add client to SSE handler
+        self.factory.sse_handler.add_client(self)
+        
+        # Send initial connection event
+        self.wfile.write(b'event: connected\ndata: {"status": "connected"}\n\n')
+        self.wfile.flush()
+        
+        # Keep connection alive
+        try:
+            while True:
+                time.sleep(30)  # Send heartbeat every 30 seconds
+                self.wfile.write(b'event: heartbeat\ndata: {}\n\n')
+                self.wfile.flush()
+        except (BrokenPipeError, ConnectionAbortedError):
+            self.factory.sse_handler.remove_client(self)
+    
+    def serve_output_file(self):
+        """Serve files from output directory."""
+        # Remove '/output/' prefix and serve from factory output directory
+        file_path = self.path[8:]  # Remove '/output/'
+        full_path = self.factory.output_dir / file_path
+        
+        try:
+            with open(full_path, 'rb') as f:
+                content = f.read()
+            
+            # Determine content type
+            if file_path.endswith('.json'):
+                content_type = 'application/json'
+            elif file_path.endswith('.html'):
+                content_type = 'text/html'
+            else:
+                content_type = 'application/octet-stream'
+            
+            self.send_response(200)
+            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_error(404, f"File not found: {file_path}")
+
+class HTMLNormalizer:
+    """HTML normalization functionality (absorbed from gadp_distill)."""
+    
+    @staticmethod
+    def normalize_whitespace_in_text(text):
+        """Normalize whitespace while preserving block boundaries."""
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r'\n{2,}', '\n', text)
+        text = re.sub(r'(?<=[^\n])\n(?=[^\n])', ' ', text)
+        return text.strip()
+    
+    @staticmethod
+    def should_preserve_whitespace(element):
+        """Check if element should preserve exact whitespace."""
+        if element.name in ['pre', 'code', 'script', 'style']:
+            return True
+        if element.find_parent(['pre', 'code', 'verse']):
+            return True
+        return False
+    
+    @staticmethod
+    def normalize_text_content(element_copy, original_element):
+        """Safely normalize text content in copied element."""
+        if HTMLNormalizer.should_preserve_whitespace(original_element):
+            return
+        
+        text_nodes = []
+        for content in element_copy.descendants:
+            if isinstance(content, str):
+                parent_name = content.parent.name if content.parent else ''
+                if parent_name not in ['pre', 'code', 'script', 'style']:
+                    text_nodes.append(content)
+        
+        for content in text_nodes:
+            normalized = HTMLNormalizer.normalize_whitespace_in_text(content)
+            if normalized and normalized != content:
+                content.replace_with(normalized)
+    
+    @staticmethod
+    def normalize_list_numbers(soup):
+        """Set all ordered list items to value='1'."""
+        for ol in soup.find_all('ol'):
+            for li in ol.find_all('li', recursive=False):
+                li['value'] = '1'
+        return soup
+    
+    @staticmethod
+    def normalize_html(html_content):
+        """Normalize HTML content per GADS specification."""
+        original_soup = BeautifulSoup(html_content, 'html.parser')
+        new_soup = BeautifulSoup(str(original_soup), 'html.parser')
+        
+        # Remove generator meta tags
+        for meta in new_soup.find_all('meta', attrs={'name': 'generator'}):
+            meta.decompose()
+        
+        # Remove build timestamp comments
+        comments = new_soup.find_all(string=lambda text: isinstance(text, Comment))
+        for comment in comments:
+            if any(keyword in comment.lower() for keyword in ['generated', 'timestamp', 'build', 'date']):
+                comment.extract()
+        
+        # Remove host-specific paths
+        for element in new_soup.find_all(True):
+            for attr in ['href', 'src', 'data-uri']:
+                if element.has_attr(attr):
+                    value = element[attr]
+                    if value.startswith('/home/') or value.startswith('/Users/') or value.startswith('C:\\'):
+                        element[attr] = os.path.basename(value)
+        
+        # Remove auto-numbering
+        for element in new_soup.find_all(['figcaption', 'caption']):
+            text = element.get_text()
+            normalized = re.sub(r'^(Figure|Table|Listing)\s+\d+[\.:]\s*', '', text)
+            if normalized != text:
+                element.string = normalized
+        
+        # Normalize list numbers
+        new_soup = HTMLNormalizer.normalize_list_numbers(new_soup)
+        
+        # Normalize whitespace in prose contexts
+        prose_elements = new_soup.find_all(['p', 'li', 'td', 'th', 'div'])
+        for element in prose_elements:
+            original_element = original_soup.find(element.name, attrs=element.attrs)
+            if original_element:
+                HTMLNormalizer.normalize_text_content(element, original_element)
+        
+        # Remove empty elements
+        for element in new_soup.find_all(['p', 'div']):
+            if not element.get_text(strip=True) and not element.find():
+                element.decompose()
+        
+        return str(new_soup)
+
+class GADFactory:
+    """Main GAD Factory class implementing Python Factory architecture."""
+    
+    def __init__(self, adoc_filename, directory, branch='main', max_unique_commits=5, 
+                 once=False, port=8080):
+        self.adoc_filename = Path(adoc_filename).resolve()
+        self.directory = Path(directory).resolve()
+        self.branch = branch
+        self.max_unique_commits = max_unique_commits
+        self.once = once
+        self.port = port
+        
+        # Directory structure
+        self.extract_dir = self.directory / '.factory-extract'
+        self.distill_dir = self.directory / '.factory-distill'
+        self.output_dir = self.directory / 'output'
+        self.manifest_file = self.output_dir / 'manifest.json'
+        
+        # Find repository root
+        self.repo_dir = self.find_git_repo(self.adoc_filename)
+        if not self.repo_dir:
+            gadfl_fail(f"No git repository found for AsciiDoc file '{self.adoc_filename}'")
+        
+        # Inspector source path
+        self.inspector_source_path = Path(__file__).parent / 'gadi_inspector.html'
+        
+        # Relative path from repo root
+        try:
+            self.adoc_relpath = self.adoc_filename.relative_to(self.repo_dir)
+        except ValueError:
+            gadfl_fail(f"AsciiDoc file '{self.adoc_filename}' is not within repository '{self.repo_dir}'")
+        
+        # Initialize components
+        self.sse_handler = SSEHandler()
+        self.manifest = {
+            'branch': self.branch,
+            'asciidoc': str(self.adoc_filename),
+            'distinct_sha256_count': 0,
+            'last_processed_hash': '',
+            'commits': []
+        }
+        
+        # HTTP server
+        self.server = None
+        self.server_thread = None
+    
+    def find_git_repo(self, start_path):
+        """Find git repository root."""
+        current = start_path.parent
+        while current != current.parent:
+            if (current / '.git').exists():
+                return current
+            current = current.parent
+        return None
+    
+    def setup_directories(self):
+        """Create directory structure per GADS specification."""
+        gadfl_step("Creating GAD directory structure")
+        self.extract_dir.mkdir(parents=True, exist_ok=True)
+        self.distill_dir.mkdir(parents=True, exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Clean workspace per single-threaded premise
+        gadfl_step("Cleaning workspace")
+        if self.extract_dir.exists():
+            subprocess.run(['rm', '-rf', str(self.extract_dir / '*')], shell=True)
+        if self.distill_dir.exists():
+            subprocess.run(['rm', '-rf', str(self.distill_dir / '*')], shell=True)
+        
+        # Delete existing manifest for fresh start
+        if self.manifest_file.exists():
+            gadfl_step("Deleting existing manifest for fresh start")
+            self.manifest_file.unlink()
+    
+    def start_http_server(self):
+        """Start HTTP server for Inspector and artifact serving."""
+        def make_handler(*args, **kwargs):
+            return GADRequestHandler(*args, factory_instance=self, **kwargs)
+        
+        try:
+            self.server = HTTPServer(('localhost', self.port), make_handler)
+            self.server_thread = threading.Thread(target=self.server.serve_forever)
+            self.server_thread.daemon = True
+            self.server_thread.start()
+            gadfl_step(f"HTTP server started on port {self.port}")
+        except OSError as e:
+            gadfl_fail(f"Failed to start HTTP server on port {self.port}: {e}")
+    
+    def render_commit(self, commit_hash):
+        """Execute render sequence for a single commit."""
+        gadfl_step(f"Executing render sequence for commit {commit_hash[:8]}")
+        
+        # Clean temporary directories
+        subprocess.run(['rm', '-rf', str(self.extract_dir / '*')], shell=True)
+        subprocess.run(['rm', '-rf', str(self.distill_dir / '*')], shell=True)
+        
+        # Change to repository directory for git operations
+        os.chdir(self.repo_dir)
+        
+        # Extract commit files via git archive
+        try:
+            subprocess.run(['git', 'archive', commit_hash], 
+                         stdout=subprocess.PIPE, check=True)
+            result = subprocess.run(['git', 'archive', commit_hash], 
+                                  capture_output=True, check=True)
+            subprocess.run(['tar', '-xf', '-', '-C', str(self.extract_dir)], 
+                         input=result.stdout, check=True)
+        except subprocess.CalledProcessError:
+            gadfl_fail(f"Failed to extract commit {commit_hash}")
+        
+        # Check if AsciiDoc file exists in this commit
+        extracted_adoc = self.extract_dir / self.adoc_relpath
+        if not extracted_adoc.exists():
+            gadfl_warn(f"AsciiDoc file '{self.adoc_relpath}' not found in commit {commit_hash}, skipping")
+            return False
+        
+        # Run asciidoctor
+        gadfl_step("Running asciidoctor")
+        try:
+            subprocess.run([
+                'asciidoctor', '-a', 'reproducible', 
+                str(extracted_adoc), '-D', str(self.distill_dir)
+            ], check=True)
+        except subprocess.CalledProcessError:
+            gadfl_fail(f"Asciidoctor failed for commit {commit_hash}")
+        
+        # Get commit metadata
+        try:
+            commit_timestamp = subprocess.run([
+                'git', 'log', '-1', '--format=%cd', '--date=format:%Y%m%d%H%M%S', commit_hash
+            ], capture_output=True, text=True, check=True).stdout.strip()
+            
+            commit_message = subprocess.run([
+                'git', 'log', '-1', '--format=%s', commit_hash
+            ], capture_output=True, text=True, check=True).stdout.strip()
+        except subprocess.CalledProcessError:
+            gadfl_fail(f"Failed to get commit metadata for {commit_hash}")
+        
+        # Process HTML (integrated distill functionality)
+        self.process_html(commit_hash, commit_timestamp, commit_message)
+        return True
+    
+    def process_html(self, commit_hash, commit_timestamp, commit_message):
+        """Process HTML files using integrated normalization."""
+        gadfl_step(f"Processing HTML for commit {commit_hash[:8]}")
+        
+        # Discover HTML file
+        html_files = list(self.distill_dir.glob("*.html"))
+        
+        if len(html_files) == 0:
+            html_content = self.create_error_html("No HTML files found", self.distill_dir)
+        elif len(html_files) > 1:
+            files_list = ", ".join([f.name for f in html_files])
+            html_content = self.create_error_html(f"Multiple HTML files found: {files_list}", self.distill_dir)
+        else:
+            # Read and normalize HTML
+            try:
+                with open(html_files[0], 'r', encoding='utf-8') as f:
+                    raw_html = f.read()
+                html_content = HTMLNormalizer.normalize_html(raw_html)
+            except IOError as e:
+                gadfl_fail(f"Failed to read HTML file {html_files[0]}: {e}")
+        
+        # Generate output filename
+        output_filename = self.generate_filename(commit_timestamp, commit_hash)
+        output_path = self.output_dir / output_filename
+        
+        # Calculate SHA-256
+        html_sha256 = hashlib.sha256(html_content.encode('utf-8')).hexdigest()
+        
+        # Write normalized HTML
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            gadfl_step(f"Created normalized HTML: {output_filename}")
+        except IOError as e:
+            gadfl_fail(f"Failed to write output file {output_path}: {e}")
+        
+        # Update manifest
+        commit_data = {
+            'hash': commit_hash,
+            'timestamp': commit_timestamp,
+            'date': commit_timestamp,
+            'message': commit_message,
+            'html_file': output_filename,
+            'html_sha256': html_sha256
+        }
+        
+        self.update_manifest(commit_data)
+    
+    def create_error_html(self, error_message, source_dir):
+        """Create error HTML file per GADS specification."""
+        return f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>GAD Factory Error</title>
+</head>
+<body>
+    <h1>GAD Factory Error</h1>
+    <p>{error_message} in {source_dir}</p>
+</body>
+</html>"""
+    
+    def generate_filename(self, timestamp, commit_hash):
+        """Generate filename per GADS pattern."""
+        short_hash = commit_hash[:7]
+        return f"{self.branch}-{timestamp}-{short_hash}.html"
+    
+    def calculate_distinct_count(self):
+        """Calculate count of unique SHA256 values."""
+        sha256_values = set()
+        for commit in self.manifest['commits']:
+            if 'html_sha256' in commit:
+                sha256_values.add(commit['html_sha256'])
+        return len(sha256_values)
+    
+    def update_manifest(self, commit_data):
+        """Update manifest with new commit entry."""
+        # Add new commit entry
+        self.manifest['commits'].append(commit_data)
+        
+        # Sort commits chronologically by git order (not processing order)
+        # For now, keep processing order since we need git log order
+        
+        # Update counts and state
+        self.manifest['distinct_sha256_count'] = self.calculate_distinct_count()
+        self.manifest['last_processed_hash'] = commit_data['hash']
+        
+        # Write updated manifest atomically
+        try:
+            temp_file = self.manifest_file.with_suffix('.tmp')
+            with open(temp_file, 'w') as f:
+                json.dump(self.manifest, f, indent=2)
+            temp_file.rename(self.manifest_file)
+            gadfl_step(f"Updated manifest with commit {commit_data['hash'][:8]}")
+        except IOError as e:
+            gadfl_fail(f"Failed to update manifest: {e}")
+        
+        # Broadcast SSE event if server is running
+        if self.server:
+            self.sse_handler.broadcast_refresh()
+    
+    def get_commits_to_process(self):
+        """Get list of commits for initial population (HEAD-first)."""
+        os.chdir(self.repo_dir)
+        
+        try:
+            # Get HEAD commit first
+            head_commit = subprocess.run([
+                'git', 'rev-parse', self.branch
+            ], capture_output=True, text=True, check=True).stdout.strip()
+            
+            # Get commit list (we'll process HEAD first, then others chronologically)
+            result = subprocess.run([
+                'git', 'log', '--format=%H', self.branch, '-100'
+            ], capture_output=True, text=True, check=True)
+            
+            commits = [line.strip() for line in result.stdout.strip().split('\n') if line.strip()]
+            return commits
+        except subprocess.CalledProcessError:
+            gadfl_fail(f"Failed to get commit list for branch {self.branch}")
+    
+    def initial_population(self):
+        """Process commits using HEAD-first with intelligent interleaving."""
+        gadfl_step("Starting initial population with HEAD-first processing")
+        
+        commits = self.get_commits_to_process()
+        if not commits:
+            gadfl_fail("No commits found")
+        
+        # Process HEAD first
+        head_commit = commits[0]
+        if self.commit_has_adoc(head_commit):
+            if self.render_commit(head_commit):
+                gadfl_step(f"HEAD commit processed: {head_commit[:8]}")
+        
+        # Continue with remaining commits until we reach max distinct count
+        for commit_hash in commits[1:]:
+            if self.manifest['distinct_sha256_count'] >= self.max_unique_commits:
+                gadfl_step(f"Reached maximum unique commits ({self.max_unique_commits})")
+                break
+            
+            if self.commit_has_adoc(commit_hash):
+                if self.render_commit(commit_hash):
+                    current_count = self.manifest['distinct_sha256_count']
+                    gadfl_step(f"Current distinct count: {current_count}")
+    
+    def commit_has_adoc(self, commit_hash):
+        """Check if commit contains the AsciiDoc file."""
+        os.chdir(self.repo_dir)
+        try:
+            subprocess.run([
+                'git', 'show', f'{commit_hash}:{self.adoc_relpath}'
+            ], capture_output=True, check=True)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+    
+    def incremental_watch_mode(self):
+        """Enter incremental watch mode while maintaining HTTP server."""
+        if self.once:
+            gadfl_step("Once mode: exiting after initial population")
+            return
+        
+        gadfl_step("Entering incremental watch mode (polling every 3 seconds)")
+        
+        while True:
+            try:
+                time.sleep(3)
+                
+                os.chdir(self.repo_dir)
+                
+                # Get current HEAD
+                current_head = subprocess.run([
+                    'git', 'rev-parse', self.branch
+                ], capture_output=True, text=True, check=True).stdout.strip()
+                
+                last_processed = self.manifest.get('last_processed_hash', '')
+                
+                if last_processed and current_head != last_processed:
+                    gadfl_step(f"Detected new commits beyond {last_processed[:8]}")
+                    
+                    # Get new commits
+                    result = subprocess.run([
+                        'git', 'log', '--reverse', '--format=%H', 
+                        f'{last_processed}..{self.branch}'
+                    ], capture_output=True, text=True, check=True)
+                    
+                    new_commits = [line.strip() for line in result.stdout.strip().split('\n') 
+                                 if line.strip()]
+                    
+                    for commit_hash in new_commits:
+                        if self.commit_has_adoc(commit_hash):
+                            self.render_commit(commit_hash)
+            
+            except KeyboardInterrupt:
+                gadfl_step("Received interrupt, shutting down")
+                break
+            except subprocess.CalledProcessError as e:
+                gadfl_warn(f"Git operation failed: {e}")
+            except Exception as e:
+                gadfl_warn(f"Watch mode error: {e}")
+    
+    def run(self):
+        """Main execution method."""
+        # Validate files
+        if not self.adoc_filename.exists():
+            gadfl_fail(f"AsciiDoc file '{self.adoc_filename}' not found")
+        
+        if not self.inspector_source_path.exists():
+            gadfl_fail(f"Inspector file not found at {self.inspector_source_path}")
+        
+        # Setup
+        self.setup_directories()
+        self.start_http_server()
+        
+        # Execute processing
+        self.initial_population()
+        
+        if not self.once:
+            try:
+                self.incremental_watch_mode()
+            finally:
+                if self.server:
+                    self.server.shutdown()
+                    gadfl_step("HTTP server stopped")
+        else:
+            # Keep server running briefly for once mode
+            gadfl_step(f"GAD factory processing complete. Output in {self.output_dir}")
+            gadfl_step(f"Inspector available at http://localhost:{self.port}/")
+            
+            if self.server:
+                try:
+                    gadfl_step("Press Ctrl+C to stop server and exit")
+                    while True:
+                        time.sleep(1)
+                except KeyboardInterrupt:
+                    self.server.shutdown()
+                    gadfl_step("HTTP server stopped")
+
+def main():
+    """Main entry point with argument parsing."""
+    parser = argparse.ArgumentParser(description='GAD Factory - Python implementation')
+    parser.add_argument('--file', required=True, help='AsciiDoc filename to process')
+    parser.add_argument('--directory', required=True, help='Working directory')
+    parser.add_argument('--branch', default='main', help='Git branch to track')
+    parser.add_argument('--max-unique-commits', type=int, default=5, 
+                       help='Maximum unique commits to process')
+    parser.add_argument('--once', action='store_true', 
+                       help='Disable watch mode after initial population')
+    parser.add_argument('--port', type=int, default=8080, 
+                       help='HTTP server port')
+    
+    args = parser.parse_args()
+    
+    try:
+        factory = GADFactory(
+            adoc_filename=args.file,
+            directory=args.directory,
+            branch=args.branch,
+            max_unique_commits=args.max_unique_commits,
+            once=args.once,
+            port=args.port
+        )
+        factory.run()
+    except KeyboardInterrupt:
+        gadfl_step("Interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        gadfl_fail(f"Unexpected error: {e}")
+
+if __name__ == "__main__":
+    main()

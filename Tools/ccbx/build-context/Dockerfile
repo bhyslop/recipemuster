@@ -70,8 +70,9 @@ WORKDIR /workspace
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x       /usr/local/bin/entrypoint.sh
 
-# Expose SSH port
+# Expose SSH port and web server port
 EXPOSE 22
+EXPOSE 8080
 
 # Run as root to support SSH daemon
 USER root
