@@ -63,11 +63,6 @@ Full read and edit access is pre-approved for all files in:
 - **GADF** → `gad/gadf_factory.py`
 - **GADI** → `gad/gadi_inspector.html`
 
-### tt Directory (`tt/`)
-- **GADF-F** → `gadf-f.Factory.sh`
-- **GADI-I** → `gadi-i.Inspect.sh`
-- **GADCF**  → `gadcf.LaunchFactoryInContainer.sh`
-
 ### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
 - **ANCIENT** → `a-roe-ANCIENT.md`
 - **ANNEAL**  → `a-roe-ANNEAL-spec-fine.adoc`
