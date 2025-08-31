@@ -76,8 +76,31 @@ done
 # Validate required arguments
 test -n "${gadf_adoc_filename}" || gadf_fail "Error: --file is required"
 test -n "${gadf_directory}" || gadf_fail "Error: --directory is required"
+
+# Convert paths to absolute before changing directories
+gadf_adoc_filename="$(realpath "${gadf_adoc_filename}")"
+gadf_directory="$(realpath "${gadf_directory}" 2>/dev/null || echo "$(pwd)/${gadf_directory}")"
+
+# Ensure directory exists (create if needed)
+mkdir -p "${gadf_directory}"
+
+# Determine repository directory from AsciiDoc file location
+gadf_repo_dir="$(dirname "${gadf_adoc_filename}")"
+while [[ "${gadf_repo_dir}" != "/" ]]; do
+    if [[ -d "${gadf_repo_dir}/.git" ]]; then
+        break
+    fi
+    gadf_repo_dir="$(dirname "${gadf_repo_dir}")"
+done
+
+test -d "${gadf_repo_dir}/.git" || gadf_fail "Error: No git repository found for AsciiDoc file '${gadf_adoc_filename}'"
 test -f "${gadf_adoc_filename}" || gadf_fail "Error: AsciiDoc file '${gadf_adoc_filename}' not found"
-test -d "${gadf_directory}" || gadf_fail "Error: Directory '${gadf_directory}' not found"
+
+# Change to repository directory for git operations
+cd "${gadf_repo_dir}"
+
+# Convert AsciiDoc filename to relative path from repository root
+gadf_adoc_relpath="${gadf_adoc_filename#${gadf_repo_dir}/}"
 
 # Initialize directory structure per GADS specification
 gadf_extract_dir="${gadf_directory}/.factory-extract"
@@ -129,9 +152,9 @@ for gadf_commit in "${gadf_commits[@]}"; do
     git archive "${gadf_commit}" | tar -xf - -C "${gadf_extract_dir}" || gadf_fail "Failed to extract commit ${gadf_commit}"
     
     # Check if AsciiDoc file exists in this commit
-    gadf_extracted_adoc="${gadf_extract_dir}/${gadf_adoc_filename}"
+    gadf_extracted_adoc="${gadf_extract_dir}/${gadf_adoc_relpath}"
     if [[ ! -f "${gadf_extracted_adoc}" ]]; then
-        gadf_warn "AsciiDoc file '${gadf_adoc_filename}' not found in commit ${gadf_commit}, skipping"
+        gadf_warn "AsciiDoc file '${gadf_adoc_relpath}' not found in commit ${gadf_commit}, skipping"
         continue
     fi
     
