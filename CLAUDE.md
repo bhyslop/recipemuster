@@ -60,9 +60,9 @@ Full read and edit access is pre-approved for all files in:
 - **BDU**  → `bdu_BashDispatchUtility.sh`
 - **BTU**  → `btu_BashTestUtility.sh`
 - **BVU**  → `bvu_BashValidationUtility.sh`
-- **GADF** → `../cnmp_CellNodeMessagePrototype/Tools/gad/gadf_factory.sh`
-- **GADI** → `../cnmp_CellNodeMessagePrototype/Tools/gad/gadi_inspector.html`
-- **GADP** → `../cnmp_CellNodeMessagePrototype/Tools/gad/gadp_distill.py`
+- **GADF** → `gad/gadf_factory.sh`
+- **GADI** → `gad/gadi_inspector.html`
+- **GADP** → `gad/gadp_distill.py`
 
 ### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
 - **ANCIENT** → `a-roe-ANCIENT.md`
@@ -87,6 +87,7 @@ Full read and edit access is pre-approved for all files in:
 - **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
 - **GADS**    → `gad-GADS-GoogleAsciidocDifferSpecification.adoc`
 - **GADP**    → `gad-GADP-GoogleAsciidocDifferPlanner.md`
+- **GADMCR**  → `gad-GADMCR-MemoCorsResolution.md`
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
