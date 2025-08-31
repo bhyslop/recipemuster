@@ -280,6 +280,8 @@
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
                 this.eventSource = null;
+                this.previousFromValue = '';
+                this.previousToValue = '';
                 
                 this.initializeElements();
                 this.setupEventListeners();
@@ -325,10 +327,11 @@
                     }
                 });
                 
-                // Tooltip handling
+                // Tooltip handling - use focus events per GADS specification
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
-                    dropdown.addEventListener('mouseover', (e) => this.showCommitTooltip(e));
-                    dropdown.addEventListener('mouseout', () => this.hideCommitTooltip());
+                    dropdown.addEventListener('focus', (e) => this.showCommitTooltip(e));
+                    dropdown.addEventListener('blur', () => this.hideCommitTooltip());
+                    dropdown.addEventListener('change', (e) => this.showCommitTooltip(e));
                 });
                 
                 // Parse URL hash on load
@@ -352,6 +355,11 @@
                         if (data.type === 'new_commit') {
                             this.loadManifest();
                         }
+                    });
+                    
+                    this.eventSource.addEventListener('heartbeat', (event) => {
+                        // Handle heartbeat events from Factory SSE stream
+                        traceBuffer.append('[SSE]', 'Received heartbeat from Factory');
                     });
                     
                     this.eventSource.addEventListener('error', (event) => {
@@ -440,11 +448,16 @@
             }
             
             onDropdownChange() {
+                const oldFromValue = this.previousFromValue || '';
+                const oldToValue = this.previousToValue || '';
                 const fromValue = this.elements.fromDropdown.value;
                 const toValue = this.elements.toDropdown.value;
                 
-                traceBuffer.append('[DROPDOWN]', `From changed to: ${fromValue}`);
-                traceBuffer.append('[DROPDOWN]', `To changed to: ${toValue}`);
+                traceBuffer.append('[DROPDOWN]', `From changed from: ${oldFromValue} to: ${fromValue}`);
+                traceBuffer.append('[DROPDOWN]', `To changed from: ${oldToValue} to: ${toValue}`);
+                
+                this.previousFromValue = fromValue;
+                this.previousToValue = toValue;
                 
                 this.updateUrlHash();
                 this.performDiff();
@@ -455,7 +468,10 @@
                 const toValue = this.elements.toDropdown.value;
                 
                 if (fromValue && toValue) {
-                    window.location.hash = `from=${encodeURIComponent(fromValue)}&to=${encodeURIComponent(toValue)}`;
+                    // Use safe URL encoding for commit hashes and magic values
+                    const safeFromValue = fromValue.replace(/[^a-zA-Z0-9\-]/g, '_');
+                    const safeToValue = toValue.replace(/[^a-zA-Z0-9\-]/g, '_');
+                    window.location.hash = `from=${encodeURIComponent(safeFromValue)}&to=${encodeURIComponent(safeToValue)}`;
                 }
             }
             
@@ -506,25 +522,39 @@
             
             resolveCommit(value) {
                 if (value === 'latest') {
-                    return this.manifest.commits[this.manifest.commits.length - 1];
+                    traceBuffer.append('[RESOLVE]', 'Resolving magic value: latest');
+                    const resolved = this.manifest.commits[this.manifest.commits.length - 1];
+                    traceBuffer.append('[RESOLVE]', `Successful resolution of latest to SHA: ${resolved.hash.substring(0, 8)}`);
+                    return resolved;
                 } else if (value === 'before-last') {
-                    return this.manifest.commits[this.manifest.commits.length - 2];
+                    traceBuffer.append('[RESOLVE]', 'Resolving magic value: before-last');
+                    const resolved = this.manifest.commits[this.manifest.commits.length - 2];
+                    traceBuffer.append('[RESOLVE]', `Successful resolution of before-last to SHA: ${resolved.hash.substring(0, 8)}`);
+                    return resolved;
                 } else if (value === 'before-substantive') {
+                    traceBuffer.append('[RESOLVE]', 'Resolving magic value: before-substantive');
                     const latest = this.manifest.commits[this.manifest.commits.length - 1];
                     let skippedCount = 0;
                     for (let i = this.manifest.commits.length - 2; i >= 0; i--) {
                         if (this.manifest.commits[i].html_sha256 !== latest.html_sha256) {
+                            traceBuffer.append('[RESOLVE]', `Successful resolution of before-substantive to SHA: ${this.manifest.commits[i].hash.substring(0, 8)}`);
                             if (skippedCount > 0) {
-                                traceBuffer.append('[RESOLVE]', `Skipped ${skippedCount} unchanged commits for before-substantive`);
+                                traceBuffer.append('[RESOLVE]', `Unchanged commit skip count for before-substantive: ${skippedCount}`);
                                 this.showStatusMessage(`Skipped ${skippedCount} unchanged commits to find last substantive change`);
                             }
                             return this.manifest.commits[i];
                         }
                         skippedCount++;
                     }
-                    return this.manifest.commits[0];
+                    const fallback = this.manifest.commits[0];
+                    traceBuffer.append('[RESOLVE]', `Before-substantive fallback to oldest commit: ${fallback.hash.substring(0, 8)}`);
+                    return fallback;
                 } else {
-                    return this.manifest.commits.find(c => c.hash === value);
+                    const resolved = this.manifest.commits.find(c => c.hash === value);
+                    if (resolved) {
+                        traceBuffer.append('[RESOLVE]', `Direct commit hash resolution: ${value.substring(0, 8)}`);
+                    }
+                    return resolved;
                 }
             }
             

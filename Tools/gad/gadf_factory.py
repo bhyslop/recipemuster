@@ -215,8 +215,28 @@ class HTMLNormalizer:
     @staticmethod
     def normalize_html(html_content):
         """Normalize HTML content per GADS specification."""
+        # Safe DOM processing: create clean output from original
         original_soup = BeautifulSoup(html_content, 'html.parser')
-        new_soup = BeautifulSoup(str(original_soup), 'html.parser')
+        # Create completely new DOM structure to avoid in-place modification
+        new_soup = BeautifulSoup('', 'html.parser')
+        
+        # Clone the document structure
+        if original_soup.doctype:
+            new_soup.append(original_soup.doctype)
+        
+        # Process HTML element
+        if original_soup.html:
+            new_html = new_soup.new_tag('html')
+            for attr, value in original_soup.html.attrs.items():
+                new_html[attr] = value
+            new_soup.append(new_html)
+            
+            # Copy structure safely
+            HTMLNormalizer._copy_element_safely(original_soup.html, new_html, new_soup)
+        else:
+            # Handle fragments
+            for element in original_soup.children:
+                HTMLNormalizer._copy_element_safely(element, new_soup, new_soup)
         
         # Remove generator meta tags
         for meta in new_soup.find_all('meta', attrs={'name': 'generator'}):
@@ -259,6 +279,76 @@ class HTMLNormalizer:
                 element.decompose()
         
         return str(new_soup)
+    
+    @staticmethod
+    def _copy_element_safely(source_element, target_parent, soup):
+        \"\"\"Safely copy element from source to target without in-place modification.\"\"\"
+        from bs4 import NavigableString, Comment, Tag
+        
+        if isinstance(source_element, NavigableString):
+            if isinstance(source_element, Comment):
+                # Skip comments containing volatile content
+                comment_text = str(source_element).lower()
+                if any(keyword in comment_text for keyword in ['generated', 'timestamp', 'build', 'date']):
+                    return
+                new_comment = Comment(str(source_element))
+                target_parent.append(new_comment)
+            else:
+                # Handle text nodes with whitespace normalization
+                text_content = str(source_element)
+                if HTMLNormalizer.should_preserve_whitespace_context(source_element):
+                    target_parent.append(NavigableString(text_content))
+                else:
+                    normalized_text = HTMLNormalizer.normalize_whitespace_in_text(text_content)
+                    if normalized_text:
+                        target_parent.append(NavigableString(normalized_text))
+        elif isinstance(source_element, Tag):
+            # Create new tag
+            new_tag = soup.new_tag(source_element.name)
+            
+            # Copy and clean attributes
+            for attr, value in source_element.attrs.items():
+                if attr in ['href', 'src', 'data-uri']:
+                    if isinstance(value, str) and (value.startswith('/home/') or value.startswith('/Users/') or value.startswith('C:\\\\')):
+                        new_tag[attr] = os.path.basename(value)
+                    else:
+                        new_tag[attr] = value
+                else:
+                    new_tag[attr] = value
+            
+            # Handle special elements
+            if source_element.name == 'meta' and source_element.get('name') == 'generator':
+                return  # Skip generator meta tags
+            
+            # Set ordered list normalization
+            if source_element.name == 'li' and source_element.find_parent('ol'):
+                new_tag['value'] = '1'
+            
+            # Handle auto-numbering removal
+            if source_element.name in ['figcaption', 'caption']:
+                text = source_element.get_text()
+                normalized = re.sub(r'^(Figure|Table|Listing)\\s+\\d+[\\.:]\\s*', '', text)
+                if normalized != text:
+                    new_tag.string = normalized
+                    target_parent.append(new_tag)
+                    return
+            
+            target_parent.append(new_tag)
+            
+            # Recursively copy children
+            for child in source_element.children:
+                HTMLNormalizer._copy_element_safely(child, new_tag, soup)
+    
+    @staticmethod
+    def should_preserve_whitespace_context(element):
+        \"\"\"Check if element context should preserve whitespace.\"\"\"
+        if hasattr(element, 'parent'):
+            parent = element.parent
+            while parent:
+                if hasattr(parent, 'name') and parent.name in ['pre', 'code', 'script', 'style']:
+                    return True
+                parent = getattr(parent, 'parent', None)
+        return False
 
 class GADFactory:
     """Main GAD Factory class implementing Python Factory architecture."""
@@ -296,7 +386,7 @@ class GADFactory:
         self.sse_handler = SSEHandler()
         self.manifest = {
             'branch': self.branch,
-            'asciidoc': str(self.adoc_filename),
+            'asciidoc': str(self.adoc_relpath),
             'distinct_sha256_count': 0,
             'last_processed_hash': '',
             'commits': []
@@ -315,6 +405,46 @@ class GADFactory:
             current = current.parent
         return None
     
+    def clean_directory_contents(self, directory):
+        """Recursively delete all contents of directory per GADS specification."""
+        if not directory.exists():
+            return
+        
+        import shutil
+        for item in directory.iterdir():
+            if item.is_file() or item.is_symlink():
+                item.unlink()
+            elif item.is_dir():
+                shutil.rmtree(item)
+    
+    def sort_commits_chronologically(self):
+        """Sort manifest commits by git chronological order."""
+        if len(self.manifest['commits']) <= 1:
+            return
+        
+        # Get commit hashes in chronological order from git
+        os.chdir(self.repo_dir)
+        try:
+            # Get all commit hashes from our manifest
+            manifest_hashes = [c['hash'] for c in self.manifest['commits']]
+            hash_list = ' '.join(manifest_hashes)
+            
+            # Get them in chronological order (oldest first)
+            result = subprocess.run([
+                'git', 'log', '--reverse', '--format=%H', '--no-walk', '--stdin'
+            ], input=hash_list, text=True, capture_output=True, check=True)
+            
+            chronological_hashes = [line.strip() for line in result.stdout.strip().split('\n') if line.strip()]
+            
+            # Create hash-to-commit mapping
+            commit_map = {c['hash']: c for c in self.manifest['commits']}
+            
+            # Reorder commits chronologically
+            self.manifest['commits'] = [commit_map[hash_val] for hash_val in chronological_hashes if hash_val in commit_map]
+            
+        except subprocess.CalledProcessError:
+            gadfl_warn("Failed to sort commits chronologically, keeping processing order")
+    
     def setup_directories(self):
         """Create directory structure per GADS specification."""
         gadfl_step("Creating GAD directory structure")
@@ -324,10 +454,8 @@ class GADFactory:
         
         # Clean workspace per single-threaded premise
         gadfl_step("Cleaning workspace")
-        if self.extract_dir.exists():
-            subprocess.run(['rm', '-rf', str(self.extract_dir / '*')], shell=True)
-        if self.distill_dir.exists():
-            subprocess.run(['rm', '-rf', str(self.distill_dir / '*')], shell=True)
+        self.clean_directory_contents(self.extract_dir)
+        self.clean_directory_contents(self.distill_dir)
         
         # Delete existing manifest for fresh start
         if self.manifest_file.exists():
@@ -353,8 +481,8 @@ class GADFactory:
         gadfl_step(f"Executing render sequence for commit {commit_hash[:8]}")
         
         # Clean temporary directories
-        subprocess.run(['rm', '-rf', str(self.extract_dir / '*')], shell=True)
-        subprocess.run(['rm', '-rf', str(self.distill_dir / '*')], shell=True)
+        self.clean_directory_contents(self.extract_dir)
+        self.clean_directory_contents(self.distill_dir)
         
         # Change to repository directory for git operations
         os.chdir(self.repo_dir)
@@ -455,11 +583,34 @@ class GADFactory:
         return f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>GAD Factory Error</title>
+    <meta charset="UTF-8">
+    <title>GAD Factory Processing Error</title>
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 40px; background: #ffeef0; }}
+        .error-container {{ background: white; padding: 20px; border-radius: 8px; border: 1px solid #f97583; }}
+        .error-header {{ color: #d73a49; font-size: 24px; margin-bottom: 15px; }}
+        .error-details {{ color: #586069; margin-bottom: 10px; }}
+        .source-path {{ font-family: monospace; background: #f6f8fa; padding: 5px; border-radius: 3px; }}
+    </style>
 </head>
 <body>
-    <h1>GAD Factory Error</h1>
-    <p>{error_message} in {source_dir}</p>
+    <div class="error-container">
+        <h1 class="error-header">GAD Factory Processing Error</h1>
+        <p class="error-details">
+            <strong>Error:</strong> {error_message}
+        </p>
+        <p class="error-details">
+            <strong>Source Directory:</strong> <code class="source-path">{source_dir}</code>
+        </p>
+        <p class="error-details">
+            This error occurred during AsciiDoc to HTML conversion. Please check:
+        </p>
+        <ul>
+            <li>AsciiDoc file syntax and structure</li>
+            <li>Asciidoctor installation and version</li>
+            <li>File permissions in source directory</li>
+        </ul>
+    </div>
 </body>
 </html>"""
     
@@ -481,8 +632,8 @@ class GADFactory:
         # Add new commit entry
         self.manifest['commits'].append(commit_data)
         
-        # Sort commits chronologically by git order (not processing order)
-        # For now, keep processing order since we need git log order
+        # Sort commits chronologically by git order per GADS specification
+        self.sort_commits_chronologically()
         
         # Update counts and state
         self.manifest['distinct_sha256_count'] = self.calculate_distinct_count()
