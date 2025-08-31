@@ -81,9 +81,10 @@ test -n "${gadf_directory}" || gadf_fail "Error: --directory is required"
 gadf_adoc_filename="$(realpath "${gadf_adoc_filename}")"
 gadf_directory="$(realpath "${gadf_directory}" 2>/dev/null || echo "$(pwd)/${gadf_directory}")"
 
-# Capture absolute path to distill script before changing directories
+# Capture absolute paths to scripts before changing directories
 gadf_script_dir="$(dirname "${BASH_SOURCE[0]}")"
 gadf_distill_script="$(realpath "${gadf_script_dir}/gadp_distill.py")"
+gadf_inspector_source="$(realpath "${gadf_script_dir}/gadi_inspector.html")"
 
 # Ensure directory exists (create if needed)
 mkdir -p "${gadf_directory}"
@@ -114,6 +115,14 @@ gadf_manifest_file="${gadf_output_dir}/manifest.json"
 
 gadf_step "Creating GAD directory structure"
 mkdir -p "${gadf_extract_dir}" "${gadf_distill_dir}" "${gadf_output_dir}"
+
+# Copy inspector to output directory for self-contained results (per GADS Initial Setup)
+if [[ -f "${gadf_inspector_source}" ]]; then
+    gadf_step "Copying inspector to output directory"
+    cp "${gadf_inspector_source}" "${gadf_output_dir}/"
+else
+    gadf_fail "Inspector file not found at ${gadf_inspector_source}"
+fi
 
 # Delete existing manifest if present (ensures fresh start)
 if [[ -f "${gadf_manifest_file}" ]]; then
@@ -235,14 +244,7 @@ else
     gadf_step "Once mode: exiting after initial population"
 fi
 
-# Copy inspector to output directory for self-contained results
-gadf_inspector_source="$(dirname "${BASH_SOURCE[0]}")/gadi_inspector.html"
-if [[ -f "${gadf_inspector_source}" ]]; then
-    gadf_step "Copying inspector to output directory"
-    cp "${gadf_inspector_source}" "${gadf_output_dir}/"
-else
-    gadf_warn "Inspector file not found at ${gadf_inspector_source}"
-fi
+# Inspector already copied during Initial Setup
 
 gadf_step "GAD factory processing complete. Output in ${gadf_output_dir}"
 
