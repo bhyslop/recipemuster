@@ -55,23 +55,53 @@ def normalize_whitespace_in_text(text):
     text = re.sub(r'(?<=[^\n])\n(?=[^\n])', ' ', text)
     return text.strip()
 
+def should_preserve_whitespace(element):
+    """Check if element should preserve exact whitespace."""
+    if element.name in ['pre', 'code', 'script', 'style']:
+        return True
+    if element.find_parent(['pre', 'code', 'verse']):
+        return True
+    return False
+
+def normalize_text_content(element_copy, original_element):
+    """Safely normalize text content in copied element."""
+    if should_preserve_whitespace(original_element):
+        return
+    
+    # Collect all text nodes to normalize (avoid iterator invalidation)
+    text_nodes = []
+    for content in element_copy.descendants:
+        if isinstance(content, str):
+            parent_name = content.parent.name if content.parent else ''
+            if parent_name not in ['pre', 'code', 'script', 'style']:
+                text_nodes.append(content)
+    
+    # Now safely modify collected text nodes
+    for content in text_nodes:
+        normalized = normalize_whitespace_in_text(content)
+        if normalized and normalized != content:
+            content.replace_with(normalized)
+
 def normalize_html(html_content):
-    """Normalize HTML content per GADS whitespace and metadata requirements."""
-    soup = BeautifulSoup(html_content, 'html.parser')
+    """Normalize HTML content per GADS whitespace and metadata requirements using safe DOM processing."""
+    original_soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # Create new soup with same structure for safe processing
+    new_soup = BeautifulSoup(str(original_soup), 'html.parser')
     
     # Remove generator meta tags
-    for meta in soup.find_all('meta', attrs={'name': 'generator'}):
+    for meta in new_soup.find_all('meta', attrs={'name': 'generator'}):
         meta.decompose()
     
     # Remove build timestamp comments
-    comments = soup.find_all(string=lambda text: isinstance(text, Comment))
+    comments = new_soup.find_all(string=lambda text: isinstance(text, Comment))
     for comment in comments:
         # Remove comments containing timestamps or build info
         if any(keyword in comment.lower() for keyword in ['generated', 'timestamp', 'build', 'date']):
             comment.extract()
     
     # Remove host-specific paths in any remaining attributes
-    for element in soup.find_all(True):
+    for element in new_soup.find_all(True):
         for attr in ['href', 'src', 'data-uri']:
             if element.has_attr(attr):
                 value = element[attr]
@@ -80,31 +110,26 @@ def normalize_html(html_content):
                     element[attr] = os.path.basename(value)
     
     # Remove figure and table auto-numbering if present
-    for element in soup.find_all(['figcaption', 'caption']):
+    for element in new_soup.find_all(['figcaption', 'caption']):
         text = element.get_text()
         # Remove patterns like "Figure 1.", "Table 2:", etc.
         normalized = re.sub(r'^(Figure|Table|Listing)\s+\d+[\.:]\s*', '', text)
         if normalized != text:
             element.string = normalized
     
-    # Normalize whitespace in prose contexts
-    for element in soup.find_all(['p', 'li', 'td', 'th', 'div']):
-        if element.find_parent(['pre', 'code', 'verse']):
-            continue
-        
-        # Process text nodes
-        for content in element.descendants:
-            if isinstance(content, str) and content.parent.name not in ['pre', 'code', 'script', 'style']:
-                normalized = normalize_whitespace_in_text(content)
-                if normalized:
-                    content.replace_with(normalized)
+    # Normalize whitespace in prose contexts using safe processing
+    prose_elements = new_soup.find_all(['p', 'li', 'td', 'th', 'div'])
+    for element in prose_elements:
+        original_element = original_soup.find(element.name, attrs=element.attrs)
+        if original_element:
+            normalize_text_content(element, original_element)
     
     # Remove empty paragraphs and divs that may result from normalization
-    for element in soup.find_all(['p', 'div']):
+    for element in new_soup.find_all(['p', 'div']):
         if not element.get_text(strip=True) and not element.find():
             element.decompose()
     
-    return str(soup)
+    return str(new_soup)
 
 def generate_filename(branch, timestamp, commit_hash):
     """Generate filename per GADS pattern: branch-timestamp-shorthash.html"""
