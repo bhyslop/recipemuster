@@ -209,7 +209,8 @@ def update_manifest(manifest_path, branch, asciidoc_filename, commit_data):
     # Update distinct SHA256 count
     manifest["distinct_sha256_count"] = calculate_distinct_count(manifest["commits"])
     
-    # Note: last_processed_hash is managed by factory, not distill
+    # Set last_processed_hash to current commit (automatic via gadp_distill)
+    manifest["last_processed_hash"] = commit_data["hash"]
     
     # Write updated manifest
     with open(manifest_path, 'w') as f:

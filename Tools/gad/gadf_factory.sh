@@ -183,14 +183,6 @@ get_last_processed() {
     fi
 }
 
-# Set last processed hash in manifest using jq
-set_last_processed() {
-    local new_hash="${1}"
-    if [[ -f "${gadf_manifest_file}" ]] && command -v jq >/dev/null 2>&1; then
-        local temp_file="$(mktemp)"
-        jq --arg hash "${new_hash}" '.last_processed_hash = $hash' "${gadf_manifest_file}" > "${temp_file}" && mv "${temp_file}" "${gadf_manifest_file}"
-    fi
-}
 
 # Initial population: process commits backwards from HEAD until distinct count reaches max
 gadf_step "Starting initial population"
@@ -213,8 +205,7 @@ while IFS= read -r commit_hash; do
     fi
 done < <(git log --format="%H" "${gadf_branch}" -100)
 
-# Set last processed hash to HEAD
-set_last_processed "${gadf_head_commit}"
+# Note: last_processed_hash is set automatically by gadp_distill
 
 # Incremental watch mode (unless --once is specified)
 if [[ "${gadf_once:-false}" != "true" ]]; then
@@ -237,8 +228,7 @@ if [[ "${gadf_once:-false}" != "true" ]]; then
                 fi
             done < <(git log --reverse --format="%H" "${last_processed}..${gadf_branch}")
             
-            # Update last processed to current HEAD
-            set_last_processed "${current_head}"
+            # Note: last_processed_hash updated automatically by gadp_distill
         fi
     done
 else
