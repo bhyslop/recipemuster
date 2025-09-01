@@ -353,12 +353,12 @@ class HTMLNormalizer:
 class GADFactory:
     """Main GAD Factory class implementing Python Factory architecture."""
     
-    def __init__(self, adoc_filename, directory, branch='main', max_unique_commits=5, 
+    def __init__(self, adoc_filename, directory, branch='main', max_distinct_renders=5, 
                  once=False, port=8080):
         self.adoc_filename = Path(adoc_filename).resolve()
         self.directory = Path(directory).resolve()
         self.branch = branch
-        self.max_unique_commits = max_unique_commits
+        self.max_distinct_renders = max_distinct_renders
         self.once = once
         self.port = port
         
@@ -551,12 +551,10 @@ class GADFactory:
             except IOError as e:
                 gadfl_fail(f"Failed to read HTML file {html_files[0]}: {e}")
         
-        # Generate output filename
-        output_filename = self.generate_filename(commit_timestamp, commit_hash)
-        output_path = self.output_dir / output_filename
-        
-        # Calculate SHA-256
+        # Generate output filename using content-based naming per GADS specification
         html_sha256 = hashlib.sha256(html_content.encode('utf-8')).hexdigest()
+        output_filename = self.generate_filename(html_content)
+        output_path = self.output_dir / output_filename
         
         # Write normalized HTML
         try:
@@ -614,10 +612,10 @@ class GADFactory:
 </body>
 </html>"""
     
-    def generate_filename(self, timestamp, commit_hash):
-        """Generate filename per GADS pattern."""
-        short_hash = commit_hash[:7]
-        return f"{self.branch}-{timestamp}-{short_hash}.html"
+    def generate_filename(self, html_content):
+        """Generate filename per GADS pattern using content-based SHA256."""
+        html_sha256 = hashlib.sha256(html_content.encode('utf-8')).hexdigest()
+        return f"{self.branch}-{html_sha256}.html"
     
     def calculate_distinct_count(self):
         """Calculate count of unique SHA256 values."""
@@ -689,8 +687,8 @@ class GADFactory:
         
         # Continue with remaining commits until we reach max distinct count
         for commit_hash in commits[1:]:
-            if self.manifest['distinct_sha256_count'] >= self.max_unique_commits:
-                gadfl_step(f"Reached maximum unique commits ({self.max_unique_commits})")
+            if self.manifest['distinct_sha256_count'] >= self.max_distinct_renders:
+                gadfl_step(f"Reached maximum distinct renders ({self.max_distinct_renders})")
                 break
             
             if self.commit_has_adoc(commit_hash):
@@ -797,8 +795,8 @@ def main():
     parser.add_argument('--file', required=True, help='AsciiDoc filename to process')
     parser.add_argument('--directory', required=True, help='Working directory')
     parser.add_argument('--branch', default='main', help='Git branch to track')
-    parser.add_argument('--max-unique-commits', type=int, default=5, 
-                       help='Maximum unique commits to process')
+    parser.add_argument('--max-distinct-renders', type=int, default=5, 
+                       help='Maximum distinct renders to maintain')
     parser.add_argument('--once', action='store_true', 
                        help='Disable watch mode after initial population')
     parser.add_argument('--port', type=int, default=8080, 
@@ -811,7 +809,7 @@ def main():
             adoc_filename=args.file,
             directory=args.directory,
             branch=args.branch,
-            max_unique_commits=args.max_unique_commits,
+            max_distinct_renders=args.max_distinct_renders,
             once=args.once,
             port=args.port
         )

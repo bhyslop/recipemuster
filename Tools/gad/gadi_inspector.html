@@ -225,7 +225,7 @@
     
     <div class="commit-tooltip" id="commitTooltip"></div>
     
-    <script src="https://cdn.jsdelivr.net/npm/wikied@1.0.0/dist/wikied.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wikieddiff@1.0.4/dist/wikEd-diff.js"></script>
     <script>
         // Trace buffer implementation per GADS specification
         class TraceBuffer {
@@ -468,10 +468,11 @@
                 const toValue = this.elements.toDropdown.value;
                 
                 if (fromValue && toValue) {
-                    // Use safe URL encoding for commit hashes and magic values
-                    const safeFromValue = fromValue.replace(/[^a-zA-Z0-9\-]/g, '_');
-                    const safeToValue = toValue.replace(/[^a-zA-Z0-9\-]/g, '_');
-                    window.location.hash = `from=${encodeURIComponent(safeFromValue)}&to=${encodeURIComponent(safeToValue)}`;
+                    // Proper URL hash parameter encoding per GADS specification
+                    const params = new URLSearchParams();
+                    params.set('from', fromValue);
+                    params.set('to', toValue);
+                    window.location.hash = params.toString();
                 }
             }
             
@@ -603,30 +604,27 @@
             }
             
             styleDiff(fromHtml, toHtml) {
-                // Create wikEd diff instance
-                const wikEdDiff = new WikEd.diff();
-                
-                // Configure for word-level diff with move detection
-                const config = {
-                    fullDiff: false,
-                    charDiff: false,
-                    wordDiff: true,
-                    blockDiff: false,
-                    detectBlocks: true,
-                    detectMoves: true,
-                    stripTrailingNewline: true
-                };
-                
-                // Generate diff
-                const diffHtml = wikEdDiff.diff(fromHtml, toHtml, config);
-                
-                // Process wikEd output classes to our classes
-                let styledDiff = diffHtml
-                    .replace(/class="wikEdDiffDelete"/g, 'class="diff-deletion"')
-                    .replace(/class="wikEdDiffInsert"/g, 'class="diff-insertion"')
-                    .replace(/class="wikEdDiffMove"/g, 'class="diff-moved"');
-                
-                return styledDiff;
+                try {
+                    // Use wikEd diff library per GADS specification
+                    const diffHtml = wikEd.diff(fromHtml, toHtml, {
+                        fullDiff: true,
+                        charDiff: false,
+                        wordDiff: true,
+                        moveBlocks: true,
+                        showBlockMoves: true
+                    });
+                    
+                    // Process wikEd output classes to GADS-compliant classes
+                    let styledDiff = diffHtml
+                        .replace(/class="wikEdDiffDelete[^"]*"/g, 'class="diff-deletion"')
+                        .replace(/class="wikEdDiffInsert[^"]*"/g, 'class="diff-insertion"')
+                        .replace(/class="wikEdDiffBlock[^"]*"/g, 'class="diff-moved"')
+                        .replace(/class="wikEdDiffMove[^"]*"/g, 'class="diff-moved"');
+                    
+                    return styledDiff;
+                } catch (error) {
+                    throw new Error(`wikEd library failure: ${error.message}`);
+                }
             }
             
             updateNavigation() {
