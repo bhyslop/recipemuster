@@ -416,33 +416,33 @@ class GADFactory:
             elif item.is_dir():
                 shutil.rmtree(item)
     
-    def sort_commits_chronologically(self):
-        """Sort manifest commits by git chronological order."""
+    def sort_commits_by_parent_chain(self):
+        """Sort manifest commits by parent chain traversal order."""
         if len(self.manifest['commits']) <= 1:
             return
         
-        # Get commit hashes in chronological order from git
+        # Get commit hashes in parent chain traversal order from git
         os.chdir(self.repo_dir)
         try:
             # Get all commit hashes from our manifest
             manifest_hashes = [c['hash'] for c in self.manifest['commits']]
             hash_list = ' '.join(manifest_hashes)
             
-            # Get them in chronological order (oldest first)
+            # Get them in parent chain traversal order (oldest first)
             result = subprocess.run([
                 'git', 'log', '--reverse', '--format=%H', '--no-walk', '--stdin'
             ], input=hash_list, text=True, capture_output=True, check=True)
             
-            chronological_hashes = [line.strip() for line in result.stdout.strip().split('\n') if line.strip()]
+            parent_chain_hashes = [line.strip() for line in result.stdout.strip().split('\n') if line.strip()]
             
             # Create hash-to-commit mapping
             commit_map = {c['hash']: c for c in self.manifest['commits']}
             
-            # Reorder commits chronologically
-            self.manifest['commits'] = [commit_map[hash_val] for hash_val in chronological_hashes if hash_val in commit_map]
+            # Reorder commits by parent chain traversal order
+            self.manifest['commits'] = [commit_map[hash_val] for hash_val in parent_chain_hashes if hash_val in commit_map]
             
         except subprocess.CalledProcessError:
-            gadfl_warn("Failed to sort commits chronologically, keeping processing order")
+            gadfl_warn("Failed to sort commits by parent chain traversal, keeping processing order")
     
     def setup_directories(self):
         """Create directory structure per GADS specification."""
@@ -627,8 +627,8 @@ class GADFactory:
         # Add new commit entry
         self.manifest['commits'].append(commit_data)
         
-        # Sort commits chronologically by git order per GADS specification
-        self.sort_commits_chronologically()
+        # Sort commits by parent chain traversal order per GADS specification
+        self.sort_commits_by_parent_chain()
         
         # Update state per GADS specification
         self.manifest['last_processed_hash'] = commit_data['hash']
@@ -657,7 +657,7 @@ class GADFactory:
                 'git', 'rev-parse', self.branch
             ], capture_output=True, text=True, check=True).stdout.strip()
             
-            # Get commit list (we'll process HEAD first, then others chronologically)
+            # Get commit list (we'll process HEAD first, then others by parent chain traversal)
             result = subprocess.run([
                 'git', 'log', '--format=%H', self.branch, '-100'
             ], capture_output=True, text=True, check=True)
