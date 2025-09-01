@@ -136,14 +136,16 @@
             position: absolute;
             background: #333;
             color: white;
-            padding: 10px 15px;
+            padding: 15px 20px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 16px;
             max-width: 400px;
+            min-width: 300px;
             z-index: 1000;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             line-height: 1.4;
             display: none;
+            word-wrap: break-word;
         }
         
         .unchanged-commit {
@@ -314,15 +316,31 @@
                 
                 this.elements.consoleButton.addEventListener('click', () => this.copyTraceBuffer());
                 
-                // Keyboard shortcuts
+                // Enhanced keyboard shortcuts per GADS specification
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'j') this.nextChange();
-                    if (e.key === 'k') this.previousChange();
+                    // Only handle shortcuts if we have changes and no input is focused
+                    if (this.currentChanges.length === 0 || 
+                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+                        return;
+                    }
+                    
+                    if (e.key === 'j') {
+                        e.preventDefault();
+                        this.nextChange();
+                        traceBuffer.append('[NAVIGATION]', 'Keyboard shortcut: j (next change)');
+                    }
+                    if (e.key === 'k') {
+                        e.preventDefault();
+                        this.previousChange();
+                        traceBuffer.append('[NAVIGATION]', 'Keyboard shortcut: k (previous change)');
+                    }
                     if (e.key >= '1' && e.key <= '9') {
                         const index = parseInt(e.key) - 1;
                         if (index < this.currentChanges.length) {
+                            e.preventDefault();
                             this.currentChangeIndex = index;
                             this.highlightChange();
+                            traceBuffer.append('[NAVIGATION]', `Keyboard shortcut: ${e.key} (jump to change ${index + 1})`);
                         }
                     }
                 });
@@ -499,7 +517,7 @@
                     this.elements.comparisonHeader.textContent = 
                         `${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`;
                     
-                    // Check for identical SHA256
+                    // Check for identical SHA256 per GADS specification
                     if (fromCommit.html_sha256 === toCommit.html_sha256) {
                         traceBuffer.append('[SHA256]', 'Detection of identical html_sha256 values between selected commits');
                         this.showStatusMessage('These commits have identical rendered content');
@@ -522,6 +540,12 @@
             }
             
             resolveCommit(value) {
+                // Enhanced edge case handling per GADS specification
+                if (!this.manifest || !this.manifest.commits || this.manifest.commits.length === 0) {
+                    traceBuffer.append('[ERROR]', 'Cannot resolve commit: manifest empty or missing commits');
+                    return null;
+                }
+                
                 if (value === 'latest') {
                     traceBuffer.append('[RESOLVE]', 'Resolving magic value: latest');
                     const resolved = this.manifest.commits[this.manifest.commits.length - 1];
@@ -529,11 +553,19 @@
                     return resolved;
                 } else if (value === 'before-last') {
                     traceBuffer.append('[RESOLVE]', 'Resolving magic value: before-last');
+                    if (this.manifest.commits.length < 2) {
+                        traceBuffer.append('[ERROR]', 'Cannot resolve before-last: insufficient commits in manifest');
+                        return this.manifest.commits[0]; // Fallback to only commit
+                    }
                     const resolved = this.manifest.commits[this.manifest.commits.length - 2];
                     traceBuffer.append('[RESOLVE]', `Successful resolution of before-last to SHA: ${resolved.hash.substring(0, 8)}`);
                     return resolved;
                 } else if (value === 'before-substantive') {
                     traceBuffer.append('[RESOLVE]', 'Resolving magic value: before-substantive');
+                    if (this.manifest.commits.length < 2) {
+                        traceBuffer.append('[ERROR]', 'Cannot resolve before-substantive: insufficient commits in manifest');
+                        return this.manifest.commits[0]; // Fallback to only commit
+                    }
                     const latest = this.manifest.commits[this.manifest.commits.length - 1];
                     let skippedCount = 0;
                     for (let i = this.manifest.commits.length - 2; i >= 0; i--) {
@@ -547,13 +579,17 @@
                         }
                         skippedCount++;
                     }
+                    // All commits have same content - fallback to oldest
                     const fallback = this.manifest.commits[0];
-                    traceBuffer.append('[RESOLVE]', `Before-substantive fallback to oldest commit: ${fallback.hash.substring(0, 8)}`);
+                    traceBuffer.append('[RESOLVE]', `Before-substantive fallback to oldest commit (all identical content): ${fallback.hash.substring(0, 8)}`);
+                    this.showStatusMessage('All commits have identical rendered content');
                     return fallback;
                 } else {
                     const resolved = this.manifest.commits.find(c => c.hash === value);
                     if (resolved) {
                         traceBuffer.append('[RESOLVE]', `Direct commit hash resolution: ${value.substring(0, 8)}`);
+                    } else {
+                        traceBuffer.append('[ERROR]', `Failed to resolve commit hash: ${value}`);
                     }
                     return resolved;
                 }
@@ -563,13 +599,22 @@
                 traceBuffer.append('[FETCH]', `HTML fetch start for ${fromCommit.html_file} and ${toCommit.html_file}`);
                 
                 try {
+                    // Enhanced logging per GADS specification
+                    traceBuffer.append('[FETCH]', `Fetching from commit: ${fromCommit.hash.substring(0, 8)}`);
+                    traceBuffer.append('[FETCH]', `Fetching to commit: ${toCommit.hash.substring(0, 8)}`);
+                    
                     const [fromResponse, toResponse] = await Promise.all([
                         fetch(`/output/${fromCommit.html_file}`),
                         fetch(`/output/${toCommit.html_file}`)
                     ]);
                     
-                    if (!fromResponse.ok || !toResponse.ok) {
-                        throw new Error('Failed to fetch HTML files');
+                    if (!fromResponse.ok) {
+                        traceBuffer.append('[FETCH]', `Fetch failure for ${fromCommit.html_file}: HTTP ${fromResponse.status}`);
+                        throw new Error(`Failed to fetch ${fromCommit.html_file}: HTTP ${fromResponse.status}`);
+                    }
+                    if (!toResponse.ok) {
+                        traceBuffer.append('[FETCH]', `Fetch failure for ${toCommit.html_file}: HTTP ${toResponse.status}`);
+                        throw new Error(`Failed to fetch ${toCommit.html_file}: HTTP ${toResponse.status}`);
                     }
                     
                     const [fromHtml, toHtml] = await Promise.all([
@@ -577,8 +622,8 @@
                         toResponse.text()
                     ]);
                     
-                    traceBuffer.append('[FETCH]', 'Successful fetch completion');
-                    traceBuffer.append('[DIFF]', 'Diff computation start');
+                    traceBuffer.append('[FETCH]', 'Successful fetch completion for both files');
+                    traceBuffer.append('[DIFF]', 'Diff computation start using wikEd library');
                     
                     // Use wikEd diff library
                     const styledDiff = this.styleDiff(fromHtml, toHtml);
@@ -589,7 +634,8 @@
                     this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved');
                     this.currentChangeIndex = 0;
                     
-                    traceBuffer.append('[DIFF]', `Completion with ${this.currentChanges.length} changes`);
+                    traceBuffer.append('[DIFF]', `Completion with ${this.currentChanges.length} changes found`);
+                    traceBuffer.append('[NAVIGATION]', `Navigation initialized with ${this.currentChanges.length} changes`);
                     
                     this.updateNavigation();
                     
@@ -686,14 +732,34 @@
                 const commit = this.resolveCommit(option.value);
                 if (!commit) return;
                 
+                // Show full commit SHA and message per GADS specification
                 this.elements.commitTooltip.innerHTML = `
-                    <div><strong>${commit.hash}</strong></div>
-                    <div>${commit.message}</div>
+                    <div style="font-family: monospace; font-size: 14px; margin-bottom: 8px;"><strong>SHA:</strong> ${commit.hash}</div>
+                    <div style="font-size: 16px;"><strong>Message:</strong> ${commit.message}</div>
                 `;
                 
                 this.elements.commitTooltip.style.display = 'block';
-                this.elements.commitTooltip.style.left = event.pageX + 10 + 'px';
-                this.elements.commitTooltip.style.top = event.pageY - 10 + 'px';
+                
+                // Improved positioning with boundary checking
+                const tooltipRect = this.elements.commitTooltip.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                let left = event.pageX + 10;
+                let top = event.pageY - 10;
+                
+                // Adjust if tooltip would go off right edge
+                if (left + 400 > viewportWidth) {
+                    left = event.pageX - 410;
+                }
+                
+                // Adjust if tooltip would go off bottom edge
+                if (top + 100 > viewportHeight) {
+                    top = event.pageY - 110;
+                }
+                
+                this.elements.commitTooltip.style.left = Math.max(10, left) + 'px';
+                this.elements.commitTooltip.style.top = Math.max(10, top) + 'px';
             }
             
             hideCommitTooltip() {
