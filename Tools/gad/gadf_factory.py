@@ -47,7 +47,7 @@ def gadfl_warn(message):
     logger.warning(f"\033[33m{message}\033[0m")
 
 def gadfl_fail(message):
-    """GADS-compliant fatal error reporting."""
+    """GADS-compliant fatal error reporting with cleanup preservation."""
     logger.error(f"\033[31m{message}\033[0m")
     sys.exit(1)
 
@@ -248,12 +248,12 @@ class HTMLNormalizer:
             if any(keyword in comment.lower() for keyword in ['generated', 'timestamp', 'build', 'date']):
                 comment.extract()
         
-        # Remove host-specific paths
+        # Remove host-specific paths (Linux environment only)
         for element in new_soup.find_all(True):
             for attr in ['href', 'src', 'data-uri']:
                 if element.has_attr(attr):
                     value = element[attr]
-                    if value.startswith('/home/') or value.startswith('/Users/') or value.startswith('C:\\'):
+                    if value.startswith('/home/') or value.startswith('/Users/'):
                         element[attr] = os.path.basename(value)
         
         # Remove auto-numbering
@@ -309,7 +309,7 @@ class HTMLNormalizer:
             # Copy and clean attributes
             for attr, value in source_element.attrs.items():
                 if attr in ['href', 'src', 'data-uri']:
-                    if isinstance(value, str) and (value.startswith('/home/') or value.startswith('/Users/') or value.startswith('C:\\\\')):
+                    if isinstance(value, str) and (value.startswith('/home/') or value.startswith('/Users/')):
                         new_tag[attr] = os.path.basename(value)
                     else:
                         new_tag[attr] = value
@@ -327,7 +327,7 @@ class HTMLNormalizer:
             # Handle auto-numbering removal
             if source_element.name in ['figcaption', 'caption']:
                 text = source_element.get_text()
-                normalized = re.sub(r'^(Figure|Table|Listing)\\s+\\d+[\\.:]\\s*', '', text)
+                normalized = re.sub(r'^(Figure|Table|Listing)\s+\d+[\.:]\s*', '', text)
                 if normalized != text:
                     new_tag.string = normalized
                     target_parent.append(new_tag)
@@ -387,7 +387,6 @@ class GADFactory:
         self.manifest = {
             'branch': self.branch,
             'asciidoc': str(self.adoc_relpath),
-            'distinct_sha256_count': 0,
             'last_processed_hash': '',
             'commits': []
         }
@@ -489,8 +488,6 @@ class GADFactory:
         
         # Extract commit files via git archive
         try:
-            subprocess.run(['git', 'archive', commit_hash], 
-                         stdout=subprocess.PIPE, check=True)
             result = subprocess.run(['git', 'archive', commit_hash], 
                                   capture_output=True, check=True)
             subprocess.run(['tar', '-xf', '-', '-C', str(self.extract_dir)], 
@@ -633,8 +630,7 @@ class GADFactory:
         # Sort commits chronologically by git order per GADS specification
         self.sort_commits_chronologically()
         
-        # Update counts and state
-        self.manifest['distinct_sha256_count'] = self.calculate_distinct_count()
+        # Update state per GADS specification
         self.manifest['last_processed_hash'] = commit_data['hash']
         
         # Write updated manifest atomically
@@ -687,13 +683,14 @@ class GADFactory:
         
         # Continue with remaining commits until we reach max distinct count
         for commit_hash in commits[1:]:
-            if self.manifest['distinct_sha256_count'] >= self.max_distinct_renders:
+            current_distinct_count = self.calculate_distinct_count()
+            if current_distinct_count >= self.max_distinct_renders:
                 gadfl_step(f"Reached maximum distinct renders ({self.max_distinct_renders})")
                 break
             
             if self.commit_has_adoc(commit_hash):
                 if self.render_commit(commit_hash):
-                    current_count = self.manifest['distinct_sha256_count']
+                    current_count = self.calculate_distinct_count()
                     gadfl_step(f"Current distinct count: {current_count}")
     
     def commit_has_adoc(self, commit_hash):

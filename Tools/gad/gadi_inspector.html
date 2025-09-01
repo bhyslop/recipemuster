@@ -327,10 +327,10 @@
                     }
                 });
                 
-                // Tooltip handling - use focus events per GADS specification
+                // Tooltip handling - use hover events per GADS specification
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
-                    dropdown.addEventListener('focus', (e) => this.showCommitTooltip(e));
-                    dropdown.addEventListener('blur', () => this.hideCommitTooltip());
+                    dropdown.addEventListener('mouseenter', (e) => this.showCommitTooltip(e));
+                    dropdown.addEventListener('mouseleave', () => this.hideCommitTooltip());
                     dropdown.addEventListener('change', (e) => this.showCommitTooltip(e));
                 });
                 
