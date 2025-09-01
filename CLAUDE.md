@@ -87,7 +87,7 @@ Full read and edit access is pre-approved for all files in:
 - **GADS**    → `gad-GADS-GoogleAsciidocDifferSpecification.adoc`
 - **GADP**    → `gad-GADP-GoogleAsciidocDifferPlanner.md`
 - **GADMCR**  → `gad-GADMCR-MemoCorsResolution.md`
-- **WCCC**    → `WCCC-WebClaudetoClaudeCode.md`
+- **WCC**     → `WCC-WebClaudetoClaudeCode.md`
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
