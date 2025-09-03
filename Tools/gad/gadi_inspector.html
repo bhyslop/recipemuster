@@ -711,12 +711,24 @@
         
         // Initialize inspector when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, initializing inspector');
-            wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff available: ${typeof WikEdDiff !== 'undefined'}`);
-            if (typeof WikEdDiff !== 'undefined') {
-                wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class found, library loaded successfully');
+            wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, waiting for WebSocket connection');
+            
+            // Wait for WebSocket connection before initializing Inspector
+            function initializeWhenReady() {
+                if (wsTraceHandler.ws && wsTraceHandler.ws.readyState === WebSocket.OPEN) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'WebSocket ready, initializing inspector');
+                    wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff available: ${typeof WikEdDiff !== 'undefined'}`);
+                    if (typeof WikEdDiff !== 'undefined') {
+                        wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class found, library loaded successfully');
+                    }
+                    window.gadInspector = new GadInspector();
+                } else {
+                    // Wait a bit longer
+                    setTimeout(initializeWhenReady, 100);
+                }
             }
-            window.gadInspector = new GadInspector();
+            
+            initializeWhenReady();
         });
     </script>
 </body>
