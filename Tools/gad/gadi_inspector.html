@@ -393,7 +393,9 @@
                 
                 try {
                     wsTraceHandler.sendTrace('[DEBUG]', 'Fetching manifest.json');
+                    wsTraceHandler.sendTrace('[DEBUG]', `Fetch URL: ${window.location.origin}/manifest.json`);
                     const response = await fetch('manifest.json');
+                    wsTraceHandler.sendTrace('[DEBUG]', `Fetch response status: ${response.status}`);
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
