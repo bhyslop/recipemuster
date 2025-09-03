@@ -481,9 +481,12 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
                     except json.JSONDecodeError:
                         gadfl_warn(f"Invalid WebSocket message: {message}")
             
-            # Handle WebSocket communication in this thread
+            # Handle WebSocket communication in separate thread
             ws_handler = EmbeddedWebSocketHandler(self)
-            ws_handler.handle_websocket_messages()
+            import threading
+            ws_thread = threading.Thread(target=ws_handler.handle_websocket_messages)
+            ws_thread.daemon = True
+            ws_thread.start()
             
         except Exception as e:
             gadfl_warn(f"WebSocket upgrade failed: {e}")
