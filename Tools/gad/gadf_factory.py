@@ -33,6 +33,10 @@ from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup, Comment
+import base64
+import struct
+import socket
+import socketserver
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -51,33 +55,188 @@ def gadfl_fail(message):
     logger.error(f"\033[31m{message}\033[0m")
     sys.exit(1)
 
-class SSEHandler:
-    """Manages Server-Sent Events connections."""
+class SimpleWebSocketHandler(socketserver.BaseRequestHandler):
+    """Simple WebSocket handler without external dependencies."""
+    
+    def handle(self):
+        """Handle WebSocket connection."""
+        try:
+            # Perform WebSocket handshake
+            if not self.perform_handshake():
+                return
+            
+            gadfl_step(f"WebSocket client connected from {self.client_address}")
+            self.server.websocket_handler.add_client(self)
+            
+            # Keep connection alive and handle messages
+            while True:
+                try:
+                    message = self.receive_message()
+                    if message:
+                        self.handle_message(message)
+                except (ConnectionResetError, BrokenPipeError):
+                    break
+                except Exception as e:
+                    gadfl_warn(f"WebSocket error: {e}")
+                    break
+                    
+        except Exception as e:
+            gadfl_warn(f"WebSocket connection error: {e}")
+        finally:
+            self.server.websocket_handler.remove_client(self)
+            gadfl_step("WebSocket client disconnected")
+    
+    def perform_handshake(self):
+        """Perform WebSocket handshake."""
+        try:
+            request = self.request.recv(1024).decode('utf-8')
+            if 'Upgrade: websocket' not in request:
+                return False
+            
+            # Extract WebSocket key
+            for line in request.split('\r\n'):
+                if line.startswith('Sec-WebSocket-Key:'):
+                    key = line.split(': ')[1].strip()
+                    break
+            else:
+                return False
+            
+            # Generate accept key
+            import hashlib
+            accept = base64.b64encode(
+                hashlib.sha1((key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode()).digest()
+            ).decode()
+            
+            # Send handshake response
+            response = (
+                'HTTP/1.1 101 Switching Protocols\r\n'
+                'Upgrade: websocket\r\n'
+                'Connection: Upgrade\r\n'
+                f'Sec-WebSocket-Accept: {accept}\r\n'
+                '\r\n'
+            )
+            self.request.send(response.encode())
+            return True
+            
+        except Exception:
+            return False
+    
+    def receive_message(self):
+        """Receive WebSocket message."""
+        try:
+            # Read first 2 bytes for frame info
+            frame = self.request.recv(2)
+            if len(frame) < 2:
+                return None
+                
+            # Parse WebSocket frame (simplified)
+            byte1, byte2 = frame[0], frame[1]
+            masked = byte2 & 0x80
+            payload_length = byte2 & 0x7f
+            
+            if payload_length == 126:
+                payload_length = struct.unpack('>H', self.request.recv(2))[0]
+            elif payload_length == 127:
+                payload_length = struct.unpack('>Q', self.request.recv(8))[0]
+            
+            # Read mask if present
+            if masked:
+                mask = self.request.recv(4)
+            
+            # Read payload
+            payload = self.request.recv(payload_length)
+            
+            # Unmask if necessary
+            if masked:
+                payload = bytes([payload[i] ^ mask[i % 4] for i in range(len(payload))])
+            
+            return payload.decode('utf-8')
+            
+        except Exception:
+            return None
+    
+    def send_message(self, message):
+        """Send WebSocket message."""
+        try:
+            payload = message.encode('utf-8')
+            frame = bytearray()
+            frame.append(0x81)  # Text frame
+            
+            if len(payload) < 126:
+                frame.append(len(payload))
+            elif len(payload) < 65536:
+                frame.append(126)
+                frame.extend(struct.pack('>H', len(payload)))
+            else:
+                frame.append(127)
+                frame.extend(struct.pack('>Q', len(payload)))
+            
+            frame.extend(payload)
+            self.request.send(frame)
+            
+        except Exception as e:
+            gadfl_warn(f"Failed to send WebSocket message: {e}")
+    
+    def handle_message(self, message):
+        """Handle received WebSocket message."""
+        try:
+            data = json.loads(message)
+            if data.get('type') == 'trace':
+                gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
+        except json.JSONDecodeError:
+            gadfl_warn(f"Invalid WebSocket message: {message}")
+
+class WebSocketHandler:
+    """Manages WebSocket connections using simple built-in server."""
     
     def __init__(self):
         self.clients = set()
+        self.server = None
+        self.server_thread = None
     
     def add_client(self, client):
+        """Add WebSocket client."""
         self.clients.add(client)
     
     def remove_client(self, client):
+        """Remove WebSocket client."""
         self.clients.discard(client)
     
+    def start_server(self, port):
+        """Start WebSocket server."""
+        try:
+            self.server = socketserver.ThreadingTCPServer(('localhost', port), SimpleWebSocketHandler)
+            self.server.websocket_handler = self
+            self.server_thread = threading.Thread(target=self.server.serve_forever)
+            self.server_thread.daemon = True
+            self.server_thread.start()
+            gadfl_step(f"WebSocket server started on port {port}")
+        except Exception as e:
+            gadfl_fail(f"Failed to start WebSocket server: {e}")
+    
     def broadcast_refresh(self):
-        """Broadcast refresh event to all connected clients."""
-        event_data = 'event: refresh\ndata: {"type": "new_commit"}\n\n'
+        """Send refresh message to all connected clients."""
+        if not self.clients:
+            return
+        
+        message = json.dumps({"type": "refresh", "data": "new_commit"})
         disconnected = set()
         
-        for client in self.clients:
+        for client in list(self.clients):
             try:
-                client.wfile.write(event_data.encode())
-                client.wfile.flush()
-            except (BrokenPipeError, ConnectionAbortedError, OSError):
+                client.send_message(message)
+            except Exception:
                 disconnected.add(client)
         
         # Clean up disconnected clients
         for client in disconnected:
             self.clients.discard(client)
+    
+    def stop_server(self):
+        """Stop WebSocket server."""
+        if self.server:
+            self.server.shutdown()
+            gadfl_step("WebSocket server stopped")
 
 class GADRequestHandler(SimpleHTTPRequestHandler):
     """Custom HTTP handler for GAD Factory."""
@@ -91,8 +250,8 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
             # Serve Inspector from source location
             self.serve_inspector()
         elif self.path == '/events':
-            # Handle SSE endpoint
-            self.serve_sse()
+            # Redirect WebSocket connections to WebSocket server
+            self.serve_websocket_redirect()
         elif self.path.startswith('/output/'):
             # Serve output files
             self.serve_output_file()
@@ -115,30 +274,18 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
         except FileNotFoundError:
             self.send_error(404, "Inspector not found")
     
-    def serve_sse(self):
-        """Handle Server-Sent Events endpoint."""
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/event-stream')
-        self.send_header('Cache-Control', 'no-cache')
-        self.send_header('Connection', 'keep-alive')
-        self.send_header('Access-Control-Allow-Origin', '*')
+    def serve_websocket_redirect(self):
+        """Inform clients about WebSocket endpoint."""
+        self.send_response(426)  # Upgrade Required
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Connection', 'close')
         self.end_headers()
         
-        # Add client to SSE handler
-        self.factory.sse_handler.add_client(self)
-        
-        # Send initial connection event
-        self.wfile.write(b'event: connected\ndata: {"status": "connected"}\n\n')
-        self.wfile.flush()
-        
-        # Keep connection alive
-        try:
-            while True:
-                time.sleep(30)  # Send heartbeat every 30 seconds
-                self.wfile.write(b'event: heartbeat\ndata: {}\n\n')
-                self.wfile.flush()
-        except (BrokenPipeError, ConnectionAbortedError):
-            self.factory.sse_handler.remove_client(self)
+        response = {
+            "error": "WebSocket connection required",
+            "websocket_url": f"ws://localhost:{self.factory.websocket_port}/"
+        }
+        self.wfile.write(json.dumps(response).encode())
     
     def serve_output_file(self):
         """Serve files from output directory."""
@@ -282,7 +429,7 @@ class HTMLNormalizer:
     
     @staticmethod
     def _copy_element_safely(source_element, target_parent, soup):
-        \"\"\"Safely copy element from source to target without in-place modification.\"\"\"
+        """Safely copy element from source to target without in-place modification."""
         from bs4 import NavigableString, Comment, Tag
         
         if isinstance(source_element, NavigableString):
@@ -341,7 +488,7 @@ class HTMLNormalizer:
     
     @staticmethod
     def should_preserve_whitespace_context(element):
-        \"\"\"Check if element context should preserve whitespace.\"\"\"
+        """Check if element context should preserve whitespace."""
         if hasattr(element, 'parent'):
             parent = element.parent
             while parent:
@@ -383,7 +530,8 @@ class GADFactory:
             gadfl_fail(f"AsciiDoc file '{self.adoc_filename}' is not within repository '{self.repo_dir}'")
         
         # Initialize components
-        self.sse_handler = SSEHandler()
+        self.websocket_handler = WebSocketHandler()
+        self.websocket_port = port + 1  # Use next port for WebSocket
         self.manifest = {
             'branch': self.branch,
             'asciidoc': str(self.adoc_relpath),
@@ -472,8 +620,13 @@ class GADFactory:
             self.server_thread.daemon = True
             self.server_thread.start()
             gadfl_step(f"HTTP server started on port {self.port}")
+            
+            # Start WebSocket server
+            self.websocket_handler.start_server(self.websocket_port)
+            
         except OSError as e:
             gadfl_fail(f"Failed to start HTTP server on port {self.port}: {e}")
+    
     
     def render_commit(self, commit_hash):
         """Execute render sequence for a single commit."""
@@ -643,9 +796,9 @@ class GADFactory:
         except IOError as e:
             gadfl_fail(f"Failed to update manifest: {e}")
         
-        # Broadcast SSE event if server is running
+        # Send WebSocket refresh message if server is running
         if self.server:
-            self.sse_handler.broadcast_refresh()
+            self.websocket_handler.broadcast_refresh()
     
     def get_commits_to_process(self):
         """Get list of commits for initial population (HEAD-first)."""
@@ -772,6 +925,7 @@ class GADFactory:
                 if self.server:
                     self.server.shutdown()
                     gadfl_step("HTTP server stopped")
+                self.websocket_handler.stop_server()
         else:
             # Keep server running briefly for once mode
             gadfl_step(f"GAD factory processing complete. Output in {self.output_dir}")
@@ -784,7 +938,8 @@ class GADFactory:
                         time.sleep(1)
                 except KeyboardInterrupt:
                     self.server.shutdown()
-                    gadfl_step("HTTP server stopped")
+                    self.websocket_handler.stop_server()
+                    gadfl_step("HTTP and WebSocket servers stopped")
 
 def main():
     """Main entry point with argument parsing."""

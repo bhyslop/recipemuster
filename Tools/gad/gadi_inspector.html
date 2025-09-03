@@ -136,16 +136,14 @@
             position: absolute;
             background: #333;
             color: white;
-            padding: 15px 20px;
+            padding: 10px 15px;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 14px;
             max-width: 400px;
-            min-width: 300px;
             z-index: 1000;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             line-height: 1.4;
             display: none;
-            word-wrap: break-word;
         }
         
         .unchanged-commit {
@@ -227,7 +225,7 @@
     
     <div class="commit-tooltip" id="commitTooltip"></div>
     
-    <script src="https://cdn.jsdelivr.net/npm/wikieddiff@1.0.4/dist/wikEd-diff.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wikied@1.0.0/dist/wikied.min.js"></script>
     <script>
         // Trace buffer implementation per GADS specification
         class TraceBuffer {
@@ -281,13 +279,9 @@
                 this.manifest = null;
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
-                this.eventSource = null;
-                this.previousFromValue = '';
-                this.previousToValue = '';
                 
                 this.initializeElements();
                 this.setupEventListeners();
-                this.setupSSEConnection();
                 this.loadManifest();
             }
             
@@ -302,7 +296,6 @@
                     previousButton: document.getElementById('previousButton'),
                     nextButton: document.getElementById('nextButton'),
                     changeCounter: document.getElementById('changeCounter'),
-                    consoleButton: document.getElementById('consoleButton'),
                     commitTooltip: document.getElementById('commitTooltip')
                 };
             }
@@ -314,42 +307,24 @@
                 this.elements.previousButton.addEventListener('click', () => this.previousChange());
                 this.elements.nextButton.addEventListener('click', () => this.nextChange());
                 
-                this.elements.consoleButton.addEventListener('click', () => this.copyTraceBuffer());
                 
-                // Enhanced keyboard shortcuts per GADS specification
+                // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
-                    // Only handle shortcuts if we have changes and no input is focused
-                    if (this.currentChanges.length === 0 || 
-                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
-                        return;
-                    }
-                    
-                    if (e.key === 'j') {
-                        e.preventDefault();
-                        this.nextChange();
-                        traceBuffer.append('[NAVIGATION]', 'Keyboard shortcut: j (next change)');
-                    }
-                    if (e.key === 'k') {
-                        e.preventDefault();
-                        this.previousChange();
-                        traceBuffer.append('[NAVIGATION]', 'Keyboard shortcut: k (previous change)');
-                    }
+                    if (e.key === 'j') this.nextChange();
+                    if (e.key === 'k') this.previousChange();
                     if (e.key >= '1' && e.key <= '9') {
                         const index = parseInt(e.key) - 1;
                         if (index < this.currentChanges.length) {
-                            e.preventDefault();
                             this.currentChangeIndex = index;
                             this.highlightChange();
-                            traceBuffer.append('[NAVIGATION]', `Keyboard shortcut: ${e.key} (jump to change ${index + 1})`);
                         }
                     }
                 });
                 
-                // Tooltip handling - use hover events per GADS specification
+                // Tooltip handling
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
-                    dropdown.addEventListener('mouseenter', (e) => this.showCommitTooltip(e));
-                    dropdown.addEventListener('mouseleave', () => this.hideCommitTooltip());
-                    dropdown.addEventListener('change', (e) => this.showCommitTooltip(e));
+                    dropdown.addEventListener('mouseover', (e) => this.showCommitTooltip(e));
+                    dropdown.addEventListener('mouseout', () => this.hideCommitTooltip());
                 });
                 
                 // Parse URL hash on load
@@ -357,58 +332,26 @@
                 window.addEventListener('hashchange', () => this.parseUrlHash());
             }
             
-            setupSSEConnection() {
-                traceBuffer.append('[SSE]', 'Setting up Server-Sent Events connection');
-                
-                try {
-                    this.eventSource = new EventSource('/events');
-                    
-                    this.eventSource.addEventListener('connected', (event) => {
-                        traceBuffer.append('[SSE]', 'Connected to Factory SSE stream');
-                    });
-                    
-                    this.eventSource.addEventListener('refresh', (event) => {
-                        traceBuffer.append('[SSE]', 'Received refresh event from Factory');
-                        const data = JSON.parse(event.data);
-                        if (data.type === 'new_commit') {
-                            this.loadManifest();
-                        }
-                    });
-                    
-                    this.eventSource.addEventListener('heartbeat', (event) => {
-                        // Handle heartbeat events from Factory SSE stream
-                        traceBuffer.append('[SSE]', 'Received heartbeat from Factory');
-                    });
-                    
-                    this.eventSource.addEventListener('error', (event) => {
-                        traceBuffer.append('[SSE]', 'SSE connection error - Factory may not be running');
-                    });
-                    
-                } catch (error) {
-                    traceBuffer.append('[SSE]', `Failed to establish SSE connection: ${error.message}`);
-                }
-            }
-
             async loadManifest() {
-                traceBuffer.append('[MANIFEST]', 'Loading start');
+                wsTraceHandler.sendTrace('[MANIFEST]', 'Loading start');
                 
                 try {
-                    const response = await fetch('/output/manifest.json');
+                    const response = await fetch('manifest.json');
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                     
                     this.manifest = await response.json();
-                    traceBuffer.append('[MANIFEST]', `Successful load with ${this.manifest.commits.length} commits`);
+                    wsTraceHandler.sendTrace('[MANIFEST]', `Successful load with ${this.manifest.commits.length} commits`);
                     
                     this.populateDropdowns();
                     this.parseUrlHash();
                     
                 } catch (error) {
-                    traceBuffer.append('[MANIFEST]', `Load failure: ${error.message}`);
+                    wsTraceHandler.sendTrace('[MANIFEST]', `Load failure: ${error.message}`);
                     this.elements.renderedPane.innerHTML = `
                         <div class="error">
-                            <h3>Failed to load /output/manifest.json</h3>
+                            <h3>Failed to load manifest.json</h3>
                             <p>${error.message}</p>
                         </div>
                     `;
@@ -466,16 +409,11 @@
             }
             
             onDropdownChange() {
-                const oldFromValue = this.previousFromValue || '';
-                const oldToValue = this.previousToValue || '';
                 const fromValue = this.elements.fromDropdown.value;
                 const toValue = this.elements.toDropdown.value;
                 
-                traceBuffer.append('[DROPDOWN]', `From changed from: ${oldFromValue} to: ${fromValue}`);
-                traceBuffer.append('[DROPDOWN]', `To changed from: ${oldToValue} to: ${toValue}`);
-                
-                this.previousFromValue = fromValue;
-                this.previousToValue = toValue;
+                wsTraceHandler.sendTrace('[DROPDOWN]', `From changed to: ${fromValue}`);
+                wsTraceHandler.sendTrace('[DROPDOWN]', `To changed to: ${toValue}`);
                 
                 this.updateUrlHash();
                 this.performDiff();
@@ -486,11 +424,7 @@
                 const toValue = this.elements.toDropdown.value;
                 
                 if (fromValue && toValue) {
-                    // Proper URL hash parameter encoding per GADS specification
-                    const params = new URLSearchParams();
-                    params.set('from', fromValue);
-                    params.set('to', toValue);
-                    window.location.hash = params.toString();
+                    window.location.hash = `from=${encodeURIComponent(fromValue)}&to=${encodeURIComponent(toValue)}`;
                 }
             }
             
@@ -501,35 +435,35 @@
                 if (!fromValue || !toValue) return;
                 
                 try {
-                    traceBuffer.append('[RESOLVE]', 'Magic value resolution start');
+                    wsTraceHandler.sendTrace('[RESOLVE]', 'Magic value resolution start');
                     
                     const fromCommit = this.resolveCommit(fromValue);
                     const toCommit = this.resolveCommit(toValue);
                     
                     if (!fromCommit || !toCommit) {
-                        traceBuffer.append('[ERROR]', 'Invalid magic values or missing commits in manifest');
+                        wsTraceHandler.sendTrace('[ERROR]', 'Invalid magic values or missing commits in manifest');
                         throw new Error('Failed to resolve commits');
                     }
                     
-                    traceBuffer.append('[RESOLVE]', `Resolved from: ${fromCommit.hash.substring(0, 8)}, to: ${toCommit.hash.substring(0, 8)}`);
+                    wsTraceHandler.sendTrace('[RESOLVE]', `Resolved from: ${fromCommit.hash.substring(0, 8)}, to: ${toCommit.hash.substring(0, 8)}`);
                     
                     // Update comparison header
                     this.elements.comparisonHeader.textContent = 
                         `${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`;
                     
-                    // Check for identical SHA256 per GADS specification
+                    // Check for identical SHA256
                     if (fromCommit.html_sha256 === toCommit.html_sha256) {
-                        traceBuffer.append('[SHA256]', 'Detection of identical html_sha256 values between selected commits');
+                        wsTraceHandler.sendTrace('[SHA256]', 'Detection of identical html_sha256 values between selected commits');
                         this.showStatusMessage('These commits have identical rendered content');
                     } else {
-                        traceBuffer.append('[SHA256]', 'Detection of different html_sha256 values between selected commits');
+                        wsTraceHandler.sendTrace('[SHA256]', 'Detection of different html_sha256 values between selected commits');
                         this.hideStatusMessage();
                     }
                     
                     await this.fetchAndDiff(fromCommit, toCommit);
                     
                 } catch (error) {
-                    traceBuffer.append('[ERROR]', `Diff error: ${error.message}`);
+                    wsTraceHandler.sendTrace('[ERROR]', `Diff error: ${error.message}`);
                     this.elements.renderedPane.innerHTML = `
                         <div class="error">
                             <h3>Diff Error</h3>
@@ -540,81 +474,40 @@
             }
             
             resolveCommit(value) {
-                // Enhanced edge case handling per GADS specification
-                if (!this.manifest || !this.manifest.commits || this.manifest.commits.length === 0) {
-                    traceBuffer.append('[ERROR]', 'Cannot resolve commit: manifest empty or missing commits');
-                    return null;
-                }
-                
                 if (value === 'latest') {
-                    traceBuffer.append('[RESOLVE]', 'Resolving magic value: latest');
-                    const resolved = this.manifest.commits[this.manifest.commits.length - 1];
-                    traceBuffer.append('[RESOLVE]', `Successful resolution of latest to SHA: ${resolved.hash.substring(0, 8)}`);
-                    return resolved;
+                    return this.manifest.commits[this.manifest.commits.length - 1];
                 } else if (value === 'before-last') {
-                    traceBuffer.append('[RESOLVE]', 'Resolving magic value: before-last');
-                    if (this.manifest.commits.length < 2) {
-                        traceBuffer.append('[ERROR]', 'Cannot resolve before-last: insufficient commits in manifest');
-                        return this.manifest.commits[0]; // Fallback to only commit
-                    }
-                    const resolved = this.manifest.commits[this.manifest.commits.length - 2];
-                    traceBuffer.append('[RESOLVE]', `Successful resolution of before-last to SHA: ${resolved.hash.substring(0, 8)}`);
-                    return resolved;
+                    return this.manifest.commits[this.manifest.commits.length - 2];
                 } else if (value === 'before-substantive') {
-                    traceBuffer.append('[RESOLVE]', 'Resolving magic value: before-substantive');
-                    if (this.manifest.commits.length < 2) {
-                        traceBuffer.append('[ERROR]', 'Cannot resolve before-substantive: insufficient commits in manifest');
-                        return this.manifest.commits[0]; // Fallback to only commit
-                    }
                     const latest = this.manifest.commits[this.manifest.commits.length - 1];
                     let skippedCount = 0;
                     for (let i = this.manifest.commits.length - 2; i >= 0; i--) {
                         if (this.manifest.commits[i].html_sha256 !== latest.html_sha256) {
-                            traceBuffer.append('[RESOLVE]', `Successful resolution of before-substantive to SHA: ${this.manifest.commits[i].hash.substring(0, 8)}`);
                             if (skippedCount > 0) {
-                                traceBuffer.append('[RESOLVE]', `Unchanged commit skip count for before-substantive: ${skippedCount}`);
+                                wsTraceHandler.sendTrace('[RESOLVE]', `Skipped ${skippedCount} unchanged commits for before-substantive`);
                                 this.showStatusMessage(`Skipped ${skippedCount} unchanged commits to find last substantive change`);
                             }
                             return this.manifest.commits[i];
                         }
                         skippedCount++;
                     }
-                    // All commits have same content - fallback to oldest
-                    const fallback = this.manifest.commits[0];
-                    traceBuffer.append('[RESOLVE]', `Before-substantive fallback to oldest commit (all identical content): ${fallback.hash.substring(0, 8)}`);
-                    this.showStatusMessage('All commits have identical rendered content');
-                    return fallback;
+                    return this.manifest.commits[0];
                 } else {
-                    const resolved = this.manifest.commits.find(c => c.hash === value);
-                    if (resolved) {
-                        traceBuffer.append('[RESOLVE]', `Direct commit hash resolution: ${value.substring(0, 8)}`);
-                    } else {
-                        traceBuffer.append('[ERROR]', `Failed to resolve commit hash: ${value}`);
-                    }
-                    return resolved;
+                    return this.manifest.commits.find(c => c.hash === value);
                 }
             }
             
             async fetchAndDiff(fromCommit, toCommit) {
-                traceBuffer.append('[FETCH]', `HTML fetch start for ${fromCommit.html_file} and ${toCommit.html_file}`);
+                wsTraceHandler.sendTrace('[FETCH]', `HTML fetch start for ${fromCommit.html_file} and ${toCommit.html_file}`);
                 
                 try {
-                    // Enhanced logging per GADS specification
-                    traceBuffer.append('[FETCH]', `Fetching from commit: ${fromCommit.hash.substring(0, 8)}`);
-                    traceBuffer.append('[FETCH]', `Fetching to commit: ${toCommit.hash.substring(0, 8)}`);
-                    
                     const [fromResponse, toResponse] = await Promise.all([
-                        fetch(`/output/${fromCommit.html_file}`),
-                        fetch(`/output/${toCommit.html_file}`)
+                        fetch(fromCommit.html_file),
+                        fetch(toCommit.html_file)
                     ]);
                     
-                    if (!fromResponse.ok) {
-                        traceBuffer.append('[FETCH]', `Fetch failure for ${fromCommit.html_file}: HTTP ${fromResponse.status}`);
-                        throw new Error(`Failed to fetch ${fromCommit.html_file}: HTTP ${fromResponse.status}`);
-                    }
-                    if (!toResponse.ok) {
-                        traceBuffer.append('[FETCH]', `Fetch failure for ${toCommit.html_file}: HTTP ${toResponse.status}`);
-                        throw new Error(`Failed to fetch ${toCommit.html_file}: HTTP ${toResponse.status}`);
+                    if (!fromResponse.ok || !toResponse.ok) {
+                        throw new Error('Failed to fetch HTML files');
                     }
                     
                     const [fromHtml, toHtml] = await Promise.all([
@@ -622,8 +515,8 @@
                         toResponse.text()
                     ]);
                     
-                    traceBuffer.append('[FETCH]', 'Successful fetch completion for both files');
-                    traceBuffer.append('[DIFF]', 'Diff computation start using wikEd library');
+                    wsTraceHandler.sendTrace('[FETCH]', 'Successful fetch completion');
+                    wsTraceHandler.sendTrace('[DIFF]', 'Diff computation start');
                     
                     // Use wikEd diff library
                     const styledDiff = this.styleDiff(fromHtml, toHtml);
@@ -634,43 +527,45 @@
                     this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved');
                     this.currentChangeIndex = 0;
                     
-                    traceBuffer.append('[DIFF]', `Completion with ${this.currentChanges.length} changes found`);
-                    traceBuffer.append('[NAVIGATION]', `Navigation initialized with ${this.currentChanges.length} changes`);
+                    wsTraceHandler.sendTrace('[DIFF]', `Completion with ${this.currentChanges.length} changes`);
                     
                     this.updateNavigation();
                     
                 } catch (error) {
                     if (error.message.includes('wikEd')) {
-                        traceBuffer.append('[ERROR]', `wikEd library failure: ${error.message}`);
+                        wsTraceHandler.sendTrace('[ERROR]', `wikEd library failure: ${error.message}`);
                     } else {
-                        traceBuffer.append('[FETCH]', `Fetch failure: ${error.message}`);
+                        wsTraceHandler.sendTrace('[FETCH]', `Fetch failure: ${error.message}`);
                     }
                     throw error;
                 }
             }
             
             styleDiff(fromHtml, toHtml) {
-                try {
-                    // Use wikEd diff library per GADS specification
-                    const diffHtml = wikEd.diff(fromHtml, toHtml, {
-                        fullDiff: true,
-                        charDiff: false,
-                        wordDiff: true,
-                        moveBlocks: true,
-                        showBlockMoves: true
-                    });
-                    
-                    // Process wikEd output classes to GADS-compliant classes
-                    let styledDiff = diffHtml
-                        .replace(/class="wikEdDiffDelete[^"]*"/g, 'class="diff-deletion"')
-                        .replace(/class="wikEdDiffInsert[^"]*"/g, 'class="diff-insertion"')
-                        .replace(/class="wikEdDiffBlock[^"]*"/g, 'class="diff-moved"')
-                        .replace(/class="wikEdDiffMove[^"]*"/g, 'class="diff-moved"');
-                    
-                    return styledDiff;
-                } catch (error) {
-                    throw new Error(`wikEd library failure: ${error.message}`);
-                }
+                // Create wikEd diff instance
+                const wikEdDiff = new WikEd.diff();
+                
+                // Configure for word-level diff with move detection
+                const config = {
+                    fullDiff: false,
+                    charDiff: false,
+                    wordDiff: true,
+                    blockDiff: false,
+                    detectBlocks: true,
+                    detectMoves: true,
+                    stripTrailingNewline: true
+                };
+                
+                // Generate diff
+                const diffHtml = wikEdDiff.diff(fromHtml, toHtml, config);
+                
+                // Process wikEd output classes to our classes
+                let styledDiff = diffHtml
+                    .replace(/class="wikEdDiffDelete"/g, 'class="diff-deletion"')
+                    .replace(/class="wikEdDiffInsert"/g, 'class="diff-insertion"')
+                    .replace(/class="wikEdDiffMove"/g, 'class="diff-moved"');
+                
+                return styledDiff;
             }
             
             updateNavigation() {
@@ -732,57 +627,25 @@
                 const commit = this.resolveCommit(option.value);
                 if (!commit) return;
                 
-                // Show full commit SHA and message per GADS specification
                 this.elements.commitTooltip.innerHTML = `
-                    <div style="font-family: monospace; font-size: 14px; margin-bottom: 8px;"><strong>SHA:</strong> ${commit.hash}</div>
-                    <div style="font-size: 16px;"><strong>Message:</strong> ${commit.message}</div>
+                    <div><strong>${commit.hash}</strong></div>
+                    <div>${commit.message}</div>
                 `;
                 
                 this.elements.commitTooltip.style.display = 'block';
-                
-                // Improved positioning with boundary checking
-                const tooltipRect = this.elements.commitTooltip.getBoundingClientRect();
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                
-                let left = event.pageX + 10;
-                let top = event.pageY - 10;
-                
-                // Adjust if tooltip would go off right edge
-                if (left + 400 > viewportWidth) {
-                    left = event.pageX - 410;
-                }
-                
-                // Adjust if tooltip would go off bottom edge
-                if (top + 100 > viewportHeight) {
-                    top = event.pageY - 110;
-                }
-                
-                this.elements.commitTooltip.style.left = Math.max(10, left) + 'px';
-                this.elements.commitTooltip.style.top = Math.max(10, top) + 'px';
+                this.elements.commitTooltip.style.left = event.pageX + 10 + 'px';
+                this.elements.commitTooltip.style.top = event.pageY - 10 + 'px';
             }
             
             hideCommitTooltip() {
                 this.elements.commitTooltip.style.display = 'none';
             }
             
-            copyTraceBuffer() {
-                const traceContent = traceBuffer.getContents();
-                navigator.clipboard.writeText(traceContent).then(() => {
-                    const originalText = this.elements.consoleButton.textContent;
-                    this.elements.consoleButton.textContent = 'Copied!';
-                    setTimeout(() => {
-                        this.elements.consoleButton.textContent = originalText;
-                    }, 2000);
-                }).catch(() => {
-                    alert('Failed to copy trace buffer to clipboard');
-                });
-            }
         }
         
         // Initialize inspector when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
-            new GadInspector();
+            window.gadInspector = new GadInspector();
         });
     </script>
 </body>
