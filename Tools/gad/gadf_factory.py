@@ -484,7 +484,16 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
             # Handle WebSocket communication in separate thread
             ws_handler = EmbeddedWebSocketHandler(self)
             import threading
-            ws_thread = threading.Thread(target=ws_handler.handle_websocket_messages)
+            
+            def safe_websocket_handler():
+                try:
+                    ws_handler.handle_websocket_messages()
+                except Exception as e:
+                    gadfl_warn(f"WebSocket handler thread error: {e}")
+                    import traceback
+                    gadfl_warn(f"WebSocket handler traceback: {traceback.format_exc()}")
+            
+            ws_thread = threading.Thread(target=safe_websocket_handler)
             ws_thread.daemon = True
             ws_thread.start()
             
