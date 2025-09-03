@@ -205,14 +205,31 @@ class WebSocketHandler:
     def start_server(self, port):
         """Start WebSocket server."""
         try:
+            gadfl_step(f"Starting WebSocket server on port {port}")
             self.server = socketserver.ThreadingTCPServer(('0.0.0.0', port), SimpleWebSocketHandler)
             self.server.websocket_handler = self
             self.server_thread = threading.Thread(target=self.server.serve_forever)
             self.server_thread.daemon = True
             self.server_thread.start()
-            gadfl_step(f"WebSocket server started on port {port}")
+            gadfl_step(f"WebSocket server started successfully on port {port}")
+        except OSError as e:
+            if "Address already in use" in str(e) or "bind" in str(e).lower():
+                gadfl_warn(f"WebSocket port {port} in use, trying {port+1}")
+                try:
+                    self.server = socketserver.ThreadingTCPServer(('0.0.0.0', port+1), SimpleWebSocketHandler)
+                    self.server.websocket_handler = self
+                    self.server_thread = threading.Thread(target=self.server.serve_forever)
+                    self.server_thread.daemon = True
+                    self.server_thread.start()
+                    gadfl_step(f"WebSocket server started on alternate port {port+1}")
+                    # Update the port for Inspector reference
+                    self.websocket_port = port + 1
+                except Exception as e2:
+                    gadfl_warn(f"WebSocket server failed on both ports: {e2}")
+            else:
+                gadfl_warn(f"WebSocket server failed to start: {e}")
         except Exception as e:
-            gadfl_fail(f"Failed to start WebSocket server: {e}")
+            gadfl_warn(f"WebSocket server failed to start: {e}")
     
     def broadcast_refresh(self):
         """Send refresh message to all connected clients."""
