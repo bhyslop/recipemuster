@@ -273,6 +273,55 @@
         
         const traceBuffer = new TraceBuffer();
         
+        // WebSocket trace handler for GADS compliance
+        class WebSocketTraceHandler {
+            constructor() {
+                this.ws = null;
+                this.connect();
+            }
+            
+            connect() {
+                try {
+                    const wsPort = 8081; // WebSocket server runs on HTTP port + 1
+                    this.ws = new WebSocket(`ws://${window.location.hostname}:${wsPort}/`);
+                    
+                    this.ws.onopen = () => {
+                        console.log('[DEBUG] WebSocket connected');
+                    };
+                    
+                    this.ws.onerror = (error) => {
+                        console.log('[DEBUG] WebSocket error:', error);
+                    };
+                    
+                    this.ws.onclose = () => {
+                        console.log('[DEBUG] WebSocket disconnected');
+                    };
+                } catch (error) {
+                    console.log('[DEBUG] WebSocket connection failed:', error);
+                }
+            }
+            
+            sendTrace(prefix, message) {
+                // Send to WebSocket if connected
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    try {
+                        this.ws.send(JSON.stringify({
+                            type: 'trace',
+                            message: `${prefix} ${message}`
+                        }));
+                    } catch (error) {
+                        // Fallback to console only if WebSocket fails
+                        console.log(`[WS-ERROR] ${prefix} ${message}`);
+                    }
+                } else {
+                    // Fallback to console if WebSocket not connected
+                    console.log(`[NO-WS] ${prefix} ${message}`);
+                }
+            }
+        }
+        
+        const wsTraceHandler = new WebSocketTraceHandler();
+        
         // GAD Inspector implementation
         class GadInspector {
             constructor() {
@@ -280,6 +329,7 @@
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
                 
+                wsTraceHandler.sendTrace('[DEBUG]', 'GadInspector constructor called');
                 this.initializeElements();
                 this.setupEventListeners();
                 this.loadManifest();
@@ -333,21 +383,26 @@
             }
             
             async loadManifest() {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Starting manifest load');
                 wsTraceHandler.sendTrace('[MANIFEST]', 'Loading start');
                 
                 try {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Fetching manifest.json');
                     const response = await fetch('manifest.json');
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                     
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Parsing manifest JSON');
                     this.manifest = await response.json();
+                    wsTraceHandler.sendTrace('[DEBUG]', `Manifest loaded successfully with ${this.manifest.commits.length} commits`);
                     wsTraceHandler.sendTrace('[MANIFEST]', `Successful load with ${this.manifest.commits.length} commits`);
                     
                     this.populateDropdowns();
                     this.parseUrlHash();
                     
                 } catch (error) {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Manifest load failed: ${error.message}`);
                     wsTraceHandler.sendTrace('[MANIFEST]', `Load failure: ${error.message}`);
                     this.elements.renderedPane.innerHTML = `
                         <div class="error">
@@ -542,6 +597,12 @@
             }
             
             styleDiff(fromHtml, toHtml) {
+                wsTraceHandler.sendTrace('[DEBUG]', 'styleDiff called');
+                wsTraceHandler.sendTrace('[DEBUG]', `WikEd type at diff time: ${typeof WikEd}`);
+                if (typeof WikEd !== 'undefined') {
+                    wsTraceHandler.sendTrace('[DEBUG]', `WikEd structure: ${Object.keys(WikEd).join(', ')}`);
+                }
+                
                 // Create wikEd diff instance
                 const wikEdDiff = new WikEd.diff();
                 
@@ -645,6 +706,11 @@
         
         // Initialize inspector when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
+            wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, initializing inspector');
+            wsTraceHandler.sendTrace('[DEBUG]', `WikEd available: ${typeof WikEd !== 'undefined'}`);
+            if (typeof WikEd !== 'undefined') {
+                wsTraceHandler.sendTrace('[DEBUG]', `WikEd.diff available: ${typeof WikEd.diff}`);
+            }
             window.gadInspector = new GadInspector();
         });
     </script>
