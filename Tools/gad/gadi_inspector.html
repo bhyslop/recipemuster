@@ -225,9 +225,9 @@
     
     <div class="commit-tooltip" id="commitTooltip"></div>
     
-    <script src="https://cdn.jsdelivr.net/npm/wiked@latest/wiked.js" 
-            onload="console.log('WikEd script loaded')" 
-            onerror="console.log('WikEd script failed to load')">
+    <script src="https://en.wikipedia.org/w/index.php?title=User:Cacycle/diff.js&action=raw&ctype=text/javascript" 
+            onload="console.log('[DEBUG] WikEd script loaded successfully from Wikipedia')" 
+            onerror="console.log('[DEBUG] WikEd script failed to load from Wikipedia')">
     </script>
     <script>
         // Trace buffer implementation per GADS specification
@@ -601,13 +601,13 @@
             
             styleDiff(fromHtml, toHtml) {
                 wsTraceHandler.sendTrace('[DEBUG]', 'styleDiff called');
-                wsTraceHandler.sendTrace('[DEBUG]', `WikEd type at diff time: ${typeof WikEd}`);
-                if (typeof WikEd !== 'undefined') {
-                    wsTraceHandler.sendTrace('[DEBUG]', `WikEd structure: ${Object.keys(WikEd).join(', ')}`);
+                wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff type at diff time: ${typeof WikEdDiff}`);
+                if (typeof WikEdDiff !== 'undefined') {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class is available');
                 }
                 
                 // Create wikEd diff instance
-                const wikEdDiff = new WikEd.diff();
+                const wikEdDiff = new WikEdDiff();
                 
                 // Configure for word-level diff with move detection
                 const config = {
@@ -710,9 +710,9 @@
         // Initialize inspector when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
             wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, initializing inspector');
-            wsTraceHandler.sendTrace('[DEBUG]', `WikEd available: ${typeof WikEd !== 'undefined'}`);
-            if (typeof WikEd !== 'undefined') {
-                wsTraceHandler.sendTrace('[DEBUG]', `WikEd.diff available: ${typeof WikEd.diff}`);
+            wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff available: ${typeof WikEdDiff !== 'undefined'}`);
+            if (typeof WikEdDiff !== 'undefined') {
+                wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class found, library loaded successfully');
             }
             window.gadInspector = new GadInspector();
         });

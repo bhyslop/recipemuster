@@ -206,10 +206,14 @@ class WebSocketHandler:
         """Start WebSocket server."""
         try:
             gadfl_step(f"Starting WebSocket server on port {port}")
+            gadfl_step("Creating ThreadingTCPServer...")
             self.server = socketserver.ThreadingTCPServer(('0.0.0.0', port), SimpleWebSocketHandler)
+            gadfl_step("Setting websocket_handler reference...")
             self.server.websocket_handler = self
+            gadfl_step("Creating server thread...")
             self.server_thread = threading.Thread(target=self.server.serve_forever)
             self.server_thread.daemon = True
+            gadfl_step("Starting server thread...")
             self.server_thread.start()
             gadfl_step(f"WebSocket server started successfully on port {port}")
         except OSError as e:
@@ -661,7 +665,17 @@ class GADFactory:
             gadfl_step(f"HTTP server started on port {self.port}")
             
             # Start WebSocket server
-            self.websocket_handler.start_server(self.websocket_port)
+            gadfl_step(f"Attempting to start WebSocket server on port {self.websocket_port}")
+            gadfl_step(f"WebSocket handler object exists: {self.websocket_handler is not None}")
+            gadfl_step(f"WebSocket handler type: {type(self.websocket_handler)}")
+            
+            try:
+                self.websocket_handler.start_server(self.websocket_port)
+                gadfl_step("WebSocket server start_server() call completed")
+            except Exception as ws_error:
+                gadfl_warn(f"WebSocket server startup failed with exception: {ws_error}")
+                import traceback
+                gadfl_warn(f"WebSocket traceback: {traceback.format_exc()}")
             
         except OSError as e:
             gadfl_fail(f"Failed to start HTTP server on port {self.port}: {e}")
