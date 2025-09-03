@@ -502,8 +502,8 @@
                 
                 try {
                     const [fromResponse, toResponse] = await Promise.all([
-                        fetch(fromCommit.html_file),
-                        fetch(toCommit.html_file)
+                        fetch(`/output/${fromCommit.html_file}`),
+                        fetch(`/output/${toCommit.html_file}`)
                     ]);
                     
                     if (!fromResponse.ok || !toResponse.ok) {

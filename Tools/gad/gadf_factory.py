@@ -249,6 +249,9 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
         if self.path == '/':
             # Serve Inspector from source location
             self.serve_inspector()
+        elif self.path == '/manifest.json':
+            # Serve manifest file
+            self.serve_manifest()
         elif self.path == '/events':
             # Redirect WebSocket connections to WebSocket server
             self.serve_websocket_redirect()
@@ -273,6 +276,21 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
             self.wfile.write(content)
         except FileNotFoundError:
             self.send_error(404, "Inspector not found")
+    
+    def serve_manifest(self):
+        """Serve manifest.json file."""
+        try:
+            manifest_path = self.factory.manifest_file
+            with open(manifest_path, 'rb') as f:
+                content = f.read()
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_error(404, "Manifest not found")
     
     def serve_websocket_redirect(self):
         """Inform clients about WebSocket endpoint."""
@@ -603,6 +621,7 @@ class GADFactory:
         gadfl_step("Cleaning workspace")
         self.clean_directory_contents(self.extract_dir)
         self.clean_directory_contents(self.distill_dir)
+        self.clean_directory_contents(self.output_dir)
         
         # Delete existing manifest for fresh start
         if self.manifest_file.exists():
