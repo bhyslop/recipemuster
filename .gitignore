@@ -31,3 +31,8 @@ bin/
 # podman trash
 NUL
 .claude/
+
+### Python ###
+__pycache__/
+*.py[cod]
+*$py.class

@@ -205,7 +205,7 @@ class WebSocketHandler:
     def start_server(self, port):
         """Start WebSocket server."""
         try:
-            self.server = socketserver.ThreadingTCPServer(('localhost', port), SimpleWebSocketHandler)
+            self.server = socketserver.ThreadingTCPServer(('0.0.0.0', port), SimpleWebSocketHandler)
             self.server.websocket_handler = self
             self.server_thread = threading.Thread(target=self.server.serve_forever)
             self.server_thread.daemon = True
@@ -615,7 +615,7 @@ class GADFactory:
             return GADRequestHandler(*args, factory_instance=self, **kwargs)
         
         try:
-            self.server = HTTPServer(('localhost', self.port), make_handler)
+            self.server = HTTPServer(('0.0.0.0', self.port), make_handler)
             self.server_thread = threading.Thread(target=self.server.serve_forever)
             self.server_thread.daemon = True
             self.server_thread.start()

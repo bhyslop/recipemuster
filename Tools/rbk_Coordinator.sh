@@ -35,7 +35,7 @@ rbk_ccbx_connect() {
   rbk_show "Connecting to CCBX container with command: ${z_remote_command:-default}"
   
   # Source the .env file to get the port
-  if [ -f "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
+  if [ -f  "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
     source "$RBK_SCRIPT_DIR/ccbx/.env"
   fi
   
@@ -140,12 +140,12 @@ rbk_route() {
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
       # Run GAD factory in ccbx container with hardcoded parameters
-      rbk_ccbx_connect "cd /workspace/brm_recipemuster && python3 Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-unique-commits 5 --once --port 8080"
+      rbk_ccbx_connect "cd /workspace/brm_recipemuster && python3 Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-distinct-renders 3 --once --port 8080"
       ;;
     gadcf)
       # Run GAD factory locally (inside container) with hardcoded parameters
       rbk_show "Running GAD factory locally"
-      python3 Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-unique-commits 5 --once --port 8080
+      python3 Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-distinct-renders 5 --once --port 8080
       ;;
     gadi-i)
       # Open GAD inspector in browser (served by factory HTTP server)
