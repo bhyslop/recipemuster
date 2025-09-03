@@ -285,8 +285,8 @@
             
             connect() {
                 try {
-                    const wsPort = 8081; // WebSocket server runs on HTTP port + 1
-                    const wsUrl = `ws://${window.location.hostname}:${wsPort}/`;
+                    const wsPort = window.location.port || 8080; // Use same port as HTTP
+                    const wsUrl = `ws://${window.location.hostname}:${wsPort}/ws`;
                     console.log(`[DEBUG] Attempting WebSocket connection to: ${wsUrl}`);
                     this.ws = new WebSocket(wsUrl);
                     

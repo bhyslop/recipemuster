@@ -267,15 +267,20 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, **kwargs)
     
     def do_GET(self):
+        # Handle WebSocket upgrade requests
+        if self.headers.get('Upgrade', '').lower() == 'websocket':
+            self.handle_websocket_upgrade()
+            return
+            
         if self.path == '/':
             # Serve Inspector from source location
             self.serve_inspector()
         elif self.path == '/manifest.json':
             # Serve manifest file
             self.serve_manifest()
-        elif self.path == '/events':
-            # Redirect WebSocket connections to WebSocket server
-            self.serve_websocket_redirect()
+        elif self.path == '/ws' or self.path == '/events':
+            # WebSocket endpoint - should be handled by upgrade above
+            self.send_error(400, "WebSocket upgrade required")
         elif self.path.startswith('/output/'):
             # Serve output files
             self.serve_output_file()
@@ -354,6 +359,135 @@ class GADRequestHandler(SimpleHTTPRequestHandler):
             self.wfile.write(content)
         except FileNotFoundError:
             self.send_error(404, f"File not found: {file_path}")
+
+    def handle_websocket_upgrade(self):
+        """Handle WebSocket upgrade request - delegate to WebSocket handler."""
+        try:
+            # Extract WebSocket key for handshake
+            websocket_key = self.headers.get('Sec-WebSocket-Key')
+            if not websocket_key:
+                self.send_error(400, "Missing Sec-WebSocket-Key")
+                return
+            
+            # Generate accept key
+            import hashlib
+            accept = base64.b64encode(
+                hashlib.sha1((websocket_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode()).digest()
+            ).decode()
+            
+            # Send handshake response
+            self.send_response(101, 'Switching Protocols')
+            self.send_header('Upgrade', 'websocket')
+            self.send_header('Connection', 'Upgrade')
+            self.send_header('Sec-WebSocket-Accept', accept)
+            self.end_headers()
+            
+            # Hand off to WebSocket handler
+            from socketserver import BaseRequestHandler
+            
+            # Create a simple WebSocket handler that uses the same connection
+            class EmbeddedWebSocketHandler:
+                def __init__(self, request_handler):
+                    self.request = request_handler.request
+                    self.client_address = request_handler.client_address
+                    self.server = request_handler.factory
+                
+                def handle_websocket_messages(self):
+                    """Handle WebSocket messages on this connection."""
+                    try:
+                        gadfl_step(f"WebSocket client connected from {self.client_address}")
+                        self.server.websocket_handler.add_client(self)
+                        
+                        # Keep connection alive and handle messages
+                        while True:
+                            try:
+                                message = self.receive_message()
+                                if message:
+                                    self.handle_message(message)
+                            except (ConnectionResetError, BrokenPipeError):
+                                break
+                            except Exception as e:
+                                gadfl_warn(f"WebSocket error: {e}")
+                                break
+                                
+                    except Exception as e:
+                        gadfl_warn(f"WebSocket connection error: {e}")
+                    finally:
+                        self.server.websocket_handler.remove_client(self)
+                        gadfl_step("WebSocket client disconnected")
+                
+                def receive_message(self):
+                    """Receive WebSocket message (simplified version)."""
+                    try:
+                        # Read first 2 bytes for frame info
+                        frame = self.request.recv(2)
+                        if len(frame) < 2:
+                            return None
+                            
+                        # Parse WebSocket frame (simplified)
+                        byte1, byte2 = frame[0], frame[1]
+                        masked = byte2 & 0x80
+                        payload_length = byte2 & 0x7f
+                        
+                        if payload_length == 126:
+                            payload_length = struct.unpack('>H', self.request.recv(2))[0]
+                        elif payload_length == 127:
+                            payload_length = struct.unpack('>Q', self.request.recv(8))[0]
+                        
+                        # Read mask if present
+                        if masked:
+                            mask = self.request.recv(4)
+                        
+                        # Read payload
+                        payload = self.request.recv(payload_length)
+                        
+                        # Unmask if necessary
+                        if masked:
+                            payload = bytes([payload[i] ^ mask[i % 4] for i in range(len(payload))])
+                        
+                        return payload.decode('utf-8')
+                        
+                    except Exception:
+                        return None
+                
+                def send_message(self, message):
+                    """Send WebSocket message (simplified version)."""
+                    try:
+                        payload = message.encode('utf-8')
+                        frame = bytearray()
+                        frame.append(0x81)  # Text frame
+                        
+                        if len(payload) < 126:
+                            frame.append(len(payload))
+                        elif len(payload) < 65536:
+                            frame.append(126)
+                            frame.extend(struct.pack('>H', len(payload)))
+                        else:
+                            frame.append(127)
+                            frame.extend(struct.pack('>Q', len(payload)))
+                        
+                        frame.extend(payload)
+                        self.request.send(frame)
+                        
+                    except Exception as e:
+                        gadfl_warn(f"Failed to send WebSocket message: {e}")
+                
+                def handle_message(self, message):
+                    """Handle received WebSocket message."""
+                    try:
+                        data = json.loads(message)
+                        if data.get('type') == 'trace':
+                            gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
+                    except json.JSONDecodeError:
+                        gadfl_warn(f"Invalid WebSocket message: {message}")
+            
+            # Handle WebSocket communication in this thread
+            ws_handler = EmbeddedWebSocketHandler(self)
+            ws_handler.handle_websocket_messages()
+            
+        except Exception as e:
+            gadfl_warn(f"WebSocket upgrade failed: {e}")
+            self.send_error(500, f"WebSocket upgrade error: {e}")
 
 class HTMLNormalizer:
     """HTML normalization functionality (absorbed from gadp_distill)."""
@@ -663,19 +797,7 @@ class GADFactory:
             self.server_thread.daemon = True
             self.server_thread.start()
             gadfl_step(f"HTTP server started on port {self.port}")
-            
-            # Start WebSocket server
-            gadfl_step(f"Attempting to start WebSocket server on port {self.websocket_port}")
-            gadfl_step(f"WebSocket handler object exists: {self.websocket_handler is not None}")
-            gadfl_step(f"WebSocket handler type: {type(self.websocket_handler)}")
-            
-            try:
-                self.websocket_handler.start_server(self.websocket_port)
-                gadfl_step("WebSocket server start_server() call completed")
-            except Exception as ws_error:
-                gadfl_warn(f"WebSocket server startup failed with exception: {ws_error}")
-                import traceback
-                gadfl_warn(f"WebSocket traceback: {traceback.format_exc()}")
+            gadfl_step(f"WebSocket support integrated on port {self.port} (same as HTTP)")
             
         except OSError as e:
             gadfl_fail(f"Failed to start HTTP server on port {self.port}: {e}")
