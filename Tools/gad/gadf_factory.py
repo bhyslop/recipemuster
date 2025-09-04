@@ -266,6 +266,9 @@ class HTMLNormalizer:
                     normalized_text = HTMLNormalizer.normalize_whitespace_in_text(text_content)
                     if normalized_text:
                         target_parent.append(NavigableString(normalized_text))
+                    elif text_content.strip() == '' and ' ' in text_content:
+                        # Preserve single spaces between inline elements even if they normalize to empty
+                        target_parent.append(NavigableString(' '))
         elif isinstance(source_element, Tag):
             # Create new tag
             new_tag = soup.new_tag(source_element.name)
