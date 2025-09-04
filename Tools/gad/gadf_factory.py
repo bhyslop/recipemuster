@@ -25,18 +25,18 @@ import json
 import hashlib
 import re
 import subprocess
-import threading
 import time
 import logging
 import argparse
 from pathlib import Path
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup, Comment
-import base64
-import struct
-import socket
-import socketserver
+import asyncio
+
+import tornado.ioloop
+import tornado.web
+import tornado.websocket
+from tornado.web import StaticFileHandler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -55,129 +55,22 @@ def gadfl_fail(message):
     logger.error(f"\033[31m{message}\033[0m")
     sys.exit(1)
 
-class SimpleWebSocketHandler(socketserver.BaseRequestHandler):
-    """Simple WebSocket handler without external dependencies."""
+class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    """Tornado WebSocket handler for GAD Factory."""
     
-    def handle(self):
-        """Handle WebSocket connection."""
-        try:
-            # Perform WebSocket handshake
-            if not self.perform_handshake():
-                return
-            
-            gadfl_step(f"WebSocket client connected from {self.client_address}")
-            self.server.websocket_handler.add_client(self)
-            
-            # Keep connection alive and handle messages
-            while True:
-                try:
-                    message = self.receive_message()
-                    if message:
-                        self.handle_message(message)
-                except (ConnectionResetError, BrokenPipeError):
-                    break
-                except Exception as e:
-                    gadfl_warn(f"WebSocket error: {e}")
-                    break
-                    
-        except Exception as e:
-            gadfl_warn(f"WebSocket connection error: {e}")
-        finally:
-            self.server.websocket_handler.remove_client(self)
-            gadfl_step("WebSocket client disconnected")
+    clients = set()
     
-    def perform_handshake(self):
-        """Perform WebSocket handshake."""
-        try:
-            request = self.request.recv(1024).decode('utf-8')
-            if 'Upgrade: websocket' not in request:
-                return False
-            
-            # Extract WebSocket key
-            for line in request.split('\r\n'):
-                if line.startswith('Sec-WebSocket-Key:'):
-                    key = line.split(': ')[1].strip()
-                    break
-            else:
-                return False
-            
-            # Generate accept key
-            import hashlib
-            accept = base64.b64encode(
-                hashlib.sha1((key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode()).digest()
-            ).decode()
-            
-            # Send handshake response
-            response = (
-                'HTTP/1.1 101 Switching Protocols\r\n'
-                'Upgrade: websocket\r\n'
-                'Connection: Upgrade\r\n'
-                f'Sec-WebSocket-Accept: {accept}\r\n'
-                '\r\n'
-            )
-            self.request.send(response.encode())
-            return True
-            
-        except Exception:
-            return False
+    def open(self):
+        """Handle new WebSocket connection."""
+        WebSocketHandler.clients.add(self)
+        gadfl_step(f"WebSocket client connected from {self.request.remote_ip}")
     
-    def receive_message(self):
-        """Receive WebSocket message."""
-        try:
-            # Read first 2 bytes for frame info
-            frame = self.request.recv(2)
-            if len(frame) < 2:
-                return None
-                
-            # Parse WebSocket frame (simplified)
-            byte1, byte2 = frame[0], frame[1]
-            masked = byte2 & 0x80
-            payload_length = byte2 & 0x7f
-            
-            if payload_length == 126:
-                payload_length = struct.unpack('>H', self.request.recv(2))[0]
-            elif payload_length == 127:
-                payload_length = struct.unpack('>Q', self.request.recv(8))[0]
-            
-            # Read mask if present
-            if masked:
-                mask = self.request.recv(4)
-            
-            # Read payload
-            payload = self.request.recv(payload_length)
-            
-            # Unmask if necessary
-            if masked:
-                payload = bytes([payload[i] ^ mask[i % 4] for i in range(len(payload))])
-            
-            return payload.decode('utf-8')
-            
-        except Exception:
-            return None
+    def on_close(self):
+        """Handle WebSocket disconnection."""
+        WebSocketHandler.clients.discard(self)
+        gadfl_step("WebSocket client disconnected")
     
-    def send_message(self, message):
-        """Send WebSocket message."""
-        try:
-            payload = message.encode('utf-8')
-            frame = bytearray()
-            frame.append(0x81)  # Text frame
-            
-            if len(payload) < 126:
-                frame.append(len(payload))
-            elif len(payload) < 65536:
-                frame.append(126)
-                frame.extend(struct.pack('>H', len(payload)))
-            else:
-                frame.append(127)
-                frame.extend(struct.pack('>Q', len(payload)))
-            
-            frame.extend(payload)
-            self.request.send(frame)
-            
-        except Exception as e:
-            gadfl_warn(f"Failed to send WebSocket message: {e}")
-    
-    def handle_message(self, message):
+    def on_message(self, message):
         """Handle received WebSocket message."""
         try:
             data = json.loads(message)
@@ -185,321 +78,57 @@ class SimpleWebSocketHandler(socketserver.BaseRequestHandler):
                 gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
         except json.JSONDecodeError:
             gadfl_warn(f"Invalid WebSocket message: {message}")
-
-class WebSocketHandler:
-    """Manages WebSocket connections using simple built-in server."""
     
-    def __init__(self):
-        self.clients = set()
-        self.server = None
-        self.server_thread = None
-    
-    def add_client(self, client):
-        """Add WebSocket client."""
-        self.clients.add(client)
-    
-    def remove_client(self, client):
-        """Remove WebSocket client."""
-        self.clients.discard(client)
-    
-    def start_server(self, port):
-        """Start WebSocket server."""
-        try:
-            gadfl_step(f"Starting WebSocket server on port {port}")
-            gadfl_step("Creating ThreadingTCPServer...")
-            self.server = socketserver.ThreadingTCPServer(('0.0.0.0', port), SimpleWebSocketHandler)
-            gadfl_step("Setting websocket_handler reference...")
-            self.server.websocket_handler = self
-            gadfl_step("Creating server thread...")
-            self.server_thread = threading.Thread(target=self.server.serve_forever)
-            self.server_thread.daemon = True
-            gadfl_step("Starting server thread...")
-            self.server_thread.start()
-            gadfl_step(f"WebSocket server started successfully on port {port}")
-        except OSError as e:
-            if "Address already in use" in str(e) or "bind" in str(e).lower():
-                gadfl_warn(f"WebSocket port {port} in use, trying {port+1}")
-                try:
-                    self.server = socketserver.ThreadingTCPServer(('0.0.0.0', port+1), SimpleWebSocketHandler)
-                    self.server.websocket_handler = self
-                    self.server_thread = threading.Thread(target=self.server.serve_forever)
-                    self.server_thread.daemon = True
-                    self.server_thread.start()
-                    gadfl_step(f"WebSocket server started on alternate port {port+1}")
-                    # Update the port for Inspector reference
-                    self.websocket_port = port + 1
-                except Exception as e2:
-                    gadfl_warn(f"WebSocket server failed on both ports: {e2}")
-            else:
-                gadfl_warn(f"WebSocket server failed to start: {e}")
-        except Exception as e:
-            gadfl_warn(f"WebSocket server failed to start: {e}")
-    
-    def broadcast_refresh(self):
+    @classmethod
+    def broadcast_refresh(cls):
         """Send refresh message to all connected clients."""
-        if not self.clients:
+        if not cls.clients:
             return
         
         message = json.dumps({"type": "refresh", "data": "new_commit"})
         disconnected = set()
         
-        for client in list(self.clients):
+        for client in list(cls.clients):
             try:
-                client.send_message(message)
+                client.write_message(message)
             except Exception:
                 disconnected.add(client)
         
         # Clean up disconnected clients
         for client in disconnected:
-            self.clients.discard(client)
-    
-    def stop_server(self):
-        """Stop WebSocket server."""
-        if self.server:
-            self.server.shutdown()
-            gadfl_step("WebSocket server stopped")
+            cls.clients.discard(client)
 
-class GADRequestHandler(SimpleHTTPRequestHandler):
-    """Custom HTTP handler for GAD Factory."""
-    
-    def __init__(self, *args, factory_instance=None, **kwargs):
-        self.factory = factory_instance
-        super().__init__(*args, **kwargs)
-    
-    def do_GET(self):
-        # Handle WebSocket upgrade requests
-        if self.headers.get('Upgrade', '').lower() == 'websocket':
-            self.handle_websocket_upgrade()
-            return
-            
-        if self.path == '/':
-            # Serve Inspector from source location
-            self.serve_inspector()
-        elif self.path == '/manifest.json':
-            # Serve manifest file
-            self.serve_manifest()
-        elif self.path == '/ws' or self.path == '/events':
-            # WebSocket endpoint - should be handled by upgrade above
-            self.send_error(400, "WebSocket upgrade required")
-        elif self.path.startswith('/output/'):
-            # Serve output files
-            self.serve_output_file()
-        else:
-            # Default handling
-            super().do_GET()
-    
-    def serve_inspector(self):
-        """Serve Inspector HTML from source location."""
-        try:
-            inspector_path = self.factory.inspector_source_path
-            with open(inspector_path, 'rb') as f:
-                content = f.read()
-            
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html')
-            self.send_header('Content-Length', len(content))
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            self.send_header('Pragma', 'no-cache')
-            self.send_header('Expires', '0')
-            self.end_headers()
-            self.wfile.write(content)
-        except FileNotFoundError:
-            self.send_error(404, "Inspector not found")
-    
-    def serve_manifest(self):
-        """Serve manifest.json file."""
-        try:
-            manifest_path = self.factory.manifest_file
-            with open(manifest_path, 'rb') as f:
-                content = f.read()
-            
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Content-Length', len(content))
-            self.end_headers()
-            self.wfile.write(content)
-        except FileNotFoundError:
-            self.send_error(404, "Manifest not found")
-    
-    def serve_websocket_redirect(self):
-        """Inform clients about WebSocket endpoint."""
-        self.send_response(426)  # Upgrade Required
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Connection', 'close')
-        self.end_headers()
-        
-        response = {
-            "error": "WebSocket connection required",
-            "websocket_url": f"ws://localhost:{self.factory.websocket_port}/"
-        }
-        self.wfile.write(json.dumps(response).encode())
-    
-    def serve_output_file(self):
-        """Serve files from output directory."""
-        # Remove '/output/' prefix and serve from factory output directory
-        file_path = self.path[8:]  # Remove '/output/'
-        full_path = self.factory.output_dir / file_path
-        
-        try:
-            with open(full_path, 'rb') as f:
-                content = f.read()
-            
-            # Determine content type
-            if file_path.endswith('.json'):
-                content_type = 'application/json'
-            elif file_path.endswith('.html'):
-                content_type = 'text/html'
-            else:
-                content_type = 'application/octet-stream'
-            
-            self.send_response(200)
-            self.send_header('Content-Type', content_type)
-            self.send_header('Content-Length', len(content))
-            self.end_headers()
-            self.wfile.write(content)
-        except FileNotFoundError:
-            self.send_error(404, f"File not found: {file_path}")
 
-    def handle_websocket_upgrade(self):
-        """Handle WebSocket upgrade request - delegate to WebSocket handler."""
+class InspectorHandler(tornado.web.RequestHandler):
+    """Serve Inspector HTML from source location."""
+    
+    def get(self):
         try:
-            # Extract WebSocket key for handshake
-            websocket_key = self.headers.get('Sec-WebSocket-Key')
-            if not websocket_key:
-                self.send_error(400, "Missing Sec-WebSocket-Key")
-                return
+            factory = self.application.factory
+            with open(factory.inspector_source_path, 'rb') as f:
+                content = f.read()
             
-            # Generate accept key
-            import hashlib
-            accept = base64.b64encode(
-                hashlib.sha1((websocket_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode()).digest()
-            ).decode()
+            self.set_header('Content-Type', 'text/html')
+            self.set_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.set_header('Pragma', 'no-cache')
+            self.set_header('Expires', '0')
+            self.write(content)
+        except FileNotFoundError:
+            self.send_error(404, reason="Inspector not found")
+
+class ManifestHandler(tornado.web.RequestHandler):
+    """Serve manifest.json file."""
+    
+    def get(self):
+        try:
+            factory = self.application.factory
+            with open(factory.manifest_file, 'rb') as f:
+                content = f.read()
             
-            # Send handshake response
-            self.send_response(101, 'Switching Protocols')
-            self.send_header('Upgrade', 'websocket')
-            self.send_header('Connection', 'Upgrade')
-            self.send_header('Sec-WebSocket-Accept', accept)
-            self.end_headers()
-            
-            # Hand off to WebSocket handler
-            from socketserver import BaseRequestHandler
-            
-            # Create a simple WebSocket handler that uses the same connection
-            class EmbeddedWebSocketHandler:
-                def __init__(self, request_handler):
-                    self.request = request_handler.request
-                    self.client_address = request_handler.client_address
-                    self.server = request_handler.factory
-                
-                def handle_websocket_messages(self):
-                    """Handle WebSocket messages on this connection."""
-                    try:
-                        gadfl_step(f"WebSocket client connected from {self.client_address}")
-                        self.server.websocket_handler.add_client(self)
-                        
-                        # Keep connection alive and handle messages
-                        while True:
-                            try:
-                                message = self.receive_message()
-                                if message:
-                                    self.handle_message(message)
-                            except (ConnectionResetError, BrokenPipeError):
-                                break
-                            except Exception as e:
-                                gadfl_warn(f"WebSocket error: {e}")
-                                break
-                                
-                    except Exception as e:
-                        gadfl_warn(f"WebSocket connection error: {e}")
-                    finally:
-                        self.server.websocket_handler.remove_client(self)
-                        gadfl_step("WebSocket client disconnected")
-                
-                def receive_message(self):
-                    """Receive WebSocket message (simplified version)."""
-                    try:
-                        # Read first 2 bytes for frame info
-                        frame = self.request.recv(2)
-                        if len(frame) < 2:
-                            return None
-                            
-                        # Parse WebSocket frame (simplified)
-                        byte1, byte2 = frame[0], frame[1]
-                        masked = byte2 & 0x80
-                        payload_length = byte2 & 0x7f
-                        
-                        if payload_length == 126:
-                            payload_length = struct.unpack('>H', self.request.recv(2))[0]
-                        elif payload_length == 127:
-                            payload_length = struct.unpack('>Q', self.request.recv(8))[0]
-                        
-                        # Read mask if present
-                        if masked:
-                            mask = self.request.recv(4)
-                        
-                        # Read payload
-                        payload = self.request.recv(payload_length)
-                        
-                        # Unmask if necessary
-                        if masked:
-                            payload = bytes([payload[i] ^ mask[i % 4] for i in range(len(payload))])
-                        
-                        return payload.decode('utf-8')
-                        
-                    except Exception:
-                        return None
-                
-                def send_message(self, message):
-                    """Send WebSocket message (simplified version)."""
-                    try:
-                        payload = message.encode('utf-8')
-                        frame = bytearray()
-                        frame.append(0x81)  # Text frame
-                        
-                        if len(payload) < 126:
-                            frame.append(len(payload))
-                        elif len(payload) < 65536:
-                            frame.append(126)
-                            frame.extend(struct.pack('>H', len(payload)))
-                        else:
-                            frame.append(127)
-                            frame.extend(struct.pack('>Q', len(payload)))
-                        
-                        frame.extend(payload)
-                        self.request.send(frame)
-                        
-                    except Exception as e:
-                        gadfl_warn(f"Failed to send WebSocket message: {e}")
-                
-                def handle_message(self, message):
-                    """Handle received WebSocket message."""
-                    try:
-                        data = json.loads(message)
-                        if data.get('type') == 'trace':
-                            gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
-                    except json.JSONDecodeError:
-                        gadfl_warn(f"Invalid WebSocket message: {message}")
-            
-            # Handle WebSocket communication in separate thread
-            ws_handler = EmbeddedWebSocketHandler(self)
-            import threading
-            
-            def safe_websocket_handler():
-                try:
-                    ws_handler.handle_websocket_messages()
-                except Exception as e:
-                    gadfl_warn(f"WebSocket handler thread error: {e}")
-                    import traceback
-                    gadfl_warn(f"WebSocket handler traceback: {traceback.format_exc()}")
-            
-            ws_thread = threading.Thread(target=safe_websocket_handler)
-            ws_thread.daemon = True
-            ws_thread.start()
-            
-        except Exception as e:
-            gadfl_warn(f"WebSocket upgrade failed: {e}")
-            self.send_error(500, f"WebSocket upgrade error: {e}")
+            self.set_header('Content-Type', 'application/json')
+            self.write(content)
+        except FileNotFoundError:
+            self.send_error(404, reason="Manifest not found")
 
 class HTMLNormalizer:
     """HTML normalization functionality (absorbed from gadp_distill)."""
@@ -718,8 +347,6 @@ class GADFactory:
             gadfl_fail(f"AsciiDoc file '{self.adoc_filename}' is not within repository '{self.repo_dir}'")
         
         # Initialize components
-        self.websocket_handler = WebSocketHandler()
-        self.websocket_port = port + 1  # Use next port for WebSocket
         self.manifest = {
             'branch': self.branch,
             'asciidoc': str(self.adoc_relpath),
@@ -727,9 +354,9 @@ class GADFactory:
             'commits': []
         }
         
-        # HTTP server
+        # Tornado application and server
+        self.app = None
         self.server = None
-        self.server_thread = None
     
     def find_git_repo(self, start_path):
         """Find git repository root."""
@@ -798,21 +425,30 @@ class GADFactory:
             gadfl_step("Deleting existing manifest for fresh start")
             self.manifest_file.unlink()
     
-    def start_http_server(self):
-        """Start HTTP server for Inspector and artifact serving."""
-        def make_handler(*args, **kwargs):
-            return GADRequestHandler(*args, factory_instance=self, **kwargs)
-        
+    def start_tornado_server(self):
+        """Start Tornado server for HTTP and WebSocket on single port."""
         try:
-            self.server = HTTPServer(('0.0.0.0', self.port), make_handler)
-            self.server_thread = threading.Thread(target=self.server.serve_forever)
-            self.server_thread.daemon = True
-            self.server_thread.start()
-            gadfl_step(f"HTTP server started on port {self.port}")
-            gadfl_step(f"WebSocket support integrated on port {self.port} (same as HTTP)")
+            # Create Tornado application
+            self.app = tornado.web.Application([
+                (r"/", InspectorHandler),
+                (r"/ws", WebSocketHandler),
+                (r"/manifest.json", ManifestHandler),
+                (r"/output/(.*)", StaticFileHandler, {
+                    "path": str(self.output_dir),
+                    "default_filename": None
+                })
+            ])
+            
+            # Store factory reference in application
+            self.app.factory = self
+            
+            # Start server
+            self.app.listen(self.port, address='0.0.0.0')
+            gadfl_step(f"Tornado server started on port {self.port}")
+            gadfl_step(f"HTTP and WebSocket integrated on single port {self.port}")
             
         except OSError as e:
-            gadfl_fail(f"Failed to start HTTP server on port {self.port}: {e}")
+            gadfl_fail(f"Failed to start Tornado server on port {self.port}: {e}")
     
     
     def render_commit(self, commit_hash):
@@ -983,9 +619,8 @@ class GADFactory:
         except IOError as e:
             gadfl_fail(f"Failed to update manifest: {e}")
         
-        # Send WebSocket refresh message if server is running
-        if self.server:
-            self.websocket_handler.broadcast_refresh()
+        # Send WebSocket refresh message to connected clients
+        WebSocketHandler.broadcast_refresh()
     
     def get_commits_to_process(self):
         """Get list of commits for initial population (HEAD-first)."""
@@ -1044,8 +679,8 @@ class GADFactory:
         except subprocess.CalledProcessError:
             return False
     
-    def incremental_watch_mode(self):
-        """Enter incremental watch mode while maintaining HTTP server."""
+    async def incremental_watch_mode(self):
+        """Enter incremental watch mode using async polling."""
         if self.once:
             gadfl_step("Once mode: exiting after initial population")
             return
@@ -1054,7 +689,7 @@ class GADFactory:
         
         while True:
             try:
-                time.sleep(3)
+                await asyncio.sleep(3)
                 
                 os.chdir(self.repo_dir)
                 
@@ -1081,16 +716,16 @@ class GADFactory:
                         if self.commit_has_adoc(commit_hash):
                             self.render_commit(commit_hash)
             
-            except KeyboardInterrupt:
-                gadfl_step("Received interrupt, shutting down")
+            except asyncio.CancelledError:
+                gadfl_step("Watch mode cancelled, shutting down")
                 break
             except subprocess.CalledProcessError as e:
                 gadfl_warn(f"Git operation failed: {e}")
             except Exception as e:
                 gadfl_warn(f"Watch mode error: {e}")
     
-    def run(self):
-        """Main execution method."""
+    async def run_async(self):
+        """Main async execution method."""
         # Validate files
         if not self.adoc_filename.exists():
             gadfl_fail(f"AsciiDoc file '{self.adoc_filename}' not found")
@@ -1100,37 +735,43 @@ class GADFactory:
         
         # Setup
         self.setup_directories()
-        self.start_http_server()
+        self.start_tornado_server()
         
         # Execute processing
         self.initial_population()
         
         if not self.once:
             try:
-                self.incremental_watch_mode()
-            finally:
-                if self.server:
-                    self.server.shutdown()
-                    gadfl_step("HTTP server stopped")
-                self.websocket_handler.stop_server()
+                await self.incremental_watch_mode()
+            except asyncio.CancelledError:
+                gadfl_step("Factory operation cancelled")
         else:
-            # Keep server running briefly for once mode
+            # Keep server running for once mode
             gadfl_step(f"GAD factory processing complete. Output in {self.output_dir}")
             gadfl_step(f"Inspector available at http://localhost:{self.port}/")
+            gadfl_step("Press Ctrl+C to stop server and exit")
             
-            if self.server:
-                try:
-                    gadfl_step("Press Ctrl+C to stop server and exit")
-                    while True:
-                        time.sleep(1)
-                except KeyboardInterrupt:
-                    self.server.shutdown()
-                    self.websocket_handler.stop_server()
-                    gadfl_step("HTTP and WebSocket servers stopped")
+            try:
+                # Wait indefinitely for Ctrl+C
+                while True:
+                    await asyncio.sleep(1)
+            except asyncio.CancelledError:
+                pass
+            except KeyboardInterrupt:
+                pass
+            
+            gadfl_step("Tornado server stopped")
+    
+    def run(self):
+        """Main execution method - wrapper for async run."""
+        try:
+            asyncio.run(self.run_async())
+        except KeyboardInterrupt:
+            gadfl_step("Interrupted by user")
 
 def main():
     """Main entry point with argument parsing."""
-    parser = argparse.ArgumentParser(description='GAD Factory - Python implementation')
+    parser = argparse.ArgumentParser(description='GAD Factory - Tornado implementation')
     parser.add_argument('--file', required=True, help='AsciiDoc filename to process')
     parser.add_argument('--directory', required=True, help='Working directory')
     parser.add_argument('--branch', default='main', help='Git branch to track')
@@ -1139,7 +780,7 @@ def main():
     parser.add_argument('--once', action='store_true', 
                        help='Disable watch mode after initial population')
     parser.add_argument('--port', type=int, default=8080, 
-                       help='HTTP server port')
+                       help='HTTP and WebSocket server port')
     
     args = parser.parse_args()
     
@@ -1155,7 +796,7 @@ def main():
         factory.run()
     except KeyboardInterrupt:
         gadfl_step("Interrupted by user")
-        sys.exit(1)
+        sys.exit(0)
     except Exception as e:
         gadfl_fail(f"Unexpected error: {e}")
 
