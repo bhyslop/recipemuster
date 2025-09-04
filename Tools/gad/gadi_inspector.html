@@ -155,21 +155,32 @@
             color: #888;
         }
         
-        /* Diff styling */
+        /* Diff styling - Block-level annotations with inline deletions */
         .diff-deletion {
             background-color: #ffeef0;
             color: #d73a49;
             text-decoration: line-through;
+            display: inline; /* Inline display for deletions */
+            border: 1px solid #f97583;
+            border-radius: 2px;
+            padding: 1px 3px;
+            margin: 0 2px;
         }
         
         .diff-insertion {
             background-color: #f0fff4;
-            color: #28a745;
+            border: 1px solid #28a745;
+            border-radius: 3px;
+            /* Block-level background highlighting */
+            padding: 4px;
         }
         
         .diff-moved {
             background-color: #fff3cd;
-            color: #856404;
+            border: 1px solid #856404;
+            border-radius: 3px;
+            /* Block-level background highlighting */
+            padding: 4px;
         }
         
         .loading {
@@ -604,13 +615,13 @@
             }
             
             styleDiff(fromHtml, toHtml) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'styleDiff called');
+                wsTraceHandler.sendTrace('[DEBUG]', 'styleDiff called with render-then-annotate approach');
                 wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff type at diff time: ${typeof WikEdDiff}`);
                 if (typeof WikEdDiff !== 'undefined') {
                     wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class is available');
                 }
                 
-                // Create wikEd diff instance
+                // Phase 1 - Change Detection: Pass both HTML sources to wikEd diff library 
                 const wikEdDiff = new WikEdDiff();
                 
                 // Configure for word-level diff with move detection
@@ -624,16 +635,103 @@
                     stripTrailingNewline: true
                 };
                 
-                // Generate diff
+                // Generate diff to identify changes
                 const diffHtml = wikEdDiff.diff(fromHtml, toHtml, config);
+                wsTraceHandler.sendTrace('[DEBUG]', 'Phase 1 - Change detection completed');
                 
-                // Process wikEd output classes to our classes
-                let styledDiff = diffHtml
-                    .replace(/class="wikEdDiffDelete"/g, 'class="diff-deletion"')
-                    .replace(/class="wikEdDiffInsert"/g, 'class="diff-insertion"')
-                    .replace(/class="wikEdDiffMove"/g, 'class="diff-moved"');
+                // Phase 2 - Rendered Annotation: Parse target HTML into DOM structure
+                wsTraceHandler.sendTrace('[DEBUG]', 'Phase 2 - Starting DOM annotation');
+                const parser = new DOMParser();
+                const targetDoc = parser.parseFromString(toHtml, 'text/html');
                 
-                return styledDiff;
+                // Parse the diff output to identify change regions
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = diffHtml;
+                
+                // Map diff regions to block-level DOM elements
+                this.mapDiffRegionsToBlocks(targetDoc, tempDiv);
+                
+                // For deletions, insert strikethrough content inline at original positions
+                this.insertInlineDeletions(targetDoc, tempDiv);
+                
+                wsTraceHandler.sendTrace('[DEBUG]', 'Phase 2 - DOM annotation completed');
+                
+                // Return the annotated DOM as HTML
+                return targetDoc.body.innerHTML || targetDoc.documentElement.innerHTML;
+            }
+            
+            mapDiffRegionsToBlocks(targetDoc, diffDiv) {
+                // Apply CSS classes to changed blocks: 'diff-insertion' (green), 'diff-moved' (yellow)
+                // Find all insertion and move elements in the diff
+                const insertions = diffDiv.querySelectorAll('.wikEdDiffInsert, [class*="wikEdDiffInsert"]');
+                const moves = diffDiv.querySelectorAll('.wikEdDiffMove, [class*="wikEdDiffMove"]');
+                
+                // Map insertions to target DOM blocks
+                insertions.forEach(insertion => {
+                    const textContent = insertion.textContent.trim();
+                    if (textContent) {
+                        this.findAndAnnotateBlocksWithText(targetDoc, textContent, 'diff-insertion');
+                    }
+                });
+                
+                // Map moves to target DOM blocks  
+                moves.forEach(move => {
+                    const textContent = move.textContent.trim();
+                    if (textContent) {
+                        this.findAndAnnotateBlocksWithText(targetDoc, textContent, 'diff-moved');
+                    }
+                });
+            }
+            
+            insertInlineDeletions(targetDoc, diffDiv) {
+                // Find all deletion elements in the diff
+                const deletions = diffDiv.querySelectorAll('.wikEdDiffDelete, [class*="wikEdDiffDelete"]');
+                
+                deletions.forEach(deletion => {
+                    const deletedText = deletion.textContent.trim();
+                    if (deletedText) {
+                        // Create inline deletion element with strikethrough
+                        const deletionSpan = targetDoc.createElement('span');
+                        deletionSpan.className = 'diff-deletion';
+                        deletionSpan.textContent = deletedText;
+                        deletionSpan.style.display = 'inline';
+                        
+                        // Find the best insertion point in target DOM
+                        // For now, insert at the beginning of body as inline element
+                        const targetBody = targetDoc.body || targetDoc.documentElement;
+                        if (targetBody.firstChild) {
+                            targetBody.insertBefore(deletionSpan, targetBody.firstChild);
+                        } else {
+                            targetBody.appendChild(deletionSpan);
+                        }
+                    }
+                });
+            }
+            
+            findAndAnnotateBlocksWithText(doc, textContent, className) {
+                // Find block-level elements containing the text and apply CSS class
+                const walker = doc.createTreeWalker(
+                    doc.body || doc.documentElement,
+                    NodeFilter.SHOW_ELEMENT,
+                    {
+                        acceptNode: function(node) {
+                            // Target block-level elements
+                            const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
+                                                  'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 'ARTICLE'];
+                            return blockElements.includes(node.tagName) ? 
+                                NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+                        }
+                    }
+                );
+                
+                let node;
+                while (node = walker.nextNode()) {
+                    if (node.textContent.includes(textContent)) {
+                        // Apply CSS class to block-level element
+                        node.classList.add(className);
+                        break; // Only annotate the first matching block
+                    }
+                }
             }
             
             updateNavigation() {
