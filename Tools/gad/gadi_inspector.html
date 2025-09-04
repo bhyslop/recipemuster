@@ -684,28 +684,43 @@
             }
             
             insertInlineDeletions(targetDoc, diffDiv) {
-                // Find all deletion elements in the diff
-                const deletions = diffDiv.querySelectorAll('.wikEdDiffDelete, [class*="wikEdDiffDelete"]');
+                // Parse the full diff to understand deletion positions
+                const diffHTML = diffDiv.innerHTML;
                 
-                deletions.forEach(deletion => {
-                    const deletedText = deletion.textContent.trim();
-                    if (deletedText) {
-                        // Create inline deletion element with strikethrough
-                        const deletionSpan = targetDoc.createElement('span');
-                        deletionSpan.className = 'diff-deletion';
-                        deletionSpan.textContent = deletedText;
-                        deletionSpan.style.display = 'inline';
+                // Find deletion patterns with context
+                const deletePattern = /<[^>]*wikEdDiffDelete[^>]*>([^<]+)<\/[^>]+>/g;
+                
+                // For each deletion, find its position relative to preserved text
+                let match;
+                while (match = deletePattern.exec(diffHTML)) {
+                    const deletedText = match[1];
+                    
+                    // Find what comes after this deletion in the diff
+                    const afterContext = diffHTML.substring(match.index + match[0].length, match.index + match[0].length + 100)
+                        .replace(/<[^>]+>/g, '') // Strip tags to get plain text
+                        .trim();
+                    
+                    if (afterContext) {
+                        // Find this context in target DOM
+                        const walker = targetDoc.createTreeWalker(
+                            targetDoc.body || targetDoc.documentElement,
+                            NodeFilter.SHOW_TEXT
+                        );
                         
-                        // Find the best insertion point in target DOM
-                        // For now, insert at the beginning of body as inline element
-                        const targetBody = targetDoc.body || targetDoc.documentElement;
-                        if (targetBody.firstChild) {
-                            targetBody.insertBefore(deletionSpan, targetBody.firstChild);
-                        } else {
-                            targetBody.appendChild(deletionSpan);
+                        let textNode;
+                        while (textNode = walker.nextNode()) {
+                            if (textNode.nodeValue.includes(afterContext.substring(0, 20))) {
+                                // Insert deletion before this text
+                                const deletionSpan = targetDoc.createElement('span');
+                                deletionSpan.className = 'diff-deletion';
+                                deletionSpan.textContent = deletedText;
+                                deletionSpan.style.display = 'inline';
+                                textNode.parentNode.insertBefore(deletionSpan, textNode);
+                                break;
+                            }
                         }
                     }
-                });
+                }
             }
             
             findAndAnnotateBlocksWithText(doc, textContent, className) {
