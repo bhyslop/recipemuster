@@ -686,41 +686,69 @@
             insertInlineDeletions(targetDoc, diffDiv) {
                 // Parse the full diff to understand deletion positions
                 const diffHTML = diffDiv.innerHTML;
+                wsTraceHandler.sendTrace('[DEBUG]', `Starting deletion insertion, diffHTML length: ${diffHTML.length}`);
                 
-                // Find deletion patterns with context
-                const deletePattern = /<[^>]*wikEdDiffDelete[^>]*>([^<]+)<\/[^>]+>/g;
+                // Find deletion patterns with context - try multiple patterns
+                const patterns = [
+                    /<[^>]*wikEdDiffDelete[^>]*>([^<]+)<\/[^>]+>/g,
+                    /<span[^>]*class="[^"]*wikEdDiffDelete[^"]*"[^>]*>([^<]+)<\/span>/g,
+                    /<[^>]*class="[^"]*wikEdDiffDelete[^"]*"[^>]*>(.*?)<\/[^>]*>/g
+                ];
                 
-                // For each deletion, find its position relative to preserved text
-                let match;
-                while (match = deletePattern.exec(diffHTML)) {
-                    const deletedText = match[1];
-                    
-                    // Find what comes after this deletion in the diff
-                    const afterContext = diffHTML.substring(match.index + match[0].length, match.index + match[0].length + 100)
-                        .replace(/<[^>]+>/g, '') // Strip tags to get plain text
-                        .trim();
-                    
-                    if (afterContext) {
-                        // Find this context in target DOM
-                        const walker = targetDoc.createTreeWalker(
-                            targetDoc.body || targetDoc.documentElement,
-                            NodeFilter.SHOW_TEXT
-                        );
+                let totalDeletions = 0;
+                let processedDeletions = 0;
+                let insertedDeletions = 0;
+                
+                patterns.forEach((deletePattern, patternIndex) => {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Trying pattern ${patternIndex + 1}`);
+                    let match;
+                    while (match = deletePattern.exec(diffHTML)) {
+                        totalDeletions++;
+                        const deletedText = match[1];
+                        wsTraceHandler.sendTrace('[DEBUG]', `Found deletion ${totalDeletions}: "${deletedText}"`);
                         
-                        let textNode;
-                        while (textNode = walker.nextNode()) {
-                            if (textNode.nodeValue.includes(afterContext.substring(0, 20))) {
-                                // Insert deletion before this text
-                                const deletionSpan = targetDoc.createElement('span');
-                                deletionSpan.className = 'diff-deletion';
-                                deletionSpan.textContent = deletedText;
-                                deletionSpan.style.display = 'inline';
-                                textNode.parentNode.insertBefore(deletionSpan, textNode);
-                                break;
+                        // Find what comes after this deletion in the diff
+                        const afterContext = diffHTML.substring(match.index + match[0].length, match.index + match[0].length + 100)
+                            .replace(/<[^>]+>/g, '') // Strip tags to get plain text
+                            .trim();
+                        
+                        wsTraceHandler.sendTrace('[DEBUG]', `After-context for deletion ${totalDeletions}: "${afterContext.substring(0, 30)}..."`);
+                        
+                        if (afterContext) {
+                            processedDeletions++;
+                            // Find this context in target DOM
+                            const walker = targetDoc.createTreeWalker(
+                                targetDoc.body || targetDoc.documentElement,
+                                NodeFilter.SHOW_TEXT
+                            );
+                            
+                            let textNode;
+                            let found = false;
+                            while (textNode = walker.nextNode()) {
+                                const contextMatch = afterContext.substring(0, 20);
+                                if (textNode.nodeValue.includes(contextMatch)) {
+                                    wsTraceHandler.sendTrace('[DEBUG]', `Found context match for deletion ${totalDeletions} in node: "${textNode.nodeValue.substring(0, 30)}..."`);
+                                    // Insert deletion before this text
+                                    const deletionSpan = targetDoc.createElement('span');
+                                    deletionSpan.className = 'diff-deletion';
+                                    deletionSpan.textContent = deletedText;
+                                    deletionSpan.style.display = 'inline';
+                                    textNode.parentNode.insertBefore(deletionSpan, textNode);
+                                    insertedDeletions++;
+                                    found = true;
+                                    break;
+                                }
                             }
+                            if (!found) {
+                                wsTraceHandler.sendTrace('[DEBUG]', `No context match found for deletion ${totalDeletions}: "${deletedText}"`);
+                            }
+                        } else {
+                            wsTraceHandler.sendTrace('[DEBUG]', `No after-context found for deletion ${totalDeletions}: "${deletedText}"`);
                         }
                     }
-                }
+                });
+                
+                wsTraceHandler.sendTrace('[DEBUG]', `Deletion summary: ${totalDeletions} found, ${processedDeletions} processed, ${insertedDeletions} inserted`);
             }
             
             findAndAnnotateBlocksWithText(doc, textContent, className) {
