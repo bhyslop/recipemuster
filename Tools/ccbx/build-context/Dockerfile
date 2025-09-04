@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y                                        
     build-essential     `# Compiler tools for Ruby native extensions`                    \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python packages via pip
-RUN python -m pip install                                                               \
+# Install Python packages via pip (override Ubuntu's aggressive externally-managed policy)
+RUN python -m pip install --break-system-packages                                       \
     tornado             `# Python web framework for HTTP and WebSocket server`          \
     && python -m pip cache purge
 
