@@ -352,6 +352,7 @@
             }
             
             initializeElements() {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Initializing DOM elements');
                 this.elements = {
                     comparisonHeader: document.getElementById('comparisonHeader'),
                     statusSection: document.getElementById('statusSection'),
@@ -364,6 +365,14 @@
                     changeCounter: document.getElementById('changeCounter'),
                     commitTooltip: document.getElementById('commitTooltip')
                 };
+                
+                // Check if all elements were found
+                Object.entries(this.elements).forEach(([key, element]) => {
+                    if (!element) {
+                        wsTraceHandler.sendTrace('[ERROR]', `Failed to find DOM element: ${key}`);
+                    }
+                });
+                wsTraceHandler.sendTrace('[DEBUG]', 'DOM elements initialized');
             }
             
             setupEventListeners() {
@@ -416,8 +425,13 @@
                     wsTraceHandler.sendTrace('[DEBUG]', `Manifest loaded successfully with ${this.manifest.commits.length} commits`);
                     wsTraceHandler.sendTrace('[MANIFEST]', `Successful load with ${this.manifest.commits.length} commits`);
                     
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting populateDropdowns');
                     this.populateDropdowns();
+                    wsTraceHandler.sendTrace('[DEBUG]', 'populateDropdowns completed');
+                    
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting parseUrlHash');
                     this.parseUrlHash();
+                    wsTraceHandler.sendTrace('[DEBUG]', 'parseUrlHash completed');
                     
                 } catch (error) {
                     wsTraceHandler.sendTrace('[DEBUG]', `Manifest load failed: ${error.message}`);
@@ -432,10 +446,12 @@
             }
             
             populateDropdowns() {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Clearing dropdown options');
                 // Clear existing options
                 this.elements.fromDropdown.innerHTML = '';
                 this.elements.toDropdown.innerHTML = '';
                 
+                wsTraceHandler.sendTrace('[DEBUG]', 'Adding magic values to dropdowns');
                 // Add magic values to from dropdown
                 this.addOption(this.elements.fromDropdown, 'before-last', 'before-last (previous commit)');
                 this.addOption(this.elements.fromDropdown, 'before-substantive', 'before-substantive (last different)');
@@ -443,8 +459,10 @@
                 // Add magic value to to dropdown
                 this.addOption(this.elements.toDropdown, 'latest', 'latest (newest commit)');
                 
+                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${this.manifest.commits.length} commits for dropdowns`);
                 // Add commits to both dropdowns
                 this.manifest.commits.forEach((commit, index) => {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Processing commit ${index + 1}: ${commit.hash.substring(0, 8)}`);
                     const isUnchanged = index > 0 && 
                         commit.html_sha256 === this.manifest.commits[index - 1].html_sha256;
                     
@@ -454,6 +472,7 @@
                     this.addOption(this.elements.fromDropdown, commit.hash, text, isUnchanged);
                     this.addOption(this.elements.toDropdown, commit.hash, text, isUnchanged);
                 });
+                wsTraceHandler.sendTrace('[DEBUG]', 'Dropdown population completed');
             }
             
             addOption(dropdown, value, text, isUnchanged = false) {
@@ -467,17 +486,28 @@
             }
             
             parseUrlHash() {
+                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlHash called with hash: "${window.location.hash}"`);
                 const hash = window.location.hash.substring(1);
                 const params = new URLSearchParams(hash);
                 
                 const fromValue = params.get('from');
                 const toValue = params.get('to');
+                wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromValue}", to: "${toValue}"`);
                 
-                if (fromValue) this.elements.fromDropdown.value = fromValue;
-                if (toValue) this.elements.toDropdown.value = toValue;
+                if (fromValue) {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Setting fromDropdown to: ${fromValue}`);
+                    this.elements.fromDropdown.value = fromValue;
+                }
+                if (toValue) {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Setting toDropdown to: ${toValue}`);
+                    this.elements.toDropdown.value = toValue;
+                }
                 
                 if (fromValue || toValue) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'URL params found, calling performDiff');
                     this.performDiff();
+                } else {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'No URL params found, not calling performDiff');
                 }
             }
             
