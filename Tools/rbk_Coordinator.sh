@@ -136,6 +136,22 @@ rbk_route() {
       # Connect to container and run git status
       rbk_ccbx_connect "cd /workspace/brm_recipemuster && git status"
       ;;
+    ccbx-R)
+      # Reset container: remove SSH host keys, configure git safe directories and global config
+      rbk_show "Removing SSH host key for localhost:8888"
+      ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
+      
+      rbk_show "Setting git safe directories"
+      rbk_ccbx_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
+      rbk_ccbx_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
+      rbk_ccbx_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
+      
+      rbk_show "Setting git global configuration"
+      rbk_ccbx_connect "git config --global user.email 'claude@anthropic.com'"
+      rbk_ccbx_connect "git config --global user.name 'Claude Code'"
+      
+      rbk_show "Container reset complete"
+      ;;
 
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
