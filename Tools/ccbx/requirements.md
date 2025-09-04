@@ -49,7 +49,8 @@ The following utilities are installed in the container based on the specific req
 - **asciidoctor** - Modern AsciiDoc to HTML/PDF processor (installed via gem)
 
 #### Python HTML Processing
-- **beautifulsoup4** - Python HTML parsing and manipulation library (installed via pip)
+- **beautifulsoup4** - Python HTML parsing and manipulation library (installed via apt)
+- **tornado** - Python web framework for HTTP server and WebSocket handling (installed via pip)
 
 Note: Python 3.11 specifically is not available in Ubuntu 24.04 default repositories at this time.
 
