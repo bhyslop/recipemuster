@@ -718,81 +718,65 @@
                 const diffHTML = diffDiv.innerHTML;
                 wsTraceHandler.sendTrace('[DEBUG]', `Starting deletion insertion, diffHTML length: ${diffHTML.length}`);
                 
-                // Helper function to clean wikEd markup and HTML entities
-                const cleanText = (text) => {
-                    return text
-                        .replace(/<[^>]+>/g, '') // Remove HTML tags
-                        .replace(/&gt;/g, '>') // Decode HTML entities
-                        .replace(/&lt;/g, '<')
-                        .replace(/&amp;/g, '&')
-                        .replace(/&quot;/g, '"')
-                        .replace(/&apos;/g, "'")
-                        .replace(/\s+/g, ' ') // Normalize whitespace
-                        .trim();
-                };
-                
-                // Find deletion patterns with context - simplified to catch more cases
-                const deletePattern = /<[^>]*wikEdDiffDelete[^>]*>(.*?)<\/[^>]*>/g;
+                // Find deletion patterns with context - try multiple patterns
+                const patterns = [
+                    /<[^>]*wikEdDiffDelete[^>]*>([^<]+)<\/[^>]+>/g,
+                    /<span[^>]*class="[^"]*wikEdDiffDelete[^"]*"[^>]*>([^<]+)<\/span>/g,
+                    /<[^>]*class="[^"]*wikEdDiffDelete[^"]*"[^>]*>(.*?)<\/[^>]*>/g
+                ];
                 
                 let totalDeletions = 0;
                 let processedDeletions = 0;
                 let insertedDeletions = 0;
                 
-                wsTraceHandler.sendTrace('[DEBUG]', 'Using simplified deletion pattern');
-                let match;
-                while (match = deletePattern.exec(diffHTML)) {
-                    totalDeletions++;
-                    const rawDeletedText = match[1];
-                    const cleanDeletedText = cleanText(rawDeletedText);
-                    wsTraceHandler.sendTrace('[DEBUG]', `Found deletion ${totalDeletions}: raw="${rawDeletedText}" clean="${cleanDeletedText}"`);
-                    
-                    // Skip empty deletions
-                    if (!cleanDeletedText) {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Skipping empty deletion ${totalDeletions}`);
-                        continue;
-                    }
-                    
-                    // Find what comes after this deletion in the diff
-                    const rawAfterContext = diffHTML.substring(match.index + match[0].length, match.index + match[0].length + 100);
-                    const cleanAfterContext = cleanText(rawAfterContext);
-                    
-                    wsTraceHandler.sendTrace('[DEBUG]', `After-context for deletion ${totalDeletions}: raw="${rawAfterContext.substring(0, 30)}..." clean="${cleanAfterContext.substring(0, 30)}..."`);
-                    
-                    if (cleanAfterContext) {
-                        processedDeletions++;
-                        // Find this context in target DOM
-                        const walker = targetDoc.createTreeWalker(
-                            targetDoc.body || targetDoc.documentElement,
-                            NodeFilter.SHOW_TEXT
-                        );
+                patterns.forEach((deletePattern, patternIndex) => {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Trying pattern ${patternIndex + 1}`);
+                    let match;
+                    while (match = deletePattern.exec(diffHTML)) {
+                        totalDeletions++;
+                        const deletedText = match[1];
+                        wsTraceHandler.sendTrace('[DEBUG]', `Found deletion ${totalDeletions}: "${deletedText}"`);
                         
-                        let textNode;
-                        let found = false;
-                        const contextMatch = cleanAfterContext.substring(0, 15); // Shorter match for better success
-                        wsTraceHandler.sendTrace('[DEBUG]', `Looking for context: "${contextMatch}"`);
+                        // Find what comes after this deletion in the diff
+                        const afterContext = diffHTML.substring(match.index + match[0].length, match.index + match[0].length + 100)
+                            .replace(/<[^>]+>/g, '') // Strip tags to get plain text
+                            .trim();
                         
-                        while (textNode = walker.nextNode()) {
-                            const nodeText = textNode.nodeValue.trim();
-                            if (nodeText && nodeText.includes(contextMatch)) {
-                                wsTraceHandler.sendTrace('[DEBUG]', `Found context match for deletion ${totalDeletions} in node: "${nodeText.substring(0, 30)}..."`);
-                                // Insert deletion before this text
-                                const deletionSpan = targetDoc.createElement('span');
-                                deletionSpan.className = 'diff-deletion';
-                                deletionSpan.textContent = cleanDeletedText; // Use clean text
-                                deletionSpan.style.display = 'inline';
-                                textNode.parentNode.insertBefore(deletionSpan, textNode);
-                                insertedDeletions++;
-                                found = true;
-                                break;
+                        wsTraceHandler.sendTrace('[DEBUG]', `After-context for deletion ${totalDeletions}: "${afterContext.substring(0, 30)}..."`);
+                        
+                        if (afterContext) {
+                            processedDeletions++;
+                            // Find this context in target DOM
+                            const walker = targetDoc.createTreeWalker(
+                                targetDoc.body || targetDoc.documentElement,
+                                NodeFilter.SHOW_TEXT
+                            );
+                            
+                            let textNode;
+                            let found = false;
+                            while (textNode = walker.nextNode()) {
+                                const contextMatch = afterContext.substring(0, 20);
+                                if (textNode.nodeValue.includes(contextMatch)) {
+                                    wsTraceHandler.sendTrace('[DEBUG]', `Found context match for deletion ${totalDeletions} in node: "${textNode.nodeValue.substring(0, 30)}..."`);
+                                    // Insert deletion before this text
+                                    const deletionSpan = targetDoc.createElement('span');
+                                    deletionSpan.className = 'diff-deletion';
+                                    deletionSpan.textContent = deletedText;
+                                    deletionSpan.style.display = 'inline';
+                                    textNode.parentNode.insertBefore(deletionSpan, textNode);
+                                    insertedDeletions++;
+                                    found = true;
+                                    break;
+                                }
                             }
+                            if (!found) {
+                                wsTraceHandler.sendTrace('[DEBUG]', `No context match found for deletion ${totalDeletions}: "${deletedText}"`);
+                            }
+                        } else {
+                            wsTraceHandler.sendTrace('[DEBUG]', `No after-context found for deletion ${totalDeletions}: "${deletedText}"`);
                         }
-                        if (!found) {
-                            wsTraceHandler.sendTrace('[DEBUG]', `No context match found for deletion ${totalDeletions}: "${cleanDeletedText}"`);
-                        }
-                    } else {
-                        wsTraceHandler.sendTrace('[DEBUG]', `No after-context found for deletion ${totalDeletions}: "${cleanDeletedText}"`);
                     }
-                }
+                });
                 
                 wsTraceHandler.sendTrace('[DEBUG]', `Deletion summary: ${totalDeletions} found, ${processedDeletions} processed, ${insertedDeletions} inserted`);
             }
