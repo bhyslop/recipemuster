@@ -135,14 +135,26 @@ class HTMLNormalizer:
     
     @staticmethod
     def normalize_whitespace_in_text(text):
-        """Normalize whitespace while preserving block boundaries."""
+        """Normalize whitespace while preserving block boundaries and inline spacing."""
+        # Preserve leading/trailing space markers
+        has_leading_space = text.startswith((' ', '\t', '\n'))
+        has_trailing_space = text.endswith((' ', '\t', '\n'))
+        
+        # Normalize internal whitespace
         text = re.sub(r'[ \t]+', ' ', text)
-        text = re.sub(r'\n{2,}', '\n', text)
+        text = re.sub(r'\n{2,}', '\n', text)  
         text = re.sub(r'(?<=[^\n])\n(?=[^\n])', ' ', text)
-        # Only strip if the result isn't just whitespace that might be significant
-        if text.strip() == '' and ' ' in text:
-            return ' '  # Preserve single space for inline context
-        return text.strip()
+        
+        # Strip internal normalization
+        normalized = text.strip()
+        
+        # Restore significant leading/trailing spaces for inline context
+        if normalized and has_leading_space:
+            normalized = ' ' + normalized
+        if normalized and has_trailing_space:
+            normalized = normalized + ' '
+            
+        return normalized
     
     @staticmethod
     def should_preserve_whitespace(element):
