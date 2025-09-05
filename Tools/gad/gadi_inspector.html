@@ -218,7 +218,7 @@
                 </select>
             </div>
             
-            <button class="console-button" id="consoleButton">Copy Trace</button>
+            <button class="console-button" id="consoleButton">Copy WikiEd Diff</button>
         </div>
     </div>
     
@@ -344,6 +344,7 @@
                 this.manifest = null;
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
+                this.lastWikEdDiffHtml = null;
                 
                 wsTraceHandler.sendTrace('[DEBUG]', 'GadInspector constructor called');
                 this.initializeElements();
@@ -363,7 +364,8 @@
                     previousButton: document.getElementById('previousButton'),
                     nextButton: document.getElementById('nextButton'),
                     changeCounter: document.getElementById('changeCounter'),
-                    commitTooltip: document.getElementById('commitTooltip')
+                    commitTooltip: document.getElementById('commitTooltip'),
+                    consoleButton: document.getElementById('consoleButton')
                 };
                 
                 // Check if all elements were found
@@ -381,6 +383,7 @@
                 
                 this.elements.previousButton.addEventListener('click', () => this.previousChange());
                 this.elements.nextButton.addEventListener('click', () => this.nextChange());
+                this.elements.consoleButton.addEventListener('click', () => this.copyWikEdDiff());
                 
                 
                 // Keyboard shortcuts
@@ -667,6 +670,7 @@
                 
                 // Generate diff to identify changes
                 const diffHtml = wikEdDiff.diff(fromHtml, toHtml, config);
+                this.lastWikEdDiffHtml = diffHtml; // Store for clipboard functionality
                 wsTraceHandler.sendTrace('[DEBUG]', 'Phase 1 - Change detection completed');
                 
                 // Phase 2 - Rendered Annotation: Parse target HTML into DOM structure
@@ -878,6 +882,58 @@
             
             hideCommitTooltip() {
                 this.elements.commitTooltip.style.display = 'none';
+            }
+            
+            copyWikEdDiff() {
+                if (!this.lastWikEdDiffHtml) {
+                    alert('No WikiEd diff available. Please select different commits first.');
+                    return;
+                }
+                
+                // Copy to clipboard using modern API
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(this.lastWikEdDiffHtml).then(() => {
+                        wsTraceHandler.sendTrace('[DEBUG]', 'WikiEd diff HTML copied to clipboard');
+                        // Briefly change button text to show success
+                        const originalText = this.elements.consoleButton.textContent;
+                        this.elements.consoleButton.textContent = 'Copied!';
+                        setTimeout(() => {
+                            this.elements.consoleButton.textContent = originalText;
+                        }, 1000);
+                    }).catch(err => {
+                        wsTraceHandler.sendTrace('[ERROR]', `Failed to copy to clipboard: ${err}`);
+                        this.fallbackCopyToClipboard(this.lastWikEdDiffHtml);
+                    });
+                } else {
+                    // Fallback for non-secure contexts
+                    this.fallbackCopyToClipboard(this.lastWikEdDiffHtml);
+                }
+            }
+            
+            fallbackCopyToClipboard(text) {
+                // Create temporary textarea for fallback copy
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-9999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    wsTraceHandler.sendTrace('[DEBUG]', 'WikiEd diff HTML copied to clipboard (fallback)');
+                    // Briefly change button text to show success
+                    const originalText = this.elements.consoleButton.textContent;
+                    this.elements.consoleButton.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.elements.consoleButton.textContent = originalText;
+                    }, 1000);
+                } catch (err) {
+                    wsTraceHandler.sendTrace('[ERROR]', `Fallback copy failed: ${err}`);
+                    alert('Could not copy to clipboard. Please copy manually from browser console.');
+                    console.log('WikiEd Diff HTML:', text);
+                }
+                document.body.removeChild(textArea);
             }
             
         }
