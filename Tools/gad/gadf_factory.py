@@ -155,7 +155,7 @@ class HTMLNormalizer:
             normalized = normalized + ' '
             
         return normalized
-    
+
     @staticmethod
     def should_preserve_whitespace(element):
         """Check if element should preserve exact whitespace."""
