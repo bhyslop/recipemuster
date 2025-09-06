@@ -155,7 +155,7 @@
             color: #888;
         }
         
-        /* Diff styling - Block-level annotations with inline deletions */
+        /* Diff styling - Block-level annotations with GADS-compliant deletions */
         .diff-deletion {
             background-color: #ffeef0;
             color: #d73a49;
@@ -165,6 +165,23 @@
             border-radius: 2px;
             padding: 1px 3px;
             margin: 0 2px;
+        }
+        
+        .gad-deleted {
+            background-color: #ffeef0;
+            color: #d73a49;
+            text-decoration: line-through;
+            border: 1px solid #f97583;
+            border-radius: 3px;
+            padding: 8px 12px;
+            margin: 8px 0;
+            display: block;
+            font-style: italic;
+        }
+        
+        .gad-deleted::before {
+            content: "[DELETED] ";
+            font-weight: bold;
         }
         
         .diff-insertion {
@@ -629,172 +646,118 @@
                     
                     this.elements.renderedPane.innerHTML = styledDiff;
                     
-                    // Count changes for navigation
-                    this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved');
+                    // Count changes for navigation - updated for GADS classifications
+                    this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved, .gad-deleted');
                     this.currentChangeIndex = 0;
                     
-                    wsTraceHandler.sendTrace('[DIFF]', `Completion with ${this.currentChanges.length} changes`);
+                    // Enhanced logging for Factory debugging
+                    const changeTypeBreakdown = {
+                        insertions: this.elements.renderedPane.querySelectorAll('.diff-insertion').length,
+                        moves: this.elements.renderedPane.querySelectorAll('.diff-moved').length,
+                        deletions: this.elements.renderedPane.querySelectorAll('.gad-deleted').length
+                    };
+                    
+                    wsTraceHandler.sendTrace('[DIFF]', `Completion with ${this.currentChanges.length} total changes`);
+                    wsTraceHandler.sendTrace('[DIFF]', `Change breakdown: ${JSON.stringify(changeTypeBreakdown)}`);
                     
                     this.updateNavigation();
                     
                 } catch (error) {
+                    // Enhanced error reporting for Factory debugging
                     if (error.message.includes('wikEd')) {
                         wsTraceHandler.sendTrace('[ERROR]', `wikEd library failure: ${error.message}`);
-                    } else {
+                    } else if (error.message.includes('fetch') || error.message.includes('HTTP')) {
                         wsTraceHandler.sendTrace('[FETCH]', `Fetch failure: ${error.message}`);
+                    } else {
+                        wsTraceHandler.sendTrace('[ERROR]', `GADS processing failure: ${error.message}`);
                     }
+                    
+                    // Additional debugging context
+                    wsTraceHandler.sendTrace('[DEBUG]', `Error occurred during diff processing for commits: ${fromCommit?.hash?.substring(0,8)} → ${toCommit?.hash?.substring(0,8)}`);
                     throw error;
                 }
             }
             
             styleDiff(fromHtml, toHtml) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'styleDiff called with render-then-annotate approach');
+                const startTime = performance.now();
+                wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant 4-phase diff processing');
+                wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
                 wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff type at diff time: ${typeof WikEdDiff}`);
-                if (typeof WikEdDiff !== 'undefined') {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class is available');
+                
+                if (typeof WikEdDiff === 'undefined') {
+                    throw new Error('WikEdDiff library not available - required for diff processing');
                 }
                 
-                // Phase 1 - Change Detection: Pass both HTML sources to wikEd diff library 
-                const wikEdDiff = new WikEdDiff();
+                try {
+                    // Phase 1: Block Identification
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Block Identification start');
+                    const fromBlocks = this.identifyBlocks(fromHtml, 'from');
+                    const toBlocks = this.identifyBlocks(toHtml, 'to');
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 1: Identified ${fromBlocks.length} from-blocks, ${toBlocks.length} to-blocks`);
+                    
+                    // Phase 2: wikEd Diff Processing
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: wikEd Processing start');
+                    const fromLinearized = this.linearizeBlocks(fromBlocks);
+                    const toLinearized = this.linearizeBlocks(toBlocks);
+                    wsTraceHandler.sendTrace('[DEBUG]', `Linearized lengths: from=${fromLinearized.length}, to=${toLinearized.length}`);
+                    
+                    const wikEdDiff = new WikEdDiff();
+                    const config = {
+                        fullDiff: false,
+                        charDiff: false,
+                        wordDiff: true,
+                        blockDiff: false,
+                        detectBlocks: true,
+                        detectMoves: true,
+                        stripTrailingNewline: true
+                    };
+                    
+                    const diffResult = wikEdDiff.diff(fromLinearized, toLinearized, config);
+                    this.lastWikEdDiffHtml = diffResult; // Store for clipboard functionality
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: wikEd processing completed');
+                    
+                    // Phase 3: Block Classification
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Block Classification start');
+                    const diffOperations = this.parseDiffOperations(diffResult);
+                    const blockClassifications = this.classifyBlocks(toBlocks, diffOperations, fromBlocks);
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Classified ${Object.keys(blockClassifications).length} blocks`);
+                    
+                    // Phase 4: Rendered Output
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered Output start');
+                    const annotatedHtml = this.renderAnnotatedOutput(toHtml, toBlocks, blockClassifications, fromBlocks, diffOperations);
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered output completed');
+                    
+                    // Performance logging for Factory debugging
+                    const endTime = performance.now();
+                    const totalTime = Math.round(endTime - startTime);
+                    wsTraceHandler.sendTrace('[PERF]', `GADS diff processing completed in ${totalTime}ms`);
+                    
+                    return annotatedHtml;
+                    
+                } catch (error) {
+                    wsTraceHandler.sendTrace('[ERROR]', `GADS diff processing failed: ${error.message}`);
+                    throw error;
+                }
+            }
+            
+            // Phase 1: Block Identification - GADS compliant implementation
+            identifyBlocks(html, source) {
+                wsTraceHandler.sendTrace('[DEBUG]', `Block identification starting for ${source}`);
                 
-                // Configure for word-level diff with move detection
-                const config = {
-                    fullDiff: false,
-                    charDiff: false,
-                    wordDiff: true,
-                    blockDiff: false,
-                    detectBlocks: true,
-                    detectMoves: true,
-                    stripTrailingNewline: true
-                };
-                
-                // Generate diff to identify changes
-                const diffHtml = wikEdDiff.diff(fromHtml, toHtml, config);
-                this.lastWikEdDiffHtml = diffHtml; // Store for clipboard functionality
-                wsTraceHandler.sendTrace('[DEBUG]', 'Phase 1 - Change detection completed');
-                
-                // Phase 2 - Rendered Annotation: Parse target HTML into DOM structure
-                wsTraceHandler.sendTrace('[DEBUG]', 'Phase 2 - Starting DOM annotation');
                 const parser = new DOMParser();
-                const targetDoc = parser.parseFromString(toHtml, 'text/html');
+                const doc = parser.parseFromString(html, 'text/html');
+                const blocks = [];
                 
-                // Parse the diff output to identify change regions
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = diffHtml;
+                // Target block-level elements per GADS specification
+                const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
+                                      'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 'ARTICLE',
+                                      'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
                 
-                // Map diff regions to block-level DOM elements
-                this.mapDiffRegionsToBlocks(targetDoc, tempDiv);
-                
-                // For deletions, insert strikethrough content inline at original positions
-                this.insertInlineDeletions(targetDoc, tempDiv);
-                
-                wsTraceHandler.sendTrace('[DEBUG]', 'Phase 2 - DOM annotation completed');
-                
-                // Return the annotated DOM as HTML
-                return targetDoc.body.innerHTML || targetDoc.documentElement.innerHTML;
-            }
-            
-            mapDiffRegionsToBlocks(targetDoc, diffDiv) {
-                // Apply CSS classes to changed blocks: 'diff-insertion' (green), 'diff-moved' (yellow)
-                // Find all insertion and move elements in the diff
-                const insertions = diffDiv.querySelectorAll('.wikEdDiffInsert, [class*="wikEdDiffInsert"]');
-                const moves = diffDiv.querySelectorAll('.wikEdDiffMove, [class*="wikEdDiffMove"]');
-                
-                // Map insertions to target DOM blocks
-                insertions.forEach(insertion => {
-                    const textContent = insertion.textContent.trim();
-                    if (textContent) {
-                        this.findAndAnnotateBlocksWithText(targetDoc, textContent, 'diff-insertion');
-                    }
-                });
-                
-                // Map moves to target DOM blocks  
-                moves.forEach(move => {
-                    const textContent = move.textContent.trim();
-                    if (textContent) {
-                        this.findAndAnnotateBlocksWithText(targetDoc, textContent, 'diff-moved');
-                    }
-                });
-            }
-            
-            insertInlineDeletions(targetDoc, diffDiv) {
-                // Parse the full diff to understand deletion positions
-                const diffHTML = diffDiv.innerHTML;
-                wsTraceHandler.sendTrace('[DEBUG]', `Starting deletion insertion, diffHTML length: ${diffHTML.length}`);
-                
-                // Find deletion patterns with context - try multiple patterns
-                const patterns = [
-                    /<[^>]*wikEdDiffDelete[^>]*>([^<]+)<\/[^>]+>/g,
-                    /<span[^>]*class="[^"]*wikEdDiffDelete[^"]*"[^>]*>([^<]+)<\/span>/g,
-                    /<[^>]*class="[^"]*wikEdDiffDelete[^"]*"[^>]*>(.*?)<\/[^>]*>/g
-                ];
-                
-                let totalDeletions = 0;
-                let processedDeletions = 0;
-                let insertedDeletions = 0;
-                
-                patterns.forEach((deletePattern, patternIndex) => {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Trying pattern ${patternIndex + 1}`);
-                    let match;
-                    while (match = deletePattern.exec(diffHTML)) {
-                        totalDeletions++;
-                        const deletedText = match[1];
-                        wsTraceHandler.sendTrace('[DEBUG]', `Found deletion ${totalDeletions}: "${deletedText}"`);
-                        
-                        // Find what comes after this deletion in the diff
-                        const afterContext = diffHTML.substring(match.index + match[0].length, match.index + match[0].length + 100)
-                            .replace(/<[^>]+>/g, '') // Strip tags to get plain text
-                            .trim();
-                        
-                        wsTraceHandler.sendTrace('[DEBUG]', `After-context for deletion ${totalDeletions}: "${afterContext.substring(0, 30)}..."`);
-                        
-                        if (afterContext) {
-                            processedDeletions++;
-                            // Find this context in target DOM
-                            const walker = targetDoc.createTreeWalker(
-                                targetDoc.body || targetDoc.documentElement,
-                                NodeFilter.SHOW_TEXT
-                            );
-                            
-                            let textNode;
-                            let found = false;
-                            while (textNode = walker.nextNode()) {
-                                const contextMatch = afterContext.substring(0, 20);
-                                if (textNode.nodeValue.includes(contextMatch)) {
-                                    wsTraceHandler.sendTrace('[DEBUG]', `Found context match for deletion ${totalDeletions} in node: "${textNode.nodeValue.substring(0, 30)}..."`);
-                                    // Insert deletion before this text
-                                    const deletionSpan = targetDoc.createElement('span');
-                                    deletionSpan.className = 'diff-deletion';
-                                    deletionSpan.textContent = deletedText;
-                                    deletionSpan.style.display = 'inline';
-                                    textNode.parentNode.insertBefore(deletionSpan, textNode);
-                                    insertedDeletions++;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                wsTraceHandler.sendTrace('[DEBUG]', `No context match found for deletion ${totalDeletions}: "${deletedText}"`);
-                            }
-                        } else {
-                            wsTraceHandler.sendTrace('[DEBUG]', `No after-context found for deletion ${totalDeletions}: "${deletedText}"`);
-                        }
-                    }
-                });
-                
-                wsTraceHandler.sendTrace('[DEBUG]', `Deletion summary: ${totalDeletions} found, ${processedDeletions} processed, ${insertedDeletions} inserted`);
-            }
-            
-            findAndAnnotateBlocksWithText(doc, textContent, className) {
-                // Find block-level elements containing the text and apply CSS class
                 const walker = doc.createTreeWalker(
                     doc.body || doc.documentElement,
                     NodeFilter.SHOW_ELEMENT,
                     {
                         acceptNode: function(node) {
-                            // Target block-level elements
-                            const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
-                                                  'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 'ARTICLE'];
                             return blockElements.includes(node.tagName) ? 
                                 NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
                         }
@@ -802,12 +765,324 @@
                 );
                 
                 let node;
+                let blockIndex = 0;
                 while (node = walker.nextNode()) {
-                    if (node.textContent.includes(textContent)) {
-                        // Apply CSS class to block-level element
-                        node.classList.add(className);
-                        break; // Only annotate the first matching block
+                    // Generate unique identifier based on element type, DOM path, and content
+                    const domPath = this.getDomPath(node);
+                    const textContent = node.textContent.trim();
+                    const blockId = `${source}-${node.tagName}-${blockIndex}-${this.hashString(domPath + textContent)}`;
+                    
+                    blocks.push({
+                        id: blockId,
+                        element: node,
+                        tagName: node.tagName,
+                        domPath: domPath,
+                        textContent: textContent,
+                        innerHTML: node.innerHTML,
+                        index: blockIndex
+                    });
+                    
+                    blockIndex++;
+                }
+                
+                wsTraceHandler.sendTrace('[DEBUG]', `Block identification completed for ${source}: ${blocks.length} blocks`);
+                return blocks;
+            }
+            
+            getDomPath(element) {
+                const path = [];
+                let current = element;
+                while (current && current.nodeType === Node.ELEMENT_NODE) {
+                    let selector = current.tagName.toLowerCase();
+                    if (current.id) {
+                        selector += '#' + current.id;
+                    } else if (current.className) {
+                        selector += '.' + current.className.split(/\s+/).join('.');
                     }
+                    path.unshift(selector);
+                    current = current.parentElement;
+                }
+                return path.join(' > ');
+            }
+            
+            hashString(str) {
+                // Simple hash function for unique identifiers
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32-bit integer
+                }
+                return Math.abs(hash).toString(16);
+            }
+            
+            linearizeBlocks(blocks) {
+                wsTraceHandler.sendTrace('[DEBUG]', `Linearizing ${blocks.length} blocks`);
+                
+                // Create text linearization preserving block boundaries with separator markers
+                const BLOCK_SEPARATOR = '\n⟨BLOCK⟩\n';
+                const linearized = blocks.map(block => {
+                    return `⟨${block.id}⟩${block.textContent}⟨/${block.id}⟩`;
+                }).join(BLOCK_SEPARATOR);
+                
+                wsTraceHandler.sendTrace('[DEBUG]', `Linearization completed, length: ${linearized.length}`);
+                return linearized;
+            }
+            
+            // Phase 2: Parse wikEd diff operations into structured format
+            parseDiffOperations(diffResult) {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Parsing diff operations from wikEd result');
+                
+                const operations = [];
+                const parser = new DOMParser();
+                const diffDoc = parser.parseFromString(`<div>${diffResult}</div>`, 'text/html');
+                
+                // Walk through diff DOM to extract operations
+                const walker = diffDoc.createTreeWalker(
+                    diffDoc.body,
+                    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+                    null
+                );
+                
+                let node;
+                while (node = walker.nextNode()) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const className = node.className || '';
+                        let operationType = null;
+                        
+                        if (className.includes('wikEdDiffDelete')) {
+                            operationType = 'delete';
+                        } else if (className.includes('wikEdDiffInsert')) {
+                            operationType = 'insert';  
+                        } else if (className.includes('wikEdDiffMove')) {
+                            operationType = 'move';
+                        }
+                        
+                        if (operationType) {
+                            // Extract block ID from content if present
+                            const content = node.textContent;
+                            const blockIdMatch = content.match(/⟨([^⟩]+)⟩/);
+                            
+                            operations.push({
+                                type: operationType,
+                                content: content,
+                                blockId: blockIdMatch ? blockIdMatch[1] : null,
+                                element: node
+                            });
+                        }
+                    }
+                }
+                
+                wsTraceHandler.sendTrace('[DEBUG]', `Parsed ${operations.length} diff operations`);
+                return operations;
+            }
+            
+            // Phase 3: Block Classification with GADS hierarchy
+            classifyBlocks(toBlocks, diffOperations, fromBlocks) {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Starting block classification with GADS hierarchy');
+                
+                const classifications = {};
+                
+                // Initialize all blocks as UNCHANGED
+                toBlocks.forEach(block => {
+                    classifications[block.id] = 'UNCHANGED';
+                });
+                
+                // Process operations to classify blocks
+                // GADS hierarchy: MOVED > MODIFIED > INSERTED > UNCHANGED
+                
+                const blockOperations = {};
+                diffOperations.forEach(op => {
+                    if (op.blockId) {
+                        if (!blockOperations[op.blockId]) {
+                            blockOperations[op.blockId] = [];
+                        }
+                        blockOperations[op.blockId].push(op.type);
+                    }
+                });
+                
+                // Apply classifications based on operation combinations
+                Object.keys(blockOperations).forEach(blockId => {
+                    const ops = blockOperations[blockId];
+                    const uniqueOps = [...new Set(ops)];
+                    
+                    if (uniqueOps.includes('move')) {
+                        classifications[blockId] = 'MOVED';
+                    } else if (uniqueOps.length > 1 || uniqueOps.includes('delete') || uniqueOps.includes('insert')) {
+                        // Mixed operations indicate modification
+                        classifications[blockId] = 'MODIFIED';
+                    } else if (uniqueOps.includes('insert')) {
+                        classifications[blockId] = 'INSERTED';
+                    }
+                });
+                
+                // Log classification summary
+                const summary = {};
+                Object.values(classifications).forEach(classification => {
+                    summary[classification] = (summary[classification] || 0) + 1;
+                });
+                
+                wsTraceHandler.sendTrace('[DEBUG]', `Block classification summary: ${JSON.stringify(summary)}`);
+                return classifications;
+            }
+            
+            // Phase 4: Rendered Output with deterministic deletion placement
+            renderAnnotatedOutput(toHtml, toBlocks, blockClassifications, fromBlocks, diffOperations) {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Starting rendered output generation');
+                
+                // Create new DOM structure to avoid iterator invalidation (GADS safe processing)
+                const parser = new DOMParser();
+                const targetDoc = parser.parseFromString(toHtml, 'text/html');
+                
+                // Apply block-level classifications
+                toBlocks.forEach(block => {
+                    const classification = blockClassifications[block.id];
+                    const targetElement = this.findElementInDoc(targetDoc, block);
+                    
+                    if (targetElement && classification !== 'UNCHANGED') {
+                        // Apply CSS class based on classification
+                        const cssClass = this.getClassificationCssClass(classification);
+                        targetElement.classList.add(cssClass);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Applied ${cssClass} to block ${block.id}`);
+                    }
+                });
+                
+                // Process deletion blocks with deterministic placement
+                const deletionOperations = diffOperations.filter(op => op.type === 'delete');
+                this.placeDeletionBlocks(targetDoc, deletionOperations, fromBlocks, toBlocks);
+                
+                return targetDoc.body.innerHTML || targetDoc.documentElement.innerHTML;
+            }
+            
+            findElementInDoc(doc, block) {
+                // Find matching element in new document by DOM path and content
+                const elements = doc.querySelectorAll(block.tagName.toLowerCase());
+                for (let element of elements) {
+                    if (element.textContent.trim() === block.textContent) {
+                        return element;
+                    }
+                }
+                return null;
+            }
+            
+            getClassificationCssClass(classification) {
+                switch (classification) {
+                    case 'INSERTED': return 'diff-insertion';
+                    case 'MOVED': return 'diff-moved';
+                    case 'MODIFIED': return 'diff-insertion'; // Use insertion styling for modified
+                    default: return '';
+                }
+            }
+            
+            // GADS-compliant deterministic deletion placement algorithm
+            placeDeletionBlocks(targetDoc, deletionOperations, fromBlocks, toBlocks) {
+                wsTraceHandler.sendTrace('[DEBUG]', `Placing ${deletionOperations.length} deletion blocks`);
+                
+                deletionOperations.forEach((deleteOp, index) => {
+                    const deletedBlockId = deleteOp.blockId;
+                    if (!deletedBlockId) {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Skipping deletion ${index}: no block ID`);
+                        return;
+                    }
+                    
+                    const deletedBlock = fromBlocks.find(b => b.id === deletedBlockId);
+                    if (!deletedBlock) {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Skipping deletion ${index}: block not found`);
+                        return;
+                    }
+                    
+                    // Find anchor for deterministic placement
+                    const anchor = this.findDeletionAnchor(deletedBlock, fromBlocks, toBlocks, targetDoc);
+                    
+                    if (anchor.element && anchor.position) {
+                        this.insertDeletionBlock(targetDoc, deletedBlock, anchor.element, anchor.position);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Placed deletion block ${deletedBlockId} ${anchor.position} anchor`);
+                    } else {
+                        // Boundary fallback
+                        this.insertDeletionBlockAtBoundary(targetDoc, deletedBlock, deletedBlock.index);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Placed deletion block ${deletedBlockId} at boundary fallback`);
+                    }
+                });
+            }
+            
+            // GADS anchor algorithm: Primary -> Secondary -> Boundary
+            findDeletionAnchor(deletedBlock, fromBlocks, toBlocks, targetDoc) {
+                // Primary anchor: Find next surviving block
+                const nextSurvivingBlock = this.findNextSurvivingBlock(deletedBlock, fromBlocks, toBlocks);
+                if (nextSurvivingBlock) {
+                    const anchorElement = this.findElementInDoc(targetDoc, nextSurvivingBlock);
+                    if (anchorElement) {
+                        return { element: anchorElement, position: 'before' };
+                    }
+                }
+                
+                // Secondary anchor: Find previous surviving block  
+                const prevSurvivingBlock = this.findPreviousSurvivingBlock(deletedBlock, fromBlocks, toBlocks);
+                if (prevSurvivingBlock) {
+                    const anchorElement = this.findElementInDoc(targetDoc, prevSurvivingBlock);
+                    if (anchorElement) {
+                        return { element: anchorElement, position: 'after' };
+                    }
+                }
+                
+                // Boundary fallback
+                return { element: null, position: null };
+            }
+            
+            findNextSurvivingBlock(deletedBlock, fromBlocks, toBlocks) {
+                const startIndex = deletedBlock.index + 1;
+                for (let i = startIndex; i < fromBlocks.length; i++) {
+                    const candidate = fromBlocks[i];
+                    // Check if this block survived in toBlocks
+                    if (toBlocks.some(toBlock => this.blocksMatch(candidate, toBlock))) {
+                        return candidate;
+                    }
+                }
+                return null;
+            }
+            
+            findPreviousSurvivingBlock(deletedBlock, fromBlocks, toBlocks) {
+                const startIndex = deletedBlock.index - 1;
+                for (let i = startIndex; i >= 0; i--) {
+                    const candidate = fromBlocks[i];
+                    // Check if this block survived in toBlocks
+                    if (toBlocks.some(toBlock => this.blocksMatch(candidate, toBlock))) {
+                        return candidate;
+                    }
+                }
+                return null;
+            }
+            
+            blocksMatch(fromBlock, toBlock) {
+                // Simple content-based matching
+                return fromBlock.textContent === toBlock.textContent && 
+                       fromBlock.tagName === toBlock.tagName;
+            }
+            
+            insertDeletionBlock(targetDoc, deletedBlock, anchorElement, position) {
+                const deletionDiv = targetDoc.createElement('div');
+                deletionDiv.className = 'diff-deletion gad-deleted';
+                deletionDiv.textContent = deletedBlock.textContent;
+                
+                if (position === 'before') {
+                    anchorElement.parentNode.insertBefore(deletionDiv, anchorElement);
+                } else if (position === 'after') {
+                    anchorElement.parentNode.insertBefore(deletionDiv, anchorElement.nextSibling);
+                }
+            }
+            
+            insertDeletionBlockAtBoundary(targetDoc, deletedBlock, originalIndex) {
+                const deletionDiv = targetDoc.createElement('div');
+                deletionDiv.className = 'diff-deletion gad-deleted';
+                deletionDiv.textContent = deletedBlock.textContent;
+                
+                const body = targetDoc.body || targetDoc.documentElement;
+                if (originalIndex === 0) {
+                    // Insert at document start
+                    body.insertBefore(deletionDiv, body.firstChild);
+                } else {
+                    // Insert at document end  
+                    body.appendChild(deletionDiv);
                 }
             }
             
