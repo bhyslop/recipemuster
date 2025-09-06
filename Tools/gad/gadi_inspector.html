@@ -706,9 +706,9 @@
                         fullDiff: false,
                         charDiff: false,
                         wordDiff: false,  // Disable word diff to prevent fragmentation of block markers
-                        blockDiff: true,   // Enable block diff for better block-level processing
-                        detectBlocks: true,
-                        detectMoves: true,
+                        blockDiff: false,  // Try disabling block diff to see if it reduces fragmentation
+                        detectBlocks: false, // Disable block detection to prevent marker splitting
+                        detectMoves: false,  // Disable move detection to simplify output
                         stripTrailingNewline: true
                     };
                     
@@ -770,10 +770,11 @@
                     // Generate unique identifier based on element type, DOM path, and content
                     const domPath = this.getDomPath(node);
                     const textContent = node.textContent.trim();
-                    const blockId = `${source}-${node.tagName}-${blockIndex}-${this.hashString(domPath + textContent)}`;
+                    const blockId = `${node.tagName}-${blockIndex}-${this.hashString(domPath + textContent)}`;
                     
                     blocks.push({
                         id: blockId,
+                        source: source,  // Track source separately
                         element: node,
                         tagName: node.tagName,
                         domPath: domPath,
@@ -819,11 +820,12 @@
             linearizeBlocks(blocks) {
                 wsTraceHandler.sendTrace('[DEBUG]', `Linearizing ${blocks.length} blocks`);
                 
-                // Create text linearization preserving block boundaries with separator markers
-                const BLOCK_SEPARATOR = '\n⟨BLOCK⟩\n';
+                // Create text linearization preserving block boundaries with identical separator markers
+                const BLOCK_START = '⟨BLOCK⟩';
+                const BLOCK_END = '⟨/BLOCK⟩';
                 const linearized = blocks.map(block => {
-                    return `⟨${block.id}⟩${block.textContent}⟨/${block.id}⟩`;
-                }).join(BLOCK_SEPARATOR);
+                    return `${BLOCK_START}${block.textContent}${BLOCK_END}`;
+                }).join('\n');
                 
                 wsTraceHandler.sendTrace('[DEBUG]', `Linearization completed, length: ${linearized.length}`);
                 return linearized;
@@ -834,23 +836,12 @@
                 wsTraceHandler.sendTrace('[DEBUG]', 'Parsing diff operations from wikEd result');
                 wsTraceHandler.sendTrace('[DEBUG]', `Raw diffResult length: ${diffResult.length}`);
                 
-                // Different approach: extract block IDs directly from raw diff result using regex
-                // Look for complete block marker patterns in the raw HTML
-                const blockIdPattern = /⟨((?:from|to)-[A-Z0-9]+-\d+-[a-f0-9]+)⟩/g;
-                const blockIds = new Set();
-                let match;
-                while ((match = blockIdPattern.exec(diffResult)) !== null) {
-                    blockIds.add(match[1]);
-                }
-                
-                wsTraceHandler.sendTrace('[DEBUG]', `Found ${blockIds.size} unique block IDs in raw diff result`);
-                if (blockIds.size > 0) {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Block IDs found: ${Array.from(blockIds).slice(0, 5).join(', ')}${blockIds.size > 5 ? '...' : ''}`);
-                }
-                
                 const operations = [];
                 const parser = new DOMParser();
                 const diffDoc = parser.parseFromString(`<div>${diffResult}</div>`, 'text/html');
+                
+                // Track block position by counting ⟨BLOCK⟩ markers
+                let currentBlockIndex = 0;
                 
                 // Walk through diff DOM to extract operations
                 const walker = diffDoc.createTreeWalker(
@@ -860,7 +851,6 @@
                 );
                 
                 let node;
-                let debugCount = 0;
                 while (node = walker.nextNode()) {
                     if (node.nodeType === Node.ELEMENT_NODE) {
                         const className = node.className || '';
@@ -876,58 +866,38 @@
                         
                         if (operationType) {
                             const content = node.textContent;
-                            let blockId = null;
                             
-                            // Try to match complete block ID in the content
-                            const blockIdMatch = content.match(/⟨([^⟩]+)⟩/);
-                            if (blockIdMatch) {
-                                blockId = blockIdMatch[1];
-                            } else {
-                                // Try to extract from parent context for fragmented operations
-                                // Look for block ID patterns in surrounding context
-                                let parentNode = node.parentElement;
-                                let attempts = 0;
-                                while (parentNode && attempts < 3) {
-                                    const parentText = parentNode.textContent;
-                                    const parentMatch = parentText.match(/⟨([^⟩]+)⟩/);
-                                    if (parentMatch && blockIds.has(parentMatch[1])) {
-                                        blockId = parentMatch[1];
-                                        break;
-                                    }
-                                    parentNode = parentNode.parentElement;
-                                    attempts++;
+                            // Count block markers in this content to determine which blocks are affected
+                            const blockStartCount = (content.match(/⟨BLOCK⟩/g) || []).length;
+                            if (blockStartCount > 0) {
+                                for (let i = 0; i < blockStartCount; i++) {
+                                    operations.push({
+                                        type: operationType,
+                                        blockIndex: currentBlockIndex + i,
+                                        content: content
+                                    });
                                 }
-                                
-                                // If still no match, try to infer from content fragments
-                                if (!blockId) {
-                                    for (const id of blockIds) {
-                                        if (content.includes(id.split('-')[0])) { // Match prefix like 'from' or 'to'
-                                            blockId = id;
-                                            break;
-                                        }
-                                    }
-                                }
+                                currentBlockIndex += blockStartCount;
+                            } else if (content.trim()) {
+                                // Operation affects current block
+                                operations.push({
+                                    type: operationType,
+                                    blockIndex: currentBlockIndex,
+                                    content: content
+                                });
                             }
-                            
-                            // Enhanced debugging for first few operations
-                            if (debugCount < 3) {
-                                wsTraceHandler.sendTrace('[DEBUG]', `Operation ${debugCount}: type=${operationType}, content="${content.substring(0, 100)}", blockId=${blockId}`);
-                                debugCount++;
-                            }
-                            
-                            operations.push({
-                                type: operationType,
-                                content: content,
-                                blockId: blockId,
-                                element: node
-                            });
+                        }
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                        // Track block markers in text nodes to maintain position index
+                        const content = node.textContent;
+                        const blockStartCount = (content.match(/⟨BLOCK⟩/g) || []).length;
+                        if (blockStartCount > 0) {
+                            currentBlockIndex += blockStartCount;
                         }
                     }
                 }
                 
                 wsTraceHandler.sendTrace('[DEBUG]', `Parsed ${operations.length} diff operations`);
-                const operationsWithBlockIds = operations.filter(op => op.blockId).length;
-                wsTraceHandler.sendTrace('[DEBUG]', `Operations with block IDs: ${operationsWithBlockIds}/${operations.length}`);
                 return operations;
             }
             
@@ -938,20 +908,21 @@
                 const classifications = {};
                 
                 // Initialize all blocks as UNCHANGED
-                toBlocks.forEach(block => {
+                toBlocks.forEach((block, index) => {
                     classifications[block.id] = 'UNCHANGED';
                 });
                 
-                // Process operations to classify blocks
+                // Process operations to classify blocks by index
                 // GADS hierarchy: MOVED > MODIFIED > INSERTED > UNCHANGED
                 
                 const blockOperations = {};
                 diffOperations.forEach(op => {
-                    if (op.blockId) {
-                        if (!blockOperations[op.blockId]) {
-                            blockOperations[op.blockId] = [];
+                    if (op.blockIndex !== undefined && op.blockIndex < toBlocks.length) {
+                        const blockId = toBlocks[op.blockIndex].id;
+                        if (!blockOperations[blockId]) {
+                            blockOperations[blockId] = [];
                         }
-                        blockOperations[op.blockId].push(op.type);
+                        blockOperations[blockId].push(op.type);
                     }
                 });
                 
