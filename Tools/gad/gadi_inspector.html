@@ -833,7 +833,20 @@
             parseDiffOperations(diffResult) {
                 wsTraceHandler.sendTrace('[DEBUG]', 'Parsing diff operations from wikEd result');
                 wsTraceHandler.sendTrace('[DEBUG]', `Raw diffResult length: ${diffResult.length}`);
-                wsTraceHandler.sendTrace('[DEBUG]', `First 500 chars of diffResult: ${diffResult.substring(0, 500)}`);
+                
+                // Different approach: extract block IDs directly from raw diff result using regex
+                // Look for complete block marker patterns in the raw HTML
+                const blockIdPattern = /⟨((?:from|to)-[A-Z0-9]+-\d+-[a-f0-9]+)⟩/g;
+                const blockIds = new Set();
+                let match;
+                while ((match = blockIdPattern.exec(diffResult)) !== null) {
+                    blockIds.add(match[1]);
+                }
+                
+                wsTraceHandler.sendTrace('[DEBUG]', `Found ${blockIds.size} unique block IDs in raw diff result`);
+                if (blockIds.size > 0) {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Block IDs found: ${Array.from(blockIds).slice(0, 5).join(', ')}${blockIds.size > 5 ? '...' : ''}`);
+                }
                 
                 const operations = [];
                 const parser = new DOMParser();
@@ -862,27 +875,52 @@
                         }
                         
                         if (operationType) {
-                            // Extract block ID from content if present
                             const content = node.textContent;
+                            let blockId = null;
+                            
+                            // Try to match complete block ID in the content
                             const blockIdMatch = content.match(/⟨([^⟩]+)⟩/);
+                            if (blockIdMatch) {
+                                blockId = blockIdMatch[1];
+                            } else {
+                                // Try to extract from parent context for fragmented operations
+                                // Look for block ID patterns in surrounding context
+                                let parentNode = node.parentElement;
+                                let attempts = 0;
+                                while (parentNode && attempts < 3) {
+                                    const parentText = parentNode.textContent;
+                                    const parentMatch = parentText.match(/⟨([^⟩]+)⟩/);
+                                    if (parentMatch && blockIds.has(parentMatch[1])) {
+                                        blockId = parentMatch[1];
+                                        break;
+                                    }
+                                    parentNode = parentNode.parentElement;
+                                    attempts++;
+                                }
+                                
+                                // If still no match, try to infer from content fragments
+                                if (!blockId) {
+                                    for (const id of blockIds) {
+                                        if (content.includes(id.split('-')[0])) { // Match prefix like 'from' or 'to'
+                                            blockId = id;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                             
                             // Enhanced debugging for first few operations
                             if (debugCount < 3) {
-                                wsTraceHandler.sendTrace('[DEBUG]', `Operation ${debugCount}: type=${operationType}, content="${content.substring(0, 100)}", blockIdMatch=${blockIdMatch}`);
+                                wsTraceHandler.sendTrace('[DEBUG]', `Operation ${debugCount}: type=${operationType}, content="${content.substring(0, 100)}", blockId=${blockId}`);
                                 debugCount++;
                             }
                             
                             operations.push({
                                 type: operationType,
                                 content: content,
-                                blockId: blockIdMatch ? blockIdMatch[1] : null,
+                                blockId: blockId,
                                 element: node
                             });
-                            
-                            // Log operations missing block IDs
-                            if (!blockIdMatch) {
-                                wsTraceHandler.sendTrace('[DEBUG]', `No block ID found in ${operationType} operation: "${content.substring(0, 50)}..."`);
-                            }
                         }
                     }
                 }
