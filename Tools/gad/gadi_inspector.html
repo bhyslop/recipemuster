@@ -705,8 +705,8 @@
                     const config = {
                         fullDiff: false,
                         charDiff: false,
-                        wordDiff: true,
-                        blockDiff: false,
+                        wordDiff: false,  // Disable word diff to prevent fragmentation of block markers
+                        blockDiff: true,   // Enable block diff for better block-level processing
                         detectBlocks: true,
                         detectMoves: true,
                         stripTrailingNewline: true
