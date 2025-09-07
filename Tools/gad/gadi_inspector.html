@@ -253,14 +253,17 @@
     
     <div class="commit-tooltip" id="commitTooltip"></div>
     
-    <script src="https://cdn.jsdelivr.net/npm/diff-dom@5/dist/diffDOM.js" 
-            onload="console.log('[DEBUG] diff-dom script loaded successfully')" 
-            onerror="console.log('[DEBUG] diff-dom script failed to load from jsdelivr'); 
-                     var script = document.createElement('script'); 
-                     script.src = 'https://unpkg.com/diff-dom@5.0.8/dist/diffDOM.js'; 
-                     script.onload = function() { console.log('[DEBUG] diff-dom fallback loaded'); }; 
-                     script.onerror = function() { console.log('[DEBUG] All diff-dom CDNs failed'); }; 
-                     document.head.appendChild(script);">
+    <script type="module">
+        // Use ESM import for modern diff-dom
+        import { DiffDOM } from 'https://cdn.skypack.dev/diff-dom@5.2.0';
+        window.diffDom = { DiffDOM };
+        console.log('[DEBUG] diff-dom loaded via ESM:', typeof DiffDOM);
+        // Trigger initialization if DOM is already ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.dispatchEvent(new Event('diff-dom-ready')));
+        } else {
+            window.dispatchEvent(new Event('diff-dom-ready'));
+        }
     </script>
     <script>
         // Trace buffer implementation per GADS specification
@@ -687,9 +690,9 @@
                 const startTime = performance.now();
                 wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant 4-phase diff processing');
                 wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
-                wsTraceHandler.sendTrace('[DEBUG]', `diff-dom type at diff time: ${typeof diffDom}`);
+                wsTraceHandler.sendTrace('[DEBUG]', `diff-dom type at diff time: ${typeof window.diffDom}`);
                 
-                if (typeof diffDom === 'undefined' || typeof diffDom.DiffDOM === 'undefined') {
+                if (typeof window.diffDom === 'undefined' || typeof window.diffDom.DiffDOM === 'undefined') {
                     throw new Error('diff-dom library not available - required for diff processing');
                 }
                 
@@ -702,7 +705,7 @@
                     
                     // Phase 2: diff-dom Processing
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: diff-dom Processing start');
-                    const diffDOM = new diffDom.DiffDOM();
+                    const diffDOM = new window.diffDom.DiffDOM();
                     const diffOperations = diffDOM.diff(fromDOM, toDOM);
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 2: Generated ${diffOperations.length} diff operations`);
                     
@@ -1298,27 +1301,35 @@
             
         }
         
-        // Initialize inspector when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, waiting for WebSocket connection');
-            
-            // Wait for WebSocket connection before initializing Inspector
-            function initializeWhenReady() {
-                if (wsTraceHandler.ws && wsTraceHandler.ws.readyState === WebSocket.OPEN) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'WebSocket ready, initializing inspector');
-                    wsTraceHandler.sendTrace('[DEBUG]', `diff-dom available: ${typeof diffDom !== 'undefined'}`);
-                    if (typeof diffDom !== 'undefined') {
-                        wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom class found, library loaded successfully');
-                    }
-                    window.gadInspector = new GadInspector();
-                } else {
-                    // Wait a bit longer
-                    setTimeout(initializeWhenReady, 100);
+        // Initialize inspector when both DOM and diff-dom are ready
+        let domReady = false;
+        let diffDomReady = false;
+        
+        function checkInitialization() {
+            if (domReady && diffDomReady && wsTraceHandler.ws && wsTraceHandler.ws.readyState === WebSocket.OPEN) {
+                wsTraceHandler.sendTrace('[DEBUG]', 'All dependencies ready, initializing inspector');
+                wsTraceHandler.sendTrace('[DEBUG]', `diff-dom available: ${typeof window.diffDom !== 'undefined'}`);
+                if (typeof window.diffDom !== 'undefined') {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom ESM loaded successfully');
                 }
+                window.gadInspector = new GadInspector();
             }
-            
-            initializeWhenReady();
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, waiting for diff-dom ESM');
+            domReady = true;
+            checkInitialization();
         });
+        
+        window.addEventListener('diff-dom-ready', () => {
+            wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom ESM ready');
+            diffDomReady = true;
+            checkInitialization();
+        });
+        
+        // Fallback timer in case WebSocket takes time
+        setTimeout(checkInitialization, 1000);
     </script>
 </body>
 </html>
