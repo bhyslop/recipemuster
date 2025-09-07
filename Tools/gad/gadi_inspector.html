@@ -694,7 +694,7 @@
 
             styleDiff(fromHtml, toHtml) {
                 const startTime = performance.now();
-                wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant 4-phase diff processing');
+                wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant immutable diff processing');
                 wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
                 wsTraceHandler.sendTrace('[DEBUG]', `diff-dom type at diff time: ${typeof window.diffDom}`);
 
@@ -703,44 +703,46 @@
                 }
 
                 try {
-                    // Phase 1: Block Identification
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Block Identification start');
-                    const fromDOM = this.createDOMFromHTML(fromHtml);
-                    const toDOM = this.createDOMFromHTML(toHtml);
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: DOM trees created from HTML sources');
+                    // Phase 1: Create Immutable Input DOMs (never modify these)
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Creating immutable input DOM trees');
+                    const immutableFromDOM = this.createDOMFromHTML(fromHtml);
+                    const immutableToDOM = this.createDOMFromHTML(toHtml);
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Immutable DOM trees created and preserved');
 
-                    // Phase 2: diff-dom Processing
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: diff-dom Processing start');
-                    const diffDOM = new window.diffDom.DiffDOM();
-                    const diffOperations = diffDOM.diff(fromDOM, toDOM);
+                    // Phase 2: Pre-capture Deletion Content
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: Pre-capturing deletion content from immutable fromDOM');
+                    const routeElementMap = this.createRouteElementMap(immutableFromDOM);
+                    wsTraceHandler.sendTrace('[DEBUG]', `Pre-captured ${Object.keys(routeElementMap).length} elements for deletion handling`);
                     
-                    // CRITICAL: Capture deleted content IMMEDIATELY after diff generation, before DOM changes
-                    this.captureDeletedContent(diffOperations, fromDOM);
+                    this.lastDomBeforeStyling = immutableToDOM.innerHTML; // Store original "to" DOM
+
+                    // Phase 3: Generate Diff Operations
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Generating diff operations via diff-dom');
+                    const diffDOM = new window.diffDom.DiffDOM();
+                    const diffOperations = diffDOM.diff(immutableFromDOM, immutableToDOM);
+                    
+                    // Enhance operations with pre-captured content
+                    this.enhanceOperationsWithCapturedContent(diffOperations, routeElementMap);
                     
                     this.lastDiffOperations = diffOperations; // Store for debug report
-                    wsTraceHandler.sendTrace('[DIFF]', `Phase 2: Generated ${diffOperations.length} diff operations`);
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
-                    // Phase 3: Operation Application
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Operation Application start');
-                    const operationResults = this.processOperations(diffOperations, toDOM, fromDOM);
-                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Processed ${operationResults.changes} operations`);
-
-                    // Phase 4: Rendered Output
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered Output start');
-                    this.lastDomBeforeStyling = toDOM.innerHTML; // Capture DOM before styling
-                    const annotatedHtml = this.renderDiffDOM(toDOM, diffOperations, fromDOM);
-                    this.lastDiffDomHtml = annotatedHtml; // Store for clipboard functionality
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered output completed');
+                    // Phase 4: Generate Clean Output DOM
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
+                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations);
+                    this.lastDiffDomHtml = outputDOM.innerHTML; // Store for clipboard functionality
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
 
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
                     const totalTime = Math.round(endTime - startTime);
-                    wsTraceHandler.sendTrace('[PERF]', `GADS diff processing completed in ${totalTime}ms`);
+                    wsTraceHandler.sendTrace('[PERF]', `GADS immutable diff processing completed in ${totalTime}ms`);
+                    wsTraceHandler.sendTrace('[ARCH]', 'Input DOMs remain completely unmodified throughout processing');
 
-                    return annotatedHtml;
+                    return outputDOM.innerHTML;
 
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[ERROR]', `GADS diff processing failed: ${error.message}`);
+                    wsTraceHandler.sendTrace('[ERROR]', `GADS immutable diff processing failed: ${error.message}`);
                     throw error;
                 }
             }
@@ -836,195 +838,11 @@
                 return linearized;
             }
 
-            // Helper methods for diff-dom processing
+            // Helper method for creating DOM from HTML strings
             createDOMFromHTML(html) {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 return doc.body;
-            }
-
-            processOperations(diffOperations, targetDOM, fromDOM) {
-                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${diffOperations.length} diff-dom operations`);
-
-                let changeCount = 0;
-                const processedOps = [];
-
-                for (const op of diffOperations) {
-                    // Debug trace for each operation
-                    wsTraceHandler.sendTrace('[OP-DEBUG]', `Processing op: ${op.action}, route: [${op.route?.join(',') || 'no-route'}], element: ${op.element ? 'present' : 'null'}, text: ${op.text || 'null'}`);
-
-                    // For delete operations, try to capture the original element content
-                    let originalElement = null;
-                    let originalText = null;
-                    if (op.action === 'removeElement' || op.action === 'removeTextElement') {
-                        originalElement = this.findElementByRoute(fromDOM, op.route);
-                        if (originalElement) {
-                            originalText = originalElement.nodeType === Node.TEXT_NODE ? 
-                                originalElement.textContent : 
-                                originalElement.outerHTML;
-                            wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Found original element at route [${op.route.join(',')}]: ${originalText.substring(0, 100)}${originalText.length > 100 ? '...' : ''}`);
-                        } else {
-                            wsTraceHandler.sendTrace('[DELETION-MISS]', `Could not find original element at route [${op.route.join(',')}]`);
-                        }
-                    }
-
-                    const processedOp = {
-                        type: this.mapOperationType(op.action),
-                        route: op.route || [],
-                        element: op.element || originalElement,
-                        text: op.text || originalText,
-                        oldValue: op.oldValue || null,
-                        newValue: op.newValue || null,
-                        originalAction: op.action // Keep original action for debugging
-                    };
-
-                    processedOps.push(processedOp);
-                    changeCount++;
-                }
-
-                wsTraceHandler.sendTrace('[DEBUG]', `Processed ${changeCount} operations`);
-                return { changes: changeCount, operations: processedOps };
-            }
-
-            mapOperationType(diffDomType) {
-                const typeMap = {
-                    'addElement': 'insert',
-                    'addTextElement': 'insert',
-                    'removeElement': 'delete',
-                    'removeTextElement': 'delete',
-                    'relocateNode': 'move',
-                    'modifyTextElement': 'modify',
-                    'modifyAttribute': 'modify'
-                };
-                const mapped = typeMap[diffDomType] || diffDomType;
-                wsTraceHandler.sendTrace('[MAP]', `Mapped diff-dom type '${diffDomType}' to '${mapped}'`);
-                return mapped;
-            }
-
-            renderDiffDOM(targetDOM, diffOperations, fromDOM) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Rendering diff-dom operations to HTML');
-
-                // Apply styling based on diff-dom operations
-                const processedOps = this.processOperations(diffOperations, targetDOM, fromDOM);
-
-                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${processedOps.operations.length} diff operations for styling`);
-
-                for (const op of processedOps.operations) {
-                    if (op.type === 'insert') {
-                        this.styleInsertedElement(targetDOM, op);
-                    } else if (op.type === 'delete') {
-                        this.createDeletionBlock(targetDOM, op);
-                    } else if (op.type === 'move') {
-                        this.styleMoveElement(targetDOM, op);
-                    } else if (op.type === 'modify') {
-                        this.styleModifiedElement(targetDOM, op);
-                    }
-                }
-
-                return targetDOM.innerHTML;
-            }
-
-            styleInsertedElement(dom, operation) {
-                const element = this.findElementByRoute(dom, operation.route);
-                if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    element.classList.add('diff-insertion');
-                    element.style.backgroundColor = '#d4edda';
-                    element.style.borderLeft = '4px solid #28a745';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to route [${operation.route.join(',')}]`);
-                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
-                    // Style parent element for text nodes
-                    element.parentElement.classList.add('diff-insertion');
-                    element.parentElement.style.backgroundColor = '#d4edda';
-                    element.parentElement.style.borderLeft = '4px solid #28a745';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to parent of text node at route [${operation.route.join(',')}]`);
-                } else {
-                    wsTraceHandler.sendTrace('[ERROR]', `Failed to find insert element at route [${operation.route.join(',')}]`);
-                }
-            }
-
-            createDeletionBlock(dom, operation) {
-                const deletionBlock = document.createElement('div');
-                deletionBlock.classList.add('diff-deletion');
-                deletionBlock.style.backgroundColor = '#f8d7da';
-                deletionBlock.style.borderLeft = '4px solid #dc3545';
-                deletionBlock.style.padding = '8px';
-                deletionBlock.style.margin = '4px 0';
-                
-                wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Creating deletion block for ${operation.originalAction || operation.type} at route [${operation.route.join(',')}]`);
-
-                // Try to get the actual deleted content - check captured content first
-                if (operation.capturedContent) {
-                    if (operation.capturedType === 'text') {
-                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.capturedContent}"`;
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured text: ${operation.capturedContent}`);
-                    } else if (operation.capturedType === 'element') {
-                        deletionBlock.innerHTML = `<strong>Deleted element:</strong><br><code>${this.escapeHtml(operation.capturedContent)}</code>`;
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured element: ${operation.capturedContent.substring(0, 50)}...`);
-                    } else {
-                        deletionBlock.innerHTML = `<strong>Deleted content:</strong> "${operation.capturedContent}"`;
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured unknown: ${operation.capturedContent}`);
-                    }
-                } else if (operation.element) {
-                    if (operation.element.nodeType === Node.TEXT_NODE) {
-                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.element.textContent}"`;
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added text node content: ${operation.element.textContent}`);
-                    } else if (operation.element.nodeType === Node.ELEMENT_NODE) {
-                        deletionBlock.innerHTML = `<strong>Deleted element:</strong><br><code>${this.escapeHtml(operation.element.outerHTML)}</code>`;
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added element content: ${operation.element.outerHTML.substring(0, 50)}...`);
-                    } else {
-                        deletionBlock.textContent = operation.text || 'Deleted content (unknown node type)';
-                    }
-                } else if (operation.text) {
-                    if (operation.text.startsWith('<')) {
-                        // Looks like HTML
-                        deletionBlock.innerHTML = `<strong>Deleted HTML:</strong><br><code>${this.escapeHtml(operation.text)}</code>`;
-                    } else {
-                        // Plain text
-                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.text}"`;
-                    }
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured text: ${operation.text.substring(0, 50)}...`);
-                } else {
-                    deletionBlock.innerHTML = `<strong>Deleted content</strong> (unable to recover original)<br><em>Action: ${operation.originalAction || operation.type}, Route: [${operation.route.join(',')}]</em>`;
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `No content available for deletion`);
-                }
-
-                // Insert deletion block at route-specified location
-                const insertPoint = this.findInsertionPoint(dom, operation.route);
-                if (insertPoint) {
-                    insertPoint.parentNode.insertBefore(deletionBlock, insertPoint);
-                } else {
-                    dom.appendChild(deletionBlock);
-                }
-            }
-
-            styleMoveElement(dom, operation) {
-                const element = this.findElementByRoute(dom, operation.route);
-                if (element) {
-                    element.classList.add('diff-moved');
-                    element.style.backgroundColor = '#fff3cd';
-                    element.style.borderLeft = '4px solid #ffc107';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-moved to route [${operation.route.join(',')}]`);
-                } else {
-                    wsTraceHandler.sendTrace('[ERROR]', `Failed to find move element at route [${operation.route.join(',')}]`);
-                }
-            }
-
-            styleModifiedElement(dom, operation) {
-                const element = this.findElementByRoute(dom, operation.route);
-                if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    element.classList.add('diff-insertion');
-                    element.style.backgroundColor = '#e2e3e5';
-                    element.style.borderLeft = '4px solid #6c757d';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to modified element at route [${operation.route.join(',')}]`);
-                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
-                    // Style parent element for text nodes
-                    element.parentElement.classList.add('diff-insertion');
-                    element.parentElement.style.backgroundColor = '#e2e3e5';
-                    element.parentElement.style.borderLeft = '4px solid #6c757d';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to parent of modified text at route [${operation.route.join(',')}]`);
-                } else {
-                    wsTraceHandler.sendTrace('[ERROR]', `Failed to find modify element at route [${operation.route.join(',')}]`);
-                }
             }
 
             findElementByRoute(dom, route) {
@@ -1061,261 +879,282 @@
                     .replace(/'/g, "&#039;");
             }
 
-            captureDeletedContent(diffOperations, fromDOM) {
-                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Scanning ${diffOperations.length} operations for deletions`);
+            extractTextFromHtml(htmlString) {
+                try {
+                    // Create a temporary element to parse HTML and extract text content
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = htmlString;
+                    return tempDiv.textContent || tempDiv.innerText || '';
+                } catch (e) {
+                    // Fallback: basic tag stripping
+                    return htmlString.replace(/<[^>]*>/g, '').trim();
+                }
+            }
+
+            generateOutputDOM(immutableToDOM, diffOperations) {
+                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Generating clean output DOM from ${diffOperations.length} operations`);
                 
+                // Create completely new output DOM structure - never modify inputs
+                const outputDOM = document.createElement('div');
+                
+                // Deep clone the immutable "to" DOM structure as foundation
+                this.deepCloneElement(immutableToDOM, outputDOM);
+                wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Created output DOM foundation from immutable toDOM');
+                
+                // Apply diff annotations to output DOM
+                let insertions = 0, deletions = 0, moves = 0, modifications = 0;
+                
+                // Process operations to generate annotations
                 for (const op of diffOperations) {
-                    if (op.action === 'removeElement' || op.action === 'removeTextElement') {
-                        wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Found deletion: ${op.action} at route [${op.route.join(',')}]`);
-                        
-                        const element = this.findElementByRoute(fromDOM, op.route);
-                        if (element) {
-                            // Store the captured content directly in the operation
-                            if (element.nodeType === Node.TEXT_NODE) {
-                                op.capturedContent = element.textContent;
-                                op.capturedType = 'text';
-                                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Captured text: "${element.textContent}"`);
-                            } else if (element.nodeType === Node.ELEMENT_NODE) {
-                                op.capturedContent = element.outerHTML;
-                                op.capturedType = 'element';
-                                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Captured element: ${element.outerHTML.substring(0, 100)}${element.outerHTML.length > 100 ? '...' : ''}`);
-                            } else {
-                                op.capturedContent = element.textContent || 'Unknown node content';
-                                op.capturedType = 'unknown';
-                                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Captured unknown node: ${op.capturedContent}`);
-                            }
-                        } else {
-                            wsTraceHandler.sendTrace('[DELETION-MISS]', `Could not find element for deletion at route [${op.route.join(',')}]`);
+                    switch (op.action) {
+                        case 'addElement':
+                        case 'addTextElement':
+                            this.applyInsertionAnnotation(outputDOM, op);
+                            insertions++;
+                            break;
+                        case 'removeElement': 
+                        case 'removeTextElement':
+                            this.generateDeletionBlock(outputDOM, op);
+                            deletions++;
+                            break;
+                        case 'relocateNode':
+                            this.applyMoveAnnotation(outputDOM, op);
+                            moves++;
+                            break;
+                        case 'modifyTextElement':
+                        case 'modifyAttribute':
+                            this.applyModificationAnnotation(outputDOM, op);
+                            modifications++;
+                            break;
+                        default:
+                            wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Unknown operation type: ${op.action}`);
+                    }
+                }
+                
+                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Applied annotations: ${insertions} insertions, ${deletions} deletions, ${moves} moves, ${modifications} modifications`);
+                wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Output DOM generation completed with all annotations applied');
+                
+                return outputDOM;
+            }
+
+            deepCloneElement(sourceElement, targetParent) {
+                if (!sourceElement || !sourceElement.childNodes) return;
+                
+                // Clone all child nodes recursively
+                for (let i = 0; i < sourceElement.childNodes.length; i++) {
+                    const sourceChild = sourceElement.childNodes[i];
+                    let clonedChild;
+                    
+                    if (sourceChild.nodeType === Node.ELEMENT_NODE) {
+                        // Create element with all attributes
+                        clonedChild = document.createElement(sourceChild.tagName.toLowerCase());
+                        for (let j = 0; j < sourceChild.attributes.length; j++) {
+                            const attr = sourceChild.attributes[j];
+                            clonedChild.setAttribute(attr.name, attr.value);
                         }
+                        // Recursively clone children
+                        this.deepCloneElement(sourceChild, clonedChild);
+                    } else if (sourceChild.nodeType === Node.TEXT_NODE) {
+                        clonedChild = document.createTextNode(sourceChild.textContent);
+                    } else {
+                        // Other node types (comments, etc.)
+                        clonedChild = sourceChild.cloneNode(false);
+                    }
+                    
+                    if (clonedChild) {
+                        targetParent.appendChild(clonedChild);
                     }
                 }
             }
 
-            findInsertionPoint(dom, route) {
-                if (route.length === 0) return dom.firstChild;
+            applyInsertionAnnotation(outputDOM, operation) {
+                const element = this.findElementByRoute(outputDOM, operation.route);
+                if (element && element.nodeType === Node.ELEMENT_NODE) {
+                    element.classList.add('diff-insertion');
+                    element.style.backgroundColor = '#d4edda';
+                    element.style.borderLeft = '4px solid #28a745';
+                    wsTraceHandler.sendTrace('[INSERTION]', `Applied insertion annotation at route [${operation.route.join(',')}]`);
+                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
+                    // Style parent element for text nodes
+                    element.parentElement.classList.add('diff-insertion');
+                    element.parentElement.style.backgroundColor = '#d4edda';
+                    element.parentElement.style.borderLeft = '4px solid #28a745';
+                    wsTraceHandler.sendTrace('[INSERTION]', `Applied insertion annotation to parent of text at route [${operation.route.join(',')}]`);
+                } else {
+                    wsTraceHandler.sendTrace('[INSERTION]', `Could not find element for insertion annotation at route [${operation.route.join(',')}]`);
+                }
+            }
 
-                let element = dom;
-                for (let i = 0; i < route.length - 1; i++) {
-                    if (element.children && element.children[route[i]]) {
-                        element = element.children[route[i]];
+            applyMoveAnnotation(outputDOM, operation) {
+                const element = this.findElementByRoute(outputDOM, operation.route);
+                if (element && element.nodeType === Node.ELEMENT_NODE) {
+                    element.classList.add('diff-moved');
+                    element.style.backgroundColor = '#fff3cd';
+                    element.style.borderLeft = '4px solid #ffc107';
+                    wsTraceHandler.sendTrace('[MOVE]', `Applied move annotation at route [${operation.route.join(',')}]`);
+                } else {
+                    wsTraceHandler.sendTrace('[MOVE]', `Could not find element for move annotation at route [${operation.route.join(',')}]`);
+                }
+            }
+
+            applyModificationAnnotation(outputDOM, operation) {
+                const element = this.findElementByRoute(outputDOM, operation.route);
+                if (element && element.nodeType === Node.ELEMENT_NODE) {
+                    element.classList.add('diff-insertion');
+                    element.style.backgroundColor = '#e2e3e5';
+                    element.style.borderLeft = '4px solid #6c757d';
+                    wsTraceHandler.sendTrace('[MODIFICATION]', `Applied modification annotation at route [${operation.route.join(',')}]`);
+                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
+                    element.parentElement.classList.add('diff-insertion');
+                    element.parentElement.style.backgroundColor = '#e2e3e5';
+                    element.parentElement.style.borderLeft = '4px solid #6c757d';
+                    wsTraceHandler.sendTrace('[MODIFICATION]', `Applied modification annotation to parent at route [${operation.route.join(',')}]`);
+                } else {
+                    wsTraceHandler.sendTrace('[MODIFICATION]', `Could not find element for modification annotation at route [${operation.route.join(',')}]`);
+                }
+            }
+
+            generateDeletionBlock(outputDOM, operation) {
+                wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Generating deletion block for ${operation.action} at route [${operation.route.join(',')}]`);
+
+                const deletionBlock = document.createElement('div');
+                deletionBlock.classList.add('diff-deletion');
+                deletionBlock.style.backgroundColor = '#f8d7da';
+                deletionBlock.style.borderLeft = '4px solid #dc3545';
+                deletionBlock.style.padding = '8px';
+                deletionBlock.style.margin = '4px 0';
+
+                // Use pre-captured content with enhanced formatting
+                if (operation.capturedContent) {
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Using pre-captured content (${operation.capturedType}): ${operation.capturedContent.substring(0, 50)}...`);
+                    
+                    if (operation.capturedType === 'text' || operation.capturedType === 'fallback-text') {
+                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> <span style="font-style: italic; color: #721c24;">"${this.escapeHtml(operation.capturedContent)}"</span>`;
+                    } else if (operation.capturedType === 'element') {
+                        const textContent = this.extractTextFromHtml(operation.capturedContent);
+                        if (textContent && textContent !== operation.capturedContent) {
+                            deletionBlock.innerHTML = `<strong>Deleted element:</strong> <span style="font-style: italic; color: #721c24;">${this.escapeHtml(textContent)}</span><br><details style="margin-top: 4px;"><summary style="cursor: pointer; color: #6f42c1;">Show HTML</summary><code style="display: block; background: rgba(0,0,0,0.05); padding: 4px; margin-top: 4px; font-size: 12px;">${this.escapeHtml(operation.capturedContent)}</code></details>`;
+                        } else {
+                            deletionBlock.innerHTML = `<strong>Deleted element:</strong><br><code style="display: block; background: rgba(0,0,0,0.05); padding: 4px; font-size: 12px;">${this.escapeHtml(operation.capturedContent)}</code>`;
+                        }
                     } else {
+                        deletionBlock.innerHTML = `<strong>Deleted content:</strong> <span style="font-style: italic; color: #721c24;">"${this.escapeHtml(operation.capturedContent)}"</span>`;
+                    }
+                } else {
+                    // Fallback when no captured content available
+                    deletionBlock.innerHTML = `<strong>Deleted content</strong> <span style="color: #6a737d;">(content not captured)</span><br><em style="font-size: 12px; color: #6a737d;">Action: ${operation.action}, Route: [${operation.route.join(',')}]</em>`;
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `No captured content available for deletion`);
+                }
+
+                // Insert deletion block in output DOM at appropriate location
+                const insertPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
+                if (insertPoint && insertPoint.parentNode) {
+                    insertPoint.parentNode.insertBefore(deletionBlock, insertPoint);
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Inserted deletion block before existing element`);
+                } else {
+                    // Fallback: append to output DOM
+                    outputDOM.appendChild(deletionBlock);
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Appended deletion block to output DOM (no insertion point found)`);
+                }
+            }
+
+            findDeletionInsertionPoint(outputDOM, route) {
+                if (route.length === 0) return outputDOM.firstChild;
+
+                let element = outputDOM;
+                for (let i = 0; i < route.length - 1; i++) {
+                    if (element.childNodes && element.childNodes[route[i]]) {
+                        element = element.childNodes[route[i]];
+                    } else {
+                        wsTraceHandler.sendTrace('[DELETION-INSERT]', `Could not traverse route at position ${i}`);
                         return null;
                     }
                 }
 
                 const lastIndex = route[route.length - 1];
-                return element.children ? element.children[lastIndex] : null;
+                const target = element.childNodes ? element.childNodes[lastIndex] : null;
+                wsTraceHandler.sendTrace('[DELETION-INSERT]', `Found insertion point at final route index ${lastIndex}: ${target ? 'exists' : 'null'}`);
+                return target;
             }
 
-            // Phase 3: Block Classification with GADS hierarchy
-            classifyBlocks(toBlocks, diffOperations, fromBlocks) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Starting block classification with GADS hierarchy');
+            createRouteElementMap(dom) {
+                wsTraceHandler.sendTrace('[ROUTE-MAP]', 'Building route-to-element mapping for deletion capture');
+                const routeMap = {};
 
-                const classifications = {};
-
-                // Initialize all blocks as UNCHANGED
-                toBlocks.forEach((block, index) => {
-                    classifications[block.id] = 'UNCHANGED';
-                });
-
-                // Process operations to classify blocks by index
-                // GADS hierarchy: MOVED > MODIFIED > INSERTED > UNCHANGED
-
-                const blockOperations = {};
-                diffOperations.forEach(op => {
-                    if (op.blockIndex !== undefined && op.blockIndex < toBlocks.length) {
-                        const blockId = toBlocks[op.blockIndex].id;
-                        if (!blockOperations[blockId]) {
-                            blockOperations[blockId] = [];
+                const mapElement = (element, route) => {
+                    if (!element) return;
+                    
+                    const routeKey = route.join(',');
+                    routeMap[routeKey] = {
+                        element: element,
+                        nodeType: element.nodeType,
+                        outerHTML: element.nodeType === Node.ELEMENT_NODE ? element.outerHTML : null,
+                        textContent: element.textContent || '',
+                        nodeName: element.nodeName || ''
+                    };
+                    
+                    // Recursively map child nodes
+                    if (element.childNodes) {
+                        for (let i = 0; i < element.childNodes.length; i++) {
+                            const childRoute = [...route, i];
+                            mapElement(element.childNodes[i], childRoute);
                         }
-                        blockOperations[blockId].push(op.type);
                     }
-                });
-
-                // Apply classifications based on operation combinations
-                Object.keys(blockOperations).forEach(blockId => {
-                    const ops = blockOperations[blockId];
-                    const uniqueOps = [...new Set(ops)];
-
-                    if (uniqueOps.includes('move')) {
-                        classifications[blockId] = 'MOVED';
-                    } else if (uniqueOps.length > 1 || uniqueOps.includes('delete') || uniqueOps.includes('insert')) {
-                        // Mixed operations indicate modification
-                        classifications[blockId] = 'MODIFIED';
-                    } else if (uniqueOps.includes('insert')) {
-                        classifications[blockId] = 'INSERTED';
-                    }
-                });
-
-                // Log classification summary
-                const summary = {};
-                Object.values(classifications).forEach(classification => {
-                    summary[classification] = (summary[classification] || 0) + 1;
-                });
-
-                wsTraceHandler.sendTrace('[DEBUG]', `Block classification summary: ${JSON.stringify(summary)}`);
-                return classifications;
+                };
+                
+                // Start mapping from root with empty route
+                mapElement(dom, []);
+                
+                wsTraceHandler.sendTrace('[ROUTE-MAP]', `Created mapping for ${Object.keys(routeMap).length} DOM nodes`);
+                return routeMap;
             }
 
-            // Phase 4: Rendered Output with deterministic deletion placement
-            renderAnnotatedOutput(toHtml, toBlocks, blockClassifications, fromBlocks, diffOperations) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Starting rendered output generation');
-
-                // Create new DOM structure to avoid iterator invalidation (GADS safe processing)
-                const parser = new DOMParser();
-                const targetDoc = parser.parseFromString(toHtml, 'text/html');
-
-                // Apply block-level classifications
-                toBlocks.forEach(block => {
-                    const classification = blockClassifications[block.id];
-                    const targetElement = this.findElementInDoc(targetDoc, block);
-
-                    if (targetElement && classification !== 'UNCHANGED') {
-                        // Apply CSS class based on classification
-                        const cssClass = this.getClassificationCssClass(classification);
-                        targetElement.classList.add(cssClass);
-                        wsTraceHandler.sendTrace('[DEBUG]', `Applied ${cssClass} to block ${block.id}`);
-                    }
-                });
-
-                // Process deletion blocks with deterministic placement
-                const deletionOperations = diffOperations.filter(op => op.type === 'delete');
-                this.placeDeletionBlocks(targetDoc, deletionOperations, fromBlocks, toBlocks);
-
-                return targetDoc.body.innerHTML || targetDoc.documentElement.innerHTML;
-            }
-
-            findElementInDoc(doc, block) {
-                // Find matching element in new document by DOM path and content
-                const elements = doc.querySelectorAll(block.tagName.toLowerCase());
-                for (let element of elements) {
-                    if (element.textContent.trim() === block.textContent) {
-                        return element;
+            enhanceOperationsWithCapturedContent(diffOperations, routeElementMap) {
+                wsTraceHandler.sendTrace('[ENHANCE]', `Enhancing ${diffOperations.length} operations with pre-captured content`);
+                
+                let deletionsFound = 0;
+                let deletionsEnhanced = 0;
+                
+                for (const op of diffOperations) {
+                    if (op.action === 'removeElement' || op.action === 'removeTextElement') {
+                        deletionsFound++;
+                        const routeKey = op.route.join(',');
+                        wsTraceHandler.sendTrace('[ENHANCE]', `Enhancing deletion ${deletionsFound}: ${op.action} at route [${routeKey}]`);
+                        
+                        const mappedElement = routeElementMap[routeKey];
+                        if (mappedElement) {
+                            if (mappedElement.nodeType === Node.TEXT_NODE) {
+                                op.capturedContent = mappedElement.textContent;
+                                op.capturedType = 'text';
+                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with captured text: "${mappedElement.textContent}"`);
+                            } else if (mappedElement.nodeType === Node.ELEMENT_NODE) {
+                                op.capturedContent = mappedElement.outerHTML;
+                                op.capturedType = 'element';
+                                const preview = mappedElement.outerHTML.substring(0, 100);
+                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with captured element: ${preview}${mappedElement.outerHTML.length > 100 ? '...' : ''}`);
+                            } else {
+                                op.capturedContent = mappedElement.textContent || `Unknown node: ${mappedElement.nodeName}`;
+                                op.capturedType = 'unknown';
+                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with captured unknown node: ${op.capturedContent}`);
+                            }
+                            deletionsEnhanced++;
+                        } else {
+                            wsTraceHandler.sendTrace('[ENHANCE]', `No mapping found for deletion route [${routeKey}]`);
+                            // Fallback to operation text if available
+                            if (op.text) {
+                                op.capturedContent = op.text;
+                                op.capturedType = 'fallback-text';
+                                deletionsEnhanced++;
+                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with fallback text: "${op.text}"`);
+                            }
+                        }
                     }
                 }
-                return null;
+                
+                wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
             }
 
-            getClassificationCssClass(classification) {
-                switch (classification) {
-                    case 'INSERTED': return 'diff-insertion';
-                    case 'MOVED': return 'diff-moved';
-                    case 'MODIFIED': return 'diff-insertion'; // Use insertion styling for modified
-                    default: return '';
-                }
-            }
 
-            // GADS-compliant deterministic deletion placement algorithm
-            placeDeletionBlocks(targetDoc, deletionOperations, fromBlocks, toBlocks) {
-                wsTraceHandler.sendTrace('[DEBUG]', `Placing ${deletionOperations.length} deletion blocks`);
-
-                deletionOperations.forEach((deleteOp, index) => {
-                    const deletedBlockId = deleteOp.blockId;
-                    if (!deletedBlockId) {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Skipping deletion ${index}: no block ID`);
-                        return;
-                    }
-
-                    const deletedBlock = fromBlocks.find(b => b.id === deletedBlockId);
-                    if (!deletedBlock) {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Skipping deletion ${index}: block not found`);
-                        return;
-                    }
-
-                    // Find anchor for deterministic placement
-                    const anchor = this.findDeletionAnchor(deletedBlock, fromBlocks, toBlocks, targetDoc);
-
-                    if (anchor.element && anchor.position) {
-                        this.insertDeletionBlock(targetDoc, deletedBlock, anchor.element, anchor.position);
-                        wsTraceHandler.sendTrace('[DEBUG]', `Placed deletion block ${deletedBlockId} ${anchor.position} anchor`);
-                    } else {
-                        // Boundary fallback
-                        this.insertDeletionBlockAtBoundary(targetDoc, deletedBlock, deletedBlock.index);
-                        wsTraceHandler.sendTrace('[DEBUG]', `Placed deletion block ${deletedBlockId} at boundary fallback`);
-                    }
-                });
-            }
-
-            // GADS anchor algorithm: Primary -> Secondary -> Boundary
-            findDeletionAnchor(deletedBlock, fromBlocks, toBlocks, targetDoc) {
-                // Primary anchor: Find next surviving block
-                const nextSurvivingBlock = this.findNextSurvivingBlock(deletedBlock, fromBlocks, toBlocks);
-                if (nextSurvivingBlock) {
-                    const anchorElement = this.findElementInDoc(targetDoc, nextSurvivingBlock);
-                    if (anchorElement) {
-                        return { element: anchorElement, position: 'before' };
-                    }
-                }
-
-                // Secondary anchor: Find previous surviving block
-                const prevSurvivingBlock = this.findPreviousSurvivingBlock(deletedBlock, fromBlocks, toBlocks);
-                if (prevSurvivingBlock) {
-                    const anchorElement = this.findElementInDoc(targetDoc, prevSurvivingBlock);
-                    if (anchorElement) {
-                        return { element: anchorElement, position: 'after' };
-                    }
-                }
-
-                // Boundary fallback
-                return { element: null, position: null };
-            }
-
-            findNextSurvivingBlock(deletedBlock, fromBlocks, toBlocks) {
-                const startIndex = deletedBlock.index + 1;
-                for (let i = startIndex; i < fromBlocks.length; i++) {
-                    const candidate = fromBlocks[i];
-                    // Check if this block survived in toBlocks
-                    if (toBlocks.some(toBlock => this.blocksMatch(candidate, toBlock))) {
-                        return candidate;
-                    }
-                }
-                return null;
-            }
-
-            findPreviousSurvivingBlock(deletedBlock, fromBlocks, toBlocks) {
-                const startIndex = deletedBlock.index - 1;
-                for (let i = startIndex; i >= 0; i--) {
-                    const candidate = fromBlocks[i];
-                    // Check if this block survived in toBlocks
-                    if (toBlocks.some(toBlock => this.blocksMatch(candidate, toBlock))) {
-                        return candidate;
-                    }
-                }
-                return null;
-            }
-
-            blocksMatch(fromBlock, toBlock) {
-                // Simple content-based matching
-                return fromBlock.textContent === toBlock.textContent &&
-                       fromBlock.tagName === toBlock.tagName;
-            }
-
-            insertDeletionBlock(targetDoc, deletedBlock, anchorElement, position) {
-                const deletionDiv = targetDoc.createElement('div');
-                deletionDiv.className = 'diff-deletion gad-deleted';
-                deletionDiv.textContent = deletedBlock.textContent;
-
-                if (position === 'before') {
-                    anchorElement.parentNode.insertBefore(deletionDiv, anchorElement);
-                } else if (position === 'after') {
-                    anchorElement.parentNode.insertBefore(deletionDiv, anchorElement.nextSibling);
-                }
-            }
-
-            insertDeletionBlockAtBoundary(targetDoc, deletedBlock, originalIndex) {
-                const deletionDiv = targetDoc.createElement('div');
-                deletionDiv.className = 'diff-deletion gad-deleted';
-                deletionDiv.textContent = deletedBlock.textContent;
-
-                const body = targetDoc.body || targetDoc.documentElement;
-                if (originalIndex === 0) {
-                    // Insert at document start
-                    body.insertBefore(deletionDiv, body.firstChild);
-                } else {
-                    // Insert at document end
-                    body.appendChild(deletionDiv);
-                }
-            }
 
             updateNavigation() {
                 if (this.currentChanges.length > 0) {
