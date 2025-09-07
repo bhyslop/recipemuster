@@ -713,6 +713,10 @@
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: diff-dom Processing start');
                     const diffDOM = new window.diffDom.DiffDOM();
                     const diffOperations = diffDOM.diff(fromDOM, toDOM);
+                    
+                    // CRITICAL: Capture deleted content IMMEDIATELY after diff generation, before DOM changes
+                    this.captureDeletedContent(diffOperations, fromDOM);
+                    
                     this.lastDiffOperations = diffOperations; // Store for debug report
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 2: Generated ${diffOperations.length} diff operations`);
 
@@ -948,8 +952,19 @@
                 
                 wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Creating deletion block for ${operation.originalAction || operation.type} at route [${operation.route.join(',')}]`);
 
-                // Try to get the actual deleted content
-                if (operation.element) {
+                // Try to get the actual deleted content - check captured content first
+                if (operation.capturedContent) {
+                    if (operation.capturedType === 'text') {
+                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.capturedContent}"`;
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured text: ${operation.capturedContent}`);
+                    } else if (operation.capturedType === 'element') {
+                        deletionBlock.innerHTML = `<strong>Deleted element:</strong><br><code>${this.escapeHtml(operation.capturedContent)}</code>`;
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured element: ${operation.capturedContent.substring(0, 50)}...`);
+                    } else {
+                        deletionBlock.innerHTML = `<strong>Deleted content:</strong> "${operation.capturedContent}"`;
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured unknown: ${operation.capturedContent}`);
+                    }
+                } else if (operation.element) {
                     if (operation.element.nodeType === Node.TEXT_NODE) {
                         deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.element.textContent}"`;
                         wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added text node content: ${operation.element.textContent}`);
@@ -1032,6 +1047,36 @@
                     .replace(/>/g, "&gt;")
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#039;");
+            }
+
+            captureDeletedContent(diffOperations, fromDOM) {
+                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Scanning ${diffOperations.length} operations for deletions`);
+                
+                for (const op of diffOperations) {
+                    if (op.action === 'removeElement' || op.action === 'removeTextElement') {
+                        wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Found deletion: ${op.action} at route [${op.route.join(',')}]`);
+                        
+                        const element = this.findElementByRoute(fromDOM, op.route);
+                        if (element) {
+                            // Store the captured content directly in the operation
+                            if (element.nodeType === Node.TEXT_NODE) {
+                                op.capturedContent = element.textContent;
+                                op.capturedType = 'text';
+                                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Captured text: "${element.textContent}"`);
+                            } else if (element.nodeType === Node.ELEMENT_NODE) {
+                                op.capturedContent = element.outerHTML;
+                                op.capturedType = 'element';
+                                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Captured element: ${element.outerHTML.substring(0, 100)}${element.outerHTML.length > 100 ? '...' : ''}`);
+                            } else {
+                                op.capturedContent = element.textContent || 'Unknown node content';
+                                op.capturedType = 'unknown';
+                                wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Captured unknown node: ${op.capturedContent}`);
+                            }
+                        } else {
+                            wsTraceHandler.sendTrace('[DELETION-MISS]', `Could not find element for deletion at route [${op.route.join(',')}]`);
+                        }
+                    }
+                }
             }
 
             findInsertionPoint(dom, route) {
