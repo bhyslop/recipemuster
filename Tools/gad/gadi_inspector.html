@@ -718,7 +718,7 @@
 
                     // Phase 3: Operation Application
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Operation Application start');
-                    const operationResults = this.processOperations(diffOperations, toDOM);
+                    const operationResults = this.processOperations(diffOperations, toDOM, fromDOM);
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Processed ${operationResults.changes} operations`);
 
                     // Phase 4: Rendered Output
