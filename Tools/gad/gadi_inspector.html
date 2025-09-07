@@ -846,7 +846,8 @@
                 const processedOps = [];
 
                 for (const op of diffOperations) {
-                    wsTraceHandler.sendTrace('[RAW-OP]', `Raw diff-dom operation: name='${op.name}', route=[${(op.route || []).join(',')}]`);
+                    wsTraceHandler.sendTrace('[RAW-OP]', `Raw diff-dom operation keys: ${JSON.stringify(Object.keys(op))}`);
+                    wsTraceHandler.sendTrace('[RAW-OP]', `Full operation: ${JSON.stringify(op)}`);
                     
                     const processedOp = {
                         type: this.mapOperationType(op.name),
