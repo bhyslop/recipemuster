@@ -235,7 +235,7 @@
                 </select>
             </div>
 
-            <button class="console-button" id="consoleButton">Copy WikiEd Diff</button>
+            <button class="console-button" id="consoleButton">Copy Debug Report</button>
         </div>
     </div>
 
@@ -370,6 +370,8 @@
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
                 this.lastDiffDomHtml = null;
+                this.lastDiffOperations = null;
+                this.lastDomBeforeStyling = null;
 
                 wsTraceHandler.sendTrace('[DEBUG]', 'GadInspector constructor called');
                 this.initializeElements();
@@ -711,6 +713,7 @@
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: diff-dom Processing start');
                     const diffDOM = new window.diffDom.DiffDOM();
                     const diffOperations = diffDOM.diff(fromDOM, toDOM);
+                    this.lastDiffOperations = diffOperations; // Store for debug report
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 2: Generated ${diffOperations.length} diff operations`);
 
                     // Phase 3: Operation Application
@@ -720,6 +723,7 @@
 
                     // Phase 4: Rendered Output
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered Output start');
+                    this.lastDomBeforeStyling = toDOM.innerHTML; // Capture DOM before styling
                     const annotatedHtml = this.renderDiffDOM(toDOM, diffOperations);
                     this.lastDiffDomHtml = annotatedHtml; // Store for clipboard functionality
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered output completed');
@@ -1275,28 +1279,51 @@
             }
 
             copyDiffDomResult() {
-                if (!this.lastDiffDomHtml) {
+                if (!this.lastDiffOperations || !this.lastDiffDomHtml) {
                     alert('No diff-dom result available. Please select different commits first.');
                     return;
                 }
 
+                // Create comprehensive debug report
+                const debugReport = `
+=== GADI DEBUG REPORT ===
+
+=== RAW DIFF-DOM OPERATIONS (${this.lastDiffOperations.length}) ===
+${this.lastDiffOperations.map((op, i) => 
+    `${i+1}. name: "${op.name}", route: [${(op.route || []).join(',')}], element: ${op.element ? 'present' : 'null'}`
+).join('\n')}
+
+=== DOM STRUCTURE BEFORE STYLING ===
+${this.lastDomBeforeStyling || 'Not captured'}
+
+=== FINAL HTML OUTPUT ===
+${this.lastDiffDomHtml}
+
+=== CHANGE COUNT SELECTORS ===
+.diff-deletion: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-deletion').length : 'N/A'}
+.diff-insertion: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-insertion').length : 'N/A'}  
+.diff-moved: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-moved').length : 'N/A'}
+
+=== END DEBUG REPORT ===
+                `.trim();
+
                 // Copy to clipboard using modern API
                 if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(this.lastDiffDomHtml).then(() => {
-                        wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom HTML copied to clipboard');
+                    navigator.clipboard.writeText(debugReport).then(() => {
+                        wsTraceHandler.sendTrace('[DEBUG]', 'Debug report copied to clipboard');
                         // Briefly change button text to show success
                         const originalText = this.elements.consoleButton.textContent;
-                        this.elements.consoleButton.textContent = 'Copied!';
+                        this.elements.consoleButton.textContent = 'Debug Copied!';
                         setTimeout(() => {
                             this.elements.consoleButton.textContent = originalText;
                         }, 1000);
                     }).catch(err => {
                         wsTraceHandler.sendTrace('[ERROR]', `Failed to copy to clipboard: ${err}`);
-                        this.fallbackCopyToClipboard(this.lastDiffDomHtml);
+                        this.fallbackCopyToClipboard(debugReport);
                     });
                 } else {
                     // Fallback for non-secure contexts
-                    this.fallbackCopyToClipboard(this.lastDiffDomHtml);
+                    this.fallbackCopyToClipboard(debugReport);
                 }
             }
 
