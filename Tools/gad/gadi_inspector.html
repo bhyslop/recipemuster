@@ -200,6 +200,14 @@
             padding: 4px;
         }
 
+        .diff-modification {
+            background-color: #e2e3e5;
+            border: 1px solid #6c757d;
+            border-radius: 3px;
+            /* Block-level background highlighting for text changes */
+            padding: 4px;
+        }
+
         .loading {
             text-align: center;
             color: #666;
@@ -657,19 +665,20 @@
                     this.elements.renderedPane.innerHTML = styledDiff;
 
                     // Count changes for navigation - updated for GADS classifications
-                    this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved');
+                    this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved, .diff-modification');
                     this.currentChangeIndex = 0;
 
                     // Enhanced logging for Factory debugging
                     const changeTypeBreakdown = {
                         insertions: this.elements.renderedPane.querySelectorAll('.diff-insertion').length,
                         moves: this.elements.renderedPane.querySelectorAll('.diff-moved').length,
-                        deletions: this.elements.renderedPane.querySelectorAll('.diff-deletion').length
+                        deletions: this.elements.renderedPane.querySelectorAll('.diff-deletion').length,
+                        modifications: this.elements.renderedPane.querySelectorAll('.diff-modification').length
                     };
 
                     // Debug trace for change counting
                     wsTraceHandler.sendTrace('[COUNT]', `Found ${this.currentChanges.length} total change elements in rendered output`);
-                    wsTraceHandler.sendTrace('[COUNT]', `Breakdown: ${changeTypeBreakdown.insertions} insertions, ${changeTypeBreakdown.moves} moves, ${changeTypeBreakdown.deletions} deletions`);
+                    wsTraceHandler.sendTrace('[COUNT]', `Breakdown: ${changeTypeBreakdown.insertions} insertions, ${changeTypeBreakdown.moves} moves, ${changeTypeBreakdown.deletions} deletions, ${changeTypeBreakdown.modifications} modifications`);
 
                     wsTraceHandler.sendTrace('[DIFF]', `Completion with ${this.currentChanges.length} total changes`);
                     wsTraceHandler.sendTrace('[DIFF]', `Change breakdown: ${JSON.stringify(changeTypeBreakdown)}`);
@@ -931,6 +940,7 @@
                             break;
                         case 'modifyTextElement':
                         case 'modifyAttribute':
+                            // Only apply modification styling, don't double-annotate as insertion
                             this.applyModificationAnnotation(outputDOM, op);
                             modifications++;
                             break;
@@ -943,6 +953,11 @@
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Output DOM generation completed with all annotations applied');
                 
                 return outputDOM;
+            }
+
+            isInlineElement(element) {
+                const inlineElements = new Set(['A', 'SPAN', 'EM', 'STRONG', 'B', 'I', 'U', 'CODE', 'MARK', 'SMALL', 'SUP', 'SUB']);
+                return inlineElements.has(element.tagName);
             }
 
             deepCloneElement(sourceElement, targetParent) {
@@ -978,16 +993,34 @@
             applyInsertionAnnotation(outputDOM, operation) {
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    element.classList.add('diff-insertion');
-                    element.style.backgroundColor = '#d4edda';
-                    element.style.borderLeft = '4px solid #28a745';
-                    wsTraceHandler.sendTrace('[INSERTION]', `Applied insertion annotation at route [${operation.route.join(',')}]`);
+                    // For inline elements (A, SPAN, etc.) use inline highlighting
+                    if (this.isInlineElement(element)) {
+                        element.style.backgroundColor = '#d4edda';
+                        element.style.padding = '2px';
+                        element.style.borderRadius = '2px';
+                        element.classList.add('diff-insertion');
+                        wsTraceHandler.sendTrace('[INSERTION]', `Applied inline insertion annotation at route [${operation.route.join(',')}]`);
+                    } else {
+                        // For block elements, use full block styling
+                        element.classList.add('diff-insertion');
+                        element.style.backgroundColor = '#d4edda';
+                        element.style.borderLeft = '4px solid #28a745';
+                        element.style.padding = '4px';
+                        wsTraceHandler.sendTrace('[INSERTION]', `Applied block insertion annotation at route [${operation.route.join(',')}]`);
+                    }
                 } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
-                    // Style parent element for text nodes
-                    element.parentElement.classList.add('diff-insertion');
-                    element.parentElement.style.backgroundColor = '#d4edda';
-                    element.parentElement.style.borderLeft = '4px solid #28a745';
-                    wsTraceHandler.sendTrace('[INSERTION]', `Applied insertion annotation to parent of text at route [${operation.route.join(',')}]`);
+                    // For text insertions, create inline highlighting
+                    const parent = element.parentElement;
+                    const span = document.createElement('span');
+                    span.classList.add('diff-insertion');
+                    span.style.backgroundColor = '#d4edda';
+                    span.style.padding = '2px';
+                    span.style.borderRadius = '2px';
+                    
+                    parent.insertBefore(span, element);
+                    span.appendChild(element);
+                    
+                    wsTraceHandler.sendTrace('[INSERTION]', `Applied insertion annotation with span wrapper at route [${operation.route.join(',')}]`);
                 } else {
                     wsTraceHandler.sendTrace('[INSERTION]', `Could not find element for insertion annotation at route [${operation.route.join(',')}]`);
                 }
@@ -1006,20 +1039,9 @@
             }
 
             applyModificationAnnotation(outputDOM, operation) {
-                const element = this.findElementByRoute(outputDOM, operation.route);
-                if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    element.classList.add('diff-insertion');
-                    element.style.backgroundColor = '#e2e3e5';
-                    element.style.borderLeft = '4px solid #6c757d';
-                    wsTraceHandler.sendTrace('[MODIFICATION]', `Applied modification annotation at route [${operation.route.join(',')}]`);
-                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
-                    element.parentElement.classList.add('diff-insertion');
-                    element.parentElement.style.backgroundColor = '#e2e3e5';
-                    element.parentElement.style.borderLeft = '4px solid #6c757d';
-                    wsTraceHandler.sendTrace('[MODIFICATION]', `Applied modification annotation to parent at route [${operation.route.join(',')}]`);
-                } else {
-                    wsTraceHandler.sendTrace('[MODIFICATION]', `Could not find element for modification annotation at route [${operation.route.join(',')}]`);
-                }
+                // Don't apply modification styling to parent containers that have child insertions
+                // This prevents the entire paragraph from being marked as modified when only parts changed
+                wsTraceHandler.sendTrace('[MODIFICATION]', `Skipping broad modification annotation at route [${operation.route.join(',')}] - let child insertions handle specific changes`);
             }
 
             generateDeletionBlock(outputDOM, operation) {
@@ -1300,6 +1322,7 @@ ${this.lastDiffDomHtml}
 .diff-deletion: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-deletion').length : 'N/A'}
 .diff-insertion: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-insertion').length : 'N/A'}  
 .diff-moved: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-moved').length : 'N/A'}
+.diff-modification: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-modification').length : 'N/A'}
 
 === END DEBUG REPORT ===
                 `.trim();
