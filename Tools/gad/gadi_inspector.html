@@ -901,8 +901,9 @@
                 this.deepCloneElement(immutableToDOM, outputDOM);
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Created output DOM foundation from immutable toDOM');
                 
-                // Apply diff annotations to output DOM
+                // Apply diff annotations to output DOM with deduplication
                 let insertions = 0, deletions = 0, moves = 0, modifications = 0;
+                const processedDeletions = new Set(); // Track processed deletion routes to prevent duplicates
                 
                 // Process operations to generate annotations
                 for (const op of diffOperations) {
@@ -914,8 +915,15 @@
                             break;
                         case 'removeElement': 
                         case 'removeTextElement':
-                            this.generateDeletionBlock(outputDOM, op);
-                            deletions++;
+                            const routeKey = op.route.join(',');
+                            if (!processedDeletions.has(routeKey)) {
+                                this.generateDeletionBlock(outputDOM, op);
+                                processedDeletions.add(routeKey);
+                                deletions++;
+                                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}]`);
+                            } else {
+                                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Skipped duplicate deletion at route [${routeKey}]`);
+                            }
                             break;
                         case 'relocateNode':
                             this.applyMoveAnnotation(outputDOM, op);
@@ -931,7 +939,7 @@
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Applied annotations: ${insertions} insertions, ${deletions} deletions, ${moves} moves, ${modifications} modifications`);
+                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Applied annotations: ${insertions} insertions, ${deletions} deletions (${processedDeletions.size} unique), ${moves} moves, ${modifications} modifications`);
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Output DOM generation completed with all annotations applied');
                 
                 return outputDOM;
@@ -1018,7 +1026,8 @@
                 wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Generating deletion block for ${operation.action} at route [${operation.route.join(',')}]`);
 
                 const deletionBlock = document.createElement('div');
-                deletionBlock.classList.add('diff-deletion');
+                // Clean CSS classes - only diff-deletion, no mixing
+                deletionBlock.className = 'diff-deletion';
                 deletionBlock.style.backgroundColor = '#f8d7da';
                 deletionBlock.style.borderLeft = '4px solid #dc3545';
                 deletionBlock.style.padding = '8px';
@@ -1046,35 +1055,72 @@
                     wsTraceHandler.sendTrace('[DELETION-BLOCK]', `No captured content available for deletion`);
                 }
 
-                // Insert deletion block in output DOM at appropriate location
+                // Insert deletion block in output DOM at block-level location
                 const insertPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
-                if (insertPoint && insertPoint.parentNode) {
-                    insertPoint.parentNode.insertBefore(deletionBlock, insertPoint);
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Inserted deletion block before existing element`);
+                if (insertPoint && insertPoint.container) {
+                    if (insertPoint.insertBefore) {
+                        insertPoint.container.insertBefore(deletionBlock, insertPoint.insertBefore);
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Inserted deletion block before sibling in ${insertPoint.container.tagName || 'container'}`);
+                    } else {
+                        insertPoint.container.appendChild(deletionBlock);
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Appended deletion block to ${insertPoint.container.tagName || 'container'}`);
+                    }
                 } else {
-                    // Fallback: append to output DOM
+                    // Fallback: append to output DOM root
                     outputDOM.appendChild(deletionBlock);
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Appended deletion block to output DOM (no insertion point found)`);
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Fallback: appended deletion block to output DOM root`);
                 }
             }
 
             findDeletionInsertionPoint(outputDOM, route) {
-                if (route.length === 0) return outputDOM.firstChild;
+                wsTraceHandler.sendTrace('[DELETION-INSERT]', `Finding block-level insertion point for route [${route.join(',')}]`);
+                
+                if (route.length === 0) {
+                    wsTraceHandler.sendTrace('[DELETION-INSERT]', 'Empty route, using output DOM start');
+                    return { container: outputDOM, insertBefore: outputDOM.firstChild };
+                }
 
+                // Traverse route to find the element that would be deleted
                 let element = outputDOM;
-                for (let i = 0; i < route.length - 1; i++) {
+                for (let i = 0; i < route.length; i++) {
                     if (element.childNodes && element.childNodes[route[i]]) {
                         element = element.childNodes[route[i]];
                     } else {
-                        wsTraceHandler.sendTrace('[DELETION-INSERT]', `Could not traverse route at position ${i}`);
-                        return null;
+                        wsTraceHandler.sendTrace('[DELETION-INSERT]', `Route traversal failed at position ${i}, using parent container`);
+                        return this.findBlockLevelContainer(element);
                     }
                 }
 
-                const lastIndex = route[route.length - 1];
-                const target = element.childNodes ? element.childNodes[lastIndex] : null;
-                wsTraceHandler.sendTrace('[DELETION-INSERT]', `Found insertion point at final route index ${lastIndex}: ${target ? 'exists' : 'null'}`);
-                return target;
+                // Found the target element - now find appropriate block-level insertion point
+                return this.findBlockLevelContainer(element);
+            }
+
+            findBlockLevelContainer(element) {
+                if (!element) {
+                    wsTraceHandler.sendTrace('[DELETION-INSERT]', 'No element provided, defaulting to document level');
+                    return { container: document.body || document.documentElement, insertBefore: null };
+                }
+
+                // Walk up the DOM tree to find a suitable block-level container
+                let current = element;
+                let blockLevelTags = new Set(['DIV', 'P', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN', 'BLOCKQUOTE', 'DL', 'DD', 'LI', 'TD', 'TH']);
+                
+                while (current && current.parentNode) {
+                    const parent = current.parentNode;
+                    
+                    // If parent is a block-level element, we can insert after current as a sibling
+                    if (parent.tagName && blockLevelTags.has(parent.tagName)) {
+                        wsTraceHandler.sendTrace('[DELETION-INSERT]', `Found block container: ${parent.tagName}, inserting after ${current.tagName || 'node'}`);
+                        return { container: parent, insertBefore: current.nextSibling };
+                    }
+                    
+                    current = parent;
+                }
+
+                // Fallback: insert at document level
+                wsTraceHandler.sendTrace('[DELETION-INSERT]', 'No suitable block container found, using document level');
+                const documentRoot = current.ownerDocument ? current.ownerDocument.body || current.ownerDocument.documentElement : document.body;
+                return { container: documentRoot, insertBefore: null };
             }
 
             createRouteElementMap(dom) {
