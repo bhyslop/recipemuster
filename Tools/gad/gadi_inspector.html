@@ -724,7 +724,7 @@
                     // Phase 4: Rendered Output
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered Output start');
                     this.lastDomBeforeStyling = toDOM.innerHTML; // Capture DOM before styling
-                    const annotatedHtml = this.renderDiffDOM(toDOM, diffOperations);
+                    const annotatedHtml = this.renderDiffDOM(toDOM, diffOperations, fromDOM);
                     this.lastDiffDomHtml = annotatedHtml; // Store for clipboard functionality
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered output completed');
 
@@ -839,18 +839,24 @@
                 return doc.body;
             }
 
-            processOperations(diffOperations, targetDOM) {
+            processOperations(diffOperations, targetDOM, fromDOM) {
                 wsTraceHandler.sendTrace('[DEBUG]', `Processing ${diffOperations.length} diff-dom operations`);
 
                 let changeCount = 0;
                 const processedOps = [];
 
                 for (const op of diffOperations) {
+                    // For delete operations, try to capture the original element content
+                    let originalElement = null;
+                    if (op.action === 'removeElement' || op.action === 'removeTextElement') {
+                        originalElement = this.findElementByRoute(fromDOM, op.route);
+                    }
+
                     const processedOp = {
                         type: this.mapOperationType(op.action),
                         route: op.route || [],
-                        element: op.element || null,
-                        text: op.text || null,
+                        element: op.element || originalElement,
+                        text: op.text || (originalElement ? originalElement.textContent : null),
                         oldValue: op.oldValue || null,
                         newValue: op.newValue || null
                     };
@@ -878,11 +884,11 @@
                 return mapped;
             }
 
-            renderDiffDOM(targetDOM, diffOperations) {
+            renderDiffDOM(targetDOM, diffOperations, fromDOM) {
                 wsTraceHandler.sendTrace('[DEBUG]', 'Rendering diff-dom operations to HTML');
 
                 // Apply styling based on diff-dom operations
-                const processedOps = this.processOperations(diffOperations, targetDOM);
+                const processedOps = this.processOperations(diffOperations, targetDOM, fromDOM);
 
                 wsTraceHandler.sendTrace('[DEBUG]', `Processing ${processedOps.operations.length} diff operations for styling`);
 
@@ -903,11 +909,17 @@
 
             styleInsertedElement(dom, operation) {
                 const element = this.findElementByRoute(dom, operation.route);
-                if (element) {
+                if (element && element.nodeType === Node.ELEMENT_NODE) {
                     element.classList.add('diff-insertion');
                     element.style.backgroundColor = '#d4edda';
                     element.style.borderLeft = '4px solid #28a745';
                     wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to route [${operation.route.join(',')}]`);
+                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
+                    // Style parent element for text nodes
+                    element.parentElement.classList.add('diff-insertion');
+                    element.parentElement.style.backgroundColor = '#d4edda';
+                    element.parentElement.style.borderLeft = '4px solid #28a745';
+                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to parent of text node at route [${operation.route.join(',')}]`);
                 } else {
                     wsTraceHandler.sendTrace('[ERROR]', `Failed to find insert element at route [${operation.route.join(',')}]`);
                 }
@@ -922,10 +934,19 @@
                 deletionBlock.style.margin = '4px 0';
                 wsTraceHandler.sendTrace('[STYLE]', `Created diff-deletion block`);
 
+                // Try to get the actual deleted content
                 if (operation.element) {
-                    deletionBlock.innerHTML = operation.element.outerHTML || operation.text || 'Deleted content';
+                    if (operation.element.nodeType === Node.TEXT_NODE) {
+                        deletionBlock.textContent = `Deleted text: "${operation.element.textContent}"`;
+                    } else if (operation.element.nodeType === Node.ELEMENT_NODE) {
+                        deletionBlock.innerHTML = `Deleted element: ${operation.element.outerHTML}`;
+                    } else {
+                        deletionBlock.textContent = operation.text || 'Deleted content';
+                    }
+                } else if (operation.text) {
+                    deletionBlock.textContent = `Deleted text: "${operation.text}"`;
                 } else {
-                    deletionBlock.textContent = operation.text || 'Deleted content';
+                    deletionBlock.textContent = 'Deleted content (unable to recover original)';
                 }
 
                 // Insert deletion block at route-specified location
@@ -951,11 +972,17 @@
 
             styleModifiedElement(dom, operation) {
                 const element = this.findElementByRoute(dom, operation.route);
-                if (element) {
+                if (element && element.nodeType === Node.ELEMENT_NODE) {
                     element.classList.add('diff-insertion');
                     element.style.backgroundColor = '#e2e3e5';
                     element.style.borderLeft = '4px solid #6c757d';
                     wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to modified element at route [${operation.route.join(',')}]`);
+                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
+                    // Style parent element for text nodes
+                    element.parentElement.classList.add('diff-insertion');
+                    element.parentElement.style.backgroundColor = '#e2e3e5';
+                    element.parentElement.style.borderLeft = '4px solid #6c757d';
+                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to parent of modified text at route [${operation.route.join(',')}]`);
                 } else {
                     wsTraceHandler.sendTrace('[ERROR]', `Failed to find modify element at route [${operation.route.join(',')}]`);
                 }
@@ -964,9 +991,10 @@
             findElementByRoute(dom, route) {
                 let element = dom;
                 for (const index of route) {
-                    if (element.children && element.children[index]) {
-                        element = element.children[index];
+                    if (element.childNodes && element.childNodes[index]) {
+                        element = element.childNodes[index];
                     } else {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Route traversal failed at index ${index} for route [${route.join(',')}]`);
                         return null;
                     }
                 }
