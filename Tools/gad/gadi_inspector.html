@@ -846,11 +846,8 @@
                 const processedOps = [];
 
                 for (const op of diffOperations) {
-                    wsTraceHandler.sendTrace('[RAW-OP]', `Raw diff-dom operation keys: ${JSON.stringify(Object.keys(op))}`);
-                    wsTraceHandler.sendTrace('[RAW-OP]', `Full operation: ${JSON.stringify(op)}`);
-                    
                     const processedOp = {
-                        type: this.mapOperationType(op.name),
+                        type: this.mapOperationType(op.action),
                         route: op.route || [],
                         element: op.element || null,
                         text: op.text || null,
@@ -869,9 +866,12 @@
             mapOperationType(diffDomType) {
                 const typeMap = {
                     'addElement': 'insert',
+                    'addTextElement': 'insert',
                     'removeElement': 'delete',
+                    'removeTextElement': 'delete',
                     'relocateNode': 'move',
-                    'modifyTextElement': 'modify'
+                    'modifyTextElement': 'modify',
+                    'modifyAttribute': 'modify'
                 };
                 const mapped = typeMap[diffDomType] || diffDomType;
                 wsTraceHandler.sendTrace('[MAP]', `Mapped diff-dom type '${diffDomType}' to '${mapped}'`);
@@ -888,16 +888,12 @@
 
                 for (const op of processedOps.operations) {
                     if (op.type === 'insert') {
-                        wsTraceHandler.sendTrace('[OP]', `Processing insert operation`);
                         this.styleInsertedElement(targetDOM, op);
                     } else if (op.type === 'delete') {
-                        wsTraceHandler.sendTrace('[OP]', `Processing delete operation`);
                         this.createDeletionBlock(targetDOM, op);
                     } else if (op.type === 'move') {
-                        wsTraceHandler.sendTrace('[OP]', `Processing move operation`);
                         this.styleMoveElement(targetDOM, op);
                     } else if (op.type === 'modify') {
-                        wsTraceHandler.sendTrace('[OP]', `Processing modify operation`);
                         this.styleModifiedElement(targetDOM, op);
                     }
                 }
@@ -906,15 +902,14 @@
             }
 
             styleInsertedElement(dom, operation) {
-                wsTraceHandler.sendTrace('[ROUTE]', `Looking for insert element with route: [${operation.route.join(',')}]`);
                 const element = this.findElementByRoute(dom, operation.route);
                 if (element) {
                     element.classList.add('diff-insertion');
                     element.style.backgroundColor = '#d4edda';
                     element.style.borderLeft = '4px solid #28a745';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion class to element`);
+                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to route [${operation.route.join(',')}]`);
                 } else {
-                    wsTraceHandler.sendTrace('[ROUTE]', `Failed to find insert element with route: [${operation.route.join(',')}]`);
+                    wsTraceHandler.sendTrace('[ERROR]', `Failed to find insert element at route [${operation.route.join(',')}]`);
                 }
             }
 
@@ -943,28 +938,26 @@
             }
 
             styleMoveElement(dom, operation) {
-                wsTraceHandler.sendTrace('[ROUTE]', `Looking for move element with route: [${operation.route.join(',')}]`);
                 const element = this.findElementByRoute(dom, operation.route);
                 if (element) {
                     element.classList.add('diff-moved');
                     element.style.backgroundColor = '#fff3cd';
                     element.style.borderLeft = '4px solid #ffc107';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-moved class to element`);
+                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-moved to route [${operation.route.join(',')}]`);
                 } else {
-                    wsTraceHandler.sendTrace('[ROUTE]', `Failed to find move element with route: [${operation.route.join(',')}]`);
+                    wsTraceHandler.sendTrace('[ERROR]', `Failed to find move element at route [${operation.route.join(',')}]`);
                 }
             }
 
             styleModifiedElement(dom, operation) {
-                wsTraceHandler.sendTrace('[ROUTE]', `Looking for modify element with route: [${operation.route.join(',')}]`);
                 const element = this.findElementByRoute(dom, operation.route);
                 if (element) {
                     element.classList.add('diff-insertion');
                     element.style.backgroundColor = '#e2e3e5';
                     element.style.borderLeft = '4px solid #6c757d';
-                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion class to modified element`);
+                    wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion to modified element at route [${operation.route.join(',')}]`);
                 } else {
-                    wsTraceHandler.sendTrace('[ROUTE]', `Failed to find modify element with route: [${operation.route.join(',')}]`);
+                    wsTraceHandler.sendTrace('[ERROR]', `Failed to find modify element at route [${operation.route.join(',')}]`);
                 }
             }
 
