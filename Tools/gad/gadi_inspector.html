@@ -253,9 +253,9 @@
     
     <div class="commit-tooltip" id="commitTooltip"></div>
     
-    <script src="https://en.wikipedia.org/w/index.php?title=User:Cacycle/diff.js&action=raw&ctype=text/javascript" 
-            onload="console.log('[DEBUG] WikEd script loaded successfully from Wikipedia')" 
-            onerror="console.log('[DEBUG] WikEd script failed to load from Wikipedia')">
+    <script src="https://unpkg.com/diff-dom@5.0.8/dist/diffDOM.js" 
+            onload="console.log('[DEBUG] diff-dom script loaded successfully')" 
+            onerror="console.log('[DEBUG] diff-dom script failed to load')">
     </script>
     <script>
         // Trace buffer implementation per GADS specification
@@ -361,7 +361,7 @@
                 this.manifest = null;
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
-                this.lastWikEdDiffHtml = null;
+                this.lastDiffDomHtml = null;
                 
                 wsTraceHandler.sendTrace('[DEBUG]', 'GadInspector constructor called');
                 this.initializeElements();
@@ -400,7 +400,7 @@
                 
                 this.elements.previousButton.addEventListener('click', () => this.previousChange());
                 this.elements.nextButton.addEventListener('click', () => this.nextChange());
-                this.elements.consoleButton.addEventListener('click', () => this.copyWikEdDiff());
+                this.elements.consoleButton.addEventListener('click', () => this.copyDiffDomResult());
                 
                 
                 // Keyboard shortcuts
@@ -641,7 +641,7 @@
                     wsTraceHandler.sendTrace('[FETCH]', 'Successful fetch completion');
                     wsTraceHandler.sendTrace('[DIFF]', 'Diff computation start');
                     
-                    // Use wikEd diff library
+                    // Use diff-dom library
                     const styledDiff = this.styleDiff(fromHtml, toHtml);
                     
                     this.elements.renderedPane.innerHTML = styledDiff;
@@ -664,8 +664,8 @@
                     
                 } catch (error) {
                     // Enhanced error reporting for Factory debugging
-                    if (error.message.includes('wikEd')) {
-                        wsTraceHandler.sendTrace('[ERROR]', `wikEd library failure: ${error.message}`);
+                    if (error.message.includes('diff-dom')) {
+                        wsTraceHandler.sendTrace('[ERROR]', `diff-dom library failure: ${error.message}`);
                     } else if (error.message.includes('fetch') || error.message.includes('HTTP')) {
                         wsTraceHandler.sendTrace('[FETCH]', `Fetch failure: ${error.message}`);
                     } else {
@@ -682,49 +682,34 @@
                 const startTime = performance.now();
                 wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant 4-phase diff processing');
                 wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
-                wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff type at diff time: ${typeof WikEdDiff}`);
+                wsTraceHandler.sendTrace('[DEBUG]', `diff-dom type at diff time: ${typeof diffDom}`);
                 
-                if (typeof WikEdDiff === 'undefined') {
-                    throw new Error('WikEdDiff library not available - required for diff processing');
+                if (typeof diffDom === 'undefined' || typeof diffDom.DiffDOM === 'undefined') {
+                    throw new Error('diff-dom library not available - required for diff processing');
                 }
                 
                 try {
                     // Phase 1: Block Identification
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Block Identification start');
-                    const fromBlocks = this.identifyBlocks(fromHtml, 'from');
-                    const toBlocks = this.identifyBlocks(toHtml, 'to');
-                    wsTraceHandler.sendTrace('[DIFF]', `Phase 1: Identified ${fromBlocks.length} from-blocks, ${toBlocks.length} to-blocks`);
+                    const fromDOM = this.createDOMFromHTML(fromHtml);
+                    const toDOM = this.createDOMFromHTML(toHtml);
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: DOM trees created from HTML sources');
                     
-                    // Phase 2: wikEd Diff Processing
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: wikEd Processing start');
-                    const fromLinearized = this.linearizeBlocks(fromBlocks);
-                    const toLinearized = this.linearizeBlocks(toBlocks);
-                    wsTraceHandler.sendTrace('[DEBUG]', `Linearized lengths: from=${fromLinearized.length}, to=${toLinearized.length}`);
+                    // Phase 2: diff-dom Processing
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: diff-dom Processing start');
+                    const diffDOM = new diffDom.DiffDOM();
+                    const diffOperations = diffDOM.diff(fromDOM, toDOM);
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 2: Generated ${diffOperations.length} diff operations`);
                     
-                    const wikEdDiff = new WikEdDiff();
-                    const config = {
-                        fullDiff: false,
-                        charDiff: false,
-                        wordDiff: false,  // Disable word diff to prevent fragmentation of block markers
-                        blockDiff: false,  // Try disabling block diff to see if it reduces fragmentation
-                        detectBlocks: false, // Disable block detection to prevent marker splitting
-                        detectMoves: false,  // Disable move detection to simplify output
-                        stripTrailingNewline: true
-                    };
-                    
-                    const diffResult = wikEdDiff.diff(fromLinearized, toLinearized, config);
-                    this.lastWikEdDiffHtml = diffResult; // Store for clipboard functionality
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: wikEd processing completed');
-                    
-                    // Phase 3: Block Classification
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Block Classification start');
-                    const diffOperations = this.parseDiffOperations(diffResult);
-                    const blockClassifications = this.classifyBlocks(toBlocks, diffOperations, fromBlocks);
-                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Classified ${Object.keys(blockClassifications).length} blocks`);
+                    // Phase 3: Operation Application
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Operation Application start');
+                    const operationResults = this.processOperations(diffOperations, toDOM);
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Processed ${operationResults.changes} operations`);
                     
                     // Phase 4: Rendered Output
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered Output start');
-                    const annotatedHtml = this.renderAnnotatedOutput(toHtml, toBlocks, blockClassifications, fromBlocks, diffOperations);
+                    const annotatedHtml = this.renderDiffDOM(toDOM, diffOperations);
+                    this.lastDiffDomHtml = annotatedHtml; // Store for clipboard functionality
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Rendered output completed');
                     
                     // Performance logging for Factory debugging
@@ -831,74 +816,144 @@
                 return linearized;
             }
             
-            // Phase 2: Parse wikEd diff operations into structured format
-            parseDiffOperations(diffResult) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Parsing diff operations from wikEd result');
-                wsTraceHandler.sendTrace('[DEBUG]', `Raw diffResult length: ${diffResult.length}`);
-                
-                const operations = [];
+            // Helper methods for diff-dom processing
+            createDOMFromHTML(html) {
                 const parser = new DOMParser();
-                const diffDoc = parser.parseFromString(`<div>${diffResult}</div>`, 'text/html');
+                const doc = parser.parseFromString(html, 'text/html');
+                return doc.body;
+            }
+            
+            processOperations(diffOperations, targetDOM) {
+                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${diffOperations.length} diff-dom operations`);
                 
-                // Track block position by counting ⟨BLOCK⟩ markers
-                let currentBlockIndex = 0;
+                let changeCount = 0;
+                const processedOps = [];
                 
-                // Walk through diff DOM to extract operations
-                const walker = diffDoc.createTreeWalker(
-                    diffDoc.body,
-                    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-                    null
-                );
+                for (const op of diffOperations) {
+                    const processedOp = {
+                        type: this.mapOperationType(op.name),
+                        route: op.route || [],
+                        element: op.element || null,
+                        text: op.text || null,
+                        oldValue: op.oldValue || null,
+                        newValue: op.newValue || null
+                    };
+                    
+                    processedOps.push(processedOp);
+                    changeCount++;
+                }
                 
-                let node;
-                while (node = walker.nextNode()) {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const className = node.className || '';
-                        let operationType = null;
-                        
-                        if (className.includes('wikEdDiffDelete')) {
-                            operationType = 'delete';
-                        } else if (className.includes('wikEdDiffInsert')) {
-                            operationType = 'insert';  
-                        } else if (className.includes('wikEdDiffMove')) {
-                            operationType = 'move';
-                        }
-                        
-                        if (operationType) {
-                            const content = node.textContent;
-                            
-                            // Count block markers in this content to determine which blocks are affected
-                            const blockStartCount = (content.match(/⟨BLOCK⟩/g) || []).length;
-                            if (blockStartCount > 0) {
-                                for (let i = 0; i < blockStartCount; i++) {
-                                    operations.push({
-                                        type: operationType,
-                                        blockIndex: currentBlockIndex + i,
-                                        content: content
-                                    });
-                                }
-                                currentBlockIndex += blockStartCount;
-                            } else if (content.trim()) {
-                                // Operation affects current block
-                                operations.push({
-                                    type: operationType,
-                                    blockIndex: currentBlockIndex,
-                                    content: content
-                                });
-                            }
-                        }
-                    } else if (node.nodeType === Node.TEXT_NODE) {
-                        // Track block markers in text nodes to maintain position index
-                        const content = node.textContent;
-                        const blockStartCount = (content.match(/⟨BLOCK⟩/g) || []).length;
-                        if (blockStartCount > 0) {
-                            currentBlockIndex += blockStartCount;
-                        }
+                wsTraceHandler.sendTrace('[DEBUG]', `Processed ${changeCount} operations`);
+                return { changes: changeCount, operations: processedOps };
+            }
+            
+            mapOperationType(diffDomType) {
+                const typeMap = {
+                    'addElement': 'insert',
+                    'removeElement': 'delete', 
+                    'relocateNode': 'move',
+                    'modifyTextElement': 'modify'
+                };
+                return typeMap[diffDomType] || diffDomType;
+            }
+            
+            renderDiffDOM(targetDOM, diffOperations) {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Rendering diff-dom operations to HTML');
+                
+                // Apply styling based on diff-dom operations
+                const processedOps = this.processOperations(diffOperations, targetDOM);
+                
+                for (const op of processedOps.operations) {
+                    if (op.type === 'insert') {
+                        this.styleInsertedElement(targetDOM, op);
+                    } else if (op.type === 'delete') {
+                        this.createDeletionBlock(targetDOM, op);
+                    } else if (op.type === 'move') {
+                        this.styleMoveElement(targetDOM, op);
+                    } else if (op.type === 'modify') {
+                        this.styleModifiedElement(targetDOM, op);
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[DEBUG]', `Parsed ${operations.length} diff operations`);
-                return operations;
+                return targetDOM.innerHTML;
+            }
+            
+            styleInsertedElement(dom, operation) {
+                const element = this.findElementByRoute(dom, operation.route);
+                if (element) {
+                    element.classList.add('gad-inserted');
+                    element.style.backgroundColor = '#d4edda';
+                    element.style.borderLeft = '4px solid #28a745';
+                }
+            }
+            
+            createDeletionBlock(dom, operation) {
+                const deletionBlock = document.createElement('div');
+                deletionBlock.classList.add('gad-deleted');
+                deletionBlock.style.backgroundColor = '#f8d7da';
+                deletionBlock.style.borderLeft = '4px solid #dc3545';
+                deletionBlock.style.padding = '8px';
+                deletionBlock.style.margin = '4px 0';
+                
+                if (operation.element) {
+                    deletionBlock.innerHTML = operation.element.outerHTML || operation.text || 'Deleted content';
+                } else {
+                    deletionBlock.textContent = operation.text || 'Deleted content';
+                }
+                
+                // Insert deletion block at route-specified location
+                const insertPoint = this.findInsertionPoint(dom, operation.route);
+                if (insertPoint) {
+                    insertPoint.parentNode.insertBefore(deletionBlock, insertPoint);
+                } else {
+                    dom.appendChild(deletionBlock);
+                }
+            }
+            
+            styleMoveElement(dom, operation) {
+                const element = this.findElementByRoute(dom, operation.route);
+                if (element) {
+                    element.classList.add('gad-moved');
+                    element.style.backgroundColor = '#fff3cd';
+                    element.style.borderLeft = '4px solid #ffc107';
+                }
+            }
+            
+            styleModifiedElement(dom, operation) {
+                const element = this.findElementByRoute(dom, operation.route);
+                if (element) {
+                    element.classList.add('gad-modified');
+                    element.style.backgroundColor = '#e2e3e5';
+                    element.style.borderLeft = '4px solid #6c757d';
+                }
+            }
+            
+            findElementByRoute(dom, route) {
+                let element = dom;
+                for (const index of route) {
+                    if (element.children && element.children[index]) {
+                        element = element.children[index];
+                    } else {
+                        return null;
+                    }
+                }
+                return element;
+            }
+            
+            findInsertionPoint(dom, route) {
+                if (route.length === 0) return dom.firstChild;
+                
+                let element = dom;
+                for (let i = 0; i < route.length - 1; i++) {
+                    if (element.children && element.children[route[i]]) {
+                        element = element.children[route[i]];
+                    } else {
+                        return null;
+                    }
+                }
+                
+                const lastIndex = route[route.length - 1];
+                return element.children ? element.children[lastIndex] : null;
             }
             
             // Phase 3: Block Classification with GADS hierarchy
@@ -1184,16 +1239,16 @@
                 this.elements.commitTooltip.style.display = 'none';
             }
             
-            copyWikEdDiff() {
-                if (!this.lastWikEdDiffHtml) {
-                    alert('No WikiEd diff available. Please select different commits first.');
+            copyDiffDomResult() {
+                if (!this.lastDiffDomHtml) {
+                    alert('No diff-dom result available. Please select different commits first.');
                     return;
                 }
                 
                 // Copy to clipboard using modern API
                 if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(this.lastWikEdDiffHtml).then(() => {
-                        wsTraceHandler.sendTrace('[DEBUG]', 'WikiEd diff HTML copied to clipboard');
+                    navigator.clipboard.writeText(this.lastDiffDomHtml).then(() => {
+                        wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom HTML copied to clipboard');
                         // Briefly change button text to show success
                         const originalText = this.elements.consoleButton.textContent;
                         this.elements.consoleButton.textContent = 'Copied!';
@@ -1202,11 +1257,11 @@
                         }, 1000);
                     }).catch(err => {
                         wsTraceHandler.sendTrace('[ERROR]', `Failed to copy to clipboard: ${err}`);
-                        this.fallbackCopyToClipboard(this.lastWikEdDiffHtml);
+                        this.fallbackCopyToClipboard(this.lastDiffDomHtml);
                     });
                 } else {
                     // Fallback for non-secure contexts
-                    this.fallbackCopyToClipboard(this.lastWikEdDiffHtml);
+                    this.fallbackCopyToClipboard(this.lastDiffDomHtml);
                 }
             }
             
@@ -1221,7 +1276,7 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    wsTraceHandler.sendTrace('[DEBUG]', 'WikiEd diff HTML copied to clipboard (fallback)');
+                    wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom HTML copied to clipboard (fallback)');
                     // Briefly change button text to show success
                     const originalText = this.elements.consoleButton.textContent;
                     this.elements.consoleButton.textContent = 'Copied!';
@@ -1231,7 +1286,7 @@
                 } catch (err) {
                     wsTraceHandler.sendTrace('[ERROR]', `Fallback copy failed: ${err}`);
                     alert('Could not copy to clipboard. Please copy manually from browser console.');
-                    console.log('WikiEd Diff HTML:', text);
+                    console.log('diff-dom HTML:', text);
                 }
                 document.body.removeChild(textArea);
             }
@@ -1246,9 +1301,9 @@
             function initializeWhenReady() {
                 if (wsTraceHandler.ws && wsTraceHandler.ws.readyState === WebSocket.OPEN) {
                     wsTraceHandler.sendTrace('[DEBUG]', 'WebSocket ready, initializing inspector');
-                    wsTraceHandler.sendTrace('[DEBUG]', `WikEdDiff available: ${typeof WikEdDiff !== 'undefined'}`);
-                    if (typeof WikEdDiff !== 'undefined') {
-                        wsTraceHandler.sendTrace('[DEBUG]', 'WikEdDiff class found, library loaded successfully');
+                    wsTraceHandler.sendTrace('[DEBUG]', `diff-dom available: ${typeof diffDom !== 'undefined'}`);
+                    if (typeof diffDom !== 'undefined') {
+                        wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom class found, library loaded successfully');
                     }
                     window.gadInspector = new GadInspector();
                 } else {
