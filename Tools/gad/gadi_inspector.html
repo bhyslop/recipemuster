@@ -842,6 +842,8 @@
                 const processedOps = [];
 
                 for (const op of diffOperations) {
+                    wsTraceHandler.sendTrace('[RAW-OP]', `Raw diff-dom operation: name='${op.name}', route=[${(op.route || []).join(',')}]`);
+                    
                     const processedOp = {
                         type: this.mapOperationType(op.name),
                         route: op.route || [],
@@ -866,7 +868,9 @@
                     'relocateNode': 'move',
                     'modifyTextElement': 'modify'
                 };
-                return typeMap[diffDomType] || diffDomType;
+                const mapped = typeMap[diffDomType] || diffDomType;
+                wsTraceHandler.sendTrace('[MAP]', `Mapped diff-dom type '${diffDomType}' to '${mapped}'`);
+                return mapped;
             }
 
             renderDiffDOM(targetDOM, diffOperations) {
@@ -897,12 +901,15 @@
             }
 
             styleInsertedElement(dom, operation) {
+                wsTraceHandler.sendTrace('[ROUTE]', `Looking for insert element with route: [${operation.route.join(',')}]`);
                 const element = this.findElementByRoute(dom, operation.route);
                 if (element) {
                     element.classList.add('diff-insertion');
                     element.style.backgroundColor = '#d4edda';
                     element.style.borderLeft = '4px solid #28a745';
                     wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion class to element`);
+                } else {
+                    wsTraceHandler.sendTrace('[ROUTE]', `Failed to find insert element with route: [${operation.route.join(',')}]`);
                 }
             }
 
@@ -931,22 +938,28 @@
             }
 
             styleMoveElement(dom, operation) {
+                wsTraceHandler.sendTrace('[ROUTE]', `Looking for move element with route: [${operation.route.join(',')}]`);
                 const element = this.findElementByRoute(dom, operation.route);
                 if (element) {
                     element.classList.add('diff-moved');
                     element.style.backgroundColor = '#fff3cd';
                     element.style.borderLeft = '4px solid #ffc107';
                     wsTraceHandler.sendTrace('[STYLE]', `Applied diff-moved class to element`);
+                } else {
+                    wsTraceHandler.sendTrace('[ROUTE]', `Failed to find move element with route: [${operation.route.join(',')}]`);
                 }
             }
 
             styleModifiedElement(dom, operation) {
+                wsTraceHandler.sendTrace('[ROUTE]', `Looking for modify element with route: [${operation.route.join(',')}]`);
                 const element = this.findElementByRoute(dom, operation.route);
                 if (element) {
                     element.classList.add('diff-insertion');
                     element.style.backgroundColor = '#e2e3e5';
                     element.style.borderLeft = '4px solid #6c757d';
                     wsTraceHandler.sendTrace('[STYLE]', `Applied diff-insertion class to modified element`);
+                } else {
+                    wsTraceHandler.sendTrace('[ROUTE]', `Failed to find modify element with route: [${operation.route.join(',')}]`);
                 }
             }
 
