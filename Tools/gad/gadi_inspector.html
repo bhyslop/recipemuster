@@ -1035,10 +1035,18 @@
                         element = element.childNodes[index];
                     } else {
                         const availableCount = element.childNodes ? element.childNodes.length : 0;
-                        wsTraceHandler.sendTrace('[DEBUG]', `Route traversal failed at index ${index} for route [${route.join(',')}]`);
-                        wsTraceHandler.sendTrace('[DEBUG]', `Parent has ${availableCount} children, requested index ${index}`);
-                        wsTraceHandler.sendTrace('[DEBUG]', `Failed at route position ${i}, partial route was [${route.slice(0, i).join(',')}]`);
-                        return null;
+                        
+                        // Simple fix for diff-dom off-by-one indexing: try the last valid child
+                        if (availableCount > 0 && index >= availableCount) {
+                            const correctedIndex = availableCount - 1;
+                            wsTraceHandler.sendTrace('[DEBUG]', `Route index ${index} out of bounds (${availableCount} children), trying last child at index ${correctedIndex}`);
+                            element = element.childNodes[correctedIndex];
+                        } else {
+                            wsTraceHandler.sendTrace('[DEBUG]', `Route traversal failed at index ${index} for route [${route.join(',')}]`);
+                            wsTraceHandler.sendTrace('[DEBUG]', `Parent has ${availableCount} children, requested index ${index}`);
+                            wsTraceHandler.sendTrace('[DEBUG]', `Failed at route position ${i}, partial route was [${route.slice(0, i).join(',')}]`);
+                            return null;
+                        }
                     }
                 }
                 return element;
