@@ -253,9 +253,14 @@
     
     <div class="commit-tooltip" id="commitTooltip"></div>
     
-    <script src="https://unpkg.com/diff-dom@5.0.8/dist/diffDOM.js" 
+    <script src="https://cdn.jsdelivr.net/npm/diff-dom@5/dist/diffDOM.js" 
             onload="console.log('[DEBUG] diff-dom script loaded successfully')" 
-            onerror="console.log('[DEBUG] diff-dom script failed to load')">
+            onerror="console.log('[DEBUG] diff-dom script failed to load from jsdelivr'); 
+                     var script = document.createElement('script'); 
+                     script.src = 'https://unpkg.com/diff-dom@5.0.8/dist/diffDOM.js'; 
+                     script.onload = function() { console.log('[DEBUG] diff-dom fallback loaded'); }; 
+                     script.onerror = function() { console.log('[DEBUG] All diff-dom CDNs failed'); }; 
+                     document.head.appendChild(script);">
     </script>
     <script>
         // Trace buffer implementation per GADS specification
