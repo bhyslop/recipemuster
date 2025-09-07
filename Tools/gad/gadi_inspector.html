@@ -846,19 +846,32 @@
                 const processedOps = [];
 
                 for (const op of diffOperations) {
+                    // Debug trace for each operation
+                    wsTraceHandler.sendTrace('[OP-DEBUG]', `Processing op: ${op.action}, route: [${op.route?.join(',') || 'no-route'}], element: ${op.element ? 'present' : 'null'}, text: ${op.text || 'null'}`);
+
                     // For delete operations, try to capture the original element content
                     let originalElement = null;
+                    let originalText = null;
                     if (op.action === 'removeElement' || op.action === 'removeTextElement') {
                         originalElement = this.findElementByRoute(fromDOM, op.route);
+                        if (originalElement) {
+                            originalText = originalElement.nodeType === Node.TEXT_NODE ? 
+                                originalElement.textContent : 
+                                originalElement.outerHTML;
+                            wsTraceHandler.sendTrace('[DELETION-CAPTURE]', `Found original element at route [${op.route.join(',')}]: ${originalText.substring(0, 100)}${originalText.length > 100 ? '...' : ''}`);
+                        } else {
+                            wsTraceHandler.sendTrace('[DELETION-MISS]', `Could not find original element at route [${op.route.join(',')}]`);
+                        }
                     }
 
                     const processedOp = {
                         type: this.mapOperationType(op.action),
                         route: op.route || [],
                         element: op.element || originalElement,
-                        text: op.text || (originalElement ? originalElement.textContent : null),
+                        text: op.text || originalText,
                         oldValue: op.oldValue || null,
-                        newValue: op.newValue || null
+                        newValue: op.newValue || null,
+                        originalAction: op.action // Keep original action for debugging
                     };
 
                     processedOps.push(processedOp);
@@ -932,21 +945,32 @@
                 deletionBlock.style.borderLeft = '4px solid #dc3545';
                 deletionBlock.style.padding = '8px';
                 deletionBlock.style.margin = '4px 0';
-                wsTraceHandler.sendTrace('[STYLE]', `Created diff-deletion block`);
+                
+                wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Creating deletion block for ${operation.originalAction || operation.type} at route [${operation.route.join(',')}]`);
 
                 // Try to get the actual deleted content
                 if (operation.element) {
                     if (operation.element.nodeType === Node.TEXT_NODE) {
-                        deletionBlock.textContent = `Deleted text: "${operation.element.textContent}"`;
+                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.element.textContent}"`;
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added text node content: ${operation.element.textContent}`);
                     } else if (operation.element.nodeType === Node.ELEMENT_NODE) {
-                        deletionBlock.innerHTML = `Deleted element: ${operation.element.outerHTML}`;
+                        deletionBlock.innerHTML = `<strong>Deleted element:</strong><br><code>${this.escapeHtml(operation.element.outerHTML)}</code>`;
+                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added element content: ${operation.element.outerHTML.substring(0, 50)}...`);
                     } else {
-                        deletionBlock.textContent = operation.text || 'Deleted content';
+                        deletionBlock.textContent = operation.text || 'Deleted content (unknown node type)';
                     }
                 } else if (operation.text) {
-                    deletionBlock.textContent = `Deleted text: "${operation.text}"`;
+                    if (operation.text.startsWith('<')) {
+                        // Looks like HTML
+                        deletionBlock.innerHTML = `<strong>Deleted HTML:</strong><br><code>${this.escapeHtml(operation.text)}</code>`;
+                    } else {
+                        // Plain text
+                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> "${operation.text}"`;
+                    }
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Added captured text: ${operation.text.substring(0, 50)}...`);
                 } else {
-                    deletionBlock.textContent = 'Deleted content (unable to recover original)';
+                    deletionBlock.innerHTML = `<strong>Deleted content</strong> (unable to recover original)<br><em>Action: ${operation.originalAction || operation.type}, Route: [${operation.route.join(',')}]</em>`;
+                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `No content available for deletion`);
                 }
 
                 // Insert deletion block at route-specified location
@@ -999,6 +1023,15 @@
                     }
                 }
                 return element;
+            }
+
+            escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
             }
 
             findInsertionPoint(dom, route) {
