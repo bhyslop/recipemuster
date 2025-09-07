@@ -1029,11 +1029,15 @@
 
             findElementByRoute(dom, route) {
                 let element = dom;
-                for (const index of route) {
+                for (let i = 0; i < route.length; i++) {
+                    const index = route[i];
                     if (element.childNodes && element.childNodes[index]) {
                         element = element.childNodes[index];
                     } else {
+                        const availableCount = element.childNodes ? element.childNodes.length : 0;
                         wsTraceHandler.sendTrace('[DEBUG]', `Route traversal failed at index ${index} for route [${route.join(',')}]`);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Parent has ${availableCount} children, requested index ${index}`);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Failed at route position ${i}, partial route was [${route.slice(0, i).join(',')}]`);
                         return null;
                     }
                 }
