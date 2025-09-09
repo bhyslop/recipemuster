@@ -71,16 +71,10 @@ zccck_route() {
   case "$z_command" in
 
     # Claude Code Container Kit (ccck) Docker commands
-    ccck-a)  cd "${z_script_dir}" && docker-compose up -d                                     ;;
-    ccck-z)  cd "${z_script_dir}" && docker-compose down                                      ;;
-    ccck-B)  cd "${z_script_dir}" && docker-compose build --no-cache && docker-compose up -d  ;;
-    ccck-c)  zccck_connect                                                                    ;;
-    ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
-    ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
-    ccck-R)
-      # Reset container: remove SSH host keys, configure git safe directories and global config
-      zcccw_show "Removing SSH host key for localhost:8888"
-      ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
+    ccck-a)  
+      cd "${z_script_dir}" && docker-compose up -d
+      
+      zcccw_show "Setting up git configuration in container"
       
       zcccw_show "Setting git safe directories"
       zccck_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
@@ -91,7 +85,19 @@ zccck_route() {
       zccck_connect "git config --global user.email 'claude@anthropic.com'"
       zccck_connect "git config --global user.name 'Claude Code'"
       
-      zcccw_show "Container reset complete"
+      zcccw_show "Container started and configured"
+      ;;
+    ccck-z)  cd "${z_script_dir}" && docker-compose down                                      ;;
+    ccck-B)  cd "${z_script_dir}" && docker-compose build --no-cache  ;;
+    ccck-c)  zccck_connect                                                                    ;;
+    ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
+    ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
+    ccck-R)
+      # Reset SSH connection: remove SSH host keys for clean reconnection
+      zcccw_show "Removing SSH host key for localhost:8888"
+      ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
+      
+      zcccw_show "SSH reset complete - try connecting again"
       ;;
 
     # Unknown command
