@@ -83,12 +83,12 @@ zccck_route() {
       
       zcccw_show "Setting git global configuration"
       zccck_connect "git config --global user.email 'claude@anthropic.com'"
-      zccck_connect "git config --global user.name 'Claude Code'"
+      zccck_connect "git config --global user.name  'Claude Code'"
       
       zcccw_show "Container started and configured"
       ;;
     ccck-z)  cd "${z_script_dir}" && docker-compose down                                      ;;
-    ccck-B)  cd "${z_script_dir}" && docker-compose build --no-cache  ;;
+    ccck-B)  cd "${z_script_dir}" && docker-compose build --no-cache                          ;;
     ccck-c)  zccck_connect                                                                    ;;
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
