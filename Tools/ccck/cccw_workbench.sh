@@ -19,11 +19,12 @@
 
 set -euo pipefail
 
+echo "BRADTRACE: Entering workbench..."
+
 # Get script directory
 z_script_dir="${BASH_SOURCE[0]%/*}"
 
-# Verbose output if BDU_VERBOSE is set
-zcccw_show() { test "${BDU_VERBOSE:-0}" != "1" || echo "CCCWSHOW: $*"; }
+zcccw_show() { echo "CCCWSHOW: $*"; }
 
 # Connect to CCBX container with optional remote command
 zccck_connect() {
@@ -70,26 +71,12 @@ zccck_route() {
   case "$z_command" in
 
     # Claude Code Container Kit (ccck) Docker commands
-    ccck-a)
-      cd "${z_script_dir}" && docker-compose up -d
-      ;;
-    ccck-z)
-      cd "${z_script_dir}" && docker-compose down
-      ;;
-    ccck-B)
-      cd "${z_script_dir}" && docker-compose build --no-cache && docker-compose up -d
-      ;;
-    ccck-c)
-      zccck_connect
-      ;;
-    ccck-s)
-      # Connect to container with shell only
-      zccck_connect "cd /workspace/brm_recipemuster && bash"
-      ;;
-    ccck-g)
-      # Connect to container and run git status
-      zccck_connect "cd /workspace/brm_recipemuster && git status"
-      ;;
+    ccck-a)  cd "${z_script_dir}" && docker-compose up -d                                     ;;
+    ccck-z)  cd "${z_script_dir}" && docker-compose down                                      ;;
+    ccck-B)  cd "${z_script_dir}" && docker-compose build --no-cache && docker-compose up -d  ;;
+    ccck-c)  zccck_connect                                                                    ;;
+    ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
+    ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)
       # Reset container: remove SSH host keys, configure git safe directories and global config
       zcccw_show "Removing SSH host key for localhost:8888"
