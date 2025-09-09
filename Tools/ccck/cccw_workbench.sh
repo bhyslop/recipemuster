@@ -23,17 +23,17 @@ set -euo pipefail
 z_script_dir="${BASH_SOURCE[0]%/*}"
 
 # Verbose output if BDU_VERBOSE is set
-zccbxk_show() { test "${BDU_VERBOSE:-0}" != "1" || echo "CCBXSHOW: $*"; }
+zcccw_show() { test "${BDU_VERBOSE:-0}" != "1" || echo "CCCWSHOW: $*"; }
 
 # Connect to CCBX container with optional remote command
-zccbx_connect() {
+zccck_connect() {
   local z_remote_command="${1:-}"
   
-  zccbxk_show "Connecting to CCBX container with command: ${z_remote_command:-default}"
+  zcccw_show "Connecting to CCCK container with command: ${z_remote_command:-default}"
   
-  # Source the .env file to get the port
-  if [ -f  "${z_script_dir}/.env" ]; then
-    source "${z_script_dir}/.env"
+  # Source the cccr.env file to get the port
+  if [ -f  "${z_script_dir}/../cccr.env" ]; then
+    source "${z_script_dir}/../cccr.env"
   fi
   
   # Default command if none provided
@@ -42,16 +42,16 @@ zccbx_connect() {
   fi
   
   # Connect via SSH with dynamic port and execute remote command
-  ssh -p "${CCBX_SSH_PORT:-8888}" -t claude@localhost "${z_remote_command}"
+  ssh -p "${CCCK_SSH_PORT:-8888}" -t claude@localhost "${z_remote_command}"
 }
 
 # Simple routing function
-zccbx_route() {
+zccck_route() {
   local z_command="$1"
   shift
   local z_args="$*"
 
-  zccbxk_show "Routing command: $z_command with args: $z_args"
+  zcccw_show "Routing command: $z_command with args: $z_args"
 
   # Verify BDU environment variables are present
   if [ -z "${BDU_TEMP_DIR:-}" ]; then
@@ -64,47 +64,47 @@ zccbx_route() {
     exit 1
   fi
 
-  zccbxk_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP"
+  zcccw_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP"
 
   # Route based on command prefix
   case "$z_command" in
 
-    # Claude Code Box (ccbx) Docker commands
-    ccbx-a)
+    # Claude Code Container Kit (ccck) Docker commands
+    ccck-a)
       cd "${z_script_dir}" && docker-compose up -d
       ;;
-    ccbx-z)
+    ccck-z)
       cd "${z_script_dir}" && docker-compose down
       ;;
-    ccbx-B)
+    ccck-B)
       cd "${z_script_dir}" && docker-compose build --no-cache && docker-compose up -d
       ;;
-    ccbx-c)
-      zccbx_connect
+    ccck-c)
+      zccck_connect
       ;;
-    ccbx-s)
+    ccck-s)
       # Connect to container with shell only
-      zccbx_connect "cd /workspace/brm_recipemuster && bash"
+      zccck_connect "cd /workspace/brm_recipemuster && bash"
       ;;
-    ccbx-g)
+    ccck-g)
       # Connect to container and run git status
-      zccbx_connect "cd /workspace/brm_recipemuster && git status"
+      zccck_connect "cd /workspace/brm_recipemuster && git status"
       ;;
-    ccbx-R)
+    ccck-R)
       # Reset container: remove SSH host keys, configure git safe directories and global config
-      zccbxk_show "Removing SSH host key for localhost:8888"
+      zcccw_show "Removing SSH host key for localhost:8888"
       ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
       
-      zccbxk_show "Setting git safe directories"
-      zccbx_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
-      zccbx_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
-      zccbx_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
+      zcccw_show "Setting git safe directories"
+      zccck_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
+      zccck_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
+      zccck_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
       
-      zccbxk_show "Setting git global configuration"
-      zccbx_connect "git config --global user.email 'claude@anthropic.com'"
-      zccbx_connect "git config --global user.name 'Claude Code'"
+      zcccw_show "Setting git global configuration"
+      zccck_connect "git config --global user.email 'claude@anthropic.com'"
+      zccck_connect "git config --global user.name 'Claude Code'"
       
-      zccbxk_show "Container reset complete"
+      zcccw_show "Container reset complete"
       ;;
 
     # Unknown command
@@ -115,7 +115,7 @@ zccbx_route() {
   esac
 }
 
-zccbx_main() {
+zccck_main() {
   local z_command="${1:-}"
   shift || true
 
@@ -124,10 +124,10 @@ zccbx_main() {
     exit 1
   fi
 
-  zccbx_route "$z_command" "$@"
+  zccck_route "$z_command" "$@"
 }
 
-zccbx_main "$@"
+zccck_main "$@"
 
 
 # eof

@@ -22,5 +22,5 @@ z_project_root_dir="${0%/*}/.."
 cd                        "${z_project_root_dir}" || exit 1
 export    BDU_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
 source "${BDU_REGIME_FILE}" || exit 1
-export    BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/ccbx/ccbx_coordinator.sh"
+export    BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/ccck/cccw_workbench.sh"
 exec "${BURC_TOOLS_DIR}/buk/bdu_BashDispatchUtility.sh" "${1##*/}" "${@:2}"

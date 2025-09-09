@@ -64,8 +64,8 @@ Full read and edit access is pre-approved for all files in:
 - **BTU**  → `buk/btu_BashTestUtility.sh`
 - **BVU**  → `buk/bvu_BashValidationUtility.sh`
 
-#### CCBX Subdirectory (`Tools/ccbx/`)
-- **CCBX** → `ccbx/ccbx_coordinator.sh`
+#### CCCK Subdirectory (`Tools/ccck/`)
+- **CCCK** → `ccck/cccw_workbench.sh`
 
 #### GAD Subdirectory (`Tools/gad/`)
 - **GADF** → `gad/gadf_factory.py`
