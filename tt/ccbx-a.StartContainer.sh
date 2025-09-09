@@ -1,2 +1,2 @@
 #!/bin/bash
-cd "${0%/*}/.." && Tools/bdu_BashDispatchUtility.sh "${0##*/}" "$@"
+exec "${0%/*}/../.buk/buk_launch_ccbx.sh" "$0" "$@"

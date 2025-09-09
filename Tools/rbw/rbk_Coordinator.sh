@@ -28,26 +28,6 @@ rbk_show() {
   test "${BDU_VERBOSE:-0}" != "1" || echo "RBKSHOW: $*"
 }
 
-# Connect to CCBX container with optional remote command
-rbk_ccbx_connect() {
-  local z_remote_command="${1:-}"
-  
-  rbk_show "Connecting to CCBX container with command: ${z_remote_command:-default}"
-  
-  # Source the .env file to get the port
-  if [ -f  "$RBK_SCRIPT_DIR/ccbx/.env" ]; then
-    source "$RBK_SCRIPT_DIR/ccbx/.env"
-  fi
-  
-  # Default command if none provided
-  if [ -z "$z_remote_command" ]; then
-    z_remote_command="cd /workspace/brm_recipemuster  &&  claude-code"
-  fi
-  
-  # Connect via SSH with dynamic port and execute remote command
-  ssh -p "${CCBX_SSH_PORT:-8888}" -t claude@localhost "$z_remote_command"
-}
-
 # Simple routing function
 rbk_route() {
   local z_command="$1"
@@ -115,44 +95,6 @@ rbk_route() {
     rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args ;;
     rbw-fS)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_study  $z_args ;;
 
-    # Claude Code Box (ccbx) Docker commands
-    ccbx-a)
-      cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose up -d
-      ;;
-    ccbx-z)
-      cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose down
-      ;;
-    ccbx-B)
-      cd "$RBK_SCRIPT_DIR/ccbx" && docker-compose build --no-cache && docker-compose up -d
-      ;;
-    ccbx-c)
-      rbk_ccbx_connect
-      ;;
-    ccbx-s)
-      # Connect to container with shell only
-      rbk_ccbx_connect "cd /workspace/brm_recipemuster && bash"
-      ;;
-    ccbx-g)
-      # Connect to container and run git status
-      rbk_ccbx_connect "cd /workspace/brm_recipemuster && git status"
-      ;;
-    ccbx-R)
-      # Reset container: remove SSH host keys, configure git safe directories and global config
-      rbk_show "Removing SSH host key for localhost:8888"
-      ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
-      
-      rbk_show "Setting git safe directories"
-      rbk_ccbx_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
-      rbk_ccbx_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
-      rbk_ccbx_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
-      
-      rbk_show "Setting git global configuration"
-      rbk_ccbx_connect "git config --global user.email 'claude@anthropic.com'"
-      rbk_ccbx_connect "git config --global user.name 'Claude Code'"
-      
-      rbk_show "Container reset complete"
-      ;;
-
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
       # Run GAD factory in ccbx container with hardcoded parameters
@@ -172,11 +114,11 @@ rbk_route() {
 
     # Help/documentation commands
     rbw-him)
-      rbk_show "Routing to rbf_cli.sh (help)"
+      rbk_show  "Routing to rbf_cli.sh (help)"
       exec "$RBK_SCRIPT_DIR/rbf_cli.sh" $z_args
       ;;
     rbw-hga)
-      rbk_show "Routing to rbga_cli.sh (help)"
+      rbk_show  "Routing to rbga_cli.sh (help)"
       exec "$RBK_SCRIPT_DIR/rbga_cli.sh" $z_args
       ;;
 

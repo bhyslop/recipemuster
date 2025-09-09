@@ -1,0 +1,134 @@
+#!/bin/bash
+#
+# Copyright 2025 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+
+set -euo pipefail
+
+# Get script directory
+z_script_dir="${BASH_SOURCE[0]%/*}"
+
+# Verbose output if BDU_VERBOSE is set
+zccbxk_show() { test "${BDU_VERBOSE:-0}" != "1" || echo "CCBXSHOW: $*"; }
+
+# Connect to CCBX container with optional remote command
+zccbx_connect() {
+  local z_remote_command="${1:-}"
+  
+  zccbxk_show "Connecting to CCBX container with command: ${z_remote_command:-default}"
+  
+  # Source the .env file to get the port
+  if [ -f  "${z_script_dir}/.env" ]; then
+    source "${z_script_dir}/.env"
+  fi
+  
+  # Default command if none provided
+  if [ -z "${z_remote_command}" ]; then
+    z_remote_command="cd /workspace/brm_recipemuster  &&  claude-code"
+  fi
+  
+  # Connect via SSH with dynamic port and execute remote command
+  ssh -p "${CCBX_SSH_PORT:-8888}" -t claude@localhost "${z_remote_command}"
+}
+
+# Simple routing function
+zccbx_route() {
+  local z_command="$1"
+  shift
+  local z_args="$*"
+
+  zccbxk_show "Routing command: $z_command with args: $z_args"
+
+  # Verify BDU environment variables are present
+  if [ -z "${BDU_TEMP_DIR:-}" ]; then
+    echo "ERROR: BDU_TEMP_DIR not set - must be called from BDU" >&2
+    exit 1
+  fi
+
+  if [ -z "${BDU_NOW_STAMP:-}" ]; then
+    echo "ERROR: BDU_NOW_STAMP not set - must be called from BDU" >&2
+    exit 1
+  fi
+
+  zccbxk_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP"
+
+  # Route based on command prefix
+  case "$z_command" in
+
+    # Claude Code Box (ccbx) Docker commands
+    ccbx-a)
+      cd "${z_script_dir}" && docker-compose up -d
+      ;;
+    ccbx-z)
+      cd "${z_script_dir}" && docker-compose down
+      ;;
+    ccbx-B)
+      cd "${z_script_dir}" && docker-compose build --no-cache && docker-compose up -d
+      ;;
+    ccbx-c)
+      zccbx_connect
+      ;;
+    ccbx-s)
+      # Connect to container with shell only
+      zccbx_connect "cd /workspace/brm_recipemuster && bash"
+      ;;
+    ccbx-g)
+      # Connect to container and run git status
+      zccbx_connect "cd /workspace/brm_recipemuster && git status"
+      ;;
+    ccbx-R)
+      # Reset container: remove SSH host keys, configure git safe directories and global config
+      zccbxk_show "Removing SSH host key for localhost:8888"
+      ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
+      
+      zccbxk_show "Setting git safe directories"
+      zccbx_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
+      zccbx_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
+      zccbx_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
+      
+      zccbxk_show "Setting git global configuration"
+      zccbx_connect "git config --global user.email 'claude@anthropic.com'"
+      zccbx_connect "git config --global user.name 'Claude Code'"
+      
+      zccbxk_show "Container reset complete"
+      ;;
+
+    # Unknown command
+    *)
+      echo "ERROR: Unknown command: $z_command" >&2
+      exit 1
+      ;;
+  esac
+}
+
+zccbx_main() {
+  local z_command="${1:-}"
+  shift || true
+
+  if [ -z "$z_command" ]; then
+    echo "ERROR: No command specified" >&2
+    exit 1
+  fi
+
+  zccbx_route "$z_command" "$@"
+}
+
+zccbx_main "$@"
+
+
+# eof
+

@@ -16,7 +16,7 @@ Which would you like to start with? (Enter acronym)
 ### bcbcg: Bash Coding with BCG
 - Primary file: `../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`
 - Context: Bash scripting and console development
-- Related utilities: BCU, BDU, BTU, BVU in Tools/
+- Related utilities: BCU, BDU, BTU, BVU in Tools/buk/
 
 ### adocrbags: Requirements writing with RBAGS
 - Primary file: `../recipebottle-admin/rbw-RBAGS-AdminGoogleSpec.adoc`
@@ -41,27 +41,38 @@ Full read and edit access is pre-approved for all files in:
 - **MPCR**  → `rbw-MPCR-MemoPayorCrisisRecovery.md`
 
 ### Tools Directory (`Tools/`)
-- **RBF**  → `rbf_Foundry.sh`
-- **RBGA** → `rbga_ArtifactRegistry.sh`
-- **RBGB** → `rbgb_Buckets.sh`
-- **RBGC** → `rbgc_Constants.sh`
-- **RBGG** → `rbgg_Governor.sh`
-- **RBGI** → `rbgi_IAM.sh`
-- **RBGM** → `rbgm_ManualProcedures.sh`
-- **RBGO** → `rbgo_OAuth.sh`
-- **RBGP** → `rbgp_Payor.sh`
-- **RBGU** → `rbgu_Utility.sh`
-- **RBI**  → `rbi_Image.sh`
-- **RBK**  → `rbk_Coordinator.sh`
-- **RBL**  → `rbl_Locator.sh`
-- **RBV**  → `rbv_PodmanVM.sh`
-- **RGBS** → `rgbs_ServiceAccounts.sh`
-- **BCU**  → `bcu_BashCommandUtility.sh`
-- **BDU**  → `bdu_BashDispatchUtility.sh`
-- **BTU**  → `btu_BashTestUtility.sh`
-- **BVU**  → `bvu_BashValidationUtility.sh`
+
+#### RBW Subdirectory (`Tools/rbw/`)
+- **RBF**  → `rbw/rbf_Foundry.sh`
+- **RBGA** → `rbw/rbga_ArtifactRegistry.sh`
+- **RBGB** → `rbw/rbgb_Buckets.sh`
+- **RBGC** → `rbw/rbgc_Constants.sh`
+- **RBGG** → `rbw/rbgg_Governor.sh`
+- **RBGI** → `rbw/rbgi_IAM.sh`
+- **RBGM** → `rbw/rbgm_ManualProcedures.sh`
+- **RBGO** → `rbw/rbgo_OAuth.sh`
+- **RBGP** → `rbw/rbgp_Payor.sh`
+- **RBGU** → `rbw/rbgu_Utility.sh`
+- **RBI**  → `rbw/rbi_Image.sh`
+- **RBK**  → `rbw/rbk_Coordinator.sh`
+- **RBL**  → `rbw/rbl_Locator.sh`
+- **RBV**  → `rbw/rbv_PodmanVM.sh`
+
+#### BUK Subdirectory (`Tools/buk/`)
+- **BCU**  → `buk/bcu_BashCommandUtility.sh`
+- **BDU**  → `buk/bdu_BashDispatchUtility.sh`
+- **BTU**  → `buk/btu_BashTestUtility.sh`
+- **BVU**  → `buk/bvu_BashValidationUtility.sh`
+
+#### CCBX Subdirectory (`Tools/ccbx/`)
+- **CCBX** → `ccbx/ccbx_coordinator.sh`
+
+#### GAD Subdirectory (`Tools/gad/`)
 - **GADF** → `gad/gadf_factory.py`
 - **GADI** → `gad/gadi_inspector.html`
+
+#### Other Tools
+- **RGBS** → `rgbs_ServiceAccounts.sh`
 
 ### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
 - **ANCIENT** → `a-roe-ANCIENT.md`
