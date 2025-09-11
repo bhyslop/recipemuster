@@ -68,6 +68,7 @@ zccck_route() {
     ccck-a)
       bcu_step "Creating Claude config directory if needed"
       mkdir -p "${zccck_kit_dir}/${CCCR_CLAUDE_CONFIG_DIR}"
+      test -d "${zccck_kit_dir}/${CCCR_CLAUDE_CONFIG_DIR}" || bcu_die "Failed to create Claude config directory: ${zccck_kit_dir}/${CCCR_CLAUDE_CONFIG_DIR}"
       
       zccck_docker_compose up -d
 
