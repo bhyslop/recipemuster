@@ -82,8 +82,8 @@ zccck_route() {
       zccck_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
       
       zcccw_show "Setting git global configuration"
-      zccck_connect "git config --global user.email 'claude@anthropic.com'"
-      zccck_connect "git config --global user.name  'Claude Code'"
+      zccck_connect "git config --global user.email 'bhyslop@scaleinvariant.org'"
+      zccck_connect "git config --global user.name  'Claude Code with Brad Hyslop'"
       
       zcccw_show "Container started and configured"
       ;;
