@@ -69,7 +69,7 @@ RUN apt-get update && apt-get install -y                                        
 1. Create non-root user `claude` with home directory, using configurable UID/GID via build arguments (default 1000:1000) to match host filesystem permissions
 2. Set empty password for user `claude` to enable passwordless authentication
 3. Generate SSH host keys during build rather than at runtime
-4. Configure SSH daemon to listen on port 22 (mapped to 8888 externally), disable root login, and accept empty passwords
+4. Configure SSH daemon to listen on port 22 (mapped to ${CCCR_SSH_PORT} externally), disable root login, and accept empty passwords
 5. Configure PAM with permissive authentication for reliable passwordless SSH access
 6. Download and install Claude Code using official installer script from `https://claude.ai/install.sh`, pinned to version 1.0.89 (released August 22, 2025)
 7. Install Claude Code to `/usr/local/bin/claude-code` with executable permissions
@@ -97,7 +97,7 @@ The service `claudecodebox` requires:
 - Container name: ClaudeCodeBox
 - Build context: ./build-context directory with Dockerfile
 - Build arguments: USER_UID and USER_GID (default 1000) for filesystem permission alignment with host
-- Port mapping: Host port 8888 to container SSH port 22
+- Port mapping: Host port ${CCCR_SSH_PORT} to container SSH port 22
 - Environment file: ../secrets/CCBX_CLAUDE.env containing ANTHROPIC_API_KEY
 
 ### Volume Mounts
@@ -112,13 +112,13 @@ The service `claudecodebox` requires:
 - Allow external internet access for API calls
 
 ### Port Mapping
-- SSH port: localhost:8888 → container:22 (for Claude Code access)
-- Web port: localhost:8080 → container:8080 (for GAD Factory HTTP server)
+- SSH port: localhost:${CCCR_SSH_PORT} → container:22 (for Claude Code access)
+- Web port: localhost:${CCCR_WEB_PORT} → container:8080 (for GAD Factory HTTP server)
 
 ## Security Considerations  
 - Container network is internal-only (not exposed beyond host)
-- SSH accessible only via localhost:8888
-- GAD Factory web server accessible only via localhost:8080
+- SSH accessible only via localhost:${CCCR_SSH_PORT}
+- GAD Factory web server accessible only via localhost:${CCCR_WEB_PORT}
 - Passwordless SSH is explicitly required and acceptable given internal-only access - this is a deliberate design choice for friction-free development within the isolated container environment
 - Web server provides CORS-free access to GAD Inspector interface
 - API key stored in ../secrets/CCBX_CLAUDE.env

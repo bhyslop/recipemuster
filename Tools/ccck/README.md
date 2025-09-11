@@ -16,7 +16,7 @@
 docker-compose up -d
 
 # SSH into container
-ssh -p 8888 claude@localhost
+ssh -p ${CCCR_SSH_PORT} claude@localhost
 
 # Stop container
 docker-compose down
@@ -67,13 +67,13 @@ Tools/ccbx/
 ## SSH Access
 
 - **Host**: localhost
-- **Port**: 8888
+- **Port**: ${CCCR_SSH_PORT}
 - **User**: claude
 - **Password**: (none - passwordless)
 
 Example connection:
 ```bash
-ssh -p 8888 claude@localhost
+ssh -p ${CCCR_SSH_PORT} claude@localhost
 ```
 
 ## Claude Code Setup
@@ -82,7 +82,7 @@ On first run, authenticate Claude Code:
 
 ```bash
 # SSH into container
-ssh -p 8888 claude@localhost
+ssh -p ${CCCR_SSH_PORT} claude@localhost
 
 # Run Claude Code authentication
 claude-code auth
@@ -155,7 +155,7 @@ docker-compose up -d
 
 ## Security Notes
 
-- Container runs SSH on internal port 22, mapped to host port 8888
+- Container runs SSH on internal port 22, mapped to host port ${CCCR_SSH_PORT}
 - Passwordless SSH is intentional for development convenience
 - Container network is bridge mode (not exposed beyond host)
 - API key stored in separate secrets file

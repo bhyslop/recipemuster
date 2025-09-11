@@ -32,9 +32,17 @@ zccck_connect() {
   
   zcccw_show "Connecting to CCCK container with command: ${z_remote_command:-default}"
   
-  # Source the cccr.env file to get the port
-  if [ -f  "${z_script_dir}/../cccr.env" ]; then
-    source "${z_script_dir}/../cccr.env"
+  # Source the cccr.env file to get the port - REQUIRED, no defaults
+  if [ ! -f  "${z_script_dir}/../cccr.env" ]; then
+    echo "ERROR: cccr.env file not found at ${z_script_dir}/../cccr.env" >&2
+    exit 1
+  fi
+  source "${z_script_dir}/../cccr.env"
+  
+  # Validate required environment variables
+  if [ -z "${CCCR_SSH_PORT:-}" ]; then
+    echo "ERROR: CCCR_SSH_PORT not set in cccr.env" >&2
+    exit 1
   fi
   
   # Default command if none provided
@@ -42,8 +50,8 @@ zccck_connect() {
     z_remote_command="cd /workspace/brm_recipemuster  &&  claude-code"
   fi
   
-  # Connect via SSH with dynamic port and execute remote command
-  ssh -p "${CCCK_SSH_PORT:-8888}" -t claude@localhost "${z_remote_command}"
+  # Connect via SSH with configured port and execute remote command
+  ssh -p "${CCCR_SSH_PORT}" -t claude@localhost "${z_remote_command}"
 }
 
 # Simple routing function
@@ -94,8 +102,8 @@ zccck_route() {
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)
       # Reset SSH connection: remove SSH host keys for clean reconnection
-      zcccw_show "Removing SSH host key for localhost:8888"
-      ssh-keygen -R "[localhost]:8888" 2>/dev/null || true
+      zcccw_show "Removing SSH host key for localhost:${CCCR_SSH_PORT}"
+      ssh-keygen -R "[localhost]:${CCCR_SSH_PORT}" 2>/dev/null || true
       
       zcccw_show "SSH reset complete - try connecting again"
       ;;
