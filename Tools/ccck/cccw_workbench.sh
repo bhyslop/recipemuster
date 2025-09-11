@@ -26,6 +26,10 @@ z_script_dir="${BASH_SOURCE[0]%/*}"
 
 zcccw_show() { echo "CCCWSHOW: $*"; }
 
+zccck_docker_compose() {
+  docker-compose --env-file "${z_script_dir}/../cccr.env" -f "${z_script_dir}/docker-compose.yml" "$@"
+}
+
 # Connect to CCBX container with optional remote command
 zccck_connect() {
   local z_remote_command="${1:-}"
@@ -33,14 +37,6 @@ zccck_connect() {
   zcccw_show "Connecting to CCCK container with command: ${z_remote_command:-default}"
   zcccw_show "z_script_dir=${z_script_dir}"
   zcccw_show "PWD=${PWD}"
-  
-  source "${z_script_dir}/../cccr.env"
-  
-  # Validate required environment variables
-  if [ -z "${CCCR_SSH_PORT:-}" ]; then
-    echo "ERROR: CCCR_SSH_PORT not set in cccr.env" >&2
-    exit 1
-  fi
   
   # Default command if none provided
   if [ -z "${z_remote_command}" ]; then
@@ -70,14 +66,26 @@ zccck_route() {
     exit 1
   fi
 
-  zcccw_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP"
+  source "${z_script_dir}/../cccr.env"
+  
+  if [ -z "${CCCR_SSH_PORT:-}" ]; then
+    echo "ERROR: CCCR_SSH_PORT not set in cccr.env" >&2
+    exit 1
+  fi
+
+  if [ -z "${BDU_TEMP_DIR:-}" ]; then
+    echo "ERROR: BDU_TEMP_DIR not set - must be called from BDU" >&2
+    exit 1
+  fi
+
+  zcccw_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT}"
 
   # Route based on command prefix
   case "$z_command" in
 
     # Claude Code Container Kit (ccck) Docker commands
     ccck-a)  
-       docker-compose -f "${z_script_dir}/docker-compose.yml" up -d
+      zccck_docker_compose up -d
       
       zcccw_show "Setting up git configuration in container"
       
@@ -92,8 +100,8 @@ zccck_route() {
       
       zcccw_show "Container started and configured"
       ;;
-    ccck-z)  docker-compose -f "${z_script_dir}/docker-compose.yml" down                      ;;
-    ccck-B)  docker-compose -f "${z_script_dir}/docker-compose.yml" build --no-cache          ;;
+    ccck-z)  zccck_docker_compose down                                                        ;;
+    ccck-B)  zccck_docker_compose build --no-cache                                            ;;
     ccck-c)  zccck_connect                                                                    ;;
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
