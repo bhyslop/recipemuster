@@ -77,7 +77,7 @@ zccck_route() {
 
     # Claude Code Container Kit (ccck) Docker commands
     ccck-a)  
-      cd "${z_script_dir}" && docker-compose up -d
+       docker-compose -f "${z_script_dir}/docker-compose.yml" up -d
       
       zcccw_show "Setting up git configuration in container"
       
@@ -92,8 +92,8 @@ zccck_route() {
       
       zcccw_show "Container started and configured"
       ;;
-    ccck-z)  cd "${z_script_dir}" && docker-compose down                                      ;;
-    ccck-B)  cd "${z_script_dir}" && docker-compose build --no-cache                          ;;
+    ccck-z)  docker-compose -f "${z_script_dir}/docker-compose.yml" down                      ;;
+    ccck-B)  docker-compose -f "${z_script_dir}/docker-compose.yml" build --no-cache          ;;
     ccck-c)  zccck_connect                                                                    ;;
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
