@@ -19,6 +19,10 @@
 
 set -euo pipefail
 
+# Source BCU for consistent error handling
+source "$(dirname "${BASH_SOURCE[0]}")/../buk/bcu_BashCommandUtility.sh"
+
+bcu_context "cccw_workbench"
 echo "BRADTRACE: Entering workbench..."
 
 # Get script directory
@@ -56,27 +60,12 @@ zccck_route() {
   zcccw_show "Routing command: $z_command with args: $z_args"
 
   # Verify BDU environment variables are present
-  if [ -z "${BDU_TEMP_DIR:-}" ]; then
-    echo "ERROR: BDU_TEMP_DIR not set - must be called from BDU" >&2
-    exit 1
-  fi
-
-  if [ -z "${BDU_NOW_STAMP:-}" ]; then
-    echo "ERROR: BDU_NOW_STAMP not set - must be called from BDU" >&2
-    exit 1
-  fi
+  test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
+  test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set - must be called from BDU"
 
   source "${z_script_dir}/../cccr.env"
   
-  if [ -z "${CCCR_SSH_PORT:-}" ]; then
-    echo "ERROR: CCCR_SSH_PORT not set in cccr.env" >&2
-    exit 1
-  fi
-
-  if [ -z "${BDU_TEMP_DIR:-}" ]; then
-    echo "ERROR: BDU_TEMP_DIR not set - must be called from BDU" >&2
-    exit 1
-  fi
+  test -n "${CCCR_SSH_PORT:-}" || bcu_die "CCCR_SSH_PORT not set in cccr.env"
 
   zcccw_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT}"
 
@@ -123,8 +112,7 @@ zccck_route() {
 
     # Unknown command
     *)
-      echo "ERROR: Unknown command: $z_command" >&2
-      exit 1
+      bcu_die "Unknown command: $z_command"
       ;;
   esac
 }
@@ -133,10 +121,7 @@ zccck_main() {
   local z_command="${1:-}"
   shift || true
 
-  if [ -z "$z_command" ]; then
-    echo "ERROR: No command specified" >&2
-    exit 1
-  fi
+  test -n "$z_command" || bcu_die "No command specified"
 
   zccck_route "$z_command" "$@"
 }
