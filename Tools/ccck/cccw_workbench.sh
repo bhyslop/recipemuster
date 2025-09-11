@@ -31,12 +31,9 @@ zccck_connect() {
   local z_remote_command="${1:-}"
   
   zcccw_show "Connecting to CCCK container with command: ${z_remote_command:-default}"
+  zcccw_show "z_script_dir=${z_script_dir}"
+  zcccw_show "PWD=${PWD}"
   
-  # Source the cccr.env file to get the port - REQUIRED, no defaults
-  if [ ! -f  "${z_script_dir}/../cccr.env" ]; then
-    echo "ERROR: cccr.env file not found at ${z_script_dir}/../cccr.env" >&2
-    exit 1
-  fi
   source "${z_script_dir}/../cccr.env"
   
   # Validate required environment variables
