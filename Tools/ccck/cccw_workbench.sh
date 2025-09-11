@@ -19,30 +19,25 @@
 
 set -euo pipefail
 
-zccck_script_dir="${BASH_SOURCE[0]%/*}"
-zccck_buk_directory="${zccck_script_dir}/../buk"
+zccck_kit_dir="${BASH_SOURCE[0]%/*}"
+zccck_buk_directory="${zccck_kit_dir}/../buk"
 source "${zccck_buk_directory}/bcu_BashCommandUtility.sh"
 
 bcu_context "cccw_workbench"
 
 
 zccck_docker_compose() {
-  docker-compose --env-file "${zccck_script_dir}/../cccr.env" -f "${zccck_script_dir}/docker-compose.yml" "$@"
+  docker-compose --env-file "${zccck_kit_dir}/../cccr.env" -f "${zccck_kit_dir}/docker-compose.yml" "$@"
 }
 
-# Connect to CCBX container with optional remote command
+# Connect to CCBX container with remote command
 zccck_connect() {
-  local z_remote_command="${1:-}"
-  
-  bcu_step "Connecting to CCCK container with command: ${z_remote_command:-default}"
-  bcu_step "zccck_script_dir=${zccck_script_dir}"
-  bcu_step "PWD=${PWD}"
-  
-  # Default command if none provided
-  if [ -z "${z_remote_command}" ]; then
-    z_remote_command="cd /workspace/brm_recipemuster  &&  claude-code"
-  fi
-  
+  local z_remote_command="$1"
+
+  test -n "${z_remote_command}" || bcu_die "Remote command required for zccck_connect"
+
+  bcu_step "Connecting to CCCK container with command: ${z_remote_command}"
+
   # Connect via SSH with configured port and execute remote command
   ssh -p "${CCCR_SSH_PORT}" -t claude@localhost "${z_remote_command}"
 }
@@ -59,8 +54,8 @@ zccck_route() {
   test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set - must be called from BDU"
 
-  source "${zccck_script_dir}/../cccr.env"
-  
+  source "${zccck_kit_dir}/../cccr.env"
+
   test -n "${CCCR_SSH_PORT:-}" || bcu_die "CCCR_SSH_PORT not set in cccr.env"
 
   bcu_step "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT}"
@@ -69,25 +64,25 @@ zccck_route() {
   case "$z_command" in
 
     # Claude Code Container Kit (ccck) Docker commands
-    ccck-a)  
+    ccck-a)
       zccck_docker_compose up -d
-      
+
       bcu_step "Setting up git configuration in container"
-      
+
       bcu_step "Setting git safe directories"
       zccck_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
       zccck_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
       zccck_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
-      
+
       bcu_step "Setting git global configuration"
       zccck_connect "git config --global user.email 'bhyslop@scaleinvariant.org'"
       zccck_connect "git config --global user.name  'Claude Code with Brad Hyslop'"
-      
+
       bcu_step "Container started and configured"
       ;;
     ccck-z)  zccck_docker_compose down                                                        ;;
     ccck-B)  zccck_docker_compose build --no-cache                                            ;;
-    ccck-c)  zccck_connect                                                                    ;;
+    ccck-c)  zccck_connect "cd /workspace/brm_recipemuster  &&  claude-code"                ;;
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)
@@ -95,14 +90,14 @@ zccck_route() {
       bcu_step "Stopping and removing container"
       docker stop ClaudeCodeBox 2>/dev/null || true
       docker rm   ClaudeCodeBox 2>/dev/null || true
-      
+
       bcu_step "Removing Docker volumes and network"
       docker volume rm claude-config claude-cache 2>/dev/null || true
       docker network rm claude-network 2>/dev/null || true
-      
+
       bcu_step "Removing SSH host key for localhost:${CCCR_SSH_PORT}"
       ssh-keygen -R "[localhost]:${CCCR_SSH_PORT}" 2>/dev/null || true
-      
+
       bcu_step "Full reset complete - ready for fresh start"
       ;;
 
