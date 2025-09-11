@@ -15,18 +15,11 @@ services:
     volumes:
       # Workspace mount (parent of repo directory)
       - ../../../:/workspace
-      # Named volumes for persistence
-      - claude-config:/home/claude/.claude
-      - claude-cache:/home/claude/.cache
+      # Auth config persisted in workspace (outside any git repo)
+      - ../../../.claude-config:/home/claude/.config
     networks:
       - claude-network
     restart: unless-stopped
-
-volumes:
-  claude-config:
-    name: claude-config
-  claude-cache:
-    name: claude-cache
 
 networks:
   claude-network:

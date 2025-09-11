@@ -91,8 +91,7 @@ zccck_route() {
       docker stop ClaudeCodeBox 2>/dev/null || true
       docker rm   ClaudeCodeBox 2>/dev/null || true
 
-      bcu_step "Removing Docker volumes and network"
-      docker volume rm claude-config claude-cache 2>/dev/null || true
+      bcu_step "Removing Docker network"
       docker network rm claude-network 2>/dev/null || true
 
       bcu_step "Removing SSH host key for localhost:${CCCR_SSH_PORT}"
