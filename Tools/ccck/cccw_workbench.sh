@@ -20,7 +20,7 @@
 set -euo pipefail
 
 # Source BCU for consistent error handling
-source "${BASH_SOURCE[0]%/*}/../buk/bcu_BashCommandUtility.sh"
+source "${zccck_buk_directory}/bcu_BashCommandUtility.sh"
 
 bcu_context "cccw_workbench"
 echo "BRADTRACE: Entering workbench..."
@@ -28,7 +28,9 @@ echo "BRADTRACE: Entering workbench..."
 # Get script directory
 z_script_dir="${BASH_SOURCE[0]%/*}"
 
-zcccw_show() { echo "CCCWSHOW: $*"; }
+# BUK utilities directory
+zccck_buk_directory="${z_script_dir}/../buk"
+
 
 zccck_docker_compose() {
   docker-compose --env-file "${z_script_dir}/../cccr.env" -f "${z_script_dir}/docker-compose.yml" "$@"
@@ -38,9 +40,9 @@ zccck_docker_compose() {
 zccck_connect() {
   local z_remote_command="${1:-}"
   
-  zcccw_show "Connecting to CCCK container with command: ${z_remote_command:-default}"
-  zcccw_show "z_script_dir=${z_script_dir}"
-  zcccw_show "PWD=${PWD}"
+  bcu_step "Connecting to CCCK container with command: ${z_remote_command:-default}"
+  bcu_step "z_script_dir=${z_script_dir}"
+  bcu_step "PWD=${PWD}"
   
   # Default command if none provided
   if [ -z "${z_remote_command}" ]; then
@@ -57,7 +59,7 @@ zccck_route() {
   shift
   local z_args="$*"
 
-  zcccw_show "Routing command: $z_command with args: $z_args"
+  bcu_step "Routing command: $z_command with args: $z_args"
 
   # Verify BDU environment variables are present
   test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
@@ -67,7 +69,7 @@ zccck_route() {
   
   test -n "${CCCR_SSH_PORT:-}" || bcu_die "CCCR_SSH_PORT not set in cccr.env"
 
-  zcccw_show "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT}"
+  bcu_step "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT}"
 
   # Route based on command prefix
   case "$z_command" in
@@ -76,18 +78,18 @@ zccck_route() {
     ccck-a)  
       zccck_docker_compose up -d
       
-      zcccw_show "Setting up git configuration in container"
+      bcu_step "Setting up git configuration in container"
       
-      zcccw_show "Setting git safe directories"
+      bcu_step "Setting git safe directories"
       zccck_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
       zccck_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
       zccck_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
       
-      zcccw_show "Setting git global configuration"
+      bcu_step "Setting git global configuration"
       zccck_connect "git config --global user.email 'bhyslop@scaleinvariant.org'"
       zccck_connect "git config --global user.name  'Claude Code with Brad Hyslop'"
       
-      zcccw_show "Container started and configured"
+      bcu_step "Container started and configured"
       ;;
     ccck-z)  zccck_docker_compose down                                                        ;;
     ccck-B)  zccck_docker_compose build --no-cache                                            ;;
@@ -96,18 +98,18 @@ zccck_route() {
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)
       # Full reset: clean Docker resources and SSH keys
-      zcccw_show "Stopping and removing container"
+      bcu_step "Stopping and removing container"
       docker stop ClaudeCodeBox 2>/dev/null || true
       docker rm   ClaudeCodeBox 2>/dev/null || true
       
-      zcccw_show "Removing Docker volumes and network"
+      bcu_step "Removing Docker volumes and network"
       docker volume rm claude-config claude-cache 2>/dev/null || true
       docker network rm claude-network 2>/dev/null || true
       
-      zcccw_show "Removing SSH host key for localhost:${CCCR_SSH_PORT}"
+      bcu_step "Removing SSH host key for localhost:${CCCR_SSH_PORT}"
       ssh-keygen -R "[localhost]:${CCCR_SSH_PORT}" 2>/dev/null || true
       
-      zcccw_show "Full reset complete - ready for fresh start"
+      bcu_step "Full reset complete - ready for fresh start"
       ;;
 
     # Unknown command
