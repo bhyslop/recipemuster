@@ -19,21 +19,15 @@
 
 set -euo pipefail
 
-# Source BCU for consistent error handling
+zccck_script_dir="${BASH_SOURCE[0]%/*}"
+zccck_buk_directory="${zccck_script_dir}/../buk"
 source "${zccck_buk_directory}/bcu_BashCommandUtility.sh"
 
 bcu_context "cccw_workbench"
-echo "BRADTRACE: Entering workbench..."
-
-# Get script directory
-z_script_dir="${BASH_SOURCE[0]%/*}"
-
-# BUK utilities directory
-zccck_buk_directory="${z_script_dir}/../buk"
 
 
 zccck_docker_compose() {
-  docker-compose --env-file "${z_script_dir}/../cccr.env" -f "${z_script_dir}/docker-compose.yml" "$@"
+  docker-compose --env-file "${zccck_script_dir}/../cccr.env" -f "${zccck_script_dir}/docker-compose.yml" "$@"
 }
 
 # Connect to CCBX container with optional remote command
@@ -41,7 +35,7 @@ zccck_connect() {
   local z_remote_command="${1:-}"
   
   bcu_step "Connecting to CCCK container with command: ${z_remote_command:-default}"
-  bcu_step "z_script_dir=${z_script_dir}"
+  bcu_step "zccck_script_dir=${zccck_script_dir}"
   bcu_step "PWD=${PWD}"
   
   # Default command if none provided
@@ -65,7 +59,7 @@ zccck_route() {
   test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set - must be called from BDU"
 
-  source "${z_script_dir}/../cccr.env"
+  source "${zccck_script_dir}/../cccr.env"
   
   test -n "${CCCR_SSH_PORT:-}" || bcu_die "CCCR_SSH_PORT not set in cccr.env"
 
