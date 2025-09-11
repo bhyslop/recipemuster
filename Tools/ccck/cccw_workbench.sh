@@ -106,11 +106,19 @@ zccck_route() {
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)
-      # Reset SSH connection: remove SSH host keys for clean reconnection
+      # Full reset: clean Docker resources and SSH keys
+      zcccw_show "Stopping and removing container"
+      docker stop ClaudeCodeBox 2>/dev/null || true
+      docker rm   ClaudeCodeBox 2>/dev/null || true
+      
+      zcccw_show "Removing Docker volumes and network"
+      docker volume rm claude-config claude-cache 2>/dev/null || true
+      docker network rm claude-network 2>/dev/null || true
+      
       zcccw_show "Removing SSH host key for localhost:${CCCR_SSH_PORT}"
       ssh-keygen -R "[localhost]:${CCCR_SSH_PORT}" 2>/dev/null || true
       
-      zcccw_show "SSH reset complete - try connecting again"
+      zcccw_show "Full reset complete - ready for fresh start"
       ;;
 
     # Unknown command
