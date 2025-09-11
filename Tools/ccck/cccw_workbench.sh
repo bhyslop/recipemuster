@@ -20,7 +20,7 @@
 set -euo pipefail
 
 # Source BCU for consistent error handling
-source "$(dirname "${BASH_SOURCE[0]}")/../buk/bcu_BashCommandUtility.sh"
+source "${BASH_SOURCE[0]%/*}/../buk/bcu_BashCommandUtility.sh"
 
 bcu_context "cccw_workbench"
 echo "BRADTRACE: Entering workbench..."
