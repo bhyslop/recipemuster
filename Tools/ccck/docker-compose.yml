@@ -16,6 +16,7 @@ services:
       # Workspace mount (parent of repo directory)
       - ../../../:/workspace
       # Auth config persisted in workspace (outside any git repo)
+      # Path matches zccck_claude_config_dir in cccw_workbench.sh
       - ../../../.claude-config:/home/claude/.config
     networks:
       - claude-network

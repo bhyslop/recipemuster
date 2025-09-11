@@ -57,14 +57,18 @@ zccck_route() {
   source "${zccck_kit_dir}/../cccr.env"
 
   test -n "${CCCR_SSH_PORT:-}" || bcu_die "CCCR_SSH_PORT not set in cccr.env"
+  test -n "${CCCR_CLAUDE_CONFIG_DIR:-}" || bcu_die "CCCR_CLAUDE_CONFIG_DIR not set in cccr.env"
 
-  bcu_step "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT}"
+  bcu_step "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT} CCCR_CLAUDE_CONFIG_DIR=${CCCR_CLAUDE_CONFIG_DIR}"
 
   # Route based on command prefix
   case "$z_command" in
 
     # Claude Code Container Kit (ccck) Docker commands
     ccck-a)
+      bcu_step "Creating Claude config directory if needed"
+      mkdir -p "${zccck_kit_dir}/${CCCR_CLAUDE_CONFIG_DIR}"
+      
       zccck_docker_compose up -d
 
       bcu_step "Setting up git configuration in container"
