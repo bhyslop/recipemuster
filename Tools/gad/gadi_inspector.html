@@ -595,22 +595,19 @@
                 wsTraceHandler.sendTrace('[DEBUG]', 'Rails will be populated with commits only (no magic values)');
 
                 wsTraceHandler.sendTrace('[DEBUG]', `Processing ${this.manifest.commits.length} commits for rails`);
-                // Add commits to both rails in reverse chronological order
-                // Use position labels as values instead of commit hashes
-                this.manifest.commits.forEach((commit, index) => {
+                // Reverse commits first, then apply simple labeling like GADMRC
+                const reversedCommits = [...this.manifest.commits].reverse();
+                reversedCommits.forEach((commit, index) => {
                     wsTraceHandler.sendTrace('[DEBUG]', `Processing commit ${index + 1}: ${commit.hash.substring(0, 8)}`);
                     const isUnchanged = index > 0 &&
-                        commit.html_sha256 === this.manifest.commits[index - 1].html_sha256;
+                        commit.html_sha256 === reversedCommits[index - 1].html_sha256;
 
-                    // Calculate position label (H for latest, -1, -2, etc.)
-                    const position = index === this.manifest.commits.length - 1 ? 'H' : 
-                                   `-${this.manifest.commits.length - index - 1}`;
-                    
-                    const shortHash = commit.hash.substring(0, 7);
+                    // GADMRC-compliant labeling: H for index 0, -1, -2, etc. for rest
+                    const position = index === 0 ? 'H' : `-${index}`;
 
-                    // Use position as the value, store commit data in dataset
-                    this.addRailRow(this.elements.fromRailContent, position, position, 'from', shortHash, isUnchanged, commit);
-                    this.addRailRow(this.elements.toRailContent, position, position, 'to', shortHash, isUnchanged, commit);
+                    // Use position as the value, store commit data in dataset (no hash display)
+                    this.addRailRow(this.elements.fromRailContent, position, position, 'from', null, isUnchanged, commit);
+                    this.addRailRow(this.elements.toRailContent, position, position, 'to', null, isUnchanged, commit);
                 });
                 wsTraceHandler.sendTrace('[DEBUG]', 'Rail population completed');
                 
@@ -646,13 +643,15 @@
                 const commitInfo = document.createElement('div');
                 commitInfo.className = 'rail-commit-info';
                 
+                // GADMRC-compliant: show only position labels, no hash text in rails
                 if (hashText) {
                     const hashElement = document.createElement('div');
                     hashElement.className = 'rail-hash';
                     hashElement.textContent = hashText;
                     commitInfo.appendChild(hashElement);
                 } else {
-                    commitInfo.textContent = value; // For magic values
+                    // Empty info div - position label is sufficient
+                    commitInfo.style.display = 'none';
                 }
 
                 const radio = document.createElement('input');
