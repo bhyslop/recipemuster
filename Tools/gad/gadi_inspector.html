@@ -20,12 +20,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .comparison-header {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
 
         .status-section {
             background: #e8f4fd;
@@ -39,17 +33,17 @@
         .workspace {
             display: grid;
             grid-template-columns: auto auto 1fr;
-            grid-template-rows: auto auto 1fr;
+            grid-template-rows: auto 1fr;
             grid-template-areas: 
-                "header header ."
+                "railheader railheader renderheader"
                 "from to render";
             gap: 0px;
-            height: calc(100vh - 160px);
+            height: calc(100vh - 100px);
             margin-top: 20px;
         }
 
         .rail-header {
-            grid-area: header;
+            grid-area: railheader;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -59,16 +53,24 @@
             padding: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
             font-weight: bold;
             color: #666;
         }
 
-        .commit-comparison {
+        .render-header {
+            grid-area: renderheader;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px 8px 0 0;
+            padding: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #eee;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 12px;
             color: #333;
-            margin-left: 12px;
-            font-weight: normal;
         }
 
         .rail {
@@ -146,7 +148,7 @@
         .rendered-pane {
             grid-area: render;
             background: white;
-            border-radius: 8px;
+            border-radius: 0 0 8px 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             overflow-y: auto;
@@ -299,15 +301,15 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="comparison-header">GAD Inspector</div>
-        <div class="status-section" id="statusSection"></div>
-    </div>
+    <div class="status-section" id="statusSection"></div>
 
     <div class="workspace">
         <div class="rail-header">
             F <button class="swap-button" id="swapButton" title="Transpose rail positions">⇄</button> T
-            <div class="commit-comparison" id="comparisonHeader"></div>
+        </div>
+
+        <div class="render-header" id="comparisonHeader">
+            <!-- Commit comparison will be displayed here -->
         </div>
 
         <div class="rail from" id="fromRail">
