@@ -367,6 +367,23 @@
                     console.log(`[NO-WS] ${prefix} ${message}`);
                 }
             }
+
+            sendRenderedContent(htmlContent) {
+                // Send rendered content to Factory for debug temp file creation
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    try {
+                        this.ws.send(JSON.stringify({
+                            type: 'rendered_content',
+                            content: htmlContent
+                        }));
+                        console.log('[RENDERED-CONTENT] Sent to Factory for debug temp file');
+                    } catch (error) {
+                        console.log(`[WS-ERROR] Failed to send rendered content: ${error}`);
+                    }
+                } else {
+                    console.log('[NO-WS] Cannot send rendered content - WebSocket not connected');
+                }
+            }
         }
 
         const wsTraceHandler = new WebSocketTraceHandler();
@@ -663,6 +680,9 @@
                     const styledDiff = this.styleDiff(fromHtml, toHtml);
 
                     this.elements.renderedPane.innerHTML = styledDiff;
+
+                    // Send rendered content to Factory via WebSocket for debug temp file
+                    wsTraceHandler.sendRenderedContent(styledDiff);
 
                     // Count changes for navigation - updated for GADS classifications
                     this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved, .diff-modification');

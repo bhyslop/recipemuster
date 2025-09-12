@@ -76,8 +76,27 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             data = json.loads(message)
             if data.get('type') == 'trace':
                 gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
+            elif data.get('type') == 'rendered_content':
+                self.handle_rendered_content(data)
         except json.JSONDecodeError:
             gadfl_warn(f"Invalid WebSocket message: {message}")
+    
+    def handle_rendered_content(self, data):
+        """Handle rendered content message from Inspector."""
+        try:
+            factory = self.application.factory
+            rendered_html = data.get('content', '')
+            timestamp = time.strftime('%Y%m%d-%H%M%S')
+            filename = f"debug-rendered-{timestamp}.html"
+            filepath = factory.output_dir / filename
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(rendered_html)
+            
+            gadfl_step(f"Saved rendered content to debug temp file: {filename}")
+            
+        except Exception as e:
+            gadfl_warn(f"Failed to save rendered content: {e}")
     
     @classmethod
     def broadcast_refresh(cls):
