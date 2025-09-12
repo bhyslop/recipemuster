@@ -423,7 +423,7 @@ class GADFactory:
         try:
             # Get all commit hashes from our manifest
             manifest_hashes = [c['hash'] for c in self.manifest['commits']]
-            hash_list = ' '.join(manifest_hashes)
+            hash_list = '\n'.join(manifest_hashes)
             
             # Get them in parent chain traversal order (oldest first)
             result = subprocess.run([
