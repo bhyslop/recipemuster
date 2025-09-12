@@ -63,6 +63,14 @@
             color: #666;
         }
 
+        .commit-comparison {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #333;
+            margin-left: 12px;
+            font-weight: normal;
+        }
+
         .rail {
             background: white;
             border-radius: 0 0 8px 8px;
@@ -292,13 +300,14 @@
 </head>
 <body>
     <div class="header">
-        <div class="comparison-header" id="comparisonHeader">GAD Inspector</div>
+        <div class="comparison-header">GAD Inspector</div>
         <div class="status-section" id="statusSection"></div>
     </div>
 
     <div class="workspace">
         <div class="rail-header">
             F <button class="swap-button" id="swapButton" title="Transpose rail positions">⇄</button> T
+            <div class="commit-comparison" id="comparisonHeader"></div>
         </div>
 
         <div class="rail from" id="fromRail">
