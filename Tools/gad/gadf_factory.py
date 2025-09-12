@@ -82,18 +82,32 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             gadfl_warn(f"Invalid WebSocket message: {message}")
 
     def handle_rendered_content(self, data):
-        """Handle rendered content message from Inspector."""
+        """Handle rendered content message from Inspector for gadfd_rendered_capture."""
         try:
             factory = self.application.factory
             rendered_html = data.get('content', '')
-            timestamp = time.strftime('%Y%m%d-%H%M%S')
-            filename = f"debug-rendered-{timestamp}.html"
+            
+            # Use GADS-compliant filename pattern if provided by Inspector
+            filename = data.get('filename_pattern')
+            if not filename:
+                # Fallback to old pattern for compatibility
+                timestamp = time.strftime('%Y%m%d-%H%M%S')
+                filename = f"debug-rendered-{timestamp}.html"
+            
             filepath = factory.output_dir / filename
+            source_files = data.get('source_files', [])
 
             with open(filepath, 'w', encoding='utf-8') as f:
+                # Write comment lines with source file information per GADS spec
+                if source_files:
+                    f.write("<!-- gadfd_rendered_capture source files:\n")
+                    for source_file in source_files:
+                        f.write(f"     {source_file}\n")
+                    f.write("-->\n")
+                
                 f.write(rendered_html)
 
-            gadfl_step(f"Saved rendered content to debug temp file: {filename}")
+            gadfl_step(f"Saved rendered content to gadfd_rendered_capture: {filename}")
 
         except Exception as e:
             gadfl_warn(f"Failed to save rendered content: {e}")
