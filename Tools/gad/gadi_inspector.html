@@ -36,35 +36,92 @@
             display: none;
         }
 
-        .dropdown-container {
-            display: flex;
+        .workspace {
+            display: grid;
+            grid-template-columns: 200px 200px 1fr;
+            grid-template-rows: auto 1fr;
             gap: 20px;
-            align-items: center;
-            margin-bottom: 15px;
+            height: calc(100vh - 200px);
+            margin-top: 20px;
         }
 
-        .dropdown-group {
+        .comparison-controls {
+            grid-column: 1 / 4;
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
         }
 
-        .dropdown-group label {
-            font-weight: 500;
-            color: #555;
+        .rail {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            max-height: 100%;
         }
 
-        select {
-            padding: 8px 12px;
-            border: 2px solid #ddd;
+        .rail-header {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .rail-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 2px;
             border-radius: 4px;
-            font-size: 14px;
-            min-width: 200px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
 
-        select:focus {
-            border-color: #007acc;
-            outline: none;
+        .rail-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .rail-row.selected {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+        }
+
+        .rail-label {
+            min-width: 30px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            text-align: center;
+        }
+
+        .rail-radio {
+            margin-left: auto;
+        }
+
+        .rail-commit-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .rail-hash {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .unchanged-rail-row {
+            opacity: 0.6;
+        }
+
+        .unchanged-rail-row .rail-hash::after {
+            content: " ≡";
+            color: #888;
         }
 
         .rendered-pane {
@@ -72,127 +129,77 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-height: 400px;
+            overflow-y: auto;
+            max-height: 100%;
             line-height: 1.6;
         }
 
-        .navigation-section {
+        .popover {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
             background: white;
+            border: 2px solid #007acc;
             border-radius: 8px;
-            padding: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 15px;
+            z-index: 1000;
             display: none;
+            max-width: 400px;
+            min-width: 300px;
+            font-size: 13px;
         }
 
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .popover-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
         }
 
-        .nav-button {
-            background: #007acc;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
+        .popover-field {
+            margin-bottom: 8px;
         }
 
-        .nav-button:hover {
-            background: #005a9e;
-        }
-
-        .nav-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .change-counter {
-            font-weight: 500;
+        .popover-label {
+            font-weight: bold;
             color: #555;
+            font-size: 11px;
+        }
+
+        .popover-value {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #f6f8fa;
+            padding: 4px 6px;
+            border-radius: 3px;
+            border: 1px solid #e1e4e8;
+            margin-top: 3px;
+            word-break: break-all;
+            font-size: 10px;
         }
 
         .swap-button {
             background: #007acc;
             color: white;
             border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            border-radius: 6px;
+            padding: 10px 20px;
             cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
             transition: all 0.2s ease;
-            margin: 0 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .swap-button:hover {
             background: #005a9e;
-            transform: rotate(180deg);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
         .swap-button:active {
-            transform: scale(0.95) rotate(180deg);
+            transform: scale(0.95);
         }
 
 
-        .commit-detail-overlay {
-            position: absolute;
-            background: white;
-            border: 2px solid #007acc;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            padding: 15px;
-            display: none;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 500px;
-            min-width: 350px;
-            word-wrap: break-word;
-        }
-
-        .commit-detail-content {
-            /* Content styling for the popup */
-        }
-
-        .commit-detail-header {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-        }
-
-        .commit-detail-field {
-            margin-bottom: 10px;
-        }
-
-        .commit-detail-label {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        .commit-detail-value {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            background: #f6f8fa;
-            padding: 6px 8px;
-            border-radius: 3px;
-            border: 1px solid #e1e4e8;
-            white-space: pre-wrap;
-            font-size: 12px;
-            overflow-wrap: break-word;
-        }
 
 
         .unchanged-commit {
@@ -276,41 +283,36 @@
     <div class="header">
         <div class="comparison-header" id="comparisonHeader">GAD Inspector</div>
         <div class="status-section" id="statusSection"></div>
+    </div>
 
-        <div class="dropdown-container">
-            <div class="dropdown-group">
-                <label for="fromDropdown">From:</label>
-                <select id="fromDropdown">
-                    <option value="">Loading...</option>
-                </select>
+    <div class="workspace">
+        <div class="comparison-controls">
+            <span style="font-weight: bold; color: #666;">F ⇄ T</span>
+            <button class="swap-button" id="swapButton" title="Transpose rail positions">Swap Rails</button>
+        </div>
+
+        <div class="rail" id="fromRail">
+            <div class="rail-header">From Rail</div>
+            <div id="fromRailContent">
+                <div class="loading">Loading...</div>
             </div>
+        </div>
 
-            <button class="swap-button" id="swapButton" title="Swap from/to selections">⇄</button>
-
-            <div class="dropdown-group">
-                <label for="toDropdown">To:</label>
-                <select id="toDropdown">
-                    <option value="">Loading...</option>
-                </select>
+        <div class="rail" id="toRail">
+            <div class="rail-header">To Rail</div>
+            <div id="toRailContent">
+                <div class="loading">Loading...</div>
             </div>
+        </div>
 
+        <div class="rendered-pane" id="renderedPane">
+            <div class="loading">Loading manifest...</div>
         </div>
     </div>
 
-    <div class="rendered-pane" id="renderedPane">
-        <div class="loading">Loading manifest...</div>
-    </div>
-
-    <div class="navigation-section" id="navigationSection">
-        <div class="nav-controls">
-            <button class="nav-button" id="previousButton">Previous</button>
-            <span class="change-counter" id="changeCounter">Change 0 of 0</span>
-            <button class="nav-button" id="nextButton">Next</button>
-        </div>
-    </div>
-
-    <div class="commit-detail-overlay" id="commitDetailOverlay">
-        <div class="commit-detail-content" id="commitDetailContent">
+    <div class="popover" id="commitPopover">
+        <div class="popover-header">Commit Details</div>
+        <div id="commitPopoverContent">
         </div>
     </div>
 
@@ -465,17 +467,19 @@
                 this.elements = {
                     comparisonHeader: document.getElementById('comparisonHeader'),
                     statusSection: document.getElementById('statusSection'),
-                    fromDropdown: document.getElementById('fromDropdown'),
+                    fromRail: document.getElementById('fromRail'),
+                    fromRailContent: document.getElementById('fromRailContent'),
+                    toRail: document.getElementById('toRail'),
+                    toRailContent: document.getElementById('toRailContent'),
                     swapButton: document.getElementById('swapButton'),
-                    toDropdown: document.getElementById('toDropdown'),
                     renderedPane: document.getElementById('renderedPane'),
-                    navigationSection: document.getElementById('navigationSection'),
-                    previousButton: document.getElementById('previousButton'),
-                    nextButton: document.getElementById('nextButton'),
-                    changeCounter: document.getElementById('changeCounter'),
-                    commitDetailOverlay: document.getElementById('commitDetailOverlay'),
-                    commitDetailContent: document.getElementById('commitDetailContent'),
+                    commitPopover: document.getElementById('commitPopover'),
+                    commitPopoverContent: document.getElementById('commitPopoverContent'),
                 };
+
+                // Initialize selections
+                this.selectedFrom = null;
+                this.selectedTo = null;
 
                 // Check if all elements were found
                 Object.entries(this.elements).forEach(([key, element]) => {
@@ -487,74 +491,44 @@
             }
 
             setupEventListeners() {
-                this.elements.fromDropdown.addEventListener('change', () => this.onDropdownChange());
-                this.elements.toDropdown.addEventListener('change', () => this.onDropdownChange());
                 this.elements.swapButton.addEventListener('click', () => this.onSwapClick());
 
-                this.elements.previousButton.addEventListener('click', () => this.previousChange());
-                this.elements.nextButton.addEventListener('click', () => this.nextChange());
-
-
-                // Keyboard shortcuts
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'j') this.nextChange();
-                    if (e.key === 'k') this.previousChange();
-                    if (e.key >= '1' && e.key <= '9') {
-                        const index = parseInt(e.key) - 1;
-                        if (index < this.currentChanges.length) {
-                            this.currentChangeIndex = index;
-                            this.highlightChange();
-                        }
-                    }
-                });
-
-                // GADS compliant: hover-based commit detail popup
+                // Rail hover for popover display
                 let hoverTimeout;
-                let currentPopupDropdown = null;
+                let currentHoveredRow = null;
 
-                [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
-                    dropdown.addEventListener('mouseover', (e) => {
+                [this.elements.fromRail, this.elements.toRail].forEach(rail => {
+                    rail.addEventListener('mouseover', (e) => {
+                        const railRow = e.target.closest('.rail-row');
+                        if (!railRow) return;
+
                         // Clear any existing timeout
                         if (hoverTimeout) {
                             clearTimeout(hoverTimeout);
                         }
 
-                        // Store which dropdown we're hovering over
-                        currentPopupDropdown = dropdown;
+                        currentHoveredRow = railRow;
 
-                        // GADS compliant: 200ms delay before showing popup
+                        // Show popover after 200ms delay (GADS compliant)
                         hoverTimeout = setTimeout(() => {
-                            this.showCommitDetailPopup(e, dropdown);
+                            this.showCommitPopover(e, railRow);
                         }, 200);
                     });
 
-                    dropdown.addEventListener('mouseout', () => {
+                    rail.addEventListener('mouseout', (e) => {
+                        const railRow = e.target.closest('.rail-row');
+                        if (!railRow) return;
+
                         // Clear timeout if mouse leaves before delay
                         if (hoverTimeout) {
                             clearTimeout(hoverTimeout);
                             hoverTimeout = null;
                         }
 
-                        // Clear current dropdown reference
-                        currentPopupDropdown = null;
+                        currentHoveredRow = null;
 
-                        // GADS compliant: immediate dismissal when leaving dropdown area
-                        this.hideCommitDetailPopup();
-                    });
-
-                    // Update popup content when selection changes while popup is visible
-                    dropdown.addEventListener('change', (e) => {
-                        if (this.elements.commitDetailOverlay.style.display === 'block' && currentPopupDropdown === dropdown) {
-                            this.updateCommitDetailPopup(e, dropdown);
-                        }
-                    });
-
-                    // Listen for mouse movement within dropdown to detect option hover changes
-                    dropdown.addEventListener('mousemove', (e) => {
-                        if (this.elements.commitDetailOverlay.style.display === 'block' && currentPopupDropdown === dropdown) {
-                            // Update popup content when mouse moves over different options
-                            this.updateCommitDetailPopup(e, dropdown);
-                        }
+                        // Hide popover immediately (GADS compliant)
+                        this.hideCommitPopover();
                     });
                 });
 
@@ -584,9 +558,9 @@
                     // Now that Factory is confirmed available, attempt WebSocket connection
                     wsTraceHandler.connectAfterManifest();
 
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting populateDropdowns');
-                    this.populateDropdowns();
-                    wsTraceHandler.sendTrace('[DEBUG]', 'populateDropdowns completed');
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting populateRails');
+                    this.populateRails();
+                    wsTraceHandler.sendTrace('[DEBUG]', 'populateRails completed');
 
                     wsTraceHandler.sendTrace('[DEBUG]', 'Starting parseUrlHash');
                     this.parseUrlHash();
@@ -604,53 +578,119 @@
                 }
             }
 
-            populateDropdowns() {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Clearing dropdown options');
-                // Clear existing options
-                this.elements.fromDropdown.innerHTML = '';
-                this.elements.toDropdown.innerHTML = '';
+            populateRails() {
+                wsTraceHandler.sendTrace('[DEBUG]', 'Clearing rail content');
+                // Clear existing content
+                this.elements.fromRailContent.innerHTML = '';
+                this.elements.toRailContent.innerHTML = '';
 
-                wsTraceHandler.sendTrace('[DEBUG]', 'Adding magic values to dropdowns');
-                // Add magic values to from dropdown
-                this.addOption(this.elements.fromDropdown, 'before-last', 'before-last (previous commit)');
-                this.addOption(this.elements.fromDropdown, 'before-substantive', 'before-substantive (last different)');
+                wsTraceHandler.sendTrace('[DEBUG]', 'Adding magic values to rails');
+                // Add magic values to from rail
+                this.addRailRow(this.elements.fromRailContent, 'before-last', '-1', 'from');
+                this.addRailRow(this.elements.fromRailContent, 'before-substantive', 'BS', 'from');
 
-                // Add magic value to to dropdown
-                this.addOption(this.elements.toDropdown, 'latest', 'latest (newest commit)');
+                // Add magic value to to rail  
+                this.addRailRow(this.elements.toRailContent, 'latest', 'H', 'to');
 
-                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${this.manifest.commits.length} commits for dropdowns`);
-                // Add commits to both dropdowns
+                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${this.manifest.commits.length} commits for rails`);
+                // Add commits to both rails in reverse chronological order
                 this.manifest.commits.forEach((commit, index) => {
                     wsTraceHandler.sendTrace('[DEBUG]', `Processing commit ${index + 1}: ${commit.hash.substring(0, 8)}`);
                     const isUnchanged = index > 0 &&
                         commit.html_sha256 === this.manifest.commits[index - 1].html_sha256;
 
-                    const shortHash = commit.hash.substring(0, 7); // GADS compliant: first 7 characters
-                    const text = shortHash; // GADS compliant: exclude commit messages from dropdown display
+                    // Calculate position label (H for latest, -1, -2, etc.)
+                    const position = index === this.manifest.commits.length - 1 ? 'H' : 
+                                   `-${this.manifest.commits.length - index - 1}`;
+                    
+                    const shortHash = commit.hash.substring(0, 7);
 
-                    this.addOption(this.elements.fromDropdown, commit.hash, text, isUnchanged);
-                    this.addOption(this.elements.toDropdown, commit.hash, text, isUnchanged);
+                    this.addRailRow(this.elements.fromRailContent, commit.hash, position, 'from', shortHash, isUnchanged);
+                    this.addRailRow(this.elements.toRailContent, commit.hash, position, 'to', shortHash, isUnchanged);
                 });
-                wsTraceHandler.sendTrace('[DEBUG]', 'Dropdown population completed');
+                wsTraceHandler.sendTrace('[DEBUG]', 'Rail population completed');
             }
 
-            addOption(dropdown, value, text, isUnchanged = false) {
-                const option = document.createElement('option');
-                option.value = value;
-                option.textContent = text;
-                if (isUnchanged) {
-                    option.className = 'unchanged-commit';
+            addRailRow(railContent, value, label, railType, hashText = null, isUnchanged = false) {
+                const row = document.createElement('div');
+                row.className = 'rail-row' + (isUnchanged ? ' unchanged-rail-row' : '');
+                row.dataset.value = value;
+                row.dataset.railType = railType;
+
+                const labelElement = document.createElement('div');
+                labelElement.className = 'rail-label';
+                labelElement.textContent = label;
+
+                const commitInfo = document.createElement('div');
+                commitInfo.className = 'rail-commit-info';
+                
+                if (hashText) {
+                    const hashElement = document.createElement('div');
+                    hashElement.className = 'rail-hash';
+                    hashElement.textContent = hashText;
+                    commitInfo.appendChild(hashElement);
+                } else {
+                    commitInfo.textContent = value; // For magic values
                 }
 
-                // Add hover listeners to individual options for popup updates
-                option.addEventListener('mouseenter', (e) => {
-                    if (this.elements.commitDetailOverlay.style.display === 'block') {
-                        // Update popup content when hovering over this specific option
-                        this.updateCommitDetailPopupForOption(option, dropdown);
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = railType + 'Selection';
+                radio.className = 'rail-radio';
+                radio.value = value;
+
+                // Add click handler for selection
+                row.addEventListener('click', () => {
+                    this.selectRailRow(row, railType);
+                });
+
+                radio.addEventListener('change', () => {
+                    if (radio.checked) {
+                        this.selectRailRow(row, railType);
                     }
                 });
 
-                dropdown.appendChild(option);
+                row.appendChild(labelElement);
+                row.appendChild(commitInfo);
+                row.appendChild(radio);
+
+                railContent.appendChild(row);
+            }
+
+            selectRailRow(row, railType) {
+                const value = row.dataset.value;
+                
+                // Clear previous selection in this rail
+                const railContent = railType === 'from' ? this.elements.fromRailContent : this.elements.toRailContent;
+                railContent.querySelectorAll('.rail-row').forEach(r => r.classList.remove('selected'));
+                
+                // Set new selection
+                row.classList.add('selected');
+                const radio = row.querySelector('.rail-radio');
+                if (radio) radio.checked = true;
+
+                // Store selection
+                if (railType === 'from') {
+                    this.selectedFrom = value;
+                } else {
+                    this.selectedTo = value;
+                }
+
+                wsTraceHandler.sendTrace('[SELECTION]', `${railType} rail selected: ${value}`);
+                
+                this.updateUrlHash();
+                this.performDiff();
+            }
+
+            setRailSelection(railType, value) {
+                const railContent = railType === 'from' ? this.elements.fromRailContent : this.elements.toRailContent;
+                const targetRow = railContent.querySelector(`[data-value="${value}"]`);
+                
+                if (targetRow) {
+                    this.selectRailRow(targetRow, railType);
+                } else {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Rail row not found for value: ${value} in ${railType} rail`);
+                }
             }
 
             parseUrlHash() {
@@ -663,12 +703,12 @@
                 wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromValue}", to: "${toValue}"`);
 
                 if (fromValue) {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Setting fromDropdown to: ${fromValue}`);
-                    this.elements.fromDropdown.value = fromValue;
+                    wsTraceHandler.sendTrace('[DEBUG]', `Setting from rail to: ${fromValue}`);
+                    this.setRailSelection('from', fromValue);
                 }
                 if (toValue) {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Setting toDropdown to: ${toValue}`);
-                    this.elements.toDropdown.value = toValue;
+                    wsTraceHandler.sendTrace('[DEBUG]', `Setting to rail to: ${toValue}`);
+                    this.setRailSelection('to', toValue);
                 }
 
                 if (fromValue || toValue) {
@@ -679,35 +719,22 @@
                 }
             }
 
-            onDropdownChange() {
-                const fromValue = this.elements.fromDropdown.value;
-                const toValue = this.elements.toDropdown.value;
-
-                wsTraceHandler.sendTrace('[DROPDOWN]', `From changed to: ${fromValue}`);
-                wsTraceHandler.sendTrace('[DROPDOWN]', `To changed to: ${toValue}`);
-
-                this.updateUrlHash();
-                this.performDiff();
-            }
-
             onSwapClick() {
-                const fromValue = this.elements.fromDropdown.value;
-                const toValue = this.elements.toDropdown.value;
+                const fromValue = this.selectedFrom;
+                const toValue = this.selectedTo;
 
-                wsTraceHandler.sendTrace('[SWAP]', `Swapping from/to: ${fromValue} <-> ${toValue}`);
+                wsTraceHandler.sendTrace('[SWAP]', `Transposing rail positions: ${fromValue} <-> ${toValue}`);
 
-                // Exchange the dropdown values
-                this.elements.fromDropdown.value = toValue;
-                this.elements.toDropdown.value = fromValue;
+                // Transpose the column positions by exchanging selections
+                this.setRailSelection('from', toValue);
+                this.setRailSelection('to', fromValue);
 
-                // Update URL and trigger diff sequence
-                this.updateUrlHash();
-                this.performDiff();
+                // The setRailSelection calls will handle URL update and diff
             }
 
             updateUrlHash() {
-                const fromValue = this.elements.fromDropdown.value;
-                const toValue = this.elements.toDropdown.value;
+                const fromValue = this.selectedFrom;
+                const toValue = this.selectedTo;
 
                 if (fromValue && toValue) {
                     window.location.hash = `from=${encodeURIComponent(fromValue)}&to=${encodeURIComponent(toValue)}`;
@@ -715,8 +742,8 @@
             }
 
             async performDiff() {
-                const fromValue = this.elements.fromDropdown.value;
-                const toValue = this.elements.toDropdown.value;
+                const fromValue = this.selectedFrom;
+                const toValue = this.selectedTo;
 
                 if (!fromValue || !toValue) return;
 
@@ -812,10 +839,6 @@
                     // Send rendered content to Factory via WebSocket for debug temp file
                     wsTraceHandler.sendRenderedContent(styledDiff);
 
-                    // Count changes for navigation - updated for GADS classifications
-                    this.currentChanges = this.elements.renderedPane.querySelectorAll('.diff-deletion, .diff-insertion, .diff-moved, .diff-modification');
-                    this.currentChangeIndex = 0;
-
                     // Enhanced logging for Factory debugging
                     const changeTypeBreakdown = {
                         insertions: this.elements.renderedPane.querySelectorAll('.diff-insertion').length,
@@ -824,14 +847,15 @@
                         modifications: this.elements.renderedPane.querySelectorAll('.diff-modification').length
                     };
 
+                    const totalChanges = changeTypeBreakdown.insertions + changeTypeBreakdown.moves + 
+                                       changeTypeBreakdown.deletions + changeTypeBreakdown.modifications;
+
                     // Debug trace for change counting
-                    wsTraceHandler.sendTrace('[COUNT]', `Found ${this.currentChanges.length} total change elements in rendered output`);
+                    wsTraceHandler.sendTrace('[COUNT]', `Found ${totalChanges} total changes in rendered output`);
                     wsTraceHandler.sendTrace('[COUNT]', `Breakdown: ${changeTypeBreakdown.insertions} insertions, ${changeTypeBreakdown.moves} moves, ${changeTypeBreakdown.deletions} deletions, ${changeTypeBreakdown.modifications} modifications`);
 
-                    wsTraceHandler.sendTrace('[DIFF]', `Completion with ${this.currentChanges.length} total changes`);
+                    wsTraceHandler.sendTrace('[DIFF]', `Completion with ${totalChanges} total changes`);
                     wsTraceHandler.sendTrace('[DIFF]', `Change breakdown: ${JSON.stringify(changeTypeBreakdown)}`);
-
-                    this.updateNavigation();
 
                 } catch (error) {
                     // Enhanced error reporting for Factory debugging
@@ -1447,48 +1471,6 @@
 
 
 
-            updateNavigation() {
-                if (this.currentChanges.length > 0) {
-                    this.elements.navigationSection.style.display = 'block';
-                    this.elements.changeCounter.textContent =
-                        `Change ${this.currentChangeIndex + 1} of ${this.currentChanges.length}`;
-
-                    this.elements.previousButton.disabled = this.currentChangeIndex === 0;
-                    this.elements.nextButton.disabled = this.currentChangeIndex === this.currentChanges.length - 1;
-
-                    this.highlightChange();
-                } else {
-                    this.elements.navigationSection.style.display = 'none';
-                }
-            }
-
-            highlightChange() {
-                // Remove previous highlights
-                this.currentChanges.forEach(change => {
-                    change.style.outline = '';
-                });
-
-                // Highlight current change
-                if (this.currentChanges[this.currentChangeIndex]) {
-                    const currentChange = this.currentChanges[this.currentChangeIndex];
-                    currentChange.style.outline = '2px solid #007acc';
-                    currentChange.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-
-            previousChange() {
-                if (this.currentChangeIndex > 0) {
-                    this.currentChangeIndex--;
-                    this.updateNavigation();
-                }
-            }
-
-            nextChange() {
-                if (this.currentChangeIndex < this.currentChanges.length - 1) {
-                    this.currentChangeIndex++;
-                    this.updateNavigation();
-                }
-            }
 
             showStatusMessage(message) {
                 this.elements.statusSection.textContent = message;
@@ -1499,100 +1481,87 @@
                 this.elements.statusSection.style.display = 'none';
             }
 
-            showCommitDetailPopup(event, dropdown) {
-                // Only show if hovering over a dropdown with a selected value
-                if (!dropdown || dropdown.tagName !== 'SELECT') return;
+            showCommitPopover(event, railRow) {
+                const value = railRow.dataset.value;
+                const commit = this.resolveCommit(value);
+                if (!commit && !['latest', 'before-last', 'before-substantive'].includes(value)) return;
 
-                const option = dropdown.options[dropdown.selectedIndex];
-                if (!option || option.value === '') return;
+                // Position popover in upper-left of render pane (GADS compliant)
+                this.positionPopoverInRenderPane();
 
-                // Position popup near the dropdown
-                this.positionPopupNearDropdown(dropdown);
+                // Update popover content
+                this.updateCommitPopoverContent(value, commit);
 
-                // Update popup content
-                this.updateCommitDetailPopup(event, dropdown);
-
-                // Show the popup (no content replacement)
-                this.elements.commitDetailOverlay.style.display = 'block';
+                // Show the popover
+                this.elements.commitPopover.style.display = 'block';
             }
 
-            updateCommitDetailPopup(event, dropdown) {
-                if (!dropdown || dropdown.tagName !== 'SELECT') return;
-
-                // Use the currently selected option when dropdown events fire
-                const hoveredOption = dropdown.options[dropdown.selectedIndex];
-                if (!hoveredOption || hoveredOption.value === '') return;
-
-                this.updateCommitDetailPopupForOption(hoveredOption, dropdown);
-            }
-
-            updateCommitDetailPopupForOption(option, dropdown) {
-                if (!option || option.value === '') return;
-
-                const commit = this.resolveCommit(option.value);
-                if (!commit) return;
-
-                // GADS compliant: popup with full commit details
-                this.elements.commitDetailContent.innerHTML = `
-                    <div class="commit-detail-header">Commit Details</div>
-
-                    <div class="commit-detail-field">
-                        <div class="commit-detail-label">Full SHA:</div>
-                        <div class="commit-detail-value">${commit.hash}</div>
-                    </div>
-
-                    <div class="commit-detail-field">
-                        <div class="commit-detail-label">Date:</div>
-                        <div class="commit-detail-value">${commit.date || 'Not available'}</div>
-                    </div>
-
-                    <div class="commit-detail-field">
-                        <div class="commit-detail-label">Commit Message:</div>
-                        <div class="commit-detail-value">${commit.message}</div>
-                    </div>
-
-                    <div class="commit-detail-field">
-                        <div class="commit-detail-label">HTML File:</div>
-                        <div class="commit-detail-value">${commit.html_file}</div>
-                    </div>
-
-                    <div class="commit-detail-field">
-                        <div class="commit-detail-label">HTML SHA256:</div>
-                        <div class="commit-detail-value">${commit.html_sha256}</div>
-                    </div>
-                `;
-            }
-
-            hideCommitDetailPopup() {
-                // Simply hide the popup - no content restoration needed
-                this.elements.commitDetailOverlay.style.display = 'none';
-            }
-
-            positionPopupNearDropdown(dropdown) {
-                // Position the popup near the dropdown that was hovered
-                const dropdownRect = dropdown.getBoundingClientRect();
-                const popup = this.elements.commitDetailOverlay;
-
-                // Position to the right of the dropdown if there's space, otherwise to the left
-                const spaceToRight = window.innerWidth - dropdownRect.right;
-                const popupWidth = 400; // Approximate width
-
-                if (spaceToRight >= popupWidth + 20) {
-                    // Position to the right
-                    popup.style.left = (dropdownRect.right + 10) + 'px';
+            updateCommitPopoverContent(value, commit) {
+                if (commit) {
+                    // Real commit details
+                    this.elements.commitPopoverContent.innerHTML = `
+                        <div class="popover-field">
+                            <div class="popover-label">Full SHA:</div>
+                            <div class="popover-value">${commit.hash}</div>
+                        </div>
+                        <div class="popover-field">
+                            <div class="popover-label">Date:</div>
+                            <div class="popover-value">${commit.date || 'Not available'}</div>
+                        </div>
+                        <div class="popover-field">
+                            <div class="popover-label">Message:</div>
+                            <div class="popover-value">${commit.message}</div>
+                        </div>
+                        <div class="popover-field">
+                            <div class="popover-label">HTML File:</div>
+                            <div class="popover-value">${commit.html_file}</div>
+                        </div>
+                        <div class="popover-field">
+                            <div class="popover-label">HTML SHA256:</div>
+                            <div class="popover-value">${commit.html_sha256}</div>
+                        </div>
+                    `;
                 } else {
-                    // Position to the left
-                    popup.style.left = (dropdownRect.left - popupWidth - 10) + 'px';
-                }
+                    // Magic value details
+                    let description = '';
+                    switch(value) {
+                        case 'latest':
+                            description = 'Latest commit (HEAD)';
+                            break;
+                        case 'before-last':
+                            description = 'Previous commit (-1)';
+                            break;
+                        case 'before-substantive':
+                            description = 'Last substantive change (skips identical renders)';
+                            break;
+                        default:
+                            description = 'Magic value';
+                    }
 
-                // Position vertically aligned with dropdown top
-                popup.style.top = dropdownRect.top + 'px';
-
-                // Ensure popup doesn't go off screen vertically
-                const popupHeight = 300; // Approximate height
-                if (dropdownRect.top + popupHeight > window.innerHeight) {
-                    popup.style.top = (window.innerHeight - popupHeight - 20) + 'px';
+                    this.elements.commitPopoverContent.innerHTML = `
+                        <div class="popover-field">
+                            <div class="popover-label">Magic Value:</div>
+                            <div class="popover-value">${value}</div>
+                        </div>
+                        <div class="popover-field">
+                            <div class="popover-label">Description:</div>
+                            <div class="popover-value">${description}</div>
+                        </div>
+                    `;
                 }
+            }
+
+            hideCommitPopover() {
+                this.elements.commitPopover.style.display = 'none';
+            }
+
+            positionPopoverInRenderPane() {
+                // Position in upper-left of render pane as per GADS specification
+                const renderPaneRect = this.elements.renderedPane.getBoundingClientRect();
+                const popover = this.elements.commitPopover;
+
+                popover.style.left = (renderPaneRect.left + 20) + 'px';
+                popover.style.top = (renderPaneRect.top + 20) + 'px';
             }
 
 
