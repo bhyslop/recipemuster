@@ -449,15 +449,21 @@
                 }
             }
 
-            sendRenderedContent(htmlContent) {
-                // Send rendered content to Factory for debug temp file creation if WebSocket available
+            sendRenderedContent(htmlContent, fromCommit, toCommit, sourceFiles) {
+                // Send rendered content to Factory for gadfd_rendered_capture creation if WebSocket available
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                     try {
+                        const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
+                        const fromHash = fromCommit ? fromCommit.hash.substring(0, 12) : 'unknown';
+                        const toHash = toCommit ? toCommit.hash.substring(0, 12) : 'unknown';
+                        
                         this.ws.send(JSON.stringify({
                             type: 'rendered_content',
-                            content: htmlContent
+                            content: htmlContent,
+                            filename_pattern: `debug-rendered-${fromHash}-${toHash}-${timestamp}.html`,
+                            source_files: sourceFiles || []
                         }));
-                        console.log('[RENDERED-CONTENT] Sent to Factory for debug temp file');
+                        console.log('[RENDERED-CONTENT] Sent to Factory for gadfd_rendered_capture creation');
                     } catch (error) {
                         console.log(`[WS-ERROR] Failed to send rendered content: ${error}`);
                     }
@@ -863,8 +869,14 @@
 
                     this.elements.renderedPane.innerHTML = styledDiff;
 
-                    // Send rendered content to Factory via WebSocket for debug temp file
-                    wsTraceHandler.sendRenderedContent(styledDiff);
+                    // Prepare source file information for gadfd_rendered_capture
+                    const sourceFiles = [
+                        `From: /output/${fromCommit.html_file}`,
+                        `To: /output/${toCommit.html_file}`
+                    ];
+
+                    // Send rendered content to Factory via WebSocket for gadfd_rendered_capture
+                    wsTraceHandler.sendRenderedContent(styledDiff, fromCommit, toCommit, sourceFiles);
 
                     // Enhanced logging for Factory debugging
                     const changeTypeBreakdown = {
