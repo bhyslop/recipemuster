@@ -592,16 +592,11 @@
                 this.elements.fromRailContent.innerHTML = '';
                 this.elements.toRailContent.innerHTML = '';
 
-                wsTraceHandler.sendTrace('[DEBUG]', 'Adding magic values to rails');
-                // Add magic values to from rail
-                this.addRailRow(this.elements.fromRailContent, 'before-last', '-1', 'from');
-                this.addRailRow(this.elements.fromRailContent, 'before-substantive', 'BS', 'from');
-
-                // Add magic value to to rail  
-                this.addRailRow(this.elements.toRailContent, 'latest', 'H', 'to');
+                wsTraceHandler.sendTrace('[DEBUG]', 'Rails will be populated with commits only (no magic values)');
 
                 wsTraceHandler.sendTrace('[DEBUG]', `Processing ${this.manifest.commits.length} commits for rails`);
                 // Add commits to both rails in reverse chronological order
+                // Use position labels as values instead of commit hashes
                 this.manifest.commits.forEach((commit, index) => {
                     wsTraceHandler.sendTrace('[DEBUG]', `Processing commit ${index + 1}: ${commit.hash.substring(0, 8)}`);
                     const isUnchanged = index > 0 &&
@@ -613,17 +608,36 @@
                     
                     const shortHash = commit.hash.substring(0, 7);
 
-                    this.addRailRow(this.elements.fromRailContent, commit.hash, position, 'from', shortHash, isUnchanged);
-                    this.addRailRow(this.elements.toRailContent, commit.hash, position, 'to', shortHash, isUnchanged);
+                    // Use position as the value, store commit data in dataset
+                    this.addRailRow(this.elements.fromRailContent, position, position, 'from', shortHash, isUnchanged, commit);
+                    this.addRailRow(this.elements.toRailContent, position, position, 'to', shortHash, isUnchanged, commit);
                 });
                 wsTraceHandler.sendTrace('[DEBUG]', 'Rail population completed');
+                
+                // Set default selections per GADS spec: From = -1, To = H
+                this.setDefaultSelections();
+            }
+            
+            setDefaultSelections() {
+                // Only set defaults if no current selections
+                if (!this.selectedFrom && !this.selectedTo) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Setting default selections: From = -1, To = H');
+                    this.setRailSelection('from', '-1', true);  // Skip diff on first
+                    this.setRailSelection('to', 'H', false);    // Perform diff on second
+                }
             }
 
-            addRailRow(railContent, value, label, railType, hashText = null, isUnchanged = false) {
+            addRailRow(railContent, value, label, railType, hashText = null, isUnchanged = false, commit = null) {
                 const row = document.createElement('div');
                 row.className = 'rail-row' + (isUnchanged ? ' unchanged-rail-row' : '');
                 row.dataset.value = value;
                 row.dataset.railType = railType;
+                
+                // Store commit data for position resolution
+                if (commit) {
+                    row.dataset.commitHash = commit.hash;
+                    row.dataset.commitData = JSON.stringify(commit);
+                }
 
                 const labelElement = document.createElement('div');
                 labelElement.className = 'rail-label';
@@ -665,7 +679,7 @@
                 railContent.appendChild(row);
             }
 
-            selectRailRow(row, railType) {
+            selectRailRow(row, railType, skipDiff = false) {
                 const value = row.dataset.value;
                 
                 // Clear previous selection in this rail
@@ -678,6 +692,7 @@
                 if (radio) radio.checked = true;
 
                 // Store selection
+                const previousValue = railType === 'from' ? this.selectedFrom : this.selectedTo;
                 if (railType === 'from') {
                     this.selectedFrom = value;
                 } else {
@@ -686,16 +701,19 @@
 
                 wsTraceHandler.sendTrace('[SELECTION]', `${railType} rail selected: ${value}`);
                 
-                this.updateUrlHash();
-                this.performDiff();
+                // Only perform diff if selection actually changed and not skipped
+                if (previousValue !== value && !skipDiff) {
+                    this.updateUrlHash();
+                    this.performDiff();
+                }
             }
 
-            setRailSelection(railType, value) {
+            setRailSelection(railType, value, skipDiff = false) {
                 const railContent = railType === 'from' ? this.elements.fromRailContent : this.elements.toRailContent;
                 const targetRow = railContent.querySelector(`[data-value="${value}"]`);
                 
                 if (targetRow) {
-                    this.selectRailRow(targetRow, railType);
+                    this.selectRailRow(targetRow, railType, skipDiff);
                 } else {
                     wsTraceHandler.sendTrace('[DEBUG]', `Rail row not found for value: ${value} in ${railType} rail`);
                 }
@@ -734,10 +752,12 @@
                 wsTraceHandler.sendTrace('[SWAP]', `Transposing rail positions: ${fromValue} <-> ${toValue}`);
 
                 // Transpose the column positions by exchanging selections
-                this.setRailSelection('from', toValue);
-                this.setRailSelection('to', fromValue);
+                // Skip diff on first selection, perform only on second
+                this.setRailSelection('from', toValue, true);  // Skip diff
+                this.setRailSelection('to', fromValue, false); // Perform diff
 
-                // The setRailSelection calls will handle URL update and diff
+                // Update URL hash after both selections are set
+                this.updateUrlHash();
             }
 
             updateUrlHash() {
@@ -794,27 +814,16 @@
                 }
             }
 
-            resolveCommit(value) {
-                if (value === 'latest') {
+            resolveCommit(positionValue) {
+                if (positionValue === 'H') {
                     return this.manifest.commits[this.manifest.commits.length - 1];
-                } else if (value === 'before-last') {
-                    return this.manifest.commits[this.manifest.commits.length - 2];
-                } else if (value === 'before-substantive') {
-                    const latest = this.manifest.commits[this.manifest.commits.length - 1];
-                    let skippedCount = 0;
-                    for (let i = this.manifest.commits.length - 2; i >= 0; i--) {
-                        if (this.manifest.commits[i].html_sha256 !== latest.html_sha256) {
-                            if (skippedCount > 0) {
-                                wsTraceHandler.sendTrace('[RESOLVE]', `Skipped ${skippedCount} unchanged commits for before-substantive`);
-                                this.showStatusMessage(`Skipped ${skippedCount} unchanged commits to find last substantive change`);
-                            }
-                            return this.manifest.commits[i];
-                        }
-                        skippedCount++;
-                    }
-                    return this.manifest.commits[0];
+                } else if (positionValue.startsWith('-')) {
+                    const offset = parseInt(positionValue.substring(1));
+                    const index = this.manifest.commits.length - 1 - offset;
+                    return index >= 0 ? this.manifest.commits[index] : null;
                 } else {
-                    return this.manifest.commits.find(c => c.hash === value);
+                    // Fallback: try to find by commit hash (for URL compatibility)
+                    return this.manifest.commits.find(c => c.hash === positionValue);
                 }
             }
 
@@ -1492,7 +1501,7 @@
             showCommitPopover(event, railRow) {
                 const value = railRow.dataset.value;
                 const commit = this.resolveCommit(value);
-                if (!commit && !['latest', 'before-last', 'before-substantive'].includes(value)) return;
+                if (!commit) return;
 
                 // Position popover in upper-left of render pane (GADS compliant)
                 this.positionPopoverInRenderPane();
@@ -1505,58 +1514,44 @@
             }
 
             updateCommitPopoverContent(value, commit) {
-                if (commit) {
-                    // Real commit details
-                    this.elements.commitPopoverContent.innerHTML = `
-                        <div class="popover-field">
-                            <div class="popover-label">Full SHA:</div>
-                            <div class="popover-value">${commit.hash}</div>
-                        </div>
-                        <div class="popover-field">
-                            <div class="popover-label">Date:</div>
-                            <div class="popover-value">${commit.date || 'Not available'}</div>
-                        </div>
-                        <div class="popover-field">
-                            <div class="popover-label">Message:</div>
-                            <div class="popover-value">${commit.message}</div>
-                        </div>
-                        <div class="popover-field">
-                            <div class="popover-label">HTML File:</div>
-                            <div class="popover-value">${commit.html_file}</div>
-                        </div>
-                        <div class="popover-field">
-                            <div class="popover-label">HTML SHA256:</div>
-                            <div class="popover-value">${commit.html_sha256}</div>
-                        </div>
-                    `;
-                } else {
-                    // Magic value details
-                    let description = '';
-                    switch(value) {
-                        case 'latest':
-                            description = 'Latest commit (HEAD)';
-                            break;
-                        case 'before-last':
-                            description = 'Previous commit (-1)';
-                            break;
-                        case 'before-substantive':
-                            description = 'Last substantive change (skips identical renders)';
-                            break;
-                        default:
-                            description = 'Magic value';
-                    }
+                // Determine status for GADMRC memo compliance
+                const isHead = value === 'H';
+                const isUnchanged = commit && this.manifest.commits.length > 1 &&
+                    this.manifest.commits.some((c, i) => 
+                        i > 0 && c.hash === commit.hash && 
+                        c.html_sha256 === this.manifest.commits[i-1].html_sha256
+                    );
+                
+                const status = isHead ? "HEAD" : (isUnchanged ? "No substantive change" : "Changed");
 
-                    this.elements.commitPopoverContent.innerHTML = `
-                        <div class="popover-field">
-                            <div class="popover-label">Magic Value:</div>
-                            <div class="popover-value">${value}</div>
-                        </div>
-                        <div class="popover-field">
-                            <div class="popover-label">Description:</div>
-                            <div class="popover-value">${description}</div>
-                        </div>
-                    `;
-                }
+                this.elements.commitPopoverContent.innerHTML = `
+                    <div class="popover-field">
+                        <div class="popover-label">Position:</div>
+                        <div class="popover-value">${value}</div>
+                    </div>
+                    <div class="popover-field">
+                        <div class="popover-label">Hash:</div>
+                        <div class="popover-value">${commit.hash}</div>
+                    </div>
+                    <div class="popover-field">
+                        <div class="popover-label">Date:</div>
+                        <div class="popover-value">${new Date(commit.timestamp ? 
+                            commit.timestamp.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6Z')
+                            : commit.date || 'Unknown').toLocaleString()}</div>
+                    </div>
+                    <div class="popover-field">
+                        <div class="popover-label">Message:</div>
+                        <div class="popover-value">${commit.message}</div>
+                    </div>
+                    <div class="popover-field">
+                        <div class="popover-label">html_sha256:</div>
+                        <div class="popover-value">${commit.html_sha256}</div>
+                    </div>
+                    <div class="popover-field">
+                        <div class="popover-label">Status:</div>
+                        <div class="popover-value">${status}</div>
+                    </div>
+                `;
             }
 
             hideCommitPopover() {
