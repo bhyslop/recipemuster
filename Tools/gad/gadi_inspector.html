@@ -117,6 +117,33 @@
             color: #555;
         }
 
+        .swap-button {
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin: 0 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .swap-button:hover {
+            background: #005a9e;
+            transform: rotate(180deg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .swap-button:active {
+            transform: scale(0.95) rotate(180deg);
+        }
+
 
         .commit-detail-overlay {
             position: fixed;
@@ -272,6 +299,8 @@
                     <option value="">Loading...</option>
                 </select>
             </div>
+
+            <button class="swap-button" id="swapButton" title="Swap from/to selections">⇄</button>
 
             <div class="dropdown-group">
                 <label for="toDropdown">To:</label>
@@ -453,6 +482,7 @@
                     comparisonHeader: document.getElementById('comparisonHeader'),
                     statusSection: document.getElementById('statusSection'),
                     fromDropdown: document.getElementById('fromDropdown'),
+                    swapButton: document.getElementById('swapButton'),
                     toDropdown: document.getElementById('toDropdown'),
                     renderedPane: document.getElementById('renderedPane'),
                     navigationSection: document.getElementById('navigationSection'),
@@ -475,6 +505,7 @@
             setupEventListeners() {
                 this.elements.fromDropdown.addEventListener('change', () => this.onDropdownChange());
                 this.elements.toDropdown.addEventListener('change', () => this.onDropdownChange());
+                this.elements.swapButton.addEventListener('click', () => this.onSwapClick());
 
                 this.elements.previousButton.addEventListener('click', () => this.previousChange());
                 this.elements.nextButton.addEventListener('click', () => this.nextChange());
@@ -649,6 +680,21 @@
                 wsTraceHandler.sendTrace('[DROPDOWN]', `From changed to: ${fromValue}`);
                 wsTraceHandler.sendTrace('[DROPDOWN]', `To changed to: ${toValue}`);
 
+                this.updateUrlHash();
+                this.performDiff();
+            }
+
+            onSwapClick() {
+                const fromValue = this.elements.fromDropdown.value;
+                const toValue = this.elements.toDropdown.value;
+
+                wsTraceHandler.sendTrace('[SWAP]', `Swapping from/to: ${fromValue} <-> ${toValue}`);
+
+                // Exchange the dropdown values
+                this.elements.fromDropdown.value = toValue;
+                this.elements.toDropdown.value = fromValue;
+
+                // Update URL and trigger diff sequence
                 this.updateUrlHash();
                 this.performDiff();
             }
