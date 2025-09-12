@@ -309,33 +309,43 @@
         class WebSocketTraceHandler {
             constructor() {
                 this.ws = null;
-                this.connect();
+                // Don't connect immediately - wait for successful manifest fetch
             }
 
-            connect() {
+            connectAfterManifest() {
+                // Only attempt connection after successful manifest fetch (GADS compliant)
                 try {
                     const wsPort = window.location.port || 8080; // Use same port as HTTP
                     const wsUrl = `ws://${window.location.hostname}:${wsPort}/ws`;
-                    console.log(`[DEBUG] Attempting WebSocket connection to: ${wsUrl}`);
+                    console.log(`[DEBUG] Factory available, attempting WebSocket connection to: ${wsUrl}`);
                     this.ws = new WebSocket(wsUrl);
 
                     this.ws.onopen = () => {
-                        console.log('[DEBUG] WebSocket connected');
+                        console.log('[DEBUG] WebSocket connected after manifest success');
                     };
 
                     this.ws.onerror = (error) => {
-                        console.log('[DEBUG] WebSocket error:', error);
+                        console.log('[DEBUG] WebSocket error (non-fatal):', error);
                     };
 
                     this.ws.onclose = () => {
                         console.log('[DEBUG] WebSocket disconnected');
                     };
                 } catch (error) {
-                    console.log('[DEBUG] WebSocket connection failed:', error);
+                    console.log('[DEBUG] WebSocket connection failed (non-fatal):', error);
                 }
             }
 
+            connect() {
+                // Legacy method - should not be called in GADS compliant flow
+                console.warn('[WARN] connect() called - should use connectAfterManifest() per GADS specification');
+                this.connectAfterManifest();
+            }
+
             sendTrace(prefix, message) {
+                // Always log to console, send to WebSocket if available
+                console.log(`${prefix} ${message}`);
+                
                 // Send to WebSocket if connected
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                     try {
@@ -344,17 +354,14 @@
                             message: `${prefix} ${message}`
                         }));
                     } catch (error) {
-                        // Fallback to console only if WebSocket fails
-                        console.log(`[WS-ERROR] ${prefix} ${message}`);
+                        // WebSocket error is not critical
+                        console.log(`[WS-ERROR] Failed to send trace: ${error}`);
                     }
-                } else {
-                    // Fallback to console if WebSocket not connected
-                    console.log(`[NO-WS] ${prefix} ${message}`);
                 }
             }
 
             sendRenderedContent(htmlContent) {
-                // Send rendered content to Factory for debug temp file creation
+                // Send rendered content to Factory for debug temp file creation if WebSocket available
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                     try {
                         this.ws.send(JSON.stringify({
@@ -365,9 +372,8 @@
                     } catch (error) {
                         console.log(`[WS-ERROR] Failed to send rendered content: ${error}`);
                     }
-                } else {
-                    console.log('[NO-WS] Cannot send rendered content - WebSocket not connected');
                 }
+                // Silent if WebSocket not available - this is optional functionality
             }
         }
 
@@ -380,14 +386,14 @@
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
 
-                wsTraceHandler.sendTrace('[DEBUG]', 'GadInspector constructor called');
+                console.log('[DEBUG] GadInspector constructor called');
                 this.initializeElements();
                 this.setupEventListeners();
                 this.loadManifest();
             }
 
             initializeElements() {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Initializing DOM elements');
+                console.log('[DEBUG] Initializing DOM elements');
                 this.elements = {
                     comparisonHeader: document.getElementById('comparisonHeader'),
                     statusSection: document.getElementById('statusSection'),
@@ -404,10 +410,10 @@
                 // Check if all elements were found
                 Object.entries(this.elements).forEach(([key, element]) => {
                     if (!element) {
-                        wsTraceHandler.sendTrace('[ERROR]', `Failed to find DOM element: ${key}`);
+                        console.log(`[ERROR] Failed to find DOM element: ${key}`);
                     }
                 });
-                wsTraceHandler.sendTrace('[DEBUG]', 'DOM elements initialized');
+                console.log('[DEBUG] DOM elements initialized');
             }
 
             setupEventListeners() {
@@ -459,6 +465,9 @@
                     this.manifest = await response.json();
                     wsTraceHandler.sendTrace('[DEBUG]', `Manifest loaded successfully with ${this.manifest.commits.length} commits`);
                     wsTraceHandler.sendTrace('[MANIFEST]', `Successful load with ${this.manifest.commits.length} commits`);
+
+                    // Now that Factory is confirmed available, attempt WebSocket connection
+                    wsTraceHandler.connectAfterManifest();
 
                     wsTraceHandler.sendTrace('[DEBUG]', 'Starting populateDropdowns');
                     this.populateDropdowns();
@@ -1297,35 +1306,32 @@
 
         }
 
-        // Initialize inspector when both DOM and diff-dom are ready
+        // Initialize inspector when DOM and diff-dom are ready (GADS compliant initialization)
         let domReady = false;
         let diffDomReady = false;
 
         function checkInitialization() {
-            if (domReady && diffDomReady && wsTraceHandler.ws && wsTraceHandler.ws.readyState === WebSocket.OPEN) {
-                wsTraceHandler.sendTrace('[DEBUG]', 'All dependencies ready, initializing inspector');
-                wsTraceHandler.sendTrace('[DEBUG]', `diff-dom available: ${typeof window.diffDom !== 'undefined'}`);
+            if (domReady && diffDomReady) {
+                console.log('[DEBUG] DOM and diff-dom ready, initializing inspector');
+                console.log('[DEBUG]', `diff-dom available: ${typeof window.diffDom !== 'undefined'}`);
                 if (typeof window.diffDom !== 'undefined') {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom ESM loaded successfully');
+                    console.log('[DEBUG] diff-dom ESM loaded successfully');
                 }
                 window.gadInspector = new GadInspector();
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            wsTraceHandler.sendTrace('[DEBUG]', 'DOM loaded, waiting for diff-dom ESM');
+            console.log('[DEBUG] DOM loaded, waiting for diff-dom ESM');
             domReady = true;
             checkInitialization();
         });
 
         window.addEventListener('diff-dom-ready', () => {
-            wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom ESM ready');
+            console.log('[DEBUG] diff-dom ESM ready');
             diffDomReady = true;
             checkInitialization();
         });
-
-        // Fallback timer in case WebSocket takes time
-        setTimeout(checkInitialization, 1000);
     </script>
 </body>
 </html>
