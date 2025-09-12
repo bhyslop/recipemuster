@@ -98,6 +98,15 @@ Full read and edit access is pre-approved for all files in:
 - **GADS**    → `gad-GADS-GoogleAsciidocDifferSpecification.adoc`
 - **GADP**    → `gad-GADP-GoogleAsciidocDifferPlanner.md`
 - **GADMCR**  → `gad-GADMCR-MemoCorsResolution.md`
+- **GADMRC**  → `gad-GADMRC-MemoRailCommit.html`
+- **GADMDD**  → `gad-GADMDD-MemoDualDiffs.md`
+- **GADMRHAI** → `gad-GADMRHAI-HtmlAlgoIssue.md`
+- **GADMRHAO** → `gad-GADMRHAO-opus4p1Research.md`
+- **GADMRHAP** → `gad-GADMRHAP-HtmlAlgoPrompt.md`
+- **GADMRW**  → `gad-GADMRW-MemoRenderWickedFix.md`
+- **GADMWP**  → `gad-GADMWP-MemoWebsocketPaths.md`
+- **AXLA**    → `axl-AXLA-Lexicon.adoc`
+- **AXMCM**   → `axl-AXMCM-ClaudeMarkConceptMemo.md`
 - **WCC**     → `WCC-WebClaudetoClaudeCode.md`
 
 ## Working Preferences
