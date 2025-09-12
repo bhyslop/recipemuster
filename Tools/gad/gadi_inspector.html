@@ -735,8 +735,17 @@
 
                     // Phase 3: Generate Diff Operations
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Generating diff operations via diff-dom');
-                    const diffDOM = new window.diffDom.DiffDOM();
+                    const diffDOM = new window.diffDom.DiffDOM({ 
+                        debug: true,
+                        diffcap: 500  // Allow more granular detection
+                    });
                     const diffOperations = diffDOM.diff(immutableFromDOM, immutableToDOM);
+                    
+                    // Enhanced operation logging for debugging
+                    wsTraceHandler.sendTrace('[DIFF-OPS]', `Generated ${diffOperations.length} operations`);
+                    diffOperations.forEach((op, index) => {
+                        wsTraceHandler.sendTrace('[DIFF-OP]', `${index}: ${op.action} at route [${op.route.join(',')}]${op.oldValue ? ` oldValue: "${op.oldValue}"` : ''}${op.newValue ? ` newValue: "${op.newValue}"` : ''}`);
+                    });
                     
                     // Enhance operations with pre-captured content
                     this.enhanceOperationsWithCapturedContent(diffOperations, routeElementMap);
@@ -745,7 +754,7 @@
 
                     // Phase 4: Generate Clean Output DOM
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
-                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations);
+                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
 
                     // Performance logging for Factory debugging
@@ -906,7 +915,7 @@
                 }
             }
 
-            generateOutputDOM(immutableToDOM, diffOperations) {
+            generateOutputDOM(immutableToDOM, diffOperations, routeElementMap) {
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Generating clean output DOM from ${diffOperations.length} operations`);
                 
                 // Create completely new output DOM structure - never modify inputs
@@ -945,8 +954,12 @@
                             moves++;
                             break;
                         case 'modifyTextElement':
+                            // Handle text modifications as deletion + insertion pairs
+                            this.handleTextModification(outputDOM, op, routeElementMap);
+                            modifications++;
+                            break;
                         case 'modifyAttribute':
-                            // Only apply modification styling, don't double-annotate as insertion
+                            // Only apply modification styling for attributes, don't double-annotate as insertion
                             this.applyModificationAnnotation(outputDOM, op);
                             modifications++;
                             break;
@@ -1048,6 +1061,71 @@
                 // Don't apply modification styling to parent containers that have child insertions
                 // This prevents the entire paragraph from being marked as modified when only parts changed
                 wsTraceHandler.sendTrace('[MODIFICATION]', `Skipping broad modification annotation at route [${operation.route.join(',')}] - let child insertions handle specific changes`);
+            }
+
+            handleTextModification(outputDOM, operation, routeElementMap) {
+                wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Processing text modification at route [${operation.route.join(',')}]: "${operation.oldValue}" → "${operation.newValue}"`);
+                
+                // Find the text node that was modified
+                const element = this.findElementByRoute(outputDOM, operation.route);
+                if (!element) {
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Could not find element for text modification at route [${operation.route.join(',')}]`);
+                    return;
+                }
+
+                // If we have the old value, create a deletion block first
+                if (operation.oldValue && operation.oldValue !== operation.newValue) {
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Creating deletion block for old text: "${operation.oldValue}"`);
+                    
+                    // Create deletion block with the old text
+                    const deletionBlock = document.createElement('div');
+                    deletionBlock.className = 'diff-deletion';
+                    deletionBlock.style.backgroundColor = '#f8d7da';
+                    deletionBlock.style.borderLeft = '4px solid #dc3545';
+                    deletionBlock.style.padding = '4px';
+                    deletionBlock.style.marginBottom = '4px';
+                    deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(operation.oldValue)}</span>`;
+                    
+                    // Insert the deletion block before the modified element
+                    const insertionPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
+                    if (insertionPoint && insertionPoint.container) {
+                        if (insertionPoint.insertBefore) {
+                            insertionPoint.container.insertBefore(deletionBlock, insertionPoint.insertBefore);
+                        } else {
+                            insertionPoint.container.appendChild(deletionBlock);
+                        }
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Inserted deletion block for old text`);
+                    }
+                }
+
+                // Mark the new text as an insertion
+                if (element.nodeType === Node.TEXT_NODE) {
+                    // For text nodes, wrap in a span
+                    const span = document.createElement('span');
+                    span.classList.add('diff-insertion');
+                    span.style.backgroundColor = 'rgb(212, 237, 218)';
+                    span.style.padding = '2px';
+                    span.style.borderRadius = '2px';
+                    span.textContent = operation.newValue;
+                    
+                    // Replace the text node with our highlighted span
+                    element.parentNode.replaceChild(span, element);
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to new text: "${operation.newValue}"`);
+                    
+                } else if (element.nodeType === Node.ELEMENT_NODE) {
+                    // For element nodes, add insertion class
+                    element.classList.add('diff-insertion');
+                    element.style.backgroundColor = 'rgb(212, 237, 218)';
+                    element.style.padding = '2px';
+                    element.style.borderRadius = '2px';
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to element containing: "${operation.newValue}"`);
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
             }
 
             generateDeletionBlock(outputDOM, operation) {
