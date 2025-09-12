@@ -51,12 +51,12 @@ zccck_route() {
   bcu_step "Routing command: $z_command with args: $z_args"
 
   # Verify BDU environment variables are present
-  test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
+  test -n "${BDU_TEMP_DIR:-}"  || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
   test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set - must be called from BDU"
 
   source "${zccck_kit_dir}/../cccr.env"
 
-  test -n "${CCCR_SSH_PORT:-}" || bcu_die "CCCR_SSH_PORT not set in cccr.env"
+  test -n "${CCCR_SSH_PORT:-}"          || bcu_die "CCCR_SSH_PORT not set in cccr.env"
   test -n "${CCCR_CLAUDE_CONFIG_DIR:-}" || bcu_die "CCCR_CLAUDE_CONFIG_DIR not set in cccr.env"
 
   bcu_step "BDU environment verified: TEMP_DIR=$BDU_TEMP_DIR, NOW_STAMP=$BDU_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT} CCCR_CLAUDE_CONFIG_DIR=${CCCR_CLAUDE_CONFIG_DIR}"
@@ -87,7 +87,7 @@ zccck_route() {
       ;;
     ccck-z)  zccck_docker_compose down                                                        ;;
     ccck-B)  zccck_docker_compose build --no-cache                                            ;;
-    ccck-c)  zccck_connect "cd /workspace/brm_recipemuster  &&  claude-code"                ;;
+    ccck-c)  zccck_connect "cd /workspace/brm_recipemuster  &&  claude-code"                  ;;
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)
@@ -103,6 +103,23 @@ zccck_route() {
       ssh-keygen -R "[localhost]:${CCCR_SSH_PORT}" 2>/dev/null || true
 
       bcu_step "Full reset complete - ready for fresh start"
+      ;;
+
+    # GAD (Git AsciiDoc Diff) commands
+    gadf-f)
+      # Run GAD factory in ccbx container with hardcoded parameters
+      zccck_connect "cd /workspace/brm_recipemuster && python3 Tools/gad/gadf_factory.py --file ../recipebottle-admin/rbw-RBZG-gadTest.adoc --directory ../gad-working-dir --branch main --max-distinct-renders 3 --once --port ${CCCR_WEB_PORT}"
+      ;;
+    gadcf)
+      # Run GAD factory locally (inside container) with hardcoded parameters
+      rbk_show "Running GAD factory locally"
+      python3 Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-distinct-renders 5 --once --port "${CCCR_WEB_PORT}"
+      ;;
+    gadi-i)
+      # Open GAD inspector in browser (served by factory HTTP server)
+      echo "GAD inspector available at http://localhost:${CCCR_WEB_PORT}/"
+      echo "Note: Ensure GAD factory is running to serve Inspector interface"
+      echo "The factory provides integrated HTTP server on port ${CCCR_WEB_PORT}"
       ;;
 
     # Unknown command
