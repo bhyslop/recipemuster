@@ -117,20 +117,6 @@
             color: #555;
         }
 
-        .console-button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-left: 10px;
-        }
-
-        .console-button:hover {
-            background: #218838;
-        }
 
         .commit-tooltip {
             position: absolute;
@@ -243,7 +229,6 @@
                 </select>
             </div>
 
-            <button class="console-button" id="consoleButton">Copy Debug Report</button>
         </div>
     </div>
 
@@ -394,9 +379,6 @@
                 this.manifest = null;
                 this.currentChanges = [];
                 this.currentChangeIndex = 0;
-                this.lastDiffDomHtml = null;
-                this.lastDiffOperations = null;
-                this.lastDomBeforeStyling = null;
 
                 wsTraceHandler.sendTrace('[DEBUG]', 'GadInspector constructor called');
                 this.initializeElements();
@@ -417,7 +399,6 @@
                     nextButton: document.getElementById('nextButton'),
                     changeCounter: document.getElementById('changeCounter'),
                     commitTooltip: document.getElementById('commitTooltip'),
-                    consoleButton: document.getElementById('consoleButton')
                 };
 
                 // Check if all elements were found
@@ -435,7 +416,6 @@
 
                 this.elements.previousButton.addEventListener('click', () => this.previousChange());
                 this.elements.nextButton.addEventListener('click', () => this.nextChange());
-                this.elements.consoleButton.addEventListener('click', () => this.copyDiffDomResult());
 
 
                 // Keyboard shortcuts
@@ -743,7 +723,6 @@
                     const routeElementMap = this.createRouteElementMap(immutableFromDOM);
                     wsTraceHandler.sendTrace('[DEBUG]', `Pre-captured ${Object.keys(routeElementMap).length} elements for deletion handling`);
                     
-                    this.lastDomBeforeStyling = immutableToDOM.innerHTML; // Store original "to" DOM
 
                     // Phase 3: Generate Diff Operations
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Generating diff operations via diff-dom');
@@ -753,13 +732,11 @@
                     // Enhance operations with pre-captured content
                     this.enhanceOperationsWithCapturedContent(diffOperations, routeElementMap);
                     
-                    this.lastDiffOperations = diffOperations; // Store for debug report
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
                     // Phase 4: Generate Clean Output DOM
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
                     const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations);
-                    this.lastDiffDomHtml = outputDOM.innerHTML; // Store for clipboard functionality
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
 
                     // Performance logging for Factory debugging
@@ -1317,81 +1294,6 @@
                 this.elements.commitTooltip.style.display = 'none';
             }
 
-            copyDiffDomResult() {
-                if (!this.lastDiffOperations || !this.lastDiffDomHtml) {
-                    alert('No diff-dom result available. Please select different commits first.');
-                    return;
-                }
-
-                // Create comprehensive debug report
-                const debugReport = `
-=== GADI DEBUG REPORT ===
-
-=== RAW DIFF-DOM OPERATIONS (${this.lastDiffOperations.length}) ===
-${this.lastDiffOperations.map((op, i) => 
-    `${i+1}. name: "${op.name}", route: [${(op.route || []).join(',')}], element: ${op.element ? 'present' : 'null'}`
-).join('\n')}
-
-=== DOM STRUCTURE BEFORE STYLING ===
-${this.lastDomBeforeStyling || 'Not captured'}
-
-=== FINAL HTML OUTPUT ===
-${this.lastDiffDomHtml}
-
-=== CHANGE COUNT SELECTORS ===
-.diff-deletion: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-deletion').length : 'N/A'}
-.diff-insertion: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-insertion').length : 'N/A'}  
-.diff-moved: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-moved').length : 'N/A'}
-.diff-modification: ${this.elements.renderedPane ? this.elements.renderedPane.querySelectorAll('.diff-modification').length : 'N/A'}
-
-=== END DEBUG REPORT ===
-                `.trim();
-
-                // Copy to clipboard using modern API
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(debugReport).then(() => {
-                        wsTraceHandler.sendTrace('[DEBUG]', 'Debug report copied to clipboard');
-                        // Briefly change button text to show success
-                        const originalText = this.elements.consoleButton.textContent;
-                        this.elements.consoleButton.textContent = 'Debug Copied!';
-                        setTimeout(() => {
-                            this.elements.consoleButton.textContent = originalText;
-                        }, 1000);
-                    }).catch(err => {
-                        wsTraceHandler.sendTrace('[ERROR]', `Failed to copy to clipboard: ${err}`);
-                        this.fallbackCopyToClipboard(debugReport);
-                    });
-                } else {
-                    // Fallback for non-secure contexts
-                    this.fallbackCopyToClipboard(debugReport);
-                }
-            }
-
-            fallbackCopyToClipboard(text) {
-                // Create temporary textarea for fallback copy
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-9999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    wsTraceHandler.sendTrace('[DEBUG]', 'diff-dom HTML copied to clipboard (fallback)');
-                    // Briefly change button text to show success
-                    const originalText = this.elements.consoleButton.textContent;
-                    this.elements.consoleButton.textContent = 'Copied!';
-                    setTimeout(() => {
-                        this.elements.consoleButton.textContent = originalText;
-                    }, 1000);
-                } catch (err) {
-                    wsTraceHandler.sendTrace('[ERROR]', `Fallback copy failed: ${err}`);
-                    alert('Could not copy to clipboard. Please copy manually from browser console.');
-                    console.log('diff-dom HTML:', text);
-                }
-                document.body.removeChild(textArea);
-            }
 
         }
 
