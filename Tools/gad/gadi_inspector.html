@@ -146,35 +146,35 @@
 
 
         .commit-detail-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: absolute;
             background: white;
+            border: 2px solid #007acc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
-            padding: 20px;
-            overflow: auto;
+            padding: 15px;
             display: none;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 500px;
+            min-width: 350px;
+            word-wrap: break-word;
         }
         
         .commit-detail-content {
-            max-width: 800px;
-            margin: 0 auto;
+            /* Content styling for the popup */
         }
         
         .commit-detail-header {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             color: #333;
             border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         
         .commit-detail-field {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .commit-detail-label {
@@ -186,29 +186,14 @@
         .commit-detail-value {
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             background: #f6f8fa;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 6px 8px;
+            border-radius: 3px;
             border: 1px solid #e1e4e8;
             white-space: pre-wrap;
+            font-size: 12px;
+            overflow-wrap: break-word;
         }
         
-        .commit-detail-close {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .commit-detail-close:hover {
-            background: #c82333;
-        }
 
         .unchanged-commit {
             opacity: 0.6;
@@ -325,7 +310,6 @@
     </div>
 
     <div class="commit-detail-overlay" id="commitDetailOverlay">
-        <button class="commit-detail-close" onclick="window.gadInspector.hideCommitDetailOverlay()">Close (ESC)</button>
         <div class="commit-detail-content" id="commitDetailContent">
         </div>
     </div>
@@ -515,9 +499,6 @@
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'j') this.nextChange();
                     if (e.key === 'k') this.previousChange();
-                    if (e.key === 'Escape') {
-                        this.hideCommitDetailOverlay();
-                    }
                     if (e.key >= '1' && e.key <= '9') {
                         const index = parseInt(e.key) - 1;
                         if (index < this.currentChanges.length) {
@@ -527,7 +508,7 @@
                     }
                 });
 
-                // GADS compliant: hover-based commit detail overlay
+                // GADS compliant: hover-based commit detail popup
                 let hoverTimeout;
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
                     dropdown.addEventListener('mouseover', (e) => {
@@ -536,9 +517,9 @@
                             clearTimeout(hoverTimeout);
                         }
                         
-                        // GADS compliant: 200ms delay before showing overlay
+                        // GADS compliant: 200ms delay before showing popup
                         hoverTimeout = setTimeout(() => {
-                            this.showCommitDetailOverlay(e);
+                            this.showCommitDetailPopup(e, dropdown);
                         }, 200);
                     });
                     
@@ -550,13 +531,13 @@
                         }
                         
                         // GADS compliant: immediate dismissal when leaving dropdown area
-                        this.hideCommitDetailOverlay();
+                        this.hideCommitDetailPopup();
                     });
                     
-                    // Update overlay content immediately when hovering different commits
-                    dropdown.addEventListener('mousemove', (e) => {
+                    // Update popup content immediately when hovering different commits
+                    dropdown.addEventListener('change', (e) => {
                         if (this.elements.commitDetailOverlay.style.display === 'block') {
-                            this.updateCommitDetailOverlay(e);
+                            this.updateCommitDetailPopup(e, dropdown);
                         }
                     });
                 });
@@ -1493,34 +1474,33 @@
                 this.elements.statusSection.style.display = 'none';
             }
 
-            showCommitDetailOverlay(event) {
-                // Only show if hovering over an option with a value
-                const target = event.target;
-                if (!target || target.tagName !== 'SELECT') return;
+            showCommitDetailPopup(event, dropdown) {
+                // Only show if hovering over a dropdown with a selected value
+                if (!dropdown || dropdown.tagName !== 'SELECT') return;
                 
-                const option = target.options[target.selectedIndex];
+                const option = dropdown.options[dropdown.selectedIndex];
                 if (!option || option.value === '') return;
 
-                this.updateCommitDetailOverlay(event);
-                this.elements.commitDetailOverlay.style.display = 'block';
+                // Position popup near the dropdown
+                this.positionPopupNearDropdown(dropdown);
                 
-                // Store the previous rendered content to restore later
-                if (!this.previousRenderedContent) {
-                    this.previousRenderedContent = this.elements.renderedPane.innerHTML;
-                }
+                // Update popup content
+                this.updateCommitDetailPopup(event, dropdown);
+                
+                // Show the popup (no content replacement)
+                this.elements.commitDetailOverlay.style.display = 'block';
             }
             
-            updateCommitDetailOverlay(event) {
-                const target = event.target;
-                if (!target || target.tagName !== 'SELECT') return;
+            updateCommitDetailPopup(event, dropdown) {
+                if (!dropdown || dropdown.tagName !== 'SELECT') return;
                 
-                const option = target.options[target.selectedIndex];
+                const option = dropdown.options[dropdown.selectedIndex];
                 if (!option || option.value === '') return;
 
                 const commit = this.resolveCommit(option.value);
                 if (!commit) return;
 
-                // GADS compliant: full commit details with metadata
+                // GADS compliant: popup with full commit details
                 this.elements.commitDetailContent.innerHTML = `
                     <div class="commit-detail-header">Commit Details</div>
                     
@@ -1551,13 +1531,35 @@
                 `;
             }
 
-            hideCommitDetailOverlay() {
+            hideCommitDetailPopup() {
+                // Simply hide the popup - no content restoration needed
                 this.elements.commitDetailOverlay.style.display = 'none';
+            }
+            
+            positionPopupNearDropdown(dropdown) {
+                // Position the popup near the dropdown that was hovered
+                const dropdownRect = dropdown.getBoundingClientRect();
+                const popup = this.elements.commitDetailOverlay;
                 
-                // GADS compliant: restore previous rendered content
-                if (this.previousRenderedContent) {
-                    this.elements.renderedPane.innerHTML = this.previousRenderedContent;
-                    this.previousRenderedContent = null;
+                // Position to the right of the dropdown if there's space, otherwise to the left
+                const spaceToRight = window.innerWidth - dropdownRect.right;
+                const popupWidth = 400; // Approximate width
+                
+                if (spaceToRight >= popupWidth + 20) {
+                    // Position to the right
+                    popup.style.left = (dropdownRect.right + 10) + 'px';
+                } else {
+                    // Position to the left
+                    popup.style.left = (dropdownRect.left - popupWidth - 10) + 'px';
+                }
+                
+                // Position vertically aligned with dropdown top
+                popup.style.top = dropdownRect.top + 'px';
+                
+                // Ensure popup doesn't go off screen vertically
+                const popupHeight = 300; // Approximate height
+                if (dropdownRect.top + popupHeight > window.innerHeight) {
+                    popup.style.top = (window.innerHeight - popupHeight - 20) + 'px';
                 }
             }
 
