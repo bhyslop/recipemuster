@@ -510,12 +510,17 @@
 
                 // GADS compliant: hover-based commit detail popup
                 let hoverTimeout;
+                let currentPopupDropdown = null;
+                
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
                     dropdown.addEventListener('mouseover', (e) => {
                         // Clear any existing timeout
                         if (hoverTimeout) {
                             clearTimeout(hoverTimeout);
                         }
+                        
+                        // Store which dropdown we're hovering over
+                        currentPopupDropdown = dropdown;
                         
                         // GADS compliant: 200ms delay before showing popup
                         hoverTimeout = setTimeout(() => {
@@ -530,13 +535,24 @@
                             hoverTimeout = null;
                         }
                         
+                        // Clear current dropdown reference
+                        currentPopupDropdown = null;
+                        
                         // GADS compliant: immediate dismissal when leaving dropdown area
                         this.hideCommitDetailPopup();
                     });
                     
-                    // Update popup content immediately when hovering different commits
+                    // Update popup content when selection changes while popup is visible
                     dropdown.addEventListener('change', (e) => {
-                        if (this.elements.commitDetailOverlay.style.display === 'block') {
+                        if (this.elements.commitDetailOverlay.style.display === 'block' && currentPopupDropdown === dropdown) {
+                            this.updateCommitDetailPopup(e, dropdown);
+                        }
+                    });
+                    
+                    // Listen for mouse movement within dropdown to detect option hover changes
+                    dropdown.addEventListener('mousemove', (e) => {
+                        if (this.elements.commitDetailOverlay.style.display === 'block' && currentPopupDropdown === dropdown) {
+                            // Update popup content when mouse moves over different options
                             this.updateCommitDetailPopup(e, dropdown);
                         }
                     });
@@ -625,6 +641,15 @@
                 if (isUnchanged) {
                     option.className = 'unchanged-commit';
                 }
+                
+                // Add hover listeners to individual options for popup updates
+                option.addEventListener('mouseenter', (e) => {
+                    if (this.elements.commitDetailOverlay.style.display === 'block') {
+                        // Update popup content when hovering over this specific option
+                        this.updateCommitDetailPopupForOption(option, dropdown);
+                    }
+                });
+                
                 dropdown.appendChild(option);
             }
 
@@ -1494,7 +1519,14 @@
             updateCommitDetailPopup(event, dropdown) {
                 if (!dropdown || dropdown.tagName !== 'SELECT') return;
                 
-                const option = dropdown.options[dropdown.selectedIndex];
+                // Use the currently selected option when dropdown events fire
+                const hoveredOption = dropdown.options[dropdown.selectedIndex];
+                if (!hoveredOption || hoveredOption.value === '') return;
+
+                this.updateCommitDetailPopupForOption(hoveredOption, dropdown);
+            }
+            
+            updateCommitDetailPopupForOption(option, dropdown) {
                 if (!option || option.value === '') return;
 
                 const commit = this.resolveCommit(option.value);
