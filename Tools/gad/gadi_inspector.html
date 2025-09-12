@@ -159,11 +159,11 @@
             min-width: 350px;
             word-wrap: break-word;
         }
-        
+
         .commit-detail-content {
             /* Content styling for the popup */
         }
-        
+
         .commit-detail-header {
             font-size: 16px;
             font-weight: bold;
@@ -172,17 +172,17 @@
             border-bottom: 1px solid #eee;
             padding-bottom: 8px;
         }
-        
+
         .commit-detail-field {
             margin-bottom: 10px;
         }
-        
+
         .commit-detail-label {
             font-weight: bold;
             color: #555;
             margin-bottom: 5px;
         }
-        
+
         .commit-detail-value {
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             background: #f6f8fa;
@@ -193,7 +193,7 @@
             font-size: 12px;
             overflow-wrap: break-word;
         }
-        
+
 
         .unchanged-commit {
             opacity: 0.6;
@@ -413,7 +413,7 @@
             sendTrace(prefix, message) {
                 // Always log to console, send to WebSocket if available
                 console.log(`${prefix} ${message}`);
-                
+
                 // Send to WebSocket if connected
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                     try {
@@ -511,44 +511,44 @@
                 // GADS compliant: hover-based commit detail popup
                 let hoverTimeout;
                 let currentPopupDropdown = null;
-                
+
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
                     dropdown.addEventListener('mouseover', (e) => {
                         // Clear any existing timeout
                         if (hoverTimeout) {
                             clearTimeout(hoverTimeout);
                         }
-                        
+
                         // Store which dropdown we're hovering over
                         currentPopupDropdown = dropdown;
-                        
+
                         // GADS compliant: 200ms delay before showing popup
                         hoverTimeout = setTimeout(() => {
                             this.showCommitDetailPopup(e, dropdown);
                         }, 200);
                     });
-                    
+
                     dropdown.addEventListener('mouseout', () => {
                         // Clear timeout if mouse leaves before delay
                         if (hoverTimeout) {
                             clearTimeout(hoverTimeout);
                             hoverTimeout = null;
                         }
-                        
+
                         // Clear current dropdown reference
                         currentPopupDropdown = null;
-                        
+
                         // GADS compliant: immediate dismissal when leaving dropdown area
                         this.hideCommitDetailPopup();
                     });
-                    
+
                     // Update popup content when selection changes while popup is visible
                     dropdown.addEventListener('change', (e) => {
                         if (this.elements.commitDetailOverlay.style.display === 'block' && currentPopupDropdown === dropdown) {
                             this.updateCommitDetailPopup(e, dropdown);
                         }
                     });
-                    
+
                     // Listen for mouse movement within dropdown to detect option hover changes
                     dropdown.addEventListener('mousemove', (e) => {
                         if (this.elements.commitDetailOverlay.style.display === 'block' && currentPopupDropdown === dropdown) {
@@ -641,7 +641,7 @@
                 if (isUnchanged) {
                     option.className = 'unchanged-commit';
                 }
-                
+
                 // Add hover listeners to individual options for popup updates
                 option.addEventListener('mouseenter', (e) => {
                     if (this.elements.commitDetailOverlay.style.display === 'block') {
@@ -649,7 +649,7 @@
                         this.updateCommitDetailPopupForOption(option, dropdown);
                     }
                 });
-                
+
                 dropdown.appendChild(option);
             }
 
@@ -870,25 +870,25 @@
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: Pre-capturing deletion content from immutable fromDOM');
                     const routeElementMap = this.createRouteElementMap(immutableFromDOM);
                     wsTraceHandler.sendTrace('[DEBUG]', `Pre-captured ${Object.keys(routeElementMap).length} elements for deletion handling`);
-                    
+
 
                     // Phase 3: Generate Diff Operations
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Generating diff operations via diff-dom');
-                    const diffDOM = new window.diffDom.DiffDOM({ 
+                    const diffDOM = new window.diffDom.DiffDOM({
                         debug: true,
                         diffcap: 500  // Allow more granular detection
                     });
                     const diffOperations = diffDOM.diff(immutableFromDOM, immutableToDOM);
-                    
+
                     // Enhanced operation logging for debugging
                     wsTraceHandler.sendTrace('[DIFF-OPS]', `Generated ${diffOperations.length} operations`);
                     diffOperations.forEach((op, index) => {
                         wsTraceHandler.sendTrace('[DIFF-OP]', `${index}: ${op.action} at route [${op.route.join(',')}]${op.oldValue ? ` oldValue: "${op.oldValue}"` : ''}${op.newValue ? ` newValue: "${op.newValue}"` : ''}`);
                     });
-                    
+
                     // Enhance operations with pre-captured content
                     this.enhanceOperationsWithCapturedContent(diffOperations, routeElementMap);
-                    
+
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
                     // Phase 4: Generate Clean Output DOM
@@ -1016,7 +1016,7 @@
                         element = element.childNodes[index];
                     } else {
                         const availableCount = element.childNodes ? element.childNodes.length : 0;
-                        
+
                         // Simple fix for diff-dom off-by-one indexing: try the last valid child
                         if (availableCount > 0 && index >= availableCount) {
                             const correctedIndex = availableCount - 1;
@@ -1056,18 +1056,18 @@
 
             generateOutputDOM(immutableToDOM, diffOperations, routeElementMap) {
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Generating clean output DOM from ${diffOperations.length} operations`);
-                
+
                 // Create completely new output DOM structure - never modify inputs
                 const outputDOM = document.createElement('div');
-                
+
                 // Deep clone the immutable "to" DOM structure as foundation
                 this.deepCloneElement(immutableToDOM, outputDOM);
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Created output DOM foundation from immutable toDOM');
-                
+
                 // Apply diff annotations to output DOM with deduplication
                 let insertions = 0, deletions = 0, moves = 0, modifications = 0;
                 const processedDeletions = new Set(); // Track processed deletion routes to prevent duplicates
-                
+
                 // Process operations to generate annotations
                 for (const op of diffOperations) {
                     switch (op.action) {
@@ -1076,7 +1076,7 @@
                             this.applyInsertionAnnotation(outputDOM, op);
                             insertions++;
                             break;
-                        case 'removeElement': 
+                        case 'removeElement':
                         case 'removeTextElement':
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
@@ -1106,10 +1106,10 @@
                             wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Unknown operation type: ${op.action}`);
                     }
                 }
-                
+
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Applied annotations: ${insertions} insertions, ${deletions} deletions (${processedDeletions.size} unique), ${moves} moves, ${modifications} modifications`);
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Output DOM generation completed with all annotations applied');
-                
+
                 return outputDOM;
             }
 
@@ -1120,12 +1120,12 @@
 
             deepCloneElement(sourceElement, targetParent) {
                 if (!sourceElement || !sourceElement.childNodes) return;
-                
+
                 // Clone all child nodes recursively
                 for (let i = 0; i < sourceElement.childNodes.length; i++) {
                     const sourceChild = sourceElement.childNodes[i];
                     let clonedChild;
-                    
+
                     if (sourceChild.nodeType === Node.ELEMENT_NODE) {
                         // Create element with all attributes
                         clonedChild = document.createElement(sourceChild.tagName.toLowerCase());
@@ -1141,7 +1141,7 @@
                         // Other node types (comments, etc.)
                         clonedChild = sourceChild.cloneNode(false);
                     }
-                    
+
                     if (clonedChild) {
                         targetParent.appendChild(clonedChild);
                     }
@@ -1174,10 +1174,10 @@
                     span.style.backgroundColor = '#d4edda';
                     span.style.padding = '2px';
                     span.style.borderRadius = '2px';
-                    
+
                     parent.insertBefore(span, element);
                     span.appendChild(element);
-                    
+
                     wsTraceHandler.sendTrace('[INSERTION]', `Applied insertion annotation with span wrapper at route [${operation.route.join(',')}]`);
                 } else {
                     wsTraceHandler.sendTrace('[INSERTION]', `Could not find element for insertion annotation at route [${operation.route.join(',')}]`);
@@ -1204,7 +1204,7 @@
 
             handleTextModification(outputDOM, operation, routeElementMap) {
                 wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Processing text modification at route [${operation.route.join(',')}]: "${operation.oldValue}" → "${operation.newValue}"`);
-                
+
                 // Find the text node that was modified
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (!element) {
@@ -1215,7 +1215,7 @@
                 // If we have the old value, create a deletion block first
                 if (operation.oldValue && operation.oldValue !== operation.newValue) {
                     wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Creating deletion block for old text: "${operation.oldValue}"`);
-                    
+
                     // Create deletion block with the old text
                     const deletionBlock = document.createElement('div');
                     deletionBlock.className = 'diff-deletion';
@@ -1224,7 +1224,7 @@
                     deletionBlock.style.padding = '4px';
                     deletionBlock.style.marginBottom = '4px';
                     deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(operation.oldValue)}</span>`;
-                    
+
                     // Insert the deletion block before the modified element
                     const insertionPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
                     if (insertionPoint && insertionPoint.container) {
@@ -1246,11 +1246,11 @@
                     span.style.padding = '2px';
                     span.style.borderRadius = '2px';
                     span.textContent = operation.newValue;
-                    
+
                     // Replace the text node with our highlighted span
                     element.parentNode.replaceChild(span, element);
                     wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to new text: "${operation.newValue}"`);
-                    
+
                 } else if (element.nodeType === Node.ELEMENT_NODE) {
                     // For element nodes, add insertion class
                     element.classList.add('diff-insertion');
@@ -1281,7 +1281,7 @@
                 // Use pre-captured content with enhanced formatting
                 if (operation.capturedContent) {
                     wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Using pre-captured content (${operation.capturedType}): ${operation.capturedContent.substring(0, 50)}...`);
-                    
+
                     if (operation.capturedType === 'text' || operation.capturedType === 'fallback-text') {
                         deletionBlock.innerHTML = `<strong>Deleted text:</strong> <span style="font-style: italic; color: #721c24;">"${this.escapeHtml(operation.capturedContent)}"</span>`;
                     } else if (operation.capturedType === 'element') {
@@ -1319,7 +1319,7 @@
 
             findDeletionInsertionPoint(outputDOM, route) {
                 wsTraceHandler.sendTrace('[DELETION-INSERT]', `Finding block-level insertion point for route [${route.join(',')}]`);
-                
+
                 if (route.length === 0) {
                     wsTraceHandler.sendTrace('[DELETION-INSERT]', 'Empty route, using output DOM start');
                     return { container: outputDOM, insertBefore: outputDOM.firstChild };
@@ -1349,16 +1349,16 @@
                 // Walk up the DOM tree to find a suitable block-level container
                 let current = element;
                 let blockLevelTags = new Set(['DIV', 'P', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN', 'BLOCKQUOTE', 'DL', 'DD', 'LI', 'TD', 'TH']);
-                
+
                 while (current && current.parentNode) {
                     const parent = current.parentNode;
-                    
+
                     // If parent is a block-level element, we can insert after current as a sibling
                     if (parent.tagName && blockLevelTags.has(parent.tagName)) {
                         wsTraceHandler.sendTrace('[DELETION-INSERT]', `Found block container: ${parent.tagName}, inserting after ${current.tagName || 'node'}`);
                         return { container: parent, insertBefore: current.nextSibling };
                     }
-                    
+
                     current = parent;
                 }
 
@@ -1374,7 +1374,7 @@
 
                 const mapElement = (element, route) => {
                     if (!element) return;
-                    
+
                     const routeKey = route.join(',');
                     routeMap[routeKey] = {
                         element: element,
@@ -1383,7 +1383,7 @@
                         textContent: element.textContent || '',
                         nodeName: element.nodeName || ''
                     };
-                    
+
                     // Recursively map child nodes
                     if (element.childNodes) {
                         for (let i = 0; i < element.childNodes.length; i++) {
@@ -1392,26 +1392,26 @@
                         }
                     }
                 };
-                
+
                 // Start mapping from root with empty route
                 mapElement(dom, []);
-                
+
                 wsTraceHandler.sendTrace('[ROUTE-MAP]', `Created mapping for ${Object.keys(routeMap).length} DOM nodes`);
                 return routeMap;
             }
 
             enhanceOperationsWithCapturedContent(diffOperations, routeElementMap) {
                 wsTraceHandler.sendTrace('[ENHANCE]', `Enhancing ${diffOperations.length} operations with pre-captured content`);
-                
+
                 let deletionsFound = 0;
                 let deletionsEnhanced = 0;
-                
+
                 for (const op of diffOperations) {
                     if (op.action === 'removeElement' || op.action === 'removeTextElement') {
                         deletionsFound++;
                         const routeKey = op.route.join(',');
                         wsTraceHandler.sendTrace('[ENHANCE]', `Enhancing deletion ${deletionsFound}: ${op.action} at route [${routeKey}]`);
-                        
+
                         const mappedElement = routeElementMap[routeKey];
                         if (mappedElement) {
                             if (mappedElement.nodeType === Node.TEXT_NODE) {
@@ -1441,7 +1441,7 @@
                         }
                     }
                 }
-                
+
                 wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
             }
 
@@ -1502,30 +1502,30 @@
             showCommitDetailPopup(event, dropdown) {
                 // Only show if hovering over a dropdown with a selected value
                 if (!dropdown || dropdown.tagName !== 'SELECT') return;
-                
+
                 const option = dropdown.options[dropdown.selectedIndex];
                 if (!option || option.value === '') return;
 
                 // Position popup near the dropdown
                 this.positionPopupNearDropdown(dropdown);
-                
+
                 // Update popup content
                 this.updateCommitDetailPopup(event, dropdown);
-                
+
                 // Show the popup (no content replacement)
                 this.elements.commitDetailOverlay.style.display = 'block';
             }
-            
+
             updateCommitDetailPopup(event, dropdown) {
                 if (!dropdown || dropdown.tagName !== 'SELECT') return;
-                
+
                 // Use the currently selected option when dropdown events fire
                 const hoveredOption = dropdown.options[dropdown.selectedIndex];
                 if (!hoveredOption || hoveredOption.value === '') return;
 
                 this.updateCommitDetailPopupForOption(hoveredOption, dropdown);
             }
-            
+
             updateCommitDetailPopupForOption(option, dropdown) {
                 if (!option || option.value === '') return;
 
@@ -1535,27 +1535,27 @@
                 // GADS compliant: popup with full commit details
                 this.elements.commitDetailContent.innerHTML = `
                     <div class="commit-detail-header">Commit Details</div>
-                    
+
                     <div class="commit-detail-field">
                         <div class="commit-detail-label">Full SHA:</div>
                         <div class="commit-detail-value">${commit.hash}</div>
                     </div>
-                    
+
                     <div class="commit-detail-field">
                         <div class="commit-detail-label">Date:</div>
                         <div class="commit-detail-value">${commit.date || 'Not available'}</div>
                     </div>
-                    
+
                     <div class="commit-detail-field">
                         <div class="commit-detail-label">Commit Message:</div>
                         <div class="commit-detail-value">${commit.message}</div>
                     </div>
-                    
+
                     <div class="commit-detail-field">
                         <div class="commit-detail-label">HTML File:</div>
                         <div class="commit-detail-value">${commit.html_file}</div>
                     </div>
-                    
+
                     <div class="commit-detail-field">
                         <div class="commit-detail-label">HTML SHA256:</div>
                         <div class="commit-detail-value">${commit.html_sha256}</div>
@@ -1567,16 +1567,16 @@
                 // Simply hide the popup - no content restoration needed
                 this.elements.commitDetailOverlay.style.display = 'none';
             }
-            
+
             positionPopupNearDropdown(dropdown) {
                 // Position the popup near the dropdown that was hovered
                 const dropdownRect = dropdown.getBoundingClientRect();
                 const popup = this.elements.commitDetailOverlay;
-                
+
                 // Position to the right of the dropdown if there's space, otherwise to the left
                 const spaceToRight = window.innerWidth - dropdownRect.right;
                 const popupWidth = 400; // Approximate width
-                
+
                 if (spaceToRight >= popupWidth + 20) {
                     // Position to the right
                     popup.style.left = (dropdownRect.right + 10) + 'px';
@@ -1584,10 +1584,10 @@
                     // Position to the left
                     popup.style.left = (dropdownRect.left - popupWidth - 10) + 'px';
                 }
-                
+
                 // Position vertically aligned with dropdown top
                 popup.style.top = dropdownRect.top + 'px';
-                
+
                 // Ensure popup doesn't go off screen vertically
                 const popupHeight = 300; // Approximate height
                 if (dropdownRect.top + popupHeight > window.innerHeight) {
