@@ -118,18 +118,69 @@
         }
 
 
-        .commit-tooltip {
-            position: absolute;
-            background: #333;
+        .commit-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1000;
+            padding: 20px;
+            overflow: auto;
+            display: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .commit-detail-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .commit-detail-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .commit-detail-field {
+            margin-bottom: 15px;
+        }
+        
+        .commit-detail-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .commit-detail-value {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #f6f8fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #e1e4e8;
+            white-space: pre-wrap;
+        }
+        
+        .commit-detail-close {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
             color: white;
+            border: none;
             padding: 10px 15px;
             border-radius: 4px;
+            cursor: pointer;
             font-size: 14px;
-            max-width: 400px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            line-height: 1.4;
-            display: none;
+            font-weight: bold;
+        }
+        
+        .commit-detail-close:hover {
+            background: #c82333;
         }
 
         .unchanged-commit {
@@ -244,7 +295,11 @@
         </div>
     </div>
 
-    <div class="commit-tooltip" id="commitTooltip"></div>
+    <div class="commit-detail-overlay" id="commitDetailOverlay">
+        <button class="commit-detail-close" onclick="window.gadInspector.hideCommitDetailOverlay()">Close (ESC)</button>
+        <div class="commit-detail-content" id="commitDetailContent">
+        </div>
+    </div>
 
     <script type="module">
         // Use ESM import for modern diff-dom
@@ -404,7 +459,8 @@
                     previousButton: document.getElementById('previousButton'),
                     nextButton: document.getElementById('nextButton'),
                     changeCounter: document.getElementById('changeCounter'),
-                    commitTooltip: document.getElementById('commitTooltip'),
+                    commitDetailOverlay: document.getElementById('commitDetailOverlay'),
+                    commitDetailContent: document.getElementById('commitDetailContent'),
                 };
 
                 // Check if all elements were found
@@ -428,6 +484,9 @@
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'j') this.nextChange();
                     if (e.key === 'k') this.previousChange();
+                    if (e.key === 'Escape') {
+                        this.hideCommitDetailOverlay();
+                    }
                     if (e.key >= '1' && e.key <= '9') {
                         const index = parseInt(e.key) - 1;
                         if (index < this.currentChanges.length) {
@@ -437,10 +496,38 @@
                     }
                 });
 
-                // Tooltip handling
+                // GADS compliant: hover-based commit detail overlay
+                let hoverTimeout;
                 [this.elements.fromDropdown, this.elements.toDropdown].forEach(dropdown => {
-                    dropdown.addEventListener('mouseover', (e) => this.showCommitTooltip(e));
-                    dropdown.addEventListener('mouseout', () => this.hideCommitTooltip());
+                    dropdown.addEventListener('mouseover', (e) => {
+                        // Clear any existing timeout
+                        if (hoverTimeout) {
+                            clearTimeout(hoverTimeout);
+                        }
+                        
+                        // GADS compliant: 200ms delay before showing overlay
+                        hoverTimeout = setTimeout(() => {
+                            this.showCommitDetailOverlay(e);
+                        }, 200);
+                    });
+                    
+                    dropdown.addEventListener('mouseout', () => {
+                        // Clear timeout if mouse leaves before delay
+                        if (hoverTimeout) {
+                            clearTimeout(hoverTimeout);
+                            hoverTimeout = null;
+                        }
+                        
+                        // GADS compliant: immediate dismissal when leaving dropdown area
+                        this.hideCommitDetailOverlay();
+                    });
+                    
+                    // Update overlay content immediately when hovering different commits
+                    dropdown.addEventListener('mousemove', (e) => {
+                        if (this.elements.commitDetailOverlay.style.display === 'block') {
+                            this.updateCommitDetailOverlay(e);
+                        }
+                    });
                 });
 
                 // Parse URL hash on load
@@ -510,8 +597,8 @@
                     const isUnchanged = index > 0 &&
                         commit.html_sha256 === this.manifest.commits[index - 1].html_sha256;
 
-                    const shortHash = commit.hash.substring(0, 8);
-                    const text = `${shortHash} - ${commit.message}`;
+                    const shortHash = commit.hash.substring(0, 7); // GADS compliant: first 7 characters
+                    const text = shortHash; // GADS compliant: exclude commit messages from dropdown display
 
                     this.addOption(this.elements.fromDropdown, commit.hash, text, isUnchanged);
                     this.addOption(this.elements.toDropdown, commit.hash, text, isUnchanged);
@@ -1360,25 +1447,72 @@
                 this.elements.statusSection.style.display = 'none';
             }
 
-            showCommitTooltip(event) {
-                const option = event.target.selectedOptions[0];
+            showCommitDetailOverlay(event) {
+                // Only show if hovering over an option with a value
+                const target = event.target;
+                if (!target || target.tagName !== 'SELECT') return;
+                
+                const option = target.options[target.selectedIndex];
+                if (!option || option.value === '') return;
+
+                this.updateCommitDetailOverlay(event);
+                this.elements.commitDetailOverlay.style.display = 'block';
+                
+                // Store the previous rendered content to restore later
+                if (!this.previousRenderedContent) {
+                    this.previousRenderedContent = this.elements.renderedPane.innerHTML;
+                }
+            }
+            
+            updateCommitDetailOverlay(event) {
+                const target = event.target;
+                if (!target || target.tagName !== 'SELECT') return;
+                
+                const option = target.options[target.selectedIndex];
                 if (!option || option.value === '') return;
 
                 const commit = this.resolveCommit(option.value);
                 if (!commit) return;
 
-                this.elements.commitTooltip.innerHTML = `
-                    <div><strong>${commit.hash}</strong></div>
-                    <div>${commit.message}</div>
+                // GADS compliant: full commit details with metadata
+                this.elements.commitDetailContent.innerHTML = `
+                    <div class="commit-detail-header">Commit Details</div>
+                    
+                    <div class="commit-detail-field">
+                        <div class="commit-detail-label">Full SHA:</div>
+                        <div class="commit-detail-value">${commit.hash}</div>
+                    </div>
+                    
+                    <div class="commit-detail-field">
+                        <div class="commit-detail-label">Date:</div>
+                        <div class="commit-detail-value">${commit.date || 'Not available'}</div>
+                    </div>
+                    
+                    <div class="commit-detail-field">
+                        <div class="commit-detail-label">Commit Message:</div>
+                        <div class="commit-detail-value">${commit.message}</div>
+                    </div>
+                    
+                    <div class="commit-detail-field">
+                        <div class="commit-detail-label">HTML File:</div>
+                        <div class="commit-detail-value">${commit.html_file}</div>
+                    </div>
+                    
+                    <div class="commit-detail-field">
+                        <div class="commit-detail-label">HTML SHA256:</div>
+                        <div class="commit-detail-value">${commit.html_sha256}</div>
+                    </div>
                 `;
-
-                this.elements.commitTooltip.style.display = 'block';
-                this.elements.commitTooltip.style.left = event.pageX + 10 + 'px';
-                this.elements.commitTooltip.style.top = event.pageY - 10 + 'px';
             }
 
-            hideCommitTooltip() {
-                this.elements.commitTooltip.style.display = 'none';
+            hideCommitDetailOverlay() {
+                this.elements.commitDetailOverlay.style.display = 'none';
+                
+                // GADS compliant: restore previous rendered content
+                if (this.previousRenderedContent) {
+                    this.elements.renderedPane.innerHTML = this.previousRenderedContent;
+                    this.previousRenderedContent = null;
+                }
             }
 
 
