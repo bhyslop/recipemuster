@@ -1309,86 +1309,41 @@
             handleTextModification(outputDOM, operation, routeElementMap) {
                 wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Processing text modification at route [${operation.route.join(',')}]: "${operation.oldValue}" → "${operation.newValue}"`);
 
-                // Find the text node that was modified
+                // GADS Phase 3: Element Lookup - Traverse route to locate target element
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (!element) {
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Could not find element for text modification at route [${operation.route.join(',')}]`);
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Route traversal failed for route [${operation.route.join(',')}]`);
+                    this.insertProcessingErrorMarker(outputDOM, operation.route, 'Route traversal failed', operation);
                     return;
                 }
 
-                // If we have the old value, create a deletion indicator
+                // GADS Phase 3: Context Detection - Examine parent element type for deletion strategy
+                const deletionStrategy = this.determineTextDeletionStrategy(element);
+                wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Deletion strategy: ${deletionStrategy.type} (parent: ${deletionStrategy.parentTag || 'none'})`);
+
+                // GADS Phase 3: Content Validation - Verify target element content matches oldValue
                 if (operation.oldValue && operation.oldValue !== operation.newValue) {
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Creating deletion indicator for old text: "${operation.oldValue}"`);
-
-                    // Check if we're in a paragraph context - if so, use inline deletion
-                    if (this.isInInlineContext(element)) {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Using inline deletion for paragraph text`);
-                        // Create inline deletion span
-                        const deletionSpan = document.createElement('span');
-                        deletionSpan.className = 'diff-deletion-inline';
-                        deletionSpan.style.backgroundColor = 'rgb(248, 215, 218)';
-                        deletionSpan.style.textDecoration = 'line-through';
-                        deletionSpan.style.padding = '1px 2px';
-                        deletionSpan.style.marginRight = '2px';
-                        deletionSpan.textContent = operation.oldValue;
-
-                        // Insert the inline deletion before the modified text
-                        if (element.parentNode) {
-                            element.parentNode.insertBefore(deletionSpan, element);
-                            wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Inserted inline deletion for old text`);
-                        }
+                    const contentMatches = this.validateElementContent(element, operation.oldValue);
+                    
+                    if (contentMatches) {
+                        // Apply deletion element using determined strategy
+                        this.applyDeletionElement(element, operation.oldValue, deletionStrategy);
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied ${deletionStrategy.type} deletion for: "${operation.oldValue}"`);
                     } else {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Using block deletion for non-paragraph text`);
-                        // Create deletion block with the old text (original behavior)
-                        const deletionBlock = document.createElement('div');
-                        deletionBlock.className = 'diff-deletion diff-insertion';
-                        deletionBlock.style.backgroundColor = 'rgb(212, 237, 218)';
-                        deletionBlock.style.borderLeft = '4px solid rgb(40, 167, 69)';
-                        deletionBlock.style.padding = '4px';
-                        deletionBlock.style.marginBottom = '4px';
-                        deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(operation.oldValue)}</span>`;
-
-                        // Insert the deletion block before the modified element
-                        const insertionPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
-                        if (insertionPoint && insertionPoint.container) {
-                            if (insertionPoint.insertBefore) {
-                                insertionPoint.container.insertBefore(deletionBlock, insertionPoint.insertBefore);
-                            } else {
-                                insertionPoint.container.appendChild(deletionBlock);
-                            }
-                            wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Inserted deletion block for old text`);
-                        }
+                        // GADS Phase 3: Failure Handling - Content mismatch detected
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Content mismatch: expected "${operation.oldValue}", found "${element.textContent}"`);
+                        this.insertProcessingErrorMarker(outputDOM, operation.route, `Content mismatch: expected "${operation.oldValue}"`, operation);
                     }
                 }
 
-                // Mark the new text as an insertion - only if the text content matches newValue
-                if (element.nodeType === Node.TEXT_NODE) {
-                    // Verify this text node actually contains the new value
-                    if (element.textContent === operation.newValue) {
-                        // For text nodes, wrap in a span
-                        const span = document.createElement('span');
-                        span.classList.add('diff-insertion');
-                        span.style.backgroundColor = 'rgb(212, 237, 218)';
-                        span.style.padding = '2px';
-                        span.style.borderRadius = '2px';
-                        span.textContent = operation.newValue;
-
-                        // Replace the text node with our highlighted span
-                        element.parentNode.replaceChild(span, element);
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to new text: "${operation.newValue}"`);
+                // Apply insertion styling to new value
+                if (operation.newValue) {
+                    const insertionSuccess = this.applyInsertionStyling(element, operation.newValue);
+                    if (insertionSuccess) {
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to: "${operation.newValue}"`);
                     } else {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Text node content "${element.textContent}" doesn't match expected newValue "${operation.newValue}", skipping replacement`);
-                    }
-                } else if (element.nodeType === Node.ELEMENT_NODE) {
-                    // For element nodes, add insertion class only if content matches
-                    if (element.textContent === operation.newValue) {
-                        element.classList.add('diff-insertion');
-                        element.style.backgroundColor = 'rgb(212, 237, 218)';
-                        element.style.padding = '2px';
-                        element.style.borderRadius = '2px';
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to element containing: "${operation.newValue}"`);
-                    } else {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Element content "${element.textContent}" doesn't match expected newValue "${operation.newValue}", skipping styling`);
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Failed to apply insertion styling to: "${operation.newValue}"`);
+                        this.insertProcessingErrorMarker(outputDOM, operation.route, `Insertion styling failed`, operation);
                     }
                 }
             }
@@ -1399,21 +1354,173 @@
                 return div.innerHTML;
             }
 
-            isInInlineContext(element) {
-                // Walk up the DOM tree to see if we're inside a paragraph or other inline-preferred element
+            // GADS Phase 3: Context Detection - Determine deletion strategy based on parent element
+            determineTextDeletionStrategy(element) {
                 let current = element;
-                const inlineContextTags = new Set(['P', 'SPAN', 'A', 'EM', 'STRONG', 'CODE', 'TD', 'TH', 'LI', 'DD']);
+                
+                // GADS specification: Check for specific parent element types
+                const inlineContextTags = new Set(['P', 'TD', 'TH', 'LI', 'DD']);
                 
                 while (current && current.parentNode) {
-                    if (current.tagName && inlineContextTags.has(current.tagName)) {
-                        wsTraceHandler.sendTrace('[INLINE-CHECK]', `Found inline context: ${current.tagName}`);
-                        return true;
-                    }
                     current = current.parentNode;
+                    if (current.tagName && inlineContextTags.has(current.tagName)) {
+                        return {
+                            type: 'inline',
+                            parentTag: current.tagName,
+                            parentElement: current
+                        };
+                    }
                 }
                 
-                wsTraceHandler.sendTrace('[INLINE-CHECK]', `No inline context found, using block deletion`);
-                return false;
+                return {
+                    type: 'block',
+                    parentTag: null,
+                    parentElement: null
+                };
+            }
+
+            // GADS Phase 3: Content Validation - Verify element content matches expected value
+            validateElementContent(element, expectedContent) {
+                if (element.nodeType === Node.TEXT_NODE) {
+                    return element.textContent === expectedContent;
+                } else if (element.nodeType === Node.ELEMENT_NODE) {
+                    return element.textContent === expectedContent;
+                } else {
+                    return false;
+                }
+            }
+
+            // GADS Phase 3: Apply deletion element using determined strategy
+            applyDeletionElement(element, deletedContent, strategy) {
+                if (strategy.type === 'inline') {
+                    // Create inline deletion span per GADS specification
+                    const deletionSpan = document.createElement('span');
+                    deletionSpan.className = 'diff-deletion-inline';
+                    deletionSpan.style.backgroundColor = 'rgb(248, 215, 218)';
+                    deletionSpan.style.textDecoration = 'line-through';
+                    deletionSpan.style.padding = '1px 2px';
+                    deletionSpan.style.marginRight = '2px';
+                    deletionSpan.textContent = deletedContent;
+
+                    // Insert before the target element to maintain reading order
+                    if (element.parentNode) {
+                        element.parentNode.insertBefore(deletionSpan, element);
+                    }
+                } else {
+                    // Create block deletion div for non-inline contexts
+                    const deletionBlock = document.createElement('div');
+                    deletionBlock.className = 'diff-deletion';
+                    deletionBlock.style.backgroundColor = 'rgb(248, 215, 218)';
+                    deletionBlock.style.borderLeft = '4px solid rgb(220, 53, 69)';
+                    deletionBlock.style.padding = '4px';
+                    deletionBlock.style.marginBottom = '4px';
+                    deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(deletedContent)}</span>`;
+
+                    // Use existing insertion point logic for block deletions
+                    const insertionPoint = this.findDeletionInsertionPoint(element.ownerDocument, this.getElementRoute(element));
+                    if (insertionPoint && insertionPoint.container) {
+                        if (insertionPoint.insertBefore) {
+                            insertionPoint.container.insertBefore(deletionBlock, insertionPoint.insertBefore);
+                        } else {
+                            insertionPoint.container.appendChild(deletionBlock);
+                        }
+                    }
+                }
+            }
+
+            // GADS Phase 3: Apply insertion styling to new content
+            applyInsertionStyling(element, newContent) {
+                try {
+                    if (element.nodeType === Node.TEXT_NODE) {
+                        // For text nodes, wrap in a span
+                        const span = document.createElement('span');
+                        span.className = 'diff-insertion';
+                        span.style.backgroundColor = 'rgb(212, 237, 218)';
+                        span.style.padding = '2px';
+                        span.style.borderRadius = '2px';
+                        span.textContent = newContent;
+
+                        // Replace the text node with our highlighted span
+                        if (element.parentNode) {
+                            element.parentNode.replaceChild(span, element);
+                            return true;
+                        }
+                    } else if (element.nodeType === Node.ELEMENT_NODE) {
+                        // For element nodes, add insertion class
+                        element.classList.add('diff-insertion');
+                        element.style.backgroundColor = 'rgb(212, 237, 218)';
+                        element.style.padding = '2px';
+                        element.style.borderRadius = '2px';
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Exception during insertion styling: ${error.message}`);
+                    return false;
+                }
+            }
+
+            // GADS Phase 3: Failure Handling - Insert error marker for diagnostic purposes
+            insertProcessingErrorMarker(outputDOM, route, errorMessage, operation) {
+                const errorSpan = document.createElement('span');
+                errorSpan.className = 'diff-processing-error';
+                errorSpan.style.backgroundColor = 'magenta';
+                errorSpan.style.color = 'white';
+                errorSpan.style.padding = '2px 4px';
+                errorSpan.style.fontSize = '0.8em';
+                errorSpan.style.fontWeight = 'bold';
+                errorSpan.style.borderRadius = '2px';
+                errorSpan.style.margin = '0 2px';
+                errorSpan.textContent = '⚠️ DIFF-ERROR';
+                errorSpan.title = `${errorMessage} | Route: [${route.join(',')}] | Operation: ${operation.oldValue || 'N/A'} → ${operation.newValue || 'N/A'}`;
+
+                // Try to insert near the problem location
+                try {
+                    const approximateElement = this.findApproximateElementByRoute(outputDOM, route);
+                    if (approximateElement && approximateElement.parentNode) {
+                        approximateElement.parentNode.insertBefore(errorSpan, approximateElement);
+                    } else {
+                        // Fallback: append to document body or first available container
+                        const fallbackContainer = outputDOM.querySelector('body') || outputDOM.querySelector('div') || outputDOM;
+                        if (fallbackContainer) {
+                            fallbackContainer.appendChild(errorSpan);
+                        }
+                    }
+                } catch (fallbackError) {
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Failed to insert error marker: ${fallbackError.message}`);
+                }
+            }
+
+            // Helper: Find approximate element when exact route fails
+            findApproximateElementByRoute(dom, route) {
+                let element = dom;
+                // Try to traverse as far as possible through the route
+                for (let i = 0; i < route.length && element; i++) {
+                    if (element.childNodes && element.childNodes[route[i]]) {
+                        element = element.childNodes[route[i]];
+                    } else {
+                        // Return the deepest element we could reach
+                        break;
+                    }
+                }
+                return element;
+            }
+
+            // Helper: Get route array for an element (reverse of findElementByRoute)
+            getElementRoute(element) {
+                const route = [];
+                let current = element;
+                while (current && current.parentNode) {
+                    const parent = current.parentNode;
+                    for (let i = 0; i < parent.childNodes.length; i++) {
+                        if (parent.childNodes[i] === current) {
+                            route.unshift(i);
+                            break;
+                        }
+                    }
+                    current = parent;
+                }
+                return route;
             }
 
             generateDeletionBlock(outputDOM, operation) {
