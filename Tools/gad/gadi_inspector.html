@@ -1281,9 +1281,9 @@
 
                     // Create deletion block with the old text
                     const deletionBlock = document.createElement('div');
-                    deletionBlock.className = 'diff-deletion';
-                    deletionBlock.style.backgroundColor = '#f8d7da';
-                    deletionBlock.style.borderLeft = '4px solid #dc3545';
+                    deletionBlock.className = 'diff-deletion diff-insertion';
+                    deletionBlock.style.backgroundColor = 'rgb(212, 237, 218)';
+                    deletionBlock.style.borderLeft = '4px solid rgb(40, 167, 69)';
                     deletionBlock.style.padding = '4px';
                     deletionBlock.style.marginBottom = '4px';
                     deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(operation.oldValue)}</span>`;
@@ -1300,27 +1300,35 @@
                     }
                 }
 
-                // Mark the new text as an insertion
+                // Mark the new text as an insertion - only if the text content matches newValue
                 if (element.nodeType === Node.TEXT_NODE) {
-                    // For text nodes, wrap in a span
-                    const span = document.createElement('span');
-                    span.classList.add('diff-insertion');
-                    span.style.backgroundColor = 'rgb(212, 237, 218)';
-                    span.style.padding = '2px';
-                    span.style.borderRadius = '2px';
-                    span.textContent = operation.newValue;
+                    // Verify this text node actually contains the new value
+                    if (element.textContent === operation.newValue) {
+                        // For text nodes, wrap in a span
+                        const span = document.createElement('span');
+                        span.classList.add('diff-insertion');
+                        span.style.backgroundColor = 'rgb(212, 237, 218)';
+                        span.style.padding = '2px';
+                        span.style.borderRadius = '2px';
+                        span.textContent = operation.newValue;
 
-                    // Replace the text node with our highlighted span
-                    element.parentNode.replaceChild(span, element);
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to new text: "${operation.newValue}"`);
-
+                        // Replace the text node with our highlighted span
+                        element.parentNode.replaceChild(span, element);
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to new text: "${operation.newValue}"`);
+                    } else {
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Text node content "${element.textContent}" doesn't match expected newValue "${operation.newValue}", skipping replacement`);
+                    }
                 } else if (element.nodeType === Node.ELEMENT_NODE) {
-                    // For element nodes, add insertion class
-                    element.classList.add('diff-insertion');
-                    element.style.backgroundColor = 'rgb(212, 237, 218)';
-                    element.style.padding = '2px';
-                    element.style.borderRadius = '2px';
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to element containing: "${operation.newValue}"`);
+                    // For element nodes, add insertion class only if content matches
+                    if (element.textContent === operation.newValue) {
+                        element.classList.add('diff-insertion');
+                        element.style.backgroundColor = 'rgb(212, 237, 218)';
+                        element.style.padding = '2px';
+                        element.style.borderRadius = '2px';
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to element containing: "${operation.newValue}"`);
+                    } else {
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Element content "${element.textContent}" doesn't match expected newValue "${operation.newValue}", skipping styling`);
+                    }
                 }
             }
 
