@@ -108,12 +108,12 @@ zccck_route() {
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
       # Run GAD factory in ccbx container with hardcoded parameters
-      zccck_connect "cd /workspace/brm_recipemuster && python3 Tools/gad/gadf_factory.py --file ../recipebottle-admin/rbw-RBZG-gadTest.adoc --directory ../gad-working-dir --branch main --max-distinct-renders 3 --once --port ${CCCR_WEB_PORT}"
+      zccck_connect "cd /workspace/brm_recipemuster && python3 -u Tools/gad/gadf_factory.py --file ../recipebottle-admin/rbw-RBZG-gadTest.adoc --directory ../gad-working-dir --branch main --max-distinct-renders 3 --once --port ${CCCR_WEB_PORT}"
       ;;
     gadcf)
       # Run GAD factory locally (inside container) with hardcoded parameters
       rbk_show "Running GAD factory locally"
-      python3 Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-distinct-renders 5 --once --port "${CCCR_WEB_PORT}"
+      python3 -u Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-distinct-renders 5 --once --port "${CCCR_WEB_PORT}"
       ;;
     gadi-i)
       # Open GAD inspector in browser (served by factory HTTP server)

@@ -267,8 +267,12 @@ zbdu_main() {
       "$coordinator_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS
       echo $? > "${zBDU_STATUS_FILE}"
       zbdu_show "Coordinator status: $(cat ${zBDU_STATUS_FILE})"
-    } | tee -a "$BDU_LOG_LAST" >(zbdu_curate_same >> "$BDU_LOG_SAME") \
-                               >(zbdu_curate_hist >> "$BDU_LOG_HIST")
+    } | while IFS= read -r line; do
+        printf '%s\n' "$line" >> "$BDU_LOG_LAST"
+        printf '%s\n' "$line" | zbdu_curate_same >> "$BDU_LOG_SAME"
+        printf '%s\n' "$line" | zbdu_curate_hist >> "$BDU_LOG_HIST"
+        printf '%s\n' "$line"  # to stdout
+      done
   fi
 
   zBDU_EXIT_STATUS=$(cat "${zBDU_STATUS_FILE}")

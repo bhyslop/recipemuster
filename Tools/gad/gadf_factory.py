@@ -45,14 +45,17 @@ logger = logging.getLogger(__name__)
 def gadfl_step(message):
     """GADS-compliant step reporting."""
     logger.info(message)
+    sys.stdout.flush()
 
 def gadfl_warn(message):
     """GADS-compliant warning reporting."""
     logger.warning(f"\033[33m{message}\033[0m")
+    sys.stdout.flush()
 
 def gadfl_fail(message):
     """GADS-compliant fatal error reporting with cleanup preservation."""
     logger.error(f"\033[31m{message}\033[0m")
+    sys.stdout.flush()
     sys.exit(1)
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
