@@ -740,24 +740,59 @@
                 const hash = window.location.hash.substring(1);
                 const params = new URLSearchParams(hash);
 
-                const fromValue = params.get('from');
-                const toValue = params.get('to');
-                wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromValue}", to: "${toValue}"`);
+                const fromHash = params.get('from');
+                const toHash = params.get('to');
+                wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromHash}", to: "${toHash}"`);
 
-                if (fromValue) {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Setting from rail to: ${fromValue}`);
-                    this.setRailSelection('from', fromValue);
-                }
-                if (toValue) {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Setting to rail to: ${toValue}`);
-                    this.setRailSelection('to', toValue);
+                // Convert commit hashes to position values for rail selection
+                let fromPosition = null;
+                let toPosition = null;
+
+                if (fromHash) {
+                    fromPosition = this.hashToPosition(fromHash);
+                    if (fromPosition) {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Setting from rail to position: ${fromPosition} (from hash: ${fromHash})`);
+                        this.setRailSelection('from', fromPosition);
+                    } else {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve from hash: ${fromHash}`);
+                    }
                 }
 
-                if (fromValue || toValue) {
+                if (toHash) {
+                    toPosition = this.hashToPosition(toHash);
+                    if (toPosition) {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Setting to rail to position: ${toPosition} (from hash: ${toHash})`);
+                        this.setRailSelection('to', toPosition);
+                    } else {
+                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve to hash: ${toHash}`);
+                    }
+                }
+
+                if (fromPosition || toPosition) {
                     wsTraceHandler.sendTrace('[DEBUG]', 'URL params found, calling performDiff');
                     this.performDiff();
                 } else {
                     wsTraceHandler.sendTrace('[DEBUG]', 'No URL params found, not calling performDiff');
+                }
+            }
+
+            hashToPosition(commitHash) {
+                if (!commitHash || !this.manifest || !this.manifest.commits) {
+                    return null;
+                }
+
+                // Find the commit by hash
+                const commitIndex = this.manifest.commits.findIndex(c => c.hash === commitHash);
+                if (commitIndex === -1) {
+                    return null;
+                }
+
+                // Convert index to position value (H for head, -1, -2, etc.)
+                if (commitIndex === this.manifest.commits.length - 1) {
+                    return 'H';
+                } else {
+                    const offset = this.manifest.commits.length - 1 - commitIndex;
+                    return `-${offset}`;
                 }
             }
 
@@ -777,11 +812,11 @@
             }
 
             updateUrlHash() {
-                const fromValue = this.selectedFrom;
-                const toValue = this.selectedTo;
+                const fromCommit = this.resolveCommit(this.selectedFrom);
+                const toCommit = this.resolveCommit(this.selectedTo);
 
-                if (fromValue && toValue) {
-                    window.location.hash = `from=${encodeURIComponent(fromValue)}&to=${encodeURIComponent(toValue)}`;
+                if (fromCommit && toCommit) {
+                    window.location.hash = `from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
                 }
             }
 
@@ -831,16 +866,22 @@
             }
 
             resolveCommit(positionValue) {
+                // First check: direct hash lookup
+                const commitByHash = this.manifest.commits.find(c => c.hash === positionValue);
+                if (commitByHash) {
+                    return commitByHash;
+                }
+
+                // Second check: position value handling
                 if (positionValue === 'H') {
                     return this.manifest.commits[this.manifest.commits.length - 1];
                 } else if (positionValue.startsWith('-')) {
                     const offset = parseInt(positionValue.substring(1));
                     const index = this.manifest.commits.length - 1 - offset;
                     return index >= 0 ? this.manifest.commits[index] : null;
-                } else {
-                    // Fallback: try to find by commit hash (for URL compatibility)
-                    return this.manifest.commits.find(c => c.hash === positionValue);
                 }
+
+                return null;
             }
 
             async fetchAndDiff(fromCommit, toCommit) {
