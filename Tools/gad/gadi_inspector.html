@@ -1312,7 +1312,8 @@
                 // GADS Phase 3: Element Lookup - Traverse route to locate target element
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (!element) {
-                    const routeDetails = `Route traversal failed: Could not locate element at route [${operation.route.join(',')}] in output DOM. DOM structure may have changed during processing. Output DOM root: ${outputDOM.tagName || 'unknown'}`;
+                    const routeAnalysis = this.analyzeFailedRouteTraversal(outputDOM, operation.route);
+                    const routeDetails = `ROUTE TRAVERSAL FAILED | Route [${operation.route.join(',')}] | Operation: "${operation.oldValue}" → "${operation.newValue}" | ${routeAnalysis}`;
                     wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', routeDetails);
                     this.insertProcessingErrorMarker(outputDOM, operation.route, 'Route traversal failed', operation, routeDetails);
                     return;
@@ -1331,10 +1332,11 @@
                         this.applyDeletionElement(element, operation.oldValue, deletionStrategy);
                         wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied ${deletionStrategy.type} deletion for: "${operation.oldValue}"`);
                     } else {
-                        // GADS Phase 3: Failure Handling - Content mismatch detected
-                        const errorDetails = `Route [${operation.route.join(',')}]: Expected target element to contain newValue "${operation.newValue}" but found "${element.textContent}". Operation: "${operation.oldValue}" → "${operation.newValue}". Parent: ${deletionStrategy.parentTag || 'unknown'}. Element type: ${element.nodeType === Node.TEXT_NODE ? 'TEXT_NODE' : element.nodeType === Node.ELEMENT_NODE ? element.tagName : 'unknown'}`;
+                        // GADS Phase 3: Failure Handling - Content mismatch detected with detailed context
+                        const localeContext = this.generateDetailedLocaleContext(element, operation.route, outputDOM);
+                        const errorDetails = `CONTENT VALIDATION FAILED | Route [${operation.route.join(',')}] | Expected newValue "${operation.newValue}" but found "${element.textContent}" | Operation: "${operation.oldValue}" → "${operation.newValue}" | ${localeContext}`;
                         wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', errorDetails);
-                        this.insertProcessingErrorMarker(outputDOM, operation.route, 'Target element content validation failed', operation, errorDetails);
+                        this.insertProcessingErrorMarker(outputDOM, operation.route, 'Content validation failed', operation, errorDetails);
                     }
                 }
 
@@ -1536,6 +1538,116 @@
                     current = parent;
                 }
                 return route;
+            }
+
+            // Enhanced error reporting: Generate detailed locale context for failed content validation
+            generateDetailedLocaleContext(element, route, outputDOM) {
+                const context = [];
+                
+                // Element details
+                const elementType = element.nodeType === Node.TEXT_NODE ? 'TEXT_NODE' : 
+                                   element.nodeType === Node.ELEMENT_NODE ? element.tagName : `NODE_TYPE_${element.nodeType}`;
+                context.push(`Element: ${elementType}`);
+
+                // Parent chain analysis
+                const parentChain = [];
+                let current = element.parentNode;
+                let depth = 0;
+                while (current && depth < 5) {
+                    const tag = current.tagName || `NODE_${current.nodeType}`;
+                    const id = current.id ? `#${current.id}` : '';
+                    const className = current.className ? `.${current.className.split(' ').join('.')}` : '';
+                    parentChain.push(`${tag}${id}${className}`);
+                    current = current.parentNode;
+                    depth++;
+                }
+                context.push(`Parents: ${parentChain.join(' < ')}`);
+
+                // Sibling context
+                if (element.parentNode) {
+                    const siblings = Array.from(element.parentNode.childNodes);
+                    const elementIndex = siblings.indexOf(element);
+                    const siblingInfo = [];
+                    
+                    // Show previous sibling
+                    if (elementIndex > 0) {
+                        const prev = siblings[elementIndex - 1];
+                        const prevDesc = prev.nodeType === Node.TEXT_NODE ? 
+                            `TEXT("${prev.textContent.substring(0, 20)}${prev.textContent.length > 20 ? '...' : '}")` :
+                            prev.tagName || `NODE_${prev.nodeType}`;
+                        siblingInfo.push(`prev: ${prevDesc}`);
+                    }
+                    
+                    // Show next sibling
+                    if (elementIndex < siblings.length - 1) {
+                        const next = siblings[elementIndex + 1];
+                        const nextDesc = next.nodeType === Node.TEXT_NODE ? 
+                            `TEXT("${next.textContent.substring(0, 20)}${next.textContent.length > 20 ? '...' : '}")` :
+                            next.tagName || `NODE_${next.nodeType}`;
+                        siblingInfo.push(`next: ${nextDesc}`);
+                    }
+                    
+                    if (siblingInfo.length > 0) {
+                        context.push(`Siblings: ${siblingInfo.join(', ')}`);
+                    }
+                }
+
+                // Element content preview
+                if (element.textContent) {
+                    const preview = element.textContent.substring(0, 50);
+                    context.push(`Content preview: "${preview}${element.textContent.length > 50 ? '...' : ''}"`);
+                }
+
+                // Element attributes (for element nodes)
+                if (element.nodeType === Node.ELEMENT_NODE && element.attributes && element.attributes.length > 0) {
+                    const attrs = Array.from(element.attributes).map(attr => `${attr.name}="${attr.value}"`).slice(0, 3);
+                    context.push(`Attributes: ${attrs.join(', ')}`);
+                }
+
+                return context.join(' | ');
+            }
+
+            // Enhanced error reporting: Analyze failed route traversal with step-by-step breakdown
+            analyzeFailedRouteTraversal(outputDOM, route) {
+                const analysis = [];
+                let current = outputDOM;
+                let successfulSteps = 0;
+
+                analysis.push(`DOM root: ${outputDOM.tagName || `NODE_${outputDOM.nodeType}`}`);
+
+                // Traverse as far as possible
+                for (let i = 0; i < route.length; i++) {
+                    const step = route[i];
+                    
+                    if (!current.childNodes) {
+                        analysis.push(`Step ${i}: FAILED - Current element has no childNodes`);
+                        break;
+                    }
+                    
+                    if (step >= current.childNodes.length) {
+                        analysis.push(`Step ${i}: FAILED - Index ${step} >= childNodes.length ${current.childNodes.length}`);
+                        analysis.push(`Available children: ${Array.from(current.childNodes).map((child, idx) => `${idx}:${child.tagName || `NODE_${child.nodeType}`}`).join(', ')}`);
+                        break;
+                    }
+                    
+                    const nextElement = current.childNodes[step];
+                    const elementDesc = nextElement.tagName || `NODE_${nextElement.nodeType}`;
+                    analysis.push(`Step ${i}: SUCCESS - Found ${elementDesc} at index ${step}`);
+                    
+                    current = nextElement;
+                    successfulSteps++;
+                }
+
+                analysis.push(`Traversal completed: ${successfulSteps}/${route.length} steps successful`);
+
+                // Show what we ended up at
+                if (current) {
+                    const finalDesc = current.tagName || `NODE_${current.nodeType}`;
+                    const content = current.textContent ? ` content:"${current.textContent.substring(0, 30)}${current.textContent.length > 30 ? '...' : ''}"` : '';
+                    analysis.push(`Final element: ${finalDesc}${content}`);
+                }
+
+                return analysis.join(' | ');
             }
 
             generateDeletionBlock(outputDOM, operation) {
