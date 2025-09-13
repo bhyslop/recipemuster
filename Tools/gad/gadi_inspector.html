@@ -995,9 +995,14 @@
 
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
+                    // Phase 3.5: Coalesce Operations
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3.5: Coalescing adjacent operations for cleaner diffs');
+                    const coalescedOperations = this.coalesceOperations(diffOperations);
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3.5: Coalesced from ${diffOperations.length} to ${coalescedOperations.length} operations`);
+
                     // Phase 4: Generate Clean Output DOM
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
-                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
+                    const outputDOM = this.generateOutputDOM(immutableToDOM, coalescedOperations, routeElementMap);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
 
                     // Performance logging for Factory debugging
@@ -1718,8 +1723,165 @@
                 wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
             }
 
+            coalesceOperations(diffOperations) {
+                wsTraceHandler.sendTrace('[COALESCE]', `Starting coalescing on ${diffOperations.length} operations`);
+                
+                // Create a copy to work with, preserving original operations
+                let operations = [...diffOperations];
+                let coalescingCount = 0;
 
+                // Phase 1: Insertion Coalescing
+                // Find modifyTextElement + addElement + addTextElement sequences
+                operations = this.coalesceInsertions(operations);
+                
+                // Phase 2: Deletion Coalescing  
+                // Find adjacent removeElement sequences
+                operations = this.coalesceDeletions(operations);
+                
+                wsTraceHandler.sendTrace('[COALESCE]', `Coalescing complete: ${coalescingCount} operations merged`);
+                return operations;
+            }
 
+            coalesceInsertions(operations) {
+                wsTraceHandler.sendTrace('[COALESCE-INSERT]', 'Starting insertion coalescing');
+                const coalesced = [];
+                let i = 0;
+                let mergeCount = 0;
+
+                while (i < operations.length) {
+                    const currentOp = operations[i];
+                    
+                    // Look for modifyTextElement followed by addElement + addTextElement pattern
+                    if (currentOp.action === 'modifyTextElement' && 
+                        i + 2 < operations.length) {
+                        
+                        const nextOp1 = operations[i + 1];
+                        const nextOp2 = operations[i + 2];
+                        
+                        // Check if this is a coalesceable sequence
+                        if (nextOp1.action === 'addElement' && 
+                            nextOp2.action === 'addTextElement' &&
+                            this.areRoutesAdjacent(currentOp.route, nextOp1.route, nextOp2.route)) {
+                            
+                            // Create coalesced operation
+                            const coalescedOp = {
+                                ...currentOp,
+                                newValue: currentOp.newValue + (nextOp2.text || ''),
+                                coalescedFrom: [currentOp, nextOp1, nextOp2],
+                                coalesced: true
+                            };
+                            
+                            wsTraceHandler.sendTrace('[COALESCE-INSERT]', 
+                                `Merged: "${currentOp.oldValue}" → "${coalescedOp.newValue}" (3 ops → 1)`);
+                            
+                            coalesced.push(coalescedOp);
+                            mergeCount++;
+                            i += 3; // Skip the merged operations
+                            continue;
+                        }
+                    }
+                    
+                    // No coalescing - keep original operation
+                    coalesced.push(currentOp);
+                    i++;
+                }
+                
+                wsTraceHandler.sendTrace('[COALESCE-INSERT]', `Insertion coalescing complete: ${mergeCount} sequences merged`);
+                return coalesced;
+            }
+
+            coalesceDeletions(operations) {
+                wsTraceHandler.sendTrace('[COALESCE-DELETE]', 'Starting deletion coalescing');
+                const coalesced = [];
+                let i = 0;
+                let mergeCount = 0;
+
+                while (i < operations.length) {
+                    const currentOp = operations[i];
+                    
+                    // Look for removeElement sequences at adjacent routes
+                    if (currentOp.action === 'removeElement') {
+                        const deletionSequence = [currentOp];
+                        let j = i + 1;
+                        
+                        // Collect adjacent removeElement operations
+                        while (j < operations.length && 
+                               operations[j].action === 'removeElement' &&
+                               this.areRoutesSibling(deletionSequence[deletionSequence.length - 1].route, operations[j].route)) {
+                            deletionSequence.push(operations[j]);
+                            j++;
+                        }
+                        
+                        // If we found multiple adjacent deletions, coalesce them
+                        if (deletionSequence.length > 1) {
+                            const coalescedOp = {
+                                action: 'removeElementBlock',
+                                route: deletionSequence[0].route, // Use first route as anchor
+                                coalescedFrom: deletionSequence,
+                                coalesced: true,
+                                deletionCount: deletionSequence.length
+                            };
+                            
+                            wsTraceHandler.sendTrace('[COALESCE-DELETE]', 
+                                `Merged ${deletionSequence.length} adjacent deletions into block`);
+                            
+                            coalesced.push(coalescedOp);
+                            mergeCount++;
+                            i = j; // Skip all merged operations
+                            continue;
+                        }
+                    }
+                    
+                    // No coalescing - keep original operation
+                    coalesced.push(currentOp);
+                    i++;
+                }
+                
+                wsTraceHandler.sendTrace('[COALESCE-DELETE]', `Deletion coalescing complete: ${mergeCount} blocks merged`);
+                return coalesced;
+            }
+
+            areRoutesSibling(route1, route2) {
+                // Check if routes are siblings (same parent, adjacent indices)
+                if (route1.length !== route2.length) {
+                    return false;
+                }
+                
+                // Check all but last index are identical (same parent)
+                for (let i = 0; i < route1.length - 1; i++) {
+                    if (route1[i] !== route2[i]) {
+                        return false;
+                    }
+                }
+                
+                // Check last indices are adjacent
+                const lastIndex1 = route1[route1.length - 1];
+                const lastIndex2 = route2[route2.length - 1];
+                
+                return Math.abs(lastIndex2 - lastIndex1) === 1;
+            }
+
+            areRoutesAdjacent(route1, route2, route3) {
+                // Check if routes are sequential siblings in DOM tree
+                // route1: [1,0,1,0,0,16], route2: [1,0,1,0,0,17], route3: [1,0,1,0,0,18]
+                if (route1.length !== route2.length || route2.length !== route3.length) {
+                    return false;
+                }
+                
+                // Check all but last index are identical
+                for (let i = 0; i < route1.length - 1; i++) {
+                    if (route1[i] !== route2[i] || route2[i] !== route3[i]) {
+                        return false;
+                    }
+                }
+                
+                // Check last indices are sequential
+                const lastIndex1 = route1[route1.length - 1];
+                const lastIndex2 = route2[route2.length - 1];
+                const lastIndex3 = route3[route3.length - 1];
+                
+                return (lastIndex2 === lastIndex1 + 1 && lastIndex3 === lastIndex2 + 1);
+            }
 
             showStatusMessage(message) {
                 this.elements.statusSection.textContent = message;
