@@ -1172,8 +1172,10 @@
                 let insertions = 0, deletions = 0, moves = 0, modifications = 0;
                 const processedDeletions = new Set(); // Track processed deletion routes to prevent duplicates
 
-                // Process operations to generate annotations
-                for (const op of diffOperations) {
+                // Process operations in reverse order (GADS Phase 3) to prevent route invalidation
+                for (let i = diffOperations.length - 1; i >= 0; i--) {
+                    const op = diffOperations[i];
+                    wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processing operation ${i} (reverse order): ${op.action} at route [${op.route.join(',')}]`);
                     switch (op.action) {
                         case 'addElement':
                         case 'addTextElement':
