@@ -1316,28 +1316,48 @@
                     return;
                 }
 
-                // If we have the old value, create a deletion block first
+                // If we have the old value, create a deletion indicator
                 if (operation.oldValue && operation.oldValue !== operation.newValue) {
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Creating deletion block for old text: "${operation.oldValue}"`);
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Creating deletion indicator for old text: "${operation.oldValue}"`);
 
-                    // Create deletion block with the old text
-                    const deletionBlock = document.createElement('div');
-                    deletionBlock.className = 'diff-deletion diff-insertion';
-                    deletionBlock.style.backgroundColor = 'rgb(212, 237, 218)';
-                    deletionBlock.style.borderLeft = '4px solid rgb(40, 167, 69)';
-                    deletionBlock.style.padding = '4px';
-                    deletionBlock.style.marginBottom = '4px';
-                    deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(operation.oldValue)}</span>`;
+                    // Check if we're in a paragraph context - if so, use inline deletion
+                    if (this.isInInlineContext(element)) {
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Using inline deletion for paragraph text`);
+                        // Create inline deletion span
+                        const deletionSpan = document.createElement('span');
+                        deletionSpan.className = 'diff-deletion-inline';
+                        deletionSpan.style.backgroundColor = 'rgb(248, 215, 218)';
+                        deletionSpan.style.textDecoration = 'line-through';
+                        deletionSpan.style.padding = '1px 2px';
+                        deletionSpan.style.marginRight = '2px';
+                        deletionSpan.textContent = operation.oldValue;
 
-                    // Insert the deletion block before the modified element
-                    const insertionPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
-                    if (insertionPoint && insertionPoint.container) {
-                        if (insertionPoint.insertBefore) {
-                            insertionPoint.container.insertBefore(deletionBlock, insertionPoint.insertBefore);
-                        } else {
-                            insertionPoint.container.appendChild(deletionBlock);
+                        // Insert the inline deletion before the modified text
+                        if (element.parentNode) {
+                            element.parentNode.insertBefore(deletionSpan, element);
+                            wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Inserted inline deletion for old text`);
                         }
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Inserted deletion block for old text`);
+                    } else {
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Using block deletion for non-paragraph text`);
+                        // Create deletion block with the old text (original behavior)
+                        const deletionBlock = document.createElement('div');
+                        deletionBlock.className = 'diff-deletion diff-insertion';
+                        deletionBlock.style.backgroundColor = 'rgb(212, 237, 218)';
+                        deletionBlock.style.borderLeft = '4px solid rgb(40, 167, 69)';
+                        deletionBlock.style.padding = '4px';
+                        deletionBlock.style.marginBottom = '4px';
+                        deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(operation.oldValue)}</span>`;
+
+                        // Insert the deletion block before the modified element
+                        const insertionPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
+                        if (insertionPoint && insertionPoint.container) {
+                            if (insertionPoint.insertBefore) {
+                                insertionPoint.container.insertBefore(deletionBlock, insertionPoint.insertBefore);
+                            } else {
+                                insertionPoint.container.appendChild(deletionBlock);
+                            }
+                            wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Inserted deletion block for old text`);
+                        }
                     }
                 }
 
@@ -1377,6 +1397,23 @@
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
+            }
+
+            isInInlineContext(element) {
+                // Walk up the DOM tree to see if we're inside a paragraph or other inline-preferred element
+                let current = element;
+                const inlineContextTags = new Set(['P', 'SPAN', 'A', 'EM', 'STRONG', 'CODE', 'TD', 'TH', 'LI', 'DD']);
+                
+                while (current && current.parentNode) {
+                    if (current.tagName && inlineContextTags.has(current.tagName)) {
+                        wsTraceHandler.sendTrace('[INLINE-CHECK]', `Found inline context: ${current.tagName}`);
+                        return true;
+                    }
+                    current = current.parentNode;
+                }
+                
+                wsTraceHandler.sendTrace('[INLINE-CHECK]', `No inline context found, using block deletion`);
+                return false;
             }
 
             generateDeletionBlock(outputDOM, operation) {
