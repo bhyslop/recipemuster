@@ -1312,8 +1312,9 @@
                 // GADS Phase 3: Element Lookup - Traverse route to locate target element
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (!element) {
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Route traversal failed for route [${operation.route.join(',')}]`);
-                    this.insertProcessingErrorMarker(outputDOM, operation.route, 'Route traversal failed', operation);
+                    const routeDetails = `Route traversal failed: Could not locate element at route [${operation.route.join(',')}] in output DOM. DOM structure may have changed during processing. Output DOM root: ${outputDOM.tagName || 'unknown'}`;
+                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', routeDetails);
+                    this.insertProcessingErrorMarker(outputDOM, operation.route, 'Route traversal failed', operation, routeDetails);
                     return;
                 }
 
@@ -1321,18 +1322,19 @@
                 const deletionStrategy = this.determineTextDeletionStrategy(element);
                 wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Deletion strategy: ${deletionStrategy.type} (parent: ${deletionStrategy.parentTag || 'none'})`);
 
-                // GADS Phase 3: Content Validation - Verify target element content matches oldValue
+                // GADS Phase 3: Content Validation - Verify target element content matches newValue (output DOM has new content)
                 if (operation.oldValue && operation.oldValue !== operation.newValue) {
-                    const contentMatches = this.validateElementContent(element, operation.oldValue);
+                    const contentMatches = this.validateElementContent(element, operation.newValue);
                     
                     if (contentMatches) {
-                        // Apply deletion element using determined strategy
+                        // Apply deletion element using determined strategy - show what was deleted (oldValue)
                         this.applyDeletionElement(element, operation.oldValue, deletionStrategy);
                         wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied ${deletionStrategy.type} deletion for: "${operation.oldValue}"`);
                     } else {
                         // GADS Phase 3: Failure Handling - Content mismatch detected
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Content mismatch: expected "${operation.oldValue}", found "${element.textContent}"`);
-                        this.insertProcessingErrorMarker(outputDOM, operation.route, `Content mismatch: expected "${operation.oldValue}"`, operation);
+                        const errorDetails = `Route [${operation.route.join(',')}]: Expected target element to contain newValue "${operation.newValue}" but found "${element.textContent}". Operation: "${operation.oldValue}" → "${operation.newValue}". Parent: ${deletionStrategy.parentTag || 'unknown'}. Element type: ${element.nodeType === Node.TEXT_NODE ? 'TEXT_NODE' : element.nodeType === Node.ELEMENT_NODE ? element.tagName : 'unknown'}`;
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', errorDetails);
+                        this.insertProcessingErrorMarker(outputDOM, operation.route, 'Target element content validation failed', operation, errorDetails);
                     }
                 }
 
@@ -1343,7 +1345,7 @@
                         wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to: "${operation.newValue}"`);
                     } else {
                         wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Failed to apply insertion styling to: "${operation.newValue}"`);
-                        this.insertProcessingErrorMarker(outputDOM, operation.route, `Insertion styling failed`, operation);
+                        this.insertProcessingErrorMarker(outputDOM, operation.route, 'Insertion styling failed', operation, `Failed to apply insertion styling to element containing "${element.textContent}" for newValue "${operation.newValue}"`);
                     }
                 }
             }
@@ -1461,7 +1463,7 @@
             }
 
             // GADS Phase 3: Failure Handling - Insert error marker for diagnostic purposes
-            insertProcessingErrorMarker(outputDOM, route, errorMessage, operation) {
+            insertProcessingErrorMarker(outputDOM, route, errorMessage, operation, detailedError) {
                 const errorSpan = document.createElement('span');
                 errorSpan.className = 'diff-processing-error';
                 errorSpan.style.backgroundColor = 'magenta';
@@ -1471,19 +1473,32 @@
                 errorSpan.style.fontWeight = 'bold';
                 errorSpan.style.borderRadius = '2px';
                 errorSpan.style.margin = '0 2px';
+                errorSpan.style.cursor = 'help';
                 errorSpan.textContent = '⚠️ DIFF-ERROR';
-                errorSpan.title = `${errorMessage} | Route: [${route.join(',')}] | Operation: ${operation.oldValue || 'N/A'} → ${operation.newValue || 'N/A'}`;
+                
+                // Create detailed tooltip with all diagnostic information
+                const tooltipContent = [
+                    `ERROR: ${errorMessage}`,
+                    `ROUTE: [${route.join(',')}]`,
+                    `OPERATION: "${operation.oldValue || 'N/A'}" → "${operation.newValue || 'N/A'}"`,
+                    detailedError ? `DETAILS: ${detailedError}` : '',
+                    `TIMESTAMP: ${new Date().toISOString()}`
+                ].filter(Boolean).join(' | ');
+                
+                errorSpan.title = tooltipContent;
 
                 // Try to insert near the problem location
                 try {
                     const approximateElement = this.findApproximateElementByRoute(outputDOM, route);
                     if (approximateElement && approximateElement.parentNode) {
                         approximateElement.parentNode.insertBefore(errorSpan, approximateElement);
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Inserted error marker near route [${route.join(',')}]`);
                     } else {
                         // Fallback: append to document body or first available container
                         const fallbackContainer = outputDOM.querySelector('body') || outputDOM.querySelector('div') || outputDOM;
                         if (fallbackContainer) {
                             fallbackContainer.appendChild(errorSpan);
+                            wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Inserted error marker in fallback container (${fallbackContainer.tagName || 'unknown'})`);
                         }
                     }
                 } catch (fallbackError) {
