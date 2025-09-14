@@ -1782,8 +1782,11 @@
                             wsTraceHandler.sendTrace('[DEBUG-COALESCE]', `addTextElement props: ${Object.keys(nextOp2).join(', ')}`);
                             wsTraceHandler.sendTrace('[DEBUG-COALESCE]', `addTextElement full object: ${JSON.stringify(nextOp2)}`);
                             
-                            // Create coalesced operation - get text from addElement if it has any
-                            const elementText = nextOp1.element?.textContent || nextOp1.text || nextOp1.value || '';
+                            // Create coalesced operation - extract text from addElement's nested structure
+                            const elementText = nextOp1.element?.childNodes?.[0]?.data || 
+                                              nextOp1.element?.textContent || 
+                                              nextOp1.text || 
+                                              nextOp1.value || '';
                             const textContent = nextOp2.value || nextOp2.newValue || nextOp2.data || nextOp2.text || nextOp2.content || '';
                             const coalescedOp = {
                                 ...currentOp,
