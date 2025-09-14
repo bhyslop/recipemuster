@@ -463,7 +463,7 @@
                             filename_pattern: `debug-rendered-${fromHash}-${toHash}-${timestamp}.html`,
                             source_files: sourceFiles || []
                         }));
-                        console.log('[RENDERED-CONTENT] Sent to Factory for gadfd_rendered_capture creation');
+                        console.log('[RENDERED-CONTENT] Sent to Factory for raw diff file creation');
                     } catch (error) {
                         console.log(`[WS-ERROR] Failed to send rendered content: ${error}`);
                     }
@@ -916,7 +916,8 @@
                         `To: /output/${toCommit.html_file}`
                     ];
 
-                    // Send rendered content to Factory via WebSocket for gadfd_rendered_capture
+                    // Send rendered content to Factory via WebSocket for raw diff file creation
+                    wsTraceHandler.sendTrace('[RAW-DIFF]', `Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
                     wsTraceHandler.sendRenderedContent(styledDiff, fromCommit, toCommit, sourceFiles);
 
                     // Enhanced logging for Factory debugging

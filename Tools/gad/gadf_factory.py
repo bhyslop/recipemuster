@@ -110,7 +110,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                 
                 f.write(rendered_html)
 
-            gadfl_step(f"Saved rendered content to gadfd_rendered_capture: {filename}")
+            gadfl_step(f"Raw diff file created: {filename}")
+            gadfl_step(f"Full path: {filepath}")
 
         except Exception as e:
             gadfl_warn(f"Failed to save rendered content: {e}")
@@ -532,7 +533,7 @@ class GADFactory:
         gadfl_step("Running asciidoctor")
         try:
             subprocess.run([
-                'asciidoctor', '-a', 'reproducible',
+                'asciidoctor', '-a', 'reproducible', '-a', 'sectnum!',
                 str(extracted_adoc), '-D', str(self.distill_dir)
             ], check=True)
         except subprocess.CalledProcessError:
