@@ -1027,9 +1027,9 @@
                     const annotatedHTML = annotatedDOM.innerHTML;
                     wsTraceHandler.sendAnnotatedDOM(annotatedHTML, fromCommit, toCommit, sourceFiles);
 
-                    // Phase 5: Adjacent Change Coalescing (temporarily disabled)
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - bypassed to preserve diff semantics');
-                    // const coalescedDOM = this.coalesceAdjacentChanges(annotatedDOM);
+                    // Phase 5: Adjacent Change Coalescing
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - merging same-nature elements');
+                    const coalescedDOM = this.mergeAdjacentSameNature(annotatedDOM);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing completed');
 
                     // Performance logging for Factory debugging
@@ -1038,7 +1038,7 @@
                     wsTraceHandler.sendTrace('[PERF]', `GADS immutable diff processing completed in ${totalTime}ms`);
                     wsTraceHandler.sendTrace('[ARCH]', 'Input DOMs remain completely unmodified throughout processing');
 
-                    return annotatedDOM.innerHTML;
+                    return coalescedDOM.innerHTML;
 
                 } catch (error) {
                     wsTraceHandler.sendTrace('[ERROR]', `GADS immutable diff processing failed: ${error.message}`);
@@ -1251,21 +1251,87 @@
                 return outputDOM;
             }
 
-            coalesceAdjacentChanges(annotatedDOM) {
-                // Phase 5: Adjacent Change Coalescing per GADS specification
-                wsTraceHandler.sendTrace('[COALESCE]', 'Starting adjacent change coalescing for optimized visual presentation');
+            mergeAdjacentSameNature(annotatedDOM) {
+                // Phase 5: Merge content of consecutive same-nature diff elements for cleaner visual presentation
+                wsTraceHandler.sendTrace('[COALESCE]', 'Starting same-nature element merging for optimized visual presentation');
                 
                 // Create a new DOM to avoid modifying the annotated DOM
                 const coalescedDOM = annotatedDOM.cloneNode(true);
                 
-                // Coalesce adjacent inline additions and deletions
-                this.coalesceInlineChanges(coalescedDOM);
+                // Define diff element classes to merge
+                const diffClasses = [
+                    'diff-insertion',
+                    'diff-deletion-inline', 
+                    'diff-moved',
+                    'diff-modification'
+                ];
                 
-                // Coalesce adjacent block-level changes
-                this.coalesceBlockChanges(coalescedDOM);
+                // Process each diff class separately
+                for (const className of diffClasses) {
+                    this.mergeConsecutiveElements(coalescedDOM, className);
+                }
                 
-                wsTraceHandler.sendTrace('[COALESCE]', 'Adjacent change coalescing completed');
+                wsTraceHandler.sendTrace('[COALESCE]', 'Same-nature element merging completed');
                 return coalescedDOM;
+            }
+
+            mergeConsecutiveElements(dom, className) {
+                const elements = Array.from(dom.querySelectorAll(`.${className}`));
+                if (elements.length < 2) return;
+
+                let i = 0;
+                while (i < elements.length) {
+                    const current = elements[i];
+                    const consecutiveGroup = [current];
+                    let j = i + 1;
+
+                    // Find consecutive siblings with same class
+                    while (j < elements.length && 
+                           elements[j].previousElementSibling === consecutiveGroup[consecutiveGroup.length - 1]) {
+                        consecutiveGroup.push(elements[j]);
+                        j++;
+                    }
+
+                    // Merge if group has 2+ elements
+                    if (consecutiveGroup.length >= 2) {
+                        this.mergeElementGroup(consecutiveGroup, className);
+                        wsTraceHandler.sendTrace('[MERGE]', `Merged ${consecutiveGroup.length} ${className} elements`);
+                    }
+
+                    i = j;
+                }
+            }
+
+            mergeElementGroup(elements, className) {
+                if (elements.length < 2) return;
+
+                const firstElement = elements[0];
+                const parent = firstElement.parentElement;
+                if (!parent) return;
+
+                // Combine text content from all elements
+                const combinedText = elements.map(el => el.textContent || '').join('');
+                
+                // Create new merged element
+                const mergedElement = document.createElement(firstElement.tagName);
+                mergedElement.className = className;
+                
+                // Copy any additional styling from first element
+                if (firstElement.style.cssText) {
+                    mergedElement.style.cssText = firstElement.style.cssText;
+                }
+                
+                mergedElement.textContent = combinedText;
+
+                // Replace first element with merged element
+                parent.replaceChild(mergedElement, firstElement);
+
+                // Remove remaining elements
+                for (let i = 1; i < elements.length; i++) {
+                    if (elements[i].parentElement) {
+                        elements[i].parentElement.removeChild(elements[i]);
+                    }
+                }
             }
 
             coalesceInlineChanges(dom) {
