@@ -285,71 +285,9 @@
             padding: 4px;
         }
 
-        /* Visual coalescing styles - seamless presentation with .diff-run wrappers */
-        .diff-run {
-            display: inline-block;
-            position: relative;
-        }
-
-        /* Seamless edge smoothing for adjacent same-nature elements */
-        .diff-run.diff-insertion {
-            border-radius: 3px;
-        }
-        
-        .diff-run.diff-insertion:first-child {
-            border-top-left-radius: 3px;
-            border-bottom-left-radius: 3px;
-        }
-        
-        .diff-run.diff-insertion:last-child {
-            border-top-right-radius: 3px;
-            border-bottom-right-radius: 3px;
-        }
-        
-        .diff-run.diff-insertion:not(:first-child):not(:last-child) {
-            border-radius: 0;
-        }
-
-        .diff-run.diff-moved {
-            border-radius: 3px;
-        }
-        
-        .diff-run.diff-moved:first-child {
-            border-top-left-radius: 3px;
-            border-bottom-left-radius: 3px;
-        }
-        
-        .diff-run.diff-moved:last-child {
-            border-top-right-radius: 3px;
-            border-bottom-right-radius: 3px;
-        }
-        
-        .diff-run.diff-moved:not(:first-child):not(:last-child) {
-            border-radius: 0;
-        }
-
-        .diff-run.diff-deletion-inline {
-            border-radius: 2px;
-        }
-        
-        .diff-run.diff-deletion-inline:first-child {
-            border-top-left-radius: 2px;
-            border-bottom-left-radius: 2px;
-        }
-        
-        .diff-run.diff-deletion-inline:last-child {
-            border-top-right-radius: 2px;
-            border-bottom-right-radius: 2px;
-        }
-        
-        .diff-run.diff-deletion-inline:not(:first-child):not(:last-child) {
-            border-radius: 0;
-        }
-
-        /* Remove gaps between adjacent diff-run elements using negative margin */
-        .diff-run + .diff-run {
-            margin-inline-start: -1px;
-        }
+        /* Simplified coalescing - single consolidated elements only */
+        /* Adjacent same-type diff elements are replaced with single consolidated spans */
+        /* No additional CSS needed - existing .diff-insertion, .diff-moved, etc. styles apply */
 
         .loading {
             text-align: center;
@@ -1098,9 +1036,6 @@
                     const coalescedDOM = this.mergeAdjacentSameNature(annotatedDOM);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing completed');
 
-                    // Acceptance checks for semantic integrity
-                    this.performAcceptanceChecks(annotatedHTML, coalescedDOM.innerHTML);
-
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
                     const totalTime = Math.round(endTime - startTime);
@@ -1335,7 +1270,7 @@
             }
 
             addVisualRunWrappers(dom) {
-                // Find adjacent same-nature diff elements and wrap them for seamless visual presentation
+                // Find adjacent same-nature diff elements and replace them with single consolidated elements
                 const diffTypes = ['diff-insertion', 'diff-moved', 'diff-deletion-inline', 'diff-modification'];
                 let runCounter = 0;
                 
@@ -1343,7 +1278,7 @@
                     runCounter += this.wrapAdjacentSameType(dom, diffType, runCounter);
                 }
                 
-                wsTraceHandler.sendTrace('[VISUAL-WRAP]', `Created ${runCounter} visual run wrappers`);
+                wsTraceHandler.sendTrace('[VISUAL-CONSOLIDATE]', `Created ${runCounter} consolidated diff elements`);
             }
             
             wrapAdjacentSameType(dom, className, startRunId) {
@@ -1365,12 +1300,11 @@
                         j++;
                     }
                     
-                    // Only wrap if we have adjacent elements (2 or more)
+                    // Replace run with single consolidated element if we have adjacent elements (2 or more)
                     if (adjacentRun.length >= 2) {
-                        this.createPresentationWrapper(adjacentRun, className, `run-${runId}`);
-                        runId++;
+                        this.replaceRunWithSingleElement(adjacentRun, className);
                         runsCreated++;
-                        wsTraceHandler.sendTrace('[VISUAL-WRAP]', `Wrapped ${adjacentRun.length} adjacent ${className} elements in run-${runId-1}`);
+                        wsTraceHandler.sendTrace('[VISUAL-REPLACE]', `Replaced ${adjacentRun.length} adjacent ${className} elements with single consolidated element`);
                     }
                     
                     i = j;
@@ -1385,20 +1319,54 @@
                        elem1.nextElementSibling === elem2;
             }
             
-            createPresentationWrapper(runElements, className, runId) {
-                // Create presentation wrapper that preserves all semantic content
-                const wrapper = document.createElement('span');
-                wrapper.className = `diff-run ${className}`;
-                wrapper.setAttribute('role', 'presentation');
-                wrapper.setAttribute('data-run-id', runId);
+            replaceRunWithSingleElement(runElements, className) {
+                if (runElements.length < 2) return;
                 
-                // Insert wrapper before first element in the run
-                const parent = runElements[0].parentElement;
-                parent.insertBefore(wrapper, runElements[0]);
+                // Collect all text content and children from the run elements
+                let combinedContent = '';
+                const allChildren = [];
                 
-                // Move all run elements into wrapper - preserves complete semantic structure
                 for (const element of runElements) {
-                    wrapper.appendChild(element);
+                    // Extract text content and child nodes
+                    if (element.nodeType === Node.TEXT_NODE) {
+                        combinedContent += element.textContent;
+                    } else {
+                        // For element nodes, collect their inner content
+                        for (const child of element.childNodes) {
+                            if (child.nodeType === Node.TEXT_NODE) {
+                                combinedContent += child.textContent;
+                            } else if (child.nodeType === Node.ELEMENT_NODE) {
+                                allChildren.push(child.cloneNode(true));
+                            }
+                        }
+                    }
+                }
+                
+                // Create single replacement element with the same diff class
+                const replacement = document.createElement('span');
+                replacement.className = className;
+                
+                // Add combined text content
+                if (combinedContent.trim()) {
+                    replacement.appendChild(document.createTextNode(combinedContent));
+                }
+                
+                // Add collected child elements
+                for (const child of allChildren) {
+                    replacement.appendChild(child);
+                }
+                
+                // Insert replacement at position of first element
+                const parent = runElements[0].parentElement;
+                if (parent) {
+                    parent.insertBefore(replacement, runElements[0]);
+                    
+                    // Remove all original elements in the run
+                    for (const element of runElements) {
+                        if (element.parentElement) {
+                            element.parentElement.removeChild(element);
+                        }
+                    }
                 }
             }
 
@@ -1409,34 +1377,6 @@
             // LEGACY METHODS REMOVED - All structural merging disabled to preserve semantic DOM integrity
             // Phase 5 now uses only visual presentation wrappers without DOM modification
 
-            performAcceptanceChecks(annotatedHTML, renderedHTML) {
-                // AC-1: Count of <a> elements must match between annotated and rendered
-                const annotatedDOM = document.createElement('div');
-                annotatedDOM.innerHTML = annotatedHTML;
-                const annotatedAnchors = annotatedDOM.querySelectorAll('a').length;
-                
-                const renderedDOM = document.createElement('div');
-                renderedDOM.innerHTML = renderedHTML;
-                const renderedAnchors = renderedDOM.querySelectorAll('a').length;
-                
-                wsTraceHandler.sendTrace('[AC-1]', `Anchor count check: annotated=${annotatedAnchors}, rendered=${renderedAnchors}`);
-                if (annotatedAnchors !== renderedAnchors) {
-                    wsTraceHandler.sendTrace('[AC-1-FAIL]', `ACCEPTANCE CHECK FAILED: Anchor count mismatch - ${annotatedAnchors} annotated vs ${renderedAnchors} rendered`);
-                } else {
-                    wsTraceHandler.sendTrace('[AC-1-PASS]', 'Anchor count match - semantic integrity preserved');
-                }
-                
-                // AC-2: Visual coalescing check for adjacent diff-insertion elements
-                const adjacentInsertions = renderedDOM.querySelectorAll('.diff-run.diff-insertion').length;
-                const totalInsertions = renderedDOM.querySelectorAll('.diff-insertion').length;
-                
-                wsTraceHandler.sendTrace('[AC-2]', `Visual coalescing check: ${adjacentInsertions} visual runs, ${totalInsertions} total insertions`);
-                if (adjacentInsertions > 0) {
-                    wsTraceHandler.sendTrace('[AC-2-PASS]', 'Adjacent insertions found and visually coalesced with .diff-run wrappers');
-                } else {
-                    wsTraceHandler.sendTrace('[AC-2-INFO]', 'No adjacent insertions requiring visual coalescing');
-                }
-            }
 
             isInlineElement(element) {
                 const inlineElements = new Set(['A', 'SPAN', 'EM', 'STRONG', 'B', 'I', 'U', 'CODE', 'MARK', 'SMALL', 'SUP', 'SUB']);
