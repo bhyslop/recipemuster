@@ -927,16 +927,16 @@
                     wsTraceHandler.sendTrace('[FETCH]', 'Successful fetch completion');
                     wsTraceHandler.sendTrace('[DIFF]', 'Diff computation start');
 
-                    // Use diff-dom library
-                    const styledDiff = this.styleDiff(fromHtml, toHtml);
-
-                    this.elements.renderedPane.innerHTML = styledDiff;
-
                     // Prepare source file information for gadfd_rendered_capture
                     const sourceFiles = [
                         `From: /output/${fromCommit.html_file}`,
                         `To: /output/${toCommit.html_file}`
                     ];
+
+                    // Use diff-dom library
+                    const styledDiff = this.styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles);
+
+                    this.elements.renderedPane.innerHTML = styledDiff;
 
                     // Send rendered content to Factory via WebSocket for raw diff file creation
                     wsTraceHandler.sendTrace('[RAW-DIFF]', `Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
@@ -976,7 +976,7 @@
                 }
             }
 
-            styleDiff(fromHtml, toHtml) {
+            styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles) {
                 const startTime = performance.now();
                 wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant immutable diff processing');
                 wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
