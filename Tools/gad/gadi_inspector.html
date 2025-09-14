@@ -996,9 +996,14 @@
 
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
+                    // Phase 3.5: Operation Coalescing for cleaner diff visualization
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3.5: Coalescing operations for cleaner visualization');
+                    const coalescedOperations = this.coalesceOperations(diffOperations);
+                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3.5: Coalesced from ${diffOperations.length} to ${coalescedOperations.length} operations`);
+
                     // Phase 4: Generate Clean Output DOM
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
-                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
+                    const outputDOM = this.generateOutputDOM(immutableToDOM, coalescedOperations, routeElementMap);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
 
                     // Performance logging for Factory debugging
@@ -1193,6 +1198,26 @@
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}]`);
                             } else {
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Skipped duplicate deletion at route [${routeKey}]`);
+                            }
+                            break;
+                        case 'removeElementBlock':
+                            // Handle coalesced deletion blocks
+                            wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processing coalesced deletion block with ${op.deletionCount} deletions`);
+                            if (op.coalescedFrom) {
+                                // Process each original deletion in the coalesced block
+                                for (const originalOp of op.coalescedFrom) {
+                                    const originalRouteKey = originalOp.route.join(',');
+                                    if (!processedDeletions.has(originalRouteKey)) {
+                                        this.generateDeletionBlock(outputDOM, originalOp);
+                                        processedDeletions.add(originalRouteKey);
+                                        deletions++;
+                                        wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed coalesced deletion at route [${originalRouteKey}]`);
+                                    }
+                                }
+                            } else {
+                                // Fallback: treat as single block deletion
+                                this.generateDeletionBlock(outputDOM, op);
+                                deletions++;
                             }
                             break;
                         case 'relocateNode':
@@ -1719,8 +1744,221 @@
                 wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
             }
 
+            coalesceOperations(diffOperations) {
+                wsTraceHandler.sendTrace('[COALESCE]', `Starting operation coalescing on ${diffOperations.length} operations`);
+                
+                // Work with a copy to preserve original operations
+                const operations = [...diffOperations];
+                const coalesced = [];
+                let totalMerged = 0;
 
+                // Process operations in groups to identify coalescing opportunities
+                let i = 0;
+                while (i < operations.length) {
+                    const currentOp = operations[i];
+                    
+                    // Try to coalesce text modification sequences
+                    const textCoalescingResult = this.tryCoalesceTextModifications(operations, i);
+                    if (textCoalescingResult.coalesced) {
+                        coalesced.push(textCoalescingResult.operation);
+                        totalMerged += textCoalescingResult.consumed - 1;
+                        i += textCoalescingResult.consumed;
+                        wsTraceHandler.sendTrace('[COALESCE]', `Text modification coalescing: ${textCoalescingResult.consumed} ops → 1`);
+                        continue;
+                    }
 
+                    // Try to coalesce adjacent element removals
+                    const deletionCoalescingResult = this.tryCoalesceAdjacentDeletions(operations, i);
+                    if (deletionCoalescingResult.coalesced) {
+                        coalesced.push(deletionCoalescingResult.operation);
+                        totalMerged += deletionCoalescingResult.consumed - 1;
+                        i += deletionCoalescingResult.consumed;
+                        wsTraceHandler.sendTrace('[COALESCE]', `Deletion block coalescing: ${deletionCoalescingResult.consumed} ops → 1`);
+                        continue;
+                    }
+
+                    // No coalescing - keep original operation
+                    coalesced.push(currentOp);
+                    i++;
+                }
+
+                wsTraceHandler.sendTrace('[COALESCE]', `Operation coalescing complete: merged ${totalMerged} operations`);
+                return coalesced;
+            }
+
+            tryCoalesceTextModifications(operations, startIndex) {
+                const baseOp = operations[startIndex];
+                
+                // Look for modifyTextElement that might be part of a larger text change
+                if (baseOp.action !== 'modifyTextElement') {
+                    return { coalesced: false };
+                }
+
+                // Check for following operations that might be related text changes
+                let endIndex = startIndex + 1;
+                const relatedOps = [baseOp];
+
+                // Scan for adjacent operations on similar routes that could be part of same logical change
+                while (endIndex < operations.length) {
+                    const nextOp = operations[endIndex];
+                    
+                    // Stop if we find unrelated operations
+                    if (!this.areOperationsRelatedForTextCoalescing(baseOp, nextOp)) {
+                        break;
+                    }
+                    
+                    // Include related text operations
+                    if (nextOp.action === 'addTextElement' || 
+                        nextOp.action === 'addElement' ||
+                        nextOp.action === 'modifyTextElement') {
+                        relatedOps.push(nextOp);
+                        endIndex++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // If we found multiple related operations, coalesce them
+                if (relatedOps.length > 1) {
+                    const coalescedOp = this.createCoalescedTextOperation(relatedOps);
+                    return {
+                        coalesced: true,
+                        operation: coalescedOp,
+                        consumed: relatedOps.length
+                    };
+                }
+
+                return { coalesced: false };
+            }
+
+            tryCoalesceAdjacentDeletions(operations, startIndex) {
+                const baseOp = operations[startIndex];
+                
+                // Look for removeElement operations
+                if (baseOp.action !== 'removeElement' && baseOp.action !== 'removeTextElement') {
+                    return { coalesced: false };
+                }
+
+                // Collect consecutive deletion operations at similar DOM locations
+                let endIndex = startIndex + 1;
+                const deletionOps = [baseOp];
+
+                while (endIndex < operations.length) {
+                    const nextOp = operations[endIndex];
+                    
+                    // Include adjacent deletion operations
+                    if ((nextOp.action === 'removeElement' || nextOp.action === 'removeTextElement') &&
+                        this.areRoutesAdjacentForDeletion(baseOp.route, nextOp.route)) {
+                        deletionOps.push(nextOp);
+                        endIndex++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // If we found multiple adjacent deletions, create a deletion block
+                if (deletionOps.length > 1) {
+                    const coalescedOp = this.createCoalescedDeletionBlock(deletionOps);
+                    return {
+                        coalesced: true,
+                        operation: coalescedOp,
+                        consumed: deletionOps.length
+                    };
+                }
+
+                return { coalesced: false };
+            }
+
+            areOperationsRelatedForTextCoalescing(baseOp, nextOp) {
+                // Check if operations are on adjacent or nearby routes in the DOM tree
+                const baseRoute = baseOp.route;
+                const nextRoute = nextOp.route;
+                
+                // Must be in same general DOM area (same parent context)
+                if (baseRoute.length === 0 || nextRoute.length === 0) {
+                    return false;
+                }
+                
+                // Check if routes share common parent path
+                const minLength = Math.min(baseRoute.length, nextRoute.length);
+                let commonPrefixLength = 0;
+                
+                for (let i = 0; i < minLength - 1; i++) {
+                    if (baseRoute[i] === nextRoute[i]) {
+                        commonPrefixLength++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Routes should share significant common prefix to be related
+                return commonPrefixLength >= Math.min(baseRoute.length - 2, nextRoute.length - 2, 2);
+            }
+
+            areRoutesAdjacentForDeletion(route1, route2) {
+                // Check if deletion routes are adjacent siblings or nearby in DOM tree
+                if (route1.length !== route2.length) {
+                    return false;
+                }
+                
+                // Check all but last element are the same (same parent)
+                for (let i = 0; i < route1.length - 1; i++) {
+                    if (route1[i] !== route2[i]) {
+                        return false;
+                    }
+                }
+                
+                // Check if last indices are close enough to be considered adjacent
+                const lastIndex1 = route1[route1.length - 1];
+                const lastIndex2 = route2[route2.length - 1];
+                
+                return Math.abs(lastIndex2 - lastIndex1) <= 3; // Allow some gap for flexibility
+            }
+
+            createCoalescedTextOperation(relatedOps) {
+                const baseOp = relatedOps[0];
+                
+                // Combine text content from all related operations
+                let combinedNewValue = baseOp.newValue || '';
+                
+                // Append content from additional operations
+                for (let i = 1; i < relatedOps.length; i++) {
+                    const op = relatedOps[i];
+                    if (op.action === 'addTextElement' && op.text) {
+                        combinedNewValue += op.text;
+                    } else if (op.action === 'addElement' && op.element && op.element.textContent) {
+                        combinedNewValue += op.element.textContent;
+                    } else if (op.newValue) {
+                        combinedNewValue += op.newValue;
+                    }
+                }
+                
+                // Create enhanced operation preserving original metadata
+                return {
+                    ...baseOp,
+                    newValue: combinedNewValue,
+                    coalescedFrom: relatedOps,
+                    coalesced: true,
+                    coalescedType: 'textModification'
+                };
+            }
+
+            createCoalescedDeletionBlock(deletionOps) {
+                const baseOp = deletionOps[0];
+                
+                // Create a block deletion operation that encompasses all individual deletions
+                return {
+                    action: 'removeElementBlock',
+                    route: baseOp.route,
+                    coalescedFrom: deletionOps,
+                    coalesced: true,
+                    coalescedType: 'deletionBlock',
+                    deletionCount: deletionOps.length,
+                    // Preserve captured content from individual operations
+                    capturedContent: deletionOps.map(op => op.capturedContent).filter(Boolean).join(' '),
+                    capturedType: 'coalescedDeletion'
+                };
+            }
 
             showStatusMessage(message) {
                 this.elements.statusSection.textContent = message;
