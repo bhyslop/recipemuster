@@ -1052,14 +1052,15 @@
 
                     // Phase 5: Annotated Assembly - Construct semantically annotated output DOM
                     wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Processing diff operations in Detached Working environment');
-                    const assembledDOM = this.assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit);
+                    const assemblyResult = this.assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit);
+                    const assembledDOM = assemblyResult.outputDOM;
                     const assembledHTML = assembledDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase5_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
                     wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Semantic annotation construction completed');
 
                     // Phase 6: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
                     wsTraceHandler.sendTrace('[PHASE-6]', 'Deletion Placement: Positioning deletion blocks with DFK mappings');
-                    const deletionPlacedDOM = this.placeDeletionBlocks(assembledDOM, diffOperations, deletionFactTable, semanticAnchors);
+                    const deletionPlacedDOM = this.placeDeletionBlocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors);
                     const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase6_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
                     wsTraceHandler.sendTrace('[PHASE-6]', 'Deletion Placement: Structured deletion blocks positioned accurately');
@@ -1257,11 +1258,8 @@
                         case 'removeTextElement':
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
-                                // Fix: Route all deletions through semantic anchor placement only
-                                const anchorElement = this.findStableSemanticAnchor(outputDOM, op.route);
-                                if (anchorElement) {
-                                    this.placeSingleDeletionBlock(outputDOM, op, anchorElement);
-                                }
+                                // NOTE: Deletion placement now handled in Phase-6 only - legacy path disabled
+                                wsTraceHandler.sendTrace('[DELETION-LEGACY]', `Legacy deletion placement bypassed for ${op.action} at route [${op.route.join(',')}]`);
                                 processedDeletions.add(routeKey);
                                 deletions++;
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}] via semantic anchor`);
@@ -1819,7 +1817,7 @@
             generateDeletionInline(outputDOM, operation) {
                 // Fix: Legacy method disabled - all deletions routed through semantic anchor placement
                 wsTraceHandler.sendTrace('[DELETION-LEGACY-DISABLED]', `Legacy generateDeletionInline disabled for ${operation.action} at route [${operation.route.join(',')}]`);
-                // No-op - deletions should be handled by caller through placeSingleDeletionBlock
+                // No-op - deletions now handled in Phase-6 via applied operations list
             }
             
             generateDeletionInlineLegacy(outputDOM, operation) {
@@ -2113,6 +2111,32 @@
                 return Math.abs(hash).toString(16);
             }
 
+            // Utility: Clamp value to range for route index safety
+            clamp(value, min, max) {
+                return Math.min(Math.max(value, min), max);
+            }
+
+            // Utility: Inline element detection for anchor refinement
+            isInlineElement(element) {
+                if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
+                
+                // Tag whitelist for common inline elements
+                const inlineTags = new Set(['a', 'span', 'em', 'strong', 'code', 'kbd', 'sup', 'sub', 
+                                          'small', 'b', 'i', 'u', 'mark', 'abbr', 'time', 'var', 's', 'q']);
+                
+                if (inlineTags.has(element.tagName.toLowerCase())) {
+                    return true;
+                }
+                
+                // Secondary check via computed style
+                try {
+                    const computedStyle = getComputedStyle(element);
+                    return computedStyle.display === 'inline';
+                } catch (e) {
+                    return false;
+                }
+            }
+
             // Phase 4: Enhance operations with DFK
             enhanceOperationsWithDFK(diffOperations, deletionFactTable) {
                 wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhancing ${diffOperations.length} operations with DFK mappings`);
@@ -2272,7 +2296,10 @@
                 wsTraceHandler.sendDebugOutput('phase5_apply_report', JSON.stringify(applyReportPayload, null, 2), fromCommit, toCommit, []);
                 
                 wsTraceHandler.sendTrace('[ASSEMBLY]', 'Two-phase semantic annotation assembly completed');
-                return assembledDOM;
+                return {
+                    outputDOM: assembledDOM,
+                    appliedOperations: applyResult.appliedOperations
+                };
             }
             
             applyAnnotationsFromResolved(workingDOM, resolvedOperations) {
@@ -2316,11 +2343,8 @@
                         case 'removeTextElement':
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
-                                // Fix: Route all deletions through semantic anchor placement only
-                                const anchorElement = this.findStableSemanticAnchor(outputDOM, op.route);
-                                if (anchorElement) {
-                                    this.placeSingleDeletionBlock(outputDOM, op, anchorElement);
-                                }
+                                // NOTE: Deletion placement now handled in Phase-6 only - legacy path disabled
+                                wsTraceHandler.sendTrace('[DELETION-LEGACY]', `Legacy deletion placement bypassed for ${op.action} at route [${op.route.join(',')}]`);
                                 processedDeletions.add(routeKey);
                                 deletions++;
                                 applied = true;
@@ -2373,86 +2397,91 @@
                 };
             }
 
-            // Phase 6: Place Deletion Blocks using DFK and Semantic Anchors
-            placeDeletionBlocks(assembledDOM, diffOperations, deletionFactTable, semanticAnchors) {
-                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', 'Positioning deletion blocks using DFK mappings and Semantic Anchors');
+            // Phase 6: Place Deletion Blocks - SURGICAL REPAIR: Drive from applied ops only
+            placeDeletionBlocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors) {
+                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', 'SURGICAL REPAIR: Positioning deletion blocks from Phase-5 applied operations only');
                 
                 // Clone the assembled DOM to avoid modifying input
                 const deletionPlacedDOM = assembledDOM.cloneNode(true);
                 
-                // PRIORITY FIX #6: Collapse duplicate deletion artifacts - dedupe by content + anchor context
-                const placedDeletionsByContent = new Map(); // content hash + anchor -> placed
-                const placedDeletions = new Set(); // route-based tracking for compatibility
+                // Filter to deletion operations from Phase-5 applied list
+                const appliedDeletions = appliedOperations.filter(op => 
+                    op.type === 'deletion' || (op.action && op.action.startsWith('remove'))
+                );
                 
-                // Process deletion operations with correct DFK keys
-                const deletionOps = diffOperations.filter(op => 
-                    op.action === 'removeElement' || op.action === 'removeTextElement'
-                ).reverse();
+                // Single-insert invariant: dedupe by (route + action)
+                const placedKeys = new Set();
                 
-                for (const op of deletionOps) {
-                    if (op.dfk && deletionFactTable[op.dfk]) {
-                        const routeKey = op.route.join(',');
-                        
-                        // PRIORITY FIX #6: Generate content-based deduplication key
-                        const content = op.capturedContent || deletionFactTable[op.dfk].textContent || '';
-                        const contentHash = this.simpleHash(content);
-                        const insertPoint = this.findStableSemanticAnchor(deletionPlacedDOM, op.route);
-                        const anchorKey = insertPoint ? insertPoint.tagName + (insertPoint.id || insertPoint.className || '') : 'root';
-                        const logicalDeletionKey = `${contentHash}_${anchorKey}`;
-                        
-                        // Check if this exact deletion content was already placed at this anchor context
-                        if (placedDeletionsByContent.has(logicalDeletionKey)) {
-                            wsTraceHandler.sendTrace('[DELETION-DEDUPE]', `Skipped duplicate deletion artifact: content="${content.substring(0, 20)}..." at anchor=${anchorKey}`);
-                            continue;
-                        }
-                        
-                        // Traditional route-based check for compatibility
-                        if (placedDeletions.has(routeKey)) {
-                            wsTraceHandler.sendTrace('[DELETION-SKIP]', `Skipped duplicate deletion for route [${routeKey}]`);
-                            continue;
-                        }
-                        
-                        // Place the deletion block
-                        if (insertPoint) {
-                            this.placeSingleDeletionBlock(deletionPlacedDOM, op, insertPoint);
-                            placedDeletionsByContent.set(logicalDeletionKey, true);
-                            placedDeletions.add(routeKey);
-                            wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', `Placed unique deletion: content="${content.substring(0, 20)}..." at anchor=${anchorKey}`);
-                        }
+                // Telemetry counters
+                let createdBadges = 0;
+                let connectedBadges = 0;
+                
+                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', `Processing ${appliedDeletions.length} applied deletion operations`);
+                
+                for (const appliedOp of appliedDeletions) {
+                    // Parse route from string format back to array
+                    const route = appliedOp.route.split(',').map(Number);
+                    const dedupeKey = appliedOp.route + '_' + appliedOp.action;
+                    
+                    // Skip if already processed this (route + action) combination
+                    if (placedKeys.has(dedupeKey)) {
+                        wsTraceHandler.sendTrace('[DELETION-DEDUPE]', `Skipped duplicate: ${dedupeKey}`);
+                        continue;
+                    }
+                    
+                    // Find DFK entry for content
+                    const routeKey = appliedOp.route;
+                    const dfkKey = Object.keys(deletionFactTable).find(key => 
+                        deletionFactTable[key].routeKey === routeKey
+                    );
+                    
+                    if (!dfkKey || !deletionFactTable[dfkKey]) {
+                        wsTraceHandler.sendTrace('[DELETION-SKIP]', `No DFK entry for route [${routeKey}]`);
+                        continue;
+                    }
+                    
+                    const dfkEntry = deletionFactTable[dfkKey];
+                    
+                    // Compute anchor using enhanced logic
+                    const anchor = this.findStableSemanticAnchor(deletionPlacedDOM, route);
+                    if (!anchor) {
+                        wsTraceHandler.sendTrace('[DELETION-SKIP]', `No anchor found for route [${routeKey}]`);
+                        continue;
+                    }
+                    
+                    // Check if badge already placed at this location (guard)
+                    const existingBadge = deletionPlacedDOM.querySelector(`[data-gad-key="${dedupeKey}"]`);
+                    if (existingBadge) {
+                        wsTraceHandler.sendTrace('[DELETION-GUARD]', `Badge already exists for key: ${dedupeKey}`);
+                        continue;
+                    }
+                    
+                    // Create deletion badge
+                    const deletionBlock = this.createDeletionBadge(dfkEntry, dedupeKey);
+                    createdBadges++;
+                    
+                    // Smart insertion based on anchor type
+                    if (this.insertDeletionBadge(anchor, deletionBlock)) {
+                        connectedBadges++;
+                        placedKeys.add(dedupeKey);
+                        wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', `Placed badge for ${dedupeKey}`);
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', `Positioned ${placedDeletions.size} unique deletion blocks, deduplicated ${placedDeletionsByContent.size} logical deletions`);
+                // Telemetry: assert and report
+                const mismatch = appliedDeletions.length !== connectedBadges;
+                wsTraceHandler.sendTrace('[DELETION-TELEMETRY]', 
+                    `applied_deletions=${appliedDeletions.length}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' MISMATCH!' : ''}`
+                );
+                
+                // Update status ribbon
+                this.updateDeletionTelemetry(appliedDeletions.length, createdBadges, connectedBadges, mismatch);
+                
                 return deletionPlacedDOM;
             }
-            
-            findStableSemanticAnchor(toDOM, route) {
-                // Fix: Find semantic anchor (nearest stable block/id/href) in the "to" tree
-                let bestAnchor = toDOM;
-                let element = toDOM;
-                
-                // Traverse as far as possible to find stable anchor
-                for (let i = 0; i < route.length; i++) {
-                    const index = route[i];
-                    if (element.childNodes && element.childNodes[index]) {
-                        element = element.childNodes[index];
-                        
-                        // Prefer elements with stable identifiers as anchors
-                        if (element.nodeType === Node.ELEMENT_NODE) {
-                            if (element.id || element.className || element.tagName.match(/^(H[1-6]|P|DIV|SECTION|ARTICLE)$/)) {
-                                bestAnchor = element;
-                            }
-                        }
-                    } else {
-                        break; // Stop at first invalid route segment
-                    }
-                }
-                
-                return bestAnchor;
-            }
-            
-            placeSingleDeletionBlock(toDOM, operation, anchorElement) {
-                // Fix: Attach single deletion block as sibling/overlay, not as new child
+
+            // Helper: Create deletion badge with guard attributes
+            createDeletionBadge(dfkEntry, dedupeKey) {
                 const deletionBlock = document.createElement('span');
                 deletionBlock.className = 'diff-deletion-block';
                 deletionBlock.style.backgroundColor = '#f8d7da';
@@ -2463,18 +2492,103 @@
                 deletionBlock.style.fontSize = '0.9em';
                 deletionBlock.style.color = '#721c24';
                 deletionBlock.style.display = 'inline-block';
-                deletionBlock.textContent = `[DELETED: ${operation.capturedContent ? operation.capturedContent.substring(0, 50) : 'content'}...]`;
                 
-                // Insert as sibling to anchor element
-                if (anchorElement.parentNode) {
-                    anchorElement.parentNode.insertBefore(deletionBlock, anchorElement.nextSibling);
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Placed deletion block as sibling to ${anchorElement.tagName}`);
-                } else {
-                    // Fallback: append to DOM root
-                    toDOM.appendChild(deletionBlock);
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', 'Placed deletion block at DOM root (fallback)');
+                // Guard attributes for single-insert invariant
+                deletionBlock.setAttribute('data-gad-placed', '1');
+                deletionBlock.setAttribute('data-gad-key', dedupeKey);
+                
+                // Content truncation: 80 chars, strip DELETED prefix (already applied in earlier fix)
+                const DELETION_CONTENT_LIMIT = 80;
+                const rawContent = dfkEntry.textContent || 'content';
+                const displayContent = rawContent.length > DELETION_CONTENT_LIMIT 
+                    ? rawContent.substring(0, DELETION_CONTENT_LIMIT) + '\u2026'
+                    : rawContent;
+                deletionBlock.textContent = displayContent;
+                
+                return deletionBlock;
+            }
+
+            // Helper: Insert deletion badge based on anchor policy
+            insertDeletionBadge(anchor, deletionBlock) {
+                try {
+                    if (anchor.nodeType === Node.TEXT_NODE || this.isInlineElement(anchor)) {
+                        // Inline element or text node: insert after to keep in flow
+                        if (anchor.parentNode) {
+                            anchor.parentNode.insertBefore(deletionBlock, anchor.nextSibling);
+                            return true;
+                        }
+                    } else {
+                        // Block fallback: insert as firstChild inside block, never as nextSibling
+                        if (anchor.firstChild) {
+                            anchor.insertBefore(deletionBlock, anchor.firstChild);
+                        } else {
+                            anchor.appendChild(deletionBlock);
+                        }
+                        return true;
+                    }
+                } catch (error) {
+                    wsTraceHandler.sendTrace('[DELETION-ERROR]', `Failed to insert badge: ${error.message}`);
+                }
+                return false;
+            }
+
+            // Helper: Update deletion telemetry in status ribbon and console
+            updateDeletionTelemetry(appliedDeletions, createdBadges, connectedBadges, hasMismatch) {
+                // Console telemetry
+                console.log(`[DELETION-TELEMETRY] applied_deletions=${appliedDeletions}, created_badges=${createdBadges}, connected_badges=${connectedBadges}`);
+                
+                // Status ribbon update
+                const statusSection = document.getElementById('statusSection');
+                if (statusSection && hasMismatch) {
+                    statusSection.style.display = 'block';
+                    statusSection.innerHTML = `
+                        <strong>Deletion Telemetry:</strong> 
+                        Applied: ${appliedDeletions}, Created: ${createdBadges}, Connected: ${connectedBadges}
+                        ${hasMismatch ? '<span style="color: red;">[MISMATCH DETECTED]</span>' : ''}
+                    `;
+                } else if (statusSection) {
+                    // Clear status if no mismatch
+                    statusSection.style.display = 'none';
                 }
             }
+            
+            findStableSemanticAnchor(toDOM, route) {
+                // Find the best available block anchor
+                let blockAnchor = toDOM;
+                const maxRouteDepth = Math.min(route.length, 4);
+                
+                for (let depth = maxRouteDepth; depth >= 0; depth--) {
+                    const partialRoute = route.slice(0, depth);
+                    const candidate = this.findElementByRoute(toDOM, partialRoute);
+                    if (candidate && candidate.nodeType === Node.ELEMENT_NODE) {
+                        blockAnchor = candidate;
+                        break;
+                    }
+                }
+                
+                // Route-guided inline refinement: use last valid route segment as inline child index bias
+                const lastRouteIndex = route.length > 0 ? route[route.length - 1] : 0;
+                
+                // Try to refine to inline child within the block anchor
+                if (blockAnchor.childNodes && blockAnchor.childNodes.length > 0) {
+                    // Look for inline children, biased by route index
+                    const inlineChildren = Array.from(blockAnchor.childNodes).filter(child => 
+                        child.nodeType === Node.TEXT_NODE || 
+                        (child.nodeType === Node.ELEMENT_NODE && this.isInlineElement(child))
+                    );
+                    
+                    if (inlineChildren.length > 0) {
+                        // Route index safety: clamp to valid range
+                        const targetIndex = this.clamp(lastRouteIndex, 0, inlineChildren.length - 1);
+                        return inlineChildren[targetIndex];
+                    }
+                }
+                
+                // Fallback to block element
+                return blockAnchor;
+            }
+            
+            // REMOVED: placeSingleDeletionBlock - replaced by createDeletionBadge + insertDeletionBadge
 
             // Phase 8: Serialize Final Output
             serializeFinalOutput(coalescedDOM) {
