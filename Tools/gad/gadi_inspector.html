@@ -1322,46 +1322,77 @@
             replaceRunWithSingleElement(runElements, className) {
                 if (runElements.length < 2) return;
                 
-                // Collect all text content and children from the run elements
-                let combinedContent = '';
-                const allChildren = [];
+                // Check if run is entirely <a> elements with same href
+                const allAnchors = runElements.every(el => el.tagName === 'A');
+                if (allAnchors) {
+                    const firstHref = runElements[0].getAttribute('href');
+                    const sameHref = runElements.every(el => el.getAttribute('href') === firstHref);
+                    
+                    if (sameHref) {
+                        // Create single consolidated anchor with same href and diff class
+                        const consolidatedAnchor = document.createElement('a');
+                        consolidatedAnchor.setAttribute('href', firstHref);
+                        consolidatedAnchor.className = className;
+                        
+                        // Combine all anchor text content
+                        let combinedText = '';
+                        for (const anchor of runElements) {
+                            combinedText += anchor.textContent;
+                        }
+                        consolidatedAnchor.textContent = combinedText;
+                        
+                        // Replace all anchors with single consolidated anchor
+                        const parent = runElements[0].parentElement;
+                        if (parent) {
+                            parent.insertBefore(consolidatedAnchor, runElements[0]);
+                            for (const element of runElements) {
+                                if (element.parentElement) {
+                                    element.parentElement.removeChild(element);
+                                }
+                            }
+                        }
+                        return;
+                    }
+                }
+                
+                // Handle mixed runs: preserve anchors, consolidate other content
+                const replacement = document.createElement('span');
+                replacement.className = className;
                 
                 for (const element of runElements) {
-                    // Extract text content and child nodes
-                    if (element.nodeType === Node.TEXT_NODE) {
-                        combinedContent += element.textContent;
+                    if (element.tagName === 'A') {
+                        // Transplant anchor element itself, strip diff class to prevent double-box
+                        const anchorClone = element.cloneNode(true);
+                        anchorClone.classList.remove(className.replace('diff-', ''));
+                        anchorClone.classList.remove(className);
+                        replacement.appendChild(anchorClone);
                     } else {
-                        // For element nodes, collect their inner content
-                        for (const child of element.childNodes) {
-                            if (child.nodeType === Node.TEXT_NODE) {
-                                combinedContent += child.textContent;
-                            } else if (child.nodeType === Node.ELEMENT_NODE) {
-                                allChildren.push(child.cloneNode(true));
+                        // For non-anchor elements, extract their content
+                        if (element.nodeType === Node.TEXT_NODE) {
+                            replacement.appendChild(document.createTextNode(element.textContent));
+                        } else {
+                            // Extract inner content from element nodes
+                            for (const child of element.childNodes) {
+                                if (child.nodeType === Node.TEXT_NODE) {
+                                    replacement.appendChild(document.createTextNode(child.textContent));
+                                } else if (child.nodeType === Node.ELEMENT_NODE) {
+                                    const childClone = child.cloneNode(true);
+                                    // Strip diff classes from transplanted elements
+                                    if (childClone.classList) {
+                                        childClone.classList.remove(className.replace('diff-', ''));
+                                        childClone.classList.remove(className);
+                                    }
+                                    replacement.appendChild(childClone);
+                                }
                             }
                         }
                     }
                 }
                 
-                // Create single replacement element with the same diff class
-                const replacement = document.createElement('span');
-                replacement.className = className;
-                
-                // Add combined text content
-                if (combinedContent.trim()) {
-                    replacement.appendChild(document.createTextNode(combinedContent));
-                }
-                
-                // Add collected child elements
-                for (const child of allChildren) {
-                    replacement.appendChild(child);
-                }
-                
-                // Insert replacement at position of first element
+                // Insert replacement and remove originals
                 const parent = runElements[0].parentElement;
                 if (parent) {
                     parent.insertBefore(replacement, runElements[0]);
-                    
-                    // Remove all original elements in the run
                     for (const element of runElements) {
                         if (element.parentElement) {
                             element.parentElement.removeChild(element);
