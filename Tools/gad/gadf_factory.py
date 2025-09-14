@@ -111,7 +111,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                 f.write(rendered_html)
 
             gadfl_step(f"Saved rendered content to gadfd_rendered_capture: {filename}")
-            gadfl_step(f"Raw diff file created: {filepath}")
 
         except Exception as e:
             gadfl_warn(f"Failed to save rendered content: {e}")
