@@ -1776,10 +1776,15 @@
                             nextOp2.action === 'addTextElement' &&
                             this.areRoutesAdjacent(currentOp.route, nextOp1.route, nextOp2.route)) {
                             
+                            // Debug: Log addTextElement properties
+                            wsTraceHandler.sendTrace('[DEBUG-COALESCE]', `addTextElement props: ${Object.keys(nextOp2).join(', ')}`);
+                            wsTraceHandler.sendTrace('[DEBUG-COALESCE]', `addTextElement full object: ${JSON.stringify(nextOp2)}`);
+                            
                             // Create coalesced operation
+                            const textContent = nextOp2.newValue || nextOp2.data || nextOp2.text || nextOp2.content || '';
                             const coalescedOp = {
                                 ...currentOp,
-                                newValue: currentOp.newValue + (nextOp2.newValue || nextOp2.data || nextOp2.text || ''),
+                                newValue: currentOp.newValue + textContent,
                                 coalescedFrom: [currentOp, nextOp1, nextOp2],
                                 coalesced: true
                             };
