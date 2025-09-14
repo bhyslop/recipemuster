@@ -1199,6 +1199,19 @@
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Skipped duplicate deletion at route [${routeKey}]`);
                             }
                             break;
+                        case 'removeElementBlock':
+                            // Handle coalesced deletion blocks
+                            wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processing coalesced deletion block with ${op.deletionCount} deletions`);
+                            for (const originalOp of op.coalescedFrom) {
+                                const routeKey = originalOp.route.join(',');
+                                if (!processedDeletions.has(routeKey)) {
+                                    this.generateDeletionBlock(outputDOM, originalOp);
+                                    processedDeletions.add(routeKey);
+                                    deletions++;
+                                    wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed coalesced deletion at route [${routeKey}]`);
+                                }
+                            }
+                            break;
                         case 'relocateNode':
                             this.applyMoveAnnotation(outputDOM, op);
                             moves++;
@@ -1766,7 +1779,7 @@
                             // Create coalesced operation
                             const coalescedOp = {
                                 ...currentOp,
-                                newValue: currentOp.newValue + (nextOp2.text || ''),
+                                newValue: currentOp.newValue + (nextOp2.newValue || nextOp2.data || nextOp2.text || ''),
                                 coalescedFrom: [currentOp, nextOp1, nextOp2],
                                 coalesced: true
                             };
