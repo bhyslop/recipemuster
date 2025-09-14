@@ -1027,9 +1027,9 @@
                     const annotatedHTML = annotatedDOM.innerHTML;
                     wsTraceHandler.sendAnnotatedDOM(annotatedHTML, fromCommit, toCommit, sourceFiles);
 
-                    // Phase 5: Adjacent Change Coalescing
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - optimizing visual presentation');
-                    const coalescedDOM = this.coalesceAdjacentChanges(annotatedDOM);
+                    // Phase 5: Adjacent Change Coalescing (temporarily disabled)
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - bypassed to preserve diff semantics');
+                    // const coalescedDOM = this.coalesceAdjacentChanges(annotatedDOM);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing completed');
 
                     // Performance logging for Factory debugging
@@ -1038,7 +1038,7 @@
                     wsTraceHandler.sendTrace('[PERF]', `GADS immutable diff processing completed in ${totalTime}ms`);
                     wsTraceHandler.sendTrace('[ARCH]', 'Input DOMs remain completely unmodified throughout processing');
 
-                    return coalescedDOM.innerHTML;
+                    return annotatedDOM.innerHTML;
 
                 } catch (error) {
                     wsTraceHandler.sendTrace('[ERROR]', `GADS immutable diff processing failed: ${error.message}`);
