@@ -646,7 +646,7 @@
                 const hasHashParams = hashParams.get('from') || hashParams.get('to');
                 
                 if (!this.selectedFrom && !this.selectedTo && !hasHashParams) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'No selections and no URL params - setting default selections: From = -1, To = H');
+                    wsTraceHandler.sendTrace('[DEBUG]', 'No selections and no hash params - setting default selections: From = -1, To = H');
                     this.setRailSelection('from', '-1', true);  // Skip diff on first
                     this.setRailSelection('to', 'H', false);    // Perform diff on second
                 } else {
