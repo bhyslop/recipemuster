@@ -285,70 +285,70 @@
             padding: 4px;
         }
 
-        /* Visual coalescing styles - seamless presentation without DOM merging */
-        .visual-run {
+        /* Visual coalescing styles - seamless presentation with .diff-run wrappers */
+        .diff-run {
             display: inline-block;
             position: relative;
         }
 
         /* Seamless edge smoothing for adjacent same-nature elements */
-        .visual-run.diff-insertion {
+        .diff-run.diff-insertion {
             border-radius: 3px;
         }
         
-        .visual-run.diff-insertion:first-child {
+        .diff-run.diff-insertion:first-child {
             border-top-left-radius: 3px;
             border-bottom-left-radius: 3px;
         }
         
-        .visual-run.diff-insertion:last-child {
+        .diff-run.diff-insertion:last-child {
             border-top-right-radius: 3px;
             border-bottom-right-radius: 3px;
         }
         
-        .visual-run.diff-insertion:not(:first-child):not(:last-child) {
+        .diff-run.diff-insertion:not(:first-child):not(:last-child) {
             border-radius: 0;
         }
 
-        .visual-run.diff-moved {
+        .diff-run.diff-moved {
             border-radius: 3px;
         }
         
-        .visual-run.diff-moved:first-child {
+        .diff-run.diff-moved:first-child {
             border-top-left-radius: 3px;
             border-bottom-left-radius: 3px;
         }
         
-        .visual-run.diff-moved:last-child {
+        .diff-run.diff-moved:last-child {
             border-top-right-radius: 3px;
             border-bottom-right-radius: 3px;
         }
         
-        .visual-run.diff-moved:not(:first-child):not(:last-child) {
+        .diff-run.diff-moved:not(:first-child):not(:last-child) {
             border-radius: 0;
         }
 
-        .visual-run.diff-deletion {
+        .diff-run.diff-deletion-inline {
             border-radius: 2px;
         }
         
-        .visual-run.diff-deletion:first-child {
+        .diff-run.diff-deletion-inline:first-child {
             border-top-left-radius: 2px;
             border-bottom-left-radius: 2px;
         }
         
-        .visual-run.diff-deletion:last-child {
+        .diff-run.diff-deletion-inline:last-child {
             border-top-right-radius: 2px;
             border-bottom-right-radius: 2px;
         }
         
-        .visual-run.diff-deletion:not(:first-child):not(:last-child) {
+        .diff-run.diff-deletion-inline:not(:first-child):not(:last-child) {
             border-radius: 0;
         }
 
-        /* Remove gaps between adjacent visual run elements */
-        .visual-run + .visual-run {
-            margin-left: -1px;
+        /* Remove gaps between adjacent diff-run elements using negative margin */
+        .diff-run + .diff-run {
+            margin-inline-start: -1px;
         }
 
         .loading {
@@ -1098,6 +1098,9 @@
                     const coalescedDOM = this.mergeAdjacentSameNature(annotatedDOM);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing completed');
 
+                    // Acceptance checks for semantic integrity
+                    this.performAcceptanceChecks(annotatedHTML, coalescedDOM.innerHTML);
+
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
                     const totalTime = Math.round(endTime - startTime);
@@ -1318,234 +1321,120 @@
             }
 
             mergeAdjacentSameNature(annotatedDOM) {
-                // Phase 5: Visual coalescing - preserve semantic structure while eliminating visual gaps
-                wsTraceHandler.sendTrace('[COALESCE]', 'Starting visual coalescing for seamless diff presentation');
+                // Phase 5: Visual coalescing - preserve semantic structure with presentation wrappers only
+                wsTraceHandler.sendTrace('[COALESCE]', 'Starting Phase 5: Visual coalescing with presentation wrappers');
                 
                 // Create a new DOM to avoid modifying the annotated DOM
                 const coalescedDOM = annotatedDOM.cloneNode(true);
                 
-                // Define diff element classes for visual coalescing
-                const diffClasses = [
-                    'diff-insertion',
-                    'diff-deletion-inline', 
-                    'diff-moved',
-                    'diff-modification'
-                ];
+                // Apply visual coalescing by adding presentation wrappers around adjacent same-nature elements
+                this.addVisualRunWrappers(coalescedDOM);
                 
-                // Apply visual coalescing to each diff class
-                for (const className of diffClasses) {
-                    this.applyVisualCoalescing(coalescedDOM, className);
-                }
-                
-                wsTraceHandler.sendTrace('[COALESCE]', 'Visual coalescing completed - semantic structure preserved');
+                wsTraceHandler.sendTrace('[COALESCE]', 'Phase 5 complete - semantic structure fully preserved');
                 return coalescedDOM;
             }
 
-            applyVisualCoalescing(dom, className) {
-                // Find all elements with the target class
-                const elements = Array.from(dom.querySelectorAll(`.${className}`));
-                if (elements.length < 2) return;
-
-                // Group elements by parent to process runs within each parent container
-                const elementsByParent = new Map();
-                for (const element of elements) {
-                    if (!element.parentElement) continue;
-                    const parent = element.parentElement;
-                    if (!elementsByParent.has(parent)) {
-                        elementsByParent.set(parent, []);
-                    }
-                    elementsByParent.get(parent).push(element);
-                }
-
-                // Process each parent's children for runs
+            addVisualRunWrappers(dom) {
+                // Find adjacent same-nature diff elements and wrap them for seamless visual presentation
+                const diffTypes = ['diff-insertion', 'diff-moved', 'diff-deletion-inline', 'diff-modification'];
                 let runCounter = 0;
-                for (const [parent, parentElements] of elementsByParent) {
-                    runCounter += this.processRunsInParent(parent, parentElements, className, runCounter);
+                
+                for (const diffType of diffTypes) {
+                    runCounter += this.wrapAdjacentSameType(dom, diffType, runCounter);
                 }
+                
+                wsTraceHandler.sendTrace('[VISUAL-WRAP]', `Created ${runCounter} visual run wrappers`);
             }
-
-            processRunsInParent(parent, targetElements, className, startRunId) {
-                const allChildren = Array.from(parent.children);
+            
+            wrapAdjacentSameType(dom, className, startRunId) {
+                const elements = Array.from(dom.querySelectorAll(`.${className}`));
+                if (elements.length < 2) return 0;
+                
                 let runId = startRunId;
-                let currentRun = [];
                 let runsCreated = 0;
-
-                for (const child of allChildren) {
-                    // Check if this child has the target class
-                    if (child.classList.contains(className.replace('diff-', '').replace('-', '_')) || child.classList.contains(className)) {
-                        currentRun.push(child);
-                    } else {
-                        // Different class or no class - end current run if it exists
-                        if (currentRun.length >= 2) {
-                            this.createVisualRun(currentRun, className, `run-${runId}`);
-                            runId++;
-                            runsCreated++;
-                        }
-                        currentRun = [];
+                let i = 0;
+                
+                while (i < elements.length) {
+                    const currentElement = elements[i];
+                    const adjacentRun = [currentElement];
+                    
+                    // Collect adjacent siblings of the same type
+                    let j = i + 1;
+                    while (j < elements.length && this.areConsecutiveSiblings(elements[j-1], elements[j])) {
+                        adjacentRun.push(elements[j]);
+                        j++;
                     }
+                    
+                    // Only wrap if we have adjacent elements (2 or more)
+                    if (adjacentRun.length >= 2) {
+                        this.createPresentationWrapper(adjacentRun, className, `run-${runId}`);
+                        runId++;
+                        runsCreated++;
+                        wsTraceHandler.sendTrace('[VISUAL-WRAP]', `Wrapped ${adjacentRun.length} adjacent ${className} elements in run-${runId-1}`);
+                    }
+                    
+                    i = j;
                 }
-
-                // Handle final run if exists
-                if (currentRun.length >= 2) {
-                    this.createVisualRun(currentRun, className, `run-${runId}`);
-                    runsCreated++;
-                }
-
+                
                 return runsCreated;
             }
-
-            createVisualRun(runElements, className, runId) {
-                if (runElements.length < 2) return;
-
-                // Create presentation wrapper around the entire run
+            
+            areConsecutiveSiblings(elem1, elem2) {
+                // Check if elem2 immediately follows elem1 in the DOM
+                return elem1.parentElement === elem2.parentElement && 
+                       elem1.nextElementSibling === elem2;
+            }
+            
+            createPresentationWrapper(runElements, className, runId) {
+                // Create presentation wrapper that preserves all semantic content
                 const wrapper = document.createElement('span');
                 wrapper.className = `diff-run ${className}`;
                 wrapper.setAttribute('role', 'presentation');
                 wrapper.setAttribute('data-run-id', runId);
-
-                // Insert wrapper before first element
+                
+                // Insert wrapper before first element in the run
                 const parent = runElements[0].parentElement;
-                const firstElement = runElements[0];
-                parent.insertBefore(wrapper, firstElement);
-
-                // Move all run elements into the wrapper (preserves their complete structure)
+                parent.insertBefore(wrapper, runElements[0]);
+                
+                // Move all run elements into wrapper - preserves complete semantic structure
                 for (const element of runElements) {
                     wrapper.appendChild(element);
                 }
-
-                wsTraceHandler.sendTrace('[VISUAL-RUN]', `Created visual run ${runId} with ${runElements.length} ${className} elements`);
             }
 
-            coalesceInlineChanges(dom) {
-                // Find consecutive inline changes and merge them into unified visual blocks
-                const inlineChanges = dom.querySelectorAll('.diff-insertion, .diff-deletion-inline, .diff-modification');
-                let consecutiveGroup = [];
-                
-                for (let i = 0; i < inlineChanges.length; i++) {
-                    const current = inlineChanges[i];
-                    const next = inlineChanges[i + 1];
-                    
-                    consecutiveGroup.push(current);
-                    
-                    // Check if next element is adjacent sibling with same or compatible change type
-                    if (!next || !this.areAdjacentSiblings(current, next) || !this.areCompatibleChangeTypes(current, next)) {
-                        // Process the accumulated group if it has multiple elements
-                        if (consecutiveGroup.length > 1) {
-                            this.mergeInlineChangeGroup(consecutiveGroup);
-                        }
-                        consecutiveGroup = [];
-                    }
-                }
-            }
+            // LEGACY METHOD REMOVED - coalesceInlineChanges disabled to preserve semantic DOM structure
 
-            coalesceBlockChanges(dom) {
-                // Find consecutive block-level changes and optimize their visual presentation
-                const blockChanges = dom.querySelectorAll('.diff-insertion, .diff-moved, .gad-deleted');
-                let consecutiveGroup = [];
-                
-                for (let i = 0; i < blockChanges.length; i++) {
-                    const current = blockChanges[i];
-                    const next = blockChanges[i + 1];
-                    
-                    consecutiveGroup.push(current);
-                    
-                    // Check if next element is adjacent and compatible for coalescing
-                    if (!next || !this.areAdjacentElements(current, next) || !this.areCompatibleChangeTypes(current, next)) {
-                        // Process group for visual optimization
-                        if (consecutiveGroup.length > 1) {
-                            this.optimizeBlockChangeGroup(consecutiveGroup);
-                        }
-                        consecutiveGroup = [];
-                    }
-                }
-            }
+            // LEGACY METHOD REMOVED - coalesceBlockChanges disabled to preserve semantic DOM structure
 
-            areAdjacentSiblings(elem1, elem2) {
-                return elem1.parentElement === elem2.parentElement && 
-                       elem1.nextElementSibling === elem2;
-            }
+            // LEGACY METHODS REMOVED - All structural merging disabled to preserve semantic DOM integrity
+            // Phase 5 now uses only visual presentation wrappers without DOM modification
 
-            areAdjacentElements(elem1, elem2) {
-                // Check if elements are visually adjacent in the DOM structure
-                return elem1.nextElementSibling === elem2 || 
-                       (elem1.parentElement && elem1.parentElement.nextElementSibling === elem2.parentElement);
-            }
-
-            areCompatibleChangeTypes(elem1, elem2) {
-                // Define compatible change types that can be coalesced together
-                const getChangeType = (elem) => {
-                    if (elem.classList.contains('diff-insertion')) return 'addition';
-                    if (elem.classList.contains('diff-deletion-inline') || elem.classList.contains('gad-deleted')) return 'deletion';
-                    if (elem.classList.contains('diff-modification')) return 'modification';
-                    if (elem.classList.contains('diff-moved')) return 'moved';
-                    return 'unknown';
-                };
+            performAcceptanceChecks(annotatedHTML, renderedHTML) {
+                // AC-1: Count of <a> elements must match between annotated and rendered
+                const annotatedDOM = document.createElement('div');
+                annotatedDOM.innerHTML = annotatedHTML;
+                const annotatedAnchors = annotatedDOM.querySelectorAll('a').length;
                 
-                const type1 = getChangeType(elem1);
-                const type2 = getChangeType(elem2);
+                const renderedDOM = document.createElement('div');
+                renderedDOM.innerHTML = renderedHTML;
+                const renderedAnchors = renderedDOM.querySelectorAll('a').length;
                 
-                // Compatible types: same type, or addition+modification, deletion+modification
-                return type1 === type2 || 
-                       (type1 === 'addition' && type2 === 'modification') ||
-                       (type1 === 'modification' && type2 === 'addition') ||
-                       (type1 === 'deletion' && type2 === 'modification') ||
-                       (type1 === 'modification' && type2 === 'deletion');
-            }
-
-            mergeInlineChangeGroup(group) {
-                // Merge consecutive inline changes into a unified visual block
-                if (group.length < 2) return;
-                
-                const firstElement = group[0];
-                const parent = firstElement.parentElement;
-                const nextSibling = firstElement.nextSibling;
-                
-                // Check if parent exists before proceeding
-                if (!parent) {
-                    wsTraceHandler.sendTrace('[COALESCE-ERROR]', 'Cannot merge inline group: first element has no parent');
-                    return;
-                }
-                
-                const wrapper = document.createElement('span');
-                wrapper.className = 'diff-coalesced-inline';
-                wrapper.style.backgroundColor = firstElement.style.backgroundColor || '#fffbdd';
-                wrapper.style.padding = '2px 4px';
-                wrapper.style.borderRadius = '3px';
-                
-                // Move all group elements into the wrapper
-                for (const element of group) {
-                    if (element.parentElement) {
-                        wrapper.appendChild(element.cloneNode(true));
-                        element.remove();
-                    }
-                }
-                
-                // Insert wrapper at the stored position
-                // Check if nextSibling is still a valid child of parent
-                if (nextSibling && parent.contains(nextSibling)) {
-                    parent.insertBefore(wrapper, nextSibling);
+                wsTraceHandler.sendTrace('[AC-1]', `Anchor count check: annotated=${annotatedAnchors}, rendered=${renderedAnchors}`);
+                if (annotatedAnchors !== renderedAnchors) {
+                    wsTraceHandler.sendTrace('[AC-1-FAIL]', `ACCEPTANCE CHECK FAILED: Anchor count mismatch - ${annotatedAnchors} annotated vs ${renderedAnchors} rendered`);
                 } else {
-                    // If nextSibling is no longer valid, append at the end
-                    parent.appendChild(wrapper);
+                    wsTraceHandler.sendTrace('[AC-1-PASS]', 'Anchor count match - semantic integrity preserved');
                 }
-            }
-
-            optimizeBlockChangeGroup(group) {
-                // Optimize visual presentation of consecutive block changes
-                if (group.length < 2) return;
                 
-                // Add visual indicators for grouped changes
-                for (let i = 0; i < group.length; i++) {
-                    const element = group[i];
-                    element.style.borderLeft = '3px solid #0066cc';
-                    element.style.marginLeft = '4px';
-                    
-                    if (i === 0) {
-                        element.style.borderTopLeftRadius = '4px';
-                    }
-                    if (i === group.length - 1) {
-                        element.style.borderBottomLeftRadius = '4px';
-                    }
+                // AC-2: Visual coalescing check for adjacent diff-insertion elements
+                const adjacentInsertions = renderedDOM.querySelectorAll('.diff-run.diff-insertion').length;
+                const totalInsertions = renderedDOM.querySelectorAll('.diff-insertion').length;
+                
+                wsTraceHandler.sendTrace('[AC-2]', `Visual coalescing check: ${adjacentInsertions} visual runs, ${totalInsertions} total insertions`);
+                if (adjacentInsertions > 0) {
+                    wsTraceHandler.sendTrace('[AC-2-PASS]', 'Adjacent insertions found and visually coalesced with .diff-run wrappers');
+                } else {
+                    wsTraceHandler.sendTrace('[AC-2-INFO]', 'No adjacent insertions requiring visual coalescing');
                 }
             }
 
