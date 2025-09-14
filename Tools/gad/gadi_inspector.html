@@ -996,14 +996,9 @@
 
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
-                    // Phase 2.5: Presentation-Order Operation Coalescing
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2.5: Creating presentation-ordered coalesced operations');
-                    const coalescedOperations = this.createCoalescedOperationsList(diffOperations, immutableToDOM);
-                    wsTraceHandler.sendTrace('[DIFF]', `Phase 2.5: Coalesced from ${diffOperations.length} to ${coalescedOperations.length} operations via presentation order`);
-
                     // Phase 4: Generate Clean Output DOM
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
-                    const outputDOM = this.generateOutputDOM(immutableToDOM, coalescedOperations, routeElementMap);
+                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
 
                     // Performance logging for Factory debugging
@@ -1198,26 +1193,6 @@
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}]`);
                             } else {
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Skipped duplicate deletion at route [${routeKey}]`);
-                            }
-                            break;
-                        case 'removeElementBlock':
-                            // Handle coalesced deletion blocks
-                            wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processing coalesced deletion block with ${op.deletionCount} deletions`);
-                            if (op.coalescedFrom) {
-                                // Process each original deletion in the coalesced block
-                                for (const originalOp of op.coalescedFrom) {
-                                    const originalRouteKey = originalOp.route.join(',');
-                                    if (!processedDeletions.has(originalRouteKey)) {
-                                        this.generateDeletionBlock(outputDOM, originalOp);
-                                        processedDeletions.add(originalRouteKey);
-                                        deletions++;
-                                        wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed coalesced deletion at route [${originalRouteKey}]`);
-                                    }
-                                }
-                            } else {
-                                // Fallback: treat as single block deletion
-                                this.generateDeletionBlock(outputDOM, op);
-                                deletions++;
                             }
                             break;
                         case 'relocateNode':
@@ -1744,147 +1719,8 @@
                 wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
             }
 
-            createCoalescedOperationsList(diffOperations, immutableToDOM) {
-                wsTraceHandler.sendTrace('[COALESCE]', `Starting presentation-order coalescing on ${diffOperations.length} operations`);
-                
-                // Immutable processing: create new operations list
-                const presentationOrderedOps = this.sortOperationsByPresentationOrder(diffOperations, immutableToDOM);
-                const coalescedOps = this.mergeAdjacentOperations(presentationOrderedOps);
-                
-                wsTraceHandler.sendTrace('[COALESCE]', `Presentation-order coalescing complete: ${diffOperations.length} → ${coalescedOps.length} operations`);
-                return coalescedOps;
-            }
 
-            sortOperationsByPresentationOrder(operations, referenceDOM) {
-                wsTraceHandler.sendTrace('[COALESCE]', 'Sorting operations by DOM tree traversal order');
-                
-                // Create new array preserving original operations
-                return [...operations].sort((a, b) => {
-                    return this.compareRoutesPresentationOrder(a.route, b.route, referenceDOM);
-                });
-            }
 
-            compareRoutesPresentationOrder(routeA, routeB, referenceDOM) {
-                // Compare routes by depth-first, left-to-right traversal order
-                const minLength = Math.min(routeA.length, routeB.length);
-                
-                for (let i = 0; i < minLength; i++) {
-                    if (routeA[i] !== routeB[i]) {
-                        return routeA[i] - routeB[i]; // Earlier index comes first
-                    }
-                }
-                
-                // If one route is a prefix of another, shorter comes first
-                return routeA.length - routeB.length;
-            }
-
-            mergeAdjacentOperations(sortedOperations) {
-                wsTraceHandler.sendTrace('[COALESCE]', `Merging adjacent operations from ${sortedOperations.length} sorted operations`);
-                
-                const mergedOps = [];
-                let i = 0;
-                
-                while (i < sortedOperations.length) {
-                    const currentOp = sortedOperations[i];
-                    
-                    // Try to merge consecutive text modifications
-                    if (currentOp.action === 'modifyTextElement') {
-                        const sequence = this.collectAdjacentTextSequence(sortedOperations, i);
-                        if (sequence.length > 1) {
-                            mergedOps.push(this.createMergedTextOperation(sequence));
-                            wsTraceHandler.sendTrace('[COALESCE]', `Merged ${sequence.length} adjacent text operations`);
-                            i += sequence.length;
-                            continue;
-                        }
-                    }
-                    
-                    // Try to merge consecutive deletions
-                    if (currentOp.action === 'removeElement' || currentOp.action === 'removeTextElement') {
-                        const sequence = this.collectAdjacentDeletionSequence(sortedOperations, i);
-                        if (sequence.length > 1) {
-                            mergedOps.push(this.createMergedDeletionOperation(sequence));
-                            wsTraceHandler.sendTrace('[COALESCE]', `Merged ${sequence.length} adjacent deletion operations`);
-                            i += sequence.length;
-                            continue;
-                        }
-                    }
-                    
-                    // No merging - keep original
-                    mergedOps.push(currentOp);
-                    i++;
-                }
-                
-                return mergedOps;
-            }
-
-            collectAdjacentTextSequence(operations, startIndex) {
-                const sequence = [operations[startIndex]];
-                let i = startIndex + 1;
-                
-                while (i < operations.length && 
-                       this.areOperationsAdjacentInPresentation(operations[i-1], operations[i])) {
-                    if (operations[i].action === 'modifyTextElement' || 
-                        operations[i].action === 'addElement' || 
-                        operations[i].action === 'addTextElement') {
-                        sequence.push(operations[i]);
-                        i++;
-                    } else {
-                        break;
-                    }
-                }
-                
-                return sequence;
-            }
-
-            collectAdjacentDeletionSequence(operations, startIndex) {
-                const sequence = [operations[startIndex]];
-                let i = startIndex + 1;
-                
-                while (i < operations.length && 
-                       this.areOperationsAdjacentInPresentation(operations[i-1], operations[i]) &&
-                       (operations[i].action === 'removeElement' || operations[i].action === 'removeTextElement')) {
-                    sequence.push(operations[i]);
-                    i++;
-                }
-                
-                return sequence;
-            }
-
-            areOperationsAdjacentInPresentation(opA, opB) {
-                // Check if operations are truly adjacent in presentation order (consecutive routes)
-                const routeA = opA.route;
-                const routeB = opB.route;
-                
-                if (routeA.length !== routeB.length) return false;
-                
-                // Check if only the last index differs by 1
-                for (let i = 0; i < routeA.length - 1; i++) {
-                    if (routeA[i] !== routeB[i]) return false;
-                }
-                
-                return Math.abs(routeB[routeB.length - 1] - routeA[routeA.length - 1]) === 1;
-            }
-
-            createMergedTextOperation(sequence) {
-                const baseOp = sequence[0];
-                // Simple merge preserving base operation structure
-                return {
-                    ...baseOp,
-                    coalescedFrom: sequence,
-                    coalescedType: 'textSequence'
-                };
-            }
-
-            createMergedDeletionOperation(sequence) {
-                const baseOp = sequence[0];
-                return {
-                    action: 'removeElementBlock',
-                    route: baseOp.route,
-                    coalescedFrom: sequence,
-                    coalescedType: 'deletionBlock',
-                    deletionCount: sequence.length
-                };
-            }
 
             showStatusMessage(message) {
                 this.elements.statusSection.textContent = message;
