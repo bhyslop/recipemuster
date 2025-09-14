@@ -1309,8 +1309,8 @@
                 const parent = firstElement.parentElement;
                 if (!parent) return;
 
-                // Combine text content from all elements
-                const combinedText = elements.map(el => el.textContent || '').join('');
+                // Combine HTML content from all elements to preserve structure (links, etc.)
+                const combinedHTML = elements.map(el => el.innerHTML || '').join('');
                 
                 // Create new merged element
                 const mergedElement = document.createElement(firstElement.tagName);
@@ -1321,7 +1321,7 @@
                     mergedElement.style.cssText = firstElement.style.cssText;
                 }
                 
-                mergedElement.textContent = combinedText;
+                mergedElement.innerHTML = combinedHTML;
 
                 // Replace first element with merged element
                 parent.replaceChild(mergedElement, firstElement);
