@@ -232,33 +232,19 @@
             color: #888;
         }
 
-        /* Diff styling - Block-level annotations with GADS-compliant deletions */
+        /* Simplified deletion styling - inline struck-through text with minimal red highlight */
         .diff-deletion {
             background-color: #ffeef0;
             color: #d73a49;
             text-decoration: line-through;
-            display: inline; /* Inline display for deletions */
-            border: 1px solid #f97583;
-            border-radius: 2px;
-            padding: 1px 3px;
-            margin: 0 2px;
+            display: inline;
         }
 
-        .gad-deleted {
+        .diff-deletion-inline {
             background-color: #ffeef0;
             color: #d73a49;
             text-decoration: line-through;
-            border: 1px solid #f97583;
-            border-radius: 3px;
-            padding: 8px 12px;
-            margin: 8px 0;
-            display: block;
-            font-style: italic;
-        }
-
-        .gad-deleted::before {
-            content: "[DELETED] ";
-            font-weight: bold;
+            display: inline;
         }
 
         .diff-insertion {
@@ -453,48 +439,41 @@
                 }
             }
 
-            sendRenderedContent(htmlContent, fromCommit, toCommit, sourceFiles) {
-                // Send rendered content to Factory for gadfd_rendered_capture creation if WebSocket available
+            sendDebugOutput(debugType, content, fromCommit, toCommit, sourceFiles) {
+                // Consolidated debug output sender for all 8-phase debug artifacts
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                     try {
                         const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
                         const fromHash = fromCommit ? fromCommit.hash.substring(0, 12) : 'unknown';
                         const toHash = toCommit ? toCommit.hash.substring(0, 12) : 'unknown';
                         
+                        // Determine file extension based on debug type
+                        const fileExtension = debugType.includes('dft') ? 'json' : 'html';
+                        const filename = `debug-${debugType}-${fromHash}-${toHash}-${timestamp}.${fileExtension}`;
+                        
                         this.ws.send(JSON.stringify({
-                            type: 'rendered_content',
-                            content: htmlContent,
-                            filename_pattern: `debug-rendered-${fromHash}-${toHash}-${timestamp}.html`,
+                            type: 'debug_output',
+                            debug_type: debugType,
+                            content: content,
+                            filename_pattern: filename,
                             source_files: sourceFiles || []
                         }));
-                        console.log('[RENDERED-CONTENT] Sent to Factory for raw diff file creation');
+                        console.log(`[DEBUG-OUTPUT] Sent ${debugType} debug data to Factory for ${filename} creation`);
                     } catch (error) {
-                        console.log(`[WS-ERROR] Failed to send rendered content: ${error}`);
+                        console.log(`[WS-ERROR] Failed to send ${debugType} debug output: ${error}`);
                     }
                 }
                 // Silent if WebSocket not available - this is optional functionality
             }
 
+            // Legacy method for backwards compatibility
+            sendRenderedContent(htmlContent, fromCommit, toCommit, sourceFiles) {
+                this.sendDebugOutput('rendered', htmlContent, fromCommit, toCommit, sourceFiles);
+            }
+
+            // Legacy method for backwards compatibility  
             sendAnnotatedDOM(htmlContent, fromCommit, toCommit, sourceFiles) {
-                // Send annotated DOM to Factory for gadif_annotated_dom creation if WebSocket available
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    try {
-                        const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
-                        const fromHash = fromCommit ? fromCommit.hash.substring(0, 12) : 'unknown';
-                        const toHash = toCommit ? toCommit.hash.substring(0, 12) : 'unknown';
-                        
-                        this.ws.send(JSON.stringify({
-                            type: 'annotated_dom',
-                            content: htmlContent,
-                            filename_pattern: `debug-annotated-${fromHash}-${toHash}-${timestamp}.html`,
-                            source_files: sourceFiles || []
-                        }));
-                        console.log('[ANNOTATED-DOM] Sent to Factory for intermediate DOM capture');
-                    } catch (error) {
-                        console.log(`[WS-ERROR] Failed to send annotated DOM: ${error}`);
-                    }
-                }
-                // Silent if WebSocket not available - this is optional functionality
+                this.sendDebugOutput('annotated', htmlContent, fromCommit, toCommit, sourceFiles);
             }
         }
 
@@ -1007,7 +986,7 @@
 
             styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles) {
                 const startTime = performance.now();
-                wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant immutable diff processing');
+                wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant 8-phase diff processing');
                 wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
                 wsTraceHandler.sendTrace('[DEBUG]', `diff-dom type at diff time: ${typeof window.diffDom}`);
 
@@ -1016,61 +995,72 @@
                 }
 
                 try {
-                    // Phase 1: Create Immutable Input DOMs (never modify these)
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Creating immutable input DOM trees');
+                    // Phase 1: Immutable Input - Establish immutable source DOM trees
+                    wsTraceHandler.sendTrace('[PHASE-1]', 'Immutable Input: Creating immutable source DOM trees');
                     const immutableFromDOM = this.createDOMFromHTML(fromHtml);
                     const immutableToDOM = this.createDOMFromHTML(toHtml);
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 1: Immutable DOM trees created and preserved');
+                    wsTraceHandler.sendTrace('[PHASE-1]', 'Immutable Input: Immutable DOM trees established and preserved throughout processing');
 
-                    // Phase 2: Pre-capture Deletion Content
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 2: Pre-capturing deletion content from immutable fromDOM');
-                    const routeElementMap = this.createRouteElementMap(immutableFromDOM);
-                    wsTraceHandler.sendTrace('[DEBUG]', `Pre-captured ${Object.keys(routeElementMap).length} elements for deletion handling`);
+                    // Phase 2: Detached Working - Create Detached Working DOM with Semantic Anchors
+                    wsTraceHandler.sendTrace('[PHASE-2]', 'Detached Working: Creating Detached Working DOM with Semantic Anchors');
+                    const detachedWorkingDOM = this.createDetachedWorkingDOM(immutableToDOM);
+                    const semanticAnchors = this.establishSemanticAnchors(detachedWorkingDOM);
+                    wsTraceHandler.sendTrace('[PHASE-2]', `Detached Working: Created independent processing environment with ${Object.keys(semanticAnchors).length} semantic anchors`);
 
+                    // Phase 3: Deletion Fact Capture - Generate Deletion Fact Keys (DFK)
+                    wsTraceHandler.sendTrace('[PHASE-3]', 'Deletion Fact Capture: Generating Deletion Fact Keys (DFK)');
+                    const deletionFactTable = this.createDeletionFactTable(immutableFromDOM);
+                    const phase3Debug = { deletionFactCount: Object.keys(deletionFactTable).length, sampleKeys: Object.keys(deletionFactTable).slice(0, 5) };
+                    wsTraceHandler.sendDebugOutput('phase3_dft', JSON.stringify(phase3Debug, null, 2), fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendTrace('[PHASE-3]', `Deletion Fact Capture: Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
 
-                    // Phase 3: Generate Diff Operations
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 3: Generating diff operations via diff-dom');
+                    // Phase 4: Diff Operations - Generate structured diff operations
+                    wsTraceHandler.sendTrace('[PHASE-4]', 'Diff Operations: Initializing diff-dom and generating operations');
                     const diffDOM = new window.diffDom.DiffDOM({
                         debug: true,
                         diffcap: 500  // Allow more granular detection
                     });
                     const diffOperations = diffDOM.diff(immutableFromDOM, immutableToDOM);
+                    this.enhanceOperationsWithDFK(diffOperations, deletionFactTable);
+                    wsTraceHandler.sendTrace('[PHASE-4]', `Diff Operations: Generated ${diffOperations.length} enhanced diff operations`);
 
-                    // Enhanced operation logging for debugging
-                    wsTraceHandler.sendTrace('[DIFF-OPS]', `Generated ${diffOperations.length} operations`);
-                    diffOperations.forEach((op, index) => {
-                        wsTraceHandler.sendTrace('[DIFF-OP]', `${index}: ${op.action} at route [${op.route.join(',')}]${op.oldValue ? ` oldValue: "${op.oldValue}"` : ''}${op.newValue ? ` newValue: "${op.newValue}"` : ''}`);
-                    });
+                    // Phase 5: Annotated Assembly - Construct semantically annotated output DOM
+                    wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Processing diff operations in Detached Working environment');
+                    const assembledDOM = this.assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors);
+                    const assembledHTML = assembledDOM.innerHTML;
+                    wsTraceHandler.sendDebugOutput('phase5_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Semantic annotation construction completed');
 
-                    // Enhance operations with pre-captured content
-                    this.enhanceOperationsWithCapturedContent(diffOperations, routeElementMap);
+                    // Phase 6: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
+                    wsTraceHandler.sendTrace('[PHASE-6]', 'Deletion Placement: Positioning deletion blocks with DFK mappings');
+                    const deletionPlacedDOM = this.placeDeletionBlocks(assembledDOM, diffOperations, deletionFactTable, semanticAnchors);
+                    const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
+                    wsTraceHandler.sendDebugOutput('phase6_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendTrace('[PHASE-6]', 'Deletion Placement: Structured deletion blocks positioned accurately');
 
-                    wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
+                    // Phase 7: Uniform Classing - Merge consecutive same-nature elements
+                    wsTraceHandler.sendTrace('[PHASE-7]', 'Uniform Classing: Merging consecutive same-nature elements into consolidated runs');
+                    const coalescedDOM = this.mergeAdjacentSameNature(deletionPlacedDOM);
+                    const coalescedHTML = coalescedDOM.innerHTML;
+                    wsTraceHandler.sendDebugOutput('phase7_coalesced', coalescedHTML, fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendTrace('[PHASE-7]', 'Uniform Classing: Single-element consolidated runs created');
 
-                    // Phase 4: Annotated DOM Assembly
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Annotated DOM assembly - generating intermediate annotated DOM');
-                    const annotatedDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Annotated DOM assembly completed');
-
-                    // Capture annotated DOM for granularity analysis
-                    const annotatedHTML = annotatedDOM.innerHTML;
-                    wsTraceHandler.sendAnnotatedDOM(annotatedHTML, fromCommit, toCommit, sourceFiles);
-
-                    // Phase 5: Adjacent Change Coalescing
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - merging same-nature elements');
-                    const coalescedDOM = this.mergeAdjacentSameNature(annotatedDOM);
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing completed');
+                    // Phase 8: Serialize - Generate final rendered output
+                    wsTraceHandler.sendTrace('[PHASE-8]', 'Serialize: Generating final styled diff HTML');
+                    const finalHTML = this.serializeFinalOutput(coalescedDOM);
+                    wsTraceHandler.sendDebugOutput('phase8_final', finalHTML, fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendTrace('[PHASE-8]', 'Serialize: Final rendered HTML ready for display');
 
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
                     const totalTime = Math.round(endTime - startTime);
-                    wsTraceHandler.sendTrace('[PERF]', `GADS immutable diff processing completed in ${totalTime}ms`);
-                    wsTraceHandler.sendTrace('[ARCH]', 'Input DOMs remain completely unmodified throughout processing');
+                    wsTraceHandler.sendTrace('[PERF]', `GADS 8-phase diff processing completed in ${totalTime}ms`);
+                    wsTraceHandler.sendTrace('[ARCH]', 'Complete processing isolation maintained - input DOMs never modified');
 
-                    return coalescedDOM.innerHTML;
+                    return finalHTML;
 
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[ERROR]', `GADS immutable diff processing failed: ${error.message}`);
+                    wsTraceHandler.sendTrace('[ERROR]', `GADS 8-phase diff processing failed: ${error.message}`);
                     throw error;
                 }
             }
@@ -1247,7 +1237,7 @@
                         case 'removeTextElement':
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
-                                this.generateDeletionBlock(outputDOM, op);
+                                this.generateDeletionInline(outputDOM, op);
                                 processedDeletions.add(routeKey);
                                 deletions++;
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}]`);
@@ -1535,23 +1525,23 @@
                     return;
                 }
 
-                // GADS Phase 3: Context Detection - Examine parent element type for deletion strategy
-                const deletionStrategy = this.determineTextDeletionStrategy(element);
-                wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Deletion strategy: ${deletionStrategy.type} (parent: ${deletionStrategy.parentTag || 'none'})`);
-
-                // GADS Phase 3: Content Validation - Verify target element content matches newValue (output DOM has new content)
+                // Create inline deletion for old value if it exists and differs from new value
                 if (operation.oldValue && operation.oldValue !== operation.newValue) {
                     const contentMatches = this.validateElementContent(element, operation.newValue);
                     
                     if (contentMatches) {
-                        // Apply deletion element using determined strategy - show what was deleted (oldValue)
-                        this.applyDeletionElement(element, operation.oldValue, deletionStrategy);
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied ${deletionStrategy.type} deletion for: "${operation.oldValue}"`);
+                        // Create simple inline deletion span
+                        const deletionSpan = document.createElement('span');
+                        deletionSpan.className = 'diff-deletion';
+                        deletionSpan.textContent = operation.oldValue;
+
+                        // Insert before the target element
+                        if (element.parentNode) {
+                            element.parentNode.insertBefore(deletionSpan, element);
+                        }
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied inline deletion for: "${operation.oldValue}"`);
                     } else {
-                        // GADS Phase 3: Failure Handling - Content mismatch detected
-                        const errorDetails = `Route [${operation.route.join(',')}]: Expected target element to contain newValue "${operation.newValue}" but found "${element.textContent}". Operation: "${operation.oldValue}" → "${operation.newValue}". Parent: ${deletionStrategy.parentTag || 'unknown'}. Element type: ${element.nodeType === Node.TEXT_NODE ? 'TEXT_NODE' : element.nodeType === Node.ELEMENT_NODE ? element.tagName : 'unknown'}`;
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', errorDetails);
-                        this.insertProcessingErrorMarker(outputDOM, operation.route, 'Target element content validation failed', operation, errorDetails);
+                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Content mismatch - expected "${operation.newValue}", found "${element.textContent}"`);
                     }
                 }
 
@@ -1573,30 +1563,6 @@
                 return div.innerHTML;
             }
 
-            // GADS Phase 3: Context Detection - Determine deletion strategy based on parent element
-            determineTextDeletionStrategy(element) {
-                let current = element;
-                
-                // GADS specification: Check for specific parent element types
-                const inlineContextTags = new Set(['P', 'TD', 'TH', 'LI', 'DD']);
-                
-                while (current && current.parentNode) {
-                    current = current.parentNode;
-                    if (current.tagName && inlineContextTags.has(current.tagName)) {
-                        return {
-                            type: 'inline',
-                            parentTag: current.tagName,
-                            parentElement: current
-                        };
-                    }
-                }
-                
-                return {
-                    type: 'block',
-                    parentTag: null,
-                    parentElement: null
-                };
-            }
 
             // GADS Phase 3: Content Validation - Verify element content matches expected value
             validateElementContent(element, expectedContent) {
@@ -1609,43 +1575,6 @@
                 }
             }
 
-            // GADS Phase 3: Apply deletion element using determined strategy
-            applyDeletionElement(element, deletedContent, strategy) {
-                if (strategy.type === 'inline') {
-                    // Create inline deletion span per GADS specification
-                    const deletionSpan = document.createElement('span');
-                    deletionSpan.className = 'diff-deletion-inline';
-                    deletionSpan.style.backgroundColor = 'rgb(248, 215, 218)';
-                    deletionSpan.style.textDecoration = 'line-through';
-                    deletionSpan.style.padding = '1px 2px';
-                    deletionSpan.style.marginRight = '2px';
-                    deletionSpan.textContent = deletedContent;
-
-                    // Insert before the target element to maintain reading order
-                    if (element.parentNode) {
-                        element.parentNode.insertBefore(deletionSpan, element);
-                    }
-                } else {
-                    // Create block deletion div for non-inline contexts
-                    const deletionBlock = document.createElement('div');
-                    deletionBlock.className = 'diff-deletion';
-                    deletionBlock.style.backgroundColor = 'rgb(248, 215, 218)';
-                    deletionBlock.style.borderLeft = '4px solid rgb(220, 53, 69)';
-                    deletionBlock.style.padding = '4px';
-                    deletionBlock.style.marginBottom = '4px';
-                    deletionBlock.innerHTML = `<span style="text-decoration: line-through;">${this.escapeHtml(deletedContent)}</span>`;
-
-                    // Use existing insertion point logic for block deletions
-                    const insertionPoint = this.findDeletionInsertionPoint(element.ownerDocument, this.getElementRoute(element));
-                    if (insertionPoint && insertionPoint.container) {
-                        if (insertionPoint.insertBefore) {
-                            insertionPoint.container.insertBefore(deletionBlock, insertionPoint.insertBefore);
-                        } else {
-                            insertionPoint.container.appendChild(deletionBlock);
-                        }
-                    }
-                }
-            }
 
             // GADS Phase 3: Apply insertion styling to new content
             applyInsertionStyling(element, newContent) {
@@ -1755,106 +1684,90 @@
                 return route;
             }
 
-            generateDeletionBlock(outputDOM, operation) {
-                wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Generating deletion block for ${operation.action} at route [${operation.route.join(',')}]`);
+            generateDeletionInline(outputDOM, operation) {
+                wsTraceHandler.sendTrace('[DELETION-INLINE]', `Generating inline deletion for ${operation.action} at route [${operation.route.join(',')}]`);
 
-                const deletionBlock = document.createElement('div');
-                // Clean CSS classes - only diff-deletion, no mixing
-                deletionBlock.className = 'diff-deletion';
-                deletionBlock.style.backgroundColor = '#f8d7da';
-                deletionBlock.style.borderLeft = '4px solid #dc3545';
-                deletionBlock.style.padding = '8px';
-                deletionBlock.style.margin = '4px 0';
-
-                // Use pre-captured content with enhanced formatting
-                if (operation.capturedContent) {
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Using pre-captured content (${operation.capturedType}): ${operation.capturedContent.substring(0, 50)}...`);
-
-                    if (operation.capturedType === 'text' || operation.capturedType === 'fallback-text') {
-                        deletionBlock.innerHTML = `<strong>Deleted text:</strong> <span style="font-style: italic; color: #721c24;">"${this.escapeHtml(operation.capturedContent)}"</span>`;
-                    } else if (operation.capturedType === 'element') {
-                        const textContent = this.extractTextFromHtml(operation.capturedContent);
-                        if (textContent && textContent !== operation.capturedContent) {
-                            deletionBlock.innerHTML = `<strong>Deleted element:</strong> <span style="font-style: italic; color: #721c24;">${this.escapeHtml(textContent)}</span><br><details style="margin-top: 4px;"><summary style="cursor: pointer; color: #6f42c1;">Show HTML</summary><code style="display: block; background: rgba(0,0,0,0.05); padding: 4px; margin-top: 4px; font-size: 12px;">${this.escapeHtml(operation.capturedContent)}</code></details>`;
-                        } else {
-                            deletionBlock.innerHTML = `<strong>Deleted element:</strong><br><code style="display: block; background: rgba(0,0,0,0.05); padding: 4px; font-size: 12px;">${this.escapeHtml(operation.capturedContent)}</code>`;
-                        }
-                    } else {
-                        deletionBlock.innerHTML = `<strong>Deleted content:</strong> <span style="font-style: italic; color: #721c24;">"${this.escapeHtml(operation.capturedContent)}"</span>`;
-                    }
-                } else {
-                    // Fallback when no captured content available
-                    deletionBlock.innerHTML = `<strong>Deleted content</strong> <span style="color: #6a737d;">(content not captured)</span><br><em style="font-size: 12px; color: #6a737d;">Action: ${operation.action}, Route: [${operation.route.join(',')}]</em>`;
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `No captured content available for deletion`);
+                // Find insertion point in the DOM
+                const insertPoint = this.findInlineDeletionInsertionPoint(outputDOM, operation.route);
+                if (!insertPoint) {
+                    wsTraceHandler.sendTrace('[DELETION-INLINE]', `Could not find insertion point for route [${operation.route.join(',')}]`);
+                    return;
                 }
 
-                // Insert deletion block in output DOM at block-level location
-                const insertPoint = this.findDeletionInsertionPoint(outputDOM, operation.route);
-                if (insertPoint && insertPoint.container) {
-                    if (insertPoint.insertBefore) {
-                        insertPoint.container.insertBefore(deletionBlock, insertPoint.insertBefore);
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Inserted deletion block before sibling in ${insertPoint.container.tagName || 'container'}`);
+                // Create inline deletion element based on captured content
+                if (operation.capturedContent) {
+                    let deletionElement;
+                    
+                    if (operation.capturedType === 'element') {
+                        // Check if the deleted element was a link
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = operation.capturedContent;
+                        const linkElement = tempDiv.querySelector('a');
+                        
+                        if (linkElement) {
+                            // Keep as link but strike through the text content
+                            deletionElement = document.createElement('a');
+                            deletionElement.href = linkElement.href;
+                            deletionElement.className = 'diff-deletion';
+                            deletionElement.textContent = linkElement.textContent;
+                        } else {
+                            // Non-link element - extract text and create span
+                            deletionElement = document.createElement('span');
+                            deletionElement.className = 'diff-deletion';
+                            deletionElement.textContent = this.extractTextFromHtml(operation.capturedContent);
+                        }
                     } else {
-                        insertPoint.container.appendChild(deletionBlock);
-                        wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Appended deletion block to ${insertPoint.container.tagName || 'container'}`);
+                        // Text deletion - create span
+                        deletionElement = document.createElement('span');
+                        deletionElement.className = 'diff-deletion';
+                        deletionElement.textContent = operation.capturedContent;
                     }
-                } else {
-                    // Fallback: append to output DOM root
-                    outputDOM.appendChild(deletionBlock);
-                    wsTraceHandler.sendTrace('[DELETION-BLOCK]', `Fallback: appended deletion block to output DOM root`);
+
+                    // Insert the deletion element
+                    if (insertPoint.container && deletionElement) {
+                        if (insertPoint.insertBefore) {
+                            insertPoint.container.insertBefore(deletionElement, insertPoint.insertBefore);
+                        } else {
+                            insertPoint.container.appendChild(deletionElement);
+                        }
+                        wsTraceHandler.sendTrace('[DELETION-INLINE]', `Inserted inline deletion: "${deletionElement.textContent}"`);
+                    }
                 }
             }
 
-            findDeletionInsertionPoint(outputDOM, route) {
-                wsTraceHandler.sendTrace('[DELETION-INSERT]', `Finding block-level insertion point for route [${route.join(',')}]`);
+            findInlineDeletionInsertionPoint(outputDOM, route) {
+                wsTraceHandler.sendTrace('[DELETION-INSERT]', `Finding inline insertion point for route [${route.join(',')}]`);
 
                 if (route.length === 0) {
                     wsTraceHandler.sendTrace('[DELETION-INSERT]', 'Empty route, using output DOM start');
                     return { container: outputDOM, insertBefore: outputDOM.firstChild };
                 }
 
-                // Traverse route to find the element that would be deleted
+                // Traverse route to find the approximate location
                 let element = outputDOM;
+                let parentElement = outputDOM;
+                let targetIndex = 0;
+
                 for (let i = 0; i < route.length; i++) {
                     if (element.childNodes && element.childNodes[route[i]]) {
+                        parentElement = element;
+                        targetIndex = route[i];
                         element = element.childNodes[route[i]];
                     } else {
-                        wsTraceHandler.sendTrace('[DELETION-INSERT]', `Route traversal failed at position ${i}, using parent container`);
-                        return this.findBlockLevelContainer(element);
+                        // Route traversal failed, use last valid parent
+                        break;
                     }
                 }
 
-                // Found the target element - now find appropriate block-level insertion point
-                return this.findBlockLevelContainer(element);
-            }
-
-            findBlockLevelContainer(element) {
-                if (!element) {
-                    wsTraceHandler.sendTrace('[DELETION-INSERT]', 'No element provided, defaulting to document level');
-                    return { container: document.body || document.documentElement, insertBefore: null };
+                // Find the best inline insertion point
+                if (parentElement && parentElement.childNodes) {
+                    const insertBefore = parentElement.childNodes[targetIndex] || null;
+                    return { container: parentElement, insertBefore: insertBefore };
                 }
 
-                // Walk up the DOM tree to find a suitable block-level container
-                let current = element;
-                let blockLevelTags = new Set(['DIV', 'P', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN', 'BLOCKQUOTE', 'DL', 'DD', 'LI', 'TD', 'TH']);
-
-                while (current && current.parentNode) {
-                    const parent = current.parentNode;
-
-                    // If parent is a block-level element, we can insert after current as a sibling
-                    if (parent.tagName && blockLevelTags.has(parent.tagName)) {
-                        wsTraceHandler.sendTrace('[DELETION-INSERT]', `Found block container: ${parent.tagName}, inserting after ${current.tagName || 'node'}`);
-                        return { container: parent, insertBefore: current.nextSibling };
-                    }
-
-                    current = parent;
-                }
-
-                // Fallback: insert at document level
-                wsTraceHandler.sendTrace('[DELETION-INSERT]', 'No suitable block container found, using document level');
-                const documentRoot = current.ownerDocument ? current.ownerDocument.body || current.ownerDocument.documentElement : document.body;
-                return { container: documentRoot, insertBefore: null };
+                return { container: outputDOM, insertBefore: null };
             }
+
 
             createRouteElementMap(dom) {
                 wsTraceHandler.sendTrace('[ROUTE-MAP]', 'Building route-to-element mapping for deletion capture');
@@ -1931,6 +1844,156 @@
                 }
 
                 wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
+            }
+
+            // ===== 8-PHASE HELPER METHODS =====
+
+            // Phase 2: Create Detached Working DOM with Semantic Anchors
+            createDetachedWorkingDOM(immutableToDOM) {
+                wsTraceHandler.sendTrace('[DETACHED-WORKING]', 'Creating independent processing environment');
+                const detachedDOM = document.createElement('div');
+                this.deepCloneElement(immutableToDOM, detachedDOM);
+                wsTraceHandler.sendTrace('[DETACHED-WORKING]', 'Detached Working DOM created from immutable input');
+                return detachedDOM;
+            }
+
+            establishSemanticAnchors(detachedWorkingDOM) {
+                wsTraceHandler.sendTrace('[SEMANTIC-ANCHORS]', 'Establishing fixed reference points for route resolution');
+                const anchors = {};
+                const walker = document.createTreeWalker(
+                    detachedWorkingDOM,
+                    NodeFilter.SHOW_ELEMENT,
+                    null,
+                    false
+                );
+                
+                let node;
+                let anchorIndex = 0;
+                while (node = walker.nextNode()) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const route = this.getElementRoute(node);
+                        const anchorId = `anchor_${anchorIndex++}`;
+                        anchors[anchorId] = {
+                            element: node,
+                            route: route,
+                            tagName: node.tagName,
+                            textContent: node.textContent.substring(0, 50) // Preview for debugging
+                        };
+                    }
+                }
+                
+                wsTraceHandler.sendTrace('[SEMANTIC-ANCHORS]', `Established ${Object.keys(anchors).length} semantic anchors`);
+                return anchors;
+            }
+
+            // Phase 3: Create Deletion Fact Table (DFK mapping)
+            createDeletionFactTable(immutableFromDOM) {
+                wsTraceHandler.sendTrace('[DFK]', 'Creating Deletion Fact Key mapping for stable fragment preservation');
+                const deletionFactTable = {};
+                
+                const mapElementForDeletion = (element, route) => {
+                    if (!element) return;
+                    
+                    const routeKey = route.join(',');
+                    const dfk = `dfk_${routeKey.replace(/,/g, '_')}`;
+                    
+                    deletionFactTable[dfk] = {
+                        route: route,
+                        nodeType: element.nodeType,
+                        outerHTML: element.nodeType === Node.ELEMENT_NODE ? element.outerHTML : null,
+                        textContent: element.textContent || '',
+                        nodeName: element.nodeName || '',
+                        routeKey: routeKey
+                    };
+                    
+                    // Recursively map child nodes
+                    if (element.childNodes) {
+                        for (let i = 0; i < element.childNodes.length; i++) {
+                            const childRoute = [...route, i];
+                            mapElementForDeletion(element.childNodes[i], childRoute);
+                        }
+                    }
+                };
+                
+                mapElementForDeletion(immutableFromDOM, []);
+                wsTraceHandler.sendTrace('[DFK]', `Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
+                return deletionFactTable;
+            }
+
+            // Phase 4: Enhance operations with DFK
+            enhanceOperationsWithDFK(diffOperations, deletionFactTable) {
+                wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhancing ${diffOperations.length} operations with DFK mappings`);
+                
+                for (const op of diffOperations) {
+                    if (op.action === 'removeElement' || op.action === 'removeTextElement') {
+                        const routeKey = op.route.join(',');
+                        // Find matching DFK entry
+                        const dfkEntry = Object.values(deletionFactTable).find(entry => entry.routeKey === routeKey);
+                        if (dfkEntry) {
+                            op.dfk = Object.keys(deletionFactTable).find(key => deletionFactTable[key] === dfkEntry);
+                            op.capturedContent = dfkEntry.outerHTML || dfkEntry.textContent;
+                            op.capturedType = dfkEntry.nodeType === Node.ELEMENT_NODE ? 'element' : 'text';
+                            wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhanced operation with DFK: ${op.dfk}`);
+                        }
+                    }
+                }
+                
+                wsTraceHandler.sendTrace('[DFK-ENHANCE]', 'DFK enhancement completed');
+            }
+
+            // Phase 5: Assemble Annotated DOM
+            assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors) {
+                wsTraceHandler.sendTrace('[ASSEMBLY]', 'Processing diff operations in Detached Working environment');
+                
+                // Use existing generateOutputDOM logic but with detached working environment
+                const assembledDOM = this.generateOutputDOM(detachedWorkingDOM, diffOperations, {});
+                
+                wsTraceHandler.sendTrace('[ASSEMBLY]', 'Semantic annotation assembly completed');
+                return assembledDOM;
+            }
+
+            // Phase 6: Place Deletion Blocks using DFK and Semantic Anchors
+            placeDeletionBlocks(assembledDOM, diffOperations, deletionFactTable, semanticAnchors) {
+                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', 'Positioning deletion blocks using DFK mappings and Semantic Anchors');
+                
+                // Clone the assembled DOM to avoid modifying input
+                const deletionPlacedDOM = assembledDOM.cloneNode(true);
+                
+                // Process deletion operations in reverse order to prevent route invalidation
+                const deletionOps = diffOperations.filter(op => 
+                    op.action === 'removeElement' || op.action === 'removeTextElement'
+                ).reverse();
+                
+                for (const op of deletionOps) {
+                    if (op.dfk && deletionFactTable[op.dfk]) {
+                        const insertPoint = this.findInlineDeletionInsertionPoint(deletionPlacedDOM, op.route);
+                        if (insertPoint) {
+                            this.generateDeletionInline(deletionPlacedDOM, op);
+                        }
+                    }
+                }
+                
+                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', 'Structured deletion blocks positioned with route-based accuracy');
+                return deletionPlacedDOM;
+            }
+
+            // Phase 8: Serialize Final Output
+            serializeFinalOutput(coalescedDOM) {
+                wsTraceHandler.sendTrace('[SERIALIZE]', 'Generating final styled diff HTML ready for display');
+                
+                // Final validation and cleanup
+                const finalHTML = coalescedDOM.innerHTML;
+                
+                // Validate output integrity
+                const parser = new DOMParser();
+                const testDoc = parser.parseFromString(finalHTML, 'text/html');
+                if (testDoc.querySelector('parsererror')) {
+                    wsTraceHandler.sendTrace('[SERIALIZE-ERROR]', 'Final HTML contains parser errors');
+                } else {
+                    wsTraceHandler.sendTrace('[SERIALIZE]', 'Final HTML validated successfully');
+                }
+                
+                return finalHTML;
             }
 
 

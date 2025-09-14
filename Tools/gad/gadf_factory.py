@@ -79,76 +79,94 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             data = json.loads(message)
             if data.get('type') == 'trace':
                 gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
+            elif data.get('type') == 'debug_output':
+                self.handle_debug_output(data)
             elif data.get('type') == 'rendered_content':
-                self.handle_rendered_content(data)
+                # Legacy compatibility - redirect to debug_output
+                self.handle_legacy_rendered_content(data)
             elif data.get('type') == 'annotated_dom':
-                self.handle_annotated_dom(data)
+                # Legacy compatibility - redirect to debug_output  
+                self.handle_legacy_annotated_dom(data)
         except json.JSONDecodeError:
             gadfl_warn(f"Invalid WebSocket message: {message}")
 
-    def handle_rendered_content(self, data):
-        """Handle rendered content message from Inspector for gadfd_rendered_capture."""
+    def handle_debug_output(self, data):
+        """Handle consolidated debug output message from Inspector for all 8-phase artifacts."""
         try:
             factory = self.application.factory
-            rendered_html = data.get('content', '')
+            debug_type = data.get('debug_type', 'unknown')
+            content = data.get('content', '')
             
-            # Use GADS-compliant filename pattern if provided by Inspector
+            # Use GADS-compliant filename pattern provided by Inspector
             filename = data.get('filename_pattern')
             if not filename:
-                # Fallback to old pattern for compatibility
-                timestamp = time.strftime('%Y%m%d-%H%M%S')
-                filename = f"debug-rendered-{timestamp}.html"
+                # Fallback pattern
+                timestamp = time.strftime('%Y%m%d%H%M%S')
+                extension = 'json' if debug_type.endswith('dft') else 'html'
+                filename = f"debug-{debug_type}-{timestamp}.{extension}"
             
             filepath = factory.output_dir / filename
             source_files = data.get('source_files', [])
 
-            with open(filepath, 'w', encoding='utf-8') as f:
-                # Write comment lines with source file information per GADS spec
-                if source_files:
-                    f.write("<!-- gadfd_rendered_capture source files:\n")
-                    for source_file in source_files:
-                        f.write(f"     {source_file}\n")
-                    f.write("-->\n")
-                
-                f.write(rendered_html)
+            # Write content based on file type
+            if filename.endswith('.json'):
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(content)
+            else:
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    # Write comment lines with source file information per GADS spec
+                    if source_files:
+                        debug_type_display = self.get_debug_type_display_name(debug_type)
+                        f.write(f"<!-- GAD {debug_type_display} source files:\n")
+                        for source_file in source_files:
+                            f.write(f"     {source_file}\n")
+                        f.write("-->\n")
+                    
+                    f.write(content)
 
-            gadfl_step(f"Raw diff file created: {filename}")
+            phase_display = self.get_debug_type_display_name(debug_type)
+            gadfl_step(f"{phase_display} debug file created: {filename}")
             gadfl_step(f"Full path: {filepath}")
 
         except Exception as e:
-            gadfl_warn(f"Failed to save rendered content: {e}")
+            gadfl_warn(f"Failed to save {debug_type} debug output: {e}")
 
-    def handle_annotated_dom(self, data):
-        """Handle annotated DOM message from Inspector for gadif_annotated_dom creation."""
-        try:
-            factory = self.application.factory
-            annotated_html = data.get('content', '')
-            
-            # Use GADS-compliant filename pattern if provided by Inspector
-            filename = data.get('filename_pattern')
-            if not filename:
-                # Fallback to pattern for compatibility
-                timestamp = time.strftime('%Y%m%d-%H%M%S')
-                filename = f"debug-annotated-{timestamp}.html"
-            
-            filepath = factory.output_dir / filename
-            source_files = data.get('source_files', [])
+    def get_debug_type_display_name(self, debug_type):
+        """Get display name for debug type."""
+        debug_type_names = {
+            'phase3_dft': 'Phase 3 Deletion Fact Table',
+            'phase5_annotated': 'Phase 5 Annotated Assembly',
+            'phase6_deletions': 'Phase 6 Deletion Placement',
+            'phase7_coalesced': 'Phase 7 Uniform Classing',
+            'phase8_final': 'Phase 8 Final Serialize',
+            'rendered': 'Rendered Content',
+            'annotated': 'Annotated DOM'
+        }
+        return debug_type_names.get(debug_type, f"Debug Output ({debug_type})")
 
-            with open(filepath, 'w', encoding='utf-8') as f:
-                # Write comment lines with source file information per GADS spec
-                if source_files:
-                    f.write("<!-- gadif_annotated_dom source files:\n")
-                    for source_file in source_files:
-                        f.write(f"     {source_file}\n")
-                    f.write("-->\n")
-                
-                f.write(annotated_html)
+    def handle_legacy_rendered_content(self, data):
+        """Handle legacy rendered content message for backwards compatibility."""
+        # Convert to new debug_output format
+        debug_data = {
+            'type': 'debug_output',
+            'debug_type': 'rendered',
+            'content': data.get('content', ''),
+            'filename_pattern': data.get('filename_pattern'),
+            'source_files': data.get('source_files', [])
+        }
+        self.handle_debug_output(debug_data)
 
-            gadfl_step(f"Annotated DOM debug file created: {filename}")
-            gadfl_step(f"Full path: {filepath}")
-
-        except Exception as e:
-            gadfl_warn(f"Failed to save annotated DOM content: {e}")
+    def handle_legacy_annotated_dom(self, data):
+        """Handle legacy annotated DOM message for backwards compatibility."""
+        # Convert to new debug_output format
+        debug_data = {
+            'type': 'debug_output',
+            'debug_type': 'annotated',
+            'content': data.get('content', ''),
+            'filename_pattern': data.get('filename_pattern'),
+            'source_files': data.get('source_files', [])
+        }
+        self.handle_debug_output(debug_data)
 
     @classmethod
     def broadcast_refresh(cls):
