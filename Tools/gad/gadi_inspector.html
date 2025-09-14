@@ -1349,6 +1349,15 @@
                 if (group.length < 2) return;
                 
                 const firstElement = group[0];
+                const parent = firstElement.parentElement;
+                const nextSibling = firstElement.nextSibling;
+                
+                // Check if parent exists before proceeding
+                if (!parent) {
+                    wsTraceHandler.sendTrace('[COALESCE-ERROR]', 'Cannot merge inline group: first element has no parent');
+                    return;
+                }
+                
                 const wrapper = document.createElement('span');
                 wrapper.className = 'diff-coalesced-inline';
                 wrapper.style.backgroundColor = firstElement.style.backgroundColor || '#fffbdd';
@@ -1357,12 +1366,14 @@
                 
                 // Move all group elements into the wrapper
                 for (const element of group) {
-                    wrapper.appendChild(element.cloneNode(true));
-                    element.remove();
+                    if (element.parentElement) {
+                        wrapper.appendChild(element.cloneNode(true));
+                        element.remove();
+                    }
                 }
                 
-                // Insert wrapper at the position of the first element
-                firstElement.parentElement.insertBefore(wrapper, firstElement.nextSibling);
+                // Insert wrapper at the stored position
+                parent.insertBefore(wrapper, nextSibling);
             }
 
             optimizeBlockChangeGroup(group) {
