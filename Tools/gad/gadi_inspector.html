@@ -1374,32 +1374,6 @@
                 return classList.find(cls => cls.startsWith('diff-')) || expectedClassName;
             }
             
-            applyCoalescedStyling(container, className) {
-                // Apply visual styling that indicates coalesced content without breaking structure
-                switch (className) {
-                    case 'diff-insertion':
-                        container.style.backgroundColor = 'rgba(212, 237, 218, 0.5)';
-                        container.style.borderLeft = '2px solid #28a745';
-                        container.style.paddingLeft = '2px';
-                        break;
-                    case 'diff-deletion-inline':
-                        container.style.backgroundColor = 'rgba(248, 215, 218, 0.5)';
-                        container.style.borderLeft = '2px solid #dc3545';
-                        container.style.paddingLeft = '2px';
-                        break;
-                    case 'diff-moved':
-                        container.style.backgroundColor = 'rgba(255, 243, 205, 0.5)';
-                        container.style.borderLeft = '2px solid #ffc107';
-                        container.style.paddingLeft = '2px';
-                        break;
-                    case 'diff-modification':
-                        container.style.backgroundColor = 'rgba(209, 236, 241, 0.5)';
-                        container.style.borderLeft = '2px solid #17a2b8';
-                        container.style.paddingLeft = '2px';
-                        break;
-                }
-            }
-            
             areConsecutiveSiblings(elem1, elem2) {
                 // Check if elem2 immediately follows elem1 in the DOM
                 return elem1.parentElement === elem2.parentElement && 
@@ -1471,26 +1445,31 @@
                     // Add visual styling to container instead of individual elements
                     this.applyCoalescedStyling(runContainer, className);
                 }
-                                    if (childClone.classList) {
-                                        childClone.classList.remove(className.replace('diff-', ''));
-                                        childClone.classList.remove(className);
-                                    }
-                                    replacement.appendChild(childClone);
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Insert replacement and remove originals
-                const parent = runElements[0].parentElement;
-                if (parent) {
-                    parent.insertBefore(replacement, runElements[0]);
-                    for (const element of runElements) {
-                        if (element.parentElement) {
-                            element.parentElement.removeChild(element);
-                        }
-                    }
+            }
+            
+            applyCoalescedStyling(container, className) {
+                // Apply visual styling that indicates coalesced content without breaking structure
+                switch (className) {
+                    case 'diff-insertion':
+                        container.style.backgroundColor = 'rgba(212, 237, 218, 0.5)';
+                        container.style.borderLeft = '2px solid #28a745';
+                        container.style.paddingLeft = '2px';
+                        break;
+                    case 'diff-deletion-inline':
+                        container.style.backgroundColor = 'rgba(248, 215, 218, 0.5)';
+                        container.style.borderLeft = '2px solid #dc3545';
+                        container.style.paddingLeft = '2px';
+                        break;
+                    case 'diff-moved':
+                        container.style.backgroundColor = 'rgba(255, 243, 205, 0.5)';
+                        container.style.borderLeft = '2px solid #ffc107';
+                        container.style.paddingLeft = '2px';
+                        break;
+                    case 'diff-modification':
+                        container.style.backgroundColor = 'rgba(209, 236, 241, 0.5)';
+                        container.style.borderLeft = '2px solid #17a2b8';
+                        container.style.paddingLeft = '2px';
+                        break;
                 }
             }
 
