@@ -285,6 +285,72 @@
             padding: 4px;
         }
 
+        /* Visual coalescing styles - seamless presentation without DOM merging */
+        .visual-run {
+            display: inline-block;
+            position: relative;
+        }
+
+        /* Seamless edge smoothing for adjacent same-nature elements */
+        .visual-run.diff-insertion {
+            border-radius: 3px;
+        }
+        
+        .visual-run.diff-insertion:first-child {
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+        
+        .visual-run.diff-insertion:last-child {
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+        
+        .visual-run.diff-insertion:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+
+        .visual-run.diff-moved {
+            border-radius: 3px;
+        }
+        
+        .visual-run.diff-moved:first-child {
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+        
+        .visual-run.diff-moved:last-child {
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+        
+        .visual-run.diff-moved:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+
+        .visual-run.diff-deletion {
+            border-radius: 2px;
+        }
+        
+        .visual-run.diff-deletion:first-child {
+            border-top-left-radius: 2px;
+            border-bottom-left-radius: 2px;
+        }
+        
+        .visual-run.diff-deletion:last-child {
+            border-top-right-radius: 2px;
+            border-bottom-right-radius: 2px;
+        }
+        
+        .visual-run.diff-deletion:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+
+        /* Remove gaps between adjacent visual run elements */
+        .visual-run + .visual-run {
+            margin-left: -1px;
+        }
+
         .loading {
             text-align: center;
             color: #666;
@@ -1252,13 +1318,13 @@
             }
 
             mergeAdjacentSameNature(annotatedDOM) {
-                // Phase 5: Merge content of consecutive same-nature diff elements for cleaner visual presentation
-                wsTraceHandler.sendTrace('[COALESCE]', 'Starting same-nature element merging for optimized visual presentation');
+                // Phase 5: Visual coalescing - preserve semantic structure while eliminating visual gaps
+                wsTraceHandler.sendTrace('[COALESCE]', 'Starting visual coalescing for seamless diff presentation');
                 
                 // Create a new DOM to avoid modifying the annotated DOM
                 const coalescedDOM = annotatedDOM.cloneNode(true);
                 
-                // Define diff element classes to merge
+                // Define diff element classes for visual coalescing
                 const diffClasses = [
                     'diff-insertion',
                     'diff-deletion-inline', 
@@ -1266,72 +1332,88 @@
                     'diff-modification'
                 ];
                 
-                // Process each diff class separately
+                // Apply visual coalescing to each diff class
                 for (const className of diffClasses) {
-                    this.mergeConsecutiveElements(coalescedDOM, className);
+                    this.applyVisualCoalescing(coalescedDOM, className);
                 }
                 
-                wsTraceHandler.sendTrace('[COALESCE]', 'Same-nature element merging completed');
+                wsTraceHandler.sendTrace('[COALESCE]', 'Visual coalescing completed - semantic structure preserved');
                 return coalescedDOM;
             }
 
-            mergeConsecutiveElements(dom, className) {
+            applyVisualCoalescing(dom, className) {
+                // Find all elements with the target class
                 const elements = Array.from(dom.querySelectorAll(`.${className}`));
                 if (elements.length < 2) return;
 
-                let i = 0;
-                while (i < elements.length) {
-                    const current = elements[i];
-                    const consecutiveGroup = [current];
-                    let j = i + 1;
-
-                    // Find consecutive siblings with same class
-                    while (j < elements.length && 
-                           elements[j].previousElementSibling === consecutiveGroup[consecutiveGroup.length - 1]) {
-                        consecutiveGroup.push(elements[j]);
-                        j++;
+                // Group elements by parent to process runs within each parent container
+                const elementsByParent = new Map();
+                for (const element of elements) {
+                    if (!element.parentElement) continue;
+                    const parent = element.parentElement;
+                    if (!elementsByParent.has(parent)) {
+                        elementsByParent.set(parent, []);
                     }
+                    elementsByParent.get(parent).push(element);
+                }
 
-                    // Merge if group has 2+ elements
-                    if (consecutiveGroup.length >= 2) {
-                        this.mergeElementGroup(consecutiveGroup, className);
-                        wsTraceHandler.sendTrace('[MERGE]', `Merged ${consecutiveGroup.length} ${className} elements`);
-                    }
-
-                    i = j;
+                // Process each parent's children for runs
+                let runCounter = 0;
+                for (const [parent, parentElements] of elementsByParent) {
+                    runCounter += this.processRunsInParent(parent, parentElements, className, runCounter);
                 }
             }
 
-            mergeElementGroup(elements, className) {
-                if (elements.length < 2) return;
+            processRunsInParent(parent, targetElements, className, startRunId) {
+                const allChildren = Array.from(parent.children);
+                let runId = startRunId;
+                let currentRun = [];
+                let runsCreated = 0;
 
-                const firstElement = elements[0];
-                const parent = firstElement.parentElement;
-                if (!parent) return;
-
-                // Combine HTML content from all elements to preserve structure (links, etc.)
-                const combinedHTML = elements.map(el => el.innerHTML || '').join('');
-                
-                // Create new merged element
-                const mergedElement = document.createElement(firstElement.tagName);
-                mergedElement.className = className;
-                
-                // Copy any additional styling from first element
-                if (firstElement.style.cssText) {
-                    mergedElement.style.cssText = firstElement.style.cssText;
-                }
-                
-                mergedElement.innerHTML = combinedHTML;
-
-                // Replace first element with merged element
-                parent.replaceChild(mergedElement, firstElement);
-
-                // Remove remaining elements
-                for (let i = 1; i < elements.length; i++) {
-                    if (elements[i].parentElement) {
-                        elements[i].parentElement.removeChild(elements[i]);
+                for (const child of allChildren) {
+                    // Check if this child has the target class
+                    if (child.classList.contains(className.replace('diff-', '').replace('-', '_')) || child.classList.contains(className)) {
+                        currentRun.push(child);
+                    } else {
+                        // Different class or no class - end current run if it exists
+                        if (currentRun.length >= 2) {
+                            this.createVisualRun(currentRun, className, `run-${runId}`);
+                            runId++;
+                            runsCreated++;
+                        }
+                        currentRun = [];
                     }
                 }
+
+                // Handle final run if exists
+                if (currentRun.length >= 2) {
+                    this.createVisualRun(currentRun, className, `run-${runId}`);
+                    runsCreated++;
+                }
+
+                return runsCreated;
+            }
+
+            createVisualRun(runElements, className, runId) {
+                if (runElements.length < 2) return;
+
+                // Create presentation wrapper around the entire run
+                const wrapper = document.createElement('span');
+                wrapper.className = `diff-run ${className}`;
+                wrapper.setAttribute('role', 'presentation');
+                wrapper.setAttribute('data-run-id', runId);
+
+                // Insert wrapper before first element
+                const parent = runElements[0].parentElement;
+                const firstElement = runElements[0];
+                parent.insertBefore(wrapper, firstElement);
+
+                // Move all run elements into the wrapper (preserves their complete structure)
+                for (const element of runElements) {
+                    wrapper.appendChild(element);
+                }
+
+                wsTraceHandler.sendTrace('[VISUAL-RUN]', `Created visual run ${runId} with ${runElements.length} ${className} elements`);
             }
 
             coalesceInlineChanges(dom) {
