@@ -470,6 +470,28 @@
                 }
                 // Silent if WebSocket not available - this is optional functionality
             }
+
+            sendAnnotatedDOM(htmlContent, fromCommit, toCommit, sourceFiles) {
+                // Send annotated DOM to Factory for gadif_annotated_dom creation if WebSocket available
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    try {
+                        const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
+                        const fromHash = fromCommit ? fromCommit.hash.substring(0, 12) : 'unknown';
+                        const toHash = toCommit ? toCommit.hash.substring(0, 12) : 'unknown';
+                        
+                        this.ws.send(JSON.stringify({
+                            type: 'annotated_dom',
+                            content: htmlContent,
+                            filename_pattern: `debug-annotated-${fromHash}-${toHash}-${timestamp}.html`,
+                            source_files: sourceFiles || []
+                        }));
+                        console.log('[ANNOTATED-DOM] Sent to Factory for intermediate DOM capture');
+                    } catch (error) {
+                        console.log(`[WS-ERROR] Failed to send annotated DOM: ${error}`);
+                    }
+                }
+                // Silent if WebSocket not available - this is optional functionality
+            }
         }
 
         const wsTraceHandler = new WebSocketTraceHandler();
@@ -996,10 +1018,19 @@
 
                     wsTraceHandler.sendTrace('[DIFF]', `Phase 3: Generated ${diffOperations.length} diff operations`);
 
-                    // Phase 4: Generate Clean Output DOM
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Generating clean output DOM from immutable inputs');
-                    const outputDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
-                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Clean output DOM generation completed');
+                    // Phase 4: Annotated DOM Assembly
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Annotated DOM assembly - generating intermediate annotated DOM');
+                    const annotatedDOM = this.generateOutputDOM(immutableToDOM, diffOperations, routeElementMap);
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 4: Annotated DOM assembly completed');
+
+                    // Capture annotated DOM for granularity analysis
+                    const annotatedHTML = annotatedDOM.innerHTML;
+                    this.sendAnnotatedDOM(annotatedHTML, fromCommit, toCommit, sourceFiles);
+
+                    // Phase 5: Adjacent Change Coalescing
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - optimizing visual presentation');
+                    const coalescedDOM = this.coalesceAdjacentChanges(annotatedDOM);
+                    wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing completed');
 
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
@@ -1007,7 +1038,7 @@
                     wsTraceHandler.sendTrace('[PERF]', `GADS immutable diff processing completed in ${totalTime}ms`);
                     wsTraceHandler.sendTrace('[ARCH]', 'Input DOMs remain completely unmodified throughout processing');
 
-                    return outputDOM.innerHTML;
+                    return coalescedDOM.innerHTML;
 
                 } catch (error) {
                     wsTraceHandler.sendTrace('[ERROR]', `GADS immutable diff processing failed: ${error.message}`);
@@ -1218,6 +1249,139 @@
                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Output DOM generation completed with all annotations applied');
 
                 return outputDOM;
+            }
+
+            coalesceAdjacentChanges(annotatedDOM) {
+                // Phase 5: Adjacent Change Coalescing per GADS specification
+                wsTraceHandler.sendTrace('[COALESCE]', 'Starting adjacent change coalescing for optimized visual presentation');
+                
+                // Create a new DOM to avoid modifying the annotated DOM
+                const coalescedDOM = annotatedDOM.cloneNode(true);
+                
+                // Coalesce adjacent inline additions and deletions
+                this.coalesceInlineChanges(coalescedDOM);
+                
+                // Coalesce adjacent block-level changes
+                this.coalesceBlockChanges(coalescedDOM);
+                
+                wsTraceHandler.sendTrace('[COALESCE]', 'Adjacent change coalescing completed');
+                return coalescedDOM;
+            }
+
+            coalesceInlineChanges(dom) {
+                // Find consecutive inline changes and merge them into unified visual blocks
+                const inlineChanges = dom.querySelectorAll('.diff-insertion, .diff-deletion-inline, .diff-modification');
+                let consecutiveGroup = [];
+                
+                for (let i = 0; i < inlineChanges.length; i++) {
+                    const current = inlineChanges[i];
+                    const next = inlineChanges[i + 1];
+                    
+                    consecutiveGroup.push(current);
+                    
+                    // Check if next element is adjacent sibling with same or compatible change type
+                    if (!next || !this.areAdjacentSiblings(current, next) || !this.areCompatibleChangeTypes(current, next)) {
+                        // Process the accumulated group if it has multiple elements
+                        if (consecutiveGroup.length > 1) {
+                            this.mergeInlineChangeGroup(consecutiveGroup);
+                        }
+                        consecutiveGroup = [];
+                    }
+                }
+            }
+
+            coalesceBlockChanges(dom) {
+                // Find consecutive block-level changes and optimize their visual presentation
+                const blockChanges = dom.querySelectorAll('.diff-insertion, .diff-moved, .gad-deleted');
+                let consecutiveGroup = [];
+                
+                for (let i = 0; i < blockChanges.length; i++) {
+                    const current = blockChanges[i];
+                    const next = blockChanges[i + 1];
+                    
+                    consecutiveGroup.push(current);
+                    
+                    // Check if next element is adjacent and compatible for coalescing
+                    if (!next || !this.areAdjacentElements(current, next) || !this.areCompatibleChangeTypes(current, next)) {
+                        // Process group for visual optimization
+                        if (consecutiveGroup.length > 1) {
+                            this.optimizeBlockChangeGroup(consecutiveGroup);
+                        }
+                        consecutiveGroup = [];
+                    }
+                }
+            }
+
+            areAdjacentSiblings(elem1, elem2) {
+                return elem1.parentElement === elem2.parentElement && 
+                       elem1.nextElementSibling === elem2;
+            }
+
+            areAdjacentElements(elem1, elem2) {
+                // Check if elements are visually adjacent in the DOM structure
+                return elem1.nextElementSibling === elem2 || 
+                       (elem1.parentElement && elem1.parentElement.nextElementSibling === elem2.parentElement);
+            }
+
+            areCompatibleChangeTypes(elem1, elem2) {
+                // Define compatible change types that can be coalesced together
+                const getChangeType = (elem) => {
+                    if (elem.classList.contains('diff-insertion')) return 'addition';
+                    if (elem.classList.contains('diff-deletion-inline') || elem.classList.contains('gad-deleted')) return 'deletion';
+                    if (elem.classList.contains('diff-modification')) return 'modification';
+                    if (elem.classList.contains('diff-moved')) return 'moved';
+                    return 'unknown';
+                };
+                
+                const type1 = getChangeType(elem1);
+                const type2 = getChangeType(elem2);
+                
+                // Compatible types: same type, or addition+modification, deletion+modification
+                return type1 === type2 || 
+                       (type1 === 'addition' && type2 === 'modification') ||
+                       (type1 === 'modification' && type2 === 'addition') ||
+                       (type1 === 'deletion' && type2 === 'modification') ||
+                       (type1 === 'modification' && type2 === 'deletion');
+            }
+
+            mergeInlineChangeGroup(group) {
+                // Merge consecutive inline changes into a unified visual block
+                if (group.length < 2) return;
+                
+                const firstElement = group[0];
+                const wrapper = document.createElement('span');
+                wrapper.className = 'diff-coalesced-inline';
+                wrapper.style.backgroundColor = firstElement.style.backgroundColor || '#fffbdd';
+                wrapper.style.padding = '2px 4px';
+                wrapper.style.borderRadius = '3px';
+                
+                // Move all group elements into the wrapper
+                for (const element of group) {
+                    wrapper.appendChild(element.cloneNode(true));
+                    element.remove();
+                }
+                
+                // Insert wrapper at the position of the first element
+                firstElement.parentElement.insertBefore(wrapper, firstElement.nextSibling);
+            }
+
+            optimizeBlockChangeGroup(group) {
+                // Optimize visual presentation of consecutive block changes
+                if (group.length < 2) return;
+                
+                // Add visual indicators for grouped changes
+                for (let i = 0; i < group.length; i++) {
+                    const element = group[i];
+                    element.style.borderLeft = '3px solid #0066cc';
+                    element.style.marginLeft = '4px';
+                    
+                    if (i === 0) {
+                        element.style.borderTopLeftRadius = '4px';
+                    }
+                    if (i === group.length - 1) {
+                        element.style.borderBottomLeftRadius = '4px';
+                    }
+                }
             }
 
             isInlineElement(element) {

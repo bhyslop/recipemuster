@@ -81,6 +81,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                 gadfl_step(f"[INSPECTOR-TRACE] {data.get('message', '')}")
             elif data.get('type') == 'rendered_content':
                 self.handle_rendered_content(data)
+            elif data.get('type') == 'annotated_dom':
+                self.handle_annotated_dom(data)
         except json.JSONDecodeError:
             gadfl_warn(f"Invalid WebSocket message: {message}")
 
@@ -115,6 +117,38 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
         except Exception as e:
             gadfl_warn(f"Failed to save rendered content: {e}")
+
+    def handle_annotated_dom(self, data):
+        """Handle annotated DOM message from Inspector for gadif_annotated_dom creation."""
+        try:
+            factory = self.application.factory
+            annotated_html = data.get('content', '')
+            
+            # Use GADS-compliant filename pattern if provided by Inspector
+            filename = data.get('filename_pattern')
+            if not filename:
+                # Fallback to pattern for compatibility
+                timestamp = time.strftime('%Y%m%d-%H%M%S')
+                filename = f"debug-annotated-{timestamp}.html"
+            
+            filepath = factory.output_dir / filename
+            source_files = data.get('source_files', [])
+
+            with open(filepath, 'w', encoding='utf-8') as f:
+                # Write comment lines with source file information per GADS spec
+                if source_files:
+                    f.write("<!-- gadif_annotated_dom source files:\n")
+                    for source_file in source_files:
+                        f.write(f"     {source_file}\n")
+                    f.write("-->\n")
+                
+                f.write(annotated_html)
+
+            gadfl_step(f"Annotated DOM debug file created: {filename}")
+            gadfl_step(f"Full path: {filepath}")
+
+        except Exception as e:
+            gadfl_warn(f"Failed to save annotated DOM content: {e}")
 
     @classmethod
     def broadcast_refresh(cls):
