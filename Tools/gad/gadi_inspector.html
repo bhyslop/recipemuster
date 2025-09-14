@@ -586,8 +586,7 @@
                 // Initialize URL state tracking
                 this.suppressUrlUpdate = false;
 
-                // Parse URL state on load
-                window.addEventListener('load', () => this.parseUrlState());
+                // Parse URL state on browser navigation (back/forward)
                 window.addEventListener('popstate', () => this.parseUrlState());
             }
 
@@ -662,11 +661,16 @@
             }
             
             setDefaultSelections() {
-                // Only set defaults if no current selections
-                if (!this.selectedFrom && !this.selectedTo) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Setting default selections: From = -1, To = H');
+                // Only set defaults if no current selections AND no URL params present
+                const searchParams = new URLSearchParams(window.location.search);
+                const hasUrlParams = searchParams.get('from') || searchParams.get('to');
+                
+                if (!this.selectedFrom && !this.selectedTo && !hasUrlParams) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'No selections and no URL params - setting default selections: From = -1, To = H');
                     this.setRailSelection('from', '-1', true);  // Skip diff on first
                     this.setRailSelection('to', 'H', false);    // Perform diff on second
+                } else {
+                    wsTraceHandler.sendTrace('[DEBUG]', `Skipping defaults - selections: from=${this.selectedFrom}, to=${this.selectedTo}, urlParams=${hasUrlParams}`);
                 }
             }
 
@@ -765,49 +769,50 @@
             }
 
             parseUrlState() {
-                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlState called with search: "${window.location.search}", hash: "${window.location.hash}"`);
+                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlState called with search: "${window.location.search}"`);
                 
-                // Try query parameters first (new format)
+                // Only interpret from/to parameters as commit hashes
                 const searchParams = new URLSearchParams(window.location.search);
-                let fromHash = searchParams.get('from');
-                let toHash = searchParams.get('to');
-                
-                // Fallback to hash parameters for backward compatibility
-                if (!fromHash && !toHash && window.location.hash) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'No query params, trying hash fallback for backward compatibility');
-                    const hash = window.location.hash.substring(1);
-                    const hashParams = new URLSearchParams(hash);
-                    fromHash = hashParams.get('from');
-                    toHash = hashParams.get('to');
-                }
+                const fromHash = searchParams.get('from');
+                const toHash = searchParams.get('to');
 
                 wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromHash}", to: "${toHash}"`);
 
+                // Only proceed if we have URL parameters to process
+                if (!fromHash && !toHash) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'No URL params present, not overriding current selections');
+                    return;
+                }
+
                 // Convert commit hashes to position values for rail selection
-                let fromPosition = null;
-                let toPosition = null;
+                let fromSet = false;
+                let toSet = false;
 
                 if (fromHash) {
-                    fromPosition = this.hashToPosition(fromHash);
+                    const fromPosition = this.hashToPosition(fromHash);
                     if (fromPosition) {
                         wsTraceHandler.sendTrace('[DEBUG]', `Setting from rail to position: ${fromPosition} (from hash: ${fromHash})`);
                         this.setRailSelection('from', fromPosition, true); // Skip diff on first selection
+                        fromSet = true;
                     } else {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve from hash: ${fromHash}`);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve from hash: ${fromHash} - ignoring`);
                     }
                 }
 
                 if (toHash) {
-                    toPosition = this.hashToPosition(toHash);
+                    const toPosition = this.hashToPosition(toHash);
                     if (toPosition) {
                         wsTraceHandler.sendTrace('[DEBUG]', `Setting to rail to position: ${toPosition} (from hash: ${toHash})`);
                         this.setRailSelection('to', toPosition, false); // Perform diff on second selection
+                        toSet = true;
                     } else {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve to hash: ${toHash}`);
+                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve to hash: ${toHash} - ignoring`);
                     }
-                } else if (fromPosition) {
-                    // Only from was set, trigger diff after setting from
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Only from position set, calling performDiff');
+                }
+
+                // If only from was set and resolved, trigger diff
+                if (fromSet && !toSet) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Only from position set from URL, calling performDiff');
                     this.performDiff();
                 }
             }
