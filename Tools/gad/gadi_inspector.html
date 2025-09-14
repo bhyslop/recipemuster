@@ -616,9 +616,9 @@
                     this.populateRails();
                     wsTraceHandler.sendTrace('[DEBUG]', 'populateRails completed');
 
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting parseUrlHash');
-                    this.parseUrlHash();
-                    wsTraceHandler.sendTrace('[DEBUG]', 'parseUrlHash completed');
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting parseUrlState');
+                    this.parseUrlState();
+                    wsTraceHandler.sendTrace('[DEBUG]', 'parseUrlState completed');
 
                 } catch (error) {
                     wsTraceHandler.sendTrace('[DEBUG]', `Manifest load failed: ${error.message}`);
@@ -842,9 +842,9 @@
                 this.suppressUrlUpdate = true;
 
                 // Transpose the column positions by exchanging selections
-                // Skip diff on first selection, perform only on second
+                // Skip diff on both selections during transpose
                 this.setRailSelection('from', toValue, true);  // Skip diff
-                this.setRailSelection('to', fromValue, false); // Skip diff - we'll do single diff at end
+                this.setRailSelection('to', fromValue, true);  // Skip diff - we'll do single diff at end
 
                 // Clear the guard flag
                 this.suppressUrlUpdate = false;
