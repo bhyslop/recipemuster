@@ -583,9 +583,12 @@
                     });
                 });
 
-                // Parse URL hash on load
-                window.addEventListener('load', () => this.parseUrlHash());
-                window.addEventListener('hashchange', () => this.parseUrlHash());
+                // Initialize URL state tracking
+                this.suppressUrlUpdate = false;
+
+                // Parse URL state on load
+                window.addEventListener('load', () => this.parseUrlState());
+                window.addEventListener('popstate', () => this.parseUrlState());
             }
 
             async loadManifest() {
@@ -743,9 +746,9 @@
 
                 wsTraceHandler.sendTrace('[SELECTION]', `${railType} rail selected: ${value}`);
                 
-                // Only perform diff if selection actually changed and not skipped
-                if (previousValue !== value && !skipDiff) {
-                    this.updateUrlHash();
+                // Only update URL and perform diff if selection changed, not skipped, and not suppressed
+                if (previousValue !== value && !skipDiff && !this.suppressUrlUpdate) {
+                    this.writeUrlState();
                     this.performDiff();
                 }
             }
@@ -761,13 +764,23 @@
                 }
             }
 
-            parseUrlHash() {
-                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlHash called with hash: "${window.location.hash}"`);
-                const hash = window.location.hash.substring(1);
-                const params = new URLSearchParams(hash);
+            parseUrlState() {
+                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlState called with search: "${window.location.search}", hash: "${window.location.hash}"`);
+                
+                // Try query parameters first (new format)
+                const searchParams = new URLSearchParams(window.location.search);
+                let fromHash = searchParams.get('from');
+                let toHash = searchParams.get('to');
+                
+                // Fallback to hash parameters for backward compatibility
+                if (!fromHash && !toHash && window.location.hash) {
+                    wsTraceHandler.sendTrace('[DEBUG]', 'No query params, trying hash fallback for backward compatibility');
+                    const hash = window.location.hash.substring(1);
+                    const hashParams = new URLSearchParams(hash);
+                    fromHash = hashParams.get('from');
+                    toHash = hashParams.get('to');
+                }
 
-                const fromHash = params.get('from');
-                const toHash = params.get('to');
                 wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromHash}", to: "${toHash}"`);
 
                 // Convert commit hashes to position values for rail selection
@@ -778,7 +791,7 @@
                     fromPosition = this.hashToPosition(fromHash);
                     if (fromPosition) {
                         wsTraceHandler.sendTrace('[DEBUG]', `Setting from rail to position: ${fromPosition} (from hash: ${fromHash})`);
-                        this.setRailSelection('from', fromPosition);
+                        this.setRailSelection('from', fromPosition, true); // Skip diff on first selection
                     } else {
                         wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve from hash: ${fromHash}`);
                     }
@@ -788,17 +801,14 @@
                     toPosition = this.hashToPosition(toHash);
                     if (toPosition) {
                         wsTraceHandler.sendTrace('[DEBUG]', `Setting to rail to position: ${toPosition} (from hash: ${toHash})`);
-                        this.setRailSelection('to', toPosition);
+                        this.setRailSelection('to', toPosition, false); // Perform diff on second selection
                     } else {
                         wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve to hash: ${toHash}`);
                     }
-                }
-
-                if (fromPosition || toPosition) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'URL params found, calling performDiff');
+                } else if (fromPosition) {
+                    // Only from was set, trigger diff after setting from
+                    wsTraceHandler.sendTrace('[DEBUG]', 'Only from position set, calling performDiff');
                     this.performDiff();
-                } else {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'No URL params found, not calling performDiff');
                 }
             }
 
@@ -828,21 +838,31 @@
 
                 wsTraceHandler.sendTrace('[SWAP]', `Transposing rail positions: ${fromValue} <-> ${toValue}`);
 
+                // Guard against URL updates during transpose
+                this.suppressUrlUpdate = true;
+
                 // Transpose the column positions by exchanging selections
                 // Skip diff on first selection, perform only on second
                 this.setRailSelection('from', toValue, true);  // Skip diff
-                this.setRailSelection('to', fromValue, false); // Perform diff
+                this.setRailSelection('to', fromValue, false); // Skip diff - we'll do single diff at end
 
-                // Update URL hash after both selections are set
-                this.updateUrlHash();
+                // Clear the guard flag
+                this.suppressUrlUpdate = false;
+
+                // Update URL with resolved commit hashes and perform single diff
+                this.writeUrlState();
+                this.performDiff();
             }
 
-            updateUrlHash() {
+            writeUrlState() {
                 const fromCommit = this.resolveCommit(this.selectedFrom);
                 const toCommit = this.resolveCommit(this.selectedTo);
 
                 if (fromCommit && toCommit) {
-                    window.location.hash = `from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
+                    const newSearch = `?from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
+                    const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + newSearch;
+                    window.history.replaceState(null, '', newUrl);
+                    wsTraceHandler.sendTrace('[URL]', `Updated URL state: from=${fromCommit.hash.substring(0,8)} to=${toCommit.hash.substring(0,8)}`);
                 }
             }
 
