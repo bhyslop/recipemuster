@@ -1025,7 +1025,7 @@
 
                     // Capture annotated DOM for granularity analysis
                     const annotatedHTML = annotatedDOM.innerHTML;
-                    this.sendAnnotatedDOM(annotatedHTML, fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendAnnotatedDOM(annotatedHTML, fromCommit, toCommit, sourceFiles);
 
                     // Phase 5: Adjacent Change Coalescing
                     wsTraceHandler.sendTrace('[DIFF]', 'Phase 5: Adjacent change coalescing - optimizing visual presentation');
