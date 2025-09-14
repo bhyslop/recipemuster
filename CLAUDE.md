@@ -116,6 +116,16 @@ Full read and edit access is pre-approved for all files in:
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
 
+### AsciiDoc Linked Terms
+When working with .adoc files using MCM patterns:
+- **Linked Term**: Concept with three parts:
+  - Attribute reference: `:prefix_snake_case:` (mapping section)
+  - Replacement text: `<<anchor,Display Text>>` (what readers see)
+  - Definition: `[[anchor]] {attribute}:: Definition text` (meaning)
+- Definitions may be grouped in lists or dispersed through document
+- Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`, `gad_`)
+- Use snake_case for anchors, match attribute to anchor
+
 ## Common Workflows
 1. **Bash Development**: Start with relevant utility (BCU/BDU/BTU/BVU), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory

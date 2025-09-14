@@ -1,0 +1,47 @@
+{
+  "branch": "main",
+  "asciidoc": "RBM-environments-srjcl/temp.adoc",
+  "last_processed_hash": "17b17083d9251240096f3f550592637d20ef1aaa",
+  "commits": [
+    {
+      "hash": "17b17083d9251240096f3f550592637d20ef1aaa",
+      "timestamp": "20250914125045",
+      "date": "20250914125045",
+      "message": "Add debug logging for addTextElement property inspection",
+      "html_file": "main-45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9.html",
+      "html_sha256": "45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9"
+    },
+    {
+      "hash": "3a22665f995de4c9ef495ab08a01fdf1407b5ffa",
+      "timestamp": "20250914125336",
+      "date": "20250914125336",
+      "message": "Fix text concatenation using correct addTextElement.value property",
+      "html_file": "main-45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9.html",
+      "html_sha256": "45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9"
+    },
+    {
+      "hash": "f40d3be02137fe96a86907802370db3d55b6ea22",
+      "timestamp": "20250914125750",
+      "date": "20250914125750",
+      "message": "Fix addElement text extraction from childNodes structure",
+      "html_file": "main-45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9.html",
+      "html_sha256": "45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9"
+    },
+    {
+      "hash": "f61c4dafe371599c09c2d9b328d740b6c05a5705",
+      "timestamp": "20250914131847",
+      "date": "20250914131847",
+      "message": "Add prominent console output for raw diff file creation in GADF",
+      "html_file": "main-45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9.html",
+      "html_sha256": "45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9"
+    },
+    {
+      "hash": "f6e9b276a4cc49df8ff0a1793a2530d7966d751a",
+      "timestamp": "20250914133245",
+      "date": "20250914133245",
+      "message": "Restore clean state: revert broken coalescing implementation",
+      "html_file": "main-45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9.html",
+      "html_sha256": "45cfddfc322b0d2c6a983b03d9a1e18cd7acd88c3db0e61e68503ad034bfb2f9"
+    }
+  ]
+}
