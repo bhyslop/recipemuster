@@ -1373,7 +1373,13 @@
                 }
                 
                 // Insert wrapper at the stored position
-                parent.insertBefore(wrapper, nextSibling);
+                // Check if nextSibling is still a valid child of parent
+                if (nextSibling && parent.contains(nextSibling)) {
+                    parent.insertBefore(wrapper, nextSibling);
+                } else {
+                    // If nextSibling is no longer valid, append at the end
+                    parent.appendChild(wrapper);
+                }
             }
 
             optimizeBlockChangeGroup(group) {
