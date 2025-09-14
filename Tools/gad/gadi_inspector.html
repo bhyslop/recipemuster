@@ -641,10 +641,11 @@
             
             setDefaultSelections() {
                 // Only set defaults if no current selections AND no URL params present
-                const searchParams = new URLSearchParams(window.location.search);
-                const hasUrlParams = searchParams.get('from') || searchParams.get('to');
+                // Fix: Use only hash fragment, no search params
+                const hashParams = this.parseHashParams();
+                const hasHashParams = hashParams.get('from') || hashParams.get('to');
                 
-                if (!this.selectedFrom && !this.selectedTo && !hasUrlParams) {
+                if (!this.selectedFrom && !this.selectedTo && !hasHashParams) {
                     wsTraceHandler.sendTrace('[DEBUG]', 'No selections and no URL params - setting default selections: From = -1, To = H');
                     this.setRailSelection('from', '-1', true);  // Skip diff on first
                     this.setRailSelection('to', 'H', false);    // Perform diff on second
@@ -771,18 +772,18 @@
             }
             
             parseUrlState() {
-                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlState called with search: "${window.location.search}"`);
+                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlState called with hash: "${window.location.hash}"`);
                 
-                // Only interpret from/to parameters as commit hashes
-                const searchParams = new URLSearchParams(window.location.search);
-                const fromHash = searchParams.get('from');
-                const toHash = searchParams.get('to');
+                // Fix: Parse only from hash fragment, ignore search params completely
+                const hashParams = this.parseHashParams();
+                const fromHash = hashParams.get('from');
+                const toHash = hashParams.get('to');
 
-                wsTraceHandler.sendTrace('[DEBUG]', `Parsed URL params - from: "${fromHash}", to: "${toHash}"`);
+                wsTraceHandler.sendTrace('[DEBUG]', `Parsed hash params - from: "${fromHash}", to: "${toHash}"`);
 
-                // Only proceed if we have URL parameters to process
+                // Only proceed if we have hash parameters to process
                 if (!fromHash && !toHash) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'No URL params present, not overriding current selections');
+                    wsTraceHandler.sendTrace('[DEBUG]', 'No hash params present, not overriding current selections');
                     return;
                 }
 
@@ -868,7 +869,7 @@
 
                 if (fromCommit && toCommit) {
                     const newHash = `#from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
-                    const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + window.location.search + newHash;
+                    const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + newHash;
                     window.history.replaceState(null, '', newUrl);
                     wsTraceHandler.sendTrace('[URL]', `Updated hash state: from=${fromCommit.hash.substring(0,8)} to=${toCommit.hash.substring(0,8)}`);
                 }
@@ -1255,10 +1256,14 @@
                         case 'removeTextElement':
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
-                                this.generateDeletionInline(outputDOM, op);
+                                // Fix: Route all deletions through semantic anchor placement only
+                                const anchorElement = this.findStableSemanticAnchor(outputDOM, op.route);
+                                if (anchorElement) {
+                                    this.placeSingleDeletionBlock(outputDOM, op, anchorElement);
+                                }
                                 processedDeletions.add(routeKey);
                                 deletions++;
-                                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}]`);
+                                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}] via semantic anchor`);
                             } else {
                                 wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Skipped duplicate deletion at route [${routeKey}]`);
                             }
@@ -1804,15 +1809,9 @@
             }
 
             generateDeletionInline(outputDOM, operation) {
-                // Legacy method - redirect to new deterministic deletion placement
-                wsTraceHandler.sendTrace('[DELETION-INLINE-LEGACY]', `Redirecting inline deletion for ${operation.action} to deterministic placement`);
-                
-                const anchorElement = this.findStableSemanticAnchor(outputDOM, operation.route);
-                if (anchorElement) {
-                    this.placeSingleDeletionBlock(outputDOM, operation, anchorElement);
-                } else {
-                    wsTraceHandler.sendTrace('[DELETION-INLINE-FAIL]', `Could not find semantic anchor for route [${operation.route.join(',')}]`);
-                }
+                // Fix: Legacy method disabled - all deletions routed through semantic anchor placement
+                wsTraceHandler.sendTrace('[DELETION-LEGACY-DISABLED]', `Legacy generateDeletionInline disabled for ${operation.action} at route [${operation.route.join(',')}]`);
+                // No-op - deletions should be handled by caller through placeSingleDeletionBlock
             }
             
             generateDeletionInlineLegacy(outputDOM, operation) {
@@ -2055,6 +2054,17 @@
                 
                 // Fix: Rebuild DFT from pristine immutableFromDOM before any mutations
                 mapElementForDeletion(immutableFromDOM, []);
+                
+                // Fix: Sanity check - DFT must contain no empty keys before proceeding
+                const emptyKeys = Object.keys(deletionFactTable).filter(key => !key || key === 'dfk_' || key === 'dfk_undefined');
+                if (emptyKeys.length > 0) {
+                    wsTraceHandler.sendTrace('[DFK-ERROR]', `Found ${emptyKeys.length} empty/invalid DFK keys: ${emptyKeys.join(', ')}`);
+                    // Remove invalid keys
+                    for (const emptyKey of emptyKeys) {
+                        delete deletionFactTable[emptyKey];
+                    }
+                }
+                
                 wsTraceHandler.sendTrace('[DFK]', `Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
                 return deletionFactTable;
             }
@@ -2082,16 +2092,20 @@
 
             // Phase 5: Assemble Annotated DOM
             assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors) {
-                wsTraceHandler.sendTrace('[ASSEMBLY]', 'Processing diff operations in Detached Working environment using two-phase approach');
+                wsTraceHandler.sendTrace('[ASSEMBLY]', 'Processing diff operations using true two-phase approach');
                 
-                // Phase A: Resolve all diff-op routes to concrete node references (no DOM writes)
-                wsTraceHandler.sendTrace('[ASSEMBLY-RESOLVE]', `Resolving routes for ${diffOperations.length} operations`);
+                // Phase A: Resolve all diff-op routes to stable references (ZERO DOM mutation)
+                wsTraceHandler.sendTrace('[ASSEMBLY-RESOLVE]', `Resolving routes for ${diffOperations.length} operations - READ ONLY`);
                 const resolvedOperations = [];
                 const preResolutionSnapshot = []; // Fix: Debug snapshot for route resolution
                 
+                // Fix: Create pristine read-only DOM for route resolution
+                const readOnlyDOM = detachedWorkingDOM.cloneNode(true);
+                
                 for (const op of diffOperations) {
                     const resolvedOp = { ...op }; // Shallow copy operation
-                    const targetElement = this.findElementByRoute(detachedWorkingDOM, op.route);
+                    // Fix: Use read-only DOM, never mutate during resolution
+                    const targetElement = this.findElementByRoute(readOnlyDOM, op.route);
                     
                     // Fix: Record pre-resolution state
                     preResolutionSnapshot.push({
@@ -2104,7 +2118,10 @@
                     });
                     
                     if (targetElement) {
-                        resolvedOp.resolvedElement = targetElement;
+                        // Fix: Store stable reference info, not mutable DOM element
+                        resolvedOp.resolvedNodeType = targetElement.nodeType;
+                        resolvedOp.resolvedTagName = targetElement.tagName;
+                        resolvedOp.resolvedTextContent = targetElement.textContent;
                         resolvedOp.resolved = true;
                         resolvedOperations.push(resolvedOp);
                     } else {
@@ -2126,8 +2143,9 @@
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, -4);
                 wsTraceHandler.sendDebugOutput('phase5_routes_resolved', JSON.stringify(routesResolvedPayload, null, 2), '', '', []);
                 
-                // Phase B: Apply annotations using resolved references only
+                // Phase B: Apply annotations using resolved references only (separate output DOM)
                 wsTraceHandler.sendTrace('[ASSEMBLY-APPLY]', `Applying annotations for ${resolvedOperations.filter(op => op.resolved).length} resolved operations`);
+                // Fix: Create fresh output DOM for Phase B, never modify the original
                 const applyResult = this.applyAnnotationsFromResolved(detachedWorkingDOM, resolvedOperations);
                 const assembledDOM = applyResult.outputDOM;
                 
@@ -2188,7 +2206,11 @@
                         case 'removeTextElement':
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
-                                this.generateDeletionInline(outputDOM, op);
+                                // Fix: Route all deletions through semantic anchor placement only
+                                const anchorElement = this.findStableSemanticAnchor(outputDOM, op.route);
+                                if (anchorElement) {
+                                    this.placeSingleDeletionBlock(outputDOM, op, anchorElement);
+                                }
                                 processedDeletions.add(routeKey);
                                 deletions++;
                                 applied = true;
