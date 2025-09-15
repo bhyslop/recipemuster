@@ -227,7 +227,10 @@ body {
     color: #888;
 }
 
-/* Simplified deletion styling - inline struck-through text with minimal red highlight */
+/* DEPRECATED LEGACY DIFF CLASSES - Style isolation replaced with GADS semantic classes */
+/* All diff styling now uses .gad-* classes below - these are preserved for backwards compatibility only */
+
+/*
 .diff-deletion {
     background-color: #ffeef0;
     color: #d73a49;
@@ -243,10 +246,8 @@ body {
 }
 
 .diff-insertion {
-    /* PRIORITY FIX #8: Tame visual "boxy" insertions - inline-first treatment */
     background-color: #e8f5e8;
     border-radius: 2px;
-    /* Minimal padding, no border for inline-first visual treatment */
     padding: 1px 2px;
     display: inline;
 }
@@ -255,7 +256,6 @@ body {
     background-color: #fff3cd;
     border: 1px solid #856404;
     border-radius: 3px;
-    /* Block-level background highlighting */
     padding: 4px;
 }
 
@@ -263,13 +263,13 @@ body {
     background-color: #e2e3e5;
     border: 1px solid #6c757d;
     border-radius: 3px;
-    /* Block-level background highlighting for text changes */
     padding: 4px;
 }
+*/
 
-/* Simplified coalescing - single consolidated elements only */
-/* Adjacent same-type diff elements are replaced with single consolidated spans */
-/* No additional CSS needed - existing .diff-insertion, .diff-moved, etc. styles apply */
+/* GADS Semantic Coalescing - single consolidated elements only */
+/* Adjacent same-type elements are replaced with single consolidated spans */
+/* Uses .gad-* semantic classes for consistent style isolation */
 
 /* GADS Semantic Classification CSS Classes - Style Isolation */
 .gad-inline-addition {

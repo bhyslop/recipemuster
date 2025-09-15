@@ -700,10 +700,10 @@
 
                     // Enhanced logging for Factory debugging
                     const changeTypeBreakdown = {
-                        insertions: this.elements.renderedPane.querySelectorAll('.diff-insertion').length,
-                        moves: this.elements.renderedPane.querySelectorAll('.diff-moved').length,
-                        deletions: this.elements.renderedPane.querySelectorAll('.diff-deletion').length,
-                        modifications: this.elements.renderedPane.querySelectorAll('.diff-modification').length
+                        insertions: this.elements.renderedPane.querySelectorAll('.gad-inline-addition, .gad-block-addition').length,
+                        moves: this.elements.renderedPane.querySelectorAll('.gad-structural-change').length,
+                        deletions: this.elements.renderedPane.querySelectorAll('.gad-inline-removal, .gad-block-removal').length,
+                        modifications: this.elements.renderedPane.querySelectorAll('.gad-inline-modification').length
                     };
 
                     const totalChanges = changeTypeBreakdown.insertions + changeTypeBreakdown.moves + 
@@ -957,8 +957,8 @@
             }
 
             addVisualRunWrappers(dom) {
-                // Find adjacent same-nature diff elements and replace them with single consolidated elements
-                const diffTypes = ['diff-insertion', 'diff-moved', 'diff-deletion-inline', 'diff-modification'];
+                // Find adjacent same-nature elements using GADS semantic classes
+                const diffTypes = ['gad-inline-addition', 'gad-structural-change', 'gad-inline-removal', 'gad-inline-modification'];
                 let runCounter = 0;
                 
                 // Initialize coalescing telemetry
@@ -1090,9 +1090,9 @@
             }
             
             extractDiffClass(element, expectedClassName) {
-                // Extract the specific diff class from element's classList
+                // Extract the specific GADS semantic class from element's classList
                 const classList = Array.from(element.classList);
-                return classList.find(cls => cls.startsWith('diff-')) || expectedClassName;
+                return classList.find(cls => cls.startsWith('gad-')) || expectedClassName;
             }
             
             areConsecutiveSiblings(elem1, elem2) {
@@ -1141,18 +1141,18 @@
             }
             
             applyCoalescedStyling(container, className) {
-                // GADS Style Isolation: Use CSS classes instead of inline styles
+                // GADS Style Isolation: Use semantic CSS classes for coalesced containers
                 switch (className) {
-                    case 'diff-insertion':
+                    case 'gad-inline-addition':
                         container.classList.add('gad-inline-addition');
                         break;
-                    case 'diff-deletion-inline':
+                    case 'gad-inline-removal':
                         container.classList.add('gad-inline-removal');
                         break;
-                    case 'diff-moved':
+                    case 'gad-structural-change':
                         container.classList.add('gad-structural-change');
                         break;
-                    case 'diff-modification':
+                    case 'gad-inline-modification':
                         container.classList.add('gad-inline-modification');
                         break;
                     default:
@@ -1298,9 +1298,9 @@
                     const contentMatches = this.validateElementContent(element, operation.newValue);
                     
                     if (contentMatches) {
-                        // Create simple inline deletion span
+                        // Create simple inline deletion span using GADS semantic class
                         const deletionSpan = document.createElement('span');
-                        deletionSpan.className = 'diff-deletion';
+                        deletionSpan.className = 'gad-inline-removal';
                         deletionSpan.textContent = operation.oldValue;
 
                         // Insert before the target element
@@ -1518,21 +1518,21 @@
                         const linkElement = tempDiv.querySelector('a');
                         
                         if (linkElement) {
-                            // Keep as link but strike through the text content
+                            // Keep as link but strike through the text content using GADS semantic class
                             deletionElement = document.createElement('a');
                             deletionElement.href = linkElement.href;
-                            deletionElement.className = 'diff-deletion';
+                            deletionElement.className = 'gad-inline-removal';
                             deletionElement.textContent = linkElement.textContent;
                         } else {
-                            // Non-link element - extract text and create span
+                            // Non-link element - extract text and create span using GADS semantic class
                             deletionElement = document.createElement('span');
-                            deletionElement.className = 'diff-deletion';
+                            deletionElement.className = 'gad-inline-removal';
                             deletionElement.textContent = this.extractTextFromHtml(operation.capturedContent);
                         }
                     } else {
-                        // Text deletion - create span
+                        // Text deletion - create span using GADS semantic class
                         deletionElement = document.createElement('span');
-                        deletionElement.className = 'diff-deletion';
+                        deletionElement.className = 'gad-inline-removal';
                         deletionElement.textContent = operation.capturedContent;
                     }
 
