@@ -4,362 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAD Inspector</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-
-        .status-section {
-            background: #e8f4fd;
-            border: 1px solid #b3d9ff;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .workspace {
-            display: grid;
-            grid-template-columns: auto auto 1fr;
-            grid-template-rows: auto 1fr;
-            grid-template-areas: 
-                "railheader railheader renderheader"
-                "from to render";
-            gap: 0px;
-            height: calc(100vh - 100px);
-            margin-top: 20px;
-        }
-
-        .rail-header {
-            grid-area: railheader;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: white;
-            border-radius: 8px 8px 0 0;
-            padding: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-bottom: 1px solid #eee;
-            border-right: 1px solid #eee;
-            font-weight: bold;
-            color: #666;
-        }
-
-        .render-header {
-            grid-area: renderheader;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border-radius: 8px 8px 0 0;
-            padding: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-bottom: 1px solid #eee;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 12px;
-            color: #333;
-        }
-
-        .rail {
-            background: white;
-            border-radius: 0 0 8px 8px;
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            max-height: 100%;
-        }
-
-        .rail.from {
-            grid-area: from;
-            border-top-left-radius: 0;
-            border-right: 1px solid #eee;
-        }
-
-        .rail.to {
-            grid-area: to;
-            border-top-right-radius: 0;
-        }
-
-        .rail-row {
-            display: flex;
-            align-items: center;
-            padding: 8px 10px;
-            margin-bottom: 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .rail-row:hover {
-            background-color: #f8f9fa;
-        }
-
-        .rail-row.selected {
-            background-color: #e3f2fd;
-            border: 1px solid #2196f3;
-        }
-
-        .rail-label {
-            min-width: 30px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 12px;
-            font-weight: bold;
-            color: #666;
-            text-align: center;
-        }
-
-        .rail-radio {
-            margin-left: auto;
-        }
-
-        .rail-commit-info {
-            flex: 1;
-            margin-left: 10px;
-        }
-
-        .rail-hash {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 12px;
-            color: #333;
-        }
-
-        .unchanged-rail-row {
-            opacity: 0.6;
-        }
-
-        .unchanged-rail-row .rail-hash::after {
-            content: " ≡";
-            color: #888;
-        }
-
-        .rendered-pane {
-            grid-area: render;
-            background: white;
-            border-radius: 0 0 8px 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            max-height: 100%;
-            line-height: 1.6;
-        }
-
-        .popover {
-            position: fixed;
-            background: white;
-            border: 2px solid #007acc;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 15px;
-            z-index: 1000;
-            display: none;
-            max-width: 400px;
-            min-width: 300px;
-            font-size: 13px;
-        }
-
-        .popover-header {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-        }
-
-        .popover-field {
-            margin-bottom: 8px;
-        }
-
-        .popover-label {
-            font-weight: bold;
-            color: #555;
-            font-size: 11px;
-        }
-
-        .popover-value {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            background: #f6f8fa;
-            padding: 4px 6px;
-            border-radius: 3px;
-            border: 1px solid #e1e4e8;
-            margin-top: 3px;
-            word-break: break-all;
-            font-size: 10px;
-        }
-
-        .swap-button {
-            background: #007acc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            margin: 0 6px;
-        }
-
-        .swap-button:hover {
-            background: #005a9e;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .swap-button:active {
-            transform: scale(0.95);
-        }
-
-
-
-
-        .unchanged-commit {
-            opacity: 0.6;
-        }
-
-        .unchanged-commit::after {
-            content: " ≡";
-            color: #888;
-        }
-
-        /* Simplified deletion styling - inline struck-through text with minimal red highlight */
-        .diff-deletion {
-            background-color: #ffeef0;
-            color: #d73a49;
-            text-decoration: line-through;
-            display: inline;
-        }
-
-        .diff-deletion-inline {
-            background-color: #ffeef0;
-            color: #d73a49;
-            text-decoration: line-through;
-            display: inline;
-        }
-
-        .diff-insertion {
-            /* PRIORITY FIX #8: Tame visual "boxy" insertions - inline-first treatment */
-            background-color: #e8f5e8;
-            border-radius: 2px;
-            /* Minimal padding, no border for inline-first visual treatment */
-            padding: 1px 2px;
-            display: inline;
-        }
-
-        .diff-moved {
-            background-color: #fff3cd;
-            border: 1px solid #856404;
-            border-radius: 3px;
-            /* Block-level background highlighting */
-            padding: 4px;
-        }
-
-        .diff-modification {
-            background-color: #e2e3e5;
-            border: 1px solid #6c757d;
-            border-radius: 3px;
-            /* Block-level background highlighting for text changes */
-            padding: 4px;
-        }
-
-        /* Simplified coalescing - single consolidated elements only */
-        /* Adjacent same-type diff elements are replaced with single consolidated spans */
-        /* No additional CSS needed - existing .diff-insertion, .diff-moved, etc. styles apply */
-
-        /* GADS Semantic Classification CSS Classes - Style Isolation */
-        .gad-inline-addition {
-            background-color: #e8f5e8;
-            border-radius: 2px;
-            padding: 1px 2px;
-            display: inline;
-        }
-
-        .gad-block-addition {
-            background-color: #e8f5e8;
-            border: 1px solid #28a745;
-            border-radius: 3px;
-            padding: 4px;
-            margin: 2px 0;
-            display: block;
-        }
-
-        .gad-inline-modification {
-            background-color: #e2e3e5;
-            border-radius: 2px;
-            padding: 1px 2px;
-            display: inline;
-        }
-
-        .gad-structural-change {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 2px 4px;
-            margin: 1px 0;
-        }
-
-        .gad-block-removal {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 3px;
-            padding: 2px 4px;
-            margin: 0 2px;
-            font-size: 0.9em;
-            color: #721c24;
-            display: inline-block;
-        }
-
-        .gad-inline-removal {
-            background-color: #ffeef0;
-            color: #d73a49;
-            text-decoration: line-through;
-            display: inline;
-        }
-
-        /* GADS Processing Error Markers */
-        .gad-processing-error {
-            background-color: #ff6b6b;
-            color: white;
-            padding: 1px 3px;
-            font-size: 0.7em;
-            font-weight: bold;
-            border-radius: 2px;
-            margin: 0 1px;
-        }
-
-        .gad-fatal-error {
-            background-color: magenta;
-            color: white;
-            padding: 2px 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-            border-radius: 2px;
-            margin: 0 2px;
-        }
-
-        .loading {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
-
-        .error {
-            color: #d73a49;
-            background: #ffeef0;
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid #f97583;
-        }
-    </style>
+    <link rel="stylesheet" href="gadc.css">
 </head>
 <body>
     <div class="status-section" id="statusSection"></div>
@@ -454,6 +99,13 @@
         }
 
         const traceBuffer = new TraceBuffer();
+
+        // Compact logger for token cost reduction
+        const logger = {
+            d(msg) { wsTraceHandler.sendTrace('D', msg); },
+            e(msg) { wsTraceHandler.sendTrace('E', msg); },
+            p(n, msg) { wsTraceHandler.sendTrace(`P${n}`, msg); }
+        };
 
         // WebSocket trace handler for GADS compliance
         class WebSocketTraceHandler {
@@ -641,37 +293,37 @@
             }
 
             async loadManifest() {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Starting manifest load');
-                wsTraceHandler.sendTrace('[MANIFEST]', 'Loading start');
+                logger.d( 'Starting manifest load');
+                logger.d( 'Loading start');
 
                 try {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Fetching manifest.json');
-                    wsTraceHandler.sendTrace('[DEBUG]', `Fetch URL: ${window.location.origin}/manifest.json`);
+                    logger.d( 'Fetching manifest.json');
+                    logger.d( `Fetch URL: ${window.location.origin}/manifest.json`);
                     const response = await fetch('manifest.json');
-                    wsTraceHandler.sendTrace('[DEBUG]', `Fetch response status: ${response.status}`);
+                    logger.d( `Fetch response status: ${response.status}`);
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
 
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Parsing manifest JSON');
+                    logger.d( 'Parsing manifest JSON');
                     this.manifest = await response.json();
-                    wsTraceHandler.sendTrace('[DEBUG]', `Manifest loaded successfully with ${this.manifest.commits.length} commits`);
-                    wsTraceHandler.sendTrace('[MANIFEST]', `Successful load with ${this.manifest.commits.length} commits`);
+                    logger.d( `Manifest loaded successfully with ${this.manifest.commits.length} commits`);
+                    logger.d( `Successful load with ${this.manifest.commits.length} commits`);
 
                     // Now that Factory is confirmed available, attempt WebSocket connection
                     wsTraceHandler.connectAfterManifest();
 
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting populateRails');
+                    logger.d( 'Starting populateRails');
                     this.populateRails();
-                    wsTraceHandler.sendTrace('[DEBUG]', 'populateRails completed');
+                    logger.d( 'populateRails completed');
 
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Starting parseUrlState');
+                    logger.d( 'Starting parseUrlState');
                     this.parseUrlState();
-                    wsTraceHandler.sendTrace('[DEBUG]', 'parseUrlState completed');
+                    logger.d( 'parseUrlState completed');
 
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Manifest load failed: ${error.message}`);
-                    wsTraceHandler.sendTrace('[MANIFEST]', `Load failure: ${error.message}`);
+                    logger.d( `Manifest load failed: ${error.message}`);
+                    logger.d( `Load failure: ${error.message}`);
                     this.elements.renderedPane.innerHTML = `
                         <div class="error">
                             <h3>Failed to load manifest.json</h3>
@@ -682,18 +334,18 @@
             }
 
             populateRails() {
-                wsTraceHandler.sendTrace('[DEBUG]', 'Clearing rail content');
+                logger.d( 'Clearing rail content');
                 // Clear existing content
                 this.elements.fromRailContent.innerHTML = '';
                 this.elements.toRailContent.innerHTML = '';
 
-                wsTraceHandler.sendTrace('[DEBUG]', 'Rails will be populated with commits only (no magic values)');
+                logger.d( 'Rails will be populated with commits only (no magic values)');
 
-                wsTraceHandler.sendTrace('[DEBUG]', `Processing ${this.manifest.commits.length} commits for rails`);
+                logger.d( `Processing ${this.manifest.commits.length} commits for rails`);
                 // Reverse commits first, then apply simple labeling like GADMRC
                 const reversedCommits = [...this.manifest.commits].reverse();
                 reversedCommits.forEach((commit, index) => {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Processing commit ${index + 1}: ${commit.hash.substring(0, 8)}`);
+                    logger.d( `Processing commit ${index + 1}: ${commit.hash.substring(0, 8)}`);
                     const isUnchanged = index > 0 &&
                         commit.html_sha256 === reversedCommits[index - 1].html_sha256;
 
@@ -704,7 +356,7 @@
                     this.addRailRow(this.elements.fromRailContent, position, position, 'from', null, isUnchanged, commit);
                     this.addRailRow(this.elements.toRailContent, position, position, 'to', null, isUnchanged, commit);
                 });
-                wsTraceHandler.sendTrace('[DEBUG]', 'Rail population completed');
+                logger.d( 'Rail population completed');
                 
                 // Set default selections per GADS spec: From = -1, To = H
                 this.setDefaultSelections();
@@ -717,11 +369,11 @@
                 const hasHashParams = hashParams.get('from') || hashParams.get('to');
                 
                 if (!this.selectedFrom && !this.selectedTo && !hasHashParams) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'No selections and no hash params - setting default selections: From = -1, To = H');
+                    logger.d( 'No selections and no hash params - setting default selections: From = -1, To = H');
                     this.setRailSelection('from', '-1', true);  // Skip diff on first
                     this.setRailSelection('to', 'H', false);    // Perform diff on second
                 } else {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Skipping defaults - selections: from=${this.selectedFrom}, to=${this.selectedTo}, hashParams=${hasHashParams}`);
+                    logger.d( `Skipping defaults - selections: from=${this.selectedFrom}, to=${this.selectedTo}, hashParams=${hasHashParams}`);
                 }
             }
 
@@ -799,7 +451,7 @@
                     this.selectedTo = value;
                 }
 
-                wsTraceHandler.sendTrace('[SELECTION]', `${railType} rail selected: ${value}`);
+                logger.d( `${railType} rail selected: ${value}`);
                 
                 // Only update URL and perform diff if selection changed, not skipped, and not suppressed
                 if (previousValue !== value && !skipDiff && !this.suppressUrlUpdate) {
@@ -815,7 +467,7 @@
                 if (targetRow) {
                     this.selectRailRow(targetRow, railType, skipDiff);
                 } else {
-                    wsTraceHandler.sendTrace('[DEBUG]', `Rail row not found for value: ${value} in ${railType} rail`);
+                    logger.d( `Rail row not found for value: ${value} in ${railType} rail`);
                 }
             }
 
@@ -843,18 +495,18 @@
             }
             
             parseUrlState() {
-                wsTraceHandler.sendTrace('[DEBUG]', `parseUrlState called with hash: "${window.location.hash}"`);
+                logger.d( `parseUrlState called with hash: "${window.location.hash}"`);
                 
                 // Fix: Parse only from hash fragment, ignore search params completely
                 const hashParams = this.parseHashParams();
                 const fromHash = hashParams.get('from');
                 const toHash = hashParams.get('to');
 
-                wsTraceHandler.sendTrace('[DEBUG]', `Parsed hash params - from: "${fromHash}", to: "${toHash}"`);
+                logger.d( `Parsed hash params - from: "${fromHash}", to: "${toHash}"`);
 
                 // Only proceed if we have hash parameters to process
                 if (!fromHash && !toHash) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'No hash params present, not overriding current selections');
+                    logger.d( 'No hash params present, not overriding current selections');
                     return;
                 }
 
@@ -865,28 +517,28 @@
                 if (fromHash) {
                     const fromPosition = this.hashToPosition(fromHash);
                     if (fromPosition) {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Setting from rail to position: ${fromPosition} (from hash: ${fromHash})`);
+                        logger.d( `Setting from rail to position: ${fromPosition} (from hash: ${fromHash})`);
                         this.setRailSelection('from', fromPosition, true); // Skip diff on first selection
                         fromSet = true;
                     } else {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve from hash: ${fromHash} - ignoring`);
+                        logger.d( `Failed to resolve from hash: ${fromHash} - ignoring`);
                     }
                 }
 
                 if (toHash) {
                     const toPosition = this.hashToPosition(toHash);
                     if (toPosition) {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Setting to rail to position: ${toPosition} (from hash: ${toHash})`);
+                        logger.d( `Setting to rail to position: ${toPosition} (from hash: ${toHash})`);
                         this.setRailSelection('to', toPosition, false); // Perform diff on second selection
                         toSet = true;
                     } else {
-                        wsTraceHandler.sendTrace('[DEBUG]', `Failed to resolve to hash: ${toHash} - ignoring`);
+                        logger.d( `Failed to resolve to hash: ${toHash} - ignoring`);
                     }
                 }
 
                 // If only from was set and resolved, trigger diff
                 if (fromSet && !toSet) {
-                    wsTraceHandler.sendTrace('[DEBUG]', 'Only from position set from URL, calling performDiff');
+                    logger.d( 'Only from position set from URL, calling performDiff');
                     this.performDiff();
                 }
             }
@@ -915,7 +567,7 @@
                 const fromValue = this.selectedFrom;
                 const toValue = this.selectedTo;
 
-                wsTraceHandler.sendTrace('[SWAP]', `Transposing rail positions: ${fromValue} <-> ${toValue}`);
+                logger.d( `Transposing rail positions: ${fromValue} <-> ${toValue}`);
 
                 // Guard against URL updates during transpose
                 this.suppressUrlUpdate = true;
@@ -942,7 +594,7 @@
                     const newHash = `#from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
                     const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + newHash;
                     window.history.replaceState(null, '', newUrl);
-                    wsTraceHandler.sendTrace('[URL]', `Updated hash state: from=${fromCommit.hash.substring(0,8)} to=${toCommit.hash.substring(0,8)}`);
+                    logger.d( `Updated hash state: from=${fromCommit.hash.substring(0,8)} to=${toCommit.hash.substring(0,8)}`);
                 }
             }
 
@@ -953,17 +605,17 @@
                 if (!fromValue || !toValue) return;
 
                 try {
-                    wsTraceHandler.sendTrace('[RESOLVE]', 'Magic value resolution start');
+                    logger.d( 'Magic value resolution start');
 
                     const fromCommit = this.resolveCommit(fromValue);
                     const toCommit = this.resolveCommit(toValue);
 
                     if (!fromCommit || !toCommit) {
-                        wsTraceHandler.sendTrace('[ERROR]', 'Invalid magic values or missing commits in manifest');
+                        logger.e( 'Invalid magic values or missing commits in manifest');
                         throw new Error('Failed to resolve commits');
                     }
 
-                    wsTraceHandler.sendTrace('[RESOLVE]', `Resolved from: ${fromCommit.hash.substring(0, 8)}, to: ${toCommit.hash.substring(0, 8)}`);
+                    logger.d( `Resolved from: ${fromCommit.hash.substring(0, 8)}, to: ${toCommit.hash.substring(0, 8)}`);
 
                     // Update comparison header
                     this.elements.comparisonHeader.textContent =
@@ -971,17 +623,17 @@
 
                     // Check for identical SHA256
                     if (fromCommit.html_sha256 === toCommit.html_sha256) {
-                        wsTraceHandler.sendTrace('[SHA256]', 'Detection of identical html_sha256 values between selected commits');
+                        logger.d( 'Detection of identical html_sha256 values between selected commits');
                         this.showStatusMessage('These commits have identical rendered content');
                     } else {
-                        wsTraceHandler.sendTrace('[SHA256]', 'Detection of different html_sha256 values between selected commits');
+                        logger.d( 'Detection of different html_sha256 values between selected commits');
                         this.hideStatusMessage();
                     }
 
                     await this.fetchAndDiff(fromCommit, toCommit);
 
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[ERROR]', `Diff error: ${error.message}`);
+                    logger.e( `Diff error: ${error.message}`);
                     this.elements.renderedPane.innerHTML = `
                         <div class="error">
                             <h3>Diff Error</h3>
@@ -1011,7 +663,7 @@
             }
 
             async fetchAndDiff(fromCommit, toCommit) {
-                wsTraceHandler.sendTrace('[FETCH]', `HTML fetch start for ${fromCommit.html_file} and ${toCommit.html_file}`);
+                logger.d( `HTML fetch start for ${fromCommit.html_file} and ${toCommit.html_file}`);
 
                 try {
                     const [fromResponse, toResponse] = await Promise.all([
@@ -1028,8 +680,8 @@
                         toResponse.text()
                     ]);
 
-                    wsTraceHandler.sendTrace('[FETCH]', 'Successful fetch completion');
-                    wsTraceHandler.sendTrace('[DIFF]', 'Diff computation start');
+                    logger.d( 'Successful fetch completion');
+                    logger.d( 'Diff computation start');
 
                     // Prepare source file information for gadfd_rendered_capture
                     const sourceFiles = [
@@ -1043,7 +695,7 @@
                     this.elements.renderedPane.innerHTML = styledDiff;
 
                     // Send rendered content to Factory via WebSocket for raw diff file creation
-                    wsTraceHandler.sendTrace('[RAW-DIFF]', `Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
+                    logger.d( `Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
                     wsTraceHandler.sendRenderedContent(styledDiff, fromCommit, toCommit, sourceFiles);
 
                     // Enhanced logging for Factory debugging
@@ -1058,33 +710,33 @@
                                        changeTypeBreakdown.deletions + changeTypeBreakdown.modifications;
 
                     // Debug trace for change counting
-                    wsTraceHandler.sendTrace('[COUNT]', `Found ${totalChanges} total changes in rendered output`);
-                    wsTraceHandler.sendTrace('[COUNT]', `Breakdown: ${changeTypeBreakdown.insertions} insertions, ${changeTypeBreakdown.moves} moves, ${changeTypeBreakdown.deletions} deletions, ${changeTypeBreakdown.modifications} modifications`);
+                    logger.d( `Found ${totalChanges} total changes in rendered output`);
+                    logger.d( `Breakdown: ${changeTypeBreakdown.insertions} insertions, ${changeTypeBreakdown.moves} moves, ${changeTypeBreakdown.deletions} deletions, ${changeTypeBreakdown.modifications} modifications`);
 
-                    wsTraceHandler.sendTrace('[DIFF]', `Completion with ${totalChanges} total changes`);
-                    wsTraceHandler.sendTrace('[DIFF]', `Change breakdown: ${JSON.stringify(changeTypeBreakdown)}`);
+                    logger.d( `Completion with ${totalChanges} total changes`);
+                    logger.d( `Change breakdown: ${JSON.stringify(changeTypeBreakdown)}`);
 
                 } catch (error) {
                     // Enhanced error reporting for Factory debugging
                     if (error.message.includes('diff-dom')) {
-                        wsTraceHandler.sendTrace('[ERROR]', `diff-dom library failure: ${error.message}`);
+                        logger.e( `diff-dom library failure: ${error.message}`);
                     } else if (error.message.includes('fetch') || error.message.includes('HTTP')) {
-                        wsTraceHandler.sendTrace('[FETCH]', `Fetch failure: ${error.message}`);
+                        logger.d( `Fetch failure: ${error.message}`);
                     } else {
-                        wsTraceHandler.sendTrace('[ERROR]', `GADS processing failure: ${error.message}`);
+                        logger.e( `GADS processing failure: ${error.message}`);
                     }
 
                     // Additional debugging context
-                    wsTraceHandler.sendTrace('[DEBUG]', `Error occurred during diff processing for commits: ${fromCommit?.hash?.substring(0,8)} → ${toCommit?.hash?.substring(0,8)}`);
+                    logger.d( `Error occurred during diff processing for commits: ${fromCommit?.hash?.substring(0,8)} → ${toCommit?.hash?.substring(0,8)}`);
                     throw error;
                 }
             }
 
             styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles) {
                 const startTime = performance.now();
-                wsTraceHandler.sendTrace('[DIFF]', 'Starting GADS-compliant 8-phase diff processing');
-                wsTraceHandler.sendTrace('[DEBUG]', `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
-                wsTraceHandler.sendTrace('[DEBUG]', `diff-dom type at diff time: ${typeof window.diffDom}`);
+                logger.d( 'Starting GADS-compliant 8-phase diff processing');
+                logger.d( `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
+                logger.d( `diff-dom type at diff time: ${typeof window.diffDom}`);
 
                 if (typeof window.diffDom === 'undefined' || typeof window.diffDom.DiffDOM === 'undefined') {
                     throw new Error('diff-dom library not available - required for diff processing');
@@ -1092,77 +744,77 @@
 
                 try {
                     // Phase 1: Immutable Input - Establish immutable source DOM trees
-                    wsTraceHandler.sendTrace('[PHASE-1]', 'Immutable Input: Creating immutable source DOM trees');
+                    logger.p(1, 'Immutable Input: Creating immutable source DOM trees');
                     const immutableFromDOM = this.createDOMFromHTML(fromHtml);
                     const immutableToDOM = this.createDOMFromHTML(toHtml);
-                    wsTraceHandler.sendTrace('[PHASE-1]', 'Immutable Input: Immutable DOM trees established and preserved throughout processing');
+                    logger.p(1, 'Immutable Input: Immutable DOM trees established and preserved throughout processing');
 
                     // Phase 2: Detached Working - Create Detached Working DOM with Semantic Anchors
-                    wsTraceHandler.sendTrace('[PHASE-2]', 'Detached Working: Creating Detached Working DOM with Semantic Anchors');
+                    logger.p(2, 'Detached Working: Creating Detached Working DOM with Semantic Anchors');
                     const detachedWorkingDOM = this.createDetachedWorkingDOM(immutableToDOM);
                     const semanticAnchors = this.establishSemanticAnchors(detachedWorkingDOM);
-                    wsTraceHandler.sendTrace('[PHASE-2]', `Detached Working: Created independent processing environment with ${Object.keys(semanticAnchors).length} semantic anchors`);
+                    logger.p(2, `Detached Working: Created independent processing environment with ${Object.keys(semanticAnchors).length} semantic anchors`);
 
                     // Phase 3: Deletion Fact Capture - Generate Deletion Fact Keys (DFK)
-                    wsTraceHandler.sendTrace('[PHASE-3]', 'Deletion Fact Capture: Generating Deletion Fact Keys (DFK)');
+                    logger.p(3, 'Deletion Fact Capture: Generating Deletion Fact Keys (DFK)');
                     const deletionFactTable = this.createDeletionFactTable(immutableFromDOM);
                     const phase3Debug = { deletionFactCount: Object.keys(deletionFactTable).length, sampleKeys: Object.keys(deletionFactTable).slice(0, 5) };
                     wsTraceHandler.sendDebugOutput('phase3_dft', JSON.stringify(phase3Debug, null, 2), fromCommit, toCommit, sourceFiles);
-                    wsTraceHandler.sendTrace('[PHASE-3]', `Deletion Fact Capture: Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
+                    logger.p(3, `Deletion Fact Capture: Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
 
                     // Phase 4: Diff Operations - Generate structured diff operations
-                    wsTraceHandler.sendTrace('[PHASE-4]', 'Diff Operations: Initializing diff-dom and generating operations');
+                    logger.p(4, 'Diff Operations: Initializing diff-dom and generating operations');
                     const diffDOM = new window.diffDom.DiffDOM({
                         debug: true,
                         diffcap: 500  // Allow more granular detection
                     });
                     const diffOperations = diffDOM.diff(immutableFromDOM, immutableToDOM);
                     this.enhanceOperationsWithDFK(diffOperations, deletionFactTable);
-                    wsTraceHandler.sendTrace('[PHASE-4]', `Diff Operations: Generated ${diffOperations.length} enhanced diff operations`);
+                    logger.p(4, `Diff Operations: Generated ${diffOperations.length} enhanced diff operations`);
 
                     // Phase 4.5: Semantic Classification - Classify operations into semantic change types
-                    wsTraceHandler.sendTrace('[PHASE-4.5]', 'Semantic Classification: Analyzing operations for precise granular styling');
+                    logger.p('4.5', 'Semantic Classification: Analyzing operations for precise granular styling');
                     const classifiedOperations = this.classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM);
-                    wsTraceHandler.sendTrace('[PHASE-4.5]', `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
+                    logger.p('4.5', `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
 
                     // Phase 5: Annotated Assembly - Construct semantically annotated output DOM
-                    wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Processing classified operations in Detached Working environment');
+                    logger.p(5, 'Annotated Assembly: Processing classified operations in Detached Working environment');
                     const assemblyResult = this.assembleAnnotatedDOM(detachedWorkingDOM, classifiedOperations, semanticAnchors, fromCommit, toCommit);
                     const assembledDOM = assemblyResult.outputDOM;
                     const assembledHTML = assembledDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase5_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
-                    wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Semantic annotation construction completed');
+                    logger.p(5, 'Annotated Assembly: Semantic annotation construction completed');
 
                     // Phase 6: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
-                    wsTraceHandler.sendTrace('[PHASE-6]', 'Deletion Placement: Positioning deletion blocks with DFK mappings');
+                    logger.p(6, 'Deletion Placement: Positioning deletion blocks with DFK mappings');
                     const deletionPlacedDOM = this.placeDeletionBlocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors);
                     const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase6_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
-                    wsTraceHandler.sendTrace('[PHASE-6]', 'Deletion Placement: Structured deletion blocks positioned accurately');
+                    logger.p(6, 'Deletion Placement: Structured deletion blocks positioned accurately');
 
                     // Phase 7: Uniform Classing - Merge consecutive same-nature elements
-                    wsTraceHandler.sendTrace('[PHASE-7]', 'Uniform Classing: Merging consecutive same-nature elements into consolidated runs');
+                    logger.p(7, 'Uniform Classing: Merging consecutive same-nature elements into consolidated runs');
                     const coalescedDOM = this.mergeAdjacentSameNature(deletionPlacedDOM);
                     const coalescedHTML = coalescedDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase7_coalesced', coalescedHTML, fromCommit, toCommit, sourceFiles);
-                    wsTraceHandler.sendTrace('[PHASE-7]', 'Uniform Classing: Single-element consolidated runs created');
+                    logger.p(7, 'Uniform Classing: Single-element consolidated runs created');
 
                     // Phase 8: Serialize - Generate final rendered output
-                    wsTraceHandler.sendTrace('[PHASE-8]', 'Serialize: Generating final styled diff HTML');
+                    logger.p(8, 'Serialize: Generating final styled diff HTML');
                     const finalHTML = this.serializeFinalOutput(coalescedDOM);
                     wsTraceHandler.sendDebugOutput('phase8_final', finalHTML, fromCommit, toCommit, sourceFiles);
-                    wsTraceHandler.sendTrace('[PHASE-8]', 'Serialize: Final rendered HTML ready for display');
+                    logger.p(8, 'Serialize: Final rendered HTML ready for display');
 
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
                     const totalTime = Math.round(endTime - startTime);
-                    wsTraceHandler.sendTrace('[PERF]', `GADS 8-phase diff processing completed in ${totalTime}ms`);
-                    wsTraceHandler.sendTrace('[ARCH]', 'Complete processing isolation maintained - input DOMs never modified');
+                    logger.d( `GADS 8-phase diff processing completed in ${totalTime}ms`);
+                    logger.d( 'Complete processing isolation maintained - input DOMs never modified');
 
                     return finalHTML;
 
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[ERROR]', `GADS 8-phase diff processing failed: ${error.message}`);
+                    logger.e( `GADS 8-phase diff processing failed: ${error.message}`);
                     throw error;
                 }
             }
@@ -1185,9 +837,9 @@
                         const availableCount = element.childNodes ? element.childNodes.length : 0;
                         
                         // Fix: Remove "best-effort" fallback - if route index is OOB, abort operation
-                        wsTraceHandler.sendTrace('[ROUTE-ERROR]', `Route traversal failed at index ${index} for route [${route.join(',')}]`);
-                        wsTraceHandler.sendTrace('[ROUTE-ERROR]', `Parent has ${availableCount} children, requested index ${index}`);
-                        wsTraceHandler.sendTrace('[ROUTE-ERROR]', `Failed at route position ${i}, partial route was [${route.slice(0, i).join(',')}]`);
+                        logger.e( `Route traversal failed at index ${index} for route [${route.join(',')}]`);
+                        logger.e( `Parent has ${availableCount} children, requested index ${index}`);
+                        logger.e( `Failed at route position ${i}, partial route was [${route.slice(0, i).join(',')}]`);
                         return null; // Fix: Fail fast instead of retargeting
                     }
                 }
@@ -1216,14 +868,14 @@
             }
 
             generateOutputDOM(immutableToDOM, diffOperations, routeElementMap) {
-                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Generating clean output DOM from ${diffOperations.length} operations`);
+                logger.d( `Generating clean output DOM from ${diffOperations.length} operations`);
 
                 // Create completely new output DOM structure - never modify inputs
                 const outputDOM = document.createElement('div');
 
                 // Deep clone the immutable "to" DOM structure as foundation
                 this.deepCloneElement(immutableToDOM, outputDOM);
-                wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Created output DOM foundation from immutable toDOM');
+                logger.d( 'Created output DOM foundation from immutable toDOM');
 
                 // Apply diff annotations to output DOM with deduplication
                 let insertions = 0, deletions = 0, moves = 0, modifications = 0;
@@ -1232,7 +884,7 @@
                 // Process operations in reverse order (GADS Phase 3) to prevent route invalidation
                 for (let i = diffOperations.length - 1; i >= 0; i--) {
                     const op = diffOperations[i];
-                    wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processing operation ${i} (reverse order): ${op.action} at route [${op.route.join(',')}]`);
+                    logger.d( `Processing operation ${i} (reverse order): ${op.action} at route [${op.route.join(',')}]`);
                     switch (op.action) {
                         case 'addElement':
                         case 'addTextElement':
@@ -1244,12 +896,12 @@
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
                                 // NOTE: Deletion placement now handled in Phase-6 only - legacy path disabled
-                                wsTraceHandler.sendTrace('[DELETION-LEGACY]', `Legacy deletion placement bypassed for ${op.action} at route [${op.route.join(',')}]`);
+                                logger.d( `Legacy deletion placement bypassed for ${op.action} at route [${op.route.join(',')}]`);
                                 processedDeletions.add(routeKey);
                                 deletions++;
-                                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Processed unique deletion at route [${routeKey}] via semantic anchor`);
+                                logger.d( `Processed unique deletion at route [${routeKey}] via semantic anchor`);
                             } else {
-                                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Skipped duplicate deletion at route [${routeKey}]`);
+                                logger.d( `Skipped duplicate deletion at route [${routeKey}]`);
                             }
                             break;
                         case 'relocateNode':
@@ -1267,19 +919,19 @@
                             modifications++;
                             break;
                         default:
-                            wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Unknown operation type: ${op.action}`);
+                            logger.d( `Unknown operation type: ${op.action}`);
                     }
                 }
 
-                wsTraceHandler.sendTrace('[OUTPUT-GEN]', `Applied annotations: ${insertions} insertions, ${deletions} deletions (${processedDeletions.size} unique), ${moves} moves, ${modifications} modifications`);
-                wsTraceHandler.sendTrace('[OUTPUT-GEN]', 'Output DOM generation completed with all annotations applied');
+                logger.d( `Applied annotations: ${insertions} insertions, ${deletions} deletions (${processedDeletions.size} unique), ${moves} moves, ${modifications} modifications`);
+                logger.d( 'Output DOM generation completed with all annotations applied');
 
                 return outputDOM;
             }
 
             mergeAdjacentSameNature(annotatedDOM) {
                 // Phase 7: Visual coalescing - preserve semantic structure with presentation wrappers only
-                wsTraceHandler.sendTrace('[COALESCE]', 'Starting Phase 7: Visual coalescing with presentation wrappers');
+                logger.d( 'Starting Phase 7: Visual coalescing with presentation wrappers');
                 
                 // Create a new DOM to avoid modifying the annotated DOM
                 const coalescedDOM = annotatedDOM.cloneNode(true);
@@ -1287,7 +939,7 @@
                 // Apply visual coalescing by adding presentation wrappers around adjacent same-nature elements
                 this.addVisualRunWrappers(coalescedDOM);
                 
-                wsTraceHandler.sendTrace('[COALESCE]', 'Phase 5 complete - semantic structure fully preserved');
+                logger.d( 'Phase 5 complete - semantic structure fully preserved');
                 return coalescedDOM;
             }
 
@@ -1300,7 +952,7 @@
                     runCounter += this.wrapAdjacentSameType(dom, diffType, runCounter);
                 }
                 
-                wsTraceHandler.sendTrace('[VISUAL-CONSOLIDATE]', `Created ${runCounter} consolidated diff elements`);
+                logger.d( `Created ${runCounter} consolidated diff elements`);
             }
             
             wrapAdjacentSameType(dom, className, startRunId) {
@@ -1326,9 +978,9 @@
                     if (adjacentRun.length >= 2 && this.canSafelyCoalesce(adjacentRun, className)) {
                         this.replaceRunWithSingleElement(adjacentRun, className);
                         runsCreated++;
-                        wsTraceHandler.sendTrace('[VISUAL-REPLACE]', `Replaced ${adjacentRun.length} adjacent ${className} elements with single consolidated element`);
+                        logger.d( `Replaced ${adjacentRun.length} adjacent ${className} elements with single consolidated element`);
                     } else if (adjacentRun.length >= 2) {
-                        wsTraceHandler.sendTrace('[COALESCE-SKIP]', `Skipped coalescing ${adjacentRun.length} ${className} elements - mixed types not coalesceable`);
+                        logger.d( `Skipped coalescing ${adjacentRun.length} ${className} elements - mixed types not coalesceable`);
                     }
                     
                     i = j;
@@ -1349,13 +1001,13 @@
                     // Never merge interactive elements (anchors, buttons, inputs, etc.)
                     const interactiveTags = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'];
                     if (interactiveTags.includes(element.tagName)) {
-                        wsTraceHandler.sendTrace('[COALESCE-INTERACTIVE]', `Blocked coalescing: ${element.tagName} element must preserve 1:1 click targets`);
+                        logger.d( `Blocked coalescing: ${element.tagName} element must preserve 1:1 click targets`);
                         return false;
                     }
                     
                     // Never merge elements containing interactive children
                     if (element.querySelector('a, button, input, select, textarea')) {
-                        wsTraceHandler.sendTrace('[COALESCE-INTERACTIVE]', `Blocked coalescing: element contains interactive children`);
+                        logger.d( `Blocked coalescing: element contains interactive children`);
                         return false;
                     }
                 }
@@ -1365,7 +1017,7 @@
                 for (const element of elements) {
                     // Same parent requirement - no intervening non-whitespace nodes
                     if (element.parentElement !== firstElement.parentElement) {
-                        wsTraceHandler.sendTrace('[COALESCE-PARENT]', `Blocked coalescing: elements have different parents`);
+                        logger.d( `Blocked coalescing: elements have different parents`);
                         return false;
                     }
                     
@@ -1379,7 +1031,7 @@
                     
                     // Attribute reconciliation - must be byte-for-byte identical
                     if (!this.attributesMatch(firstElement, element)) {
-                        wsTraceHandler.sendTrace('[COALESCE-ATTRS]', `Blocked coalescing: attributes differ between elements`);
+                        logger.d( `Blocked coalescing: attributes differ between elements`);
                         return false;
                     }
                 }
@@ -1514,7 +1166,7 @@
                 
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
                     element.classList.add(cssClass);
-                    wsTraceHandler.sendTrace('[INSERTION]', `Applied semantic insertion annotation (${cssClass}) at route [${operation.route.join(',')}]`);
+                    logger.d( `Applied semantic insertion annotation (${cssClass}) at route [${operation.route.join(',')}]`);
                 } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
                     // For text insertions, create semantic highlighting 
                     const parent = element.parentElement;
@@ -1524,9 +1176,9 @@
                     parent.insertBefore(span, element);
                     span.appendChild(element);
 
-                    wsTraceHandler.sendTrace('[INSERTION]', `Applied inline-first text insertion annotation at route [${operation.route.join(',')}]`);
+                    logger.d( `Applied inline-first text insertion annotation at route [${operation.route.join(',')}]`);
                 } else {
-                    wsTraceHandler.sendTrace('[INSERTION]', `Could not find element for insertion annotation at route [${operation.route.join(',')}]`);
+                    logger.d( `Could not find element for insertion annotation at route [${operation.route.join(',')}]`);
                 }
             }
 
@@ -1534,26 +1186,26 @@
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
                     element.classList.add('gad-structural-change');
-                    wsTraceHandler.sendTrace('[MOVE]', `Applied move annotation at route [${operation.route.join(',')}]`);
+                    logger.d( `Applied move annotation at route [${operation.route.join(',')}]`);
                 } else {
-                    wsTraceHandler.sendTrace('[MOVE]', `Could not find element for move annotation at route [${operation.route.join(',')}]`);
+                    logger.d( `Could not find element for move annotation at route [${operation.route.join(',')}]`);
                 }
             }
 
             applyModificationAnnotation(outputDOM, operation) {
                 // Don't apply modification styling to parent containers that have child insertions
                 // This prevents the entire paragraph from being marked as modified when only parts changed
-                wsTraceHandler.sendTrace('[MODIFICATION]', `Skipping broad modification annotation at route [${operation.route.join(',')}] - let child insertions handle specific changes`);
+                logger.d( `Skipping broad modification annotation at route [${operation.route.join(',')}] - let child insertions handle specific changes`);
             }
 
             handleTextModification(outputDOM, operation, routeElementMap) {
-                wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Processing text modification at route [${operation.route.join(',')}]: "${operation.oldValue}" → "${operation.newValue}"`);
+                logger.d( `Processing text modification at route [${operation.route.join(',')}]: "${operation.oldValue}" → "${operation.newValue}"`);
 
                 // GADS Phase 3: Element Lookup - Traverse route to locate target element
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (!element) {
                     const routeDetails = `Route traversal failed: Could not locate element at route [${operation.route.join(',')}] in output DOM. DOM structure may have changed during processing. Output DOM root: ${outputDOM.tagName || 'unknown'}`;
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', routeDetails);
+                    logger.e( routeDetails);
                     this.insertSingleErrorMarker(outputDOM, operation);
                     return;
                 }
@@ -1572,9 +1224,9 @@
                         if (element.parentNode) {
                             element.parentNode.insertBefore(deletionSpan, element);
                         }
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied inline deletion for: "${operation.oldValue}"`);
+                        logger.d( `Applied inline deletion for: "${operation.oldValue}"`);
                     } else {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Content mismatch - expected "${operation.newValue}", found "${element.textContent}"`);
+                        logger.e( `Content mismatch - expected "${operation.newValue}", found "${element.textContent}"`);
                     }
                 }
 
@@ -1582,9 +1234,9 @@
                 if (operation.newValue) {
                     const insertionSuccess = this.applyInsertionStyling(element, operation.newValue);
                     if (insertionSuccess) {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY]', `Applied insertion styling to: "${operation.newValue}"`);
+                        logger.d( `Applied insertion styling to: "${operation.newValue}"`);
                     } else {
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Failed to apply insertion styling to: "${operation.newValue}"`);
+                        logger.e( `Failed to apply insertion styling to: "${operation.newValue}"`);
                         this.insertSingleErrorMarker(outputDOM, operation);
                     }
                 }
@@ -1630,7 +1282,7 @@
                     }
                     return false;
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Exception during insertion styling: ${error.message}`);
+                    logger.e( `Exception during insertion styling: ${error.message}`);
                     return false;
                 }
             }
@@ -1657,17 +1309,17 @@
                     const approximateElement = this.findApproximateElementByRoute(outputDOM, route);
                     if (approximateElement && approximateElement.parentNode) {
                         approximateElement.parentNode.insertBefore(errorSpan, approximateElement);
-                        wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Inserted error marker near route [${route.join(',')}]`);
+                        logger.e( `Inserted error marker near route [${route.join(',')}]`);
                     } else {
                         // Fallback: append to document body or first available container
                         const fallbackContainer = outputDOM.querySelector('body') || outputDOM.querySelector('div') || outputDOM;
                         if (fallbackContainer) {
                             fallbackContainer.appendChild(errorSpan);
-                            wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Inserted error marker in fallback container (${fallbackContainer.tagName || 'unknown'})`);
+                            logger.e( `Inserted error marker in fallback container (${fallbackContainer.tagName || 'unknown'})`);
                         }
                     }
                 } catch (fallbackError) {
-                    wsTraceHandler.sendTrace('[TEXT-MODIFY-ERROR]', `Failed to insert error marker: ${fallbackError.message}`);
+                    logger.e( `Failed to insert error marker: ${fallbackError.message}`);
                 }
             }
 
@@ -1692,13 +1344,13 @@
                     const insertionPoint = this.findSemanticAnchor(outputDOM, operation.route);
                     if (insertionPoint && insertionPoint.parentNode) {
                         insertionPoint.parentNode.insertBefore(errorSpan, insertionPoint.nextSibling);
-                        wsTraceHandler.sendTrace('[ERROR-MARKER]', `Inserted single error marker for route [${operation.route.join(',')}]`);
+                        logger.e( `Inserted single error marker for route [${operation.route.join(',')}]`);
                     } else {
                         // Fallback: append to root without nesting
                         outputDOM.appendChild(errorSpan);
                     }
                 } catch (e) {
-                    wsTraceHandler.sendTrace('[ERROR-MARKER-FAIL]', `Failed to insert error marker: ${e.message}`);
+                    logger.e( `Failed to insert error marker: ${e.message}`);
                 }
             }
             
@@ -1758,17 +1410,17 @@
 
             generateDeletionInline(outputDOM, operation) {
                 // Fix: Legacy method disabled - all deletions routed through semantic anchor placement
-                wsTraceHandler.sendTrace('[DELETION-LEGACY-DISABLED]', `Legacy generateDeletionInline disabled for ${operation.action} at route [${operation.route.join(',')}]`);
+                logger.d( `Legacy generateDeletionInline disabled for ${operation.action} at route [${operation.route.join(',')}]`);
                 // No-op - deletions now handled in Phase-6 via applied operations list
             }
             
             generateDeletionInlineLegacy(outputDOM, operation) {
-                wsTraceHandler.sendTrace('[DELETION-INLINE]', `Generating inline deletion for ${operation.action} at route [${operation.route.join(',')}]`);
+                logger.d( `Generating inline deletion for ${operation.action} at route [${operation.route.join(',')}]`);
 
                 // Find insertion point in the DOM
                 const insertPoint = this.findInlineDeletionInsertionPoint(outputDOM, operation.route);
                 if (!insertPoint) {
-                    wsTraceHandler.sendTrace('[DELETION-INLINE]', `Could not find insertion point for route [${operation.route.join(',')}]`);
+                    logger.d( `Could not find insertion point for route [${operation.route.join(',')}]`);
                     return;
                 }
 
@@ -1808,16 +1460,16 @@
                         } else {
                             insertPoint.container.appendChild(deletionElement);
                         }
-                        wsTraceHandler.sendTrace('[DELETION-INLINE]', `Inserted inline deletion: "${deletionElement.textContent}"`);
+                        logger.d( `Inserted inline deletion: "${deletionElement.textContent}"`);
                     }
                 }
             }
 
             findInlineDeletionInsertionPoint(outputDOM, route) {
-                wsTraceHandler.sendTrace('[DELETION-INSERT]', `Finding inline insertion point for route [${route.join(',')}]`);
+                logger.d( `Finding inline insertion point for route [${route.join(',')}]`);
 
                 if (route.length === 0) {
-                    wsTraceHandler.sendTrace('[DELETION-INSERT]', 'Empty route, using output DOM start');
+                    logger.d( 'Empty route, using output DOM start');
                     return { container: outputDOM, insertBefore: outputDOM.firstChild };
                 }
 
@@ -1848,7 +1500,7 @@
 
 
             createRouteElementMap(dom) {
-                wsTraceHandler.sendTrace('[ROUTE-MAP]', 'Building route-to-element mapping for deletion capture');
+                logger.d( 'Building route-to-element mapping for deletion capture');
                 const routeMap = {};
 
                 const mapElement = (element, route) => {
@@ -1875,12 +1527,12 @@
                 // Start mapping from root with empty route
                 mapElement(dom, []);
 
-                wsTraceHandler.sendTrace('[ROUTE-MAP]', `Created mapping for ${Object.keys(routeMap).length} DOM nodes`);
+                logger.d( `Created mapping for ${Object.keys(routeMap).length} DOM nodes`);
                 return routeMap;
             }
 
             enhanceOperationsWithCapturedContent(diffOperations, routeElementMap) {
-                wsTraceHandler.sendTrace('[ENHANCE]', `Enhancing ${diffOperations.length} operations with pre-captured content`);
+                logger.d( `Enhancing ${diffOperations.length} operations with pre-captured content`);
 
                 let deletionsFound = 0;
                 let deletionsEnhanced = 0;
@@ -1889,54 +1541,54 @@
                     if (op.action === 'removeElement' || op.action === 'removeTextElement') {
                         deletionsFound++;
                         const routeKey = op.route.join(',');
-                        wsTraceHandler.sendTrace('[ENHANCE]', `Enhancing deletion ${deletionsFound}: ${op.action} at route [${routeKey}]`);
+                        logger.d( `Enhancing deletion ${deletionsFound}: ${op.action} at route [${routeKey}]`);
 
                         const mappedElement = routeElementMap[routeKey];
                         if (mappedElement) {
                             if (mappedElement.nodeType === Node.TEXT_NODE) {
                                 op.capturedContent = mappedElement.textContent;
                                 op.capturedType = 'text';
-                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with captured text: "${mappedElement.textContent}"`);
+                                logger.d( `Enhanced with captured text: "${mappedElement.textContent}"`);
                             } else if (mappedElement.nodeType === Node.ELEMENT_NODE) {
                                 op.capturedContent = mappedElement.outerHTML;
                                 op.capturedType = 'element';
                                 const preview = mappedElement.outerHTML.substring(0, 100);
-                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with captured element: ${preview}${mappedElement.outerHTML.length > 100 ? '...' : ''}`);
+                                logger.d( `Enhanced with captured element: ${preview}${mappedElement.outerHTML.length > 100 ? '...' : ''}`);
                             } else {
                                 op.capturedContent = mappedElement.textContent || `Unknown node: ${mappedElement.nodeName}`;
                                 op.capturedType = 'unknown';
-                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with captured unknown node: ${op.capturedContent}`);
+                                logger.d( `Enhanced with captured unknown node: ${op.capturedContent}`);
                             }
                             deletionsEnhanced++;
                         } else {
-                            wsTraceHandler.sendTrace('[ENHANCE]', `No mapping found for deletion route [${routeKey}]`);
+                            logger.d( `No mapping found for deletion route [${routeKey}]`);
                             // Fallback to operation text if available
                             if (op.text) {
                                 op.capturedContent = op.text;
                                 op.capturedType = 'fallback-text';
                                 deletionsEnhanced++;
-                                wsTraceHandler.sendTrace('[ENHANCE]', `Enhanced with fallback text: "${op.text}"`);
+                                logger.d( `Enhanced with fallback text: "${op.text}"`);
                             }
                         }
                     }
                 }
 
-                wsTraceHandler.sendTrace('[ENHANCE]', `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
+                logger.d( `Operation enhancement complete: ${deletionsEnhanced}/${deletionsFound} deletions enhanced`);
             }
 
             // ===== 8-PHASE HELPER METHODS =====
 
             // Phase 2: Create Detached Working DOM with Semantic Anchors
             createDetachedWorkingDOM(immutableToDOM) {
-                wsTraceHandler.sendTrace('[DETACHED-WORKING]', 'Creating independent processing environment');
+                logger.d( 'Creating independent processing environment');
                 const detachedDOM = document.createElement('div');
                 this.deepCloneElement(immutableToDOM, detachedDOM);
-                wsTraceHandler.sendTrace('[DETACHED-WORKING]', 'Detached Working DOM created from immutable input');
+                logger.d( 'Detached Working DOM created from immutable input');
                 return detachedDOM;
             }
 
             establishSemanticAnchors(detachedWorkingDOM) {
-                wsTraceHandler.sendTrace('[SEMANTIC-ANCHORS]', 'Establishing fixed reference points for route resolution');
+                logger.d( 'Establishing fixed reference points for route resolution');
                 const anchors = {};
                 const walker = document.createTreeWalker(
                     detachedWorkingDOM,
@@ -1960,13 +1612,13 @@
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[SEMANTIC-ANCHORS]', `Established ${Object.keys(anchors).length} semantic anchors`);
+                logger.d( `Established ${Object.keys(anchors).length} semantic anchors`);
                 return anchors;
             }
 
             // Phase 3: Create Deletion Fact Table (DFK mapping)
             createDeletionFactTable(immutableFromDOM) {
-                wsTraceHandler.sendTrace('[DFK]', 'Creating GADS-compliant 4-field DFK mapping for stable fragment preservation');
+                logger.d( 'Creating GADS-compliant 4-field DFK mapping for stable fragment preservation');
                 const deletionFactTable = {};
                 
                 // GADS Canonical DFK Schema: 4-field canonicalization
@@ -2005,7 +1657,7 @@
                     const dedupeKey = `${routeStr}|${kind}|${tag}|${payloadHash}`;
                     if (factDedupeMap.has(dedupeKey)) {
                         dedupeDropCount++;
-                        wsTraceHandler.sendTrace('[DFK-DEDUPE]', `Dropped duplicate fact: ${canonicalKey}`);
+                        logger.d( `Dropped duplicate fact: ${canonicalKey}`);
                         return;
                     }
                     
@@ -2017,7 +1669,7 @@
                         version++;
                         finalKey = `${canonicalKey}:v${version}`;
                         collisionCount++;
-                        wsTraceHandler.sendTrace('[DFK-COLLISION]', `Hash collision detected, using version ${version}`);
+                        logger.d( `Hash collision detected, using version ${version}`);
                     }
                     
                     factDedupeMap.set(dedupeKey, true);
@@ -2047,7 +1699,7 @@
                 // Start mapping from immutable "from" DOM
                 mapElementForDeletion(immutableFromDOM, []);
                 
-                wsTraceHandler.sendTrace('[DFK]', `GADS DFK mapping completed: ${Object.keys(deletionFactTable).length} facts recorded (${beforeDedupeCount} processed, ${dedupeDropCount} deduped, ${collisionCount} collisions resolved)`);
+                logger.d( `GADS DFK mapping completed: ${Object.keys(deletionFactTable).length} facts recorded (${beforeDedupeCount} processed, ${dedupeDropCount} deduped, ${collisionCount} collisions resolved)`);
                 return deletionFactTable;
             }
 
@@ -2137,7 +1789,7 @@
 
             // Phase 4.5: Semantic Classification - Classify operations into semantic change types
             classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM) {
-                wsTraceHandler.sendTrace('[SEMANTIC]', 'Starting semantic change classification for precise styling');
+                logger.d( 'Starting semantic change classification for precise styling');
                 
                 const classifiedOperations = diffOperations.map(op => {
                     // Create a copy of the operation with semantic metadata
@@ -2147,7 +1799,7 @@
                     classifiedOp.semanticType = this.determineSemanticType(op, immutableFromDOM, immutableToDOM);
                     classifiedOp.visualTreatment = this.getVisualTreatment(classifiedOp.semanticType);
                     
-                    wsTraceHandler.sendTrace('[SEMANTIC]', `Operation at route [${op.route?.join(',') || 'unknown'}]: ${op.action} → ${classifiedOp.semanticType}`);
+                    logger.d( `Operation at route [${op.route?.join(',') || 'unknown'}]: ${op.action} → ${classifiedOp.semanticType}`);
                     
                     return classifiedOp;
                 });
@@ -2155,7 +1807,7 @@
                 // Group related operations by proximity and timing
                 this.groupRelatedOperations(classifiedOperations);
                 
-                wsTraceHandler.sendTrace('[SEMANTIC]', `Semantic classification completed for ${classifiedOperations.length} operations`);
+                logger.d( `Semantic classification completed for ${classifiedOperations.length} operations`);
                 return classifiedOperations;
             }
             
@@ -2184,7 +1836,7 @@
                         return 'INLINE_MODIFICATION';
                     
                     default:
-                        wsTraceHandler.sendTrace('[SEMANTIC]', `Unknown operation action: ${action}`);
+                        logger.d( `Unknown operation action: ${action}`);
                         return 'INLINE_MODIFICATION';
                 }
             }
@@ -2257,7 +1909,7 @@
                     
                     if (proximateOps.length > 0) {
                         op.relatedOperations = proximateOps.map(relOp => relOp.route?.join(',') || 'unknown');
-                        wsTraceHandler.sendTrace('[SEMANTIC]', `Operation at [${op.route?.join(',') || 'unknown'}] has ${proximateOps.length} related operations`);
+                        logger.d( `Operation at [${op.route?.join(',') || 'unknown'}] has ${proximateOps.length} related operations`);
                     }
                 }
             }
@@ -2285,7 +1937,7 @@
 
             // Phase 4: Enhance operations with DFK
             enhanceOperationsWithDFK(diffOperations, deletionFactTable) {
-                wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhancing ${diffOperations.length} operations with GADS DFK mappings`);
+                logger.d( `Enhancing ${diffOperations.length} operations with GADS DFK mappings`);
                 
                 for (const op of diffOperations) {
                     if (op.action === 'removeElement' || op.action === 'removeTextElement') {
@@ -2315,19 +1967,19 @@
                                 tag: matchedEntry.tag,
                                 payloadHash: matchedEntry.payloadHash
                             };
-                            wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhanced operation with GADS DFK: ${matchedDfkKey.substring(0, 50)}...`);
+                            logger.d( `Enhanced operation with GADS DFK: ${matchedDfkKey.substring(0, 50)}...`);
                         } else {
-                            wsTraceHandler.sendTrace('[DFK-ENHANCE]', `No DFK match found for route: ${opRouteStr}`);
+                            logger.d( `No DFK match found for route: ${opRouteStr}`);
                         }
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[DFK-ENHANCE]', 'GADS DFK enhancement completed');
+                logger.d( 'GADS DFK enhancement completed');
             }
 
             // PRIORITY FIX #1: Drop unresolved ops before apply
             dropUnresolvedOperations(workingDOM, operations) {
-                wsTraceHandler.sendTrace('[DROP-UNRESOLVED]', 'Testing route resolution for all operations');
+                logger.d( 'Testing route resolution for all operations');
                 const readOnlyDOM = workingDOM.cloneNode(true);
                 const resolvedOps = [];
                 let droppedCount = 0;
@@ -2338,17 +1990,17 @@
                         resolvedOps.push(op);
                     } else {
                         droppedCount++;
-                        wsTraceHandler.sendTrace('[DROP-UNRESOLVED]', `Dropped unresolved operation: ${op.action} at route [${op.route.join(',')}]`);
+                        logger.d( `Dropped unresolved operation: ${op.action} at route [${op.route.join(',')}]`);
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[DROP-UNRESOLVED]', `Pre-apply filtering complete: ${droppedCount} unresolved ops dropped`);
+                logger.d( `Pre-apply filtering complete: ${droppedCount} unresolved ops dropped`);
                 return resolvedOps;
             }
 
             // PRIORITY FIX #2: Canonicalize & deduplicate ops pre-apply  
             canonicalizeAndDeduplicateOperations(operations) {
-                wsTraceHandler.sendTrace('[CANONICALIZE]', 'Deduplicating operations by (route, action) with element-first precedence');
+                logger.d( 'Deduplicating operations by (route, action) with element-first precedence');
                 const canonicalOps = [];
                 const seenKeys = new Set();
                 let duplicateCount = 0;
@@ -2374,29 +2026,29 @@
                         canonicalOps.push(op);
                     } else {
                         duplicateCount++;
-                        wsTraceHandler.sendTrace('[CANONICALIZE]', `Deduplicated: ${op.action} at route [${op.route.join(',')}]`);
+                        logger.d( `Deduplicated: ${op.action} at route [${op.route.join(',')}]`);
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[CANONICALIZE]', `Canonicalization complete: ${duplicateCount} duplicates removed, ${canonicalOps.length} operations remain`);
+                logger.d( `Canonicalization complete: ${duplicateCount} duplicates removed, ${canonicalOps.length} operations remain`);
                 return canonicalOps;
             }
 
             // Phase 5: Assemble Annotated DOM
             assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit) {
-                wsTraceHandler.sendTrace('[ASSEMBLY]', 'Processing diff operations using true two-phase approach');
+                logger.d( 'Processing diff operations using true two-phase approach');
                 
                 // PRIORITY FIX #1: Drop unresolved ops before apply
-                wsTraceHandler.sendTrace('[PRE-APPLY]', 'Filtering out unresolved operations before apply phase');
+                logger.d( 'Filtering out unresolved operations before apply phase');
                 const preFilteredOps = this.dropUnresolvedOperations(detachedWorkingDOM, diffOperations);
-                wsTraceHandler.sendTrace('[PRE-APPLY]', `Dropped ${diffOperations.length - preFilteredOps.length} unresolved operations`);
+                logger.d( `Dropped ${diffOperations.length - preFilteredOps.length} unresolved operations`);
                 
                 // PRIORITY FIX #2: Canonicalize & deduplicate ops pre-apply
                 const canonicalOps = this.canonicalizeAndDeduplicateOperations(preFilteredOps);
-                wsTraceHandler.sendTrace('[PRE-APPLY]', `Deduplicated ${preFilteredOps.length - canonicalOps.length} operations`);
+                logger.d( `Deduplicated ${preFilteredOps.length - canonicalOps.length} operations`);
                 
                 // Phase A: Resolve all diff-op routes to stable references (ZERO DOM mutation)
-                wsTraceHandler.sendTrace('[ASSEMBLY-RESOLVE]', `Resolving routes for ${canonicalOps.length} operations - READ ONLY`);
+                logger.d( `Resolving routes for ${canonicalOps.length} operations - READ ONLY`);
                 const resolvedOperations = [];
                 const preResolutionSnapshot = []; // Fix: Debug snapshot for route resolution
                 
@@ -2427,7 +2079,7 @@
                         resolvedOperations.push(resolvedOp);
                     } else {
                         // This should not happen due to pre-filtering, but log if it does
-                        wsTraceHandler.sendTrace('[ASSEMBLY-RESOLVE-ERROR]', `Unexpected unresolved route after pre-filtering: [${op.route.join(',')}] for ${op.action}`);
+                        logger.e( `Unexpected unresolved route after pre-filtering: [${op.route.join(',')}] for ${op.action}`);
                     }
                 }
                 
@@ -2445,7 +2097,7 @@
                 wsTraceHandler.sendDebugOutput('phase5_routes_resolved', JSON.stringify(routesResolvedPayload, null, 2), fromCommit, toCommit, []);
                 
                 // Phase B: Apply annotations using resolved references only (separate output DOM)
-                wsTraceHandler.sendTrace('[ASSEMBLY-APPLY]', `Applying annotations for ${resolvedOperations.filter(op => op.resolved).length} resolved operations`);
+                logger.d( `Applying annotations for ${resolvedOperations.filter(op => op.resolved).length} resolved operations`);
                 // Fix: Create fresh output DOM for Phase B, never modify the original
                 const applyResult = this.applyAnnotationsFromResolved(detachedWorkingDOM, resolvedOperations);
                 const assembledDOM = applyResult.outputDOM;
@@ -2462,7 +2114,7 @@
                 };
                 wsTraceHandler.sendDebugOutput('phase5_apply_report', JSON.stringify(applyReportPayload, null, 2), fromCommit, toCommit, []);
                 
-                wsTraceHandler.sendTrace('[ASSEMBLY]', 'Two-phase semantic annotation assembly completed');
+                logger.d( 'Two-phase semantic annotation assembly completed');
                 return {
                     outputDOM: assembledDOM,
                     appliedOperations: applyResult.appliedOperations
@@ -2470,7 +2122,7 @@
             }
             
             applyAnnotationsFromResolved(workingDOM, resolvedOperations) {
-                wsTraceHandler.sendTrace('[ASSEMBLY-APPLY]', 'Applying annotations using pre-resolved node references');
+                logger.d( 'Applying annotations using pre-resolved node references');
                 
                 // Clone working DOM to avoid mutation during application
                 const outputDOM = workingDOM.cloneNode(true);
@@ -2511,7 +2163,7 @@
                             const routeKey = op.route.join(',');
                             if (!processedDeletions.has(routeKey)) {
                                 // NOTE: Deletion placement now handled in Phase-6 only - legacy path disabled
-                                wsTraceHandler.sendTrace('[DELETION-LEGACY]', `Legacy deletion placement bypassed for ${op.action} at route [${op.route.join(',')}]`);
+                                logger.d( `Legacy deletion placement bypassed for ${op.action} at route [${op.route.join(',')}]`);
                                 processedDeletions.add(routeKey);
                                 deletions++;
                                 applied = true;
@@ -2551,7 +2203,7 @@
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[ASSEMBLY-APPLY]', `Applied: ${insertions} insertions, ${deletions} deletions, ${moves} moves, ${modifications} modifications, ${errors} errors`);
+                logger.d( `Applied: ${insertions} insertions, ${deletions} deletions, ${moves} moves, ${modifications} modifications, ${errors} errors`);
                 
                 return {
                     outputDOM,
@@ -2566,7 +2218,7 @@
 
             // Phase 6: Place Deletion Blocks - SURGICAL REPAIR: Drive from applied ops only
             placeDeletionBlocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors) {
-                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', 'SURGICAL REPAIR: Positioning deletion blocks from Phase-5 applied operations only');
+                logger.d( 'SURGICAL REPAIR: Positioning deletion blocks from Phase-5 applied operations only');
                 
                 // Clone the assembled DOM to avoid modifying input
                 const deletionPlacedDOM = assembledDOM.cloneNode(true);
@@ -2583,7 +2235,7 @@
                 let createdBadges = 0;
                 let connectedBadges = 0;
                 
-                wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', `Processing ${appliedDeletions.length} applied deletion operations`);
+                logger.d( `Processing ${appliedDeletions.length} applied deletion operations`);
                 
                 for (const appliedOp of appliedDeletions) {
                     // Parse route from string format back to array
@@ -2592,7 +2244,7 @@
                     
                     // Skip if already processed this (route + action) combination
                     if (placedKeys.has(dedupeKey)) {
-                        wsTraceHandler.sendTrace('[DELETION-DEDUPE]', `Skipped duplicate: ${dedupeKey}`);
+                        logger.d( `Skipped duplicate: ${dedupeKey}`);
                         continue;
                     }
                     
@@ -2603,7 +2255,7 @@
                     );
                     
                     if (!dfkKey || !deletionFactTable[dfkKey]) {
-                        wsTraceHandler.sendTrace('[DELETION-SKIP]', `No DFK entry for route [${routeKey}]`);
+                        logger.d( `No DFK entry for route [${routeKey}]`);
                         continue;
                     }
                     
@@ -2612,14 +2264,14 @@
                     // Compute anchor using enhanced logic
                     const anchor = this.findStableSemanticAnchor(deletionPlacedDOM, route);
                     if (!anchor) {
-                        wsTraceHandler.sendTrace('[DELETION-SKIP]', `No anchor found for route [${routeKey}]`);
+                        logger.d( `No anchor found for route [${routeKey}]`);
                         continue;
                     }
                     
                     // Check if badge already placed at this location (guard)
                     const existingBadge = deletionPlacedDOM.querySelector(`[data-gad-key="${dedupeKey}"]`);
                     if (existingBadge) {
-                        wsTraceHandler.sendTrace('[DELETION-GUARD]', `Badge already exists for key: ${dedupeKey}`);
+                        logger.d( `Badge already exists for key: ${dedupeKey}`);
                         continue;
                     }
                     
@@ -2631,13 +2283,13 @@
                     if (this.insertDeletionBadge(anchor, deletionBlock)) {
                         connectedBadges++;
                         placedKeys.add(dedupeKey);
-                        wsTraceHandler.sendTrace('[DELETION-PLACEMENT]', `Placed badge for ${dedupeKey}`);
+                        logger.d( `Placed badge for ${dedupeKey}`);
                     }
                 }
                 
                 // Telemetry: assert and report
                 const mismatch = appliedDeletions.length !== connectedBadges;
-                wsTraceHandler.sendTrace('[DELETION-TELEMETRY]', 
+                logger.d( 
                     `applied_deletions=${appliedDeletions.length}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' MISMATCH!' : ''}`
                 );
                 
@@ -2686,7 +2338,7 @@
                         return true;
                     }
                 } catch (error) {
-                    wsTraceHandler.sendTrace('[DELETION-ERROR]', `Failed to insert badge: ${error.message}`);
+                    logger.e( `Failed to insert badge: ${error.message}`);
                 }
                 return false;
             }
@@ -2751,7 +2403,7 @@
 
             // Phase 8: Serialize Final Output
             serializeFinalOutput(coalescedDOM) {
-                wsTraceHandler.sendTrace('[SERIALIZE]', 'Generating final styled diff HTML ready for display');
+                logger.d( 'Generating final styled diff HTML ready for display');
                 
                 // Final validation and cleanup
                 const finalHTML = coalescedDOM.innerHTML;
@@ -2760,9 +2412,9 @@
                 const parser = new DOMParser();
                 const testDoc = parser.parseFromString(finalHTML, 'text/html');
                 if (testDoc.querySelector('parsererror')) {
-                    wsTraceHandler.sendTrace('[SERIALIZE-ERROR]', 'Final HTML contains parser errors');
+                    logger.e( 'Final HTML contains parser errors');
                 } else {
-                    wsTraceHandler.sendTrace('[SERIALIZE]', 'Final HTML validated successfully');
+                    logger.d( 'Final HTML validated successfully');
                 }
                 
                 return finalHTML;

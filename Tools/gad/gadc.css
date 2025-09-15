@@ -1,0 +1,356 @@
+/* GAD Inspector CSS - Externalized from HTML for maintainability */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.header {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+.status-section {
+    background: #e8f4fd;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 
+        "railheader railheader renderheader"
+        "from to render";
+    gap: 0px;
+    height: calc(100vh - 100px);
+    margin-top: 20px;
+}
+
+.rail-header {
+    grid-area: railheader;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: white;
+    border-radius: 8px 8px 0 0;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #eee;
+    border-right: 1px solid #eee;
+    font-weight: bold;
+    color: #666;
+}
+
+.render-header {
+    grid-area: renderheader;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 8px 8px 0 0;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #eee;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    color: #333;
+}
+
+.rail {
+    background: white;
+    border-radius: 0 0 8px 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.rail.from {
+    grid-area: from;
+    border-top-left-radius: 0;
+    border-right: 1px solid #eee;
+}
+
+.rail.to {
+    grid-area: to;
+    border-top-right-radius: 0;
+}
+
+.rail-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.rail-row:hover {
+    background-color: #f8f9fa;
+}
+
+.rail-row.selected {
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+}
+
+.rail-label {
+    min-width: 30px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    text-align: center;
+}
+
+.rail-radio {
+    margin-left: auto;
+}
+
+.rail-commit-info {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.rail-hash {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    color: #333;
+}
+
+.unchanged-rail-row {
+    opacity: 0.6;
+}
+
+.unchanged-rail-row .rail-hash::after {
+    content: " ≡";
+    color: #888;
+}
+
+.rendered-pane {
+    grid-area: render;
+    background: white;
+    border-radius: 0 0 8px 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    max-height: 100%;
+    line-height: 1.6;
+}
+
+.popover {
+    position: fixed;
+    background: white;
+    border: 2px solid #007acc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 15px;
+    z-index: 1000;
+    display: none;
+    max-width: 400px;
+    min-width: 300px;
+    font-size: 13px;
+}
+
+.popover-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.popover-field {
+    margin-bottom: 8px;
+}
+
+.popover-label {
+    font-weight: bold;
+    color: #555;
+    font-size: 11px;
+}
+
+.popover-value {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #f6f8fa;
+    padding: 4px 6px;
+    border-radius: 3px;
+    border: 1px solid #e1e4e8;
+    margin-top: 3px;
+    word-break: break-all;
+    font-size: 10px;
+}
+
+.swap-button {
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    margin: 0 6px;
+}
+
+.swap-button:hover {
+    background: #005a9e;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.swap-button:active {
+    transform: scale(0.95);
+}
+
+
+
+
+.unchanged-commit {
+    opacity: 0.6;
+}
+
+.unchanged-commit::after {
+    content: " ≡";
+    color: #888;
+}
+
+/* Simplified deletion styling - inline struck-through text with minimal red highlight */
+.diff-deletion {
+    background-color: #ffeef0;
+    color: #d73a49;
+    text-decoration: line-through;
+    display: inline;
+}
+
+.diff-deletion-inline {
+    background-color: #ffeef0;
+    color: #d73a49;
+    text-decoration: line-through;
+    display: inline;
+}
+
+.diff-insertion {
+    /* PRIORITY FIX #8: Tame visual "boxy" insertions - inline-first treatment */
+    background-color: #e8f5e8;
+    border-radius: 2px;
+    /* Minimal padding, no border for inline-first visual treatment */
+    padding: 1px 2px;
+    display: inline;
+}
+
+.diff-moved {
+    background-color: #fff3cd;
+    border: 1px solid #856404;
+    border-radius: 3px;
+    /* Block-level background highlighting */
+    padding: 4px;
+}
+
+.diff-modification {
+    background-color: #e2e3e5;
+    border: 1px solid #6c757d;
+    border-radius: 3px;
+    /* Block-level background highlighting for text changes */
+    padding: 4px;
+}
+
+/* Simplified coalescing - single consolidated elements only */
+/* Adjacent same-type diff elements are replaced with single consolidated spans */
+/* No additional CSS needed - existing .diff-insertion, .diff-moved, etc. styles apply */
+
+/* GADS Semantic Classification CSS Classes - Style Isolation */
+.gad-inline-addition {
+    background-color: #e8f5e8;
+    border-radius: 2px;
+    padding: 1px 2px;
+    display: inline;
+}
+
+.gad-block-addition {
+    background-color: #e8f5e8;
+    border: 1px solid #28a745;
+    border-radius: 3px;
+    padding: 4px;
+    margin: 2px 0;
+    display: block;
+}
+
+.gad-inline-modification {
+    background-color: #e2e3e5;
+    border-radius: 2px;
+    padding: 1px 2px;
+    display: inline;
+}
+
+.gad-structural-change {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 2px 4px;
+    margin: 1px 0;
+}
+
+.gad-block-removal {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 3px;
+    padding: 2px 4px;
+    margin: 0 2px;
+    font-size: 0.9em;
+    color: #721c24;
+    display: inline-block;
+}
+
+.gad-inline-removal {
+    background-color: #ffeef0;
+    color: #d73a49;
+    text-decoration: line-through;
+    display: inline;
+}
+
+/* GADS Processing Error Markers */
+.gad-processing-error {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 1px 3px;
+    font-size: 0.7em;
+    font-weight: bold;
+    border-radius: 2px;
+    margin: 0 1px;
+}
+
+.gad-fatal-error {
+    background-color: magenta;
+    color: white;
+    padding: 2px 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    border-radius: 2px;
+    margin: 0 2px;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.error {
+    color: #d73a49;
+    background: #ffeef0;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #f97583;
+}
