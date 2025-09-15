@@ -1216,12 +1216,8 @@
                     const contentMatches = this.validateElementContent(element, operation.newValue);
                     
                     if (contentMatches) {
-                        // Use createDeletionBadge helper for consistent DFK-aware styling
-                        const dfkEntry = {
-                            kind: '#text',
-                            tag: 'span',
-                            textContent: operation.oldValue
-                        };
+                        // Use makeDFKEntry + createDeletionBadge for consistent DFK-aware styling
+                        const dfkEntry = this.makeDFKEntry(operation.oldValue, '#text', 'span');
                         const dedupeKey = `text-mod-${operation.route.join(',')}-${operation.oldValue}`;
                         const badgeResult = this.createDeletionBadge(dfkEntry, dedupeKey);
 
@@ -2464,6 +2460,45 @@
                 return deletionPlacedDOM;
             }
 
+            // Helper: Create minimal DFK entry for ad-hoc deletion badge creation
+            makeDFKEntry(content, kind = null, tag = null) {
+                // Auto-detect kind and tag if not provided
+                const detectedKind = kind || (typeof content === 'string' ? '#text' : '#element');
+                const detectedTag = tag || (detectedKind === '#text' ? 'span' : 'div');
+                
+                return {
+                    kind: detectedKind,
+                    tag: detectedTag,
+                    textContent: typeof content === 'string' ? content : (content.textContent || '[Unknown content]'),
+                    route: [] // Minimal route for ad-hoc entries
+                };
+            }
+
+            // AUTHORITATIVE DELETION BADGE POLICY
+            //
+            // Single Source of Truth for Deletion Styling:
+            // All deletion badges MUST flow through this helper to ensure consistent DFK-aware styling
+            //
+            // Styling Decision Matrix (based on DFK metadata):
+            // - kind: '#text' → gad-inline-removal
+            // - tag: inline HTML tags → gad-inline-removal  
+            // - tag: block HTML tags → gad-block-removal
+            //
+            // Authorized Entry Points:
+            // 1. Phase 6 DFK placement pipeline (primary)
+            // 2. handleTextModification via makeDFKEntry (secondary)
+            // 3. createUnplacedDeletionBadge (fallback)
+            //
+            // Prohibited Actions:
+            // - Direct .classList.add('gad-*-removal') assignments
+            // - Manual class string concatenation
+            // - Bypassing DFK metadata for styling decisions
+            //
+            // Exception Inventory:
+            // - Coalesced wrappers: Use neutral presentation classes only
+            // - Legacy generateDeletionInlineLegacy: Disabled (commented out)
+            // - Query selectors and configuration: Legitimate string references
+            //
             // Helper: Create deletion badge with guard attributes
             createDeletionBadge(dfkEntry, dedupeKey) {
                 const deletionBlock = document.createElement('span');
