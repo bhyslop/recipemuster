@@ -113,7 +113,7 @@
             }
 
             sendDebugOutput(debugType, content, fromCommit, toCommit, sourceFiles) {
-                // Consolidated debug output sender for all 8-phase debug artifacts
+                // Consolidated debug output sender for all 9-phase debug artifacts
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                     try {
                         const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
@@ -675,7 +675,7 @@
 
             async styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles) {
                 const startTime = performance.now();
-                logger.d( 'Starting GADS-compliant 8-phase diff processing');
+                logger.d( 'Starting GADS-compliant 9-phase diff processing');
                 logger.d( `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
                 logger.d( `diff-dom type at diff time: ${typeof window.diffDom}`);
 
@@ -713,11 +713,11 @@
                     this.enhanceOperationsWithDFK(diffOperations, deletionFactTable);
                     logger.p(4, `Diff Operations: Generated ${diffOperations.length} enhanced diff operations`);
 
-                    // Phase 4.5: Semantic Classification - Classify operations into semantic change types
-                    logger.p('4.5', 'Semantic Classification: Analyzing operations for precise granular styling');
+                    // Phase 5: Semantic Classification - Classify operations into semantic change types
+                    logger.p(5, 'Semantic Classification: Analyzing operations for precise granular styling');
                     const classifiedOperations = this.classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM);
                     
-                    // Phase 4.5 Debug Output - Show enriched operations with semantic metadata
+                    // Phase 5 Debug Output - Show enriched operations with semantic metadata
                     const phase45Debug = {
                         totalOperations: classifiedOperations.length,
                         semanticBreakdown: this.generateSemanticBreakdown(classifiedOperations),
@@ -728,47 +728,47 @@
                             visualTreatment: op.visualTreatment
                         }))
                     };
-                    wsTraceHandler.sendDebugOutput('phase4.5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
-                    logger.p('4.5', `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
+                    wsTraceHandler.sendDebugOutput('phase5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
+                    logger.p(5, `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
 
-                    // Phase 5: Annotated Assembly - Construct semantically annotated output DOM
-                    logger.p(5, 'Annotated Assembly: Processing classified operations in Detached Working environment');
+                    // Phase 6: Annotated Assembly - Construct semantically annotated output DOM
+                    logger.p(6, 'Annotated Assembly: Processing classified operations in Detached Working environment');
                     const assemblyResult = this.assembleAnnotatedDOM(detachedWorkingDOM, classifiedOperations, semanticAnchors, fromCommit, toCommit);
                     const assembledDOM = assemblyResult.outputDOM;
                     const assembledHTML = assembledDOM.innerHTML;
-                    wsTraceHandler.sendDebugOutput('phase5_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
-                    logger.p(5, 'Annotated Assembly: Semantic annotation construction completed');
+                    wsTraceHandler.sendDebugOutput('phase6_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
+                    logger.p(6, 'Annotated Assembly: Semantic annotation construction completed');
 
-                    // Phase 6: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
-                    logger.p(6, 'Deletion Placement: Positioning deletion blocks with DFK mappings');
+                    // Phase 7: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
+                    logger.p(7, 'Deletion Placement: Positioning deletion blocks with DFK mappings');
                     const deletionPlacedDOM = this.placeDeletionBlocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors);
                     const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
-                    wsTraceHandler.sendDebugOutput('phase6_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
-                    logger.p(6, 'Deletion Placement: Structured deletion blocks positioned accurately');
+                    wsTraceHandler.sendDebugOutput('phase7_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
+                    logger.p(7, 'Deletion Placement: Structured deletion blocks positioned accurately');
 
-                    // Phase 7: Uniform Classing - Merge consecutive same-nature elements
-                    logger.p(7, 'Uniform Classing: Merging consecutive same-nature elements into consolidated runs');
+                    // Phase 8: Uniform Classing - Merge consecutive same-nature elements
+                    logger.p(8, 'Uniform Classing: Merging consecutive same-nature elements into consolidated runs');
                     const coalescedDOM = this.mergeAdjacentSameNature(deletionPlacedDOM);
                     const coalescedHTML = coalescedDOM.innerHTML;
-                    wsTraceHandler.sendDebugOutput('phase7_coalesced', coalescedHTML, fromCommit, toCommit, sourceFiles);
-                    logger.p(7, 'Uniform Classing: Single-element consolidated runs created');
+                    wsTraceHandler.sendDebugOutput('phase8_coalesced', coalescedHTML, fromCommit, toCommit, sourceFiles);
+                    logger.p(8, 'Uniform Classing: Single-element consolidated runs created');
 
-                    // Phase 8: Serialize - Generate final rendered output
-                    logger.p(8, 'Serialize: Generating final styled diff HTML');
+                    // Phase 9: Serialize - Generate final rendered output
+                    logger.p(9, 'Serialize: Generating final styled diff HTML');
                     const finalHTML = this.serializeFinalOutput(coalescedDOM);
-                    wsTraceHandler.sendDebugOutput('phase8_final', finalHTML, fromCommit, toCommit, sourceFiles);
-                    logger.p(8, 'Serialize: Final rendered HTML ready for display');
+                    wsTraceHandler.sendDebugOutput('phase9_final', finalHTML, fromCommit, toCommit, sourceFiles);
+                    logger.p(9, 'Serialize: Final rendered HTML ready for display');
 
                     // Performance logging for Factory debugging
                     const endTime = performance.now();
                     const totalTime = Math.round(endTime - startTime);
-                    logger.d( `GADS 8-phase diff processing completed in ${totalTime}ms`);
+                    logger.d( `GADS 9-phase diff processing completed in ${totalTime}ms`);
                     logger.d( 'Complete processing isolation maintained - input DOMs never modified');
 
                     return finalHTML;
 
                 } catch (error) {
-                    logger.e( `GADS 8-phase diff processing failed: ${error.message}`);
+                    logger.e( `GADS 9-phase diff processing failed: ${error.message}`);
                     throw error;
                 }
             }
@@ -1805,7 +1805,7 @@
                 }
             }
 
-            // Phase 4.5: Semantic Classification - Classify operations into semantic change types
+            // Phase 5: Semantic Classification - Classify operations into semantic change types
             classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM) {
                 logger.d( 'Starting semantic change classification for precise styling');
                 
@@ -2162,7 +2162,7 @@
                     operations: preResolutionSnapshot
                 };
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, -4);
-                wsTraceHandler.sendDebugOutput('phase5_routes_resolved', JSON.stringify(routesResolvedPayload, null, 2), fromCommit, toCommit, []);
+                wsTraceHandler.sendDebugOutput('phase6_routes_resolved', JSON.stringify(routesResolvedPayload, null, 2), fromCommit, toCommit, []);
                 
                 // Phase B: Apply annotations using resolved references only (separate output DOM)
                 logger.d( `Applying annotations for ${resolvedOperations.filter(op => op.resolved).length} resolved operations`);
@@ -2180,7 +2180,7 @@
                     skippedOperations: applyResult.skippedOperations,
                     errorOperations: applyResult.errorOperations
                 };
-                wsTraceHandler.sendDebugOutput('phase5_apply_report', JSON.stringify(applyReportPayload, null, 2), fromCommit, toCommit, []);
+                wsTraceHandler.sendDebugOutput('phase6_apply_report', JSON.stringify(applyReportPayload, null, 2), fromCommit, toCommit, []);
                 
                 logger.d( 'Two-phase semantic annotation assembly completed');
                 return {
@@ -2459,7 +2459,7 @@
                     
                     // Send fallback report via WebSocket for factory analysis
                     if (typeof wsTraceHandler !== 'undefined' && wsTraceHandler.sendDebugOutput) {
-                        wsTraceHandler.sendDebugOutput('phase6_fallback_report', JSON.stringify(fallbackReport, null, 2));
+                        wsTraceHandler.sendDebugOutput('phase7_fallback_report', JSON.stringify(fallbackReport, null, 2));
                     }
                     
                     logger.d( `FALLBACK REPORT: Generated detailed report with ${fallbackReport.unresolved_operations.length} unresolved operations`);
