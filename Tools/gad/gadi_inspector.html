@@ -775,6 +775,19 @@
                     // Phase 4.5: Semantic Classification - Classify operations into semantic change types
                     logger.p('4.5', 'Semantic Classification: Analyzing operations for precise granular styling');
                     const classifiedOperations = this.classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM);
+                    
+                    // Phase 4.5 Debug Output - Show enriched operations with semantic metadata
+                    const phase45Debug = {
+                        totalOperations: classifiedOperations.length,
+                        semanticBreakdown: this.generateSemanticBreakdown(classifiedOperations),
+                        sampleOperations: classifiedOperations.slice(0, 5).map(op => ({
+                            action: op.action,
+                            route: op.route,
+                            semanticType: op.semanticType,
+                            visualTreatment: op.visualTreatment
+                        }))
+                    };
+                    wsTraceHandler.sendDebugOutput('phase4.5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
                     logger.p('4.5', `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
 
                     // Phase 5: Annotated Assembly - Construct semantically annotated output DOM
@@ -1195,8 +1208,13 @@
             applyInsertionAnnotation(outputDOM, operation) {
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 
-                // Use semantic classification for precise styling
-                const cssClass = operation.visualTreatment?.cssClass || 'gad-inline-addition';
+                // Strict semantic classification - no fallback to default classes
+                if (!operation.visualTreatment?.cssClass) {
+                    logger.e( `SEMANTIC-ERROR: Operation at route [${operation.route.join(',')}] lacks visualTreatment.cssClass - skipping annotation`);
+                    return;
+                }
+                
+                const cssClass = operation.visualTreatment.cssClass;
                 
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
                     element.classList.add(cssClass);
@@ -1218,18 +1236,49 @@
 
             applyMoveAnnotation(outputDOM, operation) {
                 const element = this.findElementByRoute(outputDOM, operation.route);
+                
+                // Strict semantic classification - no fallback to default classes
+                if (!operation.visualTreatment?.cssClass) {
+                    logger.e( `SEMANTIC-ERROR: Move operation at route [${operation.route.join(',')}] lacks visualTreatment.cssClass - skipping annotation`);
+                    return;
+                }
+                
+                const cssClass = operation.visualTreatment.cssClass;
+                
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    element.classList.add('gad-structural-change');
-                    logger.d( `Applied move annotation at route [${operation.route.join(',')}]`);
+                    element.classList.add(cssClass);
+                    logger.d( `Applied semantic move annotation (${cssClass}) at route [${operation.route.join(',')}]`);
                 } else {
                     logger.d( `Could not find element for move annotation at route [${operation.route.join(',')}]`);
                 }
             }
 
             applyModificationAnnotation(outputDOM, operation) {
-                // Don't apply modification styling to parent containers that have child insertions
-                // This prevents the entire paragraph from being marked as modified when only parts changed
-                logger.d( `Skipping broad modification annotation at route [${operation.route.join(',')}] - let child insertions handle specific changes`);
+                // Strict semantic classification for modifications
+                if (!operation.visualTreatment?.cssClass) {
+                    logger.e( `SEMANTIC-ERROR: Modification operation at route [${operation.route.join(',')}] lacks visualTreatment.cssClass - skipping annotation`);
+                    return;
+                }
+                
+                const element = this.findElementByRoute(outputDOM, operation.route);
+                const cssClass = operation.visualTreatment.cssClass;
+                
+                if (element && element.nodeType === Node.ELEMENT_NODE) {
+                    element.classList.add(cssClass);
+                    logger.d( `Applied semantic modification annotation (${cssClass}) at route [${operation.route.join(',')}]`);
+                } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
+                    // For text modifications, wrap in span with semantic class
+                    const parent = element.parentElement;
+                    const span = document.createElement('span');
+                    span.classList.add(cssClass);
+
+                    parent.insertBefore(span, element);
+                    span.appendChild(element);
+
+                    logger.d( `Applied semantic text modification annotation (${cssClass}) at route [${operation.route.join(',')}]`);
+                } else {
+                    logger.d( `Could not find element for modification annotation at route [${operation.route.join(',')}]`);
+                }
             }
 
             handleTextModification(outputDOM, operation, routeElementMap) {
@@ -1896,7 +1945,36 @@
                                      'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
                                      'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
                 
-                return blockElements.includes(operation.element?.tagName);
+                // Primary check: Element tag type
+                const elementTag = operation.element?.tagName;
+                if (blockElements.includes(elementTag)) {
+                    logger.d( `BLOCK-LEVEL-ADDITION: ${elementTag} detected as block element`);
+                    return true;
+                }
+                
+                // Enhanced check: Element structure analysis
+                if (operation.element) {
+                    // Check if element contains block-level children
+                    const hasBlockChildren = Array.from(operation.element.children || [])
+                        .some(child => blockElements.includes(child.tagName));
+                    
+                    // Check if element has significant text content (paragraph-like)
+                    const textContent = operation.element.textContent || '';
+                    const hasSignificantContent = textContent.length > 50 || textContent.includes('\n');
+                    
+                    // Check parent context - if being added to inline context, prefer inline treatment
+                    const targetElement = this.findElementByRoute(toDOM, operation.route.slice(0, -1));
+                    const inlineParents = ['SPAN', 'A', 'EM', 'STRONG', 'B', 'I', 'CODE'];
+                    const hasInlineParent = targetElement && inlineParents.includes(targetElement.tagName);
+                    
+                    if ((hasBlockChildren || hasSignificantContent) && !hasInlineParent) {
+                        logger.d( `BLOCK-LEVEL-ADDITION: ${elementTag} classified as block due to structure (children: ${hasBlockChildren}, content: ${hasSignificantContent})`);
+                        return true;
+                    }
+                }
+                
+                logger.d( `INLINE-ADDITION: ${elementTag} classified as inline element`);
+                return false;
             }
             
             // Helper: Check if removal was block-level element
@@ -1940,6 +2018,16 @@
                 };
                 
                 return treatments[semanticType] || treatments['INLINE_MODIFICATION'];
+            }
+            
+            // Helper: Generate semantic breakdown statistics for debug output
+            generateSemanticBreakdown(classifiedOperations) {
+                const breakdown = {};
+                for (const op of classifiedOperations) {
+                    const type = op.semanticType || 'UNCLASSIFIED';
+                    breakdown[type] = (breakdown[type] || 0) + 1;
+                }
+                return breakdown;
             }
             
             // Helper: Group related operations by proximity and timing
