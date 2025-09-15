@@ -1074,32 +1074,9 @@
                         }
                     }
                     
-                    // Apply visual styling ONLY to container - never to child elements
-                    this.applyCoalescedStyling(runContainer, className);
+                    // Wrapper container styling: Keep neutral - children retain semantic classes
                     
                     logger.d( `WRAPPER-SUCCESS: Created wrapper for ${runElements.length} elements - preserved individual identity`);
-                }
-            }
-            
-            applyCoalescedStyling(container, className) {
-                // GADS Style Isolation: Use semantic CSS classes for coalesced containers
-                switch (className) {
-                    case 'gad-inline-addition':
-                        container.classList.add('gad-inline-addition');
-                        break;
-                    case 'gad-inline-removal':
-                        container.classList.add('gad-inline-removal');
-                        break;
-                    case 'gad-structural-change':
-                        container.classList.add('gad-structural-change');
-                        break;
-                    case 'gad-inline-modification':
-                        container.classList.add('gad-inline-modification');
-                        break;
-                    default:
-                        // Fallback for unknown types
-                        container.classList.add('gad-inline-modification');
-                        break;
                 }
             }
 

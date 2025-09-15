@@ -320,6 +320,24 @@ body {
     display: inline;
 }
 
+/* GADS Coalesced Wrapper Classes - Neutral containers only */
+/* These wrappers provide structural containment without semantic styling */
+.gad-inline-addition-coalesced-run {
+    display: inline;
+}
+
+.gad-inline-removal-coalesced-run {
+    display: inline;
+}
+
+.gad-inline-modification-coalesced-run {
+    display: inline;
+}
+
+.gad-structural-change-coalesced-run {
+    display: inline;
+}
+
 /* GADS Processing Error Markers */
 .gad-processing-error {
     background-color: #ff6b6b;
