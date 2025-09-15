@@ -741,7 +741,7 @@
 
                     // Phase 7: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
                     logger.p(7, 'Deletion Placement: Positioning deletion blocks with DFK mappings');
-                    const deletionPlacedDOM = this.placeDeletionBlocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors);
+                    const deletionPlacedDOM = await this.placeDeletionBlocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors);
                     const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase7_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
                     logger.p(7, 'Deletion Placement: Structured deletion blocks positioned accurately');
@@ -2285,7 +2285,7 @@
             }
 
             // Phase 6: Place Deletion Blocks - SURGICAL REPAIR: Drive from applied ops only
-            placeDeletionBlocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors) {
+            async placeDeletionBlocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors) {
                 logger.d( 'DFK-DRIVEN PLACEMENT: Positioning deletion blocks using DFK mappings');
                 
                 // Clone the assembled DOM to avoid modifying input

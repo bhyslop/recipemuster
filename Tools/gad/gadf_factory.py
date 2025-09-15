@@ -537,6 +537,10 @@ class GADFactory:
                 (r"/", InspectorHandler),
                 (r"/ws", WebSocketHandler),
                 (r"/manifest.json", ManifestHandler),
+                (r"/gadc.css", StaticFileHandler, {
+                    "path": str(Path(__file__).parent),
+                    "default_filename": "gadc.css"
+                }),
                 (r"/output/(.*)", StaticFileHandler, {
                     "path": str(self.output_dir),
                     "default_filename": None
