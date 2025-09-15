@@ -2309,8 +2309,8 @@
                 let dfkFallbackAttempts = 0;
                 let dfkFallbackSuccess = 0;
                 let exactHashMatches = 0;
-                let tieBrokenByRoute = 0;
                 let unplacedNoHash = 0;
+                let ambiguousMatches = 0;
                 let dfkFallbackFailed = 0;
                 let inlineRemovalsCreated = 0;
                 let blockRemovalsCreated = 0;
@@ -2350,11 +2350,19 @@
                             exactHashMatches++;
                             logger.d( `DFK-FALLBACK-SUCCESS: Exact hash match ${fallbackResult.dfkKey.substring(0, 60)}... for route [${routeKey}]`);
                             dfkKey = fallbackResult.dfkKey;
-                        } else if (fallbackResult && fallbackResult.type === 'tie_broken') {
-                            dfkFallbackSuccess++;
-                            tieBrokenByRoute++;
-                            logger.d( `DFK-FALLBACK-SUCCESS: Tie-broken by route distance ${fallbackResult.distance} for route [${routeKey}]`);
-                            dfkKey = fallbackResult.dfkKey;
+                        } else if (fallbackResult && fallbackResult.type === 'ambiguous') {
+                            ambiguousMatches++;
+                            logger.d( `DFK-FALLBACK-AMBIGUOUS: Found ${fallbackResult.count} matching candidates for route [${routeKey}] - creating error marker`);
+                            
+                            // Create both error marker and unplaced badge for ambiguous matches
+                            if (this.createAmbiguousErrorMarker(appliedOp, fallbackResult.anchor, fallbackResult.count)) {
+                                logger.d( `Created ambiguous error marker for route [${routeKey}]`);
+                            }
+                            if (this.createUnplacedDeletionBadge(appliedOp, fallbackResult.anchor)) {
+                                createdBadges++;
+                                logger.d( `Created unplaced deletion badge for ambiguous route [${routeKey}]`);
+                            }
+                            continue;
                         } else if (fallbackResult && fallbackResult.type === 'unplaced') {
                             unplacedNoHash++;
                             logger.d( `DFK-FALLBACK-UNPLACED: No payload hash match for route [${routeKey}] - creating unplaced marker`);
@@ -2416,10 +2424,10 @@
                 
                 // Enhanced DFK Pipeline Telemetry
                 const mismatch = appliedDeletions.length !== connectedBadges;
-                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, tie_broken_by_route=${tieBrokenByRoute}, unplaced_no_hash=${unplacedNoHash}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
+                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
                 
                 // Console telemetry for DFK pipeline effectiveness with strict payload identity tracking
-                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, tie_broken_by_route=${tieBrokenByRoute}, unplaced_no_hash=${unplacedNoHash}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
                 
                 // Update status ribbon with enhanced data
                 this.updateDeletionTelemetry(appliedDeletions.length, createdBadges, connectedBadges, mismatch);
@@ -2589,6 +2597,35 @@
                 }
             }
 
+            // Helper: Create ambiguous error marker for GADS compliance
+            createAmbiguousErrorMarker(appliedOp, anchor, count) {
+                const errorMarker = document.createElement('div');
+                errorMarker.className = 'gad-processing-error gad-ambiguous-match';
+                errorMarker.style.cssText = 'background: #ffe6e6; border: 2px solid #ff4444; padding: 4px 8px; margin: 2px 0; color: #cc0000; font-weight: bold;';
+                
+                // Content for the error marker
+                const content = appliedOp.capturedContent || '[Unknown deletion]';
+                const displayContent = content.length > 30 
+                    ? content.substring(0, 30) + '\u2026'
+                    : content;
+                    
+                errorMarker.textContent = `⚠ AMBIGUOUS MATCH: ${count} candidates found for "${displayContent}"`;
+                errorMarker.title = `GADS Compliance Error: Found ${count} matching deletion candidates with identical payload hash. Cannot determine unique placement. Original content: ${content}`;
+                
+                // Insert error marker at anchor root to maintain document flow
+                try {
+                    if (anchor.firstChild) {
+                        anchor.insertBefore(errorMarker, anchor.firstChild);
+                    } else {
+                        anchor.appendChild(errorMarker);
+                    }
+                    return true;
+                } catch (error) {
+                    logger.e( `Failed to insert ambiguous error marker: ${error.message}`);
+                    return false;
+                }
+            }
+
             // Helper: Update deletion telemetry in status ribbon and console
             updateDeletionTelemetry(appliedDeletions, createdBadges, connectedBadges, hasMismatch) {
                 // Console telemetry
@@ -2687,7 +2724,7 @@
             // Matching Strategy:
             // 1. Filter by kind and tag (existing behavior)
             // 2. STRICT PAYLOAD IDENTITY: Require exact payload hash match
-            // 3. Use route distance only as tiebreaker among hash-matched candidates
+            // 3. Abort with ambiguous error if multiple hash-matched candidates (GADS compliance)
             // 4. Create unplaced deletion marker when no hash match exists
             //
             // Unplaced Deletion Policy:
@@ -2766,39 +2803,11 @@
                     return { type: 'exact_match', dfkKey: candidateKeys[0] };
                 }
                 
-                // Multiple hash-matched candidates - use route proximity as tiebreaker
-                logger.d( `DFK-FALLBACK: Found ${candidateKeys.length} hash-matched candidates, using route proximity tiebreaker`);
-                
-                let bestKey = candidateKeys[0];
-                let bestDistance = Infinity;
-                
-                for (const candidateKey of candidateKeys) {
-                    const candidateRoute = deletionFactTable[candidateKey].route;
-                    const distance = this.calculateRouteDistance(route, candidateRoute);
-                    
-                    if (distance < bestDistance) {
-                        bestDistance = distance;
-                        bestKey = candidateKey;
-                    }
-                }
-                
-                logger.d( `DFK-FALLBACK: Tie-broken by route distance ${bestDistance}: ${bestKey.substring(0, 60)}...`);
-                return { type: 'tie_broken', dfkKey: bestKey, distance: bestDistance };
+                // Multiple hash-matched candidates - abort with ambiguous error (GADS compliance)
+                logger.d( `DFK-FALLBACK: Found ${candidateKeys.length} hash-matched candidates - aborting with ambiguous error per GADS spec`);
+                return { type: 'ambiguous', reason: 'multiple_matches', count: candidateKeys.length, anchor: anchor };
             }
             
-            // Helper: Calculate route distance for fallback proximity heuristic
-            calculateRouteDistance(route1, route2) {
-                const maxLength = Math.max(route1.length, route2.length);
-                let distance = Math.abs(route1.length - route2.length);
-                
-                for (let i = 0; i < Math.min(route1.length, route2.length); i++) {
-                    if (route1[i] !== route2[i]) {
-                        distance += Math.abs(route1[i] - route2[i]);
-                    }
-                }
-                
-                return distance;
-            }
             
             // REMOVED: placeSingleDeletionBlock - replaced by createDeletionBadge + insertDeletionBadge
 
