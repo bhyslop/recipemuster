@@ -54,51 +54,6 @@
         }
     </script>
     <script>
-        // Trace buffer implementation per GADS specification
-        class TraceBuffer {
-            constructor() {
-                this.maxEntries = 1000;
-                this.storageKey = 'gad_trace_buffer';
-                this.loadBuffer();
-            }
-
-            loadBuffer() {
-                try {
-                    const stored = sessionStorage.getItem(this.storageKey);
-                    this.entries = stored ? JSON.parse(stored) : [];
-                } catch (e) {
-                    this.entries = [];
-                }
-            }
-
-            saveBuffer() {
-                try {
-                    sessionStorage.setItem(this.storageKey, JSON.stringify(this.entries));
-                } catch (e) {
-                    console.warn('Failed to save trace buffer to sessionStorage');
-                }
-            }
-
-            append(prefix, message) {
-                const timestamp = new Date().toISOString();
-                const entry = `${timestamp} ${prefix} ${message}`;
-                this.entries.push(entry);
-
-                // Maintain rolling buffer
-                if (this.entries.length > this.maxEntries) {
-                    this.entries = this.entries.slice(-this.maxEntries);
-                }
-
-                this.saveBuffer();
-                console.log(entry);
-            }
-
-            getContents() {
-                return this.entries.join('\n');
-            }
-        }
-
-        const traceBuffer = new TraceBuffer();
 
         // Compact logger for token cost reduction
         const logger = {
@@ -138,11 +93,6 @@
                 }
             }
 
-            connect() {
-                // Legacy method - should not be called in GADS compliant flow
-                console.warn('[WARN] connect() called - should use connectAfterManifest() per GADS specification');
-                this.connectAfterManifest();
-            }
 
             sendTrace(prefix, message) {
                 // Always log to console, send to WebSocket if available
@@ -189,15 +139,6 @@
                 // Silent if WebSocket not available - this is optional functionality
             }
 
-            // Legacy method for backwards compatibility
-            sendRenderedContent(htmlContent, fromCommit, toCommit, sourceFiles) {
-                this.sendDebugOutput('rendered', htmlContent, fromCommit, toCommit, sourceFiles);
-            }
-
-            // Legacy method for backwards compatibility  
-            sendAnnotatedDOM(htmlContent, fromCommit, toCommit, sourceFiles) {
-                this.sendDebugOutput('annotated', htmlContent, fromCommit, toCommit, sourceFiles);
-            }
         }
 
         const wsTraceHandler = new WebSocketTraceHandler();
@@ -696,7 +637,7 @@
 
                     // Send rendered content to Factory via WebSocket for raw diff file creation
                     logger.d( `Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
-                    wsTraceHandler.sendRenderedContent(styledDiff, fromCommit, toCommit, sourceFiles);
+                    wsTraceHandler.sendDebugOutput('rendered', styledDiff, fromCommit, toCommit, sourceFiles);
 
                     // Enhanced logging for Factory debugging
                     const changeTypeBreakdown = {
