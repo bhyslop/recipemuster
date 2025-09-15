@@ -1660,7 +1660,13 @@
                     const payloadHash = await this.strongHash(normalizedPayload);
                     
                     // GADS Canonical Key Format: dfk:<route>|<kind>|<tag>|sha256:<hex>
-                    const canonicalKey = `dfk:${routeStr}|${kind}|${tag}|sha256:${payloadHash}`;
+                    const canonicalKey = `dfk:${routeStr}|${kind}|${tag}|${payloadHash}`;
+                    
+                    // Development assertion: Verify canonical key format compliance
+                    if (!/^dfk:.*\|sha256:[a-f0-9]{64}$/.test(canonicalKey)) {
+                        logger.e( `DFK-FORMAT-ERROR: Malformed key "${canonicalKey}" - expected sha256:<64-hex> suffix`);
+                        throw new Error(`Invalid DFK key format: ${canonicalKey}`);
+                    }
                     
                     // GADS Fact-level Dedupe Policy: Only drop when ALL four fields match
                     const dedupeKey = `${routeStr}|${kind}|${tag}|${payloadHash}`;
@@ -1725,19 +1731,17 @@
                 return deletionFactTable;
             }
 
-            // Utility: Simple hash function for DFK deduplication (legacy)
-            simpleHash(str) {
-                let hash = 0;
-                if (str.length === 0) return hash;
-                for (let i = 0; i < str.length; i++) {
-                    const char = str.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // Convert to 32bit integer
-                }
-                return Math.abs(hash).toString(16);
-            }
             
             // GADS DFK Helper: Normalize payload for consistent hashing
+            //
+            // Normalization Rules:
+            // 1. Element nodes: Serialize as outerHTML with sorted attributes and normalized whitespace
+            // 2. Text nodes: Trim and collapse whitespace sequences to single spaces
+            // 3. Other nodes: Use textContent only
+            // 4. Attribute ordering: Alphabetical by attribute name for deterministic output
+            // 5. Whitespace normalization: Trim leading/trailing, collapse internal sequences
+            //
+            // This ensures identical payloads produce identical hashes regardless of DOM position
             normalizePayload(element) {
                 if (element.nodeType === Node.ELEMENT_NODE) {
                     // For elements: serialized outerHTML with normalized attribute order
@@ -1771,9 +1775,12 @@
                 const data = encoder.encode(str);
                 const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                 const hashArray = new Uint8Array(hashBuffer);
-                return Array.from(hashArray)
+                const hexHash = Array.from(hashArray)
                     .map(b => b.toString(16).padStart(2, '0'))
                     .join('');
+                
+                // Return canonical format with sha256: prefix
+                return `sha256:${hexHash}`;
             }
 
             // Utility: Clamp value to range for route index safety
