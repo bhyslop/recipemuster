@@ -1216,16 +1216,20 @@
                     const contentMatches = this.validateElementContent(element, operation.newValue);
                     
                     if (contentMatches) {
-                        // Create simple inline deletion span using GADS semantic class
-                        const deletionSpan = document.createElement('span');
-                        deletionSpan.className = 'gad-inline-removal';
-                        deletionSpan.textContent = operation.oldValue;
+                        // Use createDeletionBadge helper for consistent DFK-aware styling
+                        const dfkEntry = {
+                            kind: '#text',
+                            tag: 'span',
+                            textContent: operation.oldValue
+                        };
+                        const dedupeKey = `text-mod-${operation.route.join(',')}-${operation.oldValue}`;
+                        const badgeResult = this.createDeletionBadge(dfkEntry, dedupeKey);
 
                         // Insert before the target element
                         if (element.parentNode) {
-                            element.parentNode.insertBefore(deletionSpan, element);
+                            element.parentNode.insertBefore(badgeResult.element, element);
                         }
-                        logger.d( `Applied inline deletion for: "${operation.oldValue}"`);
+                        logger.d( `Applied deletion badge for: "${operation.oldValue}"`);
                     } else {
                         logger.e( `Content mismatch - expected "${operation.newValue}", found "${element.textContent}"`);
                     }
@@ -1416,9 +1420,12 @@
             }
             
             generateDeletionInlineLegacy(outputDOM, operation) {
-                logger.d( `Generating inline deletion for ${operation.action} at route [${operation.route.join(',')}]`);
+                // DISABLED: Legacy method bypassed - all deletions routed through createDeletionBadge helper
+                logger.d( `Legacy generateDeletionInlineLegacy disabled for ${operation.action} at route [${operation.route.join(',')}]`);
+                return; // No-op - all deletion styling now flows through createDeletionBadge helper
 
-                // Find insertion point in the DOM
+                // REMOVED CODE: Find insertion point in the DOM
+                /*
                 const insertPoint = this.findInlineDeletionInsertionPoint(outputDOM, operation.route);
                 if (!insertPoint) {
                     logger.d( `Could not find insertion point for route [${operation.route.join(',')}]`);
@@ -1464,6 +1471,7 @@
                         logger.d( `Inserted inline deletion: "${deletionElement.textContent}"`);
                     }
                 }
+                */
             }
 
             findInlineDeletionInsertionPoint(outputDOM, route) {
