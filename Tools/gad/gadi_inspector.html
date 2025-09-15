@@ -631,7 +631,7 @@
                     ];
 
                     // Use diff-dom library
-                    const styledDiff = this.styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles);
+                    const styledDiff = await this.styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles);
 
                     this.elements.renderedPane.innerHTML = styledDiff;
 
@@ -673,7 +673,7 @@
                 }
             }
 
-            styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles) {
+            async styleDiff(fromHtml, toHtml, fromCommit, toCommit, sourceFiles) {
                 const startTime = performance.now();
                 logger.d( 'Starting GADS-compliant 8-phase diff processing');
                 logger.d( `Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
@@ -698,7 +698,7 @@
 
                     // Phase 3: Deletion Fact Capture - Generate Deletion Fact Keys (DFK)
                     logger.p(3, 'Deletion Fact Capture: Generating Deletion Fact Keys (DFK)');
-                    const deletionFactTable = this.createDeletionFactTable(immutableFromDOM);
+                    const deletionFactTable = await this.createDeletionFactTable(immutableFromDOM);
                     const phase3Debug = { deletionFactCount: Object.keys(deletionFactTable).length, sampleKeys: Object.keys(deletionFactTable).slice(0, 5) };
                     wsTraceHandler.sendDebugOutput('phase3_dft', JSON.stringify(phase3Debug, null, 2), fromCommit, toCommit, sourceFiles);
                     logger.p(3, `Deletion Fact Capture: Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
@@ -1641,7 +1641,7 @@
             }
 
             // Phase 3: Create Deletion Fact Table (DFK mapping)
-            createDeletionFactTable(immutableFromDOM) {
+            async createDeletionFactTable(immutableFromDOM) {
                 logger.d( 'Creating GADS-compliant 4-field DFK mapping for stable fragment preservation');
                 const deletionFactTable = {};
                 
@@ -1651,7 +1651,7 @@
                 let dedupeDropCount = 0;
                 let collisionCount = 0;
                 
-                const mapElementForDeletion = (element, route) => {
+                const mapElementForDeletion = async (element, route) => {
                     if (!element) return;
                     
                     beforeDedupeCount++;
@@ -1670,9 +1670,9 @@
                                element.nodeType === Node.TEXT_NODE ? '#text' :
                                element.nodeName?.toUpperCase() || '#unknown';
                     
-                    // Field 4: Payload hash (SHA-256 equivalent of normalized payload)
+                    // Field 4: Payload hash (SHA-256 of normalized payload)
                     const normalizedPayload = this.normalizePayload(element);
-                    const payloadHash = this.strongHash(normalizedPayload);
+                    const payloadHash = await this.strongHash(normalizedPayload);
                     
                     // GADS Canonical Key Format: dfk:<route>|<kind>|<tag>|sha256:<hex>
                     const canonicalKey = `dfk:${routeStr}|${kind}|${tag}|sha256:${payloadHash}`;
@@ -1715,13 +1715,13 @@
                     if (element.childNodes) {
                         for (let i = 0; i < element.childNodes.length; i++) {
                             const childRoute = [...route, i];
-                            mapElementForDeletion(element.childNodes[i], childRoute);
+                            await mapElementForDeletion(element.childNodes[i], childRoute);
                         }
                     }
                 };
                 
                 // Start mapping from immutable "from" DOM
-                mapElementForDeletion(immutableFromDOM, []);
+                await mapElementForDeletion(immutableFromDOM, []);
                 
                 // Enhanced DFK fact capture telemetry
                 const factsRecorded = Object.keys(deletionFactTable).length;
@@ -1778,24 +1778,17 @@
                 }
             }
             
-            // GADS DFK Helper: Strong hash function (SHA-256 equivalent)
-            strongHash(str) {
-                // Enhanced hash function providing better collision resistance than simpleHash
-                // This approximates SHA-256 behavior with deterministic output
-                let h1 = 0xdeadbeef;
-                let h2 = 0x41c6ce57;
-                
-                for (let i = 0; i < str.length; i++) {
-                    const ch = str.charCodeAt(i);
-                    h1 = Math.imul(h1 ^ ch, 2654435761);
-                    h2 = Math.imul(h2 ^ ch, 1597334677);
-                }
-                
-                h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-                h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-                
-                const hash = 4294967296 * (2097151 & h2) + (h1 >>> 0);
-                return Math.abs(hash).toString(16).padStart(16, '0');
+            // GADS DFK Helper: SHA-256 hash function (Web Crypto API)
+            async strongHash(str) {
+                // Use Web Crypto API for proper SHA-256 hashing as required by GADS specification
+                // This provides cryptographically strong, deterministic DFK payload hashing
+                const encoder = new TextEncoder();
+                const data = encoder.encode(str);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = new Uint8Array(hashBuffer);
+                return Array.from(hashArray)
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
             }
 
             // Utility: Clamp value to range for route index safety
