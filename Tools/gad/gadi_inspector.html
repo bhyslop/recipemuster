@@ -2162,7 +2162,7 @@
                     operations: preResolutionSnapshot
                 };
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, -4);
-                wsTraceHandler.sendDebugOutput('phase6_routes_resolved', JSON.stringify(routesResolvedPayload, null, 2), fromCommit, toCommit, []);
+                wsTraceHandler.sendDebugOutput('phase6-routes-resolved', JSON.stringify(routesResolvedPayload, null, 2), fromCommit, toCommit, []);
                 
                 // Phase B: Apply annotations using resolved references only (separate output DOM)
                 logger.d( `Applying annotations for ${resolvedOperations.filter(op => op.resolved).length} resolved operations`);
@@ -2180,7 +2180,7 @@
                     skippedOperations: applyResult.skippedOperations,
                     errorOperations: applyResult.errorOperations
                 };
-                wsTraceHandler.sendDebugOutput('phase6_apply_report', JSON.stringify(applyReportPayload, null, 2), fromCommit, toCommit, []);
+                wsTraceHandler.sendDebugOutput('phase6-apply-report', JSON.stringify(applyReportPayload, null, 2), fromCommit, toCommit, []);
                 
                 logger.d( 'Two-phase semantic annotation assembly completed');
                 return {
@@ -2459,7 +2459,7 @@
                     
                     // Send fallback report via WebSocket for factory analysis
                     if (typeof wsTraceHandler !== 'undefined' && wsTraceHandler.sendDebugOutput) {
-                        wsTraceHandler.sendDebugOutput('phase7_fallback_report', JSON.stringify(fallbackReport, null, 2));
+                        wsTraceHandler.sendDebugOutput('phase7-fallback-report', JSON.stringify(fallbackReport, null, 2));
                     }
                     
                     logger.d( `FALLBACK REPORT: Generated detailed report with ${fallbackReport.unresolved_operations.length} unresolved operations`);
