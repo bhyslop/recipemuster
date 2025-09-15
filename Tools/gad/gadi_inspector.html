@@ -1733,7 +1733,20 @@
                 // Start mapping from immutable "from" DOM
                 mapElementForDeletion(immutableFromDOM, []);
                 
-                logger.d( `GADS DFK mapping completed: ${Object.keys(deletionFactTable).length} facts recorded (${beforeDedupeCount} processed, ${dedupeDropCount} deduped, ${collisionCount} collisions resolved)`);
+                // Enhanced DFK fact capture telemetry
+                const factsRecorded = Object.keys(deletionFactTable).length;
+                logger.d( `DFK FACT CAPTURE COMPLETED: ${factsRecorded} canonical facts recorded (${beforeDedupeCount} nodes processed, ${dedupeDropCount} duplicates deduped, ${collisionCount} hash collisions resolved)`);
+                console.log(`[DFK-CAPTURE-TELEMETRY] facts_captured=${factsRecorded}, nodes_processed=${beforeDedupeCount}, duplicates_dropped=${dedupeDropCount}, collisions_resolved=${collisionCount}, deduplication_rate=${((dedupeDropCount / beforeDedupeCount) * 100).toFixed(1)}%`);
+                
+                // Sample DFK keys for validation
+                const sampleKeys = Object.keys(deletionFactTable).slice(0, 3);
+                if (sampleKeys.length > 0) {
+                    logger.d( `DFK FORMAT VALIDATION - Sample keys:`);
+                    sampleKeys.forEach(key => {
+                        logger.d( `  ${key}`);
+                    });
+                }
+                
                 return deletionFactTable;
             }
 
@@ -1971,10 +1984,17 @@
 
             // Phase 4: Enhance operations with DFK
             enhanceOperationsWithDFK(diffOperations, deletionFactTable) {
-                logger.d( `Enhancing ${diffOperations.length} operations with GADS DFK mappings`);
+                logger.d( `DFK ENHANCEMENT: Processing ${diffOperations.length} operations with GADS DFK mappings`);
+                
+                // Enhancement telemetry counters
+                let deletionOpsFound = 0;
+                let dfkEnhancements = 0;
+                let unresolvedOps = 0;
                 
                 for (const op of diffOperations) {
                     if (op.action === 'removeElement' || op.action === 'removeTextElement') {
+                        deletionOpsFound++;
+                        
                         // GADS Primary Match: op.route → DFK.route exact string equality
                         const opRouteStr = op.route.length === 0 ? "root" : op.route.join(',');
                         
@@ -2001,14 +2021,18 @@
                                 tag: matchedEntry.tag,
                                 payloadHash: matchedEntry.payloadHash
                             };
-                            logger.d( `Enhanced operation with GADS DFK: ${matchedDfkKey.substring(0, 50)}...`);
+                            dfkEnhancements++;
+                            logger.d( `DFK-ENHANCED: ${matchedDfkKey.substring(0, 60)}... attached to ${op.action} operation`);
                         } else {
-                            logger.d( `No DFK match found for route: ${opRouteStr}`);
+                            unresolvedOps++;
+                            logger.d( `DFK-UNRESOLVED: No DFK match for route [${opRouteStr}] - operation flagged as unresolved`);
                         }
                     }
                 }
                 
-                logger.d( 'GADS DFK enhancement completed');
+                // Report enhancement metrics
+                logger.d( `DFK ENHANCEMENT COMPLETED: deletion_ops=${deletionOpsFound}, enhanced=${dfkEnhancements}, unresolved=${unresolvedOps}, enhancement_rate=${((dfkEnhancements / deletionOpsFound) * 100).toFixed(1)}%`);
+                console.log(`[DFK-ENHANCEMENT-TELEMETRY] deletion_operations=${deletionOpsFound}, dfk_enhanced=${dfkEnhancements}, unresolved=${unresolvedOps}, enhancement_success_rate=${((dfkEnhancements / deletionOpsFound) * 100).toFixed(1)}%`);
             }
 
             // PRIORITY FIX #1: Drop unresolved ops before apply
@@ -2252,7 +2276,7 @@
 
             // Phase 6: Place Deletion Blocks - SURGICAL REPAIR: Drive from applied ops only
             placeDeletionBlocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors) {
-                logger.d( 'SURGICAL REPAIR: Positioning deletion blocks from Phase-5 applied operations only');
+                logger.d( 'DFK-DRIVEN PLACEMENT: Positioning deletion blocks using DFK mappings');
                 
                 // Clone the assembled DOM to avoid modifying input
                 const deletionPlacedDOM = assembledDOM.cloneNode(true);
@@ -2265,11 +2289,18 @@
                 // Single-insert invariant: dedupe by (route + action)
                 const placedKeys = new Set();
                 
-                // Telemetry counters
+                // Enhanced DFK telemetry counters
                 let createdBadges = 0;
                 let connectedBadges = 0;
+                let dfkMatchesfound = 0;
+                let dfkMismatches = 0;
+                let anchorResolutions = 0;
+                let anchorFailures = 0;
                 
-                logger.d( `Processing ${appliedDeletions.length} applied deletion operations`);
+                // Report DFK table status
+                const dfkCount = Object.keys(deletionFactTable).length;
+                logger.d( `DFK TABLE: ${dfkCount} facts available for placement lookup`);
+                logger.d( `APPLIED DELETIONS: Processing ${appliedDeletions.length} deletion operations`);
                 
                 for (const appliedOp of appliedDeletions) {
                     // Parse route from string format back to array
@@ -2282,25 +2313,32 @@
                         continue;
                     }
                     
-                    // Find DFK entry for content
+                    // Find DFK entry for content using correct property name
                     const routeKey = appliedOp.route;
                     const dfkKey = Object.keys(deletionFactTable).find(key => 
-                        deletionFactTable[key].routeKey === routeKey
+                        deletionFactTable[key].routeStr === routeKey
                     );
                     
                     if (!dfkKey || !deletionFactTable[dfkKey]) {
-                        logger.d( `No DFK entry for route [${routeKey}]`);
+                        dfkMismatches++;
+                        logger.d( `DFK-MISMATCH: No DFK entry for route [${routeKey}] - operation cannot be placed`);
                         continue;
                     }
                     
+                    dfkMatchesfound++;
                     const dfkEntry = deletionFactTable[dfkKey];
+                    logger.d( `DFK-MATCH: Found ${dfkKey.substring(0, 60)}... for route [${routeKey}]`);
                     
                     // Compute anchor using enhanced logic
                     const anchor = this.findStableSemanticAnchor(deletionPlacedDOM, route);
                     if (!anchor) {
-                        logger.d( `No anchor found for route [${routeKey}]`);
+                        anchorFailures++;
+                        logger.d( `ANCHOR-FAIL: No semantic anchor found for route [${routeKey}]`);
                         continue;
                     }
+                    
+                    anchorResolutions++;
+                    logger.d( `ANCHOR-SUCCESS: Resolved semantic anchor for route [${routeKey}]`);
                     
                     // Check if badge already placed at this location (guard)
                     const existingBadge = deletionPlacedDOM.querySelector(`[data-gad-key="${dedupeKey}"]`);
@@ -2321,13 +2359,14 @@
                     }
                 }
                 
-                // Telemetry: assert and report
+                // Enhanced DFK Pipeline Telemetry
                 const mismatch = appliedDeletions.length !== connectedBadges;
-                logger.d( 
-                    `applied_deletions=${appliedDeletions.length}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' MISMATCH!' : ''}`
-                );
+                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
                 
-                // Update status ribbon
+                // Console telemetry for DFK pipeline effectiveness
+                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+                
+                // Update status ribbon with enhanced data
                 this.updateDeletionTelemetry(appliedDeletions.length, createdBadges, connectedBadges, mismatch);
                 
                 return deletionPlacedDOM;
