@@ -2298,6 +2298,8 @@
                 let dfkFallbackAttempts = 0;
                 let dfkFallbackSuccess = 0;
                 let dfkFallbackFailed = 0;
+                let inlineRemovalsCreated = 0;
+                let blockRemovalsCreated = 0;
                 
                 // Report DFK table status
                 const dfkCount = Object.keys(deletionFactTable).length;
@@ -2364,8 +2366,16 @@
                     }
                     
                     // Create deletion badge
-                    const deletionBlock = this.createDeletionBadge(dfkEntry, dedupeKey);
+                    const badgeResult = this.createDeletionBadge(dfkEntry, dedupeKey);
+                    const deletionBlock = badgeResult.element;
                     createdBadges++;
+                    
+                    // Track inline vs block removal creation
+                    if (badgeResult.isInline) {
+                        inlineRemovalsCreated++;
+                    } else {
+                        blockRemovalsCreated++;
+                    }
                     
                     // Smart insertion based on anchor type
                     if (this.insertDeletionBadge(anchor, deletionBlock)) {
@@ -2377,10 +2387,10 @@
                 
                 // Enhanced DFK Pipeline Telemetry
                 const mismatch = appliedDeletions.length !== connectedBadges;
-                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
+                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
                 
                 // Console telemetry for DFK pipeline effectiveness
-                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
                 
                 // Update status ribbon with enhanced data
                 this.updateDeletionTelemetry(appliedDeletions.length, createdBadges, connectedBadges, mismatch);
@@ -2424,7 +2434,22 @@
             // Helper: Create deletion badge with guard attributes
             createDeletionBadge(dfkEntry, dedupeKey) {
                 const deletionBlock = document.createElement('span');
-                deletionBlock.classList.add('gad-block-removal');
+                
+                // Inline tags set for proper semantic styling distinction
+                const inlineTags = new Set([
+                    'A', 'ABBR', 'ACRONYM', 'B', 'BDI', 'BDO', 'BIG', 'BUTTON', 'CITE', 'CODE',
+                    'DFN', 'EM', 'I', 'INPUT', 'KBD', 'LABEL', 'MAP', 'MARK', 'METER', 'NOSCRIPT',
+                    'OBJECT', 'OUTPUT', 'PROGRESS', 'Q', 'RUBY', 'S', 'SAMP', 'SCRIPT', 'SELECT',
+                    'SMALL', 'SPAN', 'STRONG', 'SUB', 'SUP', 'TEXTAREA', 'TIME', 'TT', 'U', 'VAR'
+                ]);
+                
+                // Conditional styling based on DFK metadata (kind and tag)
+                const isInline = dfkEntry.kind === '#text' || inlineTags.has(dfkEntry.tag);
+                if (isInline) {
+                    deletionBlock.classList.add('gad-inline-removal');
+                } else {
+                    deletionBlock.classList.add('gad-block-removal');
+                }
                 
                 // Guard attributes for single-insert invariant
                 deletionBlock.setAttribute('data-gad-placed', '1');
@@ -2438,7 +2463,8 @@
                     : rawContent;
                 deletionBlock.textContent = displayContent;
                 
-                return deletionBlock;
+                // Return both element and type for telemetry tracking
+                return { element: deletionBlock, isInline: isInline };
             }
 
             // Helper: Insert deletion badge based on anchor policy
