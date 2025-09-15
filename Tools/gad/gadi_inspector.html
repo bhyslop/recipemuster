@@ -948,10 +948,15 @@
                 const diffTypes = ['diff-insertion', 'diff-moved', 'diff-deletion-inline', 'diff-modification'];
                 let runCounter = 0;
                 
+                // Initialize coalescing telemetry
+                this.initializeCoalescingTelemetry();
+                
                 for (const diffType of diffTypes) {
                     runCounter += this.wrapAdjacentSameType(dom, diffType, runCounter);
                 }
                 
+                // Report final telemetry
+                this.reportCoalescingTelemetry(runCounter);
                 logger.d( `Created ${runCounter} consolidated diff elements`);
             }
             
@@ -978,9 +983,11 @@
                     if (adjacentRun.length >= 2 && this.canSafelyCoalesce(adjacentRun, className)) {
                         this.replaceRunWithSingleElement(adjacentRun, className);
                         runsCreated++;
-                        logger.d( `Replaced ${adjacentRun.length} adjacent ${className} elements with single consolidated element`);
+                        this.updateCoalescingTelemetry('elements_merged', adjacentRun.length);
+                        logger.d( `COALESCE-SUCCESS: Merged ${adjacentRun.length} adjacent ${className} elements - reason: SAFE_TO_MERGE`);
                     } else if (adjacentRun.length >= 2) {
-                        logger.d( `Skipped coalescing ${adjacentRun.length} ${className} elements - mixed types not coalesceable`);
+                        this.updateCoalescingTelemetry('coalescing_skipped', adjacentRun.length);
+                        logger.d( `COALESCE-SKIP: ${adjacentRun.length} ${className} elements - reason: MIXED_TYPES_OR_UNSAFE`);
                     }
                     
                     i = j;
@@ -991,23 +998,37 @@
             
             canSafelyCoalesce(elements, className) {
                 // GADS Anchor Coalescing Rules - prevent anchor corruption
-                if (elements.length < 2) return false;
+                if (elements.length < 2) {
+                    logger.d( `COALESCE-BLOCK: Insufficient elements (${elements.length}) - reason: MIN_ELEMENTS`);
+                    return false;
+                }
+                
+                // IMMEDIATE ANCHOR BLOCK - Check for ANY anchor elements first
+                for (const element of elements) {
+                    if (element.tagName === 'A') {
+                        logger.d( `COALESCE-BLOCK: Anchor element detected - reason: PRESERVE_LINK_SEMANTICS - elements: ${elements.length}`);
+                        this.updateCoalescingTelemetry('anchor_wrapper_needed', elements.length);
+                        return false;
+                    }
+                }
                 
                 const firstTag = elements[0].tagName;
                 const firstDiffClass = this.extractDiffClass(elements[0], className);
                 
-                // Do-Not-Merge Constraints for Anchors
+                // Do-Not-Merge Constraints for Interactive Elements
                 for (const element of elements) {
-                    // Never merge interactive elements (anchors, buttons, inputs, etc.)
-                    const interactiveTags = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'];
+                    // Never merge interactive elements (buttons, inputs, etc.)
+                    const interactiveTags = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'];
                     if (interactiveTags.includes(element.tagName)) {
-                        logger.d( `Blocked coalescing: ${element.tagName} element must preserve 1:1 click targets`);
+                        logger.d( `COALESCE-BLOCK: Interactive ${element.tagName} element - reason: PRESERVE_INTERACTION_TARGETS`);
+                        this.updateCoalescingTelemetry('interactive_wrapper_needed', elements.length);
                         return false;
                     }
                     
                     // Never merge elements containing interactive children
                     if (element.querySelector('a, button, input, select, textarea')) {
-                        logger.d( `Blocked coalescing: element contains interactive children`);
+                        logger.d( `COALESCE-BLOCK: Contains interactive children - reason: PRESERVE_NESTED_INTERACTIONS`);
+                        this.updateCoalescingTelemetry('nested_interactive_wrapper_needed', elements.length);
                         return false;
                     }
                 }
@@ -1070,26 +1091,39 @@
             replaceRunWithSingleElement(runElements, className) {
                 if (runElements.length < 2) return;
                 
-                // GADS Visual Consolidation Strategy: Use wrapper containers for ALL runs
-                // Never merge elements - always preserve original elements inside wrapper
+                // GADS Visual Consolidation Strategy: WRAPPER-ONLY APPROACH
+                // NEVER merge element contents - only provide visual container
+                // Each child element maintains separate DOM identity and click targets
+                
                 const runContainer = document.createElement('span');
                 runContainer.className = `${className}-coalesced-run`;
                 runContainer.style.display = 'inline';
+                
+                // Verify NO anchors are being processed (should be caught earlier)
+                const hasAnchors = runElements.some(el => el.tagName === 'A');
+                if (hasAnchors) {
+                    logger.e( `COALESCE-ERROR: Anchor elements reached replaceRunWithSingleElement - this should never happen`);
+                    this.updateCoalescingTelemetry('anchor_merge_prevented', runElements.length);
+                    return; // Abort wrapper creation for safety
+                }
                 
                 // Insert container before first element
                 const parent = runElements[0].parentElement;
                 if (parent) {
                     parent.insertBefore(runContainer, runElements[0]);
                     
-                    // Move all elements into container without modifying their structure
+                    // Move all elements into container WITHOUT modifying their internal structure
+                    // Each element retains its exact DOM structure, attributes, and event handlers
                     for (const element of runElements) {
                         if (element.parentElement) {
                             runContainer.appendChild(element);
                         }
                     }
                     
-                    // Add visual styling to container instead of individual elements
+                    // Apply visual styling ONLY to container - never to child elements
                     this.applyCoalescedStyling(runContainer, className);
+                    
+                    logger.d( `WRAPPER-SUCCESS: Created wrapper for ${runElements.length} elements - preserved individual identity`);
                 }
             }
             
@@ -2360,6 +2394,41 @@
                 } else if (statusSection) {
                     // Clear status if no mismatch
                     statusSection.style.display = 'none';
+                }
+            }
+            
+            // Helper: Initialize coalescing telemetry counters
+            initializeCoalescingTelemetry() {
+                this.coalescingTelemetry = {
+                    anchor_wrapper_needed: 0,
+                    interactive_wrapper_needed: 0,
+                    nested_interactive_wrapper_needed: 0,
+                    elements_merged: 0,
+                    coalescing_skipped: 0,
+                    anchor_merge_prevented: 0,
+                    elements_processed: 0
+                };
+            }
+            
+            // Helper: Update coalescing telemetry counters
+            updateCoalescingTelemetry(metric, count = 1) {
+                if (!this.coalescingTelemetry) {
+                    this.initializeCoalescingTelemetry();
+                }
+                this.coalescingTelemetry[metric] += count;
+                this.coalescingTelemetry.elements_processed += count;
+            }
+            
+            // Helper: Report final coalescing telemetry
+            reportCoalescingTelemetry(totalRuns) {
+                if (!this.coalescingTelemetry) return;
+                
+                const t = this.coalescingTelemetry;
+                console.log(`[COALESCING-TELEMETRY] total_runs=${totalRuns}, elements_processed=${t.elements_processed}, elements_merged=${t.elements_merged}, anchor_wrapper_needed=${t.anchor_wrapper_needed}, interactive_wrapper_needed=${t.interactive_wrapper_needed}, nested_interactive_wrapper_needed=${t.nested_interactive_wrapper_needed}, coalescing_skipped=${t.coalescing_skipped}, anchor_merge_prevented=${t.anchor_merge_prevented}`);
+                
+                // Log key metrics for anchor protection
+                if (t.anchor_wrapper_needed > 0 || t.anchor_merge_prevented > 0) {
+                    logger.i(`ANCHOR-PROTECTION: ${t.anchor_wrapper_needed} anchor groups processed with wrapper-only approach, ${t.anchor_merge_prevented} anchor merge attempts prevented`);
                 }
             }
             
