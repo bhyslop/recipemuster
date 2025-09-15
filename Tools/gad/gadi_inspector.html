@@ -2295,6 +2295,9 @@
                 let dfkMismatches = 0;
                 let anchorResolutions = 0;
                 let anchorFailures = 0;
+                let dfkFallbackAttempts = 0;
+                let dfkFallbackSuccess = 0;
+                let dfkFallbackFailed = 0;
                 
                 // Report DFK table status
                 const dfkCount = Object.keys(deletionFactTable).length;
@@ -2320,8 +2323,22 @@
                     
                     if (!dfkKey || !deletionFactTable[dfkKey]) {
                         dfkMismatches++;
-                        logger.d( `DFK-MISMATCH: No DFK entry for route [${routeKey}] - operation cannot be placed`);
-                        continue;
+                        logger.d( `DFK-MISMATCH: No DFK entry for route [${routeKey}] - attempting semantic-anchor fallback`);
+                        
+                        // Semantic-anchor bounded fallback for shifted routes
+                        dfkFallbackAttempts++;
+                        const fallbackDfkKey = this.findDFKWithinAnchor(deletionPlacedDOM, route, appliedOp, deletionFactTable);
+                        
+                        if (fallbackDfkKey && deletionFactTable[fallbackDfkKey]) {
+                            dfkFallbackSuccess++;
+                            logger.d( `DFK-FALLBACK-SUCCESS: Found ${fallbackDfkKey.substring(0, 60)}... via semantic anchor for route [${routeKey}]`);
+                            // Use fallback DFK entry
+                            dfkKey = fallbackDfkKey;
+                        } else {
+                            dfkFallbackFailed++;
+                            logger.d( `DFK-FALLBACK-FAILED: No semantic-bounded match for route [${routeKey}] - operation cannot be placed`);
+                            continue;
+                        }
                     }
                     
                     dfkMatchesfound++;
@@ -2360,13 +2377,46 @@
                 
                 // Enhanced DFK Pipeline Telemetry
                 const mismatch = appliedDeletions.length !== connectedBadges;
-                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
+                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
                 
                 // Console telemetry for DFK pipeline effectiveness
-                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
                 
                 // Update status ribbon with enhanced data
                 this.updateDeletionTelemetry(appliedDeletions.length, createdBadges, connectedBadges, mismatch);
+                
+                // Generate phase6_fallback_report for detailed fallback analysis
+                if (dfkFallbackAttempts > 0) {
+                    const fallbackReport = {
+                        summary: {
+                            total_deletions: appliedDeletions.length,
+                            exact_matches: dfkMatchesfound - dfkFallbackSuccess,
+                            fallback_attempts: dfkFallbackAttempts,
+                            fallback_success: dfkFallbackSuccess,
+                            fallback_failed: dfkFallbackFailed,
+                            success_rate: `${((dfkFallbackSuccess / dfkFallbackAttempts) * 100).toFixed(1)}%`
+                        },
+                        unresolved_operations: appliedDeletions.filter(op => {
+                            const routeKey = op.route;
+                            const dfkKey = Object.keys(deletionFactTable).find(key => 
+                                deletionFactTable[key].routeStr === routeKey
+                            );
+                            return !dfkKey && !placedKeys.has(routeKey + '_' + op.action);
+                        }).map(op => ({
+                            route: op.route,
+                            action: op.action,
+                            kind: op.kind,
+                            tag: op.tag
+                        }))
+                    };
+                    
+                    // Send fallback report via WebSocket for factory analysis
+                    if (typeof wsTraceHandler !== 'undefined' && wsTraceHandler.sendDebugOutput) {
+                        wsTraceHandler.sendDebugOutput('phase6_fallback_report', JSON.stringify(fallbackReport, null, 2));
+                    }
+                    
+                    logger.d( `FALLBACK REPORT: Generated detailed report with ${fallbackReport.unresolved_operations.length} unresolved operations`);
+                }
                 
                 return deletionPlacedDOM;
             }
@@ -2504,6 +2554,84 @@
                 
                 // Fallback to block element
                 return blockAnchor;
+            }
+            
+            // Semantic-anchor bounded DFK fallback for shifted routes
+            findDFKWithinAnchor(toDOM, route, appliedOp, deletionFactTable) {
+                logger.d( `DFK-FALLBACK: Searching for semantic-bounded match for route [${route.join(',')}]`);
+                
+                // Find the semantic anchor that should contain this deletion
+                const anchor = this.findStableSemanticAnchor(toDOM, route);
+                if (!anchor) {
+                    logger.d( `DFK-FALLBACK: No semantic anchor found for route [${route.join(',')}]`);
+                    return null;
+                }
+                
+                logger.d( `DFK-FALLBACK: Using semantic anchor ${anchor.tagName || '#text'} for bounded search`);
+                
+                // Extract matching criteria from the applied operation
+                const targetKind = appliedOp.kind || '#element';
+                const targetTag = appliedOp.tag || 'UNKNOWN';
+                
+                // Search within the anchor's subtree for matching (kind, tag, payloadHash)
+                const candidateKeys = Object.keys(deletionFactTable).filter(dfkKey => {
+                    const dfkEntry = deletionFactTable[dfkKey];
+                    
+                    // Must match kind and tag exactly
+                    if (dfkEntry.kind !== targetKind || dfkEntry.tag !== targetTag) {
+                        return false;
+                    }
+                    
+                    // Verify the DFK route would place element within this anchor's subtree
+                    const dfkRoute = dfkEntry.route;
+                    const dfkAnchor = this.findStableSemanticAnchor(toDOM, dfkRoute);
+                    
+                    // Must resolve to the same semantic anchor (bounded containment)
+                    return dfkAnchor === anchor;
+                });
+                
+                if (candidateKeys.length === 0) {
+                    logger.d( `DFK-FALLBACK: No matching candidates found within semantic anchor`);
+                    return null;
+                }
+                
+                if (candidateKeys.length === 1) {
+                    logger.d( `DFK-FALLBACK: Found unique match within semantic anchor: ${candidateKeys[0].substring(0, 60)}...`);
+                    return candidateKeys[0];
+                }
+                
+                // Multiple candidates - use route proximity heuristic
+                logger.d( `DFK-FALLBACK: Found ${candidateKeys.length} candidates, using route proximity heuristic`);
+                
+                let bestKey = candidateKeys[0];
+                let bestDistance = Infinity;
+                
+                for (const candidateKey of candidateKeys) {
+                    const candidateRoute = deletionFactTable[candidateKey].route;
+                    const distance = this.calculateRouteDistance(route, candidateRoute);
+                    
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestKey = candidateKey;
+                    }
+                }
+                
+                logger.d( `DFK-FALLBACK: Selected best match with distance ${bestDistance}: ${bestKey.substring(0, 60)}...`);
+                return bestKey;
+            }
+            
+            // Helper: Calculate route distance for fallback proximity heuristic
+            calculateRouteDistance(route1, route2) {
+                const maxLength = Math.max(route1.length, route2.length);
+                let distance = Math.abs(route1.length - route2.length);
+                
+                for (let i = 0; i < Math.min(route1.length, route2.length); i++) {
+                    if (route1[i] !== route2[i]) {
+                        distance += Math.abs(route1[i] - route2[i]);
+                    }
+                }
+                
+                return distance;
             }
             
             // REMOVED: placeSingleDeletionBlock - replaced by createDeletionBadge + insertDeletionBadge
