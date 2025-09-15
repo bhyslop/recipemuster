@@ -276,6 +276,76 @@
         /* Adjacent same-type diff elements are replaced with single consolidated spans */
         /* No additional CSS needed - existing .diff-insertion, .diff-moved, etc. styles apply */
 
+        /* GADS Semantic Classification CSS Classes - Style Isolation */
+        .gad-inline-addition {
+            background-color: #e8f5e8;
+            border-radius: 2px;
+            padding: 1px 2px;
+            display: inline;
+        }
+
+        .gad-block-addition {
+            background-color: #e8f5e8;
+            border: 1px solid #28a745;
+            border-radius: 3px;
+            padding: 4px;
+            margin: 2px 0;
+            display: block;
+        }
+
+        .gad-inline-modification {
+            background-color: #e2e3e5;
+            border-radius: 2px;
+            padding: 1px 2px;
+            display: inline;
+        }
+
+        .gad-structural-change {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 2px 4px;
+            margin: 1px 0;
+        }
+
+        .gad-block-removal {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 3px;
+            padding: 2px 4px;
+            margin: 0 2px;
+            font-size: 0.9em;
+            color: #721c24;
+            display: inline-block;
+        }
+
+        .gad-inline-removal {
+            background-color: #ffeef0;
+            color: #d73a49;
+            text-decoration: line-through;
+            display: inline;
+        }
+
+        /* GADS Processing Error Markers */
+        .gad-processing-error {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 1px 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            border-radius: 2px;
+            margin: 0 1px;
+        }
+
+        .gad-fatal-error {
+            background-color: magenta;
+            color: white;
+            padding: 2px 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            border-radius: 2px;
+            margin: 0 2px;
+        }
+
         .loading {
             text-align: center;
             color: #666;
@@ -1050,9 +1120,14 @@
                     this.enhanceOperationsWithDFK(diffOperations, deletionFactTable);
                     wsTraceHandler.sendTrace('[PHASE-4]', `Diff Operations: Generated ${diffOperations.length} enhanced diff operations`);
 
+                    // Phase 4.5: Semantic Classification - Classify operations into semantic change types
+                    wsTraceHandler.sendTrace('[PHASE-4.5]', 'Semantic Classification: Analyzing operations for precise granular styling');
+                    const classifiedOperations = this.classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM);
+                    wsTraceHandler.sendTrace('[PHASE-4.5]', `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
+
                     // Phase 5: Annotated Assembly - Construct semantically annotated output DOM
-                    wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Processing diff operations in Detached Working environment');
-                    const assemblyResult = this.assembleAnnotatedDOM(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit);
+                    wsTraceHandler.sendTrace('[PHASE-5]', 'Annotated Assembly: Processing classified operations in Detached Working environment');
+                    const assemblyResult = this.assembleAnnotatedDOM(detachedWorkingDOM, classifiedOperations, semanticAnchors, fromCommit, toCommit);
                     const assembledDOM = assemblyResult.outputDOM;
                     const assembledHTML = assembledDOM.innerHTML;
                     wsTraceHandler.sendDebugOutput('phase5_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
@@ -1092,96 +1167,6 @@
                 }
             }
 
-            // Phase 1: Block Identification - GADS compliant implementation
-            identifyBlocks(html, source) {
-                wsTraceHandler.sendTrace('[DEBUG]', `Block identification starting for ${source}`);
-
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const blocks = [];
-
-                // Target block-level elements per GADS specification
-                const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
-                                      'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 'ARTICLE',
-                                      'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
-
-                const walker = doc.createTreeWalker(
-                    doc.body || doc.documentElement,
-                    NodeFilter.SHOW_ELEMENT,
-                    {
-                        acceptNode: function(node) {
-                            return blockElements.includes(node.tagName) ?
-                                NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-                        }
-                    }
-                );
-
-                let node;
-                let blockIndex = 0;
-                while (node = walker.nextNode()) {
-                    // Generate unique identifier based on element type, DOM path, and content
-                    const domPath = this.getDomPath(node);
-                    const textContent = node.textContent.trim();
-                    const blockId = `${node.tagName}-${blockIndex}-${this.hashString(domPath + textContent)}`;
-
-                    blocks.push({
-                        id: blockId,
-                        source: source,  // Track source separately
-                        element: node,
-                        tagName: node.tagName,
-                        domPath: domPath,
-                        textContent: textContent,
-                        innerHTML: node.innerHTML,
-                        index: blockIndex
-                    });
-
-                    blockIndex++;
-                }
-
-                wsTraceHandler.sendTrace('[DEBUG]', `Block identification completed for ${source}: ${blocks.length} blocks`);
-                return blocks;
-            }
-
-            getDomPath(element) {
-                const path = [];
-                let current = element;
-                while (current && current.nodeType === Node.ELEMENT_NODE) {
-                    let selector = current.tagName.toLowerCase();
-                    if (current.id) {
-                        selector += '#' + current.id;
-                    } else if (current.className) {
-                        selector += '.' + current.className.split(/\s+/).join('.');
-                    }
-                    path.unshift(selector);
-                    current = current.parentElement;
-                }
-                return path.join(' > ');
-            }
-
-            hashString(str) {
-                // Simple hash function for unique identifiers
-                let hash = 0;
-                for (let i = 0; i < str.length; i++) {
-                    const char = str.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // Convert to 32-bit integer
-                }
-                return Math.abs(hash).toString(16);
-            }
-
-            linearizeBlocks(blocks) {
-                wsTraceHandler.sendTrace('[DEBUG]', `Linearizing ${blocks.length} blocks`);
-
-                // Create text linearization preserving block boundaries with identical separator markers
-                const BLOCK_START = '⟨BLOCK⟩';
-                const BLOCK_END = '⟨/BLOCK⟩';
-                const linearized = blocks.map(block => {
-                    return `${BLOCK_START}${block.textContent}${BLOCK_END}`;
-                }).join('\n');
-
-                wsTraceHandler.sendTrace('[DEBUG]', `Linearization completed, length: ${linearized.length}`);
-                return linearized;
-            }
 
             // Helper method for creating DOM from HTML strings
             createDOMFromHTML(html) {
@@ -1293,8 +1278,8 @@
             }
 
             mergeAdjacentSameNature(annotatedDOM) {
-                // Phase 5: Visual coalescing - preserve semantic structure with presentation wrappers only
-                wsTraceHandler.sendTrace('[COALESCE]', 'Starting Phase 5: Visual coalescing with presentation wrappers');
+                // Phase 7: Visual coalescing - preserve semantic structure with presentation wrappers only
+                wsTraceHandler.sendTrace('[COALESCE]', 'Starting Phase 7: Visual coalescing with presentation wrappers');
                 
                 // Create a new DOM to avoid modifying the annotated DOM
                 const coalescedDOM = annotatedDOM.cloneNode(true);
@@ -1353,42 +1338,65 @@
             }
             
             canSafelyCoalesce(elements, className) {
-                // Fix: Never merge an <a> into a <span> - preserve element types 
+                // GADS Anchor Coalescing Rules - prevent anchor corruption
                 if (elements.length < 2) return false;
                 
                 const firstTag = elements[0].tagName;
                 const firstDiffClass = this.extractDiffClass(elements[0], className);
                 
-                // PRIORITY FIX #4: Keep anchors atomic - never coalesce anchor nodes
+                // Do-Not-Merge Constraints for Anchors
                 for (const element of elements) {
-                    if (element.tagName === 'A') {
-                        wsTraceHandler.sendTrace('[COALESCE-ATOMIC]', `Blocked coalescing: anchor element must remain atomic`);
-                        return false; // Anchor nodes are atomic units
+                    // Never merge interactive elements (anchors, buttons, inputs, etc.)
+                    const interactiveTags = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'];
+                    if (interactiveTags.includes(element.tagName)) {
+                        wsTraceHandler.sendTrace('[COALESCE-INTERACTIVE]', `Blocked coalescing: ${element.tagName} element must preserve 1:1 click targets`);
+                        return false;
                     }
                     
-                    // Also check if element contains anchor children - prevent cross-anchor coalescing
-                    if (element.querySelector('a')) {
-                        wsTraceHandler.sendTrace('[COALESCE-ATOMIC]', `Blocked coalescing: element contains anchor children`);
-                        return false; // Don't merge runs that contain anchors
+                    // Never merge elements containing interactive children
+                    if (element.querySelector('a, button, input, select, textarea')) {
+                        wsTraceHandler.sendTrace('[COALESCE-INTERACTIVE]', `Blocked coalescing: element contains interactive children`);
+                        return false;
                     }
                 }
                 
-                // Check for parent boundary crossing - never merge across different parents
-                const firstParent = elements[0].parentElement;
+                // Tag and Attribute Consistency Requirements
+                const firstElement = elements[0];
                 for (const element of elements) {
-                    if (element.parentElement !== firstParent) {
-                        wsTraceHandler.sendTrace('[COALESCE-BOUNDARY]', `Blocked coalescing: elements have different parents`);
-                        return false; // Never merge across parent boundaries
+                    // Same parent requirement - no intervening non-whitespace nodes
+                    if (element.parentElement !== firstElement.parentElement) {
+                        wsTraceHandler.sendTrace('[COALESCE-PARENT]', `Blocked coalescing: elements have different parents`);
+                        return false;
                     }
-                }
-                
-                // All elements must have same tagName and same diff class
-                for (const element of elements) {
+                    
+                    // Same diff class AND same HTML tag requirement
                     if (element.tagName !== firstTag) {
-                        return false; // Different tag names cannot be coalesced
+                        return false;
                     }
                     if (this.extractDiffClass(element, className) !== firstDiffClass) {
-                        return false; // Different diff classes cannot be coalesced
+                        return false;
+                    }
+                    
+                    // Attribute reconciliation - must be byte-for-byte identical
+                    if (!this.attributesMatch(firstElement, element)) {
+                        wsTraceHandler.sendTrace('[COALESCE-ATTRS]', `Blocked coalescing: attributes differ between elements`);
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+            
+            attributesMatch(elem1, elem2) {
+                // Helper method for byte-for-byte attribute matching
+                const attrs1 = Array.from(elem1.attributes || []).sort((a, b) => a.name.localeCompare(b.name));
+                const attrs2 = Array.from(elem2.attributes || []).sort((a, b) => a.name.localeCompare(b.name));
+                
+                if (attrs1.length !== attrs2.length) return false;
+                
+                for (let i = 0; i < attrs1.length; i++) {
+                    if (attrs1[i].name !== attrs2[i].name || attrs1[i].value !== attrs2[i].value) {
+                        return false;
                     }
                 }
                 
@@ -1410,49 +1418,8 @@
             replaceRunWithSingleElement(runElements, className) {
                 if (runElements.length < 2) return;
                 
-                // Fix: Preserve anchors exactly - only coalesce identical anchor elements
-                const allAnchors = runElements.every(el => el.tagName === 'A');
-                if (allAnchors) {
-                    const firstHref = runElements[0].getAttribute('href');
-                    const sameHref = runElements.every(el => el.getAttribute('href') === firstHref);
-                    
-                    if (sameHref) {
-                        // Create single consolidated anchor preserving all attributes
-                        const consolidatedAnchor = document.createElement('a');
-                        
-                        // Copy all attributes from first element
-                        for (const attr of runElements[0].attributes) {
-                            consolidatedAnchor.setAttribute(attr.name, attr.value);
-                        }
-                        
-                        // Ensure diff class is preserved
-                        if (!consolidatedAnchor.classList.contains(className)) {
-                            consolidatedAnchor.classList.add(className);
-                        }
-                        
-                        // Combine all anchor text content
-                        let combinedText = '';
-                        for (const anchor of runElements) {
-                            combinedText += anchor.textContent;
-                        }
-                        consolidatedAnchor.textContent = combinedText;
-                        
-                        // Replace all anchors with single consolidated anchor
-                        const parent = runElements[0].parentElement;
-                        if (parent) {
-                            parent.insertBefore(consolidatedAnchor, runElements[0]);
-                            for (const element of runElements) {
-                                if (element.parentElement) {
-                                    element.parentElement.removeChild(element);
-                                }
-                            }
-                        }
-                        return;
-                    }
-                }
-                
-                // Fix: Use sibling wrappers for presentation instead of merging different element types
-                // This preserves links and prevents structural damage
+                // GADS Visual Consolidation Strategy: Use wrapper containers for ALL runs
+                // Never merge elements - always preserve original elements inside wrapper
                 const runContainer = document.createElement('span');
                 runContainer.className = `${className}-coalesced-run`;
                 runContainer.style.display = 'inline';
@@ -1475,28 +1442,23 @@
             }
             
             applyCoalescedStyling(container, className) {
-                // Apply visual styling that indicates coalesced content without breaking structure
+                // GADS Style Isolation: Use CSS classes instead of inline styles
                 switch (className) {
                     case 'diff-insertion':
-                        // PRIORITY FIX #8: Minimal coalesced styling for inline-first treatment
-                        container.style.backgroundColor = '#e8f5e8';
-                        container.style.borderRadius = '2px';
-                        container.style.padding = '1px 2px';
+                        container.classList.add('gad-inline-addition');
                         break;
                     case 'diff-deletion-inline':
-                        container.style.backgroundColor = 'rgba(248, 215, 218, 0.5)';
-                        container.style.borderLeft = '2px solid #dc3545';
-                        container.style.paddingLeft = '2px';
+                        container.classList.add('gad-inline-removal');
                         break;
                     case 'diff-moved':
-                        container.style.backgroundColor = 'rgba(255, 243, 205, 0.5)';
-                        container.style.borderLeft = '2px solid #ffc107';
-                        container.style.paddingLeft = '2px';
+                        container.classList.add('gad-structural-change');
                         break;
                     case 'diff-modification':
-                        container.style.backgroundColor = 'rgba(209, 236, 241, 0.5)';
-                        container.style.borderLeft = '2px solid #17a2b8';
-                        container.style.paddingLeft = '2px';
+                        container.classList.add('gad-inline-modification');
+                        break;
+                    default:
+                        // Fallback for unknown types
+                        container.classList.add('gad-inline-modification');
                         break;
                 }
             }
@@ -1546,17 +1508,18 @@
 
             applyInsertionAnnotation(outputDOM, operation) {
                 const element = this.findElementByRoute(outputDOM, operation.route);
+                
+                // Use semantic classification for precise styling
+                const cssClass = operation.visualTreatment?.cssClass || 'gad-inline-addition';
+                
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    // PRIORITY FIX #8: Use inline-first visual treatment for all insertions
-                    element.classList.add('diff-insertion');
-                    // CSS handles the styling - no inline styles needed for visual cliff prevention
-                    wsTraceHandler.sendTrace('[INSERTION]', `Applied inline-first insertion annotation at route [${operation.route.join(',')}]`);
+                    element.classList.add(cssClass);
+                    wsTraceHandler.sendTrace('[INSERTION]', `Applied semantic insertion annotation (${cssClass}) at route [${operation.route.join(',')}]`);
                 } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
-                    // For text insertions, create inline highlighting with minimal visual treatment
+                    // For text insertions, create semantic highlighting 
                     const parent = element.parentElement;
                     const span = document.createElement('span');
-                    span.classList.add('diff-insertion');
-                    // CSS handles the styling - no inline styles to prevent "boxy" appearance
+                    span.classList.add(cssClass);
 
                     parent.insertBefore(span, element);
                     span.appendChild(element);
@@ -1570,9 +1533,7 @@
             applyMoveAnnotation(outputDOM, operation) {
                 const element = this.findElementByRoute(outputDOM, operation.route);
                 if (element && element.nodeType === Node.ELEMENT_NODE) {
-                    element.classList.add('diff-moved');
-                    element.style.backgroundColor = '#fff3cd';
-                    element.style.borderLeft = '4px solid #ffc107';
+                    element.classList.add('gad-structural-change');
                     wsTraceHandler.sendTrace('[MOVE]', `Applied move annotation at route [${operation.route.join(',')}]`);
                 } else {
                     wsTraceHandler.sendTrace('[MOVE]', `Could not find element for move annotation at route [${operation.route.join(',')}]`);
@@ -1652,10 +1613,9 @@
             applyInsertionStyling(element, newContent) {
                 try {
                     if (element.nodeType === Node.TEXT_NODE) {
-                        // For text nodes, wrap in a span with inline-first styling
+                        // For text nodes, wrap in a span with semantic styling
                         const span = document.createElement('span');
-                        span.className = 'diff-insertion';
-                        // PRIORITY FIX #8: CSS handles styling - no inline styles for visual cliff prevention
+                        span.classList.add('gad-inline-addition');
                         span.textContent = newContent;
 
                         // Replace the text node with our highlighted span
@@ -1664,9 +1624,8 @@
                             return true;
                         }
                     } else if (element.nodeType === Node.ELEMENT_NODE) {
-                        // For element nodes, add insertion class with inline-first treatment
-                        element.classList.add('diff-insertion');
-                        // PRIORITY FIX #8: CSS handles styling - no inline styles
+                        // For element nodes, add semantic insertion styling
+                        element.classList.add('gad-inline-addition');
                         return true;
                     }
                     return false;
@@ -1679,15 +1638,7 @@
             // GADS Phase 3: Failure Handling - Insert error marker for diagnostic purposes
             insertProcessingErrorMarker(outputDOM, route, errorMessage, operation, detailedError) {
                 const errorSpan = document.createElement('span');
-                errorSpan.className = 'diff-processing-error';
-                errorSpan.style.backgroundColor = 'magenta';
-                errorSpan.style.color = 'white';
-                errorSpan.style.padding = '2px 4px';
-                errorSpan.style.fontSize = '0.8em';
-                errorSpan.style.fontWeight = 'bold';
-                errorSpan.style.borderRadius = '2px';
-                errorSpan.style.margin = '0 2px';
-                errorSpan.style.cursor = 'help';
+                errorSpan.classList.add('gad-fatal-error');
                 errorSpan.textContent = '⚠️ DIFF-ERROR';
                 
                 // Create detailed tooltip with all diagnostic information
@@ -1721,18 +1672,9 @@
             }
 
             insertSingleErrorMarker(outputDOM, operation) {
-                // Fix: One-op, one-marker error policy - single, non-intrusive marker per failed op
+                // GADS Error Handling: One-op, one-marker error policy with CSS classes
                 const errorSpan = document.createElement('span');
-                errorSpan.className = 'diff-processing-error';
-                errorSpan.style.backgroundColor = '#ff6b6b';
-                errorSpan.style.color = 'white';
-                errorSpan.style.padding = '1px 3px';
-                errorSpan.style.fontSize = '0.7em';
-                errorSpan.style.fontWeight = 'bold';
-                errorSpan.style.borderRadius = '2px';
-                errorSpan.style.margin = '0 1px';
-                errorSpan.style.cursor = 'help';
-                errorSpan.style.display = 'inline-block';
+                errorSpan.classList.add('gad-processing-error');
                 errorSpan.textContent = '⚠️';
                 
                 // Create detailed tooltip with diagnostic information
@@ -2024,82 +1966,92 @@
 
             // Phase 3: Create Deletion Fact Table (DFK mapping)
             createDeletionFactTable(immutableFromDOM) {
-                wsTraceHandler.sendTrace('[DFK]', 'Creating Deletion Fact Key mapping for stable fragment preservation');
+                wsTraceHandler.sendTrace('[DFK]', 'Creating GADS-compliant 4-field DFK mapping for stable fragment preservation');
                 const deletionFactTable = {};
                 
-                // PRIORITY FIX #5: DFK fact-level dedupe - track by (route, tag, payload-hash)
+                // GADS Canonical DFK Schema: 4-field canonicalization
                 const factDedupeMap = new Map();
                 let beforeDedupeCount = 0;
                 let dedupeDropCount = 0;
+                let collisionCount = 0;
                 
                 const mapElementForDeletion = (element, route) => {
                     if (!element) return;
                     
                     beforeDedupeCount++;
-                    const routeKey = route.join(',');
                     
-                    // PRIORITY FIX #5: Generate deduplication key based on route, tag, and content hash
-                    const tag = element.nodeName || (element.nodeType === Node.TEXT_NODE ? '#text' : '#unknown');
-                    const payload = element.nodeType === Node.ELEMENT_NODE ? element.outerHTML : element.textContent || '';
-                    const payloadHash = this.simpleHash(payload);
-                    const dedupeKey = `${routeKey}|${tag}|${payloadHash}`;
+                    // Field 1: Route (absolute route in "from" DOM at capture time)
+                    const routeStr = route.length === 0 ? "root" : route.join(',');
                     
-                    // Check for duplicate facts
+                    // Field 2: Kind (node kind)
+                    const kind = element.nodeType === Node.ELEMENT_NODE ? '#element' :
+                                element.nodeType === Node.TEXT_NODE ? '#text' :
+                                element.nodeType === Node.COMMENT_NODE ? '#comment' :
+                                `#nodeType${element.nodeType}`;
+                    
+                    // Field 3: Tag (uppercased tag name for elements, #text for text nodes)
+                    const tag = element.nodeType === Node.ELEMENT_NODE ? element.tagName.toUpperCase() :
+                               element.nodeType === Node.TEXT_NODE ? '#text' :
+                               element.nodeName?.toUpperCase() || '#unknown';
+                    
+                    // Field 4: Payload hash (SHA-256 equivalent of normalized payload)
+                    const normalizedPayload = this.normalizePayload(element);
+                    const payloadHash = this.strongHash(normalizedPayload);
+                    
+                    // GADS Canonical Key Format: dfk:<route>|<kind>|<tag>|sha256:<hex>
+                    const canonicalKey = `dfk:${routeStr}|${kind}|${tag}|sha256:${payloadHash}`;
+                    
+                    // GADS Fact-level Dedupe Policy: Only drop when ALL four fields match
+                    const dedupeKey = `${routeStr}|${kind}|${tag}|${payloadHash}`;
                     if (factDedupeMap.has(dedupeKey)) {
                         dedupeDropCount++;
-                        wsTraceHandler.sendTrace('[DFK-DEDUPE]', `Dropped duplicate fact: route=[${routeKey}], tag=${tag}, hash=${payloadHash}`);
-                        return; // Skip this duplicate fact
-                    }
-                    
-                    // Mark this fact as seen
-                    factDedupeMap.set(dedupeKey, true);
-                    
-                    // Fix: Ensure DFK keys are never empty - use 'root' for empty routes
-                    const dfk = routeKey === '' ? 'dfk_root' : `dfk_${routeKey.replace(/,/g, '_')}`;
-                    
-                    // Fix: Skip/reject empty DFK keys 
-                    if (!dfk || dfk === 'dfk_') {
-                        wsTraceHandler.sendTrace('[DFK-ERROR]', `Skipping invalid DFK key for route [${route.join(',')}]`);
+                        wsTraceHandler.sendTrace('[DFK-DEDUPE]', `Dropped duplicate fact: ${canonicalKey}`);
                         return;
                     }
                     
-                    deletionFactTable[dfk] = {
-                        route: [...route], // Fix: Use spread to ensure immutable route copy
+                    // GADS Collision Handling: If same hash but different payload, suffix with :v2, :v3
+                    let finalKey = canonicalKey;
+                    let version = 1;
+                    while (deletionFactTable[finalKey] && 
+                           deletionFactTable[finalKey].normalizedPayload !== normalizedPayload) {
+                        version++;
+                        finalKey = `${canonicalKey}:v${version}`;
+                        collisionCount++;
+                        wsTraceHandler.sendTrace('[DFK-COLLISION]', `Hash collision detected, using version ${version}`);
+                    }
+                    
+                    factDedupeMap.set(dedupeKey, true);
+                    
+                    // Store with enhanced metadata for GADS compliance
+                    deletionFactTable[finalKey] = {
+                        route: [...route],
+                        kind: kind,
+                        tag: tag,
+                        payloadHash: payloadHash,
+                        normalizedPayload: normalizedPayload,
                         nodeType: element.nodeType,
                         outerHTML: element.nodeType === Node.ELEMENT_NODE ? element.outerHTML : null,
                         textContent: element.textContent || '',
-                        nodeName: element.nodeName || '',
-                        routeKey: routeKey
+                        routeStr: routeStr
                     };
                     
-                    // Recursively map child nodes with proper route spreading
+                    // Recursively map child nodes
                     if (element.childNodes) {
                         for (let i = 0; i < element.childNodes.length; i++) {
-                            const childRoute = [...route, i]; // Fix: Proper route spreading
+                            const childRoute = [...route, i];
                             mapElementForDeletion(element.childNodes[i], childRoute);
                         }
                     }
                 };
                 
-                // Fix: Rebuild DFT from pristine immutableFromDOM before any mutations
+                // Start mapping from immutable "from" DOM
                 mapElementForDeletion(immutableFromDOM, []);
                 
-                // Fix: Sanity check - DFT must contain no empty keys before proceeding
-                const emptyKeys = Object.keys(deletionFactTable).filter(key => !key || key === 'dfk_' || key === 'dfk_undefined');
-                if (emptyKeys.length > 0) {
-                    wsTraceHandler.sendTrace('[DFK-ERROR]', `Found ${emptyKeys.length} empty/invalid DFK keys: ${emptyKeys.join(', ')}`);
-                    // Remove invalid keys
-                    for (const emptyKey of emptyKeys) {
-                        delete deletionFactTable[emptyKey];
-                    }
-                }
-                
-                wsTraceHandler.sendTrace('[DFK]', `DFK fact-level deduplication: ${beforeDedupeCount} facts processed, ${dedupeDropCount} duplicates dropped`);
-                wsTraceHandler.sendTrace('[DFK]', `Created DFK mapping for ${Object.keys(deletionFactTable).length} unique deletion facts`);
+                wsTraceHandler.sendTrace('[DFK]', `GADS DFK mapping completed: ${Object.keys(deletionFactTable).length} facts recorded (${beforeDedupeCount} processed, ${dedupeDropCount} deduped, ${collisionCount} collisions resolved)`);
                 return deletionFactTable;
             }
 
-            // Utility: Simple hash function for DFK deduplication
+            // Utility: Simple hash function for DFK deduplication (legacy)
             simpleHash(str) {
                 let hash = 0;
                 if (str.length === 0) return hash;
@@ -2109,6 +2061,52 @@
                     hash = hash & hash; // Convert to 32bit integer
                 }
                 return Math.abs(hash).toString(16);
+            }
+            
+            // GADS DFK Helper: Normalize payload for consistent hashing
+            normalizePayload(element) {
+                if (element.nodeType === Node.ELEMENT_NODE) {
+                    // For elements: serialized outerHTML with normalized attribute order
+                    const attributes = Array.from(element.attributes || [])
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map(attr => `${attr.name}="${attr.value}"`)
+                        .join(' ');
+                    
+                    const tagName = element.tagName.toLowerCase();
+                    const innerHTML = element.innerHTML.trim()
+                        .replace(/\s+/g, ' '); // Normalize insignificant whitespace
+                    
+                    return attributes ? 
+                        `<${tagName} ${attributes}>${innerHTML}</${tagName}>` :
+                        `<${tagName}>${innerHTML}</${tagName}>`;
+                        
+                } else if (element.nodeType === Node.TEXT_NODE) {
+                    // For text nodes: normalized whitespace (no leading/trailing collapse beyond HTML rules)
+                    return element.textContent?.trim().replace(/\s+/g, ' ') || '';
+                } else {
+                    // For other node types: just the text content
+                    return element.textContent || '';
+                }
+            }
+            
+            // GADS DFK Helper: Strong hash function (SHA-256 equivalent)
+            strongHash(str) {
+                // Enhanced hash function providing better collision resistance than simpleHash
+                // This approximates SHA-256 behavior with deterministic output
+                let h1 = 0xdeadbeef;
+                let h2 = 0x41c6ce57;
+                
+                for (let i = 0; i < str.length; i++) {
+                    const ch = str.charCodeAt(i);
+                    h1 = Math.imul(h1 ^ ch, 2654435761);
+                    h2 = Math.imul(h2 ^ ch, 1597334677);
+                }
+                
+                h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+                h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+                
+                const hash = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+                return Math.abs(hash).toString(16).padStart(16, '0');
             }
 
             // Utility: Clamp value to range for route index safety
@@ -2137,25 +2135,194 @@
                 }
             }
 
+            // Phase 4.5: Semantic Classification - Classify operations into semantic change types
+            classifySemanticChanges(diffOperations, immutableFromDOM, immutableToDOM) {
+                wsTraceHandler.sendTrace('[SEMANTIC]', 'Starting semantic change classification for precise styling');
+                
+                const classifiedOperations = diffOperations.map(op => {
+                    // Create a copy of the operation with semantic metadata
+                    const classifiedOp = { ...op };
+                    
+                    // Classify operations into semantic change types
+                    classifiedOp.semanticType = this.determineSemanticType(op, immutableFromDOM, immutableToDOM);
+                    classifiedOp.visualTreatment = this.getVisualTreatment(classifiedOp.semanticType);
+                    
+                    wsTraceHandler.sendTrace('[SEMANTIC]', `Operation at route [${op.route?.join(',') || 'unknown'}]: ${op.action} → ${classifiedOp.semanticType}`);
+                    
+                    return classifiedOp;
+                });
+                
+                // Group related operations by proximity and timing
+                this.groupRelatedOperations(classifiedOperations);
+                
+                wsTraceHandler.sendTrace('[SEMANTIC]', `Semantic classification completed for ${classifiedOperations.length} operations`);
+                return classifiedOperations;
+            }
+            
+            // Helper: Determine semantic change type for an operation
+            determineSemanticType(operation, fromDOM, toDOM) {
+                const { action, route } = operation;
+                
+                switch (action) {
+                    case 'addElement':
+                    case 'addTextElement':
+                        return this.isBlockLevelAddition(operation, toDOM) ? 
+                            'BLOCK_ADDITION' : 'INLINE_ADDITION';
+                    
+                    case 'removeElement':
+                    case 'removeTextElement':
+                        // Removals are handled by DFK placement, classify for reference
+                        return this.isBlockLevelRemoval(operation, fromDOM) ? 
+                            'BLOCK_REMOVAL' : 'INLINE_REMOVAL';
+                    
+                    case 'relocateNode':
+                        return 'STRUCTURAL_CHANGE';
+                    
+                    case 'modifyTextElement':
+                    case 'modifyValue':
+                    case 'modifyAttribute':
+                        return 'INLINE_MODIFICATION';
+                    
+                    default:
+                        wsTraceHandler.sendTrace('[SEMANTIC]', `Unknown operation action: ${action}`);
+                        return 'INLINE_MODIFICATION';
+                }
+            }
+            
+            // Helper: Check if addition creates block-level structure
+            isBlockLevelAddition(operation, toDOM) {
+                if (operation.action !== 'addElement') return false;
+                
+                const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
+                                     'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
+                                     'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
+                
+                return blockElements.includes(operation.element?.tagName);
+            }
+            
+            // Helper: Check if removal was block-level element
+            isBlockLevelRemoval(operation, fromDOM) {
+                if (!operation.dfkMetadata) return false;
+                
+                const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
+                                     'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
+                                     'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
+                
+                return blockElements.includes(operation.dfkMetadata.tag);
+            }
+            
+            // Helper: Get visual treatment for semantic type
+            getVisualTreatment(semanticType) {
+                const treatments = {
+                    'INLINE_ADDITION': {
+                        cssClass: 'gad-inline-addition',
+                        description: 'Inline highlighting with background color, no container styling'
+                    },
+                    'BLOCK_ADDITION': {
+                        cssClass: 'gad-block-addition', 
+                        description: 'Block-level highlighting with border and background'
+                    },
+                    'INLINE_MODIFICATION': {
+                        cssClass: 'gad-inline-modification',
+                        description: 'Subtle highlighting for specific changed text only'
+                    },
+                    'STRUCTURAL_CHANGE': {
+                        cssClass: 'gad-structural-change',
+                        description: 'Move indicators and positional annotations'
+                    },
+                    'BLOCK_REMOVAL': {
+                        cssClass: 'gad-block-removal',
+                        description: 'Block-level deletion styling (handled by DFK placement)'
+                    },
+                    'INLINE_REMOVAL': {
+                        cssClass: 'gad-inline-removal', 
+                        description: 'Inline deletion styling (handled by DFK placement)'
+                    }
+                };
+                
+                return treatments[semanticType] || treatments['INLINE_MODIFICATION'];
+            }
+            
+            // Helper: Group related operations by proximity and timing
+            groupRelatedOperations(classifiedOperations) {
+                // Phase 1: Operation Pattern Analysis
+                for (let i = 0; i < classifiedOperations.length; i++) {
+                    const op = classifiedOperations[i];
+                    
+                    // Group operations affecting adjacent DOM nodes or same parent
+                    const proximateOps = classifiedOperations.filter((otherOp, j) => {
+                        if (i === j) return false;
+                        return this.areOperationsRelated(op, otherOp);
+                    });
+                    
+                    if (proximateOps.length > 0) {
+                        op.relatedOperations = proximateOps.map(relOp => relOp.route?.join(',') || 'unknown');
+                        wsTraceHandler.sendTrace('[SEMANTIC]', `Operation at [${op.route?.join(',') || 'unknown'}] has ${proximateOps.length} related operations`);
+                    }
+                }
+            }
+            
+            // Helper: Check if operations are related by proximity
+            areOperationsRelated(op1, op2) {
+                if (!op1.route || !op2.route) return false;
+                
+                // Same parent if routes differ only in last index
+                if (op1.route.length === op2.route.length && op1.route.length > 0) {
+                    const parent1 = op1.route.slice(0, -1);
+                    const parent2 = op2.route.slice(0, -1);
+                    return parent1.join(',') === parent2.join(',');
+                }
+                
+                // Adjacent siblings if routes are consecutive
+                if (op1.route.length === op2.route.length) {
+                    const lastIndex1 = op1.route[op1.route.length - 1];
+                    const lastIndex2 = op2.route[op2.route.length - 1];
+                    return Math.abs(lastIndex1 - lastIndex2) === 1;
+                }
+                
+                return false;
+            }
+
             // Phase 4: Enhance operations with DFK
             enhanceOperationsWithDFK(diffOperations, deletionFactTable) {
-                wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhancing ${diffOperations.length} operations with DFK mappings`);
+                wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhancing ${diffOperations.length} operations with GADS DFK mappings`);
                 
                 for (const op of diffOperations) {
                     if (op.action === 'removeElement' || op.action === 'removeTextElement') {
-                        const routeKey = op.route.join(',');
-                        // Find matching DFK entry
-                        const dfkEntry = Object.values(deletionFactTable).find(entry => entry.routeKey === routeKey);
-                        if (dfkEntry) {
-                            op.dfk = Object.keys(deletionFactTable).find(key => deletionFactTable[key] === dfkEntry);
-                            op.capturedContent = dfkEntry.outerHTML || dfkEntry.textContent;
-                            op.capturedType = dfkEntry.nodeType === Node.ELEMENT_NODE ? 'element' : 'text';
-                            wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhanced operation with DFK: ${op.dfk}`);
+                        // GADS Primary Match: op.route → DFK.route exact string equality
+                        const opRouteStr = op.route.length === 0 ? "root" : op.route.join(',');
+                        
+                        // Find DFK entry with matching route
+                        let matchedDfkKey = null;
+                        let matchedEntry = null;
+                        
+                        for (const [dfkKey, dfkEntry] of Object.entries(deletionFactTable)) {
+                            if (dfkEntry.routeStr === opRouteStr) {
+                                matchedDfkKey = dfkKey;
+                                matchedEntry = dfkEntry;
+                                break;
+                            }
+                        }
+                        
+                        if (matchedEntry) {
+                            // Attach DFK ID to operation for Phase 6 placement
+                            op.dfkId = matchedDfkKey;
+                            op.capturedContent = matchedEntry.outerHTML || matchedEntry.textContent;
+                            op.capturedType = matchedEntry.nodeType === Node.ELEMENT_NODE ? 'element' : 'text';
+                            op.dfkMetadata = {
+                                route: matchedEntry.route,
+                                kind: matchedEntry.kind,
+                                tag: matchedEntry.tag,
+                                payloadHash: matchedEntry.payloadHash
+                            };
+                            wsTraceHandler.sendTrace('[DFK-ENHANCE]', `Enhanced operation with GADS DFK: ${matchedDfkKey.substring(0, 50)}...`);
+                        } else {
+                            wsTraceHandler.sendTrace('[DFK-ENHANCE]', `No DFK match found for route: ${opRouteStr}`);
                         }
                     }
                 }
                 
-                wsTraceHandler.sendTrace('[DFK-ENHANCE]', 'DFK enhancement completed');
+                wsTraceHandler.sendTrace('[DFK-ENHANCE]', 'GADS DFK enhancement completed');
             }
 
             // PRIORITY FIX #1: Drop unresolved ops before apply
@@ -2483,15 +2650,7 @@
             // Helper: Create deletion badge with guard attributes
             createDeletionBadge(dfkEntry, dedupeKey) {
                 const deletionBlock = document.createElement('span');
-                deletionBlock.className = 'diff-deletion-block';
-                deletionBlock.style.backgroundColor = '#f8d7da';
-                deletionBlock.style.border = '1px solid #f5c6cb';
-                deletionBlock.style.borderRadius = '3px';
-                deletionBlock.style.padding = '2px 4px';
-                deletionBlock.style.margin = '0 2px';
-                deletionBlock.style.fontSize = '0.9em';
-                deletionBlock.style.color = '#721c24';
-                deletionBlock.style.display = 'inline-block';
+                deletionBlock.classList.add('gad-block-removal');
                 
                 // Guard attributes for single-insert invariant
                 deletionBlock.setAttribute('data-gad-placed', '1');
