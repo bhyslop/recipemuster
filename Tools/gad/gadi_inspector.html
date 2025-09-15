@@ -2312,6 +2312,9 @@
                 let anchorFailures = 0;
                 let dfkFallbackAttempts = 0;
                 let dfkFallbackSuccess = 0;
+                let exactHashMatches = 0;
+                let tieBrokenByRoute = 0;
+                let unplacedNoHash = 0;
                 let dfkFallbackFailed = 0;
                 let inlineRemovalsCreated = 0;
                 let blockRemovalsCreated = 0;
@@ -2342,18 +2345,33 @@
                         dfkMismatches++;
                         logger.d( `DFK-MISMATCH: No DFK entry for route [${routeKey}] - attempting semantic-anchor fallback`);
                         
-                        // Semantic-anchor bounded fallback for shifted routes
+                        // Semantic-anchor bounded fallback for shifted routes with strict payload identity matching
                         dfkFallbackAttempts++;
-                        const fallbackDfkKey = this.findDFKWithinAnchor(deletionPlacedDOM, route, appliedOp, deletionFactTable);
+                        const fallbackResult = await this.findDFKWithinAnchor(deletionPlacedDOM, route, appliedOp, deletionFactTable);
                         
-                        if (fallbackDfkKey && deletionFactTable[fallbackDfkKey]) {
+                        if (fallbackResult && fallbackResult.type === 'exact_match') {
                             dfkFallbackSuccess++;
-                            logger.d( `DFK-FALLBACK-SUCCESS: Found ${fallbackDfkKey.substring(0, 60)}... via semantic anchor for route [${routeKey}]`);
-                            // Use fallback DFK entry
-                            dfkKey = fallbackDfkKey;
+                            exactHashMatches++;
+                            logger.d( `DFK-FALLBACK-SUCCESS: Exact hash match ${fallbackResult.dfkKey.substring(0, 60)}... for route [${routeKey}]`);
+                            dfkKey = fallbackResult.dfkKey;
+                        } else if (fallbackResult && fallbackResult.type === 'tie_broken') {
+                            dfkFallbackSuccess++;
+                            tieBrokenByRoute++;
+                            logger.d( `DFK-FALLBACK-SUCCESS: Tie-broken by route distance ${fallbackResult.distance} for route [${routeKey}]`);
+                            dfkKey = fallbackResult.dfkKey;
+                        } else if (fallbackResult && fallbackResult.type === 'unplaced') {
+                            unplacedNoHash++;
+                            logger.d( `DFK-FALLBACK-UNPLACED: No payload hash match for route [${routeKey}] - creating unplaced marker`);
+                            
+                            // Create unplaced deletion badge at anchor root
+                            if (this.createUnplacedDeletionBadge(appliedOp, fallbackResult.anchor)) {
+                                createdBadges++;
+                                logger.d( `Created unplaced deletion badge for route [${routeKey}]`);
+                            }
+                            continue;
                         } else {
                             dfkFallbackFailed++;
-                            logger.d( `DFK-FALLBACK-FAILED: No semantic-bounded match for route [${routeKey}] - operation cannot be placed`);
+                            logger.d( `DFK-FALLBACK-FAILED: No semantic anchor found for route [${routeKey}] - operation cannot be placed`);
                             continue;
                         }
                     }
@@ -2402,10 +2420,10 @@
                 
                 // Enhanced DFK Pipeline Telemetry
                 const mismatch = appliedDeletions.length !== connectedBadges;
-                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
+                logger.d( `DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, tie_broken_by_route=${tieBrokenByRoute}, unplaced_no_hash=${unplacedNoHash}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
                 
-                // Console telemetry for DFK pipeline effectiveness
-                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+                // Console telemetry for DFK pipeline effectiveness with strict payload identity tracking
+                console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, tie_broken_by_route=${tieBrokenByRoute}, unplaced_no_hash=${unplacedNoHash}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
                 
                 // Update status ribbon with enhanced data
                 this.updateDeletionTelemetry(appliedDeletions.length, createdBadges, connectedBadges, mismatch);
@@ -2506,6 +2524,36 @@
                 return false;
             }
 
+            // Helper: Create unplaced deletion badge for content without payload hash matches
+            // Policy: Unplaced deletions get neutral badge at anchor root with clear visual marker
+            createUnplacedDeletionBadge(appliedOp, anchor) {
+                const unplacedBadge = document.createElement('span');
+                unplacedBadge.className = 'gad-unplaced-deletion';
+                unplacedBadge.style.cssText = 'background: #ffdddd; border: 1px dashed #cc0000; padding: 2px 4px; margin: 0 2px; font-style: italic;';
+                
+                // Use captured content if available, otherwise indicate unknown deletion
+                const content = appliedOp.capturedContent || '[Unknown deletion]';
+                const displayContent = content.length > 40 
+                    ? content.substring(0, 40) + '\u2026'
+                    : content;
+                    
+                unplacedBadge.textContent = `⚠ ${displayContent}`;
+                unplacedBadge.title = `Unplaced deletion: No payload hash match found. Original: ${content}`;
+                
+                // Insert at anchor root to maintain document flow
+                try {
+                    if (anchor.firstChild) {
+                        anchor.insertBefore(unplacedBadge, anchor.firstChild);
+                    } else {
+                        anchor.appendChild(unplacedBadge);
+                    }
+                    return true;
+                } catch (error) {
+                    logger.e( `Failed to insert unplaced deletion badge: ${error.message}`);
+                    return false;
+                }
+            }
+
             // Helper: Update deletion telemetry in status ribbon and console
             updateDeletionTelemetry(appliedDeletions, createdBadges, connectedBadges, hasMismatch) {
                 // Console telemetry
@@ -2597,8 +2645,22 @@
                 return blockAnchor;
             }
             
-            // Semantic-anchor bounded DFK fallback for shifted routes
-            findDFKWithinAnchor(toDOM, route, appliedOp, deletionFactTable) {
+            // Semantic-anchor bounded DFK fallback for shifted routes with strict payload identity matching
+            //
+            // Policy: Prevent deletion mis-association by requiring payload hash equality before proximity-based selection
+            // 
+            // Matching Strategy:
+            // 1. Filter by kind and tag (existing behavior)
+            // 2. STRICT PAYLOAD IDENTITY: Require exact payload hash match
+            // 3. Use route distance only as tiebreaker among hash-matched candidates
+            // 4. Create unplaced deletion marker when no hash match exists
+            //
+            // Unplaced Deletion Policy:
+            // - When no payload hash matches exist within semantic anchor
+            // - Place neutral warning badge at anchor root with clear visual marker
+            // - Prevents cross-anchor fallback and content mis-association
+            // - Maintains document integrity while indicating missing content
+            async findDFKWithinAnchor(toDOM, route, appliedOp, deletionFactTable) {
                 logger.d( `DFK-FALLBACK: Searching for semantic-bounded match for route [${route.join(',')}]`);
                 
                 // Find the semantic anchor that should contain this deletion
@@ -2614,6 +2676,26 @@
                 const targetKind = appliedOp.kind || '#element';
                 const targetTag = appliedOp.tag || 'UNKNOWN';
                 
+                // Compute target payload hash for strict identity matching
+                let targetPayloadHash = null;
+                if (appliedOp.capturedContent) {
+                    // Create a temporary element to normalize the captured content
+                    if (appliedOp.capturedType === 'element') {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = appliedOp.capturedContent;
+                        const tempElement = tempDiv.firstElementChild;
+                        if (tempElement) {
+                            const normalizedPayload = this.normalizePayload(tempElement);
+                            targetPayloadHash = await this.strongHash(normalizedPayload);
+                        }
+                    } else {
+                        // Text content - create text node for normalization
+                        const tempTextNode = document.createTextNode(appliedOp.capturedContent);
+                        const normalizedPayload = this.normalizePayload(tempTextNode);
+                        targetPayloadHash = await this.strongHash(normalizedPayload);
+                    }
+                }
+                
                 // Search within the anchor's subtree for matching (kind, tag, payloadHash)
                 const candidateKeys = Object.keys(deletionFactTable).filter(dfkKey => {
                     const dfkEntry = deletionFactTable[dfkKey];
@@ -2621,6 +2703,14 @@
                     // Must match kind and tag exactly
                     if (dfkEntry.kind !== targetKind || dfkEntry.tag !== targetTag) {
                         return false;
+                    }
+                    
+                    // STRICT PAYLOAD IDENTITY: Must match payload hash exactly
+                    if (targetPayloadHash) {
+                        const dfkPayloadHash = dfkKey.split('|').pop(); // Extract hash from dfk key
+                        if (dfkPayloadHash !== targetPayloadHash) {
+                            return false;
+                        }
                     }
                     
                     // Verify the DFK route would place element within this anchor's subtree
@@ -2632,17 +2722,17 @@
                 });
                 
                 if (candidateKeys.length === 0) {
-                    logger.d( `DFK-FALLBACK: No matching candidates found within semantic anchor`);
-                    return null;
+                    logger.d( `DFK-FALLBACK: No payload hash matches found within semantic anchor`);
+                    return { type: 'unplaced', reason: 'no_hash_match', anchor: anchor };
                 }
                 
                 if (candidateKeys.length === 1) {
-                    logger.d( `DFK-FALLBACK: Found unique match within semantic anchor: ${candidateKeys[0].substring(0, 60)}...`);
-                    return candidateKeys[0];
+                    logger.d( `DFK-FALLBACK: Found exact hash match within semantic anchor: ${candidateKeys[0].substring(0, 60)}...`);
+                    return { type: 'exact_match', dfkKey: candidateKeys[0] };
                 }
                 
-                // Multiple candidates - use route proximity heuristic
-                logger.d( `DFK-FALLBACK: Found ${candidateKeys.length} candidates, using route proximity heuristic`);
+                // Multiple hash-matched candidates - use route proximity as tiebreaker
+                logger.d( `DFK-FALLBACK: Found ${candidateKeys.length} hash-matched candidates, using route proximity tiebreaker`);
                 
                 let bestKey = candidateKeys[0];
                 let bestDistance = Infinity;
@@ -2657,8 +2747,8 @@
                     }
                 }
                 
-                logger.d( `DFK-FALLBACK: Selected best match with distance ${bestDistance}: ${bestKey.substring(0, 60)}...`);
-                return bestKey;
+                logger.d( `DFK-FALLBACK: Tie-broken by route distance ${bestDistance}: ${bestKey.substring(0, 60)}...`);
+                return { type: 'tie_broken', dfkKey: bestKey, distance: bestDistance };
             }
             
             // Helper: Calculate route distance for fallback proximity heuristic
