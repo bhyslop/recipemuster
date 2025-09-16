@@ -888,11 +888,17 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     gadib_logger_d(`APPLIED DELETIONS: Processing ${appliedDeletions.length} deletion operations`);
     
     for (const appliedOp of appliedDeletions) {
-        // Parse route from string format back to array
-        const route = appliedOp.route.split(',').map(Number);
+        // GADS-compliant dual route format handling
+        // Route can be either Array<number> or string per GADS DFT spec line 637
+        const route = Array.isArray(appliedOp.route) 
+            ? appliedOp.route 
+            : appliedOp.route.split(',').map(Number);
+        const routeStr = Array.isArray(appliedOp.route)
+            ? appliedOp.route.join(',')
+            : appliedOp.route;
         
         // Step 4: Exact match first - Match appliedOp.route to DFT by routeStr and (kind, tag, payloadHash)
-        const routeKey = appliedOp.route;
+        const routeKey = routeStr;
         let dfkKey = null;
         let dfkEntry = null;
         
