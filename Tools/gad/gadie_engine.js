@@ -1259,10 +1259,10 @@ function gadie_create_wrapper_container(adjacentRun, className) {
     wrapper.setAttribute('data-wrapped-count', adjacentRun.length.toString());
     wrapper.setAttribute('data-strategy', 'wrapper-preservation');
     
-    // Remove the diff class from individual elements and preserve them as-is
+    // Preserve individual elements with their styling classes intact
     adjacentRun.forEach((element, index) => {
-        // Remove the individual styling class since wrapper provides consolidated styling
-        element.classList.remove(className);
+        // Keep the original styling class on individual elements for proper rendering
+        // The wrapper provides visual consolidation, individual classes provide semantic styling
         
         // Clone and preserve element structure completely  
         const preservedElement = element.cloneNode(true);
