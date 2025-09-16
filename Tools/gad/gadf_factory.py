@@ -543,21 +543,17 @@ class GADFactory:
                 (r"/", InspectorHandler),
                 (r"/ws", WebSocketHandler),
                 (r"/manifest.json", ManifestHandler),
-                (r"/gadic_cascade.css", StaticFileHandler, {
-                    "path": str(Path(__file__).parent),
-                    "default_filename": "gadic_cascade.css"
+                (r"/(gadic_cascade\.css)", StaticFileHandler, {
+                    "path": str(Path(__file__).parent)
                 }),
-                (r"/gadib_base.js", StaticFileHandler, {
-                    "path": str(Path(__file__).parent),
-                    "default_filename": "gadib_base.js"
+                (r"/(gadib_base\.js)", StaticFileHandler, {
+                    "path": str(Path(__file__).parent)
                 }),
-                (r"/gadie_engine.js", StaticFileHandler, {
-                    "path": str(Path(__file__).parent),
-                    "default_filename": "gadie_engine.js"
+                (r"/(gadie_engine\.js)", StaticFileHandler, {
+                    "path": str(Path(__file__).parent)
                 }),
-                (r"/gadiu_user.js", StaticFileHandler, {
-                    "path": str(Path(__file__).parent),
-                    "default_filename": "gadiu_user.js"
+                (r"/(gadiu_user\.js)", StaticFileHandler, {
+                    "path": str(Path(__file__).parent)
                 }),
                 (r"/output/(.*)", StaticFileHandler, {
                     "path": str(self.output_dir),
