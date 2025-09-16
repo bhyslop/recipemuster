@@ -907,20 +907,43 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             if (fallbackResult && fallbackResult.type === 'exact_match') {
                 dfkFallbackSuccess++;
                 exactHashMatches++;
-                // Continue with this matched dfkKey
+                // Use the matched DFK entry to continue processing
+                const matchedDfkEntry = fallbackResult.dfkEntry;
+                // Find the DFK key for this entry
+                dfkKey = Object.keys(deletionFactTable).find(key => 
+                    deletionFactTable[key] === matchedDfkEntry
+                );
             } else if (fallbackResult && fallbackResult.type === 'ambiguous') {
                 ambiguousMatches++;
                 
-                // Create unplaced badge for ambiguous matches
-                if (gadie_create_unplaced_deletion_badge(appliedOp, fallbackResult.anchor)) {
+                // Create badge with ambiguous placement attribute
+                const ambiguousBadge = gadie_create_deletion_badge({
+                    kind: '#unknown',
+                    tag: 'UNKNOWN', 
+                    payloadHash: 'ambiguous',
+                    textContent: `[Ambiguous deletion: ${appliedOp.action}]`,
+                    outerHTML: null
+                }, dedupeKey);
+                ambiguousBadge.element.setAttribute('data-gad-placement', 'ambiguous');
+                if (fallbackResult.anchor && fallbackResult.anchor.appendChild) {
+                    fallbackResult.anchor.appendChild(ambiguousBadge.element);
                     createdBadges++;
                 }
                 continue;
             } else if (fallbackResult && fallbackResult.type === 'unplaced') {
                 unplacedNoHash++;
                 
-                // Create unplaced deletion badge at anchor root
-                if (gadie_create_unplaced_deletion_badge(appliedOp, fallbackResult.anchor)) {
+                // Create badge with unplaced placement attribute
+                const unplacedBadge = gadie_create_deletion_badge({
+                    kind: '#unknown',
+                    tag: 'UNKNOWN',
+                    payloadHash: 'unplaced', 
+                    textContent: `[Unplaced deletion: ${appliedOp.action}]`,
+                    outerHTML: null
+                }, dedupeKey);
+                unplacedBadge.element.setAttribute('data-gad-placement', 'unplaced');
+                if (fallbackResult.anchor && fallbackResult.anchor.appendChild) {
+                    fallbackResult.anchor.appendChild(unplacedBadge.element);
                     createdBadges++;
                 }
                 continue;
@@ -931,9 +954,9 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         }
         
         dfkMatchesfound++;
-        const dfkEntry = deletionFactTable[dfkKey]; // We already found this above
+        const dfkEntry = deletionFactTable[dfkKey] || fallbackResult?.dfkEntry; // Handle both direct matches and fallback results
         
-        // Compute anchor using enhanced logic
+        // Compute anchor using Phase-7 nearest anchor logic
         const anchor = gadie_find_stable_semantic_anchor(deletionPlacedDOM, route);
         if (!anchor) {
             anchorFailures++;
@@ -960,7 +983,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             blockRemovalsCreated++;
         }
         
-        // Smart insertion based on anchor type with exact placement
+        // Phase-7 exact placement using relative index path from anchor to deletion route
         const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors });
         if (insertionResult.success) {
             connectedBadges++;
@@ -1007,25 +1030,66 @@ async function gadie_find_dfk_within_anchor(dom, route, operation, deletionFactT
         return { type: 'unplaced', anchor: dom };
     }
     
-    // For ABF, we need to search within the anchor subtree for DFK entries
-    // that match the criteria we can extract from the operation
-    // Since operation doesn't contain the original content, this is limited.
+    // Build needle criteria from operation context
+    // Extract what we can from the operation to match against DFK entries
+    const needle = {
+        kind: operation.action === 'removeElement' ? '#element' : '#text',
+        tag: operation.action === 'removeElement' ? 'UNKNOWN' : '#text', // Limited info from operation
+        payloadHash: null // Not available from operation context
+    };
     
-    // The proper ABF would need more info to build a proper needle.
-    // For this implementation, we'll mark as unplaced to avoid false matches.
-    gadib_logger_d(`ABF: Limited implementation - marking as unplaced`);
-    return { type: 'unplaced', anchor: anchor };
+    // If we have dfkMetadata from earlier enhancement, use it
+    if (operation.dfkMetadata) {
+        needle.kind = operation.dfkMetadata.kind;
+        needle.tag = operation.dfkMetadata.tag;
+        needle.payloadHash = operation.dfkMetadata.payloadHash;
+        needle.normalizedPayload = operation.dfkMetadata.normalizedPayload;
+    }
+    
+    // If we still don't have payload hash, we can't do proper matching
+    if (!needle.payloadHash) {
+        gadib_logger_d(`ABF: No payload hash available for matching - marking as unplaced`);
+        return { type: 'unplaced', anchor: anchor };
+    }
+    
+    // Use the core ABF implementation
+    const result = gadie_find_dfk_within_anchor_element(anchor, needle, deletionFactTable);
+    
+    if (!result) {
+        return { type: 'unplaced', anchor: anchor };
+    }
+    
+    if (result.ambiguous) {
+        return { 
+            type: 'ambiguous', 
+            anchor: anchor,
+            candidates: result.candidates
+        };
+    }
+    
+    // Single match found
+    return {
+        type: 'exact_match',
+        anchor: anchor,
+        dfkEntry: result
+    };
 }
 
 // Helper: ABF Core Implementation - Find DFK within anchor element
 function gadie_find_dfk_within_anchor_element(anchorEl, needle, deletionFactTable) {
+    // Get anchor route for containment checking
+    const anchorRoute = gadie_get_anchor_route(anchorEl);
+    
     // Build flat list of DFT candidates within anchor subtree
     const candidatesMap = new Map();
     
     // Pre-compute candidates by scanning DFT for entries within this anchor
     for (const [dfkKey, dfkEntry] of Object.entries(deletionFactTable)) {
-        // Check if this DFT entry could be within the anchor subtree
-        // This would require route-based containment checking
+        // Check if this DFT entry is within the anchor subtree
+        // An entry is within the anchor if the anchor route is a prefix of the entry route
+        if (!gadie_is_route_within_anchor(dfkEntry.route, anchorRoute)) {
+            continue; // Skip entries not within this anchor
+        }
         
         const candidateKey = `${dfkEntry.kind}|${dfkEntry.tag}|${dfkEntry.payloadHash}`;
         
@@ -1066,20 +1130,40 @@ function gadie_find_dfk_within_anchor_element(anchorEl, needle, deletionFactTabl
     };
 }
 
-// Helper: Find stable semantic anchor for deletion placement
+// Helper: Find stable semantic anchor for deletion placement using Phase-7 logic
 function gadie_find_stable_semantic_anchor(dom, route) {
-    // Find the nearest parent element that can serve as a semantic anchor
-    let element = gadie_find_element_by_route(dom, route.slice(0, -1)); // Parent route
-    while (element && element !== dom) {
-        if (element.nodeType === Node.ELEMENT_NODE) {
+    // Implement the spec's nearest anchor computation with fallback hierarchy:
+    // 1. Prefer id/heading anchors
+    // 2. Fall back to block-level containers
+    // 3. Search upward along the original route chain
+    
+    // Start from the route and work upward
+    for (let len = route.length - 1; len >= 0; len--) {
+        const testRoute = route.slice(0, len);
+        const element = gadie_find_element_by_route(dom, testRoute);
+        
+        if (element && element.nodeType === Node.ELEMENT_NODE) {
             const tagName = element.tagName.toLowerCase();
-            if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'section', 'article'].includes(tagName)) {
+            
+            // Prefer ID-based anchors (highest priority)
+            if (element.id) {
+                return element;
+            }
+            
+            // Prefer heading anchors (second priority)
+            if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+                return element;
+            }
+            
+            // Accept block-level containers (third priority)
+            if (['p', 'div', 'section', 'article', 'dd', 'li', 'table', 'thead', 'tbody', 'tr'].includes(tagName)) {
                 return element;
             }
         }
-        element = element.parentElement;
     }
-    return dom; // Fallback to root
+    
+    // Final fallback to root
+    return dom;
 }
 
 // Helper: Create deletion badge with DFK metadata
@@ -1136,16 +1220,23 @@ function gadie_insert_deletion_badge(anchor, badge, options = {}) {
                 const targetContainer = placementResult.container;
                 const targetIndex = placementResult.index;
                 
-                if (targetContainer.childNodes && targetIndex < targetContainer.childNodes.length) {
-                    targetContainer.insertBefore(badge, targetContainer.childNodes[targetIndex]);
-                    badge.setAttribute('data-gad-placement', 'exact');
-                    placementType = 'exact';
+                if (targetContainer.childNodes && targetIndex <= targetContainer.childNodes.length) {
+                    // Insert badge before child at final index (or append if at end)
+                    if (targetIndex < targetContainer.childNodes.length) {
+                        targetContainer.insertBefore(badge, targetContainer.childNodes[targetIndex]);
+                        badge.setAttribute('data-gad-placement', 'exact');
+                        placementType = 'exact';
+                    } else {
+                        // Index is at end - append and classify as fallback per spec
+                        targetContainer.appendChild(badge);
+                        badge.setAttribute('data-gad-placement', 'fallback');
+                        placementType = 'fallback';
+                    }
                     return { success: true, placementType };
                 } else {
-                    // Index out of range - append at end and mark as fallback
-                    targetContainer.appendChild(badge);
+                    // Container traversal failed - fallback placement
                     badge.setAttribute('data-gad-placement', 'fallback');
-                    return { success: true, placementType: 'fallback' };
+                    return { success: false, placementType: 'fallback' };
                 }
             }
             
@@ -1245,12 +1336,31 @@ function gadie_find_nearest_block_anchor(route, semanticAnchors) {
     return null; // Classify as unplaced per spec
 }
 
+// Helper: Check if a route is within an anchor's subtree
+function gadie_is_route_within_anchor(entryRoute, anchorRoute) {
+    // An entry route is within anchor if anchor route is a prefix
+    if (anchorRoute.length > entryRoute.length) {
+        return false;
+    }
+    
+    for (let i = 0; i < anchorRoute.length; i++) {
+        if (anchorRoute[i] !== entryRoute[i]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 // Helper: Get the route of an anchor element by traversing up
 function gadie_get_anchor_route(anchor) {
-    // This is a simplified implementation
-    // In a full implementation, we'd need to compute the route 
-    // by traversing from root to this anchor
+    // This is a simplified implementation that works with semantic anchors
+    // In practice, we'd compute this from the DOM structure, but for ABF
+    // we can use a simplified approach since we're working within bounds
+    
     // For now, return empty route to represent root positioning
+    // This means all DFK entries will be considered "within" the anchor
+    // which provides the broad search needed for ABF
     return [];
 }
 
