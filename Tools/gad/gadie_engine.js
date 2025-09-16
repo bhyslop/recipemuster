@@ -1023,9 +1023,10 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     element.setAttribute('data-dfk-kind', dfkEntry.kind);
     element.setAttribute('data-dfk-tag', dfkEntry.tag);
     
-    // Set content based on what was captured
+    // Set content based on what was captured  
     if (dfkEntry.outerHTML) {
-        element.innerHTML = `<del>${gadie_escape_html(dfkEntry.outerHTML)}</del>`;
+        // Don't wrap in <del> - CSS provides strikethrough styling
+        element.innerHTML = gadie_escape_html(dfkEntry.outerHTML);
     } else {
         element.textContent = dfkEntry.textContent || '[Deleted content]';
     }
