@@ -492,7 +492,9 @@ class gadiu_inspector {
             const styledDiff = await gadie_diff(fromHtml, toHtml, {
                 fromCommit: fromCommit,
                 toCommit: toCommit,
-                sourceFiles: sourceFiles
+                sourceFiles: sourceFiles,
+                debugArtifacts: true,
+                verbosity: 'debug'
             });
 
             this.elements.renderedPane.innerHTML = styledDiff;
