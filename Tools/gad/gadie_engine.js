@@ -1252,20 +1252,29 @@ function gadie_create_wrapper_container(adjacentRun, className) {
     const parent = adjacentRun[0].parentElement;
     const firstElement = adjacentRun[0];
     
-    // Create neutral wrapper container as per GADS:779-781
+    // Create visual container box around consecutive elements
     const wrapper = document.createElement('span');
-    wrapper.classList.add('diff-insertion-run'); // Neutral container class
+    wrapper.classList.add('gads-consolidated-run'); // Visual container class
+    wrapper.classList.add(className + '-container'); // Specific styling class
     wrapper.setAttribute('data-wrapped-class', className);
     wrapper.setAttribute('data-wrapped-count', adjacentRun.length.toString());
-    wrapper.setAttribute('data-strategy', 'wrapper-preservation');
+    wrapper.setAttribute('data-strategy', 'visual-consolidation');
     
-    // Preserve individual elements with their styling classes intact
+    // Add inline styling for immediate visual consolidation
+    wrapper.style.cssText = `
+        display: inline-block;
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+        padding: 2px 4px;
+        margin: 1px;
+    `;
+    
+    // Move individual elements into wrapper, removing their individual styling
     adjacentRun.forEach((element, index) => {
-        // Keep the original styling class on individual elements for proper rendering
-        // The wrapper provides visual consolidation, individual classes provide semantic styling
-        
-        // Clone and preserve element structure completely  
+        // Clone element and remove individual diff styling since wrapper provides consolidated styling
         const preservedElement = element.cloneNode(true);
+        preservedElement.classList.remove(className); // Remove individual green box styling
         wrapper.appendChild(preservedElement);
         
         // Add whitespace between elements (preserve original spacing)
