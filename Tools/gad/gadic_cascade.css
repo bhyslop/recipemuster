@@ -361,19 +361,35 @@ body {
 
 /* GADS-compliant CSS classes (with 'gads-' prefix) */
 .gads-addition-inline {
-    background-color: #e8f5e8;
+    background-color: #d4edda;
+    border: 1px solid #28a745;
     border-radius: 2px;
     padding: 1px 2px;
     display: inline;
+    color: #155724;
+}
+
+/* Override for block-level elements that got inline classification */
+div.gads-addition-inline, 
+dl.gads-addition-inline,
+ul.gads-addition-inline,
+ol.gads-addition-inline,
+p.gads-addition-inline,
+section.gads-addition-inline {
+    display: block;
+    padding: 4px;
+    margin: 2px 0;
+    border-radius: 3px;
 }
 
 .gads-addition-block {
-    background-color: #e8f5e8;
+    background-color: #d4edda;
     border: 1px solid #28a745;
     border-radius: 3px;
     padding: 4px;
     margin: 2px 0;
     display: block;
+    color: #155724;
 }
 
 .gads-modification-inline {
@@ -392,18 +408,22 @@ body {
 
 .gads-deletion-block {
     background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #dc3545;
     border-radius: 3px;
     padding: 2px 4px;
     margin: 0 2px;
     font-size: 0.9em;
-    color: #721c24;
+    color: #dc3545;
+    text-decoration: line-through;
     display: inline-block;
 }
 
 .gads-deletion-inline {
-    background-color: #ffeef0;
-    color: #d73a49;
+    background-color: #f8d7da;
+    border: 1px solid #dc3545;
+    border-radius: 2px;
+    padding: 1px 2px;
+    color: #dc3545;
     text-decoration: line-through;
     display: inline;
 }

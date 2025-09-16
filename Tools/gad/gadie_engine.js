@@ -472,7 +472,8 @@ function gadie_is_block_level_addition(operation, toDOM) {
     
     const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
                          'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
-                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
+                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN',
+                         'DL', 'DT', 'DD', 'UL', 'OL'];
     
     // Primary check: Element tag type
     const elementTag = operation.element?.tagName;
@@ -512,7 +513,8 @@ function gadie_is_block_level_removal(operation, fromDOM) {
     
     const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
                          'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
-                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN'];
+                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN',
+                         'DL', 'DT', 'DD', 'UL', 'OL'];
     
     return blockElements.includes(operation.dfkMetadata.tag);
 }
