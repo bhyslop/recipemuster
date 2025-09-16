@@ -2,17 +2,26 @@
 // Extracted from monolithic gadi_inspector.html for modular architecture
 // Contains: All 9-phase diff methods, DOM helpers, DFK operations, coalescing logic
 
-// Rollout flag for anchor fallback placement improvements
-const gadie_enable_anchor_fallback = true;
+// Verbosity gating helper - hardcoded to 'low' for now
+function gadie_should_log(level, opts) {
+    const verbosity = opts.verbosity || 'low';  // hardcoded to 'low' 
+    if (verbosity === 'low') return level === 'error';
+    if (verbosity === 'warn') return ['error', 'warn'].includes(level);
+    if (verbosity === 'debug') return true;
+    return false;
+}
 
 // Main diff processing function - exposed as the primary interface
 async function gadie_diff(fromHtml, toHtml, opts = {}) {
     const { fromCommit, toCommit, sourceFiles } = opts;
+    const enableAnchorFallback = opts.enableAnchorFallback !== undefined ? opts.enableAnchorFallback : true;
     
     const startTime = performance.now();
-    gadib_logger_d('Starting GADS-compliant 9-phase diff processing');
-    gadib_logger_d(`Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
-    gadib_logger_d(`diff-dom type at diff time: ${typeof window.diffDom}`);
+    if (gadie_should_log('debug', opts)) {
+        gadib_logger_d('Starting GADS-compliant 9-phase diff processing');
+        gadib_logger_d(`Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
+        gadib_logger_d(`diff-dom type at diff time: ${typeof window.diffDom}`);
+    }
 
     if (typeof window.diffDom === 'undefined' || typeof window.diffDom.DiffDOM === 'undefined') {
         throw new Error('diff-dom library not available - required for diff processing');
@@ -20,19 +29,14 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
 
     try {
         // Phase 1: Immutable Input - Establish immutable source DOM trees
-        gadib_logger_p(1, 'Immutable Input: Creating immutable source DOM trees');
         const immutableFromDOM = gadie_create_dom_from_html(fromHtml);
         const immutableToDOM = gadie_create_dom_from_html(toHtml);
-        gadib_logger_p(1, 'Immutable Input: Immutable DOM trees established and preserved throughout processing');
 
         // Phase 2: Detached Working - Create Detached Working DOM with Semantic Anchors
-        gadib_logger_p(2, 'Detached Working: Creating Detached Working DOM with Semantic Anchors');
         const detachedWorkingDOM = gadie_create_detached_working_dom(immutableToDOM);
         const semanticAnchors = gadie_establish_semantic_anchors(detachedWorkingDOM);
-        gadib_logger_p(2, `Detached Working: Created independent processing environment with ${Object.keys(semanticAnchors).length} semantic anchors`);
 
         // Phase 3: Deletion Fact Capture - Generate Deletion Fact Keys (DFK)
-        gadib_logger_p(3, 'Deletion Fact Capture: Generating Deletion Fact Keys (DFK)');
         const deletionFactTable = await gadie_create_deletion_fact_table(immutableFromDOM);
         
         // Phase 3 Telemetry: emit summary from the live DFT used in later phases
@@ -45,21 +49,19 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
                 routeStr: deletionFactTable[key].routeStr
             }))
         };
-        gadib_factory_ship('phase3_dft', JSON.stringify(phase3Telemetry, null, 2), fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(3, `Deletion Fact Capture: Created DFK mapping for ${Object.keys(deletionFactTable).length} potential deletions`);
+        if (opts.debugArtifacts) {
+            gadib_factory_ship('phase3_dft', JSON.stringify(phase3Telemetry, null, 2), fromCommit, toCommit, sourceFiles);
+        }
 
         // Phase 4: Diff Operations - Generate structured diff operations
-        gadib_logger_p(4, 'Diff Operations: Initializing diff-dom and generating operations');
         const diffDOM = new window.diffDom.DiffDOM({
-            debug: true,
+            debug: false,  // reduced chatter
             diffcap: 500  // Allow more granular detection
         });
         const diffOperations = diffDOM.diff(immutableFromDOM, immutableToDOM);
         gadie_enhance_operations_with_dfk(diffOperations, deletionFactTable);
-        gadib_logger_p(4, `Diff Operations: Generated ${diffOperations.length} enhanced diff operations`);
 
         // Phase 5: Semantic Classification - Classify operations into semantic change types
-        gadib_logger_p(5, 'Semantic Classification: Analyzing operations for precise granular styling');
         const classifiedOperations = gadie_classify_semantic_changes(diffOperations, immutableFromDOM, immutableToDOM);
         
         // Phase 5 Debug Output - Show enriched operations with semantic metadata
@@ -77,20 +79,25 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
                 visualTreatment: op.visualTreatment
             }))
         };
-        gadib_factory_ship('phase5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(5, `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata, ${totalDeletions} total deletions`);
+        if (opts.debugArtifacts) {
+            gadib_factory_ship('phase5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
+        }
 
         // Phase 6: Annotated Assembly - Construct semantically annotated output DOM
-        gadib_logger_p(6, 'Annotated Assembly: Processing classified operations in Detached Working environment');
-        const assemblyResult = gadie_assemble_annotated_dom(detachedWorkingDOM, classifiedOperations, semanticAnchors, fromCommit, toCommit);
+        const {resolved, unresolved} = gadie_partition_by_resolvability(detachedWorkingDOM, classifiedOperations);
+        // ship quarantine for visibility
+        if (opts.debugArtifacts) {
+            gadib_factory_ship('phase6_quarantine_unresolved_ops', JSON.stringify(unresolved, null, 2), fromCommit, toCommit, sourceFiles);
+        }
+        const assemblyResult = gadie_assemble_annotated_dom(detachedWorkingDOM, resolved, semanticAnchors, fromCommit, toCommit, enableAnchorFallback);
         const assembledDOM = assemblyResult.outputDOM;
         const assembledHTML = assembledDOM.innerHTML;
-        gadib_factory_ship('phase6_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(6, 'Annotated Assembly: Semantic annotation construction completed');
+        if (opts.debugArtifacts) {
+            gadib_factory_ship('phase6_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
+        }
 
         // Phase 7: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
-        gadib_logger_p(7, 'Deletion Placement: Positioning deletion blocks with DFK mappings');
-        const deletionPlacementResult = await gadie_place_deletion_blocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors, totalDeletions);
+        const deletionPlacementResult = await gadie_place_deletion_blocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors, totalDeletions, enableAnchorFallback);
         const deletionPlacedDOM = deletionPlacementResult.dom;
         const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
         
@@ -99,14 +106,11 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
                               deletionPlacementResult.telemetry.ambiguous + deletionPlacementResult.telemetry.unplaced;
         if (placementTotal !== totalDeletions) {
             const errorMsg = `PLACEMENT INVARIANT VIOLATION: totalDeletions=${totalDeletions} but placement sum=${placementTotal}`;
-            gadib_logger_e(errorMsg);
-            console.error(`[INVARIANT-ERROR] ${errorMsg}`);
+            if (gadie_should_log('error', opts)) {
+                gadib_logger_e(errorMsg);
+                console.error(`[INVARIANT-ERROR] ${errorMsg}`);
+            }
             deletionPlacementResult.telemetry.invariant_error = errorMsg;
-            
-            // Step 17: Mismatch banner - add visible banner to phase-7 telemetry artifact and console log
-            const mismatchBanner = `\n\n=== INVARIANT MISMATCH DETECTED ===\n${errorMsg}\n=== END MISMATCH BANNER ===\n\n`;
-            deletionPlacementResult.telemetry.mismatch_banner = mismatchBanner;
-            console.log(mismatchBanner);
         }
         
         // Step 16: Phase-7 deletions file - must reflect every placed badge with data-gad-placement present
@@ -130,37 +134,31 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
                 total_deletions_expected: totalDeletions,
                 placement_sum: placementTotal,
                 invariant_satisfied: placementTotal === totalDeletions
-            }
+            },
+            ambiguous_examples: (deletionPlacementResult.telemetry.ambiguous_examples || []).slice(0, 10)
         };
         
         // Ship phase 7 outputs with enhanced debug artifacts
         gadib_factory_ship('phase7_deletions', JSON.stringify(deletionDebugInfo, null, 2), fromCommit, toCommit, sourceFiles);
         gadib_factory_ship('phase7_telemetry', JSON.stringify(enhancedTelemetry, null, 2), fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(7, 'Deletion Placement: Structured deletion blocks positioned accurately');
 
         // Phase 8: Uniform Classing - Merge consecutive same-nature elements
-        gadib_logger_p(8, 'Uniform Classing: Merging consecutive same-nature elements into consolidated runs');
         const coalescedDOM = gadie_merge_adjacent_same_nature(deletionPlacedDOM);
         const coalescedHTML = coalescedDOM.innerHTML;
-        gadib_factory_ship('phase8_coalesced', coalescedHTML, fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(8, 'Uniform Classing: Single-element consolidated runs created');
+        if (opts.debugArtifacts) {
+            gadib_factory_ship('phase8_coalesced', coalescedHTML, fromCommit, toCommit, sourceFiles);
+        }
 
         // Phase 9: Serialize - Generate final rendered output
-        gadib_logger_p(9, 'Serialize: Generating final styled diff HTML');
         const finalHTML = gadie_serialize_final_output(coalescedDOM);
         gadib_factory_ship('phase9_final', finalHTML, fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(9, 'Serialize: Final rendered HTML ready for display');
-
-        // Performance logging for Factory debugging
-        const endTime = performance.now();
-        const totalTime = Math.round(endTime - startTime);
-        gadib_logger_d(`GADS 9-phase diff processing completed in ${totalTime}ms`);
-        gadib_logger_d('Complete processing isolation maintained - input DOMs never modified');
 
         return finalHTML;
 
     } catch (error) {
-        gadib_logger_e(`GADS 9-phase diff processing failed: ${error.message}`);
+        if (gadie_should_log('error', opts)) {
+            gadib_logger_e(`GADS 9-phase diff processing failed: ${error.message}`);
+        }
         throw error;
     }
 }
@@ -175,10 +173,7 @@ function gadie_create_dom_from_html(html) {
 // Create detached working DOM for independent processing
 function gadie_create_detached_working_dom(immutableToDOM) {
     // Create completely independent working DOM for semantic processing
-    const workingDOM = document.createElement('div');
-    gadie_deep_clone_element(immutableToDOM, workingDOM);
-    gadib_logger_d('Created detached working DOM environment for semantic processing');
-    return workingDOM;
+    return immutableToDOM.cloneNode(true);
 }
 
 // Establish semantic anchors for routing operations
@@ -190,11 +185,17 @@ function gadie_establish_semantic_anchors(detachedWorkingDOM) {
             const tagName = element.tagName.toLowerCase();
             if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'section', 'article'].includes(tagName)) {
                 const routeStr = route.join(',');
+                // Inline semantic type determination
+                let semanticType = 'generic';
+                if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) semanticType = 'heading';
+                else if (tagName === 'p') semanticType = 'paragraph';
+                else if (['div', 'section', 'article'].includes(tagName)) semanticType = 'container';
+                
                 anchors[routeStr] = {
                     element: element,
                     route: [...route],
                     tag: tagName,
-                    semanticType: gadie_get_semantic_type_from_tag(tagName)
+                    semanticType: semanticType
                 };
             }
             
@@ -209,13 +210,16 @@ function gadie_establish_semantic_anchors(detachedWorkingDOM) {
     return anchors;
 }
 
-// Get semantic type from HTML tag
-function gadie_get_semantic_type_from_tag(tagName) {
-    const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-    if (headingTags.includes(tagName)) return 'heading';
-    if (tagName === 'p') return 'paragraph';
-    if (['div', 'section', 'article'].includes(tagName)) return 'container';
-    return 'generic';
+
+// Anchor fallback helper - try when route traversal fails
+function gadie_anchor_fallback(route, semanticAnchors) {
+    // nearest existing ancestor route → same-tag anchor
+    for (let cut = route.length - 1; cut >= 0; cut--) {
+        const key = (cut === 0 ? 'root' : route.slice(0, cut).join(','));
+        const a = semanticAnchors[key];
+        if (a) return a.element;
+    }
+    return null;
 }
 
 // DOM Manipulation Helper Methods
@@ -228,45 +232,14 @@ function gadie_find_element_by_route(dom, route) {
         } else {
             const availableCount = element.childNodes ? element.childNodes.length : 0;
             
-            // Fix: Remove "best-effort" fallback - if route index is OOB, abort operation
-            gadib_logger_e(`Route traversal failed at index ${index} for route [${route.join(',')}]`);
-            gadib_logger_e(`Parent has ${availableCount} children, requested index ${index}`);
-            gadib_logger_e(`Failed at route position ${i}, partial route was [${route.slice(0, i).join(',')}]`);
-            return null; // Fix: Fail fast instead of retargeting
+            // Route traversal failed - structured error
+            gadib_logger_e(`Route traversal failed: route=[${route.join(',')}] pos=${i} index=${index} available=${availableCount}`);
+            return null;
         }
     }
     return element;
 }
 
-function gadie_deep_clone_element(sourceElement, targetParent) {
-    if (!sourceElement || !sourceElement.childNodes) return;
-
-    // Clone all child nodes recursively
-    for (let i = 0; i < sourceElement.childNodes.length; i++) {
-        const sourceChild = sourceElement.childNodes[i];
-        let clonedChild;
-
-        if (sourceChild.nodeType === Node.ELEMENT_NODE) {
-            // Create element with all attributes
-            clonedChild = document.createElement(sourceChild.tagName.toLowerCase());
-            for (let j = 0; j < sourceChild.attributes.length; j++) {
-                const attr = sourceChild.attributes[j];
-                clonedChild.setAttribute(attr.name, attr.value);
-            }
-            // Recursively clone children
-            gadie_deep_clone_element(sourceChild, clonedChild);
-        } else if (sourceChild.nodeType === Node.TEXT_NODE) {
-            clonedChild = document.createTextNode(sourceChild.textContent);
-        } else {
-            // Other node types (comments, etc.)
-            clonedChild = sourceChild.cloneNode(false);
-        }
-
-        if (clonedChild) {
-            targetParent.appendChild(clonedChild);
-        }
-    }
-}
 
 // Utility Helper Methods
 function gadie_escape_html(unsafe) {
@@ -379,8 +352,7 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
     
     // Enhanced DFK fact capture telemetry
     const factsRecorded = Object.keys(deletionFactTable).length;
-    gadib_logger_d(`DFK FACT CAPTURE COMPLETED: ${factsRecorded} canonical facts recorded (${beforeDedupeCount} nodes processed, ${dedupeDropCount} duplicates deduped, ${collisionCount} hash collisions resolved)`);
-    console.log(`[DFK-CAPTURE-TELEMETRY] facts_captured=${factsRecorded}, nodes_processed=${beforeDedupeCount}, duplicates_dropped=${dedupeDropCount}, collisions_resolved=${collisionCount}, deduplication_rate=${((dedupeDropCount / beforeDedupeCount) * 100).toFixed(1)}%`);
+    // Telemetry logging removed for low verbosity
     
     
     return deletionFactTable;
@@ -388,9 +360,57 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
 
 // Note: Using gadib_normalize_payload() and gadib_hash() from Base layer
 
+// DFK key hygiene - permissive reader that accepts :vN suffix
+function gadie_normalize_dfk_key(dfkKey) {
+    // Remove version suffix if present (e.g., :v2, :v3)
+    return dfkKey.replace(/:v\d+$/, '');
+}
+
+// Tiered DFK matching helper - route => payload => fuzzy
+function gadie_match_dfk(op, deletionFactTable, dfkByRoute) {
+    const opRouteStr = op.route.length ? op.route.join(',') : 'root';
+    
+    // 1) exact route - O(1) lookup
+    const routeMatches = dfkByRoute.get(opRouteStr);
+    if (routeMatches && routeMatches.length > 0) {
+        return {k: routeMatches[0].k, e: routeMatches[0].e, why: 'route'};
+    }
+    
+    // 2) same tag+payload hash
+    if (op.capturedTextHash) {
+        for (const [k, e] of Object.entries(deletionFactTable)) {
+            if (e.payloadHash === op.capturedTextHash && e.tag === (op.dfkMetadata?.tag || e.tag)) {
+                return {k, e, why: 'payload'};
+            }
+        }
+    }
+    
+    // 3) fuzzy text (lightweight)
+    const text = (op.element?.textContent || '').trim();
+    if (text) {
+        const norm = s => s.toLowerCase().replace(/\s+/g,' ').slice(0,160);
+        const ntext = norm(text);
+        let best = null;
+        for (const [k, e] of Object.entries(deletionFactTable)) {
+            const cand = norm(e.textContent || '');
+            const hit = ntext && cand && (cand.includes(ntext) || ntext.includes(cand));
+            if (hit) { best = {k, e, why: 'fuzzy'}; break; }
+        }
+        if (best) return best;
+    }
+    return null;
+}
+
 // DFK Enhancement Method
 function gadie_enhance_operations_with_dfk(diffOperations, deletionFactTable) {
-    gadib_logger_d(`DFK ENHANCEMENT: Processing ${diffOperations.length} operations with GADS DFK mappings`);
+    // Preindex DFK by route for O(1) lookups
+    const dfkByRoute = new Map();
+    Object.entries(deletionFactTable).forEach(([k, e]) => {
+        if (!dfkByRoute.has(e.routeStr)) {
+            dfkByRoute.set(e.routeStr, []);
+        }
+        dfkByRoute.get(e.routeStr).push({k, e});
+    });
     
     // Enhancement telemetry counters
     let deletionOpsFound = 0;
@@ -401,62 +421,37 @@ function gadie_enhance_operations_with_dfk(diffOperations, deletionFactTable) {
         if (op.action === 'removeElement' || op.action === 'removeTextElement') {
             deletionOpsFound++;
             
-            // GADS Primary Match: op.route → DFK.route exact string equality
-            const opRouteStr = op.route.length === 0 ? "root" : op.route.join(',');
-            
-            // Find DFK entry with matching route
-            let matchedDfkKey = null;
-            let matchedEntry = null;
-            
-            for (const [dfkKey, dfkEntry] of Object.entries(deletionFactTable)) {
-                if (dfkEntry.routeStr === opRouteStr) {
-                    matchedDfkKey = dfkKey;
-                    matchedEntry = dfkEntry;
-                    break;
-                }
-            }
-            
-            if (matchedEntry) {
-                // Attach DFK ID to operation for Phase 6 placement
+            const match = gadie_match_dfk(op, deletionFactTable, dfkByRoute);
+            if (match) {
+                const {k: matchedDfkKey, e: matchedEntry} = match;
                 op.dfkId = matchedDfkKey;
                 op.capturedContent = matchedEntry.outerHTML || matchedEntry.textContent;
                 op.capturedType = matchedEntry.nodeType === Node.ELEMENT_NODE ? 'element' : 'text';
-                op.dfkMetadata = {
-                    route: matchedEntry.route,
-                    kind: matchedEntry.kind,
-                    tag: matchedEntry.tag,
-                    payloadHash: matchedEntry.payloadHash
+                op.dfkMetadata = { 
+                    route: matchedEntry.route, 
+                    kind: matchedEntry.kind, 
+                    tag: matchedEntry.tag, 
+                    payloadHash: matchedEntry.payloadHash 
                 };
                 dfkEnhancements++;
-            } else {
-                unresolvedOps++;
+            } else { 
+                unresolvedOps++; 
             }
         }
     }
     
-    // Report enhancement metrics
-    gadib_logger_d(`DFK ENHANCEMENT COMPLETED: deletion_ops=${deletionOpsFound}, enhanced=${dfkEnhancements}, unresolved=${unresolvedOps}, enhancement_rate=${((dfkEnhancements / deletionOpsFound) * 100).toFixed(1)}%`);
-    console.log(`[DFK-ENHANCEMENT-TELEMETRY] deletion_operations=${deletionOpsFound}, dfk_enhanced=${dfkEnhancements}, unresolved=${unresolvedOps}, enhancement_success_rate=${((dfkEnhancements / deletionOpsFound) * 100).toFixed(1)}%`);
+    // Enhancement metrics logging removed for low verbosity
 }
 
-// Drop unresolved operations before apply phase
-function gadie_drop_unresolved_operations(workingDOM, operations) {
-    gadib_logger_d('Testing route resolution for all operations');
+// Partition operations by resolvability - quarantine instead of dropping
+function gadie_partition_by_resolvability(workingDOM, operations) {
     const readOnlyDOM = workingDOM.cloneNode(true);
-    const resolvedOps = [];
-    let droppedCount = 0;
-    
+    const resolved = [], unresolved = [];
     for (const op of operations) {
-        const targetElement = gadie_find_element_by_route(readOnlyDOM, op.route);
-        if (targetElement) {
-            resolvedOps.push(op);
-        } else {
-            droppedCount++;
-        }
+        (gadie_find_element_by_route(readOnlyDOM, op.route) ? resolved : unresolved).push(op);
     }
-    
-    gadib_logger_d(`Pre-apply filtering complete: ${droppedCount} unresolved ops dropped`);
-    return resolvedOps;
+    gadib_logger_d(`Pre-apply check: ${unresolved.length} unresolved ops quarantined (not dropped)`);
+    return {resolved, unresolved};
 }
 
 // Semantic Classification Method  
@@ -475,8 +470,7 @@ function gadie_classify_semantic_changes(diffOperations, immutableFromDOM, immut
         return classifiedOp;
     });
     
-    // Group related operations by proximity and timing
-    gadie_group_related_operations(classifiedOperations);
+    // No grouping in deterministic mode - removed for clean workspace
     
     gadib_logger_d(`Semantic classification completed for ${classifiedOperations.length} operations`);
     return classifiedOperations;
@@ -581,35 +575,6 @@ function gadie_get_visual_treatment(semanticType) {
     return treatments[semanticType] || { cssClass: 'gads-unknown', wrapType: 'inline' };
 }
 
-// Helper: Group related operations by proximity
-function gadie_group_related_operations(classifiedOperations) {
-    // Simple proximity grouping - could be enhanced with more sophisticated logic
-    for (let i = 0; i < classifiedOperations.length - 1; i++) {
-        const current = classifiedOperations[i];
-        const next = classifiedOperations[i + 1];
-        
-        // Check if operations are adjacent in the DOM
-        if (gadie_are_routes_adjacent(current.route, next.route)) {
-            current.groupedWith = current.groupedWith || [];
-            current.groupedWith.push(i + 1);
-            next.groupedWith = next.groupedWith || [];
-            next.groupedWith.push(i);
-        }
-    }
-}
-
-// Helper: Check if two routes are adjacent
-function gadie_are_routes_adjacent(route1, route2) {
-    if (!route1 || !route2) return false;
-    if (route1.length !== route2.length) return false;
-    
-    // Check if routes differ by only 1 in the last position
-    for (let i = 0; i < route1.length - 1; i++) {
-        if (route1[i] !== route2[i]) return false;
-    }
-    
-    return Math.abs(route1[route1.length - 1] - route2[route2.length - 1]) === 1;
-}
 
 // Generate semantic breakdown for debugging
 function gadie_generate_semantic_breakdown(classifiedOperations) {
@@ -624,17 +589,12 @@ function gadie_generate_semantic_breakdown(classifiedOperations) {
 }
 
 // Assemble Annotated DOM - Phase 6
-function gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit) {
+function gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit, enableAnchorFallback) {
     gadib_logger_d('Processing diff operations using true two-phase approach');
     
-    // PRIORITY FIX #1: Drop unresolved ops before apply
-    gadib_logger_d('Filtering out unresolved operations before apply phase');
-    const preFilteredOps = gadie_drop_unresolved_operations(detachedWorkingDOM, diffOperations);
-    gadib_logger_d(`Dropped ${diffOperations.length - preFilteredOps.length} unresolved operations`);
-    
     // PRIORITY FIX #2: Canonicalize & deduplicate ops pre-apply
-    const canonicalOps = gadie_canonicalize_and_deduplicate_operations(preFilteredOps);
-    gadib_logger_d(`Deduplicated ${preFilteredOps.length - canonicalOps.length} operations`);
+    const canonicalOps = gadie_canonicalize_and_deduplicate_operations(diffOperations);
+    gadib_logger_d(`Deduplicated ${diffOperations.length - canonicalOps.length} operations`);
     
     // Phase A: Resolve all diff-op routes to stable references (ZERO DOM mutation)
     gadib_logger_d(`Resolving routes for ${canonicalOps.length} operations - READ ONLY`);
@@ -666,7 +626,7 @@ function gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semant
     // Phase B: Apply annotations using resolved references only (separate output DOM)
     gadib_logger_d(`Applying annotations for ${resolvedOperations.filter(op => op.resolved).length} resolved operations`);
     // Fix: Create fresh output DOM for Phase B, never modify the original
-    const applyResult = gadie_apply_annotations_from_resolved(detachedWorkingDOM, resolvedOperations);
+    const applyResult = gadie_apply_annotations_from_resolved(detachedWorkingDOM, resolvedOperations, semanticAnchors, enableAnchorFallback);
     const assembledDOM = applyResult.outputDOM;
     
     gadib_logger_d('Two-phase semantic annotation assembly completed');
@@ -707,7 +667,7 @@ function gadie_canonicalize_and_deduplicate_operations(operations) {
 }
 
 // Apply annotations from resolved operations
-function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations) {
+function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations, semanticAnchors, enableAnchorFallback) {
     gadib_logger_d('Applying annotations using pre-resolved node references');
     
     // Clone working DOM to avoid mutation during application
@@ -740,7 +700,7 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations) {
         switch (op.action) {
             case 'addElement':
             case 'addTextElement':
-                gadie_apply_insertion_annotation(outputDOM, op);
+                gadie_apply_insertion_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
                 insertions++;
                 applied = true;
                 break;
@@ -762,17 +722,17 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations) {
                 }
                 break;
             case 'relocateNode':
-                gadie_apply_move_annotation(outputDOM, op);
+                gadie_apply_move_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
                 moves++;
                 applied = true;
                 break;
             case 'modifyTextElement':
-                gadie_handle_text_modification(outputDOM, op, {});
+                gadie_handle_text_modification(outputDOM, op, {}, semanticAnchors, enableAnchorFallback);
                 modifications++;
                 applied = true;
                 break;
             case 'modifyAttribute':
-                gadie_apply_modification_annotation(outputDOM, op);
+                gadie_apply_modification_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
                 modifications++;
                 applied = true;
                 break;
@@ -803,8 +763,9 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations) {
 }
 
 // Apply insertion annotation
-function gadie_apply_insertion_annotation(outputDOM, operation) {
-    const element = gadie_find_element_by_route(outputDOM, operation.route);
+function gadie_apply_insertion_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
+    let target = gadie_find_element_by_route(outputDOM, operation.route);
+    if (!target && enableAnchorFallback) target = gadie_anchor_fallback(operation.route, semanticAnchors);
     
     // Strict semantic classification - no fallback to default classes
     if (!operation.visualTreatment?.cssClass) {
@@ -814,23 +775,24 @@ function gadie_apply_insertion_annotation(outputDOM, operation) {
     
     const cssClass = operation.visualTreatment.cssClass;
     
-    if (element && element.nodeType === Node.ELEMENT_NODE) {
-        element.classList.add(cssClass);
-    } else if (element && element.nodeType === Node.TEXT_NODE && element.parentElement) {
+    if (target && target.nodeType === Node.ELEMENT_NODE) {
+        target.classList.add(cssClass);
+    } else if (target && target.nodeType === Node.TEXT_NODE && target.parentElement) {
         // For text insertions, create semantic highlighting 
-        const parent = element.parentElement;
+        const parent = target.parentElement;
         const span = document.createElement('span');
         span.classList.add(cssClass);
-        span.textContent = element.textContent;
-        parent.replaceChild(span, element);
+        span.textContent = target.textContent;
+        parent.replaceChild(span, target);
     } else {
         gadib_logger_e(`Failed to apply insertion annotation at route [${operation.route.join(',')}] - element not found or invalid`);
     }
 }
 
 // Apply modification annotation
-function gadie_apply_modification_annotation(outputDOM, operation) {
-    const element = gadie_find_element_by_route(outputDOM, operation.route);
+function gadie_apply_modification_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
+    let target = gadie_find_element_by_route(outputDOM, operation.route);
+    if (!target && enableAnchorFallback) target = gadie_anchor_fallback(operation.route, semanticAnchors);
     
     // Strict semantic classification - no fallback to default classes
     if (!operation.visualTreatment?.cssClass) {
@@ -840,30 +802,32 @@ function gadie_apply_modification_annotation(outputDOM, operation) {
     
     const cssClass = operation.visualTreatment.cssClass;
     
-    if (element && element.nodeType === Node.ELEMENT_NODE) {
-        element.classList.add(cssClass);
+    if (target && target.nodeType === Node.ELEMENT_NODE) {
+        target.classList.add(cssClass);
     } else {
         gadib_logger_e(`Failed to apply modification annotation at route [${operation.route.join(',')}] - element not found`);
     }
 }
 
 // Apply move annotation (placeholder)
-function gadie_apply_move_annotation(outputDOM, operation) {
+function gadie_apply_move_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
     gadib_logger_d(`Move annotation placeholder for route [${operation.route.join(',')}]`);
     // Move operations are complex and would need full implementation
 }
 
 // Handle text modification
-function gadie_handle_text_modification(outputDOM, operation, options) {
-    const element = gadie_find_element_by_route(outputDOM, operation.route);
-    if (element && element.nodeType === Node.TEXT_NODE) {
+function gadie_handle_text_modification(outputDOM, operation, options, semanticAnchors, enableAnchorFallback) {
+    let target = gadie_find_element_by_route(outputDOM, operation.route);
+    if (!target && enableAnchorFallback) target = gadie_anchor_fallback(operation.route, semanticAnchors);
+    
+    if (target && target.nodeType === Node.TEXT_NODE) {
         // Apply modification styling to text node
-        if (element.parentElement && operation.visualTreatment?.cssClass) {
-            const parent = element.parentElement;
+        if (target.parentElement && operation.visualTreatment?.cssClass) {
+            const parent = target.parentElement;
             const span = document.createElement('span');
             span.classList.add(operation.visualTreatment.cssClass);
-            span.textContent = element.textContent;
-            parent.replaceChild(span, element);
+            span.textContent = target.textContent;
+            parent.replaceChild(span, target);
             }
     }
 }
@@ -878,7 +842,7 @@ function gadie_insert_single_error_marker(outputDOM, operation) {
 }
 
 // Phase 7: Place Deletion Blocks - DFK-driven placement
-async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors, totalDeletions) {
+async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors, totalDeletions, enableAnchorFallback) {
     gadib_logger_d('DFK-DRIVEN PLACEMENT: Positioning deletion blocks using DFK mappings');
     
     // Clone the assembled DOM to avoid modifying input
@@ -1012,7 +976,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         }
         
         // Step 9: Insertion point - Insert badge before child at final index
-        const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors });
+        const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors, enableAnchorFallback });
         if (insertionResult.success) {
             connectedBadges++;
             placedKeys.add(dedupeKey);
@@ -1030,16 +994,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     const mismatch = appliedDeletions.length !== connectedBadges;
     gadib_logger_d(`DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
     
-    // Console telemetry for DFK pipeline effectiveness with strict payload identity tracking
-    console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, exact_placements=${exactPlacements}, fallback_placements=${fallbackPlacements}, ambiguous_examples_count=${ambiguous_examples.length}, unplaced_examples_count=${unplaced_examples.length}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
-    
-    // Log examples for debugging if available
-    if (ambiguous_examples.length > 0) {
-        console.log(`[DFK-AMBIGUOUS-EXAMPLES] ${ambiguous_examples.slice(0, 5).join(', ')} ${ambiguous_examples.length > 5 ? '...' : ''}`);
-    }
-    if (unplaced_examples.length > 0) {
-        console.log(`[DFK-UNPLACED-EXAMPLES] ${unplaced_examples.slice(0, 5).join(', ')} ${unplaced_examples.length > 5 ? '...' : ''}`);
-    }
+    // DFK telemetry logging removed for low verbosity
     
     // Build Phase 7 telemetry per spec
     const phase7Telemetry = {
@@ -1266,7 +1221,7 @@ function gadie_insert_deletion_badge(anchor, badge, options = {}) {
     let placementType = 'fallback'; // Default to fallback
     
     try {
-        if (gadie_enable_anchor_fallback && op && dftEntry && placement === 'exact') {
+        if (options.enableAnchorFallback && op && dftEntry && placement === 'exact') {
             // Step 8: Child-index path - compute relative path from anchor to deletion route
             const placementResult = gadie_compute_exact_placement(anchor, op, dftEntry, semanticAnchors);
             
@@ -1716,3 +1671,69 @@ function gadie_serialize_final_output(coalescedDOM) {
     
     return finalHTML;
 }
+
+// Smoke tests for DFK matching and functionality
+function gadie_run_smoke_tests() {
+    console.log('[GADIE-SMOKE-TESTS] Starting smoke tests...');
+    
+    // Test (a): exact-route removal
+    try {
+        const testOp1 = { route: [1, 2, 3], action: 'removeElement' };
+        const testDft1 = {
+            'dfk:1,2,3|#element|DIV|sha256:abcd1234567890abcd1234567890abcd1234567890abcd1234567890abcd1234': {
+                routeStr: '1,2,3',
+                kind: '#element',
+                tag: 'DIV',
+                payloadHash: 'sha256:abcd1234567890abcd1234567890abcd1234567890abcd1234567890abcd1234'
+            }
+        };
+        const match1 = gadie_match_dfk(testOp1, testDft1);
+        console.log(`[SMOKE-TEST-A] Exact route match: ${match1 ? 'PASS' : 'FAIL'} - ${match1?.why || 'no match'}`);
+    } catch (e) {
+        console.log(`[SMOKE-TEST-A] ERROR: ${e.message}`);
+    }
+    
+    // Test (b): minor-normalization change (payload match)
+    try {
+        const testOp2 = { route: [1, 2, 4], action: 'removeElement', capturedTextHash: 'sha256:xyz789' };
+        const testDft2 = {
+            'dfk:1,2,3|#element|DIV|sha256:xyz789': {
+                routeStr: '1,2,3',
+                kind: '#element', 
+                tag: 'DIV',
+                payloadHash: 'sha256:xyz789'
+            }
+        };
+        const match2 = gadie_match_dfk(testOp2, testDft2);
+        console.log(`[SMOKE-TEST-B] Payload hash match: ${match2 ? 'PASS' : 'FAIL'} - ${match2?.why || 'no match'}`);
+    } catch (e) {
+        console.log(`[SMOKE-TEST-B] ERROR: ${e.message}`);
+    }
+    
+    // Test (c): fuzzy text match
+    try {
+        const testOp3 = { 
+            route: [2, 1, 0], 
+            action: 'removeElement',
+            element: { textContent: 'Hello World Test' }
+        };
+        const testDft3 = {
+            'dfk:1,2,3|#element|P|sha256:fuzzy123': {
+                routeStr: '1,2,3',
+                kind: '#element',
+                tag: 'P', 
+                payloadHash: 'sha256:fuzzy123',
+                textContent: 'Hello World Test Content'
+            }
+        };
+        const match3 = gadie_match_dfk(testOp3, testDft3);
+        console.log(`[SMOKE-TEST-C] Fuzzy text match: ${match3 ? 'PASS' : 'FAIL'} - ${match3?.why || 'no match'}`);
+    } catch (e) {
+        console.log(`[SMOKE-TEST-C] ERROR: ${e.message}`);
+    }
+    
+    console.log('[GADIE-SMOKE-TESTS] Smoke tests completed.');
+}
+
+// Uncomment to run smoke tests during development:
+// gadie_run_smoke_tests();
