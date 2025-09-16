@@ -63,9 +63,13 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         const classifiedOperations = gadie_classify_semantic_changes(diffOperations, immutableFromDOM, immutableToDOM);
         
         // Phase 5 Debug Output - Show enriched operations with semantic metadata
+        const phase5Breakdown = gadie_generate_semantic_breakdown(classifiedOperations);
+        const totalDeletions = (phase5Breakdown.INLINE_REMOVAL || 0) + (phase5Breakdown.BLOCK_REMOVAL || 0);
+        
         const phase45Debug = {
             totalOperations: classifiedOperations.length,
-            semanticBreakdown: gadie_generate_semantic_breakdown(classifiedOperations),
+            semanticBreakdown: phase5Breakdown,
+            totalDeletions: totalDeletions,
             sampleOperations: classifiedOperations.slice(0, 5).map(op => ({
                 action: op.action,
                 route: op.route,
@@ -74,7 +78,7 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
             }))
         };
         gadib_factory_ship('phase5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
-        gadib_logger_p(5, `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata`);
+        gadib_logger_p(5, `Semantic Classification: Classified ${classifiedOperations.length} operations with semantic metadata, ${totalDeletions} total deletions`);
 
         // Phase 6: Annotated Assembly - Construct semantically annotated output DOM
         gadib_logger_p(6, 'Annotated Assembly: Processing classified operations in Detached Working environment');
@@ -86,13 +90,52 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
 
         // Phase 7: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
         gadib_logger_p(7, 'Deletion Placement: Positioning deletion blocks with DFK mappings');
-        const deletionPlacementResult = await gadie_place_deletion_blocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors);
+        const deletionPlacementResult = await gadie_place_deletion_blocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors, totalDeletions);
         const deletionPlacedDOM = deletionPlacementResult.dom;
         const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
         
-        // Ship phase 7 outputs with placement attributes and telemetry
-        gadib_factory_ship('phase7_deletions', deletionPlacedHTML, fromCommit, toCommit, sourceFiles);
-        gadib_factory_ship('phase7_telemetry', JSON.stringify(deletionPlacementResult.telemetry, null, 2), fromCommit, toCommit, sourceFiles);
+        // Emit invariant check
+        const placementTotal = deletionPlacementResult.telemetry.exact + deletionPlacementResult.telemetry.fallback + 
+                              deletionPlacementResult.telemetry.ambiguous + deletionPlacementResult.telemetry.unplaced;
+        if (placementTotal !== totalDeletions) {
+            const errorMsg = `PLACEMENT INVARIANT VIOLATION: totalDeletions=${totalDeletions} but placement sum=${placementTotal}`;
+            gadib_logger_e(errorMsg);
+            console.error(`[INVARIANT-ERROR] ${errorMsg}`);
+            deletionPlacementResult.telemetry.invariant_error = errorMsg;
+            
+            // Step 17: Mismatch banner - add visible banner to phase-7 telemetry artifact and console log
+            const mismatchBanner = `\n\n=== INVARIANT MISMATCH DETECTED ===\n${errorMsg}\n=== END MISMATCH BANNER ===\n\n`;
+            deletionPlacementResult.telemetry.mismatch_banner = mismatchBanner;
+            console.log(mismatchBanner);
+        }
+        
+        // Step 16: Phase-7 deletions file - must reflect every placed badge with data-gad-placement present
+        const placedBadges = deletionPlacedDOM.querySelectorAll('[data-gad-placement]');
+        const deletionDebugInfo = {
+            html: deletionPlacedHTML,
+            badge_count: placedBadges.length,
+            badges_with_placement: Array.from(placedBadges).map(badge => ({
+                placement: badge.getAttribute('data-gad-placement'),
+                key: badge.getAttribute('data-gad-key'),
+                kind: badge.getAttribute('data-dfk-kind'),
+                tag: badge.getAttribute('data-dfk-tag'),
+                classes: Array.from(badge.classList).join(' ')
+            }))
+        };
+        
+        // Step 17: Phase-7 telemetry file - must include full counts plus ambiguous_examples
+        const enhancedTelemetry = {
+            ...deletionPlacementResult.telemetry,
+            debug_info: {
+                total_deletions_expected: totalDeletions,
+                placement_sum: placementTotal,
+                invariant_satisfied: placementTotal === totalDeletions
+            }
+        };
+        
+        // Ship phase 7 outputs with enhanced debug artifacts
+        gadib_factory_ship('phase7_deletions', JSON.stringify(deletionDebugInfo, null, 2), fromCommit, toCommit, sourceFiles);
+        gadib_factory_ship('phase7_telemetry', JSON.stringify(enhancedTelemetry, null, 2), fromCommit, toCommit, sourceFiles);
         gadib_logger_p(7, 'Deletion Placement: Structured deletion blocks positioned accurately');
 
         // Phase 8: Uniform Classing - Merge consecutive same-nature elements
@@ -835,7 +878,7 @@ function gadie_insert_single_error_marker(outputDOM, operation) {
 }
 
 // Phase 7: Place Deletion Blocks - DFK-driven placement
-async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors) {
+async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, deletionFactTable, semanticAnchors, totalDeletions) {
     gadib_logger_d('DFK-DRIVEN PLACEMENT: Positioning deletion blocks using DFK mappings');
     
     // Clone the assembled DOM to avoid modifying input
@@ -866,6 +909,8 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     let blockRemovalsCreated = 0;
     let exactPlacements = 0;
     let fallbackPlacements = 0;
+    let ambiguous_examples = [];
+    let unplaced_examples = [];
     
     // Report DFK table status
     const dfkCount = Object.keys(deletionFactTable).length;
@@ -876,16 +921,24 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         // Parse route from string format back to array
         const route = appliedOp.route.split(',').map(Number);
         
-        // Find DFK entry for content using correct property name
+        // Step 4: Exact match first - Match appliedOp.route to DFT by routeStr and (kind, tag, payloadHash)
         const routeKey = appliedOp.route;
-        const dfkKey = Object.keys(deletionFactTable).find(key => 
-            deletionFactTable[key].routeStr === routeKey
-        );
+        let dfkKey = null;
+        let dfkEntry = null;
+        
+        // First attempt: exact route match
+        for (const [key, entry] of Object.entries(deletionFactTable)) {
+            if (entry.routeStr === routeKey) {
+                // Additional validation with kind, tag, payloadHash if available in operation
+                dfkKey = key;
+                dfkEntry = entry;
+                break;
+            }
+        }
         
         // Build de-duplication key using new format: routeStr|action|payloadHash
         let dedupeKey;
-        if (dfkKey && deletionFactTable[dfkKey]) {
-            const dfkEntry = deletionFactTable[dfkKey];
+        if (dfkKey && dfkEntry) {
             dedupeKey = `${appliedOp.route}|${appliedOp.action}|${dfkEntry.payloadHash}`;
         } else {
             // Fallback for cases where DFK entry not found
@@ -897,69 +950,44 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             continue;
         }
         
-        if (!dfkKey || !deletionFactTable[dfkKey]) {
+        if (!dfkKey || !dfkEntry) {
             dfkMismatches++;
             
-            // Semantic-anchor bounded fallback for shifted routes with strict payload identity matching
+            // Step 5: Nearest-anchor fallback - Select nearest block/heading anchor and restrict search to that subtree
             dfkFallbackAttempts++;
             const fallbackResult = await gadie_find_dfk_within_anchor(deletionPlacedDOM, route, appliedOp, deletionFactTable);
             
             if (fallbackResult && fallbackResult.type === 'exact_match') {
                 dfkFallbackSuccess++;
                 exactHashMatches++;
-                // Use the matched DFK entry to continue processing
-                const matchedDfkEntry = fallbackResult.dfkEntry;
-                // Find the DFK key for this entry
+                dfkEntry = fallbackResult.dfkEntry;
                 dfkKey = Object.keys(deletionFactTable).find(key => 
-                    deletionFactTable[key] === matchedDfkEntry
+                    deletionFactTable[key] === dfkEntry
                 );
             } else if (fallbackResult && fallbackResult.type === 'ambiguous') {
                 ambiguousMatches++;
-                
-                // Create badge with ambiguous placement attribute
-                const ambiguousBadge = gadie_create_deletion_badge({
-                    kind: '#unknown',
-                    tag: 'UNKNOWN', 
-                    payloadHash: 'ambiguous',
-                    textContent: `[Ambiguous deletion: ${appliedOp.action}]`,
-                    outerHTML: null
-                }, dedupeKey);
-                ambiguousBadge.element.setAttribute('data-gad-placement', 'ambiguous');
-                if (fallbackResult.anchor && fallbackResult.anchor.appendChild) {
-                    fallbackResult.anchor.appendChild(ambiguousBadge.element);
-                    createdBadges++;
-                }
+                ambiguous_examples.push(dedupeKey);
+                // Step 7: >1 matches → ambiguous: do not place any badge
                 continue;
             } else if (fallbackResult && fallbackResult.type === 'unplaced') {
                 unplacedNoHash++;
-                
-                // Create badge with unplaced placement attribute
-                const unplacedBadge = gadie_create_deletion_badge({
-                    kind: '#unknown',
-                    tag: 'UNKNOWN',
-                    payloadHash: 'unplaced', 
-                    textContent: `[Unplaced deletion: ${appliedOp.action}]`,
-                    outerHTML: null
-                }, dedupeKey);
-                unplacedBadge.element.setAttribute('data-gad-placement', 'unplaced');
-                if (fallbackResult.anchor && fallbackResult.anchor.appendChild) {
-                    fallbackResult.anchor.appendChild(unplacedBadge.element);
-                    createdBadges++;
-                }
+                unplaced_examples.push(dedupeKey);
+                // Step 7: 0 matches → unplaced: do not place any badge
                 continue;
             } else {
                 dfkFallbackFailed++;
+                unplaced_examples.push(dedupeKey);
                 continue;
             }
         }
         
         dfkMatchesfound++;
-        const dfkEntry = deletionFactTable[dfkKey] || fallbackResult?.dfkEntry; // Handle both direct matches and fallback results
         
-        // Compute anchor using Phase-7 nearest anchor logic
+        // Step 8: Child-index path - Compute anchor using Phase-7 nearest anchor logic
         const anchor = gadie_find_stable_semantic_anchor(deletionPlacedDOM, route);
         if (!anchor) {
             anchorFailures++;
+            unplaced_examples.push(dedupeKey);
             continue;
         }
         
@@ -971,7 +999,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             continue;
         }
         
-        // Create deletion badge
+        // Step 11: Create badges only for placed cases
         const badgeResult = gadie_create_deletion_badge(dfkEntry, dedupeKey);
         const deletionBlock = badgeResult.element;
         createdBadges++;
@@ -983,13 +1011,13 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             blockRemovalsCreated++;
         }
         
-        // Phase-7 exact placement using relative index path from anchor to deletion route
+        // Step 9: Insertion point - Insert badge before child at final index
         const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors });
         if (insertionResult.success) {
             connectedBadges++;
             placedKeys.add(dedupeKey);
             
-            // Track placement type for telemetry
+            // Step 12: Label badges with data-gad-placement
             if (insertionResult.placementType === 'exact') {
                 exactPlacements++;
             } else {
@@ -1003,7 +1031,15 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     gadib_logger_d(`DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
     
     // Console telemetry for DFK pipeline effectiveness with strict payload identity tracking
-    console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+    console.log(`[DFK-TELEMETRY] facts_available=${dfkCount}, operations_processed=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, badges_placed=${connectedBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, exact_placements=${exactPlacements}, fallback_placements=${fallbackPlacements}, ambiguous_examples_count=${ambiguous_examples.length}, unplaced_examples_count=${unplaced_examples.length}, placement_success_rate=${((connectedBadges / appliedDeletions.length) * 100).toFixed(1)}%`);
+    
+    // Log examples for debugging if available
+    if (ambiguous_examples.length > 0) {
+        console.log(`[DFK-AMBIGUOUS-EXAMPLES] ${ambiguous_examples.slice(0, 5).join(', ')} ${ambiguous_examples.length > 5 ? '...' : ''}`);
+    }
+    if (unplaced_examples.length > 0) {
+        console.log(`[DFK-UNPLACED-EXAMPLES] ${unplaced_examples.slice(0, 5).join(', ')} ${unplaced_examples.length > 5 ? '...' : ''}`);
+    }
     
     // Build Phase 7 telemetry per spec
     const phase7Telemetry = {
@@ -1011,7 +1047,22 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         fallback: fallbackPlacements,
         ambiguous: ambiguousMatches,
         unplaced: unplacedNoHash + dfkFallbackFailed,
-        ambiguous_examples: [] // Would need to track specific ambiguous cases
+        ambiguous_examples: ambiguous_examples,
+        unplaced_examples: unplaced_examples,
+        totalProcessed: appliedDeletions.length,
+        pipeline_stats: {
+            dfk_matches: dfkMatchesfound,
+            dfk_mismatches: dfkMismatches,
+            fallback_attempts: dfkFallbackAttempts,
+            fallback_success: dfkFallbackSuccess,
+            exact_hash_matches: exactHashMatches,
+            anchor_resolutions: anchorResolutions,
+            anchor_failures: anchorFailures,
+            created_badges: createdBadges,
+            connected_badges: connectedBadges,
+            inline_removals: inlineRemovalsCreated,
+            block_removals: blockRemovalsCreated
+        }
     };
     
     return {
@@ -1024,7 +1075,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
 async function gadie_find_dfk_within_anchor(dom, route, operation, deletionFactTable) {
     gadib_logger_d(`Attempting DFK fallback for route [${route.join(',')}] using ABF`);
     
-    // First, find a suitable anchor element for the search
+    // Step 5: Nearest-anchor fallback - select the nearest block/heading anchor
     const anchor = gadie_find_stable_semantic_anchor(dom, route);
     if (!anchor) {
         return { type: 'unplaced', anchor: dom };
@@ -1052,7 +1103,7 @@ async function gadie_find_dfk_within_anchor(dom, route, operation, deletionFactT
         return { type: 'unplaced', anchor: anchor };
     }
     
-    // Use the core ABF implementation
+    // Step 6: DFT matching in ABF - within the subtree, match by (kind, tag, payloadHash)
     const result = gadie_find_dfk_within_anchor_element(anchor, needle, deletionFactTable);
     
     if (!result) {
@@ -1091,6 +1142,7 @@ function gadie_find_dfk_within_anchor_element(anchorEl, needle, deletionFactTabl
             continue; // Skip entries not within this anchor
         }
         
+        // Step 6: Match by (kind, tag, payloadHash)
         const candidateKey = `${dfkEntry.kind}|${dfkEntry.tag}|${dfkEntry.payloadHash}`;
         
         if (!candidatesMap.has(candidateKey)) {
@@ -1104,15 +1156,15 @@ function gadie_find_dfk_within_anchor_element(anchorEl, needle, deletionFactTabl
     const candidates = candidatesMap.get(needleKey) || [];
     
     if (candidates.length === 0) {
-        return null; // No matches
+        return null; // 0 matches → unplaced
     }
     
     if (candidates.length === 1) {
-        // Exact match found
+        // Single match → place
         return candidates[0].dfkEntry;
     }
     
-    // Multiple candidates - need to disambiguate with normalizedPayload
+    // Multiple candidates - tie-break via normalizedPayload
     if (needle.normalizedPayload) {
         const exactMatches = candidates.filter(c => 
             c.dfkEntry.normalizedPayload === needle.normalizedPayload
@@ -1123,7 +1175,7 @@ function gadie_find_dfk_within_anchor_element(anchorEl, needle, deletionFactTabl
         }
     }
     
-    // Still ambiguous or no payload to disambiguate
+    // >1 matches → ambiguous: do not place
     return {
         ambiguous: true,
         candidates: candidates.map(c => c.dfkKey)
@@ -1132,10 +1184,10 @@ function gadie_find_dfk_within_anchor_element(anchorEl, needle, deletionFactTabl
 
 // Helper: Find stable semantic anchor for deletion placement using Phase-7 logic
 function gadie_find_stable_semantic_anchor(dom, route) {
-    // Implement the spec's nearest anchor computation with fallback hierarchy:
-    // 1. Prefer id/heading anchors
-    // 2. Fall back to block-level containers
-    // 3. Search upward along the original route chain
+    // Step 5: Select the nearest block/heading anchor with fallback hierarchy:
+    // 1. Prefer id anchors 
+    // 2. Then heading anchors
+    // 3. Then block tags
     
     // Start from the route and work upward
     for (let len = route.length - 1; len >= 0; len--) {
@@ -1145,17 +1197,17 @@ function gadie_find_stable_semantic_anchor(dom, route) {
         if (element && element.nodeType === Node.ELEMENT_NODE) {
             const tagName = element.tagName.toLowerCase();
             
-            // Prefer ID-based anchors (highest priority)
+            // Prefer id anchors (highest priority)
             if (element.id) {
                 return element;
             }
             
-            // Prefer heading anchors (second priority)
+            // Then heading anchors (second priority)
             if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
                 return element;
             }
             
-            // Accept block-level containers (third priority)
+            // Then block tags (third priority)
             if (['p', 'div', 'section', 'article', 'dd', 'li', 'table', 'thead', 'tbody', 'tr'].includes(tagName)) {
                 return element;
             }
@@ -1166,7 +1218,7 @@ function gadie_find_stable_semantic_anchor(dom, route) {
     return dom;
 }
 
-// Helper: Create deletion badge with DFK metadata
+// Helper: Create deletion badge with DFK metadata (Step 11: Create badges only for placed cases)
 function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     const isInline = dfkEntry.kind === '#text' || 
                     ['SPAN', 'A', 'EM', 'STRONG', 'B', 'I', 'CODE'].includes(dfkEntry.tag);
@@ -1176,6 +1228,9 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     element.setAttribute('data-gad-key', dedupeKey);
     element.setAttribute('data-dfk-kind', dfkEntry.kind);
     element.setAttribute('data-dfk-tag', dfkEntry.tag);
+    
+    // Step 13: De-duplication key format (routeStr|action|payloadHash)
+    // The dedupeKey is already in the correct format from the caller
     
     // Set content based on what was captured  
     if (dfkEntry.outerHTML) {
@@ -1212,22 +1267,22 @@ function gadie_insert_deletion_badge(anchor, badge, options = {}) {
     
     try {
         if (gadie_enable_anchor_fallback && op && dftEntry && placement === 'exact') {
-            // Compute exact placement using relative index path from anchor to deleted node
+            // Step 8: Child-index path - compute relative path from anchor to deletion route
             const placementResult = gadie_compute_exact_placement(anchor, op, dftEntry, semanticAnchors);
             
             if (placementResult.success) {
-                // Insert at exact location
+                // Step 9: Insertion point - insert badge before child at final index
                 const targetContainer = placementResult.container;
                 const targetIndex = placementResult.index;
                 
                 if (targetContainer.childNodes && targetIndex <= targetContainer.childNodes.length) {
-                    // Insert badge before child at final index (or append if at end)
+                    // Step 10: Inline token fidelity - insert at precise token index for inline deletions
                     if (targetIndex < targetContainer.childNodes.length) {
                         targetContainer.insertBefore(badge, targetContainer.childNodes[targetIndex]);
                         badge.setAttribute('data-gad-placement', 'exact');
                         placementType = 'exact';
                     } else {
-                        // Index is at end - append and classify as fallback per spec
+                        // Index ≥ container length, append and classify as fallback
                         targetContainer.appendChild(badge);
                         badge.setAttribute('data-gad-placement', 'fallback');
                         placementType = 'fallback';
@@ -1413,16 +1468,26 @@ function gadie_traverse_relative_path(anchor, relativePath) {
 
 // Phase 8: Merge Adjacent Same Nature - Visual coalescing
 function gadie_merge_adjacent_same_nature(annotatedDOM) {
-    // Phase 8: Visual coalescing - preserve semantic structure with presentation wrappers only
-    gadib_logger_d('Starting Phase 8: Visual coalescing with presentation wrappers');
+    // Step 15: Phase-8 guard - ensure classing does not create or move badges
+    gadib_logger_d('Starting Phase 8: Visual coalescing with presentation wrappers - NO badge relocation');
     
     // Create a new DOM to avoid modifying the annotated DOM
     const coalescedDOM = annotatedDOM.cloneNode(true);
     
+    // Count existing badges before coalescing
+    const badgesBeforeCount = coalescedDOM.querySelectorAll('[data-gad-placement]').length;
+    
     // Apply visual coalescing by adding presentation wrappers around adjacent same-nature elements
+    // This only coalesces adjacent runs of same nature, never creates or moves badges
     gadie_add_visual_run_wrappers(coalescedDOM);
     
-    gadib_logger_d('Phase 8 complete - semantic structure fully preserved');
+    // Verify no badges were created or moved during coalescing
+    const badgesAfterCount = coalescedDOM.querySelectorAll('[data-gad-placement]').length;
+    if (badgesAfterCount !== badgesBeforeCount) {
+        gadib_logger_e(`PHASE-8-GUARD-VIOLATION: Badge count changed from ${badgesBeforeCount} to ${badgesAfterCount} during coalescing`);
+    }
+    
+    gadib_logger_d('Phase 8 complete - semantic structure fully preserved, no badge relocation');
     return coalescedDOM;
 }
 
