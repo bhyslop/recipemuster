@@ -393,12 +393,9 @@ section.gads-addition-inline {
 }
 
 .gads-modification-inline {
-    background-color: #f8d7da;
-    border: 1px solid #dc3545;
+    background-color: #e2e3e5;
     border-radius: 2px;
     padding: 1px 2px;
-    color: #dc3545;
-    text-decoration: line-through;
     display: inline;
 }
 
