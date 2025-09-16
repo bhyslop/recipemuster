@@ -474,8 +474,12 @@ function gadie_analyze_text_modification(operation, fromDOM, toDOM) {
     const oldValue = operation.oldValue || '';
     const newValue = operation.newValue || '';
     
+    // Debug: Log the actual values we're analyzing
+    gadib_logger_d(`TRUNCATION-ANALYSIS: oldValue="${oldValue}", newValue="${newValue}"`);
+    
     // Skip analysis for empty values or identical content
     if (!oldValue || !newValue || oldValue === newValue) {
+        gadib_logger_d(`TRUNCATION-SKIP: Empty or identical values`);
         return 'INLINE_MODIFICATION';
     }
     
