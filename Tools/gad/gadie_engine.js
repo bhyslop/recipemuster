@@ -97,7 +97,13 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         }
 
         // Phase 7: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
-        const deletionPlacementResult = await gadie_place_deletion_blocks(assembledDOM, assemblyResult.appliedOperations, deletionFactTable, semanticAnchors, totalDeletions, enableAnchorFallback);
+        const allDeletionOps = classifiedOperations.filter(op =>
+            op.type === 'deletion' || (op.action && op.action.startsWith('remove')) ||
+            (op.semanticType && /REMOVAL/i.test(op.semanticType))
+        );
+        const deletionPlacementResult = await gadie_place_deletion_blocks(
+            assembledDOM, allDeletionOps, deletionFactTable, semanticAnchors, allDeletionOps.length, enableAnchorFallback
+        );
         const deletionPlacedDOM = deletionPlacementResult.dom;
         const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
         
@@ -1175,8 +1181,7 @@ function gadie_find_stable_semantic_anchor(dom, route) {
 
 // Helper: Create deletion badge with DFK metadata (Step 11: Create badges only for placed cases)
 function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
-    const isInline = dfkEntry.kind === '#text' || 
-                    ['SPAN', 'A', 'EM', 'STRONG', 'B', 'I', 'CODE'].includes(dfkEntry.tag);
+    const isInline = dfkEntry.kind === '#text';
     
     const element = document.createElement(isInline ? 'span' : 'div');
     element.classList.add(isInline ? 'gads-deletion-inline' : 'gads-deletion-block');
@@ -1190,7 +1195,7 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     // Set content based on what was captured  
     if (dfkEntry.outerHTML) {
         // Don't wrap in <del> - CSS provides strikethrough styling
-        element.innerHTML = gadie_escape_html(dfkEntry.outerHTML);
+        element.innerHTML = dfkEntry.outerHTML;
     } else {
         element.textContent = dfkEntry.textContent || '[Deleted content]';
     }
@@ -1237,10 +1242,10 @@ function gadie_insert_deletion_badge(anchor, badge, options = {}) {
                         badge.setAttribute('data-gad-placement', 'exact');
                         placementType = 'exact';
                     } else {
-                        // Index ≥ container length, append and classify as fallback
+                        // Index ≥ container length, append and classify as exact
                         targetContainer.appendChild(badge);
-                        badge.setAttribute('data-gad-placement', 'fallback');
-                        placementType = 'fallback';
+                        badge.setAttribute('data-gad-placement', 'exact');
+                        placementType = 'exact';
                     }
                     return { success: true, placementType };
                 } else {
