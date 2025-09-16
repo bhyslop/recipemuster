@@ -456,8 +456,7 @@ function gadie_determine_semantic_type(operation, fromDOM, toDOM) {
             return 'STRUCTURAL_CHANGE';
         
         case 'modifyTextElement':
-            // GADS Text Truncation Detection: Analyze for substring relationships
-            return gadie_analyze_text_modification(operation, fromDOM, toDOM);
+            return 'INLINE_MODIFICATION';
         case 'modifyValue':
         case 'modifyAttribute':
             return 'INLINE_MODIFICATION';
@@ -468,66 +467,6 @@ function gadie_determine_semantic_type(operation, fromDOM, toDOM) {
     }
 }
 
-// Helper: Analyze text modification to detect truncation vs genuine modification
-function gadie_analyze_text_modification(operation, fromDOM, toDOM) {
-    // Extract old and new values from the operation
-    const oldValue = operation.oldValue || '';
-    const newValue = operation.newValue || '';
-    
-    // Debug: Log the actual values we're analyzing
-    gadib_logger_d(`TRUNCATION-ANALYSIS: oldValue="${oldValue}", newValue="${newValue}"`);
-    
-    // Skip analysis for empty values or identical content
-    if (!oldValue || !newValue || oldValue === newValue) {
-        gadib_logger_d(`TRUNCATION-SKIP: Empty or identical values`);
-        return 'INLINE_MODIFICATION';
-    }
-    
-    // GADS Truncation Classification Rules
-    
-    // Rule 1: Prefix Truncation Detection
-    // Check if newValue is a prefix of oldValue (truncated from end)
-    if (oldValue.startsWith(newValue) && oldValue.length > newValue.length) {
-        const deletedSuffix = oldValue.substring(newValue.length);
-        
-        // Apply minimum threshold to avoid false positives on minor changes
-        if (deletedSuffix.length >= 5) {  // GADS threshold for significant truncation
-            gadib_logger_d(`TRUNCATION-DETECTED: Prefix truncation - deleted suffix: "${deletedSuffix}"`);
-            return 'INLINE_REMOVAL';
-        }
-    }
-    
-    // Rule 2: Suffix Truncation Detection  
-    // Check if newValue is a suffix of oldValue (truncated from beginning)
-    if (oldValue.endsWith(newValue) && oldValue.length > newValue.length) {
-        const deletedPrefix = oldValue.substring(0, oldValue.length - newValue.length);
-        
-        // Apply minimum threshold to avoid false positives
-        if (deletedPrefix.length >= 5) {  // GADS threshold for significant truncation
-            gadib_logger_d(`TRUNCATION-DETECTED: Suffix truncation - deleted prefix: "${deletedPrefix}"`);
-            return 'INLINE_REMOVAL';
-        }
-    }
-    
-    // Rule 3: Middle Truncation Detection
-    // Check if newValue appears as a substring within oldValue (content removed from middle)
-    const newIndex = oldValue.indexOf(newValue);
-    if (newIndex !== -1) {
-        const beforeNew = oldValue.substring(0, newIndex);
-        const afterNew = oldValue.substring(newIndex + newValue.length);
-        const totalDeleted = beforeNew.length + afterNew.length;
-        
-        if (totalDeleted >= 5) {  // GADS threshold for significant truncation
-            gadib_logger_d(`TRUNCATION-DETECTED: Middle truncation - deleted content: "${beforeNew}" + "${afterNew}"`);
-            return 'INLINE_REMOVAL';
-        }
-    }
-    
-    // Rule 4: True Modification (no substring relationship)
-    // If no truncation patterns detected, this is a genuine text modification
-    gadib_logger_d(`TEXT-MODIFICATION: No truncation pattern detected - treating as genuine modification`);
-    return 'INLINE_MODIFICATION';
-}
 
 // Helper: Check if addition creates block-level structure
 function gadie_is_block_level_addition(operation, toDOM) {
