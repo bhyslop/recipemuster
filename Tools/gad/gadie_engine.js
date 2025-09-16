@@ -975,29 +975,38 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             continue;
         }
         
-        // Step 11: Create badges only for placed cases
-        const badgeResult = gadie_create_deletion_badge(dfkEntry, dedupeKey);
-        const deletionBlock = badgeResult.element;
-        createdBadges++;
+        // Step 11: Honor semantic type from Phase 5 for inline vs block rendering
+        const isInlineRemoval = appliedOp.semanticType === 'INLINE_REMOVAL';
         
-        // Track inline vs block removal creation
-        if (badgeResult.isInline) {
-            inlineRemovalsCreated++;
-        } else {
-            blockRemovalsCreated++;
-        }
-        
-        // Step 9: Insertion point - Insert badge before child at final index
-        const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors, enableAnchorFallback });
-        if (insertionResult.success) {
-            connectedBadges++;
-            placedKeys.add(dedupeKey);
-            
-            // Step 12: Label badges with data-gad-placement
-            if (insertionResult.placementType === 'exact') {
+        if (isInlineRemoval) {
+            // INLINE_REMOVAL: Create inline wrapper at text node location
+            const inlineResult = gadie_create_inline_deletion_wrapper(deletionPlacedDOM, route, appliedOp, dfkEntry, dedupeKey);
+            if (inlineResult.success) {
+                createdBadges++;
+                inlineRemovalsCreated++;
+                connectedBadges++;
+                placedKeys.add(dedupeKey);
                 exactPlacements++;
-            } else {
-                fallbackPlacements++;
+            }
+        } else {
+            // BLOCK_REMOVAL: Use existing block badge logic
+            const badgeResult = gadie_create_deletion_badge(dfkEntry, dedupeKey);
+            const deletionBlock = badgeResult.element;
+            createdBadges++;
+            blockRemovalsCreated++;
+            
+            // Step 9: Insertion point - Insert badge before child at final index
+            const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors, enableAnchorFallback });
+            if (insertionResult.success) {
+                connectedBadges++;
+                placedKeys.add(dedupeKey);
+                
+                // Step 12: Label badges with data-gad-placement
+                if (insertionResult.placementType === 'exact') {
+                    exactPlacements++;
+                } else {
+                    fallbackPlacements++;
+                }
             }
         }
     }
@@ -1208,6 +1217,49 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     
     
     return { element, isInline };
+}
+
+// Helper: Create inline deletion wrapper for INLINE_REMOVAL operations
+function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, dedupeKey) {
+    try {
+        // Navigate to the exact text node using the route
+        let currentNode = dom;
+        for (let i = 0; i < route.length; i++) {
+            const index = route[i];
+            if (!currentNode.childNodes || index >= currentNode.childNodes.length) {
+                return { success: false, reason: 'Route navigation failed' };
+            }
+            currentNode = currentNode.childNodes[index];
+        }
+        
+        // Verify we're at a text node
+        if (currentNode.nodeType !== Node.TEXT_NODE) {
+            return { success: false, reason: 'Route does not point to text node' };
+        }
+        
+        // Get the text content to wrap
+        const textContent = dfkEntry.textContent || currentNode.textContent;
+        
+        // Create inline deletion span
+        const wrapper = document.createElement('span');
+        wrapper.classList.add('gads-deletion-inline');
+        wrapper.setAttribute('data-gad-key', dedupeKey);
+        wrapper.setAttribute('data-dfk-kind', dfkEntry.kind);
+        wrapper.setAttribute('data-dfk-tag', dfkEntry.tag);
+        wrapper.setAttribute('data-gad-placement', 'exact');
+        wrapper.textContent = textContent;
+        
+        // Replace the text node with our wrapper
+        const parentNode = currentNode.parentNode;
+        if (parentNode) {
+            parentNode.replaceChild(wrapper, currentNode);
+            return { success: true, element: wrapper };
+        }
+        
+        return { success: false, reason: 'No parent node for replacement' };
+    } catch (error) {
+        return { success: false, reason: `Exception: ${error.message}` };
+    }
 }
 
 // Helper: Create unplaced deletion badge for fallback cases
