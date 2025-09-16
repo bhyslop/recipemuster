@@ -1127,15 +1127,26 @@ function gadie_wrap_adjacent_same_type(dom, className, startRunId) {
             j++;
         }
         
-        // Only coalesce when it's safe to do so
-        if (adjacentRun.length >= 2 && gadie_can_safely_coalesce(adjacentRun, className)) {
-            gadie_replace_run_with_single_element(adjacentRun, className);
-            runsCreated++;
-            elementsMerged += adjacentRun.length;
-            gadib_logger_d(`COALESCE-SUCCESS: Merged ${adjacentRun.length} adjacent ${className} elements`);
-        } else if (adjacentRun.length >= 2) {
-            runsSkipped++;
-            gadib_logger_d(`COALESCE-SKIP: ${adjacentRun.length} ${className} elements - reason: UNSAFE_TO_MERGE`);
+        // Check coalescing strategy
+        if (adjacentRun.length >= 2) {
+            const coalescingResult = gadie_can_safely_coalesce(adjacentRun, className);
+            
+            if (coalescingResult === true) {
+                // Direct merge is safe
+                gadie_replace_run_with_single_element(adjacentRun, className);
+                runsCreated++;
+                elementsMerged += adjacentRun.length;
+                gadib_logger_d(`COALESCE-SUCCESS: Merged ${adjacentRun.length} adjacent ${className} elements`);
+            } else if (coalescingResult && coalescingResult.useWrapper) {
+                // Use wrapper container strategy
+                gadie_create_wrapper_container(adjacentRun, className);
+                runsCreated++;
+                elementsMerged += adjacentRun.length;
+                gadib_logger_d(`COALESCE-WRAPPER: Created wrapper for ${adjacentRun.length} ${className} elements with preserved semantics`);
+            } else {
+                runsSkipped++;
+                gadib_logger_d(`COALESCE-SKIP: ${adjacentRun.length} ${className} elements - reason: UNSAFE_TO_MERGE`);
+            }
         }
         
         i = j;
@@ -1160,18 +1171,30 @@ function gadie_are_consecutive_siblings(elem1, elem2) {
 
 // Helper: Check if elements can be safely coalesced
 function gadie_can_safely_coalesce(elements, className) {
-    // GADS Anchor Coalescing Rules - prevent anchor corruption
+    // GADS Anchor Coalescing Rules - implement wrapper strategy
     if (elements.length < 2) {
         gadib_logger_d(`COALESCE-BLOCK: Insufficient elements (${elements.length})`);
         return false;
     }
     
-    // Check for ANY anchor elements first
+    // Check for anchor elements - use wrapper strategy instead of blocking
+    let hasAnchors = false;
     for (const element of elements) {
         if (element.tagName === 'A') {
-            gadib_logger_d(`COALESCE-BLOCK: Anchor element detected - preserving link semantics`);
-            return false;
+            hasAnchors = true;
+            break;
         }
+        // Also check for nested anchors
+        if (element.querySelector('a')) {
+            hasAnchors = true;
+            break;
+        }
+    }
+    
+    if (hasAnchors) {
+        // Mark for wrapper strategy instead of blocking
+        gadib_logger_d(`COALESCE-WRAPPER: Anchor elements detected - will use wrapper container strategy`);
+        return { useWrapper: true };
     }
     
     const firstTag = elements[0].tagName;
@@ -1185,16 +1208,10 @@ function gadie_can_safely_coalesce(elements, className) {
             return false;
         }
         
-        // Never merge elements containing interactive children
-        if (element.querySelector('a, button, input, select, textarea')) {
-            gadib_logger_d(`COALESCE-BLOCK: Contains interactive children`);
-            return false;
-        }
-        
-        // All elements must have the same tag
+        // All elements must have the same tag for direct merging
         if (element.tagName !== firstTag) {
-            gadib_logger_d(`COALESCE-BLOCK: Mixed tags (${firstTag} vs ${element.tagName})`);
-            return false;
+            gadib_logger_d(`COALESCE-BLOCK: Mixed tags (${firstTag} vs ${element.tagName}) - considering wrapper strategy`);
+            return { useWrapper: true };
         }
     }
     
@@ -1226,6 +1243,49 @@ function gadie_replace_run_with_single_element(adjacentRun, className) {
             adjacentRun[i].parentElement.removeChild(adjacentRun[i]);
         }
     }
+}
+
+// Helper: Create wrapper container for preserving individual semantics while providing visual consolidation
+function gadie_create_wrapper_container(adjacentRun, className) {
+    if (adjacentRun.length < 2) return;
+    
+    const parent = adjacentRun[0].parentElement;
+    const firstElement = adjacentRun[0];
+    
+    // Create neutral wrapper container as per GADS:779-781
+    const wrapper = document.createElement('span');
+    wrapper.classList.add('diff-insertion-run'); // Neutral container class
+    wrapper.setAttribute('data-wrapped-class', className);
+    wrapper.setAttribute('data-wrapped-count', adjacentRun.length.toString());
+    wrapper.setAttribute('data-strategy', 'wrapper-preservation');
+    
+    // Remove the diff class from individual elements and preserve them as-is
+    adjacentRun.forEach((element, index) => {
+        // Remove the individual styling class since wrapper provides consolidated styling
+        element.classList.remove(className);
+        
+        // Clone and preserve element structure completely  
+        const preservedElement = element.cloneNode(true);
+        wrapper.appendChild(preservedElement);
+        
+        // Add whitespace between elements (preserve original spacing)
+        if (index < adjacentRun.length - 1) {
+            const nextSibling = element.nextSibling;
+            if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+                wrapper.appendChild(nextSibling.cloneNode(true));
+            }
+        }
+    });
+    
+    // Replace the first element with the wrapper and remove the rest
+    parent.replaceChild(wrapper, firstElement);
+    for (let i = 1; i < adjacentRun.length; i++) {
+        if (adjacentRun[i].parentElement) {
+            adjacentRun[i].parentElement.removeChild(adjacentRun[i]);
+        }
+    }
+    
+    gadib_logger_d(`WRAPPER-STRATEGY: Created neutral container preserving ${adjacentRun.length} individual elements`);
 }
 
 // Phase 9: Serialize Final Output
