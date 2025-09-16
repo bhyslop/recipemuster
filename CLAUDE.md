@@ -68,8 +68,12 @@ Full read and edit access is pre-approved for all files in:
 - **CCCK** → `ccck/cccw_workbench.sh`
 
 #### GAD Subdirectory (`Tools/gad/`)
-- **GADF** → `gad/gadf_factory.py`
-- **GADI** → `gad/gadi_inspector.html`
+- **GADF**  → `gad/gadf_factory.py`
+- **GADIB** → `gad/gadib_base.js` (GAD Inspector Base - Infrastructure layer)
+- **GADIE** → `gad/gadie_engine.js` (GAD Inspector Engine - Diff computation)
+- **GADIU** → `gad/gadiu_user.js` (GAD Inspector User - UI layer)
+- **GADIW** → `gad/gadiw_webpage.html` (GAD Inspector Webpage)
+- **GADIC** → `gad/gadic_cascade.css` (GAD Inspector CSS)
 
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`

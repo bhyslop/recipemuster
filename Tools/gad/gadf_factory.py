@@ -448,7 +448,7 @@ class GADFactory:
             gadfl_fail(f"No git repository found for AsciiDoc file '{self.adoc_filename}'")
 
         # Inspector source path
-        self.inspector_source_path = Path(__file__).parent / 'gadi_inspector.html'
+        self.inspector_source_path = Path(__file__).parent / 'gadiw_webpage.html'
 
         # Relative path from repo root
         try:
@@ -543,9 +543,21 @@ class GADFactory:
                 (r"/", InspectorHandler),
                 (r"/ws", WebSocketHandler),
                 (r"/manifest.json", ManifestHandler),
-                (r"/gadc.css", StaticFileHandler, {
+                (r"/gadic_cascade.css", StaticFileHandler, {
                     "path": str(Path(__file__).parent),
-                    "default_filename": "gadc.css"
+                    "default_filename": "gadic_cascade.css"
+                }),
+                (r"/gadib_base.js", StaticFileHandler, {
+                    "path": str(Path(__file__).parent),
+                    "default_filename": "gadib_base.js"
+                }),
+                (r"/gadie_engine.js", StaticFileHandler, {
+                    "path": str(Path(__file__).parent),
+                    "default_filename": "gadie_engine.js"
+                }),
+                (r"/gadiu_user.js", StaticFileHandler, {
+                    "path": str(Path(__file__).parent),
+                    "default_filename": "gadiu_user.js"
                 }),
                 (r"/output/(.*)", StaticFileHandler, {
                     "path": str(self.output_dir),
