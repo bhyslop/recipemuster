@@ -503,10 +503,10 @@ class gadiu_inspector {
 
             // Enhanced logging for Factory debugging
             const changeTypeBreakdown = {
-                insertions: this.elements.renderedPane.querySelectorAll('.gad-inline-addition, .gad-block-addition').length,
-                moves: this.elements.renderedPane.querySelectorAll('.gad-structural-change').length,
-                deletions: this.elements.renderedPane.querySelectorAll('.gad-inline-removal, .gad-block-removal').length,
-                modifications: this.elements.renderedPane.querySelectorAll('.gad-inline-modification').length
+                insertions: this.elements.renderedPane.querySelectorAll('.gads-addition-inline, .gads-addition-block').length,
+                moves: this.elements.renderedPane.querySelectorAll('.gads-modification-structural').length,
+                deletions: this.elements.renderedPane.querySelectorAll('.gads-deletion-inline, .gads-deletion-block').length,
+                modifications: this.elements.renderedPane.querySelectorAll('.gads-modification-inline').length
             };
 
             const totalChanges = changeTypeBreakdown.insertions + changeTypeBreakdown.moves + 
