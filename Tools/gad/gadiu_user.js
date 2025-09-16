@@ -110,7 +110,7 @@ class gadiu_inspector {
             gadib_logger_d(`Successful load with ${this.manifest.commits.length} commits`);
 
             // Now that Factory is confirmed available, attempt WebSocket connection
-            wsTraceHandler.connectAfterManifest();
+            gadib_connect_after_manifest();
 
             gadib_logger_d('Starting populateRails');
             this.populateRails();
@@ -499,7 +499,7 @@ class gadiu_inspector {
 
             // Send rendered content to Factory via WebSocket for raw diff file creation
             gadib_logger_d(`Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
-            wsTraceHandler.sendDebugOutput('rendered', styledDiff, fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('rendered', styledDiff, fromCommit, toCommit, sourceFiles);
 
             // Enhanced logging for Factory debugging
             const changeTypeBreakdown = {

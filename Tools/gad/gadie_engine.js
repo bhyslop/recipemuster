@@ -261,8 +261,8 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
                    element.nodeName?.toUpperCase() || '#unknown';
         
         // Field 4: Payload hash (SHA-256 of normalized payload)
-        const normalizedPayload = gadie_normalize_payload(element);
-        const payloadHash = await gadie_strong_hash(normalizedPayload);
+        const normalizedPayload = gadib_normalize_payload(element);
+        const payloadHash = await gadib_hash(normalizedPayload);
         
         // GADS Canonical Key Format: dfk:<route>|<kind>|<tag>|sha256:<hex>
         const canonicalKey = `dfk:${routeStr}|${kind}|${tag}|${payloadHash}`;
@@ -336,35 +336,7 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
     return deletionFactTable;
 }
 
-function gadie_normalize_payload(element) {
-    if (!element) return '';
-    
-    if (element.nodeType === Node.TEXT_NODE) {
-        // For text nodes, normalize whitespace and trim
-        return element.textContent.replace(/\s+/g, ' ').trim();
-    } else if (element.nodeType === Node.ELEMENT_NODE) {
-        // For elements, create normalized representation
-        const attrs = Array.from(element.attributes || [])
-            .map(attr => `${attr.name}="${attr.value}"`)
-            .sort()
-            .join(' ');
-        
-        const textContent = element.textContent ? element.textContent.replace(/\s+/g, ' ').trim() : '';
-        return `<${element.tagName.toLowerCase()}${attrs ? ' ' + attrs : ''}>${textContent}</${element.tagName.toLowerCase()}>`;
-    } else {
-        // For other node types, use textContent or nodeName
-        return element.textContent || element.nodeName || '';
-    }
-}
-
-async function gadie_strong_hash(str) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(str);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return `sha256:${hashHex}`;
-}
+// Note: Using gadib_normalize_payload() and gadib_hash() from Base layer
 
 // DFK Enhancement Method
 function gadie_enhance_operations_with_dfk(diffOperations, deletionFactTable) {

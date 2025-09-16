@@ -134,12 +134,18 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def get_debug_type_display_name(self, debug_type):
         """Get display name for debug type."""
         debug_type_names = {
+            # New modular engine phase labels
             'phase3_dft': 'Phase 3 Deletion Fact Table',
-            'phase5_annotated': 'Phase 5 Annotated Assembly',
-            'phase6_deletions': 'Phase 6 Deletion Placement',
-            'phase7_coalesced': 'Phase 7 Uniform Classing',
-            'phase8_final': 'Phase 8 Final Serialize',
+            'phase6_annotated': 'Phase 6 Annotated Assembly', 
+            'phase7_deletions': 'Phase 7 Deletion Placement',
+            'phase8_coalesced': 'Phase 8 Uniform Classing',
+            'phase9_final': 'Phase 9 Final Serialize',
             'rendered': 'Rendered Content',
+            # Legacy phase labels for backwards compatibility
+            'phase5_annotated': 'Phase 5 Annotated Assembly (Legacy)',
+            'phase6_deletions': 'Phase 6 Deletion Placement (Legacy)',
+            'phase7_coalesced': 'Phase 7 Uniform Classing (Legacy)',
+            'phase8_final': 'Phase 8 Final Serialize (Legacy)',
             'annotated': 'Annotated DOM'
         }
         return debug_type_names.get(debug_type, f"Debug Output ({debug_type})")
