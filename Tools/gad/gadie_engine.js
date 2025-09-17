@@ -173,8 +173,19 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         };
         
         // Phase 7 intent and census artifacts
-        const inlineDeletions = allDeletionOps.filter(op => op.semanticType === 'INLINE_REMOVAL').length;
-        const blockDeletions = allDeletionOps.filter(op => op.semanticType === 'BLOCK_REMOVAL').length;
+        // Fix: Count correctness - compute inline/block from carried semanticType or recompute via dfkMetadata.tag
+        const inlineDeletions = allDeletionOps.filter(op => {
+            if (op.semanticType === 'INLINE_REMOVAL') return true;
+            if (op.semanticType === 'BLOCK_REMOVAL') return false;
+            // Fallback: use dfkMetadata.tag if semanticType not available
+            return op.dfkMetadata && !gadie_is_block(op.dfkMetadata.tag);
+        }).length;
+        const blockDeletions = allDeletionOps.filter(op => {
+            if (op.semanticType === 'BLOCK_REMOVAL') return true;
+            if (op.semanticType === 'INLINE_REMOVAL') return false;
+            // Fallback: use dfkMetadata.tag if semanticType not available
+            return op.dfkMetadata && gadie_is_block(op.dfkMetadata.tag);
+        }).length;
         const totalBadges = deletionPlacedDOM.querySelectorAll('[data-gad-placement]').length;
         const inlineBadges = deletionPlacedDOM.querySelectorAll('.gads-deletion-inline').length;
         const blockBadges = deletionPlacedDOM.querySelectorAll('.gads-deletion-block').length;
@@ -906,7 +917,15 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations, s
                 route: op.route.join(','),
                 type: op.action.startsWith('add') ? 'insertion' : 
                       op.action.startsWith('remove') ? 'deletion' :
-                      op.action.startsWith('relocate') ? 'move' : 'modification'
+                      op.action.startsWith('relocate') ? 'move' : 'modification',
+                // Fix: Propagate semanticType and dfkMetadata from Phase-5 classified operations
+                semanticType: op.semanticType,
+                dfkMetadata: op.dfkMetadata ? {
+                    kind: op.dfkMetadata.kind,
+                    tag: op.dfkMetadata.tag,
+                    payloadHash: op.dfkMetadata.payloadHash,
+                    route: op.dfkMetadata.route
+                } : null
             });
         }
     }
@@ -995,10 +1014,10 @@ async function gadie_assemble_and_place_deletions(detachedWorkingDOM, diffOperat
     // Phase 6: Annotation assembly (reuse existing logic)
     const assemblyResult = gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit, enableAnchorFallback);
     
-    // Phase 7: Deletion placement (reuse existing logic) 
-    const allDeletionOps = assemblyResult.appliedOperations.filter(op =>
-        op.type === 'deletion' || (op.action && op.action.startsWith('remove')) ||
-        (op.semanticType && /REMOVAL/i.test(op.semanticType))
+    // Phase 7: Deletion placement - Fix: Build allDeletionOps from Phase-5 classified diff ops (all remove*), not from Phase-6's applied set
+    // Include both resolved and quarantined deletions so DFK/anchor logic can still place badges for deleted content absent from "to" HTML
+    const allDeletionOps = diffOperations.filter(op =>
+        op.action && op.action.startsWith('remove')
     );
     
     // Tighten deletion ops filter - dedupe by (route, action) upfront
