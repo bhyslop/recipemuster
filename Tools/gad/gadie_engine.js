@@ -2,15 +2,44 @@
 // Extracted from monolithic gadi_inspector.html for modular architecture
 // Contains: All 9-phase diff methods, DOM helpers, DFK operations, coalescing logic
 
-// Verbosity gating helper - force debug when debugArtifacts is enabled
+// GADIE Constants - Centralized static tables
+const GADIE_CONSTANTS = {
+    BLOCK_TAGS: new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
+                         'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
+                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN',
+                         'DL', 'DT', 'DD', 'UL', 'OL']),
+    
+    INLINE_PARENTS: new Set(['SPAN', 'A', 'EM', 'STRONG', 'B', 'I', 'CODE']),
+    
+    INTERACTIVE_TAGS: new Set(['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA']),
+    
+    DIFF_CLASSES: {
+        'BLOCK_ADDITION': { cssClass: 'gads-addition-block', wrapType: 'block' },
+        'INLINE_ADDITION': { cssClass: 'gads-addition-inline', wrapType: 'inline' },
+        'BLOCK_REMOVAL': { cssClass: 'gads-deletion-block', wrapType: 'block' },
+        'INLINE_REMOVAL': { cssClass: 'gads-deletion-inline', wrapType: 'inline' },
+        'STRUCTURAL_CHANGE': { cssClass: 'gads-modification-structural', wrapType: 'block' },
+        'INLINE_MODIFICATION': { cssClass: 'gads-modification-inline', wrapType: 'inline' }
+    },
+    
+    COALESCING_CLASSES: ['gads-addition-inline', 'gads-modification-structural', 
+                        'gads-deletion-inline', 'gads-modification-inline']
+};
+
+// Helper: Check if element tag is block-level
+function gadie_is_block(tag) {
+    return GADIE_CONSTANTS.BLOCK_TAGS.has(tag);
+}
+
+// Verbosity gating helper - default to error-only console output
 function gadie_should_log(level, opts) {
     // Force debug logging when debug artifacts are enabled
     if (opts.debugArtifacts) {
         return true;
     }
     
-    const verbosity = opts.verbosity || 'low';
-    if (verbosity === 'low') return level === 'error';
+    const verbosity = opts.verbosity || 'error';
+    if (verbosity === 'error') return level === 'error';
     if (verbosity === 'warn') return ['error', 'warn'].includes(level);
     if (verbosity === 'debug') return true;
     return false;
@@ -54,9 +83,6 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
                 routeStr: deletionFactTable[key].routeStr
             }))
         };
-        if (opts.debugArtifacts) {
-            gadib_factory_ship('phase3_dft', JSON.stringify(phase3Telemetry, null, 2), fromCommit, toCommit, sourceFiles);
-        }
 
         // Phase 4: Diff Operations - Generate structured diff operations
         const diffDOM = new window.diffDom.DiffDOM({
@@ -84,67 +110,30 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
                 visualTreatment: op.visualTreatment
             }))
         };
-        if (opts.debugArtifacts) {
-            gadib_factory_ship('phase5_classified', JSON.stringify(phase45Debug, null, 2), fromCommit, toCommit, sourceFiles);
-        }
 
-        // Phase 6: Annotated Assembly - Construct semantically annotated output DOM
+        // Phase 6-7 Combined: Annotated Assembly and Deletion Placement
         const {resolved, unresolved} = gadie_partition_by_resolvability(detachedWorkingDOM, classifiedOperations);
         // ship quarantine for visibility
         if (opts.debugArtifacts) {
             gadib_factory_ship('phase6_quarantine_unresolved_ops', JSON.stringify(unresolved, null, 2), fromCommit, toCommit, sourceFiles);
         }
-        const assemblyResult = gadie_assemble_annotated_dom(detachedWorkingDOM, resolved, semanticAnchors, fromCommit, toCommit, enableAnchorFallback);
-        const assembledDOM = assemblyResult.outputDOM;
+        
+        // Combined assembly and deletion placement in single pass
+        const combinedResult = await gadie_assemble_and_place_deletions(
+            detachedWorkingDOM, resolved, deletionFactTable, semanticAnchors, fromCommit, toCommit, enableAnchorFallback
+        );
+        const assembledDOM = combinedResult.outputDOM;
         const assembledHTML = assembledDOM.innerHTML;
         if (opts.debugArtifacts) {
             gadib_factory_ship('phase6_annotated', assembledHTML, fromCommit, toCommit, sourceFiles);
         }
-
-        // Phase 7: Deletion Placement - Position deletion blocks using DFK and Semantic Anchors
-        // Fix: Use post-dedup appliedOperations instead of pre-dedup classifiedOperations
-        const allDeletionOps = assemblyResult.appliedOperations.filter(op =>
-            op.type === 'deletion' || (op.action && op.action.startsWith('remove')) ||
-            (op.semanticType && /REMOVAL/i.test(op.semanticType))
-        );
         
-        // Fix: Tighten deletion ops filter - dedupe by (route, action) upfront
-        const uniqueDeletionOps = [];
-        const seenRouteAction = new Set();
-        for (const op of allDeletionOps) {
-            const routeStr = Array.isArray(op.route) ? op.route.join(',') : op.route;
-            const routeActionKey = `${routeStr}|${op.action}`;
-            if (!seenRouteAction.has(routeActionKey)) {
-                seenRouteAction.add(routeActionKey);
-                uniqueDeletionOps.push(op);
-            }
-        }
-        
-        // DIAGNOSTIC: Ship phase7_all_deletion_ops (using uniqueDeletionOps for accurate count)
-        const phase7InputOps = uniqueDeletionOps.map(op => ({
-            route: op.route,
-            semanticType: op.semanticType,
-            action: op.action,
-            dfkMetadata: op.dfkMetadata ? {
-                route: op.dfkMetadata.route,
-                tag: op.dfkMetadata.tag,
-                kind: op.dfkMetadata.kind,
-                payloadHash: op.dfkMetadata.payloadHash
-            } : null
-        }));
-        
-        if (typeof gadib_factory_ship === 'function') {
-            gadib_factory_ship('phase7_all_deletion_ops', JSON.stringify(phase7InputOps));
-        }
-        
-        const deletionPlacementResult = await gadie_place_deletion_blocks(
-            assembledDOM, uniqueDeletionOps, deletionFactTable, semanticAnchors, uniqueDeletionOps.length, enableAnchorFallback
-        );
+        const deletionPlacementResult = combinedResult;
         const deletionPlacedDOM = deletionPlacementResult.dom;
         const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
         
         // Emit invariant check - Fix: Use post-dedup, post-quarantine count for accurate comparison
-        const expectedDeletions = uniqueDeletionOps.length;
+        const expectedDeletions = deletionPlacementResult.telemetry.expected || 0;
         const placementTotal = deletionPlacementResult.telemetry.exact + deletionPlacementResult.telemetry.fallback + 
                               deletionPlacementResult.telemetry.ambiguous + deletionPlacementResult.telemetry.unplaced;
         if (placementTotal !== expectedDeletions) {
@@ -290,7 +279,9 @@ function gadie_anchor_fallback(route, semanticAnchors) {
 }
 
 // DOM Manipulation Helper Methods
-function gadie_find_element_by_route(dom, route) {
+// Unified element location with fallback support
+function gadie_locate_target(dom, route, semanticAnchors, enableAnchorFallback) {
+    // Try direct route traversal first
     let element = dom;
     for (let i = 0; i < route.length; i++) {
         const index = route[i];
@@ -298,36 +289,59 @@ function gadie_find_element_by_route(dom, route) {
             element = element.childNodes[index];
         } else {
             const availableCount = element.childNodes ? element.childNodes.length : 0;
-            
-            // Route traversal failed - structured error
             gadib_logger_e(`Route traversal failed: route=[${route.join(',')}] pos=${i} index=${index} available=${availableCount}`);
-            return null;
+            
+            // Try fallback if enabled
+            if (enableAnchorFallback && semanticAnchors) {
+                const fallbackElement = gadie_anchor_fallback(route, semanticAnchors);
+                if (fallbackElement) {
+                    return { node: fallbackElement, fallbackUsed: true, reason: 'semantic_anchor' };
+                }
+            }
+            return { node: null, fallbackUsed: false, reason: 'route_traversal_failed' };
         }
     }
-    return element;
+    return { node: element, fallbackUsed: false, reason: 'direct_route' };
+}
+
+// Backward compatibility wrapper
+function gadie_find_element_by_route(dom, route) {
+    const result = gadie_locate_target(dom, route, null, false);
+    return result.node;
 }
 
 
 // Utility Helper Methods
+// Unified text processing - escape or strip HTML
+function gadie_text(input, mode = 'strip') {
+    if (mode === 'escape') {
+        return input
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    } else if (mode === 'strip') {
+        try {
+            // Create a temporary element to parse HTML and extract text content
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = input;
+            return tempDiv.textContent || tempDiv.innerText || '';
+        } catch (e) {
+            // Fallback: basic tag stripping
+            return input.replace(/<[^>]*>/g, '').trim();
+        }
+    }
+    return input;
+}
+
+// Backward compatibility wrappers
 function gadie_escape_html(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return gadie_text(unsafe, 'escape');
 }
 
 function gadie_extract_text_from_html(htmlString) {
-    try {
-        // Create a temporary element to parse HTML and extract text content
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlString;
-        return tempDiv.textContent || tempDiv.innerText || '';
-    } catch (e) {
-        // Fallback: basic tag stripping
-        return htmlString.replace(/<[^>]*>/g, '').trim();
-    }
+    return gadie_text(htmlString, 'strip');
 }
 
 // Deletion Fact Table Generation
@@ -400,7 +414,8 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
             payloadHash: payloadHash,
             normalizedPayload: normalizedPayload,
             nodeType: element.nodeType,
-            outerHTML: element.nodeType === Node.ELEMENT_NODE ? element.outerHTML : null,
+            outerHTML: element.nodeType === Node.ELEMENT_NODE ? 
+                (element.outerHTML.length > 300 ? element.outerHTML.substring(0, 300) + '...' : element.outerHTML) : null,
             textContent: element.textContent || '',
             routeStr: routeStr
         };
@@ -451,9 +466,6 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
         };
     }
     
-    if (typeof gadib_factory_ship === 'function') {
-        gadib_factory_ship('phase3_dfk_payload_census', payloadCensusOutput);
-    }
     
     return deletionFactTable;
 }
@@ -525,7 +537,8 @@ function gadie_enhance_operations_with_dfk(diffOperations, deletionFactTable) {
             if (match) {
                 const {k: matchedDfkKey, e: matchedEntry} = match;
                 op.dfkId = matchedDfkKey;
-                op.capturedContent = matchedEntry.outerHTML || matchedEntry.textContent;
+                const fullContent = matchedEntry.outerHTML || matchedEntry.textContent;
+                op.capturedContent = fullContent.length > 200 ? fullContent.substring(0, 200) + '...' : fullContent;
                 op.capturedType = matchedEntry.nodeType === Node.ELEMENT_NODE ? 'element' : 'text';
                 op.dfkMetadata = { 
                     route: matchedEntry.route, 
@@ -612,14 +625,10 @@ function gadie_determine_semantic_type(operation, fromDOM, toDOM) {
 function gadie_is_block_level_addition(operation, toDOM) {
     if (operation.action !== 'addElement') return false;
     
-    const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
-                         'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
-                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN',
-                         'DL', 'DT', 'DD', 'UL', 'OL'];
     
     // Primary check: Element tag type
     const elementTag = operation.element?.tagName;
-    if (blockElements.includes(elementTag)) {
+    if (gadie_is_block(elementTag)) {
         gadib_logger_d(`BLOCK-LEVEL-ADDITION: ${elementTag} detected as block element`);
         return true;
     }
@@ -628,7 +637,7 @@ function gadie_is_block_level_addition(operation, toDOM) {
     if (operation.element) {
         // Check if element contains block-level children
         const hasBlockChildren = Array.from(operation.element.children || [])
-            .some(child => blockElements.includes(child.tagName));
+            .some(child => gadie_is_block(child.tagName));
         
         // Check if element has significant text content (paragraph-like)
         const textContent = operation.element.textContent || '';
@@ -636,8 +645,7 @@ function gadie_is_block_level_addition(operation, toDOM) {
         
         // Check parent context - if being added to inline context, prefer inline treatment
         const targetElement = gadie_find_element_by_route(toDOM, operation.route.slice(0, -1));
-        const inlineParents = ['SPAN', 'A', 'EM', 'STRONG', 'B', 'I', 'CODE'];
-        const hasInlineParent = targetElement && inlineParents.includes(targetElement.tagName);
+        const hasInlineParent = targetElement && GADIE_CONSTANTS.INLINE_PARENTS.has(targetElement.tagName);
         
         if ((hasBlockChildren || hasSignificantContent) && !hasInlineParent) {
             gadib_logger_d(`BLOCK-LEVEL-ADDITION: ${elementTag} classified as block due to structure (children: ${hasBlockChildren}, content: ${hasSignificantContent})`);
@@ -653,24 +661,13 @@ function gadie_is_block_level_addition(operation, toDOM) {
 function gadie_is_block_level_removal(operation, fromDOM) {
     if (!operation.dfkMetadata) return false;
     
-    const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
-                         'LI', 'TD', 'TH', 'BLOCKQUOTE', 'PRE', 'SECTION', 
-                         'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'ASIDE', 'MAIN',
-                         'DL', 'DT', 'DD', 'UL', 'OL'];
     
-    return blockElements.includes(operation.dfkMetadata.tag);
+    return gadie_is_block(operation.dfkMetadata.tag);
 }
 
 // Helper: Get visual treatment for semantic type
 function gadie_get_visual_treatment(semanticType) {
-    const treatments = {
-        'BLOCK_ADDITION': { cssClass: 'gads-addition-block', wrapType: 'block' },
-        'INLINE_ADDITION': { cssClass: 'gads-addition-inline', wrapType: 'inline' },
-        'BLOCK_REMOVAL': { cssClass: 'gads-deletion-block', wrapType: 'block' },
-        'INLINE_REMOVAL': { cssClass: 'gads-deletion-inline', wrapType: 'inline' },
-        'STRUCTURAL_CHANGE': { cssClass: 'gads-modification-structural', wrapType: 'block' },
-        'INLINE_MODIFICATION': { cssClass: 'gads-modification-inline', wrapType: 'inline' }
-    };
+    const treatments = GADIE_CONSTANTS.DIFF_CLASSES;
     
     return treatments[semanticType] || { cssClass: 'gads-unknown', wrapType: 'inline' };
 }
@@ -864,7 +861,7 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations, s
         switch (op.action) {
             case 'addElement':
             case 'addTextElement':
-                gadie_apply_insertion_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
+                gadie_apply_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
                 insertions++;
                 applied = true;
                 break;
@@ -886,7 +883,7 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations, s
                 }
                 break;
             case 'relocateNode':
-                gadie_apply_move_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
+                gadie_apply_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
                 moves++;
                 applied = true;
                 break;
@@ -896,7 +893,7 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations, s
                 applied = true;
                 break;
             case 'modifyAttribute':
-                gadie_apply_modification_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
+                gadie_apply_annotation(outputDOM, op, semanticAnchors, enableAnchorFallback);
                 modifications++;
                 applied = true;
                 break;
@@ -927,9 +924,10 @@ function gadie_apply_annotations_from_resolved(workingDOM, resolvedOperations, s
 }
 
 // Apply insertion annotation
-function gadie_apply_insertion_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
-    let target = gadie_find_element_by_route(outputDOM, operation.route);
-    if (!target && enableAnchorFallback) target = gadie_anchor_fallback(operation.route, semanticAnchors);
+// Unified annotation dispatcher
+function gadie_apply_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
+    const location = gadie_locate_target(outputDOM, operation.route, semanticAnchors, enableAnchorFallback);
+    const target = location.node;
     
     // Strict semantic classification - no fallback to default classes
     if (!operation.visualTreatment?.cssClass) {
@@ -939,50 +937,34 @@ function gadie_apply_insertion_annotation(outputDOM, operation, semanticAnchors,
     
     const cssClass = operation.visualTreatment.cssClass;
     
+    // Handle move operations specially
+    if (operation.action === 'moveElement') {
+        gadib_logger_d(`Move annotation placeholder for route [${operation.route.join(',')}]`);
+        // Move operations are complex and would need full implementation
+        return;
+    }
+    
+    // Standard annotation for insertions, modifications, etc.
     if (target && target.nodeType === Node.ELEMENT_NODE) {
         target.classList.add(cssClass);
     } else if (target && target.nodeType === Node.TEXT_NODE && target.parentElement) {
-        // For text insertions, create semantic highlighting 
+        // For text operations, create semantic highlighting 
         const parent = target.parentElement;
         const span = document.createElement('span');
         span.classList.add(cssClass);
         span.textContent = target.textContent;
         parent.replaceChild(span, target);
     } else {
-        gadib_logger_e(`Failed to apply insertion annotation at route [${operation.route.join(',')}] - element not found or invalid`);
+        gadib_logger_e(`Failed to apply ${operation.action || 'unknown'} annotation at route [${operation.route.join(',')}] - element not found or invalid`);
     }
 }
 
-// Apply modification annotation
-function gadie_apply_modification_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
-    let target = gadie_find_element_by_route(outputDOM, operation.route);
-    if (!target && enableAnchorFallback) target = gadie_anchor_fallback(operation.route, semanticAnchors);
-    
-    // Strict semantic classification - no fallback to default classes
-    if (!operation.visualTreatment?.cssClass) {
-        gadib_logger_e(`SEMANTIC-ERROR: Operation at route [${operation.route.join(',')}] lacks visualTreatment.cssClass - skipping annotation`);
-        return;
-    }
-    
-    const cssClass = operation.visualTreatment.cssClass;
-    
-    if (target && target.nodeType === Node.ELEMENT_NODE) {
-        target.classList.add(cssClass);
-    } else {
-        gadib_logger_e(`Failed to apply modification annotation at route [${operation.route.join(',')}] - element not found`);
-    }
-}
 
-// Apply move annotation (placeholder)
-function gadie_apply_move_annotation(outputDOM, operation, semanticAnchors, enableAnchorFallback) {
-    gadib_logger_d(`Move annotation placeholder for route [${operation.route.join(',')}]`);
-    // Move operations are complex and would need full implementation
-}
 
 // Handle text modification
 function gadie_handle_text_modification(outputDOM, operation, options, semanticAnchors, enableAnchorFallback) {
-    let target = gadie_find_element_by_route(outputDOM, operation.route);
-    if (!target && enableAnchorFallback) target = gadie_anchor_fallback(operation.route, semanticAnchors);
+    const location = gadie_locate_target(outputDOM, operation.route, semanticAnchors, enableAnchorFallback);
+    const target = location.node;
     
     if (target && target.nodeType === Node.TEXT_NODE) {
         // Apply modification styling to text node
@@ -1003,6 +985,65 @@ function gadie_insert_single_error_marker(outputDOM, operation) {
     marker.textContent = `[Error: ${operation.action} at ${operation.route.join(',')}]`;
     marker.style.cssText = 'color: red; font-weight: bold; background: #fee;';
     outputDOM.appendChild(marker);
+}
+
+// Combined Phase 6-7: Assembly and Deletion Placement in single pass
+async function gadie_assemble_and_place_deletions(detachedWorkingDOM, diffOperations, deletionFactTable, semanticAnchors, fromCommit, toCommit, enableAnchorFallback) {
+    gadib_logger_d('Combined processing: annotations and deletion placement in single pass');
+    
+    // Phase 6: Annotation assembly (reuse existing logic)
+    const assemblyResult = gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semanticAnchors, fromCommit, toCommit, enableAnchorFallback);
+    
+    // Phase 7: Deletion placement (reuse existing logic) 
+    const allDeletionOps = assemblyResult.appliedOperations.filter(op =>
+        op.type === 'deletion' || (op.action && op.action.startsWith('remove')) ||
+        (op.semanticType && /REMOVAL/i.test(op.semanticType))
+    );
+    
+    // Tighten deletion ops filter - dedupe by (route, action) upfront
+    const uniqueDeletionOps = [];
+    const seenRouteAction = new Set();
+    for (const op of allDeletionOps) {
+        const routeStr = Array.isArray(op.route) ? op.route.join(',') : op.route;
+        const routeActionKey = `${routeStr}|${op.action}`;
+        if (!seenRouteAction.has(routeActionKey)) {
+            seenRouteAction.add(routeActionKey);
+            uniqueDeletionOps.push(op);
+        }
+    }
+    
+    // Ship phase7_all_deletion_ops
+    const phase7InputOps = uniqueDeletionOps.map(op => ({
+        route: op.route,
+        semanticType: op.semanticType,
+        action: op.action,
+        dfkMetadata: op.dfkMetadata ? {
+            route: op.dfkMetadata.route,
+            tag: op.dfkMetadata.tag,
+            kind: op.dfkMetadata.kind,
+            payloadHash: op.dfkMetadata.payloadHash
+        } : null
+    }));
+    
+    if (typeof gadib_factory_ship === 'function') {
+        gadib_factory_ship('phase7_all_deletion_ops', JSON.stringify(phase7InputOps));
+    }
+    
+    // Apply deletion placement
+    const deletionResult = await gadie_place_deletion_blocks(
+        assemblyResult.outputDOM, uniqueDeletionOps, deletionFactTable, semanticAnchors, uniqueDeletionOps.length, enableAnchorFallback
+    );
+    
+    // Return combined result with both annotation and deletion telemetry
+    return {
+        outputDOM: assemblyResult.outputDOM,
+        appliedOperations: assemblyResult.appliedOperations,
+        dom: deletionResult.dom,
+        telemetry: {
+            ...deletionResult.telemetry,
+            expected: uniqueDeletionOps.length
+        }
+    };
 }
 
 // Phase 7: Place Deletion Blocks - DFK-driven placement
@@ -1270,15 +1311,6 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         }
     };
     
-    // DIAGNOSTIC: Ship phase7_placements
-    if (typeof gadib_factory_ship === 'function') {
-        gadib_factory_ship('phase7_placements', placementEvents);
-    }
-    
-    // DIAGNOSTIC: Ship phase7_inline_guard_skips
-    if (typeof gadib_factory_ship === 'function') {
-        gadib_factory_ship('phase7_inline_guard_skips', inlineGuardSkips);
-    }
     
     return {
         dom: deletionPlacedDOM,
@@ -1445,7 +1477,8 @@ function gadie_create_block_deletion_badge(dfkEntry, key, placement) {
     // We keep a light, escaped snapshot so reviewers can see what was removed.
     const inner = document.createElement('div');
     inner.className = 'gads-deletion-block-content';
-    inner.innerHTML = dfkEntry.outerHTML || gadie_escape_html(dfkEntry.textContent || '');
+    const content = dfkEntry.outerHTML || gadie_escape_html(dfkEntry.textContent || '');
+    inner.innerHTML = content.length > 200 ? content.substring(0, 200) + '...' : content;
     badge.appendChild(inner);
     return badge;
 }
@@ -1466,9 +1499,11 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     // Set content based on what was captured  
     if (dfkEntry.outerHTML) {
         // Don't wrap in <del> - CSS provides strikethrough styling
-        element.innerHTML = dfkEntry.outerHTML;
+        const html = dfkEntry.outerHTML;
+        element.innerHTML = html.length > 200 ? html.substring(0, 200) + '...' : html;
     } else {
-        element.textContent = dfkEntry.textContent || '[Deleted content]';
+        const text = dfkEntry.textContent || '[Deleted content]';
+        element.textContent = text.length > 200 ? text.substring(0, 200) + '...' : text;
     }
     
     
@@ -1847,17 +1882,23 @@ function gadie_merge_adjacent_same_nature(annotatedDOM) {
     return coalescedDOM;
 }
 
-function gadie_add_visual_run_wrappers(dom) {
-    // Find adjacent same-nature elements using GADS semantic classes
-    const diffTypes = ['gads-addition-inline', 'gads-modification-structural', 'gads-deletion-inline', 'gads-modification-inline'];
-    let runCounter = 0;
+// Generic coalescing with configurable rules
+function gadie_coalesce_runs(dom, rules = null) {
+    // Default rules based on GADIE constants
+    const coalescingRules = rules || {
+        targetClasses: GADIE_CONSTANTS.COALESCING_CLASSES,
+        minRunLength: 2,
+        preserveBadges: true,
+        wrapperPrefix: 'gads-run-'
+    };
     
     // Initialize coalescing telemetry
     let elementsProcessed = 0;
     let elementsMerged = 0;
     let runsSkipped = 0;
+    let runCounter = 0;
     
-    for (const diffType of diffTypes) {
+    for (const diffType of coalescingRules.targetClasses) {
         const runResult = gadie_wrap_adjacent_same_type(dom, diffType, runCounter);
         runCounter += runResult.runsCreated;
         elementsProcessed += runResult.elementsProcessed;
@@ -1867,6 +1908,13 @@ function gadie_add_visual_run_wrappers(dom) {
     
     // Report final telemetry
     gadib_logger_d(`Coalescing complete: processed=${elementsProcessed}, merged=${elementsMerged}, runs_skipped=${runsSkipped}, runs_created=${runCounter}`);
+    
+    return { elementsProcessed, runsSkipped, elementsMerged };
+}
+
+// Backward compatibility wrapper
+function gadie_add_visual_run_wrappers(dom) {
+    return gadie_coalesce_runs(dom);
 }
 
 function gadie_wrap_adjacent_same_type(dom, className, startRunId) {
@@ -1972,8 +2020,7 @@ function gadie_can_safely_coalesce(elements, className) {
     // Do-Not-Merge Constraints for Interactive Elements
     for (const element of elements) {
         // Never merge interactive elements
-        const interactiveTags = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'];
-        if (interactiveTags.includes(element.tagName)) {
+        if (GADIE_CONSTANTS.INTERACTIVE_TAGS.has(element.tagName)) {
             return false;
         }
         
@@ -2083,68 +2130,3 @@ function gadie_serialize_final_output(coalescedDOM) {
     return finalHTML;
 }
 
-// Smoke tests for DFK matching and functionality
-function gadie_run_smoke_tests() {
-    console.log('[GADIE-SMOKE-TESTS] Starting smoke tests...');
-    
-    // Test (a): exact-route removal
-    try {
-        const testOp1 = { route: [1, 2, 3], action: 'removeElement' };
-        const testDft1 = {
-            'dfk:1,2,3|#element|DIV|sha256:abcd1234567890abcd1234567890abcd1234567890abcd1234567890abcd1234': {
-                routeStr: '1,2,3',
-                kind: '#element',
-                tag: 'DIV',
-                payloadHash: 'sha256:abcd1234567890abcd1234567890abcd1234567890abcd1234567890abcd1234'
-            }
-        };
-        const match1 = gadie_match_dfk(testOp1, testDft1);
-        console.log(`[SMOKE-TEST-A] Exact route match: ${match1 ? 'PASS' : 'FAIL'} - ${match1?.why || 'no match'}`);
-    } catch (e) {
-        console.log(`[SMOKE-TEST-A] ERROR: ${e.message}`);
-    }
-    
-    // Test (b): minor-normalization change (payload match)
-    try {
-        const testOp2 = { route: [1, 2, 4], action: 'removeElement', capturedTextHash: 'sha256:xyz789' };
-        const testDft2 = {
-            'dfk:1,2,3|#element|DIV|sha256:xyz789': {
-                routeStr: '1,2,3',
-                kind: '#element', 
-                tag: 'DIV',
-                payloadHash: 'sha256:xyz789'
-            }
-        };
-        const match2 = gadie_match_dfk(testOp2, testDft2);
-        console.log(`[SMOKE-TEST-B] Payload hash match: ${match2 ? 'PASS' : 'FAIL'} - ${match2?.why || 'no match'}`);
-    } catch (e) {
-        console.log(`[SMOKE-TEST-B] ERROR: ${e.message}`);
-    }
-    
-    // Test (c): fuzzy text match
-    try {
-        const testOp3 = { 
-            route: [2, 1, 0], 
-            action: 'removeElement',
-            element: { textContent: 'Hello World Test' }
-        };
-        const testDft3 = {
-            'dfk:1,2,3|#element|P|sha256:fuzzy123': {
-                routeStr: '1,2,3',
-                kind: '#element',
-                tag: 'P', 
-                payloadHash: 'sha256:fuzzy123',
-                textContent: 'Hello World Test Content'
-            }
-        };
-        const match3 = gadie_match_dfk(testOp3, testDft3);
-        console.log(`[SMOKE-TEST-C] Fuzzy text match: ${match3 ? 'PASS' : 'FAIL'} - ${match3?.why || 'no match'}`);
-    } catch (e) {
-        console.log(`[SMOKE-TEST-C] ERROR: ${e.message}`);
-    }
-    
-    console.log('[GADIE-SMOKE-TESTS] Smoke tests completed.');
-}
-
-// Uncomment to run smoke tests during development:
-// gadie_run_smoke_tests();
