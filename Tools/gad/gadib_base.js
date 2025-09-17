@@ -53,15 +53,15 @@ function gadib_init_websocket() {
         },
 
         sendDebugOutput(debugType, content, fromCommit, toCommit, sourceFiles) {
-            // Consolidated debug output sender for all 9-phase debug artifacts
+            // Simplified debug output sender for 2-step diff process
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                 try {
                     const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, '');
                     const fromHash = fromCommit ? fromCommit.hash.substring(0, 12) : 'unknown';
                     const toHash = toCommit ? toCommit.hash.substring(0, 12) : 'unknown';
                     
-                    // Determine file extension based on debug type
-                    const fileExtension = debugType.includes('dft') ? 'json' : 'html';
+                    // Simple file extension logic: JSON for operations, HTML for output
+                    const fileExtension = debugType === 'diff-operations' ? 'json' : 'html';
                     const filename = `debug-${debugType}-${fromHash}-${toHash}-${timestamp}.${fileExtension}`;
                     
                     this.ws.send(JSON.stringify({
@@ -98,13 +98,6 @@ function gadib_logger_e(msg) {
     }
 }
 
-function gadib_logger_p(n, msg) {
-    if (gadib_ws_instance) {
-        gadib_ws_instance.sendTrace(`P${n}`, msg);
-    } else {
-        console.log(`P${n} ${msg}`);
-    }
-}
 
 // SHA-256 hash function (Web Crypto API) for DFK compliance
 async function gadib_hash(str) {
