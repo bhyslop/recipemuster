@@ -131,6 +131,7 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         const deletionPlacementResult = combinedResult;
         const deletionPlacedDOM = deletionPlacementResult.dom;
         const deletionPlacedHTML = deletionPlacedDOM.innerHTML;
+        const allDeletionOps = combinedResult.allDeletionOps;
         
         // Emit invariant check - Fix: Use post-dedup, post-quarantine count for accurate comparison
         const expectedDeletions = deletionPlacementResult.telemetry.expected || 0;
@@ -1039,6 +1040,7 @@ async function gadie_assemble_and_place_deletions(detachedWorkingDOM, diffOperat
         outputDOM: assemblyResult.outputDOM,
         appliedOperations: assemblyResult.appliedOperations,
         dom: deletionResult.dom,
+        allDeletionOps: uniqueDeletionOps,
         telemetry: {
             ...deletionResult.telemetry,
             expected: uniqueDeletionOps.length
