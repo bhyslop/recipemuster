@@ -299,8 +299,10 @@ function gadie_render_operations_html(operations, manifest = null) {
     // Build provenance line
     let provenance = 'Diff Operations';
     if (manifest && manifest.fromCommit && manifest.toCommit) {
-        const fromShort = manifest.fromCommit.substring(0, 8);
-        const toShort = manifest.toCommit.substring(0, 8);
+        const fromStr = String(manifest.fromCommit);
+        const toStr = String(manifest.toCommit);
+        const fromShort = fromStr.length > 8 ? fromStr.substring(0, 8) : fromStr;
+        const toShort = toStr.length > 8 ? toStr.substring(0, 8) : toStr;
         provenance = `from: ${fromShort} → to: ${toShort}`;
     }
     
