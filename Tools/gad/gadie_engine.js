@@ -106,6 +106,24 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
             op.type === 'deletion' || (op.action && op.action.startsWith('remove')) ||
             (op.semanticType && /REMOVAL/i.test(op.semanticType))
         );
+        
+        // DIAGNOSTIC: Ship phase7_all_deletion_ops
+        const phase7InputOps = allDeletionOps.map(op => ({
+            route: op.route,
+            semanticType: op.semanticType,
+            action: op.action,
+            dfkMetadata: op.dfkMetadata ? {
+                route: op.dfkMetadata.route,
+                tag: op.dfkMetadata.tag,
+                kind: op.dfkMetadata.kind,
+                payloadHash: op.dfkMetadata.payloadHash
+            } : null
+        }));
+        
+        if (typeof gadib_factory_ship === 'function') {
+            gadib_factory_ship('phase7_all_deletion_ops', phase7InputOps);
+        }
+        
         const deletionPlacementResult = await gadie_place_deletion_blocks(
             assembledDOM, allDeletionOps, deletionFactTable, semanticAnchors, allDeletionOps.length, enableAnchorFallback
         );
@@ -388,6 +406,39 @@ async function gadie_create_deletion_fact_table(immutableFromDOM) {
     const factsRecorded = Object.keys(deletionFactTable).length;
     // Telemetry logging removed for low verbosity
     
+    // DIAGNOSTIC: Generate phase3_dfk_payload_census
+    const payloadCensus = {};
+    for (const [dfkKey, dfkEntry] of Object.entries(deletionFactTable)) {
+        const payloadHash = dfkEntry.payloadHash;
+        if (payloadHash) {
+            if (!payloadCensus[payloadHash]) {
+                payloadCensus[payloadHash] = {
+                    count: 0,
+                    tags: new Set(),
+                    sampleRoutes: []
+                };
+            }
+            payloadCensus[payloadHash].count++;
+            payloadCensus[payloadHash].tags.add(dfkEntry.tag);
+            if (payloadCensus[payloadHash].sampleRoutes.length < 3) {
+                payloadCensus[payloadHash].sampleRoutes.push(dfkEntry.routeStr);
+            }
+        }
+    }
+    
+    // Convert sets to arrays for serialization
+    const payloadCensusOutput = {};
+    for (const [hash, data] of Object.entries(payloadCensus)) {
+        payloadCensusOutput[hash] = {
+            count: data.count,
+            tags: Array.from(data.tags),
+            sampleRoutes: data.sampleRoutes
+        };
+    }
+    
+    if (typeof gadib_factory_ship === 'function') {
+        gadib_factory_ship('phase3_dfk_payload_census', payloadCensusOutput);
+    }
     
     return deletionFactTable;
 }
@@ -679,6 +730,10 @@ function gadie_canonicalize_and_deduplicate_operations(operations) {
     const seenPayload = new Set();          // payload-level dedupe guard for same-content operations
     let duplicateCount = 0;
     
+    // DIAGNOSTIC: Track dropped operations
+    const droppedOps = [];
+    const reasonCounts = {};
+    
     // Sort to prioritize element operations over text operations
     const sortedOps = operations.sort((a, b) => {
         const aIsElement = a.action.includes('Element');
@@ -690,27 +745,72 @@ function gadie_canonicalize_and_deduplicate_operations(operations) {
     
     for (const op of sortedOps) {
         const routeKey = op.route.join(',');
+        let dropped = false;
+        let dropReason = '';
         
         // Fix #1: Prefer element op by payloadHash - drop any later op with same DFK payload
         if (op.dfkMetadata && op.dfkMetadata.payloadHash) {
             if (seenPayload.has(op.dfkMetadata.payloadHash)) {
-                duplicateCount++; continue;
+                duplicateCount++; 
+                dropped = true;
+                dropReason = 'same-payloadHash';
+            } else {
+                seenPayload.add(op.dfkMetadata.payloadHash);
             }
-            seenPayload.add(op.dfkMetadata.payloadHash);
         }
         
         // If we already saw an element-level removal at this route, drop any text-level twin
-        if ((op.action === 'removeTextElement') && elementSeenAtRoute.has(routeKey)) {
-            duplicateCount++; continue;
+        if (!dropped && (op.action === 'removeTextElement') && elementSeenAtRoute.has(routeKey)) {
+            duplicateCount++; 
+            dropped = true;
+            dropReason = 'textTwinAfterElement';
         }
+        
         // First arrival at a route always wins; later ops at the same route are duplicates
-        if (seenRoute.has(routeKey)) { duplicateCount++; continue; }
-        canonicalOps.push(op);
-        seenRoute.add(routeKey);
-        if (op.action === 'removeElement') elementSeenAtRoute.add(routeKey);
+        if (!dropped && seenRoute.has(routeKey)) { 
+            duplicateCount++; 
+            dropped = true;
+            dropReason = 'same-route';
+        }
+        
+        if (dropped) {
+            // DIAGNOSTIC: Record dropped operation
+            droppedOps.push({
+                reason: dropReason,
+                action: op.action,
+                route: op.route,
+                routeStr: routeKey,
+                dfkMetadata: op.dfkMetadata ? {
+                    tag: op.dfkMetadata.tag,
+                    kind: op.dfkMetadata.kind,
+                    payloadHash: op.dfkMetadata.payloadHash
+                } : null,
+                sampleText: op.textContent ? op.textContent.substring(0, 80) : 
+                           (op.resolvedTextContent ? op.resolvedTextContent.substring(0, 80) : '')
+            });
+            reasonCounts[dropReason] = (reasonCounts[dropReason] || 0) + 1;
+        } else {
+            canonicalOps.push(op);
+            seenRoute.add(routeKey);
+            if (op.action === 'removeElement') elementSeenAtRoute.add(routeKey);
+        }
     }
     
     gadib_logger_d(`Deduplication complete: ${duplicateCount} duplicates removed`);
+    
+    // DIAGNOSTIC: Ship phase6_dedup_report
+    const dedupReport = {
+        before: operations.length,
+        after: canonicalOps.length,
+        dropped: droppedOps.length,
+        by_reason: reasonCounts,
+        dropped_operations: droppedOps
+    };
+    
+    if (typeof gadib_factory_ship === 'function') {
+        gadib_factory_ship('phase6_dedup_report', dedupReport);
+    }
+    
     return canonicalOps;
 }
 
@@ -899,6 +999,16 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     // Single-insert invariant: dedupe by (route + action)
     const placedKeys = new Set();
     
+    // DIAGNOSTIC: Track per-op placement outcomes
+    const placementEvents = [];
+    
+    // DIAGNOSTIC: Track inline guard skips - cleared at function entry
+    const inlineGuardSkips = [];
+    // Set global reference for inline guard tracking
+    if (typeof window !== 'undefined') {
+        window.gadie_current_inline_guard_skips = inlineGuardSkips;
+    }
+    
     // Enhanced DFK telemetry counters
     let createdBadges = 0;
     let connectedBadges = 0;
@@ -958,13 +1068,27 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             dedupeKey = `${appliedOp.route}|${appliedOp.action}|unknown`;
         }
         
+        // DIAGNOSTIC: Initialize placement event
+        const placementEvent = {
+            route: routeStr,
+            payloadHash: dfkEntry ? dfkEntry.payloadHash : (appliedOp.dfkMetadata ? appliedOp.dfkMetadata.payloadHash : null),
+            attempt: dfkKey ? 'route' : 'unknown',
+            result: 'pending',
+            badge_key: null,
+            reason_if_unplaced: null
+        };
+        
         // Skip if already processed this (route + action + payload) combination
         if (placedKeys.has(dedupeKey)) {
+            placementEvent.result = 'skipped';
+            placementEvent.reason_if_unplaced = 'already_processed';
+            placementEvents.push(placementEvent);
             continue;
         }
         
         if (!dfkKey || !dfkEntry) {
             dfkMismatches++;
+            placementEvent.attempt = 'payload';
             
             // Step 5: Nearest-anchor fallback - Select nearest block/heading anchor and restrict search to that subtree
             dfkFallbackAttempts++;
@@ -977,19 +1101,29 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
                 dfkKey = Object.keys(deletionFactTable).find(key => 
                     deletionFactTable[key] === dfkEntry
                 );
+                placementEvent.attempt = 'fuzzy';
             } else if (fallbackResult && fallbackResult.type === 'ambiguous') {
                 ambiguousMatches++;
                 ambiguous_examples.push(dedupeKey);
+                placementEvent.result = 'ambiguous';
+                placementEvent.reason_if_unplaced = 'ambiguous_candidates';
+                placementEvents.push(placementEvent);
                 // Step 7: >1 matches → ambiguous: do not place any badge
                 continue;
             } else if (fallbackResult && fallbackResult.type === 'unplaced') {
                 unplacedNoHash++;
                 unplaced_examples.push(dedupeKey);
+                placementEvent.result = 'unplaced';
+                placementEvent.reason_if_unplaced = 'no_hash';
+                placementEvents.push(placementEvent);
                 // Step 7: 0 matches → unplaced: do not place any badge
                 continue;
             } else {
                 dfkFallbackFailed++;
                 unplaced_examples.push(dedupeKey);
+                placementEvent.result = 'unplaced';
+                placementEvent.reason_if_unplaced = 'fallback_failed';
+                placementEvents.push(placementEvent);
                 continue;
             }
         }
@@ -1001,6 +1135,9 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         if (!anchor) {
             anchorFailures++;
             unplaced_examples.push(dedupeKey);
+            placementEvent.result = 'unplaced';
+            placementEvent.reason_if_unplaced = 'no_anchor';
+            placementEvents.push(placementEvent);
             continue;
         }
         
@@ -1009,6 +1146,9 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         // Check if badge already placed at this location (guard)
         const existingBadge = deletionPlacedDOM.querySelector(`[data-gad-key="${dedupeKey}"]`);
         if (existingBadge) {
+            placementEvent.result = 'unplaced';
+            placementEvent.reason_if_unplaced = 'guard_suppressed';
+            placementEvents.push(placementEvent);
             continue;
         }
         
@@ -1024,11 +1164,29 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
                 inlineRemovalsCreated++;
                 connectedBadges++;
                 placedKeys.add(dedupeKey);
-                exactPlacements++;
+                
+                // DIAGNOSTIC: Track successful inline placement
+                const placedBadge = deletionPlacedDOM.querySelector(`[data-gad-key="${dedupeKey}"]`);
+                const badgePlacement = placedBadge ? placedBadge.getAttribute('data-gad-placement') : 'unknown';
+                placementEvent.result = badgePlacement === 'exact' ? 'exact' : 'fallback';
+                placementEvent.badge_key = dedupeKey;
+                placementEvents.push(placementEvent);
+                
+                // DIAGNOSTIC: Fix counter increment based on actual placement
+                if (badgePlacement === 'exact') {
+                    exactPlacements++;
+                } else {
+                    fallbackPlacements++;
+                }
             } else {
                 // Invariant accounting: track failed inline placements
                 unplacedNoHash++;
                 unplaced_examples.push(`${dedupeKey}:${inlineResult.reason}`);
+                
+                // DIAGNOSTIC: Track failed inline placement
+                placementEvent.result = 'unplaced';
+                placementEvent.reason_if_unplaced = inlineResult.reason || 'inline_wrapper_failed';
+                placementEvents.push(placementEvent);
             }
         } else {
             // BLOCK_REMOVAL: create a true block badge and insert near a stable anchor
@@ -1050,7 +1208,19 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
                 deletionPlacedDOM.appendChild(blockBadge);
             }
             createdBadges++; blockRemovalsCreated++; connectedBadges++;
-            placedKeys.add(dedupeKey); exactPlacements++;
+            placedKeys.add(dedupeKey);
+            
+            // DIAGNOSTIC: Track successful block placement and fix counters
+            placementEvent.result = placementKind;
+            placementEvent.badge_key = dedupeKey;
+            placementEvents.push(placementEvent);
+            
+            // DIAGNOSTIC: Fix counter increment based on actual placement
+            if (placementKind === 'exact') {
+                exactPlacements++;
+            } else {
+                fallbackPlacements++;
+            }
         }
     }
     
@@ -1083,6 +1253,16 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             block_removals: blockRemovalsCreated
         }
     };
+    
+    // DIAGNOSTIC: Ship phase7_placements
+    if (typeof gadib_factory_ship === 'function') {
+        gadib_factory_ship('phase7_placements', placementEvents);
+    }
+    
+    // DIAGNOSTIC: Ship phase7_inline_guard_skips
+    if (typeof gadib_factory_ship === 'function') {
+        gadib_factory_ship('phase7_inline_guard_skips', inlineGuardSkips);
+    }
     
     return {
         dom: deletionPlacedDOM,
@@ -1279,6 +1459,18 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
     return { element, isInline };
 }
 
+// DIAGNOSTIC: Helper to track inline guard skips
+function gadie_track_inline_guard_skip(route, payloadHash, skipReason) {
+    // Access the global inlineGuardSkips array from the placement function scope
+    if (typeof window !== 'undefined' && window.gadie_current_inline_guard_skips) {
+        window.gadie_current_inline_guard_skips.push({
+            route: Array.isArray(route) ? route.join(',') : route,
+            payloadHash: payloadHash,
+            skip_reason: skipReason
+        });
+    }
+}
+
 // Helper: Create inline deletion wrapper for INLINE_REMOVAL operations
 function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, dedupeKey) {
     try {
@@ -1287,6 +1479,8 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
         for (let i = 0; i < route.length; i++) {
             const index = route[i];
             if (!currentNode.childNodes || index >= currentNode.childNodes.length) {
+                const skipReason = 'route_nav_failed';
+                gadie_track_inline_guard_skip(route, dfkEntry ? dfkEntry.payloadHash : null, skipReason);
                 return { success: false, reason: 'Route navigation failed' };
             }
             currentNode = currentNode.childNodes[index];
@@ -1296,6 +1490,8 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
         if (currentNode.nodeType !== Node.TEXT_NODE) {
             const firstTextNode = gadie_find_first_text_descendant(currentNode);
             if (!firstTextNode) {
+                const skipReason = 'no_text_descendant';
+                gadie_track_inline_guard_skip(route, dfkEntry ? dfkEntry.payloadHash : null, skipReason);
                 return { success: false, reason: 'Route element has no text descendants' };
             }
             currentNode = firstTextNode;
@@ -1316,6 +1512,8 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
             // Fix #3: Inline guard - check for existing deletion wrapper with same payload hash
             const existingWrapper = currentNode.parentNode && currentNode.parentNode.closest(`[data-dfk-hash="${dfkEntry.payloadHash}"]`);
             if (existingWrapper) {
+                const skipReason = 'ancestor_has_same_hash';
+                gadie_track_inline_guard_skip(route, dfkEntry ? dfkEntry.payloadHash : null, skipReason);
                 return { success: false, reason: 'Ancestor already has deletion wrapper with same payload hash' };
             }
             
@@ -1339,6 +1537,8 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
             // Fix #3: Inline guard - check for existing deletion wrapper with same payload hash
             const existingWrapper = currentNode.parentNode && currentNode.parentNode.closest(`[data-dfk-hash="${dfkEntry.payloadHash}"]`);
             if (existingWrapper) {
+                const skipReason = 'ancestor_has_same_hash';
+                gadie_track_inline_guard_skip(route, dfkEntry ? dfkEntry.payloadHash : null, skipReason);
                 return { success: false, reason: 'Ancestor already has deletion wrapper with same payload hash' };
             }
             
@@ -1358,8 +1558,12 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
             }
         }
         
+        const skipReason = 'no_parent_node';
+        gadie_track_inline_guard_skip(route, dfkEntry ? dfkEntry.payloadHash : null, skipReason);
         return { success: false, reason: 'No parent node for replacement' };
     } catch (error) {
+        const skipReason = 'exception';
+        gadie_track_inline_guard_skip(route, dfkEntry ? dfkEntry.payloadHash : null, skipReason);
         return { success: false, reason: `Exception: ${error.message}` };
     }
 }
