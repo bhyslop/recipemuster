@@ -854,11 +854,6 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     // Clone the assembled DOM to avoid modifying input
     const deletionPlacedDOM = assembledDOM.cloneNode(true);
     
-    // Filter to deletion operations from Phase-5 applied list
-    const appliedDeletions = appliedOperations.filter(op => 
-        op.type === 'deletion' || (op.action && op.action.startsWith('remove'))
-    );
-    
     // Single-insert invariant: dedupe by (route + action)
     const placedKeys = new Set();
     
@@ -885,9 +880,9 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     // Report DFK table status
     const dfkCount = Object.keys(deletionFactTable).length;
     gadib_logger_d(`DFK TABLE: ${dfkCount} facts available for placement lookup`);
-    gadib_logger_d(`APPLIED DELETIONS: Processing ${appliedDeletions.length} deletion operations`);
+    gadib_logger_d(`APPLIED DELETIONS: Processing ${appliedOperations.length} deletion operations`);
     
-    for (const appliedOp of appliedDeletions) {
+    for (const appliedOp of appliedOperations) {
         // GADS-compliant dual route format handling
         // Route can be either Array<number> or string per GADS DFT spec line 637
         const route = Array.isArray(appliedOp.route) 
@@ -978,6 +973,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         // Step 11: Honor semantic type from Phase 5 for inline vs block rendering
         const isInlineRemoval = appliedOp.semanticType === 'INLINE_REMOVAL';
         
+        
         if (isInlineRemoval) {
             // INLINE_REMOVAL: Create inline wrapper at text node location
             const inlineResult = gadie_create_inline_deletion_wrapper(deletionPlacedDOM, route, appliedOp, dfkEntry, dedupeKey);
@@ -1012,8 +1008,8 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
     }
     
     // Enhanced DFK Pipeline Telemetry
-    const mismatch = appliedDeletions.length !== connectedBadges;
-    gadib_logger_d(`DFK PIPELINE COMPLETED: applied_deletions=${appliedDeletions.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
+    const mismatch = appliedOperations.length !== connectedBadges;
+    gadib_logger_d(`DFK PIPELINE COMPLETED: applied_deletions=${appliedOperations.length}, dfk_matches=${dfkMatchesfound}, dfk_mismatches=${dfkMismatches}, fallback_attempts=${dfkFallbackAttempts}, fallback_success=${dfkFallbackSuccess}, exact_hash_matches=${exactHashMatches}, unplaced_no_hash=${unplacedNoHash}, ambiguous_matches=${ambiguousMatches}, fallback_failed=${dfkFallbackFailed}, anchor_resolutions=${anchorResolutions}, anchor_failures=${anchorFailures}, created_badges=${createdBadges}, inline_removals=${inlineRemovalsCreated}, block_removals=${blockRemovalsCreated}, connected_badges=${connectedBadges}${mismatch ? ' PLACEMENT MISMATCH!' : ''}`);
     
     // DFK telemetry logging removed for low verbosity
     
@@ -1025,7 +1021,7 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
         unplaced: unplacedNoHash + dfkFallbackFailed,
         ambiguous_examples: ambiguous_examples,
         unplaced_examples: unplaced_examples,
-        totalProcessed: appliedDeletions.length,
+        totalProcessed: appliedOperations.length,
         pipeline_stats: {
             dfk_matches: dfkMatchesfound,
             dfk_mismatches: dfkMismatches,
