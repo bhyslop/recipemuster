@@ -305,8 +305,9 @@ class HTMLNormalizer:
                 new_html[attr] = value
             new_soup.append(new_html)
 
-            # Copy structure safely
-            HTMLNormalizer._copy_element_safely(original_soup.html, new_html, new_soup)
+            # Copy children of <html> into the new <html> (avoid nesting <html>)
+            for child in list(original_soup.html.children):
+                HTMLNormalizer._copy_element_safely(child, new_html, new_soup)
         else:
             # Handle fragments
             for element in original_soup.children:
@@ -377,8 +378,12 @@ class HTMLNormalizer:
                     if normalized_text:
                         target_parent.append(NavigableString(normalized_text))
         elif isinstance(source_element, Tag):
-            # Create new tag
-            new_tag = soup.new_tag(source_element.name)
+            # Belt-and-suspenders: prevent nested <html> tags
+            if source_element.name == 'html' and hasattr(target_parent, 'name') and target_parent.name == 'html':
+                new_tag = target_parent
+            else:
+                # Create new tag
+                new_tag = soup.new_tag(source_element.name)
 
             # Copy and clean attributes
             for attr, value in source_element.attrs.items():
@@ -404,10 +409,14 @@ class HTMLNormalizer:
                 normalized = re.sub(r'^(Figure|Table|Listing)\s+\d+[\.:]\s*', '', text)
                 if normalized != text:
                     new_tag.string = normalized
-                    target_parent.append(new_tag)
+                    # Only append if not the same element (belt-and-suspenders case)
+                    if new_tag is not target_parent:
+                        target_parent.append(new_tag)
                     return
 
-            target_parent.append(new_tag)
+            # Only append if not the same element (belt-and-suspenders case)
+            if new_tag is not target_parent:
+                target_parent.append(new_tag)
 
             # Recursively copy children
             for child in source_element.children:
