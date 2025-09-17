@@ -674,7 +674,8 @@ function gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semant
 function gadie_canonicalize_and_deduplicate_operations(operations) {
     gadib_logger_d('Deduplicating operations by (route, action) with element-first precedence');
     const canonicalOps = [];
-    const seenKeys = new Set();
+    const seenRoute = new Set();            // route-only dedupe guard
+    const elementSeenAtRoute = new Set();   // remember routes where an element-level deletion exists
     let duplicateCount = 0;
     
     // Sort to prioritize element operations over text operations
@@ -687,14 +688,16 @@ function gadie_canonicalize_and_deduplicate_operations(operations) {
     });
     
     for (const op of sortedOps) {
-        // Include operation type to distinguish removeElement vs removeTextElement at same route
-        const key = `${op.route.join(',')}:${op.action}:${op.type || 'unknown'}`;
-        if (!seenKeys.has(key)) {
-            canonicalOps.push(op);
-            seenKeys.add(key);
-        } else {
-            duplicateCount++;
-            }
+        const routeKey = op.route.join(',');
+        // If we already saw an element-level removal at this route, drop any text-level twin
+        if ((op.action === 'removeTextElement') && elementSeenAtRoute.has(routeKey)) {
+            duplicateCount++; continue;
+        }
+        // First arrival at a route always wins; later ops at the same route are duplicates
+        if (seenRoute.has(routeKey)) { duplicateCount++; continue; }
+        canonicalOps.push(op);
+        seenRoute.add(routeKey);
+        if (op.action === 'removeElement') elementSeenAtRoute.add(routeKey);
     }
     
     gadib_logger_d(`Deduplication complete: ${duplicateCount} duplicates removed`);
@@ -1018,25 +1021,26 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
                 unplaced_examples.push(`${dedupeKey}:${inlineResult.reason}`);
             }
         } else {
-            // BLOCK_REMOVAL: Use existing block badge logic
-            const badgeResult = gadie_create_deletion_badge(dfkEntry, dedupeKey);
-            const deletionBlock = badgeResult.element;
-            createdBadges++;
-            blockRemovalsCreated++;
-            
-            // Step 9: Insertion point - Insert badge before child at final index
-            const insertionResult = gadie_insert_deletion_badge(anchor, deletionBlock, { op: appliedOp, dftEntry: dfkEntry, placement: 'exact', semanticAnchors, enableAnchorFallback });
-            if (insertionResult.success) {
-                connectedBadges++;
-                placedKeys.add(dedupeKey);
-                
-                // Step 12: Label badges with data-gad-placement
-                if (insertionResult.placementType === 'exact') {
-                    exactPlacements++;
-                } else {
-                    fallbackPlacements++;
+            // BLOCK_REMOVAL: create a true block badge and insert near a stable anchor
+            let anchor = gadie_find_stable_semantic_anchor(deletionPlacedDOM, route);
+            if (!anchor && enableAnchorFallback) {
+                // Fallback: nearest existing ancestor by progressively truncating the route
+                for (let cut = route.length - 1; cut >= 0 && !anchor; cut--) {
+                    anchor = gadie_find_stable_semantic_anchor(deletionPlacedDOM, route.slice(0, cut));
                 }
             }
+            
+            const placementKind = (anchor && anchor.nodeType === Node.ELEMENT_NODE) ? 'exact' : 'fallback';
+            const blockBadge = gadie_create_block_deletion_badge(dfkEntry, dedupeKey, placementKind);
+            // Insert immediately before the nearest stable anchor element; if no parent, append to root
+            const anchorEl = anchor || deletionPlacedDOM;
+            if (anchorEl.parentNode) {
+                anchorEl.parentNode.insertBefore(blockBadge, anchorEl);
+            } else {
+                deletionPlacedDOM.appendChild(blockBadge);
+            }
+            createdBadges++; blockRemovalsCreated++; connectedBadges++;
+            placedKeys.add(dedupeKey); exactPlacements++;
         }
     }
     
@@ -1221,6 +1225,22 @@ function gadie_find_stable_semantic_anchor(dom, route) {
     
     // Final fallback to root
     return dom;
+}
+
+function gadie_create_block_deletion_badge(dfkEntry, key, placement) {
+    const badge = document.createElement('div');
+    badge.className = 'gads-deletion-block';
+    badge.setAttribute('data-gad-key', key);
+    badge.setAttribute('data-gad-placement', placement);
+    badge.setAttribute('data-dfk-kind', dfkEntry.kind);
+    badge.setAttribute('data-dfk-tag', dfkEntry.tag);
+    // Minimal visible payload to satisfy "preserve then show":
+    // We keep a light, escaped snapshot so reviewers can see what was removed.
+    const inner = document.createElement('div');
+    inner.className = 'gads-deletion-block-content';
+    inner.innerHTML = dfkEntry.outerHTML || gadie_escape_html(dfkEntry.textContent || '');
+    badge.appendChild(inner);
+    return badge;
 }
 
 // Helper: Create deletion badge with DFK metadata (Step 11: Create badges only for placed cases)
