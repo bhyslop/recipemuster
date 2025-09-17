@@ -2,9 +2,14 @@
 // Extracted from monolithic gadi_inspector.html for modular architecture
 // Contains: All 9-phase diff methods, DOM helpers, DFK operations, coalescing logic
 
-// Verbosity gating helper - hardcoded to 'low' for now
+// Verbosity gating helper - force debug when debugArtifacts is enabled
 function gadie_should_log(level, opts) {
-    const verbosity = opts.verbosity || 'low';  // hardcoded to 'low' 
+    // Force debug logging when debug artifacts are enabled
+    if (opts.debugArtifacts) {
+        return true;
+    }
+    
+    const verbosity = opts.verbosity || 'low';
     if (verbosity === 'low') return level === 'error';
     if (verbosity === 'warn') return ['error', 'warn'].includes(level);
     if (verbosity === 'debug') return true;
@@ -144,7 +149,30 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
             ambiguous_examples: (deletionPlacementResult.telemetry.ambiguous_examples || []).slice(0, 10)
         };
         
+        // Phase 7 intent and census artifacts
+        const inlineDeletions = allDeletionOps.filter(op => op.semanticType === 'INLINE_REMOVAL').length;
+        const blockDeletions = allDeletionOps.filter(op => op.semanticType === 'BLOCK_REMOVAL').length;
+        const totalBadges = deletionPlacedDOM.querySelectorAll('[data-gad-placement]').length;
+        const inlineBadges = deletionPlacedDOM.querySelectorAll('.gads-deletion-inline').length;
+        const blockBadges = deletionPlacedDOM.querySelectorAll('.gads-deletion-block').length;
+        
+        const phase7Intent = {
+            dels: allDeletionOps.length,
+            inline: inlineDeletions,
+            block: blockDeletions,
+            census: {
+                totalBadges: totalBadges,
+                inlineBadges: inlineBadges,
+                blockBadges: blockBadges
+            },
+            diagnostics: {
+                inline_detected_but_zero_painted: inlineDeletions > 0 && inlineBadges === 0,
+                census_matches_intent: (inlineBadges + blockBadges) === (inlineDeletions + blockDeletions)
+            }
+        };
+        
         // Ship phase 7 outputs with enhanced debug artifacts
+        gadib_factory_ship('phase7_intent', JSON.stringify(phase7Intent, null, 2), fromCommit, toCommit, sourceFiles);
         gadib_factory_ship('phase7_deletions', JSON.stringify(deletionDebugInfo, null, 2), fromCommit, toCommit, sourceFiles);
         gadib_factory_ship('phase7_telemetry', JSON.stringify(enhancedTelemetry, null, 2), fromCommit, toCommit, sourceFiles);
 
@@ -659,7 +687,8 @@ function gadie_canonicalize_and_deduplicate_operations(operations) {
     });
     
     for (const op of sortedOps) {
-        const key = `${op.route.join(',')}:${op.action}`;
+        // Include operation type to distinguish removeElement vs removeTextElement at same route
+        const key = `${op.route.join(',')}:${op.action}:${op.type || 'unknown'}`;
         if (!seenKeys.has(key)) {
             canonicalOps.push(op);
             seenKeys.add(key);
@@ -983,6 +1012,10 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
                 connectedBadges++;
                 placedKeys.add(dedupeKey);
                 exactPlacements++;
+            } else {
+                // Invariant accounting: track failed inline placements
+                unplacedNoHash++;
+                unplaced_examples.push(`${dedupeKey}:${inlineResult.reason}`);
             }
         } else {
             // BLOCK_REMOVAL: Use existing block badge logic
@@ -1218,7 +1251,7 @@ function gadie_create_deletion_badge(dfkEntry, dedupeKey) {
 // Helper: Create inline deletion wrapper for INLINE_REMOVAL operations
 function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, dedupeKey) {
     try {
-        // Navigate to the exact text node using the route
+        // Navigate to the target node using the route
         let currentNode = dom;
         for (let i = 0; i < route.length; i++) {
             const index = route[i];
@@ -1228,34 +1261,78 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
             currentNode = currentNode.childNodes[index];
         }
         
-        // Verify we're at a text node
+        // If route lands on element, descend to first text descendant
         if (currentNode.nodeType !== Node.TEXT_NODE) {
-            return { success: false, reason: 'Route does not point to text node' };
+            const firstTextNode = gadie_find_first_text_descendant(currentNode);
+            if (!firstTextNode) {
+                return { success: false, reason: 'Route element has no text descendants' };
+            }
+            currentNode = firstTextNode;
         }
         
-        // Get the text content to wrap
-        const textContent = dfkEntry.textContent || currentNode.textContent;
+        // Get the target text to wrap from DFK
+        const targetText = dfkEntry.textContent || '';
+        const fullText = currentNode.textContent;
         
-        // Create inline deletion span
-        const wrapper = document.createElement('span');
-        wrapper.classList.add('gads-deletion-inline');
-        wrapper.setAttribute('data-gad-key', dedupeKey);
-        wrapper.setAttribute('data-dfk-kind', dfkEntry.kind);
-        wrapper.setAttribute('data-dfk-tag', dfkEntry.tag);
-        wrapper.setAttribute('data-gad-placement', 'exact');
-        wrapper.textContent = textContent;
-        
-        // Replace the text node with our wrapper
-        const parentNode = currentNode.parentNode;
-        if (parentNode) {
-            parentNode.replaceChild(wrapper, currentNode);
-            return { success: true, element: wrapper };
+        // Token-precise wrapping: find exact text match
+        const matchIndex = fullText.indexOf(targetText);
+        if (matchIndex !== -1 && targetText.length > 0) {
+            // Split the text node at precise boundaries
+            const beforeNode = matchIndex > 0 ? currentNode.splitText(matchIndex) : currentNode;
+            const afterNode = beforeNode.splitText(targetText.length);
+            
+            // Create inline deletion span for the exact match
+            const wrapper = document.createElement('span');
+            wrapper.classList.add('gads-deletion-inline');
+            wrapper.setAttribute('data-gad-key', dedupeKey);
+            wrapper.setAttribute('data-dfk-kind', dfkEntry.kind);
+            wrapper.setAttribute('data-dfk-tag', dfkEntry.tag);
+            wrapper.setAttribute('data-gad-placement', 'exact');
+            wrapper.textContent = targetText;
+            
+            // Replace the middle text node with our wrapper
+            const parentNode = beforeNode.parentNode;
+            if (parentNode) {
+                parentNode.replaceChild(wrapper, beforeNode);
+                return { success: true, element: wrapper };
+            }
+        } else {
+            // Fallback: wrap whole text node if no exact match
+            const wrapper = document.createElement('span');
+            wrapper.classList.add('gads-deletion-inline');
+            wrapper.setAttribute('data-gad-key', dedupeKey);
+            wrapper.setAttribute('data-dfk-kind', dfkEntry.kind);
+            wrapper.setAttribute('data-dfk-tag', dfkEntry.tag);
+            wrapper.setAttribute('data-gad-placement', 'fallback');
+            wrapper.textContent = fullText;
+            
+            const parentNode = currentNode.parentNode;
+            if (parentNode) {
+                parentNode.replaceChild(wrapper, currentNode);
+                return { success: true, element: wrapper };
+            }
         }
         
         return { success: false, reason: 'No parent node for replacement' };
     } catch (error) {
         return { success: false, reason: `Exception: ${error.message}` };
     }
+}
+
+// Helper: Find first text descendant of an element
+function gadie_find_first_text_descendant(element) {
+    if (element.nodeType === Node.TEXT_NODE) {
+        return element;
+    }
+    
+    for (let child of element.childNodes) {
+        const textNode = gadie_find_first_text_descendant(child);
+        if (textNode) {
+            return textNode;
+        }
+    }
+    
+    return null;
 }
 
 // Helper: Create unplaced deletion badge for fallback cases
@@ -1594,6 +1671,16 @@ function gadie_can_safely_coalesce(elements, className) {
     // GADS Anchor Coalescing Rules - implement wrapper strategy
     if (elements.length < 2) {
         return false;
+    }
+    
+    // Phase-8 protection: Never merge deletion spans with other types
+    if (className === 'gads-deletion-inline') {
+        // Only allow coalescing if ALL elements are deletion spans
+        for (const element of elements) {
+            if (!element.classList.contains('gads-deletion-inline')) {
+                return false;
+            }
+        }
     }
     
     // Check for anchor elements - use wrapper strategy instead of blocking
