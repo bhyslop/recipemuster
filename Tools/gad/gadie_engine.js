@@ -160,7 +160,7 @@ function gadie_get_action_family(action) {
     if (action.includes('modify') || action.includes('replace')) return 'modify';
     if (action.includes('add')) return 'add';
     if (action.includes('remove')) return 'remove';
-    if (action.includes('move')) return 'move';
+    if (action.includes('move') || action.includes('relocate')) return 'move';
     if (action.includes('Attribute')) return 'attr';
     return 'modify'; // fallback
 }
@@ -226,7 +226,24 @@ function gadie_render_op_payload(op) {
     
     switch (action) {
         case 'modifyTextElement':
-            return `<div class="gad-op__text-diff">${gadie_render_token_diff(op.oldValue, op.newValue)}</div>`;
+            const oldText = gadie_escape_html(op.oldValue || '');
+            const newText = gadie_escape_html(op.newValue || '');
+            return `<div class="gad-op__text-change">
+                <div class="gad-op__before-after">
+                    <span class="gad-change__label">Before:</span> 
+                    <span class="gad-change__old">"${oldText}"</span>
+                </div>
+                <div class="gad-op__before-after">
+                    <span class="gad-change__label">After:</span> 
+                    <span class="gad-change__new">"${newText}"</span>
+                </div>
+                <div class="gad-op__token-level">
+                    <details>
+                        <summary>Token-level diff</summary>
+                        ${gadie_render_token_diff(op.oldValue, op.newValue)}
+                    </details>
+                </div>
+            </div>`;
             
         case 'removeTextElement':
         case 'addTextElement':
@@ -264,6 +281,76 @@ function gadie_render_op_payload(op) {
             const to = op.to ? JSON.stringify(op.to) : '(missing)';
             return `<div class="gad-op__move">From: ${gadie_escape_html(from)} → To: ${gadie_escape_html(to)}</div>`;
             
+        case 'relocateGroup':
+            const groupLength = op.groupLength || 1;
+            const fromPos = op.from !== undefined ? op.from : '?';
+            const toPos = op.to !== undefined ? op.to : '?';
+            const routeStr = op.route ? `[${op.route.join(', ')}]` : '[]';
+            const groupDesc = groupLength === 1 ? '1 element' : `${groupLength} elements`;
+            
+            // Try to infer what's being moved based on the operation context
+            let contentHint = '';
+            let routeHint = '';
+            
+            // Analyze the route to give context about where the move is happening
+            if (op.route && op.route.length > 0) {
+                const routeDepth = op.route.length;
+                if (routeDepth <= 2) {
+                    routeHint = 'Top-level content';
+                } else if (routeDepth <= 4) {
+                    routeHint = 'Section-level content';
+                } else {
+                    routeHint = 'Deeply nested content';
+                }
+            }
+            
+            // Provide better content description
+            if (op.groupLength === 1) {
+                contentHint = routeHint ? `${routeHint} - single element` : 'Single element or text block';
+            } else if (op.groupLength <= 3) {
+                contentHint = routeHint ? `${routeHint} - small group (${op.groupLength} items)` : `Small group of ${op.groupLength} related elements`;
+            } else if (op.groupLength <= 10) {
+                contentHint = routeHint ? `${routeHint} - medium section (${op.groupLength} items)` : `Medium section with ${op.groupLength} elements`;
+            } else {
+                contentHint = routeHint ? `${routeHint} - large section (${op.groupLength} items)` : `Large section with ${op.groupLength} elements`;
+            }
+            
+            // Add movement description based on positions
+            let movementDesc = '';
+            if (fromPos !== '?' && toPos !== '?') {
+                if (toPos > fromPos) {
+                    movementDesc = `(moved ${toPos - fromPos} positions forward)`;
+                } else if (fromPos > toPos) {
+                    movementDesc = `(moved ${fromPos - toPos} positions backward)`;
+                } else {
+                    movementDesc = '(position unchanged)';
+                }
+            }
+            
+            return `<div class="gad-op__relocate">
+                <div class="gad-relocate__summary">
+                    <span class="gad-relocate__group">${groupDesc}</span> moved within container
+                </div>
+                <div class="gad-relocate__content">
+                    <span class="gad-relocate__label">Content type:</span>
+                    <span class="gad-relocate__hint">${contentHint}</span>
+                    ${movementDesc ? `<span class="gad-relocate__movement">${movementDesc}</span>` : ''}
+                </div>
+                <div class="gad-relocate__details">
+                    <div class="gad-relocate__positions">
+                        <span class="gad-relocate__label">From position:</span>
+                        <span class="gad-relocate__pos gad-relocate__from">${fromPos}</span>
+                        <span class="gad-relocate__arrow">→</span>
+                        <span class="gad-relocate__label">To position:</span>
+                        <span class="gad-relocate__pos gad-relocate__to">${toPos}</span>
+                    </div>
+                    <div class="gad-relocate__container">
+                        <span class="gad-relocate__label">Container route:</span>
+                        <span class="gad-relocate__route">${gadie_escape_html(routeStr)}</span>
+                    </div>
+                </div>
+            </div>`;
+            
         default:
             return `<div class="gad-op__unknown">Unknown operation: ${gadie_escape_html(action)}</div>`;
     }
@@ -297,22 +384,25 @@ function gadie_render_operations_html(operations, manifest = null) {
     }
     
     // Build provenance line
-    let provenance = 'Diff Operations';
-    if (manifest && manifest.fromCommit && manifest.toCommit) {
-        const fromStr = String(manifest.fromCommit);
-        const toStr = String(manifest.toCommit);
-        const fromShort = fromStr.length > 8 ? fromStr.substring(0, 8) : fromStr;
-        const toShort = toStr.length > 8 ? toStr.substring(0, 8) : toStr;
-        provenance = `from: ${fromShort} → to: ${toShort}`;
-    }
+    let provenance = 'Diff Dom Annotations';
     
     // Build operation list
     const opItems = operations.map((op, index) => {
         const actionFamily = gadie_get_action_family(op.action);
         const routeStr = op.route ? JSON.stringify(op.route) : '[]';
         
-        // Raw diff-dom operation display
-        const rawOpData = JSON.stringify(op, null, 2);
+        // Raw diff-dom operation display - format route array on single line
+        const rawOpData = JSON.stringify(op, (key, value) => {
+            // Keep route arrays on single line
+            if (key === 'route' && Array.isArray(value)) {
+                return value;
+            }
+            return value;
+        }, 2).replace(/"route":\s*\[\s*([^\]]+)\s*\]/g, (match, content) => {
+            // Compress route array to single line
+            const compactRoute = content.replace(/\s+/g, '').replace(/,/g, ', ');
+            return `"route": [${compactRoute}]`;
+        });
         
         return `<li class="gad-op">
             <div class="gad-op__head">

@@ -549,6 +549,7 @@ section.gads-addition-inline {
     font-size: 11px;
     color: #6c757d;
     margin-left: auto;
+    white-space: nowrap;
 }
 
 .gad-op__payload {
@@ -568,9 +569,11 @@ section.gads-addition-inline {
 }
 
 .gad-op__text-diff,
+.gad-op__text-change,
 .gad-op__element,
 .gad-op__attr,
 .gad-op__move,
+.gad-op__relocate,
 .gad-op__unknown {
     margin-top: 8px;
     padding: 8px;
@@ -632,4 +635,152 @@ section.gads-addition-inline {
     background: #f1f3f4;
     border-radius: 2px;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Enhanced text change display */
+.gad-op__before-after {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gad-change__label {
+    font-weight: bold;
+    font-size: 11px;
+    color: #495057;
+    min-width: 50px;
+}
+
+.gad-change__old {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #ffeef0;
+    color: #d73a49;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #ffc1cc;
+}
+
+.gad-change__new {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #e8f5e8;
+    color: #28a745;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #c3e6cb;
+}
+
+.gad-op__token-level {
+    margin-top: 8px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 8px;
+}
+
+.gad-op__token-level summary {
+    font-size: 11px;
+    color: #6c757d;
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+
+.gad-op__token-level summary:hover {
+    color: #495057;
+}
+
+/* Enhanced relocateGroup display */
+.gad-relocate__summary {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.gad-relocate__group {
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 11px;
+}
+
+.gad-relocate__content {
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    background: #f8f9fa;
+    border-left: 3px solid #ffc107;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.gad-relocate__hint {
+    font-weight: 500;
+    color: #495057;
+    font-style: italic;
+}
+
+.gad-relocate__movement {
+    color: #6c757d;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.gad-relocate__details {
+    font-size: 12px;
+}
+
+.gad-relocate__positions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.gad-relocate__label {
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.gad-relocate__pos {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.gad-relocate__from {
+    background: #ffeef0;
+    color: #d73a49;
+    border: 1px solid #ffc1cc;
+}
+
+.gad-relocate__to {
+    background: #e8f5e8;
+    color: #28a745;
+    border: 1px solid #c3e6cb;
+}
+
+.gad-relocate__arrow {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.gad-relocate__container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #dee2e6;
+}
+
+.gad-relocate__route {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #e9ecef;
+    color: #495057;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
 }
