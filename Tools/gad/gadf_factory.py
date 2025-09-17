@@ -603,7 +603,7 @@ class GADFactory:
         gadfl_step("Running asciidoctor")
         try:
             subprocess.run([
-                'asciidoctor', '-a', 'reproducible', '-a', 'sectnum!',
+                'asciidoctor', '-a', 'reproducible', '-a', 'sectnums!',
                 str(extracted_adoc), '-D', str(self.distill_dir)
             ], check=True)
         except subprocess.CalledProcessError:
