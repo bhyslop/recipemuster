@@ -114,13 +114,13 @@ function gadie_apply_css_styling(dom, operations) {
     operations.forEach(op => {
         if (op.action === 'addElement' || op.action === 'addTextElement') {
             const element = gadie_find_element_by_route(dom, op.route);
-            if (element) {
+            if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 const isBlock = gadie_is_block(element.tagName);
                 element.classList.add(isBlock ? 'gads-addition-block' : 'gads-addition-inline');
             }
         } else if (op.action === 'modifyTextElement' || op.action === 'modifyAttribute') {
             const element = gadie_find_element_by_route(dom, op.route);
-            if (element) {
+            if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 const isBlock = gadie_is_block(element.tagName);
                 element.classList.add(isBlock ? 'gads-modification-structural' : 'gads-modification-inline');
             }
