@@ -311,16 +311,23 @@ function gadie_render_operations_html(operations, manifest = null) {
         const actionFamily = gadie_get_action_family(op.action);
         const routeStr = op.route ? JSON.stringify(op.route) : '[]';
         
+        // Raw diff-dom operation display
+        const rawOpData = JSON.stringify(op, null, 2);
+        
         return `<li class="gad-op">
             <div class="gad-op__head">
                 <span class="gad-op__idx">${index}</span>
                 <span class="gad-badge gad-badge--${actionFamily}">${gadie_escape_html(op.action)}</span>
                 <span class="gad-op__route">${gadie_escape_html(routeStr)}</span>
             </div>
-            <details class="gad-op__payload">
-                <summary>payload</summary>
-                ${gadie_render_op_payload(op)}
-            </details>
+            <div class="gad-op__payload">
+                <div class="gad-op__formatted">
+                    ${gadie_render_op_payload(op)}
+                </div>
+                <div class="gad-op__raw">
+                    <pre class="gad-raw-data">${gadie_escape_html(rawOpData)}</pre>
+                </div>
+            </div>
             ${gadie_render_micro_preview(op)}
         </li>`;
     }).join('');
