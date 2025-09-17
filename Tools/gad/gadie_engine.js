@@ -672,10 +672,11 @@ function gadie_assemble_annotated_dom(detachedWorkingDOM, diffOperations, semant
 
 // Canonicalize and deduplicate operations
 function gadie_canonicalize_and_deduplicate_operations(operations) {
-    gadib_logger_d('Deduplicating operations by (route, action) with element-first precedence');
+    gadib_logger_d('Deduplicating operations by (route, action) with element-first precedence and payloadHash deduplication');
     const canonicalOps = [];
     const seenRoute = new Set();            // route-only dedupe guard
     const elementSeenAtRoute = new Set();   // remember routes where an element-level deletion exists
+    const seenPayload = new Set();          // payload-level dedupe guard for same-content operations
     let duplicateCount = 0;
     
     // Sort to prioritize element operations over text operations
@@ -689,6 +690,15 @@ function gadie_canonicalize_and_deduplicate_operations(operations) {
     
     for (const op of sortedOps) {
         const routeKey = op.route.join(',');
+        
+        // Fix #1: Prefer element op by payloadHash - drop any later op with same DFK payload
+        if (op.dfkMetadata && op.dfkMetadata.payloadHash) {
+            if (seenPayload.has(op.dfkMetadata.payloadHash)) {
+                duplicateCount++; continue;
+            }
+            seenPayload.add(op.dfkMetadata.payloadHash);
+        }
+        
         // If we already saw an element-level removal at this route, drop any text-level twin
         if ((op.action === 'removeTextElement') && elementSeenAtRoute.has(routeKey)) {
             duplicateCount++; continue;
@@ -939,10 +949,10 @@ async function gadie_place_deletion_blocks(assembledDOM, appliedOperations, dele
             }
         }
         
-        // Build de-duplication key using new format: routeStr|action|payloadHash
+        // Fix #2: Strengthen dedupe key - use payloadHash only (drop action) to prevent duplicate badges
         let dedupeKey;
         if (dfkKey && dfkEntry) {
-            dedupeKey = `${appliedOp.route}|${appliedOp.action}|${dfkEntry.payloadHash}`;
+            dedupeKey = `${dfkEntry.payloadHash}|${appliedOp.route}`;
         } else {
             // Fallback for cases where DFK entry not found
             dedupeKey = `${appliedOp.route}|${appliedOp.action}|unknown`;
@@ -1234,6 +1244,7 @@ function gadie_create_block_deletion_badge(dfkEntry, key, placement) {
     badge.setAttribute('data-gad-placement', placement);
     badge.setAttribute('data-dfk-kind', dfkEntry.kind);
     badge.setAttribute('data-dfk-tag', dfkEntry.tag);
+    badge.setAttribute('data-dfk-hash', dfkEntry.payloadHash);
     // Minimal visible payload to satisfy "preserve then show":
     // We keep a light, escaped snapshot so reviewers can see what was removed.
     const inner = document.createElement('div');
@@ -1302,11 +1313,18 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
             const afterNode = beforeNode.splitText(targetText.length);
             
             // Create inline deletion span for the exact match
+            // Fix #3: Inline guard - check for existing deletion wrapper with same payload hash
+            const existingWrapper = currentNode.parentNode && currentNode.parentNode.closest(`[data-dfk-hash="${dfkEntry.payloadHash}"]`);
+            if (existingWrapper) {
+                return { success: false, reason: 'Ancestor already has deletion wrapper with same payload hash' };
+            }
+            
             const wrapper = document.createElement('span');
             wrapper.classList.add('gads-deletion-inline');
             wrapper.setAttribute('data-gad-key', dedupeKey);
             wrapper.setAttribute('data-dfk-kind', dfkEntry.kind);
             wrapper.setAttribute('data-dfk-tag', dfkEntry.tag);
+            wrapper.setAttribute('data-dfk-hash', dfkEntry.payloadHash);
             wrapper.setAttribute('data-gad-placement', 'exact');
             wrapper.textContent = targetText;
             
@@ -1318,11 +1336,18 @@ function gadie_create_inline_deletion_wrapper(dom, route, operation, dfkEntry, d
             }
         } else {
             // Fallback: wrap whole text node if no exact match
+            // Fix #3: Inline guard - check for existing deletion wrapper with same payload hash
+            const existingWrapper = currentNode.parentNode && currentNode.parentNode.closest(`[data-dfk-hash="${dfkEntry.payloadHash}"]`);
+            if (existingWrapper) {
+                return { success: false, reason: 'Ancestor already has deletion wrapper with same payload hash' };
+            }
+            
             const wrapper = document.createElement('span');
             wrapper.classList.add('gads-deletion-inline');
             wrapper.setAttribute('data-gad-key', dedupeKey);
             wrapper.setAttribute('data-dfk-kind', dfkEntry.kind);
             wrapper.setAttribute('data-dfk-tag', dfkEntry.tag);
+            wrapper.setAttribute('data-dfk-hash', dfkEntry.payloadHash);
             wrapper.setAttribute('data-gad-placement', 'fallback');
             wrapper.textContent = fullText;
             
