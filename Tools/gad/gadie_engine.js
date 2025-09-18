@@ -179,23 +179,58 @@ function gadie_generate_route_map(dom) {
     return routeMap;
 }
 
-// Simple CSS styling function for diff operations
+// Enhanced CSS styling function with navigation markers for diff operations
 function gadie_apply_css_styling(dom, operations) {
-    operations.forEach(op => {
+    operations.forEach((op, index) => {
+        const operationId = `gadisdp-op-${index}`;
+        
         if (op.action === 'addElement' || op.action === 'addTextElement') {
             const element = gadie_find_element_by_route(dom, op.route);
             if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 const isBlock = gadie_is_block(element.tagName);
                 element.classList.add(isBlock ? 'gads-addition-block' : 'gads-addition-inline');
+                
+                // Insert navigation markers around the element
+                gadie_insert_navigation_markers(element, operationId, op.action);
             }
         } else if (op.action === 'modifyTextElement' || op.action === 'modifyAttribute') {
             const element = gadie_find_element_by_route(dom, op.route);
             if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 const isBlock = gadie_is_block(element.tagName);
                 element.classList.add(isBlock ? 'gads-modification-structural' : 'gads-modification-inline');
+                
+                // Insert navigation markers around the element
+                gadie_insert_navigation_markers(element, operationId, op.action);
             }
         }
     });
+}
+
+// Insert route start and end markers around an element
+function gadie_insert_navigation_markers(element, operationId, action) {
+    if (!element || !element.parentNode) return;
+    
+    // Create start marker with backlink to annotation
+    const startMarker = document.createElement('span');
+    startMarker.id = `${operationId}-start`;
+    startMarker.className = 'gadisdp-route-start-marker';
+    startMarker.setAttribute('data-operation-id', operationId);
+    startMarker.setAttribute('data-operation-action', action);
+    startMarker.setAttribute('title', `Start of ${action} operation - Click to see details`);
+    startMarker.innerHTML = `<a href="#annotation-${operationId}" class="gad-backlink gad-backlink--start" title="View operation details">◀</a>`;
+    
+    // Create end marker with backlink to annotation
+    const endMarker = document.createElement('span');
+    endMarker.id = `${operationId}-end`;
+    endMarker.className = 'gadisdp-route-end-marker';
+    endMarker.setAttribute('data-operation-id', operationId);
+    endMarker.setAttribute('data-operation-action', action);
+    endMarker.setAttribute('title', `End of ${action} operation - Click to see details`);
+    endMarker.innerHTML = `<a href="#annotation-${operationId}" class="gad-backlink gad-backlink--end" title="View operation details">▶</a>`;
+    
+    // Insert markers before and after the element
+    element.parentNode.insertBefore(startMarker, element);
+    element.parentNode.insertBefore(endMarker, element.nextSibling);
 }
 
 // HTML escaper for safe rendering
@@ -677,11 +712,20 @@ function gadie_render_operations_html(operations, manifest = null, sourceDOM = n
             return `"route": [${compactRoute}]`;
         });
         
-        return `<li class="gad-op">
+        const operationId = `gadisdp-op-${index}`;
+        const navigationLinks = `
+            <span class="gad-op__navigation">
+                <a href="#${operationId}-start" class="gad-nav-link gad-nav-link--start" title="Jump to start of change">▲ Start</a>
+                <a href="#${operationId}-end" class="gad-nav-link gad-nav-link--end" title="Jump to end of change">▼ End</a>
+            </span>
+        `;
+        
+        return `<li class="gad-op" id="annotation-${operationId}">
             <div class="gad-op__head">
                 <span class="gad-op__idx">${index}</span>
                 <span class="gad-badge gad-badge--${actionFamily}">${gadie_escape_html(op.action)}</span>
                 <span class="gad-op__route">${gadie_escape_html(routeStr)}</span>
+                ${navigationLinks}
             </div>
             <div class="gad-op__payload">
                 <div class="gad-op__formatted">
