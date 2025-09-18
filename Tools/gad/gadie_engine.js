@@ -86,7 +86,25 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         
         // Debug output if requested
         if (opts.debugArtifacts && sourceFiles) {
-            gadib_factory_ship('diff-operations', JSON.stringify(operations, null, 2), fromCommit, toCommit, sourceFiles);
+            // Ship raw DOM structures for analysis
+            gadib_factory_ship('from-dom-structure', fromDOM.outerHTML, fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('to-dom-structure', toDOM.outerHTML, fromCommit, toCommit, sourceFiles);
+            
+            // Ship route mapping tables for both DOMs
+            const fromRouteMap = gadie_generate_route_map(fromDOM);
+            const toRouteMap = gadie_generate_route_map(toDOM);
+            gadib_factory_ship('from-route-mapping', JSON.stringify(fromRouteMap, null, 2), fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('to-route-mapping', JSON.stringify(toRouteMap, null, 2), fromCommit, toCommit, sourceFiles);
+            
+            // Ship diff operations with enhanced analysis
+            const enhancedOps = operations.map(op => ({
+                ...op,
+                routeTarget: op.route ? gadie_find_element_by_route(fromDOM, op.route) : null,
+                routeDescription: op.route ? fromRouteMap[op.route.join(',')] : null
+            }));
+            gadib_factory_ship('diff-operations', JSON.stringify(enhancedOps, null, 2), fromCommit, toCommit, sourceFiles);
+            
+            // Ship styled output
             gadib_factory_ship('styled-output', styledHTML, fromCommit, toCommit, sourceFiles);
         }
         
@@ -117,6 +135,48 @@ function gadie_find_element_by_route(dom, route) {
         current = current.childNodes[index];
     }
     return current;
+}
+
+// Generate route mapping table for debug analysis
+function gadie_generate_route_map(dom) {
+    const routeMap = {};
+    
+    function traverseNode(node, route) {
+        const routeKey = route.join(',');
+        
+        // Build node description
+        let description = '';
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            description = `<${node.tagName.toLowerCase()}`;
+            if (node.id) description += ` id="${node.id}"`;
+            if (node.className) description += ` class="${node.className}"`;
+            description += `>`;
+        } else if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent.trim();
+            description = `TEXT: "${text.length > 50 ? text.substring(0, 47) + '...' : text}"`;
+        } else {
+            description = `${node.nodeType}`;
+        }
+        
+        routeMap[routeKey] = {
+            route: [...route],
+            nodeType: node.nodeType,
+            tagName: node.nodeType === Node.ELEMENT_NODE ? node.tagName : null,
+            textContent: node.nodeType === Node.TEXT_NODE ? node.textContent : null,
+            description: description,
+            childCount: node.childNodes ? node.childNodes.length : 0
+        };
+        
+        // Recurse through children
+        if (node.childNodes) {
+            for (let i = 0; i < node.childNodes.length; i++) {
+                traverseNode(node.childNodes[i], [...route, i]);
+            }
+        }
+    }
+    
+    traverseNode(dom, []);
+    return routeMap;
 }
 
 // Simple CSS styling function for diff operations

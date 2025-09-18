@@ -141,6 +141,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             'phase8_coalesced': 'Phase 8 Uniform Classing',
             'phase9_final': 'Phase 9 Final Serialize',
             'rendered': 'Rendered Content',
+            # Raw DOM analysis artifacts
+            'from-dom-structure': 'Source DOM Structure',
+            'to-dom-structure': 'Target DOM Structure', 
+            'from-route-mapping': 'Source Route Mapping',
+            'to-route-mapping': 'Target Route Mapping',
+            'diff-operations': 'Diff Operations Analysis',
+            'styled-output': 'Styled Diff Output',
             # Legacy phase labels for backwards compatibility
             'phase5_annotated': 'Phase 5 Annotated Assembly (Legacy)',
             'phase6_deletions': 'Phase 6 Deletion Placement (Legacy)',
