@@ -75,7 +75,7 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         
         // Step 3: Generate operations visualization
         const manifest = { fromCommit, toCommit };
-        const opsVisualization = gadie_render_operations_html(operations, manifest);
+        const opsVisualization = gadie_render_operations_html(operations, manifest, fromDOM);
         
         // Step 4: Append operations coda to the styled content
         const codaDiv = document.createElement('div');
@@ -220,8 +220,66 @@ function gadie_extract_text_snippet(element) {
     return '';
 }
 
+// Helper function to safely extract content from a relocateGroup operation
+function gadie_extract_relocate_content(op, sourceDOM) {
+    if (!sourceDOM || !op.route || !Array.isArray(op.route)) {
+        return null;
+    }
+    
+    try {
+        // Find the container element using the route
+        const container = gadie_find_element_by_route(sourceDOM, op.route);
+        if (!container || !container.childNodes) {
+            return null;
+        }
+        
+        const groupLength = op.groupLength || 1;
+        const fromPos = op.from || 0;
+        
+        // Extract the content that would be moved - VERBATIM, NO ABBREVIATION
+        const extractedElements = [];
+        const renderedElements = []; // For proper HTML rendering
+        
+        for (let i = 0; i < groupLength && (fromPos + i) < container.childNodes.length; i++) {
+            const element = container.childNodes[fromPos + i];
+            if (element) {
+                if (element.nodeType === Node.TEXT_NODE) {
+                    const text = element.textContent || '';
+                    if (text) {
+                        extractedElements.push({ type: 'text', content: text });
+                        renderedElements.push({ type: 'text', content: text });
+                    }
+                } else if (element.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = element.tagName?.toLowerCase() || 'unknown';
+                    const textContent = element.textContent || '';
+                    const outerHTML = element.outerHTML || `<${tagName}>...</${tagName}>`;
+                    
+                    // Store both the full content and the rendered HTML
+                    extractedElements.push({ 
+                        type: 'element', 
+                        tagName, 
+                        textContent, 
+                        outerHTML 
+                    });
+                    renderedElements.push({ 
+                        type: 'element', 
+                        tagName, 
+                        textContent, 
+                        outerHTML 
+                    });
+                }
+            }
+        }
+        
+        return extractedElements.length > 0 ? { raw: extractedElements, rendered: renderedElements } : null;
+    } catch (error) {
+        // Safely handle any DOM access errors
+        return null;
+    }
+}
+
 // Render individual operation payload
-function gadie_render_op_payload(op) {
+function gadie_render_op_payload(op, sourceDOM = null) {
     const action = op.action;
     
     switch (action) {
@@ -251,6 +309,108 @@ function gadie_render_op_payload(op) {
             const truncated = gadie_truncate(value, 200);
             const className = action === 'removeTextElement' ? 'gad-token--del' : 'gad-token--ins';
             return `<div class="gad-token ${className}">${truncated}</div>`;
+            
+        case 'replaceElement':
+            // Extract both old and new elements with full details
+            const oldElement = op.oldValue;
+            const newElement = op.newValue;
+            
+            // Helper function to extract element details
+            const extractElementDetails = (element) => {
+                if (!element) return null;
+                
+                const details = {
+                    nodeName: element.nodeName || '(unknown)',
+                    textContent: '',
+                    outerHTML: '',
+                    isTextNode: false
+                };
+                
+                if (element.nodeName === '#text') {
+                    details.isTextNode = true;
+                    details.textContent = element.data || '';
+                    details.outerHTML = element.data || '';
+                } else {
+                    details.textContent = element.textContent || '';
+                    // Try to reconstruct outerHTML from element structure
+                    if (element.attributes && element.childNodes) {
+                        const attrs = Object.keys(element.attributes || {})
+                            .map(key => `${key}="${element.attributes[key]}"`)
+                            .join(' ');
+                        const attrStr = attrs ? ` ${attrs}` : '';
+                        const childContent = element.childNodes ? 
+                            element.childNodes.map(child => 
+                                child.nodeName === '#text' ? child.data : `<${child.nodeName}>`
+                            ).join('') : details.textContent;
+                        details.outerHTML = `<${details.nodeName}${attrStr}>${childContent}</${details.nodeName}>`;
+                    } else {
+                        details.outerHTML = `<${details.nodeName}>${details.textContent}</${details.nodeName}>`;
+                    }
+                }
+                
+                return details;
+            };
+            
+            const oldDetails = extractElementDetails(oldElement);
+            const newDetails = extractElementDetails(newElement);
+            
+            return `<div class="gad-op__replace">
+                <div class="gad-replace__summary">
+                    <span class="gad-replace__operation">Element replacement</span>
+                </div>
+                
+                <div class="gad-replace__verbatim-content">
+                    <div class="gad-replace__content-header">
+                        <span class="gad-replace__label">Verbatim content replacement:</span>
+                    </div>
+                    <div class="gad-replace__old-content">
+                        <div class="gad-replace__section-label">Removed:</div>
+                        <div class="gad-replace__content-item gad-replace__content-old">
+                            ${oldDetails ? `
+                                ${oldDetails.isTextNode ? 
+                                    `<div class="gad-replace__element-text">${gadie_escape_html(oldDetails.textContent)}</div>` :
+                                    `<div class="gad-replace__element-tag">&lt;${gadie_escape_html(oldDetails.nodeName)}&gt;</div>
+                                     <div class="gad-replace__element-text">${gadie_escape_html(oldDetails.textContent)}</div>
+                                     <div class="gad-replace__element-html">${gadie_escape_html(oldDetails.outerHTML)}</div>`
+                                }
+                            ` : '<div class="gad-replace__missing">(missing element)</div>'}
+                        </div>
+                    </div>
+                    <div class="gad-replace__new-content">
+                        <div class="gad-replace__section-label">Added:</div>
+                        <div class="gad-replace__content-item gad-replace__content-new">
+                            ${newDetails ? `
+                                ${newDetails.isTextNode ? 
+                                    `<div class="gad-replace__element-text">${gadie_escape_html(newDetails.textContent)}</div>` :
+                                    `<div class="gad-replace__element-tag">&lt;${gadie_escape_html(newDetails.nodeName)}&gt;</div>
+                                     <div class="gad-replace__element-text">${gadie_escape_html(newDetails.textContent)}</div>
+                                     <div class="gad-replace__element-html">${gadie_escape_html(newDetails.outerHTML)}</div>`
+                                }
+                            ` : '<div class="gad-replace__missing">(missing element)</div>'}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="gad-replace__rendered-content">
+                    <div class="gad-replace__content-header">
+                        <span class="gad-replace__label">Rendered appearance change:</span>
+                    </div>
+                    <div class="gad-replace__before-after">
+                        <div class="gad-replace__before">
+                            <div class="gad-replace__section-label">Before:</div>
+                            <div class="gad-replace__rendered-preview gad-replace__rendered-old">
+                                ${oldDetails ? oldDetails.outerHTML : '(missing)'}
+                            </div>
+                        </div>
+                        <div class="gad-replace__after">
+                            <div class="gad-replace__section-label">After:</div>
+                            <div class="gad-replace__rendered-preview gad-replace__rendered-new">
+                                ${newDetails ? newDetails.outerHTML : '(missing)'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
             
         case 'removeElement':
         case 'addElement':
@@ -327,6 +487,57 @@ function gadie_render_op_payload(op) {
                 }
             }
             
+            // Try to extract actual content being moved
+            const extractedData = gadie_extract_relocate_content(op, sourceDOM);
+            let contentPreview = '';
+            let renderedPreview = '';
+            
+            if (extractedData && extractedData.raw && extractedData.raw.length > 0) {
+                // Raw content display (verbatim, unabbreviated)
+                const rawContentItems = extractedData.raw.map(item => {
+                    if (item.type === 'text') {
+                        return `<div class="gad-relocate__content-item gad-relocate__content-text">${gadie_escape_html(item.content)}</div>`;
+                    } else if (item.type === 'element') {
+                        return `<div class="gad-relocate__content-item gad-relocate__content-element">
+                            <div class="gad-relocate__element-tag">&lt;${gadie_escape_html(item.tagName)}&gt;</div>
+                            <div class="gad-relocate__element-text">${gadie_escape_html(item.textContent)}</div>
+                            <div class="gad-relocate__element-html">${gadie_escape_html(item.outerHTML)}</div>
+                        </div>`;
+                    }
+                    return '';
+                }).join('');
+                
+                contentPreview = `
+                    <div class="gad-relocate__actual-content">
+                        <div class="gad-relocate__content-header">
+                            <span class="gad-relocate__label">Verbatim content being moved:</span>
+                        </div>
+                        <div class="gad-relocate__content-list">
+                            ${rawContentItems}
+                        </div>
+                    </div>`;
+                
+                // Rendered content display (how it appears visually)
+                const renderedContentItems = extractedData.rendered.map(item => {
+                    if (item.type === 'text') {
+                        return item.content;
+                    } else if (item.type === 'element') {
+                        return item.outerHTML;
+                    }
+                    return '';
+                }).join('');
+                
+                renderedPreview = `
+                    <div class="gad-relocate__rendered-content">
+                        <div class="gad-relocate__content-header">
+                            <span class="gad-relocate__label">Rendered appearance:</span>
+                        </div>
+                        <div class="gad-relocate__rendered-preview">
+                            ${renderedContentItems}
+                        </div>
+                    </div>`;
+            }
+            
             return `<div class="gad-op__relocate">
                 <div class="gad-relocate__summary">
                     <span class="gad-relocate__group">${groupDesc}</span> moved within container
@@ -336,6 +547,8 @@ function gadie_render_op_payload(op) {
                     <span class="gad-relocate__hint">${contentHint}</span>
                     ${movementDesc ? `<span class="gad-relocate__movement">${movementDesc}</span>` : ''}
                 </div>
+                ${contentPreview}
+                ${renderedPreview}
                 <div class="gad-relocate__details">
                     <div class="gad-relocate__positions">
                         <span class="gad-relocate__label">From position:</span>
@@ -378,7 +591,7 @@ function gadie_render_micro_preview(op) {
 }
 
 // Main function to render diff operations as HTML
-function gadie_render_operations_html(operations, manifest = null) {
+function gadie_render_operations_html(operations, manifest = null, sourceDOM = null) {
     if (!operations || operations.length === 0) {
         return '<section class="gad-ops"><div class="gad-ops__prov">No operations to display</div></section>';
     }
@@ -412,7 +625,7 @@ function gadie_render_operations_html(operations, manifest = null) {
             </div>
             <div class="gad-op__payload">
                 <div class="gad-op__formatted">
-                    ${gadie_render_op_payload(op)}
+                    ${gadie_render_op_payload(op, sourceDOM)}
                 </div>
                 <div class="gad-op__raw">
                     <pre class="gad-raw-data">${gadie_escape_html(rawOpData)}</pre>
