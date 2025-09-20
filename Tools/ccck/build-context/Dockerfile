@@ -4,6 +4,8 @@ FROM ubuntu:24.04
 ARG USER_UID=1000
 ARG USER_GID=1000
 
+ARG CCCK_CLAUDE_CODE_VERSION=1.0.120
+
 # Install required packages
 RUN apt-get update && apt-get install -y                                                 \
     nodejs              `# Required runtime for Claude Code`                             \
@@ -18,15 +20,15 @@ RUN apt-get update && apt-get install -y                                        
     python3             `# Python 3.12.3 (default in Ubuntu 24.04)`                      \
     python3-pip         `# Python package installer`                                     \
     python-is-python3   `# Optional symlink for /usr/bin/python compatibility`           \
-    python3-bs4         `# HTML parsing and manipulation library (BeautifulSoup via apt)`\
+    python3-bs4         `# HTML parsing/ manipulation library (BeautifulSoup via apt)`   \
     ruby                `# Required for Asciidoctor`                                     \
     ruby-dev            `# Ruby development headers for native extensions`               \
     build-essential     `# Compiler tools for Ruby native extensions`                    \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages via pip (override Ubuntu's aggressive externally-managed policy)
-RUN python -m pip install --break-system-packages                                       \
-    tornado             `# Python web framework for HTTP and WebSocket server`          \
+RUN python -m pip install --break-system-packages                                        \
+    tornado             `# Python web framework for HTTP and WebSocket server`           \
     && python -m pip cache purge
 
 # Install Ruby-based documentation tools
@@ -62,11 +64,14 @@ RUN mkdir /var/run/sshd                                         && \
 RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd     && \
     echo "auth sufficient pam_permit.so" >> /etc/pam.d/sshd
 
-# Download and install Claude Code v1.0.89
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- 1.0.89                     && \
-    cp -r /root/.local/share/claude /usr/local/share/                               && \
-    ln -sf   /usr/local/share/claude/versions/1.0.89 /usr/local/bin/claude-code     && \
-    chmod +x /usr/local/share/claude/versions/1.0.89
+# Download and install Claude Code
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- ${CCCK_CLAUDE_CODE_VERSION}                 && \
+    cp -r /root/.local/share/claude /usr/local/share/                                                && \
+    ln -sf   /usr/local/share/claude/versions/${CCCK_CLAUDE_CODE_VERSION} /usr/local/bin/claude-code && \
+    chmod +x /usr/local/share/claude/versions/${CCCK_CLAUDE_CODE_VERSION}
+
+# Add ~/.local/bin to PATH for all users
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
 
 # Set working directory
 WORKDIR /workspace
