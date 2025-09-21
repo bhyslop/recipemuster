@@ -46,6 +46,14 @@ function gadie_should_log(level, opts) {
 }
 
 // Main diff processing function - simplified 2-step process
+// Returns structured object with multiple view outputs for tab-based UI:
+// {
+//   prototypeHTML: string - Current styled output with operations coda appended
+//   dualHTML: string - Placeholder for future side-by-side comparison view  
+//   operations: array - Raw diff-dom operations for potential future use
+//   fromDOM: DOM - Source DOM structure for potential future use
+//   toDOM: DOM - Target DOM structure for potential future use
+// }
 async function gadie_diff(fromHtml, toHtml, opts = {}) {
     const { fromCommit, toCommit, sourceFiles } = opts;
     
@@ -77,12 +85,35 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         const manifest = { fromCommit, toCommit };
         const opsVisualization = gadie_render_operations_html(operations, manifest, fromDOM);
         
-        // Step 4: Append operations coda to the styled content
+        // Step 4: Create prototype view with operations coda appended
+        const prototypeDOM = gadie_create_dom_from_html(toHtml);
+        gadie_apply_css_styling(prototypeDOM, operations);
         const codaDiv = document.createElement('div');
         codaDiv.innerHTML = opsVisualization;
-        styledDOM.appendChild(codaDiv);
+        prototypeDOM.appendChild(codaDiv);
+        const prototypeHTML = prototypeDOM.innerHTML;
         
-        const styledHTML = styledDOM.innerHTML;
+        // Step 5: Create dual view placeholder
+        const dualHTML = `<div class="gad-dual-placeholder">
+            <div class="gad-dual-placeholder__header">
+                <h3>Dual View</h3>
+                <p>Coming soon - side-by-side comparison view</p>
+            </div>
+            <div class="gad-dual-placeholder__content">
+                <div class="gad-dual-placeholder__note">
+                    This view will show before/after content side by side for easier comparison.
+                </div>
+            </div>
+        </div>`;
+        
+        // Step 6: Create structured return object
+        const result = {
+            prototypeHTML: prototypeHTML,
+            dualHTML: dualHTML,
+            operations: operations,
+            fromDOM: fromDOM,
+            toDOM: toDOM
+        };
         
         // Debug output if requested
         if (opts.debugArtifacts && sourceFiles) {
@@ -104,11 +135,13 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
             }));
             gadib_factory_ship('diff-operations', JSON.stringify(enhancedOps, null, 2), fromCommit, toCommit, sourceFiles);
             
-            // Ship styled output
-            gadib_factory_ship('styled-output', styledHTML, fromCommit, toCommit, sourceFiles);
+            // Ship all views for inspection
+            gadib_factory_ship('prototype-output', prototypeHTML, fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('dual-output', dualHTML, fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('styled-output', prototypeHTML, fromCommit, toCommit, sourceFiles); // backward compatibility
         }
         
-        return styledHTML;
+        return result;
 
     } catch (error) {
         if (gadie_should_log('error', opts)) {
