@@ -64,14 +64,14 @@ RUN mkdir /var/run/sshd                                         && \
 RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd     && \
     echo "auth sufficient pam_permit.so" >> /etc/pam.d/sshd
 
+# Add ~/.local/bin to PATH for all users
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
+
 # Download and install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash -s -- ${CCCK_CLAUDE_CODE_VERSION}                 && \
     cp -r /root/.local/share/claude /usr/local/share/                                                && \
     ln -sf   /usr/local/share/claude/versions/${CCCK_CLAUDE_CODE_VERSION} /usr/local/bin/claude-code && \
     chmod +x /usr/local/share/claude/versions/${CCCK_CLAUDE_CODE_VERSION}
-
-# Add ~/.local/bin to PATH for all users
-RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
 
 # Set working directory
 WORKDIR /workspace
