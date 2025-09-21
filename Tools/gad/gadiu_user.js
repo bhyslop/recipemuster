@@ -7,6 +7,9 @@ class gadiu_inspector {
         this.manifest = null;
         this.currentChanges = [];
         this.currentChangeIndex = 0;
+        this.currentTab = null; // Track current tab selection
+        this.prototypeView = null; // Store prototype view content
+        this.dualView = null; // Store dual view content
 
         console.log('[DEBUG] gadiu_inspector constructor called');
         this.initializeElements();
@@ -27,6 +30,8 @@ class gadiu_inspector {
             renderedPane: document.getElementById('renderedPane'),
             commitPopover: document.getElementById('commitPopover'),
             commitPopoverContent: document.getElementById('commitPopoverContent'),
+            tabBar: document.getElementById('tabBar'),
+            tabContent: document.getElementById('tabContent'),
         };
 
         // Initialize selections
@@ -300,12 +305,18 @@ class gadiu_inspector {
         const hashParams = this.parseHashParams();
         const fromHash = hashParams.get('from');
         const toHash = hashParams.get('to');
+        const tabHash = hashParams.get('tab');
 
-        gadib_logger_d(`Parsed hash params - from: "${fromHash}", to: "${toHash}"`);
+        gadib_logger_d(`Parsed hash params - from: "${fromHash}", to: "${toHash}", tab: "${tabHash}"`);
 
-        // Only proceed if we have hash parameters to process
+        // Apply tab selection if present
+        if (tabHash && this.elements.tabBar && this.currentTab !== tabHash) {
+            this.switchTab(tabHash);
+        }
+
+        // Only proceed if we have rail selection hash parameters to process
         if (!fromHash && !toHash) {
-            gadib_logger_d('No hash params present, not overriding current selections');
+            gadib_logger_d('No rail selection hash params present, not overriding current selections');
             return;
         }
 
@@ -390,10 +401,17 @@ class gadiu_inspector {
         const toCommit = this.resolveCommit(this.selectedTo);
 
         if (fromCommit && toCommit) {
-            const newHash = `#from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
+            let hashParams = `from=${encodeURIComponent(fromCommit.hash)}&to=${encodeURIComponent(toCommit.hash)}`;
+            
+            // Include tab parameter if set
+            if (this.currentTab) {
+                hashParams += `&tab=${encodeURIComponent(this.currentTab)}`;
+            }
+            
+            const newHash = `#${hashParams}`;
             const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + newHash;
             window.history.replaceState(null, '', newUrl);
-            gadib_logger_d(`Updated hash state: from=${fromCommit.hash.substring(0,8)} to=${toCommit.hash.substring(0,8)}`);
+            gadib_logger_d(`Updated hash state: from=${fromCommit.hash.substring(0,8)} to=${toCommit.hash.substring(0,8)} tab=${this.currentTab || 'none'}`);
         }
     }
 
@@ -489,7 +507,7 @@ class gadiu_inspector {
             ];
 
             // Use gadie_diff function from engine
-            const styledDiff = await gadie_diff(fromHtml, toHtml, {
+            const diffResult = await gadie_diff(fromHtml, toHtml, {
                 fromCommit: fromCommit,
                 toCommit: toCommit,
                 sourceFiles: sourceFiles,
@@ -497,11 +515,26 @@ class gadiu_inspector {
                 verbosity: 'debug'
             });
 
-            this.elements.renderedPane.innerHTML = styledDiff;
+            // Handle structured return - store both views as instance properties
+            if (typeof diffResult === 'object' && diffResult.prototypeHTML && diffResult.dualHTML) {
+                this.prototypeView = diffResult.prototypeHTML;
+                this.dualView = diffResult.dualHTML;
+                
+                // Initially show prototype view (default until dual is ready)
+                this.elements.renderedPane.innerHTML = this.prototypeView;
+                
+                // Setup tab bar after successful diff
+                this.setupTabBar();
+            } else {
+                // Fallback to string handling for backward compatibility
+                const styledDiff = typeof diffResult === 'string' ? diffResult : diffResult.prototypeHTML || 'No diff available';
+                this.elements.renderedPane.innerHTML = styledDiff;
+            }
 
             // Send rendered content to Factory via WebSocket for raw diff file creation
             gadib_logger_d(`Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
-            gadib_factory_ship('rendered', styledDiff, fromCommit, toCommit, sourceFiles);
+            const contentForFactory = this.prototypeView || (typeof diffResult === 'string' ? diffResult : this.elements.renderedPane.innerHTML);
+            gadib_factory_ship('rendered', contentForFactory, fromCommit, toCommit, sourceFiles);
 
             // Enhanced logging for Factory debugging
             const changeTypeBreakdown = {
@@ -613,6 +646,65 @@ class gadiu_inspector {
 
         popover.style.left = (renderPaneRect.left + 20) + 'px';
         popover.style.top = (renderPaneRect.top + 20) + 'px';
+    }
+
+    setupTabBar() {
+        if (!this.elements.tabBar) {
+            gadib_logger_d('Tab bar element not found, skipping tab setup');
+            return;
+        }
+
+        // Show tab bar and make it visible
+        this.elements.tabBar.style.display = 'block';
+
+        // Create tab buttons
+        this.elements.tabBar.innerHTML = `
+            <button class="tab-button active" data-tab="prototype">Prototype</button>
+            <button class="tab-button" data-tab="dual">Dual</button>
+        `;
+
+        // Add click handlers for tab buttons
+        this.elements.tabBar.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                this.switchTab(tabName);
+            });
+        });
+
+        // Set initial active tab based on URL or default to prototype
+        const hashParams = this.parseHashParams();
+        const currentTab = hashParams.get('tab') || 'prototype';
+        this.switchTab(currentTab);
+
+        gadib_logger_d('Tab bar setup completed with tabs: prototype, dual');
+    }
+
+    switchTab(tabName) {
+        if (!this.elements.tabBar) {
+            gadib_logger_d('Tab bar not available, cannot switch tabs');
+            return;
+        }
+
+        // Update active tab button
+        this.elements.tabBar.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.toggle('active', button.dataset.tab === tabName);
+        });
+
+        // Switch view content without re-computing diff
+        if (tabName === 'prototype' && this.prototypeView) {
+            this.elements.renderedPane.innerHTML = this.prototypeView;
+            gadib_logger_d('Switched to prototype view');
+        } else if (tabName === 'dual' && this.dualView) {
+            this.elements.renderedPane.innerHTML = this.dualView;
+            gadib_logger_d('Switched to dual view');
+        } else {
+            gadib_logger_d(`Tab '${tabName}' view not available or not loaded yet`);
+            return;
+        }
+
+        // Store current tab and update URL
+        this.currentTab = tabName;
+        this.writeUrlState();
     }
 }
 
