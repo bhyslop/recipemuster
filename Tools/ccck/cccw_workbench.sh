@@ -87,7 +87,7 @@ zccck_route() {
       ;;
     ccck-z)  zccck_docker_compose down                                                        ;;
     ccck-B)  zccck_docker_compose build --no-cache                                            ;;
-    ccck-c)  zccck_connect "cd /workspace/brm_recipemuster  &&  claude-code"                  ;;
+    ccck-c)  zccck_connect "cd /workspace/brm_recipemuster  &&  claude"                       ;;
     ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
     ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
     ccck-R)

@@ -67,11 +67,15 @@ RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd     &
 # Add ~/.local/bin to PATH for all users
 RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
 
+# Set up directories expected by Claude
+RUN mkdir -p /home/claude/.local/bin                                 \
+ && ln -sf /usr/local/bin/claude /home/claude/.local/bin/claude      \
+ && chown -R claude:claude /home/claude/.local
+
 # Download and install Claude Code (install to ~/.local/bin, then relocate the binary)
 RUN curl -fsSL https://claude.ai/install.sh | bash -s -- ${CCCK_CLAUDE_CODE_VERSION}     && \
     install -m 0755 -o root -g root /root/.local/bin/claude /usr/local/bin/claude        && \
     ln -sf /usr/local/bin/claude /usr/local/bin/claude-code
-
 
 # Set working directory
 WORKDIR /workspace
