@@ -241,6 +241,10 @@ zbdu_main() {
   # Log command to all log files (or disable)
   if [[ -n "${BDU_NO_LOG:-}" ]]; then
     echo "logs:        disabled"
+  elif [[ -n "${BDU_INTERACTIVE:-}" ]]; then
+    echo "log (interactive): $BDU_LOG_HIST"
+    echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_HIST"
+    echo "Git context: $BDU_GIT_CONTEXT"                        >> "$BDU_LOG_HIST"
   else
     echo "log files:   $BDU_LOG_LAST $BDU_LOG_SAME $BDU_LOG_HIST"
     echo "command: $coordinator_cmd $BDU_COMMAND $BDU_CLI_ARGS" >> "$BDU_LOG_LAST"
@@ -256,7 +260,13 @@ zbdu_main() {
   # Execute coordinator with logging
   set +e
   zBDU_STATUS_FILE="${BDU_TEMP_DIR}/status-$$"
-  if [[ -n "${BDU_NO_LOG:-}" ]]; then
+  if [[ -n "${BDU_INTERACTIVE:-}" ]]; then
+    # Interactive mode: uncurated logging to historical log, preserves line buffering
+    "$coordinator_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS 2>&1 | tee -a "$BDU_LOG_HIST"
+    zBDU_EXIT_STATUS=${PIPESTATUS[0]}
+    echo $zBDU_EXIT_STATUS > "${zBDU_STATUS_FILE}"
+    zbdu_show "Coordinator status (interactive): $zBDU_EXIT_STATUS"
+  elif [[ -n "${BDU_NO_LOG:-}" ]]; then
     {
       "$coordinator_cmd" "$BDU_COMMAND" $BDU_CLI_ARGS
       echo $? > "${zBDU_STATUS_FILE}"

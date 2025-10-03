@@ -70,7 +70,7 @@ RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
 # Set up directories expected by Claude
 RUN mkdir -p /home/claude/.local/bin                                 \
  && ln -sf /usr/local/bin/claude /home/claude/.local/bin/claude      \
- && chown -R claude:claude /home/claude/.local
+ && chown -R claude /home/claude/.local
 
 # Download and install Claude Code (install to ~/.local/bin, then relocate the binary)
 RUN curl -fsSL https://claude.ai/install.sh | bash -s -- ${CCCK_CLAUDE_CODE_VERSION}     && \

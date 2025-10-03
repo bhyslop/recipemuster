@@ -39,7 +39,7 @@ zccck_connect() {
   bcu_step "Connecting to CCCK container with command: ${z_remote_command}"
 
   # Connect via SSH with configured port and execute remote command
-  ssh -p "${CCCR_SSH_PORT}" -t claude@localhost "${z_remote_command}"
+  ssh -p "${CCCR_SSH_PORT}" -tt claude@localhost "${z_remote_command}"
 }
 
 # Simple routing function
@@ -75,7 +75,7 @@ zccck_route() {
       bcu_step "Setting up git configuration in container"
 
       bcu_step "Setting git safe directories"
-      zccck_connect "git config --global --add safe.directory /workspace/brm_recipemuster"
+      zccck_connect "git config --global --add safe.directory /workspace/brm_recipebottle"
       zccck_connect "git config --global --add safe.directory /workspace/cnmp_CellNodeMessagePrototype"
       zccck_connect "git config --global --add safe.directory /workspace/recipebottle-admin"
 
@@ -87,9 +87,9 @@ zccck_route() {
       ;;
     ccck-z)  zccck_docker_compose down                                                        ;;
     ccck-B)  zccck_docker_compose build --no-cache                                            ;;
-    ccck-c)  zccck_connect "cd /workspace/brm_recipemuster  &&  claude"                       ;;
-    ccck-s)  zccck_connect "cd /workspace/brm_recipemuster  &&  bash"                         ;;
-    ccck-g)  zccck_connect "cd /workspace/brm_recipemuster  &&  git status"                   ;;
+    ccck-c)  zccck_connect "cd /workspace/brm_recipebottle  &&  claude"                       ;;
+    ccck-s)  zccck_connect "cd /workspace/brm_recipebottle  &&  bash"                         ;;
+    ccck-g)  zccck_connect "cd /workspace/brm_recipebottle  &&  git status"                   ;;
     ccck-R)
       # Full reset: clean Docker resources and SSH keys
       bcu_step "Stopping and removing container"
@@ -108,7 +108,7 @@ zccck_route() {
     # GAD (Git AsciiDoc Diff) commands
     gadf-f)
       # Run GAD factory in ccbx container with hardcoded parameters
-      zccck_connect "cd /workspace/brm_recipemuster && python3 -u Tools/gad/gadf_factory.py --file ../recipebottle-admin/rbw-RBZG-gadTest.adoc --directory ../gad-working-dir --branch main --max-distinct-renders 3 --once --port ${CCCR_WEB_PORT}"
+      zccck_connect "cd /workspace/brm_recipebottle && python3 -u Tools/gad/gadf_factory.py --file ../recipebottle-admin/rbw-RBZG-gadTest.adoc --directory ../gad-working-dir --branch main --max-distinct-renders 3 --once --port ${CCCR_WEB_PORT}"
       ;;
     gadcf)
       # Run GAD factory locally (inside container) with hardcoded parameters
