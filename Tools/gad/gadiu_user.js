@@ -451,7 +451,9 @@ class gadiu_inspector {
 
         } catch (error) {
             gadib_logger_e(`Diff error: ${error.message}`);
-            this.elements.renderedPane.innerHTML = `
+            // Show error in tabContent to preserve tab bar if it exists
+            const targetElement = this.elements.tabContent || this.elements.renderedPane;
+            targetElement.innerHTML = `
                 <div class="error">
                     <h3>Diff Error</h3>
                     <p>${error.message}</p>
@@ -519,29 +521,29 @@ class gadiu_inspector {
             if (typeof diffResult === 'object' && diffResult.prototypeHTML && diffResult.dualHTML) {
                 this.prototypeView = diffResult.prototypeHTML;
                 this.dualView = diffResult.dualHTML;
-                
-                // Initially show prototype view (default until dual is ready)
-                this.elements.renderedPane.innerHTML = this.prototypeView;
-                
-                // Setup tab bar after successful diff
+
+                // Setup tab bar before setting content to preserve tab structure
                 this.setupTabBar();
+
+                // Initially show prototype view (default until dual is ready)
+                this.elements.tabContent.innerHTML = this.prototypeView;
             } else {
                 // Fallback to string handling for backward compatibility
                 const styledDiff = typeof diffResult === 'string' ? diffResult : diffResult.prototypeHTML || 'No diff available';
-                this.elements.renderedPane.innerHTML = styledDiff;
+                this.elements.tabContent.innerHTML = styledDiff;
             }
 
             // Send rendered content to Factory via WebSocket for raw diff file creation
             gadib_logger_d(`Creating raw diff file for ${fromCommit.hash.substring(0, 8)} → ${toCommit.hash.substring(0, 8)}`);
-            const contentForFactory = this.prototypeView || (typeof diffResult === 'string' ? diffResult : this.elements.renderedPane.innerHTML);
+            const contentForFactory = this.prototypeView || (typeof diffResult === 'string' ? diffResult : this.elements.tabContent.innerHTML);
             gadib_factory_ship('rendered', contentForFactory, fromCommit, toCommit, sourceFiles);
 
             // Enhanced logging for Factory debugging
             const changeTypeBreakdown = {
-                insertions: this.elements.renderedPane.querySelectorAll('.gads-addition-inline, .gads-addition-block').length,
-                moves: this.elements.renderedPane.querySelectorAll('.gads-modification-structural').length,
-                deletions: this.elements.renderedPane.querySelectorAll('.gads-deletion-inline, .gads-deletion-block').length,
-                modifications: this.elements.renderedPane.querySelectorAll('.gads-modification-inline').length
+                insertions: this.elements.tabContent.querySelectorAll('.gads-addition-inline, .gads-addition-block').length,
+                moves: this.elements.tabContent.querySelectorAll('.gads-modification-structural').length,
+                deletions: this.elements.tabContent.querySelectorAll('.gads-deletion-inline, .gads-deletion-block').length,
+                modifications: this.elements.tabContent.querySelectorAll('.gads-modification-inline').length
             };
 
             const totalChanges = changeTypeBreakdown.insertions + changeTypeBreakdown.moves + 
@@ -696,10 +698,10 @@ class gadiu_inspector {
 
         // Switch view content without re-computing diff
         if (tabName === 'prototype' && this.prototypeView) {
-            this.elements.renderedPane.innerHTML = this.prototypeView;
+            this.elements.tabContent.innerHTML = this.prototypeView;
             gadib_logger_d('Switched to prototype view');
         } else if (tabName === 'dual' && this.dualView) {
-            this.elements.renderedPane.innerHTML = this.dualView;
+            this.elements.tabContent.innerHTML = this.dualView;
             gadib_logger_d('Switched to dual view');
         } else {
             gadib_logger_d(`Tab '${tabName}' view not available or not loaded yet`);
