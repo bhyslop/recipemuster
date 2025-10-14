@@ -1,0 +1,969 @@
+= GAD: Git AsciiDoc Diff Specification
+:doctype: book
+
+// tag::mapping-section[]
+//
+// GAD component declarations
+//
+// Acronym prefixes:
+// gadt_=Term
+// gadf_=Factory
+// gadfa_=Factory Argument
+// gadfd_=Factory Directory
+// gadfs_=Factory Sequence
+// gadfl_=Factory Log
+// gadi_=Inspector
+// gadip_=Inspector Pane
+// gadil_=Inspector Log
+// gadis_=Inspector Sequence/Section/State
+// gadih_=Inspector Header
+// gadir_=Inspector Rail
+// gadid_=Inspector Dialog/Control
+// gadiu_=Inspector User
+// gadiuhp_=Inspector URL Hash Parameter
+// gadiv_=Inspector View
+// gadif_=Inspector File
+// gadd_=Differ/Diff
+// gadie_=Inspector Engine
+// gadisdp_=Inspector Sequence Diff Phase
+// gadda_=Distill Argument
+// gadmf_=Manifest Field
+// gadw_=WebSocket
+// gadwm_=WebSocket Message
+// gadwf_=WebSocket Field
+// gadkp_=Key Premise
+// gadpd_=Python Dependency
+//
+
+:gadt_factory:                         <<gadt_factory,Factory>>
+:gadt_page:                            <<gadt_page,Page>>
+:gadt_page_s:                          <<gadt_page,Pages>>
+:gadt_inspector:                       <<gadt_inspector,Inspector>>
+:gadt_manifest:                        <<gadt_manifest,Manifest>>
+:gadt_websocket:                       <<gadt_websocket,WebSocket>>
+:gadfa_port:                           <<gadfa_port,Port Parameter>>
+:gadfd_dependency:                     <<gadf_dependency,Factory Dependency>>
+:gadfd_dependency_s:                   <<gadf_dependency,Factory Dependencies>>
+:gadid_dependency:                     <<gadi_dependency,Inspector Dependency>>
+:gadid_dependency_s:                   <<gadi_dependency,Inspector Dependencies>>
+:gadi_from_commit:                     <<gadi_from_commit,Inspector From Commit>>
+:gadi_to_commit:                       <<gadi_to_commit,Inspector To Commit>>
+:gadpd_dependency:                     <<gadp_dependency,Python Dependency>>
+:gadpd_dependency_s:                   <<gadp_dependency,Python Dependencies>>
+:gadfl_step:                           <<gadfl_step,Factory Step>>
+:gadfl_warn:                           <<gadfl_warn,Factory Warning>>
+:gadfl_fail:                           <<gadfl_fail,Factory Failure>>
+:gadw_premise:                         <<gadw_premise,WebSocket Local Premise>>
+:gadu_operator:                        <<gadu_operator,Operator>>
+:gadiu_tab_switch:                     <<gadiu_tab_switch,Inspector Tab Switch Operation>>
+:gadwm_refresh:                        <<gadwm_refresh,WebSocket Refresh Message>>
+:gadwm_trace:                          <<gadwm_trace,WebSocket Trace Message>>
+:gadwm_debug:                          <<gadwm_debug,WebSocket Debug Message>>
+:gadwf_type:                           <<gadwf_type,WebSocket Message Type Field>>
+:gadwf_data:                           <<gadwf_data,WebSocket Message Data Field>>
+:gadwf_message:                        <<gadwf_message,WebSocket Message Text Field>>
+:gadwf_debug_type:                     <<gadwf_debug_type,WebSocket Debug Type Field>>
+:gadwf_content:                        <<gadwf_content,WebSocket Content Field>>
+:gadwf_filename_pattern:               <<gadwf_filename_pattern,WebSocket Filename Pattern Field>>
+:gadwf_source_files:                   <<gadwf_source_files,WebSocket Source Files Field>>
+:gadfa_argument:                       <<gadfa_argument,Factory Argument>>
+:gadfa_argument_s:                     <<gadfa_argument,Factory Arguments>>
+:gadfa_adoc_filename:                  <<gadfa_adoc_filename,Filename Parameter>>
+:gadfa_max_distinct_renders:           <<gadfa_max_distinct_renders,Max Distinct Renders Parameter>>
+:gadfa_directory:                      <<gadfa_directory,Directory Parameter>>
+:gadip_rendered:                       <<gadip_rendered,Inspector Rendered Pane>>
+:gadip_tab_bar:                        <<gadip_tab_bar,Inspector Tab Bar>>
+:gadip_tab_button:                     <<gadip_tab_button,Inspector Tab Button>>
+:gadil_trace:                          <<gadil_trace,Inspector Trace Report>>
+:gadil_error:                          <<gadil_error,Inspector Error Report>>
+:gadir_from:                           <<gadir_from,Inspector From Rail>>
+:gadir_to:                             <<gadir_to,Inspector To Rail>>
+:gadir_row:                            <<gadir_row,Inspector Rail Row>>
+:gadir_label:                          <<gadir_label,Inspector Rail Label>>
+:gadir_radio:                          <<gadir_radio,Inspector Radio Button>>
+:gadid_swap:                           <<gadid_swap,Inspector Swap Control>>
+:gadd_detached_dom:                    <<gadd_detached_dom,Detached Working DOM>>
+:gadd_diff_dom:                        <<gadd_diff_dom,diff-dom>>
+:gadd_route:                           <<gadd_route,route>>
+:gadd_route_s:                         <<gadd_route,routes>>
+:gadd_route_array:                     <<gadd_route_array,route array>>
+:gadis_diff_preparation:               <<gadis_diff_preparation,Inspector Diff Preparation Phase>>
+:gadis_diff_processing:                <<gadis_diff_processing,Inspector Diff Processing Phase>>
+:gadis_diff_presentation:              <<gadis_diff_presentation,Inspector Diff Presentation Phase>>
+:gadisdp_before_dom:                   <<gadisdp_before_dom,Diff Phase Before DOM>>
+:gadisdp_after_dom:                    <<gadisdp_after_dom,Diff Phase After DOM>>
+:gadisdp_operation_set:                <<gadisdp_operation_set,Diff Phase Operation Set>>
+:gadisdp_operation:                    <<gadisdp_operation,Diff Phase Operation>>
+:gadisdp_styled_dom:                   <<gadisdp_styled_dom,Diff Phase Styled DOM>>
+:gadisdp_route_start_marker:           <<gadisdp_route_start_marker,Diff Phase Route Start Marker>>
+:gadisdp_route_end_marker:             <<gadisdp_route_end_marker,Diff Phase Route End Marker>>
+:gadisdp_annotation_collection:        <<gadisdp_annotation_collection,Diff Phase Annotation Collection>>
+:gadisdp_annotation_entry:             <<gadisdp_annotation_entry,Diff Phase Annotation Entry>>
+:gadie_multiview_result:               <<gadie_multiview_result,Engine Multi-View Result>>
+:gadip_popover:                        <<gadip_popover,Inspector Details Popover>>
+:gadil_workspace:                      <<gadil_workspace,Inspector Three-Column Workspace>>
+:gadih_comparison:                     <<gadih_comparison,Inspector Comparison Header>>
+:gadis_navigation:                     <<gadis_navigation,Inspector Navigation Section>>
+:gadiuhp_from:                         <<gadiuhp_from,Inspector From URL Hash Parameter>>
+:gadiuhp_to:                           <<gadiuhp_to,Inspector To URL Hash Parameter>>
+:gadiuhp_latest:                       <<gadiuhp_latest,Inspector Latest Magic Value>>
+:gadiuhp_refresh_mode:                 <<gadiuhp_refresh_mode,Inspector Refresh Mode>>
+:gadiuhp_tab:                          <<gadiuhp_tab,Inspector Tab URL Hash Parameter>>
+:gadfa_branch:                         <<gadfa_branch,Branch Parameter>>
+:gadfa_once:                           <<gadfa_once,Once Parameter>>
+:gadfs_initial_setup:                  <<gadfs_initial_setup,Factory Initial Setup>>
+:gadfs_watch_mode:                     <<gadfs_watch_mode,Factory Steady State Loop>>
+:gadfs_render:                         <<gadfs_render,Factory Render Sequence>>
+:gadmf_last_processed:                 <<gadmf_last_processed,Manifest Last Processed Hash>>
+:gadfd_output:                         <<gadfd_output,Factory Output Directory>>
+:gadfd_extract:                        <<gadfd_extract,Factory Extract Directory>>
+:gadfd_distill:                        <<gadfd_distill,Factory Distill Directory>>
+:gadif_html_commit:                    <<gadif_html_commit,HTML Commit File>>
+:gadih_error:                          <<gadih_error,Inspector Error HTML>>
+:gadda_source_dir:                     <<gadda_source_dir,Distill Source Directory>>
+:gadda_output_dir:                     <<gadda_output_dir,Distill Output Directory>>
+:gadda_commit_hash:                    <<gadda_commit_hash,Distill Commit Hash>>
+:gadda_commit_date:                    <<gadda_commit_date,Distill Commit Date>>
+:gadda_commit_message:                 <<gadda_commit_message,Distill Commit Message>>
+:gadmf_branch:                         <<gadmf_branch,Manifest Branch Field>>
+:gadmf_asciidoc:                       <<gadmf_asciidoc,Manifest AsciiDoc Field>>
+:gadmf_commits:                        <<gadmf_commits,Manifest Commits Array>>
+:gadmf_hash:                           <<gadmf_hash,Manifest Hash Field>>
+:gadmf_timestamp:                      <<gadmf_timestamp,Manifest Timestamp Field>>
+:gadmf_date:                           <<gadmf_date,Manifest Date Field>>
+:gadmf_message:                        <<gadmf_message,Manifest Message Field>>
+:gadmf_html_file:                      <<gadmf_html_file,Manifest HTML File Field>>
+:gadmf_html_sha256:                    <<gadmf_html_sha256,Manifest HTML SHA256 Field>>
+:gadis_status:                         <<gadis_status,Inspector Status Section>>
+:gadis_initialization:                 <<gadis_initialization,Inspector Initialization Sequence>>
+:gadis_diff_sequence:                  <<gadis_diff_sequence,Inspector Diff Sequence>>
+:gadis_tab_state:                      <<gadis_tab_state,Inspector Tab State>>
+:gadiv_unchanged:                      <<gadiv_unchanged,Inspector Unchanged Indicator>>
+:gadiv_prototype:                      <<gadiv_prototype,Inspector Prototype View>>
+:gadiv_dual:                           <<gadiv_dual,Inspector Dual View>>
+:gadkp_single_threaded:                <<gadkp_single_threaded,Single-Threaded Premise>>
+:gadf_limit_mode:                      <<gadf_limit_mode,Factory Limit Mode>>
+:gadf_hash_lookup:                     <<gadf_hash_lookup,Factory Hash Lookup>>
+:gadif_processed_diff:                 <<gadif_processed_diff,Processed Diff File>>
+:gadif_annotated_dom:                  <<gadif_annotated_dom,Annotated DOM File>>
+
+// end::mapping-section[]
+
+
+== Core Principles
+
+. **Semantic Preservation**: Changes in AsciiDoc source formatting that don't affect rendered meaning should not appear as diffs
+. **Deterministic Rendering**: The same AsciiDoc content always produces identical normalized HTML
+. **Volatile Elimination**: All time-dependent, host-dependent, or auto-generated content is stripped or fixed
+. **Clean Workspace**: Each {gadt_factory} run starts fresh, preventing artifact accumulation
+
+== Key Premises
+
+{gadkp_single_threaded}::
+The GAD system operates as a single-threaded process per {gadfa_directory}. Only one {gadt_factory} instance may run for a given working directory, eliminating concurrency concerns.
+
+
+== Factory Architecture
+
+The {gadt_factory} Python service combines git monitoring, asciidoctor execution, HTML normalization, and HTTP serving in a single long-running process:
+
+=== Integrated Processing Pipeline
+
+The {gadt_factory} handles all processing stages:
+- **Git Monitoring**: Detect new commits via filesystem polling
+- **Archive Extraction**: Extract commit files using git subprocess calls
+- **Asciidoctor Execution**: Generate HTML via subprocess orchestration
+- **HTML Normalization**: Process HTML files using integrated distill functionality
+- **HTTP Server**: Serve artifacts and {gadt_inspector} via port 8080
+- **{gadt_websocket} Integration**: Handle {gadt_websocket} upgrades on HTTP port for bidirectional communication
+
+=== Whitespace Normalization
+
+Collapse consecutive whitespace in prose blocks while preserving semantic line breaks using **immutable DOM processing**:
+
+* **Processing Method**: Create new DOM structure from original, never modify source DOM trees during processing
+* **Prose contexts** (paragraphs, list items, table cells): Replace `\n` and multiple spaces with single space
+* **Preserved contexts** (`<pre>`, `<code>`, verse blocks): Maintain exact whitespace
+* **Block boundaries**: Ensure clean breaks between structural elements
+* **Implementation Safety**: Generate clean output DOM from immutable input trees, avoiding iterator invalidation and reference corruption
+
+=== Semantic Change Classification
+
+**GADS Enhancement**: Process DOM-level operations through semantic analysis to provide precise visual change classification:
+
+==== Change Type Taxonomy
+
+`INLINE_ADDITION`::
+New content within existing structural elements (links, emphasis, inline code).
+**Visual Treatment**: Inline highlighting with background color, no container styling.
+**Scope**: Individual `<a>`, `<span>`, `<code>` elements and text fragments.
+
+`BLOCK_ADDITION`::
+New structural elements (paragraphs, list items, sections, definition entries).
+**Visual Treatment**: Block-level highlighting with border and background.
+**Scope**: `<p>`, `<div>`, `<li>`, `<dt>`, `<dd>` elements and their complete content.
+
+`INLINE_REMOVAL`::
+Deleted content within existing structural elements (removed links, emphasis, inline code).
+**Visual Treatment**: Styled with deletion CSS class positioned inline.
+**Scope**: Individual removed `<a>`, `<span>`, `<code>` elements and text fragments.
+
+`BLOCK_REMOVAL`::
+Deleted structural elements (removed paragraphs, list items, sections, definition entries).
+**Visual Treatment**: Styled with deletion CSS class at block level.
+**Scope**: Removed `<p>`, `<div>`, `<li>`, `<dt>`, `<dd>` elements and their complete content.
+
+`INLINE_MODIFICATION`::
+Changed content within existing elements without structural impact.
+**Visual Treatment**: Subtle highlighting for specific changed text only.
+**Scope**: Text nodes and immediate containing inline elements.
+
+`STRUCTURAL_CHANGE`::
+Reorganized, moved, or restructured content maintaining same text.
+**Visual Treatment**: Move indicators and positional annotations.
+**Scope**: Block-level elements with changed DOM hierarchy.
+
+=== Metadata Stripping
+
+Remove or neutralize volatile HTML elements:
+
+* Generator meta tags (`<meta name="generator">`)
+* Build timestamps in comments or meta tags
+* Host-specific paths in any remaining attributes
+* Figure and table auto-numbering if present
+
+=== List Numbering Normalization
+
+Eliminate renumbering noise in ordered lists to focus diffs on content changes:
+
+* **Ordered List Items**: Set all `<li>` elements within `<ol>` to `value="1"`
+* **Preserve List Type**: Maintain distinction between ordered (`<ol>`) and unordered (`<ul>`) lists
+* **Nested List Handling**: Process only direct children to avoid over-normalization
+* **Content Focus**: Adding/removing list items produces semantic diffs without cascading number changes
+
+=== Section Numbering Suppression
+
+The {gadt_factory} disables automatic section numbering during asciidoctor execution to prevent heading text changes when document structure changes.
+
+=== Manifest Management
+
+The {gadt_factory} directly manages {gadt_manifest} in memory and on disk:
+- **Atomic Updates**: Single process owns all manifest state
+- **Parent Chain Ordering**: Commits ordered by parent chain traversal sequence regardless of processing order
+- **Complete Entries Only**: Manifest contains only fully processed commits with no incomplete states
+- **Memory-First**: Manifest maintained in memory with periodic disk synchronization
+
+=== {gadfd_dependency_s}
+
+[[gadf_dependency]]
+{gadfd_dependency}::
+A required tool or library that is present in the execution environment for GAD factory components to function.
+Each {gadfd_dependency} serves a specific role in the render pipeline process.
+
+==== Core Dependencies
+
+asciidoctor::
+AsciiDoc to HTML conversion engine.
+Version 2.0+ required for reproducible mode support.
+
+git::
+Source control system for commit traversal.
+Used by {gadt_factory} to checkout specific commits.
+
+Modern web browser::
+Chrome, Firefox, or Safari with JavaScript enabled.
+Required for accessing {gadt_inspector} via HTTP server at localhost:8080.
+
+==== {gadpd_dependency_s}
+
+[[gadp_dependency]]
+{gadpd_dependency}::
+A required Python library or runtime component that is present for {gadp_distill} to function.
+Each {gadpd_dependency} enables specific HTML normalization and processing capabilities within the distill pipeline.
+
+python3::
+Python 3.6+ runtime environment.
+Required to execute the {gadt_factory} Python service with integrated HTTP server and {gadt_websocket} support.
+
+beautifulsoup4::
+Python HTML parsing and manipulation library.
+Provides precise control over element selection and modification for HTML normalization.
+
+tornado::
+Python web framework for HTTP server and {gadt_websocket} handling.
+Provides single-port operation for both {gadt_inspector} serving and bidirectional communication.
+
+== File Organization
+
+----
+{gadfd_output}/                # output/ subdirectory within {gadfa_directory}
+├── main-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.html    # Content-based HTML artifacts
+├── main-2cf24dba4f21d4288094c99babc25282aba1b0aeb0e7fa67d0a7663c6d3ec6b0.html
+├── main-84d89877f0d4041efb6bf91a16f0248f2fd573e6af05c19f96bedb9f882f7882.html
+└── manifest.json              # Commit metadata with SHA-256 checksums
+
+HTTP Server URLs:
+├── http://localhost:8080/     # {gadt_inspector} interface (served from source)
+├── /output/manifest.json      # Manifest endpoint
+├── /output/*.html             # Normalized HTML artifacts
+└── /ws                        # {gadt_websocket} endpoint for persistent connection
+----
+
+=== Manifest Structure
+
+----
+manifest.json structure:
+{
+  "branch": "main",                    // {gadmf_branch}
+  "asciidoc": "specification.adoc",    // {gadmf_asciidoc}
+  "last_processed_hash": "abc123...",  // {gadmf_last_processed}
+  "commits": [                         // {gadmf_commits}
+    {
+      "hash": "abc123def456...",       // {gadmf_hash}
+      "timestamp": "20250103143022",   // {gadmf_timestamp}
+      "date": "20250103143022",  // {gadmf_date}
+      "message": "Fix typo in docs",   // {gadmf_message}
+      "html_file": "main-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.html",  // {gadmf_html_file}
+      "html_sha256": "e3b0c44298..."   // {gadmf_html_sha256}
+    }
+  ]
+}
+----
+
+== {gadt_factory} Specification
+
+[[gadfs_initial_setup]]
+=== {gadfs_initial_setup}
+
+. Run {gadt_factory} with {gadfa_argument_s}: `./gadt_factory.py --file {gadfa_adoc_filename} --directory {gadfa_directory} --branch {gadfa_branch} --max-distinct-renders {gadfa_max_distinct_renders} --port {gadfa_port}`
+. Create {gadfd_extract}, {gadfd_distill}, and {gadfd_output} if they don't exist
+. Start HTTP server on {gadfa_port} for {gadt_inspector} and artifact serving
+. Delete existing {gadt_manifest} if present (ensures fresh start)
+. Recursively delete all contents of {gadfd_extract}, {gadfd_distill}, and {gadfd_output} if present
+
+[[gadfs_watch_mode]]
+=== {gadfs_watch_mode}
+
+Unless {gadfa_once} is specified, {gadt_factory} enters steady-state loop while maintaining HTTP server:
+
+. Process HEAD commit immediately on startup ({gadu_operator} sees latest content first)
+. Start HTTP server on {gadfa_port} and begin serving {gadt_inspector} interface
+. Enter continuous loop:
+  - Every 3 seconds, check if HEAD has changed
+  - If HEAD changed or no unprocessed parents remain, process HEAD
+  - Otherwise, find next unprocessed parent commit and process it
+  - Execute {gadfs_render} with selected commit hash
+  - Update manifest atomically in memory and disk
+  - Send {gadt_websocket} refresh message to connected {gadt_inspector} clients
+  - When distinct render limit is reached, {gadt_factory} enters {gadf_limit_mode} processing only HEAD updates
+. Continue loop until terminated
+. HTTP server remains active throughout steady-state operation
+
+[[gadfs_render]]
+=== {gadfs_render} 
+
+The atomic processing sequence in {gadt_factory} that transforms a single Git commit into a normalized HTML page.
+{gadfs_render} executes git archive, asciidoctor, and {gadp_distill} in sequence, updating {gadt_manifest} with both commit metadata and processing state.
+
+The {gadfs_render} executes these steps for a single commit:
+
+. Clean {gadfd_extract} and {gadfd_distill} subdirectories
+. Execute `git archive` to extract commit files to {gadfd_extract}
+. Run asciidoctor from {gadfd_extract} to {gadfd_distill} with section numbering disabled
+. Call internal normalization function with commit metadata
+. Calculate SHA-256 hash of normalized HTML content and check manifest for matching html_sha256
+. When match found via {gadf_hash_lookup}, reuse existing filename; otherwise write new file with content-based filename
+. Update in-memory manifest and write to disk
+. Send {gadt_websocket} refresh message if {gadt_websocket} connections are active
+
+== {gadt_inspector} Specification
+
+The {gadt_inspector} provides an interactive interface for comparing normalized {gadt_page_s} through a three-rail architecture where the {gadu_operator} selects commits from {gadir_from} and {gadir_to} using {gadir_radio} controls to generate diff visualizations in the {gadip_rendered}. The system executes {gadis_diff_sequence} to enable the {gadu_operator} to see what is different.
+
+[[gadis_diff_sequence]]
+=== {gadis_diff_sequence}
+
+The {gadt_inspector} executes diff analysis through three sequential phases, each with distinct inputs, processing, and outputs. On error, display error text in {gadip_rendered} instead of diff.
+
+[[gadis_diff_preparation]]
+{gadis_diff_preparation}::
+Initial phase that creates {gadisdp_before_dom} and {gadisdp_after_dom} as immutable DOM structures from input HTML files, establishing the foundation for diff analysis.
+**Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}.
+**Output**: Immutable DOM structures ready for diff processing.
+
+[[gadis_diff_processing]]
+{gadis_diff_processing}::
+Core phase that executes {gadd_diff_dom} analysis on prepared DOM structures to generate {gadisdp_operation_set} containing individual {gadisdp_operation} entries with complete {gadd_route_array} information for precise element positioning.
+**Input**: Prepared DOM structures from {gadis_diff_preparation}.
+**Output**: Complete operation set with route information.
+
+[[gadis_diff_presentation]]
+{gadis_diff_presentation}::
+Final phase that constructs {gadisdp_styled_dom} by applying appropriate CSS classes to diff operations (process in reverse order) while inserting {gadisdp_route_start_marker} and {gadisdp_route_end_marker} elements at operation boundaries. Generates {gadisdp_annotation_collection} containing {gadisdp_annotation_entry} elements that describe each change operation. Produces {gadie_multiview_result} with pre-computed views for {gadip_tab_bar} display options.
+**Input**: Operation set from {gadis_diff_processing}.
+**Output**: Multi-view result structure with {gadiv_prototype} and {gadiv_dual} content, displayed in {gadip_rendered} pane.
+
+=== {gadis_diff_sequence} Triggers
+
+The {gadis_diff_sequence} executes when: page loads, {gadir_from} or {gadir_to} selection changes, or {gadt_websocket} refresh notification arrives.
+
+. Parse URL hash for {gadiuhp_from}, {gadiuhp_to}, and {gadiuhp_tab} values
+. Verify {gadt_factory} availability via {gadt_manifest} fetch before {gadt_websocket} connection
+. Fetch both {gadt_page_s} based on {gadi_from_commit} and {gadi_to_commit}
+. Run {gadd_diff_dom} on immutable DOM trees to generate diff operations
+. Apply CSS classes to diff operations for visual styling
+. Generate {gadie_multiview_result} with multiple view options and display in {gadip_rendered}
+. Update {gadih_comparison} with commit range
+. Setup {gadip_tab_bar} and set active tab from {gadis_tab_state}
+. Persist selection and tab state to URL hash parameters
+
+=== Visual Interface Components
+
+The {gadt_inspector} interface organizes all interactive elements into a structured layout with specialized controls for commit selection and diff visualization:
+
+==== Layout Structure
+
+The inspector uses a three-column workspace with rail-based commit selection:
+
+* **{gadil_workspace}**: Three-column grid layout with rail header, rails, and render pane header/content
+* **Rail header**: Contains "F ⇄ T" with embedded {gadid_swap} button, spans both rail columns
+* **{gadir_from}** and **{gadir_to}**: Narrow rails with reverse-chronological commit rows
+* **{gadih_comparison}**: Header for render pane showing "hash → hash" commit comparison
+* **{gadip_rendered}**: Main content area showing unified diff
+* **{gadip_popover}**: Details overlay appearing on rail row hover
+
+==== Rail Selection Controls
+
+The rails provide commit selection through radio buttons:
+
+* **{gadir_row}**: Clickable row containing label and radio button
+* **{gadir_label}**: Position indicator (H for HEAD, -1, -2, etc.)
+* **{gadir_radio}**: Single selection per rail
+* **Default selection**: From = -1, To = H
+
+==== Commit Information
+
+The {gadip_popover} appears on {gadir_row} hover, displaying:
+
+* Commit SHA identifier
+* Full commit message
+* Large, readable text (400px maximum width)
+
+Commits with unchanged {gadmf_html_sha256} values display with {gadiv_unchanged} visual treatment in rail rows.
+
+==== Tab Bar Controls
+
+The {gadip_tab_bar} provides view switching within {gadip_rendered}:
+
+* **{gadip_tab_button}**: Clickable tabs for switching visualization modes (Prototype, Dual)
+* **{gadiv_prototype}**: Default view with styled diff and operations coda
+* **{gadiv_dual}**: Side-by-side view (planned future feature, placeholder currently)
+* **{gadis_tab_state}**: Current active tab persisted via {gadiuhp_tab} in URL hash
+* **{gadiu_tab_switch}**: Instant view switching without diff re-computation
+
+=== {gadid_dependency_s}
+
+[[gadi_dependency]]
+{gadid_dependency}::
+A required tool or library that is present in the execution environment for GAD inspector components to function.
+Each {gadid_dependency} serves a specific role in the diff inspection process.
+
+diff-dom library::
+JavaScript DOM tree difference engine for {gadt_inspector}.
+Provides structured diff operations preserving HTML element hierarchy.
+
+Modern web browser::
+Chrome, Firefox, or Safari with JavaScript enabled.
+Required for running {gadt_inspector} locally.
+
+CSS3 with flexbox support::
+Required for {gadt_inspector} layout and {gadip_rendered} styling.
+Enables responsive design and proper diff visualization.
+
+JavaScript ES6+::
+Required for rail selection event handling.
+Powers keyboard shortcuts and {gadit_commit} display logic.
+
+== Definitions
+
+=== Normative Constants
+
+[[gadd_detached_dom]]
+{gadd_detached_dom}::
+An independent DOM structure created for diff processing operations without modifying the original immutable input trees.
+The Detached Working DOM serves as the foundation for output construction, enabling complete processing isolation while preserving all semantic relationships needed for accurate {gadd_route} resolution and element positioning.
+This approach eliminates iterator invalidation and reference corruption issues inherent in direct DOM modification approaches.
+
+[[gadd_diff_dom]]
+{gadd_diff_dom}::
+JavaScript DOM tree difference engine providing structured diff operations that preserve HTML element hierarchy.
+The {gadd_diff_dom} library generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete {gadd_route_array} information for precise element positioning.
+
+[[gadd_route]]
+{gadd_route}::
+A positional path array from {gadd_diff_dom} operations specifying the exact DOM location for element placement or modification.
+Each {gadd_route} provides hierarchical navigation coordinates enabling accurate deletion block positioning and annotation placement within the output DOM structure.
+
+
+[[gadisdp_before_dom]]
+{gadisdp_before_dom}::
+Source DOM structure used as diff input.
+
+[[gadisdp_after_dom]]
+{gadisdp_after_dom}::
+Target DOM structure used as diff input.
+
+[[gadisdp_operation_set]]
+{gadisdp_operation_set}::
+Complete collection of diff operations generated by diff-dom analysis.
+
+[[gadisdp_operation]]
+{gadisdp_operation}::
+Individual diff operation with route and change information.
+
+[[gadisdp_styled_dom]]
+{gadisdp_styled_dom}::
+Output DOM structure with applied CSS classes and navigation markers.
+
+[[gadisdp_route_start_marker]]
+{gadisdp_route_start_marker}::
+HTML marker indicating route beginning.
+
+[[gadisdp_route_end_marker]]
+{gadisdp_route_end_marker}::
+HTML marker indicating route ending.
+
+[[gadisdp_annotation_collection]]
+{gadisdp_annotation_collection}::
+Container for all operation annotations in the rendered output.
+
+[[gadisdp_annotation_entry]]
+{gadisdp_annotation_entry}::
+Individual annotation describing a specific diff operation.
+
+[[gadip_tab_bar]]
+{gadip_tab_bar}::
+Horizontal control strip containing tab buttons for switching between visualization modes in {gadip_rendered}.
+Located above tab content area, displays active tab state.
+
+[[gadip_tab_button]]
+{gadip_tab_button}::
+Individual clickable control within {gadip_tab_bar} that activates a specific view.
+Clicking switches displayed content without re-computing diff.
+
+[[gadis_tab_state]]
+{gadis_tab_state}::
+Current active tab selection tracked by {gadt_inspector}, persisted in URL hash via {gadiuhp_tab}.
+Defaults to "prototype" if not specified.
+
+[[gadiv_prototype]]
+{gadiv_prototype}::
+Default diff visualization showing styled HTML with {gadisdp_styled_dom} and operations coda appended.
+Contains the "after" HTML with GADS CSS classes, navigation markers, and operation annotations.
+
+[[gadiv_dual]]
+{gadiv_dual}::
+Side-by-side comparison view (planned future feature, placeholder currently).
+Would show "before" and "after" content simultaneously for direct visual comparison.
+
+[[gadie_multiview_result]]
+{gadie_multiview_result}::
+Structured object returned by diff engine containing pre-computed views for multiple visualization modes.
+Properties include prototypeHTML, dualHTML, operations, fromDOM, toDOM enabling tab switching without re-computation.
+
+[[gadiuhp_tab]]
+{gadiuhp_tab}::
+URL hash parameter specifying active tab selection (e.g., `#from=abc&to=def&tab=prototype`).
+Persists tab state across browser refreshes.
+
+[[gadiu_tab_switch]]
+{gadiu_tab_switch}::
+User action of clicking {gadip_tab_button} to change views, updates active tab state and content display without triggering diff re-computation.
+Updates {gadiuhp_tab} in URL hash.
+
+[[gadt_factory]]
+{gadt_factory}::
+The Python service that combines git monitoring, asciidoctor execution, HTML normalization, and HTTP serving in a single long-running process.
+{gadt_factory} operates in steady-state loop, processing HEAD commits on changes and traversing parent commits when HEAD is stable, with content-based deduplication of HTML files.
+The integrated architecture maintains manifest state in memory, serves {gadt_inspector} interface via HTTP on {gadfa_port}, and handles {gadt_websocket} connections on the same port for bidirectional communication.
+Any error condition results in {gadfl_fail} and immediate termination without recovery attempts.
+
+[[gadfa_port]]
+{gadfa_port}::
+A specific {gadfa_argument} that specifies the HTTP server port for {gadt_inspector} access and artifact serving (default: 8080).
+The {gadfa_port} determines where the integrated web server listens for browser connections to serve the {gadt_inspector} interface and handle {gadt_websocket} upgrades on the same port.
+
+[[gadt_page]]
+{gadt_page}::
+A normalized HTML artifact representing one commit's rendered state, named according to the {gadif_html_commit} pattern.
+Each {gadt_page} has volatile elements removed and whitespace normalized to enable meaningful comparison with other {gadt_page_s}.
+
+[[gadt_inspector]]
+{gadt_inspector}::
+An HTML+JavaScript application served by {gadt_factory} via HTTP that loads two {gadt_page_s} and displays their differences using {gadd_diff_dom}.
+{gadt_inspector} establishes a {gadt_websocket} connection after successful manifest loading, fetches artifacts via HTTP instead of file protocol, and shows all commits from {gadt_manifest} in rails.
+Commits where {gadmf_html_sha256} matches the previous commit display with {gadiv_unchanged} visual treatment.
+The {gadt_inspector} is served directly from source location, enabling live development iteration without file copying.
+The {gadis_initialization} ensures URL hash persistence across {gadt_factory} restarts by decoupling basic Inspector functionality from {gadt_websocket} availability.
+
+[[gadi_from_commit]]
+{gadi_from_commit}::
+The abstract commit selection state representing the baseline commit chosen by the {gadu_operator} for comparison.
+{gadi_from_commit} represents the conceptual "from" side of the diff analysis, independent of UI rails or URL persistence mechanisms.
+
+[[gadi_to_commit]]
+{gadi_to_commit}::
+The abstract commit selection state representing the target commit chosen by the {gadu_operator} for comparison.
+{gadi_to_commit} represents the conceptual "to" side of the diff analysis, independent of UI rails or URL persistence mechanisms.
+
+[[gadir_from]]
+{gadir_from}::
+The left rail in {gadt_inspector} displaying commits for baseline selection.
+{gadir_from} shows commits in reverse-chronological order with {gadir_label} indicators and radio buttons.
+
+[[gadir_to]]  
+{gadir_to}::
+The right rail in {gadt_inspector} displaying commits for target selection.
+{gadir_to} shows commits in reverse-chronological order with {gadir_label} indicators and radio buttons.
+
+[[gadir_row]]
+{gadir_row}::
+A clickable row in {gadir_from} or {gadir_to} containing commit selection controls.
+
+[[gadir_label]]
+{gadir_label}::
+Position indicator in rail rows showing H for HEAD, -1 for previous, -2 for earlier, etc.
+
+[[gadir_radio]]
+{gadir_radio}::
+Radio button control in each {gadir_row} maintaining single selection per rail.
+
+[[gadip_popover]]
+{gadip_popover}::
+Details overlay appearing in upper-left of render pane on {gadir_row} hover.
+
+[[gadil_workspace]]
+{gadil_workspace}::
+Three-column grid layout with {gadir_from}, {gadir_to}, and {gadip_rendered}.
+
+
+[[gadfl_step]]
+{gadfl_step}::
+A normal progress output message from {gadt_factory} displayed in default console colors.
+{gadfl_step} messages indicate successful completion of processing stages and provide operational visibility.
+
+[[gadfl_warn]]
+{gadfl_warn}::
+A warning output message from {gadt_factory} displayed in yellow console colors.
+{gadfl_warn} messages indicate concerning but non-fatal conditions that allow processing to continue.
+
+[[gadfl_fail]]
+{gadfl_fail}::
+A fatal error output message from {gadt_factory} displayed in red console colors before process termination.
+{gadfl_fail} messages indicate terminal conditions that prevent further processing and trigger cleanup and exit.
+No cleanup occurs on failure to preserve state for debugging. Cleanup only happens on subsequent {gadt_factory} startup.
+
+[[gadfa_argument]]
+{gadfa_argument}::
+A command-line parameter passed to the {gadt_factory} Python service to control its behavior.
+Each {gadfa_argument} configures specific aspects of the processing pipeline, HTTP server, or output generation.
+
+[[gadfa_adoc_filename]]
+{gadfa_adoc_filename}::
+A specific {gadfa_argument} that specifies the AsciiDoc file to be processed by the {gadt_factory} service.
+The {gadfa_adoc_filename} is a valid path to an .adoc file within the Git repository and determines the {gadt_inspector} source location for HTTP serving.
+
+[[gadfa_max_distinct_renders]]
+{gadfa_max_distinct_renders}::
+A specific {gadfa_argument} that specifies the maximum number of distinct HTML files to maintain in {gadfd_output} (default: 5).
+The {gadfa_max_distinct_renders} limits the number of unique rendered pages stored, enabling content-based deduplication where multiple commits may reference the same HTML file.
+
+[[gadfa_directory]]
+{gadfa_directory}::
+A specific {gadfa_argument} that specifies the working directory where {gadt_factory} operates, containing factory state files and the {gadfd_output} subdirectory.
+The {gadfa_directory} contains {gadfd_extract} and {gadfd_distill} subdirectories and the {gadfd_output} subdirectory with all deliverable artifacts.
+
+[[gadip_rendered]]
+{gadip_rendered}::
+The main content area of {gadt_inspector} containing {gadip_tab_bar} and tab content display region.
+The {gadip_rendered} shows the "to" commit's HTML as properly rendered content with CSS classes applied at block level to indicate deletions (red strikethrough inline), insertions (green background), and moved content (yellow background).
+Tab content switches based on {gadis_tab_state} between {gadiv_prototype}, {gadiv_dual}, and other visualization modes via {gadiu_tab_switch} actions.
+
+[[gadil_trace]]
+{gadil_trace}::
+Debugging output statements sent directly to {gadt_factory} via {gadt_websocket} at critical execution points in {gadt_inspector}.
+{gadil_trace} entries are streamed in real-time to {gadt_factory} and include ISO timestamps with the following required events:
++
+* `[MANIFEST]` Events: Loading start, successful load with commit count, load failures
+* `[RAIL]` Events: {gadir_from} selection changes, {gadir_to} selection changes
+* `[FETCH]` Events: HTML fetch start per commit, successful fetch completion, fetch failures
+* `[DIFF]` Events: Diff computation start, completion with change count
+* `[SHA256]` Events: Detection of identical/different {gadmf_html_sha256} values between {gadi_from_commit} and {gadi_to_commit}
+* {gadil_error} Events: missing commits in manifest, diff-dom library failures
++
+Each {gadil_trace} entry includes bracketed prefix for filtering and is sent immediately via {gadwm_trace} to {gadt_factory}.
+
+[[gadil_error]]
+{gadil_error}::
+Error reporting statements sent directly to {gadt_factory} via {gadt_websocket} at critical failure points in {gadt_inspector}.
+{gadil_error} entries are streamed in real-time to {gadt_factory} and include ISO timestamps with specific error conditions including missing commits in manifest, and diff-dom library failures, and send error trace via {gadt_websocket}.
+
+[[gadid_swap]]
+{gadid_swap}::
+Control that transposes {gadir_from} and {gadir_to} column positions and triggers {gadis_diff_sequence}.
+Swap maintains selections while exchanging rail positions in the grid layout.
+
+[[gadih_comparison]]
+{gadih_comparison}::
+A column header for {gadip_rendered} in {gadt_inspector} that displays the current commit comparison.
+The {gadih_comparison} shows {gadi_from_commit} and {gadi_to_commit} in "hash → hash" format above the diff content pane.
+
+[[gadis_navigation]]
+{gadis_navigation}::
+Reserved for future navigation controls in {gadt_inspector}.
+Currently not implemented in the rail-based interface.
+
+
+[[gadis_status]]
+{gadis_status}::
+A contextual status area in {gadt_inspector} that displays information about SHA256 matches.
+The {gadis_status} appears between {gadih_comparison} and {gadip_rendered} when {gadi_from_commit} and {gadi_to_commit} have identical {gadmf_html_sha256} values, showing 'These commits have identical rendered content'.
+
+[[gadis_initialization]]
+{gadis_initialization}::
+The {gadt_inspector} startup sequence that ensures URL hash persistence and immediate response during {gadt_factory} restart cycles.
+The sequence follows: DOM readiness → {gadt_manifest} fetch via HTTP → {gadt_websocket} connection, enabling Inspector instantiation and URL parameter parsing independent of WebSocket availability.
+{gadis_initialization} supports localhost development workflows where the {gadu_operator} refreshes pages with URL hash parameters and expects immediate Inspector functionality regardless of {gadt_factory} status.
+When {gadt_manifest} fetch fails, Inspector displays appropriate error without attempting {gadt_websocket} connection.
+
+[[gadiv_unchanged]]
+{gadiv_unchanged}::
+A visual indicator (grey text with reduced opacity) applied to commits in {gadir_from} and {gadir_to} rails where {gadmf_html_sha256} matches the previous commit.
+The {gadiv_unchanged} helps the {gadu_operator} identify which commits produced no rendering changes while maintaining full git history visibility.
+
+[[gadiuhp_from]]
+{gadiuhp_from}::
+A URL hash parameter that specifies the starting commit SHA for comparison in {gadt_inspector}.
+The {gadiuhp_from} persists across browser refreshes, maintaining the {gadu_operator}'s selected baseline commit.
+
+[[gadiuhp_to]]
+{gadiuhp_to}::
+A URL hash parameter that specifies the ending commit SHA for comparison in {gadt_inspector}.
+The {gadiuhp_to} persists across browser refreshes, maintaining the {gadu_operator}'s selected target commit.
+
+
+[[gadfa_branch]]
+{gadfa_branch}::
+A {gadfa_argument} specifying which Git branch to track for processing commits.
+The {gadfa_branch} determines which commit history {gadt_factory} monitors for changes.
+
+[[gadfa_once]]
+{gadfa_once}::
+An optional {gadfa_argument} flag that prevents entering watch mode after initial population.
+When {gadfa_once} is specified, {gadt_factory} completes initial population or incremental processing and exits instead of entering polling mode for new commits. This enables one-time processing runs without continuous monitoring.
+
+
+[[gadfd_extract]]
+{gadfd_extract}::
+The `.factory-extract/` subdirectory in {gadfa_directory} where {gadt_factory} extracts files via `git archive` for the commit being processed.
+The {gadfd_extract} provides a clean source tree for asciidoctor rendering.
+
+[[gadfd_distill]]
+{gadfd_distill}::
+The `.factory-distill/` subdirectory in {gadfa_directory} where asciidoctor outputs HTML files.
+The {gadfd_distill} serves as the {gadda_source_dir} for {gadp_distill} processing.
+
+[[gadfd_output]]
+{gadfd_output}::
+The `output/` subdirectory within {gadfa_directory} containing normalized HTML artifacts and manifest.
+The {gadfd_output} holds normalized {gadt_page_s} and {gadt_manifest}, served via HTTP by the Python {gadt_factory}.
+The {gadt_inspector} is served directly from source location rather than being copied to output directory.
+
+[[gadt_manifest]]
+{gadt_manifest}::
+The `manifest.json` file in {gadda_output_dir} maintained directly by {gadt_factory} containing cumulative commit metadata.
+The {gadt_factory} owns all manifest state, managing it in memory with atomic disk updates.
+The {gadt_manifest} enables {gadt_inspector} to identify unchanged commits through {gadmf_html_sha256} values for {gadiv_unchanged} visual treatment.
+
+[[gadif_html_commit]]
+{gadif_html_commit}::
+Output file following the pattern `{branch}-{full_sha256}.html` used for output files based on HTML content.
+The {gadif_html_commit} uses the full SHA-256 hash of the normalized HTML content, enabling content-based deduplication where multiple commits may reference the same file.
+
+[[gadih_error]]
+{gadih_error}::
+A degenerate HTML file created by {gadp_distill} when zero or multiple HTML files exist in {gadda_source_dir}.
+The {gadih_error} contains an error message and follows the standard {gadif_html_commit} pattern.
+
+[[gadda_source_dir]]
+{gadda_source_dir}::
+Directory containing Asciidoctor-generated HTML files to be normalized by {gadp_distill}.
+The {gadda_source_dir} is passed as the first positional argument to {gadp_distill}.
+
+[[gadda_output_dir]]
+{gadda_output_dir}::
+Target directory for normalized HTML files and {gadt_manifest} managed by {gadp_distill}.
+The {gadda_output_dir} is passed as the second positional argument to {gadp_distill}.
+The {gadda_output_dir} corresponds to {gadfd_output} when {gadp_distill} is invoked by {gadt_factory}.
+
+[[gadda_commit_hash]]
+{gadda_commit_hash}::
+Git commit SHA identifier for the current document version being processed.
+The {gadda_commit_hash} is passed as the fourth positional argument to {gadp_distill} for filename generation and digest entries.
+
+[[gadda_commit_date]]
+{gadda_commit_date}::
+Commit timestamp in YYYYMMDDHHMMSS format for the commit being processed by {gadp_distill}.
+The {gadda_commit_date} is passed as the fifth positional argument to {gadp_distill} for digest metadata.
+
+[[gadda_commit_message]]
+{gadda_commit_message}::
+Git commit message describing the change being processed by {gadp_distill}.
+The {gadda_commit_message} is passed as the sixth positional argument to {gadp_distill} for manifest metadata.
+
+[[gadmf_branch]]
+{gadmf_branch}::
+The top-level JSON field "branch" in {gadt_manifest} containing the Git branch name being processed.
+The {gadmf_branch} corresponds to the {gadfa_branch} argument passed to {gadt_factory}.
+
+[[gadmf_asciidoc]]
+{gadmf_asciidoc}::
+The top-level JSON field "asciidoc" in {gadt_manifest} containing the source AsciiDoc filename.
+The {gadmf_asciidoc} corresponds to the {gadfa_adoc_filename} argument passed to {gadt_factory}.
+
+[[gadmf_commits]]
+{gadmf_commits}::
+The top-level JSON array "commits" in {gadt_manifest} containing individual commit metadata objects.
+Each entry in {gadmf_commits} includes {gadmf_hash}, {gadmf_timestamp}, {gadmf_date}, {gadmf_message}, {gadmf_html_file}, and {gadmf_html_sha256} fields.
+
+[[gadmf_hash]]
+{gadmf_hash}::
+The JSON field "hash" within {gadmf_commits} entries containing the full Git commit SHA.
+The {gadmf_hash} corresponds to the {gadda_commit_hash} argument passed to {gadp_distill}.
+
+[[gadmf_timestamp]]
+{gadmf_timestamp}::
+The JSON field "timestamp" within {gadmf_commits} entries containing the formatted processing timestamp.
+The {gadmf_timestamp} uses YYYYMMDDHHMMSS format for timestamp display and filename generation.
+
+[[gadmf_date]]
+{gadmf_date}::
+The JSON field "date" within {gadmf_commits} entries containing the commit date in YYYYMMDDHHMMSS format.
+The {gadmf_date} corresponds to the {gadda_commit_date} argument passed to {gadp_distill}.
+
+[[gadmf_message]]
+{gadmf_message}::
+The JSON field "message" within {gadmf_commits} entries containing the Git commit message.
+The {gadmf_message} corresponds to the {gadda_commit_message} argument passed to {gadp_distill}.
+
+[[gadmf_html_file]]
+{gadmf_html_file}::
+The JSON field "html_file" within {gadmf_commits} entries containing the generated HTML filename.
+The {gadmf_html_file} follows the {gadif_html_commit} pattern for consistent file organization.
+
+[[gadmf_html_sha256]]
+{gadmf_html_sha256}::
+The JSON field "html_sha256" within {gadmf_commits} entries containing the SHA-256 hash of the entire normalized HTML file.
+The {gadmf_html_sha256} enables {gadt_inspector} to identify unchanged commits for {gadiv_unchanged} visual treatment.
+
+
+[[gadkp_single_threaded]]
+{gadkp_single_threaded}::
+The GAD system operates as a single-threaded process per {gadfa_directory}. Only one {gadt_factory} instance may run for a given working directory, eliminating concurrency concerns.
+This premise simplifies design by removing all synchronization requirements and state sharing complexities.
+
+[[gadmf_last_processed]]
+{gadmf_last_processed}::
+The top-level JSON field "last_processed_hash" in {gadt_manifest} containing the most recently processed commit SHA.
+The {gadmf_last_processed} enables {gadt_factory} to detect new commits during incremental watch mode without external state files.
+
+[[gadu_operator]]
+{gadu_operator}::
+The person who interacts with the GAD system to analyze document changes and review diff visualizations.
+The {gadu_operator} controls {gadt_inspector} through {gadir_from} and {gadir_to} rail selections, interpreting rendered differences in {gadip_rendered} to understand document evolution across commits.
+
+[[gadw_premise]]
+{gadw_premise}::
+The {gadt_websocket} implementation assumes local-only operation where {gadt_inspector} and {gadt_factory} run on the same machine.
+This {gadw_premise} enables simplified security and authentication models suitable for localhost development workflows and supports URL hash persistence workflows where the {gadu_operator} expects immediate Inspector response even during {gadt_factory} restart cycles.
+
+[[gadwm_refresh]]
+{gadwm_refresh}::
+{gadt_websocket} message sent by {gadt_factory} to connected {gadt_inspector} clients when new commits are processed.
+The {gadwm_refresh} triggers {gadt_inspector} to fetch updated manifest and refresh the interface.
+Contains {gadwf_type} field set to "refresh" and {gadwf_data} field with payload value.
+
+[[gadwm_trace]]
+{gadwm_trace}::
+{gadt_websocket} message sent by {gadt_inspector} to {gadt_factory} for debugging and operational visibility.
+Contains {gadwf_type} field set to "trace" and {gadwf_message} field with trace text.
+Used for logging critical execution points including manifest loading, rail selection, HTML fetching, and diff computation events.
+
+[[gadwm_debug]]
+{gadwm_debug}::
+{gadt_websocket} message sent by {gadt_inspector} to {gadt_factory} containing debug artifacts from diff processing phases.
+Contains {gadwf_type} field set to "debug_output", {gadwf_debug_type} identifying the artifact type, {gadwf_content} with HTML or JSON payload, {gadwf_filename_pattern} for GADS-compliant naming, and {gadwf_source_files} array for debug context.
+Supports all eight diff processing phases and raw DOM analysis artifacts.
+
+[[gadwf_type]]
+{gadwf_type}::
+Message type identifier field in {gadt_websocket} messages.
+Values include "refresh", "trace", "debug_output", "rendered_content", and "annotated_dom".
+
+[[gadwf_data]]
+{gadwf_data}::
+Generic payload field in {gadt_websocket} messages.
+Used in {gadwm_refresh} to carry "new_commit" notification.
+
+[[gadwf_message]]
+{gadwf_message}::
+Text message content field in {gadt_websocket} trace messages.
+Contains debugging and operational visibility output from {gadt_inspector}.
+
+[[gadwf_debug_type]]
+{gadwf_debug_type}::
+Debug artifact type identifier field in {gadwm_debug} messages.
+Values include phase identifiers ("phase3_dft", "phase6_annotated", etc.) and analysis types ("from-dom-structure", "diff-operations", etc.).
+
+[[gadwf_content]]
+{gadwf_content}::
+HTML or JSON content payload field in {gadwm_debug} messages.
+Contains the actual debug artifact data for file writing.
+
+[[gadwf_filename_pattern]]
+{gadwf_filename_pattern}::
+GADS-compliant filename pattern field in {gadwm_debug} messages.
+Specifies the exact filename for debug artifact storage in {gadfd_output}.
+
+[[gadwf_source_files]]
+{gadwf_source_files}::
+Array field in {gadwm_debug} messages listing source file paths that generated the debug artifact.
+Provides debug context by identifying which HTML commit files were used for comparison.
+
+[[gadf_limit_mode]]
+{gadf_limit_mode}::
+HEAD-only processing state entered by {gadt_factory} when {gadfa_max_distinct_renders} is reached.
+In {gadf_limit_mode}, the {gadt_factory} continues processing only HEAD commit changes, skipping parent commit traversal to maintain the distinct render file limit while ensuring the latest content remains available.
+
+[[gadf_hash_lookup]]
+{gadf_hash_lookup}::
+SHA-256 comparison algorithm used during {gadfs_render} to detect duplicate HTML content through manifest inspection.
+{gadf_hash_lookup} enables content-based deduplication by comparing the normalized HTML hash against existing {gadmf_html_sha256} values, allowing multiple commits to reference the same HTML file when content is identical.
+
+[[gadif_processed_diff]]
+{gadif_processed_diff}::
+Debug capture file following the pattern `debug-rendered-{from_hash}-{to_hash}-{timestamp}.html` used for rendered capture files created when {gadt_factory} receives {gadwm_debug} from {gadt_inspector}.
+The {gadif_processed_diff} includes both commit hashes being compared and an ISO timestamp for unique identification.
+Each rendered capture begins with comment lines listing the full concrete filenames of the preprocessed HTML files used to generate the diff visualization.
+
+[[gadif_annotated_dom]]
+{gadif_annotated_dom}::
+Debug capture file following the pattern `debug-annotated-{from_hash}-{to_hash}-{timestamp}.html` for annotated DOM debugging.
+The {gadif_annotated_dom} contains the intermediate HTML with all diff annotations applied but before single-element run consolidation, enabling analysis of granular operation-level visual annotations and debugging consolidation logic.
+
+[[gadt_websocket]]
+{gadt_websocket}::
+The bidirectional communication protocol used between {gadt_factory} and {gadt_inspector} for real-time data exchange.
+{gadt_websocket} operates on the same port as HTTP, handles message framing automatically, supports large message payloads for rendered content streaming, and assumes localhost-only operation per {gadw_premise}.
+Persistent connection established on the `/ws` endpoint after successful {gadt_manifest} fetch, enabling bidirectional communication for refresh notifications from {gadt_factory} to {gadt_inspector} and trace streaming from {gadt_inspector} to {gadt_factory}.
+

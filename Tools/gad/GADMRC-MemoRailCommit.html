@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Commit Range Picker — Spec Memo</title>
+<style>
+  :root{--bg:#0b0d10;--text:#e8ecf1;--panel:#14181f;--border:#222a37;--muted:#9aa3b2;--accent:#7aa2ff;--nochange:#697488;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:sans-serif;}
+  .layout{display:grid;grid-template-columns:auto auto 1fr;grid-template-rows:auto 1fr;grid-template-areas:"header header render" "from to render";height:100vh;overflow:hidden;}
+  .header{grid-area:header;display:flex;justify-content:center;align-items:center;gap:6px;background:var(--panel);border-bottom:1px solid var(--border);padding:4px;}
+  .swap{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text);cursor:pointer;font-size:14px;}
+  .rail{background:var(--panel);border-right:1px solid var(--border);overflow:auto;}
+  .row{display:flex;align-items:center;gap:6px;padding:3px 4px;cursor:pointer;white-space:nowrap;}
+  .row:hover{background:#1a202c;}
+  .badge{min-width:20px;text-align:right;font-size:11px;color:var(--muted);} 
+  .row:not(.muted) .badge{font-weight:600;}
+  .row.muted .badge{color:var(--nochange);font-weight:400;opacity:.9;}
+  .radio{appearance:none;width:12px;height:12px;border:2px solid var(--muted);border-radius:50%;margin:0;}
+  .radio:checked{border-color:var(--accent);background:var(--accent);}
+  main{grid-area:render;position:relative;background:#0f131a;overflow:auto;padding:16px;}
+  .popover{position:absolute;top:8px;left:8px;min-width:260px;max-width:460px;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:8px;display:none;z-index:10;}
+  .popover.show{display:block;}
+  .popover div{font-size:12px;margin:2px 0;}
+  .spec{color:var(--text);padding:12px;max-width:900px;}
+  .spec h1{margin:8px 0 6px;font-size:18px}
+  .spec h2{margin:12px 0 6px;font-size:14px;color:var(--muted)}
+  .spec ul{margin:6px 0 10px 18px;padding:0}
+  .spec li{margin:4px 0;}
+  .spec code{font-family:ui-monospace,Menlo,Consolas,monospace}
+  /* Swapped state using grid-template-areas */
+  .layout.swapped{grid-template-areas:"header header render" "to from render";}
+  .layout.swapped{grid-template-areas:"header header render" "to from render";}
+</style>
+</head>
+<body>
+<div class="layout" id="layout">
+  <div class="header">F <button class="swap" id="swap">⇄</button> T</div>
+  <aside class="rail" id="fromCol" style="grid-area:from"><div id="from"></div></aside>
+  <aside class="rail" id="toCol" style="grid-area:to"><div id="to"></div></aside>
+  <main>
+    <div class="popover" id="pop"></div>
+    <article id="spec" class="spec">
+      <h1>Commit Range Selector — Concise Layout Spec (v2)</h1>
+      <h2>Regions</h2>
+      <ul>
+        <li><strong>Three-column workspace</strong>:
+          <ol>
+            <li><strong>From rail</strong> (narrow, shrink-to-fit).</li>
+            <li><strong>To rail</strong> (narrow, shrink-to-fit).</li>
+            <li><strong>Render pane</strong> (fills the remaining width).</li>
+          </ol>
+        </li>
+        <li><strong>No gutters</strong> between columns; rails sit flush against the render pane.</li>
+        <li><strong>Independent vertical scrolling</strong> for each rail when needed.</li>
+      </ul>
+      <h2>Header & Swap</h2>
+      <ul>
+        <li><strong>Header spanning both rails</strong>: literal text <code>F ⇄ T</code>, centered above the two rails.</li>
+        <li><strong>Swap control</strong> is the <code>⇄</code> button between F and T.</li>
+        <li><strong>Swap behavior</strong>: transposes the <em>positions</em> of the From and To rails without recreating contents or altering selected choices. Repeated clicks flip back and forth; selections persist.</li>
+      </ul>
+      <h2>Rails (From / To)</h2>
+      <ul>
+        <li><strong>Ordering</strong>: top→bottom as <code>H, -1, -2, …</code> (reverse-chronological from HEAD).</li>
+        <li><strong>Selection</strong>: exactly one active choice per rail.</li>
+        <li><strong>Rows</strong>: compact; entire row is the hit target.</li>
+        <li><strong>No-change visual rule</strong>: if a row’s <code>html_sha256</code> equals the previous row’s, <em>only the label</em> is visually diminished (grey/un-bold). Radios remain fully legible.</li>
+      </ul>
+      <h2>Render Pane</h2>
+      <ul>
+        <li>Occupies the remaining width.</li>
+        <li>Hosts the diff (not specified here).</li>
+      </ul>
+      <h2>Details Popover</h2>
+      <ul>
+        <li><strong>Placement</strong>: upper-left of the render pane.</li>
+        <li><strong>Trigger</strong>: on hover/focus of any rail row; hides on exit.</li>
+        <li><strong>Contents</strong>: label, full hash, local date/time, message, <code>html_sha256</code>, and <em>Changed</em> vs <em>No substantive change</em> (HEAD noted).</li>
+      </ul>
+      <h2>Keyboard</h2>
+      <ul>
+        <li>Up/Down moves focus; Space/Enter selects; Home/End jump to first/last.</li>
+        <li>Exactly one selection per rail at all times.</li>
+      </ul>
+      <h2>Visual Constraints</h2>
+      <ul>
+        <li><strong>Skinny rails</strong>: minimal width; no extra padding.</li>
+        <li><strong>Selected state</strong>: clear and persistent.</li>
+        <li><strong>Contrast</strong>: diminished labels remain readable.</li>
+      </ul>
+      <h2>Defaults</h2>
+      <ul>
+        <li><strong>Initial selection</strong>: From = <code>-1</code>, To = <code>H</code>.</li>
+      </ul>
+    </article>
+  </main>
+</div>
+<script>
+const data={"commits":[
+ {"hash":"bda0e3409ba9ddb70fc9cccdd6b1593759d598e4","timestamp":"20250906192849","message":"Add GAD test AsciiDoc file","html_sha256":"90b0960deebc41f77d6f474eb7e8212ca1c91a76fbf410b57a0d8c8204846286"},
+ {"hash":"04594ff965e4f126f6610514b28574736a5ec916","timestamp":"20250906192928","message":"Add Transit Network","html_sha256":"66b956809f537b21e4bba341a57eb5baffb704a0ed4c877d6195df621af5f736"},
+ {"hash":"c874a0c0e87b58cc88780c94a85407a672bfb198","timestamp":"20250906193012","message":"Cosmetic change","html_sha256":"66b956809f537b21e4bba341a57eb5baffb704a0ed4c877d6195df621af5f736"},
+ {"hash":"973c623d32fcce6e5ea73764919ecb9e177a5094","timestamp":"20250906193102","message":"Add Censer Container","html_sha256":"91558cce526ad3028ce8bf4394844faddaed5b83682e665d495dfaf91914cb2f"}
+]};
+
+function rows(commits){
+  const rev=[...commits].reverse();
+  return rev.map((c,i)=>({label:i?`-${i}`:"H",...c,noChange:i&&rev[i-1].html_sha256===c.html_sha256}));
+}
+
+function render(list,id,def){
+  const el=document.getElementById(id);
+  el.innerHTML="";
+  rows(data.commits).forEach((c,i)=>{
+    const row=document.createElement('div');
+    row.className='row'+(c.noChange?' muted':'');
+    row.innerHTML=`<div class="badge">${c.label}</div><input type="radio" class="radio" name="${id}" ${i===def?'checked':''}>`;
+    row.onmouseenter=()=>show(c);
+    row.onmouseleave=hide;
+    el.appendChild(row);
+  });
+}
+
+const pop=document.getElementById('pop');
+function show(c){
+  const d = new Date(`${c.timestamp.slice(0,4)}-${c.timestamp.slice(4,6)}-${c.timestamp.slice(6,8)}T${c.timestamp.slice(8,10)}:${c.timestamp.slice(10,12)}:${c.timestamp.slice(12,14)}Z`);
+  const changed = c.label==="H"?"HEAD":(c.noChange?"No substantive change":"Changed");
+  pop.innerHTML=`
+    <div><strong>${c.label}</strong></div>
+    <div>Hash: ${c.hash}</div>
+    <div>Date: ${d.toLocaleString()}</div>
+    <div>Message: ${c.message}</div>
+    <div>html_sha256: ${c.html_sha256}</div>
+    <div>${changed}</div>`;
+  pop.classList.add('show');
+}
+function hide(){pop.classList.remove('show');}
+
+render('from','from',1);
+render('to','to',0);
+
+// Swap button: toggle grid areas; no DOM mutations, selections persist
+const swapBtn=document.getElementById('swap');
+const layout=document.querySelector('.layout');
+swapBtn.addEventListener('click',()=>{
+  layout.classList.toggle('swapped');
+});
+</script>
+</body>
+</html>

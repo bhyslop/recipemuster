@@ -7,6 +7,7 @@ Please display this menu at the start of each session:
 === Quick Start Menu ===
 bcbcg: Bash Coding with BCG (Bash Console Guide)
 adocrbags: Requirements writing with RBAGS (Admin Google Spec)
+gad: Work on GAD (Google AsciiDoc Differ)
 
 Which would you like to start with? (Enter acronym)
 ```
@@ -22,6 +23,11 @@ Which would you like to start with? (Enter acronym)
 - Primary file: `../recipebottle-admin/rbw-RBAGS-AdminGoogleSpec.adoc`
 - Context: Requirements documentation and specification writing
 - Related specs: RBP, RBRN, RBRR, RBS, CRR in ../recipebottle-admin/
+
+### gad: Work on GAD (Google AsciiDoc Differ)
+- Primary directory: `Tools/gad/`
+- Context: AsciiDoc diff visualization tool (spec, implementation, memos)
+- See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings and architecture
 
 ## Directory Permissions
 Full read and edit access is pre-approved for all files in:
@@ -68,12 +74,8 @@ Full read and edit access is pre-approved for all files in:
 - **CCCK** → `ccck/cccw_workbench.sh`
 
 #### GAD Subdirectory (`Tools/gad/`)
-- **GADF**  → `gad/gadf_factory.py`
-- **GADIB** → `gad/gadib_base.js` (GAD Inspector Base - Infrastructure layer)
-- **GADIE** → `gad/gadie_engine.js` (GAD Inspector Engine - Diff computation)
-- **GADIU** → `gad/gadiu_user.js` (GAD Inspector User - UI layer)
-- **GADIW** → `gad/gadiw_webpage.html` (GAD Inspector Webpage)
-- **GADIC** → `gad/gadic_cascade.css` (GAD Inspector CSS)
+- **See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings**
+- Quick reference: GADF (factory), GADI* (inspector), GADS (spec), GADP (planner), GADM* (memos)
 
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`
@@ -99,18 +101,6 @@ Full read and edit access is pre-approved for all files in:
 - **TITL**    → `wrs-TITL-TestInfrastructureTaskLens.claudex`
 - **TLG**     → `wrs-TLG-TaskLensGuide.md`
 - **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
-- **GADS**    → `gad/GADS-GoogleAsciidocDifferSpecification.adoc`
-- **GADP**    → `gad/GADP-GoogleAsciidocDifferPlanner.md`
-- **GADMCR**  → `gad/GADMCR-MemoCorsResolution.md`
-- **GADMRC**  → `gad/GADMRC-MemoRailCommit.html`
-- **GADMDD**  → `gad/GADMDD-MemoDualDiffs.md`
-- **GADMDR**  → `gad/GADMDR-MemoDeleteRefactor.md`
-- **GADMRHA5** → `gad/GADMRHA5-chatgpt5Research.pdf`
-- **GADMRHAI** → `gad/GADMRHAI-HtmlAlgoIssue.md`
-- **GADMRHAO** → `gad/GADMRHAO-opus4p1Research.md`
-- **GADMRHAP** → `gad/GADMRHAP-HtmlAlgoPrompt.md`
-- **GADMRW**  → `gad/GADMRW-MemoRenderWickedFix.md`
-- **GADMWP**  → `gad/GADMWP-MemoWebsocketPaths.md`
 - **AXLA**    → `axl-AXLA-Lexicon.adoc`
 - **AXMCM**   → `axl-AXMCM-ClaudeMarkConceptMemo.md`
 - **WCC**     → `WCC-WebClaudetoClaudeCode.md`
