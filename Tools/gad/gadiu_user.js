@@ -659,12 +659,12 @@ class gadiu_inspector {
 
         // Create tab buttons
         this.elements.tabBar.innerHTML = `
-            <button class="tab-button active" data-tab="prototype">Prototype</button>
-            <button class="tab-button" data-tab="dual">Dual</button>
+            <button class="gadit-prototype-tab gadit-active-tab" data-tab="prototype">Prototype</button>
+            <button class="gadit-dual-tab" data-tab="dual">Dual</button>
         `;
 
         // Add click handlers for tab buttons
-        this.elements.tabBar.querySelectorAll('.tab-button').forEach(button => {
+        this.elements.tabBar.querySelectorAll('button[data-tab]').forEach(button => {
             button.addEventListener('click', () => {
                 const tabName = button.dataset.tab;
                 this.switchTab(tabName);
@@ -686,8 +686,12 @@ class gadiu_inspector {
         }
 
         // Update active tab button
-        this.elements.tabBar.querySelectorAll('.tab-button').forEach(button => {
-            button.classList.toggle('active', button.dataset.tab === tabName);
+        this.elements.tabBar.querySelectorAll('button[data-tab]').forEach(button => {
+            if (button.dataset.tab === tabName) {
+                button.classList.add('gadit-active-tab');
+            } else {
+                button.classList.remove('gadit-active-tab');
+            }
         });
 
         // Switch view content without re-computing diff
