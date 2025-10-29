@@ -70,7 +70,7 @@ zbdu_setup() {
   source                           "${BURC_STATION_FILE}"
 
   # Validate station variables
-  zbdu_check_string "${BURC_STATION_FILE}" BDRS_LOG_DIR 1 256
+  zbdu_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
 
   BDU_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))
   zbdu_show "Generated timestamp: ${BDU_NOW_STAMP}"
@@ -147,14 +147,14 @@ zbdu_process_args() {
   local tag="${tokens[0]}-${tokens[2]:-unknown}"
 
   # Setup log paths
-  BDU_LOG_LAST="${BDRS_LOG_DIR}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
-  BDU_LOG_SAME="${BDRS_LOG_DIR}/same-${tag}.${BURC_LOG_EXT}"
-  BDU_LOG_HIST="${BDRS_LOG_DIR}/hist-${tag}-$BDU_NOW_STAMP.${BURC_LOG_EXT}"
+  BDU_LOG_LAST="${BURS_LOG_DIR}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
+  BDU_LOG_SAME="${BURS_LOG_DIR}/same-${tag}.${BURC_LOG_EXT}"
+  BDU_LOG_HIST="${BURS_LOG_DIR}/hist-${tag}-$BDU_NOW_STAMP.${BURC_LOG_EXT}"
 
   # Prepare/initialize log files unless logging disabled
   if [[ -z "${BDU_NO_LOG:-}" ]]; then
     # Prepare log directories
-    mkdir -p "${BDRS_LOG_DIR}"
+    mkdir -p "${BURS_LOG_DIR}"
     # Initialize log files
     > "$BDU_LOG_LAST"
     > "$BDU_LOG_SAME"

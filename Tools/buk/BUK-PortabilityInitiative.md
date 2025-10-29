@@ -80,23 +80,23 @@ The Config Regime is a general pattern that BUK defines, documents, and validate
 - `.buk/buk_launch_ccck.sh` - Launcher for ccck workbench
 - `.buk/buk_launch_rbw.sh` - Launcher for rbw workbench
 - `.buk/burc.env` - Regime configuration file
-- `../station-files/bdrs.env` - Station file (should be renamed to burs.env)
+- `../station-files/burs.env` - Station file
 - `Tools/buk/bdu_BashDispatchUtility.sh` - Dispatch system
 - `Tools/buk/bcu_BashCommandUtility.sh` - Command utilities
 - `Tools/buk/btu_BashTestUtility.sh` - Test utilities
 - `Tools/buk/bvu_BashValidationUtility.sh` - Validation utilities
 
-**Naming inconsistency found:**
-- Current: `BDRS_*` (Bash Dispatch Regime Station)
-- Should be: `BURS_*` (Bash Utility Regime Station)
+**Naming convention:**
+- `BURC_*` - Bash Utility Regime Configuration (project-level)
+- `BURS_*` - Bash Utility Regime Station (developer/machine-level)
 - Rationale: Both BURC and BURS start with `BUR*`, making them clearly related
 
 ## Work Needed for Portability
 
-### 1. Standardize Naming
-- Rename `BDRS_*` → `BURS_*` throughout codebase
-- Rename `bdrs.env` → `burs.env`
-- Update all references in BDU and launchers
+### 1. ✅ Standardize Naming (COMPLETED)
+- ✅ Renamed `BDRS_*` → `BURS_*` throughout codebase
+- ✅ Renamed `bdrs.env` → `burs.env`
+- ✅ Updated all references in BDU and burc.env
 
 ### 2. Create BUK Documentation
 
@@ -266,10 +266,10 @@ These documents informed the understanding of the Config Regime pattern and ente
 
 ## Next Session TODO
 
-1. Decide on exact naming: stick with BDRS or rename to BURS?
+1. ✅ ~~Decide on exact naming: stick with BDRS or rename to BURS?~~ - COMPLETED: Renamed to BURS
 2. Review and approve the three-layer architecture
 3. Prioritize which pieces to implement first
-4. Consider: should burc.env stay at `Tools/burc.env` or move to `.buk/burc.env`?
+4. ✅ ~~Consider: should burc.env stay at `Tools/burc.env` or move to `.buk/burc.env`?~~ - DECIDED: Stays at `.buk/burc.env`
 5. Plan the documentation structure for `Tools/buk/README.md`
 
 ## Notes
