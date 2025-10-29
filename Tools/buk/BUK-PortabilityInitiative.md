@@ -195,10 +195,37 @@ Make `.buk/buk_launch_*.sh` files reference the standardized names:
 
 ### From CNMP (CellNodeMessagePrototype) Lenses Directory
 
-These documents informed the understanding of the Config Regime pattern:
+These documents informed the understanding of the Config Regime pattern and enterprise bash standards:
 
-#### BCG - Bash Console Guide
+#### **PRIMARY REFERENCE: BCG - Bash Console Guide**
 **Path**: `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`
+
+**Critical for BUK implementation** - Authoritative guide for enterprise bash patterns. While written for multi-user command scripts, patterns directly apply to BUK utilities.
+
+**Key themes to apply:**
+- Module architecture: implementation + CLI files, kindle/sentinel/furnish boilerplate
+- Naming: `«PREFIX»_«NAME»` in SCREAMING_SNAKE_CASE for environment vars
+- Variable expansion: Always `"${var}"` (braced, quoted)
+- Enterprise safety: Crash-fast, explicit error handling, temp files over command substitution
+- Bash 3.2 compatibility (no bash 4+ features)
+- Module maturity checklist (lines 601-686) for auditing BUK utilities
+
+**Application to BUK:** All BUK utilities must follow BCG patterns. BURC/BURS demonstrate Config Regime using these conventions.
+
+#### TabTarget Documentation
+**Paths**:
+- `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/lenses/lens-console-makefile-reqs.md` (lines 33-37)
+- `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/lenses/lens-mbc-MakefileBashConsole-cmodel.adoc` (lines 194-210)
+
+**Key content:**
+- Shell scripts in `tt/` directory providing user-friendly CLI interface
+- Leverage terminal tab completion for discoverability
+- Filename contains dot-delimited tokens (e.g., `buk-v.ValidateRegime.sh`)
+- Delegate to dispatch script (BDU in BUK systems, makefile in MBC systems)
+- Tokens parsed by `BURC_TABTARGET_DELIMITER` and passed as parameters
+
+#### AXLA - Lexicon (Config Regime Definition)
+**Path**: `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/lenses/axl-AXLA-Lexicon.adoc`
 
 **Key content:**
 - Lines 90-110: Template showing `«PREFIX»_REGIME_FILE` pattern
