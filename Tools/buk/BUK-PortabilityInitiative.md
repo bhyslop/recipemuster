@@ -64,15 +64,47 @@ any-project-root/
    - BURC = project conventions (shared by team)
    - BURS = individual developer preferences (not shared)
 
-### The Config Regime Pattern (Abstract)
+### The Config Regime Pattern
 
-The Config Regime is a general pattern that BUK defines, documents, and validates:
+**Definition:** A Config Regime is a structured configuration system consisting of specification, assignment, validation, and rendering components, all unified by a namespace prefix.
 
-- **What it is**: Configuration boundary with consistent namespace prefix
-- **Why**: Establishes configuration scope and variable namespace
-- **Naming convention**: `<PREFIX>_<NAME>` in SCREAMING_SNAKE_CASE
-- **File organization**: Separate files for different scopes (project vs. machine)
-- **Validation**: BUK provides utilities to validate any regime
+**Core Components:**
+
+1. **Namespace Identity**
+   - Unique prefix (e.g., `RBRN_`, `BURC_`, `BURS_`) prevents variable collisions
+   - UPPERCASE for variables, lowercase for tool functions
+   - Applied consistently across all components
+
+2. **Variable Structure**
+   - **Regime Variables** - Named parameters with type constraints
+   - **Assignment Values** - Actual configuration data conforming to spec
+   - **Feature Groups** - Logically related variables
+   - **Enable Flags** - Boolean controls for optional feature groups
+
+3. **Type System**
+   - Atomic types: `string`, `xname`, `fqin`, `bool`, `decimal`, `ipv4`, `cidr`, `domain`, `port`
+   - List types: `ipv4_list`, `cidr_list`, `domain_list`
+   - Each type validated with min/max constraints
+
+4. **File Artifacts**
+   - **Specification (.adoc)** - Defines all variables, types, constraints, relationships
+   - **Assignment (.sh/.mk)** - Contains actual values (bilingual bash/make syntax)
+   - **Validator (.sh)** - Enforces type rules and variable relationships
+   - **Renderer (.sh)** - Pretty-prints configuration values
+   - **Library (.sh)** - Shared validation functions across regimes
+
+**BURC/BURS as Config Regimes:**
+
+BURC and BURS are Config Regimes that demonstrate the pattern:
+- ✅ Have namespace prefixes (`BURC_`, `BURS_`)
+- ✅ Have assignment files (`.buk/burc.env`, `../station-files/burs.env`)
+- ❌ Missing: specification documents defining allowed variables
+- ❌ Missing: validation logic using type system
+- ❌ Missing: renderer for human-readable display
+
+**BUK's Dual Role:**
+1. **Implementer** - BURC/BURS are working Config Regimes for BUK's own operation
+2. **Enabler** - BUK provides tools (in BVU) for others to validate their own regimes
 
 ### Current Implementation Status
 
@@ -224,53 +256,153 @@ These documents informed the understanding of the Config Regime pattern and ente
 - Delegate to dispatch script (BDU in BUK systems, makefile in MBC systems)
 - Tokens parsed by `BURC_TABTARGET_DELIMITER` and passed as parameters
 
+#### Config Regime Pattern Documentation
+
+**CRR - Config Regime Requirements**
+**Path**: `/Users/bhyslop/projects/recipebottle-admin/crg-CRR-ConfigRegimeRequirements.adoc`
+
+**Essential reference** - Defines the complete Config Regime pattern and file structure.
+
+**Key sections:**
+- **Introduction** - Explains regime components (spec/assignment/validator/renderer/library) and their relationships
+- **Spec Requirements** - Defines specification (.adoc) requirements and variable table format
+- **Assignment Variable Names** section - Covers assignment file (.sh/.mk) naming and syntax rules
+- **Core Terms** section (starting at `[[crg_regime]]`) - Definitions of regime, variable, value, prefix, group, enable flag
+- **Core Type Definitions** section - Type system with atomic types (string, xname, fqin, bool, decimal, ipv4, cidr, domain, port) and list types
+
+**Application to BUK:** CRR is the authoritative definition of Config Regime pattern. BUK should adopt this pattern for BURC/BURS and provide tooling (in BVU) to support it.
+
+---
+
+**RBRN - Regime Nameplate Specification**
+**Path**: `/Users/bhyslop/projects/recipebottle-admin/rbw-RBRN-RegimeNameplate.adoc`
+
+**Concrete example** - Shows a complete regime specification for Recipe Bottle service configuration.
+
+**Key sections:**
+- **Mapping section** (`// tag::mapping-section[]`) - Shows attribute references for config regime types (crg_atom_string, crg_atom_xname, etc.)
+- **Feature Groups** section (starts with "Core Service Identity") - Demonstrates variable tables with Purpose/Type/Required/Constraints format
+- **Core Term Definitions** section (starts with `[[term_bottle_service]]`) - Term definitions using AsciiDoc anchor pattern
+
+**Application to BUK:** RBRN demonstrates how to structure a specification document. BURC and BURS specs should follow similar patterns.
+
+---
+
+**crgv.validate.sh - Config Regime Validator Library**
+**Path**: `/Users/bhyslop/projects/brm_recipebottle/Tools/crgv.validate.sh`
+
+**Implementation reference** - Provides validation functions for all regime types.
+
+**Key functions:**
+- `crgv_print_and_die()` - Error handling pattern
+- `crgv_string()` - String validator with length constraints
+- `crgv_xname()` - XName validator (system-safe identifiers)
+- `crgv_fqin()` - FQIN validator (fully qualified image names)
+- `crgv_bool()` and `crgv_opt_bool()` - Boolean validators (required and optional)
+- `crgv_decimal()` and `crgv_opt_range()` - Decimal/range validators
+- `crgv_ipv4()` and `crgv_opt_ipv4()` - IPv4 validators
+
+**Application to BUK:** These validation functions should be integrated into BVU (Bash Validation Utility) as the standard type system for all Config Regimes.
+
+---
+
+**crgr.render.sh - Config Regime Renderer Library**
+**Path**: `/Users/bhyslop/projects/brm_recipebottle/Tools/crgr.render.sh`
+
+**Implementation reference** - Provides rendering functions for displaying regime values.
+
+**Key functions:**
+- `crgr_die()` - Error handling
+- `crgr_render_header()` and `crgr_render_group()` - Section headers with different formatting
+- `crgr_render_value()` - Single value rendering with formatted columns
+- `crgr_render_boolean()` - Boolean rendering with enabled/disabled text
+- `crgr_render_list()` - List rendering with indentation
+
+**Application to BUK:** Could be integrated into BCU (Bash Command Utility) or remain as separate utility.
+
+---
+
 #### AXLA - Lexicon (Config Regime Definition)
 **Path**: `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/lenses/axl-AXLA-Lexicon.adoc`
 
 **Key content:**
-- Lines 90-110: Template showing `«PREFIX»_REGIME_FILE` pattern
-- Line 99: `bcu_doc_env "«PREFIX»_REGIME_FILE " "Module specific configuration file"`
-- Line 102: `source "${«PREFIX»_REGIME_FILE}" || bcu_die "Failed to source regime file"`
-- Line 136: `bvu_file_exists "${«PREFIX»_REGIME_FILE}"  # If present`
-- Line 139: `source "${REGIME_CRED_FILE}" || bcu_die "Failed to source credentials"`
-- Lines 385-395: **Naming convention table** showing all patterns:
-  - Environment vars: `«PREFIX»_«NAME»` in SCREAMING_SNAKE_CASE
-  - Example: `RBV_REGIME_FILE`
-  - Used in both CLI and Implementation modules
+- **Regime definition** at anchor `[[axo_regime]]` - Defines regime as "Configuration boundary with consistent namespace prefix"
+- References RBAGS regime patterns (RBRR, RBRA, RBRP) as origin of the pattern
 
-**Template patterns documented:**
-- Furnish functions (`z«prefix»_furnish`)
-- Kindle functions (`z«prefix»_kindle`)
-- Module variables (`Z«PREFIX»_«NAME»`)
-- Environment variables (`«PREFIX»_«NAME»`)
 
-#### AXLA - Lexicon
-**Path**: `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/lenses/axl-AXLA-Lexicon.adoc`
+## Current Status - Ready for Implementation
 
-**Key content:**
-- Lines 113-114: Attribute mapping for regime term
-  ```
-  :axo_regime:   <<axo_regime,Regime>>
-  :axo_regime_s: <<axo_regime,Regimes>>
-  ```
-- Lines 476-480: **Regime definition**
-  ```
-  [[axo_regime]]
-  {axo_regime}::
-  Configuration boundary with consistent namespace prefix.
-  From {xref_RBAGS} regime patterns (RBRR, RBRA, RBRP).
-  Establishes configuration scope and variable namespace.
-  ```
+### BUK Regime Files - Naming Convention Established
 
-**Key insight:** The Config Regime pattern originates from RBAGS (Admin Google Spec) and shows up as RBRR, RBRA, RBRP implementations.
+**File Naming Pattern:**
+- **Prefix**: `bu` = Bash Utility namespace (will apply to ALL BUK scripts)
+- **Function token**: Single letter indicating purpose
+  - `v` = validates
+  - `p` = proclaims (spec)
+  - `d` = dispatch
+  - `c` = command
+  - `t` = test
+  - `u` = utility (validation)
+- **Target token**: Identifies what is being acted upon
+  - `s` = station (BURS)
+  - `c` = config (BURC)
+
+### New Regime Files to Create (in Tools/buk/):
+
+**Validators:**
+- `buvs_station.sh` - Validates BURS (station regime) at `../station-files/burs.env`
+- `buvc_config.sh` - Validates BURC (config regime) at `.buk/burc.env`
+
+**Specifications:**
+- `bups_station.md` - Proclaims BURS spec (markdown format)
+- `bupc_config.md` - Proclaims BURC spec (markdown format)
+
+### Future Renames (not now, but inevitable):
+- `bdu_BashDispatchUtility.sh` → `bud_dispatch.sh`
+- `bcu_BashCommandUtility.sh` → `buc_command.sh`
+- `btu_BashTestUtility.sh` → `but_test.sh`
+- `bvu_BashValidationUtility.sh` → `buv_validation.sh`
+
+### Key Decisions Made:
+- ✅ All files in `Tools/buk/` (no subdirectories until necessary)
+- ✅ Specs in markdown (not asciidoc - keeping pattern as internal trade secret)
+- ✅ "Proclaim" verb for spec files
+- ✅ Consistent `s`/`c` suffix for station/config distinction
+- ✅ BVU already implements Config Regime type system (no need to copy from crgv.validate.sh)
+
+### Regime Variables Currently Known:
+
+**BURC (Config Regime):**
+- `BURC_STATION_FILE` - Path to station file
+- `BURC_TABTARGET_DIR` - TabTarget directory (e.g., `tt/`)
+- `BURC_TABTARGET_DELIMITER` - Token separator in tabtarget names
+- `BURC_TOOLS_DIR` - Location of tool scripts
+- `BURC_TEMP_ROOT_DIR` - Where to create temporary directories
+- `BURC_OUTPUT_ROOT_DIR` - Where to place command outputs
+- `BURC_LOG_LAST` - Name for "last run" log file
+- `BURC_LOG_EXT` - Log file extension
+
+**BURS (Station Regime):**
+- `BURS_LOG_DIR` - Where this developer keeps logs
+- `BURS_MAX_JOBS` - (proposed) Parallelism preference for this machine
+- (Other machine-specific settings TBD)
 
 ## Next Session TODO
 
+**PRIORITY: Create the four regime files**
+
+1. Draft `bups_station.md` - BURS specification
+2. Draft `bupc_config.md` - BURC specification
+3. Implement `buvs_station.sh` - BURS validator using BVU functions
+4. Implement `buvc_config.sh` - BURC validator using BVU functions
+5. Test validators against existing `.buk/burc.env` and `../station-files/burs.env`
+
+**LATER:**
 1. ✅ ~~Decide on exact naming: stick with BDRS or rename to BURS?~~ - COMPLETED: Renamed to BURS
 2. Review and approve the three-layer architecture
-3. Prioritize which pieces to implement first
-4. ✅ ~~Consider: should burc.env stay at `Tools/burc.env` or move to `.buk/burc.env`?~~ - DECIDED: Stays at `.buk/burc.env`
-5. Plan the documentation structure for `Tools/buk/README.md`
+3. ✅ ~~Consider: should burc.env stay at `Tools/burc.env` or move to `.buk/burc.env`?~~ - DECIDED: Stays at `.buk/burc.env`
+4. Plan the documentation structure for `Tools/buk/README.md`
+5. Consider renaming existing BUK utilities to new convention (bud_dispatch.sh, etc.)
 
 ## Notes
 
