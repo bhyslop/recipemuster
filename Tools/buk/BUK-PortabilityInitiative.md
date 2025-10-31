@@ -17,8 +17,13 @@ any-project-root/
 │       ├── bcu_BashCommandUtility.sh
 │       ├── bdu_BashDispatchUtility.sh
 │       ├── btu_BashTestUtility.sh
-│       └── bvu_BashValidationUtility.sh
-├── Tools/burc.env              # Project structure config (checked into git)
+│       ├── bvu_BashValidationUtility.sh
+│       ├── burc_specification.md
+│       ├── burc_validator.sh
+│       ├── burs_specification.md
+│       └── burs_validator.sh
+├── .buk/
+│   └── burc.env                # Project structure config (checked into git)
 └── ../<configurable>/burs.env  # Developer machine config (NOT in git)
 ```
 
@@ -29,7 +34,7 @@ any-project-root/
 - Can be copied wholesale to any project
 - Provides the infrastructure: dispatch, command utilities, testing, validation
 
-#### 2. BURC - Bash Utility Regime Configuration (`Tools/burc.env`)
+#### 2. BURC - Bash Utility Regime Configuration (`.buk/burc.env`)
 - **Project-level configuration** (committed to git)
 - Defines "how THIS project organizes things"
 - Variables:
@@ -42,7 +47,7 @@ any-project-root/
   - `BURC_LOG_LAST` - Name for "last run" log file
   - `BURC_LOG_EXT` - Log file extension
 
-#### 3. BURS - Bash Utility Regime Station (`../<wherever>/burs.env`)
+#### 3. BURS - Bash Utility Regime Station (`../<configurable>/burs.env`)
 - **Developer/machine-level configuration** (NOT in git)
 - Location defined by `BURC_STATION_FILE`
 - Personal preferences for this developer's machine
@@ -53,16 +58,20 @@ any-project-root/
 
 ### Key Design Insights
 
-1. **BURC controls the layout** - The project maintainer decides where developers put personal configs by setting `BURC_STATION_FILE`
+1. **Tools/buk/ is immutable** - The `Tools/buk/` directory contains portable BUK utilities that remain unchanged across projects
 
-2. **BURC/BURS are exemplars** - They demonstrate the Config Regime pattern that BUK defines and promotes
+2. **burc.env configures BUK for a repo** - The `.buk/burc.env` file adapts the immutable BUK utilities to a specific project's structure
 
-3. **Config Regime is a BUK-owned pattern** - Other projects using BUK create their own regimes (RBWR, CCCR, etc.)
+3. **BURC controls the layout** - The project maintainer decides where developers put personal configs by setting `BURC_STATION_FILE`
 
-4. **Clean separation of concerns**:
-   - BUK utilities = portable, project-agnostic
-   - BURC = project conventions (shared by team)
-   - BURS = individual developer preferences (not shared)
+4. **BURC/BURS are exemplars** - They demonstrate the Config Regime pattern that BUK defines and promotes
+
+5. **Config Regime is a BUK-owned pattern** - Other projects using BUK create their own regimes (RBWR, CCCR, etc.)
+
+6. **Clean separation of concerns**:
+   - BUK utilities (`Tools/buk/*.sh`) = portable, project-agnostic
+   - BURC (`.buk/burc.env`) = project conventions (shared by team)
+   - BURS (`../station-files/burs.env`) = individual developer preferences (not shared)
 
 ### The Config Regime Pattern
 
@@ -111,8 +120,8 @@ BURC and BURS are Config Regimes that demonstrate the pattern:
 **Existing pieces:**
 - `.buk/buk_launch_ccck.sh` - Launcher for ccck workbench
 - `.buk/buk_launch_rbw.sh` - Launcher for rbw workbench
-- `.buk/burc.env` - Regime configuration file
-- `../station-files/burs.env` - Station file
+- `.buk/burc.env` - Regime configuration file (assignment)
+- `../station-files/burs.env` - Station file (assignment)
 - `Tools/buk/bdu_BashDispatchUtility.sh` - Dispatch system
 - `Tools/buk/bcu_BashCommandUtility.sh` - Command utilities
 - `Tools/buk/btu_BashTestUtility.sh` - Test utilities
@@ -335,27 +344,28 @@ These documents informed the understanding of the Config Regime pattern and ente
 ### BUK Regime Files - Naming Convention Established
 
 **File Naming Pattern:**
-- **Prefix**: `bu` = Bash Utility namespace (will apply to ALL BUK scripts)
-- **Function token**: Single letter indicating purpose
-  - `v` = validates
-  - `p` = proclaims (spec)
-  - `d` = dispatch
-  - `c` = command
-  - `t` = test
-  - `u` = utility (validation)
-- **Target token**: Identifies what is being acted upon
-  - `s` = station (BURS)
-  - `c` = config (BURC)
+- **Assignment files**: `{regime}.env` - Concise, frequently sourced
+- **Support files**: `{regime}_{full_word}.{ext}` - Self-documenting
+- **Regime prefixes**: `burs` (station) or `burc` (config)
 
-### New Regime Files to Create (in Tools/buk/):
+**Benefits:**
+- Assignment files stay ultra-concise (the files sourced constantly)
+- Support files are readable (the files humans interact with occasionally)
+- No cryptic single-letter role codes
+- No ambiguity or namespace conflicts
+- Scales naturally (`{regime}_renderer.sh` if needed)
 
-**Validators:**
-- `buvs_station.sh` - Validates BURS (station regime) at `../station-files/burs.env`
-- `buvc_config.sh` - Validates BURC (config regime) at `.buk/burc.env`
+### Regime Files:
 
-**Specifications:**
-- `bups_station.md` - Proclaims BURS spec (markdown format)
-- `bupc_config.md` - Proclaims BURC spec (markdown format)
+**BURS (Station Regime):**
+- `../station-files/burs.env` - Assignment file (actual station configuration values)
+- `Tools/buk/burs_specification.md` - Specification (proclaims BURS variables)
+- `Tools/buk/burs_validator.sh` - Validator (validates BURS assignment file)
+
+**BURC (Config Regime):**
+- `.buk/burc.env` - Assignment file (actual config values)
+- `Tools/buk/burc_specification.md` - Specification (proclaims BURC variables)
+- `Tools/buk/burc_validator.sh` - Validator (validates BURC assignment file)
 
 ### Future Renames (not now, but inevitable):
 - `bdu_BashDispatchUtility.sh` → `bud_dispatch.sh`
@@ -364,10 +374,11 @@ These documents informed the understanding of the Config Regime pattern and ente
 - `bvu_BashValidationUtility.sh` → `buv_validation.sh`
 
 ### Key Decisions Made:
-- ✅ All files in `Tools/buk/` (no subdirectories until necessary)
+- ✅ All support files in `Tools/buk/` (no subdirectories until necessary)
 - ✅ Specs in markdown (not asciidoc - keeping pattern as internal trade secret)
-- ✅ "Proclaim" verb for spec files
-- ✅ Consistent `s`/`c` suffix for station/config distinction
+- ✅ Assignment files: `{regime}.env` (concise for frequent sourcing)
+- ✅ Support files: `{regime}_{full_word}.{ext}` (readable, self-documenting)
+- ✅ No single-letter role codes (except in assignment filenames)
 - ✅ BVU already implements Config Regime type system (no need to copy from crgv.validate.sh)
 
 ### Regime Variables Currently Known:
@@ -389,18 +400,19 @@ These documents informed the understanding of the Config Regime pattern and ente
 
 ## Next Session TODO
 
-**PRIORITY: Create the four regime files**
+**PRIORITY: Create regime support files**
 
-1. Draft `bups_station.md` - BURS specification
-2. Draft `bupc_config.md` - BURC specification
-3. Implement `buvs_station.sh` - BURS validator using BVU functions
-4. Implement `buvc_config.sh` - BURC validator using BVU functions
-5. Test validators against existing `.buk/burc.env` and `../station-files/burs.env`
+1. Draft `Tools/buk/burs_specification.md` - BURS specification
+2. Draft `Tools/buk/burc_specification.md` - BURC specification
+3. Implement `Tools/buk/burs_validator.sh` - BURS validator using BVU functions
+4. Implement `Tools/buk/burc_validator.sh` - BURC validator using BVU functions
+5. Test validators against `burs.env` and `burc.env`
+6. Consider: Create tabtargets for validation commands (e.g., `tt/buk-vc.ValidateConfig.sh`, `tt/buk-vs.ValidateStation.sh`)
 
 **LATER:**
 1. ✅ ~~Decide on exact naming: stick with BDRS or rename to BURS?~~ - COMPLETED: Renamed to BURS
-2. Review and approve the three-layer architecture
-3. ✅ ~~Consider: should burc.env stay at `Tools/burc.env` or move to `.buk/burc.env`?~~ - DECIDED: Stays at `.buk/burc.env`
+2. ✅ ~~Decide on file naming pattern for regime files~~ - COMPLETED: `{regime}.env` + `{regime}_{full_word}.{ext}`
+3. Review and approve the three-layer architecture
 4. Plan the documentation structure for `Tools/buk/README.md`
 5. Consider renaming existing BUK utilities to new convention (bud_dispatch.sh, etc.)
 
