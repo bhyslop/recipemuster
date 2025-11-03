@@ -19,8 +19,26 @@
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 
 z_project_root_dir="${0%/*}/.."
-cd                        "${z_project_root_dir}" || exit 1
-export    BDU_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
+cd "${z_project_root_dir}" || exit 1
+
+# Load BURC configuration
+export BDU_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
 source "${BDU_REGIME_FILE}" || exit 1
-export    BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/rbw/rbk_Coordinator.sh"
+
+# Validate config regimes (fail early if misconfigured)
+"${BURC_TOOLS_DIR}/buk/burc_regime.sh" validate "${z_project_root_dir}/.buk/burc.env" || {
+  echo "ERROR: BURC validation failed" >&2
+  "${BURC_TOOLS_DIR}/buk/burc_regime.sh" info
+  exit 1
+}
+
+z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
+"${BURC_TOOLS_DIR}/buk/burs_regime.sh" validate "${z_station_file}" || {
+  echo "ERROR: BURS validation failed: ${z_station_file}" >&2
+  "${BURC_TOOLS_DIR}/buk/burs_regime.sh" info
+  exit 1
+}
+
+# Set coordinator and delegate to BDU
+export BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/rbw/rbk_Coordinator.sh"
 exec "${BURC_TOOLS_DIR}/buk/bdu_BashDispatchUtility.sh" "${1##*/}" "${@:2}"

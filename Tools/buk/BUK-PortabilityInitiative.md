@@ -66,7 +66,7 @@ any-project-root/
 
 4. **BURC/BURS are exemplars** - They demonstrate the Config Regime pattern that BUK defines and promotes
 
-5. **Config Regime is a BUK-owned pattern** - Other projects using BUK create their own regimes (RBWR, CCCR, etc.)
+5. **Config Regime is a BUK-owned pattern** - Other projects using BUK create their own regimes (RBRR, RBRN, etc.)
 
 6. **Clean separation of concerns**:
    - BUK utilities (`Tools/buk/*.sh`) = portable, project-agnostic
@@ -163,7 +163,7 @@ Create `Tools/buk/README.md` with sections:
    - Setup developer's `burs.env`
 
 4. **Creating Project-Specific Regimes** (advanced)
-   - How to create your own regimes (like CCCR, RBWR)
+   - How to create your own regimes (like RBRR, RBRN)
    - Integration with BDU
    - Validation patterns
 
@@ -398,23 +398,58 @@ These documents informed the understanding of the Config Regime pattern and ente
 - `BURS_MAX_JOBS` - (proposed) Parallelism preference for this machine
 - (Other machine-specific settings TBD)
 
-## Next Session TODO
+## Completed Work
 
-**PRIORITY: Create regime support files**
+### Phase 1: Regime Infrastructure ✅
+1. ✅ Created `Tools/buk/burs_specification.md` - BURS specification
+2. ✅ Created `Tools/buk/burc_specification.md` - BURC specification
+3. ✅ Implemented `Tools/buk/burs_regime.sh` - Multi-call script (validate/render/info)
+4. ✅ Implemented `Tools/buk/burc_regime.sh` - Multi-call script (validate/render/info)
+5. ✅ Created `Tools/buk/buw_workbench.sh` - BUK self-management workbench
 
-1. Draft `Tools/buk/burs_specification.md` - BURS specification
-2. Draft `Tools/buk/burc_specification.md` - BURC specification
-3. Implement `Tools/buk/burs_validator.sh` - BURS validator using BVU functions
-4. Implement `Tools/buk/burc_validator.sh` - BURC validator using BVU functions
-5. Test validators against `burs.env` and `burc.env`
-6. Consider: Create tabtargets for validation commands (e.g., `tt/buk-vc.ValidateConfig.sh`, `tt/buk-vs.ValidateStation.sh`)
+### Phase 2: Launcher Standardization ✅
+1. ✅ Standardized launcher naming: `buk_launch_*.sh` → `launcher.{workbench}.sh`
+2. ✅ Added regime validation to all launchers (fail early with helpful output)
+3. ✅ Created `.buk/launcher.buw_workbench.sh` - BUK's own launcher
+4. ✅ Renamed `.buk/buk_launch_ccck.sh` → `.buk/launcher.cccw_workbench.sh`
+5. ✅ Renamed `.buk/buk_launch_rbw.sh` → `.buk/launcher.rbk_Coordinator.sh`
+6. ✅ Updated all tabtargets (8 files) to use new launcher names
+7. ✅ Updated `buw_workbench.sh` launcher template with new naming and validation
 
-**LATER:**
-1. ✅ ~~Decide on exact naming: stick with BDRS or rename to BURS?~~ - COMPLETED: Renamed to BURS
-2. ✅ ~~Decide on file naming pattern for regime files~~ - COMPLETED: `{regime}.env` + `{regime}_{full_word}.{ext}`
-3. Review and approve the three-layer architecture
-4. Plan the documentation structure for `Tools/buk/README.md`
-5. Consider renaming existing BUK utilities to new convention (bud_dispatch.sh, etc.)
+### Phase 3: Documentation ✅
+1. ✅ Created `Tools/buk/README.md` - Authoritative BUK documentation
+   - Launchers specification and naming pattern
+   - TabTargets specification and token parsing
+   - Config Regimes pattern (specification/assignment/validation/rendering)
+   - Workbenches (multi-call BCG pattern)
+   - Architecture and execution flow
+   - Installation guide
+   - Tutorial for creating new workbenches
+   - BURC/BURS reference implementation
+2. ✅ Documented regime validation timing (launch-time vs runtime)
+3. ✅ Added clarifying comments to launcher templates
+
+### Phase 4: Naming Conventions ✅
+1. ✅ Renamed `BDRS_*` → `BURS_*` throughout codebase
+2. ✅ Finalized file naming: `{regime}.env` + `{regime}_{full_word}.{ext}`
+
+## Next Steps (Future Work)
+
+### Documentation Maintenance
+- Keep README.md as the authoritative source
+- Update as BUK evolves
+- Consider adding examples from real workbenches
+
+### Potential Enhancements
+1. Create tabtargets for BUK commands (for tab-completion convenience)
+2. Consider renaming BUK utilities to match convention:
+   - `bdu_BashDispatchUtility.sh` → `bud_dispatch.sh`
+   - `bcu_BashCommandUtility.sh` → `buc_command.sh`
+   - `btu_BashTestUtility.sh` → `but_test.sh`
+   - `bvu_BashValidationUtility.sh` → `buv_validation.sh`
+3. Add more comprehensive validation to regime scripts
+4. Create installation wizard (`buk_init.sh`)
+5. Add regime renderer functionality for human-readable config display
 
 ## Notes
 
