@@ -94,14 +94,34 @@ burs_render() {
   printf "%-25s %s\n" "BURS_LOG_DIR" "${BURS_LOG_DIR:-<not set>}"
 }
 
-# Command: info - display specification
+# Command: info - display specification (formatted for terminal)
 burs_info() {
   zburs_sentinel
 
-  test -f "${ZBURS_SPEC_FILE}" || bcu_die "burs_info: specification file not found: ${ZBURS_SPEC_FILE}"
+  # Source BCU for colors
+  # shellcheck disable=SC1091
+  source "${ZBURS_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 
-  bcu_step "BURS Specification"
-  cat "${ZBURS_SPEC_FILE}"
+  cat <<EOF
+
+${ZBCU_CYAN}========================================${ZBCU_RESET}
+${ZBCU_WHITE}BURS - Bash Utility Regime Station${ZBCU_RESET}
+${ZBCU_CYAN}========================================${ZBCU_RESET}
+
+${ZBCU_YELLOW}Overview${ZBCU_RESET}
+Developer/machine-level configuration for personal preferences.
+NOT checked into git - each developer has their own BURS file.
+
+${ZBCU_YELLOW}Variables${ZBCU_RESET}
+
+  ${ZBCU_GREEN}BURS_LOG_DIR${ZBCU_RESET}
+    Where this developer stores logs
+    Type: string
+    Example: ../_logs_buk
+
+${ZBCU_CYAN}For full specification, see: ${ZBURS_SPEC_FILE}${ZBCU_RESET}
+
+EOF
 }
 
 # Main dispatch

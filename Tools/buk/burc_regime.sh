@@ -111,14 +111,69 @@ burc_render() {
   printf "%-25s %s\n" "BURC_LOG_EXT" "${BURC_LOG_EXT:-<not set>}"
 }
 
-# Command: info - display specification
+# Command: info - display specification (formatted for terminal)
 burc_info() {
   zburc_sentinel
 
-  test -f "${ZBURC_SPEC_FILE}" || bcu_die "burc_info: specification file not found: ${ZBURC_SPEC_FILE}"
+  # Source BCU for colors
+  # shellcheck disable=SC1091
+  source "${ZBURC_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 
-  bcu_step "BURC Specification"
-  cat "${ZBURC_SPEC_FILE}"
+  cat <<EOF
+
+${ZBCU_CYAN}========================================${ZBCU_RESET}
+${ZBCU_WHITE}BURC - Bash Utility Regime Configuration${ZBCU_RESET}
+${ZBCU_CYAN}========================================${ZBCU_RESET}
+
+${ZBCU_YELLOW}Overview${ZBCU_RESET}
+Project-level configuration that defines repository structure for BUK.
+Checked into git and shared by all developers on the team.
+
+${ZBCU_YELLOW}Variables${ZBCU_RESET}
+
+  ${ZBCU_GREEN}BURC_STATION_FILE${ZBCU_RESET}
+    Path to developer's BURS file (relative to project root)
+    Type: string
+    Example: ../station-files/burs.env
+
+  ${ZBCU_GREEN}BURC_TABTARGET_DIR${ZBCU_RESET}
+    Directory containing tabtarget scripts
+    Type: string
+    Example: tt
+
+  ${ZBCU_GREEN}BURC_TABTARGET_DELIMITER${ZBCU_RESET}
+    Token separator in tabtarget filenames
+    Type: string
+    Example: .
+
+  ${ZBCU_GREEN}BURC_TOOLS_DIR${ZBCU_RESET}
+    Directory containing tool scripts
+    Type: string
+    Example: Tools
+
+  ${ZBCU_GREEN}BURC_TEMP_ROOT_DIR${ZBCU_RESET}
+    Parent directory for temp directories
+    Type: string
+    Example: ../temp-buk
+
+  ${ZBCU_GREEN}BURC_OUTPUT_ROOT_DIR${ZBCU_RESET}
+    Parent directory for output directories
+    Type: string
+    Example: ../output-buk
+
+  ${ZBCU_GREEN}BURC_LOG_LAST${ZBCU_RESET}
+    Basename for "last run" log file
+    Type: xname
+    Example: last
+
+  ${ZBCU_GREEN}BURC_LOG_EXT${ZBCU_RESET}
+    Extension for log files (without dot)
+    Type: xname
+    Example: txt
+
+${ZBCU_CYAN}For full specification, see: ${ZBURC_SPEC_FILE}${ZBCU_RESET}
+
+EOF
 }
 
 # Main dispatch
