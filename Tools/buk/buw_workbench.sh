@@ -23,6 +23,9 @@ set -euo pipefail
 # Get script directory
 BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
+# Source dependencies
+source "${BUW_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+
 # Verbose output if BDU_VERBOSE is set
 buw_show() {
   test "${BDU_VERBOSE:-0}" != "1" || echo "BUWSHOW: $*"
@@ -30,14 +33,9 @@ buw_show() {
 
 # Load BURC configuration
 buw_load_burc() {
-  local z_project_root
-  z_project_root="$(cd "${BUW_SCRIPT_DIR}/../.." && pwd)"
-  local z_burc_file="${z_project_root}/.buk/burc.env"
+  local z_burc_file="${PWD}/.buk/burc.env"
 
-  if [ ! -f "${z_burc_file}" ]; then
-    echo "ERROR: BURC file not found: ${z_burc_file}" >&2
-    exit 1
-  fi
+  test -f "${z_burc_file}" || bcu_die "BURC file not found: ${z_burc_file}"
 
   buw_show "Loading BURC from: ${z_burc_file}"
   # shellcheck disable=SC1090
@@ -53,24 +51,13 @@ buw_route() {
   buw_show "Routing command: ${z_command} with args: ${z_args}"
 
   # Verify BDU environment variables are present
-  if [ -z "${BDU_TEMP_DIR:-}" ]; then
-    echo "ERROR: BDU_TEMP_DIR not set - must be called from BDU" >&2
-    exit 1
-  fi
-
-  if [ -z "${BDU_NOW_STAMP:-}" ]; then
-    echo "ERROR: BDU_NOW_STAMP not set - must be called from BDU" >&2
-    exit 1
-  fi
+  test -n "${BDU_TEMP_DIR:-}" || bcu_die "BDU_TEMP_DIR not set - must be called from BDU"
+  test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP not set - must be called from BDU"
 
   buw_show "BDU environment verified"
 
   # Load BURC configuration
   buw_load_burc
-
-  # Resolve paths relative to project root
-  local z_project_root
-  z_project_root="$(cd "${BUW_SCRIPT_DIR}/../.." && pwd)"
 
   # Route based on command
   case "${z_command}" in
@@ -79,8 +66,8 @@ buw_route() {
     buw-ll)
       # List launchers in .buk/
       buw_show "Listing launchers in .buk/"
-      echo "Launchers in ${z_project_root}/.buk/:"
-      ls -1 "${z_project_root}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
+      bcu_step "Launchers in ${PWD}/.buk/"
+      ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
       ;;
 
     # TabTarget management
@@ -90,24 +77,15 @@ buw_route() {
       local z_workbench_path="${1:-}"
       local z_tabtarget_name="${2:-}"
 
-      if [ -z "${z_workbench_path}" ] || [ -z "${z_tabtarget_name}" ]; then
-        echo "ERROR: usage: buw-tc <workbench-path> <tabtarget-name>" >&2
-        echo "  Example: buw-tc Tools/buk/buw_workbench.sh buw-ri.RegimeInfo" >&2
-        exit 1
-      fi
+      test -n "${z_workbench_path}" || bcu_die "usage: buw-tc <workbench-path> <tabtarget-name>\n  Example: buw-tc Tools/buk/buw_workbench.sh buw-ri.RegimeInfo"
+      test -n "${z_tabtarget_name}" || bcu_die "usage: buw-tc <workbench-path> <tabtarget-name>\n  Example: buw-tc Tools/buk/buw_workbench.sh buw-ri.RegimeInfo"
 
-      local z_tabtarget_file="${z_project_root}/${BURC_TABTARGET_DIR}/${z_tabtarget_name}.sh"
-      local z_workbench_file="${z_project_root}/${z_workbench_path}"
+      local z_tabtarget_file="${PWD}/${BURC_TABTARGET_DIR}/${z_tabtarget_name}.sh"
+      local z_workbench_file="${PWD}/${z_workbench_path}"
 
-      if [ -f "${z_tabtarget_file}" ]; then
-        echo "ERROR: tabtarget already exists: ${z_tabtarget_file}" >&2
-        exit 1
-      fi
+      test ! -f "${z_tabtarget_file}" || bcu_die "tabtarget already exists: ${z_tabtarget_file}"
 
-      if [ ! -f "${z_workbench_file}" ]; then
-        echo "WARNING: workbench not found: ${z_workbench_file}" >&2
-        echo "Creating tabtarget anyway..."
-      fi
+      test -f "${z_workbench_file}" || bcu_warn "workbench not found: ${z_workbench_file}\nCreating tabtarget anyway..."
 
       buw_show "Creating tabtarget: ${z_tabtarget_file}"
 
@@ -115,14 +93,12 @@ buw_route() {
       local z_command_token
       z_command_token="${z_tabtarget_name%%${BURC_TABTARGET_DELIMITER}*}"
 
-      cat > "${z_tabtarget_file}" <<TABTARGET_EOF
-#!/bin/bash
-# Generated tabtarget - delegates to ${z_workbench_path}
-exec "\$(dirname "\${BASH_SOURCE[0]}")/../${z_workbench_path}" "${z_command_token}" "\${@}"
-TABTARGET_EOF
+      echo "#!/bin/bash" > "${z_tabtarget_file}"
+      echo "# Generated tabtarget - delegates to ${z_workbench_path}" >> "${z_tabtarget_file}"
+      echo "exec \"\$(dirname \"\${BASH_SOURCE[0]}\")/../${z_workbench_path}\" \"${z_command_token}\" \"\${@}\"" >> "${z_tabtarget_file}"
 
-      chmod +x "${z_tabtarget_file}"
-      echo "Created tabtarget: ${z_tabtarget_file}"
+      chmod +x "${z_tabtarget_file}" || bcu_die "Failed to make tabtarget executable: ${z_tabtarget_file}"
+      bcu_success "Created tabtarget: ${z_tabtarget_file}"
       echo "  Delegates to: ${z_workbench_file}"
       echo "  Command: ${z_command_token}"
       ;;
@@ -130,47 +106,38 @@ TABTARGET_EOF
     # Regime management (consolidated)
     buw-rv)
       # Validate both regimes
-      echo "=== Validating BURC ==="
-      "${BUW_SCRIPT_DIR}/burc_regime.sh" validate "${z_project_root}/.buk/burc.env"
+      bcu_step "Validating BURC"
+      "${BUW_SCRIPT_DIR}/burc_regime.sh" validate "${PWD}/.buk/burc.env" || bcu_die "BURC validation failed"
 
-      echo ""
-      echo "=== Validating BURS ==="
-      local z_station_file="${z_project_root}/${BURC_STATION_FILE}"
-      "${BUW_SCRIPT_DIR}/burs_regime.sh" validate "${z_station_file}"
+      bcu_step "Validating BURS"
+      local z_station_file="${PWD}/${BURC_STATION_FILE}"
+      "${BUW_SCRIPT_DIR}/burs_regime.sh" validate "${z_station_file}" || bcu_die "BURS validation failed"
 
-      echo ""
-      echo "All regime validations passed"
+      bcu_success "All regime validations passed"
       ;;
 
     buw-rr)
       # Render both regimes
-      echo "=== BURC Configuration ==="
-      "${BUW_SCRIPT_DIR}/burc_regime.sh" render "${z_project_root}/.buk/burc.env"
+      bcu_step "BURC Configuration"
+      "${BUW_SCRIPT_DIR}/burc_regime.sh" render "${PWD}/.buk/burc.env" || bcu_die "BURC render failed"
 
-      echo ""
-      echo "=== BURS Configuration ==="
-      local z_station_file="${z_project_root}/${BURC_STATION_FILE}"
-      "${BUW_SCRIPT_DIR}/burs_regime.sh" render "${z_station_file}"
+      bcu_step "BURS Configuration"
+      local z_station_file="${PWD}/${BURC_STATION_FILE}"
+      "${BUW_SCRIPT_DIR}/burs_regime.sh" render "${z_station_file}" || bcu_die "BURS render failed"
       ;;
 
     buw-ri)
       # Show info for both regimes
-      echo "=== BURC Specification ==="
-      "${BUW_SCRIPT_DIR}/burc_regime.sh" info
+      bcu_step "BURC Specification"
+      "${BUW_SCRIPT_DIR}/burc_regime.sh" info || bcu_die "BURC info failed"
 
-      echo ""
-      echo "=== BURS Specification ==="
-      "${BUW_SCRIPT_DIR}/burs_regime.sh" info
+      bcu_step "BURS Specification"
+      "${BUW_SCRIPT_DIR}/burs_regime.sh" info || bcu_die "BURS info failed"
       ;;
 
     # Unknown command
     *)
-      echo "ERROR: Unknown command: ${z_command}" >&2
-      echo "Available commands:" >&2
-      echo "  Launcher:  buw-ll" >&2
-      echo "  TabTarget: buw-tc <workbench-path> <tabtarget-name>" >&2
-      echo "  Regime:    buw-rv, buw-rr, buw-ri" >&2
-      exit 1
+      bcu_die "Unknown command: ${z_command}\nAvailable commands:\n  Launcher:  buw-ll\n  TabTarget: buw-tc <workbench-path> <tabtarget-name>\n  Regime:    buw-rv, buw-rr, buw-ri"
       ;;
   esac
 }
@@ -179,10 +146,7 @@ buw_main() {
   local z_command="${1:-}"
   shift || true
 
-  if [ -z "${z_command}" ]; then
-    echo "ERROR: No command specified" >&2
-    exit 1
-  fi
+  test -n "${z_command}" || bcu_die "No command specified"
 
   buw_route "${z_command}" "$@"
 }
