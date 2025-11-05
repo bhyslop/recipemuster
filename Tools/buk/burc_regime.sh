@@ -34,6 +34,7 @@ zburc_kindle() {
   test -z "${ZBURC_KINDLED:-}" || bcu_die "zburc_kindle: already kindled"
 
   ZBURC_SPEC_FILE="${ZBURC_SCRIPT_DIR}/burc_specification.md"
+  ZBURC_SPEC_FILE_ABSOLUTE="$(cd "${ZBURC_SCRIPT_DIR}" && pwd)/burc_specification.md"
 
   ZBURC_KINDLED="1"
 }
@@ -171,9 +172,9 @@ ${ZBCU_YELLOW}Variables${ZBCU_RESET}
     Type: xname
     Example: txt
 
-${ZBCU_CYAN}For full specification, see: ${ZBURC_SPEC_FILE}${ZBCU_RESET}
-
 EOF
+
+  printf "${ZBCU_CYAN}For full specification, see: \033]8;;file://${ZBURC_SPEC_FILE_ABSOLUTE}\033\\${ZBURC_SPEC_FILE}\033]8;;\033\\${ZBCU_RESET}\n"
 }
 
 # Main dispatch
