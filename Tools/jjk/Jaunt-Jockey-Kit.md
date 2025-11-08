@@ -333,7 +333,7 @@ Completed steps are kept brief to minimize context usage. Full history is preser
    - Note any existing effort files found
    - Commit the changes
 
-5. **Result**: CLAUDE.md will contain:
+5. **Installation completes**. CLAUDE.md will contain:
 ```markdown
 ## Jaunt Jockey Configuration
 - JJ files path: `../project-admin/.claude/jji/`
@@ -350,7 +350,7 @@ Available commands:
 - /jja-itch-move - Move or promote an itch
 - /jja-doctor - Validate Jaunt Jockey setup
 
-**Note**: New commands require restarting your Claude Code session to become available.
+**Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 ```
 
 ### Reinstalling
@@ -362,12 +362,14 @@ To update configuration or reinstall commands:
 
 ### Validation
 
-After installation, use `/jja-doctor` to verify:
+After installation completes and you restart your Claude Code session, you can use `/jja-doctor` to verify:
 - Kit file exists at configured path
 - JJ files directory exists
 - Expected files are present
 - If separate repo, it's a valid git repository
 - Commands exist and reference correct paths
+
+**Important**: Do not attempt to run `/jja-doctor` in the same chat session where installation occurred. The commands are not available until you restart Claude Code, as they are only loaded when the session initializes.
 
 ## CLAUDE.md Integration
 
