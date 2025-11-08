@@ -126,6 +126,30 @@ When working with .adoc files using MCM patterns:
 1. **Bash Development**: Start with relevant utility (BCU/BDU/BTU/BVU), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory
 
+## Jaunt Jockey Configuration
+
+Jaunt Jockey (JJ) is installed for managing project initiatives.
+
+- JJ files path: `.claude/jj/`
+- JJ Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
+- Separate repo: no
+- Installed: `2025-11-08`
+
+**Available commands:**
+- `/jja-step-find` - Show next incomplete step
+- `/jja-step-left` - List all remaining steps
+- `/jja-step-add` - Add a new step to current effort
+- `/jja-step-done` - Mark step complete
+- `/jja-itch-locate` - Find an itch by keyword
+- `/jja-itch-move` - Move or promote an itch
+- `/jja-doctor` - Validate Jaunt Jockey setup
+
+**Effort selection:**
+- When starting a session, Claude checks `.claude/jj/current/` for active efforts
+- Single effort: Announced as current work
+- Multiple efforts: Ask which to work on
+- No efforts: Ask if you want to start one or promote an itch
+
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
 - Architecture: Bash-based CLI tools with Google Cloud integration
