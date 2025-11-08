@@ -30,7 +30,10 @@ bin/
 
 # podman trash
 NUL
-.claude/
+
+# Claude Code - ignore machine-specific settings
+.claude/settings.local.json
+.claude/settings.json
 
 ### Python ###
 __pycache__/
