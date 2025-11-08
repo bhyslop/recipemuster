@@ -13,6 +13,18 @@ The system is ephemeral by design: documents have clear lifecycles, completed wo
 
 This document (the Jaunt Jockey Kit) is the complete reference and installer for the system.
 
+## Installation Variables
+
+During installation, Claude replaces these markers in the generated command files:
+
+- `«JJC_FILESYSTEM_RELATIVE_PATH»` → Your chosen path for JJ files (relative to CLAUDE.md)
+  - Example: `.claude/jji/` (co-located in same repo)
+  - Example: `../project-admin/.claude/jji/` (separate admin repo)
+- `«JJC_SEPARATE_REPO»` → `yes` or `no` (determines git command structure)
+- `«JJC_KIT_PATH»` → Path to this Kit file (for /jja-doctor validation)
+
+These markers appear throughout this document in templates and will be hardcoded with actual values during installation. You never need to type the guillemets (« ») yourself.
+
 ## Core Concepts
 
 ### Effort
@@ -71,19 +83,19 @@ Main context document for an effort.
 - Named with creation date and brief description
 - Example: `jje-251108-buk-portability.md`
 - Lifecycle: Current → Retired (moved to `retired/`)
-- Located in: `{JJC_PATH}/current/` (active) or `{JJC_PATH}/retired/` (completed)
+- Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` (active) or `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/` (completed)
 - Contains context section and steps
 
 ### `jjf-future.md` (Jaunt Jockey Future)
 Itches for worthy future efforts.
 - Items graduate from here to new `jje-` files
-- Located in: `{JJC_PATH}/`
+- Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/`
 
 ### `jjs-shelved.md` (Jaunt Jockey Shelved)
 Itches respectfully set aside.
 - Not rejected, but deferred for foreseeable future
 - May include brief context on why shelved
-- Located in: `{JJC_PATH}/`
+- Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/`
 
 ### `Jaunt-Jockey-Kit.md` (this document)
 The complete reference and installer. Defines structure, naming, and conventions.
@@ -93,15 +105,18 @@ The complete reference and installer. Defines structure, naming, and conventions
 
 ## Directory Structure
 
+Typical installation uses `.claude/jji/` subdirectory:
+
 ```
-{JJC_PATH}/
-  jjf-future.md           # Future effort itches
-  jjs-shelved.md          # Shelved itches
-  current/
-    jje-251108-buk-portability.md      # Current effort
-    jje-251023-gad-implementation.md   # Another current effort
-  retired/
-    jje-251015-regime-management.md    # Completed effort
+.claude/
+  jji/                    # Jaunt Jockey Installation directory
+    jjf-future.md         # Future effort itches
+    jjs-shelved.md        # Shelved itches
+    current/
+      jje-251108-buk-portability.md      # Current effort
+      jje-251023-gad-implementation.md   # Another current effort
+    retired/
+      jje-251015-regime-management.md    # Completed effort
 ```
 
 And in the CLAUDE.md repo:
@@ -120,13 +135,13 @@ And in the CLAUDE.md repo:
 ## Workflows
 
 ### Starting a New Effort
-1. Create `jje-YYMMDD-description.md` in `{JJC_PATH}/current/`
+1. Create `jje-YYMMDD-description.md` in `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`
 2. Include Context section with stable background information
 3. Include Steps section with initial checklist items
 4. Archive previous effort to `retired/` (if applicable)
 
 ### Selecting Current Effort
-When starting a session, Claude checks `{JJC_PATH}/current/`:
+When starting a session, Claude checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`:
 - **0 efforts**: No active work, ask if user wants to start one or promote an itch
 - **1 effort**: Announce presumption ("Working on [effort name], see /jja- commands for Jaunt Jockey services")
 - **2+ efforts**: Ask user which effort to work on, then announce selection
@@ -139,7 +154,7 @@ When starting a session, Claude checks `{JJC_PATH}/current/`:
 
 ### Completing an Effort
 1. Verify all steps are complete or explicitly discarded
-2. Use `git mv` to move effort file to `{JJC_PATH}/retired/`
+2. Use `git mv` to move effort file to `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/`
 3. Commit the archival
 
 ### Itch Triage
@@ -297,8 +312,9 @@ Completed steps are kept brief to minimize context usage. Full history is preser
 
 3. **Configuration questions**:
    - **JJ files path**: Where should JJ files live, relative to CLAUDE.md?
-     - Example: `.claude/` (co-located)
-     - Example: `../project-admin/.claude/` (separate repo)
+     - Example: `.claude/jji/` (co-located, note the 'jji' subdirectory)
+     - Example: `../project-admin/.claude/jji/` (separate repo)
+     - Convention: Use `jji/` subdirectory to avoid confusion with other `jj*` patterns
    - **Separate repo**: Are JJ files in a different git repository? (yes/no)
    - **Kit path**: Claude will use the path where it found this file as the canonical location
 
@@ -320,10 +336,21 @@ Completed steps are kept brief to minimize context usage. Full history is preser
 5. **Result**: CLAUDE.md will contain:
 ```markdown
 ## Jaunt Jockey Configuration
-- JJ files path: `../project-admin/.claude/`
+- JJ files path: `../project-admin/.claude/jji/`
 - JJ Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 - Separate repo: `yes`
 - Installed: `2025-11-08`
+
+Available commands:
+- /jja-step-find - Show next incomplete step
+- /jja-step-left - List all remaining steps
+- /jja-step-add - Add a new step to current effort
+- /jja-step-done - Mark step complete
+- /jja-itch-locate - Find an itch by keyword
+- /jja-itch-move - Move or promote an itch
+- /jja-doctor - Validate Jaunt Jockey setup
+
+**Note**: New commands require restarting your Claude Code session to become available.
 ```
 
 ### Reinstalling
@@ -344,14 +371,16 @@ After installation, use `/jja-doctor` to verify:
 
 ## CLAUDE.md Integration
 
-After installation, CLAUDE.md should reference JJ for session context:
+After installation, update CLAUDE.md to reference JJ for session context:
 
 ```markdown
 ## Session Context
-- Check active efforts in {JJC_PATH}/current/ when starting relevant work
+- Check active efforts in «JJC_FILESYSTEM_RELATIVE_PATH»/current/ when starting relevant work
 - Announce effort selection and mention /jja- commands
 - Use /jja-step-find to see next step
 - Use /jja-step-left for overview of remaining work
+
+**Note**: Restart Claude Code session after installation for new commands to become available.
 ```
 
 ## Technical Implementation Notes
@@ -360,9 +389,9 @@ After installation, CLAUDE.md should reference JJ for session context:
 All JJA commands are markdown files in `.claude/commands/` that instruct Claude what to do.
 
 **During installation**, the kit is used as a template to generate commands with:
-- All `{JJC_PATH}` variables replaced with actual relative paths (e.g., `../project-admin/.claude/`)
-- All `{JJC_SEPARATE_REPO}` conditionals resolved to actual git command sequences
-- All `{JJC_KIT_PATH}` references replaced with actual path to this kit
+- All `«JJC_FILESYSTEM_RELATIVE_PATH»` markers replaced with actual relative paths (e.g., `.claude/jji/` or `../project-admin/.claude/jji/`)
+- All `«JJC_SEPARATE_REPO»` conditionals resolved to actual git command sequences
+- All `«JJC_KIT_PATH»` references replaced with actual path to this kit
 - Commit message patterns hardcoded per action (prefix: "JJA:")
 - Each action commits separately after approval
 
@@ -372,14 +401,14 @@ All JJA commands are markdown files in `.claude/commands/` that instruct Claude 
 **When separate repo** (hardcoded during install):
 ```bash
 cd ../project-admin
-git add .claude/current/jje-251108-buk-portability.md
+git add .claude/jji/current/jje-251108-buk-portability.md
 git commit -m "JJA: step-done - Completed audit of BUK portability"
 cd - > /dev/null
 ```
 
 **When co-located** (hardcoded during install):
 ```bash
-git add .claude/current/jje-251108-buk-portability.md
+git add .claude/jji/current/jje-251108-buk-portability.md
 git commit -m "JJA: step-done - Completed audit of BUK portability"
 ```
 
@@ -393,15 +422,15 @@ Template in this kit with variables:
 You are helping mark a step complete in the current Jaunt Jockey effort.
 
 Configuration:
-- JJ files path: {JJC_PATH}
-- Separate repo: {JJC_SEPARATE_REPO}
-- Kit path: {JJC_KIT_PATH}
+- JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
+- Separate repo: «JJC_SEPARATE_REPO»
+- Kit path: «JJC_KIT_PATH»
 
 Steps:
 1. Ask which step to mark done (or infer from context)
 2. Summarize the step completion based on chat context
 3. Show proposed summary and ask for approval
-4. Update the effort file in {JJC_PATH}/current/
+4. Update the effort file in «JJC_FILESYSTEM_RELATIVE_PATH»/current/
    - Move step from Pending to Completed
    - Replace description with brief summary
 5. Commit: "JJA: step-done - [brief description]"
@@ -416,7 +445,7 @@ Generated `.claude/commands/jja-step-done.md` with hardcoded values:
 You are helping mark a step complete in the current Jaunt Jockey effort.
 
 Configuration:
-- JJ files path: ../project-admin/.claude/
+- JJ files path: ../project-admin/.claude/jji/
 - Separate repo: yes
 - Kit path: Tools/jjk/Jaunt-Jockey-Kit.md
 
@@ -424,18 +453,20 @@ Steps:
 1. Ask which step to mark done (or infer from context)
 2. Summarize the step completion based on chat context
 3. Show proposed summary and ask for approval
-4. Update the effort file in ../project-admin/.claude/current/
+4. Update the effort file in ../project-admin/.claude/jji/current/
    - Move step from Pending to Completed
    - Replace description with brief summary
 5. Commit with:
    cd ../project-admin
-   git add .claude/current/jje-*.md
+   git add .claude/jji/current/jje-*.md
    git commit -m "JJA: step-done - [brief description]"
    cd - > /dev/null
 6. Report what was done
 
 Error handling: If files missing or paths wrong, announce issue and stop.
 ```
+
+**Important**: After installation completes, restart your Claude Code session for the new commands to become available.
 
 ## Future Enhancements
 
