@@ -1,25 +1,24 @@
-# jja-step-find: Find Next Step
+# /jja-step-find: Show next incomplete step
 
-You are helping the user find the next incomplete step in the current Jaunt Jockey effort.
+You are helping the user see the next incomplete step from the current Jaunt Jockey effort.
 
-**Configuration:**
-- JJ files path: `.claude/jj/`
-- Separate repo: no
+Configuration:
+- JJ files path: `.claude/jji/`
 - Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 
-**Steps:**
+Steps:
+1. Check `.claude/jji/current/` for effort files
+   - If none found: Report "No active efforts found" and stop
+   - If multiple found: Ask which effort to check, or check the most recently modified
+   - If one found: Proceed to step 2
 
-1. Look in `.claude/jj/current/` for the current effort file (single `jje-*.md` file)
-   - If 0 files: Report "No active effort found. Use /jja-step-add to start one, or promote an itch from /jja-itch-move"
-   - If 1+ files: Open the file
+2. Read the current effort file and find the "### Pending" section
 
-2. Find the "### Pending" section
+3. Extract the first unchecked step (starts with `- [ ]`)
+   - Show the step title in bold
+   - Show the full description if present
+   - If no pending steps: Report "All steps complete!"
 
-3. Display the first unchecked step (first `- [ ]` item):
-   - Show its title in bold
-   - Show its description (if any)
-   - Stop here
+4. Report the next step clearly
 
-4. If no pending steps found, report: "All steps complete! Archive this effort with: `git mv .claude/jj/current/jje-*.md .claude/jj/retired/`"
-
-**Error handling:** If files missing or paths wrong, announce the issue and stop.
+Error handling: If files missing or paths wrong, announce issue and stop.

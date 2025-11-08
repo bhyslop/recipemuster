@@ -1,34 +1,26 @@
-# jja-itch-locate: Find Itch
+# /jja-itch-locate: Find an itch by keyword
 
-You are helping find an itch by keyword or fuzzy match.
+You are helping locate an itch in Jaunt Jockey's Future or Shelved files.
 
-**Configuration:**
-- JJ files path: `.claude/jj/`
-- Separate repo: no
+Configuration:
+- JJ files path: `.claude/jji/`
 - Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 
-**Steps:**
+Steps:
+1. Ask user for search term or keyword (if not provided in context)
 
-1. Ask user what to search for (if not already provided): "Search term for itch?"
+2. Search both files for matches:
+   - `.claude/jji/jjf-future.md` (Future itches)
+   - `.claude/jji/jjs-shelved.md` (Shelved itches)
+   - Use fuzzy/keyword matching
 
-2. Search both `.claude/jj/jjf-future.md` and `.claude/jj/jjs-shelved.md`:
-   - Look for keyword matches (title or description)
-   - Perform fuzzy matching if exact match not found
-   - Report all matches with context (location and brief description)
+3. Report matches with context:
+   - Show which file the itch is in (Future or Shelved)
+   - Show the full itch text
+   - Include any surrounding context
 
-3. Display results:
-   ```
-   Found 2 itches:
+4. If multiple matches, number them for reference
 
-   1. [From jjf-future.md]
-      Itch: [Title]
-      [Description or context]
+5. If no matches, report "No itches found matching '[term]'"
 
-   2. [From jjs-shelved.md]
-      Itch: [Title]
-      [Description or context]
-   ```
-
-4. If nothing found, report: "No itches found matching '[search term]'"
-
-**Error handling:** If files missing, report "Itch files not found at .claude/jj/". Stop.
+Error handling: If files missing or paths wrong, announce issue and stop.

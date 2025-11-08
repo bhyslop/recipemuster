@@ -1,50 +1,40 @@
-# jja-step-add: Add New Step
+# /jja-step-add: Add a new step to current effort
 
 You are helping add a new step to the current Jaunt Jockey effort.
 
-**Configuration:**
-- JJ files path: `.claude/jj/`
-- Separate repo: no
+Configuration:
+- JJ files path: `.claude/jji/`
 - Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 
-**Steps:**
+Steps:
+1. Check `.claude/jji/current/` for effort files
+   - If none found: Report "No active efforts found" and stop
+   - If multiple found: Ask which effort to add to
+   - If one found: Proceed to step 2
 
-1. Look in `.claude/jj/current/` for the current effort file (single `jje-*.md` file)
-   - If 0 files: Report "No active effort found"
-   - If 1+ files: Open the file
+2. Analyze the effort context and existing steps
 
-2. Read the effort Context section and existing Pending steps to understand direction
+3. Propose a new step with:
+   - Step title (bold format)
+   - Optional description if relevant
+   - Suggested position in the list
+   - Brief explanation of why you're placing it there
 
-3. Ask user (if not obvious from context) what the new step should be
+4. Wait for user approval or amendment
+   - "Yes" → proceed to step 5
+   - Request changes → adjust proposal and re-ask
+   - "No" → cancel and report
 
-4. Analyze where this step logically fits:
-   - Is it a blocker for other steps? Should go early.
-   - Is it dependent on other steps? Should go after them.
-   - Is it orthogonal? Can go anywhere reasonable.
+5. Update `.claude/jji/current/[effort-file]`:
+   - Add step to Pending section at proposed position
+   - Format: `- [ ] **Step title**` with optional description
 
-5. Propose the new step:
-   ```
-   I propose adding:
-   - [ ] **Step title** [optional description]
-
-   After/before: [step X] because [reasoning]
-
-   Should I add it there?
-   ```
-
-6. Wait for user approval (yes/no/amendment)
-
-7. If approved, update the effort file:
-   - Find the "### Pending" section
-   - Insert step at the proposed position (maintaining checklist format)
-   - Preserve step format: `- [ ] **Title** Optional description on new lines`
-
-8. Commit with:
+6. Commit with:
    ```bash
-   git add .claude/jj/current/jje-*.md
-   git commit -m "JJA: step-add - Added step: [title]"
+   git add .claude/jji/current/jje-*.md
+   git commit -m "JJA: step-add - [brief description of new step]"
    ```
 
-9. Report: "Added step '[title]' to current effort"
+7. Report what was added
 
-**Error handling:** If files missing or paths wrong, announce the issue and stop.
+Error handling: If files missing or paths wrong, announce issue and stop.

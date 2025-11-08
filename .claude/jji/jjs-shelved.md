@@ -1,7 +1,4 @@
-# Jaunt Jockey Shelved
+# Jaunt Jockey Shelved Itches
 
-Ideas respectfully set aside for the foreseeable future.
+Ideas and potential efforts respectfully set aside for now.
 
-## Items
-
-(none yet)

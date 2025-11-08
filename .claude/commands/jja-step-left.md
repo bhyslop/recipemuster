@@ -1,28 +1,31 @@
-# jja-step-left: List Remaining Steps
+# /jja-step-left: List all remaining steps
 
-You are helping the user see all remaining incomplete steps in the current Jaunt Jockey effort.
+You are helping the user see all remaining steps in the current Jaunt Jockey effort.
 
-**Configuration:**
-- JJ files path: `.claude/jj/`
-- Separate repo: no
+Configuration:
+- JJ files path: `.claude/jji/`
 - Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 
-**Steps:**
+Steps:
+1. Check `.claude/jji/current/` for effort files
+   - If none found: Report "No active efforts found" and stop
+   - If multiple found: Ask which effort to check
+   - If one found: Proceed to step 2
 
-1. Look in `.claude/jj/current/` for the current effort file (single `jje-*.md` file)
-   - If 0 files: Report "No active effort found"
-   - If 1+ files: Open the file
+2. Read the current effort file and find the "### Pending" section
 
-2. Find the "### Pending" section
+3. Count and list all pending steps (marked with `- [ ]`)
+   - Format: Terse list with numbers, just the step titles
+   - Include count: "Remaining steps (N):"
 
-3. Extract all unchecked steps (`- [ ]` items) and display in terse format:
-   ```
-   Remaining steps (N):
-   1. Step title one
-   2. Step title two
-   3. Step title three
-   ```
+4. Report the list
 
-4. If no pending steps, report: "No remaining steps. Ready to archive."
+Example output:
+```
+Remaining steps (3):
+1. Audit BUK portability
+2. Create test harness
+3. Document migration guide
+```
 
-**Error handling:** If files missing or paths wrong, announce the issue and stop.
+Error handling: If files missing or paths wrong, announce issue and stop.

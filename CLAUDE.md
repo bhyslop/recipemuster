@@ -130,7 +130,7 @@ When working with .adoc files using MCM patterns:
 
 Jaunt Jockey (JJ) is installed for managing project initiatives.
 
-- JJ files path: `.claude/jj/`
+- JJ files path: `.claude/jji/`
 - JJ Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 - Separate repo: no
 - Installed: `2025-11-08`
@@ -145,7 +145,7 @@ Jaunt Jockey (JJ) is installed for managing project initiatives.
 - `/jja-doctor` - Validate Jaunt Jockey setup
 
 **Effort selection:**
-- When starting a session, Claude checks `.claude/jj/current/` for active efforts
+- When starting a session, Claude checks `.claude/jji/current/` for active efforts
 - Single effort: Announced as current work
 - Multiple efforts: Ask which to work on
 - No efforts: Ask if you want to start one or promote an itch

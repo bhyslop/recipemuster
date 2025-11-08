@@ -1,7 +1,4 @@
-# Jaunt Jockey Future
+# Jaunt Jockey Future Itches
 
-Worthy ideas and efforts for future consideration.
+Ideas and potential efforts worth doing in the future.
 
-## Items
-
-(none yet)
