@@ -1,8 +1,8 @@
-# Jaunt Jockey Kit
+# Job Jockey Kit
 
-## What is Jaunt Jockey?
+## What is Job Jockey?
 
-Jaunt Jockey (JJ) is a lightweight system for managing project initiatives through conversation with Claude Code. It helps you track bounded efforts, remember what's next, and keep a backlog of ideas without drowning in ceremony or context bloat.
+Job Jockey (JJ) is a lightweight system for managing project initiatives through conversation with Claude Code. It helps you track bounded efforts, remember what's next, and keep a backlog of ideas without drowning in ceremony or context bloat.
 
 Think of it as a project notebook specifically designed for human-AI collaboration:
 - **Efforts** are your current work (3-50 chat sessions worth)
@@ -11,7 +11,7 @@ Think of it as a project notebook specifically designed for human-AI collaborati
 
 The system is ephemeral by design: documents have clear lifecycles, completed work gets archived, and context stays lean. Everything is markdown, lives in git, and can move between computers with you.
 
-This document (the Jaunt Jockey Kit) is the complete reference and installer for the system.
+This document (the Job Jockey Kit) is the complete reference and installer for the system.
 
 ## Installation Variables
 
@@ -22,6 +22,7 @@ During installation, Claude replaces these markers in the generated command file
   - Example: `../project-admin/.claude/jji/` (separate admin repo)
 - `«JJC_SEPARATE_REPO»` → `yes` or `no` (determines git command structure)
 - `«JJC_KIT_PATH»` → Path to this Kit file (for /jja-doctor validation)
+- `«JJC_EFFORT_PREFIX»` → Effort file prefix (typically `jje-`)
 
 These markers appear throughout this document in templates and will be hardcoded with actual values during installation. You never need to type the guillemets (« ») yourself.
 
@@ -41,14 +42,14 @@ A potential future effort or consideration. The spark/urge that might become an 
 ### Day-to-Day Usage
 
 You work on an effort by talking with Claude Code. As you make progress:
-- Claude uses `/jja-step-find` to remind you what's next
+- Claude uses `/jja-next` to show current effort and next step(s), asking for clarification if needed
 - You work on the step together
 - Claude uses `/jja-step-done` to summarize and mark it complete
 - New steps emerge and get added with `/jja-step-add`
 
 When new ideas come up that don't belong in current effort, Claude uses `/jja-itch-locate` and `/jja-itch-move` to file them away in Future or Shelved.
 
-When an effort completes, its file moves to `retired/` and you start a new one.
+When an effort completes, Claude uses `/jja-effort-retire` to move it to `retired/` with a datestamp and start a new one.
 
 ### Interaction Pattern
 
@@ -76,22 +77,22 @@ This reminds the user of available tooling without being intrusive.
 
 ## File Structure
 
-All Jaunt Jockey documents use the `jj` prefix with category-specific third letters:
+All Job Jockey documents use the `jj` prefix with category-specific third letters:
 
-### `jje-YYMMDD-description.md` (Jaunt Jockey Effort)
+### `jje-description.md` and `jje-YYMMDD-description.md` (Job Jockey Effort)
 Main context document for an effort.
-- Named with creation date and brief description
-- Example: `jje-251108-buk-portability.md`
-- Lifecycle: Current → Retired (moved to `retired/`)
+- **Active**: Named with brief description only (e.g., `jje-buk-portability.md`)
+- **Retired**: Renamed with creation date and description (e.g., `jje-251108-buk-portability.md`)
+- Lifecycle: Active (`current/` as `jje-description.md`) → Retired (`retired/` as `jje-YYMMDD-description.md`)
 - Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` (active) or `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/` (completed)
 - Contains context section and steps
 
-### `jjf-future.md` (Jaunt Jockey Future)
+### `jjf-future.md` (Job Jockey Future)
 Itches for worthy future efforts.
 - Items graduate from here to new `jje-` files
 - Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/`
 
-### `jjs-shelved.md` (Jaunt Jockey Shelved)
+### `jjs-shelved.md` (Job Jockey Shelved)
 Itches respectfully set aside.
 - Not rejected, but deferred for foreseeable future
 - May include brief context on why shelved
@@ -135,27 +136,30 @@ And in the CLAUDE.md repo:
 ## Workflows
 
 ### Starting a New Effort
-1. Create `jje-YYMMDD-description.md` in `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`
+1. Create `jje-description.md` in `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`
 2. Include Context section with stable background information
 3. Include Steps section with initial checklist items
 4. Archive previous effort to `retired/` (if applicable)
 
 ### Selecting Current Effort
-When starting a session, Claude checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`:
+When starting a session or the user calls `/jja-next`, Claude checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`:
 - **0 efforts**: No active work, ask if user wants to start one or promote an itch
-- **1 effort**: Announce presumption ("Working on [effort name], see /jja- commands for Jaunt Jockey services")
-- **2+ efforts**: Ask user which effort to work on, then announce selection
+- **1 effort**: Show effort and next step(s), ask for clarification if next step is unclear
+- **2+ efforts**: Ask user which effort to work on, then show that effort with next step(s)
 
 ### Working on an Effort
-1. Use `/jja-step-find` to see next step
+1. Use `/jja-next` to see current effort and next step(s)
 2. Work on it conversationally with Claude
 3. Use `/jja-step-done` when complete (Claude summarizes)
-4. Repeat
+4. Use `/jja-next` again to see what's next
+5. Repeat until effort is complete
 
 ### Completing an Effort
 1. Verify all steps are complete or explicitly discarded
-2. Use `git mv` to move effort file to `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/`
-3. Commit the archival
+2. Use `/jja-effort-retire` to move and rename effort file:
+   - Adds datestamp (YYMMDD) to filename
+   - Moves from `current/jje-description.md` → `retired/jje-YYMMDD-description.md`
+   - Commits the archival
 
 ### Itch Triage
 When a new itch emerges:
@@ -170,7 +174,7 @@ Use `/jja-itch-move` to promote, demote, or shelve itches.
 
 - **All documents**: Markdown (`.md`)
 - **Steps**: Checklist format with `- [ ]` and `- [x]`
-- **Dates**: YYMMDD format (e.g., 251108 for 2025-11-08)
+- **Dates**: YYMMDD format (e.g., 251108 for 2025-11-08, used in retired effort filenames)
 - **Descriptions**: Lowercase with hyphens (e.g., `buk-portability`)
 - **Step titles**: Bold (e.g., `**Audit BUK portability**`)
 - **Completed summaries**: Brief, factual (e.g., `Found 12 issues, documented in notes.md`)
@@ -190,7 +194,45 @@ Use `/jja-itch-move` to promote, demote, or shelve itches.
 
 ## Actions
 
-Jaunt Jockey Actions (JJA) are Claude Code commands for managing the system.
+Job Jockey Actions (JJA) are Claude Code commands for managing the system.
+
+### Effort Actions
+
+#### `/jja-next`
+Show the current effort and its next step(s), with optional clarification prompts.
+
+**Behavior**:
+- Checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` for active efforts
+- **0 efforts**: Announces no active work, asks if user wants to start an effort or promote an itch
+- **1 effort**: Displays:
+  - Effort name and brief gesture/summary
+  - Next incomplete step with description
+  - If multiple next steps or unclear priority: asks for clarification ("Which step should we focus on next?")
+- **2+ efforts**: Asks user which effort to work on, then displays that effort with next step(s)
+
+**Example output**:
+```
+Current effort: **BUK Utility Rename**
+Next step: Update buc_command.sh internal functions
+  Rename zbcu_* functions to zbuc_*
+  (11 internal functions total)
+
+Ready to start?
+```
+
+#### `/jja-effort-retire`
+Move completed effort to retired directory with datestamp added to filename.
+
+**Behavior**:
+- Verifies current effort exists in `current/`
+- Checks that all steps are marked complete (or explicitly discarded)
+- Renames file from `jje-description.md` → `jje-YYMMDD-description.md` (adds today's date)
+- Moves file to `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/`
+- Commits the retirement
+
+**Example**:
+- Before: `.claude/jji/current/jje-buk-rename.md`
+- After: `.claude/jji/retired/jje-251110-buk-rename.md`
 
 ### Itch Actions
 
@@ -205,7 +247,7 @@ Move an itch between future, shelved, or promote to a new effort.
 **Usage**: After locating an itch, move it to:
 - `jjf-future.md` (worthy of doing)
 - `jjs-shelved.md` (setting aside)
-- New `jje-YYMMDD-*.md` file (promoting to effort)
+- New `jje-*.md` file (promoting to effort, will get datestamp on retirement)
 
 ### Step Actions
 
@@ -258,7 +300,7 @@ Updated step 'Audit BUK portability' →
 
 ### Effort Document Structure
 
-Effort files (`jje-YYMMDD-description.md`) contain two main sections:
+Effort files (`jje-description.md` when active, `jje-YYMMDD-description.md` when retired) contain two main sections:
 
 #### Context Section
 Stable information about the effort that only changes when explicitly updated by the user. Contains:
@@ -472,12 +514,11 @@ Error handling: If files missing or paths wrong, announce issue and stop.
 
 ## Future Enhancements
 
-- Additional JJA commands for effort lifecycle management
 - Automated prompts for itch triage
 - Cross-effort learning/pattern extraction
 - Template generation for new efforts
-- Effort switching support (if multiple active efforts needed)
 - Integration with project-specific workflows
+- Enhanced effort metadata (estimated duration, tags, dependencies)
 
 ---
 
