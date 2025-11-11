@@ -131,5 +131,26 @@ All BUK utility prefixes have been successfully and completely renamed across th
 - Variables renamed: 30+
 
 **Git Commits:**
+- 35a3a71: Fix: Update all source statement filenames (49 files updated) - CRITICAL FIX
 - 52d37bf: Fix: Complete remaining BUK utility renames (75 files updated)
 - 980b291: JJA: step-done - Completed BUK utility rename (initial completion)
+
+### Post-Closure Discovery & Critical Fix
+
+**Issue Found:** After closure, discovered that while file contents were renamed, the source statements referencing the files were not updated, causing runtime failures.
+
+**Root Cause:** The agent-based updates renamed function calls within files but didn't update the `source` statements that load those files.
+
+**Files Affected:** 49 files across multiple directories
+
+**Fixes Applied:**
+- Updated all `source "${DIR}/buc_BashCommandUtility.sh"` → `source "${DIR}/buc_command.sh"` (24 files)
+- Updated all `source "${DIR}/buv_BashValidationUtility.sh"` → `source "${DIR}/buv_validation.sh"` (20 files)
+- Updated all `source "${DIR}/but_BashTestUtility.sh"` → `source "${DIR}/but_test.sh"` (3 files)
+- Updated all `Tools/bud_BashDispatchUtility.sh` → `Tools/buk/bud_dispatch.sh` (26 files)
+
+**Verification After Fix:**
+- 0 old filenames remaining ✓
+- 0 old prefixes remaining ✓
+- All scripts now execute successfully ✓
+- Clean working tree ✓
