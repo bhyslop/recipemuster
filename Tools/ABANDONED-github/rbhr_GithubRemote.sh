@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHR_INCLUDED:-}" || bcu_die "Module rbgr multiply included - check sourcing hierarchy"
+test -z "${ZRBHR_INCLUDED:-}" || buc_die "Module rbgr multiply included - check sourcing hierarchy"
 ZRBHR_INCLUDED=1
 
 ######################################################################
@@ -15,25 +15,25 @@ ZRBHR_INCLUDED=1
 
 zrbhr_kindle() {
   # Check required environment
-  test -n "${BDU_TEMP_DIR:-}"             || bcu_die "BDU_TEMP_DIR not set"
-  test -n "${BDU_NOW_STAMP:-}"            || bcu_die "BDU_NOW_STAMP not set"
-  test -n "${RBRR_BUILD_ARCHITECTURES:-}" || bcu_die "RBRR_BUILD_ARCHITECTURES not set"
-  test -n "${RBRR_HISTORY_DIR:-}"         || bcu_die "RBRR_HISTORY_DIR not set"
-  test -n "${RBRR_REGISTRY_OWNER:-}"      || bcu_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}"       || bcu_die "RBRR_REGISTRY_NAME not set"
+  test -n "${BUD_TEMP_DIR:-}"             || buc_die "BUD_TEMP_DIR not set"
+  test -n "${BUD_NOW_STAMP:-}"            || buc_die "BUD_NOW_STAMP not set"
+  test -n "${RBRR_BUILD_ARCHITECTURES:-}" || buc_die "RBRR_BUILD_ARCHITECTURES not set"
+  test -n "${RBRR_HISTORY_DIR:-}"         || buc_die "RBRR_HISTORY_DIR not set"
+  test -n "${RBRR_REGISTRY_OWNER:-}"      || buc_die "RBRR_REGISTRY_OWNER not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"       || buc_die "RBRR_REGISTRY_NAME not set"
 
   # Module Variables (ZRBHR_*)
-  ZRBHR_ALL_VERSIONS_FILE="${BDU_TEMP_DIR}/rbhr_all_versions.json"
-  ZRBHR_PAGE_FILE="${BDU_TEMP_DIR}/rbhr_page.json"
-  ZRBHR_ALL_VERSIONS_TMP_FILE="${BDU_TEMP_DIR}/rbhr_all_versions.tmp"
-  ZRBHR_DELETE_RESULT_FILE="${BDU_TEMP_DIR}/rbhr_delete_result.txt"
-  ZRBHR_HTTP_CODE_FILE="${BDU_TEMP_DIR}/rbhr_delete_http_code.txt"
+  ZRBHR_ALL_VERSIONS_FILE="${BUD_TEMP_DIR}/rbhr_all_versions.json"
+  ZRBHR_PAGE_FILE="${BUD_TEMP_DIR}/rbhr_page.json"
+  ZRBHR_ALL_VERSIONS_TMP_FILE="${BUD_TEMP_DIR}/rbhr_all_versions.tmp"
+  ZRBHR_DELETE_RESULT_FILE="${BUD_TEMP_DIR}/rbhr_delete_result.txt"
+  ZRBHR_HTTP_CODE_FILE="${BUD_TEMP_DIR}/rbhr_delete_http_code.txt"
 
   ZRBHR_KINDLED=1
 }
 
 zrbhr_sentinel() {
-  test "${ZRBHR_KINDLED:-}" = "1" || bcu_die "Module rbgr not kindled - call zrbhr_kindle first"
+  test "${ZRBHR_KINDLED:-}" = "1" || buc_die "Module rbgr not kindled - call zrbhr_kindle first"
 }
 
 ######################################################################
@@ -45,18 +45,18 @@ rbhr_build_image() {
   local z_build_label="${2:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Build and push container image"
-  bcu_doc_param "dockerfile" "Path to Dockerfile"
-  bcu_doc_param "build_label" "Build label for image tag"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Build and push container image"
+  buc_doc_param "dockerfile" "Path to Dockerfile"
+  buc_doc_param "build_label" "Build label for image tag"
+  buc_doc_shown || return 0
 
   # Ensure module started
   zrbhr_sentinel
 
   # Validate parameters
-  test -n "${z_dockerfile}" || bcu_die "Dockerfile path required"
-  test -f "${z_dockerfile}" || bcu_die "Dockerfile not found: ${z_dockerfile}"
-  test -n "${z_build_label}" || bcu_die "Build label required"
+  test -n "${z_dockerfile}" || buc_die "Dockerfile path required"
+  test -f "${z_dockerfile}" || buc_die "Dockerfile not found: ${z_dockerfile}"
+  test -n "${z_build_label}" || buc_die "Build label required"
 
   # Create FQIN using rbcr
   rbcr_make_fqin "${z_build_label}"
@@ -65,17 +65,17 @@ rbhr_build_image() {
 
   # Check if tag exists
   if rbcr_exists_predicate "${z_build_label}"; then
-    bcu_die "Tag ${z_build_label} already exists"
+    buc_die "Tag ${z_build_label} already exists"
   fi
 
   # Create history directory
   local z_history_dir="${RBRR_HISTORY_DIR}/${z_build_label}"
-  mkdir -p "${z_history_dir}" || bcu_die "Failed to create history directory"
-  cp "${z_dockerfile}" "${z_history_dir}/recipe.txt" || bcu_die "Failed to copy Dockerfile"
+  mkdir -p "${z_history_dir}" || buc_die "Failed to create history directory"
+  cp "${z_dockerfile}" "${z_history_dir}/recipe.txt" || buc_die "Failed to copy Dockerfile"
   echo "${GITHUB_SHA:-unknown}" > "${z_history_dir}/commit.txt"
 
   # Build and push image
-  bcu_step "Building multi-platform image"
+  buc_step "Building multi-platform image"
   docker buildx build                        \
     --push                                   \
     --tag "${z_ghcr_path}"                   \
@@ -83,20 +83,20 @@ rbhr_build_image() {
     --provenance=true                        \
     --sbom=true                              \
     --file "${z_dockerfile}"                 \
-    . || bcu_die "Docker build failed"
+    . || buc_die "Docker build failed"
 
   # Run Syft analysis
-  bcu_step "Running Syft analysis"
+  buc_step "Running Syft analysis"
 
   # Install Syft
   curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz && \
     tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/ || \
-    bcu_die "Failed to install Syft"
+    buc_die "Failed to install Syft"
 
   # Pull and analyze
-  docker pull "${z_ghcr_path}" || bcu_die "Failed to pull built image"
+  docker pull "${z_ghcr_path}" || buc_die "Failed to pull built image"
   syft "${z_ghcr_path}" -o json > "${z_history_dir}/syft_analysis.json" || \
-    bcu_die "Syft analysis failed"
+    buc_die "Syft analysis failed"
 
   # Generate summary
   echo "Package analysis summary:" > "${z_history_dir}/package_summary.txt"
@@ -115,7 +115,7 @@ rbhr_build_image() {
   docker inspect "${z_ghcr_path}" | jq -r '.[0].RepoDigests[-1]'         > "${z_history_dir}/docker_inspect_RepoDigests_last.txt"
   docker inspect "${z_ghcr_path}" | jq -r '.[0].Created'                 > "${z_history_dir}/docker_inspect_Created.txt"
 
-  bcu_success "Image built successfully: ${z_build_label}"
+  buc_success "Image built successfully: ${z_build_label}"
 }
 
 rbhr_record_history() {
@@ -126,21 +126,21 @@ rbhr_record_history() {
   zrbhr_sentinel
 
   # Validate parameters
-  test -n "${z_build_label}" || bcu_die "Build label required"
+  test -n "${z_build_label}" || buc_die "Build label required"
 
   # Commit history
-  bcu_step "Recording build history"
+  buc_step "Recording build history"
 
   git config --local user.email "github-actions[bot]@users.noreply.github.com" || \
-    bcu_die "Failed to set git user email"
+    buc_die "Failed to set git user email"
   git config --local user.name "github-actions[bot]" || \
-    bcu_die "Failed to set git user name"
+    buc_die "Failed to set git user name"
 
   local z_history_dir="${RBRR_HISTORY_DIR}/${z_build_label}"
-  git add "${z_history_dir}" || bcu_die "Failed to stage history directory"
+  git add "${z_history_dir}" || buc_die "Failed to stage history directory"
   git commit -m "Add image build history for ${z_build_label}" || \
-    bcu_die "Failed to commit image build history"
-  git push || bcu_die "Failed to push changes"
+    buc_die "Failed to commit image build history"
+  git push || buc_die "Failed to push changes"
 }
 
 rbhr_delete_image() {
@@ -151,17 +151,17 @@ rbhr_delete_image() {
   zrbhr_sentinel
 
   # Validate parameters
-  test -n "${z_fqin}" || bcu_die "FQIN required"
+  test -n "${z_fqin}" || buc_die "FQIN required"
 
   # Extract tag
   local z_tag="${z_fqin#*:}"
 
   # Delete via rbcr
-  bcu_step "Deleting image tag: ${z_tag}"
+  buc_step "Deleting image tag: ${z_tag}"
   rbcr_delete "${z_tag}"
 
   # Record deletion
-  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${BDU_NOW_STAMP}_${z_tag}"
+  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${BUD_NOW_STAMP}_${z_tag}"
 
   mkdir -p                        "${z_delete_dir}"
   echo "${z_fqin}"              > "${z_delete_dir}/deleted_fqin.txt"
@@ -173,7 +173,7 @@ rbhr_clean_orphans() {
   # Ensure module started
   zrbhr_sentinel
 
-  bcu_step "Cleaning orphaned image versions"
+  buc_step "Cleaning orphaned image versions"
 
   # Get all versions with pagination
   local z_page=1
@@ -200,11 +200,11 @@ rbhr_clean_orphans() {
   z_orphan_count=$(jq '[.[] | select(.metadata.container.tags | length == 0)] | length' "${ZRBHR_ALL_VERSIONS_FILE}")
 
   if test "${z_orphan_count}" -eq 0; then
-    bcu_info "No orphaned versions to clean"
+    buc_info "No orphaned versions to clean"
     return 0
   fi
 
-  bcu_info "Found ${z_orphan_count} untagged versions to clean"
+  buc_info "Found ${z_orphan_count} untagged versions to clean"
 
   # Delete orphans
   local z_deleted_count=0
@@ -212,7 +212,7 @@ rbhr_clean_orphans() {
 
   jq -r '.[] | select(.metadata.container.tags | length == 0) | .id' "${ZRBHR_ALL_VERSIONS_FILE}" | \
   while read -r z_orphan_id; do
-    bcu_step "Deleting orphan ID ${z_orphan_id}... "
+    buc_step "Deleting orphan ID ${z_orphan_id}... "
 
     curl -X DELETE -s                               \
         -H "Authorization: token ${GITHUB_TOKEN}"   \
@@ -221,7 +221,7 @@ rbhr_clean_orphans() {
         -o "${ZRBHR_DELETE_RESULT_FILE}"            \
         "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_orphan_id}" \
         > "${ZRBHR_HTTP_CODE_FILE}"                 \
-      || bcu_die "Failed to delete orphan"
+      || buc_die "Failed to delete orphan"
 
     local z_http_code
     z_http_code=$(<"${ZRBHR_HTTP_CODE_FILE}")
@@ -236,7 +236,7 @@ rbhr_clean_orphans() {
     sleep 0.5
   done
 
-  bcu_info "Deleted ${z_deleted_count} orphaned versions"
+  buc_info "Deleted ${z_deleted_count} orphaned versions"
 }
 
 # eof

@@ -21,23 +21,23 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGM_SOURCED:-}" || bcu_die "Module rbgm multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGM_SOURCED:-}" || buc_die "Module rbgm multiply sourced - check sourcing hierarchy"
 ZRBGM_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgm_*)
 
 zrbgm_kindle() {
-  test -z "${ZRBGM_KINDLED:-}" || bcu_die "Module rbgm already kindled"
+  test -z "${ZRBGM_KINDLED:-}" || buc_die "Module rbgm already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || bcu_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || bcu_die "RBRR_GCP_PROJECT_ID is empty"
+  test -n "${RBRR_GCP_PROJECT_ID:-}"     || buc_die "RBRR_GCP_PROJECT_ID is not set"
+  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || buc_die "RBRR_GCP_PROJECT_ID is empty"
 
-  bcu_log_args "Ensure RBGC is kindled first"
+  buc_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
 
   local z_use_color=0
-  if [ -z "${NO_COLOR:-}" ] && [ "${BDU_COLOR:-0}" = "1" ]; then
+  if [ -z "${NO_COLOR:-}" ] && [ "${BUD_COLOR:-0}" = "1" ]; then
     z_use_color=1
   fi
 
@@ -62,7 +62,7 @@ zrbgm_kindle() {
   ZRBGM_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
 
 
-  ZRBGM_PREFIX="${BDU_TEMP_DIR}/rbgm_"
+  ZRBGM_PREFIX="${BUD_TEMP_DIR}/rbgm_"
   ZRBGM_LIST_RESPONSE="${ZRBGM_PREFIX}list_response.json"
   ZRBGM_LIST_CODE="${ZRBGM_PREFIX}list_code.txt"
   ZRBGM_CREATE_REQUEST="${ZRBGM_PREFIX}create_request.json"
@@ -81,7 +81,7 @@ zrbgm_kindle() {
 }
 
 zrbgm_sentinel() {
-  test "${ZRBGM_KINDLED:-}" = "1" || bcu_die "Module rbgm not kindled - call zrbgm_kindle first"
+  test "${ZRBGM_KINDLED:-}" = "1" || buc_die "Module rbgm not kindled - call zrbgm_kindle first"
 }
 
 zrbgm_show() {
@@ -115,8 +115,8 @@ zrbgm_dld() {
   local z_label="${2:-}"
   local z_url="${3:-}"
   local z_coda="${4:-}"
-  test -n "${z_label}" || bcu_die "missing label"
-  test -n "${z_url}"   || bcu_die "missing url"
+  test -n "${z_label}" || buc_die "missing label"
+  test -n "${z_url}"   || buc_die "missing url"
 
   # Blue + underline style, wrapped in OSC 8 hyperlink
   printf '%s\e[34;4m\e]8;;%s\a%s\e]8;;\a\e[0m%s\n' "${z_default}" "${z_url}" "${z_label}" "${z_coda}"
@@ -129,8 +129,8 @@ zrbgm_dld() {
 rbgm_payor_establish() {
   zrbgm_sentinel
 
-  bcu_doc_brief "Display the manual Payor Establishment procedure for OAuth authentication"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Display the manual Payor Establishment procedure for OAuth authentication"
+  buc_doc_shown || return 0
 
   zrbgm_s1     "Manual Payor OAuth Establishment Procedure"
   zrbgm_d      "Recipe Bottle Payor now uses OAuth 2.0 for individual developer accounts."
@@ -236,14 +236,14 @@ rbgm_payor_establish() {
   zrbgm_dy     " " "Project setup complete. Use rbgm_payor_refresh to install credentials."
   zrbgm_d      "Next step: Run rbgm_payor_refresh to install OAuth credentials and complete setup."
 
-  bcu_success "OAuth Payor establishment procedure displayed"
+  buc_success "OAuth Payor establishment procedure displayed"
 }
 
 rbgm_payor_refresh() {
   zrbgm_sentinel
 
-  bcu_doc_brief "Display the manual Payor OAuth credential installation/refresh procedure"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Display the manual Payor OAuth credential installation/refresh procedure"
+  buc_doc_shown || return 0
 
   zrbgm_s1     "Manual Payor OAuth Credential Installation/Refresh Procedure"
   zrbgm_d      "Use this for initial credential setup after payor establishment or to refresh expired/compromised credentials."
@@ -289,14 +289,14 @@ rbgm_payor_refresh() {
   zrbgm_dy     " " "OAuth credentials installed/refreshed. Payor operations should work normally."
   zrbgm_d      "Prevention: Run any Payor operation monthly to prevent expiration."
 
-  bcu_success "OAuth credential installation/refresh procedure displayed"
+  buc_success "OAuth credential installation/refresh procedure displayed"
 }
 
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_sentinel
 
-  bcu_doc_brief "Display the manual GCP admin setup procedure"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Display the manual GCP admin setup procedure"
+  buc_doc_shown || return 0
 
   zrbgm_s1     "# Google Cloud Platform Setup"
   zrbgm_s2     "## Overview"
@@ -390,7 +390,7 @@ rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_d      "Browser downloaded key.  Run the command to ingest it into your ADMIN RBRA file."
   zrbgm_e
 
-  bcu_success "Manual setup procedure displayed"
+  buc_success "Manual setup procedure displayed"
 }
 
 

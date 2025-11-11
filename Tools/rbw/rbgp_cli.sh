@@ -23,8 +23,8 @@ set -euo pipefail
 ZRBGP_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGP_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
@@ -32,14 +32,14 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 
 zrbgp_furnish() {
-  bcu_log_args 'Initialize modules'
+  buc_log_args 'Initialize modules'
   zrbl_kindle
 
-  bvu_file_exists "${RBL_RBRR_FILE}"
-  source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+  buv_file_exists "${RBL_RBRR_FILE}"
+  source          "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR regime file"
 
-  bvu_file_exists "${RBL_RBRP_FILE}"
-  source          "${RBL_RBRP_FILE}" || bcu_die "Failed to source RBRP regime file"
+  buv_file_exists "${RBL_RBRP_FILE}"
+  source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 
   zrbgc_kindle
   zrbgo_kindle
@@ -47,6 +47,6 @@ zrbgp_furnish() {
   zrbgp_kindle
 }
 
-bcu_execute rbgp_ "Recipe Bottle Payor" zrbgp_furnish "$@"
+buc_execute rbgp_ "Recipe Bottle Payor" zrbgp_furnish "$@"
 
 # eof

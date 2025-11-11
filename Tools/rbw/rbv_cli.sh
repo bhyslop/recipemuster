@@ -22,36 +22,36 @@ set -euo pipefail
 ZRBV_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # Source all dependencies (CLI files handle all sourcing)
-source "${ZRBV_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 source "${ZRBV_CLI_SCRIPT_DIR}/rbv_PodmanVM.sh"
 
 # CLI-specific environment function
 zrbv_furnish() {
   # Handle documentation mode
-  bcu_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
-  bcu_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
-  bcu_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
+  buc_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
+  buc_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
+  buc_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
 
   # Validate environment
-  bvu_dir_exists  "${RBV_TEMP_DIR}"
-  bvu_dir_empty   "${RBV_TEMP_DIR}"
-  bvu_file_exists "${RBV_RBRR_FILE}"
-  bvu_file_exists "${RBV_RBRS_FILE}"
+  buv_dir_exists  "${RBV_TEMP_DIR}"
+  buv_dir_empty   "${RBV_TEMP_DIR}"
+  buv_file_exists "${RBV_RBRR_FILE}"
+  buv_file_exists "${RBV_RBRS_FILE}"
 
   # Source config files (CLI handles all sourcing)
-  source              "${RBV_RBRR_FILE}" || bcu_die "Failed to source RBRR config"
-  source "${ZRBV_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to source RBRR validator"
+  source              "${RBV_RBRR_FILE}" || buc_die "Failed to source RBRR config"
+  source "${ZRBV_CLI_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to source RBRR validator"
 
-  source              "${RBV_RBRS_FILE}" || bcu_die "Failed to source RBRS config"
-  source "${ZRBV_CLI_SCRIPT_DIR}/rbrs.validator.sh" || bcu_die "Failed to source RBRS validator"
+  source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
+  source "${ZRBV_CLI_SCRIPT_DIR}/rbrs.validator.sh" || buc_die "Failed to source RBRS validator"
 
   # Start implementation module
   zrbv_kindle
 }
 
 # Execute command
-bcu_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_furnish "$@"
+buc_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_furnish "$@"
 
 # eof
 

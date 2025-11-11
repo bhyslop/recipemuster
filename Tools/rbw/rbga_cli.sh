@@ -23,8 +23,8 @@ set -euo pipefail
 ZRBGA_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGA_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGA_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZRBGA_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
@@ -35,6 +35,6 @@ source "${ZRBGA_CLI_SCRIPT_DIR}/rbga_ArtifactRegistry.sh"
 # Initialize modules
 rbl_kindle_all
 
-bdu_dispatch "$@"
+bud_dispatch "$@"
 
 # eof

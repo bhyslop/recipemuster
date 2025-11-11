@@ -22,8 +22,8 @@ z_project_root_dir="${0%/*}/.."
 cd "${z_project_root_dir}" || exit 1
 
 # Load BURC configuration
-export BDU_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
-source "${BDU_REGIME_FILE}" || exit 1
+export BUD_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
+source "${BUD_REGIME_FILE}" || exit 1
 
 # Validate config regimes (fail early if misconfigured)
 "${BURC_TOOLS_DIR}/buk/burc_regime.sh" validate "${z_project_root_dir}/.buk/burc.env" || {
@@ -40,5 +40,5 @@ z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
 }
 
 # Set coordinator and delegate to BDU
-export BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/rbw/rbk_Coordinator.sh"
-exec "${BURC_TOOLS_DIR}/buk/bdu_BashDispatchUtility.sh" "${1##*/}" "${@:2}"
+export BUD_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/rbw/rbk_Coordinator.sh"
+exec "${BURC_TOOLS_DIR}/buk/bud_BashDispatchUtility.sh" "${1##*/}" "${@:2}"

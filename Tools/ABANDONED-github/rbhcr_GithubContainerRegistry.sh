@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHCR_INCLUDED:-}" || bcu_die "Module rbcr multiply included - check sourcing hierarchy"
+test -z "${ZRBHCR_INCLUDED:-}" || buc_die "Module rbcr multiply included - check sourcing hierarchy"
 ZRBHCR_INCLUDED=1
 
 ######################################################################
@@ -15,26 +15,26 @@ ZRBHCR_INCLUDED=1
 
 zrbhcr_kindle() {
   # Check required environment
-  test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
-  test -n "${RBG_RUNTIME:-}"         || bcu_die "RBG_RUNTIME not set"
-  test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
+  test -n "${RBRR_REGISTRY_OWNER:-}" || buc_die "RBRR_REGISTRY_OWNER not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"  || buc_die "RBRR_REGISTRY_NAME not set"
+  test -n "${RBG_RUNTIME:-}"         || buc_die "RBG_RUNTIME not set"
+  test -n "${BUD_TEMP_DIR:-}"        || buc_die "BUD_TEMP_DIR not set"
 
   # Detect environment and set auth variables
   if test -n "${GITHUB_ACTIONS:-}"; then
     # GitHub Actions mode - use environment variables directly
-    bcu_info "Running in GitHub Actions - using GITHUB_TOKEN"
-    test -n "${GITHUB_TOKEN:-}" || bcu_die "GITHUB_TOKEN not set in GitHub Actions"
+    buc_info "Running in GitHub Actions - using GITHUB_TOKEN"
+    test -n "${GITHUB_TOKEN:-}" || buc_die "GITHUB_TOKEN not set in GitHub Actions"
     ZRBHCR_GITHUB_TOKEN="${GITHUB_TOKEN}"
     ZRBHCR_REGISTRY_USERNAME="${GITHUB_ACTOR:-github-actions}"
   else
     # Local mode - source PAT file
-    bcu_info "Running locally - sourcing PAT file"
-    test -n "${RBRR_GITHUB_PAT_ENV:-}" || bcu_die "RBRR_GITHUB_PAT_ENV not set"
-    test -f "${RBRR_GITHUB_PAT_ENV}" || bcu_die "PAT file not found: ${RBRR_GITHUB_PAT_ENV}"
+    buc_info "Running locally - sourcing PAT file"
+    test -n "${RBRR_GITHUB_PAT_ENV:-}" || buc_die "RBRR_GITHUB_PAT_ENV not set"
+    test -f "${RBRR_GITHUB_PAT_ENV}" || buc_die "PAT file not found: ${RBRR_GITHUB_PAT_ENV}"
     source "${RBRR_GITHUB_PAT_ENV}"
-    test -n "${RBRG_PAT:-}" || bcu_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-    test -n "${RBRG_USERNAME:-}" || bcu_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
+    test -n "${RBRG_PAT:-}" || buc_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
+    test -n "${RBRG_USERNAME:-}" || buc_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
     ZRBHCR_GITHUB_TOKEN="${RBRG_PAT}"
     ZRBHCR_REGISTRY_USERNAME="${RBRG_USERNAME}"
   fi
@@ -59,40 +59,40 @@ zrbhcr_kindle() {
   ZRBHCR_HEADER_ACCEPT_MANIFEST="Accept: ${ZRBHCR_ACCEPT_MANIFEST_MTYPES}"
 
   # File prefixes for all operations
-  ZRBHCR_LIST_PAGE_PREFIX="${BDU_TEMP_DIR}/list_page_"
-  ZRBHCR_LIST_RECORDS_PREFIX="${BDU_TEMP_DIR}/list_records_"
-  ZRBHCR_MANIFEST_PREFIX="${BDU_TEMP_DIR}/manifest_"
-  ZRBHCR_CONFIG_PREFIX="${BDU_TEMP_DIR}/config_"
-  ZRBHCR_DELETE_PREFIX="${BDU_TEMP_DIR}/delete_"
-  ZRBHCR_VERSION_PREFIX="${BDU_TEMP_DIR}/version_"
-  ZRBHCR_DETAIL_PREFIX="${BDU_TEMP_DIR}/detail_"
+  ZRBHCR_LIST_PAGE_PREFIX="${BUD_TEMP_DIR}/list_page_"
+  ZRBHCR_LIST_RECORDS_PREFIX="${BUD_TEMP_DIR}/list_records_"
+  ZRBHCR_MANIFEST_PREFIX="${BUD_TEMP_DIR}/manifest_"
+  ZRBHCR_CONFIG_PREFIX="${BUD_TEMP_DIR}/config_"
+  ZRBHCR_DELETE_PREFIX="${BUD_TEMP_DIR}/delete_"
+  ZRBHCR_VERSION_PREFIX="${BUD_TEMP_DIR}/version_"
+  ZRBHCR_DETAIL_PREFIX="${BUD_TEMP_DIR}/detail_"
 
   # Output files
-  ZRBHCR_IMAGE_RECORDS_FILE="${BDU_TEMP_DIR}/IMAGE_RECORDS.json"
-  ZRBHCR_IMAGE_DETAIL_FILE="${BDU_TEMP_DIR}/IMAGE_DETAILS.json"
-  ZRBHCR_IMAGE_STATS_FILE="${BDU_TEMP_DIR}/IMAGE_STATS.json"
-  ZRBHCR_FQIN_FILE="${BDU_TEMP_DIR}/FQIN.txt"
+  ZRBHCR_IMAGE_RECORDS_FILE="${BUD_TEMP_DIR}/IMAGE_RECORDS.json"
+  ZRBHCR_IMAGE_DETAIL_FILE="${BUD_TEMP_DIR}/IMAGE_DETAILS.json"
+  ZRBHCR_IMAGE_STATS_FILE="${BUD_TEMP_DIR}/IMAGE_STATS.json"
+  ZRBHCR_FQIN_FILE="${BUD_TEMP_DIR}/FQIN.txt"
 
   # File index counter
   ZRBHCR_FILE_INDEX=0
 
-  bcu_step "Obtaining bearer token for registry API"
+  buc_step "Obtaining bearer token for registry API"
   local z_bearer_token
-  z_bearer_token=$(zrbhcr_get_bearer_token_subshell) || bcu_die "Cannot proceed without bearer token"
+  z_bearer_token=$(zrbhcr_get_bearer_token_subshell) || buc_die "Cannot proceed without bearer token"
   ZRBHCR_REGISTRY_TOKEN="${z_bearer_token}"
 
   # Registry auth header
   ZRBHCR_HEADER_AUTH_BEARER="Authorization: Bearer ${ZRBHCR_REGISTRY_TOKEN}"
 
   # Login to registry
-  bcu_step "Log in to container registry"
+  buc_step "Log in to container registry"
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBHCR_REGISTRY_HOST}" -u "${ZRBHCR_REGISTRY_USERNAME}" -p "${ZRBHCR_GITHUB_TOKEN}"
 
   ZRBHCR_KINDLED=1
 }
 
 zrbhcr_sentinel() {
-  test "${ZRBHCR_KINDLED:-}" = "1" || bcu_die "Module rbhcr not kindled - call zrbhcr_kindle first"
+  test "${ZRBHCR_KINDLED:-}" = "1" || buc_die "Module rbhcr not kindled - call zrbhcr_kindle first"
 }
 
 zrbhcr_get_bearer_token_subshell() {
@@ -132,9 +132,9 @@ zrbhcr_process_single_manifest() {
   local z_config_digest
   z_config_digest=$(jq -r '.config.digest' "${z_manifest_file}")
 
-  test -n "${z_config_digest}" || bcu_die "Missing config.digest"
+  test -n "${z_config_digest}" || buc_die "Missing config.digest"
   test "${z_config_digest}" != "null" || {
-    bcu_warn "null config.digest in manifest"
+    buc_warn "null config.digest in manifest"
     return 0
   }
 
@@ -147,8 +147,8 @@ zrbhcr_process_single_manifest() {
   curl -sL -H "${ZRBHCR_HEADER_AUTH_BEARER}" "${ZRBHCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
         >"${z_config_out}" 2>"${z_config_err}" && \
     jq . "${z_config_out}" >/dev/null || {
-      bcu_warn "Failed to fetch config blob"
-      bcu_die "Failed to retrieve config blob from registry"
+      buc_warn "Failed to fetch config blob"
+      buc_die "Failed to retrieve config blob from registry"
     }
 
   # Build detail entry
@@ -199,7 +199,7 @@ zrbhcr_process_single_manifest() {
 
   # Append to detail file
   jq -s '.[0] + [.[1]]' "${ZRBHCR_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
-    > "${ZRBHCR_IMAGE_DETAIL_FILE}.tmp" || bcu_die "Failed to merge image detail"
+    > "${ZRBHCR_IMAGE_DETAIL_FILE}.tmp" || buc_die "Failed to merge image detail"
   mv "${ZRBHCR_IMAGE_DETAIL_FILE}.tmp" "${ZRBHCR_IMAGE_DETAIL_FILE}"
 }
 
@@ -214,7 +214,7 @@ rbhcr_make_fqin() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Write FQIN to file
   echo "${ZRBHCR_REGISTRY_HOST}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:${z_tag}" > "${ZRBHCR_FQIN_FILE}"
@@ -224,7 +224,7 @@ rbhcr_list_tags() {
   # Ensure module started
   zrbhcr_sentinel
 
-  bcu_step "Fetching all image records with pagination"
+  buc_step "Fetching all image records with pagination"
 
   # Initialize empty array
   echo "[]" > "${ZRBHCR_IMAGE_RECORDS_FILE}"
@@ -232,7 +232,7 @@ rbhcr_list_tags() {
   local z_page=1
 
   while true; do
-    bcu_info "Fetching page ${z_page}..."
+    buc_info "Fetching page ${z_page}..."
 
     local z_temp_page="${ZRBHCR_LIST_PAGE_PREFIX}${z_page}.json"
     local z_temp_records="${ZRBHCR_LIST_RECORDS_PREFIX}${z_page}.json"
@@ -242,7 +242,7 @@ rbhcr_list_tags() {
 
     local z_items
     z_items=$(jq '. | length' "${z_temp_page}")
-    bcu_info "Saw ${z_items} items on page ${z_page}"
+    buc_info "Saw ${z_items} items on page ${z_page}"
 
     test "${z_items}" -ne 0 || break
 
@@ -263,7 +263,7 @@ rbhcr_list_tags() {
 
   local z_total
   z_total=$(jq '. | length' "${ZRBHCR_IMAGE_RECORDS_FILE}")
-  bcu_info "Retrieved ${z_total} total image records"
+  buc_info "Retrieved ${z_total} total image records"
 }
 
 rbhcr_get_manifest() {
@@ -274,7 +274,7 @@ rbhcr_get_manifest() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   local z_idx
   z_idx=$(zrbhcr_get_next_index)
@@ -288,8 +288,8 @@ rbhcr_get_manifest() {
        >"${z_manifest_out}" 2>"${z_manifest_err}" \
     && jq . "${z_manifest_out}" >/dev/null \
     || {
-      bcu_warn "Failed to fetch manifest for ${z_tag}"
-      bcu_die "This image appears corrupted"
+      buc_warn "Failed to fetch manifest for ${z_tag}"
+      buc_die "This image appears corrupted"
     }
 
   local z_media_type
@@ -298,7 +298,7 @@ rbhcr_get_manifest() {
   if [[ "${z_media_type}" == "${ZRBHCR_MTYPE_DLIST}" ]] || \
      [[ "${z_media_type}" == "${ZRBHCR_MTYPE_OCI}" ]]; then
 
-    bcu_info "Multi-platform image detected"
+    buc_info "Multi-platform image detected"
 
     local z_platform_idx=1
     local z_manifests
@@ -309,7 +309,7 @@ rbhcr_get_manifest() {
       z_platform_digest=$(echo "${z_platform_manifest}" | jq -r '.digest')
       z_platform_info=$(echo "${z_platform_manifest}" | jq -r '"\(.platform.os)/\(.platform.architecture)"')
 
-      bcu_info "Processing platform: ${z_platform_info}"
+      buc_info "Processing platform: ${z_platform_info}"
 
       local z_platform_idx_str
       z_platform_idx_str=$(zrbhcr_get_next_index)
@@ -323,7 +323,7 @@ rbhcr_get_manifest() {
            >"${z_platform_out}" 2>"${z_platform_err}" \
         && jq . "${z_platform_out}" >/dev/null \
         || {
-          bcu_warn "Failed to fetch platform manifest"
+          buc_warn "Failed to fetch platform manifest"
           ((z_platform_idx++))
           continue
         }
@@ -334,7 +334,7 @@ rbhcr_get_manifest() {
     done <<< "${z_manifests}"
 
   else
-    bcu_info "Single platform image"
+    buc_info "Single platform image"
     zrbhcr_process_single_manifest "${z_tag}" "${z_manifest_out}" ""
   fi
 }
@@ -347,7 +347,7 @@ rbhcr_get_config() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_digest}" || bcu_die "Digest parameter required"
+  test -n "${z_digest}" || buc_die "Digest parameter required"
 
   # Fetch config blob
   local z_idx
@@ -366,7 +366,7 @@ rbhcr_delete() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Get version ID for tag
   rbhcr_get_version_id "${z_tag}"
@@ -388,7 +388,7 @@ rbhcr_delete() {
 
   local z_http_code
   z_http_code=$(<"${z_status_file}")
-  test "${z_http_code}" = "204" || bcu_die "Delete failed with HTTP ${z_http_code}"
+  test "${z_http_code}" = "204" || buc_die "Delete failed with HTTP ${z_http_code}"
 }
 
 rbhcr_pull() {
@@ -399,14 +399,14 @@ rbhcr_pull() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Construct FQIN from tag
   rbhcr_make_fqin "${z_tag}"
   local z_fqin
   z_fqin=$(<"${ZRBHCR_FQIN_FILE}")
 
-  bcu_info "Fetch image..."
+  buc_info "Fetch image..."
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} pull "${z_fqin}"
 }
 
@@ -418,7 +418,7 @@ rbhcr_exists_predicate() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Check if tag exists
   local z_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions?per_page=100"
@@ -434,7 +434,7 @@ rbhcr_get_version_id() {
   zrbhcr_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Find version ID
   ZRBHCR_VERSION_ID_FILE="${ZRBHCR_VERSION_PREFIX}id.txt"
@@ -444,7 +444,7 @@ rbhcr_get_version_id() {
   jq -r '.[] | select(.tag == "'"${z_tag}"'") | .version_id' \
     "${ZRBHCR_IMAGE_RECORDS_FILE}" > "${ZRBHCR_VERSION_ID_FILE}"
 
-  test -s "${ZRBHCR_VERSION_ID_FILE}" || bcu_die "Version ID not found for tag: ${z_tag}"
+  test -s "${ZRBHCR_VERSION_ID_FILE}" || buc_die "Version ID not found for tag: ${z_tag}"
 }
 
 # eof

@@ -22,14 +22,14 @@ set -euo pipefail
 
 # Multiple inclusion detection
 # (Module state remains ZRBGC_* per BCG; external constants use RBGC_*)
-test -z "${ZRBGC_SOURCED:-}" || bcu_die "Module rbgc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGC_SOURCED:-}" || buc_die "Module rbgc multiply sourced - check sourcing hierarchy"
 ZRBGC_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgc_*)
 
 zrbgc_kindle() {
-  test -z "${ZRBGC_KINDLED:-}" || bcu_die "Module rbgc already kindled"
+  test -z "${ZRBGC_KINDLED:-}" || buc_die "Module rbgc already kindled"
 
   # Basic Configuration
   RBGC_ADMIN_ROLE="rbw-admin"
@@ -117,7 +117,7 @@ zrbgc_kindle() {
 }
 
 zrbgc_sentinel() {
-  test "${ZRBGC_KINDLED:-}" = "1" || bcu_die "Module rbgc not kindled - call zrbgc_kindle first"
+  test "${ZRBGC_KINDLED:-}" = "1" || buc_die "Module rbgc not kindled - call zrbgc_kindle first"
 }
 
 # eof

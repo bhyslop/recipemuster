@@ -21,24 +21,24 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGU_SOURCED:-}" || bcu_die "Module rbgu multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGU_SOURCED:-}" || buc_die "Module rbgu multiply sourced - check sourcing hierarchy"
 ZRBGU_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgu_*)
 
 zrbgu_kindle() {
-  test -z "${ZRBGU_KINDLED:-}" || bcu_die "Module rbgu already kindled"
+  test -z "${ZRBGU_KINDLED:-}" || buc_die "Module rbgu already kindled"
 
   # Validate dependencies
-  bvu_dir_exists "${BDU_TEMP_DIR}"
+  buv_dir_exists "${BUD_TEMP_DIR}"
 
   # Ensure dependencies kindled first
   zrbgc_sentinel
   zrbgo_sentinel
 
   # Module prefix for temp files
-  ZRBGU_PREFIX="${BDU_TEMP_DIR}/rbgu_"
+  ZRBGU_PREFIX="${BUD_TEMP_DIR}/rbgu_"
   ZRBGU_EMPTY_JSON="${ZRBGU_PREFIX}empty.json"
   printf '{}' > "${ZRBGU_EMPTY_JSON}"
 
@@ -47,14 +47,14 @@ zrbgu_kindle() {
   ZRBGU_POSTFIX_CODE="_u_code.txt"
 
   # Validate eventual consistency settings from rbgc
-  test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || bcu_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
-  test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"      || bcu_die "RBGC_MAX_CONSISTENCY_SEC unset"
+  test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || buc_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
+  test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"      || buc_die "RBGC_MAX_CONSISTENCY_SEC unset"
 
   ZRBGU_KINDLED=1
 }
 
 zrbgu_sentinel() {
-  test "${ZRBGU_KINDLED:-}" = "1" || bcu_die "Module rbgu not kindled - call zrbgu_kindle first"
+  test "${ZRBGU_KINDLED:-}" = "1" || buc_die "Module rbgu not kindled - call zrbgu_kindle first"
 }
 
 ######################################################################
@@ -112,7 +112,7 @@ rbgu_urlencode_capture() {
   local z_c
   local z_hex
 
-  bcu_log_args "Percent encoding -> ${z_s}"
+  buc_log_args "Percent encoding -> ${z_s}"
 
   while test ${z_i} -lt ${#z_s}; do
     z_c="${z_s:z_i:1}"
@@ -123,7 +123,7 @@ rbgu_urlencode_capture() {
     z_i=$((z_i + 1))
   done
 
-  bcu_log_args "Encoded ${z_out}"
+  buc_log_args "Encoded ${z_out}"
   test -n "${z_out}" || return 1
   echo "${z_out}"
 }
@@ -214,7 +214,7 @@ rbgu_authenticate_role_capture() {
   test -n "${z_rbra_file}" || return 1
   test -f "${z_rbra_file}" || return 1
   
-  bcu_log_args "Authenticating with RBRA file: ${z_rbra_file}"
+  buc_log_args "Authenticating with RBRA file: ${z_rbra_file}"
   
   source "${z_rbra_file}" || return 1
   
@@ -303,16 +303,16 @@ rbgu_http_json() {
       || z_curl_status=$?
   fi
 
-  bcu_log_args 'Curl status' "${z_curl_status}"
-  bcu_log_pipe < "${z_code_errs}"
+  buc_log_args 'Curl status' "${z_curl_status}"
+  buc_log_pipe < "${z_code_errs}"
 
-  test "${z_curl_status}" -eq 0 || bcu_die "HTTP request failed (network/SSL/DNS)"
+  test "${z_curl_status}" -eq 0 || buc_die "HTTP request failed (network/SSL/DNS)"
 
   local z_code
-  z_code=$(<"${z_code_file}") || bcu_die "Failed to read code file"
-  test -n "${z_code}"         || bcu_die "Empty HTTP code from curl"
+  z_code=$(<"${z_code_file}") || buc_die "Failed to read code file"
+  test -n "${z_code}"         || buc_die "Empty HTTP code from curl"
 
-  bcu_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
+  buc_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
 }
 
 rbgu_http_require_ok() {
@@ -324,14 +324,14 @@ rbgu_http_require_ok() {
 
   local z_code
   z_code=$(rbgu_http_code_capture "${z_infix}") \
-    || bcu_die "${z_ctx}: failed to read HTTP code"
+    || buc_die "${z_ctx}: failed to read HTTP code"
 
   case "${z_code}" in
     200|201|204) return 0 ;;
   esac
 
   if test -n "${z_warn_code}" && test "${z_code}" = "${z_warn_code}"; then
-    bcu_warn "${z_ctx}: ${z_warn_message}"
+    buc_warn "${z_ctx}: ${z_warn_message}"
     return 0
   fi
 
@@ -349,7 +349,7 @@ rbgu_http_require_ok() {
     test -n "${z_err}" || z_err="Non-JSON error body"
   fi
 
-  bcu_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
+  buc_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
 }
 
 rbgu_http_json_ok() {
@@ -364,7 +364,7 @@ rbgu_http_json_ok() {
   local z_warn_code="${7:-}"
   local z_warn_message="${8:-}"
 
-  bcu_log_args "${z_label}"
+  buc_log_args "${z_label}"
 
   # Perform HTTP request (body file may be "")
   rbgu_http_json "${z_method}" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
@@ -388,42 +388,42 @@ rbgu_http_json_lro_ok() {
   local z_poll_interval="${9:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
   local z_timeout="${10:-${RBGC_MAX_CONSISTENCY_SEC}}"
 
-  bcu_log_args '1) POST the request'
+  buc_log_args '1) POST the request'
   rbgu_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body}"
   rbgu_http_require_ok "${z_label}" "${z_infix}"
 
   local z_done=""
   z_done=$(rbgu_json_field_capture "${z_infix}" ".done") || z_done=""
   test "${z_done}" = "true" && {
-    bcu_log_args 'Immediate-done response -> success (no polling)'
+    buc_log_args 'Immediate-done response -> success (no polling)'
     return 0
   }
 
-  bcu_log_args '2) Extract op name (or return if not an LRO)'
+  buc_log_args '2) Extract op name (or return if not an LRO)'
   local z_name
   z_name=$(rbgu_json_field_capture "${z_infix}" "${z_name_jq}") || z_name=""
   test -n "${z_name}" || {
-    bcu_log_args 'No LRO name present - treat as non-LRO success'
+    buc_log_args 'No LRO name present - treat as non-LRO success'
     return 0
   }
-  bcu_log_args '3) Build poll URL based on operation name format'
+  buc_log_args '3) Build poll URL based on operation name format'
   local z_poll_url=""
   if [[ "${z_name}" =~ ^projects/.*/locations/.*/operations/ ]]; then
-    bcu_log_args '  Regional operation with fully-qualified name'
+    buc_log_args '  Regional operation with fully-qualified name'
     z_poll_url="${z_poll_root}/${z_name}"
   elif [[ "${z_name}" =~ ^projects/.*/operations/ ]]; then
-    bcu_log_args '  Global operation with project prefix'
+    buc_log_args '  Global operation with project prefix'
     z_poll_url="${z_poll_root}/${z_name}"
   elif test -n "${z_op_prefix}" && [[ ! "${z_name}" =~ ^${z_op_prefix} ]]; then
-    bcu_log_args '  Legacy format - apply prefix (not already present)'
+    buc_log_args '  Legacy format - apply prefix (not already present)'
     z_poll_url="${z_poll_root}/${z_op_prefix}${z_name}"
   else
-    bcu_log_args '  Use name as-is under versioned root'
+    buc_log_args '  Use name as-is under versioned root'
     z_poll_url="${z_poll_root}/${z_name}"
   fi
-  bcu_log_args "Poll URL: ${z_poll_url}"
+  buc_log_args "Poll URL: ${z_poll_url}"
 
-  bcu_log_args '4) Poll until done or timeout'
+  buc_log_args '4) Poll until done or timeout'
   local z_elapsed=0
   while :; do
     sleep "${z_poll_interval}"
@@ -434,16 +434,16 @@ rbgu_http_json_lro_ok() {
 
     local z_code=""
     z_code=$(rbgu_http_code_capture "${z_poll_infix}") || z_code=""
-    test "${z_code}" = "200" || bcu_die "${z_label}: poll failed (HTTP ${z_code})"
+    test "${z_code}" = "200" || buc_die "${z_label}: poll failed (HTTP ${z_code})"
 
     z_done=$(rbgu_json_field_capture "${z_poll_infix}" ".done") || z_done=""
     test "${z_done}" = "true" && {
-      bcu_log_args "${z_label}: operation completed after ${z_elapsed}s"
+      buc_log_args "${z_label}: operation completed after ${z_elapsed}s"
       return 0
     }
 
-    test "${z_elapsed}" -ge "${z_timeout}" && bcu_die "${z_label}: timeout after ${z_timeout}s"
-    bcu_log_args "Still running at ${z_elapsed}s..."
+    test "${z_elapsed}" -ge "${z_timeout}" && buc_die "${z_label}: timeout after ${z_timeout}s"
+    buc_log_args "Still running at ${z_elapsed}s..."
   done
 }
 
@@ -459,7 +459,7 @@ rbgu_newly_created_delay() {
   z_code=$(rbgu_http_code_capture "${z_infix}") || return 1
 
   if test "${z_code}" = "200" || test "${z_code}" = "201"; then
-    bcu_step "Resource ${z_resource} newly created, waiting ${z_delay}s for propagation"
+    buc_step "Resource ${z_resource} newly created, waiting ${z_delay}s for propagation"
     sleep "${z_delay}"
   fi
 }
@@ -472,48 +472,48 @@ rbgu_extract_json_to_rbra() {
   local z_lifetime_sec="$3"
   local z_expected_project_id="${4:-}"
 
-  test -f "${z_json_path}" || bcu_die "Service account JSON not found: ${z_json_path}"
+  test -f "${z_json_path}" || buc_die "Service account JSON not found: ${z_json_path}"
 
-  bcu_info "Extracting service account credentials from JSON"
+  buc_info "Extracting service account credentials from JSON"
 
-  bcu_log_args 'Extract fields'
+  buc_log_args 'Extract fields'
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_json_path}") \
-                                        || bcu_die "Failed to extract client_email"
-  test -n "${z_client_email}"           || bcu_die "Empty client_email in JSON"
-  test    "${z_client_email}" != "null" || bcu_die "Null client_email in JSON"
+                                        || buc_die "Failed to extract client_email"
+  test -n "${z_client_email}"           || buc_die "Empty client_email in JSON"
+  test    "${z_client_email}" != "null" || buc_die "Null client_email in JSON"
 
   local z_private_key
   z_private_key=$(jq -r '.private_key' "${z_json_path}") \
-                                       || bcu_die "Failed to extract private_key"
-  test -n "${z_private_key}"           || bcu_die "Empty private_key in JSON"
-  test    "${z_private_key}" != "null" || bcu_die "Null private_key in JSON"
+                                       || buc_die "Failed to extract private_key"
+  test -n "${z_private_key}"           || buc_die "Empty private_key in JSON"
+  test    "${z_private_key}" != "null" || buc_die "Null private_key in JSON"
 
   local z_project_id
   z_project_id=$(jq -r '.project_id' "${z_json_path}") \
-                                      || bcu_die "Failed to extract project_id"
-  test -n "${z_project_id}"           || bcu_die "Empty project_id in JSON"
-  test    "${z_project_id}" != "null" || bcu_die "Null project_id in JSON"
+                                      || buc_die "Failed to extract project_id"
+  test -n "${z_project_id}"           || buc_die "Empty project_id in JSON"
+  test    "${z_project_id}" != "null" || buc_die "Null project_id in JSON"
 
   if [ -n "${z_expected_project_id}" ]; then
-    bcu_log_args "Verify project matches expected: ${z_expected_project_id}"
+    buc_log_args "Verify project matches expected: ${z_expected_project_id}"
     test "${z_project_id}" = "${z_expected_project_id}" \
-      || bcu_die "Project mismatch: JSON has '${z_project_id}', expected '${z_expected_project_id}'"
+      || buc_die "Project mismatch: JSON has '${z_project_id}', expected '${z_expected_project_id}'"
   else
-    bcu_log_args "No project validation - accepting JSON project_id: ${z_project_id}"
+    buc_log_args "No project validation - accepting JSON project_id: ${z_project_id}"
   fi
 
-  bcu_log_args 'Write RBRA file'
+  buc_log_args 'Write RBRA file'
   {
     printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
     printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
     printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
     printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "$z_lifetime_sec"
-  } > "${z_rbra_path}" || bcu_die "Failed to write RBRA file ${z_rbra_path}"
+  } > "${z_rbra_path}" || buc_die "Failed to write RBRA file ${z_rbra_path}"
 
-  test -f "${z_rbra_path}" || bcu_die "Failed to write RBRA file: ${z_rbra_path}"
+  test -f "${z_rbra_path}" || buc_die "Failed to write RBRA file: ${z_rbra_path}"
 
-  bcu_warn "Consider deleting source JSON after verification: ${z_json_path}"
+  buc_warn "Consider deleting source JSON after verification: ${z_json_path}"
 }
 
 ######################################################################
@@ -528,11 +528,11 @@ rbgu_api_enable() {
   local z_project_id="${2}"
   local z_token="${3}"
   
-  test -n "${z_api_service}" || bcu_die "rbgu_api_enable: API service name required"
-  test -n "${z_project_id}" || bcu_die "rbgu_api_enable: project ID required"
-  test -n "${z_token}" || bcu_die "rbgu_api_enable: access token required"
+  test -n "${z_api_service}" || buc_die "rbgu_api_enable: API service name required"
+  test -n "${z_project_id}" || buc_die "rbgu_api_enable: project ID required"
+  test -n "${z_token}" || buc_die "rbgu_api_enable: access token required"
   
-  bcu_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
+  buc_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
   
   local z_infix="api-enable-${z_api_service}"
   local z_enable_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:enable"
@@ -541,27 +541,27 @@ rbgu_api_enable() {
   rbgu_http_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
   
   local z_code
-  z_code=$(rbgu_http_code_capture "${z_infix}") || bcu_die "rbgu_api_enable: failed to read HTTP code"
+  z_code=$(rbgu_http_code_capture "${z_infix}") || buc_die "rbgu_api_enable: failed to read HTTP code"
   
   case "${z_code}" in
     200|201|204) 
-      bcu_log_args "API enable request successful (HTTP ${z_code})"
+      buc_log_args "API enable request successful (HTTP ${z_code})"
       ;;
     400)
       # Check if already enabled
       local z_err
       z_err=$(rbgu_error_message_capture "${z_infix}") || z_err="Unknown error"
       if [[ "${z_err}" =~ already.enabled ]] || [[ "${z_err}" =~ "already enabled" ]]; then
-        bcu_log_args "API ${z_api_service} already enabled"
+        buc_log_args "API ${z_api_service} already enabled"
         return 0
       else
-        bcu_die "rbgu_api_enable (HTTP ${z_code}): ${z_err}"
+        buc_die "rbgu_api_enable (HTTP ${z_code}): ${z_err}"
       fi
       ;;
     *)
       local z_err
       z_err=$(rbgu_error_message_capture "${z_infix}") || z_err="Unknown error"
-      bcu_die "rbgu_api_enable (HTTP ${z_code}): ${z_err}"
+      buc_die "rbgu_api_enable (HTTP ${z_code}): ${z_err}"
       ;;
   esac
   
@@ -570,7 +570,7 @@ rbgu_api_enable() {
   z_operation_name=$(rbgu_json_field_capture "${z_infix}" ".name") || z_operation_name=""
   
   if [ -n "${z_operation_name}" ]; then
-    bcu_log_args "API enable returned LRO, polling for completion"
+    buc_log_args "API enable returned LRO, polling for completion"
     # Use the LRO polling mechanism
     local z_poll_root="https://serviceusage.googleapis.com/v1"
     rbgu_http_json_lro_ok \
@@ -592,13 +592,13 @@ rbgu_api_enable() {
   rbgu_http_require_ok "API Enable Verify ${z_api_service}" "${z_verify_infix}"
   
   local z_state
-  z_state=$(rbgu_json_field_capture "${z_verify_infix}" ".state") || bcu_die "Failed to read API state"
+  z_state=$(rbgu_json_field_capture "${z_verify_infix}" ".state") || buc_die "Failed to read API state"
   
   if [ "${z_state}" != "ENABLED" ]; then
-    bcu_die "API ${z_api_service} not enabled after request (state: ${z_state})"
+    buc_die "API ${z_api_service} not enabled after request (state: ${z_state})"
   fi
   
-  bcu_log_args "API ${z_api_service} confirmed enabled"
+  buc_log_args "API ${z_api_service} confirmed enabled"
 }
 
 # RBTOE: RBRA Load Pattern
@@ -608,26 +608,26 @@ rbgu_rbra_load() {
   
   local z_rbra_file="${1}"
   
-  test -n "${z_rbra_file}" || bcu_die "rbgu_rbra_load: RBRA file path required"
-  test -f "${z_rbra_file}" || bcu_die "rbgu_rbra_load: RBRA file not found: ${z_rbra_file}"
+  test -n "${z_rbra_file}" || buc_die "rbgu_rbra_load: RBRA file path required"
+  test -f "${z_rbra_file}" || buc_die "rbgu_rbra_load: RBRA file not found: ${z_rbra_file}"
   
-  bcu_log_args "Loading and validating RBRA credentials from ${z_rbra_file}"
+  buc_log_args "Loading and validating RBRA credentials from ${z_rbra_file}"
   
   # Source the RBRA file
   # shellcheck source=/dev/null
-  source "${z_rbra_file}" || bcu_die "rbgu_rbra_load: failed to source RBRA file"
+  source "${z_rbra_file}" || buc_die "rbgu_rbra_load: failed to source RBRA file"
   
   # Validate required fields
-  test -n "${RBRA_CLIENT_EMAIL:-}" || bcu_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL missing from ${z_rbra_file}"
-  test -n "${RBRA_PRIVATE_KEY:-}" || bcu_die "rbgu_rbra_load: RBRA_PRIVATE_KEY missing from ${z_rbra_file}"
-  test -n "${RBRA_PROJECT_ID:-}" || bcu_die "rbgu_rbra_load: RBRA_PROJECT_ID missing from ${z_rbra_file}"
+  test -n "${RBRA_CLIENT_EMAIL:-}" || buc_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL missing from ${z_rbra_file}"
+  test -n "${RBRA_PRIVATE_KEY:-}" || buc_die "rbgu_rbra_load: RBRA_PRIVATE_KEY missing from ${z_rbra_file}"
+  test -n "${RBRA_PROJECT_ID:-}" || buc_die "rbgu_rbra_load: RBRA_PROJECT_ID missing from ${z_rbra_file}"
   
   # Check for null values
-  test "${RBRA_CLIENT_EMAIL}" != "null" || bcu_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL is null in ${z_rbra_file}"
-  test "${RBRA_PRIVATE_KEY}" != "null" || bcu_die "rbgu_rbra_load: RBRA_PRIVATE_KEY is null in ${z_rbra_file}"
-  test "${RBRA_PROJECT_ID}" != "null" || bcu_die "rbgu_rbra_load: RBRA_PROJECT_ID is null in ${z_rbra_file}"
+  test "${RBRA_CLIENT_EMAIL}" != "null" || buc_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL is null in ${z_rbra_file}"
+  test "${RBRA_PRIVATE_KEY}" != "null" || buc_die "rbgu_rbra_load: RBRA_PRIVATE_KEY is null in ${z_rbra_file}"
+  test "${RBRA_PROJECT_ID}" != "null" || buc_die "rbgu_rbra_load: RBRA_PROJECT_ID is null in ${z_rbra_file}"
   
-  bcu_log_args "RBRA validation successful: ${RBRA_CLIENT_EMAIL} in project ${RBRA_PROJECT_ID}"
+  buc_log_args "RBRA validation successful: ${RBRA_CLIENT_EMAIL} in project ${RBRA_PROJECT_ID}"
 }
 
 # RBTOE: RBRO Load Pattern
@@ -638,30 +638,30 @@ rbgu_rbro_load() {
   local z_rbro_dir="${HOME}/.rbw"
   local z_rbro_file="${z_rbro_dir}/rbro.env"
   
-  bcu_log_args "Loading RBRO OAuth credentials"
+  buc_log_args "Loading RBRO OAuth credentials"
   
   # Check directory exists
-  test -d "${z_rbro_dir}" || bcu_die "RBRO directory missing - run rbgp_payor_install"
+  test -d "${z_rbro_dir}" || buc_die "RBRO directory missing - run rbgp_payor_install"
   
   # Check file exists
-  test -f "${z_rbro_file}" || bcu_die "RBRO credentials missing - run rbgp_payor_install"
+  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing - run rbgp_payor_install"
   
   # Check file permissions
   local z_perms
-  z_perms=$(stat -c %a "${z_rbro_file}" 2>/dev/null) || bcu_die "Failed to check RBRO file permissions"
+  z_perms=$(stat -c %a "${z_rbro_file}" 2>/dev/null) || buc_die "Failed to check RBRO file permissions"
   if [ "${z_perms}" != "600" ]; then
-    bcu_warn "RBRO file permissions should be 600, found ${z_perms}"
+    buc_warn "RBRO file permissions should be 600, found ${z_perms}"
   fi
   
   # Source RBRO credentials
   # shellcheck source=/dev/null
-  source "${z_rbro_file}" || bcu_die "Failed to source RBRO credentials"
+  source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
   
   # Validate required fields
-  test -n "${RBRO_CLIENT_SECRET:-}" || bcu_die "RBRO_CLIENT_SECRET missing from ${z_rbro_file}"
-  test -n "${RBRO_REFRESH_TOKEN:-}" || bcu_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
+  test -n "${RBRO_CLIENT_SECRET:-}" || buc_die "RBRO_CLIENT_SECRET missing from ${z_rbro_file}"
+  test -n "${RBRO_REFRESH_TOKEN:-}" || buc_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
   
-  bcu_log_args "RBRO validation successful"
+  buc_log_args "RBRO validation successful"
 }
 
 # eof

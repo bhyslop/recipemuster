@@ -23,8 +23,8 @@ set -euo pipefail
 ZRBGG_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGG_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
@@ -39,8 +39,8 @@ source "${ZRBGG_CLI_SCRIPT_DIR}/rbgg_Governor.sh"
 
 zrbgg_furnish() {
 
-  bcu_doc_env "BDU_TEMP_DIR   " "Temporary directory for intermediate files"
-  bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
+  buc_doc_env "BUD_TEMP_DIR   " "Temporary directory for intermediate files"
+  buc_doc_env "BUD_OUTPUT_DIR " "Directory for command outputs"
 
   zrbl_kindle
   zrbgc_kindle
@@ -55,7 +55,7 @@ zrbgg_furnish() {
   zrbgg_kindle
 }
 
-bcu_execute rbgg_ "Governor Procedures" zrbgg_furnish "$@"
+buc_execute rbgg_ "Governor Procedures" zrbgg_furnish "$@"
 
 # eof
 

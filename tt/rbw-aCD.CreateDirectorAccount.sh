@@ -1,2 +1,2 @@
 #!/bin/bash
-cd "${0%/*}/.." && Tools/bdu_BashDispatchUtility.sh "${0##*/}" "$@"
+cd "${0%/*}/.." && Tools/bud_BashDispatchUtility.sh "${0##*/}" "$@"

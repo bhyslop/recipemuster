@@ -21,10 +21,10 @@
 
 # Source the libraries from parent directory
 ZTRBIM_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
-source "${ZTRBIM_SCRIPT_DIR}/btu_BashTestUtility.sh"
+source "${ZTRBIM_SCRIPT_DIR}/but_BashTestUtility.sh"
 
 # Source RBRR configuration to get machine names
-source "${ZTRBIM_SCRIPT_DIR}/../rbrr_RecipeBottleRegimeRepo.sh" || btu_fatal "Failed to source RBRR configuration"
+source "${ZTRBIM_SCRIPT_DIR}/../rbrr_RecipeBottleRegimeRepo.sh" || but_fatal "Failed to source RBRR configuration"
 
 # Helper function to invoke RBIM with proper environment
 ztrbim_invoke_rbim() {
@@ -35,8 +35,8 @@ ztrbim_invoke_rbim() {
   local z_rbg_now_stamp
   z_rbg_now_stamp="$(date +%Y%m%d__%H%M%S)"
 
-  BDU_TEMP_DIR="${z_rbg_temp_dir}"                            \
-  BDU_NOW_STAMP="${z_rbg_now_stamp}"                          \
+  BUD_TEMP_DIR="${z_rbg_temp_dir}"                            \
+  BUD_NOW_STAMP="${z_rbg_now_stamp}"                          \
   RBG_RUNTIME="podman"                                        \
   RBG_RUNTIME_ARG="--connection=${RBRR_DEPLOY_MACHINE_NAME}"  \
     "${ZTRBIM_SCRIPT_DIR}/rbim_cli.sh"                        \
@@ -45,73 +45,73 @@ ztrbim_invoke_rbim() {
 
 trbim_case_github_workflow() {
   local z_recipe_file="$(dirname "$0")/trbim_dockerfile.recipe"
-  test -f "${z_recipe_file}" || btu_fatal "Recipe file not found: ${z_recipe_file}"
+  test -f "${z_recipe_file}" || but_fatal "Recipe file not found: ${z_recipe_file}"
 
   # Create subdirectories for each RBIM operation
-  local z_list1_dir="${BTU_TEMP_DIR}/list_before"
-  local z_build_dir="${BTU_TEMP_DIR}/build"
-  local z_list2_dir="${BTU_TEMP_DIR}/list_during"
-  local z_retrieve_dir="${BTU_TEMP_DIR}/retrieve"
-  local z_delete_dir="${BTU_TEMP_DIR}/delete"
-  local z_list3_dir="${BTU_TEMP_DIR}/list_after"
+  local z_list1_dir="${BUT_TEMP_DIR}/list_before"
+  local z_build_dir="${BUT_TEMP_DIR}/build"
+  local z_list2_dir="${BUT_TEMP_DIR}/list_during"
+  local z_retrieve_dir="${BUT_TEMP_DIR}/retrieve"
+  local z_delete_dir="${BUT_TEMP_DIR}/delete"
+  local z_list3_dir="${BUT_TEMP_DIR}/list_after"
 
   mkdir -p "${z_list1_dir}" "${z_build_dir}" "${z_list2_dir}" \
            "${z_retrieve_dir}" "${z_delete_dir}" "${z_list3_dir}"
 
-  btu_info "Step 1: List registry images before build"
-  btu_expect_ok ztrbim_invoke_rbim "${z_list1_dir}" rbim_list
+  but_info "Step 1: List registry images before build"
+  but_expect_ok ztrbim_invoke_rbim "${z_list1_dir}" rbim_list
 
-  btu_info "Step 2: Build container from recipe"
+  but_info "Step 2: Build container from recipe"
   local z_fqin_file="${z_build_dir}/fqin_output.txt"
   RBG_ARG_FQIN_OUTPUT="${z_fqin_file}" \
-  btu_expect_ok ztrbim_invoke_rbim "${z_build_dir}" rbim_build "${z_recipe_file}"
+  but_expect_ok ztrbim_invoke_rbim "${z_build_dir}" rbim_build "${z_recipe_file}"
 
-  test -f "${z_fqin_file}" || btu_fatal "FQIN output file not created: ${z_fqin_file}"
+  test -f "${z_fqin_file}" || but_fatal "FQIN output file not created: ${z_fqin_file}"
   local z_fqin
   z_fqin="$(<"${z_fqin_file}")"
-  test -n "${z_fqin}" || btu_fatal "Empty FQIN in output file"
+  test -n "${z_fqin}" || but_fatal "Empty FQIN in output file"
 
-  btu_info "Built image: ${z_fqin}"
+  but_info "Built image: ${z_fqin}"
 
   # Extract tag from FQIN for retrieve command
   local z_tag="${z_fqin##*:}"
 
-  btu_info "Step 3: List registry images after build"
-  btu_expect_ok ztrbim_invoke_rbim "${z_list2_dir}" rbim_list
+  but_info "Step 3: List registry images after build"
+  but_expect_ok ztrbim_invoke_rbim "${z_list2_dir}" rbim_list
 
-  btu_info "Step 4: Retrieve image from registry"
-  btu_expect_ok ztrbim_invoke_rbim "${z_retrieve_dir}" rbim_retrieve "${z_tag}"
+  but_info "Step 4: Retrieve image from registry"
+  but_expect_ok ztrbim_invoke_rbim "${z_retrieve_dir}" rbim_retrieve "${z_tag}"
 
-  btu_info "Step 5: Delete image from registry"
+  but_info "Step 5: Delete image from registry"
   RBG_ARG_SKIP_DELETE_CONFIRMATION="SKIP" \
-  btu_expect_ok ztrbim_invoke_rbim "${z_delete_dir}" rbim_delete "${z_fqin}"
+  but_expect_ok ztrbim_invoke_rbim "${z_delete_dir}" rbim_delete "${z_fqin}"
 
-  btu_info "Step 6: List registry images after deletion"
-  btu_expect_ok ztrbim_invoke_rbim "${z_list3_dir}" rbim_list
+  but_info "Step 6: List registry images after deletion"
+  but_expect_ok ztrbim_invoke_rbim "${z_list3_dir}" rbim_list
 
-  btu_info "GitHub workflow integration test completed successfully"
+  but_info "GitHub workflow integration test completed successfully"
 }
 
 trbim_case_image_info() {
-  btu_info "Test image_info command"
+  but_info "Test image_info command"
 
-  local z_info_dir="${BTU_TEMP_DIR}/image_info"
+  local z_info_dir="${BUT_TEMP_DIR}/image_info"
   mkdir -p "${z_info_dir}"
 
   # Run image_info without filter
-  btu_expect_ok ztrbim_invoke_rbim "${z_info_dir}" rbim_image_info
+  but_expect_ok ztrbim_invoke_rbim "${z_info_dir}" rbim_image_info
 
   # Run image_info with filter (if images exist with 'test' in the name)
-  local z_info_filtered_dir="${BTU_TEMP_DIR}/image_info_filtered"
+  local z_info_filtered_dir="${BUT_TEMP_DIR}/image_info_filtered"
   mkdir -p "${z_info_filtered_dir}"
 
-  btu_info "Running image_info with filter 'test'"
-  btu_expect_ok ztrbim_invoke_rbim "${z_info_filtered_dir}" rbim_image_info "test"
+  but_info "Running image_info with filter 'test'"
+  but_expect_ok ztrbim_invoke_rbim "${z_info_filtered_dir}" rbim_image_info "test"
 
-  btu_info "Image info test completed successfully"
+  but_info "Image info test completed successfully"
 }
 
-btu_execute "$1" "trbim_case_" "$2"
+but_execute "$1" "trbim_case_" "$2"
 
 # eof
 

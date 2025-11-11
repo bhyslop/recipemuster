@@ -22,8 +22,8 @@ set -euo pipefail
 ZRBF_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBF_CLI_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBF_CLI_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
@@ -31,36 +31,36 @@ source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
 zrbf_furnish() {
-  bcu_doc_env "BDU_TEMP_DIR  " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  bcu_doc_env "BDU_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
+  buc_doc_env "BUD_TEMP_DIR  " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env "BUD_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
 
-  bcu_log_args 'Validate BDU environment'
-  bvu_dir_exists "${BDU_TEMP_DIR}"
-  test -n "${BDU_NOW_STAMP:-}" || bcu_die "BDU_NOW_STAMP is unset or empty"
+  buc_log_args 'Validate BUD environment'
+  buv_dir_exists "${BUD_TEMP_DIR}"
+  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP is unset or empty"
 
-  bcu_log_args 'Validate required tools'
-  command -v git >/dev/null 2>&1 || bcu_die "git not found - required for assuring controlled build context"
+  buc_log_args 'Validate required tools'
+  command -v git >/dev/null 2>&1 || buc_die "git not found - required for assuring controlled build context"
 
-  bcu_log_args 'Container runtime settings'
+  buc_log_args 'Container runtime settings'
   RBG_RUNTIME="${RBG_RUNTIME:-podman}"
   RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
 
-  bcu_log_args 'Use RBL to locate and source RBRR file'
+  buc_log_args 'Use RBL to locate and source RBRR file'
   zrbl_kindle
-  test -f "${RBL_RBRR_FILE}" || bcu_die "RBRR file not found: ${RBL_RBRR_FILE}"
-  source  "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR file"
+  test -f "${RBL_RBRR_FILE}" || buc_die "RBRR file not found: ${RBL_RBRR_FILE}"
+  source  "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR file"
 
-  bcu_log_args 'Validate RBRR variables using validator'
-  source "${ZRBF_CLI_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
+  buc_log_args 'Validate RBRR variables using validator'
+  source "${ZRBF_CLI_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to validate RBRR variables"
 
-  bcu_log_args 'Kindle modules in dependency order'
+  buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle
   zrbgd_kindle
   zrbgo_kindle
   zrbf_kindle
 }
 
-bcu_execute rbf_ "Recipe Bottle Foundry" zrbf_furnish "$@"
+buc_execute rbf_ "Recipe Bottle Foundry" zrbf_furnish "$@"
 
 # eof
 

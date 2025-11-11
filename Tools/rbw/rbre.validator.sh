@@ -19,15 +19,15 @@
 set -e
 
 ZRBRE_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRE_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBRE_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 
 # RBRE-specific environment variables
-bvu_env_string      RBRE_AWS_CREDENTIALS_ENV     1    255
-bvu_env_string      RBRE_AWS_ACCESS_KEY_ID      20     20
-bvu_env_string      RBRE_AWS_SECRET_ACCESS_KEY  40     40
-bvu_env_string      RBRE_AWS_ACCOUNT_ID         12     12
-bvu_env_string      RBRE_AWS_REGION              1     32
-bvu_env_xname       RBRE_REPOSITORY_NAME         2     64
+buv_env_string      RBRE_AWS_CREDENTIALS_ENV     1    255
+buv_env_string      RBRE_AWS_ACCESS_KEY_ID      20     20
+buv_env_string      RBRE_AWS_SECRET_ACCESS_KEY  40     40
+buv_env_string      RBRE_AWS_ACCOUNT_ID         12     12
+buv_env_string      RBRE_AWS_REGION              1     32
+buv_env_xname       RBRE_REPOSITORY_NAME         2     64
 
 # eof
 

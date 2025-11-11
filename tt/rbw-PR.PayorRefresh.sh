@@ -20,10 +20,10 @@
 
 set -euo pipefail
 
-# Get script directory and source BDU
+# Get script directory and source BUD
 RBW_PR_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "$RBW_PR_SCRIPT_DIR/../Tools/bdu_BashDispatchUtility.sh"
+source "$RBW_PR_SCRIPT_DIR/../Tools/bud_BashDispatchUtility.sh"
 
-bdu_main rbw-PR "$@"
+bud_main rbw-PR "$@"
 
 # eof

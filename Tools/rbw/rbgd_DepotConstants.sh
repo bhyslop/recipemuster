@@ -21,24 +21,24 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGD_SOURCED:-}" || bcu_die "Module rbgd multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGD_SOURCED:-}" || buc_die "Module rbgd multiply sourced - check sourcing hierarchy"
 ZRBGD_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgd_*)
 
 zrbgd_kindle() {
-  test -z "${ZRBGD_KINDLED:-}" || bcu_die "Module rbgd already kindled"
+  test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
 
   # Source and validate RBRR (Recipe Bottle Regime Repository) file
-  bcu_log_args 'Use RBL to locate and source RBRR file'
+  buc_log_args 'Use RBL to locate and source RBRR file'
   zrbl_sentinel
-  test -f "${RBL_RBRR_FILE}" || bcu_die "RBRR file not found: ${RBL_RBRR_FILE}"
-  source  "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR file"
+  test -f "${RBL_RBRR_FILE}" || buc_die "RBRR file not found: ${RBL_RBRR_FILE}"
+  source  "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR file"
 
-  bcu_log_args 'Validate RBRR variables using validator'
+  buc_log_args 'Validate RBRR variables using validator'
   ZRBGD_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-  source "${ZRBGD_SCRIPT_DIR}/rbrr.validator.sh" || bcu_die "Failed to validate RBRR variables"
+  source "${ZRBGD_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to validate RBRR variables"
 
   # Depot-specific Constants (require RBRR variables)
   RBGD_GCS_BUCKET="${RBRR_GCP_PROJECT_ID}-artifacts"
@@ -95,7 +95,7 @@ zrbgd_kindle() {
 }
 
 zrbgd_sentinel() {
-  test "${ZRBGD_KINDLED:-}" = "1" || bcu_die "Module rbgd not kindled - call zrbgd_kindle first"
+  test "${ZRBGD_KINDLED:-}" = "1" || buc_die "Module rbgd not kindled - call zrbgd_kindle first"
 }
 
 # eof

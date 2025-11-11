@@ -23,30 +23,30 @@ set -euo pipefail
 ZRBGM_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGM_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZRBGM_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBGM_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZRBGM_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
 
 zrbgm_furnish() {
 
-  bcu_doc_env "BDU_TEMP_DIR   " "Temporary directory for intermediate files"
-  bcu_doc_env "BDU_OUTPUT_DIR " "Directory for command outputs"
+  buc_doc_env "BUD_TEMP_DIR   " "Temporary directory for intermediate files"
+  buc_doc_env "BUD_OUTPUT_DIR " "Directory for command outputs"
 
   zrbl_kindle
 
-  bvu_file_exists "${RBL_RBRR_FILE}"
-  source          "${RBL_RBRR_FILE}" || bcu_die "Failed to source RBRR regime file"
+  buv_file_exists "${RBL_RBRR_FILE}"
+  source          "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR regime file"
 
-  bvu_file_exists "${RBL_RBRP_FILE}"
-  source          "${RBL_RBRP_FILE}" || bcu_die "Failed to source RBRP regime file"
+  buv_file_exists "${RBL_RBRP_FILE}"
+  source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 
   zrbgc_kindle
   zrbgm_kindle
 }
 
-bcu_execute rbgm_ "Manual Procedures" zrbgm_furnish "$@"
+buc_execute rbgm_ "Manual Procedures" zrbgm_furnish "$@"
 
 
 # eof

@@ -21,25 +21,25 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBI_SOURCED:-}" || bcu_die "Module rbi multiply sourced - check sourcing hierarchy"
+test -z "${ZRBI_SOURCED:-}" || buc_die "Module rbi multiply sourced - check sourcing hierarchy"
 ZRBI_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbi_*)
 
 zrbi_kindle() {
-  test -z "${ZRBI_KINDLED:-}" || bcu_die "Module rbi already kindled"
+  test -z "${ZRBI_KINDLED:-}" || buc_die "Module rbi already kindled"
 
   # Verify RBGO is available
-  test "${ZRBGO_KINDLED:-}" = "1" || bcu_die "Module rbgo not kindled - must kindle rbgo before rbi"
+  test "${ZRBGO_KINDLED:-}" = "1" || buc_die "Module rbgo not kindled - must kindle rbgo before rbi"
 
   # Check required environment
-  test -n "${RBRR_GAR_REPOSITORY:-}" || bcu_die "RBRR_GAR_REPOSITORY not set"
-  test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
+  test -n "${RBRR_GAR_REPOSITORY:-}" || buc_die "RBRR_GAR_REPOSITORY not set"
+  test -n "${BUD_TEMP_DIR:-}"        || buc_die "BUD_TEMP_DIR not set"
 
   # Verify GAR service account file is configured
-  test -n "${RBRR_RETRIEVER_RBRA_FILE:-}"   || bcu_die "RBRR_RETRIEVER_RBRA_FILE not set"
-  test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || bcu_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
+  test -n "${RBRR_RETRIEVER_RBRA_FILE:-}"   || buc_die "RBRR_RETRIEVER_RBRA_FILE not set"
+  test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || buc_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
 
   # Module Variables (ZRBI_*)
   ZRBI_REGISTRY_HOST="${RBGD_GAR_LOCATION}-docker.pkg.dev"
@@ -56,43 +56,43 @@ zrbi_kindle() {
   ZRBI_ACCEPT_MANIFEST_MTYPES="${ZRBI_MTYPE_DV2},${ZRBI_MTYPE_DLIST},${ZRBI_MTYPE_OCI},${ZRBI_MTYPE_OCM}"
 
   # File prefixes for all operations
-  ZRBI_MANIFEST_PREFIX="${BDU_TEMP_DIR}/rbi_manifest_"
-  ZRBI_CONFIG_PREFIX="${BDU_TEMP_DIR}/rbi_config_"
-  ZRBI_DETAIL_PREFIX="${BDU_TEMP_DIR}/rbi_detail_"
-  ZRBI_TOKEN_PREFIX="${BDU_TEMP_DIR}/rbi_token_"
-  ZRBI_TAGS_PREFIX="${BDU_TEMP_DIR}/rbi_tags_"
-  ZRBI_METADATA_PREFIX="${BDU_TEMP_DIR}/rbi_metadata_"
+  ZRBI_MANIFEST_PREFIX="${BUD_TEMP_DIR}/rbi_manifest_"
+  ZRBI_CONFIG_PREFIX="${BUD_TEMP_DIR}/rbi_config_"
+  ZRBI_DETAIL_PREFIX="${BUD_TEMP_DIR}/rbi_detail_"
+  ZRBI_TOKEN_PREFIX="${BUD_TEMP_DIR}/rbi_token_"
+  ZRBI_TAGS_PREFIX="${BUD_TEMP_DIR}/rbi_tags_"
+  ZRBI_METADATA_PREFIX="${BUD_TEMP_DIR}/rbi_metadata_"
 
   # Output files
-  ZRBI_IMAGE_RECORDS_FILE="${BDU_TEMP_DIR}/rbi_IMAGE_RECORDS.json"
-  ZRBI_IMAGE_DETAIL_FILE="${BDU_TEMP_DIR}/rbi_IMAGE_DETAILS.json"
-  ZRBI_IMAGE_STATS_FILE="${BDU_TEMP_DIR}/rbi_IMAGE_STATS.json"
-  ZRBI_FQIN_FILE="${BDU_TEMP_DIR}/rbi_FQIN.txt"
+  ZRBI_IMAGE_RECORDS_FILE="${BUD_TEMP_DIR}/rbi_IMAGE_RECORDS.json"
+  ZRBI_IMAGE_DETAIL_FILE="${BUD_TEMP_DIR}/rbi_IMAGE_DETAILS.json"
+  ZRBI_IMAGE_STATS_FILE="${BUD_TEMP_DIR}/rbi_IMAGE_STATS.json"
+  ZRBI_FQIN_FILE="${BUD_TEMP_DIR}/rbi_FQIN.txt"
   ZRBI_TOKEN_FILE="${ZRBI_TOKEN_PREFIX}access.txt"
-  ZRBI_METADATA_ARCHIVE="${BDU_TEMP_DIR}/rbi_metadata.tgz"
+  ZRBI_METADATA_ARCHIVE="${BUD_TEMP_DIR}/rbi_metadata.tgz"
 
   # File index counter
   ZRBI_FILE_INDEX=0
 
   # Initialize detail file
-  echo "[]" > "${ZRBI_IMAGE_DETAIL_FILE}" || bcu_die "Failed to initialize detail file"
+  echo "[]" > "${ZRBI_IMAGE_DETAIL_FILE}" || buc_die "Failed to initialize detail file"
 
   # Obtain initial OAuth token
-  zrbi_refresh_token || bcu_die "Cannot proceed without OAuth token"
+  zrbi_refresh_token || buc_die "Cannot proceed without OAuth token"
 
   ZRBI_KINDLED=1
 }
 
 zrbi_sentinel() {
-  test "${ZRBI_KINDLED:-}" = "1" || bcu_die "Module rbi not kindled - call zrbi_kindle first"
+  test "${ZRBI_KINDLED:-}" = "1" || buc_die "Module rbi not kindled - call zrbi_kindle first"
 }
 
 zrbi_refresh_token() {
   # No sentinel check - called from kindle before KINDLED=1
-  bcu_log_args "Obtaining OAuth token for GAR API"
+  buc_log_args "Obtaining OAuth token for GAR API"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_RETRIEVER_RBRA_FILE}") || bcu_die "Failed to get OAuth token from RBGO"
-  echo "${z_token}" > "${ZRBI_TOKEN_FILE}" || bcu_die "Failed to write token file"
+  z_token=$(rbgo_get_token_capture "${RBRR_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token from RBGO"
+  echo "${z_token}" > "${ZRBI_TOKEN_FILE}" || buc_die "Failed to write token file"
 }
 
 zrbi_get_next_index_capture() {
@@ -108,13 +108,13 @@ zrbi_curl_registry() {
   local z_url="$1"
   local z_token
   z_token=$(<"${ZRBI_TOKEN_FILE}")
-  test -n "${z_token}" || bcu_die "Token is empty"
+  test -n "${z_token}" || buc_die "Token is empty"
 
   curl -sL                                          \
       -H "Authorization: Bearer ${z_token}"         \
       -H "Accept: ${ZRBI_ACCEPT_MANIFEST_MTYPES}"   \
       "${z_url}"                                    \
-    || bcu_die "Registry API call failed: ${z_url}"
+    || buc_die "Registry API call failed: ${z_url}"
 }
 
 zrbi_process_single_manifest() {
@@ -126,34 +126,34 @@ zrbi_process_single_manifest() {
 
   # Get config digest
   local z_config_digest_file="${ZRBI_CONFIG_PREFIX}digest.txt"
-  jq -r '.config.digest' "${z_manifest_file}" > "${z_config_digest_file}" || bcu_die "Failed to extract config digest"
+  jq -r '.config.digest' "${z_manifest_file}" > "${z_config_digest_file}" || buc_die "Failed to extract config digest"
 
   local z_config_digest
   z_config_digest=$(<"${z_config_digest_file}")
-  test -n "${z_config_digest}" || bcu_die "Config digest is empty"
+  test -n "${z_config_digest}" || buc_die "Config digest is empty"
   test "${z_config_digest}" != "null" || {
-    bcu_warn "null config.digest in manifest"
+    buc_warn "null config.digest in manifest"
     return 0
   }
 
   # Fetch config blob
   local z_idx
-  z_idx=$(zrbi_get_next_index_capture) || bcu_die "Failed to get next index"
+  z_idx=$(zrbi_get_next_index_capture) || buc_die "Failed to get next index"
   local z_config_out="${ZRBI_CONFIG_PREFIX}${z_idx}.json"
 
   zrbi_curl_registry "${ZRBI_REGISTRY_API_BASE}/blobs/${z_config_digest}" > "${z_config_out}" \
-    || bcu_die "Failed to fetch config blob"
+    || buc_die "Failed to fetch config blob"
 
   # Validating config JSON
-  jq . "${z_config_out}" > /dev/null || bcu_die "Invalid config JSON"
+  jq . "${z_config_out}" > /dev/null || buc_die "Invalid config JSON"
 
   # Build detail entry
   local z_detail_idx
-  z_detail_idx=$(zrbi_get_next_index_capture) || bcu_die "Failed to get detail index"
+  z_detail_idx=$(zrbi_get_next_index_capture) || buc_die "Failed to get detail index"
   local z_temp_detail="${ZRBI_DETAIL_PREFIX}${z_detail_idx}.json"
 
   local z_manifest_json=$(<"${z_manifest_file}")
-  test -n "${z_manifest_json}" || bcu_die "Manifest JSON is empty"
+  test -n "${z_manifest_json}" || buc_die "Manifest JSON is empty"
 
   # Normalize config with defaults
   local z_config_normalized="${ZRBI_CONFIG_PREFIX}normalized_${z_idx}.json"
@@ -162,10 +162,10 @@ zrbi_process_single_manifest() {
         architecture: (.architecture // "unknown"),
         os: (.os // "unknown")
       }' "${z_config_out}" > "${z_config_normalized}" \
-    || bcu_die "Failed to normalize config"
+    || buc_die "Failed to normalize config"
 
   local z_config_json=$(<"${z_config_normalized}")
-  test -n "${z_config_json}" || bcu_die "Normalized config is empty"
+  test -n "${z_config_json}" || buc_die "Normalized config is empty"
 
   if test -n "${z_platform}"; then
     jq -n \
@@ -184,7 +184,7 @@ zrbi_process_single_manifest() {
           architecture: $config.architecture,
           os: $config.os
         }
-      }' > "${z_temp_detail}" || bcu_die "Failed to build platform detail"
+      }' > "${z_temp_detail}" || buc_die "Failed to build platform detail"
   else
     jq -n \
       --arg     tag      "${z_tag}"           \
@@ -200,15 +200,15 @@ zrbi_process_single_manifest() {
           architecture: $config.architecture,
           os: $config.os
         }
-      }' > "${z_temp_detail}" || bcu_die "Failed to build single detail"
+      }' > "${z_temp_detail}" || buc_die "Failed to build single detail"
   fi
 
   # Append to detail file
-  bcu_log_args "Merging image detail"
+  buc_log_args "Merging image detail"
   local    z_detail_tmp="${ZRBI_IMAGE_DETAIL_FILE}.tmp"
   jq -s '.[0] + [.[1]]' "${ZRBI_IMAGE_DETAIL_FILE}" "${z_temp_detail}" \
-    > "${z_detail_tmp}" || bcu_die "Failed to merge image detail"
-  mv  "${z_detail_tmp}" "${ZRBI_IMAGE_DETAIL_FILE}" || bcu_die "Failed to move detail file"
+    > "${z_detail_tmp}" || buc_die "Failed to merge image detail"
+  mv  "${z_detail_tmp}" "${ZRBI_IMAGE_DETAIL_FILE}" || buc_die "Failed to move detail file"
 }
 
 ######################################################################
@@ -218,31 +218,31 @@ rbi_list() {
   zrbi_sentinel
 
   # Documentation block
-  bcu_doc_brief "List all available image tags from registry"
-  bcu_doc_shown || return 0
+  buc_doc_brief "List all available image tags from registry"
+  buc_doc_shown || return 0
 
-  bcu_step "Fetching image tags from GAR"
+  buc_step "Fetching image tags from GAR"
 
   # GAR uses Docker Registry v2 API - list tags endpoint
   local z_tags_response="${ZRBI_TAGS_PREFIX}response.json"
 
   zrbi_curl_registry "${ZRBI_REGISTRY_API_BASE}/tags/list" > "${z_tags_response}" \
-    || bcu_die "Failed to fetch tags list"
+    || buc_die "Failed to fetch tags list"
 
   # Transform to records format
   jq -r --arg prefix "${ZRBI_REGISTRY_HOST}/${ZRBI_REGISTRY_PATH}" \
       '[.tags[] | {tag: ., fqin: ($prefix + "/" + .)}]'              \
       "${z_tags_response}" > "${ZRBI_IMAGE_RECORDS_FILE}"           \
-    || bcu_die "Failed to transform tags"
+    || buc_die "Failed to transform tags"
 
   local z_total_file="${ZRBI_TAGS_PREFIX}total.txt"
-  jq '. | length' "${ZRBI_IMAGE_RECORDS_FILE}" > "${z_total_file}" || bcu_die "Failed to count tags"
+  jq '. | length' "${ZRBI_IMAGE_RECORDS_FILE}" > "${z_total_file}" || buc_die "Failed to count tags"
 
   local z_total
   z_total=$(<"${z_total_file}")
-  test -n "${z_total}" || bcu_die "Total count is empty"
+  test -n "${z_total}" || buc_die "Total count is empty"
 
-  bcu_info "Retrieved ${z_total} total image records"
+  buc_info "Retrieved ${z_total} total image records"
 
   # Display tags to stdout
   echo "Repository: ${ZRBI_REGISTRY_HOST}/${ZRBI_REGISTRY_PATH}"
@@ -251,7 +251,7 @@ rbi_list() {
 
   test "${z_total}" -gt 20 && echo "... (showing 20 of ${z_total} tags)"
 
-  bcu_success "List complete - ${z_total} images"
+  buc_success "List complete - ${z_total} images"
 }
 
 rbi_show() {
@@ -260,66 +260,66 @@ rbi_show() {
   local z_tag="${1:-}"
 
   # Documentation block
-  bcu_doc_brief "Fetch and display manifest/config for an image tag"
-  bcu_doc_param "tag" "Image tag to fetch manifest for"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Fetch and display manifest/config for an image tag"
+  buc_doc_param "tag" "Image tag to fetch manifest for"
+  buc_doc_shown || return 0
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
-  bcu_step "Fetching manifest for: ${z_tag}"
+  buc_step "Fetching manifest for: ${z_tag}"
 
   local z_idx
-  z_idx=$(zrbi_get_next_index_capture) || bcu_die "Failed to get index"
+  z_idx=$(zrbi_get_next_index_capture) || buc_die "Failed to get index"
   local z_manifest_out="${ZRBI_MANIFEST_PREFIX}${z_idx}.json"
 
   zrbi_curl_registry "${ZRBI_REGISTRY_API_BASE}/manifests/${z_tag}" > "${z_manifest_out}" \
-    || bcu_die "Failed to fetch manifest for ${z_tag}"
+    || buc_die "Failed to fetch manifest for ${z_tag}"
 
-  jq . "${z_manifest_out}" >/dev/null || bcu_die "Invalid manifest JSON"
+  jq . "${z_manifest_out}" >/dev/null || buc_die "Invalid manifest JSON"
 
   local z_media_type_file="${ZRBI_MANIFEST_PREFIX}mediatype_${z_idx}.txt"
   jq -r '.mediaType // .schemaVersion' "${z_manifest_out}" > "${z_media_type_file}" \
-    || bcu_die "Failed to extract media type"
+    || buc_die "Failed to extract media type"
 
   local z_media_type=$(<"${z_media_type_file}")
-  test -n "${z_media_type}" || bcu_die "Failed to read or empty: ${z_media_type_file}"
+  test -n "${z_media_type}" || buc_die "Failed to read or empty: ${z_media_type_file}"
 
   if test "${z_media_type}" = "${ZRBI_MTYPE_DLIST}" || \
      test "${z_media_type}" = "${ZRBI_MTYPE_OCI}"; then
 
-    bcu_info "Multi-platform image detected"
+    buc_info "Multi-platform image detected"
 
     local z_manifests_file="${ZRBI_MANIFEST_PREFIX}list_${z_idx}.jsonl"
     jq -c '.manifests[]' "${z_manifest_out}" > "${z_manifests_file}" \
-      || bcu_die "Failed to extract manifests"
+      || buc_die "Failed to extract manifests"
 
     local z_platform_idx=0
     while IFS= read -r z_platform_manifest; do
       local z_platform_digest_file="${ZRBI_MANIFEST_PREFIX}digest_${z_platform_idx}.txt"
       jq -r '.digest' <<<"${z_platform_manifest}" > "${z_platform_digest_file}" \
-        || bcu_die "Failed to extract platform digest"
+        || buc_die "Failed to extract platform digest"
 
       local z_platform_digest=$(<"${z_platform_digest_file}")
-      test -n "${z_platform_digest}" || bcu_die "Failed to read or empty: ${z_platform_digest_file}"
+      test -n "${z_platform_digest}" || buc_die "Failed to read or empty: ${z_platform_digest_file}"
 
       local z_platform_info_file="${ZRBI_MANIFEST_PREFIX}info_${z_platform_idx}.txt"
       jq -r '"\(.platform.os)/\(.platform.architecture)"' <<<"${z_platform_manifest}" > "${z_platform_info_file}" \
-        || bcu_die "Failed to extract platform info"
+        || buc_die "Failed to extract platform info"
 
       local z_platform_info=$(<"${z_platform_info_file}")
-      test -n "${z_platform_info}" || bcu_die "Failed to read or empty: ${z_platform_info_file}"
+      test -n "${z_platform_info}" || buc_die "Failed to read or empty: ${z_platform_info_file}"
 
-      bcu_info "Processing platform: ${z_platform_info}"
+      buc_info "Processing platform: ${z_platform_info}"
 
       local z_platform_idx_str
-      z_platform_idx_str=$(zrbi_get_next_index_capture) || bcu_die "Failed to get platform index"
+      z_platform_idx_str=$(zrbi_get_next_index_capture) || buc_die "Failed to get platform index"
       local z_platform_out="${ZRBI_MANIFEST_PREFIX}${z_platform_idx_str}.json"
 
       zrbi_curl_registry "${ZRBI_REGISTRY_API_BASE}/manifests/${z_platform_digest}" \
-        > "${z_platform_out}" || bcu_die "Failed to fetch platform manifest"
+        > "${z_platform_out}" || buc_die "Failed to fetch platform manifest"
 
-      jq . "${z_platform_out}" > /dev/null || bcu_die "Invalid platform manifest JSON"
+      jq . "${z_platform_out}" > /dev/null || buc_die "Invalid platform manifest JSON"
 
       zrbi_process_single_manifest "${z_tag}" "${z_platform_out}" "${z_platform_info}"
 
@@ -327,16 +327,16 @@ rbi_show() {
     done < "${z_manifests_file}"
 
   else
-    bcu_info "Single platform image"
+    buc_info "Single platform image"
     zrbi_process_single_manifest "${z_tag}" "${z_manifest_out}" ""
   fi
 
   # Display summary
   echo "Image: ${z_tag}"
   echo "Details saved to: ${ZRBI_IMAGE_DETAIL_FILE}"
-  jq '.' "${ZRBI_IMAGE_DETAIL_FILE}" || bcu_warn "Failed to display details"
+  jq '.' "${ZRBI_IMAGE_DETAIL_FILE}" || buc_warn "Failed to display details"
 
-  bcu_success "Manifest and config retrieved"
+  buc_success "Manifest and config retrieved"
 }
 
 rbi_metadata() {
@@ -344,42 +344,42 @@ rbi_metadata() {
 
   local z_tag="${1:-}"
 
-  bcu_doc_brief "Download GAR build metadata archive for a tag"
-  bcu_doc_param "tag" "Image tag to fetch metadata for"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Download GAR build metadata archive for a tag"
+  buc_doc_param "tag" "Image tag to fetch metadata for"
+  buc_doc_shown || return 0
 
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Refresh token to avoid expiry
   zrbi_refresh_token
 
   local z_token
-  z_token=$(<"${ZRBI_TOKEN_FILE}") || bcu_die "Token read failed"
-  test -n "${z_token}" || bcu_die "Empty token"
+  z_token=$(<"${ZRBI_TOKEN_FILE}") || buc_die "Token read failed"
+  test -n "${z_token}" || buc_die "Empty token"
 
   local z_package_path="${ZRBI_GAR_API_BASE}/${ZRBI_GAR_PACKAGE_BASE}/packages/${z_tag}"
 
-  bcu_step "Downloading GAR metadata for: ${z_tag}"
+  buc_step "Downloading GAR metadata for: ${z_tag}"
   curl -s                                             \
        -H "Authorization: Bearer ${z_token}"          \
        "${z_package_path}/versions/metadata:download" \
        -o "${ZRBI_METADATA_ARCHIVE}"                  \
-    || bcu_die "Failed to download metadata"
+    || buc_die "Failed to download metadata"
 
-  test -f "${ZRBI_METADATA_ARCHIVE}" || bcu_die "Metadata archive not created"
-  test -s "${ZRBI_METADATA_ARCHIVE}" || bcu_die "Metadata archive is empty"
+  test -f "${ZRBI_METADATA_ARCHIVE}" || buc_die "Metadata archive not created"
+  test -s "${ZRBI_METADATA_ARCHIVE}" || buc_die "Metadata archive is empty"
 
   local z_extract_dir="${ZRBI_METADATA_PREFIX}${z_tag}"
-  rm -rf "${z_extract_dir}" || bcu_warn "Failed to clean previous extract dir"
-  mkdir -p "${z_extract_dir}" || bcu_die "Failed to create extract directory"
-  tar -xzf "${ZRBI_METADATA_ARCHIVE}" -C "${z_extract_dir}" || bcu_die "Failed to extract metadata"
+  rm -rf "${z_extract_dir}" || buc_warn "Failed to clean previous extract dir"
+  mkdir -p "${z_extract_dir}" || buc_die "Failed to create extract directory"
+  tar -xzf "${ZRBI_METADATA_ARCHIVE}" -C "${z_extract_dir}" || buc_die "Failed to extract metadata"
 
   if test -f "${z_extract_dir}/package_summary.txt"; then
-    bcu_info "Top packages in image:"
-    head -5 "${z_extract_dir}/package_summary.txt" || bcu_warn "Failed to show package summary"
+    buc_info "Top packages in image:"
+    head -5 "${z_extract_dir}/package_summary.txt" || buc_warn "Failed to show package summary"
   fi
 
-  bcu_success "Metadata retrieved to ${z_extract_dir}"
+  buc_success "Metadata retrieved to ${z_extract_dir}"
 }
 
 rbi_fqin() {
@@ -388,21 +388,21 @@ rbi_fqin() {
   local z_tag="${1:-}"
 
   # Documentation block
-  bcu_doc_brief "Create fully qualified image name"
-  bcu_doc_param "tag" "Image tag to qualify"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Create fully qualified image name"
+  buc_doc_param "tag" "Image tag to qualify"
+  buc_doc_shown || return 0
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_die "Tag parameter required"
+  test -n "${z_tag}" || buc_die "Tag parameter required"
 
   # Write FQIN to file
   local z_fqin="${ZRBI_REGISTRY_HOST}/${ZRBI_REGISTRY_PATH}/${z_tag}"
-  echo "${z_fqin}" > "${ZRBI_FQIN_FILE}" || bcu_die "Failed to write FQIN"
+  echo "${z_fqin}" > "${ZRBI_FQIN_FILE}" || buc_die "Failed to write FQIN"
 
   # Also output to stdout for direct use
   echo "${z_fqin}"
 
-  bcu_success "FQIN generated"
+  buc_success "FQIN generated"
 }
 
 # eof

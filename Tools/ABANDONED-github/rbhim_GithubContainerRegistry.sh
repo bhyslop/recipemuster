@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHIM_INCLUDED:-}" || bcu_die "Module rbhim multiply included - check sourcing hierarchy"
+test -z "${ZRBHIM_INCLUDED:-}" || buc_die "Module rbhim multiply included - check sourcing hierarchy"
 ZRBHIM_INCLUDED=1
 
 ######################################################################
@@ -19,7 +19,7 @@ zrbhim_kindle() {
 }
 
 zrbhim_sentinel() {
-  test "${ZRBHIM_KINDLED:-}" = "1" || bcu_die "Module rbhim not kindled - call zrbhim_kindle first"
+  test "${ZRBHIM_KINDLED:-}" = "1" || buc_die "Module rbhim not kindled - call zrbhim_kindle first"
 }
 
 ######################################################################
@@ -30,42 +30,42 @@ rbhim_build() {
   local z_recipe_file="${1:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Build image from recipe"
-  bcu_doc_param "recipe_file" "Path to recipe file containing build instructions"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Build image from recipe"
+  buc_doc_param "recipe_file" "Path to recipe file containing build instructions"
+  buc_doc_shown || return 0
 
   # Ensure module started
   zrbhim_sentinel
 
   # Validate parameters
-  test -n "${z_recipe_file}" || bcu_usage_die
-  test -f "${z_recipe_file}" || bcu_die "Recipe file not found: ${z_recipe_file}"
+  test -n "${z_recipe_file}" || buc_usage_die
+  test -f "${z_recipe_file}" || buc_die "Recipe file not found: ${z_recipe_file}"
 
   # Validate recipe basename
   local z_recipe_basename
   z_recipe_basename=$(basename "${z_recipe_file}")
   echo "${z_recipe_basename}" | grep -q '[A-Z]' && \
-    bcu_die "Basename of '${z_recipe_file}' contains uppercase letters so cannot use in image name"
+    buc_die "Basename of '${z_recipe_file}' contains uppercase letters so cannot use in image name"
 
   # Perform command
-  bcu_step "Build image from ${z_recipe_file}"
+  buc_step "Build image from ${z_recipe_file}"
 
   rbgh_check_git_status
   rbgh_build_workflow "${z_recipe_file}"
 
-  bcu_success "No errors."
+  buc_success "No errors."
 }
 
 rbhim_list() {
   # Handle documentation mode
-  bcu_doc_brief "List registry images"
-  bcu_doc_shown || return 0
+  buc_doc_brief "List registry images"
+  buc_doc_shown || return 0
 
   # Ensure module started
   zrbhim_sentinel
 
   # Perform command
-  bcu_step "List Current Registry Images"
+  buc_step "List Current Registry Images"
 
   # Get all image records
   rbcr_list_tags
@@ -74,7 +74,7 @@ rbhim_list() {
   local z_records_file="${ZRBCR_IMAGE_RECORDS_FILE}"
 
   echo "Package: ${RBRR_REGISTRY_NAME}"
-  echo -e "${ZBCU_YELLOW}    https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}${ZBCU_RESET}"
+  echo -e "${ZBUC_YELLOW}    https://github.com/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}/pkgs/container/${RBRR_REGISTRY_NAME}${ZBUC_RESET}"
   echo "Versions:"
 
   printf "%-13s %-70s\n" "Version ID" "Fully Qualified Image Name"
@@ -84,13 +84,13 @@ rbhim_list() {
     printf "%-13s %s\n" "$id" "${fqin}"
   done
 
-  echo "${ZBCU_RESET}"
+  echo "${ZBUC_RESET}"
 
   local z_total
   z_total=$(jq '. | length' "${z_records_file}")
-  bcu_info "Total image versions: ${z_total}"
+  buc_info "Total image versions: ${z_total}"
 
-  bcu_success "No errors."
+  buc_success "No errors."
 }
 
 rbhim_delete() {
@@ -98,31 +98,31 @@ rbhim_delete() {
   local z_fqin="${1:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Delete image from registry and clean orphans"
-  bcu_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Delete image from registry and clean orphans"
+  buc_doc_param "fqin" "Fully qualified image name (e.g., ghcr.io/owner/repo:tag)"
+  buc_doc_shown || return 0
 
   # Ensure module started
   zrbhim_sentinel
 
   # Validate parameters
-  test -n "${z_fqin}" || bcu_usage_die
-  bvu_val_fqin "fqin" "${z_fqin}" 1 512
+  test -n "${z_fqin}" || buc_usage_die
+  buv_val_fqin "fqin" "${z_fqin}" 1 512
 
   # Perform command
-  bcu_step "Delete image from registry"
+  buc_step "Delete image from registry"
 
   rbgh_check_git_status
 
   # Confirm deletion unless skipped
   if test "${RBG_ARG_SKIP_DELETE_CONFIRMATION:-}" != "SKIP"; then
-    bcu_warn "BE AWARE THAT GHCR DELETIONS CAN DAMAGE OTHER IMAGES."
-    bcu_require "Confirm delete image ${z_fqin}?" "YES"
+    buc_warn "BE AWARE THAT GHCR DELETIONS CAN DAMAGE OTHER IMAGES."
+    buc_require "Confirm delete image ${z_fqin}?" "YES"
   fi
 
   rbgh_delete_workflow "${z_fqin}"
 
-  bcu_success "No errors."
+  buc_success "No errors."
 }
 
 rbhim_retrieve() {
@@ -130,23 +130,23 @@ rbhim_retrieve() {
   local z_tag="${1:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Pull image from registry"
-  bcu_doc_param "tag" "Image tag"
-  bcu_doc_shown || return 0
+  buc_doc_brief "Pull image from registry"
+  buc_doc_param "tag" "Image tag"
+  buc_doc_shown || return 0
 
   # Ensure module started
   zrbhim_sentinel
 
   # Validate parameters
-  test -n "${z_tag}" || bcu_usage_die
-  bvu_val_string "tag" "${z_tag}" 1 256
+  test -n "${z_tag}" || buc_usage_die
+  buv_val_string "tag" "${z_tag}" 1 256
 
   # Perform command
-  bcu_step "Pull image from registry"
+  buc_step "Pull image from registry"
 
   rbcr_pull "${z_tag}"
 
-  bcu_success "No errors."
+  buc_success "No errors."
 }
 
 rbhim_image_info() {
@@ -154,18 +154,18 @@ rbhim_image_info() {
   local z_filter="${1:-}"
 
   # Handle documentation mode
-  bcu_doc_brief "Extracts per-image and per-layer info from registry tags"
-  bcu_doc_lines \
+  buc_doc_brief "Extracts per-image and per-layer info from registry tags"
+  buc_doc_lines \
     "Creates image detail entries for each tag/platform combination, extracts creation date," \
     "layers, and layer sizes. Handles both single and multi-platform images."
-  bcu_doc_oparm "filter" "only process tags containing this string, if provided"
-  bcu_doc_shown || return 0
+  buc_doc_oparm "filter" "only process tags containing this string, if provided"
+  buc_doc_shown || return 0
 
   # Ensure module started
   zrbhim_sentinel
 
   # Perform command
-  bcu_step "Analyzing image information"
+  buc_step "Analyzing image information"
 
   # Get all tags
   rbcr_list_tags
@@ -177,17 +177,17 @@ rbhim_image_info() {
   for z_tag in $(jq -r '.[].tag' "${ZRBCR_IMAGE_RECORDS_FILE}" | sort -u); do
 
     if test -n "${z_filter}" && [[ "${z_tag}" != *"${z_filter}"* ]]; then
-      bcu_info "Skipping tag: ${z_tag}"
+      buc_info "Skipping tag: ${z_tag}"
       continue
     fi
 
-    bcu_step "Processing tag: ${z_tag}"
+    buc_step "Processing tag: ${z_tag}"
     rbcr_get_manifest "${z_tag}"
 
   done
 
   # Generate statistics
-  bcu_step "Generating layer statistics"
+  buc_step "Generating layer statistics"
 
   jq '
     .[]
@@ -212,10 +212,10 @@ rbhim_image_info() {
         tag_details: map({tag: .tag, count: .count})
       })
     | sort_by(-.size)
-  ' > "${ZRBCR_IMAGE_STATS_FILE}" || bcu_die "Failed to generate statistics"
+  ' > "${ZRBCR_IMAGE_STATS_FILE}" || buc_die "Failed to generate statistics"
 
   # Display results
-  bcu_step "Listing layers per tag..."
+  buc_step "Listing layers per tag..."
   jq -r '
     .[] |
     "\nTag: \(.tag)" +
@@ -228,14 +228,14 @@ rbhim_image_info() {
     ) | join(""))
   ' "${ZRBCR_IMAGE_DETAIL_FILE}"
 
-  bcu_step "Listing shared layers and the tags that use them..."
+  buc_step "Listing shared layers and the tags that use them..."
   jq -r '
     .[] | select(.tag_count > 1 or .total_usage > 1) |
     "Layer: \(.digest[0:19])... (used by \(.tag_count) tag(s), \(.size) bytes)\n" +
     (.tag_details | map("  - \(.tag)" + if .count > 1 then " (\(.count) times)" else "" end) | join("\n"))
   ' "${ZRBCR_IMAGE_STATS_FILE}"
 
-  bcu_step "Rendering layer usage summary..."
+  buc_step "Rendering layer usage summary..."
   local z_total_bytes=0
   local z_total_layers=0
 
@@ -259,7 +259,7 @@ rbhim_image_info() {
     printf "Total deduplicated size: %d MB\n" "$((z_total_bytes / 1024 / 1024))"
   fi
 
-  bcu_success "No errors."
+  buc_success "No errors."
 }
 
 # eof

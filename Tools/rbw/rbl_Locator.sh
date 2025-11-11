@@ -6,17 +6,17 @@
 
 set -euo pipefail
 
-test -z "${ZRBL_SOURCED:-}" || bcu_die "Module rbl multiply sourced - check sourcing hierarchy"
+test -z "${ZRBL_SOURCED:-}" || buc_die "Module rbl multiply sourced - check sourcing hierarchy"
 ZRBL_SOURCED=1
 
 zrbl_kindle() {
-  test -z "${ZRBL_KINDLED:-}" || bcu_die "Module rbl already kindled"
+  test -z "${ZRBL_KINDLED:-}" || buc_die "Module rbl already kindled"
 
-  bcu_log_args "Validate required tools"
-  command -v openssl >/dev/null 2>&1 || bcu_die "openssl not found - required for JWT signing"
-  command -v curl    >/dev/null 2>&1 || bcu_die "curl not found - required for OAuth exchange"
-  command -v base64  >/dev/null 2>&1 || bcu_die "base64 not found - required for encoding"
-  command -v jq      >/dev/null 2>&1 || bcu_die "jq not found - required for JSON parsing"
+  buc_log_args "Validate required tools"
+  command -v openssl >/dev/null 2>&1 || buc_die "openssl not found - required for JWT signing"
+  command -v curl    >/dev/null 2>&1 || buc_die "curl not found - required for OAuth exchange"
+  command -v base64  >/dev/null 2>&1 || buc_die "base64 not found - required for encoding"
+  command -v jq      >/dev/null 2>&1 || buc_die "jq not found - required for JSON parsing"
 
   # ITCH_BASH_BASENAME
   ZRBL_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
@@ -31,7 +31,7 @@ zrbl_kindle() {
 }
 
 zrbl_sentinel() {
-  test "${ZRBL_KINDLED:-}" = "1" || bcu_die "Module rbl not kindled - call zrbl_kindle first"
+  test "${ZRBL_KINDLED:-}" = "1" || buc_die "Module rbl not kindled - call zrbl_kindle first"
 }
 
 # eof

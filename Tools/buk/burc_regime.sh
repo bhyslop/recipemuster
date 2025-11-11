@@ -24,14 +24,14 @@ set -euo pipefail
 ZBURC_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZBURC_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZBURC_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZBURC_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZBURC_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 
 # Module state
 ZBURC_KINDLED=""
 
 zburc_kindle() {
-  test -z "${ZBURC_KINDLED:-}" || bcu_die "zburc_kindle: already kindled"
+  test -z "${ZBURC_KINDLED:-}" || buc_die "zburc_kindle: already kindled"
 
   ZBURC_SPEC_FILE="${ZBURC_SCRIPT_DIR}/burc_specification.md"
   ZBURC_SPEC_FILE_ABSOLUTE="$(cd "${ZBURC_SCRIPT_DIR}" && pwd)/burc_specification.md"
@@ -40,7 +40,7 @@ zburc_kindle() {
 }
 
 zburc_sentinel() {
-  test "${ZBURC_KINDLED:-}" = "1" || bcu_die "zburc_sentinel: not kindled"
+  test "${ZBURC_KINDLED:-}" = "1" || buc_die "zburc_sentinel: not kindled"
 }
 
 # Predicate: validate loaded BURC variables (returns 0=valid, 1=invalid, no output)
@@ -68,23 +68,23 @@ burc_validate() {
   zburc_sentinel
 
   local z_file="${1:-}"
-  test -n "${z_file}" || bcu_die "burc_validate: file argument required"
-  test -f "${z_file}" || bcu_die "burc_validate: file not found: ${z_file}"
+  test -n "${z_file}" || buc_die "burc_validate: file argument required"
+  test -f "${z_file}" || buc_die "burc_validate: file not found: ${z_file}"
 
-  bcu_step "Validating BURC assignment file: ${z_file}"
+  buc_step "Validating BURC assignment file: ${z_file}"
 
   # Source the assignment file
   # shellcheck disable=SC1090
-  source "${z_file}" || bcu_die "burc_validate: failed to source ${z_file}"
+  source "${z_file}" || buc_die "burc_validate: failed to source ${z_file}"
 
   # Run validation predicate
   if ! zburc_validate_predicate; then
-    bcu_log_burc "Validation failed"
+    buc_log_burc "Validation failed"
     burc_info
-    bcu_die "BURC validation failed for ${z_file}"
+    buc_die "BURC validation failed for ${z_file}"
   fi
 
-  bcu_step "BURC configuration valid"
+  buc_step "BURC configuration valid"
 }
 
 # Command: render - display configuration values
@@ -92,14 +92,14 @@ burc_render() {
   zburc_sentinel
 
   local z_file="${1:-}"
-  test -n "${z_file}" || bcu_die "burc_render: file argument required"
-  test -f "${z_file}" || bcu_die "burc_render: file not found: ${z_file}"
+  test -n "${z_file}" || buc_die "burc_render: file argument required"
+  test -f "${z_file}" || buc_die "burc_render: file not found: ${z_file}"
 
-  bcu_step "BURC Configuration: ${z_file}"
+  buc_step "BURC Configuration: ${z_file}"
 
   # Source the assignment file
   # shellcheck disable=SC1090
-  source "${z_file}" || bcu_die "burc_render: failed to source ${z_file}"
+  source "${z_file}" || buc_die "burc_render: failed to source ${z_file}"
 
   # Render with aligned columns
   printf "%-25s %s\n" "BURC_STATION_FILE" "${BURC_STATION_FILE:-<not set>}"
@@ -118,63 +118,63 @@ burc_info() {
 
   # Source BCU for colors
   # shellcheck disable=SC1091
-  source "${ZBURC_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+  source "${ZBURC_SCRIPT_DIR}/buc_BashCommandUtility.sh"
 
   cat <<EOF
 
-${ZBCU_CYAN}========================================${ZBCU_RESET}
-${ZBCU_WHITE}BURC - Bash Utility Regime Configuration${ZBCU_RESET}
-${ZBCU_CYAN}========================================${ZBCU_RESET}
+${ZBUC_CYAN}========================================${ZBUC_RESET}
+${ZBUC_WHITE}BURC - Bash Utility Regime Configuration${ZBUC_RESET}
+${ZBUC_CYAN}========================================${ZBUC_RESET}
 
-${ZBCU_YELLOW}Overview${ZBCU_RESET}
+${ZBUC_YELLOW}Overview${ZBUC_RESET}
 Project-level configuration that defines repository structure for BUK.
 Checked into git and shared by all developers on the team.
 
-${ZBCU_YELLOW}Variables${ZBCU_RESET}
+${ZBUC_YELLOW}Variables${ZBUC_RESET}
 
-  ${ZBCU_GREEN}BURC_STATION_FILE${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_STATION_FILE${ZBUC_RESET}
     Path to developer's BURS file (relative to project root)
     Type: string
     Example: ../station-files/burs.env
 
-  ${ZBCU_GREEN}BURC_TABTARGET_DIR${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_TABTARGET_DIR${ZBUC_RESET}
     Directory containing tabtarget scripts
     Type: string
     Example: tt
 
-  ${ZBCU_GREEN}BURC_TABTARGET_DELIMITER${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_TABTARGET_DELIMITER${ZBUC_RESET}
     Token separator in tabtarget filenames
     Type: string
     Example: .
 
-  ${ZBCU_GREEN}BURC_TOOLS_DIR${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_TOOLS_DIR${ZBUC_RESET}
     Directory containing tool scripts
     Type: string
     Example: Tools
 
-  ${ZBCU_GREEN}BURC_TEMP_ROOT_DIR${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_TEMP_ROOT_DIR${ZBUC_RESET}
     Parent directory for temp directories
     Type: string
     Example: ../temp-buk
 
-  ${ZBCU_GREEN}BURC_OUTPUT_ROOT_DIR${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_OUTPUT_ROOT_DIR${ZBUC_RESET}
     Parent directory for output directories
     Type: string
     Example: ../output-buk
 
-  ${ZBCU_GREEN}BURC_LOG_LAST${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_LOG_LAST${ZBUC_RESET}
     Basename for "last run" log file
     Type: xname
     Example: last
 
-  ${ZBCU_GREEN}BURC_LOG_EXT${ZBCU_RESET}
+  ${ZBUC_GREEN}BURC_LOG_EXT${ZBUC_RESET}
     Extension for log files (without dot)
     Type: xname
     Example: txt
 
 EOF
 
-  printf "${ZBCU_CYAN}For full specification, see: \033]8;;file://${ZBURC_SPEC_FILE_ABSOLUTE}\033\\${ZBURC_SPEC_FILE}\033]8;;\033\\${ZBCU_RESET}\n"
+  printf "${ZBUC_CYAN}For full specification, see: \033]8;;file://${ZBURC_SPEC_FILE_ABSOLUTE}\033\\${ZBURC_SPEC_FILE}\033]8;;\033\\${ZBUC_RESET}\n"
 }
 
 # Main dispatch
@@ -195,6 +195,6 @@ case "${z_command}" in
     burc_info
     ;;
   *)
-    bcu_die "Unknown command: ${z_command}. Usage: burc_regime.sh {validate|render|info} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: burc_regime.sh {validate|render|info} [args]"
     ;;
 esac

@@ -19,45 +19,45 @@
 set -e
 
 ZRBRN_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRN_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBRN_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 
-bvu_env_xname       RBRN_MONIKER                 2     12
-bvu_env_string      RBRN_DESCRIPTION             0    120
-bvu_env_fqin        RBRN_SENTRY_REPO_PATH        1    128
-bvu_env_fqin        RBRN_BOTTLE_REPO_PATH        1    128
-bvu_env_fqin        RBRN_SENTRY_IMAGE_TAG        1    128
-bvu_env_fqin        RBRN_BOTTLE_IMAGE_TAG        1    128
-bvu_env_bool        RBRN_ENTRY_ENABLED
+buv_env_xname       RBRN_MONIKER                 2     12
+buv_env_string      RBRN_DESCRIPTION             0    120
+buv_env_fqin        RBRN_SENTRY_REPO_PATH        1    128
+buv_env_fqin        RBRN_BOTTLE_REPO_PATH        1    128
+buv_env_fqin        RBRN_SENTRY_IMAGE_TAG        1    128
+buv_env_fqin        RBRN_BOTTLE_IMAGE_TAG        1    128
+buv_env_bool        RBRN_ENTRY_ENABLED
 
-bvu_env_ipv4        RBRN_ENCLAVE_BASE_IP
-bvu_env_decimal     RBRN_ENCLAVE_NETMASK         8     30
-bvu_env_ipv4        RBRN_ENCLAVE_SENTRY_IP
-bvu_env_ipv4        RBRN_ENCLAVE_BOTTLE_IP
+buv_env_ipv4        RBRN_ENCLAVE_BASE_IP
+buv_env_decimal     RBRN_ENCLAVE_NETMASK         8     30
+buv_env_ipv4        RBRN_ENCLAVE_SENTRY_IP
+buv_env_ipv4        RBRN_ENCLAVE_BOTTLE_IP
 
-bvu_env_port        RBRN_UPLINK_PORT_MIN
-bvu_env_bool        RBRN_UPLINK_DNS_ENABLED
-bvu_env_bool        RBRN_UPLINK_ACCESS_ENABLED
-bvu_env_bool        RBRN_UPLINK_DNS_GLOBAL
-bvu_env_bool        RBRN_UPLINK_ACCESS_GLOBAL
+buv_env_port        RBRN_UPLINK_PORT_MIN
+buv_env_bool        RBRN_UPLINK_DNS_ENABLED
+buv_env_bool        RBRN_UPLINK_ACCESS_ENABLED
+buv_env_bool        RBRN_UPLINK_DNS_GLOBAL
+buv_env_bool        RBRN_UPLINK_ACCESS_GLOBAL
 
 if [[ $RBRN_ENTRY_ENABLED == 1 ]]; then
-    bvu_env_port    RBRN_ENTRY_PORT_WORKSTATION
-    bvu_env_port    RBRN_ENTRY_PORT_ENCLAVE
+    buv_env_port    RBRN_ENTRY_PORT_WORKSTATION
+    buv_env_port    RBRN_ENTRY_PORT_ENCLAVE
 
     test       ${RBRN_ENTRY_PORT_WORKSTATION}        -lt     ${RBRN_UPLINK_PORT_MIN} || \
-        bcu_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
+        buc_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
     test       ${RBRN_ENTRY_PORT_ENCLAVE}        -lt     ${RBRN_UPLINK_PORT_MIN} || \
-        bcu_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
+        buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
 fi
 
 if [[ ${RBRN_UPLINK_ACCESS_ENABLED} == 1 && ${RBRN_UPLINK_ACCESS_GLOBAL} == 0 ]]; then
-    bvu_env_list_cidr RBRN_UPLINK_ALLOWED_CIDRS
+    buv_env_list_cidr RBRN_UPLINK_ALLOWED_CIDRS
 fi
 if [[ ${RBRN_UPLINK_DNS_ENABLED} == 1 && ${RBRN_UPLINK_DNS_GLOBAL} == 0 ]]; then
-    bvu_env_list_domain RBRN_UPLINK_ALLOWED_DOMAINS
+    buv_env_list_domain RBRN_UPLINK_ALLOWED_DOMAINS
 fi
 
-bvu_env_string      RBRN_VOLUME_MOUNTS 0 240
+buv_env_string      RBRN_VOLUME_MOUNTS 0 240
 
 # eof
 

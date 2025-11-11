@@ -24,14 +24,14 @@ set -euo pipefail
 ZBURS_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZBURS_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
-source "${ZBURS_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZBURS_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${ZBURS_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 
 # Module state
 ZBURS_KINDLED=""
 
 zburs_kindle() {
-  test -z "${ZBURS_KINDLED:-}" || bcu_die "zburs_kindle: already kindled"
+  test -z "${ZBURS_KINDLED:-}" || buc_die "zburs_kindle: already kindled"
 
   ZBURS_SPEC_FILE="${ZBURS_SCRIPT_DIR}/burs_specification.md"
 
@@ -39,7 +39,7 @@ zburs_kindle() {
 }
 
 zburs_sentinel() {
-  test "${ZBURS_KINDLED:-}" = "1" || bcu_die "zburs_sentinel: not kindled"
+  test "${ZBURS_KINDLED:-}" = "1" || buc_die "zburs_sentinel: not kindled"
 }
 
 # Predicate: validate loaded BURS variables (returns 0=valid, 1=invalid, no output)
@@ -57,23 +57,23 @@ burs_validate() {
   zburs_sentinel
 
   local z_file="${1:-}"
-  test -n "${z_file}" || bcu_die "burs_validate: file argument required"
-  test -f "${z_file}" || bcu_die "burs_validate: file not found: ${z_file}"
+  test -n "${z_file}" || buc_die "burs_validate: file argument required"
+  test -f "${z_file}" || buc_die "burs_validate: file not found: ${z_file}"
 
-  bcu_step "Validating BURS assignment file: ${z_file}"
+  buc_step "Validating BURS assignment file: ${z_file}"
 
   # Source the assignment file
   # shellcheck disable=SC1090
-  source "${z_file}" || bcu_die "burs_validate: failed to source ${z_file}"
+  source "${z_file}" || buc_die "burs_validate: failed to source ${z_file}"
 
   # Run validation predicate
   if ! zburs_validate_predicate; then
-    bcu_log_burs "Validation failed"
+    buc_log_burs "Validation failed"
     burs_info
-    bcu_die "BURS validation failed for ${z_file}"
+    buc_die "BURS validation failed for ${z_file}"
   fi
 
-  bcu_step "BURS configuration valid"
+  buc_step "BURS configuration valid"
 }
 
 # Command: render - display configuration values
@@ -81,14 +81,14 @@ burs_render() {
   zburs_sentinel
 
   local z_file="${1:-}"
-  test -n "${z_file}" || bcu_die "burs_render: file argument required"
-  test -f "${z_file}" || bcu_die "burs_render: file not found: ${z_file}"
+  test -n "${z_file}" || buc_die "burs_render: file argument required"
+  test -f "${z_file}" || buc_die "burs_render: file not found: ${z_file}"
 
-  bcu_step "BURS Configuration: ${z_file}"
+  buc_step "BURS Configuration: ${z_file}"
 
   # Source the assignment file
   # shellcheck disable=SC1090
-  source "${z_file}" || bcu_die "burs_render: failed to source ${z_file}"
+  source "${z_file}" || buc_die "burs_render: failed to source ${z_file}"
 
   # Render with aligned columns
   printf "%-25s %s\n" "BURS_LOG_DIR" "${BURS_LOG_DIR:-<not set>}"
@@ -100,26 +100,26 @@ burs_info() {
 
   # Source BCU for colors
   # shellcheck disable=SC1091
-  source "${ZBURS_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+  source "${ZBURS_SCRIPT_DIR}/buc_BashCommandUtility.sh"
 
   cat <<EOF
 
-${ZBCU_CYAN}========================================${ZBCU_RESET}
-${ZBCU_WHITE}BURS - Bash Utility Regime Station${ZBCU_RESET}
-${ZBCU_CYAN}========================================${ZBCU_RESET}
+${ZBUC_CYAN}========================================${ZBUC_RESET}
+${ZBUC_WHITE}BURS - Bash Utility Regime Station${ZBUC_RESET}
+${ZBUC_CYAN}========================================${ZBUC_RESET}
 
-${ZBCU_YELLOW}Overview${ZBCU_RESET}
+${ZBUC_YELLOW}Overview${ZBUC_RESET}
 Developer/machine-level configuration for personal preferences.
 NOT checked into git - each developer has their own BURS file.
 
-${ZBCU_YELLOW}Variables${ZBCU_RESET}
+${ZBUC_YELLOW}Variables${ZBUC_RESET}
 
-  ${ZBCU_GREEN}BURS_LOG_DIR${ZBCU_RESET}
+  ${ZBUC_GREEN}BURS_LOG_DIR${ZBUC_RESET}
     Where this developer stores logs
     Type: string
     Example: ../_logs_buk
 
-${ZBCU_CYAN}For full specification, see: ${ZBURS_SPEC_FILE}${ZBCU_RESET}
+${ZBUC_CYAN}For full specification, see: ${ZBURS_SPEC_FILE}${ZBUC_RESET}
 
 EOF
 }
@@ -142,6 +142,6 @@ case "${z_command}" in
     burs_info
     ;;
   *)
-    bcu_die "Unknown command: ${z_command}. Usage: burs_regime.sh {validate|render|info} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: burs_regime.sh {validate|render|info} [args]"
     ;;
 esac

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHH_INCLUDED:-}" || bcu_die "Module rbhh multiply included - check sourcing hierarchy"
+test -z "${ZRBHH_INCLUDED:-}" || buc_die "Module rbhh multiply included - check sourcing hierarchy"
 ZRBHH_INCLUDED=1
 
 ######################################################################
@@ -15,19 +15,19 @@ ZRBHH_INCLUDED=1
 
 zrbhh_kindle() {
   # Check required environment
-  test -n "${RBRR_REGISTRY_OWNER:-}" || bcu_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}"  || bcu_die "RBRR_REGISTRY_NAME not set"
-  test -n "${RBRR_HISTORY_DIR:-}"    || bcu_die "RBRR_HISTORY_DIR not set"
-  test -n "${BDU_TEMP_DIR:-}"        || bcu_die "BDU_TEMP_DIR not set"
+  test -n "${RBRR_REGISTRY_OWNER:-}" || buc_die "RBRR_REGISTRY_OWNER not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"  || buc_die "RBRR_REGISTRY_NAME not set"
+  test -n "${RBRR_HISTORY_DIR:-}"    || buc_die "RBRR_HISTORY_DIR not set"
+  test -n "${BUD_TEMP_DIR:-}"        || buc_die "BUD_TEMP_DIR not set"
 
   # Module Variables (ZRBHH_*)
-  ZRBHH_BUILD_DIR_LATEST_FILE="${BDU_TEMP_DIR}/latest_build_dir.txt"
+  ZRBHH_BUILD_DIR_LATEST_FILE="${BUD_TEMP_DIR}/latest_build_dir.txt"
 
   ZRBHH_KINDLED=1
 }
 
 zrbhh_sentinel() {
-  test "${ZRBHH_KINDLED:-}" = "1" || bcu_die "Module rbhh not kindled - call zrbhh_kindle first"
+  test "${ZRBHH_KINDLED:-}" = "1" || buc_die "Module rbhh not kindled - call zrbhh_kindle first"
 }
 
 zrbhh_get_latest_build_dir() {
@@ -42,7 +42,7 @@ zrbhh_pull_with_retry() {
   local z_success_msg="${1:-Git pull completed}"
   local z_no_commits_msg="${2:-No new commits after many attempts}"
 
-  bcu_info "Git pull with retry..."
+  buc_info "Git pull with retry..."
 
   local z_retry_wait=5
   local z_max_attempts=30
@@ -71,10 +71,10 @@ zrbhh_pull_with_retry() {
 
   test ${z_found} -eq 1 || {
     echo "  ${z_no_commits_msg}"
-    bcu_die "Expected git commits from workflow not found"
+    buc_die "Expected git commits from workflow not found"
   }
 
-  bcu_info "${z_success_msg}"
+  buc_info "${z_success_msg}"
 }
 
 ######################################################################
@@ -84,7 +84,7 @@ rbhh_check_git_status() {
   # Ensure module started
   zrbhh_sentinel
 
-  bcu_info "Make sure your local repo is up to date..."
+  buc_info "Make sure your local repo is up to date..."
 
   git fetch
 
@@ -95,16 +95,16 @@ rbhh_check_git_status() {
   z_commits_behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
 
   if test "${z_commits_ahead}" -gt 0; then
-    bcu_die "Your repo is ahead of the remote branch by ${z_commits_ahead} commit(s). Push changes to proceed: git push"
+    buc_die "Your repo is ahead of the remote branch by ${z_commits_ahead} commit(s). Push changes to proceed: git push"
   elif test "${z_commits_behind}" -gt 0; then
-    bcu_die "Your repo is behind the remote branch by ${z_commits_behind} commit(s). Pull latest changes to proceed: git pull"
+    buc_die "Your repo is behind the remote branch by ${z_commits_behind} commit(s). Pull latest changes to proceed: git pull"
   fi
 
   git status -uno | grep -q 'Your branch is up to date' || \
-    bcu_die "ERROR: Your repo is behind the remote branch. Pull latest changes to proceed."
+    buc_die "ERROR: Your repo is behind the remote branch. Pull latest changes to proceed."
 
   git diff-index --quiet HEAD -- || \
-    bcu_die "ERROR: Your repo has uncommitted changes. Commit or stash changes to proceed."
+    buc_die "ERROR: Your repo has uncommitted changes. Commit or stash changes to proceed."
 }
 
 rbhh_build_workflow() {
@@ -115,15 +115,15 @@ rbhh_build_workflow() {
   zrbhh_sentinel
 
   # Validate parameters
-  test -n "${z_recipe_file}" || bcu_die "Recipe file required"
-  test -f "${z_recipe_file}" || bcu_die "Recipe file not found: ${z_recipe_file}"
+  test -n "${z_recipe_file}" || buc_die "Recipe file required"
+  test -f "${z_recipe_file}" || buc_die "Recipe file not found: ${z_recipe_file}"
 
   # Get current commit hash
   local z_commit_ref
-  z_commit_ref=$(git rev-parse HEAD) || bcu_die "Failed to get current commit hash"
+  z_commit_ref=$(git rev-parse HEAD) || buc_die "Failed to get current commit hash"
 
   # Dispatch workflow
-  bcu_step "Triggering GitHub Actions workflow for image build"
+  buc_step "Triggering GitHub Actions workflow for image build"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
                 "rbgr_build" '{"dockerfile": "'${z_recipe_file}'", "ref": "'${z_commit_ref}'"}'
 
@@ -134,7 +134,7 @@ rbhh_build_workflow() {
   zrbhh_pull_with_retry "Build artifacts retrieved"
 
   # Verify build output
-  bcu_info "Verifying build output..."
+  buc_info "Verifying build output..."
   local z_recipe_basename
   z_recipe_basename=$(basename "${z_recipe_file}")
 
@@ -142,29 +142,29 @@ rbhh_build_workflow() {
   local z_build_dir
   z_build_dir=$(<"${ZRBHH_BUILD_DIR_LATEST_FILE}")
 
-  test -n "${z_build_dir}"                           || bcu_die "Missing build directory"
-  test -d "${z_build_dir}"                           || bcu_die "Invalid build directory"
-  test -f "${z_build_dir}/recipe.txt"                || bcu_die "recipe.txt not found"
-  cmp "${z_recipe_file}" "${z_build_dir}/recipe.txt" || bcu_die "recipe mismatch"
+  test -n "${z_build_dir}"                           || buc_die "Missing build directory"
+  test -d "${z_build_dir}"                           || buc_die "Invalid build directory"
+  test -f "${z_build_dir}/recipe.txt"                || buc_die "recipe.txt not found"
+  cmp "${z_recipe_file}" "${z_build_dir}/recipe.txt" || buc_die "recipe mismatch"
 
   # Extract FQIN
-  bcu_info "Extracting FQIN..."
+  buc_info "Extracting FQIN..."
   local z_fqin_file="${z_build_dir}/docker_inspect_RepoTags_0.txt"
-  test -f "${z_fqin_file}" || bcu_die "Could not find FQIN in build output"
+  test -f "${z_fqin_file}" || buc_die "Could not find FQIN in build output"
 
   local z_fqin_contents
   z_fqin_contents=$(<"${z_fqin_file}")
 
-  bcu_info "Built image FQIN: ${z_fqin_contents}"
+  buc_info "Built image FQIN: ${z_fqin_contents}"
 
   # Handle optional output
   if test -n "${RBG_ARG_FQIN_OUTPUT:-}"; then
     cp "${z_fqin_file}" "${RBG_ARG_FQIN_OUTPUT}"
-    bcu_info "Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}"
+    buc_info "Wrote FQIN to ${RBG_ARG_FQIN_OUTPUT}"
   fi
 
   # Verify availability
-  bcu_info "Verifying image availability in registry..."
+  buc_info "Verifying image availability in registry..."
   local z_tag="${z_fqin_contents#*:}"
   echo "Waiting for tag: ${z_tag} to become available..."
 
@@ -175,7 +175,7 @@ rbhh_build_workflow() {
     fi
 
     echo "  Image not yet available, attempt ${z_i} of 5"
-    test ${z_i} -ne 5 || bcu_die "Image '${z_tag}' not available in registry after 5 attempts"
+    test ${z_i} -ne 5 || buc_die "Image '${z_tag}' not available in registry after 5 attempts"
     sleep 5
   done
 }
@@ -188,23 +188,23 @@ rbhh_delete_workflow() {
   zrbhh_sentinel
 
   # Validate parameters
-  test -n "${z_fqin}" || bcu_die "FQIN required"
+  test -n "${z_fqin}" || buc_die "FQIN required"
 
   local z_commit_ref
-  z_commit_ref=$(git rev-parse HEAD) || bcu_die "Failed to get current commit hash"
+  z_commit_ref=$(git rev-parse HEAD) || buc_die "Failed to get current commit hash"
 
-  bcu_step "Preparing GitHub Actions deletion arguments"
+  buc_step "Preparing GitHub Actions deletion arguments"
   local z_escaped_fqin="${z_fqin//\\/\\\\}"
   z_escaped_fqin="${z_escaped_fqin//\"/\\\"}"
 
   local z_escaped_ref="${z_commit_ref//\\/\\\\}"
   z_escaped_ref="${z_escaped_ref//\"/\\\"}"
 
-  printf '{"fqin": "%s", "ref": "%s"}' "${z_escaped_fqin}" "${z_escaped_ref}" > "${BDU_TEMP_DIR}/delete_payload.json"
+  printf '{"fqin": "%s", "ref": "%s"}' "${z_escaped_fqin}" "${z_escaped_ref}" > "${BUD_TEMP_DIR}/delete_payload.json"
   local z_payload
-  z_payload=$(<"${BDU_TEMP_DIR}/delete_payload.json")
+  z_payload=$(<"${BUD_TEMP_DIR}/delete_payload.json")
 
-  bcu_step "Triggering GitHub Actions deletion with z_payload=${z_payload}"
+  buc_step "Triggering GitHub Actions deletion with z_payload=${z_payload}"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" "rbgr_delete" "${z_payload}"
 
   # Wait for completion
@@ -214,12 +214,12 @@ rbhh_delete_workflow() {
   zrbhh_pull_with_retry "Deletion history retrieved" "No deletion history recorded"
 
   # Verify deletion
-  bcu_info "Verifying deletion..."
+  buc_info "Verifying deletion..."
   local z_tag="${z_fqin#*:}"
 
   echo "  Checking that tag '${z_tag}' is gone..."
   if rbcr_exists_predicate "${z_tag}"; then
-    bcu_die "Tag '${z_tag}' still exists in registry after deletion"
+    buc_die "Tag '${z_tag}' still exists in registry after deletion"
   fi
 
   echo "  Confirmed: Tag '${z_tag}' has been deleted"

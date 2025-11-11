@@ -211,11 +211,11 @@ zbuc_print() {
 
 # Core logging implementation - always reads from stdin
 zbuc_log() {
-  test -n "${BDU_TRANSCRIPT:-}" || return 0
+  test -n "${BUD_TRANSCRIPT:-}" || return 0
 
   local z_prefix="$1"
   local z_rest_prefix="$2"
-  local z_outfile="${BDU_TRANSCRIPT}"
+  local z_outfile="${BUD_TRANSCRIPT}"
 
   while IFS= read -r z_line; do
     printf '%s%s\n' "${z_prefix}" "${z_line}" >> "${z_outfile}"
@@ -323,7 +323,7 @@ buc_execute() {
 }
 
 # --- Hyperlink helpers (OSC-8), falls back to plain text when disabled ---
-# Disable with: export BDU_NO_HYPERLINKS=1
+# Disable with: export BUD_NO_HYPERLINKS=1
 zbuc_hyperlink() {
   local z_text="${1:-}"
   local z_url="${2:-}"
@@ -332,7 +332,7 @@ zbuc_hyperlink() {
   local z_blue_underline='\033[34m\033[4m'
   local z_reset='\033[0m'
 
-  if [ -n "${BDU_NO_HYPERLINKS:-}" ]; then
+  if [ -n "${BUD_NO_HYPERLINKS:-}" ]; then
     # Fallback: blue underlined text with URL in angle brackets
     printf '%s%s%s <%s>' "${z_blue_underline}" "${z_text}" "${z_reset}" "${z_url}"
     return 0

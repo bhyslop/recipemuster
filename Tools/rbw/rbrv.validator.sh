@@ -21,34 +21,34 @@
 set -euo pipefail
 
 ZRBRV_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZRBRV_SCRIPT_DIR}/bvu_BashValidationUtility.sh"
+source "${ZRBRV_SCRIPT_DIR}/buv_BashValidationUtility.sh"
 
 # Core Vessel Identity
-bvu_env_xname       RBRV_SIGIL                   1     64  # Must match directory name
-bvu_env_string      RBRV_DESCRIPTION             0    512  # Optional description
+buv_env_xname       RBRV_SIGIL                   1     64  # Must match directory name
+buv_env_string      RBRV_DESCRIPTION             0    512  # Optional description
 
 # Binding Configuration (for copying from registry)
 if test -n       "${RBRV_BIND_IMAGE:-}"; then
-    bvu_env_fqin    RBRV_BIND_IMAGE              1    512  # Source image to copy
+    buv_env_fqin    RBRV_BIND_IMAGE              1    512  # Source image to copy
 fi
 
 # Conjuring Configuration (for building from source)
 if test -n       "${RBRV_CONJURE_DOCKERFILE:-}"; then
-    bvu_env_string  RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
-    bvu_env_string  RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
+    buv_env_string  RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
+    buv_env_string  RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
     
     # Platform configuration - only meaningful for builds
-    bvu_env_string  RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms (e.g. "linux/amd64 linux/arm64")
-    bvu_env_string  RBRV_CONJURE_BINFMT_POLICY   1     16  # Either "allow" or "forbid"
+    buv_env_string  RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms (e.g. "linux/amd64 linux/arm64")
+    buv_env_string  RBRV_CONJURE_BINFMT_POLICY   1     16  # Either "allow" or "forbid"
     case "${RBRV_CONJURE_BINFMT_POLICY}" in
         allow|forbid) : ;;
-        *) bcu_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
+        *) buc_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
     esac
 fi
 
 # Validate at least one operation mode is configured
 if test -z "${RBRV_BIND_IMAGE:-}" && test -z "${RBRV_CONJURE_DOCKERFILE:-}"; then
-    bcu_die "Vessel must define either RBRV_BIND_IMAGE (for binding) or RBRV_CONJURE_DOCKERFILE (for conjuring)"
+    buc_die "Vessel must define either RBRV_BIND_IMAGE (for binding) or RBRV_CONJURE_DOCKERFILE (for conjuring)"
 fi
 
 # eof
