@@ -20,7 +20,7 @@
 // gadir_=Inspector Rail
 // gadid_=Inspector Dialog/Control
 // gadiu_=Inspector User
-// gadiuhp_=Inspector URL Hash Parameter
+// gadihp_=Inspector Hash Parameter
 // gadiv_=Inspector View
 // gadif_=Inspector File
 // gadd_=Differ/Diff
@@ -101,11 +101,9 @@
 :gadil_workspace:                      <<gadil_workspace,Inspector Three-Column Workspace>>
 :gadih_comparison:                     <<gadih_comparison,Inspector Comparison Header>>
 :gadis_navigation:                     <<gadis_navigation,Inspector Navigation Section>>
-:gadiuhp_from:                         <<gadiuhp_from,Inspector From URL Hash Parameter>>
-:gadiuhp_to:                           <<gadiuhp_to,Inspector To URL Hash Parameter>>
-:gadiuhp_latest:                       <<gadiuhp_latest,Inspector Latest Magic Value>>
-:gadiuhp_refresh_mode:                 <<gadiuhp_refresh_mode,Inspector Refresh Mode>>
-:gadiuhp_tab:                          <<gadiuhp_tab,Inspector Tab URL Hash Parameter>>
+:gadihp_from:                         <<gadihp_from,Inspector From Hash Parameter>>
+:gadihp_to:                           <<gadihp_to,Inspector To Hash Parameter>>
+:gadihp_tab:                          <<gadihp_tab,Inspector Tab Hash Parameter>>
 :gadfa_branch:                         <<gadfa_branch,Branch Parameter>>
 :gadfa_once:                           <<gadfa_once,Once Parameter>>
 :gadfs_initial_setup:                  <<gadfs_initial_setup,Factory Initial Setup>>
@@ -341,7 +339,7 @@ The {gadis_diff_sequence} computes:
 
 The {gadis_diff_sequence} executes when: page loads, {gadir_from} or {gadir_to} selection changes, or {gadt_websocket} refresh notification arrives.
 
-. Parse URL hash for {gadiuhp_from}, {gadiuhp_to}, and {gadiuhp_tab} values
+. Parse URL hash for {gadihp_from}, {gadihp_to}, and {gadihp_tab} values
 . Verify {gadt_factory} availability via {gadt_manifest} fetch before {gadt_websocket} connection
 . Fetch both {gadt_page_s} based on {gadi_from_commit} and {gadi_to_commit}
 . Run {gadd_diff_dom} on immutable DOM trees to generate diff operations
@@ -392,7 +390,7 @@ The {gadip_tab_bar} provides view switching within {gadip_rendered}:
 * **{gadip_tab_button}**: Clickable tabs for switching visualization modes (Prototype, Dual)
 * **{gadiv_prototype}**: Default view with styled diff and operations coda
 * **{gadiv_dual}**: Side-by-side view (planned future feature, placeholder currently)
-* **{gadis_tab_state}**: Current active tab persisted via {gadiuhp_tab} in URL hash
+* **{gadis_tab_state}**: Current active tab persisted via {gadihp_tab} in URL hash
 * **{gadiu_tab_switch}**: Instant view switching without diff re-computation
 
 === {gadid_dependency_s}
@@ -489,7 +487,7 @@ Clicking switches displayed content without re-computing diff.
 
 [[gadis_tab_state]]
 {gadis_tab_state}::
-Current active tab selection tracked by {gadt_inspector}, persisted in URL hash via {gadiuhp_tab}.
+Current active tab selection tracked by {gadt_inspector}, persisted in URL hash via {gadihp_tab}.
 Defaults to "prototype" if not specified.
 
 [[gadiv_prototype]]
@@ -507,15 +505,15 @@ Would show "before" and "after" content simultaneously for direct visual compari
 Structured object returned by diff computation containing pre-computed views for multiple visualization modes.
 Properties include prototypeHTML, dualHTML, operations, fromDOM, toDOM enabling tab switching without re-computation.
 
-[[gadiuhp_tab]]
-{gadiuhp_tab}::
+[[gadihp_tab]]
+{gadihp_tab}::
 URL hash parameter specifying active tab selection (e.g., `#from=abc&to=def&tab=prototype`).
 Persists tab state across browser refreshes.
 
 [[gadiu_tab_switch]]
 {gadiu_tab_switch}::
 User action of clicking {gadip_tab_button} to change views, updates active tab state and content display without triggering diff re-computation.
-Updates {gadiuhp_tab} in URL hash.
+Updates {gadihp_tab} in URL hash.
 
 [[gadt_factory]]
 {gadt_factory}::
@@ -677,15 +675,17 @@ When {gadt_manifest} fetch fails, Inspector displays appropriate error without a
 A visual indicator (grey text with reduced opacity) applied to commits in {gadir_from} and {gadir_to} rails where {gadmf_html_sha256} matches the previous commit.
 The {gadiv_unchanged} helps the {gadu_operator} identify which commits produced no rendering changes while maintaining full git history visibility.
 
-[[gadiuhp_from]]
-{gadiuhp_from}::
-A URL hash parameter that specifies the starting commit SHA for comparison in {gadt_inspector}.
-The {gadiuhp_from} persists across browser refreshes, maintaining the {gadu_operator}'s selected baseline commit.
+[[gadihp_from]]
+{gadihp_from}::
+A URL hash parameter that specifies the baseline commit for comparison in {gadt_inspector}.
+Accepts either a position value (H for HEAD, -1 for previous, -2 for earlier, etc.) or a full commit SHA hash.
+Persists across browser refreshes, maintaining the {gadu_operator}'s selected baseline commit.
 
-[[gadiuhp_to]]
-{gadiuhp_to}::
-A URL hash parameter that specifies the ending commit SHA for comparison in {gadt_inspector}.
-The {gadiuhp_to} persists across browser refreshes, maintaining the {gadu_operator}'s selected target commit.
+[[gadihp_to]]
+{gadihp_to}::
+A URL hash parameter that specifies the target commit for comparison in {gadt_inspector}.
+Accepts either a position value (H for HEAD, -1 for previous, -2 for earlier, etc.) or a full commit SHA hash.
+Persists across browser refreshes, maintaining the {gadu_operator}'s selected target commit.
 
 
 [[gadfa_branch]]
