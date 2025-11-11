@@ -515,11 +515,13 @@ Output DOM structure with applied CSS classes and navigation markers inserted at
 
 [[gadic_route_start_marker]]
 {gadic_route_start_marker}::
-HTML marker element inserted before operation scope during rendering, anchors navigation links to visual change location.
+Marker element inserted before operation scope in {gadic_rendered_dom} to enable navigation and debugging.
+Implementation details to be refined as visualization patterns stabilize.
 
 [[gadic_route_end_marker]]
 {gadic_route_end_marker}::
-HTML marker element inserted after operation scope during rendering, terminates visual change indication region.
+Marker element inserted after operation scope in {gadic_rendered_dom} to enable navigation and debugging.
+Implementation details to be refined as visualization patterns stabilize.
 
 [[gadic_annotation_collection]]
 {gadic_annotation_collection}::
