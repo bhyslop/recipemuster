@@ -25,7 +25,7 @@
 // gadif_=Inspector File
 // gadd_=Differ/Diff
 // gadie_=Inspector Engine
-// gadisdp_=Inspector Sequence Diff Phase
+// gadic_=Inspector Computation
 // gadda_=Distill Argument
 // gadmf_=Manifest Field
 // gadw_=WebSocket
@@ -87,19 +87,16 @@
 :gadd_route:                           <<gadd_route,route>>
 :gadd_route_s:                         <<gadd_route,routes>>
 :gadd_route_array:                     <<gadd_route_array,route array>>
-:gadis_diff_preparation:               <<gadis_diff_preparation,Inspector Diff Preparation Phase>>
-:gadis_diff_processing:                <<gadis_diff_processing,Inspector Diff Processing Phase>>
-:gadis_diff_presentation:              <<gadis_diff_presentation,Inspector Diff Presentation Phase>>
-:gadisdp_before_dom:                   <<gadisdp_before_dom,Diff Phase Before DOM>>
-:gadisdp_after_dom:                    <<gadisdp_after_dom,Diff Phase After DOM>>
-:gadisdp_operation_set:                <<gadisdp_operation_set,Diff Phase Operation Set>>
-:gadisdp_operation:                    <<gadisdp_operation,Diff Phase Operation>>
-:gadisdp_styled_dom:                   <<gadisdp_styled_dom,Diff Phase Styled DOM>>
-:gadisdp_route_start_marker:           <<gadisdp_route_start_marker,Diff Phase Route Start Marker>>
-:gadisdp_route_end_marker:             <<gadisdp_route_end_marker,Diff Phase Route End Marker>>
-:gadisdp_annotation_collection:        <<gadisdp_annotation_collection,Diff Phase Annotation Collection>>
-:gadisdp_annotation_entry:             <<gadisdp_annotation_entry,Diff Phase Annotation Entry>>
-:gadie_multiview_result:               <<gadie_multiview_result,Engine Multi-View Result>>
+:gadic_from_dom:                       <<gadic_from_dom,Inspector Computation From DOM>>
+:gadic_to_dom:                         <<gadic_to_dom,Inspector Computation To DOM>>
+:gadic_operations:                     <<gadic_operations,Inspector Computation Operations>>
+:gadic_operation:                      <<gadic_operation,Inspector Computation Operation>>
+:gadic_rendered_dom:                   <<gadic_rendered_dom,Inspector Computation Rendered DOM>>
+:gadic_route_start_marker:             <<gadic_route_start_marker,Inspector Computation Route Start Marker>>
+:gadic_route_end_marker:               <<gadic_route_end_marker,Inspector Computation Route End Marker>>
+:gadic_annotation_collection:          <<gadic_annotation_collection,Inspector Computation Annotation Collection>>
+:gadic_annotation_entry:               <<gadic_annotation_entry,Inspector Computation Annotation Entry>>
+:gadic_multiview_result:               <<gadic_multiview_result,Inspector Computation Multi-View Result>>
 :gadip_popover:                        <<gadip_popover,Inspector Details Popover>>
 :gadil_workspace:                      <<gadil_workspace,Inspector Three-Column Workspace>>
 :gadih_comparison:                     <<gadih_comparison,Inspector Comparison Header>>
@@ -384,31 +381,15 @@ The {gadt_inspector} provides an interactive interface for comparing normalized 
 [[gadis_diff_sequence]]
 === {gadis_diff_sequence}
 
-The {gadt_inspector} executes diff analysis through three sequential phases, each with distinct inputs, processing, and outputs. On error, display error text in {gadip_rendered} instead of diff.
+The {gadt_inspector} executes diff analysis by creating immutable DOM structures from input HTML, running {gadd_diff_dom} to compute {gadic_operations}, then applying CSS styling and generating visualization. On error, display error text in {gadip_rendered} instead of diff.
 
-[[gadis_diff_preparation]]
-{gadis_diff_preparation}::
-Initial phase that creates {gadisdp_before_dom} and {gadisdp_after_dom} as immutable DOM structures from input HTML files, establishing the foundation for diff analysis.
-+
-**Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}.
-+
-**Output**: Immutable DOM structures ready for diff processing.
+The {gadis_diff_sequence} computes:
 
-[[gadis_diff_processing]]
-{gadis_diff_processing}::
-Core phase that executes {gadd_diff_dom} analysis on prepared DOM structures to generate {gadisdp_operation_set} containing individual {gadisdp_operation} entries with complete {gadd_route_array} information for precise element positioning.
-+
-**Input**: Prepared DOM structures from {gadis_diff_preparation}.
-+
-**Output**: Complete operation set with route information.
+**Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}, parsed into {gadic_from_dom} and {gadic_to_dom}.
 
-[[gadis_diff_presentation]]
-{gadis_diff_presentation}::
-Final phase that constructs {gadisdp_styled_dom} by applying appropriate CSS classes to diff operations (process in reverse order) while inserting {gadisdp_route_start_marker} and {gadisdp_route_end_marker} elements at operation boundaries. Generates {gadisdp_annotation_collection} containing {gadisdp_annotation_entry} elements that describe each change operation. Produces {gadie_multiview_result} with pre-computed views for {gadip_tab_bar} display options.
-+
-**Input**: Operation set from {gadis_diff_processing}.
-+
-**Output**: Multi-view result structure with {gadiv_prototype} and {gadiv_dual} content, displayed in {gadip_rendered} pane.
+**Processing**: {gadd_diff_dom} analysis generates {gadic_operations} array containing individual {gadic_operation} entries with complete {gadd_route_array} information for precise element positioning. CSS classes applied to construct {gadic_rendered_dom}, with {gadic_route_start_marker} and {gadic_route_end_marker} elements inserted at operation boundaries. {gadic_annotation_collection} produced containing {gadic_annotation_entry} elements describing each change operation.
+
+**Output**: {gadic_multiview_result} with pre-computed views for {gadip_tab_bar} display options ({gadiv_prototype} and {gadiv_dual} content), displayed in {gadip_rendered} pane.
 
 === {gadis_diff_sequence} Trigger
 
@@ -419,7 +400,7 @@ The {gadis_diff_sequence} executes when: page loads, {gadir_from} or {gadir_to} 
 . Fetch both {gadt_page_s} based on {gadi_from_commit} and {gadi_to_commit}
 . Run {gadd_diff_dom} on immutable DOM trees to generate diff operations
 . Apply CSS classes to diff operations for visual styling
-. Generate {gadie_multiview_result} with multiple view options and display in {gadip_rendered}
+. Generate {gadic_multiview_result} with multiple view options and display in {gadip_rendered}
 . Update {gadih_comparison} with commit range
 . Setup {gadip_tab_bar} and set active tab from {gadis_tab_state}
 . Persist selection and tab state to URL hash parameters
@@ -512,41 +493,41 @@ A positional path array from {gadd_diff_dom} operations specifying the exact DOM
 Each {gadd_route} provides hierarchical navigation coordinates enabling accurate deletion block positioning and annotation placement within the output DOM structure.
 
 
-[[gadisdp_before_dom]]
-{gadisdp_before_dom}::
-Source DOM structure used as diff input.
+[[gadic_from_dom]]
+{gadic_from_dom}::
+Source DOM structure parsed from "From" {gadt_page}, used as input to {gadd_diff_dom} analysis.
 
-[[gadisdp_after_dom]]
-{gadisdp_after_dom}::
-Target DOM structure used as diff input.
+[[gadic_to_dom]]
+{gadic_to_dom}::
+Target DOM structure parsed from "To" {gadt_page}, used as input to {gadd_diff_dom} analysis.
 
-[[gadisdp_operation_set]]
-{gadisdp_operation_set}::
-Complete collection of diff operations generated by diff-dom analysis.
+[[gadic_operations]]
+{gadic_operations}::
+Complete array of diff operations generated by {gadd_diff_dom} analysis, each containing operation type, {gadd_route_array}, and change details.
 
-[[gadisdp_operation]]
-{gadisdp_operation}::
-Individual diff operation with route and change information.
+[[gadic_operation]]
+{gadic_operation}::
+Individual diff operation with action type, {gadd_route} for DOM positioning, and change information (added/removed/modified content).
 
-[[gadisdp_styled_dom]]
-{gadisdp_styled_dom}::
-Output DOM structure with applied CSS classes and navigation markers.
+[[gadic_rendered_dom]]
+{gadic_rendered_dom}::
+Output DOM structure with applied CSS classes and navigation markers inserted at operation boundaries. Represents the "to" document with visual diff annotations.
 
-[[gadisdp_route_start_marker]]
-{gadisdp_route_start_marker}::
-HTML marker indicating route beginning.
+[[gadic_route_start_marker]]
+{gadic_route_start_marker}::
+HTML marker element inserted before operation scope during rendering, anchors navigation links to visual change location.
 
-[[gadisdp_route_end_marker]]
-{gadisdp_route_end_marker}::
-HTML marker indicating route ending.
+[[gadic_route_end_marker]]
+{gadic_route_end_marker}::
+HTML marker element inserted after operation scope during rendering, terminates visual change indication region.
 
-[[gadisdp_annotation_collection]]
-{gadisdp_annotation_collection}::
-Container for all operation annotations in the rendered output.
+[[gadic_annotation_collection]]
+{gadic_annotation_collection}::
+Complete set of operation annotations generated during rendering, provides human-readable descriptions for each {gadic_operation} in the visualization.
 
-[[gadisdp_annotation_entry]]
-{gadisdp_annotation_entry}::
-Individual annotation describing a specific diff operation.
+[[gadic_annotation_entry]]
+{gadic_annotation_entry}::
+Individual annotation describing a specific {gadic_operation}, including operation index, action type, {gadd_route}, and formatted payload representation.
 
 [[gadip_tab_bar]]
 {gadip_tab_bar}::
@@ -565,7 +546,7 @@ Defaults to "prototype" if not specified.
 
 [[gadiv_prototype]]
 {gadiv_prototype}::
-Default diff visualization showing styled HTML with {gadisdp_styled_dom} and operations coda appended.
+Default diff visualization showing styled HTML with {gadic_rendered_dom} and operations coda appended.
 Contains the "after" HTML with GADS CSS classes, navigation markers, and operation annotations.
 
 [[gadiv_dual]]
@@ -573,9 +554,9 @@ Contains the "after" HTML with GADS CSS classes, navigation markers, and operati
 Side-by-side comparison view (planned future feature, placeholder currently).
 Would show "before" and "after" content simultaneously for direct visual comparison.
 
-[[gadie_multiview_result]]
-{gadie_multiview_result}::
-Structured object returned by diff engine containing pre-computed views for multiple visualization modes.
+[[gadic_multiview_result]]
+{gadic_multiview_result}::
+Structured object returned by diff computation containing pre-computed views for multiple visualization modes.
 Properties include prototypeHTML, dualHTML, operations, fromDOM, toDOM enabling tab switching without re-computation.
 
 [[gadiuhp_tab]]
