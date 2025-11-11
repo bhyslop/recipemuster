@@ -248,6 +248,7 @@ The {gadt_factory} disables automatic section numbering during asciidoctor execu
 === Manifest Management
 
 The {gadt_factory} directly manages {gadt_manifest} in memory and on disk:
+
 - **Atomic Updates**: Single process owns all manifest state
 - **Parent Chain Ordering**: Commits ordered by parent chain traversal sequence regardless of processing order
 - **Complete Entries Only**: Manifest contains only fully processed commits with no incomplete states
@@ -388,22 +389,28 @@ The {gadt_inspector} executes diff analysis through three sequential phases, eac
 [[gadis_diff_preparation]]
 {gadis_diff_preparation}::
 Initial phase that creates {gadisdp_before_dom} and {gadisdp_after_dom} as immutable DOM structures from input HTML files, establishing the foundation for diff analysis.
++
 **Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}.
++
 **Output**: Immutable DOM structures ready for diff processing.
 
 [[gadis_diff_processing]]
 {gadis_diff_processing}::
 Core phase that executes {gadd_diff_dom} analysis on prepared DOM structures to generate {gadisdp_operation_set} containing individual {gadisdp_operation} entries with complete {gadd_route_array} information for precise element positioning.
++
 **Input**: Prepared DOM structures from {gadis_diff_preparation}.
++
 **Output**: Complete operation set with route information.
 
 [[gadis_diff_presentation]]
 {gadis_diff_presentation}::
 Final phase that constructs {gadisdp_styled_dom} by applying appropriate CSS classes to diff operations (process in reverse order) while inserting {gadisdp_route_start_marker} and {gadisdp_route_end_marker} elements at operation boundaries. Generates {gadisdp_annotation_collection} containing {gadisdp_annotation_entry} elements that describe each change operation. Produces {gadie_multiview_result} with pre-computed views for {gadip_tab_bar} display options.
++
 **Input**: Operation set from {gadis_diff_processing}.
++
 **Output**: Multi-view result structure with {gadiv_prototype} and {gadiv_dual} content, displayed in {gadip_rendered} pane.
 
-=== {gadis_diff_sequence} Triggers
+=== {gadis_diff_sequence} Trigger
 
 The {gadis_diff_sequence} executes when: page loads, {gadir_from} or {gadir_to} selection changes, or {gadt_websocket} refresh notification arrives.
 
