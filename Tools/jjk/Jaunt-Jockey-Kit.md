@@ -398,8 +398,11 @@ Available commands:
 ### Reinstalling
 
 To update configuration or reinstall commands:
-1. Say: "Read Jaunt-Jockey-Kit.md and reinstall Jaunt Jockey"
-2. Claude will update configuration and regenerate commands
+1. Say: "Read Tools/jjk/Jaunt-Jockey-Kit.md and reinstall Job Jockey"
+2. Claude will:
+   - Delete all existing `jja-*.md` command files from `.claude/commands/`
+   - Regenerate all commands from scratch based on Kit
+   - Update CLAUDE.md configuration section
 3. Existing JJ content files (efforts, itches) remain untouched
 
 ### Validation
