@@ -19,26 +19,26 @@
 # Bash Test Utility Library
 
 # Multiple inclusion guard
-test -z "${ZBTU_INCLUDED:-}" || return 0
-ZBTU_INCLUDED=1
+test -z "${ZBUT_INCLUDED:-}" || return 0
+ZBUT_INCLUDED=1
 
 # Color codes
-btu_color() { test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''; }
-ZBTU_WHITE=$(  btu_color '1;37' )
-ZBTU_RED=$(    btu_color '1;31' )
-ZBTU_GREEN=$(  btu_color '1;32' )
-ZBTU_RESET=$(  btu_color '0'    )
+but_color() { test -n "$TERM" && test "$TERM" != "dumb" && printf '\033[%sm' "$1" || printf ''; }
+ZBUT_WHITE=$(  but_color '1;37' )
+ZBUT_RED=$(    but_color '1;31' )
+ZBUT_GREEN=$(  but_color '1;32' )
+ZBUT_RESET=$(  but_color '0'    )
 
 # Generic renderer for aligned multi-line messages
-# Usage: zbtu_render_lines PREFIX [COLOR] [STACK_DEPTH] LINES...
-zbtu_render_lines() {
+# Usage: zbut_render_lines PREFIX [COLOR] [STACK_DEPTH] LINES...
+zbut_render_lines() {
   local label="$1"; shift
   local color="$1"; shift
 
   local prefix="$label:"
 
   local visible_prefix="$prefix"
-  test -z "$color" || prefix="${color}${prefix}${ZBTU_RESET}"
+  test -z "$color" || prefix="${color}${prefix}${ZBUT_RESET}"
   local indent="$(printf '%*s' "$(echo -e "$visible_prefix" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')"
 
   local first=1
@@ -52,152 +52,152 @@ zbtu_render_lines() {
   done
 }
 
-btu_section() {
-  test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_render_lines "info " "${ZBTU_WHITE}" "$@"
+but_section() {
+  test "${BUT_VERBOSE:-0}" -ge 1 || return 0
+  zbut_render_lines "info " "${ZBUT_WHITE}" "$@"
 }
 
-btu_info() {
-  test "${BTU_VERBOSE:-0}" -ge 1 || return 0
-  zbtu_render_lines "info " "" "$@"
+but_info() {
+  test "${BUT_VERBOSE:-0}" -ge 1 || return 0
+  zbut_render_lines "info " "" "$@"
 }
 
-btu_trace() {
-  test "${BTU_VERBOSE:-0}" -ge 2 || return 0
-  zbtu_render_lines "trace" "" "$@"
+but_trace() {
+  test "${BUT_VERBOSE:-0}" -ge 2 || return 0
+  zbut_render_lines "trace" "" "$@"
 }
 
-btu_fatal() {
-  zbtu_render_lines "ERROR" "${ZBTU_RED}" "$@"
+but_fatal() {
+  zbut_render_lines "ERROR" "${ZBUT_RED}" "$@"
   exit 1
 }
 
-btu_fatal_on_error() {
+but_fatal_on_error() {
   set -e
   local condition="$1"; shift
   test "${condition}" -eq 0 && return 0
-  btu_fatal "$@"
+  but_fatal "$@"
 }
 
-btu_fatal_on_success() {
+but_fatal_on_success() {
   set -e
   local condition="$1"; shift
   test "${condition}" -ne 0 && return 0
-  btu_fatal "$@"
+  but_fatal "$@"
 }
 
 # Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
 # Globals set:
-#   ZBTU_STDOUT  — command stdout
-#   ZBTU_STDERR  — command stderr
-#   ZBTU_STATUS  — command exit code
-zbtu_invoke() {
-  btu_trace "Invoking: $*"
+#   ZBUT_STDOUT  ï¿½ command stdout
+#   ZBUT_STDERR  ï¿½ command stderr
+#   ZBUT_STATUS  ï¿½ command exit code
+zbut_invoke() {
+  but_trace "Invoking: $*"
 
   local tmp_stdout="$(mktemp)"
   local tmp_stderr="$(mktemp)"
 
-  ZBTU_STATUS=$( (
+  ZBUT_STATUS=$( (
       set +e
       "$@" >"${tmp_stdout}" 2>"${tmp_stderr}"
       printf '%s' "$?"
       exit 0
     ) || printf '__subshell_failed__' )
 
-  if [[ "${ZBTU_STATUS}" == "__subshell_failed__" || -z "${ZBTU_STATUS}" ]]; then
-    ZBTU_STATUS=127
-    ZBTU_STDOUT=""
-    ZBTU_STDERR="zbtu_invoke: command caused shell to exit before status could be captured"
+  if [[ "${ZBUT_STATUS}" == "__subshell_failed__" || -z "${ZBUT_STATUS}" ]]; then
+    ZBUT_STATUS=127
+    ZBUT_STDOUT=""
+    ZBUT_STDERR="zbut_invoke: command caused shell to exit before status could be captured"
   else
-    ZBTU_STDOUT=$(<"${tmp_stdout}")
-    ZBTU_STDERR=$(<"${tmp_stderr}")
+    ZBUT_STDOUT=$(<"${tmp_stdout}")
+    ZBUT_STDERR=$(<"${tmp_stderr}")
   fi
 
   rm -f "${tmp_stdout}" "${tmp_stderr}"
 }
 
-btu_expect_ok_stdout() {
+but_expect_ok_stdout() {
   set -e
 
   local expected="$1"; shift
 
-  zbtu_invoke "$@"
+  zbut_invoke "$@"
 
-  btu_fatal_on_error "${ZBTU_STATUS}" "Command failed with status ${ZBTU_STATUS}" \
+  but_fatal_on_error "${ZBUT_STATUS}" "Command failed with status ${ZBUT_STATUS}" \
                                       "Command: $*"                               \
-                                      "STDERR: ${ZBTU_STDERR}"
+                                      "STDERR: ${ZBUT_STDERR}"
 
-  test "${ZBTU_STDOUT}" = "${expected}" || btu_fatal "Output mismatch"            \
+  test "${ZBUT_STDOUT}" = "${expected}" || but_fatal "Output mismatch"            \
                                                      "Command: $*"                \
                                                      "Expected: '${expected}'"    \
-                                                     "Got:      '${ZBTU_STDOUT}'"
+                                                     "Got:      '${ZBUT_STDOUT}'"
 }
 
-btu_expect_ok() {
+but_expect_ok() {
   set -e
 
-  zbtu_invoke "$@"
+  zbut_invoke "$@"
 
-  btu_fatal_on_error "${ZBTU_STATUS}" "Command failed with status ${ZBTU_STATUS}" \
+  but_fatal_on_error "${ZBUT_STATUS}" "Command failed with status ${ZBUT_STATUS}" \
                                       "Command: $*"                               \
-                                      "STDERR: ${ZBTU_STDERR}"
+                                      "STDERR: ${ZBUT_STDERR}"
 }
 
-btu_expect_fatal() {
+but_expect_fatal() {
   set -e
 
-  zbtu_invoke "$@"
+  zbut_invoke "$@"
 
-  btu_fatal_on_success "${ZBTU_STATUS}" "Expected failure but got success" \
+  but_fatal_on_success "${ZBUT_STATUS}" "Expected failure but got success" \
                                         "Command: $*"                      \
-                                        "STDOUT: ${ZBTU_STDOUT}"           \
-                                        "STDERR: ${ZBTU_STDERR}"
+                                        "STDOUT: ${ZBUT_STDOUT}"           \
+                                        "STDERR: ${ZBUT_STDERR}"
 }
 
 # Run single test case in subshell
-zbtu_case() {
+zbut_case() {
   set -e
 
   local case_name="$1"
-  declare -F "${case_name}" >/dev/null || btu_fatal "Test function not found: ${case_name}"
+  declare -F "${case_name}" >/dev/null || but_fatal "Test function not found: ${case_name}"
 
-  btu_section "START: ${case_name}"
+  but_section "START: ${case_name}"
 
   # Create per-test temp directory
-  local case_temp_dir="${ZBTU_ROOT_TEMP_DIR}/${case_name}"
-  mkdir -p "${case_temp_dir}" || btu_fatal "Failed to create test temp dir: ${case_temp_dir}"
+  local case_temp_dir="${ZBUT_ROOT_TEMP_DIR}/${case_name}"
+  mkdir -p "${case_temp_dir}" || but_fatal "Failed to create test temp dir: ${case_temp_dir}"
 
   local status
   (
     set -e
-    export BTU_TEMP_DIR="${case_temp_dir}"
+    export BUT_TEMP_DIR="${case_temp_dir}"
     "${case_name}"
   )
 
   status=$?
-  btu_trace "Ran: ${case_name} and got status:${status}"
-  btu_fatal_on_error "${status}" "Test failed: ${case_name}"
+  but_trace "Ran: ${case_name} and got status:${status}"
+  but_fatal_on_error "${status}" "Test failed: ${case_name}"
 
-  btu_trace "Finished: ${case_name} with status: ${status}"
-  test "${BTU_VERBOSE:-0}" -le 0 || echo "${ZBTU_GREEN}PASSED:${ZBTU_RESET} ${case_name}" >&2
+  but_trace "Finished: ${case_name} with status: ${status}"
+  test "${BUT_VERBOSE:-0}" -le 0 || echo "${ZBUT_GREEN}PASSED:${ZBUT_RESET} ${case_name}" >&2
 }
 
 # Run all or specific tests
-btu_execute() {
+but_execute() {
   set -e
 
   # Validate temp directory parameter
   local root_temp_dir="$1"
-  test -n "${root_temp_dir}"            || btu_fatal "Usage: script.sh <root_temp_dir> [test_case]"
-  test -d "${root_temp_dir}"            || btu_fatal "Root temp dir does not exist: ${root_temp_dir}"
-  test -w "${root_temp_dir}"            || btu_fatal "Root temp dir is not writable: ${root_temp_dir}"
-  test -z "$(ls -A "${root_temp_dir}")" || btu_fatal "Root temp dir is not empty: ${root_temp_dir}"
+  test -n "${root_temp_dir}"            || but_fatal "Usage: script.sh <root_temp_dir> [test_case]"
+  test -d "${root_temp_dir}"            || but_fatal "Root temp dir does not exist: ${root_temp_dir}"
+  test -w "${root_temp_dir}"            || but_fatal "Root temp dir is not writable: ${root_temp_dir}"
+  test -z "$(ls -A "${root_temp_dir}")" || but_fatal "Root temp dir is not empty: ${root_temp_dir}"
 
-  export ZBTU_ROOT_TEMP_DIR="${root_temp_dir}"
-  export BTU_VERBOSE="${BTU_VERBOSE:-0}"
+  export ZBUT_ROOT_TEMP_DIR="${root_temp_dir}"
+  export BUT_VERBOSE="${BUT_VERBOSE:-0}"
 
-  # Enable bash trace to stderr if BTU_VERBOSE is 3 or higher and bash >= 4.1
-  if [[ "${BTU_VERBOSE}" -ge 3 ]]; then
+  # Enable bash trace to stderr if BUT_VERBOSE is 3 or higher and bash >= 4.1
+  if [[ "${BUT_VERBOSE}" -ge 3 ]]; then
     if [[ "${BASH_VERSINFO[0]}" -gt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 1 ]]; then
       export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
       export BASH_XTRACEFD=2
@@ -212,19 +212,19 @@ btu_execute() {
   if [[ -n    "${the_case}" ]]; then
     echo      "${the_case}" | grep -q "^${prefix}" || \
          echo "${the_case} mismatch to '${prefix}' but trying..."
-    zbtu_case "${the_case}"
+    zbut_case "${the_case}"
     count=1
   else
     local found=0
     for one_case in $(declare -F | grep "^declare -f ${prefix}" | cut -d' ' -f3); do
       found=1
-      zbtu_case "${one_case}"
+      zbut_case "${one_case}"
       count=$((count + 1))
     done
-    btu_fatal_on_success "${found}" "No test functions found with prefix '${prefix}'"
+    but_fatal_on_success "${found}" "No test functions found with prefix '${prefix}'"
   fi
 
-  echo "${ZBTU_GREEN}All tests passed (${count} case$(test ${count} -eq 1 || echo 's'))${ZBTU_RESET}" >&2
+  echo "${ZBUT_GREEN}All tests passed (${count} case$(test ${count} -eq 1 || echo 's'))${ZBUT_RESET}" >&2
 }
 
 # eof

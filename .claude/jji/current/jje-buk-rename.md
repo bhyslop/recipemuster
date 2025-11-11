@@ -77,13 +77,13 @@ Do not add comments identifying phases or groupings of steps. Comments like "# P
 
 ## Steps
 
-- [ ] Rename the 4 utility files in Tools/buk/ (bcu → buc, bdu → bud, btu → but, bvu → buv)
+- [x] Rename the 4 utility files in Tools/buk/ (bcu → buc, bdu → bud, btu → but, bvu → buv)
 
-- [ ] Rename all functions and variables within the 4 utility files (dispatch 4 parallel subagents):
-  - [ ] Update buc_command.sh (was bcu_BashCommandUtility.sh)
-  - [ ] Update bud_dispatch.sh (was bdu_BashDispatchUtility.sh)
-  - [ ] Update but_test.sh (was btu_BashTestUtility.sh)
-  - [ ] Update buv_validation.sh (was bvu_BashValidationUtility.sh)
+- [x] Rename all functions and variables within the 4 utility files (dispatch 4 parallel subagents):
+  - [x] Update buc_command.sh (was bcu_BashCommandUtility.sh)
+  - [x] Update bud_dispatch.sh (was bdu_BashDispatchUtility.sh)
+  - [x] Update but_test.sh (was btu_BashTestUtility.sh)
+  - [x] Update buv_validation.sh (was bvu_BashValidationUtility.sh)
 
 - [ ] Update all references across the repository (dispatch parallel subagents by directory):
   - [ ] Update Tools/buk/ consumer files (3 files: burc_regime.sh, burs_regime.sh, buw_workbench.sh)

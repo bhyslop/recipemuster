@@ -19,31 +19,31 @@
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 
 # Multiple inclusion guard
-[[ -n "${ZBVU_INCLUDED:-}" ]] && return 0
-ZBVU_INCLUDED=1
+[[ -n "${ZBUV_INCLUDED:-}" ]] && return 0
+ZBUV_INCLUDED=1
 
 # Source the console utility library
-ZBVU_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZBVU_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
+ZBUV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${ZBUV_SCRIPT_DIR}/bcu_BashCommandUtility.sh"
 
-bvu_file_exists() {
+buv_file_exists() {
   local filepath="$1"
   test -f "$filepath" || bcu_die "Required file not found: $filepath"
 }
 
-bvu_dir_exists() {
+buv_dir_exists() {
   local dirpath="$1"
   test -d "$dirpath" || bcu_die "Required directory not found: $dirpath"
 }
 
-bvu_dir_empty() {
+buv_dir_empty() {
   local dirpath="$1"
   test -d          "$dirpath"               || bcu_die "Required directory not found: $dirpath"
   test -z "$(ls -A "$dirpath" 2>/dev/null)" || bcu_die "Directory must be empty: $dirpath"
 }
 
 # Generic environment variable wrapper
-bvu_env_wrapper() {
+buv_env_wrapper() {
   local func_name=$1
   local varname=$2
   eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
@@ -53,7 +53,7 @@ bvu_env_wrapper() {
 }
 
 # Generic optional wrapper - returns empty if value is empty
-bvu_opt_wrapper() {
+buv_opt_wrapper() {
   local func_name=$1
   local varname=$2
   eval "local val=\${$varname:-}" || bcu_die "Variable '$varname' is not defined"
@@ -66,7 +66,7 @@ bvu_opt_wrapper() {
 }
 
 # String validator with optional length constraints
-bvu_val_string() {
+buv_val_string() {
   local varname=$1
   local val=$2
   local min=$3
@@ -102,7 +102,7 @@ bvu_val_string() {
 }
 
 # Cross-context name validator (system-safe identifier)
-bvu_val_xname() {
+buv_val_xname() {
   local varname=$1
   local val=$2
   local min=$3
@@ -142,7 +142,7 @@ bvu_val_xname() {
 # Google-style resource identifier (lowercase, digits, hyphens)
 # Must start with a letter, end with letter/digit.
 # Examples: GCP project IDs, GAR repo IDs.
-bvu_val_gname() {
+buv_val_gname() {
   local varname=$1
   local val=$2
   local min=$3
@@ -178,7 +178,7 @@ bvu_val_gname() {
 }
 
 # Fully Qualified Image Name component validator
-bvu_val_fqin() {
+buv_val_fqin() {
   local varname=$1
   local val=$2
   local min=$3
@@ -216,7 +216,7 @@ bvu_val_fqin() {
 }
 
 # Boolean validator
-bvu_val_bool() {
+buv_val_bool() {
   local varname=$1
   local val=$2
   local default=$3
@@ -236,7 +236,7 @@ bvu_val_bool() {
 }
 
 # Decimal range validator
-bvu_val_decimal() {
+buv_val_decimal() {
   local varname=$1
   local val=$2
   local min=$3
@@ -260,7 +260,7 @@ bvu_val_decimal() {
 }
 
 # IPv4 validator
-bvu_val_ipv4() {
+buv_val_ipv4() {
   local varname=$1
   local val=$2
   local default=${3-}  # empty permitted
@@ -280,7 +280,7 @@ bvu_val_ipv4() {
 }
 
 # CIDR validator
-bvu_val_cidr() {
+buv_val_cidr() {
   local varname=$1
   local val=$2
   local default=$3
@@ -300,7 +300,7 @@ bvu_val_cidr() {
 }
 
 # Domain validator
-bvu_val_domain() {
+buv_val_domain() {
   local varname=$1
   local val=$2
   local default=$3
@@ -320,7 +320,7 @@ bvu_val_domain() {
 }
 
 # Port validator
-bvu_val_port() {
+buv_val_port() {
   local varname=$1
   local val=$2
   local default=$3
@@ -350,7 +350,7 @@ bvu_val_port() {
 #   ghcr.io/anchore/syft@sha256:...
 #   gcr.io/go-containerregistry/gcrane@sha256:...
 #   us-central1-docker.pkg.dev/my-proj/my-repo/tool@sha256:...
-bvu_val_odref() {
+buv_val_odref() {
   local varname=$1
   local val=$2
   local default=${3-}  # empty permitted (only if caller wants to allow empty)
@@ -362,7 +362,7 @@ bvu_val_odref() {
     val="$default"
   fi
 
-  # Must not be empty here (use bvu_opt_odref for optional)
+  # Must not be empty here (use buv_opt_odref for optional)
   test -n "$val" || bcu_die "$varname must not be empty"
 
   # Enforce digest-pinned image ref:
@@ -377,7 +377,7 @@ bvu_val_odref() {
 }
 
 # List validators
-bvu_val_list_ipv4() {
+buv_val_list_ipv4() {
   local varname=$1
   local val=$2
 
@@ -393,7 +393,7 @@ bvu_val_list_ipv4() {
   done
 }
 
-bvu_val_list_cidr() {
+buv_val_list_cidr() {
   local varname=$1
   local val=$2
 
@@ -409,7 +409,7 @@ bvu_val_list_cidr() {
   done
 }
 
-bvu_val_list_domain() {
+buv_val_list_domain() {
   local varname=$1
   local val=$2
 
@@ -426,30 +426,30 @@ bvu_val_list_domain() {
 }
 
 # Environment variable validators
-bvu_env_string()             { bvu_env_wrapper "bvu_val_string"           "$@"; }
-bvu_env_xname()              { bvu_env_wrapper "bvu_val_xname"            "$@"; }
-bvu_env_gname()              { bvu_env_wrapper "bvu_val_gname"            "$@"; }
-bvu_env_fqin()               { bvu_env_wrapper "bvu_val_fqin"             "$@"; }
-bvu_env_bool()               { bvu_env_wrapper "bvu_val_bool"             "$@"; }
-bvu_env_decimal()            { bvu_env_wrapper "bvu_val_decimal"          "$@"; }
-bvu_env_ipv4()               { bvu_env_wrapper "bvu_val_ipv4"             "$@"; }
-bvu_env_cidr()               { bvu_env_wrapper "bvu_val_cidr"             "$@"; }
-bvu_env_domain()             { bvu_env_wrapper "bvu_val_domain"           "$@"; }
-bvu_env_port()               { bvu_env_wrapper "bvu_val_port"             "$@"; }
-bvu_env_odref()              { bvu_env_wrapper "bvu_val_odref"            "$@"; }
+buv_env_string()             { buv_env_wrapper "buv_val_string"           "$@"; }
+buv_env_xname()              { buv_env_wrapper "buv_val_xname"            "$@"; }
+buv_env_gname()              { buv_env_wrapper "buv_val_gname"            "$@"; }
+buv_env_fqin()               { buv_env_wrapper "buv_val_fqin"             "$@"; }
+buv_env_bool()               { buv_env_wrapper "buv_val_bool"             "$@"; }
+buv_env_decimal()            { buv_env_wrapper "buv_val_decimal"          "$@"; }
+buv_env_ipv4()               { buv_env_wrapper "buv_val_ipv4"             "$@"; }
+buv_env_cidr()               { buv_env_wrapper "buv_val_cidr"             "$@"; }
+buv_env_domain()             { buv_env_wrapper "buv_val_domain"           "$@"; }
+buv_env_port()               { buv_env_wrapper "buv_val_port"             "$@"; }
+buv_env_odref()              { buv_env_wrapper "buv_val_odref"            "$@"; }
 
 # Environment list validators
-bvu_env_list_ipv4()          { bvu_env_wrapper "bvu_val_list_ipv4"        "$@"; }
-bvu_env_list_cidr()          { bvu_env_wrapper "bvu_val_list_cidr"        "$@"; }
-bvu_env_list_domain()        { bvu_env_wrapper "bvu_val_list_domain"      "$@"; }
+buv_env_list_ipv4()          { buv_env_wrapper "buv_val_list_ipv4"        "$@"; }
+buv_env_list_cidr()          { buv_env_wrapper "buv_val_list_cidr"        "$@"; }
+buv_env_list_domain()        { buv_env_wrapper "buv_val_list_domain"      "$@"; }
 
 # Optional validators
-bvu_opt_bool()               { bvu_opt_wrapper "bvu_val_bool"             "$@"; }
-bvu_opt_range()              { bvu_opt_wrapper "bvu_val_decimal"          "$@"; }
-bvu_opt_ipv4()               { bvu_opt_wrapper "bvu_val_ipv4"             "$@"; }
-bvu_opt_cidr()               { bvu_opt_wrapper "bvu_val_cidr"             "$@"; }
-bvu_opt_domain()             { bvu_opt_wrapper "bvu_val_domain"           "$@"; }
-bvu_opt_port()               { bvu_opt_wrapper "bvu_val_port"             "$@"; }
+buv_opt_bool()               { buv_opt_wrapper "buv_val_bool"             "$@"; }
+buv_opt_range()              { buv_opt_wrapper "buv_val_decimal"          "$@"; }
+buv_opt_ipv4()               { buv_opt_wrapper "buv_val_ipv4"             "$@"; }
+buv_opt_cidr()               { buv_opt_wrapper "buv_val_cidr"             "$@"; }
+buv_opt_domain()             { buv_opt_wrapper "buv_val_domain"           "$@"; }
+buv_opt_port()               { buv_opt_wrapper "buv_val_port"             "$@"; }
 
 # eof
 
