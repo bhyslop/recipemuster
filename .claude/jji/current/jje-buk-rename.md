@@ -85,12 +85,12 @@ Do not add comments identifying phases or groupings of steps. Comments like "# P
   - [x] Update but_test.sh (was btu_BashTestUtility.sh)
   - [x] Update buv_validation.sh (was bvu_BashValidationUtility.sh)
 
-- [ ] Update all references across the repository (dispatch parallel subagents by directory):
-  - [ ] Update Tools/buk/ consumer files (3 files: burc_regime.sh, burs_regime.sh, buw_workbench.sh)
-  - [ ] Update .buk/ launcher files (3 files)
-  - [ ] Update Tools/ccck/cccw_workbench.sh
-  - [ ] Update Tools/rgbs/ files (2 files)
-  - [ ] Update Tools/rbw/ files (27 files)
-  - [ ] Update Tools/test/ files (2 files)
-  - [ ] Update Tools/ABANDONED-github/ files (6 files)
-  - [ ] Update tt/ TabTarget files (26 files)
+- [x] Update all references across the repository (dispatch parallel subagents by directory):
+  - [x] Update Tools/buk/ consumer files (3 files: burc_regime.sh, burs_regime.sh, buw_workbench.sh)
+  - [x] Update .buk/ launcher files (3 files)
+  - [x] Update Tools/ccck/cccw_workbench.sh
+  - [x] Update Tools/rgbs/ files (2 files)
+  - [x] Update Tools/rbw/ files (27 files)
+  - [x] Update Tools/test/ files (2 files)
+  - [x] Update Tools/ABANDONED-github/ files (6 files)
+  - [x] Update tt/ TabTarget files (26 files)
