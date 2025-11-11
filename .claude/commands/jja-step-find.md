@@ -1,6 +1,6 @@
 # /jja-step-find: Show next incomplete step
 
-You are helping the user see the next incomplete step from the current Jaunt Jockey effort.
+You are helping the user see the next incomplete step from the current Job Jockey effort.
 
 Configuration:
 - JJ files path: `.claude/jji/`

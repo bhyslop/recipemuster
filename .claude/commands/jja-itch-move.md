@@ -13,12 +13,12 @@ Steps:
 2. Ask where to move it:
    - To Future (worthy of doing)
    - To Shelved (set aside for now)
-   - Promote to new effort (create jje-YYMMDD-*.md file)
+   - Promote to new effort (create jje-*.md file)
 
 3. If promoting to effort:
    - Ask for effort title/description
-   - Create new `jje-YYMMDD-[description].md` in `.claude/jji/current/`
-   - Use today's date (YYMMDD format)
+   - Create new `jje-[description].md` in `.claude/jji/current/`
+   - Note: Active efforts don't have datestamp; datestamp is added when retired
    - Include Context and Pending sections with initial steps
    - The promoted itch becomes part of the effort context or a first step
 

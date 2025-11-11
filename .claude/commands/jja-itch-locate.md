@@ -1,6 +1,6 @@
 # /jja-itch-locate: Find an itch by keyword
 
-You are helping locate an itch in Jaunt Jockey's Future or Shelved files.
+You are helping locate an itch in Job Jockey's Future or Shelved files.
 
 Configuration:
 - JJ files path: `.claude/jji/`

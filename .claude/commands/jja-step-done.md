@@ -1,6 +1,6 @@
 # /jja-step-done: Mark step complete
 
-You are helping mark a step complete in the current Jaunt Jockey effort.
+You are helping mark a step complete in the current Job Jockey effort.
 
 Configuration:
 - JJ files path: `.claude/jji/`

@@ -1,6 +1,6 @@
-# /jja-doctor: Validate Jaunt Jockey setup
+# /jja-doctor: Validate Job Jockey setup
 
-You are validating that Jaunt Jockey is correctly installed and all files are present.
+You are validating that Job Jockey is correctly installed and all files are present.
 
 Configuration:
 - JJ files path: `.claude/jji/`
@@ -27,6 +27,6 @@ Validation checklist:
    - List any `jje-*.md` files in `.claude/jji/current/`
 
 6. Summary:
-   - "Jaunt Jockey is properly installed" or "Issues found:" with details
+   - "Job Jockey is properly installed" or "Issues found:" with details
 
 Error handling: Report any missing files or paths. Do not attempt to auto-fix.
