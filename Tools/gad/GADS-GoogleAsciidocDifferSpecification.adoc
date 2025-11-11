@@ -184,60 +184,6 @@ Collapse consecutive whitespace in prose blocks while preserving semantic line b
 * **Block boundaries**: Ensure clean breaks between structural elements
 * **Implementation Safety**: Generate clean output DOM from immutable input trees, avoiding iterator invalidation and reference corruption
 
-=== Semantic Change Classification
-
-**GADS Enhancement**: Process DOM-level operations through semantic analysis to provide precise visual change classification:
-
-==== Change Type Taxonomy
-
-`INLINE_ADDITION`::
-New content within existing structural elements (links, emphasis, inline code).
-**Visual Treatment**: Inline highlighting with background color, no container styling.
-**Scope**: Individual `<a>`, `<span>`, `<code>` elements and text fragments.
-
-`BLOCK_ADDITION`::
-New structural elements (paragraphs, list items, sections, definition entries).
-**Visual Treatment**: Block-level highlighting with border and background.
-**Scope**: `<p>`, `<div>`, `<li>`, `<dt>`, `<dd>` elements and their complete content.
-
-`INLINE_REMOVAL`::
-Deleted content within existing structural elements (removed links, emphasis, inline code).
-**Visual Treatment**: Styled with deletion CSS class positioned inline.
-**Scope**: Individual removed `<a>`, `<span>`, `<code>` elements and text fragments.
-
-`BLOCK_REMOVAL`::
-Deleted structural elements (removed paragraphs, list items, sections, definition entries).
-**Visual Treatment**: Styled with deletion CSS class at block level.
-**Scope**: Removed `<p>`, `<div>`, `<li>`, `<dt>`, `<dd>` elements and their complete content.
-
-`INLINE_MODIFICATION`::
-Changed content within existing elements without structural impact.
-**Visual Treatment**: Subtle highlighting for specific changed text only.
-**Scope**: Text nodes and immediate containing inline elements.
-
-`STRUCTURAL_CHANGE`::
-Reorganized, moved, or restructured content maintaining same text.
-**Visual Treatment**: Move indicators and positional annotations.
-**Scope**: Block-level elements with changed DOM hierarchy.
-
-=== Metadata Stripping
-
-Remove or neutralize volatile HTML elements:
-
-* Generator meta tags (`<meta name="generator">`)
-* Build timestamps in comments or meta tags
-* Host-specific paths in any remaining attributes
-* Figure and table auto-numbering if present
-
-=== List Numbering Normalization
-
-Eliminate renumbering noise in ordered lists to focus diffs on content changes:
-
-* **Ordered List Items**: Set all `<li>` elements within `<ol>` to `value="1"`
-* **Preserve List Type**: Maintain distinction between ordered (`<ol>`) and unordered (`<ul>`) lists
-* **Nested List Handling**: Process only direct children to avoid over-normalization
-* **Content Focus**: Adding/removing list items produces semantic diffs without cascading number changes
-
 === Section Numbering Suppression
 
 The {gadt_factory} disables automatic section numbering during asciidoctor execution to prevent heading text changes when document structure changes.
