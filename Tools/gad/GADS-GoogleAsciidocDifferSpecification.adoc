@@ -833,7 +833,7 @@ Used for logging critical execution points including manifest loading, rail sele
 [[gadwm_debug]]
 {gadwm_debug}::
 {gadt_websocket} message sent by {gadt_inspector} to {gadt_factory} containing debug artifacts.
-Contains {gadwf_type} field set to "debug_output", {gadwf_debug_type} identifying the artifact type, {gadwf_content} with HTML or JSON payload, {gadwf_filename_pattern} for file naming, and {gadwf_source_files} array for debug context.
+Contains `type` field set to "debug_output", `debug_type` field identifying the artifact type, `content` with HTML or JSON payload, `filename_pattern` for file naming, and `source_files` array for debug context.
 
 [[gadwf_type]]
 {gadwf_type}::
@@ -852,7 +852,7 @@ Contains debugging and operational visibility output from {gadt_inspector}.
 
 [[gadwf_debug_type]]
 {gadwf_debug_type}::
-Debug artifact type identifier field in {gadwm_debug} messages.
+Debug artifact type identifier field in {gadwm_debug} messages, named `debug_type` in JSON.
 Semantic string values indicate artifact type: "from-dom-structure", "to-dom-structure", "diff-operations", "from-route-mapping", "to-route-mapping", "prototype-output", "dual-output", "rendered", etc.
 Used by {gadt_factory} for logging and file identification.
 
