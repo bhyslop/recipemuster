@@ -9,8 +9,8 @@ set -euo pipefail
 ZRBHR_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # Source all dependencies (CLI files handle all sourcing)
-source "${ZRBHR_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
-source "${ZRBHR_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBHR_CLI_SCRIPT_DIR}/buc_command.sh"
+source "${ZRBHR_CLI_SCRIPT_DIR}/buv_validation.sh"
 source "${ZRBHR_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBHR_CLI_SCRIPT_DIR}/rbcr_ContainerRegistry.sh"
 source "${ZRBHR_CLI_SCRIPT_DIR}/rbhr_GithubRemote.sh"

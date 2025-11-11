@@ -23,8 +23,8 @@ set -euo pipefail
 ZRBGM_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGM_SCRIPT_DIR}/buc_BashCommandUtility.sh"
-source "${ZRBGM_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBGM_SCRIPT_DIR}/buc_command.sh"
+source "${ZRBGM_SCRIPT_DIR}/buv_validation.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"

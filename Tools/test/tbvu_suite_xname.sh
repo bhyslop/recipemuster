@@ -22,8 +22,8 @@
 # Source the libraries from parent directory
 ZBUT_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
 source "${ZBUT_SCRIPT_DIR}/buc_command.sh"
-source "${ZBUT_SCRIPT_DIR}/but_BashTestUtility.sh"
-source "${ZBUT_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZBUT_SCRIPT_DIR}/but_test.sh"
+source "${ZBUT_SCRIPT_DIR}/buv_validation.sh"
 
 tbvu_util_echo_bob() { echo "bob"; }
 

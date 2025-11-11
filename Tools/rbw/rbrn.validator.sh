@@ -19,7 +19,7 @@
 set -e
 
 ZRBRN_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRN_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBRN_SCRIPT_DIR}/buv_validation.sh"
 
 buv_env_xname       RBRN_MONIKER                 2     12
 buv_env_string      RBRN_DESCRIPTION             0    120

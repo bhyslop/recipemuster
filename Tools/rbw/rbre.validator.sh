@@ -19,7 +19,7 @@
 set -e
 
 ZRBRE_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRE_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBRE_SCRIPT_DIR}/buv_validation.sh"
 
 # RBRE-specific environment variables
 buv_env_string      RBRE_AWS_CREDENTIALS_ENV     1    255

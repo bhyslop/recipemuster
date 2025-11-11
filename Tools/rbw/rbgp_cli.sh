@@ -23,8 +23,8 @@ set -euo pipefail
 ZRBGP_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBGP_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/buc_command.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/buv_validation.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"

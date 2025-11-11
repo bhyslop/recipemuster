@@ -21,7 +21,7 @@
 set -euo pipefail
 
 ZRBRV_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZRBRV_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBRV_SCRIPT_DIR}/buv_validation.sh"
 
 # Core Vessel Identity
 buv_env_xname       RBRV_SIGIL                   1     64  # Must match directory name

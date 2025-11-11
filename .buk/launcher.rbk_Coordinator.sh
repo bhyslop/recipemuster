@@ -41,4 +41,4 @@ z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
 
 # Set coordinator and delegate to BDU
 export BUD_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/rbw/rbk_Coordinator.sh"
-exec "${BURC_TOOLS_DIR}/buk/bud_BashDispatchUtility.sh" "${1##*/}" "${@:2}"
+exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"

@@ -21,7 +21,7 @@ set -euo pipefail
 
 zccck_kit_dir="${BASH_SOURCE[0]%/*}"
 zccck_buk_directory="${zccck_kit_dir}/../buk"
-source "${zccck_buk_directory}/buc_BashCommandUtility.sh"
+source "${zccck_buk_directory}/buc_command.sh"
 
 buc_context "cccw_workbench"
 

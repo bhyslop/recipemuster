@@ -22,7 +22,7 @@ set -euo pipefail
 
 # Get script directory and source BUD
 RBW_PR_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "$RBW_PR_SCRIPT_DIR/../Tools/bud_BashDispatchUtility.sh"
+source "$RBW_PR_SCRIPT_DIR/../Tools/buk/bud_dispatch.sh"
 
 bud_main rbw-PR "$@"
 

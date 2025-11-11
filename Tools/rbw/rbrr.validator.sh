@@ -20,7 +20,7 @@
 set -euo pipefail
 
 ZRBRR_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZRBRR_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBRR_SCRIPT_DIR}/buv_validation.sh"
 
 # Container Registry Configuration
 buv_env_xname       RBRR_REGISTRY_OWNER          2     64

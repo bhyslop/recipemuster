@@ -19,7 +19,7 @@
 set -e
 
 ZRBRG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRG_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBRG_SCRIPT_DIR}/buv_validation.sh"
 
 # RBRG-specific environment variables
 # RBRR_GITHUB_PAT_ENV is validated in rbrr.validator.sh

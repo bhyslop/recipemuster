@@ -21,7 +21,7 @@
 
 # Source the libraries from parent directory
 ZTRBIM_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
-source "${ZTRBIM_SCRIPT_DIR}/but_BashTestUtility.sh"
+source "${ZTRBIM_SCRIPT_DIR}/but_test.sh"
 
 # Source RBRR configuration to get machine names
 source "${ZTRBIM_SCRIPT_DIR}/../rbrr_RecipeBottleRegimeRepo.sh" || but_fatal "Failed to source RBRR configuration"

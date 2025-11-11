@@ -24,7 +24,7 @@ set -euo pipefail
 BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${BUW_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+source "${BUW_SCRIPT_DIR}/buc_command.sh"
 
 # Verbose output if BUD_VERBOSE is set
 buw_show() {

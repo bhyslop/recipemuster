@@ -22,8 +22,8 @@ set -euo pipefail
 ZRBV_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # Source all dependencies (CLI files handle all sourcing)
-source "${ZRBV_CLI_SCRIPT_DIR}/buc_BashCommandUtility.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/buc_command.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/buv_validation.sh"
 source "${ZRBV_CLI_SCRIPT_DIR}/rbv_PodmanVM.sh"
 
 # CLI-specific environment function

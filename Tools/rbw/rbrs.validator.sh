@@ -19,7 +19,7 @@
 set -e
 
 ZRBRS_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRS_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZRBRS_SCRIPT_DIR}/buv_validation.sh"
 
 buv_env_string      RBRS_PODMAN_ROOT_DIR         1     64
 buv_env_string      RBRS_VMIMAGE_CACHE_DIR       1     64

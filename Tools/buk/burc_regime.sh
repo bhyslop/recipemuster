@@ -24,8 +24,8 @@ set -euo pipefail
 ZBURC_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZBURC_SCRIPT_DIR}/buc_BashCommandUtility.sh"
-source "${ZBURC_SCRIPT_DIR}/buv_BashValidationUtility.sh"
+source "${ZBURC_SCRIPT_DIR}/buc_command.sh"
+source "${ZBURC_SCRIPT_DIR}/buv_validation.sh"
 
 # Module state
 ZBURC_KINDLED=""
@@ -118,7 +118,7 @@ burc_info() {
 
   # Source BCU for colors
   # shellcheck disable=SC1091
-  source "${ZBURC_SCRIPT_DIR}/buc_BashCommandUtility.sh"
+  source "${ZBURC_SCRIPT_DIR}/buc_command.sh"
 
   cat <<EOF
 
