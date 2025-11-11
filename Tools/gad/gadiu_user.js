@@ -137,6 +137,42 @@ class gadiu_inspector {
         }
     }
 
+    async handleRefresh() {
+        // Factory has processed new commits - full reload sequence
+        gadib_logger_d('Refresh handler: starting manifest reload');
+
+        try {
+            // Fetch updated manifest
+            gadib_logger_d('Refresh handler: fetching updated manifest');
+            const response = await fetch('manifest.json');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            gadib_logger_d('Refresh handler: parsing updated manifest');
+            this.manifest = await response.json();
+            gadib_logger_d(`Refresh handler: manifest updated with ${this.manifest.commits.length} commits`);
+
+            // Full reload: repopulate rails
+            gadib_logger_d('Refresh handler: repopulating rails');
+            this.populateRails();
+
+            // Re-parse URL state (relative params like H/-1 will select new commits, hashes stay locked)
+            gadib_logger_d('Refresh handler: re-parsing URL state');
+            this.parseUrlState();
+
+            gadib_logger_d('Refresh handler: reload complete');
+        } catch (error) {
+            gadib_logger_e(`Refresh handler failed: ${error.message}`);
+            this.elements.renderedPane.innerHTML = `
+                <div class="error">
+                    <h3>Refresh failed</h3>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
     populateRails() {
         gadib_logger_d('Clearing rail content');
         // Clear existing content

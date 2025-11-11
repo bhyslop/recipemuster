@@ -77,6 +77,12 @@
                 }
                 // Use the modular gadiu_inspector class
                 window.gadInspector = new window.gadiu_inspector();
+
+                // Register refresh callback with WebSocket handler
+                gadib_register_refresh_callback(() => {
+                    console.log('[DEBUG] Refresh callback triggered from WebSocket');
+                    window.gadInspector.handleRefresh();
+                });
             }
         }
 

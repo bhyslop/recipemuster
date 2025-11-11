@@ -820,7 +820,8 @@ This {gadw_premise} enables simplified security and authentication models suitab
 [[gadwm_refresh]]
 {gadwm_refresh}::
 {gadt_websocket} message sent by {gadt_factory} to connected {gadt_inspector} clients when new commits are processed.
-The {gadwm_refresh} triggers {gadt_inspector} to fetch updated manifest and refresh the interface.
+Upon receiving {gadwm_refresh}, {gadt_inspector} executes a full reload sequence: fetches the updated {gadt_manifest}, repopulates both {gadir_from} and {gadir_to} rails with new commit list, then re-parses URL hash parameters with position-relative semantics (H and negative indices select new commits, absolute git hashes remain locked to their original commits).
+The refresh sequence preserves {gadu_operator} intent while adapting to new commit history without requiring manual UI interaction.
 Contains {gadwf_type} field set to "refresh" and {gadwf_data} field with payload value.
 
 [[gadwm_trace]]

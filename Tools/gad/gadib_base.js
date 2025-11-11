@@ -5,6 +5,9 @@
 // Global WebSocket trace handler instance
 let gadib_ws_instance = null;
 
+// Callback for handling refresh messages from factory
+let gadib_refresh_callback = null;
+
 // Initialize WebSocket handler - called once during module setup
 function gadib_init_websocket() {
     gadib_ws_instance = {
@@ -28,6 +31,20 @@ function gadib_init_websocket() {
 
                 this.ws.onclose = () => {
                     console.log('[DEBUG] WebSocket disconnected');
+                };
+
+                this.ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (message.type === 'refresh') {
+                            gadib_logger_d('Received refresh notification from factory');
+                            if (gadib_refresh_callback) {
+                                gadib_refresh_callback();
+                            }
+                        }
+                    } catch (error) {
+                        console.log('[DEBUG] Failed to parse WebSocket message:', error);
+                    }
                 };
             } catch (error) {
                 console.log('[DEBUG] WebSocket connection failed (non-fatal):', error);
@@ -152,6 +169,11 @@ function gadib_connect_after_manifest() {
     if (gadib_ws_instance) {
         gadib_ws_instance.connectAfterManifest();
     }
+}
+
+// Register callback for factory refresh messages
+function gadib_register_refresh_callback(callback) {
+    gadib_refresh_callback = callback;
 }
 
 // Initialize WebSocket handler on module load
