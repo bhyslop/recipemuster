@@ -91,71 +91,39 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             gadfl_warn(f"Invalid WebSocket message: {message}")
 
     def handle_debug_output(self, data):
-        """Handle consolidated debug output message from Inspector for all 8-phase artifacts."""
+        """Handle debug output message from Inspector."""
         try:
             factory = self.application.factory
             debug_type = data.get('debug_type', 'unknown')
             content = data.get('content', '')
-            
-            # Use GADS-compliant filename pattern provided by Inspector
+
+            # Use filename pattern provided by Inspector
             filename = data.get('filename_pattern')
             if not filename:
                 # Fallback pattern
                 timestamp = time.strftime('%Y%m%d%H%M%S')
                 extension = 'json' if debug_type.endswith('dft') else 'html'
                 filename = f"debug-{debug_type}-{timestamp}.{extension}"
-            
+
             filepath = factory.output_dir / filename
             source_files = data.get('source_files', [])
 
-            # Write content based on file type
-            if filename.endswith('.json'):
-                with open(filepath, 'w', encoding='utf-8') as f:
-                    f.write(content)
-            else:
-                with open(filepath, 'w', encoding='utf-8') as f:
-                    # Write comment lines with source file information per GADS spec
-                    if source_files:
-                        debug_type_display = self.get_debug_type_display_name(debug_type)
-                        f.write(f"<!-- GAD {debug_type_display} source files:\n")
-                        for source_file in source_files:
-                            f.write(f"     {source_file}\n")
-                        f.write("-->\n")
-                    
-                    f.write(content)
+            # Write content to file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                # Write comment lines with source file information for HTML files
+                if filename.endswith('.html') and source_files:
+                    f.write(f"<!-- GAD {debug_type} source files:\n")
+                    for source_file in source_files:
+                        f.write(f"     {source_file}\n")
+                    f.write("-->\n")
 
-            phase_display = self.get_debug_type_display_name(debug_type)
-            gadfl_step(f"{phase_display} debug file created: {filename}")
+                f.write(content)
+
+            gadfl_step(f"{debug_type} debug file created: {filename}")
             gadfl_step(f"Full path: {filepath}")
 
         except Exception as e:
             gadfl_warn(f"Failed to save {debug_type} debug output: {e}")
-
-    def get_debug_type_display_name(self, debug_type):
-        """Get display name for debug type."""
-        debug_type_names = {
-            # New modular engine phase labels
-            'phase3_dft': 'Phase 3 Deletion Fact Table',
-            'phase6_annotated': 'Phase 6 Annotated Assembly', 
-            'phase7_deletions': 'Phase 7 Deletion Placement',
-            'phase8_coalesced': 'Phase 8 Uniform Classing',
-            'phase9_final': 'Phase 9 Final Serialize',
-            'rendered': 'Rendered Content',
-            # Raw DOM analysis artifacts
-            'from-dom-structure': 'Source DOM Structure',
-            'to-dom-structure': 'Target DOM Structure', 
-            'from-route-mapping': 'Source Route Mapping',
-            'to-route-mapping': 'Target Route Mapping',
-            'diff-operations': 'Diff Operations Analysis',
-            'styled-output': 'Styled Diff Output',
-            # Legacy phase labels for backwards compatibility
-            'phase5_annotated': 'Phase 5 Annotated Assembly (Legacy)',
-            'phase6_deletions': 'Phase 6 Deletion Placement (Legacy)',
-            'phase7_coalesced': 'Phase 7 Uniform Classing (Legacy)',
-            'phase8_final': 'Phase 8 Final Serialize (Legacy)',
-            'annotated': 'Annotated DOM'
-        }
-        return debug_type_names.get(debug_type, f"Debug Output ({debug_type})")
 
     def handle_legacy_rendered_content(self, data):
         """Handle legacy rendered content message for backwards compatibility."""
