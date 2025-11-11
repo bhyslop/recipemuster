@@ -626,21 +626,15 @@ Tab content switches based on {gadis_tab_state} between {gadiv_prototype}, {gadi
 [[gadil_trace]]
 {gadil_trace}::
 Debugging output statements sent directly to {gadt_factory} via {gadt_websocket} at critical execution points in {gadt_inspector}.
-{gadil_trace} entries are streamed in real-time to {gadt_factory} and include ISO timestamps with the following required events:
-+
-* `[MANIFEST]` Events: Loading start, successful load with commit count, load failures
-* `[RAIL]` Events: {gadir_from} selection changes, {gadir_to} selection changes
-* `[FETCH]` Events: HTML fetch start per commit, successful fetch completion, fetch failures
-* `[DIFF]` Events: Diff computation start, completion with change count
-* `[SHA256]` Events: Detection of identical/different {gadmf_html_sha256} values between {gadi_from_commit} and {gadi_to_commit}
-* {gadil_error} Events: missing commits in manifest, diff-dom library failures
-+
-Each {gadil_trace} entry includes bracketed prefix for filtering and is sent immediately via {gadwm_trace} to {gadt_factory}.
+{gadil_trace} entries are streamed in real-time to {gadt_factory} with a `D` prefix to indicate debug-level messaging.
+Trace events cover manifest loading (start, successful load with commit count, load failures), rail selections, HTML fetching (start per commit, successful completion, failures), diff computation (start, completion with change count), SHA-256 hash comparisons, and error conditions.
+Each {gadil_trace} entry is sent immediately via {gadwm_trace} to {gadt_factory}.
 
 [[gadil_error]]
 {gadil_error}::
 Error reporting statements sent directly to {gadt_factory} via {gadt_websocket} at critical failure points in {gadt_inspector}.
-{gadil_error} entries are streamed in real-time to {gadt_factory} and include ISO timestamps with specific error conditions including missing commits in manifest, and diff-dom library failures, and send error trace via {gadt_websocket}.
+{gadil_error} entries use an `E` prefix to indicate error-level messaging and include ISO timestamps with specific error conditions such as missing commits in manifest and diff-dom library failures.
+{gadil_error} entries are streamed in real-time to {gadt_factory} via {gadt_websocket}.
 
 [[gadid_swap]]
 {gadid_swap}::
