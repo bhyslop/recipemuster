@@ -126,28 +126,31 @@ When working with .adoc files using MCM patterns:
 1. **Bash Development**: Start with relevant utility (BCU/BDU/BTU/BVU), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory
 
-## Jaunt Jockey Configuration
+## Job Jockey Configuration
 
-Jaunt Jockey (JJ) is installed for managing project initiatives.
+Job Jockey (JJ) is installed for managing project initiatives.
 
 - JJ files path: `.claude/jji/`
 - JJ Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
 - Separate repo: no
 - Installed: `2025-11-08`
+- Updated: `2025-11-10`
 
 **Available commands:**
+- `/jja-next` - Show current effort and next step(s)
+- `/jja-effort-retire` - Move completed effort to retired with datestamp
 - `/jja-step-find` - Show next incomplete step
 - `/jja-step-left` - List all remaining steps
 - `/jja-step-add` - Add a new step to current effort
 - `/jja-step-done` - Mark step complete
 - `/jja-itch-locate` - Find an itch by keyword
 - `/jja-itch-move` - Move or promote an itch
-- `/jja-doctor` - Validate Jaunt Jockey setup
+- `/jja-doctor` - Validate Job Jockey setup
 
 **Effort selection:**
-- When starting a session, Claude checks `.claude/jji/current/` for active efforts
-- Single effort: Announced as current work
-- Multiple efforts: Ask which to work on
+- When starting a session, use `/jja-next` to show current effort and next step(s)
+- Single effort: Display effort with next step(s), ask for clarification if needed
+- Multiple efforts: Ask which to work on, then show that effort with next step(s)
 - No efforts: Ask if you want to start one or promote an itch
 
 ## Current Context
