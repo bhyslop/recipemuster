@@ -843,7 +843,7 @@ Contains {gadwf_type} field set to "debug_output", {gadwf_debug_type} identifyin
 [[gadwf_type]]
 {gadwf_type}::
 Message type identifier field in {gadt_websocket} messages.
-Values include "refresh", "trace", "debug_output", "rendered_content", and "annotated_dom".
+Values include "refresh" (server-to-client for manifest updates), "trace" (client-to-server for debugging), and "debug_output" (client-to-server for debug artifacts).
 
 [[gadwf_data]]
 {gadwf_data}::
@@ -858,7 +858,7 @@ Contains debugging and operational visibility output from {gadt_inspector}.
 [[gadwf_debug_type]]
 {gadwf_debug_type}::
 Debug artifact type identifier field in {gadwm_debug} messages.
-Semantic string values indicate artifact type: "from-dom-structure", "to-dom-structure", "diff-operations", "from-route-mapping", "to-route-mapping", "prototype-output", "dual-output", etc.
+Semantic string values indicate artifact type: "from-dom-structure", "to-dom-structure", "diff-operations", "from-route-mapping", "to-route-mapping", "prototype-output", "dual-output", "rendered", etc.
 Used by {gadt_factory} for logging and file identification.
 
 [[gadwf_content]]
@@ -888,14 +888,13 @@ SHA-256 comparison algorithm used during {gadfs_render} to detect duplicate HTML
 
 [[gadif_processed_diff]]
 {gadif_processed_diff}::
-Debug capture file following the pattern `debug-rendered-{from_hash}-{to_hash}-{timestamp}.html` used for rendered capture files created when {gadt_factory} receives {gadwm_debug} from {gadt_inspector}.
-The {gadif_processed_diff} includes both commit hashes being compared and an ISO timestamp for unique identification.
-Each rendered capture begins with comment lines listing the full concrete filenames of the preprocessed HTML files used to generate the diff visualization.
+Debug capture file following the pattern `debug-{debug_type}-{from_hash}-{to_hash}-{timestamp}.{extension}` created when {gadt_factory} receives {gadwm_debug} from {gadt_inspector}.
+The {gadif_processed_diff} uses the semantic {gadwf_debug_type} value (e.g., "rendered", "prototype-output", "dual-output") to name the artifact, includes both commit hashes being compared and an ISO timestamp for unique identification, and has file extension determined by artifact type (.html for rendered output, .json for operations data).
 
 [[gadif_annotated_dom]]
 {gadif_annotated_dom}::
-Debug capture file following the pattern `debug-annotated-{from_hash}-{to_hash}-{timestamp}.html` for annotated DOM debugging.
-The {gadif_annotated_dom} contains the intermediate HTML with all diff annotations applied but before single-element run consolidation, enabling analysis of granular operation-level visual annotations and debugging consolidation logic.
+Debug capture file following the pattern `debug-{debug_type}-{from_hash}-{to_hash}-{timestamp}.{extension}` for intermediate debugging artifacts.
+The {gadif_annotated_dom} uses the semantic {gadwf_debug_type} value (e.g., "from-dom-structure", "to-dom-structure", "diff-operations") to identify artifact type, enabling analysis of intermediate computation steps during diff processing.
 
 [[gadt_websocket]]
 {gadt_websocket}::
