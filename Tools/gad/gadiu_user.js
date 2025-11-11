@@ -558,11 +558,14 @@ class gadiu_inspector {
                 this.prototypeView = diffResult.prototypeHTML;
                 this.dualView = diffResult.dualHTML;
 
-                // Setup tab bar before setting content to preserve tab structure
-                this.setupTabBar();
-
-                // Initially show prototype view (default until dual is ready)
-                this.elements.tabContent.innerHTML = this.prototypeView;
+                // Setup tab bar only if it doesn't exist yet (preserve state during diff re-computation)
+                if (!this.elements.tabBar || !this.elements.tabBar.querySelector('button[data-tab]')) {
+                    this.setupTabBar();
+                } else {
+                    // Tab bar exists - update content for current tab without rebuilding (GADS: preserve tab state)
+                    gadib_logger_d(`Tab bar exists, preserving tab state and updating content for current tab: ${this.currentTab}`);
+                    this.switchTab(this.currentTab || 'prototype');
+                }
             } else {
                 // Fallback to string handling for backward compatibility
                 const styledDiff = typeof diffResult === 'string' ? diffResult : diffResult.prototypeHTML || 'No diff available';
