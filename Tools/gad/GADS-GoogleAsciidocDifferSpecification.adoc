@@ -910,8 +910,20 @@ Contains debugging and operational visibility output from {gadt_inspector}.
 [[gadwf_debug_type]]
 {gadwf_debug_type}::
 Debug artifact type identifier field in {gadwm_debug} messages, named `debug_type` in JSON.
-Semantic string values indicate artifact type: "from-dom-structure", "to-dom-structure", "diff-operations", "from-route-mapping", "to-route-mapping", "prototype-output", "dual-output", "rendered", etc.
-Used by {gadt_factory} for logging and file identification.
+Specifies the semantic type of artifact carried in {gadwf_content}, determining both file extension and interpretation by {gadt_factory}.
++
+Semantic string values with corresponding {{gadwf_content}} payloads:
++
+- `"from-dom-structure"`: {{gadic_from_dom}} serialized as JSON tree, extension `.json`
+- `"to-dom-structure"`: {{gadic_to_dom}} serialized as JSON tree, extension `.json`
+- `"diff-operations-forward"`: {{gadis_forward_list}} as JSON array, extension `.json`
+- `"diff-operations-reverse"`: {{gadis_reverse_list}} as JSON array, extension `.json`
+- `"prototype-rendered"`: {{gadic_rendered_dom}} as HTML string, extension `.html`
+- `"dual-left-rendered"`: {{gadvd_left_rendered}} as HTML string, extension `.html`
+- `"dual-right-rendered"`: {{gadvd_right_rendered}} as HTML string, extension `.html`
+- `"dual-changes"`: {{gadis_change_list}} with operation correlations and visual treatment metadata as JSON, extension `.json`
++
+Used by {gadt_factory} for logging, file extension selection, and debug artifact identification.
 
 [[gadwf_content]]
 {gadwf_content}::
