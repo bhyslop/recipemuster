@@ -26,6 +26,7 @@
 // gadd_=Differ/Diff
 // gadie_=Inspector Engine
 // gadic_=Inspector Computation
+// gadvd_=Dual View Component
 // gadda_=Distill Argument
 // gadmf_=Manifest Field
 // gadw_=WebSocket
@@ -82,18 +83,15 @@
 :gadir_label:                          <<gadir_label,Inspector Rail Label>>
 :gadir_radio:                          <<gadir_radio,Inspector Radio Button>>
 :gadid_swap:                           <<gadid_swap,Inspector Swap Control>>
-:gadd_detached_dom:                    <<gadd_detached_dom,Detached Working DOM>>
-:gadd_diff_dom:                        <<gadd_diff_dom,diff-dom>>
-:gadd_route:                           <<gadd_route,route>>
-:gadd_route_s:                         <<gadd_route,routes>>
-:gadd_route_array:                     <<gadd_route_array,route array>>
+:gaddl_library:                        <<gaddl_library,diff-dom>>
+:gaddo_dom:                            <<gaddo_dom,Diff-DOM DOM Structure>>
+:gaddo_word_flat:                      <<gaddo_word_flat,Diff-DOM Word Flat>>
+:gaddo_word_map:                       <<gaddo_word_map,Diff-DOM Word Map>>
 :gadic_from_dom:                       <<gadic_from_dom,Inspector Computation From DOM>>
 :gadic_to_dom:                         <<gadic_to_dom,Inspector Computation To DOM>>
-:gadic_operations:                     <<gadic_operations,Inspector Computation Operations>>
-:gadic_operation:                      <<gadic_operation,Inspector Computation Operation>>
+:gaddo_operation_list:                 <<gaddo_operation_list,Diff-DOM Operation List>>
+:gaddo_operation:                      <<gaddo_operation,Diff-DOM Operation>>
 :gadic_rendered_dom:                   <<gadic_rendered_dom,Inspector Computation Rendered DOM>>
-:gadic_route_start_marker:             <<gadic_route_start_marker,Inspector Computation Route Start Marker>>
-:gadic_route_end_marker:               <<gadic_route_end_marker,Inspector Computation Route End Marker>>
 :gadic_annotation_collection:          <<gadic_annotation_collection,Inspector Computation Annotation Collection>>
 :gadic_annotation_entry:               <<gadic_annotation_entry,Inspector Computation Annotation Entry>>
 :gadic_multiview_result:               <<gadic_multiview_result,Inspector Computation Multi-View Result>>
@@ -132,10 +130,21 @@
 :gadis_status:                         <<gadis_status,Inspector Status Section>>
 :gadis_initialization:                 <<gadis_initialization,Inspector Initialization Sequence>>
 :gadis_diff_sequence:                  <<gadis_diff_sequence,Inspector Diff Sequence>>
+:gadis_forward_list:                   <<gadis_forward_list,Inspector Forward Operation List>>
+:gadis_reverse_list:                   <<gadis_reverse_list,Inspector Reverse Operation List>>
+:gadis_change_correlation:             <<gadis_change_correlation,Inspector Change Correlation>>
+:gadis_change_rendering:               <<gadis_change_rendering,Inspector Change Rendering>>
+:gadis_change:                         <<gadis_change,Inspector Change>>
+:gadis_change_list:                    <<gadis_change_list,Inspector Change List>>
 :gadis_tab_state:                      <<gadis_tab_state,Inspector Tab State>>
-:gadiv_unchanged:                      <<gadiv_unchanged,Inspector Unchanged Indicator>>
-:gadiv_prototype:                      <<gadiv_prototype,Inspector Prototype View>>
-:gadiv_dual:                           <<gadiv_dual,Inspector Dual View>>
+:gadir_unchanged_indicator:            <<gadir_unchanged_indicator,Inspector Rail Unchanged Indicator>>
+:gadi_prototype_view:                  <<gadi_prototype_view,Inspector Prototype View>>
+:gadi_dual_view:                       <<gadi_dual_view,Inspector Dual View>>
+:gadvd_left_pane:                      <<gadvd_left_pane,Dual View Left Pane>>
+:gadvd_right_pane:                     <<gadvd_right_pane,Dual View Right Pane>>
+:gadvd_change_pane:                    <<gadvd_change_pane,Dual View Change Pane>>
+:gadvd_left_rendered:                  <<gadvd_left_rendered,Dual View Left Rendered>>
+:gadvd_right_rendered:                 <<gadvd_right_rendered,Dual View Right Rendered>>
 :gadkp_single_threaded:                <<gadkp_single_threaded,Single-Threaded Premise>>
 :gadf_limit_mode:                      <<gadf_limit_mode,Factory Limit Mode>>
 :gadf_hash_lookup:                     <<gadf_hash_lookup,Factory Hash Lookup>>
@@ -325,15 +334,15 @@ The {gadt_inspector} provides an interactive interface for comparing normalized 
 [[gadis_diff_sequence]]
 === {gadis_diff_sequence}
 
-The {gadt_inspector} executes diff analysis by creating immutable DOM structures from input HTML, running {gadd_diff_dom} to compute {gadic_operations}, then applying CSS styling and generating visualization. On error, display error text in {gadip_rendered} instead of diff.
+The {gadt_inspector} executes diff analysis by creating immutable DOM structures from input HTML, running {gaddl_library} to compute operation lists, then applying CSS styling and generating visualization. On error, display error text in {gadip_rendered} instead of diff.
 
 The {gadis_diff_sequence} computes:
 
 **Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}, parsed into {gadic_from_dom} and {gadic_to_dom}.
 
-**Processing**: {gadd_diff_dom} analysis generates {gadic_operations} array containing individual {gadic_operation} entries with complete {gadd_route_array} information for precise element positioning. CSS classes applied to construct {gadic_rendered_dom}, with {gadic_route_start_marker} and {gadic_route_end_marker} elements inserted at operation boundaries. {gadic_annotation_collection} produced containing {gadic_annotation_entry} elements describing each change operation.
+**Processing**: {gaddl_library} invoked twice to generate {gadis_forward_list} (before→after) and {gadis_reverse_list} (after→before), each containing individual {gaddo_operation} entries with complete route information for precise element positioning. {gadis_change_correlation} analyzes {gadis_forward_list} and {gadis_reverse_list} to group {gaddo_operation} entries by proximity and inverse relationships, producing {gadis_change_list}. CSS classes applied to construct view-specific rendered output. {gadic_annotation_collection} produced containing {gadic_annotation_entry} elements describing each {gadis_change}.
 
-**Output**: {gadic_multiview_result} with pre-computed views for {gadip_tab_bar} display options ({gadiv_prototype} and {gadiv_dual} content), displayed in {gadip_rendered} pane.
+**Output**: {gadic_multiview_result} with pre-computed views for {gadip_tab_bar} display options ({gadi_prototype_view} and {gadi_dual_view} content), displayed in {gadip_rendered} pane.
 
 === {gadis_diff_sequence} Trigger
 
@@ -342,7 +351,7 @@ The {gadis_diff_sequence} executes when: page loads, {gadir_from} or {gadir_to} 
 . Parse URL hash for {gadihp_from}, {gadihp_to}, and {gadihp_tab} values
 . Verify {gadt_factory} availability via {gadt_manifest} fetch before {gadt_websocket} connection
 . Fetch both {gadt_page_s} based on {gadi_from_commit} and {gadi_to_commit}
-. Run {gadd_diff_dom} on immutable DOM trees to generate diff operations
+. Run {gaddl_library} on immutable DOM trees to generate diff operations
 . Apply CSS classes to diff operations for visual styling
 . Generate {gadic_multiview_result} with multiple view options and display in {gadip_rendered}
 . Update {gadih_comparison} with commit range
@@ -381,15 +390,15 @@ The {gadip_popover} appears on {gadir_row} hover, displaying:
 * Full commit message
 * Large, readable text (400px maximum width)
 
-Commits with unchanged {gadmf_html_sha256} values display with {gadiv_unchanged} visual treatment in rail rows.
+Commits with unchanged {gadmf_html_sha256} values display with {gadir_unchanged_indicator} visual treatment in rail rows.
 
 ==== Tab Bar Controls
 
 The {gadip_tab_bar} provides view switching within {gadip_rendered}:
 
 * **{gadip_tab_button}**: Clickable tabs for switching visualization modes (Prototype, Dual)
-* **{gadiv_prototype}**: Default view with styled diff and operations coda
-* **{gadiv_dual}**: Side-by-side view (planned future feature, placeholder currently)
+* **{gadi_prototype_view}**: Default view with styled diff and operations coda
+* **{gadi_dual_view}**: Side-by-side comparison view with color-correlated changes
 * **{gadis_tab_state}**: Current active tab persisted via {gadihp_tab} in URL hash
 * **{gadiu_tab_switch}**: Instant view switching without diff re-computation
 
@@ -420,60 +429,53 @@ Powers keyboard shortcuts and {gadit_commit} display logic.
 
 === Normative Constants
 
-[[gadd_detached_dom]]
-{gadd_detached_dom}::
-An independent DOM structure created for diff processing operations without modifying the original immutable input trees.
-The Detached Working DOM serves as the foundation for output construction, enabling complete processing isolation while preserving all semantic relationships needed for accurate {gadd_route} resolution and element positioning.
-This approach eliminates iterator invalidation and reference corruption issues inherent in direct DOM modification approaches.
-
-[[gadd_diff_dom]]
-{gadd_diff_dom}::
+[[gaddl_library]]
+{gaddl_library}::
 JavaScript DOM tree difference engine providing structured diff operations that preserve HTML element hierarchy.
-The {gadd_diff_dom} library generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete {gadd_route_array} information for precise element positioning.
+The {gaddl_library} generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete route array information for precise element positioning.
 
-[[gadd_route]]
-{gadd_route}::
-A positional path array from {gadd_diff_dom} operations specifying the exact DOM location for element placement or modification.
-Each {gadd_route} provides hierarchical navigation coordinates enabling accurate deletion block positioning and annotation placement within the output DOM structure.
+[[gaddo_dom]]
+{gaddo_dom}::
+The type representing any DOM structure that can be processed by {gaddl_library}.
+A {gaddo_dom} is an in-memory tree representation of HTML with nodes accessible via route arrays.
 
+[[gaddo_word_flat]]
+{gaddo_word_flat}::
+The type representing a flattened, change-suppressed, word-per-line text extraction from a {gaddo_dom}.
+Each line contains a single word from unchanged content, with change locations marked by placeholder tokens, enabling line-by-line correspondence analysis between document versions.
+
+[[gaddo_word_map]]
+{gaddo_word_map}::
+The type representing a mapping structure that correlates each line in a {gaddo_word_flat} back to its source position in the original {gaddo_dom}.
+Each entry contains the route array and character offsets needed to locate the word within its source DOM text node.
 
 [[gadic_from_dom]]
 {gadic_from_dom}::
-Source DOM structure parsed from "From" {gadt_page}, used as input to {gadd_diff_dom} analysis.
+The specific {gaddo_dom} instance parsed from the "From" {gadt_page}, used as the baseline input to {gaddl_library} analysis.
 
 [[gadic_to_dom]]
 {gadic_to_dom}::
-Target DOM structure parsed from "To" {gadt_page}, used as input to {gadd_diff_dom} analysis.
+The specific {gaddo_dom} instance parsed from the "To" {gadt_page}, used as the target input to {gaddl_library} analysis.
 
-[[gadic_operations]]
-{gadic_operations}::
-Complete array of diff operations generated by {gadd_diff_dom} analysis, each containing operation type, {gadd_route_array}, and change details.
+[[gaddo_operation_list]]
+{gaddo_operation_list}::
+The type representing a list of diff operations that can be generated by {gaddl_library} analysis, containing ordered {gaddo_operation} entries.
 
-[[gadic_operation]]
-{gadic_operation}::
-Individual diff operation with action type, {gadd_route} for DOM positioning, and change information (added/removed/modified content).
+[[gaddo_operation]]
+{gaddo_operation}::
+The type representing an individual diff-dom operation with action type, route for DOM positioning, and change information (added/removed/modified content).
 
 [[gadic_rendered_dom]]
 {gadic_rendered_dom}::
-Output DOM structure with applied CSS classes and navigation markers inserted at operation boundaries. Represents the "to" document with visual diff annotations.
-
-[[gadic_route_start_marker]]
-{gadic_route_start_marker}::
-Marker element inserted before operation scope in {gadic_rendered_dom} to enable navigation and debugging.
-Implementation details to be refined as visualization patterns stabilize.
-
-[[gadic_route_end_marker]]
-{gadic_route_end_marker}::
-Marker element inserted after operation scope in {gadic_rendered_dom} to enable navigation and debugging.
-Implementation details to be refined as visualization patterns stabilize.
+Output DOM structure with applied CSS classes for diff visualization. Used primarily in {gadi_prototype_view} to show the "to" document with visual diff annotations.
 
 [[gadic_annotation_collection]]
 {gadic_annotation_collection}::
-Complete set of operation annotations generated during rendering, provides human-readable descriptions for each {gadic_operation} in the visualization.
+Complete set of operation annotations generated during rendering, provides human-readable descriptions for each {gaddo_operation} in the visualization.
 
 [[gadic_annotation_entry]]
 {gadic_annotation_entry}::
-Individual annotation describing a specific {gadic_operation}, including operation index, action type, {gadd_route}, and formatted payload representation.
+Individual annotation describing a specific {gaddo_operation}, including operation index, action type, route, and formatted payload representation.
 
 [[gadip_tab_bar]]
 {gadip_tab_bar}::
@@ -490,15 +492,40 @@ Clicking switches displayed content without re-computing diff.
 Current active tab selection tracked by {gadt_inspector}, persisted in URL hash via {gadihp_tab}.
 Defaults to "prototype" if not specified.
 
-[[gadiv_prototype]]
-{gadiv_prototype}::
+[[gadi_prototype_view]]
+{gadi_prototype_view}::
 Default diff visualization showing styled HTML with {gadic_rendered_dom} and operations coda appended.
 Contains the "after" HTML with GADS CSS classes, navigation markers, and operation annotations.
 
-[[gadiv_dual]]
-{gadiv_dual}::
-Side-by-side comparison view (planned future feature, placeholder currently).
-Would show "before" and "after" content simultaneously for direct visual comparison.
+[[gadi_dual_view]]
+{gadi_dual_view}::
+Side-by-side comparison view showing "before" and "after" content independently for visual comparison.
+Displays changes using {gadvd_left_pane}, {gadvd_right_pane}, and {gadvd_change_pane} with consistent color coding for each {gadis_change}, allowing visual correlation without scroll synchronization.
+
+[[gadvd_left_pane]]
+{gadvd_left_pane}::
+The left pane in {gadi_dual_view} displaying {gadic_from_dom} with visual indicators for content that was removed or modified.
+Shows the "before" state with deletions marked using background colors corresponding to each {gadis_change}. Scrolls independently from {gadvd_right_pane}.
+
+[[gadvd_right_pane]]
+{gadvd_right_pane}::
+The right pane in {gadi_dual_view} displaying {gadic_to_dom} with visual indicators for content that was added or modified.
+Shows the "after" state with additions marked using background colors corresponding to each {gadis_change}. Scrolls independently from {gadvd_left_pane}.
+
+[[gadvd_change_pane]]
+{gadvd_change_pane}::
+The bottom pane in {gadi_dual_view} displaying details for each {gadis_change} in the current comparison.
+Shows all {gaddo_operation} entries from both {gadis_forward_list} and {gadis_reverse_list} that comprise each {gadis_change}, enabling inspection of how operations correlate between the forward and reverse directions.
+
+[[gadvd_left_rendered]]
+{gadvd_left_rendered}::
+The finalized rendered DOM for {gadvd_left_pane} produced by {gadis_change_rendering}.
+Contains {gadic_from_dom} with visual styling applied including background colors for each {gadis_change} and strikethrough for deleted content.
+
+[[gadvd_right_rendered]]
+{gadvd_right_rendered}::
+The finalized rendered DOM for {gadvd_right_pane} produced by {gadis_change_rendering}.
+Contains {gadic_to_dom} with visual styling applied including background colors for each {gadis_change} and bold/highlighting for added content.
 
 [[gadic_multiview_result]]
 {gadic_multiview_result}::
@@ -534,9 +561,9 @@ Each {gadt_page} has volatile elements removed and whitespace normalized to enab
 
 [[gadt_inspector]]
 {gadt_inspector}::
-An HTML+JavaScript application served by {gadt_factory} via HTTP that loads two {gadt_page_s} and displays their differences using {gadd_diff_dom}.
+An HTML+JavaScript application served by {gadt_factory} via HTTP that loads two {gadt_page_s} and displays their differences using {gaddl_library}.
 {gadt_inspector} establishes a {gadt_websocket} connection after successful manifest loading, fetches artifacts via HTTP instead of file protocol, and shows all commits from {gadt_manifest} in rails.
-Commits where {gadmf_html_sha256} matches the previous commit display with {gadiv_unchanged} visual treatment.
+Commits where {gadmf_html_sha256} matches the previous commit display with {gadir_unchanged_indicator} visual treatment.
 The {gadt_inspector} is served directly from source location, enabling live development iteration without file copying.
 The {gadis_initialization} ensures URL hash persistence across {gadt_factory} restarts by decoupling basic Inspector functionality from {gadt_websocket} availability.
 
@@ -621,7 +648,7 @@ The {gadfa_directory} contains {gadfd_extract} and {gadfd_distill} subdirectorie
 {gadip_rendered}::
 The main content area of {gadt_inspector} containing {gadip_tab_bar} and tab content display region.
 The {gadip_rendered} shows the "to" commit's HTML as properly rendered content with CSS classes applied at block level to indicate deletions (red strikethrough inline), insertions (green background), and moved content (yellow background).
-Tab content switches based on {gadis_tab_state} between {gadiv_prototype}, {gadiv_dual}, and other visualization modes via {gadiu_tab_switch} actions.
+Tab content switches based on {gadis_tab_state} between {gadi_prototype_view}, {gadi_dual_view}, and other visualization modes via {gadiu_tab_switch} actions.
 
 [[gadil_trace]]
 {gadil_trace}::
@@ -664,10 +691,40 @@ The sequence follows: DOM readiness → {gadt_manifest} fetch via HTTP → {gadt
 {gadis_initialization} supports localhost development workflows where the {gadu_operator} refreshes pages with URL hash parameters and expects immediate Inspector functionality regardless of {gadt_factory} status.
 When {gadt_manifest} fetch fails, Inspector displays appropriate error without attempting {gadt_websocket} connection.
 
-[[gadiv_unchanged]]
-{gadiv_unchanged}::
+[[gadis_forward_list]]
+{gadis_forward_list}::
+The specific {gaddo_operation_list} produced by running {gaddl_library} with {gadic_from_dom} as source and {gadic_to_dom} as target.
+Represents the operations needed to transform the "before" state into the "after" state, with all routes referencing positions in {gadic_from_dom}.
+
+[[gadis_reverse_list]]
+{gadis_reverse_list}::
+The specific {gaddo_operation_list} produced by running {gaddl_library} with {gadic_to_dom} as source and {gadic_from_dom} as target.
+Represents the operations needed to transform the "after" state back into the "before" state, with all routes referencing positions in {gadic_to_dom}.
+
+[[gadis_change_correlation]]
+{gadis_change_correlation}::
+The process within {gadis_diff_sequence} that analyzes {gadis_forward_list} and {gadis_reverse_list} to group related operations into {gadis_change} instances.
+Correlates operations based on DOM proximity and inverse relationships (e.g., forward deletion paired with reverse addition), producing {gadis_change_list} as output.
+
+[[gadis_change_rendering]]
+{gadis_change_rendering}::
+The process within {gadis_diff_sequence} that applies visual styling to each {gadis_change} for dual view display.
+Assigns consistent background colors to each {gadis_change} and determines operation-specific visual treatments (strikethrough for deletions, bold for additions) to produce {gadvd_left_rendered} and {gadvd_right_rendered}.
+
+[[gadis_change]]
+{gadis_change}::
+A correlated group of {gaddo_operation} entries from {gadis_forward_list} and {gadis_reverse_list} that together represent a single logical modification between {gadic_from_dom} and {gadic_to_dom}.
+Operations within a {gadis_change} are affiliated by DOM proximity and inverse relationships (e.g., forward deletion paired with reverse addition).
+
+[[gadis_change_list]]
+{gadis_change_list}::
+The specific list of correlated changes produced by analyzing {gadis_forward_list} and {gadis_reverse_list} for the current {gadic_from_dom} and {gadic_to_dom} pair.
+Each {gadis_change} entry represents a logical change identified between these specific document versions.
+
+[[gadir_unchanged_indicator]]
+{gadir_unchanged_indicator}::
 A visual indicator (grey text with reduced opacity) applied to commits in {gadir_from} and {gadir_to} rails where {gadmf_html_sha256} matches the previous commit.
-The {gadiv_unchanged} helps the {gadu_operator} identify which commits produced no rendering changes while maintaining full git history visibility.
+The {gadir_unchanged_indicator} helps the {gadu_operator} identify which commits produced no rendering changes while maintaining full git history visibility.
 
 [[gadihp_from]]
 {gadihp_from}::
@@ -713,7 +770,7 @@ The {gadt_inspector} is served directly from source location rather than being c
 {gadt_manifest}::
 The `manifest.json` file in {gadda_output_dir} maintained directly by {gadt_factory} containing cumulative commit metadata.
 The {gadt_factory} owns all manifest state, managing it in memory with atomic disk updates.
-The {gadt_manifest} enables {gadt_inspector} to identify unchanged commits through {gadmf_html_sha256} values for {gadiv_unchanged} visual treatment.
+The {gadt_manifest} enables {gadt_inspector} to identify unchanged commits through {gadmf_html_sha256} values for {gadir_unchanged_indicator} visual treatment.
 
 [[gadif_html_commit]]
 {gadif_html_commit}::
@@ -794,7 +851,7 @@ The {gadmf_html_file} follows the {gadif_html_commit} pattern for consistent fil
 [[gadmf_html_sha256]]
 {gadmf_html_sha256}::
 The JSON field "html_sha256" within {gadmf_commits} entries containing the SHA-256 hash of the entire normalized HTML file.
-The {gadmf_html_sha256} enables {gadt_inspector} to identify unchanged commits for {gadiv_unchanged} visual treatment.
+The {gadmf_html_sha256} enables {gadt_inspector} to identify unchanged commits for {gadir_unchanged_indicator} visual treatment.
 
 
 [[gadkp_single_threaded]]
