@@ -545,6 +545,7 @@ class gadiu_inspector {
             ];
 
             // Use gadie_diff function from engine
+            gadib_logger_d('About to call gadie_diff with debugArtifacts=true');
             const diffResult = await gadie_diff(fromHtml, toHtml, {
                 fromCommit: fromCommit,
                 toCommit: toCommit,
@@ -552,6 +553,7 @@ class gadiu_inspector {
                 debugArtifacts: true,
                 verbosity: 'debug'
             });
+            gadib_logger_d('gadie_diff completed, checking for marking logs...');
 
             // Handle structured return - store both views as instance properties
             if (typeof diffResult === 'object' && diffResult.prototypeHTML && diffResult.dualHTML) {

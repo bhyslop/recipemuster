@@ -2,6 +2,15 @@
 // Extracted from monolithic gadi_inspector.html for modular architecture
 // Simplified to 2-step process: diff-dom operations + CSS styling
 
+// Logger wrapper that sends to Factory if available, otherwise browser console
+function gadie_log(msg) {
+    if (typeof gadib_logger_d === 'function') {
+        gadib_logger_d(msg);
+    } else {
+        console.log(msg);
+    }
+}
+
 // GADIE Constants - Centralized static tables
 const GADIE_CONSTANTS = {
     BLOCK_TAGS: new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
@@ -58,8 +67,8 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
     const { fromCommit, toCommit, sourceFiles } = opts;
     
     if (gadie_should_log('debug', opts)) {
-        console.log('Starting simplified 2-step diff processing');
-        console.log(`Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
+        gadie_log('Starting simplified 2-step diff processing');
+        gadie_log(`Input sizes: fromHtml=${fromHtml.length} chars, toHtml=${toHtml.length} chars`);
     }
 
     if (typeof window.diffDom === 'undefined' || typeof window.diffDom.DiffDOM === 'undefined') {
@@ -380,7 +389,7 @@ function gadie_render_dual_left(fromDOM, changeList) {
     const clonedDOM = gadie_create_dom_from_html(fromDOM.innerHTML);
 
     // Log that we're rendering left pane with marking
-    console.log(`[GADIE-RENDER] Starting LEFT pane marking for ${changeList.length} changes`);
+    if (typeof gadib_logger_d === 'function') gadib_logger_d(`[GADIE-RENDER] Starting LEFT pane marking for ${changeList.length} changes`);
 
     // Process each change that has reverse operations (deletions in left pane)
     for (const change of changeList) {
@@ -392,19 +401,19 @@ function gadie_render_dual_left(fromDOM, changeList) {
             const element = gadie_find_element_by_route(clonedDOM, op.route);
             if (!element) {
                 // Route not found - log but don't fail silently
-                console.log(`[GADIE-MARK] Left pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
+                gadie_log(`[GADIE-MARK] Left pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
                 continue;
             }
 
             let marked = false;
             const opText = op.oldValue || op.value;
-            console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: element nodeType=${element.nodeType}, opText="${gadie_truncate(opText || '', 60)}"`);
+            gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: element nodeType=${element.nodeType}, opText="${gadie_truncate(opText || '', 60)}"`);
 
             // Handle text nodes by wrapping them
             if (element.nodeType === Node.TEXT_NODE) {
                 // For text nodes, try substring matching first if we have operation text
                 if (opText && element.parentNode) {
-                    console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: trying substring match in text node`);
+                    gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: trying substring match in text node`);
                     marked = gadie_wrap_text_substring(
                         element.parentNode,
                         opText,
@@ -413,15 +422,15 @@ function gadie_render_dual_left(fromDOM, changeList) {
                         true
                     );
                     if (marked) {
-                        console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match succeeded`);
+                        gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match succeeded`);
                     } else {
-                        console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match failed, falling back`);
+                        gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match failed, falling back`);
                     }
                 }
 
                 // Fallback: wrap the entire text node
                 if (!marked) {
-                    console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: wrapping entire text node`);
+                    gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: wrapping entire text node`);
                     const wrapper = document.createElement('span');
                     wrapper.classList.add('gads-dual-deleted');
                     wrapper.style.backgroundColor = change.colorHex;
@@ -434,7 +443,7 @@ function gadie_render_dual_left(fromDOM, changeList) {
             } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 // For element nodes, try substring matching in case it's a container
                 if (opText) {
-                    console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: trying substring match in element`);
+                    gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: trying substring match in element`);
                     marked = gadie_wrap_text_substring(
                         element,
                         opText,
@@ -443,15 +452,15 @@ function gadie_render_dual_left(fromDOM, changeList) {
                         true
                     );
                     if (marked) {
-                        console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match succeeded`);
+                        gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match succeeded`);
                     } else {
-                        console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match failed, falling back`);
+                        gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match failed, falling back`);
                     }
                 }
 
                 // Fallback: mark the entire element
                 if (!marked) {
-                    console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: marking entire element`);
+                    gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: marking entire element`);
                     element.classList.add('gads-dual-deleted');
                     element.style.backgroundColor = change.colorHex;
                     element.setAttribute('data-change-id', change.changeId);
@@ -460,11 +469,11 @@ function gadie_render_dual_left(fromDOM, changeList) {
                 }
             } else {
                 // Can't mark this element type
-                console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: Cannot mark node type ${element.nodeType}`);
+                gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: Cannot mark node type ${element.nodeType}`);
             }
 
             if (marked) {
-                console.log(`[GADIE-MARK] Left pane changeId=${change.changeId}: Successfully marked`);
+                gadie_log(`[GADIE-MARK] Left pane changeId=${change.changeId}: Successfully marked`);
             }
         }
     }
@@ -487,19 +496,19 @@ function gadie_render_dual_right(toDOM, changeList) {
             const element = gadie_find_element_by_route(clonedDOM, op.route);
             if (!element) {
                 // Route not found - log but don't fail silently
-                console.log(`[GADIE-MARK] Right pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
+                gadie_log(`[GADIE-MARK] Right pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
                 continue;
             }
 
             let marked = false;
             const opText = op.newValue || op.value;
-            console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: element nodeType=${element.nodeType}, opText="${gadie_truncate(opText || '', 60)}"`);
+            gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: element nodeType=${element.nodeType}, opText="${gadie_truncate(opText || '', 60)}"`);
 
             // Handle text nodes by wrapping them
             if (element.nodeType === Node.TEXT_NODE) {
                 // For text nodes, try substring matching first if we have operation text
                 if (opText && element.parentNode) {
-                    console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: trying substring match in text node`);
+                    gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: trying substring match in text node`);
                     marked = gadie_wrap_text_substring(
                         element.parentNode,
                         opText,
@@ -508,15 +517,15 @@ function gadie_render_dual_right(toDOM, changeList) {
                         false
                     );
                     if (marked) {
-                        console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match succeeded`);
+                        gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match succeeded`);
                     } else {
-                        console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match failed, falling back`);
+                        gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match failed, falling back`);
                     }
                 }
 
                 // Fallback: wrap the entire text node
                 if (!marked) {
-                    console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: wrapping entire text node`);
+                    gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: wrapping entire text node`);
                     const wrapper = document.createElement('span');
                     wrapper.classList.add('gads-dual-added');
                     wrapper.style.backgroundColor = change.colorHex;
@@ -529,7 +538,7 @@ function gadie_render_dual_right(toDOM, changeList) {
             } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 // For element nodes, try substring matching in case it's a container
                 if (opText) {
-                    console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: trying substring match in element`);
+                    gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: trying substring match in element`);
                     marked = gadie_wrap_text_substring(
                         element,
                         opText,
@@ -538,15 +547,15 @@ function gadie_render_dual_right(toDOM, changeList) {
                         false
                     );
                     if (marked) {
-                        console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match succeeded`);
+                        gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match succeeded`);
                     } else {
-                        console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match failed, falling back`);
+                        gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match failed, falling back`);
                     }
                 }
 
                 // Fallback: mark the entire element
                 if (!marked) {
-                    console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: marking entire element`);
+                    gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: marking entire element`);
                     element.classList.add('gads-dual-added');
                     element.style.backgroundColor = change.colorHex;
                     element.setAttribute('data-change-id', change.changeId);
@@ -555,11 +564,11 @@ function gadie_render_dual_right(toDOM, changeList) {
                 }
             } else {
                 // Can't mark this element type
-                console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: Cannot mark node type ${element.nodeType}`);
+                gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: Cannot mark node type ${element.nodeType}`);
             }
 
             if (marked) {
-                console.log(`[GADIE-MARK] Right pane changeId=${change.changeId}: Successfully marked`);
+                gadie_log(`[GADIE-MARK] Right pane changeId=${change.changeId}: Successfully marked`);
             }
         }
     }
