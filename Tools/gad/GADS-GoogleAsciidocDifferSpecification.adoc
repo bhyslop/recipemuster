@@ -419,24 +419,24 @@ The dual view organizes content into three distinct panes:
 
 [source]
 ----
-┌─────────────────────────────────────────────────────────┐
-│                    Tab Bar (view selector)              │
-├─────────────────────────┬───────────────────────────────┤
-│     Left Pane          │        Right Pane              │
-│  (From Document)       │     (To Document)              │
-│                        │                                │
-│  Shows deletions       │    Shows additions             │
-│  and modifications     │    and modifications           │
-│                        │                                │
-│  [Independent scroll]  │    [Independent scroll]        │
-├─────────────────────────┴───────────────────────────────┤
-│                  Change Pane                            │
+┌────────────────────────────────────────────────────────┐
+│                    Tab Bar (view selector)             │
+├─────────────────────────┬──────────────────────────────┤
+│     Left Pane           │        Right Pane            │
+│  (From Document)        │     (To Document)            │
+│                         │                              │
+│  Shows deletions        │    Shows additions           │
+│  and modifications      │    and modifications         │
+│                         │                              │
+│  [Independent scroll]   │    [Independent scroll]      │
+├─────────────────────────┴──────────────────────────────┤
+│                  Change Pane                           │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │Change #1: [Left Op Button] [Right Op Button]    │   │
 │  │Change #2: [Left Op Button] [Right Op Button]    │   │
 │  │Change #3: [Left Op Button] [Right Op Button]    │   │
 │  └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────┘
 ----
 
 ==== Data Flow and Processing
