@@ -307,6 +307,9 @@ function gadie_render_dual_left(fromDOM, changeList) {
 
                 // Add inline background color
                 element.style.backgroundColor = change.colorHex;
+
+                // Add data attribute for finding elements by change ID
+                element.setAttribute('data-change-id', change.changeId);
             }
         }
     }
@@ -333,6 +336,9 @@ function gadie_render_dual_right(toDOM, changeList) {
 
                 // Add inline background color
                 element.style.backgroundColor = change.colorHex;
+
+                // Add data attribute for finding elements by change ID
+                element.setAttribute('data-change-id', change.changeId);
             }
         }
     }

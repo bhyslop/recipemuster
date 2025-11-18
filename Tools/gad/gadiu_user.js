@@ -582,15 +582,32 @@ class gadiu_inspector {
             const contentForFactory = this.prototypeView || (typeof diffResult === 'string' ? diffResult : this.elements.tabContent.innerHTML);
             gadib_factory_ship('rendered', contentForFactory, fromCommit, toCommit, sourceFiles);
 
-            // Enhanced logging for Factory debugging
-            const changeTypeBreakdown = {
-                insertions: this.elements.tabContent.querySelectorAll('.gads-addition-inline, .gads-addition-block').length,
-                moves: this.elements.tabContent.querySelectorAll('.gads-modification-structural').length,
-                deletions: this.elements.tabContent.querySelectorAll('.gads-deletion-inline, .gads-deletion-block').length,
-                modifications: this.elements.tabContent.querySelectorAll('.gads-modification-inline').length
+            // Count changes from the actual diffResult operations if available
+            // This is more reliable than counting CSS classes which vary by view type
+            let totalChanges = 0;
+            let changeTypeBreakdown = {
+                insertions: 0,
+                moves: 0,
+                deletions: 0,
+                modifications: 0
             };
 
-            const totalChanges = changeTypeBreakdown.insertions + changeTypeBreakdown.moves + 
+            if (typeof diffResult === 'object' && diffResult.operations) {
+                // Count from actual operations
+                for (const op of diffResult.operations) {
+                    if (op.action.includes('add') || op.action === 'addElement' || op.action === 'addTextElement') {
+                        changeTypeBreakdown.insertions++;
+                    } else if (op.action.includes('remove') || op.action === 'removeElement' || op.action === 'removeTextElement') {
+                        changeTypeBreakdown.deletions++;
+                    } else if (op.action === 'relocateGroup' || op.action === 'moveElement') {
+                        changeTypeBreakdown.moves++;
+                    } else if (op.action.includes('modify') || op.action.includes('replace')) {
+                        changeTypeBreakdown.modifications++;
+                    }
+                }
+            }
+
+            totalChanges = changeTypeBreakdown.insertions + changeTypeBreakdown.moves +
                                changeTypeBreakdown.deletions + changeTypeBreakdown.modifications;
 
             // Debug trace for change counting
@@ -795,29 +812,14 @@ class gadiu_inspector {
         const changeId = button.dataset.changeId;
         const operationIndex = button.dataset.operationIndex;
         const pane = button.dataset.pane;
-        const routeStr = button.dataset.route;
 
         gadib_logger_d(`Operation button clicked: changeId=${changeId}, opIndex=${operationIndex}, pane=${pane}`);
 
         // Validate required attributes
-        if (!pane || !routeStr) {
-            gadib_logger_e('Operation button missing required data attributes (pane or route)');
+        if (!pane) {
+            gadib_logger_e('Operation button missing required data attributes (pane)');
             return;
         }
-
-        // Parse route from JSON string
-        let route;
-        try {
-            route = JSON.parse(routeStr);
-            if (!Array.isArray(route)) {
-                throw new Error('Route is not an array');
-            }
-        } catch (error) {
-            gadib_logger_e(`Failed to parse route from button: ${error.message}`);
-            return;
-        }
-
-        gadib_logger_d(`Parsed route: [${route.join(', ')}]`);
 
         // Determine which pane to scroll
         const paneElement = pane === 'left' ? this.dualLeftPane : this.dualRightPane;
@@ -827,8 +829,65 @@ class gadiu_inspector {
             return;
         }
 
-        // Scroll to the route
-        this.scrollPaneToRoute(paneElement, route);
+        // Find elements marked with the change ID in the pane
+        // Use the actual DOM structure to find marked elements
+        const markedElements = paneElement.querySelectorAll(`[data-change-id="${changeId}"]`);
+
+        if (markedElements.length === 0) {
+            gadib_logger_d(`No marked elements found for changeId ${changeId} in ${pane} pane`);
+            return;
+        }
+
+        // Scroll to the first marked element
+        const targetElement = markedElements[0];
+        gadib_logger_d(`Found ${markedElements.length} marked elements for changeId ${changeId}, scrolling to first`);
+        this.scrollPaneToElement(paneElement, targetElement);
+    }
+
+    scrollPaneToElement(paneElement, element) {
+        if (!paneElement || !element) {
+            gadib_logger_e('Invalid parameters for scrollPaneToElement');
+            return;
+        }
+
+        gadib_logger_d(`Scrolling pane to element: ${element.nodeName}`);
+
+        // Scroll element into view smoothly
+        if (element.nodeType === Node.ELEMENT_NODE && element.scrollIntoView) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            gadib_logger_d('Scrolled element into view');
+
+            // Add temporary highlight effect
+            const originalBackground = element.style.backgroundColor;
+            element.style.transition = 'background-color 0.3s ease';
+            element.style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
+
+            setTimeout(() => {
+                element.style.backgroundColor = originalBackground;
+                setTimeout(() => {
+                    element.style.transition = '';
+                }, 300);
+            }, 1500);
+        } else if (element.nodeType === Node.TEXT_NODE && element.parentElement) {
+            // For text nodes, scroll the parent element
+            element.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            gadib_logger_d('Scrolled text node parent into view');
+
+            // Highlight parent element
+            const parentElement = element.parentElement;
+            const originalBackground = parentElement.style.backgroundColor;
+            parentElement.style.transition = 'background-color 0.3s ease';
+            parentElement.style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
+
+            setTimeout(() => {
+                parentElement.style.backgroundColor = originalBackground;
+                setTimeout(() => {
+                    parentElement.style.transition = '';
+                }, 300);
+            }, 1500);
+        } else {
+            gadib_logger_d('Element found but cannot scroll into view');
+        }
     }
 
     scrollPaneToRoute(paneElement, routeArray) {
@@ -848,43 +907,7 @@ class gadiu_inspector {
         }
 
         gadib_logger_d(`Found target element: ${targetElement.nodeName || 'TEXT_NODE'}`);
-
-        // Scroll element into view smoothly
-        if (targetElement.nodeType === Node.ELEMENT_NODE && targetElement.scrollIntoView) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            gadib_logger_d('Scrolled element into view');
-
-            // Add temporary highlight effect
-            const originalBackground = targetElement.style.backgroundColor;
-            targetElement.style.transition = 'background-color 0.3s ease';
-            targetElement.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
-
-            setTimeout(() => {
-                targetElement.style.backgroundColor = originalBackground;
-                setTimeout(() => {
-                    targetElement.style.transition = '';
-                }, 300);
-            }, 1000);
-        } else if (targetElement.nodeType === Node.TEXT_NODE && targetElement.parentElement) {
-            // For text nodes, scroll the parent element
-            targetElement.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            gadib_logger_d('Scrolled text node parent into view');
-
-            // Highlight parent element
-            const parentElement = targetElement.parentElement;
-            const originalBackground = parentElement.style.backgroundColor;
-            parentElement.style.transition = 'background-color 0.3s ease';
-            parentElement.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
-
-            setTimeout(() => {
-                parentElement.style.backgroundColor = originalBackground;
-                setTimeout(() => {
-                    parentElement.style.transition = '';
-                }, 300);
-            }, 1000);
-        } else {
-            gadib_logger_d('Element found but cannot scroll into view');
-        }
+        this.scrollPaneToElement(paneElement, targetElement);
     }
 }
 
