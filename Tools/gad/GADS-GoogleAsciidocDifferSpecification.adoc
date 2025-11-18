@@ -409,6 +409,73 @@ The {gadip_tab_bar} provides view switching within {gadip_rendered}:
 * **{gadis_tab_state}**: Current active tab persisted via {gadihp_tab} in URL hash
 * **{gadiu_tab_switch}**: Instant view switching without diff re-computation
 
+=== Dual View Architecture
+
+The {gadi_dual_view} provides a comprehensive side-by-side comparison interface for analyzing document changes between {gadic_from_dom} and {gadic_to_dom}. This architecture enables visual correlation of changes without requiring synchronized scrolling, allowing the {gadu_operator} to explore document differences at their own pace.
+
+==== Component Hierarchy
+
+The dual view organizes content into three distinct panes:
+
+[source]
+----
+┌─────────────────────────────────────────────────────────┐
+│                    Tab Bar (view selector)              │
+├─────────────────────────┬───────────────────────────────┤
+│     Left Pane          │        Right Pane              │
+│  (From Document)       │     (To Document)              │
+│                        │                                │
+│  Shows deletions       │    Shows additions             │
+│  and modifications     │    and modifications           │
+│                        │                                │
+│  [Independent scroll]  │    [Independent scroll]        │
+├─────────────────────────┴───────────────────────────────┤
+│                  Change Pane                            │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │Change #1: [Left Op Button] [Right Op Button]    │   │
+│  │Change #2: [Left Op Button] [Right Op Button]    │   │
+│  │Change #3: [Left Op Button] [Right Op Button]    │   │
+│  └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+----
+
+==== Data Flow and Processing
+
+The dual view generation follows this sequence within {gadis_diff_sequence}:
+
+. **Diff Analysis**: {gaddl_library} generates {gadis_forward_list} and {gadis_reverse_list}
+. **Change Correlation**: {gadis_change_correlation} groups related operations into {gadis_change} instances
+. **Visual Assignment**: Each {gadis_change} receives a unique background color for visual correlation
+. **Rendering**: {gadis_change_rendering} produces:
+  - {gadvd_left_rendered}: {gadic_from_dom} with deletion styling (strikethrough + color)
+  - {gadvd_right_rendered}: {gadic_to_dom} with addition styling (bold + color)
+  - {gadvd_change_pane}: List of {gadvd_change_entry} elements with {gadvd_operation_button} controls
+
+==== User Interaction Model
+
+The dual view enables three primary interaction patterns:
+
+. **Direct Pane Exploration**: Scroll {gadvd_left_pane} and {gadvd_right_pane} independently to examine document structure
+. **Change-Driven Navigation**: Click {gadvd_operation_button} in {gadvd_change_pane} to jump to specific change locations
+. **Visual Correlation**: Match background colors between panes to identify corresponding changes
+
+Navigation flow from change entry to document location:
+----
+User clicks operation button in Change #N
+  → Button identifies target pane (left for forward ops, right for reverse ops)
+  → Button extracts route array from associated {gaddo_operation}
+  → System scrolls target pane to route position
+  → Colored background at destination matches Change #N color
+----
+
+==== Implementation Details
+
+* **Color Consistency**: Each {gadis_change} maintains the same background color across all three panes
+* **Independent Scrolling**: Panes scroll independently to support non-linear document exploration
+* **Route Preservation**: Operation routes remain valid as they reference immutable DOM structures
+* **Eager Computation**: Per {gadkp_bounded_documents}, all views are pre-computed and stored in {gadic_multiview_result}
+* **Instant Switching**: {gadiu_tab_switch} swaps pre-computed HTML without re-running diff analysis
+
 === {gadid_dependency_s}
 
 [[gadi_dependency]]
@@ -506,44 +573,38 @@ Contains the "after" HTML with GADS CSS classes, navigation markers, and operati
 
 [[gadi_dual_view]]
 {gadi_dual_view}::
-Side-by-side comparison view showing "before" and "after" content independently for visual comparison.
-Displays changes using {gadvd_left_pane}, {gadvd_right_pane}, and {gadvd_change_pane} with consistent color coding for each {gadis_change}, allowing visual correlation without scroll synchronization.
+Side-by-side comparison view with three panes showing document changes with color-correlated visualization.
+See "Dual View Architecture" section for complete workflow and interaction model.
 
 [[gadvd_left_pane]]
 {gadvd_left_pane}::
-The left pane in {gadi_dual_view} displaying {gadic_from_dom} with visual indicators for content that was removed or modified.
-Shows the "before" state with deletions marked using background colors corresponding to each {gadis_change}. Scrolls independently from {gadvd_right_pane}.
+Left pane displaying {gadic_from_dom} with deletion indicators and color-coded change backgrounds.
 
 [[gadvd_right_pane]]
 {gadvd_right_pane}::
-The right pane in {gadi_dual_view} displaying {gadic_to_dom} with visual indicators for content that was added or modified.
-Shows the "after" state with additions marked using background colors corresponding to each {gadis_change}. Scrolls independently from {gadvd_left_pane}.
+Right pane displaying {gadic_to_dom} with addition indicators and color-coded change backgrounds.
 
 [[gadvd_change_pane]]
 {gadvd_change_pane}::
-The bottom pane in {gadi_dual_view} displaying a scrollable list of {gadvd_change_entry} elements, one for each {gadis_change} in the current comparison.
-Provides a navigable overview of all changes, allowing the {gadu_operator} to click {gadvd_operation_button} controls to scroll to specific change locations in {gadvd_left_pane} or {gadvd_right_pane}.
+Bottom pane containing scrollable list of {gadvd_change_entry} elements with navigation controls for each {gadis_change}.
 
 [[gadvd_change_entry]]
 {gadvd_change_entry}::
-Visual representation of a single {gadis_change} within {gadvd_change_pane}.
-Each {gadvd_change_entry} corresponds to exactly one {gadis_change} and contains one or more {gadvd_operation_button} controls representing the {gaddo_operation} elements from {gadis_forward_list} and {gadis_reverse_list} that comprise the change.
-Typically contains two operation buttons (one targeting {gadvd_left_pane}, one targeting {gadvd_right_pane}), though complex changes may include additional operations.
+Visual element in {gadvd_change_pane} representing one {gadis_change} with navigation buttons.
+Contains {gadvd_operation_button} controls for each operation in the change (typically one per pane).
 
 [[gadvd_operation_button]]
 {gadvd_operation_button}::
-Clickable control within a {gadvd_change_entry} representing a single {gaddo_operation}.
-When clicked, scrolls the appropriate pane to the location specified by the operation's route: operations from {gadis_forward_list} scroll {gadvd_left_pane} to positions in {gadic_from_dom}, while operations from {gadis_reverse_list} scroll {gadvd_right_pane} to positions in {gadic_to_dom}.
+Clickable control within {gadvd_change_entry} that scrolls target pane to operation's route location.
+Forward operations target {gadvd_left_pane}, reverse operations target {gadvd_right_pane}.
 
 [[gadvd_left_rendered]]
 {gadvd_left_rendered}::
-The finalized rendered DOM for {gadvd_left_pane} produced by {gadis_change_rendering}.
-Contains {gadic_from_dom} with visual styling applied including background colors for each {gadis_change} and strikethrough for deleted content.
+Rendered DOM for {gadvd_left_pane} with deletion styling (strikethrough) and change-specific background colors.
 
 [[gadvd_right_rendered]]
 {gadvd_right_rendered}::
-The finalized rendered DOM for {gadvd_right_pane} produced by {gadis_change_rendering}.
-Contains {gadic_to_dom} with visual styling applied including background colors for each {gadis_change} and bold/highlighting for added content.
+Rendered DOM for {gadvd_right_pane} with addition styling (bold) and change-specific background colors.
 
 [[gadic_multiview_result]]
 {gadic_multiview_result}::
