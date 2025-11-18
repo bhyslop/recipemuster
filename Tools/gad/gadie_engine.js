@@ -288,6 +288,92 @@ function gadie_correlate_changes(forwardList, reverseList) {
     return changeList;
 }
 
+// Helper: Wrap a text substring in a span with marking classes
+function gadie_wrap_text_substring(parentNode, searchText, changeId, colorHex, isDeletion) {
+    if (!parentNode || !searchText) return false;
+
+    // If parent is a text node, wrap its parent element instead
+    if (parentNode.nodeType === Node.TEXT_NODE) {
+        parentNode = parentNode.parentNode;
+    }
+
+    if (!parentNode || parentNode.nodeType !== Node.ELEMENT_NODE) return false;
+
+    // Get the text content of the parent
+    const parentText = parentNode.textContent;
+    if (!parentText.includes(searchText)) {
+        return false; // Text not found in this element
+    }
+
+    // If the entire element is just the search text, mark the whole element
+    if (parentText.trim() === searchText.trim()) {
+        parentNode.classList.add(isDeletion ? 'gads-dual-deleted' : 'gads-dual-added');
+        parentNode.style.backgroundColor = colorHex;
+        parentNode.setAttribute('data-change-id', changeId);
+        parentNode.classList.add(`gad-change-${changeId}`);
+        return true;
+    }
+
+    // Partial match - need to wrap just the substring
+    // This is complex because we need to handle mixed text and element nodes
+    // Strategy: Find all text nodes in parent, locate the search text, and wrap it
+    const walker = document.createTreeWalker(
+        parentNode,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+
+    let textNode;
+    let foundStart = false;
+    let accumulatedText = '';
+
+    while ((textNode = walker.nextNode())) {
+        const nodeText = textNode.textContent;
+        accumulatedText += nodeText;
+
+        // Check if the search text is now complete in our accumulated text
+        if (accumulatedText.includes(searchText) && !foundStart) {
+            // Found it! Now we need to split and wrap
+            const startIndex = accumulatedText.indexOf(searchText);
+            const beforeText = accumulatedText.substring(0, startIndex);
+            const afterText = accumulatedText.substring(startIndex + searchText.length);
+
+            // Create wrapper span
+            const wrapper = document.createElement('span');
+            wrapper.classList.add(isDeletion ? 'gads-dual-deleted' : 'gads-dual-added');
+            wrapper.style.backgroundColor = colorHex;
+            wrapper.setAttribute('data-change-id', changeId);
+            wrapper.classList.add(`gad-change-${changeId}`);
+            wrapper.textContent = searchText;
+
+            // This is simplified - just mark it without complex splitting
+            // A full implementation would need to carefully reconstruct the DOM
+            if (textNode.nodeType === Node.TEXT_NODE && nodeText.includes(searchText)) {
+                // Simple case: text is all in one node
+                const idx = nodeText.indexOf(searchText);
+                if (idx !== -1) {
+                    const before = document.createTextNode(nodeText.substring(0, idx));
+                    const after = document.createTextNode(nodeText.substring(idx + searchText.length));
+
+                    wrapper.textContent = searchText;
+
+                    textNode.parentNode.insertBefore(before, textNode);
+                    textNode.parentNode.insertBefore(wrapper, textNode);
+                    textNode.parentNode.insertBefore(after, textNode);
+                    textNode.parentNode.removeChild(textNode);
+                    return true;
+                }
+            }
+
+            foundStart = true;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Function 2: Render left pane (from document with deletions marked)
 function gadie_render_dual_left(fromDOM, changeList) {
     // Clone fromDOM to avoid modifying original
@@ -307,24 +393,61 @@ function gadie_render_dual_left(fromDOM, changeList) {
                 continue;
             }
 
+            let marked = false;
+
             // Handle text nodes by wrapping them
             if (element.nodeType === Node.TEXT_NODE) {
-                const wrapper = document.createElement('span');
-                wrapper.classList.add('gads-dual-deleted');
-                wrapper.style.backgroundColor = change.colorHex;
-                wrapper.setAttribute('data-change-id', change.changeId);
-                wrapper.classList.add(`gad-change-${change.changeId}`);
-                element.parentNode.insertBefore(wrapper, element);
-                wrapper.appendChild(element);
+                // For text nodes, try substring matching first if we have operation text
+                const opText = op.oldValue || op.value;
+                if (opText && element.parentNode) {
+                    marked = gadie_wrap_text_substring(
+                        element.parentNode,
+                        opText,
+                        change.changeId,
+                        change.colorHex,
+                        true
+                    );
+                }
+
+                // Fallback: wrap the entire text node
+                if (!marked) {
+                    const wrapper = document.createElement('span');
+                    wrapper.classList.add('gads-dual-deleted');
+                    wrapper.style.backgroundColor = change.colorHex;
+                    wrapper.setAttribute('data-change-id', change.changeId);
+                    wrapper.classList.add(`gad-change-${change.changeId}`);
+                    element.parentNode.insertBefore(wrapper, element);
+                    wrapper.appendChild(element);
+                    marked = true;
+                }
             } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
-                // Mark element nodes directly
-                element.classList.add('gads-dual-deleted');
-                element.style.backgroundColor = change.colorHex;
-                element.setAttribute('data-change-id', change.changeId);
-                element.classList.add(`gad-change-${change.changeId}`);
+                // For element nodes, try substring matching in case it's a container
+                const opText = op.oldValue || op.value;
+                if (opText) {
+                    marked = gadie_wrap_text_substring(
+                        element,
+                        opText,
+                        change.changeId,
+                        change.colorHex,
+                        true
+                    );
+                }
+
+                // Fallback: mark the entire element
+                if (!marked) {
+                    element.classList.add('gads-dual-deleted');
+                    element.style.backgroundColor = change.colorHex;
+                    element.setAttribute('data-change-id', change.changeId);
+                    element.classList.add(`gad-change-${change.changeId}`);
+                    marked = true;
+                }
             } else {
                 // Can't mark this element type
                 console.log(`[GADIE-MARK] Left pane: Cannot mark node type ${element.nodeType} for changeId ${change.changeId}`);
+            }
+
+            if (marked) {
+                console.log(`[GADIE-MARK] Left pane: Successfully marked changeId ${change.changeId}`);
             }
         }
     }
@@ -351,24 +474,61 @@ function gadie_render_dual_right(toDOM, changeList) {
                 continue;
             }
 
+            let marked = false;
+
             // Handle text nodes by wrapping them
             if (element.nodeType === Node.TEXT_NODE) {
-                const wrapper = document.createElement('span');
-                wrapper.classList.add('gads-dual-added');
-                wrapper.style.backgroundColor = change.colorHex;
-                wrapper.setAttribute('data-change-id', change.changeId);
-                wrapper.classList.add(`gad-change-${change.changeId}`);
-                element.parentNode.insertBefore(wrapper, element);
-                wrapper.appendChild(element);
+                // For text nodes, try substring matching first if we have operation text
+                const opText = op.newValue || op.value;
+                if (opText && element.parentNode) {
+                    marked = gadie_wrap_text_substring(
+                        element.parentNode,
+                        opText,
+                        change.changeId,
+                        change.colorHex,
+                        false
+                    );
+                }
+
+                // Fallback: wrap the entire text node
+                if (!marked) {
+                    const wrapper = document.createElement('span');
+                    wrapper.classList.add('gads-dual-added');
+                    wrapper.style.backgroundColor = change.colorHex;
+                    wrapper.setAttribute('data-change-id', change.changeId);
+                    wrapper.classList.add(`gad-change-${change.changeId}`);
+                    element.parentNode.insertBefore(wrapper, element);
+                    wrapper.appendChild(element);
+                    marked = true;
+                }
             } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
-                // Mark element nodes directly
-                element.classList.add('gads-dual-added');
-                element.style.backgroundColor = change.colorHex;
-                element.setAttribute('data-change-id', change.changeId);
-                element.classList.add(`gad-change-${change.changeId}`);
+                // For element nodes, try substring matching in case it's a container
+                const opText = op.newValue || op.value;
+                if (opText) {
+                    marked = gadie_wrap_text_substring(
+                        element,
+                        opText,
+                        change.changeId,
+                        change.colorHex,
+                        false
+                    );
+                }
+
+                // Fallback: mark the entire element
+                if (!marked) {
+                    element.classList.add('gads-dual-added');
+                    element.style.backgroundColor = change.colorHex;
+                    element.setAttribute('data-change-id', change.changeId);
+                    element.classList.add(`gad-change-${change.changeId}`);
+                    marked = true;
+                }
             } else {
                 // Can't mark this element type
                 console.log(`[GADIE-MARK] Right pane: Cannot mark node type ${element.nodeType} for changeId ${change.changeId}`);
+            }
+
+            if (marked) {
+                console.log(`[GADIE-MARK] Right pane: Successfully marked changeId ${change.changeId}`);
             }
         }
     }
