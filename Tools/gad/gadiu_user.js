@@ -566,6 +566,11 @@ class gadiu_inspector {
                     gadib_logger_d(`Tab bar exists, preserving tab state and updating content for current tab: ${this.currentTab}`);
                     this.switchTab(this.currentTab || 'prototype');
                 }
+
+                // Setup dual view navigation if currently on dual tab
+                if (this.currentTab === 'dual') {
+                    this.setupDualViewNavigation();
+                }
             } else {
                 // Fallback to string handling for backward compatibility
                 const styledDiff = typeof diffResult === 'string' ? diffResult : diffResult.prototypeHTML || 'No diff available';
@@ -742,6 +747,8 @@ class gadiu_inspector {
         } else if (tabName === 'dual' && this.dualView) {
             this.elements.tabContent.innerHTML = this.dualView;
             gadib_logger_d('Switched to dual view');
+            // Setup dual view navigation after injecting HTML
+            this.setupDualViewNavigation();
         } else {
             gadib_logger_d(`Tab '${tabName}' view not available or not loaded yet`);
             return;
@@ -750,6 +757,134 @@ class gadiu_inspector {
         // Store current tab and update URL
         this.currentTab = tabName;
         this.writeUrlState();
+    }
+
+    setupDualViewNavigation() {
+        gadib_logger_d('Setting up dual view navigation');
+
+        // Store references to pane elements for reuse
+        this.dualLeftPane = document.getElementById('dualLeftPane');
+        this.dualRightPane = document.getElementById('dualRightPane');
+
+        if (!this.dualLeftPane || !this.dualRightPane) {
+            gadib_logger_e('Dual view panes not found in DOM - cannot setup navigation');
+            return;
+        }
+
+        gadib_logger_d(`Dual panes found: left=${this.dualLeftPane.id}, right=${this.dualRightPane.id}`);
+
+        // Find all operation buttons in the dual view
+        const operationButtons = document.querySelectorAll('.gad-operation-button');
+        gadib_logger_d(`Found ${operationButtons.length} operation buttons to wire up`);
+
+        // Attach click event listeners to each button
+        operationButtons.forEach((button, index) => {
+            button.addEventListener('click', (event) => {
+                this.handleOperationButtonClick(event);
+            });
+            gadib_logger_d(`Wired button ${index}: changeId=${button.dataset.changeId}, pane=${button.dataset.pane}`);
+        });
+
+        gadib_logger_d('Dual view navigation setup complete');
+    }
+
+    handleOperationButtonClick(event) {
+        const button = event.currentTarget;
+
+        // Extract data attributes from button
+        const changeId = button.dataset.changeId;
+        const operationIndex = button.dataset.operationIndex;
+        const pane = button.dataset.pane;
+        const routeStr = button.dataset.route;
+
+        gadib_logger_d(`Operation button clicked: changeId=${changeId}, opIndex=${operationIndex}, pane=${pane}`);
+
+        // Validate required attributes
+        if (!pane || !routeStr) {
+            gadib_logger_e('Operation button missing required data attributes (pane or route)');
+            return;
+        }
+
+        // Parse route from JSON string
+        let route;
+        try {
+            route = JSON.parse(routeStr);
+            if (!Array.isArray(route)) {
+                throw new Error('Route is not an array');
+            }
+        } catch (error) {
+            gadib_logger_e(`Failed to parse route from button: ${error.message}`);
+            return;
+        }
+
+        gadib_logger_d(`Parsed route: [${route.join(', ')}]`);
+
+        // Determine which pane to scroll
+        const paneElement = pane === 'left' ? this.dualLeftPane : this.dualRightPane;
+
+        if (!paneElement) {
+            gadib_logger_e(`Pane element not found for: ${pane}`);
+            return;
+        }
+
+        // Scroll to the route
+        this.scrollPaneToRoute(paneElement, route);
+    }
+
+    scrollPaneToRoute(paneElement, routeArray) {
+        if (!paneElement || !routeArray || !Array.isArray(routeArray)) {
+            gadib_logger_e('Invalid parameters for scrollPaneToRoute');
+            return;
+        }
+
+        gadib_logger_d(`Scrolling pane to route: [${routeArray.join(', ')}]`);
+
+        // Use existing helper from GADIE to find element by route
+        const targetElement = gadie_find_element_by_route(paneElement, routeArray);
+
+        if (!targetElement) {
+            gadib_logger_d(`Element not found at route [${routeArray.join(', ')}] - route may be invalid or element removed`);
+            return;
+        }
+
+        gadib_logger_d(`Found target element: ${targetElement.nodeName || 'TEXT_NODE'}`);
+
+        // Scroll element into view smoothly
+        if (targetElement.nodeType === Node.ELEMENT_NODE && targetElement.scrollIntoView) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            gadib_logger_d('Scrolled element into view');
+
+            // Add temporary highlight effect
+            const originalBackground = targetElement.style.backgroundColor;
+            targetElement.style.transition = 'background-color 0.3s ease';
+            targetElement.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
+
+            setTimeout(() => {
+                targetElement.style.backgroundColor = originalBackground;
+                setTimeout(() => {
+                    targetElement.style.transition = '';
+                }, 300);
+            }, 1000);
+        } else if (targetElement.nodeType === Node.TEXT_NODE && targetElement.parentElement) {
+            // For text nodes, scroll the parent element
+            targetElement.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            gadib_logger_d('Scrolled text node parent into view');
+
+            // Highlight parent element
+            const parentElement = targetElement.parentElement;
+            const originalBackground = parentElement.style.backgroundColor;
+            parentElement.style.transition = 'background-color 0.3s ease';
+            parentElement.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
+
+            setTimeout(() => {
+                parentElement.style.backgroundColor = originalBackground;
+                setTimeout(() => {
+                    parentElement.style.transition = '';
+                }, 300);
+            }, 1000);
+        } else {
+            gadib_logger_d('Element found but cannot scroll into view');
+        }
     }
 }
 

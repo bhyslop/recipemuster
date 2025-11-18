@@ -1154,3 +1154,173 @@ section.gads-addition-inline {
 .gad-replace__rendered-new {
     border-left: 3px solid #28a745;
 }
+
+/* ============================================================================
+   DUAL VIEW CSS
+   Three-pane layout with color-coded change correlation
+   ============================================================================ */
+
+/* Main container for entire dual view */
+.gad-dual-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* Side-by-side panes container (50-50 split) */
+.gad-dual-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    flex: 1;
+    overflow: hidden;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Individual panes with independent scroll */
+.gad-left-pane,
+.gad-right-pane {
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 12px;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+    background-color: #fafafa;
+}
+
+.gad-right-pane {
+    border-left: 1px solid #e0e0e0;
+    background-color: #ffffff;
+}
+
+/* Bottom pane with operation buttons */
+.gad-changes-pane {
+    flex: 0 0 200px;
+    overflow-y: auto;
+    border-top: 1px solid #ccc;
+    padding: 12px;
+    background-color: #f5f5f5;
+}
+
+/* Change entry styling */
+.gad-change-entry {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 4px solid rgba(0,0,0,0.2);
+}
+
+.gad-change-label {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.gad-change-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* Operation button styling */
+.gad-operation-button {
+    padding: 4px 8px;
+    font-size: 0.85em;
+    border: 1px solid rgba(0,0,0,0.2);
+    background-color: rgba(255,255,255,0.8);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.gad-operation-button:hover {
+    background-color: #fff;
+    border-color: #000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gad-op-left::before {
+    content: "← ";
+}
+
+.gad-op-right::before {
+    content: "→ ";
+}
+
+/* Diff styling for dual view (GADS-compliant) */
+.gads-dual-deleted {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.gads-dual-added {
+    font-weight: bold;
+}
+
+/* Color palette: Reciprocal changes (0-7) - warmer, saturated colors */
+.gad-change-bg-0 {
+    background-color: rgba(255, 107, 107, 0.2) !important;
+}
+
+.gad-change-bg-1 {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+}
+
+.gad-change-bg-2 {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+}
+
+.gad-change-bg-3 {
+    background-color: rgba(33, 150, 243, 0.2) !important;
+}
+
+.gad-change-bg-4 {
+    background-color: rgba(156, 39, 176, 0.2) !important;
+}
+
+.gad-change-bg-5 {
+    background-color: rgba(255, 152, 0, 0.2) !important;
+}
+
+.gad-change-bg-6 {
+    background-color: rgba(0, 150, 136, 0.2) !important;
+}
+
+.gad-change-bg-7 {
+    background-color: rgba(233, 30, 99, 0.2) !important;
+}
+
+/* Color palette: Monocular changes (8-15) - greyed, muted colors */
+.gad-change-bg-8 {
+    background-color: rgba(117, 117, 117, 0.15) !important;
+}
+
+.gad-change-bg-9 {
+    background-color: rgba(158, 158, 158, 0.15) !important;
+}
+
+.gad-change-bg-10 {
+    background-color: rgba(189, 189, 189, 0.15) !important;
+}
+
+.gad-change-bg-11 {
+    background-color: rgba(224, 224, 224, 0.15) !important;
+}
+
+.gad-change-bg-12 {
+    background-color: rgba(207, 216, 220, 0.15) !important;
+}
+
+.gad-change-bg-13 {
+    background-color: rgba(244, 208, 63, 0.15) !important;
+}
+
+.gad-change-bg-14 {
+    background-color: rgba(129, 199, 132, 0.15) !important;
+}
+
+.gad-change-bg-15 {
+    background-color: rgba(144, 202, 249, 0.15) !important;
+}

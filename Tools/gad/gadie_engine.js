@@ -93,18 +93,13 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         prototypeDOM.appendChild(codaDiv);
         const prototypeHTML = prototypeDOM.innerHTML;
         
-        // Step 5: Create dual view placeholder
-        const dualHTML = `<div class="gad-dual-placeholder">
-            <div class="gad-dual-placeholder__header">
-                <h3>Dual View</h3>
-                <p>Coming soon - side-by-side comparison view</p>
-            </div>
-            <div class="gad-dual-placeholder__content">
-                <div class="gad-dual-placeholder__note">
-                    This view will show before/after content side by side for easier comparison.
-                </div>
-            </div>
-        </div>`;
+        // Step 5: Create dual view with change correlation
+        const reverseOps = diffDOM.diff(toDOM, fromDOM); // Reverse direction for deletions
+        const changeList = gadie_correlate_changes(operations, reverseOps);
+        const leftRendered = gadie_render_dual_left(fromDOM, changeList);
+        const rightRendered = gadie_render_dual_right(toDOM, changeList);
+        const changePaneHTML = gadie_render_change_entries(changeList, operations);
+        const dualHTML = gadie_build_dual_view_html(leftRendered, rightRendered, changePaneHTML);
         
         // Step 6: Create structured return object
         const result = {
@@ -139,6 +134,12 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
             gadib_factory_ship('prototype-output', prototypeHTML, fromCommit, toCommit, sourceFiles);
             gadib_factory_ship('dual-output', dualHTML, fromCommit, toCommit, sourceFiles);
             gadib_factory_ship('styled-output', prototypeHTML, fromCommit, toCommit, sourceFiles); // backward compatibility
+
+            // Ship dual view debug artifacts
+            gadib_factory_ship('dual-left-rendered', leftRendered, fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('dual-right-rendered', rightRendered, fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('dual-changes', JSON.stringify(changeList, null, 2), fromCommit, toCommit, sourceFiles);
+            gadib_factory_ship('dual-reverse-ops', JSON.stringify(reverseOps, null, 2), fromCommit, toCommit, sourceFiles);
         }
         
         return result;
@@ -156,6 +157,253 @@ function gadie_create_dom_from_html(html) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     return doc.body;
+}
+
+// Color palette mapping for dual view - 16 colors total
+const GADIE_COLOR_PALETTE = [
+    // Reciprocal changes (0-7) - warmer palette
+    'rgba(255, 107, 107, 0.2)', // 0 - red
+    'rgba(255, 193, 7, 0.2)',   // 1 - amber
+    'rgba(76, 175, 80, 0.2)',   // 2 - green
+    'rgba(33, 150, 243, 0.2)',  // 3 - blue
+    'rgba(156, 39, 176, 0.2)',  // 4 - purple
+    'rgba(255, 152, 0, 0.2)',   // 5 - orange
+    'rgba(0, 150, 136, 0.2)',   // 6 - teal
+    'rgba(233, 30, 99, 0.2)',   // 7 - pink
+    // Monocular changes (8-15) - greyed/muted palette
+    'rgba(117, 117, 117, 0.15)', // 8 - grey
+    'rgba(158, 158, 158, 0.15)', // 9 - grey
+    'rgba(189, 189, 189, 0.15)', // 10 - grey
+    'rgba(224, 224, 224, 0.15)', // 11 - grey
+    'rgba(207, 216, 220, 0.15)', // 12 - blue grey
+    'rgba(244, 208, 63, 0.15)',  // 13 - yellow
+    'rgba(129, 199, 132, 0.15)', // 14 - green
+    'rgba(144, 202, 249, 0.15)'  // 15 - blue
+];
+
+// Extract text content from an operation for matching
+function gadie_extract_operation_text(op) {
+    if (!op) return '';
+
+    // Handle different operation types
+    if (op.action === 'addTextElement' || op.action === 'removeTextElement') {
+        return (op.value || '').trim();
+    }
+
+    if (op.action === 'modifyTextElement') {
+        return (op.newValue || op.oldValue || '').trim();
+    }
+
+    if (op.action === 'addElement' || op.action === 'removeElement') {
+        if (op.element && op.element.textContent) {
+            return op.element.textContent.trim();
+        }
+    }
+
+    return '';
+}
+
+// Function 1: Correlate changes between forward and reverse operations
+function gadie_correlate_changes(forwardList, reverseList) {
+    const changeList = [];
+    const pairedForward = new Set();
+    const pairedReverse = new Set();
+    let reciprocalCount = 0;
+
+    // Step 1: Find reciprocal pairs by matching text content
+    for (let i = 0; i < forwardList.length; i++) {
+        const forwardOp = forwardList[i];
+        const forwardText = gadie_extract_operation_text(forwardOp);
+
+        if (!forwardText) continue;
+
+        // Search for matching reverse operation
+        for (let j = 0; j < reverseList.length; j++) {
+            if (pairedReverse.has(j)) continue;
+
+            const reverseOp = reverseList[j];
+            const reverseText = gadie_extract_operation_text(reverseOp);
+
+            if (forwardText === reverseText && forwardText.length > 0) {
+                // Found a match - create reciprocal change
+                const changeId = changeList.length;
+                const colorId = reciprocalCount % 8; // 0-7 for reciprocal
+
+                changeList.push({
+                    changeId: changeId,
+                    changeType: 'reciprocal',
+                    forwardOps: [forwardOp],
+                    reverseOps: [reverseOp],
+                    colorId: colorId,
+                    colorHex: GADIE_COLOR_PALETTE[colorId]
+                });
+
+                pairedForward.add(i);
+                pairedReverse.add(j);
+                reciprocalCount++;
+                break;
+            }
+        }
+    }
+
+    // Step 2: Create monocular changes for unpaired reverse operations
+    let monocularCount = 0;
+    for (let j = 0; j < reverseList.length; j++) {
+        if (pairedReverse.has(j)) continue;
+
+        const changeId = changeList.length;
+        const colorId = 8 + (monocularCount % 8); // 8-15 for monocular
+
+        changeList.push({
+            changeId: changeId,
+            changeType: 'monocular',
+            forwardOps: [],
+            reverseOps: [reverseList[j]],
+            colorId: colorId,
+            colorHex: GADIE_COLOR_PALETTE[colorId]
+        });
+
+        monocularCount++;
+    }
+
+    // Step 3: Create monocular changes for unpaired forward operations
+    for (let i = 0; i < forwardList.length; i++) {
+        if (pairedForward.has(i)) continue;
+
+        const changeId = changeList.length;
+        const colorId = 8 + (monocularCount % 8); // 8-15 for monocular
+
+        changeList.push({
+            changeId: changeId,
+            changeType: 'monocular',
+            forwardOps: [forwardList[i]],
+            reverseOps: [],
+            colorId: colorId,
+            colorHex: GADIE_COLOR_PALETTE[colorId]
+        });
+
+        monocularCount++;
+    }
+
+    return changeList;
+}
+
+// Function 2: Render left pane (from document with deletions marked)
+function gadie_render_dual_left(fromDOM, changeList) {
+    // Clone fromDOM to avoid modifying original
+    const clonedDOM = gadie_create_dom_from_html(fromDOM.innerHTML);
+
+    // Process each change that has reverse operations (deletions in left pane)
+    for (const change of changeList) {
+        if (change.reverseOps.length === 0) continue;
+
+        for (const op of change.reverseOps) {
+            if (!op.route) continue;
+
+            const element = gadie_find_element_by_route(clonedDOM, op.route);
+            if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
+                // Add strikethrough class
+                element.classList.add('gads-dual-deleted');
+
+                // Add inline background color
+                element.style.backgroundColor = change.colorHex;
+            }
+        }
+    }
+
+    return clonedDOM.innerHTML;
+}
+
+// Function 3: Render right pane (to document with additions marked)
+function gadie_render_dual_right(toDOM, changeList) {
+    // Clone toDOM to avoid modifying original
+    const clonedDOM = gadie_create_dom_from_html(toDOM.innerHTML);
+
+    // Process each change that has forward operations (additions in right pane)
+    for (const change of changeList) {
+        if (change.forwardOps.length === 0) continue;
+
+        for (const op of change.forwardOps) {
+            if (!op.route) continue;
+
+            const element = gadie_find_element_by_route(clonedDOM, op.route);
+            if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
+                // Add bold class
+                element.classList.add('gads-dual-added');
+
+                // Add inline background color
+                element.style.backgroundColor = change.colorHex;
+            }
+        }
+    }
+
+    return clonedDOM.innerHTML;
+}
+
+// Function 4: Render change entries list
+function gadie_render_change_entries(changeList, operations) {
+    if (changeList.length === 0) {
+        return '<div class="gad-change-empty">No changes detected</div>';
+    }
+
+    // Build HTML for each change entry
+    const entries = changeList.map(change => {
+        const buttons = [];
+
+        // Add buttons for reverse operations (left pane)
+        for (let i = 0; i < change.reverseOps.length; i++) {
+            const op = change.reverseOps[i];
+            const routeStr = op.route ? JSON.stringify(op.route) : '[]';
+
+            buttons.push(`<button class="gad-operation-button gad-op-left"
+                data-change-id="${change.changeId}"
+                data-operation-index="${i}"
+                data-pane="left"
+                data-route='${routeStr}'>
+                Left Op
+            </button>`);
+        }
+
+        // Add buttons for forward operations (right pane)
+        for (let i = 0; i < change.forwardOps.length; i++) {
+            const op = change.forwardOps[i];
+            const routeStr = op.route ? JSON.stringify(op.route) : '[]';
+
+            buttons.push(`<button class="gad-operation-button gad-op-right"
+                data-change-id="${change.changeId}"
+                data-operation-index="${i}"
+                data-pane="right"
+                data-route='${routeStr}'>
+                Right Op
+            </button>`);
+        }
+
+        return `<div class="gad-change-entry" data-change-id="${change.changeId}" style="background-color: ${change.colorHex}">
+            <div class="gad-change-label">Change #${change.changeId + 1} (${change.changeType})</div>
+            <div class="gad-change-buttons">
+                ${buttons.join('\n                ')}
+            </div>
+        </div>`;
+    }).join('\n        ');
+
+    return entries;
+}
+
+// Function 5: Build complete dual view HTML structure
+function gadie_build_dual_view_html(leftRendered, rightRendered, changePaneHTML) {
+    return `<div class="gad-dual-view">
+        <div class="gad-dual-panes">
+            <div class="gad-left-pane" id="dualLeftPane">
+                ${leftRendered}
+            </div>
+            <div class="gad-right-pane" id="dualRightPane">
+                ${rightRendered}
+            </div>
+        </div>
+        <div class="gad-changes-pane" id="dualChangesPane">
+            ${changePaneHTML}
+        </div>
+    </div>`;
 }
 
 // Simple route traversal helper
