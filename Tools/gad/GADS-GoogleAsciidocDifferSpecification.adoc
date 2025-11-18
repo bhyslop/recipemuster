@@ -137,6 +137,9 @@
 :gadis_change_rendering:               <<gadis_change_rendering,Inspector Change Rendering>>
 :gadis_change:                         <<gadis_change,Inspector Change>>
 :gadis_change_list:                    <<gadis_change_list,Inspector Change List>>
+:gadis_reciprocal_change:              <<gadis_reciprocal_change,Inspector Reciprocal Change>>
+:gadis_monocular_change:               <<gadis_monocular_change,Inspector Monocular Change>>
+:gadis_route:                          <<gadis_route,Inspector Route>>
 :gadis_tab_state:                      <<gadis_tab_state,Inspector Tab State>>
 :gadir_unchanged_indicator:            <<gadir_unchanged_indicator,Inspector Rail Unchanged Indicator>>
 :gadi_prototype_view:                  <<gadi_prototype_view,Inspector Prototype View>>
@@ -347,7 +350,7 @@ The {gadis_diff_sequence} computes:
 
 **Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}, parsed into {gadic_from_dom} and {gadic_to_dom}.
 
-**Processing**: {gaddl_library} invoked twice to generate {gadis_forward_list} (before→after) and {gadis_reverse_list} (after→before), each containing individual {gaddo_operation} entries with complete route information for precise element positioning. {gadis_change_correlation} analyzes {gadis_forward_list} and {gadis_reverse_list} to group {gaddo_operation} entries by proximity and inverse relationships, producing {gadis_change_list}. CSS classes applied to construct view-specific rendered output. {gadic_annotation_collection} produced containing {gadic_annotation_entry} elements describing each {gadis_change}.
+**Processing**: {gaddl_library} invoked twice to generate {gadis_forward_list} (before→after) and {gadis_reverse_list} (after→before), each containing individual {gaddo_operation} entries with complete {gadis_route} information for precise element positioning. {gadis_change_correlation} analyzes {gadis_forward_list} and {gadis_reverse_list} to group {gaddo_operation} entries by proximity and inverse relationships, producing {gadis_change_list}. CSS classes applied to construct view-specific rendered output. {gadic_annotation_collection} produced containing {gadic_annotation_entry} elements describing each {gadis_change}.
 
 **Output**: {gadic_multiview_result} with pre-computed views for {gadip_tab_bar} display options ({gadi_prototype_view} and {gadi_dual_view} content), displayed in {gadip_rendered} pane.
 
@@ -445,7 +448,7 @@ The dual view generation follows this sequence within {gadis_diff_sequence}:
 
 . **Diff Analysis**: {gaddl_library} generates {gadis_forward_list} and {gadis_reverse_list}
 . **Change Correlation**: {gadis_change_correlation} groups related operations into {gadis_change} instances
-. **Visual Assignment**: Each {gadis_change} receives a unique background color for visual correlation
+. **Visual Assignment**: Each {gadvd_change_entry} receives a unique background color for visual correlation
 . **Rendering**: {gadis_change_rendering} produces:
   - {gadvd_left_rendered}: {gadic_from_dom} with deletion styling (strikethrough + color)
   - {gadvd_right_rendered}: {gadic_to_dom} with addition styling (bold + color)
@@ -463,16 +466,16 @@ Navigation flow from change entry to document location:
 ----
 User clicks operation button in Change #N
   → Button identifies target pane (left for forward ops, right for reverse ops)
-  → Button extracts route array from associated {gaddo_operation}
-  → System scrolls target pane to route position
+  → Button extracts {gadis_route} from associated {gaddo_operation}
+  → System scrolls target pane to {gadis_route} position
   → Colored background at destination matches Change #N color
 ----
 
 ==== Implementation Details
 
-* **Color Consistency**: Each {gadis_change} maintains the same background color across all three panes
+* **Color Consistency**: Each {gadvd_change_entry} maintains the same background color across all three panes
 * **Independent Scrolling**: Panes scroll independently to support non-linear document exploration
-* **Route Preservation**: Operation routes remain valid as they reference immutable DOM structures
+* **Route Preservation**: Operation {gadis_route} values remain valid as they reference immutable DOM structures
 * **Eager Computation**: Per {gadkp_bounded_documents}, all views are pre-computed and stored in {gadic_multiview_result}
 * **Instant Switching**: {gadiu_tab_switch} swaps pre-computed HTML without re-running diff analysis
 
@@ -506,12 +509,12 @@ Powers keyboard shortcuts and dasd{gadit_commit} display logic.
 [[gaddl_library]]
 {gaddl_library}::
 JavaScript DOM tree difference engine providing structured diff operations that preserve HTML element hierarchy.
-The {gaddl_library} generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete route array information for precise element positioning.
+The {gaddl_library} generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete {gadis_route} information for precise element positioning.
 
 [[gaddo_dom]]
 {gaddo_dom}::
 The type representing any DOM structure that can be processed by {gaddl_library}.
-A {gaddo_dom} is an in-memory tree representation of HTML with nodes accessible via route arrays.
+A {gaddo_dom} is an in-memory tree representation of HTML with nodes accessible via {gadis_route} arrays.
 
 [[gaddo_word_flat]]
 {gaddo_word_flat}::
@@ -521,7 +524,7 @@ Each line contains a single word from unchanged content, with change locations m
 [[gaddo_word_map]]
 {gaddo_word_map}::
 The type representing a mapping structure that correlates each line in a {gaddo_word_flat} back to its source position in the original {gaddo_dom}.
-Each entry contains the route array and character offsets needed to locate the word within its source DOM text node.
+Each entry contains the {gadis_route} and character offsets needed to locate the word within its source DOM text node.
 
 [[gadic_from_dom]]
 {gadic_from_dom}::
@@ -537,7 +540,7 @@ The type representing a list of diff operations that can be generated by {gaddl_
 
 [[gaddo_operation]]
 {gaddo_operation}::
-The type representing an individual diff-dom operation with action type, route for DOM positioning, and change information (added/removed/modified content).
+The type representing an individual diff-dom operation with action type, {gadis_route} for DOM positioning, and change information (added/removed/modified content).
 
 [[gadic_rendered_dom]]
 {gadic_rendered_dom}::
@@ -549,7 +552,7 @@ Complete set of operation annotations generated during rendering, provides human
 
 [[gadic_annotation_entry]]
 {gadic_annotation_entry}::
-Individual annotation describing a specific {gaddo_operation}, including operation index, action type, route, and formatted payload representation.
+Individual annotation describing a specific {gaddo_operation}, including operation index, action type, {gadis_route}, and formatted payload representation.
 
 [[gadip_tab_bar]]
 {gadip_tab_bar}::
@@ -586,25 +589,28 @@ Right pane displaying {gadic_to_dom} with addition indicators and color-coded ch
 
 [[gadvd_change_pane]]
 {gadvd_change_pane}::
-Bottom pane containing scrollable list of {gadvd_change_entry} elements with navigation controls for each {gadis_change}.
+Bottom pane containing scrollable list of {gadvd_change_entry} elements with navigation controls.
+Entries ordered by {gadis_reverse_list} operation sequence, reflecting {gadic_to_dom} layout since {gadvd_right_pane} always displays the target/improved specification state.
 
 [[gadvd_change_entry]]
 {gadvd_change_entry}::
 Visual element in {gadvd_change_pane} representing one {gadis_change} with navigation buttons.
-Contains {gadvd_operation_button} controls for each operation in the change (typically one per pane).
+Contains {gadvd_operation_button} elements created for each {gaddo_operation} in the {gadis_change}: {gadis_reciprocal_change} entries have two buttons (one for each pane), {gadis_monocular_change} entries have one button for the appropriate pane.
 
 [[gadvd_operation_button]]
 {gadvd_operation_button}::
-Clickable control within {gadvd_change_entry} that scrolls target pane to operation's route location.
+Clickable control within {gadvd_change_entry} that scrolls target pane to operation's {gadis_route} location.
 Forward operations target {gadvd_left_pane}, reverse operations target {gadvd_right_pane}.
 
 [[gadvd_left_rendered]]
 {gadvd_left_rendered}::
-Rendered DOM for {gadvd_left_pane} with deletion styling (strikethrough) and change-specific background colors.
+{gadic_from_dom} prepared for {gadvd_left_pane} display with deletion styling (strikethrough) and change-specific background colors applied.
+Serves as the prepared structure for the left side of {gadi_dual_view}.
 
 [[gadvd_right_rendered]]
 {gadvd_right_rendered}::
-Rendered DOM for {gadvd_right_pane} with addition styling (bold) and change-specific background colors.
+{gadic_to_dom} prepared for {gadvd_right_pane} display with addition styling (bold) and change-specific background colors applied.
+Serves as the prepared structure for the right side of {gadi_dual_view}, always displaying the target/improved specification state.
 
 [[gadic_multiview_result]]
 {gadic_multiview_result}::
@@ -773,22 +779,25 @@ When {gadt_manifest} fetch fails, Inspector displays appropriate error without a
 [[gadis_forward_list]]
 {gadis_forward_list}::
 The specific {gaddo_operation_list} produced by running {gaddl_library} with {gadic_from_dom} as source and {gadic_to_dom} as target.
-Represents the operations needed to transform the "before" state into the "after" state, with all routes referencing positions in {gadic_from_dom}.
+Represents the operations needed to transform the "before" state into the "after" state, with all {gadis_route} values referencing positions in {gadic_from_dom}.
 
 [[gadis_reverse_list]]
 {gadis_reverse_list}::
 The specific {gaddo_operation_list} produced by running {gaddl_library} with {gadic_to_dom} as source and {gadic_from_dom} as target.
-Represents the operations needed to transform the "after" state back into the "before" state, with all routes referencing positions in {gadic_to_dom}.
+Represents the operations needed to transform the "after" state back into the "before" state, with all {gadis_route} values referencing positions in {gadic_to_dom}.
 
 [[gadis_change_correlation]]
 {gadis_change_correlation}::
 The process within {gadis_diff_sequence} that analyzes {gadis_forward_list} and {gadis_reverse_list} to group related operations into {gadis_change} instances.
-Correlates operations based on DOM proximity and inverse relationships (e.g., forward deletion paired with reverse addition), producing {gadis_change_list} as output.
+Uses precise text matching to identify inverse operation pairs: forward deletions paired with reverse additions of identical text content.
+Paired operations become {{gadis_reciprocal_change}} instances; unpaired operations become separate {{gadis_monocular_change}} instances.
+Produces {{gadis_change_list}} as output.
 
 [[gadis_change_rendering]]
 {gadis_change_rendering}::
-The process within {gadis_diff_sequence} that applies visual styling to each {gadis_change} for dual view display.
-Assigns consistent background colors to each {gadis_change} and determines operation-specific visual treatments (strikethrough for deletions, bold for additions) to produce {gadvd_left_rendered} and {gadvd_right_rendered}.
+The process within {gadis_diff_sequence} that applies visual styling to each {gadvd_change_entry} for dual view display.
+Assigns background colors using a two-color scheme: one color for {gadis_reciprocal_change} entries, a distinct color for {gadis_monocular_change} entries.
+Determines operation-specific visual treatments (strikethrough for deletions, bold for additions) to produce {gadvd_left_rendered} and {gadvd_right_rendered}.
 
 [[gadis_change]]
 {gadis_change}::
@@ -799,6 +808,23 @@ Operations within a {gadis_change} are affiliated by DOM proximity and inverse r
 {gadis_change_list}::
 The specific list of correlated changes produced by analyzing {gadis_forward_list} and {gadis_reverse_list} for the current {gadic_from_dom} and {gadic_to_dom} pair.
 Each {gadis_change} entry represents a logical change identified between these specific document versions.
+
+[[gadis_reciprocal_change]]
+{gadis_reciprocal_change}::
+A {gadis_change} consisting of exactly one {gaddo_operation} from {gadis_forward_list} paired with exactly one {gaddo_operation} from {gadis_reverse_list}.
+The paired operations are reciprocals of each other, representing a single unambiguous logical modification between {gadic_from_dom} and {gadic_to_dom}.
+{gadis_reciprocal_change} instances form the primary case in {gadis_change_correlation}.
+
+[[gadis_monocular_change]]
+{gadis_monocular_change}::
+A {gadis_change} consisting of operations from only one side: either {gadis_forward_list} or {gadis_reverse_list}, but not both.
+Created when {gaddo_operation} entries cannot be clearly paired during {gadis_change_correlation} analysis.
+Each unpaired operation from either side generates a separate {gadis_monocular_change} instance containing that single operation.
+
+[[gadis_route]]
+{gadis_route}::
+An array of numeric indices representing the traversal path from DOM root to a specific element, where each index indicates which child to select at each level of the tree hierarchy.
+A {gadis_route} enables precise element location within immutable DOM structures, serving as the addressing mechanism for {gaddo_operation} positioning and navigation from {gadvd_change_entry} controls to document locations.
 
 [[gadir_unchanged_indicator]]
 {gadir_unchanged_indicator}::
