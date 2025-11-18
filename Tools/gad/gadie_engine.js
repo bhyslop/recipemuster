@@ -101,8 +101,10 @@ async function gadie_diff(fromHtml, toHtml, opts = {}) {
         // Step 5: Create dual view with change correlation
         const reverseOps = diffDOM.diff(toDOM, fromDOM); // Reverse direction for deletions
         const changeList = gadie_correlate_changes(operations, reverseOps);
+        gadib_logger_d(`[GADIE] About to render dual view with ${changeList.length} changes`);
         const leftRendered = gadie_render_dual_left(fromDOM, changeList);
         const rightRendered = gadie_render_dual_right(toDOM, changeList);
+        gadib_logger_d(`[GADIE] Dual view rendering complete`);
         const changePaneHTML = gadie_render_change_entries(changeList, operations);
         const dualHTML = gadie_build_dual_view_html(leftRendered, rightRendered, changePaneHTML);
         
@@ -385,7 +387,7 @@ function gadie_render_dual_left(fromDOM, changeList) {
     const clonedDOM = gadie_create_dom_from_html(fromDOM.innerHTML);
 
     // Log that we're rendering left pane with marking
-    if (typeof gadib_logger_d === 'function') gadib_logger_d(`[GADIE-RENDER] Starting LEFT pane marking for ${changeList.length} changes`);
+    gadib_logger_d(`[GADIE-RENDER] Starting LEFT pane marking for ${changeList.length} changes`);
 
     // Process each change that has reverse operations (deletions in left pane)
     for (const change of changeList) {
