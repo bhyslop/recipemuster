@@ -321,60 +321,33 @@ function gadie_wrap_text_substring(parentNode, searchText, changeId, colorHex, i
         return true;
     }
 
-    // Partial match - need to wrap just the substring
-    // This is complex because we need to handle mixed text and element nodes
-    // Strategy: Find all text nodes in parent, locate the search text, and wrap it
-    const walker = document.createTreeWalker(
-        parentNode,
-        NodeFilter.SHOW_TEXT,
-        null,
-        false
-    );
+    // Partial match - only try to wrap if we have direct text nodes
+    // Don't try complex nested DOM reconstruction
+    // Just find the first direct text node that contains the search text and wrap it
+    for (let i = 0; i < parentNode.childNodes.length; i++) {
+        const node = parentNode.childNodes[i];
 
-    let textNode;
-    let foundStart = false;
-    let accumulatedText = '';
-
-    while ((textNode = walker.nextNode())) {
-        const nodeText = textNode.textContent;
-        accumulatedText += nodeText;
-
-        // Check if the search text is now complete in our accumulated text
-        if (accumulatedText.includes(searchText) && !foundStart) {
-            // Found it! Now we need to split and wrap
-            const startIndex = accumulatedText.indexOf(searchText);
-            const beforeText = accumulatedText.substring(0, startIndex);
-            const afterText = accumulatedText.substring(startIndex + searchText.length);
-
-            // Create wrapper span
-            const wrapper = document.createElement('span');
-            wrapper.classList.add(isDeletion ? 'gads-dual-deleted' : 'gads-dual-added');
-            wrapper.style.backgroundColor = colorHex;
-            wrapper.setAttribute('data-change-id', changeId);
-            wrapper.classList.add(`gad-change-${changeId}`);
-            wrapper.textContent = searchText;
-
-            // This is simplified - just mark it without complex splitting
-            // A full implementation would need to carefully reconstruct the DOM
-            if (textNode.nodeType === Node.TEXT_NODE && nodeText.includes(searchText)) {
-                // Simple case: text is all in one node
+        if (node.nodeType === Node.TEXT_NODE) {
+            const nodeText = node.textContent;
+            if (nodeText.includes(searchText)) {
+                // Found it in this text node - wrap just the substring
                 const idx = nodeText.indexOf(searchText);
-                if (idx !== -1) {
-                    const before = document.createTextNode(nodeText.substring(0, idx));
-                    const after = document.createTextNode(nodeText.substring(idx + searchText.length));
+                const before = document.createTextNode(nodeText.substring(0, idx));
+                const after = document.createTextNode(nodeText.substring(idx + searchText.length));
 
-                    wrapper.textContent = searchText;
+                const wrapper = document.createElement('span');
+                wrapper.classList.add(isDeletion ? 'gads-dual-deleted' : 'gads-dual-added');
+                wrapper.style.backgroundColor = colorHex;
+                wrapper.setAttribute('data-change-id', changeId);
+                wrapper.classList.add(`gad-change-${changeId}`);
+                wrapper.textContent = searchText;
 
-                    textNode.parentNode.insertBefore(before, textNode);
-                    textNode.parentNode.insertBefore(wrapper, textNode);
-                    textNode.parentNode.insertBefore(after, textNode);
-                    textNode.parentNode.removeChild(textNode);
-                    return true;
-                }
+                parentNode.insertBefore(before, node);
+                parentNode.insertBefore(wrapper, node);
+                parentNode.insertBefore(after, node);
+                parentNode.removeChild(node);
+                return true;
             }
-
-            foundStart = true;
-            return true;
         }
     }
 
