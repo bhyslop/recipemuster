@@ -301,18 +301,30 @@ function gadie_render_dual_left(fromDOM, changeList) {
             if (!op.route) continue;
 
             const element = gadie_find_element_by_route(clonedDOM, op.route);
-            if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
-                // Add strikethrough class
+            if (!element) {
+                // Route not found - log but don't fail silently
+                console.log(`[GADIE-MARK] Left pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
+                continue;
+            }
+
+            // Handle text nodes by wrapping them
+            if (element.nodeType === Node.TEXT_NODE) {
+                const wrapper = document.createElement('span');
+                wrapper.classList.add('gads-dual-deleted');
+                wrapper.style.backgroundColor = change.colorHex;
+                wrapper.setAttribute('data-change-id', change.changeId);
+                wrapper.classList.add(`gad-change-${change.changeId}`);
+                element.parentNode.insertBefore(wrapper, element);
+                wrapper.appendChild(element);
+            } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
+                // Mark element nodes directly
                 element.classList.add('gads-dual-deleted');
-
-                // Add inline background color
                 element.style.backgroundColor = change.colorHex;
-
-                // Add data attribute for finding elements by change ID
                 element.setAttribute('data-change-id', change.changeId);
-
-                // Also add a class for CSS-based finding (more reliable after serialization)
                 element.classList.add(`gad-change-${change.changeId}`);
+            } else {
+                // Can't mark this element type
+                console.log(`[GADIE-MARK] Left pane: Cannot mark node type ${element.nodeType} for changeId ${change.changeId}`);
             }
         }
     }
@@ -333,18 +345,30 @@ function gadie_render_dual_right(toDOM, changeList) {
             if (!op.route) continue;
 
             const element = gadie_find_element_by_route(clonedDOM, op.route);
-            if (element && element.nodeType === Node.ELEMENT_NODE && element.classList) {
-                // Add bold class
+            if (!element) {
+                // Route not found - log but don't fail silently
+                console.log(`[GADIE-MARK] Right pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
+                continue;
+            }
+
+            // Handle text nodes by wrapping them
+            if (element.nodeType === Node.TEXT_NODE) {
+                const wrapper = document.createElement('span');
+                wrapper.classList.add('gads-dual-added');
+                wrapper.style.backgroundColor = change.colorHex;
+                wrapper.setAttribute('data-change-id', change.changeId);
+                wrapper.classList.add(`gad-change-${change.changeId}`);
+                element.parentNode.insertBefore(wrapper, element);
+                wrapper.appendChild(element);
+            } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
+                // Mark element nodes directly
                 element.classList.add('gads-dual-added');
-
-                // Add inline background color
                 element.style.backgroundColor = change.colorHex;
-
-                // Add data attribute for finding elements by change ID
                 element.setAttribute('data-change-id', change.changeId);
-
-                // Also add a class for CSS-based finding (more reliable after serialization)
                 element.classList.add(`gad-change-${change.changeId}`);
+            } else {
+                // Can't mark this element type
+                console.log(`[GADIE-MARK] Right pane: Cannot mark node type ${element.nodeType} for changeId ${change.changeId}`);
             }
         }
     }
@@ -412,6 +436,7 @@ function gadie_build_dual_view_html(leftRendered, rightRendered, changePaneHTML)
                 ${rightRendered}
             </div>
         </div>
+        <div class="gad-resize-divider" id="dualResizeDivider"></div>
         <div class="gad-changes-pane" id="dualChangesPane">
             ${changePaneHTML}
         </div>

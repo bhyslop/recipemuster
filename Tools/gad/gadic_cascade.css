@@ -559,8 +559,10 @@ section.gads-addition-inline {
 }
 
 #tabContent {
-    min-height: 200px;
+    height: 100%;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Dual view placeholder styling */
@@ -1157,7 +1159,7 @@ section.gads-addition-inline {
 
 /* ============================================================================
    DUAL VIEW CSS
-   Three-pane layout with color-coded change correlation
+   Three-pane layout with color-coded change correlation & resizable divider
    ============================================================================ */
 
 /* Main container for entire dual view */
@@ -1166,6 +1168,7 @@ section.gads-addition-inline {
     flex-direction: column;
     height: 100%;
     width: 100%;
+    min-height: 0; /* Critical for flexbox children to respect height */
 }
 
 /* Side-by-side panes container (50-50 split) */
@@ -1173,9 +1176,10 @@ section.gads-addition-inline {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px;
-    flex: 1;
+    flex: 1 1 auto;
     overflow: hidden;
     border-bottom: 1px solid #ccc;
+    min-height: 0; /* Critical for flexbox children to respect height */
 }
 
 /* Individual panes with independent scroll */
@@ -1187,6 +1191,7 @@ section.gads-addition-inline {
     font-family: 'Georgia', serif;
     line-height: 1.6;
     background-color: #fafafa;
+    min-height: 0; /* Critical for flex children */
 }
 
 .gad-right-pane {
@@ -1194,13 +1199,31 @@ section.gads-addition-inline {
     background-color: #ffffff;
 }
 
-/* Bottom pane with operation buttons */
+/* Resize divider handle */
+.gad-resize-divider {
+    flex: 0 0 6px;
+    background: linear-gradient(to right, #ddd 1px, #f5f5f5 1px, #f5f5f5 4px, #ddd 5px);
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    cursor: row-resize;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+
+.gad-resize-divider:hover {
+    background: linear-gradient(to right, #999 1px, #e8e8e8 1px, #e8e8e8 4px, #999 5px);
+}
+
+/* Bottom pane with operation buttons - FIXED HEIGHT */
 .gad-changes-pane {
-    flex: 0 0 200px;
+    flex: 0 0 300px;
     overflow-y: auto;
+    overflow-x: hidden;
     border-top: 1px solid #ccc;
     padding: 12px;
     background-color: #f5f5f5;
+    min-height: 100px;
+    max-height: 600px;
 }
 
 /* Change entry styling */

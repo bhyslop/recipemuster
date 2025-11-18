@@ -802,7 +802,68 @@ class gadiu_inspector {
             gadib_logger_d(`Wired button ${index}: changeId=${button.dataset.changeId}, pane=${button.dataset.pane}`);
         });
 
+        // Setup resizable divider for dual view
+        this.setupDualViewResize();
+
         gadib_logger_d('Dual view navigation setup complete');
+    }
+
+    setupDualViewResize() {
+        const divider = document.getElementById('dualResizeDivider');
+        const dualView = document.querySelector('.gad-dual-view');
+        const dualPanes = document.querySelector('.gad-dual-panes');
+        const changesPane = document.querySelector('.gad-changes-pane');
+
+        if (!divider || !dualView || !dualPanes || !changesPane) {
+            gadib_logger_d('Resize divider or panes not found - skipping resize setup');
+            return;
+        }
+
+        let isResizing = false;
+        let startY = 0;
+        let startPanesHeight = 0;
+        let startChangesPaneHeight = 0;
+
+        divider.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startY = e.clientY;
+            startPanesHeight = dualPanes.offsetHeight;
+            startChangesPaneHeight = changesPane.offsetHeight;
+
+            // Add visual feedback during resize
+            divider.style.background = 'linear-gradient(to right, #007bff 1px, #d6ebf5 1px, #d6ebf5 4px, #007bff 5px)';
+            document.body.style.cursor = 'row-resize';
+            document.body.style.userSelect = 'none';
+
+            gadib_logger_d('Started resizing dual view panes');
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            const deltaY = e.clientY - startY;
+            // Drag UP (negative deltaY) → increase change pane, decrease panes
+            // Drag DOWN (positive deltaY) → decrease change pane, increase panes
+            const newPanesHeight = Math.max(300, startPanesHeight + deltaY); // Min 300px for panes
+            const newChangesPaneHeight = Math.max(100, startChangesPaneHeight - deltaY); // Min 100px for changes pane
+
+            // Update flex-basis for smooth resizing
+            dualPanes.style.flexBasis = newPanesHeight + 'px';
+            changesPane.style.flexBasis = newChangesPaneHeight + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isResizing) return;
+
+            isResizing = false;
+            divider.style.background = 'linear-gradient(to right, #ddd 1px, #f5f5f5 1px, #f5f5f5 4px, #ddd 5px)';
+            document.body.style.cursor = 'auto';
+            document.body.style.userSelect = 'auto';
+
+            gadib_logger_d('Finished resizing dual view panes');
+        });
+
+        gadib_logger_d('Dual view resize handler initialized');
     }
 
     handleOperationButtonClick(event) {
