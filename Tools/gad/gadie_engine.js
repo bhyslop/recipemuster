@@ -2,13 +2,9 @@
 // Extracted from monolithic gadi_inspector.html for modular architecture
 // Simplified to 2-step process: diff-dom operations + CSS styling
 
-// Logger wrapper that sends to Factory if available, otherwise browser console
+// Logger wrapper - sends to Factory via gadib_logger_d (same as INSPECTOR-TRACE)
 function gadie_log(msg) {
-    if (typeof gadib_logger_d === 'function') {
-        gadib_logger_d(msg);
-    } else {
-        console.log(msg);
-    }
+    gadib_logger_d(`[GADIE] ${msg}`);
 }
 
 // GADIE Constants - Centralized static tables
