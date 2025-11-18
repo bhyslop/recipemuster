@@ -389,17 +389,19 @@ function gadie_render_dual_left(fromDOM, changeList) {
             const element = gadie_find_element_by_route(clonedDOM, op.route);
             if (!element) {
                 // Route not found - log but don't fail silently
-                console.log(`[GADIE-MARK] Left pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
+                gadib_logger_d(`[GADIE-MARK] Left pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
                 continue;
             }
 
             let marked = false;
+            const opText = op.oldValue || op.value;
+            gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: element nodeType=${element.nodeType}, opText="${gadie_truncate(opText || '', 60)}"`);
 
             // Handle text nodes by wrapping them
             if (element.nodeType === Node.TEXT_NODE) {
                 // For text nodes, try substring matching first if we have operation text
-                const opText = op.oldValue || op.value;
                 if (opText && element.parentNode) {
+                    gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: trying substring match in text node`);
                     marked = gadie_wrap_text_substring(
                         element.parentNode,
                         opText,
@@ -407,10 +409,16 @@ function gadie_render_dual_left(fromDOM, changeList) {
                         change.colorHex,
                         true
                     );
+                    if (marked) {
+                        gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match succeeded`);
+                    } else {
+                        gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match failed, falling back`);
+                    }
                 }
 
                 // Fallback: wrap the entire text node
                 if (!marked) {
+                    gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: wrapping entire text node`);
                     const wrapper = document.createElement('span');
                     wrapper.classList.add('gads-dual-deleted');
                     wrapper.style.backgroundColor = change.colorHex;
@@ -422,8 +430,8 @@ function gadie_render_dual_left(fromDOM, changeList) {
                 }
             } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 // For element nodes, try substring matching in case it's a container
-                const opText = op.oldValue || op.value;
                 if (opText) {
+                    gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: trying substring match in element`);
                     marked = gadie_wrap_text_substring(
                         element,
                         opText,
@@ -431,10 +439,16 @@ function gadie_render_dual_left(fromDOM, changeList) {
                         change.colorHex,
                         true
                     );
+                    if (marked) {
+                        gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match succeeded`);
+                    } else {
+                        gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: substring match failed, falling back`);
+                    }
                 }
 
                 // Fallback: mark the entire element
                 if (!marked) {
+                    gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: marking entire element`);
                     element.classList.add('gads-dual-deleted');
                     element.style.backgroundColor = change.colorHex;
                     element.setAttribute('data-change-id', change.changeId);
@@ -443,11 +457,11 @@ function gadie_render_dual_left(fromDOM, changeList) {
                 }
             } else {
                 // Can't mark this element type
-                console.log(`[GADIE-MARK] Left pane: Cannot mark node type ${element.nodeType} for changeId ${change.changeId}`);
+                gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: Cannot mark node type ${element.nodeType}`);
             }
 
             if (marked) {
-                console.log(`[GADIE-MARK] Left pane: Successfully marked changeId ${change.changeId}`);
+                gadib_logger_d(`[GADIE-MARK] Left pane changeId=${change.changeId}: Successfully marked`);
             }
         }
     }
@@ -470,17 +484,19 @@ function gadie_render_dual_right(toDOM, changeList) {
             const element = gadie_find_element_by_route(clonedDOM, op.route);
             if (!element) {
                 // Route not found - log but don't fail silently
-                console.log(`[GADIE-MARK] Right pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
+                gadib_logger_d(`[GADIE-MARK] Right pane: Route [${op.route.join(',')}] not found for changeId ${change.changeId}`);
                 continue;
             }
 
             let marked = false;
+            const opText = op.newValue || op.value;
+            gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: element nodeType=${element.nodeType}, opText="${gadie_truncate(opText || '', 60)}"`);
 
             // Handle text nodes by wrapping them
             if (element.nodeType === Node.TEXT_NODE) {
                 // For text nodes, try substring matching first if we have operation text
-                const opText = op.newValue || op.value;
                 if (opText && element.parentNode) {
+                    gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: trying substring match in text node`);
                     marked = gadie_wrap_text_substring(
                         element.parentNode,
                         opText,
@@ -488,10 +504,16 @@ function gadie_render_dual_right(toDOM, changeList) {
                         change.colorHex,
                         false
                     );
+                    if (marked) {
+                        gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match succeeded`);
+                    } else {
+                        gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match failed, falling back`);
+                    }
                 }
 
                 // Fallback: wrap the entire text node
                 if (!marked) {
+                    gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: wrapping entire text node`);
                     const wrapper = document.createElement('span');
                     wrapper.classList.add('gads-dual-added');
                     wrapper.style.backgroundColor = change.colorHex;
@@ -503,8 +525,8 @@ function gadie_render_dual_right(toDOM, changeList) {
                 }
             } else if (element.nodeType === Node.ELEMENT_NODE && element.classList) {
                 // For element nodes, try substring matching in case it's a container
-                const opText = op.newValue || op.value;
                 if (opText) {
+                    gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: trying substring match in element`);
                     marked = gadie_wrap_text_substring(
                         element,
                         opText,
@@ -512,10 +534,16 @@ function gadie_render_dual_right(toDOM, changeList) {
                         change.colorHex,
                         false
                     );
+                    if (marked) {
+                        gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match succeeded`);
+                    } else {
+                        gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: substring match failed, falling back`);
+                    }
                 }
 
                 // Fallback: mark the entire element
                 if (!marked) {
+                    gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: marking entire element`);
                     element.classList.add('gads-dual-added');
                     element.style.backgroundColor = change.colorHex;
                     element.setAttribute('data-change-id', change.changeId);
@@ -524,11 +552,11 @@ function gadie_render_dual_right(toDOM, changeList) {
                 }
             } else {
                 // Can't mark this element type
-                console.log(`[GADIE-MARK] Right pane: Cannot mark node type ${element.nodeType} for changeId ${change.changeId}`);
+                gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: Cannot mark node type ${element.nodeType}`);
             }
 
             if (marked) {
-                console.log(`[GADIE-MARK] Right pane: Successfully marked changeId ${change.changeId}`);
+                gadib_logger_d(`[GADIE-MARK] Right pane changeId=${change.changeId}: Successfully marked`);
             }
         }
     }
