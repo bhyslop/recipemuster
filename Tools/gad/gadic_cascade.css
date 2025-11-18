@@ -1241,6 +1241,71 @@ section.gads-addition-inline {
     color: #333;
 }
 
+/* Operation details display */
+.gad-change-operations {
+    font-size: 0.85em;
+    margin-bottom: 8px;
+    padding: 6px 0;
+}
+
+.gad-change-ops-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 6px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(0,0,0,0.15);
+}
+
+.gad-ops-label {
+    font-weight: 600;
+    font-size: 0.8em;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gad-change-operation-detail {
+    padding: 3px 6px;
+    border-radius: 2px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8em;
+}
+
+.gad-change-reverse {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left: 2px solid #dc3545;
+    color: #721c24;
+}
+
+.gad-change-forward {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-left: 2px solid #28a745;
+    color: #155724;
+}
+
+.gad-op-summary {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.gad-op-action {
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 1px 4px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 2px;
+}
+
+.gad-op-text {
+    font-style: italic;
+    color: inherit;
+    word-break: break-word;
+}
+
 .gad-change-buttons {
     display: flex;
     gap: 6px;

@@ -376,6 +376,17 @@ function gadie_render_dual_right(toDOM, changeList) {
     return clonedDOM.innerHTML;
 }
 
+// Helper function to format operation summary with action and text content
+function gadie_format_operation_summary(op) {
+    const action = op.action || 'unknown';
+    const text = gadie_extract_operation_text(op);
+
+    if (text) {
+        return `<span class="gad-op-action">${gadie_escape_html(action)}</span>: <span class="gad-op-text">"${gadie_escape_html(gadie_truncate(text, 80))}"</span>`;
+    }
+    return `<span class="gad-op-action">${gadie_escape_html(action)}</span>`;
+}
+
 // Function 4: Render change entries list
 function gadie_render_change_entries(changeList, operations) {
     if (changeList.length === 0) {
@@ -385,37 +396,57 @@ function gadie_render_change_entries(changeList, operations) {
     // Build HTML for each change entry
     const entries = changeList.map(change => {
         const buttons = [];
+        const reverseOpDetails = [];
+        const forwardOpDetails = [];
 
-        // Add buttons for reverse operations (left pane)
+        // Process reverse operations (deletions in left pane)
         for (let i = 0; i < change.reverseOps.length; i++) {
             const op = change.reverseOps[i];
             const routeStr = op.route ? JSON.stringify(op.route) : '[]';
+            const summary = gadie_format_operation_summary(op);
 
             buttons.push(`<button class="gad-operation-button gad-op-left"
                 data-change-id="${change.changeId}"
                 data-operation-index="${i}"
                 data-pane="left"
                 data-route='${routeStr}'>
-                Left Op
+                ← Left
             </button>`);
+
+            reverseOpDetails.push(`<div class="gad-change-operation-detail gad-change-reverse">
+                <div class="gad-op-summary">${summary}</div>
+            </div>`);
         }
 
-        // Add buttons for forward operations (right pane)
+        // Process forward operations (additions in right pane)
         for (let i = 0; i < change.forwardOps.length; i++) {
             const op = change.forwardOps[i];
             const routeStr = op.route ? JSON.stringify(op.route) : '[]';
+            const summary = gadie_format_operation_summary(op);
 
             buttons.push(`<button class="gad-operation-button gad-op-right"
                 data-change-id="${change.changeId}"
                 data-operation-index="${i}"
                 data-pane="right"
                 data-route='${routeStr}'>
-                Right Op
+                → Right
             </button>`);
+
+            forwardOpDetails.push(`<div class="gad-change-operation-detail gad-change-forward">
+                <div class="gad-op-summary">${summary}</div>
+            </div>`);
         }
+
+        const operationsHTML = `
+            ${reverseOpDetails.length > 0 ? `<div class="gad-change-ops-section"><span class="gad-ops-label">Deleted (Left):</span>${reverseOpDetails.join('')}</div>` : ''}
+            ${forwardOpDetails.length > 0 ? `<div class="gad-change-ops-section"><span class="gad-ops-label">Added (Right):</span>${forwardOpDetails.join('')}</div>` : ''}
+        `;
 
         return `<div class="gad-change-entry" data-change-id="${change.changeId}" style="background-color: ${change.colorHex}">
             <div class="gad-change-label">Change #${change.changeId + 1} (${change.changeType})</div>
+            <div class="gad-change-operations">
+                ${operationsHTML}
+            </div>
             <div class="gad-change-buttons">
                 ${buttons.join('\n                ')}
             </div>
