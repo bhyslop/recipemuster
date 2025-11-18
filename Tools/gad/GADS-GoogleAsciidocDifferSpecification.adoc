@@ -27,6 +27,7 @@
 // gadie_=Inspector Engine
 // gadic_=Inspector Computation
 // gadvd_=Dual View Component
+// gadvc_=Dual View Change Component
 // gadda_=Distill Argument
 // gadmf_=Manifest Field
 // gadw_=WebSocket
@@ -143,9 +144,12 @@
 :gadvd_left_pane:                      <<gadvd_left_pane,Dual View Left Pane>>
 :gadvd_right_pane:                     <<gadvd_right_pane,Dual View Right Pane>>
 :gadvd_change_pane:                    <<gadvd_change_pane,Dual View Change Pane>>
+:gadvd_change_entry:                   <<gadvd_change_entry,Dual View Change Entry>>
+:gadvd_operation_button:               <<gadvd_operation_button,Dual View Operation Button>>
 :gadvd_left_rendered:                  <<gadvd_left_rendered,Dual View Left Rendered>>
 :gadvd_right_rendered:                 <<gadvd_right_rendered,Dual View Right Rendered>>
 :gadkp_single_threaded:                <<gadkp_single_threaded,Single-Threaded Premise>>
+:gadkp_bounded_documents:              <<gadkp_bounded_documents,Bounded Document Size Premise>>
 :gadf_limit_mode:                      <<gadf_limit_mode,Factory Limit Mode>>
 :gadf_hash_lookup:                     <<gadf_hash_lookup,Factory Hash Lookup>>
 :gadif_processed_diff:                 <<gadif_processed_diff,Processed Diff File>>
@@ -165,6 +169,9 @@
 
 {gadkp_single_threaded}::
 The GAD system operates as a single-threaded process per {gadfa_directory}. Only one {gadt_factory} instance may run for a given working directory, eliminating concurrency concerns.
+
+{gadkp_bounded_documents}::
+The GAD system processes technical documentation files that are bounded in size, typically under 1MB when rendered to HTML. Modern systems with gigabytes of RAM can efficiently handle multiple DOM representations simultaneously, enabling dual view rendering without memory pressure.
 
 
 == Factory Architecture
@@ -423,7 +430,7 @@ Enables responsive design and proper diff visualization.
 
 JavaScript ES6+::
 Required for rail selection event handling.
-Powers keyboard shortcuts and {gadit_commit} display logic.
+Powers keyboard shortcuts and dasd{gadit_commit} display logic.
 
 == Definitions
 
@@ -514,8 +521,19 @@ Shows the "after" state with additions marked using background colors correspond
 
 [[gadvd_change_pane]]
 {gadvd_change_pane}::
-The bottom pane in {gadi_dual_view} displaying details for each {gadis_change} in the current comparison.
-Shows all {gaddo_operation} entries from both {gadis_forward_list} and {gadis_reverse_list} that comprise each {gadis_change}, enabling inspection of how operations correlate between the forward and reverse directions.
+The bottom pane in {gadi_dual_view} displaying a scrollable list of {gadvd_change_entry} elements, one for each {gadis_change} in the current comparison.
+Provides a navigable overview of all changes, allowing the {gadu_operator} to click {gadvd_operation_button} controls to scroll to specific change locations in {gadvd_left_pane} or {gadvd_right_pane}.
+
+[[gadvd_change_entry]]
+{gadvd_change_entry}::
+Visual representation of a single {gadis_change} within {gadvd_change_pane}.
+Each {gadvd_change_entry} corresponds to exactly one {gadis_change} and contains one or more {gadvd_operation_button} controls representing the {gaddo_operation} elements from {gadis_forward_list} and {gadis_reverse_list} that comprise the change.
+Typically contains two operation buttons (one targeting {gadvd_left_pane}, one targeting {gadvd_right_pane}), though complex changes may include additional operations.
+
+[[gadvd_operation_button]]
+{gadvd_operation_button}::
+Clickable control within a {gadvd_change_entry} representing a single {gaddo_operation}.
+When clicked, scrolls the appropriate pane to the location specified by the operation's route: operations from {gadis_forward_list} scroll {gadvd_left_pane} to positions in {gadic_from_dom}, while operations from {gadis_reverse_list} scroll {gadvd_right_pane} to positions in {gadic_to_dom}.
 
 [[gadvd_left_rendered]]
 {gadvd_left_rendered}::
@@ -858,6 +876,12 @@ The {gadmf_html_sha256} enables {gadt_inspector} to identify unchanged commits f
 {gadkp_single_threaded}::
 The GAD system operates as a single-threaded process per {gadfa_directory}. Only one {gadt_factory} instance may run for a given working directory, eliminating concurrency concerns.
 This premise simplifies design by removing all synchronization requirements and state sharing complexities.
+
+[[gadkp_bounded_documents]]
+{gadkp_bounded_documents}::
+The GAD system processes technical documentation files that are bounded in size, typically under 1MB when rendered to HTML.
+Modern systems with gigabytes of RAM can efficiently handle multiple DOM representations simultaneously, enabling {gadi_dual_view} to display {gadvd_left_rendered} and {gadvd_right_rendered} without memory pressure.
+This premise allows the {gadic_multiview_result} to pre-compute and store all view representations eagerly rather than implementing lazy computation strategies, simplifying the implementation while maintaining acceptable performance.
 
 [[gadmf_last_processed]]
 {gadmf_last_processed}::
