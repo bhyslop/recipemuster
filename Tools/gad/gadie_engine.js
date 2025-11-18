@@ -310,6 +310,9 @@ function gadie_render_dual_left(fromDOM, changeList) {
 
                 // Add data attribute for finding elements by change ID
                 element.setAttribute('data-change-id', change.changeId);
+
+                // Also add a class for CSS-based finding (more reliable after serialization)
+                element.classList.add(`gad-change-${change.changeId}`);
             }
         }
     }
@@ -339,6 +342,9 @@ function gadie_render_dual_right(toDOM, changeList) {
 
                 // Add data attribute for finding elements by change ID
                 element.setAttribute('data-change-id', change.changeId);
+
+                // Also add a class for CSS-based finding (more reliable after serialization)
+                element.classList.add(`gad-change-${change.changeId}`);
             }
         }
     }

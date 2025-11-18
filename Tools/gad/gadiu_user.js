@@ -830,11 +830,17 @@ class gadiu_inspector {
         }
 
         // Find elements marked with the change ID in the pane
-        // Use the actual DOM structure to find marked elements
-        const markedElements = paneElement.querySelectorAll(`[data-change-id="${changeId}"]`);
+        // Try multiple selectors since data attributes might not survive serialization
+        let markedElements = paneElement.querySelectorAll(`[data-change-id="${changeId}"]`);
+
+        // Fallback: search by CSS class if data attribute wasn't found
+        if (markedElements.length === 0) {
+            markedElements = paneElement.querySelectorAll(`.gad-change-${changeId}`);
+            gadib_logger_d(`Fallback to CSS class search for changeId ${changeId}`);
+        }
 
         if (markedElements.length === 0) {
-            gadib_logger_d(`No marked elements found for changeId ${changeId} in ${pane} pane`);
+            gadib_logger_d(`No marked elements found for changeId ${changeId} in ${pane} pane using either selector`);
             return;
         }
 
