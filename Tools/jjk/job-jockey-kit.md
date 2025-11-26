@@ -71,7 +71,7 @@ The system is designed to minimize context usage:
 
 When appropriate (session start, effort selection, user mentions next steps), Claude announces:
 - The current effort being worked on
-- "See /jja- commands for Jaunt Jockey services"
+- "See /jja- commands for Job Jockey services"
 
 This reminds the user of available tooling without being intrusive.
 
@@ -98,7 +98,7 @@ Itches respectfully set aside.
 - May include brief context on why shelved
 - Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/`
 
-### `Jaunt-Jockey-Kit.md` (this document)
+### `job-jockey-kit.md` (this document)
 The complete reference and installer. Defines structure, naming, and conventions.
 - Used during installation
 - Referenced by `/jja-doctor` for validation
@@ -110,7 +110,7 @@ Typical installation uses `.claude/jji/` subdirectory:
 
 ```
 .claude/
-  jji/                    # Jaunt Jockey Installation directory
+  jji/                    # Job Jockey Installation directory
     jjf-future.md         # Future effort itches
     jjs-shelved.md        # Shelved itches
     current/
@@ -344,12 +344,12 @@ Completed steps are kept brief to minimize context usage. Full history is preser
 ### Bootstrap Process
 
 1. **Place this file** in a location accessible to your CLAUDE.md
-   - Can be in the same repo as CLAUDE.md (e.g., `Tools/jjk/Jaunt-Jockey-Kit.md`)
+   - Can be in the same repo as CLAUDE.md (e.g., `Tools/jjk/job-jockey-kit.md`)
    - Can be in a separate admin/documentation repo
 
 2. **Run the installation conversation** with Claude Code:
    - Open the repository containing CLAUDE.md
-   - Say: "Read Jaunt-Jockey-Kit.md and let's install Jaunt Jockey"
+   - Say: "Read job-jockey-kit.md and let's install Job Jockey"
    - Claude will ask configuration questions
 
 3. **Configuration questions**:
@@ -360,16 +360,17 @@ Completed steps are kept brief to minimize context usage. Full history is preser
    - **Separate repo**: Are JJ files in a different git repository? (yes/no)
    - **Kit path**: Claude will use the path where it found this file as the canonical location
 
-4. **Claude will then**:
-   - Add/update a `## Jaunt Jockey Configuration` section in CLAUDE.md
-   - Create command files in `.claude/commands/jja-*.md` with hardcoded paths
+4. **Claude will then** (idempotent - safe to run multiple times):
+   - Delete any existing `jja-*.md` command files from `.claude/commands/`
+   - Generate all command files in `.claude/commands/jja-*.md` with hardcoded paths
      - All `{JJC_PATH}`, `{JJC_SEPARATE_REPO}`, `{JJC_KIT_PATH}` variables are replaced with actual values
      - Git commands include full paths and repo navigation if needed
      - Commit messages are fully specified per action
      - No runtime variable parsing required
+   - Replace (not append) the `## Job Jockey Configuration` section in CLAUDE.md
    - Initialize JJ file structure at the configured path:
-     - Create `jjf-future.md` (empty, if not exists)
-     - Create `jjs-shelved.md` (empty, if not exists)
+     - Create `jjf-future.md` (if not exists, preserve if exists)
+     - Create `jjs-shelved.md` (if not exists, preserve if exists)
      - Create `current/` directory (if not exists)
      - Create `retired/` directory (if not exists)
    - Note any existing effort files found
@@ -377,9 +378,9 @@ Completed steps are kept brief to minimize context usage. Full history is preser
 
 5. **Installation completes**. CLAUDE.md will contain:
 ```markdown
-## Jaunt Jockey Configuration
+## Job Jockey Configuration
 - JJ files path: `../project-admin/.claude/jji/`
-- JJ Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
+- JJ Kit path: `Tools/jjk/job-jockey-kit.md`
 - Separate repo: `yes`
 - Installed: `2025-11-08`
 
@@ -390,20 +391,10 @@ Available commands:
 - /jja-step-done - Mark step complete
 - /jja-itch-locate - Find an itch by keyword
 - /jja-itch-move - Move or promote an itch
-- /jja-doctor - Validate Jaunt Jockey setup
+- /jja-doctor - Validate Job Jockey setup
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 ```
-
-### Reinstalling
-
-To update configuration or reinstall commands:
-1. Say: "Read Tools/jjk/Jaunt-Jockey-Kit.md and reinstall Job Jockey"
-2. Claude will:
-   - Delete all existing `jja-*.md` command files from `.claude/commands/`
-   - Regenerate all commands from scratch based on Kit
-   - Update CLAUDE.md configuration section
-3. Existing JJ content files (efforts, itches) remain untouched
 
 ### Validation
 
@@ -466,7 +457,7 @@ Each action specifies its own commit message pattern.
 Template in this kit with variables:
 
 ```markdown
-You are helping mark a step complete in the current Jaunt Jockey effort.
+You are helping mark a step complete in the current Job Jockey effort.
 
 Configuration:
 - JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
@@ -489,12 +480,12 @@ Steps:
 Generated `.claude/commands/jja-step-done.md` with hardcoded values:
 
 ```markdown
-You are helping mark a step complete in the current Jaunt Jockey effort.
+You are helping mark a step complete in the current Job Jockey effort.
 
 Configuration:
 - JJ files path: ../project-admin/.claude/jji/
 - Separate repo: yes
-- Kit path: Tools/jjk/Jaunt-Jockey-Kit.md
+- Kit path: Tools/jjk/job-jockey-kit.md
 
 Steps:
 1. Ask which step to mark done (or infer from context)
