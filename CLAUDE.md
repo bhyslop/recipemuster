@@ -130,6 +130,11 @@ When working with .adoc files using MCM patterns:
 
 Job Jockey (JJ) is installed for managing project initiatives.
 
+**Concepts:**
+- **Effort**: Bounded initiative (3-50 sessions), has steps
+- **Step**: Discrete action within an effort; mode is `manual` (human drives) or `delegated` (model drives from spec)
+- **Itch**: Future idea, lives in Future or Shelved
+
 - JJ files path: `.claude/jji/`
 - JJ Kit path: `Tools/jjk/job-jockey-kit.md`
 - Separate repo: `no`
@@ -137,23 +142,17 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Updated: `2025-11-26`
 
 **Available commands:**
-- `/jja-next` - Show current effort and next step(s)
+- `/jja-effort-next` - Show current effort and next step(s)
 - `/jja-effort-retire` - Move completed effort to retired with datestamp
-- `/jja-step-find` - Show next incomplete step
-- `/jja-step-left` - List all remaining steps
-- `/jja-step-add` - Add a new step to current effort
-- `/jja-step-refine` - Refine step spec and set mode (manual or delegated)
+- `/jja-step-find` - Show next incomplete step (with mode)
+- `/jja-step-left` - List all remaining steps (with mode)
+- `/jja-step-add` - Add a new step (defaults to manual)
+- `/jja-step-refine` - Refine step spec, set mode (manual or delegated)
 - `/jja-step-delegate` - Execute a delegated step
-- `/jja-step-wrap` - Mark step complete with summary
+- `/jja-step-wrap` - Mark step complete
 - `/jja-itch-locate` - Find an itch by keyword
 - `/jja-itch-move` - Move or promote an itch
 - `/jja-doctor` - Validate Job Jockey setup
-
-**Effort selection:**
-- When starting a session, use `/jja-next` to show current effort and next step(s)
-- Single effort: Display effort with next step(s), ask for clarification if needed
-- Multiple efforts: Ask which to work on, then show that effort with next step(s)
-- No efforts: Ask if you want to start one or promote an itch
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 

@@ -1,36 +1,35 @@
-# Refine a Job Jockey Step
-
 You are helping refine a step's specification in the current Job Jockey effort.
 
 Configuration:
-- JJ files path: `.claude/jji/`
-- Kit path: `Tools/jjk/job-jockey-kit.md`
+- JJ files path: .claude/jji/
+- Separate repo: no
+- Kit path: Tools/jjk/job-jockey-kit.md
 
-## Process
+Steps:
 
-1. **Check for current effort** in `.claude/jji/current/`
+1. Check for current effort in .claude/jji/current/
    - If no effort: announce "No active effort" and stop
    - If multiple: ask which one
 
-2. **Ask which step to refine** (or infer from context)
+2. Ask which step to refine (or infer from context)
 
-3. **Read and assess the current step spec**:
+3. Read the current step spec and assess its state:
    - Is mode defined? (manual/delegated/unset)
    - Is spec sparse or detailed?
 
-4. **Conduct adaptive interview**:
+4. Conduct adaptive interview:
 
-   **If spec is sparse/new**:
+   If spec is sparse/new:
    - "Is this a manual step (you drive) or should we prepare it for delegation (model drives)?"
    - If manual: confirm and done
-   - If delegated: continue to next section
+   - If delegated: continue to step 5
 
-   **If spec exists**:
+   If spec exists:
    - Show current spec summary
    - "What needs to change?"
    - Focus on the delta
 
-5. **For delegated mode, ensure spec covers**:
+5. For delegated mode, ensure spec covers:
    - Objective: What specifically to achieve?
    - Scope: What files/systems to touch or avoid?
    - Success: How do we know it's done?
@@ -39,7 +38,7 @@ Configuration:
 
    Ask only for missing elements.
 
-6. **Final clarity check** (delegated only):
+6. Final clarity check (delegated only):
    Read the spec as if you have no prior context. Assess:
    - Objective: clear or ambiguous?
    - Scope: bounded or unclear?
@@ -49,12 +48,14 @@ Configuration:
    If any check fails, explain why and ask clarifying question.
    Loop until all checks pass.
 
-7. **Update the step** in the effort file with refined spec
+7. Update the step in the effort file with refined spec
 
-8. **Commit** with message: "JJA: step-refine - [step title] now [manual|delegated]"
+8. Commit:
+   ```bash
+   git add .claude/jji/current/jje-*.md
+   git commit -m "JJA: step-refine - [step title] now [manual|delegated]"
+   ```
 
-9. **Report** what was updated
+9. Report what was updated
 
-## Error Handling
-
-If paths wrong or files missing, announce issue and stop.
+Error handling: If paths wrong or files missing, announce issue and stop.

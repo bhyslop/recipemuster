@@ -1,34 +1,37 @@
-# Mark a Job Jockey Step Complete
-
-You are helping mark a step complete in the current Job Jockey effort.
+You are marking a step complete in the current Job Jockey effort.
 
 Configuration:
-- JJ files path: `.claude/jji/`
-- Separate repo: `no`
-- Kit path: `Tools/jjk/job-jockey-kit.md`
+- JJ files path: .claude/jji/
+- Separate repo: no
+- Kit path: Tools/jjk/job-jockey-kit.md
 
-## Process
+Steps:
 
-1. **Ask which step to mark done** (or infer from context)
+1. Check for current effort in .claude/jji/current/
+   - If no effort: announce "No active effort" and stop
+   - If multiple: ask which one
 
-2. **Summarize the step completion** based on chat context
-   - Keep the summary brief and factual
-   - Include evidence of success if applicable
+2. Ask which step to mark done (or infer from conversation context)
 
-3. **Show proposed summary** and ask for approval or amendments
+3. Based on recent chat context, draft a concise summary:
+   - One sentence, factual
+   - Focus on outcome, not process
+   - Examples: "Found 12 issues, documented in notes.md" or "Refactored 8 functions to use new pattern"
 
-4. **Update the effort file** in `.claude/jji/current/`
-   - Move step from Pending to Completed section
-   - Replace description with brief summary
+4. Show proposed summary and ask for approval or amendment
 
-5. **Commit** the change:
+5. Once approved, update the effort file:
+   - Mark step as [x] in Pending section
+   - Move to Completed section
+   - Replace detailed description with brief summary
+   - Format: `- [x] **Title** - Summary`
+
+6. Commit:
    ```bash
    git add .claude/jji/current/jje-*.md
-   git commit -m "JJA: step-wrap - [brief description]"
+   git commit -m "JJA: step-wrap - [brief summary]"
    ```
 
-6. **Report** what was done
+7. Report what was done
 
-## Error Handling
-
-If files missing or paths wrong, announce issue and stop.
+Error handling: If paths wrong or files missing, announce issue and stop.
