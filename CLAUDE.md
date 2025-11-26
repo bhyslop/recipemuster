@@ -142,7 +142,9 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - `/jja-step-find` - Show next incomplete step
 - `/jja-step-left` - List all remaining steps
 - `/jja-step-add` - Add a new step to current effort
-- `/jja-step-done` - Mark step complete
+- `/jja-step-refine` - Refine step spec and set mode (manual or delegated)
+- `/jja-step-delegate` - Execute a delegated step
+- `/jja-step-wrap` - Mark step complete with summary
 - `/jja-itch-locate` - Find an itch by keyword
 - `/jja-itch-move` - Move or promote an itch
 - `/jja-doctor` - Validate Job Jockey setup
