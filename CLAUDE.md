@@ -131,10 +131,10 @@ When working with .adoc files using MCM patterns:
 Job Jockey (JJ) is installed for managing project initiatives.
 
 - JJ files path: `.claude/jji/`
-- JJ Kit path: `Tools/jjk/Jaunt-Jockey-Kit.md`
-- Separate repo: no
+- JJ Kit path: `Tools/jjk/job-jockey-kit.md`
+- Separate repo: `no`
 - Installed: `2025-11-08`
-- Updated: `2025-11-10`
+- Updated: `2025-11-26`
 
 **Available commands:**
 - `/jja-next` - Show current effort and next step(s)
@@ -152,6 +152,8 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Single effort: Display effort with next step(s), ask for clarification if needed
 - Multiple efforts: Ask which to work on, then show that effort with next step(s)
 - No efforts: Ask if you want to start one or promote an itch
+
+**Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
