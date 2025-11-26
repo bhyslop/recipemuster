@@ -29,10 +29,16 @@ These markers appear throughout this document in templates and will be hardcoded
 ## Core Concepts
 
 ### Effort
-A bounded initiative spanning 3-50 chat sessions. Has a clear goal, context section, and list of steps. Lives as a dated file like `jje-251108-buk-portability.md`.
+A bounded initiative spanning 3-50 chat sessions. Has a clear goal, context section, and list of steps. Lives as a dated file like `jje-b251108-buk-portability.md` (active) or `jje-b251108-r251126-buk-portability.md` (retired).
 
 ### Step
 A discrete action within the current effort. Appears as checklist items in effort documents. Pending steps can have detailed descriptions. Completed steps get condensed to brief summaries to save context.
+
+Each step has a **mode**:
+- **Manual**: Human drives, model assists. Minimal spec needed.
+- **Delegated**: Model drives from spec, human monitors. Requires clear objective, bounded scope, success criteria, and failure behavior.
+
+Steps default to `manual` when created. Use `/jja-step-refine` to prepare a step for delegation or to clarify a manual step.
 
 ### Itch
 A potential future effort or consideration. The spark/urge that might become an effort someday. Lives in either Future (worthy of doing) or Shelved (respectfully set aside for now).
@@ -42,9 +48,9 @@ A potential future effort or consideration. The spark/urge that might become an 
 ### Day-to-Day Usage
 
 You work on an effort by talking with Claude Code. As you make progress:
-- Claude uses `/jja-next` to show current effort and next step(s), asking for clarification if needed
+- Claude uses `/jja-effort-next` to show current effort and next step(s), asking for clarification if needed
 - You work on the step together
-- Claude uses `/jja-step-done` to summarize and mark it complete
+- Claude uses `/jja-step-wrap` to summarize and mark it complete
 - New steps emerge and get added with `/jja-step-add`
 
 When new ideas come up that don't belong in current effort, Claude uses `/jja-itch-locate` and `/jja-itch-move` to file them away in Future or Shelved.
@@ -79,11 +85,11 @@ This reminds the user of available tooling without being intrusive.
 
 All Job Jockey documents use the `jj` prefix with category-specific third letters:
 
-### `jje-description.md` and `jje-YYMMDD-description.md` (Job Jockey Effort)
+### `jje-bYYMMDD-description.md` and `jje-bYYMMDD-rYYMMDD-description.md` (Job Jockey Effort)
 Main context document for an effort.
-- **Active**: Named with brief description only (e.g., `jje-buk-portability.md`)
-- **Retired**: Renamed with creation date and description (e.g., `jje-251108-buk-portability.md`)
-- Lifecycle: Active (`current/` as `jje-description.md`) → Retired (`retired/` as `jje-YYMMDD-description.md`)
+- **Active**: Named with begin date and description (e.g., `jje-b251108-buk-portability.md`)
+- **Retired**: Begin date preserved, retire date added (e.g., `jje-b251108-r251126-buk-portability.md`)
+- Lifecycle: Active (`current/`) → Retired (`retired/` with r-date added)
 - Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` (active) or `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/` (completed)
 - Contains context section and steps
 
@@ -114,20 +120,24 @@ Typical installation uses `.claude/jji/` subdirectory:
     jjf-future.md         # Future effort itches
     jjs-shelved.md        # Shelved itches
     current/
-      jje-251108-buk-portability.md      # Current effort
-      jje-251023-gad-implementation.md   # Another current effort
+      jje-b251108-buk-portability.md      # Active effort (began Nov 8)
+      jje-b251023-gad-implementation.md   # Another active effort (began Oct 23)
     retired/
-      jje-251015-regime-management.md    # Completed effort
+      jje-b251001-r251015-regime-management.md    # Completed effort (began Oct 1, retired Oct 15)
 ```
 
 And in the CLAUDE.md repo:
 ```
 .claude/
   commands/
+    jja-effort-next.md
+    jja-effort-retire.md
     jja-step-find.md
     jja-step-left.md
     jja-step-add.md
-    jja-step-done.md
+    jja-step-refine.md
+    jja-step-delegate.md
+    jja-step-wrap.md
     jja-itch-locate.md
     jja-itch-move.md
     jja-doctor.md
@@ -136,29 +146,29 @@ And in the CLAUDE.md repo:
 ## Workflows
 
 ### Starting a New Effort
-1. Create `jje-description.md` in `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`
+1. Create `jje-bYYMMDD-description.md` in `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` (use today's date)
 2. Include Context section with stable background information
 3. Include Steps section with initial checklist items
 4. Archive previous effort to `retired/` (if applicable)
 
 ### Selecting Current Effort
-When starting a session or the user calls `/jja-next`, Claude checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`:
+When starting a session or the user calls `/jja-effort-next`, Claude checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`:
 - **0 efforts**: No active work, ask if user wants to start one or promote an itch
 - **1 effort**: Show effort and next step(s), ask for clarification if next step is unclear
 - **2+ efforts**: Ask user which effort to work on, then show that effort with next step(s)
 
 ### Working on an Effort
-1. Use `/jja-next` to see current effort and next step(s)
+1. Use `/jja-effort-next` to see current effort and next step(s)
 2. Work on it conversationally with Claude
-3. Use `/jja-step-done` when complete (Claude summarizes)
-4. Use `/jja-next` again to see what's next
+3. Use `/jja-step-wrap` when complete (Claude summarizes)
+4. Use `/jja-effort-next` again to see what's next
 5. Repeat until effort is complete
 
 ### Completing an Effort
 1. Verify all steps are complete or explicitly discarded
 2. Use `/jja-effort-retire` to move and rename effort file:
-   - Adds datestamp (YYMMDD) to filename
-   - Moves from `current/jje-description.md` → `retired/jje-YYMMDD-description.md`
+   - Adds retire date (`rYYMMDD`) to filename, preserving begin date
+   - Moves from `current/jje-bYYMMDD-description.md` → `retired/jje-bYYMMDD-rYYMMDD-description.md`
    - Commits the archival
 
 ### Itch Triage
@@ -174,7 +184,9 @@ Use `/jja-itch-move` to promote, demote, or shelve itches.
 
 - **All documents**: Markdown (`.md`)
 - **Steps**: Checklist format with `- [ ]` and `- [x]`
-- **Dates**: YYMMDD format (e.g., 251108 for 2025-11-08, used in retired effort filenames)
+- **Dates**: YYMMDD format (e.g., 251108 for 2025-11-08)
+  - `b` prefix = begin date (when effort started)
+  - `r` prefix = retire date (when effort completed)
 - **Descriptions**: Lowercase with hyphens (e.g., `buk-portability`)
 - **Step titles**: Bold (e.g., `**Audit BUK portability**`)
 - **Completed summaries**: Brief, factual (e.g., `Found 12 issues, documented in notes.md`)
@@ -198,7 +210,7 @@ Job Jockey Actions (JJA) are Claude Code commands for managing the system.
 
 ### Effort Actions
 
-#### `/jja-next`
+#### `/jja-effort-next`
 Show the current effort and its next step(s), with optional clarification prompts.
 
 **Behavior**:
@@ -221,18 +233,18 @@ Ready to start?
 ```
 
 #### `/jja-effort-retire`
-Move completed effort to retired directory with datestamp added to filename.
+Move completed effort to retired directory with retire date added to filename.
 
 **Behavior**:
 - Verifies current effort exists in `current/`
 - Checks that all steps are marked complete (or explicitly discarded)
-- Renames file from `jje-description.md` → `jje-YYMMDD-description.md` (adds today's date)
+- Adds retire date to filename: `jje-bYYMMDD-description.md` → `jje-bYYMMDD-rYYMMDD-description.md`
 - Moves file to `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/`
 - Commits the retirement
 
 **Example**:
-- Before: `.claude/jji/current/jje-buk-rename.md`
-- After: `.claude/jji/retired/jje-251110-buk-rename.md`
+- Before: `.claude/jji/current/jje-b251108-buk-rename.md`
+- After: `.claude/jji/retired/jje-b251108-r251126-buk-rename.md`
 
 ### Itch Actions
 
@@ -254,17 +266,17 @@ Move an itch between future, shelved, or promote to a new effort.
 #### `/jja-step-find`
 Show the next incomplete step from the current effort.
 
-**Behavior**: Displays the title and description of the first unchecked step.
+**Behavior**: Displays the title, mode, and description of the first unchecked step.
 
 #### `/jja-step-left`
-Show terse list of all remaining steps in the current effort.
+Show terse list of all remaining steps in the current effort, with mode.
 
 **Output format**:
 ```
 Remaining steps (3):
-1. Audit BUK portability
-2. Create test harness
-3. Document migration guide
+1. [manual] Audit BUK portability
+2. [manual] Create test harness
+3. [delegated] Document migration guide
 ```
 
 #### `/jja-step-add`
@@ -273,6 +285,7 @@ Add a new step to the current effort with intelligent positioning.
 **Behavior**:
 - Claude analyzes the effort context and existing steps
 - Proposes a new step with title, optional description, and position
+- New steps default to `mode: manual`
 - Explains reasoning for the placement
 - Waits for user approval or amendment before updating file
 
@@ -283,7 +296,7 @@ because we'll need to validate each fix before moving to BDU.
 Should I add it there?
 ```
 
-#### `/jja-step-done`
+#### `/jja-step-wrap`
 Mark a step as complete with automatic summarization.
 
 **Behavior**:
@@ -298,9 +311,54 @@ Updated step 'Audit BUK portability' →
 'Found 12 issues: 8 in BCU, 3 in BDU, 1 in BTU. Documented in portability-notes.md'
 ```
 
+#### `/jja-step-refine`
+Refine a step's specification through adaptive interview. Can set or change step mode.
+
+**Behavior**:
+- Reads current step spec (may be sparse or already detailed)
+- Conducts adaptive interview based on current state:
+  - If sparse: builds spec from scratch
+  - If exists: asks "what needs to change?" and focuses on delta
+- Interview determines mode (`manual` or `delegated`)
+- For `delegated` mode, ensures spec includes:
+  - Clear objective
+  - Bounded scope
+  - Success criteria
+  - Failure behavior
+  - Model hint (haiku-ok / needs-sonnet / needs-opus)
+- Final check for `delegated`: reads spec as fresh model would, verifies clarity
+- Updates step in effort file with refined spec
+- Can be run multiple times (iterative refinement)
+
+**Final clarity check** (for delegated steps):
+```
+Reading this spec as a model with no prior context:
+- Objective: ✓ clear / ✗ ambiguous because...
+- Scope: ✓ bounded / ✗ unclear because...
+- Success: ✓ measurable / ✗ vague because...
+- Stuck: ✓ know when to stop / ✗ might spin because...
+```
+
+If any check fails, interview continues until spec passes.
+
+#### `/jja-step-delegate`
+Execute a delegated step. Validates health before proceeding.
+
+**Behavior**:
+- Verifies step mode is `delegated`
+- Verifies spec passes health checks (objective, scope, success, failure defined)
+- If unhealthy: refuses with specific guidance ("Run /jja-step-refine first")
+- If healthy: presents step spec to model for execution
+- Model executes from spec alone (no refinement context)
+- On completion or failure: reports outcome
+
+**Refusal cases**:
+- Step is `manual`: "This step is manual - work on it conversationally"
+- Step is `delegated` but unhealthy: "This step needs refinement - [specific gap]"
+
 ### Effort Document Structure
 
-Effort files (`jje-description.md` when active, `jje-YYMMDD-description.md` when retired) contain two main sections:
+Effort files (`jje-bYYMMDD-description.md` when active, `jje-bYYMMDD-rYYMMDD-description.md` when retired) contain two main sections:
 
 #### Context Section
 Stable information about the effort that only changes when explicitly updated by the user. Contains:
@@ -363,7 +421,7 @@ Completed steps are kept brief to minimize context usage. Full history is preser
 4. **Claude will then** (idempotent - safe to run multiple times):
    - Delete any existing `jja-*.md` command files from `.claude/commands/`
    - Generate all command files in `.claude/commands/jja-*.md` with hardcoded paths
-     - All `{JJC_PATH}`, `{JJC_SEPARATE_REPO}`, `{JJC_KIT_PATH}` variables are replaced with actual values
+     - All `«JJC_FILESYSTEM_RELATIVE_PATH»`, `«JJC_SEPARATE_REPO»`, `«JJC_KIT_PATH»` variables are replaced with actual values
      - Git commands include full paths and repo navigation if needed
      - Commit messages are fully specified per action
      - No runtime variable parsing required
@@ -379,19 +437,31 @@ Completed steps are kept brief to minimize context usage. Full history is preser
 5. **Installation completes**. CLAUDE.md will contain:
 ```markdown
 ## Job Jockey Configuration
+
+Job Jockey (JJ) is installed for managing project initiatives.
+
+**Concepts:**
+- **Effort**: Bounded initiative (3-50 sessions), has steps
+- **Step**: Discrete action within an effort; mode is `manual` (human drives) or `delegated` (model drives from spec)
+- **Itch**: Future idea, lives in Future or Shelved
+
 - JJ files path: `../project-admin/.claude/jji/`
 - JJ Kit path: `Tools/jjk/job-jockey-kit.md`
 - Separate repo: `yes`
 - Installed: `2025-11-08`
 
-Available commands:
-- /jja-step-find - Show next incomplete step
-- /jja-step-left - List all remaining steps
-- /jja-step-add - Add a new step to current effort
-- /jja-step-done - Mark step complete
-- /jja-itch-locate - Find an itch by keyword
-- /jja-itch-move - Move or promote an itch
-- /jja-doctor - Validate Job Jockey setup
+**Available commands:**
+- `/jja-effort-next` - Show current effort and next step(s)
+- `/jja-effort-retire` - Move completed effort to retired with datestamp
+- `/jja-step-find` - Show next incomplete step (with mode)
+- `/jja-step-left` - List all remaining steps (with mode)
+- `/jja-step-add` - Add a new step (defaults to manual)
+- `/jja-step-refine` - Refine step spec, set mode (manual or delegated)
+- `/jja-step-delegate` - Execute a delegated step
+- `/jja-step-wrap` - Mark step complete
+- `/jja-itch-locate` - Find an itch by keyword
+- `/jja-itch-move` - Move or promote an itch
+- `/jja-doctor` - Validate Job Jockey setup
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 ```
@@ -439,18 +509,134 @@ All JJA commands are markdown files in `.claude/commands/` that instruct Claude 
 **When separate repo** (hardcoded during install):
 ```bash
 cd ../project-admin
-git add .claude/jji/current/jje-251108-buk-portability.md
-git commit -m "JJA: step-done - Completed audit of BUK portability"
+git add .claude/jji/current/jje-b251108-buk-portability.md
+git commit -m "JJA: step-wrap - Completed audit of BUK portability"
 cd - > /dev/null
 ```
 
 **When co-located** (hardcoded during install):
 ```bash
-git add .claude/jji/current/jje-251108-buk-portability.md
-git commit -m "JJA: step-done - Completed audit of BUK portability"
+git add .claude/jji/current/jje-b251108-buk-portability.md
+git commit -m "JJA: step-wrap - Completed audit of BUK portability"
 ```
 
 Each action specifies its own commit message pattern.
+
+### Command Templates
+
+The following templates are used during installation. Variables (`«JJC_*»`) are replaced with configured values.
+
+#### `/jja-step-refine` Template
+
+```markdown
+You are helping refine a step's specification in the current Job Jockey effort.
+
+Configuration:
+- JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
+- Kit path: «JJC_KIT_PATH»
+
+Steps:
+
+1. Check for current effort in «JJC_FILESYSTEM_RELATIVE_PATH»current/
+   - If no effort: announce "No active effort" and stop
+   - If multiple: ask which one
+
+2. Ask which step to refine (or infer from context)
+
+3. Read the current step spec and assess its state:
+   - Is mode defined? (manual/delegated/unset)
+   - Is spec sparse or detailed?
+
+4. Conduct adaptive interview:
+
+   If spec is sparse/new:
+   - "Is this a manual step (you drive) or should we prepare it for delegation (model drives)?"
+   - If manual: confirm and done
+   - If delegated: continue to step 5
+
+   If spec exists:
+   - Show current spec summary
+   - "What needs to change?"
+   - Focus on the delta
+
+5. For delegated mode, ensure spec covers:
+   - Objective: What specifically to achieve?
+   - Scope: What files/systems to touch or avoid?
+   - Success: How do we know it's done?
+   - Failure: What to do if stuck? (stop/report/retry)
+   - Model hint: haiku-ok / needs-sonnet / needs-opus
+
+   Ask only for missing elements.
+
+6. Final clarity check (delegated only):
+   Read the spec as if you have no prior context. Assess:
+   - Objective: clear or ambiguous?
+   - Scope: bounded or unclear?
+   - Success: measurable or vague?
+   - Stuck: know when to stop or might spin?
+
+   If any check fails, explain why and ask clarifying question.
+   Loop until all checks pass.
+
+7. Update the step in the effort file with refined spec
+
+8. Commit: "JJA: step-refine - [step title] now [manual|delegated]"
+
+9. Report what was updated
+
+Error handling: If paths wrong or files missing, announce issue and stop.
+```
+
+#### `/jja-step-delegate` Template
+
+```markdown
+You are executing a delegated step from the current Job Jockey effort.
+
+Configuration:
+- JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
+- Kit path: «JJC_KIT_PATH»
+
+Steps:
+
+1. Check for current effort in «JJC_FILESYSTEM_RELATIVE_PATH»current/
+   - If no effort: announce "No active effort" and stop
+
+2. Identify the step to delegate (from context or ask)
+
+3. Validate the step:
+   - Is mode `delegated`?
+     - If `manual`: refuse with "This step is manual - work on it conversationally"
+     - If unset: refuse with "Run /jja-step-refine first to set mode"
+   - Is spec healthy? Check for:
+     - Objective defined
+     - Scope bounded
+     - Success criteria clear
+     - Failure behavior specified
+   - If unhealthy: refuse with "This step needs refinement - [specific gap]"
+
+4. If valid, present the step spec clearly:
+   ```
+   Executing delegated step: **[title]**
+
+   Objective: [objective]
+   Scope: [scope]
+   Success: [criteria]
+   On failure: [behavior]
+   ```
+
+5. Execute the step based solely on the spec
+   - Work from the spec, not from refinement conversation context
+   - Stay within defined scope
+   - Stop when success criteria met OR failure condition hit
+
+6. Report outcome:
+   - Success: what was accomplished, evidence of success criteria
+   - Failure: what was attempted, why stopped, what's needed
+
+7. Do NOT auto-complete the step. User decides via /jja-step-wrap
+
+Error handling: If paths wrong or files missing, announce issue and stop.
+```
 
 ### Example Command Structure (Before Installation)
 
@@ -471,13 +657,13 @@ Steps:
 4. Update the effort file in «JJC_FILESYSTEM_RELATIVE_PATH»/current/
    - Move step from Pending to Completed
    - Replace description with brief summary
-5. Commit: "JJA: step-done - [brief description]"
+5. Commit: "JJA: step-wrap - [brief description]"
 6. Report what was done
 ```
 
 ### Example Command Structure (After Installation)
 
-Generated `.claude/commands/jja-step-done.md` with hardcoded values:
+Generated `.claude/commands/jja-step-wrap.md` with hardcoded values:
 
 ```markdown
 You are helping mark a step complete in the current Job Jockey effort.
@@ -497,7 +683,7 @@ Steps:
 5. Commit with:
    cd ../project-admin
    git add .claude/jji/current/jje-*.md
-   git commit -m "JJA: step-done - [brief description]"
+   git commit -m "JJA: step-wrap - [brief description]"
    cd - > /dev/null
 6. Report what was done
 
