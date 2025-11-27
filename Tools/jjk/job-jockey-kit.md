@@ -17,12 +17,16 @@ This document (the Job Jockey Kit) is the complete reference and installer for t
 
 During installation, Claude replaces these markers in the generated command files:
 
-- `«JJC_FILESYSTEM_RELATIVE_PATH»` → Your chosen path for JJ files (relative to CLAUDE.md)
-  - Example: `.claude/jji/` (co-located in same repo)
-  - Example: `../project-admin/.claude/jji/` (separate admin repo)
-- `«JJC_SEPARATE_REPO»` → `yes` or `no` (determines git command structure)
-- `«JJC_KIT_PATH»` → Path to this Kit file (for /jja-doctor validation)
+- `«JJC_TARGET_REPO_DIR»` → Where actual work happens (relative to CLAUDE.md launch directory)
+  - `.` = direct mode (JJ and work in same repo)
+  - `../path` = relative path (portable across machines with matching layout)
+  - `/absolute/path` = absolute path (machine-specific)
+- `«JJC_KIT_PATH»` → Path to this Kit file, supports relative paths for portability
+  - Example: `Tools/jjk/job-jockey-kit.md` (in same repo)
+  - Example: `../shared-tools/jjk/job-jockey-kit.md` (sibling directory)
 - `«JJC_EFFORT_PREFIX»` → Effort file prefix (typically `jje-`)
+
+JJ files always live at `.claude/jji/` relative to CLAUDE.md - this is not configurable.
 
 These markers appear throughout this document in templates and will be hardcoded with actual values during installation. You never need to type the guillemets (« ») yourself.
 
@@ -90,19 +94,19 @@ Main context document for an effort.
 - **Active**: Named with begin date and description (e.g., `jje-b251108-buk-portability.md`)
 - **Retired**: Begin date preserved, retire date added (e.g., `jje-b251108-r251126-buk-portability.md`)
 - Lifecycle: Active (`current/`) → Retired (`retired/` with r-date added)
-- Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` (active) or `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/` (completed)
+- Located in: `.claude/jji/current/` (active) or `.claude/jji/retired/` (completed)
 - Contains context section and steps
 
 ### `jjf-future.md` (Job Jockey Future)
 Itches for worthy future efforts.
 - Items graduate from here to new `jje-` files
-- Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/`
+- Located in: `.claude/jji/`
 
 ### `jjs-shelved.md` (Job Jockey Shelved)
 Itches respectfully set aside.
 - Not rejected, but deferred for foreseeable future
 - May include brief context on why shelved
-- Located in: `«JJC_FILESYSTEM_RELATIVE_PATH»/`
+- Located in: `.claude/jji/`
 
 ### `job-jockey-kit.md` (this document)
 The complete reference and installer. Defines structure, naming, and conventions.
@@ -112,47 +116,76 @@ The complete reference and installer. Defines structure, naming, and conventions
 
 ## Directory Structure
 
-Typical installation uses `.claude/jji/` subdirectory:
+JJ files always live at `.claude/jji/` relative to CLAUDE.md. Commands live at `.claude/commands/`.
+
+### Direct Mode (target = `.`)
+
+JJ state and work in the same repo:
 
 ```
-.claude/
-  jji/                    # Job Jockey Installation directory
-    jjf-future.md         # Future effort itches
-    jjs-shelved.md        # Shelved itches
-    current/
-      jje-b251108-buk-portability.md      # Active effort (began Nov 8)
-      jje-b251023-gad-implementation.md   # Another active effort (began Oct 23)
-    retired/
-      jje-b251001-r251015-regime-management.md    # Completed effort (began Oct 1, retired Oct 15)
+my-project/                 # Launch Claude Code here
+  CLAUDE.md
+  .claude/
+    commands/
+      jja-effort-next.md
+      jja-effort-retire.md
+      jja-step-find.md
+      jja-step-left.md
+      jja-step-add.md
+      jja-step-refine.md
+      jja-step-delegate.md
+      jja-step-wrap.md
+      jja-sync.md
+      jja-itch-locate.md
+      jja-itch-move.md
+      jja-doctor.md
+    jji/
+      jjf-future.md
+      jjs-shelved.md
+      current/
+        jje-b251108-feature-x.md
+      retired/
+        jje-b251001-r251015-feature-y.md
+  src/                      # Work happens here too
+  ...
 ```
 
-And in the CLAUDE.md repo:
+### Separate Mode (target ≠ `.`)
+
+JJ state in one repo, work in another (portable with relative paths):
+
 ```
-.claude/
-  commands/
-    jja-effort-next.md
-    jja-effort-retire.md
-    jja-step-find.md
-    jja-step-left.md
-    jja-step-add.md
-    jja-step-refine.md
-    jja-step-delegate.md
-    jja-step-wrap.md
-    jja-itch-locate.md
-    jja-itch-move.md
-    jja-doctor.md
+project-admin/              # Launch Claude Code here
+  CLAUDE.md
+  .claude/
+    commands/jja-*.md
+    jji/
+      jjf-future.md
+      jjs-shelved.md
+      current/
+        jje-b251108-feature-x.md
+      retired/
+  Tools/jjk/
+    job-jockey-kit.md
+
+../my-project/              # Target repo (work happens here)
+  src/
+  tests/
+  ...
 ```
+
+Config in CLAUDE.md: `Target repo dir: ../my-project`
 
 ## Workflows
 
 ### Starting a New Effort
-1. Create `jje-bYYMMDD-description.md` in `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` (use today's date)
+1. Create `jje-bYYMMDD-description.md` in `.claude/jji/current/` (use today's date)
 2. Include Context section with stable background information
 3. Include Steps section with initial checklist items
 4. Archive previous effort to `retired/` (if applicable)
 
 ### Selecting Current Effort
-When starting a session or the user calls `/jja-effort-next`, Claude checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/`:
+When starting a session or the user calls `/jja-effort-next`, Claude checks `.claude/jji/current/`:
 - **0 efforts**: No active work, ask if user wants to start one or promote an itch
 - **1 effort**: Show effort and next step(s), ask for clarification if next step is unclear
 - **2+ efforts**: Ask user which effort to work on, then show that effort with next step(s)
@@ -214,7 +247,7 @@ Job Jockey Actions (JJA) are Claude Code commands for managing the system.
 Show the current effort and its next step(s), with optional clarification prompts.
 
 **Behavior**:
-- Checks `«JJC_FILESYSTEM_RELATIVE_PATH»/current/` for active efforts
+- Checks `.claude/jji/current/` for active efforts
 - **0 efforts**: Announces no active work, asks if user wants to start an effort or promote an itch
 - **1 effort**: Displays:
   - Effort name and brief gesture/summary
@@ -236,15 +269,42 @@ Ready to start?
 Move completed effort to retired directory with retire date added to filename.
 
 **Behavior**:
-- Verifies current effort exists in `current/`
+- Verifies current effort exists in `.claude/jji/current/`
 - Checks that all steps are marked complete (or explicitly discarded)
 - Adds retire date to filename: `jje-bYYMMDD-description.md` → `jje-bYYMMDD-rYYMMDD-description.md`
-- Moves file to `«JJC_FILESYSTEM_RELATIVE_PATH»/retired/`
-- Commits the retirement
+- Moves file to `.claude/jji/retired/`
+- Commits the move (JJ state repo only, no push)
 
 **Example**:
 - Before: `.claude/jji/current/jje-b251108-buk-rename.md`
 - After: `.claude/jji/retired/jje-b251108-r251126-buk-rename.md`
+
+#### `/jja-sync`
+Commit and push JJ state and target repo work. The only command that pushes.
+
+**Behavior**:
+- Commits any uncommitted JJ state changes in this repo
+- Pushes this repo
+- If target ≠ `.`:
+  - Changes to target repo directory
+  - Commits any uncommitted work
+  - Pushes target repo
+- Reports status of both operations
+- Warns if JJ files cannot be synced (e.g., gitignored)
+
+**Note**: User is responsible for being on the correct branch in target repo. JJ does not manage branches.
+
+**Example output**:
+```
+JJ state: committed and pushed (3 files)
+Target repo: committed and pushed (12 files)
+```
+
+Or if issues:
+```
+JJ state: committed and pushed
+Target repo: WARNING - .claude/jji/ appears to be gitignored, JJ state not tracked
+```
 
 ### Itch Actions
 
@@ -288,6 +348,7 @@ Add a new step to the current effort with intelligent positioning.
 - New steps default to `mode: manual`
 - Explains reasoning for the placement
 - Waits for user approval or amendment before updating file
+- Does NOT commit (preparatory work, accumulates until /jja-step-wrap or /jja-sync)
 
 **Example**:
 ```
@@ -302,6 +363,7 @@ Mark a step as complete with automatic summarization.
 **Behavior**:
 - Claude summarizes the step based on current chat context
 - Updates the effort file, moving step to Completed section with summary
+- Commits the change (JJ state repo only, no push)
 - Reports what was written
 - User can approve or request amendments
 
@@ -309,6 +371,7 @@ Mark a step as complete with automatic summarization.
 ```
 Updated step 'Audit BUK portability' →
 'Found 12 issues: 8 in BCU, 3 in BDU, 1 in BTU. Documented in portability-notes.md'
+Committed to JJ state.
 ```
 
 #### `/jja-step-refine`
@@ -411,22 +474,22 @@ Completed steps are kept brief to minimize context usage. Full history is preser
    - Claude will ask configuration questions
 
 3. **Configuration questions**:
-   - **JJ files path**: Where should JJ files live, relative to CLAUDE.md?
-     - Example: `.claude/jji/` (co-located, note the 'jji' subdirectory)
-     - Example: `../project-admin/.claude/jji/` (separate repo)
-     - Convention: Use `jji/` subdirectory to avoid confusion with other `jj*` patterns
-   - **Separate repo**: Are JJ files in a different git repository? (yes/no)
-   - **Kit path**: Claude will use the path where it found this file as the canonical location
+   - **Target repo dir**: Where does actual work happen, relative to this directory?
+     - `.` = direct mode (work happens here, JJ lives with the code)
+     - `../path` = relative path (portable across machines with matching layout)
+     - `/absolute/path` = absolute path (machine-specific)
+   - **Kit path**: Claude will use the path where it found this file (supports relative paths for portability)
 
 4. **Claude will then** (idempotent - safe to run multiple times):
    - Delete any existing `jja-*.md` command files from `.claude/commands/`
    - Generate all command files in `.claude/commands/jja-*.md` with hardcoded paths
-     - All `«JJC_FILESYSTEM_RELATIVE_PATH»`, `«JJC_SEPARATE_REPO»`, `«JJC_KIT_PATH»` variables are replaced with actual values
-     - Git commands include full paths and repo navigation if needed
+     - All `«JJC_TARGET_REPO_DIR»`, `«JJC_KIT_PATH»` variables are replaced with actual values
+     - JJ files path is always `.claude/jji/` (hardcoded, not configurable)
+     - Git commands include target repo navigation when target ≠ `.`
      - Commit messages are fully specified per action
      - No runtime variable parsing required
    - Replace (not append) the `## Job Jockey Configuration` section in CLAUDE.md
-   - Initialize JJ file structure at the configured path:
+   - Initialize JJ file structure at `.claude/jji/`:
      - Create `jjf-future.md` (if not exists, preserve if exists)
      - Create `jjs-shelved.md` (if not exists, preserve if exists)
      - Create `current/` directory (if not exists)
@@ -445,10 +508,8 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Step**: Discrete action within an effort; mode is `manual` (human drives) or `delegated` (model drives from spec)
 - **Itch**: Future idea, lives in Future or Shelved
 
-- JJ files path: `../project-admin/.claude/jji/`
+- Target repo dir: `../my-project`
 - JJ Kit path: `Tools/jjk/job-jockey-kit.md`
-- Separate repo: `yes`
-- Installed: `2025-11-08`
 
 **Available commands:**
 - `/jja-effort-next` - Show current effort and next step(s)
@@ -459,6 +520,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - `/jja-step-refine` - Refine step spec, set mode (manual or delegated)
 - `/jja-step-delegate` - Execute a delegated step
 - `/jja-step-wrap` - Mark step complete
+- `/jja-sync` - Commit and push JJ state and target repo
 - `/jja-itch-locate` - Find an itch by keyword
 - `/jja-itch-move` - Move or promote an itch
 - `/jja-doctor` - Validate Job Jockey setup
@@ -470,9 +532,11 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 After installation completes and you restart your Claude Code session, you can use `/jja-doctor` to verify:
 - Kit file exists at configured path
-- JJ files directory exists
-- Expected files are present
-- If separate repo, it's a valid git repository
+- JJ files directory exists at `.claude/jji/`
+- Expected files are present (jjf-future.md, jjs-shelved.md, current/, retired/)
+- Target repo exists and is accessible
+- If target ≠ `.`, target repo is a valid git repository
+- JJ files are not gitignored (warns if sync would fail)
 - Commands exist and reference correct paths
 
 **Important**: Do not attempt to run `/jja-doctor` in the same chat session where installation occurred. The commands are not available until you restart Claude Code, as they are only loaded when the session initializes.
@@ -483,10 +547,11 @@ After installation, update CLAUDE.md to reference JJ for session context:
 
 ```markdown
 ## Session Context
-- Check active efforts in «JJC_FILESYSTEM_RELATIVE_PATH»/current/ when starting relevant work
+- Check active efforts in .claude/jji/current/ when starting relevant work
 - Announce effort selection and mention /jja- commands
 - Use /jja-step-find to see next step
 - Use /jja-step-left for overview of remaining work
+- Use /jja-sync to commit and push both JJ state and target repo work
 
 **Note**: Restart Claude Code session after installation for new commands to become available.
 ```
@@ -497,27 +562,56 @@ After installation, update CLAUDE.md to reference JJ for session context:
 All JJA commands are markdown files in `.claude/commands/` that instruct Claude what to do.
 
 **During installation**, the kit is used as a template to generate commands with:
-- All `«JJC_FILESYSTEM_RELATIVE_PATH»` markers replaced with actual relative paths (e.g., `.claude/jji/` or `../project-admin/.claude/jji/`)
-- All `«JJC_SEPARATE_REPO»` conditionals resolved to actual git command sequences
+- All `«JJC_TARGET_REPO_DIR»` markers replaced with the configured target repo path
 - All `«JJC_KIT_PATH»` references replaced with actual path to this kit
+- JJ files path hardcoded to `.claude/jji/` (not configurable)
 - Commit message patterns hardcoded per action (prefix: "JJA:")
-- Each action commits separately after approval
+- Git-aware commands: `/jja-step-wrap`, `/jja-effort-retire`, `/jja-sync`
+- Non-git commands: all others (changes accumulate until next git-aware command)
 
 **Result**: Commands are fully baked and ready to execute without any runtime interpretation. This keeps chat context focused on work, not system management.
 
-### Git Behavior Examples
-**When separate repo** (hardcoded during install):
+### Git Behavior
+
+**Git-aware commands:**
+| Command | This repo (JJ state) | Target repo (work) |
+|---------|---------------------|-------------------|
+| `/jja-step-wrap` | commit | — |
+| `/jja-effort-retire` | commit | — |
+| `/jja-sync` | commit + push | commit + push |
+
+**Git behavior by target repo setting:**
+
+When target = `.` (direct mode, JJ and work in same repo):
 ```bash
-cd ../project-admin
+# /jja-step-wrap
 git add .claude/jji/current/jje-b251108-buk-portability.md
 git commit -m "JJA: step-wrap - Completed audit of BUK portability"
-cd - > /dev/null
+
+# /jja-sync
+git add -A
+git commit -m "JJA: sync" --allow-empty
+git push
 ```
 
-**When co-located** (hardcoded during install):
+When target ≠ `.` (separate mode, JJ here, work elsewhere):
 ```bash
+# /jja-step-wrap (commits JJ state only)
 git add .claude/jji/current/jje-b251108-buk-portability.md
 git commit -m "JJA: step-wrap - Completed audit of BUK portability"
+
+# /jja-sync (commits and pushes both repos)
+# First, this repo (JJ state)
+git add -A
+git commit -m "JJA: sync" --allow-empty
+git push
+
+# Then, target repo (work)
+cd «JJC_TARGET_REPO_DIR»
+git add -A
+git commit -m "JJA: sync" --allow-empty
+git push
+cd - > /dev/null
 ```
 
 Each action specifies its own commit message pattern.
@@ -532,12 +626,12 @@ The following templates are used during installation. Variables (`«JJC_*»`) ar
 You are helping refine a step's specification in the current Job Jockey effort.
 
 Configuration:
-- JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
+- Target repo dir: «JJC_TARGET_REPO_DIR»
 - Kit path: «JJC_KIT_PATH»
 
 Steps:
 
-1. Check for current effort in «JJC_FILESYSTEM_RELATIVE_PATH»current/
+1. Check for current effort in .claude/jji/current/
    - If no effort: announce "No active effort" and stop
    - If multiple: ask which one
 
@@ -580,7 +674,7 @@ Steps:
 
 7. Update the step in the effort file with refined spec
 
-8. Commit: "JJA: step-refine - [step title] now [manual|delegated]"
+8. Do NOT commit (preparatory work, accumulates until /jja-step-wrap or /jja-sync)
 
 9. Report what was updated
 
@@ -593,12 +687,12 @@ Error handling: If paths wrong or files missing, announce issue and stop.
 You are executing a delegated step from the current Job Jockey effort.
 
 Configuration:
-- JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
+- Target repo dir: «JJC_TARGET_REPO_DIR»
 - Kit path: «JJC_KIT_PATH»
 
 Steps:
 
-1. Check for current effort in «JJC_FILESYSTEM_RELATIVE_PATH»current/
+1. Check for current effort in .claude/jji/current/
    - If no effort: announce "No active effort" and stop
 
 2. Identify the step to delegate (from context or ask)
@@ -625,6 +719,7 @@ Steps:
    ```
 
 5. Execute the step based solely on the spec
+   - If target repo ≠ `.`, work in target repo directory: «JJC_TARGET_REPO_DIR»
    - Work from the spec, not from refinement conversation context
    - Stay within defined scope
    - Stop when success criteria met OR failure condition hit
@@ -634,6 +729,7 @@ Steps:
    - Failure: what was attempted, why stopped, what's needed
 
 7. Do NOT auto-complete the step. User decides via /jja-step-wrap
+   Work in target repo is NOT auto-committed. User can review and use /jja-sync.
 
 Error handling: If paths wrong or files missing, announce issue and stop.
 ```
@@ -646,18 +742,17 @@ Template in this kit with variables:
 You are helping mark a step complete in the current Job Jockey effort.
 
 Configuration:
-- JJ files path: «JJC_FILESYSTEM_RELATIVE_PATH»
-- Separate repo: «JJC_SEPARATE_REPO»
+- Target repo dir: «JJC_TARGET_REPO_DIR»
 - Kit path: «JJC_KIT_PATH»
 
 Steps:
 1. Ask which step to mark done (or infer from context)
 2. Summarize the step completion based on chat context
 3. Show proposed summary and ask for approval
-4. Update the effort file in «JJC_FILESYSTEM_RELATIVE_PATH»/current/
+4. Update the effort file in .claude/jji/current/
    - Move step from Pending to Completed
    - Replace description with brief summary
-5. Commit: "JJA: step-wrap - [brief description]"
+5. Commit JJ state: "JJA: step-wrap - [brief description]"
 6. Report what was done
 ```
 
@@ -669,25 +764,59 @@ Generated `.claude/commands/jja-step-wrap.md` with hardcoded values:
 You are helping mark a step complete in the current Job Jockey effort.
 
 Configuration:
-- JJ files path: ../project-admin/.claude/jji/
-- Separate repo: yes
+- Target repo dir: ../my-project
 - Kit path: Tools/jjk/job-jockey-kit.md
 
 Steps:
 1. Ask which step to mark done (or infer from context)
 2. Summarize the step completion based on chat context
 3. Show proposed summary and ask for approval
-4. Update the effort file in ../project-admin/.claude/jji/current/
+4. Update the effort file in .claude/jji/current/
    - Move step from Pending to Completed
    - Replace description with brief summary
-5. Commit with:
-   cd ../project-admin
+5. Commit JJ state (this repo only, no push):
    git add .claude/jji/current/jje-*.md
    git commit -m "JJA: step-wrap - [brief description]"
-   cd - > /dev/null
 6. Report what was done
 
 Error handling: If files missing or paths wrong, announce issue and stop.
+```
+
+#### `/jja-sync` Template
+
+```markdown
+You are synchronizing JJ state and target repo work.
+
+Configuration:
+- Target repo dir: «JJC_TARGET_REPO_DIR»
+- Kit path: «JJC_KIT_PATH»
+
+Steps:
+
+1. Check if .claude/jji/ is gitignored
+   - If yes: warn "JJ state is gitignored - cannot sync" and stop
+
+2. Commit and push JJ state (this repo):
+   git add -A .claude/jji/
+   git commit -m "JJA: sync" --allow-empty
+   git push
+   Report: "JJ state: committed and pushed"
+
+3. If target repo = `.`:
+   - JJ state and work are same repo, already handled
+   - Report: "Target repo: same as JJ state (direct mode)"
+
+4. If target repo ≠ `.`:
+   cd «JJC_TARGET_REPO_DIR»
+   git add -A
+   git commit -m "JJA: sync" --allow-empty
+   git push
+   cd - > /dev/null
+   Report: "Target repo: committed and pushed"
+
+5. If any git operation fails, report the specific failure
+
+Error handling: If paths wrong or repos inaccessible, announce issue and stop.
 ```
 
 **Important**: After installation completes, restart your Claude Code session for the new commands to become available.
