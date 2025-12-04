@@ -32,7 +32,14 @@ These markers appear throughout this document in templates and will be hardcoded
 ## Core Concepts
 
 ### Heat
-A bounded initiative spanning 3-50 chat sessions. Has a clear goal, context section, and list of paces. Lives as a dated file like `jjh-b251108-buk-portability.md` (active) or `jjh-b251108-r251126-buk-portability.md` (retired).
+A bounded initiative spanning 3-50 chat sessions. Has a clear goal, context section, and list of paces. Lives as a dated file like `jjh-b251108-buk-portability.md`.
+
+Heat location indicates state:
+- `current/` — actively working
+- `pending/` — detailed but parked (blocked or deferred)
+- `retired/` — completed (retire date added to filename: `jjh-b251108-r251126-buk-portability.md`)
+
+Move to `current/` via prose when ready to work. Park in `pending/` via prose when blocked or deferring.
 
 ### Pace
 A discrete action within the current heat. Appears as checklist items in heat documents. Pending paces can have detailed descriptions. Completed paces get condensed to brief summaries to save context.
@@ -92,8 +99,7 @@ All Job Jockey documents use the `jj` prefix with category-specific third letter
 Main context document for a heat.
 - **Active**: Named with begin date and description (e.g., `jjh-b251108-buk-portability.md`)
 - **Retired**: Begin date preserved, retire date added (e.g., `jjh-b251108-r251126-buk-portability.md`)
-- Lifecycle: Active (`current/`) → Retired (`retired/` with r-date added)
-- Located in: `.claude/jji/current/` (active) or `.claude/jji/retired/` (completed)
+- Located in: `.claude/jji/current/` (active), `.claude/jji/pending/` (parked), or `.claude/jji/retired/` (completed)
 - Contains context section and paces
 
 ### `jjf-future.md` (Job Jockey Future)
@@ -144,6 +150,8 @@ my-project/                 # Launch Claude Code here
       jjs-shelved.md
       current/
         jjh-b251108-feature-x.md
+      pending/
+        jjh-b251101-blocked-work.md
       retired/
         jjh-b251001-r251015-feature-y.md
   src/                      # Work happens here too
@@ -164,6 +172,8 @@ project-admin/              # Launch Claude Code here
       jjs-shelved.md
       current/
         jjh-b251108-feature-x.md
+      pending/
+        jjh-b251101-blocked-work.md
       retired/
   Tools/jjk/
     job-jockey-kit.md
@@ -186,7 +196,7 @@ Config in CLAUDE.md: `Target repo dir: ../my-project`
 
 ### Selecting Current Heat
 When starting a session or the user calls `/jja-heat-next`, Claude checks `.claude/jji/current/`:
-- **0 heats**: No active work, ask if user wants to start one or promote an itch
+- **0 heats**: No active work. If pending heats exist, mention them ("You have N pending heats"). Ask if user wants to start a new heat, activate a pending heat, or promote an itch.
 - **1 heat**: Show heat and next pace(s), ask for clarification if next pace is unclear
 - **2+ heats**: Ask user which heat to work on, then show that heat with next pace(s)
 
@@ -508,6 +518,7 @@ Completed paces are kept brief to minimize context usage. Full history is preser
      - Create `jjf-future.md` (if not exists, preserve if exists)
      - Create `jjs-shelved.md` (if not exists, preserve if exists)
      - Create `current/` directory (if not exists)
+     - Create `pending/` directory (if not exists)
      - Create `retired/` directory (if not exists)
    - Note any existing heat files found
    - Commit the changes
@@ -519,7 +530,7 @@ Completed paces are kept brief to minimize context usage. Full history is preser
 Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
-- **Heat**: Bounded initiative (3-50 sessions), has paces
+- **Heat**: Bounded initiative (3-50 sessions), has paces. Location indicates state: `current/` (active), `pending/` (parked), `retired/` (done). Move to `current/` via prose when ready to work. Park in `pending/` via prose when blocked or deferring.
 - **Pace**: Discrete action within a heat; mode is `manual` (human drives) or `delegated` (model drives from spec)
 - **Itch**: Future idea, lives in Future or Shelved
 
@@ -549,7 +560,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 After installation completes and you restart your Claude Code session, you can use `/jja-doctor` to verify:
 - Kit file exists at configured path
 - JJ files directory exists at `.claude/jji/`
-- Expected files are present (jjf-future.md, jjs-shelved.md, current/, retired/)
+- Expected files are present (jjf-future.md, jjs-shelved.md, current/, pending/, retired/)
 - Target repo exists and is accessible
 - If target ≠ `.`, target repo is a valid git repository
 - JJ files are not gitignored (warns if sync would fail)
@@ -653,8 +664,10 @@ Steps:
 2. Branch based on heat count:
 
    **If 0 heats:**
+   - Check .claude/jji/pending/ for pending heats
    - Announce: "No active heat found in .claude/jji/current/"
-   - Ask: "Would you like to start a new heat or promote an itch from jjf-future.md?"
+   - If pending heats exist: "You have N pending heat(s): [list names]"
+   - Ask: "Would you like to start a new heat, activate a pending heat, or promote an itch from jjf-future.md?"
    - Stop and wait for user direction
 
    **If 1 heat:**
@@ -762,6 +775,7 @@ Steps:
 2. Check JJ directory structure:
    - Verify .claude/jji/ exists
    - Verify .claude/jji/current/ exists
+   - Verify .claude/jji/pending/ exists
    - Verify .claude/jji/retired/ exists
    - Report status of each
 
@@ -797,9 +811,10 @@ Steps:
      - jja-doctor.md
    - Report: ✓ All 13 commands present / ✗ Missing: [list]
 
-7. Check current heats:
+7. Check heats:
    - List any files in .claude/jji/current/
-   - Report count and names
+   - List any files in .claude/jji/pending/
+   - Report counts and names
 
 8. Summary:
    ```
@@ -814,6 +829,9 @@ Steps:
 
    Active heats: 1
    - jjh-b251108-buk-portability.md
+
+   Pending heats: 1
+   - jjh-b251101-blocked-work.md
 
    Status: HEALTHY
    ```
