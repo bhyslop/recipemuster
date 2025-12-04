@@ -1,26 +1,25 @@
-You are helping refine a step's specification in the current Job Jockey effort.
+You are helping refine a pace's specification in the current Job Jockey heat.
 
 Configuration:
-- JJ files path: .claude/jji/
-- Separate repo: no
+- Target repo dir: .
 - Kit path: Tools/jjk/job-jockey-kit.md
 
 Steps:
 
-1. Check for current effort in .claude/jji/current/
-   - If no effort: announce "No active effort" and stop
+1. Check for current heat in .claude/jji/current/
+   - If no heat: announce "No active heat" and stop
    - If multiple: ask which one
 
-2. Ask which step to refine (or infer from context)
+2. Ask which pace to refine (or infer from context)
 
-3. Read the current step spec and assess its state:
+3. Read the current pace spec and assess its state:
    - Is mode defined? (manual/delegated/unset)
    - Is spec sparse or detailed?
 
 4. Conduct adaptive interview:
 
    If spec is sparse/new:
-   - "Is this a manual step (you drive) or should we prepare it for delegation (model drives)?"
+   - "Is this a manual pace (you drive) or should we prepare it for delegation (model drives)?"
    - If manual: confirm and done
    - If delegated: continue to step 5
 
@@ -48,13 +47,9 @@ Steps:
    If any check fails, explain why and ask clarifying question.
    Loop until all checks pass.
 
-7. Update the step in the effort file with refined spec
+7. Update the pace in the heat file with refined spec
 
-8. Commit:
-   ```bash
-   git add .claude/jji/current/jje-*.md
-   git commit -m "JJA: step-refine - [step title] now [manual|delegated]"
-   ```
+8. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-sync)
 
 9. Report what was updated
 

@@ -131,26 +131,25 @@ When working with .adoc files using MCM patterns:
 Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
-- **Effort**: Bounded initiative (3-50 sessions), has steps
-- **Step**: Discrete action within an effort; mode is `manual` (human drives) or `delegated` (model drives from spec)
+- **Heat**: Bounded initiative (3-50 sessions), has paces. Location indicates state: `current/` (active), `pending/` (parked), `retired/` (done). Move to `current/` via prose when ready to work. Park in `pending/` via prose when blocked or deferring.
+- **Pace**: Discrete action within a heat; mode is `manual` (human drives) or `delegated` (model drives from spec)
 - **Itch**: Future idea, lives in Future or Shelved
 
-- JJ files path: `.claude/jji/`
+- Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/job-jockey-kit.md`
-- Separate repo: `no`
-- Installed: `2025-11-08`
-- Updated: `2025-11-26`
 
 **Available commands:**
-- `/jja-effort-next` - Show current effort and next step(s)
-- `/jja-effort-retire` - Move completed effort to retired with datestamp
-- `/jja-step-find` - Show next incomplete step (with mode)
-- `/jja-step-left` - List all remaining steps (with mode)
-- `/jja-step-add` - Add a new step (defaults to manual)
-- `/jja-step-refine` - Refine step spec, set mode (manual or delegated)
-- `/jja-step-delegate` - Execute a delegated step
-- `/jja-step-wrap` - Mark step complete
-- `/jja-itch-locate` - Find an itch by keyword
+- `/jja-heat-next` - Show current heat and next pace(s)
+- `/jja-heat-retire` - Move completed heat to retired with datestamp
+- `/jja-pace-find` - Show next incomplete pace (with mode)
+- `/jja-pace-left` - List all remaining paces (with mode)
+- `/jja-pace-add` - Add a new pace (defaults to manual)
+- `/jja-pace-refine` - Refine pace spec, set mode (manual or delegated)
+- `/jja-pace-delegate` - Execute a delegated pace
+- `/jja-pace-wrap` - Mark pace complete
+- `/jja-sync` - Commit and push JJ state and target repo
+- `/jja-itch-list` - List all itches (future and shelved)
+- `/jja-itch-find` - Find an itch by keyword
 - `/jja-itch-move` - Move or promote an itch
 - `/jja-doctor` - Validate Job Jockey setup
 

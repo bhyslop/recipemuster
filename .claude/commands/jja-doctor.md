@@ -1,49 +1,77 @@
 You are validating the Job Jockey installation.
 
 Configuration:
-- JJ files path: .claude/jji/
-- Separate repo: no
+- Target repo dir: .
 - Kit path: Tools/jjk/job-jockey-kit.md
 
 Steps:
 
-1. Check Kit file exists:
-   - Look for Tools/jjk/job-jockey-kit.md
-   - Report: ✓ or ✗
+1. Check kit file:
+   - Verify Tools/jjk/job-jockey-kit.md exists and is readable
+   - Report: ✓ Kit file exists / ✗ Kit file not found at [path]
 
-2. Check JJ files directory exists:
-   - Look for .claude/jji/
-   - Report: ✓ or ✗
+2. Check JJ directory structure:
+   - Verify .claude/jji/ exists
+   - Verify .claude/jji/current/ exists
+   - Verify .claude/jji/pending/ exists
+   - Verify .claude/jji/retired/ exists
+   - Report status of each
 
-3. Check expected files present:
-   - .claude/jji/jjf-future.md - Report: ✓ or ✗
-   - .claude/jji/jjs-shelved.md - Report: ✓ or ✗
-   - .claude/jji/current/ directory - Report: ✓ or ✗
-   - .claude/jji/retired/ directory - Report: ✓ or ✗
+3. Check JJ content files:
+   - Verify .claude/jji/jjf-future.md exists
+   - Verify .claude/jji/jjs-shelved.md exists
+   - Report: ✓ exists / ✗ missing for each
 
-4. Check command files exist:
-   - .claude/commands/jja-effort-next.md
-   - .claude/commands/jja-effort-retire.md
-   - .claude/commands/jja-step-find.md
-   - .claude/commands/jja-step-left.md
-   - .claude/commands/jja-step-add.md
-   - .claude/commands/jja-step-refine.md
-   - .claude/commands/jja-step-delegate.md
-   - .claude/commands/jja-step-wrap.md
-   - .claude/commands/jja-itch-locate.md
-   - .claude/commands/jja-itch-move.md
-   - .claude/commands/jja-doctor.md
-   - Report count: ✓ all 11 or ✗ N/11
+4. Check git tracking:
+   - Run: git check-ignore .claude/jji/
+   - If ignored: ⚠ WARNING: JJ state is gitignored - /jja-sync will not track changes
+   - If not ignored: ✓ JJ state is tracked by git
 
-5. Verify paths in command files match configuration:
-   - Spot check 2-3 command files
-   - Verify they reference .claude/jji/ not «JJC_FILESYSTEM_RELATIVE_PATH»
-   - Report: ✓ or ✗
+5. Check command files:
+   - Verify these files exist in .claude/commands/:
+     - jja-heat-next.md
+     - jja-heat-retire.md
+     - jja-pace-find.md
+     - jja-pace-left.md
+     - jja-pace-add.md
+     - jja-pace-refine.md
+     - jja-pace-delegate.md
+     - jja-pace-wrap.md
+     - jja-sync.md
+     - jja-itch-list.md
+     - jja-itch-find.md
+     - jja-itch-move.md
+     - jja-doctor.md
+   - Report: ✓ All 13 commands present / ✗ Missing: [list]
 
-6. List any active efforts found in .claude/jji/current/
+6. Check heats:
+   - List any files in .claude/jji/current/
+   - List any files in .claude/jji/pending/
+   - Report counts and names
 
 7. Summary:
-   - Overall health: ✓ Healthy / ⚠ Issues found / ✗ Not functional
-   - If issues: list specific problems and remediation steps
+   ```
+   Job Jockey Health Check
+   =======================
+   Kit:        ✓ Found at Tools/jjk/job-jockey-kit.md
+   Structure:  ✓ All directories present
+   Files:      ✓ jjf-future.md, jjs-shelved.md present
+   Git:        ✓ JJ state tracked
+   Commands:   ✓ All 13 commands installed
 
-Error handling: Report all findings even if some checks fail.
+   Active heats: 1
+   - jjh-b251108-buk-portability.md
+
+   Pending heats: 0
+
+   Status: HEALTHY
+   ```
+
+   Or if issues:
+   ```
+   Status: NEEDS ATTENTION
+   - Missing command: jja-pace-wrap.md
+   - Directory missing: .claude/jji/pending/
+   ```
+
+Error handling: Report all issues found, don't stop at first error.

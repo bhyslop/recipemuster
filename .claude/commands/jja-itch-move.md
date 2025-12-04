@@ -1,47 +1,42 @@
-You are moving an itch between Future, Shelved, or promoting to an effort.
+You are moving a Job Jockey itch between locations or promoting it to a heat.
 
 Configuration:
-- JJ files path: .claude/jji/
-- Separate repo: no
+- Target repo dir: .
 - Kit path: Tools/jjk/job-jockey-kit.md
 
 Steps:
 
-1. Identify the itch to move:
-   - From context
-   - Or ask user to specify
-   - Use /jja-itch-locate if needed
+1. Identify the itch to move (from context or ask)
+   - May need to use /jja-itch-find first
 
-2. Read current location (Future or Shelved)
+2. Ask destination:
+   - `future` → move to jjf-future.md
+   - `shelved` → move to jjs-shelved.md
+   - `heat` → promote to new heat file
 
-3. Ask destination:
-   - Future (jjf-future.md) - worthy of doing
-   - Shelved (jjs-shelved.md) - setting aside
-   - Promote to effort - create new jje-bYYMMDD-description.md
-
-4. If promoting to effort:
-   - Ask for effort description
-   - Create new effort file in .claude/jji/current/
-   - Use today's date for bYYMMDD
-   - Include Context section
-   - Include Steps section with initial step from itch
-   - Remove itch from source file
-
-5. If moving between Future/Shelved:
+3. If moving between future/shelved:
    - Remove from source file
    - Add to destination file
-   - Preserve any context/notes
+   - Do NOT commit (accumulates until /jja-sync)
 
-6. Show proposed change and ask for approval
+4. If promoting to heat:
+   - Ask for heat description (kebab-case)
+   - Create new file: .claude/jji/current/jjh-bYYMMDD-description.md
+   - Use today's date for bYYMMDD
+   - Initialize with:
+     - Context section (from itch description)
+     - Pending section with initial pace from itch
+   - Remove itch from source file
+   - Do NOT commit (accumulates until /jja-sync)
 
-7. Once approved, update the files
-
-8. Commit:
-   ```bash
-   git add .claude/jji/jjf-future.md .claude/jji/jjs-shelved.md .claude/jji/current/
-   git commit -m "JJA: itch-move - [brief description]"
+5. Report what was done:
+   ```
+   Moved 'Refactor authentication module' from future → shelved
+   ```
+   Or:
+   ```
+   Promoted 'Refactor authentication module' to new heat
+   Created: .claude/jji/current/jjh-b251127-auth-refactor.md
    ```
 
-9. Report what was done
-
-Error handling: If paths wrong or files missing, announce issue and stop.
+Error handling: If files missing or itch not found, announce issue and stop.
