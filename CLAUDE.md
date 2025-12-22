@@ -155,6 +155,34 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
+## Concept Model Kit Configuration
+
+Concept Model Kit (CMK) is installed for managing concept model documents.
+
+**Configuration:**
+- Lenses directory: `lenses/`
+- Kit path: `../cnmp_CellNodeMessagePrototype/tools/cmk/concept-model-kit.md`
+- Upstream remote: `OPEN_SOURCE_UPSTREAM`
+
+**Concept Model Patterns:**
+- **Linked Terms**: `{category_term}` - references defined vocabulary
+- **Attribute References**: `:category_term: <<anchor,Display Text>>` - in mapping section
+- **Anchors**: `[[anchor_name]]` - definition targets
+- **Annotations**: `// ⟦content⟧` - Strachey brackets for type categorization
+
+**Available commands:**
+- `/cma-normalize` - Apply whitespace rules (haiku)
+- `/cma-scrub` - Clean mapping section formatting (haiku)
+- `/cma-render` - Transform to ClaudeMark (sonnet)
+- `/cma-validate` - Check links and annotations
+- `/cma-prep-pr` - Prepare upstream contribution
+- `/cma-doctor` - Validate installation
+- `/cma-refresh` - Regenerate commands from kit
+
+For full MCM specification, see `lenses/mcm-MCM-MetaConceptModel.adoc`.
+
+**Important**: Restart Claude Code session after installation for new commands to become available.
+
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
 - Architecture: Bash-based CLI tools with Google Cloud integration

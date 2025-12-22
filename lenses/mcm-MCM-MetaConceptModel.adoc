@@ -1,0 +1,943 @@
+= Concept Model Definition
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// mcm_: Meta Concept Model
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//   _ed: past tense (verbs)
+//   _ing: progressive form (verbs)
+//
+// Domain declaration: mcm_<canonical_term>
+
+:mcm_digital_mind:           <<mcm_digital_mind,Digital Mind>>
+:mcm_digital_mind_s:         <<mcm_digital_mind,Digital Minds>>
+:mcm_editor:                 <<mcm_editor,Editor>>
+:mcm_editor_p:               <<mcm_editor,Editor's>>
+
+:mcm_concept_model:          <<mcm_concept_model,Concept Model>>
+:mcm_concept_model_s:        <<mcm_concept_model,Concept Models>>
+:mcm_concept_model_p:        <<mcm_concept_model,Concept Model's>>
+
+:mcm_ancestry_enhancement:   <<mcm_ancestry_enhancement,Ancestry Enhancement>>
+:mcm_curation_action:        <<mcm_curation_action,Curation Action>>
+:mcm_curation_action_s:      <<mcm_curation_action,Curation Actions>>
+:mcm_demotion_analysis:      <<mcm_demotion_analysis,Demotion Analysis>>
+:mcm_link_validation:        <<mcm_link_validation,Link Validation>>
+:mcm_mapping_scrub:          <<mcm_mapping_scrub,Mapping Scrub>>
+:mcm_promotion_analysis:     <<mcm_promotion_analysis,Promotion Analysis>>
+:mcm_term_matching:          <<mcm_term_matching,Term Matching>>
+
+:mcm_definition_section:     <<mcm_definition_section,Definition Section>>
+:mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
+:mcm_document:               <<mcm_document,Document>>
+:mcm_document_s:             <<mcm_document,Documents>>
+:mcm_document_p:             <<mcm_document,Document's>>
+:mcm_fundamental_text:       <<mcm_fundamental_text,Fundamental Text Organization>>
+:mcm_mapping_section:        <<mcm_mapping_section,Mapping Section>>
+:mcm_notional_snippet:       <<mcm_notional_snippet,Notional Snippet>>
+:mcm_notional_snippet_s:     <<mcm_notional_snippet,Notional Snippets>>
+
+:mcm_linked_term:            <<mcm_linked_term,Linked Term>>
+:mcm_linked_term_s:          <<mcm_linked_term,Linked Terms>>
+:mcm_attribute_reference:    <<mcm_attribute_reference,Attribute Reference>>
+:mcm_attribute_reference_s:  <<mcm_attribute_reference,Attribute References>>
+:mcm_line_break:             <<mcm_line_break,Line Break>>
+:mcm_line_break_s:           <<mcm_line_break,Line Breaks>>
+:mcm_blank_line:             <<mcm_blank_line,Blank Line>>
+:mcm_blank_line_s:           <<mcm_blank_line,Blank Lines>>
+
+:mcm_category:               <<mcm_category,Link Category>>
+:mcm_category_ies:           <<mcm_category,Link Categories>>
+:mcm_variant:                <<mcm_variant,Link Variant>>  
+:mcm_variant_s:              <<mcm_variant,Link Variants>>
+:mcm_domain:                 <<mcm_domain,Link Domain>>
+:mcm_domain_s:               <<mcm_domain,Link Domains>>
+
+:mcm_task_lens:              <<mcm_task_lens,Task Lens>>
+:mcm_task_lens_es:           <<mcm_task_lens,Task Lenses>>
+:mcm_task_lens_guide:        <<mcm_task_lens_guide,Task Lens Guide>>
+:mcm_lens_specification:     <<mcm_lens_specification,Lens Specification>>
+:mcm_lens_specification_s:   <<mcm_lens_specification,Lens Specifications>>
+:mcm_focal_depth:            <<mcm_focal_depth,Focal Depth>>
+:mcm_focal_depth_s:          <<mcm_focal_depth,Focal Depths>>
+
+:mcm_annotation:             <<mcm_annotation,Annotation>>
+:mcm_annotation_s:           <<mcm_annotation,Annotations>>
+:mcm_form_deflist:           <<mcm_form_deflist,Definition List Form>>
+:mcm_form_bullet:            <<mcm_form_bullet,Bullet Form>>
+:mcm_form_section:           <<mcm_form_section,Section Form>>
+
+// end::mapping-section[]
+
+== Core Structure
+
+A
+{mcm_concept_model}
+creates a cohesive gestalt - a unified constellation of ideas whose relationships and interactions transcend their individual definitions.
+Through carefully curated terminology and precise linking patterns, each
+{mcm_concept_model}
+illuminates the deep conceptual relationships that give meaning to a domain.
+
+The power of a
+{mcm_concept_model}
+lies in its ability to:
+
+* Reveal the natural connections between ideas
+* Preserve the integrity of concept relationships through evolution
+* Enable clear visualization of how changes to one concept ripple through the constellation
+* Guide understanding through carefully mapped idea spaces
+
+Each
+{mcm_concept_model}
+manifests through a
+{mcm_document}
+that follows strict organizational patterns.
+These patterns ensure that as the constellation evolves, their relationships remain clear and traceable.
+
+The
+{mcm_document}
+contains two primary constrained element types:
+
+* A
+{mcm_mapping_section}
+that defines all
+{mcm_linked_term_s}
+* One or more
+{mcm_definition_section_s}
+that provide precise meaning for each term
+
+Through these elements, the
+{mcm_document}
+maintains the delicate balance between rigorous structure and organic concept evolution, allowing the idea constellation to grow while preserving its essential relationships.
+
+== Text Organization
+
+Text within a
+{mcm_document}
+follows specific structural rules to enable clear tracking of changes and relationships.
+
+=== Line Break Fundamentals
+
+The most fundamental organizing principle is the
+{mcm_line_break}.
+Each
+{mcm_line_break}
+creates a clear boundary in the
+{mcm_document}
+while preserving fluid rendering in the output document.
+
+==== Basic Line Break Rules
+
+{mcm_line_break_s}
+occur in these precise patterns:
+
+* Between independent sentences
+* Before and after each standalone
+{mcm_linked_term}
+* Between fragments that surround
+{mcm_linked_term_s}
+* With term sequences, before the first term and after the last term only
+
+Basic example showing sentence and term breaks:
+
+[source,asciidoc]
+----
+The system initializes its components.
+The
+{excm_processor}
+begins operation.
+Each component reports its status.
+----
+
+==== Term Integration Patterns
+
+When incorporating
+{mcm_linked_term_s},
+the text follows these specific patterns:
+
+Single term integration - breaks before and after the term:
+
+[source,asciidoc]
+----
+The system processes
+{excm_request}
+according to defined rules.
+----
+
+Multiple
+{mcm_linked_term_s}
+in sequence - breaks surround the entire sequence:
+
+[source,asciidoc]
+----
+The interface supports
+{excm_drag}, {excm_drop}, and {excm_scroll}
+operations.
+----
+
+Complex
+{mcm_linked_term}
+relationships - each standalone term gets breaks:
+
+[source,asciidoc]
+----
+The
+{excm_validator}
+applies each
+{excm_rule}
+to ensure
+{excm_compliance}
+with system requirements.
+----
+
+These patterns apply consistently across all document contexts, including:
+
+* Regular paragraphs
+* List items
+* Definition entries
+* Section introductions
+
+=== Paragraph Organization
+
+Paragraphs in the
+{mcm_document}
+follow these structural principles:
+
+* {mcm_blank_line_s}
+appear only between true paragraphs
+* No
+{mcm_blank_line_s}
+between sentences within a paragraph
+* No
+{mcm_blank_line_s}
+around source code blocks or list items
+* Each paragraph focuses on a single concept or relationship
+
+Example paragraph structure:
+
+[source,asciidoc]
+----
+The system initializes its core components.
+Each component performs self-diagnostics.
+The
+{excm_validator}
+confirms system health.
+
+The initialization process then moves to external systems.
+The
+{excm_connector}
+establishes required links.
+Each connection undergoes verification.
+----
+
+=== Special Cases
+
+==== List Items
+
+The
+{mcm_document}
+presents list items
+with proper term integration
+and conceptual breaks:
+
+[source,asciidoc]
+----
+* The first item spans
+{excm_component}
+boundaries
+* A second item demonstrates
+{excm_process}
+flow
+* The final item shows
+{excm_result}
+formatting
+----
+
+==== Definition Entries
+
+Definition entries follow standard sentence breaks while maintaining definition list structure:
+
+The single space following `::` is necessary.
+
+[source,asciidoc]
+----
+[[excm_term]]
+{excm_example}:: 
+The primary definition establishes core meaning.
+Additional sentences expand understanding.
+The
+{excm_linked_term}
+shows relationship handling.
+----
+
+==== Source Code Boundaries
+
+Source code blocks establish strict boundaries for
+{mcm_curation_action_s}.
+These boundaries protect code content while maintaining proper term integration in surrounding text:
+
+[source,asciidoc]
+----
+The
+{excm_processor}
+implements this interface:
+
+[source,java]
+-----
+public interface Processor {
+    void process();
+    Status check();
+}
+-----
+
+The implementation ensures
+{excm_compliance}
+with system requirements.
+----
+
+{mcm_curation_action_s}
+respect these boundaries by:
+
+* Maintaining term integration and line breaks in surrounding text
+* Treating code block contents as opaque
+* Preserving code formatting without modification
+* Excluding code content from term matching and promotion analysis
+
+This boundary pattern ensures code examples remain stable through document evolution while maintaining proper conceptual integration in their context.
+
+=== Punctuation Rules
+
+Punctuation follows standard English conventions regardless of line breaks:
+
+* Sentence-ending punctuation stays with the sentence
+* Commas remain with their preceding phrase
+* Quotation marks enclose their content without breaks
+* Parentheses maintain content unity
+
+Example punctuation handling:
+
+[source,asciidoc]
+----
+The system (version 2.0) activates its components.
+The
+{excm_processor}
+begins its "primary sequence."
+After initialization,
+the system reports "ready."
+----
+
+=== Document Mechanics
+
+=== {mcm_mapping_section} Constraints
+
+The
+{mcm_mapping_section}
+enforces alignment rules to enhance readability and change tracking:
+
+* The `<<` of each
+{mcm_domain}
+aligns to columns that are multiples of 10
+* When entries require wider alignment, all lines adjust to the next larger multiple
+* {mcm_attribute_reference_s} maintain consistent indentation
+
+[source,asciidoc]
+----
+// tag::mapping-example[]
+:excm_doc_short:              <<excm_short,Short Term>>
+:excm_doc_longer_term:        <<excm_longer,Longer Term>>
+:excm_doc_much_longer_term:   <<excm_much_longer,Much Longer Term>>
+// end::mapping-example[]
+----
+
+The
+{mcm_mapping_scrub}
+maintains these alignments during curation unless expansion is required.
+
+=== Document Source Management
+
+The
+{mcm_document}
+maintains compatibility with line-based tools
+while preserving semantic structure.
+
+This means:
+
+* Favoring AsciiDoc's native list markers
+over hardcoded sequence numbers
+
+* Preserving processor directives
+that enable clean rendering
+
+* Ensuring changes remain visible
+in both source differencing tools
+and rendered comparisons
+
+The goal is maintaining a document that:
+
+* Shows ancestry clearly in source
+* Renders cleanly through AsciiDoc
+* Displays changes meaningfully in diffs
+* Supports post-rendering analysis
+
+=== Term Hierarchy Management
+
+When
+{mcm_linked_term_s}
+appear to form hierarchical relationships, the
+{mcm_document}
+flattens this hierarchy through specific patterns:
+
+* Each
+{mcm_linked_term_s}
+receives first-class presentation in the
+{mcm_mapping_section}
+* Related
+{mcm_linked_term_s}
+maintain separate definitions
+* Relationships express through careful definition crafting
+
+Example of hierarchical
+{mcm_linked_term_s}
+handling:
+
+[source,asciidoc]
+----
+:excm_doc_validation:             <<excm_validation,Validation>>
+:excm_doc_validation_rule:        <<excm_validation_rule,Validation Rule>>
+:excm_doc_validation_set:         <<excm_validation_set,Validation Set>>
+----
+
+The definitions then express relationships:
+
+[source,asciidoc]
+----
+[[excm_validation]]
+{excm_doc_validation}:: 
+The process of applying rules to ensure content correctness.
+
+[[excm_validation_rule]]
+{excm_doc_validation_rule}:: 
+A specific constraint within the {excm_doc_validation} framework.
+
+[[excm_validation_set]]
+{excm_doc_validation_set}:: 
+A collection of {excm_doc_validation_rule_s} that work together.
+----
+
+== Definition Patterns
+
+=== Definition Form Patterns
+
+Each
+{mcm_linked_term}
+in a
+{mcm_document}
+requires an anchor target and a definition.
+The form determines how these elements are structured.
+
+[[mcm_annotation]]
+{mcm_annotation}::
+A comment containing Strachey brackets `⟦content⟧` placed between an anchor target and its definition.
+{mcm_annotation_s} are ignored during first-order document reading.
+When a referencing system is in context, {mcm_annotation_s} provide type categorization or other metadata about the term.
+The bracketed content contains space-separated {mcm_linked_term_s} from the referencing system, which is typically out-of-context during first-order reading.
+The grammar and interpretation of those {mcm_linked_term_s} is defined by the referencing system, not MCM.
+
+[[mcm_form_deflist]]
+{mcm_form_deflist}::
+The standard pattern using AsciiDoc definition list syntax.
+The anchor target appears on its own line, followed by an optional
+{mcm_annotation},
+then the term reference with `::` and definition text.
+Use for standalone terms with self-contained meaning.
+
+[source,asciidoc]
+----
+[[term_anchor]]
+// ⟦...⟧
+{term_reference}::
+Definition text following sentence-per-line rules.
+----
+
+[[mcm_form_bullet]]
+{mcm_form_bullet}::
+A pattern for terms that belong to a parent structure or sequence.
+Each term appears as a bullet item under its parent section.
+The anchor target appears after the bullet marker, followed by an optional
+{mcm_annotation},
+then the term reference with definition prose.
+Use for fields of a structure or steps in a procedure.
+
+[source,asciidoc]
+----
+* [[field_anchor]]
+// ⟦...⟧
+{field_reference} defines the specific meaning within the parent structure.
+----
+
+[[mcm_form_section]]
+{mcm_form_section}::
+A pattern where the section heading itself is the term.
+The anchor target appears before the section marker, followed by an optional
+{mcm_annotation},
+then the section heading containing the term reference.
+The section content constitutes the definition.
+Use for terms whose meaning requires extended explanation or contains nested child terms.
+
+[source,asciidoc]
+----
+[[sequence_anchor]]
+// ⟦...⟧
+=== {sequence_reference}
+
+The sequence executes these steps:
+
+* [[step_one_anchor]]
+// ⟦...⟧
+First step description.
+----
+
+=== Definition Organization Patterns
+
+The
+{mcm_document}
+supports three primary patterns for organizing
+{mcm_definition_section_s}:
+
+==== Traditional Grouped Definitions
+
+[source,asciidoc]
+----
+== Core Terms
+
+[[excm_term1]]
+{excm_term_one}:: 
+Primary definition establishing core meaning.
+Subsequent sentences expand understanding, though this is at most one paragraph.
+
+[[excm_term2]]
+{excm_term_two}:: 
+Related term definition showing relationships.
+----
+
+==== Distributed Definitions
+
+Definitions may accompany relevant content sections:
+
+[source,asciidoc]
+----
+== System Components
+
+Here we explore key architectural elements.
+
+[[excm_component]]
+{excm_sys_component}:: 
+Definition tied directly to its context.
+
+The discussion continues...
+----
+
+==== Domain-Specific Glossaries
+
+[source,asciidoc]
+----
+== Technical Terms
+
+[[excm_tech1]]
+{excm_tech_term_one}:: 
+Technical definition with domain focus.
+
+[[excm_tech2]]
+{excm_tech_term_two}:: 
+Related technical concept definition.
+----
+
+=== {mcm_category}, {mcm_variant}, and {mcm_domain} Usage
+
+The
+{mcm_category}, {mcm_variant}, and {mcm_domain}
+work together to maintain precise term relationships and variations.
+
+==== {mcm_category} Rules
+
+* Each
+{mcm_category}
+declares its scope in the
+{mcm_mapping_section}
+header
+* {mcm_category_ies}
+distinguish terms by conceptual role
+* New
+{mcm_category_ies}
+require explicit declaration
+
+Example
+{mcm_category}
+declarations:
+
+[source,asciidoc]
+----
+// exn_: Noun concepts - entities and objects
+// exv_: Verb concepts - actions and operations
+----
+
+==== Variant Patterns
+
+Common
+{mcm_variant_s}
+follow consistent patterns:
+
+[source,asciidoc]
+----
+:exn_word:                   <<excm_word,Word>>
+:exn_word_s:                 <<excm_word,Words>>
+:exn_word_p:                 <<excm_word,Word's>>
+:exv_act:                    <<excm_act,Act>>
+:exv_act_s:                  <<excm_act,Acts>>
+:exv_act_ed:                 <<excm_act,Acted>>
+:exv_act_ing:                <<excm_act,Acting>>
+----
+
+The
+{mcm_mapping_scrub}
+enforces consistent application of these patterns across the document.
+
+==== {mcm_domain} Pattern
+
+Each term definition establishes a unique anchor using snake case:
+
+[source,asciidoc]
+----
+// Domain declaration: excm_<canonical_term>
+----
+
+== Task Lens Support
+
+{mcm_concept_model_s}
+support focused work contexts through
+{mcm_task_lens_es}
+that emphasize relevant concepts while suppressing distractions.
+See the
+{mcm_task_lens_guide}
+for compilation specifications and usage patterns.
+
+=== Task Lens Structure
+
+Each
+{mcm_task_lens}
+follows this pattern:
+
+[source,asciidoc]
+----
+=== [Task Lens Name]
+
+**Purpose**: [One sentence describing the work this lens enables]
+
+**Gestalt**: [Metaphorical description guiding term interpretation]
+
+**Core Activation**:
+
+* {linked_term} - [Aspect emphasis if needed]
+* {linked_term} - [Aspect emphasis if needed]
+
+**Expanded Activation**:
+
+* {linked_term} - [Reduced detail focus]
+* {linked_term} - [Reduced detail focus]
+
+**Suppressed Activation**:
+
+* List of {linked_term_s} to remain dormant
+* Additional suppression patterns
+
+**Critical Relationships**:
+
+* {term_a} ↔ {term_b}: [What aspect matters]
+* {term_c} → {term_d}: [Specific mechanism focus]
+----
+
+Multiple
+{mcm_task_lens_es}
+may share terms but apply different
+{mcm_focal_depth_s}
+and aspect emphasis based on their purpose.
+
+=== Blank Line Exception for Task Lenses
+
+Despite the general document rule against
+{mcm_blank_line_s}
+around list items,
+{mcm_task_lens}
+sections require specific blank lines for valid asciidoc parsing:
+
+* One blank line after each `**Section**:` header before its list
+* One blank line between major sections
+* No blank lines between list items within a section
+
+This exception exists because asciidoc requires blank lines before bulleted lists to parse correctly, and the structured nature of
+{mcm_task_lens_es}
+makes the blank line placement predictable and consistent.
+
+== Actor Definitions
+
+[[mcm_editor]]
+{mcm_editor}::
+The human originator of
+{mcm_concept_model_s}
+and constraints.
+The
+{mcm_editor}
+guides document evolution, establishes patterns, and directs transformations while maintaining conceptual integrity.
+
+[[mcm_digital_mind]]
+{mcm_digital_mind}::
+An agent, typically an LLM, transforming
+{mcm_document_s}
+under
+{mcm_editor}
+direction and document constraints.
+The
+{mcm_digital_mind}
+performs well-defined
+{mcm_curation_action_s}
+while preserving document patterns and relationships.
+
+== {mcm_curation_action_s}
+
+[[mcm_curation_action]]
+{mcm_curation_action}::
+A process executed by a
+{mcm_digital_mind}
+to adjust a
+{mcm_document}
+as directed by the
+{mcm_editor}.
+Each
+{mcm_curation_action}
+has a specific focus and constraints, modifying only those aspects of the
+{mcm_document}
+that fall within its defined scope.
+
+[[mcm_ancestry_enhancement]]
+{mcm_ancestry_enhancement}::
+A
+{mcm_curation_action}
+that maintains line-based change visibility through consistent formatting:
+* One sentence per line
+* {mcm_linked_term_s} on separate lines
+* {mcm_blank_line_s}
+only between paragraphs
+
+[[mcm_demotion_analysis]]
+{mcm_demotion_analysis}::
+A
+{mcm_curation_action}
+that identifies
+{mcm_linked_term_s}
+whose formal status may no longer justify their maintenance overhead.
+It suggests candidates for demotion to
+{mcm_fundamental_text}
+based on criteria such as:
+* Rare usage outside their own definition
+* Lack of meaningful variation requiring
+{mcm_attribute_reference_s}
+* Minimal role in expressing relationships between other terms
+* Terms whose precise meaning has become self-evident in context
+
+[[mcm_link_validation]]
+{mcm_link_validation}::
+A
+{mcm_curation_action}
+that verifies and maintains the mechanical integrity of the
+{mcm_document_p}
+linking system:
+* Ensures
+{mcm_attribute_reference_s} and {mcm_domain_s}
+are properly formed and matched
+* Validates format and structure compliance
+* Fixes broken mechanics
+
+[[mcm_mapping_scrub]]
+{mcm_mapping_scrub}::
+A
+{mcm_curation_action}
+that maintains the strict structural integrity of the
+{mcm_mapping_section}.
+It enforces format rules including:
+* Complete
+{mcm_category}
+scheme declarations
+* One
+{mcm_attribute_reference} and {mcm_domain}
+per entry
+* Consistent
+{mcm_variant}
+patterns
+* Alphabetical ordering by replacement text
+* Column alignment to multiples of 10
+
+[[mcm_promotion_analysis]]
+{mcm_promotion_analysis}:: 
+A
+{mcm_curation_action}
+that identifies frequently occurring or conceptually significant elements in
+{mcm_fundamental_text}
+that warrant promotion to
+{mcm_linked_term}
+status.
+It suggests candidates based on:
+* Frequency in definitions of other
+{mcm_linked_term_s}
+* Use in expressing core conceptual relationships
+* Occurrence in multiple distinct contexts
+* Words whose precise meaning needs maintenance across document evolution
+
+[[mcm_term_matching]]
+{mcm_term_matching}:: 
+A
+{mcm_curation_action}
+that identifies instances where concepts corresponding to existing
+{mcm_linked_term_s}
+appear in text without proper linking:
+* Identifies important terms that warrant linking
+* Proposes what should be linked
+
+== Document Elements
+
+[[mcm_fundamental_text]]
+{mcm_fundamental_text}:: 
+The basic sentences and phrases that comprise document text.
+{mcm_fundamental_text}
+follows specific formatting patterns in source while maintaining natural flow in rendered output.
+
+[[mcm_notional_snippet]]
+{mcm_notional_snippet}:: 
+An exemplar that guides
+{mcm_curation_action_s}.
+While it may contain asciidoc noncompliance, the
+{mcm_digital_mind}
+uses it to understand patterns and generate compliant asciidoc output.
+
+[[mcm_line_break]]
+{mcm_line_break}::
+A deliberate separation in a
+{mcm_document}
+that creates clear boundaries while preserving fluid rendering.
+The
+{mcm_line_break}
+appears between independent sentences, before and after
+{mcm_linked_term_s},
+and between fragments surrounding
+{mcm_linked_term_s}.
+This pattern enables clean ancestry tracking while maintaining natural document flow.
+
+[[mcm_blank_line]]
+{mcm_blank_line}::
+A purposeful demarcation in the
+{mcm_document}
+that separates major structural elements such as definition entries, sections, and lists.
+The
+{mcm_blank_line}
+appears only between these elements, never within them.
+
+== Term Management Elements
+
+[[mcm_attribute_reference]]
+{mcm_attribute_reference}::
+A variable-style reference that connects a
+{mcm_category}
+prefixed attribute name to a specific
+{mcm_domain}
+and replacement text potentially with multiple
+{mcm_variant_s}.
+The
+{mcm_attribute_reference}
+forms the mechanical foundation for
+{mcm_linked_term}
+implementation in the
+{mcm_document}.
+Each
+{mcm_attribute_reference}
+follows strict formatting rules defined in the
+{mcm_mapping_section}.
+
+
+[[mcm_category]]
+{mcm_category}::
+A prefix mechanism that classifies
+{mcm_linked_term_s}
+by their conceptual role.
+Each
+{mcm_category}
+must be declared in the
+{mcm_mapping_section}
+header and follows consistent patterns for classifying terms by type (e.g., 'doc_' for document elements, 'term_' for terminology elements).
+
+[[mcm_variant]]
+{mcm_variant}::
+A systematic modification of a base term that maintains its core meaning while expressing a different form.
+Common
+{mcm_variant_s}
+include plurals (_s), possessives (_p), and verb conjugations (_ed, _ing), each following patterns defined in the
+{mcm_mapping_section}.
+
+[[mcm_domain]]
+{mcm_domain}::
+A unique identifier that anchors a term's definition within the document structure.
+Each
+{mcm_domain}
+uses snake case formatting and maintains consistent patterns (e.g., 'mcm_<canonical_term>') to enable reliable linking and reference.
+
+[[mcm_task_lens]]
+{mcm_task_lens}::
+A focused activation pattern within a
+{mcm_concept_model}
+that emphasizes specific terms and relationships for particular work contexts.
+Each
+{mcm_task_lens}
+defines which
+{mcm_linked_term_s}
+activate at what
+{mcm_focal_depth}
+and guides interpretation through gestalt descriptions and critical relationship specifications.
+
+
+[[mcm_task_lens_guide]]
+{mcm_task_lens_guide}::
+A separate guide document that specifies how to compile task-focused representations from a full
+{mcm_concept_model}.
+The
+{mcm_task_lens_guide}
+defines lens structure patterns, compilation mechanics, and
+{mcm_focal_depth}
+activation rules for creating work-optimized views of concept constellations.
+
+[[mcm_lens_specification]]
+{mcm_lens_specification}::
+The structured definition within a
+{mcm_task_lens}
+that categorizes
+{mcm_linked_term_s}
+by their
+{mcm_focal_depth}
+and provides aspect focusing guidance.
+The
+{mcm_lens_specification}
+enables mechanical compilation of task-optimized representations from the full
+{mcm_concept_model}.
+
+[[mcm_focal_depth]]
+{mcm_focal_depth}::
+The activation level of a
+{mcm_linked_term}
+within a
+{mcm_task_lens},
+determining how much detail and relationship information to preserve.
+The three
+{mcm_focal_depth_s}
+are Core (full detail with relationships), Expanded (supporting context), and Suppressed (explicitly dormant).
