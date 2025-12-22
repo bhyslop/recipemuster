@@ -1,0 +1,549 @@
+= Configuration Regime Definition
+:doctype: book
+:toc:
+:toc-title: Contents
+
+// tag::mapping-section[]
+
+:crg_regime:                 <<crg_regime,Config Regime>>
+:crg_regime_s:               <<crg_regime,Config Regimes>>
+:crg_variable:               <<crg_variable,Regime Variable>>
+:crg_variable_p:             <<crg_variable,Regime Variable's>>
+:crg_variable_s:             <<crg_variable,Regime Variables>>
+:crg_value:                  <<crg_value,Assignment Value>>
+:crg_value_s:                <<crg_value,Assignment Values>>
+:crg_prefix:                 <<crg_prefix,Assignment Prefix>>
+:crg_group:                  <<crg_group,Feature Group>>
+:crg_group_s:                <<crg_group,Feature Groups>>
+:crg_enable:                 <<crg_enable,Enable Flag>>
+:crg_prefix:                 <<crg_prefix,Regime Prefix>>
+:crg_assignment_mk:          <<crg_assignment_mk,Assignment Makefile>>
+:crg_assignment_sh:          <<crg_assignment_mk,Assignment Script>>
+:crg_spec_adoc:              <<crg_spec_adoc,Regime Specification Asciidoc>>
+:crg_glossary_adoc:          <<crg_glossary_adoc,Rough Glossary Asciidoc>>
+:crg_service_mk:             <<crg_service_mk,Service Makefile>>
+:crg_rollup:                 <<crg_rollup,Service Rollup Variable>>
+:crg_validator_sh:           <<crg_validator_sh,Bash Validator>>
+:crg_renderer_sh:            <<crg_renderer_sh,Bash Renderer>>
+:crg_library_sh:             <<crg_library_sh,Bash Library>>
+:crg_atom_string:            <<crg_atom_string,String>>
+:crg_atom_xname:             <<crg_atom_xname,XName>>
+:crg_atom_fqin:              <<crg_atom_fqin,FQIN>>
+:crg_atom_bool:              <<crg_atom_bool,Boolean>>
+:crg_atom_decimal:           <<crg_atom_decimal,Decimal>>
+:crg_atom_ipv4:              <<crg_atom_ipv4,IPv4>>
+:crg_atom_cidr:              <<crg_atom_cidr,CIDR>>
+:crg_atom_domain:            <<crg_atom_domain,Domain>>
+:crg_atom_port:              <<crg_atom_port,Port>>
+:crg_list_ipv4:              <<crg_list_ipv4,IPv4List>>
+:crg_list_cidr:              <<crg_list_cidr,CIDRList>>
+:crg_list_domain:            <<crg_list_domain,DomainList>>
+// end::mapping-section[]
+
+== Introduction
+
+A
+{crg_regime}
+is a set of files that work together to define allowed
+{crg_variable_s}
+and check that actual
+{crg_value_s}
+follow the rules.
+Each
+{crg_variable}
+defines a name and rules constraining valid
+{crg_value_s}.
+{crg_variable_s}
+may be members of
+{crg_group_s}.
+Some groups can be turned on or off using a
+{crg_enable}.
+
+These files define the rules and structure:
+
+. The
+{crg_spec_adoc}
+defines each
+{crg_variable}
+and how it relates to others in a structured asciidoc format.
+This document serves as the master reference for what
+{crg_value_s}
+are valid.
+. The
+{crg_service_mk}
+contains make rules to check that
+{crg_value_s}
+follow their
+{crg_variable}
+definitions.
+. Bash scripts check and display
+{crg_value_s}:
+.. The
+{crg_validator_sh}
+checks that
+{crg_value_s}
+follow their rules
+.. The
+{crg_renderer_sh}
+shows the
+{crg_value_s}
+in a clear format
+.. The
+{crg_library_sh}
+provides helper functions used by both scripts, typically providing per
+{crg_variable}
+type level utilities.
+. The
+{crg_glossary_adoc}
+gives plain English descriptions of each {crg_variable}.
+
+These files contain actual {crg_value_s} that follow the rules:
+
+. An
+{crg_assignment_mk}
+declares real
+{crg_value_s}
+for the
+{crg_variable_s}
+defined by the
+{crg_regime}.
+A project may have several of these files, each holding a different set of
+{crg_value_s}
+that all follow the same rules.
+. An
+{crg_assignment_sh}
+is just like a
+{crg_assignment_mk},
+but works in bash scripts as well as make.
+
+== {crg_spec_adoc} Requirements
+
+=== Scope and Structure
+
+* An opening term reference section that:
+** Uses ONLY those parent specification's attribute references needed to express configuration requirements clearly
+** Uses parent references exactly as they appear in source, without modification
+** Documents source specification in section header comment
+** DOES NOT include Assignment Variable mappings
+
+* {crg_group}
+sections, each containing:
+** Purpose statement
+** {crg_variable}
+definitions using this exact table structure:
++
+[source,asciidoc]
+----
+.VARIABLE_NAME
+[cols="1,4"]
+|===
+|Purpose|
+<clear description of variable purpose>
+|Required|
+Yes/No
+|Format|
+<format specification and constraints, if applicable>
+|Dependencies|
+<other required variables or conditions, if applicable>
+|Example|
+export VARIABLE_NAME := <example value>
+|===
+----
++
+*** Required fields (Purpose, Required) must always be present
+*** Format, Dependencies, and Example fields included only when applicable
+*** Tables must maintain proper AsciiDoc syntax and spacing
+*** Variable name must appear as table title
+
+* Term definitions section that:
+** Contains asciidoc dentries ONLY for parent terms referenced in the document
+** Uses exact anchor names from parent specification
+** Copies parent term definitions verbatim, without modification
+** Includes ONLY those terms needed to express configuration requirements clearly
+
+The {crg_spec_adoc} DOES NOT include:
+
+* Implementation details
+* Error handling
+* Security requirements  
+* Operational procedures
+* System architecture
+
+=== Organization Requirements
+
+* Groups
+{crg_variable}
+logically by feature
+* Indicates dependencies clearly
+* States enable flag requirements explicitly
+* Maintains consistent structure across groups
+* Uses Asciidoc format
+* Applies consistent formatting throughout
+
+Each 
+{crg_group}:
+
+* Provides clear group purpose
+* Presents variables in logical order
+* Shows relationships between member variables
+* Includes complete example configurations
+
+=== Variable Declaration
+
+An
+{crg_assignment_mk}:
+
+* Places each
+{crg_variable}
+on its own line
+* Uses `=` operator
+* Does not use `export` directive
+
+=== Assignment Variable Names
+
+Each
+{crg_variable}
+name:
+
+* Begins with
+{crg_prefix}
+* Contains only uppercase letters, numbers, and underscores after prefix
+* Excludes spaces and special characters
+
+=== Assignment Variable Values
+
+{crg_variable}
+values:
+
+* Contain no leading or trailing whitespace
+* Use forward slashes for path separations
+* Contain no unexpanded environment variable references
+* Use immediate expansion via `:=`
+
+=== Organization
+
+An
+{crg_assignment_mk}:
+
+* Groups variables by related purpose
+* Uses comments to describe each group's purpose
+* Separates logical groups with blank lines
+
+
+== {crg_service_mk} Requirements
+
+=== Basic Structure
+
+A
+{crg_service_mk}:
+
+* Groups all rules and functions by
+{crg_group}
+* Uses lower case
+{crg_prefix}
+for external interface targets
+* Does NOT use `.PHONY`
+
+=== Core Required Targets
+
+==== Validation Target (<regime>_validate)
+
+TODO
+
+==== Render Target (<regime>_render)
+
+TODO
+
+==== Rollup Environment Variable Declaration
+
+The
+{crg_service_mk}
+provides a standardized declaration for a consolidated environment variable that starts with
+{crg_prefix}:
+
+[source,makefile]
+----
+# Container environment arguments for Assignment Variables
+<make_assign_prefix>_ROLLUP_ENVIRONMENT_VAR := \
+  VARIABLE_1='$(VARIABLE_1)' \
+  VARIABLE_2='$(VARIABLE_2)' \
+  VARIABLE_3='$(VARIABLE_3)'
+
+----
+
+The declaration:
+
+. Uses the
+{crg_prefix}
+with `_ROLLUP_ENVIRONMENT_VAR` suffix, i.e. a double underscore
+. Uses := operator for immediate expansion
+. Lists every
+{crg_variable}
+defined in the
+{crg_spec_adoc}
+without conditional statements
+. Uses line continuation and consistent indentation
+. Includes all variables regardless of their optional status
+
+== {crg_glossary_adoc} Requirements
+
+The
+{crg_glossary_adoc}
+follows this exact pattern:
+
+[source,asciidoc,opts=novalidate]
+----
+// tag::mapping-section[]
+
+// Assignment Variables are mapped using the pattern:
+:rbn_variable_name:              <<rbn_variable_name,RBN_VARIABLE_NAME>>
+
+// end::mapping-section[]
+
+== <Regime Name> Definitions
+
+[[rbn_variable_name]]
+{rbn_variable_name}::
+<simple-english-assignment-variable-definition>
+----
+
+The
+{crg_glossary_adoc}:
+
+* Defines each
+{crg_variable}
+in simple English
+* Uses snake_case term anchors derived from the variable names
+* References variables using curly brace notation (e.g., {rbn_volume_mounts})
+* Creates explicit mappings for consistent cross-referencing
+
+== Implementation Guidelines
+
+A
+{crg_service_mk}:
+
+* Declares
+{crg_prefix} and {crg_prefix}
+as comments, not as makefile variables, near the top:
+[source,makefile]
+----
+# Regime Prefix: xyz_
+# Assignment Prefix: XYZ_
+----
+
+* Excludes recursive make calls ($(MAKE))
+* Places each recipe step on a single line
+* Groups code by
+{crg_group}
+
+== Core Terms
+
+The following terms have specific meanings within configuration management:
+
+[[crg_regime]]
+{crg_regime}::
+A structured system for defining, validating, and rendering sets of
+{crg_variable_s}
+through a coordinated set of specification and implementation components.
+Contains multiple
+{crg_group_s}
+which organize related configuration values.
+
+[[crg_variable]]
+{crg_variable}::
+A named parameter defined in a
+{crg_regime}
+that specifies requirements for its
+{crg_value_s}.
+Each
+{crg_variable}
+defines its name, format constraints, and relationships with other variables.
+All
+{crg_variable}
+names begin with their uppercase
+{crg_prefix}
+and consist only of uppercase letters, numbers, and underscores.
+
+[[crg_value]]
+{crg_value}::
+A specific assignment in a
+{crg_assignment_mk}
+or
+{crg_assignment_sh}
+that sets a
+{crg_variable}
+to a particular value.
+Each
+{crg_value}
+must conform to its
+{crg_variable_p}
+requirements as defined in the
+{crg_spec_adoc}
+and enforced by the
+{crg_validator_sh}.
+
+[[crg_prefix]]
+{crg_prefix}::
+
+A distinct sequence of alphanumeric characters with exactly one trailing underscore that connects all
+{crg_variable_s}
+belonging to a specific
+{crg_regime}.
+{crg_variable_s}
+use the uppercase form (e.g., `XYZ_`) while
+{crg_library_sh} utilities and rules use the lowercase form (e.g., `xyz_`).
+This prefix prevents namespace collisions between different
+{crg_regime_s}.
+
+[[crg_group]]
+{crg_group}::
+A set of related
+{crg_variable_s}
+that together define a complete configuration aspect, often activated or deactivated by an
+{crg_enable}.
+
+[[crg_enable]]
+{crg_enable}::
+A boolean
+{crg_variable}
+that controls whether a
+{crg_group}
+is active. When enabled, all group variables must satisfy their validation rules.
+When disabled, group variables are not validated.
+
+[[crg_assignment_mk]]
+{crg_assignment_mk}::
+A bilingual makefile/shell script that declares specific values for a set of
+{crg_variable_s},
+forming a complete configuration instance that must conform to the requirements defined in the
+{crg_spec_adoc}.
+Each variable declaration must avoid spaces around `=` to maintain compatibility with both make and shell interpretation.
+This file cannot include others.
+Additionally, any syntax expansion using a previous
+{crg_variable}
+must use `${...}` as in:
+----
+MBV_TOOLS_DIR=Tools
+MBV_CONSOLE_MAKEFILE=${MBV_TOOLS_DIR}/rbw.workbench.mk
+
+----
+
+[[crg_assignment_sh]]
+{crg_assignment_sh}::
+A limited bash script that declares specific values for a set of
+{crg_variable_s}.
+forming a complete configuration instance that must conform to the requirements defined in the
+{crg_spec_adoc}.
+
+[[crg_spec_adoc]]
+{crg_spec_adoc}::
+An asciidoc document that defines all valid
+{crg_variable_s}
+and their relationships within a
+{crg_regime}.
+This specification serves as the authoritative reference for configuration requirements.
+
+[[crg_glossary_adoc]]
+{crg_glossary_adoc}::
+An asciidoc document that specifies a
+{crg_prefix} and provides clear, simple English definitions for each
+{crg_variable}
+while establishing consistent term mappings that can be referenced throughout the documentation.
+
+[[crg_service_mk]]
+{crg_service_mk}::
+A makefile that provides standardized targets for validating and rendering {crg_variable_s} imported from an
+{crg_assignment_mk}.
+It orchestrates the workflow by invoking the
+{crg_validator_sh} and {crg_renderer_sh}
+scripts, which in turn use the
+{crg_library_sh}.
+
+[[crg_rollup]]
+{crg_rollup}::
+A consolidated make variable in the
+{crg_service_mk}
+that collects all
+{crg_variable_s}
+in a format suitable for passing to bash scripts, enabling consistent access to configuration values across the implementation components.
+
+[[crg_validator_sh]]
+{crg_validator_sh}::
+A bash script that performs comprehensive validation of
+{crg_variable_s}
+according to rules defined in the
+{crg_spec_adoc}.
+It uses functions from the
+{crg_library_sh}
+for basic type checking while implementing regime-specific relationship validation.
+
+[[crg_renderer_sh]]
+{crg_renderer_sh}::
+A bash script that formats and displays
+{crg_variable_s}
+in a clear, structured way. It assumes input has passed validation through
+{crg_validator_sh}
+and focuses solely on presentation concerns.
+
+[[crg_library_sh]]
+{crg_library_sh}::
+A shared bash library providing common functions for validation and rendering operations across multiple
+{crg_regime_s}.
+It offers stable, tested implementations of frequently needed operations.
+
+== Core Type Definitions
+
+// Configuration Regime Type definitions
+=== Atomic Types
+
+[[crg_atom_string]]
+{crg_atom_string}::
+A sequence of characters potentially including spaces and special characters, though no newlines.
+
+[[crg_atom_xname]]
+{crg_atom_xname}::
+A system-safe identifier that must start with a letter and contain only letters, numbers, underscores, and hyphens.
+
+[[crg_atom_fqin]]
+{crg_atom_fqin}::
+A Fully Qualified Image Name component that must start with a letter or number and may contain letters, numbers, colons, dots, underscores, hyphens, and forward slashes.
+
+[[crg_atom_bool]]
+{crg_atom_bool}::
+A binary value that must be either 0 or 1.
+
+[[crg_atom_decimal]]
+{crg_atom_decimal}::
+A non-empty decimal number that must fall within a specified minimum and maximum range.
+
+[[crg_atom_ipv4]]
+{crg_atom_ipv4}::
+A valid IPv4 address in dotted decimal notation (e.g., 192.168.1.1).
+
+[[crg_atom_cidr]]
+{crg_atom_cidr}::
+A valid IPv4 CIDR block specification combining an IPv4 address with a network prefix length (e.g., 192.168.1.0/24).
+
+[[crg_atom_domain]]
+{crg_atom_domain}::
+A valid domain name that must start and end with alphanumeric characters and may contain dots and hyphens between them.
+
+[[crg_atom_port]]
+{crg_atom_port}::
+A network port number that must be between 1 and 65535.
+
+[glossary]
+=== List Types
+
+[[crg_list_ipv4]]
+{crg_list_ipv4}::
+A space-separated list of zero or more IPv4 addresses.
+
+[[crg_list_cidr]]
+{crg_list_cidr}::
+A space-separated list of zero or more CIDR block specifications.
+
+[[crg_list_domain]]
+{crg_list_domain}::
+A space-separated list of zero or more domain names.
+

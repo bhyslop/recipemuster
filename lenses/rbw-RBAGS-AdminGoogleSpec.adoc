@@ -1,0 +1,1196 @@
+= Recipe Bottle Google Specification
+:toc:
+:toc-title: Table of Contents
+:sectnums:
+:icons: font
+:stylesheet: dark-theme.css
+:stylesdir: .
+:index:
+
+// Begin Mapping Section
+// tag::mapping-section[]
+
+// Category declarations:
+// rbtr_ prefix: RB Term Role (Recipe Bottle role identities)
+// rbtgi_ prefix: RB Term Google Instance (Recipe Bottle specific instances)
+// rbtgo_ prefix: RB Google Operation (Recipe Bottle workflows)
+// gcp_ prefix: Google Cloud Platform (core infrastructure concepts)
+// gar_ prefix: Google Artifact Registry (generic service)
+// gcs_ prefix: Google Cloud Storage (generic service)
+// gcb_ prefix: Google Cloud Build (generic service)
+// giam_ prefix: Google Cloud Identity and Access Management
+// rbrr_ prefix: Repository Regime configuration
+
+// Cross-reference terms from RBS/Index:
+// at_ prefix: Architectural Term (maintained for consistency)
+
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//   _ed: past tense (verbs)
+//   _ing: progressive form (verbs)
+
+// RB Role Infrastructure
+:rbtr_role:                  <<rbtr_role,RB Role>>
+:rbtr_role_s:                <<rbtr_role,RB Roles>>
+
+// Service Account Hierarchy
+:rbtr_payor:                 <<rbtr_payor,Payor Role>>
+:rbtr_governor:              <<rbtr_governor,Governor Role>>
+:rbtr_mason:                 <<rbtr_mason,Mason Role>>
+:rbtr_director:              <<rbtr_director,Director Role>>
+:rbtr_retriever:             <<rbtr_retriever,Retriever Role>>
+:rbtr_retriever_s:           <<rbtr_retriever,Retriever Roles>>
+
+// Recipe Bottle Term Google Instances
+:rbtgi_depot_project:        <<rbtgi_depot_project,RB Depot Project>>
+:rbtgi_depot_project_s:      <<rbtgi_depot_project,RB Depot Projects>>
+:rbtgi_payor_project:        <<rbtgi_payor_project,RB Payor Project>>
+:rbtgi_build_bucket:         <<rbtgi_build_bucket,RB Build Bucket>>
+:rbtgi_build_bucket_s:       <<rbtgi_build_bucket,RB Build Buckets>>
+:rbtgi_repository:           <<rbtgi_repository,RB Container Repository>>
+:rbtgi_repository_s:         <<rbtgi_repository,RB Container Repositories>>
+:rbtgi_image:                <<rbtgi_image,RB Image>>
+:rbtgi_image_s:              <<rbtgi_image,RB Images>>
+:rbtgi_metadata:             <<rbtgi_metadata,RB Metadata Artifact>>
+:rbtgi_metadata_s:           <<rbtgi_metadata,RB Metadata Artifacts>>
+:rbtgi_rbra_file:            <<rbtgi_rbra_file,RBRA File>>
+:rbtgi_rbra_file_s:          <<rbtgi_rbra_file,RBRA Files>>
+:rbtgi_json_key_file:        <<rbtgi_json_key_file,JSON Key File>>
+:rbtgi_json_key_file_s:      <<rbtgi_json_key_file,JSON Key Files>>
+:rbtgi_depot:                <<rbtgi_depot,RB Depot>>
+
+// Recipe Bottle Term Google Operations
+:rbtgo_payor_establish:      <<rbtgo_payor_establish,rbgm_payor_establish>>
+:rbtgo_payor_install:        <<rbtgo_payor_install,rbgp_payor_install>>
+:rbtgo_depot_create:         <<rbtgo_depot_create,rbgp_depot_create>>
+:rbtgo_depot_list:           <<rbtgo_depot_list,rbgp_depot_list>>
+:rbtgo_depot_destroy:        <<rbtgo_depot_destroy,rbgp_depot_destroy>>
+:rbtgo_governor_create:      <<rbtgo_governor_create,rbgp_governor_create>>
+:rbtgo_retriever_create:     <<rbtgo_retriever_create,rbgg_retriever_create>>
+:rbtgo_director_create:      <<rbtgo_director_create,rbgg_director_create>>
+:rbtgo_sa_list:              <<rbtgo_sa_list,rbgs_list_service_accounts>>
+:rbtgo_sa_delete:            <<rbtgo_sa_delete,rbgs_list_service_accounts>>
+:rbtgo_trigger_build:        <<rbtgo_trigger_build,rbgo_trigger_build>>
+:rbtgo_image_retrieve:       <<rbtgo_image_retrieve,Image Retrieval>>
+:rbtgo_image_delete:         <<rbtgo_image_delete,Image Deletion>>
+:rbtgo_payor_refresh:        <<rbtgo_payor_refresh,rbmp_payor_refresh>>
+:rbtoe_oauth_refresh:        <<rbtoe_oauth_refresh,zrbgp_refresh_capture>>
+:rbtoe_payor_authenticate:   <<rbtoe_payor_authenticate,zrbgp_authenticate_capture>>
+:rbtoe_depot_list_update:    <<rbtoe_depot_list_update,Depot List Update Pattern>>
+
+// Google Cloud Platform Core Concepts
+:gcp_service:                <<gcp_service,Google Cloud>>
+:gcp_organization:           <<gcp_organization,GCP Organization>>
+:gcp_organization_s:         <<gcp_organization,GCP Organizations>>
+:gcp_folder:                 <<gcp_folder,GCP Folder>>
+:gcp_folder_s:               <<gcp_folder,GCP Folders>>
+:gcp_project_number:         <<gcp_project_number,Project Number>>
+:gcp_project_number_s:       <<gcp_project_number,Project Numbers>>
+:gcp_project_id:             <<gcp_project_id,Project ID>>
+:gcp_project_id_s:           <<gcp_project_id,Project IDs>>
+:gcp_lro:                    <<gcp_lro,LRO>>
+:gcp_lro_s:                  <<gcp_lro,LROs>>
+:gcp_delete_requested:       <<gcp_delete_requested,DELETE_REQUESTED State>>
+:gcp_billing_enabled:        <<gcp_billing_enabled,Billing Enabled Status>>
+
+// Google Artifact Registry
+:gar_service:                <<gar_service,Google Artifact Registry>>
+:gar_registry:               <<gar_registry,Artifact Registry>>
+:gar_registry_s:             <<gar_registry,Artifact Registries>>
+
+// Google Cloud Storage
+:gcs_service:                <<gcs_service,Google Cloud Storage>>
+:gcs_bucket:                 <<gcs_bucket,Cloud Storage Bucket>>
+:gcs_bucket_s:               <<gcs_bucket,Cloud Storage Buckets>>
+
+// Google Cloud Build
+:gcb_service:                <<gcb_service,Google Cloud Build>>
+:gcb_service_s:              <<gcb_service,Google Cloud Builds>>
+:gcb_service_p:              <<gcb_service,Google Cloud Build's>>
+:gcb_build:                  <<gcb_build,Cloud Build>>
+:gcb_build_s:                <<gcb_build,Cloud Builds>>
+
+// Identity and Access Management
+:giam_role:                  <<giam_role,IAM Role>>
+:giam_role_s:                <<giam_role,IAM Roles>>
+:giam_binding:               <<giam_binding,IAM Binding>>
+:giam_binding_s:             <<giam_binding,IAM Bindings>>
+:gcp_lien:                   <<gcp_lien,Lien>>
+:gcp_lien_s:                <<gcp_lien,Liens>>
+:giam_service_account:       <<giam_service_account,Service Account>>
+:giam_service_account_s:     <<giam_service_account,Service Accounts>>
+
+// Authentication
+:oauth_token:                <<oauth_token,OAuth Token>>
+:oauth_token_s:              <<oauth_token,OAuth Tokens>>
+
+// Recipe Bottle Term Orchestration Embodiments (RB-specific patterns)
+// Generic execution modes moved to oct_ namespace: oct_guide, oct_command, oct_pattern
+:rbtoe_rbra_generate:        <<rbtoe_rbra_generate,rbgu_extract_json_to_rbra>>
+:rbtoe_rbra_load:            <<rbtoe_rbra_load,rbgu_rbra_load>>
+:rbtoe_rbro_load:            <<rbtoe_rbro_load,rbgu_rbro_load>>
+:rbtoe_jwt_oauth_exchange:   <<rbtoe_jwt_oauth_exchange,rbgo_get_token_capture>>
+:rbtoe_api_enable:           <<rbtoe_api_enable,rbgu_api_enable>>
+
+// Cross-referenced from existing specs
+:at_recipe_bottle:           <<at_recipe_bottle,Recipe Bottle>>
+:at_rbm_system:              <<at_rbm_system,Recipe Bottle Workbench>>
+:at_bottle_image:            <<at_bottle_image,Bottle Image>>
+:at_bottle_image_s:          <<at_bottle_image,Bottle Images>>
+:at_user:                    <<at_user,User>>
+:at_user_s:                  <<at_user,Users>>
+:at_user_p:                  <<at_user,User's>>
+:at_workstation:             <<at_workstation,Workstation>>
+:at_workstation_p:           <<at_workstation,Workstation's>>
+:at_base_utilities:          <<at_base_utilities,Base Utilities>>
+:at_regime:                  <<at_regime,Configuration Regime>>
+:at_regime_s:                <<at_regime,Configuration Regimes>>
+
+// Recipe Bottle Regime: Repo (subset)
+:rbrr_regime:                <<rbrr_regime,RBRR Regime>>
+:rbrr_depot_project_id:      <<rbrr_depot_project_id,RBRR_DEPOT_PROJECT_ID>>
+:rbrr_gcp_region:            <<rbrr_gcp_region,RBRR_GCP_REGION>>
+:rbrr_gar_repository:        <<rbrr_gar_repository,RBRR_GAR_REPOSITORY>>
+:rbrr_governor_rbra_file:    <<rbrr_governor_rbra_file,RBRR_GOVERNOR_RBRA_FILE>>
+:rbrr_payor_rbra_file:       <<rbrr_payor_rbra_file,RBRR_PAYOR_RBRA_FILE>>
+:rbrr_retriever_rbra_file:   <<rbrr_retriever_rbra_file,RBRR_RETRIEVER_RBRA_FILE>>
+:rbrr_director_rbra_file:    <<rbrr_director_rbra_file,RBRR_DIRECTOR_RBRA_FILE>>
+
+// Recipe Bottle Regime: Account (service account credentials)
+:rbra_client_email:          <<rbra_client_email,RBRA_CLIENT_EMAIL>>
+:rbra_private_key:           <<rbra_private_key,RBRA_PRIVATE_KEY>>
+:rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
+
+// Recipe Bottle Regime: Payor
+:rbrp_payor_project_id:      <<rbrp_payor_project_id,RBRP_PAYOR_PROJECT_ID>>
+:rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
+:rbrp_oauth_client_id:       <<rbrp_oauth_client_id,RBRP_OAUTH_CLIENT_ID>>
+:rbrp_depot_project_ids:     <<rbrp_depot_project_ids,RBRP_DEPOT_PROJECT_IDS>>
+
+// Recipe Bottle Regime: Payor
+:rbrp_regime:                <<rbrp_regime,RBRP Regime>>
+
+// Recipe Bottle Regime: OAuth (local OAuth credentials)
+:rbro_regime:                <<rbro_regime,RBRO Regime>>
+:rbro_client_secret:         <<rbro_client_secret,RBRO_CLIENT_SECRET>>
+:rbro_refresh_token:         <<rbro_refresh_token,RBRO_REFRESH_TOKEN>>
+
+// Recipe Bottle Regime: Vessel (container image specifications)
+:rbrv_regime:                <<rbrv_regime,RBRV Regime>>
+
+// Recipe Bottle Regime: Authentication (service account credentials)
+:rbra_regime:                <<rbra_regime,RBRA Regime>>
+
+// Recipe Bottle Regime: Environment Variables (runtime container configuration)
+:rbev_regime:                <<rbev_regime,RBEV Regime>>
+
+// Orchestration Control Terms
+:oct_variable:               <<oct_variable,VARIABLE>>
+:oct_fatal:                  <<oct_fatal,FATAL>>
+:oct_warn:                   <<oct_warn,WARN>>
+:oct_store:                  <<oct_store,STORE>>
+:oct_use:                    <<oct_use,USE>>
+:oct_require:                <<oct_require,REQUIRE>>
+:oct_poll:                   <<oct_poll,POLL>>
+:oct_call:                   <<oct_call,CALL>>
+:oct_submit:                 <<oct_submit,SUBMIT>>
+:oct_await:                  <<oct_await,AWAIT>>
+:oct_show:                   <<oct_show,SHOW>>
+:oct_guide:                  <<oct_guide,GUIDE>>
+:oct_command:                <<oct_command,COMMAND>>
+:oct_pattern:                <<oct_pattern,PATTERN>>
+
+// end::mapping-section[]
+
+== Google API Engagement
+
+{at_recipe_bottle}
+invokes
+{gcp_service}
+APIs through
+{giam_service_account}
+JWT authentication and direct HTTPS REST calls.
+
+* *Authentication*:
+{giam_service_account_s}
+use private key credentials to sign JWTs with RS256.
+These JWTs are exchanged for
+{oauth_token_s}
+via Google's token endpoint.
+All API calls include the bearer token in the Authorization header.
+* *Invocation Pattern*:
+Operations execute through curl with JSON payloads and responses.
+Each call captures both HTTP status codes and response bodies to files for processing.
+Success is determined by HTTP 200/201/204 codes.
+* *Long-Running Operations*:
+{gcp_service}
+{gcp_lro_s}
+return operation IDs that must be polled until completion.
+The system polls at configurable intervals until completion.
+The system handles both success and error states.
+Operations utilize {oct_submit} and {oct_await} to handle all asynchronous operations.
+* *IAM Policies*:
+All IAM policy modifications enforce version 3 to ensure conditional role binding support across all
+{gcp_service}
+resources.
+
+== {rbtr_payor} Operations
+
+=== {rbtgo_payor_establish} {oct_guide}
+
+The {at_user} performs one-time manual setup via Google Cloud Console to establish {rbtr_payor} OAuth infrastructure.
+No API path exists for initial bootstrap - OAuth client creation requires human Console interaction.
+This procedure creates the project and OAuth client but does NOT install credentials.
+
+. *Create Payor Project*:
+.. Navigate to project creation in Console
+.. Set project name: `Recipe Bottle Payor`
+.. Set project ID: `rbw-payor` (preferred fixed name, single payor per account)
+.. If `rbw-payor` already exists, use `rbw-payor-[4-digit-suffix]` (e.g., rbw-payor-2024)
+.. {oct_store} actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
+
+. *Configure Billing*:
+.. Access billing management in Console
+.. Select or create billing account
+.. Record {rbrp_billing_account_id} (format: XXXXXX-XXXXXX-XXXXXX)
+.. Link billing account to payor project
+.. {oct_require} billing linkage for API operations
+
+. *Enable Required APIs*:
+.. Navigate to APIs & Services > Enable APIs
+.. Enable: Cloud Resource Manager, Cloud Billing, Service Usage, IAM, Artifact Registry
+.. These enable programmatic depot management
+
+. *Configure OAuth Consent Screen*:
+.. Navigate to APIs & Services > OAuth consent screen
+.. Select "External" user type (no Google Workspace required)
+.. Set Publishing Status: "Testing" (100 users sufficient)
+.. Add scopes:
+... https://www.googleapis.com/auth/cloud-platform
+... https://www.googleapis.com/auth/cloud-billing
+.. Add test users if needed
+
+. *Create OAuth 2.0 Client ID*:
+.. Navigate to APIs & Services > Credentials
+.. Create credentials > OAuth client ID
+.. Application type: Desktop application
+.. Name: "Recipe Bottle Payor"
+.. Download JSON as `payor-oauth.json`
+.. {oct_warn} client secret non-recoverable after initial download
+
+. *Update Configuration*:
+.. Update `rbrp.env` with payor project values:
+... `RBRP_PAYOR_PROJECT_ID=rbw-payor` (or chosen project ID)
+... `RBRP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX` (from step 2)
+
+NOTE: OAuth JSON file created but not installed. Use {rbtgo_payor_refresh} to install credentials and complete setup.
+
+=== {rbtgo_payor_refresh} {oct_guide}
+
+Manual procedure to install OAuth credentials for new setup or refresh expired/compromised credentials.
+Use this for both initial credential installation after {rbtgo_payor_establish} and for renewal operations.
+
+. *Obtain OAuth Credentials*:
+.. For initial setup: Use JSON file downloaded during {rbtgo_payor_establish}
+.. For refresh/renewal: Navigate to APIs & Services > Credentials in Payor Project
+... Find existing "Recipe Bottle Payor" OAuth client
+... Download new JSON (or regenerate secret if compromised)
+... Save as `payor-oauth-[timestamp].json`
+
+. *Install/Refresh Credentials*:
+.. Run: `rbgp_payor_install /path/to/payor-oauth.json`
+.. This will:
+... Guide you through OAuth authorization flow
+... Store secure credentials in `~/.rbw/rbro.env`
+... Test the authentication
+... Initialize depot tracking
+... Update `RBRP_OAUTH_CLIENT_ID` in `rbrp.env`
+
+. *Verify Installation*:
+.. Test with: `rbgp_depot_list`
+.. Should display current depots without authentication errors
+
+NOTE: The credential installation functionality is now handled by {rbtgo_payor_refresh} procedure.
+OAuth refresh tokens in testing mode expire after 6 months of non-use.
+
+=== {rbtgo_depot_create} {oct_command}
+
+NOTE: This operation creates an {rbtgi_depot} - a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, and Mason service account that share their productive lifecycle.
+
+The {rbtr_payor} creates a new depot infrastructure from the {rbtgi_payor_project}:
+
+. *Validate Input Parameters*:
+.. {oct_require} `«INPUT_DEPOT_NAME»` provided as first argument
+.. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
+.. {oct_require} `«INPUT_REGION»` provided as second argument
+.. {oct_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations/list[artifactregistry.locations.list] to retrieve valid regions
+.. {oct_require} `«INPUT_REGION»` exists in valid regions list
+.. {oct_fatal} if invalid: "Invalid region. Valid regions: [list]"
+
+. *Authenticate as {rbtr_payor}*:
+.. Execute {rbtoe_payor_authenticate}
+
+. *Generate Depot Project ID*:
+.. {oct_store} `«TIMESTAMP»` as current time in YYYYMMDDHHmm format
+.. Generate project ID: `rbw-«INPUT_DEPOT_NAME»-«TIMESTAMP»`
+.. {oct_store} as `«DEPOT_PROJECT_ID»`
+.. {oct_require} total length ≤ 30 characters
+
+. *Create Depot Project*:
+.. {oct_submit} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
+... projectId: `«DEPOT_PROJECT_ID»`
+... displayName: `RB Depot: «INPUT_DEPOT_NAME»`
+... parent: `{rbrp_parent_type}s/{rbrp_parent_id}` (if parent_type != `none`)
+.. {oct_await} returned operation
+.. {oct_require} project creation successful
+
+. *Link Billing Account*:
+.. {oct_call} link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] for `«DEPOT_PROJECT_ID»`
+.. Set billingAccountName: `billingAccounts/{rbrp_billing_account_id}`
+.. {oct_require} HTTP 200 response confirming billing linkage
+
+. *Get Depot Project Number*:
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
+.. {oct_store} `«PROJECT_NUMBER»` from `.projectNumber` field
+.. {oct_require} valid numeric project number
+
+. *Enable Depot Project APIs*:
+.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `storage`, `iam`, `serviceusage`]:
+... Execute {rbtoe_api_enable} with service name and `«DEPOT_PROJECT_ID»`
+.. {oct_require} all APIs enabled successfully
+
+. *Grant {rbtr_payor} Permissions on Depot*:
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. Add {rbtr_payor} service account with roles:
+... `roles/viewer`
+... `roles/cloudbuild.builds.editor`
+... `roles/serviceusage.serviceUsageConsumer`
+.. Policy version: 3
+
+. *Create Build Bucket*:
+.. Construct bucket name: `rbw-«INPUT_DEPOT_NAME»-bucket`
+.. {oct_call} link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
+... name: `rbw-«INPUT_DEPOT_NAME»-bucket`
+... location: `«INPUT_REGION»`
+... project: `«DEPOT_PROJECT_ID»`
+... lifecycle rule: delete objects after 1 day
+.. {oct_store} `«BUILD_BUCKET»` as created bucket name
+
+. *Create Container Repository*:
+.. Construct repository name: `rbw-«INPUT_DEPOT_NAME»-repository`
+.. {oct_submit} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
+... repositoryId: `rbw-«INPUT_DEPOT_NAME»-repository`
+... format: `DOCKER`
+... location: `«INPUT_REGION»`
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/«INPUT_REGION»`
+.. {oct_await} returned operation
+.. {oct_store} `«GAR_REPOSITORY»` as created repository name
+
+. *Create {rbtr_mason} Service Account*:
+.. NOTE: The {rbtr_mason} replaces Cloud Build's implicit service account to provide deterministic permissions and predictable authorization within the depot infrastructure.
+.. {oct_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
+... accountId: `rbw-«INPUT_DEPOT_NAME»-mason`
+... displayName: `Mason for RB Depot: «INPUT_DEPOT_NAME»`
+... project: `«DEPOT_PROJECT_ID»`
+.. {oct_store} `«MASON_SERVICE_ACCOUNT»` from response `.email` field
+
+. *Configure {rbtr_mason} Permissions*:
+.. {oct_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for `«GAR_REPOSITORY»`
+... Add `«MASON_SERVICE_ACCOUNT»` with `roles/artifactregistry.admin`
+.. {oct_call} link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for `«BUILD_BUCKET»`
+... Add `«MASON_SERVICE_ACCOUNT»` with `roles/storage.objectViewer`
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+... Add `«MASON_SERVICE_ACCOUNT»` with `roles/viewer`
+
+. *Enable Cloud Build service agent to impersonate {rbtr_mason}*:
+.. {oct_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_SERVICE_ACCOUNT»`
+.. Add member: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
+.. Grant role: `roles/iam.serviceAccountTokenCreator`
+.. {oct_require} IAM binding successful (enables Cloud Build to execute as Mason)
+
+. *Display Depot Configuration*:
+.. {oct_show} depot creation successful
+.. {oct_show} required RBRR configuration values:
+... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
+... `RBRR_GCP_REGION=«INPUT_REGION»`
+... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
+.. {oct_show} Mason service account: `«MASON_SERVICE_ACCOUNT»`
+.. {oct_show} depot ready for {rbtr_governor} creation
+
+. *Update Depot Tracking*:
+.. Execute {rbtoe_depot_list_update} to add new depot to RBRP_DEPOT_PROJECT_IDS
+
+=== {rbtgo_depot_destroy} {oct_command}
+
+The {rbtr_payor} destroys an {rbtgi_depot} and all contained resources:
+
+. *Safety Confirmation*:
+.. {oct_require} `DEBUG_ONLY=1` environment variable for execution
+.. Display comprehensive destruction warnings
+.. {oct_require} operator confirmation with exact depot project ID
+
+. *Authenticate as {rbtr_payor}*:
+.. Execute {rbtoe_payor_authenticate}
+.. {oct_require} authentication successful
+
+. *Validate Target Depot*:
+.. {oct_require} depot project ID provided as first argument
+.. {oct_store} `«DEPOT_PROJECT_ID»` from argument
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
+.. {oct_require} project exists and state is `ACTIVE`
+.. {oct_fatal} if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
+
+. *Check for and remove {gcp_lien_s}*:
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/list[liens.list] to list existing liens on resource: `projects/«DEPOT_PROJECT_ID»`
+.. {oct_store} `«LIEN_LIST»` from response `.liens[]`
+.. For each lien in `«LIEN_LIST»`:
+... {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/delete[liens.delete] to delete lien using `.name` field
+... {oct_require} HTTP 200 response for each lien deletion
+.. {oct_require} all liens removed before proceeding
+
+. *Initiate depot deletion*:
+.. {oct_submit} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
+.. {oct_store} `«DELETE_OPERATION»` from response if Long Running Operation returned
+.. {oct_await} `«DELETE_OPERATION»` if applicable
+.. {oct_require} deletion initiated successfully
+
+. *Verify deletion transition*:
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
+.. {oct_poll} project state with 5-10 second intervals for up to 60 seconds
+.. {oct_require} project state equals `DELETE_REQUESTED`
+.. {oct_store} `«DELETION_TIME»` from response `.deleteTime` field
+
+. *Optional: Immediate billing stop*:
+.. If immediate spend stop required, {oct_call} link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] to update billing info for `projects/«DEPOT_PROJECT_ID»`
+.. Set `billingAccountName` to empty string
+.. {oct_require} billing unlink successful (HTTP 200)
+.. Note: Standard deletion automatically stops billing, this step provides immediate termination
+
+NOTE: Depot deletion automatically removes all infrastructure created by {rbtgo_depot_create}: the {rbtr_mason} service account, {rbtgi_build_bucket}, {rbtgi_repository}, and any {rbtr_governor}, {rbtr_director}, or {rbtr_retriever} service accounts created within the depot. No individual resource deletion required due to GCP's cascading deletion behavior.
+
+NOTE: Project enters 30-day retention period in {gcp_delete_requested} state. Use {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/undelete[projects.undelete] to recover project if needed within retention window.
+
+=== {rbtgo_depot_list} {oct_command}
+
+The {rbtr_payor} lists all {rbtgi_depot} instances and their status:
+
+. *Authenticate as {rbtr_payor}*:
+.. Execute {rbtoe_payor_authenticate}
+
+. *Query depot projects*:
+.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter: `projectId:rbw-* AND lifecycleState:ACTIVE`
+.. {oct_store} `«DEPOT_PROJECTS»` from response
+
+. *Validate each depot*:
+.. For each project in `«DEPOT_PROJECTS»`:
+... Extract depot name from project ID pattern `rbw-«NAME»-«TIMESTAMP»`
+... Check for Mason service account: `rbw-«NAME»-mason`
+... Check for repository: `rbw-«NAME»-repository`
+... Check for bucket: `rbw-«NAME»-bucket`
+... Display status: COMPLETE, BROKEN (missing resources), or DELETE_REQUESTED
+
+. *Display summary*:
+.. {oct_show} total depot count
+.. {oct_show} each depot with ID, name, region, and status
+
+=== {rbtgo_governor_create} {oct_command}
+
+The
+{rbtr_payor}
+creates a
+{rbtr_governor}
+{giam_service_account} within the
+{rbtgi_depot_project}:
+
+. *Step 1: Depot Project Validation*:
+.. {oct_require} {rbrr_depot_project_id} exists (via projects.get API call)
+.. {oct_require} {rbrr_depot_project_id} != {rbrp_payor_project_id}
+. Create the
+{rbtr_governor} {giam_service_account}:
+.. {oct_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create]
+to create service account in {rbrr_depot_project_id}
+.. Set `accountId` to `«INPUT_ACCOUNT_ID»` following RB naming conventions
+.. Use display name: `{rbtr_governor} role for project administration`
+.. {oct_store} `«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
+.. {oct_require} service account creation successful (HTTP 200)
+. Verify
+{giam_service_account}
+creation and propagation:
+.. {oct_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get]
+to query service account using `«GOVERNOR_SERVICE_ACCOUNT»`
+.. {oct_poll} with 3-5 second intervals for up to 30 seconds if service account not immediately available
+.. {oct_require} service account accessible before proceeding
+. Preflight: Ensure pristine key state:
+.. {oct_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list]
+to list existing keys for `«GOVERNOR_SERVICE_ACCOUNT»`
+.. {oct_store} `«EXISTING_KEYS»` from response `.keys[]`
+.. {oct_require} no keys with `keyType: USER_MANAGED` exist (pristine-state requirement)
+.. {oct_fatal} if conflicts found - manual cleanup required
+. Grant
+{gcp_project_id}-level
+permissions:
+.. {oct_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy]
+to update IAM policy on {rbrr_depot_project_id}
+.. {oct_use} `«GOVERNOR_SERVICE_ACCOUNT»` as principal
+.. Add role: `roles/owner` (excluding billing permissions maintained by {rbtr_payor})
+.. Set policy version: 3 for conditional binding support
+.. {oct_require} IAM policy update successful
+. Generate
+{rbrr_governor_rbra_file}:
+.. {oct_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create]
+to create service account key for `«GOVERNOR_SERVICE_ACCOUNT»`
+.. Set keyAlgorithm: `KEY_ALG_RSA_2048`, privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
+.. {oct_store} `«GOVERNOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
+.. {rbtoe_rbra_generate} converts `«GOVERNOR_PRIVATE_KEY_DATA»` to `{rbrr_governor_rbra_file}`
+.. NOTE: Script outputs copy command for RBRA file installation
+.. {oct_warn} if {rbrr_governor_rbra_file} already exists
+.. {oct_require} RBRA file creation successful
+
+== {rbtr_governor} Operations
+
+=== {rbtgo_retriever_create} {oct_command}
+
+The {rbtr_governor} creates a {rbtr_retriever} {giam_service_account} with read-only {rbtgi_repository} access and generates credentials using {rbtoe_rbra_generate} to create {rbrr_retriever_rbra_file}.
+
+NOTE: Script outputs copy command for RBRA file installation.
+{oct_warn} if {rbrr_retriever_rbra_file} already exists.
+
+=== {rbtgo_director_create} {oct_command}
+
+The {rbtr_governor} creates a {rbtr_director} {giam_service_account} with build management permissions and generates credentials using {rbtoe_rbra_generate} to create {rbrr_director_rbra_file}.
+
+NOTE: Script outputs copy command for RBRA file installation.
+{oct_warn} if {rbrr_director_rbra_file} already exists.
+
+== {rbtr_director} Operations
+
+=== {rbtgo_trigger_build} {oct_command}
+
+=== {rbtgo_image_delete} {oct_command}
+
+== {rbtr_retriever} Operations
+
+=== {rbtgo_image_retrieve} {oct_command}
+
+== Multi Role Operations
+
+=== {rbtgo_sa_list} {oct_command}
+
+=== {rbtgo_sa_delete} {oct_command}
+
+== Definitions
+
+=== Core {gcp_project_id} Terms
+
+[[at_recipe_bottle]]
+{at_recipe_bottle}::
+The comprehensive container management platform that enables secure, role-based building, deployment, and retrieval of containerized applications through
+{gcp_service}
+infrastructure.
+
+=== Orchestration Control Terms
+
+[[oct_variable]]
+{oct_variable}::
+A temporary value holder denoted by guillemets `«NAME»` that exists for the duration of an orchestration sequence, storing intermediate results from API responses or computations for use in subsequent steps.
+Uses Screaming snake case.
+
+[[oct_fatal]]
+{oct_fatal}::
+Immediate termination of the orchestration sequence with error status, preventing all subsequent steps from executing and requiring operator intervention.
+
+[[oct_warn]]
+{oct_warn}::
+Display of a non-blocking warning message to the operator while allowing the orchestration sequence to continue execution.
+
+[[oct_store]]
+{oct_store}::
+Capture of a value from an API response or computation into a
+{oct_variable}
+for later reference.
+Example: Store extracted `.projectNumber` field as `«PROJECT_NUMBER»` for use in IAM bindings.
+
+[[oct_use]]
+{oct_use}::
+Reference to a previously stored {oct_variable} value in the current operation.
+Example: Use `«PROJECT_NUMBER»` as the resource identifier in `projects/«PROJECT_NUMBER»/liens`.
+
+[[oct_require]]
+{oct_require}::
+Validation check that confirms an expected condition, triggering
+{oct_fatal}
+or a provided alternate execution path if the condition is not met.
+
+[[oct_poll]]
+{oct_poll}::
+Repeated execution of an API status check at defined intervals until a condition is satisfied or timeout occurs.
+Used for eventual consistency waits and state verification, not for {gcp_lro} completion (use {oct_await} for that).
+In this specification, used for propagation delays after resource creation and state transition verification.
+
+[[oct_call]]
+{oct_call}::
+Direct invocation of a Google Cloud API endpoint via HTTPS REST, capturing the HTTP response code and body for validation.
+Returns an immediate response with the requested data.
+
+[[oct_submit]]
+{oct_submit}::
+Initiation of an asynchronous API operation that returns immediately with a handle to the long-running operation for later completion tracking.
+In this specification, corresponds to Google Cloud APIs returning {gcp_lro_s}.
+
+[[oct_await]]
+{oct_await}::
+Blocking wait on a submitted asynchronous operation until it completes.
+In this specification, polls the {gcp_lro} endpoint until done=true.
+
+[[oct_show]]
+{oct_show}::
+Presentation of operational facts or configuration values to the operator, with implementation-specific formatting appropriate to the execution context.
+
+=== RB Role Infrastructure
+
+[[rbtr_role]]
+{rbtr_role}::
+An operational identity within the
+{at_recipe_bottle} system
+that a
+{at_user}
+can assume to perform specific cloud operations.
+Each
+{rbtr_role}
+is implemented through a dedicated {giam_service_account} and corresponding
+{rbtgi_rbra_file}
+containing the necessary credentials, with the exception of the
+{rbtr_mason}
+which operates exclusively within cloud infrastructure.
+
+=== {giam_service_account} Definitions
+
+[[rbtr_payor]]
+{rbtr_payor}::
+An {rbtr_role} that enables a {at_user} to manage billing accounts and create depot projects 
+using OAuth user authentication rather than service accounts.
+The {rbtr_payor} operates through OAuth 2.0 desktop application flow, enabling individual 
+developers to manage Recipe Bottle infrastructure without requiring organization-level permissions.
+
+[[rbtr_governor]]
+{rbtr_governor}::
+An
+{rbtr_role}
+that grants a
+{at_user}
+{gcp_project_id}-scope Owner permissions without billing authority, designed for automation-friendly operations.
+
+[[rbtr_retriever]]
+{rbtr_retriever}::
+An
+{rbtr_role}
+that allows a
+{at_user}
+read-only access to the
+{rbtgi_repository}
+for pulling {rbtgi_image_s}.
+
+[[rbtr_mason]]
+{rbtr_mason}::
+A cloud-native
+{giam_service_account}
+that operates exclusively within the
+{rbtgi_depot_project}
+to execute
+{at_recipe_bottle}
+build instructions from the
+{rbtr_director}.
+The
+{rbtr_mason}
+impersonates the implicit service agent for builds, replacing Google's auto-created service agent with deterministic permissions and predictable authorization.
+
+The
+{rbtr_mason}
+reads from the
+{rbtgi_build_bucket},
+carries out the build process within
+{gcb_service},
+and publishes
+{rbtgi_image_s}
+and
+{rbtgi_metadata_s}
+to the
+{rbtgi_repository}
+without requiring a local
+{rbtgi_rbra_file}
+since it operates entirely within the cloud infrastructure.
+
+[[rbtr_director]]
+{rbtr_director}::
+An
+{rbtr_role}
+that grants a
+{at_user}
+full build lifecycle permissions including Cloud Build submission and
+{rbtgi_repository}
+management.
+
+=== {gcp_service} Definitions
+
+[[rbtgi_depot_project]]
+{rbtgi_depot_project}::
+The dedicated {gcp_service} project instance containing all Recipe Bottle
+depot resources, APIs, and {giam_service_account_s} for container building
+and management. Created and managed by the {rbtr_payor} role.
+
+[[rbtgi_depot]]
+{rbtgi_depot}::
+A cohesive unit of Recipe Bottle infrastructure comprising a {rbtgi_depot_project}, 
+{rbtgi_build_bucket}, {rbtgi_repository}, and {rbtr_mason} service account that share 
+their productive lifecycle. Created as a unit by {rbtgo_depot_create} and destroyed 
+as a unit by {rbtgo_depot_destroy}.
+
+[[rbtgi_payor_project]]
+{rbtgi_payor_project}::
+The administrative {gcp_service} project that hosts the {rbtr_payor}
+{giam_service_account}. This {gcp_project_id} serves as the control plane for creating
+and managing multiple {rbtgi_depot_project} instances.
+
+
+[[rbtgi_build_bucket]]
+{rbtgi_build_bucket}::
+The dedicated {gcs_bucket} within the
+{rbtgi_depot_project}
+that holds
+{at_recipe_bottle}
+build artifacts with configured lifecycle policies.
+
+=== {gar_service} Definitions
+
+[[rbtgi_repository]]
+{rbtgi_repository}::
+The managed
+{gar_service}
+repository within the
+{rbtgi_depot_project}
+that stores
+{at_recipe_bottle}
+{rbtgi_image_s} and metadata.
+
+[[rbtgi_image]]
+{rbtgi_image}::
+A
+{at_recipe_bottle}
+container image stored in the
+{rbtgi_repository}
+with associated tags and digest.
+
+[[rbtgi_metadata]]
+{rbtgi_metadata}::
+A compressed archive containing
+{at_recipe_bottle}
+build transcript, SBOM, and provenance data stored in the
+{rbtgi_repository}
+as a Generic Artifact.
+
+=== Support Infrastructure Definitions
+
+[[giam_binding]]
+{giam_binding}::
+An association between a {giam_service_account} and a specific permission role within a resource scope.
+
+[[oauth_token]]
+{oauth_token}::
+A time-limited credential exchanged from {giam_service_account} keys for API authentication.
+
+
+[[rbtgi_rbra_file]]
+{rbtgi_rbra_file}::
+A bash-sourceable environment file containing Google {giam_service_account} credentials in RBRA (Recipe Bottle Role Authentication) format.
+Created by {rbtoe_rbra_generate} from {rbtgi_json_key_file} with field mappings:
+`RBRA_CLIENT_EMAIL` from `.client_email`,
+`RBRA_PRIVATE_KEY` from `.private_key`, 
+`RBRA_PROJECT_ID` from `.project_id`.
+Loaded via {rbtoe_rbra_load} with validation of all required fields.
+
+[[rbtgi_json_key_file]]
+{rbtgi_json_key_file}::
+A Google {giam_service_account} JSON key file in its native format as downloaded from the Google Cloud Console, containing the complete credential structure including private_key, client_email, project_id, and other metadata required for authentication.
+
+=== {gcp_service} Core Definitions
+
+[[gcp_organization]]
+{gcp_organization}::
+The top-level administrative entity in
+{gcp_service}
+that contains projects and folders.
+
+[[gcp_folder]]
+{gcp_folder}::
+An organizational unit within a {gcp_organization} that groups {gcp_project_id_s} for management purposes.
+
+[[gcp_project_number]]
+{gcp_project_number}::
+A globally unique numeric identifier automatically assigned to every
+{gcp_service}
+{gcp_project_id}.
+
+[[gcp_project_id]]
+{gcp_project_id}::
+A globally unique string identifier chosen during {gcp_project_id} creation that serves as the {gcp_project_id}'s primary reference.
+
+[[gcp_lro]]
+{gcp_lro}::
+A Long Running Operation, an asynchronous operation in
+{gcp_service}
+that returns immediately but continues processing in the background.
+
+[[gcp_delete_requested]]
+{gcp_delete_requested}::
+A {gcp_project_id} lifecycle state indicating deletion has been initiated but the {gcp_project_id} remains recoverable for 30 days.
+
+[[gcp_billing_enabled]]
+{gcp_billing_enabled}::
+A {gcp_project_id} status indicating that billing is active and the {gcp_project_id} can incur charges.
+
+=== Google Service Definitions
+
+[[gar_registry]]
+{gar_registry}::
+Google's managed service for storing and managing container images and other software artifacts.
+
+[[gcs_bucket]]
+{gcs_bucket}::
+A container for storing objects in
+{gcs_service}
+with configurable access controls and lifecycle policies.
+
+[[gcb_build]]
+{gcb_build}::
+An execution instance of
+{gcb_service}
+that processes build instructions to create artifacts.
+
+[[giam_role]]
+{giam_role}::
+A collection of permissions that can be granted to users, {giam_service_account_s}, or groups in
+{gcp_service}.
+
+[[gcp_lien]]
+{gcp_lien}::
+A restriction placed on a
+{gcp_service}
+resource to prevent accidental deletion or modification.
+
+[[giam_service_account]]
+{giam_service_account}::
+A
+{gcp_service}
+identity that applications and services use to authenticate and authorize API operations, consisting of an email address, unique ID, and associated cryptographic keys for non-interactive authentication.
+
+=== Orchestration Control Execution Modes
+
+[[oct_guide]]
+{oct_guide}::
+A system-presented procedure that a human operator executes.
+The system displays steps (via webpage, markdown, or CLI output) and the human performs them, typically in external systems like web consoles.
+
+[[oct_command]]
+{oct_command}::
+A script-executable orchestration entry point that the system runs automatically via API calls.
+
+[[oct_pattern]]
+{oct_pattern}::
+A reusable orchestration subsequence invoked within other operations.
+
+=== Recipe Bottle Orchestration Patterns (RB-specific)
+
+[[rbtoe_rbra_generate]]
+{rbtoe_rbra_generate}::
+A {oct_pattern} that converts Google {giam_service_account} credentials into {rbtgi_rbra_file} format:
+extracts `client_email`, `private_key`, and `project_id` from base64-encoded key data or JSON structure,
+converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, `RBRA_PROJECT_ID`),
+and writes to specified file path with 600 permissions (owner read/write only).
+
+[[rbtoe_rbra_load]]
+{rbtoe_rbra_load}::
+A {oct_pattern} that sources an {rbtgi_rbra_file} and validates required fields:
+sources the specified RBRA file into the current environment,
+validates that `RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, and `RBRA_PROJECT_ID` are all present and non-empty,
+and triggers {oct_fatal} with standardized error message if any field is missing or invalid.
+
+[[rbtoe_jwt_oauth_exchange]]
+{rbtoe_jwt_oauth_exchange}::
+A {oct_pattern} that exchanges {giam_service_account} RBRA credentials for an {oauth_token}:
+constructs JWT with RS256 signature using RBRA_PRIVATE_KEY,
+sets JWT claims (iss=RBRA_CLIENT_EMAIL, aud=https://oauth2.googleapis.com/token, scope=https://www.googleapis.com/auth/cloud-platform),
+POSTs to OAuth2 token endpoint,
+returns access_token from response,
+triggers {oct_fatal} on non-200 HTTP response.
+
+[[rbtoe_api_enable]]
+{rbtoe_api_enable}::
+An
+{oct_pattern}
+that ensures a specified
+Google Cloud API
+is enabled in a project with idempotent behavior:
+. attempts to enable the API via serviceusage.services.enable,
+. tolerates HTTP 200 (success) or HTTP 400 with "already enabled" error,
+. executes {oct_await} if Long Running Operation returned,
+. verifies API state is ENABLED via serviceusage.services.get,
+. triggers {oct_fatal} on unexpected errors (409 conflicts, permission denied, etc.),
+. returns success when API is confirmed enabled.
+
+
+[[rbtoe_oauth_refresh]]
+{rbtoe_oauth_refresh}::
+A {oct_pattern} that exchanges OAuth refresh token for access token:
+. loads RBRO_REFRESH_TOKEN and RBRO_CLIENT_SECRET from {rbro_regime},
+. loads RBRP_OAUTH_CLIENT_ID from {rbrp_payor_project_id} configuration,
+. constructs JSON request with refresh_token, client_id, client_secret, and grant_type=refresh_token,
+. POSTs to https://oauth2.googleapis.com/token with Content-Type: application/json,
+. validates HTTP 200 response or triggers {oct_fatal} with error description,
+. extracts access_token from JSON response,
+. {oct_require} access_token is present and non-empty,
+. returns fresh access_token for immediate use,
+. handles 400/401 errors by triggering {oct_fatal} with "OAuth credentials expired or invalid - run {rbtgo_payor_refresh}".
+
+[[rbtoe_payor_authenticate]]
+{rbtoe_payor_authenticate}::
+A {oct_pattern} that establishes {rbtr_payor} OAuth context:
+. executes {rbtoe_rbro_load} to load OAuth credentials,
+. loads RBRP_OAUTH_CLIENT_ID from rbrp.env configuration,
+. executes {rbtoe_oauth_refresh} to obtain access token,
+. stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
+
+[[rbtoe_rbro_load]]
+{rbtoe_rbro_load}::
+A {oct_pattern} that loads and validates RBRO credentials:
+. {oct_require} ~/.rbw/ directory exists or {oct_fatal} "RBRO directory missing - run {rbtgo_payor_install}",
+. {oct_require} ~/.rbw/rbro.env file exists or {oct_fatal} "RBRO credentials missing - run {rbtgo_payor_install}",
+. validates file permissions are 600 or {oct_warn} "RBRO file permissions should be 600",
+. sources ~/.rbw/rbro.env into current environment,
+. validates RBRO_CLIENT_SECRET is present and non-empty or {oct_fatal} "RBRO_CLIENT_SECRET missing",
+. validates RBRO_REFRESH_TOKEN is present and non-empty or {oct_fatal} "RBRO_REFRESH_TOKEN missing",
+. returns success when all RBRO variables are loaded and validated.
+
+[[rbtoe_depot_list_update]]
+{rbtoe_depot_list_update}::
+A {oct_pattern} that synchronizes depot project tracking:
+. executes {rbtoe_payor_authenticate} to obtain access token,
+. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter `projectId:rbw-depot-* AND lifecycleState:ACTIVE`,
+. {oct_require} HTTP 200 response from projects API,
+. extracts project IDs from `.projects[].projectId` array,
+. validates each project ID matches pattern `rbw-[name]-[timestamp]`,
+. constructs space-delimited string from valid depot project IDs,
+. updates RBRP_DEPOT_PROJECT_IDS in rbrp.env file,
+. handles empty results by setting RBRP_DEPOT_PROJECT_IDS="",
+. {oct_require} rbrp.env file update successful,
+. invoked by {rbtgo_payor_install}, {rbtgo_depot_create}, and {rbtgo_depot_destroy} operations.
+
+=== Cross-Reference Definitions
+
+[[at_rbm_system]]
+{at_rbm_system}::
+The complete
+{at_recipe_bottle}
+system enabling secure container management.
+
+[[at_bottle_image]]
+{at_bottle_image}::
+A container image built or replicated through the Google build infrastructure.
+
+[[at_user]]
+{at_user}::
+An individual operating the
+{at_rbm_system}
+to build and manage containers.
+
+[[at_workstation]]
+{at_workstation}::
+The local environment where
+{at_user_s}
+execute
+{at_rbm_system}
+commands.
+
+[[at_base_utilities]]
+{at_base_utilities}::
+The minimal set of command-line tools
+(`bash`, `git`, `curl`, `openssh`, `jq`)
+required on the
+{at_workstation}.
+
+== Configuration Regime Definitions
+
+[[at_regime]]
+{at_regime}::
+A controlled set of environment variables with a consistent prefix that establishes configuration boundaries for specific operational scopes within the {at_recipe_bottle} system.
+
+=== Repository Regime (RBRR)
+
+The {at_regime} defines installation-wide configuration that rarely changes and is shared across all {at_recipe_bottle} operations.
+This specification documents only the subset of RBRR variables relevant to {gcp_service} operations.
+
+[[rbrr_regime]]
+{rbrr_regime}::
+An {at_regime} that defines repository-wide configuration and installation-wide settings shared across all {at_recipe_bottle} operations.
+RBRR regimes contain depot project identifiers, regional settings, repository locations, and service account credential file paths that establish the foundational infrastructure configuration.
+
+[[rbrr_depot_project_id]]
+{rbrr_depot_project_id}::
+The {gcp_service} {gcp_project_id} where all {at_recipe_bottle} resources are created and managed.
+Used as the target {gcp_project_id} in API calls and as the audience claim in {oauth_token} exchange.
+
+[[rbrr_gcp_region]]
+{rbrr_gcp_region}::
+The default {gcp_service} region for regional services like {gar_service} and {gcb_service}.
+Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
+
+[[rbrr_gar_repository]]
+{rbrr_gar_repository}::
+The {gar_service} {rbtgi_repository} name within {rbrr_depot_project_id} that stores all {at_bottle_image_s} and {rbtgi_metadata_s}.
+
+[[rbrr_retriever_rbra_file]]
+{rbrr_retriever_rbra_file}::
+Path to an {rbtgi_rbra_file} stored in the {at_user_p} local filesystem outside the source {rbtgi_repository}.
+This file enables the {at_user} to assume the {rbtr_retriever} role for container image operations.
+
+[[rbrr_director_rbra_file]]
+{rbrr_director_rbra_file}::
+Path to an {rbtgi_rbra_file} stored in the {at_user_p} local filesystem outside the source {rbtgi_repository}.
+This file enables the {at_user} to assume the {rbtr_director} for build submission and image management operations.
+
+[[rbrr_governor_rbra_file]]
+{rbrr_governor_rbra_file}::
+Path to an {rbtgi_rbra_file} stored in the {at_user_p} local filesystem outside the source {rbtgi_repository}.
+This file enables the {at_user} to assume the {rbtr_governor} role for {gcp_project_id} administration operations.
+
+[[rbrr_payor_rbra_file]]
+{rbrr_payor_rbra_file}::
+Path to an {rbtgi_rbra_file} stored in the {at_user_p} local filesystem outside the source {rbtgi_repository}.
+This file enables the {at_user} to assume the {rbtr_payor} role for billing and {gcp_project_id} lifecycle operations.
+
+=== Account Regime (RBRA)
+
+An {rbtgi_rbra_file} is a credentials file containing the minimum identity and signing material needed for
+{at_recipe_bottle}
+tools to authenticate to
+{gcp_service}
+via
+{giam_service_account}.
+
+[[rbra_client_email]]
+{rbra_client_email}::
+The
+{giam_service_account}
+email address assigned by
+{gcp_service},
+used as the issuer (`iss`) when constructing JWTs for OAuth2 token exchange.
+
+[[rbra_private_key]]
+{rbra_private_key}::
+The PEM-encoded RSA private key material corresponding to the
+{giam_service_account}.
+Stored as a literal multi-line string with `\n` sequences that are expanded when signing JWTs.
+Used only in memory at runtime; never written separately to disk.
+
+[[rbra_project_id]]
+{rbra_project_id}::
+The
+{gcp_service} {gcp_project_id}
+that owns the
+{giam_service_account}.
+Provides scope for all API operations since a
+{giam_service_account}
+can only act within its parent project's boundaries unless granted cross-project roles.
+
+=== Payor Regime (RBRP)
+
+The
+{rbtr_payor} {at_regime}
+defines configuration for the administrative layer that manages
+
+{at_recipe_bottle}
+infrastructure.
+These settings control how the
+{rbtr_payor}
+creates and manages
+{rbtgi_depot_project}
+instances.
+
+[[rbrp_regime]]
+{rbrp_regime}::
+An {at_regime} that contains configuration for the administrative {rbtr_payor} layer managing {at_recipe_bottle} infrastructure.
+RBRP regimes define payor project identification, billing account linkage, OAuth client configuration, and depot project tracking arrays that enable infrastructure lifecycle management.
+
+[[rbrp_payor_project_id]]
+{rbrp_payor_project_id}::
+The
+{gcp_service} {gcp_project_id}
+that hosts the OAuth 2.0 client configuration for {rbtr_payor} operations.
+This
+{gcp_project_id}
+must exist before Recipe Bottle initialization and serves as the administrative control plane.
+
+[[rbrp_billing_account_id]]
+{rbrp_billing_account_id}::
+The {gcp_service} billing account identifier that the {rbtr_payor} links to newly created {rbtgi_depot_project} instances.
+Format: XXXXXX-XXXXXX-XXXXXX.
+
+[[rbrp_oauth_client_id]]
+{rbrp_oauth_client_id}::
+The public OAuth 2.0 client identifier for the {rbtr_payor} desktop application.
+
+[[rbrp_depot_project_ids]]
+{rbrp_depot_project_ids}::
+Space-delimited array of active depot project IDs managed by this {rbtr_payor}.
+
+=== OAuth Regime (RBRO)
+
+The OAuth {at_regime} stores sensitive OAuth credentials locally for {rbtr_payor} authentication.
+
+[[rbro_regime]]
+{rbro_regime}::
+An {at_regime} containing OAuth client credentials and refresh tokens for {rbtr_payor} operations.
+Stored in `~/.rbw/rbro.env` with 600 permissions, never committed to version control.
+
+[[rbro_client_secret]]
+{rbro_client_secret}::
+The OAuth 2.0 client secret from the Google Cloud Console OAuth client configuration.
+
+[[rbro_refresh_token]]
+{rbro_refresh_token}::
+The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
+
+=== Vessel Regime (RBRV)
+
+[[rbrv_regime]]
+{rbrv_regime}::
+An {at_regime} that defines container image build specifications and vessel configurations within the {at_recipe_bottle} system.
+RBRV regimes are found in `rbev-vessels/*/rbrv.env` files and control the build process for specific container image types.
+Each vessel represents a distinct container image configuration with its own build parameters and runtime characteristics.
+
+NOTE: Individual RBRV variables are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.
+
+=== Authentication Regime (RBRA)
+
+[[rbra_regime]]
+{rbra_regime}::
+An {at_regime} that contains {giam_service_account} credentials and authentication material for secure access to {gcp_service} APIs.
+RBRA regimes are security-isolated configuration files typically stored outside the main repository in `../station-files/secrets/rbra-*.env` locations.
+These regimes enable different service account roles to authenticate and operate within their designated scopes.
+
+NOTE: Individual RBRA variables beyond the core documented set are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.
+
+=== Environment Variables Regime (RBEV)
+
+[[rbev_regime]]
+{rbev_regime}::
+An {at_regime} that defines runtime container environment variables and configuration parameters for active {at_bottle_image} instances.
+RBEV regimes specify container execution parameters, port mappings, working directories, and other runtime characteristics that are applied when containers are instantiated.
+These configurations are typically embedded within recipe files and container orchestration specifications.
+
+NOTE: Individual RBEV variables are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.

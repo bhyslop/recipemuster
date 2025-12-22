@@ -1,0 +1,249 @@
+= Base Configuration Regime
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// at_: Architectural terms
+// st_: Support/infrastructure terms
+//
+// Domain declaration: conf_<canonical_term>
+
+:at_bottle_container:        <<term_bottle_container,Bottle Container>>
+:at_sentry_container:        <<term_sentry_container,Sentry Container>>
+
+:at_bottle_service:          <<term_bottle_service,Bottle Service>>
+:at_bottle_service_s:        <<term_bottle_service,Bottle Services>>
+:at_enclave_network:         <<term_enclave_network,Enclave Network>>
+:at_enclave_network_s:       <<term_enclave_network,Enclave Networks>>
+:at_nameplate:               <<term_nameplate,Nameplate>>
+:at_nameplate_s:             <<term_nameplate,Nameplates>>
+:at_rbm_system:              <<term_rbm_system,RBM System>>
+:at_container_registry:      <<term_container_registry,Remote Container Registry>>
+:st_container:               <<term_container,Container>>
+:st_container_s:             <<term_container,Containers>>
+:st_subnet:                  <<term_subnet,Subnet>>
+:st_gateway:                 <<term_gateway,Gateway>>
+:st_published_image_s:       <<term_published_image,Published Images>>
+
+// end::mapping-section[]
+
+== Base Configuration
+
+=== Network Configuration
+
+.RBRR_DNS_SERVER
+[cols="1,4"]
+|===
+|Purpose |Specifies the upstream DNS resolver for all
+{at_bottle_service_s}.
+Each
+{at_sentry_container}
+uses this DNS server to resolve domain names.
+The
+{at_bottle_container}
+never directly accesses this: the
+{at_sentry_container}
+acts on its behalf when permitted.
+
+|Required |No
+
+|Format |Valid IPv4 address
+
+|Example |export RBRR_DNS_SERVER := 8.8.8.8
+|===
+
+=== System Configuration
+
+.RBRR_NAMEPLATE_PATH
+[cols="1,4"]
+|===
+|Purpose |Defines the directory containing all {at_nameplate} definitions
+
+|Required |No
+
+|Format |Relative path from {at_rbm_system} root
+
+|Default |"nameplates"
+
+|Example |export RBRR_NAMEPLATE_PATH := recipes/nameplates
+|===
+
+.RBRR_REGISTRY_SERVER
+[cols="1,4"]
+|===
+|Purpose |Specifies the container registry server for retrieving {st_published_image_s}
+
+|Required |No
+
+|Format |Fully-qualified domain name with optional port
+
+|Example |export RBRR_REGISTRY_SERVER := registry.example.com:5000
+|===
+
+=== Registry Configuration
+
+.RBRR_REGISTRY_OWNER
+[cols="1,4"]
+|===
+|Purpose |Specifies the GitHub username or organization that owns the container registry namespace. This determines the registry path where {st_published_image_s} are stored.
+
+|Required |Yes
+
+|Format |Valid GitHub username or organization name
+
+|Example |export RBRR_REGISTRY_OWNER := bhyslop
+|===
+
+.RBRR_REGISTRY_NAME
+[cols="1,4"]
+|===
+|Purpose |Defines the repository name within the GitHub container registry. Combined with RBRR_REGISTRY_OWNER, this forms the complete registry path for storing {st_container} images.
+
+|Required |Yes
+
+|Format |Valid GitHub repository name
+
+|Example |export RBRR_REGISTRY_NAME := recipemuster
+|===
+
+.RBRR_GITHUB_PAT_ENV
+[cols="1,4"]
+|===
+|Purpose |Path to environment file containing GitHub credentials for API and {at_container_registry} authentication. Must contain RBV_USERNAME and RBV_PAT variables.
+
+|Required |Yes
+
+|Format |Relative or absolute file path
+
+|Example |export RBRR_GITHUB_PAT_ENV := ../station-files/secrets/github-ghcr-play.env
+|===
+
+=== Build Configuration
+
+.RBRR_BUILD_ARCHITECTURES
+[cols="1,4"]
+|===
+|Purpose |Target platform architectures for {st_container} builds. Determines which architectures are supported when building {st_published_image_s}.
+
+|Required |Yes
+
+|Format |Space-separated list of platform identifiers in os/arch format
+
+|Example |export RBRR_BUILD_ARCHITECTURES := linux/amd64
+|===
+
+.RBRR_HISTORY_DIR
+[cols="1,4"]
+|===
+|Purpose |Local directory for storing build artifacts and history from GitHub Actions workflows. Maintains records of all {st_container} builds.
+
+|Required |Yes
+
+|Format |Relative path from {at_rbm_system} root
+
+|Default |RBM-history
+
+|Example |export RBRR_HISTORY_DIR := builds/history
+|===
+
+=== Virtual Machine Configuration
+
+.RBRR_MACHINE_NAME
+[cols="1,4"]
+|===
+|Purpose |Name identifier for the Podman virtual machine instance used for {st_container} operations and {at_bottle_service} deployment.
+
+|Required |Yes
+
+|Format |Valid machine name (alphanumeric with hyphens)
+
+|Example |export RBRR_MACHINE_NAME := podman-machine-rbw
+|===
+
+.RBRR_VMDIST_TAG
+[cols="1,4"]
+|===
+|Purpose |Full container image reference for the Podman machine OS distribution. Specifies the exact version of the virtual machine image to use.
+
+|Required |Yes
+
+|Format |Complete container image reference with registry, repository, and tag
+
+|Example |export RBRR_VMDIST_TAG := quay.io/podman/machine-os-wsl:5.3
+|===
+
+.RBRR_VMDIST_BLOB_SHA
+[cols="1,4"]
+|===
+|Purpose |SHA256 hash of the VM filesystem layer blob. Used for image verification and ensuring consistent virtual machine deployments.
+
+|Required |Yes
+
+|Format |64-character hexadecimal SHA256 hash
+
+|Example |export RBRR_VMDIST_BLOB_SHA := 6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
+|===
+
+.RBRR_VMDIST_CRANE
+[cols="1,4"]
+|===
+|Purpose |URL to download the crane utility binary, used for copying {st_container} images between registries during VM image management.
+
+|Required |Yes
+
+|Format |Complete HTTPS URL to crane release archive
+
+|Example |export RBRR_VMDIST_CRANE := https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
+|===
+
+== Term Definitions
+
+[[term_bottle_service]]
+{at_bottle_service}::
+A complete service instance consisting of one bottle container and one sentry container, working together to provide secure functionality. Each service maintains strict file system and network boundaries while enabling controlled access to resources.
+
+[[term_enclave_network]]
+{at_enclave_network}::
+An isolated network connecting a bottle container to its sentry container, using the
+RBRR_ENCLAVE_SUBNET
+for addressing.
+This network enforces strict security policies and provides the only communication path for the bottle container.
+
+[[term_nameplate]]
+{at_nameplate}::
+A configuration file stored in
+RBRR_NAMEPLATE_PATH
+that defines all aspects of a bottle service, including its images, network settings, and security policies.
+Each nameplate provides a complete service specification that the RBM System can instantiate.
+
+[[term_rbm_system]]
+{at_rbm_system}::
+The complete Recipe Bottle Makefile system, consisting of the
+RBM Console,
+RBM Config Makefile,
+nameplates,
+and
+associated tools.
+This system enables secure deployment and management of containerized services.
+
+[[term_container_registry]]
+{at_container_registry}:: 
+A service that stores and provides access to published images.
+
+[[term_container]]
+{st_container}:: 
+A lightweight, standalone executable package containing all necessary components to run a service.
+
+[[term_subnet]]
+{st_subnet}:: 
+A logically visible subdivision of IP network address space.
+
+[[term_gateway]]
+{st_gateway}:: 
+A network node that serves as the entry point between two networks.
+
+[[term_published_image]]
+{st_published_image}:: 
+An image that has been uploaded to a container registry.
+
