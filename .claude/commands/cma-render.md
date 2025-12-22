@@ -8,7 +8,7 @@ You are transforming a concept model document to ClaudeMark format for LLM consu
 
 **Configuration:**
 - Lenses directory: lenses/
-- Kit path: ../cnmp_CellNodeMessagePrototype/tools/cmk/concept-model-kit.md
+- Kit path: Tools/cmk/concept-model-kit.md
 
 **Source:** $1
 **Mode:** $2 (default: full)

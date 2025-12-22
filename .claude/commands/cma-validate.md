@@ -7,7 +7,7 @@ You are validating the structural integrity of concept model documents.
 
 **Configuration:**
 - Lenses directory: lenses/
-- Kit path: ../cnmp_CellNodeMessagePrototype/tools/cmk/concept-model-kit.md
+- Kit path: Tools/cmk/concept-model-kit.md
 
 **Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
 

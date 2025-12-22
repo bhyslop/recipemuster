@@ -161,7 +161,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 
 **Configuration:**
 - Lenses directory: `lenses/`
-- Kit path: `../cnmp_CellNodeMessagePrototype/tools/cmk/concept-model-kit.md`
+- Kit path: `Tools/cmk/concept-model-kit.md`
 - Upstream remote: `OPEN_SOURCE_UPSTREAM`
 
 **Concept Model Patterns:**

@@ -8,18 +8,36 @@ You are applying MCM whitespace normalization (ancestry enhancement) to concept 
 
 **Configuration:**
 - Lenses directory: lenses/
-- Kit path: ../cnmp_CellNodeMessagePrototype/tools/cmk/concept-model-kit.md
+- Kit path: Tools/cmk/concept-model-kit.md
 
 **Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
 
+**Model Enforcement:** This task is designed for haiku. If this prompt was expanded into a larger model's context (Opus/Sonnet), use the Task tool with `model: "haiku"` to delegate this work. Do not execute directly - spawn the agent and relay results.
+
+**CRITICAL CONSTRAINT - Whitespace Only:**
+This operation adjusts ONLY line breaks and blank lines. You must NOT change any words, punctuation, or sentence structure. The document content must be identical before and after - only the placement of newlines changes.
+
+**DO NOT:**
+- Reword or rephrase any text
+- Split compound sentences into multiple sentences
+- Join sentences together
+- Add new text or delete existing text
+- Change punctuation
+- "Improve" clarity or readability through rewording
+- Fix grammar or spelling (report issues but do not fix)
+
 **Whitespace Rules to Apply:**
 
-1. **One sentence per line**: Each sentence ends at a line break. Do not join sentences.
+1. **One sentence per line**: Break at EXISTING sentence boundaries (periods, question marks, exclamation points followed by space and capital letter). Do not create new sentences by restructuring.
 
 2. **Linked terms isolated**: When a `{term_reference}` appears standalone in prose:
    - Line break before the term
    - Line break after the term
-   - Example:
+   - Example - BEFORE:
+     ```
+     The system uses {excm_processor} to handle requests.
+     ```
+   - Example - AFTER:
      ```
      The system uses
      {excm_processor}
@@ -47,10 +65,14 @@ You are applying MCM whitespace normalization (ancestry enhancement) to concept 
 
 6. **Punctuation stays attached**: Periods, commas stay with their text, not on separate lines.
 
+**Edit Tool Warning:** When using the Edit tool, `{term}` references must remain as single braces. Do NOT escape or double them. The Edit tool takes literal strings - write `{mcm_term}` not `{{mcm_term}}`.
+
 **Process:**
 1. Read the target file(s)
 2. Apply rules systematically, section by section
-3. Show diff of changes for approval
+3. Show diff of changes for approval - diff should show ONLY line break changes, no word changes
 4. Write updated file after approval
+
+**Self-check before presenting diff:** Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
 
 **Error handling:** If file not found or not .adoc, report and stop.
