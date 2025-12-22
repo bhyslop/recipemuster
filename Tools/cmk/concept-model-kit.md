@@ -21,6 +21,9 @@ During installation, Claude replaces these markers in generated command files:
 - `«CML_KIT_PATH»` → Path to this Kit file
   - Example: `tools/cmk/concept-model-kit.md`
   - Example: `../shared-tools/cmk/concept-model-kit.md`
+- `«CML_KIT_DIR»` → Directory containing the kit (derived from KIT_PATH)
+  - Example: `tools/cmk/`
+  - Used for locating kit reference documents (MCM, AXL)
 - `«CML_OPEN_SOURCE_GIT_UPSTREAM»` → Git remote name for upstream repository
   - Default: `OPEN_SOURCE_UPSTREAM`
 
@@ -295,9 +298,17 @@ You are applying MCM whitespace normalization (ancestry enhancement) to concept 
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
+- Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 
 **Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
+
+**File Resolution:**
+When a filename is provided (not "all"):
+1. If it's a full path that exists → use it
+2. If it matches a file in lenses directory → use that
+3. If it matches a file in kit directory → use that
+4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
 
 **Model Enforcement:** This task is designed for haiku. If this prompt was expanded into a larger model's context (Opus/Sonnet), use the Task tool with `model: "haiku"` to delegate this work. Do not execute directly - spawn the agent and relay results.
 
@@ -378,9 +389,17 @@ You are cleaning up the mapping section of concept model documents.
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
+- Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 
 **Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
+
+**File Resolution:**
+When a filename is provided (not "all"):
+1. If it's a full path that exists → use it
+2. If it matches a file in lenses directory → use that
+3. If it matches a file in kit directory → use that
+4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
 
 **Mapping Section Rules:**
 
@@ -425,10 +444,18 @@ You are transforming a concept model document to ClaudeMark format for LLM consu
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
+- Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 
 **Source:** $1
 **Mode:** $2 (default: full)
+
+**File Resolution:**
+When resolving the source file:
+1. If it's a full path that exists → use it
+2. If it matches a file in lenses directory → use that
+3. If it matches a file in kit directory → use that
+4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
 
 **ClaudeMark Syntax:**
 - Term definitions: `### Term Name «term-id»`
@@ -477,9 +504,17 @@ You are validating the structural integrity of concept model documents.
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
+- Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 
 **Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
+
+**File Resolution:**
+When a filename is provided (not "all"):
+1. If it's a full path that exists → use it
+2. If it matches a file in lenses directory → use that
+3. If it matches a file in kit directory → use that
+4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
 
 **Validation Checks:**
 
@@ -528,6 +563,7 @@ You are preparing a PR branch for upstream contribution, stripping proprietary c
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
+- Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 - Upstream remote: «CML_OPEN_SOURCE_GIT_UPSTREAM»
 
@@ -594,6 +630,7 @@ You are validating the Concept Model Kit installation.
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
+- Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 - Upstream remote: «CML_OPEN_SOURCE_GIT_UPSTREAM»
 
