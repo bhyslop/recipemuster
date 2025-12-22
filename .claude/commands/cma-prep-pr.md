@@ -6,6 +6,7 @@ You are preparing a PR branch for upstream contribution, stripping proprietary c
 
 **Configuration:**
 - Lenses directory: lenses/
+- Kit directory: Tools/cmk/
 - Kit path: Tools/cmk/concept-model-kit.md
 - Upstream remote: OPEN_SOURCE_UPSTREAM
 

@@ -8,10 +8,18 @@ You are transforming a concept model document to ClaudeMark format for LLM consu
 
 **Configuration:**
 - Lenses directory: lenses/
+- Kit directory: Tools/cmk/
 - Kit path: Tools/cmk/concept-model-kit.md
 
 **Source:** $1
 **Mode:** $2 (default: full)
+
+**File Resolution:**
+When resolving the source file:
+1. If it's a full path that exists → use it
+2. If it matches a file in lenses directory → use that
+3. If it matches a file in kit directory → use that
+4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
 
 **ClaudeMark Syntax:**
 - Term definitions: `### Term Name «term-id»`

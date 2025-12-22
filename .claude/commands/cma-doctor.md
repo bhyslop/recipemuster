@@ -6,6 +6,7 @@ You are validating the Concept Model Kit installation.
 
 **Configuration:**
 - Lenses directory: lenses/
+- Kit directory: Tools/cmk/
 - Kit path: Tools/cmk/concept-model-kit.md
 - Upstream remote: OPEN_SOURCE_UPSTREAM
 
