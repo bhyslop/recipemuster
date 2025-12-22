@@ -102,7 +102,7 @@ After installation, the kit directory exists locally at `«CML_KIT_PATH»`:
 
 ### Project Files (created at install)
 
-- `«CML_LENSES_DIR»/` - Concept model documents for this project
+- `«CML_LENSES_DIR»/` - Project-specific concept model documents (MCM/AXL specs remain in kit directory)
 - `.claude/commands/cma-*.md` - Generated command files
 
 ### ClaudeMark Output
@@ -236,8 +236,7 @@ Validate Concept Model Kit installation.
      - The kit path in CLAUDE.md points to this LOCAL copy
    - Delete any existing `cma-*.md` command files from `.claude/commands/`
    - Generate all command files with hardcoded paths (pointing to local kit)
-   - Create lenses directory if it doesn't exist
-   - Copy MCM and optionally AXL specifications to lenses directory
+   - Create lenses directory if it doesn't exist (for project-specific concept models)
    - Replace the `## Concept Model Kit Configuration` section in CLAUDE.md
    - Commit the changes
 
@@ -274,7 +273,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - `/cma-prep-pr` - Prepare upstream contribution
 - `/cma-doctor` - Validate installation
 
-For full MCM specification, see `«CML_LENSES_DIR»/mcm-MCM-MetaConceptModel.adoc`.
+For full MCM specification, see `Tools/cmk/mcm-MCM-MetaConceptModel.adoc`.
 
 **Important**: Restart Claude Code session after installation for new commands to become available.
 ```

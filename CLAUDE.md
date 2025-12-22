@@ -177,9 +177,8 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - `/cma-validate` - Check links and annotations
 - `/cma-prep-pr` - Prepare upstream contribution
 - `/cma-doctor` - Validate installation
-- `/cma-refresh` - Regenerate commands from kit
 
-For full MCM specification, see `lenses/mcm-MCM-MetaConceptModel.adoc`.
+For full MCM specification, see `Tools/cmk/mcm-MCM-MetaConceptModel.adoc`.
 
 **Important**: Restart Claude Code session after installation for new commands to become available.
 
