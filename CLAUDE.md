@@ -20,9 +20,9 @@ Which would you like to start with? (Enter acronym)
 - Related utilities: BCU, BDU, BTU, BVU in Tools/buk/
 
 ### adocrbags: Requirements writing with RBAGS
-- Primary file: `../recipebottle-admin/rbw-RBAGS-AdminGoogleSpec.adoc`
+- Primary file: `lenses/rbw-RBAGS-AdminGoogleSpec.adoc`
 - Context: Requirements documentation and specification writing
-- Related specs: RBP, RBRN, RBRR, RBS, CRR in ../recipebottle-admin/
+- Related specs: RBRN, RBRR, RBS, CRR in lenses/
 
 ### gad: Work on GAD (Google AsciiDoc Differ)
 - Primary directory: `Tools/gad/`
@@ -31,20 +31,18 @@ Which would you like to start with? (Enter acronym)
 
 ## Directory Permissions
 Full read and edit access is pre-approved for all files in:
-- `../recipebottle-admin/`
+- `lenses/`
 - `Tools/`
 - `../cnmp_CellNodeMessagePrototype/lenses/`
 
 ## File Acronym Mappings
 
-### Recipe Bottle Admin Directory (`../recipebottle-admin/`)
+### Lenses Directory (`lenses/`)
 - **RBAGS** → `rbw-RBAGS-AdminGoogleSpec.adoc`
-- **RBP**   → `rbw-RBP-planner.adoc`
 - **RBRN**  → `rbw-RBRN-RegimeNameplate.adoc`
 - **RBRR**  → `rbw-RBRR-RegimeRepo.adoc`
 - **RBS**   → `rbw-RBS-Specification.adoc`
 - **CRR**   → `crg-CRR-ConfigRegimeRequirements.adoc`
-- **MPCR**  → `rbw-MPCR-MemoPayorCrisisRecovery.md`
 
 ### Tools Directory (`Tools/`)
 
