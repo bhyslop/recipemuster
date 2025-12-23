@@ -184,6 +184,14 @@
 // Recipe Bottle Regime: Environment Variables (runtime container configuration)
 :rbev_regime:                <<rbev_regime,RBEV Regime>>
 
+// Recipe Bottle Regime Prefixes
+:rbrr_prefix:                <<rbrr_prefix,RBRR_>>
+:rbrp_prefix:                <<rbrp_prefix,RBRP_>>
+:rbro_prefix:                <<rbro_prefix,RBRO_>>
+:rbrv_prefix:                <<rbrv_prefix,RBRV_>>
+:rbra_prefix:                <<rbra_prefix,RBRA_>>
+:rbev_prefix:                <<rbev_prefix,RBEV_>>
+
 // RB Bash Console Control Terms (rbbc_* - voices axc_* in axe_bash_interactive)
 :rbbc_variable:              <<rbbc_variable,VARIABLE>>
 :rbbc_fatal:                 <<rbbc_fatal,FATAL>>
@@ -1318,6 +1326,36 @@ A controlled set of environment variables with a consistent prefix that establis
 {at_recipe_bottle}
 system.
 
+[[rbrr_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbrr_prefix}::
+Recipe Bottle Repository Regime
+
+[[rbrp_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbrp_prefix}::
+Recipe Bottle Payor Regime
+
+[[rbro_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbro_prefix}::
+Recipe Bottle OAuth Regime
+
+[[rbrv_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbrv_prefix}::
+Recipe Bottle Vessel Regime
+
+[[rbra_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbra_prefix}::
+Recipe Bottle Authentication Regime
+
+[[rbev_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbev_prefix}::
+Recipe Bottle Environment Variables Regime
+
 === Repository Regime (RBRR)
 
 The
@@ -1330,6 +1368,7 @@ This specification documents only the subset of RBRR variables relevant to
 operations.
 
 [[rbrr_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
 {rbrr_regime}::
 An
 {at_regime}
@@ -1484,6 +1523,7 @@ creates and manages
 instances.
 
 [[rbrp_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
 {rbrp_regime}::
 An
 {at_regime}
@@ -1537,6 +1577,7 @@ stores sensitive OAuth credentials locally for
 authentication.
 
 [[rbro_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
 {rbro_regime}::
 An
 {at_regime}
@@ -1556,6 +1597,7 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 === Vessel Regime (RBRV)
 
 [[rbrv_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
 {rbrv_regime}::
 An
 {at_regime}
@@ -1570,6 +1612,7 @@ NOTE: Individual RBRV variables are actively used throughout the system but form
 === Authentication Regime (RBRA)
 
 [[rbra_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
 {rbra_regime}::
 An
 {at_regime}
@@ -1586,6 +1629,7 @@ NOTE: Individual RBRA variables beyond the core documented set are actively used
 === Environment Variables Regime (RBEV)
 
 [[rbev_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
 {rbev_regime}::
 An
 {at_regime}

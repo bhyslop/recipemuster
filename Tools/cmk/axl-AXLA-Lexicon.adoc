@@ -67,6 +67,8 @@
 :axrg_variable_s:                     <<axrg_variable,Regime Variables>>
 :axrg_assignment:                     <<axrg_assignment,Assignment>>
 :axrg_assignment_s:                   <<axrg_assignment,Assignments>>
+:axrg_prefix:                         <<axrg_prefix,Regime Prefix>>
+:axrg_prefix_s:                       <<axrg_prefix,Regime Prefixes>>
 
 // Axial Control Terms
 :axc_variable:                        <<axc_variable,VARIABLE>>
@@ -835,6 +837,13 @@ Each {axrg_variable} belongs to an {axrg_regime} and defines a name, type constr
 A {axl_motif} representing a specific value bound to an {axrg_variable}.
 {axrg_assignment_s} are carried in files of a particular {axf_format} (bash, makefile, JSON, etc.).
 Multiple assignment files may exist for the same {axrg_regime}, each providing different configuration instances.
+
+[[axrg_prefix]]
+{axrg_prefix}::
+A {axl_motif} representing the stable character sequence that namespaces all {axrg_variable_s} within an {axrg_regime}.
+Typically composed of a project marker and regime marker (e.g., `RBRR_` = `RB` + `RR` + `_`).
+Once established, an {axrg_prefix} becomes deeply embedded across code, configuration files, and documentation.
+Changing an {axrg_prefix} requires coordinated refactoring across all consuming artifacts.
 
 == Axial Key Premise Terms
 

@@ -31,10 +31,11 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
 
 ## Paces
 
-- [ ] **P1: Regime Definitions** (manual)
+- [x] **P1: Regime Definitions** (manual)
   Add voicings to *_regime definitions in RBAGS.
   Voice pattern: `// ⟦axl_voices axrg_regime axf_bash⟧`
   (All RBAGS regimes use bash-sourceable .env format)
+  Also added axrg_prefix to AXL and 6 prefix definitions to RBAGS.
 
 - [ ] **P2: Regime Variable Definitions** (manual)
   Add voicings to individual regime variables (RBRR_*, RBRA_*, RBRP_*, RBRO_*).
