@@ -126,7 +126,8 @@ follows specific structural rules to enable clear tracking of changes and relati
 === Line Break Fundamentals
 
 The most fundamental organizing principle is the
-{mcm_line_break}.
+{mcm_line_break}
+.
 Each
 {mcm_line_break}
 creates a clear boundary in the
@@ -348,7 +349,8 @@ enforces alignment rules to enhance readability and change tracking:
 {mcm_domain}
 aligns to columns that are multiples of 10
 * When entries require wider alignment, all lines adjust to the next larger multiple
-* {mcm_attribute_reference_s} maintain consistent indentation
+* {mcm_attribute_reference_s}
+maintain consistent indentation
 
 [source,asciidoc]
 ----

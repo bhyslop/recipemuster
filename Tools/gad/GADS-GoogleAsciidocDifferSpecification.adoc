@@ -37,126 +37,126 @@
 // gadpd_=Python Dependency
 //
 
-:gadt_factory:                         <<gadt_factory,Factory>>
-:gadt_page:                            <<gadt_page,Page>>
-:gadt_page_s:                          <<gadt_page,Pages>>
-:gadt_inspector:                       <<gadt_inspector,Inspector>>
-:gadt_manifest:                        <<gadt_manifest,Manifest>>
-:gadt_websocket:                       <<gadt_websocket,WebSocket>>
-:gadfa_port:                           <<gadfa_port,Port Parameter>>
-:gadfd_dependency:                     <<gadf_dependency,Factory Dependency>>
-:gadfd_dependency_s:                   <<gadf_dependency,Factory Dependencies>>
-:gadid_dependency:                     <<gadi_dependency,Inspector Dependency>>
-:gadid_dependency_s:                   <<gadi_dependency,Inspector Dependencies>>
-:gadi_from_commit:                     <<gadi_from_commit,Inspector From Commit>>
-:gadi_to_commit:                       <<gadi_to_commit,Inspector To Commit>>
-:gadpd_dependency:                     <<gadp_dependency,Python Dependency>>
-:gadpd_dependency_s:                   <<gadp_dependency,Python Dependencies>>
-:gadfl_step:                           <<gadfl_step,Factory Step>>
-:gadfl_warn:                           <<gadfl_warn,Factory Warning>>
-:gadfl_fail:                           <<gadfl_fail,Factory Failure>>
-:gadw_premise:                         <<gadw_premise,WebSocket Local Premise>>
-:gadu_operator:                        <<gadu_operator,Operator>>
-:gadiu_tab_switch:                     <<gadiu_tab_switch,Inspector Tab Switch Operation>>
-:gadwm_refresh:                        <<gadwm_refresh,WebSocket Refresh Message>>
-:gadwm_trace:                          <<gadwm_trace,WebSocket Trace Message>>
-:gadwm_debug:                          <<gadwm_debug,WebSocket Debug Message>>
-:gadwf_type:                           <<gadwf_type,WebSocket Message Type Field>>
-:gadwf_data:                           <<gadwf_data,WebSocket Message Data Field>>
-:gadwf_message:                        <<gadwf_message,WebSocket Message Text Field>>
-:gadwf_debug_type:                     <<gadwf_debug_type,WebSocket Debug Type Field>>
-:gadwf_content:                        <<gadwf_content,WebSocket Content Field>>
-:gadwf_filename_pattern:               <<gadwf_filename_pattern,WebSocket Filename Pattern Field>>
-:gadwf_source_files:                   <<gadwf_source_files,WebSocket Source Files Field>>
+:gadfa_adoc_filename:                  <<gadfa_adoc_filename,Filename Parameter>>
 :gadfa_argument:                       <<gadfa_argument,Factory Argument>>
 :gadfa_argument_s:                     <<gadfa_argument,Factory Arguments>>
-:gadfa_adoc_filename:                  <<gadfa_adoc_filename,Filename Parameter>>
-:gadfa_max_distinct_renders:           <<gadfa_max_distinct_renders,Max Distinct Renders Parameter>>
+:gadfa_branch:                         <<gadfa_branch,Branch Parameter>>
 :gadfa_directory:                      <<gadfa_directory,Directory Parameter>>
+:gadfa_max_distinct_renders:           <<gadfa_max_distinct_renders,Max Distinct Renders Parameter>>
+:gadfa_once:                           <<gadfa_once,Once Parameter>>
+:gadfa_port:                           <<gadfa_port,Port Parameter>>
+:gadda_commit_date:                    <<gadda_commit_date,Distill Commit Date>>
+:gadda_commit_hash:                    <<gadda_commit_hash,Distill Commit Hash>>
+:gadda_commit_message:                 <<gadda_commit_message,Distill Commit Message>>
+:gadda_output_dir:                     <<gadda_output_dir,Distill Output Directory>>
+:gadda_source_dir:                     <<gadda_source_dir,Distill Source Directory>>
+:gaddl_library:                        <<gaddl_library,diff-dom>>
+:gaddo_dom:                            <<gaddo_dom,Diff-DOM DOM Structure>>
+:gaddo_operation:                      <<gaddo_operation,Diff-DOM Operation>>
+:gaddo_operation_list:                 <<gaddo_operation_list,Diff-DOM Operation List>>
+:gaddo_word_flat:                      <<gaddo_word_flat,Diff-DOM Word Flat>>
+:gaddo_word_map:                       <<gaddo_word_map,Diff-DOM Word Map>>
+:gadic_annotation_collection:          <<gadic_annotation_collection,Inspector Computation Annotation Collection>>
+:gadic_annotation_entry:               <<gadic_annotation_entry,Inspector Computation Annotation Entry>>
+:gadic_from_dom:                       <<gadic_from_dom,Inspector Computation From DOM>>
+:gadic_multiview_result:               <<gadic_multiview_result,Inspector Computation Multi-View Result>>
+:gadic_rendered_dom:                   <<gadic_rendered_dom,Inspector Computation Rendered DOM>>
+:gadic_to_dom:                         <<gadic_to_dom,Inspector Computation To DOM>>
+:gadfd_distill:                        <<gadfd_distill,Factory Distill Directory>>
+:gadfd_extract:                        <<gadfd_extract,Factory Extract Directory>>
+:gadfd_output:                         <<gadfd_output,Factory Output Directory>>
+:gadf_hash_lookup:                     <<gadf_hash_lookup,Factory Hash Lookup>>
+:gadf_limit_mode:                      <<gadf_limit_mode,Factory Limit Mode>>
+:gadfl_fail:                           <<gadfl_fail,Factory Failure>>
+:gadfl_step:                           <<gadfl_step,Factory Step>>
+:gadfl_warn:                           <<gadfl_warn,Factory Warning>>
+:gadfs_initial_setup:                  <<gadfs_initial_setup,Factory Initial Setup>>
+:gadfs_render:                         <<gadfs_render,Factory Render Sequence>>
+:gadfs_watch_mode:                     <<gadfs_watch_mode,Factory Steady State Loop>>
+:gadi_dual_view:                       <<gadi_dual_view,Inspector Dual View>>
+:gadi_from_commit:                     <<gadi_from_commit,Inspector From Commit>>
+:gadi_prototype_view:                  <<gadi_prototype_view,Inspector Prototype View>>
+:gadi_to_commit:                       <<gadi_to_commit,Inspector To Commit>>
+:gadid_dependency:                     <<gadi_dependency,Inspector Dependency>>
+:gadid_dependency_s:                   <<gadi_dependency,Inspector Dependencies>>
+:gadid_swap:                           <<gadid_swap,Inspector Swap Control>>
+:gadif_annotated_dom:                  <<gadif_annotated_dom,Annotated DOM File>>
+:gadif_html_commit:                    <<gadif_html_commit,HTML Commit File>>
+:gadif_processed_diff:                 <<gadif_processed_diff,Processed Diff File>>
+:gadih_comparison:                     <<gadih_comparison,Inspector Comparison Header>>
+:gadih_error:                          <<gadih_error,Inspector Error HTML>>
+:gadihp_from:                          <<gadihp_from,Inspector From Hash Parameter>>
+:gadihp_tab:                           <<gadihp_tab,Inspector Tab Hash Parameter>>
+:gadihp_to:                            <<gadihp_to,Inspector To Hash Parameter>>
+:gadil_error:                          <<gadil_error,Inspector Error Report>>
+:gadil_trace:                          <<gadil_trace,Inspector Trace Report>>
+:gadil_workspace:                      <<gadil_workspace,Inspector Three-Column Workspace>>
+:gadip_popover:                        <<gadip_popover,Inspector Details Popover>>
 :gadip_rendered:                       <<gadip_rendered,Inspector Rendered Pane>>
 :gadip_tab_bar:                        <<gadip_tab_bar,Inspector Tab Bar>>
 :gadip_tab_button:                     <<gadip_tab_button,Inspector Tab Button>>
-:gadil_trace:                          <<gadil_trace,Inspector Trace Report>>
-:gadil_error:                          <<gadil_error,Inspector Error Report>>
-:gadir_from:                           <<gadir_from,Inspector From Rail>>
-:gadir_to:                             <<gadir_to,Inspector To Rail>>
-:gadir_row:                            <<gadir_row,Inspector Rail Row>>
-:gadir_label:                          <<gadir_label,Inspector Rail Label>>
-:gadir_radio:                          <<gadir_radio,Inspector Radio Button>>
-:gadid_swap:                           <<gadid_swap,Inspector Swap Control>>
-:gaddl_library:                        <<gaddl_library,diff-dom>>
-:gaddo_dom:                            <<gaddo_dom,Diff-DOM DOM Structure>>
-:gaddo_word_flat:                      <<gaddo_word_flat,Diff-DOM Word Flat>>
-:gaddo_word_map:                       <<gaddo_word_map,Diff-DOM Word Map>>
-:gadic_from_dom:                       <<gadic_from_dom,Inspector Computation From DOM>>
-:gadic_to_dom:                         <<gadic_to_dom,Inspector Computation To DOM>>
-:gaddo_operation_list:                 <<gaddo_operation_list,Diff-DOM Operation List>>
-:gaddo_operation:                      <<gaddo_operation,Diff-DOM Operation>>
-:gadic_rendered_dom:                   <<gadic_rendered_dom,Inspector Computation Rendered DOM>>
-:gadic_annotation_collection:          <<gadic_annotation_collection,Inspector Computation Annotation Collection>>
-:gadic_annotation_entry:               <<gadic_annotation_entry,Inspector Computation Annotation Entry>>
-:gadic_multiview_result:               <<gadic_multiview_result,Inspector Computation Multi-View Result>>
-:gadip_popover:                        <<gadip_popover,Inspector Details Popover>>
-:gadil_workspace:                      <<gadil_workspace,Inspector Three-Column Workspace>>
-:gadih_comparison:                     <<gadih_comparison,Inspector Comparison Header>>
-:gadis_navigation:                     <<gadis_navigation,Inspector Navigation Section>>
-:gadihp_from:                         <<gadihp_from,Inspector From Hash Parameter>>
-:gadihp_to:                           <<gadihp_to,Inspector To Hash Parameter>>
-:gadihp_tab:                          <<gadihp_tab,Inspector Tab Hash Parameter>>
-:gadfa_branch:                         <<gadfa_branch,Branch Parameter>>
-:gadfa_once:                           <<gadfa_once,Once Parameter>>
-:gadfs_initial_setup:                  <<gadfs_initial_setup,Factory Initial Setup>>
-:gadfs_watch_mode:                     <<gadfs_watch_mode,Factory Steady State Loop>>
-:gadfs_render:                         <<gadfs_render,Factory Render Sequence>>
-:gadmf_last_processed:                 <<gadmf_last_processed,Manifest Last Processed Hash>>
-:gadfd_output:                         <<gadfd_output,Factory Output Directory>>
-:gadfd_extract:                        <<gadfd_extract,Factory Extract Directory>>
-:gadfd_distill:                        <<gadfd_distill,Factory Distill Directory>>
-:gadif_html_commit:                    <<gadif_html_commit,HTML Commit File>>
-:gadih_error:                          <<gadih_error,Inspector Error HTML>>
-:gadda_source_dir:                     <<gadda_source_dir,Distill Source Directory>>
-:gadda_output_dir:                     <<gadda_output_dir,Distill Output Directory>>
-:gadda_commit_hash:                    <<gadda_commit_hash,Distill Commit Hash>>
-:gadda_commit_date:                    <<gadda_commit_date,Distill Commit Date>>
-:gadda_commit_message:                 <<gadda_commit_message,Distill Commit Message>>
-:gadmf_branch:                         <<gadmf_branch,Manifest Branch Field>>
-:gadmf_asciidoc:                       <<gadmf_asciidoc,Manifest AsciiDoc Field>>
-:gadmf_commits:                        <<gadmf_commits,Manifest Commits Array>>
-:gadmf_hash:                           <<gadmf_hash,Manifest Hash Field>>
-:gadmf_timestamp:                      <<gadmf_timestamp,Manifest Timestamp Field>>
-:gadmf_date:                           <<gadmf_date,Manifest Date Field>>
-:gadmf_message:                        <<gadmf_message,Manifest Message Field>>
-:gadmf_html_file:                      <<gadmf_html_file,Manifest HTML File Field>>
-:gadmf_html_sha256:                    <<gadmf_html_sha256,Manifest HTML SHA256 Field>>
-:gadis_status:                         <<gadis_status,Inspector Status Section>>
-:gadis_initialization:                 <<gadis_initialization,Inspector Initialization Sequence>>
+:gadis_change:                         <<gadis_change,Inspector Change>>
+:gadis_change_correlation:             <<gadis_change_correlation,Inspector Change Correlation>>
+:gadis_change_list:                    <<gadis_change_list,Inspector Change List>>
+:gadis_change_rendering:               <<gadis_change_rendering,Inspector Change Rendering>>
 :gadis_diff_sequence:                  <<gadis_diff_sequence,Inspector Diff Sequence>>
 :gadis_forward_list:                   <<gadis_forward_list,Inspector Forward Operation List>>
-:gadis_reverse_list:                   <<gadis_reverse_list,Inspector Reverse Operation List>>
-:gadis_change_correlation:             <<gadis_change_correlation,Inspector Change Correlation>>
-:gadis_change_rendering:               <<gadis_change_rendering,Inspector Change Rendering>>
-:gadis_change:                         <<gadis_change,Inspector Change>>
-:gadis_change_list:                    <<gadis_change_list,Inspector Change List>>
-:gadis_reciprocal_change:              <<gadis_reciprocal_change,Inspector Reciprocal Change>>
+:gadis_initialization:                 <<gadis_initialization,Inspector Initialization Sequence>>
 :gadis_monocular_change:               <<gadis_monocular_change,Inspector Monocular Change>>
+:gadis_navigation:                     <<gadis_navigation,Inspector Navigation Section>>
+:gadis_reciprocal_change:              <<gadis_reciprocal_change,Inspector Reciprocal Change>>
+:gadis_reverse_list:                   <<gadis_reverse_list,Inspector Reverse Operation List>>
 :gadis_route:                          <<gadis_route,Inspector Route>>
+:gadis_status:                         <<gadis_status,Inspector Status Section>>
 :gadis_tab_state:                      <<gadis_tab_state,Inspector Tab State>>
-:gadir_unchanged_indicator:            <<gadir_unchanged_indicator,Inspector Rail Unchanged Indicator>>
-:gadi_prototype_view:                  <<gadi_prototype_view,Inspector Prototype View>>
-:gadi_dual_view:                       <<gadi_dual_view,Inspector Dual View>>
-:gadvd_left_pane:                      <<gadvd_left_pane,Dual View Left Pane>>
-:gadvd_right_pane:                     <<gadvd_right_pane,Dual View Right Pane>>
-:gadvd_change_pane:                    <<gadvd_change_pane,Dual View Change Pane>>
-:gadvd_change_entry:                   <<gadvd_change_entry,Dual View Change Entry>>
-:gadvd_operation_button:               <<gadvd_operation_button,Dual View Operation Button>>
-:gadvd_left_rendered:                  <<gadvd_left_rendered,Dual View Left Rendered>>
-:gadvd_right_rendered:                 <<gadvd_right_rendered,Dual View Right Rendered>>
-:gadkp_single_threaded:                <<gadkp_single_threaded,Single-Threaded Premise>>
+:gadu_operator:                        <<gadu_operator,Operator>>
+:gadiu_tab_switch:                     <<gadiu_tab_switch,Inspector Tab Switch Operation>>
 :gadkp_bounded_documents:              <<gadkp_bounded_documents,Bounded Document Size Premise>>
-:gadf_limit_mode:                      <<gadf_limit_mode,Factory Limit Mode>>
-:gadf_hash_lookup:                     <<gadf_hash_lookup,Factory Hash Lookup>>
-:gadif_processed_diff:                 <<gadif_processed_diff,Processed Diff File>>
-:gadif_annotated_dom:                  <<gadif_annotated_dom,Annotated DOM File>>
+:gadkp_single_threaded:                <<gadkp_single_threaded,Single-Threaded Premise>>
+:gadpd_dependency:                     <<gadp_dependency,Python Dependency>>
+:gadpd_dependency_s:                   <<gadp_dependency,Python Dependencies>>
+:gadw_premise:                         <<gadw_premise,WebSocket Local Premise>>
+:gadwf_content:                        <<gadwf_content,WebSocket Content Field>>
+:gadwf_data:                           <<gadwf_data,WebSocket Message Data Field>>
+:gadwf_debug_type:                     <<gadwf_debug_type,WebSocket Debug Type Field>>
+:gadwf_filename_pattern:               <<gadwf_filename_pattern,WebSocket Filename Pattern Field>>
+:gadwf_message:                        <<gadwf_message,WebSocket Message Text Field>>
+:gadwf_source_files:                   <<gadwf_source_files,WebSocket Source Files Field>>
+:gadwf_type:                           <<gadwf_type,WebSocket Message Type Field>>
+:gadwm_debug:                          <<gadwm_debug,WebSocket Debug Message>>
+:gadwm_refresh:                        <<gadwm_refresh,WebSocket Refresh Message>>
+:gadwm_trace:                          <<gadwm_trace,WebSocket Trace Message>>
+:gadt_factory:                         <<gadt_factory,Factory>>
+:gadt_inspector:                       <<gadt_inspector,Inspector>>
+:gadt_manifest:                        <<gadt_manifest,Manifest>>
+:gadt_page:                            <<gadt_page,Page>>
+:gadt_page_s:                          <<gadt_page,Pages>>
+:gadt_websocket:                       <<gadt_websocket,WebSocket>>
+:gadfd_dependency:                     <<gadf_dependency,Factory Dependency>>
+:gadfd_dependency_s:                   <<gadf_dependency,Factory Dependencies>>
+:gadmf_asciidoc:                       <<gadmf_asciidoc,Manifest AsciiDoc Field>>
+:gadmf_branch:                         <<gadmf_branch,Manifest Branch Field>>
+:gadmf_commits:                        <<gadmf_commits,Manifest Commits Array>>
+:gadmf_date:                           <<gadmf_date,Manifest Date Field>>
+:gadmf_hash:                           <<gadmf_hash,Manifest Hash Field>>
+:gadmf_html_file:                      <<gadmf_html_file,Manifest HTML File Field>>
+:gadmf_html_sha256:                    <<gadmf_html_sha256,Manifest HTML SHA256 Field>>
+:gadmf_last_processed:                 <<gadmf_last_processed,Manifest Last Processed Hash>>
+:gadmf_message:                        <<gadmf_message,Manifest Message Field>>
+:gadmf_timestamp:                      <<gadmf_timestamp,Manifest Timestamp Field>>
+:gadir_from:                           <<gadir_from,Inspector From Rail>>
+:gadir_label:                          <<gadir_label,Inspector Rail Label>>
+:gadir_radio:                          <<gadir_radio,Inspector Radio Button>>
+:gadir_row:                            <<gadir_row,Inspector Rail Row>>
+:gadir_to:                             <<gadir_to,Inspector To Rail>>
+:gadir_unchanged_indicator:            <<gadir_unchanged_indicator,Inspector Rail Unchanged Indicator>>
+:gadvd_change_entry:                   <<gadvd_change_entry,Dual View Change Entry>>
+:gadvd_change_pane:                    <<gadvd_change_pane,Dual View Change Pane>>
+:gadvd_left_pane:                      <<gadvd_left_pane,Dual View Left Pane>>
+:gadvd_left_rendered:                  <<gadvd_left_rendered,Dual View Left Rendered>>
+:gadvd_operation_button:               <<gadvd_operation_button,Dual View Operation Button>>
+:gadvd_right_pane:                     <<gadvd_right_pane,Dual View Right Pane>>
+:gadvd_right_rendered:                 <<gadvd_right_rendered,Dual View Right Rendered>>
 
 // end::mapping-section[]
 
@@ -959,7 +959,9 @@ Enables responsive design and proper diff visualization.
 
 JavaScript ES6+::
 Required for rail selection event handling.
-Powers keyboard shortcuts and dasd{gadit_commit} display logic.
+Powers keyboard shortcuts and dasd
+{gadit_commit}
+display logic.
 
 == Definitions
 
