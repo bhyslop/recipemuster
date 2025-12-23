@@ -31,6 +31,8 @@ This phase adjusts ONLY line breaks and blank lines. You must NOT change any wor
 - "Improve" clarity or readability through rewording
 - Fix grammar or spelling (report issues but do not fix)
 
+**VERIFICATION**: After each edit, confirm the exact same characters exist - only newline positions may differ.
+
 **Whitespace Rules to Apply:**
 
 1. **One sentence per line**: Break at EXISTING sentence boundaries (periods, question marks, exclamation points followed by space and capital letter). Do not create new sentences by restructuring.
