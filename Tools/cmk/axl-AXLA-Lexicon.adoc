@@ -15,6 +15,8 @@
 // axk_: Axial Key Premise (design constraints) → mcm_form_deflist
 // axl_: Axial Lexicon (motif vocabulary terms) → mcm_form_deflist
 // axd_: Axial Dimension (member/argument characteristic modifiers) → mcm_form_deflist
+// axf_: Axial Format (serialization/carriage formats) → mcm_form_deflist
+// axrg_: Axial Regime (configuration system patterns) → mcm_form_deflist
 // xref_: External specification references
 //
 // Variant patterns:
@@ -49,6 +51,22 @@
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_endianness:                      <<axd_endianness,Endianness>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
+
+// Axial Format Terms
+:axf_format:                          <<axf_format,Format>>
+:axf_format_s:                        <<axf_format,Formats>>
+:axf_bash:                            <<axf_bash,Bash Format>>
+:axf_makefile:                        <<axf_makefile,Makefile Format>>
+:axf_json:                            <<axf_json,JSON Format>>
+:axf_yaml:                            <<axf_yaml,YAML Format>>
+
+// Axial Regime Terms
+:axrg_regime:                         <<axrg_regime,Regime>>
+:axrg_regime_s:                       <<axrg_regime,Regimes>>
+:axrg_variable:                       <<axrg_variable,Regime Variable>>
+:axrg_variable_s:                     <<axrg_variable,Regime Variables>>
+:axrg_assignment:                     <<axrg_assignment,Assignment>>
+:axrg_assignment_s:                   <<axrg_assignment,Assignments>>
 
 // Axial Control Terms
 :axc_variable:                        <<axc_variable,VARIABLE>>
@@ -169,8 +187,6 @@
 :axk_premise_s:                       <<axk_premise,Premises>>
 
 // Infrastructure Terms
-:axo_regime:                          <<axo_regime,Regime>>
-:axo_regime_s:                        <<axo_regime,Regimes>>
 :axo_dependency:                      <<axo_dependency,Dependency>>
 :axo_dependency_s:                    <<axo_dependency,Dependencies>>
 
@@ -764,6 +780,62 @@ Per-format guidance for {axd_dimension} usage:
 
 Legend: required = must specify; recommend = should specify; optional = may specify; implicit = format handles; context = depends on usage; forbidden = not applicable.
 
+== Axial Format Terms
+
+{axf_format_s} specify how configuration data is serialized and carried.
+{axrg_assignment_s} use a particular {axf_format} to encode {axrg_variable} values in files that can be sourced, included, or parsed.
+
+[[axf_format]]
+{axf_format}::
+A {axl_motif} representing a serialization encoding for configuration data.
+{axf_format_s} determine how {axrg_assignment_s} are written to and read from files.
+
+[[axf_bash]]
+{axf_bash}::
+A {axl_motif} representing bash script format for configuration.
+Files are source-able via `. file` or `source file`.
+Variables declared as `VAR=value` without export, or `export VAR=value` for environment propagation.
+
+[[axf_makefile]]
+{axf_makefile}::
+A {axl_motif} representing makefile format for configuration.
+Files are includable via `include file`.
+Variables declared as `VAR := value` for immediate expansion or `VAR = value` for deferred expansion.
+
+[[axf_json]]
+{axf_json}::
+A {axl_motif} representing JSON format for configuration.
+Standard JSON object structure with string keys mapping to typed values.
+Parsed by standard JSON libraries.
+
+[[axf_yaml]]
+{axf_yaml}::
+A {axl_motif} representing YAML format for configuration.
+Superset of JSON with additional syntax for readability.
+Parsed by YAML libraries with attention to version-specific semantics.
+
+== Axial Regime Terms
+
+{axrg_regime_s} are structured configuration systems that coordinate specification, validation, and rendering of typed configuration data.
+
+[[axrg_regime]]
+{axrg_regime}::
+A {axl_motif} representing a structured configuration system.
+A {axrg_regime} binds related {axrg_variable_s} under a namespace prefix, with coordinated specification, validation, and rendering components.
+The specification defines what can be configured; {axrg_assignment_s} provide specific values.
+
+[[axrg_variable]]
+{axrg_variable}::
+A {axl_motif} representing a named configuration element at schema level.
+Each {axrg_variable} belongs to an {axrg_regime} and defines a name, type constraints, and relationships with other variables.
+{axrg_variable_s} are the "what can be configured" definitions; {axrg_assignment_s} bind values to them.
+
+[[axrg_assignment]]
+{axrg_assignment}::
+A {axl_motif} representing a specific value bound to an {axrg_variable}.
+{axrg_assignment_s} are carried in files of a particular {axf_format} (bash, makefile, JSON, etc.).
+Multiple assignment files may exist for the same {axrg_regime}, each providing different configuration instances.
+
 == Axial Key Premise Terms
 
 [[axk_premise]]
@@ -772,11 +844,6 @@ A {axl_motif} representing a declared design constraint or assumption that expli
 Premises eliminate classes of problems by stating what the system will not handle, simplifying design.
 
 == Infrastructure Terms
-
-[[axo_regime]]
-{axo_regime}::
-A {axl_motif} representing configuration boundary with consistent namespace prefix.
-Establishes configuration scope and variable namespace.
 
 [[axo_dependency]]
 {axo_dependency}::
