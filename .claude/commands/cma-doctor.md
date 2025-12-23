@@ -31,11 +31,16 @@ You are validating the Concept Model Kit installation.
      - cma-doctor.md
    - Report: ✓ All 6 commands present / ✗ Missing: [list]
 
-4. **Git remote** (for prep-pr):
+4. **Subagent files:**
+   - Check for all expected files in `.claude/agents/`:
+     - cmsa-normalizer.md
+   - Report: ✓ All 1 subagents present / ✗ Missing: [list]
+
+5. **Git remote** (for prep-pr):
    - Check if OPEN_SOURCE_UPSTREAM remote exists
    - Report: ✓ Remote configured / ⚠ Remote not found (prep-pr may fail)
 
-5. **CLAUDE.md integration:**
+6. **CLAUDE.md integration:**
    - Verify CMK configuration section exists
    - Report: ✓ CLAUDE.md configured / ✗ Missing configuration
 
@@ -46,6 +51,7 @@ Concept Model Kit Health Check
 Kit:        ✓ Found at Tools/cmk/concept-model-kit.md
 Lenses:     ✓ lenses/ with 3 documents
 Commands:   ✓ All 6 commands installed
+Subagents:  ✓ All 1 subagents installed
 Remote:     ✓ OPEN_SOURCE_UPSTREAM configured
 CLAUDE.md:  ✓ Configured
 
@@ -56,5 +62,6 @@ Or if issues:
 ```
 Status: NEEDS ATTENTION
 - Missing command: cma-render.md
+- Missing subagent: cmsa-normalizer.md
 - Remote OPEN_SOURCE_UPSTREAM not configured
 ```
