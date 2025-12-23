@@ -41,15 +41,27 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
 2. **Linked terms isolated**: When a `{term_reference}` appears standalone in prose:
    - Line break before the term
    - Line break after the term
-   - Example - BEFORE:
+   - **Exception**: Terms at start of bullet items stay on the marker line (AsciiDoc requires `* content` syntax)
+   - Example A (mid-sentence) - BEFORE:
      ```
      The system uses {excm_processor} to handle requests.
      ```
-   - Example - AFTER:
+   - Example A - AFTER:
      ```
      The system uses
      {excm_processor}
      to handle requests.
+     ```
+   - Example B (start of sentence) - BEFORE:
+     ```
+     Previous sentence ends here.
+     {excm_term} starts a new sentence.
+     ```
+   - Example B - AFTER:
+     ```
+     Previous sentence ends here.
+     {excm_term}
+     starts a new sentence.
      ```
 
 3. **Term sequences together**: Multiple terms in sequence stay on one line:
@@ -77,10 +89,15 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
 
 **Process:**
 1. Read the target file(s)
-2. Apply rules systematically, section by section
-3. Show diff of changes for approval - diff should show ONLY line break changes, no word changes
-4. Write updated file after approval
+2. **Search phase**: Use Grep to find all `\{[a-z_]+\}` patterns outside code blocks. This creates your checklist of terms to verify.
+3. **Check each term**: For every term found, verify it has:
+   - Line break immediately before (or is after bullet marker `* `)
+   - Line break immediately after (or punctuation like `,` then line break)
+   - Skip terms inside `----` code fences
+4. Fix all violations found
+5. **Verify**: Search again to confirm no inline terms remain (terms with text on same line before AND after)
+6. Present summary of changes made
 
-**Self-check before presenting diff:** Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
+**Self-check**: Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
 
 **Error handling:** If file not found or not .adoc, report and stop.
