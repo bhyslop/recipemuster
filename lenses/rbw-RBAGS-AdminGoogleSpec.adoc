@@ -41,6 +41,9 @@
 :rbtr_director:              <<rbtr_director,Director Role>>
 :rbtr_retriever:             <<rbtr_retriever,Retriever Role>>
 :rbtr_retriever_s:           <<rbtr_retriever,Retriever Roles>>
+:rbtr_consumer:              <<rbtr_consumer,Consumer Role>>
+:rbtr_consumer_s:            <<rbtr_consumer,Consumer Roles>>
+:rbtr_consumer_p:            <<rbtr_consumer,Consumer Role's>>
 
 // Recipe Bottle Term Google Instances
 :rbtgi_depot_project:        <<rbtgi_depot_project,RB Depot Project>>
@@ -137,14 +140,9 @@
 :at_rbm_system:              <<at_rbm_system,Recipe Bottle Workbench>>
 :at_bottle_image:            <<at_bottle_image,Bottle Image>>
 :at_bottle_image_s:          <<at_bottle_image,Bottle Images>>
-:at_user:                    <<at_user,User>>
-:at_user_s:                  <<at_user,Users>>
-:at_user_p:                  <<at_user,User's>>
 :at_workstation:             <<at_workstation,Workstation>>
 :at_workstation_p:           <<at_workstation,Workstation's>>
 :at_base_utilities:          <<at_base_utilities,Base Utilities>>
-:at_regime:                  <<at_regime,Configuration Regime>>
-:at_regime_s:                <<at_regime,Configuration Regimes>>
 
 // Recipe Bottle Regime: Repo (subset)
 :rbrr_regime:                <<rbrr_regime,RBRR Regime>>
@@ -260,7 +258,7 @@ resources.
 === {rbtgo_payor_establish}
 
 The
-{at_user}
+{rbtr_consumer}
 performs one-time manual setup via Google Cloud Console to establish
 {rbtr_payor}
 OAuth infrastructure.
@@ -742,7 +740,7 @@ An operational identity within the
 {at_recipe_bottle}
 system
 that a
-{at_user}
+{rbtr_consumer}
 can assume to perform specific cloud operations.
 Each
 {rbtr_role}
@@ -762,7 +760,7 @@ which operates exclusively within cloud infrastructure.
 An
 {rbtr_role}
 that enables a
-{at_user}
+{rbtr_consumer}
 to manage billing accounts and create depot projects using OAuth user authentication rather than service accounts.
 The
 {rbtr_payor}
@@ -774,7 +772,7 @@ operates through OAuth 2.0 desktop application flow, enabling individual develop
 An
 {rbtr_role}
 that grants a
-{at_user}
+{rbtr_consumer}
 {gcp_project_id}
 -scope Owner permissions without billing authority, designed for automation-friendly operations.
 
@@ -784,7 +782,7 @@ that grants a
 An
 {rbtr_role}
 that allows a
-{at_user}
+{rbtr_consumer}
 read-only access to the
 {rbtgi_repository}
 for pulling
@@ -828,7 +826,7 @@ since it operates entirely within the cloud infrastructure.
 An
 {rbtr_role}
 that grants a
-{at_user}
+{rbtr_consumer}
 full build lifecycle permissions including Cloud Build submission and
 {rbtgi_repository}
 management.
@@ -1330,24 +1328,33 @@ The complete
 system enabling secure container management.
 
 [[at_bottle_image]]
+// ⟦axl_voices axig_container_image⟧
 {at_bottle_image}::
 A container image built or replicated through the Google build infrastructure.
 
-[[at_user]]
-{at_user}::
-An individual operating the
-{at_rbm_system}
-to build and manage containers.
+[[rbtr_consumer]]
+// ⟦axl_voices axo_actor⟧
+{rbtr_consumer}::
+An
+{rbtr_role}
+that enables an individual to use deployed
+{at_bottle_image_s}
+on their
+{at_workstation}.
+The
+{rbtr_consumer}
+interacts with bottle and sentry containers to accomplish work, distinct from infrastructure operators who build and deploy the system.
 
 [[at_workstation]]
 {at_workstation}::
 The local environment where
-{at_user_s}
+{rbtr_consumer_s}
 execute
 {at_rbm_system}
 commands.
 
 [[at_base_utilities]]
+// ⟦axl_voices axo_dependency⟧
 {at_base_utilities}::
 The minimal set of command-line tools
 (`bash`, `git`, `curl`, `openssh`, `jq`)
@@ -1355,12 +1362,6 @@ required on the
 {at_workstation}.
 
 == Configuration Regime Definitions
-
-[[at_regime]]
-{at_regime}::
-A controlled set of environment variables with a consistent prefix that establishes configuration boundaries for specific operational scopes within the
-{at_recipe_bottle}
-system.
 
 [[rbrr_prefix]]
 // ⟦axl_voices axrg_prefix⟧
@@ -1395,7 +1396,7 @@ Recipe Bottle Environment Variables Regime
 === Repository Regime (RBRR)
 
 The
-{at_regime}
+regime
 defines installation-wide configuration that rarely changes and is shared across all
 {at_recipe_bottle}
 operations.
@@ -1407,7 +1408,7 @@ operations.
 // ⟦axl_voices axrg_regime axf_bash⟧
 {rbrr_regime}::
 An
-{at_regime}
+regime
 that defines repository-wide configuration and installation-wide settings shared across all
 {at_recipe_bottle}
 operations.
@@ -1458,11 +1459,11 @@ and
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{at_user_p}
+{rbtr_consumer_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{at_user}
+{rbtr_consumer}
 to assume the
 {rbtr_retriever}
 role for container image operations.
@@ -1473,11 +1474,11 @@ role for container image operations.
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{at_user_p}
+{rbtr_consumer_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{at_user}
+{rbtr_consumer}
 to assume the
 {rbtr_director}
 for build submission and image management operations.
@@ -1488,11 +1489,11 @@ for build submission and image management operations.
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{at_user_p}
+{rbtr_consumer_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{at_user}
+{rbtr_consumer}
 to assume the
 {rbtr_governor}
 role for
@@ -1505,11 +1506,11 @@ administration operations.
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{at_user_p}
+{rbtr_consumer_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{at_user}
+{rbtr_consumer}
 to assume the
 {rbtr_payor}
 role for billing and
@@ -1558,7 +1559,7 @@ can only act within its parent project's boundaries unless granted cross-project
 
 The
 {rbtr_payor}
-{at_regime}
+regime
 defines configuration for the administrative layer that manages
 {at_recipe_bottle}
 infrastructure.
@@ -1572,7 +1573,7 @@ instances.
 // ⟦axl_voices axrg_regime axf_bash⟧
 {rbrp_regime}::
 An
-{at_regime}
+regime
 that contains configuration for the administrative
 {rbtr_payor}
 layer managing
@@ -1621,7 +1622,7 @@ Space-delimited array of active depot project IDs managed by this
 === OAuth Regime (RBRO)
 
 The OAuth
-{at_regime}
+regime
 stores sensitive OAuth credentials locally for
 {rbtr_payor}
 authentication.
@@ -1630,7 +1631,7 @@ authentication.
 // ⟦axl_voices axrg_regime axf_bash⟧
 {rbro_regime}::
 An
-{at_regime}
+regime
 containing OAuth client credentials and refresh tokens for
 {rbtr_payor}
 operations.
@@ -1652,7 +1653,7 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 // ⟦axl_voices axrg_regime axf_bash⟧
 {rbrv_regime}::
 An
-{at_regime}
+regime
 that defines container image build specifications and vessel configurations within the
 {at_recipe_bottle}
 system.
@@ -1667,7 +1668,7 @@ NOTE: Individual RBRV variables are actively used throughout the system but form
 // ⟦axl_voices axrg_regime axf_bash⟧
 {rbra_regime}::
 An
-{at_regime}
+regime
 that contains
 {giam_service_account}
 credentials and authentication material for secure access to
@@ -1684,7 +1685,7 @@ NOTE: Individual RBRA variables beyond the core documented set are actively used
 // ⟦axl_voices axrg_regime axf_bash⟧
 {rbev_regime}::
 An
-{at_regime}
+regime
 that defines runtime container environment variables and configuration parameters for active
 {at_bottle_image}
 instances.

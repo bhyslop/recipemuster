@@ -56,8 +56,19 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
   - Reserved prefixes: axiw_ (AWS), axia_ (Azure), axih_ (GitHub)
   Key insight: axtg_* for identifier types, axig_* for infrastructure resources. Each axig_* definition declares level (service/instance/operational).
 
-- [ ] **P4: Cross-Reference and Support Definitions** (manual)
-  Add voicings to at_* cross-reference definitions.
+- [x] **P4: Cross-Reference and Support Definitions** (manual)
+  Analyzed at_* definitions for voicing applicability.
+  **Voiced with existing motifs:**
+  - at_bottle_image → `axig_container_image`
+  - at_base_utilities → `axo_dependency`
+  **Removed as redundant:**
+  - at_regime removed; concrete regimes already voice `axrg_prefix`, `axrg_regime` motif in AXL carries concept
+  **Renamed and voiced:**
+  - at_user → rbtr_consumer, voiced as `axo_actor` (distinct constituency: bottle consumers vs infrastructure operators)
+  **Left unvoiced (foundational domain concepts):**
+  - at_recipe_bottle, at_rbm_system (the system itself)
+  - at_workstation (physical location, not execution context)
+  **Also updated RBS** to match: rbtr_consumer mapping/definition, replaced at_user references.
 
 - [ ] **P5: Review and Refine** (manual)
   Review all voicings for consistency. Document friction points.
@@ -85,6 +96,8 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
 2. Format (axf_) separate from regime (axrg_) - formats are reusable
 3. Actors don't carry "human required" - that's on their operations
 4. Regimes are bash-carried in RBAGS (axf_bash dimension)
+5. Two distinct actor constituencies: infrastructure operators (payor, governor, etc.) vs bottle consumers (rbtr_consumer)
+6. Foundational domain concepts (the system itself) don't need AXL voicing - voicing is for things that ARE instances of general patterns
 
 ## Itches Created
 
