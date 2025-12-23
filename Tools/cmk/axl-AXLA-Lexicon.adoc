@@ -27,6 +27,12 @@
 // axth_: Axial Type GitHub (GitHub types) → mcm_form_deflist [reserved]
 // Reserved: axtc_ (Cloudflare), axti_ (IBM), axtm_ (avoid - Microsoft confusion)
 //
+// Extended Infrastructure Categories (domain-specific infrastructure patterns):
+// axig_: Axial Infrastructure Google (GCP infrastructure resources) → mcm_form_deflist
+// axiw_: Axial Infrastructure AWS (AWS infrastructure resources) → mcm_form_deflist [reserved]
+// axia_: Axial Infrastructure Azure (Azure infrastructure resources) → mcm_form_deflist [reserved]
+// axih_: Axial Infrastructure GitHub (GitHub infrastructure resources) → mcm_form_deflist [reserved]
+//
 // Variant patterns:
 //   _s: plural form
 //   _p: possessive form
@@ -90,9 +96,32 @@
 
 // Axial Type Google Terms (Google Cloud Platform)
 :axtg_project_id:                     <<axtg_project_id,GCP Project ID>>
+:axtg_project_number:                 <<axtg_project_number,GCP Project Number>>
 :axtg_region:                         <<axtg_region,GCP Region>>
 :axtg_service_account:                <<axtg_service_account,GCP Service Account>>
 :axtg_billing_account:                <<axtg_billing_account,GCP Billing Account>>
+
+// Axial Infrastructure Google Terms (GCP infrastructure resources)
+:axig_resource_manager:               <<axig_resource_manager,GCP Resource Manager>>
+:axig_cloud_storage:                  <<axig_cloud_storage,GCP Cloud Storage>>
+:axig_artifact_registry:              <<axig_artifact_registry,GCP Artifact Registry>>
+:axig_cloud_build:                    <<axig_cloud_build,GCP Cloud Build>>
+:axig_iam:                            <<axig_iam,GCP IAM>>
+:axig_organization:                   <<axig_organization,GCP Organization>>
+:axig_folder:                         <<axig_folder,GCP Folder>>
+:axig_project:                        <<axig_project,GCP Project>>
+:axig_lien:                           <<axig_lien,GCP Lien>>
+:axig_bucket:                         <<axig_bucket,GCS Bucket>>
+:axig_artifact_repository:            <<axig_artifact_repository,GAR Repository>>
+:axig_container_image:                <<axig_container_image,Container Image>>
+:axig_generic_artifact:               <<axig_generic_artifact,Generic Artifact>>
+:axig_build:                          <<axig_build,Cloud Build>>
+:axig_service_account:                <<axig_service_account,Service Account>>
+:axig_role:                           <<axig_role,IAM Role>>
+:axig_binding:                        <<axig_binding,IAM Binding>>
+:axig_service_account_key:            <<axig_service_account_key,Service Account Key>>
+:axig_lro:                            <<axig_lro,Long Running Operation>>
+:axig_project_state:                  <<axig_project_state,Project State>>
 
 // Axial Control Terms
 :axc_variable:                        <<axc_variable,VARIABLE>>
@@ -1320,6 +1349,179 @@ A
 representing a Google Cloud Platform billing account identifier.
 Format: `XXXXXX-XXXXXX-XXXXXX` (three groups of six uppercase alphanumeric characters).
 Links projects to payment sources.
+
+[[axtg_project_number]]
+{axtg_project_number}::
+A
+{axl_motif}
+representing a Google Cloud Platform project number.
+Format: numeric identifier automatically assigned at project creation.
+Globally unique across all of GCP.
+Immutable once assigned.
+
+== Axial Infrastructure Google Terms
+
+{axig_*} terms represent Google Cloud Platform infrastructure patterns.
+Each term explicitly declares its level:
+
+* **Service-level**: the managed platform itself
+* **Instance-level**: a particular resource within a service
+* **Operational**: execution patterns and states
+
+=== Service-Level Terms
+
+[[axig_resource_manager]]
+{axig_resource_manager}::
+A
+{axl_motif}
+representing Google Cloud Resource Manager.
+Service-level: the platform for managing organizations, folders, and projects.
+
+[[axig_cloud_storage]]
+{axig_cloud_storage}::
+A
+{axl_motif}
+representing Google Cloud Storage.
+Service-level: the object storage platform, not buckets within it.
+
+[[axig_artifact_registry]]
+{axig_artifact_registry}::
+A
+{axl_motif}
+representing Google Artifact Registry.
+Service-level: the artifact management platform, not repositories within it.
+
+[[axig_cloud_build]]
+{axig_cloud_build}::
+A
+{axl_motif}
+representing Google Cloud Build.
+Service-level: the build execution platform, not individual builds.
+
+[[axig_iam]]
+{axig_iam}::
+A
+{axl_motif}
+representing Google Cloud IAM.
+Service-level: the identity and access management platform.
+
+=== Instance-Level: Resource Manager
+
+[[axig_organization]]
+{axig_organization}::
+A
+{axl_motif}
+representing a Google Cloud organization.
+Instance-level: a particular organization, top of GCP resource hierarchy.
+
+[[axig_folder]]
+{axig_folder}::
+A
+{axl_motif}
+representing a Google Cloud folder.
+Instance-level: an organizational container within an
+{axig_organization}.
+
+[[axig_project]]
+{axig_project}::
+A
+{axl_motif}
+representing a Google Cloud project.
+Instance-level: a resource container with billing, APIs, and IAM.
+
+[[axig_lien]]
+{axig_lien}::
+A
+{axl_motif}
+representing a Google Cloud lien.
+Instance-level: a deletion protection on a resource.
+
+=== Instance-Level: Cloud Storage
+
+[[axig_bucket]]
+{axig_bucket}::
+A
+{axl_motif}
+representing a Cloud Storage bucket.
+Instance-level: an object container with ACLs and lifecycle policies.
+
+=== Instance-Level: Artifact Registry
+
+[[axig_artifact_repository]]
+{axig_artifact_repository}::
+A
+{axl_motif}
+representing an Artifact Registry repository.
+Instance-level: container for container images or generic artifacts.
+
+[[axig_container_image]]
+{axig_container_image}::
+A
+{axl_motif}
+representing a container image in Artifact Registry.
+Instance-level: an image with tags and digest.
+
+[[axig_generic_artifact]]
+{axig_generic_artifact}::
+A
+{axl_motif}
+representing a generic artifact in Artifact Registry.
+Instance-level: a non-container artifact (archive, binary, metadata).
+
+=== Instance-Level: Cloud Build
+
+[[axig_build]]
+{axig_build}::
+A
+{axl_motif}
+representing a Cloud Build execution.
+Instance-level: a particular build processing instructions to create artifacts.
+
+=== Instance-Level: IAM
+
+[[axig_service_account]]
+{axig_service_account}::
+A
+{axl_motif}
+representing a GCP service account.
+Instance-level: a non-human identity for API authentication.
+
+[[axig_role]]
+{axig_role}::
+A
+{axl_motif}
+representing a GCP IAM role.
+Instance-level: a named collection of permissions.
+
+[[axig_binding]]
+{axig_binding}::
+A
+{axl_motif}
+representing a GCP IAM policy binding.
+Instance-level: association of identity to role on a resource scope.
+
+[[axig_service_account_key]]
+{axig_service_account_key}::
+A
+{axl_motif}
+representing a service account key file.
+Instance-level: JSON credential for service account authentication.
+
+=== Operational Terms
+
+[[axig_lro]]
+{axig_lro}::
+A
+{axl_motif}
+representing a Long Running Operation.
+Operational: async pattern returning handle for later completion check.
+
+[[axig_project_state]]
+{axig_project_state}::
+A
+{axl_motif}
+representing a project lifecycle state.
+Operational: conditions like ACTIVE, DELETE_REQUESTED describing status.
 
 == Axial Key Premise Terms
 

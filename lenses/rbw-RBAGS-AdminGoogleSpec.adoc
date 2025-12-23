@@ -836,6 +836,7 @@ management.
 === {gcp_service} Definitions
 
 [[rbtgi_depot_project]]
+// ⟦axl_voices axig_project⟧
 {rbtgi_depot_project}::
 The dedicated
 {gcp_service}
@@ -859,6 +860,7 @@ and destroyed as a unit by
 {rbtgo_depot_destroy}.
 
 [[rbtgi_payor_project]]
+// ⟦axl_voices axig_project⟧
 {rbtgi_payor_project}::
 The administrative
 {gcp_service}
@@ -873,6 +875,7 @@ instances.
 
 
 [[rbtgi_build_bucket]]
+// ⟦axl_voices axig_bucket⟧
 {rbtgi_build_bucket}::
 The dedicated
 {gcs_bucket}
@@ -885,6 +888,7 @@ build artifacts with configured lifecycle policies.
 === {gar_service} Definitions
 
 [[rbtgi_repository]]
+// ⟦axl_voices axig_artifact_repository⟧
 {rbtgi_repository}::
 The managed
 {gar_service}
@@ -896,6 +900,7 @@ that stores
 and metadata.
 
 [[rbtgi_image]]
+// ⟦axl_voices axig_container_image⟧
 {rbtgi_image}::
 A
 {at_recipe_bottle}
@@ -904,6 +909,7 @@ container image stored in the
 with associated tags and digest.
 
 [[rbtgi_metadata]]
+// ⟦axl_voices axig_generic_artifact⟧
 {rbtgi_metadata}::
 A compressed archive containing
 {at_recipe_bottle}
@@ -914,6 +920,7 @@ as a Generic Artifact.
 === Support Infrastructure Definitions
 
 [[giam_binding]]
+// ⟦axl_voices axig_binding⟧
 {giam_binding}::
 An association between a
 {giam_service_account}
@@ -927,6 +934,7 @@ keys for API authentication.
 
 
 [[rbtgi_rbra_file]]
+// ⟦axl_voices axig_service_account_key⟧
 {rbtgi_rbra_file}::
 A bash-sourceable environment file containing Google
 {giam_service_account}
@@ -941,6 +949,7 @@ Loaded via
 with validation of all required fields.
 
 [[rbtgi_json_key_file]]
+// ⟦axl_voices axig_service_account_key⟧
 {rbtgi_json_key_file}::
 A Google
 {giam_service_account}
@@ -949,12 +958,14 @@ JSON key file in its native format as downloaded from the Google Cloud Console, 
 === {gcp_service} Core Definitions
 
 [[gcp_organization]]
+// ⟦axl_voices axig_organization⟧
 {gcp_organization}::
 The top-level administrative entity in
 {gcp_service}
 that contains projects and folders.
 
 [[gcp_folder]]
+// ⟦axl_voices axig_folder⟧
 {gcp_folder}::
 An organizational unit within a
 {gcp_organization}
@@ -963,12 +974,14 @@ that groups
 for management purposes.
 
 [[gcp_project_number]]
+// ⟦axl_voices axtg_project_number⟧
 {gcp_project_number}::
 A globally unique numeric identifier automatically assigned to every
 {gcp_service}
 {gcp_project_id}.
 
 [[gcp_project_id]]
+// ⟦axl_voices axtg_project_id⟧
 {gcp_project_id}::
 A globally unique string identifier chosen during
 {gcp_project_id}
@@ -977,12 +990,14 @@ creation that serves as the
 's primary reference.
 
 [[gcp_lro]]
+// ⟦axl_voices axig_lro⟧
 {gcp_lro}::
 A Long Running Operation, an asynchronous operation in
 {gcp_service}
 that returns immediately but continues processing in the background.
 
 [[gcp_delete_requested]]
+// ⟦axl_voices axig_project_state⟧
 {gcp_delete_requested}::
 A
 {gcp_project_id}
@@ -991,6 +1006,7 @@ lifecycle state indicating deletion has been initiated but the
 remains recoverable for 30 days.
 
 [[gcp_billing_enabled]]
+// ⟦axl_voices axig_project_state⟧
 {gcp_billing_enabled}::
 A
 {gcp_project_id}
@@ -1001,22 +1017,26 @@ can incur charges.
 === Google Service Definitions
 
 [[gar_registry]]
+// ⟦axl_voices axig_artifact_registry⟧
 {gar_registry}::
 Google's managed service for storing and managing container images and other software artifacts.
 
 [[gcs_bucket]]
+// ⟦axl_voices axig_bucket⟧
 {gcs_bucket}::
 A container for storing objects in
 {gcs_service}
 with configurable access controls and lifecycle policies.
 
 [[gcb_build]]
+// ⟦axl_voices axig_build⟧
 {gcb_build}::
 An execution instance of
 {gcb_service}
 that processes build instructions to create artifacts.
 
 [[giam_role]]
+// ⟦axl_voices axig_role⟧
 {giam_role}::
 A collection of permissions that can be granted to users,
 {giam_service_account_s},
@@ -1024,12 +1044,14 @@ or groups in
 {gcp_service}.
 
 [[gcp_lien]]
+// ⟦axl_voices axig_lien⟧
 {gcp_lien}::
 A restriction placed on a
 {gcp_service}
 resource to prevent accidental deletion or modification.
 
 [[giam_service_account]]
+// ⟦axl_voices axig_service_account⟧
 {giam_service_account}::
 A
 {gcp_service}

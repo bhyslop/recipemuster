@@ -45,9 +45,16 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
   - Reserved prefixes: axtw_ (AWS), axta_ (Azure), axth_ (GitHub), axtc_ (Cloudflare), axti_ (IBM)
   Voiced 16 regime variables across RBRR, RBRA, RBRP, RBRO with appropriate types.
 
-- [ ] **P3: GCP and Infrastructure Definitions** (manual)
+- [x] **P3: GCP and Infrastructure Definitions** (manual)
   Add voicings to gcp_*, giam_*, gar_*, gcs_*, gcb_*, rbtgi_* definitions.
-  Need to determine appropriate motifs for cloud infrastructure concepts.
+  Major AXL additions:
+  - **axig_* (Axial Infrastructure Google)**: New category for GCP infrastructure resources
+    - Service-level: axig_resource_manager, axig_cloud_storage, axig_artifact_registry, axig_cloud_build, axig_iam
+    - Instance-level: axig_organization, axig_folder, axig_project, axig_lien, axig_bucket, axig_artifact_repository, axig_container_image, axig_generic_artifact, axig_build, axig_service_account, axig_role, axig_binding, axig_service_account_key
+    - Operational: axig_lro, axig_project_state
+  - **axtg_project_number**: Added to complement axtg_project_id
+  - Reserved prefixes: axiw_ (AWS), axia_ (Azure), axih_ (GitHub)
+  Key insight: axtg_* for identifier types, axig_* for infrastructure resources. Each axig_* definition declares level (service/instance/operational).
 
 - [ ] **P4: Cross-Reference and Support Definitions** (manual)
   Add voicings to at_* cross-reference definitions.
@@ -68,8 +75,10 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
 - axe_* = Axial Environment (execution contexts for operations)
 - axo_* = Axial Operation (command, guide, pattern, identity, actor, dependency)
 - axtu_* = Axial Type Universal (generic infrastructure types)
-- axtg_* = Axial Type Google (GCP-specific types)
-- axtw_*, axta_*, axth_* = Reserved for AWS, Azure, GitHub
+- axtg_* = Axial Type Google (GCP identifier types)
+- axig_* = Axial Infrastructure Google (GCP resources: service/instance/operational levels)
+- axtw_*, axta_*, axth_* = Reserved type categories for AWS, Azure, GitHub
+- axiw_*, axia_*, axih_* = Reserved infrastructure categories for AWS, Azure, GitHub
 
 ### Key Design Decisions
 1. "Variable" preferred over "slot" - aligns with CRR vocabulary
