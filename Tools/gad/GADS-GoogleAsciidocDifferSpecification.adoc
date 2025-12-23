@@ -166,34 +166,52 @@
 . **Semantic Preservation**: Changes in AsciiDoc source formatting that don't affect rendered meaning should not appear as diffs
 . **Deterministic Rendering**: The same AsciiDoc content always produces identical normalized HTML
 . **Volatile Elimination**: All time-dependent, host-dependent, or auto-generated content is stripped or fixed
-. **Clean Workspace**: Each {gadt_factory} run starts fresh, preventing artifact accumulation
+. **Clean Workspace**: Each
+{gadt_factory}
+run starts fresh, preventing artifact accumulation
 
 == Key Premises
 
 [[gadkp_single_threaded]]
 // ⟦axc_step⟧
 {gadkp_single_threaded}::
-The GAD system operates as a single-threaded process per {gadfa_directory}. Only one {gadt_factory} instance may run for a given working directory, eliminating concurrency concerns.
+The GAD system operates as a single-threaded process per
+{gadfa_directory}.
+Only one
+{gadt_factory}
+instance may run for a given working directory, eliminating concurrency concerns.
 
 [[gadkp_bounded_documents]]
 // ⟦axc_step⟧
 {gadkp_bounded_documents}::
-The GAD system processes technical documentation files that are bounded in size, typically under 1MB when rendered to HTML. Modern systems with gigabytes of RAM can efficiently handle multiple DOM representations simultaneously, enabling dual view rendering without memory pressure.
+The GAD system processes technical documentation files that are bounded in size, typically under 1MB when rendered to HTML. Modern systems with gigabytes of RAM can efficiently handle multiple DOM representations simultaneously, enabling
+{gadi_dual_view}
+rendering without memory pressure.
 
 
 == Factory Architecture
 
-The {gadt_factory} Python service combines git monitoring, asciidoctor execution, HTML normalization, and HTTP serving in a single long-running process:
+The
+{gadt_factory}
+Python service combines git monitoring, asciidoctor execution, HTML normalization, and HTTP serving in a single long-running process:
 
 === Integrated Processing Pipeline
 
-The {gadt_factory} handles all processing stages:
+The
+{gadt_factory}
+handles all processing stages:
 - **Git Monitoring**: Detect new commits via filesystem polling
 - **Archive Extraction**: Extract commit files using git subprocess calls
 - **Asciidoctor Execution**: Generate HTML via subprocess orchestration
 - **HTML Normalization**: Process HTML files using integrated distill functionality
-- **HTTP Server**: Serve artifacts and {gadt_inspector} via port 8080
-- **{gadt_websocket} Integration**: Handle {gadt_websocket} upgrades on HTTP port for bidirectional communication
+- **HTTP Server**: Serve artifacts and
+{gadt_inspector}
+via port 8080
+- **
+{gadt_websocket}
+Integration**: Handle
+{gadt_websocket}
+upgrades on HTTP port for bidirectional communication
 
 === Whitespace Normalization
 
@@ -207,11 +225,17 @@ Collapse consecutive whitespace in prose blocks while preserving semantic line b
 
 === Section Numbering Suppression
 
-The {gadt_factory} disables automatic section numbering during asciidoctor execution to prevent heading text changes when document structure changes.
+The
+{gadt_factory}
+disables automatic section numbering during asciidoctor execution to prevent heading text changes when document structure changes.
 
 === Manifest Management
 
-The {gadt_factory} directly manages {gadt_manifest} in memory and on disk:
+The
+{gadt_factory}
+directly manages
+{gadt_manifest}
+in memory and on disk:
 
 - **Atomic Updates**: Single process owns all manifest state
 - **Parent Chain Ordering**: Commits ordered by parent chain traversal sequence regardless of processing order
@@ -224,7 +248,9 @@ The {gadt_factory} directly manages {gadt_manifest} in memory and on disk:
 // ⟦axo_dependency⟧
 {gadfd_dependency}::
 A required tool or library that is present in the execution environment for GAD factory components to function.
-Each {gadfd_dependency} serves a specific role in the render pipeline process.
+Each
+{gadfd_dependency}
+serves a specific role in the render pipeline process.
 
 ==== Core Dependencies
 
@@ -234,31 +260,47 @@ Version 2.0+ required for reproducible mode support.
 
 git::
 Source control system for commit traversal.
-Used by {gadt_factory} to checkout specific commits.
+Used by
+{gadt_factory}
+to checkout specific commits.
 
 Modern web browser::
 Chrome, Firefox, or Safari with JavaScript enabled.
-Required for accessing {gadt_inspector} via HTTP server at localhost:8080.
+Required for accessing
+{gadt_inspector}
+via HTTP server at localhost:8080.
 
 ==== {gadpd_dependency_s}
 
 [[gadp_dependency]]
 // ⟦axo_dependency⟧
 {gadpd_dependency}::
-A required Python library or runtime component that is present for {gadp_distill} to function.
-Each {gadpd_dependency} enables specific HTML normalization and processing capabilities within the distill pipeline.
+A required Python library or runtime component that is present for
+{gadp_distill}
+to function.
+Each
+{gadpd_dependency}
+enables specific HTML normalization and processing capabilities within the distill pipeline.
 
 python3::
 Python 3.6+ runtime environment.
-Required to execute the {gadt_factory} Python service with integrated HTTP server and {gadt_websocket} support.
+Required to execute the
+{gadt_factory}
+Python service with integrated HTTP server and
+{gadt_websocket}
+support.
 
 beautifulsoup4::
 Python HTML parsing and manipulation library.
 Provides precise control over element selection and modification for HTML normalization.
 
 tornado::
-Python web framework for HTTP server and {gadt_websocket} handling.
-Provides single-port operation for both {gadt_inspector} serving and bidirectional communication.
+Python web framework for HTTP server and
+{gadt_websocket}
+handling.
+Provides single-port operation for both
+{gadt_inspector}
+serving and bidirectional communication.
 
 == File Organization
 
@@ -280,49 +322,86 @@ HTTP Server URLs:
 // ⟦axj_structure⟧
 === Manifest Structure
 
-The {gadt_manifest} JSON structure contains:
+The
+{gadt_manifest}
+JSON structure contains:
 
 * [[gadmf_branch]]
 // ⟦axj_field⟧
-{gadmf_branch} - The top-level JSON field containing the Git branch name being processed, corresponds to the {gadfa_branch} argument passed to {gadt_factory}.
+{gadmf_branch}
+- The top-level JSON field containing the Git branch name being processed, corresponds to the
+{gadfa_branch}
+argument passed to
+{gadt_factory}.
 
 * [[gadmf_asciidoc]]
 // ⟦axj_field⟧
-{gadmf_asciidoc} - The top-level JSON field containing the source AsciiDoc filename, corresponds to the {gadfa_adoc_filename} argument passed to {gadt_factory}.
+{gadmf_asciidoc}
+- The top-level JSON field containing the source AsciiDoc filename, corresponds to the
+{gadfa_adoc_filename}
+argument passed to
+{gadt_factory}.
 
 * [[gadmf_last_processed]]
 // ⟦axj_field⟧
-{gadmf_last_processed} - The top-level JSON field containing the most recently processed commit SHA, enables {gadt_factory} to detect new commits during incremental watch mode.
+{gadmf_last_processed}
+- The top-level JSON field containing the most recently processed commit SHA, enables
+{gadt_factory}
+to detect new commits during incremental watch mode.
 
 * [[gadmf_commits]]
 // ⟦axj_field⟧
-{gadmf_commits} - The top-level JSON array containing individual commit metadata objects, each with hash, timestamp, date, message, html_file, and html_sha256 fields.
+{gadmf_commits}
+- The top-level JSON array containing individual commit metadata objects, each with hash, timestamp, date, message, html_file, and html_sha256 fields.
 
-Each commit entry in {gadmf_commits} contains:
+Each commit entry in
+{gadmf_commits}
+contains:
 
 ** [[gadmf_hash]]
 // ⟦axj_field⟧
-{gadmf_hash} - The JSON field "hash" containing the full Git commit SHA, corresponds to the {gadda_commit_hash} argument passed to {gadp_distill}.
+{gadmf_hash}
+- The JSON field "hash" containing the full Git commit SHA, corresponds to the
+{gadda_commit_hash}
+argument passed to
+{gadp_distill}.
 
 ** [[gadmf_timestamp]]
 // ⟦axj_field⟧
-{gadmf_timestamp} - The JSON field "timestamp" containing the formatted processing timestamp in YYYYMMDDHHMMSS format for timestamp display and filename generation.
+{gadmf_timestamp}
+- The JSON field "timestamp" containing the formatted processing timestamp in YYYYMMDDHHMMSS format for timestamp display and filename generation.
 
 ** [[gadmf_date]]
 // ⟦axj_field⟧
-{gadmf_date} - The JSON field "date" containing the commit date in YYYYMMDDHHMMSS format, corresponds to the {gadda_commit_date} argument passed to {gadp_distill}.
+{gadmf_date}
+- The JSON field "date" containing the commit date in YYYYMMDDHHMMSS format, corresponds to the
+{gadda_commit_date}
+argument passed to
+{gadp_distill}.
 
 ** [[gadmf_message]]
 // ⟦axj_field⟧
-{gadmf_message} - The JSON field "message" containing the Git commit message, corresponds to the {gadda_commit_message} argument passed to {gadp_distill}.
+{gadmf_message}
+- The JSON field "message" containing the Git commit message, corresponds to the
+{gadda_commit_message}
+argument passed to
+{gadp_distill}.
 
 ** [[gadmf_html_file]]
 // ⟦axj_field⟧
-{gadmf_html_file} - The JSON field "html_file" containing the generated HTML filename following the {gadif_html_commit} pattern for consistent file organization.
+{gadmf_html_file}
+- The JSON field "html_file" containing the generated HTML filename following the
+{gadif_html_commit}
+pattern for consistent file organization.
 
 ** [[gadmf_html_sha256]]
 // ⟦axj_field⟧
-{gadmf_html_sha256} - The JSON field "html_sha256" containing the SHA-256 hash of the entire normalized HTML file, enables {gadt_inspector} to identify unchanged commits for {gadir_unchanged_indicator} visual treatment.
+{gadmf_html_sha256}
+- The JSON field "html_sha256" containing the SHA-256 hash of the entire normalized HTML file, enables
+{gadt_inspector}
+to identify unchanged commits for
+{gadir_unchanged_indicator}
+visual treatment.
 
 Example structure:
 ----
@@ -351,37 +430,67 @@ Example structure:
 
 . [[gadfs_initial_setup_run]]
 // ⟦axc_step⟧
-Run {gadt_factory} with {gadfa_argument_s}: `./gadt_factory.py --file {gadfa_adoc_filename} --directory {gadfa_directory} --branch {gadfa_branch} --max-distinct-renders {gadfa_max_distinct_renders} --port {gadfa_port}`
+Run
+{gadt_factory}
+with
+{gadfa_argument_s}:
+`./gadt_factory.py --file {gadfa_adoc_filename} --directory {gadfa_directory} --branch {gadfa_branch} --max-distinct-renders {gadfa_max_distinct_renders} --port {gadfa_port}`
 
 . [[gadfs_initial_setup_create]]
 // ⟦axc_step⟧
-Create {gadfd_extract}, {gadfd_distill}, and {gadfd_output} if they don't exist
+Create
+{gadfd_extract},
+{gadfd_distill},
+and
+{gadfd_output}
+if they don't exist
 
 . [[gadfs_initial_setup_http]]
 // ⟦axc_step⟧
-Start HTTP server on {gadfa_port} for {gadt_inspector} and artifact serving
+Start HTTP server on
+{gadfa_port}
+for
+{gadt_inspector}
+and artifact serving
 
 . [[gadfs_initial_setup_delete_manifest]]
 // ⟦axc_step⟧
-Delete existing {gadt_manifest} if present (ensures fresh start)
+Delete existing
+{gadt_manifest}
+if present (ensures fresh start)
 
 . [[gadfs_initial_setup_clean]]
 // ⟦axc_step⟧
-Recursively delete all contents of {gadfd_extract}, {gadfd_distill}, and {gadfd_output} if present
+Recursively delete all contents of
+{gadfd_extract},
+{gadfd_distill},
+and
+{gadfd_output}
+if present
 
 [[gadfs_watch_mode]]
 // ⟦axo_sequence⟧
 === {gadfs_watch_mode}
 
-Unless {gadfa_once} is specified, {gadt_factory} enters steady-state loop while maintaining HTTP server:
+Unless
+{gadfa_once}
+is specified,
+{gadt_factory}
+enters steady-state loop while maintaining HTTP server:
 
 . [[gadfs_watch_head_immediate]]
 // ⟦axc_step⟧
-Process HEAD commit immediately on startup ({gadu_operator} sees latest content first)
+Process HEAD commit immediately on startup (
+{gadu_operator}
+sees latest content first)
 
 . [[gadfs_watch_start_http]]
 // ⟦axc_step⟧
-Start HTTP server on {gadfa_port} and begin serving {gadt_inspector} interface
+Start HTTP server on
+{gadfa_port}
+and begin serving
+{gadt_inspector}
+interface
 
 . [[gadfs_watch_enter_loop]]
 // ⟦axc_step⟧
@@ -389,10 +498,20 @@ Enter continuous loop:
   - Every 3 seconds, check if HEAD has changed
   - If HEAD changed or no unprocessed parents remain, process HEAD
   - Otherwise, find next unprocessed parent commit and process it
-  - Execute {gadfs_render} with selected commit hash
+  - Execute
+{gadfs_render}
+with selected commit hash
   - Update manifest atomically in memory and disk
-  - Send {gadt_websocket} refresh message to connected {gadt_inspector} clients
-  - When distinct render limit is reached, {gadt_factory} enters {gadf_limit_mode} processing only HEAD updates
+  - Send
+{gadt_websocket}
+refresh message to connected
+{gadt_inspector}
+clients
+  - When distinct render limit is reached,
+{gadt_factory}
+enters
+{gadf_limit_mode}
+processing only HEAD updates
 
 . [[gadfs_watch_continue]]
 // ⟦axc_step⟧
@@ -406,22 +525,42 @@ HTTP server remains active throughout steady-state operation
 // ⟦axo_sequence⟧
 === {gadfs_render}
 
-The atomic processing sequence in {gadt_factory} that transforms a single Git commit into a normalized HTML page.
-{gadfs_render} executes git archive, asciidoctor, and {gadp_distill} in sequence, updating {gadt_manifest} with both commit metadata and processing state.
+The atomic processing sequence in
+{gadt_factory}
+that transforms a single Git commit into a normalized HTML page.
+{gadfs_render}
+executes git archive, asciidoctor, and
+{gadp_distill}
+in sequence, updating
+{gadt_manifest}
+with both commit metadata and processing state.
 
-The {gadfs_render} executes these steps for a single commit:
+The
+{gadfs_render}
+executes these steps for a single commit:
 
 . [[gadfs_render_clean]]
 // ⟦axc_step⟧
-Clean {gadfd_extract} and {gadfd_distill} subdirectories
+Clean
+{gadfd_extract}
+and
+{gadfd_distill}
+subdirectories
 
 . [[gadfs_render_archive]]
 // ⟦axc_step⟧
-Execute `git archive` to extract commit files to {gadfd_extract}
+Execute
+`git archive`
+to extract commit files to
+{gadfd_extract}
 
 . [[gadfs_render_asciidoctor]]
 // ⟦axc_step⟧
-Run asciidoctor from {gadfd_extract} to {gadfd_distill} with section numbering disabled
+Run asciidoctor from
+{gadfd_extract}
+to
+{gadfd_distill}
+with section numbering disabled
 
 . [[gadfs_render_normalize]]
 // ⟦axc_step⟧
@@ -433,7 +572,9 @@ Calculate SHA-256 hash of normalized HTML content and check manifest for matchin
 
 . [[gadfs_render_dedup]]
 // ⟦axc_step⟧
-When match found via {gadf_hash_lookup}, reuse existing filename; otherwise write new file with content-based filename
+When match found via
+{gadf_hash_lookup},
+reuse existing filename; otherwise write new file with content-based filename
 
 . [[gadfs_render_manifest_update]]
 // ⟦axc_step⟧
@@ -441,47 +582,145 @@ Update in-memory manifest and write to disk
 
 . [[gadfs_render_websocket_notify]]
 // ⟦axc_step⟧
-Send {gadt_websocket} refresh message if {gadt_websocket} connections are active
+Send
+{gadt_websocket}
+refresh message if
+{gadt_websocket}
+connections are active
 
 == {gadt_inspector} Specification
 
-The {gadt_inspector} provides an interactive interface for comparing normalized {gadt_page_s} through a three-rail architecture where the {gadu_operator} selects commits from {gadir_from} and {gadir_to} using {gadir_radio} controls to generate diff visualizations in the {gadip_rendered}. The system executes {gadis_diff_sequence} to enable the {gadu_operator} to see what is different.
+The
+{gadt_inspector}
+provides an interactive interface for comparing normalized
+{gadt_page_s}
+through a three-rail architecture where the
+{gadu_operator}
+selects commits from
+{gadir_from}
+and
+{gadir_to}
+using
+{gadir_radio}
+controls to generate diff visualizations in the
+{gadip_rendered}.
+The system executes
+{gadis_diff_sequence}
+to enable the
+{gadu_operator}
+to see what is different.
 
 [[gadis_diff_sequence]]
 // ⟦axo_sequence⟧
 === {gadis_diff_sequence}
 
-The {gadt_inspector} executes diff analysis by creating immutable DOM structures from input HTML, running {gaddl_library} to compute operation lists, then applying CSS styling and generating visualization. On error, display error text in {gadip_rendered} instead of diff.
+The
+{gadt_inspector}
+executes diff analysis by creating immutable DOM structures from input HTML, running
+{gaddl_library}
+to compute operation lists, then applying CSS styling and generating visualization. On error, display error text in
+{gadip_rendered}
+instead of diff.
 
-The {gadis_diff_sequence} computes:
+The
+{gadis_diff_sequence}
+computes:
 
-**Input**: "From" and "To" {gadt_page_s} specified in {gadt_manifest}, parsed into {gadic_from_dom} and {gadic_to_dom}.
+**Input**: "From" and "To"
+{gadt_page_s}
+specified in
+{gadt_manifest},
+parsed into
+{gadic_from_dom}
+and
+{gadic_to_dom}.
 
-**Processing**: {gaddl_library} invoked twice to generate {gadis_forward_list} (before→after) and {gadis_reverse_list} (after→before), each containing individual {gaddo_operation} entries with complete {gadis_route} information for precise element positioning. {gadis_change_correlation} analyzes {gadis_forward_list} and {gadis_reverse_list} to group {gaddo_operation} entries by proximity and inverse relationships, producing {gadis_change_list}. CSS classes applied to construct view-specific rendered output. {gadic_annotation_collection} produced containing {gadic_annotation_entry} elements describing each {gadis_change}.
+**Processing**:
+{gaddl_library}
+invoked twice to generate
+{gadis_forward_list}
+(before→after) and
+{gadis_reverse_list}
+(after→before), each containing individual
+{gaddo_operation}
+entries with complete
+{gadis_route}
+information for precise element positioning.
+{gadis_change_correlation}
+analyzes
+{gadis_forward_list}
+and
+{gadis_reverse_list}
+to group
+{gaddo_operation}
+entries by proximity and inverse relationships, producing
+{gadis_change_list}.
+CSS classes applied to construct view-specific rendered output.
+{gadic_annotation_collection}
+produced containing
+{gadic_annotation_entry}
+elements describing each
+{gadis_change}.
 
-**Output**: {gadic_multiview_result} with pre-computed views for {gadip_tab_bar} display options ({gadi_prototype_view} and {gadi_dual_view} content), displayed in {gadip_rendered} pane.
+**Output**:
+{gadic_multiview_result}
+with pre-computed views for
+{gadip_tab_bar}
+display options (
+{gadi_prototype_view}
+and
+{gadi_dual_view}
+content), displayed in
+{gadip_rendered}
+pane.
 
 === {gadis_diff_sequence} Trigger
 
 [[gadis_diff_trigger]]
 // ⟦axo_sequence⟧
-The {gadis_diff_sequence} executes when: page loads, {gadir_from} or {gadir_to} selection changes, or {gadt_websocket} refresh notification arrives.
+The
+{gadis_diff_sequence}
+executes when: page loads,
+{gadir_from}
+or
+{gadir_to}
+selection changes, or
+{gadt_websocket}
+refresh notification arrives.
 
 . [[gadis_trigger_parse_hash]]
 // ⟦axc_step⟧
-Parse URL hash for {gadihp_from}, {gadihp_to}, and {gadihp_tab} values
+Parse URL hash for
+{gadihp_from},
+{gadihp_to},
+and
+{gadihp_tab}
+values
 
 . [[gadis_trigger_verify_factory]]
 // ⟦axc_step⟧
-Verify {gadt_factory} availability via {gadt_manifest} fetch before {gadt_websocket} connection
+Verify
+{gadt_factory}
+availability via
+{gadt_manifest}
+fetch before
+{gadt_websocket}
+connection
 
 . [[gadis_trigger_fetch_pages]]
 // ⟦axc_step⟧
-Fetch both {gadt_page_s} based on {gadi_from_commit} and {gadi_to_commit}
+Fetch both
+{gadt_page_s}
+based on
+{gadi_from_commit}
+and
+{gadi_to_commit}
 
 . [[gadis_trigger_run_diffdom]]
 // ⟦axc_step⟧
-Run {gaddl_library} on immutable DOM trees to generate diff operations
+Run
+{gaddl_library}
+on immutable DOM trees to generate diff operations
 
 . [[gadis_trigger_apply_css]]
 // ⟦axc_step⟧
@@ -489,15 +728,23 @@ Apply CSS classes to diff operations for visual styling
 
 . [[gadis_trigger_generate_views]]
 // ⟦axc_step⟧
-Generate {gadic_multiview_result} with multiple view options and display in {gadip_rendered}
+Generate
+{gadic_multiview_result}
+with multiple view options and display in
+{gadip_rendered}
 
 . [[gadis_trigger_update_header]]
 // ⟦axc_step⟧
-Update {gadih_comparison} with commit range
+Update
+{gadih_comparison}
+with commit range
 
 . [[gadis_trigger_setup_tabs]]
 // ⟦axc_step⟧
-Setup {gadip_tab_bar} and set active tab from {gadis_tab_state}
+Setup
+{gadip_tab_bar}
+and set active tab from
+{gadis_tab_state}
 
 . [[gadis_trigger_persist_state]]
 // ⟦axc_step⟧
@@ -505,14 +752,18 @@ Persist selection and tab state to URL hash parameters
 
 === Visual Interface Components
 
-The {gadt_inspector} interface organizes all interactive elements into a structured layout with specialized controls for commit selection and diff visualization:
+The
+{gadt_inspector}
+interface organizes all interactive elements into a structured layout with specialized controls for commit selection and diff visualization:
 
 ==== Layout Structure
 
 The inspector uses a three-column workspace with rail-based commit selection:
 
 * **{gadil_workspace}**: Three-column grid layout with rail header, rails, and render pane header/content
-* **Rail header**: Contains "F ⇄ T" with embedded {gadid_swap} button, spans both rail columns
+* **Rail header**: Contains "F ⇄ T" with embedded
+{gadid_swap}
+button, spans both rail columns
 * **{gadir_from}** and **{gadir_to}**: Narrow rails with reverse-chronological commit rows
 * **{gadih_comparison}**: Header for render pane showing "hash → hash" commit comparison
 * **{gadip_rendered}**: Main content area showing unified diff
@@ -529,27 +780,48 @@ The rails provide commit selection through radio buttons:
 
 ==== Commit Information
 
-The {gadip_popover} appears on {gadir_row} hover, displaying:
+The
+{gadip_popover}
+appears on
+{gadir_row}
+hover, displaying:
 
 * Commit SHA identifier
 * Full commit message
 * Large, readable text (400px maximum width)
 
-Commits with unchanged {gadmf_html_sha256} values display with {gadir_unchanged_indicator} visual treatment in rail rows.
+Commits with unchanged
+{gadmf_html_sha256}
+values display with
+{gadir_unchanged_indicator}
+visual treatment in rail rows.
 
 ==== Tab Bar Controls
 
-The {gadip_tab_bar} provides view switching within {gadip_rendered}:
+The
+{gadip_tab_bar}
+provides view switching within
+{gadip_rendered}:
 
 * **{gadip_tab_button}**: Clickable tabs for switching visualization modes (Prototype, Dual)
 * **{gadi_prototype_view}**: Default view with styled diff and operations coda
 * **{gadi_dual_view}**: Side-by-side comparison view with color-correlated changes
-* **{gadis_tab_state}**: Current active tab persisted via {gadihp_tab} in URL hash
+* **{gadis_tab_state}**: Current active tab persisted via
+{gadihp_tab}
+in URL hash
 * **{gadiu_tab_switch}**: Instant view switching without diff re-computation
 
 === Dual View Architecture
 
-The {gadi_dual_view} provides a comprehensive side-by-side comparison interface for analyzing document changes between {gadic_from_dom} and {gadic_to_dom}. This architecture enables visual correlation of changes without requiring synchronized scrolling, allowing the {gadu_operator} to explore document differences at their own pace.
+The
+{gadi_dual_view}
+provides a comprehensive side-by-side comparison interface for analyzing document changes between
+{gadic_from_dom}
+and
+{gadic_to_dom}.
+This architecture enables visual correlation of changes without requiring synchronized scrolling, allowing the
+{gadu_operator}
+to explore document differences at their own pace.
 
 ==== Component Hierarchy
 
@@ -579,22 +851,56 @@ The dual view organizes content into three distinct panes:
 
 ==== Data Flow and Processing
 
-The dual view generation follows this sequence within {gadis_diff_sequence}:
+The dual view generation follows this sequence within
+{gadis_diff_sequence}:
 
-. **Diff Analysis**: {gaddl_library} generates {gadis_forward_list} and {gadis_reverse_list}
-. **Change Correlation**: {gadis_change_correlation} groups related operations into {gadis_change} instances
-. **Visual Assignment**: Each {gadvd_change_entry} receives a unique background color for visual correlation
-. **Rendering**: {gadis_change_rendering} produces:
-  - {gadvd_left_rendered}: {gadic_from_dom} with deletion styling (strikethrough + color)
-  - {gadvd_right_rendered}: {gadic_to_dom} with addition styling (bold + color)
-  - {gadvd_change_pane}: List of {gadvd_change_entry} elements with {gadvd_operation_button} controls
+. **Diff Analysis**:
+{gaddl_library}
+generates
+{gadis_forward_list}
+and
+{gadis_reverse_list}
+. **Change Correlation**:
+{gadis_change_correlation}
+groups related operations into
+{gadis_change}
+instances
+. **Visual Assignment**: Each
+{gadvd_change_entry}
+receives a unique background color for visual correlation
+. **Rendering**:
+{gadis_change_rendering}
+produces:
+  -
+{gadvd_left_rendered}:
+{gadic_from_dom}
+with deletion styling (strikethrough + color)
+  -
+{gadvd_right_rendered}:
+{gadic_to_dom}
+with addition styling (bold + color)
+  -
+{gadvd_change_pane}:
+List of
+{gadvd_change_entry}
+elements with
+{gadvd_operation_button}
+controls
 
 ==== User Interaction Model
 
 The dual view enables three primary interaction patterns:
 
-. **Direct Pane Exploration**: Scroll {gadvd_left_pane} and {gadvd_right_pane} independently to examine document structure
-. **Change-Driven Navigation**: Click {gadvd_operation_button} in {gadvd_change_pane} to jump to specific change locations
+. **Direct Pane Exploration**: Scroll
+{gadvd_left_pane}
+and
+{gadvd_right_pane}
+independently to examine document structure
+. **Change-Driven Navigation**: Click
+{gadvd_operation_button}
+in
+{gadvd_change_pane}
+to jump to specific change locations
 . **Visual Correlation**: Match background colors between panes to identify corresponding changes
 
 Navigation flow from change entry to document location:
@@ -608,29 +914,47 @@ User clicks operation button in Change #N
 
 ==== Implementation Details
 
-* **Color Consistency**: Each {gadvd_change_entry} maintains the same background color across all three panes
+* **Color Consistency**: Each
+{gadvd_change_entry}
+maintains the same background color across all three panes
 * **Independent Scrolling**: Panes scroll independently to support non-linear document exploration
-* **Route Preservation**: Operation {gadis_route} values remain valid as they reference immutable DOM structures
-* **Eager Computation**: Per {gadkp_bounded_documents}, all views are pre-computed and stored in {gadic_multiview_result}
-* **Instant Switching**: {gadiu_tab_switch} swaps pre-computed HTML without re-running diff analysis
+* **Route Preservation**: Operation
+{gadis_route}
+values remain valid as they reference immutable DOM structures
+* **Eager Computation**: Per
+{gadkp_bounded_documents},
+all views are pre-computed and stored in
+{gadic_multiview_result}
+* **Instant Switching**:
+{gadiu_tab_switch}
+swaps pre-computed HTML without re-running diff analysis
 
 === {gadid_dependency_s}
 
 [[gadi_dependency]]
 {gadid_dependency}::
 A required tool or library that is present in the execution environment for GAD inspector components to function.
-Each {gadid_dependency} serves a specific role in the diff inspection process.
+Each
+{gadid_dependency}
+serves a specific role in the diff inspection process.
 
 diff-dom library::
-JavaScript DOM tree difference engine for {gadt_inspector}.
+JavaScript DOM tree difference engine for
+{gadt_inspector}.
 Provides structured diff operations preserving HTML element hierarchy.
 
 Modern web browser::
 Chrome, Firefox, or Safari with JavaScript enabled.
-Required for running {gadt_inspector} locally.
+Required for running
+{gadt_inspector}
+locally.
 
 CSS3 with flexbox support::
-Required for {gadt_inspector} layout and {gadip_rendered} styling.
+Required for
+{gadt_inspector}
+layout and
+{gadip_rendered}
+styling.
 Enables responsive design and proper diff visualization.
 
 JavaScript ES6+::
@@ -645,7 +969,11 @@ Powers keyboard shortcuts and dasd{gadit_commit} display logic.
 // ⟦axi_endpoint⟧
 {gaddl_library}::
 JavaScript DOM tree difference engine providing structured diff operations that preserve HTML element hierarchy.
-The {gaddl_library} generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete {gadis_route} information for precise element positioning.
+The
+{gaddl_library}
+generates addElement, removeElement, relocateNode, and modifyTextElement operations with complete
+{gadis_route}
+information for precise element positioning.
 
 [[gaddo_dom]]
 // ⟦axt_type⟧
