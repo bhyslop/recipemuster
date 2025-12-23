@@ -58,7 +58,7 @@ A potential future heat or consideration. The spark/urge that might become a hea
 ### Day-to-Day Usage
 
 You work on a heat by talking with Claude Code. As you make progress:
-- Claude uses `/jja-heat-next` to show current heat and next pace(s), asking for clarification if needed
+- Claude uses `/jja-heat-resume` to show current heat and next pace, asking for clarification if needed
 - You work on the pace together
 - Claude uses `/jja-pace-wrap` to summarize and mark it complete
 - New paces emerge and get added with `/jja-pace-add`
@@ -85,7 +85,7 @@ The system is designed to minimize context usage:
 
 ### Announcing JJ Availability
 
-When appropriate (session start, heat selection, user mentions next paces), Claude announces:
+When appropriate (session start, heat selection, user mentions resuming work), Claude announces:
 - The current heat being worked on
 - "See /jja- commands for Job Jockey services"
 
@@ -132,7 +132,7 @@ my-project/                 # Launch Claude Code here
   CLAUDE.md
   .claude/
     commands/
-      jja-heat-next.md
+      jja-heat-resume.md
       jja-heat-retire.md
       jja-pace-find.md
       jja-pace-left.md
@@ -195,16 +195,16 @@ Config in CLAUDE.md: `Target repo dir: ../my-project`
 4. Archive previous heat to `retired/` (if applicable)
 
 ### Selecting Current Heat
-When starting a session or the user calls `/jja-heat-next`, Claude checks `.claude/jji/current/`:
+When starting a session or the user calls `/jja-heat-resume`, Claude checks `.claude/jji/current/`:
 - **0 heats**: No active work. If pending heats exist, mention them ("You have N pending heats"). Ask if user wants to start a new heat, activate a pending heat, or promote an itch.
-- **1 heat**: Show heat and next pace(s), ask for clarification if next pace is unclear
+- **1 heat**: Show heat and current pace
 - **2+ heats**: Ask user which heat to work on, then show that heat with next pace(s)
 
 ### Working on a Heat
-1. Use `/jja-heat-next` to see current heat and next pace(s)
+1. Use `/jja-heat-resume` to see current heat and current pace
 2. Work on it conversationally with Claude
-3. Use `/jja-pace-wrap` when complete (Claude summarizes)
-4. Use `/jja-heat-next` again to see what's next
+3. Use `/jja-pace-wrap` when complete
+4. Use `/jja-heat-resume` again to see what's next
 5. Repeat until heat is complete
 
 ### Completing a Heat
@@ -253,26 +253,22 @@ Job Jockey Actions (JJA) are Claude Code commands for managing the system.
 
 ### Heat Actions
 
-#### `/jja-heat-next`
-Show the current heat and its next pace(s), with optional clarification prompts.
+#### `/jja-heat-resume`
+Show the current heat and its current pace.
 
 **Behavior**:
 - Checks `.claude/jji/current/` for active heats
 - **0 heats**: Announces no active work, asks if user wants to start a heat or promote an itch
-- **1 heat**: Displays:
-  - Heat name and brief gesture/summary
-  - Next incomplete pace with description
-  - If multiple next paces or unclear priority: asks for clarification ("Which pace should we focus on next?")
-- **2+ heats**: Asks user which heat to work on, then displays that heat with next pace(s)
+- **1 heat**: Displays heat name, context summary, and current pace
+- **2+ heats**: Asks user which heat to work on
 
 **Example output**:
 ```
-Current heat: **BUK Utility Rename**
-Next pace: Update buc_command.sh internal functions
-  Rename zbcu_* functions to zbuc_*
-  (11 internal functions total)
+Resuming heat: **BUK Utility Rename**
 
-Ready to start?
+Current pace: **Update internal functions**
+
+Ready to continue?
 ```
 
 #### `/jja-heat-retire`
@@ -446,40 +442,43 @@ Execute a delegated pace. Validates health before proceeding.
 
 ### Heat Document Structure
 
-Heat files (`jjh-bYYMMDD-description.md` when active, `jjh-bYYMMDD-rYYMMDD-description.md` when retired) contain two main sections:
+Heat files (`jjh-bYYMMDD-description.md` when active, `jjh-bYYMMDD-rYYMMDD-description.md` when retired) contain these sections:
 
-#### Context Section
-Stable information about the heat that only changes when explicitly updated by the user. Contains:
-- Goals and objectives
-- Key constraints
-- Important decisions
-- Background information
-- Links to related resources
-
-This section provides Claude with consistent context across sessions without needing to reread the entire chat history.
-
-**Note**: Concrete examples of heat files will be added as the system is used and patterns emerge.
-
-#### Paces Section
-Divided into Pending and Completed subsections.
-
-**Pending paces format**:
 ```markdown
-### Pending
-- [ ] **Pace title in bold**
-  Optional description with as much detail as needed.
-  Can span multiple lines for complex paces.
-  May include links, code snippets, or detailed requirements.
+# Heat: [Name]
+
+## Context
+[Stable background info. Can grow as insights emerge during heat work.]
+
+## Done
+1. First completed pace title
+2. Second completed pace title
+...
+
+## Current
+**Current pace title**
+[Working notes for this pace only, if needed]
+
+## Remaining
+- Future pace title
+- Another future pace
+...
+
+## Itches
+- itch-name: Brief description
 ```
 
-**Completed paces format**:
-```markdown
-### Completed
-- [x] **Pace title** - Concise summary of what was accomplished
-- [x] **Another pace** - Brief factual outcome
-```
+#### Section Details
 
-Completed paces are kept brief to minimize context usage. Full history is preserved in git.
+**Context**: Stable information that grows as architectural insights emerge. Goals, constraints, decisions, background.
+
+**Done**: Numbered list of completed pace titles only. Number = completion order (useful for commit references). No verbose summaries - git commits carry that detail.
+
+**Current**: The one pace being worked. May include working notes. Gets numbered and moved to Done when complete.
+
+**Remaining**: Unnumbered queue of future paces. Order can change freely. First item becomes Current when current pace completes.
+
+**Itches**: Future work spawned during the heat. May become new heats later.
 
 ## Installation
 
@@ -538,9 +537,9 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - JJ Kit path: `Tools/jjk/job-jockey-kit.md`
 
 **Available commands:**
-- `/jja-heat-next` - Show current heat and next pace(s)
+- `/jja-heat-resume` - Resume current heat, show current pace
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-find` - Show next incomplete pace (with mode)
+- `/jja-pace-find` - Show current pace (with mode)
 - `/jja-pace-left` - List all remaining paces (with mode)
 - `/jja-pace-add` - Add a new pace (defaults to manual)
 - `/jja-pace-refine` - Refine pace spec, set mode (manual or delegated)
@@ -647,10 +646,10 @@ Each action specifies its own commit message pattern.
 
 The following templates are used during installation. Variables (`«JJC_*»`) are replaced with configured values.
 
-#### `/jja-heat-next` Template
+#### `/jja-heat-resume` Template
 
 ```markdown
-You are showing the current Job Jockey heat and its next pace(s).
+You are resuming the current Job Jockey heat.
 
 Configuration:
 - Target repo dir: «JJC_TARGET_REPO_DIR»
@@ -665,36 +664,31 @@ Steps:
 
    **If 0 heats:**
    - Check .claude/jji/pending/ for pending heats
-   - Announce: "No active heat found in .claude/jji/current/"
+   - Announce: "No active heat found"
    - If pending heats exist: "You have N pending heat(s): [list names]"
-   - Ask: "Would you like to start a new heat, activate a pending heat, or promote an itch from jjf-future.md?"
+   - Ask: "Would you like to start a new heat, activate a pending heat, or promote an itch?"
    - Stop and wait for user direction
 
    **If 1 heat:**
    - Read the heat file
    - Display:
-     - Heat name (from filename, e.g., "buk-portability" from jjh-b251108-buk-portability.md)
-     - Brief summary from Context section (first sentence or goal)
-     - Next incomplete pace (first `- [ ]` item) with its description
-   - If multiple unchecked paces exist and priority is unclear:
-     - Ask: "Which pace should we focus on next?"
-   - Otherwise: Ask "Ready to start?" or similar
+     - Heat name (from filename)
+     - Brief summary from Context section
+     - Current pace (from ## Current section)
+   - Ask "Ready to continue?" or similar
 
    **If 2+ heats:**
-   - List all heats by name with brief summary
+   - List all heats by name
    - Ask: "Which heat would you like to work on?"
-   - Wait for selection, then display that heat as in "1 heat" case
+   - Wait for selection, then display as above
 
 3. Example output format:
    ```
-   Current heat: **BUK Utility Rename**
-   Goal: Rename BCU/BDU/BTU/BVU utilities to use consistent buc/bdu/btu/bvu prefixes
+   Resuming heat: **BUK Utility Rename**
 
-   Next pace: **Update bcu_command.sh internal functions**
-     Rename zbcu_* functions to zbuc_*
-     (11 internal functions total)
+   Current pace: **Update internal functions**
 
-   Ready to start?
+   Ready to continue?
    ```
 
 Error handling: If .claude/jji/current/ doesn't exist, announce issue and stop.
@@ -796,7 +790,7 @@ Steps:
 
 6. Check command files:
    - Verify these files exist in .claude/commands/:
-     - jja-heat-next.md
+     - jja-heat-resume.md
      - jja-heat-retire.md
      - jja-pace-find.md
      - jja-pace-left.md
