@@ -5,6 +5,7 @@
 //
 // Category declarations:
 // axc_: Axial Control (orchestration control terms) → mcm_form_deflist
+// axe_: Axial Environment (execution context patterns) → mcm_form_deflist
 // axo_: Axial Operation (operation patterns) → mcm_form_deflist, mcm_form_section for sequences
 // axt_: Axial Type (type system definitions) → mcm_form_deflist
 // axr_: Axial Record (record/member structure patterns) → mcm_form_section for records, mcm_form_deflist for members
@@ -63,6 +64,15 @@
 :axc_await:                           <<axc_await,AWAIT>>
 :axc_show:                            <<axc_show,SHOW>>
 :axc_step:                            <<axc_step,STEP>>
+
+// Axial Environment Terms
+:axe_environment:                     <<axe_environment,Environment>>
+:axe_environment_s:                   <<axe_environment,Environments>>
+:axe_bash_interactive:                <<axe_bash_interactive,Bash Interactive>>
+:axe_bash_unattended:                 <<axe_bash_unattended,Bash Unattended>>
+:axe_human_guide:                     <<axe_human_guide,Human Guide>>
+:axe_rest_api:                        <<axe_rest_api,REST API>>
+:axe_daemon_runtime:                  <<axe_daemon_runtime,Daemon Runtime>>
 
 // Axial Operation Terms
 :axo_command:                         <<axo_command,Command>>
@@ -299,6 +309,52 @@ Implementation varies from console output to UI display based on context.
 {axc_step}::
 A {axl_motif} representing a normal progress message indicating successful completion of a processing stage.
 Provides operational visibility without implying warnings or errors.
+
+== Axial Environment Terms
+
+{axe_environment_s} specify execution contexts for control operations.
+{axl_voicing_s} of {axc_call}, {axc_warn}, {axc_fatal} and similar control motifs should include an appropriate {axe_environment} as a dimension to clarify how the control term manifests in that context.
+
+[[axe_environment]]
+{axe_environment}::
+A {axl_motif} representing an execution context that determines how control terms manifest.
+{axe_environment_s} appear as dimensions in {axl_voicing_s} to bind abstract control semantics to concrete operational behavior.
+
+[[axe_bash_interactive]]
+{axe_bash_interactive}::
+A {axl_motif} representing a bash shell session with human operator present at an interactive terminal.
+Feedback via stdout/stderr is immediate.
+Operator can interrupt (Ctrl-C) or respond to prompts.
+Warnings display as yellow text; fatals exit with non-zero status.
+
+[[axe_bash_unattended]]
+{axe_bash_unattended}::
+A {axl_motif} representing a bash script executing without human presence.
+Output captured to logs.
+No interactive prompts possible.
+Failures must be self-documenting for later analysis.
+
+[[axe_human_guide]]
+{axe_human_guide}::
+A {axl_motif} representing a human executing a specific rendered procedure document while interacting with an external system (web console, GUI application).
+The procedure document presents numbered steps; the human performs each in the external system.
+Feedback is visual confirmation in the external UI.
+Human judges success or failure of each step.
+Warnings are cautionary notes; fatals mean abort procedure.
+
+[[axe_rest_api]]
+{axe_rest_api}::
+A {axl_motif} representing invocation of an HTTP REST API endpoint.
+Request/response via JSON or other structured format.
+Authentication via bearer tokens, API keys, or similar.
+Calls return HTTP status codes and response bodies.
+
+[[axe_daemon_runtime]]
+{axe_daemon_runtime}::
+A {axl_motif} representing a long-running system process.
+Errors are logged, not displayed.
+Fatal means graceful shutdown with cleanup.
+No human in immediate feedback loop.
 
 == Axial Operation Terms
 

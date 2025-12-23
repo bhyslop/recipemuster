@@ -126,7 +126,6 @@
 :oauth_token_s:              <<oauth_token,OAuth Tokens>>
 
 // Recipe Bottle Term Orchestration Embodiments (RB-specific patterns)
-// Generic execution modes moved to oct_ namespace: oct_guide, oct_command, oct_pattern
 :rbtoe_rbra_generate:        <<rbtoe_rbra_generate,rbgu_extract_json_to_rbra>>
 :rbtoe_rbra_load:            <<rbtoe_rbra_load,rbgu_rbra_load>>
 :rbtoe_rbro_load:            <<rbtoe_rbro_load,rbgu_rbro_load>>
@@ -185,21 +184,25 @@
 // Recipe Bottle Regime: Environment Variables (runtime container configuration)
 :rbev_regime:                <<rbev_regime,RBEV Regime>>
 
-// Orchestration Control Terms
-:oct_variable:               <<oct_variable,VARIABLE>>
-:oct_fatal:                  <<oct_fatal,FATAL>>
-:oct_warn:                   <<oct_warn,WARN>>
-:oct_store:                  <<oct_store,STORE>>
-:oct_use:                    <<oct_use,USE>>
-:oct_require:                <<oct_require,REQUIRE>>
-:oct_poll:                   <<oct_poll,POLL>>
-:oct_call:                   <<oct_call,CALL>>
-:oct_submit:                 <<oct_submit,SUBMIT>>
-:oct_await:                  <<oct_await,AWAIT>>
-:oct_show:                   <<oct_show,SHOW>>
-:oct_guide:                  <<oct_guide,GUIDE>>
-:oct_command:                <<oct_command,COMMAND>>
-:oct_pattern:                <<oct_pattern,PATTERN>>
+// RB Bash Console Control Terms (rbbc_* - voices axc_* in axe_bash_interactive)
+:rbbc_variable:              <<rbbc_variable,VARIABLE>>
+:rbbc_fatal:                 <<rbbc_fatal,FATAL>>
+:rbbc_warn:                  <<rbbc_warn,WARN>>
+:rbbc_store:                 <<rbbc_store,STORE>>
+:rbbc_use:                   <<rbbc_use,USE>>
+:rbbc_require:               <<rbbc_require,REQUIRE>>
+:rbbc_poll:                  <<rbbc_poll,POLL>>
+:rbbc_call:                  <<rbbc_call,CALL>>
+:rbbc_submit:                <<rbbc_submit,SUBMIT>>
+:rbbc_await:                 <<rbbc_await,AWAIT>>
+:rbbc_show:                  <<rbbc_show,SHOW>>
+
+// RB Human Guide Control Terms (rbhg_* - voices axc_* in axe_human_guide)
+:rbhg_fatal:                 <<rbhg_fatal,STOP>>
+:rbhg_warn:                  <<rbhg_warn,CAUTION>>
+:rbhg_store:                 <<rbhg_store,RECORD>>
+:rbhg_require:               <<rbhg_require,VERIFY>>
+:rbhg_show:                  <<rbhg_show,NOTE>>
 
 // end::mapping-section[]
 
@@ -232,9 +235,9 @@ return operation IDs that must be polled until completion.
 The system polls at configurable intervals until completion.
 The system handles both success and error states.
 Operations utilize
-{oct_submit}
+{rbbc_submit}
 and
-{oct_await}
+{rbbc_await}
 to handle all asynchronous operations.
 
 * *IAM Policies*:
@@ -244,7 +247,9 @@ resources.
 
 == {rbtr_payor} Operations
 
-=== {rbtgo_payor_establish} {oct_guide}
+[[rbtgo_payor_establish]]
+// ⟦axl_voices axo_guide axe_human_guide⟧
+=== {rbtgo_payor_establish}
 
 The
 {at_user}
@@ -259,7 +264,7 @@ This procedure creates the project and OAuth client but does NOT install credent
 .. Set project name: `Recipe Bottle Payor`
 .. Set project ID: `rbw-payor` (preferred fixed name, single payor per account)
 .. If `rbw-payor` already exists, use `rbw-payor-[4-digit-suffix]` (e.g., rbw-payor-2024)
-.. {oct_store} actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
+.. {rbhg_store} actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
 
 . *Configure Billing*:
 .. Access billing management in Console
@@ -268,7 +273,7 @@ This procedure creates the project and OAuth client but does NOT install credent
 {rbrp_billing_account_id}
 (format: XXXXXX-XXXXXX-XXXXXX)
 .. Link billing account to payor project
-.. {oct_require} billing linkage for API operations
+.. {rbhg_require} billing linkage for API operations
 
 . *Enable Required APIs*:
 .. Navigate to APIs & Services > Enable APIs
@@ -290,7 +295,7 @@ This procedure creates the project and OAuth client but does NOT install credent
 .. Application type: Desktop application
 .. Name: "Recipe Bottle Payor"
 .. Download JSON as `payor-oauth.json`
-.. {oct_warn} client secret non-recoverable after initial download
+.. {rbhg_warn} client secret non-recoverable after initial download
 
 . *Update Configuration*:
 .. Update `rbrp.env` with payor project values:
@@ -301,7 +306,9 @@ NOTE: OAuth JSON file created but not installed. Use
 {rbtgo_payor_refresh}
 to install credentials and complete setup.
 
-=== {rbtgo_payor_refresh} {oct_guide}
+[[rbtgo_payor_refresh]]
+// ⟦axl_voices axo_guide axe_human_guide⟧
+=== {rbtgo_payor_refresh}
 
 Manual procedure to install OAuth credentials for new setup or refresh expired/compromised credentials.
 Use this for both initial credential installation after
@@ -332,7 +339,9 @@ and for renewal operations.
 NOTE: The credential installation functionality is now handled by {rbtgo_payor_refresh} procedure.
 OAuth refresh tokens in testing mode expire after 6 months of non-use.
 
-=== {rbtgo_depot_create} {oct_command}
+[[rbtgo_depot_create]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_depot_create}
 
 NOTE: This operation creates an
 {rbtgi_depot}
@@ -344,12 +353,12 @@ creates a new depot infrastructure from the
 {rbtgi_payor_project}:
 
 . *Validate Input Parameters*:
-.. {oct_require} `«INPUT_DEPOT_NAME»` provided as first argument
+.. {rbbc_require} `«INPUT_DEPOT_NAME»` provided as first argument
 .. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
-.. {oct_require} `«INPUT_REGION»` provided as second argument
-.. {oct_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations/list[artifactregistry.locations.list] to retrieve valid regions
-.. {oct_require} `«INPUT_REGION»` exists in valid regions list
-.. {oct_fatal} if invalid: "Invalid region. Valid regions: [list]"
+.. {rbbc_require} `«INPUT_REGION»` provided as second argument
+.. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations/list[artifactregistry.locations.list] to retrieve valid regions
+.. {rbbc_require} `«INPUT_REGION»` exists in valid regions list
+.. {rbbc_fatal} if invalid: "Invalid region. Valid regions: [list]"
 
 . *Authenticate as
 {rbtr_payor}*:
@@ -357,36 +366,36 @@ creates a new depot infrastructure from the
 {rbtoe_payor_authenticate}
 
 . *Generate Depot Project ID*:
-.. {oct_store} `«TIMESTAMP»` as current time in YYYYMMDDHHmm format
+.. {rbbc_store} `«TIMESTAMP»` as current time in YYYYMMDDHHmm format
 .. Generate project ID: `rbw-«INPUT_DEPOT_NAME»-«TIMESTAMP»`
-.. {oct_store} as `«DEPOT_PROJECT_ID»`
-.. {oct_require} total length ≤ 30 characters
+.. {rbbc_store} as `«DEPOT_PROJECT_ID»`
+.. {rbbc_require} total length ≤ 30 characters
 
 . *Create Depot Project*:
-.. {oct_submit} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
+.. {rbbc_submit} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
 ... projectId: `«DEPOT_PROJECT_ID»`
 ... displayName: `RB Depot: «INPUT_DEPOT_NAME»`
 ... parent: `{rbrp_parent_type}s/{rbrp_parent_id}` (if parent_type != `none`)
-.. {oct_await} returned operation
-.. {oct_require} project creation successful
+.. {rbbc_await} returned operation
+.. {rbbc_require} project creation successful
 
 . *Link Billing Account*:
-.. {oct_call} link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] for `«DEPOT_PROJECT_ID»`
+.. {rbbc_call} link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] for `«DEPOT_PROJECT_ID»`
 .. Set billingAccountName: `billingAccounts/{rbrp_billing_account_id}`
-.. {oct_require} HTTP 200 response confirming billing linkage
+.. {rbbc_require} HTTP 200 response confirming billing linkage
 
 . *Get Depot Project Number*:
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
-.. {oct_store} `«PROJECT_NUMBER»` from `.projectNumber` field
-.. {oct_require} valid numeric project number
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
+.. {rbbc_store} `«PROJECT_NUMBER»` from `.projectNumber` field
+.. {rbbc_require} valid numeric project number
 
 . *Enable Depot Project APIs*:
 .. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `storage`, `iam`, `serviceusage`]:
 ... Execute {rbtoe_api_enable} with service name and `«DEPOT_PROJECT_ID»`
-.. {oct_require} all APIs enabled successfully
+.. {rbbc_require} all APIs enabled successfully
 
 . *Grant {rbtr_payor} Permissions on Depot*:
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
 .. Add {rbtr_payor} service account with roles:
 ... `roles/viewer`
 ... `roles/cloudbuild.builds.editor`
@@ -395,22 +404,22 @@ creates a new depot infrastructure from the
 
 . *Create Build Bucket*:
 .. Construct bucket name: `rbw-«INPUT_DEPOT_NAME»-bucket`
-.. {oct_call} link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
+.. {rbbc_call} link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
 ... name: `rbw-«INPUT_DEPOT_NAME»-bucket`
 ... location: `«INPUT_REGION»`
 ... project: `«DEPOT_PROJECT_ID»`
 ... lifecycle rule: delete objects after 1 day
-.. {oct_store} `«BUILD_BUCKET»` as created bucket name
+.. {rbbc_store} `«BUILD_BUCKET»` as created bucket name
 
 . *Create Container Repository*:
 .. Construct repository name: `rbw-«INPUT_DEPOT_NAME»-repository`
-.. {oct_submit} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
+.. {rbbc_submit} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
 ... repositoryId: `rbw-«INPUT_DEPOT_NAME»-repository`
 ... format: `DOCKER`
 ... location: `«INPUT_REGION»`
 ... parent: `projects/«DEPOT_PROJECT_ID»/locations/«INPUT_REGION»`
-.. {oct_await} returned operation
-.. {oct_store} `«GAR_REPOSITORY»` as created repository name
+.. {rbbc_await} returned operation
+.. {rbbc_store} `«GAR_REPOSITORY»` as created repository name
 
 . *Create
 {rbtr_mason}
@@ -418,44 +427,46 @@ Service Account*:
 .. NOTE: The
 {rbtr_mason}
 replaces Cloud Build's implicit service account to provide deterministic permissions and predictable authorization within the depot infrastructure.
-.. {oct_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
+.. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
 ... accountId: `rbw-«INPUT_DEPOT_NAME»-mason`
 ... displayName: `Mason for RB Depot: «INPUT_DEPOT_NAME»`
 ... project: `«DEPOT_PROJECT_ID»`
-.. {oct_store} `«MASON_SERVICE_ACCOUNT»` from response `.email` field
+.. {rbbc_store} `«MASON_SERVICE_ACCOUNT»` from response `.email` field
 
 . *Configure
 {rbtr_mason}
 Permissions*:
-.. {oct_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for `«GAR_REPOSITORY»`
+.. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for `«GAR_REPOSITORY»`
 ... Add `«MASON_SERVICE_ACCOUNT»` with `roles/artifactregistry.admin`
-.. {oct_call} link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for `«BUILD_BUCKET»`
+.. {rbbc_call} link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for `«BUILD_BUCKET»`
 ... Add `«MASON_SERVICE_ACCOUNT»` with `roles/storage.objectViewer`
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
 ... Add `«MASON_SERVICE_ACCOUNT»` with `roles/viewer`
 
 . *Enable Cloud Build service agent to impersonate
 {rbtr_mason}*:
-.. {oct_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_SERVICE_ACCOUNT»`
+.. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_SERVICE_ACCOUNT»`
 .. Add member: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 .. Grant role: `roles/iam.serviceAccountTokenCreator`
-.. {oct_require} IAM binding successful (enables Cloud Build to execute as Mason)
+.. {rbbc_require} IAM binding successful (enables Cloud Build to execute as Mason)
 
 . *Display Depot Configuration*:
-.. {oct_show} depot creation successful
-.. {oct_show} required RBRR configuration values:
+.. {rbbc_show} depot creation successful
+.. {rbbc_show} required RBRR configuration values:
 ... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
 ... `RBRR_GCP_REGION=«INPUT_REGION»`
 ... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
-.. {oct_show} Mason service account: `«MASON_SERVICE_ACCOUNT»`
-.. {oct_show} depot ready for
+.. {rbbc_show} Mason service account: `«MASON_SERVICE_ACCOUNT»`
+.. {rbbc_show} depot ready for
 {rbtr_governor}
 creation
 
 . *Update Depot Tracking*:
 .. Execute {rbtoe_depot_list_update} to add new depot to RBRP_DEPOT_PROJECT_IDS
 
-=== {rbtgo_depot_destroy} {oct_command}
+[[rbtgo_depot_destroy]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_depot_destroy}
 
 The
 {rbtr_payor}
@@ -464,48 +475,48 @@ destroys an
 and all contained resources:
 
 . *Safety Confirmation*:
-.. {oct_require} `DEBUG_ONLY=1` environment variable for execution
+.. {rbbc_require} `DEBUG_ONLY=1` environment variable for execution
 .. Display comprehensive destruction warnings
-.. {oct_require} operator confirmation with exact depot project ID
+.. {rbbc_require} operator confirmation with exact depot project ID
 
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
 {rbtoe_payor_authenticate}
-.. {oct_require} authentication successful
+.. {rbbc_require} authentication successful
 
 . *Validate Target Depot*:
-.. {oct_require} depot project ID provided as first argument
-.. {oct_store} `«DEPOT_PROJECT_ID»` from argument
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
-.. {oct_require} project exists and state is `ACTIVE`
-.. {oct_fatal} if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
+.. {rbbc_require} depot project ID provided as first argument
+.. {rbbc_store} `«DEPOT_PROJECT_ID»` from argument
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
+.. {rbbc_require} project exists and state is `ACTIVE`
+.. {rbbc_fatal} if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
 
 . *Check for and remove
 {gcp_lien_s}*:
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/list[liens.list] to list existing liens on resource: `projects/«DEPOT_PROJECT_ID»`
-.. {oct_store} `«LIEN_LIST»` from response `.liens[]`
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/list[liens.list] to list existing liens on resource: `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_store} `«LIEN_LIST»` from response `.liens[]`
 .. For each lien in `«LIEN_LIST»`:
-... {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/delete[liens.delete] to delete lien using `.name` field
-... {oct_require} HTTP 200 response for each lien deletion
-.. {oct_require} all liens removed before proceeding
+... {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/delete[liens.delete] to delete lien using `.name` field
+... {rbbc_require} HTTP 200 response for each lien deletion
+.. {rbbc_require} all liens removed before proceeding
 
 . *Initiate depot deletion*:
-.. {oct_submit} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
-.. {oct_store} `«DELETE_OPERATION»` from response if Long Running Operation returned
-.. {oct_await} `«DELETE_OPERATION»` if applicable
-.. {oct_require} deletion initiated successfully
+.. {rbbc_submit} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_store} `«DELETE_OPERATION»` from response if Long Running Operation returned
+.. {rbbc_await} `«DELETE_OPERATION»` if applicable
+.. {rbbc_require} deletion initiated successfully
 
 . *Verify deletion transition*:
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
-.. {oct_poll} project state with 5-10 second intervals for up to 60 seconds
-.. {oct_require} project state equals `DELETE_REQUESTED`
-.. {oct_store} `«DELETION_TIME»` from response `.deleteTime` field
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_poll} project state with 5-10 second intervals for up to 60 seconds
+.. {rbbc_require} project state equals `DELETE_REQUESTED`
+.. {rbbc_store} `«DELETION_TIME»` from response `.deleteTime` field
 
 . *Optional: Immediate billing stop*:
-.. If immediate spend stop required, {oct_call} link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] to update billing info for `projects/«DEPOT_PROJECT_ID»`
+.. If immediate spend stop required, {rbbc_call} link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] to update billing info for `projects/«DEPOT_PROJECT_ID»`
 .. Set `billingAccountName` to empty string
-.. {oct_require} billing unlink successful (HTTP 200)
+.. {rbbc_require} billing unlink successful (HTTP 200)
 .. Note: Standard deletion automatically stops billing, this step provides immediate termination
 
 NOTE: Depot deletion automatically removes all infrastructure created by
@@ -525,10 +536,12 @@ service accounts created within the depot. No individual resource deletion requi
 NOTE: Project enters 30-day retention period in
 {gcp_delete_requested}
 state. Use
-{oct_call}
+{rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/undelete[projects.undelete] to recover project if needed within retention window.
 
-=== {rbtgo_depot_list} {oct_command}
+[[rbtgo_depot_list]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_depot_list}
 
 The
 {rbtr_payor}
@@ -542,8 +555,8 @@ instances and their status:
 {rbtoe_payor_authenticate}
 
 . *Query depot projects*:
-.. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter: `projectId:rbw-* AND lifecycleState:ACTIVE`
-.. {oct_store} `«DEPOT_PROJECTS»` from response
+.. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter: `projectId:rbw-* AND lifecycleState:ACTIVE`
+.. {rbbc_store} `«DEPOT_PROJECTS»` from response
 
 . *Validate each depot*:
 .. For each project in `«DEPOT_PROJECTS»`:
@@ -554,10 +567,12 @@ instances and their status:
 ... Display status: COMPLETE, BROKEN (missing resources), or DELETE_REQUESTED
 
 . *Display summary*:
-.. {oct_show} total depot count
-.. {oct_show} each depot with ID, name, region, and status
+.. {rbbc_show} total depot count
+.. {rbbc_show} each depot with ID, name, region, and status
 
-=== {rbtgo_governor_create} {oct_command}
+[[rbtgo_governor_create]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_governor_create}
 
 The
 {rbtr_payor}
@@ -568,13 +583,13 @@ within the
 {rbtgi_depot_project}:
 
 . *Step 1: Depot Project Validation*:
-.. {oct_require} {rbrr_depot_project_id} exists (via projects.get API call)
-.. {oct_require} {rbrr_depot_project_id} != {rbrp_payor_project_id}
+.. {rbbc_require} {rbrr_depot_project_id} exists (via projects.get API call)
+.. {rbbc_require} {rbrr_depot_project_id} != {rbrp_payor_project_id}
 
 . Create the
 {rbtr_governor}
 {giam_service_account}:
-.. {oct_call}
+.. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create]
 to create service account in
 {rbrr_depot_project_id}
@@ -582,57 +597,59 @@ to create service account in
 .. Use display name: `
 {rbtr_governor}
 role for project administration`
-.. {oct_store} `«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
-.. {oct_require} service account creation successful (HTTP 200)
+.. {rbbc_store} `«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
+.. {rbbc_require} service account creation successful (HTTP 200)
 . Verify
 {giam_service_account}
 creation and propagation:
-.. {oct_call}
+.. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get]
 to query service account using
 `«GOVERNOR_SERVICE_ACCOUNT»`
-.. {oct_poll} with 3-5 second intervals for up to 30 seconds if service account not immediately available
-.. {oct_require} service account accessible before proceeding
+.. {rbbc_poll} with 3-5 second intervals for up to 30 seconds if service account not immediately available
+.. {rbbc_require} service account accessible before proceeding
 . Preflight: Ensure pristine key state:
-.. {oct_call}
+.. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list]
 to list existing keys for
 `«GOVERNOR_SERVICE_ACCOUNT»`
-.. {oct_store} `«EXISTING_KEYS»` from response `.keys[]`
-.. {oct_require} no keys with `keyType: USER_MANAGED` exist (pristine-state requirement)
-.. {oct_fatal} if conflicts found - manual cleanup required
+.. {rbbc_store} `«EXISTING_KEYS»` from response `.keys[]`
+.. {rbbc_require} no keys with `keyType: USER_MANAGED` exist (pristine-state requirement)
+.. {rbbc_fatal} if conflicts found - manual cleanup required
 . Grant
 {gcp_project_id}
 -level
 permissions:
-.. {oct_call}
+.. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy]
 to update IAM policy on
 {rbrr_depot_project_id}
-.. {oct_use} `«GOVERNOR_SERVICE_ACCOUNT»` as principal
+.. {rbbc_use} `«GOVERNOR_SERVICE_ACCOUNT»` as principal
 .. Add role: `roles/owner` (excluding billing permissions maintained by
 {rbtr_payor})
 .. Set policy version: 3 for conditional binding support
-.. {oct_require} IAM policy update successful
+.. {rbbc_require} IAM policy update successful
 . Generate
 {rbrr_governor_rbra_file}:
-.. {oct_call}
+.. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create]
 to create service account key for
 `«GOVERNOR_SERVICE_ACCOUNT»`
 .. Set keyAlgorithm: `KEY_ALG_RSA_2048`, privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
-.. {oct_store} `«GOVERNOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
+.. {rbbc_store} `«GOVERNOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
 .. {rbtoe_rbra_generate} converts
 `«GOVERNOR_PRIVATE_KEY_DATA»`
 to
 `{rbrr_governor_rbra_file}`
 .. NOTE: Script outputs copy command for RBRA file installation
-.. {oct_warn} if {rbrr_governor_rbra_file} already exists
-.. {oct_require} RBRA file creation successful
+.. {rbbc_warn} if {rbrr_governor_rbra_file} already exists
+.. {rbbc_require} RBRA file creation successful
 
 == {rbtr_governor} Operations
 
-=== {rbtgo_retriever_create} {oct_command}
+[[rbtgo_retriever_create]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_retriever_create}
 
 The
 {rbtr_governor}
@@ -647,12 +664,14 @@ to create
 {rbrr_retriever_rbra_file}.
 
 NOTE: Script outputs copy command for RBRA file installation.
-{oct_warn}
+{rbbc_warn}
 if
 {rbrr_retriever_rbra_file}
 already exists.
 
-=== {rbtgo_director_create} {oct_command}
+[[rbtgo_director_create]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_director_create}
 
 The
 {rbtr_governor}
@@ -665,26 +684,36 @@ to create
 {rbrr_director_rbra_file}.
 
 NOTE: Script outputs copy command for RBRA file installation.
-{oct_warn}
+{rbbc_warn}
 if
 {rbrr_director_rbra_file}
 already exists.
 
 == {rbtr_director} Operations
 
-=== {rbtgo_trigger_build} {oct_command}
+[[rbtgo_trigger_build]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_trigger_build}
 
-=== {rbtgo_image_delete} {oct_command}
+[[rbtgo_image_delete]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_image_delete}
 
 == {rbtr_retriever} Operations
 
-=== {rbtgo_image_retrieve} {oct_command}
+[[rbtgo_image_retrieve]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_image_retrieve}
 
 == Multi Role Operations
 
-=== {rbtgo_sa_list} {oct_command}
+[[rbtgo_sa_list]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_sa_list}
 
-=== {rbtgo_sa_delete} {oct_command}
+[[rbtgo_sa_delete]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_sa_delete}
 
 == Definitions
 
@@ -695,73 +724,6 @@ already exists.
 The comprehensive container management platform that enables secure, role-based building, deployment, and retrieval of containerized applications through
 {gcp_service}
 infrastructure.
-
-=== Orchestration Control Terms
-
-[[oct_variable]]
-{oct_variable}::
-A temporary value holder denoted by guillemets `«NAME»` that exists for the duration of an orchestration sequence, storing intermediate results from API responses or computations for use in subsequent steps.
-Uses Screaming snake case.
-
-[[oct_fatal]]
-{oct_fatal}::
-Immediate termination of the orchestration sequence with error status, preventing all subsequent steps from executing and requiring operator intervention.
-
-[[oct_warn]]
-{oct_warn}::
-Display of a non-blocking warning message to the operator while allowing the orchestration sequence to continue execution.
-
-[[oct_store]]
-{oct_store}::
-Capture of a value from an API response or computation into a
-{oct_variable}
-for later reference.
-Example: Store extracted `.projectNumber` field as `«PROJECT_NUMBER»` for use in IAM bindings.
-
-[[oct_use]]
-{oct_use}::
-Reference to a previously stored
-{oct_variable}
-value in the current operation.
-Example: Use `«PROJECT_NUMBER»` as the resource identifier in `projects/«PROJECT_NUMBER»/liens`.
-
-[[oct_require]]
-{oct_require}::
-Validation check that confirms an expected condition, triggering
-{oct_fatal}
-or a provided alternate execution path if the condition is not met.
-
-[[oct_poll]]
-{oct_poll}::
-Repeated execution of an API status check at defined intervals until a condition is satisfied or timeout occurs.
-Used for eventual consistency waits and state verification, not for
-{gcp_lro}
-completion (use
-{oct_await}
-for that).
-In this specification, used for propagation delays after resource creation and state transition verification.
-
-[[oct_call]]
-{oct_call}::
-Direct invocation of a Google Cloud API endpoint via HTTPS REST, capturing the HTTP response code and body for validation.
-Returns an immediate response with the requested data.
-
-[[oct_submit]]
-{oct_submit}::
-Initiation of an asynchronous API operation that returns immediately with a handle to the long-running operation for later completion tracking.
-In this specification, corresponds to Google Cloud APIs returning
-{gcp_lro_s}.
-
-[[oct_await]]
-{oct_await}::
-Blocking wait on a submitted asynchronous operation until it completes.
-In this specification, polls the
-{gcp_lro}
-endpoint until done=true.
-
-[[oct_show]]
-{oct_show}::
-Presentation of operational facts or configuration values to the operator, with implementation-specific formatting appropriate to the execution context.
 
 === RB Role Infrastructure
 
@@ -1059,28 +1021,118 @@ A
 {gcp_service}
 identity that applications and services use to authenticate and authorize API operations, consisting of an email address, unique ID, and associated cryptographic keys for non-interactive authentication.
 
-=== Orchestration Control Execution Modes
+=== Bash Console Control Voicings
 
-[[oct_guide]]
-{oct_guide}::
-A system-presented procedure that a human operator executes.
-The system displays steps (via webpage, markdown, or CLI output) and the human performs them, typically in external systems like web consoles.
+Control terms for Recipe Bottle operations executing in a bash shell with human operator present.
+Each term voices the corresponding {xref_AXLA} control motif in the {axe_bash_interactive} environment.
 
-[[oct_command]]
-{oct_command}::
-A script-executable orchestration entry point that the system runs automatically via API calls.
+[[rbbc_variable]]
+// ⟦axl_voices axc_variable axe_bash_interactive⟧
+{rbbc_variable}::
+A shell variable denoted by guillemets `«NAME»` storing intermediate results.
+Implemented as bash variables or associative array entries.
 
-[[oct_pattern]]
-{oct_pattern}::
-A reusable orchestration subsequence invoked within other operations.
+[[rbbc_fatal]]
+// ⟦axl_voices axc_fatal axe_bash_interactive⟧
+{rbbc_fatal}::
+Red console text followed by `exit 1`.
+Script terminates immediately. Human operator must intervene.
+
+[[rbbc_warn]]
+// ⟦axl_voices axc_warn axe_bash_interactive⟧
+{rbbc_warn}::
+Yellow console text indicating non-blocking concern.
+Script continues execution. Human operator may note for later.
+
+[[rbbc_store]]
+// ⟦axl_voices axc_store axe_bash_interactive⟧
+{rbbc_store}::
+Capture of a value from command output or API response into a {rbbc_variable}.
+Typically via bash assignment or jq extraction.
+
+[[rbbc_use]]
+// ⟦axl_voices axc_use axe_bash_interactive⟧
+{rbbc_use}::
+Reference to a previously stored {rbbc_variable} value.
+Expanded via bash variable substitution.
+
+[[rbbc_require]]
+// ⟦axl_voices axc_require axe_bash_interactive⟧
+{rbbc_require}::
+Validation check that confirms an expected condition.
+Triggers {rbbc_fatal} if condition not met.
+
+[[rbbc_poll]]
+// ⟦axl_voices axc_poll axe_bash_interactive⟧
+{rbbc_poll}::
+Repeated execution of a command at defined intervals until condition satisfied or timeout.
+Implemented as bash while loop with sleep.
+
+[[rbbc_call]]
+// ⟦axl_voices axc_call axe_bash_interactive⟧
+{rbbc_call}::
+Synchronous invocation of a REST API endpoint via curl.
+Captures HTTP status code and response body. Returns when response received.
+
+[[rbbc_submit]]
+// ⟦axl_voices axc_submit axe_bash_interactive⟧
+{rbbc_submit}::
+Asynchronous invocation of a REST API that returns an LRO operation handle.
+Returns immediately with operation ID for later {rbbc_await}.
+
+[[rbbc_await]]
+// ⟦axl_voices axc_await axe_bash_interactive⟧
+{rbbc_await}::
+Blocking wait on a submitted LRO operation until completion.
+Polls operation endpoint until done=true, then returns result.
+
+[[rbbc_show]]
+// ⟦axl_voices axc_show axe_bash_interactive⟧
+{rbbc_show}::
+Presentation of operational facts to the console.
+Formatted output via echo or printf to stdout.
+
+=== Human Guide Control Voicings
+
+Control terms for Recipe Bottle procedures executed by a human operator following a rendered document while interacting with external systems (web console, GUI).
+Each term voices the corresponding {xref_AXLA} control motif in the {axe_human_guide} environment.
+
+[[rbhg_fatal]]
+// ⟦axl_voices axc_fatal axe_human_guide⟧
+{rbhg_fatal}::
+Instruction to abort the procedure immediately.
+Human must not proceed. May require rollback or support contact.
+
+[[rbhg_warn]]
+// ⟦axl_voices axc_warn axe_human_guide⟧
+{rbhg_warn}::
+Cautionary note requiring human acknowledgment before proceeding.
+Highlights potential issues or irreversible actions.
+
+[[rbhg_store]]
+// ⟦axl_voices axc_store axe_human_guide⟧
+{rbhg_store}::
+Instruction for human to record a value for later use.
+Typically written down, copied to clipboard, or saved to a file.
+
+[[rbhg_require]]
+// ⟦axl_voices axc_require axe_human_guide⟧
+{rbhg_require}::
+Verification checkpoint where human confirms a condition before proceeding.
+May involve visual inspection or testing in external UI.
+
+[[rbhg_show]]
+// ⟦axl_voices axc_show axe_human_guide⟧
+{rbhg_show}::
+Informational note presented to the human during procedure.
+Provides context or expected outcomes without requiring action.
 
 === Recipe Bottle Orchestration Patterns (RB-specific)
 
 [[rbtoe_rbra_generate]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_rbra_generate}::
-A
-{oct_pattern}
-that converts Google
+A pattern that converts Google
 {giam_service_account}
 credentials into
 {rbtgi_rbra_file}
@@ -1090,23 +1142,21 @@ converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`,
 and writes to specified file path with 600 permissions (owner read/write only).
 
 [[rbtoe_rbra_load]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_rbra_load}::
-A
-{oct_pattern}
-that sources an
+A pattern that sources an
 {rbtgi_rbra_file}
 and validates required fields:
 sources the specified RBRA file into the current environment,
 validates that `RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, and `RBRA_PROJECT_ID` are all present and non-empty,
 and triggers
-{oct_fatal}
+{rbbc_fatal}
 with standardized error message if any field is missing or invalid.
 
 [[rbtoe_jwt_oauth_exchange]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_jwt_oauth_exchange}::
-A
-{oct_pattern}
-that exchanges
+A pattern that exchanges
 {giam_service_account}
 RBRA credentials for an
 {oauth_token}:
@@ -1115,32 +1165,30 @@ sets JWT claims (iss=RBRA_CLIENT_EMAIL, aud=https://oauth2.googleapis.com/token,
 POSTs to OAuth2 token endpoint,
 returns access_token from response,
 triggers
-{oct_fatal}
+{rbbc_fatal}
 on non-200 HTTP response.
 
 [[rbtoe_api_enable]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_api_enable}::
-An
-{oct_pattern}
-that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
+A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
 
 . attempts to enable the API via serviceusage.services.enable,
 . tolerates HTTP 200 (success) or HTTP 400 with "already enabled" error,
 . executes
-{oct_await}
+{rbbc_await}
 if Long Running Operation returned,
 . verifies API state is ENABLED via serviceusage.services.get,
 . triggers
-{oct_fatal}
+{rbbc_fatal}
 on unexpected errors (409 conflicts, permission denied, etc.),
 . returns success when API is confirmed enabled.
 
 
 [[rbtoe_oauth_refresh]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_oauth_refresh}::
-A
-{oct_pattern}
-that exchanges OAuth refresh token for access token:
+A pattern that exchanges OAuth refresh token for access token:
 
 . loads RBRO_REFRESH_TOKEN and RBRO_CLIENT_SECRET from
 {rbro_regime},
@@ -1150,22 +1198,21 @@ configuration,
 . constructs JSON request with refresh_token, client_id, client_secret, and grant_type=refresh_token,
 . POSTs to https://oauth2.googleapis.com/token with Content-Type: application/json,
 . validates HTTP 200 response or triggers
-{oct_fatal}
+{rbbc_fatal}
 with error description,
 . extracts access_token from JSON response,
-. {oct_require} access_token is present and non-empty,
+. {rbbc_require} access_token is present and non-empty,
 . returns fresh access_token for immediate use,
 . handles 400/401 errors by triggering
-{oct_fatal}
+{rbbc_fatal}
 with "OAuth credentials expired or invalid - run
 {rbtgo_payor_refresh}
 ".
 
 [[rbtoe_payor_authenticate]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_payor_authenticate}::
-A
-{oct_pattern}
-that establishes
+A pattern that establishes
 {rbtr_payor}
 OAuth context:
 
@@ -1179,46 +1226,44 @@ to obtain access token,
 . stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_rbro_load]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_rbro_load}::
-A
-{oct_pattern}
-that loads and validates RBRO credentials:
+A pattern that loads and validates RBRO credentials:
 
-. {oct_require} ~/.rbw/ directory exists or
-{oct_fatal}
+. {rbbc_require} ~/.rbw/ directory exists or
+{rbbc_fatal}
 "RBRO directory missing - run {rbtgo_payor_install}",
-. {oct_require} ~/.rbw/rbro.env file exists or
-{oct_fatal}
+. {rbbc_require} ~/.rbw/rbro.env file exists or
+{rbbc_fatal}
 "RBRO credentials missing - run {rbtgo_payor_install}",
 . validates file permissions are 600 or
-{oct_warn}
+{rbbc_warn}
 "RBRO file permissions should be 600",
 . sources ~/.rbw/rbro.env into current environment,
 . validates RBRO_CLIENT_SECRET is present and non-empty or
-{oct_fatal}
+{rbbc_fatal}
 "RBRO_CLIENT_SECRET missing",
 . validates RBRO_REFRESH_TOKEN is present and non-empty or
-{oct_fatal}
+{rbbc_fatal}
 "RBRO_REFRESH_TOKEN missing",
 . returns success when all RBRO variables are loaded and validated.
 
 [[rbtoe_depot_list_update]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
 {rbtoe_depot_list_update}::
-A
-{oct_pattern}
-that synchronizes depot project tracking:
+A pattern that synchronizes depot project tracking:
 
 . executes
 {rbtoe_payor_authenticate}
 to obtain access token,
-. {oct_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter `projectId:rbw-depot-* AND lifecycleState:ACTIVE`,
-. {oct_require} HTTP 200 response from projects API,
+. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter `projectId:rbw-depot-* AND lifecycleState:ACTIVE`,
+. {rbbc_require} HTTP 200 response from projects API,
 . extracts project IDs from `.projects[].projectId` array,
 . validates each project ID matches pattern `rbw-[name]-[timestamp]`,
 . constructs space-delimited string from valid depot project IDs,
 . updates RBRP_DEPOT_PROJECT_IDS in rbrp.env file,
 . handles empty results by setting RBRP_DEPOT_PROJECT_IDS="",
-. {oct_require} rbrp.env file update successful,
+. {rbbc_require} rbrp.env file update successful,
 . invoked by
 {rbtgo_payor_install},
 {rbtgo_depot_create},
