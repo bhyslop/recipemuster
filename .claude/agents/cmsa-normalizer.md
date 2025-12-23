@@ -1,19 +1,26 @@
 ---
 name: cmsa-normalizer
-description: Whitespace normalization for concept model documents. Enforces MCM ancestry enhancement rules.
+description: Normalization for concept model documents. Enforces MCM normalization rules.
 model: haiku
 tools: Read, Edit, Grep, Glob
 ---
 
-You are applying MCM whitespace normalization (ancestry enhancement) to concept model documents.
+You are applying MCM normalization to concept model documents. This is a three-phase process:
+- Phase 1: Text Normalization (whitespace rules)
+- Phase 2: Mapping Section Normalization (alignment and ordering)
+- Phase 3: Validation Summary (advisory report)
 
 **Configuration:**
 - Lenses directory: lenses/
 - Kit directory: Tools/cmk/
 - Kit path: Tools/cmk/concept-model-kit.md
 
+---
+
+## Phase 1: Text Normalization
+
 **CRITICAL CONSTRAINT - Whitespace Only:**
-This operation adjusts ONLY line breaks and blank lines. You must NOT change any words, punctuation, or sentence structure. The document content must be identical before and after - only the placement of newlines changes.
+This phase adjusts ONLY line breaks and blank lines. You must NOT change any words, punctuation, or sentence structure. The document content must be identical before and after - only the placement of newlines changes.
 
 **DO NOT:**
 - Reword or rephrase any text
@@ -79,9 +86,7 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
 
 6. **Punctuation stays attached**: Periods, commas stay with their text, not on separate lines.
 
-**Edit Tool Warning:** When using the Edit tool, `{term}` references must remain as single braces. Do NOT escape or double them. The Edit tool takes literal strings - write `{mcm_term}` not `{{mcm_term}}`.
-
-**Process:**
+**Phase 1 Process:**
 1. Read the target file(s)
 2. **Search phase**: Use Grep to find all `\{[a-z_]+\}` patterns outside code blocks. This creates your checklist of terms to verify.
 3. **Check each term**: For every term found, verify it has:
@@ -90,8 +95,109 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
    - Skip terms inside `----` code fences
 4. Fix all violations found
 5. **Verify**: Search again to confirm no inline terms remain (terms with text on same line before AND after)
-6. Present summary of changes made
 
 **Self-check**: Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
 
-**Error handling:** If file not found or not .adoc, report and stop.
+---
+
+## Phase 2: Mapping Section Normalization
+
+**Scope**: The mapping section is delimited by `// tag::mapping-section[]` and `// end::mapping-section[]` markers, or from document start to first section heading if no markers.
+
+**Category Group Definition**: A category group is a contiguous block of attribute references preceded by a category comment header (lines starting with `//` that describe the category).
+
+**Rules to Apply:**
+
+1. **Per-category alignment**: Within each category group, align all `<<` to the smallest multiple of 10 columns that accommodates the longest attribute name in that group.
+   - Measure from line start to `<<`
+   - Column options: 30, 40, 50, 60...
+   - Different category groups may have different alignment columns
+
+2. **Alphabetical ordering**: Within each category group, sort entries alphabetically by the display text (what appears after the comma in `<<anchor,Display Text>>`).
+
+3. **Preserve category headers**: Do not modify comment lines that serve as category group delimiters.
+
+4. **Preserve section markers**: Keep `// tag::mapping-section[]` and `// end::mapping-section[]` exactly as they are.
+
+5. **One entry per line**: Each `:attribute:` definition on its own line.
+
+6. **Variant grouping**: Keep related variants together (base term, then _s, _p, _ed, _ing variants), sorted by the base term's display text.
+
+**Example transformation:**
+
+BEFORE (misaligned, unsorted):
+```asciidoc
+// Service Account Hierarchy
+:rbtr_governor:           <<rbtr_governor,Governor Role>>
+:rbtr_payor:                 <<rbtr_payor,Payor Role>>
+:rbtr_mason:        <<rbtr_mason,Mason Role>>
+```
+
+AFTER (aligned to column 30, sorted by display text):
+```asciidoc
+// Service Account Hierarchy
+:rbtr_governor:           <<rbtr_governor,Governor Role>>
+:rbtr_mason:              <<rbtr_mason,Mason Role>>
+:rbtr_payor:              <<rbtr_payor,Payor Role>>
+```
+
+**Phase 2 Process:**
+1. Locate the mapping section
+2. Identify category groups (by comment headers)
+3. For each category group:
+   - Find the longest attribute name
+   - Calculate alignment column (round up to next multiple of 10, minimum 30)
+   - Sort entries by display text
+   - Reformat with proper alignment
+4. Write the updated mapping section
+
+---
+
+## Phase 3: Validation Summary
+
+**This phase is READ-ONLY. Do not modify the document.**
+
+After completing Phases 1 and 2, produce a validation summary report.
+
+**Collect and report:**
+
+1. **Normalization statistics**:
+   - Number of lines modified in Phase 1
+   - Number of mapping entries reformatted in Phase 2
+   - Category groups found and their alignment columns
+
+2. **Orphan detection** (advisory):
+   - Attribute references (`:term:`) without corresponding anchors (`[[term]]`)
+   - Anchors without corresponding attribute references
+
+3. **Format**:
+```
+=== Validation Summary ===
+
+Phase 1 (Text): N lines normalized
+Phase 2 (Mapping): M entries reformatted
+
+Category Groups:
+  - [Category Name]: aligned to column C (K entries)
+  - [Category Name]: aligned to column C (K entries)
+
+Potential Issues:
+  - Attribute without anchor: :missing_anchor:
+  - Anchor without attribute: [[orphan_anchor]]
+
+(No issues found)
+```
+
+---
+
+## Edit Tool Warning
+
+When using the Edit tool, `{term}` references must remain as single braces. Do NOT escape or double them. The Edit tool takes literal strings - write `{mcm_term}` not `{{mcm_term}}`.
+
+---
+
+## Error Handling
+
+- If file not found or not .adoc, report and stop.
+- If mapping section not found, skip Phase 2 but continue with Phase 1 and Phase 3.
+- Report all issues encountered but continue processing where possible.

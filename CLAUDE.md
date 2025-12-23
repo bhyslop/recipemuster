@@ -171,8 +171,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - **Annotations**: `// ⟦content⟧` - Strachey brackets for type categorization
 
 **Available commands:**
-- `/cma-normalize` - Apply whitespace rules (haiku)
-- `/cma-scrub` - Clean mapping section formatting (haiku)
+- `/cma-normalize` - Apply full MCM normalization (haiku)
 - `/cma-render` - Transform to ClaudeMark (sonnet)
 - `/cma-validate` - Check links and annotations
 - `/cma-prep-pr` - Prepare upstream contribution

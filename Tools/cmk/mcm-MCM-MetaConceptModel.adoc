@@ -23,14 +23,16 @@
 :mcm_concept_model_s:        <<mcm_concept_model,Concept Models>>
 :mcm_concept_model_p:        <<mcm_concept_model,Concept Model's>>
 
-:mcm_ancestry_enhancement:   <<mcm_ancestry_enhancement,Ancestry Enhancement>>
+:mcm_category_group:         <<mcm_category_group,Category Group>>
+:mcm_category_group_s:       <<mcm_category_group,Category Groups>>
 :mcm_curation_action:        <<mcm_curation_action,Curation Action>>
 :mcm_curation_action_s:      <<mcm_curation_action,Curation Actions>>
 :mcm_demotion_analysis:      <<mcm_demotion_analysis,Demotion Analysis>>
 :mcm_link_validation:        <<mcm_link_validation,Link Validation>>
-:mcm_mapping_scrub:          <<mcm_mapping_scrub,Mapping Scrub>>
+:mcm_normalization:          <<mcm_normalization,Normalization>>
 :mcm_promotion_analysis:     <<mcm_promotion_analysis,Promotion Analysis>>
 :mcm_term_matching:          <<mcm_term_matching,Term Matching>>
+:mcm_validation_summary:     <<mcm_validation_summary,Validation Summary>>
 
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
@@ -736,15 +738,74 @@ has a specific focus and constraints, modifying only those aspects of the
 {mcm_document}
 that fall within its defined scope.
 
-[[mcm_ancestry_enhancement]]
-{mcm_ancestry_enhancement}::
+[[mcm_normalization]]
+{mcm_normalization}::
 A
 {mcm_curation_action}
-that maintains line-based change visibility through consistent formatting:
+that brings a
+{mcm_document}
+to canonical form through two phases,
+concluding with a
+{mcm_validation_summary}.
+
+*Phase 1: Text Normalization*
+
+Applies consistent formatting throughout the
+{mcm_document}
+body:
+
 * One sentence per line
-* {mcm_linked_term_s} on separate lines
+* Each
+{mcm_linked_term}
+on its own line
+* Commas and punctuation attached to preceding element
 * {mcm_blank_line_s}
-only between paragraphs
+only between paragraphs and definition entries
+* Preserve source code block contents without modification
+
+*Phase 2: Mapping Section Normalization*
+
+Maintains strict structural integrity of the
+{mcm_mapping_section}:
+
+* Preserve
+{mcm_category}
+comment headers as
+{mcm_category_group}
+delimiters
+* Within each
+{mcm_category_group},
+align `<<` to the smallest multiple of 10 columns that accommodates the longest
+{mcm_attribute_reference}
+* Maintain alphabetical ordering by display text within each
+{mcm_category_group}
+* One
+{mcm_attribute_reference}
+per line
+
+*Phase 3: Validation Summary*
+
+Upon completion, report (without modifying):
+
+* Count of lines normalized
+* {mcm_attribute_reference_s}
+without corresponding anchors
+* Anchors without corresponding
+{mcm_attribute_reference_s}
+* {mcm_category_group_s}
+and their alignment columns
+
+[[mcm_category_group]]
+{mcm_category_group}::
+A contiguous block of
+{mcm_attribute_reference_s}
+in the
+{mcm_mapping_section}
+preceded by a category comment header.
+Each
+{mcm_category_group}
+maintains independent column alignment,
+allowing terms to be added without affecting other groups.
 
 [[mcm_demotion_analysis]]
 {mcm_demotion_analysis}::
@@ -766,37 +827,25 @@ based on criteria such as:
 {mcm_link_validation}::
 A
 {mcm_curation_action}
-that verifies and maintains the mechanical integrity of the
+that verifies the mechanical integrity of the
 {mcm_document_p}
-linking system:
-* Ensures
-{mcm_attribute_reference_s}
-and
-{mcm_domain_s}
-are properly formed and matched
-* Validates format and structure compliance
-* Fixes broken mechanics
+linking system without modification:
 
-[[mcm_mapping_scrub]]
-{mcm_mapping_scrub}::
-A
-{mcm_curation_action}
-that maintains the strict structural integrity of the
-{mcm_mapping_section}.
-It enforces format rules including:
-* Complete
-{mcm_category}
-scheme declarations
-* One
-{mcm_attribute_reference}
-and
+* Reports
+{mcm_attribute_reference_s}
+that lack corresponding anchors
+* Reports anchors that lack corresponding
+{mcm_attribute_reference_s}
+* Validates
 {mcm_domain}
-per entry
-* Consistent
-{mcm_variant}
-patterns
-* Alphabetical ordering by replacement text
-* Column alignment to multiples of 10
+format compliance
+* Identifies malformed link syntax
+
+This action produces a diagnostic report for
+{mcm_editor}
+review.
+Repairs are performed manually or through targeted
+{mcm_curation_action_s}.
 
 [[mcm_promotion_analysis]]
 {mcm_promotion_analysis}:: 
@@ -815,7 +864,7 @@ It suggests candidates based on:
 * Words whose precise meaning needs maintenance across document evolution
 
 [[mcm_term_matching]]
-{mcm_term_matching}:: 
+{mcm_term_matching}::
 A
 {mcm_curation_action}
 that identifies instances where concepts corresponding to existing
@@ -823,6 +872,19 @@ that identifies instances where concepts corresponding to existing
 appear in text without proper linking:
 * Identifies important terms that warrant linking
 * Proposes what should be linked
+
+[[mcm_validation_summary]]
+{mcm_validation_summary}::
+An advisory report produced at the conclusion of
+{mcm_normalization}
+that documents the state of the
+{mcm_document}
+without making modifications.
+The
+{mcm_validation_summary}
+enables the
+{mcm_editor}
+to identify issues requiring attention while maintaining a clear audit trail of what was normalized versus what requires further action.
 
 == Document Elements
 

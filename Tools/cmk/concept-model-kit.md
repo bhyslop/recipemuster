@@ -121,31 +121,28 @@ Concept Model Actions (CMA) are Claude Code slash commands for working with conc
 ### Editing Actions
 
 #### `/cma-normalize`
-Apply whitespace normalization (ancestry enhancement) to concept model documents.
+Apply full MCM normalization to concept model documents.
 
 **Usage**: `/cma-normalize [file-path | all]`
 
 **Model**: `haiku` (mechanical, rule-based task)
 
-**Behavior**:
-- Applies MCM whitespace rules to specified file or all files in lenses directory
+**Behavior** (three phases):
+
+*Phase 1 - Text Normalization*:
 - One sentence per line
 - Each linked term on its own line (commas stay attached)
 - Blank lines only between paragraphs
 - Preserves code block contents unchanged
 
-#### `/cma-scrub`
-Clean up mapping section formatting.
+*Phase 2 - Mapping Section Normalization*:
+- Per-category group alignment to multiples of 10 columns
+- Alphabetizes entries by display text within each category group
+- Preserves category comment headers
 
-**Usage**: `/cma-scrub [file-path | all]`
-
-**Model**: `haiku` (mechanical, rule-based task)
-
-**Behavior**:
-- Aligns `<<` to columns that are multiples of 10
-- Ensures consistent variant patterns
-- Alphabetizes entries by replacement text
-- Validates category declarations
+*Phase 3 - Validation Summary*:
+- Reports normalization statistics
+- Identifies orphaned attributes and anchors (advisory)
 
 ### Rendering Actions
 
@@ -272,15 +269,14 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - **Annotations**: `// ⟦content⟧` - Strachey brackets for type categorization
 
 **Available commands:**
-- `/cma-normalize` - Apply whitespace rules (haiku)
-- `/cma-scrub` - Clean mapping section formatting (haiku)
+- `/cma-normalize` - Apply full MCM normalization (haiku)
 - `/cma-render` - Transform to ClaudeMark (sonnet)
 - `/cma-validate` - Check links and annotations
 - `/cma-prep-pr` - Prepare upstream contribution
 - `/cma-doctor` - Validate installation
 
 **Subagents:**
-- `cmsa-normalizer` - Haiku-enforced whitespace normalization
+- `cmsa-normalizer` - Haiku-enforced MCM normalization (text, mapping, validation)
 
 For full MCM specification, see `Tools/cmk/mcm-MCM-MetaConceptModel.adoc`.
 
@@ -318,61 +314,6 @@ When a filename is provided (not "all"):
 2. If it matches a file in lenses directory → use that
 3. If it matches a file in kit directory → use that
 4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
-```
-
-### `/cma-scrub` Template
-
-```markdown
----
-description: Clean up mapping section formatting
-argument-hint: [file-path | all]
-model: haiku
----
-
-You are cleaning up the mapping section of concept model documents.
-
-**Configuration:**
-- Lenses directory: «CML_LENSES_DIR»
-- Kit directory: «CML_KIT_DIR»
-- Kit path: «CML_KIT_PATH»
-
-**Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
-
-**File Resolution:**
-When a filename is provided (not "all"):
-1. If it's a full path that exists → use it
-2. If it matches a file in lenses directory → use that
-3. If it matches a file in kit directory → use that
-4. Common aliases: "MCM" → mcm-MCM-MetaConceptModel.adoc, "AXL" → axl-AXLA-Lexicon.adoc
-
-**Mapping Section Rules:**
-
-1. **Column alignment**: The `<<` of each definition aligns to columns that are multiples of 10
-   - Minimum column: 30 (for short attribute names)
-   - Adjust all entries together when one requires more space
-
-2. **Ordering**: Entries alphabetized by the replacement text (what appears in `<<anchor,This Text>>`)
-
-3. **Category declarations**: Comment block at top declares all category prefixes used
-
-4. **Variant consistency**: Related variants grouped together:
-   ```
-   :excm_term:                   <<excm_term,Term>>
-   :excm_term_s:                 <<excm_term,Terms>>
-   :excm_term_p:                 <<excm_term,Term's>>
-   ```
-
-5. **Section markers**: Preserve `// tag::mapping-section[]` and `// end::mapping-section[]`
-
-**Process:**
-1. Find the mapping section (between tag markers or at document start)
-2. Parse all attribute definitions
-3. Recalculate alignment column
-4. Sort by replacement text
-5. Show diff for approval
-6. Write updated file after approval
-
-**Error handling:** If mapping section not found, report and stop.
 ```
 
 ### `/cma-render` Template
@@ -592,12 +533,11 @@ You are validating the Concept Model Kit installation.
 3. **Command files:**
    - Check for all expected files in `.claude/commands/`:
      - cma-normalize.md
-     - cma-scrub.md
      - cma-render.md
      - cma-validate.md
      - cma-prep-pr.md
      - cma-doctor.md
-   - Report: ✓ All 6 commands present / ✗ Missing: [list]
+   - Report: ✓ All 5 commands present / ✗ Missing: [list]
 
 4. **Subagent files:**
    - Check for all expected files in `.claude/agents/`:
@@ -618,7 +558,7 @@ Concept Model Kit Health Check
 ==============================
 Kit:        ✓ Found at tools/cmk/concept-model-kit.md
 Lenses:     ✓ lenses/ with 3 documents
-Commands:   ✓ All 6 commands installed
+Commands:   ✓ All 5 commands installed
 Subagents:  ✓ All 1 subagents installed
 Remote:     ✓ OPEN_SOURCE_UPSTREAM configured
 CLAUDE.md:  ✓ Configured
@@ -644,20 +584,27 @@ The following subagent templates are used during installation. Variables (`«CML
 ```markdown
 ---
 name: cmsa-normalizer
-description: Whitespace normalization for concept model documents. Enforces MCM ancestry enhancement rules.
+description: Normalization for concept model documents. Enforces MCM normalization rules.
 model: haiku
 tools: Read, Edit, Grep, Glob
 ---
 
-You are applying MCM whitespace normalization (ancestry enhancement) to concept model documents.
+You are applying MCM normalization to concept model documents. This is a three-phase process:
+- Phase 1: Text Normalization (whitespace rules)
+- Phase 2: Mapping Section Normalization (alignment and ordering)
+- Phase 3: Validation Summary (advisory report)
 
 **Configuration:**
 - Lenses directory: «CML_LENSES_DIR»
 - Kit directory: «CML_KIT_DIR»
 - Kit path: «CML_KIT_PATH»
 
+---
+
+## Phase 1: Text Normalization
+
 **CRITICAL CONSTRAINT - Whitespace Only:**
-This operation adjusts ONLY line breaks and blank lines. You must NOT change any words, punctuation, or sentence structure. The document content must be identical before and after - only the placement of newlines changes.
+This phase adjusts ONLY line breaks and blank lines. You must NOT change any words, punctuation, or sentence structure. The document content must be identical before and after - only the placement of newlines changes.
 
 **DO NOT:**
 - Reword or rephrase any text
@@ -723,9 +670,7 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
 
 6. **Punctuation stays attached**: Periods, commas stay with their text, not on separate lines.
 
-**Edit Tool Warning:** When using the Edit tool, `{term}` references must remain as single braces. Do NOT escape or double them. The Edit tool takes literal strings - write `{mcm_term}` not `{{mcm_term}}`.
-
-**Process:**
+**Phase 1 Process:**
 1. Read the target file(s)
 2. **Search phase**: Use Grep to find all `\{[a-z_]+\}` patterns outside code blocks. This creates your checklist of terms to verify.
 3. **Check each term**: For every term found, verify it has:
@@ -734,11 +679,112 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
    - Skip terms inside `----` code fences
 4. Fix all violations found
 5. **Verify**: Search again to confirm no inline terms remain (terms with text on same line before AND after)
-6. Present summary of changes made
 
 **Self-check**: Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
 
-**Error handling:** If file not found or not .adoc, report and stop.
+---
+
+## Phase 2: Mapping Section Normalization
+
+**Scope**: The mapping section is delimited by `// tag::mapping-section[]` and `// end::mapping-section[]` markers, or from document start to first section heading if no markers.
+
+**Category Group Definition**: A category group is a contiguous block of attribute references preceded by a category comment header (lines starting with `//` that describe the category).
+
+**Rules to Apply:**
+
+1. **Per-category alignment**: Within each category group, align all `<<` to the smallest multiple of 10 columns that accommodates the longest attribute name in that group.
+   - Measure from line start to `<<`
+   - Column options: 30, 40, 50, 60...
+   - Different category groups may have different alignment columns
+
+2. **Alphabetical ordering**: Within each category group, sort entries alphabetically by the display text (what appears after the comma in `<<anchor,Display Text>>`).
+
+3. **Preserve category headers**: Do not modify comment lines that serve as category group delimiters.
+
+4. **Preserve section markers**: Keep `// tag::mapping-section[]` and `// end::mapping-section[]` exactly as they are.
+
+5. **One entry per line**: Each `:attribute:` definition on its own line.
+
+6. **Variant grouping**: Keep related variants together (base term, then _s, _p, _ed, _ing variants), sorted by the base term's display text.
+
+**Example transformation:**
+
+BEFORE (misaligned, unsorted):
+```asciidoc
+// Service Account Hierarchy
+:rbtr_governor:           <<rbtr_governor,Governor Role>>
+:rbtr_payor:                 <<rbtr_payor,Payor Role>>
+:rbtr_mason:        <<rbtr_mason,Mason Role>>
+```
+
+AFTER (aligned to column 30, sorted by display text):
+```asciidoc
+// Service Account Hierarchy
+:rbtr_governor:           <<rbtr_governor,Governor Role>>
+:rbtr_mason:              <<rbtr_mason,Mason Role>>
+:rbtr_payor:              <<rbtr_payor,Payor Role>>
+```
+
+**Phase 2 Process:**
+1. Locate the mapping section
+2. Identify category groups (by comment headers)
+3. For each category group:
+   - Find the longest attribute name
+   - Calculate alignment column (round up to next multiple of 10, minimum 30)
+   - Sort entries by display text
+   - Reformat with proper alignment
+4. Write the updated mapping section
+
+---
+
+## Phase 3: Validation Summary
+
+**This phase is READ-ONLY. Do not modify the document.**
+
+After completing Phases 1 and 2, produce a validation summary report.
+
+**Collect and report:**
+
+1. **Normalization statistics**:
+   - Number of lines modified in Phase 1
+   - Number of mapping entries reformatted in Phase 2
+   - Category groups found and their alignment columns
+
+2. **Orphan detection** (advisory):
+   - Attribute references (`:term:`) without corresponding anchors (`[[term]]`)
+   - Anchors without corresponding attribute references
+
+3. **Format**:
+```
+=== Validation Summary ===
+
+Phase 1 (Text): N lines normalized
+Phase 2 (Mapping): M entries reformatted
+
+Category Groups:
+  - [Category Name]: aligned to column C (K entries)
+  - [Category Name]: aligned to column C (K entries)
+
+Potential Issues:
+  - Attribute without anchor: :missing_anchor:
+  - Anchor without attribute: [[orphan_anchor]]
+
+(No issues found)
+```
+
+---
+
+## Edit Tool Warning
+
+When using the Edit tool, `{term}` references must remain as single braces. Do NOT escape or double them. The Edit tool takes literal strings - write `{mcm_term}` not `{{mcm_term}}`.
+
+---
+
+## Error Handling
+
+- If file not found or not .adoc, report and stop.
+- If mapping section not found, skip Phase 2 but continue with Phase 1 and Phase 3.
+- Report all issues encountered but continue processing where possible.
 ```
 
 ## Design Principles
