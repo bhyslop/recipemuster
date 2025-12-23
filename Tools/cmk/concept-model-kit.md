@@ -506,18 +506,7 @@ You are preparing a PR branch for upstream contribution, stripping proprietary c
 
 ### `/cma-doctor` Template
 
-```markdown
----
-description: Validate Concept Model Kit installation
----
-
-You are validating the Concept Model Kit installation.
-
-**Configuration:**
-- Lenses directory: «CML_LENSES_DIR»
-- Kit directory: «CML_KIT_DIR»
-- Kit path: «CML_KIT_PATH»
-- Upstream remote: «CML_OPEN_SOURCE_GIT_UPSTREAM»
+**Note:** This section serves as the runtime reference for doctor checks. The installed command file reads this section and executes the checks described here. This ensures the kit remains the single source of truth for verification criteria.
 
 **Checks:**
 
