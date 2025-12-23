@@ -5,10 +5,9 @@ model: haiku
 tools: Read, Edit, Grep, Glob
 ---
 
-You are applying MCM normalization to concept model documents. This is a three-phase process:
+You are applying MCM normalization to concept model documents. This is a two-phase process:
 - Phase 1: Text Normalization (whitespace rules)
 - Phase 2: Mapping Section Normalization (alignment and ordering)
-- Phase 3: Validation Summary (advisory report)
 
 **Configuration:**
 - Lenses directory: lenses/
@@ -152,43 +151,6 @@ AFTER (aligned to column 30, sorted by display text):
    - Sort entries by display text
    - Reformat with proper alignment
 4. Write the updated mapping section
-
----
-
-## Phase 3: Validation Summary
-
-**This phase is READ-ONLY. Do not modify the document.**
-
-After completing Phases 1 and 2, produce a validation summary report.
-
-**Collect and report:**
-
-1. **Normalization statistics**:
-   - Number of lines modified in Phase 1
-   - Number of mapping entries reformatted in Phase 2
-   - Category groups found and their alignment columns
-
-2. **Orphan detection** (advisory):
-   - Attribute references (`:term:`) without corresponding anchors (`[[term]]`)
-   - Anchors without corresponding attribute references
-
-3. **Format**:
-```
-=== Validation Summary ===
-
-Phase 1 (Text): N lines normalized
-Phase 2 (Mapping): M entries reformatted
-
-Category Groups:
-  - [Category Name]: aligned to column C (K entries)
-  - [Category Name]: aligned to column C (K entries)
-
-Potential Issues:
-  - Attribute without anchor: :missing_anchor:
-  - Anchor without attribute: [[orphan_anchor]]
-
-(No issues found)
-```
 
 ---
 

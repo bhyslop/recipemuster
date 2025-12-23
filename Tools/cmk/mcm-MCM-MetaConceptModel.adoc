@@ -744,9 +744,7 @@ A
 {mcm_curation_action}
 that brings a
 {mcm_document}
-to canonical form through two phases,
-concluding with a
-{mcm_validation_summary}.
+to canonical form through two phases.
 
 *Phase 1: Text Normalization*
 
@@ -782,18 +780,6 @@ align `<<` to the smallest multiple of 10 columns that accommodates the longest
 * One
 {mcm_attribute_reference}
 per line
-
-*Phase 3: Validation Summary*
-
-Upon completion, report (without modifying):
-
-* Count of lines normalized
-* {mcm_attribute_reference_s}
-without corresponding anchors
-* Anchors without corresponding
-{mcm_attribute_reference_s}
-* {mcm_category_group_s}
-and their alignment columns
 
 [[mcm_category_group]]
 {mcm_category_group}::
@@ -875,8 +861,8 @@ appear in text without proper linking:
 
 [[mcm_validation_summary]]
 {mcm_validation_summary}::
-An advisory report produced at the conclusion of
-{mcm_normalization}
+An advisory report produced by
+{mcm_link_validation}
 that documents the state of the
 {mcm_document}
 without making modifications.
@@ -884,7 +870,7 @@ The
 {mcm_validation_summary}
 enables the
 {mcm_editor}
-to identify issues requiring attention while maintaining a clear audit trail of what was normalized versus what requires further action.
+to identify issues requiring attention.
 
 == Document Elements
 
