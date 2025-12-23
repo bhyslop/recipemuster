@@ -1038,7 +1038,11 @@ identity that applications and services use to authenticate and authorize API op
 === Bash Console Control Voicings
 
 Control terms for Recipe Bottle operations executing in a bash shell with human operator present.
-Each term voices the corresponding {xref_AXLA} control motif in the {axe_bash_interactive} environment.
+Each term voices the corresponding
+{xref_AXLA}
+control motif in the
+{axe_bash_interactive}
+environment.
 
 [[rbbc_variable]]
 // ⟦axl_voices axc_variable axe_bash_interactive⟧
@@ -1061,20 +1065,25 @@ Script continues execution. Human operator may note for later.
 [[rbbc_store]]
 // ⟦axl_voices axc_store axe_bash_interactive⟧
 {rbbc_store}::
-Capture of a value from command output or API response into a {rbbc_variable}.
+Capture of a value from command output or API response into a
+{rbbc_variable}.
 Typically via bash assignment or jq extraction.
 
 [[rbbc_use]]
 // ⟦axl_voices axc_use axe_bash_interactive⟧
 {rbbc_use}::
-Reference to a previously stored {rbbc_variable} value.
+Reference to a previously stored
+{rbbc_variable}
+value.
 Expanded via bash variable substitution.
 
 [[rbbc_require]]
 // ⟦axl_voices axc_require axe_bash_interactive⟧
 {rbbc_require}::
 Validation check that confirms an expected condition.
-Triggers {rbbc_fatal} if condition not met.
+Triggers
+{rbbc_fatal}
+if condition not met.
 
 [[rbbc_poll]]
 // ⟦axl_voices axc_poll axe_bash_interactive⟧
@@ -1092,7 +1101,8 @@ Captures HTTP status code and response body. Returns when response received.
 // ⟦axl_voices axc_submit axe_bash_interactive⟧
 {rbbc_submit}::
 Asynchronous invocation of a REST API that returns an LRO operation handle.
-Returns immediately with operation ID for later {rbbc_await}.
+Returns immediately with operation ID for later
+{rbbc_await}.
 
 [[rbbc_await]]
 // ⟦axl_voices axc_await axe_bash_interactive⟧
@@ -1109,7 +1119,11 @@ Formatted output via echo or printf to stdout.
 === Human Guide Control Voicings
 
 Control terms for Recipe Bottle procedures executed by a human operator following a rendered document while interacting with external systems (web console, GUI).
-Each term voices the corresponding {xref_AXLA} control motif in the {axe_human_guide} environment.
+Each term voices the corresponding
+{xref_AXLA}
+control motif in the
+{axe_human_guide}
+environment.
 
 [[rbhg_fatal]]
 // ⟦axl_voices axc_fatal axe_human_guide⟧
