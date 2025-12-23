@@ -494,15 +494,28 @@ Heat files (`jjh-bYYMMDD-description.md` when active, `jjh-bYYMMDD-rYYMMDD-descr
 
 2. **Run the installation conversation** with Claude Code:
    - Open the repository containing CLAUDE.md
-   - Say: "Read job-jockey-kit.md and let's install Job Jockey"
-   - Claude will ask configuration questions
+   - Say: "Read job-jockey-kit.md and reinstall Job Jockey"
+   - Installation is fully idempotent - safe to run any time
 
-3. **Configuration questions**:
-   - **Target repo dir**: Where does actual work happen, relative to this directory?
-     - `.` = direct mode (work happens here, JJ lives with the code)
-     - `../path` = relative path (portable across machines with matching layout)
-     - `/absolute/path` = absolute path (machine-specific)
-   - **Kit path**: Claude will use the path where it found this file (supports relative paths for portability)
+3. **Configuration handling** (smart detection):
+   - Claude checks CLAUDE.md for existing `## Job Jockey Configuration` section
+   - **If found**: Extracts ONLY these values:
+     - `Target repo dir:` value
+     - `JJ Kit path:` value
+   - Shows current config and asks "Keep this configuration? [Y/n]"
+     - If yes: skips questions, regenerates with existing config
+     - If no: asks configuration questions as if fresh install
+   - **If not found**: Asks configuration questions:
+     - **Target repo dir**: Where does actual work happen, relative to this directory?
+       - `.` = direct mode (work happens here, JJ lives with the code)
+       - `../path` = relative path (portable across machines with matching layout)
+       - `/absolute/path` = absolute path (machine-specific)
+     - **Kit path**: Uses the path where this kit was found
+
+   **CRITICAL - What to IGNORE in CLAUDE.md**:
+   During reinstall, CLAUDE.md may contain stale command names or outdated descriptions.
+   IGNORE everything except the two config values above. The kit is the sole source of truth
+   for command names, templates, and the CLAUDE.md configuration section text.
 
 4. **Claude will then** (idempotent - safe to run multiple times):
    - Delete any existing `jja-*.md` command files from `.claude/commands/`
