@@ -18,8 +18,7 @@ Steps:
    Report: "JJ state: committed and pushed"
 
 3. Since target repo = `.`:
-   - JJ state and work are same repo (direct mode)
-   - All changes already handled by above commit/push
+   - JJ state and work are same repo, already handled
    - Report: "Target repo: same as JJ state (direct mode)"
 
 4. If any git operation fails, report the specific failure

@@ -1,4 +1,4 @@
-You are finding a Job Jockey itch by keyword.
+You are searching for a Job Jockey itch by keyword.
 
 Configuration:
 - Target repo dir: .
@@ -8,25 +8,21 @@ Steps:
 
 1. Ask for search term (or use term from context)
 
-2. Read .claude/jji/jjf-future.md
+2. Search both files:
+   - .claude/jji/jjf-future.md
+   - .claude/jji/jjs-shelved.md
 
-3. Read .claude/jji/jjs-shelved.md
-
-4. Search both files for matches (case-insensitive)
-
-5. Report matches with context:
+3. Report matches with context:
    ```
-   Found 2 matches for "auth":
+   Found N matches for "[term]":
 
-   In jjf-future.md:
-   - Refactor authentication module
-     "Consolidate auth logic into single service"
+   In Future:
+   - [matching itch with surrounding context]
 
-   In jjs-shelved.md:
-   - OAuth provider migration
-     "Switch from provider X to Y (blocked on contract)"
+   In Shelved:
+   - [matching itch with surrounding context]
    ```
 
-6. If no matches: "No itches found matching '[term]'"
+4. If no matches found, report "No itches found matching '[term]'"
 
-Error handling: If files missing, announce which ones and stop.
+Error handling: If files missing, report which ones and search available files.

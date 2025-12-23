@@ -1,4 +1,4 @@
-You are moving a Job Jockey itch between locations or promoting it to a heat.
+You are moving a Job Jockey itch between locations.
 
 Configuration:
 - Target repo dir: .
@@ -7,36 +7,32 @@ Configuration:
 Steps:
 
 1. Identify the itch to move (from context or ask)
-   - May need to use /jja-itch-find first
 
-2. Ask destination:
-   - `future` → move to jjf-future.md
-   - `shelved` → move to jjs-shelved.md
-   - `heat` → promote to new heat file
+2. Determine current location:
+   - .claude/jji/jjf-future.md (Future)
+   - .claude/jji/jjs-shelved.md (Shelved)
 
-3. If moving between future/shelved:
+3. Ask for destination:
+   - Future (jjf-future.md) - worthy of doing
+   - Shelved (jjs-shelved.md) - setting aside
+   - Promote to Heat - create new jjh-*.md file
+
+4. Execute the move:
+
+   **If moving between Future/Shelved:**
    - Remove from source file
    - Add to destination file
-   - Do NOT commit (accumulates until /jja-sync)
+   - Preserve any context/notes
 
-4. If promoting to heat:
-   - Ask for heat description (kebab-case)
-   - Create new file: .claude/jji/current/jjh-bYYMMDD-description.md
-   - Use today's date for bYYMMDD
-   - Initialize with:
-     - Context section (from itch description)
-     - Pending section with initial pace from itch
-   - Remove itch from source file
-   - Do NOT commit (accumulates until /jja-sync)
+   **If promoting to Heat:**
+   - Remove from source file
+   - Create new heat file: .claude/jji/current/jjh-bYYMMDD-[description].md
+   - Use itch as initial context
+   - Create initial pace from itch objective
+   - Ask user to confirm heat structure
 
-5. Report what was done:
-   ```
-   Moved 'Refactor authentication module' from future → shelved
-   ```
-   Or:
-   ```
-   Promoted 'Refactor authentication module' to new heat
-   Created: .claude/jji/current/jjh-b251127-auth-refactor.md
-   ```
+5. Do NOT commit (accumulates until /jja-sync)
 
-Error handling: If files missing or itch not found, announce issue and stop.
+6. Report what was moved
+
+Error handling: If itch not found or files missing, announce issue and stop.

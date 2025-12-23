@@ -33,6 +33,7 @@ Steps:
    ```
 
 5. Execute the pace based solely on the spec
+   - Work in target repo directory: .
    - Work from the spec, not from refinement conversation context
    - Stay within defined scope
    - Stop when success criteria met OR failure condition hit
@@ -42,6 +43,6 @@ Steps:
    - Failure: what was attempted, why stopped, what's needed
 
 7. Do NOT auto-complete the pace. User decides via /jja-pace-wrap
-   Work is NOT auto-committed. User can review and use /jja-sync.
+   Work in target repo is NOT auto-committed. User can review and use /jja-sync.
 
 Error handling: If paths wrong or files missing, announce issue and stop.

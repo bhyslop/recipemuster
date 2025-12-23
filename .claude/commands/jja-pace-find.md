@@ -1,4 +1,4 @@
-You are showing the next incomplete pace from the current Job Jockey heat.
+You are showing the current pace from the active Job Jockey heat.
 
 Configuration:
 - Target repo dir: .
@@ -8,22 +8,23 @@ Steps:
 
 1. Check for heat files in .claude/jji/current/
    - If 0 heats: announce "No active heat" and stop
-   - If multiple heats: ask which one
+   - If 2+ heats: ask which one
 
 2. Read the heat file
 
-3. Find the first incomplete pace (`- [ ]` item)
+3. Find the current pace:
+   - Look for the ## Current section
+   - Extract the pace title (bold text) and any working notes
 
-4. Display the pace:
-   - Title (bold text after `- [ ]`)
-   - Mode (manual/delegated) if specified
-   - Description (indented lines following the title)
+4. Determine the mode:
+   - Look for `mode: manual` or `mode: delegated` in the pace spec
+   - Default to `manual` if not specified
 
-5. Example output:
+5. Display:
    ```
-   Next pace: **Audit BUK portability** [manual]
-     Review all four BUK utilities for hardcoded paths
-     Document findings in portability-notes.md
+   Current pace: **[title]** [mode]
+
+   [working notes if any]
    ```
 
-Error handling: If .claude/jji/current/ doesn't exist or no heat found, announce issue and stop.
+Error handling: If no current pace found, announce "No current pace - check ## Remaining for next pace"

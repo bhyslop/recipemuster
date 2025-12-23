@@ -139,9 +139,9 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - JJ Kit path: `Tools/jjk/job-jockey-kit.md`
 
 **Available commands:**
-- `/jja-heat-next` - Show current heat and next pace(s)
+- `/jja-heat-resume` - Resume current heat, show current pace
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-find` - Show next incomplete pace (with mode)
+- `/jja-pace-find` - Show current pace (with mode)
 - `/jja-pace-left` - List all remaining paces (with mode)
 - `/jja-pace-add` - Add a new pace (defaults to manual)
 - `/jja-pace-refine` - Refine pace spec, set mode (manual or delegated)

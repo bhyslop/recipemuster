@@ -1,4 +1,4 @@
-You are listing all Job Jockey itches from both future and shelved files.
+You are listing all Job Jockey itches.
 
 Configuration:
 - Target repo dir: .
@@ -6,25 +6,25 @@ Configuration:
 
 Steps:
 
-1. Read .claude/jji/jjf-future.md
+1. Read .claude/jji/jjf-future.md for future itches
 
-2. Read .claude/jji/jjs-shelved.md
+2. Read .claude/jji/jjs-shelved.md for shelved itches
 
 3. Display all itches:
    ```
-   Future itches (3):
-   1. Add dark mode support
-   2. Refactor authentication module
-   3. Performance optimization for large datasets
+   Future itches (N):
+   1. [itch title/description]
+   2. [itch title/description]
+   ...
 
-   Shelved itches (2):
-   1. Legacy API migration (blocked on vendor)
-   2. Mobile app prototype (deferred to Q2)
+   Shelved itches (N):
+   1. [itch title/description] - [reason if noted]
+   2. [itch title/description]
+   ...
    ```
 
-4. If either file is empty, note it:
-   ```
-   Future itches: (none)
-   ```
+4. If either file is empty or missing, report appropriately:
+   - "Future itches: none"
+   - "Shelved itches: none"
 
-Error handling: If files missing, announce which ones and stop.
+Error handling: If files missing, report which ones and continue with available data.

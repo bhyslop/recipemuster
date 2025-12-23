@@ -8,20 +8,25 @@ Steps:
 
 1. Check for heat files in .claude/jji/current/
    - If 0 heats: announce "No active heat" and stop
-   - If multiple heats: ask which one
+   - If 2+ heats: ask which one
 
 2. Read the heat file
 
-3. Find all incomplete paces (`- [ ]` items)
+3. Collect remaining paces:
+   - Current pace from ## Current section
+   - Future paces from ## Remaining section
 
-4. Display terse list with mode:
+4. For each pace, determine mode:
+   - Look for `mode: manual` or `mode: delegated`
+   - Default to `manual` if not specified
+
+5. Display terse list:
    ```
-   Remaining paces (3):
-   1. [manual] Audit BUK portability
-   2. [manual] Create test harness
-   3. [delegated] Document migration guide
+   Remaining paces (N):
+   1. [mode] Current pace title
+   2. [mode] Next pace title
+   3. [mode] Another pace title
+   ...
    ```
 
-5. If no incomplete paces: "All paces complete! Ready to retire this heat?"
-
-Error handling: If .claude/jji/current/ doesn't exist or no heat found, announce issue and stop.
+Error handling: If no remaining paces, announce "All paces complete - ready to retire heat?"

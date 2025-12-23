@@ -8,35 +8,33 @@ Steps:
 
 1. Check for heat files in .claude/jji/current/
    - If 0 heats: announce "No active heat" and stop
-   - If multiple heats: ask which one
+   - If 2+ heats: ask which one
 
 2. Read the heat file to understand context and existing paces
 
-3. Ask user what pace to add (or infer from conversation context)
+3. Analyze the heat context and existing paces
 
-4. Analyze the heat and propose:
-   - Pace title (bold format)
+4. Propose a new pace:
+   - Title (bold format)
    - Optional description
-   - Suggested position (before/after which existing pace)
+   - Position in the list (explain reasoning)
    - Default mode: manual
 
-5. Explain reasoning for the placement
-
-6. Example proposal:
+5. Present proposal:
    ```
-   I propose adding pace '**Test BCU fixes**' after 'Audit BUK portability'
-   because we'll need to validate each fix before moving to BDU.
-   Mode: manual (default)
-
+   I propose adding pace '**[title]**' after '[existing pace]'
+   because [reasoning].
    Should I add it there?
    ```
 
-7. Wait for user approval or amendment
+6. Wait for user approval or amendment
 
-8. Update the heat file with the new pace
+7. If approved, update the heat file:
+   - Add pace to ## Remaining section at proposed position
+   - Include `mode: manual` (default)
 
-9. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-sync)
+8. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-sync)
 
-10. Report what was added
+9. Report what was added
 
 Error handling: If paths wrong or files missing, announce issue and stop.

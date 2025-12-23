@@ -22,14 +22,17 @@ Steps:
    - Verify .claude/jji/jjs-shelved.md exists
    - Report: ✓ exists / ✗ missing for each
 
-4. Check git tracking:
+4. Check target repo (since target = `.`):
+   - Report: ✓ Target repo: direct mode (same repo)
+
+5. Check git tracking:
    - Run: git check-ignore .claude/jji/
    - If ignored: ⚠ WARNING: JJ state is gitignored - /jja-sync will not track changes
    - If not ignored: ✓ JJ state is tracked by git
 
-5. Check command files:
+6. Check command files:
    - Verify these files exist in .claude/commands/:
-     - jja-heat-next.md
+     - jja-heat-resume.md
      - jja-heat-retire.md
      - jja-pace-find.md
      - jja-pace-left.md
@@ -44,25 +47,27 @@ Steps:
      - jja-doctor.md
    - Report: ✓ All 13 commands present / ✗ Missing: [list]
 
-6. Check heats:
+7. Check heats:
    - List any files in .claude/jji/current/
    - List any files in .claude/jji/pending/
    - Report counts and names
 
-7. Summary:
+8. Summary:
    ```
    Job Jockey Health Check
    =======================
    Kit:        ✓ Found at Tools/jjk/job-jockey-kit.md
    Structure:  ✓ All directories present
    Files:      ✓ jjf-future.md, jjs-shelved.md present
+   Target:     ✓ Direct mode (same repo)
    Git:        ✓ JJ state tracked
    Commands:   ✓ All 13 commands installed
 
-   Active heats: 1
-   - jjh-b251108-buk-portability.md
+   Active heats: N
+   - [list if any]
 
-   Pending heats: 0
+   Pending heats: N
+   - [list if any]
 
    Status: HEALTHY
    ```
@@ -70,8 +75,7 @@ Steps:
    Or if issues:
    ```
    Status: NEEDS ATTENTION
-   - Missing command: jja-pace-wrap.md
-   - Directory missing: .claude/jji/pending/
+   - [list specific issues]
    ```
 
 Error handling: Report all issues found, don't stop at first error.
