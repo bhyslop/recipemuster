@@ -19,6 +19,14 @@
 // axrg_: Axial Regime (configuration system patterns) → mcm_form_deflist
 // xref_: External specification references
 //
+// Extended Type Categories (domain-specific type subcategories):
+// axtu_: Axial Type Universal (generic infrastructure types) → mcm_form_deflist
+// axtg_: Axial Type Google (Google Cloud Platform types) → mcm_form_deflist
+// axtw_: Axial Type AWS (Amazon Web Services types) → mcm_form_deflist [reserved]
+// axta_: Axial Type Azure (Microsoft Azure types) → mcm_form_deflist [reserved]
+// axth_: Axial Type GitHub (GitHub types) → mcm_form_deflist [reserved]
+// Reserved: axtc_ (Cloudflare), axti_ (IBM), axtm_ (avoid - Microsoft confusion)
+//
 // Variant patterns:
 //   _s: plural form
 //   _p: possessive form
@@ -69,6 +77,22 @@
 :axrg_assignment_s:                   <<axrg_assignment,Assignments>>
 :axrg_prefix:                         <<axrg_prefix,Regime Prefix>>
 :axrg_prefix_s:                       <<axrg_prefix,Regime Prefixes>>
+
+// Axial Type Universal Terms (generic infrastructure)
+:axtu_string:                         <<axtu_string,String>>
+:axtu_path:                           <<axtu_path,Path>>
+:axtu_ipv4:                           <<axtu_ipv4,IPv4 Address>>
+:axtu_cidr:                           <<axtu_cidr,CIDR Block>>
+:axtu_port:                           <<axtu_port,Port Number>>
+:axtu_domain:                         <<axtu_domain,Domain Name>>
+:axtu_sha256:                         <<axtu_sha256,SHA256 Hash>>
+:axtu_xname:                          <<axtu_xname,Cross-Context Name>>
+
+// Axial Type Google Terms (Google Cloud Platform)
+:axtg_project_id:                     <<axtg_project_id,GCP Project ID>>
+:axtg_region:                         <<axtg_region,GCP Region>>
+:axtg_service_account:                <<axtg_service_account,GCP Service Account>>
+:axtg_billing_account:                <<axtg_billing_account,GCP Billing Account>>
 
 // Axial Control Terms
 :axc_variable:                        <<axc_variable,VARIABLE>>
@@ -844,6 +868,83 @@ A {axl_motif} representing the stable character sequence that namespaces all {ax
 Typically composed of a project marker and regime marker (e.g., `RBRR_` = `RB` + `RR` + `_`).
 Once established, an {axrg_prefix} becomes deeply embedded across code, configuration files, and documentation.
 Changing an {axrg_prefix} requires coordinated refactoring across all consuming artifacts.
+
+== Axial Type Universal Terms
+
+{axtu_*} types represent generic infrastructure patterns that are not specific to any cloud provider or platform.
+These types capture critical gestalts that appear across many systems.
+Platform-specific nuances (e.g., path separators on Windows vs Unix) are handled through {axl_voicing_s}.
+
+[[axtu_string]]
+{axtu_string}::
+A {axl_motif} representing a generic bounded string value.
+{axl_voicing_s} specify minimum and maximum length constraints appropriate to their context.
+
+[[axtu_path]]
+{axtu_path}::
+A {axl_motif} representing a file system path.
+Platform differences (path separators, root conventions) are handled by {axl_voicing_s}.
+May be absolute or relative depending on context.
+
+[[axtu_ipv4]]
+{axtu_ipv4}::
+A {axl_motif} representing an IPv4 address in dotted-decimal notation.
+Format: four octets 0-255 separated by dots (e.g., `192.168.1.1`).
+
+[[axtu_cidr]]
+{axtu_cidr}::
+A {axl_motif} representing a CIDR block for network addressing.
+Format: IPv4 address followed by slash and prefix length (e.g., `10.0.0.0/8`).
+
+[[axtu_port]]
+{axtu_port}::
+A {axl_motif} representing a network port number.
+Valid range: 1-65535. Well-known ports are 1-1023.
+
+[[axtu_domain]]
+{axtu_domain}::
+A {axl_motif} representing a DNS domain name.
+Must start and end with alphanumeric characters; may contain dots and hyphens.
+
+[[axtu_sha256]]
+{axtu_sha256}::
+A {axl_motif} representing a SHA-256 cryptographic hash.
+Format: 64 lowercase hexadecimal characters.
+
+[[axtu_xname]]
+{axtu_xname}::
+A {axl_motif} representing a cross-context safe identifier.
+Must start with a letter and contain only letters, digits, underscores, and hyphens.
+Safe for use in file names, environment variables, and most programming contexts.
+
+== Axial Type Google Terms
+
+{axtg_*} types represent Google Cloud Platform resource identifiers and patterns.
+These types have specific format requirements enforced by GCP APIs.
+
+[[axtg_project_id]]
+{axtg_project_id}::
+A {axl_motif} representing a Google Cloud Platform project identifier.
+Format: 6-30 lowercase letters, digits, and hyphens; must start with a letter and end with letter or digit.
+Globally unique across all of GCP.
+
+[[axtg_region]]
+{axtg_region}::
+A {axl_motif} representing a Google Cloud Platform region code.
+Format: lowercase letters, digits, and hyphens (e.g., `us-central1`, `europe-west1`).
+Determines geographic location for regional resources.
+
+[[axtg_service_account]]
+{axtg_service_account}::
+A {axl_motif} representing a Google Cloud Platform service account email.
+Format: `{account-id}@{project-id}.iam.gserviceaccount.com` where account-id is 6-30 characters.
+Used as identity for programmatic API access.
+
+[[axtg_billing_account]]
+{axtg_billing_account}::
+A {axl_motif} representing a Google Cloud Platform billing account identifier.
+Format: `XXXXXX-XXXXXX-XXXXXX` (three groups of six uppercase alphanumeric characters).
+Links projects to payment sources.
 
 == Axial Key Premise Terms
 

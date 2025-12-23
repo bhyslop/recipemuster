@@ -1378,6 +1378,7 @@ operations.
 RBRR regimes contain depot project identifiers, regional settings, repository locations, and service account credential file paths that establish the foundational infrastructure configuration.
 
 [[rbrr_depot_project_id]]
+// ⟦axl_voices axrg_variable axtg_project_id⟧
 {rbrr_depot_project_id}::
 The
 {gcp_service}
@@ -1392,6 +1393,7 @@ in API calls and as the audience claim in
 exchange.
 
 [[rbrr_gcp_region]]
+// ⟦axl_voices axrg_variable axtg_region⟧
 {rbrr_gcp_region}::
 The default
 {gcp_service}
@@ -1402,6 +1404,7 @@ and
 Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
 
 [[rbrr_gar_repository]]
+// ⟦axl_voices axrg_variable axtg_project_id⟧
 {rbrr_gar_repository}::
 The
 {gar_service}
@@ -1414,6 +1417,7 @@ and
 {rbtgi_metadata_s}.
 
 [[rbrr_retriever_rbra_file]]
+// ⟦axl_voices axrg_variable axtu_path⟧
 {rbrr_retriever_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1428,6 +1432,7 @@ to assume the
 role for container image operations.
 
 [[rbrr_director_rbra_file]]
+// ⟦axl_voices axrg_variable axtu_path⟧
 {rbrr_director_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1442,6 +1447,7 @@ to assume the
 for build submission and image management operations.
 
 [[rbrr_governor_rbra_file]]
+// ⟦axl_voices axrg_variable axtu_path⟧
 {rbrr_governor_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1458,6 +1464,7 @@ role for
 administration operations.
 
 [[rbrr_payor_rbra_file]]
+// ⟦axl_voices axrg_variable axtu_path⟧
 {rbrr_payor_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1483,6 +1490,7 @@ via
 {giam_service_account}.
 
 [[rbra_client_email]]
+// ⟦axl_voices axrg_variable axtg_service_account⟧
 {rbra_client_email}::
 The
 {giam_service_account}
@@ -1491,6 +1499,7 @@ email address assigned by
 used as the issuer (`iss`) when constructing JWTs for OAuth2 token exchange.
 
 [[rbra_private_key]]
+// ⟦axl_voices axrg_variable axtu_string⟧
 {rbra_private_key}::
 The PEM-encoded RSA private key material corresponding to the
 {giam_service_account}.
@@ -1498,6 +1507,7 @@ Stored as a literal multi-line string with `\n` sequences that are expanded when
 Used only in memory at runtime; never written separately to disk.
 
 [[rbra_project_id]]
+// ⟦axl_voices axrg_variable axtg_project_id⟧
 {rbra_project_id}::
 The
 {gcp_service}
@@ -1535,6 +1545,7 @@ infrastructure.
 RBRP regimes define payor project identification, billing account linkage, OAuth client configuration, and depot project tracking arrays that enable infrastructure lifecycle management.
 
 [[rbrp_payor_project_id]]
+// ⟦axl_voices axrg_variable axtg_project_id⟧
 {rbrp_payor_project_id}::
 The
 {gcp_service}
@@ -1547,6 +1558,7 @@ This
 must exist before Recipe Bottle initialization and serves as the administrative control plane.
 
 [[rbrp_billing_account_id]]
+// ⟦axl_voices axrg_variable axtg_billing_account⟧
 {rbrp_billing_account_id}::
 The
 {gcp_service}
@@ -1558,12 +1570,14 @@ instances.
 Format: XXXXXX-XXXXXX-XXXXXX.
 
 [[rbrp_oauth_client_id]]
+// ⟦axl_voices axrg_variable axtu_string⟧
 {rbrp_oauth_client_id}::
 The public OAuth 2.0 client identifier for the
 {rbtr_payor}
 desktop application.
 
 [[rbrp_depot_project_ids]]
+// ⟦axl_voices axrg_variable axtg_project_id axd_repeated⟧
 {rbrp_depot_project_ids}::
 Space-delimited array of active depot project IDs managed by this
 {rbtr_payor}.
@@ -1587,10 +1601,12 @@ operations.
 Stored in `~/.rbw/rbro.env` with 600 permissions, never committed to version control.
 
 [[rbro_client_secret]]
+// ⟦axl_voices axrg_variable axtu_string⟧
 {rbro_client_secret}::
 The OAuth 2.0 client secret from the Google Cloud Console OAuth client configuration.
 
 [[rbro_refresh_token]]
+// ⟦axl_voices axrg_variable axtu_string⟧
 {rbro_refresh_token}::
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
 

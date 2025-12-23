@@ -37,9 +37,13 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
   (All RBAGS regimes use bash-sourceable .env format)
   Also added axrg_prefix to AXL and 6 prefix definitions to RBAGS.
 
-- [ ] **P2: Regime Variable Definitions** (manual)
+- [x] **P2: Regime Variable Definitions** (manual)
   Add voicings to individual regime variables (RBRR_*, RBRA_*, RBRP_*, RBRO_*).
-  Voice pattern: `// ⟦axl_voices axrg_variable axt_string⟧` (with appropriate type)
+  Major AXL additions:
+  - **axtu_* (Axial Type Universal)**: Generic infrastructure types (string, path, ipv4, cidr, port, domain, sha256, xname)
+  - **axtg_* (Axial Type Google)**: GCP-specific types (project_id, region, service_account, billing_account)
+  - Reserved prefixes: axtw_ (AWS), axta_ (Azure), axth_ (GitHub), axtc_ (Cloudflare), axti_ (IBM)
+  Voiced 16 regime variables across RBRR, RBRA, RBRP, RBRO with appropriate types.
 
 - [ ] **P3: GCP and Infrastructure Definitions** (manual)
   Add voicings to gcp_*, giam_*, gar_*, gcs_*, gcb_*, rbtgi_* definitions.
@@ -63,6 +67,9 @@ Goal: Every definition in RBAGS gets a `// ⟦axl_voices motif [dimensions]⟧` 
 - axf_* = Axial Format (serialization, reusable beyond regimes)
 - axe_* = Axial Environment (execution contexts for operations)
 - axo_* = Axial Operation (command, guide, pattern, identity, actor, dependency)
+- axtu_* = Axial Type Universal (generic infrastructure types)
+- axtg_* = Axial Type Google (GCP-specific types)
+- axtw_*, axta_*, axth_* = Reserved for AWS, Azure, GitHub
 
 ### Key Design Decisions
 1. "Variable" preferred over "slot" - aligns with CRR vocabulary
