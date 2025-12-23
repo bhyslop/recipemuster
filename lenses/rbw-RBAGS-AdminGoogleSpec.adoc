@@ -728,6 +728,7 @@ infrastructure.
 === RB Role Infrastructure
 
 [[rbtr_role]]
+// ⟦axl_voices axo_identity⟧
 {rbtr_role}::
 An operational identity within the
 {at_recipe_bottle}
@@ -748,6 +749,7 @@ which operates exclusively within cloud infrastructure.
 === {giam_service_account} Definitions
 
 [[rbtr_payor]]
+// ⟦axl_voices axo_actor⟧
 {rbtr_payor}::
 An
 {rbtr_role}
@@ -759,6 +761,7 @@ The
 operates through OAuth 2.0 desktop application flow, enabling individual developers to manage Recipe Bottle infrastructure without requiring organization-level permissions.
 
 [[rbtr_governor]]
+// ⟦axl_voices axo_actor⟧
 {rbtr_governor}::
 An
 {rbtr_role}
@@ -768,6 +771,7 @@ that grants a
 -scope Owner permissions without billing authority, designed for automation-friendly operations.
 
 [[rbtr_retriever]]
+// ⟦axl_voices axo_actor⟧
 {rbtr_retriever}::
 An
 {rbtr_role}
@@ -779,6 +783,7 @@ for pulling
 {rbtgi_image_s}.
 
 [[rbtr_mason]]
+// ⟦axl_voices axo_actor⟧
 {rbtr_mason}::
 A cloud-native
 {giam_service_account}
@@ -810,6 +815,7 @@ without requiring a local
 since it operates entirely within the cloud infrastructure.
 
 [[rbtr_director]]
+// ⟦axl_voices axo_actor⟧
 {rbtr_director}::
 An
 {rbtr_role}

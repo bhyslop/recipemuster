@@ -84,6 +84,10 @@
 :axo_sequence_s:                      <<axo_sequence,Sequences>>
 :axo_role:                            <<axo_role,Role>>
 :axo_role_s:                          <<axo_role,Roles>>
+:axo_identity:                        <<axo_identity,Identity>>
+:axo_identity_s:                      <<axo_identity,Identities>>
+:axo_actor:                           <<axo_actor,Actor>>
+:axo_actor_s:                         <<axo_actor,Actors>>
 
 // Axial Type Terms
 :axt_type:                            <<axt_type,Type>>
@@ -382,6 +386,17 @@ Maintains strict ordering requirements between operations.
 {axo_role}::
 A {axl_motif} representing an operational identity pattern that defines capabilities and permissions.
 Determines available operations and access boundaries.
+
+[[axo_identity]]
+{axo_identity}::
+A {axl_motif} representing the abstract concept of an operational identity.
+An entity capable of authentication and holding authorities within a system.
+{axo_identity} is the pattern; {axo_actor_s} are named instantiations with specific bindings.
+
+[[axo_actor]]
+{axo_actor}::
+A {axl_motif} representing a specific named identity with defined responsibilities and exclusive authority over an operational domain.
+{axo_actor_s} instantiate {axo_identity} with concrete bindings (human via OAuth, service via service account) and permissions.
 
 == Axial Type Terms
 
