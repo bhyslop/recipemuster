@@ -137,11 +137,11 @@ while preserving fluid rendering in the output document.
 occur in these precise patterns:
 
 * Between independent sentences
-* Before and after each standalone
+* Before and after each
 {mcm_linked_term}
+(including each term within a sequence)
 * Between fragments that surround
 {mcm_linked_term_s}
-* With term sequences, before the first term and after the last term only
 
 Basic example showing sentence and term breaks:
 
@@ -157,7 +157,7 @@ Each component reports its status.
 ==== Term Integration Patterns
 
 When incorporating
-{mcm_linked_term_s},
+{mcm_linked_term_s}
 the text follows these specific patterns:
 
 Single term integration - breaks before and after the term:
@@ -171,12 +171,15 @@ according to defined rules.
 
 Multiple
 {mcm_linked_term_s}
-in sequence - breaks surround the entire sequence:
+in sequence - each term gets its own line, with commas attached:
 
 [source,asciidoc]
 ----
 The interface supports
-{excm_drag}, {excm_drop}, and {excm_scroll}
+{excm_drag},
+{excm_drop},
+and
+{excm_scroll}
 operations.
 ----
 
@@ -443,16 +446,23 @@ The form determines how these elements are structured.
 [[mcm_annotation]]
 {mcm_annotation}::
 A comment containing Strachey brackets `⟦content⟧` placed between an anchor target and its definition.
-{mcm_annotation_s} are ignored during first-order document reading.
-When a referencing system is in context, {mcm_annotation_s} provide type categorization or other metadata about the term.
-The bracketed content contains space-separated {mcm_linked_term_s} from the referencing system, which is typically out-of-context during first-order reading.
-The grammar and interpretation of those {mcm_linked_term_s} is defined by the referencing system, not MCM.
+{mcm_annotation_s}
+are ignored during first-order document reading.
+When a referencing system is in context,
+{mcm_annotation_s}
+provide type categorization or other metadata about the term.
+The bracketed content contains space-separated
+{mcm_linked_term_s}
+from the referencing system, which is typically out-of-context during first-order reading.
+The grammar and interpretation of those
+{mcm_linked_term_s}
+is defined by the referencing system, not MCM.
 
 [[mcm_form_deflist]]
 {mcm_form_deflist}::
 The standard pattern using AsciiDoc definition list syntax.
 The anchor target appears on its own line, followed by an optional
-{mcm_annotation},
+{mcm_annotation}
 then the term reference with `::` and definition text.
 Use for standalone terms with self-contained meaning.
 
@@ -469,7 +479,7 @@ Definition text following sentence-per-line rules.
 A pattern for terms that belong to a parent structure or sequence.
 Each term appears as a bullet item under its parent section.
 The anchor target appears after the bullet marker, followed by an optional
-{mcm_annotation},
+{mcm_annotation}
 then the term reference with definition prose.
 Use for fields of a structure or steps in a procedure.
 
@@ -484,7 +494,7 @@ Use for fields of a structure or steps in a procedure.
 {mcm_form_section}::
 A pattern where the section heading itself is the term.
 The anchor target appears before the section marker, followed by an optional
-{mcm_annotation},
+{mcm_annotation}
 then the section heading containing the term reference.
 The section content constitutes the definition.
 Use for terms whose meaning requires extended explanation or contains nested child terms.
@@ -560,7 +570,10 @@ Related technical concept definition.
 === {mcm_category}, {mcm_variant}, and {mcm_domain} Usage
 
 The
-{mcm_category}, {mcm_variant}, and {mcm_domain}
+{mcm_category},
+{mcm_variant},
+and
+{mcm_domain}
 work together to maintain precise term relationships and variations.
 
 ==== {mcm_category} Rules
@@ -757,7 +770,9 @@ that verifies and maintains the mechanical integrity of the
 {mcm_document_p}
 linking system:
 * Ensures
-{mcm_attribute_reference_s} and {mcm_domain_s}
+{mcm_attribute_reference_s}
+and
+{mcm_domain_s}
 are properly formed and matched
 * Validates format and structure compliance
 * Fixes broken mechanics
@@ -773,7 +788,9 @@ It enforces format rules including:
 {mcm_category}
 scheme declarations
 * One
-{mcm_attribute_reference} and {mcm_domain}
+{mcm_attribute_reference}
+and
+{mcm_domain}
 per entry
 * Consistent
 {mcm_variant}

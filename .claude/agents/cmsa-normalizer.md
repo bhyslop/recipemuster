@@ -54,14 +54,18 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
      starts a new sentence.
      ```
 
-3. **Term sequences together**: Multiple terms in sequence stay on one line:
-   - Line break before the first term
-   - Line break after the last term
-   - Terms separated by commas/and stay together
+3. **Term sequences**: Each term in a sequence gets its own line:
+   - Line break before each term
+   - Line break after each term
+   - Commas stay attached to preceding term (like periods stay with sentences)
+   - Connectives like "and" or "or" get their own line
    - Example:
      ```
      The interface supports
-     {excm_drag}, {excm_drop}, and {excm_scroll}
+     {excm_drag},
+     {excm_drop},
+     and
+     {excm_scroll}
      operations.
      ```
 

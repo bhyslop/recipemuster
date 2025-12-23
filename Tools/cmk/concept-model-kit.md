@@ -60,7 +60,7 @@ MCM documents follow specific whitespace patterns for clean diff tracking:
 
 1. **One sentence per line** - Each sentence ends with a line break
 2. **Linked terms isolated** - Line breaks before and after standalone `{term}` references in prose (exception: terms at start of bullet items stay on the marker line, as AsciiDoc requires `* content` syntax)
-3. **Term sequences together** - Multiple terms in sequence stay on one line, with breaks before first and after last
+3. **Term sequences isolated** - Each term in a sequence gets its own line, commas attached to preceding term
 4. **Blank lines between paragraphs only** - Never within paragraphs or around list items
 5. **Mapping section alignment** - The `<<` aligns to columns that are multiples of 10
 
@@ -130,7 +130,7 @@ Apply whitespace normalization (ancestry enhancement) to concept model documents
 **Behavior**:
 - Applies MCM whitespace rules to specified file or all files in lenses directory
 - One sentence per line
-- Linked terms on separate lines (unless in sequence)
+- Each linked term on its own line (commas stay attached)
 - Blank lines only between paragraphs
 - Preserves code block contents unchanged
 
@@ -698,14 +698,18 @@ This operation adjusts ONLY line breaks and blank lines. You must NOT change any
      starts a new sentence.
      ```
 
-3. **Term sequences together**: Multiple terms in sequence stay on one line:
-   - Line break before the first term
-   - Line break after the last term
-   - Terms separated by commas/and stay together
+3. **Term sequences**: Each term in a sequence gets its own line:
+   - Line break before each term
+   - Line break after each term
+   - Commas stay attached to preceding term (like periods stay with sentences)
+   - Connectives like "and" or "or" get their own line
    - Example:
      ```
      The interface supports
-     {excm_drag}, {excm_drop}, and {excm_scroll}
+     {excm_drag},
+     {excm_drop},
+     and
+     {excm_scroll}
      operations.
      ```
 
