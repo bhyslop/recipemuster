@@ -75,6 +75,11 @@ Full read and edit access is pre-approved for all files in:
 - **See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings**
 - Quick reference: GADF (factory), GADI* (inspector), GADS (spec), GADP (planner), GADM* (memos)
 
+#### CMK Subdirectory (`Tools/cmk/`)
+- **MCM**   → `cmk/mcm-MCM-MetaConceptModel.adoc`
+- **AXLA**  → `cmk/axl-AXLA-Lexicon.adoc`
+- **AXMCM** → `cmk/axl-AXMCM-ClaudeMarkConceptMemo.md`
+
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`
 
@@ -89,7 +94,6 @@ Full read and edit access is pre-approved for all files in:
 - **JRR**     → `jrr-JobRookRadar-sspec.adoc`
 - **MBC**     → `lens-mbc-MakefileBashConsole-cmodel.adoc`
 - **YAK**     → `lens-yak-YetAnotherKludge-cmodel.adoc`
-- **MCM**     → `mcm-MCM-MetaConceptModel.adoc`
 - **M2C**     → `mcm-M2C-ModelToClaudex.md`
 - **SRFC**    → `srf-SRFC-StudyRaftConcepts.adoc`
 - **ABG**     → `wrs-ABG-AccordBuilderGuide.md`
@@ -99,8 +103,6 @@ Full read and edit access is pre-approved for all files in:
 - **TITL**    → `wrs-TITL-TestInfrastructureTaskLens.claudex`
 - **TLG**     → `wrs-TLG-TaskLensGuide.md`
 - **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
-- **AXLA**    → `axl-AXLA-Lexicon.adoc`
-- **AXMCM**   → `axl-AXMCM-ClaudeMarkConceptMemo.md`
 - **WCC**     → `WCC-WebClaudetoClaudeCode.md`
 
 ## Working Preferences
