@@ -118,7 +118,7 @@ Config regimes fall into two categories based on when they can be validated:
 
 ### Workbenches
 
-**Definition**: A workbench is a multi-call bash script (BCG style) that routes commands to their implementations.
+**Definition**: A workbench is a multi-call bash script that routes commands to their implementations.
 
 **Naming Pattern**: `{prefix}w_workbench.sh` or `{prefix}k_Coordinator.sh`
 
@@ -177,7 +177,7 @@ workbench_main "$@"
 
 **Key Characteristics**:
 - Single-file coordinator that routes commands
-- Follows BCG multi-call pattern
+- Follows multi-call pattern (single script, multiple commands via case routing)
 - Loads configuration (BURC/BURS) as needed
 - Can delegate to other scripts for complex operations
 - Crash-fast error handling (`set -euo pipefail`)
@@ -279,7 +279,7 @@ BDU extracts the command token using `${filename%%${BURC_TABTARGET_DELIMITER}*}`
    - Example: `Tools/buk/burc_specification.md`
 
 3. **Regime Script** (`{regime}_regime.sh`)
-   - Multi-call BCG-style script
+   - Multi-call script with subcommands
    - Subcommands: `validate`, `render`, `info`
    - Example: `Tools/buk/burc_regime.sh`
 
@@ -872,14 +872,15 @@ command | tee logfile  # Returns tee's status, not command's
 command | tee logfile; exit ${PIPESTATUS[0]}
 ```
 
-### BCG Compliance
+### Coding Standards
 
-All BUK utilities follow the Bash Console Guide (BCG) enterprise patterns:
-- Bash 3.2 compatibility (macOS default)
-- Multi-call script pattern
-- Crash-fast error handling (`set -euo pipefail`)
-- Braced, quoted variable expansion (`"${var}"`)
-- Kindle/sentinel boilerplate for module loading
+All BUK utilities follow these enterprise bash patterns:
+
+- **Bash 3.2 compatibility** - Works with macOS default shell
+- **Multi-call script pattern** - Single script handles multiple commands via case routing
+- **Crash-fast error handling** - Use `set -euo pipefail` at script start
+- **Braced, quoted variable expansion** - Always `"${var}"`, never `$var`
+- **Kindle/sentinel boilerplate** - Guard against multiple source inclusion
 
 ---
 
@@ -887,7 +888,7 @@ All BUK utilities follow the Bash Console Guide (BCG) enterprise patterns:
 
 When extending BUK:
 
-1. **Follow BCG patterns** - See `../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`
+1. **Follow coding standards** - See the "Coding Standards" section above
 2. **Maintain portability** - No project-specific logic in `Tools/buk/`
 3. **Use Config Regimes** - Configuration belongs in regime files, not code
 4. **Write specifications** - Document new regimes in `{regime}_specification.md`
