@@ -81,7 +81,7 @@ z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
 export BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/buk/buw_workbench.sh"
 
 # Delegate to BDU
-exec "${BURC_TOOLS_DIR}/buk/bdu_BashDispatchUtility.sh" "${1##*/}" "${@:2}"
+exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
 ```
 
 **Key Responsibilities**:
@@ -186,7 +186,30 @@ workbench_main "$@"
 
 ### TabTargets
 
-**Definition**: TabTargets are lightweight shell scripts in the `tt/` directory that provide tab-completion-friendly command names and delegate to workbenches via launchers.
+#### The TabTarget Pattern
+
+A TabTarget is a design pattern for CLI discoverability that trades argument flexibility for command visibility. The key insight: `ls tt/` shows all available commands; `tt/prefix-<TAB>` narrows to a category.
+
+**Essential characteristics** (implementation-independent):
+
+- Shell scripts in a dedicated directory (conventionally `tt/`)
+- Filename encodes command identity and embedded parameters
+- Tokens parsed by a configurable delimiter (typically `.`)
+- Delegates immediately to a dispatch mechanism
+- Contains no business logic—purely a routing layer
+
+**Implementation variants**:
+
+| Variant | Flow | Execution Target |
+|---------|------|------------------|
+| **Bash dispatch** (BUK) | TabTarget → Launcher → BDU → Workbench | Bash script |
+| **Makefile dispatch** (MBC) | TabTarget → Dispatch Script → Make | Makefile rules |
+
+BUK implements the bash dispatch variant. The remainder of this section describes that implementation.
+
+#### BUK TabTarget Implementation
+
+**Definition**: In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to workbenches via launchers.
 
 **Naming Pattern**: `{command}.{description}.sh`
 
@@ -273,7 +296,7 @@ BDU extracts the command token using `${filename%%${BURC_TABTARGET_DELIMITER}*}`
 
 **Type System**:
 
-BUK provides validation functions in `bvu_BashValidationUtility.sh`:
+BUK provides validation functions in `buv_validation.sh`:
 - **Atomic types**: `string`, `xname`, `fqin`, `bool`, `decimal`, `ipv4`, `cidr`, `domain`, `port`
 - **List types**: `ipv4_list`, `cidr_list`, `domain_list`
 - Each type validated with min/max constraints
@@ -305,10 +328,10 @@ Project Root/
 │
 ├── Tools/                             # Tool scripts (portable, reusable)
 │   ├── buk/                           # BUK core utilities (graftable module)
-│   │   ├── bdu_BashDispatchUtility.sh # Dispatch system
-│   │   ├── bcu_BashCommandUtility.sh  # Command utilities
-│   │   ├── btu_BashTestUtility.sh     # Test utilities
-│   │   ├── bvu_BashValidationUtility.sh # Validation (type system)
+│   │   ├── bud_dispatch.sh # Dispatch system
+│   │   ├── buc_command.sh  # Command utilities
+│   │   ├── but_test.sh     # Test utilities
+│   │   ├── buv_validation.sh # Validation (type system)
 │   │   ├── buw_workbench.sh           # BUK workbench
 │   │   ├── burc_specification.md      # BURC spec
 │   │   ├── burc_regime.sh             # BURC validator/renderer
@@ -341,7 +364,7 @@ User invokes TabTarget:
    → (If validation fails, display info and exit)
 
 3. Launcher delegates to BDU
-   → bdu_BashDispatchUtility.sh buw-ll
+   → bud_dispatch.sh buw-ll
 
 4. BDU sets up environment
    → Creates temp/output directories
@@ -416,33 +439,110 @@ User invokes TabTarget:
 
 ## BUK Components
 
-### BDU - Bash Dispatch Utility
+### BUD - Bash Dispatch Utility
 
-**File**: `Tools/buk/bdu_BashDispatchUtility.sh`
+**File**: `Tools/buk/bud_dispatch.sh`
 
 **Purpose**: Central dispatch system that sets up execution environment and delegates to workbenches.
 
-**Key Functions**:
-- `bdu_launch` - Main entry point from launchers
+**Key Responsibilities**:
+- Parse tabtarget filename into tokens
 - Environment setup (temp dirs, output dirs, logging)
-- Sources BURS (station configuration)
-- Color policy resolution
-- Exit status propagation
-- Transcript generation
+- Source BURS (station configuration)
+- Resolve color policy
+- Invoke workbench with proper context
+- Capture and propagate exit status
+- Generate execution transcript
 
-**Environment Variables Set**:
-- `BDU_TEMP_DIR` - Ephemeral temp directory for this invocation
-- `BDU_OUTPUT_DIR` - Output directory for this invocation
-- `BDU_NOW_STAMP` - Timestamp for this invocation
-- `BDU_LOG_LAST` - Path to "last run" log
-- `BDU_LOG_SAME` - Path to current log
-- `BDU_LOG_HIST` - Path to historical log (timestamped)
+#### Execution Context (Exported Variables)
+
+BUD exports the following environment variables for workbench access:
+
+**Invocation Identity**:
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `BUD_NOW_STAMP` | `20250101-143022-1234-567` | Unique timestamp: `YYYYMMDD-HHMMSS-PID-RANDOM` |
+| `BUD_GIT_CONTEXT` | `v1.2.3-5-gabc123-dirty` | Output of `git describe --always --dirty --tags --long` |
+
+**Token Explosion**:
+
+TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Each token is exported for workbench access:
+
+| Variable | For `buw-tc.CreateTabTarget.sh` |
+|----------|--------------------------------|
+| `BUD_TOKEN_1` | `buw-tc` |
+| `BUD_TOKEN_2` | `CreateTabTarget` |
+| `BUD_TOKEN_3` | `sh` |
+| `BUD_TOKEN_4` | *(empty)* |
+| `BUD_TOKEN_5` | *(empty)* |
+| `BUD_COMMAND` | `buw-tc` *(legacy, same as TOKEN_1)* |
+| `BUD_TARGET` | `buw-tc.CreateTabTarget.sh` *(full filename)* |
+| `BUD_CLI_ARGS` | *(extra arguments passed to tabtarget)* |
+
+This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
+
+**Directories**:
+
+| Variable | Description |
+|----------|-------------|
+| `BUD_TEMP_DIR` | Ephemeral temp directory, unique per invocation; safe for intermediate files |
+| `BUD_OUTPUT_DIR` | Output directory; cleared and recreated each run |
+| `BUD_TRANSCRIPT` | Path to transcript file in temp directory |
+
+**Logging** (paths, not file handles):
+
+| Variable | Description |
+|----------|-------------|
+| `BUD_LOG_LAST` | Path to "last run" log |
+| `BUD_LOG_SAME` | Path to same-name log |
+| `BUD_LOG_HIST` | Path to historical log (timestamped) |
+
+**Display**:
+
+| Variable | Values | Description |
+|----------|--------|-------------|
+| `BUD_COLOR` | `0` or `1` | Color policy after terminal detection; respects `NO_COLOR` |
+
+#### Control Variables
+
+Set these *before* invoking a tabtarget to modify dispatch behavior:
+
+| Variable | Values | Effect |
+|----------|--------|--------|
+| `BUD_VERBOSE` | `0`, `1`, `2` | `0`=quiet, `1`=debug output, `2`=bash trace (`set -x`) |
+| `BUD_NO_LOG` | any value | Disables all logging |
+| `BUD_INTERACTIVE` | any value | Line-buffered output mode for interactive commands |
+
+#### The Three-Log Pattern
+
+BDU maintains three views of execution output to support different debugging scenarios:
+
+| Log | Variable | Lifecycle | Purpose |
+|-----|----------|-----------|---------|
+| **Historical** | `BDU_LOG_HIST` | Never overwritten | Timestamped archive; enables audit trail and post-hoc debugging |
+| **Latest** | `BDU_LOG_LAST` | Overwritten each invocation | Quick access to most recent run, regardless of command |
+| **Same-name** | `BDU_LOG_SAME` | Overwritten per-command | Preserves last run of *this specific* tabtarget |
+
+**Rationale**: Different debugging scenarios need different log access patterns:
+
+- "What just happened?" → Latest log (`BDU_LOG_LAST`)
+- "What happened last time I ran *this* command?" → Same-name log (`BDU_LOG_SAME`)
+- "What happened at 3pm yesterday?" → Historical log (`BDU_LOG_HIST`)
+
+**Filename Conventions**:
+
+- Historical: `hist-{tabtarget}-{timestamp}.{ext}` (e.g., `hist-buw-ll-sh-20250101-143022.txt`)
+- Latest: `{BURC_LOG_LAST}.{ext}` (e.g., `last.txt`)
+- Same-name: `same-{tabtarget}.{ext}` (e.g., `same-buw-ll-sh.txt`)
+
+The log directory is specified by `BURS_LOG_DIR` in the station configuration.
 
 ---
 
-### BCU - Bash Command Utility
+### BUC - Bash Utility Command
 
-**File**: `Tools/buk/bcu_BashCommandUtility.sh`
+**File**: `Tools/buk/buc_command.sh`
 
 **Purpose**: Common command-line utilities and helpers.
 
@@ -453,9 +553,9 @@ User invokes TabTarget:
 
 ---
 
-### BTU - Bash Test Utility
+### BUT - Bash Utility Test
 
-**File**: `Tools/buk/btu_BashTestUtility.sh`
+**File**: `Tools/buk/but_test.sh`
 
 **Purpose**: Testing framework for bash scripts.
 
@@ -466,38 +566,52 @@ User invokes TabTarget:
 
 ---
 
-### BVU - Bash Validation Utility
+### BUV - Bash Utility Validation
 
-**File**: `Tools/buk/bvu_BashValidationUtility.sh`
+**File**: `Tools/buk/buv_validation.sh`
 
 **Purpose**: Type system for Config Regime validation.
 
 **Validation Functions**:
 
+BUV provides three function categories:
+
+| Prefix | Purpose | Example |
+|--------|---------|---------|
+| `buv_val_*` | Core validators (take value directly) | `buv_val_string "$val" 1 255` |
+| `buv_env_*` | Environment variable validators | `buv_env_string "VAR_NAME" 1 255` |
+| `buv_opt_*` | Optional validators (allow empty) | `buv_opt_bool "OPTIONAL_FLAG"` |
+
 **Atomic Types**:
-- `bvu_string` - String with length constraints
-- `bvu_xname` - System-safe identifier (xname = cross-platform name)
-- `bvu_fqin` - Fully Qualified Image Name
-- `bvu_bool` - Boolean (`true`/`false`)
-- `bvu_decimal` - Decimal number with range constraints
-- `bvu_ipv4` - IPv4 address
-- `bvu_cidr` - CIDR notation
-- `bvu_domain` - Domain name
-- `bvu_port` - Port number (1-65535)
+- `string` - String with length constraints
+- `xname` - System-safe identifier (xname = cross-platform name)
+- `gname` - Group name identifier
+- `fqin` - Fully Qualified Image Name
+- `bool` - Boolean (`true`/`false`)
+- `decimal` - Decimal number with range constraints
+- `ipv4` - IPv4 address
+- `cidr` - CIDR notation
+- `domain` - Domain name
+- `port` - Port number (1-65535)
+- `odref` - Output directory reference
 
 **List Types**:
-- `bvu_ipv4_list` - Comma-separated IPv4 addresses
-- `bvu_cidr_list` - Comma-separated CIDR blocks
-- `bvu_domain_list` - Comma-separated domains
+- `list_ipv4` - Comma-separated IPv4 addresses
+- `list_cidr` - Comma-separated CIDR blocks
+- `list_domain` - Comma-separated domains
 
 **Usage Example**:
 
 ```bash
-# Validate a string variable
-bvu_string "BURC_TABTARGET_DIR" "${BURC_TABTARGET_DIR}" 1 255 || exit 1
+# Validate an environment variable (most common usage)
+buv_env_string "BURC_TABTARGET_DIR" 1 255 || exit 1
+buv_env_xname  "BURC_LOG_LAST"            || exit 1
 
-# Validate an xname variable
-bvu_xname "BURC_LOG_LAST" "${BURC_LOG_LAST}" || exit 1
+# Validate a value directly
+buv_val_port "${some_port}" || exit 1
+
+# Validate an optional variable (empty is OK)
+buv_opt_bool "OPTIONAL_DEBUG_FLAG" || exit 1
 ```
 
 ---
@@ -610,7 +724,7 @@ z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
 }
 
 export BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/myw/myw_workbench.sh"
-exec "${BURC_TOOLS_DIR}/buk/bdu_BashDispatchUtility.sh" "${1##*/}" "${@:2}"
+exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
 EOF
 
 chmod +x .buk/launcher.myw_workbench.sh
@@ -728,6 +842,35 @@ TabTargets + tab completion make commands discoverable. Type `tt/buw-<TAB>` to s
 ### Fail Fast
 
 Launchers validate regimes before execution. This catches configuration errors immediately, with helpful error messages.
+
+### Exit Status Propagation
+
+TabTarget systems must faithfully propagate exit status from the executed command back to the invoking shell. This is critical for:
+
+- **CI/CD pipelines** that rely on exit codes to determine success/failure
+- **Shell scripts** that chain commands with `&&` or check `$?`
+- **Make rules** that depend on prerequisite command success
+
+BUK achieves reliable status propagation through:
+
+1. **`exec` in TabTargets**: Replaces the shell process entirely, so exit status flows directly to the caller without intermediate shell interference.
+
+2. **`exec` in Launchers**: Same benefit at the launcher layer—no wrapper shell to mask the exit code.
+
+3. **Pipeline status capture in BDU**: When output is piped through `tee` for logging, BDU explicitly captures `PIPESTATUS[0]` (the command's exit code) rather than the pipeline's final status (which would be `tee`'s exit code).
+
+**Anti-patterns to avoid**:
+
+```bash
+# BAD: semicolon masks exit status
+command; echo "done"
+
+# BAD: final command in pipeline determines status
+command | tee logfile  # Returns tee's status, not command's
+
+# GOOD: capture pipeline status explicitly
+command | tee logfile; exit ${PIPESTATUS[0]}
+```
 
 ### BCG Compliance
 

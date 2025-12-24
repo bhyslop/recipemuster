@@ -125,6 +125,7 @@ zbud_setup() {
   export BUD_OUTPUT_DIR
   export BUD_NOW_STAMP
   export BUD_TRANSCRIPT
+  export BUD_GIT_CONTEXT
 
   return 0
 }
@@ -140,8 +141,18 @@ zbud_process_args() {
   IFS="${BURC_TABTARGET_DELIMITER}" read -ra tokens <<< "$target"
   zbud_show "Split tokens: ${tokens[*]}"
 
-  # Store primary command token
+  # Store primary command token (legacy, equivalent to BUD_TOKEN_1)
   BUD_COMMAND="${tokens[0]}"
+
+  # Explode tokens into numbered variables for workbench access
+  # Pattern matches MBC_TTPARAM__FIRST through MBC_TTPARAM__FIFTH
+  BUD_TOKEN_1="${tokens[0]:-}"
+  BUD_TOKEN_2="${tokens[1]:-}"
+  BUD_TOKEN_3="${tokens[2]:-}"
+  BUD_TOKEN_4="${tokens[3]:-}"
+  BUD_TOKEN_5="${tokens[4]:-}"
+
+  export BUD_TOKEN_1 BUD_TOKEN_2 BUD_TOKEN_3 BUD_TOKEN_4 BUD_TOKEN_5
 
   # Create tag for log files
   local tag="${tokens[0]}-${tokens[2]:-unknown}"
@@ -164,6 +175,11 @@ zbud_process_args() {
   # Store target and extra arguments
   BUD_TARGET="$target"
   BUD_CLI_ARGS="$*"
+
+  # Export command context for workbench access
+  export BUD_COMMAND
+  export BUD_TARGET
+  export BUD_CLI_ARGS
 
   return 0
 }
