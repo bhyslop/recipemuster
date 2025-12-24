@@ -126,35 +126,6 @@ When working with .adoc files using MCM patterns:
 1. **Bash Development**: Start with relevant utility (BCU/BDU/BTU/BVU), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory
 
-## Job Jockey Configuration
-
-Job Jockey (JJ) is installed for managing project initiatives.
-
-**Concepts:**
-- **Heat**: Bounded initiative (3-50 sessions), has paces. Location indicates state: `current/` (active), `pending/` (parked), `retired/` (done). Move to `current/` via prose when ready to work. Park in `pending/` via prose when blocked or deferring.
-- **Pace**: Discrete action within a heat; mode is `manual` (human drives) or `delegated` (model drives from spec)
-- **Itch**: Future idea, lives in Future or Shelved
-
-- Target repo dir: `.`
-- JJ Kit path: `Tools/jjk/job-jockey-kit.md`
-
-**Available commands:**
-- `/jja-heat-resume` - Resume current heat, show current pace
-- `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-find` - Show current pace (with mode)
-- `/jja-pace-left` - List all remaining paces (with mode)
-- `/jja-pace-add` - Add a new pace (defaults to manual)
-- `/jja-pace-refine` - Refine pace spec, set mode (manual or delegated)
-- `/jja-pace-delegate` - Execute a delegated pace
-- `/jja-pace-wrap` - Mark pace complete
-- `/jja-sync` - Commit and push JJ state and target repo
-- `/jja-itch-list` - List all itches (future and shelved)
-- `/jja-itch-find` - Find an itch by keyword
-- `/jja-itch-move` - Move or promote an itch
-- `/jja-doctor` - Validate Job Jockey setup
-
-**Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
-
 ## Concept Model Kit Configuration
 
 Concept Model Kit (CMK) is installed for managing concept model documents.
