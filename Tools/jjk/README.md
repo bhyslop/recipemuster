@@ -22,10 +22,10 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 | `jjh_` | Heat | Bounded initiative files |
 | `jji_` | Itch | Future work aggregate |
 | `jjs_` | Scar | Closed work aggregate |
+| `jjc_` | Chase | (Future) Steeplechase performance logs |
 | `jja_` | Action | Slash commands |
 | `jjk_` | sKill | (Future) Skill definitions |
 | `jjg_` | aGent | (Future) Agent definitions |
-| `jjl_` | Log | (Future) Action logs |
 
 ## Core Concepts
 
@@ -45,7 +45,7 @@ Each pace has a **mode**:
 - **Manual**: Human drives, model assists. Minimal spec needed.
 - **Delegated**: Model drives from spec, human monitors. Requires clear objective, bounded scope, success criteria, and failure behavior.
 
-Paces default to `manual` when created. Use `/jja-pace-refine` to prepare a pace for delegation or to clarify a manual pace.
+Paces default to `manual` when created. Refinement happens naturally in the workflow: when transitioning to a new pace, Claude analyzes it and proposes an approach. For delegation, say "delegate this" and Claude will formalize the spec.
 
 ### Itch
 A potential future heat or consideration. Can range from a brief spark to a fully-articulated specification. The key attribute is **not now** — regardless of detail level, it's not timely for current work.
@@ -62,10 +62,13 @@ All scars live in a single aggregate file (`jjs_scar.md`).
 ### Day-to-Day Usage
 
 You work on a heat by talking with Claude Code. As you make progress:
-- Claude uses `/jja-heat-resume` to show current heat and next pace, asking for clarification if needed
-- You work on the pace together
-- Claude uses `/jja-pace-wrap` to summarize and mark it complete
+- At session start, use `/jja-heat-resume` to establish context and see proposed approach
+- Work on the pace together
+- Use `/jja-pace-wrap` to mark complete - Claude automatically analyzes next pace and proposes approach
+- Use `/jja-sync` to commit/push - Claude then proposes approach for current pace
 - New paces emerge and get added with `/jja-pace-add`
+
+Note: After pace-wrap or sync, you do NOT need heat-resume - those commands flow directly into the next pace.
 
 When new ideas come up that don't belong in current heat, Claude uses `/jja-itch-find` and `/jja-itch-move` to file them away.
 
@@ -121,7 +124,6 @@ my-project/                 # Launch Claude Code here
       jja-pace-find.md
       jja-pace-left.md
       jja-pace-add.md
-      jja-pace-refine.md
       jja-pace-delegate.md
       jja-pace-wrap.md
       jja-sync.md
@@ -185,11 +187,12 @@ When starting a session or the user calls `/jja-heat-resume`, Claude checks `.cl
 - **2+ heats**: Ask user which heat to work on
 
 ### Working on a Heat
-1. Use `/jja-heat-resume` to see current heat and current pace
-2. Work on it conversationally with Claude
-3. Use `/jja-pace-wrap` when complete
-4. Use `/jja-heat-resume` again to see what's next
-5. Repeat until heat is complete
+1. Use `/jja-heat-resume` at session start - Claude shows context and proposes approach
+2. Approve approach or adjust, then work on the pace
+3. Use `/jja-pace-wrap` when complete - Claude analyzes next pace and proposes approach
+4. Approve and continue (no need for heat-resume between paces)
+5. Use `/jja-sync` periodically - also proposes approach for current pace
+6. Repeat until heat is complete
 
 ### Completing a Heat
 1. Verify all paces are complete or explicitly discarded
@@ -287,27 +290,35 @@ Configuration is via environment variables:
 
 ## Available Commands
 
-- `/jja-heat-resume` - Resume current heat, show current pace
+- `/jja-heat-resume` - Resume heat at session start, analyze pace, propose approach
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
 - `/jja-pace-find` - Show current pace (with mode)
 - `/jja-pace-left` - List all remaining paces (with mode)
 - `/jja-pace-add` - Add a new pace (defaults to manual)
-- `/jja-pace-refine` - Refine pace spec, set mode (manual or delegated)
 - `/jja-pace-delegate` - Execute a delegated pace
-- `/jja-pace-wrap` - Mark pace complete
-- `/jja-sync` - Commit and push JJ state and target repo
+- `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
+- `/jja-sync` - Commit and push, then analyze current pace, propose approach
 - `/jja-itch-list` - List all itches and scars
 - `/jja-itch-find` - Find an itch by keyword
 - `/jja-itch-move` - Move itch to scar or promote to heat
 
 ## Future Directions
 
-### Heat Action Logs
-Current doctrine keeps only short summaries in the Done section. However, valuable detail is lost that could improve Job Jockey itself. Consider:
-- **jjl_bYYMMDD-description.log** - Detailed action log per heat
-- Captures: delegated pace specs, execution traces, failure modes, recovery attempts
-- Lives alongside heat file, retired together
+### Steeplechase (Performance Log)
+Current doctrine keeps only short summaries in the Done section. However, valuable detail is lost that could improve Job Jockey itself. Consider the **steeplechase** - a log capturing how each heat actually ran:
+- **jjc_bYYMMDD-description.md** - Steeplechase file per heat (c = chase)
+- Captures: pace approaches proposed, delegated agent output, execution traces, failure modes, recovery attempts
+- Lives alongside heat file during work
+- On retirement: appended to heat file under `## Steeplechase` section for complete archive
 - Enables retrospective analysis: "what worked, what didn't, what should change"
+
+### Silks (Unique Identifiers)
+Formalize the kebab-case identifier pattern used across JJ artifacts:
+- **Silks** are the unique names that identify itches, scars, and heats (e.g., `governor-implementation`, `buk-portability`)
+- Every itch has silks; silks carry to scars when closed
+- Heats have silks (the description part of filename)
+- Steeplechases inherit the heat's silks
+- Unifies the concept: "What's the silks on that itch?" / "The heat silks are `rbags-specification`"
 
 ### Specialized Agents
 Create purpose-built agents for delegation, not just model hints:
@@ -321,11 +332,11 @@ Before delegation can succeed, skills must be identified and well-described:
 - **Skill inventory**: catalog of capabilities available for delegation (edit, search, test, generate, validate, etc.)
 - **Skill cards**: each skill has preconditions, inputs, outputs, failure modes, model requirements
 - **Heat planning**: match heat goals to available skills, identify gaps early
-- **Pace preparation**: `/jja-pace-refine` could suggest "this pace needs skills X, Y" and verify they exist
+- **Pace analysis**: when proposing approach, suggest "this pace needs skills X, Y" and verify they exist
 - **Skill gaps**: surface when a pace requires a skill not yet articulated → triggers skill development
 
 ### Delegation Intelligence
-Improve the refine→delegate flow:
+Improve the analyze→delegate flow:
 - Learn from action logs which pace patterns succeed/fail per agent type
 - Auto-suggest agent selection based on pace characteristics
 - Detect scope creep or unbounded work before it spins

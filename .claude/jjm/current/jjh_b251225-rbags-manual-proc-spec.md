@@ -57,19 +57,17 @@ A fully specified `axo_command` operation must have:
 
 9. **Specify rbtgo_sa_list** - 4-step multi-role operation; 1 IAM API link; caller-provided auth pattern
 
+10. **Specify rbtgo_sa_delete** - 4-step multi-role operation; 1 IAM API link; handles 404 gracefully
+
 ## Current
 
-### Specify rbtgo_sa_delete
+### Specify rbtgo_image_retrieve
 - **Mode:** manual
-- Extract step sequence from `rbgg_delete_service_account` implementation
+- Design new specification (no implementation exists)
 - Apply completeness criteria (anchor, steps, control terms, variables, API links, errors)
+- Reference: Docker Registry API or GAR REST API for image pull
 
 ## Remaining
-
-### Specification Completion (per Completeness Criteria)
-
-**Design new:**
-- Specify rbtgo_image_retrieve (no implementation exists)
 
 ### Finalization
 - Normalize and validate RBAGS
