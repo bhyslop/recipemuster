@@ -53,11 +53,13 @@ A fully specified `axo_command` operation must have:
 
 7. **Specify rbtgo_trigger_build** - Expanded to 11-step sequence with 3 API links; added rbtoe_director_authenticate pattern
 
+8. **Specify rbtgo_image_delete** - 6-step sequence using Docker Registry API V2; 2 OCI Distribution Spec links
+
 ## Current
 
-### Specify rbtgo_image_delete
+### Specify rbtgo_sa_list
 - **Mode:** manual
-- Extract step sequence from `rbf_delete` implementation
+- Extract step sequence from `rbgg_list_service_accounts` implementation
 - Apply completeness criteria (anchor, steps, control terms, variables, API links, errors)
 
 ## Remaining
@@ -65,7 +67,6 @@ A fully specified `axo_command` operation must have:
 ### Specification Completion (per Completeness Criteria)
 
 **Extract from implementation:**
-- Specify rbtgo_sa_list (extract from `rbgg_list_service_accounts`)
 - Specify rbtgo_sa_delete (extract from `rbgg_delete_service_account`)
 
 **Design new:**
