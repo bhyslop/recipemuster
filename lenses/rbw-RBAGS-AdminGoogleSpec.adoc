@@ -70,14 +70,14 @@
 :rbtgo_depot_list:           <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_depot_destroy:        <<rbtgo_depot_destroy,rbgp_depot_destroy>>
 :rbtgo_governor_create:      <<rbtgo_governor_create,rbgp_governor_create>>
-:rbtgo_retriever_create:     <<rbtgo_retriever_create,rbgg_retriever_create>>
-:rbtgo_director_create:      <<rbtgo_director_create,rbgg_director_create>>
-:rbtgo_sa_list:              <<rbtgo_sa_list,rbgs_list_service_accounts>>
-:rbtgo_sa_delete:            <<rbtgo_sa_delete,rbgs_list_service_accounts>>
-:rbtgo_trigger_build:        <<rbtgo_trigger_build,rbgo_trigger_build>>
+:rbtgo_retriever_create:     <<rbtgo_retriever_create,rbgg_create_retriever>>
+:rbtgo_director_create:      <<rbtgo_director_create,rbgg_create_director>>
+:rbtgo_sa_list:              <<rbtgo_sa_list,rbgg_list_service_accounts>>
+:rbtgo_sa_delete:            <<rbtgo_sa_delete,rbgg_delete_service_account>>
+:rbtgo_trigger_build:        <<rbtgo_trigger_build,rbf_build>>
 :rbtgo_image_retrieve:       <<rbtgo_image_retrieve,Image Retrieval>>
-:rbtgo_image_delete:         <<rbtgo_image_delete,Image Deletion>>
-:rbtgo_payor_refresh:        <<rbtgo_payor_refresh,rbmp_payor_refresh>>
+:rbtgo_image_delete:         <<rbtgo_image_delete,rbf_delete>>
+:rbtgo_payor_refresh:        <<rbtgo_payor_refresh,rbgm_payor_refresh>>
 :rbtoe_oauth_refresh:        <<rbtoe_oauth_refresh,zrbgp_refresh_capture>>
 :rbtoe_payor_authenticate:   <<rbtoe_payor_authenticate,zrbgp_authenticate_capture>>
 :rbtoe_depot_list_update:    <<rbtoe_depot_list_update,Depot List Update Pattern>>
