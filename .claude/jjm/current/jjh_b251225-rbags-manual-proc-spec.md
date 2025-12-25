@@ -59,15 +59,16 @@ A fully specified `axo_command` operation must have:
 
 10. **Specify rbtgo_sa_delete** - 4-step multi-role operation; 1 IAM API link; handles 404 gracefully
 
+11. **Specify rbtgo_image_retrieve** - 6-step Retriever operation; added rbtoe_retriever_authenticate pattern; container runtime auth
+
 ## Current
 
-### Specify rbtgo_image_retrieve
+### Normalize and validate RBAGS
 - **Mode:** manual
-- Design new specification (no implementation exists)
-- Apply completeness criteria (anchor, steps, control terms, variables, API links, errors)
-- Reference: Docker Registry API or GAR REST API for image pull
+- Run /cma-normalize to apply whitespace normalization
+- Run /cma-validate to check links and annotations
+- Fix any issues found
 
 ## Remaining
 
-### Finalization
-- Normalize and validate RBAGS
+(none - heat complete after finalization)

@@ -82,6 +82,7 @@
 :rbtoe_payor_authenticate:   <<rbtoe_payor_authenticate,zrbgp_authenticate_capture>>
 :rbtoe_governor_authenticate: <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
 :rbtoe_director_authenticate: <<rbtoe_director_authenticate,Director Authentication Pattern>>
+:rbtoe_retriever_authenticate: <<rbtoe_retriever_authenticate,Retriever Authentication Pattern>>
 :rbtoe_depot_list_update:    <<rbtoe_depot_list_update,Depot List Update Pattern>>
 
 // Google Cloud Platform Core Concepts
@@ -977,6 +978,50 @@ deletes an image by tag:
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_retrieve}
 
+NOTE: This operation retrieves a container image from
+{rbtgi_repository}
+to the local container runtime. The
+{rbtr_retriever}
+has read-only access to the repository.
+
+The
+{rbtr_retriever}
+pulls an image by tag or digest:
+
+. *Validate Input Parameters*:
+.. {rbbc_require} `«INPUT_IMAGE_REF»` provided as first argument
+.. Validate format: `«IMAGE_NAME»:«TAG»` or `«IMAGE_NAME»@«DIGEST»`
+.. {rbbc_fatal} if missing or malformed: "Image reference required (name:tag or name@digest)"
+
+. *Authenticate as
+{rbtr_retriever}*:
+.. Execute
+{rbtoe_retriever_authenticate}
+.. {rbbc_store} `«RETRIEVER_TOKEN»` for subsequent operations
+
+. *Construct Registry Reference*:
+.. {rbbc_store} `«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
+.. {rbbc_store} `«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_IMAGE_REF»`
+
+. *Configure Container Runtime Authentication*:
+.. {rbbc_call} container runtime login with:
+... registry: `«REGISTRY_HOST»`
+... username: `oauth2accesstoken`
+... password: `«RETRIEVER_TOKEN»`
+.. {rbbc_require} login successful
+.. {rbbc_fatal} if login fails: "Container runtime authentication failed"
+
+. *Pull Image*:
+.. {rbbc_call} link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: pull] via container runtime:
+... command: `docker pull «FULL_IMAGE_REF»` or `podman pull «FULL_IMAGE_REF»`
+.. {rbbc_require} pull completes successfully
+.. {rbbc_store} `«IMAGE_ID»` from pulled image metadata
+.. {rbbc_fatal} if pull fails: "Image pull failed"
+
+. *Display Results*:
+.. {rbbc_show} image retrieved: `«FULL_IMAGE_REF»`
+.. {rbbc_show} local image ID: `«IMAGE_ID»`
+
 == Multi Role Operations
 
 [[rbtgo_sa_list]]
@@ -1625,6 +1670,24 @@ exists or
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
 . stores token as `«DIRECTOR_ACCESS_TOKEN»` for subsequent API calls.
+
+[[rbtoe_retriever_authenticate]]
+// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+{rbtoe_retriever_authenticate}::
+A pattern that establishes
+{rbtr_retriever}
+service account context:
+
+. {rbbc_require}
+{rbrr_retriever_rbra_file}
+exists or
+{rbbc_fatal}
+"Retriever RBRA file missing - run
+{rbtgo_retriever_create}",
+. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
+. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
+. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
+. stores token as `«RETRIEVER_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_rbro_load]]
 // ⟦axl_voices axo_pattern axe_bash_interactive⟧
