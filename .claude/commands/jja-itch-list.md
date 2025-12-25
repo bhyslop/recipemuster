@@ -1,30 +1,30 @@
-You are listing all Job Jockey itches.
+You are listing all Job Jockey itches and scars.
 
 Configuration:
 - Target repo dir: .
-- Kit path: Tools/jjk/job-jockey-kit.md
+- Kit path: Tools/jjk/README.md
 
 Steps:
 
-1. Read .claude/jji/jjf-future.md for future itches
+1. Read .claude/jjm/jji_itch.md for itches (future work)
 
-2. Read .claude/jji/jjs-shelved.md for shelved itches
+2. Read .claude/jjm/jjs_scar.md for scars (closed with lessons)
 
-3. Display all itches:
+3. Display all entries:
    ```
-   Future itches (N):
-   1. [itch title/description]
-   2. [itch title/description]
+   Itches (N):
+   1. [section header] - [brief description]
+   2. [section header] - [brief description]
    ...
 
-   Shelved itches (N):
-   1. [itch title/description] - [reason if noted]
-   2. [itch title/description]
+   Scars (N):
+   1. [section header] - [closed reason]
+   2. [section header] - [closed reason]
    ...
    ```
 
 4. If either file is empty or missing, report appropriately:
-   - "Future itches: none"
-   - "Shelved itches: none"
+   - "Itches: none"
+   - "Scars: none"
 
 Error handling: If files missing, report which ones and continue with available data.

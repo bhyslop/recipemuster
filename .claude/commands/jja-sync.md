@@ -2,15 +2,15 @@ You are synchronizing JJ state and target repo work.
 
 Configuration:
 - Target repo dir: .
-- Kit path: Tools/jjk/job-jockey-kit.md
+- Kit path: Tools/jjk/README.md
 
 Steps:
 
-1. Check if .claude/jji/ is gitignored
+1. Check if .claude/jjm/ is gitignored
    - If yes: warn "JJ state is gitignored - cannot sync" and stop
 
 2. Commit and push JJ state (this repo):
-   git add -A .claude/jji/
+   git add -A .claude/jjm/
    git commit -m "JJA: sync" --allow-empty
    git push
    Report: "JJ state: committed and pushed"

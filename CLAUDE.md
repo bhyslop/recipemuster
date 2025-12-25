@@ -157,9 +157,10 @@ For full MCM specification, see `Tools/cmk/mcm-MCM-MetaConceptModel.adoc`.
 Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
-- **Heat**: Bounded initiative (3-50 sessions), has paces. Location indicates state: `current/` (active), `pending/` (parked), `retired/` (done). Move to `current/` via prose when ready to work. Park in `pending/` via prose when blocked or deferring.
+- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Location: `current/` (active) or `retired/` (done).
 - **Pace**: Discrete action within a heat; mode is `manual` (human drives) or `delegated` (model drives from spec)
-- **Itch**: Future idea, lives in Future or Shelved
+- **Itch**: Future work (any detail level), lives in jji_itch.md
+- **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 
 - Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/README.md`
@@ -174,9 +175,9 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - `/jja-pace-delegate` - Execute a delegated pace
 - `/jja-pace-wrap` - Mark pace complete
 - `/jja-sync` - Commit and push JJ state and target repo
-- `/jja-itch-list` - List all itches (future and shelved)
+- `/jja-itch-list` - List all itches and scars
 - `/jja-itch-find` - Find an itch by keyword
-- `/jja-itch-move` - Move or promote an itch
+- `/jja-itch-move` - Move itch to scar or promote to heat
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 

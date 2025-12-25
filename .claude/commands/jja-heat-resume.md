@@ -2,20 +2,18 @@ You are resuming the current Job Jockey heat.
 
 Configuration:
 - Target repo dir: .
-- Kit path: Tools/jjk/job-jockey-kit.md
+- Kit path: Tools/jjk/README.md
 
 Steps:
 
-1. Check for heat files in .claude/jji/current/
-   - Look for files matching pattern `jjh-b*.md`
+1. Check for heat files in .claude/jjm/current/
+   - Look for files matching pattern `jjh_b*.md`
 
 2. Branch based on heat count:
 
    **If 0 heats:**
-   - Check .claude/jji/pending/ for pending heats
    - Announce: "No active heat found"
-   - If pending heats exist: "You have N pending heat(s): [list names]"
-   - Ask: "Would you like to start a new heat, activate a pending heat, or promote an itch?"
+   - Ask: "Would you like to start a new heat or promote an itch?"
    - Stop and wait for user direction
 
    **If 1 heat:**
@@ -40,4 +38,4 @@ Steps:
    Ready to continue?
    ```
 
-Error handling: If .claude/jji/current/ doesn't exist, announce issue and stop.
+Error handling: If .claude/jjm/current/ doesn't exist, announce issue and stop.

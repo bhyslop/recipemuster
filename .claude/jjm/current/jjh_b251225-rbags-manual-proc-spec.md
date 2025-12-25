@@ -51,20 +51,20 @@ A fully specified `axo_command` operation must have:
 
 6. **Specify rbtgo_director_create** - Expanded from prose to 11-step sequence with 8 API links. Added `rbtoe_governor_authenticate` pattern (parallel to payor). Documented Mason impersonation and build bucket access requirements.
 
+7. **Specify rbtgo_trigger_build** - Expanded to 11-step sequence with 3 API links; added rbtoe_director_authenticate pattern
+
 ## Current
 
-### Specify rbtgo_trigger_build
+### Specify rbtgo_image_delete
 - **Mode:** manual
-- Extract step sequence from `rbf_build` implementation
+- Extract step sequence from `rbf_delete` implementation
 - Apply completeness criteria (anchor, steps, control terms, variables, API links, errors)
-- Reference: `rbtgo_depot_create` for format
 
 ## Remaining
 
 ### Specification Completion (per Completeness Criteria)
 
 **Extract from implementation:**
-- Specify rbtgo_image_delete (extract from `rbf_delete`)
 - Specify rbtgo_sa_list (extract from `rbgg_list_service_accounts`)
 - Specify rbtgo_sa_delete (extract from `rbgg_delete_service_account`)
 

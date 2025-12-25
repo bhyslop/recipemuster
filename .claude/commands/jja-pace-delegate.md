@@ -2,11 +2,11 @@ You are executing a delegated pace from the current Job Jockey heat.
 
 Configuration:
 - Target repo dir: .
-- Kit path: Tools/jjk/job-jockey-kit.md
+- Kit path: Tools/jjk/README.md
 
 Steps:
 
-1. Check for current heat in .claude/jji/current/
+1. Check for current heat in .claude/jjm/current/
    - If no heat: announce "No active heat" and stop
 
 2. Identify the pace to delegate (from context or ask)
@@ -41,6 +41,8 @@ Steps:
 6. Report outcome:
    - Success: what was accomplished, evidence of success criteria
    - Failure: what was attempted, why stopped, what's needed
+   - Modified files: list absolute paths for easy editor access
+     Example: `/Users/name/project/src/file.ts`
 
 7. Do NOT auto-complete the pace. User decides via /jja-pace-wrap
    Work in target repo is NOT auto-committed. User can review and use /jja-sync.

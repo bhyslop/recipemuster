@@ -2,11 +2,11 @@ You are adding a new pace to the current Job Jockey heat.
 
 Configuration:
 - Target repo dir: .
-- Kit path: Tools/jjk/job-jockey-kit.md
+- Kit path: Tools/jjk/README.md
 
 Steps:
 
-1. Check for heat files in .claude/jji/current/
+1. Check for heat files in .claude/jjm/current/
    - If 0 heats: announce "No active heat" and stop
    - If 2+ heats: ask which one
 
