@@ -39,7 +39,8 @@ This phase adjusts ONLY line breaks and blank lines. You must NOT change any wor
 2. **Linked terms isolated**: When a `{term_reference}` appears standalone in prose:
    - Line break before the term
    - Line break after the term
-   - **Exception**: Terms at start of bullet items stay on the marker line (AsciiDoc requires `* content` syntax)
+   - **Exception - bullet items**: Terms at start of bullet items stay on the marker line (AsciiDoc requires `* content` syntax)
+   - **Exception - section headers**: Lines starting with `=` are structural elements; never split section headers across lines
    - Example A (mid-sentence) - BEFORE:
      ```
      The system uses {excm_processor} to handle requests.
