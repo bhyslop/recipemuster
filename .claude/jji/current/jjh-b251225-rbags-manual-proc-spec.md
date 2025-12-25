@@ -47,26 +47,11 @@ A fully specified `axo_command` operation must have:
 
 4. **Implement rbtgo_governor_create** - Analyzed spec and precedent. Fixed mapping to `rbgp_create_governor`. Determined: lives in rbgp_Payor.sh (Payor operation, OAuth auth), follows rbgp_depot_create pattern, grants roles/owner. Created delegated paces for verification (opus) and implementation (sonnet).
 
+5. **Verify rbtgo_governor_create spec against GCP APIs** - Verified 5 GCP REST APIs (serviceAccounts.create/get, keys.list/create, projects.setIamPolicy) against RBAGS spec lines 579-653. All request/response fields, enum values (KEY_ALG_RSA_2048, TYPE_GOOGLE_CREDENTIALS_FILE, USER_MANAGED), and endpoint patterns confirmed accurate. No discrepancies found.
+
 ## Current
 
-### Verify rbtgo_governor_create spec against GCP APIs
-- **Mode:** delegated
-- **Objective:** Websearch GCP REST API docs for endpoints in RBAGS spec lines 579-653, confirm request/response fields match spec steps
-- **Scope:** Verify these 5 endpoints:
-  1. `iam.serviceAccounts.create` - account creation fields
-  2. `iam.serviceAccounts.get` - verification response
-  3. `iam.serviceAccounts.keys.list` - keyType field for USER_MANAGED check
-  4. `iam.serviceAccounts.keys.create` - keyAlgorithm, privateKeyType, response format
-  5. `projects.setIamPolicy` - policy version 3, binding structure
-- **Success:** All API calls verified correct, or discrepancies documented for spec update
-- **Failure:** If API docs inaccessible, report and stop
-- **Model hint:** needs-opus (nuanced API semantics require careful reasoning)
-
-## Remaining
-
-### Spec-Implementation Alignment
-
-#### Create rbgp_create_governor implementation
+### Create rbgp_create_governor implementation
 - **Mode:** delegated
 - **Objective:** Implement `rbgp_create_governor()` in `Tools/rbw/rbgp_Payor.sh` following RBAGS spec lines 579-653
 - **Critical guide:** BCG (`../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`) for bash style, error handling, and control flow patterns
@@ -107,6 +92,5 @@ A fully specified `axo_command` operation must have:
 - Verify rbtgo_depot_create API calls against current Google Cloud REST API documentation
 - Rename rbgg_Governor.sh to better reflect scope (handles all depot service accounts + project lifecycle, not just Governor role)
 - Verify rbtgo_depot_destroy API calls against current Google Cloud REST API documentation
-- Verify rbtgo_governor_create API calls against current Google Cloud REST API documentation
 - Verify rbtgo_retriever_create API calls against current Google Cloud REST API documentation
 - Audit all RBAGS operations for API correctness via websearch
