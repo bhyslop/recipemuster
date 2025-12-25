@@ -256,6 +256,38 @@ Configuration is via environment variables:
 - `/jja-itch-find` - Find an itch by keyword
 - `/jja-itch-move` - Move or promote an itch
 
+## Future Directions
+
+### Heat Action Logs
+Current doctrine keeps only short summaries in the Done section. However, valuable detail is lost that could improve Job Jockey itself. Consider:
+- **jjl-bYYMMDD-description.log** - Detailed action log per heat
+- Captures: delegated pace specs, execution traces, failure modes, recovery attempts
+- Lives alongside heat file, retired together
+- Enables retrospective analysis: "what worked, what didn't, what should change"
+
+### Specialized Subagents
+Create purpose-built subagents for delegation, not just model hints:
+- **Model-tier agents**: haiku-worker, sonnet-worker, opus-worker with appropriate context budgets
+- **Pace-type agents**: mechanical-edit, codebase-explore, test-runner, doc-writer
+- **Delegation router**: analyzes pace spec, selects optimal agent, handles handoff
+- Success criteria: right agent for right task, minimal token waste, clear failure escalation
+
+### Skill Articulation
+Before delegation can succeed, skills must be identified and well-described:
+- **Skill inventory**: catalog of capabilities available for delegation (edit, search, test, generate, validate, etc.)
+- **Skill cards**: each skill has preconditions, inputs, outputs, failure modes, model requirements
+- **Heat planning**: match heat goals to available skills, identify gaps early
+- **Pace preparation**: `/jja-pace-refine` could suggest "this pace needs skills X, Y" and verify they exist
+- **Skill gaps**: surface when a pace requires a skill not yet articulated → triggers skill development
+
+### Delegation Intelligence
+Improve the refine→delegate flow:
+- Learn from action logs which pace patterns succeed/fail per agent type
+- Auto-suggest agent selection based on pace characteristics
+- Detect scope creep or unbounded work before it spins
+- Graceful escalation: haiku fails → sonnet retry → opus rescue → human
+- Match pace requirements to skill inventory before attempting delegation
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
