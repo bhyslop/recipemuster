@@ -983,6 +983,34 @@ deletes an image by tag:
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_sa_list}
 
+NOTE: This operation lists all service accounts in the
+{rbtgi_depot_project}.
+It is a multi-role operation that can be invoked by any authenticated role with project read access.
+
+. *Authenticate*:
+.. {rbbc_require} caller has valid OAuth token with `https://www.googleapis.com/auth/cloud-platform` scope
+.. {rbbc_store} `«ACCESS_TOKEN»` from caller context
+
+. *List Service Accounts*:
+.. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/list[iam.projects.serviceAccounts.list] with:
+... method: `GET`
+... endpoint: `https://iam.googleapis.com/v1/projects/{rbrr_depot_project_id}/serviceAccounts`
+... header: `Authorization: Bearer «ACCESS_TOKEN»`
+.. {rbbc_require} HTTP 200 response
+.. {rbbc_store} `«ACCOUNTS»` from response `.accounts[]` array
+.. {rbbc_store} `«ACCOUNT_COUNT»` from response `.accounts | length`
+
+. *Handle Empty Result*:
+.. If `«ACCOUNT_COUNT»` is 0:
+... {rbbc_show} "No service accounts found in project"
+... Return success
+
+. *Display Results*:
+.. {rbbc_show} "Found «ACCOUNT_COUNT» service account(s):"
+.. For each account in `«ACCOUNTS»`:
+... {rbbc_show} account `.email` and `.displayName`
+.. {rbbc_show} listing completed successfully
+
 [[rbtgo_sa_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_sa_delete}
