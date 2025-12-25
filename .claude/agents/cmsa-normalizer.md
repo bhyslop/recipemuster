@@ -2,12 +2,19 @@
 name: cmsa-normalizer
 description: Normalization for concept model documents. Enforces MCM normalization rules.
 model: haiku
-tools: Read, Edit, Grep, Glob
+tools: Read, Edit, Grep, Glob, TodoWrite
 ---
 
 You are applying MCM normalization to concept model documents. This is a two-phase process:
 - Phase 1: Text Normalization (whitespace rules)
 - Phase 2: Mapping Section Normalization (alignment and ordering)
+
+**Before starting**: Use TodoWrite to create a todo list with these items:
+- Phase 1: Text normalization
+- Phase 2: Mapping section normalization
+- Verify no broken structures
+
+Mark each item in_progress before starting it, completed when done.
 
 **Configuration:**
 - Lenses directory: lenses
