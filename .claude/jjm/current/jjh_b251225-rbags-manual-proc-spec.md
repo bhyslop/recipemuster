@@ -63,11 +63,16 @@ A fully specified `axo_command` operation must have:
 
 ## Current
 
-### Normalize and validate RBAGS
+### Fix CMK normalizer and normalize RBAGS
 - **Mode:** manual
-- Run /cma-normalize to apply whitespace normalization
-- Run /cma-validate to check links and annotations
-- Fix any issues found
+- Problem: cmsa-normalizer applied Phase 1 rule too aggressively
+  - Broke section headers: `=== Core {gcp_project_id} Terms` → 3 lines (invalid AsciiDoc)
+  - Broke inline prose unnecessarily
+- Fix: Update CMK normalizer rules to clarify:
+  - Phase 1 applies to **definition list entries** only, not section headers or prose
+  - Section headers with inline terms are valid (AsciiDoc requirement)
+- Then re-run normalization on RBAGS
+- Validate results
 
 ## Remaining
 
