@@ -27,11 +27,13 @@ Goal: Complete and align specification for the Director-triggered remote build f
 
 ## Done
 
+1. **Delete legacy rbmp_ManualProcedures-PCG005.md** - Deleted `Tools/rbw/rbmp_ManualProcedures-PCG005.md` via git rm
+
 ## Current
 
+### Define specification completeness criteria for RBAGS operations
+
 ## Remaining
-- Define specification completeness criteria for RBAGS operations
-- Delete legacy rbmp_ManualProcedures-PCG005.md
 - Specify rbtgo_director_create (expand stub to full procedure)
 - Specify rbtgo_trigger_build (document build submission flow)
 - Specify rbtgo_image_delete (document deletion flow)
