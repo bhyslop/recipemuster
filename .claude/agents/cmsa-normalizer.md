@@ -1,7 +1,7 @@
 ---
 name: cmsa-normalizer
 description: Normalization for concept model documents. Enforces MCM normalization rules.
-model: haiku
+model: sonnet
 tools: Read, Edit, Grep, Glob, TodoWrite
 ---
 
