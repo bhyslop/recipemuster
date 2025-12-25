@@ -43,15 +43,16 @@ A fully specified `axo_command` operation must have:
 
 2. **Define specification completeness criteria for RBAGS operations** - Defined 6-point completeness criteria (anchor, steps, control terms, variables, API links, errors). Audited 13 operations: found 7 name mismatches, 2 missing implementations, 6 incomplete specs. Reorganized paces into Alignment/Completion/Finalization phases. Added 5 API verification itches.
 
+3. **Fix RBAGS attribute mappings** - Updated 7 attribute definitions in RBAGS lines 67-80 to match implementation function names (rbmp→rbgm, rbgg_*_create→rbgg_create_*, rbgo→rbf, rbgs→rbgg)
+
 ## Current
 
-### Fix RBAGS attribute mappings
-7 name mismatches: rbmp→rbgm_payor_refresh, rbgg_retriever_create→rbgg_create_retriever, rbgg_director_create→rbgg_create_director, rbgo_trigger_build→rbf_build, "Image Deletion"→rbf_delete, rbgs_list_service_accounts→rbgg_list_service_accounts, rbgs_list_service_accounts→rbgg_delete_service_account
+### Implement rbtgo_governor_create
+Missing implementation
 
 ## Remaining
 
 ### Spec-Implementation Alignment
-- Implement rbtgo_governor_create (missing implementation)
 - Implement rbtgo_image_retrieve (missing implementation)
 
 ### Specification Completion (per Completeness Criteria)
