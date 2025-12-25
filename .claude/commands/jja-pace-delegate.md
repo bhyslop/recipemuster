@@ -8,19 +8,20 @@ Steps:
 
 1. Check for current heat in .claude/jjm/current/
    - If no heat: announce "No active heat" and stop
+   - Note the heat's silks (kebab-case description from filename)
 
 2. Identify the pace to delegate (from context or ask)
 
 3. Validate the pace:
    - Is mode `delegated`?
      - If `manual`: refuse with "This pace is manual - work on it conversationally"
-     - If unset: refuse with "Run /jja-pace-refine first to set mode"
+     - If unset: ask "Would you like to set this up for delegation?" then formalize spec
    - Is spec healthy? Check for:
      - Objective defined
      - Scope bounded
      - Success criteria clear
      - Failure behavior specified
-   - If unhealthy: refuse with "This pace needs refinement - [specific gap]"
+   - If unhealthy: refuse with "This pace needs more detail - [specific gap]"
 
 4. If valid, present the pace spec clearly:
    ```
@@ -44,7 +45,31 @@ Steps:
    - Modified files: list absolute paths for easy editor access
      Example: `/Users/name/project/src/file.ts`
 
-7. Do NOT auto-complete the pace. User decides via /jja-pace-wrap
+7. Append DELEGATE entry to steeplechase (.claude/jjm/current/jjc_*.md):
+   - Create steeplechase file if it doesn't exist (jjc_bYYMMDD-[silks].md matching heat)
+   - Append entry in this format:
+   ```markdown
+   ---
+   ### YYYY-MM-DD HH:MM - [pace-silks] - DELEGATE
+   **Spec**:
+   - Objective: [objective]
+   - Scope: [scope]
+   - Success: [criteria]
+   - On failure: [behavior]
+
+   **Execution trace**:
+   [List key actions taken: files read, files modified, commands run]
+
+   **Result**: success | failure | partial
+   [Brief summary of outcome]
+
+   **Modified files**:
+   - [absolute path 1]
+   - [absolute path 2]
+   ---
+   ```
+
+8. Do NOT auto-complete the pace. User decides via /jja-pace-wrap
    Work in target repo is NOT auto-committed. User can review and use /jja-sync.
 
 Error handling: If paths wrong or files missing, announce issue and stop.

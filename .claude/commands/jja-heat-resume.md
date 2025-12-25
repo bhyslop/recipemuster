@@ -1,5 +1,13 @@
 You are resuming the current Job Jockey heat.
 
+Use this command for:
+- Starting a new Claude Code session (cold start)
+- Explicitly reviewing full heat status
+- Switching between multiple active heats
+
+Note: After /jja-pace-wrap or /jja-sync, you do NOT need this command -
+those commands automatically analyze and propose the next pace.
+
 Configuration:
 - Target repo dir: .
 - Kit path: Tools/jjk/README.md
@@ -18,24 +26,30 @@ Steps:
 
    **If 1 heat:**
    - Read the heat file
-   - Display:
-     - Heat name (from filename)
-     - Brief summary from Context section
-     - Current pace (from ## Current section)
-   - Ask "Ready to continue?" or similar
+   - Note the heat's silks (kebab-case description from filename)
+   - Display heat name and brief context summary
+   - Display current pace (from ## Current section) with mode
+   - Read the pace description and any files/context it references
+   - Analyze what the work entails
+   - Propose a concrete approach (2-4 bullets)
+   - Append APPROACH entry to steeplechase (.claude/jjm/current/jjc_*.md):
+     - Create steeplechase file if it doesn't exist (jjc_bYYMMDD-[silks].md)
+     - Entry format:
+       ```markdown
+       ---
+       ### YYYY-MM-DD HH:MM - [pace-silks] - APPROACH
+       **Mode**: manual | delegated
+       **Proposed approach**:
+       - [bullet 1]
+       - [bullet 2]
+       ---
+       ```
+   - Ask: "Ready to proceed with this approach?"
+   - On approval: begin work directly
 
    **If 2+ heats:**
    - List all heats by name
    - Ask: "Which heat would you like to work on?"
-   - Wait for selection, then display as above
-
-3. Example output format:
-   ```
-   Resuming heat: **BUK Utility Rename**
-
-   Current pace: **Update internal functions**
-
-   Ready to continue?
-   ```
+   - Wait for selection, then proceed as above
 
 Error handling: If .claude/jjm/current/ doesn't exist, announce issue and stop.

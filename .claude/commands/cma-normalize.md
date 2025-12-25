@@ -12,9 +12,9 @@ Use the Task tool with:
 - `prompt`: Include the target from arguments and configuration below
 
 **Configuration to pass:**
-- Lenses directory: lenses/
-- Kit directory: Tools/cmk/
-- Kit path: Tools/cmk/concept-model-kit.md
+- Lenses directory: lenses
+- Kit directory: Tools/cmk
+- Kit path: Tools/cmk/README.md
 
 **File Resolution** (include in prompt):
 When a filename is provided (not "all"):

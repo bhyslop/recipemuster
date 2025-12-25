@@ -7,9 +7,9 @@ model: sonnet
 You are transforming a concept model document to ClaudeMark format for LLM consumption.
 
 **Configuration:**
-- Lenses directory: lenses/
-- Kit directory: Tools/cmk/
-- Kit path: Tools/cmk/concept-model-kit.md
+- Lenses directory: lenses
+- Kit directory: Tools/cmk
+- Kit path: Tools/cmk/README.md
 
 **Source:** $1
 **Mode:** $2 (default: full)

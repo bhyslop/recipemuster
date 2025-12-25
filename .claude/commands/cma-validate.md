@@ -6,9 +6,9 @@ argument-hint: [file-path | all]
 You are validating the structural integrity of concept model documents.
 
 **Configuration:**
-- Lenses directory: lenses/
-- Kit directory: Tools/cmk/
-- Kit path: Tools/cmk/concept-model-kit.md
+- Lenses directory: lenses
+- Kit directory: Tools/cmk
+- Kit path: Tools/cmk/README.md
 
 **Target:** $ARGUMENTS (use "all" for all .adoc files in lenses directory)
 

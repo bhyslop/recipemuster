@@ -110,6 +110,13 @@ Closed itches with lessons learned.
 - Includes context on why closed and what was learned
 - Located in: `.claude/jjm/`
 
+### `jjc_bYYMMDD-description.md` (Job Jockey Steeplechase)
+Performance log capturing how each heat actually ran.
+- Created lazily when first entry is logged
+- Naming matches the heat file (same begin date and silks)
+- Located in: `.claude/jjm/current/` during active work
+- On retirement: contents merged into heat file under `## Steeplechase` section
+
 ## Directory Structure
 
 JJ memory lives at `.claude/jjm/` relative to CLAUDE.md. Commands live at `.claude/commands/`.
@@ -135,6 +142,7 @@ my-project/                 # Launch Claude Code here
       jjs_scar.md
       current/
         jjh_b251108-feature-x.md
+        jjc_b251108-feature-x.md
       retired/
         jjh_b251001-r251015-feature-y.md
   src/
@@ -171,6 +179,60 @@ Create rbgp_create_governor for depot setup flow...
 **Closed**: Superseded by rbgg_create_depot which handles governor internally.
 Learned: governor is an implementation detail, not a user-facing concept.
 ```
+
+## Steeplechase Format
+
+The steeplechase file (`jjc_bYYMMDD-description.md`) captures three types of entries:
+
+### APPROACH Entry
+Logged when analyzing a pace and proposing how to approach it:
+```markdown
+---
+### 2025-12-25 14:30 - specify-image-delete - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Read rbf_delete implementation to extract step sequence
+- Apply completeness criteria from RBAGS pattern
+- Document in same format as rbtgo_director_create
+---
+```
+
+### WRAP Entry
+Logged when marking a pace complete:
+```markdown
+---
+### 2025-12-25 16:45 - specify-image-delete - WRAP
+**Mode**: manual
+**Outcome**: Documented rbtgo_image_delete with 5-step sequence extracted from rbf_delete
+---
+```
+
+### DELEGATE Entry
+Logged when executing a delegated pace:
+```markdown
+---
+### 2025-12-25 15:00 - update-config-refs - DELEGATE
+**Spec**:
+- Objective: Update all config references from old to new format
+- Scope: src/config/*.ts files only
+- Success: All references updated, tests pass
+- On failure: Report files that couldn't be updated
+
+**Execution trace**:
+- Read 12 config files
+- Modified 8 files with reference updates
+- Ran test suite
+
+**Result**: success
+Updated 23 references across 8 files, tests passing.
+
+**Modified files**:
+- /Users/name/project/src/config/auth.ts
+- /Users/name/project/src/config/api.ts
+---
+```
+
+On heat retirement, the entire steeplechase is appended to the heat file under a `## Steeplechase` section, creating a complete archive of how the heat ran.
 
 ## Workflows
 
@@ -302,23 +364,17 @@ Configuration is via environment variables:
 - `/jja-itch-find` - Find an itch by keyword
 - `/jja-itch-move` - Move itch to scar or promote to heat
 
-## Future Directions
+## Terminology
 
-### Steeplechase (Performance Log)
-Current doctrine keeps only short summaries in the Done section. However, valuable detail is lost that could improve Job Jockey itself. Consider the **steeplechase** - a log capturing how each heat actually ran:
-- **jjc_bYYMMDD-description.md** - Steeplechase file per heat (c = chase)
-- Captures: pace approaches proposed, delegated agent output, execution traces, failure modes, recovery attempts
-- Lives alongside heat file during work
-- On retirement: appended to heat file under `## Steeplechase` section for complete archive
-- Enables retrospective analysis: "what worked, what didn't, what should change"
-
-### Silks (Unique Identifiers)
-Formalize the kebab-case identifier pattern used across JJ artifacts:
-- **Silks** are the unique names that identify itches, scars, and heats (e.g., `governor-implementation`, `buk-portability`)
+### Silks
+The kebab-case identifier that uniquely names JJ artifacts:
+- **Silks** are the unique names for itches, scars, heats, and steeplechases (e.g., `governor-implementation`, `buk-portability`)
 - Every itch has silks; silks carry to scars when closed
 - Heats have silks (the description part of filename)
 - Steeplechases inherit the heat's silks
-- Unifies the concept: "What's the silks on that itch?" / "The heat silks are `rbags-specification`"
+- Usage: "What's the silks on that itch?" / "The heat silks are `rbags-specification`"
+
+## Future Directions
 
 ### Specialized Agents
 Create purpose-built agents for delegation, not just model hints:

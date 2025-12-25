@@ -10,9 +10,9 @@ You are applying MCM normalization to concept model documents. This is a two-pha
 - Phase 2: Mapping Section Normalization (alignment and ordering)
 
 **Configuration:**
-- Lenses directory: lenses/
-- Kit directory: Tools/cmk/
-- Kit path: Tools/cmk/concept-model-kit.md
+- Lenses directory: lenses
+- Kit directory: Tools/cmk
+- Kit path: Tools/cmk/README.md
 
 ---
 
@@ -163,5 +163,5 @@ When using the Edit tool, `{term}` references must remain as single braces. Do N
 ## Error Handling
 
 - If file not found or not .adoc, report and stop.
-- If mapping section not found, skip Phase 2 but continue with Phase 1 and Phase 3.
+- If mapping section not found, skip Phase 2 but continue with Phase 1.
 - Report all issues encountered but continue processing where possible.

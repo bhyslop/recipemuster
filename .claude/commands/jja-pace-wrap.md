@@ -9,6 +9,7 @@ Steps:
 1. Check for current heat in .claude/jjm/current/
    - If no heat: announce "No active heat" and stop
    - If multiple: ask which one
+   - Note the heat's silks (kebab-case description from filename)
 
 2. Ask which pace to mark done (or infer from context)
 
@@ -24,12 +25,42 @@ Steps:
    - Replace description with brief summary
    - Move next pace from ## Remaining to ## Current (if any)
 
-6. Commit JJ state (this repo only, no push):
+6. Append WRAP entry to steeplechase (.claude/jjm/current/jjc_*.md):
+   - Create steeplechase file if it doesn't exist (jjc_bYYMMDD-[silks].md matching heat)
+   - Append entry in this format:
+   ```markdown
+   ---
+   ### YYYY-MM-DD HH:MM - [pace-silks] - WRAP
+   **Mode**: manual | delegated
+   **Outcome**: [summary from step 3]
+   ---
+   ```
+
+7. Commit JJ state (this repo only, no push):
    ```bash
-   git add .claude/jjm/current/jjh-*.md
+   git add .claude/jjm/current/
    git commit -m "JJA: pace-wrap - [brief description]"
    ```
 
-7. Report what was done
+8. Report what was done
+
+9. If there is a next pace (now in ## Current):
+   - Read the pace description and any files/context it references
+   - Analyze what the work entails
+   - Propose a concrete approach (2-4 bullets)
+   - Append APPROACH entry to steeplechase:
+     ```markdown
+     ---
+     ### YYYY-MM-DD HH:MM - [pace-silks] - APPROACH
+     **Mode**: manual | delegated
+     **Proposed approach**:
+     - [bullet 1]
+     - [bullet 2]
+     ---
+     ```
+   - Ask: "Ready to proceed with this approach?"
+   - On approval: begin work directly (no /jja-heat-resume needed)
+
+   If no next pace: announce "All paces complete - ready to retire heat?"
 
 Error handling: If files missing or paths wrong, announce issue and stop.
