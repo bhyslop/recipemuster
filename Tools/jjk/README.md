@@ -237,7 +237,7 @@ The workbench:
 
 Configuration is via environment variables:
 - `ZJJW_TARGET_DIR` - Target repo directory (default: `.`)
-- `ZJJW_KIT_PATH` - Path to this kit file (default: `Tools/jjk/job-jockey-kit.md`)
+- `ZJJW_KIT_PATH` - Path to this kit file (default: `Tools/jjk/README.md`)
 
 **Important**: Restart Claude Code after installation for new commands to become available.
 

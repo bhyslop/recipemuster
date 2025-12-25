@@ -162,7 +162,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Itch**: Future idea, lives in Future or Shelved
 
 - Target repo dir: `.`
-- JJ Kit path: `Tools/jjk/job-jockey-kit.md`
+- JJ Kit path: `Tools/jjk/README.md`
 
 **Available commands:**
 - `/jja-heat-resume` - Resume current heat, show current pace
