@@ -51,31 +51,17 @@ A fully specified `axo_command` operation must have:
 
 ## Current
 
-### Create rbgp_create_governor implementation
-- **Mode:** delegated
-- **Objective:** Implement `rbgp_create_governor()` in `Tools/rbw/rbgp_Payor.sh` following RBAGS spec lines 579-653
-- **Critical guide:** BCG (`../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`) for bash style, error handling, and control flow patterns
-- **Scope:**
-  - Add function after `rbgp_depot_list()` (around line 1012), before `rbgp_payor_oauth_refresh()`
-  - Follow `rbgp_depot_create` pattern (zrbgp_sentinel, OAuth auth via zrbgp_authenticate_capture)
-  - Use existing helpers: rbgu_http_json, rbgi_add_project_iam_role, rbgo_rbra_generate_from_key
-- **Steps per spec:**
-  1. Validate RBRR_DEPOT_PROJECT_ID exists and ≠ RBRP_PAYOR_PROJECT_ID
-  2. Create SA via iam.serviceAccounts.create in depot project
-  3. Poll/verify SA accessible via iam.serviceAccounts.get (3-5s intervals, 30s max)
-  4. Check no USER_MANAGED keys exist via serviceAccounts.keys.list
-  5. Grant roles/owner via projects.setIamPolicy (policy version 3)
-  6. Create key via serviceAccounts.keys.create and generate RBRA file
-- **Success:** Function exists, follows spec steps, uses correct auth pattern, adheres to BCG
-- **Failure:** If helper functions missing or pattern unclear, stop and report
-- **Model hint:** needs-sonnet (complex multi-step API integration)
+### Specify rbtgo_director_create
+- **Mode:** manual
+- Extract step sequence from `rbgg_create_director` implementation
+- Apply completeness criteria (anchor, steps, control terms, variables, API links, errors)
+- Reference: `rbtgo_depot_create` (RBAGS lines 348-471) for format
 
-- Implement rbtgo_image_retrieve (missing implementation)
+## Remaining
 
 ### Specification Completion (per Completeness Criteria)
 
 **Extract from implementation:**
-- Specify rbtgo_director_create (extract from `rbgg_create_director`, has prose but needs step sequence)
 - Specify rbtgo_trigger_build (extract from `rbf_build`)
 - Specify rbtgo_image_delete (extract from `rbf_delete`)
 - Specify rbtgo_sa_list (extract from `rbgg_list_service_accounts`)
@@ -86,11 +72,3 @@ A fully specified `axo_command` operation must have:
 
 ### Finalization
 - Normalize and validate RBAGS
-
-## Itches
-
-- Verify rbtgo_depot_create API calls against current Google Cloud REST API documentation
-- Rename rbgg_Governor.sh to better reflect scope (handles all depot service accounts + project lifecycle, not just Governor role)
-- Verify rbtgo_depot_destroy API calls against current Google Cloud REST API documentation
-- Verify rbtgo_retriever_create API calls against current Google Cloud REST API documentation
-- Audit all RBAGS operations for API correctness via websearch
