@@ -45,14 +45,46 @@ A fully specified `axo_command` operation must have:
 
 3. **Fix RBAGS attribute mappings** - Updated 7 attribute definitions in RBAGS lines 67-80 to match implementation function names (rbmp→rbgm, rbgg_*_create→rbgg_create_*, rbgo→rbf, rbgs→rbgg)
 
+4. **Implement rbtgo_governor_create** - Analyzed spec and precedent. Fixed mapping to `rbgp_create_governor`. Determined: lives in rbgp_Payor.sh (Payor operation, OAuth auth), follows rbgp_depot_create pattern, grants roles/owner. Created delegated paces for verification (opus) and implementation (sonnet).
+
 ## Current
 
-### Implement rbtgo_governor_create
-Missing implementation
+### Verify rbtgo_governor_create spec against GCP APIs
+- **Mode:** delegated
+- **Objective:** Websearch GCP REST API docs for endpoints in RBAGS spec lines 579-653, confirm request/response fields match spec steps
+- **Scope:** Verify these 5 endpoints:
+  1. `iam.serviceAccounts.create` - account creation fields
+  2. `iam.serviceAccounts.get` - verification response
+  3. `iam.serviceAccounts.keys.list` - keyType field for USER_MANAGED check
+  4. `iam.serviceAccounts.keys.create` - keyAlgorithm, privateKeyType, response format
+  5. `projects.setIamPolicy` - policy version 3, binding structure
+- **Success:** All API calls verified correct, or discrepancies documented for spec update
+- **Failure:** If API docs inaccessible, report and stop
+- **Model hint:** needs-opus (nuanced API semantics require careful reasoning)
 
 ## Remaining
 
 ### Spec-Implementation Alignment
+
+#### Create rbgp_create_governor implementation
+- **Mode:** delegated
+- **Objective:** Implement `rbgp_create_governor()` in `Tools/rbw/rbgp_Payor.sh` following RBAGS spec lines 579-653
+- **Critical guide:** BCG (`../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`) for bash style, error handling, and control flow patterns
+- **Scope:**
+  - Add function after `rbgp_depot_list()` (around line 1012), before `rbgp_payor_oauth_refresh()`
+  - Follow `rbgp_depot_create` pattern (zrbgp_sentinel, OAuth auth via zrbgp_authenticate_capture)
+  - Use existing helpers: rbgu_http_json, rbgi_add_project_iam_role, rbgo_rbra_generate_from_key
+- **Steps per spec:**
+  1. Validate RBRR_DEPOT_PROJECT_ID exists and ≠ RBRP_PAYOR_PROJECT_ID
+  2. Create SA via iam.serviceAccounts.create in depot project
+  3. Poll/verify SA accessible via iam.serviceAccounts.get (3-5s intervals, 30s max)
+  4. Check no USER_MANAGED keys exist via serviceAccounts.keys.list
+  5. Grant roles/owner via projects.setIamPolicy (policy version 3)
+  6. Create key via serviceAccounts.keys.create and generate RBRA file
+- **Success:** Function exists, follows spec steps, uses correct auth pattern, adheres to BCG
+- **Failure:** If helper functions missing or pattern unclear, stop and report
+- **Model hint:** needs-sonnet (complex multi-step API integration)
+
 - Implement rbtgo_image_retrieve (missing implementation)
 
 ### Specification Completion (per Completeness Criteria)
@@ -73,6 +105,7 @@ Missing implementation
 ## Itches
 
 - Verify rbtgo_depot_create API calls against current Google Cloud REST API documentation
+- Rename rbgg_Governor.sh to better reflect scope (handles all depot service accounts + project lifecycle, not just Governor role)
 - Verify rbtgo_depot_destroy API calls against current Google Cloud REST API documentation
 - Verify rbtgo_governor_create API calls against current Google Cloud REST API documentation
 - Verify rbtgo_retriever_create API calls against current Google Cloud REST API documentation

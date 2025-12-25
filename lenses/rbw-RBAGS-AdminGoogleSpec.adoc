@@ -69,7 +69,7 @@
 :rbtgo_depot_create:         <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_list:           <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_depot_destroy:        <<rbtgo_depot_destroy,rbgp_depot_destroy>>
-:rbtgo_governor_create:      <<rbtgo_governor_create,rbgp_governor_create>>
+:rbtgo_governor_create:      <<rbtgo_governor_create,rbgp_create_governor>>
 :rbtgo_retriever_create:     <<rbtgo_retriever_create,rbgg_create_retriever>>
 :rbtgo_director_create:      <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_sa_list:              <<rbtgo_sa_list,rbgg_list_service_accounts>>
