@@ -49,20 +49,21 @@ A fully specified `axo_command` operation must have:
 
 5. **Verify rbtgo_governor_create spec against GCP APIs** - Verified 5 GCP REST APIs (serviceAccounts.create/get, keys.list/create, projects.setIamPolicy) against RBAGS spec lines 579-653. All request/response fields, enum values (KEY_ALG_RSA_2048, TYPE_GOOGLE_CREDENTIALS_FILE, USER_MANAGED), and endpoint patterns confirmed accurate. No discrepancies found.
 
+6. **Specify rbtgo_director_create** - Expanded from prose to 11-step sequence with 8 API links. Added `rbtoe_governor_authenticate` pattern (parallel to payor). Documented Mason impersonation and build bucket access requirements.
+
 ## Current
 
-### Specify rbtgo_director_create
+### Specify rbtgo_trigger_build
 - **Mode:** manual
-- Extract step sequence from `rbgg_create_director` implementation
+- Extract step sequence from `rbf_build` implementation
 - Apply completeness criteria (anchor, steps, control terms, variables, API links, errors)
-- Reference: `rbtgo_depot_create` (RBAGS lines 348-471) for format
+- Reference: `rbtgo_depot_create` for format
 
 ## Remaining
 
 ### Specification Completion (per Completeness Criteria)
 
 **Extract from implementation:**
-- Specify rbtgo_trigger_build (extract from `rbf_build`)
 - Specify rbtgo_image_delete (extract from `rbf_delete`)
 - Specify rbtgo_sa_list (extract from `rbgg_list_service_accounts`)
 - Specify rbtgo_sa_delete (extract from `rbgg_delete_service_account`)
