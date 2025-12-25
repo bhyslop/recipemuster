@@ -39,6 +39,14 @@ This phase adjusts ONLY line breaks and blank lines. You must NOT change any wor
 
 **VERIFICATION**: After each edit, confirm the exact same characters exist - only newline positions may differ.
 
+**Opaque Contexts (never modify these line types):**
+- Section headers: lines starting with `=`
+- List markers: lines starting with `*`, `.`, or containing `::`
+- Table content: lines containing `|`
+- Code fences: lines inside `----` blocks
+
+Term isolation rules apply only to prose paragraphs and definition entry text.
+
 **Whitespace Rules to Apply:**
 
 1. **One sentence per line**: Break at EXISTING sentence boundaries (periods, question marks, exclamation points followed by space and capital letter). Do not create new sentences by restructuring.
@@ -46,8 +54,9 @@ This phase adjusts ONLY line breaks and blank lines. You must NOT change any wor
 2. **Linked terms isolated**: When a `{term_reference}` appears standalone in prose:
    - Line break before the term
    - Line break after the term
-   - **Exception - bullet items**: Terms at start of bullet items stay on the marker line (AsciiDoc requires `* content` syntax)
-   - **Exception - section headers**: Lines starting with `=` are structural elements; never split section headers across lines
+   - **Exception - list markers**: Never split lines starting with `*`, `**`, `***`, `.`, `..`, `...`, or containing `::`
+   - **Exception - section headers**: Never split lines starting with `=`
+   - **Exception - table cells**: Never split lines containing `|`
    - Example A (mid-sentence) - BEFORE:
      ```
      The system uses {excm_processor} to handle requests.
@@ -99,11 +108,12 @@ This phase adjusts ONLY line breaks and blank lines. You must NOT change any wor
 1. Read the target file(s)
 2. **Search phase**: Use Grep to find all `\{[a-z_]+\}` patterns outside code blocks. This creates your checklist of terms to verify.
 3. **Check each term**: For every term found, verify it has:
-   - Line break immediately before (or is after bullet marker `* `)
+   - Line break immediately before (or is in an opaque context)
    - Line break immediately after (or punctuation like `,` then line break)
-   - Skip terms inside `----` code fences
+   - Skip terms in opaque contexts (code fences, list markers, section headers, table cells)
 4. Fix all violations found
 5. **Verify**: Search again to confirm no inline terms remain (terms with text on same line before AND after)
+6. **Structural check**: Verify no lines starting with `=`, `*`, `.`, or containing `|` were split. If any opaque context was modified, revert those specific changes.
 
 **Self-check**: Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
 
