@@ -148,9 +148,7 @@ rbgm_payor_establish() {
   zrbgm_dc     "   File: " "${ZRBGM_RBRP_FILE}"
   zrbgm_dcd    "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}" ""
   zrbgm_d      "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 3)"
-  zrbgm_d      "   If you need to change the project ID, edit the file with:"
-  zrbgm_dc     "      " "${ZRBGM_RBRP_FILE_BASENAME}"
-  zrbgm_d      "   Then re-run this procedure."
+  zrbgm_dm     "   If you need to change the project ID, edit the file and re-run this procedure. File: " "${ZRBGM_RBRP_FILE_BASENAME}"
   zrbgm_e
   zrbgm_s2     "1.5 Check if Project Already Exists:"
   zrbgm_d      "   Before creating a new project, verify the configured ID is not already in use:"
