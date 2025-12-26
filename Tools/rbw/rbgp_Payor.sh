@@ -72,11 +72,9 @@ zrbgp_refresh_capture() {
   test -d "${HOME}/.rbw" || buc_die "RBRO directory missing - run rbgp_payor_install"
   test -f "${z_rbro_file}" || buc_die "RBRO credentials missing - run rbgp_payor_install"
   
-  # Check file permissions
-  local z_perms
-  z_perms=$(stat -c %a "${z_rbro_file}" 2>/dev/null) || buc_die "Failed to check RBRO file permissions"
-  if [ "${z_perms}" != "600" ]; then
-    buc_log_args "Warning: RBRO file permissions should be 600, found ${z_perms}"
+  # Check file permissions (readable and writable by owner)
+  if [ ! -r "${z_rbro_file}" ] || [ ! -w "${z_rbro_file}" ]; then
+    buc_die "RBRO file not readable/writable - check permissions and ownership"
   fi
   
   # Source RBRO credentials
@@ -454,9 +452,15 @@ rbgp_payor_install() {
     local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
     echo ""
-    echo "Open this URL in your browser:"
-    echo "${z_auth_url}"
-    echo ""
+    buc_info "Open this URL in your browser:"
+    buc_info "${z_auth_url}"
+    buc_info ""
+    buc_info "You will see three screens:"
+    buc_info "  1. 'Google hasn't verified this app' - Click Continue"
+    buc_info "  2. 'Recipe Bottle Payor wants access' - Review the requested permissions"
+    buc_info "     Check the permission checkboxes to grant access, then click Continue"
+    buc_info "  3. Authorization code will be displayed"
+    buc_info ""
     printf "Copy the authorization code and paste here: "
     read -r z_auth_code
     test -n "${z_auth_code}" || buc_die "Authorization code is required"
