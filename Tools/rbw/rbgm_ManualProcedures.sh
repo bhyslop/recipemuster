@@ -191,7 +191,7 @@ rbgm_payor_establish() {
   zrbgm_d      "          a. Choose account for Recipe Bottle funding"
   zrbgm_dm     "          b. Copy chosen " "Account ID" " value"
   zrbgm_dld    "   5. Go to: " "Google Cloud Billing Projects" "https://console.cloud.google.com/billing/projects"
-  zrbgm_dmd    "   6. Find project row with ID matching your payor project (not name)"
+  zrbgm_d      "   6. Find project row with ID matching your payor project (not name)"
   zrbgm_dcdm   "      Record as: " "RBRP_BILLING_ACCOUNT_ID=" " # " "Value from Account ID column"
   zrbgm_dm     "   7. Save your " "${ZRBGM_RBRP_FILE}" " and re-display this procedure."
   zrbgm_e
