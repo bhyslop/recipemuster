@@ -242,6 +242,12 @@ rbgm_payor_establish() {
   zrbgm_dm     "        - Click " "Continue"
   zrbgm_dm     "        - Click " "Create"
   zrbgm_e
+  zrbgm_d      "   4. Add your email as a test user (REQUIRED for testing mode):"
+  zrbgm_dm     "      - Click " "Audience" " in left sidebar"
+  zrbgm_d      "      - In section " "Test users" ", click " "Add Users"
+  zrbgm_d      "      - Enter your email address"
+  zrbgm_dm     "      - Click " "Add"
+  zrbgm_e
   zrbgm_s2     "9. Create OAuth 2.0 Client ID:"
   zrbgm_dld    "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
   zrbgm_dm     "   1. Click " "+ CREATE CREDENTIALS"

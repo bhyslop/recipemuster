@@ -453,9 +453,9 @@ rbgp_payor_install() {
     buc_step 'OAuth authorization flow'
     local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
-    buc_link "Open this URL in your browser:" "Google OAuth Authorization" "${z_auth_url}"
     echo ""
-    echo "Raw URL: ${z_auth_url}"
+    echo "Open this URL in your browser:"
+    echo "${z_auth_url}"
     echo ""
     printf "Copy the authorization code and paste here: "
     read -r z_auth_code
