@@ -145,7 +145,7 @@ rbgm_payor_establish() {
   zrbgm_e
   zrbgm_s2     "1. Confirm Initial Payor Regime:"
   zrbgm_d      "   Verify these values are set in your Payor Regime:"
-  zrbgm_dm     "   File: " "${ZRBGM_RBRP_FILE}"
+  zrbgm_dc     "   File: " "${ZRBGM_RBRP_FILE}"
   zrbgm_dcd    "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}" ""
   zrbgm_dcd    "   RBRP_BILLING_ACCOUNT_ID: " "${RBRP_BILLING_ACCOUNT_ID}" ""
   zrbgm_d      "   If you need to change any values, edit the file with:"
