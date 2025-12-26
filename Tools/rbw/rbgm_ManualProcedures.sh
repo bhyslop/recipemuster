@@ -177,6 +177,7 @@ rbgm_payor_establish() {
   zrbgm_dmd    "   3. If you see " "You need additional access" ", you may not have permissions on the created project"
   zrbgm_d      "      - Verify that you are the owner of the Google account that created the project"
   zrbgm_d      "      - You need owner or editor role on the project to configure it"
+  zrbgm_d      "      TODO: Add Principal? First time glitch encountered and not normalized."
   zrbgm_dmd    "   4. If you see " "Project not found" ", check that RBRP_PAYOR_PROJECT_ID in rbrp.env matches your actual created project ID"
   zrbgm_e
   zrbgm_s2     "3. Configure Billing Account:"
