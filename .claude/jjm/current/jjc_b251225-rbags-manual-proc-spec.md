@@ -9,3 +9,9 @@
 - Run `/cma-normalize` on RBAGS and verify section headers remain intact
 - Validate the normalized output has no broken headers
 ---
+
+---
+### 2025-12-25 21:15 - fix-cmk-normalizer-and-normalize-rbags - WRAP
+**Mode**: manual
+**Outcome**: Fixed normalizer backtick rules, normalized RBAGS; created itch for Rust replacement due to LLM unreliability
+---

@@ -79,6 +79,98 @@ Function exists, follows spec steps, uses correct auth pattern, adheres to BCG.
 
 Extracted from heat jjh-b251225-rbags-manual-proc-spec during scope refinement, 2025-12-25. Spec is complete and API-verified; ready for implementation when prioritized.
 
+## cmk-rust-normalizer
+Replace LLM-based MCM normalizer with a deterministic Rust CLI tool.
+
+### Motivation
+
+The sonnet-based cmsa-normalizer agent has proven unreliable:
+- Skips Phase 2, incorrectly claims "already well-formatted"
+- Uses column 31 instead of 30 (violates MCM "multiples of 10" rule)
+- Mis-sorts alphabetically (put STOP before CAUTION)
+- Broke inline backtick content until explicit rules added
+- Non-deterministic - different results each run
+
+MCM normalization is fundamentally mechanical/deterministic - exactly what traditional programs excel at.
+
+### Rust Advantages
+
+- **Deterministic**: Same input → same output, every time
+- **Testable**: Unit tests for each rule, regression tests for edge cases
+- **Zero runtime**: Static binary, no Python venv complexity
+- **Stable**: Edition 2021 + Cargo.lock = compiles unchanged for years
+- **Fast**: Milliseconds vs API round-trips
+
+### Architecture
+
+**Data structure**: `Vec<String>` with "build new output" pattern (don't mutate in place)
+
+```rust
+let mut output = Vec::new();
+for line in input_lines {
+    if needs_splitting(&line) {
+        for fragment in split_around_terms(&line) {
+            output.push(fragment);
+        }
+    } else {
+        output.push(line);
+    }
+}
+```
+
+**Multi-pass structure**:
+```rust
+enum Block {
+    MappingSection(Vec<CategoryGroup>),
+    CodeFence(Vec<String>),      // Opaque, pass through
+    Prose(Vec<String>),          // Apply term isolation
+    SectionHeader(String),       // Opaque
+}
+```
+
+**Dependencies**: Pure std library preferred (zero external deps). Regex crate unnecessary - patterns are simple, and context tracking (backticks, code fences) requires state machines anyway.
+
+### Phase 1: Text Normalization
+
+1. Parse file into blocks (mapping, code fence, prose, headers)
+2. For prose blocks, find `{term}` references outside opaque contexts
+3. Opaque contexts: backticks, code fences, section headers, list markers, table cells
+4. Insert line breaks before/after terms
+5. Serialize back to lines
+
+### Phase 2: Mapping Section Normalization
+
+1. Parse `:attr:` lines into `MappingEntry { attr, anchor, display }`
+2. Group by category comment headers
+3. Sort each group alphabetically by display text
+4. Align `<<` to smallest multiple of 10 that fits longest attr in group
+5. Serialize with consistent spacing
+
+### CLI Interface
+
+```bash
+mcm-normalize <file.adoc>           # normalize in place
+mcm-normalize --check <file.adoc>   # exit 1 if changes needed
+mcm-normalize --diff <file.adoc>    # show what would change
+```
+
+### Success Criteria
+
+- Processes RBAGS correctly (matches manually normalized version)
+- Handles MCM spec document correctly
+- Unit tests for each opaque context type
+- Zero dependencies (pure std)
+
+### Context
+
+Emerged from failed cmsa-normalizer attempts during RBAGS normalization, 2025-12-25. Even sonnet model made systematic errors on this mechanical task.
+
+### LLM Agents Remain Useful For
+
+- Promotion/demotion analysis (semantic understanding)
+- Suggesting missing term links (context awareness)
+- Validation with repair suggestions
+
 ## rbtgo-image-retrieve
 Design and implement the image retrieval operation - currently has neither spec nor implementation.
 

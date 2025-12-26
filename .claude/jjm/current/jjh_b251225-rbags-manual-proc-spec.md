@@ -61,19 +61,12 @@ A fully specified `axo_command` operation must have:
 
 11. **Specify rbtgo_image_retrieve** - 6-step Retriever operation; added rbtoe_retriever_authenticate pattern; container runtime auth
 
+12. **Fix CMK normalizer and normalize RBAGS** - Fixed normalizer backtick rules, normalized RBAGS; created itch for Rust replacement due to LLM unreliability
+
 ## Current
 
-### Fix CMK normalizer and normalize RBAGS
-- **Mode:** manual
-- Problem: cmsa-normalizer applied Phase 1 rule too aggressively
-  - Broke section headers: `=== Core {gcp_project_id} Terms` → 3 lines (invalid AsciiDoc)
-  - Broke inline prose unnecessarily
-- Fix: Update CMK normalizer rules to clarify:
-  - Phase 1 applies to **definition list entries** only, not section headers or prose
-  - Section headers with inline terms are valid (AsciiDoc requirement)
-- Then re-run normalization on RBAGS
-- Validate results
+(none)
 
 ## Remaining
 
-(none - heat complete after finalization)
+(pending)
