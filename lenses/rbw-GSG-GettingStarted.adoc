@@ -1,0 +1,179 @@
+= Getting Started with Recipe Bottle: Cloud Setup and Building
+
+Welcome.
+{at_recipe_bottle}
+solves a specific problem: you build {at_bottle_image_s} on your laptop, your teammate builds the same code on theirs, and they're *identical*.
+No more "it works on my machine."
+
+This guide walks you through the rare things you do once, then the occasional things you do a few times, then the daily work you'll do without thinking about setup.
+
+== The Setup Journey: From Your Google Account to Your Team's Containers
+
+You're about to do something most people on your team will do exactly never.
+You're establishing the {rbtr_payor} - the bridge between your {gcp_organization} and the computers where people build.
+
+This happens once.
+After that, your team members won't think about it.
+They'll just use it.
+
+=== Phase 1: Establish (You, Your Google Account, The Console)
+
+{rbtgo_payor_establish}
+is entirely manual.
+You'll use Google's web console to:
+
+* Create a {gcp_project_id} called the {rbtgi_payor_project}
+* Link a {gcp_billing_enabled} account (this is where costs flow)
+* Enable the APIs that Recipe Bottle needs
+* Create an OAuth 2.0 client - your digital handshake with Google
+
+You'll end up with a JSON file.
+This file contains secrets.
+*Do not commit it to git.*
+Keep it where you downloaded it.
+
+**Why you're doing this:** You're telling Google "Recipe Bottle running on my machines gets to create and manage projects on my behalf."
+It's a one-time conversation with Google.
+
+=== Phase 2: Install (You, Your Computer, The Terminal)
+
+{rbtgo_payor_install}
+takes that JSON file and completes the handshake.
+
+You'll run a command.
+It will open your browser (again, to Google).
+You'll authorize (again).
+Google hands you a refresh token - a long-lived credential that lets Recipe Bottle stay logged in without asking you every time.
+
+That token gets stored in `~/.rbw/rbro.env` on your computer.
+With permissions `600` - readable and writable by you alone.
+*This file never leaves your computer.*
+It's the crown jewel.
+
+After this step, Payor setup is done.
+You have two files now that matter:
+* The JSON file (keep it safe, you might need it if things go wrong)
+* The `~/.rbw/rbro.env` file (your machine's membership card)
+
+**Why you're doing this:** You're exchanging a temporary authorization for a permanent relationship.
+From now on, your computer can talk to Google on your behalf, without you having to authorize every single operation.
+
+=== Phase 3: Create (You, Building the Foundation)
+
+{rbtgo_depot_create}
+creates your first {rbtgi_depot} - the project and all its infrastructure where containers actually get built.
+
+You'll probably do this once.
+Maybe twice if you're testing.
+Then you'll hand it off and forget about it.
+
+A depot is *isolated*.
+It has its own {gcp_project_id}, its own {gcs_bucket_s}, its own {gar_registry}.
+Everything in it belongs to one productive lifecycle: you create it, you use it, someday maybe you destroy it.
+
+**Why you're doing this:** You're creating the actual workshop where your containers live.
+
+== The Crown Jewels: What We Protect and Why
+
+You now have two critical files on your laptop:
+
+**1. `~/.rbw/rbro.env`** (the {rbro_regime})
+This file contains:
+* `RBRO_CLIENT_SECRET` - your OAuth client secret
+* `RBRO_REFRESH_TOKEN` - your long-lived login token
+
+This is *how you stay logged in.*
+This is *how Recipe Bottle authenticates to Google.*
+
+We protect it because:
+* If someone steals it, they can impersonate you to Google
+* If you lose it, you have to redo the Payor installation (annoying, but not catastrophic)
+
+So we:
+* Lock file permissions to `600` (only you can read/write)
+* Never commit it to git (`.gitignore` enforces this)
+* Never log it (your command transcripts won't leak it)
+
+*This is not paranoia.* This is the same care you'd take with your house keys.
+We designed Recipe Bottle to handle this file with due respect, so you can trust it.
+
+**2. The OAuth JSON file** (your downloaded `client_secret_*.json`)
+This file contains the same secret.
+Once you've run {rbtgo_payor_install}, keep it safe but you can stop thinking about it.
+Back it up once, then forget.
+
+**Files you'll give to your teammates later:**
+Different.
+A {rbtgi_rbra_file} for the {rbtr_director} role lets them submit builds.
+A different {rbtgi_rbra_file} for the {rbtr_governor} role lets them manage projects.
+Each file is scoped to *one role in one project.*
+Each one is safe to hand over - it can't do things outside its boundaries.
+
+The design protects both of you: they get exactly the power they need, nothing more.
+
+== Day-to-Day: The Anxiety You Just Eliminated
+
+You have {at_bottle_image_s} now.
+
+Your teammate can pull them down.
+She builds with the same Dockerfile.
+Her image is bit-for-bit identical to yours.
+She doesn't have to ask "what did you do different on your machine?"
+
+Because the answer is: nothing.
+The {rbtgi_repository} is the source of truth.
+
+You no longer fear:
+* "I built it on my laptop, why doesn't it work on yours?"
+* "The {gcs_bucket} disappeared and now I can't get the artifacts"
+* "Who has permissions to change what?"
+
+The setup you did - all of it, the Payor, the Depot, all the credential files - protects you from those questions.
+
+Your {rbtgi_payor_project} is stable.
+Your {rbtgi_depot} is stable.
+Your {gar_registry} holds your {at_bottle_image_s}.
+They'll be here tomorrow.
+
+Most days, you won't think about this at all.
+You'll push code.
+Containers will build.
+Images will appear in your repository.
+You'll pull them where you need them.
+
+== If Things Go Wrong
+
+They probably won't.
+But if they do:
+
+**Lost the JSON file?**
+You can download a new one from Google.
+Then run {rbtgo_payor_install} again.
+
+**Lost the `~/.rbw/rbro.env` file?**
+Same answer - download the JSON, run install again.
+
+**Credentials expired?**
+{rbtgo_payor_refresh} handles this.
+It's rare, but it exists.
+
+**Want to hand off to someone else?**
+Create a new {rbtgi_rbra_file} for them with just the role they need.
+They get exactly that role.
+You keep the Payor.
+
+== What Comes Next
+
+Once your depot is running, you'll interact with Recipe Bottle through different roles:
+
+* {rbtr_director}: You submit builds, manage images
+* {rbtr_governor}: You manage the depot project itself
+* {rbtr_retriever}: You (or your team) pull images to use them
+
+Each role has its own workflow.
+But they all depend on this setup being rock-solid.
+
+You've just made it rock-solid.
+
+The rare work is done.
+Welcome to day-to-day.

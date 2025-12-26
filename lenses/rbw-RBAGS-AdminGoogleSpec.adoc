@@ -252,6 +252,12 @@ All IAM policy modifications enforce version 3 to ensure conditional role bindin
 {gcp_service}
 resources.
 
+== Getting Started
+
+For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.
+
+include::rbw-GSG-GettingStarted.adoc[]
+
 == {rbtr_payor} Operations
 
 [[rbtgo_payor_establish]]
