@@ -452,10 +452,11 @@ rbgp_payor_install() {
   if test "${z_skip_auth}" = "0"; then
     buc_step 'OAuth authorization flow'
     local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
-    
-    buc_info "Open this URL in your browser:"
-    buc_info "${z_auth_url}"
-    buc_info ""
+
+    buc_link "Open this URL in your browser:" "Google OAuth Authorization" "${z_auth_url}"
+    echo ""
+    echo "Raw URL: ${z_auth_url}"
+    echo ""
     printf "Copy the authorization code and paste here: "
     read -r z_auth_code
     test -n "${z_auth_code}" || buc_die "Authorization code is required"
