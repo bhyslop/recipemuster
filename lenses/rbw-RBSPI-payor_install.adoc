@@ -1,0 +1,52 @@
+The
+{rbtr_consumer}
+completes OAuth credential installation by running the automated installation command with the downloaded OAuth client JSON file.
+This step performs the OAuth authorization flow, securely stores credentials, and validates the Payor project is accessible.
+
+. *Prerequisites*:
+.. {rbhg_require}
+{rbrp_billing_account_id}
+is set in the current shell environment
+.. {rbhg_require}
+OAuth client JSON file from
+{rbtgo_payor_establish}
+is available locally
+
+. *Execute OAuth Credential Installation*:
+.. Export
+{rbrp_billing_account_id}
+to environment (obtained from {rbtgo_payor_establish} step 2)
+.. Run installation command with path to downloaded OAuth JSON:
++
+[source,bash]
+----
+export RBRP_BILLING_ACCOUNT_ID=<your-billing-account-id>
+rbgp_payor_install ~/Downloads/client_secret_*.json
+----
+
+.. Script validates OAuth JSON file structure
+.. Script performs OAuth authorization flow:
+... Opens browser to Google OAuth consent screen
+... User clicks "Continue" on unverified app warning
+... User grants Recipe Bottle Payor access to cloud resources
+... Google displays authorization code
+... User copies and pastes authorization code to terminal prompt
+
+. *Credential Storage*:
+.. OAuth credentials stored securely in `~/.rbw/rbro.env` with 600 permissions
+.. Credentials include:
+... `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
+... `RBRO_REFRESH_TOKEN`: Long-lived refresh token for authentication
+.. {rbhg_warn}
+Never commit `~/.rbw/rbro.env` to version control
+
+. *Configuration Summary*:
+.. Installation displays payor configuration values needed in `rbrp.env`:
+... `RBRP_PAYOR_PROJECT_ID`: Payor project ID from OAuth JSON
+... `RBRP_OAUTH_CLIENT_ID`: OAuth client ID from OAuth JSON
+... `RBRP_BILLING_ACCOUNT_ID`: Already provided before installation
+
+. *Next Steps*:
+.. Record configuration values for `rbrp.env` setup
+.. Use {rbtgo_depot_create} to create depot projects
+.. Example: `rbgp_depot_create dev us-central1`

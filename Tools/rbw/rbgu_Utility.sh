@@ -646,12 +646,11 @@ rbgu_rbro_load() {
   # Check file exists
   test -f "${z_rbro_file}" || buc_die "RBRO credentials missing - run rbgp_payor_install"
   
-  # Check file permissions
-  local z_perms
-  z_perms=$(stat -c %a "${z_rbro_file}" 2>/dev/null) || buc_die "Failed to check RBRO file permissions"
-  if [ "${z_perms}" != "600" ]; then
-    buc_warn "RBRO file permissions should be 600, found ${z_perms}"
-  fi
+  # Check file is readable
+  test -r "${z_rbro_file}" || buc_die "RBRO file not readable - check permissions and ownership"
+
+  # Check file is writable
+  test -w "${z_rbro_file}" || buc_die "RBRO file not writable - check permissions and ownership"
   
   # Source RBRO credentials
   # shellcheck source=/dev/null

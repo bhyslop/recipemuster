@@ -260,6 +260,14 @@ resources.
 
 include::rbw-RBSPE-payor_establish.adoc[]
 
+[[rbtgo_payor_install]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_payor_install}
+
+Completes OAuth credential installation by performing authorization flow, storing credentials, and validating payor project access.
+
+include::rbw-RBSPI-payor_install.adoc[]
+
 [[rbtgo_payor_refresh]]
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_payor_refresh}

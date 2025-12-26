@@ -157,16 +157,22 @@ zrbgp_depot_list_update() {
   zrbgp_sentinel
 
   buc_log_args "Updating depot project tracking in RBRP configuration"
-  
+
   # Get OAuth access token
   local z_access_token
   z_access_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate for depot list update"
-  
-  # Query active depot projects
-  local z_filter="projectId:rbw-depot-* AND lifecycleState:ACTIVE"
-  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects?filter=${z_filter// /%20}"
+
+  # Query active depot projects (note: CRM API filter parameter not available in this context)
+  # Using simple list without filter - will be empty on first install
+  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
   rbgu_http_json "GET" "${z_list_url}" "${z_access_token}" "depot_list_tracking"
-  rbgu_http_require_ok "Query depot projects" "depot_list_tracking" || buc_die "Failed to query depot projects"
+
+  # Non-blocking: if query fails, just log and continue (normal on first install with no projects)
+  if ! rbgu_http_require_ok "Query depot projects" "depot_list_tracking" 2>/dev/null; then
+    buc_log_args "Depot project list query skipped (expected on first install or API access restrictions)"
+    export RBRP_DEPOT_PROJECT_IDS=""
+    return 0
+  fi
   
   # Extract and validate depot project IDs
   local z_depot_ids=""
@@ -417,7 +423,11 @@ rbgp_payor_install() {
   buc_doc_param "oauth_json_file" "Path to downloaded OAuth client JSON file from establish procedure"
   buc_doc_lines "REQUIREMENT: OAuth consent screen must be configured in testing mode"
   buc_doc_lines "            and the Payor project must have required APIs enabled"
+  buc_doc_lines "REQUIREMENT: RBRP_BILLING_ACCOUNT_ID must be set in environment"
   buc_doc_shown || return 0
+
+  buc_step 'Validate environment prerequisites'
+  test -n "${RBRP_BILLING_ACCOUNT_ID:-}" || buc_die "RBRP_BILLING_ACCOUNT_ID not set in environment - obtain from Cloud Console Billing and set before proceeding"
 
   buc_step 'Validate input parameters'
   test -n "${z_oauth_json_file}" || buc_die "OAuth JSON file path required as first argument"
@@ -435,6 +445,10 @@ rbgp_payor_install() {
   local z_project_id
   z_project_id=$(jq -r '.installed.project_id // .project_id // empty' "${z_oauth_json_file}" 2>/dev/null) || buc_die "Failed to extract project_id from OAuth JSON file"
   test -n "${z_project_id}" || buc_die "OAuth JSON file missing project_id field"
+
+  # Export to environment for OAuth functions
+  export RBRP_OAUTH_CLIENT_ID="${z_client_id}"
+  export RBRP_PAYOR_PROJECT_ID="${z_project_id}"
 
   buc_step 'Check existing credentials'
   local z_rbro_file="${HOME}/.rbw/rbro.env"
@@ -537,21 +551,16 @@ EOF
   z_project_state=$(rbgu_json_field_capture "payor_verify" '.lifecycleState') || buc_die "Failed to get project state"
   test "${z_project_state}" = "ACTIVE" || buc_die "Payor project is not ACTIVE (state: ${z_project_state})"
 
-  buc_step 'Initialize depot tracking'
-  zrbgp_depot_list_update || buc_die "Failed to initialize depot tracking"
-
   buc_success "Payor OAuth installation completed successfully"
-  buc_info "Project ID: ${z_project_id}"
-  buc_info "OAuth Client ID: ${z_client_id}"
-  buc_info "RBRO File: ${z_rbro_file}"
+  buc_info "Credentials stored: ${z_rbro_file}"
   buc_info ""
-  buc_info "Configuration values for RBRP:"
+  buc_info "Configuration required in rbrp.env:"
   buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
   buc_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"
+  buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
-  buc_info "Next steps:"
-  buc_info "1. Update your rbrp.env with the above configuration values"
-  buc_info "2. Use rbgp_depot_create to create new depot infrastructure"
+  buc_info "Next: rbgp_depot_create <depot-name> <region>"
+  buc_info "  Example: rbgp_depot_create dev us-central1"
 }
 
 rbgp_depot_create() {

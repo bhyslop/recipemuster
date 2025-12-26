@@ -49,12 +49,7 @@ billing linkage for API operations
 .. {rbhg_warn}
 Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
 
-. *Install OAuth Credentials*:
-.. Run {rbtgo_payor_install} with the downloaded JSON file path
-.. This guides OAuth authorization flow, stores credentials in `~/.rbw/rbro.env`, and updates `rbrp.env` automatically
-.. Command handles all configuration and testing
-
-NOTE: Payor establishment creates the OAuth client but does not install credentials.
-Use
+NOTE: Payor establishment creates the OAuth client configuration but does not perform credential installation.
+Proceed to
 {rbtgo_payor_install}
 to complete setup by installing and testing OAuth authentication.
