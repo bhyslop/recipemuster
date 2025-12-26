@@ -217,7 +217,7 @@ rbgm_payor_establish() {
   zrbgm_d      "   2. Search for and enable these APIs:"
   zrbgm_dc     "      - " "Cloud Resource Manager API"
   zrbgm_dc     "      - " "Cloud Billing API"
-  zrbgm_dc     "      - " "Service Usage API" " (manage button enough?)"
+  zrbgm_dcd    "      - " "Service Usage API" " (manage button enough?)"
   zrbgm_dc     "      - " "IAM Service Account Credentials API"
   zrbgm_dc     "      - " "Artifact Registry API"
   zrbgm_d      "   These enable programmatic depot management operations."
