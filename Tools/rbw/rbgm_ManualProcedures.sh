@@ -144,11 +144,11 @@ rbgm_payor_establish() {
   zrbgm_dld    "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, Ctrl + mouse click)"
   zrbgm_e
   zrbgm_s2     "1. Confirm Initial Payor Regime:"
-  zrbgm_d      "   Verify these values are set in your Payor Regime:"
+  zrbgm_d      "   Verify this value is set in your Payor Regime:"
   zrbgm_dc     "   File: " "${ZRBGM_RBRP_FILE}"
   zrbgm_dcd    "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}" ""
-  zrbgm_dcd    "   RBRP_BILLING_ACCOUNT_ID: " "${RBRP_BILLING_ACCOUNT_ID}" ""
-  zrbgm_d      "   If you need to change any values, edit the file with:"
+  zrbgm_d      "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 3)"
+  zrbgm_d      "   If you need to change the project ID, edit the file with:"
   zrbgm_dc     "      " "${ZRBGM_RBRP_FILE_BASENAME}"
   zrbgm_d      "   Then re-run this procedure."
   zrbgm_e
