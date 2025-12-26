@@ -164,7 +164,7 @@ rbgm_payor_establish() {
   zrbgm_dc     "      - Project name: " "Recipe Bottle Payor"
   zrbgm_d      "      - Project ID: Google will auto-generate a value; click Edit to replace it with:"
   zrbgm_dc     "        " "${RBRP_PAYOR_PROJECT_ID}"
-  zrbgm_d      "      - Parent: OAuth users create without parent (no organization required)"
+  zrbgm_dmd    "      - Location: " "No organization" " (required for this guide; organization affiliation is advanced)"
   zrbgm_dm     "   4. Click " "CREATE"
   zrbgm_dmd    "   5. Wait for " "Creating project..." " notification to complete"
   zrbgm_e
