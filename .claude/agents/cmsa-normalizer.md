@@ -39,13 +39,14 @@ This phase adjusts ONLY line breaks and blank lines. You must NOT change any wor
 
 **VERIFICATION**: After each edit, confirm the exact same characters exist - only newline positions may differ.
 
-**Opaque Contexts (never modify these line types):**
+**Opaque Contexts (never modify content within):**
 - Section headers: lines starting with `=`
 - List markers: lines starting with `*`, `.`, or containing `::`
 - Table content: lines containing `|`
 - Code fences: lines inside `----` blocks
+- Inline literals: content inside backticks (`` `...` ``). Terms appearing within backtick-delimited strings must NOT be split out. The entire backtick expression stays intact on one line.
 
-Term isolation rules apply only to prose paragraphs and definition entry text.
+Term isolation rules apply only to prose paragraphs and definition entry text, and only to terms OUTSIDE of inline literals.
 
 **Whitespace Rules to Apply:**
 
@@ -110,10 +111,11 @@ Term isolation rules apply only to prose paragraphs and definition entry text.
 3. **Check each term**: For every term found, verify it has:
    - Line break immediately before (or is in an opaque context)
    - Line break immediately after (or punctuation like `,` then line break)
-   - Skip terms in opaque contexts (code fences, list markers, section headers, table cells)
-4. Fix all violations found
-5. **Verify**: Search again to confirm no inline terms remain (terms with text on same line before AND after)
-6. **Structural check**: Verify no lines starting with `=`, `*`, `.`, or containing `|` were split. If any opaque context was modified, revert those specific changes.
+   - Skip terms in opaque contexts (code fences, list markers, section headers, table cells, **inside backticks**)
+4. **Backtick check**: Before splitting any line, verify the term is NOT inside a backtick-delimited string. If the line contains backticks, check whether the term falls between an opening and closing backtick - if so, do NOT split.
+5. Fix all violations found (excluding opaque contexts)
+6. **Verify**: Search again to confirm no inline terms remain (terms with text on same line before AND after, excluding backtick content)
+7. **Structural check**: Verify no lines starting with `=`, `*`, `.`, or containing `|` were split. Verify no backtick expressions were broken across lines. If any opaque context was modified, revert those specific changes.
 
 **Self-check**: Verify that removing all newlines from both versions produces identical text. If not, you have made unauthorized content changes - revert and try again.
 
