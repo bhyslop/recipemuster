@@ -1,0 +1,198 @@
+NOTE: This operation builds a container image from a
+{rbrv_regime}
+vessel specification using
+{gcb_service}
+and stores the result in
+{rbtgi_repository}.
+
+The
+{rbtr_director}
+triggers a remote container build:
+
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_VESSEL_DIR»` provided as first argument
+.. {rbbc_require}
+`«INPUT_VESSEL_DIR»` is an existing directory
+.. {rbbc_store}
+`«VESSEL_ENV_FILE»` as `«INPUT_VESSEL_DIR»/rbrv.env`
+.. {rbbc_require}
+`«VESSEL_ENV_FILE»` exists
+.. {rbbc_fatal}
+if missing: "Vessel configuration not found"
+
+. *Load Vessel Configuration*:
+.. Source `«VESSEL_ENV_FILE»` into current environment
+.. {rbbc_require}
+RBRV_SIGIL defined and non-empty
+.. {rbbc_store}
+`«VESSEL_SIGIL»` from RBRV_SIGIL
+.. Validate vessel directory name matches `«VESSEL_SIGIL»`
+.. {rbbc_fatal}
+if mismatch: "Vessel sigil does not match directory name"
+
+. *Validate Conjuring Configuration*:
+.. {rbbc_require}
+RBRV_CONJURE_DOCKERFILE defined
+.. {rbbc_require}
+RBRV_CONJURE_BLDCONTEXT defined
+.. {rbbc_store}
+`«DOCKERFILE_PATH»` from RBRV_CONJURE_DOCKERFILE
+.. {rbbc_store}
+`«BUILD_CONTEXT_DIR»` from RBRV_CONJURE_BLDCONTEXT
+.. {rbbc_require}
+`«DOCKERFILE_PATH»` file exists
+.. {rbbc_require}
+`«BUILD_CONTEXT_DIR»` directory exists
+.. {rbbc_fatal}
+if missing: "Vessel not configured for conjuring"
+
+. *Enforce Binfmt Policy*:
+.. {rbbc_store}
+`«BINFMT_POLICY»` from RBRV_CONJURE_BINFMT_POLICY (default: "allow")
+.. {rbbc_store}
+`«TARGET_PLATFORMS»` from RBRV_CONJURE_PLATFORMS
+.. If `«BINFMT_POLICY»` is "forbid":
+... Detect native platform (os/arch)
+... {rbbc_require}
+native platform in `«TARGET_PLATFORMS»`
+... {rbbc_fatal}
+if cross-platform forbidden: "Vessel forbids binfmt but platforms require it"
+
+. *Verify Git Repository State*:
+.. {rbbc_require}
+no uncommitted changes (staged or unstaged)
+.. {rbbc_require}
+no untracked files in working directory
+.. {rbbc_call}
+`git fetch` to synchronize with remote
+.. {rbbc_require}
+no unpushed commits (local is not ahead of remote)
+.. {rbbc_store}
+`«GIT_COMMIT»` as current HEAD commit SHA
+.. {rbbc_store}
+`«GIT_BRANCH»` as current branch name
+.. {rbbc_store}
+`«GIT_REPO»` as repository identifier (owner/repo)
+.. {rbbc_fatal}
+if uncommitted: "Uncommitted changes detected - commit or stash first"
+.. {rbbc_fatal}
+if untracked: "Untracked files present - commit or clean first"
+.. {rbbc_fatal}
+if unpushed: "Local commits not pushed"
+
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+. *Package Build Context*:
+.. Create staging directory for context assembly
+.. Copy `«BUILD_CONTEXT_DIR»` contents to staging
+.. Copy `«DOCKERFILE_PATH»` to staging root
+.. Copy RBGY build template (cloudbuild.yaml) to staging root
+.. Create gzip tarball from staging directory
+.. {rbbc_store}
+`«CONTEXT_SIZE»` as tarball size in bytes
+.. {rbbc_require}
+`«CONTEXT_SIZE»` ≤ 10MB
+.. {rbbc_warn}
+if `«CONTEXT_SIZE»` > 1MB
+.. {rbbc_fatal}
+if too large: "Context tarball too large (>10MB limit)"
+
+. *Generate Build Configuration*:
+.. {rbbc_store}
+`«BUILD_TAG»` as `«VESSEL_SIGIL».«TIMESTAMP»`
+.. {rbbc_store}
+`«TARBALL_NAME»` as `«VESSEL_SIGIL».«TIMESTAMP».source.tar.gz`
+.. Construct RBGY substitutions JSON with:
+... _RBGY_DOCKERFILE: Dockerfile filename
+... _RBGY_MONIKER: `«VESSEL_SIGIL»`
+... _RBGY_PLATFORMS: `«TARGET_PLATFORMS»`
+... _RBGY_GAR_LOCATION: {rbrr_gcp_region}
+... _RBGY_GAR_PROJECT: {rbrr_depot_project_id}
+... _RBGY_GAR_REPOSITORY: {rbrr_gar_repository}
+... _RBGY_GIT_COMMIT: `«GIT_COMMIT»`
+... _RBGY_GIT_BRANCH: `«GIT_BRANCH»`
+... _RBGY_GIT_REPO: `«GIT_REPO»`
+... _RBGY_SERVICE_ACCOUNT:
+{rbtr_mason}
+email
+... _RBGY_MACHINE_TYPE: machine type from regime
+... _RBGY_TIMEOUT: build timeout from regime
+
+. *Upload Build Source to
+{rbtgi_build_bucket}*:
+.. {rbbc_call}
+link:https://cloud.google.com/storage/docs/json_api/v1/objects/insert[storage.objects.insert] with:
+... bucket:
+{rbtgi_build_bucket}
+name
+... uploadType: `media`
+... name: `«TARBALL_NAME»`
+... Content-Type: `application/gzip`
+... body: tarball binary content
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«GCS_OBJECT»` as uploaded object path
+.. {rbbc_fatal}
+if upload fails: "GCS upload failed"
+
+. *Submit Build Request*:
+.. Construct build request JSON with:
+... source.storageSource.bucket:
+{rbtgi_build_bucket}
+name
+... source.storageSource.object: `«TARBALL_NAME»`
+... substitutions: RBGY substitutions from step 8
+... options.logging: `CLOUD_LOGGING_ONLY`
+... options.machineType: machine type from regime
+... serviceAccount:
+{rbtr_mason}
+email
+... timeout: build timeout from regime
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[cloudbuild.builds.create] with:
+... project:
+{rbrr_depot_project_id}
+... location:
+{rbrr_gcp_region}
+... body: build request JSON
+.. {rbbc_require}
+HTTP 200 or 201 response
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id` or `.id`
+.. {rbbc_show}
+build submitted with `«BUILD_ID»`
+.. {rbbc_show}
+Cloud Console URL for build monitoring
+
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] with:
+... project:
+{rbrr_depot_project_id}
+... location:
+{rbrr_gcp_region}
+... buildId: `«BUILD_ID»`
+.. Poll every 5 seconds for up to 20 minutes (240 attempts)
+.. {rbbc_store}
+`«BUILD_STATUS»` from response `.status`
+.. Continue polling while `«BUILD_STATUS»` in [`PENDING`, `QUEUED`, `WORKING`]
+.. {rbbc_fatal}
+if timeout: "Build timeout after 20 minutes"
+.. {rbbc_fatal}
+if final status is not `SUCCESS`: "Build failed with status: «BUILD_STATUS»"
+
+. *Display Results*:
+.. {rbbc_show}
+build completed successfully
+.. {rbbc_show}
+image tag: `«BUILD_TAG»`
+.. {rbbc_show}
+image available in
+{rbtgi_repository}

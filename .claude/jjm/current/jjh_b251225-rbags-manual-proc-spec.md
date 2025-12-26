@@ -63,15 +63,17 @@ A fully specified `axo_command` operation must have:
 
 12. **Fix CMK normalizer and normalize RBAGS** - Fixed normalizer backtick rules, normalized RBAGS; created itch for Rust replacement due to LLM unreliability
 
+13. **Extract prototype sequences DC and TB** (delegated) - Created `lenses/rbw-RBSDC-depot_create.adoc` (162 lines, 15 steps) and `lenses/rbw-RBSTB-trigger_build.adoc` (198 lines, 12 steps). Modified RBAGS to keep anchor + terse def + include directive. Verified rendering.
+
+14. **Review prototype extraction** (manual) - Human reviewed extracted files and include syntax. Confirmed approach for bulk extraction.
+
 ## Current
 
-13. **Extract prototype sequences DC and TB** (delegated) - Create `lenses/rbw-RBSDC-depot_create.adoc` and `lenses/rbw-RBSTB-trigger_build.adoc`. Modify RBAGS to keep anchor + terse def, add include directive for sequence body. Verify AsciiDoc rendering works.
+15. **Extract remaining 11 RBAGS sequences** (delegated) - Apply same pattern to: PE (payor_establish), PR (payor_refresh), DD (depot_destroy), DL (depot_list), GC (governor_create), RC (retriever_create), DI (director_create), ID (image_delete), IR (image_retrieve), SL (sa_list), SD (sa_delete).
 
 ## Remaining
 
-14. **Review prototype extraction** (manual) - Human reviews extracted files and include syntax. Confirm approach before bulk extraction. Green-light remaining 11 sequences.
-
-15. **Extract remaining 11 RBAGS sequences** (delegated) - Apply same pattern to: PE (payor_establish), PR (payor_refresh), DD (depot_destroy), DL (depot_list), GC (governor_create), RC (retriever_create), DI (director_create), ID (image_delete), IR (image_retrieve), SL (sa_list), SD (sa_delete).
+(none)
 
 ### Subsection Naming Convention
 

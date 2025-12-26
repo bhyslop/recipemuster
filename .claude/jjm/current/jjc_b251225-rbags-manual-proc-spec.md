@@ -26,3 +26,34 @@
 - Test that cross-references still resolve
 - Verify full document renders correctly with includes
 ---
+
+---
+### 2025-12-26 05:49 - extract-prototype-sequences-dc-and-tb - DELEGATE
+**Spec**:
+- Objective: Extract DC and TB sequence bodies to includable files
+- Scope: 2 files created, RBAGS modified
+- Success: Files contain complete sequences, includes render correctly
+- On failure: Stop and report
+
+**Execution trace**:
+- Read RBAGS lines 355-520 (depot_create body)
+- Read RBAGS lines 912-1113 (trigger_build body)
+- Created `lenses/rbw-RBSDC-depot_create.adoc` (162 lines, 15 steps)
+- Created `lenses/rbw-RBSTB-trigger_build.adoc` (198 lines, 12 steps)
+- Modified RBAGS: replaced depot_create body with terse def + include
+- Modified RBAGS: replaced trigger_build body with terse def + include
+
+**Result**: success
+Haiku extracted both sequences correctly. Opus reviewed and confirmed nothing lost.
+
+**Modified files**:
+- /Users/bhyslop/projects/brm_recipebottle/lenses/rbw-RBSDC-depot_create.adoc
+- /Users/bhyslop/projects/brm_recipebottle/lenses/rbw-RBSTB-trigger_build.adoc
+- /Users/bhyslop/projects/brm_recipebottle/lenses/rbw-RBAGS-AdminGoogleSpec.adoc
+---
+
+---
+### 2025-12-26 05:49 - review-prototype-extraction - WRAP
+**Mode**: manual
+**Outcome**: Human reviewed extracted files, verified AsciiDoc rendering, confirmed approach for remaining 11 sequences.
+---
