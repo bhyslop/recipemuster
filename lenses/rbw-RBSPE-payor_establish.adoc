@@ -1,0 +1,58 @@
+The
+{rbtr_consumer}
+performs one-time manual setup via Google Cloud Console to establish
+{rbtr_payor}
+OAuth infrastructure.
+No API path exists for initial bootstrap - OAuth client creation requires human Console interaction.
+This procedure creates the project and OAuth client but does NOT install credentials.
+
+. *Create Payor Project*:
+.. Navigate to project creation in Console
+.. Set project name: `Recipe Bottle Payor`
+.. Set project ID: `rbw-payor` (preferred fixed name, single payor per account)
+.. If `rbw-payor` already exists, use `rbw-payor-[4-digit-suffix]` (e.g., rbw-payor-2024)
+.. {rbhg_store}
+actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
+
+. *Configure Billing*:
+.. Access billing management in Console
+.. Select or create billing account
+.. Record
+{rbrp_billing_account_id}
+(format: XXXXXX-XXXXXX-XXXXXX)
+.. Link billing account to payor project
+.. {rbhg_require}
+billing linkage for API operations
+
+. *Enable Required APIs*:
+.. Navigate to APIs & Services > Enable APIs
+.. Enable: Cloud Resource Manager, Cloud Billing, Service Usage, IAM, Artifact Registry
+.. These enable programmatic depot management
+
+. *Configure OAuth Consent Screen*:
+.. Navigate to APIs & Services > OAuth consent screen
+.. Select "External" user type (no Google Workspace required)
+.. Set Publishing Status: "Testing" (100 users sufficient)
+.. Add scopes:
+... https://www.googleapis.com/auth/cloud-platform
+... https://www.googleapis.com/auth/cloud-billing
+.. Add test users if needed
+
+. *Create OAuth 2.0 Client ID*:
+.. Navigate to APIs & Services > Credentials
+.. Create credentials > OAuth client ID
+.. Application type: Desktop application
+.. Name: "Recipe Bottle Payor"
+.. Download JSON as `payor-oauth.json`
+.. {rbhg_warn}
+client secret non-recoverable after initial download
+
+. *Update Configuration*:
+.. Update `rbrp.env` with payor project values:
+... `RBRP_PAYOR_PROJECT_ID=rbw-payor` (or chosen project ID)
+... `RBRP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX` (from step 2)
+
+NOTE: OAuth JSON file created but not installed.
+Use
+{rbtgo_payor_refresh}
+to install credentials and complete setup.

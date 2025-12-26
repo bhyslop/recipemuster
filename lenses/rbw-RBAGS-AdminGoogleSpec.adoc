@@ -258,99 +258,13 @@ resources.
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_payor_establish}
 
-The
-{rbtr_consumer}
-performs one-time manual setup via Google Cloud Console to establish
-{rbtr_payor}
-OAuth infrastructure.
-No API path exists for initial bootstrap - OAuth client creation requires human Console interaction.
-This procedure creates the project and OAuth client but does NOT install credentials.
-
-. *Create Payor Project*:
-.. Navigate to project creation in Console
-.. Set project name: `Recipe Bottle Payor`
-.. Set project ID: `rbw-payor` (preferred fixed name, single payor per account)
-.. If `rbw-payor` already exists, use `rbw-payor-[4-digit-suffix]` (e.g., rbw-payor-2024)
-.. {rbhg_store}
-actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
-
-. *Configure Billing*:
-.. Access billing management in Console
-.. Select or create billing account
-.. Record
-{rbrp_billing_account_id}
-(format: XXXXXX-XXXXXX-XXXXXX)
-.. Link billing account to payor project
-.. {rbhg_require}
-billing linkage for API operations
-
-. *Enable Required APIs*:
-.. Navigate to APIs & Services > Enable APIs
-.. Enable: Cloud Resource Manager, Cloud Billing, Service Usage, IAM, Artifact Registry
-.. These enable programmatic depot management
-
-. *Configure OAuth Consent Screen*:
-.. Navigate to APIs & Services > OAuth consent screen
-.. Select "External" user type (no Google Workspace required)
-.. Set Publishing Status: "Testing" (100 users sufficient)
-.. Add scopes:
-... https://www.googleapis.com/auth/cloud-platform
-... https://www.googleapis.com/auth/cloud-billing
-.. Add test users if needed
-
-. *Create OAuth 2.0 Client ID*:
-.. Navigate to APIs & Services > Credentials
-.. Create credentials > OAuth client ID
-.. Application type: Desktop application
-.. Name: "Recipe Bottle Payor"
-.. Download JSON as `payor-oauth.json`
-.. {rbhg_warn}
-client secret non-recoverable after initial download
-
-. *Update Configuration*:
-.. Update `rbrp.env` with payor project values:
-... `RBRP_PAYOR_PROJECT_ID=rbw-payor` (or chosen project ID)
-... `RBRP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX` (from step 2)
-
-NOTE: OAuth JSON file created but not installed.
-Use
-{rbtgo_payor_refresh}
-to install credentials and complete setup.
+include::rbw-RBSPE-payor_establish.adoc[]
 
 [[rbtgo_payor_refresh]]
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_payor_refresh}
 
-Manual procedure to install OAuth credentials for new setup or refresh expired/compromised credentials.
-Use this for both initial credential installation after
-{rbtgo_payor_establish}
-and for renewal operations.
-
-. *Obtain OAuth Credentials*:
-.. For initial setup: Use JSON file downloaded during
-{rbtgo_payor_establish}
-.. For refresh/renewal: Navigate to APIs & Services > Credentials in Payor Project
-... Find existing "Recipe Bottle Payor" OAuth client
-... Download new JSON (or regenerate secret if compromised)
-... Save as `payor-oauth-[timestamp].json`
-
-. *Install/Refresh Credentials*:
-.. Run: `rbgp_payor_install /path/to/payor-oauth.json`
-.. This will:
-... Guide you through OAuth authorization flow
-... Store secure credentials in `~/.rbw/rbro.env`
-... Test the authentication
-... Initialize depot tracking
-... Update `RBRP_OAUTH_CLIENT_ID` in `rbrp.env`
-
-. *Verify Installation*:
-.. Test with: `rbgp_depot_list`
-.. Should display current depots without authentication errors
-
-NOTE: The credential installation functionality is now handled by
-{rbtgo_payor_refresh}
-procedure.
-OAuth refresh tokens in testing mode expire after 6 months of non-use.
+include::rbw-RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_depot_create]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
@@ -364,232 +278,19 @@ include::rbw-RBSDC-depot_create.adoc[]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_depot_destroy}
 
-The
-{rbtr_payor}
-destroys an
-{rbtgi_depot}
-and all contained resources:
-
-. *Safety Confirmation*:
-.. {rbbc_require}
-`DEBUG_ONLY=1` environment variable for execution
-.. Display comprehensive destruction warnings
-.. {rbbc_require}
-operator confirmation with exact depot project ID
-
-. *Authenticate as
-{rbtr_payor}*:
-.. Execute
-{rbtoe_payor_authenticate}
-.. {rbbc_require}
-authentication successful
-
-. *Validate Target Depot*:
-.. {rbbc_require}
-depot project ID provided as first argument
-.. {rbbc_store}
-`«DEPOT_PROJECT_ID»` from argument
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
-.. {rbbc_require}
-project exists and state is `ACTIVE`
-.. {rbbc_fatal}
-if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
-
-. *Check for and remove
-{gcp_lien_s}*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/list[liens.list] to list existing liens on resource: `projects/«DEPOT_PROJECT_ID»`
-.. {rbbc_store}
-`«LIEN_LIST»` from response `.liens[]`
-.. For each lien in `«LIEN_LIST»`:
-... {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/delete[liens.delete] to delete lien using `.name` field
-... {rbbc_require}
-HTTP 200 response for each lien deletion
-.. {rbbc_require}
-all liens removed before proceeding
-
-. *Initiate depot deletion*:
-.. {rbbc_submit}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
-.. {rbbc_store}
-`«DELETE_OPERATION»` from response if Long Running Operation returned
-.. {rbbc_await}
-`«DELETE_OPERATION»` if applicable
-.. {rbbc_require}
-deletion initiated successfully
-
-. *Verify deletion transition*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
-.. {rbbc_poll}
-project state with 5-10 second intervals for up to 60 seconds
-.. {rbbc_require}
-project state equals `DELETE_REQUESTED`
-.. {rbbc_store}
-`«DELETION_TIME»` from response `.deleteTime` field
-
-. *Optional: Immediate billing stop*:
-.. If immediate spend stop required,
-{rbbc_call}
-link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] to update billing info for `projects/«DEPOT_PROJECT_ID»`
-.. Set `billingAccountName` to empty string
-.. {rbbc_require}
-billing unlink successful (HTTP 200)
-.. Note: Standard deletion automatically stops billing, this step provides immediate termination
-
-NOTE: Depot deletion automatically removes all infrastructure created by
-{rbtgo_depot_create}:
-the
-{rbtr_mason}
-service account,
-{rbtgi_build_bucket},
-{rbtgi_repository},
-and any
-{rbtr_governor},
-{rbtr_director},
-or
-{rbtr_retriever}
-service accounts created within the depot.
-No individual resource deletion required due to GCP's cascading deletion behavior.
-
-NOTE: Project enters 30-day retention period in
-{gcp_delete_requested}
-state.
-Use
-{rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/undelete[projects.undelete] to recover project if needed within retention window.
+include::rbw-RBSDD-depot_destroy.adoc[]
 
 [[rbtgo_depot_list]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_depot_list}
 
-The
-{rbtr_payor}
-lists all
-{rbtgi_depot}
-instances and their status:
-
-. *Authenticate as
-{rbtr_payor}*:
-.. Execute
-{rbtoe_payor_authenticate}
-
-. *Query depot projects*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter: `projectId:rbw-* AND lifecycleState:ACTIVE`
-.. {rbbc_store}
-`«DEPOT_PROJECTS»` from response
-
-. *Validate each depot*:
-.. For each project in `«DEPOT_PROJECTS»`:
-... Extract depot name from project ID pattern `rbw-«NAME»-«TIMESTAMP»`
-... Check for Mason service account: `rbw-«NAME»-mason`
-... Check for repository: `rbw-«NAME»-repository`
-... Check for bucket: `rbw-«NAME»-bucket`
-... Display status: COMPLETE, BROKEN (missing resources), or DELETE_REQUESTED
-
-. *Display summary*:
-.. {rbbc_show}
-total depot count
-.. {rbbc_show}
-each depot with ID, name, region, and status
+include::rbw-RBSDL-depot_list.adoc[]
 
 [[rbtgo_governor_create]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_governor_create}
 
-The
-{rbtr_payor}
-creates a
-{rbtr_governor}
-{giam_service_account}
-within the
-{rbtgi_depot_project}:
-
-. *Step 1: Depot Project Validation*:
-.. {rbbc_require}
-{rbrr_depot_project_id}
-exists (via projects.get API call)
-.. {rbbc_require}
-{rbrr_depot_project_id}
-!=
-{rbrp_payor_project_id}
-
-. Create the
-{rbtr_governor}
-{giam_service_account}:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create]
-to create service account in
-{rbrr_depot_project_id}
-.. Set `accountId` to `«INPUT_ACCOUNT_ID»` following RB naming conventions
-.. Use display name: `
-{rbtr_governor}
-role for project administration`
-.. {rbbc_store}
-`«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
-.. {rbbc_require}
-service account creation successful (HTTP 200)
-. Verify
-{giam_service_account}
-creation and propagation:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get]
-to query service account using
-`«GOVERNOR_SERVICE_ACCOUNT»`
-.. {rbbc_poll}
-with 3-5 second intervals for up to 30 seconds if service account not immediately available
-.. {rbbc_require}
-service account accessible before proceeding
-. Preflight: Ensure pristine key state:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list]
-to list existing keys for
-`«GOVERNOR_SERVICE_ACCOUNT»`
-.. {rbbc_store}
-`«EXISTING_KEYS»` from response `.keys[]`
-.. {rbbc_require}
-no keys with `keyType: USER_MANAGED` exist (pristine-state requirement)
-.. {rbbc_fatal}
-if conflicts found - manual cleanup required
-. Grant
-{gcp_project_id}
--level
-permissions:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy]
-to update IAM policy on
-{rbrr_depot_project_id}
-.. {rbbc_use}
-`«GOVERNOR_SERVICE_ACCOUNT»` as principal
-.. Add role: `roles/owner` (excluding billing permissions maintained by
-{rbtr_payor})
-.. Set policy version: 3 for conditional binding support
-.. {rbbc_require}
-IAM policy update successful
-. Generate
-{rbrr_governor_rbra_file}:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create]
-to create service account key for
-`«GOVERNOR_SERVICE_ACCOUNT»`
-.. Set keyAlgorithm: `KEY_ALG_RSA_2048`, privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
-.. {rbbc_store}
-`«GOVERNOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
-.. {rbtoe_rbra_generate}
-converts
-`«GOVERNOR_PRIVATE_KEY_DATA»`
-to
-`{rbrr_governor_rbra_file}`
-.. NOTE: Script outputs copy command for RBRA file installation
-.. {rbbc_warn}
-if
-{rbrr_governor_rbra_file}
-already exists
-.. {rbbc_require}
-RBRA file creation successful
+include::rbw-RBSGC-governor_create.adoc[]
 
 == {rbtr_governor} Operations
 
@@ -597,156 +298,13 @@ RBRA file creation successful
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_retriever_create}
 
-The
-{rbtr_governor}
-creates a
-{rbtr_retriever}
-{giam_service_account}
-with read-only
-{rbtgi_repository}
-access and generates credentials using
-{rbtoe_rbra_generate}
-to create
-{rbrr_retriever_rbra_file}.
-
-NOTE: Script outputs copy command for RBRA file installation.
-{rbbc_warn}
-if
-{rbrr_retriever_rbra_file}
-already exists.
+include::rbw-RBSRC-retriever_create.adoc[]
 
 [[rbtgo_director_create]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_director_create}
 
-The
-{rbtr_governor}
-creates a
-{rbtr_director}
-{giam_service_account}
-with build management permissions:
-
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_INSTANCE»` provided as first argument
-.. {rbbc_require}
-`BUD_OUTPUT_DIR` environment variable set and directory exists
-.. {rbbc_store}
-`«DIRECTOR_ACCOUNT_NAME»` as `rb-director-«INPUT_INSTANCE»`
-.. {rbbc_store}
-`«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
-
-. *Authenticate as
-{rbtr_governor}*:
-.. Execute
-{rbtoe_governor_authenticate}
-.. {rbbc_store}
-`«GOVERNOR_TOKEN»` for subsequent API calls
-
-. *Create
-{rbtr_director}
-Service Account*:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
-... accountId: `«DIRECTOR_ACCOUNT_NAME»`
-... displayName: `Recipe Bottle Director («INPUT_INSTANCE»)`
-... description: `Create/destroy container images for «INPUT_INSTANCE»`
-... project:
-{rbrr_depot_project_id}
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_poll}
-with 3-5 second intervals for up to 15 seconds for propagation
-
-. *Verify Service Account Creation*:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `«DIRECTOR_EMAIL»`
-.. {rbbc_require}
-service account accessible
-
-. *Preflight: Ensure Pristine Key State*:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list] for `«DIRECTOR_EMAIL»`
-.. {rbbc_store}
-`«EXISTING_KEYS»` from response `.keys[]`
-.. {rbbc_require}
-no keys with `keyType: USER_MANAGED` exist
-.. {rbbc_fatal}
-if USER_MANAGED keys found: "Manual cleanup required via Console"
-
-. *Generate Service Account Key*:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create] for `«DIRECTOR_EMAIL»` with:
-... privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
-.. {rbbc_store}
-`«DIRECTOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
-.. {rbtoe_rbra_generate}
-converts `«DIRECTOR_PRIVATE_KEY_DATA»` to `«DIRECTOR_RBRA_FILE»`
-
-. *Get Depot Project Number*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for
-{rbrr_depot_project_id}
-.. {rbbc_store}
-`«PROJECT_NUMBER»` from `.projectNumber` field
-
-. *Grant Project-Level Permissions*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
-{rbrr_depot_project_id}
-.. Add `«DIRECTOR_EMAIL»` with roles:
-... `roles/cloudbuild.builds.editor` (submit and manage builds)
-... `roles/viewer` (read project resources)
-.. Policy version: 3
-.. {rbbc_require}
-IAM policy update successful
-
-. *Grant
-{rbtr_mason}
-Impersonation*:
-.. NOTE:
-{rbtr_director}
-submits builds that execute as
-{rbtr_mason}.
-This requires `serviceAccountUser` permission on
-{rbtr_mason}.
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for
-{rbtr_mason}
-service account
-.. Add `«DIRECTOR_EMAIL»` with `roles/iam.serviceAccountUser`
-.. {rbbc_require}
-IAM binding successful
-
-. *Grant
-{rbtgi_build_bucket}
-Access*:
-.. NOTE:
-{rbtr_director}
-uploads build sources to
-{rbtgi_build_bucket}
-before triggering builds.
-.. {rbbc_call}
-link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for
-{rbtgi_build_bucket}
-.. Add `«DIRECTOR_EMAIL»` with roles:
-... `roles/storage.objectCreator` (upload sources)
-... `roles/storage.objectViewer` (verify uploads)
-.. {rbbc_require}
-bucket IAM update successful
-
-. *Display Installation Instructions*:
-.. {rbbc_show}
-Director created successfully
-.. {rbbc_show}
-RBRA file location: `«DIRECTOR_RBRA_FILE»`
-.. {rbbc_show}
-installation command:
-... `cp "«DIRECTOR_RBRA_FILE»" "{rbrr_director_rbra_file}"`
-.. {rbbc_warn}
-if
-{rbrr_director_rbra_file}
-already exists
+include::rbw-RBSDI-director_create.adoc[]
 
 == {rbtr_director} Operations
 
@@ -762,68 +320,7 @@ include::rbw-RBSTB-trigger_build.adoc[]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_delete}
 
-NOTE: This operation deletes a container image from
-{rbtgi_repository}
-using the Docker Registry HTTP API V2 implemented by
-{gar_service}.
-
-The
-{rbtr_director}
-deletes an image by tag:
-
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_TAG»` provided as first argument
-.. {rbbc_fatal}
-if missing: "Tag parameter required"
-
-. *Authenticate as
-{rbtr_director}*:
-.. Execute
-{rbtoe_director_authenticate}
-.. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
-
-. *Construct Registry Endpoint*:
-.. {rbbc_store}
-`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
-.. {rbbc_store}
-`«REGISTRY_PATH»` as `{rbrr_depot_project_id}/{rbrr_gar_repository}`
-.. {rbbc_store}
-`«REGISTRY_BASE»` as `https://«REGISTRY_HOST»/v2/«REGISTRY_PATH»`
-
-. *Fetch Manifest Digest*:
-.. {rbbc_call}
-link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: GET manifests] with:
-... method: `HEAD`
-... endpoint: `«REGISTRY_BASE»/manifests/«INPUT_TAG»`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-... header: `Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json`
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_store}
-`«MANIFEST_DIGEST»` from response header `Docker-Content-Digest`
-.. {rbbc_require}
-`«MANIFEST_DIGEST»` is non-empty
-.. {rbbc_fatal}
-if manifest not found: "Failed to fetch manifest headers"
-.. {rbbc_fatal}
-if digest empty: "Manifest digest is empty"
-
-. *Delete Manifest by Digest*:
-.. {rbbc_call}
-link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
-... method: `DELETE`
-... endpoint: `«REGISTRY_BASE»/manifests/«MANIFEST_DIGEST»`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-.. {rbbc_require}
-HTTP 202 (Accepted) or 204 (No Content) response
-.. {rbbc_fatal}
-if delete fails: "Delete failed with HTTP «STATUS_CODE»"
-
-. *Display Results*:
-.. {rbbc_show}
-image deleted: `«INPUT_TAG»`
+include::rbw-RBSID-image_delete.adoc[]
 
 == {rbtr_retriever} Operations
 
@@ -831,63 +328,7 @@ image deleted: `«INPUT_TAG»`
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_retrieve}
 
-NOTE: This operation retrieves a container image from
-{rbtgi_repository}
-to the local container runtime. The
-{rbtr_retriever}
-has read-only access to the repository.
-
-The
-{rbtr_retriever}
-pulls an image by tag or digest:
-
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_IMAGE_REF»` provided as first argument
-.. Validate format: `«IMAGE_NAME»:«TAG»` or `«IMAGE_NAME»@«DIGEST»`
-.. {rbbc_fatal}
-if missing or malformed: "Image reference required (name:tag or name@digest)"
-
-. *Authenticate as
-{rbtr_retriever}*:
-.. Execute
-{rbtoe_retriever_authenticate}
-.. {rbbc_store}
-`«RETRIEVER_TOKEN»` for subsequent operations
-
-. *Construct Registry Reference*:
-.. {rbbc_store}
-`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
-.. {rbbc_store}
-`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_IMAGE_REF»`
-
-. *Configure Container Runtime Authentication*:
-.. {rbbc_call}
-container runtime login with:
-... registry: `«REGISTRY_HOST»`
-... username: `oauth2accesstoken`
-... password: `«RETRIEVER_TOKEN»`
-.. {rbbc_require}
-login successful
-.. {rbbc_fatal}
-if login fails: "Container runtime authentication failed"
-
-. *Pull Image*:
-.. {rbbc_call}
-link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: pull] via container runtime:
-... command: `docker pull «FULL_IMAGE_REF»` or `podman pull «FULL_IMAGE_REF»`
-.. {rbbc_require}
-pull completes successfully
-.. {rbbc_store}
-`«IMAGE_ID»` from pulled image metadata
-.. {rbbc_fatal}
-if pull fails: "Image pull failed"
-
-. *Display Results*:
-.. {rbbc_show}
-image retrieved: `«FULL_IMAGE_REF»`
-.. {rbbc_show}
-local image ID: `«IMAGE_ID»`
+include::rbw-RBSIR-image_retrieve.adoc[]
 
 == Multi Role Operations
 
@@ -895,78 +336,13 @@ local image ID: `«IMAGE_ID»`
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_sa_list}
 
-NOTE: This operation lists all service accounts in the
-{rbtgi_depot_project}.
-It is a multi-role operation that can be invoked by any authenticated role with project read access.
-
-. *Authenticate*:
-.. {rbbc_require}
-caller has valid OAuth token with `https://www.googleapis.com/auth/cloud-platform` scope
-.. {rbbc_store}
-`«ACCESS_TOKEN»` from caller context
-
-. *List Service Accounts*:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/list[iam.projects.serviceAccounts.list] with:
-... method: `GET`
-... endpoint: `https://iam.googleapis.com/v1/projects/{rbrr_depot_project_id}/serviceAccounts`
-... header: `Authorization: Bearer «ACCESS_TOKEN»`
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_store}
-`«ACCOUNTS»` from response `.accounts[]` array
-.. {rbbc_store}
-`«ACCOUNT_COUNT»` from response `.accounts | length`
-
-. *Handle Empty Result*:
-.. If `«ACCOUNT_COUNT»` is 0:
-... {rbbc_show}
-"No service accounts found in project"
-... Return success
-
-. *Display Results*:
-.. {rbbc_show}
-"Found «ACCOUNT_COUNT»` service account(s):"
-.. For each account in `«ACCOUNTS»`:
-... {rbbc_show}
-account `.email` and `.displayName`
-.. {rbbc_show}
-listing completed successfully
+include::rbw-RBSSL-sa_list.adoc[]
 
 [[rbtgo_sa_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_sa_delete}
 
-NOTE: This operation deletes a service account from the
-{rbtgi_depot_project}.
-It is a multi-role operation that can be invoked by any authenticated role with IAM admin access.
-
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_SA_EMAIL»` provided as first argument
-.. {rbbc_fatal}
-if missing: "Service account email required"
-
-. *Authenticate*:
-.. {rbbc_require}
-caller has valid OAuth token with `https://www.googleapis.com/auth/cloud-platform` scope
-.. {rbbc_store}
-`«ACCESS_TOKEN»` from caller context
-
-. *Delete Service Account*:
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[iam.projects.serviceAccounts.delete] with:
-... method: `DELETE`
-... endpoint: `https://iam.googleapis.com/v1/projects/{rbrr_depot_project_id}/serviceAccounts/«INPUT_SA_EMAIL»`
-... header: `Authorization: Bearer «ACCESS_TOKEN»`
-.. {rbbc_require}
-HTTP 200 response OR HTTP 404 (already deleted)
-.. {rbbc_warn}
-if HTTP 404: "Service account not found (already deleted)"
-
-. *Display Results*:
-.. {rbbc_show}
-delete operation completed
+include::rbw-RBSSD-sa_delete.adoc[]
 
 == Definitions
 

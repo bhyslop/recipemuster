@@ -1,0 +1,17 @@
+The
+{rbtr_governor}
+creates a
+{rbtr_retriever}
+{giam_service_account}
+with read-only
+{rbtgi_repository}
+access and generates credentials using
+{rbtoe_rbra_generate}
+to create
+{rbrr_retriever_rbra_file}.
+
+NOTE: Script outputs copy command for RBRA file installation.
+{rbbc_warn}
+if
+{rbrr_retriever_rbra_file}
+already exists.

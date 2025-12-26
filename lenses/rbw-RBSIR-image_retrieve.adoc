@@ -1,0 +1,57 @@
+NOTE: This operation retrieves a container image from
+{rbtgi_repository}
+to the local container runtime. The
+{rbtr_retriever}
+has read-only access to the repository.
+
+The
+{rbtr_retriever}
+pulls an image by tag or digest:
+
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_IMAGE_REF»` provided as first argument
+.. Validate format: `«IMAGE_NAME»:«TAG»` or `«IMAGE_NAME»@«DIGEST»`
+.. {rbbc_fatal}
+if missing or malformed: "Image reference required (name:tag or name@digest)"
+
+. *Authenticate as
+{rbtr_retriever}*:
+.. Execute
+{rbtoe_retriever_authenticate}
+.. {rbbc_store}
+`«RETRIEVER_TOKEN»` for subsequent operations
+
+. *Construct Registry Reference*:
+.. {rbbc_store}
+`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
+.. {rbbc_store}
+`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_IMAGE_REF»`
+
+. *Configure Container Runtime Authentication*:
+.. {rbbc_call}
+container runtime login with:
+... registry: `«REGISTRY_HOST»`
+... username: `oauth2accesstoken`
+... password: `«RETRIEVER_TOKEN»`
+.. {rbbc_require}
+login successful
+.. {rbbc_fatal}
+if login fails: "Container runtime authentication failed"
+
+. *Pull Image*:
+.. {rbbc_call}
+link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: pull] via container runtime:
+... command: `docker pull «FULL_IMAGE_REF»` or `podman pull «FULL_IMAGE_REF»`
+.. {rbbc_require}
+pull completes successfully
+.. {rbbc_store}
+`«IMAGE_ID»` from pulled image metadata
+.. {rbbc_fatal}
+if pull fails: "Image pull failed"
+
+. *Display Results*:
+.. {rbbc_show}
+image retrieved: `«FULL_IMAGE_REF»`
+.. {rbbc_show}
+local image ID: `«IMAGE_ID»`

@@ -1,0 +1,128 @@
+The
+{rbtr_governor}
+creates a
+{rbtr_director}
+{giam_service_account}
+with build management permissions:
+
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_INSTANCE»` provided as first argument
+.. {rbbc_require}
+`BUD_OUTPUT_DIR` environment variable set and directory exists
+.. {rbbc_store}
+`«DIRECTOR_ACCOUNT_NAME»` as `rb-director-«INPUT_INSTANCE»`
+.. {rbbc_store}
+`«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
+
+. *Authenticate as
+{rbtr_governor}*:
+.. Execute
+{rbtoe_governor_authenticate}
+.. {rbbc_store}
+`«GOVERNOR_TOKEN»` for subsequent API calls
+
+. *Create
+{rbtr_director}
+Service Account*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
+... accountId: `«DIRECTOR_ACCOUNT_NAME»`
+... displayName: `Recipe Bottle Director («INPUT_INSTANCE»)`
+... description: `Create/destroy container images for «INPUT_INSTANCE»`
+... project:
+{rbrr_depot_project_id}
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_poll}
+with 3-5 second intervals for up to 15 seconds for propagation
+
+. *Verify Service Account Creation*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `«DIRECTOR_EMAIL»`
+.. {rbbc_require}
+service account accessible
+
+. *Preflight: Ensure Pristine Key State*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list] for `«DIRECTOR_EMAIL»`
+.. {rbbc_store}
+`«EXISTING_KEYS»` from response `.keys[]`
+.. {rbbc_require}
+no keys with `keyType: USER_MANAGED` exist
+.. {rbbc_fatal}
+if USER_MANAGED keys found: "Manual cleanup required via Console"
+
+. *Generate Service Account Key*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create] for `«DIRECTOR_EMAIL»` with:
+... privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
+.. {rbbc_store}
+`«DIRECTOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
+.. {rbtoe_rbra_generate}
+converts `«DIRECTOR_PRIVATE_KEY_DATA»` to `«DIRECTOR_RBRA_FILE»`
+
+. *Get Depot Project Number*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for
+{rbrr_depot_project_id}
+.. {rbbc_store}
+`«PROJECT_NUMBER»` from `.projectNumber` field
+
+. *Grant Project-Level Permissions*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
+{rbrr_depot_project_id}
+.. Add `«DIRECTOR_EMAIL»` with roles:
+... `roles/cloudbuild.builds.editor` (submit and manage builds)
+... `roles/viewer` (read project resources)
+.. Policy version: 3
+.. {rbbc_require}
+IAM policy update successful
+
+. *Grant
+{rbtr_mason}
+Impersonation*:
+.. NOTE:
+{rbtr_director}
+submits builds that execute as
+{rbtr_mason}.
+This requires `serviceAccountUser` permission on
+{rbtr_mason}.
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for
+{rbtr_mason}
+service account
+.. Add `«DIRECTOR_EMAIL»` with `roles/iam.serviceAccountUser`
+.. {rbbc_require}
+IAM binding successful
+
+. *Grant
+{rbtgi_build_bucket}
+Access*:
+.. NOTE:
+{rbtr_director}
+uploads build sources to
+{rbtgi_build_bucket}
+before triggering builds.
+.. {rbbc_call}
+link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for
+{rbtgi_build_bucket}
+.. Add `«DIRECTOR_EMAIL»` with roles:
+... `roles/storage.objectCreator` (upload sources)
+... `roles/storage.objectViewer` (verify uploads)
+.. {rbbc_require}
+bucket IAM update successful
+
+. *Display Installation Instructions*:
+.. {rbbc_show}
+Director created successfully
+.. {rbbc_show}
+RBRA file location: `«DIRECTOR_RBRA_FILE»`
+.. {rbbc_show}
+installation command:
+... `cp "«DIRECTOR_RBRA_FILE»" "{rbrr_director_rbra_file}"`
+.. {rbbc_warn}
+if
+{rbrr_director_rbra_file}
+already exists

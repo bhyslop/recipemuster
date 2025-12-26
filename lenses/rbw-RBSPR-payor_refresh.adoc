@@ -1,0 +1,30 @@
+Manual procedure to install OAuth credentials for new setup or refresh expired/compromised credentials.
+Use this for both initial credential installation after
+{rbtgo_payor_establish}
+and for renewal operations.
+
+. *Obtain OAuth Credentials*:
+.. For initial setup: Use JSON file downloaded during
+{rbtgo_payor_establish}
+.. For refresh/renewal: Navigate to APIs & Services > Credentials in Payor Project
+... Find existing "Recipe Bottle Payor" OAuth client
+... Download new JSON (or regenerate secret if compromised)
+... Save as `payor-oauth-[timestamp].json`
+
+. *Install/Refresh Credentials*:
+.. Run: `rbgp_payor_install /path/to/payor-oauth.json`
+.. This will:
+... Guide you through OAuth authorization flow
+... Store secure credentials in `~/.rbw/rbro.env`
+... Test the authentication
+... Initialize depot tracking
+... Update `RBRP_OAUTH_CLIENT_ID` in `rbrp.env`
+
+. *Verify Installation*:
+.. Test with: `rbgp_depot_list`
+.. Should display current depots without authentication errors
+
+NOTE: The credential installation functionality is now handled by
+{rbtgo_payor_refresh}
+procedure.
+OAuth refresh tokens in testing mode expire after 6 months of non-use.

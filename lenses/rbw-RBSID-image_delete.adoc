@@ -1,0 +1,62 @@
+NOTE: This operation deletes a container image from
+{rbtgi_repository}
+using the Docker Registry HTTP API V2 implemented by
+{gar_service}.
+
+The
+{rbtr_director}
+deletes an image by tag:
+
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_TAG»` provided as first argument
+.. {rbbc_fatal}
+if missing: "Tag parameter required"
+
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+. *Construct Registry Endpoint*:
+.. {rbbc_store}
+`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
+.. {rbbc_store}
+`«REGISTRY_PATH»` as `{rbrr_depot_project_id}/{rbrr_gar_repository}`
+.. {rbbc_store}
+`«REGISTRY_BASE»` as `https://«REGISTRY_HOST»/v2/«REGISTRY_PATH»`
+
+. *Fetch Manifest Digest*:
+.. {rbbc_call}
+link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: GET manifests] with:
+... method: `HEAD`
+... endpoint: `«REGISTRY_BASE»/manifests/«INPUT_TAG»`
+... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... header: `Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json`
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«MANIFEST_DIGEST»` from response header `Docker-Content-Digest`
+.. {rbbc_require}
+`«MANIFEST_DIGEST»` is non-empty
+.. {rbbc_fatal}
+if manifest not found: "Failed to fetch manifest headers"
+.. {rbbc_fatal}
+if digest empty: "Manifest digest is empty"
+
+. *Delete Manifest by Digest*:
+.. {rbbc_call}
+link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
+... method: `DELETE`
+... endpoint: `«REGISTRY_BASE»/manifests/«MANIFEST_DIGEST»`
+... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+.. {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+.. {rbbc_fatal}
+if delete fails: "Delete failed with HTTP «STATUS_CODE»"
+
+. *Display Results*:
+.. {rbbc_show}
+image deleted: `«INPUT_TAG»`

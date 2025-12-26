@@ -1,0 +1,96 @@
+The
+{rbtr_payor}
+destroys an
+{rbtgi_depot}
+and all contained resources:
+
+. *Safety Confirmation*:
+.. {rbbc_require}
+`DEBUG_ONLY=1` environment variable for execution
+.. Display comprehensive destruction warnings
+.. {rbbc_require}
+operator confirmation with exact depot project ID
+
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. {rbbc_require}
+authentication successful
+
+. *Validate Target Depot*:
+.. {rbbc_require}
+depot project ID provided as first argument
+.. {rbbc_store}
+`«DEPOT_PROJECT_ID»` from argument
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
+.. {rbbc_require}
+project exists and state is `ACTIVE`
+.. {rbbc_fatal}
+if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
+
+. *Check for and remove
+{gcp_lien_s}*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/list[liens.list] to list existing liens on resource: `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_store}
+`«LIEN_LIST»` from response `.liens[]`
+.. For each lien in `«LIEN_LIST»`:
+... {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v1/liens/delete[liens.delete] to delete lien using `.name` field
+... {rbbc_require}
+HTTP 200 response for each lien deletion
+.. {rbbc_require}
+all liens removed before proceeding
+
+. *Initiate depot deletion*:
+.. {rbbc_submit}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_store}
+`«DELETE_OPERATION»` from response if Long Running Operation returned
+.. {rbbc_await}
+`«DELETE_OPERATION»` if applicable
+.. {rbbc_require}
+deletion initiated successfully
+
+. *Verify deletion transition*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_poll}
+project state with 5-10 second intervals for up to 60 seconds
+.. {rbbc_require}
+project state equals `DELETE_REQUESTED`
+.. {rbbc_store}
+`«DELETION_TIME»` from response `.deleteTime` field
+
+. *Optional: Immediate billing stop*:
+.. If immediate spend stop required,
+{rbbc_call}
+link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] to update billing info for `projects/«DEPOT_PROJECT_ID»`
+.. Set `billingAccountName` to empty string
+.. {rbbc_require}
+billing unlink successful (HTTP 200)
+.. Note: Standard deletion automatically stops billing, this step provides immediate termination
+
+NOTE: Depot deletion automatically removes all infrastructure created by
+{rbtgo_depot_create}:
+the
+{rbtr_mason}
+service account,
+{rbtgi_build_bucket},
+{rbtgi_repository},
+and any
+{rbtr_governor},
+{rbtr_director},
+or
+{rbtr_retriever}
+service accounts created within the depot.
+No individual resource deletion required due to GCP's cascading deletion behavior.
+
+NOTE: Project enters 30-day retention period in
+{gcp_delete_requested}
+state.
+Use
+{rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/undelete[projects.undelete] to recover project if needed within retention window.
