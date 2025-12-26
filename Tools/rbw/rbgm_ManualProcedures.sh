@@ -147,19 +147,19 @@ rbgm_payor_establish() {
   zrbgm_d      "   Verify this value is set in your Payor Regime:"
   zrbgm_dc     "   File: " "${ZRBGM_RBRP_FILE}"
   zrbgm_dcd    "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}" ""
-  zrbgm_d      "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 3)"
+  zrbgm_d      "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
   zrbgm_dm     "   If you need to change the project ID, edit the file and re-run this procedure. File: " "${ZRBGM_RBRP_FILE_BASENAME}"
   zrbgm_e
-  zrbgm_s2     "1.5 Check if Project Already Exists:"
+  zrbgm_s2     "2. Check if Project Already Exists:"
   zrbgm_d      "   Before creating a new project, verify the configured ID is not already in use:"
   zrbgm_dld    "   1. Check existing projects: " "Google Cloud Project List" "https://console.cloud.google.com/cloud-resource-manager"
   zrbgm_dm     "   2. Look for a project with ID " "${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_d      "      - Hover over project IDs to verify the full ID matches your configured value"
   zrbgm_dcdm   "   3. If you " "find the project" " with matching ID, it already exists - edit " "${ZRBGM_RBRP_FILE_BASENAME}"
   zrbgm_d      "      and re-run this procedure"
-  zrbgm_d      "   4. If you don't find it, proceed to step 2 to create it"
+  zrbgm_d      "   4. If you don't find it, proceed to step 3 to create it"
   zrbgm_e
-  zrbgm_s2     "2. Create Payor Project:"
+  zrbgm_s2     "3. Create Payor Project:"
   zrbgm_dld    "   1. Open browser to: " "Google Cloud Project Create" "https://console.cloud.google.com/projectcreate"
   zrbgm_d      "   2. Ensure signed in with intended Google account (check top-right avatar)"
   zrbgm_d      "   3. Configure new project:"
@@ -170,7 +170,7 @@ rbgm_payor_establish() {
   zrbgm_dm     "   4. Click " "CREATE"
   zrbgm_dmd    "   5. Wait for " "Creating project..." " notification to complete"
   zrbgm_e
-  zrbgm_s2     "2.5 Verify Project Creation:"
+  zrbgm_s2     "4. Verify Project Creation:"
   zrbgm_d      "   Verify that your rbrp.env configuration matches the created project:"
   zrbgm_dld    "   1. Test this link: " "Google Cloud APIs Dashboard" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_d      "   2. If the page loads and shows your project, your configuration is correct"
@@ -178,9 +178,8 @@ rbgm_payor_establish() {
   zrbgm_d      "      - Verify that you are the owner of the Google account that created the project"
   zrbgm_d      "      - You need owner or editor role on the project to configure it"
   zrbgm_d      "      TODO: Add Principal? First time glitch encountered and not normalized."
-  zrbgm_dmd    "   4. If you see " "Project not found" ", check that RBRP_PAYOR_PROJECT_ID in rbrp.env matches your actual created project ID"
   zrbgm_e
-  zrbgm_s2     "3. Configure Billing Account:"
+  zrbgm_s2     "5. Configure Billing Account:"
   zrbgm_dld    "   1. Go to: " "Google Cloud Billing" "https://console.cloud.google.com/billing"
   zrbgm_d      "      If no billing accounts exist:"
   zrbgm_dm     "          a. Click " "CREATE ACCOUNT"
@@ -196,7 +195,7 @@ rbgm_payor_establish() {
   zrbgm_dcdm   "      Record as: " "RBRP_BILLING_ACCOUNT_ID=" " # " "Value from Account ID column"
   zrbgm_dm     "   7. Save your " "${ZRBGM_RBRP_FILE}" " and re-display this procedure."
   zrbgm_e
-  zrbgm_s2     "4. Link Billing to Payor Project:"
+  zrbgm_s2     "6. Link Billing to Payor Project:"
   zrbgm_d      "   Link your billing account to the newly created project."
   zrbgm_dld    "   Go to: " "Google Cloud Billing Linked Accounts" "https://console.cloud.google.com/billing/linkedaccount"
   zrbgm_d      "   1. Select the correct billing account:"
@@ -208,7 +207,7 @@ rbgm_payor_establish() {
   zrbgm_dm     "   4. Click " "SET ACCOUNT"
   zrbgm_dmd    "   5. Verify project appears in " "Linked projects" " table with 'Active' status"
   zrbgm_e
-  zrbgm_s2     "5. Enable Required APIs:"
+  zrbgm_s2     "7. Enable Required APIs:"
   zrbgm_dld    "   Go to: " "APIs & Services for your payor project" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
   zrbgm_dm     "   1. Click " "+ ENABLE APIS AND SERVICES"
   zrbgm_d      "   2. Search for and enable these APIs:"
@@ -219,7 +218,7 @@ rbgm_payor_establish() {
   zrbgm_dc     "      - " "Artifact Registry API"
   zrbgm_d      "   These enable programmatic depot management operations."
   zrbgm_e
-  zrbgm_s2     "6. Configure OAuth Consent Screen:"
+  zrbgm_s2     "8. Configure OAuth Consent Screen:"
   zrbgm_dld    "   Go to: " "OAuth consent screen" "https://console.cloud.google.com/apis/credentials/consent?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
   zrbgm_dm     "   1. User Type: Select " "External" " (no Google Workspace required)"
   zrbgm_dm     "   2. Click " "CREATE"
@@ -236,7 +235,7 @@ rbgm_payor_establish() {
   zrbgm_dm     "   8. Click " "SAVE AND CONTINUE"
   zrbgm_dm     "   9. Review and click " "BACK TO DASHBOARD"
   zrbgm_e
-  zrbgm_s2     "7. Create OAuth 2.0 Client ID:"
+  zrbgm_s2     "9. Create OAuth 2.0 Client ID:"
   zrbgm_dld    "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
   zrbgm_dm     "   1. Click " "+ CREATE CREDENTIALS"
   zrbgm_dm     "   2. Select " "OAuth client ID"
@@ -251,7 +250,7 @@ rbgm_payor_establish() {
   zrbgm_dy     "   " "CRITICAL: Save this file securely - client secret cannot be recovered"
   zrbgm_dm     "   Rename to something memorable like " "payor-oauth.json"
   zrbgm_e
-  zrbgm_s2     "8. Update Configuration:"
+  zrbgm_s2     "10. Update Configuration:"
   zrbgm_dmd    "   Update " "${ZRBGM_RBRP_FILE}" " with your payor project values:"
   zrbgm_dc     "      " "RBRP_PAYOR_PROJECT_ID=rbw-payor  # or your chosen project ID"
   zrbgm_dc     "      " "RBRP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX  # from step 3"
