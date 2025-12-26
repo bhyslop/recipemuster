@@ -58,8 +58,9 @@ zrbgm_kindle() {
   fi
 
   # ITCH_LINK_TO_RBL
-  ZRBGM_RBRP_FILE="./rbrp.env"
-  ZRBGM_RBRR_FILE="./rbrr_RecipeBottleRegimeRepo.sh"
+  ZRBGM_RBRP_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrp.env"
+  ZRBGM_RBRP_FILE_BASENAME="${ZRBGM_RBRP_FILE##*/}"
+  ZRBGM_RBRR_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrr_RecipeBottleRegimeRepo.sh"
 
 
   ZRBGM_PREFIX="${BUD_TEMP_DIR}/rbgm_"
@@ -142,19 +143,38 @@ rbgm_payor_establish() {
   zrbgm_d      "   Default text is this color."
   zrbgm_dld    "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, Ctrl + mouse click)"
   zrbgm_e
-  zrbgm_s2     "1. Open a text editor on your Payor Regime file:"
-  zrbgm_dc     "   1. File found at -> " "${ZRBGM_RBRP_FILE}"
+  zrbgm_s2     "1. Confirm Initial Payor Regime:"
+  zrbgm_d      "   Verify these values are set in your Payor Regime:"
+  zrbgm_dm     "   File: " "${ZRBGM_RBRP_FILE}"
+  zrbgm_dcd    "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}" ""
+  zrbgm_dcd    "   RBRP_BILLING_ACCOUNT_ID: " "${RBRP_BILLING_ACCOUNT_ID}" ""
+  zrbgm_d      "   If you need to change any values, edit the file with:"
+  zrbgm_dc     "      " "${ZRBGM_RBRP_FILE_BASENAME}"
+  zrbgm_d      "   Then re-run this procedure."
+  zrbgm_e
+  zrbgm_s2     "1.5 Check if Project Already Exists:"
+  zrbgm_d      "   Before creating a new project, verify the configured ID is not already in use:"
+  zrbgm_dld    "   1. Check existing projects: " "Google Cloud Project List" "https://console.cloud.google.com/cloud-resource-manager"
+  zrbgm_dld    "   2. Or test directly: " "Check Payor Project" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
+  zrbgm_dmd    "   3. If you see " "You need additional access" ", the project doesn't exist - proceed to step 2"
+  zrbgm_dmd    "   4. If you see the project name in the dropdown selector at the top, the project already exists - edit " "${ZRBGM_RBRP_FILE_BASENAME}" " and re-run this procedure"
   zrbgm_e
   zrbgm_s2     "2. Create Payor Project:"
   zrbgm_dld    "   1. Open browser to: " "Google Cloud Project Create" "https://console.cloud.google.com/projectcreate"
   zrbgm_d      "   2. Ensure signed in with intended Google account (check top-right avatar)"
   zrbgm_d      "   3. Configure new project:"
   zrbgm_dc     "      - Project name: " "Recipe Bottle Payor"
-  zrbgm_dc     "      - Project ID: " "rbw-payor (or rbw-payor-[suffix] if taken)"
+  zrbgm_d      "      - Project ID: Google will auto-generate a value; click Edit to replace it with:"
+  zrbgm_dc     "        " "${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_d      "      - Parent: OAuth users create without parent (no organization required)"
   zrbgm_dm     "   4. Click " "CREATE"
-  zrbgm_dmdr   "   5. If " "The project ID is already taken" " : " "FAIL - try rbw-payor-[random]"
-  zrbgm_dmd    "   6. Wait for " "Creating project..." " notification to complete"
+  zrbgm_dmd    "   5. Wait for " "Creating project..." " notification to complete"
+  zrbgm_e
+  zrbgm_s2     "2.5 Verify Project Creation:"
+  zrbgm_d      "   Verify that your rbrp.env configuration matches the created project:"
+  zrbgm_dld    "   1. Test this link: " "Google Cloud APIs Dashboard" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
+  zrbgm_d      "   2. If the page loads and shows your project, your configuration is correct"
+  zrbgm_dmd    "   3. If you see " "Project not found" ", check that RBRP_PAYOR_PROJECT_ID in rbrp.env matches your actual created project ID"
   zrbgm_e
   zrbgm_s2     "3. Configure Billing Account:"
   zrbgm_dld    "   1. Go to: " "Google Cloud Billing" "https://console.cloud.google.com/billing"
@@ -225,7 +245,7 @@ rbgm_payor_establish() {
   zrbgm_e
   zrbgm_dm     "Browser downloads: " "client_secret_[id].apps.googleusercontent.com.json"
   zrbgm_dy     "   " "CRITICAL: Save this file securely - client secret cannot be recovered"
-  zrbgm_d      "   Rename to something memorable like " "payor-oauth.json"
+  zrbgm_dm     "   Rename to something memorable like " "payor-oauth.json"
   zrbgm_e
   zrbgm_s2     "8. Update Configuration:"
   zrbgm_dmd    "   Update " "${ZRBGM_RBRP_FILE}" " with your payor project values:"
@@ -268,7 +288,7 @@ rbgm_payor_refresh() {
   zrbgm_dm     "        b. Click " "RESET SECRET" " if available"
   zrbgm_dm     "        c. Click " "SAVE"
   zrbgm_dm     "        d. Click " "DOWNLOAD JSON"
-  zrbgm_d      "      - Save as: " "payor-oauth-$(date +%Y%m%d).json"
+  zrbgm_dm     "      - Save as: " "payor-oauth-$(date +%Y%m%d).json"
   zrbgm_e
   zrbgm_s2     "2. Install/Refresh OAuth Credentials:"
   zrbgm_d      "   Run the payor install command:"
