@@ -224,32 +224,23 @@ rbgm_payor_establish() {
   zrbgm_e
   zrbgm_s2     "8. Configure OAuth Consent Screen:"
   zrbgm_dld    "   Go to: " "OAuth consent screen" "https://console.cloud.google.com/apis/credentials/consent?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
-  zrbgm_d      "   1. The console displays: "
-  zrbgm_dm     "      " "Google Auth Platform not configured yet"
+  zrbgm_dm     "   1. The console displays " "Google Auth Platform not configured yet"
   zrbgm_dm     "   2. Click " "Get started"
-  zrbgm_d      "   3. Complete the Project Configuration wizard (4 sequential steps):"
-  zrbgm_e
+  zrbgm_d      "   3. Complete the Project Configuration wizard:"
   zrbgm_d      "      Step 1 - App Information:"
-  zrbgm_dc     "      - App name: " "Recipe Bottle Payor"
-  zrbgm_d      "      - User support email: (your email address)"
-  zrbgm_dm     "      - Click " "Next"
-  zrbgm_e
+  zrbgm_dc     "        - App name: " "Recipe Bottle Payor"
+  zrbgm_d      "        - User support email: (your email)"
+  zrbgm_dm     "        - Click " "Next"
   zrbgm_d      "      Step 2 - Audience:"
-  zrbgm_dm     "      - Select " "External" " (testing mode, no verification required)"
-  zrbgm_dm     "      - Click " "Next"
-  zrbgm_e
+  zrbgm_dm     "        - Select " "External"
+  zrbgm_dm     "        - Click " "Next"
   zrbgm_d      "      Step 3 - Contact Information:"
-  zrbgm_d      "      - Email addresses: Enter your email and press Enter to confirm"
-  zrbgm_dm     "      - Click " "Next"
-  zrbgm_e
+  zrbgm_d      "        - Email addresses: (your email), press Enter"
+  zrbgm_dm     "        - Click " "Next"
   zrbgm_d      "      Step 4 - Finish:"
-  zrbgm_dm     "      - Check the box " "I agree to the Google API Services: User Data Policy"
-  zrbgm_dm     "      - Click " "Continue"
-  zrbgm_dm     "      - Click " "Create" " (button activates after Continue)"
-  zrbgm_e
-  zrbgm_d      "   4. The console returns to OAuth Overview"
-  zrbgm_d      "   The OAuth Consent Screen is now configured."
-  zrbgm_d      "   Proceed to Step 9 to create OAuth 2.0 client credentials."
+  zrbgm_dm     "        - Check " "I agree to the Google API Services: User Data Policy"
+  zrbgm_dm     "        - Click " "Continue"
+  zrbgm_dm     "        - Click " "Create"
   zrbgm_e
   zrbgm_s2     "9. Create OAuth 2.0 Client ID:"
   zrbgm_dld    "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
@@ -258,35 +249,15 @@ rbgm_payor_establish() {
   zrbgm_dm     "   3. Application type: " "Desktop app"
   zrbgm_dc     "   4. Name: " "Recipe Bottle Payor"
   zrbgm_dm     "   5. Click " "CREATE"
-  zrbgm_e
-  zrbgm_d      "   6. A popup appears titled "
-  zrbgm_dm     "      " "OAuth client created"
-  zrbgm_d      "      The popup displays:"
-  zrbgm_d      "      - Client ID (long alphanumeric string)"
-  zrbgm_d      "      - Client secret (another string)"
-  zrbgm_dy     "      - " "CRITICAL: Client secret visible only in this popup"
-  zrbgm_d      "        Starting June 2025, Google will not show it after closing"
-  zrbgm_d      "        Ensure you download the JSON immediately"
-  zrbgm_e
-  zrbgm_dm     "   7. In the popup, click " "Download JSON"
-  zrbgm_dm     "   8. Click " "OK" " to dismiss"
-  zrbgm_e
-  zrbgm_dm     "Browser downloads: " "client_secret_[id].apps.googleusercontent.com.json"
-  zrbgm_dy     "   " "CRITICAL: This file contains client secret - save securely and never commit"
-  zrbgm_dm     "   Rename to: " "payor-oauth.json"
+  zrbgm_dmd    "   6. Popup titled " "OAuth client created" " displays client ID and secret"
+  zrbgm_dm     "   7. Click " "Download JSON"
+  zrbgm_dmd    "   8. Click " "OK" " ; browser downloads client_secret_[id].apps.googleusercontent.com.json"
+  zrbgm_dy     "      " "CRITICAL: Save securely - contains client secret"
   zrbgm_e
   zrbgm_s2     "10. Install OAuth Credentials:"
-  zrbgm_d      "   The JSON file is now in your Downloads directory."
-  zrbgm_d      "   Run the payor install command with the absolute path:"
-  zrbgm_e
+  zrbgm_d      "   Run:"
   zrbgm_cmd    "   rbgp_payor_install ~/Downloads/payor-oauth.json"
-  zrbgm_e
-  zrbgm_d      "   This will:"
-  zrbgm_d      "   - Guide you through OAuth authorization flow"
-  zrbgm_d      "   - Store secure credentials in ~/.rbw/rbro.env"
-  zrbgm_d      "   - Update rbrp.env with OAuth client configuration"
-  zrbgm_d      "   - Test the authentication"
-  zrbgm_d      "   - Initialize depot tracking"
+  zrbgm_d      "   This guides OAuth flow, stores credentials, and tests authentication."
 
   buc_success "OAuth Payor establishment procedure displayed"
 }

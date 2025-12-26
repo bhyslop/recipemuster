@@ -31,28 +31,30 @@ billing linkage for API operations
 
 . *Configure OAuth Consent Screen*:
 .. Navigate to APIs & Services > OAuth consent screen
-.. Select "External" user type (no Google Workspace required)
-.. Set Publishing Status: "Testing" (100 users sufficient)
-.. Add scopes:
-... https://www.googleapis.com/auth/cloud-platform
-... https://www.googleapis.com/auth/cloud-billing
-.. Add test users if needed
+.. Click "Get started" to launch Project Configuration wizard
+.. Complete 4-step wizard:
+... Step 1 - App Information: Set app name and user support email
+... Step 2 - Audience: Select "External" (testing mode, no verification required)
+... Step 3 - Contact Information: Provide email for notifications
+... Step 4 - Finish: Accept User Data Policy and create
 
 . *Create OAuth 2.0 Client ID*:
 .. Navigate to APIs & Services > Credentials
 .. Create credentials > OAuth client ID
-.. Application type: Desktop application
+.. Application type: Desktop app
 .. Name: "Recipe Bottle Payor"
-.. Download JSON as `payor-oauth.json`
+.. Click CREATE
+.. Popup displays client ID and client secret
+.. Download JSON (filename: `client_secret_[id].apps.googleusercontent.com.json`)
 .. {rbhg_warn}
-client secret non-recoverable after initial download
+Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
 
-. *Update Configuration*:
-.. Update `rbrp.env` with payor project values:
-... `RBRP_PAYOR_PROJECT_ID=rbw-payor` (or chosen project ID)
-... `RBRP_BILLING_ACCOUNT_ID=XXXXXX-XXXXXX-XXXXXX` (from step 2)
+. *Install OAuth Credentials*:
+.. Run {rbtgo_payor_install} with the downloaded JSON file path
+.. This guides OAuth authorization flow, stores credentials in `~/.rbw/rbro.env`, and updates `rbrp.env` automatically
+.. Command handles all configuration and testing
 
-NOTE: OAuth JSON file created but not installed.
+NOTE: Payor establishment creates the OAuth client but does not install credentials.
 Use
-{rbtgo_payor_refresh}
-to install credentials and complete setup.
+{rbtgo_payor_install}
+to complete setup by installing and testing OAuth authentication.
