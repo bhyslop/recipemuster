@@ -4,7 +4,7 @@
 
 RBAGS (lenses/rbw-RBAGS-AdminGoogleSpec.adoc) specifies Recipe Bottle's Google Cloud operations. Implementation exists in Tools/rbw/ but spec sections are incomplete or misaligned.
 
-Goal: Complete and align specification for the Director-triggered remote build flow.
+Goal: Complete and align specification for the Director-triggered remote build flow. Then factor RBAGS into top document + includable sequence files for context-efficient loading.
 
 ### Reference Files
 
@@ -65,8 +65,30 @@ A fully specified `axo_command` operation must have:
 
 ## Current
 
-(none)
+13. **Extract prototype sequences DC and TB** (delegated) - Create `lenses/rbw-RBSDC-depot_create.adoc` and `lenses/rbw-RBSTB-trigger_build.adoc`. Modify RBAGS to keep anchor + terse def, add include directive for sequence body. Verify AsciiDoc rendering works.
 
 ## Remaining
 
-(pending)
+14. **Review prototype extraction** (manual) - Human reviews extracted files and include syntax. Confirm approach before bulk extraction. Green-light remaining 11 sequences.
+
+15. **Extract remaining 11 RBAGS sequences** (delegated) - Apply same pattern to: PE (payor_establish), PR (payor_refresh), DD (depot_destroy), DL (depot_list), GC (governor_create), RC (retriever_create), DI (director_create), ID (image_delete), IR (image_retrieve), SL (sa_list), SD (sa_delete).
+
+### Subsection Naming Convention
+
+Files use pattern `rbw-RBSxx-operation_name.adoc` where xx is 2-letter code (no codes start with A, reserved for future RBSA top file):
+
+| Code | Filename |
+|------|----------|
+| PE | `rbw-RBSPE-payor_establish.adoc` |
+| PR | `rbw-RBSPR-payor_refresh.adoc` |
+| DC | `rbw-RBSDC-depot_create.adoc` |
+| DD | `rbw-RBSDD-depot_destroy.adoc` |
+| DL | `rbw-RBSDL-depot_list.adoc` |
+| GC | `rbw-RBSGC-governor_create.adoc` |
+| RC | `rbw-RBSRC-retriever_create.adoc` |
+| DI | `rbw-RBSDI-director_create.adoc` |
+| TB | `rbw-RBSTB-trigger_build.adoc` |
+| ID | `rbw-RBSID-image_delete.adoc` |
+| IR | `rbw-RBSIR-image_retrieve.adoc` |
+| SL | `rbw-RBSSL-sa_list.adoc` |
+| SD | `rbw-RBSSD-sa_delete.adoc` |

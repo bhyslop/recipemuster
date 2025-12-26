@@ -15,3 +15,14 @@
 **Mode**: manual
 **Outcome**: Fixed normalizer backtick rules, normalized RBAGS; created itch for Rust replacement due to LLM unreliability
 ---
+
+---
+### 2025-12-26 05:37 - extract-prototype-sequences-dc-and-tb - APPROACH
+**Mode**: delegated
+**Proposed approach**:
+- Extract rbtgo_depot_create body (lines ~355-483) to `lenses/rbw-RBSDC-depot_create.adoc`
+- Extract rbtgo_trigger_build body (lines ~814-968) to `lenses/rbw-RBSTB-trigger_build.adoc`
+- In RBAGS, replace full sequence with: anchor + terse 1-2 line definition + AsciiDoc include directive
+- Test that cross-references still resolve
+- Verify full document renders correctly with includes
+---
