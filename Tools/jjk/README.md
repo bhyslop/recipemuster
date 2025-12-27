@@ -556,6 +556,27 @@ Establish a pithy name for the general heat context section (currently "Context"
 - **Recommendation**: Choose candidate that feels natural in speech and fits project culture
 - **Implementation**: Once chosen, update heat template and CLI guidance to use new name consistently
 
+### Steeplechase as Git Commit Discipline
+Experiment with moving steeplechase entries from heat files to git commits:
+- **Observation**: Steeplechase entries are valuable for retrospective analysis (models actually read them). Question: does the heat file need to carry them, or should git be the source of truth?
+- **Current model**: Steeplechase entries live in heat file, merge to heat on retirement. Accumulates in-memory context during heat work.
+- **Alternative model**: Store steeplechase-like metadata in "degenerate" commits (commits that contain only metadata/logs, no code changes)
+  - Approach: Each pace wrap, delegate, or approach logs a commit with structured metadata in message/trailers
+  - Format: `[jj:APPROACH|WRAP|DELEGATE] [heat:silks][pace:silks] <execution details in body>`
+  - Git becomes the execution log; heat files stay lean (no Steeplechase section needed)
+- **Benefits**:
+  - Execution history lives where it naturally belongs (git history)
+  - Heat files lighter, fewer section movements during work
+  - Full git tooling available for filtering/searching execution patterns
+  - Correlates execution patterns directly to code commit timeline
+  - Can use `git log --grep="jj:WRAP"` to reconstruct heat retrospective
+- **Challenges**:
+  - Requires discipline to remember to search git during retrospectives
+  - Need reliable patterns for identifying steeplechase commits
+  - Must explicitly gather git metadata when retiring heat (vs. auto-merge in file)
+  - Adds "degenerate commits" to repo (worth the tradeoff?)
+- **Experiment**: Try for one heat; evaluate whether git-based steeplechase is more useful than file-based
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
