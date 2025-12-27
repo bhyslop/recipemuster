@@ -397,12 +397,19 @@ Improve the analyze→delegate flow:
 - Graceful escalation: haiku fails → sonnet retry → opus rescue → human
 - Match pace requirements to skill inventory before attempting delegation
 
-### Instance Versioning
-Add a version designation for JJ installations to connect retrospective study to improvement:
-- Generate timestamp-based version on installation (e.g., `jj-2512271430`)
-- Embed version in heat/steeplechase files and git commits
-- Enables: "these heats used JJ v1, these used v2, compare outcomes"
-- Helps trace which kit version produced which patterns
+### Instance Versioning via Content Addressing
+Add a deterministic version designation for JJ installations to connect retrospective study to improvement:
+- **Approach**: Compute shasum (SHA-256) of JJ kit files: `jjw_workbench.sh` + `README.md`
+- **Installation process**: During `jjw_workbench.sh jjk-i`, compute content hash and generate brand version (e.g., `jj-a3f7d2e`)
+- **Storage**: Write JJ brand to `.claude/jjm/jj_brand.txt` and optionally to CLAUDE.md JJ configuration
+- **Embedding**: Bake brand into heat/steeplechase files and git commits (via `/pace-commit` and other JJ commands)
+- **Benefits**:
+  - Deterministic: same kit files always produce same version, no manual versioning needed
+  - Lean context: short hash is easy to reference in prose and commit messages
+  - Traceable: enables retrospective filtering ("heats using jj-a3f7d2e"), correlates code changes to JJ design iterations
+  - Self-documenting: hash is cryptographic proof of which exact JJ version produced the pattern
+- **Enables**: "these heats used JJ version a3f7d2e, these used b8c2f1a, compare outcomes and identify design improvements"
+- **Fallback**: If hash computation unavailable, fall back to timestamp-based version (e.g., `jj-2512271430`)
 
 ### Heat Document Efficiency
 Reduce thrash in heat files during active work:
@@ -419,6 +426,15 @@ Remove pace numbers from human-visible artifacts:
 - **Heat template revision**: Remove all `1.`, `2.`, etc. prefixes from Remaining section; keep paces as unnumbered list
 - **Steeplechase entries**: Reference pace by ID+silks (e.g., `p001 - setup-config`) instead of numbers
 - Keep numbers internal to JJ machinery, never in prose or human-facing docs
+
+### Silk Design Guidance
+Make silks short and memorable for human cognition:
+- **Silks**: Kebab-case identifiers for heats, paces, itches, scars (e.g., `cloud-foundation-stabilize`, `fix-unbound-variable`)
+- **Target**: 2-4 words, under 30 characters, easy to recall and type
+- **Rationale**: Silks appear frequently in speech, commit messages, and steeplechase entries. Short + catchy reduces cognitive load and typos.
+- **Anti-patterns**: Avoid long descriptive names, avoid acronyms unless widely recognized in project, avoid generic names (e.g., `misc-fixes`, `stuff`)
+- **Mnemonic quality**: Good silks create mental hooks (e.g., `image-registry-listing` immediately evokes the feature; `gad-perf-analysis` links to GAD tool)
+- **Workshop**: When creating a new heat/itch/pace, generate 3-5 candidate silks and pick the one that "sticks" best
 
 ### Git Commit Integration
 Enrich heat-related commits with structured metadata:
