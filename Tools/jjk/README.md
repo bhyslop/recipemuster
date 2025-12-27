@@ -490,6 +490,17 @@ Project-level control over automatic git commits:
 - Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-sync | never`
 - Default behavior should match current (commits on wrap/sync)
 
+### Command Set Consolidation
+Evaluate and streamline the JJ command roster:
+- Current command set: 11 slash commands (`/jja-*`)
+- **Observation**: Some commands see little/no use in practice (e.g., `/jja-pace-find`, `/jja-pace-left`)
+- **Question**: Are these truly necessary, or do they represent over-specified capability?
+  - `/jja-pace-find` and `/jja-pace-left`: Could be consolidated into a single "show paces" command
+  - `/jja-itch-list`, `/jja-itch-find`, `/jja-itch-move`: Possible consolidation into unified itch management
+- **Approach**: Study actual usage patterns over several heats; identify which commands deliver value vs. which are theoretical
+- **Goal**: Reduce cognitive load by keeping only essential commands; move rarely-used operations to workflow guidance instead
+- **Risk**: Over-consolidation might sacrifice flexibility. Document decision rationale.
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
