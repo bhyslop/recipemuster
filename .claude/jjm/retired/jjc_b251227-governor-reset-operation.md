@@ -99,3 +99,12 @@
   - Grants roles/owner on depot project
   - Generates RBRA file with service account key
 ---
+
+---
+### 2025-12-27 - update-itch - COMPLETE
+**Changes made**:
+- Moved itch `rbgp-create-governor` to scars
+- Added lesson learned: pristine-state vs idempotent semantics
+
+**Heat complete** - all paces done.
+---

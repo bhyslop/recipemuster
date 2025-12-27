@@ -50,7 +50,4 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
    - Creates governor-{timestamp} SA with roles/owner
    - Generates RBRA file
 
-## Current
-
-- **Update itch rbgp-create-governor** — Mark as closed/superseded by this implementation, or delete.
-   mode: manual
+- **Update itch rbgp-create-governor** — Moved to scars with lesson learned about pristine-state vs idempotent semantics.

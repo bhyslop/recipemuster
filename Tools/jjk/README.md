@@ -399,6 +399,35 @@ Improve the analyze→delegate flow:
 - Graceful escalation: haiku fails → sonnet retry → opus rescue → human
 - Match pace requirements to skill inventory before attempting delegation
 
+### Instance Versioning
+Add a version designation for JJ installations to connect retrospective study to improvement:
+- Generate timestamp-based version on installation (e.g., `jj-2512271430`)
+- Embed version in heat/steeplechase files and git commits
+- Enables: "these heats used JJ v1, these used v2, compare outcomes"
+- Helps trace which kit version produced which patterns
+
+### Heat Document Efficiency
+Reduce thrash in heat files during active work:
+- Current structure causes frequent moves between Done/Current/Remaining sections
+- Consider: more stable pace representation that reduces edits
+- Investigate: what's the minimum mutable surface for tracking progress?
+- Goal: cleaner diffs, less context churn, easier retrospectives
+
+### Formal Pace Numbering
+Remove pace numbers from human-visible artifacts:
+- Numbers appearing in heat files/code are brittle and go stale
+- Consider: pace ordering is implicit in document position
+- Alternative: assign stable pace IDs on creation (e.g., `p001`, `p002`)
+- Keep numbers internal to JJ machinery, not in prose
+
+### Git Commit Integration
+Enrich heat-related commits with structured metadata:
+- Include heat silks and pace silks in commit messages
+- Consider: steeplechase entries could live in extended commit messages
+- Add intervention level indicator (manual heavy / manual light / delegated)
+- Format: `[heat:silks][pace:silks][mode:manual|delegated]` prefix
+- Enables: filter git log by heat, reconstruct execution timeline
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
