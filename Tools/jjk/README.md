@@ -176,8 +176,8 @@ When moving to scars, the section moves as-is with added closure context:
 ## governor-implementation
 Create rbgp_create_governor for depot setup flow...
 
-**Closed**: Superseded by rbgg_create_depot which handles governor internally.
-Learned: governor is an implementation detail, not a user-facing concept.
+**Closed**: Implemented as rbgp_create_governor in Payor module.
+Learned: Governor creation is a Payor operation since Payor owns depot lifecycle.
 ```
 
 ## Steeplechase Format

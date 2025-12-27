@@ -36,6 +36,9 @@ This heat operates as an open-ended cleanup queue: paces are added as issues sur
 
 7. **Untangle path indirections in rbgm_ManualProcedures.sh:61-63** — Lines 61-63 use indirect path resolution (`cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd`) to compute file paths. Related itch: ITCH_LINK_TO_RBL (line 60). Simplify by resolving paths more directly; clarify relationship between ZRBGM_RBRP_FILE and ZRBGM_RBRP_FILE_BASENAME (line 62, newly added).
 
+8. **Define and scope image registry listing operation** — Implement image listing operation for Director role to enumerate available images in the repository. Establish operation name (candidate: rbgx_image_list or similar), define scope, parameters, and integration points in RBAGS specification.
+   mode: manual
+
 ## Steeplechase
 
 (execution log begins here)

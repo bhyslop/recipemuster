@@ -12,9 +12,6 @@ Verify rbtgo_payor_establish/refresh spec matches rbgm_ManualProcedures.sh.
 ## rbags-api-audit
 Verify remaining RBAGS operations against GCP REST API docs (depot_create, depot_destroy, retriever_create).
 
-## rbgg-rename
-Rename rbgg_Governor.sh to better reflect scope (handles all depot service accounts + project lifecycle, not just Governor role).
-
 ## axo-relevel
 The axo_ (Axial Operation) category has accumulated disparate concepts:
 
