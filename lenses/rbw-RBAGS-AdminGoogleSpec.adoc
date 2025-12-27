@@ -256,7 +256,7 @@ resources.
 
 For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.
 
-include::rbw-GSG-GettingStarted.adoc[]
+include::rbw-RBSGS-GettingStarted.adoc[leveloffset=+2]
 
 == {rbtr_payor} Operations
 
