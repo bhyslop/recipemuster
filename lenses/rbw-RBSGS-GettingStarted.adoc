@@ -24,19 +24,19 @@ The
 within the {rbtgi_depot} stores all
 {rbtgi_image_s}
 available for retrieval.
-Most organizations require exactly one depot.
+Most organizations require exactly one {rbtgi_depot}.
 
 {at_recipe_bottle}
-provides bash command-line administration of depot lifecycle and operations across roles.
+provides bash command-line administration of {rbtgi_depot} lifecycle and operations across roles.
 
-* *{rbtr_payor}*: Creates and funds depots; creates governors. Billing flows through the payor's linked account. Manual OAuth setup enables all subsequent automation.
-* *{rbtr_governor}*: Administers credentials within a depot. Creates directors and retrievers via service account authentication.
+* *{rbtr_payor}*: Creates and funds {rbtgi_depot_s}; creates {rbtr_governor_s}. Billing flows through the payor's linked account. Manual OAuth setup enables all subsequent automation.
+* *{rbtr_governor}*: Administers credentials within a {rbtgi_depot}. Creates directors and retrievers via service account authentication.
 * *{rbtr_director}*: Submits builds, manages images.
 * *{rbtr_retriever}*: Pulls images for local use.
 
 The
 {rbtr_payor}
-stands apart--requires manual console work and OAuth authentication for both depot and governor lifecycle operations.
+stands apart--requires manual console work and OAuth authentication for both {rbtgi_depot} and {rbtr_governor} lifecycle operations.
 The
 {rbtr_governor}
 and all downstream roles authenticate via
@@ -90,11 +90,11 @@ service account that executes builds within the cloud.
 
 The
 {rbtr_payor}
-can manage multiple depots:
+can manage multiple {rbtgi_depot_s}:
 {rbtgo_depot_list}
-displays all active depots and their status;
+displays all active {rbtgi_depot_s} and their status;
 {rbtgo_depot_destroy}
-permanently removes a depot and all its resources.
+permanently removes a {rbtgi_depot} and all its resources.
 
 The
 {rbtr_payor}
@@ -175,7 +175,7 @@ credentials scoped to one role within one
 {rbtgi_depot}.
 
 All credential files require `600` permissions, exclusion from version control, and secure distribution to authorized users.
-A credential file cannot operate outside its designated role and depot.
+A credential file cannot operate outside its designated role and {rbtgi_depot}.
 
 == Day-to-Day Operations
 
