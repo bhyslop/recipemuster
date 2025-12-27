@@ -537,11 +537,26 @@ EOF
     chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
   fi
   
-  buc_step 'Store public configuration'
-  # Update RBRP configuration (these are safe to commit)
-  buc_log_args "Updating RBRP configuration with OAuth client details"
-  # Note: This would normally update rbrp.env file with these values
-  # For now we just validate the project ID matches expectation
+  buc_step 'Validate public configuration'
+  buc_log_args "Validating RBRP_OAUTH_CLIENT_ID matches OAuth JSON"
+
+  if test -z "${RBRP_OAUTH_CLIENT_ID:-}"; then
+    buc_info "RBRP_OAUTH_CLIENT_ID missing from rbrp.env"
+    buc_info "Add this line to rbrp.env and commit:"
+    buc_code "echo 'RBRP_OAUTH_CLIENT_ID=${z_client_id}' >> rbrp.env"
+    buc_die "RBRP_OAUTH_CLIENT_ID must be configured before payor_install"
+  fi
+
+  if test "${RBRP_OAUTH_CLIENT_ID}" != "${z_client_id}"; then
+    buc_info "RBRP_OAUTH_CLIENT_ID mismatch"
+    buc_info "  rbrp.env has: ${RBRP_OAUTH_CLIENT_ID}"
+    buc_info "  OAuth JSON:   ${z_client_id}"
+    buc_info "Fix with:"
+    buc_code "sed -i '' 's|^RBRP_OAUTH_CLIENT_ID=.*|RBRP_OAUTH_CLIENT_ID=${z_client_id}|' rbrp.env"
+    buc_die "RBRP_OAUTH_CLIENT_ID in rbrp.env does not match OAuth JSON"
+  fi
+
+  buc_log_args "RBRP_OAUTH_CLIENT_ID validated: ${z_client_id}"
   
   buc_step 'Test OAuth authentication'
   local z_access_token
