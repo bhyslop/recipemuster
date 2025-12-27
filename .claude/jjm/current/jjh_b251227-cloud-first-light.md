@@ -16,6 +16,12 @@ All paces are manual mode given this collaborative debugging workflow.
 
 Update Operation Status section upon pace completion.
 
+### Heat-Wide Guidelines
+
+**Spec Updates**: When code repairs are made during a pace, note the spec updates needed and apply them before marking the pace complete. Do not defer spec fixes to a separate pace.
+
+**Resource Cleanup**: Before advancing past a failed operation, ensure any partially-created resources (projects, buckets, service accounts) are cleaned up. Use `depot_destroy` or manual console deletion as appropriate. Track abandoned resources in the steeplechase if cleanup is deferred.
+
 ### First Pace Note
 
 Before exercising operations, validate the mapping between tabtarget script names and RBAGS operation names to prevent confusion throughout the heat.

@@ -667,14 +667,11 @@ rbgp_depot_create() {
   local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_link.json"
   jq -n \
     --arg billingAccountName "billingAccounts/${RBRP_BILLING_ACCOUNT_ID}" \
-    --arg projectId "${z_depot_project_id}" \
     '{
-      billingAccountName: $billingAccountName,
-      projectId: $projectId,
-      billingEnabled: true
+      billingAccountName: $billingAccountName
     }' > "${z_billing_body}" || buc_die "Failed to build billing link body"
 
-  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_depot_project_id}:setBillingInfo"
+  local z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
   rbgu_http_require_ok "Link billing account" "depot_billing_link"
 
@@ -684,7 +681,8 @@ rbgp_depot_create() {
   rbgu_http_require_ok "Get project info" "depot_project_info"
   
   local z_project_number
-  z_project_number=$(rbgu_json_field_capture "depot_project_info" '.projectNumber') || buc_die "Failed to get project number"
+  # CRM v3 returns project number in name field as "projects/{number}"
+  z_project_number=$(rbgu_json_field_capture "depot_project_info" '.name | sub("projects/"; "")') || buc_die "Failed to get project number"
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
@@ -695,6 +693,7 @@ rbgp_depot_create() {
 
   # Note: OAuth Payor doesn't need explicit permissions on depot since it uses user identity
   # Skip Payor permission grants - OAuth user context provides necessary access
+  # TODO: Add pre-flight IAM verification before resource creation (see heat cloud-first-light)
 
   buc_step 'Create build bucket'
   local z_build_bucket="rbw-${z_depot_name}-bucket"
@@ -710,7 +709,7 @@ rbgp_depot_create() {
       lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
     }' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
 
-  local z_bucket_create_url="${RBGC_API_ROOT_GCS}${RBGC_GCS_V1}/b?project=${z_depot_project_id}"
+  local z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_depot_project_id}"
   rbgu_http_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
   
   local z_bucket_code

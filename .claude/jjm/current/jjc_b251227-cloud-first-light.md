@@ -31,3 +31,26 @@
 ### 2025-12-27 12:21 - exercise-payor-install - COMPLETE
 **Result**: Success - existing credentials detected, OAuth test passed, payor project access verified
 ---
+
+---
+### 2025-12-27 13:45 - exercise-depot-create-practice - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-PC.PayorDepotCreate.sh test us-central1` to create a practice depot
+- Observe operation sequence: OAuth auth → project creation → billing link → API enablement → bucket → repository → Mason SA
+- Watch for HTTP errors or permission issues at each step
+- On success, note the generated `RBRR_DEPOT_PROJECT_ID` (pattern: `rbw-test-YYYYMMDDHHMM`)
+
+### 2025-12-27 13:50 - exercise-depot-create-practice - BUG FOUND
+**Issue**: Billing link failed with HTTP 400 - wrong API endpoint
+- Code used CRM API `:setBillingInfo` but should use Cloud Billing API `/billingInfo`
+- Payload had extra fields `projectId` and `billingEnabled` not recognized by billing API
+
+**Abandoned resource**: Project `rbw-test-YYYYMMDDHHMM` created without billing (exact ID in GCP console)
+
+**Code fixes applied**:
+- Added `RBGC_API_ROOT_CLOUDBILLING` and `RBGC_CLOUDBILLING_V1` to `rbgc_Constants.sh`
+- Fixed URL and payload in `rbgp_Payor.sh:666-676`
+
+**Spec fix needed**: Update RBAGS RBSDC operation to reference Cloud Billing API (deferred per heat guidelines - apply before pace complete)
+---
