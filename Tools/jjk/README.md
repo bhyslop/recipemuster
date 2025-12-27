@@ -501,6 +501,43 @@ Evaluate and streamline the JJ command roster:
 - **Goal**: Reduce cognitive load by keeping only essential commands; move rarely-used operations to workflow guidance instead
 - **Risk**: Over-consolidation might sacrifice flexibility. Document decision rationale.
 
+### JJ Context Permissions and Auto-Approval
+Reduce permission-asking friction for JJ-initiated context updates:
+- **Problem**: JJ commands that modify heat/itch/scar files currently require approval for each edit, creating friction in workflow
+- **Solution**: Expand CLAUDE.md JJ configuration section to pre-authorize specific JJ file modifications:
+  - `jj_auto_approve: heat-updates | itch-updates | scar-updates | all | none` (default: `none` for safety)
+  - Files under `.claude/jjm/` would skip approval when configured
+- **Scope**: Heat wraps, pace transitions, itch additions, scar closures—operations fully within JJ machinery
+- **Safety**: Only applies to JJ-managed files (`.claude/jjm/`); does not grant blanket auto-approval
+- **Benefit**: Faster pace-level workflows; Claude can mark paces complete and move to next without human approval in between
+- **Alternative**: Per-command granularity (e.g., `jj_auto_approve_pace_wrap: true`) for fine-grained control
+
+### Git Commit Agent Configuration
+Specify commit style and context upfront to eliminate style lookups:
+- **Problem**: Commit-subagent currently infers style from nearby commits, requiring context scanning during each commit
+- **Solution**: Add `.claude/jjm/jj_commit_config.md` configuration file:
+  ```markdown
+  # JJ Commit Style Configuration
+
+  ## Message Format
+  [jj:BRAND][heat:SILKS][pace:SILKS] Main message (imperative, present tense)
+
+  ## Trailer Style
+  - No Claude Code attribution or co-author lines
+  - Optional: Project-specific trailers (e.g., `Heat-ID: jjh_b251227-cloud-foundation-stabilize`)
+
+  ## Examples
+  [jj:a3f7d2e][heat:cloud-foundation-stabilize][pace:fix-unbound-variable] Fix unbound variable in rbgm line 102
+  [jj:a3f7d2e][heat:payor-flow-readiness][pace:os-specific-links] Add macOS-specific link instructions to payor establishment
+  ```
+- **Benefits**:
+  - Subagent reads config once per session, not per commit
+  - No need to examine git history for style precedent
+  - Fully deterministic and transparent (user controls style)
+  - Easier to change project style without scatter of precedent commits
+- **Storage**: `.claude/jjm/jj_commit_config.md` (checked into git, versioned with heat metadata)
+- **Invocation**: Commit-subagent loads config at startup, applies consistently to all JJ-initiated commits
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
