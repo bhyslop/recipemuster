@@ -39,9 +39,11 @@
 :rbtr_consumer_p:            <<rbtr_consumer,Consumer Role's>>
 :rbtr_consumer_s:            <<rbtr_consumer,Consumer Roles>>
 :rbtr_director:              <<rbtr_director,Director Role>>
+:rbtr_director_s:            <<rbtr_director,Director Roles>>
 :rbtr_governor:              <<rbtr_governor,Governor Role>>
 :rbtr_mason:                 <<rbtr_mason,Mason Role>>
 :rbtr_payor:                 <<rbtr_payor,Payor Role>>
+:rbtr_payor_p:               <<rbtr_payor,Payor Role's>>
 :rbtr_retriever:             <<rbtr_retriever,Retriever Role>>
 :rbtr_retriever_s:           <<rbtr_retriever,Retriever Roles>>
 
