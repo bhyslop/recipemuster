@@ -47,61 +47,64 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 ## Done
 
-1. **Validate tabtarget-to-RBAGS mapping** — Verified 14 operations. Found 11 OK, 1 missing (governor_reset), 1 unimplemented (image_list), 1 needs modernization (image_retrieve).
+- **Validate tabtarget-to-RBAGS mapping** — Verified 14 operations. Found 11 OK, 1 missing (governor_reset), 1 unimplemented (image_list), 1 needs modernization (image_retrieve).
 
-2. **Exercise payor_install** — Existing credentials detected, OAuth test passed, payor project access verified.
+- **Exercise payor_install** — Existing credentials detected, OAuth test passed, payor project access verified.
 
 ## Current
 
-3. **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
-   mode: manual
+- **Add IAM pre-flight verification to depot_create** — After API enablement, poll `artifactregistry.repositories.list` until 200 or timeout. Uses existing RBGC consistency constants. Fixes 403 on repo create due to IAM propagation delay. Update RBSDC spec with this step and prior bug fixes (billing API, CRM v3 project number, GCS constant).
+  mode: manual
 
 ## Remaining
 
-4. **Exercise depot_list** — Verify practice depot appears in listing.
-   mode: manual
+- **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
+  mode: manual
 
-5. **Exercise depot_destroy** — Remove practice depot and all its resources.
-   mode: manual
+- **Exercise depot_list** — Verify practice depot appears in listing.
+  mode: manual
 
-6. **Exercise depot_create (for keeps)** — Provision depot infrastructure for ongoing use.
-   mode: manual
+- **Exercise depot_destroy** — Remove practice depot and all its resources.
+  mode: manual
 
-7. **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
-   mode: manual
+- **Exercise depot_create (for keeps)** — Provision depot infrastructure for ongoing use.
+  mode: manual
 
-8. **Exercise director_create** — Provision Director service account. Produces RBRA file at RBRR_DIRECTOR_RBRA_FILE path.
-   mode: manual
+- **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
+  mode: manual
 
-9. **Exercise retriever_create** — Provision Retriever service account. Produces RBRA file at RBRR_RETRIEVER_RBRA_FILE path.
-   mode: manual
+- **Exercise director_create** — Provision Director service account. Produces RBRA file at RBRR_DIRECTOR_RBRA_FILE path.
+  mode: manual
 
-10. **Exercise sa_list** — Verify all created service accounts appear in roster.
-    mode: manual
+- **Exercise retriever_create** — Provision Retriever service account. Produces RBRA file at RBRR_RETRIEVER_RBRA_FILE path.
+  mode: manual
 
-11. **Exercise sa_delete** — Delete one service account (retriever) to exercise deletion path.
-    mode: manual
+- **Exercise sa_list** — Verify all created service accounts appear in roster.
+  mode: manual
 
-12. **Exercise retriever_create (restore)** — Recreate retriever after deletion exercise.
-    mode: manual
+- **Exercise sa_delete** — Delete one service account (retriever) to exercise deletion path.
+  mode: manual
 
-13. **Exercise trigger_build** — Submit container build to Cloud Build. Mason executes, publishes image to repository.
-    mode: manual
+- **Exercise retriever_create (restore)** — Recreate retriever after deletion exercise.
+  mode: manual
 
-14. **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
-    mode: manual
+- **Exercise trigger_build** — Submit container build to Cloud Build. Mason executes, publishes image to repository.
+  mode: manual
 
-15. **Exercise image_delete** — Remove built image from repository.
-    mode: manual
+- **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
+  mode: manual
 
-16. **Exercise trigger_build (rebuild)** — Rebuild image for ongoing use after deletion exercise.
-    mode: manual
+- **Exercise image_delete** — Remove built image from repository.
+  mode: manual
 
-17. **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
-    mode: manual
+- **Exercise trigger_build (rebuild)** — Rebuild image for ongoing use after deletion exercise.
+  mode: manual
 
-18. **Exercise payor_refresh** — Obtain fresh OAuth credentials. Validates recovery path.
-    mode: manual
+- **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
+  mode: manual
+
+- **Exercise payor_refresh** — Obtain fresh OAuth credentials. Validates recovery path.
+  mode: manual
 
 ## Steeplechase
 
