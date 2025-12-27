@@ -1,259 +1,226 @@
-= Getting Started with Recipe Bottle: Cloud Setup and Building
+= Getting Started with Recipe Bottle
 
-Welcome.
 {at_recipe_bottle}
-solves a specific problem: you build
-{at_bottle_image_s}
-on your laptop, your teammate builds the same code on theirs, and they're *identical*.
-No more "it works on my machine."
+provides deterministic container builds through
+{gcp_service}
+infrastructure.
+When two developers build the same source, they produce identical
+{at_bottle_image_s}.
+The
+{rbtgi_repository}
+becomes the single source of truth for container artifacts.
 
-This guide walks you through the rare things you do once, then the occasional things you do a few times, then the daily work you'll do without thinking about setup.
+This guide explains the setup sequence and ongoing operational patterns.
+Most of what follows happens once; the final sections describe day-to-day work.
 
-== The Setup Journey: From Your Google Account to Your Team's Containers
+== The Role Hierarchy
 
-You're about to do something most people on your team will do exactly never.
-You're establishing the
+{at_recipe_bottle}
+defines a hierarchy of roles, each with distinct responsibilities and credential types.
+
+The
 {rbtr_payor}
-- the bridge between your
-{gcp_organization}
-and the computers where people build.
+stands apart from the others.
+This role requires manual OAuth configuration through the Google Cloud Console and produces credentials that live in `~/.rbw/rbro.env`.
+The
+{rbtr_payor}
+is the only role that interacts with Google through OAuth browser flows.
 
-This happens once.
-After that, your team members won't think about it.
-They'll just use it.
+All other roles--{rbtr_governor}, {rbtr_director}, and {rbtr_retriever}--authenticate through
+{rbtgi_rbra_file}
+credentials stored on the filesystem.
+These files contain
+{giam_service_account}
+keys that enable automated operations without human interaction.
 
-=== Phase 1: Establish (You, Your Google Account, The Console)
+This separation is deliberate: the
+{rbtr_payor}
+does the manual OAuth work once, enabling all subsequent roles to function through automation-friendly service account credentials.
+
+== Phase 1: Establish
 
 {rbtgo_payor_establish}
 is entirely manual.
-You'll use Google's web console to:
+The administrator uses the Google Cloud Console to create the
+{rbtgi_payor_project},
+link a billing account,
+enable required APIs,
+and configure an OAuth 2.0 client.
 
-* Create a {gcp_project_id} called the {rbtgi_payor_project}
-* Link a {gcp_billing_enabled} account (this is where costs flow)
-* Enable the APIs that Recipe Bottle needs
-* Create an OAuth 2.0 client - your digital handshake with Google
+This phase produces a
+{rbtgi_json_key_file}
+containing OAuth client credentials.
+This file must not be committed to version control.
 
-You'll end up with a
-{rbtgi_json_key_file}.
-This file contains secrets.
-*Do not commit it to git.*
-Keep it where you downloaded it.
+== Phase 2: Setup
 
-**Why you're doing this:** You're telling Google "Recipe Bottle running on my machines gets to create and manage projects on my behalf."
-It's a one-time conversation with Google.
-
-=== Phase 2: Install (You, Your Computer, The Terminal)
+The administrator who completed establishment now executes automation from their
+{at_workstation}.
 
 {rbtgo_payor_install}
-takes that
+takes the
 {rbtgi_json_key_file}
-and completes the handshake.
-
-You'll run a command.
-It will open your browser (again, to Google).
-You'll authorize (again).
-Google hands you a
+and completes the OAuth handshake.
+A browser window opens for authorization.
+Upon success, the
 {rbro_refresh_token}
-- a long-lived credential that lets Recipe Bottle stay logged in without asking you every time.
-
-That token gets stored in `~/.rbw/rbro.env` on your computer.
-With permissions `600` - readable and writable by you alone.
-*This file never leaves your computer.*
-It's the crown jewel.
-
-After this step,
+is stored in `~/.rbw/rbro.env` with `600` permissions.
+This file enables the
 {rbtr_payor}
-setup is done.
-You have two files now that matter:
-
-* The
-{rbtgi_json_key_file}
-(keep it safe, you might need it if things go wrong)
-* The `~/.rbw/rbro.env` file (your machine's membership card)
-
-**Why you're doing this:** You're exchanging a temporary authorization for a permanent relationship.
-From now on, your computer can talk to Google on your behalf, without you having to authorize every single operation.
-
-=== Phase 3: Create (You, Building the Foundation)
+to authenticate for all future operations without repeating the browser flow.
 
 {rbtgo_depot_create}
-creates your first
-{rbtgi_depot}
-- the project and all its infrastructure where containers actually get built in the cloud.
-
-You'll probably do this once.
-Maybe twice if you're testing.
-Then you'll hand it off and forget about it.
-
-A
-{rbtgi_depot}
-is *isolated*.
-It has its own
+provisions the container build infrastructure.
+Most installations require exactly one
+{rbtgi_depot}--a
+cohesive unit comprising a dedicated
 {gcp_project_id},
-its own
-{gcs_bucket_s},
-its own
-{gar_registry}.
-Everything in it belongs to one productive lifecycle: you create it, you use it, someday maybe you destroy it.
+a
+{rbtgi_build_bucket},
+a
+{rbtgi_repository},
+and the
+{rbtr_mason}
+service account that executes builds within the cloud.
 
-**Why you're doing this:** You're creating the actual workshop where your containers are safely constructed.
-
-== The Crown Jewels: What We Protect and Why
-
-You now have two critical files on your laptop:
-
-**1. `~/.rbw/rbro.env`** (the
-{rbro_regime}
-)
-This file contains:
-
-* `RBRO_CLIENT_SECRET` - your
-{rbro_client_secret}
-* `RBRO_REFRESH_TOKEN` - your
-{rbro_refresh_token}
-
-This is *how you stay logged in.*
-This is *how Recipe Bottle authenticates to Google.*
-
-We protect it because:
-
-* If someone steals it, they can impersonate you to Google
-* If you lose it, you have to redo the
-{rbtr_payor}
-installation (annoying, but not catastrophic)
-
-So we:
-
-* Lock file permissions to `600` (only you can read/write)
-* Never commit it to git (`.gitignore` enforces this)
-* Never log it (your command transcripts won't leak it)
-
-*This is not paranoia.*
-This is the same care you'd take with your house keys.
-We designed Recipe Bottle to handle this file with due respect, so you can trust it.
-
-**2. The OAuth
-{rbtgi_json_key_file}
-** (your downloaded `client_secret_*.json`)
-This file contains the same secret.
-Once you've run
-{rbtgo_payor_install},
-keep it safe but you can stop thinking about it.
-Back it up once, then forget.
-
-**Files you'll give to your teammates later:**
-Different.
-A
-{rbtgi_rbra_file}
-for the
-{rbtr_director}
-role lets them submit builds.
-A different
-{rbtgi_rbra_file}
-for the
+{rbtgo_governor_create}
+creates the
 {rbtr_governor}
-role lets them manage projects.
-Each file is scoped to *one role in one project.*
-Each one is safe to hand over - it can't do things outside its boundaries.
-
-The design protects both of you: they get exactly the power they need, nothing more.
-
-== Day-to-Day: The Anxiety You Just Eliminated
-
-You have
-{at_bottle_image_s}
-now.
-
-Your teammate can pull them down.
-She builds with the same Dockerfile.
-Her
-{rbtgi_image_s}
-is bit-for-bit identical to yours.
-She doesn't have to ask "what did you do different on your machine?"
-
-Because the answer is: nothing.
+service account within the
+{rbtgi_depot}.
+This produces the first
+{rbtgi_rbra_file},
+stored at the path specified by
+{rbrr_governor_rbra_file}.
 The
-{rbtgi_repository}
-is the source of truth.
-
-You no longer fear:
-* "I built it on my laptop, why doesn't it work on yours?"
-* "The {gcs_bucket} disappeared and now I can't get the artifacts"
-* "Who has permissions to change what?"
-
-The setup you did - all of it, the
-{rbtr_payor},
-the
-{rbtgi_depot},
-all the credential files - protects you from those questions.
-
-Your
-{rbtgi_payor_project}
-is stable.
-Your
-{rbtgi_depot}
-is stable.
-Your
-{gar_registry}
-holds your
-{at_bottle_image_s}.
-They'll be here tomorrow.
-
-Most days, you won't think about this at all.
-You'll push code.
-Containers will build.
-Images will appear in your
-{rbtgi_repository}.
-You'll pull them where you need them.
-
-== If Things Go Wrong
-
-They probably won't.
-But if they do:
-
-**Lost the
-{rbtgi_json_key_file}
-?**
-You can download a new one from Google.
-Then run
-{rbtgo_payor_install}
-again.
-
-**Lost the `~/.rbw/rbro.env` file?**
-Same answer - download the
-{rbtgi_json_key_file},
-run install again.
-
-**Credentials expired?**
-{rbtgo_payor_refresh}
-handles this.
-It's rare, but it exists.
-
-**Want to hand off to someone else?**
-Create a new
-{rbtgi_rbra_file}
-for them with just the role they need.
-They get exactly that role.
-You keep the
+{rbtr_governor}
+can now operate independently of the
 {rbtr_payor}.
 
-== What Comes Next
+== Credential Administration
 
-Once your
+The
+{rbtr_governor}
+manages the roster of credentialed users throughout the
 {rbtgi_depot}
-is running, you'll interact with Recipe Bottle through different roles:
+lifecycle.
+While credential creation is typically infrequent, this administrative function remains active.
 
-* {rbtr_director}: You submit builds, manage
-{rbtgi_image_s}
-* {rbtr_governor}: You manage the depot project itself
-* {rbtr_retriever}: You (or your team) pull
-{rbtgi_image_s}
-to use them
+{rbtgo_director_create}
+provisions a
+{rbtr_director}
+service account, producing an
+{rbtgi_rbra_file}
+at the path specified by
+{rbrr_director_rbra_file}.
+Directors submit builds and manage images.
 
-Each role has its own workflow.
-But they all depend on this setup being rock-solid.
+{rbtgo_retriever_create}
+provisions a
+{rbtr_retriever}
+service account, producing an
+{rbtgi_rbra_file}
+at the path specified by
+{rbrr_retriever_rbra_file}.
+Retrievers pull images for local use.
 
-You've just made it rock-solid.
+The
+{rbtr_governor}
+also maintains visibility into issued credentials through
+{rbtgo_sa_list}
+and can revoke access through
+{rbtgo_sa_delete}.
 
-The rare work is done.
-Welcome to day-to-day.
+== Credential Files
+
+Each role maintains its own credential file.
+Understanding these files helps administrators plan secure handling.
+
+The
+{rbtr_payor}
+credentials reside in `~/.rbw/rbro.env`, containing the
+{rbro_client_secret}
+and
+{rbro_refresh_token}.
+This file exists only on the administrator's
+{at_workstation}.
+
+The
+{rbtr_governor},
+{rbtr_director},
+and
+{rbtr_retriever}
+each have an
+{rbtgi_rbra_file}
+at paths defined in the repository configuration.
+Each file contains
+{giam_service_account}
+credentials scoped to one role within one
+{rbtgi_depot}.
+
+All credential files require `600` permissions, exclusion from version control, and secure distribution to authorized users.
+A credential file cannot operate outside its designated role and depot.
+
+== Day-to-Day Operations
+
+Once setup and credential administration are complete, ongoing work proceeds through
+{rbtr_director}
+and
+{rbtr_retriever}
+roles.
+
+=== Director Operations
+
+The
+{rbtr_director}
+manages the build lifecycle.
+
+{rbtgo_trigger_build}
+submits a container build to
+{gcb_service}.
+The
+{rbtr_mason}
+executes the build within the cloud and publishes the resulting
+{rbtgi_image}
+to the
+{rbtgi_repository}.
+
+{rbtgo_image_delete}
+removes an
+{rbtgi_image}
+from the
+{rbtgi_repository}.
+
+**MISSING**: Image listing operation is not yet implemented.
+
+=== Retriever Operations
+
+The
+{rbtr_retriever}
+accesses built artifacts.
+
+{rbtgo_image_retrieve}
+pulls an
+{rbtgi_image}
+from the
+{rbtgi_repository}
+to the local
+{at_workstation}.
+
+== Recovery
+
+If `~/.rbw/rbro.env` is lost, the administrator obtains a fresh
+{rbtgi_json_key_file}
+from Google Cloud Console and re-executes
+{rbtgo_payor_install}.
+
+If OAuth tokens expire,
+{rbtgo_payor_refresh}
+obtains fresh credentials.
+
+To revoke a user's access, the
+{rbtr_governor}
+executes
+{rbtgo_sa_delete}
+for the target service account, invalidating the corresponding
+{rbtgi_rbra_file}.
