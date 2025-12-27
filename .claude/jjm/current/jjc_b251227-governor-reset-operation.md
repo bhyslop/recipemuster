@@ -41,3 +41,35 @@
   - Phase 2: Setup: Added depot_list and depot_destroy mentions
   - Recovery: Added governor_reset for credential rotation
 ---
+
+---
+### 2025-12-27 - revise-governor-spec-reset-semantics - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Rename file: RBSGC → RBSGR
+- Rewrite intro to describe reset semantics (idempotent create-or-replace)
+- Add «INPUT_DEPOT_PROJECT_ID» as required argument
+- Add {rbtoe_payor_authenticate} step at start
+- Add step to find/delete existing governor-* SAs before creating new one
+- Specify governor SA naming: governor-{timestamp}
+- Fix typo line 77
+- Update RBAGS mapping and include directive
+---
+
+---
+### 2025-12-27 - revise-governor-spec-reset-semantics - COMPLETE
+**Changes made**:
+- Created `lenses/rbw-RBSGR-governor_reset.adoc` with reset semantics:
+  - Idempotent create-or-replace operation
+  - `«INPUT_DEPOT_PROJECT_ID»` as required argument
+  - `{rbtoe_payor_authenticate}` step at start
+  - Find/delete existing `governor-*` SAs before creating new one
+  - Governor SA naming: `governor-{timestamp}`
+  - Fixed typo (was `{{rbbc_store}`)
+- Deleted `lenses/rbw-RBSGC-governor_create.adoc`
+- Updated `lenses/rbw-RBAGS-AdminGoogleSpec.adoc`:
+  - Removed `rbtgo_governor_create` mapping
+  - Updated section anchor and include directive
+  - Updated error message reference
+- Updated `lenses/rbw-RBSGS-GettingStarted.adoc` to use `rbtgo_governor_reset`
+---

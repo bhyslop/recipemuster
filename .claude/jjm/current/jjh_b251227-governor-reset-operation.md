@@ -37,21 +37,13 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
    - Added governor_reset to Recovery section
    - Added rbtgo_governor_reset mapping to RBAGS
 
+- **Revise governor_create spec to governor_reset semantics** — Updated spec file:
+   - Renamed: `rbw-RBSGC-governor_create.adoc` → `rbw-RBSGR-governor_reset.adoc`
+   - Idempotent create-or-replace semantics with `«INPUT_DEPOT_PROJECT_ID»` argument
+   - Added authentication step and governor-* cleanup before creation
+   - Updated all RBAGS mappings and references
+
 ## Current
-
-- **Revise governor_create spec to governor_reset semantics** — Update spec file:
-   - Rename file: `rbw-RBSGC-governor_create.adoc` → `rbw-RBSGR-governor_reset.adoc`
-   - Rename operation concept to reset (idempotent create-or-replace)
-   - Add `«INPUT_DEPOT_PROJECT_ID»` as required argument
-   - Add `{rbtoe_payor_authenticate}` step
-   - Add step to find and delete existing Governor SAs matching `governor-*` pattern
-   - Specify Governor SA naming: `governor-{timestamp}`
-   - Fix typo line 77: `{{rbbc_store}` → `{rbbc_store}`
-   - Update RBAGS mapping: `rbtgo_governor_create` → `rbtgo_governor_reset`
-   - Update RBAGS include directive for renamed file
-   mode: manual
-
-## Remaining
 
 - **Implement rbgp_governor_reset in Payor module** — Add function to `Tools/rbw/rbgp_Payor.sh`:
    - Argument: `depot_project_id` (obtain via `rbgp_depot_list`)
@@ -61,6 +53,8 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
    - Reference: BCG for bash style
    - Test with real depot
    mode: manual
+
+## Remaining
 
 - **Update itch rbgp-create-governor** — Mark as closed/superseded by this implementation, or delete.
    mode: manual

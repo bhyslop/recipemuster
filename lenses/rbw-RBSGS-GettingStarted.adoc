@@ -21,7 +21,7 @@ A
 is the logical facility where container images are constructed and retained.
 The
 {rbtgi_repository}
-within the depot stores all
+within the {rbtgi_depot} stores all
 {rbtgi_image_s}
 available for retrieval.
 Most organizations require exactly one depot.
@@ -99,12 +99,12 @@ permanently removes a depot and all its resources.
 The
 {rbtr_payor}
 then executes
-{rbtgo_governor_create}
+{rbtgo_governor_reset}
 to create the
 {rbtr_governor}
 service account within the
 {rbtgi_depot}.
-This Payor operation produces the first
+This Payor operation produces an
 {rbtgi_rbra_file},
 stored at the path specified by
 {rbrr_governor_rbra_file}.

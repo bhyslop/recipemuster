@@ -1,0 +1,133 @@
+NOTE: This operation creates or replaces a
+{rbtr_governor}
+within a
+{rbtgi_depot}.
+If a
+{rbtr_governor}
+already exists, it is deleted and replaced with a fresh one.
+This enables credential rotation and recovery from compromised keys.
+
+The
+{rbtr_payor}
+resets the
+{rbtr_governor}
+{giam_service_account}
+for a specified
+{rbtgi_depot_project}:
+
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_DEPOT_PROJECT_ID»` provided as first argument
+.. {rbbc_require}
+`«INPUT_DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
+
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+
+. *Depot Project Validation*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to verify
+`«INPUT_DEPOT_PROJECT_ID»`
+exists and is ACTIVE
+.. {rbbc_require}
+`«INPUT_DEPOT_PROJECT_ID»`
+!=
+{rbrp_payor_project_id}
+
+. *Find and Delete Existing
+{rbtr_governor}
+Service Accounts*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/list[iam.serviceAccounts.list]
+for
+`«INPUT_DEPOT_PROJECT_ID»`
+.. {rbbc_store}
+`«EXISTING_GOVERNORS»` as service accounts matching pattern `governor-*`
+.. For each service account in `«EXISTING_GOVERNORS»`:
+... {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[iam.serviceAccounts.delete]
+to remove the service account
+... {rbbc_require}
+deletion successful (HTTP 200) or already deleted (HTTP 404)
+.. {rbbc_show}
+count of deleted governor service accounts
+
+. *Generate Governor Timestamp*:
+.. {rbbc_store}
+`«TIMESTAMP»` as current time in YYYYMMDDHHmm format
+.. {rbbc_store}
+`«GOVERNOR_ACCOUNT_ID»` as `governor-«TIMESTAMP»`
+
+. *Create the
+{rbtr_governor}
+{giam_service_account}*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create]
+to create service account in
+`«INPUT_DEPOT_PROJECT_ID»`
+.. Set `accountId` to `«GOVERNOR_ACCOUNT_ID»`
+.. Use display name: `Governor for RB Depot`
+.. {rbbc_store}
+`«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
+.. {rbbc_require}
+service account creation successful (HTTP 200)
+
+. *Verify
+{giam_service_account}
+Propagation*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get]
+to query service account using
+`«GOVERNOR_SERVICE_ACCOUNT»`
+.. {rbbc_poll}
+with 3-5 second intervals for up to 30 seconds if service account not immediately available
+.. {rbbc_require}
+service account accessible before proceeding
+
+. *Grant
+{gcp_project_id}
+-level Permissions*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy]
+to update IAM policy on
+`«INPUT_DEPOT_PROJECT_ID»`
+.. {rbbc_use}
+`«GOVERNOR_SERVICE_ACCOUNT»` as principal
+.. Add role: `roles/owner` (excluding billing permissions maintained by
+{rbtr_payor})
+.. Set policy version: 3 for conditional binding support
+.. {rbbc_require}
+IAM policy update successful
+
+. *Generate
+{rbtgi_rbra_file}*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create]
+to create service account key for
+`«GOVERNOR_SERVICE_ACCOUNT»`
+.. Set keyAlgorithm: `KEY_ALG_RSA_2048`, privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
+.. {rbbc_store}
+`«GOVERNOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
+.. {rbtoe_rbra_generate}
+converts
+`«GOVERNOR_PRIVATE_KEY_DATA»`
+to
+`{rbrr_governor_rbra_file}`
+.. NOTE: Script outputs copy command for RBRA file installation
+.. {rbbc_warn}
+if
+{rbrr_governor_rbra_file}
+already exists (will be overwritten)
+.. {rbbc_require}
+RBRA file creation successful
+
+. *Display Result*:
+.. {rbbc_show}
+governor reset successful
+.. {rbbc_show}
+governor service account: `«GOVERNOR_SERVICE_ACCOUNT»`
+.. {rbbc_show}
+RBRA file path:
+{rbrr_governor_rbra_file}

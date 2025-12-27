@@ -75,7 +75,6 @@
 :rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
-:rbtgo_governor_create:           <<rbtgo_governor_create,rbgp_create_governor>>
 :rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
@@ -301,11 +300,11 @@ include::rbw-RBSDD-depot_destroy.adoc[]
 
 include::rbw-RBSDL-depot_list.adoc[]
 
-[[rbtgo_governor_create]]
+[[rbtgo_governor_reset]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
-=== {rbtgo_governor_create}
+=== {rbtgo_governor_reset}
 
-include::rbw-RBSGC-governor_create.adoc[]
+include::rbw-RBSGR-governor_reset.adoc[]
 
 == {rbtr_governor} Operations
 
@@ -923,7 +922,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Governor RBRA file missing - run
-{rbtgo_governor_create}",
+{rbtgo_governor_reset}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
