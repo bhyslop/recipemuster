@@ -1,47 +1,50 @@
 = Getting Started with Recipe Bottle
 
 {at_recipe_bottle}
-provides deterministic container builds through
+constructs container images under controlled conditions on trusted
 {gcp_service}
 infrastructure.
-When two developers build the same source, they produce identical
-{at_bottle_image_s}.
+Developers retrieve these
+{at_bottle_image_s}
+and work within identical environments.
 The
 {rbtgi_repository}
-becomes the single source of truth for container artifacts.
+serves as the single source of truth for container artifacts.
 
 This guide explains the setup sequence and ongoing operational patterns.
 Most of what follows happens once; the final sections describe day-to-day work.
 
-== The Role Hierarchy
+== Depots and Roles
+
+A
+{rbtgi_depot}
+is the logical facility where container images are constructed and retained.
+The
+{rbtgi_repository}
+within the depot stores all
+{rbtgi_image_s}
+available for retrieval.
+Most organizations require exactly one depot.
 
 {at_recipe_bottle}
-defines a hierarchy of roles, each with distinct responsibilities and credential types.
+provides bash command-line administration of depot lifecycle and operations across roles.
+
+* *{rbtr_payor}*: Creates and funds depots. Billing flows through the payor's linked account. Manual OAuth setup enables all subsequent automation.
+* *{rbtr_governor}*: Administers credentials within a depot. Creates directors and retrievers.
+* *{rbtr_director}*: Submits builds, manages images.
+* *{rbtr_retriever}*: Pulls images for local use.
 
 The
 {rbtr_payor}
-stands apart from the others.
-This role requires manual OAuth configuration through the Google Cloud Console and produces credentials that live in `~/.rbw/rbro.env`.
-The
-{rbtr_payor}
-is the only role that interacts with Google through OAuth browser flows.
-
-All other roles--{rbtr_governor}, {rbtr_director}, and {rbtr_retriever}--authenticate through
+stands apart--requires manual console work and OAuth authentication.
+All other roles authenticate via
 {rbtgi_rbra_file}
-credentials stored on the filesystem.
-These files contain
-{giam_service_account}
-keys that enable automated operations without human interaction.
-
-This separation is deliberate: the
-{rbtr_payor}
-does the manual OAuth work once, enabling all subsequent roles to function through automation-friendly service account credentials.
+credentials, enabling automation without human interaction.
 
 == Phase 1: Establish
 
 {rbtgo_payor_establish}
-is entirely manual.
-The administrator uses the Google Cloud Console to create the
+is a guide for manual steps taken using the Google Cloud Console to create the
 {rbtgi_payor_project},
 link a billing account,
 enable required APIs,
@@ -72,8 +75,8 @@ to authenticate for all future operations without repeating the browser flow.
 {rbtgo_depot_create}
 provisions the container build infrastructure.
 Most installations require exactly one
-{rbtgi_depot}--a
-cohesive unit comprising a dedicated
+{rbtgi_depot}-
+a cohesive unit comprising a dedicated
 {gcp_project_id},
 a
 {rbtgi_build_bucket},
