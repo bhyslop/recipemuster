@@ -351,6 +351,7 @@ Configuration is via environment variables:
 ## Available Commands
 
 - `/jja-heat-resume` - Resume heat at session start, analyze pace, propose approach
+  - **Note**: This command name clashes with Claude Code's `resume` command. Alternative name to be chosen in a future iteration.
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
 - `/jja-pace-find` - Show current pace (with mode)
 - `/jja-pace-left` - List all remaining paces (with mode)
@@ -388,6 +389,19 @@ Before delegation can succeed, skills must be identified and well-described:
 - **Heat planning**: match heat goals to available skills, identify gaps early
 - **Pace analysis**: when proposing approach, suggest "this pace needs skills X, Y" and verify they exist
 - **Skill gaps**: surface when a pace requires a skill not yet articulated → triggers skill development
+
+### Heat Creation Skill
+Create a dedicated skill for forming well-structured heats:
+- **Purpose**: Ensure new heats follow silks guidance, correct structure, and validated context from creation
+- **Invocation**: User describes heat intent; skill guides through:
+  - Silks workshop: generate 3-5 candidates, validate against guidance (2-4 words, catchy, <30 chars)
+  - Context gathering: stable background info, goals, constraints
+  - Initial paces: sketch first 3-5 paces as unnumbered Remaining list (no Current section)
+  - Validation: verify `.claude/jjm/current/` exists, file naming, structure
+- **Output**: Properly formed heat file in `.claude/jjm/current/jjh_bYYMMDD-silks.md`
+- **Benefit**: Prevents malformed heats from manual creation; ensures consistency across team/sessions
+- **Related**: Complements "Heat Scrub" (future direction) which fixes existing/legacy heats
+- **Invocation example**: `/jja-heat-create "cloud build follow-up"`
 
 ### Delegation Intelligence
 Improve the analyze→delegate flow:
