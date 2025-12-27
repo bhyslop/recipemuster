@@ -452,10 +452,6 @@ rbgp_payor_install() {
   z_project_id=$(jq -r '.installed.project_id // .project_id // empty' "${z_oauth_json_file}" 2>/dev/null) || buc_die "Failed to extract project_id from OAuth JSON file"
   test -n "${z_project_id}" || buc_die "OAuth JSON file missing project_id field"
 
-  # Export to environment for OAuth functions
-  export RBRP_OAUTH_CLIENT_ID="${z_client_id}"
-  export RBRP_PAYOR_PROJECT_ID="${z_project_id}"
-
   buc_step 'Check existing credentials'
   local z_rbro_file="${HOME}/.rbw/rbro.env"
   local z_skip_auth=0
