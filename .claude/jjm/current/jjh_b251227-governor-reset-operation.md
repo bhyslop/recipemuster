@@ -43,18 +43,14 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
    - Added authentication step and governor-* cleanup before creation
    - Updated all RBAGS mappings and references
 
+- **Implement rbgp_governor_reset in Payor module** — Added function to `Tools/rbw/rbgp_Payor.sh`:
+   - Validates depot_project_id argument
+   - Authenticates as Payor via OAuth
+   - Lists/deletes existing governor-* SAs
+   - Creates governor-{timestamp} SA with roles/owner
+   - Generates RBRA file
+
 ## Current
-
-- **Implement rbgp_governor_reset in Payor module** — Add function to `Tools/rbw/rbgp_Payor.sh`:
-   - Argument: `depot_project_id` (obtain via `rbgp_depot_list`)
-   - Pattern: `rbgp_depot_create` for Payor OAuth operations
-   - Pattern: `zrbgg_create_service_account_with_key` for SA+key creation
-   - Governor gets `roles/owner` on depot project (unlike Director/Retriever)
-   - Reference: BCG for bash style
-   - Test with real depot
-   mode: manual
-
-## Remaining
 
 - **Update itch rbgp-create-governor** — Mark as closed/superseded by this implementation, or delete.
    mode: manual

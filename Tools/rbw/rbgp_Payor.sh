@@ -52,6 +52,12 @@ zrbgp_kindle() {
   ZRBGP_INFIX_PROJECT_INFO="project_info"
   ZRBGP_INFIX_BUCKET_CREATE="bucket_create"
   ZRBGP_INFIX_API_CHECK="api_checking"
+  ZRBGP_INFIX_GOV_LIST_SA="gov_list_sa"
+  ZRBGP_INFIX_GOV_DELETE_SA="gov_delete_sa"
+  ZRBGP_INFIX_GOV_CREATE_SA="gov_create_sa"
+  ZRBGP_INFIX_GOV_VERIFY_SA="gov_verify_sa"
+  ZRBGP_INFIX_GOV_KEY="gov_key"
+  ZRBGP_INFIX_GOV_IAM="gov_iam"
 
   ZRBGP_KINDLED=1
 }
@@ -1060,6 +1066,170 @@ rbgp_payor_oauth_refresh() {
   buc_success "OAuth refresh procedure displayed"
   buc_info "Note: OAuth refresh tokens expire after 6 months of non-use in testing mode"
   buc_info "Any successful payor operation resets the 6-month timer"
+}
+
+rbgp_governor_reset() {
+  zrbgp_sentinel
+
+  local z_depot_project_id="${1:-}"
+
+  buc_doc_brief "Create or replace Governor service account in a depot"
+  buc_doc_param "depot_project_id" "The depot project ID (obtain via rbgp_depot_list)"
+  buc_doc_lines "This operation is idempotent: existing governor-* SAs are deleted before creating a new one"
+  buc_doc_shown || return 0
+
+  buc_step 'Validate input parameters'
+  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument"
+
+  if ! printf '%s' "${z_depot_project_id}" | grep -qE '^rbw-[a-z0-9-]+-[0-9]{12}$'; then
+    buc_die "Depot project ID must match pattern rbw-{name}-{timestamp}"
+  fi
+
+  buc_step 'Authenticate as Payor'
+  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID is not set"
+
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  buc_step 'Validate depot project exists and is active'
+  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbgu_http_require_ok "Validate depot project" "${ZRBGP_INFIX_PROJECT_INFO}"
+
+  local z_lifecycle_state
+  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.state') || buc_die "Failed to get project state"
+  test "${z_lifecycle_state}" = "ACTIVE" || buc_die "Depot project is not ACTIVE (state: ${z_lifecycle_state})"
+
+  test "${z_depot_project_id}" != "${RBRP_PAYOR_PROJECT_ID}" || buc_die "Cannot create Governor in Payor project"
+
+  buc_step 'List existing service accounts in depot'
+  local z_sa_list_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  rbgu_http_json "GET" "${z_sa_list_url}" "${z_token}" "${ZRBGP_INFIX_GOV_LIST_SA}"
+  rbgu_http_require_ok "List service accounts" "${ZRBGP_INFIX_GOV_LIST_SA}"
+
+  buc_step 'Find and delete existing governor-* service accounts'
+  local z_deleted_count=0
+  local z_governor_emails
+  z_governor_emails=$(jq -r '.accounts[]? | select(.email | startswith("governor-")) | .email' \
+    "${ZRBGU_PREFIX}${ZRBGP_INFIX_GOV_LIST_SA}${ZRBGU_POSTFIX_JSON}" 2>/dev/null) || z_governor_emails=""
+
+  if test -n "${z_governor_emails}"; then
+    local z_email
+    while IFS= read -r z_email; do
+      test -n "${z_email}" || continue
+      buc_log_args "Deleting existing governor SA: ${z_email}"
+
+      local z_delete_url="${z_sa_list_url}/${z_email}"
+      rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "${ZRBGP_INFIX_GOV_DELETE_SA}"
+
+      local z_delete_code
+      z_delete_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_GOV_DELETE_SA}") || z_delete_code=""
+      case "${z_delete_code}" in
+        200|204) z_deleted_count=$((z_deleted_count + 1)) ;;
+        404)     buc_log_args "SA already deleted: ${z_email}" ;;
+        *)       buc_warn "Failed to delete SA ${z_email}: HTTP ${z_delete_code}" ;;
+      esac
+    done <<< "${z_governor_emails}"
+  fi
+
+  buc_info "Deleted ${z_deleted_count} existing governor service account(s)"
+
+  buc_step 'Generate Governor timestamp and account ID'
+  local z_timestamp
+  z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
+  local z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
+  local z_governor_email="${z_governor_account_id}@${z_depot_project_id}.iam.gserviceaccount.com"
+
+  buc_log_args "Governor account ID: ${z_governor_account_id}"
+
+  buc_step 'Create Governor service account'
+  local z_create_sa_body="${BUD_TEMP_DIR}/rbgp_create_governor.json"
+  jq -n \
+    --arg accountId "${z_governor_account_id}" \
+    --arg displayName "Governor for RB Depot" \
+    '{
+      accountId: $accountId,
+      serviceAccount: {
+        displayName: $displayName
+      }
+    }' > "${z_create_sa_body}" || buc_die "Failed to build Governor creation body"
+
+  rbgu_http_json "POST" "${z_sa_list_url}" "${z_token}" "${ZRBGP_INFIX_GOV_CREATE_SA}" "${z_create_sa_body}"
+  rbgu_http_require_ok "Create Governor service account" "${ZRBGP_INFIX_GOV_CREATE_SA}"
+
+  buc_log_args "Governor service account created: ${z_governor_email}"
+
+  buc_step 'Wait for IAM propagation'
+  sleep 5
+
+  buc_step 'Verify Governor service account'
+  local z_verify_url="${z_sa_list_url}/${z_governor_email}"
+  rbgu_http_json "GET" "${z_verify_url}" "${z_token}" "${ZRBGP_INFIX_GOV_VERIFY_SA}"
+  rbgu_http_require_ok "Verify Governor service account" "${ZRBGP_INFIX_GOV_VERIFY_SA}"
+
+  buc_step 'Grant roles/owner on depot project'
+  rbgi_add_project_iam_role \
+    "${z_token}" \
+    "Grant Governor Owner" \
+    "projects/${z_depot_project_id}" \
+    "roles/owner" \
+    "serviceAccount:${z_governor_email}" \
+    "governor-owner"
+
+  buc_step 'Generate service account key'
+  local z_key_req="${BUD_TEMP_DIR}/rbgp_governor_key_request.json"
+  printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
+
+  local z_key_url="${z_sa_list_url}/${z_governor_email}/keys"
+  rbgu_http_json "POST" "${z_key_url}" "${z_token}" "${ZRBGP_INFIX_GOV_KEY}" "${z_key_req}"
+  rbgu_http_require_ok "Generate Governor key" "${ZRBGP_INFIX_GOV_KEY}"
+
+  buc_step 'Extract and decode key data'
+  local z_key_b64
+  z_key_b64=$(rbgu_json_field_capture "${ZRBGP_INFIX_GOV_KEY}" '.privateKeyData') \
+    || buc_die "Failed to extract privateKeyData"
+
+  local z_key_json="${BUD_TEMP_DIR}/rbgp_governor_key.json"
+  buc_log_args 'Tolerate macos base64 difference'
+  if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
+       printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
+      || buc_die "Failed to decode key data"
+  fi
+
+  buc_step 'Convert JSON key to RBRA format'
+  local z_rbra_file="${BUD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
+
+  local z_client_email
+  z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"
+  test -n "${z_client_email}" || buc_die "Empty client_email in key JSON"
+
+  local z_private_key
+  z_private_key=$(jq -r '.private_key' "${z_key_json}") || buc_die "Failed to extract private_key"
+  test -n "${z_private_key}" || buc_die "Empty private_key in key JSON"
+
+  local z_project_id
+  z_project_id=$(jq -r '.project_id' "${z_key_json}") || buc_die "Failed to extract project_id"
+  test -n "${z_project_id}" || buc_die "Empty project_id in key JSON"
+
+  buc_step 'Write RBRA file'
+  {
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=1800\n'
+  } > "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
+
+  test -f "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
+
+  rm -f "${z_key_json}"
+
+  buc_success "Governor reset completed successfully"
+  buc_info "Governor service account: ${z_governor_email}"
+  buc_info "RBRA file written: ${z_rbra_file}"
+  buc_info ""
+  buc_info "To install the RBRA file, copy it to the path specified by RBRR_GOVERNOR_RBRA_FILE:"
+  buc_info "  cp \"${z_rbra_file}\" \"\${RBRR_GOVERNOR_RBRA_FILE}\""
 }
 
 # eof

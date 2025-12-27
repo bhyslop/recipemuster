@@ -73,3 +73,29 @@
   - Updated error message reference
 - Updated `lenses/rbw-RBSGS-GettingStarted.adoc` to use `rbtgo_governor_reset`
 ---
+
+---
+### 2025-12-27 - implement-rbgp-governor-reset - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Add function to rbgp_Payor.sh following existing patterns
+- Use zrbgp_authenticate_capture for OAuth token
+- List/delete existing governor-* SAs before creating new one
+- Create governor-{timestamp} SA with roles/owner
+- Generate RBRA file with key, similar to zrbgg_create_service_account_with_key
+- Add new infix constants for HTTP operations
+---
+
+---
+### 2025-12-27 - implement-rbgp-governor-reset - COMPLETE
+**Changes made**:
+- Added infix constants: GOV_LIST_SA, GOV_DELETE_SA, GOV_CREATE_SA, GOV_VERIFY_SA, GOV_KEY, GOV_IAM
+- Implemented `rbgp_governor_reset` function (~160 lines):
+  - Validates depot_project_id argument (pattern: rbw-{name}-{timestamp})
+  - Authenticates as Payor via OAuth
+  - Validates depot project exists and is ACTIVE
+  - Lists and deletes existing governor-* service accounts
+  - Creates governor-{timestamp} service account
+  - Grants roles/owner on depot project
+  - Generates RBRA file with service account key
+---
