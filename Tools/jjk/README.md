@@ -428,6 +428,14 @@ Enrich heat-related commits with structured metadata:
 - Format: `[heat:silks][pace:silks][mode:manual|delegated]` prefix
 - Enables: filter git log by heat, reconstruct execution timeline
 
+### Configurable Autocommit
+Project-level control over automatic git commits:
+- Some projects want commits per pace wrap
+- Some want manual commit control
+- Some want no JJ-initiated commits at all
+- Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-sync | never`
+- Default behavior should match current (commits on wrap/sync)
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
