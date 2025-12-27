@@ -538,6 +538,24 @@ Specify commit style and context upfront to eliminate style lookups:
 - **Storage**: `.claude/jjm/jj_commit_config.md` (checked into git, versioned with heat metadata)
 - **Invocation**: Commit-subagent loads config at startup, applies consistently to all JJ-initiated commits
 
+### Heat Context Naming
+Establish a pithy name for the general heat context section (currently "Context"):
+- **Problem**: Need a memorable label to distinguish general heat knowledge from pace-specific work
+- **Usage pattern**: "I need to add that to the [NAME]" or "Let me update [NAME] with this insight"
+- **Characteristics**:
+  - Grows during heat execution as facts emerge that span multiple paces
+  - Essential for chat reset/resume (new session reads this first)
+  - Accumulates architectural insights, constraints, background, and decisions
+  - Separate from pace-specific working notes
+- **Candidates**:
+  - **Heat Lore**: Emphasizes accumulated wisdom; pithy; memorable (usage: "add it to the Lore")
+  - **Ground Truth**: Signals foundational facts that anchor the heat; formal
+  - **Bedrock**: Evokes stable foundation; slightly more conversational
+  - **Axioms**: Mathematical flavor; precise but perhaps too abstract
+  - **Charter**: Suggests "what you need to know to run this heat"
+- **Recommendation**: Choose candidate that feels natural in speech and fits project culture
+- **Implementation**: Once chosen, update heat template and CLI guidance to use new name consistently
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
