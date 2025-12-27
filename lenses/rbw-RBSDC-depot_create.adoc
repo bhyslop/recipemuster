@@ -113,7 +113,7 @@ Service Account*:
 replaces Cloud Build's implicit service account to provide deterministic permissions and predictable authorization within the depot infrastructure.
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
-... accountId: `rbw-«INPUT_DEPOT_NAME»-mason`
+... accountId: `mason-«INPUT_DEPOT_NAME»`
 ... displayName: `Mason for RB Depot: «INPUT_DEPOT_NAME»`
 ... project: `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}

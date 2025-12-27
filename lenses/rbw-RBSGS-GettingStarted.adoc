@@ -29,15 +29,17 @@ Most organizations require exactly one depot.
 {at_recipe_bottle}
 provides bash command-line administration of depot lifecycle and operations across roles.
 
-* *{rbtr_payor}*: Creates and funds depots. Billing flows through the payor's linked account. Manual OAuth setup enables all subsequent automation.
-* *{rbtr_governor}*: Administers credentials within a depot. Creates directors and retrievers.
+* *{rbtr_payor}*: Creates and funds depots; creates governors. Billing flows through the payor's linked account. Manual OAuth setup enables all subsequent automation.
+* *{rbtr_governor}*: Administers credentials within a depot. Creates directors and retrievers via service account authentication.
 * *{rbtr_director}*: Submits builds, manages images.
 * *{rbtr_retriever}*: Pulls images for local use.
 
 The
 {rbtr_payor}
-stands apart--requires manual console work and OAuth authentication.
-All other roles authenticate via
+stands apart--requires manual console work and OAuth authentication for both depot and governor lifecycle operations.
+The
+{rbtr_governor}
+and all downstream roles authenticate via
 {rbtgi_rbra_file}
 credentials, enabling automation without human interaction.
 
@@ -86,12 +88,23 @@ and the
 {rbtr_mason}
 service account that executes builds within the cloud.
 
+The
+{rbtr_payor}
+can manage multiple depots:
+{rbtgo_depot_list}
+displays all active depots and their status;
+{rbtgo_depot_destroy}
+permanently removes a depot and all its resources.
+
+The
+{rbtr_payor}
+then executes
 {rbtgo_governor_create}
-creates the
+to create the
 {rbtr_governor}
 service account within the
 {rbtgi_depot}.
-This produces the first
+This Payor operation produces the first
 {rbtgi_rbra_file},
 stored at the path specified by
 {rbrr_governor_rbra_file}.
@@ -220,6 +233,18 @@ from Google Cloud Console and re-executes
 If OAuth tokens expire,
 {rbtgo_payor_refresh}
 obtains fresh credentials.
+
+If
+{rbtr_governor}
+credentials are compromised or need rotation, the
+{rbtr_payor}
+executes
+{rbtgo_governor_reset}
+to replace the existing
+{rbtr_governor}
+service account with a fresh one, generating new
+{rbtgi_rbra_file}
+credentials.
 
 To revoke a user's access, the
 {rbtr_governor}

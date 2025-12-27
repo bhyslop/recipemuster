@@ -725,7 +725,7 @@ rbgp_depot_create() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Create Mason service account'
-  local z_mason_name="rbw-${z_depot_name}-mason"
+  local z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
   local z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
   local z_create_sa_body="${BUD_TEMP_DIR}/rbgp_create_mason.json"
   
@@ -990,8 +990,8 @@ rbgp_depot_list() {
     local z_region="unknown"
     
     # Try to detect region and validate components
-    local z_mason_expected="rbw-${z_depot_name}-mason"
-    local z_repo_expected="rbw-${z_depot_name}-repository"  
+    local z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
+    local z_repo_expected="rbw-${z_depot_name}-repository"
     local z_bucket_expected="rbw-${z_depot_name}-bucket"
     
     # Quick validation - check if Mason service account exists

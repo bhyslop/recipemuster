@@ -18,7 +18,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[p
 . *Validate each depot*:
 .. For each project in `«DEPOT_PROJECTS»`:
 ... Extract depot name from project ID pattern `rbw-«NAME»-«TIMESTAMP»`
-... Check for Mason service account: `rbw-«NAME»-mason`
+... Check for Mason service account: `mason-«NAME»`
 ... Check for repository: `rbw-«NAME»-repository`
 ... Check for bucket: `rbw-«NAME»-bucket`
 ... Display status: COMPLETE, BROKEN (missing resources), or DELETE_REQUESTED

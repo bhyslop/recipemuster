@@ -60,7 +60,10 @@ zrbgd_kindle() {
   # IAM Service Accounts
   RBGD_API_SERVICE_ACCOUNTS="${RBGD_API_BASE_IAM_PROJECT}${RBGC_PATH_SERVICE_ACCOUNTS}"
   RBGD_SA_EMAIL_FULL="${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
-  RBGD_MASON_EMAIL="${RBGC_MASON_NAME}@${RBGD_SA_EMAIL_FULL}"
+
+  # Extract depot name from project ID pattern rbw-{depot_name}-{timestamp}
+  RBGD_DEPOT_NAME=$(printf '%s' "${RBRR_GCP_PROJECT_ID}" | sed 's/^rbw-\(.*\)-[0-9]\{12\}$/\1/')
+  RBGD_MASON_EMAIL="${RBGC_MASON_PREFIX}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs
   RBGD_API_CRM_GET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"

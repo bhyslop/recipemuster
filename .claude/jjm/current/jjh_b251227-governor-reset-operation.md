@@ -25,28 +25,19 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
 
 ## Done
 
-(none yet)
+- **Standardize SA naming patterns** — Established naming conventions:
+   - Governor: `governor-{timestamp}` (auto-assigned at creation)
+   - Mason: `mason-{depot_name}` (was `rbw-{depot_name}-mason`)
+   - Director/Retriever: unchanged
+   Updated specs (RBSDC, RBSDL), constants, and implementation.
+
+- **Revise RBSGS for complete Payor operation coverage** — Updated Getting Started guide:
+   - Clarified Payor creates depots AND governors (both via OAuth)
+   - Added depot_list and depot_destroy documentation
+   - Added governor_reset to Recovery section
+   - Added rbtgo_governor_reset mapping to RBAGS
 
 ## Current
-
-(waiting to start)
-
-## Remaining
-
-- **Standardize SA naming patterns** — Establish naming conventions:
-   - Governor: `governor-{timestamp}` (auto-assigned at creation)
-   - Mason: `mason-{depot_name}` (currently `rbw-{depot_name}-mason`)
-   - Director/Retriever: `{role}-{instance}` (instance is user-provided, unchanged)
-   Update `rbgc_Constants.sh` and `rbgp_depot_create` (for Mason).
-   mode: manual
-
-- **Revise RBSGS for complete Payor operation coverage** — The Getting Started guide needs:
-   - Clarify Payor creates depots AND governors (both via OAuth), Governor creates directors/retrievers (via RBRA)
-   - Add `{rbtgo_depot_list}` - currently undocumented
-   - Add `{rbtgo_depot_destroy}` - currently undocumented
-   - Add `{rbtgo_governor_reset}` in Recovery section for credential rotation
-   - Review and fix any remaining confusion about role responsibilities
-   mode: manual
 
 - **Revise governor_create spec to governor_reset semantics** — Update spec file:
    - Rename file: `rbw-RBSGC-governor_create.adoc` → `rbw-RBSGR-governor_reset.adoc`
@@ -60,6 +51,8 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
    - Update RBAGS include directive for renamed file
    mode: manual
 
+## Remaining
+
 - **Implement rbgp_governor_reset in Payor module** — Add function to `Tools/rbw/rbgp_Payor.sh`:
    - Argument: `depot_project_id` (obtain via `rbgp_depot_list`)
    - Pattern: `rbgp_depot_create` for Payor OAuth operations
@@ -71,7 +64,3 @@ This heat specifies and implements `rbgp_governor_reset` - a Payor operation tha
 
 - **Update itch rbgp-create-governor** — Mark as closed/superseded by this implementation, or delete.
    mode: manual
-
-## Steeplechase
-
-(execution log begins here)

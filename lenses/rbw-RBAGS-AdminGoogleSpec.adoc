@@ -76,6 +76,7 @@
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_governor_create:           <<rbtgo_governor_create,rbgp_create_governor>>
+:rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>

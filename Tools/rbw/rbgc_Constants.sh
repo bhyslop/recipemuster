@@ -33,10 +33,11 @@ zrbgc_kindle() {
 
   # Basic Configuration
   RBGC_ADMIN_ROLE="rbw-admin"
-  RBGC_MASON_NAME="rbw-mason"
   RBGC_PAYOR_ROLE="rbw-payor"
 
-  # Multi-instance Service Account Prefixes
+  # Service Account Prefixes
+  RBGC_GOVERNOR_PREFIX="governor"
+  RBGC_MASON_PREFIX="mason"
   RBGC_DIRECTOR_PREFIX="director"
   RBGC_RETRIEVER_PREFIX="retriever"
 
