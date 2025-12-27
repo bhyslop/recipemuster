@@ -294,12 +294,10 @@ Heat files contain these sections:
 2. Second completed pace title
 ...
 
-## Current
-**Current pace title**
-[Working notes for this pace only, if needed]
-
 ## Remaining
-- Future pace title
+- **Current pace title** ← First item is implicitly current (bold to highlight)
+  [Working notes for this pace only, if needed]
+- Next pace title
 - Another future pace
 ...
 ```
@@ -310,9 +308,9 @@ Heat files contain these sections:
 
 **Done**: Numbered list of completed pace titles only. Number = completion order (useful for commit references). No verbose summaries - git commits carry that detail.
 
-**Current**: The one pace being worked. May include working notes. Gets numbered and moved to Done when complete.
+**Remaining**: Unnumbered queue of paces. **First item is implicitly current** (bold it to highlight, may include working notes). Rest are future paces in priority order. Order can change freely. When current pace completes, move it to Done and first remaining item becomes current.
 
-**Remaining**: Unnumbered queue of future paces. Order can change freely. First item becomes Current when current pace completes.
+**Design rationale**: Eliminates dedicated Current section to reduce document thrash. As paces move from Remaining → Done, fewer section movements mean cleaner diffs and less context distraction.
 
 ## Design Principles
 
@@ -416,9 +414,11 @@ Reduce thrash in heat files during active work:
 ### Formal Pace Numbering
 Remove pace numbers from human-visible artifacts:
 - Numbers appearing in heat files/code are brittle and go stale
-- Consider: pace ordering is implicit in document position
-- Alternative: assign stable pace IDs on creation (e.g., `p001`, `p002`)
-- Keep numbers internal to JJ machinery, not in prose
+- Pace ordering is implicit in document position (first unnumbered item = current/next)
+- Recommendation: assign stable pace IDs on creation (e.g., `p001`, `p002`) for internal tracking only
+- **Heat template revision**: Remove all `1.`, `2.`, etc. prefixes from Remaining section; keep paces as unnumbered list
+- **Steeplechase entries**: Reference pace by ID+silks (e.g., `p001 - setup-config`) instead of numbers
+- Keep numbers internal to JJ machinery, never in prose or human-facing docs
 
 ### Git Commit Integration
 Enrich heat-related commits with structured metadata:
@@ -427,6 +427,30 @@ Enrich heat-related commits with structured metadata:
 - Add intervention level indicator (manual heavy / manual light / delegated)
 - Format: `[heat:silks][pace:silks][mode:manual|delegated]` prefix
 - Enables: filter git log by heat, reconstruct execution timeline
+
+### Dedicated Commit Subagent
+Create a specialized subagent for JJ-initiated git commits:
+- **Purpose**: Execute commits with JJ-aware system prompt that injects heat/pace context without Claude Code self-promotion
+- **System prompt**: Include heat silks, pace silks, and context; omit standard "Generated with Claude Code" footer
+- **Invocation**: JJ commands (wrap, sync) delegate to commit-subagent instead of using standard Bash tool
+- **Benefits**: Cleaner commit messages focused on work content, not tool attribution; consistent JJ metadata in git history
+- **Configuration**: Project-level setting in CLAUDE.md: `jj_commit_subagent: enabled | disabled` (default: enabled if available)
+- **Fallback**: If subagent unavailable, use standard Bash commits with manual formatting
+
+### Pace-Level Commits with /pace-commit
+Create a new slash command for committing work-in-progress within a pace:
+- **Purpose**: Allow commits during pace work (not just at pace completion) with full JJ context
+- **Command**: `/pace-commit` delegates to commit-subagent with:
+  - Heat silks (e.g., `cloud-foundation-stabilize`)
+  - Pace silks (e.g., `fix-unbound-variable`)
+  - Job Jockey brand (JJ installation version/identity) as metadata
+  - Structured commit format: `[jj:brand][heat:silks][pace:silks] Commit message`
+- **Job Jockey Brand**: Version/identity of JJ installation (e.g., `jj-v1` or timestamp-based identifier like `jj-2512271430`)
+  - Enables retrospective analysis: "which JJ version produced this pattern?"
+  - Links commits back to JJ design iteration and heat execution metadata
+  - Stored in `.claude/jjm/jj_brand.txt` or CLAUDE.md JJ configuration
+- **Benefits**: Granular commit history within paces, cleaner git log filtering by JJ context, ability to study which JJ versions succeeded/failed
+- **Example**: `[jj:v1][heat:cloud-foundation-stabilize][pace:fix-unbound-variable] Remove unset variable in rbgm line 102`
 
 ### Configurable Autocommit
 Project-level control over automatic git commits:
