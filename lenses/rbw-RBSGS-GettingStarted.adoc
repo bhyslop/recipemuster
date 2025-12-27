@@ -30,9 +30,9 @@ Most organizations require exactly one {rbtgi_depot}.
 provides bash command-line administration of {rbtgi_depot} lifecycle and operations across roles.
 
 * *{rbtr_payor}*: Creates and funds {rbtgi_depot_s}; creates {rbtr_governor_s}. Billing flows through the payor's linked account. Manual OAuth setup enables all subsequent automation.
-* *{rbtr_governor}*: Administers credentials within a {rbtgi_depot}. Creates directors and retrievers via service account authentication.
-* *{rbtr_director}*: Submits builds, manages images.
-* *{rbtr_retriever}*: Pulls images for local use.
+* *{rbtr_governor}*: Administers credentials within a {rbtgi_depot}. Creates directors and {rbtr_retriever_s} via service account authentication.
+* *{rbtr_director}*: Submits builds, manages {rbtgi_image_s}.
+* *{rbtr_retriever}*: Pulls {rbtgi_image_s} for local use.
 
 The
 {rbtr_payor}
@@ -104,7 +104,7 @@ to create the
 {rbtr_governor}
 service account within the
 {rbtgi_depot}.
-This Payor operation produces an
+This {rbtr_payor} operation produces an
 {rbtgi_rbra_file},
 stored at the path specified by
 {rbrr_governor_rbra_file}.
@@ -149,7 +149,7 @@ and can revoke access through
 
 == Credential Files
 
-Each role maintains its own credential file.
+Each {rbtr_role} maintains its own credential file.
 Understanding these files helps administrators plan secure handling.
 
 The
@@ -207,7 +207,7 @@ removes an
 from the
 {rbtgi_repository}.
 
-**MISSING**: Image listing operation is not yet implemented.
+**MISSING**: {rbtgi_image} listing operation is not yet implemented.
 
 === Retriever Operations
 
