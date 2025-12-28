@@ -68,6 +68,9 @@ Before exercising operations, validate the mapping between tabtarget script name
 - **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
   mode: manual
 
+- **Repair: Remove incorrect export RBRP_ directives** — The `zrbgp_depot_list_update()` function will detect the incorrect `export RBRP_DEPOT_PROJECT_IDS` directives, print the exact sed command needed to fix them, and exit with Unix error. Apply the suggested sed command, commit the fix, then re-run depot_create to verify the repair.
+  mode: manual
+
 - **Exercise depot_list** — Verify practice depot appears in listing.
   mode: manual
 

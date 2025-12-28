@@ -129,6 +129,22 @@ Emerged from failed cmsa-normalizer attempts during RBAGS normalization, 2025-12
 - Suggesting missing term links (context awareness)
 - Validation with repair suggestions
 
+## bvu-bcg-sequencing
+Refactor BVU validators to align with BCG module architecture: ensure validation order properly interweaves with kindle initialization sequencing across dependent modules.
+
+### Context
+
+BVU validators (buv_validation.sh) use pre-BCG architecture with wrapper-based parameter indirection and embedded error handling. BCG defines modern module structure with kindle/sentinel boilerplate and clear initialization sequencing.
+
+The challenge is subtle: validation can't happen in isolation—it must coordinate with *when* modules kindle and *which* validators are available at each stage. A module's kindle needs validators already present, but those validators themselves may kindle. The initialization sequence is interdependent.
+
+### Scope
+
+- Map current BVU validator dependencies and kindle requirements
+- Identify sequence constraints that affect validation availability
+- Refactor validators to integrate with BCG patterns while respecting kindle ordering
+- Ensure backward compatibility during transition
+
 ## rbtgo-image-retrieve
 Design and implement the image retrieval operation - currently has neither spec nor implementation.
 
