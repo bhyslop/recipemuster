@@ -504,13 +504,21 @@ Evaluate and streamline the JJ command roster:
 ### JJ Context Permissions and Auto-Approval
 Reduce permission-asking friction for JJ-initiated context updates:
 - **Problem**: JJ commands that modify heat/itch/scar files currently require approval for each edit, creating friction in workflow
-- **Solution**: Expand CLAUDE.md JJ configuration section to pre-authorize specific JJ file modifications:
-  - `jj_auto_approve: heat-updates | itch-updates | scar-updates | all | none` (default: `none` for safety)
-  - Files under `.claude/jjm/` would skip approval when configured
+- **Root cause**: `.claude/settings.local.json` has `Read` permission for project files but no corresponding `Edit` permission for `.claude/jjm/`
+- **Implementation**: During `jjw_install`, programmatically add Edit permission to settings.local.json:
+  ```json
+  "Edit(//.claude/jjm/**)"
+  ```
+- **Mechanism**: Use `jq` or simple JSON manipulation to append to `permissions.allow` array
+- **Detection**: Check if permission already exists before adding (idempotent install)
 - **Scope**: Heat wraps, pace transitions, itch additions, scar closures—operations fully within JJ machinery
 - **Safety**: Only applies to JJ-managed files (`.claude/jjm/`); does not grant blanket auto-approval
 - **Benefit**: Faster pace-level workflows; Claude can mark paces complete and move to next without human approval in between
-- **Alternative**: Per-command granularity (e.g., `jj_auto_approve_pace_wrap: true`) for fine-grained control
+- **Uninstall behavior**: Remove the JJ-specific permission during `jjw_uninstall`:
+  ```bash
+  jq '.permissions.allow -= ["Edit(//.claude/jjm/**)"]' .claude/settings.local.json > tmp && mv tmp .claude/settings.local.json
+  ```
+- **Note**: `.claude/settings.local.json` is untracked (personal settings), so install/uninstall only affects local machine
 
 ### Git Commit Agent Configuration
 Specify commit style and context upfront to eliminate style lookups:
