@@ -186,3 +186,24 @@ Before implementation:
 
 - `rbtgo_trigger_build` - triggers the build that creates images
 - `rbtgo_image_delete` - removes images (has implementation in rbf_Foundry.sh)
+
+## rbgm-establish-install-overlap
+Remove step 10 from payor_establish guide - it duplicates payor_install procedure.
+
+### Problem
+
+The `rbgm_payor_establish()` procedure ends with step 10 "Install OAuth Credentials" which overlaps with the separate `rbgp_payor_install` operation. This creates:
+
+1. **Duplication**: Same content in two places to maintain
+2. **Ambiguity**: Uses internal function name `rbgp_payor_install` rather than tabtarget `rbw-PI.PayorInstall.sh`
+3. **Scope creep**: Establishment procedure should end at "download JSON" - installation is a separate operation
+
+### Proposed Fix
+
+1. Remove step 10 from `rbgm_payor_establish()`
+2. End with clear handoff: "Proceed to payor_install operation with downloaded JSON file"
+3. Reference tabtarget name in handoff, not internal function name
+
+### Context
+
+Identified during cloud-first-light heat, 2025-12-28.
