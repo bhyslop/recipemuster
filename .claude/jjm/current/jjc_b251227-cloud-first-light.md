@@ -112,3 +112,29 @@
 **Mode**: manual
 **Outcome**: Created BUG module, fixed token security, updated OAuth flow docs, refactored payor_establish
 ---
+
+---
+### 2025-12-28 09:57 - exercise-depot-create-practice - RUN 1
+**Bug Found**: Mason service account creation failed with HTTP 400: "Unknown name 'displayName'"
+- **Root Cause**: JSON payload had incorrect structure - `displayName` was at top level instead of nested in `serviceAccount` object
+- **Working Pattern**: Governor SA creation (rbgg_Governor.sh) uses correct structure: `{ accountId, serviceAccount: { displayName, description } }`
+- **Broken Pattern**: Mason SA creation (rbgp_Payor.sh:750-756) used flat structure: `{ accountId, displayName }`
+- **Fix Applied**: Wrapped `displayName` in `serviceAccount` object to match IAM API requirements
+- **Code Location**: rbgp_Payor.sh lines 754-757
+
+**Retrying with fix...**
+---
+
+---
+### 2025-12-28 10:00 - exercise-depot-create-practice - RUN 2
+**Bug Found**: Mason service account creation failed with HTTP 403: IAM API not enabled in project
+- **Root Cause**: IAM API was enabled but hadn't propagated to all systems yet. Existing preflight check only validates ArtifactRegistry, not IAM itself. Service account creation proceeded before IAM was ready.
+- **Google Cloud Fact**: IAM policy changes can take 2-7+ minutes to propagate across GCP systems
+- **Fix Applied**: Added IAM-specific preflight check (rbgp_Payor.sh:745-769) that:
+  - Polls `projects.serviceAccounts.list` endpoint (safe, read-only operation)
+  - Uses same eventual consistency pattern as ArtifactRegistry check (3s intervals, 90s timeout)
+  - Waits for HTTP 200 before proceeding to service account creation
+- **Code Location**: rbgp_Payor.sh lines 745-769
+
+**Retrying with both fixes...**
+---

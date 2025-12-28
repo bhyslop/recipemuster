@@ -34,6 +34,7 @@ zrbgp_kindle() {
   zrbgc_sentinel
   zrbgo_sentinel
   zrbgu_sentinel
+  zrbgi_sentinel
 
   ZRBGP_PREFIX="${BUD_TEMP_DIR}/rbgp_"
   ZRBGP_EMPTY_JSON="${ZRBGP_PREFIX}empty.json"
@@ -742,6 +743,32 @@ rbgp_depot_create() {
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
+  buc_step 'Verify IAM API is ready for service account creation'
+  local z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  local z_iam_preflight_start
+  z_iam_preflight_start=$(date +%s)
+  local z_iam_preflight_deadline=$((z_iam_preflight_start + RBGC_MAX_CONSISTENCY_SEC))
+  local z_iam_preflight_ok=0
+
+  while [ "$(date +%s)" -lt "${z_iam_preflight_deadline}" ]; do
+    rbgu_http_json "GET" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight" || true
+    local z_iam_preflight_code
+    z_iam_preflight_code=$(rbgu_http_code_capture "iam_sa_preflight") || z_iam_preflight_code=""
+
+    if [ "${z_iam_preflight_code}" = "200" ]; then
+      z_iam_preflight_ok=1
+      buc_log_args "IAM API ready after $(($(date +%s) - z_iam_preflight_start)) seconds"
+      break
+    fi
+
+    buc_log_args "IAM API not ready (HTTP ${z_iam_preflight_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+  done
+
+  if [ "${z_iam_preflight_ok}" != "1" ]; then
+    buc_die "IAM API propagation timeout after ${RBGC_MAX_CONSISTENCY_SEC} seconds - cannot proceed with service account creation"
+  fi
+
   buc_step 'Create Mason service account'
   local z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
   local z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
@@ -752,7 +779,9 @@ rbgp_depot_create() {
     --arg displayName "${z_mason_display_name}" \
     '{
       accountId: $accountId,
-      displayName: $displayName
+      serviceAccount: {
+        displayName: $displayName
+      }
     }' > "${z_create_sa_body}" || buc_die "Failed to build Mason creation body"
 
   local z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
