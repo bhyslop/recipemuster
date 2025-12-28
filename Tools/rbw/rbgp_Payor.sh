@@ -454,84 +454,76 @@ rbgp_payor_install() {
 
   buc_step 'Check existing credentials'
   local z_rbro_file="${HOME}/.rbw/rbro.env"
-  local z_skip_auth=0
   if test -f "${z_rbro_file}"; then
-    buc_log_args "Found existing RBRO credentials at ${z_rbro_file}"
-    z_skip_auth=1
-  else
-    buc_log_args "No existing RBRO credentials found, authorization flow required"
+    buc_log_args "Existing RBRO credentials will be replaced"
   fi
 
   local z_refresh_token=""
-  if test "${z_skip_auth}" = "0"; then
-    buc_step 'OAuth authorization flow'
-    local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+  buc_step 'OAuth authorization flow'
+  local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
-    echo ""
-    buc_info "Open this URL in your browser:"
-    buc_info "${z_auth_url}"
-    buc_info ""
-    buc_info "You will see three screens:"
-    buc_info "  1. 'Google hasn't verified this app' - Click Continue"
-    buc_info "  2. 'Recipe Bottle Payor wants access' - Review the requested permissions"
-    buc_info "     Check the permission checkboxes to grant access, then click Continue"
-    buc_info "  3. Authorization code will be displayed"
-    buc_info ""
-    printf "Copy the authorization code and paste here: "
-    read -r z_auth_code
-    test -n "${z_auth_code}" || buc_die "Authorization code is required"
-    
-    buc_log_args "Exchanging authorization code for tokens"
-    local z_token_request="${BUD_TEMP_DIR}/rbgp_token_request.json"
-    jq -n \
-      --arg code "${z_auth_code}" \
-      --arg client_id "${z_client_id}" \
-      --arg client_secret "${z_client_secret}" \
-      --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
-      --arg grant_type "authorization_code" \
-      '{
-        code: $code,
-        client_id: $client_id,
-        client_secret: $client_secret,
-        redirect_uri: $redirect_uri,
-        grant_type: $grant_type
-      }' > "${z_token_request}" || buc_die "Failed to create token request"
-    
-    local z_token_response="${BUD_TEMP_DIR}/rbgp_token_response.json"
-    local z_token_code="${BUD_TEMP_DIR}/rbgp_token_code.txt"
-    
-    curl -s -X POST \
-      -H "Content-Type: application/json" \
-      -d @"${z_token_request}" \
-      -w "%{http_code}" \
-      -o "${z_token_response}" \
-      "https://oauth2.googleapis.com/token" > "${z_token_code}" || buc_die "Failed to execute token exchange request"
-    
-    local z_code
-    z_code=$(<"${z_token_code}") || buc_die "Failed to read HTTP response code"
-    
-    if test "${z_code}" != "200"; then
-      local z_error_desc
-      z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' "${z_token_response}" 2>/dev/null || echo "HTTP ${z_code}")
-      buc_die "OAuth token exchange failed: ${z_error_desc}"
-    fi
-    
-    z_refresh_token=$(jq -r '.refresh_token // empty' "${z_token_response}" 2>/dev/null) || buc_die "Failed to extract refresh token from response"
-    test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
+  echo ""
+  buc_info "Open this URL in your browser:"
+  buc_info "${z_auth_url}"
+  buc_info ""
+  buc_info "You will see three screens:"
+  buc_info "  1. 'Google hasn't verified this app' - Click Continue"
+  buc_info "  2. 'Recipe Bottle Payor wants access' - Review the requested permissions"
+  buc_info "     Check the permission checkboxes to grant access, then click Continue"
+  buc_info "  3. Authorization code will be displayed"
+  buc_info ""
+  printf "Copy the authorization code and paste here: "
+  read -r z_auth_code
+  test -n "${z_auth_code}" || buc_die "Authorization code is required"
+
+  buc_log_args "Exchanging authorization code for tokens"
+  local z_token_request="${BUD_TEMP_DIR}/rbgp_token_request.json"
+  jq -n \
+    --arg code "${z_auth_code}" \
+    --arg client_id "${z_client_id}" \
+    --arg client_secret "${z_client_secret}" \
+    --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
+    --arg grant_type "authorization_code" \
+    '{
+      code: $code,
+      client_id: $client_id,
+      client_secret: $client_secret,
+      redirect_uri: $redirect_uri,
+      grant_type: $grant_type
+    }' > "${z_token_request}" || buc_die "Failed to create token request"
+
+  local z_token_response="${BUD_TEMP_DIR}/rbgp_token_response.json"
+  local z_token_code="${BUD_TEMP_DIR}/rbgp_token_code.txt"
+
+  curl -s -X POST \
+    -H "Content-Type: application/json" \
+    -d @"${z_token_request}" \
+    -w "%{http_code}" \
+    -o "${z_token_response}" \
+    "https://oauth2.googleapis.com/token" > "${z_token_code}" || buc_die "Failed to execute token exchange request"
+
+  local z_code
+  z_code=$(<"${z_token_code}") || buc_die "Failed to read HTTP response code"
+
+  if test "${z_code}" != "200"; then
+    local z_error_desc
+    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' "${z_token_response}" 2>/dev/null || echo "HTTP ${z_code}")
+    buc_die "OAuth token exchange failed: ${z_error_desc}"
   fi
 
-  if test "${z_skip_auth}" = "0"; then
-    buc_step 'Create local credentials directory'
-    mkdir -p "${HOME}/.rbw" || buc_die "Failed to create ~/.rbw directory"
-    chmod 700 "${HOME}/.rbw" || buc_die "Failed to set ~/.rbw directory permissions"
-    
-    buc_step 'Store OAuth credentials'
-    cat > "${z_rbro_file}" <<-EOF || buc_die "Failed to write RBRO credentials file"
+  z_refresh_token=$(jq -r '.refresh_token // empty' "${z_token_response}" 2>/dev/null) || buc_die "Failed to extract refresh token from response"
+  test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
+
+  buc_step 'Create local credentials directory'
+  mkdir -p "${HOME}/.rbw" || buc_die "Failed to create ~/.rbw directory"
+  chmod 700 "${HOME}/.rbw" || buc_die "Failed to set ~/.rbw directory permissions"
+
+  buc_step 'Store OAuth credentials'
+  cat > "${z_rbro_file}" <<-EOF || buc_die "Failed to write RBRO credentials file"
 RBRO_CLIENT_SECRET=${z_client_secret}
 RBRO_REFRESH_TOKEN=${z_refresh_token}
 EOF
-    chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
-  fi
+  chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
   
   buc_step 'Validate public configuration'
   buc_log_args "Validating RBRP_OAUTH_CLIENT_ID matches OAuth JSON"
