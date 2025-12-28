@@ -24,20 +24,15 @@ cd "${z_project_root_dir}" || exit 1
 # Load BURC configuration
 export BUD_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
 source "${BUD_REGIME_FILE}" || exit 1
+source "${BURC_TOOLS_DIR}/buk/buc_command.sh"
+source "${BURC_TOOLS_DIR}/buk/burc_regime.sh"
+zburc_kindle
 
-# Validate config regimes (fail early if misconfigured)
-"${BURC_TOOLS_DIR}/buk/burc_regime.sh" validate "${z_project_root_dir}/.buk/burc.env" || {
-  echo "ERROR: BURC validation failed" >&2
-  "${BURC_TOOLS_DIR}/buk/burc_regime.sh" info
-  exit 1
-}
-
+# Load BURS configuration
 z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
-"${BURC_TOOLS_DIR}/buk/burs_regime.sh" validate "${z_station_file}" || {
-  echo "ERROR: BURS validation failed: ${z_station_file}" >&2
-  "${BURC_TOOLS_DIR}/buk/burs_regime.sh" info
-  exit 1
-}
+source "${z_station_file}" || exit 1
+source "${BURC_TOOLS_DIR}/buk/burs_regime.sh"
+zburs_kindle
 
 # Set coordinator and delegate to BDU
 export BUD_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/jjk/jjw_workbench.sh"
