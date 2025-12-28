@@ -54,3 +54,32 @@
 
 **Spec fix needed**: Update RBAGS RBSDC operation to reference Cloud Billing API (deferred per heat guidelines - apply before pace complete)
 ---
+
+---
+### 2025-12-27 14:30 - add-iam-preflight-verification - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Add IAM pre-flight verification step after API enablement in `rbgp_depot_create`
+- Poll `artifactregistry.repositories.list` endpoint until HTTP 200 or timeout
+- Use existing `RBGC_EVENTUAL_CONSISTENCY_SEC` and `RBGC_MAX_CONSISTENCY_SEC` constants for timing
+- After code fix, update RBSDC spec with: (1) IAM pre-flight step, (2) billing API correction, (3) CRM v3 project number extraction, (4) GCS constant reference
+
+### 2025-12-27 15:25 - add-iam-preflight-verification - COMPLETE
+**Code changes**:
+- Added IAM pre-flight polling to `rbgp_Payor.sh` lines 697-721
+- Polls `artifactregistry.repositories.list` after API enablement
+- Uses `RBGC_EVENTUAL_CONSISTENCY_SEC` (3s) and `RBGC_MAX_CONSISTENCY_SEC` (90s)
+
+**Spec changes** (`lenses/rbw-RBSDC-depot_create.adoc`):
+- Fixed project number extraction for CRM v3 (`.name` field)
+- Replaced obsolete "Grant Payor Permissions" step with "Verify IAM Propagation" step
+
+**Testing notes**:
+- First test run: IAM pre-flight passed, failed at bucket creation (bucket existed from prior run)
+- Second test run (test2): Hit billing quota limit (external account issue)
+- Third test run: 403 on payor project - user accidentally deleted `rbrp-payor-proto-3` during cleanup
+
+**Result**: Code fix verified working (IAM step passed in first test). Payor project must be re-established before further testing.
+
+**Heat restructured**: Removed prior "Exercise payor_install" from Done (invalidated by payor deletion). Heat now restarts cloud exercise from payor_establish. Code/spec work preserved in Done.
+---

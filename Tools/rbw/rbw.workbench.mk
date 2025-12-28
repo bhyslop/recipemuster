@@ -240,15 +240,6 @@ lmci-s.%:
 	$(MBC_PASS) "No errors."
 
 
-#######################################
-#  Visual SlickEdit TabTargets
-#
-
-vsp-g.%:
-	$(MBC_START) "Regenerating slickedit project..."
-	$(MBV_TOOLS_DIR)/yeti-generate-rbm.sh
-	$(MBC_PASS) "No errors."
-
 
 #########################################
 #  Legacy helpers

@@ -693,7 +693,32 @@ rbgp_depot_create() {
 
   # Note: OAuth Payor doesn't need explicit permissions on depot since it uses user identity
   # Skip Payor permission grants - OAuth user context provides necessary access
-  # TODO: Add pre-flight IAM verification before resource creation (see heat cloud-first-light)
+
+  buc_step 'Verify IAM propagation before resource creation'
+  local z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
+  local z_preflight_start
+  z_preflight_start=$(date +%s)
+  local z_preflight_deadline=$((z_preflight_start + RBGC_MAX_CONSISTENCY_SEC))
+  local z_preflight_ok=0
+
+  while [ "$(date +%s)" -lt "${z_preflight_deadline}" ]; do
+    rbgu_http_json "GET" "${z_preflight_url}" "${z_token}" "iam_preflight" || true
+    local z_preflight_code
+    z_preflight_code=$(rbgu_http_code_capture "iam_preflight") || z_preflight_code=""
+
+    if [ "${z_preflight_code}" = "200" ]; then
+      z_preflight_ok=1
+      buc_log_args "IAM propagation verified after $(($(date +%s) - z_preflight_start)) seconds"
+      break
+    fi
+
+    buc_log_args "IAM not ready (HTTP ${z_preflight_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+  done
+
+  if [ "${z_preflight_ok}" != "1" ]; then
+    buc_die "IAM propagation timeout after ${RBGC_MAX_CONSISTENCY_SEC} seconds - artifactregistry API not accessible"
+  fi
 
   buc_step 'Create build bucket'
   local z_build_bucket="rbw-${z_depot_name}-bucket"

@@ -56,9 +56,9 @@ HTTP 200 response confirming billing linkage
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}
-`«PROJECT_NUMBER»` from `.projectNumber` field
+`«PROJECT_NUMBER»` from `.name` field (CRM v3 returns `projects/{number}`)
 .. {rbbc_require}
-valid numeric project number
+valid numeric project number after extracting from name
 
 . *Enable Depot Project APIs*:
 .. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `storage`, `iam`, `serviceusage`]:
@@ -68,18 +68,15 @@ with service name and `«DEPOT_PROJECT_ID»`
 .. {rbbc_require}
 all APIs enabled successfully
 
-. *Grant
-{rbtr_payor}
-Permissions on Depot*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
-.. Add
-{rbtr_payor}
-service account with roles:
-... `roles/viewer`
-... `roles/cloudbuild.builds.editor`
-... `roles/serviceusage.serviceUsageConsumer`
-.. Policy version: 3
+. *Verify IAM Propagation*:
+.. NOTE: After API enablement, IAM permissions may not be immediately available due to eventual consistency.
+.. {rbbc_poll}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/list[artifactregistry.repositories.list] for `«DEPOT_PROJECT_ID»` in `«INPUT_REGION»`
+.. Poll at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals until HTTP 200 or `RBGC_MAX_CONSISTENCY_SEC` timeout
+.. {rbbc_require}
+HTTP 200 response confirming IAM propagation complete
+.. {rbbc_fatal}
+if timeout: "IAM propagation timeout - artifactregistry API not accessible"
 
 . *Create Build Bucket*:
 .. Construct bucket name: `rbw-«INPUT_DEPOT_NAME»-bucket`

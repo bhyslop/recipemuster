@@ -53,14 +53,17 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 - **Validate tabtarget-to-RBAGS mapping** — Verified 14 operations. Found 11 OK, 1 missing (governor_reset), 1 unimplemented (image_list), 1 needs modernization (image_retrieve).
 
-- **Exercise payor_install** — Existing credentials detected, OAuth test passed, payor project access verified.
+- **Add IAM pre-flight verification to depot_create** — Code added to `rbgp_Payor.sh` (lines 697-721), spec updated in `rbw-RBSDC-depot_create.adoc`. Fix verified working in test run (passed IAM step before unrelated failure).
 
 ## Current
 
-- **Add IAM pre-flight verification to depot_create** — After API enablement, poll `artifactregistry.repositories.list` until 200 or timeout. Uses existing RBGC consistency constants. Fixes 403 on repo create due to IAM propagation delay. Update RBSDC spec with this step and prior bug fixes (billing API, CRM v3 project number, GCS constant).
+- **Exercise payor_establish** — Follow RBSPE manual procedure to create payor project in GCP Console, configure OAuth consent screen, create OAuth client, download OAuth JSON file.
   mode: manual
 
 ## Remaining
+
+- **Exercise payor_install** — Run `tt/rbw-PI.PayorInstall.sh <oauth-json-file>` to complete OAuth authorization flow and store credentials.
+  mode: manual
 
 - **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
   mode: manual
