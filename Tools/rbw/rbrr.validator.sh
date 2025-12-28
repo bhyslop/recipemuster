@@ -16,70 +16,90 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
+# Recipe Bottle Regime Repo - Validator Module
 
 set -euo pipefail
 
-ZRBRR_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZRBRR_SCRIPT_DIR}/buv_validation.sh"
+# Multiple inclusion detection
+test -z "${ZRBRR_SOURCED:-}" || buc_die "Module rbrr multiply sourced - check sourcing hierarchy"
+ZRBRR_SOURCED=1
 
-# Container Registry Configuration
-buv_env_xname       RBRR_REGISTRY_OWNER          2     64
-buv_env_xname       RBRR_REGISTRY_NAME           2     64
-buv_env_string      RBRR_HISTORY_DIR             1    255
-buv_env_string      RBRR_NAMEPLATE_PATH          1    255
-buv_env_string      RBRR_VESSEL_DIR              1    255
-buv_env_ipv4        RBRR_DNS_SERVER
+######################################################################
+# Internal Functions (zrbrr_*)
 
-# Machine Configuration
-buv_env_xname       RBRR_IGNITE_MACHINE_NAME     1     64
-buv_env_xname       RBRR_DEPLOY_MACHINE_NAME     1     64
-buv_env_string      RBRR_CRANE_TAR_GZ            1    512
-buv_env_string      RBRR_MANIFEST_PLATFORMS      1    512
-buv_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
-buv_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
-buv_env_string      RBRR_CHOSEN_IDENTITY         1    128
-buv_env_gname       RBRR_GCP_PROJECT_ID          6     63  # Base GCP project ID
-buv_env_gname       RBRR_GCP_REGION              1     32  # Base GCP region
+zrbrr_kindle() {
+  test -z "${ZRBRR_KINDLED:-}" || buc_die "Module rbrr already kindled"
 
-# Google Artifact Registry Configuration
-buv_env_gname       RBRR_GAR_REPOSITORY          1     63  # GAR repo id (loose gname check; API enforces real rules)
+  # Container Registry Configuration
+  buv_env_xname       RBRR_REGISTRY_OWNER          2     64
+  buv_env_xname       RBRR_REGISTRY_NAME           2     64
+  buv_env_string      RBRR_HISTORY_DIR             1    255
+  buv_env_string      RBRR_NAMEPLATE_PATH          1    255
+  buv_env_string      RBRR_VESSEL_DIR              1    255
+  buv_env_ipv4        RBRR_DNS_SERVER
 
-# Google Cloud Build Configuration
-buv_env_string      RBRR_GCB_MACHINE_TYPE        3     64  # Cloud Build machine type (API-native form, e.g., E2_HIGHCPU_8)
-buv_env_string      RBRR_GCB_TIMEOUT             2     10  # Cloud Build timeout (seconds form, e.g., 600s, 1200s)
+  # Machine Configuration
+  buv_env_xname       RBRR_IGNITE_MACHINE_NAME     1     64
+  buv_env_xname       RBRR_DEPLOY_MACHINE_NAME     1     64
+  buv_env_string      RBRR_CRANE_TAR_GZ            1    512
+  buv_env_string      RBRR_MANIFEST_PLATFORMS      1    512
+  buv_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
+  buv_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
+  buv_env_string      RBRR_CHOSEN_IDENTITY         1    128
+  buv_env_gname       RBRR_GCP_PROJECT_ID          6     63
+  buv_env_gname       RBRR_GCP_REGION              1     32
 
-# Service Account Configuration Files
-buv_env_string      RBRR_ADMIN_RBRA_FILE         1    512  # Path to administrative service account env
-buv_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512  # Path to GAR service account env
-buv_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512  # Path to GCB service account env
+  # Google Artifact Registry Configuration
+  buv_env_gname       RBRR_GAR_REPOSITORY          1     63
 
-# Validating GCB image pins (digest-pinned)
-buv_env_odref       RBRR_GCB_JQ_IMAGE_REF
-buv_env_odref       RBRR_GCB_SYFT_IMAGE_REF
-buv_env_odref       RBRR_GCB_GCRANE_IMAGE_REF
-buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
+  # Google Cloud Build Configuration
+  buv_env_string      RBRR_GCB_MACHINE_TYPE        3     64
+  buv_env_string      RBRR_GCB_TIMEOUT             2     10
 
-# Validate directories exist
-buv_dir_exists "${RBRR_HISTORY_DIR}"
-buv_dir_exists "${RBRR_NAMEPLATE_PATH}"
+  # Service Account Configuration Files
+  buv_env_string      RBRR_ADMIN_RBRA_FILE         1    512
+  buv_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512
+  buv_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512
 
-# Validate manifest platforms format (space-separated identifiers)
-for zrbrr_platform in ${RBRR_MANIFEST_PLATFORMS}; do
-    if ! echo "${zrbrr_platform}" | grep -q '^[a-z0-9_]\+$'; then
-        buc_die "Invalid platform format in RBRR_MANIFEST_PLATFORMS: ${zrbrr_platform}. Expected format: lowercase alphanumeric with underscores"
+  # GCB image pins (digest-pinned)
+  buv_env_odref       RBRR_GCB_JQ_IMAGE_REF
+  buv_env_odref       RBRR_GCB_SYFT_IMAGE_REF
+  buv_env_odref       RBRR_GCB_GCRANE_IMAGE_REF
+  buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
+
+  # Validate directories exist
+  buv_dir_exists "${RBRR_HISTORY_DIR}"
+  buv_dir_exists "${RBRR_NAMEPLATE_PATH}"
+
+  # Validate manifest platforms format (space-separated identifiers)
+  local z_platform=""
+  for z_platform in ${RBRR_MANIFEST_PLATFORMS}; do
+    if ! printf '%s' "${z_platform}" | grep -q '^[a-z0-9_]\+$'; then
+      buc_warn "Invalid platform format in RBRR_MANIFEST_PLATFORMS: ${z_platform}"
+      buc_step "Expected format: lowercase alphanumeric with underscores"
+      buc_die "Invalid RBRR_MANIFEST_PLATFORMS"
     fi
-done
+  done
 
-# Validate timeout format (number followed by 's' for seconds)
-if ! echo "${RBRR_GCB_TIMEOUT}" | grep -q '^[0-9]\+s$'; then
-    buc_die "Invalid RBRR_GCB_TIMEOUT format. Must be a number followed by 's' (e.g., 1200s)"
-fi
+  # Validate timeout format (number followed by 's' for seconds)
+  if ! printf '%s' "${RBRR_GCB_TIMEOUT}" | grep -q '^[0-9]\+s$'; then
+    buc_warn "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT}"
+    buc_step "Expected format: number followed by 's' (e.g., 1200s)"
+    buc_die "Invalid RBRR_GCB_TIMEOUT"
+  fi
 
-# Validate Podman version format (e.g., 5.5 or 5.5.1)
-if ! echo "${RBRR_CHOSEN_PODMAN_VERSION}" | grep -q '^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$'; then
-    buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION format. Expected semantic version like 5.5 or 5.5.1"
-fi
+  # Validate Podman version format (e.g., 5.5 or 5.5.1)
+  if ! printf '%s' "${RBRR_CHOSEN_PODMAN_VERSION}" | grep -q '^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$'; then
+    buc_warn "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION}"
+    buc_step "Expected format: semantic version like 5.5 or 5.5.1"
+    buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION"
+  fi
 
+  ZRBRR_KINDLED=1
+}
+
+zrbrr_sentinel() {
+  test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_kindle first"
+}
 
 # eof
-
