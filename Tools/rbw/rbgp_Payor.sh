@@ -191,8 +191,8 @@ zrbgp_depot_list_update() {
       local z_project_id
       z_project_id=$(rbgu_json_field_capture "depot_list_tracking" ".projects[${z_index}].projectId") || continue
       
-      # Validate depot project ID pattern
-      if printf '%s' "${z_project_id}" | grep -qE '^rbw-[a-z0-9-]+-[0-9]{12}$'; then
+      # Validate depot project ID pattern (global namespace)
+      if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
         z_depot_ids="${z_depot_ids} ${z_project_id}"
       else
         buc_log_args "Warning: Skipping project with invalid depot pattern: ${z_project_id}"
@@ -587,7 +587,7 @@ rbgp_depot_create() {
   local z_region="${2:-}"
 
   buc_doc_brief "Create new depot infrastructure following RBAGS specification"
-  buc_doc_param "depot_name" "Depot name (lowercase/numbers/hyphens, max 20 chars)"
+  buc_doc_param "depot_name" "Depot name (lowercase/numbers/hyphens, max ${RBGC_GLOBAL_DEPOT_NAME_MAX} chars)"
   buc_doc_param "region" "GCP region for depot resources"
   buc_doc_shown || return 0
 
@@ -599,8 +599,8 @@ rbgp_depot_create() {
     buc_die "Depot name must contain only lowercase letters, numbers, and hyphens"
   fi
   
-  if [ "${#z_depot_name}" -gt 20 ]; then
-    buc_die "Depot name must be 20 characters or less"
+  if [ "${#z_depot_name}" -gt "${RBGC_GLOBAL_DEPOT_NAME_MAX}" ]; then
+    buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
   fi
 
   # Validate region exists in Artifact Registry locations
@@ -629,8 +629,8 @@ rbgp_depot_create() {
 
   buc_step 'Generate depot project ID'
   local z_timestamp
-  z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
-  local z_depot_project_id="rbw-${z_depot_name}-${z_timestamp}"
+  z_timestamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die "Failed to generate timestamp"
+  local z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
   
   if [ "${#z_depot_project_id}" -gt 30 ]; then
     buc_die "Generated project ID too long (${#z_depot_project_id} > 30): ${z_depot_project_id}"
@@ -721,7 +721,7 @@ rbgp_depot_create() {
   fi
 
   buc_step 'Create build bucket'
-  local z_build_bucket="rbw-${z_depot_name}-bucket"
+  local z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
   local z_bucket_req="${BUD_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n \
     --arg name "${z_build_bucket}" \
@@ -991,7 +991,7 @@ rbgp_depot_list() {
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Query depot projects'
-  local z_filter="projectId:rbw-* AND lifecycleState:ACTIVE"
+  local z_filter="projectId:${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-* AND lifecycleState:ACTIVE"
   local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects?filter=${z_filter// /%20}"
   rbgu_http_json "GET" "${z_list_url}" "${z_token}" "depot_list_projects"
   rbgu_http_require_ok "List depot projects" "depot_list_projects"
@@ -1020,10 +1020,16 @@ rbgp_depot_list() {
     local z_display_name  
     z_display_name=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].displayName") || z_display_name="N/A"
     
-    # Extract depot name from project ID pattern rbw-NAME-TIMESTAMP
+    # Extract depot name and timestamp from project ID pattern rbwg-d-NAME-TIMESTAMP
+    # Using bash builtins per BCG
     local z_depot_name=""
-    if printf '%s' "${z_project_id}" | grep -qE '^rbw-[a-z0-9-]+-[0-9]{12}$'; then
-      z_depot_name=$(printf '%s' "${z_project_id}" | sed 's/^rbw-\(.*\)-[0-9]\{12\}$/\1/')
+    local z_depot_timestamp=""
+    if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
+      local z_without_prefix="${z_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+      local z_len=${#z_without_prefix}
+      local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
+      z_depot_name="${z_without_prefix:0:$((z_len - z_suffix_len))}"
+      z_depot_timestamp="${z_project_id:$((${#z_project_id} - RBGC_GLOBAL_TIMESTAMP_LEN))}"
     fi
     
     # Check depot components
@@ -1033,7 +1039,7 @@ rbgp_depot_list() {
     # Try to detect region and validate components
     local z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
     local z_repo_expected="rbw-${z_depot_name}-repository"
-    local z_bucket_expected="rbw-${z_depot_name}-bucket"
+    local z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
     
     # Quick validation - check if Mason service account exists
     local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
@@ -1081,7 +1087,7 @@ rbgp_payor_oauth_refresh() {
   buc_info "OAuth credentials need to be refreshed. Follow these steps:"
   buc_info ""
   buc_info "1. Navigate to APIs & Services > Credentials in Payor Project"
-  buc_info "   Console URL: https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  buc_info "   Console URL: https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
   buc_info ""
   buc_info "2. Find existing 'Recipe Bottle Payor' OAuth client"
   buc_info ""  
@@ -1116,8 +1122,8 @@ rbgp_governor_reset() {
   buc_step 'Validate input parameters'
   test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument"
 
-  if ! printf '%s' "${z_depot_project_id}" | grep -qE '^rbw-[a-z0-9-]+-[0-9]{12}$'; then
-    buc_die "Depot project ID must match pattern rbw-{name}-{timestamp}"
+  if ! printf '%s' "${z_depot_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
+    buc_die "Depot project ID must match pattern ${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-{name}-{timestamp}"
   fi
 
   buc_step 'Authenticate as Payor'

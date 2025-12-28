@@ -61,8 +61,12 @@ zrbgd_kindle() {
   RBGD_API_SERVICE_ACCOUNTS="${RBGD_API_BASE_IAM_PROJECT}${RBGC_PATH_SERVICE_ACCOUNTS}"
   RBGD_SA_EMAIL_FULL="${RBRR_GCP_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
-  # Extract depot name from project ID pattern rbw-{depot_name}-{timestamp}
-  RBGD_DEPOT_NAME=$(printf '%s' "${RBRR_GCP_PROJECT_ID}" | sed 's/^rbw-\(.*\)-[0-9]\{12\}$/\1/')
+  # Extract depot name from project ID pattern rbwg-d-{depot_name}-{timestamp}
+  # Using bash builtins per BCG: remove prefix, then remove suffix (hyphen + timestamp)
+  local z_without_prefix="${RBRR_GCP_PROJECT_ID#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+  local z_len=${#z_without_prefix}
+  local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
+  RBGD_DEPOT_NAME="${z_without_prefix:0:$((z_len - z_suffix_len))}"
   RBGD_MASON_EMAIL="${RBGC_MASON_PREFIX}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs

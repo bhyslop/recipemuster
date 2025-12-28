@@ -143,12 +143,10 @@ rbgm_payor_establish() {
   zrbgm_d      "   Default text is this color."
   zrbgm_dld    "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, Ctrl + mouse click)"
   zrbgm_e
-  zrbgm_s2     "1. Confirm Initial Payor Regime:"
-  zrbgm_d      "   Verify this value is set in your Payor Regime:"
+  zrbgm_s2     "1. Confirm Payor Regime:"
   zrbgm_dc     "   File: " "${ZRBGM_RBRP_FILE}"
-  zrbgm_dcd    "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}" ""
+  zrbgm_dc     "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_d      "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
-  zrbgm_dm     "   If you need to change the project ID, edit the file and re-run this procedure. File: " "${ZRBGM_RBRP_FILE_BASENAME}"
   zrbgm_e
   zrbgm_s2     "2. Check if Project Already Exists:"
   zrbgm_d      "   Before creating a new project, verify the configured ID is not already in use:"
@@ -212,7 +210,7 @@ rbgm_payor_establish() {
   zrbgm_d      "      - Select your billing account and confirm"
   zrbgm_e
   zrbgm_s2     "7. Enable Required APIs:"
-  zrbgm_dld    "   Go to: " "APIs & Services for your payor project" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  zrbgm_dld    "   Go to: " "APIs & Services for your payor project" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_dm     "   1. Click " "+ ENABLE APIS AND SERVICES"
   zrbgm_d      "   2. Search for and enable these APIs:"
   zrbgm_dc     "      - " "Cloud Resource Manager API"
@@ -223,7 +221,7 @@ rbgm_payor_establish() {
   zrbgm_d      "   These enable programmatic depot management operations."
   zrbgm_e
   zrbgm_s2     "8. Configure OAuth Consent Screen:"
-  zrbgm_dld    "   Go to: " "OAuth consent screen" "https://console.cloud.google.com/apis/credentials/consent?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  zrbgm_dld    "   Go to: " "OAuth consent screen" "https://console.cloud.google.com/apis/credentials/consent?project=${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_dm     "   1. The console displays " "Google Auth Platform not configured yet"
   zrbgm_dm     "   2. Click " "Get started"
   zrbgm_d      "   3. Complete the Project Configuration wizard:"
@@ -253,7 +251,7 @@ rbgm_payor_establish() {
   zrbgm_dm     "         " "1 user" " appears in OAuth user cap"
   zrbgm_e
   zrbgm_s2     "9. Create OAuth 2.0 Client ID:"
-  zrbgm_dld    "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  zrbgm_dld    "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_dm     "   1. Click " "+ CREATE CREDENTIALS"
   zrbgm_dm     "   2. Select " "OAuth client ID"
   zrbgm_dm     "   3. Application type: " "Desktop app"
@@ -300,7 +298,7 @@ rbgm_payor_refresh() {
   zrbgm_d      "   For initial setup:"
   zrbgm_d      "      - Use JSON file downloaded during rbgm_payor_establish"
   zrbgm_d      "   For refresh/renewal:"
-  zrbgm_dld    "      - Go to: " "Credentials for Payor Project" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID:-rbw-payor}"
+  zrbgm_dld    "      - Go to: " "Credentials for Payor Project" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_dm     "      - Find existing " "Recipe Bottle Payor" " OAuth client"
   zrbgm_d      "      - If client missing: re-run rbgm_payor_establish"
   zrbgm_dm     "      - Click the " "download" " icon next to OAuth client"

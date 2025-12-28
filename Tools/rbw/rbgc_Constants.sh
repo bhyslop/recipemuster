@@ -31,7 +31,27 @@ ZRBGC_SOURCED=1
 zrbgc_kindle() {
   test -z "${ZRBGC_KINDLED:-}" || buc_die "Module rbgc already kindled"
 
-  # Basic Configuration
+  # Global Resource Naming (Google Cloud global namespace)
+  # These resources compete in globally-unique namespaces across all of GCP
+  # Pattern: {prefix}-{type}-{name}-{timestamp} where timestamp is YYMMDDHHMMSS
+  RBGC_GLOBAL_PREFIX="rbwg"
+  RBGC_GLOBAL_TYPE_PAYOR="p"
+  RBGC_GLOBAL_TYPE_DEPOT="d"
+  RBGC_GLOBAL_TYPE_BUCKET="b"
+  RBGC_GLOBAL_TIMESTAMP_FORMAT="+%y%m%d%H%M%S"
+  RBGC_GLOBAL_TIMESTAMP_LEN=12
+  RBGC_GLOBAL_TIMESTAMP_REGEX="[0-9]{${RBGC_GLOBAL_TIMESTAMP_LEN}}"
+  RBGC_GLOBAL_DEPOT_NAME_MAX=10
+
+  # Global resource validation patterns
+  # Payor:  rbwg-p-YYMMDDHHMMSS
+  # Depot:  rbwg-d-[name]-YYMMDDHHMMSS
+  # Bucket: rbwg-b-[name]-YYMMDDHHMMSS
+  RBGC_GLOBAL_PAYOR_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
+  RBGC_GLOBAL_DEPOT_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-[a-z0-9-]+-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
+  RBGC_GLOBAL_BUCKET_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-[a-z0-9-]+-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
+
+  # Basic Configuration (project-scoped, not global)
   RBGC_ADMIN_ROLE="rbw-admin"
   RBGC_PAYOR_ROLE="rbw-payor"
 

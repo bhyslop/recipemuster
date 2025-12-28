@@ -42,7 +42,9 @@ zrbgp_furnish() {
   buv_file_exists "${RBL_RBRP_FILE}"
   source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 
-  zrbgc_kindle
+  source "${ZRBGP_CLI_SCRIPT_DIR}/rbrp.validator.sh" || buc_die "RBRP validation failed"
+
+  # RBGC kindled by validator; kindle remaining modules
   zrbgo_kindle
   zrbgu_kindle
   zrbgp_kindle
