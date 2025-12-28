@@ -466,7 +466,7 @@ rbgp_payor_install() {
   bug_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
   bug_e
   bug_t  "You will see three screens:"
-  bug_tut "  1. " "Google hasn't verified this app" " - Click Continue"
+  bug_tutu "  1. " "Google hasn't verified this app" " - Click " "Continue"
   bug_tut "  2. " "Recipe Bottle Payor wants access" " - Review the requested permissions"
   bug_tu  "     Check the permission checkboxes to grant access, then click " "Continue"
   bug_t   "  3. Authorization code will be displayed"
