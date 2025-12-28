@@ -9,6 +9,23 @@ End-to-end test of remote build with real infrastructure.
 ## rbags-payor-spec-review
 Verify rbtgo_payor_establish/refresh spec matches rbgm_ManualProcedures.sh.
 
+## rbags-payor-guide-links
+Improve link transparency in payor_establish guide: either display full URL under link text or make link text descriptive/project-specific rather than generic. Consider BUC configuration option to control whether links render as clickable or show expanded text.
+
+### Problem
+
+Links in documentation guides (e.g., payor_establish) are often generic and hide the actual URL. This reduces transparency and makes it hard to verify where links point.
+
+### Options
+
+1. **Full URL underneath**: Display as `[link text](full-url-shown-below)` with URL visible below link
+2. **Descriptive text**: Use specific link text like `[GCP IAM Service Account Documentation for payor-project](url)` instead of generic `[documentation](url)`
+3. **Configurable rendering**: Add BUC option to choose between clickable and expanded formats per document
+
+### Context
+
+Identified while reviewing payor_establish guide during RBAGS manual procedure specification work.
+
 ## rbags-api-audit
 Verify remaining RBAGS operations against GCP REST API docs (depot_create, depot_destroy, retriever_create).
 
