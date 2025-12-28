@@ -138,3 +138,56 @@
 
 **Retrying with both fixes...**
 ---
+
+---
+### 2025-12-28 10:26 - exercise-depot-create-practice - SESSION 1 COMPLETE
+**Status**: PAUSED at billing account link error
+
+**All bugs fixed and committed**:
+1. ✓ Mason SA JSON payload (serviceAccount wrapper) - rbgp_Payor.sh:779-784
+2. ✓ IAM API preflight check (quota project propagation) - rbgp_Payor.sh:745-769
+3. ✓ IAM module integration (source + kindle + sentinel) - rbgp_cli.sh, rbgp_Payor.sh
+
+**Last error**: HTTP 400 "Precondition check failed" on billing account link
+- Response: `cloudbilling.googleapis.com/v1/projects/rbwg-d-test-*/billingInfo`
+- Possible causes: quota limits, billing account constraints, concurrent project creation
+
+**Resume Plan**:
+1. Check GCP billing account constraints
+2. Verify no project quota exhaustion
+3. Cleanup any abandoned test projects from earlier runs
+4. Review "Precondition check failed" error details
+5. Resume depot_create exercise with all three bug fixes in place
+
+**Key Context for Next Session**:
+- Payor project: rbwg-p-251228075220
+- IAM API now enabled in payor project (quota project requirement)
+- All Module architecture fixes verified against BCG standards
+- Practice depot name: "test"
+---
+
+---
+### 2025-12-28 10:55 - exercise-depot-create-practice - SESSION 2
+**Status**: PAUSED - billing quota propagation delay
+
+**Root cause identified**: Cloud billing quota exceeded for account 0173BC-6A77FA-3796BC
+- Error buried in API response as `google.rpc.QuotaFailure`
+- Created itch `rbgp-billing-quota-detection` for better error reporting
+
+**Remediation performed**:
+1. Installed gcloud CLI via Homebrew (required python3 symlink fix)
+2. Listed 16 projects in DELETE_REQUESTED state consuming quota
+3. Unlinked all 18 projects from billing account via `gcloud billing projects unlink`
+4. Now only payor project (rbwg-p-251228075220) linked to billing
+
+**Still blocked**: Billing quota changes need propagation time (10-15 minutes per Google docs, up to 36 hours in rare cases)
+
+**Resume Plan**:
+1. Wait for billing quota propagation
+2. Retry `tt/rbw-PC.PayorDepotCreate.sh test us-central1`
+3. If still blocked, may need to request quota increase at: https://support.google.com/code/contact/billing_quota_increase
+
+**Useful commands installed**:
+- `gcloud billing projects list --billing-account=0173BC-6A77FA-3796BC` - check linked projects
+- `gcloud projects list --filter="lifecycleState:DELETE_REQUESTED"` - list pending deletion
+---
