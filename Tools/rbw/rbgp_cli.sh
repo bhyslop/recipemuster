@@ -26,6 +26,7 @@ ZRBGP_BUK_DIR="${ZRBGP_CLI_SCRIPT_DIR}/../buk"
 # Source all dependencies
 source "${ZRBGP_BUK_DIR}/buc_command.sh"
 source "${ZRBGP_BUK_DIR}/buv_validation.sh"
+source "${ZRBGP_BUK_DIR}/bug_guide.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
