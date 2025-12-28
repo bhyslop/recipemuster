@@ -26,6 +26,7 @@ ZRBGM_BUK_DIR="${ZRBGM_SCRIPT_DIR}/../buk"
 # Source all dependencies
 source "${ZRBGM_BUK_DIR}/buc_command.sh"
 source "${ZRBGM_BUK_DIR}/buv_validation.sh"
+source "${ZRBGM_BUK_DIR}/bug_guide.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbrp_regime.sh"

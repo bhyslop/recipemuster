@@ -86,8 +86,8 @@ zbug_show() {
 ######################################################################
 # Public: Section headers
 
-bug_section() { zbug_show "${ZBUG_S}${1}${ZBUG_R}"; }
-bug_e()       { zbug_show ""; }
+bug_section() { zbug_sentinel; echo -e "${ZBUG_S}${1}${ZBUG_R}" >&2; }
+bug_e()       { echo "" >&2; }
 
 ######################################################################
 # Public: Text combinators
@@ -95,37 +95,38 @@ bug_e()       { zbug_show ""; }
 # Naming: sequence of t/c/u/W/E describes positional arg colors
 # Each letter consumes one positional argument
 
-# Single element
-bug_t()       { zbug_show "${1}"; }
+# Single element (sorted)
 bug_c()       { zbug_show "${ZBUG_C}${1}${ZBUG_R}"; }
+bug_E()       { zbug_show "${ZBUG_E}${1}${ZBUG_R}"; }
+bug_t()       { zbug_show "${1}"; }
 bug_u()       { zbug_show "${ZBUG_U}${1}${ZBUG_R}"; }
 bug_W()       { zbug_show "${ZBUG_W}${1}${ZBUG_R}"; }
-bug_E()       { zbug_show "${ZBUG_E}${1}${ZBUG_R}"; }
 
-# Two elements
+# Two elements (sorted)
+bug_ct()      { zbug_show "${ZBUG_C}${1}${ZBUG_R}${2}"; }
 bug_tc()      { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}"; }
+bug_tE()      { zbug_show "${1}${ZBUG_E}${2}${ZBUG_R}"; }
 bug_tu()      { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}"; }
 bug_tW()      { zbug_show "${1}${ZBUG_W}${2}${ZBUG_R}"; }
-bug_tE()      { zbug_show "${1}${ZBUG_E}${2}${ZBUG_R}"; }
-bug_ct()      { zbug_show "${ZBUG_C}${1}${ZBUG_R}${2}"; }
 bug_ut()      { zbug_show "${ZBUG_U}${1}${ZBUG_R}${2}"; }
 
-# Three elements
+# Three elements (sorted)
 bug_tct()     { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${3}"; }
+bug_tcu()     { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${ZBUG_U}${3}${ZBUG_R}"; }
+bug_tEt()     { zbug_show "${1}${ZBUG_E}${2}${ZBUG_R}${3}"; }
+bug_tuc()     { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${ZBUG_C}${3}${ZBUG_R}"; }
 bug_tut()     { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${3}"; }
 bug_tWt()     { zbug_show "${1}${ZBUG_W}${2}${ZBUG_R}${3}"; }
-bug_tEt()     { zbug_show "${1}${ZBUG_E}${2}${ZBUG_R}${3}"; }
-bug_tcu()     { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${ZBUG_U}${3}${ZBUG_R}"; }
-bug_tuc()     { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${ZBUG_C}${3}${ZBUG_R}"; }
 
-# Four elements
-bug_tutu()    { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${3}${ZBUG_U}${4}${ZBUG_R}"; }
+# Four elements (sorted)
 bug_tctc()    { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${3}${ZBUG_C}${4}${ZBUG_R}"; }
+bug_tctu()    { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${3}${ZBUG_U}${4}${ZBUG_R}"; }
+bug_tcut()    { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${ZBUG_U}${3}${ZBUG_R}${4}"; }
 bug_tuct()    { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${ZBUG_C}${3}${ZBUG_R}${4}"; }
-bug_tcut()    { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${3}${ZBUG_U}${4}${ZBUG_R}"; }
 bug_tutE()    { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${3}${ZBUG_E}${4}${ZBUG_R}"; }
+bug_tutu()    { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${3}${ZBUG_U}${4}${ZBUG_R}"; }
 
-# Five elements
+# Five elements (sorted)
 bug_tctct()   { zbug_show "${1}${ZBUG_C}${2}${ZBUG_R}${3}${ZBUG_C}${4}${ZBUG_R}${5}"; }
 bug_tutut()   { zbug_show "${1}${ZBUG_U}${2}${ZBUG_R}${3}${ZBUG_U}${4}${ZBUG_R}${5}"; }
 
