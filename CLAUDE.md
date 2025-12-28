@@ -17,7 +17,7 @@ Which would you like to start with? (Enter acronym)
 ### bcbcg: Bash Coding with BCG
 - Primary file: `../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`
 - Context: Bash scripting and console development
-- Related utilities: BCU, BDU, BTU, BVU in Tools/buk/
+- Related utilities: BUC, BUD, BUT, BUV, BUW in Tools/buk/
 
 ### adocrbags: Requirements writing with RBAGS
 - Primary file: `lenses/rbw-RBAGS-AdminGoogleSpec.adoc`
@@ -63,10 +63,13 @@ Full read and edit access is pre-approved for all files in:
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
 
 #### BUK Subdirectory (`Tools/buk/`)
-- **BCU**  → `buk/bcu_BashCommandUtility.sh`
-- **BDU**  → `buk/bdu_BashDispatchUtility.sh`
-- **BTU**  → `buk/btu_BashTestUtility.sh`
-- **BVU**  → `buk/bvu_BashValidationUtility.sh`
+- **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
+- **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, bud_* functions)
+- **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
+- **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
+- **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
+- **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
+- **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime secrets)
 
 #### CCCK Subdirectory (`Tools/ccck/`)
 - **CCCK** → `ccck/cccw_workbench.sh`
@@ -123,7 +126,7 @@ When working with .adoc files using MCM patterns:
 - Use snake_case for anchors, match attribute to anchor
 
 ## Common Workflows
-1. **Bash Development**: Start with relevant utility (BCU/BDU/BTU/BVU), check dependencies
+1. **Bash Development**: Start with relevant utility (BUC/BUD/BUT/BUV/BUW), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory
 
 ## Concept Model Kit Configuration
