@@ -24,6 +24,7 @@ ZRBV_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 # Source all dependencies (CLI files handle all sourcing)
 source "${ZRBV_CLI_SCRIPT_DIR}/buc_command.sh"
 source "${ZRBV_CLI_SCRIPT_DIR}/buv_validation.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/rbrs.validator.sh"
 source "${ZRBV_CLI_SCRIPT_DIR}/rbv_PodmanVM.sh"
 
 # CLI-specific environment function
@@ -44,7 +45,7 @@ zrbv_furnish() {
   source "${ZRBV_CLI_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to source RBRR validator"
 
   source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
-  source "${ZRBV_CLI_SCRIPT_DIR}/rbrs.validator.sh" || buc_die "Failed to source RBRS validator"
+  zrbrs_kindle
 
   # Start implementation module
   zrbv_kindle

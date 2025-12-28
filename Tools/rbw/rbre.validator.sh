@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Copyright 2025 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +15,33 @@
 # limitations under the License.
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Regime ECR - Validator Module
 
-set -e
+set -euo pipefail
 
-ZRBRE_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRE_SCRIPT_DIR}/buv_validation.sh"
+# Multiple inclusion detection
+test -z "${ZRBRE_SOURCED:-}" || buc_die "Module rbre multiply sourced - check sourcing hierarchy"
+ZRBRE_SOURCED=1
 
-# RBRE-specific environment variables
-buv_env_string      RBRE_AWS_CREDENTIALS_ENV     1    255
-buv_env_string      RBRE_AWS_ACCESS_KEY_ID      20     20
-buv_env_string      RBRE_AWS_SECRET_ACCESS_KEY  40     40
-buv_env_string      RBRE_AWS_ACCOUNT_ID         12     12
-buv_env_string      RBRE_AWS_REGION              1     32
-buv_env_xname       RBRE_REPOSITORY_NAME         2     64
+######################################################################
+# Internal Functions (zrbre_*)
+
+zrbre_kindle() {
+  test -z "${ZRBRE_KINDLED:-}" || buc_die "Module rbre already kindled"
+
+  buv_env_string      RBRE_AWS_CREDENTIALS_ENV     1    255
+  buv_env_string      RBRE_AWS_ACCESS_KEY_ID      20     20
+  buv_env_string      RBRE_AWS_SECRET_ACCESS_KEY  40     40
+  buv_env_string      RBRE_AWS_ACCOUNT_ID         12     12
+  buv_env_string      RBRE_AWS_REGION              1     32
+  buv_env_xname       RBRE_REPOSITORY_NAME         2     64
+
+  ZRBRE_KINDLED=1
+}
+
+zrbre_sentinel() {
+  test "${ZRBRE_KINDLED:-}" = "1" || buc_die "Module rbre not kindled - call zrbre_kindle first"
+}
 
 # eof
-

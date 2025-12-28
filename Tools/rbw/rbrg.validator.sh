@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Copyright 2025 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,16 +15,29 @@
 # limitations under the License.
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Regime GitHub - Validator Module
 
-set -e
+set -euo pipefail
 
-ZRBRG_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRG_SCRIPT_DIR}/buv_validation.sh"
+# Multiple inclusion detection
+test -z "${ZRBRG_SOURCED:-}" || buc_die "Module rbrg multiply sourced - check sourcing hierarchy"
+ZRBRG_SOURCED=1
 
-# RBRG-specific environment variables
-# RBRR_GITHUB_PAT_ENV is validated in rbrr.validator.sh
-buv_env_string      RBRG_PAT                    40    100
-buv_env_xname       RBRG_USERNAME                1     39
+######################################################################
+# Internal Functions (zrbrg_*)
+
+zrbrg_kindle() {
+  test -z "${ZRBRG_KINDLED:-}" || buc_die "Module rbrg already kindled"
+
+  buv_env_string      RBRG_PAT                    40    100
+  buv_env_xname       RBRG_USERNAME                1     39
+
+  ZRBRG_KINDLED=1
+}
+
+zrbrg_sentinel() {
+  test "${ZRBRG_KINDLED:-}" = "1" || buc_die "Module rbrg not kindled - call zrbrg_kindle first"
+}
 
 # eof
-

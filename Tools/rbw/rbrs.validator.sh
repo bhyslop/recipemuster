@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Copyright 2025 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,16 +15,30 @@
 # limitations under the License.
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Regime Station - Validator Module
 
-set -e
+set -euo pipefail
 
-ZRBRS_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRS_SCRIPT_DIR}/buv_validation.sh"
+# Multiple inclusion detection
+test -z "${ZRBRS_SOURCED:-}" || buc_die "Module rbrs multiply sourced - check sourcing hierarchy"
+ZRBRS_SOURCED=1
 
-buv_env_string      RBRS_PODMAN_ROOT_DIR         1     64
-buv_env_string      RBRS_VMIMAGE_CACHE_DIR       1     64
-buv_env_string      RBRS_VM_PLATFORM             1     64
+######################################################################
+# Internal Functions (zrbrs_*)
 
+zrbrs_kindle() {
+  test -z "${ZRBRS_KINDLED:-}" || buc_die "Module rbrs already kindled"
+
+  buv_env_string      RBRS_PODMAN_ROOT_DIR         1     64
+  buv_env_string      RBRS_VMIMAGE_CACHE_DIR       1     64
+  buv_env_string      RBRS_VM_PLATFORM             1     64
+
+  ZRBRS_KINDLED=1
+}
+
+zrbrs_sentinel() {
+  test "${ZRBRS_KINDLED:-}" = "1" || buc_die "Module rbrs not kindled - call zrbrs_kindle first"
+}
 
 # eof
-
