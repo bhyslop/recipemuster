@@ -93,4 +93,18 @@
 - Record the billing account ID (XXXXXX-XXXXXX-XXXXXX format)
 - Download the OAuth client JSON file (critical - secret only visible once)
 - Save JSON file in a known location for subsequent `payor_install` pace
+
+### 2025-12-28 - exercise-payor-establish - WRAP
+**Mode**: manual
+**Outcome**: Fixed guide display bugs, documented IAM delay, added RBGC_PAYOR_APP_NAME constant
+---
+
+---
+### 2025-12-28 - exercise-payor-install - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-PI.PayorInstall.sh <path-to-downloaded-oauth-json>`
+- Complete browser OAuth flow (unverified app warning → permissions → auth code)
+- Paste authorization code when prompted
+- Verify credentials stored in `~/.rbw/rbro.env` and OAuth test succeeds
 ---

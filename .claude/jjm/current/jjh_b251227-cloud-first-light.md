@@ -55,15 +55,14 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 - **Add IAM pre-flight verification to depot_create** — Code added to `rbgp_Payor.sh` (lines 697-721), spec updated in `rbw-RBSDC-depot_create.adoc`. Fix verified working in test run (passed IAM step before unrelated failure).
 
+- **Exercise payor_establish** — Fixed guide display bugs, documented IAM delay, added RBGC_PAYOR_APP_NAME constant.
+
 ## Current
-
-- **Exercise payor_establish** — Follow RBSPE manual procedure to create payor project in GCP Console, configure OAuth consent screen, create OAuth client, download OAuth JSON file.
-  mode: manual
-
-## Remaining
 
 - **Exercise payor_install** — Run `tt/rbw-PI.PayorInstall.sh <oauth-json-file>` to complete OAuth authorization flow and store credentials.
   mode: manual
+
+## Remaining
 
 - **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
   mode: manual
