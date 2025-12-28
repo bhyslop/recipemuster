@@ -207,3 +207,31 @@ The `rbgm_payor_establish()` procedure ends with step 10 "Install OAuth Credenti
 ### Context
 
 Identified during cloud-first-light heat, 2025-12-28.
+
+## rbgp-billing-quota-detection
+Improve detection and reporting of Cloud Billing quota limit errors in depot_create.
+
+### Problem
+
+When a billing account reaches its quota limit on linked projects, the Cloud Billing API returns HTTP 400 `FAILED_PRECONDITION` with error details buried in a `google.rpc.QuotaFailure` structure. Current error reporting only shows the generic "Precondition check failed" message, making it hard to diagnose the actual cause (quota exceeded vs. other precondition failures).
+
+### Expected Scenario
+
+During depot_create debugging sessions where multiple test depots are created without deletion, the billing account quota limit is reached. This is normal and expected in development—we need developers to quickly recognize and understand the cause rather than debugging a vague "precondition failed" error.
+
+### Proposed Solution
+
+1. Parse the Cloud Billing API error response for `QuotaFailure` details
+2. When detected, display a clear diagnostic message: "Cloud billing quota exceeded for account [ACCOUNT_ID]. Clean up unused depot projects or request quota increase."
+3. Include link to GCP quota increase support page
+4. Exit with a specific error code or flag that distinguishes quota errors from other failures
+
+### Implementation Hints
+
+- Check `rbgu_depot_billing_link_u_resp.json` structure: `error.details[0]["@type"]` equals `"type.googleapis.com/google.rpc.QuotaFailure"`
+- Extract account ID from `violations[0].subject` field
+- Current code location: `rbgp_Payor.sh` in the depot_create function
+
+### Context
+
+Identified during cloud-first-light heat debugging, 2025-12-28. Test depot creation repeatedly hits billing quota as expected during iterative debugging—better error reporting will save debugging time.
