@@ -57,15 +57,14 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 - **Exercise payor_establish** — Fixed guide display bugs, documented IAM delay, added RBGC_PAYOR_APP_NAME constant.
 
+- **Exercise payor_install** — Created BUG module, fixed token security, updated OAuth flow docs, refactored payor_establish.
+
 ## Current
-
-- **Exercise payor_install** — Run `tt/rbw-PI.PayorInstall.sh <oauth-json-file>` to complete OAuth authorization flow and store credentials.
-  mode: manual
-
-## Remaining
 
 - **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
   mode: manual
+
+## Remaining
 
 - **Repair: Remove incorrect export RBRP_ directives** — The `zrbgp_depot_list_update()` function will detect the incorrect `export RBRP_DEPOT_PROJECT_IDS` directives, print the exact sed command needed to fix them, and exit with Unix error. Apply the suggested sed command, commit the fix, then re-run depot_create to verify the repair.
   mode: manual

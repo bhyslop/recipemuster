@@ -107,4 +107,8 @@
 - Complete browser OAuth flow (unverified app warning → permissions → auth code)
 - Paste authorization code when prompted
 - Verify credentials stored in `~/.rbw/rbro.env` and OAuth test succeeds
+
+### 2025-12-28 09:55 - exercise-payor-install - WRAP
+**Mode**: manual
+**Outcome**: Created BUG module, fixed token security, updated OAuth flow docs, refactored payor_establish
 ---
