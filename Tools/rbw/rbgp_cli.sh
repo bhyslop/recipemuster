@@ -30,7 +30,7 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbrp.validator.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/rbrp_regime.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 
 zrbgp_furnish() {

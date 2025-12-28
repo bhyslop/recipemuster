@@ -24,8 +24,8 @@ ZRBV_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 # Source all dependencies (CLI files handle all sourcing)
 source "${ZRBV_CLI_SCRIPT_DIR}/buc_command.sh"
 source "${ZRBV_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/rbrr.validator.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/rbrs.validator.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${ZRBV_CLI_SCRIPT_DIR}/rbrs_regime.sh"
 source "${ZRBV_CLI_SCRIPT_DIR}/rbv_PodmanVM.sh"
 
 # CLI-specific environment function

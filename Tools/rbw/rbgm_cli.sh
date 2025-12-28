@@ -28,7 +28,7 @@ source "${ZRBGM_BUK_DIR}/buc_command.sh"
 source "${ZRBGM_BUK_DIR}/buv_validation.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBGM_SCRIPT_DIR}/rbrp.validator.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbrp_regime.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
 
 zrbgm_furnish() {
