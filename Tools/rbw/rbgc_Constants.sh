@@ -51,7 +51,7 @@ zrbgc_kindle() {
   RBGC_GLOBAL_DEPOT_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-[a-z0-9-]+-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
   RBGC_GLOBAL_BUCKET_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-[a-z0-9-]+-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
 
-  # Basic Configuration (project-scoped, not global)
+  # Basic Configuration
   RBGC_ADMIN_ROLE="rbw-admin"
   RBGC_PAYOR_ROLE="rbw-payor"
 

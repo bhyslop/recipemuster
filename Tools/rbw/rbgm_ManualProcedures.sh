@@ -148,6 +148,9 @@ rbgm_payor_establish() {
   zrbgm_dc     "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}"
   zrbgm_d      "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
   zrbgm_e
+  zrbgm_d      "   First time setup? Set a timestamped project ID with:"
+  zrbgm_cmd    "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-$(date ${RBGC_GLOBAL_TIMESTAMP_FORMAT})/' ${ZRBGM_RBRP_FILE}"
+  zrbgm_e
   zrbgm_s2     "2. Check if Project Already Exists:"
   zrbgm_d      "   Before creating a new project, verify the configured ID is not already in use:"
   zrbgm_dld    "   1. Check existing projects: " "Google Cloud Project List" "https://console.cloud.google.com/cloud-resource-manager"

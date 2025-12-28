@@ -28,6 +28,7 @@ source "${ZRBGM_BUK_DIR}/buc_command.sh"
 source "${ZRBGM_BUK_DIR}/buv_validation.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbrp.validator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
 
 zrbgm_furnish() {
@@ -43,9 +44,8 @@ zrbgm_furnish() {
   buv_file_exists "${RBL_RBRP_FILE}"
   source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 
-  source "${ZRBGM_SCRIPT_DIR}/rbrp.validator.sh" || buc_die "RBRP validation failed"
-
-  # RBGC kindled by validator; kindle remaining modules
+  zrbgc_kindle
+  zrbrp_kindle
   zrbgm_kindle
 }
 

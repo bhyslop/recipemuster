@@ -30,6 +30,7 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/rbrp.validator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 
 zrbgp_furnish() {
@@ -42,9 +43,8 @@ zrbgp_furnish() {
   buv_file_exists "${RBL_RBRP_FILE}"
   source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 
-  source "${ZRBGP_CLI_SCRIPT_DIR}/rbrp.validator.sh" || buc_die "RBRP validation failed"
-
-  # RBGC kindled by validator; kindle remaining modules
+  zrbgc_kindle
+  zrbrp_kindle
   zrbgo_kindle
   zrbgu_kindle
   zrbgp_kindle
