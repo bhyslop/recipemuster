@@ -265,16 +265,7 @@ rbgm_payor_establish() {
   bug_section  "10. Install OAuth Credentials:"
   bug_t        "   Run:"
   bug_c        "   rbgp_payor_install ~/Downloads/payor-oauth.json"
-  bug_t        "   The command will:"
-  bug_t        "   - Display the OAuth authorization URL to open in your browser"
-  bug_t        "   - Guide you through four screens:"
-  bug_t        "     1. Choose an account - Select the Google account for this payor"
-  bug_t        "     2. Unverified app warning - Click Continue"
-  bug_t        "     3. Permission request - Check the permission checkboxes, click Continue"
-  bug_t        "     4. Authorization code display - Copy the code"
-  bug_t        "   - Prompt for you to paste the authorization code"
-  bug_t        "   - Store credentials securely in ~/.rbw/rbro.env"
-  bug_t        "   - Test authentication with Google Cloud"
+  bug_t        "   This will guide you through OAuth authorization and complete the setup."
 
   buc_success "OAuth Payor establishment procedure displayed"
 }
