@@ -54,6 +54,7 @@ zrbgc_kindle() {
   # Basic Configuration
   RBGC_ADMIN_ROLE="rbw-admin"
   RBGC_PAYOR_ROLE="rbw-payor"
+  RBGC_PAYOR_APP_NAME="Recipe Bottle Payor"
 
   # Service Account Prefixes
   RBGC_GOVERNOR_PREFIX="governor"

@@ -83,3 +83,14 @@
 
 **Heat restructured**: Removed prior "Exercise payor_install" from Done (invalidated by payor deletion). Heat now restarts cloud exercise from payor_establish. Code/spec work preserved in Done.
 ---
+
+---
+### 2025-12-28 - exercise-payor-establish - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Follow RBSPE procedure: create GCP project, configure billing, enable APIs, setup OAuth consent, create OAuth client
+- Project naming: use `rbw-payor` if available, else `rbw-payor-NNNN` suffix
+- Record the billing account ID (XXXXXX-XXXXXX-XXXXXX format)
+- Download the OAuth client JSON file (critical - secret only visible once)
+- Save JSON file in a known location for subsequent `payor_install` pace
+---

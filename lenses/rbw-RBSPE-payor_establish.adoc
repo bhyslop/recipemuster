@@ -13,6 +13,8 @@ This procedure creates the project and OAuth client but does NOT install credent
 .. If `rbw-payor` already exists, use `rbw-payor-[4-digit-suffix]` (e.g., rbw-payor-2024)
 .. {rbhg_store}
 actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
+.. If Console displays "You need additional access" error after project creation, wait a few minutes and refresh the page.
+GCP IAM changes are https://cloud.google.com/iam/docs/access-change-propagation[eventually consistent] and may take time to propagate.
 
 . *Configure Billing*:
 .. Access billing management in Console
