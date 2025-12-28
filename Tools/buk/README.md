@@ -884,6 +884,39 @@ All BUK utilities follow these enterprise bash patterns:
 
 ---
 
+## Future Directions
+
+BUK's current scope covers portable CLI infrastructure and configuration management. The following directions represent potential extensions that maintain portability while addressing enterprise development patterns and standards enforcement.
+
+### Standards Installation & Awareness
+
+Vision: Inject enterprise bash practices into development workflows from session start, leveraging patterns like BCG as anchor standards. Rather than relying on LLM training defaults, developers work with pre-configured awareness of anti-patterns and best practices. This prevents bad suggestions before they appear.
+
+May eventually involve:
+- Integration with CLAUDE.md to document enterprise bash standards
+- Session initialization that establishes standards context
+- Real-time guidance on pattern compliance
+
+### Hidden Configuration Workbench
+
+Vision: A wholly internal workbench (separate from the portable BUK toolkit) that manages Claude Code-specific configuration and behavior using BUK's tabtarget/dispatch/regime infrastructure internally. Follows the Job Jockey installation model: detect, modify CLAUDE.md, register capabilities.
+
+May eventually involve:
+- Project-specific hooks and configuration management
+- Behavior tuning that adjusts tool proclivities without per-session instruction
+- Hidden config files and internal tools not published with the portable BUK toolkit
+
+### Code Validation Skills
+
+Vision: Skills that validate bash code against enterprise standards in real-time, catching deviations early. Anchored by BCG anti-patterns and best practices.
+
+May eventually involve:
+- Skills like `/validate-bash`, `/check-bcg-compliance`
+- Integration with workbench validation functions
+- Forensic output for code review and standards enforcement
+
+---
+
 ## Contributing
 
 When extending BUK:
