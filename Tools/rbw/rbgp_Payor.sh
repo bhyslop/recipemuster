@@ -91,9 +91,11 @@ zrbgp_refresh_capture() {
   test -n "${RBRO_REFRESH_TOKEN:-}" || buc_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID not set in environment"
 
-  buc_log_args "Constructing OAuth token refresh request"
-  local z_token_request="${BUD_TEMP_DIR}/rbgp_oauth_refresh.json"
-  jq -n \
+  buc_log_args "Exchanging refresh token for access token"
+
+  # Build request and pipe to curl - secrets never touch disk
+  local z_response
+  z_response=$(jq -n \
     --arg refresh_token "${RBRO_REFRESH_TOKEN}" \
     --arg client_id "${RBRP_OAUTH_CLIENT_ID}" \
     --arg client_secret "${RBRO_CLIENT_SECRET}" \
@@ -103,36 +105,24 @@ zrbgp_refresh_capture() {
       client_id: $client_id,
       client_secret: $client_secret,
       grant_type: $grant_type
-    }' > "${z_token_request}" || buc_die "Failed to create OAuth refresh request"
+    }' | curl -s -X POST \
+      -H "Content-Type: application/json" \
+      -d @- \
+      "https://oauth2.googleapis.com/token") || buc_die "Failed to execute OAuth refresh request"
 
-  local z_token_response="${BUD_TEMP_DIR}/rbgp_oauth_refresh_response.json"
-  local z_token_code="${BUD_TEMP_DIR}/rbgp_oauth_refresh_code.txt"
-  
-  buc_log_args "Exchanging refresh token for access token"
-  curl -s -X POST \
-    -H "Content-Type: application/json" \
-    -d @"${z_token_request}" \
-    -w "%{http_code}" \
-    -o "${z_token_response}" \
-    "https://oauth2.googleapis.com/token" > "${z_token_code}" || buc_die "Failed to execute OAuth refresh request"
-  
-  local z_code
-  z_code=$(<"${z_token_code}") || buc_die "Failed to read OAuth response code"
-  
-  if [ "${z_code}" != "200" ]; then
+  # Check for error in response
+  local z_error
+  z_error=$(jq -r '.error // empty' <<<"${z_response}")
+  if test -n "${z_error}"; then
     local z_error_desc
-    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' "${z_token_response}" 2>/dev/null || echo "HTTP ${z_code}")
-    if [ "${z_code}" = "400" ] || [ "${z_code}" = "401" ]; then
-      buc_die "OAuth credentials expired or invalid - run rbgp_payor_oauth_refresh: ${z_error_desc}"
-    else
-      buc_die "OAuth token refresh failed: ${z_error_desc}"
-    fi
+    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
+    buc_die "OAuth credentials expired or invalid - run rbgp_payor_oauth_refresh: ${z_error_desc}"
   fi
-  
+
   local z_access_token
-  z_access_token=$(jq -r '.access_token // empty' "${z_token_response}" 2>/dev/null) || buc_die "Failed to extract access token"
+  z_access_token=$(jq -r '.access_token // empty' <<<"${z_response}")
   test -n "${z_access_token}" || buc_die "OAuth response missing access_token"
-  
+
   echo "${z_access_token}"
 }
 
@@ -476,8 +466,10 @@ rbgp_payor_install() {
   test -n "${z_auth_code}" || buc_die "Authorization code is required"
 
   buc_log_args "Exchanging authorization code for tokens"
-  local z_token_request="${BUD_TEMP_DIR}/rbgp_token_request.json"
-  jq -n \
+
+  # Build request and pipe to curl - secrets never touch disk
+  local z_response
+  z_response=$(jq -n \
     --arg code "${z_auth_code}" \
     --arg client_id "${z_client_id}" \
     --arg client_secret "${z_client_secret}" \
@@ -489,28 +481,21 @@ rbgp_payor_install() {
       client_secret: $client_secret,
       redirect_uri: $redirect_uri,
       grant_type: $grant_type
-    }' > "${z_token_request}" || buc_die "Failed to create token request"
+    }' | curl -s -X POST \
+      -H "Content-Type: application/json" \
+      -d @- \
+      "https://oauth2.googleapis.com/token") || buc_die "Failed to execute token exchange request"
 
-  local z_token_response="${BUD_TEMP_DIR}/rbgp_token_response.json"
-  local z_token_code="${BUD_TEMP_DIR}/rbgp_token_code.txt"
-
-  curl -s -X POST \
-    -H "Content-Type: application/json" \
-    -d @"${z_token_request}" \
-    -w "%{http_code}" \
-    -o "${z_token_response}" \
-    "https://oauth2.googleapis.com/token" > "${z_token_code}" || buc_die "Failed to execute token exchange request"
-
-  local z_code
-  z_code=$(<"${z_token_code}") || buc_die "Failed to read HTTP response code"
-
-  if test "${z_code}" != "200"; then
+  # Check for error in response
+  local z_error
+  z_error=$(jq -r '.error // empty' <<<"${z_response}")
+  if test -n "${z_error}"; then
     local z_error_desc
-    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' "${z_token_response}" 2>/dev/null || echo "HTTP ${z_code}")
+    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
     buc_die "OAuth token exchange failed: ${z_error_desc}"
   fi
 
-  z_refresh_token=$(jq -r '.refresh_token // empty' "${z_token_response}" 2>/dev/null) || buc_die "Failed to extract refresh token from response"
+  z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}")
   test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
 
   buc_step 'Create local credentials directory'
