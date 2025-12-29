@@ -492,6 +492,35 @@ Experiment with moving steeplechase entries from heat files to git commits:
   - Adds "degenerate commits" to repo (worth the tradeoff?)
 - **Experiment**: Try for one heat; evaluate whether git-based steeplechase is more useful than file-based
 
+### Git Control Exfiltration
+Delegate git operations to a dedicated Claude-aware git kit invoked via bash:
+- **Problem**: Git control from Claude Code has been unreliable. The Task tool's subagent dispatch doesn't inherit system context predictably, and LLM interpretation of git operations can be "sloppy" (wrong commit formats, unexpected attribution, etc.).
+- **Solution**: Create a separate open-source git kit (e.g., `cgk` - Claude Git Kit) with:
+  - Workbench that invokes `claude` CLI directly from bash (not via Task tool)
+  - Haiku model for mechanical commit formatting
+  - Claude Code treats it as a background process to monitor
+  - Deterministic prompts baked into bash, not interpreted at runtime
+- **JJ integration**: `/jja-notch` remains the JJ command; it delegates to the git kit via bash:
+  ```bash
+  # notch command tells Claude Code to run:
+  ./Tools/cgk/cgw_workbench.sh cgk-commit --heat "$heat" --pace "$pace" --brand "$brand"
+  ```
+  JJ owns the concept (notch = JJ-aware commit); git kit owns the execution.
+- **Absorbs from other kits**:
+  - CMK's prep-pr command (branch preparation for upstream PRs)
+  - Any other git-centric operations that benefit from controlled LLM formatting
+- **Benefits**:
+  - Bash-level control over exactly what prompt haiku receives
+  - No system prompt inheritance confusion
+  - Claude Code monitors completion without executing git itself
+  - Reusable across projects independent of JJ or CMK
+- **Architecture sketch**:
+  ```bash
+  # cgk_workbench.sh command implementation:
+  claude --model haiku -p "Format commit: $context" | xargs git commit -m
+  ```
+- **Prerequisite**: Validate that `claude` CLI can be invoked from bash with controlled prompts and predictable output parsing
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
