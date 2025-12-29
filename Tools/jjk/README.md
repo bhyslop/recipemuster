@@ -18,16 +18,17 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 
 | Prefix | Category | Purpose |
 |--------|----------|---------|
-| `jjm/` | Memory | State directory (`.claude/jjm/`) |
-| `jjh_` | Heat | Bounded initiative files |
-| `jji_` | Itch | Future work aggregate |
-| `jjs_` | Scar | Closed work aggregate |
-| `jjc_` | Chase | Steeplechase performance logs |
 | `jja_` | Action | Slash commands |
 | `jjb_` | Brand | Current detected version |
-| `jjl_` | Ledger | Version history registry |
-| `jjk_` | sKill | (Future) Skill definitions |
+| `jjc_` | Chase | Steeplechase performance logs |
 | `jjg_` | aGent | (Future) Agent definitions |
+| `jjh_` | Heat | Bounded initiative files |
+| `jji_` | Itch | Future work aggregate |
+| `jjk_` | sKill | (Future) Skill definitions |
+| `jjl_` | Ledger | Version history registry |
+| `jjm/` | Memory | State directory (`.claude/jjm/`) |
+| `jjn_` | Notch | (Future) JJ-aware git commits |
+| `jjs_` | Scar | Closed work aggregate |
 
 ## Core Concepts
 
