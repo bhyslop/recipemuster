@@ -43,11 +43,7 @@ A heat must be timely. If work is well-specified but not timely, it remains an i
 ### Pace
 A discrete action within the current heat. Appears in heat documents as structured sections. Pending paces can have detailed descriptions. Completed paces get condensed to brief summaries to save context.
 
-Each pace has a **mode**:
-- **Manual**: Human drives, model assists. Minimal spec needed.
-- **Delegated**: Model drives from spec, human monitors. Requires clear objective, bounded scope, success criteria, and failure behavior.
-
-Paces default to `manual` when created. Refinement happens naturally in the workflow: when transitioning to a new pace, Claude analyzes it and proposes an approach. For delegation, say "delegate this" and Claude will formalize the spec.
+Paces can be worked on collaboratively (human drives, model assists) or **armed** for autonomous execution. To arm a pace, use `/jja-pace-arm` which validates the spec has clear objective, bounded scope, success criteria, and failure behavior. Armed paces can then be flown with `/jja-pace-fly`.
 
 ### Itch
 A potential future heat or consideration. Can range from a brief spark to a fully-articulated specification. The key attribute is **not now** — regardless of detail level, it's not timely for current work.
@@ -68,7 +64,7 @@ You work on a heat by talking with Claude Code. As you make progress:
 - Work on the pace together
 - Use `/jja-pace-wrap` to mark complete - Claude automatically analyzes next pace and proposes approach
 - Use `/jja-sync` to commit/push - Claude then proposes approach for current pace
-- New paces emerge and get added with `/jja-pace-add`
+- New paces emerge and get added with `/jja-pace-new`
 
 Note: After pace-wrap or sync, you do NOT need heat-saddle - those commands flow directly into the next pace.
 
@@ -130,8 +126,9 @@ my-project/                 # Launch Claude Code here
     commands/
       jja-heat-saddle.md
       jja-heat-retire.md
-      jja-pace-add.md
-      jja-pace-delegate.md
+      jja-pace-new.md
+      jja-pace-arm.md
+      jja-pace-fly.md
       jja-pace-wrap.md
       jja-sync.md
       jja-itch-add.md
@@ -187,7 +184,6 @@ Logged when analyzing a pace and proposing how to approach it:
 ```markdown
 ---
 ### 2025-12-25 14:30 - specify-image-delete - APPROACH
-**Mode**: manual
 **Proposed approach**:
 - Read rbf_delete implementation to extract step sequence
 - Apply completeness criteria from RBAGS pattern
@@ -200,33 +196,19 @@ Logged when marking a pace complete:
 ```markdown
 ---
 ### 2025-12-25 16:45 - specify-image-delete - WRAP
-**Mode**: manual
 **Outcome**: Documented rbtgo_image_delete with 5-step sequence extracted from rbf_delete
 ---
 ```
 
-### DELEGATE Entry
-Logged when executing a delegated pace:
+### FLY Entry
+Logged when executing an armed pace autonomously:
 ```markdown
 ---
-### 2025-12-25 15:00 - update-config-refs - DELEGATE
-**Spec**:
-- Objective: Update all config references from old to new format
-- Scope: src/config/*.ts files only
-- Success: All references updated, tests pass
-- On failure: Report files that couldn't be updated
-
-**Execution trace**:
-- Read 12 config files
-- Modified 8 files with reference updates
-- Ran test suite
-
+### 2025-12-25 15:00 - update-config-refs - FLY
+**Spec**: Update all config references from old to new format
+**Execution trace**: Read 12 config files, modified 8 with reference updates
 **Result**: success
-Updated 23 references across 8 files, tests passing.
-
-**Modified files**:
-- /Users/name/project/src/config/auth.ts
-- /Users/name/project/src/config/api.ts
+**Modified files**: auth.ts, api.ts (8 files total)
 ---
 ```
 
@@ -351,8 +333,9 @@ Configuration is via environment variables:
 
 - `/jja-heat-saddle` - Saddle up on heat at session start, analyze pace, propose approach
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-add` - Add a new pace (defaults to manual)
-- `/jja-pace-delegate` - Execute a delegated pace
+- `/jja-pace-new` - Add a new pace
+- `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
+- `/jja-pace-fly` - Execute an armed pace autonomously
 - `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
 - `/jja-sync` - Commit and push, then analyze current pace, propose approach
 - `/jja-itch-add` - Add a new itch to the backlog
