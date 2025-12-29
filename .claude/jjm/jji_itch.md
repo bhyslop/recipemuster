@@ -248,3 +248,88 @@ Fix these or make volume mounts properly optional in the nameplate validation.
 
 ### Context
 Identified during dockerize-bashize-proto-bottle heat planning, 2025-12-29.
+
+## rbal-central-bottle-allocation
+Centralize port and enclave network allocation across all nameplates to enable concurrent bottle operation.
+
+### Problem
+
+Running multiple bottles simultaneously requires:
+1. **Unique ENTRY_PORT_WORKSTATION** - host port conflicts if two bottles claim same port
+2. **Non-overlapping ENCLAVE_BASE_IP** - internal network conflicts even more serious
+
+Currently each nameplate independently specifies these values. Developer must manually check all existing nameplates when adding a new one, and there's no enforcement mechanism.
+
+### Solution Direction: Dynamic Allocation Regime
+
+Create `rbal.env` - a "dynamic regime" that is:
+- **Managed by tooling** - `rbw-commission`/`rbw-decommission` modify it
+- **Checked into git** - changes visible in PRs, part of repo state
+- **Authoritative at runtime** - bottles look up their assignments here
+
+Format (bash-sourceable .env):
+```bash
+# rbal.env - Dynamic Bottle Allocation Regime
+# Managed by rbw-commission/rbw-decommission - do not edit manually
+
+# nsproto - commissioned 2025-01-15
+RBAL_nsproto_ENTRY_PORT=8001
+RBAL_nsproto_ENCLAVE_SLOT=0
+
+# pluml - commissioned 2025-01-20
+RBAL_pluml_ENTRY_PORT=8002
+RBAL_pluml_ENCLAVE_SLOT=1
+```
+
+Where `ENCLAVE_SLOT` derives actual IPs: `10.242.${SLOT}.0/24`, `10.242.${SLOT}.2` (sentry), `10.242.${SLOT}.3` (bottle).
+
+### Nameplate Changes
+
+Move out of nameplate (derived from allocation):
+- `RBRN_ENTRY_PORT_WORKSTATION`
+- `RBRN_ENCLAVE_BASE_IP`, `RBRN_ENCLAVE_SENTRY_IP`, `RBRN_ENCLAVE_BOTTLE_IP`
+
+Keep in nameplate (policy/intent):
+- `RBRN_ENTRY_PORT_COUNT` (0, 1, or maybe 2) - declares need, not value
+- `RBRN_ENTRY_PORT_ENCLAVE` - internal port the bottle listens on
+- `RBRN_ENCLAVE_NETMASK` - probably always 24, but keep for flexibility
+
+### Commissioning Model
+
+**No separate commission step.** Instead:
+1. Every rbw command checks current nameplate inventory against cached commission state
+2. Cache lives in station filesystem (not repo) - workstation-local state
+3. When mismatch detected (new nameplate, removed nameplate): alarm bells, all commands fail
+4. User must explicitly run reconciliation to embrace new commissioning
+5. Reconciliation updates both `rbal.env` (repo) and station cache
+
+This means adding a nameplate triggers enforcement automatically on next command.
+
+### Running Bottles Concern
+
+If allocation changes while bottles are running, they're using stale port/network bindings. Options:
+- Store allocation hash at bottle start, check on operations
+- Marker file indicating "derived state changed"
+- Simple documentation: "stop all bottles before reconciliation"
+- Reconciliation refuses to proceed if any bottles detected running
+
+Probably start simple (refuse if running) and add sophistication only if needed.
+
+### Decommissioning Question
+
+When a nameplate is removed, what happens to its allocation slot?
+- **Preserve forever**: Slot 3 stays reserved even if that moniker is gone (simple, wastes slots)
+- **Allow reuse**: Next commission gets the freed slot (complex, could cause confusion if old config lingers)
+- **Explicit release**: Decommission marks slot available, but doesn't auto-assign (middle ground)
+
+### Open Questions
+
+1. Exact location of station cache file?
+2. What constitutes "bottles running" - check for containers by moniker pattern?
+3. Should `RBRN_ENTRY_PORT_COUNT=2` be supported, or just 0/1?
+4. Port allocation strategy - sequential from base, or some other scheme?
+5. Integration with existing rbw commands - where does the check hook in?
+
+### Context
+
+Long-percolating idea, refined during itch discussion 2025-12-29. Core insight: enclave network allocation is actually the more serious case than ports.

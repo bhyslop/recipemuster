@@ -46,4 +46,10 @@
 ### 2025-12-29 11:15 - implement-local-recipe-build - WRAP
 **Outcome**: Implemented rbw_cmd_local_build; created test_busybox tabtarget
 ---
+### 2025-12-29 11:18 - validate-docker-with-busybox - APPROACH
+**Proposed approach**:
+- Run tt/rbw-lB.LocalBuild.test_busybox.sh tabtarget
+- Verify build succeeds and image appears in docker images
+- Debug/fix any issues
+---
 (execution log begins here)
