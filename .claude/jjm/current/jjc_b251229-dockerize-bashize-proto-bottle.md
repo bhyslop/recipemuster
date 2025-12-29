@@ -65,4 +65,15 @@
 ### 2025-12-29 11:30 - design-rbrr-env-injection - WRAP
 **Outcome**: Added ZRBRN_DOCKER_ENV (22 vars) and ZRBRR_DOCKER_ENV (1 var) arrays to regime kindle functions
 ---
+### 2025-12-29 11:45 - implement-rbw-start - APPROACH
+**Proposed approach**:
+- Add workbench deps: source rbl_Locator.sh, rbrr_regime.sh; add rbw_load_rbrr() helper
+- Implement container naming from moniker (e.g., ${RBRN_MONIKER}-sentry)
+- Implement cleanup helper rbw_cleanup_containers() for stop/rm
+- Implement network setup: create enclave network with subnet
+- Implement sentry launch with "${ZRBRN_DOCKER_ENV[@]}" "${ZRBRR_DOCKER_ENV[@]}"
+- Implement sentry config: exec rbss.sentry.sh via stdin pipe
+- Implement censer launch and networking config
+- Implement bottle create/start with --net=container:censer
+---
 (execution log begins here)
