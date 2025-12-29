@@ -680,6 +680,22 @@ jjw_install() {
   zjjw_emit_claudemd_section > "${BUD_TEMP_DIR}/jjw_claudemd_section.md"
   zjjw_patch_claudemd
 
+  buc_step "Adding JJM edit permission to settings.local.json"
+  local z_settings_file=".claude/settings.local.json"
+  local z_permission='Edit(//.claude/jjm/**)'
+  local z_temp_file="${BUD_TEMP_DIR}/jjw_settings_temp.json"
+
+  if ! test -f "${z_settings_file}"; then
+    echo '{"permissions":{"allow":["'"${z_permission}"'"]}}' > "${z_settings_file}"
+  else
+    local z_exists
+    z_exists=$(jq --arg p "${z_permission}" '.permissions.allow // [] | index($p)' "${z_settings_file}") || buc_die "Failed to read settings"
+    if test "${z_exists}" = "null"; then
+      jq --arg p "${z_permission}" '.permissions.allow = ((.permissions.allow // []) + [$p])' "${z_settings_file}" > "${z_temp_file}" || buc_die "Failed to add permission"
+      mv "${z_temp_file}" "${z_settings_file}" || buc_die "Failed to update settings file"
+    fi
+  fi
+
   buc_success "Job Jockey installed"
   echo ""
   echo "Restart Claude Code for new commands to become available."
@@ -691,6 +707,16 @@ jjw_uninstall() {
 
   buc_step "Removing CLAUDE.md section"
   zjjw_unpatch_claudemd
+
+  buc_step "Removing JJM edit permission from settings.local.json"
+  local z_settings_file=".claude/settings.local.json"
+  local z_permission='Edit(//.claude/jjm/**)'
+  local z_temp_file="${BUD_TEMP_DIR}/jjw_settings_temp.json"
+
+  if test -f "${z_settings_file}"; then
+    jq --arg p "${z_permission}" '.permissions.allow = ((.permissions.allow // []) | map(select(. != $p)))' "${z_settings_file}" > "${z_temp_file}" || buc_die "Failed to remove permission"
+    mv "${z_temp_file}" "${z_settings_file}" || buc_die "Failed to update settings file"
+  fi
 
   buc_success "Job Jockey uninstalled (state preserved in .claude/jjm/)"
 }

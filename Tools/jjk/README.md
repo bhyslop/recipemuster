@@ -341,6 +341,7 @@ The workbench:
 - Creates `.claude/commands/jja-*.md` command files
 - Creates `.claude/jjm/` directory structure
 - Patches CLAUDE.md with configuration section
+- Adds `Edit(//.claude/jjm/**)` permission to `.claude/settings.local.json` for frictionless JJ state updates
 
 Configuration is via environment variables:
 - `ZJJW_TARGET_DIR` - Target repo directory (default: `.`)
@@ -500,25 +501,6 @@ Evaluate and streamline the JJ command roster:
 - **Approach**: Study actual usage patterns over several heats; identify which commands deliver value vs. which are theoretical
 - **Goal**: Reduce cognitive load by keeping only essential commands; move rarely-used operations to workflow guidance instead
 - **Risk**: Over-consolidation might sacrifice flexibility. Document decision rationale.
-
-### JJ Context Permissions and Auto-Approval
-Reduce permission-asking friction for JJ-initiated context updates:
-- **Problem**: JJ commands that modify heat/itch/scar files currently require approval for each edit, creating friction in workflow
-- **Root cause**: `.claude/settings.local.json` has `Read` permission for project files but no corresponding `Edit` permission for `.claude/jjm/`
-- **Implementation**: During `jjw_install`, programmatically add Edit permission to settings.local.json:
-  ```json
-  "Edit(//.claude/jjm/**)"
-  ```
-- **Mechanism**: Use `jq` or simple JSON manipulation to append to `permissions.allow` array
-- **Detection**: Check if permission already exists before adding (idempotent install)
-- **Scope**: Heat wraps, pace transitions, itch additions, scar closures—operations fully within JJ machinery
-- **Safety**: Only applies to JJ-managed files (`.claude/jjm/`); does not grant blanket auto-approval
-- **Benefit**: Faster pace-level workflows; Claude can mark paces complete and move to next without human approval in between
-- **Uninstall behavior**: Remove the JJ-specific permission during `jjw_uninstall`:
-  ```bash
-  jq '.permissions.allow -= ["Edit(//.claude/jjm/**)"]' .claude/settings.local.json > tmp && mv tmp .claude/settings.local.json
-  ```
-- **Note**: `.claude/settings.local.json` is untracked (personal settings), so install/uninstall only affects local machine
 
 ### Git Commit Agent Configuration
 Specify commit style and context upfront to eliminate style lookups:
