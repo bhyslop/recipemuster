@@ -22,7 +22,7 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 | `jjh_` | Heat | Bounded initiative files |
 | `jji_` | Itch | Future work aggregate |
 | `jjs_` | Scar | Closed work aggregate |
-| `jjc_` | Chase | (Future) Steeplechase performance logs |
+| `jjc_` | Chase | Steeplechase performance logs |
 | `jja_` | Action | Slash commands |
 | `jjb_` | Brand | Current detected version |
 | `jjl_` | Ledger | Version history registry |
@@ -153,7 +153,7 @@ All itches live in `jji_itch.md`. Each itch is a section with a descriptive head
 
 ## governor-implementation
 Create rbgp_create_governor for depot setup flow. Depends on understanding
-the full depot lifecycle. Could be haiku-delegatable once spec is clear.
+the full depot lifecycle. Could be armed for haiku once spec is clear.
 
 ## image-retrieve-design
 Design rbtgo_image_retrieve operation from scratch. No existing implementation
