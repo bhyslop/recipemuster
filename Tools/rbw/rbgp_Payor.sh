@@ -543,7 +543,7 @@ EOF
   rbgu_http_require_ok "Verify payor project" "payor_verify"
   
   local z_project_state
-  z_project_state=$(rbgu_json_field_capture "payor_verify" '.lifecycleState') || buc_die "Failed to get project state"
+  z_project_state=$(rbgu_json_field_capture "payor_verify" '.state') || buc_die "Failed to get project state"
   test "${z_project_state}" = "ACTIVE" || buc_die "Payor project is not ACTIVE (state: ${z_project_state})"
 
   buc_success "Payor OAuth installation completed successfully"
@@ -889,7 +889,7 @@ rbgp_depot_destroy() {
   rbgu_http_require_ok "Validate depot project" "depot_destroy_validate"
   
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "depot_destroy_validate" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project lifecycle state"
+  z_lifecycle_state=$(rbgu_json_field_capture "depot_destroy_validate" '.state // "UNKNOWN"') || buc_die "Failed to parse project state"
   
   if [ "${z_lifecycle_state}" != "ACTIVE" ]; then
     if [ "${z_lifecycle_state}" = "DELETE_REQUESTED" ]; then
@@ -966,7 +966,7 @@ rbgp_depot_destroy() {
     local z_state_check_code
     z_state_check_code=$(rbgu_http_code_capture "depot_destroy_state_check") || z_state_check_code=""
     if [ "${z_state_check_code}" = "200" ]; then
-      z_final_state=$(rbgu_json_field_capture "depot_destroy_state_check" '.lifecycleState // "UNKNOWN"') || z_final_state="UNKNOWN"
+      z_final_state=$(rbgu_json_field_capture "depot_destroy_state_check" '.state // "UNKNOWN"') || z_final_state="UNKNOWN"
 
       if [ "${z_final_state}" = "DELETE_REQUESTED" ]; then
         break
