@@ -66,6 +66,7 @@ rbrn_render() {
   # Core Service Identity
   printf "%-30s %s\n" "RBRN_MONIKER" "${RBRN_MONIKER:-<not set>}"
   printf "%-30s %s\n" "RBRN_DESCRIPTION" "${RBRN_DESCRIPTION:-<not set>}"
+  printf "%-30s %s\n" "RBRN_RUNTIME" "${RBRN_RUNTIME:-<not set>}"
 
   # Container Image Configuration
   printf "%-30s %s\n" "RBRN_SENTRY_REPO_PATH" "${RBRN_SENTRY_REPO_PATH:-<not set>}"
@@ -118,6 +119,10 @@ ${ZBUC_YELLOW}Core Service Identity${ZBUC_RESET}
   ${ZBUC_GREEN}RBRN_DESCRIPTION${ZBUC_RESET}
     Human-readable description of service purpose
     Type: string (0-120 chars), Required: No
+
+  ${ZBUC_GREEN}RBRN_RUNTIME${ZBUC_RESET}
+    Container runtime to use for service deployment
+    Type: string ("docker" or "podman"), Required: Yes
 
 ${ZBUC_YELLOW}Container Image Configuration${ZBUC_RESET}
 

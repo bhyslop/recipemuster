@@ -87,6 +87,17 @@ Human-readable description of service purpose
 |Required|
 No
 |Constraints|
+
+.4+|**`RBRN_RUNTIME`**
+|Purpose|
+Container runtime to use for service deployment
+|Type|
+{crg_atom_string}:
+"docker" or "podman"
+|Required|
+Yes
+|Constraints|
+Must be either "docker" or "podman"
 |===
 
 === Container Image Configuration

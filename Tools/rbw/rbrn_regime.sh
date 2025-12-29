@@ -43,6 +43,13 @@ zrbrn_kindle() {
   # Core nameplate identification
   buv_env_xname       RBRN_MONIKER                 2     12
   buv_env_string      RBRN_DESCRIPTION             0    120
+  buv_env_string      RBRN_RUNTIME                 1     16
+
+  # Validate runtime is docker or podman
+  case "${RBRN_RUNTIME}" in
+    docker|podman) : ;;
+    *) buc_die "Invalid RBRN_RUNTIME: '${RBRN_RUNTIME}' (must be 'docker' or 'podman')" ;;
+  esac
 
   # Container image configuration
   buv_env_fqin        RBRN_SENTRY_REPO_PATH        1    128
@@ -92,6 +99,7 @@ zrbrn_kindle() {
   ZRBRN_ROLLUP=""
   ZRBRN_ROLLUP+="RBRN_MONIKER='${RBRN_MONIKER}' "
   ZRBRN_ROLLUP+="RBRN_DESCRIPTION='${RBRN_DESCRIPTION}' "
+  ZRBRN_ROLLUP+="RBRN_RUNTIME='${RBRN_RUNTIME}' "
   ZRBRN_ROLLUP+="RBRN_SENTRY_REPO_PATH='${RBRN_SENTRY_REPO_PATH}' "
   ZRBRN_ROLLUP+="RBRN_BOTTLE_REPO_PATH='${RBRN_BOTTLE_REPO_PATH}' "
   ZRBRN_ROLLUP+="RBRN_SENTRY_IMAGE_TAG='${RBRN_SENTRY_IMAGE_TAG}' "

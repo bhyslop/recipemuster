@@ -219,7 +219,7 @@ buv_val_fqin() {
 buv_val_bool() {
   local varname=$1
   local val=$2
-  local default=$3
+  local default=${3-}
 
   # Validate required parameters
   test -n "$varname" || buc_die "varname parameter is required"
@@ -241,7 +241,7 @@ buv_val_decimal() {
   local val=$2
   local min=$3
   local max=$4
-  local default=$5
+  local default=${5-}
 
   # Validate required parameters
   test -n "$varname" || buc_die "varname parameter is required"
@@ -283,7 +283,7 @@ buv_val_ipv4() {
 buv_val_cidr() {
   local varname=$1
   local val=$2
-  local default=$3
+  local default=${3-}
 
   # Validate required parameters
   test -n "$varname" || buc_die "varname parameter is required"
@@ -303,7 +303,7 @@ buv_val_cidr() {
 buv_val_domain() {
   local varname=$1
   local val=$2
-  local default=$3
+  local default=${3-}
 
   # Validate required parameters
   test -n "$varname" || buc_die "varname parameter is required"
@@ -323,7 +323,7 @@ buv_val_domain() {
 buv_val_port() {
   local varname=$1
   local val=$2
-  local default=$3
+  local default=${3-}
 
   # Validate required parameters
   test -n "$varname" || buc_die "varname parameter is required"
