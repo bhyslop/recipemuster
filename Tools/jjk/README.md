@@ -356,6 +356,18 @@ Usage: "Add that insight to the Paddock" / "Check the Paddock for guidelines"
 
 In heat documents, the Paddock is the `## Paddock` section and its subsections.
 
+### Notch
+A JJ-aware git commit. Use `/jja-notch` to commit with heat/pace/brand context.
+
+The dispatcher extracts context from the active heat, then spawns the `jjsa-notcher` agent (haiku) which:
+- Reads the staged diff
+- Formats: `[jj:BRAND][HEAT-SILKS/PACE-SILKS] Message`
+- Commits with no Claude Code attribution
+
+Example: `[jj:600][cloud-first-light/fix-quota-bug] Fix project quota check`
+
+Usage: "Notch these changes" / "Let me notch that"
+
 ### Silks
 The kebab-case identifier that uniquely names JJ artifacts:
 - **Silks** are the unique names for itches, scars, heats, and steeplechases (e.g., `governor-implementation`, `buk-portability`)
@@ -445,38 +457,6 @@ Make silks short and memorable for human cognition:
 - **Mnemonic quality**: Good silks create mental hooks (e.g., `image-registry-listing` immediately evokes the feature; `gad-perf-analysis` links to GAD tool)
 - **Workshop**: When creating a new heat/itch/pace, generate 3-5 candidate silks and pick the one that "sticks" best
 
-### Git Commit Integration
-Enrich heat-related commits with structured metadata:
-- Include heat silks and pace silks in commit messages
-- Consider: steeplechase entries could live in extended commit messages
-- Add intervention level indicator (manual heavy / manual light / delegated)
-- Format: `[heat:silks][pace:silks][mode:manual|delegated]` prefix
-- Enables: filter git log by heat, reconstruct execution timeline
-
-### Dedicated Commit Subagent
-Create a specialized subagent for JJ-initiated git commits:
-- **Purpose**: Execute commits with JJ-aware system prompt that injects heat/pace context without Claude Code self-promotion
-- **System prompt**: Include heat silks, pace silks, and context; omit standard "Generated with Claude Code" footer
-- **Invocation**: JJ commands (wrap, sync) delegate to commit-subagent instead of using standard Bash tool
-- **Benefits**: Cleaner commit messages focused on work content, not tool attribution; consistent JJ metadata in git history
-- **Configuration**: Project-level setting in CLAUDE.md: `jj_commit_subagent: enabled | disabled` (default: enabled if available)
-- **Fallback**: If subagent unavailable, use standard Bash commits with manual formatting
-
-### Pace-Level Commits with /pace-commit
-Create a new slash command for committing work-in-progress within a pace:
-- **Purpose**: Allow commits during pace work (not just at pace completion) with full JJ context
-- **Command**: `/pace-commit` delegates to commit-subagent with:
-  - Heat silks (e.g., `cloud-foundation-stabilize`)
-  - Pace silks (e.g., `fix-unbound-variable`)
-  - Job Jockey brand (JJ installation version/identity) as metadata
-  - Structured commit format: `[jj:brand][heat:silks][pace:silks] Commit message`
-- **Job Jockey Brand**: Version/identity of JJ installation (e.g., `jj-v1` or timestamp-based identifier like `jj-2512271430`)
-  - Enables retrospective analysis: "which JJ version produced this pattern?"
-  - Links commits back to JJ design iteration and heat execution metadata
-  - Stored in `.claude/jjm/jj_brand.txt` or CLAUDE.md JJ configuration
-- **Benefits**: Granular commit history within paces, cleaner git log filtering by JJ context, ability to study which JJ versions succeeded/failed
-- **Example**: `[jj:v1][heat:cloud-foundation-stabilize][pace:fix-unbound-variable] Remove unset variable in rbgm line 102`
-
 ### Configurable Autocommit
 Project-level control over automatic git commits:
 - Some projects want commits per pace wrap
@@ -484,32 +464,6 @@ Project-level control over automatic git commits:
 - Some want no JJ-initiated commits at all
 - Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-sync | never`
 - Default behavior should match current (commits on wrap/sync)
-
-### Git Commit Agent Configuration
-Specify commit style and context upfront to eliminate style lookups:
-- **Problem**: Commit-subagent currently infers style from nearby commits, requiring context scanning during each commit
-- **Solution**: Add `.claude/jjm/jj_commit_config.md` configuration file:
-  ```markdown
-  # JJ Commit Style Configuration
-
-  ## Message Format
-  [jj:BRAND][heat:SILKS][pace:SILKS] Main message (imperative, present tense)
-
-  ## Trailer Style
-  - No Claude Code attribution or co-author lines
-  - Optional: Project-specific trailers (e.g., `Heat-ID: jjh_b251227-cloud-foundation-stabilize`)
-
-  ## Examples
-  [jj:a3f7d2e][heat:cloud-foundation-stabilize][pace:fix-unbound-variable] Fix unbound variable in rbgm line 102
-  [jj:a3f7d2e][heat:payor-flow-readiness][pace:os-specific-links] Add macOS-specific link instructions to payor establishment
-  ```
-- **Benefits**:
-  - Subagent reads config once per session, not per commit
-  - No need to examine git history for style precedent
-  - Fully deterministic and transparent (user controls style)
-  - Easier to change project style without scatter of precedent commits
-- **Storage**: `.claude/jjm/jj_commit_config.md` (checked into git, versioned with heat metadata)
-- **Invocation**: Commit-subagent loads config at startup, applies consistently to all JJ-initiated commits
 
 ### Steeplechase as Git Commit Discipline
 Experiment with moving steeplechase entries from heat files to git commits:
