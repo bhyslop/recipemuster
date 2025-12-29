@@ -144,6 +144,9 @@ rbw_runtime_cmd() {
 - **Modernize rbrn_regime.sh** — Convert from old self-sourcing format to kindle/sentinel pattern. Follow `rbrr_regime.sh` as template: add multiple-inclusion guard, wrap validation in `zrbrn_kindle()`, add `zrbrn_sentinel()`. Key difference from template: set defaults for optional fields (`RBRN_DESCRIPTION="${RBRN_DESCRIPTION:-}"`, `RBRN_VOLUME_MOUNTS="${RBRN_VOLUME_MOUNTS:-}"`) before validation, since these have `min=0` in their buv_env_string calls. Remove direct `source buv_validation.sh` (caller provides BUV).
   mode: manual
 
+- **Modernize rbrv_regime.sh** — Convert vessel regime from old self-sourcing format to kindle/sentinel pattern. Follow `rbrr_regime.sh` as template: add multiple-inclusion guard, wrap validation in `zrbrv_kindle()`, add `zrbrv_sentinel()`. Set defaults for optional fields (`RBRV_DESCRIPTION="${RBRV_DESCRIPTION:-}"`) before validation. Remove direct `source buv_validation.sh` (caller provides BUV).
+  mode: manual
+
 - **Create rbrn_nsproto.env** — Convert `nameplate.nsproto.mk` to bash-sourceable format. Add `RBRN_RUNTIME=docker` parameter. Validate with modernized `rbrn_regime.sh`.
   mode: manual
 
@@ -154,6 +157,9 @@ rbw_runtime_cmd() {
   mode: manual
 
 - **Implement local recipe build** — Add `rbw-lB` route for local Docker builds. Build from `RBM-recipes/${TOKEN_3}.recipe` files (these are Dockerfiles). Tag as `${recipe_name}:local-${timestamp}`. Create per-recipe tabtargets (e.g., `tt/rbw-lB.LocalBuild.sentry_ubuntu_large.sh`). Long-term capability replacing blocked GCB.
+  mode: manual
+
+- **Validate Docker with busybox** — Create `tt/rbw-lB.LocalBuild.test_busybox.sh` tabtarget and run it to exercise full flow: tabtarget → launcher → workbench → `docker build`. Confirm image appears in `docker images`. Fast validation (~5MB download) before committing to large Ubuntu image builds.
   mode: manual
 
 - **Design RBRR env injection for sentry** — The sentry setup script (`rbss.sentry.sh`) requires `RBRR_DNS_SERVER` from RBRR regime. Decide how launcher/workbench loads and passes RBRR variables to container. Options: launcher loads both regimes, workbench loads RBRR on demand, or nameplate includes DNS server. Reference `rbw.workbench.mk` for current Makefile approach.

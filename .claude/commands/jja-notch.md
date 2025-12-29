@@ -3,6 +3,7 @@ You are dispatching a JJ-aware git commit (notch).
 Configuration:
 - Target repo dir: .
 - Kit path: Tools/jjk/README.md
+- Brand: 602
 
 Steps:
 
@@ -20,35 +21,33 @@ Steps:
    - Example: `**Fix quota bug**` → silks = `fix-quota-bug`
    - If no current pace: announce "No active pace" and stop
 
-4. Get brand from Job Jockey Configuration in CLAUDE.md
-
-5. Check for new (untracked) files:
+4. Check for new (untracked) files:
    ```bash
    git ls-files --others --exclude-standard
    ```
    - If any output: announce "New files detected - stage manually first" and stop
    - New files require explicit user staging; notch only handles modified/deleted
 
-6. Dispatch to notcher agent:
+5. Dispatch to notcher agent:
    - Use Task tool with subagent_type='general-purpose' and model='haiku'
-   - Prompt template (substitute actual values for HEAT, PACE, BRAND):
+   - Prompt template (substitute HEAT and PACE at runtime):
      ```
-     Git commit agent. Heat=HEAT, Pace=PACE, Brand=BRAND
+     Git commit agent. Heat=HEAT, Pace=PACE, Brand=602
      Format:
-       Line 1: [jj:BRAND][HEAT/PACE] Summary (imperative, under 72 chars)
+       Line 1: [jj:602][HEAT/PACE] Summary (imperative, under 72 chars)
        Line 2: blank
        Lines 3+: - Detail bullet per logical change
      Process: git add -u, git diff --cached, write message, git commit -m "...", report hash.
      ```
 
-7. Report result from agent (commit hash or failure)
+6. Report result from agent (commit hash or failure)
 
-8. Push to remote:
+7. Push to remote:
    ```bash
    git push
    ```
 
-9. Re-engage with current pace:
+8. Re-engage with current pace:
    - If there is a current pace (first in ## Remaining):
      - Read the pace description and any files/context it references
      - Analyze what the work entails
