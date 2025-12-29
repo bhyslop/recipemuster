@@ -144,11 +144,9 @@ rbw_runtime_cmd() {
 - **Modernize rbrv_regime.sh** — Modernized with kindle/sentinel, defaults, ZRBRV_ROLLUP; created rbrv_cli.sh
 - **Create rbrn_nsproto.env** — Added RBRN_RUNTIME to spec/regime/cli; fixed buv validators; created nsproto.env
 - **Create rbw_workbench.sh skeleton** — Created workbench with load_nameplate, runtime_cmd, stub commands
+- **Create BUD launchers** — Created launcher.rbw_workbench.sh and launcher.rbt_testbench.sh for BUD dispatch
 
 ## Remaining
-
-- **Create BUD launchers** — Create `.buk/launcher.rbw_workbench.sh` and `.buk/launcher.rbt_testbench.sh` following existing launcher pattern.
-  mode: manual
 
 - **Implement local recipe build** — Add `rbw-lB` route for local Docker builds. Build from `RBM-recipes/${TOKEN_3}.recipe` files (these are Dockerfiles). Tag as `${recipe_name}:local-${timestamp}`. Create per-recipe tabtargets (e.g., `tt/rbw-lB.LocalBuild.sentry_ubuntu_large.sh`). Long-term capability replacing blocked GCB.
   mode: manual
