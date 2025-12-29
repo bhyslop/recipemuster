@@ -191,3 +191,18 @@
 - `gcloud billing projects list --billing-account=0173BC-6A77FA-3796BC` - check linked projects
 - `gcloud projects list --filter="lifecycleState:DELETE_REQUESTED"` - list pending deletion
 ---
+
+---
+### 2025-12-28 17:48 - exercise-depot-create-practice - WRAP
+**Mode**: manual
+**Outcome**: Fixed repo IAM policy (use correct depot project ID), fixed depot tracking (CRM v1 instead of v3). Practice depot rbwg-d-test-251228174809 created successfully with all infrastructure.
+---
+
+---
+### 2025-12-28 17:50 - exercise-depot-list - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-ld.DepotList.sh` to list all accessible depot projects
+- Verify the newly-created practice depot `rbwg-d-test-251228174809` appears in the listing
+- Confirm it shows correct metadata (project ID, region, repository name)
+---

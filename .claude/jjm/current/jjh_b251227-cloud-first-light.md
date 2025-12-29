@@ -59,18 +59,14 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 - **Exercise payor_install** — Created BUG module, fixed token security, updated OAuth flow docs, refactored payor_establish.
 
+- **Exercise depot_create (practice)** — Fixed repo IAM policy (use correct project ID), fixed depot tracking (CRM v1 instead of v3). Practice depot rbwg-d-test-251228174809 created successfully.
+
 ## Current
-
-- **Exercise depot_create (practice)** — Provision depot infrastructure: project, bucket, repository, Mason service account. This is a practice run.
-  mode: manual
-
-## Remaining
-
-- **Repair: Remove incorrect export RBRP_ directives** — The `zrbgp_depot_list_update()` function will detect the incorrect `export RBRP_DEPOT_PROJECT_IDS` directives, print the exact sed command needed to fix them, and exit with Unix error. Apply the suggested sed command, commit the fix, then re-run depot_create to verify the repair.
-  mode: manual
 
 - **Exercise depot_list** — Verify practice depot appears in listing.
   mode: manual
+
+## Remaining
 
 - **Exercise depot_destroy** — Remove practice depot and all its resources.
   mode: manual
