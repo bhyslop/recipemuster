@@ -913,6 +913,21 @@ rbgp_depot_destroy() {
     done
   fi
 
+  buc_step 'Unlink billing account (releases quota immediately)'
+  local z_billing_unlink_body="${BUD_TEMP_DIR}/rbgp_billing_unlink.json"
+  echo '{"billingAccountName":""}' > "${z_billing_unlink_body}" || buc_die "Failed to build billing unlink body"
+
+  local z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
+  rbgu_http_json "PUT" "${z_billing_unlink_url}" "${z_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
+
+  local z_billing_unlink_code
+  z_billing_unlink_code=$(rbgu_http_code_capture "depot_destroy_billing_unlink") || z_billing_unlink_code=""
+  if [ "${z_billing_unlink_code}" = "200" ]; then
+    buc_log_args "Billing account unlinked - quota released"
+  else
+    buc_warn "Could not unlink billing (HTTP ${z_billing_unlink_code}) - proceeding with deletion anyway"
+  fi
+
   buc_step 'Initiate depot deletion'
   local z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
   rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
@@ -938,10 +953,12 @@ rbgp_depot_destroy() {
     buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})"
     
     rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check"
-    
-    if rbgu_http_is_ok "depot_destroy_state_check"; then
+
+    local z_state_check_code
+    z_state_check_code=$(rbgu_http_code_capture "depot_destroy_state_check") || z_state_check_code=""
+    if [ "${z_state_check_code}" = "200" ]; then
       z_final_state=$(rbgu_json_field_capture "depot_destroy_state_check" '.lifecycleState // "UNKNOWN"') || z_final_state="UNKNOWN"
-      
+
       if [ "${z_final_state}" = "DELETE_REQUESTED" ]; then
         break
       fi
@@ -954,32 +971,14 @@ rbgp_depot_destroy() {
     buc_die "Failed to verify deletion state transition. Current state: ${z_final_state}"
   fi
 
-  buc_step 'Immediate billing stop'
-  local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_stop.json"
-  jq -n \
-    --arg projectId "${z_depot_project_id}" \
-    '{
-      projectId: $projectId,
-      billingEnabled: false
-    }' > "${z_billing_body}" || buc_die "Failed to build billing stop body"
-
-  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_depot_project_id}:setBillingInfo"
-  rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_destroy_billing_stop" "${z_billing_body}"
-  
-  if rbgu_http_is_ok "depot_destroy_billing_stop"; then
-    buc_log_args "Billing immediately stopped"
-  else
-    buc_log_args "Warning: Could not immediately stop billing (normal if deletion already in progress)"
-  fi
-
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_log_args "Warning: Failed to update depot tracking after deletion"
 
   # Success
   buc_success "Depot ${z_depot_project_id} successfully marked for deletion"
   buc_info "Project Status: DELETE_REQUESTED"
-  buc_info "Grace period: Up to 30 days"
-  buc_info "Project is now unusable but may remain visible in listings"
+  buc_info "Billing: Unlinked (quota released immediately)"
+  buc_info "Grace period: Up to 30 days before permanent removal"
   buc_info "All infrastructure (Mason SA, repository, bucket) will be automatically removed"
 }
 
