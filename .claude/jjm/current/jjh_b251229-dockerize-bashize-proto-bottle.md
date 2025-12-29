@@ -8,7 +8,7 @@ Migrate the bottle/sentry/censer container lifecycle from Makefile (`rbp.podman.
 
 ### Approach
 
-**Runtime abstraction first**: Add `RBRN_RUNTIME=docker|podman` to configuration. Bash code uses this to select runtime command. Docker-first validation avoids podman VM complexity; if Docker fails, we're positioned for podman fallback.
+**Runtime abstraction first**: Add `RBRN_RUNTIME=docker` to configuration (podman support deferred to future heat). Bash code uses this to select runtime command. Docker validation avoids podman VM complexity.
 
 **Vertical slice on nsproto**: Complete end-to-end migration for nsproto nameplate before generalizing. Nsproto is simplest vessel and exercises security architecture most thoroughly (20+ tests).
 
@@ -141,7 +141,7 @@ rbw_runtime_cmd() {
 
 ## Remaining
 
-- **Modernize rbrn_regime.sh** — Convert from old self-sourcing format to kindle/sentinel pattern. Remove direct `source buv_validation.sh`, add multiple-inclusion guard, create `zrbrn_kindle()` and `zrbrn_sentinel()` functions. Follow `rbrr_regime.sh` as template.
+- **Modernize rbrn_regime.sh** — Convert from old self-sourcing format to kindle/sentinel pattern. Follow `rbrr_regime.sh` as template: add multiple-inclusion guard, wrap validation in `zrbrn_kindle()`, add `zrbrn_sentinel()`. Key difference from template: set defaults for optional fields (`RBRN_DESCRIPTION="${RBRN_DESCRIPTION:-}"`, `RBRN_VOLUME_MOUNTS="${RBRN_VOLUME_MOUNTS:-}"`) before validation, since these have `min=0` in their buv_env_string calls. Remove direct `source buv_validation.sh` (caller provides BUV).
   mode: manual
 
 - **Create rbrn_nsproto.env** — Convert `nameplate.nsproto.mk` to bash-sourceable format. Add `RBRN_RUNTIME=docker` parameter. Validate with modernized `rbrn_regime.sh`.
