@@ -61,10 +61,11 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 - **Exercise depot_create (practice)** — Fixed repo IAM policy (use correct project ID), fixed depot tracking (CRM v1 instead of v3). Practice depot rbwg-d-test-251228174809 created successfully.
 
+- **Exercise depot_list** — Listed 8 depot projects; 3 complete (with Mason SA), 5 broken. Practice depot appears as COMPLETE.
+
 ## Current
 
-- **Exercise depot_list** — Verify practice depot appears in listing.
-  mode: manual
+(none - paused for next session)
 
 ## Remaining
 

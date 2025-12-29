@@ -205,4 +205,8 @@
 - Run `tt/rbw-ld.DepotList.sh` to list all accessible depot projects
 - Verify the newly-created practice depot `rbwg-d-test-251228174809` appears in the listing
 - Confirm it shows correct metadata (project ID, region, repository name)
+
+### 2025-12-28 18:00 - exercise-depot-list - WRAP
+**Mode**: manual
+**Outcome**: Fixed missing HTTP status check function (use rbgu_http_code_capture). Listed 8 depot projects; 3 complete with Mason SA, 5 broken. Practice depot correctly shows as COMPLETE.
 ---
