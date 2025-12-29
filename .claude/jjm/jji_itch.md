@@ -333,3 +333,44 @@ When a nameplate is removed, what happens to its allocation slot?
 ### Context
 
 Long-percolating idea, refined during itch discussion 2025-12-29. Core insight: enclave network allocation is actually the more serious case than ports.
+
+## buk-claude-install
+Add Claude Code installation support to BUK, separate from workbench operations.
+
+### Motivation
+
+Some projects using BUK want Claude Code integration; others want to hide Claude sophistication entirely. The Claude setup should be:
+- **Separate from workbench** - not bundled into general BUK usage
+- **Optional** - projects can use BUK without any Claude awareness
+- **Station-aware** - configures permissions for station-specific directories
+
+BUK README already documents the directories well (temp, output, logs, transcript). This itch is purely about Claude Code integration.
+
+### Scope
+
+A distinct installer (not workbench) that:
+1. Adds `Read` permissions to `.claude/settings.local.json` for station directories:
+   - `BURC_TEMP_ROOT_DIR` (working/scratch)
+   - `BURC_OUTPUT_ROOT_DIR` (outputs)
+   - `BURS_LOG_DIR` (logs including transcript files)
+2. Derives paths from `burc.env` and `burs.env` so permissions match actual configuration
+3. Can be skipped entirely in projects that don't want Claude integration
+
+### Naming
+
+Needs a name distinct from "workbench" - perhaps:
+- `buk-claude-setup`
+- `buci` (BUK Claude Install)
+- `buk-ai-install`
+
+### Reference
+
+BUK README "Future Directions" already mentions:
+- "Hidden Configuration Workbench" - internal workbench for Claude-specific config
+- "Standards Installation & Awareness" - BCG integration with CLAUDE.md
+
+This itch is the concrete first step toward those visions.
+
+### Context
+
+Identified 2025-12-29. Key insight: Claude integration should be opt-in and separable from core BUK.
