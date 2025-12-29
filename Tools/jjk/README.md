@@ -324,7 +324,7 @@ The workbench:
 - Creates `.claude/commands/jja-*.md` command files
 - Creates `.claude/jjm/` directory structure
 - Patches CLAUDE.md with configuration section
-- Adds `Edit(//.claude/jjm/**)` permission to `.claude/settings.local.json` for frictionless JJ state updates
+- Adds `Edit(.claude/jjm/**)` permission to `.claude/settings.local.json` for frictionless JJ state updates
 
 Configuration is via environment variables:
 - `ZJJW_TARGET_DIR` - Target repo directory (default: `.`)
