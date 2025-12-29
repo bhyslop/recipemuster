@@ -64,11 +64,11 @@ The kebab-case identifier that names heats, paces, itches, and scars. Examples: 
 You work on a heat by talking with Claude Code. As you make progress:
 - At session start, use `/jja-heat-saddle` to establish context and see proposed approach
 - Work on the pace together
-- Use `/jja-pace-wrap` to mark complete - Claude automatically analyzes next pace and proposes approach
-- Use `/jja-notch` to commit/push - Claude then proposes approach for current pace
+- Use `/jja-pace-wrap` to mark complete - auto-notches, then analyzes next pace and proposes approach
+- Use `/jja-notch` mid-pace when you want to commit progress without wrapping
 - New paces emerge and get added with `/jja-pace-new`
 
-Note: After pace-wrap or notch, you do NOT need heat-saddle - those commands flow directly into the next pace.
+Note: After pace-wrap, you do NOT need heat-saddle - the command flows directly into the next pace.
 
 When new ideas come up that don't belong in current heat, use `/jja-itch-add` to file them away.
 
@@ -233,9 +233,9 @@ When starting a session or the user calls `/jja-heat-saddle`, Claude checks `.cl
 ### Working on a Heat
 1. Use `/jja-heat-saddle` at session start - Claude shows context and proposes approach
 2. Approve approach or adjust, then work on the pace
-3. Use `/jja-pace-wrap` when complete - Claude analyzes next pace and proposes approach
+3. Use `/jja-pace-wrap` when complete - auto-notches, then analyzes next pace and proposes approach
 4. Approve and continue (no need for heat-saddle between paces)
-5. Use `/jja-notch` periodically - commits, pushes, and proposes approach for current pace
+5. Use `/jja-notch` mid-pace if you want to checkpoint progress
 6. Repeat until heat is complete
 
 ### Completing a Heat
@@ -339,7 +339,7 @@ Configuration is via environment variables:
 - `/jja-pace-new` - Add a new pace
 - `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
 - `/jja-pace-fly` - Execute an armed pace autonomously
-- `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
+- `/jja-pace-wrap` - Mark pace complete, auto-notch, analyze next pace, propose approach
 - `/jja-itch-add` - Add a new itch to the backlog
 - `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
 
@@ -359,11 +359,11 @@ Usage: "Add that insight to the Paddock" / "Check the Paddock for guidelines"
 In heat documents, the Paddock is the `## Paddock` section and its subsections.
 
 ### Notch
-A JJ-aware git commit. Use `/jja-notch` to commit with heat/pace/brand context.
+A JJ-aware git commit. Notches happen automatically on `/jja-pace-wrap`, or use `/jja-notch` mid-pace to checkpoint progress.
 
 Fire-and-forget design:
 1. Dispatcher validates heat context from conversation (no filesystem fallback)
-2. Checks for untracked files (fails if any - stage manually first)
+2. Checks for untracked files (warns if any - stage manually first)
 3. Spawns background haiku agent that does: git add -u, commit, push
 4. Returns immediately - user continues working
 
