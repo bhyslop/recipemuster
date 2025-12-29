@@ -19,6 +19,7 @@
 # JJW Workbench - Job Jockey installation and management
 #
 # Commands:
+#   jjk-c  Check installation status and ledger
 #   jjk-i  Install Job Jockey
 #   jjk-u  Uninstall Job Jockey (preserves .claude/jjm/ state)
 
@@ -32,6 +33,30 @@ source "${ZJJW_SCRIPT_DIR}/../buk/buc_command.sh"
 # Configuration - can be overridden via environment
 ZJJW_TARGET_DIR="${ZJJW_TARGET_DIR:-.}"
 ZJJW_KIT_PATH="${ZJJW_KIT_PATH:-Tools/jjk/README.md}"
+
+######################################################################
+# Internal Helpers
+
+# Returns 12-char hash of source files (workbench + README)
+zjjw_compute_source_hash() {
+  local z_full
+  z_full=$(cat "${ZJJW_SCRIPT_DIR}/jjw_workbench.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
+  echo "${z_full:0:12}"
+}
+
+# Given hash, returns brand number or empty string if not in ledger
+zjjw_lookup_brand_by_hash() {
+  local z_hash="${1}"
+  jq -r --arg h "${z_hash}" '.[] | select(.hash == $h) | .v // empty' "${ZJJW_SCRIPT_DIR}/jjl_ledger.json"
+}
+
+# Returns brand from installed jja-notch.md, or empty if not installed
+zjjw_installed_brand() {
+  local z_notch_file=".claude/commands/jja-notch.md"
+  if test -f "${z_notch_file}"; then
+    grep -oP '(?<=^- Brand: )\d+' "${z_notch_file}" 2>/dev/null || true
+  fi
+}
 
 ######################################################################
 # Command Emitters - one function per command file
@@ -537,12 +562,11 @@ jjw_install() {
   local z_ledger_file="${ZJJW_SCRIPT_DIR}/jjl_ledger.json"
   local z_temp_file="${BUD_TEMP_DIR}/jjw_ledger_temp.json"
 
-  local z_full_hash
-  z_full_hash=$(cat "${ZJJW_SCRIPT_DIR}/jjw_workbench.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
-  local z_hash="${z_full_hash:0:12}"
+  local z_hash
+  z_hash=$(zjjw_compute_source_hash)
 
   local z_brand
-  z_brand=$(jq -r --arg h "${z_hash}" '.[] | select(.hash == $h) | .v' "${z_ledger_file}") || buc_die "Failed to read ledger"
+  z_brand=$(zjjw_lookup_brand_by_hash "${z_hash}")
 
   if test -z "${z_brand}"; then
     buc_step "Registering new ledger entry"
@@ -627,6 +651,48 @@ jjw_uninstall() {
   buc_success "Job Jockey uninstalled (state preserved in .claude/jjm/)"
 }
 
+jjw_check() {
+  local z_ledger_file="${ZJJW_SCRIPT_DIR}/jjl_ledger.json"
+
+  # Compute current source hash and look up in ledger
+  local z_hash
+  z_hash=$(zjjw_compute_source_hash)
+
+  local z_source_brand
+  z_source_brand=$(zjjw_lookup_brand_by_hash "${z_hash}")
+
+  # Get installed brand (if any)
+  local z_installed_brand
+  z_installed_brand=$(zjjw_installed_brand)
+
+  # Display status
+  echo "Source hash: ${z_hash}"
+  if test -n "${z_source_brand}"; then
+    echo "Source brand: ${z_source_brand}"
+  else
+    echo "Source brand: (not registered)"
+  fi
+
+  if test -n "${z_installed_brand}"; then
+    echo "Installed brand: ${z_installed_brand}"
+  else
+    echo "Installed brand: (none)"
+  fi
+
+  echo ""
+  echo "Ledger entries:"
+  jq -r '.[] | "  \(.v)  \(.date)  \(.hash)  \(.commit)"' "${z_ledger_file}"
+
+  echo ""
+  if test -n "${z_source_brand}"; then
+    echo "Status: OK (source registered as brand ${z_source_brand})"
+    exit 0
+  else
+    echo "Status: UNKNOWN (source not in ledger, install will register)"
+    exit 1
+  fi
+}
+
 zjjw_patch_claudemd() {
   local z_section_file="${BUD_TEMP_DIR}/jjw_claudemd_section.md"
   local z_prompt_file="${BUD_TEMP_DIR}/jjw_patch_prompt.txt"
@@ -671,9 +737,10 @@ jjw_route() {
   shift || true
 
   case "${z_command}" in
+    jjk-c) jjw_check ;;
     jjk-i) jjw_install ;;
     jjk-u) jjw_uninstall ;;
-    *)     buc_die "Unknown command: ${z_command}\nAvailable: jjk-i (install), jjk-u (uninstall)" ;;
+    *)     buc_die "Unknown command: ${z_command}\nAvailable: jjk-c (check), jjk-i (install), jjk-u (uninstall)" ;;
   esac
 }
 
