@@ -65,12 +65,10 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 ## Current
 
-(none - paused for next session)
-
-## Remaining
-
 - **Exercise depot_destroy** — Remove practice depot and all its resources.
   mode: manual
+
+## Remaining
 
 - **Exercise depot_create (for keeps)** — Provision depot infrastructure for ongoing use.
   mode: manual

@@ -239,3 +239,13 @@
 1. `a48c660` - Fix depot_destroy: unlink billing BEFORE delete
 2. `1fd8bbd` - Update RBSDD spec: billing unlink now mandatory
 ---
+
+---
+### 2025-12-28 - exercise-depot-destroy - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-PD.PayorDepotDestroy.sh rbwg-d-test-251228174809` to destroy the practice depot
+- Watch sequence: billing unlink → project delete request → tracking file update
+- Verify HTTP responses show success at each step
+- Confirm depot removed from `depot_list` output afterward
+---

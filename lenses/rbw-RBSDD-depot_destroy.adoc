@@ -5,11 +5,14 @@ destroys an
 and all contained resources:
 
 . *Safety Confirmation*:
-.. {rbbc_require}
-`DEBUG_ONLY=1` environment variable for execution
-.. Display comprehensive destruction warnings
-.. {rbbc_require}
-operator confirmation with exact depot project ID
+.. If `RBGP_CONFIRM_DESTROY` environment variable is set:
+... {rbbc_require}
+value matches the depot project ID argument
+... Proceed without interactive confirmation
+.. Otherwise:
+... Display comprehensive destruction warnings
+... {rbbc_require}
+operator confirmation with exact depot project ID (interactive)
 
 . *Authenticate as
 {rbtr_payor}*:
