@@ -28,4 +28,13 @@
 ### 2025-12-29 11:30 - create-rbw-workbench-skeleton - WRAP
 **Outcome**: Created workbench with load_nameplate, runtime_cmd, stub commands following vslw/buw pattern
 ---
+### 2025-12-29 11:03 - create-bud-launchers - APPROACH
+**Proposed approach**:
+- Create `.buk/launcher.rbw_workbench.sh` following buw_workbench pattern
+- Create `.buk/launcher.rbt_testbench.sh` with same pattern (coordinator ready for future pace)
+- Verify rbw launcher works (reaches stub), rbt launcher loads correctly
+---
+### 2025-12-29 11:03 - create-bud-launchers - WRAP
+**Outcome**: Created both launchers; rbw verified working (reaches stub); rbt loads correctly (fails at missing coordinator as expected)
+---
 (execution log begins here)
