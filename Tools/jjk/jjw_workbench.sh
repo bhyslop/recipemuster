@@ -474,6 +474,84 @@ zjjw_emit_itch_add() {
   }
 }
 
+zjjw_emit_notch_agent() {
+  local z_brand="${1}"
+  {
+    echo "You are the JJ Notcher - a specialized git commit agent."
+    echo ""
+    echo "You receive heat silks, pace silks, and brand from the dispatcher."
+    echo "Your only job: format and execute a git commit."
+    echo ""
+    echo "## Format"
+    echo "[jj:BRAND][HEAT-SILKS/PACE-SILKS] Message"
+    echo ""
+    echo "## Rules"
+    echo "- Imperative present tense (Add, Fix, Update, Remove)"
+    echo "- First line under 72 characters"
+    echo "- No Claude Code attribution"
+    echo "- No Co-Authored-By lines"
+    echo "- No emoji"
+    echo "- Body optional, separated by blank line if needed"
+    echo ""
+    echo "## Process"
+    echo "1. Read the dispatch parameters (heat silks, pace silks, brand)"
+    echo "2. Run \`git diff --cached --stat\` to see what's staged"
+    echo "3. Run \`git diff --cached\` to read the actual changes"
+    echo "4. Write a commit message describing the changes"
+    echo "5. Format: [jj:BRAND][HEAT-SILKS/PACE-SILKS] Your message here"
+    echo "6. Execute: git commit -m \"message\""
+    echo "7. Report: confirm commit hash or report failure"
+    echo ""
+    echo "## Example"
+    echo "Given: heat=cloud-first-light, pace=fix-quota-bug, brand=${z_brand}"
+    echo "Output: [jj:${z_brand}][cloud-first-light/fix-quota-bug] Fix project quota check in depot_create"
+    echo ""
+    echo "Stay minimal. No commentary. Just commit."
+  }
+}
+
+zjjw_emit_notch_command() {
+  {
+    echo "You are dispatching a JJ-aware git commit (notch)."
+    echo ""
+    echo "Configuration:"
+    echo "- Target repo dir: ${ZJJW_TARGET_DIR}"
+    echo "- Kit path: ${ZJJW_KIT_PATH}"
+    echo ""
+    echo "Steps:"
+    echo ""
+    echo "1. Verify active heat exists in .claude/jjm/current/"
+    echo "   - Look for files matching \`jjh_b*.md\`"
+    echo "   - If no heat: announce \"No active heat - use regular git commit\" and stop"
+    echo "   - If multiple heats: ask which one"
+    echo ""
+    echo "2. Extract heat silks from filename"
+    echo "   - Pattern: \`jjh_bYYMMDD-SILKS.md\`"
+    echo "   - Example: \`jjh_b251227-cloud-first-light.md\` → silks = \`cloud-first-light\`"
+    echo ""
+    echo "3. Find current pace (first bold item in ## Remaining)"
+    echo "   - Extract pace silks from the bolded title"
+    echo "   - Example: \`**Fix quota bug**\` → silks = \`fix-quota-bug\`"
+    echo "   - If no current pace: announce \"No active pace\" and stop"
+    echo ""
+    echo "4. Get brand from Job Jockey Configuration in CLAUDE.md"
+    echo ""
+    echo "5. Check for staged changes"
+    echo "   - Run \`git diff --cached --stat\`"
+    echo "   - If nothing staged: ask \"Stage all changes?\" or stop"
+    echo ""
+    echo "6. Dispatch to jjsa-notcher agent:"
+    echo "   - Use Task tool with subagent_type='jjsa-notcher'"
+    echo "   - Use model='haiku' for speed"
+    echo "   - Prompt: \"Heat: [silks], Pace: [silks], Brand: [brand]. Commit staged changes.\""
+    echo "   - Can run in background if other work continues"
+    echo ""
+    echo "7. Report result from agent"
+    echo ""
+    echo "Error handling: If heat/pace not found, explain and stop."
+  }
+}
+
 zjjw_emit_claudemd_section() {
   {
     echo "## Job Jockey Configuration"
@@ -498,6 +576,7 @@ zjjw_emit_claudemd_section() {
     echo "- \`/jja-pace-wrap\` - Mark pace complete, analyze next pace, propose approach"
     echo "- \`/jja-sync\` - Commit and push, then analyze current pace and propose approach"
     echo "- \`/jja-itch-add\` - Add a new itch to the backlog"
+    echo "- \`/jja-notch\` - JJ-aware git commit with heat/pace/brand context"
     echo ""
     echo "**Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available."
   }
@@ -541,6 +620,7 @@ jjw_install() {
 
   buc_step "Creating directory structure"
   mkdir -p ".claude/commands"
+  mkdir -p ".claude/agents"
   mkdir -p ".claude/jjm/current"
   mkdir -p ".claude/jjm/retired"
   test -f ".claude/jjm/jji_itch.md" || echo "# Itches" > ".claude/jjm/jji_itch.md"
@@ -555,6 +635,10 @@ jjw_install() {
   zjjw_emit_pace_wrap     > ".claude/commands/jja-pace-wrap.md"
   zjjw_emit_sync          > ".claude/commands/jja-sync.md"
   zjjw_emit_itch_add      > ".claude/commands/jja-itch-add.md"
+  zjjw_emit_notch_command > ".claude/commands/jja-notch.md"
+
+  buc_step "Emitting agent files"
+  zjjw_emit_notch_agent "${z_brand}" > ".claude/agents/jjsa-notcher.md"
 
   buc_step "Patching CLAUDE.md"
   zjjw_emit_claudemd_section > "${BUD_TEMP_DIR}/jjw_claudemd_section.md"
@@ -584,6 +668,9 @@ jjw_install() {
 jjw_uninstall() {
   buc_step "Removing command files"
   rm -f .claude/commands/jja-*.md
+
+  buc_step "Removing agent files"
+  rm -f .claude/agents/jjsa-*.md
 
   buc_step "Removing CLAUDE.md section"
   zjjw_unpatch_claudemd
