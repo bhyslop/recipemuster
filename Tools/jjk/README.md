@@ -54,6 +54,9 @@ An itch that has been **closed with lessons learned**. Not deleted (we learned s
 
 All scars live in a single aggregate file (`jjs_scar.md`).
 
+### Silks
+The kebab-case identifier that names heats, paces, itches, and scars. Examples: `cloud-first-light`, `fix-quota-bug`, `buc-info-default-visibility`. Target 3-5 words — short enough to say aloud and fit in commit messages. Good silks are memorable and evocative.
+
 ## How It Works
 
 ### Day-to-Day Usage
@@ -368,7 +371,7 @@ Usage: "Notch these changes" / "Let me notch that"
 
 ### Silks
 The kebab-case identifier that uniquely names JJ artifacts:
-- **Silks** are the unique names for itches, scars, heats, and steeplechases (e.g., `governor-implementation`, `buk-portability`)
+- **Silks** are the kebab-case identifiers for heats, paces, itches, and scars (e.g., `cloud-first-light`, `fix-quota-bug`)
 - Every itch has silks; silks carry to scars when closed
 - Heats have silks (the description part of filename)
 - Steeplechases inherit the heat's silks
@@ -449,7 +452,7 @@ Remove pace numbers from human-visible artifacts:
 ### Silk Design Guidance
 Make silks short and memorable for human cognition:
 - **Silks**: Kebab-case identifiers for heats, paces, itches, scars (e.g., `cloud-foundation-stabilize`, `fix-unbound-variable`)
-- **Target**: 2-4 words, under 30 characters, easy to recall and type
+- **Target**: 3-5 words, short enough to say aloud and fit in commit messages
 - **Rationale**: Silks appear frequently in speech, commit messages, and steeplechase entries. Short + catchy reduces cognitive load and typos.
 - **Anti-patterns**: Avoid long descriptive names, avoid acronyms unless widely recognized in project, avoid generic names (e.g., `misc-fixes`, `stuff`)
 - **Mnemonic quality**: Good silks create mental hooks (e.g., `image-registry-listing` immediately evokes the feature; `gad-perf-analysis` links to GAD tool)

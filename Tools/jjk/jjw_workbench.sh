@@ -40,6 +40,10 @@ ZJJW_KIT_PATH="${ZJJW_KIT_PATH:-Tools/jjk/README.md}"
 
 zjjw_emit_heat_saddle() {
   {
+    echo "---"
+    echo "argument-hint: [silks]"
+    echo "---"
+    echo ""
     echo "You are saddling up on the current Job Jockey heat."
     echo ""
     echo "Use this command for:"
@@ -170,6 +174,10 @@ zjjw_emit_heat_retire() {
 
 zjjw_emit_pace_new() {
   {
+    echo "---"
+    echo "argument-hint: [description-or-silks]"
+    echo "---"
+    echo ""
     echo "You are adding a new pace to the current Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -440,6 +448,10 @@ zjjw_emit_sync() {
 
 zjjw_emit_itch_add() {
   {
+    echo "---"
+    echo "argument-hint: [description-or-silks]"
+    echo "---"
+    echo ""
     echo "You are adding a new itch to the Job Jockey backlog."
     echo ""
     echo "Configuration:"
@@ -456,7 +468,7 @@ zjjw_emit_itch_add() {
     echo "   - Note existing silks to avoid duplicates"
     echo ""
     echo "3. Generate unique silks (kebab-case identifier):"
-    echo "   - 2-4 words, under 30 characters"
+    echo "   - 3-5 words, short enough to say aloud"
     echo "   - Must not duplicate existing itch silks"
     echo "   - Should be memorable and descriptive"
     echo ""
