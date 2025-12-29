@@ -19,6 +19,8 @@ Migrate the bottle/sentry/censer container lifecycle from Makefile (`rbp.podman.
 ### Key Architectural Decisions
 
 1. **Configuration format**: Nameplates move from `nameplate.*.mk` (Makefile syntax) to `rbrn_<moniker>.env` (bash-sourceable)
+   - Specification: `lenses/rbw-RBRN-RegimeNameplate.adoc`
+   - CLI: `Tools/rbw/rbrn_cli.sh` (validate, render, info commands)
 
 2. **Runtime parameter**: `RBRN_RUNTIME=docker|podman` in nameplate config; workbench abstracts the difference
 
@@ -77,6 +79,7 @@ Track in this section as the heat progresses:
 | `Tools/rbw/rbrn_nsproto.env` | create | Bash-sourceable nameplate config |
 | `Tools/rbw/rbrn_srjcl.env` | create | Bash-sourceable nameplate config |
 | `Tools/rbw/rbrn_pluml.env` | create | Bash-sourceable nameplate config |
+| `Tools/rbw/rbrn_cli.sh` | create | CLI for nameplate operations |
 | **Tabtargets - nsproto (modify to BUD launcher)** |||
 | `tt/rbw-s.Start.nsproto.sh` | modify | Change mbd.dispatch → rbw_workbench launcher |
 | `tt/rbw-S.ConnectSentry.nsproto.sh` | modify | Change mbd.dispatch → rbw_workbench launcher |
@@ -137,12 +140,9 @@ rbw_runtime_cmd() {
 
 ## Done
 
-(none yet)
+- **Modernize rbrn_regime.sh** — Modernized with kindle/sentinel, defaults for optional/conditional fields, ZRBRN_ROLLUP; created rbrn_cli.sh
 
 ## Remaining
-
-- **Modernize rbrn_regime.sh** — Convert from old self-sourcing format to kindle/sentinel pattern. Follow `rbrr_regime.sh` as template: add multiple-inclusion guard, wrap validation in `zrbrn_kindle()`, add `zrbrn_sentinel()`. Key difference from template: set defaults for optional fields (`RBRN_DESCRIPTION="${RBRN_DESCRIPTION:-}"`, `RBRN_VOLUME_MOUNTS="${RBRN_VOLUME_MOUNTS:-}"`) before validation, since these have `min=0` in their buv_env_string calls. Remove direct `source buv_validation.sh` (caller provides BUV).
-  mode: manual
 
 - **Modernize rbrv_regime.sh** — Convert vessel regime from old self-sourcing format to kindle/sentinel pattern. Follow `rbrr_regime.sh` as template: add multiple-inclusion guard, wrap validation in `zrbrv_kindle()`, add `zrbrv_sentinel()`. Set defaults for optional fields (`RBRV_DESCRIPTION="${RBRV_DESCRIPTION:-}"`) before validation. Remove direct `source buv_validation.sh` (caller provides BUV).
   mode: manual
