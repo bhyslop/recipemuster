@@ -11,4 +11,15 @@
 ### 2025-12-29 10:15 - modernize-rbrn-regime - WRAP
 **Outcome**: Modernized with kindle/sentinel, defaults for optional/conditional fields, ZRBRN_ROLLUP; created rbrn_cli.sh
 ---
+### 2025-12-29 10:20 - modernize-rbrv-regime - APPROACH
+**Proposed approach**:
+- Add multiple-inclusion guard using `ZRBRV_SOURCED` pattern
+- Set defaults for all optional/conditional fields before validation
+- Wrap validation in `zrbrv_kindle()` preserving conditional logic
+- Add `zrbrv_sentinel()` and ZRBRV_ROLLUP
+- Create rbrv_cli.sh with validate, render, info commands (like rbrn_cli.sh)
+---
+### 2025-12-29 10:30 - modernize-rbrv-regime - WRAP
+**Outcome**: Modernized with kindle/sentinel, defaults, ZRBRV_ROLLUP; created rbrv_cli.sh
+---
 (execution log begins here)

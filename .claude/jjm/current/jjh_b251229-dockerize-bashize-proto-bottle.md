@@ -141,11 +141,9 @@ rbw_runtime_cmd() {
 ## Done
 
 - **Modernize rbrn_regime.sh** — Modernized with kindle/sentinel, defaults for optional/conditional fields, ZRBRN_ROLLUP; created rbrn_cli.sh
+- **Modernize rbrv_regime.sh** — Modernized with kindle/sentinel, defaults, ZRBRV_ROLLUP; created rbrv_cli.sh
 
 ## Remaining
-
-- **Modernize rbrv_regime.sh** — Convert vessel regime from old self-sourcing format to kindle/sentinel pattern. Follow `rbrr_regime.sh` as template: add multiple-inclusion guard, wrap validation in `zrbrv_kindle()`, add `zrbrv_sentinel()`. Set defaults for optional fields (`RBRV_DESCRIPTION="${RBRV_DESCRIPTION:-}"`) before validation. Remove direct `source buv_validation.sh` (caller provides BUV).
-  mode: manual
 
 - **Create rbrn_nsproto.env** — Convert `nameplate.nsproto.mk` to bash-sourceable format. Add `RBRN_RUNTIME=docker` parameter. Validate with modernized `rbrn_regime.sh`.
   mode: manual
