@@ -47,9 +47,7 @@ A discrete action within the current heat. Appears in heat documents as structur
 Paces can be worked on collaboratively (human drives, model assists) or **armed** for autonomous execution. To arm a pace, use `/jja-pace-arm` which validates the spec has clear objective, bounded scope, success criteria, and failure behavior. Armed paces can then be flown with `/jja-pace-fly`.
 
 ### Itch
-A potential future heat or consideration. Can range from a brief spark to a fully-articulated specification. The key attribute is **not now** — regardless of detail level, it's not timely for current work.
-
-All itches live in a single aggregate file (`jji_itch.md`). No individual itch files. No itch sections in heat documents.
+Future work of any scope — heat-sized initiatives, individual paces, or smaller ideas — captured in the backlog because they're not timely for current work. The key attribute is **not now**: regardless of size or detail level, it's not ready to schedule. All itches live in a single aggregate backlog file (`jji_itch.md`).
 
 ### Scar
 An itch that has been **closed with lessons learned**. Not deleted (we learned something), but won't be revisited. Different from "shelved" which implies "maybe later" — a scar is deliberately closed.
