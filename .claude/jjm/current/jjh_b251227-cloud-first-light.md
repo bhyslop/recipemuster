@@ -78,6 +78,8 @@ Permanent depot for use throughout remaining paces and beyond.
 - **Exercise depot_create (for keeps)** — Create depot using Keeper Depot settings above.
   mode: manual
 
+  **Blocker (2025-12-28)**: Project quota exhausted (24 projects in DELETE_REQUESTED state consuming quota). Quota increase requested from Google Cloud. If creation fails with "exceeded your allotted project quota", check request status at: https://console.cloud.google.com/iam-admin/quotas
+
 ## Remaining
 
 - **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
