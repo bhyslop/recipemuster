@@ -143,11 +143,9 @@ rbw_runtime_cmd() {
 - **Modernize rbrn_regime.sh** — Modernized with kindle/sentinel, defaults for optional/conditional fields, ZRBRN_ROLLUP; created rbrn_cli.sh
 - **Modernize rbrv_regime.sh** — Modernized with kindle/sentinel, defaults, ZRBRV_ROLLUP; created rbrv_cli.sh
 - **Create rbrn_nsproto.env** — Added RBRN_RUNTIME to spec/regime/cli; fixed buv validators; created nsproto.env
+- **Create rbw_workbench.sh skeleton** — Created workbench with load_nameplate, runtime_cmd, stub commands
 
 ## Remaining
-
-- **Create rbw_workbench.sh skeleton** — Establish workbench structure with runtime abstraction. Include command routing that parses moniker from tabtarget filename tokens. Source `buc_command.sh` for output. No lifecycle implementation yet.
-  mode: manual
 
 - **Create BUD launchers** — Create `.buk/launcher.rbw_workbench.sh` and `.buk/launcher.rbt_testbench.sh` following existing launcher pattern.
   mode: manual

@@ -25,4 +25,7 @@
 ### 2025-12-29 11:00 - create-rbrn-nsproto-env - WRAP
 **Outcome**: Added RBRN_RUNTIME to spec/regime/cli; fixed buv validators (${N-} pattern); created nsproto.env
 ---
+### 2025-12-29 11:30 - create-rbw-workbench-skeleton - WRAP
+**Outcome**: Created workbench with load_nameplate, runtime_cmd, stub commands following vslw/buw pattern
+---
 (execution log begins here)
