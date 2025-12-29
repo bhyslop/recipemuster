@@ -61,7 +61,7 @@ All kits use these consistently:
   Version ID computation and registration. Equivalent to JJK's "brand" concept.
 
 - **Add kit operations**
-  Implement `vok-i` (install), `vok-u` (uninstall), `vok-c` (check). Create tabtargets.
+  Implement `vok-i` (install), `vok-u` (uninstall), `vok-c` (check). Create tabtargets (`tt/vok-i.Install.sh`, `tt/vok-u.Uninstall.sh`, `tt/vok-c.Check.sh`).
 
 - **Implement Veil**
   prep-pr upstream filtering. Config defines what's internal vs upstream-safe. Move from CMK.
