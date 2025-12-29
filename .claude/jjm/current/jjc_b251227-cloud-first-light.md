@@ -210,3 +210,32 @@
 **Mode**: manual
 **Outcome**: Fixed missing HTTP status check function (use rbgu_http_code_capture). Listed 8 depot projects; 3 complete with Mason SA, 5 broken. Practice depot correctly shows as COMPLETE.
 ---
+
+---
+### 2025-12-28 18:15 - depot-destroy-refinement - PRE-WORK
+**Mode**: manual (out-of-band, before exercise-depot-destroy pace)
+
+**Context**: User learned during testing that deleting projects without unlinking billing first causes 30-day quota consumption. Decided to fix depot_destroy before debugging it.
+
+**Research performed**:
+- Reviewed current `rbgp_depot_destroy` implementation (lines 825-984)
+- Found billing step was AFTER deletion (wrong order) and used wrong API
+- Web searched Cloud Billing API documentation
+- Confirmed correct endpoint: `PUT cloudbilling.googleapis.com/v1/projects/{id}/billingInfo`
+- Confirmed correct body: `{"billingAccountName":""}`
+
+**Implementation changes** (`rbgp_Payor.sh`):
+- Added new step "Unlink billing account" BEFORE project deletion
+- Uses Cloud Billing API with correct endpoint and body format
+- Fixed `rbgu_http_is_ok` bug (same as depot_list) using `rbgu_http_code_capture`
+- Removed old incorrect post-deletion billing step
+
+**Spec update** (`rbw-RBSDD-depot_destroy.adoc`):
+- Moved billing unlink from optional step 7 to mandatory step 5
+- Documented rationale: releases quota immediately vs 30-day hold
+- Removed obsolete `«DELETION_TIME»` storage
+
+**Commits**:
+1. `a48c660` - Fix depot_destroy: unlink billing BEFORE delete
+2. `1fd8bbd` - Update RBSDD spec: billing unlink now mandatory
+---
