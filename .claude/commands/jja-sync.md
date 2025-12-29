@@ -24,7 +24,7 @@ Steps:
 5. Check for active heat with current pace:
    - Read .claude/jjm/current/ for active heat
    - Note the heat's silks (kebab-case description from filename)
-   - If heat exists with a ## Current pace:
+   - If heat exists with a current pace (first in ## Remaining):
      - Read the pace description and any files/context it references
      - Analyze what the work entails
      - Propose a concrete approach (2-4 bullets)
@@ -34,14 +34,13 @@ Steps:
          ```markdown
          ---
          ### YYYY-MM-DD HH:MM - [pace-silks] - APPROACH
-         **Mode**: manual | delegated
          **Proposed approach**:
          - [bullet 1]
          - [bullet 2]
          ---
          ```
      - Ask: "Ready to proceed with this approach?"
-     - On approval: begin work directly (no /jja-heat-resume needed)
+     - On approval: begin work directly (no /jja-heat-saddle needed)
    - If heat exists but no current pace:
      - Announce "All paces complete - ready to retire heat?"
    - If no heat: just report sync complete

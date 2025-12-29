@@ -18,7 +18,6 @@ Steps:
    - Title (bold format)
    - Optional description
    - Position in the list (explain reasoning)
-   - Default mode: manual
 
 5. Present proposal:
    ```
@@ -31,7 +30,6 @@ Steps:
 
 7. If approved, update the heat file:
    - Add pace to ## Remaining section at proposed position
-   - Include `mode: manual` (default)
 
 8. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-sync)
 

@@ -21,9 +21,9 @@ Steps:
 4. Show proposed summary and ask for approval
 
 5. Update the heat file in .claude/jjm/current/:
-   - Number the pace and move to ## Done section
+   - Move the pace to ## Done section
    - Replace description with brief summary
-   - Move next pace from ## Remaining to ## Current (if any)
+   - Bold the next pace in ## Remaining to mark it current (if any)
 
 6. Append WRAP entry to steeplechase (.claude/jjm/current/jjc_*.md):
    - Create steeplechase file if it doesn't exist (jjc_bYYMMDD-[silks].md matching heat)
@@ -31,7 +31,6 @@ Steps:
    ```markdown
    ---
    ### YYYY-MM-DD HH:MM - [pace-silks] - WRAP
-   **Mode**: manual | delegated
    **Outcome**: [summary from step 3]
    ---
    ```
@@ -44,7 +43,7 @@ Steps:
 
 8. Report what was done
 
-9. If there is a next pace (now in ## Current):
+9. If there is a next pace (now first in ## Remaining):
    - Read the pace description and any files/context it references
    - Analyze what the work entails
    - Propose a concrete approach (2-4 bullets)
@@ -52,14 +51,13 @@ Steps:
      ```markdown
      ---
      ### YYYY-MM-DD HH:MM - [pace-silks] - APPROACH
-     **Mode**: manual | delegated
      **Proposed approach**:
      - [bullet 1]
      - [bullet 2]
      ---
      ```
    - Ask: "Ready to proceed with this approach?"
-   - On approval: begin work directly (no /jja-heat-resume needed)
+   - On approval: begin work directly (no /jja-heat-saddle needed)
 
    If no next pace: announce "All paces complete - ready to retire heat?"
 

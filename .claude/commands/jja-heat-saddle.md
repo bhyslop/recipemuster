@@ -1,4 +1,4 @@
-You are resuming the current Job Jockey heat.
+You are saddling up on the current Job Jockey heat.
 
 Use this command for:
 - Starting a new Claude Code session (cold start)
@@ -28,7 +28,7 @@ Steps:
    - Read the heat file
    - Note the heat's silks (kebab-case description from filename)
    - Display heat name and brief context summary
-   - Display current pace (from ## Current section) with mode
+   - Display current pace (first bolded item in ## Remaining)
    - Read the pace description and any files/context it references
    - Analyze what the work entails
    - Propose a concrete approach (2-4 bullets)
@@ -38,7 +38,6 @@ Steps:
        ```markdown
        ---
        ### YYYY-MM-DD HH:MM - [pace-silks] - APPROACH
-       **Mode**: manual | delegated
        **Proposed approach**:
        - [bullet 1]
        - [bullet 2]
