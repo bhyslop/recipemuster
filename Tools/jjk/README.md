@@ -65,10 +65,10 @@ You work on a heat by talking with Claude Code. As you make progress:
 - At session start, use `/jja-heat-saddle` to establish context and see proposed approach
 - Work on the pace together
 - Use `/jja-pace-wrap` to mark complete - Claude automatically analyzes next pace and proposes approach
-- Use `/jja-sync` to commit/push - Claude then proposes approach for current pace
+- Use `/jja-notch` to commit/push - Claude then proposes approach for current pace
 - New paces emerge and get added with `/jja-pace-new`
 
-Note: After pace-wrap or sync, you do NOT need heat-saddle - those commands flow directly into the next pace.
+Note: After pace-wrap or notch, you do NOT need heat-saddle - those commands flow directly into the next pace.
 
 When new ideas come up that don't belong in current heat, use `/jja-itch-add` to file them away.
 
@@ -132,8 +132,8 @@ my-project/                 # Launch Claude Code here
       jja-pace-arm.md
       jja-pace-fly.md
       jja-pace-wrap.md
-      jja-sync.md
       jja-itch-add.md
+      jja-notch.md
     jjm/
       jji_itch.md
       jjs_scar.md
@@ -235,7 +235,7 @@ When starting a session or the user calls `/jja-heat-saddle`, Claude checks `.cl
 2. Approve approach or adjust, then work on the pace
 3. Use `/jja-pace-wrap` when complete - Claude analyzes next pace and proposes approach
 4. Approve and continue (no need for heat-saddle between paces)
-5. Use `/jja-sync` periodically - also proposes approach for current pace
+5. Use `/jja-notch` periodically - commits, pushes, and proposes approach for current pace
 6. Repeat until heat is complete
 
 ### Completing a Heat
@@ -306,6 +306,7 @@ Heat files contain these sections:
 8. **Aggregate itches**: All itches in one file, all scars in one file — no sprawl
 9. **Portable**: Works across computers via relative paths
 10. **Do No Harm**: If paths are misconfigured or files missing, announce issue and stop — don't guess or auto-fix
+11. **Branch workflow**: Work happens on branches that get squashed on merge. Notch commits form the steeplechase — execution history lives in branch history until squash.
 
 ## Installation
 
@@ -339,8 +340,8 @@ Configuration is via environment variables:
 - `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
 - `/jja-pace-fly` - Execute an armed pace autonomously
 - `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
-- `/jja-sync` - Commit and push, then analyze current pace, propose approach
 - `/jja-itch-add` - Add a new itch to the backlog
+- `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
 
 ## Terminology
 
@@ -463,8 +464,8 @@ Project-level control over automatic git commits:
 - Some projects want commits per pace wrap
 - Some want manual commit control
 - Some want no JJ-initiated commits at all
-- Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-sync | never`
-- Default behavior should match current (commits on wrap/sync)
+- Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-notch | never`
+- Default behavior should match current (commits on wrap/notch)
 
 ### Steeplechase as Git Commit Discipline
 Experiment with moving steeplechase entries from heat files to git commits:
