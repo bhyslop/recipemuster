@@ -37,4 +37,10 @@
 ### 2025-12-29 11:03 - create-bud-launchers - WRAP
 **Outcome**: Created both launchers; rbw verified working (reaches stub); rbt loads correctly (fails at missing coordinator as expected)
 ---
+### 2025-12-29 11:10 - implement-local-recipe-build - APPROACH
+**Proposed approach**:
+- Implement `rbw_cmd_local_build` in rbw_workbench.sh (validate recipe, docker build, tag with local-timestamp)
+- Create sample tabtarget `tt/rbw-lB.LocalBuild.test_busybox.sh` using launcher pattern
+- Defer busybox validation to next pace, per-recipe tabtargets to later
+---
 (execution log begins here)

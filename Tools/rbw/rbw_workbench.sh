@@ -109,8 +109,22 @@ rbw_cmd_connect_bottle() {
 
 rbw_cmd_local_build() {
   local z_recipe="${1:-}"
+  local z_recipe_file="${RBW_SCRIPT_DIR}/../../RBM-recipes/${z_recipe}.recipe"
+  local z_image_tag="${z_recipe}:local-${BUD_NOW_STAMP}"
+
+  # Validate recipe file exists
+  test -f "${z_recipe_file}" || buc_die "Recipe not found: ${z_recipe_file}"
+
   buc_step "Building recipe locally: ${z_recipe}"
-  buc_die "rbw-lB not yet implemented"
+  rbw_show "Recipe file: ${z_recipe_file}"
+  rbw_show "Image tag: ${z_image_tag}"
+
+  # Build with docker (hardcoded for now - this heat is Docker-first)
+  buc_step "Running: docker build -f ${z_recipe_file} -t ${z_image_tag} ."
+  docker build -f "${z_recipe_file}" -t "${z_image_tag}" "${RBW_SCRIPT_DIR}/../.." \
+    || buc_die "Docker build failed"
+
+  buc_step "Build complete: ${z_image_tag}"
 }
 
 ######################################################################
