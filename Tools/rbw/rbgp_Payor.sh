@@ -159,9 +159,9 @@ zrbgp_depot_list_update() {
   local z_access_token
   z_access_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate for depot list update"
 
-  # Query active depot projects (note: CRM API filter parameter not available in this context)
-  # Using simple list without filter - will be empty on first install
-  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
+  # Query active depot projects (CRM v1 allows listing accessible projects without parent)
+  # Using v1 instead of v3 which requires parent parameter
+  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects"
   rbgu_http_json "GET" "${z_list_url}" "${z_access_token}" "depot_list_tracking"
 
   # Non-blocking: if query fails, just log and continue (normal on first install with no projects)
