@@ -173,12 +173,14 @@ rbgi_add_repo_iam_role() {
   zrbgi_sentinel
 
   local z_token="${1:-}"
-  local z_account_email="${2:-}"
-  local z_location="${3:-}"
-  local z_repository="${4:-}"
-  local z_role="${5:-}"
+  local z_project_id="${2:-}"
+  local z_account_email="${3:-}"
+  local z_location="${4:-}"
+  local z_repository="${5:-}"
+  local z_role="${6:-}"
 
   test -n "${z_token}"         || buc_die "Token required"
+  test -n "${z_project_id}"    || buc_die "Project ID required"
   test -n "${z_account_email}" || buc_die "Service account email required"
   test -n "${z_location}"      || buc_die "Location is required"
   test -n "${z_repository}"    || buc_die "Repository is required"
@@ -186,7 +188,7 @@ rbgi_add_repo_iam_role() {
 
   buc_log_args "Using admin token (value not logged)"
 
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}/locations/${z_location}/repositories/${z_repository}"
+  local z_resource="projects/${z_project_id}/locations/${z_location}/repositories/${z_repository}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 

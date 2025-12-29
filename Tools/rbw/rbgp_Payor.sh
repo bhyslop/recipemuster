@@ -794,7 +794,7 @@ rbgp_depot_create() {
   buc_step 'Configure Mason permissions'
   # Repository admin
   local z_repo_resource="${z_parent}/repositories/${z_repository_name}"
-  rbgi_add_repo_iam_role "${z_token}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
+  rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
     "roles/artifactregistry.admin"
   
   # Bucket viewer

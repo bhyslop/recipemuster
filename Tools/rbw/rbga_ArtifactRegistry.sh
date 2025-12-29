@@ -218,7 +218,7 @@ rbga_repo_add_iam_role() {
   fi
 
   buc_log_args 'Use rbgi_add_repo_iam_role'
-  rbgi_add_repo_iam_role "${z_token}" "${z_account_email}" "${z_location}" "${z_repo_name}" "${z_role}"
+  rbgi_add_repo_iam_role "${z_token}" "${RBRR_GCP_PROJECT_ID}" "${z_account_email}" "${z_location}" "${z_repo_name}" "${z_role}"
 
   buc_success "Added IAM role ${z_role} to ${z_member} on repository: ${z_repo_name} in ${z_location}"
 }
