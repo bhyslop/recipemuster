@@ -95,6 +95,12 @@ zrbrr_kindle() {
     buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION"
   fi
 
+  # Build docker env args array for container injection
+  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
+  # Currently only RBRR_DNS_SERVER is needed by sentry; add others as needed
+  ZRBRR_DOCKER_ENV=()
+  ZRBRR_DOCKER_ENV+=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
+
   ZRBRR_KINDLED=1
 }
 

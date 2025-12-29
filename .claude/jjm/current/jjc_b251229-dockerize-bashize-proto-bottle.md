@@ -55,4 +55,14 @@
 ### 2025-12-29 11:20 - validate-docker-with-busybox - WRAP
 **Outcome**: Full flow validated; test_busybox:local-* image built successfully (6.27MB)
 ---
+### 2025-12-29 11:25 - design-rbrr-env-injection - APPROACH
+**Proposed approach**:
+- Add ZRBRN_DOCKER_ENV array to rbrn_regime.sh (parallel to existing ZRBRN_ROLLUP string)
+- Add ZRBRR_DOCKER_ENV array to rbrr_regime.sh (currently just RBRR_DNS_SERVER)
+- Arrays built at kindle time, used via "${ARRAY[@]}" expansion in docker run
+- Keep both patterns: string rollup for shell eval, array for container injection
+---
+### 2025-12-29 11:30 - design-rbrr-env-injection - WRAP
+**Outcome**: Added ZRBRN_DOCKER_ENV (22 vars) and ZRBRR_DOCKER_ENV (1 var) arrays to regime kindle functions
+---
 (execution log begins here)
