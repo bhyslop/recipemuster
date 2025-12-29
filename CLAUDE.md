@@ -159,13 +159,19 @@ For full MCM specification, see `Tools/cmk/mcm-MCM-MetaConceptModel.adoc`.
 
 **Important**: Restart Claude Code session after installation for new commands and subagents to become available.
 
+## Current Context
+- Primary focus: Recipe Bottle infrastructure and tooling
+- Architecture: Bash-based CLI tools with Google Cloud integration
+- Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
+- Public project page: https://scaleinv.github.io/recipebottle
+
 ## Job Jockey Configuration
 
 Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
 - **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Location: `current/` (active) or `retired/` (done).
-- **Pace**: Discrete action within a heat; mode is `manual` (human drives) or `delegated` (model drives from spec)
+- **Pace**: Discrete action within a heat; can be armed for autonomous execution via `/jja-pace-arm`
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 
@@ -173,22 +179,14 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - JJ Kit path: `Tools/jjk/README.md`
 
 **Available commands:**
-- `/jja-heat-resume` - Resume heat at session start, analyze and propose approach
+- `/jja-heat-saddle` - Saddle up on heat at session start, analyze and propose approach
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-find` - Show current pace (with mode)
-- `/jja-pace-left` - List all remaining paces (with mode)
-- `/jja-pace-add` - Add a new pace (defaults to manual)
-- `/jja-pace-delegate` - Execute a delegated pace
+- `/jja-pace-new` - Add a new pace
+- `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
+- `/jja-pace-fly` - Execute an armed pace autonomously
 - `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
 - `/jja-sync` - Commit and push, then analyze current pace and propose approach
-- `/jja-itch-list` - List all itches and scars
-- `/jja-itch-find` - Find an itch by keyword
-- `/jja-itch-move` - Move itch to scar or promote to heat
+- `/jja-itch-add` - Add a new itch to the backlog
+- `/jja-notch` - JJ-aware git commit with heat/pace/brand context
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
-
-## Current Context
-- Primary focus: Recipe Bottle infrastructure and tooling
-- Architecture: Bash-based CLI tools with Google Cloud integration
-- Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
-- Public project page: https://scaleinv.github.io/recipebottle
