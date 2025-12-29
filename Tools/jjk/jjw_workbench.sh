@@ -40,6 +40,8 @@ ZJJW_KIT_PATH="${ZJJW_KIT_PATH:-Tools/jjk/README.md}"
 
 zjjw_emit_heat_resume() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are resuming the current Job Jockey heat."
     echo ""
     echo "Use this command for:"
@@ -100,6 +102,8 @@ zjjw_emit_heat_resume() {
 
 zjjw_emit_heat_retire() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are retiring a completed Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -171,6 +175,8 @@ zjjw_emit_heat_retire() {
 
 zjjw_emit_pace_find() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are showing the current pace from the active Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -206,6 +212,8 @@ zjjw_emit_pace_find() {
 
 zjjw_emit_pace_left() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are listing all remaining paces in the current Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -243,6 +251,8 @@ zjjw_emit_pace_left() {
 
 zjjw_emit_pace_add() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are adding a new pace to the current Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -288,6 +298,8 @@ zjjw_emit_pace_add() {
 
 zjjw_emit_pace_delegate() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are executing a delegated pace from the current Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -368,6 +380,8 @@ zjjw_emit_pace_delegate() {
 
 zjjw_emit_pace_wrap() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are helping mark a pace complete in the current Job Jockey heat."
     echo ""
     echo "Configuration:"
@@ -439,6 +453,8 @@ zjjw_emit_pace_wrap() {
 
 zjjw_emit_sync() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are synchronizing JJ state and target repo work."
     echo ""
     echo "Configuration:"
@@ -503,6 +519,8 @@ zjjw_emit_sync() {
 
 zjjw_emit_itch_list() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are listing all Job Jockey itches and scars."
     echo ""
     echo "Configuration:"
@@ -538,6 +556,8 @@ zjjw_emit_itch_list() {
 
 zjjw_emit_itch_find() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are searching for a Job Jockey itch by keyword."
     echo ""
     echo "Configuration:"
@@ -571,6 +591,8 @@ zjjw_emit_itch_find() {
 
 zjjw_emit_itch_move() {
   {
+    echo "# JJ Brand: ${ZJJW_BRAND}"
+    echo ""
     echo "You are moving a Job Jockey itch between locations."
     echo ""
     echo "Configuration:"
@@ -655,6 +677,38 @@ zjjw_emit_claudemd_section() {
 jjw_install() {
   buc_step "Clearing previous installation"
   jjw_uninstall
+
+  buc_step "Computing brand from kit content"
+  local z_pedigrees_file="${ZJJW_SCRIPT_DIR}/jjp_pedigrees.json"
+  local z_temp_file="${BUD_TEMP_DIR}/jjw_pedigrees_temp.json"
+
+  local z_full_hash
+  z_full_hash=$(cat "${ZJJW_SCRIPT_DIR}/jjw_workbench.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
+  local z_hash="${z_full_hash:0:12}"
+
+  local z_brand
+  z_brand=$(jq -r --arg h "${z_hash}" '.[] | select(.hash == $h) | .v' "${z_pedigrees_file}") || buc_die "Failed to read pedigrees"
+
+  if test -z "${z_brand}"; then
+    buc_step "Registering new pedigree"
+    local z_max_version
+    z_max_version=$(jq 'map(.v) | max // 599' "${z_pedigrees_file}") || buc_die "Failed to compute max version"
+    z_brand=$((z_max_version + 1))
+
+    local z_commit
+    z_commit=$(git -C "${ZJJW_SCRIPT_DIR}" rev-parse --short HEAD) || buc_die "Failed to get git commit"
+
+    local z_date
+    z_date=$(date +%Y-%m-%d)
+
+    jq --argjson v "${z_brand}" --arg h "${z_hash}" --arg c "${z_commit}" --arg d "${z_date}" \
+      '. + [{"v": $v, "hash": $h, "commit": $c, "date": $d}]' \
+      "${z_pedigrees_file}" > "${z_temp_file}" || buc_die "Failed to update pedigrees"
+    mv "${z_temp_file}" "${z_pedigrees_file}" || buc_die "Failed to write pedigrees file"
+  fi
+
+  ZJJW_BRAND="${z_brand}"
+  buc_step "Brand: ${ZJJW_BRAND}"
 
   buc_step "Creating directory structure"
   mkdir -p ".claude/commands"

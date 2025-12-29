@@ -24,6 +24,7 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 | `jjs_` | Scar | Closed work aggregate |
 | `jjc_` | Chase | (Future) Steeplechase performance logs |
 | `jja_` | Action | Slash commands |
+| `jjp_` | Pedigree | Version history registry |
 | `jjk_` | sKill | (Future) Skill definitions |
 | `jjg_` | aGent | (Future) Agent definitions |
 
@@ -374,6 +375,24 @@ The kebab-case identifier that uniquely names JJ artifacts:
 - Steeplechases inherit the heat's silks
 - Usage: "What's the silks on that itch?" / "The heat silks are `rbags-specification`"
 
+### Brand and Pedigree
+Version tracking for JJ kit installations:
+- **Brand**: The current detected version number (e.g., 600, 601). Computed during install from content hash of kit files.
+- **Pedigree**: A single version record containing version number, content hash, git commit, and date.
+- **Pedigrees file**: `Tools/jjk/jjp_pedigrees.json` - registry of all known pedigrees, tracked in git.
+
+During install:
+1. Compute SHA-256 hash of `jjw_workbench.sh` + `README.md`
+2. Look up hash in pedigrees file
+3. If found, use existing version number
+4. If not found, increment from max version (starting at 600), register new pedigree
+5. Bake brand into all emitted command files
+
+Benefits:
+- Deterministic: same kit content always produces same brand
+- Traceable: correlate heat outcomes to specific JJ versions
+- Self-documenting: each command file declares its brand
+
 ## Future Directions
 
 ### Specialized Agents
@@ -411,20 +430,6 @@ Improve the analyze→delegate flow:
 - Detect scope creep or unbounded work before it spins
 - Graceful escalation: haiku fails → sonnet retry → opus rescue → human
 - Match pace requirements to skill inventory before attempting delegation
-
-### Instance Versioning via Content Addressing
-Add a deterministic version designation for JJ installations to connect retrospective study to improvement:
-- **Approach**: Compute shasum (SHA-256) of JJ kit files: `jjw_workbench.sh` + `README.md`
-- **Installation process**: During `jjw_workbench.sh jjk-i`, compute content hash and generate brand version (e.g., `jj-a3f7d2e`)
-- **Storage**: Write JJ brand to `.claude/jjm/jj_brand.txt` and optionally to CLAUDE.md JJ configuration
-- **Embedding**: Bake brand into heat/steeplechase files and git commits (via `/pace-commit` and other JJ commands)
-- **Benefits**:
-  - Deterministic: same kit files always produce same version, no manual versioning needed
-  - Lean context: short hash is easy to reference in prose and commit messages
-  - Traceable: enables retrospective filtering ("heats using jj-a3f7d2e"), correlates code changes to JJ design iterations
-  - Self-documenting: hash is cryptographic proof of which exact JJ version produced the pattern
-- **Enables**: "these heats used JJ version a3f7d2e, these used b8c2f1a, compare outcomes and identify design improvements"
-- **Fallback**: If hash computation unavailable, fall back to timestamp-based version (e.g., `jj-2512271430`)
 
 ### Heat Document Efficiency
 Reduce thrash in heat files during active work:
