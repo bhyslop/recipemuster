@@ -232,7 +232,7 @@ When starting a session or the user calls `/jja-heat-saddle`, Claude checks `.cl
 1. Use `/jja-heat-saddle` at session start - Claude shows context and proposes approach
 2. Approve approach or adjust, then work on the pace
 3. Use `/jja-pace-wrap` when complete - Claude analyzes next pace and proposes approach
-4. Approve and continue (no need for heat-resume between paces)
+4. Approve and continue (no need for heat-saddle between paces)
 5. Use `/jja-sync` periodically - also proposes approach for current pace
 6. Repeat until heat is complete
 
@@ -270,8 +270,8 @@ Heat files contain these sections:
 [Stable background info. Can grow as insights emerge during heat work.]
 
 ## Done
-1. First completed pace title
-2. Second completed pace title
+- First completed pace title
+- Second completed pace title
 ...
 
 ## Remaining
@@ -286,7 +286,7 @@ Heat files contain these sections:
 
 **Context**: Stable information that grows as architectural insights emerge. Goals, constraints, decisions, background.
 
-**Done**: Numbered list of completed pace titles only. Number = completion order (useful for commit references). No verbose summaries - git commits carry that detail.
+**Done**: Completed pace titles only. No verbose summaries - git commits carry that detail.
 
 **Remaining**: Unnumbered queue of paces. **First item is implicitly current** (bold it to highlight, may include working notes). Rest are future paces in priority order. Order can change freely. When current pace completes, move it to Done and first remaining item becomes current.
 
