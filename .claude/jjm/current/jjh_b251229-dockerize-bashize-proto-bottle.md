@@ -145,11 +145,9 @@ rbw_runtime_cmd() {
 - **Create rbrn_nsproto.env** — Added RBRN_RUNTIME to spec/regime/cli; fixed buv validators; created nsproto.env
 - **Create rbw_workbench.sh skeleton** — Created workbench with load_nameplate, runtime_cmd, stub commands
 - **Create BUD launchers** — Created launcher.rbw_workbench.sh and launcher.rbt_testbench.sh for BUD dispatch
+- **Implement local recipe build** — Implemented rbw_cmd_local_build; created test_busybox tabtarget
 
 ## Remaining
-
-- **Implement local recipe build** — Add `rbw-lB` route for local Docker builds. Build from `RBM-recipes/${TOKEN_3}.recipe` files (these are Dockerfiles). Tag as `${recipe_name}:local-${timestamp}`. Create per-recipe tabtargets (e.g., `tt/rbw-lB.LocalBuild.sentry_ubuntu_large.sh`). Long-term capability replacing blocked GCB.
-  mode: manual
 
 - **Validate Docker with busybox** — Create `tt/rbw-lB.LocalBuild.test_busybox.sh` tabtarget and run it to exercise full flow: tabtarget → launcher → workbench → `docker build`. Confirm image appears in `docker images`. Fast validation (~5MB download) before committing to large Ubuntu image builds.
   mode: manual

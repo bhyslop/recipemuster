@@ -43,4 +43,7 @@
 - Create sample tabtarget `tt/rbw-lB.LocalBuild.test_busybox.sh` using launcher pattern
 - Defer busybox validation to next pace, per-recipe tabtargets to later
 ---
+### 2025-12-29 11:15 - implement-local-recipe-build - WRAP
+**Outcome**: Implemented rbw_cmd_local_build; created test_busybox tabtarget
+---
 (execution log begins here)
