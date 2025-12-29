@@ -59,9 +59,13 @@ Track in this section as the heat progresses:
 - `rbp_stash_*` rules - VM image pinning/caching (marked buggy/deferred in source)
 - `RBM_MACHINE`, `RBM_CONNECTION` variables - podman machine connection
 - `zRBM_PODMAN_SSH_CMD` - SSH into podman VM
+- `rbo.observe.sh` - uses `podman machine ssh` to capture bridge traffic; no Docker equivalent
 
 **Ported (update as paces complete):**
 - (none yet)
+
+**Notes for future heats:**
+- Parallel test execution: Makefile runs tests per-nameplate sequentially but could parallelize across nameplates (nsproto, srjcl, pluml are independent). Current `-j` flag applied within test suite. Not needed for this heat but preserve capability awareness.
 
 ### File Inventory
 
@@ -113,9 +117,11 @@ Track in this section as the heat progresses:
 | `Tools/buk/but_test.sh` | unchanged | Test framework (sourced by testbench) |
 | `Tools/buk/buc_command.sh` | unchanged | Output utilities (sourced by workbench) |
 | `Tools/buk/buv_validation.sh` | unchanged | Validation (sourced by regime) |
-| **RBW utilities (unchanged)** |||
-| `Tools/rbw/rbrn_regime.sh` | unchanged | Validates RBRN_* environment |
+| **RBW utilities** |||
+| `Tools/rbw/rbrn_regime.sh` | modify | Modernize to kindle/sentinel pattern |
 | `Tools/rbw/rbss.sentry.sh` | unchanged | Sentry iptables config (exec'd into container) |
+| **Recipes (reference only)** |||
+| `RBM-recipes/*.recipe` | reference | Dockerfiles for sentry/bottle/test images |
 
 ### Runtime Command Abstraction Pattern
 
@@ -135,13 +141,22 @@ rbw_runtime_cmd() {
 
 ## Remaining
 
-- **Create rbrn_nsproto.env** — Convert `nameplate.nsproto.mk` to bash-sourceable format. Add `RBRN_RUNTIME=docker` parameter. Validate with existing `rbrn_regime.sh`.
+- **Modernize rbrn_regime.sh** — Convert from old self-sourcing format to kindle/sentinel pattern. Remove direct `source buv_validation.sh`, add multiple-inclusion guard, create `zrbrn_kindle()` and `zrbrn_sentinel()` functions. Follow `rbrr_regime.sh` as template.
+  mode: manual
+
+- **Create rbrn_nsproto.env** — Convert `nameplate.nsproto.mk` to bash-sourceable format. Add `RBRN_RUNTIME=docker` parameter. Validate with modernized `rbrn_regime.sh`.
   mode: manual
 
 - **Create rbw_workbench.sh skeleton** — Establish workbench structure with runtime abstraction. Include command routing that parses moniker from tabtarget filename tokens. Source `buc_command.sh` for output. No lifecycle implementation yet.
   mode: manual
 
 - **Create BUD launchers** — Create `.buk/launcher.rbw_workbench.sh` and `.buk/launcher.rbt_testbench.sh` following existing launcher pattern.
+  mode: manual
+
+- **Implement local recipe build** — Add `rbw-lB` route for local Docker builds. Build from `RBM-recipes/${TOKEN_3}.recipe` files (these are Dockerfiles). Tag as `${recipe_name}:local-${timestamp}`. Create per-recipe tabtargets (e.g., `tt/rbw-lB.LocalBuild.sentry_ubuntu_large.sh`). Long-term capability replacing blocked GCB.
+  mode: manual
+
+- **Design RBRR env injection for sentry** — The sentry setup script (`rbss.sentry.sh`) requires `RBRR_DNS_SERVER` from RBRR regime. Decide how launcher/workbench loads and passes RBRR variables to container. Options: launcher loads both regimes, workbench loads RBRR on demand, or nameplate includes DNS server. Reference `rbw.workbench.mk` for current Makefile approach.
   mode: manual
 
 - **Implement rbw-start** — Port `rbp_start_service_rule` to bash. Orchestrate: cleanup prior containers, create enclave network, launch sentry (bridge + enclave), configure sentry security, launch censer, configure censer routing, create and start bottle.
@@ -153,13 +168,16 @@ rbw_runtime_cmd() {
 - **Implement rbw-connect commands** — Port `rbp_connect_sentry/censer/bottle_rule` to bash functions. Interactive exec into each container type.
   mode: manual
 
-- **Implement rbw-observe** — Port `rbp_observe_networks_rule` to bash. Network traffic observation via sentry.
+- **Implement rbw-observe (partial)** — Port what's possible without podman machine ssh. The full `rbo.observe.sh` requires `podman machine ssh` for bridge capture which has no Docker equivalent. Implement sentry/censer tcpdump capture; defer bridge capture to podman heat.
   mode: manual
 
 - **Migrate lifecycle tabtargets** — Modify existing tabtargets (`rbw-s.Start`, `rbw-S.ConnectSentry`, `rbw-C.ConnectCenser`, `rbw-B.ConnectBottle`, `rbw-o.ObserveNetworks`) from mbd.dispatch to BUD launcher pattern.
   mode: manual
 
-- **Create rbt_testbench.sh skeleton** — Establish test workbench using `but_test.sh`. Include test helper functions (`rbt_exec_sentry`, `rbt_exec_bottle`, etc.) with runtime abstraction.
+- **Determine exec -i requirements** — Review existing tests to understand when `-i` (stdin) flag is needed for container exec. Current Makefile uses both `MBT_PODMAN_EXEC_BOTTLE` and `MBT_PODMAN_EXEC_BOTTLE_I`. Document pattern for testbench helper functions.
+  mode: manual
+
+- **Create rbt_testbench.sh skeleton** — Establish test workbench using `but_test.sh`. Include test helper functions (`rbt_exec_sentry`, `rbt_exec_bottle`, etc.) with runtime abstraction. Apply -i requirements from previous pace.
   mode: manual
 
 - **Migrate nsproto security tests** — Port `rbt.test.nsproto.mk` test cases to bash functions. 20+ tests covering DNS filtering, TCP blocking, ICMP isolation, package blocking.
@@ -177,7 +195,7 @@ rbw_runtime_cmd() {
 - **Migrate pluml nameplate and tests** — Create `rbrn_pluml.env`, migrate `rbt.test.pluml.mk` tests to bash, migrate pluml tabtargets (`rbw-s.Start.pluml.sh`, `rbw-S.ConnectSentry.pluml.sh`, `rbw-o.ObserveNetworks.pluml.sh`, `rbw-to.TestBottleService.pluml.sh`). Validate with Docker.
   mode: manual
 
-- **Absorb Coordinator routing** — Merge relevant `rbk_Coordinator.sh` routes into `rbw_workbench.sh`. Coordinator stays for non-lifecycle commands.
+- **Absorb Coordinator lifecycle routes** — Move only lifecycle-related routes from `rbk_Coordinator.sh` to `rbw_workbench.sh`. Non-lifecycle commands (payor, governor, foundry, image management) remain in Coordinator. Consolidation of all routes deferred to future heat.
   mode: manual
 
 - **Retire rehosted Makefile rules** — Remove successfully ported rules from `rbp.podman.mk`. Keep podman VM machinery intact. Update `rbw.workbench.mk` to remove migrated test helper macros.

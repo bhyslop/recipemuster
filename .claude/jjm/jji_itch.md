@@ -238,3 +238,13 @@ Identified during cloud-first-light heat debugging, 2025-12-28. Test depot creat
 
 ## buc-info-default-visibility
 `buc_info()` requires `BUC_VERBOSE >= 1` to print, which is confusing and unexpected. Most expect info-level logging to always display like `warn()` or `die()`. Consider making `buc_info()` always print by default, or improve documentation about this non-standard behavior.
+
+## rbrn-volume-mounts-cleanup
+The pluml nameplate has broken/placeholder volume mount configuration with "OUCH NOT ACTUALLY PROPER" comments:
+- `RBRN_VOLUME_MOUNTS` points to wrong directory (`RBM-environments-srjcl` instead of pluml)
+- `RBRN_UPLINK_ALLOWED_*` values are placeholders for a service that shouldn't need uplink access
+
+Fix these or make volume mounts properly optional in the nameplate validation.
+
+### Context
+Identified during dockerize-bashize-proto-bottle heat planning, 2025-12-29.
