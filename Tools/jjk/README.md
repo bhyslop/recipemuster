@@ -64,15 +64,15 @@ All scars live in a single aggregate file (`jjs_scar.md`).
 ### Day-to-Day Usage
 
 You work on a heat by talking with Claude Code. As you make progress:
-- At session start, use `/jja-heat-resume` to establish context and see proposed approach
+- At session start, use `/jja-heat-saddle` to establish context and see proposed approach
 - Work on the pace together
 - Use `/jja-pace-wrap` to mark complete - Claude automatically analyzes next pace and proposes approach
 - Use `/jja-sync` to commit/push - Claude then proposes approach for current pace
 - New paces emerge and get added with `/jja-pace-add`
 
-Note: After pace-wrap or sync, you do NOT need heat-resume - those commands flow directly into the next pace.
+Note: After pace-wrap or sync, you do NOT need heat-saddle - those commands flow directly into the next pace.
 
-When new ideas come up that don't belong in current heat, Claude uses `/jja-itch-find` and `/jja-itch-move` to file them away.
+When new ideas come up that don't belong in current heat, use `/jja-itch-add` to file them away.
 
 When a heat completes, Claude uses `/jja-heat-retire` to move it to `retired/` with a datestamp.
 
@@ -128,17 +128,13 @@ my-project/                 # Launch Claude Code here
   CLAUDE.md
   .claude/
     commands/
-      jja-heat-resume.md
+      jja-heat-saddle.md
       jja-heat-retire.md
-      jja-pace-find.md
-      jja-pace-left.md
       jja-pace-add.md
       jja-pace-delegate.md
       jja-pace-wrap.md
       jja-sync.md
-      jja-itch-list.md
-      jja-itch-find.md
-      jja-itch-move.md
+      jja-itch-add.md
     jjm/
       jji_itch.md
       jjs_scar.md
@@ -245,13 +241,13 @@ On heat retirement, the entire steeplechase is appended to the heat file under a
 4. Archive previous heat to `retired/` (if applicable)
 
 ### Selecting Current Heat
-When starting a session or the user calls `/jja-heat-resume`, Claude checks `.claude/jjm/current/`:
+When starting a session or the user calls `/jja-heat-saddle`, Claude checks `.claude/jjm/current/`:
 - **0 heats**: No active work. Ask if user wants to start a new heat or promote an itch.
 - **1 heat**: Show heat and current pace
 - **2+ heats**: Ask user which heat to work on
 
 ### Working on a Heat
-1. Use `/jja-heat-resume` at session start - Claude shows context and proposes approach
+1. Use `/jja-heat-saddle` at session start - Claude shows context and proposes approach
 2. Approve approach or adjust, then work on the pace
 3. Use `/jja-pace-wrap` when complete - Claude analyzes next pace and proposes approach
 4. Approve and continue (no need for heat-resume between paces)
@@ -353,18 +349,13 @@ Configuration is via environment variables:
 
 ## Available Commands
 
-- `/jja-heat-resume` - Resume heat at session start, analyze pace, propose approach
-  - **Note**: This command name clashes with Claude Code's `resume` command. Alternative name to be chosen in a future iteration.
+- `/jja-heat-saddle` - Saddle up on heat at session start, analyze pace, propose approach
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-find` - Show current pace (with mode)
-- `/jja-pace-left` - List all remaining paces (with mode)
 - `/jja-pace-add` - Add a new pace (defaults to manual)
 - `/jja-pace-delegate` - Execute a delegated pace
 - `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
 - `/jja-sync` - Commit and push, then analyze current pace, propose approach
-- `/jja-itch-list` - List all itches and scars
-- `/jja-itch-find` - Find an itch by keyword
-- `/jja-itch-move` - Move itch to scar or promote to heat
+- `/jja-itch-add` - Add a new itch to the backlog
 
 ## Terminology
 
@@ -496,17 +487,6 @@ Project-level control over automatic git commits:
 - Some want no JJ-initiated commits at all
 - Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-sync | never`
 - Default behavior should match current (commits on wrap/sync)
-
-### Command Set Consolidation
-Evaluate and streamline the JJ command roster:
-- Current command set: 11 slash commands (`/jja-*`)
-- **Observation**: Some commands see little/no use in practice (e.g., `/jja-pace-find`, `/jja-pace-left`)
-- **Question**: Are these truly necessary, or do they represent over-specified capability?
-  - `/jja-pace-find` and `/jja-pace-left`: Could be consolidated into a single "show paces" command
-  - `/jja-itch-list`, `/jja-itch-find`, `/jja-itch-move`: Possible consolidation into unified itch management
-- **Approach**: Study actual usage patterns over several heats; identify which commands deliver value vs. which are theoretical
-- **Goal**: Reduce cognitive load by keeping only essential commands; move rarely-used operations to workflow guidance instead
-- **Risk**: Over-consolidation might sacrifice flexibility. Document decision rationale.
 
 ### Git Commit Agent Configuration
 Specify commit style and context upfront to eliminate style lookups:
