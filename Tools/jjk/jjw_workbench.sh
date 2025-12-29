@@ -513,20 +513,20 @@ jjw_install() {
   jjw_uninstall
 
   buc_step "Computing brand from kit content"
-  local z_pedigrees_file="${ZJJW_SCRIPT_DIR}/jjp_pedigrees.json"
-  local z_temp_file="${BUD_TEMP_DIR}/jjw_pedigrees_temp.json"
+  local z_ledger_file="${ZJJW_SCRIPT_DIR}/jjl_ledger.json"
+  local z_temp_file="${BUD_TEMP_DIR}/jjw_ledger_temp.json"
 
   local z_full_hash
   z_full_hash=$(cat "${ZJJW_SCRIPT_DIR}/jjw_workbench.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
   local z_hash="${z_full_hash:0:12}"
 
   local z_brand
-  z_brand=$(jq -r --arg h "${z_hash}" '.[] | select(.hash == $h) | .v' "${z_pedigrees_file}") || buc_die "Failed to read pedigrees"
+  z_brand=$(jq -r --arg h "${z_hash}" '.[] | select(.hash == $h) | .v' "${z_ledger_file}") || buc_die "Failed to read ledger"
 
   if test -z "${z_brand}"; then
-    buc_step "Registering new pedigree"
+    buc_step "Registering new ledger entry"
     local z_max_version
-    z_max_version=$(jq 'map(.v) | max // 599' "${z_pedigrees_file}") || buc_die "Failed to compute max version"
+    z_max_version=$(jq 'map(.v) | max // 599' "${z_ledger_file}") || buc_die "Failed to compute max version"
     z_brand=$((z_max_version + 1))
 
     local z_commit
@@ -537,8 +537,8 @@ jjw_install() {
 
     jq --argjson v "${z_brand}" --arg h "${z_hash}" --arg c "${z_commit}" --arg d "${z_date}" \
       '. + [{"v": $v, "hash": $h, "commit": $c, "date": $d}]' \
-      "${z_pedigrees_file}" > "${z_temp_file}" || buc_die "Failed to update pedigrees"
-    mv "${z_temp_file}" "${z_pedigrees_file}" || buc_die "Failed to write pedigrees file"
+      "${z_ledger_file}" > "${z_temp_file}" || buc_die "Failed to update ledger"
+    mv "${z_temp_file}" "${z_ledger_file}" || buc_die "Failed to write ledger file"
   fi
 
   buc_step "Creating directory structure"

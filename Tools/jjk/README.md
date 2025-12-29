@@ -25,7 +25,7 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 | `jjc_` | Chase | (Future) Steeplechase performance logs |
 | `jja_` | Action | Slash commands |
 | `jjb_` | Brand | Current detected version |
-| `jjp_` | Pedigree | Version history registry |
+| `jjl_` | Ledger | Version history registry |
 | `jjk_` | sKill | (Future) Skill definitions |
 | `jjg_` | aGent | (Future) Agent definitions |
 
@@ -218,7 +218,7 @@ On heat retirement, the entire steeplechase is appended to the heat file under a
 
 ### Starting a New Heat
 1. Create `jjh_bYYMMDD-description.md` in `.claude/jjm/current/` (use today's date)
-2. Include Context section with stable background information
+2. Include Paddock section with stable background information
 3. Include Paces section with initial checklist items
 4. Archive previous heat to `retired/` (if applicable)
 
@@ -266,7 +266,7 @@ Heat files contain these sections:
 ```markdown
 # Heat: [Name]
 
-## Context
+## Paddock
 [Stable background info. Can grow as insights emerge during heat work.]
 
 ## Done
@@ -284,7 +284,7 @@ Heat files contain these sections:
 
 ### Section Details
 
-**Context**: Stable information that grows as architectural insights emerge. Goals, constraints, decisions, background.
+**Paddock**: Stable information that grows as architectural insights emerge. Goals, constraints, decisions, background.
 
 **Done**: Completed pace titles only. No verbose summaries - git commits carry that detail.
 
@@ -342,6 +342,19 @@ Configuration is via environment variables:
 
 ## Terminology
 
+### Paddock
+The heat-wide context section in a heat document. Named after the prep area where horses gather before a race.
+
+The Paddock holds stable information that spans multiple paces:
+- Approach and guidelines for working the heat
+- Reference files and domain knowledge
+- Facts and insights that emerge during heat execution
+- Constraints, decisions, and architectural background
+
+Usage: "Add that insight to the Paddock" / "Check the Paddock for guidelines"
+
+In heat documents, the Paddock is the `## Paddock` section and its subsections.
+
 ### Silks
 The kebab-case identifier that uniquely names JJ artifacts:
 - **Silks** are the unique names for itches, scars, heats, and steeplechases (e.g., `governor-implementation`, `buk-portability`)
@@ -350,17 +363,17 @@ The kebab-case identifier that uniquely names JJ artifacts:
 - Steeplechases inherit the heat's silks
 - Usage: "What's the silks on that itch?" / "The heat silks are `rbags-specification`"
 
-### Brand and Pedigree
+### Brand and Ledger
 Version tracking for JJ kit installations:
 - **Brand**: The current detected version number (e.g., 600, 601). Computed during install from content hash of kit files.
-- **Pedigree**: A single version record containing version number, content hash, git commit, and date.
-- **Pedigrees file**: `Tools/jjk/jjp_pedigrees.json` - registry of all known pedigrees, tracked in git.
+- **Ledger entry**: A single version record containing version number, content hash, git commit, and date.
+- **Ledger file**: `Tools/jjk/jjl_ledger.json` - registry of all known versions, tracked in git.
 
 During install:
 1. Compute SHA-256 hash of `jjw_workbench.sh` + `README.md`
-2. Look up hash in pedigrees file
+2. Look up hash in ledger
 3. If found, use existing version number
-4. If not found, increment from max version (starting at 600), register new pedigree
+4. If not found, increment from max version (starting at 600), register new entry
 5. Bake brand into all emitted command files
 
 Benefits:
@@ -390,7 +403,7 @@ Create a dedicated skill for forming well-structured heats:
 - **Purpose**: Ensure new heats follow silks guidance, correct structure, and validated context from creation
 - **Invocation**: User describes heat intent; skill guides through:
   - Silks workshop: generate 3-5 candidates, validate against guidance (2-4 words, catchy, <30 chars)
-  - Context gathering: stable background info, goals, constraints
+  - Paddock gathering: stable background info, goals, constraints
   - Initial paces: sketch first 3-5 paces as unnumbered Remaining list (no Current section)
   - Validation: verify `.claude/jjm/current/` exists, file naming, structure
 - **Output**: Properly formed heat file in `.claude/jjm/current/jjh_bYYMMDD-silks.md`
@@ -496,24 +509,6 @@ Specify commit style and context upfront to eliminate style lookups:
   - Easier to change project style without scatter of precedent commits
 - **Storage**: `.claude/jjm/jj_commit_config.md` (checked into git, versioned with heat metadata)
 - **Invocation**: Commit-subagent loads config at startup, applies consistently to all JJ-initiated commits
-
-### Heat Context Naming
-Establish a pithy name for the general heat context section (currently "Context"):
-- **Problem**: Need a memorable label to distinguish general heat knowledge from pace-specific work
-- **Usage pattern**: "I need to add that to the [NAME]" or "Let me update [NAME] with this insight"
-- **Characteristics**:
-  - Grows during heat execution as facts emerge that span multiple paces
-  - Essential for chat reset/resume (new session reads this first)
-  - Accumulates architectural insights, constraints, background, and decisions
-  - Separate from pace-specific working notes
-- **Candidates**:
-  - **Heat Lore**: Emphasizes accumulated wisdom; pithy; memorable (usage: "add it to the Lore")
-  - **Ground Truth**: Signals foundational facts that anchor the heat; formal
-  - **Bedrock**: Evokes stable foundation; slightly more conversational
-  - **Axioms**: Mathematical flavor; precise but perhaps too abstract
-  - **Charter**: Suggests "what you need to know to run this heat"
-- **Recommendation**: Choose candidate that feels natural in speech and fits project culture
-- **Implementation**: Once chosen, update heat template and CLI guidance to use new name consistently
 
 ### Steeplechase as Git Commit Discipline
 Experiment with moving steeplechase entries from heat files to git commits:
