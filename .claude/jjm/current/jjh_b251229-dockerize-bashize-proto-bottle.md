@@ -146,11 +146,9 @@ rbw_runtime_cmd() {
 - **Create rbw_workbench.sh skeleton** — Created workbench with load_nameplate, runtime_cmd, stub commands
 - **Create BUD launchers** — Created launcher.rbw_workbench.sh and launcher.rbt_testbench.sh for BUD dispatch
 - **Implement local recipe build** — Implemented rbw_cmd_local_build; created test_busybox tabtarget
+- **Validate Docker with busybox** — Full flow validated: tabtarget→launcher→workbench→docker build; image created successfully
 
 ## Remaining
-
-- **Validate Docker with busybox** — Create `tt/rbw-lB.LocalBuild.test_busybox.sh` tabtarget and run it to exercise full flow: tabtarget → launcher → workbench → `docker build`. Confirm image appears in `docker images`. Fast validation (~5MB download) before committing to large Ubuntu image builds.
-  mode: manual
 
 - **Design RBRR env injection for sentry** — The sentry setup script (`rbss.sentry.sh`) requires `RBRR_DNS_SERVER` from RBRR regime. Decide how launcher/workbench loads and passes RBRR variables to container. Options: launcher loads both regimes, workbench loads RBRR on demand, or nameplate includes DNS server. Reference `rbw.workbench.mk` for current Makefile approach.
   mode: manual
