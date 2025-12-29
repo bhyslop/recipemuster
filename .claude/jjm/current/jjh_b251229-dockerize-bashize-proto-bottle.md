@@ -142,11 +142,9 @@ rbw_runtime_cmd() {
 
 - **Modernize rbrn_regime.sh** — Modernized with kindle/sentinel, defaults for optional/conditional fields, ZRBRN_ROLLUP; created rbrn_cli.sh
 - **Modernize rbrv_regime.sh** — Modernized with kindle/sentinel, defaults, ZRBRV_ROLLUP; created rbrv_cli.sh
+- **Create rbrn_nsproto.env** — Added RBRN_RUNTIME to spec/regime/cli; fixed buv validators; created nsproto.env
 
 ## Remaining
-
-- **Create rbrn_nsproto.env** — Convert `nameplate.nsproto.mk` to bash-sourceable format. Add `RBRN_RUNTIME=docker` parameter. Validate with modernized `rbrn_regime.sh`.
-  mode: manual
 
 - **Create rbw_workbench.sh skeleton** — Establish workbench structure with runtime abstraction. Include command routing that parses moniker from tabtarget filename tokens. Source `buc_command.sh` for output. No lifecycle implementation yet.
   mode: manual

@@ -22,4 +22,7 @@
 ### 2025-12-29 10:30 - modernize-rbrv-regime - WRAP
 **Outcome**: Modernized with kindle/sentinel, defaults, ZRBRV_ROLLUP; created rbrv_cli.sh
 ---
+### 2025-12-29 11:00 - create-rbrn-nsproto-env - WRAP
+**Outcome**: Added RBRN_RUNTIME to spec/regime/cli; fixed buv validators (${N-} pattern); created nsproto.env
+---
 (execution log begins here)
