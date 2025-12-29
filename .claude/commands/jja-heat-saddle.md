@@ -1,11 +1,16 @@
-You are saddling up on the current Job Jockey heat.
+---
+argument-hint: [silks]
+description: Select active heat
+---
 
-Use this command for:
-- Starting a new Claude Code session (cold start)
-- Explicitly reviewing full heat status
+Select the active Job Jockey heat and show recommended approach.
+
+Use cases:
+- Session start (cold start)
 - Switching between multiple active heats
+- Explicit heat status review
 
-Note: After /jja-pace-wrap or /jja-sync, you do NOT need this command -
+Note: After /jja-pace-wrap or /jja-notch, you do NOT need this command -
 those commands automatically analyze and propose the next pace.
 
 Configuration:

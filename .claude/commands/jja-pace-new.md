@@ -1,3 +1,7 @@
+---
+argument-hint: [description-or-silks]
+---
+
 You are adding a new pace to the current Job Jockey heat.
 
 Configuration:
@@ -31,7 +35,7 @@ Steps:
 7. If approved, update the heat file:
    - Add pace to ## Remaining section at proposed position
 
-8. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-sync)
+8. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-notch)
 
 9. Report what was added
 

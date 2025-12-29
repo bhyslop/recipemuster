@@ -48,6 +48,6 @@ Steps:
    ```
 
 8. Do NOT auto-complete the pace. User decides via /jja-pace-wrap
-   Work is NOT auto-committed. User can review and use /jja-sync.
+   Work is NOT auto-committed. User can review and use /jja-notch.
 
 Error handling: If paths wrong or files missing, announce issue and stop.

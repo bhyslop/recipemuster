@@ -185,8 +185,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
 - `/jja-pace-fly` - Execute an armed pace autonomously
 - `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
-- `/jja-sync` - Commit and push, then analyze current pace and propose approach
 - `/jja-itch-add` - Add a new itch to the backlog
-- `/jja-notch` - JJ-aware git commit with heat/pace/brand context
+- `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.

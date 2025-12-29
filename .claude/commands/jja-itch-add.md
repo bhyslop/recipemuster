@@ -1,3 +1,7 @@
+---
+argument-hint: [description-or-silks]
+---
+
 You are adding a new itch to the Job Jockey backlog.
 
 Configuration:
@@ -14,7 +18,7 @@ Steps:
    - Note existing silks to avoid duplicates
 
 3. Generate unique silks (kebab-case identifier):
-   - 2-4 words, under 30 characters
+   - 3-5 words, short enough to say aloud
    - Must not duplicate existing itch silks
    - Should be memorable and descriptive
 
@@ -26,6 +30,6 @@ Steps:
 
 5. Report what was added (no confirmation step - user can request adjustment)
 
-6. Do NOT commit (accumulates until /jja-sync)
+6. Do NOT commit (accumulates until /jja-notch)
 
 Error handling: If jji_itch.md missing, announce issue and stop.
