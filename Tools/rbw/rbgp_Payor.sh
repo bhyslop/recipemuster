@@ -1050,8 +1050,10 @@ rbgp_depot_list() {
     # Quick validation - check if Mason service account exists
     local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
     rbgu_http_json "GET" "${z_mason_url}" "${z_token}" "depot_list_mason_${z_depot_index}" || true
-    
-    if rbgu_http_is_ok "depot_list_mason_${z_depot_index}"; then
+
+    local z_mason_code
+    z_mason_code=$(rbgu_http_code_capture "depot_list_mason_${z_depot_index}") || z_mason_code=""
+    if [ "${z_mason_code}" = "200" ]; then
       z_status="COMPLETE"
       z_complete_count=$((z_complete_count + 1))
     else
