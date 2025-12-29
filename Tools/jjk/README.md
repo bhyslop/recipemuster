@@ -361,14 +361,15 @@ In heat documents, the Paddock is the `## Paddock` section and its subsections.
 ### Notch
 A JJ-aware git commit. Use `/jja-notch` to commit with heat/pace/brand context.
 
-The dispatcher:
-1. Extracts heat silks, pace silks, and brand from active heat
-2. Stages all changes (`git add -A`)
-3. Spawns a haiku agent to read the diff and format the commit message
-4. Pushes to remote
-5. Re-engages with current pace
+Fire-and-forget design:
+1. Dispatcher validates heat context from conversation (no filesystem fallback)
+2. Checks for untracked files (fails if any - stage manually first)
+3. Spawns background haiku agent that does: git add -u, commit, push
+4. Returns immediately - user continues working
 
-Commit format: `[jj:BRAND][HEAT-SILKS/PACE-SILKS] Message`
+Commit format:
+- With pace: `[jj:BRAND][HEAT/PACE] Message`
+- Without pace: `[jj:BRAND][HEAT] Message` (for general heat work)
 
 Example: `[jj:600][cloud-first-light/fix-quota-bug] Fix project quota check`
 
