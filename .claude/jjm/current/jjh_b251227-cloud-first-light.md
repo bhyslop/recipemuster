@@ -35,9 +35,9 @@ Before exercising operations, validate the mapping between tabtarget script name
 | Bash Function | Tabtarget | Spec | Status |
 |---|---|---|---|
 | `rbgp_payor_install` | `rbw-PI` | RBSPI | working |
-| `rbgp_depot_create` | `rbw-PC` | RBSDC | untested |
-| `rbgp_depot_list` | `rbw-ld` | RBSDL | untested |
-| `rbgp_depot_destroy` | `rbw-PD` | RBSDD | untested |
+| `rbgp_depot_create` | `rbw-PC` | RBSDC | working |
+| `rbgp_depot_list` | `rbw-ld` | RBSDL | working |
+| `rbgp_depot_destroy` | `rbw-PD` | RBSDD | working |
 | `rbgp_governor_reset` | `rbw-PG` | RBSGR | missing |
 | `rbgg_director_create` | `rbw-GD` | RBSDI | untested |
 | `rbgg_retriever_create` | `rbw-GR` | RBSRC | untested |
@@ -63,15 +63,14 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 - **Exercise depot_list** — Listed 8 depot projects; 3 complete (with Mason SA), 5 broken. Practice depot appears as COMPLETE.
 
+- **Exercise depot_destroy** — Replaced DEBUG_ONLY with RBGP_CONFIRM_DESTROY, fixed CRM v3 `.state` field parsing, deleted 4 test depots.
+
 ## Current
-
-- **Exercise depot_destroy** — Remove practice depot and all its resources.
-  mode: manual
-
-## Remaining
 
 - **Exercise depot_create (for keeps)** — Provision depot infrastructure for ongoing use.
   mode: manual
+
+## Remaining
 
 - **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
   mode: manual

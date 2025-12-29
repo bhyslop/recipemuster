@@ -248,4 +248,12 @@
 - Watch sequence: billing unlink → project delete request → tracking file update
 - Verify HTTP responses show success at each step
 - Confirm depot removed from `depot_list` output afterward
+
+### 2025-12-28 18:48 - exercise-depot-destroy - WRAP
+**Mode**: manual
+**Outcome**: Replaced DEBUG_ONLY with RBGP_CONFIRM_DESTROY, fixed CRM v3 `.state` field parsing, deleted 4 test depots.
+
+**Commits**:
+1. `80ee902` - Replace DEBUG_ONLY with RBGP_CONFIRM_DESTROY for depot_destroy
+2. `e6d58d2` - Fix CRM v3 API field: .lifecycleState → .state in JSON parsing
 ---
