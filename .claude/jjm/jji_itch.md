@@ -235,3 +235,6 @@ During depot_create debugging sessions where multiple test depots are created wi
 ### Context
 
 Identified during cloud-first-light heat debugging, 2025-12-28. Test depot creation repeatedly hits billing quota as expected during iterative debugging—better error reporting will save debugging time.
+
+## buc-info-default-visibility
+`buc_info()` requires `BUC_VERBOSE >= 1` to print, which is confusing and unexpected. Most expect info-level logging to always display like `warn()` or `die()`. Consider making `buc_info()` always print by default, or improve documentation about this non-standard behavior.
