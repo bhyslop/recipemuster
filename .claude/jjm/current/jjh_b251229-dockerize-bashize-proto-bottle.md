@@ -147,11 +147,9 @@ rbw_runtime_cmd() {
 - **Create BUD launchers** — Created launcher.rbw_workbench.sh and launcher.rbt_testbench.sh for BUD dispatch
 - **Implement local recipe build** — Implemented rbw_cmd_local_build; created test_busybox tabtarget
 - **Validate Docker with busybox** — Full flow validated: tabtarget→launcher→workbench→docker build; image created successfully
+- **Design RBRR env injection for sentry** — Added ZRBRN_DOCKER_ENV and ZRBRR_DOCKER_ENV arrays to regime kindle functions
 
 ## Remaining
-
-- **Design RBRR env injection for sentry** — The sentry setup script (`rbss.sentry.sh`) requires `RBRR_DNS_SERVER` from RBRR regime. Decide how launcher/workbench loads and passes RBRR variables to container. Options: launcher loads both regimes, workbench loads RBRR on demand, or nameplate includes DNS server. Reference `rbw.workbench.mk` for current Makefile approach.
-  mode: manual
 
 - **Implement rbw-start** — Port `rbp_start_service_rule` to bash. Orchestrate: cleanup prior containers, create enclave network, launch sentry (bridge + enclave), configure sentry security, launch censer, configure censer routing, create and start bottle.
   mode: manual
