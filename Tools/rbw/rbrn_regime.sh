@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Copyright 2024 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,49 +15,108 @@
 # limitations under the License.
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Regime Nameplate - Validator Module
 
-set -e
+set -euo pipefail
 
-ZRBRN_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-source "${ZRBRN_SCRIPT_DIR}/buv_validation.sh"
+# Multiple inclusion detection
+test -z "${ZRBRN_SOURCED:-}" || buc_die "Module rbrn multiply sourced - check sourcing hierarchy"
+ZRBRN_SOURCED=1
 
-buv_env_xname       RBRN_MONIKER                 2     12
-buv_env_string      RBRN_DESCRIPTION             0    120
-buv_env_fqin        RBRN_SENTRY_REPO_PATH        1    128
-buv_env_fqin        RBRN_BOTTLE_REPO_PATH        1    128
-buv_env_fqin        RBRN_SENTRY_IMAGE_TAG        1    128
-buv_env_fqin        RBRN_BOTTLE_IMAGE_TAG        1    128
-buv_env_bool        RBRN_ENTRY_ENABLED
+######################################################################
+# Internal Functions (zrbrn_*)
 
-buv_env_ipv4        RBRN_ENCLAVE_BASE_IP
-buv_env_decimal     RBRN_ENCLAVE_NETMASK         8     30
-buv_env_ipv4        RBRN_ENCLAVE_SENTRY_IP
-buv_env_ipv4        RBRN_ENCLAVE_BOTTLE_IP
+zrbrn_kindle() {
+  test -z "${ZRBRN_KINDLED:-}" || buc_die "Module rbrn already kindled"
 
-buv_env_port        RBRN_UPLINK_PORT_MIN
-buv_env_bool        RBRN_UPLINK_DNS_ENABLED
-buv_env_bool        RBRN_UPLINK_ACCESS_ENABLED
-buv_env_bool        RBRN_UPLINK_DNS_GLOBAL
-buv_env_bool        RBRN_UPLINK_ACCESS_GLOBAL
+  # Set defaults for optional fields (Required: No per RBRN spec)
+  RBRN_DESCRIPTION="${RBRN_DESCRIPTION:-}"
+  RBRN_VOLUME_MOUNTS="${RBRN_VOLUME_MOUNTS:-}"
 
-if [[ $RBRN_ENTRY_ENABLED == 1 ]]; then
+  # Set defaults for conditional fields (may not be provided if feature disabled)
+  RBRN_ENTRY_PORT_WORKSTATION="${RBRN_ENTRY_PORT_WORKSTATION:-}"
+  RBRN_ENTRY_PORT_ENCLAVE="${RBRN_ENTRY_PORT_ENCLAVE:-}"
+  RBRN_UPLINK_ALLOWED_CIDRS="${RBRN_UPLINK_ALLOWED_CIDRS:-}"
+  RBRN_UPLINK_ALLOWED_DOMAINS="${RBRN_UPLINK_ALLOWED_DOMAINS:-}"
+
+  # Core nameplate identification
+  buv_env_xname       RBRN_MONIKER                 2     12
+  buv_env_string      RBRN_DESCRIPTION             0    120
+
+  # Container image configuration
+  buv_env_fqin        RBRN_SENTRY_REPO_PATH        1    128
+  buv_env_fqin        RBRN_BOTTLE_REPO_PATH        1    128
+  buv_env_fqin        RBRN_SENTRY_IMAGE_TAG        1    128
+  buv_env_fqin        RBRN_BOTTLE_IMAGE_TAG        1    128
+
+  # Entry point configuration
+  buv_env_bool        RBRN_ENTRY_ENABLED
+
+  # Enclave network configuration
+  buv_env_ipv4        RBRN_ENCLAVE_BASE_IP
+  buv_env_decimal     RBRN_ENCLAVE_NETMASK         8     30
+  buv_env_ipv4        RBRN_ENCLAVE_SENTRY_IP
+  buv_env_ipv4        RBRN_ENCLAVE_BOTTLE_IP
+
+  # Uplink configuration
+  buv_env_port        RBRN_UPLINK_PORT_MIN
+  buv_env_bool        RBRN_UPLINK_DNS_ENABLED
+  buv_env_bool        RBRN_UPLINK_ACCESS_ENABLED
+  buv_env_bool        RBRN_UPLINK_DNS_GLOBAL
+  buv_env_bool        RBRN_UPLINK_ACCESS_GLOBAL
+
+  # Conditional entry port validation (Required: When ENTRY_ENABLED=1)
+  if [[ $RBRN_ENTRY_ENABLED == 1 ]]; then
     buv_env_port    RBRN_ENTRY_PORT_WORKSTATION
     buv_env_port    RBRN_ENTRY_PORT_ENCLAVE
 
-    test       ${RBRN_ENTRY_PORT_WORKSTATION}        -lt     ${RBRN_UPLINK_PORT_MIN} || \
-        buc_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
-    test       ${RBRN_ENTRY_PORT_ENCLAVE}        -lt     ${RBRN_UPLINK_PORT_MIN} || \
-        buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
-fi
+    test ${RBRN_ENTRY_PORT_WORKSTATION} -lt ${RBRN_UPLINK_PORT_MIN} || \
+      buc_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
+    test ${RBRN_ENTRY_PORT_ENCLAVE} -lt ${RBRN_UPLINK_PORT_MIN} || \
+      buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
+  fi
 
-if [[ ${RBRN_UPLINK_ACCESS_ENABLED} == 1 && ${RBRN_UPLINK_ACCESS_GLOBAL} == 0 ]]; then
+  # Conditional allowlist validation (Required: When *_ENABLED=1 AND *_GLOBAL=0)
+  if [[ ${RBRN_UPLINK_ACCESS_ENABLED} == 1 && ${RBRN_UPLINK_ACCESS_GLOBAL} == 0 ]]; then
     buv_env_list_cidr RBRN_UPLINK_ALLOWED_CIDRS
-fi
-if [[ ${RBRN_UPLINK_DNS_ENABLED} == 1 && ${RBRN_UPLINK_DNS_GLOBAL} == 0 ]]; then
+  fi
+  if [[ ${RBRN_UPLINK_DNS_ENABLED} == 1 && ${RBRN_UPLINK_DNS_GLOBAL} == 0 ]]; then
     buv_env_list_domain RBRN_UPLINK_ALLOWED_DOMAINS
-fi
+  fi
 
-buv_env_string      RBRN_VOLUME_MOUNTS 0 240
+  # Volume mount configuration (Required: No)
+  buv_env_string      RBRN_VOLUME_MOUNTS           0    240
+
+  # Build rollup of all RBRN_ variables for passing to scripts/containers
+  ZRBRN_ROLLUP=""
+  ZRBRN_ROLLUP+="RBRN_MONIKER='${RBRN_MONIKER}' "
+  ZRBRN_ROLLUP+="RBRN_DESCRIPTION='${RBRN_DESCRIPTION}' "
+  ZRBRN_ROLLUP+="RBRN_SENTRY_REPO_PATH='${RBRN_SENTRY_REPO_PATH}' "
+  ZRBRN_ROLLUP+="RBRN_BOTTLE_REPO_PATH='${RBRN_BOTTLE_REPO_PATH}' "
+  ZRBRN_ROLLUP+="RBRN_SENTRY_IMAGE_TAG='${RBRN_SENTRY_IMAGE_TAG}' "
+  ZRBRN_ROLLUP+="RBRN_BOTTLE_IMAGE_TAG='${RBRN_BOTTLE_IMAGE_TAG}' "
+  ZRBRN_ROLLUP+="RBRN_ENTRY_ENABLED='${RBRN_ENTRY_ENABLED}' "
+  ZRBRN_ROLLUP+="RBRN_ENTRY_PORT_WORKSTATION='${RBRN_ENTRY_PORT_WORKSTATION}' "
+  ZRBRN_ROLLUP+="RBRN_ENTRY_PORT_ENCLAVE='${RBRN_ENTRY_PORT_ENCLAVE}' "
+  ZRBRN_ROLLUP+="RBRN_ENCLAVE_BASE_IP='${RBRN_ENCLAVE_BASE_IP}' "
+  ZRBRN_ROLLUP+="RBRN_ENCLAVE_NETMASK='${RBRN_ENCLAVE_NETMASK}' "
+  ZRBRN_ROLLUP+="RBRN_ENCLAVE_SENTRY_IP='${RBRN_ENCLAVE_SENTRY_IP}' "
+  ZRBRN_ROLLUP+="RBRN_ENCLAVE_BOTTLE_IP='${RBRN_ENCLAVE_BOTTLE_IP}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_PORT_MIN='${RBRN_UPLINK_PORT_MIN}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_DNS_ENABLED='${RBRN_UPLINK_DNS_ENABLED}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_ACCESS_ENABLED='${RBRN_UPLINK_ACCESS_ENABLED}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_DNS_GLOBAL='${RBRN_UPLINK_DNS_GLOBAL}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_ACCESS_GLOBAL='${RBRN_UPLINK_ACCESS_GLOBAL}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_ALLOWED_CIDRS='${RBRN_UPLINK_ALLOWED_CIDRS}' "
+  ZRBRN_ROLLUP+="RBRN_UPLINK_ALLOWED_DOMAINS='${RBRN_UPLINK_ALLOWED_DOMAINS}' "
+  ZRBRN_ROLLUP+="RBRN_VOLUME_MOUNTS='${RBRN_VOLUME_MOUNTS}'"
+
+  ZRBRN_KINDLED=1
+}
+
+zrbrn_sentinel() {
+  test "${ZRBRN_KINDLED:-}" = "1" || buc_die "Module rbrn not kindled - call zrbrn_kindle first"
+}
 
 # eof
-
