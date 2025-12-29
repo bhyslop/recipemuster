@@ -44,6 +44,13 @@ HTTP 200 response for each lien deletion
 .. {rbbc_require}
 all liens removed before proceeding
 
+. *Unlink billing account*:
+.. {rbbc_call}
+link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] with body `{"billingAccountName":""}` for `projects/«DEPOT_PROJECT_ID»`
+.. {rbbc_require}
+billing unlink successful (HTTP 200)
+.. Note: Unlinking BEFORE deletion releases billing quota immediately; deletion without unlink leaves quota consumed for 30-day retention period
+
 . *Initiate depot deletion*:
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
@@ -58,20 +65,9 @@ deletion initiated successfully
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
 .. {rbbc_poll}
-project state with 5-10 second intervals for up to 60 seconds
+project state with 5-second intervals for up to 60 seconds
 .. {rbbc_require}
 project state equals `DELETE_REQUESTED`
-.. {rbbc_store}
-`«DELETION_TIME»` from response `.deleteTime` field
-
-. *Optional: Immediate billing stop*:
-.. If immediate spend stop required,
-{rbbc_call}
-link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] to update billing info for `projects/«DEPOT_PROJECT_ID»`
-.. Set `billingAccountName` to empty string
-.. {rbbc_require}
-billing unlink successful (HTTP 200)
-.. Note: Standard deletion automatically stops billing, this step provides immediate termination
 
 NOTE: Depot deletion automatically removes all infrastructure created by
 {rbtgo_depot_create}:
