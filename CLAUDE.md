@@ -191,3 +191,4 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Primary focus: Recipe Bottle infrastructure and tooling
 - Architecture: Bash-based CLI tools with Google Cloud integration
 - Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
+- Public project page: https://scaleinv.github.io/recipebottle

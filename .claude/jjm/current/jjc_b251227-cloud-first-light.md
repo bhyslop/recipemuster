@@ -257,3 +257,13 @@
 1. `80ee902` - Replace DEBUG_ONLY with RBGP_CONFIRM_DESTROY for depot_destroy
 2. `e6d58d2` - Fix CRM v3 API field: .lifecycleState → .state in JSON parsing
 ---
+
+---
+### 2025-12-28 18:55 - exercise-depot-create-for-keeps - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-PC.PayorDepotCreate.sh proto us-central1` using Keeper Depot settings
+- Verify all steps complete: project creation, billing link, APIs, bucket, repository, Mason SA
+- Record generated Project ID in heat's Keeper Depot section
+- Confirm depot appears as COMPLETE in `depot_list` output
+---

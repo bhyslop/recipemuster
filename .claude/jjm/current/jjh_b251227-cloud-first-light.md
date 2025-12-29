@@ -30,6 +30,14 @@ Update Operation Status section upon pace completion.
 
 Before exercising operations, validate the mapping between tabtarget script names and RBAGS operation names to prevent confusion throughout the heat.
 
+### Keeper Depot
+
+Permanent depot for use throughout remaining paces and beyond.
+
+- **Name**: proto
+- **Region**: us-central1
+- **Project ID**: (recorded after creation)
+
 ## Operation Status
 
 | Bash Function | Tabtarget | Spec | Status |
@@ -67,7 +75,7 @@ Before exercising operations, validate the mapping between tabtarget script name
 
 ## Current
 
-- **Exercise depot_create (for keeps)** — Provision depot infrastructure for ongoing use.
+- **Exercise depot_create (for keeps)** — Create depot using Keeper Depot settings above.
   mode: manual
 
 ## Remaining
