@@ -301,3 +301,13 @@
 ### 2025-12-30 08:15 - exercise-depot-create-for-keeps - WRAP
 **Outcome**: Added rbgu_poll_get_until_ok helper, bucket IAM retry logic. Keeper depot: rbwg-d-proto-251230080456
 ---
+
+---
+### 2025-12-30 08:20 - exercise-governor-reset - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Create tabtarget `tt/rbw-PG.PayorGovernorReset.sh` (pattern from rbw-PC)
+- Run against keeper depot: `tt/rbw-PG.PayorGovernorReset.sh rbwg-d-proto-251230080456`
+- Verify RBRA file produced at RBRR_GOVERNOR_RBRA_FILE path
+- Debug any issues following heat protocol
+---

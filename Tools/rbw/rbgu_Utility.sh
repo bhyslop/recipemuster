@@ -85,7 +85,7 @@ rbgu_role_member_exists_predicate() {
   test -f "${z_json_file}" || return 1
 
   jq -e --arg r "${z_role}" --arg m "${z_member}" \
-    '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
+    'any(.bindings[]? | select(.role==$r) | .members[]?; . == $m)' \
     "${z_json_file}" >/dev/null 2>&1
 }
 
