@@ -72,13 +72,16 @@ zrbf_kindle() {
   ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
-  # Acronyms: rbgjb = Recipe Bottle Google Json Build
+  # Acronyms: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
   #           rbgjm = Recipe Bottle Google Json Mirror
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGJB_BUILD_FILE="${z_self_dir}/rbgjb_build.json"
+  ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
   ZRBF_RBGJM_MIRROR_FILE="${z_self_dir}/rbgjm_mirror.json"
-  test -f "${ZRBF_RBGJB_BUILD_FILE}"  || buc_die "RBGJB build file not found: ${ZRBF_RBGJB_BUILD_FILE}"
+  test -d "${ZRBF_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBF_RBGJB_STEPS_DIR}"
   test -f "${ZRBF_RBGJM_MIRROR_FILE}" || buc_die "RBGJM mirror file not found: ${ZRBF_RBGJM_MIRROR_FILE}"
+
+  buc_log_args 'Define stitched build JSON temp file'
+  ZRBF_STITCHED_BUILD_FILE="${BUD_TEMP_DIR}/rbf_stitched_build.json"
 
   buc_log_args 'Define temp files for build operations'
   ZRBF_BUILD_CONTEXT_TAR="${BUD_TEMP_DIR}/rbf_build_context.tar.gz"
@@ -132,6 +135,65 @@ zrbf_kindle() {
 
 zrbf_sentinel() {
   test "${ZRBF_KINDLED:-}" = "1" || buc_die "Module rbf not kindled - call zrbf_kindle first"
+}
+
+zrbf_stitch_build_json() {
+  zrbf_sentinel
+
+  buc_log_args 'Stitching build JSON from step scripts'
+
+  # Step definitions: script:builder:entrypoint:id
+  # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
+  local z_step_defs=(
+    "rbgjb01-derive-tag-base.sh:gcr.io/cloud-builders/gcloud:bash:derive-tag-base"
+    "rbgjb02-get-docker-token.sh:gcr.io/cloud-builders/gcloud:bash:get-docker-token"
+    "rbgjb03-docker-login-gar.sh:gcr.io/cloud-builders/docker:bash:docker-login-gar"
+    "rbgjb04-qemu-binfmt.sh:gcr.io/cloud-builders/docker:bash:qemu-binfmt"
+    "rbgjb05-buildx-create.sh:gcr.io/cloud-builders/docker:bash:buildx-create"
+    "rbgjb06-build-and-push.sh:gcr.io/cloud-builders/docker:bash:build-and-push"
+    "rbgjb07-assemble-metadata.sh:\${_RBGY_JQ_REF}:sh:assemble-metadata"
+    "rbgjb08-sbom-and-summary.sh:gcr.io/cloud-builders/docker:bash:sbom-and-summary"
+    "rbgjb09-build-and-push-metadata.sh:gcr.io/cloud-builders/docker:bash:build-and-push-metadata"
+  )
+
+  # Build JSON array of steps
+  local z_steps_json="[]"
+  local z_def z_script z_builder z_entrypoint z_id z_script_path z_body z_escaped z_arg_flag
+
+  for z_def in "${z_step_defs[@]}"; do
+    IFS=':' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
+    z_script_path="${ZRBF_RBGJB_STEPS_DIR}/${z_script}"
+
+    test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
+
+    # Read script body, skip shebang only (comments pass through harmlessly)
+    z_body=$(tail -n +2 "${z_script_path}")
+
+    # Escape $ to $$ for Cloud Build substitution
+    z_escaped=$(printf '%s' "${z_body}" | sed 's/\$/\$\$/g')
+
+    # Determine arg flag based on entrypoint
+    case "${z_entrypoint}" in
+      bash) z_arg_flag="-lc" ;;
+      sh)   z_arg_flag="-c" ;;
+      *)    buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
+    esac
+
+    # Append step to JSON array
+    z_steps_json=$(printf '%s' "${z_steps_json}" | jq \
+      --arg name "${z_builder}" \
+      --arg id "${z_id}" \
+      --arg ep "${z_entrypoint}" \
+      --arg flag "${z_arg_flag}" \
+      --arg script "${z_escaped}" \
+      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]')
+  done
+
+  # Write final JSON structure
+  printf '%s' "${z_steps_json}" | jq '{steps: .}' > "${ZRBF_STITCHED_BUILD_FILE}" \
+    || buc_die "Failed to write stitched build JSON"
+
+  buc_log_args "Stitched ${#z_step_defs[@]} steps to ${ZRBF_STITCHED_BUILD_FILE}"
 }
 
 zrbf_load_vessel() {
@@ -338,24 +400,27 @@ zrbf_upload_context_to_gcs() {
 
 zrbf_compose_build_request_json() {
   zrbf_sentinel
-  jq empty "${ZRBF_BUILD_CONFIG_FILE}"  || buc_die "Build config is not valid JSON"
-  jq empty "${ZRBF_RBGJB_BUILD_FILE}"   || buc_die "RBGJB build file is not valid JSON"
+
+  # Stitch step scripts into build JSON
+  zrbf_stitch_build_json
+
+  jq empty "${ZRBF_BUILD_CONFIG_FILE}"    || buc_die "Build config is not valid JSON"
+  jq empty "${ZRBF_STITCHED_BUILD_FILE}"  || buc_die "Stitched build file is not valid JSON"
 
   local z_obj_name=""
   z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || buc_die "Missing tarball name"
 
-  # Merge steps from RBGJB template with runtime substitutions and config
-  # Steps come from the static JSON template; substitutions override defaults
+  # Merge steps from stitched build JSON with runtime substitutions and config
   # Service account must be in projects/{project}/serviceAccounts/{email} format
   local z_sa_resource="projects/${RBGD_GAR_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
   jq -n \
-    --slurpfile sub   "${ZRBF_BUILD_CONFIG_FILE}"  \
-    --slurpfile build "${ZRBF_RBGJB_BUILD_FILE}"   \
-    --arg bucket "${RBGD_GCS_BUCKET}"              \
-    --arg object "${z_obj_name}"                   \
-    --arg sa     "${z_sa_resource}"                \
-    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"        \
-    --arg to     "${RBRR_GCB_TIMEOUT}"             \
+    --slurpfile sub   "${ZRBF_BUILD_CONFIG_FILE}"    \
+    --slurpfile build "${ZRBF_STITCHED_BUILD_FILE}"  \
+    --arg bucket "${RBGD_GCS_BUCKET}"                \
+    --arg object "${z_obj_name}"                     \
+    --arg sa     "${z_sa_resource}"                  \
+    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"          \
+    --arg to     "${RBRR_GCB_TIMEOUT}"               \
     '{
       source: { storageSource: { bucket: $bucket, object: $object } },
       steps: $build[0].steps,
