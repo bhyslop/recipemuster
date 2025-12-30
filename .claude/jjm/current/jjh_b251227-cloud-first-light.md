@@ -36,7 +36,7 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Name**: proto
 - **Region**: us-central1
-- **Project ID**: (recorded after creation)
+- **Project ID**: rbwg-d-proto-251230080456
 
 ## Operation Status
 
@@ -46,7 +46,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgp_depot_create` | `rbw-PC` | RBSDC | working |
 | `rbgp_depot_list` | `rbw-ld` | RBSDL | working |
 | `rbgp_depot_destroy` | `rbw-PD` | RBSDD | working |
-| `rbgp_governor_reset` | `rbw-PG` | RBSGR | missing |
+| `rbgp_governor_reset` | `rbw-PG` | RBSGR | working |
 | `rbgg_director_create` | `rbw-GD` | RBSDI | untested |
 | `rbgg_retriever_create` | `rbw-GR` | RBSRC | untested |
 | `rbgg_list_service_accounts` | `rbw-al` | RBSSL | untested |
@@ -73,20 +73,16 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise depot_destroy** — Replaced DEBUG_ONLY with RBGP_CONFIRM_DESTROY, fixed CRM v3 `.state` field parsing, deleted 4 test depots.
 
+- **Exercise depot_create (for keeps)** — Added rbgu_poll_get_until_ok helper, bucket IAM retry logic. Keeper depot: rbwg-d-proto-251230080456
+
+- **Exercise governor_reset** — Created tabtarget, exercised on keeper depot, RBRA file produced successfully.
+
 ## Current
-
-- **Exercise depot_create (for keeps)** — Create depot using Keeper Depot settings above.
-  mode: manual
-
-  **Blocker (2025-12-28)**: Project quota exhausted (24 projects in DELETE_REQUESTED state consuming quota). Quota increase requested from Google Cloud. If creation fails with "exceeded your allotted project quota", check request status at: https://console.cloud.google.com/iam-admin/quotas
-
-## Remaining
-
-- **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
-  mode: manual
 
 - **Exercise director_create** — Provision Director service account. Produces RBRA file at RBRR_DIRECTOR_RBRA_FILE path.
   mode: manual
+
+## Remaining
 
 - **Exercise retriever_create** — Provision Retriever service account. Produces RBRA file at RBRR_RETRIEVER_RBRA_FILE path.
   mode: manual
@@ -113,6 +109,9 @@ Permanent depot for use throughout remaining paces and beyond.
   mode: manual
 
 - **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
+  mode: manual
+
+- **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
   mode: manual
 
 - **Exercise payor_refresh** — Obtain fresh OAuth credentials. Validates recovery path.

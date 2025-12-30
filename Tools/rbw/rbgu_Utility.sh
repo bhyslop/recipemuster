@@ -85,7 +85,7 @@ rbgu_role_member_exists_predicate() {
   test -f "${z_json_file}" || return 1
 
   jq -e --arg r "${z_role}" --arg m "${z_member}" \
-    '.bindings[]? | select(.role==$r) | (.members // [])[]? == $m' \
+    'any(.bindings[]? | select(.role==$r) | .members[]?; . == $m)' \
     "${z_json_file}" >/dev/null 2>&1
 }
 
@@ -193,14 +193,14 @@ rbgu_http_code_capture() {
   echo "${z_code}"
 }
 
-rbgu_get_admin_token_capture() {
+rbgu_get_governor_token_capture() {
   zrbgu_sentinel
 
-  # Need access to RBRR_ADMIN_RBRA_FILE from regime
-  test -n "${RBRR_ADMIN_RBRA_FILE:-}" || return 1
+  # Need access to RBRR_GOVERNOR_RBRA_FILE from regime
+  test -n "${RBRR_GOVERNOR_RBRA_FILE:-}" || return 1
 
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_ADMIN_RBRA_FILE}") || return 1
+  z_token=$(rbgo_get_token_capture "${RBRR_GOVERNOR_RBRA_FILE}") || return 1
 
   test -n "${z_token}" || return 1
   echo    "${z_token}"
@@ -444,6 +444,35 @@ rbgu_http_json_lro_ok() {
 
     test "${z_elapsed}" -ge "${z_timeout}" && buc_die "${z_label}: timeout after ${z_timeout}s"
     buc_log_args "Still running at ${z_elapsed}s..."
+  done
+}
+
+# Poll GET endpoint until HTTP 200 (for IAM propagation waits)
+rbgu_poll_get_until_ok() {
+  zrbgu_sentinel
+
+  local z_label="${1}"
+  local z_url="${2}"
+  local z_token="${3}"
+  local z_infix="${4}"
+
+  local z_elapsed=0
+  while :; do
+    local z_poll_infix="${z_infix}-${z_elapsed}s"
+    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
+
+    local z_code
+    z_code=$(rbgu_http_code_capture "${z_poll_infix}") || z_code=""
+
+    if test "${z_code}" = "200"; then
+      buc_log_args "${z_label} ready after ${z_elapsed} seconds"
+      return 0
+    fi
+
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+    buc_log_args "${z_label} not ready (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 }
 

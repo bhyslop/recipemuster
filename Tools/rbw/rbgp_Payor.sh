@@ -221,7 +221,7 @@ zrbgp_billing_attach() {
   buc_step "Attaching billing account: ${z_billing_account}"
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBRR_GCP_PROJECT_ID}" \
@@ -248,7 +248,7 @@ zrbgp_billing_detach() {
   buc_step "Detaching billing account from project"
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBRR_GCP_PROJECT_ID}" \
     '{
@@ -275,7 +275,7 @@ zrbgp_liens_list() {
   buc_step "Listing liens on project: ${RBRR_GCP_PROJECT_ID}"
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
@@ -308,7 +308,7 @@ zrbgp_lien_delete() {
   buc_step "Deleting lien: ${z_lien_name}"
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${z_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
   rbgu_http_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
 
@@ -364,7 +364,7 @@ zrbgp_get_project_number_capture() {
   zrbgp_sentinel
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || return 1
+  z_token=$(rbgu_get_governor_token_capture) || return 1
 
   rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
@@ -674,29 +674,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify IAM propagation before resource creation'
   local z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
-  local z_preflight_start
-  z_preflight_start=$(date +%s)
-  local z_preflight_deadline=$((z_preflight_start + RBGC_MAX_CONSISTENCY_SEC))
-  local z_preflight_ok=0
-
-  while [ "$(date +%s)" -lt "${z_preflight_deadline}" ]; do
-    rbgu_http_json "GET" "${z_preflight_url}" "${z_token}" "iam_preflight" || true
-    local z_preflight_code
-    z_preflight_code=$(rbgu_http_code_capture "iam_preflight") || z_preflight_code=""
-
-    if [ "${z_preflight_code}" = "200" ]; then
-      z_preflight_ok=1
-      buc_log_args "IAM propagation verified after $(($(date +%s) - z_preflight_start)) seconds"
-      break
-    fi
-
-    buc_log_args "IAM not ready (HTTP ${z_preflight_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-  done
-
-  if [ "${z_preflight_ok}" != "1" ]; then
-    buc_die "IAM propagation timeout after ${RBGC_MAX_CONSISTENCY_SEC} seconds - artifactregistry API not accessible"
-  fi
+  rbgu_poll_get_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
   buc_step 'Create build bucket'
   local z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
@@ -745,29 +723,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify IAM API is ready for service account creation'
   local z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
-  local z_iam_preflight_start
-  z_iam_preflight_start=$(date +%s)
-  local z_iam_preflight_deadline=$((z_iam_preflight_start + RBGC_MAX_CONSISTENCY_SEC))
-  local z_iam_preflight_ok=0
-
-  while [ "$(date +%s)" -lt "${z_iam_preflight_deadline}" ]; do
-    rbgu_http_json "GET" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight" || true
-    local z_iam_preflight_code
-    z_iam_preflight_code=$(rbgu_http_code_capture "iam_sa_preflight") || z_iam_preflight_code=""
-
-    if [ "${z_iam_preflight_code}" = "200" ]; then
-      z_iam_preflight_ok=1
-      buc_log_args "IAM API ready after $(($(date +%s) - z_iam_preflight_start)) seconds"
-      break
-    fi
-
-    buc_log_args "IAM API not ready (HTTP ${z_iam_preflight_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-  done
-
-  if [ "${z_iam_preflight_ok}" != "1" ]; then
-    buc_die "IAM API propagation timeout after ${RBGC_MAX_CONSISTENCY_SEC} seconds - cannot proceed with service account creation"
-  fi
+  rbgu_poll_get_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
   local z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
@@ -790,6 +746,10 @@ rbgp_depot_create() {
   
   local z_mason_sa_email
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
+
+  buc_step 'Verify Mason service account propagation'
+  local z_mason_get_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
+  rbgu_poll_get_until_ok "Mason SA propagation" "${z_mason_get_url}" "${z_token}" "mason_sa_get"
 
   buc_step 'Configure Mason permissions'
   # Repository admin
@@ -1217,13 +1177,9 @@ rbgp_governor_reset() {
 
   buc_log_args "Governor service account created: ${z_governor_email}"
 
-  buc_step 'Wait for IAM propagation'
-  sleep 5
-
-  buc_step 'Verify Governor service account'
+  buc_step 'Wait for Governor SA propagation'
   local z_verify_url="${z_sa_list_url}/${z_governor_email}"
-  rbgu_http_json "GET" "${z_verify_url}" "${z_token}" "${ZRBGP_INFIX_GOV_VERIFY_SA}"
-  rbgu_http_require_ok "Verify Governor service account" "${ZRBGP_INFIX_GOV_VERIFY_SA}"
+  rbgu_poll_get_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
 
   buc_step 'Grant roles/owner on depot project'
   rbgi_add_project_iam_role \
@@ -1286,7 +1242,7 @@ rbgp_governor_reset() {
   buc_info "RBRA file written: ${z_rbra_file}"
   buc_info ""
   buc_info "To install the RBRA file, copy it to the path specified by RBRR_GOVERNOR_RBRA_FILE:"
-  buc_info "  cp \"${z_rbra_file}\" \"\${RBRR_GOVERNOR_RBRA_FILE}\""
+  buc_code "  cp \"${z_rbra_file}\" \"\${RBRR_GOVERNOR_RBRA_FILE}\""
 }
 
 # eof

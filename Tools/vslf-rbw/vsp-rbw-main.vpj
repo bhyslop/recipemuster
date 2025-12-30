@@ -31,7 +31,7 @@
 
     <Files AutoFolders="PackageView">
         <Folder Name="../../brm_recipebottle">
-            <F N="../../brm_recipebottle/*.sh" Recurse="1" Excludes=""/>
+            <F N="../../brm_recipebottle/*.sh" Recurse="1" Excludes="tt/*;.buk/*"/>
             <F N="../../brm_recipebottle/*.mk" Recurse="1" Excludes=""/>
         </Folder>
         <Folder Name="../../brm_recipebottle/RBM-recipes">

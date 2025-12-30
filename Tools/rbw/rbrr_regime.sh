@@ -57,7 +57,7 @@ zrbrr_kindle() {
   buv_env_string      RBRR_GCB_TIMEOUT             2     10
 
   # Service Account Configuration Files
-  buv_env_string      RBRR_ADMIN_RBRA_FILE         1    512
+  buv_env_string      RBRR_GOVERNOR_RBRA_FILE         1    512
   buv_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512
   buv_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512
 

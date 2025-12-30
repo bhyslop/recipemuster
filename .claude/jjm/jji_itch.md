@@ -396,3 +396,78 @@ This itch is the concrete first step toward those visions.
 ### Context
 
 Identified 2025-12-29. Key insight: Claude integration should be opt-in and separable from core BUK.
+
+## buc-context-refactor
+Replace global `buc_context` pattern with per-file wrapper functions using `z_locale` variable.
+
+### Problem with Current `buc_context`
+
+The current global context pattern has a fundamental flaw: when a workbench or module dispatches to other files, the context becomes misleading.
+
+**Example:**
+- `vslw_workbench.sh` sets `buc_context "${0##*/}"` globally
+- Workbench then sources helpers or calls other scripts
+- All output displays `vslw_workbench.sh` as source, even when the actual work happens in helper functions or dispatched subcommands
+- Debugging output shows wrong file, making it hard to trace where messages originated
+
+The context is determined at entry point, not at the point where output is produced. This violates BCG principle: "Every potential error explicitly handled" at its location.
+
+### Proposed Solution: `z_locale` Wrapper Pattern
+
+Each file/module defines local wrappers following BCG `z_*` conventions:
+
+```bash
+z_locale="${0##*/}"
+
+# Local convenience wrappers
+z_step()    { buc_step "${z_locale}" "$@"; }
+z_info()    { buc_info "${z_locale}" "$@"; }
+z_warn()    { buc_warn "${z_locale}" "$@"; }
+z_die()     { buc_die "${z_locale}" "$@"; }
+z_success() { buc_success "${z_locale}" "$@"; }
+```
+
+Then call sites become: `z_step "message"` with correct file attribution in output.
+
+### Advantages
+
+1. **Accurate attribution** - Each line shows where it actually came from
+2. **No global pollution** - Context doesn't leak across dispatch chains
+3. **Explicit ownership** - File decides what to call itself
+4. **BCG compliant** - Follows `z_*` local variable pattern and "output at source" principle
+
+### Implementation
+
+1. Update `buc_step`, `buc_info`, `buc_warn`, `buc_success`, `buc_die` signatures to accept context as first argument
+2. Update `zbuc_print` to use context from argument (keeping gray color)
+3. Add `z_locale` boilerplate to every file using BUC
+4. Replace all `buc_step "msg"` calls with `z_step "msg"` throughout codebase
+5. Remove `buc_context()` function entirely
+
+### Scope
+
+- All workbenches (vslw, buw, cccw, cmw, jjw, rbw)
+- All BCG-compliant modules (rbw/ suite, jjk/, cmk/, etc.)
+- Likely ~hundreds of call sites
+
+### Trade-offs
+
+- More verbose call sites (worth the accuracy)
+- Per-file boilerplate (4 lines, follows standard conventions)
+- Large refactor across codebase (but mechanical and low-risk)
+
+### BCG Documentation Update
+
+BCG extensively documents BUC functions and message hierarchy (lines 500-585). When this refactor completes, BCG needs a new section documenting the wrapper pattern:
+
+- Location for pattern: Add after "Integration Patterns" section (lines 546+)
+- Content: Document `z_locale` boilerplate and wrapper functions
+- Include: Rationale for per-file context over global `buc_context()`
+- Cross-reference: Link to BCG's `z_*` naming conventions (line 395)
+- Add to decision matrix: When/why to use wrappers vs raw `buc_*` calls
+
+This ensures new code following BCG patterns uses the correct context approach automatically.
+
+### Context
+
+Emerged 2025-12-30 while testing context prefixes on workbenches. Realized global state creates misleading output when dispatching between files.

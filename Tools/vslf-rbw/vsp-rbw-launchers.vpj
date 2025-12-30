@@ -1,0 +1,26 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+    Version="10.0"
+    VendorName="SlickEdit"
+    TemplateName="Generic - Empty Project"
+    WorkingDir=".">
+    <CustomFolders>
+        <Folder
+            Name="Launchers"
+            Filters="*.sh"
+            GUID="{E0E0E001-E0E0-E0E0-E0E0-E0E0E0E0E001}"></Folder>
+    </CustomFolders>
+    <Config
+        Name="Default"
+        Type="generic"
+        OutputFile=""
+        CompilerConfigName="">
+    </Config>
+
+    <Files AutoFolders="PackageView">
+        <Folder Name="../../brm_recipebottle/.buk">
+            <F N="../../brm_recipebottle/.buk/*.sh" Recurse="0" Excludes=""/>
+        </Folder>
+    </Files>
+
+</Project>

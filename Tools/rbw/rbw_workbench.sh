@@ -38,6 +38,9 @@ source "${RBW_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBW_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBW_SCRIPT_DIR}/rbob_bottle.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 ######################################################################
 # Helper Functions
 

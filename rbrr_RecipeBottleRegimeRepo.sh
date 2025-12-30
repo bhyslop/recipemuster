@@ -93,8 +93,8 @@ RBRR_DIRECTOR_RBRA_FILE=../station-files/secrets/rbra-director.env
 #    Permissions: roles/cloudbuild.builds.editor + storage.admin on staging
 #    Token lifetime: 600 seconds (build submission)
 #
-# 3. PROJECT OWNER
-RBRR_ADMIN_RBRA_FILE=../station-files/secrets/rbra-admin.env
+# 3. GOVERNOR
+RBRR_GOVERNOR_RBRA_FILE=../station-files/secrets/rbra-governor.env
 #    Permissions: roles/owner (FULL PROJECT CONTROL)
 #    Token lifetime: 1800 seconds (complex setup operations)
 

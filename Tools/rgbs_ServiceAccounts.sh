@@ -69,7 +69,7 @@ zrgbs_create_service_account_with_key() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step "Create request JSON for ${z_account_name}"
   jq -n                                      \
@@ -157,7 +157,7 @@ zrgbs_create_service_account_no_key() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
@@ -215,7 +215,7 @@ rgbs_sa_get() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Get service account via REST API'
   local z_sa_email_enc
@@ -247,7 +247,7 @@ rgbs_sa_delete() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Delete via REST API'
   rbgu_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
@@ -273,7 +273,7 @@ rgbs_sa_keys_policy_enforce() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'List existing keys'
   rbgu_http_json "GET"                                                        \

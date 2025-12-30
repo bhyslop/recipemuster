@@ -70,14 +70,15 @@ rbk_route() {
     rbw-PI)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_payor_install            $z_args ;;
     rbw-PD)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_destroy            $z_args ;;
     rbw-PE)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_establish          $z_args ;;
+    rbw-PG)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_governor_reset           $z_args ;;
     rbw-PR)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_refresh            $z_args ;;
 
     # General depot operations
     rbw-ld)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_list               $z_args ;;
 
     # Governor commands
-    rbw-GR)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_retriever_create         $z_args ;;
-    rbw-GD)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_director_create          $z_args ;;
+    rbw-GR)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_create_retriever         $z_args ;;
+    rbw-GD)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_create_director          $z_args ;;
 
     # Google admin commands (legacy)
     rbw-ps)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_establish          $z_args ;;

@@ -267,3 +267,76 @@
 - Record generated Project ID in heat's Keeper Depot section
 - Confirm depot appears as COMPLETE in `depot_list` output
 ---
+
+---
+### 2025-12-30 09:00 - exercise-depot-create-for-keeps - SESSION 2
+**Context**: User reports quota increase approved. Retrying keeper depot creation.
+**Proposed approach**:
+- Run `tt/rbw-PC.PayorDepotCreate.sh proto us-central1`
+- Monitor for quota errors vs normal progress
+- On success, record Project ID in heat file
+- Verify via `tt/rbw-ld.DepotList.sh`
+
+**Bug Found**: Mason SA propagation race condition
+- SA creation returned HTTP 200 but setIamPolicy failed with HTTP 400 "Service account does not exist"
+- Root cause: SA created but not yet visible in IAM system
+
+**Fix Applied**:
+1. Added `rbgu_poll_get_until_ok` helper in rbgu_Utility.sh:450-477 (BCG-compliant polling)
+2. Added propagation check in rbgp_Payor.sh:794-796 after Mason SA creation
+
+**Result**: Depot creation succeeded on retry
+- Keeper depot: `rbwg-d-proto-251230073755`
+- Propagation delay observed: 3 seconds (HTTP 404 → 200)
+- Orphaned depots from failed attempts: `rbwg-d-proto-251230072516`, `rbwg-d-proto-251230073558`
+
+**Additional fixes after bucket IAM failure**:
+- Refactored 2 existing propagation checks in rbgp_Payor.sh to use new helper
+- Added retry logic to `rbgi_add_bucket_iam_role` for "SA does not exist" errors
+- Final keeper depot: `rbwg-d-proto-251230080456`
+- Cleaned up 4 orphaned depots
+---
+
+---
+### 2025-12-30 08:15 - exercise-depot-create-for-keeps - WRAP
+**Outcome**: Added rbgu_poll_get_until_ok helper, bucket IAM retry logic. Keeper depot: rbwg-d-proto-251230080456
+---
+
+---
+### 2025-12-30 08:20 - exercise-governor-reset - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Create tabtarget `tt/rbw-PG.PayorGovernorReset.sh` (pattern from rbw-PC)
+- Run against keeper depot: `tt/rbw-PG.PayorGovernorReset.sh rbwg-d-proto-251230080456`
+- Verify RBRA file produced at RBRR_GOVERNOR_RBRA_FILE path
+- Debug any issues following heat protocol
+
+### 2025-12-30 08:45 - exercise-governor-reset - WRAP
+**Outcome**: Created tabtarget, exercised on keeper depot, RBRA file produced successfully.
+---
+
+---
+### 2025-12-30 09:10 - exercise-director-create - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Fix coordinator routing mismatch (rbgg_director_create → rbgg_create_director)
+- Run `tt/rbw-GD.GovernorDirectorCreate.sh rbwg-d-proto-251230080456`
+- Verify RBRA file produced
+- Debug any issues following heat protocol
+
+### 2025-12-30 09:30 - exercise-director-create - BLOCKED
+**Issue**: Deep architectural mismatch discovered between code and spec.
+
+**Findings**:
+1. Code uses `RBRR_ADMIN_RBRA_FILE` but spec defines `RBRR_GOVERNOR_RBRA_FILE`
+2. `rbgu_get_admin_token_capture()` reads from RBRR_ADMIN_RBRA_FILE
+3. `rbgg_cli.sh` uses old validator path (rbrr.validator.sh) not new regime pattern (rbrr_regime.sh)
+4. Several functions in rbga_ArtifactRegistry.sh, rbgb_Buckets.sh, rbgp_Payor.sh appear to be dead code
+
+**Required fixes before proceeding**:
+1. Align RBRR_ADMIN_RBRA_FILE → RBRR_GOVERNOR_RBRA_FILE throughout codebase
+2. Wire rbgg_cli.sh to use proper regime validation
+3. Investigate and remove/document dead code
+
+**Deferred to**: Fresh session with focused prompt. Added dead code audit pace.
+---

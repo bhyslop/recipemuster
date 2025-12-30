@@ -26,6 +26,9 @@ VSLW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${VSLW_SCRIPT_DIR}/../buk/buc_command.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 # Verbose output if BUD_VERBOSE is set
 vslw_show() {
   test "${BUD_VERBOSE:-0}" != "1" || echo "VSLWSHOW: $*"
@@ -42,8 +45,7 @@ vslw_load_burc() {
   source "${z_burc_file}"
 }
 
-# SlickEdit template configuration
-VSLW_TEMPLATE_DIR="Tools/vslk/projects"
+# SlickEdit destination configuration
 VSLW_PROJECT_BASE_NAME="${PWD##*/}"
 VSLW_DEST_DIR="../_vs/${VSLW_PROJECT_BASE_NAME}"
 
@@ -58,6 +60,8 @@ vslw_route() {
   # Verify BUD environment variables are present
   test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
   test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+
+  test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die "VSLW_TEMPLATE_DIR not set - must be set by launcher"
 
   vslw_show "BUD environment verified"
 
