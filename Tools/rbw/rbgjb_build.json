@@ -20,6 +20,15 @@
     },
     {
       "name": "gcr.io/cloud-builders/docker",
+      "id": "qemu-binfmt",
+      "entrypoint": "bash",
+      "args": [
+        "-lc",
+        "set -euo pipefail\n# Register QEMU for cross-platform builds (arm64, arm/v7)\ndocker run --privileged --rm tonistiigi/binfmt --install arm64,arm\n"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
       "id": "buildx-create",
       "entrypoint": "bash",
       "args": [
