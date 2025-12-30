@@ -612,7 +612,8 @@ jjw_install() {
 
   buc_step "Adding JJM edit permission to settings.local.json"
   local z_settings_file=".claude/settings.local.json"
-  local z_permission='Edit(.claude/jjm/**)'
+  # Single leading slash = project-relative path per https://code.claude.com/docs/en/iam
+  local z_permission='Edit(/.claude/jjm/**)'
   local z_temp_file="${BUD_TEMP_DIR}/jjw_settings_temp.json"
 
   if ! test -f "${z_settings_file}"; then
@@ -643,7 +644,8 @@ jjw_uninstall() {
 
   buc_step "Removing JJM edit permission from settings.local.json"
   local z_settings_file=".claude/settings.local.json"
-  local z_permission='Edit(.claude/jjm/**)'
+  # Single leading slash = project-relative path per https://code.claude.com/docs/en/iam
+  local z_permission='Edit(/.claude/jjm/**)'
   local z_temp_file="${BUD_TEMP_DIR}/jjw_settings_temp.json"
 
   if test -f "${z_settings_file}"; then

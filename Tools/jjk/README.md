@@ -324,7 +324,8 @@ The workbench:
 - Creates `.claude/commands/jja-*.md` command files
 - Creates `.claude/jjm/` directory structure
 - Patches CLAUDE.md with configuration section
-- Adds `Edit(.claude/jjm/**)` permission to `.claude/settings.local.json` for frictionless JJ state updates
+- Adds `Edit(/.claude/jjm/**)` permission to `.claude/settings.local.json` for frictionless JJ state updates
+  - Note: Single leading slash makes path relative to project root per [Claude Code IAM docs](https://code.claude.com/docs/en/iam)
 
 Configuration is via environment variables:
 - `ZJJW_TARGET_DIR` - Target repo directory (default: `.`)
