@@ -93,4 +93,15 @@
 - Parallel heat is modifying RBRR regime; need to embrace those repairs before continuing
 **Resume**: Remove zrbob_load_rbrr() from RBOB, move config loading to workbench's rbw_load_nameplate
 ---
+### 2025-12-30 10:00 - modernize-rbob-to-bcg-pattern - APPROACH
+**Proposed approach**:
+- Remove `zrbob_load_rbrr()` from `rbob_bottle.sh` - per BCG, config loading belongs in caller
+- Inline RBRR loading directly in `rbw_workbench.sh`'s `rbw_load_nameplate()`
+- Update `rbob_cli.sh` to inline RBRR loading in `zrbob_furnish()`
+- Add `validate` command to `rbob_cli.sh` (validates moniker produces runnable config)
+- RBOB kindle calls `zrbrr_sentinel` to verify RBRR is ready (not load it)
+---
+### 2025-12-30 10:50 - modernize-rbob-to-bcg-pattern - WRAP
+**Outcome**: Moved RBRR loading from RBOB to callers (workbench/furnish); added rbob_validate command
+---
 (execution log begins here)

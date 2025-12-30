@@ -471,3 +471,21 @@ This ensures new code following BCG patterns uses the correct context approach a
 ### Context
 
 Emerged 2025-12-30 while testing context prefixes on workbenches. Realized global state creates misleading output when dispatching between files.
+
+## rbw-rbob-function-review
+Review whether workbench functions should move to RBOB module.
+
+### Functions to Review
+
+- `rbw_cmd_local_build()` - builds recipes locally with docker. Currently in workbench but could be `rbob_local_build` since it's container image creation related to bottle operation.
+- Future connect/stop implementations - already planned to go to RBOB, but verify pattern is consistent.
+
+### Questions
+
+1. Is local recipe build part of "bottle orchestration" (RBOB) or general "workbench" utility?
+2. Should RBOB handle all container image operations, or just runtime lifecycle?
+3. What's the clean separation between workbench (routing/config loading) and RBOB (container operations)?
+
+### Context
+
+Emerged during RBOB BCG modernization pace, 2025-12-30. Deferred to keep pace focused on BCG compliance.

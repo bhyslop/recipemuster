@@ -149,11 +149,9 @@ rbw_runtime_cmd() {
 - **Validate Docker with busybox** — Full flow validated: tabtarget→launcher→workbench→docker build; image created successfully
 - **Design RBRR env injection for sentry** — Added ZRBRN_DOCKER_ENV and ZRBRR_DOCKER_ENV arrays to regime kindle functions
 - **Implement rbw-start** — Created rbob_bottle.sh with full container lifecycle: cleanup, network creation, sentry/censer/bottle launch
+- **Modernize RBOB to BCG pattern** — Moved RBRR loading from RBOB to callers (workbench/furnish); added rbob_validate command
 
 ## Remaining
-
-- **Modernize RBOB to BCG pattern** — Add zrbob_kindle/sentinel to rbob_bottle.sh. Move rbw_load_rbrr and rbw_runtime_cmd into RBOB. Create rbob_cli.sh with validate/info. Workbench becomes thin router that sources RBOB and calls kindle after loading nameplate.
-  mode: manual
 
 - **Implement rbw-stop** — Create service shutdown. Stop and remove bottle, censer, sentry containers. Remove enclave network. Create new tabtarget `tt/rbw-z.Stop.nsproto.sh`.
   mode: manual

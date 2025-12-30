@@ -66,9 +66,12 @@ rbw_load_nameplate() {
 
   rbw_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 
-  # Load RBRR (repository regime) via RBOB helper
-  rbw_show "Loading RBRR via RBOB"
-  zrbob_load_rbrr
+  # Load RBRR (repository regime) - config loading belongs in workbench per BCG pattern
+  rbw_show "Loading RBRR"
+  local z_rbrr_file="${RBW_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
+  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
+  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
+  zrbrr_kindle
 
   # Kindle RBOB (validates RBRN and RBRR are ready)
   rbw_show "Kindling RBOB"

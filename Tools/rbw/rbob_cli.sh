@@ -35,6 +35,44 @@ source "${ZRBOB_CLI_SCRIPT_DIR}/rbob_bottle.sh"
 ######################################################################
 # CLI Commands
 
+rbob_validate() {
+  zrbob_sentinel
+
+  buc_doc_brief "Validate that RBOB configuration is complete and runnable"
+  buc_doc_shown || return 0
+
+  buc_step "RBOB Validate: ${RBRN_MONIKER}"
+
+  # Verify container naming works (two-line pattern per BCG)
+  local z_sentry
+  z_sentry="$(zrbob_container_name sentry)" || buc_die "Failed to get sentry name"
+
+  local z_censer
+  z_censer="$(zrbob_container_name censer)" || buc_die "Failed to get censer name"
+
+  local z_bottle
+  z_bottle="$(zrbob_container_name bottle)" || buc_die "Failed to get bottle name"
+
+  local z_network
+  z_network="$(zrbob_network_name)" || buc_die "Failed to get network name"
+
+  # Verify runtime command
+  local z_runtime
+  z_runtime="$(zrbob_runtime_cmd)" || buc_die "Failed to get runtime command"
+
+  # Verify sentry script exists
+  local z_sentry_script="${ZRBOB_CLI_SCRIPT_DIR}/rbss.sentry.sh"
+  test -f "${z_sentry_script}" || buc_die "Sentry script not found: ${z_sentry_script}"
+
+  buc_step "RBOB configuration valid"
+  echo "Moniker:   ${RBRN_MONIKER}"
+  echo "Runtime:   ${z_runtime}"
+  echo "Sentry:    ${z_sentry}"
+  echo "Censer:    ${z_censer}"
+  echo "Bottle:    ${z_bottle}"
+  echo "Network:   ${z_network}"
+}
+
 rbob_info() {
   zrbob_sentinel
 
@@ -66,8 +104,13 @@ zrbob_furnish() {
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate"
   zrbrn_kindle
 
-  # Load RBRR and kindle RBOB
-  zrbob_load_rbrr
+  # Load RBRR - config loading belongs in furnish per BCG pattern
+  local z_rbrr_file="${ZRBOB_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
+  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
+  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
+  zrbrr_kindle
+
+  # Kindle RBOB (validates RBRN and RBRR are ready)
   zrbob_kindle
 }
 

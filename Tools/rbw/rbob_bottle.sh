@@ -55,21 +55,6 @@ zrbob_sentinel() {
 }
 
 ######################################################################
-# RBRR Loading Helper
-
-# Load repository regime configuration
-# Sources rbrr_RecipeBottleRegimeRepo.sh and kindles RBRR regime
-# Call this BEFORE zrbob_kindle
-zrbob_load_rbrr() {
-  local z_rbrr_file="${ZRBOB_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-
-  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
-
-  zrbrr_kindle
-}
-
-######################################################################
 # Naming Helpers
 
 # Get container name for a given type
