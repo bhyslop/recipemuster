@@ -1177,13 +1177,9 @@ rbgp_governor_reset() {
 
   buc_log_args "Governor service account created: ${z_governor_email}"
 
-  buc_step 'Wait for IAM propagation'
-  sleep 5
-
-  buc_step 'Verify Governor service account'
+  buc_step 'Wait for Governor SA propagation'
   local z_verify_url="${z_sa_list_url}/${z_governor_email}"
-  rbgu_http_json "GET" "${z_verify_url}" "${z_token}" "${ZRBGP_INFIX_GOV_VERIFY_SA}"
-  rbgu_http_require_ok "Verify Governor service account" "${ZRBGP_INFIX_GOV_VERIFY_SA}"
+  rbgu_poll_get_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
 
   buc_step 'Grant roles/owner on depot project'
   rbgi_add_project_iam_role \
