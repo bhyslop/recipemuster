@@ -427,4 +427,29 @@
 - Vessel builds multi-arch image (linux/amd64, linux/arm64, linux/arm/v7)
 - On success, image tagged as `rbev-busybox.YYMMDDHHMMSS` in Artifact Registry
 - Watch for: permission errors, API propagation issues, or Mason SA problems
+
+### 2025-12-30 13:35 - trigger-build - STITCHER REFACTOR COMPLETE
+**Task**: Refactor Cloud Build config from static JSON to dynamically-stitched step scripts
+
+**Completed**:
+1. Created 9 step scripts in `Tools/rbw/rbgjb/`:
+   - rbgjb01-derive-tag-base.sh through rbgjb09-build-and-push-metadata.sh
+   - Each is a pure, lintable bash file with documentation comments
+2. Added `zrbf_stitch_build_json()` function in rbf_Foundry.sh:
+   - Inline metadata mapping (builder image, entrypoint, step ID per script)
+   - Reads scripts, escapes `$` → `$$` for Cloud Build (preserving `${_RBGY_*}` substitutions)
+   - Outputs valid JSON matching original structure
+3. Updated `zrbf_kindle()` with `ZRBF_RBGJB_STEPS_DIR` and `ZRBF_STITCHED_BUILD_FILE`
+4. Updated `zrbf_compose_build_request_json()` to call stitcher
+5. Deleted old static `rbgjb_build.json`
+
+**Test result**: Build submitted successfully, first 5 steps executed correctly (stitcher working).
+Step 6 (build-and-push) failed - Docker buildx issue unrelated to stitcher refactor.
+
+**Commits**:
+- `72f24de` - Add stitcher function to dynamically generate Cloud Build JSON
+- `07c3abc` - Fix stitcher $ escaping to preserve Cloud Build substitutions
+- `2397405` - Remove old static rbgjb_build.json
+
+**Next**: Debug Docker buildx failure in step 6 (separate issue from stitcher work)
 ---
