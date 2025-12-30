@@ -48,7 +48,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgp_depot_destroy` | `rbw-PD` | RBSDD | working |
 | `rbgp_governor_reset` | `rbw-PG` | RBSGR | working |
 | `rbgg_director_create` | `rbw-GD` | RBSDI | working |
-| `rbgg_retriever_create` | `rbw-GR` | RBSRC | untested |
+| `rbgg_retriever_create` | `rbw-GR` | RBSRC | working |
 | `rbgg_list_service_accounts` | `rbw-al` | RBSSL | untested |
 | `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | untested |
 | `rbf_build` | `rbw-fB` | RBSTB | untested |
@@ -79,12 +79,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise director_create** — Fixed 6 bugs across rbgp/rbgg/rbgi/rbgd; created director-eta successfully.
 
+- **Exercise retriever_create** — Created retriever-proto successfully, first try.
+
 ## Current
-
-- **Exercise retriever_create** — Provision Retriever service account. Produces RBRA file at RBRR_RETRIEVER_RBRA_FILE path.
-  mode: manual
-
-## Remaining
 
 - **Exercise sa_list** — Verify all created service accounts appear in roster.
   mode: manual

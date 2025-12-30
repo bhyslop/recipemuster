@@ -359,3 +359,23 @@
 
 **Leftover SAs** (for sa_list/sa_delete testing): proto, alpha, beta, gamma, delta, epsilon, zeta, eta
 ---
+
+---
+### 2025-12-30 11:00 - exercise-retriever-create - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-GR.GovernorRetrieverCreate.sh proto` (using same instance name as keeper depot)
+- Retriever is simpler than Director (single IAM grant vs multiple)
+- Code already fixed by director_create bug fixes (same patterns)
+- Verify RBRA file at `../output-buk/current/proto.rbra`
+
+### 2025-12-30 11:06 - exercise-retriever-create - WRAP
+**Outcome**: Created retriever-proto successfully, first try. No bugs encountered.
+---
+
+---
+### 2025-12-30 11:06 - exercise-sa-list - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-al.ListServiceAccounts.sh` (if exists) or find correct tabtarget
+- Expect to see: governor, mason, director-* (8 instances), retriever-proto
+- Verify listing format and completeness
+---
