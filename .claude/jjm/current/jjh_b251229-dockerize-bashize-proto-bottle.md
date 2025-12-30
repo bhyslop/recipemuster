@@ -153,11 +153,9 @@ rbw_runtime_cmd() {
 - **Implement rbw-stop** — Added rbob_stop(); refactored workbench to two-phase routing; created tt/rbw-z.Stop.nsproto.sh
 - **Implement rbw-connect commands** — Added connect functions; refactored RBOB to kindle pattern (compute all derived values once, no subshells)
 - **Migrate lifecycle tabtargets** — Merged with "Validate bottle lifecycle"; migrated 4 tabtargets (Start, ConnectSentry, ConnectCenser, ConnectBottle) to BUD launcher; full lifecycle validated
+- **Implement rbw-observe (partial)** — Created rboo_observe.sh with kindle pattern; sentry/censer captures for Docker; runtime-conditional bridge for podman; tabtarget migrated
 
 ## Remaining
-
-- **Implement rbw-observe (partial)** — Port what's possible without podman machine ssh. The full `rbo.observe.sh` requires `podman machine ssh` for bridge capture which has no Docker equivalent. Implement sentry/censer tcpdump capture; defer bridge capture to podman heat. Update `rbw-o.ObserveNetworks` tabtarget.
-  mode: manual
 
 - **Determine exec -i requirements** — Review existing tests to understand when `-i` (stdin) flag is needed for container exec. Current Makefile uses both `MBT_PODMAN_EXEC_BOTTLE` and `MBT_PODMAN_EXEC_BOTTLE_I`. Document pattern for testbench helper functions.
   mode: manual

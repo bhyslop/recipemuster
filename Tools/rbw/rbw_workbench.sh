@@ -24,6 +24,7 @@
 #   rbw-S   Connect to sentry container
 #   rbw-C   Connect to censer container
 #   rbw-B   Connect to bottle container
+#   rbw-o   Observe network traffic (tcpdump)
 #   rbw-lB  Local build from recipe
 
 set -euo pipefail
@@ -37,6 +38,7 @@ source "${RBW_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBW_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBW_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBW_SCRIPT_DIR}/rbob_bottle.sh"
+source "${RBW_SCRIPT_DIR}/rboo_observe.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
@@ -114,7 +116,7 @@ rbw_route() {
 
   # Phase 1: Load nameplate for commands that need it
   case "${z_command}" in
-    rbw-s|rbw-z|rbw-S|rbw-C|rbw-B)
+    rbw-s|rbw-z|rbw-S|rbw-C|rbw-B|rbw-o)
       test -n "${z_moniker}" || buc_die "${z_command} requires moniker argument"
       rbw_load_nameplate "${z_moniker}"
       ;;
@@ -124,6 +126,11 @@ rbw_route() {
     *) buc_die "Unknown command: ${z_command}" ;;
   esac
 
+  # Phase 1b: Kindle additional modules as needed
+  case "${z_command}" in
+    rbw-o) zrboo_kindle ;;
+  esac
+
   # Phase 2: Execute command
   case "${z_command}" in
     rbw-s)  rbob_start ;;
@@ -131,6 +138,7 @@ rbw_route() {
     rbw-S)  rbob_connect_sentry ;;
     rbw-C)  rbob_connect_censer ;;
     rbw-B)  rbob_connect_bottle ;;
+    rbw-o)  rboo_observe ;;
     rbw-lB) rbw_local_build "${z_moniker}" ;;
   esac
 }

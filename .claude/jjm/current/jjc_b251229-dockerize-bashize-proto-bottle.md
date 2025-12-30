@@ -119,4 +119,15 @@
 ### 2025-12-30 12:30 - migrate-lifecycle-tabtargets - WRAP
 **Outcome**: Merged paces; migrated 4 tabtargets (Start, ConnectSentry, ConnectCenser, ConnectBottle) to BUD launcher; full lifecycle validated (start→connect→stop)
 ---
+### 2025-12-30 13:00 - implement-rbw-observe-partial - APPROACH
+**Proposed approach**:
+- Create `rboo_observe.sh` as dedicated observe module with kindle/sentinel pattern
+- Implement sentry (eth1) and censer (eth0) tcpdump captures for Docker
+- Runtime-conditional bridge capture (podman only, via `podman machine ssh`)
+- Add `rbw-o` routing to workbench
+- Update `tt/rbw-o.ObserveNetworks.nsproto.sh` to BUD launcher
+---
+### 2025-12-30 13:15 - implement-rbw-observe-partial - WRAP
+**Outcome**: Created rboo_observe.sh with kindle pattern; sentry/censer captures for Docker; runtime-conditional bridge for podman; tabtarget migrated; testing deferred (interactive)
+---
 (execution log begins here)
