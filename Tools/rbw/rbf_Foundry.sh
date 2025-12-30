@@ -71,12 +71,14 @@ zrbf_kindle() {
   buc_log_args 'Media types for delete operation'
   ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
-  buc_log_args 'RBGY files presumed to be in the same Tools directory as this implementation'
+  buc_log_args 'RBGJ files in same Tools directory as this implementation'
+  # Acronyms: rbgjb = Recipe Bottle Google Json Build
+  #           rbgjm = Recipe Bottle Google Json Mirror
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGY_BUILD_FILE="${z_self_dir}/rbgy_build.yaml"
-  ZRBF_RBGY_COPY_FILE="${z_self_dir}/rbgy_copy.yaml"
-  test -f "${ZRBF_RBGY_BUILD_FILE}" || buc_die "RBGY build file not found in Tools: ${ZRBF_RBGY_BUILD_FILE}"
-  test -f "${ZRBF_RBGY_COPY_FILE}"  || buc_die "RBGY copy file not found in Tools: ${ZRBF_RBGY_COPY_FILE}"
+  ZRBF_RBGJB_BUILD_FILE="${z_self_dir}/rbgjb_build.json"
+  ZRBF_RBGJM_MIRROR_FILE="${z_self_dir}/rbgjm_mirror.json"
+  test -f "${ZRBF_RBGJB_BUILD_FILE}"  || buc_die "RBGJB build file not found: ${ZRBF_RBGJB_BUILD_FILE}"
+  test -f "${ZRBF_RBGJM_MIRROR_FILE}" || buc_die "RBGJM mirror file not found: ${ZRBF_RBGJM_MIRROR_FILE}"
 
   buc_log_args 'Define temp files for build operations'
   ZRBF_BUILD_CONTEXT_TAR="${BUD_TEMP_DIR}/rbf_build_context.tar.gz"
@@ -239,9 +241,8 @@ zrbf_package_context() {
 
   local z_dockerfile="$1"
   local z_context_dir="$2"
-  local z_yaml_file="$3"
 
-  buc_step 'Packaging build context'
+  buc_step 'Packaging build context (source only, no build config)'
 
   buc_log_args 'Create temp directory for context'
   rm -rf "${ZRBF_STAGING_DIR}" || buc_warn "Failed to clean existing staging directory"
@@ -253,9 +254,6 @@ zrbf_package_context() {
   buc_log_args 'Copy Dockerfile to context root if not already there'
   local z_dockerfile_name="${z_dockerfile##*/}"
   cp "${z_dockerfile}" "${ZRBF_STAGING_DIR}/${z_dockerfile_name}" || buc_die "Failed to copy Dockerfile"
-
-  buc_log_args 'Copy RBGY YAML to context (fixed name: cloudbuild.yaml)'
-  cp "${z_yaml_file}" "${ZRBF_STAGING_DIR}/cloudbuild.yaml" || buc_die "Failed to copy RBGY file"
 
   buc_log_args "Create tarball"
   tar -czf "${ZRBF_BUILD_CONTEXT_TAR}" -C "${ZRBF_STAGING_DIR}" . || buc_die "Failed to create context archive"
@@ -279,21 +277,20 @@ zrbf_package_context() {
   buc_info "Build context packaged: ${z_size_bytes} bytes"
 }
 
-zrbf_package_copy_context() {
+zrbf_package_mirror_context() {
   zrbf_sentinel
-  buc_step 'Packaging copy context'
+  buc_step 'Packaging mirror context'
 
-  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to clean existing copy staging directory"
-  mkdir -p "${ZRBF_COPY_STAGING_DIR}" || buc_die "Failed to create copy staging directory"
+  # NOTE: When rbf_mirror is implemented, this should use inline steps like rbf_build.
+  # For now, this packages a minimal context for the mirror operation.
+  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to clean existing mirror staging directory"
+  mkdir -p "${ZRBF_COPY_STAGING_DIR}" || buc_die "Failed to create mirror staging directory"
 
-  buc_log_args 'Copy rbgy_copy.yaml into the root as cloudbuild.yaml'
-  cp "${ZRBF_RBGY_COPY_FILE}" "${ZRBF_COPY_STAGING_DIR}/cloudbuild.yaml" \
-    || buc_die "Failed to copy RBGY copy YAML"
-
+  # Mirror operation needs no source files - steps will be inlined in API request
   tar -czf "${ZRBF_COPY_CONTEXT_TAR}" -C "${ZRBF_COPY_STAGING_DIR}" . \
-    || buc_die "Failed to create copy context archive"
+    || buc_die "Failed to create mirror context archive"
 
-  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to cleanup copy staging directory"
+  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to cleanup mirror staging directory"
 }
 
 zrbf_compose_tarball_name() {
@@ -341,19 +338,25 @@ zrbf_upload_context_to_gcs() {
 
 zrbf_compose_build_request_json() {
   zrbf_sentinel
-  jq empty "${ZRBF_BUILD_CONFIG_FILE}" || buc_die "Build config is not valid JSON"
+  jq empty "${ZRBF_BUILD_CONFIG_FILE}"  || buc_die "Build config is not valid JSON"
+  jq empty "${ZRBF_RBGJB_BUILD_FILE}"   || buc_die "RBGJB build file is not valid JSON"
 
   local z_obj_name=""
   z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || buc_die "Missing tarball name"
 
-  jq -n --slurpfile sub "${ZRBF_BUILD_CONFIG_FILE}"            \
-    --arg bucket "${RBGD_GCS_BUCKET}"                           \
-    --arg object "${z_obj_name}"                                 \
-    --arg sa     "${RBGD_MASON_EMAIL}"                           \
-    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"                      \
-    --arg to     "${RBRR_GCB_TIMEOUT}"                           \
+  # Merge steps from RBGJB template with runtime substitutions and config
+  # Steps come from the static JSON template; substitutions override defaults
+  jq -n \
+    --slurpfile sub   "${ZRBF_BUILD_CONFIG_FILE}"  \
+    --slurpfile build "${ZRBF_RBGJB_BUILD_FILE}"   \
+    --arg bucket "${RBGD_GCS_BUCKET}"              \
+    --arg object "${z_obj_name}"                   \
+    --arg sa     "${RBGD_MASON_EMAIL}"             \
+    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"        \
+    --arg to     "${RBRR_GCB_TIMEOUT}"             \
     '{
       source: { storageSource: { bucket: $bucket, object: $object } },
+      steps: $build[0].steps,
       substitutions: ($sub[0].substitutions),
       options: { logging: "CLOUD_LOGGING_ONLY", machineType: $mtype },
       serviceAccount: $sa,
@@ -394,10 +397,10 @@ zrbf_submit_build_json() {
 }
 
 
-zrbf_submit_copy() {
+zrbf_submit_mirror() {
   zrbf_sentinel
 
-  buc_die 'ELIDED FOR NOW'
+  buc_die 'ELIDED FOR NOW - use ZRBF_RBGJM_MIRROR_FILE for steps'
 }
 
 zrbf_wait_build_completion() {
@@ -490,10 +493,10 @@ rbf_build() {
   # Verify git state + capture metadata
   zrbf_verify_git_clean
 
-  # Package build context (includes RBGY file as cloudbuild.yaml)
-  zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}" "${ZRBF_RBGY_BUILD_FILE}"
+  # Package build context (source code only; build config inlined in API request)
+  zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}"
 
-  # Prepare RBGY substitutions file
+  # Prepare build substitutions (variable names kept as _RBGY_* for template compatibility)
   local z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
 
   buc_log_args 'Read git info from file'
@@ -512,7 +515,7 @@ rbf_build() {
   test -n "${z_git_branch}" || buc_die "Git branch is empty"
   test -n "${z_git_repo}"   || buc_die "Git repo is empty"
 
-  buc_log_args 'Create build config with RBGY substitutions'
+  buc_log_args 'Create build config with substitutions for RBGJB template'
   jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_moniker        "${RBRV_SIGIL}"                    \
@@ -557,10 +560,10 @@ rbf_build() {
   buc_success "Vessel image built: ${z_tag}"
 }
 
-rbf_copy() {
+rbf_mirror() {
   zrbf_sentinel
 
-  buc_die 'ELIDED FOR NOW'
+  buc_die 'ELIDED FOR NOW - mirror public images to depot registry'
 }
 
 rbf_study() {
