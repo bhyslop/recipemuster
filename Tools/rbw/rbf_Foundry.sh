@@ -349,7 +349,7 @@ zrbf_compose_build_request_json() {
   jq -n --slurpfile sub "${ZRBF_BUILD_CONFIG_FILE}"            \
     --arg bucket "${RBGD_GCS_BUCKET}"                           \
     --arg object "${z_obj_name}"                                 \
-    --arg sa     "${RBGC_MASON_EMAIL}"                           \
+    --arg sa     "${RBGD_MASON_EMAIL}"                           \
     --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"                      \
     --arg to     "${RBRR_GCB_TIMEOUT}"                           \
     '{
@@ -526,7 +526,7 @@ rbf_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_service_account "${RBGC_MASON_EMAIL}"             \
+    --arg zjq_service_account "${RBGD_MASON_EMAIL}"             \
     --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
     --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
     --arg zjq_recipe_name    "${z_recipe_name}"                 \
