@@ -50,7 +50,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgg_director_create` | `rbw-GD` | RBSDI | working |
 | `rbgg_retriever_create` | `rbw-GR` | RBSRC | working |
 | `rbgg_list_service_accounts` | `rbw-al` | RBSSL | working |
-| `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | untested |
+| `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | working |
 | `rbf_build` | `rbw-fB` | RBSTB | untested |
 | — | `rbw-il` | — | unimplemented |
 | `rbf_delete` | `rbw-fD` | RBSID | untested |
@@ -83,10 +83,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise sa_list** — Fixed coordinator routing and tabtarget pattern; listed 12 SAs successfully.
 
-## Current
+- **Exercise sa_delete** — Fixed tabtarget pattern; deleted director-default successfully.
 
-- **Exercise sa_delete** — Delete one service account (retriever) to exercise deletion path.
-  mode: manual
+## Current
 
 - **Exercise retriever_create (restore)** — Recreate retriever after deletion exercise.
   mode: manual

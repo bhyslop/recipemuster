@@ -393,4 +393,15 @@
 - Run `tt/rbw-aDS.DeleteServiceAccount.sh <email>` to delete one of the leftover directors
 - Use director-default as the target (least useful of the bunch)
 - Verify deletion via sa_list afterward
+
+### 2025-12-30 11:16 - exercise-sa-delete - WRAP
+**Outcome**: Fixed tabtarget pattern; deleted director-default successfully. Count 12→11.
+---
+
+---
+### 2025-12-30 11:16 - exercise-retriever-create-restore - APPROACH
+**Proposed approach**:
+- Note: The original pace description said "delete retriever" but we deleted director-default instead
+- Retriever-proto still exists, no restoration needed
+- Skip this pace as unnecessary, or repurpose if user wants
 ---
