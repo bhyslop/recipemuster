@@ -107,4 +107,7 @@
 ### 2025-12-30 11:05 - implement-rbw-stop - WRAP
 **Outcome**: Added rbob_stop(); refactored workbench to two-phase routing; created tt/rbw-z.Stop.nsproto.sh
 ---
+### 2025-12-30 11:30 - implement-rbw-connect-commands - WRAP
+**Outcome**: Added connect functions; refactored RBOB to kindle pattern (compute all derived values once, no subshells)
+---
 (execution log begins here)

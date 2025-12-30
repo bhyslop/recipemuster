@@ -43,34 +43,21 @@ rbob_validate() {
 
   buc_step "RBOB Validate: ${RBRN_MONIKER}"
 
-  # Verify container naming works (two-line pattern per BCG)
-  local z_sentry
-  z_sentry="$(zrbob_container_name sentry)" || buc_die "Failed to get sentry name"
-
-  local z_censer
-  z_censer="$(zrbob_container_name censer)" || buc_die "Failed to get censer name"
-
-  local z_bottle
-  z_bottle="$(zrbob_container_name bottle)" || buc_die "Failed to get bottle name"
-
-  local z_network
-  z_network="$(zrbob_network_name)" || buc_die "Failed to get network name"
-
-  # Verify runtime command
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)" || buc_die "Failed to get runtime command"
-
-  # Verify sentry script exists
-  local z_sentry_script="${ZRBOB_CLI_SCRIPT_DIR}/rbss.sentry.sh"
-  test -f "${z_sentry_script}" || buc_die "Sentry script not found: ${z_sentry_script}"
+  # All values computed at kindle - just verify they exist
+  test -n "${ZRBOB_RUNTIME}" || buc_die "ZRBOB_RUNTIME not set"
+  test -n "${ZRBOB_SENTRY}" || buc_die "ZRBOB_SENTRY not set"
+  test -n "${ZRBOB_CENSER}" || buc_die "ZRBOB_CENSER not set"
+  test -n "${ZRBOB_BOTTLE}" || buc_die "ZRBOB_BOTTLE not set"
+  test -n "${ZRBOB_NETWORK}" || buc_die "ZRBOB_NETWORK not set"
+  test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
 
   buc_step "RBOB configuration valid"
   echo "Moniker:   ${RBRN_MONIKER}"
-  echo "Runtime:   ${z_runtime}"
-  echo "Sentry:    ${z_sentry}"
-  echo "Censer:    ${z_censer}"
-  echo "Bottle:    ${z_bottle}"
-  echo "Network:   ${z_network}"
+  echo "Runtime:   ${ZRBOB_RUNTIME}"
+  echo "Sentry:    ${ZRBOB_SENTRY}"
+  echo "Censer:    ${ZRBOB_CENSER}"
+  echo "Bottle:    ${ZRBOB_BOTTLE}"
+  echo "Network:   ${ZRBOB_NETWORK}"
 }
 
 rbob_info() {
@@ -80,11 +67,11 @@ rbob_info() {
   buc_doc_shown || return 0
 
   buc_step "RBOB Info: ${RBRN_MONIKER}"
-  echo "Runtime:   ${RBRN_RUNTIME}"
-  echo "Sentry:    $(zrbob_container_name sentry)"
-  echo "Censer:    $(zrbob_container_name censer)"
-  echo "Bottle:    $(zrbob_container_name bottle)"
-  echo "Network:   $(zrbob_network_name)"
+  echo "Runtime:   ${ZRBOB_RUNTIME}"
+  echo "Sentry:    ${ZRBOB_SENTRY}"
+  echo "Censer:    ${ZRBOB_CENSER}"
+  echo "Bottle:    ${ZRBOB_BOTTLE}"
+  echo "Network:   ${ZRBOB_NETWORK}"
   echo "Sentry IP: ${RBRN_ENCLAVE_SENTRY_IP}"
   echo "Bottle IP: ${RBRN_ENCLAVE_BOTTLE_IP}"
 }

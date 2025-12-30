@@ -47,60 +47,37 @@ zrbob_kindle() {
   # Verify RBRR regime is kindled (provides repo config like DNS_SERVER)
   zrbrr_sentinel
 
+  # Runtime command (docker or podman)
+  case "${RBRN_RUNTIME}" in
+    docker) ZRBOB_RUNTIME="docker" ;;
+    podman) ZRBOB_RUNTIME="podman" ;;
+    *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
+  esac
+
+  # Container names
+  ZRBOB_SENTRY="${RBRN_MONIKER}-sentry"
+  ZRBOB_CENSER="${RBRN_MONIKER}-censer"
+  ZRBOB_BOTTLE="${RBRN_MONIKER}-bottle"
+
+  # Network name
+  ZRBOB_NETWORK="${RBRN_MONIKER}-enclave"
+
+  # Sentry configuration script
+  ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
+  test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
+
+  # Runtime-specific censer network args
+  # Docker uses --ip separately, Podman uses network:ip= syntax
+  case "${RBRN_RUNTIME}" in
+    docker) ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK} --ip ${RBRN_ENCLAVE_BOTTLE_IP}" ;;
+    podman) ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}" ;;
+  esac
+
   ZRBOB_KINDLED=1
 }
 
 zrbob_sentinel() {
   test "${ZRBOB_KINDLED:-}" = "1" || buc_die "Module rbob not kindled - call zrbob_kindle first"
-}
-
-######################################################################
-# Naming Helpers
-
-# Get container name for a given type
-# Usage: zrbob_container_name <type>  # type: sentry, censer, bottle
-zrbob_container_name() {
-  zrbob_sentinel
-  local z_type="${1:-}"
-  test -n "${z_type}" || buc_die "zrbob_container_name: type argument required"
-  echo "${RBRN_MONIKER}-${z_type}"
-}
-
-# Get enclave network name
-zrbob_network_name() {
-  zrbob_sentinel
-  echo "${RBRN_MONIKER}-enclave"
-}
-
-# Get runtime command (docker or podman)
-zrbob_runtime_cmd() {
-  zrbob_sentinel
-  case "${RBRN_RUNTIME}" in
-    docker) echo "docker" ;;
-    podman) echo "podman" ;;  # Future: add -c connection if needed
-    *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
-  esac
-}
-
-######################################################################
-# Variable Setters (populate module variables without subshell)
-
-# Set ZRBOB_CENSER_NETWORK_ARGS for runtime-specific network syntax
-# Docker uses --ip separately, Podman uses network:ip= syntax
-zrbob_set_censer_network_args() {
-  zrbob_sentinel
-
-  local z_network="${1:-}"
-  local z_ip="${2:-}"
-
-  test -n "${z_network}" || buc_die "zrbob_set_censer_network_args: network required"
-  test -n "${z_ip}" || buc_die "zrbob_set_censer_network_args: ip required"
-
-  case "${RBRN_RUNTIME}" in
-    docker) ZRBOB_CENSER_NETWORK_ARGS="--network ${z_network} --ip ${z_ip}" ;;
-    podman) ZRBOB_CENSER_NETWORK_ARGS="--network ${z_network}:ip=${z_ip}" ;;
-    *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
-  esac
 }
 
 ######################################################################
@@ -111,8 +88,6 @@ zrbob_set_censer_network_args() {
 zrbob_wait_container() {
   local z_container="${1:-}"
   local z_timeout="${2:-10}"
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
 
   test -n "${z_container}" || buc_die "zrbob_wait_container: container name required"
 
@@ -120,7 +95,7 @@ zrbob_wait_container() {
 
   local z_elapsed=0
   while [[ ${z_elapsed} -lt ${z_timeout} ]]; do
-    if ${z_runtime} ps --format '{{.Names}}' 2>/dev/null | grep -q "^${z_container}$"; then
+    if ${ZRBOB_RUNTIME} ps --format '{{.Names}}' 2>/dev/null | grep -q "^${z_container}$"; then
       buc_info "Container running: ${z_container}"
       return 0
     fi
@@ -136,37 +111,23 @@ zrbob_wait_container() {
 
 # Stop and remove containers (tolerates missing)
 zrbob_cleanup_containers() {
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
-
-  local z_sentry z_censer z_bottle
-  z_sentry="$(zrbob_container_name sentry)"
-  z_censer="$(zrbob_container_name censer)"
-  z_bottle="$(zrbob_container_name bottle)"
-
   buc_step "Stopping any prior containers"
 
   # Stop with short timeout, then force remove (ignore errors for missing containers)
-  ${z_runtime} stop -t 2 "${z_sentry}" 2>/dev/null || true
-  ${z_runtime} rm   -f    "${z_sentry}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_SENTRY}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_SENTRY}" 2>/dev/null || true
 
-  ${z_runtime} stop -t 2 "${z_bottle}" 2>/dev/null || true
-  ${z_runtime} rm   -f    "${z_bottle}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_BOTTLE}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_BOTTLE}" 2>/dev/null || true
 
-  ${z_runtime} stop -t 2 "${z_censer}" 2>/dev/null || true
-  ${z_runtime} rm   -f    "${z_censer}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_CENSER}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_CENSER}" 2>/dev/null || true
 }
 
 # Remove enclave network (tolerates missing)
 zrbob_cleanup_network() {
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
-
-  local z_network
-  z_network="$(zrbob_network_name)"
-
   buc_step "Removing any existing enclave network"
-  ${z_runtime} network rm -f "${z_network}" 2>/dev/null || true
+  ${ZRBOB_RUNTIME} network rm -f "${ZRBOB_NETWORK}" 2>/dev/null || true
 }
 
 ######################################################################
@@ -176,21 +137,15 @@ zrbob_cleanup_network() {
 zrbob_create_network() {
   zrbob_sentinel
 
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
+  buc_step "Creating enclave network: ${ZRBOB_NETWORK}"
 
-  local z_network
-  z_network="$(zrbob_network_name)"
-
-  buc_step "Creating enclave network: ${z_network}"
-
-  ${z_runtime} network create \
+  ${ZRBOB_RUNTIME} network create \
     --internal \
     --subnet="${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
-    "${z_network}" \
+    "${ZRBOB_NETWORK}" \
     || buc_die "Failed to create enclave network"
 
-  buc_info "Enclave network created: ${z_network} (${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK})"
+  buc_info "Enclave network created: ${ZRBOB_NETWORK} (${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK})"
 }
 
 ######################################################################
@@ -200,16 +155,9 @@ zrbob_create_network() {
 zrbob_launch_sentry() {
   zrbob_sentinel
 
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
-
-  local z_sentry z_network
-  z_sentry="$(zrbob_container_name sentry)"
-  z_network="$(zrbob_network_name)"
-
   local z_image="${RBRN_SENTRY_REPO_PATH}:${RBRN_SENTRY_IMAGE_TAG}"
 
-  buc_step "Launching sentry container: ${z_sentry}"
+  buc_step "Launching sentry container: ${ZRBOB_SENTRY}"
 
   # Build port mapping args if entry is enabled
   local z_port_args=()
@@ -218,8 +166,8 @@ zrbob_launch_sentry() {
   fi
 
   # Run sentry on bridge network with env vars
-  ${z_runtime} run -d \
-    --name "${z_sentry}" \
+  ${ZRBOB_RUNTIME} run -d \
+    --name "${ZRBOB_SENTRY}" \
     --network bridge \
     --privileged \
     "${z_port_args[@]}" \
@@ -229,21 +177,21 @@ zrbob_launch_sentry() {
     || buc_die "Failed to launch sentry"
 
   # Wait for sentry to be running
-  zrbob_wait_container "${z_sentry}" 5
+  zrbob_wait_container "${ZRBOB_SENTRY}" 5
 
   # Connect sentry to enclave network with specific IP
   buc_step "Connecting sentry to enclave network"
-  ${z_runtime} network connect \
+  ${ZRBOB_RUNTIME} network connect \
     --ip "${RBRN_ENCLAVE_SENTRY_IP}" \
-    "${z_network}" \
-    "${z_sentry}" \
+    "${ZRBOB_NETWORK}" \
+    "${ZRBOB_SENTRY}" \
     || buc_die "Failed to connect sentry to enclave"
 
   # Verify sentry got expected IP
   buc_step "Verifying sentry enclave IP"
   local z_actual_ip
-  z_actual_ip=$(${z_runtime} inspect "${z_sentry}" \
-    --format "{{(index .NetworkSettings.Networks \"${z_network}\").IPAddress}}")
+  z_actual_ip=$(${ZRBOB_RUNTIME} inspect "${ZRBOB_SENTRY}" \
+    --format "{{(index .NetworkSettings.Networks \"${ZRBOB_NETWORK}\").IPAddress}}")
 
   if [[ "${z_actual_ip}" != "${RBRN_ENCLAVE_SENTRY_IP}" ]]; then
     buc_die "Sentry IP mismatch. Expected ${RBRN_ENCLAVE_SENTRY_IP}, got ${z_actual_ip}"
@@ -252,13 +200,10 @@ zrbob_launch_sentry() {
 
   # Configure sentry security by exec'ing rbss.sentry.sh
   buc_step "Configuring sentry security"
-  local z_sentry_script="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
-  test -f "${z_sentry_script}" || buc_die "Sentry script not found: ${z_sentry_script}"
-
-  ${z_runtime} exec -i "${z_sentry}" /bin/sh < "${z_sentry_script}" \
+  ${ZRBOB_RUNTIME} exec -i "${ZRBOB_SENTRY}" /bin/sh < "${ZRBOB_SENTRY_SCRIPT}" \
     || buc_die "Failed to configure sentry security"
 
-  buc_info "Sentry launched and configured: ${z_sentry}"
+  buc_info "Sentry launched and configured: ${ZRBOB_SENTRY}"
 }
 
 ######################################################################
@@ -268,23 +213,14 @@ zrbob_launch_sentry() {
 zrbob_launch_censer() {
   zrbob_sentinel
 
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
-
-  local z_censer z_network
-  z_censer="$(zrbob_container_name censer)"
-  z_network="$(zrbob_network_name)"
-
   local z_image="${RBRN_SENTRY_REPO_PATH}:${RBRN_SENTRY_IMAGE_TAG}"
 
-  buc_step "Launching censer container: ${z_censer}"
-
-  # Set runtime-specific network args (populates ZRBOB_CENSER_NETWORK_ARGS)
-  zrbob_set_censer_network_args "${z_network}" "${RBRN_ENCLAVE_BOTTLE_IP}"
+  buc_step "Launching censer container: ${ZRBOB_CENSER}"
 
   # Run censer on enclave network with bottle IP, sleep infinity
-  ${z_runtime} run -d \
-    --name "${z_censer}" \
+  # ZRBOB_CENSER_NETWORK_ARGS computed at kindle time
+  ${ZRBOB_RUNTIME} run -d \
+    --name "${ZRBOB_CENSER}" \
     ${ZRBOB_CENSER_NETWORK_ARGS} \
     --privileged \
     --entrypoint /bin/sleep \
@@ -293,32 +229,32 @@ zrbob_launch_censer() {
     || buc_die "Failed to launch censer"
 
   # Wait for censer to be running
-  zrbob_wait_container "${z_censer}" 5
+  zrbob_wait_container "${ZRBOB_CENSER}" 5
 
   # Configure censer: set resolv.conf to use sentry as DNS
   buc_step "Configuring censer DNS"
-  ${z_runtime} exec "${z_censer}" sh -c \
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" sh -c \
     "echo 'nameserver ${RBRN_ENCLAVE_SENTRY_IP}' > /etc/resolv.conf" \
     || buc_die "Failed to configure censer DNS"
 
   # Flush ARP and restart networking
   buc_step "Flushing censer ARP entries"
-  ${z_runtime} exec "${z_censer}" sh -c \
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" sh -c \
     "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all" \
     || buc_die "Failed to flush censer ARP"
 
   # Configure default route through sentry
   buc_step "Configuring censer default route"
-  ${z_runtime} exec "${z_censer}" sh -c \
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" sh -c \
     "ip route add default via ${RBRN_ENCLAVE_SENTRY_IP}" \
     || buc_die "Failed to set censer default route"
 
   # Verify default route
-  ${z_runtime} exec "${z_censer}" sh -c \
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" sh -c \
     "ip route | grep -q '^default via ${RBRN_ENCLAVE_SENTRY_IP}'" \
     || buc_die "Failed to verify censer default route"
 
-  buc_info "Censer launched and configured: ${z_censer}"
+  buc_info "Censer launched and configured: ${ZRBOB_CENSER}"
 }
 
 ######################################################################
@@ -328,33 +264,26 @@ zrbob_launch_censer() {
 zrbob_launch_bottle() {
   zrbob_sentinel
 
-  local z_runtime
-  z_runtime="$(zrbob_runtime_cmd)"
-
-  local z_bottle z_censer
-  z_bottle="$(zrbob_container_name bottle)"
-  z_censer="$(zrbob_container_name censer)"
-
   local z_image="${RBRN_BOTTLE_REPO_PATH}:${RBRN_BOTTLE_IMAGE_TAG}"
 
-  buc_step "Creating bottle container: ${z_bottle}"
+  buc_step "Creating bottle container: ${ZRBOB_BOTTLE}"
 
   # Create bottle sharing censer's network namespace
-  ${z_runtime} create \
-    --name "${z_bottle}" \
-    --net=container:"${z_censer}" \
+  ${ZRBOB_RUNTIME} create \
+    --name "${ZRBOB_BOTTLE}" \
+    --net=container:"${ZRBOB_CENSER}" \
     --security-opt label=disable \
     "${z_image}" \
     || buc_die "Failed to create bottle"
 
   buc_step "Starting bottle container"
-  ${z_runtime} start "${z_bottle}" \
+  ${ZRBOB_RUNTIME} start "${ZRBOB_BOTTLE}" \
     || buc_die "Failed to start bottle"
 
   # Wait for bottle to be running
-  zrbob_wait_container "${z_bottle}" 5
+  zrbob_wait_container "${ZRBOB_BOTTLE}" 5
 
-  buc_info "Bottle launched: ${z_bottle}"
+  buc_info "Bottle launched: ${ZRBOB_BOTTLE}"
 }
 
 ######################################################################
@@ -397,19 +326,22 @@ rbob_stop() {
 # Connect to sentry container (interactive shell)
 rbob_connect_sentry() {
   zrbob_sentinel
-  buc_die "rbob_connect_sentry not yet implemented"
+  buc_step "Connecting to sentry: ${ZRBOB_SENTRY}"
+  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_SENTRY}" /bin/bash
 }
 
 # Connect to censer container (interactive shell)
 rbob_connect_censer() {
   zrbob_sentinel
-  buc_die "rbob_connect_censer not yet implemented"
+  buc_step "Connecting to censer: ${ZRBOB_CENSER}"
+  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_CENSER}" /bin/bash
 }
 
 # Connect to bottle container (interactive shell)
 rbob_connect_bottle() {
   zrbob_sentinel
-  buc_die "rbob_connect_bottle not yet implemented"
+  buc_step "Connecting to bottle: ${ZRBOB_BOTTLE}"
+  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" /bin/bash
 }
 
 # eof

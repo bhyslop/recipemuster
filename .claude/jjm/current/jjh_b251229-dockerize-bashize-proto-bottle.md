@@ -151,11 +151,9 @@ rbw_runtime_cmd() {
 - **Implement rbw-start** — Created rbob_bottle.sh with full container lifecycle: cleanup, network creation, sentry/censer/bottle launch
 - **Modernize RBOB to BCG pattern** — Moved RBRR loading from RBOB to callers (workbench/furnish); added rbob_validate command
 - **Implement rbw-stop** — Added rbob_stop(); refactored workbench to two-phase routing; created tt/rbw-z.Stop.nsproto.sh
+- **Implement rbw-connect commands** — Added connect functions; refactored RBOB to kindle pattern (compute all derived values once, no subshells)
 
 ## Remaining
-
-- **Implement rbw-connect commands** — Port `rbp_connect_sentry/censer/bottle_rule` to bash functions. Interactive exec into each container type.
-  mode: manual
 
 - **Validate bottle lifecycle** — Build sentry/bottle images, start nsproto service, verify 3 containers running, connect to each (sentry/censer/bottle), stop service, verify cleanup. Basic lifecycle validation before network security tests.
   mode: manual
