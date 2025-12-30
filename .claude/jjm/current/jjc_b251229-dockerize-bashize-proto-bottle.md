@@ -79,4 +79,18 @@
 ### 2025-12-30 09:15 - implement-rbw-start - WRAP
 **Outcome**: Created rbob_bottle.sh with full container lifecycle: cleanup, network creation, sentry/censer/bottle launch
 ---
+### 2025-12-30 09:30 - modernize-rbob-to-bcg-pattern - APPROACH
+**Proposed approach**:
+- Add zrbob_kindle/sentinel to rbob_bottle.sh
+- Move rbw_load_rbrr() into RBOB as zrbob_load_rbrr()
+- Remove duplicate rbw_runtime_cmd() from workbench
+- Create rbob_cli.sh with info command
+---
+### 2025-12-30 09:40 - modernize-rbob-to-bcg-pattern - BLOCKED
+**Issue**: RBRR config loading design conflict with parallel heat work.
+- Created zrbob_load_rbrr() in RBOB, but per BCG pattern config sourcing belongs in furnish/workbench
+- RBOB kindle should just validate regimes are already kindled (zrbrr_sentinel), not load config
+- Parallel heat is modifying RBRR regime; need to embrace those repairs before continuing
+**Resume**: Remove zrbob_load_rbrr() from RBOB, move config loading to workbench's rbw_load_nameplate
+---
 (execution log begins here)
