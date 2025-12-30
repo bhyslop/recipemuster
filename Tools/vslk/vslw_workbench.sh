@@ -26,6 +26,9 @@ VSLW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${VSLW_SCRIPT_DIR}/../buk/buc_command.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 # Verbose output if BUD_VERBOSE is set
 vslw_show() {
   test "${BUD_VERBOSE:-0}" != "1" || echo "VSLWSHOW: $*"

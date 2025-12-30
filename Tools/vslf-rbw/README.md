@@ -15,16 +15,18 @@ The launcher sets `VSLW_TEMPLATE_DIR="Tools/vslf-rbw"` to connect them.
 
 | File | Contents | Excludes |
 |------|----------|----------|
-| `vsrbw-main.vpj` | Main development code (*.sh, *.mk, *.recipe) | tt/*, .buk/* |
-| `vsrbw-tabtargets.vpj` | TabTarget scripts | - |
-| `vsrbw-launchers.vpj` | BUK launcher scripts | - |
+| `vsp-rbw-main.vpj` | Main development code (*.sh, *.mk, *.recipe) | tt/*, .buk/* |
+| `vsp-rbw-tabtargets.vpj` | TabTarget scripts | - |
+| `vsp-rbw-launchers.vpj` | BUK launcher scripts | - |
+| `vsp-rbw-markdown.vpj` | Markdown documentation (*.md) | - |
+| `vsp-rbw-asciidoc.vpj` | AsciiDoc specs (*.adoc) | - |
 
 ## Workspaces
 
 | File | Projects Included |
 |------|-------------------|
-| `vsrbw-main.vpw` | main only |
-| `vsrbw-ALL.vpw` | main + tabtargets + launchers |
+| `vsw-rbw-source-only.vpw` | main only |
+| `vsw-rbw-ALL.vpw` | main + tabtargets + launchers + markdown + asciidoc |
 
 ## Installation
 
