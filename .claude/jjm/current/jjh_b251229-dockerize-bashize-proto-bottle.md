@@ -152,10 +152,16 @@ rbw_runtime_cmd() {
 
 ## Remaining
 
+- **Modernize RBOB to BCG pattern** — Add zrbob_kindle/sentinel to rbob_bottle.sh. Move rbw_load_rbrr and rbw_runtime_cmd into RBOB. Create rbob_cli.sh with validate/info. Workbench becomes thin router that sources RBOB and calls kindle after loading nameplate.
+  mode: manual
+
 - **Implement rbw-stop** — Create service shutdown. Stop and remove bottle, censer, sentry containers. Remove enclave network. Create new tabtarget `tt/rbw-z.Stop.nsproto.sh`.
   mode: manual
 
 - **Implement rbw-connect commands** — Port `rbp_connect_sentry/censer/bottle_rule` to bash functions. Interactive exec into each container type.
+  mode: manual
+
+- **Validate bottle lifecycle** — Build sentry/bottle images, start nsproto service, verify 3 containers running, connect to each (sentry/censer/bottle), stop service, verify cleanup. Basic lifecycle validation before network security tests.
   mode: manual
 
 - **Implement rbw-observe (partial)** — Port what's possible without podman machine ssh. The full `rbo.observe.sh` requires `podman machine ssh` for bridge capture which has no Docker equivalent. Implement sentry/censer tcpdump capture; defer bridge capture to podman heat.
