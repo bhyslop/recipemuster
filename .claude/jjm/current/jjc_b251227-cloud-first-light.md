@@ -453,3 +453,12 @@ Step 6 (build-and-push) failed - Docker buildx issue unrelated to stitcher refac
 
 **Next**: Debug Docker buildx failure in step 6 (separate issue from stitcher work)
 ---
+
+---
+### 2025-12-30 - exercise-trigger-build - APPROACH (debug buildx)
+**Proposed approach**:
+- Re-run build to capture the exact Docker buildx error message
+- Likely causes: Cloud Builders docker image lacks buildx or multi-arch support
+- Possible fixes: (1) use different builder image, (2) add qemu/binfmt step, (3) fall back to single-arch
+- Debug per heat protocol: identify error, analyze root cause, propose fix, wait for approval
+---
