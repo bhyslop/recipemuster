@@ -461,4 +461,28 @@ Step 6 (build-and-push) failed - Docker buildx issue unrelated to stitcher refac
 - Likely causes: Cloud Builders docker image lacks buildx or multi-arch support
 - Possible fixes: (1) use different builder image, (2) add qemu/binfmt step, (3) fall back to single-arch
 - Debug per heat protocol: identify error, analyze root cause, propose fix, wait for approval
+
+### 2025-12-30 14:00 - exercise-trigger-build - SESSION PAUSED
+**Issue**: Docker buildx multi-arch build failing in Cloud Build step 4 (build-and-push)
+
+**Root cause identified**: Cloud Build steps run in isolated containers. Buildx builder state doesn't persist across steps.
+
+**Attempted fixes** (all failed with exit code 1):
+1. Merged buildx-create into build-and-push step (step 5 deleted)
+2. Removed --driver docker-container (default driver doesn't support multi-platform)
+3. Added --driver-opt network=host
+
+**Likely actual issue**: The docker-container buildx driver spawns a new container to do builds, but this container-in-container approach may not work in Cloud Build's environment due to Docker daemon access restrictions.
+
+**Research found** (see [GKE multi-arch docs](https://cloud.google.com/kubernetes-engine/docs/how-to/build-multi-arch-for-arm)):
+- Need to see actual error from Cloud Build logs (currently disabled)
+- May need to enable Cloud Logging or set up logs bucket
+- Alternative: build each arch separately and create manifest list
+
+**Next steps when resuming**:
+1. Enable Cloud Build logging to capture actual error message
+2. Consider alternative approaches:
+   - Single-arch build first (just amd64) to get something working
+   - Separate builds per arch + manifest list creation
+   - Use Kaniko for builds instead of docker buildx
 ---
