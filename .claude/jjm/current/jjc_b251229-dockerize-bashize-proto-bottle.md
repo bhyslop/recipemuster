@@ -110,4 +110,13 @@
 ### 2025-12-30 11:30 - implement-rbw-connect-commands - WRAP
 **Outcome**: Added connect functions; refactored RBOB to kindle pattern (compute all derived values once, no subshells)
 ---
+### 2025-12-30 12:00 - migrate-lifecycle-tabtargets - APPROACH
+**Proposed approach**:
+- Merge "Validate bottle lifecycle" pace into "Migrate lifecycle tabtargets" (validation becomes part of testing)
+- Migrate 4 tabtargets from mbd.dispatch to BUD launcher: Start, ConnectSentry, ConnectCenser, ConnectBottle
+- Test full lifecycle: start → connect to each → stop
+---
+### 2025-12-30 12:30 - migrate-lifecycle-tabtargets - WRAP
+**Outcome**: Merged paces; migrated 4 tabtargets (Start, ConnectSentry, ConnectCenser, ConnectBottle) to BUD launcher; full lifecycle validated (start→connect→stop)
+---
 (execution log begins here)

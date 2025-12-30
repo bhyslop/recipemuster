@@ -152,16 +152,11 @@ rbw_runtime_cmd() {
 - **Modernize RBOB to BCG pattern** — Moved RBRR loading from RBOB to callers (workbench/furnish); added rbob_validate command
 - **Implement rbw-stop** — Added rbob_stop(); refactored workbench to two-phase routing; created tt/rbw-z.Stop.nsproto.sh
 - **Implement rbw-connect commands** — Added connect functions; refactored RBOB to kindle pattern (compute all derived values once, no subshells)
+- **Migrate lifecycle tabtargets** — Merged with "Validate bottle lifecycle"; migrated 4 tabtargets (Start, ConnectSentry, ConnectCenser, ConnectBottle) to BUD launcher; full lifecycle validated
 
 ## Remaining
 
-- **Validate bottle lifecycle** — Build sentry/bottle images, start nsproto service, verify 3 containers running, connect to each (sentry/censer/bottle), stop service, verify cleanup. Basic lifecycle validation before network security tests.
-  mode: manual
-
-- **Implement rbw-observe (partial)** — Port what's possible without podman machine ssh. The full `rbo.observe.sh` requires `podman machine ssh` for bridge capture which has no Docker equivalent. Implement sentry/censer tcpdump capture; defer bridge capture to podman heat.
-  mode: manual
-
-- **Migrate lifecycle tabtargets** — Modify existing tabtargets (`rbw-s.Start`, `rbw-S.ConnectSentry`, `rbw-C.ConnectCenser`, `rbw-B.ConnectBottle`, `rbw-o.ObserveNetworks`) from mbd.dispatch to BUD launcher pattern.
+- **Implement rbw-observe (partial)** — Port what's possible without podman machine ssh. The full `rbo.observe.sh` requires `podman machine ssh` for bridge capture which has no Docker equivalent. Implement sentry/censer tcpdump capture; defer bridge capture to podman heat. Update `rbw-o.ObserveNetworks` tabtarget.
   mode: manual
 
 - **Determine exec -i requirements** — Review existing tests to understand when `-i` (stdin) flag is needed for container exec. Current Makefile uses both `MBT_PODMAN_EXEC_BOTTLE` and `MBT_PODMAN_EXEC_BOTTLE_I`. Document pattern for testbench helper functions.
