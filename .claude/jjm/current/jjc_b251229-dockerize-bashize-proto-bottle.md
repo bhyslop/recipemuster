@@ -104,4 +104,7 @@
 ### 2025-12-30 10:50 - modernize-rbob-to-bcg-pattern - WRAP
 **Outcome**: Moved RBRR loading from RBOB to callers (workbench/furnish); added rbob_validate command
 ---
+### 2025-12-30 11:05 - implement-rbw-stop - WRAP
+**Outcome**: Added rbob_stop(); refactored workbench to two-phase routing; created tt/rbw-z.Stop.nsproto.sh
+---
 (execution log begins here)

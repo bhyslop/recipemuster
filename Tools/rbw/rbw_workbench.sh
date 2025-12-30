@@ -79,52 +79,19 @@ rbw_load_nameplate() {
 }
 
 ######################################################################
-# Command Implementations (stubs for future paces)
+# Non-RBOB Commands
 
-rbw_cmd_start() {
-  local z_moniker="${1:-}"
-  buc_step "Starting service: ${z_moniker}"
-  rbob_start
-}
-
-rbw_cmd_stop() {
-  local z_moniker="${1:-}"
-  buc_step "Stopping service: ${z_moniker}"
-  buc_die "rbw-z not yet implemented"
-}
-
-rbw_cmd_connect_sentry() {
-  local z_moniker="${1:-}"
-  buc_step "Connecting to sentry: ${z_moniker}"
-  buc_die "rbw-S not yet implemented"
-}
-
-rbw_cmd_connect_censer() {
-  local z_moniker="${1:-}"
-  buc_step "Connecting to censer: ${z_moniker}"
-  buc_die "rbw-C not yet implemented"
-}
-
-rbw_cmd_connect_bottle() {
-  local z_moniker="${1:-}"
-  buc_step "Connecting to bottle: ${z_moniker}"
-  buc_die "rbw-B not yet implemented"
-}
-
-rbw_cmd_local_build() {
+rbw_local_build() {
   local z_recipe="${1:-}"
   local z_recipe_file="${RBW_SCRIPT_DIR}/../../RBM-recipes/${z_recipe}.recipe"
   local z_image_tag="${z_recipe}:local-${BUD_NOW_STAMP}"
 
-  # Validate recipe file exists
   test -f "${z_recipe_file}" || buc_die "Recipe not found: ${z_recipe_file}"
 
   buc_step "Building recipe locally: ${z_recipe}"
   rbw_show "Recipe file: ${z_recipe_file}"
   rbw_show "Image tag: ${z_image_tag}"
 
-  # Build with docker (hardcoded for now - this heat is Docker-first)
-  buc_step "Running: docker build -f ${z_recipe_file} -t ${z_image_tag} ."
   docker build -f "${z_recipe_file}" -t "${z_image_tag}" "${RBW_SCRIPT_DIR}/../.." \
     || buc_die "Docker build failed"
 
@@ -132,7 +99,7 @@ rbw_cmd_local_build() {
 }
 
 ######################################################################
-# Routing
+# Routing (two-phase: load config, then execute)
 
 rbw_route() {
   local z_command="${1:-}"
@@ -141,58 +108,30 @@ rbw_route() {
 
   rbw_show "Routing command: ${z_command} with moniker: ${z_moniker}"
 
-  # Verify BUD environment variables are present
+  # Verify BUD environment
   test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
   test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
 
-  rbw_show "BUD environment verified: TEMP_DIR=${BUD_TEMP_DIR}, NOW_STAMP=${BUD_NOW_STAMP}"
-
-  # Route based on command
+  # Phase 1: Load nameplate for commands that need it
   case "${z_command}" in
-
-    # Service lifecycle
-    rbw-s)
-      test -n "${z_moniker}" || buc_die "rbw-s requires moniker argument"
+    rbw-s|rbw-z|rbw-S|rbw-C|rbw-B)
+      test -n "${z_moniker}" || buc_die "${z_command} requires moniker argument"
       rbw_load_nameplate "${z_moniker}"
-      rbw_cmd_start "${z_moniker}"
       ;;
-
-    rbw-z)
-      test -n "${z_moniker}" || buc_die "rbw-z requires moniker argument"
-      rbw_load_nameplate "${z_moniker}"
-      rbw_cmd_stop "${z_moniker}"
-      ;;
-
-    # Container connections
-    rbw-S)
-      test -n "${z_moniker}" || buc_die "rbw-S requires moniker argument"
-      rbw_load_nameplate "${z_moniker}"
-      rbw_cmd_connect_sentry "${z_moniker}"
-      ;;
-
-    rbw-C)
-      test -n "${z_moniker}" || buc_die "rbw-C requires moniker argument"
-      rbw_load_nameplate "${z_moniker}"
-      rbw_cmd_connect_censer "${z_moniker}"
-      ;;
-
-    rbw-B)
-      test -n "${z_moniker}" || buc_die "rbw-B requires moniker argument"
-      rbw_load_nameplate "${z_moniker}"
-      rbw_cmd_connect_bottle "${z_moniker}"
-      ;;
-
-    # Local build (uses recipe name, not moniker)
     rbw-lB)
-      local z_recipe="${z_moniker}"  # Repurpose arg as recipe name
-      test -n "${z_recipe}" || buc_die "rbw-lB requires recipe argument"
-      rbw_cmd_local_build "${z_recipe}"
+      test -n "${z_moniker}" || buc_die "rbw-lB requires recipe argument"
       ;;
+    *) buc_die "Unknown command: ${z_command}" ;;
+  esac
 
-    # Unknown command
-    *)
-      buc_die "Unknown command: ${z_command}\nAvailable: rbw-s, rbw-z, rbw-S, rbw-C, rbw-B, rbw-lB"
-      ;;
+  # Phase 2: Execute command
+  case "${z_command}" in
+    rbw-s)  rbob_start ;;
+    rbw-z)  rbob_stop ;;
+    rbw-S)  rbob_connect_sentry ;;
+    rbw-C)  rbob_connect_censer ;;
+    rbw-B)  rbob_connect_bottle ;;
+    rbw-lB) rbw_local_build "${z_moniker}" ;;
   esac
 }
 

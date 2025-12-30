@@ -150,11 +150,9 @@ rbw_runtime_cmd() {
 - **Design RBRR env injection for sentry** — Added ZRBRN_DOCKER_ENV and ZRBRR_DOCKER_ENV arrays to regime kindle functions
 - **Implement rbw-start** — Created rbob_bottle.sh with full container lifecycle: cleanup, network creation, sentry/censer/bottle launch
 - **Modernize RBOB to BCG pattern** — Moved RBRR loading from RBOB to callers (workbench/furnish); added rbob_validate command
+- **Implement rbw-stop** — Added rbob_stop(); refactored workbench to two-phase routing; created tt/rbw-z.Stop.nsproto.sh
 
 ## Remaining
-
-- **Implement rbw-stop** — Create service shutdown. Stop and remove bottle, censer, sentry containers. Remove enclave network. Create new tabtarget `tt/rbw-z.Stop.nsproto.sh`.
-  mode: manual
 
 - **Implement rbw-connect commands** — Port `rbp_connect_sentry/censer/bottle_rule` to bash functions. Interactive exec into each container type.
   mode: manual

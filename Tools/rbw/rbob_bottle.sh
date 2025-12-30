@@ -382,4 +382,34 @@ rbob_start() {
   buc_step "Bottle service started: ${RBRN_MONIKER}"
 }
 
+# Stop the complete bottle service
+rbob_stop() {
+  zrbob_sentinel
+
+  buc_step "Stopping bottle service: ${RBRN_MONIKER}"
+
+  zrbob_cleanup_containers
+  zrbob_cleanup_network
+
+  buc_step "Bottle service stopped: ${RBRN_MONIKER}"
+}
+
+# Connect to sentry container (interactive shell)
+rbob_connect_sentry() {
+  zrbob_sentinel
+  buc_die "rbob_connect_sentry not yet implemented"
+}
+
+# Connect to censer container (interactive shell)
+rbob_connect_censer() {
+  zrbob_sentinel
+  buc_die "rbob_connect_censer not yet implemented"
+}
+
+# Connect to bottle container (interactive shell)
+rbob_connect_bottle() {
+  zrbob_sentinel
+  buc_die "rbob_connect_bottle not yet implemented"
+}
+
 # eof
