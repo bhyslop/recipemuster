@@ -410,10 +410,21 @@
 ---
 
 ---
-### 2025-12-30 11:18 - exercise-trigger-build - APPROACH
+### 2025-12-30 11:18 - exercise-trigger-build - APPROACH (preliminary)
 **Proposed approach**:
 - Find trigger_build tabtarget (likely rbw-fB based on operation table)
 - Review what inputs are required (Dockerfile path, image name, etc.)
 - Run build against keeper depot
 - Verify image appears in Artifact Registry
+---
+
+---
+### 2025-12-30 - exercise-trigger-build - APPROACH (detailed)
+**Proposed approach**:
+- Run `tt/rbw-fB.BuildVessel.sh rbev-vessels/rbev-busybox` to build the busybox vessel
+- Build uses Google Cloud Build via Director SA credentials
+- Process: verify git clean → package tarball → upload to GCS → submit build → poll for completion
+- Vessel builds multi-arch image (linux/amd64, linux/arm64, linux/arm/v7)
+- On success, image tagged as `rbev-busybox.YYMMDDHHMMSS` in Artifact Registry
+- Watch for: permission errors, API propagation issues, or Mason SA problems
 ---

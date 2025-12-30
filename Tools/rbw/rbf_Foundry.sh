@@ -149,7 +149,7 @@ zrbf_load_vessel() {
 
   buc_log_args 'Validate vessel configuration'
   local z_validator_dir="${BASH_SOURCE[0]%/*}"
-  source "${z_validator_dir}/rbrv.validator.sh" || buc_die "Failed to validate vessel configuration"
+  source "${z_validator_dir}/rbrv_regime.sh" || buc_die "Failed to validate vessel configuration"
 
   buc_log_args 'Validate vessel directory matches sigil'
   local z_vessel_dir_clean="${z_vessel_dir%/}"  # Strip any trailing slash
