@@ -148,11 +148,9 @@ rbw_runtime_cmd() {
 - **Implement local recipe build** — Implemented rbw_cmd_local_build; created test_busybox tabtarget
 - **Validate Docker with busybox** — Full flow validated: tabtarget→launcher→workbench→docker build; image created successfully
 - **Design RBRR env injection for sentry** — Added ZRBRN_DOCKER_ENV and ZRBRR_DOCKER_ENV arrays to regime kindle functions
+- **Implement rbw-start** — Created rbob_bottle.sh with full container lifecycle: cleanup, network creation, sentry/censer/bottle launch
 
 ## Remaining
-
-- **Implement rbw-start** — Port `rbp_start_service_rule` to bash. Orchestrate: cleanup prior containers, create enclave network, launch sentry (bridge + enclave), configure sentry security, launch censer, configure censer routing, create and start bottle.
-  mode: manual
 
 - **Implement rbw-stop** — Create service shutdown. Stop and remove bottle, censer, sentry containers. Remove enclave network. Create new tabtarget `tt/rbw-z.Stop.nsproto.sh`.
   mode: manual
