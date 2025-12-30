@@ -403,21 +403,6 @@ Benefits:
 
 ## Future Directions
 
-### Specialized Agents
-Create purpose-built agents for delegation, not just model hints:
-- **Model-tier agents**: haiku-worker, sonnet-worker, opus-worker with appropriate context budgets
-- **Pace-type agents**: mechanical-edit, codebase-explore, test-runner, doc-writer
-- **Delegation router**: analyzes pace spec, selects optimal agent, handles handoff
-- Success criteria: right agent for right task, minimal token waste, clear failure escalation
-
-### Skill Articulation
-Before delegation can succeed, skills must be identified and well-described:
-- **Skill inventory**: catalog of capabilities available for delegation (edit, search, test, generate, validate, etc.)
-- **Skill cards**: each skill has preconditions, inputs, outputs, failure modes, model requirements
-- **Heat planning**: match heat goals to available skills, identify gaps early
-- **Pace analysis**: when proposing approach, suggest "this pace needs skills X, Y" and verify they exist
-- **Skill gaps**: surface when a pace requires a skill not yet articulated → triggers skill development
-
 ### Heat Creation Skill
 Create a dedicated skill for forming well-structured heats:
 - **Purpose**: Ensure new heats follow silks guidance, correct structure, and validated context from creation
@@ -431,29 +416,12 @@ Create a dedicated skill for forming well-structured heats:
 - **Related**: Complements "Heat Scrub" (future direction) which fixes existing/legacy heats
 - **Invocation example**: `/jja-heat-create "cloud build follow-up"`
 
-### Delegation Intelligence
-Improve the analyze→delegate flow:
-- Learn from action logs which pace patterns succeed/fail per agent type
-- Auto-suggest agent selection based on pace characteristics
-- Detect scope creep or unbounded work before it spins
-- Graceful escalation: haiku fails → sonnet retry → opus rescue → human
-- Match pace requirements to skill inventory before attempting delegation
-
 ### Heat Document Efficiency
 Reduce thrash in heat files during active work:
 - Current structure causes frequent moves between Done/Current/Remaining sections
 - Consider: more stable pace representation that reduces edits
 - Investigate: what's the minimum mutable surface for tracking progress?
 - Goal: cleaner diffs, less context churn, easier retrospectives
-
-### Formal Pace Numbering
-Remove pace numbers from human-visible artifacts:
-- Numbers appearing in heat files/code are brittle and go stale
-- Pace ordering is implicit in document position (first unnumbered item = current/next)
-- Recommendation: assign stable pace IDs on creation (e.g., `p001`, `p002`) for internal tracking only
-- **Heat template revision**: Remove all `1.`, `2.`, etc. prefixes from Remaining section; keep paces as unnumbered list
-- **Steeplechase entries**: Reference pace by ID+silks (e.g., `p001 - setup-config`) instead of numbers
-- Keep numbers internal to JJ machinery, never in prose or human-facing docs
 
 ### Silk Design Guidance
 Make silks short and memorable for human cognition:
@@ -492,35 +460,6 @@ Experiment with moving steeplechase entries from heat files to git commits:
   - Must explicitly gather git metadata when retiring heat (vs. auto-merge in file)
   - Adds "degenerate commits" to repo (worth the tradeoff?)
 - **Experiment**: Try for one heat; evaluate whether git-based steeplechase is more useful than file-based
-
-### Git Control Exfiltration
-Delegate git operations to a dedicated Claude-aware git kit invoked via bash:
-- **Problem**: Git control from Claude Code has been unreliable. The Task tool's subagent dispatch doesn't inherit system context predictably, and LLM interpretation of git operations can be "sloppy" (wrong commit formats, unexpected attribution, etc.).
-- **Solution**: Create a separate open-source git kit (e.g., `cgk` - Claude Git Kit) with:
-  - Workbench that invokes `claude` CLI directly from bash (not via Task tool)
-  - Haiku model for mechanical commit formatting
-  - Claude Code treats it as a background process to monitor
-  - Deterministic prompts baked into bash, not interpreted at runtime
-- **JJ integration**: `/jja-notch` remains the JJ command; it delegates to the git kit via bash:
-  ```bash
-  # notch command tells Claude Code to run:
-  ./Tools/cgk/cgw_workbench.sh cgk-commit --heat "$heat" --pace "$pace" --brand "$brand"
-  ```
-  JJ owns the concept (notch = JJ-aware commit); git kit owns the execution.
-- **Absorbs from other kits**:
-  - CMK's prep-pr command (branch preparation for upstream PRs)
-  - Any other git-centric operations that benefit from controlled LLM formatting
-- **Benefits**:
-  - Bash-level control over exactly what prompt haiku receives
-  - No system prompt inheritance confusion
-  - Claude Code monitors completion without executing git itself
-  - Reusable across projects independent of JJ or CMK
-- **Architecture sketch**:
-  ```bash
-  # cgk_workbench.sh command implementation:
-  claude --model haiku -p "Format commit: $context" | xargs git commit -m
-  ```
-- **Prerequisite**: Validate that `claude` CLI can be invoked from bash with controlled prompts and predictable output parsing
 
 ---
 
