@@ -158,14 +158,10 @@ rbw_runtime_cmd() {
 - **Create rbt_testbench.sh skeleton** — Created with exec helpers (6 functions), nameplate loading via zrbob_kindle, routing to suite placeholders.
 - **Single test end-to-end** 🎉 — FIRST LIGHT! Full stack validated: launcher→testbench→kindle→but_execute→docker exec→DNS. Fixed but_execute temp dir issue. Network captures prove censer model works on Docker.
 - **Migrate nsproto security tests** — All 22 tests passing. Fixed Docker --internal network flag (blocks forwarding unlike podman). Added single-test parameter for targeted runs. Adjusted ICMP test for Docker/podman differences.
+- **Migrate test tabtarget** — Updated `tt/rbw-to.TestBottleService.nsproto.sh` to BUD launcher pattern.
+- **Validate nsproto with Docker** — Done (22 tests passing via `tt/rbw-to.TestBottleService.nsproto.sh`).
 
 ## Remaining
-
-- **Migrate test tabtarget** — Modify `tt/rbw-to.TestBottleService.nsproto.sh` from mbd.dispatch to rbt_testbench launcher.
-  mode: manual
-
-- **Validate nsproto with Docker** — Full end-to-end validation: start nsproto service with Docker runtime, run security test suite, verify all tests pass.
-  mode: manual
 
 - **Migrate srjcl nameplate and tests** — Create `rbrn_srjcl.env`, migrate `rbt.test.srjcl.mk` tests to bash (invoke existing `rbt.test.srjcl.py` from bash wrapper), migrate srjcl tabtargets (`rbw-s.Start.srjcl.sh`, `rbw-S.ConnectSentry.srjcl.sh`, `rbw-B.ConnectBottle.srjcl.sh`, `rbw-o.ObserveNetworks.srjcl.sh`, `rbw-to.TestBottleService.srjcl.sh`). Validate with Docker.
   mode: manual
