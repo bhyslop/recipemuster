@@ -88,7 +88,7 @@ buc_log_pipe() { zbuc_make_tag 3 "buc_log_pipe "; zbuc_log "${ZBUC_TAG}" " ---- 
 
 buc_step()     { zbuc_tag_args 3 "buc_step     " "$@"; zbuc_print 0 "${ZBUC_WHITE}$*${ZBUC_RESET}"; }
 buc_code()     { zbuc_tag_args 3 "buc_code     " "$@"; zbuc_print 0 "${ZBUC_CYAN}$*${ZBUC_RESET}"; }
-buc_info()     { zbuc_tag_args 3 "buc_info     " "$@"; zbuc_print 1 "$@"; }
+buc_info()     { zbuc_tag_args 3 "buc_info     " "$@"; zbuc_print 0 "$@"; }
 buc_debug()    { zbuc_tag_args 3 "buc_debug    " "$@"; zbuc_print 2 "$@"; }
 buc_trace()    { zbuc_tag_args 3 "buc_trace    " "$@"; zbuc_print 3 "$@"; }
 buc_warn()     { zbuc_tag_args 3 "buc_warn     " "$@"; zbuc_print 0 "${ZBUC_YELLOW}WARNING:${ZBUC_RESET} $*"; }

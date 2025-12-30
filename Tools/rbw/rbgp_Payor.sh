@@ -1246,7 +1246,7 @@ rbgp_governor_reset() {
   buc_info "RBRA file written: ${z_rbra_file}"
   buc_info ""
   buc_info "To install the RBRA file, copy it to the path specified by RBRR_GOVERNOR_RBRA_FILE:"
-  buc_info "  cp \"${z_rbra_file}\" \"\${RBRR_GOVERNOR_RBRA_FILE}\""
+  buc_code "  cp \"${z_rbra_file}\" \"\${RBRR_GOVERNOR_RBRA_FILE}\""
 }
 
 # eof

@@ -32,6 +32,7 @@ source "${ZRBGG_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgg_Governor.sh"
 
 zrbgg_furnish() {
@@ -40,8 +41,13 @@ zrbgg_furnish() {
   buc_doc_env "BUD_OUTPUT_DIR " "Directory for command outputs"
 
   zrbl_kindle
+
+  buv_file_exists "${RBL_RBRR_FILE}"
+  source          "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR regime file"
+
   zrbgc_kindle
   zrbgd_kindle
+  zrbrr_kindle
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle
