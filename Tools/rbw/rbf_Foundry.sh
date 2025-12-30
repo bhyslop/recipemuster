@@ -516,6 +516,8 @@ rbf_build() {
   test -n "${z_git_repo}"   || buc_die "Git repo is empty"
 
   buc_log_args 'Create build config with substitutions for RBGJB template'
+  # Note: _RBGY_MACHINE_TYPE and _RBGY_TIMEOUT are set directly in API request,
+  # not via substitution, so they are omitted here to avoid Cloud Build errors.
   jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_moniker        "${RBRV_SIGIL}"                    \
@@ -526,8 +528,6 @@ rbf_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
-    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
     --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
     --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
     '{
@@ -541,8 +541,6 @@ rbf_build() {
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
         _RBGY_GIT_REPO:       $zjq_git_repo,
-        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
-        _RBGY_TIMEOUT:        $zjq_timeout,
         _RBGY_JQ_REF:         $zjq_jq_ref,
         _RBGY_SYFT_REF:       $zjq_syft_ref
       }
