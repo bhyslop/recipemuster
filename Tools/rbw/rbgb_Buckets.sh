@@ -30,8 +30,8 @@ ZRBGB_SOURCED=1
 zrbgb_kindle() {
   test -z "${ZRBGB_KINDLED:-}" || buc_die "Module rbgb already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || buc_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || buc_die "RBRR_GCP_PROJECT_ID is empty"
+  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel

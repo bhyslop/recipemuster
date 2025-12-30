@@ -224,14 +224,14 @@ zrbgp_billing_attach() {
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
-    --arg projectId "${RBRR_GCP_PROJECT_ID}" \
+    --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
     '{
       billingAccountName: $billingAccountName,
       projectId: $projectId,
       billingEnabled: true
     }' > "${z_billing_body}" || buc_die "Failed to build billing attach body"
 
-  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_GCP_PROJECT_ID}:setBillingInfo"
+  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_ATTACH}" "${z_billing_body}"
   rbgu_http_require_ok "Attach billing account" "${ZRBGP_INFIX_BILLING_ATTACH}"
@@ -250,13 +250,13 @@ zrbgp_billing_detach() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_detach.json"
-  jq -n --arg projectId "${RBRR_GCP_PROJECT_ID}" \
+  jq -n --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
     '{
       projectId: $projectId,
       billingEnabled: false
     }' > "${z_billing_body}" || buc_die "Failed to build billing detach body"
 
-  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_GCP_PROJECT_ID}:setBillingInfo"
+  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_DETACH}" "${z_billing_body}"
   rbgu_http_require_ok "Detach billing account" "${ZRBGP_INFIX_BILLING_DETACH}"
@@ -272,11 +272,11 @@ zrbgp_liens_list() {
   buc_doc_brief "List all liens on the project"
   buc_doc_shown || return 0
 
-  buc_step "Listing liens on project: ${RBRR_GCP_PROJECT_ID}"
+  buc_step "Listing liens on project: ${RBRR_DEPOT_PROJECT_ID}"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -366,7 +366,7 @@ zrbgp_get_project_number_capture() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
@@ -396,7 +396,7 @@ zrbgp_create_gcs_bucket() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBRR_GCP_PROJECT_ID}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBRR_DEPOT_PROJECT_ID}" "${z_token}" \
                                   "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGP_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"

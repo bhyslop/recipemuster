@@ -30,8 +30,8 @@ ZRBGM_SOURCED=1
 zrbgm_kindle() {
   test -z "${ZRBGM_KINDLED:-}" || buc_die "Module rbgm already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || buc_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || buc_die "RBRR_GCP_PROJECT_ID is empty"
+  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
 
   buc_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
@@ -364,7 +364,7 @@ rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_s2     "${z_configure_pid_step}:"
   zrbgm_d      "   Before creating the project, choose a unique Project ID."
   zrbgm_dc     "   1. Edit your RBRR configuration file: " "${ZRBGM_RBRR_FILE}"
-  zrbgm_d      "   2. Set RBRR_GCP_PROJECT_ID to a unique value:"
+  zrbgm_d      "   2. Set RBRR_DEPOT_PROJECT_ID to a unique value:"
   zrbgm_d      "      - Must be globally unique across all GCP"
   zrbgm_d      "      - 6-30 characters, lowercase letters, numbers, hyphens"
   zrbgm_d      "      - Cannot start/end with hyphen"
@@ -381,14 +381,14 @@ rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_d      "        (Alternatively, type 'manage resources' in the top search bar and press Enter)"
   zrbgm_dm     "   2. On the Manage resources page, click -> " "CREATE PROJECT"
   zrbgm_d      "   3. Configure:"
-  zrbgm_dc     "      - Project name: " "${RBRR_GCP_PROJECT_ID}"
+  zrbgm_dc     "      - Project name: " "${RBRR_DEPOT_PROJECT_ID}"
   zrbgm_dm     "      - Organization: " "No organization"
   zrbgm_dm     "   4. Click " "CREATE"
   zrbgm_dmdr   "   5. If " "The project ID is already taken" " : " "FAIL THIS STEP and redo with different project-ID: ${z_configure_pid_step}"
   zrbgm_dmd    "   6. If popup, wait for notification -> " "Creating project..." " to complete"
   zrbgm_e
   zrbgm_s2     "4. Create the Admin Service Account:"
-  zrbgm_dwdwd  "   1. Ensure project " "${RBRR_GCP_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
+  zrbgm_dwdwd  "   1. Ensure project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the top dropdown (button with hovertext " "Open project picker (Ctrl O)" ")"
   zrbgm_dmdm   "   2. Left sidebar -> " "IAM & Admin" " -> " "Service Accounts"
   zrbgm_d      "   3. If prompted about APIs:"
   zrbgm_dm     "      1. click -> " "Enable API"
@@ -414,7 +414,7 @@ rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_dmd    "   4. Key type: " "JSON" " (should be selected)"
   zrbgm_dm     "   5. Click " "Create"
   zrbgm_e
-  zrbgm_dm     "Browser downloads: " "${RBRR_GCP_PROJECT_ID}-[random].json"
+  zrbgm_dm     "Browser downloads: " "${RBRR_DEPOT_PROJECT_ID}-[random].json"
   zrbgm_dmd    "   6. Click " "CLOSE" " on download confirmation"
   zrbgm_e
   zrbgm_s2     "8. Configure Local Environment:"
