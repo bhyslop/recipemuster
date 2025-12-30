@@ -523,7 +523,7 @@ rbf_build() {
   jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_moniker        "${RBRV_SIGIL}"                    \
-    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
+    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS// /,}"   \
     --arg zjq_gar_location   "${RBGD_GAR_LOCATION}"             \
     --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}"           \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
