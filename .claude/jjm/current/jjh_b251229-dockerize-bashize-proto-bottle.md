@@ -69,6 +69,33 @@ Track in this section as the heat progresses:
 **Notes for future heats:**
 - Parallel test execution: Makefile runs tests per-nameplate sequentially but could parallelize across nameplates (nsproto, srjcl, pluml are independent). Current `-j` flag applied within test suite. Not needed for this heat but preserve capability awareness.
 
+### Testing Insights (Learned from nsproto migration)
+
+**Docker vs Podman differences:**
+- Docker `--internal` network flag blocks ALL egress, even through dual-homed containers. Podman allows forwarding. Solution: omit `--internal` for Docker, rely on sentry's iptables for isolation.
+- ICMP traceroute behaves differently: podman shows sentry at hop 1, Docker shows `* * *` (blocked). Tests should accept either behavior.
+
+**Test patterns:**
+- `but_expect_ok` for commands expected to succeed
+- `but_expect_fatal` for commands expected to fail (security blocks)
+- Use `rbt_exec_*_i` variants (with `-i` flag) for stdin-consuming commands: `dig`, `traceroute`, `apt-get`
+- Use `rbt_exec_*` (no `-i`) for simple output commands: `nslookup`, `nc`, `ping`, `ps`
+
+**Debugging workflow:**
+- Single-test parameter: `rbt-to nsproto test_nsproto_dns_allow_anthropic` runs one test
+- Run `rboo observe` in background during tests: start with `run_in_background`, run test, kill, check TaskOutput for tcpdump traces
+- Network captures show exact packet flow through censer model
+
+**Test structure in testbench:**
+- Test functions named `test_<moniker>_<description>()` - prefix determines which suite runs them
+- `but_execute "${BUD_TEMP_DIR}/tests" "test_nsproto_" "${single_test}"` - needs empty subdir (BUD_TEMP_DIR has transcript.txt)
+- Tests can capture output: `z_output=$(rbt_exec_bottle_i cmd 2>&1)` then grep/check
+
+**Ported items (update from "none yet"):**
+- nsproto lifecycle tabtargets (Start, ConnectSentry, ConnectCenser, ConnectBottle, Stop, Observe)
+- nsproto test tabtarget (TestBottleService)
+- Full nsproto security test suite (22 tests)
+
 ### File Inventory
 
 | File | Status | Notes |
