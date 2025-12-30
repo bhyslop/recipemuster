@@ -69,5 +69,8 @@ All kits use these consistently:
 - **Migrate JJK to VOK**
   Refactor JJK to call VOK's Codex instead of its own ledger machinery. JJK depends on VOK.
 
+- **Create CGK (Claude Git Kit)**
+  Foundational kit for Claude-aware git operations, starting with commit message generation. Create `Tools/cgk/` directory with `cga_arcanum.sh` and tabtarget `tt/cgk-commit.sh` that invokes Claude to write commit messages. Document pattern for extensibility to other git operations (branch prep, PR formatting, etc.).
+
 - **Document arcane vocabulary**
   Finalize README with full prefix conventions, reserved suffixes, and arcane term glossary.
