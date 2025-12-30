@@ -169,8 +169,9 @@ zrbf_stitch_build_json() {
     # Read script body, skip shebang only (comments pass through harmlessly)
     z_body=$(tail -n +2 "${z_script_path}")
 
-    # Escape $ to $$ for Cloud Build substitution
-    z_escaped=$(printf '%s' "${z_body}" | sed 's/\$/\$\$/g')
+    # Escape $ to $$ for Cloud Build, but preserve ${_RBGY_*} substitutions
+    # First escape all $, then restore _RBGY_ substitution vars back to single $
+    z_escaped=$(printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g')
 
     # Determine arg flag based on entrypoint
     case "${z_entrypoint}" in
