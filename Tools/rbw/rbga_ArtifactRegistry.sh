@@ -81,7 +81,7 @@ rbga_repo_create() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_parent="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
@@ -124,7 +124,7 @@ rbga_repo_get() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
@@ -166,7 +166,7 @@ rbga_repo_set_iam() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
@@ -209,7 +209,7 @@ rbga_repo_add_iam_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   # Extract email from member if it's in serviceAccount:email format
   local z_account_email="${z_member}"
@@ -241,7 +241,7 @@ rbga_repo_delete() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   buc_log_args "Delete Artifact Registry repo '${z_repo_name}' in ${z_location}"

@@ -193,7 +193,7 @@ rbgu_http_code_capture() {
   echo "${z_code}"
 }
 
-rbgu_get_admin_token_capture() {
+rbgu_get_governor_token_capture() {
   zrbgu_sentinel
 
   # Need access to RBRR_ADMIN_RBRA_FILE from regime

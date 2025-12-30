@@ -151,7 +151,7 @@ zrbgg_create_service_account_with_key() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step "Create request JSON for ${z_account_name}"
   jq -n                                      \
@@ -260,7 +260,7 @@ zrbgg_create_service_account_no_key() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
 
@@ -361,7 +361,7 @@ zrbgg_get_project_number_capture() {
   zrbgg_sentinel
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || return 1
+  z_token=$(rbgu_get_governor_token_capture) || return 1
 
   rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
@@ -449,7 +449,7 @@ rbgg_list_service_accounts() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token (rc=$?)"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token (rc=$?)"
 
   buc_log_args 'List service accounts via REST API'
   rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_LIST}"
@@ -502,7 +502,7 @@ rbgg_create_retriever() {
     "${z_instance}"
 
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Adding Artifact Registry Reader role'
   rbgi_add_project_iam_role                 \
@@ -548,7 +548,7 @@ rbgg_create_director() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Get project number for Cloud Build SA'
   rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
@@ -606,7 +606,7 @@ rbgg_delete_service_account() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Delete via REST API'
   rbgu_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
@@ -644,7 +644,7 @@ rbgg_destroy_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Triple confirmation required'
   buc_warn ""
@@ -710,7 +710,7 @@ rbgg_restore_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rbgu_get_admin_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Check current project state'
   rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
