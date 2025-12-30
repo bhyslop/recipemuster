@@ -449,3 +449,53 @@ This ensures new code following BCG patterns uses the correct context approach a
 ### Context
 
 Emerged 2025-12-30 while testing context prefixes on workbenches. Realized global state creates misleading output when dispatching between files.
+
+## rbsdi-instance-constraints
+Document INPUT_INSTANCE parameter constraints for director_create and retriever_create operations.
+
+### Missing Documentation
+
+The RBSDI and RBSRC specs require `«INPUT_INSTANCE»` as first argument but don't specify:
+1. **Valid values** - What strings are acceptable? Alphanumeric only? Hyphens allowed?
+2. **Relationship to depot** - Must it match depot name? Can differ?
+3. **Character constraints** - Length limits? GCP service account naming rules apply?
+4. **Multiple instances** - Can one depot have multiple directors/retrievers with different instance names?
+
+### Current Usage Pattern
+
+Heat cloud-first-light uses depot name "proto" for keeper depot. The natural instance value would be "proto" to match, creating:
+- `rbwd-proto@rbwg-d-proto-251230080456.iam.gserviceaccount.com`
+
+But spec doesn't mandate this relationship.
+
+### Recommended Clarification
+
+Add to RBSDI/RBSRC a normative statement like:
+> `«INPUT_INSTANCE»` identifies this service account instance. Typically matches the depot name for single-instance deployments. Must be lowercase alphanumeric with optional hyphens, 1-20 characters.
+
+### Context
+
+Identified during cloud-first-light heat, 2025-12-30, when tabtarget failed with "Instance name required" error.
+
+## rbsdi-sa-prefix-mismatch
+Fix RBSDI/RBSRC specs to use actual code prefixes for service account naming.
+
+### Problem
+
+Spec says `rb-director-«INPUT_INSTANCE»` but code uses `rbwd-«INPUT_INSTANCE»`. Same mismatch exists for retriever (`rb-retriever-` vs `rbwr-`).
+
+### Recommendation
+
+Fix the specs to match the code. Rationale:
+1. **Consistent 4-char pattern**: Code uses `rbwm` (mason), `rbwr` (retriever), `rbwd` (director)
+2. **Deployed infrastructure**: Changing code could orphan existing service accounts
+3. **Length efficiency**: `rbwd-proto` (10 chars) vs `rb-director-proto` (17 chars)
+
+### Spec Changes Required
+
+**RBSDI** line 14: `rb-director-«INPUT_INSTANCE»` → `rbwd-«INPUT_INSTANCE»`
+**RBSRC**: `rb-retriever-«INPUT_INSTANCE»` → `rbwr-«INPUT_INSTANCE»`
+
+### Context
+
+Identified during cloud-first-light heat, 2025-12-30, while diagnosing director_create tabtarget.
