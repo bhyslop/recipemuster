@@ -29,7 +29,8 @@ docker buildx version
 docker version
 
 # Create and bootstrap buildx builder (must be in same container as build)
-docker buildx create --name rbia-builder --driver docker-container --use
+# Note: Don't specify --driver docker-container; let buildx use default
+docker buildx create --name rbia-builder --use
 docker buildx inspect --bootstrap
 
 docker buildx build \
