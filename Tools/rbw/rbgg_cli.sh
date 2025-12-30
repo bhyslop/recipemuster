@@ -21,20 +21,17 @@
 set -euo pipefail
 
 ZRBGG_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+ZRBGG_BUK_DIR="${ZRBGG_CLI_SCRIPT_DIR}/../buk"
 
 # Source all dependencies
-source "${ZRBGG_CLI_SCRIPT_DIR}/buc_command.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/buv_validation.sh"
+source "${ZRBGG_BUK_DIR}/buc_command.sh"
+source "${ZRBGG_BUK_DIR}/buv_validation.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rgbs_ServiceAccounts.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgb_Buckets.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbga_ArtifactRegistry.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgg_Governor.sh"
 
 zrbgg_furnish() {
@@ -48,10 +45,6 @@ zrbgg_furnish() {
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle
-  zrgbs_kindle
-  zrbgb_kindle
-  zrbga_kindle
-  zrbgp_kindle
   zrbgg_kindle
 }
 

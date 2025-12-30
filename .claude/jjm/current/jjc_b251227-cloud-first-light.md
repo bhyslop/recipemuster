@@ -314,3 +314,29 @@
 ### 2025-12-30 08:45 - exercise-governor-reset - WRAP
 **Outcome**: Created tabtarget, exercised on keeper depot, RBRA file produced successfully.
 ---
+
+---
+### 2025-12-30 09:10 - exercise-director-create - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Fix coordinator routing mismatch (rbgg_director_create → rbgg_create_director)
+- Run `tt/rbw-GD.GovernorDirectorCreate.sh rbwg-d-proto-251230080456`
+- Verify RBRA file produced
+- Debug any issues following heat protocol
+
+### 2025-12-30 09:30 - exercise-director-create - BLOCKED
+**Issue**: Deep architectural mismatch discovered between code and spec.
+
+**Findings**:
+1. Code uses `RBRR_ADMIN_RBRA_FILE` but spec defines `RBRR_GOVERNOR_RBRA_FILE`
+2. `rbgu_get_admin_token_capture()` reads from RBRR_ADMIN_RBRA_FILE
+3. `rbgg_cli.sh` uses old validator path (rbrr.validator.sh) not new regime pattern (rbrr_regime.sh)
+4. Several functions in rbga_ArtifactRegistry.sh, rbgb_Buckets.sh, rbgp_Payor.sh appear to be dead code
+
+**Required fixes before proceeding**:
+1. Align RBRR_ADMIN_RBRA_FILE → RBRR_GOVERNOR_RBRA_FILE throughout codebase
+2. Wire rbgg_cli.sh to use proper regime validation
+3. Investigate and remove/document dead code
+
+**Deferred to**: Fresh session with focused prompt. Added dead code audit pace.
+---

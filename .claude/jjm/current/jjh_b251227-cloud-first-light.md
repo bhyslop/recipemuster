@@ -111,6 +111,9 @@ Permanent depot for use throughout remaining paces and beyond.
 - **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
   mode: manual
 
+- **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
+  mode: manual
+
 - **Exercise payor_refresh** — Obtain fresh OAuth credentials. Validates recovery path.
   mode: manual
 
