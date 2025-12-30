@@ -10,7 +10,7 @@
       ]
     },
     {
-      "name": "gcr.io/cloud-builders/gcloud",
+      "name": "gcr.io/cloud-builders/docker",
       "id": "auth-docker-to-gar",
       "entrypoint": "bash",
       "args": [
