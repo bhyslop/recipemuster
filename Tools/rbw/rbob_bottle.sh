@@ -133,14 +133,22 @@ zrbob_cleanup_network() {
 ######################################################################
 # Network Creation
 
-# Create the internal enclave network with subnet
+# Create the enclave network with subnet
+# Note: Docker's --internal blocks ALL traffic leaving the network, including through
+# dual-homed containers. Podman's --internal allows forwarding through containers.
+# For Docker, we omit --internal and rely on sentry's iptables for isolation.
 zrbob_create_network() {
   zrbob_sentinel
 
   buc_step "Creating enclave network: ${ZRBOB_NETWORK}"
 
+  local z_internal_flag=""
+  if [[ "${RBRN_RUNTIME}" == "podman" ]]; then
+    z_internal_flag="--internal"
+  fi
+
   ${ZRBOB_RUNTIME} network create \
-    --internal \
+    ${z_internal_flag} \
     --subnet="${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
     "${ZRBOB_NETWORK}" \
     || buc_die "Failed to create enclave network"

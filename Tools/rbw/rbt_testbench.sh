@@ -107,19 +107,160 @@ rbt_exec_bottle_i() {
 
 ######################################################################
 # Test Cases - nsproto security tests
+#
+# Ported from RBM-tests/rbt.test.nsproto.mk
+# Pattern: but_expect_ok = success expected, but_expect_fatal = failure expected
+# Use _i variants for commands that read stdin (dig, traceroute, apt-get)
+
+#--- Basic network verification ---
+
+test_nsproto_basic_dnsmasq() {
+  # Verify dnsmasq is running on sentry
+  but_expect_ok rbt_exec_sentry ps aux
+  rbt_exec_sentry ps aux | grep -q dnsmasq || but_fatal "dnsmasq not running on sentry"
+}
+
+test_nsproto_basic_ping_sentry() {
+  # Censer can ping sentry within enclave
+  but_expect_ok rbt_exec_censer ping "${RBRN_ENCLAVE_SENTRY_IP}" -c 2
+}
+
+test_nsproto_basic_iptables() {
+  # Verify RBM-INGRESS chain exists
+  but_expect_ok rbt_exec_sentry iptables -L RBM-INGRESS
+}
+
+#--- DNS allow/block tests ---
 
 test_nsproto_dns_allow_anthropic() {
   but_expect_ok rbt_exec_bottle nslookup anthropic.com
+}
+
+test_nsproto_dns_block_google() {
+  but_expect_fatal rbt_exec_bottle nslookup google.com
+}
+
+#--- TCP 443 connection tests ---
+
+test_nsproto_tcp443_allow_anthropic() {
+  # Get anthropic IP from sentry (which can resolve anything)
+  local z_ip
+  z_ip=$(rbt_exec_sentry_i dig +short anthropic.com | head -1)
+  test -n "${z_ip}" || but_fatal "Failed to resolve anthropic.com"
+  but_expect_ok rbt_exec_bottle nc -w 2 -zv "${z_ip}" 443
+}
+
+test_nsproto_tcp443_block_google() {
+  # Get google IP from sentry, then verify bottle cannot connect
+  local z_ip
+  z_ip=$(rbt_exec_sentry_i dig +short google.com | head -1)
+  test -n "${z_ip}" || but_fatal "Failed to resolve google.com"
+  but_expect_fatal rbt_exec_bottle nc -w 2 -zv "${z_ip}" 443
+}
+
+#--- DNS protocol tests ---
+
+test_nsproto_dns_nonexist() {
+  # Non-existent domain should fail with NXDOMAIN
+  local z_output
+  z_output=$(rbt_exec_bottle nslookup nonexistentdomain123.test 2>&1 || true)
+  echo "${z_output}" | grep -q NXDOMAIN || but_fatal "Expected NXDOMAIN in output: ${z_output}"
+}
+
+test_nsproto_dns_tcp() {
+  # DNS over TCP should work for allowed domains
+  but_expect_ok rbt_exec_bottle_i dig +tcp anthropic.com
+}
+
+test_nsproto_dns_notcp() {
+  # DNS over UDP should work for allowed domains
+  but_expect_ok rbt_exec_bottle_i dig +notcp anthropic.com
+}
+
+#--- DNS security tests (block bypass attempts) ---
+
+test_nsproto_dns_block_direct() {
+  # Cannot query external DNS directly
+  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 anthropic.com
+  # Cannot connect to external DNS port
+  but_expect_fatal rbt_exec_bottle nc -w 2 -zv 8.8.8.8 53
+}
+
+test_nsproto_dns_block_altport() {
+  # Cannot use alternate DNS ports
+  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 -p 5353 example.com
+  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 -p 443 example.com
+}
+
+test_nsproto_dns_block_cloudflare() {
+  but_expect_fatal rbt_exec_bottle_i dig @1.1.1.1 example.com
+}
+
+test_nsproto_dns_block_quad9() {
+  but_expect_fatal rbt_exec_bottle_i dig @9.9.9.9 example.com
+}
+
+test_nsproto_dns_block_zonetransfer() {
+  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 example.com AXFR
+}
+
+test_nsproto_dns_block_ipv6() {
+  but_expect_fatal rbt_exec_bottle_i dig @2001:4860:4860::8888 example.com
+}
+
+test_nsproto_dns_block_multicast() {
+  but_expect_fatal rbt_exec_bottle_i dig @224.0.0.251 -p 5353 example.local
+}
+
+test_nsproto_dns_block_spoofing() {
+  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 +nsid example.com -b 192.168.1.2
+}
+
+test_nsproto_dns_block_tunneling() {
+  but_expect_fatal rbt_exec_bottle nc -z -w 1 8.8.8.8 53
+}
+
+#--- Package management test ---
+
+test_nsproto_block_packages() {
+  # apt-get update should fail (cannot reach package repos)
+  but_expect_fatal rbt_exec_bottle_i timeout 5 apt-get -qq update
+}
+
+#--- ICMP tests ---
+
+test_nsproto_icmp_sentry_only() {
+  # First hop should be sentry (podman) or blocked (Docker)
+  # Both are acceptable - key is traffic routes through sentry
+  local z_output
+  z_output=$(rbt_exec_bottle_i traceroute -I -m 1 8.8.8.8 2>&1)
+  # Accept either sentry IP visible OR fully blocked (* * *)
+  if echo "${z_output}" | grep -q "${RBRN_ENCLAVE_SENTRY_IP}"; then
+    : # Sentry responded (podman behavior)
+  elif echo "${z_output}" | grep -qE "^\s*1\s+\* \* \*"; then
+    : # Blocked at first hop (Docker behavior - more restrictive)
+  else
+    but_fatal "Unexpected traceroute output (expected sentry IP or * * *): ${z_output}"
+  fi
+}
+
+test_nsproto_icmp_block_beyond() {
+  # Second hop should timeout (blocked)
+  local z_output
+  z_output=$(rbt_exec_bottle_i traceroute -I -m 2 8.8.8.8 2>&1)
+  echo "${z_output}" | grep -qE "^[[:space:]]*2[[:space:]]+\* \* \*" || \
+    but_fatal "Expected blocked second hop (* * *) in traceroute: ${z_output}"
 }
 
 ######################################################################
 # Test Suites
 
 rbt_suite_nsproto() {
-  buc_step "Running nsproto security test suite"
+  local z_single_test="${1:-}"
+  buc_step "Running nsproto security test suite${z_single_test:+ (single: ${z_single_test})}"
   local z_test_dir="${BUD_TEMP_DIR}/tests"
   mkdir -p "${z_test_dir}"
-  but_execute "${z_test_dir}" "test_nsproto_" ""
+  but_execute "${z_test_dir}" "test_nsproto_" "${z_single_test}"
 }
 
 rbt_suite_srjcl() {
@@ -149,11 +290,13 @@ rbt_route() {
   case "${z_command}" in
     rbt-to)
       test -n "${z_moniker}" || buc_die "rbt-to requires moniker argument"
+      shift || true
+      local z_single_test="${1:-}"
       rbt_load_nameplate "${z_moniker}"
       case "${z_moniker}" in
-        nsproto) rbt_suite_nsproto ;;
-        srjcl)   rbt_suite_srjcl ;;
-        pluml)   rbt_suite_pluml ;;
+        nsproto) rbt_suite_nsproto "${z_single_test}" ;;
+        srjcl)   rbt_suite_srjcl "${z_single_test}" ;;
+        pluml)   rbt_suite_pluml "${z_single_test}" ;;
         *)       buc_die "Unknown test suite: ${z_moniker}" ;;
       esac
       ;;

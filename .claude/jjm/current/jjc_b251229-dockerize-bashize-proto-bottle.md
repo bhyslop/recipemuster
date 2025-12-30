@@ -177,4 +177,11 @@
 
 **Unlocked**: Confidence to migrate all 20+ nsproto security tests. Pattern proven for remaining nameplates.
 ---
+### 2025-12-30 14:15 - migrate-nsproto-security-tests - APPROACH
+**Proposed approach**:
+- Port tests in functional groups: basic network, DNS allow/block, TCP 443, DNS protocol, DNS security, package blocking, ICMP
+- Pattern: `! cmd` → `but_expect_fatal`, `cmd` → `but_expect_ok`
+- Use `_i` variants for dig/traceroute/apt-get
+- Run incrementally after each group
+---
 (execution log begins here)
