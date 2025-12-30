@@ -404,4 +404,16 @@
 - Note: The original pace description said "delete retriever" but we deleted director-default instead
 - Retriever-proto still exists, no restoration needed
 - Skip this pace as unnecessary, or repurpose if user wants
+
+### 2025-12-30 11:18 - exercise-retriever-create-restore - SKIPPED
+**Reason**: Deleted director-default instead of retriever; no restore needed.
+---
+
+---
+### 2025-12-30 11:18 - exercise-trigger-build - APPROACH
+**Proposed approach**:
+- Find trigger_build tabtarget (likely rbw-fB based on operation table)
+- Review what inputs are required (Dockerfile path, image name, etc.)
+- Run build against keeper depot
+- Verify image appears in Artifact Registry
 ---

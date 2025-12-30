@@ -85,10 +85,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise sa_delete** — Fixed tabtarget pattern; deleted director-default successfully.
 
-## Current
+- **Exercise retriever_create (restore)** — SKIPPED: deleted director-default instead of retriever; no restore needed.
 
-- **Exercise retriever_create (restore)** — Recreate retriever after deletion exercise.
-  mode: manual
+## Current
 
 - **Exercise trigger_build** — Submit container build to Cloud Build. Mason executes, publishes image to repository.
   mode: manual
