@@ -154,16 +154,13 @@ rbw_runtime_cmd() {
 - **Implement rbw-connect commands** — Added connect functions; refactored RBOB to kindle pattern (compute all derived values once, no subshells)
 - **Migrate lifecycle tabtargets** — Merged with "Validate bottle lifecycle"; migrated 4 tabtargets (Start, ConnectSentry, ConnectCenser, ConnectBottle) to BUD launcher; full lifecycle validated
 - **Implement rbw-observe (partial)** — Created rboo_observe.sh with kindle pattern; sentry/censer captures for Docker; runtime-conditional bridge for podman; tabtarget migrated
+- **Determine exec -i requirements** — Pattern: `-i` for stdin-reading commands (dig, traceroute, apt-get); no `-i` for simple output (nslookup, nc, ping, ps). Testbench provides both variants.
+- **Create rbt_testbench.sh skeleton** — Created with exec helpers (6 functions), nameplate loading via zrbob_kindle, routing to suite placeholders.
+- **Single test end-to-end** 🎉 — FIRST LIGHT! Full stack validated: launcher→testbench→kindle→but_execute→docker exec→DNS. Fixed but_execute temp dir issue. Network captures prove censer model works on Docker.
 
 ## Remaining
 
-- **Determine exec -i requirements** — Review existing tests to understand when `-i` (stdin) flag is needed for container exec. Current Makefile uses both `MBT_PODMAN_EXEC_BOTTLE` and `MBT_PODMAN_EXEC_BOTTLE_I`. Document pattern for testbench helper functions.
-  mode: manual
-
-- **Create rbt_testbench.sh skeleton** — Establish test workbench using `but_test.sh`. Include test helper functions (`rbt_exec_sentry`, `rbt_exec_bottle`, etc.) with runtime abstraction. Apply -i requirements from previous pace.
-  mode: manual
-
-- **Migrate nsproto security tests** — Port `rbt.test.nsproto.mk` test cases to bash functions. 20+ tests covering DNS filtering, TCP blocking, ICMP isolation, package blocking.
+- **Migrate nsproto security tests** — Port remaining `rbt.test.nsproto.mk` test cases to bash functions. 20+ tests covering DNS filtering, TCP blocking, ICMP isolation, package blocking.
   mode: manual
 
 - **Migrate test tabtarget** — Modify `tt/rbw-to.TestBottleService.nsproto.sh` from mbd.dispatch to rbt_testbench launcher.

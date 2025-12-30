@@ -1,6 +1,32 @@
 # Steeplechase: Dockerize Bashize Proto Bottle
 
 ---
+### 2025-12-30 08:00 - determine-exec-i-requirements - APPROACH
+**Proposed approach**:
+- Analyzed `rbt.test.nsproto.mk` for -i flag usage patterns
+- Pattern: `-i` needed for stdin-reading commands (dig, traceroute, apt-get); not needed for simple output commands (nslookup, nc -z, ping, ps)
+- Define two helper variants in testbench: `rbt_exec_*` and `rbt_exec_*_i` for each container type
+---
+### 2025-12-30 08:05 - determine-exec-i-requirements - WRAP
+**Outcome**: Pattern documented: use `-i` for dig/traceroute/apt-get (stdin readers); no `-i` for nslookup/nc/ping/ps (simple output). Testbench will provide `rbt_exec_*` and `rbt_exec_*_i` variants.
+---
+### 2025-12-30 08:10 - create-rbt-testbench-skeleton - APPROACH
+**Proposed approach**:
+- Source but_test.sh, rbrn_regime.sh, rbrr_regime.sh, rbob_bottle.sh
+- Use zrbob_kindle to set up container names (ZRBOB_SENTRY/CENSER/BOTTLE) and runtime
+- Define exec helpers: `rbt_exec_{sentry,censer,bottle}` and `rbt_exec_{sentry,censer,bottle}_i`
+- Route `rbt-to` command to nameplate-specific test functions (placeholder for next pace)
+---
+### 2025-12-30 08:20 - create-rbt-testbench-skeleton - WRAP
+**Outcome**: Created rbt_testbench.sh with exec helpers (6 functions: 3 containers x 2 variants), nameplate loading via zrbob_kindle, routing to suite placeholders. Verified working via launcher.
+---
+### 2025-12-30 08:30 - single-test-end-to-end - APPROACH
+**Proposed approach**:
+- Add `test_nsproto_dns_allow_anthropic` function using `rbt_exec_bottle nslookup anthropic.com`
+- Wire into `rbt_suite_nsproto` using `but_expect_ok`
+- Start nsproto service manually, then run testbench
+- Debug any integration issues (container names, exec paths, etc.)
+---
 ### 2025-12-29 09:45 - modernize-rbrn-regime - APPROACH
 **Proposed approach**:
 - Add multiple-inclusion guard at top of file using `ZRBRN_SOURCED` pattern
@@ -129,5 +155,26 @@
 ---
 ### 2025-12-30 13:15 - implement-rbw-observe-partial - WRAP
 **Outcome**: Created rboo_observe.sh with kindle pattern; sentry/censer captures for Docker; runtime-conditional bridge for podman; tabtarget migrated; testing deferred (interactive)
+---
+### 2025-12-30 14:00 - single-test-end-to-end - RESUME
+**Proposed approach**:
+- Add `test_nsproto_dns_allow_anthropic()` using `but_expect_ok rbt_exec_bottle nslookup anthropic.com`
+- Wire `rbt_suite_nsproto()` to call `but_execute` with prefix `test_nsproto_`
+- Start nsproto manually, then run testbench via tabtarget
+- Debug integration issues (container names, exec paths, BUT_TEMP_DIR flow)
+---
+### 2025-12-30 14:05 - single-test-end-to-end - WRAP 🎉
+**Outcome**: FIRST LIGHT! End-to-end test infrastructure validated.
+
+**Fixed**: `but_execute` needs empty dir; created `${BUD_TEMP_DIR}/tests` subdirectory.
+
+**Validated stack**: BUD launcher → rbt_testbench.sh → nameplate kindle → RBRR kindle → RBOB kindle → but_execute → docker exec → DNS resolution through sentry dnsmasq.
+
+**Network capture proof**: Ran rbw-o (observe) in background during test. tcpdump traces show:
+- Bottle (10.242.0.3) → Sentry (10.242.0.2:53): `A? anthropic.com`
+- Sentry → Bottle: `anthropic.com A 160.79.104.10` (allowed CIDR)
+- Censer network namespace model working correctly on Docker runtime.
+
+**Unlocked**: Confidence to migrate all 20+ nsproto security tests. Pattern proven for remaining nameplates.
 ---
 (execution log begins here)
