@@ -46,7 +46,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgp_depot_create` | `rbw-PC` | RBSDC | working |
 | `rbgp_depot_list` | `rbw-ld` | RBSDL | working |
 | `rbgp_depot_destroy` | `rbw-PD` | RBSDD | working |
-| `rbgp_governor_reset` | `rbw-PG` | RBSGR | missing |
+| `rbgp_governor_reset` | `rbw-PG` | RBSGR | working |
 | `rbgg_director_create` | `rbw-GD` | RBSDI | untested |
 | `rbgg_retriever_create` | `rbw-GR` | RBSRC | untested |
 | `rbgg_list_service_accounts` | `rbw-al` | RBSSL | untested |
@@ -75,15 +75,14 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise depot_create (for keeps)** — Added rbgu_poll_get_until_ok helper, bucket IAM retry logic. Keeper depot: rbwg-d-proto-251230080456
 
+- **Exercise governor_reset** — Created tabtarget, exercised on keeper depot, RBRA file produced successfully.
+
 ## Current
-
-- **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
-  mode: manual
-
-## Remaining
 
 - **Exercise director_create** — Provision Director service account. Produces RBRA file at RBRR_DIRECTOR_RBRA_FILE path.
   mode: manual
+
+## Remaining
 
 - **Exercise retriever_create** — Provision Retriever service account. Produces RBRA file at RBRR_RETRIEVER_RBRA_FILE path.
   mode: manual

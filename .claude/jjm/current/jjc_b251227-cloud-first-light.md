@@ -310,4 +310,7 @@
 - Run against keeper depot: `tt/rbw-PG.PayorGovernorReset.sh rbwg-d-proto-251230080456`
 - Verify RBRA file produced at RBRR_GOVERNOR_RBRA_FILE path
 - Debug any issues following heat protocol
+
+### 2025-12-30 08:45 - exercise-governor-reset - WRAP
+**Outcome**: Created tabtarget, exercised on keeper depot, RBRA file produced successfully.
 ---
