@@ -144,12 +144,13 @@ zrbf_stitch_build_json() {
 
   # Step definitions: script:builder:entrypoint:id
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
+  # Note: Step 05 (buildx-create) was merged into step 06 because Cloud Build
+  # steps run in isolated containers - builder state doesn't persist across steps
   local z_step_defs=(
     "rbgjb01-derive-tag-base.sh:gcr.io/cloud-builders/gcloud:bash:derive-tag-base"
     "rbgjb02-get-docker-token.sh:gcr.io/cloud-builders/gcloud:bash:get-docker-token"
     "rbgjb03-docker-login-gar.sh:gcr.io/cloud-builders/docker:bash:docker-login-gar"
     "rbgjb04-qemu-binfmt.sh:gcr.io/cloud-builders/docker:bash:qemu-binfmt"
-    "rbgjb05-buildx-create.sh:gcr.io/cloud-builders/docker:bash:buildx-create"
     "rbgjb06-build-and-push.sh:gcr.io/cloud-builders/docker:bash:build-and-push"
     "rbgjb07-assemble-metadata.sh:\${_RBGY_JQ_REF}:sh:assemble-metadata"
     "rbgjb08-sbom-and-summary.sh:gcr.io/cloud-builders/docker:bash:sbom-and-summary"

@@ -4,6 +4,9 @@
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH, _RBGY_GIT_REPO
+#
+# Note: Buildx setup is done inline because Cloud Build steps run in isolated
+# containers - a builder created in a previous step won't persist here.
 
 set -euo pipefail
 
@@ -24,6 +27,10 @@ IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR
 
 docker buildx version
 docker version
+
+# Create and bootstrap buildx builder (must be in same container as build)
+docker buildx create --name rbia-builder --driver docker-container --use
+docker buildx inspect --bootstrap
 
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
