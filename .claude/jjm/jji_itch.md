@@ -499,3 +499,40 @@ Fix the specs to match the code. Rationale:
 ### Context
 
 Identified during cloud-first-light heat, 2025-12-30, while diagnosing director_create tabtarget.
+
+## rbw-tabtarget-nameplate-pattern
+Rename RBW tabtargets to use naming patterns that indicate nameplate requirements.
+
+### Problem
+
+Current RBW tabtarget names don't distinguish between:
+- Operations that require a nameplate argument (bottle-specific)
+- Operations that work at regime/payor level (no nameplate needed)
+
+This makes it hard to:
+1. Know which operations need a nameplate before running them
+2. Automate validation of tabtarget invocations
+3. Provide helpful tab-completion or documentation
+
+### Proposed Solution
+
+Establish naming convention in tabtarget filenames that indicates nameplate requirement:
+- `rbw-n«X».«Name».sh` - Requires nameplate (n = nameplate)
+- `rbw-«X».«Name».sh` - No nameplate required (current pattern)
+
+Or alternatively, use a different letter code position to indicate the distinction.
+
+### Benefits
+
+- Pattern-based detection enables tooling to validate arguments
+- Self-documenting: filename tells you what's needed
+- Enables smarter tab-completion and help systems
+- Reduces "forgot the nameplate" errors
+
+### Scope
+
+Audit all RBW tabtargets in `tt/rbw-*.sh` and categorize by nameplate requirement, then rename accordingly.
+
+### Context
+
+Identified 2025-12-30 during VSLK workspace reorganization discussion.
