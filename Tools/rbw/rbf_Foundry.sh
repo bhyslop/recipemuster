@@ -346,12 +346,14 @@ zrbf_compose_build_request_json() {
 
   # Merge steps from RBGJB template with runtime substitutions and config
   # Steps come from the static JSON template; substitutions override defaults
+  # Service account must be in projects/{project}/serviceAccounts/{email} format
+  local z_sa_resource="projects/${RBGD_GAR_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
   jq -n \
     --slurpfile sub   "${ZRBF_BUILD_CONFIG_FILE}"  \
     --slurpfile build "${ZRBF_RBGJB_BUILD_FILE}"   \
     --arg bucket "${RBGD_GCS_BUCKET}"              \
     --arg object "${z_obj_name}"                   \
-    --arg sa     "${RBGD_MASON_EMAIL}"             \
+    --arg sa     "${z_sa_resource}"                \
     --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"        \
     --arg to     "${RBRR_GCB_TIMEOUT}"             \
     '{
