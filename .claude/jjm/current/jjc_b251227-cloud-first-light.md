@@ -340,3 +340,22 @@
 
 **Deferred to**: Fresh session with focused prompt. Added dead code audit pace.
 ---
+
+---
+### 2025-12-30 10:58 - exercise-director-create - WRAP
+**Outcome**: Fixed 6 bugs across rbgp/rbgg/rbgi/rbgd; created director-eta successfully.
+
+**Bugs fixed**:
+1. rbgp_Payor.sh: Added cloudresourcemanager to depot API list
+2. rbgg_Governor.sh: Fixed token/label parameter order in rbgi_add_project_iam_role calls (3 occurrences)
+3. rbgg_Governor.sh: Changed RBGC_MASON_EMAIL → RBGD_MASON_EMAIL
+4. rbgg_Governor.sh: Added missing token argument to rbgi_add_sa_iam_role call
+5. rbgi_IAM.sh: Clarified z_member_email param naming (function adds serviceAccount: prefix)
+6. rbgd_DepotConstants.sh: Fixed RBGD_GCS_BUCKET derivation to match depot_create naming pattern
+
+**Itches added**:
+- rbsdi-instance-constraints: Document INPUT_INSTANCE parameter constraints
+- rbsdi-sa-prefix-mismatch: Fix spec to match code SA naming prefixes
+
+**Leftover SAs** (for sa_list/sa_delete testing): proto, alpha, beta, gamma, delta, epsilon, zeta, eta
+---
