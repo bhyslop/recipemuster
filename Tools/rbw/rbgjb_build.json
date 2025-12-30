@@ -6,7 +6,7 @@
       "entrypoint": "bash",
       "args": [
         "-lc",
-        "set -euo pipefail\n# Derive createTime -> TAG_BASE (UTC, compact)\nCT=\"$$(gcloud builds describe \"${BUILD_ID}\" --format='value(createTime)')\"\ntest -n \"$${CT}\" || (echo \"createTime missing\" >&2; exit 1)\n# Example: 2025-08-22T16:12:34.123456Z -> 20250822T161234Z\nTAG_BASE=\"$$(printf '%s\\n' \"$${CT}\" | sed -E 's/[-:]//g; s/\\.[0-9]+Z$$/Z/; s/\\+.*//')\"\ntest -n \"$${TAG_BASE}\" || (echo \"TAG_BASE empty\" >&2; exit 1)\necho \"$${TAG_BASE}\" > .tag_base\n"
+        "set -euo pipefail\n# Generate TAG_BASE from current UTC time (compact format)\nTAG_BASE=\"$$(date -u +%Y%m%dT%H%M%SZ)\"\ntest -n \"$${TAG_BASE}\" || (echo \"TAG_BASE empty\" >&2; exit 1)\necho \"$${TAG_BASE}\" > .tag_base\n"
       ]
     },
     {
