@@ -36,7 +36,7 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Name**: proto
 - **Region**: us-central1
-- **Project ID**: (recorded after creation)
+- **Project ID**: rbwg-d-proto-251230080456
 
 ## Operation Status
 
@@ -73,17 +73,14 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise depot_destroy** — Replaced DEBUG_ONLY with RBGP_CONFIRM_DESTROY, fixed CRM v3 `.state` field parsing, deleted 4 test depots.
 
+- **Exercise depot_create (for keeps)** — Added rbgu_poll_get_until_ok helper, bucket IAM retry logic. Keeper depot: rbwg-d-proto-251230080456
+
 ## Current
-
-- **Exercise depot_create (for keeps)** — Create depot using Keeper Depot settings above.
-  mode: manual
-
-  **Blocker (2025-12-28)**: Project quota exhausted (24 projects in DELETE_REQUESTED state consuming quota). Quota increase requested from Google Cloud. If creation fails with "exceeded your allotted project quota", check request status at: https://console.cloud.google.com/iam-admin/quotas
-
-## Remaining
 
 - **Exercise governor_reset** — Create Governor service account within the depot. Produces RBRA file at RBRR_GOVERNOR_RBRA_FILE path. Note: tabtarget `rbw-PG.PayorGovernorReset.sh` must be created first.
   mode: manual
+
+## Remaining
 
 - **Exercise director_create** — Provision Director service account. Produces RBRA file at RBRR_DIRECTOR_RBRA_FILE path.
   mode: manual

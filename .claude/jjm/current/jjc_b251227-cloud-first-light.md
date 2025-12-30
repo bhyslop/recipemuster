@@ -289,4 +289,15 @@
 - Keeper depot: `rbwg-d-proto-251230073755`
 - Propagation delay observed: 3 seconds (HTTP 404 → 200)
 - Orphaned depots from failed attempts: `rbwg-d-proto-251230072516`, `rbwg-d-proto-251230073558`
+
+**Additional fixes after bucket IAM failure**:
+- Refactored 2 existing propagation checks in rbgp_Payor.sh to use new helper
+- Added retry logic to `rbgi_add_bucket_iam_role` for "SA does not exist" errors
+- Final keeper depot: `rbwg-d-proto-251230080456`
+- Cleaned up 4 orphaned depots
+---
+
+---
+### 2025-12-30 08:15 - exercise-depot-create-for-keeps - WRAP
+**Outcome**: Added rbgu_poll_get_until_ok helper, bucket IAM retry logic. Keeper depot: rbwg-d-proto-251230080456
 ---
