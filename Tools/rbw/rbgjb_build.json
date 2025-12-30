@@ -15,7 +15,7 @@
       "entrypoint": "bash",
       "args": [
         "-lc",
-        "set -euo pipefail\ngcloud auth configure-docker \"${_RBGY_GAR_LOCATION}-docker.pkg.dev\" --quiet\n"
+        "set -euo pipefail\n# Use docker login with access token (works with buildx docker-container driver)\ngcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${_RBGY_GAR_LOCATION}-docker.pkg.dev\n"
       ]
     },
     {
