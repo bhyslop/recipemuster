@@ -323,9 +323,31 @@ rbgi_add_bucket_iam_role() {
   printf '%s\n' "${z_updated_policy_json}" > "${z_bucket_set_body}" \
     || buc_die "Failed to write bucket policy body"
 
-  rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" \
-                                  "${ZRBGI_INFIX_BUCKET_IAM_SET}" "${z_bucket_set_body}"
-  rbgu_http_require_ok "Set bucket IAM policy" "${ZRBGI_INFIX_BUCKET_IAM_SET}"
+  local z_elapsed=0
+  local z_set_infix=""
+  while :; do
+    z_set_infix="${ZRBGI_INFIX_BUCKET_IAM_SET}-${z_elapsed}s"
+    rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_bucket_set_body}"
+
+    z_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code"
+    case "${z_code}" in
+      200) break ;;
+      400)
+        local z_err_msg
+        z_err_msg=$(rbgu_error_message_capture "${z_set_infix}") || z_err_msg=""
+        case "${z_err_msg}" in
+          *"does not exist"*) buc_log_args "SA not yet visible to GCS (HTTP 400), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..." ;;
+          *) buc_die "Set bucket IAM policy (HTTP 400): ${z_err_msg}" ;;
+        esac
+        ;;
+      429|500|502|503|504) buc_log_args "Transient ${z_code} at ${z_elapsed}s; retry" ;;
+      *) rbgu_http_require_ok "Set bucket IAM policy" "${z_set_infix}" ;;
+    esac
+
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "Set bucket IAM policy: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
 
   buc_log_args "Successfully added bucket role ${z_role}"
 }

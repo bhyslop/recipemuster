@@ -447,6 +447,35 @@ rbgu_http_json_lro_ok() {
   done
 }
 
+# Poll GET endpoint until HTTP 200 (for IAM propagation waits)
+rbgu_poll_get_until_ok() {
+  zrbgu_sentinel
+
+  local z_label="${1}"
+  local z_url="${2}"
+  local z_token="${3}"
+  local z_infix="${4}"
+
+  local z_elapsed=0
+  while :; do
+    local z_poll_infix="${z_infix}-${z_elapsed}s"
+    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
+
+    local z_code
+    z_code=$(rbgu_http_code_capture "${z_poll_infix}") || z_code=""
+
+    if test "${z_code}" = "200"; then
+      buc_log_args "${z_label} ready after ${z_elapsed} seconds"
+      return 0
+    fi
+
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+    buc_log_args "${z_label} not ready (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
+}
+
 # Predicate: Check if resource was newly created and apply propagation delay
 rbgu_newly_created_delay() {
   zrbgu_sentinel

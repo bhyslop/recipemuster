@@ -267,3 +267,26 @@
 - Record generated Project ID in heat's Keeper Depot section
 - Confirm depot appears as COMPLETE in `depot_list` output
 ---
+
+---
+### 2025-12-30 09:00 - exercise-depot-create-for-keeps - SESSION 2
+**Context**: User reports quota increase approved. Retrying keeper depot creation.
+**Proposed approach**:
+- Run `tt/rbw-PC.PayorDepotCreate.sh proto us-central1`
+- Monitor for quota errors vs normal progress
+- On success, record Project ID in heat file
+- Verify via `tt/rbw-ld.DepotList.sh`
+
+**Bug Found**: Mason SA propagation race condition
+- SA creation returned HTTP 200 but setIamPolicy failed with HTTP 400 "Service account does not exist"
+- Root cause: SA created but not yet visible in IAM system
+
+**Fix Applied**:
+1. Added `rbgu_poll_get_until_ok` helper in rbgu_Utility.sh:450-477 (BCG-compliant polling)
+2. Added propagation check in rbgp_Payor.sh:794-796 after Mason SA creation
+
+**Result**: Depot creation succeeded on retry
+- Keeper depot: `rbwg-d-proto-251230073755`
+- Propagation delay observed: 3 seconds (HTTP 404 → 200)
+- Orphaned depots from failed attempts: `rbwg-d-proto-251230072516`, `rbwg-d-proto-251230073558`
+---

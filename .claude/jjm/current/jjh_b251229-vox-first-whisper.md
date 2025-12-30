@@ -69,6 +69,9 @@ All kits use these consistently:
 - **Migrate JJK to VOK**
   Refactor JJK to call VOK's Codex instead of its own ledger machinery. JJK depends on VOK.
 
+- **Design CGK config schema**
+  Define per-repo configuration for Claude Git Kit. Key decisions: module name mappings (terse `JJK` vs expanded `Job Jockey Kit`), config file location (`.claude/cgk_config.json` or section in existing file), default behavior, inheritance/override patterns. Output: documented schema ready for implementation.
+
 - **Create CGK (Claude Git Kit)**
   Foundational kit for Claude-aware git operations, starting with commit message generation. Create `Tools/cgk/` directory with `cga_arcanum.sh` and tabtarget `tt/cgk-commit.sh` that invokes Claude to write commit messages. Document pattern for extensibility to other git operations (branch prep, PR formatting, etc.).
 

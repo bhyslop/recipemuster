@@ -674,29 +674,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify IAM propagation before resource creation'
   local z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
-  local z_preflight_start
-  z_preflight_start=$(date +%s)
-  local z_preflight_deadline=$((z_preflight_start + RBGC_MAX_CONSISTENCY_SEC))
-  local z_preflight_ok=0
-
-  while [ "$(date +%s)" -lt "${z_preflight_deadline}" ]; do
-    rbgu_http_json "GET" "${z_preflight_url}" "${z_token}" "iam_preflight" || true
-    local z_preflight_code
-    z_preflight_code=$(rbgu_http_code_capture "iam_preflight") || z_preflight_code=""
-
-    if [ "${z_preflight_code}" = "200" ]; then
-      z_preflight_ok=1
-      buc_log_args "IAM propagation verified after $(($(date +%s) - z_preflight_start)) seconds"
-      break
-    fi
-
-    buc_log_args "IAM not ready (HTTP ${z_preflight_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-  done
-
-  if [ "${z_preflight_ok}" != "1" ]; then
-    buc_die "IAM propagation timeout after ${RBGC_MAX_CONSISTENCY_SEC} seconds - artifactregistry API not accessible"
-  fi
+  rbgu_poll_get_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
   buc_step 'Create build bucket'
   local z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
@@ -745,29 +723,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify IAM API is ready for service account creation'
   local z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
-  local z_iam_preflight_start
-  z_iam_preflight_start=$(date +%s)
-  local z_iam_preflight_deadline=$((z_iam_preflight_start + RBGC_MAX_CONSISTENCY_SEC))
-  local z_iam_preflight_ok=0
-
-  while [ "$(date +%s)" -lt "${z_iam_preflight_deadline}" ]; do
-    rbgu_http_json "GET" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight" || true
-    local z_iam_preflight_code
-    z_iam_preflight_code=$(rbgu_http_code_capture "iam_sa_preflight") || z_iam_preflight_code=""
-
-    if [ "${z_iam_preflight_code}" = "200" ]; then
-      z_iam_preflight_ok=1
-      buc_log_args "IAM API ready after $(($(date +%s) - z_iam_preflight_start)) seconds"
-      break
-    fi
-
-    buc_log_args "IAM API not ready (HTTP ${z_iam_preflight_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-  done
-
-  if [ "${z_iam_preflight_ok}" != "1" ]; then
-    buc_die "IAM API propagation timeout after ${RBGC_MAX_CONSISTENCY_SEC} seconds - cannot proceed with service account creation"
-  fi
+  rbgu_poll_get_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
   local z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
@@ -790,6 +746,10 @@ rbgp_depot_create() {
   
   local z_mason_sa_email
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
+
+  buc_step 'Verify Mason service account propagation'
+  local z_mason_get_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
+  rbgu_poll_get_until_ok "Mason SA propagation" "${z_mason_get_url}" "${z_token}" "mason_sa_get"
 
   buc_step 'Configure Mason permissions'
   # Repository admin
