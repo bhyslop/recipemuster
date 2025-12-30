@@ -19,7 +19,7 @@
 # Recipe Bottle RBRR Validator - Validates RBRR regime repository variables
 
 # Validate required RBRR variables are set
-test -n "${RBRR_GCP_PROJECT_ID:-}" || buc_die "RBRR_GCP_PROJECT_ID not set"
+test -n "${RBRR_DEPOT_PROJECT_ID:-}" || buc_die "RBRR_DEPOT_PROJECT_ID not set"
 test -n "${RBRR_GCP_REGION:-}"     || buc_die "RBRR_GCP_REGION not set"
 
 # eof

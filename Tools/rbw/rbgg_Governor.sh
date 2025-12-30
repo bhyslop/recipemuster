@@ -44,8 +44,8 @@ ZRBGG_SOURCED=1
 zrbgg_kindle() {
   test -z "${ZRBGG_KINDLED:-}" || buc_die "Module rbgg already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || buc_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || buc_die "RBRR_GCP_PROJECT_ID is empty"
+  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
 
   buc_log_args 'Ensure dependencies are kindled first'
   zrbgc_sentinel
@@ -147,7 +147,7 @@ zrbgg_create_service_account_with_key() {
   local z_description="$3"
   local z_instance="$4"
 
-  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step 'Get OAuth token from admin'
   local z_token
@@ -167,13 +167,13 @@ zrbgg_create_service_account_with_key() {
     }' > "${ZRBGG_PREFIX}create_request.json" || buc_die "Failed to create request JSON"
 
   buc_step 'Create service account via REST API'
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
   rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
   rbgu_newly_created_delay                      "${ZRBGG_INFIX_CREATE}" "service account" 15
   buc_info "Service account created: ${z_account_email}"
 
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" \
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" \
                                    "${z_token}" "${ZRBGG_INFIX_VERIFY}"
   rbgu_http_require_ok "Verify service account" "${ZRBGG_INFIX_VERIFY}"
 
@@ -181,7 +181,7 @@ zrbgg_create_service_account_with_key() {
 
   buc_log_args 'List keys'
   rbgu_http_json "GET"                                                        \
-    "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
+    "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
                                       "${z_token}" "${ZRBGG_INFIX_LIST_KEYS}"
   rbgu_http_require_ok "List service account keys" "${ZRBGG_INFIX_LIST_KEYS}"
 
@@ -194,7 +194,7 @@ zrbgg_create_service_account_with_key() {
   if test "${z_user_keys}" -gt 0; then
     buc_log_args 'Provide a console URL to delete keys manually, then rerun this command'
     local z_sa_email_enc="${z_account_email//@/%40}"
-    local z_keys_url="${RBGC_CONSOLE_URL}iam-admin/serviceaccounts/details/${z_sa_email_enc}?project=${RBRR_GCP_PROJECT_ID}"
+    local z_keys_url="${RBGC_CONSOLE_URL}iam-admin/serviceaccounts/details/${z_sa_email_enc}?project=${RBRR_DEPOT_PROJECT_ID}"
 
     buc_warn "Found ${z_user_keys} existing USER_MANAGED key(s) on ${z_account_email}."
     buc_info "Open Console, select the **Keys** tab, delete old keys, then rerun:"
@@ -205,7 +205,7 @@ zrbgg_create_service_account_with_key() {
   buc_step 'Generate service account key'
   local z_key_req="${BUD_TEMP_DIR}/rbgg_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
                                          "${z_token}" "${ZRBGG_INFIX_KEY}" "${z_key_req}"
   rbgu_http_require_ok "Generate service account key" "${ZRBGG_INFIX_KEY}"
 
@@ -262,7 +262,7 @@ zrbgg_create_service_account_no_key() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Create service account (no key): ${z_account_name}"
   # write body FIRST
@@ -273,7 +273,7 @@ zrbgg_create_service_account_no_key() {
   ' > "${z_body}" || buc_die "Failed to build SA create body"
 
   # correct endpoint (no trailing slash)
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_CREATE}" "${z_body}"
+  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_CREATE}" "${z_body}"
   rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
 
   buc_log_args 'Allow IAM propagation, then verify using URL-encoded email'
@@ -282,7 +282,7 @@ zrbgg_create_service_account_no_key() {
   buc_log_args 'Verify service account'
   local z_account_email_enc
   z_account_email_enc=$(rbgu_urlencode_capture "${z_account_email}") || buc_die "Failed to encode SA email"
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email_enc}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email_enc}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
   rbgu_http_require_ok "Verify service account" "${ZRBGG_INFIX_VERIFY}"
 
   buc_success "Service account ensured (no keys): ${z_account_email}"
@@ -445,14 +445,14 @@ rbgg_list_service_accounts() {
   buc_doc_brief "List all service accounts in the project"
   buc_doc_shown || return 0
 
-  buc_step 'Listing service accounts in project: '"${RBRR_GCP_PROJECT_ID}"
+  buc_step 'Listing service accounts in project: '"${RBRR_DEPOT_PROJECT_ID}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token (rc=$?)"
 
   buc_log_args 'List service accounts via REST API'
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_LIST}"
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_LIST}"
   rbgu_http_require_ok "List service accounts"                     "${ZRBGG_INFIX_LIST}"
 
   local z_count
@@ -491,7 +491,7 @@ rbgg_create_retriever() {
   test -d "${BUD_OUTPUT_DIR}" || buc_die "BUD_OUTPUT_DIR does not exist: ${BUD_OUTPUT_DIR}"
 
   local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
-  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Creating Retriever service account: ${z_account_name}"
 
@@ -508,7 +508,7 @@ rbgg_create_retriever() {
   rbgi_add_project_iam_role                 \
     "Grant Artifact Registry Reader"        \
     "${z_token}"                            \
-    "${RBGC_PROJECT_RESOURCE}"              \
+    "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
     "serviceAccount:${z_account_email}"     \
     "retriever-reader"
@@ -536,7 +536,7 @@ rbgg_create_director() {
   test -d "${BUD_OUTPUT_DIR}" || buc_die "BUD_OUTPUT_DIR does not exist: ${BUD_OUTPUT_DIR}"
 
   local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"
-  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Creating Director service account: ${z_account_name}"
 
@@ -562,7 +562,7 @@ rbgg_create_director() {
   rbgi_add_project_iam_role                 \
     "Grant Cloud Build Editor"              \
     "${z_token}"                            \
-    "${RBGC_PROJECT_RESOURCE}"              \
+    "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
     "serviceAccount:${z_account_email}"     \
     "director-cb"
@@ -570,7 +570,7 @@ rbgg_create_director() {
   rbgi_add_project_iam_role                 \
     "Grant Project Viewer"                  \
     "${z_token}"                            \
-    "${RBGC_PROJECT_RESOURCE}"              \
+    "${RBGD_PROJECT_RESOURCE}"              \
     "roles/viewer"                          \
     "serviceAccount:${z_account_email}"     \
     "director-viewer"
@@ -609,7 +609,7 @@ rbgg_delete_service_account() {
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Delete via REST API'
-  rbgu_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
+  rbgu_http_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
                                                  "${ZRBGG_INFIX_DELETE}"
   rbgu_http_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
     404 "not found (already deleted)"
@@ -650,7 +650,7 @@ rbgg_destroy_project() {
   buc_warn ""
   buc_warn "========================================================================"
   buc_warn "CRITICAL WARNING: You are about to PERMANENTLY DELETE the entire project:"
-  buc_warn "  Project: ${RBRR_GCP_PROJECT_ID}"
+  buc_warn "  Project: ${RBRR_DEPOT_PROJECT_ID}"
   buc_warn "This will:"
   buc_warn "  - Delete ALL resources in the project"
   buc_warn "  - Delete ALL data permanently"
@@ -660,12 +660,12 @@ rbgg_destroy_project() {
   buc_warn "========================================================================"
   buc_warn ""
 
-  buc_require "Type the exact project ID to confirm deletion" "${RBRR_GCP_PROJECT_ID}"
+  buc_require "Type the exact project ID to confirm deletion" "${RBRR_DEPOT_PROJECT_ID}"
   buc_require "Confirm you understand this DELETES EVERYTHING in the project" "DELETE-EVERYTHING"
   buc_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   buc_step 'Check for liens (will block deletion)'
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_GCP_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -675,8 +675,8 @@ rbgg_destroy_project() {
     buc_step 'BLOCKED: Liens exist on project'
     buc_warn "Project has ${z_lien_count} lien(s) that prevent deletion"
     buc_warn "You must remove all liens first:"
-    buc_code "  gcloud resource-manager liens list --project=${RBRR_GCP_PROJECT_ID}"
-    buc_code "  gcloud resource-manager liens delete LIEN_NAME --project=${RBRR_GCP_PROJECT_ID}"
+    buc_code "  gcloud resource-manager liens list --project=${RBRR_DEPOT_PROJECT_ID}"
+    buc_code "  gcloud resource-manager liens delete LIEN_NAME --project=${RBRR_DEPOT_PROJECT_ID}"
     buc_warn "Then re-run this command."
     buc_die "Cannot proceed with active liens"
   fi
@@ -728,7 +728,7 @@ rbgg_restore_project() {
 
   buc_step 'Confirm restoration'
   buc_log_args "Project Status: ${z_lifecycle_state}"
-  buc_log_args "Attempting to restore project: ${RBRR_GCP_PROJECT_ID}"
+  buc_log_args "Attempting to restore project: ${RBRR_DEPOT_PROJECT_ID}"
   buc_log_args "WARNING: Restore may fail if deletion process has already started"
   buc_require "Confirm restoration of project" "RESTORE"
 

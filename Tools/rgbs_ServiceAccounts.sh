@@ -30,8 +30,8 @@ ZRGBS_SOURCED=1
 zrgbs_kindle() {
   test -z "${ZRGBS_KINDLED:-}" || buc_die "Module rgbs already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || buc_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || buc_die "RBRR_GCP_PROJECT_ID is empty"
+  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -65,7 +65,7 @@ zrgbs_create_service_account_with_key() {
   local z_description="$3"
   local z_instance="$4"
 
-  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step 'Get OAuth token from admin'
   local z_token
@@ -85,13 +85,13 @@ zrgbs_create_service_account_with_key() {
     }' > "${ZRGBS_PREFIX}create_request.json" || buc_die "Failed to create request JSON"
 
   buc_step 'Create service account via REST API'
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRGBS_INFIX_CREATE}" "${ZRGBS_PREFIX}create_request.json"
   rbgu_http_require_ok "Create service account" "${ZRGBS_INFIX_CREATE}"
   rbgu_newly_created_delay                      "${ZRGBS_INFIX_CREATE}" "service account" 15
   buc_info "Service account created: ${z_account_email}"
 
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_account_email}" \
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" \
                                    "${z_token}" "${ZRGBS_INFIX_VERIFY}"
   rbgu_http_require_ok "Verify service account" "${ZRGBS_INFIX_VERIFY}"
 
@@ -159,7 +159,7 @@ zrgbs_create_service_account_no_key() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  local z_account_email="${z_account_name}@${RBGC_SA_EMAIL_FULL}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Create service account (no key): ${z_account_name}"
   local z_body="${BUD_TEMP_DIR}/rgbs_sa_create_nokey.json"
@@ -168,7 +168,7 @@ zrgbs_create_service_account_no_key() {
     { accountId: $account_id, serviceAccount: { displayName: $display_name } }
   ' > "${z_body}" || buc_die "Failed to build SA create body"
 
-  rbgu_http_json "POST" "${RBGC_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRGBS_INFIX_CREATE}" "${z_body}"
+  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRGBS_INFIX_CREATE}" "${z_body}"
   rbgu_http_require_ok "Create service account" "${ZRGBS_INFIX_CREATE}"
 
   buc_log_args 'Allow IAM propagation, then verify using URL-encoded email'
@@ -220,7 +220,7 @@ rgbs_sa_get() {
   buc_log_args 'Get service account via REST API'
   local z_sa_email_enc
   z_sa_email_enc=$(rbgu_urlencode_capture "${z_sa_email}") || buc_die "Failed to encode SA email"
-  rbgu_http_json "GET" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email_enc}" "${z_token}" "${ZRGBS_INFIX_VERIFY}"
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_sa_email_enc}" "${z_token}" "${ZRGBS_INFIX_VERIFY}"
   rbgu_http_require_ok "Get service account" "${ZRGBS_INFIX_VERIFY}" 404 "not found"
 
   if rbgu_http_code_capture "${ZRGBS_INFIX_VERIFY}" | grep -q "404"; then
@@ -250,7 +250,7 @@ rgbs_sa_delete() {
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Delete via REST API'
-  rbgu_http_json "DELETE" "${RBGC_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
+  rbgu_http_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
                                                  "${ZRGBS_INFIX_DELETE}"
   rbgu_http_require_ok "Delete service account" "${ZRGBS_INFIX_DELETE}" \
     404 "not found (already deleted)"

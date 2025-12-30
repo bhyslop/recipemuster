@@ -46,7 +46,7 @@ zrbrr_kindle() {
   buv_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
   buv_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
   buv_env_string      RBRR_CHOSEN_IDENTITY         1    128
-  buv_env_gname       RBRR_GCP_PROJECT_ID          6     63
+  buv_env_gname       RBRR_DEPOT_PROJECT_ID          6     63
   buv_env_gname       RBRR_GCP_REGION              1     32
 
   # Google Artifact Registry Configuration

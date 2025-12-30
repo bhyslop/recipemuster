@@ -30,8 +30,8 @@ ZRBGA_SOURCED=1
 zrbga_kindle() {
   test -z "${ZRBGA_KINDLED:-}" || buc_die "Module rbga already kindled"
 
-  test -n "${RBRR_GCP_PROJECT_ID:-}"     || buc_die "RBRR_GCP_PROJECT_ID is not set"
-  test   "${#RBRR_GCP_PROJECT_ID}" -gt 0 || buc_die "RBRR_GCP_PROJECT_ID is empty"
+  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -83,7 +83,7 @@ rbga_repo_create() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  local z_parent="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
+  local z_parent="projects/${RBRR_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${z_repo_name}"
   local z_create_body="${BUD_TEMP_DIR}/rbga_create_repo_body.json"
@@ -126,7 +126,7 @@ rbga_repo_get() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
+  local z_resource="projects/${RBRR_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
 
   buc_step 'Get repository via REST API'
@@ -168,7 +168,7 @@ rbga_repo_set_iam() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
+  local z_resource="projects/${RBRR_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
   local z_policy_file="${BUD_TEMP_DIR}/rbga_repo_set_iam.json"
 
@@ -218,7 +218,7 @@ rbga_repo_add_iam_role() {
   fi
 
   buc_log_args 'Use rbgi_add_repo_iam_role'
-  rbgi_add_repo_iam_role "${z_token}" "${RBRR_GCP_PROJECT_ID}" "${z_account_email}" "${z_location}" "${z_repo_name}" "${z_role}"
+  rbgi_add_repo_iam_role "${z_token}" "${RBRR_DEPOT_PROJECT_ID}" "${z_account_email}" "${z_location}" "${z_repo_name}" "${z_role}"
 
   buc_success "Added IAM role ${z_role} to ${z_member} on repository: ${z_repo_name} in ${z_location}"
 }
@@ -243,7 +243,7 @@ rbga_repo_delete() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  local z_resource="projects/${RBRR_GCP_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
+  local z_resource="projects/${RBRR_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   buc_log_args "Delete Artifact Registry repo '${z_repo_name}' in ${z_location}"
   local z_delete_code
   rbgu_http_json "DELETE"                                                           \
