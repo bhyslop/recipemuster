@@ -231,13 +231,13 @@ rbgi_add_sa_iam_role() {
 
   local z_token="${1:-}"
   local z_target_sa_email="${2:-}"
-  local z_member_sa_email="${3:-}"
+  local z_member_email="${3:-}"  # email only; function adds serviceAccount: prefix
   local z_role="${4:-}"
 
   test -n "${z_token}" || buc_die "Token required"
 
   buc_log_args "Using admin token (value not logged)"
-  buc_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_sa_email}"
+  buc_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_email}"
 
   # Caller must have already primed Cloud Build if this is the runtime SA.
   # We do a hard existence check and crash if not accessible.
@@ -271,7 +271,7 @@ rbgi_add_sa_iam_role() {
   buc_log_args 'Update SA IAM policy with new role binding'
   local z_updated_policy_json=""
   z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${ZRBGI_INFIX_ROLE}" \
-    "${z_role}" "serviceAccount:${z_member_sa_email}" "") \
+    "${z_role}" "serviceAccount:${z_member_email}" "") \
     || buc_die "Failed to update SA IAM policy"
 
   buc_log_args 'Set updated SA IAM policy'
