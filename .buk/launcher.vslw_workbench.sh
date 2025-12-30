@@ -35,7 +35,7 @@ source "${z_station_file}" || exit 1
 source "${BURC_TOOLS_DIR}/buk/burs_regime.sh"
 zburs_kindle
 
-export VSLW_TEMPLATE_DIR="Tools/vslf-files"
+export VSLW_TEMPLATE_DIR="Tools/vslf-rbw"
 
 # Set coordinator and delegate to BUD
 export BUD_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/vslk/vslw_workbench.sh"

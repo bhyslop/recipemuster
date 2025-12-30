@@ -3,5 +3,6 @@
     <Projects>
         <Project File="vsrbw-main.vpj"/>
         <Project File="vsrbw-tabtargets.vpj"/>
+        <Project File="vsrbw-launchers.vpj"/>
     </Projects>
 </Workspace>
