@@ -157,11 +157,9 @@ rbw_runtime_cmd() {
 - **Determine exec -i requirements** — Pattern: `-i` for stdin-reading commands (dig, traceroute, apt-get); no `-i` for simple output (nslookup, nc, ping, ps). Testbench provides both variants.
 - **Create rbt_testbench.sh skeleton** — Created with exec helpers (6 functions), nameplate loading via zrbob_kindle, routing to suite placeholders.
 - **Single test end-to-end** 🎉 — FIRST LIGHT! Full stack validated: launcher→testbench→kindle→but_execute→docker exec→DNS. Fixed but_execute temp dir issue. Network captures prove censer model works on Docker.
+- **Migrate nsproto security tests** — All 22 tests passing. Fixed Docker --internal network flag (blocks forwarding unlike podman). Added single-test parameter for targeted runs. Adjusted ICMP test for Docker/podman differences.
 
 ## Remaining
-
-- **Migrate nsproto security tests** — Port remaining `rbt.test.nsproto.mk` test cases to bash functions. 20+ tests covering DNS filtering, TCP blocking, ICMP isolation, package blocking.
-  mode: manual
 
 - **Migrate test tabtarget** — Modify `tt/rbw-to.TestBottleService.nsproto.sh` from mbd.dispatch to rbt_testbench launcher.
   mode: manual

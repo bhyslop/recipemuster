@@ -184,4 +184,16 @@
 - Use `_i` variants for dig/traceroute/apt-get
 - Run incrementally after each group
 ---
+### 2025-12-30 14:45 - migrate-nsproto-security-tests - WRAP
+**Outcome**: All 22 tests passing on Docker.
+
+**Tests added**: 3 basic network, 2 DNS allow/block, 2 TCP 443, 3 DNS protocol, 9 DNS security bypass, 1 package blocking, 2 ICMP.
+
+**Key fixes**:
+- Docker `--internal` network flag blocks ALL forwarding (unlike podman). Removed for Docker, rely on sentry iptables.
+- ICMP test adjusted to accept both sentry-visible (podman) and blocked (Docker) behaviors.
+- Added single-test parameter to testbench (`rbt-to nsproto test_name`) for targeted debugging.
+
+**Network validation**: Used rboo observe in background during tests - tcpdump confirms traffic flowing through sentry.
+---
 (execution log begins here)
