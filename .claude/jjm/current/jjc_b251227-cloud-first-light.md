@@ -378,4 +378,19 @@
 - Run `tt/rbw-al.ListServiceAccounts.sh` (if exists) or find correct tabtarget
 - Expect to see: governor, mason, director-* (8 instances), retriever-proto
 - Verify listing format and completeness
+
+### 2025-12-30 11:14 - exercise-sa-list - WRAP
+**Outcome**: Fixed coordinator routing (rbga→rbgg) and tabtarget pattern; listed 12 SAs successfully.
+
+**Bugs fixed**:
+1. rbk_Coordinator.sh: rbw-al and rbw-aDS routed to wrong CLI (rbga instead of rbgg)
+2. tt/rbw-al.ListServiceAccounts.sh: Used old dispatch pattern instead of coordinator launcher
+---
+
+---
+### 2025-12-30 11:14 - exercise-sa-delete - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-aDS.DeleteServiceAccount.sh <email>` to delete one of the leftover directors
+- Use director-default as the target (least useful of the bunch)
+- Verify deletion via sa_list afterward
 ---
