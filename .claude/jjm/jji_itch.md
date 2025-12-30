@@ -334,6 +334,28 @@ When a nameplate is removed, what happens to its allocation slot?
 
 Long-percolating idea, refined during itch discussion 2025-12-29. Core insight: enclave network allocation is actually the more serious case than ports.
 
+## rbob-observe-rename
+Rename `rbo.observe.sh` to `rbob_observe.sh` to align with RBOB (Orchestration Bottle) naming convention.
+
+### Context
+
+The RBO* family is being established for orchestration:
+- RBOB - Orchestration Bottle (local container lifecycle)
+- RBOC - Orchestration Cloud (future GCP container orchestration)
+
+The existing `rbo.observe.sh` does network observation on bottle enclaves, so it belongs in RBOB. Defer until after the dockerize-bashize heat completes.
+
+### Scope
+
+1. Rename `Tools/rbw/rbo.observe.sh` → `Tools/rbw/rbob_observe.sh`
+2. Update any references in Makefile (`rbp.podman.mk`)
+3. Update CLAUDE.md acronym mappings
+4. Consider whether observation should become a workbench command (`rbw-o`) or stay as standalone script
+
+### Context
+
+Identified during dockerize-bashize-proto-bottle heat, 2025-12-30. Deferred to keep current pace focused.
+
 ## buk-claude-install
 Add Claude Code installation support to BUK, separate from workbench operations.
 

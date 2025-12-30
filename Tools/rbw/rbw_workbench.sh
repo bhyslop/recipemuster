@@ -35,6 +35,8 @@ RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${RBW_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBW_SCRIPT_DIR}/rbrn_regime.sh"
+source "${RBW_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBW_SCRIPT_DIR}/rbob_bottle.sh"
 
 ######################################################################
 # Helper Functions
@@ -44,7 +46,7 @@ rbw_show() {
   test "${BUD_VERBOSE:-0}" != "1" || echo "RBWSHOW: $*"
 }
 
-# Load nameplate configuration by moniker
+# Load nameplate configuration by moniker and kindle RBOB
 # Usage: rbw_load_nameplate <moniker>
 rbw_load_nameplate() {
   local z_moniker="${1:-}"
@@ -60,18 +62,14 @@ rbw_load_nameplate() {
   zrbrn_kindle
 
   rbw_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
-}
 
-# Get runtime command based on RBRN_RUNTIME
-# Returns: "docker" or "podman" (with connection args if needed)
-rbw_runtime_cmd() {
-  zrbrn_sentinel
+  # Load RBRR (repository regime) via RBOB helper
+  rbw_show "Loading RBRR via RBOB"
+  zrbob_load_rbrr
 
-  case "${RBRN_RUNTIME}" in
-    docker) echo "docker" ;;
-    podman) echo "podman" ;;  # Future: add -c connection if needed
-    *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
-  esac
+  # Kindle RBOB (validates RBRN and RBRR are ready)
+  rbw_show "Kindling RBOB"
+  zrbob_kindle
 }
 
 ######################################################################
@@ -80,7 +78,7 @@ rbw_runtime_cmd() {
 rbw_cmd_start() {
   local z_moniker="${1:-}"
   buc_step "Starting service: ${z_moniker}"
-  buc_die "rbw-s not yet implemented"
+  rbob_start
 }
 
 rbw_cmd_stop() {
