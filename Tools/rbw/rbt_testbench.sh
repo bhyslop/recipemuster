@@ -253,6 +253,49 @@ test_nsproto_icmp_block_beyond() {
 }
 
 ######################################################################
+# Test Cases - srjcl Jupyter tests
+#
+# Ported from RBM-tests/rbt.test.srjcl.mk
+# Pattern: Verify Jupyter server health, then run Python WebSocket test
+
+# Test container image for Python networking tests
+RBT_SRJCL_TEST_IMAGE="ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409"
+
+test_srjcl_jupyter_running() {
+  # Verify Jupyter process is running in bottle
+  but_expect_ok rbt_exec_bottle ps aux
+  rbt_exec_bottle ps aux | grep -q jupyter || but_fatal "jupyter not running in bottle"
+}
+
+test_srjcl_jupyter_connectivity() {
+  # Test basic HTTP connectivity to Jupyter from host
+  # Uses curl with browser-like headers to access JupyterLab
+  local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/lab"
+  local z_output
+  z_output=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "User-Agent: Mozilla/5.0" \
+    -H "Accept: text/html,application/xhtml+xml" \
+    --connect-timeout 5 --max-time 10 \
+    "${z_url}" 2>&1) || true
+  test "${z_output}" = "200" || but_fatal "Expected HTTP 200 from Jupyter, got: ${z_output}"
+}
+
+test_srjcl_websocket_kernel() {
+  # Run the full Python test (WebSocket, session creation, kernel execution)
+  # This test container runs on host network and connects to Jupyter
+  local z_test_script="${RBT_SCRIPT_DIR}/../../RBM-tests/rbt.test.srjcl.py"
+  test -f "${z_test_script}" || but_fatal "Test script not found: ${z_test_script}"
+
+  # Run Python test in dedicated container with networking dependencies
+  # Note: Python script uses RBRN_ENTRY_PORT_WORKSTATION env var
+  but_expect_ok ${ZRBOB_RUNTIME} run --rm -i \
+    --network host \
+    -e RBRN_ENTRY_PORT_WORKSTATION="${RBRN_ENTRY_PORT_WORKSTATION}" \
+    "${RBT_SRJCL_TEST_IMAGE}" \
+    python3 - < "${z_test_script}"
+}
+
+######################################################################
 # Test Suites
 
 rbt_suite_nsproto() {
@@ -264,8 +307,11 @@ rbt_suite_nsproto() {
 }
 
 rbt_suite_srjcl() {
-  buc_step "Running srjcl Jupyter test suite"
-  but_fatal "srjcl test suite not yet implemented"
+  local z_single_test="${1:-}"
+  buc_step "Running srjcl Jupyter test suite${z_single_test:+ (single: ${z_single_test})}"
+  local z_test_dir="${BUD_TEMP_DIR}/tests"
+  mkdir -p "${z_test_dir}"
+  but_execute "${z_test_dir}" "test_srjcl_" "${z_single_test}"
 }
 
 rbt_suite_pluml() {

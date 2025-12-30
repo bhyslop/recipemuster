@@ -190,7 +190,49 @@ rbw_runtime_cmd() {
 
 ## Remaining
 
-- **Migrate srjcl nameplate and tests** — Create `rbrn_srjcl.env`, migrate `rbt.test.srjcl.mk` tests to bash (invoke existing `rbt.test.srjcl.py` from bash wrapper), migrate srjcl tabtargets (`rbw-s.Start.srjcl.sh`, `rbw-S.ConnectSentry.srjcl.sh`, `rbw-B.ConnectBottle.srjcl.sh`, `rbw-o.ObserveNetworks.srjcl.sh`, `rbw-to.TestBottleService.srjcl.sh`). Validate with Docker.
+- **Investigate Docker Desktop host-to-container HTTP issue** — HTTP requests from macOS host through sentry's socat proxy timeout, blocking srjcl and pluml test validation. This pace must resolve before continuing srjcl/pluml migration.
+  mode: manual
+
+  **Symptom**: `curl http://localhost:7999/lab` from macOS host hangs indefinitely (sends request, never receives response). Returns HTTP code "000".
+
+  **What works**:
+  - TCP connection from host succeeds: `nc -zv localhost 7999` → "succeeded!"
+  - Docker port mapping exists: `docker port srjcl-sentry` → "7999/tcp -> 0.0.0.0:7999"
+  - Sentry is dual-homed (bridge + enclave networks)
+  - Socat running in sentry: `socat TCP-LISTEN:7999,fork,reuseaddr TCP:10.242.2.3:8000`
+  - Bottle's Jupyter listening: `netstat -tuln` shows 0.0.0.0:8000
+  - Sentry-to-bottle HTTP works: `docker exec srjcl-sentry nc -zv 10.242.2.3 8000` → "succeeded!"
+  - HTTP from inside sentry works: `docker exec srjcl-sentry curl localhost:7999/api` → HTTP 200
+  - Same issue affects nsproto (port 8890) - not srjcl-specific
+
+  **Architecture flow**:
+  ```
+  Host:7999 → Docker port mapping → Sentry:7999 (socat) → Bottle:8000 (Jupyter)
+  ```
+
+  **Hypothesis**: Docker Desktop for Mac networking quirk. TCP handshake completes but HTTP response data doesn't flow back through the socat proxy when accessed from the host. May be related to Docker Desktop's VM-based networking layer.
+
+  **Investigation paths**:
+  1. Check Docker Desktop networking settings (VirtioFS, gRPC FUSE, etc.)
+  2. Try binding socat to specific interface vs 0.0.0.0
+  3. Test with simpler proxy (netcat instead of socat)
+  4. Check if `--network host` on test container works differently
+  5. Compare behavior on Linux Docker (if available)
+  6. Check if issue is IPv4 vs IPv6 related (curl tries ::1 first)
+
+  **Workaround options** (if root cause not fixable):
+  - Run HTTP tests from inside container network (via docker exec)
+  - Run Python test container with `--network container:srjcl-sentry` to share sentry's namespace
+  - Accept limitation and document as Docker Desktop caveat
+
+  **Files created during srjcl partial migration** (preserved, awaiting this fix):
+  - `Tools/rbw/rbrn_srjcl.env` - nameplate config (uses local images)
+  - `tt/rbw-*.srjcl.sh` - all 6 tabtargets migrated to BUD launcher
+  - `rbt_testbench.sh` - srjcl test functions added (3 tests)
+  - `RBM-tests/rbt.test.srjcl.py` - fixed env var typo (RBN→RBRN)
+  - `bottle_anthropic_jupyter:local-*` - locally built image for arm64
+
+- **Complete srjcl test validation** — After HTTP issue resolved, run full srjcl test suite. May need to adjust test approach based on resolution.
   mode: manual
 
 - **Migrate pluml nameplate and tests** — Create `rbrn_pluml.env`, migrate `rbt.test.pluml.mk` tests to bash, migrate pluml tabtargets (`rbw-s.Start.pluml.sh`, `rbw-S.ConnectSentry.pluml.sh`, `rbw-o.ObserveNetworks.pluml.sh`, `rbw-to.TestBottleService.pluml.sh`). Validate with Docker.

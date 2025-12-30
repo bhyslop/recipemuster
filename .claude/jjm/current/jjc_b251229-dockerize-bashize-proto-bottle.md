@@ -196,4 +196,24 @@
 
 **Network validation**: Used rboo observe in background during tests - tcpdump confirms traffic flowing through sentry.
 ---
+### 2025-12-30 13:55 - migrate-srjcl-nameplate-and-tests - BLOCKED
+**Work completed**:
+- Created `rbrn_srjcl.env` with local image refs (arm64 builds required)
+- Built `bottle_anthropic_jupyter:local-20251230-134226-85803-332` for arm64
+- Migrated all 6 srjcl tabtargets to BUD launcher pattern
+- Added 3 test functions to testbench (`test_srjcl_jupyter_running`, `test_srjcl_jupyter_connectivity`, `test_srjcl_websocket_kernel`)
+- Fixed typo in `rbt.test.srjcl.py` (RBN→RBRN env var)
+- Validated srjcl lifecycle starts correctly (all 3 containers running)
+
+**Blocking issue discovered**: HTTP from macOS host to container via socat times out.
+- TCP connects but HTTP response never arrives
+- Same issue affects nsproto (not srjcl-specific)
+- Works perfectly from inside container network
+- Created detailed investigation pace: "Investigate Docker Desktop host-to-container HTTP issue"
+
+**Files preserved for when issue resolved**:
+- `Tools/rbw/rbrn_srjcl.env`
+- `tt/rbw-*.srjcl.sh` (6 files)
+- Test functions in `rbt_testbench.sh`
+---
 (execution log begins here)
