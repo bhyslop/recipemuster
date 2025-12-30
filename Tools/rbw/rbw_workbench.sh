@@ -36,6 +36,9 @@ source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${RBW_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBW_SCRIPT_DIR}/rbrn_regime.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 ######################################################################
 # Helper Functions
 

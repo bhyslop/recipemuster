@@ -36,6 +36,7 @@ ZBUC_BLUE=$(    zbuc_color '1;34' )
 ZBUC_MAGENTA=$( zbuc_color '1;35' )
 ZBUC_CYAN=$(    zbuc_color '1;36' )
 ZBUC_WHITE=$(   zbuc_color '1;37' )
+ZBUC_GRAY=$(    zbuc_color '90'   )
 ZBUC_RESET=$(   zbuc_color '0'    )
 
 # Global context variable for info and error messages
@@ -203,7 +204,11 @@ zbuc_print() {
   # Always print if min_verbosity is -1, otherwise check BUC_VERBOSE
   if [ "${min_verbosity}" -eq -1 ] || [ "${BUC_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
     while [ $# -gt 0 ]; do
-      echo "$1" >&2
+      if [ -n "${ZBUC_CONTEXT}" ]; then
+        printf '%b%s%b %s\n' "${ZBUC_GRAY}" "${ZBUC_CONTEXT}" "${ZBUC_RESET}" "$1" >&2
+      else
+        echo "$1" >&2
+      fi
       shift
     done
   fi

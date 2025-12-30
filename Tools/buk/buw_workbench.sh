@@ -26,6 +26,9 @@ BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${BUW_SCRIPT_DIR}/buc_command.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 # Verbose output if BUD_VERBOSE is set
 buw_show() {
   test "${BUD_VERBOSE:-0}" != "1" || echo "BUWSHOW: $*"

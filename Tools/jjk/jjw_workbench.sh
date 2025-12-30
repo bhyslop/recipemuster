@@ -30,6 +30,9 @@ ZJJW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${ZJJW_SCRIPT_DIR}/../buk/buc_command.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 # Configuration - can be overridden via environment
 ZJJW_TARGET_DIR="${ZJJW_TARGET_DIR:-.}"
 ZJJW_KIT_PATH="${ZJJW_KIT_PATH:-Tools/jjk/README.md}"

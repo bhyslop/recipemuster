@@ -23,7 +23,8 @@ zccck_kit_dir="${BASH_SOURCE[0]%/*}"
 zccck_buk_directory="${zccck_kit_dir}/../buk"
 source "${zccck_buk_directory}/buc_command.sh"
 
-buc_context "cccw_workbench"
+# Show filename on each displayed line
+buc_context "${0##*/}"
 
 
 zccck_docker_compose() {

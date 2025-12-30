@@ -29,6 +29,9 @@ ZCMW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${ZCMW_SCRIPT_DIR}/../buk/buc_command.sh"
 
+# Show filename on each displayed line
+buc_context "${0##*/}"
+
 # Configuration - can be overridden via environment
 ZCMW_KIT_PATH="${ZCMW_KIT_PATH:-Tools/cmk/README.md}"
 ZCMW_KIT_DIR="$(dirname "${ZCMW_KIT_PATH}")"
