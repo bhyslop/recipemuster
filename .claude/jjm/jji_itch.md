@@ -562,3 +562,46 @@ Create `tt/buw-sc.ShellCheck.sh` that:
 ### Context
 
 Identified 2025-12-30 during BCG naming cleanup work.
+
+## rbw-billing-visibility
+Create tabtarget to display billing info and current costs for depot projects.
+
+### Motivation
+
+During development, depot projects accumulate costs (Cloud Build, Artifact Registry, storage, etc.). Currently no easy way to:
+1. See current month's costs for a depot
+2. Check if costs are accumulating unexpectedly
+3. Quick-link to billing console for detailed breakdown
+
+### Proposed Implementation
+
+Create `tt/rbw-lC.ListCosts.sh` or similar that:
+1. Lists all depot projects under the payor billing account
+2. For each, shows current month cost (or links to billing)
+3. Optionally shows cost trend or alerts for unusual spend
+
+### Options
+
+**Option A: Direct API**
+- Use Cloud Billing API to fetch cost data
+- Requires billing.viewer permissions
+- Shows costs inline in terminal
+
+**Option B: Console Links**
+- Generate direct URLs to GCP Billing console for each depot
+- Lower permission requirements
+- User clicks to see details
+
+**Option C: Hybrid**
+- Show summary via API if permissions allow
+- Fall back to console links otherwise
+
+### GCP Resources
+
+- Cloud Billing API: `cloudbilling.googleapis.com`
+- Billing reports: `console.cloud.google.com/billing/[ACCOUNT_ID]/reports`
+- Project billing: `console.cloud.google.com/billing/linkedaccount?project=[PROJECT_ID]`
+
+### Context
+
+Identified 2025-12-30 during depot create/destroy testing where billing quota was hit.
