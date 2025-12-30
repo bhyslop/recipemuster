@@ -41,7 +41,7 @@ zrbgd_kindle() {
   source "${ZRBGD_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to validate RBRR variables"
 
   # Depot-specific Constants (require RBRR variables)
-  RBGD_GCS_BUCKET="${RBRR_DEPOT_PROJECT_ID}-artifacts"
+  # Note: RBGD_GCS_BUCKET defined below after depot name extraction
 
   # Service-specific Aliases
   RBGD_GAR_PROJECT_ID="${RBRR_DEPOT_PROJECT_ID}"
@@ -61,12 +61,16 @@ zrbgd_kindle() {
   RBGD_API_SERVICE_ACCOUNTS="${RBGD_API_BASE_IAM_PROJECT}${RBGC_PATH_SERVICE_ACCOUNTS}"
   RBGD_SA_EMAIL_FULL="${RBRR_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
-  # Extract depot name from project ID pattern rbwg-d-{depot_name}-{timestamp}
+  # Extract depot name and timestamp from project ID pattern rbwg-d-{depot_name}-{timestamp}
   # Using bash builtins per BCG: remove prefix, then remove suffix (hyphen + timestamp)
   local z_without_prefix="${RBRR_DEPOT_PROJECT_ID#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
   local z_len=${#z_without_prefix}
   local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
   RBGD_DEPOT_NAME="${z_without_prefix:0:$((z_len - z_suffix_len))}"
+  local z_timestamp="${z_without_prefix: -${RBGC_GLOBAL_TIMESTAMP_LEN}}"
+
+  # Bucket name follows same pattern as project but with 'b' type instead of 'd'
+  RBGD_GCS_BUCKET="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${RBGD_DEPOT_NAME}-${z_timestamp}"
   RBGD_MASON_EMAIL="${RBGC_MASON_PREFIX}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs

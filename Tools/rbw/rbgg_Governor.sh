@@ -506,8 +506,8 @@ rbgg_create_retriever() {
 
   buc_step 'Adding Artifact Registry Reader role'
   rbgi_add_project_iam_role                 \
-    "Grant Artifact Registry Reader"        \
     "${z_token}"                            \
+    "Grant Artifact Registry Reader"        \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
     "serviceAccount:${z_account_email}"     \
@@ -560,23 +560,23 @@ rbgg_create_director() {
 
   buc_step 'Adding Cloud Build Editor role (project scope)'
   rbgi_add_project_iam_role                 \
-    "Grant Cloud Build Editor"              \
     "${z_token}"                            \
+    "Grant Cloud Build Editor"              \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
     "serviceAccount:${z_account_email}"     \
     "director-cb"
 
   rbgi_add_project_iam_role                 \
-    "Grant Project Viewer"                  \
     "${z_token}"                            \
+    "Grant Project Viewer"                  \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/viewer"                          \
     "serviceAccount:${z_account_email}"     \
     "director-viewer"
 
   buc_step 'Grant serviceAccountUser on Mason'
-  rbgi_add_sa_iam_role "${RBGC_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
+  rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
   rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"

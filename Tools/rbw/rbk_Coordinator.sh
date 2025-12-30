@@ -84,10 +84,11 @@ rbk_route() {
     rbw-ps)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_establish          $z_args ;;
     rbw-aIA) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_initialize_admin         $z_args ;;
     rbw-aID) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_admin            $z_args ;;
-    rbw-al)  exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_list_service_accounts    $z_args ;;
+    rbw-al)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_list_service_accounts     $z_args ;;
+    rbw-aDS) exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_delete_service_account   $z_args ;;
+    # Legacy admin commands (deprecated - use rbw-GR, rbw-GD instead)
     rbw-aCR) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever         $z_args ;;
     rbw-aCD) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director          $z_args ;;
-    rbw-aDS) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_delete_service_account   $z_args ;;
     rbw-aPO) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_project          $z_args ;;
     rbw-aPr) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_restore_project          $z_args ;;
 

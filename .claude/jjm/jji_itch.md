@@ -334,28 +334,6 @@ When a nameplate is removed, what happens to its allocation slot?
 
 Long-percolating idea, refined during itch discussion 2025-12-29. Core insight: enclave network allocation is actually the more serious case than ports.
 
-## rbob-observe-rename
-Rename `rbo.observe.sh` to `rbob_observe.sh` to align with RBOB (Orchestration Bottle) naming convention.
-
-### Context
-
-The RBO* family is being established for orchestration:
-- RBOB - Orchestration Bottle (local container lifecycle)
-- RBOC - Orchestration Cloud (future GCP container orchestration)
-
-The existing `rbo.observe.sh` does network observation on bottle enclaves, so it belongs in RBOB. Defer until after the dockerize-bashize heat completes.
-
-### Scope
-
-1. Rename `Tools/rbw/rbo.observe.sh` → `Tools/rbw/rbob_observe.sh`
-2. Update any references in Makefile (`rbp.podman.mk`)
-3. Update CLAUDE.md acronym mappings
-4. Consider whether observation should become a workbench command (`rbw-o`) or stay as standalone script
-
-### Context
-
-Identified during dockerize-bashize-proto-bottle heat, 2025-12-30. Deferred to keep current pace focused.
-
 ## buk-claude-install
 Add Claude Code installation support to BUK, separate from workbench operations.
 
@@ -471,6 +449,93 @@ This ensures new code following BCG patterns uses the correct context approach a
 ### Context
 
 Emerged 2025-12-30 while testing context prefixes on workbenches. Realized global state creates misleading output when dispatching between files.
+
+## rbsdi-instance-constraints
+Document INPUT_INSTANCE parameter constraints for director_create and retriever_create operations.
+
+### Missing Documentation
+
+The RBSDI and RBSRC specs require `«INPUT_INSTANCE»` as first argument but don't specify:
+1. **Valid values** - What strings are acceptable? Alphanumeric only? Hyphens allowed?
+2. **Relationship to depot** - Must it match depot name? Can differ?
+3. **Character constraints** - Length limits? GCP service account naming rules apply?
+4. **Multiple instances** - Can one depot have multiple directors/retrievers with different instance names?
+
+### Current Usage Pattern
+
+Heat cloud-first-light uses depot name "proto" for keeper depot. The natural instance value would be "proto" to match, creating:
+- `rbwd-proto@rbwg-d-proto-251230080456.iam.gserviceaccount.com`
+
+But spec doesn't mandate this relationship.
+
+### Recommended Clarification
+
+Add to RBSDI/RBSRC a normative statement like:
+> `«INPUT_INSTANCE»` identifies this service account instance. Typically matches the depot name for single-instance deployments. Must be lowercase alphanumeric with optional hyphens, 1-20 characters.
+
+### Context
+
+Identified during cloud-first-light heat, 2025-12-30, when tabtarget failed with "Instance name required" error.
+
+## rbsdi-sa-prefix-mismatch
+Fix RBSDI/RBSRC specs to use actual code prefixes for service account naming.
+
+### Problem
+
+Spec says `rb-director-«INPUT_INSTANCE»` but code uses `rbwd-«INPUT_INSTANCE»`. Same mismatch exists for retriever (`rb-retriever-` vs `rbwr-`).
+
+### Recommendation
+
+Fix the specs to match the code. Rationale:
+1. **Consistent 4-char pattern**: Code uses `rbwm` (mason), `rbwr` (retriever), `rbwd` (director)
+2. **Deployed infrastructure**: Changing code could orphan existing service accounts
+3. **Length efficiency**: `rbwd-proto` (10 chars) vs `rb-director-proto` (17 chars)
+
+### Spec Changes Required
+
+**RBSDI** line 14: `rb-director-«INPUT_INSTANCE»` → `rbwd-«INPUT_INSTANCE»`
+**RBSRC**: `rb-retriever-«INPUT_INSTANCE»` → `rbwr-«INPUT_INSTANCE»`
+
+### Context
+
+Identified during cloud-first-light heat, 2025-12-30, while diagnosing director_create tabtarget.
+
+## rbw-tabtarget-nameplate-pattern
+Rename RBW tabtargets to use naming patterns that indicate nameplate requirements.
+
+### Problem
+
+Current RBW tabtarget names don't distinguish between:
+- Operations that require a nameplate argument (bottle-specific)
+- Operations that work at regime/payor level (no nameplate needed)
+
+This makes it hard to:
+1. Know which operations need a nameplate before running them
+2. Automate validation of tabtarget invocations
+3. Provide helpful tab-completion or documentation
+
+### Proposed Solution
+
+Establish naming convention in tabtarget filenames that indicates nameplate requirement:
+- `rbw-n«X».«Name».sh` - Requires nameplate (n = nameplate)
+- `rbw-«X».«Name».sh` - No nameplate required (current pattern)
+
+Or alternatively, use a different letter code position to indicate the distinction.
+
+### Benefits
+
+- Pattern-based detection enables tooling to validate arguments
+- Self-documenting: filename tells you what's needed
+- Enables smarter tab-completion and help systems
+- Reduces "forgot the nameplate" errors
+
+### Scope
+
+Audit all RBW tabtargets in `tt/rbw-*.sh` and categorize by nameplate requirement, then rename accordingly.
+
+### Context
+
+Identified 2025-12-30 during VSLK workspace reorganization discussion.
 
 ## rbw-rbob-function-review
 Review whether workbench functions should move to RBOB module.

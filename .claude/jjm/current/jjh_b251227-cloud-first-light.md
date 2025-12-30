@@ -47,10 +47,10 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgp_depot_list` | `rbw-ld` | RBSDL | working |
 | `rbgp_depot_destroy` | `rbw-PD` | RBSDD | working |
 | `rbgp_governor_reset` | `rbw-PG` | RBSGR | working |
-| `rbgg_director_create` | `rbw-GD` | RBSDI | untested |
-| `rbgg_retriever_create` | `rbw-GR` | RBSRC | untested |
-| `rbgg_list_service_accounts` | `rbw-al` | RBSSL | untested |
-| `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | untested |
+| `rbgg_director_create` | `rbw-GD` | RBSDI | working |
+| `rbgg_retriever_create` | `rbw-GR` | RBSRC | working |
+| `rbgg_list_service_accounts` | `rbw-al` | RBSSL | working |
+| `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | working |
 | `rbf_build` | `rbw-fB` | RBSTB | untested |
 | — | `rbw-il` | — | unimplemented |
 | `rbf_delete` | `rbw-fD` | RBSID | untested |
@@ -77,24 +77,17 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise governor_reset** — Created tabtarget, exercised on keeper depot, RBRA file produced successfully.
 
+- **Exercise director_create** — Fixed 6 bugs across rbgp/rbgg/rbgi/rbgd; created director-eta successfully.
+
+- **Exercise retriever_create** — Created retriever-proto successfully, first try.
+
+- **Exercise sa_list** — Fixed coordinator routing and tabtarget pattern; listed 12 SAs successfully.
+
+- **Exercise sa_delete** — Fixed tabtarget pattern; deleted director-default successfully.
+
+- **Exercise retriever_create (restore)** — SKIPPED: deleted director-default instead of retriever; no restore needed.
+
 ## Current
-
-- **Exercise director_create** — Provision Director service account. Produces RBRA file at RBRR_DIRECTOR_RBRA_FILE path.
-  mode: manual
-
-## Remaining
-
-- **Exercise retriever_create** — Provision Retriever service account. Produces RBRA file at RBRR_RETRIEVER_RBRA_FILE path.
-  mode: manual
-
-- **Exercise sa_list** — Verify all created service accounts appear in roster.
-  mode: manual
-
-- **Exercise sa_delete** — Delete one service account (retriever) to exercise deletion path.
-  mode: manual
-
-- **Exercise retriever_create (restore)** — Recreate retriever after deletion exercise.
-  mode: manual
 
 - **Exercise trigger_build** — Submit container build to Cloud Build. Mason executes, publishes image to repository.
   mode: manual

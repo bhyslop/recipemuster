@@ -340,3 +340,91 @@
 
 **Deferred to**: Fresh session with focused prompt. Added dead code audit pace.
 ---
+
+---
+### 2025-12-30 10:58 - exercise-director-create - WRAP
+**Outcome**: Fixed 6 bugs across rbgp/rbgg/rbgi/rbgd; created director-eta successfully.
+
+**Bugs fixed**:
+1. rbgp_Payor.sh: Added cloudresourcemanager to depot API list
+2. rbgg_Governor.sh: Fixed token/label parameter order in rbgi_add_project_iam_role calls (3 occurrences)
+3. rbgg_Governor.sh: Changed RBGC_MASON_EMAIL → RBGD_MASON_EMAIL
+4. rbgg_Governor.sh: Added missing token argument to rbgi_add_sa_iam_role call
+5. rbgi_IAM.sh: Clarified z_member_email param naming (function adds serviceAccount: prefix)
+6. rbgd_DepotConstants.sh: Fixed RBGD_GCS_BUCKET derivation to match depot_create naming pattern
+
+**Itches added**:
+- rbsdi-instance-constraints: Document INPUT_INSTANCE parameter constraints
+- rbsdi-sa-prefix-mismatch: Fix spec to match code SA naming prefixes
+
+**Leftover SAs** (for sa_list/sa_delete testing): proto, alpha, beta, gamma, delta, epsilon, zeta, eta
+---
+
+---
+### 2025-12-30 11:00 - exercise-retriever-create - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-GR.GovernorRetrieverCreate.sh proto` (using same instance name as keeper depot)
+- Retriever is simpler than Director (single IAM grant vs multiple)
+- Code already fixed by director_create bug fixes (same patterns)
+- Verify RBRA file at `../output-buk/current/proto.rbra`
+
+### 2025-12-30 11:06 - exercise-retriever-create - WRAP
+**Outcome**: Created retriever-proto successfully, first try. No bugs encountered.
+---
+
+---
+### 2025-12-30 11:06 - exercise-sa-list - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-al.ListServiceAccounts.sh` (if exists) or find correct tabtarget
+- Expect to see: governor, mason, director-* (8 instances), retriever-proto
+- Verify listing format and completeness
+
+### 2025-12-30 11:14 - exercise-sa-list - WRAP
+**Outcome**: Fixed coordinator routing (rbga→rbgg) and tabtarget pattern; listed 12 SAs successfully.
+
+**Bugs fixed**:
+1. rbk_Coordinator.sh: rbw-al and rbw-aDS routed to wrong CLI (rbga instead of rbgg)
+2. tt/rbw-al.ListServiceAccounts.sh: Used old dispatch pattern instead of coordinator launcher
+---
+
+---
+### 2025-12-30 11:14 - exercise-sa-delete - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-aDS.DeleteServiceAccount.sh <email>` to delete one of the leftover directors
+- Use director-default as the target (least useful of the bunch)
+- Verify deletion via sa_list afterward
+
+### 2025-12-30 11:16 - exercise-sa-delete - WRAP
+**Outcome**: Fixed tabtarget pattern; deleted director-default successfully. Count 12→11.
+---
+
+---
+### 2025-12-30 11:16 - exercise-retriever-create-restore - APPROACH
+**Proposed approach**:
+- Note: The original pace description said "delete retriever" but we deleted director-default instead
+- Retriever-proto still exists, no restoration needed
+- Skip this pace as unnecessary, or repurpose if user wants
+
+### 2025-12-30 11:18 - exercise-retriever-create-restore - SKIPPED
+**Reason**: Deleted director-default instead of retriever; no restore needed.
+---
+
+---
+### 2025-12-30 11:18 - exercise-trigger-build - APPROACH (preliminary)
+**Proposed approach**:
+- Find trigger_build tabtarget (likely rbw-fB based on operation table)
+- Review what inputs are required (Dockerfile path, image name, etc.)
+- Run build against keeper depot
+- Verify image appears in Artifact Registry
+---
+
+---
+### 2025-12-30 - exercise-trigger-build - APPROACH (detailed)
+**Proposed approach**:
+- Run `tt/rbw-fB.BuildVessel.sh rbev-vessels/rbev-busybox` to build the busybox vessel
+- Build uses Google Cloud Build via Director SA credentials
+- Process: verify git clean → package tarball → upload to GCS → submit build → poll for completion
+- Vessel builds multi-arch image (linux/amd64, linux/arm64, linux/arm/v7)
+- On success, image tagged as `rbev-busybox.YYMMDDHHMMSS` in Artifact Registry
+- Watch for: permission errors, API propagation issues, or Mason SA problems
+---

@@ -664,7 +664,7 @@ rbgp_depot_create() {
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
-  local z_api_services="artifactregistry cloudbuild containeranalysis storage iam serviceusage"
+  local z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis storage iam serviceusage"
   for z_service in ${z_api_services}; do
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done

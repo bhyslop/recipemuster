@@ -149,7 +149,7 @@ zrbf_load_vessel() {
 
   buc_log_args 'Validate vessel configuration'
   local z_validator_dir="${BASH_SOURCE[0]%/*}"
-  source "${z_validator_dir}/rbrv.validator.sh" || buc_die "Failed to validate vessel configuration"
+  source "${z_validator_dir}/rbrv_regime.sh" || buc_die "Failed to validate vessel configuration"
 
   buc_log_args 'Validate vessel directory matches sigil'
   local z_vessel_dir_clean="${z_vessel_dir%/}"  # Strip any trailing slash
@@ -349,7 +349,7 @@ zrbf_compose_build_request_json() {
   jq -n --slurpfile sub "${ZRBF_BUILD_CONFIG_FILE}"            \
     --arg bucket "${RBGD_GCS_BUCKET}"                           \
     --arg object "${z_obj_name}"                                 \
-    --arg sa     "${RBGC_MASON_EMAIL}"                           \
+    --arg sa     "${RBGD_MASON_EMAIL}"                           \
     --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"                      \
     --arg to     "${RBRR_GCB_TIMEOUT}"                           \
     '{
@@ -512,9 +512,6 @@ rbf_build() {
   test -n "${z_git_branch}" || buc_die "Git branch is empty"
   test -n "${z_git_repo}"   || buc_die "Git repo is empty"
 
-  buc_log_args 'Extract recipe name without extension'
-  local z_recipe_name="${z_dockerfile_name%.*}"
-
   buc_log_args 'Create build config with RBGY substitutions'
   jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
@@ -526,10 +523,8 @@ rbf_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_service_account "${RBGC_MASON_EMAIL}"             \
     --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
     --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
-    --arg zjq_recipe_name    "${z_recipe_name}"                 \
     --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
     --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
     '{
@@ -543,10 +538,8 @@ rbf_build() {
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
         _RBGY_GIT_REPO:       $zjq_git_repo,
-        _RBGY_SERVICE_ACCOUNT: $zjq_service_account,
         _RBGY_MACHINE_TYPE:   $zjq_machine_type,
         _RBGY_TIMEOUT:        $zjq_timeout,
-        _RBGY_RECIPE_NAME:    $zjq_recipe_name,
         _RBGY_JQ_REF:         $zjq_jq_ref,
         _RBGY_SYFT_REF:       $zjq_syft_ref
       }
