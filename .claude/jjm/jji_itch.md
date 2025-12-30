@@ -446,6 +446,25 @@ BCG extensively documents BUC functions and message hierarchy (lines 500-585). W
 
 This ensures new code following BCG patterns uses the correct context approach automatically.
 
+### Update: buc_context Works Well for Single-Entry Scripts
+
+Further testing (2025-12-30) revealed that `buc_context` actually works quite well for the common case:
+
+**What works well:**
+- Multi-call bash scripts (tabtargets) that set `buc_context "${0##*/}"` at the top
+- Each script gets correct attribution in output
+- The function at entry point owns all printouts - this is actually good behavior
+- Most RBW/BUW tabtargets follow this pattern and work correctly
+
+**Where the problem actually occurs:**
+- Only when workbenches source helpers or dispatch to other files mid-execution
+- Specifically: sourced utility functions that produce output inherit the caller's context
+
+**Revised assessment:**
+The original problem description overstated the issue. The global context pattern is working as designed for the primary use case. The wrapper pattern may still be valuable for complex multi-file dispatch scenarios, but is lower priority than originally thought.
+
+Consider keeping `buc_context` as-is and only addressing the edge cases where sourced files need their own attribution.
+
 ### Context
 
 Emerged 2025-12-30 while testing context prefixes on workbenches. Realized global state creates misleading output when dispatching between files.
