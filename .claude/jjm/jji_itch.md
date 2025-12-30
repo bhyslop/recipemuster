@@ -536,3 +536,29 @@ Audit all RBW tabtargets in `tt/rbw-*.sh` and categorize by nameplate requiremen
 ### Context
 
 Identified 2025-12-30 during VSLK workspace reorganization discussion.
+
+## buw-shellcheck-tabtarget
+Create a tabtarget to run shellcheck on all bash files in the repository.
+
+### Motivation
+
+Currently no automated way to lint all bash scripts. Manual shellcheck runs are tedious and easy to skip.
+
+### Proposed Implementation
+
+Create `tt/buw-sc.ShellCheck.sh` that:
+1. Finds all `*.sh` files in the repo
+2. Runs shellcheck on each
+3. Reports summary of errors/warnings
+4. Exits non-zero if any errors found
+
+### Considerations
+
+- Exclude vendored/external scripts if any
+- Consider shellcheck directives file (`.shellcheckrc`) for project-wide settings
+- May want separate modes: quick (errors only) vs full (all warnings)
+- Integration with CI if/when that exists
+
+### Context
+
+Identified 2025-12-30 during BCG naming cleanup work.
