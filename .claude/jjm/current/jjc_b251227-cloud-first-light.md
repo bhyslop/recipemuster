@@ -486,3 +486,30 @@ Step 6 (build-and-push) failed - Docker buildx issue unrelated to stitcher refac
    - Separate builds per arch + manifest list creation
    - Use Kaniko for builds instead of docker buildx
 ---
+
+---
+### 2025-12-31 - exercise-trigger-build - APPROACH (resolve buildx)
+**Proposed approach**:
+1. Enable Cloud Build logging to see actual buildx error details
+2. Research Cloud Build multi-arch patterns and Google's recommended approach
+3. Implement simplest working solution first (likely single-arch amd64 to unblock)
+4. Test and verify image appears in Artifact Registry
+5. Create itch for multi-arch support if needed
+
+### 2025-12-31 - exercise-trigger-build - ROOT CAUSE IDENTIFIED
+**Issue**: 403 Forbidden when pushing multi-arch image to GAR
+
+**Analysis**:
+- Multi-arch build succeeded (all 3 platforms built correctly)
+- Docker login in step 3 authenticated host docker daemon
+- Buildx docker-container driver runs in isolated container
+- Isolated builder container doesn't inherit host's docker credentials
+- Push failed: "failed to fetch oauth token ... 403 Forbidden"
+
+**Fix Applied** (rbgjb06-build-and-push.sh:33):
+- Removed `--driver docker-container --driver-opt network=host` flags
+- Buildx now uses default driver which accesses authenticated host docker daemon
+- QEMU from step 4 still enables multi-platform builds
+
+**Testing now...**
+---

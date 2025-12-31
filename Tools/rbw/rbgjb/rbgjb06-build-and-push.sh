@@ -29,8 +29,8 @@ docker buildx version
 docker version
 
 # Create and bootstrap buildx builder (must be in same container as build)
-# Use docker-container driver with network=host for Cloud Build compatibility
-docker buildx create --name rbia-builder --driver docker-container --driver-opt network=host --use
+# Use default driver which accesses host docker daemon (has GAR credentials from step 3)
+docker buildx create --name rbia-builder --use
 docker buildx inspect --bootstrap
 
 docker buildx build \
