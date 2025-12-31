@@ -95,15 +95,14 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Implement OCI Layout Bridge (Phase 2: Push)** — Created rbgjb07-push-with-skopeo.sh. Uses quay.io/skopeo/stable:latest builder. Fetches GAR access token from Cloud Build metadata server. Pushes OCI layout to GAR with `skopeo copy --all --dest-creds`. Writes IMAGE_URI to .image_uri. Solves credential isolation problem. Committed as 97e392d.
 
+- **Adjust SBOM generation for OCI layout** — Updated rbgjb08-sbom-and-summary.sh to read from OCI layout instead of registry. Changed Syft source to `oci-dir:/workspace/oci-layout`. Added volume mount for Syft access. Faster (no network), more accurate (analyzes local build). Committed as 6484d51.
+
 ## Current
 
-- **Adjust SBOM generation for OCI layout** — Modify rbgjb08-sbom-and-summary.sh to read from OCI layout instead of registry. Change Syft command to `syft oci-dir:/workspace/oci-layout`. Verify SBOM generation works with local OCI layout. Metadata step (rbgjb09) should work unchanged (single-platform scratch image).
+- **Update build stitcher for new steps** — Update zrbf_stitch_build_json() in rbf_Foundry.sh to reflect: (1) rbgjb06 renamed to rbgjb06-build-and-export, (2) new rbgjb07-push-with-skopeo step added, (3) rbgjb07 uses quay.io/skopeo/stable:latest builder, (4) correct step dependencies and ordering. Test JSON generation produces valid Cloud Build config.
   mode: manual
 
 - **Test complete OCI bridge workflow** — Run full build with busybox vessel. Verify: (1) multi-platform OCI layout created, (2) Skopeo push succeeds to GAR, (3) all 3 platforms present in manifest, (4) SBOM generated correctly, (5) metadata container pushed. Check image pullable from GAR with correct platforms.
-  mode: manual
-
-- **Update build stitcher for new steps** — Update zrbf_stitch_build_json() in rbf_Foundry.sh to reflect: (1) rbgjb06 renamed to rbgjb06-build-and-export, (2) new rbgjb07-push-with-skopeo step added, (3) rbgjb07 uses quay.io/skopeo/stable:latest builder, (4) correct step dependencies and ordering. Test JSON generation produces valid Cloud Build config.
   mode: manual
 
 - **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
