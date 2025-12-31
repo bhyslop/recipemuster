@@ -91,22 +91,25 @@ Permanent depot for use throughout remaining paces and beyond.
 
 ## Current
 
-- **Revert GCR test changes** — Restore GAR target in build scripts. Change `IMAGE_URI` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format in rbgjb06 and rbgjb09. Commit reversion before proceeding with authentication solutions. Keep GCR test results documented in RBWMBX.
+- **Revert GCR test changes** — Restore GAR target in build scripts. Change `IMAGE_URI` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format in rbgjb06 and rbgjb09. Commit reversion before proceeding with OCI bridge implementation. Keep GCR test results documented in RBWMBX.
   mode: manual
 
-- **Try DOCKER_CONFIG environment variable** — Implement RBWMBX Option 1 (most promising auth approach). Modify rbgjb03 to create config.json with OAuth token in /workspace/.docker/. Modify rbgjb06 to pass `--driver-opt env.DOCKER_CONFIG=/workspace/.docker` to buildx create. Test build. SUCCESS: push works → document solution, proceed to RBSTB update. FAILURE: try buildkitd.toml pace.
+- **Implement OCI Layout Bridge (Phase 1: Export)** — Modify rbgjb06-build-and-push.sh to export OCI layout instead of pushing. Change from `--push` to `--output type=oci,dest=/workspace/oci-layout`. Rename script to rbgjb06-build-and-export.sh. Preserve all labels and metadata. Remove builder creation (use default). Test that OCI layout is created successfully in /workspace/.
   mode: manual
 
-- **Try buildkitd.toml approach** — Implement RBWMBX Option 2 if DOCKER_CONFIG failed. Create buildkitd.toml with registry config, pass via --buildkitd-flags to buildx create. Test build. SUCCESS: push works → document solution, proceed to RBSTB update. FAILURE: proceed to architectural decision pace. Only execute if DOCKER_CONFIG pace failed.
+- **Implement OCI Layout Bridge (Phase 2: Push)** — Create rbgjb07-push-with-skopeo.sh. Use quay.io/skopeo/stable:latest container. Get AR_TOKEN from metadata server. Execute `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://GAR...`. Write IMAGE_URI to .image_uri for downstream steps. Test push succeeds to Artifact Registry.
   mode: manual
 
-- **Decide on architectural approach** — If both auth methods failed, choose between: (1) Kaniko rewrite, (2) single-arch amd64 only, (3) manual manifest combining. Evaluate trade-offs, select approach, document decision in RBWMBX. Proceed to implementation pace with chosen strategy.
+- **Adjust SBOM generation for OCI layout** — Modify rbgjb08-sbom-and-summary.sh to read from OCI layout instead of registry. Change Syft command to `syft oci-dir:/workspace/oci-layout`. Verify SBOM generation works with local OCI layout. Metadata step (rbgjb09) should work unchanged (single-platform scratch image).
   mode: manual
 
-- **Implement chosen solution** — Execute selected multi-platform strategy. If auth worked: finalize build scripts. If Kaniko: rewrite build steps. If single-arch: remove multi-platform, simplify to default driver. If manual manifests: implement orchestration. Validate end-to-end build succeeds.
+- **Test complete OCI bridge workflow** — Run full build with busybox vessel. Verify: (1) multi-platform OCI layout created, (2) Skopeo push succeeds to GAR, (3) all 3 platforms present in manifest, (4) SBOM generated correctly, (5) metadata container pushed. Check image pullable from GAR with correct platforms.
   mode: manual
 
-- **Update RBSTB specification** — Document final solution in rbw-RBSTB-trigger_build.adoc. Include: (1) chosen approach and rationale, (2) authentication mechanism details, (3) platform support (multi-arch or single), (4) Cloud Build step structure, (5) Mason SA permissions, (6) reference RBWMBX for decision history. Spec must accurately reflect working implementation.
+- **Update build stitcher for new steps** — Update zrbf_stitch_build_json() in rbf_Foundry.sh to reflect: (1) rbgjb06 renamed to rbgjb06-build-and-export, (2) new rbgjb07-push-with-skopeo step added, (3) rbgjb07 uses quay.io/skopeo/stable:latest builder, (4) correct step dependencies and ordering. Test JSON generation produces valid Cloud Build config.
+  mode: manual
+
+- **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
   mode: manual
 
 - **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
