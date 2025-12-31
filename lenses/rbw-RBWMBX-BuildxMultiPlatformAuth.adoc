@@ -205,34 +205,37 @@ docker buildx create --name rbia-builder \
 
 **Status**: Complex workaround, consider only if simpler options fail
 
-=== Option 6: OCI Layout Bridge (Recommended Solution)
+=== Option 6: OCI Layout Bridge (Implemented Solution)
 
 **Approach**: Separate build phase from push phase using OCI Image Layout as intermediate format
 
 **Key insight**: Instead of fighting BuildKit's isolation to make `--push` work, break the atomic operation into discrete phases with filesystem storage as bridge.
 
-**Implementation**:
+**Implementation** (proven working 2025-12-31, build 3b544930):
 ----
-# Step 6: Build to OCI layout (no network push)
+# Step 6: Build to OCI tarball (no network push)
+docker buildx create --driver docker-container --name rb-builder --use
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
-  --output type=oci,dest=/workspace/oci-layout \
+  --output type=oci,dest=/workspace/oci-layout.tar \
   --tag ${_RBGY_MONIKER}:${TAG_BASE}-img \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   -f "${_RBGY_DOCKERFILE}" \
   .
 
-# Step 7: Push OCI layout with Skopeo (has authentication)
+# Step 7: Push OCI archive with Skopeo (has authentication)
 AR_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
   "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \
   sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
 
 skopeo copy --all \
-  --dest-creds="oauth2accesstoken:${AR_TOKEN}" \
-  "oci:/workspace/oci-layout:${_RBGY_MONIKER}:${TAG_BASE}-img" \
+  --dest-registry-token "${AR_TOKEN}" \
+  "oci-archive:/workspace/oci-layout.tar" \
   "docker://${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
 ----
+
+NOTE: Use `--dest-registry-token` (not `--dest-creds`) per https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud blog]. The `oci-archive:` transport reads tarballs; `oci:` transport reads directories.
 
 **Pros**:
 - BuildKit never needs registry credentials - only writes local filesystem
@@ -295,29 +298,41 @@ docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
 
 Successfully enables emulation for non-native architectures.
 
-=== What's Broken (Step 6)
+=== Proven Working (Steps 5-9)
 
-**Step 6: Build and Push** (rbgjb06-build-and-push.sh) - Current state:
-
+**Step 5: Build and Export** (rbgjb06-build-and-export.sh):
 ----
-# Removed builder creation - using default builder
-# docker buildx create --name rbia-builder --driver docker-container --use
-
+docker buildx create --driver docker-container --name rb-builder --use
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
-  --tag "${IMAGE_URI}" \
-  --push \
+  --output type=oci,dest=/workspace/oci-layout.tar \
   ...
 ----
 
-**Failure**: Default docker driver doesn't support multi-platform builds:
+**Step 6: Push with Skopeo** (rbgjb07-push-with-skopeo.sh):
 ----
-ERROR: Multi-platform build is not supported for the docker driver.
+skopeo copy --all --dest-registry-token "${AR_TOKEN}" \
+  "oci-archive:/workspace/oci-layout.tar" \
+  "docker://${IMAGE_URI}"
 ----
+
+**Step 7: SBOM Generation** (rbgjb08-sbom-and-summary.sh):
+----
+docker pull "${IMAGE_URI}"
+docker run ... syft "docker:${IMAGE_URI}" -o json
+----
+
+NOTE: Syft cannot parse multi-platform OCI archives directly (https://github.com/anchore/syft/issues/1545[GitHub #1545]). Must pull image first and analyze via docker socket.
+
+**Step 8: Metadata Assembly** (rbgjb10-assemble-metadata.sh):
+Uses Alpine + `apk add jq` because `ghcr.io/jqlang/jq:latest` is distroless (no shell).
+
+**Step 9: Metadata Push** (rbgjb09-build-and-push-metadata.sh):
+Standard docker build and push using host daemon credentials.
 
 === Stitcher Refactor Status
 
-**Complete**: Build JSON is dynamically generated from bash step scripts (rbgjb01-rbgjb09) via `zrbf_stitch_build_json()` in `rbf_Foundry.sh`. Static `rbgjb_build.json` removed.
+**Complete**: Build JSON is dynamically generated from bash step scripts via `zrbf_stitch_build_json()` in `rbf_Foundry.sh`. Static `rbgjb_build.json` removed.
 
 == GCR Test Results
 
@@ -441,15 +456,24 @@ ____
 "The docker driver doesn't support these exporters. You must use docker-container or some other driver if you want to generate these outputs."
 ____
 
-=== tar=false for Directory Output
+=== Tarball vs Directory Output
 
-The Skopeo `oci:` transport expects an OCI **directory layout**, not a tarball. Use `tar=false`:
+Initial research suggested using `tar=false` for directory output compatible with Skopeo's `oci:` transport. However, testing revealed issues with `tar=false`:
+
+- https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572]: Annotations not properly written with `tar=false`
+- Directory output less portable than tarball
+
+**Proven solution**: Use default tarball output with Skopeo's `oci-archive:` transport:
 
 ----
---output type=oci,tar=false,dest=/workspace/oci-layout
+# Build step: tarball output (default, no tar= flag needed)
+--output type=oci,dest=/workspace/oci-layout.tar
+
+# Push step: oci-archive transport reads tarballs
+skopeo copy --all "oci-archive:/workspace/oci-layout.tar" "docker://..."
 ----
 
-The https://github.com/docker/buildx/issues/1672[GitHub Issue #1672] about missing `oci-layout` file with `tar=false` has been **FIXED** in buildkit PR #3729. Modern buildx versions correctly generate the `oci-layout` file.
+The `oci-archive:` transport reads OCI tarballs directly. No extraction needed.
 
 === Google Cloud Validation
 
@@ -468,7 +492,7 @@ steps:
 The rbgjb06 script MUST:
 
 . Create docker-container driver: `docker buildx create --driver docker-container --name rb-builder --use`
-. Use directory output: `--output type=oci,tar=false,dest=/workspace/oci-layout`
+. Use tarball output: `--output type=oci,dest=/workspace/oci-layout.tar`
 
 Without the docker-container driver, both OCI export and multi-platform builds will fail.
 
@@ -500,6 +524,51 @@ If Option 6 encounters unforeseen issues:
 . **Evaluate architectural pivot**: Decide between single-arch (Option 4) or different build platform
 
 Note: Option 1 (DOCKER_CONFIG) eliminated due to known bug (https://github.com/docker/cli/issues/5477[Issue #5477]). Option 3 (Kaniko) eliminated as project is archived. Option 5 (manual manifest combining) too complex compared to OCI bridge.
+
+== Implementation Lessons Learned
+
+Issues discovered during implementation (build 3b544930, 2025-12-31):
+
+=== Skopeo Authentication
+
+Use `--dest-registry-token` NOT `--dest-creds`:
+
+- `--dest-creds="oauth2accesstoken:${TOKEN}"` — returns 403 Forbidden
+- `--dest-registry-token "${TOKEN}"` — works correctly
+
+The Google Cloud blog example uses `--dest-registry-token`. This is the correct approach for OAuth bearer tokens.
+
+=== IAM Permissions
+
+The Mason service account requires `roles/artifactregistry.admin` on the GAR repository resource (not just project-level). Without this, Skopeo push fails with permission denied.
+
+=== OCI Tarball vs Directory
+
+Use tarball format (default), not `tar=false` directory format:
+
+- `tar=false` has annotation bugs (https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572])
+- Skopeo's `oci-archive:` transport reads tarballs directly
+- Tarball is more portable and reliable
+
+=== Syft Multi-Platform Limitation
+
+Syft cannot analyze multi-platform OCI archives directly (https://github.com/anchore/syft/issues/1545[GitHub #1545]). Workaround: pull image first, analyze via docker socket:
+
+----
+docker pull "${IMAGE_URI}"
+docker run -v /var/run/docker.sock:/var/run/docker.sock syft "docker:${IMAGE_URI}"
+----
+
+=== Distroless Tool Images
+
+Many tool images (jq, syft, etc.) are distroless with no shell. Cloud Build steps using `entrypoint: sh` will fail. Solutions:
+
+- Use Alpine base and install tool: `alpine:latest` + `apk add --no-cache jq`
+- Or use tool images that include shell (check before assuming)
+
+=== GAR Repository Name Validation
+
+Silently mismatched repository names cause confusing failures. The `RBRR_GAR_REPOSITORY` value must exactly match the repository created during depot setup. Consider adding early validation in `rbf_build` to verify repository exists before submitting build.
 
 == References
 
@@ -569,4 +638,8 @@ Note: Option 1 (DOCKER_CONFIG) eliminated due to known bug (https://github.com/d
 |2025-12-31
 |Claude Opus 4.5 + bhyslop
 |Added OCI Output Path Research section. Confirmed output writes to client filesystem via gRPC, not BuildKit container. Documented docker-container driver requirement for OCI export. Added tar=false requirement for Skopeo compatibility. Referenced buildkit PR #3729 fix for oci-layout file generation.
+
+|2025-12-31
+|Claude Opus 4.5 + bhyslop
+|**OCI Layout Bridge VERIFIED WORKING** (build 3b544930). Updated Option 6 with proven implementation. Changed tar=false to tarball (moby/buildkit#5572). Fixed Skopeo auth: --dest-registry-token not --dest-creds. Added Implementation Lessons Learned section. Updated "What's Broken" to "Proven Working". Documented Syft multi-platform workaround, distroless image issues, IAM requirements.
 |===
