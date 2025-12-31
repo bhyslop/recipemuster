@@ -101,6 +101,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 ## Current
 
+- **Research: docker-container driver + OCI output** — Before fixing rbgjb06, verify that docker-container driver can write OCI output to /workspace in Cloud Build. Key question: does buildx `--output type=oci,dest=/workspace/oci-layout` write to the step container's filesystem or to the BuildKit container's internal storage? Search Docker buildx docs, BuildKit issues, and Cloud Build examples. Update RBWMBX memo with findings. If confirmed working, add docker buildx create back to rbgjb06 and retest.
+  mode: manual
+
 - **Test complete OCI bridge workflow** — Run full build with busybox vessel. Verify: (1) multi-platform OCI layout created, (2) Skopeo push succeeds to GAR, (3) all 3 platforms present in manifest, (4) SBOM generated correctly, (5) metadata container pushed. Check image pullable from GAR with correct platforms.
   mode: manual
 
