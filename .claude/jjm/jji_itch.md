@@ -760,3 +760,101 @@ tt/buw-tc.CreateTabTarget.sh rbw \
 ### Context
 
 Identified 2025-12-31 during tabtarget maintenance work.
+
+## jj-persistent-heat-selection
+Store currently selected heat in uncommitted local file for seamless heat switching.
+
+### Problem
+
+Currently, heat selection isn't persistent across sessions. When running `/jja-heat-saddle` or other heat operations, you need to specify which heat you're working on each time, or the system needs to infer it from context.
+
+### Proposed Solution
+
+1. **Local state file** - Store currently selected heat in an uncommitted local file (e.g., `.claude/jjm/.current_heat` - gitignored)
+2. **Heat selection commands** - Create tabtargets or slash commands to choose/switch the active heat:
+   - `/jja-heat-select <heat-name>` or `tt/jjk-hs.HeatSelect.sh <heat-name>`
+   - Lists available heats if no argument provided
+3. **Implicit heat usage** - Update `/jja-heat-saddle` and other heat operations to use the selected heat from local file if no heat is explicitly specified
+
+### Example Workflow
+
+```bash
+# Select a heat (persists across sessions)
+/jja-heat-select cloud-first-light
+
+# Later sessions just use the selected heat automatically
+/jja-heat-saddle  # uses cloud-first-light from .current_heat
+/jja-pace-new     # operates on cloud-first-light
+/jja-pace-wrap    # operates on cloud-first-light
+
+# Switch to different heat
+/jja-heat-select dockerize-bashize-proto-bottle
+```
+
+### Benefits
+
+- **Session continuity** - Heat selection persists across Claude Code sessions
+- **Reduced friction** - No need to specify heat name repeatedly
+- **Explicit switching** - Clear command to change active heat
+- **Backward compatible** - Can still specify heat explicitly when needed
+
+### Implementation Details
+
+- File location: `.claude/jjm/.current_heat` (single line containing heat name)
+- Add to `.gitignore` - this is workstation-local state, not repo state
+- Validate heat exists when reading from file (handle case where heat was deleted/retired)
+- Fall back to inferring heat or prompting if file missing/invalid
+
+### Context
+
+Identified 2025-12-31 during discussion about JJ workflow improvements.
+
+## bcg-three-model-review-heat
+Create heat to compare all three Claude models (Opus, Sonnet, Haiku) reviewing bash scripts against BCG standards.
+
+### Objective
+
+Assess how well each Claude incarnation (Opus 4.5, Sonnet 4.5, Haiku 4.0) performs BCG (Bash Console Guide) compliance reviews on project bash scripts, then compare their findings and effectiveness.
+
+### Methodology
+
+1. **Pre-screening with shellcheck** - Run shellcheck first to establish baseline mechanical issues (fairness - don't penalize models for catching things shellcheck already finds)
+2. **Independent reviews** - Have each model review the same bash files against BCG standards:
+   - Opus 4.5 review
+   - Sonnet 4.5 review
+   - Haiku 4.0 review
+3. **Compare findings** - Analyze differences in:
+   - What issues each model identified
+   - False positives (flagged non-issues)
+   - Missed issues (false negatives)
+   - Quality of suggested fixes
+   - Understanding of BCG patterns and principles
+4. **Meta-assessment** - Evaluate each model's performance on:
+   - Accuracy (correct identification of BCG violations)
+   - Completeness (thoroughness of review)
+   - Practicality (usefulness of recommendations)
+   - Cost-effectiveness (quality per token/dollar)
+
+### Scope Options
+
+- **Full project** - Review all bash scripts in Tools/
+- **Representative sample** - Select diverse scripts (BUK utils, RBW operations, workbenches, tabtargets)
+- **Targeted files** - Focus on scripts that likely have BCG issues
+
+### Deliverables
+
+- Review reports from each model (stored in heat directory)
+- Comparison matrix showing what each model caught
+- Assessment memo on relative strengths/weaknesses of each model for BCG review work
+- Recommendations for which model to use for different review scenarios
+
+### Benefits
+
+- **Improve codebase** - Get comprehensive BCG review of bash scripts
+- **Model selection guidance** - Learn which model is best for bash review work
+- **BCG refinement** - Identify ambiguities in BCG that cause model disagreement
+- **Quality baseline** - Establish expected review quality for future automated checks
+
+### Context
+
+Identified 2025-12-31. All three Claude models (Opus, Sonnet, Haiku) are available via model parameter in Task/agent tools, making this experiment practical.
