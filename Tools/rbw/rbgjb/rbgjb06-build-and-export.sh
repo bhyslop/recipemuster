@@ -34,16 +34,17 @@ docker version
 # See RBWMBX memo "OCI Output Path Research" section for details
 docker buildx create --driver docker-container --name rb-builder --use
 
-# Build multi-platform image and export to OCI layout directory
+# Build multi-platform image and export to OCI archive tarball
 # - Output goes to CLIENT filesystem (Cloud Build step container), not BuildKit container
 # - BuildKit transfers results back via gRPC
-# - tar=false creates directory layout (required by Skopeo oci: transport)
+# - Using tar=true (default) because tar=false has known annotation bugs (moby/buildkit#5572)
+# - Skopeo can read tarball via oci-archive: transport
 # - /workspace persists across Cloud Build steps for Phase 2 (Skopeo push)
 
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
   --tag "${IMAGE_URI}" \
-  --output type=oci,tar=false,dest=/workspace/oci-layout \
+  --output type=oci,dest=/workspace/oci-layout.tar \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \

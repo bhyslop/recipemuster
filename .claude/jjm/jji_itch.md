@@ -858,3 +858,86 @@ Assess how well each Claude incarnation (Opus 4.5, Sonnet 4.5, Haiku 4.0) perfor
 ### Context
 
 Identified 2025-12-31. All three Claude models (Opus, Sonnet, Haiku) are available via model parameter in Task/agent tools, making this experiment practical.
+
+## utility-dependency-hunt
+Conduct granular audit of all external utility dependencies across Recipe Bottle bash scripts.
+
+### Objective
+
+Identify every external command/utility that Recipe Bottle bash scripts depend on, at granular level - not just package names like "coreutils" but specific commands like `cat`, `grep`, `sort`, `jq`, etc.
+
+### Why Granular Matters
+
+- **Minimal containers** - Know exactly what to install in minimal base images
+- **Portability** - Understand which utilities might differ between Linux/macOS/BSD
+- **Documentation** - Clear prerequisites for new developers
+- **Installation scripts** - Can generate precise dependency lists
+- **Version requirements** - Some utilities need specific versions for certain flags
+
+### Methodology
+
+1. **Extract all external commands** - Parse all `.sh` files to find:
+   - Direct command invocations (`cat`, `grep`, `jq`, etc.)
+   - Commands in backticks or `$(...)`
+   - Pipe chains
+   - Commands passed to `bash -c` or similar
+2. **Categorize by source**:
+   - POSIX standard (available everywhere)
+   - GNU coreutils (specific utilities: `cat`, `sort`, `head`, `tail`, `cut`, `tr`, `wc`, etc.)
+   - External packages (`jq`, `yq`, `docker`, `podman`, `gcloud`, `gh`, etc.)
+   - Bash built-ins (document for clarity even though always available)
+3. **Note usage patterns**:
+   - Which flags/options are used (some are GNU-specific)
+   - Which scripts use which utilities
+   - Critical path vs. optional utilities
+4. **Create dependency manifest** - Document with:
+   - Full list of utilities by category
+   - Installation commands for each platform (apt, brew, etc.)
+   - Version requirements if any
+   - Alternative utilities where applicable
+
+### Example Output Format
+
+```markdown
+## Core POSIX Utilities
+- `cat` - used in: 47 scripts
+- `grep` - used in: 63 scripts (WARNING: uses -P flag, requires GNU grep)
+- `sort` - used in: 12 scripts
+
+## GNU Coreutils (Linux standard, install on macOS)
+- `timeout` (gtimeout on macOS) - used in: rbgjb scripts
+- `base64` - used in: OAuth scripts
+- `date` - used in: timestamp generation (uses GNU-specific +%s%N)
+
+## External Packages
+- `jq` 1.6+ - JSON processing - used in: all GCP API scripts
+- `yq` - YAML processing - used in: buildx scripts
+- `docker` or `podman` - container runtime - critical path
+- `gcloud` - GCP CLI - used in: all RBW operations
+- `gh` - GitHub CLI - used in: PR creation
+- `shellcheck` - linting - development only
+
+## Platform-Specific Notes
+- macOS requires `brew install coreutils` for GNU timeout
+- Linux native has all GNU coreutils
+```
+
+### Benefits
+
+- **Clear prerequisites** - Know exactly what to install
+- **Container optimization** - Minimal image builds with precise dependencies
+- **Portability planning** - Identify GNU-specific vs POSIX patterns
+- **Onboarding docs** - Precise setup instructions for new developers
+- **Abstraction opportunities** - Identify where wrappers could handle platform differences
+
+### Tools to Build/Use
+
+Could create a utility scanner script that:
+1. Parses all bash files with regex/grep patterns
+2. Extracts command names from various contexts
+3. Filters out functions (internal) vs utilities (external)
+4. Generates categorized report
+
+### Context
+
+Identified 2025-12-31. Especially relevant for container builds and cross-platform portability (macOS development, Linux production).

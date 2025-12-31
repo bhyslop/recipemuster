@@ -3,7 +3,7 @@
 # Builder: quay.io/skopeo/stable:latest
 # Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER
 #
-# OCI Layout Bridge Phase 2: Push the multi-platform OCI layout from /workspace/oci-layout
+# OCI Layout Bridge Phase 2: Push the multi-platform OCI archive from /workspace/oci-layout.tar
 # to Artifact Registry using Skopeo with proper authentication.
 #
 # Why Skopeo: Skopeo runs in a container that has access to Cloud Build's metadata server,
@@ -17,7 +17,7 @@ test -n "${_RBGY_GAR_PROJECT}"    || (echo "_RBGY_GAR_PROJECT missing"    >&2; e
 test -n "${_RBGY_GAR_REPOSITORY}" || (echo "_RBGY_GAR_REPOSITORY missing" >&2; exit 1)
 test -n "${_RBGY_MONIKER}"        || (echo "_RBGY_MONIKER missing"        >&2; exit 1)
 test -s .tag_base                  || (echo "tag base not derived"         >&2; exit 1)
-test -d /workspace/oci-layout      || (echo "OCI layout not found"         >&2; exit 1)
+test -f /workspace/oci-layout.tar  || (echo "OCI archive not found"        >&2; exit 1)
 
 TAG_BASE="$(cat .tag_base)"
 IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
@@ -39,11 +39,11 @@ if [ -z "$AR_TOKEN" ]; then
   exit 1
 fi
 
-echo "Pushing OCI layout to ${IMAGE_URI}..."
+echo "Pushing OCI archive to ${IMAGE_URI}..."
 skopeo copy \
   --all \
   --dest-creds="oauth2accesstoken:${AR_TOKEN}" \
-  oci:/workspace/oci-layout \
+  "oci-archive:/workspace/oci-layout.tar" \
   "docker://${IMAGE_URI}"
 
 echo "Push successful. Writing IMAGE_URI for downstream steps..."
