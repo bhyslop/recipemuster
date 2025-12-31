@@ -267,3 +267,7 @@ iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j
 - Validate full lifecycle with Docker (expect this to work immediately since HTTP fix already validated)
 ---
 (execution log begins here)
+---
+### 2025-12-31 06:56 - migrate-pluml-nameplate-and-tests - WRAP
+**Outcome**: Created rbrn_pluml.env; migrated 5 tabtargets to BUD launcher; added 5 PlantUML tests to rbt_testbench.sh; validated full lifecycle (5/5 tests passed)
+---

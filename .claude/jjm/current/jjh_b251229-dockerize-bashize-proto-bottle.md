@@ -190,11 +190,9 @@ rbw_runtime_cmd() {
 - **Fix and validate iptables entry rule for host access** — Added missing RBM-INGRESS rule in `Tools/rbw/rbss.sentry.sh:85` to allow eth0 ingress traffic on entry port. HTTP connectivity from macOS host now working. Network captures confirmed traffic flow. All srjcl tests passed (3/3).
 - **Complete srjcl test validation** — Full srjcl test suite passed (3/3): jupyter_running, jupyter_connectivity, websocket_kernel. HTTP from macOS host to Jupyter via Docker port mapping now working perfectly.
 - **Update RBS port forwarding specification** — Replaced DNAT specification with socat proxy + iptables implementation in Phase 2. Added eth0 RBM-INGRESS rule documentation. Updated architecture to document three-container censer model throughout (System Overview, Bottle Pattern, term definitions). Added censer container attributes and definitions. Aligned with recipebottle-admin/index.adoc.
+- **Migrate pluml nameplate and tests** — Created rbrn_pluml.env; migrated 5 tabtargets to BUD launcher; added 5 PlantUML tests to rbt_testbench.sh; validated full lifecycle (5/5 tests passed)
 
 ## Remaining
-
-- **Migrate pluml nameplate and tests** — Create `rbrn_pluml.env`, migrate `rbt.test.pluml.mk` tests to bash, migrate pluml tabtargets (`rbw-s.Start.pluml.sh`, `rbw-S.ConnectSentry.pluml.sh`, `rbw-o.ObserveNetworks.pluml.sh`, `rbw-to.TestBottleService.pluml.sh`). Validate with Docker.
-  mode: manual
 
 - **Absorb Coordinator lifecycle routes** — Move only lifecycle-related routes from `rbk_Coordinator.sh` to `rbw_workbench.sh`. Non-lifecycle commands (payor, governor, foundry, image management) remain in Coordinator. Consolidation of all routes deferred to future heat.
   mode: manual
