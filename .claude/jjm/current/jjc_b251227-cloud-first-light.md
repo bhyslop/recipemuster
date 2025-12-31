@@ -625,3 +625,34 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Next**: Phase 3 - Adjust SBOM generation (rbgjb08) to read from OCI layout instead of registry.
 ---
+
+---
+### 2025-12-31 07:45 - oci-bridge-phase3-sbom - APPROACH
+**Proposed approach**:
+- Read current rbgjb08-sbom-and-summary.sh to understand structure
+- Change Syft source from registry image to OCI layout
+- Replace `"${IMAGE_URI}"` with `oci-dir:/workspace/oci-layout` in both Syft commands
+- Keep both output formats (JSON for analysis, table for summary)
+- Keep _RBGY_SYFT_REF substitution and docker builder
+- Note: The OCI layout is local, so analysis is faster and doesn't require network access
+- This analyzes exactly what was built, before any potential registry corruption
+
+### 2025-12-31 07:50 - oci-bridge-phase3-sbom - COMPLETE
+**Outcome**: Updated rbgjb08-sbom-and-summary.sh to read from OCI layout.
+
+**Changes**:
+- Replaced `"${IMAGE_URI}"` with `oci-dir:/workspace/oci-layout` in both Syft commands
+- Added volume mount: `-v /workspace:/workspace` to give Syft container access to OCI layout
+- Added validation: `test -d /workspace/oci-layout` before running Syft
+- Updated header comment to explain OCI Layout Bridge Phase 3
+- Removed IMAGE_URI read (no longer needed)
+
+**Benefits**:
+- Faster: No network pull from registry required
+- Accurate: Analyzes exactly what was built locally
+- Reliable: No dependency on registry availability
+
+**Note**: rbgjb09 (metadata container) remains unchanged - it's a single-platform scratch image that doesn't need the OCI bridge pattern. It uses the standard docker build/push workflow.
+
+**Next**: Update build stitcher (rbf_Foundry.sh) to integrate new step structure.
+---
