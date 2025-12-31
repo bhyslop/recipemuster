@@ -550,4 +550,15 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
   - Update file header from "GCR (testing)" to original
 - Commit reversion with message explaining GCR test complete, returning to GAR for OCI bridge implementation
 - GCR test results already documented in RBWMBX memo (commit d07be5c)
+
+### 2025-12-31 07:20 - revert-gcr-test-changes - COMPLETE
+**Outcome**: Reverted both scripts to GAR targets, committed as b3b5737.
+
+**Changes**:
+- rbgjb06: Restored `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format for IMAGE_URI
+- rbgjb06: Removed docker-container driver creation, restored default builder comment
+- rbgjb09: Restored `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format for META_URI
+- rbgjb09: Restored full substitutions list in header
+
+**Next**: Ready to implement OCI Layout Bridge Phase 1 (Export).
 ---

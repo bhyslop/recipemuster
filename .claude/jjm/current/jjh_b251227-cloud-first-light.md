@@ -89,10 +89,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Test trigger_build with GCR** — GCR test executed (build ddfb01b9). Multi-platform compilation succeeded (all 3 platforms built), but push failed with same 403 Forbidden error as GAR. Proved: (1) buildx driver config correct, (2) auth problem universal to docker-container isolation, (3) GCP auto-auth only works for host daemon. Updated RBWMBX memo with findings. Conclusion: must provide credentials inside BuildKit container.
 
-## Current
+- **Revert GCR test changes** — Restored GAR targets in rbgjb06 and rbgjb09. Reverted IMAGE_URI and META_URI to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format. Removed docker-container driver creation. Committed as b3b5737.
 
-- **Revert GCR test changes** — Restore GAR target in build scripts. Change `IMAGE_URI` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format in rbgjb06 and rbgjb09. Commit reversion before proceeding with OCI bridge implementation. Keep GCR test results documented in RBWMBX.
-  mode: manual
+## Current
 
 - **Implement OCI Layout Bridge (Phase 1: Export)** — Modify rbgjb06-build-and-push.sh to export OCI layout instead of pushing. Change from `--push` to `--output type=oci,dest=/workspace/oci-layout`. Rename script to rbgjb06-build-and-export.sh. Preserve all labels and metadata. Remove builder creation (use default). Test that OCI layout is created successfully in /workspace/.
   mode: manual
