@@ -53,7 +53,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | working |
 | `rbf_build` | `rbw-fB` | RBSTB | working |
 | `rbf_list` | `rbw-il` | — | working |
-| `rbf_delete` | `rbw-fD` | RBSID | untested |
+| `rbf_delete` | `rbw-fD` | RBSID | working |
 | — | `rbw-r` | RBSIR | old dispatcher |
 | `rbgm_payor_refresh` | `rbw-PR` | RBSPR | untested |
 
@@ -105,13 +105,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Implement image_list** — Created rbf_list() in rbf_Foundry.sh. Two modes: (1) no args lists all images using GAR REST API packages endpoint, (2) with moniker lists tags using Docker Registry v2 API. Added rbw-il routing and tabtarget. Uses Director credentials (Retriever SA not yet provisioned). Tested: shows 1 image (rbev-busybox) and 6 tags.
 
+- **Exercise image_delete** — Fixed rbf_delete: added moniker param, tag-based deletion (GAR rejects digest-based), Director needs repoAdmin role, updated tabtarget to new launcher form.
+
 ## Current
-
-- **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
-  mode: manual
-
-- **Exercise image_delete** — Remove built image from repository.
-  mode: manual
 
 - **Exercise trigger_build (rebuild)** — Rebuild image for ongoing use after deletion exercise.
   mode: manual
@@ -132,6 +128,18 @@ Permanent depot for use throughout remaining paces and beyond.
   mode: manual
 
 - **Add design decision section to RBAGS** — Create new section in rbw-RBAGS-AdminGoogleSpec.adoc (using name chosen in previous pace) documenting the OCI Layout Bridge decision. Capture: (1) problem statement (BuildKit credential isolation), (2) constraints discovered (default driver limitations, docker-container isolation), (3) options evaluated and why rejected, (4) chosen solution and rationale, (5) key implementation details (tarball format, Skopeo auth, Syft workaround). Reference RBWMBX memo and steeplechase entries. Preserve institutional knowledge without the discovery narrative.
+  mode: manual
+
+- **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
+  mode: manual
+
+- **Audit tabtargets for log/no-log correctness** — Review all tt/*.sh files for correct BUD_NO_LOG usage. Tabtargets that handle secrets should disable logging with comment: `export BUD_NO_LOG=1  # Disabled: prevents secrets in log files`. Tabtargets worth logging should omit BUD_NO_LOG entirely. Ensure old-form tabtargets (using bud_dispatch.sh directly) are updated to new launcher form.
+  mode: manual
+
+- **Audit director/repository configuration process** — Verify setup scripts correctly configure: (1) Director SA gets artifactregistry.repoAdmin on GAR repo during director_create, (2) Mason SA gets artifactregistry.writer (not admin) during depot_create, (3) RBRR_GAR_REPOSITORY value derivation/validation, (4) Director RBRA file installation instructions are clear. Ensure no manual IAM grants needed between operations.
+  mode: manual
+
+- **Exercise full depot lifecycle (test depot)** — Create throwaway test depot and run complete flow: depot_create → governor_reset → director_create → trigger_build → image_list → image_delete → depot_destroy. Verify all operations succeed without manual IAM interventions. Validates fixes to Mason/Director permissions and repository configuration.
   mode: manual
 
 ## Steeplechase

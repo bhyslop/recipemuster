@@ -1,2 +1,3 @@
 #!/bin/bash
-cd "${0%/*}/.." && Tools/buk/bud_dispatch.sh "${0##*/}" "$@"
+exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.rbk_Coordinator.sh" \
+  "${0##*/}" "${@}"

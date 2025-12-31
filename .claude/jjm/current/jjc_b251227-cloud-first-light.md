@@ -743,3 +743,17 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Next**: Test full OCI bridge workflow
 ---
+
+---
+### 2025-12-31 08:58 - exercise-image-delete - WRAP
+**Outcome**: Fixed rbf_delete: added moniker param, tag-based deletion (GAR rejects digest-based), Director needs repoAdmin role, updated tabtarget to new launcher form.
+
+**Fixes applied**:
+- rbf_Foundry.sh: Added moniker parameter, simplified to tag-based DELETE (GAR returns GOOGLE_MANIFEST_DANGLING_TAG error on digest-based delete)
+- rbgg_Governor.sh: Added artifactregistry.repoAdmin grant for Director SA
+- rbgp_Payor.sh: Changed Mason from artifactregistry.admin to artifactregistry.writer
+- tt/rbw-fD.DeleteImage.sh: Updated to new launcher form (was old bud_dispatch form)
+- Manual IAM grant to director-theta for testing
+
+**Tested**: Deleted tag 20251231T155752Z-img successfully
+---

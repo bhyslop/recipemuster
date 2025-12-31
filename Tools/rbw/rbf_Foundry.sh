@@ -668,61 +668,49 @@ rbf_study() {
 rbf_delete() {
   zrbf_sentinel
 
-  local z_tag="${1:-}"
+  local z_moniker="${1:-}"
+  local z_tag="${2:-}"
 
   # Documentation block
   buc_doc_brief "Delete an image tag from the registry"
+  buc_doc_param "moniker" "Image name (e.g., rbev-busybox)"
   buc_doc_param "tag" "Image tag to delete"
   buc_doc_shown || return 0
 
   # Validate parameters
+  test -n "${z_moniker}" || buc_die "Moniker parameter required"
   test -n "${z_tag}" || buc_die "Tag parameter required"
 
-  buc_step "Fetching manifest digest for deletion"
+  buc_step "Authenticating as Director"
 
   # Get OAuth token using Director credentials
-  # Note: This requires GCB service account to have artifactregistry.repoAdmin role
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
-  echo "${z_token}" > "${ZRBF_TOKEN_FILE}" || buc_die "Failed to write token file"
 
-  # Get manifest with digest header
-  local z_manifest_headers="${ZRBF_DELETE_PREFIX}headers.txt"
+  buc_step "Deleting tag: ${z_moniker}:${z_tag}"
 
-  curl -sL -I                                         \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"       \
-    "${ZRBF_REGISTRY_API_BASE}/manifests/${z_tag}"    \
-    > "${z_manifest_headers}" || buc_die "Failed to fetch manifest headers"
-
-  # Extract digest from Docker-Content-Digest header
-  local z_digest_file="${ZRBF_DELETE_PREFIX}digest.txt"
-  grep -i "docker-content-digest:" "${z_manifest_headers}" | \
-    sed 's/.*: //' | tr -d '\r\n' > "${z_digest_file}" || buc_die "Failed to extract digest header"
-
-  local z_digest
-  z_digest=$(<"${z_digest_file}")
-  test -n "${z_digest}" || buc_die "Manifest digest is empty"
-
-  buc_info "Deleting manifest: ${z_digest}"
-
-  # Delete by digest
+  # Delete by tag reference (not digest)
+  # GAR requires tag deletion before manifest can be removed
   local z_status_file="${ZRBF_DELETE_PREFIX}status.txt"
+  local z_response_file="${ZRBF_DELETE_PREFIX}response.json"
 
   curl -X DELETE -s                                   \
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
-    -o /dev/null                                      \
-    "${ZRBF_REGISTRY_API_BASE}/manifests/${z_digest}" \
+    -o "${z_response_file}"                           \
+    "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/manifests/${z_tag}" \
     > "${z_status_file}" || buc_die "DELETE request failed"
 
   local z_http_code
   z_http_code=$(<"${z_status_file}")
   test -n "${z_http_code}" || buc_die "HTTP status code is empty"
-  test "${z_http_code}" = "202" || test "${z_http_code}" = "204" || \
-    buc_die "Delete failed with HTTP ${z_http_code}"
 
-  buc_success "Image deleted: ${z_tag}"
+  if test "${z_http_code}" != "202" && test "${z_http_code}" != "204"; then
+    buc_warn "Response body: $(cat "${z_response_file}" 2>/dev/null || echo 'empty')"
+    buc_die "Delete failed with HTTP ${z_http_code}"
+  fi
+
+  buc_success "Tag deleted: ${z_moniker}:${z_tag}"
 }
 
 rbf_list() {

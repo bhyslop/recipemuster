@@ -582,6 +582,10 @@ rbgg_create_director() {
   rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
   rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
 
+  buc_step 'Grant Artifact Registry repoAdmin (for image delete/manage)'
+  rbgi_add_repo_iam_role "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
+    "${RBGD_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
+
   local z_actual_rbra_file="${BUD_OUTPUT_DIR}/${z_instance}.rbra"
 
   buc_step 'To install the RBRA file locally, run:'
