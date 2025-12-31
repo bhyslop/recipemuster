@@ -109,6 +109,9 @@ Permanent depot for use throughout remaining paces and beyond.
 - **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
   mode: manual
 
+- **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Add early validation in rbf_build to verify repository exists before submitting build. Include clear error message if mismatch detected.
+  mode: manual
+
 - **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
   mode: manual
 
