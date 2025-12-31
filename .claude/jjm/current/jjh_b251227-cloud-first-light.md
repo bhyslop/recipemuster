@@ -107,10 +107,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise image_delete** — Fixed rbf_delete: added moniker param, tag-based deletion (GAR rejects digest-based), Director needs repoAdmin role, updated tabtarget to new launcher form.
 
-## Current
+- **Exercise trigger_build (rebuild)** — Rebuilt rbev-busybox image (build 1c228d46, tags 20251231T170819Z-img/meta).
 
-- **Exercise trigger_build (rebuild)** — Rebuild image for ongoing use after deletion exercise.
-  mode: manual
+## Current
 
 - **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
   mode: manual

@@ -757,3 +757,13 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Tested**: Deleted tag 20251231T155752Z-img successfully
 ---
+
+---
+### 2025-12-31 09:09 - exercise-trigger-build-rebuild - WRAP
+**Outcome**: Rebuilt rbev-busybox image after deletion exercise.
+
+**Build**: 1c228d46-0eee-4f83-9978-0aa99feaa3dd
+**Tags**: 20251231T170819Z-img, 20251231T170819Z-meta
+
+**Verified**: Image list shows new tags in GAR.
+---
