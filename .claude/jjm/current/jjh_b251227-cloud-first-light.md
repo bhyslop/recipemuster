@@ -91,10 +91,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Revert GCR test changes** — Restored GAR targets in rbgjb06 and rbgjb09. Reverted IMAGE_URI and META_URI to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format. Removed docker-container driver creation. Committed as b3b5737.
 
-## Current
+- **Implement OCI Layout Bridge (Phase 1: Export)** — Created rbgjb06-build-and-export.sh. Replaced `--push` with `--output type=oci,dest=/workspace/oci-layout`. Removed `.image_uri` output. Preserved all labels and metadata. OCI export avoids authentication (no push = no credentials needed). Committed as 3863307.
 
-- **Implement OCI Layout Bridge (Phase 1: Export)** — Modify rbgjb06-build-and-push.sh to export OCI layout instead of pushing. Change from `--push` to `--output type=oci,dest=/workspace/oci-layout`. Rename script to rbgjb06-build-and-export.sh. Preserve all labels and metadata. Remove builder creation (use default). Test that OCI layout is created successfully in /workspace/.
-  mode: manual
+## Current
 
 - **Implement OCI Layout Bridge (Phase 2: Push)** — Create rbgjb07-push-with-skopeo.sh. Use quay.io/skopeo/stable:latest container. Get AR_TOKEN from metadata server. Execute `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://GAR...`. Write IMAGE_URI to .image_uri for downstream steps. Test push succeeds to Artifact Registry.
   mode: manual
