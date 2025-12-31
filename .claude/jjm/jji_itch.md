@@ -859,6 +859,172 @@ Assess how well each Claude incarnation (Opus 4.5, Sonnet 4.5, Haiku 4.0) perfor
 
 Identified 2025-12-31. All three Claude models (Opus, Sonnet, Haiku) are available via model parameter in Task/agent tools, making this experiment practical.
 
+## workbench-testbench-autodoc
+Make workbench and testbench facilities self-documenting from the command line.
+
+### Problem
+
+Tabtarget-roots map to bash functions, but there's no easy way to discover:
+1. **What tabtargets are available** - Without looking at filesystem or reading code
+2. **What parameters they accept** - Which have tokens, what those tokens mean
+3. **Context-specific navigation** - Given a nameplate, what commands work with it? Given a command, what nameplates are available?
+
+Currently you need to:
+- Browse `tt/` directory to see what exists
+- Read tabtarget source to understand parameters
+- Grep through code to find parameter relationships
+
+### Proposed Solution
+
+Add self-documentation capabilities to workbench/testbench:
+
+**1. Tabtarget listing with descriptions**
+```bash
+tt/buw-ll.ListLaunchers.sh          # Show all available tabtargets
+tt/rbw-ll.ListLaunchers.sh rbw       # Show RBW-specific tabtargets
+```
+
+**2. Parameter help for token-based tabtargets**
+```bash
+tt/rbw-GD.GovernorDirectorCreate.sh --help
+# Output:
+# Creates a Director service account in the Governor project
+# Usage: tt/rbw-GD.GovernorDirectorCreate.sh <NAMEPLATE>
+# Example: tt/rbw-GD.GovernorDirectorCreate.sh proto
+```
+
+**3. Context-aware discovery**
+```bash
+# Given a nameplate, show available commands
+tt/rbw-nc.NameplateCommands.sh proto
+# Output: PC, PD, GD, GR, fB, fD, etc.
+
+# Given a command pattern, show compatible nameplates
+tt/rbw-cn.CommandNameplates.sh GD
+# Output: proto, pluml, nsproto, etc.
+```
+
+**4. Function mapping documentation**
+```bash
+# Show which bash function each tabtarget invokes
+tt/rbw-fm.FunctionMap.sh
+# Output:
+# tt/rbw-PC.PayorDepotCreate.sh → rbgp_depot_create()
+# tt/rbw-GD.GovernorDirectorCreate.sh → rbgg_director_create()
+```
+
+### Implementation Hints
+
+- Tabtargets could embed structured comments for parsing:
+  ```bash
+  # @description: Creates a Director service account
+  # @usage: <NAMEPLATE>
+  # @function: rbgg_director_create
+  ```
+- Or maintain central registry/manifest that maps tabtargets to metadata
+- Help flags could be handled at workbench layer (intercept `--help` before dispatch)
+- Context discovery might query regime files or scan nameplate definitions
+
+### Benefits
+
+- **Discoverability** - Find available operations without filesystem browsing
+- **Self-documentation** - Understand parameters without reading source
+- **Context navigation** - Explore nameplate/command relationships interactively
+- **Onboarding** - New developers can explore tooling from command line
+- **Tooling foundation** - Enables tab completion, validation, automated help generation
+
+### Context
+
+Identified 2025-12-31 during discussion about making workbench/testbench facilities more discoverable and user-friendly.
+
+## cloud-build-manifest
+Track successful cloud build metadata in local JSON manifest.
+
+### Motivation
+
+After running cloud builds, useful information is scattered or lost:
+- What was the latest successful build image name/tag?
+- How long did the build take (for duration expectations)?
+- When was the last successful build for a given nameplate?
+- Has build duration changed significantly (performance regression detection)?
+
+Currently this requires:
+- Querying GCP APIs to find latest images
+- No historical record of build durations
+- Manual tracking of what's been built
+
+### Proposed Solution
+
+Maintain a local JSON manifest (`.claude/rbw_build_manifest.json` or similar) that records successful cloud build metadata:
+
+```json
+{
+  "builds": [
+    {
+      "nameplate": "proto",
+      "timestamp": "2025-12-30T08:04:56Z",
+      "image_name": "us-west1-docker.pkg.dev/rbwg-d-proto-251230080456/rbwd-proto/bottle:latest",
+      "build_duration_seconds": 127,
+      "build_id": "abc123-def456-...",
+      "depot_project": "rbwg-d-proto-251230080456"
+    },
+    {
+      "nameplate": "proto",
+      "timestamp": "2025-12-29T14:22:13Z",
+      "image_name": "us-west1-docker.pkg.dev/rbwg-d-proto-251229142213/rbwd-proto/bottle:latest",
+      "build_duration_seconds": 132,
+      "build_id": "xyz789-uvw012-...",
+      "depot_project": "rbwg-d-proto-251229142213"
+    }
+  ]
+}
+```
+
+**Operations:**
+- `rbf_build()` appends entry on successful build
+- Query utilities to find latest build for nameplate
+- Calculate average/median build duration for expectations
+- Detect anomalies (build took 2x normal duration)
+
+### Benefits
+
+- **Quick reference** - Latest image name without API queries
+- **Duration expectations** - Know how long builds should take
+- **Performance tracking** - Detect build slowdowns over time
+- **History** - See build patterns across development sessions
+- **Offline access** - Build metadata available without GCP connectivity
+
+### Implementation with jq
+
+Use jq for all manifest operations:
+
+```bash
+# Append new build record
+jq --arg nameplate "$nameplate" \
+   --arg timestamp "$timestamp" \
+   --arg image "$image_name" \
+   --argjson duration "$duration" \
+   '.builds += [{nameplate: $nameplate, timestamp: $timestamp, image_name: $image, build_duration_seconds: $duration}]' \
+   .claude/rbw_build_manifest.json > /tmp/manifest.json && mv /tmp/manifest.json .claude/rbw_build_manifest.json
+
+# Get latest build for nameplate
+jq -r --arg np "$nameplate" '.builds | map(select(.nameplate == $np)) | sort_by(.timestamp) | .[-1]' .claude/rbw_build_manifest.json
+
+# Calculate average build duration for nameplate
+jq --arg np "$nameplate" '[.builds[] | select(.nameplate == $np) | .build_duration_seconds] | add / length' .claude/rbw_build_manifest.json
+```
+
+### Scope Considerations
+
+- **Local only** - Not checked into git (add to .gitignore), station-specific state
+- **Per-nameplate tracking** - Multiple nameplates tracked independently
+- **Build success only** - Only record successful builds, failures don't pollute data
+- **Optional cleanup** - Maybe prune old entries (keep last N per nameplate)
+
+### Context
+
+Identified 2025-12-31. jq for the win - perfect tool for manipulating build metadata JSON.
+
 ## utility-dependency-hunt
 Conduct granular audit of all external utility dependencies across Recipe Bottle bash scripts.
 
