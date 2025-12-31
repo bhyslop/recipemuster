@@ -29,10 +29,10 @@ docker buildx version
 docker version
 
 # Create and bootstrap buildx builder (must be in same container as build)
-# Use default driver which accesses host docker daemon (has GAR credentials from step 3)
-# Remove any existing builder first to ensure we get default driver
+# Use docker driver which accesses host docker daemon (has GAR credentials from step 3)
+# Remove any existing builder first to ensure clean state
 docker buildx rm rbia-builder 2>/dev/null || true
-docker buildx create --name rbia-builder --use
+docker buildx create --name rbia-builder --driver docker --use
 docker buildx inspect --bootstrap
 
 docker buildx build \
