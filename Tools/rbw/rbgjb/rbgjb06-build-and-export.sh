@@ -1,12 +1,13 @@
 #!/bin/bash
-# RBGJB Step 06: Build multi-arch image and push to GAR
+# RBGJB Step 06: Build multi-arch OCI layout
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH, _RBGY_GIT_REPO
 #
-# Note: Buildx setup is done inline because Cloud Build steps run in isolated
-# containers - a builder created in a previous step won't persist here.
+# OCI Layout Bridge Phase 1: Export multi-platform build to /workspace/oci-layout
+# instead of pushing directly to registry. This avoids the BuildKit credential
+# isolation problem. Phase 2 (rbgjb07) will push the OCI layout using Skopeo.
 
 set -euo pipefail
 
@@ -28,17 +29,15 @@ IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR
 docker buildx version
 docker version
 
-# Use default buildx builder (docker driver = host docker daemon with GAR credentials from step 3)
-# No need to create a builder - the default builder uses the authenticated docker daemon
+# Use default buildx builder for OCI export (no push = no authentication required)
+# Export to /workspace/oci-layout which persists across Cloud Build steps
 
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
   --tag "${IMAGE_URI}" \
-  --push \
+  --output type=oci,dest=/workspace/oci-layout \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \
   -f "${_RBGY_DOCKERFILE}" \
   .
-
-echo "${IMAGE_URI}" > .image_uri

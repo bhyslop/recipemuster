@@ -562,3 +562,34 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Next**: Ready to implement OCI Layout Bridge Phase 1 (Export).
 ---
+
+---
+### 2025-12-31 07:25 - oci-bridge-phase1-export - APPROACH
+**Proposed approach**:
+- Read current rbgjb06-build-and-push.sh to understand full structure
+- Modify the buildx command:
+  - Replace `--push` with `--output type=oci,dest=/workspace/oci-layout`
+  - Keep all `--platform`, `--tag`, and `--label` flags intact
+  - Preserve all Git metadata labels
+- Remove the `.image_uri` output (no push yet, that's Phase 2)
+- Rename file from `rbgjb06-build-and-push.sh` to `rbgjb06-build-and-export.sh`
+- Update header comment to reflect new purpose: "Build multi-arch OCI layout"
+- The default buildx builder should work fine for OCI export (no push, no auth needed)
+- Commit changes with clear explanation of OCI bridge Phase 1
+
+### 2025-12-31 07:30 - oci-bridge-phase1-export - COMPLETE
+**Outcome**: Created rbgjb06-build-and-export.sh with OCI layout export.
+
+**Changes**:
+- Renamed `rbgjb06-build-and-push.sh` → `rbgjb06-build-and-export.sh`
+- Replaced `--push` with `--output type=oci,dest=/workspace/oci-layout`
+- Removed `.image_uri` output file (Phase 2 will create this)
+- Updated header: "Build multi-arch OCI layout"
+- Added explanatory comment about OCI Layout Bridge pattern
+- Preserved all labels and metadata (moniker, git.commit, git.branch)
+- Kept IMAGE_URI for --tag (becomes OCI layout metadata)
+
+**Key insight**: OCI export avoids authentication entirely - no push means no credentials needed. The `/workspace/` directory persists across Cloud Build steps, acting as the bridge to Phase 2 (Skopeo push).
+
+**Next**: Phase 2 - Create rbgjb07-push-with-skopeo.sh to push OCI layout to GAR.
+---
