@@ -593,3 +593,35 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Next**: Phase 2 - Create rbgjb07-push-with-skopeo.sh to push OCI layout to GAR.
 ---
+
+---
+### 2025-12-31 07:35 - oci-bridge-phase2-push - APPROACH
+**Proposed approach**:
+- Create new script rbgjb07-push-with-skopeo.sh
+- Header: Builder is quay.io/skopeo/stable:latest
+- Substitutions needed: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER
+- Script logic:
+  1. Read TAG_BASE from .tag_base file
+  2. Construct IMAGE_URI (same format as Phase 1)
+  3. Get access token from Cloud Build metadata server: `curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`
+  4. Parse token from JSON response
+  5. Use Skopeo to copy OCI layout to GAR: `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://${IMAGE_URI}`
+  6. Write IMAGE_URI to .image_uri for downstream steps (rbgjb08, rbgjb09)
+- Add error handling for metadata server and Skopeo operations
+
+### 2025-12-31 07:40 - oci-bridge-phase2-push - COMPLETE
+**Outcome**: Created rbgjb07-push-with-skopeo.sh with Skopeo-based GAR push.
+
+**Changes**:
+- New script: Tools/rbw/rbgjb/rbgjb07-push-with-skopeo.sh
+- Builder: quay.io/skopeo/stable:latest
+- Authentication: Fetches access token from Cloud Build metadata server
+- Token parsing: Simple grep/sed extraction from JSON (no jq dependency)
+- Skopeo command: `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://${IMAGE_URI}`
+- Output: Writes IMAGE_URI to .image_uri for downstream steps
+- Error handling: Validates OCI layout exists, metadata server response, token extraction
+
+**Key design**: Skopeo runs in a container with metadata server access, solving the credential isolation problem. The `--all` flag ensures all platforms from the OCI layout are pushed to the multi-platform manifest.
+
+**Next**: Phase 3 - Adjust SBOM generation (rbgjb08) to read from OCI layout instead of registry.
+---
