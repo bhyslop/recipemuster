@@ -52,8 +52,8 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 # Google Cloud Build tool image pins (digest-pinned, ~spring 2025)
 # These are only used inside GCB build steps (_RBGY_* substitutions).
 
-# jq: JSON processor, stable digest pin
-RBRR_GCB_JQ_IMAGE_REF="ghcr.io/jqlang/jq:latest"
+# jq: Use Alpine + jq package (jqlang/jq is distroless with no shell)
+RBRR_GCB_JQ_IMAGE_REF="alpine:latest"
 
 # syft: Anchore SBOM generator (~May 2025)
 RBRR_GCB_SYFT_IMAGE_REF="ghcr.io/anchore/syft:latest"

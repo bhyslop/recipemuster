@@ -1,11 +1,14 @@
 #!/bin/bash
 # RBGJB Step 07: Assemble build metadata JSON
-# Builder: ${_RBGY_JQ_REF} (jq image)
+# Builder: alpine:latest (with jq installed at runtime)
 # Entrypoint: sh (not bash)
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GIT_REPO, _RBGY_GIT_BRANCH, _RBGY_GIT_COMMIT
 
 set -euo pipefail
+
+# Install jq (alpine is minimal, jqlang/jq distroless has no shell)
+apk add --no-cache jq >/dev/null
 
 test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
 TAG_BASE="$(cat .tag_base)"
