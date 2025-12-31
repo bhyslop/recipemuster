@@ -191,11 +191,9 @@ rbw_runtime_cmd() {
 - **Complete srjcl test validation** — Full srjcl test suite passed (3/3): jupyter_running, jupyter_connectivity, websocket_kernel. HTTP from macOS host to Jupyter via Docker port mapping now working perfectly.
 - **Update RBS port forwarding specification** — Replaced DNAT specification with socat proxy + iptables implementation in Phase 2. Added eth0 RBM-INGRESS rule documentation. Updated architecture to document three-container censer model throughout (System Overview, Bottle Pattern, term definitions). Added censer container attributes and definitions. Aligned with recipebottle-admin/index.adoc.
 - **Migrate pluml nameplate and tests** — Created rbrn_pluml.env; migrated 5 tabtargets to BUD launcher; added 5 PlantUML tests to rbt_testbench.sh; validated full lifecycle (5/5 tests passed)
+- **Absorb Coordinator lifecycle routes** — Removed 14 unused routes from rbk_Coordinator.sh (image mgmt, legacy admin, foundry delete/study, help); 13 routes remain, all with active tabtargets
 
 ## Remaining
-
-- **Absorb Coordinator lifecycle routes** — Move only lifecycle-related routes from `rbk_Coordinator.sh` to `rbw_workbench.sh`. Non-lifecycle commands (payor, governor, foundry, image management) remain in Coordinator. Consolidation of all routes deferred to future heat.
-  mode: manual
 
 - **Retire rehosted Makefile rules** — Remove successfully ported rules from `rbp.podman.mk`. Keep podman VM machinery intact. Update `rbw.workbench.mk` to remove migrated test helper macros.
   mode: manual

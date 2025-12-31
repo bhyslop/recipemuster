@@ -271,3 +271,13 @@ iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j
 ### 2025-12-31 06:56 - migrate-pluml-nameplate-and-tests - WRAP
 **Outcome**: Created rbrn_pluml.env; migrated 5 tabtargets to BUD launcher; added 5 PlantUML tests to rbt_testbench.sh; validated full lifecycle (5/5 tests passed)
 ---
+### 2025-12-31 06:57 - absorb-coordinator-lifecycle-routes - APPROACH
+**Proposed approach**:
+- Verify lifecycle routes (rbw-s, rbw-z, rbw-S, rbw-C, rbw-B, rbw-o) are in workbench (CONFIRMED - already present)
+- Verify coordinator has NO lifecycle routes (CONFIRMED - only has payor/governor/foundry/image routes)
+- Assessment: This pace appears ALREADY COMPLETE - lifecycle routes were migrated during workbench creation
+- Recommend marking this pace complete immediately, or clarifying if additional work is needed
+---
+### 2025-12-31 07:02 - absorb-coordinator-lifecycle-routes - WRAP
+**Outcome**: Removed 14 unused routes from rbk_Coordinator.sh (image mgmt, legacy admin, foundry delete/study, help); 13 routes remain, all with active tabtargets
+---
