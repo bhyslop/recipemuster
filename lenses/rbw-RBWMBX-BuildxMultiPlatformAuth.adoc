@@ -205,6 +205,63 @@ docker buildx create --name rbia-builder \
 
 **Status**: Complex workaround, consider only if simpler options fail
 
+=== Option 6: OCI Layout Bridge (Recommended Solution)
+
+**Approach**: Separate build phase from push phase using OCI Image Layout as intermediate format
+
+**Key insight**: Instead of fighting BuildKit's isolation to make `--push` work, break the atomic operation into discrete phases with filesystem storage as bridge.
+
+**Implementation**:
+----
+# Step 6: Build to OCI layout (no network push)
+docker buildx build \
+  --platform="${_RBGY_PLATFORMS}" \
+  --output type=oci,dest=/workspace/oci-layout \
+  --tag ${_RBGY_MONIKER}:${TAG_BASE}-img \
+  --label "moniker=${_RBGY_MONIKER}" \
+  --label "git.commit=${_RBGY_GIT_COMMIT}" \
+  -f "${_RBGY_DOCKERFILE}" \
+  .
+
+# Step 7: Push OCI layout with Skopeo (has authentication)
+AR_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
+  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \
+  sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+
+skopeo copy --all \
+  --dest-creds="oauth2accesstoken:${AR_TOKEN}" \
+  "oci:/workspace/oci-layout:${_RBGY_MONIKER}:${TAG_BASE}-img" \
+  "docker://${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
+----
+
+**Pros**:
+- BuildKit never needs registry credentials - only writes local filesystem
+- Skopeo runs as Cloud Build step with metadata server access (native GCP auth)
+- Build phase can take hours, push phase takes seconds (no 1-hour token timeout)
+- Preserves all multi-platform capabilities
+- Uses Google-recommended tools (Skopeo explicitly endorsed in Google Cloud blog)
+- Separates concerns: BuildKit does what it's good at (building), Skopeo does what it's good at (registry operations)
+- `/workspace` is shared across Cloud Build steps (perfect for intermediate storage)
+
+**Cons**:
+- Requires Skopeo container image (`quay.io/skopeo/stable:latest`)
+- Two-step process instead of atomic build-and-push
+- Need to adjust SBOM generation step (Syft can read OCI layouts: `syft oci-dir:/workspace/oci-layout`)
+
+**Why this works**:
+- Docker buildx OCI export: Official Docker feature, documented for multi-platform
+- Skopeo OCI→Docker: Official capability in Skopeo manpage
+- Cloud Build + Skopeo: Google's own blog post demonstrates this exact pattern
+- Addresses root cause: Separates build (no auth needed) from push (has auth)
+
+**References**:
+- https://docs.docker.com/build/exporters/oci-docker/[Docker OCI exporter documentation]
+- https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud Blog: Five ways Skopeo can simplify your Google Cloud container workflow]
+- https://manpages.debian.org/unstable/skopeo/skopeo-copy.1.en.html[Skopeo manpage: OCI transport]
+- https://eng.d2iq.com/blog/a-tale-of-two-container-image-tools-skopeo-and-crane/[Skopeo vs Crane comparison]
+
+**Status**: Recommended solution, ready for implementation
+
 == Current Implementation State
 
 === What Works (Steps 1-4)
@@ -324,17 +381,32 @@ The docker-container driver's isolation prevents it from inheriting ANY Google C
 
 == Next Steps
 
-Based on GCR test results proving the authentication problem is universal, the following paces guide resolution:
+Based on comprehensive research including GCR test results and investigation of ecosystem tools, the recommended path forward uses the OCI Layout Bridge pattern:
 
-. **Try DOCKER_CONFIG environment variable approach**: Implement Option 1 (most promising). Create config.json with OAuth token, pass to BuildKit via `--driver-opt env.DOCKER_CONFIG`. Test with actual build.
+. **Implement OCI Layout Bridge (Option 6)**: The recommended solution that separates build from push phases.
+  - Modify rbgjb06 to export OCI layout instead of pushing
+  - Create rbgjb07 to push OCI layout using Skopeo with GAR authentication
+  - Adjust rbgjb08 SBOM generation to read from OCI layout
+  - Test full workflow with busybox vessel
 
-. **Try buildkitd.toml approach (if needed)**: Implement Option 2 if DOCKER_CONFIG fails. Alternative configuration mechanism for registry authentication.
+. **Validate and refine**: Ensure all metadata, labels, and multi-platform manifests are preserved correctly through the OCI bridge.
 
-. **Evaluate architectural pivot (if needed)**: If both authentication approaches fail, decide between Kaniko (Option 3), single-arch (Option 4), or manual manifest combining (Option 5).
+. **Update RBSTB specification**: Document the OCI Layout Bridge approach in canonical trigger_build spec, including:
+  - Why direct push doesn't work (BuildKit isolation)
+  - How OCI layout bridges build and push phases
+  - Skopeo authentication via metadata server
+  - Multi-platform manifest handling
+  - Reference to RBWMBX for decision history
 
-. **Implement chosen solution**: Execute selected approach, validate full build-and-push cycle works.
+=== Alternative Paths (If OCI Bridge Fails)
 
-. **Update RBSTB specification**: Document final solution in canonical trigger_build spec, including authentication mechanism, driver configuration, and any constraints.
+If Option 6 encounters unforeseen issues:
+
+. **Try buildkitd.toml approach**: Option 2, though research suggests low probability of success with OAuth tokens
+
+. **Evaluate architectural pivot**: Decide between single-arch (Option 4) or different build platform
+
+Note: Option 1 (DOCKER_CONFIG) eliminated due to known bug (https://github.com/docker/cli/issues/5477[Issue #5477]). Option 3 (Kaniko) eliminated as project is archived. Option 5 (manual manifest combining) too complex compared to OCI bridge.
 
 == References
 
@@ -349,15 +421,30 @@ Based on GCR test results proving the authentication problem is universal, the f
 - https://docs.docker.com/build/builders/drivers/docker-container/[Docker container driver documentation]
 - https://docs.docker.com/build/buildkit/configure/[Configure BuildKit]
 - https://docs.docker.com/build/buildkit/toml-configuration/[buildkitd.toml reference]
+- https://docs.docker.com/build/exporters/oci-docker/[OCI and Docker exporters]
+- https://docs.docker.com/build/building/multi-platform/[Multi-platform builds]
 - https://github.com/docker/buildx/pull/433[PR #433: Credential passing for BuildKit]
+- https://github.com/docker/buildx/issues/186[Issue #186: Import multi-arch tarball for tag and push]
 
 === Authentication Issues
 
+- https://github.com/docker/buildx/issues/1205[Issue #1205: GCP Cloud Build OAuth timeout - our exact problem]
+- https://github.com/docker/cli/issues/5477[Issue #5477: DOCKER_CONFIG breaks buildx command parsing]
 - https://github.com/docker/buildx/issues/3050[Issue #3050: How to pass docker hub credentials to docker-container driver]
 - https://github.com/docker/buildx/issues/1613[Issue #1613: docker build fails to authenticate with private repository]
 - https://github.com/docker/buildx/issues/2749[Issue #2749: Authentication not working only in buildx]
 - https://github.com/docker/buildx/issues/1528[Issue #1528: docker login is not useful to buildx]
 - https://github.com/moby/buildkit/issues/565[moby/buildkit #565: Login to private registry using command line]
+- https://github.com/moby/buildkit/issues/5762[moby/buildkit #5762: Unable to authenticate on Kubernetes]
+- https://github.com/moby/buildkit/issues/4111[moby/buildkit #4111: Not sending Authorization header]
+
+=== Skopeo and OCI Tools
+
+- https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud Blog: Five ways Skopeo can simplify your Google Cloud container workflow]
+- https://manpages.debian.org/unstable/skopeo/skopeo-copy.1.en.html[Skopeo manpage: skopeo-copy]
+- https://eng.d2iq.com/blog/a-tale-of-two-container-image-tools-skopeo-and-crane/[A Tale of Two Container Image Tools: Skopeo and Crane]
+- https://www.nabilnoh.com/posts/buildkit-kaniko-replacement/[Why BuildKit Replaces Kaniko (Kaniko archived)]
+- https://www.augmentedmind.de/2025/03/30/the-9-best-docker-registry-tools/[The 9 best Docker registry tools]
 
 === Google Cloud Authentication
 
@@ -381,4 +468,8 @@ Based on GCR test results proving the authentication problem is universal, the f
 |2025-12-31
 |Claude Sonnet 4.5 + bhyslop
 |Added GCR test results, revised solutions based on universal auth failure
+
+|2025-12-31
+|Claude Sonnet 4.5 + bhyslop
+|Added Option 6 (OCI Layout Bridge) as recommended solution. Comprehensive research on Skopeo, crane, buildx exporters, and ecosystem tools. Eliminated Options 1 (DOCKER_CONFIG bug) and 3 (Kaniko archived). Updated references with Skopeo/OCI tools and critical authentication issues.
 |===
