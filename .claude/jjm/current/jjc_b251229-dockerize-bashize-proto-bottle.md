@@ -259,4 +259,11 @@ iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j
 
 **Next pace ready**: "Migrate pluml nameplate and tests" - final nameplate migration to complete the nsproto/srjcl/pluml trilogy.
 ---
+### 2025-12-31 06:36 - migrate-pluml-nameplate-and-tests - APPROACH
+**Proposed approach**:
+- Create rbrn_pluml.env from nameplate.pluml.mk (simplest config: no DNS, no access, no volumes)
+- Migrate 4 tabtargets to BUD launcher pattern (Start, ConnectSentry, ObserveNetworks, TestBottleService)
+- Add pluml test functions to rbt_testbench.sh based on rbt.test.pluml.mk (6 tests: text rendering, local diagram, HTTP headers, invalid hash, malformed diagram)
+- Validate full lifecycle with Docker (expect this to work immediately since HTTP fix already validated)
+---
 (execution log begins here)
