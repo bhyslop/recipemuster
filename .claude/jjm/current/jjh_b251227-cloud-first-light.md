@@ -99,10 +99,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Update build stitcher for new steps** — Updated zrbf_stitch_build_json() in rbf_Foundry.sh. Renamed rbgjb07-assemble-metadata.sh → rbgjb10-assemble-metadata.sh. Added rbgjb07-push-with-skopeo.sh with quay.io/skopeo builder. Updated step 06 reference to rbgjb06-build-and-export.sh. Execution order: 06→07→08→10→09. Committed as 5377690.
 
-## Current
+- **Research: docker-container driver + OCI output** — Confirmed OCI output writes to CLIENT filesystem (Cloud Build step), not BuildKit container. BuildKit transfers via gRPC. Docker-container driver IS REQUIRED for both OCI export and multi-platform (default driver supports neither). Added driver creation and tar=false to rbgjb06. Updated RBWMBX memo with architecture diagram.
 
-- **Research: docker-container driver + OCI output** — Before fixing rbgjb06, verify that docker-container driver can write OCI output to /workspace in Cloud Build. Key question: does buildx `--output type=oci,dest=/workspace/oci-layout` write to the step container's filesystem or to the BuildKit container's internal storage? Search Docker buildx docs, BuildKit issues, and Cloud Build examples. Update RBWMBX memo with findings. If confirmed working, add docker buildx create back to rbgjb06 and retest.
-  mode: manual
+## Current
 
 - **Test complete OCI bridge workflow** — Run full build with busybox vessel. Verify: (1) multi-platform OCI layout created, (2) Skopeo push succeeds to GAR, (3) all 3 platforms present in manifest, (4) SBOM generated correctly, (5) metadata container pushed. Check image pullable from GAR with correct platforms.
   mode: manual

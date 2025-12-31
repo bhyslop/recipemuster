@@ -29,13 +29,21 @@ IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR
 docker buildx version
 docker version
 
-# Use default buildx builder for OCI export (no push = no authentication required)
-# Export to /workspace/oci-layout which persists across Cloud Build steps
+# Create docker-container driver for multi-platform + OCI export support
+# The default docker driver supports neither OCI exporter nor multi-platform builds
+# See RBWMBX memo "OCI Output Path Research" section for details
+docker buildx create --driver docker-container --name rb-builder --use
+
+# Build multi-platform image and export to OCI layout directory
+# - Output goes to CLIENT filesystem (Cloud Build step container), not BuildKit container
+# - BuildKit transfers results back via gRPC
+# - tar=false creates directory layout (required by Skopeo oci: transport)
+# - /workspace persists across Cloud Build steps for Phase 2 (Skopeo push)
 
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
   --tag "${IMAGE_URI}" \
-  --output type=oci,dest=/workspace/oci-layout \
+  --output type=oci,tar=false,dest=/workspace/oci-layout \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \

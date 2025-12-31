@@ -379,6 +379,99 @@ to https://gcr.io/v2/token?scope=repository%3Arbwg-d-proto-251230080456%2Frbev-b
 
 The docker-container driver's isolation prevents it from inheriting ANY Google Cloud registry credentials configured on the host, regardless of whether the target is GCR or GAR. A solution must provide credentials **inside** the BuildKit container environment.
 
+== OCI Output Path Research (2025-12-31)
+
+=== Key Question
+
+When using docker-container driver with `--output type=oci,dest=/workspace/oci-layout`, does the output go to:
+
+* The Cloud Build step container's `/workspace` (accessible to subsequent steps), or
+* The BuildKit container's internal filesystem (isolated, inaccessible)?
+
+=== Answer: CLIENT Filesystem
+
+The output writes to the **client filesystem** (where `docker buildx` runs), NOT the BuildKit container.
+
+From https://docs.docker.com/reference/cli/docker/buildx/build/[Docker buildx build docs]:
+____
+"allows export of results directly to the client's filesystem, an OCI image tarball, a registry, and more"
+____
+
+From https://crazymax.dev/buildkit/usage/output/[BuildKit Output docs]:
+____
+"The local client will copy the files directly to the client"
+____
+
+**Mechanism**: BuildKit transfers results back to the client via gRPC (FileSend/diffcopy method). The `dest=` path is relative to where the `docker buildx` command runs, not where buildkitd runs internally.
+
+=== Architecture
+
+----
+Cloud Build Step Container (where docker buildx command runs)
+  └── /workspace/              <-- SHARED across Cloud Build steps
+       └── oci-layout/         <-- OCI OUTPUT GOES HERE ✓
+  └── docker buildx create (spawns BuildKit container)
+        └── BuildKit Container (does actual building)
+              └── internal storage (temporary, discarded after build)
+----
+
+=== Critical Requirements
+
+[cols="1,2,2",options="header"]
+|===
+|Feature
+|Default docker Driver
+|docker-container Driver
+
+|OCI exporter
+|✗ Not supported
+|✓ Supported
+
+|Multi-platform
+|✗ Not supported
+|✓ Supported
+
+|Registry credentials
+|✓ Has credentials
+|✗ Isolated (but OCI export doesn't need them)
+|===
+
+Source: https://docs.docker.com/build/exporters/oci-docker/[OCI and Docker exporters]:
+____
+"The docker driver doesn't support these exporters. You must use docker-container or some other driver if you want to generate these outputs."
+____
+
+=== tar=false for Directory Output
+
+The Skopeo `oci:` transport expects an OCI **directory layout**, not a tarball. Use `tar=false`:
+
+----
+--output type=oci,tar=false,dest=/workspace/oci-layout
+----
+
+The https://github.com/docker/buildx/issues/1672[GitHub Issue #1672] about missing `oci-layout` file with `tar=false` has been **FIXED** in buildkit PR #3729. Modern buildx versions correctly generate the `oci-layout` file.
+
+=== Google Cloud Validation
+
+Google's own https://cloud.google.com/dataflow/docs/guides/multi-architecture-container[Dataflow multi-arch documentation] shows this exact pattern:
+
+----
+steps:
+  - name: 'docker'
+    args: ['buildx', 'create', '--driver', 'docker-container', '--name', 'container', '--use']
+  - name: 'docker'
+    args: ['buildx', 'build', '--platform', 'linux/amd64,linux/arm64', ...]
+----
+
+=== Implementation Impact
+
+The rbgjb06 script MUST:
+
+. Create docker-container driver: `docker buildx create --driver docker-container --name rb-builder --use`
+. Use directory output: `--output type=oci,tar=false,dest=/workspace/oci-layout`
+
+Without the docker-container driver, both OCI export and multi-platform builds will fail.
+
 == Next Steps
 
 Based on comprehensive research including GCR test results and investigation of ecosystem tools, the recommended path forward uses the OCI Layout Bridge pattern:
@@ -472,4 +565,8 @@ Note: Option 1 (DOCKER_CONFIG) eliminated due to known bug (https://github.com/d
 |2025-12-31
 |Claude Sonnet 4.5 + bhyslop
 |Added Option 6 (OCI Layout Bridge) as recommended solution. Comprehensive research on Skopeo, crane, buildx exporters, and ecosystem tools. Eliminated Options 1 (DOCKER_CONFIG bug) and 3 (Kaniko archived). Updated references with Skopeo/OCI tools and critical authentication issues.
+
+|2025-12-31
+|Claude Opus 4.5 + bhyslop
+|Added OCI Output Path Research section. Confirmed output writes to client filesystem via gRPC, not BuildKit container. Documented docker-container driver requirement for OCI export. Added tar=false requirement for Skopeo compatibility. Referenced buildkit PR #3729 fix for oci-layout file generation.
 |===

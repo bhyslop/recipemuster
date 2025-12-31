@@ -709,3 +709,37 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
   - Metadata container pushed (rbev-busybox.YYMMDDHHMMSS-meta)
 - Follow heat protocol for any bugs: stop, explain, wait for approval before fixing
 ---
+
+---
+### 2025-12-31 09:00 - research-docker-container-oci-output - APPROACH
+**Proposed approach**:
+- Search Docker buildx docs for OCI output destination with docker-container driver
+- Search BuildKit issues/discussions for /workspace output behavior
+- Look for Cloud Build examples using buildx OCI export
+- Update RBWMBX memo with findings
+- If confirmed working: recommend adding docker buildx create back to rbgjb06
+- If not working: document workaround
+
+### 2025-12-31 09:30 - research-docker-container-oci-output - COMPLETE
+**Key finding**: OCI output writes to CLIENT filesystem, not BuildKit container
+
+**Evidence**:
+- Docker docs: "allows export of results directly to the client's filesystem"
+- BuildKit docs: "The local client will copy the files directly to the client"
+- Mechanism: BuildKit transfers results back via gRPC (FileSend/diffcopy)
+
+**Critical requirements discovered**:
+1. docker-container driver IS REQUIRED for both OCI export and multi-platform
+2. Default docker driver supports neither
+3. tar=false needed for directory output (Skopeo expects directory, not tarball)
+4. GitHub Issue #1672 (missing oci-layout file) FIXED in buildkit PR #3729
+
+**Google Cloud validation**: Official Dataflow docs show exact pattern we need
+
+**Changes made**:
+- RBWMBX memo: Added "OCI Output Path Research" section with architecture diagram
+- rbgjb06: Added `docker buildx create --driver docker-container --name rb-builder --use`
+- rbgjb06: Changed output to `type=oci,tar=false,dest=/workspace/oci-layout`
+
+**Next**: Test full OCI bridge workflow
+---
