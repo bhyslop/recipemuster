@@ -93,10 +93,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Implement OCI Layout Bridge (Phase 1: Export)** — Created rbgjb06-build-and-export.sh. Replaced `--push` with `--output type=oci,dest=/workspace/oci-layout`. Removed `.image_uri` output. Preserved all labels and metadata. OCI export avoids authentication (no push = no credentials needed). Committed as 3863307.
 
-## Current
+- **Implement OCI Layout Bridge (Phase 2: Push)** — Created rbgjb07-push-with-skopeo.sh. Uses quay.io/skopeo/stable:latest builder. Fetches GAR access token from Cloud Build metadata server. Pushes OCI layout to GAR with `skopeo copy --all --dest-creds`. Writes IMAGE_URI to .image_uri. Solves credential isolation problem. Committed as 97e392d.
 
-- **Implement OCI Layout Bridge (Phase 2: Push)** — Create rbgjb07-push-with-skopeo.sh. Use quay.io/skopeo/stable:latest container. Get AR_TOKEN from metadata server. Execute `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://GAR...`. Write IMAGE_URI to .image_uri for downstream steps. Test push succeeds to Artifact Registry.
-  mode: manual
+## Current
 
 - **Adjust SBOM generation for OCI layout** — Modify rbgjb08-sbom-and-summary.sh to read from OCI layout instead of registry. Change Syft command to `syft oci-dir:/workspace/oci-layout`. Verify SBOM generation works with local OCI layout. Metadata step (rbgjb09) should work unchanged (single-platform scratch image).
   mode: manual
