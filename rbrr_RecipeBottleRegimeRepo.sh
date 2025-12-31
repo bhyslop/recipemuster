@@ -42,7 +42,7 @@ RBRR_DEPOT_PROJECT_ID=rbwg-d-proto-251230080456
 RBRR_GCP_REGION=us-central1  # Project doesn't have a region but our services do
 
 # Google Artifact Registry settings
-RBRR_GAR_REPOSITORY=brm-gar
+RBRR_GAR_REPOSITORY=rbw-proto-repository
 
 # Google Cloud Build settings  
 RBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8          # Google Cloud Build machine type (enum form as in web API, not gcloud CLI)
