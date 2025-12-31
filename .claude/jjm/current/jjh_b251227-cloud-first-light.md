@@ -52,7 +52,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgg_list_service_accounts` | `rbw-al` | RBSSL | working |
 | `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | working |
 | `rbf_build` | `rbw-fB` | RBSTB | working |
-| — | `rbw-il` | — | unimplemented |
+| `rbf_list` | `rbw-il` | — | working |
 | `rbf_delete` | `rbw-fD` | RBSID | untested |
 | — | `rbw-r` | RBSIR | old dispatcher |
 | `rbgm_payor_refresh` | `rbw-PR` | RBSPR | untested |
@@ -103,12 +103,11 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Test complete OCI bridge workflow** — Build 3b544930 succeeded. Fixed: Alpine+jq for shell (distroless jq had no shell), corrected vessel path format (rbev-vessels/rbev-busybox). All 9 steps pass: build-and-export creates OCI tarball, Skopeo pushes to GAR, Syft generates SBOM via docker socket, Alpine+jq assembles metadata. OCI Layout Bridge pattern fully operational.
 
+- **Implement image_list** — Created rbf_list() in rbf_Foundry.sh. Two modes: (1) no args lists all images using GAR REST API packages endpoint, (2) with moniker lists tags using Docker Registry v2 API. Added rbw-il routing and tabtarget. Uses Director credentials (Retriever SA not yet provisioned). Tested: shows 1 image (rbev-busybox) and 6 tags.
+
 ## Current
 
 - **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
-  mode: manual
-
-- **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
   mode: manual
 
 - **Exercise image_delete** — Remove built image from repository.
@@ -129,7 +128,10 @@ Permanent depot for use throughout remaining paces and beyond.
 - **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Root cause: RBRR_GAR_REPOSITORY is static manual config, but repository name is determined at depot_create time. Options: (1) Add runtime validation in rbf_build to verify repository exists before build, (2) Change depot_create to write RBRR_GAR_REPOSITORY, (3) Derive repository name from depot project ID. Evaluate which approach prevents future desync.
   mode: manual
 
-- **Add Architecture Decision Record to RBAGS** — Create ADR section in rbw-RBAGS-AdminGoogleSpec.adoc documenting the OCI Layout Bridge decision. Capture: (1) problem statement (BuildKit credential isolation), (2) constraints discovered (default driver limitations, docker-container isolation), (3) options evaluated and why rejected, (4) chosen solution and rationale, (5) key implementation details (tarball format, Skopeo auth, Syft workaround). Reference RBWMBX memo and steeplechase entries. Preserve institutional knowledge without the discovery narrative.
+- **Choose name for design decision documentation** — Determine what to call the RBAGS section that documents architectural/technical design decisions with their constraints and rationales. "Architecture Decision Record" is standard but verbose. "Technical Design Tree" considered but not actually a tree structure. Need a name that: (1) clearly indicates purpose (why we chose X not Y), (2) fits RBAGS voice and audience, (3) won't feel stale in 2027. Consider options, evaluate against existing RBAGS section naming patterns (Operations, Definitions, etc.), select final name for use in subsequent pace.
+  mode: manual
+
+- **Add design decision section to RBAGS** — Create new section in rbw-RBAGS-AdminGoogleSpec.adoc (using name chosen in previous pace) documenting the OCI Layout Bridge decision. Capture: (1) problem statement (BuildKit credential isolation), (2) constraints discovered (default driver limitations, docker-container isolation), (3) options evaluated and why rejected, (4) chosen solution and rationale, (5) key implementation details (tarball format, Skopeo auth, Syft workaround). Reference RBWMBX memo and steeplechase entries. Preserve institutional knowledge without the discovery narrative.
   mode: manual
 
 ## Steeplechase
