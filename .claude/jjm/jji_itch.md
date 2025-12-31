@@ -624,3 +624,6 @@ Create `tt/rbw-lC.ListCosts.sh` or similar that:
 ### Context
 
 Identified 2025-12-30 during depot create/destroy testing where billing quota was hit.
+
+## rbp-planner-digest
+Digest `/Users/bhyslop/projects/recipebottle-admin/rbw-RBP-planner.adoc` for heat development. This planning document likely contains important guidance for structuring and executing Recipe Bottle work that should inform how heats are designed and executed.

@@ -506,10 +506,32 @@ Step 6 (build-and-push) failed - Docker buildx issue unrelated to stitcher refac
 - Isolated builder container doesn't inherit host's docker credentials
 - Push failed: "failed to fetch oauth token ... 403 Forbidden"
 
-**Fix Applied** (rbgjb06-build-and-push.sh:33):
-- Removed `--driver docker-container --driver-opt network=host` flags
-- Buildx now uses default driver which accesses authenticated host docker daemon
-- QEMU from step 4 still enables multi-platform builds
+**Catch-22 Discovered**:
+- docker (default) driver: Has GAR credentials ✓, but NO multi-platform support ✗
+- docker-container driver: Supports multi-platform ✓, but NO access to credentials ✗
 
-**Testing now...**
+**Research Conducted**:
+- Extensive web research on buildx authentication, BuildKit credential handling
+- Investigated GCR vs GAR authentication differences
+- Explored config.json mounting, buildkitd.toml, driver options
+- Documented findings in RBWMBX memo (lenses/rbw-RBWMBX-BuildxMultiPlatformAuth.adoc)
+
+**Solution Path Identified**:
+Created 5 sequential paces in heat:
+1. Test with GCR (validates buildx works)
+2. Implement OAuth config.json for GAR (proper solution)
+3. Evaluate buildkitd.toml (alternative approach)
+4. Document decision (capture outcome)
+5. Update RBSTB specification (incorporate learnings)
+
+Each pace has clear success/skip criteria to avoid unnecessary work.
+
+**Git State**:
+- Code committed but non-functional for multi-platform builds
+- Last commit: f021d54 "Fix buildx: use default builder, don't create new one"
+- Stitcher refactor complete (rbgjb01-09 scripts working)
+- Steps 1-4 execute successfully (auth, QEMU)
+- Step 6 fails (default driver doesn't support multi-platform)
+
+**Session Paused**: Ready to begin pace 1 (Test trigger_build with GCR) in next session
 ---

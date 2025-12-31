@@ -332,6 +332,8 @@ Builds container image from vessel specification using Cloud Build and stores in
 
 include::rbw-RBSTB-trigger_build.adoc[]
 
+NOTE: For multi-platform build authentication challenges and research findings, see link:rbw-RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
+
 [[rbtgo_image_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_delete}

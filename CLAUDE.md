@@ -43,6 +43,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBRR**  → `rbw-RBRR-RegimeRepo.adoc`
 - **RBS**   → `rbw-RBS-Specification.adoc`
 - **CRR**   → `crg-CRR-ConfigRegimeRequirements.adoc`
+- **RBWMBX** → `rbw-RBWMBX-BuildxMultiPlatformAuth.adoc` (Memo: Buildx multi-platform authentication research)
 
 ### Tools Directory (`Tools/`)
 

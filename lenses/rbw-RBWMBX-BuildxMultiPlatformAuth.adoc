@@ -1,0 +1,305 @@
+= RBWMBX: Buildx Multi-Platform Authentication Memo
+:doctype: article
+:toc:
+:toc-title: Table of Contents
+:sectnums:
+
+== Problem Statement
+
+Multi-platform container builds using `docker buildx` with Google Cloud Build face authentication challenges when pushing to Google Artifact Registry (GAR). This memo documents research findings, root cause analysis, and potential solutions.
+
+=== Context
+
+The Recipe Bottle `trigger_build` operation (RBSTB) submits container builds to Google Cloud Build using the Mason service account. Initial attempts to build multi-platform images (linux/amd64, linux/arm64, linux/arm/v7) using `docker buildx` failed with authentication errors when pushing to Artifact Registry.
+
+=== Observed Failure
+
+Multi-platform builds completed successfully but push operations failed with:
+
+----
+ERROR: failed to push us-central1-docker.pkg.dev/PROJECT/REPO/IMAGE:TAG:
+failed to authorize: failed to fetch oauth token: unexpected status from
+GET request to https://us-central1-docker.pkg.dev/v2/token?scope=...: 403 Forbidden
+----
+
+== Root Cause Analysis
+
+=== The Catch-22 Situation
+
+Docker Buildx offers two driver options, each with critical limitations:
+
+[cols="1,1,1",options="header"]
+|===
+|Driver
+|Multi-Platform Support
+|GAR Credentials Access
+
+|`docker` (default)
+|✗ Not supported
+|✓ Has credentials from `docker login`
+
+|`docker-container`
+|✓ Supported
+|✗ Runs in isolated container
+|===
+
+**Key Finding**: The `docker` (default) driver explicitly does not support multi-platform builds:
+
+----
+ERROR: Multi-platform build is not supported for the docker driver.
+Switch to a different driver, or turn on the containerd image store, and try again.
+----
+
+=== Docker-Container Driver Isolation
+
+The `docker-container` driver creates an isolated BuildKit container that does not inherit host Docker daemon credentials. Per Docker buildx maintainer tonistiigi (https://github.com/docker/buildx/issues/3050[Issue #3050]):
+
+____
+"You need to either run `docker login` inside the dind environment or...mount that config file inside the dind container via volume"
+____
+
+This isolation is the core challenge: credentials configured in step 3 (docker login) are not available to the buildx builder container in step 6 (build-and-push).
+
+=== GCR vs Artifact Registry Authentication Differences
+
+The official https://github.com/GoogleCloudPlatform/solutions-build-multi-architecture-images-tutorial/blob/master/terraform/cloud-build/build-docker-image-trigger.yaml[Google Cloud Platform multi-arch tutorial] successfully pushes to `gcr.io` without explicit authentication, but this doesn't extend to Artifact Registry.
+
+**Critical Difference**:
+
+- `gcloud auth configure-docker` configures `\*.gcr.io` by default
+- For Artifact Registry, you must explicitly specify: `gcloud auth configure-docker REGION-docker.pkg.dev`
+
+Source: https://cloud.google.com/artifact-registry/docs/transition/changes-docker[Changes for Docker | Artifact Registry]
+
+== Research Findings
+
+=== Authentication Methods Investigated
+
+. **Docker config.json**: BuildKit reads credentials from `$DOCKER_CONFIG/config.json` (https://docs.docker.com/build/buildkit/configure/[Configure BuildKit])
+
+. **buildkitd.toml registry configuration**: Supports certificate-based authentication and config.json references (https://docs.docker.com/build/buildkit/toml-configuration/[buildkitd.toml reference])
+
+. **Driver options**: The docker-container driver supports `--driver-opt env.<key>=<value>` for environment variables (https://docs.docker.com/build/builders/drivers/docker-container/[Docker container driver])
+
+. **OAuth tokens**: `gcloud auth print-access-token` generates short-lived (60-minute) tokens suitable for automation
+
+=== Known Issues and Limitations
+
+. **Credential propagation**: Multiple GitHub issues document challenges with docker-container driver authentication (https://github.com/docker/buildx/issues/1613[#1613], https://github.com/docker/buildx/issues/2749[#2749])
+
+. **Config.json credential stores**: macOS/Windows use credential stores (`credsStore`) instead of inline credentials, complicating volume mounting approaches
+
+. **BuildKit registry auth**: No OAuth token support documented in buildkitd.toml; primarily certificate-based (https://github.com/moby/buildkit/issues/565[moby/buildkit#565])
+
+== Potential Solutions
+
+=== Option 1: Create config.json with OAuth Token
+
+**Approach**: Generate `config.json` with base64-encoded OAuth token from `gcloud auth print-access-token`
+
+**Pros**:
+- Standard Docker authentication format
+- Works with BuildKit's existing credential handling
+- Token-based (secure, short-lived)
+
+**Cons**:
+- Need mechanism to pass config.json into BuildKit container
+- Token expires in 60 minutes (acceptable for Cloud Build context)
+- Requires discovering how to mount credentials into builder
+
+**Implementation sketch**:
+----
+# In build step:
+TOKEN=$(gcloud auth print-access-token)
+echo "{\"auths\":{\"us-central1-docker.pkg.dev\":{\"username\":\"oauth2accesstoken\",\"password\":\"${TOKEN}\"}}}" > /workspace/.docker/config.json
+
+# Question: How to make buildx builder access this file?
+----
+
+=== Option 2: buildkitd.toml Configuration
+
+**Approach**: Create buildkitd.toml referencing docker config, pass via `--buildkitd-config`
+
+**Pros**:
+- Official BuildKit configuration mechanism
+- Documented approach for registry authentication
+
+**Cons**:
+- Limited documentation for OAuth/token-based auth (mostly certificate examples)
+- Still requires solving credential passing problem
+- May not support OAuth token format
+
+**Implementation sketch**:
+----
+# buildkitd.toml
+[registry."us-central1-docker.pkg.dev"]
+  config = "/path/to/config.json"
+----
+
+=== Option 3: Switch to GCR Temporarily
+
+**Approach**: Change target from Artifact Registry to Container Registry (`gcr.io`)
+
+**Pros**:
+- Google's tutorial proves this works with docker-container driver
+- Cloud Build automatically authenticates to gcr.io
+- Immediate unblock for multi-platform builds
+
+**Cons**:
+- GCR is in maintenance mode (Artifact Registry is the future)
+- Doesn't solve the fundamental problem
+- Creates technical debt
+
+=== Option 4: Single-Architecture Fallback
+
+**Approach**: Build only `linux/amd64` using default docker driver
+
+**Pros**:
+- Works immediately with existing authentication
+- No driver complexity
+- Simplest solution
+
+**Cons**:
+- Abandons multi-platform requirement
+- Limits deployment flexibility
+- Defeats purpose of buildx investigation
+
+=== Option 5: Investigate Docker Login Inside Builder
+
+**Approach**: Following tonistiigi's guidance, authenticate within the BuildKit container
+
+**Pros**:
+- Direct solution to the isolation problem
+- Documented workaround
+
+**Cons**:
+- Requires understanding how to execute commands in builder container
+- May need builder lifecycle modifications
+- Could be fragile across buildx versions
+
+== Current Implementation State
+
+=== What Works (Steps 1-4)
+
+The Cloud Build configuration successfully executes the following steps:
+
+**Step 1: Derive TAG_BASE** (rbgjb01-derive-tag-base.sh)
+----
+TAG_BASE="$(date -u +%Y%m%dT%H%M%SZ)"
+echo "${TAG_BASE}" > .tag_base
+----
+
+**Step 2: Get Docker Access Token** (rbgjb02-get-docker-token.sh)
+----
+gcloud auth print-access-token > /workspace/.docker-token
+----
+
+**Step 3: Docker Login to GAR** (rbgjb03-docker-login-gar.sh)
+----
+cat /workspace/.docker-token | docker login -u oauth2accesstoken \
+  --password-stdin "https://us-central1-docker.pkg.dev"
+rm /workspace/.docker-token
+----
+
+This authentication pattern **works for the host docker daemon** but doesn't propagate to isolated buildx containers.
+
+**Step 4: QEMU for Cross-Platform** (rbgjb04-qemu-binfmt.sh)
+----
+docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+----
+
+Successfully enables emulation for non-native architectures.
+
+=== What's Broken (Step 6)
+
+**Step 6: Build and Push** (rbgjb06-build-and-push.sh) - Current state:
+
+----
+# Removed builder creation - using default builder
+# docker buildx create --name rbia-builder --driver docker-container --use
+
+docker buildx build \
+  --platform="${_RBGY_PLATFORMS}" \
+  --tag "${IMAGE_URI}" \
+  --push \
+  ...
+----
+
+**Failure**: Default docker driver doesn't support multi-platform builds:
+----
+ERROR: Multi-platform build is not supported for the docker driver.
+----
+
+=== Stitcher Refactor Status
+
+**Complete**: Build JSON is dynamically generated from bash step scripts (rbgjb01-rbgjb09) via `zrbf_stitch_build_json()` in `rbf_Foundry.sh`. Static `rbgjb_build.json` removed.
+
+=== Test Environment
+
+- **Keeper depot**: `rbwg-d-proto-251230080456`
+- **Region**: `us-central1`
+- **Repository**: `brm-gar`
+- **Test vessel**: `rbev-vessels/rbev-busybox`
+- **Target platforms**: `linux/amd64,linux/arm64,linux/arm/v7`
+- **Last commit**: `f021d54` "Fix buildx: use default builder, don't create new one"
+
+=== Code State
+
+The codebase is **committed but non-functional** for multi-platform builds. Authentication works for host docker daemon but buildx isolation prevents multi-platform push to Artifact Registry.
+
+== Next Steps
+
+The following paces have been added to the cloud-first-light heat to resolve this systematically:
+
+. **Test GCR**: Validate multi-platform builds work with gcr.io to confirm driver configuration is correct
+
+. **Implement OAuth config.json for GAR**: Research how to pass credentials into docker-container driver (proper solution)
+
+. **Evaluate buildkitd.toml approach**: Alternative if config.json mounting proves difficult
+
+. **Document decision**: Capture final outcome and update build scripts accordingly
+
+. **Update RBSTB specification**: Incorporate all learnings into the canonical trigger_build spec
+
+== References
+
+=== Multi-Platform Builds
+
+- https://dev.to/tidalcloud/automating-multi-arch-container-images-builds-we-used-google-cloud-build-but-github-actions-would-also-work-clb[Automating multi-arch container images builds (DEV Community)]
+- https://github.com/GoogleCloudPlatform/solutions-build-multi-architecture-images-tutorial[Google Cloud Platform multi-arch images tutorial]
+- https://cloud.google.com/dataflow/docs/guides/multi-architecture-container[Build multi-architecture container images for Dataflow]
+
+=== Docker Buildx & BuildKit
+
+- https://docs.docker.com/build/builders/drivers/docker-container/[Docker container driver documentation]
+- https://docs.docker.com/build/buildkit/configure/[Configure BuildKit]
+- https://docs.docker.com/build/buildkit/toml-configuration/[buildkitd.toml reference]
+- https://github.com/docker/buildx/pull/433[PR #433: Credential passing for BuildKit]
+
+=== Authentication Issues
+
+- https://github.com/docker/buildx/issues/3050[Issue #3050: How to pass docker hub credentials to docker-container driver]
+- https://github.com/docker/buildx/issues/1613[Issue #1613: docker build fails to authenticate with private repository]
+- https://github.com/docker/buildx/issues/2749[Issue #2749: Authentication not working only in buildx]
+- https://github.com/docker/buildx/issues/1528[Issue #1528: docker login is not useful to buildx]
+- https://github.com/moby/buildkit/issues/565[moby/buildkit #565: Login to private registry using command line]
+
+=== Google Cloud Authentication
+
+- https://cloud.google.com/artifact-registry/docs/docker/authentication[Configure authentication to Artifact Registry for Docker]
+- https://cloud.google.com/artifact-registry/docs/transition/changes-docker[Changes for Docker (GCR to Artifact Registry migration)]
+- https://cloud.google.com/artifact-registry/docs/configure-cloud-build[Connect to Cloud Build]
+- https://cloud.google.com/build/docs/cloud-build-service-account[Default Cloud Build service account]
+
+== Document History
+
+[cols="1,2,4",options="header"]
+|===
+|Date
+|Author
+|Changes
+
+|2025-12-31
+|Claude Sonnet 4.5 + bhyslop
+|Initial research findings documented
+|===
