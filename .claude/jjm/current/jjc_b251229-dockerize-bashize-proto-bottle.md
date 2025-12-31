@@ -216,4 +216,28 @@
 - `tt/rbw-*.srjcl.sh` (6 files)
 - Test functions in `rbt_testbench.sh`
 ---
+### 2025-12-31 05:53 - fix-validate-iptables-entry-rule - APPROACH
+**Proposed approach**:
+- Update `Tools/rbw/rbss.sentry.sh` Phase 2 (Port Setup) to add missing RBM-INGRESS rule
+- Add: `iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT`
+- Place after existing socat/egress rules, before Phase 3
+- Test with srjcl: start service, run rboo in background, curl from macOS host, verify traffic flows
+---
+### 2025-12-31 06:10 - fix-validate-iptables-entry-rule - WRAP
+**Outcome**: HTTP connectivity from macOS host to containers via Docker Desktop now working perfectly. All srjcl tests passed (3/3).
+
+**Root cause**: Sentry iptables RBM-INGRESS chain only had rules for eth1 (enclave network). Missing rule for eth0 (bridge network) caused default DROP policy to block incoming connections from Docker host.
+
+**Fix applied** (Tools/rbw/rbss.sentry.sh:85):
+```bash
+iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT
+```
+
+**Validation**:
+1. HTTP test: `curl http://localhost:7999/api` returned `200 OK` with Jupyter version
+2. Network captures: tcpdump confirmed traffic flowing: macOS → Docker bridge → sentry eth0 → socat → sentry eth1 → bottle port 8000
+3. Full test suite: All 3 srjcl tests passed (jupyter_running, jupyter_connectivity, websocket_kernel)
+
+**Next pace ready**: "Complete srjcl test validation" can be removed (already done). Move to "Update RBS port forwarding specification" or "Migrate pluml nameplate and tests".
+---
 (execution log begins here)

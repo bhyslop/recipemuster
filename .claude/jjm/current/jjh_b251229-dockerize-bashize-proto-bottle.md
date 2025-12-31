@@ -187,40 +187,10 @@ rbw_runtime_cmd() {
 - **Migrate nsproto security tests** — All 22 tests passing. Fixed Docker --internal network flag (blocks forwarding unlike podman). Added single-test parameter for targeted runs. Adjusted ICMP test for Docker/podman differences.
 - **Migrate test tabtarget** — Updated `tt/rbw-to.TestBottleService.nsproto.sh` to BUD launcher pattern.
 - **Validate nsproto with Docker** — Done (22 tests passing via `tt/rbw-to.TestBottleService.nsproto.sh`).
+- **Fix and validate iptables entry rule for host access** — Added missing RBM-INGRESS rule in `Tools/rbw/rbss.sentry.sh:85` to allow eth0 ingress traffic on entry port. HTTP connectivity from macOS host now working. Network captures confirmed traffic flow. All srjcl tests passed (3/3).
+- **Complete srjcl test validation** — Full srjcl test suite passed (3/3): jupyter_running, jupyter_connectivity, websocket_kernel. HTTP from macOS host to Jupyter via Docker port mapping now working perfectly.
 
 ## Remaining
-
-- **Fix and validate iptables entry rule for host access** — Add missing RBM-INGRESS rule to allow traffic from eth0 (bridge) on entry port. Validate with rboo network captures. Root cause identified: socat is working, but iptables blocks incoming traffic from Docker host.
-  mode: manual
-
-  **Root cause discovered**:
-  - `curl localhost:7999` from macOS host connects via Docker port mapping to sentry's eth0 (172.17.0.2)
-  - Sentry's `RBM-INGRESS` chain has NO rules for eth0 on port 7999
-  - Only has rules for eth1 (enclave network)
-  - Default policy DROP blocks the connection
-  - Proof: adding `iptables -I RBM-INGRESS 1 -i eth0 -p tcp --dport 7999 -j ACCEPT` makes HTTP work perfectly
-
-  **Implementation**:
-  1. Update `Tools/rbw/rbss.sentry.sh` Phase 2 (Port Setup) when `RBRN_ENTRY_ENABLED=1`
-  2. Add rule: `iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT`
-  3. Place after existing port forward rules, before Phase 3
-
-  **Validation**:
-  1. Start srjcl service with updated script
-  2. Run rboo in background to capture network traffic
-  3. Test `curl http://localhost:7999/api` from macOS host (should succeed)
-  4. Verify rboo captures show traffic flowing through sentry eth0 → socat → bottle
-  5. Run full srjcl test suite
-
-  **Files to modify**:
-  - `Tools/rbw/rbss.sentry.sh` - add iptables rule in Phase 2
-
-  **Files preserved from srjcl partial migration** (awaiting this fix):
-  - `Tools/rbw/rbrn_srjcl.env` - nameplate config (uses local images)
-  - `tt/rbw-*.srjcl.sh` - all 6 tabtargets migrated to BUD launcher
-  - `rbt_testbench.sh` - srjcl test functions added (3 tests)
-  - `RBM-tests/rbt.test.srjcl.py` - fixed env var typo (RBN→RBRN)
-  - `bottle_anthropic_jupyter:local-*` - locally built image for arm64
 
 - **Update RBS port forwarding specification** — RBS §3.2.2 "Port Setup Phase" specifies iptables DNAT but implementation uses socat. Document actual implementation: socat proxy + iptables INGRESS rule. Update RBS to match reality and document the censer model architecture.
   mode: manual
@@ -245,9 +215,6 @@ rbw_runtime_cmd() {
   **Files to modify**:
   - `lenses/rbw-RBS-Specification.adoc` - update §3.2.2 Port Setup Phase
   - Optionally regenerate `index.html` from admin repo's index.adoc
-
-- **Complete srjcl test validation** — After HTTP issue resolved, run full srjcl test suite. May need to adjust test approach based on resolution.
-  mode: manual
 
 - **Migrate pluml nameplate and tests** — Create `rbrn_pluml.env`, migrate `rbt.test.pluml.mk` tests to bash, migrate pluml tabtargets (`rbw-s.Start.pluml.sh`, `rbw-S.ConnectSentry.pluml.sh`, `rbw-o.ObserveNetworks.pluml.sh`, `rbw-to.TestBottleService.pluml.sh`). Validate with Docker.
   mode: manual
