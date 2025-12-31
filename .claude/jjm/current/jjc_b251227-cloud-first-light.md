@@ -691,3 +691,21 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Next**: Test complete OCI bridge workflow with actual build.
 ---
+
+---
+### 2025-12-31 08:05 - test-oci-bridge-workflow - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-fB.BuildVessel.sh rbev-vessels/rbev-busybox` to trigger a build
+- Monitor Cloud Build execution to verify all steps complete successfully
+- Check that OCI Layout Bridge phases execute in correct order:
+  - Step 06: buildx exports to /workspace/oci-layout
+  - Step 07: Skopeo pushes from oci-layout to GAR
+  - Step 08: Syft analyzes from oci-layout
+  - Step 10: Assembles metadata JSON
+  - Step 09: Builds and pushes metadata container
+- After build completes, verify:
+  - Image pushed to GAR with correct tag (rbev-busybox.YYMMDDHHMMSS-img)
+  - Multi-platform manifest contains all 3 platforms (amd64, arm64, arm/v7)
+  - Metadata container pushed (rbev-busybox.YYMMDDHHMMSS-meta)
+- Follow heat protocol for any bugs: stop, explain, wait for approval before fixing
+---
