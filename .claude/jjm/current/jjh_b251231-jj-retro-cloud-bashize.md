@@ -131,6 +131,8 @@ Example philosophy: If we formalize APPROACH/WRAP pattern, don't create whole ne
 
 8. **Pace mode distinction**: The "automatic" vs "manual" pace mode hasn't proven useful in practice. Should this be removed entirely? What problem was it supposed to solve, and does that problem actually exist?
 
+9. **Git history analysis**: What does the commit-by-commit evolution of both heat files reveal about process friction and emergent patterns? Analyze git history of heat files to discover: pace boundary changes, file reorganizations, documentation additions, what got refined vs what stayed stable. Let the data reveal what was hard vs what was easy.
+
 ### Success Criteria
 
 - 2-3 improvements selected based on evidence, not speculation
