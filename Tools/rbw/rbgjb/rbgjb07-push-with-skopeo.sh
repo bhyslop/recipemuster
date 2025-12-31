@@ -69,9 +69,11 @@ fi
 echo "Token parsed successfully (length: ${#AR_TOKEN})"
 
 echo "Pushing OCI archive to ${IMAGE_URI}..."
+# Use --dest-registry-token instead of --dest-creds per Google Cloud blog:
+# https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow
 skopeo copy \
   --all \
-  --dest-creds="oauth2accesstoken:${AR_TOKEN}" \
+  --dest-registry-token "${AR_TOKEN}" \
   "oci-archive:/workspace/oci-layout.tar" \
   "docker://${IMAGE_URI}"
 
