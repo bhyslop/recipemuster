@@ -190,59 +190,61 @@ rbw_runtime_cmd() {
 
 ## Remaining
 
-- **Characterize Docker Desktop for Mac HTTP return path issue** — Diagnostic pace to understand why HTTP responses fail when macOS host connects through Docker port mapping to sentry. TCP handshake succeeds but HTTP responses never return. This is a Docker Desktop networking layer issue, not specific to socat vs DNAT choice.
+- **Fix and validate iptables entry rule for host access** — Add missing RBM-INGRESS rule to allow traffic from eth0 (bridge) on entry port. Validate with rboo network captures. Root cause identified: socat is working, but iptables blocks incoming traffic from Docker host.
   mode: manual
 
-  **Symptom**: `curl http://localhost:7999/lab` from macOS host hangs (sends request, never receives response). HTTP code "000".
+  **Root cause discovered**:
+  - `curl localhost:7999` from macOS host connects via Docker port mapping to sentry's eth0 (172.17.0.2)
+  - Sentry's `RBM-INGRESS` chain has NO rules for eth0 on port 7999
+  - Only has rules for eth1 (enclave network)
+  - Default policy DROP blocks the connection
+  - Proof: adding `iptables -I RBM-INGRESS 1 -i eth0 -p tcp --dport 7999 -j ACCEPT` makes HTTP work perfectly
 
-  **What works**:
-  - TCP connection succeeds: `nc -zv localhost 7999` → "succeeded!"
-  - Docker port mapping exists: `docker port srjcl-sentry` → "7999/tcp -> 0.0.0.0:7999"
-  - HTTP from inside sentry works: `docker exec srjcl-sentry curl localhost:7999/api` → HTTP 200
-  - Same issue affects nsproto (port 8890) - not srjcl-specific
+  **Implementation**:
+  1. Update `Tools/rbw/rbss.sentry.sh` Phase 2 (Port Setup) when `RBRN_ENTRY_ENABLED=1`
+  2. Add rule: `iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT`
+  3. Place after existing port forward rules, before Phase 3
 
-  **Key insight**: This is a return path problem through Docker Desktop's vpnkit layer (macOS → VM → container). Both socat and iptables DNAT would traverse the same Docker layer and likely encounter the same issue.
+  **Validation**:
+  1. Start srjcl service with updated script
+  2. Run rboo in background to capture network traffic
+  3. Test `curl http://localhost:7999/api` from macOS host (should succeed)
+  4. Verify rboo captures show traffic flowing through sentry eth0 → socat → bottle
+  5. Run full srjcl test suite
 
-  **Investigation paths**:
-  1. Test IPv4 vs IPv6: verify curl uses IPv4, check if IPv6 loopback (::1) behaves differently
-  2. Test with simpler proxy: try `nc -l` or `ncat` instead of socat to isolate behavior
-  3. Check Docker Desktop networking mode: VirtioFS, gRPC FUSE, network driver options
-  4. Examine Docker port mapping internals: `docker inspect` for port config details
-  5. Test connection tracking: check for conntrack conflicts between Docker and container layers
+  **Files to modify**:
+  - `Tools/rbw/rbss.sentry.sh` - add iptables rule in Phase 2
 
-  **Workaround options** (to unblock testing):
-  - Run HTTP tests from inside container network via `docker exec`
-  - Run test container with `--network container:srjcl-sentry` to share sentry's namespace
-  - Accept as Docker Desktop limitation and document the caveat
-
-  **Success criteria**: Either find root cause and fix, or select workaround that allows srjcl/pluml test validation to proceed.
-
-  **Files preserved from srjcl partial migration**:
+  **Files preserved from srjcl partial migration** (awaiting this fix):
   - `Tools/rbw/rbrn_srjcl.env` - nameplate config (uses local images)
   - `tt/rbw-*.srjcl.sh` - all 6 tabtargets migrated to BUD launcher
   - `rbt_testbench.sh` - srjcl test functions added (3 tests)
   - `RBM-tests/rbt.test.srjcl.py` - fixed env var typo (RBN→RBRN)
   - `bottle_anthropic_jupyter:local-*` - locally built image for arm64
 
-- **Resolve socat vs iptables DNAT architecture** — RBS specifies iptables DNAT for port forwarding (PREROUTING rules on eth0). Current implementation uses socat. Decide: (1) migrate to iptables DNAT to match RBS, or (2) update RBS to specify socat as the port forwarding mechanism. Independent of Docker Desktop quirks - this is an architectural alignment question.
+- **Update RBS port forwarding specification** — RBS §3.2.2 "Port Setup Phase" specifies iptables DNAT but implementation uses socat. Document actual implementation: socat proxy + iptables INGRESS rule. Update RBS to match reality and document the censer model architecture.
   mode: manual
 
-  **RBS specification** (§3.2.2 "Port Setup Phase"):
+  **Current RBS specification** (§3.2.2):
   - DNAT Configuration in nat table PREROUTING on eth0
   - Match destination port RBRN_ENTRY_PORT_WORKSTATION
   - DNAT to bottle IP on eth1 with port RBRN_ENTRY_PORT_ENCLAVE
 
-  **Current implementation**:
-  - Socat proxy: `socat TCP-LISTEN:7999,fork,reuseaddr TCP:10.242.2.3:8000`
-  - Started during sentry configuration, not via iptables
+  **Actual implementation**:
+  - Socat proxy: `socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}`
+  - RBM-INGRESS rule: allow eth0 TCP traffic on RBRN_ENTRY_PORT_WORKSTATION
+  - RBM-EGRESS rules: allow sentry → bottle on RBRN_ENTRY_PORT_ENCLAVE
+  - No NAT PREROUTING/DNAT rules
 
-  **Decision factors**:
-  - Consistency with specification vs implementation simplicity
-  - Whether iptables DNAT would work better with Docker Desktop (unlikely - same layer traversal)
-  - Operational observability and debuggability
-  - Future maintenance burden
+  **RBS updates needed**:
+  1. Replace DNAT specification with socat proxy specification
+  2. Add missing RBM-INGRESS eth0 rule to filter configuration
+  3. Document three-container censer model (sentry/censer/bottle with shared namespace)
+  4. Align with `../recipebottle-admin/index.adoc` which already documents censer
 
-  **Outcome**: Document decision and either update implementation or update RBS accordingly.
+  **Files to modify**:
+  - `lenses/rbw-RBS-Specification.adoc` - update §3.2.2 Port Setup Phase
+  - Optionally regenerate `index.html` from admin repo's index.adoc
 
 - **Complete srjcl test validation** — After HTTP issue resolved, run full srjcl test suite. May need to adjust test approach based on resolution.
   mode: manual
