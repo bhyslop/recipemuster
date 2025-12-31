@@ -535,3 +535,19 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Session Paused**: Ready to begin pace 1 (Test trigger_build with GCR) in next session
 ---
+
+---
+### 2025-12-31 07:15 - revert-gcr-test-changes - APPROACH
+**Proposed approach**:
+- Revert rbgjb06-build-and-push.sh to restore GAR target:
+  - Change IMAGE_URI from `gcr.io/${_RBGY_GAR_PROJECT}/${_RBGY_MONIKER}:...` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:...`
+  - Remove docker-container driver creation (lines 32-33)
+  - Restore default builder comment
+  - Update file header from "GCR (testing)" to "GAR"
+- Revert rbgjb09-build-and-push-metadata.sh to restore GAR target:
+  - Change META_URI from `gcr.io/${_RBGY_GAR_PROJECT}/${_RBGY_MONIKER}:...` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:...`
+  - Restore full substitutions list in header
+  - Update file header from "GCR (testing)" to original
+- Commit reversion with message explaining GCR test complete, returning to GAR for OCI bridge implementation
+- GCR test results already documented in RBWMBX memo (commit d07be5c)
+---

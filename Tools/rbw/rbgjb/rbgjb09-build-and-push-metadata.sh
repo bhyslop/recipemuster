@@ -1,13 +1,13 @@
 #!/bin/bash
-# RBGJB Step 09: Build and push metadata container to GCR (testing)
+# RBGJB Step 09: Build and push metadata container
 # Builder: gcr.io/cloud-builders/docker
-# Substitutions: _RBGY_GAR_PROJECT, _RBGY_MONIKER
+# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER
 
 set -euo pipefail
 
 test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
 TAG_BASE="$(cat .tag_base)"
-META_URI="gcr.io/${_RBGY_GAR_PROJECT}/${_RBGY_MONIKER}:${TAG_BASE}-meta"
+META_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-meta"
 
 {
   echo 'FROM scratch'
