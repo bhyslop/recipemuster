@@ -146,14 +146,22 @@ zrbf_stitch_build_json() {
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
   # Note: Step 05 (buildx-create) was merged into step 06 because Cloud Build
   # steps run in isolated containers - builder state doesn't persist across steps
+  #
+  # OCI Layout Bridge pattern (steps 06-08):
+  # - Step 06: buildx exports to /workspace/oci-layout (no auth needed)
+  # - Step 07: Skopeo pushes from oci-layout to GAR (with metadata auth)
+  # - Step 08: Syft analyzes from oci-layout (faster, more accurate)
+  # - Step 10: Assembles metadata JSON from .image_uri
+  # - Step 09: Builds and pushes metadata container (depends on step 10)
   local z_step_defs=(
     "rbgjb01-derive-tag-base.sh:gcr.io/cloud-builders/gcloud:bash:derive-tag-base"
     "rbgjb02-get-docker-token.sh:gcr.io/cloud-builders/gcloud:bash:get-docker-token"
     "rbgjb03-docker-login-gar.sh:gcr.io/cloud-builders/docker:bash:docker-login-gar"
     "rbgjb04-qemu-binfmt.sh:gcr.io/cloud-builders/docker:bash:qemu-binfmt"
-    "rbgjb06-build-and-push.sh:gcr.io/cloud-builders/docker:bash:build-and-push"
-    "rbgjb07-assemble-metadata.sh:\${_RBGY_JQ_REF}:sh:assemble-metadata"
+    "rbgjb06-build-and-export.sh:gcr.io/cloud-builders/docker:bash:build-and-export"
+    "rbgjb07-push-with-skopeo.sh:quay.io/skopeo/stable:latest:bash:push-with-skopeo"
     "rbgjb08-sbom-and-summary.sh:gcr.io/cloud-builders/docker:bash:sbom-and-summary"
+    "rbgjb10-assemble-metadata.sh:\${_RBGY_JQ_REF}:sh:assemble-metadata"
     "rbgjb09-build-and-push-metadata.sh:gcr.io/cloud-builders/docker:bash:build-and-push-metadata"
   )
 

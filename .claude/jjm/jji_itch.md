@@ -722,3 +722,41 @@ Update JJ heat management skills (`/jja-pace-new`, `/jja-pace-wrap`, `/jja-pace-
 ### Context
 
 Identified during active heat work where pace iteration and abandonment is common, 2025-12-31.
+
+## tabtarget-simplify-and-batch-create
+Standardize tabtarget contents and enable batch creation/scrubbing.
+
+### Problem
+
+Tabtarget files have inconsistent structure and patterns. Creating or updating multiple tabtargets requires multiple operations, making it tedious to maintain consistency across a workbench's tabtargets.
+
+### Proposed Solution
+
+1. **Standardize tabtarget contents** - Define simple, consistent structure for all tabtarget files
+2. **Variable-args tabtarget creator** - Update the tabtarget creator to accept:
+   - First arg: launcher name (required)
+   - Remaining args: any number of tabtarget specifications to create
+3. **Batch operations** - Enable Claude to create/scrub all tabtargets with one command line
+
+### Example Usage
+
+```bash
+# Create multiple tabtargets for rbw workbench in one command
+tt/buw-tc.CreateTabTarget.sh rbw \
+    "PC:PayorDepotCreate" \
+    "PD:PayorDepotDestroy" \
+    "lD:ListDepots" \
+    "GD:GovernorDirectorCreate" \
+    "GR:GovernorRetrieverCreate"
+```
+
+### Benefits
+
+- **Consistency** - All tabtargets follow same structure automatically
+- **Efficiency** - Create/update many tabtargets in one operation
+- **Maintainability** - Easy to scrub all tabtargets when patterns change
+- **Documentation** - Single command shows all tabtargets for a workbench
+
+### Context
+
+Identified 2025-12-31 during tabtarget maintenance work.

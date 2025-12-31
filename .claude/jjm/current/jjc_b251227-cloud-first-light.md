@@ -656,3 +656,38 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Next**: Update build stitcher (rbf_Foundry.sh) to integrate new step structure.
 ---
+
+---
+### 2025-12-31 07:55 - update-build-stitcher - APPROACH
+**Proposed approach**:
+- Read zrbf_stitch_build_json() function in Tools/rbw/rbf_Foundry.sh
+- Update step 06 metadata:
+  - Change filename from rbgjb06-build-and-push.sh to rbgjb06-build-and-export.sh
+  - Update step ID from "build-and-push" to "build-and-export"
+- Add new step 07 metadata:
+  - Filename: rbgjb07-push-with-skopeo.sh
+  - Builder: quay.io/skopeo/stable:latest
+  - Entrypoint: bash
+  - Step ID: "push-with-skopeo"
+  - Dependencies: wait for step 06 (build-and-export)
+- Verify step 08 and 09 metadata still correct
+- Test by running the stitcher function mentally to ensure valid JSON structure
+
+### 2025-12-31 08:00 - update-build-stitcher - COMPLETE
+**Outcome**: Updated stitcher with new OCI bridge step structure.
+
+**Changes**:
+- Renamed rbgjb07-assemble-metadata.sh → rbgjb10-assemble-metadata.sh (avoid number collision)
+- Updated rbf_Foundry.sh step definitions:
+  - Step 06: rbgjb06-build-and-export.sh (updated from build-and-push)
+  - Step 07: rbgjb07-push-with-skopeo.sh (NEW - uses quay.io/skopeo/stable:latest)
+  - Step 08: rbgjb08-sbom-and-summary.sh (unchanged)
+  - Step 10: rbgjb10-assemble-metadata.sh (renumbered from 07)
+  - Step 09: rbgjb09-build-and-push-metadata.sh (unchanged, runs last)
+- Added OCI Layout Bridge comment block explaining the pattern
+- Execution order ensures dependencies: 06 → 07 → 08 → 10 → 09
+
+**Key insight**: Step 10 (assemble-metadata) must run before step 9 (build-and-push-metadata) because step 9 needs build_info.json created by step 10.
+
+**Next**: Test complete OCI bridge workflow with actual build.
+---
