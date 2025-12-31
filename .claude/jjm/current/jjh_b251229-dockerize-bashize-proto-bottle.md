@@ -190,47 +190,59 @@ rbw_runtime_cmd() {
 
 ## Remaining
 
-- **Investigate Docker Desktop host-to-container HTTP issue** — HTTP requests from macOS host through sentry's socat proxy timeout, blocking srjcl and pluml test validation. This pace must resolve before continuing srjcl/pluml migration.
+- **Characterize Docker Desktop for Mac HTTP return path issue** — Diagnostic pace to understand why HTTP responses fail when macOS host connects through Docker port mapping to sentry. TCP handshake succeeds but HTTP responses never return. This is a Docker Desktop networking layer issue, not specific to socat vs DNAT choice.
   mode: manual
 
-  **Symptom**: `curl http://localhost:7999/lab` from macOS host hangs indefinitely (sends request, never receives response). Returns HTTP code "000".
+  **Symptom**: `curl http://localhost:7999/lab` from macOS host hangs (sends request, never receives response). HTTP code "000".
 
   **What works**:
-  - TCP connection from host succeeds: `nc -zv localhost 7999` → "succeeded!"
+  - TCP connection succeeds: `nc -zv localhost 7999` → "succeeded!"
   - Docker port mapping exists: `docker port srjcl-sentry` → "7999/tcp -> 0.0.0.0:7999"
-  - Sentry is dual-homed (bridge + enclave networks)
-  - Socat running in sentry: `socat TCP-LISTEN:7999,fork,reuseaddr TCP:10.242.2.3:8000`
-  - Bottle's Jupyter listening: `netstat -tuln` shows 0.0.0.0:8000
-  - Sentry-to-bottle HTTP works: `docker exec srjcl-sentry nc -zv 10.242.2.3 8000` → "succeeded!"
   - HTTP from inside sentry works: `docker exec srjcl-sentry curl localhost:7999/api` → HTTP 200
   - Same issue affects nsproto (port 8890) - not srjcl-specific
 
-  **Architecture flow**:
-  ```
-  Host:7999 → Docker port mapping → Sentry:7999 (socat) → Bottle:8000 (Jupyter)
-  ```
-
-  **Hypothesis**: Docker Desktop for Mac networking quirk. TCP handshake completes but HTTP response data doesn't flow back through the socat proxy when accessed from the host. May be related to Docker Desktop's VM-based networking layer.
+  **Key insight**: This is a return path problem through Docker Desktop's vpnkit layer (macOS → VM → container). Both socat and iptables DNAT would traverse the same Docker layer and likely encounter the same issue.
 
   **Investigation paths**:
-  1. Check Docker Desktop networking settings (VirtioFS, gRPC FUSE, etc.)
-  2. Try binding socat to specific interface vs 0.0.0.0
-  3. Test with simpler proxy (netcat instead of socat)
-  4. Check if `--network host` on test container works differently
-  5. Compare behavior on Linux Docker (if available)
-  6. Check if issue is IPv4 vs IPv6 related (curl tries ::1 first)
+  1. Test IPv4 vs IPv6: verify curl uses IPv4, check if IPv6 loopback (::1) behaves differently
+  2. Test with simpler proxy: try `nc -l` or `ncat` instead of socat to isolate behavior
+  3. Check Docker Desktop networking mode: VirtioFS, gRPC FUSE, network driver options
+  4. Examine Docker port mapping internals: `docker inspect` for port config details
+  5. Test connection tracking: check for conntrack conflicts between Docker and container layers
 
-  **Workaround options** (if root cause not fixable):
-  - Run HTTP tests from inside container network (via docker exec)
-  - Run Python test container with `--network container:srjcl-sentry` to share sentry's namespace
-  - Accept limitation and document as Docker Desktop caveat
+  **Workaround options** (to unblock testing):
+  - Run HTTP tests from inside container network via `docker exec`
+  - Run test container with `--network container:srjcl-sentry` to share sentry's namespace
+  - Accept as Docker Desktop limitation and document the caveat
 
-  **Files created during srjcl partial migration** (preserved, awaiting this fix):
+  **Success criteria**: Either find root cause and fix, or select workaround that allows srjcl/pluml test validation to proceed.
+
+  **Files preserved from srjcl partial migration**:
   - `Tools/rbw/rbrn_srjcl.env` - nameplate config (uses local images)
   - `tt/rbw-*.srjcl.sh` - all 6 tabtargets migrated to BUD launcher
   - `rbt_testbench.sh` - srjcl test functions added (3 tests)
   - `RBM-tests/rbt.test.srjcl.py` - fixed env var typo (RBN→RBRN)
   - `bottle_anthropic_jupyter:local-*` - locally built image for arm64
+
+- **Resolve socat vs iptables DNAT architecture** — RBS specifies iptables DNAT for port forwarding (PREROUTING rules on eth0). Current implementation uses socat. Decide: (1) migrate to iptables DNAT to match RBS, or (2) update RBS to specify socat as the port forwarding mechanism. Independent of Docker Desktop quirks - this is an architectural alignment question.
+  mode: manual
+
+  **RBS specification** (§3.2.2 "Port Setup Phase"):
+  - DNAT Configuration in nat table PREROUTING on eth0
+  - Match destination port RBRN_ENTRY_PORT_WORKSTATION
+  - DNAT to bottle IP on eth1 with port RBRN_ENTRY_PORT_ENCLAVE
+
+  **Current implementation**:
+  - Socat proxy: `socat TCP-LISTEN:7999,fork,reuseaddr TCP:10.242.2.3:8000`
+  - Started during sentry configuration, not via iptables
+
+  **Decision factors**:
+  - Consistency with specification vs implementation simplicity
+  - Whether iptables DNAT would work better with Docker Desktop (unlikely - same layer traversal)
+  - Operational observability and debuggability
+  - Future maintenance burden
+
+  **Outcome**: Document decision and either update implementation or update RBS accordingly.
 
 - **Complete srjcl test validation** — After HTTP issue resolved, run full srjcl test suite. May need to adjust test approach based on resolution.
   mode: manual
@@ -245,6 +257,9 @@ rbw_runtime_cmd() {
   mode: manual
 
 - **Document deferred strands** — Finalize Paddock "Deferred" section. Create itch for podman VM migration heat with specific items to address.
+  mode: manual
+
+- **Update RBS to document censer model** — RBS describes a two-container model (sentry + bottle on enclave). The actual implementation uses a three-container "censer model" where bottle shares censer's network namespace (`--net=container:censer`). Update RBS to match the censer architecture documented in `../recipebottle-admin/index.adoc` (the authoritative source). Note: `index.html` in the main repo is an outdated copy that lacks censer; regenerate from the admin repo's `index.adoc`.
   mode: manual
 
 ## Steeplechase
