@@ -97,10 +97,9 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Adjust SBOM generation for OCI layout** — Updated rbgjb08-sbom-and-summary.sh to read from OCI layout instead of registry. Changed Syft source to `oci-dir:/workspace/oci-layout`. Added volume mount for Syft access. Faster (no network), more accurate (analyzes local build). Committed as 6484d51.
 
-## Current
+- **Update build stitcher for new steps** — Updated zrbf_stitch_build_json() in rbf_Foundry.sh. Renamed rbgjb07-assemble-metadata.sh → rbgjb10-assemble-metadata.sh. Added rbgjb07-push-with-skopeo.sh with quay.io/skopeo builder. Updated step 06 reference to rbgjb06-build-and-export.sh. Execution order: 06→07→08→10→09. Committed as 5377690.
 
-- **Update build stitcher for new steps** — Update zrbf_stitch_build_json() in rbf_Foundry.sh to reflect: (1) rbgjb06 renamed to rbgjb06-build-and-export, (2) new rbgjb07-push-with-skopeo step added, (3) rbgjb07 uses quay.io/skopeo/stable:latest builder, (4) correct step dependencies and ordering. Test JSON generation produces valid Cloud Build config.
-  mode: manual
+## Current
 
 - **Test complete OCI bridge workflow** — Run full build with busybox vessel. Verify: (1) multi-platform OCI layout created, (2) Skopeo push succeeds to GAR, (3) all 3 platforms present in manifest, (4) SBOM generated correctly, (5) metadata container pushed. Check image pullable from GAR with correct platforms.
   mode: manual
