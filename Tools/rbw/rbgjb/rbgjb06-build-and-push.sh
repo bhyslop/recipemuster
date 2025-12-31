@@ -28,12 +28,8 @@ IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR
 docker buildx version
 docker version
 
-# Create and bootstrap buildx builder (must be in same container as build)
-# Use docker driver which accesses host docker daemon (has GAR credentials from step 3)
-# Remove any existing builder first to ensure clean state
-docker buildx rm rbia-builder 2>/dev/null || true
-docker buildx create --name rbia-builder --driver docker --use
-docker buildx inspect --bootstrap
+# Use default buildx builder (docker driver = host docker daemon with GAR credentials from step 3)
+# No need to create a builder - the default builder uses the authenticated docker daemon
 
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
