@@ -53,7 +53,7 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 # These are only used inside GCB build steps (_RBGY_* substitutions).
 
 # jq: JSON processor, stable digest pin
-RBRR_GCB_JQ_IMAGE_REF="docker.io/stedolan/jq@sha256:9f3506d9e1d06d76a8b9c37b60f8a2c4f066faab418b6e46f11d4fda0644f3c7"
+RBRR_GCB_JQ_IMAGE_REF="ghcr.io/jqlang/jq:latest"
 
 # syft: Anchore SBOM generator (~May 2025)
 RBRR_GCB_SYFT_IMAGE_REF="ghcr.io/anchore/syft:latest"
