@@ -87,21 +87,26 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise retriever_create (restore)** — SKIPPED: deleted director-default instead of retriever; no restore needed.
 
+- **Test trigger_build with GCR** — GCR test executed (build ddfb01b9). Multi-platform compilation succeeded (all 3 platforms built), but push failed with same 403 Forbidden error as GAR. Proved: (1) buildx driver config correct, (2) auth problem universal to docker-container isolation, (3) GCP auto-auth only works for host daemon. Updated RBWMBX memo with findings. Conclusion: must provide credentials inside BuildKit container.
+
 ## Current
 
-- **Test trigger_build with GCR** — Validate multi-platform buildx works with Cloud Build by switching target from Artifact Registry to gcr.io. Modify vessel config to use `gcr.io/$PROJECT_ID` instead of `us-central1-docker.pkg.dev`. Run build. SUCCESS: image pushes successfully → proves buildx driver config is correct, proceed to next pace. FAILURE: build still fails → driver issue, skip OAuth paces and jump to "Document decision". See RBWMBX memo for background.
+- **Revert GCR test changes** — Restore GAR target in build scripts. Change `IMAGE_URI` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format in rbgjb06 and rbgjb09. Commit reversion before proceeding with authentication solutions. Keep GCR test results documented in RBWMBX.
   mode: manual
 
-- **Implement OAuth config.json for GAR** — Create proper Artifact Registry authentication for docker-container driver. Generate config.json with `gcloud auth print-access-token`, research how to mount/pass to buildx builder (driver-opt, buildkitd.toml, or environment). Test with real GAR push. SUCCESS: image pushes to Artifact Registry → solution found, update RBWMBX with working approach, proceed to image_list. FAILURE: credential passing blocked → try buildkitd.toml pace. Prerequisite: GCR test must succeed first.
+- **Try DOCKER_CONFIG environment variable** — Implement RBWMBX Option 1 (most promising auth approach). Modify rbgjb03 to create config.json with OAuth token in /workspace/.docker/. Modify rbgjb06 to pass `--driver-opt env.DOCKER_CONFIG=/workspace/.docker` to buildx create. Test build. SUCCESS: push works → document solution, proceed to RBSTB update. FAILURE: try buildkitd.toml pace.
   mode: manual
 
-- **Evaluate buildkitd.toml approach** — Alternative authentication method if config.json mounting proves difficult. Create buildkitd.toml with registry config, pass via --buildkitd-config flag to buildx create. Test GAR push. SUCCESS: works → document in RBWMBX, proceed to image_list. FAILURE: doesn't work → proceed to decision pace. Only try this if config.json pace failed.
+- **Try buildkitd.toml approach** — Implement RBWMBX Option 2 if DOCKER_CONFIG failed. Create buildkitd.toml with registry config, pass via --buildkitd-flags to buildx create. Test build. SUCCESS: push works → document solution, proceed to RBSTB update. FAILURE: proceed to architectural decision pace. Only execute if DOCKER_CONFIG pace failed.
   mode: manual
 
-- **Document multi-platform decision** — Capture final outcome in RBWMBX memo. If GAR authentication solved: document working approach, update build scripts. If unsolved: document attempt, decide between single-arch (amd64 only) or GCR usage, update vessel configs accordingly. Close authentication research, proceed to RBSTB update.
+- **Decide on architectural approach** — If both auth methods failed, choose between: (1) Kaniko rewrite, (2) single-arch amd64 only, (3) manual manifest combining. Evaluate trade-offs, select approach, document decision in RBWMBX. Proceed to implementation pace with chosen strategy.
   mode: manual
 
-- **Update RBSTB specification** — Incorporate learnings into rbw-RBSTB-trigger_build.adoc. Add details about: (1) multi-platform build requirements (buildx driver, QEMU, platform constraints), (2) Cloud Build step structure (authentication, builder setup), (3) GAR vs GCR authentication differences, (4) Mason service account permission requirements, (5) reference to RBWMBX for implementation details. Ensure spec accurately reflects working solution and constraints discovered during exercise.
+- **Implement chosen solution** — Execute selected multi-platform strategy. If auth worked: finalize build scripts. If Kaniko: rewrite build steps. If single-arch: remove multi-platform, simplify to default driver. If manual manifests: implement orchestration. Validate end-to-end build succeeds.
+  mode: manual
+
+- **Update RBSTB specification** — Document final solution in rbw-RBSTB-trigger_build.adoc. Include: (1) chosen approach and rationale, (2) authentication mechanism details, (3) platform support (multi-arch or single), (4) Cloud Build step structure, (5) Mason SA permissions, (6) reference RBWMBX for decision history. Spec must accurately reflect working implementation.
   mode: manual
 
 - **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
