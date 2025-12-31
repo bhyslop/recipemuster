@@ -189,32 +189,9 @@ rbw_runtime_cmd() {
 - **Validate nsproto with Docker** — Done (22 tests passing via `tt/rbw-to.TestBottleService.nsproto.sh`).
 - **Fix and validate iptables entry rule for host access** — Added missing RBM-INGRESS rule in `Tools/rbw/rbss.sentry.sh:85` to allow eth0 ingress traffic on entry port. HTTP connectivity from macOS host now working. Network captures confirmed traffic flow. All srjcl tests passed (3/3).
 - **Complete srjcl test validation** — Full srjcl test suite passed (3/3): jupyter_running, jupyter_connectivity, websocket_kernel. HTTP from macOS host to Jupyter via Docker port mapping now working perfectly.
+- **Update RBS port forwarding specification** — Replaced DNAT specification with socat proxy + iptables implementation in Phase 2. Added eth0 RBM-INGRESS rule documentation. Updated architecture to document three-container censer model throughout (System Overview, Bottle Pattern, term definitions). Added censer container attributes and definitions. Aligned with recipebottle-admin/index.adoc.
 
 ## Remaining
-
-- **Update RBS port forwarding specification** — RBS §3.2.2 "Port Setup Phase" specifies iptables DNAT but implementation uses socat. Document actual implementation: socat proxy + iptables INGRESS rule. Update RBS to match reality and document the censer model architecture.
-  mode: manual
-
-  **Current RBS specification** (§3.2.2):
-  - DNAT Configuration in nat table PREROUTING on eth0
-  - Match destination port RBRN_ENTRY_PORT_WORKSTATION
-  - DNAT to bottle IP on eth1 with port RBRN_ENTRY_PORT_ENCLAVE
-
-  **Actual implementation**:
-  - Socat proxy: `socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}`
-  - RBM-INGRESS rule: allow eth0 TCP traffic on RBRN_ENTRY_PORT_WORKSTATION
-  - RBM-EGRESS rules: allow sentry → bottle on RBRN_ENTRY_PORT_ENCLAVE
-  - No NAT PREROUTING/DNAT rules
-
-  **RBS updates needed**:
-  1. Replace DNAT specification with socat proxy specification
-  2. Add missing RBM-INGRESS eth0 rule to filter configuration
-  3. Document three-container censer model (sentry/censer/bottle with shared namespace)
-  4. Align with `../recipebottle-admin/index.adoc` which already documents censer
-
-  **Files to modify**:
-  - `lenses/rbw-RBS-Specification.adoc` - update §3.2.2 Port Setup Phase
-  - Optionally regenerate `index.html` from admin repo's index.adoc
 
 - **Migrate pluml nameplate and tests** — Create `rbrn_pluml.env`, migrate `rbt.test.pluml.mk` tests to bash, migrate pluml tabtargets (`rbw-s.Start.pluml.sh`, `rbw-S.ConnectSentry.pluml.sh`, `rbw-o.ObserveNetworks.pluml.sh`, `rbw-to.TestBottleService.pluml.sh`). Validate with Docker.
   mode: manual
@@ -226,9 +203,6 @@ rbw_runtime_cmd() {
   mode: manual
 
 - **Document deferred strands** — Finalize Paddock "Deferred" section. Create itch for podman VM migration heat with specific items to address.
-  mode: manual
-
-- **Update RBS to document censer model** — RBS describes a two-container model (sentry + bottle on enclave). The actual implementation uses a three-container "censer model" where bottle shares censer's network namespace (`--net=container:censer`). Update RBS to match the censer architecture documented in `../recipebottle-admin/index.adoc` (the authoritative source). Note: `index.html` in the main repo is an outdated copy that lacks censer; regenerate from the admin repo's `index.adoc`.
   mode: manual
 
 ## Steeplechase

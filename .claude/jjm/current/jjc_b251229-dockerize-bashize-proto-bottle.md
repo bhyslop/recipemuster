@@ -247,4 +247,16 @@ iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j
 - Update Filter Configuration section to document the eth0 RBM-INGRESS rule we just added
 - Add or enhance architecture section documenting three-container censer model (sentry/censer/bottle with shared namespace)
 ---
+### 2025-12-31 06:35 - update-rbs-port-forwarding-specification - WRAP
+**Outcome**: RBS specification now accurately documents the actual implementation and three-container censer model.
+
+**Changes made**:
+1. **Phase 2 Port Setup**: Replaced DNAT specification with socat proxy configuration; documented all three iptables rules (eth0 ingress, eth1 egress, eth1 ingress)
+2. **System Overview - Bottle Pattern**: Updated from two-container to three-container architecture; added censer namespace establishment and sharing explanation
+3. **Architecture Terms**: Added censer container attribute references (`:at_censer_container:`, `:at_censer_container_s:`)
+4. **Term Definitions**: Added `[[term_censer_container]]` definition; updated `[[term_bottle_service]]` and `[[term_bottle_container]]` to reference censer
+5. **Alignment**: Specification now matches recipebottle-admin/index.adoc and actual rbss.sentry.sh implementation
+
+**Next pace ready**: "Migrate pluml nameplate and tests" - final nameplate migration to complete the nsproto/srjcl/pluml trilogy.
+---
 (execution log begins here)
