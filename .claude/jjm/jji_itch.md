@@ -554,3 +554,105 @@ Review whether workbench functions should move to RBOB module.
 ### Context
 
 Emerged during RBOB BCG modernization pace, 2025-12-30. Deferred to keep pace focused on BCG compliance.
+
+## rbw-podman-vm-migration
+Migrate podman VM lifecycle from Makefile to bash, enabling RBRN_RUNTIME=podman support.
+
+### Goal
+
+Complete the bash migration by implementing podman VM machinery, making the architecture fully runtime-agnostic. After this heat, users can choose Docker (no VM) or Podman (with VM) via nameplate configuration.
+
+### Scope: Makefile Rules to Migrate
+
+**VM Lifecycle** (rbp.podman.mk):
+- `rbp_podman_machine_start_rule` (lines 181-201) - VM startup, version logging
+- `rbp_podman_machine_stop_rule` (lines 203-206) - VM shutdown
+- `rbp_podman_machine_nuke_rule` (lines 208-213) - VM removal
+- `rbp_check_connection` (lines 215-218) - connection validation
+
+**VM Image Management** (rbp.podman.mk, marked DEFERRED/BUGGY):
+- `rbp_stash_check_rule` (lines 62-107) - VM image acquisition and validation
+- `rbp_stash_update_rule` (lines 138-179) - Pin to controlled version in registry
+
+**Makefile Wrappers** (rbw.workbench.mk):
+- `rbw-a.%` (line 79) - Start VM and login to registry
+- `rbw-z.%` (line 82) - Stop VM
+- `rbw-Z.%` (line 85) - Nuke VM
+- `rbw-c.%`, `rbw-m.%`, `rbw-f.%`, `rbw-i.%`, `rbw-N.%`, `rbw-e.%` (lines 98-116) - VM management operations
+
+**Variables to Abstract**:
+- `RBM_MACHINE`, `RBM_CONNECTION` - machine name and connection params (rbp.podman.mk:25-26)
+- `zRBM_PODMAN_SSH_CMD`, `zRBM_PODMAN_SHELL_CMD` - SSH execution (rbp.podman.mk:37-38)
+- `zRBM_EXPORT_ENV` - environment rollup for VM exec (rbp.podman.mk:29-34)
+
+### Architecture Decisions
+
+**Module Structure**:
+- Create `rbpv_PodmanVM.sh` (Podman VM lifecycle) following BCG kindle/sentinel pattern
+- Add `rbpv_cli.sh` for direct invocation (info, start, stop, nuke commands)
+- Extend `rbw_workbench.sh` to route VM commands when `RBRN_RUNTIME=podman`
+
+**Configuration**:
+- Add VM parameters to `rbrr_regime.sh` (machine name, connection, image pinning)
+- Or create separate `rbrp.env` (Podman regime) if VM config is independent of repo
+- Document in RBRR spec (or new spec if separate regime)
+
+**Runtime Abstraction**:
+- `rbw_runtime_cmd()` already exists - extend for VM-aware podman invocation
+- VM lifecycle becomes prerequisite for podman runtime operations
+- Docker operations skip VM lifecycle entirely (no-op)
+
+### Key Technical Challenges
+
+**Bridge Observation**:
+- `rbo.observe.sh` uses `podman machine ssh` to capture bridge traffic
+- No Docker equivalent - Docker Desktop doesn't expose VM bridge
+- Options:
+  1. Make bridge capture podman-only (document limitation)
+  2. Create diagnostic container with network_mode:host on Docker
+  3. Accept bridge observation unavailable on Docker runtime
+
+**VM Image Pinning**:
+- Current stash machinery is marked BUGGY/DEFERRED
+- Do we implement controlled version pinning, or defer to future heat?
+- Minimum viable: hardcode recent stable image, document manual update process
+
+**Connection Validation**:
+- `rbp_check_connection` validates VM is reachable before operations
+- Integrate into `rbob_start()` and other operations when runtime=podman
+- Graceful error if VM isn't running (suggest `rbw-vm-start`)
+
+### Testing Strategy
+
+**Vertical Slice on nsproto**:
+- Update `rbrn_nsproto.env`: `RBRN_RUNTIME=podman`
+- Implement VM lifecycle in bash
+- Migrate one tabtarget at a time (start, connect, test, stop)
+- Validate identical behavior to Docker
+
+**Full Validation**:
+- All three nameplates (nsproto, srjcl, pluml) pass tests with podman runtime
+- Document runtime differences (--internal network flag, ICMP behavior)
+- Ensure runtime can be switched per nameplate (mixed environment)
+
+### Deferred to Future
+
+**Batch Operations**:
+- Parallel test execution (`rbw-tb.%`, `rbw-ta.%`) still deferred
+- Focus on getting podman runtime working, not batch automation
+
+**VM Image Registry**:
+- Full stash/pin machinery may be deferred again if too complex
+- Document manual image update process as interim solution
+
+### Success Criteria
+
+1. All three nameplates work with `RBRN_RUNTIME=podman`
+2. All tests pass (22 nsproto, 3 srjcl, 5 pluml)
+3. VM lifecycle managed via bash (start, stop, nuke, connection check)
+4. No Makefile rules remaining (except possibly deferred stash/pin)
+5. Documentation updated in RBRR or new spec
+
+### Context
+
+Deferred from dockerize-bashize-proto-bottle heat (jjh_b251229), completed 2025-12-31. Docker runtime fully validated; podman runtime is natural next step to complete the architecture vision.
