@@ -108,7 +108,10 @@ Permanent depot for use throughout remaining paces and beyond.
 - **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
   mode: manual
 
-- **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Add early validation in rbf_build to verify repository exists before submitting build. Include clear error message if mismatch detected.
+- **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Root cause: RBRR_GAR_REPOSITORY is static manual config, but repository name is determined at depot_create time. Options: (1) Add runtime validation in rbf_build to verify repository exists before build, (2) Change depot_create to write RBRR_GAR_REPOSITORY, (3) Derive repository name from depot project ID. Evaluate which approach prevents future desync.
+  mode: manual
+
+- **Add Architecture Decision Record to RBAGS** — Create ADR section in rbw-RBAGS-AdminGoogleSpec.adoc documenting the OCI Layout Bridge decision. Capture: (1) problem statement (BuildKit credential isolation), (2) constraints discovered (default driver limitations, docker-container isolation), (3) options evaluated and why rejected, (4) chosen solution and rationale, (5) key implementation details (tarball format, Skopeo auth, Syft workaround). Reference RBWMBX memo and steeplechase entries. Preserve institutional knowledge without the discovery narrative.
   mode: manual
 
 - **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
