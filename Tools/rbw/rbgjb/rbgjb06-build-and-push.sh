@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJB Step 06: Build multi-arch image and push to GAR
+# RBGJB Step 06: Build multi-arch image and push to GCR (testing)
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
@@ -23,13 +23,14 @@ test -n "${_RBGY_GIT_BRANCH}"     || (echo "_RBGY_GIT_BRANCH missing"     >&2; e
 test -n "${_RBGY_GIT_REPO}"       || (echo "_RBGY_GIT_REPO missing"       >&2; exit 1)
 
 TAG_BASE="$(cat .tag_base)"
-IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
+IMAGE_URI="gcr.io/${_RBGY_GAR_PROJECT}/${_RBGY_MONIKER}:${TAG_BASE}-img"
 
 docker buildx version
 docker version
 
-# Use default buildx builder (docker driver = host docker daemon with GAR credentials from step 3)
-# No need to create a builder - the default builder uses the authenticated docker daemon
+# Create docker-container driver for multi-platform support
+# Testing GCR to see if auto-authentication works with isolated builder
+docker buildx create --name rbia-builder --driver docker-container --use
 
 docker buildx build \
   --platform="${_RBGY_PLATFORMS}" \
