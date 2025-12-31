@@ -22,22 +22,51 @@ test -f /workspace/oci-layout.tar  || (echo "OCI archive not found"        >&2; 
 TAG_BASE="$(cat .tag_base)"
 IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
 
+# Debug: show what tools are available
+echo "=== Debug: Available tools ==="
+which curl wget skopeo cat ls || true
+echo "=== Debug: /workspace contents ==="
+ls -la /workspace/ || true
+echo "=== Debug: Archive size ==="
+ls -la /workspace/oci-layout.tar || true
+
 echo "Fetching access token from metadata server..."
-TOKEN_JSON=$(curl -sf -H "Metadata-Flavor: Google" \
-  http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token)
+# Try curl first, fall back to wget if curl not available
+if command -v curl >/dev/null 2>&1; then
+  TOKEN_JSON=$(curl -sf -H "Metadata-Flavor: Google" \
+    http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token)
+elif command -v wget >/dev/null 2>&1; then
+  TOKEN_JSON=$(wget -qO- --header="Metadata-Flavor: Google" \
+    http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token)
+else
+  echo "ERROR: Neither curl nor wget available in container" >&2
+  exit 1
+fi
 
 if [ -z "$TOKEN_JSON" ]; then
   echo "Failed to fetch access token from metadata server" >&2
   exit 1
 fi
 
-# Extract access_token field from JSON (simple grep/sed approach for Cloud Build)
-AR_TOKEN=$(echo "$TOKEN_JSON" | grep -o '"access_token":"[^"]*"' | sed 's/"access_token":"\([^"]*\)"/\1/')
+echo "Token JSON received (length: ${#TOKEN_JSON})"
+
+# Extract access_token field from JSON
+# Try multiple parsing approaches for compatibility
+if command -v grep >/dev/null 2>&1; then
+  AR_TOKEN=$(echo "$TOKEN_JSON" | grep -o '"access_token":"[^"]*"' | sed 's/"access_token":"\([^"]*\)"/\1/')
+else
+  # Fallback: use shell parameter expansion
+  AR_TOKEN="${TOKEN_JSON#*\"access_token\":\"}"
+  AR_TOKEN="${AR_TOKEN%%\"*}"
+fi
 
 if [ -z "$AR_TOKEN" ]; then
   echo "Failed to parse access token from response" >&2
+  echo "Response was: $TOKEN_JSON" >&2
   exit 1
 fi
+
+echo "Token parsed successfully (length: ${#AR_TOKEN})"
 
 echo "Pushing OCI archive to ${IMAGE_URI}..."
 skopeo copy \
