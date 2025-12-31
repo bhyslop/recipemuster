@@ -390,22 +390,51 @@ The current global context pattern has a fundamental flaw: when a workbench or m
 
 The context is determined at entry point, not at the point where output is produced. This violates BCG principle: "Every potential error explicitly handled" at its location.
 
-### Proposed Solution: `z_locale` Wrapper Pattern
+### Proposed Solution: `z_locale` Wrapper Pattern with Optional Degradation
 
-Each file/module defines local wrappers following BCG `z_*` conventions:
+Each file/module defines local wrappers following BCG `z_*` conventions.
+
+**Pattern with degradation (for portable scripts):**
 
 ```bash
 z_locale="${0##*/}"
 
-# Local convenience wrappers
-z_step()    { buc_step "${z_locale}" "$@"; }
-z_info()    { buc_info "${z_locale}" "$@"; }
-z_warn()    { buc_warn "${z_locale}" "$@"; }
-z_die()     { buc_die "${z_locale}" "$@"; }
-z_success() { buc_success "${z_locale}" "$@"; }
+# Detect BUK availability and set up wrappers
+if type buc_step >/dev/null 2>&1; then
+    # Full BUK available
+    z_step() { buc_step "${z_locale}" "$@"; }
+    z_info() { buc_info "${z_locale}" "$@"; }
+    z_warn() { buc_warn "${z_locale}" "$@"; }
+    z_die()  { buc_die "${z_locale}" "$@"; }
+else
+    # Graceful degradation - minimal functionality
+    z_step() { echo "[STEP] $*"; }
+    z_info() { echo "[INFO] $*"; }
+    z_warn() { echo "[WARN] $*" >&2; }
+    z_die()  { echo "[ERROR] $*" >&2; exit 1; }
+fi
+```
+
+**Pattern without degradation (for internal tooling):**
+
+```bash
+z_locale="${0##*/}"
+
+# Fail fast if BUK not available
+type buc_step >/dev/null 2>&1 || {
+    echo "ERROR: This script requires BUK (Bash Utility Kit)" >&2
+    exit 1
+}
+
+z_step() { buc_step "${z_locale}" "$@"; }
+z_info() { buc_info "${z_locale}" "$@"; }
+z_warn() { buc_warn "${z_locale}" "$@"; }
+z_die()  { buc_die "${z_locale}" "$@"; }
 ```
 
 Then call sites become: `z_step "message"` with correct file attribution in output.
+
+**Key advantage of degradation pattern:** Many scripts need nothing but these four operations - no other BUK functions. The degradation pattern reduces dependency to zero for scripts that only use basic output/error handling, making them portable and shareable without requiring full BUK installation.
 
 ### Advantages
 
@@ -627,3 +656,69 @@ Identified 2025-12-30 during depot create/destroy testing where billing quota wa
 
 ## rbp-planner-digest
 Digest `/Users/bhyslop/projects/recipebottle-admin/rbw-RBP-planner.adoc` for heat development. This planning document likely contains important guidance for structuring and executing Recipe Bottle work that should inform how heats are designed and executed.
+
+## podman-regime-support
+Add podman support through environment variable-based regime file selection.
+
+### Approach
+
+Create a mechanism to use an environment variable to choose different base regime files, enabling easy reconfiguration between Docker and Podman environments without manually editing configuration files.
+
+### Implementation Steps
+
+1. Design environment variable pattern for selecting base regime (e.g., `RBW_CONTAINER_ENGINE=podman`)
+2. Create podman-specific base regime files alongside existing Docker ones
+3. Update regime loading logic to switch between regime files based on environment variable
+4. Crank all test cases and suites to verify both Docker and Podman configurations work correctly
+
+### Benefits
+
+- Easy switching between container engines without manual config editing
+- Clean separation of Docker vs Podman configuration
+- Supports testing both engines in same repository
+- Enables developer choice of container runtime
+
+## jj-pace-history-transcript
+Add pace history transcript at top of heat files to track all paces created during the heat.
+
+### Problem
+
+During heat execution, paces are regularly abandoned, rewritten, or renamed. Currently there's no easy way to see:
+- What pace names have already been used
+- Which paces were abandoned vs completed
+- The evolution of work during the heat
+
+This makes pace naming harder and loses context about what approaches were tried.
+
+### Proposed Solution
+
+Maintain a "Pace Transcript" section at the top of each heat file that lists all paces ever created with their final status:
+
+```markdown
+## Pace Transcript
+
+- `initial-setup` - ✓ Finished
+- `fix-docker-auth` - ✗ Abandoned (approach didn't work)
+- `buildx-multiplatform` - ✗ Abandoned (switched to different strategy)
+- `direct-push-test` - ⧖ Pending
+- `cloud-build-integration` - ⧖ Active
+```
+
+### Benefits
+
+1. **Naming guidance** - Quick check if a pace name is already taken
+2. **Context preservation** - See what's been tried and why it was abandoned
+3. **Progress visibility** - Clear record of work evolution throughout heat
+4. **Session continuity** - Easy to resume after breaks by reviewing pace history
+
+### Implementation
+
+Update JJ heat management skills (`/jja-pace-new`, `/jja-pace-wrap`, `/jja-pace-arm`) to:
+1. Maintain the transcript section at heat file top
+2. Add new pace to transcript when created (status: Pending)
+3. Update status when pace is wrapped (Finished) or explicitly abandoned
+4. Preserve abandoned pace entries rather than deleting them
+
+### Context
+
+Identified during active heat work where pace iteration and abandonment is common, 2025-12-31.
