@@ -240,4 +240,11 @@ iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j
 
 **Next pace ready**: "Complete srjcl test validation" can be removed (already done). Move to "Update RBS port forwarding specification" or "Migrate pluml nameplate and tests".
 ---
+### 2025-12-31 06:22 - update-rbs-port-forwarding-specification - APPROACH
+**Proposed approach**:
+- Read recipebottle-admin/index.adoc to understand how censer model is documented there
+- Update RBS Phase 2 (Port Setup) to replace DNAT specification with socat proxy implementation
+- Update Filter Configuration section to document the eth0 RBM-INGRESS rule we just added
+- Add or enhance architecture section documenting three-container censer model (sentry/censer/bottle with shared namespace)
+---
 (execution log begins here)
