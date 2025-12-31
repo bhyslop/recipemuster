@@ -132,4 +132,56 @@ Permanent depot for use throughout remaining paces and beyond.
 
 ## Steeplechase
 
-(execution log begins here)
+---
+### 2025-12-31 05:55 - GCR Test - EXECUTION
+
+**Action**: Executed GCR test to validate if multi-platform buildx works with gcr.io instead of Artifact Registry.
+
+**Changes**:
+- Modified rbgjb06 and rbgjb09 to use `gcr.io/${PROJECT_ID}` format
+- Re-enabled docker-container driver creation
+- Committed as 10d1e2a
+
+**Result**: Build ddfb01b9-72fb-49bb-a996-9955285a6e22
+- ✓ Multi-platform compilation succeeded (amd64, arm64, arm/v7)
+- ✗ Push failed with 403 Forbidden (same as GAR)
+
+**Conclusion**: Auth problem is universal to docker-container isolation, not GAR-specific. GCP auto-auth only works for host daemon, not isolated BuildKit containers.
+
+---
+### 2025-12-31 06:30 - Authentication Research - APPROACH
+
+**Action**: Comprehensive web search and analysis of authentication solutions for multi-platform builds in Cloud Build.
+
+**Key findings**:
+1. **Kaniko is dead** - Archived Jan 2025, no longer maintained
+2. **DOCKER_CONFIG broken** - Issue #5477: breaks buildx command parsing
+3. **Issue #1205 documents our exact problem** - GCP OAuth timeout with buildx
+4. **No driver-opt for auth** - Docker-container driver has no credential options
+5. **BuildKit registry auth ongoing issue** - Multiple open issues, no solutions
+
+**Critical discovery**: Skopeo + OCI Layout Bridge
+- Google's own blog endorses Skopeo for Cloud Build multi-platform
+- BuildKit can export to OCI layout (no push, no auth needed)
+- Skopeo can copy from OCI layout to registry (with GCP auth)
+- Separates build phase from push phase using /workspace bridge
+
+---
+### 2025-12-31 07:00 - Documentation Updates - COMPLETE
+
+**Action**: Updated RBWMBX memo and heat paces with OCI Layout Bridge solution.
+
+**RBWMBX changes** (commits d07be5c, bdac6d9):
+- Added Option 6: OCI Layout Bridge (recommended solution)
+- Documented why Options 1 and 3 eliminated
+- Added comprehensive Skopeo/OCI references
+- Updated Next Steps with implementation plan
+
+**Heat pace changes** (commit 283cd69):
+- Removed outdated DOCKER_CONFIG/buildkitd.toml attempts
+- Added 6 focused OCI bridge implementation paces
+- Clear path: revert → implement export → implement push → test → document
+
+**Next session**: Begin with "Revert GCR test changes" pace, then implement OCI Layout Bridge.
+
+---
