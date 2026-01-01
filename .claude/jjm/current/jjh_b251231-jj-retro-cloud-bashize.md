@@ -58,13 +58,70 @@ This heat focuses on:
 
 - **Decide git commit safety** — Deferred: incorporated into studbook redesign heat (jju_notch.sh implementation).
 
+- **Create lessons learned memo** — Documented below in Lessons Learned section.
+
 ## Remaining
 
-- **Create lessons learned memo** — Summarize what worked across both trophy heats. Brief document for future heat authors.
+(all paces complete)
 
-- **Cross-reference lessons with studbook redesign** — Review lessons learned memo against b260101-jj-studbook-redesign paddock. Identify patterns that should inform studbook implementation or be captured in new JJ infrastructure.
+## Lessons Learned
+
+Patterns extracted from trophy heats: dockerize-bashize-proto-bottle (b251229) and cloud-first-light (b251227).
+
+### Paddock Template Patterns
+
+These patterns proved valuable enough to suggest as paddock sections:
+
+**Heat-Wide Guidelines** — A section at the top of the paddock establishing cross-cutting rules for the heat. Use for any heat with collaborative debugging, external resources, or complex workflows.
+
+Example (from cloud-first-light):
+- Bug Discovery Protocol: Stop, explain root cause, get approval before fixing
+- Resource Cleanup: Track abandoned resources in steeplechase if cleanup deferred
+
+**Deferred Strands** — Explicitly track what NOT to do in this heat to prevent scope creep. Use for any heat where related work must be consciously deferred.
+
+Example (from dockerize-bashize-proto-bottle):
+- Listed specific Makefile rules NOT to port (podman VM machinery)
+- Prevented scope creep into VM lifecycle during container migration
+
+### Organic Patterns
+
+These patterns emerge naturally from specific heat shapes. Don't template them — adopt when the situation calls for it.
+
+| Pattern | When It Emerges | Example |
+|---------|-----------------|---------|
+| FIRST LIGHT | Architecture validation needed | Single DNS test before 22-test suite |
+| Vertical Slice | Multi-component migration | nsproto → srjcl → pluml progression |
+| Testing Insights | Runtime differences discovered | Docker `--internal` vs Podman forwarding |
+| File Inventory | Multi-file refactoring | Table with create/modify/reference status |
+| Operation Status | Debugging multiple operations | 14-operation table with working/broken |
+| Trade Study | Significant design research | OCI Layout Bridge: 6 options → 1 decision |
+
+### What Worked
+
+1. **APPROACH/WRAP discipline** — Steeplechase entries with explicit APPROACH and WRAP created valuable retrospective material.
+2. **Spec updates with code** — Update spec in same pace as code fix to prevent drift.
+3. **Single-test validation** — Prove architecture with one test before scaling to full suite.
+4. **Explicit deferrals** — Tracking "not this heat" preserved focus.
+5. **Operation status tracking** — For debugging heats, status table provides clear progress visibility.
+
+### What to Avoid
+
+1. **Premature fixes** — Implementing fixes without explaining root cause first.
+2. **Implicit scope** — Assuming what's in/out of scope. Write it down.
+3. **Batch completions** — Marking multiple paces done at once loses steeplechase narrative.
+4. **Stale line references** — Don't put line numbers in Done summaries; use function names instead.
 
 ## Steeplechase
+
+---
+### 2026-01-01 - Lessons Learned - WRAP
+
+**Documented in heat file**: Paddock template patterns (Heat-Wide Guidelines, Deferred Strands), organic patterns table (6 patterns), what worked (5 items), what to avoid (4 items).
+
+**Cancelled pace**: Cross-reference with studbook redesign — user will review lessons learned separately with studbook heat focus.
+
+**Heat complete**: All paces done. Ready for retirement.
 
 ---
 ### 2026-01-01 - Prune Future Directions - WRAP
