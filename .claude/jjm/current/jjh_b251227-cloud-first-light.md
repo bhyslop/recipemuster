@@ -55,7 +55,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbf_list` | `rbw-il` | — | working |
 | `rbf_delete` | `rbw-fD` | RBSID | working |
 | `rbf_retrieve` | `rbw-r` | RBSIR | working |
-| `rbgm_payor_refresh` | `rbw-PR` | RBSPR | untested |
+| `rbgm_payor_refresh` | `rbw-PR` | RBSPR | working |
 
 ## Done
 
@@ -117,12 +117,11 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Update RBSTB specification** — Added Cloud Build Execution section (step 11) documenting OCI Layout Bridge pattern at abstract level: Build Phase (OCI artifact), Push Phase (metadata server token), Analysis Phase (SBOM), Metadata Phase (provenance). References Trade Study RBSOB for rationale. No implementation details exposed per spec style.
 
+- **Exercise payor_refresh** — Updated procedure for current GCP UI (+ Add secret flow), fixed CRM v1 lifecycleState field, optional "Google hasn't verified" screen handling. Tested: rotated secret, refreshed OAuth credentials, depot_list verified working.
+
 ## Current
 
 - **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
-  mode: manual
-
-- **Exercise payor_refresh** — Obtain fresh OAuth credentials. Validates recovery path.
   mode: manual
 
 - **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Root cause: RBRR_GAR_REPOSITORY is static manual config, but repository name is determined at depot_create time. Options: (1) Add runtime validation in rbf_build to verify repository exists before build, (2) Change depot_create to write RBRR_GAR_REPOSITORY, (3) Derive repository name from depot project ID. Evaluate which approach prevents future desync.

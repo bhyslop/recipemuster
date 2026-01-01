@@ -809,4 +809,23 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 - Verify instructions are correct and clear
 - Note: This is a manual procedure (displays instructions), not an automated operation
 - The actual refresh would use `rbgp_payor_install` with fresh OAuth JSON
+
+### 2026-01-01 06:15 - exercise-payor-refresh - WRAP
+**Outcome**: Successfully refreshed OAuth credentials using new secret rotation flow.
+
+**Fixes applied**:
+- Updated GCP UI instructions: RESET SECRET → "+ Add secret" flow
+- Fixed zrbgm_dm → zrbgm_dmd for 3-arg display (secret deletion text)
+- Indented "Browser downloads" as consequence of download step
+- Fixed CRM v1 API field: `.state` → `.lifecycleState` in payor_install
+- Made "Google hasn't verified" screen conditional (may not appear)
+- Cleaned up rbrp.env (one comment per variable)
+
+**Test result**:
+- Rotated client secret via GCP Console
+- Ran `tt/rbw-PI.PayorInstall.sh` with new JSON
+- `~/.rbw/rbro.env` timestamp updated: Dec 28 09:40 → Jan 1 06:01
+- `tt/rbw-ld.ListDepots.sh` succeeded: 1 depot (proto) COMPLETE
+
+**Itch added**: payor-install-rbrp-check (validation checklist with guide colors)
 ---
