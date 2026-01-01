@@ -171,6 +171,27 @@ build submitted with `«BUILD_ID»`
 .. {rbbc_show}
 Cloud Console URL for build monitoring
 
+. *Cloud Build Execution*:
+.. NOTE: Build executes via OCI Layout Bridge pattern to solve BuildKit credential isolation. See Trade Study RBSOB for design rationale.
+.. {gcb_service}
+executes the following phases within `«DEPOT_PROJECT_ID»`:
+... *Build Phase*: Multi-platform container compilation produces OCI Image Layout artifact in shared workspace. No registry credentials required.
+... *Push Phase*: OCI artifact copied to
+{rbtgi_repository}
+using
+{oauth_token}
+obtained from
+{gcb_service}
+metadata server.
+... *Analysis Phase*: Container image analyzed to produce SBOM (Software Bill of Materials).
+... *Metadata Phase*: Build provenance, SBOM, and transcript assembled into
+{rbtgi_metadata}
+and stored in
+{rbtgi_repository}.
+.. All phases execute as
+{rbtr_mason}
+within the depot infrastructure.
+
 . *Wait for Build Completion*:
 .. {rbbc_poll}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] with:

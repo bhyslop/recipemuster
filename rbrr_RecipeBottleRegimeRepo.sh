@@ -42,7 +42,7 @@ RBRR_DEPOT_PROJECT_ID=rbwg-d-proto-251230080456
 RBRR_GCP_REGION=us-central1  # Project doesn't have a region but our services do
 
 # Google Artifact Registry settings
-RBRR_GAR_REPOSITORY=brm-gar
+RBRR_GAR_REPOSITORY=rbw-proto-repository
 
 # Google Cloud Build settings  
 RBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8          # Google Cloud Build machine type (enum form as in web API, not gcloud CLI)
@@ -52,11 +52,11 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 # Google Cloud Build tool image pins (digest-pinned, ~spring 2025)
 # These are only used inside GCB build steps (_RBGY_* substitutions).
 
-# jq: JSON processor, stable digest pin
-RBRR_GCB_JQ_IMAGE_REF="docker.io/stedolan/jq@sha256:9f3506d9e1d06d76a8b9c37b60f8a2c4f066faab418b6e46f11d4fda0644f3c7"
+# jq: Use Alpine + jq package (jqlang/jq is distroless with no shell)
+RBRR_GCB_JQ_IMAGE_REF="alpine:latest"
 
 # syft: Anchore SBOM generator (~May 2025)
-RBRR_GCB_SYFT_IMAGE_REF="ghcr.io/anchore/syft@sha256:8ad91b3e24a1efde7a30cb5f0b5de3cf9eab77dfb5cfdbe6efae8f9e91b9e018"
+RBRR_GCB_SYFT_IMAGE_REF="ghcr.io/anchore/syft:latest"
 
 # gcrane: registry utility (~Apr 2025)
 RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:b6f6b744e7b5db9f50a85d3c7c0a7f5e04f04d1ad26d872d23eec92cb3dc5025"

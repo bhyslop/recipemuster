@@ -1,0 +1,645 @@
+= RBWMBX: Buildx Multi-Platform Authentication Memo
+:doctype: article
+:toc:
+:toc-title: Table of Contents
+:sectnums:
+
+== Problem Statement
+
+Multi-platform container builds using `docker buildx` with Google Cloud Build face authentication challenges when pushing to Google Artifact Registry (GAR). This memo documents research findings, root cause analysis, and potential solutions.
+
+=== Context
+
+The Recipe Bottle `trigger_build` operation (RBSTB) submits container builds to Google Cloud Build using the Mason service account. Initial attempts to build multi-platform images (linux/amd64, linux/arm64, linux/arm/v7) using `docker buildx` failed with authentication errors when pushing to Artifact Registry.
+
+=== Observed Failure
+
+Multi-platform builds completed successfully but push operations failed with:
+
+----
+ERROR: failed to push us-central1-docker.pkg.dev/PROJECT/REPO/IMAGE:TAG:
+failed to authorize: failed to fetch oauth token: unexpected status from
+GET request to https://us-central1-docker.pkg.dev/v2/token?scope=...: 403 Forbidden
+----
+
+== Root Cause Analysis
+
+=== The Catch-22 Situation
+
+Docker Buildx offers two driver options, each with critical limitations:
+
+[cols="1,1,1",options="header"]
+|===
+|Driver
+|Multi-Platform Support
+|GAR Credentials Access
+
+|`docker` (default)
+|✗ Not supported
+|✓ Has credentials from `docker login`
+
+|`docker-container`
+|✓ Supported
+|✗ Runs in isolated container
+|===
+
+**Key Finding**: The `docker` (default) driver explicitly does not support multi-platform builds:
+
+----
+ERROR: Multi-platform build is not supported for the docker driver.
+Switch to a different driver, or turn on the containerd image store, and try again.
+----
+
+=== Docker-Container Driver Isolation
+
+The `docker-container` driver creates an isolated BuildKit container that does not inherit host Docker daemon credentials. Per Docker buildx maintainer tonistiigi (https://github.com/docker/buildx/issues/3050[Issue #3050]):
+
+____
+"You need to either run `docker login` inside the dind environment or...mount that config file inside the dind container via volume"
+____
+
+This isolation is the core challenge: credentials configured in step 3 (docker login) are not available to the buildx builder container in step 6 (build-and-push).
+
+=== GCR vs Artifact Registry Authentication Differences
+
+The official https://github.com/GoogleCloudPlatform/solutions-build-multi-architecture-images-tutorial/blob/master/terraform/cloud-build/build-docker-image-trigger.yaml[Google Cloud Platform multi-arch tutorial] successfully pushes to `gcr.io` without explicit authentication, but this doesn't extend to Artifact Registry.
+
+**Critical Difference**:
+
+- `gcloud auth configure-docker` configures `\*.gcr.io` by default
+- For Artifact Registry, you must explicitly specify: `gcloud auth configure-docker REGION-docker.pkg.dev`
+
+Source: https://cloud.google.com/artifact-registry/docs/transition/changes-docker[Changes for Docker | Artifact Registry]
+
+== Research Findings
+
+=== Authentication Methods Investigated
+
+. **Docker config.json**: BuildKit reads credentials from `$DOCKER_CONFIG/config.json` (https://docs.docker.com/build/buildkit/configure/[Configure BuildKit])
+
+. **buildkitd.toml registry configuration**: Supports certificate-based authentication and config.json references (https://docs.docker.com/build/buildkit/toml-configuration/[buildkitd.toml reference])
+
+. **Driver options**: The docker-container driver supports `--driver-opt env.<key>=<value>` for environment variables (https://docs.docker.com/build/builders/drivers/docker-container/[Docker container driver])
+
+. **OAuth tokens**: `gcloud auth print-access-token` generates short-lived (60-minute) tokens suitable for automation
+
+=== Known Issues and Limitations
+
+. **Credential propagation**: Multiple GitHub issues document challenges with docker-container driver authentication (https://github.com/docker/buildx/issues/1613[#1613], https://github.com/docker/buildx/issues/2749[#2749])
+
+. **Config.json credential stores**: macOS/Windows use credential stores (`credsStore`) instead of inline credentials, complicating volume mounting approaches
+
+. **BuildKit registry auth**: No OAuth token support documented in buildkitd.toml; primarily certificate-based (https://github.com/moby/buildkit/issues/565[moby/buildkit#565])
+
+== Potential Solutions
+
+Given that GCR test proved the problem is universal to docker-container driver isolation, the following solutions remain viable:
+
+=== Option 1: Pass Credentials via DOCKER_CONFIG Environment Variable
+
+**Approach**: Create `config.json` with OAuth token, pass location to BuildKit via environment variable
+
+**Implementation sketch**:
+----
+# Step 3: Create config.json (replace current docker login)
+TOKEN=$(gcloud auth print-access-token)
+mkdir -p /workspace/.docker
+echo "{\"auths\":{\"gcr.io\":{\"username\":\"oauth2accesstoken\",\"password\":\"${TOKEN}\"}}}" > /workspace/.docker/config.json
+
+# Step 6: Pass config location to builder
+docker buildx create --name rbia-builder \
+  --driver docker-container \
+  --driver-opt env.DOCKER_CONFIG=/workspace/.docker \
+  --use
+----
+
+**Pros**:
+- Standard Docker authentication mechanism
+- Environment variable approach documented in buildx driver options
+- Short-lived token (60 minutes sufficient for Cloud Build)
+
+**Cons**:
+- Uncertain if BuildKit container can access `/workspace` mount
+- May require additional volume mounting flags
+- Needs experimentation to validate
+
+**Status**: Untested, most promising approach
+
+=== Option 2: buildkitd.toml with Registry Configuration
+
+**Approach**: Use buildkitd.toml to configure registry authentication, pass via `--buildkitd-config` flag
+
+**Implementation sketch**:
+----
+# Create buildkitd.toml
+cat > /workspace/buildkitd.toml <<EOF
+[registry."gcr.io"]
+  http = false
+  insecure = false
+EOF
+
+# Create and configure builder
+docker buildx create --name rbia-builder \
+  --driver docker-container \
+  --buildkitd-flags '--config /etc/buildkit/buildkitd.toml' \
+  --use
+----
+
+**Pros**:
+- Official BuildKit configuration mechanism
+- Explicit registry control
+
+**Cons**:
+- Limited documentation for OAuth token authentication
+- Still requires credential file in accessible location
+- May not support token-based auth (primarily certificate examples)
+
+**Status**: Untested, secondary option if Option 1 fails
+
+=== Option 3: Use Kaniko Instead of Docker Buildx
+
+**Approach**: Switch from docker buildx to Google's kaniko builder for multi-platform images
+
+**Pros**:
+- Kaniko designed for containerized builds without docker daemon
+- Native GCP integration, handles authentication differently
+- Official Google solution for Cloud Build multi-platform
+
+**Cons**:
+- Complete rewrite of build steps (rbgjb06-rbgjb09)
+- Different Dockerfile syntax requirements
+- Less familiar tooling
+
+**Status**: Architectural pivot, pursue if auth solutions fail
+
+=== Option 4: Single-Architecture Build (amd64 only)
+
+**Approach**: Abandon multi-platform requirement, build only `linux/amd64` using default docker driver
+
+**Pros**:
+- Works immediately with existing authentication
+- No complexity, stable solution
+- Sufficient for most current deployments
+
+**Cons**:
+- No ARM support (excludes Raspberry Pi, ARM cloud instances, Apple Silicon native)
+- Limits future flexibility
+- Defeats original multi-platform goal
+
+**Status**: Fallback if all other options prove infeasible
+
+=== Option 5: Manual Multi-Architecture via Manifest Combining
+
+**Approach**: Build each architecture separately using default driver, manually combine into manifest list
+
+**Pros**:
+- Uses working authentication (default driver)
+- Achieves multi-platform result
+- No BuildKit isolation issues
+
+**Cons**:
+- Complex build orchestration (3 separate builds)
+- Manual manifest creation and push
+- Slower (sequential builds instead of parallel)
+- Significant implementation effort
+
+**Status**: Complex workaround, consider only if simpler options fail
+
+=== Option 6: OCI Layout Bridge (Implemented Solution)
+
+**Approach**: Separate build phase from push phase using OCI Image Layout as intermediate format
+
+**Key insight**: Instead of fighting BuildKit's isolation to make `--push` work, break the atomic operation into discrete phases with filesystem storage as bridge.
+
+**Implementation** (proven working 2025-12-31, build 3b544930):
+----
+# Step 6: Build to OCI tarball (no network push)
+docker buildx create --driver docker-container --name rb-builder --use
+docker buildx build \
+  --platform="${_RBGY_PLATFORMS}" \
+  --output type=oci,dest=/workspace/oci-layout.tar \
+  --tag ${_RBGY_MONIKER}:${TAG_BASE}-img \
+  --label "moniker=${_RBGY_MONIKER}" \
+  --label "git.commit=${_RBGY_GIT_COMMIT}" \
+  -f "${_RBGY_DOCKERFILE}" \
+  .
+
+# Step 7: Push OCI archive with Skopeo (has authentication)
+AR_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
+  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \
+  sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+
+skopeo copy --all \
+  --dest-registry-token "${AR_TOKEN}" \
+  "oci-archive:/workspace/oci-layout.tar" \
+  "docker://${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
+----
+
+NOTE: Use `--dest-registry-token` (not `--dest-creds`) per https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud blog]. The `oci-archive:` transport reads tarballs; `oci:` transport reads directories.
+
+**Pros**:
+- BuildKit never needs registry credentials - only writes local filesystem
+- Skopeo runs as Cloud Build step with metadata server access (native GCP auth)
+- Build phase can take hours, push phase takes seconds (no 1-hour token timeout)
+- Preserves all multi-platform capabilities
+- Uses Google-recommended tools (Skopeo explicitly endorsed in Google Cloud blog)
+- Separates concerns: BuildKit does what it's good at (building), Skopeo does what it's good at (registry operations)
+- `/workspace` is shared across Cloud Build steps (perfect for intermediate storage)
+
+**Cons**:
+- Requires Skopeo container image (`quay.io/skopeo/stable:latest`)
+- Two-step process instead of atomic build-and-push
+- Need to adjust SBOM generation step (Syft can read OCI layouts: `syft oci-dir:/workspace/oci-layout`)
+
+**Why this works**:
+- Docker buildx OCI export: Official Docker feature, documented for multi-platform
+- Skopeo OCI→Docker: Official capability in Skopeo manpage
+- Cloud Build + Skopeo: Google's own blog post demonstrates this exact pattern
+- Addresses root cause: Separates build (no auth needed) from push (has auth)
+
+**References**:
+- https://docs.docker.com/build/exporters/oci-docker/[Docker OCI exporter documentation]
+- https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud Blog: Five ways Skopeo can simplify your Google Cloud container workflow]
+- https://manpages.debian.org/unstable/skopeo/skopeo-copy.1.en.html[Skopeo manpage: OCI transport]
+- https://eng.d2iq.com/blog/a-tale-of-two-container-image-tools-skopeo-and-crane/[Skopeo vs Crane comparison]
+
+**Status**: Recommended solution, ready for implementation
+
+== Current Implementation State
+
+=== What Works (Steps 1-4)
+
+The Cloud Build configuration successfully executes the following steps:
+
+**Step 1: Derive TAG_BASE** (rbgjb01-derive-tag-base.sh)
+----
+TAG_BASE="$(date -u +%Y%m%dT%H%M%SZ)"
+echo "${TAG_BASE}" > .tag_base
+----
+
+**Step 2: Get Docker Access Token** (rbgjb02-get-docker-token.sh)
+----
+gcloud auth print-access-token > /workspace/.docker-token
+----
+
+**Step 3: Docker Login to GAR** (rbgjb03-docker-login-gar.sh)
+----
+cat /workspace/.docker-token | docker login -u oauth2accesstoken \
+  --password-stdin "https://us-central1-docker.pkg.dev"
+rm /workspace/.docker-token
+----
+
+This authentication pattern **works for the host docker daemon** but doesn't propagate to isolated buildx containers.
+
+**Step 4: QEMU for Cross-Platform** (rbgjb04-qemu-binfmt.sh)
+----
+docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+----
+
+Successfully enables emulation for non-native architectures.
+
+=== Proven Working (Steps 5-9)
+
+**Step 5: Build and Export** (rbgjb06-build-and-export.sh):
+----
+docker buildx create --driver docker-container --name rb-builder --use
+docker buildx build \
+  --platform="${_RBGY_PLATFORMS}" \
+  --output type=oci,dest=/workspace/oci-layout.tar \
+  ...
+----
+
+**Step 6: Push with Skopeo** (rbgjb07-push-with-skopeo.sh):
+----
+skopeo copy --all --dest-registry-token "${AR_TOKEN}" \
+  "oci-archive:/workspace/oci-layout.tar" \
+  "docker://${IMAGE_URI}"
+----
+
+**Step 7: SBOM Generation** (rbgjb08-sbom-and-summary.sh):
+----
+docker pull "${IMAGE_URI}"
+docker run ... syft "docker:${IMAGE_URI}" -o json
+----
+
+NOTE: Syft cannot parse multi-platform OCI archives directly (https://github.com/anchore/syft/issues/1545[GitHub #1545]). Must pull image first and analyze via docker socket.
+
+**Step 8: Metadata Assembly** (rbgjb10-assemble-metadata.sh):
+Uses Alpine + `apk add jq` because `ghcr.io/jqlang/jq:latest` is distroless (no shell).
+
+**Step 9: Metadata Push** (rbgjb09-build-and-push-metadata.sh):
+Standard docker build and push using host daemon credentials.
+
+=== Stitcher Refactor Status
+
+**Complete**: Build JSON is dynamically generated from bash step scripts via `zrbf_stitch_build_json()` in `rbf_Foundry.sh`. Static `rbgjb_build.json` removed.
+
+== GCR Test Results
+
+=== Hypothesis
+
+Google Cloud Platform's official multi-arch tutorial (https://github.com/GoogleCloudPlatform/solutions-build-multi-architecture-images-tutorial[reference]) successfully pushes to `gcr.io` without explicit authentication in the BuildKit container. Testing whether GCR auto-authenticates with docker-container driver would prove whether the problem is GAR-specific or universal to isolated builders.
+
+=== Test Configuration
+
+**Modified files** (commit `10d1e2a`):
+
+- `rbgjb06-build-and-push.sh`: Changed `IMAGE_URI` from `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` to `gcr.io/${_RBGY_GAR_PROJECT}/...`
+- `rbgjb09-build-and-push-metadata.sh`: Changed `META_URI` similarly
+- Re-enabled docker-container driver creation (`docker buildx create --name rbia-builder --driver docker-container --use`)
+
+**Build execution**: Cloud Build ID `ddfb01b9-72fb-49bb-a996-9955285a6e22`
+
+=== Test Results
+
+**Multi-platform compilation**: ✓ **SUCCESS**
+
+All three target platforms compiled successfully:
+----
+#14 [linux/amd64 3/3] RUN adduser -D appuser - DONE 0.2s
+#13 [linux/arm/v7 3/3] RUN adduser -D appuser - DONE 0.3s
+#15 [linux/arm64 3/3] RUN adduser -D appuser - DONE 0.3s
+----
+
+**Image export and push**: ✗ **FAILURE**
+
+Push to GCR failed with identical authentication error as GAR:
+----
+ERROR: failed to push gcr.io/rbwg-d-proto-251230080456/rbev-busybox:20251231T135640Z-img:
+failed to authorize: failed to fetch oauth token: unexpected status from GET request
+to https://gcr.io/v2/token?scope=repository%3Arbwg-d-proto-251230080456%2Frbev-busybox%3Apull%2Cpush&service=gcr.io:
+403 Forbidden
+----
+
+=== Critical Findings
+
+. **Buildx driver configuration is correct**: Multi-platform builds completed successfully, proving QEMU setup and docker-container driver work properly
+
+. **Authentication problem is universal**: Both GCR and Artifact Registry fail with 403 Forbidden when docker-container driver attempts to push
+
+. **GCP "auto-authentication" only works for host daemon**: Cloud Build's automatic GCR/GAR authentication applies to the host docker daemon, not to isolated BuildKit containers created by `docker buildx create --driver docker-container`
+
+. **The catch-22 is fundamental**: Cannot use default docker driver (has credentials, no multi-platform) AND cannot use docker-container driver (has multi-platform, no credentials)
+
+=== Test Environment
+
+- **Keeper depot**: `rbwg-d-proto-251230080456`
+- **Region**: `us-central1`
+- **Test vessel**: `rbev-vessels/rbev-busybox`
+- **Target platforms**: `linux/amd64,linux/arm64,linux/arm/v7`
+- **GCR test commit**: `10d1e2a` "Test buildx with GCR: switch from Artifact Registry to gcr.io"
+- **GAR attempts**: `f021d54` and earlier commits
+
+=== Implications
+
+The docker-container driver's isolation prevents it from inheriting ANY Google Cloud registry credentials configured on the host, regardless of whether the target is GCR or GAR. A solution must provide credentials **inside** the BuildKit container environment.
+
+== OCI Output Path Research (2025-12-31)
+
+=== Key Question
+
+When using docker-container driver with `--output type=oci,dest=/workspace/oci-layout`, does the output go to:
+
+* The Cloud Build step container's `/workspace` (accessible to subsequent steps), or
+* The BuildKit container's internal filesystem (isolated, inaccessible)?
+
+=== Answer: CLIENT Filesystem
+
+The output writes to the **client filesystem** (where `docker buildx` runs), NOT the BuildKit container.
+
+From https://docs.docker.com/reference/cli/docker/buildx/build/[Docker buildx build docs]:
+____
+"allows export of results directly to the client's filesystem, an OCI image tarball, a registry, and more"
+____
+
+From https://crazymax.dev/buildkit/usage/output/[BuildKit Output docs]:
+____
+"The local client will copy the files directly to the client"
+____
+
+**Mechanism**: BuildKit transfers results back to the client via gRPC (FileSend/diffcopy method). The `dest=` path is relative to where the `docker buildx` command runs, not where buildkitd runs internally.
+
+=== Architecture
+
+----
+Cloud Build Step Container (where docker buildx command runs)
+  └── /workspace/              <-- SHARED across Cloud Build steps
+       └── oci-layout/         <-- OCI OUTPUT GOES HERE ✓
+  └── docker buildx create (spawns BuildKit container)
+        └── BuildKit Container (does actual building)
+              └── internal storage (temporary, discarded after build)
+----
+
+=== Critical Requirements
+
+[cols="1,2,2",options="header"]
+|===
+|Feature
+|Default docker Driver
+|docker-container Driver
+
+|OCI exporter
+|✗ Not supported
+|✓ Supported
+
+|Multi-platform
+|✗ Not supported
+|✓ Supported
+
+|Registry credentials
+|✓ Has credentials
+|✗ Isolated (but OCI export doesn't need them)
+|===
+
+Source: https://docs.docker.com/build/exporters/oci-docker/[OCI and Docker exporters]:
+____
+"The docker driver doesn't support these exporters. You must use docker-container or some other driver if you want to generate these outputs."
+____
+
+=== Tarball vs Directory Output
+
+Initial research suggested using `tar=false` for directory output compatible with Skopeo's `oci:` transport. However, testing revealed issues with `tar=false`:
+
+- https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572]: Annotations not properly written with `tar=false`
+- Directory output less portable than tarball
+
+**Proven solution**: Use default tarball output with Skopeo's `oci-archive:` transport:
+
+----
+# Build step: tarball output (default, no tar= flag needed)
+--output type=oci,dest=/workspace/oci-layout.tar
+
+# Push step: oci-archive transport reads tarballs
+skopeo copy --all "oci-archive:/workspace/oci-layout.tar" "docker://..."
+----
+
+The `oci-archive:` transport reads OCI tarballs directly. No extraction needed.
+
+=== Google Cloud Validation
+
+Google's own https://cloud.google.com/dataflow/docs/guides/multi-architecture-container[Dataflow multi-arch documentation] shows this exact pattern:
+
+----
+steps:
+  - name: 'docker'
+    args: ['buildx', 'create', '--driver', 'docker-container', '--name', 'container', '--use']
+  - name: 'docker'
+    args: ['buildx', 'build', '--platform', 'linux/amd64,linux/arm64', ...]
+----
+
+=== Implementation Impact
+
+The rbgjb06 script MUST:
+
+. Create docker-container driver: `docker buildx create --driver docker-container --name rb-builder --use`
+. Use tarball output: `--output type=oci,dest=/workspace/oci-layout.tar`
+
+Without the docker-container driver, both OCI export and multi-platform builds will fail.
+
+== Next Steps
+
+Based on comprehensive research including GCR test results and investigation of ecosystem tools, the recommended path forward uses the OCI Layout Bridge pattern:
+
+. **Implement OCI Layout Bridge (Option 6)**: The recommended solution that separates build from push phases.
+  - Modify rbgjb06 to export OCI layout instead of pushing
+  - Create rbgjb07 to push OCI layout using Skopeo with GAR authentication
+  - Adjust rbgjb08 SBOM generation to read from OCI layout
+  - Test full workflow with busybox vessel
+
+. **Validate and refine**: Ensure all metadata, labels, and multi-platform manifests are preserved correctly through the OCI bridge.
+
+. **Update RBSTB specification**: Document the OCI Layout Bridge approach in canonical trigger_build spec, including:
+  - Why direct push doesn't work (BuildKit isolation)
+  - How OCI layout bridges build and push phases
+  - Skopeo authentication via metadata server
+  - Multi-platform manifest handling
+  - Reference to RBWMBX for decision history
+
+=== Alternative Paths (If OCI Bridge Fails)
+
+If Option 6 encounters unforeseen issues:
+
+. **Try buildkitd.toml approach**: Option 2, though research suggests low probability of success with OAuth tokens
+
+. **Evaluate architectural pivot**: Decide between single-arch (Option 4) or different build platform
+
+Note: Option 1 (DOCKER_CONFIG) eliminated due to known bug (https://github.com/docker/cli/issues/5477[Issue #5477]). Option 3 (Kaniko) eliminated as project is archived. Option 5 (manual manifest combining) too complex compared to OCI bridge.
+
+== Implementation Lessons Learned
+
+Issues discovered during implementation (build 3b544930, 2025-12-31):
+
+=== Skopeo Authentication
+
+Use `--dest-registry-token` NOT `--dest-creds`:
+
+- `--dest-creds="oauth2accesstoken:${TOKEN}"` — returns 403 Forbidden
+- `--dest-registry-token "${TOKEN}"` — works correctly
+
+The Google Cloud blog example uses `--dest-registry-token`. This is the correct approach for OAuth bearer tokens.
+
+=== IAM Permissions
+
+The Mason service account requires `roles/artifactregistry.admin` on the GAR repository resource (not just project-level). Without this, Skopeo push fails with permission denied.
+
+=== OCI Tarball vs Directory
+
+Use tarball format (default), not `tar=false` directory format:
+
+- `tar=false` has annotation bugs (https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572])
+- Skopeo's `oci-archive:` transport reads tarballs directly
+- Tarball is more portable and reliable
+
+=== Syft Multi-Platform Limitation
+
+Syft cannot analyze multi-platform OCI archives directly (https://github.com/anchore/syft/issues/1545[GitHub #1545]). Workaround: pull image first, analyze via docker socket:
+
+----
+docker pull "${IMAGE_URI}"
+docker run -v /var/run/docker.sock:/var/run/docker.sock syft "docker:${IMAGE_URI}"
+----
+
+=== Distroless Tool Images
+
+Many tool images (jq, syft, etc.) are distroless with no shell. Cloud Build steps using `entrypoint: sh` will fail. Solutions:
+
+- Use Alpine base and install tool: `alpine:latest` + `apk add --no-cache jq`
+- Or use tool images that include shell (check before assuming)
+
+=== GAR Repository Name Validation
+
+Silently mismatched repository names cause confusing failures. The `RBRR_GAR_REPOSITORY` value must exactly match the repository created during depot setup. Consider adding early validation in `rbf_build` to verify repository exists before submitting build.
+
+== References
+
+=== Multi-Platform Builds
+
+- https://dev.to/tidalcloud/automating-multi-arch-container-images-builds-we-used-google-cloud-build-but-github-actions-would-also-work-clb[Automating multi-arch container images builds (DEV Community)]
+- https://github.com/GoogleCloudPlatform/solutions-build-multi-architecture-images-tutorial[Google Cloud Platform multi-arch images tutorial]
+- https://cloud.google.com/dataflow/docs/guides/multi-architecture-container[Build multi-architecture container images for Dataflow]
+
+=== Docker Buildx & BuildKit
+
+- https://docs.docker.com/build/builders/drivers/docker-container/[Docker container driver documentation]
+- https://docs.docker.com/build/buildkit/configure/[Configure BuildKit]
+- https://docs.docker.com/build/buildkit/toml-configuration/[buildkitd.toml reference]
+- https://docs.docker.com/build/exporters/oci-docker/[OCI and Docker exporters]
+- https://docs.docker.com/build/building/multi-platform/[Multi-platform builds]
+- https://github.com/docker/buildx/pull/433[PR #433: Credential passing for BuildKit]
+- https://github.com/docker/buildx/issues/186[Issue #186: Import multi-arch tarball for tag and push]
+
+=== Authentication Issues
+
+- https://github.com/docker/buildx/issues/1205[Issue #1205: GCP Cloud Build OAuth timeout - our exact problem]
+- https://github.com/docker/cli/issues/5477[Issue #5477: DOCKER_CONFIG breaks buildx command parsing]
+- https://github.com/docker/buildx/issues/3050[Issue #3050: How to pass docker hub credentials to docker-container driver]
+- https://github.com/docker/buildx/issues/1613[Issue #1613: docker build fails to authenticate with private repository]
+- https://github.com/docker/buildx/issues/2749[Issue #2749: Authentication not working only in buildx]
+- https://github.com/docker/buildx/issues/1528[Issue #1528: docker login is not useful to buildx]
+- https://github.com/moby/buildkit/issues/565[moby/buildkit #565: Login to private registry using command line]
+- https://github.com/moby/buildkit/issues/5762[moby/buildkit #5762: Unable to authenticate on Kubernetes]
+- https://github.com/moby/buildkit/issues/4111[moby/buildkit #4111: Not sending Authorization header]
+
+=== Skopeo and OCI Tools
+
+- https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud Blog: Five ways Skopeo can simplify your Google Cloud container workflow]
+- https://manpages.debian.org/unstable/skopeo/skopeo-copy.1.en.html[Skopeo manpage: skopeo-copy]
+- https://eng.d2iq.com/blog/a-tale-of-two-container-image-tools-skopeo-and-crane/[A Tale of Two Container Image Tools: Skopeo and Crane]
+- https://www.nabilnoh.com/posts/buildkit-kaniko-replacement/[Why BuildKit Replaces Kaniko (Kaniko archived)]
+- https://www.augmentedmind.de/2025/03/30/the-9-best-docker-registry-tools/[The 9 best Docker registry tools]
+
+=== Google Cloud Authentication
+
+- https://cloud.google.com/artifact-registry/docs/docker/authentication[Configure authentication to Artifact Registry for Docker]
+- https://cloud.google.com/artifact-registry/docs/transition/changes-docker[Changes for Docker (GCR to Artifact Registry migration)]
+- https://cloud.google.com/artifact-registry/docs/configure-cloud-build[Connect to Cloud Build]
+- https://cloud.google.com/build/docs/cloud-build-service-account[Default Cloud Build service account]
+
+== Document History
+
+[cols="1,2,4",options="header"]
+|===
+|Date
+|Author
+|Changes
+
+|2025-12-31
+|Claude Sonnet 4.5 + bhyslop
+|Initial research findings documented
+
+|2025-12-31
+|Claude Sonnet 4.5 + bhyslop
+|Added GCR test results, revised solutions based on universal auth failure
+
+|2025-12-31
+|Claude Sonnet 4.5 + bhyslop
+|Added Option 6 (OCI Layout Bridge) as recommended solution. Comprehensive research on Skopeo, crane, buildx exporters, and ecosystem tools. Eliminated Options 1 (DOCKER_CONFIG bug) and 3 (Kaniko archived). Updated references with Skopeo/OCI tools and critical authentication issues.
+
+|2025-12-31
+|Claude Opus 4.5 + bhyslop
+|Added OCI Output Path Research section. Confirmed output writes to client filesystem via gRPC, not BuildKit container. Documented docker-container driver requirement for OCI export. Added tar=false requirement for Skopeo compatibility. Referenced buildkit PR #3729 fix for oci-layout file generation.
+
+|2025-12-31
+|Claude Opus 4.5 + bhyslop
+|**OCI Layout Bridge VERIFIED WORKING** (build 3b544930). Updated Option 6 with proven implementation. Changed tar=false to tarball (moby/buildkit#5572). Fixed Skopeo auth: --dest-registry-token not --dest-creds. Added Implementation Lessons Learned section. Updated "What's Broken" to "Proven Working". Documented Syft multi-platform workaround, distroless image issues, IAM requirements.
+|===

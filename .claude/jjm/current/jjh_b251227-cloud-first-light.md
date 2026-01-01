@@ -51,11 +51,11 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbgg_retriever_create` | `rbw-GR` | RBSRC | working |
 | `rbgg_list_service_accounts` | `rbw-al` | RBSSL | working |
 | `rbgg_delete_service_account` | `rbw-aDS` | RBSSD | working |
-| `rbf_build` | `rbw-fB` | RBSTB | untested |
-| — | `rbw-il` | — | unimplemented |
-| `rbf_delete` | `rbw-fD` | RBSID | untested |
-| — | `rbw-r` | RBSIR | old dispatcher |
-| `rbgm_payor_refresh` | `rbw-PR` | RBSPR | untested |
+| `rbf_build` | `rbw-fB` | RBSTB | working |
+| `rbf_list` | `rbw-il` | — | working |
+| `rbf_delete` | `rbw-fD` | RBSID | working |
+| `rbf_retrieve` | `rbw-r` | RBSIR | working |
+| `rbgm_payor_refresh` | `rbw-PR` | RBSPR | working |
 
 ## Done
 
@@ -87,29 +87,130 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise retriever_create (restore)** — SKIPPED: deleted director-default instead of retriever; no restore needed.
 
+- **Test trigger_build with GCR** — GCR test executed (build ddfb01b9). Multi-platform compilation succeeded (all 3 platforms built), but push failed with same 403 Forbidden error as GAR. Proved: (1) buildx driver config correct, (2) auth problem universal to docker-container isolation, (3) GCP auto-auth only works for host daemon. Updated RBWMBX memo with findings. Conclusion: must provide credentials inside BuildKit container.
+
+- **Revert GCR test changes** — Restored GAR targets in rbgjb06 and rbgjb09. Reverted IMAGE_URI and META_URI to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format. Removed docker-container driver creation. Committed as b3b5737.
+
+- **Implement OCI Layout Bridge (Phase 1: Export)** — Created rbgjb06-build-and-export.sh. Replaced `--push` with `--output type=oci,dest=/workspace/oci-layout`. Removed `.image_uri` output. Preserved all labels and metadata. OCI export avoids authentication (no push = no credentials needed). Committed as 3863307.
+
+- **Implement OCI Layout Bridge (Phase 2: Push)** — Created rbgjb07-push-with-skopeo.sh. Uses quay.io/skopeo/stable:latest builder. Fetches GAR access token from Cloud Build metadata server. Pushes OCI layout to GAR with `skopeo copy --all --dest-creds`. Writes IMAGE_URI to .image_uri. Solves credential isolation problem. Committed as 97e392d.
+
+- **Adjust SBOM generation for OCI layout** — Updated rbgjb08-sbom-and-summary.sh to read from OCI layout instead of registry. Changed Syft source to `oci-dir:/workspace/oci-layout`. Added volume mount for Syft access. Faster (no network), more accurate (analyzes local build). Committed as 6484d51.
+
+- **Update build stitcher for new steps** — Updated zrbf_stitch_build_json() in rbf_Foundry.sh. Renamed rbgjb07-assemble-metadata.sh → rbgjb10-assemble-metadata.sh. Added rbgjb07-push-with-skopeo.sh with quay.io/skopeo builder. Updated step 06 reference to rbgjb06-build-and-export.sh. Execution order: 06→07→08→10→09. Committed as 5377690.
+
+- **Research: docker-container driver + OCI output** — Confirmed OCI output writes to CLIENT filesystem (Cloud Build step), not BuildKit container. BuildKit transfers via gRPC. Docker-container driver IS REQUIRED for both OCI export and multi-platform (default driver supports neither). Added driver creation and tar=false to rbgjb06. Updated RBWMBX memo with architecture diagram.
+
+- **Test complete OCI bridge workflow** — Build 3b544930 succeeded. Fixed: Alpine+jq for shell (distroless jq had no shell), corrected vessel path format (rbev-vessels/rbev-busybox). All 9 steps pass: build-and-export creates OCI tarball, Skopeo pushes to GAR, Syft generates SBOM via docker socket, Alpine+jq assembles metadata. OCI Layout Bridge pattern fully operational.
+
+- **Implement image_list** — Created rbf_list() in rbf_Foundry.sh. Two modes: (1) no args lists all images using GAR REST API packages endpoint, (2) with moniker lists tags using Docker Registry v2 API. Added rbw-il routing and tabtarget. Uses Director credentials (Retriever SA not yet provisioned). Tested: shows 1 image (rbev-busybox) and 6 tags.
+
+- **Exercise image_delete** — Fixed rbf_delete: added moniker param, tag-based deletion (GAR rejects digest-based), Director needs repoAdmin role, updated tabtarget to new launcher form.
+
+- **Exercise trigger_build (rebuild)** — Rebuilt rbev-busybox image (build 1c228d46, tags 20251231T170819Z-img/meta).
+
+- **Exercise image_retrieve** — Modernized tabtarget to BUD launcher, implemented rbf_retrieve in rbf_Foundry.sh. Uses Retriever credentials when available, falls back to Director. Tested: pulled rbev-busybox:20251231T170819Z-img successfully.
+
+- **Choose name for design decision documentation** — Selected "Trade Study" as section name. Captures: intense research → coherent synthesis, constraint/tradeoff analysis, no discovery narrative, defensible conclusions. Formal engineering term with aerospace heritage.
+
+- **Add Trade Study section to RBAGS** — Created "Trade Studies" section in rbw-RBAGS-AdminGoogleSpec.adoc with OCI Layout Bridge as first entry. Documents: problem (BuildKit credential isolation), constraints (driver catch-22, eliminated options), alternatives evaluated (5 options with dispositions), chosen solution (OCI Layout Bridge), rationale (5 points), implementation details (build/push steps, critical notes), references (RBWMBX memo, build ID).
+
+- **Update RBSTB specification** — Added Cloud Build Execution section (step 11) documenting OCI Layout Bridge pattern at abstract level: Build Phase (OCI artifact), Push Phase (metadata server token), Analysis Phase (SBOM), Metadata Phase (provenance). References Trade Study RBSOB for rationale. No implementation details exposed per spec style.
+
+- **Exercise payor_refresh** — Updated procedure for current GCP UI (+ Add secret flow), fixed CRM v1 lifecycleState field, optional "Google hasn't verified" screen handling. Tested: rotated secret, refreshed OAuth credentials, depot_list verified working.
+
 ## Current
 
-- **Exercise trigger_build** — Submit container build to Cloud Build. Mason executes, publishes image to repository.
-  mode: manual
+(none - heat objectives complete)
 
-- **Implement image_list** — Add basic image listing operation (noted missing in RBSGS). Scope and implement as `rbw-il.ImageList.sh`.
-  mode: manual
+**Paces moved to testbench-new-life heat (b260101)**:
+- Audit dead code in rbga/rbgb/rbgp modules
+- Add GAR repository name validation
+- Audit tabtargets for log/no-log correctness
+- Audit director/repository configuration process
+- Exercise full depot lifecycle (recast as testbench test suite)
 
-- **Exercise image_delete** — Remove built image from repository.
-  mode: manual
-
-- **Exercise trigger_build (rebuild)** — Rebuild image for ongoing use after deletion exercise.
-  mode: manual
-
-- **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
-  mode: manual
-
-- **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
-  mode: manual
-
-- **Exercise payor_refresh** — Obtain fresh OAuth credentials. Validates recovery path.
-  mode: manual
+These audits and systematic testing belong in the new heat which establishes vocabulary and architecture for cloud operation testing.
 
 ## Steeplechase
 
-(execution log begins here)
+---
+### 2026-01-01 - Heat Objectives Complete
+
+**Status**: All 14 RBSGS operations validated and working. Operation Status table shows complete coverage.
+
+**Paces moved**: 5 remaining paces (audits + lifecycle test) moved to new heat `b260101-testbench-foundations`. These belong with vocabulary/architecture decisions for systematic testing infrastructure.
+
+**Heat ready for retirement** after steeplechase review.
+
+---
+### 2025-12-31 05:55 - GCR Test - EXECUTION
+
+**Action**: Executed GCR test to validate if multi-platform buildx works with gcr.io instead of Artifact Registry.
+
+**Changes**:
+- Modified rbgjb06 and rbgjb09 to use `gcr.io/${PROJECT_ID}` format
+- Re-enabled docker-container driver creation
+- Committed as 10d1e2a
+
+**Result**: Build ddfb01b9-72fb-49bb-a996-9955285a6e22
+- ✓ Multi-platform compilation succeeded (amd64, arm64, arm/v7)
+- ✗ Push failed with 403 Forbidden (same as GAR)
+
+**Conclusion**: Auth problem is universal to docker-container isolation, not GAR-specific. GCP auto-auth only works for host daemon, not isolated BuildKit containers.
+
+---
+### 2025-12-31 06:30 - Authentication Research - APPROACH
+
+**Action**: Comprehensive web search and analysis of authentication solutions for multi-platform builds in Cloud Build.
+
+**Key findings**:
+1. **Kaniko is dead** - Archived Jan 2025, no longer maintained
+2. **DOCKER_CONFIG broken** - Issue #5477: breaks buildx command parsing
+3. **Issue #1205 documents our exact problem** - GCP OAuth timeout with buildx
+4. **No driver-opt for auth** - Docker-container driver has no credential options
+5. **BuildKit registry auth ongoing issue** - Multiple open issues, no solutions
+
+**Critical discovery**: Skopeo + OCI Layout Bridge
+- Google's own blog endorses Skopeo for Cloud Build multi-platform
+- BuildKit can export to OCI layout (no push, no auth needed)
+- Skopeo can copy from OCI layout to registry (with GCP auth)
+- Separates build phase from push phase using /workspace bridge
+
+---
+### 2025-12-31 07:00 - Documentation Updates - COMPLETE
+
+**Action**: Updated RBWMBX memo and heat paces with OCI Layout Bridge solution.
+
+**RBWMBX changes** (commits d07be5c, bdac6d9):
+- Added Option 6: OCI Layout Bridge (recommended solution)
+- Documented why Options 1 and 3 eliminated
+- Added comprehensive Skopeo/OCI references
+- Updated Next Steps with implementation plan
+
+**Heat pace changes** (commit 283cd69):
+- Removed outdated DOCKER_CONFIG/buildkitd.toml attempts
+- Added 6 focused OCI bridge implementation paces
+- Clear path: revert → implement export → implement push → test → document
+
+**Next session**: Begin with "Revert GCR test changes" pace, then implement OCI Layout Bridge.
+
+---
+### 2025-12-31 08:13 - OCI Bridge Workflow SUCCESS
+
+**Build ID**: 3b544930-8880-4a04-bf41-94dc1afc31fb
+
+**Final fixes applied**:
+1. jq distroless → Alpine+jq: `ghcr.io/jqlang/jq:latest` is distroless with no shell. Changed to `alpine:latest` with `apk add --no-cache jq` at script start.
+2. Vessel path format: Command expects directory path (`rbev-vessels/rbev-busybox`), not just vessel name.
+
+**Verified working**:
+- Step 5: docker-container driver creates OCI tarball at /workspace/oci-layout.tar
+- Step 6: Skopeo pushes with `--dest-registry-token` to GAR
+- Step 7: Syft analyzes via docker socket after pulling image
+- Step 8: Alpine installs jq, assembles metadata JSON
+- Step 9: Metadata container built and pushed
+
+**OCI Layout Bridge pattern complete**: Build → OCI tarball → Skopeo push → Downstream analysis. Solves BuildKit credential isolation problem.
+
+---

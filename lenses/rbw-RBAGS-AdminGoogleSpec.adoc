@@ -332,6 +332,8 @@ Builds container image from vessel specification using Cloud Build and stores in
 
 include::rbw-RBSTB-trigger_build.adoc[]
 
+NOTE: For multi-platform build authentication challenges and research findings, see link:rbw-RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
+
 [[rbtgo_image_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_delete}
@@ -1386,3 +1388,12 @@ RBEV regimes specify container execution parameters, port mappings, working dire
 These configurations are typically embedded within recipe files and container orchestration specifications.
 
 NOTE: Individual RBEV variables are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.
+
+== Trade Studies
+
+Trade studies document the crystallized results of intensive research into complex technical domains.
+Each study presents constraints, evaluated alternatives, and the rationale for chosen solutions—without the discovery narrative.
+
+=== OCI Layout Bridge
+
+include::rbw-RBSOB-oci_layout_bridge.adoc[]

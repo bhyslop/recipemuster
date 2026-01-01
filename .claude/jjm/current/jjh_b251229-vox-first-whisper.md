@@ -32,6 +32,16 @@ All kits use these consistently:
 | `*c_` | slash Command |
 | `*h_` | Hook |
 | `*k_` | sKill |
+| `*w_` | Workbench |
+| `*t_` | Testbench |
+
+### Kit Facility Pattern
+
+Kits may implement one or more facilities:
+
+- **Arcanum** (`*a_`) - Claude environment installation (slash commands, subagents, hooks, skills). Hidden voice setup layer.
+- **Workbench** (`*w_`) - Classic dispatch of tabtargets to bash utilities. User-facing operational tooling.
+- **Testbench** (`*t_`) - Testing facility for bash utilities.
 
 ### Kit Operations Pattern
 
@@ -50,6 +60,9 @@ All kits use these consistently:
 ## Done
 
 ## Remaining
+
+- **Clarify kit facility patterns**
+  Document when kits use arcanum vs workbench vs testbench. Define rules: Which kits need which facilities? Can kits have multiple? Examples: Does JJK need `jja_arcanum.sh` AND `jjw_workbench.sh`? Does CGK need `cga_arcanum.sh` AND `cgw_workbench.sh`? Where does model differential tool belong (JJ workbench, not CGK)? Output: Clear architectural decision documented in VOK README.
 
 - **Create VOK skeleton**
   Create `Tools/vok/` directory with `voa_arcanum.sh` stub and `README.md` documenting the Vox Obscura concept and prefix conventions.

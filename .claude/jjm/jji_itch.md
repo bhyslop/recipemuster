@@ -390,22 +390,51 @@ The current global context pattern has a fundamental flaw: when a workbench or m
 
 The context is determined at entry point, not at the point where output is produced. This violates BCG principle: "Every potential error explicitly handled" at its location.
 
-### Proposed Solution: `z_locale` Wrapper Pattern
+### Proposed Solution: `z_locale` Wrapper Pattern with Optional Degradation
 
-Each file/module defines local wrappers following BCG `z_*` conventions:
+Each file/module defines local wrappers following BCG `z_*` conventions.
+
+**Pattern with degradation (for portable scripts):**
 
 ```bash
 z_locale="${0##*/}"
 
-# Local convenience wrappers
-z_step()    { buc_step "${z_locale}" "$@"; }
-z_info()    { buc_info "${z_locale}" "$@"; }
-z_warn()    { buc_warn "${z_locale}" "$@"; }
-z_die()     { buc_die "${z_locale}" "$@"; }
-z_success() { buc_success "${z_locale}" "$@"; }
+# Detect BUK availability and set up wrappers
+if type buc_step >/dev/null 2>&1; then
+    # Full BUK available
+    z_step() { buc_step "${z_locale}" "$@"; }
+    z_info() { buc_info "${z_locale}" "$@"; }
+    z_warn() { buc_warn "${z_locale}" "$@"; }
+    z_die()  { buc_die "${z_locale}" "$@"; }
+else
+    # Graceful degradation - minimal functionality
+    z_step() { echo "[STEP] $*"; }
+    z_info() { echo "[INFO] $*"; }
+    z_warn() { echo "[WARN] $*" >&2; }
+    z_die()  { echo "[ERROR] $*" >&2; exit 1; }
+fi
+```
+
+**Pattern without degradation (for internal tooling):**
+
+```bash
+z_locale="${0##*/}"
+
+# Fail fast if BUK not available
+type buc_step >/dev/null 2>&1 || {
+    echo "ERROR: This script requires BUK (Bash Utility Kit)" >&2
+    exit 1
+}
+
+z_step() { buc_step "${z_locale}" "$@"; }
+z_info() { buc_info "${z_locale}" "$@"; }
+z_warn() { buc_warn "${z_locale}" "$@"; }
+z_die()  { buc_die "${z_locale}" "$@"; }
 ```
 
 Then call sites become: `z_step "message"` with correct file attribution in output.
+
+**Key advantage of degradation pattern:** Many scripts need nothing but these four operations - no other BUK functions. The degradation pattern reduces dependency to zero for scripts that only use basic output/error handling, making them portable and shareable without requiring full BUK installation.
 
 ### Advantages
 
@@ -445,6 +474,25 @@ BCG extensively documents BUC functions and message hierarchy (lines 500-585). W
 - Add to decision matrix: When/why to use wrappers vs raw `buc_*` calls
 
 This ensures new code following BCG patterns uses the correct context approach automatically.
+
+### Update: buc_context Works Well for Single-Entry Scripts
+
+Further testing (2025-12-30) revealed that `buc_context` actually works quite well for the common case:
+
+**What works well:**
+- Multi-call bash scripts (tabtargets) that set `buc_context "${0##*/}"` at the top
+- Each script gets correct attribution in output
+- The function at entry point owns all printouts - this is actually good behavior
+- Most RBW/BUW tabtargets follow this pattern and work correctly
+
+**Where the problem actually occurs:**
+- Only when workbenches source helpers or dispatch to other files mid-execution
+- Specifically: sourced utility functions that produce output inherit the caller's context
+
+**Revised assessment:**
+The original problem description overstated the issue. The global context pattern is working as designed for the primary use case. The wrapper pattern may still be valuable for complex multi-file dispatch scenarios, but is lower priority than originally thought.
+
+Consider keeping `buc_context` as-is and only addressing the edge cases where sourced files need their own attribution.
 
 ### Context
 
@@ -536,6 +584,561 @@ Audit all RBW tabtargets in `tt/rbw-*.sh` and categorize by nameplate requiremen
 ### Context
 
 Identified 2025-12-30 during VSLK workspace reorganization discussion.
+
+## buw-shellcheck-tabtarget
+Create a tabtarget to run shellcheck on all bash files in the repository.
+
+### Motivation
+
+Currently no automated way to lint all bash scripts. Manual shellcheck runs are tedious and easy to skip.
+
+### Proposed Implementation
+
+Create `tt/buw-sc.ShellCheck.sh` that:
+1. Finds all `*.sh` files in the repo
+2. Runs shellcheck on each
+3. Reports summary of errors/warnings
+4. Exits non-zero if any errors found
+
+### Considerations
+
+- Exclude vendored/external scripts if any
+- Consider shellcheck directives file (`.shellcheckrc`) for project-wide settings
+- May want separate modes: quick (errors only) vs full (all warnings)
+- Integration with CI if/when that exists
+
+### Context
+
+Identified 2025-12-30 during BCG naming cleanup work.
+
+## rbw-billing-visibility
+Create tabtarget to display billing info and current costs for depot projects.
+
+### Motivation
+
+During development, depot projects accumulate costs (Cloud Build, Artifact Registry, storage, etc.). Currently no easy way to:
+1. See current month's costs for a depot
+2. Check if costs are accumulating unexpectedly
+3. Quick-link to billing console for detailed breakdown
+
+### Proposed Implementation
+
+Create `tt/rbw-lC.ListCosts.sh` or similar that:
+1. Lists all depot projects under the payor billing account
+2. For each, shows current month cost (or links to billing)
+3. Optionally shows cost trend or alerts for unusual spend
+
+### Options
+
+**Option A: Direct API**
+- Use Cloud Billing API to fetch cost data
+- Requires billing.viewer permissions
+- Shows costs inline in terminal
+
+**Option B: Console Links**
+- Generate direct URLs to GCP Billing console for each depot
+- Lower permission requirements
+- User clicks to see details
+
+**Option C: Hybrid**
+- Show summary via API if permissions allow
+- Fall back to console links otherwise
+
+### GCP Resources
+
+- Cloud Billing API: `cloudbilling.googleapis.com`
+- Billing reports: `console.cloud.google.com/billing/[ACCOUNT_ID]/reports`
+- Project billing: `console.cloud.google.com/billing/linkedaccount?project=[PROJECT_ID]`
+
+### Context
+
+Identified 2025-12-30 during depot create/destroy testing where billing quota was hit.
+
+## rbp-planner-digest
+Digest `/Users/bhyslop/projects/recipebottle-admin/rbw-RBP-planner.adoc` for heat development. This planning document likely contains important guidance for structuring and executing Recipe Bottle work that should inform how heats are designed and executed.
+
+## podman-regime-support
+Add podman support through environment variable-based regime file selection.
+
+### Approach
+
+Create a mechanism to use an environment variable to choose different base regime files, enabling easy reconfiguration between Docker and Podman environments without manually editing configuration files.
+
+### Implementation Steps
+
+1. Design environment variable pattern for selecting base regime (e.g., `RBW_CONTAINER_ENGINE=podman`)
+2. Create podman-specific base regime files alongside existing Docker ones
+3. Update regime loading logic to switch between regime files based on environment variable
+4. Crank all test cases and suites to verify both Docker and Podman configurations work correctly
+
+### Benefits
+
+- Easy switching between container engines without manual config editing
+- Clean separation of Docker vs Podman configuration
+- Supports testing both engines in same repository
+- Enables developer choice of container runtime
+
+## jj-pace-history-transcript
+Add pace history transcript at top of heat files to track all paces created during the heat.
+
+### Problem
+
+During heat execution, paces are regularly abandoned, rewritten, or renamed. Currently there's no easy way to see:
+- What pace names have already been used
+- Which paces were abandoned vs completed
+- The evolution of work during the heat
+
+This makes pace naming harder and loses context about what approaches were tried.
+
+### Proposed Solution
+
+Maintain a "Pace Transcript" section at the top of each heat file that lists all paces ever created with their final status:
+
+```markdown
+## Pace Transcript
+
+- `initial-setup` - ✓ Finished
+- `fix-docker-auth` - ✗ Abandoned (approach didn't work)
+- `buildx-multiplatform` - ✗ Abandoned (switched to different strategy)
+- `direct-push-test` - ⧖ Pending
+- `cloud-build-integration` - ⧖ Active
+```
+
+### Benefits
+
+1. **Naming guidance** - Quick check if a pace name is already taken
+2. **Context preservation** - See what's been tried and why it was abandoned
+3. **Progress visibility** - Clear record of work evolution throughout heat
+4. **Session continuity** - Easy to resume after breaks by reviewing pace history
+
+### Implementation
+
+Update JJ heat management skills (`/jja-pace-new`, `/jja-pace-wrap`, `/jja-pace-arm`) to:
+1. Maintain the transcript section at heat file top
+2. Add new pace to transcript when created (status: Pending)
+3. Update status when pace is wrapped (Finished) or explicitly abandoned
+4. Preserve abandoned pace entries rather than deleting them
+
+### Context
+
+Identified during active heat work where pace iteration and abandonment is common, 2025-12-31.
+
+## tabtarget-simplify-and-batch-create
+Standardize tabtarget contents and enable batch creation/scrubbing.
+
+### Problem
+
+Tabtarget files have inconsistent structure and patterns. Creating or updating multiple tabtargets requires multiple operations, making it tedious to maintain consistency across a workbench's tabtargets.
+
+### Proposed Solution
+
+1. **Standardize tabtarget contents** - Define simple, consistent structure for all tabtarget files
+2. **Variable-args tabtarget creator** - Update the tabtarget creator to accept:
+   - First arg: launcher name (required)
+   - Remaining args: any number of tabtarget specifications to create
+3. **Batch operations** - Enable Claude to create/scrub all tabtargets with one command line
+
+### Example Usage
+
+```bash
+# Create multiple tabtargets for rbw workbench in one command
+tt/buw-tc.CreateTabTarget.sh rbw \
+    "PC:PayorDepotCreate" \
+    "PD:PayorDepotDestroy" \
+    "lD:ListDepots" \
+    "GD:GovernorDirectorCreate" \
+    "GR:GovernorRetrieverCreate"
+```
+
+### Benefits
+
+- **Consistency** - All tabtargets follow same structure automatically
+- **Efficiency** - Create/update many tabtargets in one operation
+- **Maintainability** - Easy to scrub all tabtargets when patterns change
+- **Documentation** - Single command shows all tabtargets for a workbench
+
+### Context
+
+Identified 2025-12-31 during tabtarget maintenance work.
+
+## jj-persistent-heat-selection
+Store currently selected heat in uncommitted local file for seamless heat switching.
+
+### Problem
+
+Currently, heat selection isn't persistent across sessions. When running `/jja-heat-saddle` or other heat operations, you need to specify which heat you're working on each time, or the system needs to infer it from context.
+
+### Proposed Solution
+
+1. **Local state file** - Store currently selected heat in an uncommitted local file (e.g., `.claude/jjm/.current_heat` - gitignored)
+2. **Heat selection commands** - Create tabtargets or slash commands to choose/switch the active heat:
+   - `/jja-heat-select <heat-name>` or `tt/jjk-hs.HeatSelect.sh <heat-name>`
+   - Lists available heats if no argument provided
+3. **Implicit heat usage** - Update `/jja-heat-saddle` and other heat operations to use the selected heat from local file if no heat is explicitly specified
+
+### Example Workflow
+
+```bash
+# Select a heat (persists across sessions)
+/jja-heat-select cloud-first-light
+
+# Later sessions just use the selected heat automatically
+/jja-heat-saddle  # uses cloud-first-light from .current_heat
+/jja-pace-new     # operates on cloud-first-light
+/jja-pace-wrap    # operates on cloud-first-light
+
+# Switch to different heat
+/jja-heat-select dockerize-bashize-proto-bottle
+```
+
+### Benefits
+
+- **Session continuity** - Heat selection persists across Claude Code sessions
+- **Reduced friction** - No need to specify heat name repeatedly
+- **Explicit switching** - Clear command to change active heat
+- **Backward compatible** - Can still specify heat explicitly when needed
+
+### Implementation Details
+
+- File location: `.claude/jjm/.current_heat` (single line containing heat name)
+- Add to `.gitignore` - this is workstation-local state, not repo state
+- Validate heat exists when reading from file (handle case where heat was deleted/retired)
+- Fall back to inferring heat or prompting if file missing/invalid
+
+### Context
+
+Identified 2025-12-31 during discussion about JJ workflow improvements.
+
+## bcg-three-model-review-heat
+Create heat to compare all three Claude models (Opus, Sonnet, Haiku) reviewing bash scripts against BCG standards.
+
+### Objective
+
+Assess how well each Claude incarnation (Opus 4.5, Sonnet 4.5, Haiku 4.0) performs BCG (Bash Console Guide) compliance reviews on project bash scripts, then compare their findings and effectiveness.
+
+### Methodology
+
+1. **Pre-screening with shellcheck** - Run shellcheck first to establish baseline mechanical issues (fairness - don't penalize models for catching things shellcheck already finds)
+2. **Independent reviews** - Have each model review the same bash files against BCG standards:
+   - Opus 4.5 review
+   - Sonnet 4.5 review
+   - Haiku 4.0 review
+3. **Compare findings** - Analyze differences in:
+   - What issues each model identified
+   - False positives (flagged non-issues)
+   - Missed issues (false negatives)
+   - Quality of suggested fixes
+   - Understanding of BCG patterns and principles
+4. **Meta-assessment** - Evaluate each model's performance on:
+   - Accuracy (correct identification of BCG violations)
+   - Completeness (thoroughness of review)
+   - Practicality (usefulness of recommendations)
+   - Cost-effectiveness (quality per token/dollar)
+
+### Scope Options
+
+- **Full project** - Review all bash scripts in Tools/
+- **Representative sample** - Select diverse scripts (BUK utils, RBW operations, workbenches, tabtargets)
+- **Targeted files** - Focus on scripts that likely have BCG issues
+
+### Deliverables
+
+- Review reports from each model (stored in heat directory)
+- Comparison matrix showing what each model caught
+- Assessment memo on relative strengths/weaknesses of each model for BCG review work
+- Recommendations for which model to use for different review scenarios
+
+### Benefits
+
+- **Improve codebase** - Get comprehensive BCG review of bash scripts
+- **Model selection guidance** - Learn which model is best for bash review work
+- **BCG refinement** - Identify ambiguities in BCG that cause model disagreement
+- **Quality baseline** - Establish expected review quality for future automated checks
+
+### Context
+
+Identified 2025-12-31. All three Claude models (Opus, Sonnet, Haiku) are available via model parameter in Task/agent tools, making this experiment practical.
+
+## workbench-testbench-autodoc
+Make workbench and testbench facilities self-documenting from the command line.
+
+### Problem
+
+Tabtarget-roots map to bash functions, but there's no easy way to discover:
+1. **What tabtargets are available** - Without looking at filesystem or reading code
+2. **What parameters they accept** - Which have tokens, what those tokens mean
+3. **Context-specific navigation** - Given a nameplate, what commands work with it? Given a command, what nameplates are available?
+
+Currently you need to:
+- Browse `tt/` directory to see what exists
+- Read tabtarget source to understand parameters
+- Grep through code to find parameter relationships
+
+### Proposed Solution
+
+Add self-documentation capabilities to workbench/testbench:
+
+**1. Tabtarget listing with descriptions**
+```bash
+tt/buw-ll.ListLaunchers.sh          # Show all available tabtargets
+tt/rbw-ll.ListLaunchers.sh rbw       # Show RBW-specific tabtargets
+```
+
+**2. Parameter help for token-based tabtargets**
+```bash
+tt/rbw-GD.GovernorDirectorCreate.sh --help
+# Output:
+# Creates a Director service account in the Governor project
+# Usage: tt/rbw-GD.GovernorDirectorCreate.sh <NAMEPLATE>
+# Example: tt/rbw-GD.GovernorDirectorCreate.sh proto
+```
+
+**3. Context-aware discovery**
+```bash
+# Given a nameplate, show available commands
+tt/rbw-nc.NameplateCommands.sh proto
+# Output: PC, PD, GD, GR, fB, fD, etc.
+
+# Given a command pattern, show compatible nameplates
+tt/rbw-cn.CommandNameplates.sh GD
+# Output: proto, pluml, nsproto, etc.
+```
+
+**4. Function mapping documentation**
+```bash
+# Show which bash function each tabtarget invokes
+tt/rbw-fm.FunctionMap.sh
+# Output:
+# tt/rbw-PC.PayorDepotCreate.sh → rbgp_depot_create()
+# tt/rbw-GD.GovernorDirectorCreate.sh → rbgg_director_create()
+```
+
+### Implementation Hints
+
+- Tabtargets could embed structured comments for parsing:
+  ```bash
+  # @description: Creates a Director service account
+  # @usage: <NAMEPLATE>
+  # @function: rbgg_director_create
+  ```
+- Or maintain central registry/manifest that maps tabtargets to metadata
+- Help flags could be handled at workbench layer (intercept `--help` before dispatch)
+- Context discovery might query regime files or scan nameplate definitions
+
+### Benefits
+
+- **Discoverability** - Find available operations without filesystem browsing
+- **Self-documentation** - Understand parameters without reading source
+- **Context navigation** - Explore nameplate/command relationships interactively
+- **Onboarding** - New developers can explore tooling from command line
+- **Tooling foundation** - Enables tab completion, validation, automated help generation
+
+### Context
+
+Identified 2025-12-31 during discussion about making workbench/testbench facilities more discoverable and user-friendly.
+
+## cloud-build-manifest
+Track successful cloud build metadata in local JSON manifest.
+
+### Motivation
+
+After running cloud builds, useful information is scattered or lost:
+- What was the latest successful build image name/tag?
+- How long did the build take (for duration expectations)?
+- When was the last successful build for a given nameplate?
+- Has build duration changed significantly (performance regression detection)?
+
+Currently this requires:
+- Querying GCP APIs to find latest images
+- No historical record of build durations
+- Manual tracking of what's been built
+
+### Proposed Solution
+
+Maintain a local JSON manifest (`.claude/rbw_build_manifest.json` or similar) that records successful cloud build metadata:
+
+```json
+{
+  "builds": [
+    {
+      "nameplate": "proto",
+      "timestamp": "2025-12-30T08:04:56Z",
+      "image_name": "us-west1-docker.pkg.dev/rbwg-d-proto-251230080456/rbwd-proto/bottle:latest",
+      "build_duration_seconds": 127,
+      "build_id": "abc123-def456-...",
+      "depot_project": "rbwg-d-proto-251230080456"
+    },
+    {
+      "nameplate": "proto",
+      "timestamp": "2025-12-29T14:22:13Z",
+      "image_name": "us-west1-docker.pkg.dev/rbwg-d-proto-251229142213/rbwd-proto/bottle:latest",
+      "build_duration_seconds": 132,
+      "build_id": "xyz789-uvw012-...",
+      "depot_project": "rbwg-d-proto-251229142213"
+    }
+  ]
+}
+```
+
+**Operations:**
+- `rbf_build()` appends entry on successful build
+- Query utilities to find latest build for nameplate
+- Calculate average/median build duration for expectations
+- Detect anomalies (build took 2x normal duration)
+
+### Benefits
+
+- **Quick reference** - Latest image name without API queries
+- **Duration expectations** - Know how long builds should take
+- **Performance tracking** - Detect build slowdowns over time
+- **History** - See build patterns across development sessions
+- **Offline access** - Build metadata available without GCP connectivity
+
+### Implementation with jq
+
+Use jq for all manifest operations:
+
+```bash
+# Append new build record
+jq --arg nameplate "$nameplate" \
+   --arg timestamp "$timestamp" \
+   --arg image "$image_name" \
+   --argjson duration "$duration" \
+   '.builds += [{nameplate: $nameplate, timestamp: $timestamp, image_name: $image, build_duration_seconds: $duration}]' \
+   .claude/rbw_build_manifest.json > /tmp/manifest.json && mv /tmp/manifest.json .claude/rbw_build_manifest.json
+
+# Get latest build for nameplate
+jq -r --arg np "$nameplate" '.builds | map(select(.nameplate == $np)) | sort_by(.timestamp) | .[-1]' .claude/rbw_build_manifest.json
+
+# Calculate average build duration for nameplate
+jq --arg np "$nameplate" '[.builds[] | select(.nameplate == $np) | .build_duration_seconds] | add / length' .claude/rbw_build_manifest.json
+```
+
+### Scope Considerations
+
+- **Local only** - Not checked into git (add to .gitignore), station-specific state
+- **Per-nameplate tracking** - Multiple nameplates tracked independently
+- **Build success only** - Only record successful builds, failures don't pollute data
+- **Optional cleanup** - Maybe prune old entries (keep last N per nameplate)
+
+### Context
+
+Identified 2025-12-31. jq for the win - perfect tool for manipulating build metadata JSON.
+
+## payor-install-rbrp-check
+Add RBRP value validation and status display to payor_install completion.
+
+### Problem
+
+After payor_install completes, user is shown a list of "Configuration required in rbrp.env" values but no indication of whether current values are correct. User must manually compare values.
+
+### Proposed Improvement
+
+At completion, display checklist with guide colors showing:
+- Which RBRP values already match the OAuth JSON (green checkmark)
+- Which RBRP values need manual update (yellow warning)
+- Clear todo list of what remains to configure
+
+### Research Needed
+
+- Is there an API way to validate billing account ID is correct/accessible?
+- Can we verify billing account is linked to payor project?
+
+### Example Output
+
+```
+Configuration Status:
+  ✓ RBRP_PAYOR_PROJECT_ID=rbwg-p-251228075220 (matches)
+  ✓ RBRP_OAUTH_CLIENT_ID=297222692580-... (matches)
+  ⚠ RBRP_BILLING_ACCOUNT_ID - verify manually in Cloud Console
+```
+
+### Context
+
+Identified 2026-01-01 during exercise-payor-refresh pace in cloud-first-light heat.
+
+## utility-dependency-hunt
+Conduct granular audit of all external utility dependencies across Recipe Bottle bash scripts.
+
+### Objective
+
+Identify every external command/utility that Recipe Bottle bash scripts depend on, at granular level - not just package names like "coreutils" but specific commands like `cat`, `grep`, `sort`, `jq`, etc.
+
+### Why Granular Matters
+
+- **Minimal containers** - Know exactly what to install in minimal base images
+- **Portability** - Understand which utilities might differ between Linux/macOS/BSD
+- **Documentation** - Clear prerequisites for new developers
+- **Installation scripts** - Can generate precise dependency lists
+- **Version requirements** - Some utilities need specific versions for certain flags
+
+### Methodology
+
+1. **Extract all external commands** - Parse all `.sh` files to find:
+   - Direct command invocations (`cat`, `grep`, `jq`, etc.)
+   - Commands in backticks or `$(...)`
+   - Pipe chains
+   - Commands passed to `bash -c` or similar
+2. **Categorize by source**:
+   - POSIX standard (available everywhere)
+   - GNU coreutils (specific utilities: `cat`, `sort`, `head`, `tail`, `cut`, `tr`, `wc`, etc.)
+   - External packages (`jq`, `yq`, `docker`, `podman`, `gcloud`, `gh`, etc.)
+   - Bash built-ins (document for clarity even though always available)
+3. **Note usage patterns**:
+   - Which flags/options are used (some are GNU-specific)
+   - Which scripts use which utilities
+   - Critical path vs. optional utilities
+4. **Create dependency manifest** - Document with:
+   - Full list of utilities by category
+   - Installation commands for each platform (apt, brew, etc.)
+   - Version requirements if any
+   - Alternative utilities where applicable
+
+### Example Output Format
+
+```markdown
+## Core POSIX Utilities
+- `cat` - used in: 47 scripts
+- `grep` - used in: 63 scripts (WARNING: uses -P flag, requires GNU grep)
+- `sort` - used in: 12 scripts
+
+## GNU Coreutils (Linux standard, install on macOS)
+- `timeout` (gtimeout on macOS) - used in: rbgjb scripts
+- `base64` - used in: OAuth scripts
+- `date` - used in: timestamp generation (uses GNU-specific +%s%N)
+
+## External Packages
+- `jq` 1.6+ - JSON processing - used in: all GCP API scripts
+- `yq` - YAML processing - used in: buildx scripts
+- `docker` or `podman` - container runtime - critical path
+- `gcloud` - GCP CLI - used in: all RBW operations
+- `gh` - GitHub CLI - used in: PR creation
+- `shellcheck` - linting - development only
+
+## Platform-Specific Notes
+- macOS requires `brew install coreutils` for GNU timeout
+- Linux native has all GNU coreutils
+```
+
+### Benefits
+
+- **Clear prerequisites** - Know exactly what to install
+- **Container optimization** - Minimal image builds with precise dependencies
+- **Portability planning** - Identify GNU-specific vs POSIX patterns
+- **Onboarding docs** - Precise setup instructions for new developers
+- **Abstraction opportunities** - Identify where wrappers could handle platform differences
+
+### Tools to Build/Use
+
+Could create a utility scanner script that:
+1. Parses all bash files with regex/grep patterns
+2. Extracts command names from various contexts
+3. Filters out functions (internal) vs utilities (external)
+4. Generates categorized report
+
+### Context
+
+Identified 2025-12-31. Especially relevant for container builds and cross-platform portability (macOS development, Linux production).
 
 ## rbw-rbob-function-review
 Review whether workbench functions should move to RBOB module.

@@ -456,9 +456,10 @@ rbgp_payor_install() {
   bug_e
   bug_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
   bug_e
-  bug_t  "You will see four screens:"
+  bug_t  "You will see three or four screens:"
   bug_tut "  1. " "Choose an account" " - Select the Google account for this payor"
-  bug_tutu "  2. " "Google hasn't verified this app" " - Click " "Continue"
+  bug_tut "  2. If screen says " "Google hasn't verified this app" ", click Continue"
+  bug_t   "     Otherwise, proceed to next step"
   bug_tut "  3. " "Recipe Bottle Payor wants access" " - Review the requested permissions"
   bug_tu  "     Check the permission checkboxes to grant access, then click " "Continue"
   bug_t   "  4. Authorization code will be displayed"
@@ -543,7 +544,7 @@ EOF
   rbgu_http_require_ok "Verify payor project" "payor_verify"
   
   local z_project_state
-  z_project_state=$(rbgu_json_field_capture "payor_verify" '.state') || buc_die "Failed to get project state"
+  z_project_state=$(rbgu_json_field_capture "payor_verify" '.lifecycleState') || buc_die "Failed to get project state"
   test "${z_project_state}" = "ACTIVE" || buc_die "Payor project is not ACTIVE (state: ${z_project_state})"
 
   buc_success "Payor OAuth installation completed successfully"
@@ -755,7 +756,7 @@ rbgp_depot_create() {
   # Repository admin
   local z_repo_resource="${z_parent}/repositories/${z_repository_name}"
   rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
-    "roles/artifactregistry.admin"
+    "roles/artifactregistry.writer"
   
   # Bucket viewer
   rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_email}" "roles/storage.objectViewer"
@@ -763,6 +764,10 @@ rbgp_depot_create() {
   # Project viewer
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${z_depot_project_id}" \
     "roles/viewer" "serviceAccount:${z_mason_sa_email}" "mason-viewer"
+
+  # Logs writer (for Cloud Build logs to Cloud Logging)
+  rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${z_depot_project_id}" \
+    "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"

@@ -71,12 +71,17 @@ zrbf_kindle() {
   buc_log_args 'Media types for delete operation'
   ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
-  buc_log_args 'RBGY files presumed to be in the same Tools directory as this implementation'
+  buc_log_args 'RBGJ files in same Tools directory as this implementation'
+  # Acronyms: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
+  #           rbgjm = Recipe Bottle Google Json Mirror
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGY_BUILD_FILE="${z_self_dir}/rbgy_build.yaml"
-  ZRBF_RBGY_COPY_FILE="${z_self_dir}/rbgy_copy.yaml"
-  test -f "${ZRBF_RBGY_BUILD_FILE}" || buc_die "RBGY build file not found in Tools: ${ZRBF_RBGY_BUILD_FILE}"
-  test -f "${ZRBF_RBGY_COPY_FILE}"  || buc_die "RBGY copy file not found in Tools: ${ZRBF_RBGY_COPY_FILE}"
+  ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
+  ZRBF_RBGJM_MIRROR_FILE="${z_self_dir}/rbgjm_mirror.json"
+  test -d "${ZRBF_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBF_RBGJB_STEPS_DIR}"
+  test -f "${ZRBF_RBGJM_MIRROR_FILE}" || buc_die "RBGJM mirror file not found: ${ZRBF_RBGJM_MIRROR_FILE}"
+
+  buc_log_args 'Define stitched build JSON temp file'
+  ZRBF_STITCHED_BUILD_FILE="${BUD_TEMP_DIR}/rbf_stitched_build.json"
 
   buc_log_args 'Define temp files for build operations'
   ZRBF_BUILD_CONTEXT_TAR="${BUD_TEMP_DIR}/rbf_build_context.tar.gz"
@@ -130,6 +135,75 @@ zrbf_kindle() {
 
 zrbf_sentinel() {
   test "${ZRBF_KINDLED:-}" = "1" || buc_die "Module rbf not kindled - call zrbf_kindle first"
+}
+
+zrbf_stitch_build_json() {
+  zrbf_sentinel
+
+  buc_log_args 'Stitching build JSON from step scripts'
+
+  # Step definitions: script:builder:entrypoint:id
+  # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
+  # Note: Step 05 (buildx-create) was merged into step 06 because Cloud Build
+  # steps run in isolated containers - builder state doesn't persist across steps
+  #
+  # OCI Layout Bridge pattern (steps 06-08):
+  # - Step 06: buildx exports to /workspace/oci-layout (no auth needed)
+  # - Step 07: Skopeo pushes from oci-layout to GAR (with metadata auth)
+  # - Step 08: Syft analyzes from oci-layout (faster, more accurate)
+  # - Step 10: Assembles metadata JSON from .image_uri
+  # - Step 09: Builds and pushes metadata container (depends on step 10)
+  local z_step_defs=(
+    "rbgjb01-derive-tag-base.sh:gcr.io/cloud-builders/gcloud:bash:derive-tag-base"
+    "rbgjb02-get-docker-token.sh:gcr.io/cloud-builders/gcloud:bash:get-docker-token"
+    "rbgjb03-docker-login-gar.sh:gcr.io/cloud-builders/docker:bash:docker-login-gar"
+    "rbgjb04-qemu-binfmt.sh:gcr.io/cloud-builders/docker:bash:qemu-binfmt"
+    "rbgjb06-build-and-export.sh:gcr.io/cloud-builders/docker:bash:build-and-export"
+    "rbgjb07-push-with-skopeo.sh:quay.io/skopeo/stable:bash:push-with-skopeo"
+    "rbgjb08-sbom-and-summary.sh:gcr.io/cloud-builders/docker:bash:sbom-and-summary"
+    "rbgjb10-assemble-metadata.sh:\${_RBGY_JQ_REF}:sh:assemble-metadata"
+    "rbgjb09-build-and-push-metadata.sh:gcr.io/cloud-builders/docker:bash:build-and-push-metadata"
+  )
+
+  # Build JSON array of steps
+  local z_steps_json="[]"
+  local z_def z_script z_builder z_entrypoint z_id z_script_path z_body z_escaped z_arg_flag
+
+  for z_def in "${z_step_defs[@]}"; do
+    IFS=':' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
+    z_script_path="${ZRBF_RBGJB_STEPS_DIR}/${z_script}"
+
+    test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
+
+    # Read script body, skip shebang only (comments pass through harmlessly)
+    z_body=$(tail -n +2 "${z_script_path}")
+
+    # Escape $ to $$ for Cloud Build, but preserve ${_RBGY_*} substitutions
+    # First escape all $, then restore _RBGY_ substitution vars back to single $
+    z_escaped=$(printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g')
+
+    # Determine arg flag based on entrypoint
+    case "${z_entrypoint}" in
+      bash) z_arg_flag="-lc" ;;
+      sh)   z_arg_flag="-c" ;;
+      *)    buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
+    esac
+
+    # Append step to JSON array
+    z_steps_json=$(printf '%s' "${z_steps_json}" | jq \
+      --arg name "${z_builder}" \
+      --arg id "${z_id}" \
+      --arg ep "${z_entrypoint}" \
+      --arg flag "${z_arg_flag}" \
+      --arg script "${z_escaped}" \
+      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]')
+  done
+
+  # Write final JSON structure
+  printf '%s' "${z_steps_json}" | jq '{steps: .}' > "${ZRBF_STITCHED_BUILD_FILE}" \
+    || buc_die "Failed to write stitched build JSON"
+
+  buc_log_args "Stitched ${#z_step_defs[@]} steps to ${ZRBF_STITCHED_BUILD_FILE}"
 }
 
 zrbf_load_vessel() {
@@ -239,9 +313,8 @@ zrbf_package_context() {
 
   local z_dockerfile="$1"
   local z_context_dir="$2"
-  local z_yaml_file="$3"
 
-  buc_step 'Packaging build context'
+  buc_step 'Packaging build context (source only, no build config)'
 
   buc_log_args 'Create temp directory for context'
   rm -rf "${ZRBF_STAGING_DIR}" || buc_warn "Failed to clean existing staging directory"
@@ -253,9 +326,6 @@ zrbf_package_context() {
   buc_log_args 'Copy Dockerfile to context root if not already there'
   local z_dockerfile_name="${z_dockerfile##*/}"
   cp "${z_dockerfile}" "${ZRBF_STAGING_DIR}/${z_dockerfile_name}" || buc_die "Failed to copy Dockerfile"
-
-  buc_log_args 'Copy RBGY YAML to context (fixed name: cloudbuild.yaml)'
-  cp "${z_yaml_file}" "${ZRBF_STAGING_DIR}/cloudbuild.yaml" || buc_die "Failed to copy RBGY file"
 
   buc_log_args "Create tarball"
   tar -czf "${ZRBF_BUILD_CONTEXT_TAR}" -C "${ZRBF_STAGING_DIR}" . || buc_die "Failed to create context archive"
@@ -279,21 +349,20 @@ zrbf_package_context() {
   buc_info "Build context packaged: ${z_size_bytes} bytes"
 }
 
-zrbf_package_copy_context() {
+zrbf_package_mirror_context() {
   zrbf_sentinel
-  buc_step 'Packaging copy context'
+  buc_step 'Packaging mirror context'
 
-  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to clean existing copy staging directory"
-  mkdir -p "${ZRBF_COPY_STAGING_DIR}" || buc_die "Failed to create copy staging directory"
+  # NOTE: When rbf_mirror is implemented, this should use inline steps like rbf_build.
+  # For now, this packages a minimal context for the mirror operation.
+  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to clean existing mirror staging directory"
+  mkdir -p "${ZRBF_COPY_STAGING_DIR}" || buc_die "Failed to create mirror staging directory"
 
-  buc_log_args 'Copy rbgy_copy.yaml into the root as cloudbuild.yaml'
-  cp "${ZRBF_RBGY_COPY_FILE}" "${ZRBF_COPY_STAGING_DIR}/cloudbuild.yaml" \
-    || buc_die "Failed to copy RBGY copy YAML"
-
+  # Mirror operation needs no source files - steps will be inlined in API request
   tar -czf "${ZRBF_COPY_CONTEXT_TAR}" -C "${ZRBF_COPY_STAGING_DIR}" . \
-    || buc_die "Failed to create copy context archive"
+    || buc_die "Failed to create mirror context archive"
 
-  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to cleanup copy staging directory"
+  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to cleanup mirror staging directory"
 }
 
 zrbf_compose_tarball_name() {
@@ -341,19 +410,30 @@ zrbf_upload_context_to_gcs() {
 
 zrbf_compose_build_request_json() {
   zrbf_sentinel
-  jq empty "${ZRBF_BUILD_CONFIG_FILE}" || buc_die "Build config is not valid JSON"
+
+  # Stitch step scripts into build JSON
+  zrbf_stitch_build_json
+
+  jq empty "${ZRBF_BUILD_CONFIG_FILE}"    || buc_die "Build config is not valid JSON"
+  jq empty "${ZRBF_STITCHED_BUILD_FILE}"  || buc_die "Stitched build file is not valid JSON"
 
   local z_obj_name=""
   z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || buc_die "Missing tarball name"
 
-  jq -n --slurpfile sub "${ZRBF_BUILD_CONFIG_FILE}"            \
-    --arg bucket "${RBGD_GCS_BUCKET}"                           \
-    --arg object "${z_obj_name}"                                 \
-    --arg sa     "${RBGD_MASON_EMAIL}"                           \
-    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"                      \
-    --arg to     "${RBRR_GCB_TIMEOUT}"                           \
+  # Merge steps from stitched build JSON with runtime substitutions and config
+  # Service account must be in projects/{project}/serviceAccounts/{email} format
+  local z_sa_resource="projects/${RBGD_GAR_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  jq -n \
+    --slurpfile sub   "${ZRBF_BUILD_CONFIG_FILE}"    \
+    --slurpfile build "${ZRBF_STITCHED_BUILD_FILE}"  \
+    --arg bucket "${RBGD_GCS_BUCKET}"                \
+    --arg object "${z_obj_name}"                     \
+    --arg sa     "${z_sa_resource}"                  \
+    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"          \
+    --arg to     "${RBRR_GCB_TIMEOUT}"               \
     '{
       source: { storageSource: { bucket: $bucket, object: $object } },
+      steps: $build[0].steps,
       substitutions: ($sub[0].substitutions),
       options: { logging: "CLOUD_LOGGING_ONLY", machineType: $mtype },
       serviceAccount: $sa,
@@ -394,10 +474,10 @@ zrbf_submit_build_json() {
 }
 
 
-zrbf_submit_copy() {
+zrbf_submit_mirror() {
   zrbf_sentinel
 
-  buc_die 'ELIDED FOR NOW'
+  buc_die 'ELIDED FOR NOW - use ZRBF_RBGJM_MIRROR_FILE for steps'
 }
 
 zrbf_wait_build_completion() {
@@ -490,10 +570,10 @@ rbf_build() {
   # Verify git state + capture metadata
   zrbf_verify_git_clean
 
-  # Package build context (includes RBGY file as cloudbuild.yaml)
-  zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}" "${ZRBF_RBGY_BUILD_FILE}"
+  # Package build context (source code only; build config inlined in API request)
+  zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}"
 
-  # Prepare RBGY substitutions file
+  # Prepare build substitutions (variable names kept as _RBGY_* for template compatibility)
   local z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
 
   buc_log_args 'Read git info from file'
@@ -512,19 +592,19 @@ rbf_build() {
   test -n "${z_git_branch}" || buc_die "Git branch is empty"
   test -n "${z_git_repo}"   || buc_die "Git repo is empty"
 
-  buc_log_args 'Create build config with RBGY substitutions'
+  buc_log_args 'Create build config with substitutions for RBGJB template'
+  # Note: _RBGY_MACHINE_TYPE and _RBGY_TIMEOUT are set directly in API request,
+  # not via substitution, so they are omitted here to avoid Cloud Build errors.
   jq -n                                                       \
     --arg zjq_dockerfile     "${z_dockerfile_name}"             \
     --arg zjq_moniker        "${RBRV_SIGIL}"                    \
-    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS}"        \
+    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS// /,}"   \
     --arg zjq_gar_location   "${RBGD_GAR_LOCATION}"             \
     --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}"           \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_machine_type   "${RBRR_GCB_MACHINE_TYPE}"         \
-    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}"              \
     --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
     --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
     '{
@@ -538,8 +618,6 @@ rbf_build() {
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
         _RBGY_GIT_REPO:       $zjq_git_repo,
-        _RBGY_MACHINE_TYPE:   $zjq_machine_type,
-        _RBGY_TIMEOUT:        $zjq_timeout,
         _RBGY_JQ_REF:         $zjq_jq_ref,
         _RBGY_SYFT_REF:       $zjq_syft_ref
       }
@@ -557,10 +635,10 @@ rbf_build() {
   buc_success "Vessel image built: ${z_tag}"
 }
 
-rbf_copy() {
+rbf_mirror() {
   zrbf_sentinel
 
-  buc_die 'ELIDED FOR NOW'
+  buc_die 'ELIDED FOR NOW - mirror public images to depot registry'
 }
 
 rbf_study() {
@@ -590,61 +668,202 @@ rbf_study() {
 rbf_delete() {
   zrbf_sentinel
 
-  local z_tag="${1:-}"
+  local z_moniker="${1:-}"
+  local z_tag="${2:-}"
 
   # Documentation block
   buc_doc_brief "Delete an image tag from the registry"
+  buc_doc_param "moniker" "Image name (e.g., rbev-busybox)"
   buc_doc_param "tag" "Image tag to delete"
   buc_doc_shown || return 0
 
   # Validate parameters
+  test -n "${z_moniker}" || buc_die "Moniker parameter required"
   test -n "${z_tag}" || buc_die "Tag parameter required"
 
-  buc_step "Fetching manifest digest for deletion"
+  buc_step "Authenticating as Director"
 
   # Get OAuth token using Director credentials
-  # Note: This requires GCB service account to have artifactregistry.repoAdmin role
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
-  echo "${z_token}" > "${ZRBF_TOKEN_FILE}" || buc_die "Failed to write token file"
 
-  # Get manifest with digest header
-  local z_manifest_headers="${ZRBF_DELETE_PREFIX}headers.txt"
+  buc_step "Deleting tag: ${z_moniker}:${z_tag}"
 
-  curl -sL -I                                         \
-    -H "Authorization: Bearer ${z_token}"             \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"       \
-    "${ZRBF_REGISTRY_API_BASE}/manifests/${z_tag}"    \
-    > "${z_manifest_headers}" || buc_die "Failed to fetch manifest headers"
-
-  # Extract digest from Docker-Content-Digest header
-  local z_digest_file="${ZRBF_DELETE_PREFIX}digest.txt"
-  grep -i "docker-content-digest:" "${z_manifest_headers}" | \
-    sed 's/.*: //' | tr -d '\r\n' > "${z_digest_file}" || buc_die "Failed to extract digest header"
-
-  local z_digest
-  z_digest=$(<"${z_digest_file}")
-  test -n "${z_digest}" || buc_die "Manifest digest is empty"
-
-  buc_info "Deleting manifest: ${z_digest}"
-
-  # Delete by digest
+  # Delete by tag reference (not digest)
+  # GAR requires tag deletion before manifest can be removed
   local z_status_file="${ZRBF_DELETE_PREFIX}status.txt"
+  local z_response_file="${ZRBF_DELETE_PREFIX}response.json"
 
   curl -X DELETE -s                                   \
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
-    -o /dev/null                                      \
-    "${ZRBF_REGISTRY_API_BASE}/manifests/${z_digest}" \
+    -o "${z_response_file}"                           \
+    "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/manifests/${z_tag}" \
     > "${z_status_file}" || buc_die "DELETE request failed"
 
   local z_http_code
   z_http_code=$(<"${z_status_file}")
   test -n "${z_http_code}" || buc_die "HTTP status code is empty"
-  test "${z_http_code}" = "202" || test "${z_http_code}" = "204" || \
-    buc_die "Delete failed with HTTP ${z_http_code}"
 
-  buc_success "Image deleted: ${z_tag}"
+  if test "${z_http_code}" != "202" && test "${z_http_code}" != "204"; then
+    buc_warn "Response body: $(cat "${z_response_file}" 2>/dev/null || echo 'empty')"
+    buc_die "Delete failed with HTTP ${z_http_code}"
+  fi
+
+  buc_success "Tag deleted: ${z_moniker}:${z_tag}"
+}
+
+rbf_list() {
+  zrbf_sentinel
+
+  local z_moniker="${1:-}"
+
+  # Documentation block
+  buc_doc_brief "List images and tags in the Artifact Registry repository"
+  buc_doc_param "moniker" "Optional: specific image moniker to list tags for (e.g., rbev-busybox)"
+  buc_doc_shown || return 0
+
+  # Note: Ideally uses Retriever role, but Director also has read access
+  buc_step "Fetching OAuth token (Director)"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  if test -n "${z_moniker}"; then
+    # List tags for specific moniker
+    buc_step "Listing tags for: ${z_moniker}"
+
+    local z_tags_file="${BUD_TEMP_DIR}/rbf_list_tags.json"
+    curl -sL \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
+      > "${z_tags_file}" || buc_die "Failed to fetch tags"
+
+    # Check for error response
+    if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+      local z_error
+      z_error=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+      buc_die "Registry error: ${z_error}"
+    fi
+
+    # Display tags
+    echo ""
+    echo "Image: ${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_moniker}"
+    echo "Tags:"
+    jq -r '.tags[]? // empty' "${z_tags_file}" | sort -r | while read -r tag; do
+      echo "  ${tag}"
+    done
+  else
+    # List all images (packages) in repository using Artifact Registry REST API
+    # Docker Registry v2 _catalog doesn't work with GAR
+    buc_step "Listing images in repository"
+
+    local z_packages_file="${BUD_TEMP_DIR}/rbf_list_packages.json"
+    local z_gar_api="https://artifactregistry.googleapis.com/v1"
+    local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+
+    curl -sL \
+      -H "Authorization: Bearer ${z_token}" \
+      "${z_gar_api}/${z_repo_path}/packages" \
+      > "${z_packages_file}" || buc_die "Failed to fetch packages"
+
+    # Check for error response
+    if jq -e '.error' "${z_packages_file}" >/dev/null 2>&1; then
+      local z_error
+      z_error=$(jq -r '.error.message // "Unknown error"' "${z_packages_file}")
+      buc_die "API error: ${z_error}"
+    fi
+
+    echo ""
+    echo "Repository: ${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}"
+    echo "Images:"
+    jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
+      # Extract just the image name (last path component after /packages/)
+      local z_name="${pkg##*/}"
+      echo "  ${z_name}"
+    done
+
+    local z_count
+    z_count=$(jq -r '.packages | length // 0' "${z_packages_file}")
+    echo ""
+    echo "Total: ${z_count} image(s)"
+  fi
+
+  buc_success "List complete"
+}
+
+rbf_retrieve() {
+  zrbf_sentinel
+
+  local z_image_ref="${1:-}"
+
+  # Documentation block
+  buc_doc_brief "Pull an image from the registry to local container runtime"
+  buc_doc_param "image_ref" "Image reference: moniker:tag or moniker@digest"
+  buc_doc_shown || return 0
+
+  # Validate parameter
+  test -n "${z_image_ref}" || buc_die "Image reference required (name:tag or name@digest)"
+
+  # Parse image reference (moniker:tag or moniker@digest)
+  local z_moniker=""
+  local z_ref_part=""
+
+  if [[ "${z_image_ref}" == *"@"* ]]; then
+    # Digest format: moniker@sha256:...
+    z_moniker="${z_image_ref%%@*}"
+    z_ref_part="${z_image_ref#*@}"
+  elif [[ "${z_image_ref}" == *":"* ]]; then
+    # Tag format: moniker:tag
+    z_moniker="${z_image_ref%%:*}"
+    z_ref_part="${z_image_ref#*:}"
+  else
+    buc_die "Invalid image reference format. Expected name:tag or name@digest"
+  fi
+
+  test -n "${z_moniker}" || buc_die "Moniker is empty"
+  test -n "${z_ref_part}" || buc_die "Tag or digest is empty"
+
+  buc_step "Authenticating as Retriever"
+
+  # Prefer Retriever credentials, fallback to Director
+  local z_rbra_file=""
+  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+    buc_info "Using Retriever credentials"
+  else
+    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    buc_info "Retriever not configured, using Director credentials"
+  fi
+
+  # Get OAuth token
+  local z_token
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
+
+  buc_step "Logging into container registry"
+
+  # Construct full image reference
+  local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_image_ref}"
+
+  # Docker login to GAR
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
+    || buc_die "Container runtime authentication failed"
+
+  buc_step "Pulling image: ${z_full_ref}"
+
+  # Pull image
+  docker pull "${z_full_ref}" || buc_die "Image pull failed"
+
+  # Get local image ID
+  local z_image_id
+  z_image_id=$(docker inspect --format='{{.Id}}' "${z_full_ref}" 2>/dev/null) \
+    || buc_die "Failed to get image ID"
+
+  # Display results
+  echo ""
+  echo "Image retrieved: ${z_full_ref}"
+  echo "Local image ID: ${z_image_id}"
+
+  buc_success "Image pull complete"
 }
 
 # eof

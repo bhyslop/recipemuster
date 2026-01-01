@@ -7,12 +7,16 @@ and for renewal operations.
 .. For initial setup: Use JSON file downloaded during
 {rbtgo_payor_establish}
 .. For refresh/renewal: Navigate to APIs & Services > Credentials in Payor Project
-... Find existing "Recipe Bottle Payor" OAuth client
-... Download new JSON (or regenerate secret if compromised)
-... Save as `payor-oauth-[timestamp].json`
+... Click existing "Recipe Bottle Payor" OAuth client to open details
+... If secret compromised:
+.... Click "+ Add secret"
+.... Click download icon next to NEW secret
+.... Browser downloads `client_secret_[id].apps.googleusercontent.com.json`
+.... Click "Disable" on secret with older creation date
+.... Click trash icon to delete that disabled secret
 
 . *Install/Refresh Credentials*:
-.. Run: `rbgp_payor_install /path/to/payor-oauth.json`
+.. Run: `rbgp_payor_install ~/Downloads/client_secret_*.json`
 .. This will:
 ... Guide you through OAuth authorization flow
 ... Store secure credentials in `~/.rbw/rbro.env`
@@ -24,7 +28,4 @@ and for renewal operations.
 .. Test with: `rbgp_depot_list`
 .. Should display current depots without authentication errors
 
-NOTE: The credential installation functionality is now handled by
-{rbtgo_payor_refresh}
-procedure.
-OAuth refresh tokens in testing mode expire after 6 months of non-use.
+NOTE: OAuth refresh tokens in testing mode expire after 6 months of non-use.

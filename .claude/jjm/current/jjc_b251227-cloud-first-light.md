@@ -427,4 +427,405 @@
 - Vessel builds multi-arch image (linux/amd64, linux/arm64, linux/arm/v7)
 - On success, image tagged as `rbev-busybox.YYMMDDHHMMSS` in Artifact Registry
 - Watch for: permission errors, API propagation issues, or Mason SA problems
+
+### 2025-12-30 13:35 - trigger-build - STITCHER REFACTOR COMPLETE
+**Task**: Refactor Cloud Build config from static JSON to dynamically-stitched step scripts
+
+**Completed**:
+1. Created 9 step scripts in `Tools/rbw/rbgjb/`:
+   - rbgjb01-derive-tag-base.sh through rbgjb09-build-and-push-metadata.sh
+   - Each is a pure, lintable bash file with documentation comments
+2. Added `zrbf_stitch_build_json()` function in rbf_Foundry.sh:
+   - Inline metadata mapping (builder image, entrypoint, step ID per script)
+   - Reads scripts, escapes `$` → `$$` for Cloud Build (preserving `${_RBGY_*}` substitutions)
+   - Outputs valid JSON matching original structure
+3. Updated `zrbf_kindle()` with `ZRBF_RBGJB_STEPS_DIR` and `ZRBF_STITCHED_BUILD_FILE`
+4. Updated `zrbf_compose_build_request_json()` to call stitcher
+5. Deleted old static `rbgjb_build.json`
+
+**Test result**: Build submitted successfully, first 5 steps executed correctly (stitcher working).
+Step 6 (build-and-push) failed - Docker buildx issue unrelated to stitcher refactor.
+
+**Commits**:
+- `72f24de` - Add stitcher function to dynamically generate Cloud Build JSON
+- `07c3abc` - Fix stitcher $ escaping to preserve Cloud Build substitutions
+- `2397405` - Remove old static rbgjb_build.json
+
+**Next**: Debug Docker buildx failure in step 6 (separate issue from stitcher work)
+---
+
+---
+### 2025-12-30 - exercise-trigger-build - APPROACH (debug buildx)
+**Proposed approach**:
+- Re-run build to capture the exact Docker buildx error message
+- Likely causes: Cloud Builders docker image lacks buildx or multi-arch support
+- Possible fixes: (1) use different builder image, (2) add qemu/binfmt step, (3) fall back to single-arch
+- Debug per heat protocol: identify error, analyze root cause, propose fix, wait for approval
+
+### 2025-12-30 14:00 - exercise-trigger-build - SESSION PAUSED
+**Issue**: Docker buildx multi-arch build failing in Cloud Build step 4 (build-and-push)
+
+**Root cause identified**: Cloud Build steps run in isolated containers. Buildx builder state doesn't persist across steps.
+
+**Attempted fixes** (all failed with exit code 1):
+1. Merged buildx-create into build-and-push step (step 5 deleted)
+2. Removed --driver docker-container (default driver doesn't support multi-platform)
+3. Added --driver-opt network=host
+
+**Likely actual issue**: The docker-container buildx driver spawns a new container to do builds, but this container-in-container approach may not work in Cloud Build's environment due to Docker daemon access restrictions.
+
+**Research found** (see [GKE multi-arch docs](https://cloud.google.com/kubernetes-engine/docs/how-to/build-multi-arch-for-arm)):
+- Need to see actual error from Cloud Build logs (currently disabled)
+- May need to enable Cloud Logging or set up logs bucket
+- Alternative: build each arch separately and create manifest list
+
+**Next steps when resuming**:
+1. Enable Cloud Build logging to capture actual error message
+2. Consider alternative approaches:
+   - Single-arch build first (just amd64) to get something working
+   - Separate builds per arch + manifest list creation
+   - Use Kaniko for builds instead of docker buildx
+---
+
+---
+### 2025-12-31 - exercise-trigger-build - APPROACH (resolve buildx)
+**Proposed approach**:
+1. Enable Cloud Build logging to see actual buildx error details
+2. Research Cloud Build multi-arch patterns and Google's recommended approach
+3. Implement simplest working solution first (likely single-arch amd64 to unblock)
+4. Test and verify image appears in Artifact Registry
+5. Create itch for multi-arch support if needed
+
+### 2025-12-31 - exercise-trigger-build - ROOT CAUSE IDENTIFIED
+**Issue**: 403 Forbidden when pushing multi-arch image to GAR
+
+**Analysis**:
+- Multi-arch build succeeded (all 3 platforms built correctly)
+- Docker login in step 3 authenticated host docker daemon
+- Buildx docker-container driver runs in isolated container
+- Isolated builder container doesn't inherit host's docker credentials
+- Push failed: "failed to fetch oauth token ... 403 Forbidden"
+
+**Catch-22 Discovered**:
+- docker (default) driver: Has GAR credentials ✓, but NO multi-platform support ✗
+- docker-container driver: Supports multi-platform ✓, but NO access to credentials ✗
+
+**Research Conducted**:
+- Extensive web research on buildx authentication, BuildKit credential handling
+- Investigated GCR vs GAR authentication differences
+- Explored config.json mounting, buildkitd.toml, driver options
+- Documented findings in RBWMBX memo (lenses/rbw-RBWMBX-BuildxMultiPlatformAuth.adoc)
+
+**Solution Path Identified**:
+Created 5 sequential paces in heat:
+1. Test with GCR (validates buildx works)
+2. Implement OAuth config.json for GAR (proper solution)
+3. Evaluate buildkitd.toml (alternative approach)
+4. Document decision (capture outcome)
+5. Update RBSTB specification (incorporate learnings)
+
+Each pace has clear success/skip criteria to avoid unnecessary work.
+
+**Git State**:
+- Code committed but non-functional for multi-platform builds
+- Last commit: f021d54 "Fix buildx: use default builder, don't create new one"
+- Stitcher refactor complete (rbgjb01-09 scripts working)
+- Steps 1-4 execute successfully (auth, QEMU)
+- Step 6 fails (default driver doesn't support multi-platform)
+
+**Session Paused**: Ready to begin pace 1 (Test trigger_build with GCR) in next session
+---
+
+---
+### 2025-12-31 07:15 - revert-gcr-test-changes - APPROACH
+**Proposed approach**:
+- Revert rbgjb06-build-and-push.sh to restore GAR target:
+  - Change IMAGE_URI from `gcr.io/${_RBGY_GAR_PROJECT}/${_RBGY_MONIKER}:...` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:...`
+  - Remove docker-container driver creation (lines 32-33)
+  - Restore default builder comment
+  - Update file header from "GCR (testing)" to "GAR"
+- Revert rbgjb09-build-and-push-metadata.sh to restore GAR target:
+  - Change META_URI from `gcr.io/${_RBGY_GAR_PROJECT}/${_RBGY_MONIKER}:...` back to `${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:...`
+  - Restore full substitutions list in header
+  - Update file header from "GCR (testing)" to original
+- Commit reversion with message explaining GCR test complete, returning to GAR for OCI bridge implementation
+- GCR test results already documented in RBWMBX memo (commit d07be5c)
+
+### 2025-12-31 07:20 - revert-gcr-test-changes - COMPLETE
+**Outcome**: Reverted both scripts to GAR targets, committed as b3b5737.
+
+**Changes**:
+- rbgjb06: Restored `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format for IMAGE_URI
+- rbgjb06: Removed docker-container driver creation, restored default builder comment
+- rbgjb09: Restored `${_RBGY_GAR_LOCATION}-docker.pkg.dev/...` format for META_URI
+- rbgjb09: Restored full substitutions list in header
+
+**Next**: Ready to implement OCI Layout Bridge Phase 1 (Export).
+---
+
+---
+### 2025-12-31 07:25 - oci-bridge-phase1-export - APPROACH
+**Proposed approach**:
+- Read current rbgjb06-build-and-push.sh to understand full structure
+- Modify the buildx command:
+  - Replace `--push` with `--output type=oci,dest=/workspace/oci-layout`
+  - Keep all `--platform`, `--tag`, and `--label` flags intact
+  - Preserve all Git metadata labels
+- Remove the `.image_uri` output (no push yet, that's Phase 2)
+- Rename file from `rbgjb06-build-and-push.sh` to `rbgjb06-build-and-export.sh`
+- Update header comment to reflect new purpose: "Build multi-arch OCI layout"
+- The default buildx builder should work fine for OCI export (no push, no auth needed)
+- Commit changes with clear explanation of OCI bridge Phase 1
+
+### 2025-12-31 07:30 - oci-bridge-phase1-export - COMPLETE
+**Outcome**: Created rbgjb06-build-and-export.sh with OCI layout export.
+
+**Changes**:
+- Renamed `rbgjb06-build-and-push.sh` → `rbgjb06-build-and-export.sh`
+- Replaced `--push` with `--output type=oci,dest=/workspace/oci-layout`
+- Removed `.image_uri` output file (Phase 2 will create this)
+- Updated header: "Build multi-arch OCI layout"
+- Added explanatory comment about OCI Layout Bridge pattern
+- Preserved all labels and metadata (moniker, git.commit, git.branch)
+- Kept IMAGE_URI for --tag (becomes OCI layout metadata)
+
+**Key insight**: OCI export avoids authentication entirely - no push means no credentials needed. The `/workspace/` directory persists across Cloud Build steps, acting as the bridge to Phase 2 (Skopeo push).
+
+**Next**: Phase 2 - Create rbgjb07-push-with-skopeo.sh to push OCI layout to GAR.
+---
+
+---
+### 2025-12-31 07:35 - oci-bridge-phase2-push - APPROACH
+**Proposed approach**:
+- Create new script rbgjb07-push-with-skopeo.sh
+- Header: Builder is quay.io/skopeo/stable:latest
+- Substitutions needed: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER
+- Script logic:
+  1. Read TAG_BASE from .tag_base file
+  2. Construct IMAGE_URI (same format as Phase 1)
+  3. Get access token from Cloud Build metadata server: `curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`
+  4. Parse token from JSON response
+  5. Use Skopeo to copy OCI layout to GAR: `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://${IMAGE_URI}`
+  6. Write IMAGE_URI to .image_uri for downstream steps (rbgjb08, rbgjb09)
+- Add error handling for metadata server and Skopeo operations
+
+### 2025-12-31 07:40 - oci-bridge-phase2-push - COMPLETE
+**Outcome**: Created rbgjb07-push-with-skopeo.sh with Skopeo-based GAR push.
+
+**Changes**:
+- New script: Tools/rbw/rbgjb/rbgjb07-push-with-skopeo.sh
+- Builder: quay.io/skopeo/stable:latest
+- Authentication: Fetches access token from Cloud Build metadata server
+- Token parsing: Simple grep/sed extraction from JSON (no jq dependency)
+- Skopeo command: `skopeo copy --all --dest-creds="oauth2accesstoken:${AR_TOKEN}" oci:/workspace/oci-layout docker://${IMAGE_URI}`
+- Output: Writes IMAGE_URI to .image_uri for downstream steps
+- Error handling: Validates OCI layout exists, metadata server response, token extraction
+
+**Key design**: Skopeo runs in a container with metadata server access, solving the credential isolation problem. The `--all` flag ensures all platforms from the OCI layout are pushed to the multi-platform manifest.
+
+**Next**: Phase 3 - Adjust SBOM generation (rbgjb08) to read from OCI layout instead of registry.
+---
+
+---
+### 2025-12-31 07:45 - oci-bridge-phase3-sbom - APPROACH
+**Proposed approach**:
+- Read current rbgjb08-sbom-and-summary.sh to understand structure
+- Change Syft source from registry image to OCI layout
+- Replace `"${IMAGE_URI}"` with `oci-dir:/workspace/oci-layout` in both Syft commands
+- Keep both output formats (JSON for analysis, table for summary)
+- Keep _RBGY_SYFT_REF substitution and docker builder
+- Note: The OCI layout is local, so analysis is faster and doesn't require network access
+- This analyzes exactly what was built, before any potential registry corruption
+
+### 2025-12-31 07:50 - oci-bridge-phase3-sbom - COMPLETE
+**Outcome**: Updated rbgjb08-sbom-and-summary.sh to read from OCI layout.
+
+**Changes**:
+- Replaced `"${IMAGE_URI}"` with `oci-dir:/workspace/oci-layout` in both Syft commands
+- Added volume mount: `-v /workspace:/workspace` to give Syft container access to OCI layout
+- Added validation: `test -d /workspace/oci-layout` before running Syft
+- Updated header comment to explain OCI Layout Bridge Phase 3
+- Removed IMAGE_URI read (no longer needed)
+
+**Benefits**:
+- Faster: No network pull from registry required
+- Accurate: Analyzes exactly what was built locally
+- Reliable: No dependency on registry availability
+
+**Note**: rbgjb09 (metadata container) remains unchanged - it's a single-platform scratch image that doesn't need the OCI bridge pattern. It uses the standard docker build/push workflow.
+
+**Next**: Update build stitcher (rbf_Foundry.sh) to integrate new step structure.
+---
+
+---
+### 2025-12-31 07:55 - update-build-stitcher - APPROACH
+**Proposed approach**:
+- Read zrbf_stitch_build_json() function in Tools/rbw/rbf_Foundry.sh
+- Update step 06 metadata:
+  - Change filename from rbgjb06-build-and-push.sh to rbgjb06-build-and-export.sh
+  - Update step ID from "build-and-push" to "build-and-export"
+- Add new step 07 metadata:
+  - Filename: rbgjb07-push-with-skopeo.sh
+  - Builder: quay.io/skopeo/stable:latest
+  - Entrypoint: bash
+  - Step ID: "push-with-skopeo"
+  - Dependencies: wait for step 06 (build-and-export)
+- Verify step 08 and 09 metadata still correct
+- Test by running the stitcher function mentally to ensure valid JSON structure
+
+### 2025-12-31 08:00 - update-build-stitcher - COMPLETE
+**Outcome**: Updated stitcher with new OCI bridge step structure.
+
+**Changes**:
+- Renamed rbgjb07-assemble-metadata.sh → rbgjb10-assemble-metadata.sh (avoid number collision)
+- Updated rbf_Foundry.sh step definitions:
+  - Step 06: rbgjb06-build-and-export.sh (updated from build-and-push)
+  - Step 07: rbgjb07-push-with-skopeo.sh (NEW - uses quay.io/skopeo/stable:latest)
+  - Step 08: rbgjb08-sbom-and-summary.sh (unchanged)
+  - Step 10: rbgjb10-assemble-metadata.sh (renumbered from 07)
+  - Step 09: rbgjb09-build-and-push-metadata.sh (unchanged, runs last)
+- Added OCI Layout Bridge comment block explaining the pattern
+- Execution order ensures dependencies: 06 → 07 → 08 → 10 → 09
+
+**Key insight**: Step 10 (assemble-metadata) must run before step 9 (build-and-push-metadata) because step 9 needs build_info.json created by step 10.
+
+**Next**: Test complete OCI bridge workflow with actual build.
+---
+
+---
+### 2025-12-31 08:05 - test-oci-bridge-workflow - APPROACH
+**Proposed approach**:
+- Run `tt/rbw-fB.BuildVessel.sh rbev-vessels/rbev-busybox` to trigger a build
+- Monitor Cloud Build execution to verify all steps complete successfully
+- Check that OCI Layout Bridge phases execute in correct order:
+  - Step 06: buildx exports to /workspace/oci-layout
+  - Step 07: Skopeo pushes from oci-layout to GAR
+  - Step 08: Syft analyzes from oci-layout
+  - Step 10: Assembles metadata JSON
+  - Step 09: Builds and pushes metadata container
+- After build completes, verify:
+  - Image pushed to GAR with correct tag (rbev-busybox.YYMMDDHHMMSS-img)
+  - Multi-platform manifest contains all 3 platforms (amd64, arm64, arm/v7)
+  - Metadata container pushed (rbev-busybox.YYMMDDHHMMSS-meta)
+- Follow heat protocol for any bugs: stop, explain, wait for approval before fixing
+---
+
+---
+### 2025-12-31 09:00 - research-docker-container-oci-output - APPROACH
+**Proposed approach**:
+- Search Docker buildx docs for OCI output destination with docker-container driver
+- Search BuildKit issues/discussions for /workspace output behavior
+- Look for Cloud Build examples using buildx OCI export
+- Update RBWMBX memo with findings
+- If confirmed working: recommend adding docker buildx create back to rbgjb06
+- If not working: document workaround
+
+### 2025-12-31 09:30 - research-docker-container-oci-output - COMPLETE
+**Key finding**: OCI output writes to CLIENT filesystem, not BuildKit container
+
+**Evidence**:
+- Docker docs: "allows export of results directly to the client's filesystem"
+- BuildKit docs: "The local client will copy the files directly to the client"
+- Mechanism: BuildKit transfers results back via gRPC (FileSend/diffcopy)
+
+**Critical requirements discovered**:
+1. docker-container driver IS REQUIRED for both OCI export and multi-platform
+2. Default docker driver supports neither
+3. tar=false needed for directory output (Skopeo expects directory, not tarball)
+4. GitHub Issue #1672 (missing oci-layout file) FIXED in buildkit PR #3729
+
+**Google Cloud validation**: Official Dataflow docs show exact pattern we need
+
+**Changes made**:
+- RBWMBX memo: Added "OCI Output Path Research" section with architecture diagram
+- rbgjb06: Added `docker buildx create --driver docker-container --name rb-builder --use`
+- rbgjb06: Changed output to `type=oci,tar=false,dest=/workspace/oci-layout`
+
+**Next**: Test full OCI bridge workflow
+---
+
+---
+### 2025-12-31 08:58 - exercise-image-delete - WRAP
+**Outcome**: Fixed rbf_delete: added moniker param, tag-based deletion (GAR rejects digest-based), Director needs repoAdmin role, updated tabtarget to new launcher form.
+
+**Fixes applied**:
+- rbf_Foundry.sh: Added moniker parameter, simplified to tag-based DELETE (GAR returns GOOGLE_MANIFEST_DANGLING_TAG error on digest-based delete)
+- rbgg_Governor.sh: Added artifactregistry.repoAdmin grant for Director SA
+- rbgp_Payor.sh: Changed Mason from artifactregistry.admin to artifactregistry.writer
+- tt/rbw-fD.DeleteImage.sh: Updated to new launcher form (was old bud_dispatch form)
+- Manual IAM grant to director-theta for testing
+
+**Tested**: Deleted tag 20251231T155752Z-img successfully
+---
+
+---
+### 2025-12-31 09:09 - exercise-trigger-build-rebuild - WRAP
+**Outcome**: Rebuilt rbev-busybox image after deletion exercise.
+
+**Build**: 1c228d46-0eee-4f83-9978-0aa99feaa3dd
+**Tags**: 20251231T170819Z-img, 20251231T170819Z-meta
+
+**Verified**: Image list shows new tags in GAR.
+---
+
+---
+### 2026-01-01 - exercise-image-retrieve - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Modernize tabtarget: Update `tt/rbw-r.RetrieveImage.sh` from old mbd.dispatch to new BUD launcher form
+- Implement `rbf_retrieve` in `Tools/rbw/rbf_Foundry.sh` following RBSIR spec:
+  - Validate input (moniker:tag or moniker@digest)
+  - Authenticate using Retriever SA credentials (RBRR_RETRIEVER_RBRA_FILE)
+  - Login to container runtime with access token
+  - Pull image using docker/podman
+  - Display image ID on success
+- Test by pulling the rebuilt busybox image (rbev-busybox:20251231T170819Z-img)
+
+### 2026-01-01 05:19 - exercise-image-retrieve - WRAP
+**Outcome**: Implemented and tested successfully on first try.
+
+**Changes**:
+- Modernized `tt/rbw-r.RetrieveImage.sh` to BUD launcher form
+- Implemented `rbf_retrieve()` in `Tools/rbw/rbf_Foundry.sh` (lines 794-867)
+  - Parses moniker:tag or moniker@digest format
+  - Prefers Retriever credentials, falls back to Director
+  - Docker login with OAuth token
+  - Docker pull with full image reference
+  - Displays local image ID on success
+
+**Test result**:
+- Image: `rbev-busybox:20251231T170819Z-img`
+- Pulled successfully from GAR
+- Local ID: `sha256:38c8281f1a975034bc48f03b4c9376d97275fd726ad306aae7faa4374a50e810`
+
+**Note**: Used Director credentials (Retriever SA not yet installed locally).
+---
+
+---
+### 2026-01-01 - exercise-payor-refresh - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-PR.PayorRefresh.sh` to display the manual procedure
+- Verify instructions are correct and clear
+- Note: This is a manual procedure (displays instructions), not an automated operation
+- The actual refresh would use `rbgp_payor_install` with fresh OAuth JSON
+
+### 2026-01-01 06:15 - exercise-payor-refresh - WRAP
+**Outcome**: Successfully refreshed OAuth credentials using new secret rotation flow.
+
+**Fixes applied**:
+- Updated GCP UI instructions: RESET SECRET → "+ Add secret" flow
+- Fixed zrbgm_dm → zrbgm_dmd for 3-arg display (secret deletion text)
+- Indented "Browser downloads" as consequence of download step
+- Fixed CRM v1 API field: `.state` → `.lifecycleState` in payor_install
+- Made "Google hasn't verified" screen conditional (may not appear)
+- Cleaned up rbrp.env (one comment per variable)
+
+**Test result**:
+- Rotated client secret via GCP Console
+- Ran `tt/rbw-PI.PayorInstall.sh` with new JSON
+- `~/.rbw/rbro.env` timestamp updated: Dec 28 09:40 → Jan 1 06:01
+- `tt/rbw-ld.ListDepots.sh` succeeded: 1 depot (proto) COMPLETE
+
+**Itch added**: payor-install-rbrp-check (validation checklist with guide colors)
 ---

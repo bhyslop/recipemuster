@@ -73,6 +73,8 @@ rbk_route() {
 
     # Foundry commands
     rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build  $z_args ;;
+    rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args ;;
+    rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list   $z_args ;;
 
     # Unknown command
     *)
