@@ -767,3 +767,46 @@ Each pace has clear success/skip criteria to avoid unnecessary work.
 
 **Verified**: Image list shows new tags in GAR.
 ---
+
+---
+### 2026-01-01 - exercise-image-retrieve - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Modernize tabtarget: Update `tt/rbw-r.RetrieveImage.sh` from old mbd.dispatch to new BUD launcher form
+- Implement `rbf_retrieve` in `Tools/rbw/rbf_Foundry.sh` following RBSIR spec:
+  - Validate input (moniker:tag or moniker@digest)
+  - Authenticate using Retriever SA credentials (RBRR_RETRIEVER_RBRA_FILE)
+  - Login to container runtime with access token
+  - Pull image using docker/podman
+  - Display image ID on success
+- Test by pulling the rebuilt busybox image (rbev-busybox:20251231T170819Z-img)
+
+### 2026-01-01 05:19 - exercise-image-retrieve - WRAP
+**Outcome**: Implemented and tested successfully on first try.
+
+**Changes**:
+- Modernized `tt/rbw-r.RetrieveImage.sh` to BUD launcher form
+- Implemented `rbf_retrieve()` in `Tools/rbw/rbf_Foundry.sh` (lines 794-867)
+  - Parses moniker:tag or moniker@digest format
+  - Prefers Retriever credentials, falls back to Director
+  - Docker login with OAuth token
+  - Docker pull with full image reference
+  - Displays local image ID on success
+
+**Test result**:
+- Image: `rbev-busybox:20251231T170819Z-img`
+- Pulled successfully from GAR
+- Local ID: `sha256:38c8281f1a975034bc48f03b4c9376d97275fd726ad306aae7faa4374a50e810`
+
+**Note**: Used Director credentials (Retriever SA not yet installed locally).
+---
+
+---
+### 2026-01-01 - exercise-payor-refresh - APPROACH
+**Mode**: manual
+**Proposed approach**:
+- Run `tt/rbw-PR.PayorRefresh.sh` to display the manual procedure
+- Verify instructions are correct and clear
+- Note: This is a manual procedure (displays instructions), not an automated operation
+- The actual refresh would use `rbgp_payor_install` with fresh OAuth JSON
+---

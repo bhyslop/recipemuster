@@ -54,7 +54,7 @@ Permanent depot for use throughout remaining paces and beyond.
 | `rbf_build` | `rbw-fB` | RBSTB | working |
 | `rbf_list` | `rbw-il` | — | working |
 | `rbf_delete` | `rbw-fD` | RBSID | working |
-| — | `rbw-r` | RBSIR | old dispatcher |
+| `rbf_retrieve` | `rbw-r` | RBSIR | working |
 | `rbgm_payor_refresh` | `rbw-PR` | RBSPR | untested |
 
 ## Done
@@ -109,10 +109,13 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Exercise trigger_build (rebuild)** — Rebuilt rbev-busybox image (build 1c228d46, tags 20251231T170819Z-img/meta).
 
-## Current
+- **Exercise image_retrieve** — Modernized tabtarget to BUD launcher, implemented rbf_retrieve in rbf_Foundry.sh. Uses Retriever credentials when available, falls back to Director. Tested: pulled rbev-busybox:20251231T170819Z-img successfully.
 
-- **Exercise image_retrieve** — Pull image from repository to local workstation. Note: `rbw-r.RetrieveImage.sh` uses old mbd.dispatch; must modernize to BUD bash-style dispatch first.
-  mode: manual
+- **Choose name for design decision documentation** — Selected "Trade Study" as section name. Captures: intense research → coherent synthesis, constraint/tradeoff analysis, no discovery narrative, defensible conclusions. Formal engineering term with aerospace heritage.
+
+- **Add Trade Study section to RBAGS** — Created "Trade Studies" section in rbw-RBAGS-AdminGoogleSpec.adoc with OCI Layout Bridge as first entry. Documents: problem (BuildKit credential isolation), constraints (driver catch-22, eliminated options), alternatives evaluated (5 options with dispositions), chosen solution (OCI Layout Bridge), rationale (5 points), implementation details (build/push steps, critical notes), references (RBWMBX memo, build ID).
+
+## Current
 
 - **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
   mode: manual
@@ -121,12 +124,6 @@ Permanent depot for use throughout remaining paces and beyond.
   mode: manual
 
 - **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Root cause: RBRR_GAR_REPOSITORY is static manual config, but repository name is determined at depot_create time. Options: (1) Add runtime validation in rbf_build to verify repository exists before build, (2) Change depot_create to write RBRR_GAR_REPOSITORY, (3) Derive repository name from depot project ID. Evaluate which approach prevents future desync.
-  mode: manual
-
-- **Choose name for design decision documentation** — Determine what to call the RBAGS section that documents architectural/technical design decisions with their constraints and rationales. "Architecture Decision Record" is standard but verbose. "Technical Design Tree" considered but not actually a tree structure. Need a name that: (1) clearly indicates purpose (why we chose X not Y), (2) fits RBAGS voice and audience, (3) won't feel stale in 2027. Consider options, evaluate against existing RBAGS section naming patterns (Operations, Definitions, etc.), select final name for use in subsequent pace.
-  mode: manual
-
-- **Add design decision section to RBAGS** — Create new section in rbw-RBAGS-AdminGoogleSpec.adoc (using name chosen in previous pace) documenting the OCI Layout Bridge decision. Capture: (1) problem statement (BuildKit credential isolation), (2) constraints discovered (default driver limitations, docker-container isolation), (3) options evaluated and why rejected, (4) chosen solution and rationale, (5) key implementation details (tarball format, Skopeo auth, Syft workaround). Reference RBWMBX memo and steeplechase entries. Preserve institutional knowledge without the discovery narrative.
   mode: manual
 
 - **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.

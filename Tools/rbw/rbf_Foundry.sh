@@ -791,5 +791,80 @@ rbf_list() {
   buc_success "List complete"
 }
 
+rbf_retrieve() {
+  zrbf_sentinel
+
+  local z_image_ref="${1:-}"
+
+  # Documentation block
+  buc_doc_brief "Pull an image from the registry to local container runtime"
+  buc_doc_param "image_ref" "Image reference: moniker:tag or moniker@digest"
+  buc_doc_shown || return 0
+
+  # Validate parameter
+  test -n "${z_image_ref}" || buc_die "Image reference required (name:tag or name@digest)"
+
+  # Parse image reference (moniker:tag or moniker@digest)
+  local z_moniker=""
+  local z_ref_part=""
+
+  if [[ "${z_image_ref}" == *"@"* ]]; then
+    # Digest format: moniker@sha256:...
+    z_moniker="${z_image_ref%%@*}"
+    z_ref_part="${z_image_ref#*@}"
+  elif [[ "${z_image_ref}" == *":"* ]]; then
+    # Tag format: moniker:tag
+    z_moniker="${z_image_ref%%:*}"
+    z_ref_part="${z_image_ref#*:}"
+  else
+    buc_die "Invalid image reference format. Expected name:tag or name@digest"
+  fi
+
+  test -n "${z_moniker}" || buc_die "Moniker is empty"
+  test -n "${z_ref_part}" || buc_die "Tag or digest is empty"
+
+  buc_step "Authenticating as Retriever"
+
+  # Prefer Retriever credentials, fallback to Director
+  local z_rbra_file=""
+  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+    buc_info "Using Retriever credentials"
+  else
+    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    buc_info "Retriever not configured, using Director credentials"
+  fi
+
+  # Get OAuth token
+  local z_token
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
+
+  buc_step "Logging into container registry"
+
+  # Construct full image reference
+  local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_image_ref}"
+
+  # Docker login to GAR
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
+    || buc_die "Container runtime authentication failed"
+
+  buc_step "Pulling image: ${z_full_ref}"
+
+  # Pull image
+  docker pull "${z_full_ref}" || buc_die "Image pull failed"
+
+  # Get local image ID
+  local z_image_id
+  z_image_id=$(docker inspect --format='{{.Id}}' "${z_full_ref}" 2>/dev/null) \
+    || buc_die "Failed to get image ID"
+
+  # Display results
+  echo ""
+  echo "Image retrieved: ${z_full_ref}"
+  echo "Local image ID: ${z_image_id}"
+
+  buc_success "Image pull complete"
+}
+
 # eof
 
