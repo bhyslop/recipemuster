@@ -25,6 +25,9 @@ Establish vocabulary and architecture foundations for cloud operation testing. M
 
 ## Remaining
 
+- **Extract bui_introspect.sh from buc_command.sh** — Partition self-documenting interface machinery into standalone module. Create `Tools/buk/bui_introspect.sh` with `bui_doc_*`, `bui_execute`, `bui_set_doc_mode`, and related functions. Update `buc_command.sh` to source it. Maintains color constants and error handling in buc core. Sets foundation for modular BUK utilities.
+  mode: manual
+
 - **Define operation identity vocabulary** — Decide canonical identity for operations: command token (e.g., `rbw-PC`) vs bash function (e.g., `rbgp_depot_create`). Define "stem" terminology or choose better term. Establish patterns for: test naming, error messages, guide cross-references. Update `Tools/buk/README.md` TabTargets section with formal vocabulary.
   mode: manual
 
