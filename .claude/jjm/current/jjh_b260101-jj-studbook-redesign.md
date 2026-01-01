@@ -310,7 +310,11 @@ The `saddled` field persists across sessions in the studbook.
 
 ## Remaining
 
+- **Define JJU dirty-worktree guards** — Specify which jj-* scripts must fail when git has uncommitted changes. Prevent silent data loss during dual-repo workflows or context switches. Document rationale for each script's policy.
+
 - **Update JJK README with VOK prefix conventions** — Document the prefix-to-type mapping (jja_, jjc_, jjk_, jjp_, jjs_, jju_, jjw_, jjy_) in Tools/jjk/README.md. Align with Vox Obscura reserved suffix pattern.
+
+- **Decide pace index emplacement API** — Evaluate whether we need an API (or API change) to emplace a new pace at a specific index position rather than always appending. Consider use cases like inserting urgent work or reordering paces.
 
 - **Draft script API specifications** — Finalize exact arguments, output formats, error handling for each jj-* script. Document in paddock for reference during implementation.
 
@@ -357,6 +361,8 @@ The `saddled` field persists across sessions in the studbook.
 - **Term releveling** — Final pass on vocabulary. Ensure consistent horse/jockey/race metaphor throughout.
 
 - **Reconsider scar naming** — Currently `jjz_scar.md`. Scar = formally declined itch (won't scratch). Evaluate: is `jjz_` the right prefix? Find better horse metaphor for "work I've decided not to do."
+
+- **Revise JJK README future directions** — Update Tools/jjk/README.md future directions section to reflect what was built during this heat. Document lessons learned, what changed from original vision, and remaining opportunities.
 
 ## Steeplechase
 

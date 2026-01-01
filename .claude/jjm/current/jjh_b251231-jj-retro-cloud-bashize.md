@@ -56,9 +56,9 @@ This heat focuses on:
 
 - **Prune JJK Future Directions** — Reviewed 6 Future Directions. 4 addressed by studbook redesign (Heat Creation→jj-nominate, Document Efficiency→studbook+paddock, Git Steeplechase→jj-chalk/rein, JSON Storage→jjs_studbook.json). 2 retained (Silk Design Guidance, Configurable Autocommit).
 
-## Remaining
+- **Decide git commit safety** — Deferred: incorporated into studbook redesign heat (jju_notch.sh implementation).
 
-- **Decide git commit safety** — Evaluate whether pre-commit checks belong in jju_notch.sh (studbook heat) or as separate tooling. Make recommendation.
+## Remaining
 
 - **Create lessons learned memo** — Summarize what worked across both trophy heats. Brief document for future heat authors.
 
