@@ -115,6 +115,8 @@ Permanent depot for use throughout remaining paces and beyond.
 
 - **Add Trade Study section to RBAGS** — Created "Trade Studies" section in rbw-RBAGS-AdminGoogleSpec.adoc with OCI Layout Bridge as first entry. Documents: problem (BuildKit credential isolation), constraints (driver catch-22, eliminated options), alternatives evaluated (5 options with dispositions), chosen solution (OCI Layout Bridge), rationale (5 points), implementation details (build/push steps, critical notes), references (RBWMBX memo, build ID).
 
+- **Update RBSTB specification** — Added Cloud Build Execution section (step 11) documenting OCI Layout Bridge pattern at abstract level: Build Phase (OCI artifact), Push Phase (metadata server token), Analysis Phase (SBOM), Metadata Phase (provenance). References Trade Study RBSOB for rationale. No implementation details exposed per spec style.
+
 ## Current
 
 - **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
@@ -124,9 +126,6 @@ Permanent depot for use throughout remaining paces and beyond.
   mode: manual
 
 - **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Root cause: RBRR_GAR_REPOSITORY is static manual config, but repository name is determined at depot_create time. Options: (1) Add runtime validation in rbf_build to verify repository exists before build, (2) Change depot_create to write RBRR_GAR_REPOSITORY, (3) Derive repository name from depot project ID. Evaluate which approach prevents future desync.
-  mode: manual
-
-- **Update RBSTB specification** — Document OCI Layout Bridge in rbw-RBSTB-trigger_build.adoc. Include: (1) why direct push fails (BuildKit isolation), (2) OCI layout bridge pattern (build → /workspace → push), (3) Skopeo authentication via metadata server, (4) multi-platform manifest handling, (5) step-by-step Cloud Build structure, (6) reference RBWMBX memo for decision history and alternatives.
   mode: manual
 
 - **Audit tabtargets for log/no-log correctness** — Review all tt/*.sh files for correct BUD_NO_LOG usage. Tabtargets that handle secrets should disable logging with comment: `export BUD_NO_LOG=1  # Disabled: prevents secrets in log files`. Tabtargets worth logging should omit BUD_NO_LOG entirely. Ensure old-form tabtargets (using bud_dispatch.sh directly) are updated to new launcher form.
