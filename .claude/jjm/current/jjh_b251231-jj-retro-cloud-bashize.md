@@ -96,10 +96,48 @@ Example philosophy: If we formalize APPROACH/WRAP pattern, don't create whole ne
 - Steeplechase location: separate file worked but required merge. Better pattern exists?
 - APPROACH/WRAP discipline: worked when we did it, but no forcing function
 
+### Concrete Improvements Identified (Evidence-Based)
+
+From actual friction in both heats:
+
+**1. Git commit safety mechanism** (URGENT - just caught)
+- **Problem**: Just got caught with uncommitted changes before commit. No forcing function to verify clean state.
+- **Solution**: Pre-commit checklist in git operations workflow:
+  - Show summary of all staged + unstaged + untracked changes
+  - Require explicit confirmation before `git commit`
+  - Warn about secrets/logs in commits
+  - Make it VERY obvious what's about to be committed
+- **Evidence**: User just missed untracked files in review; nearly committed incomplete changes.
+
+**2. Heat completion ceremony** (STREAMLINE)
+- **Problem**: Currently move paces manually from Current → Done. Easy to forget, easy to get wrong. No validation that heat is actually complete before retirement.
+- **Solution**: Formalize with command (e.g., `jja-heat-wrap`) that validates all Current paces moved before retiring.
+- **Evidence**: Pain point from observation list; easy to leave stray paces.
+
+**3. Remove pace mode column** (DEPRECATE)
+- **Problem**: "automatic" vs "manual" pace mode distinction never used in practice. Both heats were all-manual. Adds clutter to heat files.
+- **Solution**: Remove from heat file template, documentation, codebase.
+- **Evidence**: Zero usage across two complete heats; adds overhead without benefit.
+
+**4. Formalize APPROACH/WRAP discipline** (CODIFY)
+- **Problem**: APPROACH/WRAP/BLOCKED/RESUME emerged organically, worked beautifully, but no forcing function. Skipped when pace-wrap just marks done without analysis.
+- **Solution**: `pace-wrap` should prompt for approach review/blockers/next-pace analysis. `pace-new` should prompt for pace rationale. Bake guidance into the commands.
+- **Evidence**: Worked beautifully when we did it; steeplechase entries with APPROACH sections were most valuable.
+
+**5. Steeplechase preservation strategy** (LONG-TERM)
+- **Problem**: When heat retires, steeplechase entries become invisible. Important discoveries (Kaniko archived, why OCI bridge) not discoverable in 2027 without archaeological dig through retired heats.
+- **Solution**: Analyze whether steeplechase should:
+  - Become formalized git commits on temporary branch (merged/deleted at retirement)
+  - Distilled ADRs (Architecture Decision Records) in permanent lenses/
+  - Hybrid: steeplechase entries + ADR extraction at heat retirement
+- **Case Study**: RBWMBX memo mixing architectural truth (BuildKit catch-22, driver isolation) with temporal exploration (6 options considered, experimental validation). Future maintainers need the "why not Kaniko" without the full research narrative.
+- **Evidence**: Real pain point; steeplechase from cloud-first-light 2025-12-31 has critical decision rationale.
+
 ### Scope Constraints
 
 **In scope for this heat:**
 - Job Jockey process improvements only
+- Git operations integration (pre-commit checks that enforce process)
 - Changes that preserve existing good patterns
 - Documentation improvements (templates, examples, guidance)
 - Code changes to JJ kit that codify emergent patterns
@@ -109,6 +147,7 @@ Example philosophy: If we formalize APPROACH/WRAP pattern, don't create whole ne
 - Wholesale redesigns - contradicts "deft not wholesale" principle
 - Features without clear problem/solution fit
 - Improvements that can't be validated incrementally
+- Git internals (use git as-is); only add workflow/safety around git
 
 ### Questions to Answer
 
