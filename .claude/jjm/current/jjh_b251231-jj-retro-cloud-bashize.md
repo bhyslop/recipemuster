@@ -4,208 +4,75 @@
 
 ### Goal
 
-Improve Job Jockey process infrastructure through careful analysis of two completed heats (dockerize-bashize-proto-bottle, cloud-first-light), evaluating Future Directions ideas, and implementing 2-3 high-impact, low-disruption improvements. Preserve hard-won incremental gains while addressing real friction.
+Complete the retrospective analysis of dockerize-bashize-proto-bottle and cloud-first-light heats. Extract lessons learned, document patterns, and close out items not covered by the Studbook Redesign heat (b260101).
 
-### Concrete Case Studies
+### Relationship to Studbook Redesign
 
-These real examples from the two heats will inform our analysis and design decisions.
+The **b260101-jj-studbook-redesign** heat now handles:
+- Steeplechase preservation (git-based)
+- Pace identity (Favor system)
+- APPROACH/WRAP formalization (Chalk emblems)
+- Heat file churn (Studbook separation)
+- Pace mode removal (not in new schema)
 
-#### Case Study: Multi-Platform Build Authentication Research (cloud-first-light)
+This heat focuses on:
+- Analyzing trophy heats for lessons learned
+- Documenting patterns that worked
+- Pruning JJK Future Directions
+- Git commit safety (if not absorbed into jju_notch.sh)
 
-Heat cloud-first-light (b251227) encountered a multi-session research problem that produced three artifacts with different temporal characteristics:
+### Key Patterns Observed
 
-1. **Steeplechase entries** (2025-12-31): Session-level discovery narrative showing GCR test execution (build ddfb01b9), authentication research revealing Kaniko archived, DOCKER_CONFIG bug #5477, progression to OCI Layout Bridge solution via Skopeo. Includes specific commits, timestamps, URLs discovered during web research.
+**From dockerize-bashize-proto-bottle:**
+- FIRST LIGHT: One thing end-to-end before scaling
+- Deferred Strands: Explicitly track what NOT to do
+- Testing Insights: Capture runtime differences as learned
+- File Inventory: Track status of every file being modified
+- Vertical Slice: nsproto → srjcl → pluml progression
 
-2. **Research memo** (RBWMBX): 573-line document mixing timeless architectural truth (BuildKit catch-22, driver isolation mechanics) with temporal exploration (6 options considered, experimental validation, "we tried X today" narrative). Currently unclear whether this should be distilled ADR, preserved research journal, or both.
+**From cloud-first-light:**
+- Operation Status table: Track operation states during debugging
+- Trade Study: Distill research into defensible decisions
+- Bug Discovery Protocol: Stop, explain, wait for approval
+- Resource Cleanup: Track abandoned resources
 
-3. **Spec needs** (RBSTB/RBAGS): Operators need timeless "why OCI bridge not simpler solution" without archaeological dig through retired heats.
+### Scope
 
-**Preservation tension**: When heat retires, steeplechase entries become invisible to future searches. Developer in 2027 investigating "why not use Kaniko for multi-platform" won't find the "Kaniko archived Jan 2025" discovery unless they know to check retired heat from Dec 2025.
+**In scope:**
+- Retrospective documentation
+- Pattern extraction
+- JJK Future Directions pruning
+- Lessons learned memo
 
-**Critical question if steeplechase moves to git commits**: If steeplechase entries become git commits on temporary branch (merged/deleted at retirement), how do we preserve important discoveries? Majority of steeplechase entries need never be consulted again, but some contain critical decision rationale.
-
-Artifact references: `lenses/rbw-RBWMBX-BuildxMultiPlatformAuth.adoc`, cloud-first-light steeplechase entries dated 2025-12-31 05:55 through 07:00.
-
-### Approach
-
-**Process improvement paradox**: The better your process, the higher the bar for changes. Can't afford to destabilize what's working. Changes must be deft, surgical, and evidence-based.
-
-**Phase 1: Inventory & Triage (Analysis before action)**
-
-Review Future Directions from JJ kit:
-- What problem does each idea solve?
-- What's the implementation cost vs. benefit?
-- Categorize: "compelling now" vs "interesting later" vs "actually no"
-
-Mine retrospective insights from two heats:
-- **dockerize-bashize-proto-bottle** (retired 2025-12-31): 17 tabtargets, 30 tests, 3 nameplates migrated. Vertical slice approach, FIRST LIGHT validation, clean execution flow.
-- **cloud-first-light** (to be retired): Different shape, different challenges.
-
-Comparative analysis:
-- What friction actually occurred in both heats?
-- What workarounds emerged organically (APPROACH/WRAP/BLOCKED pattern)?
-- What documentation did we wish existed?
-- Different heat shapes → different patterns → what generalizes?
-
-**Phase 2: Selection (Choose 2-3 improvements max)**
-
-Criteria for selection:
-- High impact / low disruption ratio
-- Addresses real pain we felt (not hypothetical elegance)
-- Preserves existing good patterns
-- Can be implemented incrementally
-- Can be validated before full commitment
-
-Anti-patterns to avoid:
-- "Let's redesign heats!" → Instead: "Let's codify what emerged naturally"
-- Wholesale changes → Instead: Surgical precision
-- Solving theoretical problems → Instead: Addressing actual friction
-
-**Phase 3: Surgical Implementation**
-
-Per improvement (max 2-3):
-- Minimal viable change
-- Test on throwaway heat or mock scenario first
-- Document the *why* not just the *what*
-- Preserve escape hatches (can revert if it doesn't work)
-
-Example philosophy: If we formalize APPROACH/WRAP pattern, don't create whole new tool. Just add guidance section to existing commands (heat-saddle, pace-wrap).
-
-**Phase 4: Reinstall & Validate**
-
-- Update JJ kit code with improvements
-- Update JJ kit documentation
-- Fresh install in this repo
-- Test on small throwaway heat before trusting it for real work
-- Document lessons learned
-
-### Key Architectural Principles
-
-**What worked in dockerize-bashize-proto-bottle:**
-- **Vertical slice approach** - nsproto → srjcl → pluml. Each built confidence.
-- **FIRST LIGHT moment** - single test end-to-end validated architecture before scaling to 30 tests
-- **Steeplechase pattern** - APPROACH/WRAP/BLOCKED/RESUME emerged organically, worked beautifully
-- **Deferred strands tracking** - knowing what to preserve (podman VM) prevented scope creep
-- **Testing insights section** - captured Docker vs Podman differences as learned
-- **File inventory table** - always knew status of every file
-
-**Observed pain points (hypothesis to validate):**
-- Pace granularity: some too large, others too small. Need better guidance?
-- Remaining section: manual move to Done. Could this be streamlined?
-- Itch → heat transition: no clear ceremony for promotion
-- Steeplechase location: separate file worked but required merge. Better pattern exists?
-- APPROACH/WRAP discipline: worked when we did it, but no forcing function
-
-### Concrete Improvements Identified (Evidence-Based)
-
-From actual friction in both heats:
-
-**1. Git commit safety mechanism** (URGENT - just caught)
-- **Problem**: Just got caught with uncommitted changes before commit. No forcing function to verify clean state.
-- **Solution**: Pre-commit checklist in git operations workflow:
-  - Show summary of all staged + unstaged + untracked changes
-  - Require explicit confirmation before `git commit`
-  - Warn about secrets/logs in commits
-  - Make it VERY obvious what's about to be committed
-- **Evidence**: User just missed untracked files in review; nearly committed incomplete changes.
-
-**2. Heat completion ceremony** (STREAMLINE)
-- **Problem**: Currently move paces manually from Current → Done. Easy to forget, easy to get wrong. No validation that heat is actually complete before retirement.
-- **Solution**: Formalize with command (e.g., `jja-heat-wrap`) that validates all Current paces moved before retiring.
-- **Evidence**: Pain point from observation list; easy to leave stray paces.
-
-**3. Remove pace mode column** (DEPRECATE)
-- **Problem**: "automatic" vs "manual" pace mode distinction never used in practice. Both heats were all-manual. Adds clutter to heat files.
-- **Solution**: Remove from heat file template, documentation, codebase.
-- **Evidence**: Zero usage across two complete heats; adds overhead without benefit.
-
-**4. Formalize APPROACH/WRAP discipline** (CODIFY)
-- **Problem**: APPROACH/WRAP/BLOCKED/RESUME emerged organically, worked beautifully, but no forcing function. Skipped when pace-wrap just marks done without analysis.
-- **Solution**: `pace-wrap` should prompt for approach review/blockers/next-pace analysis. `pace-new` should prompt for pace rationale. Bake guidance into the commands.
-- **Evidence**: Worked beautifully when we did it; steeplechase entries with APPROACH sections were most valuable.
-
-**5. Steeplechase preservation strategy** (LONG-TERM)
-- **Problem**: When heat retires, steeplechase entries become invisible. Important discoveries (Kaniko archived, why OCI bridge) not discoverable in 2027 without archaeological dig through retired heats.
-- **Solution**: Analyze whether steeplechase should:
-  - Become formalized git commits on temporary branch (merged/deleted at retirement)
-  - Distilled ADRs (Architecture Decision Records) in permanent lenses/
-  - Hybrid: steeplechase entries + ADR extraction at heat retirement
-- **Case Study**: RBWMBX memo mixing architectural truth (BuildKit catch-22, driver isolation) with temporal exploration (6 options considered, experimental validation). Future maintainers need the "why not Kaniko" without the full research narrative.
-- **Evidence**: Real pain point; steeplechase from cloud-first-light 2025-12-31 has critical decision rationale.
-
-### Scope Constraints
-
-**In scope for this heat:**
-- Job Jockey process improvements only
-- Git operations integration (pre-commit checks that enforce process)
-- Changes that preserve existing good patterns
-- Documentation improvements (templates, examples, guidance)
-- Code changes to JJ kit that codify emergent patterns
-
-**Out of scope:**
-- Other process infrastructure (BUK, CMK, etc.) - separate heats
-- Wholesale redesigns - contradicts "deft not wholesale" principle
-- Features without clear problem/solution fit
-- Improvements that can't be validated incrementally
-- Git internals (use git as-is); only add workflow/safety around git
-
-### Questions to Answer
-
-1. **Future Directions**: Which ideas from JJ kit Future Directions section address real friction vs hypothetical problems?
-
-2. **Steeplechase**: Should it be:
-   - Separate file (current pattern, requires merge at retirement)?
-   - Section in heat file (simpler, but grows the file)?
-   - Formalized template with APPROACH/WRAP/BLOCKED/RESUME sections?
-
-3. **Pace discipline**: How to encourage better pace breakdown without rigid rules? Guidelines vs enforcement?
-
-4. **Heat completion**: What ceremony exists between "last pace done" and "retire heat"? Anything missing?
-
-5. **Documentation patterns**: Which patterns should be formalized (Deferred strands, Testing insights, File inventory) vs remain organic?
-
-6. **Itch promotion**: What's missing in the flow from "itch in jji_itch.md" → "heat in current/"?
-
-7. **Command usage audit**: Which JJ commands see actual use vs theoretical utility? Evidence from two heats: pace-wrap used regularly, pace-arm/pace-fly/pace-new not used. Should unused commands be retired or are they solving problems we haven't encountered yet?
-
-8. **Pace mode distinction**: The "automatic" vs "manual" pace mode hasn't proven useful in practice. Should this be removed entirely? What problem was it supposed to solve, and does that problem actually exist?
-
-9. **Git history analysis**: What does the commit-by-commit evolution of both heat files reveal about process friction and emergent patterns? Analyze git history of heat files to discover: pace boundary changes, file reorganizations, documentation additions, what got refined vs what stayed stable. Let the data reveal what was hard vs what was easy.
-
-10. **Pace identity & versioning**: Could jq + bash provide stable pace identifiers separate from display names? Concept: paces get immutable IDs and version numbers, enabling terse git commits (e.g., `heat:pace:v3`) while allowing pace renaming without breaking references. Decouple identity from display. Evaluate: complexity vs benefit, jq dependency implications, interaction with existing patterns.
-
-11. **Heat file churn for pace transitions**: Is the heat file getting edited repeatedly just to move "next pace" from top of Remaining to current? This is unwanted churn. Git history analysis should reveal this pattern. If present, consider: implicit "top of Remaining = current" convention, or separate current-pace marker outside the list structure.
-
-### Success Criteria
-
-- 2-3 improvements selected based on evidence, not speculation
-- Changes implemented and tested successfully
-- JJ kit reinstalled with improvements
-- Validation heat completed successfully (or mock scenario if real heat not available)
-- Documentation clear on *why* each change was made (for future retrospectives)
-- No regression in existing good patterns
-- Team confidence that process is better, not just different
-
-### Retrospective Artifacts
-
-Permanent documentation to create:
-- Retrospective memo capturing lessons from both heats
-- Updated JJ kit Future Directions (pruned, refined, categorized)
-- Pattern library (what worked, what didn't, when to use each)
-- Anti-pattern catalog (what to avoid, why)
-
-### Timeline Flexibility
-
-This heat begins after cloud-first-light retirement. No pressure to rush - process improvement requires careful thought. Better to take time and get it right than to destabilize working patterns.
+**Out of scope (moved to b260101):**
+- Steeplechase redesign
+- Pace identity system
+- Heat file restructuring
+- New JJ commands
 
 ## Done
 
-(heat begins after cloud-first-light retirement)
+(none yet)
 
 ## Remaining
 
-(paces to be added during paddock refinement before first saddling)
+- **Extract patterns from trophy heats** — Document FIRST LIGHT, Deferred Strands, Testing Insights, Trade Study patterns. Determine which should be suggested in paddock templates vs organic.
+
+- **Prune JJK Future Directions** — Review Tools/jjk/README.md Future Directions. Mark items addressed by studbook redesign. Remove or defer items no longer relevant.
+
+- **Decide git commit safety** — Evaluate whether pre-commit checks belong in jju_notch.sh (studbook heat) or as separate tooling. Make recommendation.
+
+- **Create lessons learned memo** — Summarize what worked across both trophy heats. Brief document for future heat authors.
 
 ## Steeplechase
 
-(execution log begins here)
+---
+### 2026-01-01 - Heat Revised
+
+**Context**: Original scope overlapped heavily with emerging studbook redesign. Revised to focus on retrospective analysis and documentation, not infrastructure changes.
+
+**Deferred to b260101**: Steeplechase preservation, pace identity, APPROACH/WRAP formalization, heat file churn, pace mode removal.
+
+**Retained**: Pattern extraction, Future Directions pruning, lessons learned documentation.
+
+---

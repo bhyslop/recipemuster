@@ -46,7 +46,10 @@ Establish vocabulary and architecture foundations for cloud operation testing. M
 - **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY didn't match actual depot repository. Options: (1) runtime validation in rbf_build, (2) depot_create writes RBRR_GAR_REPOSITORY, (3) derive from depot project ID. (Moved from cloud-first-light)
   mode: manual
 
-- **Audit tabtargets for log/no-log correctness** — Review all tt/*.sh for BUD_NO_LOG usage. Secret-handling tabtargets disable logging. Update old-form tabtargets to launcher pattern. (Moved from cloud-first-light)
+- **Create canonical tabtarget generators** — Create three generators using canonical `BUD_LAUNCHER` pattern: `buw-tcl` (logging, default), `buw-tcn` (no-log for secrets), `buw-tci` (interactive for shells). Pattern: `export BUD_LAUNCHER=.buk/launcher.xxx.sh` then `exec .../${BUD_LAUNCHER} "${0##*/}" "${@}"`. Variants add `export BUD_NO_LOG=1` or `export BUD_INTERACTIVE=1`. Deprecate legacy `ttc.CreateTabtarget.sh`. Edge case: `rbw-PI` needs both no-log and interactive (hand-edit or fourth generator).
+  mode: manual
+
+- **Normalize tabtargets using new generators** — Use `buw-tcl`, `buw-tcn`, `buw-tci` to regenerate all `tt/*.sh` files with canonical format. Audit existing patterns: (A) correct launcher with `${0##*/}`, (B) launcher with `$0`, (C) malformed explicit tokens, (D) direct bud_dispatch, (E) legacy mbd.dispatch, (F) ancient tabtarget-dispatch. Secret-handling operations get `buw-tcn`; interactive shells get `buw-tci`. (Moved from cloud-first-light)
   mode: manual
 
 - **Audit director/repository configuration process** — Verify Director SA gets repoAdmin on GAR repo during director_create. Verify Mason SA gets writer (not admin) during depot_create. Ensure no manual IAM grants needed between operations. (Moved from cloud-first-light)
