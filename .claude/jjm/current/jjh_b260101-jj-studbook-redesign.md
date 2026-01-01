@@ -310,59 +310,29 @@ The `saddled` field persists across sessions in the studbook.
 
 ## Remaining
 
-- **Define JJU dirty-worktree guards** — Specify which jj-* scripts must fail when git has uncommitted changes. Prevent silent data loss during dual-repo workflows or context switches. Document rationale for each script's policy.
+- **Foundation design decisions** — Consolidate design work: (1) dirty-worktree guards policy per command, (2) wrap advancement flow, (3) trophy extraction spec, (4) pace emplacement API decision. Document in paddock before implementation.
 
-- **Update JJK README with VOK prefix conventions** — Document the prefix-to-type mapping (jja_, jjc_, jjk_, jjp_, jjs_, jju_, jjw_, jjy_) in Tools/jjk/README.md. Align with Vox Obscura reserved suffix pattern.
+- **BUK infrastructure for JJK** — Rename current `jjw_workbench.sh` to `jja_arcanum.sh`. Create new BUK-style `jjw_workbench.sh` with case routing. Create `.buk/launcher.jjw_workbench.sh`. Create initial tabtargets as commands are implemented.
 
-- **Decide pace index emplacement API** — Evaluate whether we need an API (or API change) to emplace a new pace at a specific index position rather than always appending. Consider use cases like inserting urgent work or reordering paces.
+- **Implement jju_favor.sh** — Favor encoding/decoding utilities. Base64-ish math, validation, heat/pace extraction. Everything depends on this.
 
-- **Draft script API specifications** — Finalize exact arguments, output formats, error handling for each jj-* script. Document in paddock for reference during implementation.
+- **Implement jju_studbook.sh** — Studbook operations sourced by workbench: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Create initial `jjs_studbook.json` schema.
 
-- **Implement jju_favor.sh** — Favor encoding/decoding utilities. Base64-ish math, validation, heat/pace extraction.
+- **Implement jju_steeple.sh** — Git steeplechase operations: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting.
 
-- **Implement jjs_studbook.json schema** — Create initial studbook, document jq patterns for common operations (add heat, add pace, update state, query).
+- **Implement jj-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
 
-- **Implement jj-muster** — List current heats with Favors and silks.
+- **Implement jj-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, display next pace. Advance saddled pointer.
 
-- **Implement jj-saddle** — Read studbook + paddock + recent steeple, format output for Claude context.
+- **Implement jj-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
 
-- **Implement jj-chalk** — Create empty git commit with structured steeplechase entry. Include files-touched info.
+- **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Revise CLAUDE.md term definitions (all new terms from Concept Surgery Log).
 
-- **Implement jj-rein** — Query git log for steeple entries, format for context recovery.
+- **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
 
-- **Implement jj-slate / jj-reslate** — Add/revise paces in studbook.
+- **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 
-- **Implement jj-rail** — Reorder paces in studbook.
-
-- **Implement jj-tally** — Set pace state in studbook.
-
-- **Implement jj-wrap** — Mark pace complete, show next pace, chalk wrap entry.
-
-- **Implement jj-retire** — Extract heat from studbook, merge paddock + steeple, create trophy file.
-
-- **Implement jj-nominate** — Allocate next heat Favor from seed, create paddock stub, register in studbook.
-
-- **Create jju_notch.sh** — Standalone git commit script for notch. Provides notch functionality before CGK (Claude Git Kit) exists.
-
-- **Document trophy extraction** — Specify what gets pulled from studbook when creating trophy (paces, outcomes, Favor→silks mapping). Studbook stays lean; trophy is self-contained archive.
-
-- **Design wrap advancement flow** — Discuss: when wrap completes, how does next pace become current? Should wrap output include new saddle context, or require explicit re-saddle? Consider jju utility for state transitions.
-
-- **Migrate current heats** — Convert existing jjh_* heat files to studbook + paddock format.
-
-- **Update jja_arcanum.sh** — Install/uninstall for new JJ structure in CLAUDE.md.
-
-- **Revise CLAUDE.md term definitions** — Update arcanum-generated Job Jockey section with all new terms (Favor, Studbook, Paddock, Trophy, Chalk, Rein, Muster, Slate, Reslate, Rail, Tally, Nominate) and modified terms (Saddle, Wrap, Retire). Align with Concept Surgery Log.
-
-- **Test full workflow** — Create test heat, run through full lifecycle: saddle → work → chalk → wrap → retire.
-
-- **Phase transformation analysis** — Evaluate whether retirement creates a fundamentally different object type. Document decision.
-
-- **Term releveling** — Final pass on vocabulary. Ensure consistent horse/jockey/race metaphor throughout.
-
-- **Reconsider scar naming** — Currently `jjz_scar.md`. Scar = formally declined itch (won't scratch). Evaluate: is `jjz_` the right prefix? Find better horse metaphor for "work I've decided not to do."
-
-- **Revise JJK README future directions** — Update Tools/jjk/README.md future directions section to reflect what was built during this heat. Document lessons learned, what changed from original vision, and remaining opportunities.
+- **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.
 
 ## Steeplechase
 
