@@ -555,6 +555,36 @@ Review whether workbench functions should move to RBOB module.
 
 Emerged during RBOB BCG modernization pace, 2025-12-30. Deferred to keep pace focused on BCG compliance.
 
+## rbgm-guide-tabtarget-awareness
+Guides reference commands by function name but users invoke tabtargets. Need coordination mechanism.
+
+### Problem
+
+`rbgm_payor_refresh()` guide text says "run `rbgp_payor_install`" - but users should run `rbw-PI.PayorInstall.sh`. The guide doesn't know the tabtarget name, and if tabtargets get renamed, guides break silently.
+
+### Two Related Issues
+
+**1. Guide tabtarget naming convention**
+Tabtargets that emit guides (read-only, display info) vs tabtargets that execute operations (state-changing). Should guides use lowercase letter codes?
+- `rbw-PR.PayorRefresh.sh` (current) → `rbw-pr.PayorRefresh.sh` (guide)
+- `rbw-PE.PayorEstablishment.sh` (current) → `rbw-pe.PayorEstablishment.sh` (guide)
+- Makes read-only nature visible in filename
+
+**2. Cross-reference discovery**
+How does a guide function learn the tabtarget for a referenced command?
+- Option A: Registry/lookup table mapping function → tabtarget
+- Option B: Convention-based derivation (function name pattern → tabtarget pattern)
+- Option C: Guide functions receive tabtarget context as parameter
+- Option D: BUC helper that queries coordinator routing table
+
+### Affected Guides
+
+At minimum, review all `rbgm_*` functions in `rbgm_ManualProcedures.sh` for cross-references that use function names instead of tabtargets.
+
+### Context
+
+Identified 2025-01-01 during retrospective heat ideation.
+
 ## rbw-podman-vm-migration
 Migrate podman VM lifecycle from Makefile to bash, enabling RBRN_RUNTIME=podman support.
 
