@@ -1,8 +1,11 @@
-# Use a specific version of Ubuntu for better reproducibility
-FROM ubuntu:24.10
+# Use Ubuntu LTS for stability and ARM support
+FROM ubuntu:24.04
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Pre-configure tshark to avoid interactive prompt about capture permissions
+RUN echo "wireshark-common wireshark-common/install-setuid boolean false" | debconf-set-selections
 
 # Update and install essential packages
 RUN apt-get update && apt-get install -y                                                 \

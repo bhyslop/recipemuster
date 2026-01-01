@@ -47,6 +47,8 @@
 :at_sentry_container:        <<term_sentry_container,Sentry Container>>
 :at_sentry_container_s:      <<term_sentry_container,Sentry Containers>>
 :at_sentry_container_p:      <<term_sentry_container,Sentry Container's>>
+:at_censer_container:        <<term_censer_container,Censer Container>>
+:at_censer_container_s:      <<term_censer_container,Censer Containers>>
 :at_bottle_container:        <<term_bottle_container,Bottle Container>>
 :at_bottle_container_s:      <<term_bottle_container,Bottle Containers>>
 :at_bottle_container_p:      <<term_bottle_container,Bottle Container's>>
@@ -235,18 +237,34 @@ of allowed and denied traffic
 
 Each
 {at_bottle_service}
-maintains these boundaries through:
+maintains these boundaries through a three-container architecture:
 
 * One
-{at_bottle_container}
-running the actual service
-* One
 {at_sentry_container}
-enforcing network policy
+enforcing network policy on dual networks (bridge and enclave)
+* One
+{at_censer_container}
+establishing and configuring the network namespace
+* One
+{at_bottle_container}
+running the actual service, sharing the censer's network namespace
 * Clear configuration
 in a single
 {at_nameplate}
 file
+
+The
+{at_censer_container}
+is a privileged container that establishes the network namespace, configures routing to ensure all traffic flows through the
+{at_sentry_container},
+then shares this pre-configured namespace with the
+{at_bottle_container}
+via `--net=container:censer`.
+This ensures security policies are enforced from the first packet, and the
+{at_bottle_container}
+experiences only a functional path to its
+{at_sentry_container}
+gateway
 
 === Security Properties
 
@@ -455,27 +473,40 @@ If
 {rbrn_entry_enabled}
 is true, this sequence configures service port mapping:
 
-. DNAT Configuration in nat table:
-* Create PREROUTING rule on eth0:
-** Match destination port
+. Socat Proxy Configuration:
+* Launch socat proxy process in background:
+** Listen on TCP port
 {rbrn_entry_port_workstation}
-** DNAT to
+** Forward connections to
 {at_bottle_container}
-IP on eth1
-** Redirect to port
+IP (
+{rbrn_enclave_bottle_ip}
+) on port
 {rbrn_entry_port_enclave}
-* Mark rule with comment "RBM-PORT-FORWARD"
+** Enable connection forking and address reuse
+** Log output to `/var/log/socat-proxy.log`
+* Verify socat process started successfully
 
 . Filter Configuration:
-* Add rule to RBM-INGRESS accepting:
+* Add rule to RBM-INGRESS accepting incoming traffic from bridge network:
 ** Interface eth0
-** Destination port {rbrn_entry_port_workstation}
-** Initial TCP connections only with connection tracking
-* Add rule to RBM-FORWARD accepting TCP traffic with state matching:
+** Protocol TCP
+** Destination port
+{rbrn_entry_port_workstation}
+* Add rule to RBM-EGRESS accepting outbound connections to bottle:
 ** Interface eth1
+** Protocol TCP
+** Destination
+{rbrn_enclave_bottle_ip}
+** Destination port
+{rbrn_entry_port_enclave}
+* Add rule to RBM-INGRESS accepting return traffic from bottle:
+** Interface eth1
+** Protocol TCP
+** Source
+{rbrn_enclave_bottle_ip}
 ** Source port
 {rbrn_entry_port_enclave}
-** Initial connections, related secondary connections, and established connections verified by connection tracking
 
 ==== Phase 3: {scr_access_setup}
 
@@ -1039,9 +1070,11 @@ and is referenced by
 [[term_bottle_service]]
 {at_bottle_service}::
 A complete service instance consisting of one
-{at_bottle_container}
-and one
 {at_sentry_container},
+one
+{at_censer_container},
+and one
+{at_bottle_container}
 working together to provide secure functionality. Each service maintains strict file system and network boundaries while enabling controlled access to resources.
 
 [[term_sessile_service]]
@@ -1175,9 +1208,23 @@ It connects to both
 {at_transit_network} and {at_enclave_network},
 controlling all network traffic and providing DNS services.
 
+[[term_censer_container]]
+{at_censer_container}::
+A privileged container using a minimal image that establishes and configures the network namespace before the
+{at_bottle_container}
+starts.
+It sets up routing to ensure all traffic flows through the
+{at_sentry_container},
+then shares this pre-configured namespace with the
+{at_bottle_container}
+via `--net=container:censer`.
+This ensures security policies are enforced from the first packet.
+
 [[term_bottle_container]]
 {at_bottle_container}::
-A container that runs the actual service functionality, connected only to the
+A container that runs the actual service functionality, inheriting its network namespace from the
+{at_censer_container}.
+It is connected only to the
 {at_enclave_network}
 and configured with specific
 {st_volume_mount_s}.

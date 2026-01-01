@@ -51,20 +51,6 @@ rbk_route() {
 
   # Route based on command prefix
   case "$z_command" in
-    # Image management commands (rbf)
-    rbw-l)
-      rbk_show "Routing to rbf_cli.sh rbf_list"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list $z_args
-      ;;
-    rbw-II)
-      rbk_show "Routing to rbf_cli.sh rbf_image_info"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_image_info $z_args
-      ;;
-    rbw-r)
-      rbk_show "Routing to rbf_cli.sh rbf_retrieve"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve $z_args
-      ;;
-
     # Payor commands (high-privilege)
     rbw-PC)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_create             $z_args ;;
     rbw-PI)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_payor_install            $z_args ;;
@@ -80,33 +66,15 @@ rbk_route() {
     rbw-GR)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_create_retriever         $z_args ;;
     rbw-GD)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_create_director          $z_args ;;
 
-    # Google admin commands (legacy)
+    # Admin commands
     rbw-ps)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_establish          $z_args ;;
-    rbw-aIA) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_initialize_admin         $z_args ;;
-    rbw-aID) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_admin            $z_args ;;
     rbw-al)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_list_service_accounts     $z_args ;;
     rbw-aDS) exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_delete_service_account   $z_args ;;
-    # Legacy admin commands (deprecated - use rbw-GR, rbw-GD instead)
-    rbw-aCR) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_retriever         $z_args ;;
-    rbw-aCD) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_create_director          $z_args ;;
-    rbw-aPO) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_destroy_project          $z_args ;;
-    rbw-aPr) exec "$RBK_SCRIPT_DIR/rbga_cli.sh" rbga_restore_project          $z_args ;;
 
     # Foundry commands
     rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build  $z_args ;;
     rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete $z_args ;;
-    rbw-fS)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_study  $z_args ;;
     rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list   $z_args ;;
-
-    # Help/documentation commands
-    rbw-him)
-      rbk_show  "Routing to rbf_cli.sh (help)"
-      exec "$RBK_SCRIPT_DIR/rbf_cli.sh" $z_args
-      ;;
-    rbw-hga)
-      rbk_show  "Routing to rbga_cli.sh (help)"
-      exec "$RBK_SCRIPT_DIR/rbga_cli.sh" $z_args
-      ;;
 
     # Unknown command
     *)

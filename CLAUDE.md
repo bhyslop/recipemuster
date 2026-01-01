@@ -61,6 +61,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBI**  → `rbw/rbi_Image.sh`
 - **RBK**  → `rbw/rbk_Coordinator.sh`
 - **RBL**  → `rbw/rbl_Locator.sh`
+- **RBOB** → `rbw/rbob_bottle.sh`
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
 
 #### BUK Subdirectory (`Tools/buk/`)

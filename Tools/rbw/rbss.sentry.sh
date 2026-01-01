@@ -80,6 +80,9 @@ if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
         cat /var/log/socat-proxy.log
         exit 26
     fi
+
+    echo "RBSp2: Allow incoming connections from bridge network (eth0) on entry port"
+    iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT || exit 27
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"

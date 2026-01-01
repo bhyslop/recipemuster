@@ -204,7 +204,7 @@ def test_jupyter_server(base_url="http://localhost:7999"):
 
 if __name__ == "__main__":
     import os
-    port = os.environ.get('RBN_ENTRY_PORT_WORKSTATION', '7999')
+    port = os.environ.get('RBRN_ENTRY_PORT_WORKSTATION', '7999')
     base_url = f"http://localhost:{port}"
     success, message = test_jupyter_server(base_url)
     print(f"Test result: {message}")
