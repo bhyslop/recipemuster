@@ -135,6 +135,8 @@ Example philosophy: If we formalize APPROACH/WRAP pattern, don't create whole ne
 
 10. **Pace identity & versioning**: Could jq + bash provide stable pace identifiers separate from display names? Concept: paces get immutable IDs and version numbers, enabling terse git commits (e.g., `heat:pace:v3`) while allowing pace renaming without breaking references. Decouple identity from display. Evaluate: complexity vs benefit, jq dependency implications, interaction with existing patterns.
 
+11. **Heat file churn for pace transitions**: Is the heat file getting edited repeatedly just to move "next pace" from top of Remaining to current? This is unwanted churn. Git history analysis should reveal this pattern. If present, consider: implicit "top of Remaining = current" convention, or separate current-pace marker outside the list structure.
+
 ### Success Criteria
 
 - 2-3 improvements selected based on evidence, not speculation
