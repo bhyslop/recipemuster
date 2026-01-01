@@ -115,20 +115,12 @@ rbw-i.%:
 	$(RBM_RECIPE_BOTTLE_VM_SH) rbv_init
 	$(MBC_PASS) "VM image check complete."
 
-rbw-S.%: rbp_connect_sentry_rule
-	$(MBC_PASS) "No errors."
-
-rbw-C.%: rbp_connect_censer_rule
-	$(MBC_PASS) "No errors."
-
-rbw-B.%: rbp_connect_bottle_rule
-	$(MBC_PASS) "No errors."
-
-rbw-o.%: rbp_observe_networks_rule
-	$(MBC_PASS) "No errors."
-
-rbw-s.%: rbp_check_connection rbp_start_service_rule
-	$(MBC_STEP) "Completed delegate."
+# Lifecycle routes now delegate to bash workbench via coordinator tabtargets:
+# rbw-S.% -> tt/rbw-S.ConnectSentry.<moniker>.sh -> rbw_workbench.sh rbw-connect-sentry
+# rbw-C.% -> tt/rbw-C.ConnectCenser.<moniker>.sh -> rbw_workbench.sh rbw-connect-censer
+# rbw-B.% -> tt/rbw-B.ConnectBottle.<moniker>.sh -> rbw_workbench.sh rbw-connect-bottle
+# rbw-o.% -> tt/rbw-o.ObserveNetworks.<moniker>.sh -> rbw_workbench.sh rbw-observe
+# rbw-s.% -> tt/rbw-s.Start.<moniker>.sh -> rbw_workbench.sh rbw-start
 
 rbw-v.%: zrbp_validate_regimes_rule
 	$(MBC_PASS) "No errors."
@@ -146,31 +138,35 @@ zrbw_prenuke_rule:
 #######################################
 #  Test Targets
 #
+# Test execution migrated to bash:
+# - MBT_PODMAN_* macros -> rbt_exec_* functions in Tools/rbw/rbt_testbench.sh
+# - rbt_test_bottle_service_rule -> rbt_suite_* functions in Tools/rbw/rbt_testbench.sh
+#
+# All tests now route through:
+# - tt/rbw-to.TestBottleService.<moniker>.sh -> rbt_testbench.sh rbt-to <moniker>
 
-RBT_TESTS_DIR            = RBM-tests
-MBT_PODMAN_BASE          = podman --connection $(RBM_MACHINE)
-MBT_PODMAN_EXEC_SENTRY   = $(MBT_PODMAN_BASE) exec    $(RBM_SENTRY_CONTAINER)
-MBT_PODMAN_EXEC_CENSER   = $(MBT_PODMAN_BASE) exec    $(RBM_CENSER_CONTAINER)
-MBT_PODMAN_EXEC_CENSER_I = $(MBT_PODMAN_BASE) exec -i $(RBM_CENSER_CONTAINER)
-MBT_PODMAN_EXEC_BOTTLE   = $(MBT_PODMAN_BASE) exec    $(RBM_BOTTLE_CONTAINER)
-MBT_PODMAN_EXEC_BOTTLE_I = $(MBT_PODMAN_BASE) exec -i $(RBM_BOTTLE_CONTAINER)
+RBT_TESTS_DIR = RBM-tests
 
-# Each test defines same rule
-rbw-to.%:  rbt_test_bottle_service_rule
-	$(MBC_PASS) "No errors."
+# Legacy test rule - now delegates to bash testbench via coordinator tabtargets
+rbw-to.%:
+	@echo "Test execution now handled by rbt_testbench.sh via tabtargets"
+	@echo "Use: tt/rbw-to.TestBottleService.<moniker>.sh"
+	$(MBC_FAIL)
 
-zRBC_RESTART_SERVICE_CMD  = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbp_start_service_rule
-zRBC_RUN_SERVICE_TEST_CMD = $(MAKE) -f $(MBV_CONSOLE_MAKEFILE) rbt_test_bottle_service_rule RBM_TEMP_DIR=$(MBD_TEMP_DIR) -j $(MBD_JOB_PROFILE)
+# Batch test rule (rbw-tb.%) not yet migrated to bash.
+# Original pattern was: for each nameplate, restart service, run tests
+# To run individual nameplate tests, use:
+#   tt/rbw-to.TestBottleService.nsproto.sh
+#   tt/rbw-to.TestBottleService.srjcl.sh
+#   tt/rbw-to.TestBottleService.pluml.sh
 
 rbw-tb.%:
-	$(MBC_START) "For each well known nameplate, and threads:$(MBD_JOB_PROFILE)"
-	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=nsproto
-	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=nsproto
-	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=srjcl
-	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=srjcl
-	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=pluml
-	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=pluml
-	$(MBC_PASS) "No errors."
+	$(MBC_START) "Batch test execution not yet migrated to bash"
+	@echo "Run individual test suites via tabtargets instead:"
+	@echo "  tt/rbw-to.TestBottleService.nsproto.sh"
+	@echo "  tt/rbw-to.TestBottleService.srjcl.sh"
+	@echo "  tt/rbw-to.TestBottleService.pluml.sh"
+	$(MBC_FAIL)
 
 zRBC_TEST_RECIPE = test_busybox.recipe
 
@@ -183,19 +179,21 @@ rbw-tg.%:
 	$(MBC_PASS) "No errors."
 
 rbw-tf.%:
-	$(MBC_START) "Fast test..."
+	$(MBC_START) "Fast test - now using bash testbench"
 	tt/rbg-l.ListCurrentRegistryImages.sh
-	$(zRBC_RESTART_SERVICE_CMD)  RBM_MONIKER=pluml
-	$(zRBC_RUN_SERVICE_TEST_CMD) RBM_MONIKER=pluml
+	tt/rbw-to.TestBottleService.pluml.sh
 	$(MBC_PASS) "No errors."
 
 rbw-ta.%:
 	$(MBC_START) "RUN REPOWIDE TESTS"
 	$(MBC_STEP) "Github tests..."
 	tt/rbw-tg.TestGithubWorkflow.sh
-	$(MBC_STEP) "Bottle service tests..."
-	tt/rbw-tb.TestBottles.parallel.sh
-	$(MBC_PASS) "TEST ALL PASSED WITHOUT ERRORS."
+	$(MBC_STEP) "Bottle service tests (manual - run each tabtarget)..."
+	@echo "  tt/rbw-to.TestBottleService.nsproto.sh"
+	@echo "  tt/rbw-to.TestBottleService.srjcl.sh"
+	@echo "  tt/rbw-to.TestBottleService.pluml.sh"
+	@echo "Note: parallel batch test execution not yet migrated to bash"
+	$(MBC_FAIL)
 
 
 #######################################

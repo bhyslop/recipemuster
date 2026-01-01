@@ -217,119 +217,19 @@ rbp_check_connection:
 	podman $(RBM_CONNECTION) info > /dev/null || (echo "Unable to connect to machine" && exit 1)
 	$(MBC_PASS) "Connection successful."
 
-rbp_start_service_rule: zrbp_validate_regimes_rule rbp_check_connection
-	$(MBC_START) "Starting Bottle Service -> $(RBM_MONIKER)"
-
-	$(MBC_STEP) "Stopping any prior containers"
-	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_SENTRY_CONTAINER)
-	-podman $(RBM_CONNECTION) rm   -f    $(RBM_SENTRY_CONTAINER)
-	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_BOTTLE_CONTAINER)
-	-podman $(RBM_CONNECTION) rm   -f    $(RBM_BOTTLE_CONTAINER)
-	-podman $(RBM_CONNECTION) stop -t 2  $(RBM_CENSER_CONTAINER)
-	-podman $(RBM_CONNECTION) rm   -f    $(RBM_CENSER_CONTAINER)
-
-	$(MBC_STEP) "Removing any existing enclave network"
-	-podman $(RBM_CONNECTION) network rm -f $(RBM_ENCLAVE_NETWORK)
-
-	$(MBC_STEP) "Creating enclave network"
-	podman $(RBM_CONNECTION) network create                     \
-	  --internal                                                \
-	  --disable-dns                                             \
-	  --subnet=$(RBRN_ENCLAVE_BASE_IP)/$(RBRN_ENCLAVE_NETMASK)  \
-	  $(RBM_ENCLAVE_NETWORK)
-
-	$(MBC_STEP) "Launching SENTRY container with bridging for internet"
-	podman $(RBM_CONNECTION) run -d                    \
-	  --name $(RBM_SENTRY_CONTAINER)                   \
-	  --network bridge                                 \
-	  --privileged                                     \
-	  $(if $(RBRN_ENTRY_ENABLED),-p $(RBRN_ENTRY_PORT_WORKSTATION):$(RBRN_ENTRY_PORT_WORKSTATION)) \
-	  $(addprefix -e ,$(RBRR__ROLLUP_ENVIRONMENT_VAR))                                             \
-	  $(addprefix -e ,$(RBRN__ROLLUP_ENVIRONMENT_VAR))                                             \
-	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG)
-
-	$(MBC_STEP) "Waiting for SENTRY container"
-	sleep 2
-	podman $(RBM_CONNECTION) ps | grep $(RBM_SENTRY_CONTAINER) || (echo 'Container not running' && exit 1)
-
-	$(MBC_STEP) "Connecting SENTRY to enclave network"
-	podman $(RBM_CONNECTION) network connect --ip $(RBRN_ENCLAVE_SENTRY_IP) $(RBM_ENCLAVE_NETWORK) $(RBM_SENTRY_CONTAINER)
-
-	$(MBC_STEP) "Verifying SENTRY got expected IP"
-	ACTUAL_IP=$$(podman $(RBM_CONNECTION) inspect $(RBM_SENTRY_CONTAINER) \
-	  --format '{{(index .NetworkSettings.Networks "$(RBM_ENCLAVE_NETWORK)").IPAddress}}')  &&\
-	if [ "$$ACTUAL_IP" != "$(RBRN_ENCLAVE_SENTRY_IP)" ]; then \
-	  echo "ERROR: Sentry IP mismatch. Expected $(RBRN_ENCLAVE_SENTRY_IP), got $$ACTUAL_IP";  \
-	  exit 1; \
-	fi
-
-	$(MBC_STEP) "Configuring SENTRY security"
-	podman $(RBM_CONNECTION) exec -i $(RBM_SENTRY_CONTAINER) /bin/sh < $(MBV_TOOLS_DIR)/rbss.sentry.sh
-
-	$(MBC_STEP) "Starting CENSER container for network namespace staging"
-	podman $(RBM_CONNECTION) run -d                     \
-	  --name $(RBM_CENSER_CONTAINER)                    \
-	  --network $(RBM_ENCLAVE_NETWORK):ip=$(RBRN_ENCLAVE_BOTTLE_IP) \
-	  --privileged                                      \
-	  --entrypoint /bin/sleep                           \
-	  $(RBRN_SENTRY_REPO_PATH):$(RBRN_SENTRY_IMAGE_TAG) \
-	  infinity
-
-	$(MBC_STEP) "Waiting for CENSER network initialization"
-	sleep 3
-	podman $(RBM_CONNECTION) ps | grep $(RBM_CENSER_CONTAINER) || (echo 'CENSER container not running' && exit 1)
-
-	$(MBC_STEP) "Rewrite CENSER to use SENTRY as gateway"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "echo 'nameserver $(RBRN_ENCLAVE_SENTRY_IP)' > /etc/resolv.conf"
-
-	$(MBC_STEP) "Flush any existing ARP entries and restart networking in CENSER"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all"
-
-	$(MBC_STEP) "Configure default route in CENSER"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route add default via $(RBRN_ENCLAVE_SENTRY_IP)"
-	podman $(RBM_CONNECTION) exec $(RBM_CENSER_CONTAINER) sh -c "ip route | grep -q '^default via $(RBRN_ENCLAVE_SENTRY_IP)' || { echo 'ERROR: Failed to set default route in CENSER'; exit 1; }"
-
-	$(MBC_STEP) "Creating but not starting BOTTLE container"
-	$(zRBM_PODMAN_RAW_CMD) create                                    \
-	  --name $(RBM_BOTTLE_CONTAINER)                                 \
-	  --net=container:$(RBM_CENSER_CONTAINER)                        \
-	  --security-opt label=disable                                   \
-	  $(RBRN_BOTTLE_REPO_PATH):$(RBRN_BOTTLE_IMAGE_TAG)
-
-	$(MBC_STEP) "Visualizing network setup in podman machine..."
-	echo "DEFERRED FOR NOW."  #$(zRBM_PODMAN_SHELL_CMD) < $(MBV_TOOLS_DIR)/rbi.info.sh
-
-	$(MBC_STEP) "Starting BOTTLE in 5 seconds: connect observation now if you need..."
-	@for i in 5 4 3 2 1; do printf "$$i..."; sleep 1; done
-	$(MBC_STEP) "Starting..."
-
-	$(MBC_STEP) "Starting BOTTLE container now that networking is configured"
-	$(zRBM_PODMAN_RAW_CMD) start $(RBM_BOTTLE_CONTAINER)
-
-	$(MBC_STEP) "Waiting for BOTTLE container"
-	sleep 2
-	podman $(RBM_CONNECTION) ps | grep $(RBM_BOTTLE_CONTAINER) || (echo 'Container not running' && exit 1)
-
-	$(MBC_PASS) "Bottle service should be available now."
-
-rbp_connect_sentry_rule:
-	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to SENTRY"
-	podman $(RBM_CONNECTION) exec -it $(RBM_SENTRY_CONTAINER) /bin/bash
-	$(MBC_PASS) "Done, no errors."
-
-rbp_connect_censer_rule: zrbp_validate_regimes_rule
-	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to CENSER"
-	podman $(RBM_CONNECTION) exec -it $(RBM_CENSER_CONTAINER) /bin/bash
-	$(MBC_PASS) "Done, no errors."
-
-rbp_connect_bottle_rule: zrbp_validate_regimes_rule
-	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "Connecting to BOTTLE"
-	podman $(RBM_CONNECTION) exec -it $(RBM_BOTTLE_CONTAINER) /bin/bash
-	$(MBC_PASS) "Done, no errors."
-
-rbp_observe_networks_rule: zrbp_validate_regimes_rule
-	$(MBC_START) "Moniker:"$(RBM_ARG_MONIKER) "OBSERVE BOTTLE SERVICE NETWORKS"
-	(eval $(zRBM_EXPORT_ENV) && /bin/sh < $(MBV_TOOLS_DIR)/rbo.observe.sh)
+# Lifecycle rules (start, connect, observe) migrated to bash:
+# - rbp_start_service_rule       -> rbob_start()       in Tools/rbw/rbob_bottle.sh
+# - rbp_connect_sentry_rule      -> rbob_connect_sentry()  in Tools/rbw/rbob_bottle.sh
+# - rbp_connect_censer_rule      -> rbob_connect_censer()  in Tools/rbw/rbob_bottle.sh
+# - rbp_connect_bottle_rule      -> rbob_connect_bottle()  in Tools/rbw/rbob_bottle.sh
+# - rbp_observe_networks_rule    -> rboo_observe()     in Tools/rbw/rboo_observe.sh
+#
+# All lifecycle operations now route through:
+# - rbw_workbench.sh (start, stop, connect commands)
+# - rbt_testbench.sh (test execution)
+# - BUD launcher pattern (.buk/launcher.rbw_workbench.sh)
+#
+# Podman VM machinery (rbp_podman_machine_*, rbp_stash_*) preserved for future heat.
 
 
 # eof

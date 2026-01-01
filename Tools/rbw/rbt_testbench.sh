@@ -296,6 +296,67 @@ test_srjcl_websocket_kernel() {
 }
 
 ######################################################################
+# Test Cases - pluml PlantUML tests
+#
+# Ported from RBM-tests/rbt.test.pluml.mk
+# Pattern: Test PlantUML server HTTP endpoints
+
+test_pluml_text_rendering() {
+  # Test PlantUML text rendering endpoint with known diagram hash
+  local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40"
+  local z_output
+  z_output=$(curl -s "${z_url}" 2>&1) || but_fatal "curl failed: ${z_output}"
+  echo "${z_output}" | grep -q "Bob"         || but_fatal "Expected 'Bob' in response"
+  echo "${z_output}" | grep -q "Alice"       || but_fatal "Expected 'Alice' in response"
+  echo "${z_output}" | grep -q "hello there" || but_fatal "Expected 'hello there' in response"
+  echo "${z_output}" | grep -q "boo"         || but_fatal "Expected 'boo' in response"
+}
+
+test_pluml_local_diagram() {
+  # Test PlantUML server with local diagram POST to /txt/uml
+  local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/uml"
+  local z_diagram="@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml"
+  local z_output
+  z_output=$(echo -e "${z_diagram}" | curl -s --data-binary @- "${z_url}" 2>&1) || but_fatal "curl POST failed: ${z_output}"
+  echo "${z_output}" | grep -q "Bob"         || but_fatal "Expected 'Bob' in response"
+  echo "${z_output}" | grep -q "Alice"       || but_fatal "Expected 'Alice' in response"
+  echo "${z_output}" | grep -q "hello there" || but_fatal "Expected 'hello there' in response"
+  echo "${z_output}" | grep -q "boo"         || but_fatal "Expected 'boo' in response"
+}
+
+test_pluml_http_headers() {
+  # Test server handles basic HTTP headers
+  local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40"
+  local z_status
+  z_status=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "User-Agent: Mozilla/5.0" \
+    -H "Accept: text/plain" \
+    --connect-timeout 5 --max-time 10 \
+    "${z_url}" 2>&1) || true
+  test "${z_status}" = "200" || but_fatal "Expected HTTP 200, got: ${z_status}"
+}
+
+test_pluml_invalid_hash() {
+  # Test server response with invalid diagram hash returns no content
+  local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/invalid_hash"
+  local z_output
+  z_output=$(curl -s "${z_url}" 2>&1) || true
+  local z_count
+  z_count=$(echo "${z_output}" | grep -c "Bob" || true)
+  test "${z_count}" -eq 0 || but_fatal "Expected no 'Bob' in invalid hash response"
+}
+
+test_pluml_malformed_diagram() {
+  # Test server response with malformed diagram returns no valid content
+  local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/uml"
+  local z_output
+  z_output=$(echo "invalid uml content" | curl -s --data-binary @- "${z_url}" 2>&1) || true
+  local z_count
+  z_count=$(echo "${z_output}" | grep -c "Bob" || true)
+  test "${z_count}" -eq 0 || but_fatal "Expected no 'Bob' in malformed diagram response"
+}
+
+######################################################################
 # Test Suites
 
 rbt_suite_nsproto() {
@@ -315,8 +376,11 @@ rbt_suite_srjcl() {
 }
 
 rbt_suite_pluml() {
-  buc_step "Running pluml PlantUML test suite"
-  but_fatal "pluml test suite not yet implemented"
+  local z_single_test="${1:-}"
+  buc_step "Running pluml PlantUML test suite${z_single_test:+ (single: ${z_single_test})}"
+  local z_test_dir="${BUD_TEMP_DIR}/tests"
+  mkdir -p "${z_test_dir}"
+  but_execute "${z_test_dir}" "test_pluml_" "${z_single_test}"
 }
 
 ######################################################################

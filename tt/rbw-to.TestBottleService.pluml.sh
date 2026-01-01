@@ -1,2 +1,3 @@
-#!/bin/sh
-cd "$(dirname "$0")/.." &&  Tools/mbd.dispatch.sh jp_single om_line "$(basename "$0")"
+#!/bin/bash
+# Generated tabtarget - delegates to rbt testbench via BUD launcher
+exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.rbt_testbench.sh" "rbt-to" "pluml" "${@}"

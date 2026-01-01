@@ -462,6 +462,32 @@ Experiment with moving steeplechase entries from heat files to git commits:
   - Adds "degenerate commits" to repo (worth the tradeoff?)
 - **Experiment**: Try for one heat; evaluate whether git-based steeplechase is more useful than file-based
 
+### JSON Storage with jq Management
+Consider storing itches and/or heats as JSON documents managed via jq:
+- **Motivation**: Improve lookups and access patterns, especially with proper tabtargets for navigation
+- **Current model**: Markdown files with freeform structure (itches in `jji_itch.md`, heats as `jjh_*.md`)
+- **JSON model**: Structured data with explicit fields for querying and manipulation
+  - Itches: `jji_itch.json` with array of `{silks, title, description, tags, created, ...}`
+  - Heats: Either `jjh_*.json` per heat, or aggregate index file
+  - Paces: Embedded in heat JSON or separate queryable structure
+- **Benefits**:
+  - **Precise queries**: `jq '.[] | select(.tags | contains(["urgent"]))` vs. manual grep
+  - **Atomic updates**: jq can update specific fields without full-file rewrite
+  - **Structured filters**: Filter by date, status, tags, silks pattern
+  - **Tabtarget integration**: Rich metadata enables intelligent navigation
+  - **Tool composability**: jq + other JSON tools (jd for diffs, json-patch, etc.)
+- **Challenges**:
+  - **Human readability**: JSON less friendly for manual editing vs. Markdown
+  - **Context load**: Models read JSON fine, but markdown may be more natural in conversation
+  - **Migration**: Existing markdown heats/itches need conversion path
+  - **Hybrid approach?**: JSON for index/metadata, markdown for narrative content
+- **Exploration vectors**:
+  - Start with itch backlog: `jji_itch.json` as experiment (smaller scope than heats)
+  - Define schema: what fields enable better queries without over-engineering?
+  - Test jq workflows: add itch, list by tag, promote to heat, move to scar
+  - Evaluate readability tradeoff: is loss of markdown worth query power?
+  - Consider hybrid: JSON index + markdown content files (best of both?)
+
 ---
 
 *Command implementations live in the workbench. This document is the conceptual reference.*
