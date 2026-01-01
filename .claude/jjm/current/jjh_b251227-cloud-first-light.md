@@ -123,7 +123,7 @@ Permanent depot for use throughout remaining paces and beyond.
 
 (none - heat objectives complete)
 
-**Paces moved to testbench-foundations heat (b260101)**:
+**Paces moved to testbench-new-life heat (b260101)**:
 - Audit dead code in rbga/rbgb/rbgp modules
 - Add GAR repository name validation
 - Audit tabtargets for log/no-log correctness
