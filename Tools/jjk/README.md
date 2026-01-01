@@ -404,25 +404,16 @@ Benefits:
 
 ## Future Directions
 
-### Heat Creation Skill
-Create a dedicated skill for forming well-structured heats:
-- **Purpose**: Ensure new heats follow silks guidance, correct structure, and validated context from creation
-- **Invocation**: User describes heat intent; skill guides through:
-  - Silks workshop: generate 3-5 candidates, validate against guidance (2-4 words, catchy, <30 chars)
-  - Paddock gathering: stable background info, goals, constraints
-  - Initial paces: sketch first 3-5 paces as unnumbered Remaining list (no Current section)
-  - Validation: verify `.claude/jjm/current/` exists, file naming, structure
-- **Output**: Properly formed heat file in `.claude/jjm/current/jjh_bYYMMDD-silks.md`
-- **Benefit**: Prevents malformed heats from manual creation; ensures consistency across team/sessions
-- **Related**: Complements "Heat Scrub" (future direction) which fixes existing/legacy heats
-- **Invocation example**: `/jja-heat-create "cloud build follow-up"`
+> **Note**: Items marked ~~strikethrough~~ are addressed by the Studbook Redesign heat (b260101).
+> See `.claude/jjm/current/jjh_b260101-jj-studbook-redesign.md` for the replacement architecture.
 
-### Heat Document Efficiency
-Reduce thrash in heat files during active work:
-- Current structure causes frequent moves between Done/Current/Remaining sections
-- Consider: more stable pace representation that reduces edits
-- Investigate: what's the minimum mutable surface for tracking progress?
-- Goal: cleaner diffs, less context churn, easier retrospectives
+### ~~Heat Creation Skill~~ → `jj-nominate`
+~~Create a dedicated skill for forming well-structured heats.~~
+Replaced by `jj-nominate` which allocates Favor, creates paddock stub, and registers in studbook.
+
+### ~~Heat Document Efficiency~~ → Studbook + Paddock
+~~Reduce thrash in heat files during active work.~~
+Replaced by Studbook (JSON registry) + Paddock (per-heat markdown) architecture. No more Done/Current/Remaining section churn.
 
 ### Silk Design Guidance
 Make silks short and memorable for human cognition:
@@ -441,52 +432,13 @@ Project-level control over automatic git commits:
 - Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-notch | never`
 - Default behavior should match current (commits on wrap/notch)
 
-### Steeplechase as Git Commit Discipline
-Experiment with moving steeplechase entries from heat files to git commits:
-- **Observation**: Steeplechase entries are valuable for retrospective analysis (models actually read them). Question: does the heat file need to carry them, or should git be the source of truth?
-- **Current model**: Steeplechase entries live in heat file, merge to heat on retirement. Accumulates in-memory context during heat work.
-- **Alternative model**: Store steeplechase-like metadata in "degenerate" commits (commits that contain only metadata/logs, no code changes)
-  - Approach: Each pace wrap, delegate, or approach logs a commit with structured metadata in message/trailers
-  - Format: `[jj:APPROACH|WRAP|DELEGATE] [heat:silks][pace:silks] <execution details in body>`
-  - Git becomes the execution log; heat files stay lean (no Steeplechase section needed)
-- **Benefits**:
-  - Execution history lives where it naturally belongs (git history)
-  - Heat files lighter, fewer section movements during work
-  - Full git tooling available for filtering/searching execution patterns
-  - Correlates execution patterns directly to code commit timeline
-  - Can use `git log --grep="jj:WRAP"` to reconstruct heat retrospective
-- **Challenges**:
-  - Requires discipline to remember to search git during retrospectives
-  - Need reliable patterns for identifying steeplechase commits
-  - Must explicitly gather git metadata when retiring heat (vs. auto-merge in file)
-  - Adds "degenerate commits" to repo (worth the tradeoff?)
-- **Experiment**: Try for one heat; evaluate whether git-based steeplechase is more useful than file-based
+### ~~Steeplechase as Git Commit Discipline~~ → `jj-chalk` / `jj-rein`
+~~Experiment with moving steeplechase entries from heat files to git commits.~~
+Implemented as core feature: `jj-chalk` writes structured git commits (empty commits with Favor + emblem), `jj-rein` queries git log for steeplechase entries. Trophy extraction gathers git history at retirement.
 
-### JSON Storage with jq Management
-Consider storing itches and/or heats as JSON documents managed via jq:
-- **Motivation**: Improve lookups and access patterns, especially with proper tabtargets for navigation
-- **Current model**: Markdown files with freeform structure (itches in `jji_itch.md`, heats as `jjh_*.md`)
-- **JSON model**: Structured data with explicit fields for querying and manipulation
-  - Itches: `jji_itch.json` with array of `{silks, title, description, tags, created, ...}`
-  - Heats: Either `jjh_*.json` per heat, or aggregate index file
-  - Paces: Embedded in heat JSON or separate queryable structure
-- **Benefits**:
-  - **Precise queries**: `jq '.[] | select(.tags | contains(["urgent"]))` vs. manual grep
-  - **Atomic updates**: jq can update specific fields without full-file rewrite
-  - **Structured filters**: Filter by date, status, tags, silks pattern
-  - **Tabtarget integration**: Rich metadata enables intelligent navigation
-  - **Tool composability**: jq + other JSON tools (jd for diffs, json-patch, etc.)
-- **Challenges**:
-  - **Human readability**: JSON less friendly for manual editing vs. Markdown
-  - **Context load**: Models read JSON fine, but markdown may be more natural in conversation
-  - **Migration**: Existing markdown heats/itches need conversion path
-  - **Hybrid approach?**: JSON for index/metadata, markdown for narrative content
-- **Exploration vectors**:
-  - Start with itch backlog: `jji_itch.json` as experiment (smaller scope than heats)
-  - Define schema: what fields enable better queries without over-engineering?
-  - Test jq workflows: add itch, list by tag, promote to heat, move to scar
-  - Evaluate readability tradeoff: is loss of markdown worth query power?
-  - Consider hybrid: JSON index + markdown content files (best of both?)
+### ~~JSON Storage with jq Management~~ → `jjs_studbook.json`
+~~Consider storing itches and/or heats as JSON documents managed via jq.~~
+Implemented as `jjs_studbook.json` - central registry of heats/paces with Favor keys. Uses `jq --sort-keys --indent 2` for stable diffs. Paddock prose stays markdown (hybrid approach).
 
 ---
 

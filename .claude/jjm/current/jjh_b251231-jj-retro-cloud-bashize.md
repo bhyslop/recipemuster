@@ -54,9 +54,9 @@ This heat focuses on:
 
 - **Extract patterns from trophy heats** — Analyzed both trophy heats. Identified 10 patterns: FIRST LIGHT, Deferred Strands, Testing Insights, File Inventory, Vertical Slice (dockerize); Operation Status, Trade Study, Bug Discovery Protocol, Resource Cleanup, Heat-Wide Guidelines (cloud). Recommendation: Only Heat-Wide Guidelines and Deferred Strands warrant paddock template placeholders; others emerge organically from heat shape.
 
-## Remaining
+- **Prune JJK Future Directions** — Reviewed 6 Future Directions. 4 addressed by studbook redesign (Heat Creation→jj-nominate, Document Efficiency→studbook+paddock, Git Steeplechase→jj-chalk/rein, JSON Storage→jjs_studbook.json). 2 retained (Silk Design Guidance, Configurable Autocommit).
 
-- **Prune JJK Future Directions** — Review Tools/jjk/README.md Future Directions. Mark items addressed by studbook redesign. Remove or defer items no longer relevant.
+## Remaining
 
 - **Decide git commit safety** — Evaluate whether pre-commit checks belong in jju_notch.sh (studbook heat) or as separate tooling. Make recommendation.
 
@@ -65,6 +65,21 @@ This heat focuses on:
 - **Cross-reference lessons with studbook redesign** — Review lessons learned memo against b260101-jj-studbook-redesign paddock. Identify patterns that should inform studbook implementation or be captured in new JJ infrastructure.
 
 ## Steeplechase
+
+---
+### 2026-01-01 - Prune Future Directions - WRAP
+
+**Analysis**: Reviewed 6 Future Directions against studbook redesign (b260101).
+
+**Addressed by studbook redesign** (marked with strikethrough in README):
+- Heat Creation Skill → `jj-nominate`
+- Heat Document Efficiency → Studbook + Paddock separation
+- Steeplechase as Git Commits → `jj-chalk` / `jj-rein`
+- JSON Storage with jq → `jjs_studbook.json`
+
+**Retained** (still relevant):
+- Silk Design Guidance — permanent guidance, applies to any JJ version
+- Configurable Autocommit — not addressed, project-level control still needed
 
 ---
 ### 2026-01-01 - Extract Patterns - WRAP
