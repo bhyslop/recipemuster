@@ -1025,6 +1025,38 @@ jq --arg np "$nameplate" '[.builds[] | select(.nameplate == $np) | .build_durati
 
 Identified 2025-12-31. jq for the win - perfect tool for manipulating build metadata JSON.
 
+## payor-install-rbrp-check
+Add RBRP value validation and status display to payor_install completion.
+
+### Problem
+
+After payor_install completes, user is shown a list of "Configuration required in rbrp.env" values but no indication of whether current values are correct. User must manually compare values.
+
+### Proposed Improvement
+
+At completion, display checklist with guide colors showing:
+- Which RBRP values already match the OAuth JSON (green checkmark)
+- Which RBRP values need manual update (yellow warning)
+- Clear todo list of what remains to configure
+
+### Research Needed
+
+- Is there an API way to validate billing account ID is correct/accessible?
+- Can we verify billing account is linked to payor project?
+
+### Example Output
+
+```
+Configuration Status:
+  ✓ RBRP_PAYOR_PROJECT_ID=rbwg-p-251228075220 (matches)
+  ✓ RBRP_OAUTH_CLIENT_ID=297222692580-... (matches)
+  ⚠ RBRP_BILLING_ACCOUNT_ID - verify manually in Cloud Console
+```
+
+### Context
+
+Identified 2026-01-01 during exercise-payor-refresh pace in cloud-first-light heat.
+
 ## utility-dependency-hunt
 Conduct granular audit of all external utility dependencies across Recipe Bottle bash scripts.
 
