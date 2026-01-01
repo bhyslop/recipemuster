@@ -52,11 +52,9 @@ This heat focuses on:
 
 ## Done
 
-(none yet)
+- **Extract patterns from trophy heats** — Analyzed both trophy heats. Identified 10 patterns: FIRST LIGHT, Deferred Strands, Testing Insights, File Inventory, Vertical Slice (dockerize); Operation Status, Trade Study, Bug Discovery Protocol, Resource Cleanup, Heat-Wide Guidelines (cloud). Recommendation: Only Heat-Wide Guidelines and Deferred Strands warrant paddock template placeholders; others emerge organically from heat shape.
 
 ## Remaining
-
-- **Extract patterns from trophy heats** — Document FIRST LIGHT, Deferred Strands, Testing Insights, Trade Study patterns. Determine which should be suggested in paddock templates vs organic.
 
 - **Prune JJK Future Directions** — Review Tools/jjk/README.md Future Directions. Mark items addressed by studbook redesign. Remove or defer items no longer relevant.
 
@@ -64,7 +62,22 @@ This heat focuses on:
 
 - **Create lessons learned memo** — Summarize what worked across both trophy heats. Brief document for future heat authors.
 
+- **Cross-reference lessons with studbook redesign** — Review lessons learned memo against b260101-jj-studbook-redesign paddock. Identify patterns that should inform studbook implementation or be captured in new JJ infrastructure.
+
 ## Steeplechase
+
+---
+### 2026-01-01 - Extract Patterns - WRAP
+
+**Patterns identified** (10 total):
+- dockerize: FIRST LIGHT, Deferred Strands, Testing Insights, File Inventory, Vertical Slice
+- cloud: Operation Status, Trade Study, Bug Discovery Protocol, Resource Cleanup, Heat-Wide Guidelines
+
+**Template recommendation**: Only two patterns warrant paddock template placeholders:
+1. **Heat-Wide Guidelines** — Prompts thinking about cross-cutting rules
+2. **Deferred Strands** — Explicitly tracking what NOT to do prevents scope creep
+
+**Organic patterns**: Remaining 8 patterns are context-dependent (debugging heats, refactoring heats, research heats). Document as "patterns you might adopt" rather than template defaults.
 
 ---
 ### 2026-01-01 - Heat Revised
