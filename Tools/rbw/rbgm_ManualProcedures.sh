@@ -296,9 +296,9 @@ rbgm_payor_refresh() {
   zrbgm_d      "      - To rotate secret if compromised:"
   zrbgm_dm     "        a. Click " "+ Add secret"
   zrbgm_d      "        b. Click the download icon next to the NEW secret"
-  zrbgm_dm     "        c. Browser downloads: " "client_secret_[id].apps.googleusercontent.com.json"
-  zrbgm_dm     "        d. Click " "Disable" " on the secret with the older creation date"
-  zrbgm_d      "        e. Click the trash icon to delete that disabled secret"
+  zrbgm_dm     "           Browser downloads: " "client_secret_[id].apps.googleusercontent.com.json"
+  zrbgm_dmd    "        c. Click " "Disable" " on the secret with the older creation date"
+  zrbgm_d      "        d. Click the trash icon to delete that disabled secret"
   zrbgm_e
   zrbgm_s2     "2. Install/Refresh OAuth Credentials:"
   zrbgm_d      "   Run the payor install command with the downloaded JSON:"
