@@ -133,6 +133,8 @@ Example philosophy: If we formalize APPROACH/WRAP pattern, don't create whole ne
 
 9. **Git history analysis**: What does the commit-by-commit evolution of both heat files reveal about process friction and emergent patterns? Analyze git history of heat files to discover: pace boundary changes, file reorganizations, documentation additions, what got refined vs what stayed stable. Let the data reveal what was hard vs what was easy.
 
+10. **Pace identity & versioning**: Could jq + bash provide stable pace identifiers separate from display names? Concept: paces get immutable IDs and version numbers, enabling terse git commits (e.g., `heat:pace:v3`) while allowing pace renaming without breaking references. Decouple identity from display. Evaluate: complexity vs benefit, jq dependency implications, interaction with existing patterns.
+
 ### Success Criteria
 
 - 2-3 improvements selected based on evidence, not speculation
