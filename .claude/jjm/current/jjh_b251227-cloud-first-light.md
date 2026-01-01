@@ -121,22 +121,27 @@ Permanent depot for use throughout remaining paces and beyond.
 
 ## Current
 
-- **Audit dead code in rbga/rbgb/rbgp modules** — Determine if rbga_*, rbgb_*, and zrbgp_billing_* functions are dead code. Remove or document why retained.
-  mode: manual
+(none - heat objectives complete)
 
-- **Add GAR repository name validation** — Build failed silently because RBRR_GAR_REPOSITORY (brm-gar) didn't match actual depot repository (rbw-proto-repository). Root cause: RBRR_GAR_REPOSITORY is static manual config, but repository name is determined at depot_create time. Options: (1) Add runtime validation in rbf_build to verify repository exists before build, (2) Change depot_create to write RBRR_GAR_REPOSITORY, (3) Derive repository name from depot project ID. Evaluate which approach prevents future desync.
-  mode: manual
+**Paces moved to testbench-foundations heat (b260101)**:
+- Audit dead code in rbga/rbgb/rbgp modules
+- Add GAR repository name validation
+- Audit tabtargets for log/no-log correctness
+- Audit director/repository configuration process
+- Exercise full depot lifecycle (recast as testbench test suite)
 
-- **Audit tabtargets for log/no-log correctness** — Review all tt/*.sh files for correct BUD_NO_LOG usage. Tabtargets that handle secrets should disable logging with comment: `export BUD_NO_LOG=1  # Disabled: prevents secrets in log files`. Tabtargets worth logging should omit BUD_NO_LOG entirely. Ensure old-form tabtargets (using bud_dispatch.sh directly) are updated to new launcher form.
-  mode: manual
-
-- **Audit director/repository configuration process** — Verify setup scripts correctly configure: (1) Director SA gets artifactregistry.repoAdmin on GAR repo during director_create, (2) Mason SA gets artifactregistry.writer (not admin) during depot_create, (3) RBRR_GAR_REPOSITORY value derivation/validation, (4) Director RBRA file installation instructions are clear. Ensure no manual IAM grants needed between operations.
-  mode: manual
-
-- **Exercise full depot lifecycle (test depot)** — Create throwaway test depot and run complete flow: depot_create → governor_reset → director_create → trigger_build → image_list → image_delete → depot_destroy. Verify all operations succeed without manual IAM interventions. Validates fixes to Mason/Director permissions and repository configuration.
-  mode: manual
+These audits and systematic testing belong in the new heat which establishes vocabulary and architecture for cloud operation testing.
 
 ## Steeplechase
+
+---
+### 2026-01-01 - Heat Objectives Complete
+
+**Status**: All 14 RBSGS operations validated and working. Operation Status table shows complete coverage.
+
+**Paces moved**: 5 remaining paces (audits + lifecycle test) moved to new heat `b260101-testbench-foundations`. These belong with vocabulary/architecture decisions for systematic testing infrastructure.
+
+**Heat ready for retirement** after steeplechase review.
 
 ---
 ### 2025-12-31 05:55 - GCR Test - EXECUTION
