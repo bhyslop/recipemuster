@@ -1,118 +1,125 @@
 <mxfile host="Electron" agent="Claude" version="1.0">
   <diagram name="BLR-BlockLevelReceiver" id="BLR-state-machine">
-    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <!-- ==================== HARD STATES ==================== -->
+        <!-- ==================== OUTER CONTAINER STATE ==================== -->
+        <!-- This is the nesting state - BLR_RESET_REQ on its boundary applies to ALL inner states -->
+
+        <mxCell id="hs_outer" value="" style="rounded=1;whiteSpace=wrap;html=1;container=1;fontStyle=1;fontSize=14;arcSize=5;verticalAlign=top;fillColor=none;strokeWidth=2" parent="1" vertex="1">
+          <mxGeometry x="120" y="50" width="1100" height="750" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== HARD STATES (children of outer container) ==================== -->
 
         <!-- BLR_IGNORE - top left -->
-        <mxCell id="hs_ignore" value="BLR_IGNORE" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="1" vertex="1">
-          <mxGeometry x="200" y="100" width="200" height="80" as="geometry" />
+        <mxCell id="hs_ignore" value="BLR_IGNORE" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="hs_outer" vertex="1">
+          <mxGeometry x="80" y="50" width="200" height="80" as="geometry" />
         </mxCell>
 
         <!-- BLR_RECEIVE - center -->
-        <mxCell id="hs_receive" value="BLR_RECEIVE" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="1" vertex="1">
-          <mxGeometry x="400" y="350" width="200" height="80" as="geometry" />
+        <mxCell id="hs_receive" value="BLR_RECEIVE" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="hs_outer" vertex="1">
+          <mxGeometry x="280" y="300" width="200" height="80" as="geometry" />
         </mxCell>
 
         <!-- BLR_FAULT - bottom left -->
-        <mxCell id="hs_fault" value="BLR_FAULT" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="1" vertex="1">
-          <mxGeometry x="150" y="550" width="200" height="80" as="geometry" />
+        <mxCell id="hs_fault" value="BLR_FAULT" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="hs_outer" vertex="1">
+          <mxGeometry x="30" y="500" width="200" height="80" as="geometry" />
         </mxCell>
 
         <!-- BLR_STALL - right -->
-        <mxCell id="hs_stall" value="BLR_STALL" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="1" vertex="1">
-          <mxGeometry x="900" y="280" width="200" height="80" as="geometry" />
+        <mxCell id="hs_stall" value="BLR_STALL" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;arcSize=8" parent="hs_outer" vertex="1">
+          <mxGeometry x="780" y="230" width="200" height="80" as="geometry" />
         </mxCell>
 
-        <!-- ==================== INITIAL STATE MARKER ==================== -->
+        <!-- ==================== DECISION POINTS (children of outer container) ==================== -->
+
+        <!-- DP1: After init/reset, before entering RECEIVE -->
+        <mxCell id="dp_init" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="30" y="200" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP2: Poll from IGNORE checking goPending -->
+        <mxCell id="dp_poll_ignore" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="300" y="130" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP3: rxStatus check after poll from RECEIVE -->
+        <mxCell id="dp_rxstatus_process" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="530" y="30" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP4: After rxStatus == _PROCESS, CRC error check -->
+        <mxCell id="dp_crc_error" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="730" y="50" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP5: rxStatus == _CONTINUE check -->
+        <mxCell id="dp_rxstatus_continue" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="480" y="150" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP6: ELEM_READ_REQ from RECEIVE - isInBlock check -->
+        <mxCell id="dp_read_inblock" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="230" y="400" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP7: ELEM_WRITE_REQ decision - first check (next block) -->
+        <mxCell id="dp_write_nextblock" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="580" y="430" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP8: ELEM_WRITE_REQ decision - second check (current block) -->
+        <mxCell id="dp_write_curblock" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="680" y="330" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP9: Last data word check -->
+        <mxCell id="dp_lastword" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="630" y="150" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP10: Block boundary - first vs not first -->
+        <mxCell id="dp_block_boundary" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="780" y="550" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP11: blkOffset == BLOCK_SIZE check -->
+        <mxCell id="dp_blkoffset" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="580" y="550" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP12: From FAULT poll -->
+        <mxCell id="dp_fault_poll" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="80" y="400" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP13: Data doesn't belong check -->
+        <mxCell id="dp_data_invalid" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="380" y="470" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP14: From BLR_STALL poll -->
+        <mxCell id="dp_stall_poll" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="680" y="230" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- DP15: Join point back to RECEIVE -->
+        <mxCell id="dp_join_receive" value="" style="ellipse;whiteSpace=wrap;html=1" parent="hs_outer" vertex="1">
+          <mxGeometry x="830" y="670" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== INITIAL STATE MARKER (outside container) ==================== -->
 
         <mxCell id="init_dot" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000" parent="1" vertex="1">
           <mxGeometry x="50" y="120" width="30" height="30" as="geometry" />
         </mxCell>
 
-        <!-- ==================== DECISION POINTS ==================== -->
-
-        <!-- DP1: After init, before entering RECEIVE -->
-        <mxCell id="dp_init" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="100" y="250" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP2: Poll from IGNORE checking goPending -->
-        <mxCell id="dp_poll_ignore" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="420" y="180" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP3: rxStatus check after poll from RECEIVE -->
-        <mxCell id="dp_rxstatus_process" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="650" y="80" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP4: After rxStatus == _PROCESS, CRC error check -->
-        <mxCell id="dp_crc_error" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="850" y="100" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP5: rxStatus == _CONTINUE check -->
-        <mxCell id="dp_rxstatus_continue" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="600" y="200" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP6: ELEM_READ_REQ from RECEIVE - isInBlock check -->
-        <mxCell id="dp_read_inblock" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="350" y="450" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP7: ELEM_WRITE_REQ decision - first check (next block) -->
-        <mxCell id="dp_write_nextblock" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="700" y="480" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP8: ELEM_WRITE_REQ decision - second check (current block) -->
-        <mxCell id="dp_write_curblock" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="800" y="380" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP9: Last data word check -->
-        <mxCell id="dp_lastword" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="750" y="200" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP10: Block boundary - first vs not first -->
-        <mxCell id="dp_block_boundary" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="900" y="600" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP11: blkOffset == BLOCK_SIZE check -->
-        <mxCell id="dp_blkoffset" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="700" y="600" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP12: From FAULT poll -->
-        <mxCell id="dp_fault_poll" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="200" y="450" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP13: Data doesn't belong check -->
-        <mxCell id="dp_data_invalid" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="500" y="520" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP14: From BLR_STALL poll -->
-        <mxCell id="dp_stall_poll" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="800" y="280" width="60" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- DP15: Join point back to RECEIVE -->
-        <mxCell id="dp_join_receive" value="" style="ellipse;whiteSpace=wrap;html=1" parent="1" vertex="1">
-          <mxGeometry x="950" y="720" width="60" height="30" as="geometry" />
-        </mxCell>
-
         <!-- ==================== TRANSITIONS ==================== -->
 
-        <!-- Init to decision point -->
+        <!-- Init to decision point (enters the container) -->
         <mxCell id="t_init" value="&lt;u&gt;_init&lt;/u&gt;()&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="init_dot" target="dp_init" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -122,10 +129,11 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- BLR_RESET_REQ from anywhere to init decision point -->
-        <mxCell id="t_reset" value="&lt;b&gt;&lt;font color='#990099'&gt;&lt;u&gt;BLR_RESET_REQ&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" target="dp_init" edge="1">
+        <!-- BLR_RESET_REQ from OUTER CONTAINER boundary to init decision point -->
+        <!-- This is the key nesting semantic: trigger on outer boundary applies to ALL inner states -->
+        <mxCell id="t_reset" value="&lt;b&gt;&lt;font color='#990099'&gt;&lt;u&gt;BLR_RESET_REQ&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_outer" target="dp_init" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="20" y="400" as="sourcePoint" />
+            <mxPoint x="120" y="400" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
 
@@ -156,7 +164,7 @@
         <mxCell id="t_ignore_done" value="else&lt;br&gt;blrd_receiverProcess() == _DONE&lt;br&gt;/&lt;br&gt;Send CDI_GO_REQ()&lt;br&gt;goPending = false" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_poll_ignore" target="hs_ignore" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="350" y="200" />
+              <mxPoint x="350" y="150" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -175,7 +183,7 @@
         <mxCell id="t_continue_receive" value="rxStatus == _CONTINUE&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_rxstatus_continue" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="550" y="280" />
+              <mxPoint x="450" y="230" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -190,14 +198,37 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- CRC error path to STALL -->
-        <mxCell id="t_crc_stall" value="else&lt;br&gt;/* E.g., CRC error */" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_crc_error" target="hs_stall" edge="1">
+        <!-- Process to CRC error check -->
+        <mxCell id="t_process_crc" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_rxstatus_process" target="dp_crc_error" edge="1">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CRC error path to STALL -->
+        <mxCell id="t_crc_stall" value="/* E.g., CRC error */&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_crc_error" target="hs_stall" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CRC ok back to IGNORE -->
+        <mxCell id="t_crc_ignore" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_crc_error" target="hs_ignore" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="80" />
+            </Array>
+          </mxGeometry>
         </mxCell>
 
         <!-- Last word else to STALL -->
         <mxCell id="t_lastword_stall" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_lastword" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Last word ok back to RECEIVE -->
+        <mxCell id="t_lastword_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_lastword" target="hs_receive" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="200" />
+            </Array>
+          </mxGeometry>
         </mxCell>
 
         <!-- RECEIVE: ELEM_READ_REQ -->
@@ -209,7 +240,7 @@
         <mxCell id="t_read_success" value="_isInBlock(blkOffset, addr)&lt;br&gt;/&lt;br&gt;value = buffer[(addr - blkOffset)/4]&lt;br&gt;Send ELEM_READ_CONF(value)" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_read_inblock" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="280" y="400" />
+              <mxPoint x="200" y="350" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -268,7 +299,7 @@
         <mxCell id="t_join_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_join_receive" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="600" y="700" />
+              <mxPoint x="500" y="650" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -277,7 +308,7 @@
         <mxCell id="t_fault_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* Let the C&amp;DH time out waiting&lt;br&gt;for read response */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_fault" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="150" y="680" />
+              <mxPoint x="150" y="630" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -286,7 +317,7 @@
         <mxCell id="t_fault_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* ignored */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_fault" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="350" y="680" />
+              <mxPoint x="350" y="630" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -300,7 +331,7 @@
         <mxCell id="t_faultpoll_fault" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_fault_poll" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="150" y="500" />
+              <mxPoint x="150" y="450" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -314,7 +345,7 @@
         <mxCell id="t_stallpoll_receive" value="rxStatus == _CONTINUE&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_stall_poll" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="700" y="320" />
+              <mxPoint x="600" y="280" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -323,7 +354,7 @@
         <mxCell id="t_stallpoll_stall" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_stall_poll" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="850" y="250" />
+              <mxPoint x="750" y="200" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -332,7 +363,7 @@
         <mxCell id="t_stall_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* response suppressed&lt;br&gt;to suggest block has failed */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_stall" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1050" y="200" />
+              <mxPoint x="1000" y="150" />
             </Array>
           </mxGeometry>
         </mxCell>
