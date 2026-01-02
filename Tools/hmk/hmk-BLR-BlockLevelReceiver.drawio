@@ -124,8 +124,8 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- Decision point to RECEIVE (init path) -->
-        <mxCell id="t_init_receive" value="/&lt;br&gt;blrd_reset()&lt;br&gt;blkOffset = 0&lt;br&gt;buffer.zero()" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_init" target="hs_receive" edge="1">
+        <!-- Decision point to RECEIVE (init path) - internal to container -->
+        <mxCell id="t_init_receive" value="/&lt;br&gt;blrd_reset()&lt;br&gt;blkOffset = 0&lt;br&gt;buffer.zero()" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_init" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
@@ -138,7 +138,7 @@
         </mxCell>
 
         <!-- IGNORE: ELEM_WRITE_REQ ignored -->
-        <mxCell id="t_ignore_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* ignored */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_ignore" target="hs_ignore" edge="1">
+        <mxCell id="t_ignore_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* ignored */" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_ignore" target="hs_ignore" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="250" y="50" />
@@ -147,7 +147,7 @@
         </mxCell>
 
         <!-- IGNORE: ELEM_READ_REQ sends conf -->
-        <mxCell id="t_ignore_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/&lt;br&gt;Send ELEM_READ_CONF(...)" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_ignore" target="hs_ignore" edge="1">
+        <mxCell id="t_ignore_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/&lt;br&gt;Send ELEM_READ_CONF(...)" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_ignore" target="hs_ignore" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="400" y="50" />
@@ -156,12 +156,12 @@
         </mxCell>
 
         <!-- IGNORE: Poll with goPending check -->
-        <mxCell id="t_ignore_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;() &amp;&amp; .goPending&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_ignore" target="dp_poll_ignore" edge="1">
+        <mxCell id="t_ignore_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;() &amp;&amp; .goPending&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_ignore" target="dp_poll_ignore" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- IGNORE: Poll else path (receiverProcess done) -->
-        <mxCell id="t_ignore_done" value="else&lt;br&gt;blrd_receiverProcess() == _DONE&lt;br&gt;/&lt;br&gt;Send CDI_GO_REQ()&lt;br&gt;goPending = false" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_poll_ignore" target="hs_ignore" edge="1">
+        <mxCell id="t_ignore_done" value="else&lt;br&gt;blrd_receiverProcess() == _DONE&lt;br&gt;/&lt;br&gt;Send CDI_GO_REQ()&lt;br&gt;goPending = false" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_poll_ignore" target="hs_ignore" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="350" y="150" />
@@ -170,17 +170,17 @@
         </mxCell>
 
         <!-- Poll decision to RECEIVE -->
-        <mxCell id="t_poll_to_receive" value="/&lt;br&gt;blrd_reset()&lt;br&gt;blkOffset = 0&lt;br&gt;buffer.zero()" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_poll_ignore" target="hs_receive" edge="1">
+        <mxCell id="t_poll_to_receive" value="/&lt;br&gt;blrd_reset()&lt;br&gt;blkOffset = 0&lt;br&gt;buffer.zero()" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_poll_ignore" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- RECEIVE: Poll trigger -->
-        <mxCell id="t_receive_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_receive" target="dp_rxstatus_continue" edge="1">
+        <mxCell id="t_receive_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_receive" target="dp_rxstatus_continue" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- rxStatus == _CONTINUE back to RECEIVE -->
-        <mxCell id="t_continue_receive" value="rxStatus == _CONTINUE&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_rxstatus_continue" target="hs_receive" edge="1">
+        <mxCell id="t_continue_receive" value="rxStatus == _CONTINUE&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_rxstatus_continue" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="450" y="230" />
@@ -189,27 +189,27 @@
         </mxCell>
 
         <!-- rxStatus path to _PROCESS check -->
-        <mxCell id="t_continue_process" value="rxStatus == _PROCESS&lt;br&gt;/&lt;br&gt;goPending = true" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_rxstatus_continue" target="dp_rxstatus_process" edge="1">
+        <mxCell id="t_continue_process" value="rxStatus == _PROCESS&lt;br&gt;/&lt;br&gt;goPending = true" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_rxstatus_continue" target="dp_rxstatus_process" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Process check to last word check -->
-        <mxCell id="t_process_lastword" value="addr == blkOffset + BLOCK_SIZE - 4&lt;br&gt;/* Last data word of current block */&lt;br&gt;/&lt;br&gt;rxStatus = blrd_receiverPeek(buffer)" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_rxstatus_process" target="dp_lastword" edge="1">
+        <mxCell id="t_process_lastword" value="addr == blkOffset + BLOCK_SIZE - 4&lt;br&gt;/* Last data word of current block */&lt;br&gt;/&lt;br&gt;rxStatus = blrd_receiverPeek(buffer)" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_rxstatus_process" target="dp_lastword" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Process to CRC error check -->
-        <mxCell id="t_process_crc" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_rxstatus_process" target="dp_crc_error" edge="1">
+        <mxCell id="t_process_crc" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_rxstatus_process" target="dp_crc_error" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- CRC error path to STALL -->
-        <mxCell id="t_crc_stall" value="/* E.g., CRC error */&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_crc_error" target="hs_stall" edge="1">
+        <mxCell id="t_crc_stall" value="/* E.g., CRC error */&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_crc_error" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- CRC ok back to IGNORE -->
-        <mxCell id="t_crc_ignore" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_crc_error" target="hs_ignore" edge="1">
+        <mxCell id="t_crc_ignore" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_crc_error" target="hs_ignore" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="600" y="80" />
@@ -218,12 +218,12 @@
         </mxCell>
 
         <!-- Last word else to STALL -->
-        <mxCell id="t_lastword_stall" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_lastword" target="hs_stall" edge="1">
+        <mxCell id="t_lastword_stall" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_lastword" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Last word ok back to RECEIVE -->
-        <mxCell id="t_lastword_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_lastword" target="hs_receive" edge="1">
+        <mxCell id="t_lastword_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_lastword" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="550" y="200" />
@@ -232,12 +232,12 @@
         </mxCell>
 
         <!-- RECEIVE: ELEM_READ_REQ -->
-        <mxCell id="t_receive_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_receive" target="dp_read_inblock" edge="1">
+        <mxCell id="t_receive_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_receive" target="dp_read_inblock" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Read inblock check - success -->
-        <mxCell id="t_read_success" value="_isInBlock(blkOffset, addr)&lt;br&gt;/&lt;br&gt;value = buffer[(addr - blkOffset)/4]&lt;br&gt;Send ELEM_READ_CONF(value)" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_read_inblock" target="hs_receive" edge="1">
+        <mxCell id="t_read_success" value="_isInBlock(blkOffset, addr)&lt;br&gt;/&lt;br&gt;value = buffer[(addr - blkOffset)/4]&lt;br&gt;Send ELEM_READ_CONF(value)" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_read_inblock" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="200" y="350" />
@@ -246,57 +246,57 @@
         </mxCell>
 
         <!-- Read inblock check - fail to FAULT -->
-        <mxCell id="t_read_fault" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_read_inblock" target="hs_fault" edge="1">
+        <mxCell id="t_read_fault" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_read_inblock" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- RECEIVE: ELEM_WRITE_REQ -->
-        <mxCell id="t_receive_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_receive" target="dp_write_nextblock" edge="1">
+        <mxCell id="t_receive_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_receive" target="dp_write_nextblock" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Write: Check 1 - next block -->
-        <mxCell id="t_write_nextblock" value="1: _isInBlock(blkOffset + BLOCK_SIZE, addr)&lt;br&gt;/* Starting next block */&lt;br&gt;/&lt;br&gt;blkOffset += BLOCK_SIZE" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_write_nextblock" target="dp_block_boundary" edge="1">
+        <mxCell id="t_write_nextblock" value="1: _isInBlock(blkOffset + BLOCK_SIZE, addr)&lt;br&gt;/* Starting next block */&lt;br&gt;/&lt;br&gt;blkOffset += BLOCK_SIZE" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_write_nextblock" target="dp_block_boundary" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Write: Check 2 - current block -->
-        <mxCell id="t_write_curblock" value="2: _isInBlock(blkOffset, addr)&lt;br&gt;/* Add data to current block */&lt;br&gt;/&lt;br&gt;buffer[(addr - blkOffset)/4] = data" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_write_nextblock" target="dp_write_curblock" edge="1">
+        <mxCell id="t_write_curblock" value="2: _isInBlock(blkOffset, addr)&lt;br&gt;/* Add data to current block */&lt;br&gt;/&lt;br&gt;buffer[(addr - blkOffset)/4] = data" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_write_nextblock" target="dp_write_curblock" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Current block back to RECEIVE -->
-        <mxCell id="t_curblock_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_write_curblock" target="hs_receive" edge="1">
+        <mxCell id="t_curblock_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_write_curblock" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Write: else - data invalid -->
-        <mxCell id="t_write_invalid" value="else&lt;br&gt;/* Data does not belong&lt;br&gt;to the current block or&lt;br&gt;to the next block */" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_write_nextblock" target="dp_data_invalid" edge="1">
+        <mxCell id="t_write_invalid" value="else&lt;br&gt;/* Data does not belong&lt;br&gt;to the current block or&lt;br&gt;to the next block */" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_write_nextblock" target="dp_data_invalid" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Data invalid to FAULT -->
-        <mxCell id="t_invalid_fault" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_data_invalid" target="hs_fault" edge="1">
+        <mxCell id="t_invalid_fault" value="/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_data_invalid" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Block boundary: first block check -->
-        <mxCell id="t_boundary_first" value="blkOffset == BLOCK_SIZE&lt;br&gt;/* Block just finished was first block */&lt;br&gt;/&lt;br&gt;blrd_receiverStart(...block)" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_block_boundary" target="dp_blkoffset" edge="1">
+        <mxCell id="t_boundary_first" value="blkOffset == BLOCK_SIZE&lt;br&gt;/* Block just finished was first block */&lt;br&gt;/&lt;br&gt;blrd_receiverStart(...block)" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_block_boundary" target="dp_blkoffset" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Block boundary: not first -->
-        <mxCell id="t_boundary_notfirst" value="else&lt;br&gt;/* Block just finished was not the first */&lt;br&gt;/&lt;br&gt;blrd_receiverSave(block)" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_block_boundary" target="dp_join_receive" edge="1">
+        <mxCell id="t_boundary_notfirst" value="else&lt;br&gt;/* Block just finished was not the first */&lt;br&gt;/&lt;br&gt;blrd_receiverSave(block)" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_block_boundary" target="dp_join_receive" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- First block join back -->
-        <mxCell id="t_first_join" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_blkoffset" target="dp_join_receive" edge="1">
+        <mxCell id="t_first_join" value="/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_blkoffset" target="dp_join_receive" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Join point back to RECEIVE -->
-        <mxCell id="t_join_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_join_receive" target="hs_receive" edge="1">
+        <mxCell id="t_join_receive" value="/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_join_receive" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="500" y="650" />
@@ -305,7 +305,7 @@
         </mxCell>
 
         <!-- FAULT: ELEM_READ_REQ -->
-        <mxCell id="t_fault_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* Let the C&amp;DH time out waiting&lt;br&gt;for read response */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_fault" target="hs_fault" edge="1">
+        <mxCell id="t_fault_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* Let the C&amp;DH time out waiting&lt;br&gt;for read response */" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_fault" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="150" y="630" />
@@ -314,7 +314,7 @@
         </mxCell>
 
         <!-- FAULT: ELEM_WRITE_REQ ignored -->
-        <mxCell id="t_fault_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* ignored */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_fault" target="hs_fault" edge="1">
+        <mxCell id="t_fault_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* ignored */" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_fault" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="350" y="630" />
@@ -323,12 +323,12 @@
         </mxCell>
 
         <!-- FAULT: Poll -->
-        <mxCell id="t_fault_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_fault" target="dp_fault_poll" edge="1">
+        <mxCell id="t_fault_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_fault" target="dp_fault_poll" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- FAULT poll else back to fault -->
-        <mxCell id="t_faultpoll_fault" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_fault_poll" target="hs_fault" edge="1">
+        <mxCell id="t_faultpoll_fault" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_fault_poll" target="hs_fault" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="150" y="450" />
@@ -337,12 +337,12 @@
         </mxCell>
 
         <!-- STALL: Poll -->
-        <mxCell id="t_stall_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_stall" target="dp_stall_poll" edge="1">
+        <mxCell id="t_stall_poll" value="&lt;b&gt;&lt;font color='#009900'&gt;&lt;u&gt;_poll&lt;/u&gt;()&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_stall" target="dp_stall_poll" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- STALL poll to RECEIVE -->
-        <mxCell id="t_stallpoll_receive" value="rxStatus == _CONTINUE&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_stall_poll" target="hs_receive" edge="1">
+        <mxCell id="t_stallpoll_receive" value="rxStatus == _CONTINUE&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_stall_poll" target="hs_receive" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="600" y="280" />
@@ -351,7 +351,7 @@
         </mxCell>
 
         <!-- STALL poll else back to stall -->
-        <mxCell id="t_stallpoll_stall" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="dp_stall_poll" target="hs_stall" edge="1">
+        <mxCell id="t_stallpoll_stall" value="else&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="dp_stall_poll" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="750" y="200" />
@@ -360,7 +360,7 @@
         </mxCell>
 
         <!-- STALL: ELEM_READ_REQ -->
-        <mxCell id="t_stall_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* response suppressed&lt;br&gt;to suggest block has failed */" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_stall" target="hs_stall" edge="1">
+        <mxCell id="t_stall_read" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_READ_REQ&lt;/u&gt;(addr)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/* response suppressed&lt;br&gt;to suggest block has failed */" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_stall" target="hs_stall" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1000" y="150" />
@@ -369,7 +369,7 @@
         </mxCell>
 
         <!-- STALL: ELEM_WRITE_REQ -->
-        <mxCell id="t_stall_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="1" source="hs_stall" target="dp_write_curblock" edge="1">
+        <mxCell id="t_stall_write" value="&lt;b&gt;&lt;font color='#0000CC'&gt;&lt;u&gt;ELEM_WRITE_REQ&lt;/u&gt;(addr, data)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;/" style="curved=1;endArrow=classic;html=1" parent="hs_outer" source="hs_stall" target="dp_write_curblock" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
