@@ -43,3 +43,10 @@
 ### 2026-01-03 11:30 - buk-infrastructure-for-jjk - WRAP
 **Outcome**: Renamed workbench to arcanum, created BUK-style workbench/launcher, renamed tabtargets to jja-*
 ---
+### 2026-01-03 11:35 - jju-skeleton-construction - APPROACH
+**Proposed approach**:
+- Create `Tools/jjk/jju_utility.sh` with 14 function stubs using buc_doc_* pattern
+- Add `jj-*` command routing in `jjw_workbench.sh` that sources jju_utility.sh
+- Create `tt/jjk-h.Help.sh` tabtarget for doc mode
+- Verify skeleton compiles and doc mode works
+---
