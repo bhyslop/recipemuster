@@ -33,3 +33,10 @@
 ### 2026-01-03 11:10 - foundation-design-decisions - WRAP
 **Outcome**: Added worktree guards, wrap flow, trophy spec, emplacement policy to paddock
 ---
+### 2026-01-03 11:20 - buk-infrastructure-for-jjk - APPROACH
+**Proposed approach**:
+- Rename `Tools/jjk/jjw_workbench.sh` → `Tools/jjk/jja_arcanum.sh` (preserve install/uninstall/check)
+- Create new BUK-style `Tools/jjk/jjw_workbench.sh` with `jjw_route()` case routing
+- Create `.buk/launcher.jjw_workbench.sh` following buw launcher pattern
+- Create `tt/jja-i.Install.sh` and `tt/jja-c.Check.sh` tabtargets (arcanum prefix)
+---
