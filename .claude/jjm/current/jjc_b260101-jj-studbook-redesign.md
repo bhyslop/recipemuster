@@ -40,3 +40,6 @@
 - Create `.buk/launcher.jjw_workbench.sh` following buw launcher pattern
 - Create `tt/jja-i.Install.sh` and `tt/jja-c.Check.sh` tabtargets (arcanum prefix)
 ---
+### 2026-01-03 11:30 - buk-infrastructure-for-jjk - WRAP
+**Outcome**: Renamed workbench to arcanum, created BUK-style workbench/launcher, renamed tabtargets to jja-*
+---

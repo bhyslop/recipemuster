@@ -374,10 +374,9 @@ Decision: **Append-only**
 ## Done
 
 - **Foundation design decisions** — Added worktree guards, wrap flow, trophy spec, emplacement policy to paddock
+- **BUK infrastructure for JJK** — Renamed workbench to arcanum, created BUK-style workbench/launcher, renamed tabtargets to jja-*
 
 ## Remaining
-
-- **BUK infrastructure for JJK** — Rename current `jjw_workbench.sh` to `jja_arcanum.sh`. Create new BUK-style `jjw_workbench.sh` with case routing. Create `.buk/launcher.jjw_workbench.sh`. Create initial tabtargets as commands are implemented.
 
 - **jju-skeleton-construction** — Create `Tools/jjk/jju_utility.sh` with all function stubs using `buc_doc_*` introspection and `buc_trace` step outlines. Functions: `jju_favor_encode`, `jju_favor_decode`, `jju_muster`, `jju_saddle`, `jju_nominate`, `jju_slate`, `jju_reslate`, `jju_rail`, `jju_tally`, `jju_wrap`, `jju_retire_extract`, `jju_chalk`, `jju_rein`, `jju_notch`. Each function ends with `buc_die "not implemented yet"`. Add routing in `jjw_workbench.sh` for each command. Create `tt/jjk-h.Help.sh` tabtarget that runs all functions in doc mode. Depends on: BUK infrastructure for JJK.
 
