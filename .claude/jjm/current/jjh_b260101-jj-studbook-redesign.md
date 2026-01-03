@@ -304,13 +304,78 @@ The `saddled` field persists across sessions in the studbook.
 - Scripts abstract all git complexity from Claude
 - Backward compatible migration path from current heat files
 
+### Foundation Design Decisions
+
+**Dirty-Worktree Guards Policy**
+
+| Command | Policy | Push | Rationale |
+|---------|--------|------|-----------|
+| muster | any | — | read-only |
+| saddle | any | — | read-only |
+| rein | any | — | read-only |
+| slate | any | — | JSON-only |
+| reslate | any | — | JSON-only |
+| rail | any | — | JSON-only |
+| tally | any | — | JSON-only |
+| nominate | any | — | JSON + markdown only |
+| chalk | any | — | empty commit (background OK) |
+| notch | dirty expected | required (sync) | commits + pushes; won't lose work |
+| wrap | clean required | required (sync) | checkpoint; must verify success |
+| retire | clean required | required (sync) | archival must be safe |
+
+**Wrap Advancement Flow**
+
+Sequence: guard → push → tally → chalk → advance → display
+1. **Guard** - Dirty worktree? → fail with "Uncommitted changes. Run jj-notch first."
+2. **Push** - `git push` (synchronous); fail on error
+3. **Tally** - Set current pace status to "complete" in studbook
+4. **Chalk** - Write `[₣Favor] WRAP: [pace display]` as empty commit (background OK)
+5. **Advance** - Find next pending pace; update `saddled` (or flag heat completable)
+6. **Display** - Output wrapped pace + next pace (or "heat complete - ready to retire")
+
+Studbook mutations:
+- `heats[HH].paces[PPP].status` → `"complete"`
+- `saddled` → next pending pace Favor (or unchanged if none)
+
+**Trophy Extraction Spec**
+
+File: `jjy_HH_YYMMDD-YYMMDD_silks.md`
+
+Structure:
+```markdown
+# Trophy: [Heat Display Name]
+
+**Favor**: ₣HH
+**Silks**: [silks]
+**Duration**: YYMMDD - YYMMDD
+**Paces**: N completed, M abandoned, P total
+
+## Paddock
+[Full paddock contents from jjp_HH.md]
+
+## Paces
+| Favor | Status | Display |
+|-------|--------|---------|
+| ₣HH001 | complete | First pace |
+
+## Steeplechase
+[Extracted from git log --grep="₣HH"]
+```
+
+Content sources: studbook (header, paces), paddock file, git log
+
+**Pace Emplacement API**
+
+Decision: **Append-only**
+- `jj-slate "Display"` appends to pace array, auto-assigns next ID
+- Use `jj-rail 001 003 002` to reorder if needed
+- Simpler than positional insertion; covers all use cases
+
 ## Done
 
-(none yet)
+- **Foundation design decisions** — Added worktree guards, wrap flow, trophy spec, emplacement policy to paddock
 
 ## Remaining
-
-- **Foundation design decisions** — Consolidate design work: (1) dirty-worktree guards policy per command, (2) wrap advancement flow, (3) trophy extraction spec, (4) pace emplacement API decision. Document in paddock before implementation.
 
 - **BUK infrastructure for JJK** — Rename current `jjw_workbench.sh` to `jja_arcanum.sh`. Create new BUK-style `jjw_workbench.sh` with case routing. Create `.buk/launcher.jjw_workbench.sh`. Create initial tabtargets as commands are implemented.
 

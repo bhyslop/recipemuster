@@ -8,3 +8,28 @@
 - Trophy extraction spec: Define file structure and content sources
 - Pace emplacement API: Decide append-only vs positional insertion
 ---
+### 2026-01-03 10:30 - foundation-design-decisions - APPROACH
+**Proposed approach**:
+- Complete dirty-worktree guards policy table for each command (which require clean vs allow dirty)
+- Specify wrap advancement sequence: tally→chalk→advance→display with exact studbook mutations
+- Define trophy file structure with content sources (studbook extract, paddock, git history)
+- Decide pace emplacement: append-only (simpler) vs positional insertion (more flexible)
+- Document all decisions in paddock before moving to BUK infrastructure pace
+---
+### 2026-01-03 10:45 - foundation-design-decisions - DONE
+**Decisions documented**:
+- Dirty-worktree guards: most commands allow any; notch expects dirty; retire requires clean
+- Wrap flow: tally→chalk→advance→display with studbook mutations specified
+- Trophy: `jjy_HH_YYMMDD-YYMMDD_silks.md` with paddock, paces table, steeplechase
+- Emplacement: append-only (use rail for reordering)
+---
+### 2026-01-03 11:00 - foundation-design-decisions - REFINEMENT
+**Push requirements added** (don't lose work):
+- notch: commits + pushes (synchronous)
+- wrap: requires clean worktree + push before marking complete (synchronous)
+- retire: requires clean + pushed (synchronous)
+- chalk: empty commit only, background OK (no push needed)
+---
+### 2026-01-03 11:10 - foundation-design-decisions - WRAP
+**Outcome**: Added worktree guards, wrap flow, trophy spec, emplacement policy to paddock
+---
