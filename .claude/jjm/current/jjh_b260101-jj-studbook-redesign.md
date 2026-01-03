@@ -400,6 +400,8 @@ Decision: **Append-only**
 
 - **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
 
+- **Remove pace-wrap approval prompt** — Edit `.claude/commands/jja-pace-wrap.md` step 4 to proceed directly from summary generation to heat file update, eliminating the "Show proposed summary and ask for approval" confirmation.
+
 - **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 
 - **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.

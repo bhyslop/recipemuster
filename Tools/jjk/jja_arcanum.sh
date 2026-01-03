@@ -16,12 +16,12 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# JJW Workbench - Job Jockey installation and management
+# JJA Arcanum - Job Jockey installation and management
 #
 # Commands:
-#   jjk-c  Check installation status and ledger
-#   jjk-i  Install Job Jockey
-#   jjk-u  Uninstall Job Jockey (preserves .claude/jjm/ state)
+#   jja-c  Check installation status and ledger
+#   jja-i  Install Job Jockey
+#   jja-u  Uninstall Job Jockey (preserves .claude/jjm/ state)
 
 set -euo pipefail
 
@@ -40,10 +40,10 @@ ZJJW_KIT_PATH="${ZJJW_KIT_PATH:-Tools/jjk/README.md}"
 ######################################################################
 # Internal Helpers
 
-# Returns 12-char hash of source files (workbench + README)
+# Returns 12-char hash of source files (arcanum + README)
 zjjw_compute_source_hash() {
   local z_full
-  z_full=$(cat "${ZJJW_SCRIPT_DIR}/jjw_workbench.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
+  z_full=$(cat "${ZJJW_SCRIPT_DIR}/jja_arcanum.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
   echo "${z_full:0:12}"
 }
 
@@ -742,10 +742,10 @@ jjw_route() {
   shift || true
 
   case "${z_command}" in
-    jjk-c) jjw_check ;;
-    jjk-i) jjw_install ;;
-    jjk-u) jjw_uninstall ;;
-    *)     buc_die "Unknown command: ${z_command}\nAvailable: jjk-c (check), jjk-i (install), jjk-u (uninstall)" ;;
+    jja-c) jjw_check ;;
+    jja-i) jjw_install ;;
+    jja-u) jjw_uninstall ;;
+    *)     buc_die "Unknown command: ${z_command}\nAvailable: jja-c (check), jja-i (install), jja-u (uninstall)" ;;
   esac
 }
 
