@@ -314,6 +314,10 @@ The `saddled` field persists across sessions in the studbook.
 
 - **BUK infrastructure for JJK** — Rename current `jjw_workbench.sh` to `jja_arcanum.sh`. Create new BUK-style `jjw_workbench.sh` with case routing. Create `.buk/launcher.jjw_workbench.sh`. Create initial tabtargets as commands are implemented.
 
+- **jju-skeleton-construction** — Create `Tools/jjk/jju_utility.sh` with all function stubs using `buc_doc_*` introspection and `buc_trace` step outlines. Functions: `jju_favor_encode`, `jju_favor_decode`, `jju_muster`, `jju_saddle`, `jju_nominate`, `jju_slate`, `jju_reslate`, `jju_rail`, `jju_tally`, `jju_wrap`, `jju_retire_extract`, `jju_chalk`, `jju_rein`, `jju_notch`. Each function ends with `buc_die "not implemented yet"`. Add routing in `jjw_workbench.sh` for each command. Create `tt/jjk-h.Help.sh` tabtarget that runs all functions in doc mode. Depends on: BUK infrastructure for JJK.
+
+- **paddock-dedup** — Strip redundant prose from paddock now that `jju_utility.sh` documents the API. Remove or condense: Script API table, Saddle Output Format section, detailed step sequences. Keep: Core Concepts, Vocabulary, Constraints, design rationale. The skeleton is now the authoritative spec. Simplify subsequent implementation pace descriptions.
+
 - **Implement jju_favor.sh** — Favor encoding/decoding utilities. Base64-ish math, validation, heat/pace extraction. Everything depends on this.
 
 - **Implement jju_studbook.sh** — Studbook operations sourced by workbench: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Create initial `jjs_studbook.json` schema.
