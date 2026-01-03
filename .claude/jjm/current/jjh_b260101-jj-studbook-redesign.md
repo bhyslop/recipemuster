@@ -375,10 +375,9 @@ Decision: **Append-only**
 
 - **Foundation design decisions** — Added worktree guards, wrap flow, trophy spec, emplacement policy to paddock
 - **BUK infrastructure for JJK** — Renamed workbench to arcanum, created BUK-style workbench/launcher, renamed tabtargets to jja-*
+- **jju-skeleton-construction** — Created BCG-compliant jju_utility.sh with 14 stubs, jju_cli.sh, routing in workbench, help tabtarget
 
 ## Remaining
-
-- **jju-skeleton-construction** — Create `Tools/jjk/jju_utility.sh` with all function stubs using `buc_doc_*` introspection and `buc_trace` step outlines. Functions: `jju_favor_encode`, `jju_favor_decode`, `jju_muster`, `jju_saddle`, `jju_nominate`, `jju_slate`, `jju_reslate`, `jju_rail`, `jju_tally`, `jju_wrap`, `jju_retire_extract`, `jju_chalk`, `jju_rein`, `jju_notch`. Each function ends with `buc_die "not implemented yet"`. Add routing in `jjw_workbench.sh` for each command. Create `tt/jjk-h.Help.sh` tabtarget that runs all functions in doc mode. Depends on: BUK infrastructure for JJK.
 
 - **paddock-dedup** — Strip redundant prose from paddock now that `jju_utility.sh` documents the API. Remove or condense: Script API table, Saddle Output Format section, detailed step sequences. Keep: Core Concepts, Vocabulary, Constraints, design rationale. The skeleton is now the authoritative spec. Simplify subsequent implementation pace descriptions.
 
