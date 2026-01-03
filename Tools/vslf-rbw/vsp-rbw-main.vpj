@@ -30,12 +30,12 @@
     </Config>
 
     <Files AutoFolders="PackageView">
-        <Folder Name="../../brm_recipebottle">
-            <F N="../../brm_recipebottle/*.sh" Recurse="1" Excludes="tt/*;.buk/*"/>
-            <F N="../../brm_recipebottle/*.mk" Recurse="1" Excludes=""/>
+        <Folder Name="../../__VSLW_PROJECT_DIR__">
+            <F N="../../__VSLW_PROJECT_DIR__/*.sh" Recurse="1" Excludes="tt/*;.buk/*"/>
+            <F N="../../__VSLW_PROJECT_DIR__/*.mk" Recurse="1" Excludes=""/>
         </Folder>
-        <Folder Name="../../brm_recipebottle/RBM-recipes">
-            <F N="../../brm_recipebottle/RBM-recipes/*.recipe" Recurse="1" Excludes=""/>
+        <Folder Name="../../__VSLW_PROJECT_DIR__/RBM-recipes">
+            <F N="../../__VSLW_PROJECT_DIR__/RBM-recipes/*.recipe" Recurse="1" Excludes=""/>
         </Folder>
     </Files>
 

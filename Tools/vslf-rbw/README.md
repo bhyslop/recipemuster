@@ -1,6 +1,9 @@
 # VSLF-RBW - SlickEdit Project Files for Recipe Bottle Workbench
 
-Repo-specific SlickEdit project and workspace templates for brm_recipebottle.
+Repo-specific SlickEdit project and workspace templates.
+
+Templates use `__VSLW_PROJECT_DIR__` placeholder which is replaced with the
+actual project directory name during installation.
 
 ## Relationship to VSLK
 
@@ -30,4 +33,6 @@ The launcher sets `VSLW_TEMPLATE_DIR="Tools/vslf-rbw"` to connect them.
 
 ## Installation
 
-Run `tt/vslk-i.InstallSlickEditProject.sh` to copy these files to `../_vs/brm_recipebottle/`.
+Run `tt/vslk-i.InstallSlickEditProject.sh` to copy these files to `../_vs/<project-dir>/`.
+
+The installer substitutes `__VSLW_PROJECT_DIR__` with the actual directory name.

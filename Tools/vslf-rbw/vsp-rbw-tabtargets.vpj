@@ -18,8 +18,8 @@
     </Config>
 
     <Files AutoFolders="PackageView">
-        <Folder Name="../../brm_recipebottle/tt">
-            <F N="../../brm_recipebottle/tt/*.sh" Recurse="0" Excludes=""/>
+        <Folder Name="../../__VSLW_PROJECT_DIR__/tt">
+            <F N="../../__VSLW_PROJECT_DIR__/tt/*.sh" Recurse="0" Excludes=""/>
         </Folder>
     </Files>
 

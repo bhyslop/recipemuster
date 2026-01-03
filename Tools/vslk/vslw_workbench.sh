@@ -99,6 +99,15 @@ vslw_route() {
       buc_step "Copying SlickEdit project templates"
       cp "${z_template_dir}"/* "${z_dest_dir}/" || buc_die "Failed to copy templates"
 
+      # Step 4: Substitute project directory placeholder in .vpj files
+      buc_step "Substituting project directory placeholder"
+      local z_vpj_file
+      for z_vpj_file in "${z_dest_dir}"/*.vpj; do
+        test -f "${z_vpj_file}" || continue
+        sed -i '' "s/__VSLW_PROJECT_DIR__/${VSLW_PROJECT_BASE_NAME}/g" "${z_vpj_file}" \
+          || buc_die "Failed to substitute placeholder in ${z_vpj_file}"
+      done
+
       # Report success
       local z_file_count
       z_file_count=$(ls -1 "${z_dest_dir}" | wc -l | tr -d ' ')
