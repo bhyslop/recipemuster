@@ -79,3 +79,6 @@
 ### 2026-01-04 09:15 - implement-favor-encoding - WRAP
 **Outcome**: Added zjju_favor_encode/decode with charset helpers, jjt_testbench.sh with test suite, launcher and tabtarget
 ---
+### 2026-01-04 09:20 - studbook-schema-design - WRAP
+**Outcome**: Added BCG-compliant schema validation gate, read/write functions, empty studbook, 9 test cases
+---

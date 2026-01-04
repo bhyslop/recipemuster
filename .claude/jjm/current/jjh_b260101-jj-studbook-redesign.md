@@ -307,10 +307,9 @@ Decision: **Append-only**
 - **paddock-dedup** — Condensed paddock 444→363 lines, removed redundant API docs, kept design rationale
 - **jjc-interface-design** — Resolved skill/command distinction (jjl_ future), fixed jjk prefix collision, confirmed emitter-per-command pattern, synced arcanum jjz_scar
 - **Implement favor encoding in jju_utility.sh** — Added zjju_favor_encode/decode with charset helpers, jjt_testbench.sh with test suite, launcher and tabtarget
+- **studbook-schema-design** — Added BCG-compliant schema validation gate, read/write functions, empty studbook, 9 test cases
 
 ## Remaining
-
-- **studbook-schema-design** — Design jjs_studbook.json schema. Define: heat object structure, pace array format, status field values, saddled pointer, next_heat_seed allocation. Create initial empty studbook with one test heat (using real Favors from encoding). Validate with jq.
 
 - **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Assumes schema from prior pace. BCG compliant.
 
