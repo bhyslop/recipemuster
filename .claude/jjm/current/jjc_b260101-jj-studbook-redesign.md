@@ -56,3 +56,22 @@
 ### 2026-01-04 07:54 - paddock-dedup - WRAP
 **Outcome**: Condensed paddock 444→363 lines, removed redundant API docs, kept design rationale
 ---
+### 2026-01-04 08:15 - jjc-interface-design - APPROACH
+**Proposed approach**:
+- Pattern: Slash commands invoke tabtargets → launcher → workbench → jju_utility functions
+- Hybrid model: Commands trigger bash scripts for data, Claude interprets output for prose
+- Output convention: jju_* functions emit structured data (JSON or tab-delimited), Claude formats for user
+- Blocking by default (saddle, wrap, retire need results); background option for notch
+- Document mapping table: jjc_* → tt/jjk-*.sh → jju_* function
+---
+### 2026-01-04 08:45 - jjc-interface-design - WRAP
+**Outcome**: Resolved skill/command distinction (jjl_ future), fixed jjk prefix collision, confirmed emitter-per-command pattern, synced arcanum jjz_scar
+---
+### 2026-01-04 08:50 - implement-favor-encoding - APPROACH
+**Proposed approach**:
+- Define URL-safe base64 character set (A-Za-z0-9-_) as lookup table
+- Implement jju_favor_encode: heat (0-4095) + pace (0-262143) → 5-char string
+- Implement jju_favor_decode: 5-char string → heat + pace numbers
+- Add validation (range checks, character validation)
+- Test with known values to verify round-trip
+---

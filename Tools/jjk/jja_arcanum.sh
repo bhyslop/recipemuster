@@ -535,7 +535,7 @@ zjjw_emit_claudemd_section() {
     echo "- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Location: \`current/\` (active) or \`retired/\` (done)."
     echo "- **Pace**: Discrete action within a heat; can be armed for autonomous execution via \`/jjc-pace-arm\`"
     echo "- **Itch**: Future work (any detail level), lives in jji_itch.md"
-    echo "- **Scar**: Closed work with lessons learned, lives in jjs_scar.md"
+    echo "- **Scar**: Closed work with lessons learned, lives in jjz_scar.md"
     echo ""
     echo "- Target repo dir: \`${ZJJW_TARGET_DIR}\`"
     echo "- JJ Kit path: \`${ZJJW_KIT_PATH}\`"
@@ -594,7 +594,7 @@ jjw_install() {
   mkdir -p ".claude/jjm/current"
   mkdir -p ".claude/jjm/retired"
   test -f ".claude/jjm/jji_itch.md" || echo "# Itches" > ".claude/jjm/jji_itch.md"
-  test -f ".claude/jjm/jjs_scar.md" || echo "# Scars" > ".claude/jjm/jjs_scar.md"
+  test -f ".claude/jjm/jjz_scar.md" || echo "# Scars" > ".claude/jjm/jjz_scar.md"
 
   buc_step "Emitting command files"
   zjjw_emit_heat_saddle   > ".claude/commands/jjc-heat-saddle.md"
