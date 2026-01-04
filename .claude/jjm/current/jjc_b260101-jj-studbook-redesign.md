@@ -92,3 +92,6 @@
 - BCG compliant: temp files, exit status checks, no command substitution
 - Add test cases to jjt_testbench.sh as we go
 ---
+### 2026-01-04 09:49 - implement-studbook-operations - WRAP
+**Outcome**: Added 7 studbook ops (nominate, slate, tally, muster, reslate, rail, retire_extract), test suite with 17 cases
+---

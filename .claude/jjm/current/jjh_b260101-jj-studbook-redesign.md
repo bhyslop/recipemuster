@@ -327,10 +327,9 @@ Decision: **Append-only**
 - **jjc-interface-design** — Resolved skill/command distinction (jjl_ future), fixed jjk prefix collision, confirmed emitter-per-command pattern, synced arcanum jjz_scar
 - **Implement favor encoding in jju_utility.sh** — Added zjju_favor_encode/decode with charset helpers, jjt_testbench.sh with test suite, launcher and tabtarget
 - **studbook-schema-design** — Added BCG-compliant schema validation gate, read/write functions, empty studbook, 9 test cases
+- **implement-studbook-operations** — Added 7 studbook ops (nominate, slate, tally, muster, reslate, rail, retire_extract), test suite with 17 cases
 
 ## Remaining
-
-- **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). BCG compliant: temp files for jq transforms, exit status checks, no command substitution. Add test cases to jjt_testbench.sh (valid mutations, boundary cases, error conditions). Create tt/jjt-o.TestStudbookOps.sh tabtarget.
 
 - **Remove saddled from studbook schema** — Current heat/pace context lives in chat, not disk. Changes: (1) Remove `saddled` field from schema, (2) Update `zjju_studbook_validate` to remove saddled checks, (3) Update `jjs_studbook.json` to remove saddled, (4) Update test cases to remove saddled from valid JSON and remove bad-saddled test, (5) Update paddock schema example and Fresh Session Handling section, (6) Note that `/jjc-heat-saddle` outputs context for Claude to hold.
 
