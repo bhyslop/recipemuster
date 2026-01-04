@@ -330,12 +330,10 @@ Decision: **Append-only**
 - **studbook-schema-design** — Added BCG-compliant schema validation gate, read/write functions, empty studbook, 9 test cases
 - **implement-studbook-operations** — Added 7 studbook ops (nominate, slate, tally, muster, reslate, rail, retire_extract), test suite with 17 cases
 - **implement-steeplechase-operations** — Added jju_chalk/rein/notch functions, test suite with 7 cases, tabtarget
+- **Remove saddled from studbook schema** — Removed saddled field from schema, validation, tests; context lives in chat
+- **Implement /jjc-heat-saddle** — jju_saddle(), tabtarget, workbench routing with auto-select logic, arcanum emitter update
 
 ## Remaining
-
-- **Remove saddled from studbook schema** — Current heat/pace context lives in chat, not disk. Changes: (1) Remove `saddled` field from schema, (2) Update `zjju_studbook_validate` to remove saddled checks, (3) Update `jjs_studbook.json` to remove saddled, (4) Update test cases to remove saddled from valid JSON and remove bad-saddled test, (5) Update paddock schema example and Fresh Session Handling section, (6) Note that `/jjc-heat-saddle` outputs context for Claude to hold.
-
-- **Implement /jjc-heat-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
 
 - **Implement /jjc-pace-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, output next pace for Claude to hold in chat.
 
@@ -380,5 +378,9 @@ Decision: **Append-only**
 - Full vocabulary: muster, saddle, chalk, rein, slate, rail, tally, wrap, retire, notch
 
 **This heat executes under current JJK** while building its replacement.
+
+---
+### 2026-01-04 10:35 - implement-jjc-heat-saddle - WRAP
+**Outcome**: jju_saddle(), tabtarget, workbench routing with auto-select logic, arcanum emitter update
 
 ---
