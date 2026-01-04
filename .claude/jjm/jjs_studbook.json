@@ -1,5 +1,36 @@
 {
-  "heats": {},
-  "next_heat_seed": "AA",
+  "heats": {
+    "₣AA": {
+      "datestamp": "202601",
+      "display": "Test Heat One",
+      "paces": [
+        {
+          "display": "Third pace",
+          "id": "003",
+          "status": "pending"
+        },
+        {
+          "display": "First pace",
+          "id": "001",
+          "status": "complete"
+        },
+        {
+          "display": "Second pace (revised)",
+          "id": "002",
+          "status": "pending"
+        }
+      ],
+      "silks": "test-heat-one",
+      "status": "current"
+    },
+    "₣AB": {
+      "datestamp": "202601",
+      "display": "Test Heat Two",
+      "paces": [],
+      "silks": "test-heat-two",
+      "status": "current"
+    }
+  },
+  "next_heat_seed": "AC",
   "saddled": ""
 }

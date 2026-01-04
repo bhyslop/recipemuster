@@ -52,6 +52,46 @@ jjt_studbook_validate() {
   zjju_studbook_validate "$@"
 }
 
+jjt_heat_seed_next() {
+  zjju_heat_seed_next "$@"
+}
+
+jjt_nominate() {
+  jju_nominate "$@"
+}
+
+jjt_slate() {
+  jju_slate "$@"
+}
+
+jjt_tally() {
+  jju_tally "$@"
+}
+
+jjt_muster() {
+  jju_muster "$@"
+}
+
+jjt_reslate() {
+  jju_reslate "$@"
+}
+
+jjt_rail() {
+  jju_rail "$@"
+}
+
+jjt_retire_extract() {
+  jju_retire_extract "$@"
+}
+
+jjt_studbook_read() {
+  zjju_studbook_read "$@"
+}
+
+jjt_studbook_write() {
+  zjju_studbook_write "$@"
+}
+
 ######################################################################
 # Test Suites
 
@@ -220,6 +260,144 @@ jjt_test_studbook_validation() {
   but_section "=== All studbook validation tests passed ==="
 }
 
+jjt_test_studbook_ops() {
+  but_section "=== Studbook Operations Tests ==="
+
+  # Redirect studbook and paddock to temp directory for test isolation
+  buc_trace "Redirecting studbook paths to BUD_TEMP_DIR"
+  ZJJU_STUDBOOK_FILE="${BUD_TEMP_DIR}/jjs_studbook.json"
+  ZJJU_PADDOCK_DIR="${BUD_TEMP_DIR}"
+
+  # Setup: Create empty studbook
+  but_info "Setup: Creating test studbook"
+  local z_empty='{"heats":{},"saddled":"","next_heat_seed":"AA"}'
+  jjt_studbook_write "${z_empty}"
+
+  # Test 1: Heat seed increment
+  but_info "Test 1: Heat seed increment"
+  but_expect_ok_stdout "AB" jjt_heat_seed_next "AA"
+  but_expect_ok_stdout "AC" jjt_heat_seed_next "AB"
+  but_expect_ok_stdout "BA" jjt_heat_seed_next "A_"
+  but_expect_ok_stdout "Aa" jjt_heat_seed_next "AZ"
+
+  # Test 2: Nominate first heat
+  but_info "Test 2: Nominate first heat"
+  but_expect_ok jjt_nominate "Test Heat One" "test-heat-one"
+
+  # Verify heat was created
+  local z_studbook
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"] != null' >/dev/null 2>&1 \
+    || but_fatal "Heat ₣AA not found after nominate"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].silks == "test-heat-one"' >/dev/null 2>&1 \
+    || but_fatal "Heat silks incorrect"
+  echo "${z_studbook}" | jq -e '.next_heat_seed == "AB"' >/dev/null 2>&1 \
+    || but_fatal "next_heat_seed not incremented"
+
+  # Test 3: Nominate second heat
+  but_info "Test 3: Nominate second heat"
+  but_expect_ok jjt_nominate "Test Heat Two" "test-heat-two"
+
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AB"] != null' >/dev/null 2>&1 \
+    || but_fatal "Heat ₣AB not found"
+  echo "${z_studbook}" | jq -e '.next_heat_seed == "AC"' >/dev/null 2>&1 \
+    || but_fatal "next_heat_seed not incremented to AC"
+
+  # Test 4: Muster (list heats)
+  but_info "Test 4: Muster lists heats"
+  but_expect_ok jjt_muster
+
+  # Test 5: Set saddled heat manually for testing slate
+  but_info "Test 5: Set saddled to ₣AA for pace operations"
+  z_studbook="$(jjt_studbook_read)"
+  z_studbook="$(echo "${z_studbook}" | jq '.saddled = "₣AA"')"
+  jjt_studbook_write "${z_studbook}"
+
+  # Test 6: Slate first pace (should be status "current")
+  but_info "Test 6: Slate first pace"
+  but_expect_ok jjt_slate "First pace"
+
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces | length == 1' >/dev/null 2>&1 \
+    || but_fatal "Pace count should be 1"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].id == "001"' >/dev/null 2>&1 \
+    || but_fatal "First pace ID should be 001"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].status == "current"' >/dev/null 2>&1 \
+    || but_fatal "First pace status should be current"
+
+  # Test 7: Slate second pace (should be status "pending")
+  but_info "Test 7: Slate second pace"
+  but_expect_ok jjt_slate "Second pace"
+
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces | length == 2' >/dev/null 2>&1 \
+    || but_fatal "Pace count should be 2"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[1].status == "pending"' >/dev/null 2>&1 \
+    || but_fatal "Second pace status should be pending"
+
+  # Test 8: Slate third pace
+  but_info "Test 8: Slate third pace"
+  but_expect_ok jjt_slate "Third pace"
+
+  # Test 9: Tally - change pace status
+  but_info "Test 9: Tally - mark pace complete"
+  but_expect_ok jjt_tally "₣AAAAB" "complete"
+
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].status == "complete"' >/dev/null 2>&1 \
+    || but_fatal "Pace 001 should be marked complete"
+
+  # Test 10: Tally - invalid state
+  but_info "Test 10: Tally - invalid state (expect failure)"
+  but_expect_fatal jjt_tally "₣AAAAB" "invalid-state"
+
+  # Test 11: Reslate - change pace description
+  but_info "Test 11: Reslate - revise pace description"
+  but_expect_ok jjt_reslate "₣AAAAC" "Second pace (revised)"
+
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[1].display == "Second pace (revised)"' >/dev/null 2>&1 \
+    || but_fatal "Pace 002 description should be revised"
+
+  # Test 12: Rail - reorder paces
+  but_info "Test 12: Rail - reorder paces (003 001 002)"
+  but_expect_ok jjt_rail "003 001 002"
+
+  z_studbook="$(jjt_studbook_read)"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].id == "003"' >/dev/null 2>&1 \
+    || but_fatal "First pace should be 003 after reordering"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[1].id == "001"' >/dev/null 2>&1 \
+    || but_fatal "Second pace should be 001 after reordering"
+  echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[2].id == "002"' >/dev/null 2>&1 \
+    || but_fatal "Third pace should be 002 after reordering"
+
+  # Test 13: Rail - wrong count (expect failure)
+  but_info "Test 13: Rail - wrong count (expect failure)"
+  but_expect_fatal jjt_rail "001 002"
+
+  # Test 13b: Rail - duplicate ID (expect failure)
+  but_info "Test 13b: Rail - duplicate ID (expect failure)"
+  but_expect_fatal jjt_rail "001 001 002"
+
+  # Test 14: Retire extract
+  but_info "Test 14: Retire extract - generate trophy content"
+  but_expect_ok jjt_retire_extract "₣AA"
+
+  # Test 15: Error cases - no saddled heat
+  but_info "Test 15: Slate with no saddled heat (expect failure)"
+  z_studbook="$(jjt_studbook_read)"
+  z_studbook="$(echo "${z_studbook}" | jq '.saddled = ""')"
+  jjt_studbook_write "${z_studbook}"
+  but_expect_fatal jjt_slate "Should fail"
+
+  # Test 16: Nominate with invalid silks
+  but_info "Test 16: Nominate with invalid silks (expect failure)"
+  but_expect_fatal jjt_nominate "Bad Silks" "Bad_Silks_Here"
+
+  but_section "=== All studbook operations tests passed ==="
+}
+
 ######################################################################
 # Main
 
@@ -234,9 +412,13 @@ case "${z_suite}" in
   studbook)
     jjt_test_studbook_validation
     ;;
+  ops)
+    jjt_test_studbook_ops
+    ;;
   all)
     jjt_test_favor_encoding
     jjt_test_studbook_validation
+    jjt_test_studbook_ops
     ;;
   *)
     echo "JJT Testbench - Job Jockey test execution"
@@ -246,6 +428,7 @@ case "${z_suite}" in
     echo "Test Suites:"
     echo "  favor     Test favor encoding/decoding"
     echo "  studbook  Test studbook validation"
+    echo "  ops       Test studbook operations"
     echo "  all       Run all test suites"
     exit 1
     ;;

@@ -205,9 +205,10 @@ zjju_studbook_validate() {
   local z_json="${1:-}"
   local z_file="${BUD_TEMP_DIR}/studbook_validate.json"
 
+  buc_trace "Validating studbook JSON"
   test -n "${z_json}" || buc_die "Studbook JSON is empty"
 
-  # Write JSON to temp file once (BCG: avoid repeated here-strings)
+  buc_trace "Writing JSON to temp file: ${z_file}"
   printf '%s' "${z_json}" > "${z_file}"
 
   # Step 1: Valid JSON object
@@ -246,8 +247,7 @@ zjju_studbook_validate() {
   jq -e '.next_heat_seed | test("^[A-Za-z0-9_-]{2}$")' "${z_file}" >/dev/null 2>&1 \
     || buc_die "Invalid next_heat_seed format (expected 2 base64 chars)"
 
-  # Cleanup temp file
-  rm -f "${z_file}"
+  buc_trace "Studbook validation passed"
 }
 
 # Internal: Read studbook from disk
@@ -276,12 +276,88 @@ zjju_studbook_write() {
 ######################################################################
 # Studbook Operations
 
+# Internal: Increment heat seed (2 base64 chars)
+# Args: current seed (e.g., "AA")
+# Output: next seed (e.g., "AB")
+zjju_heat_seed_next() {
+  zjju_sentinel
+  local z_seed="${1:-}"
+
+  test -n "${z_seed}" || buc_die "Seed is required"
+  test "${#z_seed}" -eq 2 || buc_die "Seed must be 2 characters: ${z_seed}"
+
+  local z_c1="${z_seed:0:1}"
+  local z_c2="${z_seed:1:1}"
+
+  local z_p1
+  local z_p2
+  z_p1="$(zjju_favor_pos_of "${z_c1}")"
+  z_p2="$(zjju_favor_pos_of "${z_c2}")"
+
+  test "${z_p1}" -ge 0 || buc_die "Invalid character in seed: ${z_c1}"
+  test "${z_p2}" -ge 0 || buc_die "Invalid character in seed: ${z_c2}"
+
+  # Increment (base64 arithmetic)
+  z_p2=$((z_p2 + 1))
+  if test "${z_p2}" -ge 64; then
+    z_p2=0
+    z_p1=$((z_p1 + 1))
+    test "${z_p1}" -lt 64 || buc_die "Heat seed overflow (max 4096 heats)"
+  fi
+
+  local z_nc1
+  local z_nc2
+  z_nc1="$(zjju_favor_char_at "${z_p1}")"
+  z_nc2="$(zjju_favor_char_at "${z_p2}")"
+
+  echo "${z_nc1}${z_nc2}"
+}
+
 jju_muster() {
   zjju_sentinel
   buc_doc_brief "List current heats with Favors and silks"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_muster.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Check if there are any heats
+  local z_heat_count
+  z_heat_count="$(jq -r '.heats | length' "${z_temp}")"
+
+  if test "${z_heat_count}" -eq 0; then
+    echo "No heats in studbook"
+    buc_trace "Muster found no heats, temp file: ${z_temp}"
+    return 0
+  fi
+
+  # Get saddled heat for marking
+  local z_saddled
+  z_saddled="$(jq -r '.saddled' "${z_temp}")"
+
+  # List heats with their details
+  echo "Current heats:"
+  echo ""
+
+  jq -r '.heats | to_entries | .[] |
+    "\(.key)\t\(.value.datestamp)\t\(.value.display)\t\(.value.silks)\t\(.value.paces | length)"' \
+    "${z_temp}" | while IFS=$'\t' read -r z_favor z_date z_display z_silks z_pace_count; do
+
+    # Mark saddled heat
+    local z_mark=""
+    if test "${z_favor}" = "${z_saddled}"; then
+      z_mark="* "
+    else
+      z_mark="  "
+    fi
+
+    # Format output
+    printf "%s%s  %s  [%s]  (%s paces)\n" \
+      "${z_mark}" "${z_favor}" "${z_display}" "${z_silks}" "${z_pace_count}"
+  done
+
+  buc_trace "Muster complete, temp file: ${z_temp}"
 }
 
 jju_saddle() {
@@ -305,7 +381,78 @@ jju_nominate() {
   buc_doc_param "silks" "Kebab-case identifier"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameters
+  test -n "${z_display}" || buc_die "Parameter 'display' is required"
+  test -n "${z_silks}" || buc_die "Parameter 'silks' is required"
+
+  # Validate silks format (kebab-case)
+  echo "${z_silks}" | grep -Eq '^[a-z0-9-]+$' || buc_die "Silks must be kebab-case: ${z_silks}"
+
+  # Read studbook
+  local z_studbook
+  z_studbook="$(zjju_studbook_read)"
+
+  # Get next heat seed
+  local z_seed
+  z_seed="$(jq -r '.next_heat_seed' <<< "${z_studbook}")"
+
+  # Format datestamp (YYMMDD)
+  local z_datestamp
+  z_datestamp="${BUD_NOW_STAMP:0:6}"
+
+  # Create heat entry with Favor prefix
+  local z_heat_key="₣${z_seed}"
+
+  # Build new studbook JSON with new heat
+  local z_temp="${BUD_TEMP_DIR}/studbook_nominate.json"
+  jq --arg key "${z_heat_key}" \
+     --arg datestamp "${z_datestamp}" \
+     --arg display "${z_display}" \
+     --arg silks "${z_silks}" \
+     '.heats[$key] = {
+        "datestamp": $datestamp,
+        "display": $display,
+        "silks": $silks,
+        "status": "current",
+        "paces": []
+      }' <<< "${z_studbook}" > "${z_temp}"
+
+  # Increment next_heat_seed
+  local z_next_seed
+  z_next_seed="$(zjju_heat_seed_next "${z_seed}")"
+
+  jq --arg seed "${z_next_seed}" \
+     '.next_heat_seed = $seed' "${z_temp}" > "${z_temp}.2"
+
+  # Read the final JSON
+  local z_new_studbook
+  z_new_studbook="$(cat "${z_temp}.2")"
+
+  # Write studbook (validates internally)
+  zjju_studbook_write "${z_new_studbook}"
+
+  # Create paddock file stub
+  local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
+  cat > "${z_paddock_file}" <<EOF
+# ${z_display}
+
+## Goal
+
+[Describe the goal of this heat]
+
+## Approach
+
+[Describe the approach]
+
+## Constraints
+
+[List any constraints or guidelines]
+EOF
+
+  buc_trace "Nominated heat ${z_heat_key}, temp files: ${z_temp}, ${z_temp}.2"
+  echo "Heat ${z_heat_key} nominated: ${z_display}"
+  echo "Silks: ${z_silks}"
+  echo "Paddock: ${z_paddock_file}"
 }
 
 jju_slate() {
@@ -316,7 +463,76 @@ jju_slate() {
   buc_doc_param "display" "Human-readable pace name"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameter
+  test -n "${z_display}" || buc_die "Parameter 'display' is required"
+
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_slate.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Get saddled heat and validate it exists
+  local z_saddled
+  z_saddled="$(jq -r '.saddled' "${z_temp}")"
+  test -n "${z_saddled}" || buc_die "No heat saddled"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_saddled}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Saddled heat not found: ${z_saddled}"
+
+  # Get pace count to determine next ID and status
+  local z_pace_count
+  z_pace_count="$(jq -r --arg heat "${z_saddled}" \
+    '.heats[$heat].paces | length' "${z_temp}")"
+
+  # Calculate next pace ID
+  local z_next_id
+  if test "${z_pace_count}" -eq 0; then
+    z_next_id="001"
+  else
+    # Get max ID and increment
+    local z_max_id
+    z_max_id="$(jq -r --arg heat "${z_saddled}" \
+      '.heats[$heat].paces | map(.id | tonumber) | max' "${z_temp}")"
+    local z_next_num=$((z_max_id + 1))
+
+    # Format as 3-digit string
+    if test "${z_next_num}" -lt 10; then
+      z_next_id="00${z_next_num}"
+    elif test "${z_next_num}" -lt 100; then
+      z_next_id="0${z_next_num}"
+    else
+      z_next_id="${z_next_num}"
+    fi
+  fi
+
+  # Determine status (current if first pace, pending otherwise)
+  local z_status
+  if test "${z_pace_count}" -eq 0; then
+    z_status="current"
+  else
+    z_status="pending"
+  fi
+
+  # Add pace to heat
+  jq --arg heat "${z_saddled}" \
+     --arg id "${z_next_id}" \
+     --arg display "${z_display}" \
+     --arg status "${z_status}" \
+     '.heats[$heat].paces += [{
+        "id": $id,
+        "display": $display,
+        "status": $status
+      }]' "${z_temp}" > "${z_temp}.2"
+
+  # Read the new studbook
+  local z_new_studbook
+  z_new_studbook="$(cat "${z_temp}.2")"
+
+  # Write studbook (validates internally)
+  zjju_studbook_write "${z_new_studbook}"
+
+  buc_trace "Slated pace ${z_next_id}, temp files: ${z_temp}, ${z_temp}.2"
+  echo "Pace ${z_saddled}${z_next_id} slated: ${z_display}"
 }
 
 jju_reslate() {
@@ -325,11 +541,71 @@ jju_reslate() {
   local z_display="${2:-}"
 
   buc_doc_brief "Revise pace description"
-  buc_doc_param "favor" "Pace Favor (HHPPP)"
+  buc_doc_param "favor" "Pace Favor (₣HHPPP)"
   buc_doc_param "display" "New description"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameters
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+  test -n "${z_display}" || buc_die "Parameter 'display' is required"
+
+  # Parse favor (₣HHPPP format)
+  test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
+  test "${#z_favor}" -eq 6 || buc_die "Favor must be 6 characters (₣HHPPP): ${z_favor}"
+
+  local z_favor_digits="${z_favor:1}"  # Remove ₣ prefix
+  local z_decoded
+  z_decoded="$(zjju_favor_decode "${z_favor_digits}")"
+
+  local z_heat_num
+  local z_pace_num
+  z_heat_num="$(echo "${z_decoded}" | cut -f1)"
+  z_pace_num="$(echo "${z_decoded}" | cut -f2)"
+
+  # Reconstruct heat favor (₣HH)
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
+
+  # Format pace ID as 3-digit string
+  local z_pace_id
+  if test "${z_pace_num}" -lt 10; then
+    z_pace_id="00${z_pace_num}"
+  elif test "${z_pace_num}" -lt 100; then
+    z_pace_id="0${z_pace_num}"
+  else
+    z_pace_id="${z_pace_num}"
+  fi
+
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_reslate.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
+
+  # Verify pace exists
+  jq -e --arg heat "${z_heat_favor}" --arg id "${z_pace_id}" \
+    '.heats[$heat].paces | any(.id == $id)' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Pace not found: ${z_favor}"
+
+  # Update pace display
+  jq --arg heat "${z_heat_favor}" \
+     --arg id "${z_pace_id}" \
+     --arg display "${z_display}" \
+     '.heats[$heat].paces |= map(
+        if .id == $id then .display = $display else . end
+      )' "${z_temp}" > "${z_temp}.2"
+
+  # Read the new studbook
+  local z_new_studbook
+  z_new_studbook="$(cat "${z_temp}.2")"
+
+  # Write studbook (validates internally)
+  zjju_studbook_write "${z_new_studbook}"
+
+  buc_trace "Reslated pace ${z_favor}, temp files: ${z_temp}, ${z_temp}.2"
+  echo "Pace ${z_favor} reslated: ${z_display}"
 }
 
 jju_rail() {
@@ -340,7 +616,84 @@ jju_rail() {
   buc_doc_param "order" "Space-separated pace IDs in new order (e.g., '001 003 002')"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameter
+  test -n "${z_order}" || buc_die "Parameter 'order' is required"
+
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_rail.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Get saddled heat
+  local z_saddled
+  z_saddled="$(jq -r '.saddled' "${z_temp}")"
+  test -n "${z_saddled}" || buc_die "No heat saddled"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_saddled}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Saddled heat not found: ${z_saddled}"
+
+  # Get current pace count
+  local z_pace_count
+  z_pace_count="$(jq -r --arg heat "${z_saddled}" \
+    '.heats[$heat].paces | length' "${z_temp}")"
+
+  # Count IDs in order list
+  local z_order_count=0
+  for z_id in ${z_order}; do
+    z_order_count=$((z_order_count + 1))
+  done
+
+  # Verify count matches
+  test "${z_order_count}" -eq "${z_pace_count}" \
+    || buc_die "Order list has ${z_order_count} IDs but heat has ${z_pace_count} paces"
+
+  # Build JSON array of IDs for jq, checking for duplicates
+  local z_order_json="["
+  local z_first=1
+  local z_seen_ids=""
+  for z_id in ${z_order}; do
+    buc_trace "Processing pace ID: ${z_id}"
+
+    # Validate ID format (3 digits)
+    echo "${z_id}" | grep -Eq '^[0-9]{3}$' \
+      || buc_die "Invalid pace ID format: ${z_id} (must be 3 digits)"
+
+    # Check for duplicates
+    echo "${z_seen_ids}" | grep -q " ${z_id} " \
+      && buc_die "Duplicate pace ID in order list: ${z_id}"
+    z_seen_ids="${z_seen_ids} ${z_id} "
+
+    # Verify pace exists
+    jq -e --arg heat "${z_saddled}" --arg id "${z_id}" \
+      '.heats[$heat].paces | any(.id == $id)' "${z_temp}" >/dev/null 2>&1 \
+      || buc_die "Pace not found: ${z_id}"
+
+    if test "${z_first}" -eq 1; then
+      z_order_json="${z_order_json}\"${z_id}\""
+      z_first=0
+    else
+      z_order_json="${z_order_json},\"${z_id}\""
+    fi
+  done
+  z_order_json="${z_order_json}]"
+
+  # Reorder paces using jq
+  jq --arg heat "${z_saddled}" \
+     --argjson order "${z_order_json}" \
+     '.heats[$heat].paces = [
+        $order[] as $id |
+        (.heats[$heat].paces[] | select(.id == $id))
+      ]' "${z_temp}" > "${z_temp}.2"
+
+  # Read the new studbook
+  local z_new_studbook
+  z_new_studbook="$(cat "${z_temp}.2")"
+
+  # Write studbook (validates internally)
+  zjju_studbook_write "${z_new_studbook}"
+
+  buc_trace "Railed paces ${z_order}, temp files: ${z_temp}, ${z_temp}.2"
+  echo "Paces railed: ${z_order}"
 }
 
 jju_tally() {
@@ -349,11 +702,80 @@ jju_tally() {
   local z_state="${2:-}"
 
   buc_doc_brief "Set pace state"
-  buc_doc_param "favor" "Pace Favor (HHPPP)"
-  buc_doc_param "state" "New state: pending|complete|abandoned|malformed"
+  buc_doc_param "favor" "Pace Favor (₣HHPPP)"
+  buc_doc_param "state" "New state: current|pending|complete|abandoned|malformed"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameters
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+  test -n "${z_state}" || buc_die "Parameter 'state' is required"
+
+  # Validate state value
+  case "${z_state}" in
+    current|pending|complete|abandoned|malformed)
+      ;;
+    *)
+      buc_die "Invalid state: ${z_state} (must be current|pending|complete|abandoned|malformed)"
+      ;;
+  esac
+
+  # Parse favor (₣HHPPP format)
+  test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
+  test "${#z_favor}" -eq 6 || buc_die "Favor must be 6 characters (₣HHPPP): ${z_favor}"
+
+  local z_favor_digits="${z_favor:1}"  # Remove ₣ prefix
+  local z_decoded
+  z_decoded="$(zjju_favor_decode "${z_favor_digits}")"
+
+  local z_heat_num
+  local z_pace_num
+  z_heat_num="$(echo "${z_decoded}" | cut -f1)"
+  z_pace_num="$(echo "${z_decoded}" | cut -f2)"
+
+  # Reconstruct heat favor (₣HH)
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
+
+  # Format pace ID as 3-digit string
+  local z_pace_id
+  if test "${z_pace_num}" -lt 10; then
+    z_pace_id="00${z_pace_num}"
+  elif test "${z_pace_num}" -lt 100; then
+    z_pace_id="0${z_pace_num}"
+  else
+    z_pace_id="${z_pace_num}"
+  fi
+
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_tally.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
+
+  # Verify pace exists
+  jq -e --arg heat "${z_heat_favor}" --arg id "${z_pace_id}" \
+    '.heats[$heat].paces | any(.id == $id)' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Pace not found: ${z_favor}"
+
+  # Update pace status
+  jq --arg heat "${z_heat_favor}" \
+     --arg id "${z_pace_id}" \
+     --arg state "${z_state}" \
+     '.heats[$heat].paces |= map(
+        if .id == $id then .status = $state else . end
+      )' "${z_temp}" > "${z_temp}.2"
+
+  # Read the new studbook
+  local z_new_studbook
+  z_new_studbook="$(cat "${z_temp}.2")"
+
+  # Write studbook (validates internally)
+  zjju_studbook_write "${z_new_studbook}"
+
+  buc_trace "Tallied pace ${z_favor} to ${z_state}, temp files: ${z_temp}, ${z_temp}.2"
+  echo "Pace ${z_favor} tallied: ${z_state}"
 }
 
 jju_wrap() {
@@ -369,10 +791,90 @@ jju_retire_extract() {
   local z_favor="${1:-}"
 
   buc_doc_brief "Extract heat data for trophy creation"
-  buc_doc_param "favor" "Heat Favor (HH with PPP=000)"
+  buc_doc_param "favor" "Heat Favor (₣HH)"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  # Validate heat favor format
+  test "${z_favor:0:1}" = "₣" || buc_die "Heat favor must start with ₣: ${z_favor}"
+  test "${#z_favor}" -eq 3 || buc_die "Heat favor must be 3 characters (₣HH): ${z_favor}"
+
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_retire.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_favor}"
+
+  # Extract heat metadata
+  local z_datestamp
+  local z_display
+  local z_silks
+  z_datestamp="$(jq -r --arg heat "${z_favor}" '.heats[$heat].datestamp' "${z_temp}")"
+  z_display="$(jq -r --arg heat "${z_favor}" '.heats[$heat].display' "${z_temp}")"
+  z_silks="$(jq -r --arg heat "${z_favor}" '.heats[$heat].silks' "${z_temp}")"
+
+  # Count paces by status
+  local z_total
+  local z_complete
+  local z_pending
+  local z_abandoned
+  z_total="$(jq -r --arg heat "${z_favor}" '.heats[$heat].paces | length' "${z_temp}")"
+  z_complete="$(jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "complete")) | length' "${z_temp}")"
+  z_pending="$(jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "pending")) | length' "${z_temp}")"
+  z_abandoned="$(jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "abandoned")) | length' "${z_temp}")"
+
+  # Get heat seed (without ₣)
+  local z_seed="${z_favor:1}"
+
+  # Read paddock file
+  local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
+  test -f "${z_paddock_file}" || buc_die "Paddock file not found: ${z_paddock_file}"
+
+  # Output trophy markdown
+  echo "# Trophy: ${z_display}"
+  echo ""
+  echo "**Favor**: ${z_favor}"
+  echo "**Silks**: ${z_silks}"
+  echo "**Started**: ${z_datestamp}"
+  echo "**Paces**: ${z_total} total (${z_complete} complete, ${z_pending} pending, ${z_abandoned} abandoned)"
+  echo ""
+  echo "---"
+  echo ""
+  echo "## Paddock"
+  echo ""
+  cat "${z_paddock_file}"
+  echo ""
+  echo "---"
+  echo ""
+  echo "## Paces"
+  echo ""
+
+  # Output paces table
+  jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | .[] |
+     "| \(.id) | \(.display) | \(.status) |"' "${z_temp}" | {
+    echo "| ID | Description | Status |"
+    echo "|---:|:------------|:-------|"
+    cat
+  }
+
+  echo ""
+  echo "---"
+  echo ""
+
+  buc_trace "Retire extract for ${z_favor}, temp file: ${z_temp}"
+
+  echo "## Steeplechase"
+  echo ""
+  echo "(Steeplechase extraction from git log not yet implemented)"
+  echo ""
 }
 
 ######################################################################
