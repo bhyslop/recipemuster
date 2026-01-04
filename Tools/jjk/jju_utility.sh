@@ -57,28 +57,219 @@ zjju_sentinel() {
 # - PPP = pace (3 digits, 0-262143, 000 = heat-only reference)
 # Character set: A-Za-z0-9-_ (64 chars, URL-safe)
 
-jju_favor_encode() {
+# Internal: URL-safe base64 character set (64 chars)
+# Position 0-25: A-Z, 26-51: a-z, 52-61: 0-9, 62: -, 63: _
+zjju_favor_charset() {
+  echo "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+}
+
+# Internal: Get character at position in charset
+zjju_favor_char_at() {
+  local z_pos="${1}"
+  local z_charset
+  z_charset="$(zjju_favor_charset)"
+  echo "${z_charset:${z_pos}:1}"
+}
+
+# Internal: Get position of character in charset (-1 if not found)
+zjju_favor_pos_of() {
+  local z_char="${1}"
+  local z_charset
+  local z_pos=0
+
+  z_charset="$(zjju_favor_charset)"
+
+  while test "${z_pos}" -lt 64; do
+    if test "${z_charset:${z_pos}:1}" = "${z_char}"; then
+      echo "${z_pos}"
+      return 0
+    fi
+    z_pos=$((z_pos + 1))
+  done
+
+  echo "-1"
+}
+
+# Internal: Encode heat+pace into 5-digit Favor
+# Args: heat (0-4095), pace (0-262143)
+# Output: 5-char Favor string (e.g., "KbAAB")
+zjju_favor_encode() {
   zjju_sentinel
   local z_heat="${1:-}"
   local z_pace="${2:-}"
 
-  buc_doc_brief "Encode heat+pace into 5-digit Favor"
-  buc_doc_param "heat" "Heat number (0-4095)"
-  buc_doc_param "pace" "Pace number (0-262143, use 0 for heat-only)"
-  buc_doc_shown || return 0
+  # Validate parameters
+  test -n "${z_heat}" || buc_die "Parameter 'heat' is required"
+  test -n "${z_pace}" || buc_die "Parameter 'pace' is required"
 
-  buc_die "not implemented yet"
+  # Validate numeric
+  test "${z_heat}" -eq "${z_heat}" 2>/dev/null || buc_die "Heat must be numeric: ${z_heat}"
+  test "${z_pace}" -eq "${z_pace}" 2>/dev/null || buc_die "Pace must be numeric: ${z_pace}"
+
+  # Validate ranges
+  test "${z_heat}" -ge 0 || buc_die "Heat must be >= 0: ${z_heat}"
+  test "${z_heat}" -le 4095 || buc_die "Heat must be <= 4095: ${z_heat}"
+  test "${z_pace}" -ge 0 || buc_die "Pace must be >= 0: ${z_pace}"
+  test "${z_pace}" -le 262143 || buc_die "Pace must be <= 262143: ${z_pace}"
+
+  # Encode heat (2 base64 digits)
+  local z_heat_d1
+  local z_heat_d2
+  z_heat_d1=$((z_heat / 64))
+  z_heat_d2=$((z_heat % 64))
+
+  # Encode pace (3 base64 digits)
+  local z_pace_d1
+  local z_pace_d2
+  local z_pace_d3
+  z_pace_d1=$((z_pace / 4096))        # pace / (64*64)
+  z_pace_d2=$(((z_pace / 64) % 64))
+  z_pace_d3=$((z_pace % 64))
+
+  # Convert positions to characters
+  local z_c1
+  local z_c2
+  local z_c3
+  local z_c4
+  local z_c5
+  z_c1="$(zjju_favor_char_at "${z_heat_d1}")"
+  z_c2="$(zjju_favor_char_at "${z_heat_d2}")"
+  z_c3="$(zjju_favor_char_at "${z_pace_d1}")"
+  z_c4="$(zjju_favor_char_at "${z_pace_d2}")"
+  z_c5="$(zjju_favor_char_at "${z_pace_d3}")"
+
+  echo "${z_c1}${z_c2}${z_c3}${z_c4}${z_c5}"
 }
 
-jju_favor_decode() {
+# Internal: Decode Favor into heat and pace numbers
+# Args: favor (5-char string)
+# Output: tab-delimited "heat\tpace"
+zjju_favor_decode() {
   zjju_sentinel
   local z_favor="${1:-}"
 
-  buc_doc_brief "Decode Favor into heat and pace numbers"
-  buc_doc_param "favor" "5-digit Favor string (HHPPP)"
-  buc_doc_shown || return 0
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
 
-  buc_die "not implemented yet"
+  # Validate length
+  test "${#z_favor}" -eq 5 || buc_die "Favor must be exactly 5 characters: ${z_favor}"
+
+  # Extract characters
+  local z_c1="${z_favor:0:1}"
+  local z_c2="${z_favor:1:1}"
+  local z_c3="${z_favor:2:1}"
+  local z_c4="${z_favor:3:1}"
+  local z_c5="${z_favor:4:1}"
+
+  # Convert characters to positions
+  local z_p1
+  local z_p2
+  local z_p3
+  local z_p4
+  local z_p5
+  z_p1="$(zjju_favor_pos_of "${z_c1}")"
+  z_p2="$(zjju_favor_pos_of "${z_c2}")"
+  z_p3="$(zjju_favor_pos_of "${z_c3}")"
+  z_p4="$(zjju_favor_pos_of "${z_c4}")"
+  z_p5="$(zjju_favor_pos_of "${z_c5}")"
+
+  # Validate all characters were found
+  test "${z_p1}" -ge 0 || buc_die "Invalid character in favor: ${z_c1}"
+  test "${z_p2}" -ge 0 || buc_die "Invalid character in favor: ${z_c2}"
+  test "${z_p3}" -ge 0 || buc_die "Invalid character in favor: ${z_c3}"
+  test "${z_p4}" -ge 0 || buc_die "Invalid character in favor: ${z_c4}"
+  test "${z_p5}" -ge 0 || buc_die "Invalid character in favor: ${z_c5}"
+
+  # Decode heat (2 digits)
+  local z_heat
+  z_heat=$((z_p1 * 64 + z_p2))
+
+  # Decode pace (3 digits)
+  local z_pace
+  z_pace=$((z_p3 * 4096 + z_p4 * 64 + z_p5))
+
+  # Output tab-delimited
+  echo "${z_heat}	${z_pace}"
+}
+
+######################################################################
+# Studbook File Operations
+#
+# Single gate for all studbook reads/writes. Validation enforced on write.
+
+# Internal: Validate studbook JSON structure
+# Args: json-string
+# Returns: 0 if valid, 1 if invalid (with buc_die)
+zjju_studbook_validate() {
+  zjju_sentinel
+  local z_json="${1:-}"
+
+  test -n "${z_json}" || buc_die "Studbook JSON is empty"
+
+  # Validate structure with jq
+  local z_result
+  z_result=$(jq -e '
+    # Top-level structure
+    (type == "object") and
+    has("heats") and has("saddled") and has("next_heat_seed") and
+
+    # Top-level types
+    (.heats | type) == "object" and
+    (.saddled | type) == "string" and
+    (.next_heat_seed | type) == "string" and
+
+    # All heat entries are valid
+    (.heats | to_entries | all(
+      .key | test("^₣[A-Za-z0-9_-]{2}$")
+    )) and
+    (.heats | to_entries | all(
+      .value |
+      has("datestamp") and has("display") and has("silks") and has("status") and has("paces") and
+      (.datestamp | type) == "string" and
+      (.datestamp | test("^[0-9]{6}$")) and
+      (.display | type) == "string" and
+      (.silks | type) == "string" and
+      (.silks | test("^[a-z0-9-]+$")) and
+      (.status | . == "current" or . == "retired") and
+      (.paces | type) == "array" and
+      (.paces | all(
+        has("id") and has("display") and has("status") and
+        (.id | type) == "string" and
+        (.id | test("^[0-9]{3}$")) and
+        (.display | type) == "string" and
+        (.status | . == "pending" or . == "complete" or . == "abandoned" or . == "malformed")
+      ))
+    )) and
+
+    # saddled is empty or valid favor format
+    ((.saddled == "") or (.saddled | test("^₣[A-Za-z0-9_-]{2}[A-Za-z0-9_-]{3}$"))) and
+
+    # next_heat_seed is valid 2-char format
+    (.next_heat_seed | test("^[A-Za-z0-9_-]{2}$"))
+  ' 2>&1 <<< "${z_json}") || buc_die "Studbook validation failed: ${z_result}"
+}
+
+# Internal: Read studbook from disk
+# Output: JSON content to stdout
+zjju_studbook_read() {
+  zjju_sentinel
+
+  test -f "${ZJJU_STUDBOOK_FILE}" || buc_die "Studbook not found: ${ZJJU_STUDBOOK_FILE}"
+
+  cat "${ZJJU_STUDBOOK_FILE}"
+}
+
+# Internal: Write studbook to disk (validates first)
+# Args: json-string
+zjju_studbook_write() {
+  zjju_sentinel
+  local z_json="${1:-}"
+
+  # Validate before writing
+  zjju_studbook_validate "${z_json}"
+
+  # Normalize and write
+  jq --sort-keys --indent 2 '.' <<< "${z_json}" > "${ZJJU_STUDBOOK_FILE}"
 }
 
 ######################################################################

@@ -306,16 +306,15 @@ Decision: **Append-only**
 - **jju-skeleton-construction** — Created BCG-compliant jju_utility.sh with 14 stubs, jju_cli.sh, routing in workbench, help tabtarget
 - **paddock-dedup** — Condensed paddock 444→363 lines, removed redundant API docs, kept design rationale
 - **jjc-interface-design** — Resolved skill/command distinction (jjl_ future), fixed jjk prefix collision, confirmed emitter-per-command pattern, synced arcanum jjz_scar
+- **Implement favor encoding in jju_utility.sh** — Added zjju_favor_encode/decode with charset helpers, jjt_testbench.sh with test suite, launcher and tabtarget
 
 ## Remaining
 
-- **Implement favor encoding in jju_utility.sh** — Favor encoding/decoding functions (jju_favor_encode, jju_favor_decode). Base64-ish math, validation, heat/pace extraction. Everything depends on this.
-
 - **studbook-schema-design** — Design jjs_studbook.json schema. Define: heat object structure, pace array format, status field values, saddled pointer, next_heat_seed allocation. Create initial empty studbook with one test heat (using real Favors from encoding). Validate with jq.
 
-- **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Assumes schema from prior pace.
+- **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Assumes schema from prior pace. BCG compliant.
 
-- **Implement steeplechase operations in jju_utility.sh** — Functions: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting.
+- **Implement steeplechase operations in jju_utility.sh** — Functions: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting. BCG compliant.
 
 - **Implement /jjc-heat-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
 

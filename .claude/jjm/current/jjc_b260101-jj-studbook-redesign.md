@@ -74,4 +74,8 @@
 - Implement jju_favor_decode: 5-char string → heat + pace numbers
 - Add validation (range checks, character validation)
 - Test with known values to verify round-trip
+- BCG compliant: bash 3.2, no command substitution, temp files for pipelines, buc_doc_* annotations
+---
+### 2026-01-04 09:15 - implement-favor-encoding - WRAP
+**Outcome**: Added zjju_favor_encode/decode with charset helpers, jjt_testbench.sh with test suite, launcher and tabtarget
 ---
