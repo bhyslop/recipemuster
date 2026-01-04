@@ -383,6 +383,10 @@ jjt_test_studbook_ops() {
 jjt_test_steeplechase() {
   but_section "=== Steeplechase Operations Tests ==="
 
+  # Local declarations
+  local z_rein_out="${BUD_TEMP_DIR}/rein_test.txt"
+  local z_chalk_verify="${BUD_TEMP_DIR}/chalk_verify.txt"
+
   # These tests operate on the real git repo, so use test favors that won't
   # conflict with actual heats: ₣ZZ (heat) with paces ₣ZZAAA, ₣ZZAAB, etc.
 
@@ -390,8 +394,10 @@ jjt_test_steeplechase() {
   but_info "Test 1: Chalk - create steeplechase entry"
   but_expect_ok jjt_chalk "₣ZZAAA" "TEST" "Test steeplechase entry 1"
 
-  # Verify the commit was created by checking git log
-  git log -1 --grep="^\[₣ZZAAA\] TEST" --format="%s" | grep -q "^\[₣ZZAAA\] TEST: Test steeplechase entry 1$" \
+  # Verify the commit was created by checking git log (BCG: temp file, not pipeline)
+  git log -1 --grep="^\[₣ZZAAA\] TEST" --format="%s" > "${z_chalk_verify}" \
+    || but_fatal "git log failed"
+  grep -q "^\[₣ZZAAA\] TEST: Test steeplechase entry 1$" "${z_chalk_verify}" \
     || but_fatal "Chalk commit not found in git log"
 
   # Test 2: Chalk creates another entry for same heat
@@ -404,7 +410,6 @@ jjt_test_steeplechase() {
 
   # Test 4: Rein queries heat entries
   but_info "Test 4: Rein - query entries for heat ₣ZZ"
-  local z_rein_out="${BUD_TEMP_DIR}/rein_test.txt"
   jjt_rein "₣ZZ" > "${z_rein_out}"
 
   # Should find at least 2 entries for ₣ZZ heat (₣ZZAAA and ₣ZZAAB)

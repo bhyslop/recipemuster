@@ -882,9 +882,13 @@ jju_chalk() {
   test -n "${z_emblem}" || buc_die "Parameter 'emblem' is required"
   test -n "${z_title}" || buc_die "Parameter 'title' is required"
 
+  # Validate favor format (₣HHPPP)
+  test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
+  test "${#z_favor}" -eq 6 || buc_die "Favor must be 6 characters (₣HHPPP): ${z_favor}"
+
   # Get git status to determine files touched
   local z_status_file="${BUD_TEMP_DIR}/chalk_status.txt"
-  git status --short > "${z_status_file}" 2>&1 || buc_die "Git status failed"
+  git status --short > "${z_status_file}" || buc_die "Git status failed"
 
   # Build commit message
   local z_commit_msg_file="${BUD_TEMP_DIR}/chalk_commit.txt"
@@ -910,6 +914,13 @@ jju_chalk() {
 jju_rein() {
   zjju_sentinel
   local z_favor="${1:-}"
+  local z_favor_len=""
+  local z_pattern=""
+  local z_log_file=""
+  local z_hash=""
+  local z_date=""
+  local z_subject=""
+  local z_short_date=""
 
   buc_doc_brief "Query steeplechase entries from git log"
   buc_doc_param "favor" "Heat Favor (₣HH) for all entries, or Pace Favor (₣HHPPP) for filtered"
@@ -920,12 +931,11 @@ jju_rein() {
 
   # Validate favor format (₣HH or ₣HHPPP)
   test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
-  local z_favor_len="${#z_favor}"
+  z_favor_len="${#z_favor}"
   test "${z_favor_len}" -eq 3 -o "${z_favor_len}" -eq 6 \
     || buc_die "Favor must be ₣HH (heat) or ₣HHPPP (pace): ${z_favor}"
 
   # Determine search pattern
-  local z_pattern
   if test "${z_favor_len}" -eq 3; then
     # Heat favor - match all paces in this heat
     z_pattern="^\[${z_favor}"
@@ -939,8 +949,8 @@ jju_rein() {
 
   # Use git log with --grep to filter by commit message pattern
   # Format: %H = commit hash, %ai = author date ISO, %s = subject
-  local z_log_file="${BUD_TEMP_DIR}/rein_log.txt"
-  git log --all --grep="${z_pattern}" --format="%H%x09%ai%x09%s" > "${z_log_file}" 2>&1 \
+  z_log_file="${BUD_TEMP_DIR}/rein_log.txt"
+  git log --all --grep="${z_pattern}" --format="%H%x09%ai%x09%s" > "${z_log_file}" \
     || buc_die "Git log failed"
 
   # Check if any entries found
@@ -956,7 +966,7 @@ jju_rein() {
 
   while IFS=$'\t' read -r z_hash z_date z_subject; do
     # Format date (take just the date part, not time)
-    local z_short_date="${z_date:0:10}"
+    z_short_date="${z_date:0:10}"
 
     printf "%s  %s  %s\n" "${z_short_date}" "${z_hash:0:7}" "${z_subject}"
   done < "${z_log_file}"
@@ -988,7 +998,7 @@ jju_notch() {
     echo "Job Jockey notch"
   } > "${z_commit_msg_file}"
 
-  # Stage all changes (git commit -a behavior)
+  # Stage all changes (including new and deleted files)
   git add -A || buc_die "Git add failed"
 
   # Create commit
