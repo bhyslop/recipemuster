@@ -59,6 +59,43 @@ jjw_route() {
       exec "${JJW_SCRIPT_DIR}/jja_arcanum.sh" "${z_command}" "$@"
       ;;
 
+    # Heat saddle (smart argument handling)
+    jjw-hs)
+      local z_favor="${1:-}"
+
+      if test -z "${z_favor}"; then
+        # No argument - check heat count and decide
+        local z_heat_count_file="${BUD_TEMP_DIR}/hs_heat_count.txt"
+        local z_scalar_file="${BUD_TEMP_DIR}/hs_scalar.txt"
+        "${z_cli}" jju_muster > "${z_heat_count_file}"
+
+        # Count heats (lines starting with ₣) - BCG: temp file for grep
+        local z_count
+        grep -c '^₣' "${z_heat_count_file}" > "${z_scalar_file}" || echo "0" > "${z_scalar_file}"
+        read -r z_count < "${z_scalar_file}"
+
+        if test "${z_count}" -eq 0; then
+          cat "${z_heat_count_file}"
+          exit 0
+        elif test "${z_count}" -eq 1; then
+          # Auto-saddle the single heat - BCG: temp file for extraction
+          grep '^₣' "${z_heat_count_file}" > "${z_scalar_file}"
+          read -r z_favor _ < "${z_scalar_file}"
+          exec "${z_cli}" jju_saddle "${z_favor}"
+        else
+          # Multiple heats - show list and require explicit selection
+          cat "${z_heat_count_file}"
+          echo ""
+          echo "Multiple heats found. Please specify which heat to saddle:"
+          echo "  tt/jjw-hs.HeatSaddle.sh <favor>"
+          exit 1
+        fi
+      else
+        # Favor provided - saddle it
+        exec "${z_cli}" jju_saddle "${z_favor}"
+      fi
+      ;;
+
     # Favor encoding/decoding
     jjk-fe) exec "${z_cli}" jju_favor_encode "$@" ;;
     jjk-fd) exec "${z_cli}" jju_favor_decode "$@" ;;

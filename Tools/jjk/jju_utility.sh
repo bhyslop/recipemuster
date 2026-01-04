@@ -351,10 +351,136 @@ jju_saddle() {
   local z_favor="${1:-}"
 
   buc_doc_brief "Mount heat, show paddock + paces + recent steeple"
-  buc_doc_param "favor" "Heat Favor (HH with PPP=000)"
+  buc_doc_param "favor" "Heat Favor (₣HH)"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  # Validate heat favor format
+  test "${z_favor:0:1}" = "₣" || buc_die "Heat favor must start with ₣: ${z_favor}"
+  test "${#z_favor}" -eq 3 || buc_die "Heat favor must be 3 characters (₣HH): ${z_favor}"
+
+  # Read studbook to temp file
+  local z_temp="${BUD_TEMP_DIR}/studbook_saddle.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_favor}"
+
+  # Extract heat metadata (BCG: temp file for each jq scalar)
+  local z_scalar_file="${BUD_TEMP_DIR}/saddle_scalar.txt"
+
+  local z_datestamp
+  jq -r --arg heat "${z_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
+  read -r z_datestamp < "${z_scalar_file}"
+
+  local z_display
+  jq -r --arg heat "${z_favor}" '.heats[$heat].display' "${z_temp}" > "${z_scalar_file}"
+  read -r z_display < "${z_scalar_file}"
+
+  local z_silks
+  jq -r --arg heat "${z_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
+  read -r z_silks < "${z_scalar_file}"
+
+  # Get heat seed (without ₣)
+  local z_seed="${z_favor:1}"
+
+  # Read paddock file
+  local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
+  test -f "${z_paddock_file}" || buc_die "Paddock file not found: ${z_paddock_file}"
+
+  # Output heat header
+  echo "# Heat: ${z_display}"
+  echo ""
+  echo "**Favor**: ${z_favor}"
+  echo "**Silks**: ${z_silks}"
+  echo "**Started**: ${z_datestamp}"
+  echo ""
+  echo "---"
+  echo ""
+
+  # Output paddock content
+  cat "${z_paddock_file}"
+  echo ""
+  echo "---"
+  echo ""
+
+  # Find current pace (first pending)
+  local z_current_pace_file="${BUD_TEMP_DIR}/saddle_current_pace.json"
+  jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "pending")) | first // null' \
+    "${z_temp}" > "${z_current_pace_file}"
+
+  # Check if there is a current pace (BCG: temp file for jq scalar)
+  local z_has_current
+  jq -r 'if . == null then "false" else "true" end' "${z_current_pace_file}" > "${z_scalar_file}"
+  read -r z_has_current < "${z_scalar_file}"
+
+  if test "${z_has_current}" = "true"; then
+    echo "## Current Pace"
+    echo ""
+    local z_current_id
+    jq -r '.id' "${z_current_pace_file}" > "${z_scalar_file}"
+    read -r z_current_id < "${z_scalar_file}"
+
+    local z_current_display
+    jq -r '.display' "${z_current_pace_file}" > "${z_scalar_file}"
+    read -r z_current_display < "${z_scalar_file}"
+
+    echo "**${z_favor}${z_current_id}**: ${z_current_display}"
+    echo ""
+    echo "---"
+    echo ""
+
+    # Output remaining paces (pending only, excluding current)
+    echo "## Remaining Paces"
+    echo ""
+
+    local z_remaining_file="${BUD_TEMP_DIR}/saddle_remaining.json"
+    jq -r --arg heat "${z_favor}" --arg current_id "${z_current_id}" \
+      '.heats[$heat].paces | map(select(.status == "pending" and .id != $current_id))' \
+      "${z_temp}" > "${z_remaining_file}"
+
+    local z_remaining_count
+    jq -r 'length' "${z_remaining_file}" > "${z_scalar_file}"
+    read -r z_remaining_count < "${z_scalar_file}"
+
+    if test "${z_remaining_count}" -gt 0; then
+      jq -r '.[] | "- \(.id): \(.display)"' "${z_remaining_file}"
+      echo ""
+    else
+      echo "(No other pending paces)"
+      echo ""
+    fi
+
+    echo "---"
+    echo ""
+
+    # Get recent steeplechase entries for current pace
+    echo "## Recent Steeplechase"
+    echo ""
+
+    local z_pace_favor="${z_favor}${z_current_id}"
+    buc_trace "Querying steeplechase for current pace: ${z_pace_favor}"
+
+    # Capture jju_rein output
+    local z_rein_file="${BUD_TEMP_DIR}/saddle_rein.txt"
+    jju_rein "${z_pace_favor}" > "${z_rein_file}" 2>&1 || true
+
+    # Show the output
+    cat "${z_rein_file}"
+
+  else
+    # No pending paces
+    echo "## Status"
+    echo ""
+    echo "All paces complete. Heat ready to retire."
+    echo ""
+  fi
+
+  buc_trace "Saddle complete for ${z_favor}, temp files: ${z_temp}, ${z_current_pace_file}"
 }
 
 jju_nominate() {
