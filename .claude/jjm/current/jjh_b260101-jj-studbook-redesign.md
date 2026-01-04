@@ -332,6 +332,8 @@ Decision: **Append-only**
 
 - **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). BCG compliant: temp files for jq transforms, exit status checks, no command substitution. Add test cases to jjt_testbench.sh (valid mutations, boundary cases, error conditions). Create tt/jjt-o.TestStudbookOps.sh tabtarget.
 
+- **Remove saddled from studbook schema** — Current heat/pace context lives in chat, not disk. Changes: (1) Remove `saddled` field from schema, (2) Update `zjju_studbook_validate` to remove saddled checks, (3) Update `jjs_studbook.json` to remove saddled, (4) Update test cases to remove saddled from valid JSON and remove bad-saddled test, (5) Update paddock schema example and Fresh Session Handling section, (6) Note that `/jjc-heat-saddle` outputs context for Claude to hold.
+
 - **Implement steeplechase operations in jju_utility.sh** — Functions: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting. BCG compliant.
 
 - **Implement /jjc-heat-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
