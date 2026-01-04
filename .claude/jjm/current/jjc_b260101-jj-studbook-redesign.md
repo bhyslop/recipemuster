@@ -82,3 +82,13 @@
 ### 2026-01-04 09:20 - studbook-schema-design - WRAP
 **Outcome**: Added BCG-compliant schema validation gate, read/write functions, empty studbook, 9 test cases
 ---
+### 2026-01-04 09:26 - implement-studbook-operations - APPROACH
+**Proposed approach**:
+- Start with `jju_nominate` - creates a heat (foundation for testing others)
+- Then `jju_muster` - lists heats (simple read-only, verifies studbook reads work)
+- Then `jju_slate`/`jju_tally` - add paces and set state (core mutations)
+- Finally `jju_reslate`, `jju_rail`, `jju_retire_extract` (less critical paths)
+- Each function: read studbook → jq transform → validate → write studbook
+- BCG compliant: temp files, exit status checks, no command substitution
+- Add test cases to jjt_testbench.sh as we go
+---
