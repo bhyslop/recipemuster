@@ -53,9 +53,9 @@ zjjw_lookup_brand_by_hash() {
   jq -r --arg h "${z_hash}" '.[] | select(.hash == $h) | .v // empty' "${ZJJW_SCRIPT_DIR}/jjl_ledger.json"
 }
 
-# Returns brand from installed jja-notch.md, or empty if not installed
+# Returns brand from installed jjc-notch.md, or empty if not installed
 zjjw_installed_brand() {
-  local z_notch_file=".claude/commands/jja-notch.md"
+  local z_notch_file=".claude/commands/jjc-notch.md"
   if test -f "${z_notch_file}"; then
     grep -oP '(?<=^- Brand: )\d+' "${z_notch_file}" 2>/dev/null || true
   fi
@@ -80,7 +80,7 @@ zjjw_emit_heat_saddle() {
     echo "- Switching between multiple active heats"
     echo "- Explicit heat status review"
     echo ""
-    echo "Note: After /jja-pace-wrap or /jja-notch, you do NOT need this command -"
+    echo "Note: After /jjc-pace-wrap or /jjc-notch, you do NOT need this command -"
     echo "those commands automatically analyze and propose the next pace."
     echo ""
     echo "Configuration:"
@@ -240,7 +240,7 @@ zjjw_emit_pace_new() {
     echo "7. If approved, update the heat file:"
     echo "   - Add pace to ## Remaining section at proposed position"
     echo ""
-    echo "8. Do NOT commit (preparatory work, accumulates until /jja-pace-wrap or /jja-notch)"
+    echo "8. Do NOT commit (preparatory work, accumulates until /jjc-pace-wrap or /jjc-notch)"
     echo ""
     echo "9. Report what was added"
     echo ""
@@ -303,7 +303,7 @@ zjjw_emit_pace_fly() {
     echo ""
     echo "3. Check the pace is armed:"
     echo "   - Look for \`[armed]\` marker in the pace title"
-    echo "   - If not armed: refuse with \"This pace is not armed - use /jja-pace-arm first\""
+    echo "   - If not armed: refuse with \"This pace is not armed - use /jjc-pace-arm first\""
     echo ""
     echo "4. Present the spec and begin execution:"
     echo "   \`\`\`"
@@ -336,8 +336,8 @@ zjjw_emit_pace_fly() {
     echo "   ---"
     echo "   \`\`\`"
     echo ""
-    echo "8. Do NOT auto-complete the pace. User decides via /jja-pace-wrap"
-    echo "   Work is NOT auto-committed. User can review and use /jja-notch."
+    echo "8. Do NOT auto-complete the pace. User decides via /jjc-pace-wrap"
+    echo "   Work is NOT auto-committed. User can review and use /jjc-notch."
     echo ""
     echo "Error handling: If paths wrong or files missing, announce issue and stop."
   }
@@ -390,7 +390,7 @@ zjjw_emit_pace_wrap() {
     echo "      \`\`\`bash"
     echo "      git ls-files --others --exclude-standard"
     echo "      \`\`\`"
-    echo "      - If any: warn \"New files detected - stage manually, then /jja-notch\" but continue"
+    echo "      - If any: warn \"New files detected - stage manually, then /jjc-notch\" but continue"
     echo "   b. If no untracked files, dispatch notcher agent in background:"
     echo "      - Use Task tool with subagent_type='general-purpose', model='haiku', run_in_background=true"
     echo "      - Prompt template (substitute HEAT and PACE at runtime):"
@@ -420,7 +420,7 @@ zjjw_emit_pace_wrap() {
     echo "     ---"
     echo "     \`\`\`"
     echo "   - Ask: \"Ready to proceed with this approach?\""
-    echo "   - On approval: begin work directly (no /jja-heat-saddle needed)"
+    echo "   - On approval: begin work directly (no /jjc-heat-saddle needed)"
     echo ""
     echo "   If no next pace: announce \"All paces complete - ready to retire heat?\""
     echo ""
@@ -463,7 +463,7 @@ zjjw_emit_itch_add() {
     echo ""
     echo "5. Report what was added (no confirmation step - user can request adjustment)"
     echo ""
-    echo "6. Do NOT commit (accumulates until /jja-notch)"
+    echo "6. Do NOT commit (accumulates until /jjc-notch)"
     echo ""
     echo "Error handling: If jji_itch.md missing, announce issue and stop."
   }
@@ -484,7 +484,7 @@ zjjw_emit_notch_command() {
     echo "1. Identify active heat from conversation context"
     echo "   - The heat should be unambiguous from prior conversation (e.g., heat-saddle, pace-wrap)"
     echo "   - If heat context is clear: proceed with that heat"
-    echo "   - If no heat context or ambiguous: fail with \"No heat context - run /jja-heat-saddle first\""
+    echo "   - If no heat context or ambiguous: fail with \"No heat context - run /jjc-heat-saddle first\""
     echo "   - Do NOT fall back to filesystem checks or offer choices"
     echo ""
     echo "2. Extract heat silks from context"
@@ -533,7 +533,7 @@ zjjw_emit_claudemd_section() {
     echo ""
     echo "**Concepts:**"
     echo "- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Location: \`current/\` (active) or \`retired/\` (done)."
-    echo "- **Pace**: Discrete action within a heat; can be armed for autonomous execution via \`/jja-pace-arm\`"
+    echo "- **Pace**: Discrete action within a heat; can be armed for autonomous execution via \`/jjc-pace-arm\`"
     echo "- **Itch**: Future work (any detail level), lives in jji_itch.md"
     echo "- **Scar**: Closed work with lessons learned, lives in jjs_scar.md"
     echo ""
@@ -541,14 +541,14 @@ zjjw_emit_claudemd_section() {
     echo "- JJ Kit path: \`${ZJJW_KIT_PATH}\`"
     echo ""
     echo "**Available commands:**"
-    echo "- \`/jja-heat-saddle\` - Saddle up on heat at session start, analyze and propose approach"
-    echo "- \`/jja-heat-retire\` - Move completed heat to retired with datestamp"
-    echo "- \`/jja-pace-new\` - Add a new pace"
-    echo "- \`/jja-pace-arm\` - Validate pace spec and arm for autonomous execution"
-    echo "- \`/jja-pace-fly\` - Execute an armed pace autonomously"
-    echo "- \`/jja-pace-wrap\` - Mark pace complete, auto-notch, analyze next pace, propose approach"
-    echo "- \`/jja-itch-add\` - Add a new itch to the backlog"
-    echo "- \`/jja-notch\` - JJ-aware git commit, push, and re-engage with current pace"
+    echo "- \`/jjc-heat-saddle\` - Saddle up on heat at session start, analyze and propose approach"
+    echo "- \`/jjc-heat-retire\` - Move completed heat to retired with datestamp"
+    echo "- \`/jjc-pace-new\` - Add a new pace"
+    echo "- \`/jjc-pace-arm\` - Validate pace spec and arm for autonomous execution"
+    echo "- \`/jjc-pace-fly\` - Execute an armed pace autonomously"
+    echo "- \`/jjc-pace-wrap\` - Mark pace complete, auto-notch, analyze next pace, propose approach"
+    echo "- \`/jjc-itch-add\` - Add a new itch to the backlog"
+    echo "- \`/jjc-notch\` - JJ-aware git commit, push, and re-engage with current pace"
     echo ""
     echo "**Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available."
   }
@@ -597,14 +597,14 @@ jjw_install() {
   test -f ".claude/jjm/jjs_scar.md" || echo "# Scars" > ".claude/jjm/jjs_scar.md"
 
   buc_step "Emitting command files"
-  zjjw_emit_heat_saddle   > ".claude/commands/jja-heat-saddle.md"
-  zjjw_emit_heat_retire   > ".claude/commands/jja-heat-retire.md"
-  zjjw_emit_pace_new      > ".claude/commands/jja-pace-new.md"
-  zjjw_emit_pace_arm      > ".claude/commands/jja-pace-arm.md"
-  zjjw_emit_pace_fly      > ".claude/commands/jja-pace-fly.md"
-  zjjw_emit_pace_wrap "${z_brand}" > ".claude/commands/jja-pace-wrap.md"
-  zjjw_emit_itch_add      > ".claude/commands/jja-itch-add.md"
-  zjjw_emit_notch_command "${z_brand}" > ".claude/commands/jja-notch.md"
+  zjjw_emit_heat_saddle   > ".claude/commands/jjc-heat-saddle.md"
+  zjjw_emit_heat_retire   > ".claude/commands/jjc-heat-retire.md"
+  zjjw_emit_pace_new      > ".claude/commands/jjc-pace-new.md"
+  zjjw_emit_pace_arm      > ".claude/commands/jjc-pace-arm.md"
+  zjjw_emit_pace_fly      > ".claude/commands/jjc-pace-fly.md"
+  zjjw_emit_pace_wrap "${z_brand}" > ".claude/commands/jjc-pace-wrap.md"
+  zjjw_emit_itch_add      > ".claude/commands/jjc-itch-add.md"
+  zjjw_emit_notch_command "${z_brand}" > ".claude/commands/jjc-notch.md"
 
   buc_step "Patching CLAUDE.md"
   zjjw_emit_claudemd_section > "${BUD_TEMP_DIR}/jjw_claudemd_section.md"
@@ -634,7 +634,7 @@ jjw_install() {
 
 jjw_uninstall() {
   buc_step "Removing command files"
-  rm -f .claude/commands/jja-*.md
+  rm -f .claude/commands/jj*.md
 
   buc_step "Removing agent files"
   rm -f .claude/agents/jjsa-*.md

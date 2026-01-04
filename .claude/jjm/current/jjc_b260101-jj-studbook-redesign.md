@@ -53,3 +53,6 @@
 ### 2026-01-03 11:50 - jju-skeleton-construction - WRAP
 **Outcome**: Created BCG-compliant jju_utility.sh with 14 stubs, jju_cli.sh, routing in workbench, help tabtarget
 ---
+### 2026-01-04 07:54 - paddock-dedup - WRAP
+**Outcome**: Condensed paddock 444→363 lines, removed redundant API docs, kept design rationale
+---

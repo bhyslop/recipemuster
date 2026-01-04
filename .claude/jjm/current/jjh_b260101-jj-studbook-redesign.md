@@ -25,10 +25,10 @@ Pain points from prior heats that drive this redesign:
 - The new system becomes active only after migration and arcanum update
 
 **Pace dependencies** (must complete in rough order):
-1. jju_favor.sh (everything depends on Favor encoding)
+1. jju_utility.sh favor functions (everything depends on Favor encoding)
 2. jjs_studbook.json schema (most scripts need this)
-3. jj-muster, jj-saddle (can verify studbook works)
-4. jj-chalk, jj-rein (can verify git steeple works)
+3. /jjc-heat-muster, /jjc-heat-saddle (can verify studbook works)
+4. /jjc-pace-chalk, /jjc-pace-rein (can verify git steeple works)
 5. Remaining scripts (slate, rail, tally, wrap, etc.)
 6. Migration and arcanum update (cutover)
 7. Testing and refinement paces
@@ -129,65 +129,21 @@ Claude interacts only through bash scripts; never touches JSON or git directly.
 | `jjp_` | Paddock | `jjp_Kb.md` |
 | `jjs_` | Studbook | `jjs_studbook.json` |
 | `jjt_` | Testbench | `jjt_testbench.sh` |
-| `jju_` | Utility (bash impl) | `jju_saddle.sh` |
+| `jju_` | Utility (bash impl) | `jju_utility.sh` |
 | `jjw_` | Workbench | `jjw_workbench.sh` |
 | `jjy_` | Trophy | `jjy_Kb_260101-260115_silks.md` |
 | `jjz_` | Scar (declined itch) | `jjz_scar.md` |
 
 ### Script API
 
-Claude's interface - all implementation hidden behind these:
-
-| Script | Input | Output |
-|--------|-------|--------|
-| `jj-muster` | — | ₣Favor + silks per current heat |
-| `jj-nominate` | "display" "silks" | New heat ₣Favor + paddock stub |
-| `jj-saddle` | ₣Favor | Paddock + paces + recent steeple (2-3 entries) |
-| `jj-chalk` | TYPE "title" <stdin | — (non-blocking) |
-| `jj-rein` | ₣HH or ₣HHPPP | Full steeple (heat) or pace-filtered |
-| `jj-slate` | "display" | New pace ₣Favor |
-| `jj-reslate` | ₣Favor "display" | — |
-| `jj-rail` | 001 002 003... | Updated pace list (pace IDs, heat implicit) |
-| `jj-tally` | ₣Favor STATE | — |
-| `jj-wrap` | — | Next ₣Favor or "heat complete" (auto-chalks WRAP) |
-| `jj-retire` | — | Trophy path |
-| `jj-notch` | "message" <stdin | — |
-
-**Design principles:**
+Claude's interface documented in `Tools/jjk/jju_utility.sh` via `buc_doc_*` annotations. Key design principles:
 - Current Favor stays in chat context (Claude remembers, no temp file)
-- Saddle output includes pace listing + recent steeple (no separate query)
 - Completed paces vanish from view until retirement
-- Chalk entries include files touched since last entry
-- Scripts handle all git/jq mechanics
-- Humans don't use these APIs directly; scripts enforce consistency
+- Scripts handle all git/jq mechanics; humans use slash commands only
 
 ### Saddle Output Format
 
-```
-₣Kb JJ Studbook Redesign (260101)
-
-## Paddock
-[Full paddock file contents]
-
-## Current
-₣Kb001 [current] Define script APIs
-
-## Remaining
-₣Kb002 [pending] Implement jju utilities
-₣Kb003 [pending] Implement studbook schema
-
-## Recent (₣Kb001)
-[2026-01-01 14:30] APPROACH: Starting API design
-  [+jjh_b260101-jj-studbook-redesign.md]
-[2026-01-01 15:45] NOTE: Clarified chalk vs tally distinction
-  [~jjh_b260101-jj-studbook-redesign.md]
-```
-
-- Full paddock provides heat continuity
-- Current pace highlighted separately
-- Remaining excludes completed/abandoned (those vanish)
-- Recent shows 2-3 steeple entries for current pace
-- File changes: `[+added]` `[~modified]` `[-deleted]`
+Combines paddock (full text), current pace, remaining paces (pending only), and recent steeple entries (2-3) for the current pace.
 
 ### Chalk Emblems
 
@@ -207,7 +163,7 @@ Steeplechase entries become git commits:
 - Timestamped automatically by git
 - Searchable via `git log --grep`
 - Extracted to trophy at retirement
-- Claude uses `jj-chalk` to write, `jj-rein` to read
+- Claude uses `/jjc-pace-chalk` to write, `/jjc-pace-rein` to read
 
 ### Concept Surgery Log
 
@@ -271,26 +227,13 @@ Tracking new/modified terms for continuity during this heat:
 
 ### Steeplechase Git Commit Format
 
-```
-[₣Kb001] APPROACH: Starting API design
-
-Body text with details about the approach...
-
----
-[+] jjh_b260101-jj-studbook-redesign.md
-[~] Tools/jjk/jjw_workbench.sh
-```
-
-- Subject: `[₣Favor] EMBLEM: Title`
-- Body: Freeform markdown
-- Footer: Files touched since last chalk (`[+]` added, `[~]` modified, `[-]` deleted)
-- Created by `jj-chalk`, queried by `jj-rein`
+Empty commits with format: `[₣Favor] EMBLEM: Title`, freeform body, footer showing files touched. Created by `/jjc-pace-chalk`, queried by `/jjc-pace-rein`.
 
 ### Fresh Session Handling
 
 On fresh session, Claude doesn't know current Favor. Resolution:
-1. Run `jj-muster` to see current heats
-2. Run `jj-saddle ₣Kb` (or user indicates which heat)
+1. Run `/jjc-heat-muster` to see current heats
+2. Run `/jjc-heat-saddle ₣Kb` (or user indicates which heat)
 3. Studbook `saddled` field updated; Claude now has context
 
 The `saddled` field persists across sessions in the studbook.
@@ -303,6 +246,11 @@ The `saddled` field persists across sessions in the studbook.
 - Paddock stays markdown (human-editable prose)
 - Scripts abstract all git complexity from Claude
 - Backward compatible migration path from current heat files
+
+**Claude Code Integration**
+- **Commands** (`jjc_*.md` in `.claude/commands/`): Manually invoked via `/jjc-*`, explicit trigger
+- **Skills** (`jjk_*.md` in `.claude/skills/`): Auto-invoked by Claude based on context matching
+- Current JJ uses commands exclusively; skills reserved for future auto-apply workflows
 
 ### Foundation Design Decisions
 
@@ -326,7 +274,7 @@ The `saddled` field persists across sessions in the studbook.
 **Wrap Advancement Flow**
 
 Sequence: guard → push → tally → chalk → advance → display
-1. **Guard** - Dirty worktree? → fail with "Uncommitted changes. Run jj-notch first."
+1. **Guard** - Dirty worktree? → fail with "Uncommitted changes. Run /jjc-notch first."
 2. **Push** - `git push` (synchronous); fail on error
 3. **Tally** - Set current pace status to "complete" in studbook
 4. **Chalk** - Write `[₣Favor] WRAP: [pace display]` as empty commit (background OK)
@@ -339,36 +287,13 @@ Studbook mutations:
 
 **Trophy Extraction Spec**
 
-File: `jjy_HH_YYMMDD-YYMMDD_silks.md`
-
-Structure:
-```markdown
-# Trophy: [Heat Display Name]
-
-**Favor**: ₣HH
-**Silks**: [silks]
-**Duration**: YYMMDD - YYMMDD
-**Paces**: N completed, M abandoned, P total
-
-## Paddock
-[Full paddock contents from jjp_HH.md]
-
-## Paces
-| Favor | Status | Display |
-|-------|--------|---------|
-| ₣HH001 | complete | First pace |
-
-## Steeplechase
-[Extracted from git log --grep="₣HH"]
-```
-
-Content sources: studbook (header, paces), paddock file, git log
+File `jjy_HH_YYMMDD-YYMMDD_silks.md` with sections: header (favor, silks, duration, pace counts), paddock (full text), paces table, steeplechase (from git log). Sources: studbook, paddock file, git history.
 
 **Pace Emplacement API**
 
 Decision: **Append-only**
-- `jj-slate "Display"` appends to pace array, auto-assigns next ID
-- Use `jj-rail 001 003 002` to reorder if needed
+- `/jjc-pace-slate "Display"` appends to pace array, auto-assigns next ID
+- Use `/jjc-pace-rail 001 003 002` to reorder if needed
 - Simpler than positional insertion; covers all use cases
 
 ## Done
@@ -376,24 +301,23 @@ Decision: **Append-only**
 - **Foundation design decisions** — Added worktree guards, wrap flow, trophy spec, emplacement policy to paddock
 - **BUK infrastructure for JJK** — Renamed workbench to arcanum, created BUK-style workbench/launcher, renamed tabtargets to jja-*
 - **jju-skeleton-construction** — Created BCG-compliant jju_utility.sh with 14 stubs, jju_cli.sh, routing in workbench, help tabtarget
+- **paddock-dedup** — Condensed paddock 444→363 lines, removed redundant API docs, kept design rationale
 
 ## Remaining
 
-- **paddock-dedup** — Strip redundant prose from paddock now that `jju_utility.sh` documents the API. Remove or condense: Script API table, Saddle Output Format section, detailed step sequences. Keep: Core Concepts, Vocabulary, Constraints, design rationale. The skeleton is now the authoritative spec. Simplify subsequent implementation pace descriptions.
-
 - **jjc-interface-design** — Define how slash commands (jjc_*.md) invoke jju_* utilities. Decide: (1) tabtarget vs direct workbench call, (2) output parsing conventions (structured vs prose), (3) generated by arcanum vs hand-written, (4) skill vs command distinction, (5) blocking vs non-blocking execution in Claude environment (e.g., notch might background, saddle must block). Document pattern before implementing individual commands.
 
-- **Implement jju_favor.sh** — Favor encoding/decoding utilities. Base64-ish math, validation, heat/pace extraction. Everything depends on this.
+- **Implement favor encoding in jju_utility.sh** — Favor encoding/decoding functions (jju_favor_encode, jju_favor_decode). Base64-ish math, validation, heat/pace extraction. Everything depends on this.
 
-- **Implement jju_studbook.sh** — Studbook operations sourced by workbench: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Create initial `jjs_studbook.json` schema.
+- **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Create initial `jjs_studbook.json` schema.
 
-- **Implement jju_steeple.sh** — Git steeplechase operations: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting.
+- **Implement steeplechase operations in jju_utility.sh** — Functions: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting.
 
-- **Implement jj-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
+- **Implement /jjc-heat-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
 
-- **Implement jj-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, display next pace. Advance saddled pointer.
+- **Implement /jjc-pace-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, display next pace. Advance saddled pointer.
 
-- **Implement jj-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
+- **Implement /jjc-heat-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
 
 - **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Revise CLAUDE.md term definitions (all new terms from Concept Surgery Log).
 
@@ -413,14 +337,14 @@ Decision: **Append-only**
 **Clarifications added after deep review**:
 - Chalk emblems are freeform (APPROACH, WRAP, BLOCKED, NOTE as patterns)
 - Saddle output format specified (full paddock, current/remaining paces, 2-3 steeple entries)
-- jj-rein takes heat Favor (full) or pace Favor (filtered)
-- jj-nominate added for heat creation
+- `/jjc-pace-rein` takes heat Favor (full) or pace Favor (filtered)
+- `/jjc-heat-nominate` added for heat creation
 - ₣ included in JSON for distinctive grep; stripped only for filenames
 - Studbook stays lean: `next_heat_seed` tracks allocation, heats removed on retirement
 - Trophy is self-contained with full Favor→silks mapping
 - jjz_ prefix for scar (declined itch, pending reconsideration)
 
-**New paces added**: jj-nominate, jju_notch.sh, trophy extraction doc, wrap advancement design, scar reconsideration
+**New paces added**: `/jjc-heat-nominate`, jju_notch function, trophy extraction doc, wrap advancement design, scar reconsideration
 
 ---
 ### 2026-01-01 - Heat Created
