@@ -203,50 +203,51 @@ zjju_favor_decode() {
 zjju_studbook_validate() {
   zjju_sentinel
   local z_json="${1:-}"
+  local z_file="${BUD_TEMP_DIR}/studbook_validate.json"
 
   test -n "${z_json}" || buc_die "Studbook JSON is empty"
 
-  # Validate structure with jq
-  local z_result
-  z_result=$(jq -e '
-    # Top-level structure
-    (type == "object") and
-    has("heats") and has("saddled") and has("next_heat_seed") and
+  # Write JSON to temp file once (BCG: avoid repeated here-strings)
+  printf '%s' "${z_json}" > "${z_file}"
 
-    # Top-level types
-    (.heats | type) == "object" and
-    (.saddled | type) == "string" and
-    (.next_heat_seed | type) == "string" and
+  # Step 1: Valid JSON object
+  jq -e 'type == "object"' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Not a valid JSON object"
 
-    # All heat entries are valid
-    (.heats | to_entries | all(
-      .key | test("^₣[A-Za-z0-9_-]{2}$")
-    )) and
-    (.heats | to_entries | all(
-      .value |
-      has("datestamp") and has("display") and has("silks") and has("status") and has("paces") and
-      (.datestamp | type) == "string" and
-      (.datestamp | test("^[0-9]{6}$")) and
-      (.display | type) == "string" and
-      (.silks | type) == "string" and
-      (.silks | test("^[a-z0-9-]+$")) and
-      (.status | . == "current" or . == "retired") and
-      (.paces | type) == "array" and
-      (.paces | all(
-        has("id") and has("display") and has("status") and
-        (.id | type) == "string" and
-        (.id | test("^[0-9]{3}$")) and
-        (.display | type) == "string" and
-        (.status | . == "pending" or . == "complete" or . == "abandoned" or . == "malformed")
-      ))
-    )) and
+  # Step 2: Required top-level fields
+  jq -e 'has("heats") and has("saddled") and has("next_heat_seed")' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Missing required fields (heats, saddled, next_heat_seed)"
 
-    # saddled is empty or valid favor format
-    ((.saddled == "") or (.saddled | test("^₣[A-Za-z0-9_-]{2}[A-Za-z0-9_-]{3}$"))) and
+  # Step 3: Top-level field types
+  jq -e '(.heats | type) == "object" and (.saddled | type) == "string" and (.next_heat_seed | type) == "string"' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Type mismatch in top-level fields"
 
-    # next_heat_seed is valid 2-char format
-    (.next_heat_seed | test("^[A-Za-z0-9_-]{2}$"))
-  ' 2>&1 <<< "${z_json}") || buc_die "Studbook validation failed: ${z_result}"
+  # Step 4: Heat keys format (₣XX)
+  jq -e '.heats | to_entries | all(.key | test("^₣[A-Za-z0-9_-]{2}$"))' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Invalid heat key format (expected ₣XX)"
+
+  # Step 5: Heat required fields
+  jq -e '.heats | to_entries | all(.value | has("datestamp") and has("display") and has("silks") and has("status") and has("paces"))' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Heat missing required fields (datestamp, display, silks, status, paces)"
+
+  # Step 6: Heat field formats
+  jq -e '.heats | to_entries | all(.value | (.datestamp | test("^[0-9]{6}$")) and (.silks | test("^[a-z0-9-]+$")) and (.status | . == "current" or . == "retired"))' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Invalid heat field format (datestamp=YYMMDD, silks=kebab-case, status=current|retired)"
+
+  # Step 7: Pace validation
+  jq -e '.heats | to_entries | all(.value.paces | all(has("id") and has("display") and has("status") and (.id | test("^[0-9]{3}$")) and (.status | . == "current" or . == "pending" or . == "complete" or . == "abandoned" or . == "malformed")))' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Invalid pace (id=XXX, status=current|pending|complete|abandoned|malformed)"
+
+  # Step 8: Saddled format (empty or ₣XX)
+  jq -e '(.saddled == "") or (.saddled | test("^₣[A-Za-z0-9_-]{2}$"))' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Invalid saddled format (expected empty or ₣XX)"
+
+  # Step 9: next_heat_seed format (XX)
+  jq -e '.next_heat_seed | test("^[A-Za-z0-9_-]{2}$")' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Invalid next_heat_seed format (expected 2 base64 chars)"
+
+  # Cleanup temp file
+  rm -f "${z_file}"
 }
 
 # Internal: Read studbook from disk

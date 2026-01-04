@@ -48,6 +48,10 @@ jjt_favor_decode() {
   zjju_favor_decode "$@"
 }
 
+jjt_studbook_validate() {
+  zjju_studbook_validate "$@"
+}
+
 ######################################################################
 # Test Suites
 
@@ -100,6 +104,122 @@ jjt_test_favor_encoding() {
   but_section "=== All favor encoding tests passed ==="
 }
 
+jjt_test_studbook_validation() {
+  but_section "=== Studbook Validation Tests ==="
+
+  # Test 1: Valid empty studbook
+  but_info "Test 1: Valid empty studbook"
+  but_expect_ok jjt_studbook_validate '{"heats":{},"saddled":"","next_heat_seed":"AA"}'
+
+  # Test 2: Valid studbook with heat and paces
+  but_info "Test 2: Valid studbook with heat and paces"
+  local z_valid_full='{
+    "heats": {
+      "₣Kb": {
+        "datestamp": "260101",
+        "display": "Test Heat",
+        "silks": "test-heat",
+        "status": "current",
+        "paces": [
+          {"id": "001", "display": "First pace", "status": "current"},
+          {"id": "002", "display": "Second pace\nWith newlines\nIn description", "status": "pending"}
+        ]
+      }
+    },
+    "saddled": "₣Kb",
+    "next_heat_seed": "Kc"
+  }'
+  but_expect_ok jjt_studbook_validate "${z_valid_full}"
+
+  # Test 3: Valid with all pace statuses
+  but_info "Test 3: Valid with all pace statuses"
+  local z_all_statuses='{
+    "heats": {
+      "₣AA": {
+        "datestamp": "260101",
+        "display": "Status Test",
+        "silks": "status-test",
+        "status": "current",
+        "paces": [
+          {"id": "001", "display": "Current", "status": "current"},
+          {"id": "002", "display": "Pending", "status": "pending"},
+          {"id": "003", "display": "Complete", "status": "complete"},
+          {"id": "004", "display": "Abandoned", "status": "abandoned"},
+          {"id": "005", "display": "Malformed", "status": "malformed"}
+        ]
+      }
+    },
+    "saddled": "",
+    "next_heat_seed": "AB"
+  }'
+  but_expect_ok jjt_studbook_validate "${z_all_statuses}"
+
+  # Test 4: Invalid - missing saddled field
+  but_info "Test 4: Invalid - missing saddled field"
+  but_expect_fatal jjt_studbook_validate '{"heats":{},"next_heat_seed":"AA"}'
+
+  # Test 5: Invalid - bad saddled format (too long - pace included)
+  but_info "Test 5: Invalid - bad saddled format (pace included)"
+  but_expect_fatal jjt_studbook_validate '{"heats":{},"saddled":"₣Kb001","next_heat_seed":"AA"}'
+
+  # Test 6: Invalid - bad heat key (missing ₣ prefix)
+  but_info "Test 6: Invalid - bad heat key (missing ₣)"
+  but_expect_fatal jjt_studbook_validate '{"heats":{"Kb":{"datestamp":"260101","display":"X","silks":"x","status":"current","paces":[]}},"saddled":"","next_heat_seed":"AA"}'
+
+  # Test 7: Invalid - bad pace status
+  but_info "Test 7: Invalid - bad pace status"
+  local z_bad_status='{
+    "heats": {
+      "₣Kb": {
+        "datestamp": "260101",
+        "display": "Test",
+        "silks": "test",
+        "status": "current",
+        "paces": [{"id": "001", "display": "Bad", "status": "invalid"}]
+      }
+    },
+    "saddled": "",
+    "next_heat_seed": "Kc"
+  }'
+  but_expect_fatal jjt_studbook_validate "${z_bad_status}"
+
+  # Test 8: Invalid - bad datestamp format
+  but_info "Test 8: Invalid - bad datestamp format"
+  local z_bad_date='{
+    "heats": {
+      "₣Kb": {
+        "datestamp": "2026-01-01",
+        "display": "Test",
+        "silks": "test",
+        "status": "current",
+        "paces": []
+      }
+    },
+    "saddled": "",
+    "next_heat_seed": "Kc"
+  }'
+  but_expect_fatal jjt_studbook_validate "${z_bad_date}"
+
+  # Test 9: Invalid - bad silks format (uppercase)
+  but_info "Test 9: Invalid - bad silks format"
+  local z_bad_silks='{
+    "heats": {
+      "₣Kb": {
+        "datestamp": "260101",
+        "display": "Test",
+        "silks": "Test_Heat",
+        "status": "current",
+        "paces": []
+      }
+    },
+    "saddled": "",
+    "next_heat_seed": "Kc"
+  }'
+  but_expect_fatal jjt_studbook_validate "${z_bad_silks}"
+
+  but_section "=== All studbook validation tests passed ==="
+}
+
 ######################################################################
 # Main
 
@@ -111,13 +231,22 @@ case "${z_suite}" in
   favor)
     jjt_test_favor_encoding
     ;;
+  studbook)
+    jjt_test_studbook_validation
+    ;;
+  all)
+    jjt_test_favor_encoding
+    jjt_test_studbook_validation
+    ;;
   *)
     echo "JJT Testbench - Job Jockey test execution"
     echo ""
     echo "Usage: ${0##*/} <suite>"
     echo ""
     echo "Test Suites:"
-    echo "  favor    Test favor encoding/decoding"
+    echo "  favor     Test favor encoding/decoding"
+    echo "  studbook  Test studbook validation"
+    echo "  all       Run all test suites"
     exit 1
     ;;
 esac
