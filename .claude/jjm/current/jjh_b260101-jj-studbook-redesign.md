@@ -68,7 +68,6 @@ Claude interacts only through bash scripts; never touches JSON or git directly.
       ]
     }
   },
-  "saddled": "₣Kb001",
   "next_heat_seed": "Kc"
 }
 ```
@@ -76,6 +75,7 @@ Claude interacts only through bash scripts; never touches JSON or git directly.
 - Favors as keys provide stable anchoring
 - `next_heat_seed` tracks allocation to prevent reuse after retirement
 - ₣ included in JSON for distinctive grep/search (stripped only for filenames)
+- Current heat/pace context lives in chat conversation, not persisted to disk
 
 **Paddock** - Per-heat markdown (`jjp_Kb.md`):
 - Human-authored prose context
@@ -255,9 +255,10 @@ Empty commits with format: `[₣Favor] EMBLEM: Title`, freeform body, footer sho
 On fresh session, Claude doesn't know current Favor. Resolution:
 1. Run `/jjc-heat-muster` to see current heats
 2. Run `/jjc-heat-saddle ₣Kb` (or user indicates which heat)
-3. Studbook `saddled` field updated; Claude now has context
+3. `/jjc-heat-saddle` outputs full context (paddock, current pace, remaining paces, recent steeple entries)
+4. Claude holds this context in the conversation - no persistence to studbook
 
-The `saddled` field persists across sessions in the studbook.
+Current heat/pace context lives in chat memory, not on disk. Each session starts fresh.
 
 ### Constraints
 
@@ -300,12 +301,12 @@ Sequence: guard → push → tally → chalk → advance → display
 2. **Push** - `git push` (synchronous); fail on error
 3. **Tally** - Set current pace status to "complete" in studbook
 4. **Chalk** - Write `[₣Favor] WRAP: [pace display]` as empty commit (background OK)
-5. **Advance** - Find next pending pace; update `saddled` (or flag heat completable)
-6. **Display** - Output wrapped pace + next pace (or "heat complete - ready to retire")
+5. **Advance** - Find next pending pace (read-only studbook query)
+6. **Display** - Output wrapped pace + next pace for Claude to hold (or "heat complete - ready to retire")
 
 Studbook mutations:
 - `heats[HH].paces[PPP].status` → `"complete"`
-- `saddled` → next pending pace Favor (or unchanged if none)
+- No persistence of current pace - Claude remembers next pace from output
 
 **Trophy Extraction Spec**
 
@@ -337,7 +338,7 @@ Decision: **Append-only**
 
 - **Implement /jjc-heat-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
 
-- **Implement /jjc-pace-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, display next pace. Advance saddled pointer.
+- **Implement /jjc-pace-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, output next pace for Claude to hold in chat.
 
 - **Implement /jjc-heat-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
 

@@ -92,6 +92,14 @@ jjt_studbook_write() {
   zjju_studbook_write "$@"
 }
 
+jjt_chalk() {
+  jju_chalk "$@"
+}
+
+jjt_rein() {
+  jju_rein "$@"
+}
+
 ######################################################################
 # Test Suites
 
@@ -149,7 +157,7 @@ jjt_test_studbook_validation() {
 
   # Test 1: Valid empty studbook
   but_info "Test 1: Valid empty studbook"
-  but_expect_ok jjt_studbook_validate '{"heats":{},"saddled":"","next_heat_seed":"AA"}'
+  but_expect_ok jjt_studbook_validate '{"heats":{},"next_heat_seed":"AA"}'
 
   # Test 2: Valid studbook with heat and paces
   but_info "Test 2: Valid studbook with heat and paces"
@@ -166,7 +174,6 @@ jjt_test_studbook_validation() {
         ]
       }
     },
-    "saddled": "₣Kb",
     "next_heat_seed": "Kc"
   }'
   but_expect_ok jjt_studbook_validate "${z_valid_full}"
@@ -189,25 +196,16 @@ jjt_test_studbook_validation() {
         ]
       }
     },
-    "saddled": "",
     "next_heat_seed": "AB"
   }'
   but_expect_ok jjt_studbook_validate "${z_all_statuses}"
 
-  # Test 4: Invalid - missing saddled field
-  but_info "Test 4: Invalid - missing saddled field"
-  but_expect_fatal jjt_studbook_validate '{"heats":{},"next_heat_seed":"AA"}'
+  # Test 4: Invalid - bad heat key (missing ₣ prefix)
+  but_info "Test 4: Invalid - bad heat key (missing ₣)"
+  but_expect_fatal jjt_studbook_validate '{"heats":{"Kb":{"datestamp":"260101","display":"X","silks":"x","status":"current","paces":[]}},"next_heat_seed":"AA"}'
 
-  # Test 5: Invalid - bad saddled format (too long - pace included)
-  but_info "Test 5: Invalid - bad saddled format (pace included)"
-  but_expect_fatal jjt_studbook_validate '{"heats":{},"saddled":"₣Kb001","next_heat_seed":"AA"}'
-
-  # Test 6: Invalid - bad heat key (missing ₣ prefix)
-  but_info "Test 6: Invalid - bad heat key (missing ₣)"
-  but_expect_fatal jjt_studbook_validate '{"heats":{"Kb":{"datestamp":"260101","display":"X","silks":"x","status":"current","paces":[]}},"saddled":"","next_heat_seed":"AA"}'
-
-  # Test 7: Invalid - bad pace status
-  but_info "Test 7: Invalid - bad pace status"
+  # Test 5: Invalid - bad pace status
+  but_info "Test 5: Invalid - bad pace status"
   local z_bad_status='{
     "heats": {
       "₣Kb": {
@@ -218,13 +216,12 @@ jjt_test_studbook_validation() {
         "paces": [{"id": "001", "display": "Bad", "status": "invalid"}]
       }
     },
-    "saddled": "",
     "next_heat_seed": "Kc"
   }'
   but_expect_fatal jjt_studbook_validate "${z_bad_status}"
 
-  # Test 8: Invalid - bad datestamp format
-  but_info "Test 8: Invalid - bad datestamp format"
+  # Test 6: Invalid - bad datestamp format
+  but_info "Test 6: Invalid - bad datestamp format"
   local z_bad_date='{
     "heats": {
       "₣Kb": {
@@ -235,13 +232,12 @@ jjt_test_studbook_validation() {
         "paces": []
       }
     },
-    "saddled": "",
     "next_heat_seed": "Kc"
   }'
   but_expect_fatal jjt_studbook_validate "${z_bad_date}"
 
-  # Test 9: Invalid - bad silks format (uppercase)
-  but_info "Test 9: Invalid - bad silks format"
+  # Test 7: Invalid - bad silks format (uppercase)
+  but_info "Test 7: Invalid - bad silks format"
   local z_bad_silks='{
     "heats": {
       "₣Kb": {
@@ -252,7 +248,6 @@ jjt_test_studbook_validation() {
         "paces": []
       }
     },
-    "saddled": "",
     "next_heat_seed": "Kc"
   }'
   but_expect_fatal jjt_studbook_validate "${z_bad_silks}"
@@ -270,7 +265,7 @@ jjt_test_studbook_ops() {
 
   # Setup: Create empty studbook
   but_info "Setup: Creating test studbook"
-  local z_empty='{"heats":{},"saddled":"","next_heat_seed":"AA"}'
+  local z_empty='{"heats":{},"next_heat_seed":"AA"}'
   jjt_studbook_write "${z_empty}"
 
   # Test 1: Heat seed increment
@@ -308,15 +303,9 @@ jjt_test_studbook_ops() {
   but_info "Test 4: Muster lists heats"
   but_expect_ok jjt_muster
 
-  # Test 5: Set saddled heat manually for testing slate
-  but_info "Test 5: Set saddled to ₣AA for pace operations"
-  z_studbook="$(jjt_studbook_read)"
-  z_studbook="$(echo "${z_studbook}" | jq '.saddled = "₣AA"')"
-  jjt_studbook_write "${z_studbook}"
-
-  # Test 6: Slate first pace (should be status "current")
-  but_info "Test 6: Slate first pace"
-  but_expect_ok jjt_slate "First pace"
+  # Test 5: Slate first pace (should be status "current")
+  but_info "Test 5: Slate first pace to ₣AA"
+  but_expect_ok jjt_slate "₣AA" "First pace"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces | length == 1' >/dev/null 2>&1 \
@@ -326,9 +315,9 @@ jjt_test_studbook_ops() {
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].status == "current"' >/dev/null 2>&1 \
     || but_fatal "First pace status should be current"
 
-  # Test 7: Slate second pace (should be status "pending")
-  but_info "Test 7: Slate second pace"
-  but_expect_ok jjt_slate "Second pace"
+  # Test 6: Slate second pace (should be status "pending")
+  but_info "Test 6: Slate second pace to ₣AA"
+  but_expect_ok jjt_slate "₣AA" "Second pace"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces | length == 2' >/dev/null 2>&1 \
@@ -336,33 +325,33 @@ jjt_test_studbook_ops() {
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[1].status == "pending"' >/dev/null 2>&1 \
     || but_fatal "Second pace status should be pending"
 
-  # Test 8: Slate third pace
-  but_info "Test 8: Slate third pace"
-  but_expect_ok jjt_slate "Third pace"
+  # Test 7: Slate third pace to ₣AA
+  but_info "Test 7: Slate third pace to ₣AA"
+  but_expect_ok jjt_slate "₣AA" "Third pace"
 
-  # Test 9: Tally - change pace status
-  but_info "Test 9: Tally - mark pace complete"
+  # Test 8: Tally - change pace status
+  but_info "Test 8: Tally - mark pace complete"
   but_expect_ok jjt_tally "₣AAAAB" "complete"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].status == "complete"' >/dev/null 2>&1 \
     || but_fatal "Pace 001 should be marked complete"
 
-  # Test 10: Tally - invalid state
-  but_info "Test 10: Tally - invalid state (expect failure)"
+  # Test 9: Tally - invalid state
+  but_info "Test 9: Tally - invalid state (expect failure)"
   but_expect_fatal jjt_tally "₣AAAAB" "invalid-state"
 
-  # Test 11: Reslate - change pace description
-  but_info "Test 11: Reslate - revise pace description"
+  # Test 10: Reslate - change pace description
+  but_info "Test 10: Reslate - revise pace description"
   but_expect_ok jjt_reslate "₣AAAAC" "Second pace (revised)"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[1].display == "Second pace (revised)"' >/dev/null 2>&1 \
     || but_fatal "Pace 002 description should be revised"
 
-  # Test 12: Rail - reorder paces
-  but_info "Test 12: Rail - reorder paces (003 001 002)"
-  but_expect_ok jjt_rail "003 001 002"
+  # Test 11: Rail - reorder paces
+  but_info "Test 11: Rail - reorder paces for ₣AA (003 001 002)"
+  but_expect_ok jjt_rail "₣AA" "003 001 002"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].id == "003"' >/dev/null 2>&1 \
@@ -372,30 +361,82 @@ jjt_test_studbook_ops() {
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[2].id == "002"' >/dev/null 2>&1 \
     || but_fatal "Third pace should be 002 after reordering"
 
-  # Test 13: Rail - wrong count (expect failure)
-  but_info "Test 13: Rail - wrong count (expect failure)"
-  but_expect_fatal jjt_rail "001 002"
+  # Test 12: Rail - wrong count (expect failure)
+  but_info "Test 12: Rail - wrong count (expect failure)"
+  but_expect_fatal jjt_rail "₣AA" "001 002"
 
-  # Test 13b: Rail - duplicate ID (expect failure)
-  but_info "Test 13b: Rail - duplicate ID (expect failure)"
-  but_expect_fatal jjt_rail "001 001 002"
+  # Test 13: Rail - duplicate ID (expect failure)
+  but_info "Test 13: Rail - duplicate ID (expect failure)"
+  but_expect_fatal jjt_rail "₣AA" "001 001 002"
 
   # Test 14: Retire extract
   but_info "Test 14: Retire extract - generate trophy content"
   but_expect_ok jjt_retire_extract "₣AA"
 
-  # Test 15: Error cases - no saddled heat
-  but_info "Test 15: Slate with no saddled heat (expect failure)"
-  z_studbook="$(jjt_studbook_read)"
-  z_studbook="$(echo "${z_studbook}" | jq '.saddled = ""')"
-  jjt_studbook_write "${z_studbook}"
-  but_expect_fatal jjt_slate "Should fail"
-
-  # Test 16: Nominate with invalid silks
-  but_info "Test 16: Nominate with invalid silks (expect failure)"
+  # Test 15: Nominate with invalid silks
+  but_info "Test 15: Nominate with invalid silks (expect failure)"
   but_expect_fatal jjt_nominate "Bad Silks" "Bad_Silks_Here"
 
   but_section "=== All studbook operations tests passed ==="
+}
+
+jjt_test_steeplechase() {
+  but_section "=== Steeplechase Operations Tests ==="
+
+  # These tests operate on the real git repo, so use test favors that won't
+  # conflict with actual heats: ₣ZZ (heat) with paces ₣ZZAAA, ₣ZZAAB, etc.
+
+  # Test 1: Chalk creates a commit
+  but_info "Test 1: Chalk - create steeplechase entry"
+  but_expect_ok jjt_chalk "₣ZZAAA" "TEST" "Test steeplechase entry 1"
+
+  # Verify the commit was created by checking git log
+  git log -1 --grep="^\[₣ZZAAA\] TEST" --format="%s" | grep -q "^\[₣ZZAAA\] TEST: Test steeplechase entry 1$" \
+    || but_fatal "Chalk commit not found in git log"
+
+  # Test 2: Chalk creates another entry for same heat
+  but_info "Test 2: Chalk - create second entry for same heat"
+  but_expect_ok jjt_chalk "₣ZZAAB" "APPROACH" "Starting test pace 2"
+
+  # Test 3: Chalk creates entry for different pace
+  but_info "Test 3: Chalk - create entry for different heat"
+  but_expect_ok jjt_chalk "₣ZYAAA" "NOTE" "Different heat entry"
+
+  # Test 4: Rein queries heat entries
+  but_info "Test 4: Rein - query entries for heat ₣ZZ"
+  local z_rein_out="${BUD_TEMP_DIR}/rein_test.txt"
+  jjt_rein "₣ZZ" > "${z_rein_out}"
+
+  # Should find at least 2 entries for ₣ZZ heat (₣ZZAAA and ₣ZZAAB)
+  grep -q "₣ZZAAA" "${z_rein_out}" \
+    || but_fatal "Rein did not find ₣ZZAAA entry"
+  grep -q "₣ZZAAB" "${z_rein_out}" \
+    || but_fatal "Rein did not find ₣ZZAAB entry"
+
+  # Should NOT find ₣ZY entry when querying ₣ZZ
+  grep -q "₣ZYAAA" "${z_rein_out}" \
+    && but_fatal "Rein should not find ₣ZYAAA when querying ₣ZZ"
+
+  # Test 5: Rein queries specific pace
+  but_info "Test 5: Rein - query entries for specific pace ₣ZZAAA"
+  jjt_rein "₣ZZAAA" > "${z_rein_out}"
+
+  # Should find ₣ZZAAA but not ₣ZZAAB
+  grep -q "₣ZZAAA" "${z_rein_out}" \
+    || but_fatal "Rein did not find ₣ZZAAA entry"
+  grep -q "₣ZZAAB" "${z_rein_out}" \
+    && but_fatal "Rein should not find ₣ZZAAB when querying ₣ZZAAA specifically"
+
+  # Test 6: Rein with invalid favor format
+  but_info "Test 6: Rein - invalid favor format (expect failure)"
+  but_expect_fatal jjt_rein "INVALID"
+
+  # Test 7: Chalk with missing parameters
+  but_info "Test 7: Chalk - missing parameters (expect failure)"
+  but_expect_fatal jjt_chalk "₣ZZAAA" ""
+  but_expect_fatal jjt_chalk "₣ZZAAA" "EMBLEM"
+
+  but_section "=== All steeplechase operations tests passed ==="
 }
 
 ######################################################################
@@ -415,10 +456,14 @@ case "${z_suite}" in
   ops)
     jjt_test_studbook_ops
     ;;
+  steeple)
+    jjt_test_steeplechase
+    ;;
   all)
     jjt_test_favor_encoding
     jjt_test_studbook_validation
     jjt_test_studbook_ops
+    jjt_test_steeplechase
     ;;
   *)
     echo "JJT Testbench - Job Jockey test execution"
@@ -429,6 +474,7 @@ case "${z_suite}" in
     echo "  favor     Test favor encoding/decoding"
     echo "  studbook  Test studbook validation"
     echo "  ops       Test studbook operations"
+    echo "  steeple   Test steeplechase operations (git)"
     echo "  all       Run all test suites"
     exit 1
     ;;

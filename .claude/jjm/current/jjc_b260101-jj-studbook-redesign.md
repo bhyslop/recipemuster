@@ -95,3 +95,11 @@
 ### 2026-01-04 09:49 - implement-studbook-operations - WRAP
 **Outcome**: Added 7 studbook ops (nominate, slate, tally, muster, reslate, rail, retire_extract), test suite with 17 cases
 ---
+### 2026-01-04 10:00 - remove-saddled-from-studbook - APPROACH
+**Proposed approach**:
+- Remove `saddled` field from studbook schema (context lives in chat, not disk)
+- Update `zjju_studbook_validate` to remove saddled validation checks
+- Update `jjs_studbook.json` to remove saddled field
+- Update test cases: remove saddled from valid JSON fixture, delete bad-saddled test case
+- Update paddock: schema example and Fresh Session Handling section (saddle outputs context for Claude)
+---

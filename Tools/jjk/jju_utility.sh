@@ -216,11 +216,11 @@ zjju_studbook_validate() {
     || buc_die "Not a valid JSON object"
 
   # Step 2: Required top-level fields
-  jq -e 'has("heats") and has("saddled") and has("next_heat_seed")' "${z_file}" >/dev/null 2>&1 \
-    || buc_die "Missing required fields (heats, saddled, next_heat_seed)"
+  jq -e 'has("heats") and has("next_heat_seed")' "${z_file}" >/dev/null 2>&1 \
+    || buc_die "Missing required fields (heats, next_heat_seed)"
 
   # Step 3: Top-level field types
-  jq -e '(.heats | type) == "object" and (.saddled | type) == "string" and (.next_heat_seed | type) == "string"' "${z_file}" >/dev/null 2>&1 \
+  jq -e '(.heats | type) == "object" and (.next_heat_seed | type) == "string"' "${z_file}" >/dev/null 2>&1 \
     || buc_die "Type mismatch in top-level fields"
 
   # Step 4: Heat keys format (₣XX)
@@ -239,11 +239,7 @@ zjju_studbook_validate() {
   jq -e '.heats | to_entries | all(.value.paces | all(has("id") and has("display") and has("status") and (.id | test("^[0-9]{3}$")) and (.status | . == "current" or . == "pending" or . == "complete" or . == "abandoned" or . == "malformed")))' "${z_file}" >/dev/null 2>&1 \
     || buc_die "Invalid pace (id=XXX, status=current|pending|complete|abandoned|malformed)"
 
-  # Step 8: Saddled format (empty or ₣XX)
-  jq -e '(.saddled == "") or (.saddled | test("^₣[A-Za-z0-9_-]{2}$"))' "${z_file}" >/dev/null 2>&1 \
-    || buc_die "Invalid saddled format (expected empty or ₣XX)"
-
-  # Step 9: next_heat_seed format (XX)
+  # Step 8: next_heat_seed format (XX)
   jq -e '.next_heat_seed | test("^[A-Za-z0-9_-]{2}$")' "${z_file}" >/dev/null 2>&1 \
     || buc_die "Invalid next_heat_seed format (expected 2 base64 chars)"
 
@@ -322,9 +318,11 @@ jju_muster() {
   local z_temp="${BUD_TEMP_DIR}/studbook_muster.json"
   zjju_studbook_read > "${z_temp}"
 
-  # Check if there are any heats
+  # Check if there are any heats (BCG: temp file for jq output)
+  local z_count_file="${BUD_TEMP_DIR}/muster_count.txt"
+  jq -r '.heats | length' "${z_temp}" > "${z_count_file}"
   local z_heat_count
-  z_heat_count="$(jq -r '.heats | length' "${z_temp}")"
+  read -r z_heat_count < "${z_count_file}"
 
   if test "${z_heat_count}" -eq 0; then
     echo "No heats in studbook"
@@ -332,29 +330,17 @@ jju_muster() {
     return 0
   fi
 
-  # Get saddled heat for marking
-  local z_saddled
-  z_saddled="$(jq -r '.saddled' "${z_temp}")"
-
   # List heats with their details
   echo "Current heats:"
   echo ""
 
   jq -r '.heats | to_entries | .[] |
-    "\(.key)\t\(.value.datestamp)\t\(.value.display)\t\(.value.silks)\t\(.value.paces | length)"' \
-    "${z_temp}" | while IFS=$'\t' read -r z_favor z_date z_display z_silks z_pace_count; do
-
-    # Mark saddled heat
-    local z_mark=""
-    if test "${z_favor}" = "${z_saddled}"; then
-      z_mark="* "
-    else
-      z_mark="  "
-    fi
+    "\(.key)\t\(.value.display)\t\(.value.silks)\t\(.value.paces | length)"' \
+    "${z_temp}" | while IFS=$'\t' read -r z_favor z_display z_silks z_pace_count; do
 
     # Format output
-    printf "%s%s  %s  [%s]  (%s paces)\n" \
-      "${z_mark}" "${z_favor}" "${z_display}" "${z_silks}" "${z_pace_count}"
+    printf "%s  %s  [%s]  (%s paces)\n" \
+      "${z_favor}" "${z_display}" "${z_silks}" "${z_pace_count}"
   done
 
   buc_trace "Muster complete, temp file: ${z_temp}"
@@ -457,42 +443,42 @@ EOF
 
 jju_slate() {
   zjju_sentinel
-  local z_display="${1:-}"
+  local z_heat="${1:-}"
+  local z_display="${2:-}"
 
-  buc_doc_brief "Add new pace to current heat (append-only)"
+  buc_doc_brief "Add new pace to heat (append-only)"
+  buc_doc_param "heat" "Heat Favor (2-char, e.g., ₣AA)"
   buc_doc_param "display" "Human-readable pace name"
   buc_doc_shown || return 0
 
-  # Validate parameter
+  # Validate parameters
+  test -n "${z_heat}" || buc_die "Parameter 'heat' is required"
   test -n "${z_display}" || buc_die "Parameter 'display' is required"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_slate.json"
   zjju_studbook_read > "${z_temp}"
 
-  # Get saddled heat and validate it exists
-  local z_saddled
-  z_saddled="$(jq -r '.saddled' "${z_temp}")"
-  test -n "${z_saddled}" || buc_die "No heat saddled"
-
   # Verify heat exists
-  jq -e --arg heat "${z_saddled}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
-    || buc_die "Saddled heat not found: ${z_saddled}"
+  jq -e --arg heat "${z_heat}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat}"
 
-  # Get pace count to determine next ID and status
+  # Get pace count to determine next ID and status (BCG: temp file for jq output)
+  local z_scalar_file="${BUD_TEMP_DIR}/slate_scalar.txt"
+  jq -r --arg heat "${z_heat}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
   local z_pace_count
-  z_pace_count="$(jq -r --arg heat "${z_saddled}" \
-    '.heats[$heat].paces | length' "${z_temp}")"
+  read -r z_pace_count < "${z_scalar_file}"
 
   # Calculate next pace ID
   local z_next_id
   if test "${z_pace_count}" -eq 0; then
     z_next_id="001"
   else
-    # Get max ID and increment
+    # Get max ID and increment (BCG: temp file for jq output)
+    jq -r --arg heat "${z_heat}" \
+      '.heats[$heat].paces | map(.id | tonumber) | max' "${z_temp}" > "${z_scalar_file}"
     local z_max_id
-    z_max_id="$(jq -r --arg heat "${z_saddled}" \
-      '.heats[$heat].paces | map(.id | tonumber) | max' "${z_temp}")"
+    read -r z_max_id < "${z_scalar_file}"
     local z_next_num=$((z_max_id + 1))
 
     # Format as 3-digit string
@@ -514,7 +500,7 @@ jju_slate() {
   fi
 
   # Add pace to heat
-  jq --arg heat "${z_saddled}" \
+  jq --arg heat "${z_heat}" \
      --arg id "${z_next_id}" \
      --arg display "${z_display}" \
      --arg status "${z_status}" \
@@ -532,7 +518,7 @@ jju_slate() {
   zjju_studbook_write "${z_new_studbook}"
 
   buc_trace "Slated pace ${z_next_id}, temp files: ${z_temp}, ${z_temp}.2"
-  echo "Pace ${z_saddled}${z_next_id} slated: ${z_display}"
+  echo "Pace ${z_heat}${z_next_id} slated: ${z_display}"
 }
 
 jju_reslate() {
@@ -610,32 +596,31 @@ jju_reslate() {
 
 jju_rail() {
   zjju_sentinel
-  local z_order="${1:-}"
+  local z_heat="${1:-}"
+  local z_order="${2:-}"
 
-  buc_doc_brief "Reorder paces in current heat"
+  buc_doc_brief "Reorder paces in heat"
+  buc_doc_param "heat" "Heat Favor (2-char, e.g., ₣AA)"
   buc_doc_param "order" "Space-separated pace IDs in new order (e.g., '001 003 002')"
   buc_doc_shown || return 0
 
-  # Validate parameter
+  # Validate parameters
+  test -n "${z_heat}" || buc_die "Parameter 'heat' is required"
   test -n "${z_order}" || buc_die "Parameter 'order' is required"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_rail.json"
   zjju_studbook_read > "${z_temp}"
 
-  # Get saddled heat
-  local z_saddled
-  z_saddled="$(jq -r '.saddled' "${z_temp}")"
-  test -n "${z_saddled}" || buc_die "No heat saddled"
-
   # Verify heat exists
-  jq -e --arg heat "${z_saddled}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
-    || buc_die "Saddled heat not found: ${z_saddled}"
+  jq -e --arg heat "${z_heat}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat}"
 
-  # Get current pace count
+  # Get current pace count (BCG: temp file for jq output)
+  local z_scalar_file="${BUD_TEMP_DIR}/rail_scalar.txt"
+  jq -r --arg heat "${z_heat}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
   local z_pace_count
-  z_pace_count="$(jq -r --arg heat "${z_saddled}" \
-    '.heats[$heat].paces | length' "${z_temp}")"
+  read -r z_pace_count < "${z_scalar_file}"
 
   # Count IDs in order list
   local z_order_count=0
@@ -664,7 +649,7 @@ jju_rail() {
     z_seen_ids="${z_seen_ids} ${z_id} "
 
     # Verify pace exists
-    jq -e --arg heat "${z_saddled}" --arg id "${z_id}" \
+    jq -e --arg heat "${z_heat}" --arg id "${z_id}" \
       '.heats[$heat].paces | any(.id == $id)' "${z_temp}" >/dev/null 2>&1 \
       || buc_die "Pace not found: ${z_id}"
 
@@ -678,7 +663,7 @@ jju_rail() {
   z_order_json="${z_order_json}]"
 
   # Reorder paces using jq
-  jq --arg heat "${z_saddled}" \
+  jq --arg heat "${z_heat}" \
      --argjson order "${z_order_json}" \
      '.heats[$heat].paces = [
         $order[] as $id |
@@ -882,15 +867,44 @@ jju_retire_extract() {
 
 jju_chalk() {
   zjju_sentinel
-  local z_emblem="${1:-}"
-  local z_title="${2:-}"
+  local z_favor="${1:-}"
+  local z_emblem="${2:-}"
+  local z_title="${3:-}"
 
   buc_doc_brief "Write steeplechase entry as empty git commit"
+  buc_doc_param "favor" "Pace Favor (₣HHPPP)"
   buc_doc_param "emblem" "Entry type (APPROACH, WRAP, BLOCKED, NOTE, etc.)"
   buc_doc_param "title" "Entry title"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameters
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+  test -n "${z_emblem}" || buc_die "Parameter 'emblem' is required"
+  test -n "${z_title}" || buc_die "Parameter 'title' is required"
+
+  # Get git status to determine files touched
+  local z_status_file="${BUD_TEMP_DIR}/chalk_status.txt"
+  git status --short > "${z_status_file}" 2>&1 || buc_die "Git status failed"
+
+  # Build commit message
+  local z_commit_msg_file="${BUD_TEMP_DIR}/chalk_commit.txt"
+  {
+    echo "[${z_favor}] ${z_emblem}: ${z_title}"
+    echo ""
+
+    # Add files touched footer if there are any changes
+    if test -s "${z_status_file}"; then
+      echo "Files touched:"
+      cat "${z_status_file}"
+    fi
+  } > "${z_commit_msg_file}"
+
+  # Create empty commit
+  git commit --allow-empty -F "${z_commit_msg_file}" \
+    || buc_die "Git commit failed"
+
+  buc_trace "Chalked steeplechase entry: [${z_favor}] ${z_emblem}: ${z_title}"
+  echo "Steeplechase entry created: [${z_favor}] ${z_emblem}"
 }
 
 jju_rein() {
@@ -898,10 +912,56 @@ jju_rein() {
   local z_favor="${1:-}"
 
   buc_doc_brief "Query steeplechase entries from git log"
-  buc_doc_param "favor" "Heat Favor (HH) for all entries, or Pace Favor (HHPPP) for filtered"
+  buc_doc_param "favor" "Heat Favor (₣HH) for all entries, or Pace Favor (₣HHPPP) for filtered"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  # Validate favor format (₣HH or ₣HHPPP)
+  test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
+  local z_favor_len="${#z_favor}"
+  test "${z_favor_len}" -eq 3 -o "${z_favor_len}" -eq 6 \
+    || buc_die "Favor must be ₣HH (heat) or ₣HHPPP (pace): ${z_favor}"
+
+  # Determine search pattern
+  local z_pattern
+  if test "${z_favor_len}" -eq 3; then
+    # Heat favor - match all paces in this heat
+    z_pattern="^\[${z_favor}"
+  else
+    # Pace favor - exact match
+    z_pattern="^\[${z_favor}\]"
+  fi
+
+  # Query git log for matching commits
+  buc_trace "Querying steeplechase entries with pattern: ${z_pattern}"
+
+  # Use git log with --grep to filter by commit message pattern
+  # Format: %H = commit hash, %ai = author date ISO, %s = subject
+  local z_log_file="${BUD_TEMP_DIR}/rein_log.txt"
+  git log --all --grep="${z_pattern}" --format="%H%x09%ai%x09%s" > "${z_log_file}" 2>&1 \
+    || buc_die "Git log failed"
+
+  # Check if any entries found
+  if ! test -s "${z_log_file}"; then
+    echo "No steeplechase entries found for ${z_favor}"
+    buc_trace "Rein found no entries, temp file: ${z_log_file}"
+    return 0
+  fi
+
+  # Output entries
+  echo "Steeplechase entries for ${z_favor}:"
+  echo ""
+
+  while IFS=$'\t' read -r z_hash z_date z_subject; do
+    # Format date (take just the date part, not time)
+    local z_short_date="${z_date:0:10}"
+
+    printf "%s  %s  %s\n" "${z_short_date}" "${z_hash:0:7}" "${z_subject}"
+  done < "${z_log_file}"
+
+  buc_trace "Rein complete, temp file: ${z_log_file}"
 }
 
 jju_notch() {
@@ -909,10 +969,39 @@ jju_notch() {
   local z_message="${1:-}"
 
   buc_doc_brief "Git commit with JJ metadata, then push"
-  buc_doc_param "message" "Commit message (JJ prefix auto-added)"
+  buc_doc_param "message" "Commit message (JJ footer auto-added)"
   buc_doc_shown || return 0
 
-  buc_die "not implemented yet"
+  # Validate parameter
+  test -n "${z_message}" || buc_die "Parameter 'message' is required"
+
+  # Check for staged or unstaged changes
+  if git diff-index --quiet HEAD --; then
+    buc_die "No changes to commit (working tree clean)"
+  fi
+
+  # Build commit message with JJ footer
+  local z_commit_msg_file="${BUD_TEMP_DIR}/notch_commit.txt"
+  {
+    echo "${z_message}"
+    echo ""
+    echo "Job Jockey notch"
+  } > "${z_commit_msg_file}"
+
+  # Stage all changes (git commit -a behavior)
+  git add -A || buc_die "Git add failed"
+
+  # Create commit
+  git commit -F "${z_commit_msg_file}" \
+    || buc_die "Git commit failed"
+
+  # Push to remote
+  buc_trace "Pushing to remote"
+  git push || buc_die "Git push failed"
+
+  buc_trace "Notched and pushed: ${z_message}"
+  echo "Changes committed and pushed"
+  echo "Message: ${z_message}"
 }
 
 # eof
