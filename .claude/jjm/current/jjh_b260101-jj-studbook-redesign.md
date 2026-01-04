@@ -329,12 +329,11 @@ Decision: **Append-only**
 - **Implement favor encoding in jju_utility.sh** — Added zjju_favor_encode/decode with charset helpers, jjt_testbench.sh with test suite, launcher and tabtarget
 - **studbook-schema-design** — Added BCG-compliant schema validation gate, read/write functions, empty studbook, 9 test cases
 - **implement-studbook-operations** — Added 7 studbook ops (nominate, slate, tally, muster, reslate, rail, retire_extract), test suite with 17 cases
+- **implement-steeplechase-operations** — Added jju_chalk/rein/notch functions, test suite with 7 cases, tabtarget
 
 ## Remaining
 
 - **Remove saddled from studbook schema** — Current heat/pace context lives in chat, not disk. Changes: (1) Remove `saddled` field from schema, (2) Update `zjju_studbook_validate` to remove saddled checks, (3) Update `jjs_studbook.json` to remove saddled, (4) Update test cases to remove saddled from valid JSON and remove bad-saddled test, (5) Update paddock schema example and Fresh Session Handling section, (6) Note that `/jjc-heat-saddle` outputs context for Claude to hold.
-
-- **Implement steeplechase operations in jju_utility.sh** — Functions: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting. BCG compliant.
 
 - **Implement /jjc-heat-saddle** — Compose output from studbook + paddock + steeple. Format: heat header, full paddock, current pace, remaining paces, recent steeple entries. Tabtarget + workbench routing.
 

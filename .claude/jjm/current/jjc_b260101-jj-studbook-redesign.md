@@ -103,3 +103,6 @@
 - Update test cases: remove saddled from valid JSON fixture, delete bad-saddled test case
 - Update paddock: schema example and Fresh Session Handling section (saddle outputs context for Claude)
 ---
+### 2026-01-04 10:15 - implement-steeplechase-operations - WRAP
+**Outcome**: Added jju_chalk/rein/notch functions, test suite with 7 cases, tabtarget
+---
