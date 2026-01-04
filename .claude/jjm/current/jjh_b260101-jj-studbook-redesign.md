@@ -143,6 +143,25 @@ Claude's interface documented in `Tools/jjk/jju_utility.sh` via `buc_doc_*` anno
 - Completed paces vanish from view until retirement
 - Scripts handle all git/jq mechanics; humans use slash commands only
 
+### Testing Patterns
+
+**BCG-Compliant Validation:**
+- Write JSON to temp file once: `printf '%s' "${z_json}" > "${z_file}"`
+- Multiple `jq -e` checks on same file (exit status only)
+- Direct status check: `jq -e 'expression' "${z_file}" >/dev/null 2>&1 || buc_die "message"`
+- No command substitution `$(...)` - check exit codes directly
+
+**Test Structure:**
+- Production logic in `zjju_*` functions (jju_utility.sh)
+- Test wrappers `jjt_*` expose internals (jjt_testbench.sh)
+- Test suites `jjt_test_*` with but_expect_ok/fatal (jjt_testbench.sh)
+- One tabtarget per suite: `tt/jjt-X.TestY.sh`
+
+**Test Coverage Strategy:**
+- Valid cases with `but_expect_ok` / `but_expect_ok_stdout`
+- Boundary cases with `but_expect_fatal` (ranges, empty values)
+- Invalid inputs with `but_expect_fatal` (format violations, missing fields)
+
 ### Saddle Output Format
 
 Combines paddock (full text), current pace, remaining paces (pending only), and recent steeple entries (2-3) for the current pace.
@@ -311,7 +330,7 @@ Decision: **Append-only**
 
 ## Remaining
 
-- **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). Assumes schema from prior pace. BCG compliant.
+- **Implement studbook operations in jju_utility.sh** — Functions: `jju_muster` (list heats), `jju_slate`/`jju_reslate` (add/revise paces), `jju_rail` (reorder), `jju_tally` (set state), `jju_nominate` (create heat), `jju_retire_extract` (pull heat data for trophy). BCG compliant: temp files for jq transforms, exit status checks, no command substitution. Add test cases to jjt_testbench.sh (valid mutations, boundary cases, error conditions). Create tt/jjt-o.TestStudbookOps.sh tabtarget.
 
 - **Implement steeplechase operations in jju_utility.sh** — Functions: `jju_chalk` (write entry as empty commit), `jju_rein` (query entries from git log), `jju_notch` (commit with JJ metadata). Handles files-touched formatting. BCG compliant.
 
