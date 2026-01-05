@@ -1140,4 +1140,96 @@ jju_notch() {
   echo "Message: ${z_message}"
 }
 
+jju_wrap() {
+  zjju_sentinel
+  local z_favor="${1:-}"
+
+  buc_doc_brief "Complete pace ceremony: tally complete, chalk WRAP, advance, display"
+  buc_doc_param "favor" "Pace Favor (₣HHPPP)"
+  buc_doc_shown || return 0
+
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  # Validate favor format (₣HHPPP)
+  test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
+  test "${#z_favor}" -eq 6 || buc_die "Favor must be 6 characters (₣HHPPP): ${z_favor}"
+
+  # Guard: Require clean worktree
+  if ! git diff-index --quiet HEAD --; then
+    buc_die "Uncommitted changes. Run /jjc-notch first."
+  fi
+
+  # Push to remote (synchronous - must succeed)
+  buc_trace "Pushing to remote before wrap"
+  git push || buc_die "Git push failed"
+
+  # Extract heat favor from pace favor (₣HH from ₣HHPPP)
+  local z_favor_digits="${z_favor:1}"  # Remove ₣ prefix
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
+  local z_pace_digits="${z_favor_digits:2:3}"
+
+  # Read studbook to get pace display text
+  local z_temp="${BUD_TEMP_DIR}/wrap_studbook.json"
+  zjju_studbook_read > "${z_temp}"
+
+  # Verify heat exists
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
+
+  # Get pace display text
+  local z_scalar_file="${BUD_TEMP_DIR}/wrap_scalar.txt"
+  local z_pace_display
+  jq -r --arg heat "${z_heat_favor}" --arg pace_id "${z_pace_digits}" \
+    '.heats[$heat].paces[] | select(.id == $pace_id) | .display' \
+    "${z_temp}" > "${z_scalar_file}"
+  read -r z_pace_display < "${z_scalar_file}"
+
+  test -n "${z_pace_display}" || buc_die "Pace not found: ${z_favor}"
+
+  # Tally: Mark pace complete in studbook
+  buc_trace "Tallying pace ${z_favor} as complete"
+  jju_tally "${z_favor}" "complete" >/dev/null
+
+  # Chalk: Write WRAP entry to steeplechase
+  buc_trace "Chalking WRAP entry for ${z_favor}"
+  jju_chalk "${z_favor}" "WRAP" "${z_pace_display}" >/dev/null
+
+  # Advance: Find next pending pace
+  local z_next_pace_file="${BUD_TEMP_DIR}/wrap_next_pace.json"
+  zjju_studbook_read > "${z_temp}"  # Re-read after tally
+  jq -r --arg heat "${z_heat_favor}" \
+    '.heats[$heat].paces | map(select(.status == "pending")) | first // null' \
+    "${z_temp}" > "${z_next_pace_file}"
+
+  # Check if there is a next pace
+  local z_has_next
+  jq -r 'if . == null then "false" else "true" end' "${z_next_pace_file}" > "${z_scalar_file}"
+  read -r z_has_next < "${z_scalar_file}"
+
+  # Display: Output wrapped pace and next pace
+  echo "Pace wrapped: ${z_favor}"
+  echo "  ${z_pace_display}"
+  echo ""
+
+  if test "${z_has_next}" = "true"; then
+    local z_next_id
+    jq -r '.id' "${z_next_pace_file}" > "${z_scalar_file}"
+    read -r z_next_id < "${z_scalar_file}"
+
+    local z_next_display
+    jq -r '.display' "${z_next_pace_file}" > "${z_scalar_file}"
+    read -r z_next_display < "${z_scalar_file}"
+
+    echo "Next pace: ${z_heat_favor}${z_next_id}"
+    echo "  ${z_next_display}"
+  else
+    echo "Heat complete - all paces done"
+    echo "Ready to retire heat ${z_heat_favor}"
+  fi
+
+  buc_trace "Wrap complete for ${z_favor}, temp files: ${z_temp}, ${z_next_pace_file}"
+}
+
 # eof
