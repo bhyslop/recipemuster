@@ -125,3 +125,13 @@
 ### 2026-01-05 07:20 - code-review-by-opus - WRAP
 **Outcome**: Reviewed favor/rein changes for BCG compliance; approved; applied dirname fix to tt/jjt-a.TestAll.sh
 ---
+### 2026-01-05 07:25 - implement-jjc-heat-retire - APPROACH
+**Proposed approach**:
+- Complete steeplechase extraction in jju_retire_extract() using jju_rein output
+- Create jju_retire() with clean-worktree validation, trophy file creation, studbook removal, paddock move
+- Add workbench routing and tt/jjw-hr.HeatRetire.sh tabtarget
+- Add test cases for retire flow
+---
+### 2026-01-05 07:25 - implement-jjc-heat-retire - WRAP
+**Outcome**: jju_retire() with trophy/studbook/paddock/commit+push; arcanum emitter updated; tt/jjw-hr.HeatRetire.sh tabtarget
+---

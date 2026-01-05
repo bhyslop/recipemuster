@@ -1083,8 +1083,146 @@ jju_retire_extract() {
 
   echo "## Steeplechase"
   echo ""
-  echo "(Steeplechase extraction from git log not yet implemented)"
+
+  # Query git log for steeplechase entries (BCG: temp file, extended-regexp)
+  local z_steeple_file="${BUD_TEMP_DIR}/retire_steeple.txt"
+  local z_steeple_pattern="^[[]${z_heat_favor}"
+
+  git log --all --extended-regexp --grep="${z_steeple_pattern}" --format="%ai%x09%s" --reverse > "${z_steeple_file}" \
+    || buc_die "Git log failed for steeplechase extraction"
+
+  if test -s "${z_steeple_file}"; then
+    local z_entry_date=""
+    local z_entry_subject=""
+    while IFS=$'\t' read -r z_entry_date z_entry_subject; do
+      # Format: YYYY-MM-DD HH:MM - subject
+      local z_short_datetime="${z_entry_date:0:16}"
+      echo "- ${z_short_datetime} ${z_entry_subject}"
+    done < "${z_steeple_file}"
+  else
+    echo "(No steeplechase entries found)"
+  fi
+
   echo ""
+}
+
+jju_retire() {
+  zjju_sentinel
+  local z_favor="${1:-}"
+
+  buc_doc_brief "Retire heat: create trophy, remove from studbook, archive paddock"
+  buc_doc_param "favor" "Heat Favor (₣HHAAA for heat-only)"
+  buc_doc_shown || return 0
+
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  # Normalize favor to 6-char format (BCG: temp file for output)
+  local z_norm_file="${BUD_TEMP_DIR}/retire_norm.txt"
+  zjju_favor_normalize "${z_favor}" > "${z_norm_file}"
+  read -r z_favor < "${z_norm_file}"
+
+  # Extract heat favor (₣HH) from normalized favor
+  local z_favor_digits="${z_favor:1}"
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
+  local z_seed="${z_heat_digits}"
+
+  buc_step "Retiring heat ${z_heat_favor}"
+
+  # Validate clean worktree (policy: retire requires clean)
+  local z_status_file="${BUD_TEMP_DIR}/retire_status.txt"
+  git status --porcelain > "${z_status_file}" 2>&1 \
+    || buc_die "Git status failed"
+
+  if test -s "${z_status_file}"; then
+    buc_die "Worktree must be clean before retiring heat (commit or stash changes first)"
+  fi
+
+  # Read studbook to verify heat exists and get metadata
+  local z_temp="${BUD_TEMP_DIR}/studbook_retire_main.json"
+  zjju_studbook_read > "${z_temp}"
+
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
+
+  # Extract dates for trophy filename (BCG: temp file + read pattern)
+  local z_scalar_file="${BUD_TEMP_DIR}/retire_main_scalar.txt"
+
+  local z_datestamp
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
+  read -r z_datestamp < "${z_scalar_file}"
+  test -n "${z_datestamp}" || buc_die "Failed to read datestamp"
+
+  local z_silks
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
+  read -r z_silks < "${z_scalar_file}"
+  test -n "${z_silks}" || buc_die "Failed to read silks"
+
+  # Generate trophy filename: jjy_HH_YYMMDD-YYMMDD_silks.md
+  local z_start_date="${z_datestamp}"
+  local z_end_date="${BUD_NOW_STAMP:0:6}"
+  local z_trophy_filename="jjy_${z_seed}_${z_start_date}-${z_end_date}_${z_silks}.md"
+  local z_trophy_path="${ZJJU_TROPHY_DIR}/${z_trophy_filename}"
+
+  buc_step "Creating trophy: ${z_trophy_filename}"
+
+  # Ensure retired directory exists
+  mkdir -p "${ZJJU_TROPHY_DIR}" || buc_die "Failed to create retired directory"
+
+  # Generate trophy content using jju_retire_extract
+  local z_trophy_content="${BUD_TEMP_DIR}/retire_trophy.md"
+  jju_retire_extract "${z_favor}" > "${z_trophy_content}" \
+    || buc_die "Failed to extract trophy content"
+
+  # Write trophy file
+  cp "${z_trophy_content}" "${z_trophy_path}" \
+    || buc_die "Failed to write trophy file"
+
+  buc_step "Removing heat from studbook"
+
+  # Remove heat from studbook (BCG: jq transform to temp, then write)
+  local z_new_studbook="${BUD_TEMP_DIR}/studbook_retire_new.json"
+  jq --arg heat "${z_heat_favor}" 'del(.heats[$heat])' "${z_temp}" > "${z_new_studbook}" \
+    || buc_die "Failed to remove heat from studbook"
+
+  # Validate and write new studbook
+  local z_new_content
+  z_new_content=$(<"${z_new_studbook}")
+  zjju_studbook_write "${z_new_content}"
+
+  buc_step "Archiving paddock"
+
+  # Move paddock to retired directory
+  local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
+  local z_paddock_archive="${ZJJU_TROPHY_DIR}/jjp_${z_seed}_${z_start_date}-${z_end_date}.md"
+
+  if test -f "${z_paddock_file}"; then
+    mv "${z_paddock_file}" "${z_paddock_archive}" \
+      || buc_die "Failed to archive paddock"
+  else
+    buc_warn "Paddock file not found: ${z_paddock_file}"
+  fi
+
+  buc_step "Committing retirement"
+
+  # Stage and commit (BCG: sequential operations)
+  git add "${z_trophy_path}" "${ZJJU_STUDBOOK_FILE}" \
+    || buc_die "Failed to stage trophy and studbook"
+
+  if test -f "${z_paddock_archive}"; then
+    git add "${z_paddock_archive}" || buc_die "Failed to stage archived paddock"
+    git rm --cached "${z_paddock_file}" 2>/dev/null || true
+  fi
+
+  git commit -m "[₣${z_seed}AAA] RETIRE: Heat ${z_silks} archived to trophy" \
+    || buc_die "Failed to commit retirement"
+
+  buc_step "Pushing retirement"
+
+  git push || buc_die "Failed to push retirement commit"
+
+  buc_success "Heat ${z_heat_favor} retired: ${z_trophy_filename}"
 }
 
 ######################################################################

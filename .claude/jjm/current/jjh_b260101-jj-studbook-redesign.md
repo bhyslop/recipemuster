@@ -127,10 +127,9 @@ Decision: **Append-only**
 - **Unify favor arguments** — Implemented zjju_favor_normalize() helper, updated jju_saddle/slate/rail/retire_extract to accept ₣HHAAA format, added PPP==AAA semantic check to jju_rein, updated workbench auto-saddle logic, updated test cases and added normalizer tests, updated arcanum docs. Favor/ops test suites pass.
 - **Fix steeplechase test failure** — Fixed substring extraction (2:3), extended-regexp bracket escaping, test 5 semantics (AAA=heat-only)
 - **Code review by Opus** — Reviewed favor/rein changes for BCG compliance; approved; applied dirname fix to tt/jjt-a.TestAll.sh
+- **Implement /jjc-heat-retire** — Added jju_retire() with clean-worktree validation, trophy creation, studbook removal, paddock archival, commit+push; updated arcanum emitter; added tt/jjw-hr.HeatRetire.sh tabtarget
 
 ## Remaining
-
-- **Implement /jjc-heat-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
 
 - **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Update `zjjw_emit_claudemd_section()` with new vocabulary:
 
@@ -167,6 +166,8 @@ Decision: **Append-only**
 - **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 
 - **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.
+
+- **Unify route stems to jjw- prefix** — Current routing uses mixed prefixes (jjk-*, jjw-*, jja-*). Plan and review naming scheme before implementation. Consider: jjw- for all workbench-routed commands, jja- for arcanum only. Document rationale for each stem choice. Update workbench routing, tabtargets, and arcanum emitters.
 
 ## Steeplechase
 

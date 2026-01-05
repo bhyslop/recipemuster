@@ -112,6 +112,7 @@ jjw_route() {
     jjk-t)  exec "${z_cli}" jju_tally "$@" ;;
     jjk-w)  exec "${z_cli}" jju_wrap "$@" ;;
     jjk-re) exec "${z_cli}" jju_retire_extract "$@" ;;
+    jjw-hr) exec "${z_cli}" jju_retire "$@" ;;
 
     # Steeplechase operations
     jjk-c)  exec "${z_cli}" jju_chalk "$@" ;;
