@@ -917,14 +917,6 @@ jju_tally() {
   echo "Pace ${z_favor} tallied: ${z_state}"
 }
 
-jju_wrap() {
-  zjju_sentinel
-  buc_doc_brief "Complete current pace: tally + chalk + advance"
-  buc_doc_shown || return 0
-
-  buc_die "not implemented yet"
-}
-
 jju_retire_extract() {
   zjju_sentinel
   local z_favor="${1:-}"
