@@ -4,117 +4,12 @@ Redesign Job Jockey around a JSON-based studbook registry, git-based steeplechas
 
 ## Paddock
 
-### Motivation
-
-Pain points from prior heats that drive this redesign:
-
-1. **Permission friction** - Editing steeplechase entries required interactive approval every time. Bash scripts bypass this.
-2. **Rename brittleness** - Changing heat/pace names broke references in steeplechase, commits, etc. Favors provide stable identity.
-3. **Monolithic heat files** - Mixing prose, paces, and activity log made files unwieldy. Decomposition separates concerns.
-4. **Context recovery** - After resets, reconstructing "where were we?" required reading entire heat file. Saddle output optimized for this.
-5. **Timestamp management** - Manual timestamps in steeplechase entries. Git commits handle this automatically.
-
 ### How to Work This Heat
 
 **IMPORTANT**: This heat executes under the CURRENT JJK installation while building its replacement.
 
 - Use existing `/jja-*` commands (heat-saddle, pace-wrap, notch, etc.)
-- Do NOT attempt to use new `jj-*` scripts until they are implemented
-- Build foundation first (favor encoding, studbook schema), then scripts that depend on them
-- Test incrementally: each script should work before building the next
 - The new system becomes active only after migration and arcanum update
-
-**Pace dependencies** (must complete in rough order):
-1. jju_utility.sh favor functions (everything depends on Favor encoding)
-2. jjs_studbook.json schema (most scripts need this)
-3. /jjc-heat-muster, /jjc-heat-saddle (can verify studbook works)
-4. /jjc-pace-chalk, /jjc-pace-rein (can verify git steeple works)
-5. Remaining scripts (slate, rail, tally, wrap, etc.)
-6. Migration and arcanum update (cutover)
-7. Testing and refinement paces
-
-### Goal
-
-Replace the current monolithic heat file approach with a decomposed architecture:
-- **Studbook** (`jjs_studbook.json`) - structured registry of all heats/paces
-- **Paddock files** (`jjp_HH.md`) - per-heat prose context
-- **Git commits** - steeplechase entries (activity log)
-- **Trophy files** (`jjy_HH_YYMMDD-YYMMDD_silks.md`) - retired heat archives
-
-Claude interacts only through bash scripts; never touches JSON or git directly.
-
-### Core Concepts
-
-**Favor** - 5 URL-safe base64 digits identifying heat+pace:
-- Format: `HHPPP` where HH = heat (2 digits), PPP = pace (3 digits)
-- Heat-only reference: `HH` with PPP = 000 (illegal as pace)
-- Display notation: `₣Kb002` (₣ in JSON and git commits; stripped only for filenames)
-- Capacity: 4096 heats × 262,144 paces per heat
-- **Character set**: `A-Za-z0-9-_` (64 chars, URL-safe, no + or /)
-- **Encoding**: Simple modular arithmetic + lookup table, no base64 utility needed
-
-**Studbook** - Single JSON registry (`jjs_studbook.json`):
-```json
-{
-  "heats": {
-    "₣Kb": {
-      "datestamp": "260101",
-      "display": "JJ Studbook Redesign",
-      "silks": "jj-studbook-redesign",
-      "status": "current",
-      "paces": [
-        {"id": "001", "display": "Define script APIs", "status": "current"},
-        {"id": "002", "display": "Implement jju utilities", "status": "pending"}
-      ]
-    }
-  },
-  "next_heat_seed": "Kc"
-}
-```
-- Uses `jq --sort-keys --indent 2` for stable diffs
-- Favors as keys provide stable anchoring
-- `next_heat_seed` tracks allocation to prevent reuse after retirement
-- ₣ included in JSON for distinctive grep/search (stripped only for filenames)
-- Current heat/pace context lives in chat conversation, not persisted to disk
-
-**Paddock** - Per-heat markdown (`jjp_Kb.md`):
-- Human-authored prose context
-- Goal, approach, constraints, guidelines
-- Stays editable, not embedded in JSON
-
-**Trophy** - Retired heat archive (`jjy_Kb_260101-260115_jj-studbook-redesign.md`):
-- Contains: final paddock, all paces with outcomes, extracted steeplechase
-- Created at retirement from studbook + paddock + git history
-
-### Vocabulary
-
-| Term | Verb/Noun | Meaning |
-|------|-----------|---------|
-| **Favor** | noun | Heat+pace identifier (₣HHPPP) |
-| **Studbook** | noun | JSON registry of heats/paces |
-| **Paddock** | noun | Per-heat prose context file |
-| **Trophy** | noun | Retired heat archive |
-| **Chalk** | verb | Write steeplechase entry |
-| **Rein** | verb | Read steeplechase entries |
-| **Muster** | verb | List current heats with Favors |
-| **Saddle** | verb | Mount up on heat, show full context |
-| **Slate** | verb | Add new pace |
-| **Reslate** | verb | Revise pace description |
-| **Rail** | verb | Reorder paces |
-| **Tally** | verb | Set pace state |
-| **Wrap** | verb | Complete pace with ceremony |
-| **Retire** | verb | Complete heat, create trophy |
-| **Notch** | verb | Git commit |
-| **Nominate** | verb | Create new heat |
-
-### Pace States
-
-| State | Meaning |
-|-------|---------|
-| `pending` | In the field, not yet run |
-| `complete` | Crossed the wire cleanly |
-| `abandoned` | Scratched, won't run |
-| `malformed` | Flagged, needs revision |
 
 ### File Prefix Conventions
 
@@ -136,13 +31,6 @@ Claude interacts only through bash scripts; never touches JSON or git directly.
 
 Note: `jjk` refers to the Job Jockey Kit directory (`Tools/jjk/`), not a file prefix. Tabtargets like `tt/jjk-h.Help.sh` indicate kit CLI entry points.
 
-### Script API
-
-Claude's interface documented in `Tools/jjk/jju_utility.sh` via `buc_doc_*` annotations. Key design principles:
-- Current Favor stays in chat context (Claude remembers, no temp file)
-- Completed paces vanish from view until retirement
-- Scripts handle all git/jq mechanics; humans use slash commands only
-
 ### Testing Patterns
 
 **BCG-Compliant Validation:**
@@ -161,30 +49,6 @@ Claude's interface documented in `Tools/jjk/jju_utility.sh` via `buc_doc_*` anno
 - Valid cases with `but_expect_ok` / `but_expect_ok_stdout`
 - Boundary cases with `but_expect_fatal` (ranges, empty values)
 - Invalid inputs with `but_expect_fatal` (format violations, missing fields)
-
-### Saddle Output Format
-
-Combines paddock (full text), current pace, remaining paces (pending only), and recent steeple entries (2-3) for the current pace.
-
-### Chalk Emblems
-
-Freeform tags on steeplechase entries. Common patterns:
-- **APPROACH** - Starting work on pace
-- **WRAP** - Completing pace
-- **BLOCKED** - Hit a blocker
-- **NOTE** - General observation
-
-Not constrained - Claude picks appropriate emblems contextually.
-
-### Steeplechase in Git
-
-Steeplechase entries become git commits:
-- Empty commits (`git commit --allow-empty`)
-- Structured message format (scripts handle formatting)
-- Timestamped automatically by git
-- Searchable via `git log --grep`
-- Extracted to trophy at retirement
-- Claude uses `/jjc-pace-chalk` to write, `/jjc-pace-rein` to read
 
 ### Concept Surgery Log
 
@@ -246,20 +110,6 @@ Tracking new/modified terms for continuity during this heat:
 | Workbench | `Tools/jjk/jjw_workbench.sh` | Dispatch |
 | Arcanum | `Tools/jjk/jja_arcanum.sh` | Install/uninstall |
 
-### Steeplechase Git Commit Format
-
-Empty commits with format: `[₣Favor] EMBLEM: Title`, freeform body, footer showing files touched. Created by `/jjc-pace-chalk`, queried by `/jjc-pace-rein`.
-
-### Fresh Session Handling
-
-On fresh session, Claude doesn't know current Favor. Resolution:
-1. Run `/jjc-heat-muster` to see current heats
-2. Run `/jjc-heat-saddle ₣Kb` (or user indicates which heat)
-3. `/jjc-heat-saddle` outputs full context (paddock, current pace, remaining paces, recent steeple entries)
-4. Claude holds this context in the conversation - no persistence to studbook
-
-Current heat/pace context lives in chat memory, not on disk. Each session starts fresh.
-
 ### Constraints
 
 - URL-safe base64 for Favors (simple bash math + printf, no base64 utility)
@@ -293,20 +143,6 @@ Current heat/pace context lives in chat memory, not on disk. Each session starts
 | notch | dirty expected | required (sync) | commits + pushes; won't lose work |
 | wrap | clean required | required (sync) | checkpoint; must verify success |
 | retire | clean required | required (sync) | archival must be safe |
-
-**Wrap Advancement Flow**
-
-Sequence: guard → push → tally → chalk → advance → display
-1. **Guard** - Dirty worktree? → fail with "Uncommitted changes. Run /jjc-notch first."
-2. **Push** - `git push` (synchronous); fail on error
-3. **Tally** - Set current pace status to "complete" in studbook
-4. **Chalk** - Write `[₣Favor] WRAP: [pace display]` as empty commit (background OK)
-5. **Advance** - Find next pending pace (read-only studbook query)
-6. **Display** - Output wrapped pace + next pace for Claude to hold (or "heat complete - ready to retire")
-
-Studbook mutations:
-- `heats[HH].paces[PPP].status` → `"complete"`
-- No persistence of current pace - Claude remembers next pace from output
 
 **Trophy Extraction Spec**
 
@@ -376,6 +212,26 @@ Decision: **Append-only**
   - Add normalizer test cases (₣AA→₣AAAAA, ₣KbAAB→₣KbAAB, invalid inputs)
 
   **Studbook JSON keys:** No change (remain ₣HH). Normalization is at API boundary, not storage.
+
+  **Implementation notes:**
+  - Line numbers above are stale after BCG refactoring. Use grep to find functions.
+  - The heat extraction pattern already exists in `jju_wrap`, `jju_reslate`, `jju_tally`:
+    ```bash
+    local z_heat_digits="${z_favor:1:2}"
+    local z_heat_favor="₣${z_heat_digits}"
+    ```
+    Apply this same pattern to saddle, slate, rail, retire_extract.
+  - Normalizer output via stdout; caller uses temp file + read (BCG pattern).
+  - For `jju_rein` semantic check after normalize:
+    ```bash
+    local z_pace_digits="${z_favor:3:3}"
+    if test "${z_pace_digits}" = "AAA"; then
+      # heat-only: match all paces
+    else
+      # pace-specific: exact match
+    fi
+    ```
+  - Workbench auto-saddle fix is simple: `z_favor="${z_favor}AAA"` before calling saddle.
 
   **Success criteria:**
   - All existing tests pass (after updating test inputs)
