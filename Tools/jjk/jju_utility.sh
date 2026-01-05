@@ -1160,26 +1160,27 @@ jju_rein() {
 
   # Extract pace digits to determine query type
   local z_favor_digits="${z_favor:1}"
-  local z_pace_digits="${z_favor_digits:3:3}"
+  local z_pace_digits="${z_favor_digits:2:3}"
 
   # Determine search pattern based on pace digits
+  # Note: Using extended regexp with [[] and []] to match literal brackets
   if test "${z_pace_digits}" = "AAA"; then
     # Heat-only query (pace=0) - match all paces in this heat
     local z_heat_digits="${z_favor_digits:0:2}"
     local z_heat_favor="₣${z_heat_digits}"
-    z_pattern="^\[${z_heat_favor}"
+    z_pattern="^[[]${z_heat_favor}"
   else
     # Pace-specific query - exact match
-    z_pattern="^\[${z_favor}\]"
+    z_pattern="^[[]${z_favor}[]]"
   fi
 
   # Query git log for matching commits
   buc_trace "Querying steeplechase entries with pattern: ${z_pattern}"
 
-  # Use git log with --grep to filter by commit message pattern
+  # Use git log with --extended-regexp for reliable bracket matching
   # Format: %H = commit hash, %ai = author date ISO, %s = subject
   z_log_file="${BUD_TEMP_DIR}/rein_log.txt"
-  git log --all --grep="${z_pattern}" --format="%H%x09%ai%x09%s" > "${z_log_file}" \
+  git log --all --extended-regexp --grep="${z_pattern}" --format="%H%x09%ai%x09%s" > "${z_log_file}" \
     || buc_die "Git log failed"
 
   # Check if any entries found

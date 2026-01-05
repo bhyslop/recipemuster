@@ -457,14 +457,14 @@ jjt_test_steeplechase() {
     && but_fatal "Rein should not find ₣ZYAAA when querying ₣ZZ"
 
   # Test 5: Rein queries specific pace
-  but_info "Test 5: Rein - query entries for specific pace ₣ZZAAA"
-  jjt_rein "₣ZZAAA" > "${z_rein_out}"
+  but_info "Test 5: Rein - query entries for specific pace ₣ZZAAB"
+  jjt_rein "₣ZZAAB" > "${z_rein_out}"
 
-  # Should find ₣ZZAAA but not ₣ZZAAB
-  grep -q "₣ZZAAA" "${z_rein_out}" \
-    || but_fatal "Rein did not find ₣ZZAAA entry"
+  # Should find ₣ZZAAB but not ₣ZZAAA (AAA is heat-only, AAB is pace-specific)
   grep -q "₣ZZAAB" "${z_rein_out}" \
-    && but_fatal "Rein should not find ₣ZZAAB when querying ₣ZZAAA specifically"
+    || but_fatal "Rein did not find ₣ZZAAB entry"
+  grep -q "₣ZZAAA" "${z_rein_out}" \
+    && but_fatal "Rein should not find ₣ZZAAA when querying ₣ZZAAB specifically"
 
   # Test 6: Rein with invalid favor format
   but_info "Test 6: Rein - invalid favor format (expect failure)"
