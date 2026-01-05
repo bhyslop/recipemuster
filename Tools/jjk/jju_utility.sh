@@ -323,6 +323,8 @@ jju_muster() {
   buc_doc_brief "List current heats with Favors and silks"
   buc_doc_shown || return 0
 
+  buc_trace "Listing heats from studbook"
+
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_muster.json"
   zjju_studbook_read > "${z_temp}"
@@ -365,6 +367,8 @@ jju_saddle() {
 
   # Validate parameter
   test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  buc_trace "Saddling heat ${z_favor}"
 
   # Validate heat favor format
   test "${z_favor:0:1}" = "₣" || buc_die "Heat favor must start with ₣: ${z_favor}"
@@ -509,17 +513,21 @@ jju_nominate() {
   # Validate silks format (kebab-case)
   echo "${z_silks}" | grep -Eq '^[a-z0-9-]+$' || buc_die "Silks must be kebab-case: ${z_silks}"
 
-  # Read studbook
-  local z_studbook
-  z_studbook="$(zjju_studbook_read)"
+  buc_trace "Nominating new heat"
 
-  # Get next heat seed
+  # Read studbook to temp file (BCG: temp file instead of command substitution)
+  local z_studbook_file="${BUD_TEMP_DIR}/nominate_studbook.json"
+  zjju_studbook_read > "${z_studbook_file}"
+
+  # Get next heat seed (BCG: temp file + read pattern)
+  local z_scalar_file="${BUD_TEMP_DIR}/nominate_scalar.txt"
   local z_seed
-  z_seed="$(jq -r '.next_heat_seed' <<< "${z_studbook}")"
+  jq -r '.next_heat_seed' "${z_studbook_file}" > "${z_scalar_file}"
+  read -r z_seed < "${z_scalar_file}"
+  test -n "${z_seed}" || buc_die "Failed to read next_heat_seed from studbook"
 
   # Format datestamp (YYMMDD)
-  local z_datestamp
-  z_datestamp="${BUD_NOW_STAMP:0:6}"
+  local z_datestamp="${BUD_NOW_STAMP:0:6}"
 
   # Create heat entry with Favor prefix
   local z_heat_key="₣${z_seed}"
@@ -536,7 +544,7 @@ jju_nominate() {
         "silks": $silks,
         "status": "current",
         "paces": []
-      }' <<< "${z_studbook}" > "${z_temp_heat}"
+      }' "${z_studbook_file}" > "${z_temp_heat}"
 
   # Increment next_heat_seed
   local z_next_seed_file="${BUD_TEMP_DIR}/nominate_next_seed.txt"
@@ -555,23 +563,23 @@ jju_nominate() {
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
 
-  # Create paddock file stub
+  # Create paddock file stub (BCG: echo sequences instead of heredoc)
   local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
-  cat > "${z_paddock_file}" <<EOF
-# ${z_display}
-
-## Goal
-
-[Describe the goal of this heat]
-
-## Approach
-
-[Describe the approach]
-
-## Constraints
-
-[List any constraints or guidelines]
-EOF
+  {
+    echo "# ${z_display}"
+    echo ""
+    echo "## Goal"
+    echo ""
+    echo "[Describe the goal of this heat]"
+    echo ""
+    echo "## Approach"
+    echo ""
+    echo "[Describe the approach]"
+    echo ""
+    echo "## Constraints"
+    echo ""
+    echo "[List any constraints or guidelines]"
+  } > "${z_paddock_file}"
 
   buc_trace "Nominated heat ${z_heat_key}, temp files: ${z_temp_heat}, ${z_temp_final}"
   echo "Heat ${z_heat_key} nominated: ${z_display}"
@@ -592,6 +600,8 @@ jju_slate() {
   # Validate parameters
   test -n "${z_heat}" || buc_die "Parameter 'heat' is required"
   test -n "${z_display}" || buc_die "Parameter 'display' is required"
+
+  buc_trace "Slating new pace in ${z_heat}"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_slate.json"
@@ -673,6 +683,8 @@ jju_reslate() {
   # Validate parameters
   test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
   test -n "${z_display}" || buc_die "Parameter 'display' is required"
+
+  buc_trace "Reslating pace ${z_favor}"
 
   # Parse favor (₣HHPPP format)
   test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
@@ -936,26 +948,45 @@ jju_retire_extract() {
   jq -e --arg heat "${z_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
     || buc_die "Heat not found: ${z_favor}"
 
-  # Extract heat metadata
-  local z_datestamp
-  local z_display
-  local z_silks
-  z_datestamp="$(jq -r --arg heat "${z_favor}" '.heats[$heat].datestamp' "${z_temp}")"
-  z_display="$(jq -r --arg heat "${z_favor}" '.heats[$heat].display' "${z_temp}")"
-  z_silks="$(jq -r --arg heat "${z_favor}" '.heats[$heat].silks' "${z_temp}")"
+  buc_trace "Extracting heat data for trophy"
 
-  # Count paces by status
+  # Extract heat metadata (BCG: temp file + read pattern for each scalar)
+  local z_scalar_file="${BUD_TEMP_DIR}/retire_scalar.txt"
+
+  local z_datestamp
+  jq -r --arg heat "${z_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
+  read -r z_datestamp < "${z_scalar_file}"
+  test -n "${z_datestamp}" || buc_die "Failed to read datestamp"
+
+  local z_display
+  jq -r --arg heat "${z_favor}" '.heats[$heat].display' "${z_temp}" > "${z_scalar_file}"
+  read -r z_display < "${z_scalar_file}"
+  test -n "${z_display}" || buc_die "Failed to read display"
+
+  local z_silks
+  jq -r --arg heat "${z_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
+  read -r z_silks < "${z_scalar_file}"
+  test -n "${z_silks}" || buc_die "Failed to read silks"
+
+  # Count paces by status (BCG: temp file + read pattern)
   local z_total
+  jq -r --arg heat "${z_favor}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
+  read -r z_total < "${z_scalar_file}"
+
   local z_complete
+  jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "complete")) | length' "${z_temp}" > "${z_scalar_file}"
+  read -r z_complete < "${z_scalar_file}"
+
   local z_pending
+  jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "pending")) | length' "${z_temp}" > "${z_scalar_file}"
+  read -r z_pending < "${z_scalar_file}"
+
   local z_abandoned
-  z_total="$(jq -r --arg heat "${z_favor}" '.heats[$heat].paces | length' "${z_temp}")"
-  z_complete="$(jq -r --arg heat "${z_favor}" \
-    '.heats[$heat].paces | map(select(.status == "complete")) | length' "${z_temp}")"
-  z_pending="$(jq -r --arg heat "${z_favor}" \
-    '.heats[$heat].paces | map(select(.status == "pending")) | length' "${z_temp}")"
-  z_abandoned="$(jq -r --arg heat "${z_favor}" \
-    '.heats[$heat].paces | map(select(.status == "abandoned")) | length' "${z_temp}")"
+  jq -r --arg heat "${z_favor}" \
+    '.heats[$heat].paces | map(select(.status == "abandoned")) | length' "${z_temp}" > "${z_scalar_file}"
+  read -r z_abandoned < "${z_scalar_file}"
 
   # Get heat seed (without ₣)
   local z_seed="${z_favor:1}"
