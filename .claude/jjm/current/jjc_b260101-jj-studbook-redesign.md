@@ -118,3 +118,10 @@
 - Update test cases in jjt_testbench.sh: ₣AA → ₣AAAAA for slate/rail/retire_extract tests
 - Add normalizer test cases: valid 3-char, valid 6-char, invalid inputs
 ---
+---
+### 2026-01-05 07:20 - fix-steeplechase-test-failure - WRAP
+**Outcome**: Fixed substring extraction (2:3), extended-regexp bracket escaping, test 5 semantics (AAA=heat-only)
+---
+### 2026-01-05 07:20 - code-review-by-opus - WRAP
+**Outcome**: Reviewed favor/rein changes for BCG compliance; approved; applied dirname fix to tt/jjt-a.TestAll.sh
+---
