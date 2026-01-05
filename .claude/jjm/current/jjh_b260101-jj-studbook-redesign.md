@@ -131,6 +131,8 @@ Decision: **Append-only**
 
 ## Remaining
 
+- **Unify route stems to jjw- prefix** — Current routing uses mixed prefixes (jjk-*, jjw-*, jja-*). Plan and review naming scheme before implementation. Consider: jjw- for all workbench-routed commands, jja- for arcanum only. Document rationale for each stem choice. Update workbench routing, tabtargets, and arcanum emitters.
+
 - **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Update `zjjw_emit_claudemd_section()` with new vocabulary:
 
   **New Terms for CLAUDE.md Concepts section:**
@@ -166,8 +168,6 @@ Decision: **Append-only**
 - **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 
 - **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.
-
-- **Unify route stems to jjw- prefix** — Current routing uses mixed prefixes (jjk-*, jjw-*, jja-*). Plan and review naming scheme before implementation. Consider: jjw- for all workbench-routed commands, jja- for arcanum only. Document rationale for each stem choice. Update workbench routing, tabtargets, and arcanum emitters.
 
 ## Steeplechase
 
