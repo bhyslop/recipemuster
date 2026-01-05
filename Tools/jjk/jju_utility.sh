@@ -196,6 +196,34 @@ zjju_favor_decode() {
   echo "${z_heat}	${z_pace}"
 }
 
+# Internal: Normalize favor to full 6-character format (₣HHPPP)
+# Args: favor (₣HH or ₣HHPPP)
+# Output: 6-char favor string (₣HHPPP)
+zjju_favor_normalize() {
+  zjju_sentinel
+  local z_favor="${1:-}"
+
+  # Validate parameter
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
+
+  # Validate first character is ₣
+  local z_first="${z_favor:0:1}"
+  test "${z_first}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
+
+  # Check length
+  local z_len="${#z_favor}"
+
+  if test "${z_len}" -eq 3; then
+    # 3-char input (₣HH) → append AAA for heat-only reference
+    echo "${z_favor}AAA"
+  elif test "${z_len}" -eq 6; then
+    # 6-char input (₣HHPPP) → pass through unchanged
+    echo "${z_favor}"
+  else
+    buc_die "Favor must be 3 or 6 characters: ${z_favor}"
+  fi
+}
+
 ######################################################################
 # Studbook File Operations
 #
@@ -362,43 +390,49 @@ jju_saddle() {
   local z_favor="${1:-}"
 
   buc_doc_brief "Mount heat, show paddock + paces + recent steeple"
-  buc_doc_param "favor" "Heat Favor (₣HH)"
+  buc_doc_param "favor" "Heat Favor (₣HHAAA for heat-only)"
   buc_doc_shown || return 0
 
   # Validate parameter
   test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
 
-  buc_trace "Saddling heat ${z_favor}"
+  # Normalize favor to 6-char format (BCG: temp file for output)
+  local z_norm_file="${BUD_TEMP_DIR}/saddle_norm.txt"
+  zjju_favor_normalize "${z_favor}" > "${z_norm_file}"
+  read -r z_favor < "${z_norm_file}"
 
-  # Validate heat favor format
-  test "${z_favor:0:1}" = "₣" || buc_die "Heat favor must start with ₣: ${z_favor}"
-  test "${#z_favor}" -eq 3 || buc_die "Heat favor must be 3 characters (₣HH): ${z_favor}"
+  # Extract heat favor (₣HH) from normalized favor
+  local z_favor_digits="${z_favor:1}"
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
+
+  buc_trace "Saddling heat ${z_heat_favor}"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_saddle.json"
   zjju_studbook_read > "${z_temp}"
 
   # Verify heat exists
-  jq -e --arg heat "${z_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
-    || buc_die "Heat not found: ${z_favor}"
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
 
   # Extract heat metadata (BCG: temp file for each jq scalar)
   local z_scalar_file="${BUD_TEMP_DIR}/saddle_scalar.txt"
 
   local z_datestamp
-  jq -r --arg heat "${z_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
   read -r z_datestamp < "${z_scalar_file}"
 
   local z_display
-  jq -r --arg heat "${z_favor}" '.heats[$heat].display' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].display' "${z_temp}" > "${z_scalar_file}"
   read -r z_display < "${z_scalar_file}"
 
   local z_silks
-  jq -r --arg heat "${z_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
   read -r z_silks < "${z_scalar_file}"
 
   # Get heat seed (without ₣)
-  local z_seed="${z_favor:1}"
+  local z_seed="${z_heat_favor:1}"
 
   # Read paddock file
   local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
@@ -407,7 +441,7 @@ jju_saddle() {
   # Output heat header
   echo "# Heat: ${z_display}"
   echo ""
-  echo "**Favor**: ${z_favor}"
+  echo "**Favor**: ${z_heat_favor}"
   echo "**Silks**: ${z_silks}"
   echo "**Started**: ${z_datestamp}"
   echo ""
@@ -422,7 +456,7 @@ jju_saddle() {
 
   # Find current pace (first pending)
   local z_current_pace_file="${BUD_TEMP_DIR}/saddle_current_pace.json"
-  jq -r --arg heat "${z_favor}" \
+  jq -r --arg heat "${z_heat_favor}" \
     '.heats[$heat].paces | map(select(.status == "pending")) | first // null' \
     "${z_temp}" > "${z_current_pace_file}"
 
@@ -442,7 +476,7 @@ jju_saddle() {
     jq -r '.display' "${z_current_pace_file}" > "${z_scalar_file}"
     read -r z_current_display < "${z_scalar_file}"
 
-    echo "**${z_favor}${z_current_id}**: ${z_current_display}"
+    echo "**${z_heat_favor}${z_current_id}**: ${z_current_display}"
     echo ""
     echo "---"
     echo ""
@@ -452,7 +486,7 @@ jju_saddle() {
     echo ""
 
     local z_remaining_file="${BUD_TEMP_DIR}/saddle_remaining.json"
-    jq -r --arg heat "${z_favor}" --arg current_id "${z_current_id}" \
+    jq -r --arg heat "${z_heat_favor}" --arg current_id "${z_current_id}" \
       '.heats[$heat].paces | map(select(.status == "pending" and .id != $current_id))' \
       "${z_temp}" > "${z_remaining_file}"
 
@@ -475,7 +509,7 @@ jju_saddle() {
     echo "## Recent Steeplechase"
     echo ""
 
-    local z_pace_favor="${z_favor}${z_current_id}"
+    local z_pace_favor="${z_heat_favor}${z_current_id}"
     buc_trace "Querying steeplechase for current pace: ${z_pace_favor}"
 
     # Capture jju_rein output
@@ -493,7 +527,7 @@ jju_saddle() {
     echo ""
   fi
 
-  buc_trace "Saddle complete for ${z_favor}, temp files: ${z_temp}, ${z_current_pace_file}"
+  buc_trace "Saddle complete for ${z_heat_favor}, temp files: ${z_temp}, ${z_current_pace_file}"
 }
 
 jju_nominate() {
@@ -589,31 +623,41 @@ jju_nominate() {
 
 jju_slate() {
   zjju_sentinel
-  local z_heat="${1:-}"
+  local z_favor="${1:-}"
   local z_display="${2:-}"
 
   buc_doc_brief "Add new pace to heat (append-only)"
-  buc_doc_param "heat" "Heat Favor (2-char, e.g., ₣AA)"
+  buc_doc_param "favor" "Heat Favor (₣HHAAA for heat-only)"
   buc_doc_param "display" "Human-readable pace name"
   buc_doc_shown || return 0
 
   # Validate parameters
-  test -n "${z_heat}" || buc_die "Parameter 'heat' is required"
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
   test -n "${z_display}" || buc_die "Parameter 'display' is required"
 
-  buc_trace "Slating new pace in ${z_heat}"
+  # Normalize favor to 6-char format (BCG: temp file for output)
+  local z_norm_file="${BUD_TEMP_DIR}/slate_norm.txt"
+  zjju_favor_normalize "${z_favor}" > "${z_norm_file}"
+  read -r z_favor < "${z_norm_file}"
+
+  # Extract heat favor (₣HH) from normalized favor
+  local z_favor_digits="${z_favor:1}"
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
+
+  buc_trace "Slating new pace in ${z_heat_favor}"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_slate.json"
   zjju_studbook_read > "${z_temp}"
 
   # Verify heat exists
-  jq -e --arg heat "${z_heat}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
-    || buc_die "Heat not found: ${z_heat}"
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
 
   # Get pace count to determine next ID and status (BCG: temp file for jq output)
   local z_scalar_file="${BUD_TEMP_DIR}/slate_scalar.txt"
-  jq -r --arg heat "${z_heat}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
   local z_pace_count
   read -r z_pace_count < "${z_scalar_file}"
 
@@ -623,7 +667,7 @@ jju_slate() {
     z_next_id="001"
   else
     # Get max ID and increment (BCG: temp file for jq output)
-    jq -r --arg heat "${z_heat}" \
+    jq -r --arg heat "${z_heat_favor}" \
       '.heats[$heat].paces | map(.id | tonumber) | max' "${z_temp}" > "${z_scalar_file}"
     local z_max_id
     read -r z_max_id < "${z_scalar_file}"
@@ -649,7 +693,7 @@ jju_slate() {
 
   # Add pace to heat
   local z_temp_final="${BUD_TEMP_DIR}/slate_final.json"
-  jq --arg heat "${z_heat}" \
+  jq --arg heat "${z_heat_favor}" \
      --arg id "${z_next_id}" \
      --arg display "${z_display}" \
      --arg status "${z_status}" \
@@ -667,7 +711,7 @@ jju_slate() {
   zjju_studbook_write "${z_new_studbook}"
 
   buc_trace "Slated pace ${z_next_id}, temp files: ${z_temp}, ${z_temp_final}"
-  echo "Pace ${z_heat}${z_next_id} slated: ${z_display}"
+  echo "Pace ${z_heat_favor}${z_next_id} slated: ${z_display}"
 }
 
 jju_reslate() {
@@ -748,29 +792,39 @@ jju_reslate() {
 
 jju_rail() {
   zjju_sentinel
-  local z_heat="${1:-}"
+  local z_favor="${1:-}"
   local z_order="${2:-}"
 
   buc_doc_brief "Reorder paces in heat"
-  buc_doc_param "heat" "Heat Favor (2-char, e.g., ₣AA)"
+  buc_doc_param "favor" "Heat Favor (₣HHAAA for heat-only)"
   buc_doc_param "order" "Space-separated pace IDs in new order (e.g., '001 003 002')"
   buc_doc_shown || return 0
 
   # Validate parameters
-  test -n "${z_heat}" || buc_die "Parameter 'heat' is required"
+  test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
   test -n "${z_order}" || buc_die "Parameter 'order' is required"
+
+  # Normalize favor to 6-char format (BCG: temp file for output)
+  local z_norm_file="${BUD_TEMP_DIR}/rail_norm.txt"
+  zjju_favor_normalize "${z_favor}" > "${z_norm_file}"
+  read -r z_favor < "${z_norm_file}"
+
+  # Extract heat favor (₣HH) from normalized favor
+  local z_favor_digits="${z_favor:1}"
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_rail.json"
   zjju_studbook_read > "${z_temp}"
 
   # Verify heat exists
-  jq -e --arg heat "${z_heat}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
-    || buc_die "Heat not found: ${z_heat}"
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
 
   # Get current pace count (BCG: temp file for jq output)
   local z_scalar_file="${BUD_TEMP_DIR}/rail_scalar.txt"
-  jq -r --arg heat "${z_heat}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
   local z_pace_count
   read -r z_pace_count < "${z_scalar_file}"
 
@@ -801,7 +855,7 @@ jju_rail() {
     z_seen_ids="${z_seen_ids} ${z_id} "
 
     # Verify pace exists
-    jq -e --arg heat "${z_heat}" --arg id "${z_id}" \
+    jq -e --arg heat "${z_heat_favor}" --arg id "${z_id}" \
       '.heats[$heat].paces | any(.id == $id)' "${z_temp}" >/dev/null 2>&1 \
       || buc_die "Pace not found: ${z_id}"
 
@@ -816,7 +870,7 @@ jju_rail() {
 
   # Reorder paces using jq
   local z_temp_final="${BUD_TEMP_DIR}/rail_final.json"
-  jq --arg heat "${z_heat}" \
+  jq --arg heat "${z_heat_favor}" \
      --argjson order "${z_order_json}" \
      '.heats[$heat].paces = [
         $order[] as $id |
@@ -922,23 +976,29 @@ jju_retire_extract() {
   local z_favor="${1:-}"
 
   buc_doc_brief "Extract heat data for trophy creation"
-  buc_doc_param "favor" "Heat Favor (₣HH)"
+  buc_doc_param "favor" "Heat Favor (₣HHAAA for heat-only)"
   buc_doc_shown || return 0
 
   # Validate parameter
   test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
 
-  # Validate heat favor format
-  test "${z_favor:0:1}" = "₣" || buc_die "Heat favor must start with ₣: ${z_favor}"
-  test "${#z_favor}" -eq 3 || buc_die "Heat favor must be 3 characters (₣HH): ${z_favor}"
+  # Normalize favor to 6-char format (BCG: temp file for output)
+  local z_norm_file="${BUD_TEMP_DIR}/retire_norm.txt"
+  zjju_favor_normalize "${z_favor}" > "${z_norm_file}"
+  read -r z_favor < "${z_norm_file}"
+
+  # Extract heat favor (₣HH) from normalized favor
+  local z_favor_digits="${z_favor:1}"
+  local z_heat_digits="${z_favor_digits:0:2}"
+  local z_heat_favor="₣${z_heat_digits}"
 
   # Read studbook to temp file
   local z_temp="${BUD_TEMP_DIR}/studbook_retire.json"
   zjju_studbook_read > "${z_temp}"
 
   # Verify heat exists
-  jq -e --arg heat "${z_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
-    || buc_die "Heat not found: ${z_favor}"
+  jq -e --arg heat "${z_heat_favor}" '.heats[$heat] != null' "${z_temp}" >/dev/null 2>&1 \
+    || buc_die "Heat not found: ${z_heat_favor}"
 
   buc_trace "Extracting heat data for trophy"
 
@@ -946,42 +1006,42 @@ jju_retire_extract() {
   local z_scalar_file="${BUD_TEMP_DIR}/retire_scalar.txt"
 
   local z_datestamp
-  jq -r --arg heat "${z_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].datestamp' "${z_temp}" > "${z_scalar_file}"
   read -r z_datestamp < "${z_scalar_file}"
   test -n "${z_datestamp}" || buc_die "Failed to read datestamp"
 
   local z_display
-  jq -r --arg heat "${z_favor}" '.heats[$heat].display' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].display' "${z_temp}" > "${z_scalar_file}"
   read -r z_display < "${z_scalar_file}"
   test -n "${z_display}" || buc_die "Failed to read display"
 
   local z_silks
-  jq -r --arg heat "${z_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].silks' "${z_temp}" > "${z_scalar_file}"
   read -r z_silks < "${z_scalar_file}"
   test -n "${z_silks}" || buc_die "Failed to read silks"
 
   # Count paces by status (BCG: temp file + read pattern)
   local z_total
-  jq -r --arg heat "${z_favor}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
+  jq -r --arg heat "${z_heat_favor}" '.heats[$heat].paces | length' "${z_temp}" > "${z_scalar_file}"
   read -r z_total < "${z_scalar_file}"
 
   local z_complete
-  jq -r --arg heat "${z_favor}" \
+  jq -r --arg heat "${z_heat_favor}" \
     '.heats[$heat].paces | map(select(.status == "complete")) | length' "${z_temp}" > "${z_scalar_file}"
   read -r z_complete < "${z_scalar_file}"
 
   local z_pending
-  jq -r --arg heat "${z_favor}" \
+  jq -r --arg heat "${z_heat_favor}" \
     '.heats[$heat].paces | map(select(.status == "pending")) | length' "${z_temp}" > "${z_scalar_file}"
   read -r z_pending < "${z_scalar_file}"
 
   local z_abandoned
-  jq -r --arg heat "${z_favor}" \
+  jq -r --arg heat "${z_heat_favor}" \
     '.heats[$heat].paces | map(select(.status == "abandoned")) | length' "${z_temp}" > "${z_scalar_file}"
   read -r z_abandoned < "${z_scalar_file}"
 
   # Get heat seed (without ₣)
-  local z_seed="${z_favor:1}"
+  local z_seed="${z_heat_favor:1}"
 
   # Read paddock file
   local z_paddock_file="${ZJJU_PADDOCK_DIR}/jjp_${z_seed}.md"
@@ -990,7 +1050,7 @@ jju_retire_extract() {
   # Output trophy markdown
   echo "# Trophy: ${z_display}"
   echo ""
-  echo "**Favor**: ${z_favor}"
+  echo "**Favor**: ${z_heat_favor}"
   echo "**Silks**: ${z_silks}"
   echo "**Started**: ${z_datestamp}"
   echo "**Paces**: ${z_total} total (${z_complete} complete, ${z_pending} pending, ${z_abandoned} abandoned)"
@@ -1007,7 +1067,7 @@ jju_retire_extract() {
   echo ""
 
   # Output paces table
-  jq -r --arg heat "${z_favor}" \
+  jq -r --arg heat "${z_heat_favor}" \
     '.heats[$heat].paces | .[] |
      "| \(.id) | \(.display) | \(.status) |"' "${z_temp}" | {
     echo "| ID | Description | Status |"
@@ -1019,7 +1079,7 @@ jju_retire_extract() {
   echo "---"
   echo ""
 
-  buc_trace "Retire extract for ${z_favor}, temp file: ${z_temp}"
+  buc_trace "Retire extract for ${z_heat_favor}, temp file: ${z_temp}"
 
   echo "## Steeplechase"
   echo ""
@@ -1079,7 +1139,6 @@ jju_chalk() {
 jju_rein() {
   zjju_sentinel
   local z_favor="${1:-}"
-  local z_favor_len=""
   local z_pattern=""
   local z_log_file=""
   local z_hash=""
@@ -1088,24 +1147,29 @@ jju_rein() {
   local z_short_date=""
 
   buc_doc_brief "Query steeplechase entries from git log"
-  buc_doc_param "favor" "Heat Favor (₣HH) for all entries, or Pace Favor (₣HHPPP) for filtered"
+  buc_doc_param "favor" "Favor (₣HHAAA for heat-only, ₣HHPPP for pace-specific)"
   buc_doc_shown || return 0
 
   # Validate parameter
   test -n "${z_favor}" || buc_die "Parameter 'favor' is required"
 
-  # Validate favor format (₣HH or ₣HHPPP)
-  test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
-  z_favor_len="${#z_favor}"
-  test "${z_favor_len}" -eq 3 -o "${z_favor_len}" -eq 6 \
-    || buc_die "Favor must be ₣HH (heat) or ₣HHPPP (pace): ${z_favor}"
+  # Normalize favor to 6-char format (BCG: temp file for output)
+  local z_norm_file="${BUD_TEMP_DIR}/rein_norm.txt"
+  zjju_favor_normalize "${z_favor}" > "${z_norm_file}"
+  read -r z_favor < "${z_norm_file}"
 
-  # Determine search pattern
-  if test "${z_favor_len}" -eq 3; then
-    # Heat favor - match all paces in this heat
-    z_pattern="^\[${z_favor}"
+  # Extract pace digits to determine query type
+  local z_favor_digits="${z_favor:1}"
+  local z_pace_digits="${z_favor_digits:3:3}"
+
+  # Determine search pattern based on pace digits
+  if test "${z_pace_digits}" = "AAA"; then
+    # Heat-only query (pace=0) - match all paces in this heat
+    local z_heat_digits="${z_favor_digits:0:2}"
+    local z_heat_favor="₣${z_heat_digits}"
+    z_pattern="^\[${z_heat_favor}"
   else
-    # Pace favor - exact match
+    # Pace-specific query - exact match
     z_pattern="^\[${z_favor}\]"
   fi
 

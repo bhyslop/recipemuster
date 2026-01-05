@@ -109,3 +109,12 @@
 ### 2026-01-04 19:35 - implement-jjc-pace-wrap - WRAP
 **Outcome**: jju_wrap() with tally+chalk+advance ceremony, BCG compliance, workbench routing, tabtarget
 ---
+### 2026-01-04 20:44 - unify-favor-arguments - APPROACH
+**Proposed approach**:
+- Implement `zjju_favor_normalize()` helper: takes ₣HH or ₣HHPPP, outputs ₣HHPPP (3-char → append AAA, 6-char → pass through)
+- Update 4 functions to accept full favor format: `jju_saddle`, `jju_slate`, `jju_rail`, `jju_retire_extract`
+- Special case `jju_rein`: check if PPP==AAA for heat-only query (all paces), else pace-specific query
+- Update workbench auto-saddle logic: append AAA when extracting ₣HH from muster output
+- Update test cases in jjt_testbench.sh: ₣AA → ₣AAAAA for slate/rail/retire_extract tests
+- Add normalizer test cases: valid 3-char, valid 6-char, invalid inputs
+---

@@ -100,6 +100,10 @@ jjt_rein() {
   jju_rein "$@"
 }
 
+jjt_favor_normalize() {
+  zjju_favor_normalize "$@"
+}
+
 ######################################################################
 # Test Suites
 
@@ -150,6 +154,36 @@ jjt_test_favor_encoding() {
   but_expect_fatal jjt_favor_decode "ABC@D"  # invalid char
 
   but_section "=== All favor encoding tests passed ==="
+}
+
+jjt_test_favor_normalization() {
+  but_section "=== Favor Normalization Tests ==="
+
+  # Test 1: 3-char input (₣HH) → 6-char output (₣HHAAA)
+  but_info "Test 1: Normalize 3-char heat favor ₣AA to ₣AAAAA"
+  but_expect_ok_stdout "₣AAAAA" jjt_favor_normalize "₣AA"
+
+  # Test 2: 3-char input (₣Kb) → 6-char output (₣KbAAA)
+  but_info "Test 2: Normalize 3-char heat favor ₣Kb to ₣KbAAA"
+  but_expect_ok_stdout "₣KbAAA" jjt_favor_normalize "₣Kb"
+
+  # Test 3: 6-char input (₣HHPPP) → pass through unchanged
+  but_info "Test 3: Normalize 6-char pace favor ₣KbAAB (pass through)"
+  but_expect_ok_stdout "₣KbAAB" jjt_favor_normalize "₣KbAAB"
+
+  # Test 4: 6-char input with AAA (heat-only reference) → pass through
+  but_info "Test 4: Normalize 6-char heat-only favor ₣AAAAA (pass through)"
+  but_expect_ok_stdout "₣AAAAA" jjt_favor_normalize "₣AAAAA"
+
+  # Test 5: Invalid inputs (should fail)
+  but_info "Test 5: Invalid inputs (expect failures)"
+  but_expect_fatal jjt_favor_normalize "AA"          # Missing ₣ prefix
+  but_expect_fatal jjt_favor_normalize "₣A"          # Too short (2 chars)
+  but_expect_fatal jjt_favor_normalize "₣AAAA"       # 5 chars (invalid length)
+  but_expect_fatal jjt_favor_normalize "₣AAAAAAA"    # 8 chars (too long)
+  but_expect_fatal jjt_favor_normalize ""            # Empty string
+
+  but_section "=== All favor normalization tests passed ==="
 }
 
 jjt_test_studbook_validation() {
@@ -305,7 +339,7 @@ jjt_test_studbook_ops() {
 
   # Test 5: Slate first pace (should be status "current")
   but_info "Test 5: Slate first pace to ₣AA"
-  but_expect_ok jjt_slate "₣AA" "First pace"
+  but_expect_ok jjt_slate "₣AAAAA" "First pace"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces | length == 1' >/dev/null 2>&1 \
@@ -317,7 +351,7 @@ jjt_test_studbook_ops() {
 
   # Test 6: Slate second pace (should be status "pending")
   but_info "Test 6: Slate second pace to ₣AA"
-  but_expect_ok jjt_slate "₣AA" "Second pace"
+  but_expect_ok jjt_slate "₣AAAAA" "Second pace"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces | length == 2' >/dev/null 2>&1 \
@@ -327,7 +361,7 @@ jjt_test_studbook_ops() {
 
   # Test 7: Slate third pace to ₣AA
   but_info "Test 7: Slate third pace to ₣AA"
-  but_expect_ok jjt_slate "₣AA" "Third pace"
+  but_expect_ok jjt_slate "₣AAAAA" "Third pace"
 
   # Test 8: Tally - change pace status
   but_info "Test 8: Tally - mark pace complete"
@@ -351,7 +385,7 @@ jjt_test_studbook_ops() {
 
   # Test 11: Rail - reorder paces
   but_info "Test 11: Rail - reorder paces for ₣AA (003 001 002)"
-  but_expect_ok jjt_rail "₣AA" "003 001 002"
+  but_expect_ok jjt_rail "₣AAAAA" "003 001 002"
 
   z_studbook="$(jjt_studbook_read)"
   echo "${z_studbook}" | jq -e '.heats["₣AA"].paces[0].id == "003"' >/dev/null 2>&1 \
@@ -363,15 +397,15 @@ jjt_test_studbook_ops() {
 
   # Test 12: Rail - wrong count (expect failure)
   but_info "Test 12: Rail - wrong count (expect failure)"
-  but_expect_fatal jjt_rail "₣AA" "001 002"
+  but_expect_fatal jjt_rail "₣AAAAA" "001 002"
 
   # Test 13: Rail - duplicate ID (expect failure)
   but_info "Test 13: Rail - duplicate ID (expect failure)"
-  but_expect_fatal jjt_rail "₣AA" "001 001 002"
+  but_expect_fatal jjt_rail "₣AAAAA" "001 001 002"
 
   # Test 14: Retire extract
   but_info "Test 14: Retire extract - generate trophy content"
-  but_expect_ok jjt_retire_extract "₣AA"
+  but_expect_ok jjt_retire_extract "₣AAAAA"
 
   # Test 15: Nominate with invalid silks
   but_info "Test 15: Nominate with invalid silks (expect failure)"
@@ -454,6 +488,7 @@ z_suite="${2:-${1:-}}"
 case "${z_suite}" in
   favor)
     jjt_test_favor_encoding
+    jjt_test_favor_normalization
     ;;
   studbook)
     jjt_test_studbook_validation
@@ -466,6 +501,7 @@ case "${z_suite}" in
     ;;
   all)
     jjt_test_favor_encoding
+    jjt_test_favor_normalization
     jjt_test_studbook_validation
     jjt_test_studbook_ops
     jjt_test_steeplechase

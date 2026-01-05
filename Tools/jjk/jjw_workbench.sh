@@ -81,6 +81,8 @@ jjw_route() {
           # Auto-saddle the single heat - BCG: temp file for extraction
           grep '^₣' "${z_heat_count_file}" > "${z_scalar_file}"
           read -r z_favor _ < "${z_scalar_file}"
+          # Append AAA for heat-only reference
+          z_favor="${z_favor}AAA"
           exec "${z_cli}" jju_saddle "${z_favor}"
         else
           # Multiple heats - show list and require explicit selection

@@ -124,10 +124,20 @@ Decision: **Append-only**
 - **Remove saddled from studbook schema** — Removed saddled field from schema, validation, tests; context lives in chat
 - **Implement /jjc-heat-saddle** — jju_saddle(), tabtarget, workbench routing with auto-select logic, arcanum emitter update
 - **Implement /jjc-pace-wrap** — jju_wrap() with tally+chalk+advance ceremony, BCG compliance, workbench routing, tabtarget
+- **Unify favor arguments** — Implemented zjju_favor_normalize() helper, updated jju_saddle/slate/rail/retire_extract to accept ₣HHAAA format, added PPP==AAA semantic check to jju_rein, updated workbench auto-saddle logic, updated test cases and added normalizer tests, updated arcanum docs. Favor/ops test suites pass.
 
 ## Remaining
 
-- **Unify favor arguments to full format** — All jju_* functions accept ₣HHPPP (6-char). Heat-only operations use ₣HHAAA (pace=0 per existing spec at jju_utility.sh:62-63).
+- **Fix steeplechase test failure** — Test 5 in jjt_test_steeplechase failing: rein query for specific pace ₣ZZAAA should find only that pace, not ₣ZZAAB. Investigate why grep pattern "^\[₣ZZAAA\]" is not filtering correctly in git log --grep. May be related to regex escaping or git grep behavior. Test passes for favor/ops suites.
+
+- **Code review by Opus** — Deep review of all changes for BCG compliance, edge cases, and correctness:
+  - zjju_favor_normalize() implementation (validation logic, error messages)
+  - Updated functions: jju_saddle, jju_slate, jju_rail, jju_retire_extract (temp file usage, extraction patterns)
+  - jju_rein semantic check (PPP==AAA detection, pattern construction)
+  - Test coverage completeness (normalizer edge cases, boundary conditions)
+  - Documentation accuracy (arcanum usage examples, buc_doc_param strings)
+
+- **Unify favor arguments to full format** — IMPLEMENTATION COMPLETE. Remaining work above.
 
   **Normalization helper:**
   ```
