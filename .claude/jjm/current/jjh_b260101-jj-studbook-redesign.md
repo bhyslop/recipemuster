@@ -332,10 +332,57 @@ Decision: **Append-only**
 - **implement-steeplechase-operations** — Added jju_chalk/rein/notch functions, test suite with 7 cases, tabtarget
 - **Remove saddled from studbook schema** — Removed saddled field from schema, validation, tests; context lives in chat
 - **Implement /jjc-heat-saddle** — jju_saddle(), tabtarget, workbench routing with auto-select logic, arcanum emitter update
+- **Implement /jjc-pace-wrap** — jju_wrap() with tally+chalk+advance ceremony, BCG compliance, workbench routing, tabtarget
 
 ## Remaining
 
-- **Implement /jjc-pace-wrap** — Ceremony: mark complete via `jju_tally`, chalk WRAP via `jju_chalk`, show paddock section headers for integrity check, output next pace for Claude to hold in chat.
+- **Unify favor arguments to full format** — All jju_* functions accept ₣HHPPP (6-char). Heat-only operations use ₣HHAAA (pace=0 per existing spec at jju_utility.sh:62-63).
+
+  **Normalization helper:**
+  ```
+  zjju_favor_normalize()
+  Input: ₣HH (3 chars) or ₣HHPPP (6 chars)
+  Output: ₣HHPPP (always 6 chars)
+  - 3-char input → append AAA (pace=0, heat-only reference)
+  - 6-char input → pass through unchanged
+  - Validates format, dies on invalid
+  ```
+
+  **Functions taking heat favor (₣HH) → convert to full:**
+  | Function | Line | Param Change | Doc Update |
+  |----------|------|--------------|------------|
+  | `jju_saddle` | 360 | keep `favor` | ₣HH → ₣HHPPP |
+  | `jju_slate` | 590 | `heat` → `favor` | ₣AA → ₣AAAAA |
+  | `jju_rail` | 749 | `heat` → `favor` | ₣AA → ₣AAAAA |
+  | `jju_retire_extract` | 928 | keep `favor` | ₣HH → ₣HHPPP |
+
+  **jju_rein semantic preservation (line 1087):**
+  Currently accepts both ₣HH and ₣HHPPP for different behaviors. With normalization:
+  - Check if PPP == AAA → heat-only query (match all paces in heat)
+  - Otherwise → pace-specific query (match exact pace)
+  Uses existing spec convention; makes caller intent explicit.
+
+  **jjw_workbench.sh (lines 62-96):**
+  Auto-saddle extracts ₣XX from muster output. Must expand to ₣XXAAA before calling jju_saddle.
+
+  **jja_arcanum.sh updates:**
+  - Line 80: `₣HH` → `₣HHAAA` in usage examples
+  - Line 86, 95: Update favor format documentation
+
+  **jjt_testbench.sh test case updates:**
+  - Lines 308, 320, 330: `jjt_slate "₣AA"` → `"₣AAAAA"`
+  - Lines 354, 366, 370: `jjt_rail "₣AA"` → `"₣AAAAA"`
+  - Line 374: `jjt_retire_extract "₣AA"` → `"₣AAAAA"`
+  - Add normalizer test cases (₣AA→₣AAAAA, ₣KbAAB→₣KbAAB, invalid inputs)
+
+  **Studbook JSON keys:** No change (remain ₣HH). Normalization is at API boundary, not storage.
+
+  **Success criteria:**
+  - All existing tests pass (after updating test inputs)
+  - New tests verify normalizer edge cases
+  - Heat-only ops work with ₣XXAAA input
+  - jju_rein with ₣XXAAA queries all paces; ₣XXPPP (PPP≠AAA) queries specific pace
+  - Files touched: jju_utility.sh, jjw_workbench.sh, jja_arcanum.sh, jjt_testbench.sh
 
 - **Implement /jjc-heat-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
 
