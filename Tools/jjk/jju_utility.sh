@@ -42,6 +42,11 @@ zjju_kindle() {
   ZJJU_PADDOCK_DIR=".claude/jjm"
   ZJJU_TROPHY_DIR=".claude/jjm/retired"
 
+  # URL-safe base64 character set (64 chars)
+  # Position 0-25: A-Z, 26-51: a-z, 52-61: 0-9, 62: -, 63: _
+  ZJJU_FAVOR_CHARSET="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+  ZJJU_FAVOR_CHARSET_LEN=64
+
   ZJJU_KINDLED=1
 }
 
@@ -55,32 +60,25 @@ zjju_sentinel() {
 # Favor format: HHPPP (5 URL-safe base64 digits)
 # - HH = heat (2 digits, 0-4095)
 # - PPP = pace (3 digits, 0-262143, 000 = heat-only reference)
-# Character set: A-Za-z0-9-_ (64 chars, URL-safe)
-
-# Internal: URL-safe base64 character set (64 chars)
-# Position 0-25: A-Z, 26-51: a-z, 52-61: 0-9, 62: -, 63: _
-zjju_favor_charset() {
-  echo "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-}
+# Character set: A-Za-z0-9-_ (64 chars, URL-safe, defined in ZJJU_FAVOR_CHARSET)
 
 # Internal: Get character at position in charset
+# Output: single character to stdout
 zjju_favor_char_at() {
+  zjju_sentinel
   local z_pos="${1}"
-  local z_charset
-  z_charset="$(zjju_favor_charset)"
-  echo "${z_charset:${z_pos}:1}"
+  echo "${ZJJU_FAVOR_CHARSET:${z_pos}:1}"
 }
 
-# Internal: Get position of character in charset (-1 if not found)
+# Internal: Get position of character in charset
+# Output: position (0-63) or -1 if not found
 zjju_favor_pos_of() {
+  zjju_sentinel
   local z_char="${1}"
-  local z_charset
   local z_pos=0
 
-  z_charset="$(zjju_favor_charset)"
-
-  while test "${z_pos}" -lt 64; do
-    if test "${z_charset:${z_pos}:1}" = "${z_char}"; then
+  while test "${z_pos}" -lt "${ZJJU_FAVOR_CHARSET_LEN}"; do
+    if test "${ZJJU_FAVOR_CHARSET:${z_pos}:1}" = "${z_char}"; then
       echo "${z_pos}"
       return 0
     fi
@@ -126,17 +124,12 @@ zjju_favor_encode() {
   z_pace_d2=$(((z_pace / 64) % 64))
   z_pace_d3=$((z_pace % 64))
 
-  # Convert positions to characters
-  local z_c1
-  local z_c2
-  local z_c3
-  local z_c4
-  local z_c5
-  z_c1="$(zjju_favor_char_at "${z_heat_d1}")"
-  z_c2="$(zjju_favor_char_at "${z_heat_d2}")"
-  z_c3="$(zjju_favor_char_at "${z_pace_d1}")"
-  z_c4="$(zjju_favor_char_at "${z_pace_d2}")"
-  z_c5="$(zjju_favor_char_at "${z_pace_d3}")"
+  # Convert positions to characters (inline string slice from constant)
+  local z_c1="${ZJJU_FAVOR_CHARSET:${z_heat_d1}:1}"
+  local z_c2="${ZJJU_FAVOR_CHARSET:${z_heat_d2}:1}"
+  local z_c3="${ZJJU_FAVOR_CHARSET:${z_pace_d1}:1}"
+  local z_c4="${ZJJU_FAVOR_CHARSET:${z_pace_d2}:1}"
+  local z_c5="${ZJJU_FAVOR_CHARSET:${z_pace_d3}:1}"
 
   echo "${z_c1}${z_c2}${z_c3}${z_c4}${z_c5}"
 }
@@ -161,17 +154,28 @@ zjju_favor_decode() {
   local z_c4="${z_favor:3:1}"
   local z_c5="${z_favor:4:1}"
 
-  # Convert characters to positions
+  # Convert characters to positions (temp file + read pattern)
+  local z_pos_file="${BUD_TEMP_DIR}/favor_decode_pos.txt"
   local z_p1
   local z_p2
   local z_p3
   local z_p4
   local z_p5
-  z_p1="$(zjju_favor_pos_of "${z_c1}")"
-  z_p2="$(zjju_favor_pos_of "${z_c2}")"
-  z_p3="$(zjju_favor_pos_of "${z_c3}")"
-  z_p4="$(zjju_favor_pos_of "${z_c4}")"
-  z_p5="$(zjju_favor_pos_of "${z_c5}")"
+
+  zjju_favor_pos_of "${z_c1}" > "${z_pos_file}"
+  read -r z_p1 < "${z_pos_file}"
+
+  zjju_favor_pos_of "${z_c2}" > "${z_pos_file}"
+  read -r z_p2 < "${z_pos_file}"
+
+  zjju_favor_pos_of "${z_c3}" > "${z_pos_file}"
+  read -r z_p3 < "${z_pos_file}"
+
+  zjju_favor_pos_of "${z_c4}" > "${z_pos_file}"
+  read -r z_p4 < "${z_pos_file}"
+
+  zjju_favor_pos_of "${z_c5}" > "${z_pos_file}"
+  read -r z_p5 < "${z_pos_file}"
 
   # Validate all characters were found
   test "${z_p1}" -ge 0 || buc_die "Invalid character in favor: ${z_c1}"
@@ -285,26 +289,31 @@ zjju_heat_seed_next() {
   local z_c1="${z_seed:0:1}"
   local z_c2="${z_seed:1:1}"
 
+  # Convert characters to positions (temp file + read pattern)
+  local z_pos_file="${BUD_TEMP_DIR}/seed_next_pos.txt"
   local z_p1
   local z_p2
-  z_p1="$(zjju_favor_pos_of "${z_c1}")"
-  z_p2="$(zjju_favor_pos_of "${z_c2}")"
+
+  zjju_favor_pos_of "${z_c1}" > "${z_pos_file}"
+  read -r z_p1 < "${z_pos_file}"
+
+  zjju_favor_pos_of "${z_c2}" > "${z_pos_file}"
+  read -r z_p2 < "${z_pos_file}"
 
   test "${z_p1}" -ge 0 || buc_die "Invalid character in seed: ${z_c1}"
   test "${z_p2}" -ge 0 || buc_die "Invalid character in seed: ${z_c2}"
 
   # Increment (base64 arithmetic)
   z_p2=$((z_p2 + 1))
-  if test "${z_p2}" -ge 64; then
+  if test "${z_p2}" -ge "${ZJJU_FAVOR_CHARSET_LEN}"; then
     z_p2=0
     z_p1=$((z_p1 + 1))
-    test "${z_p1}" -lt 64 || buc_die "Heat seed overflow (max 4096 heats)"
+    test "${z_p1}" -lt "${ZJJU_FAVOR_CHARSET_LEN}" || buc_die "Heat seed overflow (max 4096 heats)"
   fi
 
-  local z_nc1
-  local z_nc2
-  z_nc1="$(zjju_favor_char_at "${z_p1}")"
-  z_nc2="$(zjju_favor_char_at "${z_p2}")"
+  # Convert positions to characters (inline string slice from constant)
+  local z_nc1="${ZJJU_FAVOR_CHARSET:${z_p1}:1}"
+  local z_nc2="${ZJJU_FAVOR_CHARSET:${z_p2}:1}"
 
   echo "${z_nc1}${z_nc2}"
 }
@@ -516,7 +525,7 @@ jju_nominate() {
   local z_heat_key="₣${z_seed}"
 
   # Build new studbook JSON with new heat
-  local z_temp="${BUD_TEMP_DIR}/studbook_nominate.json"
+  local z_temp_heat="${BUD_TEMP_DIR}/nominate_add_heat.json"
   jq --arg key "${z_heat_key}" \
      --arg datestamp "${z_datestamp}" \
      --arg display "${z_display}" \
@@ -527,18 +536,21 @@ jju_nominate() {
         "silks": $silks,
         "status": "current",
         "paces": []
-      }' <<< "${z_studbook}" > "${z_temp}"
+      }' <<< "${z_studbook}" > "${z_temp_heat}"
 
   # Increment next_heat_seed
+  local z_next_seed_file="${BUD_TEMP_DIR}/nominate_next_seed.txt"
+  zjju_heat_seed_next "${z_seed}" > "${z_next_seed_file}"
   local z_next_seed
-  z_next_seed="$(zjju_heat_seed_next "${z_seed}")"
+  read -r z_next_seed < "${z_next_seed_file}"
 
+  local z_temp_final="${BUD_TEMP_DIR}/nominate_final.json"
   jq --arg seed "${z_next_seed}" \
-     '.next_heat_seed = $seed' "${z_temp}" > "${z_temp}.2"
+     '.next_heat_seed = $seed' "${z_temp_heat}" > "${z_temp_final}"
 
   # Read the final JSON
   local z_new_studbook
-  z_new_studbook="$(cat "${z_temp}.2")"
+  z_new_studbook=$(<"${z_temp_final}")
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
@@ -561,7 +573,7 @@ jju_nominate() {
 [List any constraints or guidelines]
 EOF
 
-  buc_trace "Nominated heat ${z_heat_key}, temp files: ${z_temp}, ${z_temp}.2"
+  buc_trace "Nominated heat ${z_heat_key}, temp files: ${z_temp_heat}, ${z_temp_final}"
   echo "Heat ${z_heat_key} nominated: ${z_display}"
   echo "Silks: ${z_silks}"
   echo "Paddock: ${z_paddock_file}"
@@ -626,6 +638,7 @@ jju_slate() {
   fi
 
   # Add pace to heat
+  local z_temp_final="${BUD_TEMP_DIR}/slate_final.json"
   jq --arg heat "${z_heat}" \
      --arg id "${z_next_id}" \
      --arg display "${z_display}" \
@@ -634,16 +647,16 @@ jju_slate() {
         "id": $id,
         "display": $display,
         "status": $status
-      }]' "${z_temp}" > "${z_temp}.2"
+      }]' "${z_temp}" > "${z_temp_final}"
 
   # Read the new studbook
   local z_new_studbook
-  z_new_studbook="$(cat "${z_temp}.2")"
+  z_new_studbook=$(<"${z_temp_final}")
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
 
-  buc_trace "Slated pace ${z_next_id}, temp files: ${z_temp}, ${z_temp}.2"
+  buc_trace "Slated pace ${z_next_id}, temp files: ${z_temp}, ${z_temp_final}"
   echo "Pace ${z_heat}${z_next_id} slated: ${z_display}"
 }
 
@@ -665,14 +678,14 @@ jju_reslate() {
   test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
   test "${#z_favor}" -eq 6 || buc_die "Favor must be 6 characters (₣HHPPP): ${z_favor}"
 
+  # Decode favor to get numeric heat and pace values
   local z_favor_digits="${z_favor:1}"  # Remove ₣ prefix
-  local z_decoded
-  z_decoded="$(zjju_favor_decode "${z_favor_digits}")"
+  local z_decode_file="${BUD_TEMP_DIR}/reslate_decode.txt"
+  zjju_favor_decode "${z_favor_digits}" > "${z_decode_file}"
 
   local z_heat_num
   local z_pace_num
-  z_heat_num="$(echo "${z_decoded}" | cut -f1)"
-  z_pace_num="$(echo "${z_decoded}" | cut -f2)"
+  IFS=$'\t' read -r z_heat_num z_pace_num < "${z_decode_file}"
 
   # Reconstruct heat favor (₣HH)
   local z_heat_digits="${z_favor_digits:0:2}"
@@ -702,21 +715,22 @@ jju_reslate() {
     || buc_die "Pace not found: ${z_favor}"
 
   # Update pace display
+  local z_temp_final="${BUD_TEMP_DIR}/reslate_final.json"
   jq --arg heat "${z_heat_favor}" \
      --arg id "${z_pace_id}" \
      --arg display "${z_display}" \
      '.heats[$heat].paces |= map(
         if .id == $id then .display = $display else . end
-      )' "${z_temp}" > "${z_temp}.2"
+      )' "${z_temp}" > "${z_temp_final}"
 
   # Read the new studbook
   local z_new_studbook
-  z_new_studbook="$(cat "${z_temp}.2")"
+  z_new_studbook=$(<"${z_temp_final}")
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
 
-  buc_trace "Reslated pace ${z_favor}, temp files: ${z_temp}, ${z_temp}.2"
+  buc_trace "Reslated pace ${z_favor}, temp files: ${z_temp}, ${z_temp_final}"
   echo "Pace ${z_favor} reslated: ${z_display}"
 }
 
@@ -789,21 +803,22 @@ jju_rail() {
   z_order_json="${z_order_json}]"
 
   # Reorder paces using jq
+  local z_temp_final="${BUD_TEMP_DIR}/rail_final.json"
   jq --arg heat "${z_heat}" \
      --argjson order "${z_order_json}" \
      '.heats[$heat].paces = [
         $order[] as $id |
         (.heats[$heat].paces[] | select(.id == $id))
-      ]' "${z_temp}" > "${z_temp}.2"
+      ]' "${z_temp}" > "${z_temp_final}"
 
   # Read the new studbook
   local z_new_studbook
-  z_new_studbook="$(cat "${z_temp}.2")"
+  z_new_studbook=$(<"${z_temp_final}")
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
 
-  buc_trace "Railed paces ${z_order}, temp files: ${z_temp}, ${z_temp}.2"
+  buc_trace "Railed paces ${z_order}, temp files: ${z_temp}, ${z_temp_final}"
   echo "Paces railed: ${z_order}"
 }
 
@@ -834,14 +849,14 @@ jju_tally() {
   test "${z_favor:0:1}" = "₣" || buc_die "Favor must start with ₣: ${z_favor}"
   test "${#z_favor}" -eq 6 || buc_die "Favor must be 6 characters (₣HHPPP): ${z_favor}"
 
+  # Decode favor to get numeric heat and pace values
   local z_favor_digits="${z_favor:1}"  # Remove ₣ prefix
-  local z_decoded
-  z_decoded="$(zjju_favor_decode "${z_favor_digits}")"
+  local z_decode_file="${BUD_TEMP_DIR}/tally_decode.txt"
+  zjju_favor_decode "${z_favor_digits}" > "${z_decode_file}"
 
   local z_heat_num
   local z_pace_num
-  z_heat_num="$(echo "${z_decoded}" | cut -f1)"
-  z_pace_num="$(echo "${z_decoded}" | cut -f2)"
+  IFS=$'\t' read -r z_heat_num z_pace_num < "${z_decode_file}"
 
   # Reconstruct heat favor (₣HH)
   local z_heat_digits="${z_favor_digits:0:2}"
@@ -871,21 +886,22 @@ jju_tally() {
     || buc_die "Pace not found: ${z_favor}"
 
   # Update pace status
+  local z_temp_final="${BUD_TEMP_DIR}/tally_final.json"
   jq --arg heat "${z_heat_favor}" \
      --arg id "${z_pace_id}" \
      --arg state "${z_state}" \
      '.heats[$heat].paces |= map(
         if .id == $id then .status = $state else . end
-      )' "${z_temp}" > "${z_temp}.2"
+      )' "${z_temp}" > "${z_temp_final}"
 
   # Read the new studbook
   local z_new_studbook
-  z_new_studbook="$(cat "${z_temp}.2")"
+  z_new_studbook=$(<"${z_temp_final}")
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
 
-  buc_trace "Tallied pace ${z_favor} to ${z_state}, temp files: ${z_temp}, ${z_temp}.2"
+  buc_trace "Tallied pace ${z_favor} to ${z_state}, temp files: ${z_temp}, ${z_temp_final}"
   echo "Pace ${z_favor} tallied: ${z_state}"
 }
 
@@ -1164,11 +1180,28 @@ jju_wrap() {
   buc_trace "Pushing to remote before wrap"
   git push || buc_die "Git push failed"
 
-  # Extract heat favor from pace favor (₣HH from ₣HHPPP)
+  # Decode favor to get numeric heat and pace values
   local z_favor_digits="${z_favor:1}"  # Remove ₣ prefix
+  local z_decode_file="${BUD_TEMP_DIR}/wrap_decode.txt"
+  zjju_favor_decode "${z_favor_digits}" > "${z_decode_file}"
+
+  local z_heat_num
+  local z_pace_num
+  IFS=$'\t' read -r z_heat_num z_pace_num < "${z_decode_file}"
+
+  # Reconstruct heat favor (₣HH)
   local z_heat_digits="${z_favor_digits:0:2}"
   local z_heat_favor="₣${z_heat_digits}"
-  local z_pace_digits="${z_favor_digits:2:3}"
+
+  # Format pace ID as 3-digit decimal string
+  local z_pace_id
+  if test "${z_pace_num}" -lt 10; then
+    z_pace_id="00${z_pace_num}"
+  elif test "${z_pace_num}" -lt 100; then
+    z_pace_id="0${z_pace_num}"
+  else
+    z_pace_id="${z_pace_num}"
+  fi
 
   # Read studbook to get pace display text
   local z_temp="${BUD_TEMP_DIR}/wrap_studbook.json"
@@ -1181,7 +1214,7 @@ jju_wrap() {
   # Get pace display text
   local z_scalar_file="${BUD_TEMP_DIR}/wrap_scalar.txt"
   local z_pace_display
-  jq -r --arg heat "${z_heat_favor}" --arg pace_id "${z_pace_digits}" \
+  jq -r --arg heat "${z_heat_favor}" --arg pace_id "${z_pace_id}" \
     '.heats[$heat].paces[] | select(.id == $pace_id) | .display' \
     "${z_temp}" > "${z_scalar_file}"
   read -r z_pace_display < "${z_scalar_file}"
@@ -1222,7 +1255,14 @@ jju_wrap() {
     jq -r '.display' "${z_next_pace_file}" > "${z_scalar_file}"
     read -r z_next_display < "${z_scalar_file}"
 
-    echo "Next pace: ${z_heat_favor}${z_next_id}"
+    # Convert decimal ID to pace number and encode as proper favor
+    local z_next_pace_num=$((10#${z_next_id}))
+    local z_next_favor_file="${BUD_TEMP_DIR}/wrap_next_favor.txt"
+    zjju_favor_encode "${z_heat_num}" "${z_next_pace_num}" > "${z_next_favor_file}"
+    local z_next_favor
+    read -r z_next_favor < "${z_next_favor_file}"
+
+    echo "Next pace: ₣${z_next_favor}"
     echo "  ${z_next_display}"
   else
     echo "Heat complete - all paces done"
