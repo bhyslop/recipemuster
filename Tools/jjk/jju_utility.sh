@@ -556,9 +556,9 @@ jju_nominate() {
   jq --arg seed "${z_next_seed}" \
      '.next_heat_seed = $seed' "${z_temp_heat}" > "${z_temp_final}"
 
-  # Read the final JSON
-  local z_new_studbook
-  z_new_studbook=$(<"${z_temp_final}")
+  # Read the final JSON (BCG: $(<file) on same line as declaration)
+  local z_new_studbook=$(<"${z_temp_final}")
+  test -n "${z_new_studbook}" || buc_die "Failed to read: ${z_temp_final}"
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
@@ -659,9 +659,9 @@ jju_slate() {
         "status": $status
       }]' "${z_temp}" > "${z_temp_final}"
 
-  # Read the new studbook
-  local z_new_studbook
-  z_new_studbook=$(<"${z_temp_final}")
+  # Read the new studbook (BCG: $(<file) on same line as declaration)
+  local z_new_studbook=$(<"${z_temp_final}")
+  test -n "${z_new_studbook}" || buc_die "Failed to read: ${z_temp_final}"
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
@@ -735,9 +735,9 @@ jju_reslate() {
         if .id == $id then .display = $display else . end
       )' "${z_temp}" > "${z_temp_final}"
 
-  # Read the new studbook
-  local z_new_studbook
-  z_new_studbook=$(<"${z_temp_final}")
+  # Read the new studbook (BCG: $(<file) on same line as declaration)
+  local z_new_studbook=$(<"${z_temp_final}")
+  test -n "${z_new_studbook}" || buc_die "Failed to read: ${z_temp_final}"
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
@@ -823,9 +823,9 @@ jju_rail() {
         (.heats[$heat].paces[] | select(.id == $id))
       ]' "${z_temp}" > "${z_temp_final}"
 
-  # Read the new studbook
-  local z_new_studbook
-  z_new_studbook=$(<"${z_temp_final}")
+  # Read the new studbook (BCG: $(<file) on same line as declaration)
+  local z_new_studbook=$(<"${z_temp_final}")
+  test -n "${z_new_studbook}" || buc_die "Failed to read: ${z_temp_final}"
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
@@ -906,9 +906,9 @@ jju_tally() {
         if .id == $id then .status = $state else . end
       )' "${z_temp}" > "${z_temp_final}"
 
-  # Read the new studbook
-  local z_new_studbook
-  z_new_studbook=$(<"${z_temp_final}")
+  # Read the new studbook (BCG: $(<file) on same line as declaration)
+  local z_new_studbook=$(<"${z_temp_final}")
+  test -n "${z_new_studbook}" || buc_die "Failed to read: ${z_temp_final}"
 
   # Write studbook (validates internally)
   zjju_studbook_write "${z_new_studbook}"
