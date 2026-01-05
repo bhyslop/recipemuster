@@ -50,51 +50,6 @@ Note: `jjk` refers to the Job Jockey Kit directory (`Tools/jjk/`), not a file pr
 - Boundary cases with `but_expect_fatal` (ranges, empty values)
 - Invalid inputs with `but_expect_fatal` (format violations, missing fields)
 
-### Concept Surgery Log
-
-Tracking new/modified terms for continuity during this heat:
-
-**New Terms:**
-| Term | Type | Meaning |
-|------|------|---------|
-| Favor | noun | 5-digit heat+pace identifier (₣HHPPP) |
-| Studbook | noun | JSON registry of heats/paces |
-| Paddock | noun | Per-heat prose context file (was: section in heat file) |
-| Trophy | noun | Retired heat archive (was: retired heat file) |
-| Chalk | verb | Write steeplechase entry |
-| Rein | verb | Read steeplechase entries |
-| Muster | verb | List current heats |
-| Slate | verb | Add new pace |
-| Reslate | verb | Revise pace description |
-| Rail | verb | Reorder paces |
-| Tally | verb | Set pace state |
-| Nominate | verb | Create new heat |
-
-**Modified Terms:**
-| Term | Was | Now |
-|------|-----|-----|
-| Saddle | Read heat file, pick pace | Read studbook + paddock + steeple, unified context |
-| Wrap | Mark pace done in heat file | Mark complete in studbook, auto-chalk, advance |
-| Retire | Move heat file to retired/ | Extract from studbook, create trophy |
-| Notch | Git commit (unchanged) | Git commit (adding jju script) |
-
-**Preserved Terms:**
-- Heat, Pace, Itch, Scar (concepts unchanged, storage changed)
-- Silks, Steeplechase (concepts unchanged)
-
-**Prefix Assignments (VOK-aligned):**
-| Prefix | Purpose | Status |
-|--------|---------|--------|
-| `jja_` | Arcanum | existing |
-| `jjc_` | Command | new usage |
-| `jji_` | Itch | existing |
-| `jjl_` | skiLl | future reservation |
-| `jjp_` | Paddock | new |
-| `jjs_` | Studbook | new |
-| `jju_` | Utility | new |
-| `jjy_` | Trophy | new |
-| `jjz_` | Scar | renamed from jjs_ |
-
 ### File Locations
 
 | File Type | Location | Example |
@@ -242,7 +197,33 @@ Decision: **Append-only**
 
 - **Implement /jjc-heat-retire** — Create trophy file from studbook extract + paddock + steeple history. Remove heat from studbook. Move paddock to retired/.
 
-- **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Revise CLAUDE.md term definitions (all new terms from Concept Surgery Log).
+- **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Update `zjjw_emit_claudemd_section()` with new vocabulary:
+
+  **New Terms for CLAUDE.md Concepts section:**
+  | Term | Type | Meaning |
+  |------|------|---------|
+  | Favor | noun | 5-digit heat+pace identifier (₣HHPPP) |
+  | Studbook | noun | JSON registry of heats/paces |
+  | Paddock | noun | Per-heat prose context file |
+  | Trophy | noun | Retired heat archive |
+  | Chalk | verb | Write steeplechase entry |
+  | Rein | verb | Read steeplechase entries |
+  | Muster | verb | List current heats |
+  | Slate | verb | Add new pace |
+  | Reslate | verb | Revise pace description |
+  | Rail | verb | Reorder paces |
+  | Tally | verb | Set pace state |
+  | Nominate | verb | Create new heat |
+
+  **Modified Terms:**
+  | Term | Was | Now |
+  |------|-----|-----|
+  | Saddle | Read heat file, pick pace | Read studbook + paddock + steeple, unified context |
+  | Wrap | Mark pace done in heat file | Mark complete in studbook, auto-chalk, advance |
+  | Retire | Move heat file to retired/ | Extract from studbook, create trophy |
+  | Notch | Git commit (unchanged) | Git commit (adding jju script) |
+
+  **Preserved Terms:** Heat, Pace, Itch, Scar, Silks, Steeplechase (concepts unchanged, storage changed)
 
 - **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
 
