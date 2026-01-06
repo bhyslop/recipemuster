@@ -252,31 +252,68 @@ Decision: **Append-only**
   **Test approach**: Manual integration test — create test heat via nominate, add paces via slate, run saddle/wrap cycle, verify state transitions.
   **Success criteria**: Saddle displays correct format; wrap advances state and chalks; retire creates trophy and cleans up.
 
-- **studbook-v2-arcanum-finalize** — Update arcanum emitters and finalize v2. Depends on: studbook-v2-workflow-ops.
+- **studbook-v2-code-cleanup** — Remove v2 suffixes and delete v1 functions. Depends on: studbook-v2-workflow-ops.
   **Deliverables**:
-  (1) Update `Tools/jjk/jja_arcanum.sh` emitters to reference v2 functions
-  (2) Implement paddock location: `.claude/jjm/jjp_{HH}.md` (no `current/` subdir)
-  (3) Update CLAUDE.md Job Jockey section with v2 file locations
-  (4) Remove `_v2` suffixes — these become the only implementation
-  (5) Delete v1 functions that are fully replaced
-  **Arcanum emitter changes**:
-  - `/jja-heat-saddle`: References `jju_saddle` (no v2 suffix after rename)
-  - `/jja-pace-new`: Documents that `slate` takes `(heat_favor, silks, spec_text)`, mention `reslate` for refinement
-  - `/jja-pace-wrap`: References `jju_wrap`
-  - `/jja-heat-retire`: References `jju_retire`
-  - Vocabulary: Update to mention append-only specs, single `silks` identifier (no `display`)
+  (1) Remove `_v2` suffixes — these become the only implementation
+  (2) Delete v1 functions that are fully replaced
+  (3) Implement paddock location: `.claude/jjm/jjp_{HH}.md` (no `current/` subdir)
+  **Suffix removal**: Rename all v2 functions to canonical names:
+  - `zjju_studbook_validate_v2` → `zjju_studbook_validate`
+  - `zjju_studbook_nominate_v2` → `zjju_studbook_nominate`
+  - `jju_saddle_v2` → `jju_saddle`
+  - (and all other `_v2` functions)
+  Delete the original v1 implementations.
   **File location changes**:
   | Old (v1) | New (v2) |
   |----------|----------|
   | `.claude/jjm/current/jjh_*.md` | `.claude/jjm/jjp_{HH}.md` |
   | `.claude/jjm/current/jjc_*.md` | (removed — command context in paddock) |
-  **Suffix removal**: After all v2 functions are tested and working, rename:
-  - `zjju_studbook_validate_v2` → `zjju_studbook_validate`
-  - `zjju_studbook_nominate_v2` → `zjju_studbook_nominate`
-  - (and all other `_v2` functions)
-  Delete the original v1 implementations.
-  **Success criteria**: Fresh `jja_arcanum.sh install` produces correct CLAUDE.md; `nominate` creates paddock at correct path; all commands work without `_v2` suffixes.
-  **Post-completion**: Retire this heat, then run fresh install to activate v2.
+  **Note**: Arcanum emitter updates are DEFERRED to after modularization, so they reference final names (jjbo_*, jjbg_*).
+  **Success criteria**: All v2 functions work without `_v2` suffixes; v1 code deleted; paddock at correct path.
+
+- **jju-modularization-review** — Review and finalize jju→jjb* modularization plan after v2 implementation stabilizes.
+  **Context**: `jju_utility.sh` splits into three modules preparing for future Rust (jjr) replacement:
+  | Module | Prefix | Purpose | Side Effects |
+  |--------|--------|---------|--------------|
+  | `jjbd_database.sh` | `zjjbd_`/`jjbd_` | Pure data transforms (stdin→stdout) | **None** — future jjr replacement target |
+  | `jjbg_git.sh` | `zjjbg_`/`jjbg_` | Git operations (chalk, rein, notch) + future locking | Git repo state |
+  | `jjbo_orchestration.sh` | `zjjbo_`/`jjbo_` | File I/O, composition, user output | Files, stdout |
+  **Key design principles**:
+  - `jjbd` functions have NO file I/O, NO git, NO buc_say — pure data in, data out
+  - `jjbg` consolidates all git operations including future `git update-ref` locking
+  - `jjbo` is the composition layer — calls jjbd for transforms, jjbg for git, handles file paths and user feedback
+  - `jjw` (workbench CLI) remains thin dispatch, unchanged
+  **Deliverables**: (1) Read current `jju_utility.sh` to inventory all functions. (2) Produce confirmed allocation table: function → destination module. (3) Flag any functions with ambiguous placement. (4) Update File Prefix Conventions table in paddock with jjbd/jjbg/jjbo.
+  **Success criteria**: Clear allocation of every jju function to exactly one destination module.
+
+- **jju-modularization-execute** — Split `jju_utility.sh` into `jjbd_database.sh`, `jjbg_git.sh`, `jjbo_orchestration.sh`. Depends on: jju-modularization-review.
+  **Deliverables**:
+  (1) Create `Tools/jjk/jjbd_database.sh` — move favor functions, studbook validation, heat_seed_next; rename prefixes zjju_→zjjbd_
+  (2) Create `Tools/jjk/jjbg_git.sh` — move chalk/rein/notch; rename prefixes jju_→jjbg_
+  (3) Create `Tools/jjk/jjbo_orchestration.sh` — move everything else; rename prefixes zjju_→zjjbo_ and jju_→jjbo_
+  (4) Update internal function calls in each file to use new prefixes
+  (5) Update `jju_cli.sh` to source all three modules instead of jju_utility.sh
+  (6) Run test suite to verify behavior unchanged
+  (7) Delete `jju_utility.sh`
+  **Constants allocation**: ZJJU_FAVOR_CHARSET → jjbd, ZJJU_STUDBOOK_FILE → jjbo.
+  **Implementation notes**: This is primarily mechanical move-and-rename. The jjbd module should match future jjr command surface (favor encode/decode, studbook validate/transforms). Locking stubs (zjjbg_lock_acquire/release) can be no-ops initially.
+  **Success criteria**: All existing test suites pass; `jju_utility.sh` deleted; three new modules sourced correctly.
+
+- **jj-arcanum-finalize** — Update arcanum emitters with final modularized names. Depends on: jju-modularization-execute.
+  **Deliverables**:
+  (1) Update `Tools/jjk/jja_arcanum.sh` emitters to reference modularized function names
+  (2) Update CLAUDE.md Job Jockey section with v2 file locations and new module structure
+  **Arcanum emitter changes**:
+  - `/jja-heat-saddle`: References `jjbo_saddle`
+  - `/jja-pace-new`: Documents that `jjbo_slate` takes `(heat_favor, silks, spec_text)`, mention `jjbo_reslate` for refinement
+  - `/jja-pace-wrap`: References `jjbo_wrap`
+  - `/jja-heat-retire`: References `jjbo_retire`
+  - Vocabulary: Update to mention append-only specs, single `silks` identifier (no `display`), modular structure (jjbd/jjbg/jjbo)
+  **CLAUDE.md updates**:
+  - File prefix table: Add jjbd_, jjbg_, jjbo_ entries
+  - Module descriptions: jjbd (data), jjbg (git), jjbo (orchestration)
+  **Success criteria**: Fresh `jja_arcanum.sh install` produces correct CLAUDE.md with modularized names; all commands work correctly.
+  **Post-completion**: Retire this heat, then run fresh install to activate v2 with modular structure.
 
 - **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
 
