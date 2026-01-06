@@ -9,7 +9,31 @@ Redesign Job Jockey around a JSON-based studbook registry, git-based steeplechas
 **IMPORTANT**: This heat executes under the CURRENT JJK installation while building its replacement.
 
 - Use existing `/jja-*` commands (heat-saddle, pace-wrap, notch, etc.)
-- The new system becomes active only after migration and arcanum update
+- The new system becomes active only after this heat retires and fresh arcanum install
+
+### No Migration - Retire First
+
+**CRITICAL CONSTRAINT**: There will be NO migration from v1 to v2 schema.
+
+This heat will be **retired** before v2 is installed. The sequence is:
+1. Complete all v2 implementation paces (under v1)
+2. Retire this heat (creates trophy, clears studbook)
+3. Run fresh `jja_arcanum.sh install` (creates empty v2 studbook)
+4. Create new heats under v2
+
+**Implications for implementation**:
+- V2 code assumes it ONLY ever sees v2 schema (no version detection)
+- No dual-path logic or compatibility shims
+- No `schema_version` field checking at runtime (validation only)
+- Test suites create fresh v2 studbooks, never convert v1
+
+### Schema Simplifications in V2
+
+**`display` field removed from heats**: V1 had both `display` (human-readable) and `silks` (kebab-case). These were redundant — always the same concept in different formats. V2 uses only `silks`. Format for display if needed, or show kebab-case directly.
+
+**Pace description via specs**: Pace `silks` is the stable identifier. The human-readable description is `specs[last].text`. No separate `display` field on paces.
+
+**Steeplechase unchanged**: `chalk`, `rein`, `notch` work with git history, not studbook JSON. They need no v2 variants and are not in scope for these paces.
 
 ### File Prefix Conventions
 
@@ -134,36 +158,131 @@ Decision: **Append-only**
 
 ## Remaining
 
+- **studbook-v2-schema-validation** — Implement v2 schema validation function. No ops yet, just validation.
+  **Schema specification** (canonical reference):
+  ```json
+  {
+    "heats": {
+      "₣Kb": {
+        "silks": "jj-studbook-redesign",
+        "datestamp": "260101",
+        "status": "current",
+        "order": ["₣KbAAA", "₣KbAAB"],
+        "states": {"₣KbAAA": "pending", "₣KbAAB": "complete"},
+        "paces": {
+          "₣KbAAA": {
+            "silks": "vocabulary-cleanup",
+            "specs": [
+              {"ts": "260105-0900", "text": "Initial spec text..."},
+              {"ts": "260105-1400", "text": "Refined spec text..."}
+            ]
+          }
+        }
+      }
+    },
+    "next_heat_seed": "Kc"
+  }
+  ```
+  **Deliverables**: (1) Add `zjju_studbook_validate_v2()` to `Tools/jjk/jju_utility.sh`. (2) Add test suite `jjt_test_studbook_v2_validation` to `Tools/jjk/jjt_testbench.sh`. (3) Add tabtarget `tt/jjt-sv2.TestStudbookV2Validation.sh`.
+  **Validation rules**:
+  - `heats` object required at root, `next_heat_seed` required (2-char base64)
+  - Heat Favor key matches `₣[A-Za-z0-9]{2}`
+  - Heat requires: `silks` (non-empty string), `datestamp` (YYMMDD), `status` (`current`|`retired`), `order` (array), `states` (object), `paces` (object)
+  - `order`, `states`, `paces` must have identical key sets (may be empty for fresh heat)
+  - Pace Favor key matches `₣[A-Za-z0-9]{5}` and starts with parent heat Favor
+  - Pace requires: `silks` (non-empty kebab-case), `specs` (non-empty array)
+  - Each spec requires: `ts` (YYMMDD-HHMM format), `text` (non-empty string)
+  - `states` values must be: `pending`|`current`|`complete`|`abandoned`
+  **Test cases**: (1) Valid minimal: one heat, one pace, one spec. (2) Valid multi-heat, multi-pace. (3) Valid heat with zero paces (fresh nominate). (4) Invalid heat Favor format → fatal. (5) Pace Favor doesn't match heat prefix → fatal. (6) Order/states/paces key mismatch → fatal. (7) Empty specs array → fatal. (8) Invalid state value → fatal. (9) Missing required field → fatal. (10) Invalid datestamp format → fatal.
+  **Success criteria**: `tt/jjt-sv2.TestStudbookV2Validation.sh` passes all 10 cases.
+
+- **studbook-v2-write-ops** — Migrate write operations to v2 schema. Depends on: studbook-v2-schema-validation.
+  **Deliverables**: Add these functions to `Tools/jjk/jju_utility.sh`:
+  (1) `zjju_studbook_nominate_v2(silks)` — Create heat with empty paces structure
+  (2) `zjju_studbook_slate_v2(heat_favor, silks, spec_text)` — Append pace, auto-generate Favor
+  (3) `zjju_studbook_reslate_v2(pace_favor, spec_text)` — Append spec entry (never overwrite)
+  (4) `zjju_studbook_rail_v2(heat_favor, order_string)` — Reorder paces
+  (5) `zjju_studbook_tally_v2(pace_favor, state)` — Update pace state
+  **Function behaviors**:
+  - `nominate_v2(silks)`: Generates next heat Favor from `next_heat_seed`, creates heat with `datestamp` from `BUD_NOW_STAMP` (YYMMDD, first 6 chars), `status: "current"`, empty `order`/`states`/`paces`. Increments `next_heat_seed`.
+  - `slate_v2(heat_favor, silks, spec_text)`: Generates pace Favor by finding max PPP suffix in heat's `order`, incrementing (charset `A-Za-z0-9`, starting `AAA`, increment rightmost with carry). Appends Favor to `order`, adds entry to `states` (value: `pending`), adds pace object to `paces` with single spec entry timestamped from `BUD_NOW_STAMP` (YYMMDD-HHMM, first 11 chars).
+  - `reslate_v2(pace_favor, spec_text)`: Appends new spec entry to pace's `specs` array with auto-timestamp. Never modifies existing specs.
+  - `rail_v2(heat_favor, order_string)`: Replaces `order` array with space-separated Favors from `order_string`. Validates all Favors exist in `states`/`paces`.
+  - `tally_v2(pace_favor, state)`: Updates `states[pace_favor]` to new state value.
+  **Implementation notes**: All writes call `zjju_studbook_validate_v2` before writing. Use `jq --sort-keys` for stable diffs. Steeplechase ops (`chalk`, `rein`, `notch`) are unchanged — they work with git, not studbook JSON.
+  **Test cases**: (1) nominate creates valid empty heat with correct datestamp. (2) slate appends first pace with Favor `₣HHAAA`. (3) slate appends second pace with Favor `₣HHAAB`. (4) reslate appends spec, array length increases. (5) reslate twice: spec array has 3 entries. (6) rail reorders without data loss. (7) tally changes state correctly. (8) slate on nonexistent heat → fatal. (9) reslate on nonexistent pace → fatal. (10) rail with invalid Favor → fatal.
+  **Success criteria**: All 10 test cases pass.
+
+- **studbook-v2-read-ops** — Migrate read operations and add query helpers. Depends on: studbook-v2-write-ops.
+  **Deliverables**: Add these functions to `Tools/jjk/jju_utility.sh`:
+  (1) `zjju_studbook_muster_v2()` — List heats with summary info
+  (2) `zjju_studbook_retire_extract_v2(heat_favor)` — Extract heat data for trophy
+  (3) `zjju_pace_current_spec(pace_favor)` — Return last spec text for pace
+  (4) `zjju_heat_current_pace(heat_favor)` — Return first pending/current pace Favor
+  **Function behaviors**:
+  - `muster_v2()`: Outputs one line per heat: `₣HH  silks  (N paces)`. Sorted by Favor.
+  - `retire_extract_v2(heat_favor)`: Returns JSON with `silks`, `datestamp`, and for each pace: Favor, silks, final spec text (last entry only — git has full history).
+  - `current_spec(pace_favor)`: Returns `specs[last].text` — the human-readable description shown in listings.
+  - `current_pace(heat_favor)`: Iterates `order` array, returns first Favor where `states[favor]` is `pending` or `current`. Returns empty string if all complete/abandoned.
+  **Test cases**: (1) muster with zero heats → empty output. (2) muster with multiple heats shows correct counts. (3) retire_extract produces valid JSON with final specs. (4) current_spec returns last text entry. (5) current_spec after reslate returns new text. (6) current_pace returns first pending. (7) current_pace skips complete, returns next pending. (8) current_pace with all complete → empty string. (9) current_spec on nonexistent pace → fatal.
+  **Success criteria**: All 9 test cases pass.
+
+- **studbook-v2-workflow-ops** — Migrate saddle/wrap/retire to v2 schema. Depends on: studbook-v2-read-ops.
+  **Deliverables**: Add these functions to `Tools/jjk/jju_utility.sh`:
+  (1) `jju_saddle_v2(heat_favor)` — Mount heat, show paddock and paces
+  (2) `jju_wrap_v2(pace_favor)` — Complete pace ceremony
+  (3) `jju_retire_v2(heat_favor)` — Archive heat to trophy
+  **Saddle output format**:
+  ```
+  === Heat: {silks} ===
+
+  {paddock file content from .claude/jjm/jjp_{HH}.md}
+
+  === Paces ===
+  [{state}] ₣HHPPP {silks}: {last spec text, truncated to 60 chars}...
+  [{state}] ₣HHPPP {silks}: {last spec text}
+
+  === Recent Steeplechase ===
+  {last 3 chalk entries from git log}
+  ```
+  **Function behaviors**:
+  - `saddle_v2(heat_favor)`: Reads studbook, reads paddock file, calls `jju_rein` for recent entries. If `heat_favor` is empty/omitted and exactly one heat exists, auto-selects it.
+  - `wrap_v2(pace_favor)`: (1) Validate clean worktree via `git status --porcelain`. (2) Call `tally_v2(pace_favor, "complete")`. (3) Call `jju_chalk` with WRAP emblem. (4) Call `current_pace` and display next pace if any.
+  - `retire_v2(heat_favor)`: (1) Validate clean worktree. (2) Call `retire_extract_v2` for trophy data. (3) Write trophy to `.claude/jjm/retired/jjy_{HH}_{datestamp}_{silks}.md`. (4) Remove heat from studbook. (5) Move paddock to retired dir. (6) Commit and push.
+  **Test approach**: Manual integration test — create test heat via nominate, add paces via slate, run saddle/wrap cycle, verify state transitions.
+  **Success criteria**: Saddle displays correct format; wrap advances state and chalks; retire creates trophy and cleans up.
+
+- **studbook-v2-arcanum-finalize** — Update arcanum emitters and finalize v2. Depends on: studbook-v2-workflow-ops.
+  **Deliverables**:
+  (1) Update `Tools/jjk/jja_arcanum.sh` emitters to reference v2 functions
+  (2) Implement paddock location: `.claude/jjm/jjp_{HH}.md` (no `current/` subdir)
+  (3) Update CLAUDE.md Job Jockey section with v2 file locations
+  (4) Remove `_v2` suffixes — these become the only implementation
+  (5) Delete v1 functions that are fully replaced
+  **Arcanum emitter changes**:
+  - `/jja-heat-saddle`: References `jju_saddle` (no v2 suffix after rename)
+  - `/jja-pace-new`: Documents that `slate` takes `(heat_favor, silks, spec_text)`, mention `reslate` for refinement
+  - `/jja-pace-wrap`: References `jju_wrap`
+  - `/jja-heat-retire`: References `jju_retire`
+  - Vocabulary: Update to mention append-only specs, single `silks` identifier (no `display`)
+  **File location changes**:
+  | Old (v1) | New (v2) |
+  |----------|----------|
+  | `.claude/jjm/current/jjh_*.md` | `.claude/jjm/jjp_{HH}.md` |
+  | `.claude/jjm/current/jjc_*.md` | (removed — command context in paddock) |
+  **Suffix removal**: After all v2 functions are tested and working, rename:
+  - `zjju_studbook_validate_v2` → `zjju_studbook_validate`
+  - `zjju_studbook_nominate_v2` → `zjju_studbook_nominate`
+  - (and all other `_v2` functions)
+  Delete the original v1 implementations.
+  **Success criteria**: Fresh `jja_arcanum.sh install` produces correct CLAUDE.md; `nominate` creates paddock at correct path; all commands work without `_v2` suffixes.
+  **Post-completion**: Retire this heat, then run fresh install to activate v2.
+
 - **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
 
 - **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 
 - **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.
-
-- **Studbook schema v2: Favor-keyed paces with append-only specs** — Restructure studbook JSON to solve two problems: (1) pace definitions getting "watered down" as edits overwrite detailed specs, (2) heat-relative pace numbers feeling fragile without context. New heat structure:
-  ```json
-  {
-    "₣Kb": {
-      "silks": "jj-studbook-redesign",
-      "order": ["₣KbAAA", "₣KbAAB"],
-      "states": {"₣KbAAA": "pending", "₣KbAAB": "pending"},
-      "paces": {
-        "₣KbAAA": {
-          "silks": "vocabulary-cleanup",
-          "specs": [{"ts": "260105-0900", "text": "Detailed spec..."}]
-        }
-      }
-    }
-  }
-  ```
-  **Design principles**: Full Favors (₣HHPPP) as pace keys everywhere (self-documenting, greppable). Separate `order` array (reorder = change one array). Separate `states` object (complete = change one field). Append-only `specs` array (reslate always adds, never overwrites). Stable `silks` per pace (short name doesn't change).
-  **Git behavior**: Add pace = append to 3 structures. Refine spec = append to specs only. Reorder = order array only. Complete = states field only. Minimal churn.
-  **Query patterns**: Current spec = last specs entry. Current pace = first pending in order. History = all specs entries.
-  **Directory changes**: No more `current/` subdirectory. Active = in studbook. Paddock at `.claude/jjm/jjp_{HH}.md` by convention (no explicit path field). Nominate creates minimal paddock file.
-  **Steeplechase**: Git history via chalk/rein. No separate jjc_*.md files. Trophy extracts from git on retire.
-  **Trophy**: Final spec only per pace (not full history - git has that).
-  **Implementation scope**: Schema validation (zjju_studbook_validate). All studbook ops (nominate, slate, reslate, rail, tally, muster, retire_extract). New helpers: zjju_pace_current_spec, current-pace query. Update test suites. Update arcanum emitter.
-  **Out of scope**: Migration (finish current heat first). Itch/scar (stay as prose). New commands (internal restructure only).
 
 ## Steeplechase
 
