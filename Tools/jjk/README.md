@@ -308,16 +308,32 @@ Heat files contain these sections:
 10. **Do No Harm**: If paths are misconfigured or files missing, announce issue and stop — don't guess or auto-fix
 11. **Branch workflow**: Work happens on branches that get squashed on merge. Notch commits form the steeplechase — execution history lives in branch history until squash.
 
+## Tabtarget Stems
+
+Tabtargets in `tt/` use a two-tier naming scheme:
+
+| Stem | Purpose | Example |
+|------|---------|---------|
+| `jja-` | Arcanum (installation management) | `jja-i.Install.sh` |
+| `jjw-` | Workflow commands (all user operations) | `jjw-hs.HeatSaddle.sh` |
+
+Additionally, `jjt-` is used for test suites (`jjt-f.TestFavor.sh`).
+
+**Rationale**: Arcanum commands modify the `.claude/` installation itself. Workflow commands are day-to-day operations on heats, paces, and studbook.
+
 ## Installation
 
-Job Jockey is installed via the workbench script:
+Job Jockey is installed via tabtargets:
 
 ```bash
 # Install
-./Tools/jjk/jjw_workbench.sh jjk-i
+tt/jja-i.Install.sh
+
+# Check installation
+tt/jja-c.Check.sh
 
 # Uninstall (preserves .claude/jjm/ state)
-./Tools/jjk/jjw_workbench.sh jjk-u
+tt/jja-u.Uninstall.sh
 ```
 
 The workbench:

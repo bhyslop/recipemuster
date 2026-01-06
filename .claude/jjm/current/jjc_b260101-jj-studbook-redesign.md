@@ -135,3 +135,13 @@
 ### 2026-01-05 07:25 - implement-jjc-heat-retire - WRAP
 **Outcome**: jju_retire() with trophy/studbook/paddock/commit+push; arcanum emitter updated; tt/jjw-hr.HeatRetire.sh tabtarget
 ---
+### 2026-01-05 - unify-route-stems - APPROACH
+**Proposed approach**:
+- Audit current tabtarget naming: inventory tt/jj*.sh, categorize by workbench-routed vs arcanum-only
+- Define stem policy: jja- (arcanum), jjk- (kit helpers), jjw- (user commands), jjt- (tests)
+- Rename tabtargets to follow policy
+- Update workbench routing case statements
+---
+### 2026-01-05 - unify-route-stems - WRAP
+**Outcome**: Two-tier stem policy (jja- for arcanum, jjw- for all workflow). Renamed jjk-m→jjw-m, jjk-w→jjw-pw, jjk-h→jjw-i. Updated workbench routing. Documented in README.
+---

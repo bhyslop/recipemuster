@@ -99,28 +99,27 @@ jjw_route() {
       ;;
 
     # Favor encoding/decoding
-    jjk-fe) exec "${z_cli}" jju_favor_encode "$@" ;;
-    jjk-fd) exec "${z_cli}" jju_favor_decode "$@" ;;
+    jjw-fe) exec "${z_cli}" jju_favor_encode "$@" ;;
+    jjw-fd) exec "${z_cli}" jju_favor_decode "$@" ;;
 
     # Studbook operations
-    jjk-m)  exec "${z_cli}" jju_muster "$@" ;;
-    jjk-s)  exec "${z_cli}" jju_saddle "$@" ;;
-    jjk-n)  exec "${z_cli}" jju_nominate "$@" ;;
-    jjk-sl) exec "${z_cli}" jju_slate "$@" ;;
-    jjk-rs) exec "${z_cli}" jju_reslate "$@" ;;
-    jjk-ra) exec "${z_cli}" jju_rail "$@" ;;
-    jjk-t)  exec "${z_cli}" jju_tally "$@" ;;
-    jjk-w)  exec "${z_cli}" jju_wrap "$@" ;;
-    jjk-re) exec "${z_cli}" jju_retire_extract "$@" ;;
+    jjw-m)  exec "${z_cli}" jju_muster "$@" ;;
+    jjw-n)  exec "${z_cli}" jju_nominate "$@" ;;
+    jjw-sl) exec "${z_cli}" jju_slate "$@" ;;
+    jjw-rs) exec "${z_cli}" jju_reslate "$@" ;;
+    jjw-ra) exec "${z_cli}" jju_rail "$@" ;;
+    jjw-t)  exec "${z_cli}" jju_tally "$@" ;;
+    jjw-pw) exec "${z_cli}" jju_wrap "$@" ;;
+    jjw-re) exec "${z_cli}" jju_retire_extract "$@" ;;
     jjw-hr) exec "${z_cli}" jju_retire "$@" ;;
 
     # Steeplechase operations
-    jjk-c)  exec "${z_cli}" jju_chalk "$@" ;;
-    jjk-rn) exec "${z_cli}" jju_rein "$@" ;;
-    jjk-no) exec "${z_cli}" jju_notch "$@" ;;
+    jjw-c)  exec "${z_cli}" jju_chalk "$@" ;;
+    jjw-rn) exec "${z_cli}" jju_rein "$@" ;;
+    jjw-no) exec "${z_cli}" jju_notch "$@" ;;
 
-    # Help - show all function docs (no command = buc_execute shows help)
-    jjk-h) exec "${z_cli}" ;;
+    # Info - show all function docs
+    jjw-i) exec "${z_cli}" ;;
 
     *)
       buc_die "Unknown command: ${z_command}"
