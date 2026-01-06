@@ -130,12 +130,11 @@ Decision: **Append-only**
 - **Implement /jjc-heat-retire** — Added jju_retire() with clean-worktree validation, trophy creation, studbook removal, paddock archival, commit+push; updated arcanum emitter; added tt/jjw-hr.HeatRetire.sh tabtarget
 - **Unify route stems to jjw- prefix** — Two-tier policy: jja- (arcanum), jjw- (workflow). Renamed jjk-m→jjw-m, jjk-w→jjw-pw, jjk-h→jjw-i. Updated routing. Documented in README.
 - **Update CLAUDE.md vocabulary** — Added 5 concepts to emitter (Favor, Silks, Paddock, Steeplechase, Trophy). Reordered for comprehensibility. Fixed notch description. Removed file locations for cleaner definitions.
+- **Remove pace-wrap approval prompt** — Removed approval step from jja-pace-wrap.md, renumbered steps 5-9 → 4-8
 
 ## Remaining
 
 - **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
-
-- **Remove pace-wrap approval prompt** — Edit `.claude/commands/jja-pace-wrap.md` step 4 to proceed directly from summary generation to heat file update, eliminating the "Show proposed summary and ask for approval" confirmation.
 
 - **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 

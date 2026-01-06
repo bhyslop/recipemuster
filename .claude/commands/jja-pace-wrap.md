@@ -18,14 +18,12 @@ Steps:
    - Include: file names, function/section names, nature of change
    - Keep brief: one sentence, under 100 chars if possible
 
-4. Show proposed summary and ask for approval
-
-5. Update the heat file in .claude/jjm/current/:
+4. Update the heat file in .claude/jjm/current/:
    - Move the pace to ## Done section
    - Replace description with brief summary
    - Bold the next pace in ## Remaining to mark it current (if any)
 
-6. Append WRAP entry to steeplechase (.claude/jjm/current/jjc_*.md):
+5. Append WRAP entry to steeplechase (.claude/jjm/current/jjc_*.md):
    - Create steeplechase file if it doesn't exist (jjc_bYYMMDD-[silks].md matching heat)
    - Append entry in this format:
    ```markdown
@@ -35,15 +33,15 @@ Steps:
    ---
    ```
 
-7. Commit JJ state (this repo only, no push):
+6. Commit JJ state (this repo only, no push):
    ```bash
    git add .claude/jjm/current/
    git commit -m "JJA: pace-wrap - [brief description]"
    ```
 
-8. Report what was done
+7. Report what was done
 
-9. If there is a next pace (now first in ## Remaining):
+8. If there is a next pace (now first in ## Remaining):
    - Read the pace description and any files/context it references
    - Analyze what the work entails
    - Propose a concrete approach (2-4 bullets)

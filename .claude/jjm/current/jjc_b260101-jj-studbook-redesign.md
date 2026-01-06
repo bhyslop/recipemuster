@@ -155,3 +155,6 @@
 ### 2026-01-05 - update-claudemd-vocabulary - WRAP
 **Outcome**: Updated zjjw_emit_claudemd_section() with 9 concepts (was 4), fixed notch description, cleaner definitions
 ---
+### 2026-01-05 - remove-pace-wrap-approval-prompt - WRAP
+**Outcome**: Removed approval step from jja-pace-wrap.md, renumbered steps 5-9 → 4-8
+---
