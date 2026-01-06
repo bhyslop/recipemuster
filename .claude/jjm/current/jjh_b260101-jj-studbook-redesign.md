@@ -140,6 +140,31 @@ Decision: **Append-only**
 
 - **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.
 
+- **Studbook schema v2: Favor-keyed paces with append-only specs** — Restructure studbook JSON to solve two problems: (1) pace definitions getting "watered down" as edits overwrite detailed specs, (2) heat-relative pace numbers feeling fragile without context. New heat structure:
+  ```json
+  {
+    "₣Kb": {
+      "silks": "jj-studbook-redesign",
+      "order": ["₣KbAAA", "₣KbAAB"],
+      "states": {"₣KbAAA": "pending", "₣KbAAB": "pending"},
+      "paces": {
+        "₣KbAAA": {
+          "silks": "vocabulary-cleanup",
+          "specs": [{"ts": "260105-0900", "text": "Detailed spec..."}]
+        }
+      }
+    }
+  }
+  ```
+  **Design principles**: Full Favors (₣HHPPP) as pace keys everywhere (self-documenting, greppable). Separate `order` array (reorder = change one array). Separate `states` object (complete = change one field). Append-only `specs` array (reslate always adds, never overwrites). Stable `silks` per pace (short name doesn't change).
+  **Git behavior**: Add pace = append to 3 structures. Refine spec = append to specs only. Reorder = order array only. Complete = states field only. Minimal churn.
+  **Query patterns**: Current spec = last specs entry. Current pace = first pending in order. History = all specs entries.
+  **Directory changes**: No more `current/` subdirectory. Active = in studbook. Paddock at `.claude/jjm/jjp_{HH}.md` by convention (no explicit path field). Nominate creates minimal paddock file.
+  **Steeplechase**: Git history via chalk/rein. No separate jjc_*.md files. Trophy extracts from git on retire.
+  **Trophy**: Final spec only per pace (not full history - git has that).
+  **Implementation scope**: Schema validation (zjju_studbook_validate). All studbook ops (nominate, slate, reslate, rail, tally, muster, retire_extract). New helpers: zjju_pace_current_spec, current-pace query. Update test suites. Update arcanum emitter.
+  **Out of scope**: Migration (finish current heat first). Itch/scar (stay as prose). New commands (internal restructure only).
+
 ## Steeplechase
 
 ---
