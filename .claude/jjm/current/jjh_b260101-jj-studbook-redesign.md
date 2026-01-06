@@ -129,36 +129,9 @@ Decision: **Append-only**
 - **Code review by Opus** — Reviewed favor/rein changes for BCG compliance; approved; applied dirname fix to tt/jjt-a.TestAll.sh
 - **Implement /jjc-heat-retire** — Added jju_retire() with clean-worktree validation, trophy creation, studbook removal, paddock archival, commit+push; updated arcanum emitter; added tt/jjw-hr.HeatRetire.sh tabtarget
 - **Unify route stems to jjw- prefix** — Two-tier policy: jja- (arcanum), jjw- (workflow). Renamed jjk-m→jjw-m, jjk-w→jjw-pw, jjk-h→jjw-i. Updated routing. Documented in README.
+- **Update CLAUDE.md vocabulary** — Added 5 concepts to emitter (Favor, Silks, Paddock, Steeplechase, Trophy). Reordered for comprehensibility. Fixed notch description. Removed file locations for cleaner definitions.
 
 ## Remaining
-
-- **Migration & arcanum update** — Migrate existing jjh_* heat files to studbook + paddock format. Update `jja_arcanum.sh` for new structure. Update `zjjw_emit_claudemd_section()` with new vocabulary:
-
-  **New Terms for CLAUDE.md Concepts section:**
-  | Term | Type | Meaning |
-  |------|------|---------|
-  | Favor | noun | 5-digit heat+pace identifier (₣HHPPP) |
-  | Studbook | noun | JSON registry of heats/paces |
-  | Paddock | noun | Per-heat prose context file |
-  | Trophy | noun | Retired heat archive |
-  | Chalk | verb | Write steeplechase entry |
-  | Rein | verb | Read steeplechase entries |
-  | Muster | verb | List current heats |
-  | Slate | verb | Add new pace |
-  | Reslate | verb | Revise pace description |
-  | Rail | verb | Reorder paces |
-  | Tally | verb | Set pace state |
-  | Nominate | verb | Create new heat |
-
-  **Modified Terms:**
-  | Term | Was | Now |
-  |------|-----|-----|
-  | Saddle | Read heat file, pick pace | Read studbook + paddock + steeple, unified context |
-  | Wrap | Mark pace done in heat file | Mark complete in studbook, auto-chalk, advance |
-  | Retire | Move heat file to retired/ | Extract from studbook, create trophy |
-  | Notch | Git commit (unchanged) | Git commit (adding jju script) |
-
-  **Preserved Terms:** Heat, Pace, Itch, Scar, Silks, Steeplechase (concepts unchanged, storage changed)
 
 - **Vocabulary cleanup** — Phase transformation analysis, term releveling, scar naming reconsideration. Single pass on all vocabulary decisions.
 

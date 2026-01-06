@@ -145,3 +145,13 @@
 ### 2026-01-05 - unify-route-stems - WRAP
 **Outcome**: Two-tier stem policy (jja- for arcanum, jjw- for all workflow). Renamed jjk-m→jjw-m, jjk-w→jjw-pw, jjk-h→jjw-i. Updated workbench routing. Documented in README.
 ---
+### 2026-01-05 - update-claudemd-vocabulary - APPROACH
+**Proposed approach**:
+- Add 5 new concepts to emitter (Favor, Silks, Paddock, Steeplechase, Trophy)
+- Reorder concepts for comprehensibility
+- Fix notch description bug
+- Remove file locations for cleaner definitions
+---
+### 2026-01-05 - update-claudemd-vocabulary - WRAP
+**Outcome**: Updated zjjw_emit_claudemd_section() with 9 concepts (was 4), fixed notch description, cleaner definitions
+---
