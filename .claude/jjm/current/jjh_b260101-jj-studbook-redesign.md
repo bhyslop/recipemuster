@@ -282,7 +282,7 @@ Decision: **Append-only**
 
 - **Documentation** — Update JJK README: VOK prefix conventions, future directions reflecting what was built.
 
-- **Test full workflow** — Create test heat, run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire.
+- **Test full workflow** — After retiring this heat, run fresh `jja_arcanum.sh install` to activate v2, then create a new test heat and run through full lifecycle: nominate → saddle → slate → chalk → wrap → retire. Verify all v2 behaviors work correctly with the new schema.
 
 ## Steeplechase
 
