@@ -1289,3 +1289,119 @@ Complete the bash migration by implementing podman VM machinery, making the arch
 ### Context
 
 Deferred from dockerize-bashize-proto-bottle heat (jjh_b251229), completed 2025-12-31. Docker runtime fully validated; podman runtime is natural next step to complete the architecture vision.
+
+## jjr-studbook-core
+Replace jq-based studbook operations with a pure Rust CLI filter.
+
+### Motivation
+
+Writing "systems programming caliber" bash requires fighting Claude's training data - the internet is full of bad bash. The BCG patterns, temp file conventions, and discipline systems exist to counter-train the model toward reliability. This energy could go to features if the fragile jq pipelines were replaced with type-safe Rust.
+
+The current `jju_utility.sh` has ~50 jq invocations. Each is a place where bad training data could have introduced subtle bugs. Rust replaces all of them with code where the compiler enforces correctness.
+
+### Architecture: jjb (Bash) + jjr (Rust)
+
+**Rename `jju` → `jjb`** to make the split legible:
+- **jjb** = bash orchestration (locking, git, file ops)
+- **jjr** = rust data integrity (pure transforms)
+
+```
+┌─────────────────────────────────────────────────────┐
+│  jjb (Bash, née jju_utility.sh)                     │
+│  ├─ Locking: git update-ref (refs/jj/locks/*)       │
+│  ├─ Git ops: chalk, rein, notch (steeplechase)      │
+│  └─ Orchestration: lock → jjr → mv → unlock         │
+│                                                     │
+│     ┌─────────────────────────────────────────┐     │
+│     │  jjr (Rust) - Pure Filter               │     │
+│     │  ├─ favor encode/decode                 │     │
+│     │  ├─ studbook validate (stdin → exit)    │     │
+│     │  ├─ studbook transform (stdin → stdout) │     │
+│     │  └─ ledger query/update                 │     │
+│     │                                         │     │
+│     │  NO git. NO file writes. NO locking.    │     │
+│     └─────────────────────────────────────────┘     │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+### Why This Split
+
+**Locking in Bash via `git update-ref`** (recommendation from architecture review):
+- Git already solves distributed coordination for multiple agents
+- `git update-ref --stdin` provides atomic transactions
+- Crash recovery: if jjr crashes, bash detects and releases lock
+- Platform-portable: Git handles macOS/Linux/Windows
+- Temporally stable: Git CLI more stable than git2 crate bindings
+
+**jjr as pure filter** (stdin → stdout):
+- No side effects - if jjr crashes, no partial writes
+- Testable in isolation - just data in, validated data out
+- Simple implementation - serde_json + validation + clap
+- ~300 lines of Rust, no external deps beyond serde
+
+### Usage Pattern
+
+```bash
+jjb_tally() {
+  jjb_lock_acquire "studbook"
+
+  jjr studbook tally "${z_favor}" "${z_state}" \
+    < "${ZJJB_STUDBOOK_FILE}" \
+    > "${BUD_TEMP_DIR}/studbook_new.json" \
+    || { jjb_lock_release "studbook"; buc_die "jjr failed"; }
+
+  mv "${BUD_TEMP_DIR}/studbook_new.json" "${ZJJB_STUDBOOK_FILE}"
+  jjb_lock_release "studbook"
+}
+```
+
+### jjr Command Surface
+
+```
+jjr favor encode <heat> <pace>     →  KbAAB (5 chars, no ₣)
+jjr favor decode <favor>           →  10\t42 (tab-delimited)
+
+jjr studbook validate              →  exit 0 or 1 (stdin)
+jjr studbook tally <favor> <state> →  transformed JSON (stdin→stdout)
+jjr studbook slate <favor> <desc>  →  transformed JSON + new pace favor
+jjr studbook heat-exists <favor>   →  exit 0 or 1 (stdin)
+
+jjr ledger hash <file1> <file2>    →  12-char hash
+jjr ledger lookup <hash>           →  brand number or exit 1 (stdin)
+jjr ledger register <hash>         →  transformed JSON + brand (stdin→stdout)
+```
+
+### Key Design Decisions
+
+1. **JSON stays JSON** - git-diffable, human-readable history preserved
+2. **Name is `jjr` not `jj`** - avoids collision with Jujutsu VCS, clear provenance
+3. **No git2 crate** - all git operations stay in bash
+4. **No file I/O in Rust** - bash handles file read/write/atomic-mv
+5. **Locking is bash's job** - git update-ref for multi-agent coordination
+
+### What jjr Replaces
+
+Every jq pipeline in jju_utility.sh:
+- `zjju_studbook_validate()` - complex 8-step jq validation
+- `zjju_favor_encode/decode()` - base64-ish arithmetic
+- `jju_saddle()`, `jju_slate()`, `jju_tally()`, etc. - JSON transforms
+
+### What Bash Keeps
+
+- Git operations (chalk, rein, notch, retire steeplechase queries)
+- Locking via `git update-ref --stdin`
+- File orchestration (read → jjr → atomic mv)
+- Error handling and user output
+- All the stuff bash is actually good at
+
+### Implementation Notes
+
+- Rust binary: ~300 lines, deps: serde, serde_json, clap
+- No runtime deps (static binary)
+- Existing test suite validates behavior before/after migration
+- Can migrate incrementally: one jq pipeline at a time
+
+### Context
+
+Emerged from conversation 2026-01-05 about energy cost of getting Claude to write reliable bash. Architecture refined with input on distributed locking: let Git own coordination, let Rust own data integrity. The compiler is tireless; humans are not.
