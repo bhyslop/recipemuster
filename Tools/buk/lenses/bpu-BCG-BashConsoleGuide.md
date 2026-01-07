@@ -27,6 +27,48 @@ Every module has an implementation file. CLI entry points are only present if mo
 «prefix»_cli.sh (executable entry point - OPTIONAL, omit for library/utility modules)
 ```
 
+### CLI as Module Gateway
+
+**Rule**: Code outside the BCG module system must never call `z*_kindle()` directly. All external access to BCG modules goes through CLI scripts.
+
+**Pattern**:
+```
+External Code → CLI script → furnish() kindles → module functions
+```
+
+**Why this matters**:
+- Kindle sequences are implementation details that may change
+- The CLI's `furnish()` owns the kindle graph (which modules to kindle, in what order)
+- External code remains stable when module dependencies change
+- CLIs provide the documented, stable API for module functionality
+
+**Anti-pattern**:
+```bash
+# ❌ External script kindling directly
+source "${TOOLS_DIR}/rbob_bottle.sh"
+zrbob_kindle                          # VIOLATION: kindle leaked outside CLI
+rbob_start
+```
+
+**Correct pattern**:
+```bash
+# ✅ External script delegates to CLI
+exec "${TOOLS_DIR}/rbob_cli.sh" rbob_start "$@"
+```
+
+**What counts as "external code"**:
+- Entry point scripts (workbenches, testbenches, coordinators)
+- TabTargets and launchers
+- Any dispatcher or router that invokes module functionality
+- Scripts that are not themselves BCG modules
+
+**What can call kindle**:
+- A module's own CLI (in `furnish()`)
+- Another CLI's `furnish()` (when CLI A depends on module B, A's furnish kindles B)
+- Test harnesses that explicitly isolate module behavior
+
+---
+
 ## Function Patterns
 
 ### Boilerplate Functions (one per module/CLI)
@@ -613,6 +655,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] CLI starts with `set -euo pipefail`
 - [ ] Implementation file sources nothing (except within kindle function)
 - [ ] CLI file sources all dependencies in header
+- [ ] External code accesses module through CLI only (no direct `z*_kindle()` calls from outside)
 
 ### Required Functions
 - [ ] `z«prefix»_kindle` - first line: `test -z "${Z«PREFIX»_KINDLED:-}" || buc_die`
