@@ -22,3 +22,8 @@
 - Add rbob_start/stop/connect_* as CLI commands routed via `buc_execute`
 - Keep `rbw-lB` separate (local build doesn't use nameplate pattern)
 ---
+
+---
+### 2026-01-07 15:45 - rbw-formulary-pure - WRAP
+**Outcome**: Pure routing via RBOB_MONIKER export, updated 18 tabtargets to filename pattern
+---

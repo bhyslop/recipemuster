@@ -99,11 +99,9 @@ Each pace should verify:
 ## Done
 
 - **buw-formulary-pure** - Created buut_cli.sh, refactored buw_workbench.sh to pure colophon routing
+- **rbw-formulary-pure** - Pure routing via RBOB_MONIKER export, updated 18 tabtargets
 
 ## Remaining
-
-- **rbw-formulary-pure** - Refactor rbw_workbench.sh to pure colophon routing via rbob_cli.sh
-  Move `rbw_load_nameplate()` logic into `rbob_cli.sh` furnish. This CLI requires imprint: furnish reads `BUD_TOKEN_3` (e.g., `nsproto`), loads nameplate file `rbrn_${imprint}.env`, kindles rbrn→rbrr→rbob chain. Update `rbw_workbench.sh` to pure `exec` routing on colophons. Test with `tt/rbw-s.Start.nsproto.sh`.
 
 - **rbt-formulary-pure** - Refactor rbt_testbench.sh to pure colophon routing with rbt_cli.sh
   Create `rbt_cli.sh` with furnish that handles imprint-based nameplate loading (same pattern as rbob). The imprint specifies which test suite to run. Could potentially share nameplate loading with rbob, or duplicate for isolation. Update `rbt_testbench.sh` to pure routing. Test with `tt/rbt-to.TestBottleService.nsproto.sh`.
