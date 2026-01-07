@@ -55,6 +55,7 @@ buw_route() {
 
   # Route based on command
   local z_buut_cli="${BUW_SCRIPT_DIR}/buut_cli.sh"
+  local z_regime_cli="${BUW_SCRIPT_DIR}/${BUD_TOKEN_3:-nil}_cli.sh"
 
   case "${z_command}" in
 
@@ -66,33 +67,13 @@ buw_route() {
     buw-tt-cin) exec "${z_buut_cli}" buut_tabtarget_interactive_nolog    $z_args ;;
     buw-tt-cl)  exec "${z_buut_cli}" buut_launcher                       $z_args ;;
 
-    # Regime management - delegate to regime CLIs
-    buw-rv)
-      buc_step "Validating BURC"
-      "${BUW_SCRIPT_DIR}/burc_cli.sh" validate "${BUD_REGIME_FILE}" || buc_die "BURC validation failed"
-      buc_step "Validating BURS"
-      "${BUW_SCRIPT_DIR}/burs_cli.sh" validate "${BURC_STATION_FILE}" || buc_die "BURS validation failed"
-      buc_success "All regime validations passed"
-      ;;
-
-    buw-rr)
-      buc_step "BURC Configuration"
-      "${BUW_SCRIPT_DIR}/burc_cli.sh" render "${BUD_REGIME_FILE}" || buc_die "BURC render failed"
-      buc_step "BURS Configuration"
-      "${BUW_SCRIPT_DIR}/burs_cli.sh" render "${BURC_STATION_FILE}" || buc_die "BURS render failed"
-      ;;
-
-    buw-ri)
-      buc_step "BURC Specification"
-      "${BUW_SCRIPT_DIR}/burc_cli.sh" info || buc_die "BURC info failed"
-      buc_step "BURS Specification"
-      "${BUW_SCRIPT_DIR}/burs_cli.sh" info || buc_die "BURS info failed"
-      ;;
+    # Bootstrap regime management - imprint (BUD_TOKEN_3) selects burc or burs CLI
+    buw-rv) exec "${z_regime_cli}" bootstrap_validate ;;
+    buw-rr) exec "${z_regime_cli}" bootstrap_render ;;
+    buw-ri) exec "${z_regime_cli}" bootstrap_info ;;
 
     # Unknown command
-    *)
-      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  TabTarget: buw-tt-ll, buw-tt-cbl, buw-tt-cbn, buw-tt-cil, buw-tt-cin, buw-tt-cl\n  Regime:    buw-rv, buw-rr, buw-ri"
-      ;;
+    *)   buc_die "Unknown command: ${z_command}" ;;
   esac
 }
 

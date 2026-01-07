@@ -17,6 +17,17 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # BURS CLI - Command line interface for BURS regime operations
+#
+# BOOTSTRAP REGIME CLI
+# ====================
+# This is a bootstrap regime CLI - it reads configuration from environment
+# variables set by the launcher, NOT from file arguments. BURC and BURS are
+# foundational regimes that the launcher loads before any workbench runs.
+# Unlike application regime CLIs which may take file arguments, bootstrap
+# regime CLIs always rely on launcher-provided environment.
+#
+# Required environment: BURC_STATION_FILE (path to burs.env, from BURC)
+# The BURS_* variables must already be set by launcher sourcing this file.
 
 set -euo pipefail
 
@@ -32,45 +43,34 @@ source "${ZBURS_CLI_SCRIPT_DIR}/burs_regime.sh"
 zburs_cli_kindle() {
   test -z "${ZBURS_CLI_KINDLED:-}" || buc_die "BURS CLI already kindled"
 
+  # Verify bootstrap environment
+  test -n "${BURC_STATION_FILE:-}" || buc_die "BURC_STATION_FILE not set - must be called via launcher"
+
   ZBURS_SPEC_FILE="${ZBURS_CLI_SCRIPT_DIR}/burs_specification.md"
 
   ZBURS_CLI_KINDLED=1
 }
 
-# Command: validate - source file and validate
-burs_validate() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "burs_validate: file argument required"
-  test -f "${z_file}" || buc_die "burs_validate: file not found: ${z_file}"
+# Command: bootstrap_validate - validate BURS from launcher environment
+burs_bootstrap_validate() {
+  buc_step "Validating BURS: ${BURC_STATION_FILE}"
 
-  buc_step "Validating BURS assignment file: ${z_file}"
-
-  # Source the assignment file
-  source "${z_file}" || buc_die "burs_validate: failed to source ${z_file}"
-
-  # Validate via kindle
+  # BURS_* variables already set by launcher - just validate via kindle
   zburs_kindle
 
-  buc_step "BURS configuration valid"
+  buc_success "BURS configuration valid"
 }
 
-# Command: render - display configuration values
-burs_render() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "burs_render: file argument required"
-  test -f "${z_file}" || buc_die "burs_render: file not found: ${z_file}"
+# Command: bootstrap_render - display configuration values from environment
+burs_bootstrap_render() {
+  buc_step "BURS Configuration: ${BURC_STATION_FILE}"
 
-  buc_step "BURS Configuration: ${z_file}"
-
-  # Source the assignment file
-  source "${z_file}" || buc_die "burs_render: failed to source ${z_file}"
-
-  # Render with aligned columns
+  # Render with aligned columns - values already in environment
   printf "%-25s %s\n" "BURS_LOG_DIR" "${BURS_LOG_DIR:-<not set>}"
 }
 
-# Command: info - display specification (formatted for terminal)
-burs_info() {
+# Command: bootstrap_info - display specification (formatted for terminal)
+burs_bootstrap_info() {
   cat <<EOF
 
 ${ZBUC_CYAN}========================================${ZBUC_RESET}
@@ -101,19 +101,17 @@ zburs_cli_kindle
 z_command="${1:-}"
 
 case "${z_command}" in
-  validate)
-    shift
-    burs_validate "${@}"
+  bootstrap_validate)
+    burs_bootstrap_validate
     ;;
-  render)
-    shift
-    burs_render "${@}"
+  bootstrap_render)
+    burs_bootstrap_render
     ;;
-  info)
-    burs_info
+  bootstrap_info)
+    burs_bootstrap_info
     ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: burs_cli.sh {validate|render|info} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: burs_cli.sh {bootstrap_validate|bootstrap_render|bootstrap_info}"
     ;;
 esac
 
