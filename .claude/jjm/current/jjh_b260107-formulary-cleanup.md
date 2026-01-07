@@ -98,10 +98,9 @@ Each pace should verify:
 
 ## Done
 
-## Remaining
+- **buw-formulary-pure** - Created buut_cli.sh, refactored buw_workbench.sh to pure colophon routing
 
-- **buw-formulary-pure** - Refactor buw_workbench.sh to pure colophon routing with buut_cli.sh
-  Create `buut_cli.sh` with furnish that kindles buut. Update `buw_workbench.sh` to `exec` to it for buw-tt-* colophons. Note: buw-tt-* tabtargets have no imprints - this is simpler than rbw/rbt. Test with `tt/buw-tt-ll.ListLaunchers.sh` and `tt/buw-tt-cbl.*.sh`.
+## Remaining
 
 - **rbw-formulary-pure** - Refactor rbw_workbench.sh to pure colophon routing via rbob_cli.sh
   Move `rbw_load_nameplate()` logic into `rbob_cli.sh` furnish. This CLI requires imprint: furnish reads `BUD_TOKEN_3` (e.g., `nsproto`), loads nameplate file `rbrn_${imprint}.env`, kindles rbrn→rbrr→rbob chain. Update `rbw_workbench.sh` to pure `exec` routing on colophons. Test with `tt/rbw-s.Start.nsproto.sh`.

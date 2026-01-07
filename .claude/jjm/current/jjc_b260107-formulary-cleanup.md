@@ -8,3 +8,8 @@
 - Remove direct `zbuut_kindle` call and `buut_*` function calls from workbench
 - Test with `tt/buw-tt-ll.ListLaunchers.sh` and a create variant
 ---
+
+---
+### 2026-01-07 14:32 - buw-formulary-pure - WRAP
+**Outcome**: Created buut_cli.sh, refactored buw_workbench.sh to pure colophon routing
+---
