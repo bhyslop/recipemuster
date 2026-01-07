@@ -40,7 +40,7 @@ BUK (Bash Utility Kit) is a portable, graftable module that can be dropped into 
 
 3. **BURC controls the layout** - The project maintainer decides where developers put personal configs by setting `BURC_STATION_FILE`
 
-4. **BURC/BURS are exemplars** - They demonstrate the Config Regime pattern that BUK defines and promotes
+4. **BURC/BURS demonstrate the pattern** - Working regimes that follow Config Regime conventions
 
 5. **Config Regime is a BUK-owned pattern** - Other projects using BUK create their own regimes (RBRR, RBRN, etc.)
 
@@ -116,5 +116,5 @@ Authoritative guide for enterprise bash patterns. Key themes:
 
 - The Config Regime pattern has been in use across multiple projects (RBAGS, RBW, CCCK)
 - BUK's role is to **formalize and document** this pattern
-- BURC/BURS are the "reference implementation" that shows the pattern in action
+- BURC/BURS demonstrate the pattern for BUK's own configuration needs
 - The portable design allows BUK to be "lifted" into any project tree

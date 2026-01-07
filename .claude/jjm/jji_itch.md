@@ -1,5 +1,48 @@
 # Itches
 
+## rbm-prerelease-regime-standardization
+Bring all Config Regimes to a common standard before first RBM delivery.
+
+### Problem
+
+Config Regimes have evolved organically across the project. Each regime has different levels of completeness:
+- Some have specs, others don't
+- Some follow BCG kindle/sentinel, others use older patterns
+- Validation coverage varies
+- No renderers exist
+- Naming and file organization inconsistent
+
+Before first delivery, all regimes need consistent quality.
+
+### Known Regimes (verify when commissioning)
+
+| Prefix | Name | Purpose |
+|--------|------|---------|
+| BURC | Bash Utility Regime Configuration | Project-level BUK config |
+| BURS | Bash Utility Regime Station | Developer/machine-level BUK config |
+| RBRR | Recipe Bottle Regime Repo | Repository-level config |
+| RBRN | Recipe Bottle Regime Nameplate | Per-nameplate config |
+| RBRV | Recipe Bottle Regime Vessel | Vessel config |
+| RBRP | Recipe Bottle Regime Payor | Payor identification |
+| RBRA | Recipe Bottle Regime Admin | Admin/auth config |
+| RBRO | Recipe Bottle Regime OAuth | OAuth credentials |
+
+**Note**: This list requires exhaustive study when work begins. Other regimes may exist.
+
+### Scope
+
+For each regime, ensure:
+1. Specification document exists and is complete
+2. Assignment file follows standard format
+3. Validator exists and covers all variables
+4. Kindle/sentinel pattern follows BCG
+5. Renderer exists for human-readable display
+6. Naming conventions consistent across all regimes
+
+### Context
+
+Pre-release quality gate. Regime infrastructure is load-bearing for RBM operations — inconsistency creates maintenance burden and onboarding friction.
+
 ## rbags-retriever-spec
 Specify rbtgo_retriever_create and rbtgo_image_retrieve in RBAGS.
 
