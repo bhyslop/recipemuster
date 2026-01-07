@@ -45,27 +45,12 @@ This separation allows BUK to be copied wholesale into any project and configure
 - `.buk/launcher.cccw_workbench.sh` - CCCK workbench launcher
 - `.buk/launcher.rbk_Coordinator.sh` - RBW coordinator launcher
 
-**Canonical Structure**:
-
-Launchers are thin stubs that source shared logic from `launcher_common.sh`:
-
-```bash
-#!/bin/bash
-# Launcher stub - delegates to MYW workbench
-source "${BASH_SOURCE[0]%/*}/launcher_common.sh"
-bud_launch "${BURC_TOOLS_DIR}/myw/myw_workbench.sh" "$@"
-```
-
-The shared `launcher_common.sh` handles:
-- Establishing project root context
-- Loading and validating BURC/BURS configurations
-- Providing the `bud_launch` helper that delegates to BDU
+**Creation**: Use `tt/buw-tt-cl.CreateLauncher.sh` to create new launchers.
 
 **Design Rationale**:
 - Launchers catch configuration errors before BDU starts
 - Clear naming ties launcher to its workbench
-- Shared logic eliminates boilerplate duplication
-- `exec` (inside `bud_launch`) replaces the process (no extra overhead)
+- Shared logic in `launcher_common.sh` eliminates boilerplate
 
 ---
 
@@ -171,18 +156,15 @@ BUK implements the bash dispatch variant. The remainder of this section describe
 **Token Delimiter**: Configurable via `BURC_TABTARGET_DELIMITER` (typically `.`)
 
 **Examples**:
-- `tt/buw-ll.ListLaunchers.sh` - List launchers
+- `tt/buw-tt-ll.ListLaunchers.sh` - List launchers
 - `tt/buw-rv.ValidateRegimes.sh` - Validate regimes
 - `tt/ccck-ps.ProcessStatus.sh` - Show container processes
 
-**Canonical Structure**:
-
-```bash
-#!/bin/bash
-# TabTarget - delegates to {workbench} via launcher
-exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.{workbench}.sh" \
-  "${0##*/}" "${@}"
-```
+**Creation**: Use the `buw-tt-*` commands to create tabtargets:
+- `buw-tt-cbl` - Batch + logging (default)
+- `buw-tt-cbn` - Batch + nolog (for secret-handling operations)
+- `buw-tt-cil` - Interactive + logging (for shells)
+- `buw-tt-cin` - Interactive + nolog (for secret entry)
 
 **Command Token Parsing**:
 
@@ -577,13 +559,13 @@ buv_opt_bool "OPTIONAL_DEBUG_FLAG" || exit 1
 
 **Commands**:
 
-**Launcher Management**:
-- `buw-ll` - List launchers in `.buk/`
-- `buw-lc <name>` - Create new launcher from template
-- `buw-lv <name>` - Validate existing launcher
-
-**TabTarget Management**:
-- `buw-tc <workbench> <name>` - Create new tabtarget
+**TabTarget Subsystem** (`buw-tt-*`):
+- `buw-tt-ll` - List launchers in `.buk/`
+- `buw-tt-cbl <launcher> <name>...` - Create batch+logging tabtarget (default)
+- `buw-tt-cbn <launcher> <name>...` - Create batch+nolog tabtarget
+- `buw-tt-cil <launcher> <name>...` - Create interactive+logging tabtarget
+- `buw-tt-cin <launcher> <name>...` - Create interactive+nolog tabtarget
+- `buw-tt-cl <workbench> <name>` - Create launcher
 
 **Regime Management**:
 - `buw-rv` - Validate BURC and BURS regimes
@@ -594,103 +576,23 @@ buv_opt_bool "OPTIONAL_DEBUG_FLAG" || exit 1
 
 ## Creating a New Workbench
 
-### Step 1: Plan Your Workbench
+To create a new workbench:
 
-Decide:
-- **Workbench name**: `{prefix}w_workbench.sh` (e.g., `myw_workbench.sh`)
-- **Commands**: What operations will it provide?
-- **Config Regime** (optional): Does it need project-specific config?
+1. **Study existing workbenches** as templates:
+   - `Tools/buk/buw_workbench.sh` - Simple routing example
+   - `Tools/rbw/rbw_workbench.sh` - Module delegation pattern
 
-### Step 2: Create Workbench Directory
+2. **Create the workbench script** in `Tools/{prefix}/`
 
-```bash
-mkdir -p Tools/myw
-```
+3. **Create the launcher** using `buw-tt-cl`:
+   ```bash
+   tt/buw-tt-cl.CreateLauncher.sh Tools/myw/myw_workbench.sh myw_workbench
+   ```
 
-### Step 3: Create Workbench Script
-
-```bash
-cat > Tools/myw/myw_workbench.sh <<'EOF'
-#!/bin/bash
-set -euo pipefail
-
-MYW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-myw_route() {
-  local z_command="$1"
-  shift
-
-  case "${z_command}" in
-    myw-hello)
-      echo "Hello from myw workbench!"
-      ;;
-    myw-info)
-      echo "Workbench info goes here"
-      ;;
-    *)
-      echo "ERROR: Unknown command: ${z_command}" >&2
-      exit 1
-      ;;
-  esac
-}
-
-myw_main() {
-  local z_command="${1:-}"
-  shift || true
-
-  if [ -z "${z_command}" ]; then
-    echo "ERROR: No command specified" >&2
-    exit 1
-  fi
-
-  myw_route "${z_command}" "$@"
-}
-
-myw_main "$@"
-EOF
-
-chmod +x Tools/myw/myw_workbench.sh
-```
-
-### Step 4: Create Launcher
-
-```bash
-cat > .buk/launcher.myw_workbench.sh <<'EOF'
-#!/bin/bash
-# Launcher stub - delegates to MYW workbench
-source "${BASH_SOURCE[0]%/*}/launcher_common.sh"
-bud_launch "${BURC_TOOLS_DIR}/myw/myw_workbench.sh" "$@"
-EOF
-
-chmod +x .buk/launcher.myw_workbench.sh
-```
-
-### Step 5: Create TabTargets
-
-```bash
-cat > tt/myw-hello.SayHello.sh <<'EOF'
-#!/bin/bash
-exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.myw_workbench.sh" \
-  "${0##*/}" "${@}"
-EOF
-
-chmod +x tt/myw-hello.SayHello.sh
-
-cat > tt/myw-info.ShowInfo.sh <<'EOF'
-#!/bin/bash
-exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.myw_workbench.sh" \
-  "${0##*/}" "${@}"
-EOF
-
-chmod +x tt/myw-info.ShowInfo.sh
-```
-
-### Step 6: Test Your Workbench
-
-```bash
-tt/myw-hello.SayHello.sh
-tt/myw-info.ShowInfo.sh
-```
+4. **Create tabtargets** using `buw-tt-cbl` (or appropriate variant):
+   ```bash
+   tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh .buk/launcher.myw_workbench.sh myw-cmd.CommandName
+   ```
 
 ---
 
