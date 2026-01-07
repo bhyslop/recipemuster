@@ -78,10 +78,10 @@ buw_route() {
       buc_step "Launchers in ${PWD}/.buk/"
       ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
       ;;
-    buw-tt-cd) buut_tabtarget_default "$@" ;;
-    buw-tt-cn) buut_tabtarget_nolog "$@" ;;
-    buw-tt-ci) buut_tabtarget_interactive "$@" ;;
-    buw-tt-cni) buut_tabtarget_nolog_interactive "$@" ;;
+    buw-tt-cbl) buut_tabtarget_batch_logging "$@" ;;
+    buw-tt-cbn) buut_tabtarget_batch_nolog "$@" ;;
+    buw-tt-cil) buut_tabtarget_interactive_logging "$@" ;;
+    buw-tt-cin) buut_tabtarget_interactive_nolog "$@" ;;
     buw-tt-cl) buut_launcher "$@" ;;
 
     # Regime management (consolidated)
@@ -118,7 +118,7 @@ buw_route() {
 
     # Unknown command
     *)
-      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  TabTarget: buw-tt-ll, buw-tt-cd, buw-tt-cn, buw-tt-ci, buw-tt-cni, buw-tt-cl\n  Regime:    buw-rv, buw-rr, buw-ri"
+      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  TabTarget: buw-tt-ll, buw-tt-cbl, buw-tt-cbn, buw-tt-cil, buw-tt-cin, buw-tt-cl\n  Regime:    buw-rv, buw-rr, buw-ri"
       ;;
   esac
 }

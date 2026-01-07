@@ -113,39 +113,39 @@ zbuut_create_tabtargets() {
 ######################################################################
 # External Functions (buut_*)
 
-# Create default tabtargets (with logging)
-# Usage: buut_tabtarget_default <launcher_path> <tabtarget_name>...
-buut_tabtarget_default() {
+# Create batch+logging tabtargets (default)
+# Usage: buut_tabtarget_batch_logging <launcher_path> <tabtarget_name>...
+buut_tabtarget_batch_logging() {
   zbuut_sentinel
 
-  buc_step "Creating default tabtarget(s)"
+  buc_step "Creating batch+logging tabtarget(s)"
   zbuut_create_tabtargets "" "$@"
 }
 
-# Create nolog tabtargets (BUD_NO_LOG=1)
-# Usage: buut_tabtarget_nolog <launcher_path> <tabtarget_name>...
-buut_tabtarget_nolog() {
+# Create batch+nolog tabtargets (BUD_NO_LOG=1)
+# Usage: buut_tabtarget_batch_nolog <launcher_path> <tabtarget_name>...
+buut_tabtarget_batch_nolog() {
   zbuut_sentinel
 
-  buc_step "Creating nolog tabtarget(s)"
+  buc_step "Creating batch+nolog tabtarget(s)"
   zbuut_create_tabtargets 'export BUD_NO_LOG=1' "$@"
 }
 
-# Create interactive tabtargets (BUD_INTERACTIVE=1)
-# Usage: buut_tabtarget_interactive <launcher_path> <tabtarget_name>...
-buut_tabtarget_interactive() {
+# Create interactive+logging tabtargets (BUD_INTERACTIVE=1)
+# Usage: buut_tabtarget_interactive_logging <launcher_path> <tabtarget_name>...
+buut_tabtarget_interactive_logging() {
   zbuut_sentinel
 
-  buc_step "Creating interactive tabtarget(s)"
+  buc_step "Creating interactive+logging tabtarget(s)"
   zbuut_create_tabtargets 'export BUD_INTERACTIVE=1' "$@"
 }
 
-# Create nolog+interactive tabtargets (both flags)
-# Usage: buut_tabtarget_nolog_interactive <launcher_path> <tabtarget_name>...
-buut_tabtarget_nolog_interactive() {
+# Create interactive+nolog tabtargets (both flags)
+# Usage: buut_tabtarget_interactive_nolog <launcher_path> <tabtarget_name>...
+buut_tabtarget_interactive_nolog() {
   zbuut_sentinel
 
-  buc_step "Creating nolog+interactive tabtarget(s)"
+  buc_step "Creating interactive+nolog tabtarget(s)"
   local z_flags='export BUD_NO_LOG=1
 export BUD_INTERACTIVE=1'
   zbuut_create_tabtargets "${z_flags}" "$@"
