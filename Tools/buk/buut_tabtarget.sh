@@ -178,12 +178,11 @@ buut_launcher() {
   buc_step "Creating launcher: ${z_launcher_file}"
   zbuut_show "Workbench path: ${z_workbench_path}"
 
-  # Extract comment description from launcher name
+  # Extract comment description from launcher name (strip common suffixes)
   local z_description="${z_launcher_name}"
   z_description="${z_description%_workbench}"
   z_description="${z_description%_testbench}"
   z_description="${z_description%_Coordinator}"
-  z_description="${z_description^^}"
 
   # Write the 4-line launcher stub
   echo '#!/bin/bash' > "${z_launcher_file}"

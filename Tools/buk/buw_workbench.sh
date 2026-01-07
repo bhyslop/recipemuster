@@ -63,23 +63,21 @@ buw_route() {
   # Load BURC configuration
   buw_load_burc
 
-  # Selective kindling for submodules
+  # Selective kindling for submodules (only create operations need buut)
   case "${z_command}" in
-    buw-tt-*) zbuut_kindle ;;
+    buw-tt-c*) zbuut_kindle ;;
   esac
 
   # Route based on command
   case "${z_command}" in
 
-    # Launcher management
-    buw-ll)
+    # TabTarget subsystem (buw-tt-*)
+    buw-tt-ll)
       # List launchers in .buk/
       buw_show "Listing launchers in .buk/"
       buc_step "Launchers in ${PWD}/.buk/"
       ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
       ;;
-
-    # TabTarget subsystem (buw-tt-*)
     buw-tt-cd) buut_tabtarget_default "$@" ;;
     buw-tt-cn) buut_tabtarget_nolog "$@" ;;
     buw-tt-ci) buut_tabtarget_interactive "$@" ;;
@@ -120,7 +118,7 @@ buw_route() {
 
     # Unknown command
     *)
-      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  Launcher:  buw-ll\n  TabTarget: buw-tt-cd, buw-tt-cn, buw-tt-ci, buw-tt-cni, buw-tt-cl\n  Regime:    buw-rv, buw-rr, buw-ri"
+      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  TabTarget: buw-tt-ll, buw-tt-cd, buw-tt-cn, buw-tt-ci, buw-tt-cni, buw-tt-cl\n  Regime:    buw-rv, buw-rr, buw-ri"
       ;;
   esac
 }
