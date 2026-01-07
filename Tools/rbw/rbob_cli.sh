@@ -19,7 +19,14 @@
 # RBOB CLI - Recipe Bottle Orchestration Bottle command-line interface
 #
 # Commands:
-#   info <moniker>  Show container names, network, and runtime for nameplate
+#   start           Start bottle service (sentry + censer + bottle)
+#   stop            Stop bottle service
+#   connect_sentry  Connect to sentry container
+#   connect_censer  Connect to censer container
+#   connect_bottle  Connect to bottle container
+#   observe         Observe network traffic (tcpdump)
+#   info            Show container names, network, and runtime
+#   validate        Validate configuration is complete
 
 set -euo pipefail
 
@@ -31,6 +38,7 @@ source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrn_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbob_bottle.sh"
+source "${ZRBOB_CLI_SCRIPT_DIR}/rboo_observe.sh"
 
 ######################################################################
 # CLI Commands
@@ -76,14 +84,26 @@ rbob_info() {
   echo "Bottle IP: ${RBRN_ENCLAVE_BOTTLE_IP}"
 }
 
+rbob_observe() {
+  zrbob_sentinel
+
+  buc_doc_brief "Observe network traffic on bottle service containers"
+  buc_doc_shown || return 0
+
+  # Kindle observe module and delegate
+  zrboo_kindle
+  rboo_observe
+}
+
 ######################################################################
 # Furnish and Main
 
 zrbob_furnish() {
-  buc_doc_env "RBOB_MONIKER        " "Nameplate moniker (e.g., nsproto)"
+  buc_doc_env "BUD_TOKEN_3         " "Nameplate moniker via imprint (e.g., nsproto)"
 
-  local z_moniker="${RBOB_MONIKER:-}"
-  test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
+  # Read moniker from BUD_TOKEN_3 (imprint) - set by BUD from tabtarget filename
+  local z_moniker="${BUD_TOKEN_3:-}"
+  test -n "${z_moniker}" || buc_die "BUD_TOKEN_3 (imprint) required - moniker not specified"
 
   # Load nameplate
   local z_nameplate_file="${ZRBOB_CLI_SCRIPT_DIR}/rbrn_${z_moniker}.env"

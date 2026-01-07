@@ -1,5 +1,26 @@
 # Itches
 
+## burc-acronym-config-collision
+Rename BURC to avoid "Configuration" confusion with Config Regimes.
+
+### Problem
+
+BURC = "Bash Utility Regime Configuration" but we also have "Config Regimes" (CRG/CRR) as a distinct concept. The word "Configuration" appears in both, creating confusion about which "configuration" is being discussed.
+
+### Scope
+
+1. Inventory all existing regime prefixes across the project to find unique name
+2. Choose new acronym that doesn't collide with existing regime terminology
+3. Rename BURC throughout codebase (files, variables, documentation)
+
+### Known Regime Prefixes (verify when converting to pace)
+
+Need to audit: BURC, BURS, RBRR, RBRN, RBRV, RBRP, RBRA, RBRO, CRG, and any others.
+
+### Context
+
+Identified 2026-01-07 during code review. "Bash Utility Regime Configuration" vs "Config Regime Requirements" - both use "Configuration/Config" causing terminology collision.
+
 ## rbm-prerelease-regime-standardization
 Bring all Config Regimes to a common standard before first RBM delivery.
 
