@@ -99,11 +99,10 @@ rbob_observe() {
 # Furnish and Main
 
 zrbob_furnish() {
-  buc_doc_env "BUD_TOKEN_3         " "Nameplate moniker via imprint (e.g., nsproto)"
+  buc_doc_env "RBOB_MONIKER        " "Nameplate moniker (e.g., nsproto)"
 
-  # Read moniker from BUD_TOKEN_3 (imprint) - set by BUD from tabtarget filename
-  local z_moniker="${BUD_TOKEN_3:-}"
-  test -n "${z_moniker}" || buc_die "BUD_TOKEN_3 (imprint) required - moniker not specified"
+  local z_moniker="${RBOB_MONIKER:-}"
+  test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
 
   # Load nameplate
   local z_nameplate_file="${ZRBOB_CLI_SCRIPT_DIR}/rbrn_${z_moniker}.env"

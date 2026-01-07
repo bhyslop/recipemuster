@@ -86,13 +86,20 @@ rbw_route() {
 
   case "${z_command}" in
 
-    # Bottle operations (routed to rbob_cli.sh - imprint provides moniker)
-    rbw-s)  exec "${z_rbob_cli}" rbob_start          $z_args ;;
-    rbw-z)  exec "${z_rbob_cli}" rbob_stop           $z_args ;;
-    rbw-S)  exec "${z_rbob_cli}" rbob_connect_sentry $z_args ;;
-    rbw-C)  exec "${z_rbob_cli}" rbob_connect_censer $z_args ;;
-    rbw-B)  exec "${z_rbob_cli}" rbob_connect_bottle $z_args ;;
-    rbw-o)  exec "${z_rbob_cli}" rbob_observe        $z_args ;;
+    # Bottle operations (routed to rbob_cli.sh)
+    # Workbench translates BUD_TOKEN_3 (imprint) to RBOB_MONIKER for CLI
+    rbw-s|rbw-z|rbw-S|rbw-C|rbw-B|rbw-o)
+      test -n "${BUD_TOKEN_3:-}" || buc_die "${z_command} requires moniker imprint (BUD_TOKEN_3)"
+      export RBOB_MONIKER="${BUD_TOKEN_3}"
+      case "${z_command}" in
+        rbw-s)  exec "${z_rbob_cli}" rbob_start          ;;
+        rbw-z)  exec "${z_rbob_cli}" rbob_stop           ;;
+        rbw-S)  exec "${z_rbob_cli}" rbob_connect_sentry ;;
+        rbw-C)  exec "${z_rbob_cli}" rbob_connect_censer ;;
+        rbw-B)  exec "${z_rbob_cli}" rbob_connect_bottle ;;
+        rbw-o)  exec "${z_rbob_cli}" rbob_observe        ;;
+      esac
+      ;;
 
     # Local build (handled here - recipe from imprint BUD_TOKEN_3)
     rbw-lB)
