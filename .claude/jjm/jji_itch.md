@@ -43,6 +43,52 @@ For each regime, ensure:
 
 Pre-release quality gate. Regime infrastructure is load-bearing for RBM operations — inconsistency creates maintenance burden and onboarding friction.
 
+## rbm-llm-documentation-consolidation
+Consolidate scattered LLM-facing documentation into consistent lenses directories.
+
+### Problem
+
+Documentation that LLMs need for context is scattered across multiple repos with stale cross-repo paths. This creates:
+- Fragile references that break when files move
+- Duplication between documents (e.g., BPA duplicated README content)
+- Inconsistent format and organization
+- Context that may be missing or inaccessible to LLMs in different repos
+
+### Documents Requiring Consolidation Review
+
+**From BPA external references (now deleted):**
+
+| Document | Current Location | Content |
+|----------|------------------|---------|
+| `lens-console-makefile-reqs.md` | cnmp lenses | TabTarget concept |
+| `lens-mbc-MakefileBashConsole-cmodel.adoc` | cnmp lenses | MBC implementation |
+| `crg-CRR-ConfigRegimeRequirements.adoc` | recipebottle-admin | Authoritative Config Regime definition |
+| `rbw-RBRN-RegimeNameplate.adoc` | recipebottle-admin | Example regime specification |
+| `crgv.validate.sh` | brm_recipebottle | Validation functions for regime types |
+| `crgr.render.sh` | brm_recipebottle | Rendering functions for regime display |
+| `axl-AXLA-Lexicon.adoc` | cnmp lenses | Regime definition vocabulary |
+
+**Note**: This list requires exhaustive audit when work begins. Other scattered documentation likely exists.
+
+### Scope
+
+1. Audit all cross-repo documentation references
+2. Decide which documents belong where (single source of truth)
+3. Migrate or consolidate as needed
+4. Update CLAUDE.md mappings to reflect new locations
+5. Remove stale references and duplicates
+
+### Target State
+
+Each repo has a `lenses/` or `Tools/*/lenses/` directory containing:
+- Documents that LLMs need for that repo's context
+- No cross-repo path dependencies
+- Consistent format (decide: adoc vs md)
+
+### Context
+
+Identified during BPA cleanup — BPA was redundant with README and contained only stale external references. Those references point to real documents that need consolidation work.
+
 ## rbags-retriever-spec
 Specify rbtgo_retriever_create and rbtgo_image_retrieve in RBAGS.
 

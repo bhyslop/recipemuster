@@ -66,7 +66,6 @@ Full read and edit access is pre-approved for all files in:
 
 #### BUK Subdirectory (`Tools/buk/`)
 - **BCG**  → `buk/lenses/bpu-BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
-- **BPA**  → `buk/lenses/buk-BPA-BukPortabilityArchitecture.md` (BUK architecture and Config Regime pattern)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, bud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
