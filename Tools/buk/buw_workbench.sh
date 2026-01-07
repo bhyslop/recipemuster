@@ -110,11 +110,11 @@ buw_route() {
     buw-rv)
       # Validate both regimes
       buc_step "Validating BURC"
-      "${BUW_SCRIPT_DIR}/burc_regime.sh" validate "${PWD}/.buk/burc.env" || buc_die "BURC validation failed"
+      "${BUW_SCRIPT_DIR}/burc_cli.sh" validate "${PWD}/.buk/burc.env" || buc_die "BURC validation failed"
 
       buc_step "Validating BURS"
       local z_station_file="${PWD}/${BURC_STATION_FILE}"
-      "${BUW_SCRIPT_DIR}/burs_regime.sh" validate "${z_station_file}" || buc_die "BURS validation failed"
+      "${BUW_SCRIPT_DIR}/burs_cli.sh" validate "${z_station_file}" || buc_die "BURS validation failed"
 
       buc_success "All regime validations passed"
       ;;
@@ -122,20 +122,20 @@ buw_route() {
     buw-rr)
       # Render both regimes
       buc_step "BURC Configuration"
-      "${BUW_SCRIPT_DIR}/burc_regime.sh" render "${PWD}/.buk/burc.env" || buc_die "BURC render failed"
+      "${BUW_SCRIPT_DIR}/burc_cli.sh" render "${PWD}/.buk/burc.env" || buc_die "BURC render failed"
 
       buc_step "BURS Configuration"
       local z_station_file="${PWD}/${BURC_STATION_FILE}"
-      "${BUW_SCRIPT_DIR}/burs_regime.sh" render "${z_station_file}" || buc_die "BURS render failed"
+      "${BUW_SCRIPT_DIR}/burs_cli.sh" render "${z_station_file}" || buc_die "BURS render failed"
       ;;
 
     buw-ri)
       # Show info for both regimes
       buc_step "BURC Specification"
-      "${BUW_SCRIPT_DIR}/burc_regime.sh" info || buc_die "BURC info failed"
+      "${BUW_SCRIPT_DIR}/burc_cli.sh" info || buc_die "BURC info failed"
 
       buc_step "BURS Specification"
-      "${BUW_SCRIPT_DIR}/burs_regime.sh" info || buc_die "BURS info failed"
+      "${BUW_SCRIPT_DIR}/burs_cli.sh" info || buc_die "BURS info failed"
       ;;
 
     # Unknown command
