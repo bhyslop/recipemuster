@@ -15,7 +15,7 @@ Which would you like to start with? (Enter acronym)
 ## Preset Activities
 
 ### bcbcg: Bash Coding with BCG
-- Primary file: `../cnmp_CellNodeMessagePrototype/lenses/bpu-BCG-BashConsoleGuide.md`
+- Primary file: `Tools/buk/lenses/bpu-BCG-BashConsoleGuide.md`
 - Context: Bash scripting and console development
 - Related utilities: BUC, BUD, BUT, BUV, BUW in Tools/buk/
 
@@ -65,6 +65,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
 
 #### BUK Subdirectory (`Tools/buk/`)
+- **BCG**  → `buk/lenses/bpu-BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, bud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
@@ -95,7 +96,6 @@ Full read and edit access is pre-approved for all files in:
 - **CRAFT**   → `a-roe-CRAFT-cmodel-format.adoc`
 - **METAL**   → `a-roe-METAL-sequences.adoc`
 - **MIND**    → `a-roe-MIND-cmodel-semantic.adoc`
-- **BCG**     → `bpu-BCG-BashConsoleGuide.md`
 - **PCG**     → `bpu-PCG-ProcedureCurationGuide-005.md`
 - **JRR**     → `jrr-JobRookRadar-sspec.adoc`
 - **MBC**     → `lens-mbc-MakefileBashConsole-cmodel.adoc`
