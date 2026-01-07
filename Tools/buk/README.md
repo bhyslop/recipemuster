@@ -47,72 +47,25 @@ This separation allows BUK to be copied wholesale into any project and configure
 
 **Canonical Structure**:
 
+Launchers are thin stubs that source shared logic from `launcher_common.sh`:
+
 ```bash
 #!/bin/bash
-# Compatible with Bash 3.2 (e.g., macOS default shell)
-
-z_project_root_dir="${0%/*}/.."
-cd "${z_project_root_dir}" || exit 1
-
-# Load BURC configuration
-export BDU_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
-source "${BDU_REGIME_FILE}" || exit 1
-
-# Validate config regimes that are known at launch time
-# NOTE: BURC and BURS are the standard BUK regimes (project structure + station config)
-# These are always validated here because they're required for BDU operation.
-#
-# Other project-specific regimes (like RBRN, RBRR, etc.) may be validated later
-# during workbench dispatch, when runtime context is available.
-"${BURC_TOOLS_DIR}/buk/burc_regime.sh" validate "${z_project_root_dir}/.buk/burc.env" || {
-  echo "ERROR: BURC validation failed" >&2
-  "${BURC_TOOLS_DIR}/buk/burc_regime.sh" info
-  exit 1
-}
-
-z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
-"${BURC_TOOLS_DIR}/buk/burs_regime.sh" validate "${z_station_file}" || {
-  echo "ERROR: BURS validation failed: ${z_station_file}" >&2
-  "${BURC_TOOLS_DIR}/buk/burs_regime.sh" info
-  exit 1
-}
-
-# Set coordinator script (the workbench for this launcher)
-export BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/buk/buw_workbench.sh"
-
-# Delegate to BDU
-exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
+# Launcher stub - delegates to MYW workbench
+source "${BASH_SOURCE[0]%/*}/launcher_common.sh"
+bud_launch "${BURC_TOOLS_DIR}/myw/myw_workbench.sh" "$@"
 ```
 
-**Key Responsibilities**:
-1. Establish project root context
-2. Load BURC configuration
-3. Validate required config regimes (fail early if misconfigured)
-4. Specify which workbench coordinates commands
-5. Delegate execution to BDU
+The shared `launcher_common.sh` handles:
+- Establishing project root context
+- Loading and validating BURC/BURS configurations
+- Providing the `bud_launch` helper that delegates to BDU
 
 **Design Rationale**:
 - Launchers catch configuration errors before BDU starts
 - Clear naming ties launcher to its workbench
-- Validation output helps developers fix configuration issues
-- `exec` replaces the launcher process (no extra process overhead)
-
-**Regime Validation Timing**:
-
-Config regimes fall into two categories based on when they can be validated:
-
-1. **Launch-time regimes** (validated in launcher):
-   - **BURC** - Project structure configuration (always required by BUK)
-   - **BURS** - Developer station configuration (always required by BUK)
-   - **RBRR** - Recipe Bottle Regime Repo (RBW project config, if using RBW)
-   - These are known immediately at launch time
-
-2. **Runtime regimes** (validated in workbench):
-   - **RBRN** - Recipe Bottle Regime Nameplate (RBW service config, runtime-specific)
-   - Other project-specific regimes that depend on runtime context
-   - These are validated during workbench dispatch when context is available
-
-**Guideline**: All launchers created by BUK should validate BURC and BURS. Additional regime validation is optional and workbench-specific.
+- Shared logic eliminates boilerplate duplication
+- `exec` (inside `bud_launch`) replaces the process (no extra overhead)
 
 ---
 
@@ -704,27 +657,9 @@ chmod +x Tools/myw/myw_workbench.sh
 ```bash
 cat > .buk/launcher.myw_workbench.sh <<'EOF'
 #!/bin/bash
-z_project_root_dir="${0%/*}/.."
-cd "${z_project_root_dir}" || exit 1
-export BDU_REGIME_FILE="${z_project_root_dir}/.buk/burc.env"
-source "${BDU_REGIME_FILE}" || exit 1
-
-# Validate regimes
-"${BURC_TOOLS_DIR}/buk/burc_regime.sh" validate "${z_project_root_dir}/.buk/burc.env" || {
-  echo "ERROR: BURC validation failed" >&2
-  "${BURC_TOOLS_DIR}/buk/burc_regime.sh" info
-  exit 1
-}
-
-z_station_file="${z_project_root_dir}/${BURC_STATION_FILE}"
-"${BURC_TOOLS_DIR}/buk/burs_regime.sh" validate "${z_station_file}" || {
-  echo "ERROR: BURS validation failed: ${z_station_file}" >&2
-  "${BURC_TOOLS_DIR}/buk/burs_regime.sh" info
-  exit 1
-}
-
-export BDU_COORDINATOR_SCRIPT="${BURC_TOOLS_DIR}/myw/myw_workbench.sh"
-exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
+# Launcher stub - delegates to MYW workbench
+source "${BASH_SOURCE[0]%/*}/launcher_common.sh"
+bud_launch "${BURC_TOOLS_DIR}/myw/myw_workbench.sh" "$@"
 EOF
 
 chmod +x .buk/launcher.myw_workbench.sh
