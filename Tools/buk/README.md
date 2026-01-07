@@ -7,12 +7,15 @@ A portable, graftable bash infrastructure for building maintainable command-line
 - [Overview](#overview)
 - [Core Concepts](#core-concepts)
   - [Launchers](#launchers)
+  - [Formulary](#formulary)
   - [Workbenches](#workbenches)
+  - [Testbenches](#testbenches)
   - [TabTargets](#tabtargets)
   - [Config Regimes](#config-regimes)
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [BUK Components](#buk-components)
+  - [Module Prefix Registry](#module-prefix-registry)
 - [Creating a New Workbench](#creating-a-new-workbench)
 - [Reference Implementation: BURC/BURS](#reference-implementation-burcburs)
 
@@ -34,38 +37,72 @@ This separation allows BUK to be copied wholesale into any project and configure
 
 ### Launchers
 
-**Definition**: A launcher is a bootstrap script that validates configuration, loads regime files, and delegates to the BDU (Bash Dispatch Utility).
+**Definition**: A launcher is a bootstrap script that validates configuration, loads regime files, and delegates to BUD (Bash Dispatch Utility). It serves as an **environment gate**—establishing a clean, validated execution context.
 
-**Naming Pattern**: `launcher.{workbench_name}.sh`
+**Naming Pattern**: `launcher.{formulary_name}.sh`
 
 **Location**: `.buk/` directory at project root
 
 **Examples**:
 - `.buk/launcher.buw_workbench.sh` - BUK workbench launcher
 - `.buk/launcher.cccw_workbench.sh` - CCCK workbench launcher
-- `.buk/launcher.rbk_Coordinator.sh` - RBW coordinator launcher
+- `.buk/launcher.rbw_workbench.sh` - RBW workbench launcher
 
 **Creation**: Use `tt/buw-tt-cl.CreateLauncher.sh` to create new launchers.
 
+**Environment Gate Role**:
+
+The launcher's environment gate function is critical for testbench isolation. When a testbench invokes a tabtarget under test, that tabtarget passes through its own launcher, which:
+- Revalidates regime configuration
+- Establishes fresh BUD environment
+- Prevents testbench state from bleeding into the code under test
+
+This ensures tests exercise real dispatch paths with proper isolation.
+
 **Design Rationale**:
-- Launchers catch configuration errors before BDU starts
-- Clear naming ties launcher to its workbench
+- Launchers catch configuration errors before BUD starts
+- Environment gate guarantees isolation between dispatch layers
+- Clear naming ties launcher to its formulary
 - Shared logic in `launcher_common.sh` eliminates boilerplate
+
+---
+
+### Formulary
+
+**Definition**: A formulary is the component that BUD (dispatch) invokes to route tabtarget colophons to their implementations. It owns the authoritative colophon→implementation mapping for a toolkit.
+
+**Responsibility**:
+- Receives colophon from BUD (e.g., `rbw-GR`)
+- Routes to appropriate implementation (CLI, module function, or script)
+- Passes imprints to the implementation as target parameters
+- Manages module initialization (kindling) as needed
+- Future: Provides bidirectional lookup (colophon↔frontispiece↔documentation)
+
+**Implementations**:
+
+| Type | Pattern | Routing Strategy |
+|------|---------|------------------|
+| Workbench | `{prefix}w_workbench.sh` | Routes to functions or CLIs |
+| Testbench | `{prefix}t_testbench.sh` | Routes to test functions |
+
+**Design Rationale**:
+- Centralizes colophon→implementation knowledge per toolkit
+- Future-proofs for documentation generation from frontispieces
 
 ---
 
 ### Workbenches
 
-**Definition**: A workbench is a multi-call bash script that routes commands to their implementations.
+**Definition**: A workbench is a formulary implementation—a multi-call bash script that routes commands to their implementations.
 
-**Naming Pattern**: `{prefix}w_workbench.sh` or `{prefix}k_Coordinator.sh`
+**Naming Pattern**: `{prefix}w_workbench.sh`
 
-**Location**: `Tools/{workbench}/` subdirectory
+**Location**: `Tools/{toolkit}/` subdirectory
 
 **Examples**:
 - `Tools/buk/buw_workbench.sh` - BUK workbench (manages BUK itself)
 - `Tools/ccck/cccw_workbench.sh` - CCCK workbench (container control)
-- `Tools/rbw/rbk_Coordinator.sh` - RBW coordinator (recipe bottle management)
+- `Tools/rbw/rbw_workbench.sh` - RBW workbench (recipe bottle management)
 
 **Structure**:
 
@@ -114,11 +151,39 @@ workbench_main "$@"
 ```
 
 **Key Characteristics**:
-- Single-file coordinator that routes commands
+- Single-file formulary that routes commands
 - Follows multi-call pattern (single script, multiple commands via case routing)
 - Loads configuration (BURC/BURS) as needed
 - Can delegate to other scripts for complex operations
 - Crash-fast error handling (`set -euo pipefail`)
+
+---
+
+### Testbenches
+
+**Definition**: A testbench is a formulary implementation that orchestrates test scenarios—invoking tabtargets under test and assessing their behavior.
+
+**Naming Pattern**: `{prefix}t_testbench.sh`
+
+**Two-Layer Dispatch**:
+
+```
+tt/jjt-f.TestFavor.sh → Launcher → BUD → jjt_testbench.sh
+                                              │
+                                              ▼ invokes
+                                    tt/jjw-hs.HeatSaddle.sh → Launcher → BUD → jjw_workbench.sh
+                                              │                    ▲
+                                              ▼ assesses           │
+                                         [pass/fail]          environment
+                                                                 gate
+```
+
+**Critical**: Each tabtarget under test passes through its own launcher. The launcher acts as an **environment gate**—testbench configuration cannot bleed into workbench execution. This isolation ensures tests exercise real dispatch paths.
+
+**Structure**: Setup preconditions → invoke tabtarget → assess results → report
+
+**Examples**:
+- `Tools/jjk/jjt_testbench.sh` - Job Jockey test scenarios
 
 ---
 
@@ -147,18 +212,52 @@ BUK implements the bash dispatch variant. The remainder of this section describe
 
 #### BUK TabTarget Implementation
 
-**Definition**: In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to workbenches via launchers.
+**Definition**: In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to formularies via launchers.
 
-**Naming Pattern**: `{command}.{description}.sh`
+**Naming Pattern**: `{colophon}.{frontispiece}[.{imprint}...].sh`
 
 **Location**: `tt/` directory at project root (configurable via `BURC_TABTARGET_DIR`)
 
 **Token Delimiter**: Configurable via `BURC_TABTARGET_DELIMITER` (typically `.`)
 
+#### TabTarget Anatomy
+
+TabTarget filenames encode structured information using publishing terminology:
+
+| Token | Term | Purpose | Example |
+|-------|------|---------|---------|
+| 1 | **Colophon** | Routing identifier—what the formulary matches on | `rbw-B` |
+| 2 | **Frontispiece** | Human-readable description | `ConnectBottle` |
+| 3+ | **Imprint** | Embedded parameter(s)—target/instance specifier | `nsproto` |
+
+**Simple example** (no imprint):
+```
+buw-tt-ll.ListLaunchers.sh
+├── Colophon: buw-tt-ll      (formulary routes on this)
+├── Frontispiece: ListLaunchers (human reads this)
+└── Extension: sh
+```
+
+**Parameterized example** (with imprint):
+```
+rbw-B.ConnectBottle.nsproto.sh
+├── Colophon: rbw-B          (formulary routes on this)
+├── Frontispiece: ConnectBottle (human reads this)
+├── Imprint: nsproto         (passed to implementation)
+└── Extension: sh
+```
+
+Multiple tabtargets can share the same colophon and frontispiece but differ by imprint:
+```
+rbw-s.Start.nsproto.sh    → same command, different targets
+rbw-s.Start.srjcl.sh
+rbw-s.Start.pluml.sh
+```
+
 **Examples**:
-- `tt/buw-tt-ll.ListLaunchers.sh` - List launchers
-- `tt/buw-rv.ValidateRegimes.sh` - Validate regimes
-- `tt/ccck-ps.ProcessStatus.sh` - Show container processes
+- `tt/buw-tt-ll.ListLaunchers.sh` - List launchers (no imprint)
+- `tt/buw-rv.ValidateRegimes.sh` - Validate regimes (no imprint)
+- `tt/rbw-B.ConnectBottle.nsproto.sh` - Connect to bottle on nsproto (with imprint)
 
 **Creation**: Use the `buw-tt-*` commands to create tabtargets:
 - `buw-tt-cbl` - Batch + logging (default)
@@ -166,27 +265,29 @@ BUK implements the bash dispatch variant. The remainder of this section describe
 - `buw-tt-cil` - Interactive + logging (for shells)
 - `buw-tt-cin` - Interactive + nolog (for secret entry)
 
-**Command Token Parsing**:
+**Token Parsing**:
 
-The filename `buw-ll.ListLaunchers.sh` is parsed as:
-- Full filename: `buw-ll.ListLaunchers.sh`
-- First token (command): `buw-ll` (everything before first delimiter)
-- Subsequent tokens: `ListLaunchers` (descriptive, for human readability)
+BUD parses the filename into tokens using `BURC_TABTARGET_DELIMITER`:
 
-BDU extracts the command token using `${filename%%${BURC_TABTARGET_DELIMITER}*}`.
+| Filename | Colophon | Frontispiece | Imprint(s) |
+|----------|----------|--------------|------------|
+| `buw-ll.ListLaunchers.sh` | `buw-ll` | `ListLaunchers` | *(none)* |
+| `rbw-B.ConnectBottle.nsproto.sh` | `rbw-B` | `ConnectBottle` | `nsproto` |
+
+BUD extracts the colophon using `${filename%%${BURC_TABTARGET_DELIMITER}*}` and passes it to the formulary.
 
 **Key Benefits**:
 1. **Tab completion**: Type `tt/buw-` then press TAB to see all BUK commands
-2. **Self-documenting**: Filename describes what the command does
+2. **Self-documenting**: Frontispiece describes what the command does
 3. **Discoverability**: `ls tt/` shows all available commands
-4. **Consistency**: All commands follow same invocation pattern
+4. **Parameterization**: Imprints encode target-specific variants
 5. **Lightweight**: No logic in tabtargets, just delegation
 
 **Design Rationale**:
-- Leverages shell tab completion for command discovery
-- Descriptive filenames serve as inline documentation
+- Colophons route through the formulary to implementations
+- Frontispieces serve as inline documentation for humans
+- Imprints allow the same command to target different instances
 - Delegating to launchers ensures validation happens on every invocation
-- Token-based parsing allows flexible, hierarchical command names
 
 ---
 
@@ -254,7 +355,7 @@ Project Root/
 │   ├── burc.env                       # BURC assignment (project structure config)
 │   ├── launcher.buw_workbench.sh      # BUK launcher (with validation)
 │   ├── launcher.cccw_workbench.sh     # CCCK launcher (with validation)
-│   └── launcher.rbk_Coordinator.sh    # RBW launcher (with validation)
+│   └── launcher.rbw_workbench.sh      # RBW launcher (with validation)
 │
 ├── tt/                                # TabTargets (tab-completion-friendly commands)
 │   ├── buw-ll.ListLaunchers.sh        # List all launchers
@@ -278,7 +379,7 @@ Project Root/
 │   │   └── cccw_workbench.sh
 │   │
 │   └── rbw/                           # RBW workbench
-│       └── rbk_Coordinator.sh
+│       └── rbw_workbench.sh
 │
 └── ../station-files/                  # Developer machine configs (NOT in git)
     └── burs.env                       # BURS assignment (station config)
@@ -289,6 +390,8 @@ Project Root/
 ```
 User invokes TabTarget:
   $ tt/buw-ll.ListLaunchers.sh
+       ├── Colophon: buw-ll
+       └── Frontispiece: ListLaunchers
 
 1. TabTarget delegates to Launcher
    → .buk/launcher.buw_workbench.sh buw-ll
@@ -298,23 +401,26 @@ User invokes TabTarget:
    → burs_regime.sh validate ../station-files/burs.env
    → (If validation fails, display info and exit)
 
-3. Launcher delegates to BDU
+3. Launcher delegates to BUD
    → bud_dispatch.sh buw-ll
 
-4. BDU sets up environment
+4. BUD sets up environment
+   → Parses colophon, frontispiece, imprint(s) from filename
    → Creates temp/output directories
    → Sources BURS (station config)
    → Sets up logging
 
-5. BDU invokes Workbench
-   → buw_workbench.sh buw-ll
+5. BUD invokes Formulary (workbench)
+   → buw_workbench.sh buw-ll [imprints...]
+   → Passes colophon as command, imprints as arguments
 
-6. Workbench routes command
-   → Case statement routes "buw-ll" to implementation
+6. Formulary routes colophon
+   → Case statement routes colophon "buw-ll" to implementation
+   → Passes imprints to implementation
    → Executes command logic
    → Returns exit status
 
-7. BDU cleans up
+7. BUD cleans up
    → Writes transcript
    → Propagates exit status
 ```
@@ -374,24 +480,48 @@ User invokes TabTarget:
 
 ## BUK Components
 
+### Module Prefix Registry
+
+BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
+
+| Prefix | Name | Status | Purpose |
+|--------|------|--------|---------|
+| `buc_` | command | Active | Command utilities, output formatting |
+| `bud_` | dispatch | Active | Environment setup, invokes formulary |
+| `buf_` | formulary | Reserved | Colophon↔implementation mapping |
+| `bug_` | guide | Active | Always-visible user interaction |
+| `burc_` | regime-config | Active | Project-level Config Regime |
+| `burs_` | regime-station | Active | Station-level Config Regime |
+| `but_` | test | Active | Testing framework |
+| `buut_` | tabtarget | Active | TabTarget/launcher creation |
+| `buv_` | validation | Active | Type system, input validation |
+| `buw_` | workbench | Active | BUK self-management formulary |
+
+**Conventions**:
+- Three-letter: core modules (`buc_`, `bud_`)
+- Four-letter: specialized modules (`burc_`, `buut_`)
+- Reserved: planned but not yet implemented
+
+---
+
 ### BUD - Bash Dispatch Utility
 
 **File**: `Tools/buk/bud_dispatch.sh`
 
-**Purpose**: Central dispatch system that sets up execution environment and delegates to workbenches.
+**Purpose**: Central dispatch system that sets up execution environment and invokes the formulary.
 
 **Key Responsibilities**:
 - Parse tabtarget filename into tokens
 - Environment setup (temp dirs, output dirs, logging)
 - Source BURS (station configuration)
 - Resolve color policy
-- Invoke workbench with proper context
+- Invoke formulary with proper context
 - Capture and propagate exit status
 - Generate execution transcript
 
 #### Execution Context (Exported Variables)
 
-BUD exports the following environment variables for workbench access:
+BUD exports the following environment variables for formulary access:
 
 **Invocation Identity**:
 
@@ -402,18 +532,20 @@ BUD exports the following environment variables for workbench access:
 
 **Token Explosion**:
 
-TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Each token is exported for workbench access:
+TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Each token is exported for formulary access:
 
-| Variable | For `buw-tc.CreateTabTarget.sh` |
-|----------|--------------------------------|
-| `BUD_TOKEN_1` | `buw-tc` |
-| `BUD_TOKEN_2` | `CreateTabTarget` |
-| `BUD_TOKEN_3` | `sh` |
-| `BUD_TOKEN_4` | *(empty)* |
-| `BUD_TOKEN_5` | *(empty)* |
-| `BUD_COMMAND` | `buw-tc` *(legacy, same as TOKEN_1)* |
-| `BUD_TARGET` | `buw-tc.CreateTabTarget.sh` *(full filename)* |
-| `BUD_CLI_ARGS` | *(extra arguments passed to tabtarget)* |
+| Variable | Semantic Role | For `rbw-B.ConnectBottle.nsproto.sh` |
+|----------|---------------|--------------------------------------|
+| `BUD_TOKEN_1` | **Colophon** | `rbw-B` |
+| `BUD_TOKEN_2` | **Frontispiece** | `ConnectBottle` |
+| `BUD_TOKEN_3` | **Imprint** | `nsproto` |
+| `BUD_TOKEN_4` | Imprint (2nd) | *(empty)* |
+| `BUD_TOKEN_5` | Imprint (3rd) | *(empty)* |
+| `BUD_COMMAND` | Colophon | `rbw-B` *(legacy, same as TOKEN_1)* |
+| `BUD_TARGET` | Full filename | `rbw-B.ConnectBottle.nsproto.sh` |
+| `BUD_CLI_ARGS` | CLI arguments | *(extra arguments passed to tabtarget)* |
+
+The formulary receives the colophon for routing and imprints as target parameters. The frontispiece is for human readability and typically not used at runtime.
 
 This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
 
