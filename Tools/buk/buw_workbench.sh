@@ -25,6 +25,7 @@ BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${BUW_SCRIPT_DIR}/buc_command.sh"
+source "${BUW_SCRIPT_DIR}/buut_tabtarget.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
@@ -62,6 +63,11 @@ buw_route() {
   # Load BURC configuration
   buw_load_burc
 
+  # Selective kindling for submodules
+  case "${z_command}" in
+    buw-tt-*) zbuut_kindle ;;
+  esac
+
   # Route based on command
   case "${z_command}" in
 
@@ -73,41 +79,12 @@ buw_route() {
       ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
       ;;
 
-    # TabTarget management
-    buw-tc)
-      # Create tabtargets: buw-tc <launcher-path> <tabtarget-name> [<tabtarget-name>...]
-      # Example: buw-tc .buk/launcher.rbw_workbench.sh rbw-ri.RegimeInfo rbw-ll.ListLaunchers
-      local z_launcher_path="${1:-}"
-      shift || true
-
-      test -n "${z_launcher_path}" || buc_die "usage: buw-tc <launcher-path> <tabtarget-name> [<tabtarget-name>...]\n  Example: buw-tc .buk/launcher.rbw_workbench.sh rbw-ri.RegimeInfo"
-      test "$#" -gt 0 || buc_die "usage: buw-tc <launcher-path> <tabtarget-name> [<tabtarget-name>...]\n  At least one tabtarget name required"
-
-      # Validate launcher exists - fail fast
-      local z_launcher_file="${PWD}/${z_launcher_path}"
-      test -f "${z_launcher_file}" || buc_die "launcher not found: ${z_launcher_file}"
-
-      # Process each tabtarget name
-      local z_tabtarget_name
-      for z_tabtarget_name in "$@"; do
-        local z_tabtarget_file="${PWD}/${BURC_TABTARGET_DIR}/${z_tabtarget_name}.sh"
-
-        # Warn if overwriting
-        test ! -f "${z_tabtarget_file}" || buc_warn "overwriting existing tabtarget: ${z_tabtarget_file}"
-
-        buw_show "Creating tabtarget: ${z_tabtarget_file}"
-
-        # Generate tabtarget with BUD_LAUNCHER pattern
-        cat > "${z_tabtarget_file}" <<EOF
-#!/bin/bash
-export BUD_LAUNCHER="${z_launcher_path}"
-exec "\$(dirname "\${BASH_SOURCE[0]}")/../\${BUD_LAUNCHER}" "\${0##*/}" "\${@}"
-EOF
-
-        chmod +x "${z_tabtarget_file}" || buc_die "Failed to make tabtarget executable: ${z_tabtarget_file}"
-        buc_success "Created tabtarget: ${z_tabtarget_file}"
-      done
-      ;;
+    # TabTarget subsystem (buw-tt-*)
+    buw-tt-cd) buut_tabtarget_default "$@" ;;
+    buw-tt-cn) buut_tabtarget_nolog "$@" ;;
+    buw-tt-ci) buut_tabtarget_interactive "$@" ;;
+    buw-tt-cni) buut_tabtarget_nolog_interactive "$@" ;;
+    buw-tt-cl) buut_launcher "$@" ;;
 
     # Regime management (consolidated)
     buw-rv)
@@ -143,7 +120,7 @@ EOF
 
     # Unknown command
     *)
-      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  Launcher:  buw-ll\n  TabTarget: buw-tc <workbench-path> <tabtarget-name>\n  Regime:    buw-rv, buw-rr, buw-ri"
+      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  Launcher:  buw-ll\n  TabTarget: buw-tt-cd, buw-tt-cn, buw-tt-ci, buw-tt-cni, buw-tt-cl\n  Regime:    buw-rv, buw-rr, buw-ri"
       ;;
   esac
 }
