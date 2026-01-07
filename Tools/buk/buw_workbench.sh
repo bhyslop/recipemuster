@@ -25,25 +25,18 @@ BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${BUW_SCRIPT_DIR}/buc_command.sh"
-source "${BUW_SCRIPT_DIR}/buut_tabtarget.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
+# Verify launcher provided regime environment
+test -n "${BUD_REGIME_FILE:-}"    || buc_die "BUD_REGIME_FILE not set - must be called via launcher"
+test -n "${BURC_STATION_FILE:-}"  || buc_die "BURC_STATION_FILE not set - launcher failed to load BURC"
+test -n "${BURC_TOOLS_DIR:-}"     || buc_die "BURC_TOOLS_DIR not set - launcher failed to load BURC"
+
 # Verbose output if BUD_VERBOSE is set
 buw_show() {
   test "${BUD_VERBOSE:-0}" != "1" || echo "BUWSHOW: $*"
-}
-
-# Load BURC configuration
-buw_load_burc() {
-  local z_burc_file="${PWD}/.buk/burc.env"
-
-  test -f "${z_burc_file}" || buc_die "BURC file not found: ${z_burc_file}"
-
-  buw_show "Loading BURC from: ${z_burc_file}"
-  # shellcheck disable=SC1090
-  source "${z_burc_file}"
 }
 
 # Simple routing function
@@ -60,53 +53,38 @@ buw_route() {
 
   buw_show "BDU environment verified"
 
-  # Load BURC configuration
-  buw_load_burc
-
-  # Selective kindling for submodules (only create operations need buut)
-  case "${z_command}" in
-    buw-tt-c*) zbuut_kindle ;;
-  esac
-
   # Route based on command
+  local z_buut_cli="${BUW_SCRIPT_DIR}/buut_cli.sh"
+
   case "${z_command}" in
 
-    # TabTarget subsystem (buw-tt-*)
-    buw-tt-ll) buut_list_launchers ;;
-    buw-tt-cbl) buut_tabtarget_batch_logging "$@" ;;
-    buw-tt-cbn) buut_tabtarget_batch_nolog "$@" ;;
-    buw-tt-cil) buut_tabtarget_interactive_logging "$@" ;;
-    buw-tt-cin) buut_tabtarget_interactive_nolog "$@" ;;
-    buw-tt-cl) buut_launcher "$@" ;;
+    # TabTarget subsystem (buw-tt-*) - delegate to buut_cli.sh
+    buw-tt-ll)  exec "${z_buut_cli}" buut_list_launchers                 $z_args ;;
+    buw-tt-cbl) exec "${z_buut_cli}" buut_tabtarget_batch_logging        $z_args ;;
+    buw-tt-cbn) exec "${z_buut_cli}" buut_tabtarget_batch_nolog          $z_args ;;
+    buw-tt-cil) exec "${z_buut_cli}" buut_tabtarget_interactive_logging  $z_args ;;
+    buw-tt-cin) exec "${z_buut_cli}" buut_tabtarget_interactive_nolog    $z_args ;;
+    buw-tt-cl)  exec "${z_buut_cli}" buut_launcher                       $z_args ;;
 
-    # Regime management (consolidated)
+    # Regime management - delegate to regime CLIs
     buw-rv)
-      # Validate both regimes
       buc_step "Validating BURC"
-      "${BUW_SCRIPT_DIR}/burc_cli.sh" validate "${PWD}/.buk/burc.env" || buc_die "BURC validation failed"
-
+      "${BUW_SCRIPT_DIR}/burc_cli.sh" validate "${BUD_REGIME_FILE}" || buc_die "BURC validation failed"
       buc_step "Validating BURS"
-      local z_station_file="${PWD}/${BURC_STATION_FILE}"
-      "${BUW_SCRIPT_DIR}/burs_cli.sh" validate "${z_station_file}" || buc_die "BURS validation failed"
-
+      "${BUW_SCRIPT_DIR}/burs_cli.sh" validate "${BURC_STATION_FILE}" || buc_die "BURS validation failed"
       buc_success "All regime validations passed"
       ;;
 
     buw-rr)
-      # Render both regimes
       buc_step "BURC Configuration"
-      "${BUW_SCRIPT_DIR}/burc_cli.sh" render "${PWD}/.buk/burc.env" || buc_die "BURC render failed"
-
+      "${BUW_SCRIPT_DIR}/burc_cli.sh" render "${BUD_REGIME_FILE}" || buc_die "BURC render failed"
       buc_step "BURS Configuration"
-      local z_station_file="${PWD}/${BURC_STATION_FILE}"
-      "${BUW_SCRIPT_DIR}/burs_cli.sh" render "${z_station_file}" || buc_die "BURS render failed"
+      "${BUW_SCRIPT_DIR}/burs_cli.sh" render "${BURC_STATION_FILE}" || buc_die "BURS render failed"
       ;;
 
     buw-ri)
-      # Show info for both regimes
       buc_step "BURC Specification"
       "${BUW_SCRIPT_DIR}/burc_cli.sh" info || buc_die "BURC info failed"
-
       buc_step "BURS Specification"
       "${BUW_SCRIPT_DIR}/burs_cli.sh" info || buc_die "BURS info failed"
       ;;
