@@ -75,35 +75,38 @@ buw_route() {
 
     # TabTarget management
     buw-tc)
-      # Create tabtarget: buw-tc <workbench-path> <tabtarget-name>
-      # Example: buw-tc Tools/buk/buw_workbench.sh buw-ri.RegimeInfo
-      local z_workbench_path="${1:-}"
-      local z_tabtarget_name="${2:-}"
+      # Create tabtargets: buw-tc <launcher-path> <tabtarget-name> [<tabtarget-name>...]
+      # Example: buw-tc .buk/launcher.rbw_workbench.sh rbw-ri.RegimeInfo rbw-ll.ListLaunchers
+      local z_launcher_path="${1:-}"
+      shift || true
 
-      test -n "${z_workbench_path}" || buc_die "usage: buw-tc <workbench-path> <tabtarget-name>\n  Example: buw-tc Tools/buk/buw_workbench.sh buw-ri.RegimeInfo"
-      test -n "${z_tabtarget_name}" || buc_die "usage: buw-tc <workbench-path> <tabtarget-name>\n  Example: buw-tc Tools/buk/buw_workbench.sh buw-ri.RegimeInfo"
+      test -n "${z_launcher_path}" || buc_die "usage: buw-tc <launcher-path> <tabtarget-name> [<tabtarget-name>...]\n  Example: buw-tc .buk/launcher.rbw_workbench.sh rbw-ri.RegimeInfo"
+      test "$#" -gt 0 || buc_die "usage: buw-tc <launcher-path> <tabtarget-name> [<tabtarget-name>...]\n  At least one tabtarget name required"
 
-      local z_tabtarget_file="${PWD}/${BURC_TABTARGET_DIR}/${z_tabtarget_name}.sh"
-      local z_workbench_file="${PWD}/${z_workbench_path}"
+      # Validate launcher exists - fail fast
+      local z_launcher_file="${PWD}/${z_launcher_path}"
+      test -f "${z_launcher_file}" || buc_die "launcher not found: ${z_launcher_file}"
 
-      test ! -f "${z_tabtarget_file}" || buc_die "tabtarget already exists: ${z_tabtarget_file}"
+      # Process each tabtarget name
+      local z_tabtarget_name
+      for z_tabtarget_name in "$@"; do
+        local z_tabtarget_file="${PWD}/${BURC_TABTARGET_DIR}/${z_tabtarget_name}.sh"
 
-      test -f "${z_workbench_file}" || buc_warn "workbench not found: ${z_workbench_file}\nCreating tabtarget anyway..."
+        # Warn if overwriting
+        test ! -f "${z_tabtarget_file}" || buc_warn "overwriting existing tabtarget: ${z_tabtarget_file}"
 
-      buw_show "Creating tabtarget: ${z_tabtarget_file}"
+        buw_show "Creating tabtarget: ${z_tabtarget_file}"
 
-      # Extract command from tabtarget name (first token before delimiter)
-      local z_command_token
-      z_command_token="${z_tabtarget_name%%${BURC_TABTARGET_DELIMITER}*}"
+        # Generate tabtarget with BUD_LAUNCHER pattern
+        cat > "${z_tabtarget_file}" <<EOF
+#!/bin/bash
+export BUD_LAUNCHER="${z_launcher_path}"
+exec "\$(dirname "\${BASH_SOURCE[0]}")/../\${BUD_LAUNCHER}" "\${0##*/}" "\${@}"
+EOF
 
-      echo "#!/bin/bash" > "${z_tabtarget_file}"
-      echo "# Generated tabtarget - delegates to ${z_workbench_path}" >> "${z_tabtarget_file}"
-      echo "exec \"\$(dirname \"\${BASH_SOURCE[0]}\")/../${z_workbench_path}\" \"${z_command_token}\" \"\${@}\"" >> "${z_tabtarget_file}"
-
-      chmod +x "${z_tabtarget_file}" || buc_die "Failed to make tabtarget executable: ${z_tabtarget_file}"
-      buc_success "Created tabtarget: ${z_tabtarget_file}"
-      echo "  Delegates to: ${z_workbench_file}"
-      echo "  Command: ${z_command_token}"
+        chmod +x "${z_tabtarget_file}" || buc_die "Failed to make tabtarget executable: ${z_tabtarget_file}"
+        buc_success "Created tabtarget: ${z_tabtarget_file}"
+      done
       ;;
 
     # Regime management (consolidated)
