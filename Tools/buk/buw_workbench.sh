@@ -72,12 +72,7 @@ buw_route() {
   case "${z_command}" in
 
     # TabTarget subsystem (buw-tt-*)
-    buw-tt-ll)
-      # List launchers in .buk/
-      buw_show "Listing launchers in .buk/"
-      buc_step "Launchers in ${PWD}/.buk/"
-      ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
-      ;;
+    buw-tt-ll) buut_list_launchers ;;
     buw-tt-cbl) buut_tabtarget_batch_logging "$@" ;;
     buw-tt-cbn) buut_tabtarget_batch_nolog "$@" ;;
     buw-tt-cil) buut_tabtarget_interactive_logging "$@" ;;

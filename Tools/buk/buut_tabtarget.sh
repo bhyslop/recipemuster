@@ -113,6 +113,14 @@ zbuut_create_tabtargets() {
 ######################################################################
 # External Functions (buut_*)
 
+# List launchers in .buk/ directory
+# Note: Does not require kindling - uses fixed path pattern
+buut_list_launchers() {
+  zbuut_show "Listing launchers in .buk/"
+  buc_step "Launchers in ${PWD}/.buk/"
+  ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
+}
+
 # Create batch+logging tabtargets (default)
 # Usage: buut_tabtarget_batch_logging <launcher_path> <tabtarget_name>...
 buut_tabtarget_batch_logging() {
