@@ -31,6 +31,7 @@ cd "${ZLAUNCHER_PROJECT_ROOT}" || exit 1
 # Load BURC configuration
 export BUD_REGIME_FILE="${ZLAUNCHER_PROJECT_ROOT}/.buk/burc.env"
 source "${BUD_REGIME_FILE}" || exit 1
+export BUD_STATION_FILE="${ZLAUNCHER_PROJECT_ROOT}/${BURC_STATION_FILE}"
 source "${BURC_TOOLS_DIR}/buk/buc_command.sh"
 source "${BURC_TOOLS_DIR}/buk/burc_regime.sh"
 zburc_kindle

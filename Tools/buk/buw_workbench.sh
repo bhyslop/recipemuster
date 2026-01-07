@@ -30,9 +30,8 @@ source "${BUW_SCRIPT_DIR}/buc_command.sh"
 buc_context "${0##*/}"
 
 # Verify launcher provided regime environment
-test -n "${BUD_REGIME_FILE:-}"    || buc_die "BUD_REGIME_FILE not set - must be called via launcher"
-test -n "${BURC_STATION_FILE:-}"  || buc_die "BURC_STATION_FILE not set - launcher failed to load BURC"
-test -n "${BURC_TOOLS_DIR:-}"     || buc_die "BURC_TOOLS_DIR not set - launcher failed to load BURC"
+test -n "${BUD_REGIME_FILE:-}"   || buc_die "BUD_REGIME_FILE not set - must be called via launcher"
+test -n "${BUD_STATION_FILE:-}"  || buc_die "BUD_STATION_FILE not set - must be called via launcher"
 
 # Verbose output if BUD_VERBOSE is set
 buw_show() {
@@ -55,11 +54,12 @@ buw_route() {
 
   # Route based on command
   local z_buut_cli="${BUW_SCRIPT_DIR}/buut_cli.sh"
-  local z_regime_cli="${BUW_SCRIPT_DIR}/${BUD_TOKEN_3:-nil}_cli.sh"
+  local z_burc_cli="${BUW_SCRIPT_DIR}/burc_cli.sh"
+  local z_burs_cli="${BUW_SCRIPT_DIR}/burs_cli.sh"
 
   case "${z_command}" in
 
-    # TabTarget subsystem (buw-tt-*) - delegate to buut_cli.sh
+    # TabTarget subsystem (buw-tt-*)
     buw-tt-ll)  exec "${z_buut_cli}" buut_list_launchers                 $z_args ;;
     buw-tt-cbl) exec "${z_buut_cli}" buut_tabtarget_batch_logging        $z_args ;;
     buw-tt-cbn) exec "${z_buut_cli}" buut_tabtarget_batch_nolog          $z_args ;;
@@ -67,10 +67,13 @@ buw_route() {
     buw-tt-cin) exec "${z_buut_cli}" buut_tabtarget_interactive_nolog    $z_args ;;
     buw-tt-cl)  exec "${z_buut_cli}" buut_launcher                       $z_args ;;
 
-    # Bootstrap regime management - imprint (BUD_TOKEN_3) selects burc or burs CLI
-    buw-rv) exec "${z_regime_cli}" bootstrap_validate ;;
-    buw-rr) exec "${z_regime_cli}" bootstrap_render ;;
-    buw-ri) exec "${z_regime_cli}" bootstrap_info ;;
+    # Regime subsystem (buw-rg*) - intimate routes
+    buw-rgv-burc) exec "${z_burc_cli}" validate ;;
+    buw-rgv-burs) exec "${z_burs_cli}" validate ;;
+    buw-rgr-burc) exec "${z_burc_cli}" render ;;
+    buw-rgr-burs) exec "${z_burs_cli}" render ;;
+    buw-rgi-burc) exec "${z_burc_cli}" info ;;
+    buw-rgi-burs) exec "${z_burs_cli}" info ;;
 
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;

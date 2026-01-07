@@ -18,16 +18,8 @@
 #
 # BURC CLI - Command line interface for BURC regime operations
 #
-# BOOTSTRAP REGIME CLI
-# ====================
-# This is a bootstrap regime CLI - it reads configuration from environment
-# variables set by the launcher, NOT from file arguments. BURC and BURS are
-# foundational regimes that the launcher loads before any workbench runs.
-# Unlike application regime CLIs which may take file arguments, bootstrap
-# regime CLIs always rely on launcher-provided environment.
-#
-# Required environment: BUD_REGIME_FILE (path to .buk/burc.env)
-# The BURC_* variables must already be set by launcher sourcing this file.
+# Requires BUD_REGIME_FILE environment variable (path to burc.env).
+# This CLI sources the file and validates/renders/displays BURC configuration.
 
 set -euo pipefail
 
@@ -43,7 +35,7 @@ source "${ZBURC_CLI_SCRIPT_DIR}/burc_regime.sh"
 zburc_cli_kindle() {
   test -z "${ZBURC_CLI_KINDLED:-}" || buc_die "BURC CLI already kindled"
 
-  # Verify bootstrap environment
+  # Verify environment
   test -n "${BUD_REGIME_FILE:-}" || buc_die "BUD_REGIME_FILE not set - must be called via launcher"
 
   ZBURC_SPEC_FILE="${ZBURC_CLI_SCRIPT_DIR}/burc_specification.md"
@@ -52,21 +44,23 @@ zburc_cli_kindle() {
   ZBURC_CLI_KINDLED=1
 }
 
-# Command: bootstrap_validate - validate BURC from launcher environment
-burc_bootstrap_validate() {
+# Command: validate - source file and validate
+burc_validate() {
   buc_step "Validating BURC: ${BUD_REGIME_FILE}"
 
-  # BURC_* variables already set by launcher - just validate via kindle
+  source "${BUD_REGIME_FILE}" || buc_die "Failed to source BURC"
   zburc_kindle
 
   buc_success "BURC configuration valid"
 }
 
-# Command: bootstrap_render - display configuration values from environment
-burc_bootstrap_render() {
+# Command: render - display configuration values
+burc_render() {
   buc_step "BURC Configuration: ${BUD_REGIME_FILE}"
 
-  # Render with aligned columns - values already in environment
+  source "${BUD_REGIME_FILE}" || buc_die "Failed to source BURC"
+
+  # Render with aligned columns
   printf "%-25s %s\n" "BURC_STATION_FILE" "${BURC_STATION_FILE:-<not set>}"
   printf "%-25s %s\n" "BURC_TABTARGET_DIR" "${BURC_TABTARGET_DIR:-<not set>}"
   printf "%-25s %s\n" "BURC_TABTARGET_DELIMITER" "${BURC_TABTARGET_DELIMITER:-<not set>}"
@@ -77,8 +71,8 @@ burc_bootstrap_render() {
   printf "%-25s %s\n" "BURC_LOG_EXT" "${BURC_LOG_EXT:-<not set>}"
 }
 
-# Command: bootstrap_info - display specification (formatted for terminal)
-burc_bootstrap_info() {
+# Command: info - display specification (formatted for terminal)
+burc_info() {
   cat <<EOF
 
 ${ZBUC_CYAN}========================================${ZBUC_RESET}
@@ -144,17 +138,17 @@ zburc_cli_kindle
 z_command="${1:-}"
 
 case "${z_command}" in
-  bootstrap_validate)
-    burc_bootstrap_validate
+  validate)
+    burc_validate
     ;;
-  bootstrap_render)
-    burc_bootstrap_render
+  render)
+    burc_render
     ;;
-  bootstrap_info)
-    burc_bootstrap_info
+  info)
+    burc_info
     ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: burc_cli.sh {bootstrap_validate|bootstrap_render|bootstrap_info}"
+    buc_die "Unknown command: ${z_command}. Usage: burc_cli.sh {validate|render|info}"
     ;;
 esac
 
