@@ -89,7 +89,7 @@ cgr guard [--limit <bytes>] [--warn <bytes>]
   Exit 2: over warn threshold (proceed with caution)
 ```
 
-**Naming parallel:** `jjr` (Job Jockey Rust) : `cgr` (Claude Git Rust)
+**Subcommand:** `vok guard` (cgk feature-gated)
 
 ### CRCG - Claude Rust Coding Guide
 
@@ -113,30 +113,41 @@ CRCG documents constraints for small Rust utilities that complement BCG-constrai
 | linux-aarch64 | `aarch64-unknown-linux-gnu` | AWS Graviton, ARM servers |
 | windows-x86_64 | `x86_64-pc-windows-gnu` | Windows (gnu target for Docker cross-compile from macOS) |
 
-### VOK Rust Workspace
+### VOK Rust Workspace (Option A: All Rust in VOK)
 
-Single Cargo workspace hosts all kit Rust utilities. No shared library - each binary is fully self-contained.
+Single Cargo workspace in `Tools/vok/rust/` hosts one multicall binary with feature-gated subcommands. Each kit's Rust logic lives here, enabled only when that kit is present.
 
 ```
 Tools/vok/rust/
-├── Cargo.toml      # [workspace] members = ["cgr", "jjr"]
+├── Cargo.toml      # [package] name = "vok", [features] jjk = [], cgk = []
 ├── Cargo.lock      # Shared dependency versions (checked in)
-├── cgr/
-│   ├── Cargo.toml
-│   └── src/main.rs
-└── jjr/
-    ├── Cargo.toml
-    └── src/main.rs
+├── build.rs        # Auto-detects ../../jjk, ../../cgk → enables features
+└── src/
+    ├── main.rs     # Multicall dispatch: vok jj, vok guard, vok sigil
+    ├── core/       # Shared infrastructure (platform, env discovery)
+    ├── jj/         # #[cfg(feature = "jjk")] - JJK text processing
+    └── guard/      # #[cfg(feature = "cgk")] - CGK pre-commit validation
 ```
 
-**What the workspace provides:**
-- Single Cargo.lock = consistent dependency versions across utilities
-- Single `cargo build --workspace` = build all at once
-- Single `cargo test --workspace` = test all at once
+**Why single binary:**
+- Rust std library links once (~1-2MB saved per additional "binary")
+- serde_json links once
+- Kit-specific logic is tiny text manipulation
+- Feature flags compile out unused code paths
 
-**What it does NOT provide:**
-- No shared code between utilities (copy-paste is fine for small utils)
-- No library crate dependencies between utilities
+**build.rs auto-detection:**
+```rust
+fn main() {
+    if Path::new("../../jjk").exists() {
+        println!("cargo:rustc-cfg=feature=\"jjk\"");
+    }
+    if Path::new("../../cgk").exists() {
+        println!("cargo:rustc-cfg=feature=\"cgk\"");
+    }
+}
+```
+
+Project builds only include subcommands for kits actually present. No manifest to maintain.
 
 ### Prepare Release vs Arcanum
 
@@ -181,15 +192,48 @@ Uninstall = `rm -rf .claude/«kit»/` removes that kit's binary.
 - Artifacts + arcanum only → consumers
 - Binaries may be gitignored or checked in (decision deferred)
 
+### The Compilation Model
+
+Arcanum emitters are compiled documentation. We (Claude + human) are the compiler.
+
+```
+Source:      Full API knowledge (Rust source, specs, our session context)
+Compiler:    Us writing the arcanum emitter functions
+Object code: The arcanum emitters themselves (zjjw_emit_*, etc.)
+Install:     Mechanical deployment - runs emitters, copies binaries
+Runtime:     Target Claude executes emitted instructions
+```
+
+**Knowledge lifecycle:**
+- API understanding exists during our working session (compilation time)
+- We encode it into `zjjw_emit_*` functions
+- Knowledge is now embedded in code, not documented separately
+- Install deploys compiled artifacts to target repo
+- Target Claude follows instructions without understanding the API
+- Original knowledge doesn't persist - the emitters ARE the documentation
+
+**Why this enables obscurity:**
+- No API spec to publish - knowledge compiles away
+- Target repo has instructions only, not understanding
+- `vok --help` exists (clap-generated), but no external docs
+- Bash scripts bridge slash commands to vok calls
+- Only source repo readers see the full picture
+
+**The veiled README:**
+`Tools/vok/README.md` documents the compilation model and full API - for kit authors only. It is veiled (filtered from upstream/distribution). Target repos never see it.
+
 ## Done
 
 ## Remaining
 
+- **Write veiled VOK README**
+  Create `Tools/vok/README.md` (veiled - never distributed). Document: (1) The Compilation Model - we are the compiler, arcanum emitters are object code, (2) Option A architecture - all Rust in VOK, feature-gated multicall binary, (3) build.rs auto-detection mechanism, (4) Full vok subcommand API reference (for kit authors writing arcanums), (5) Why this doc is veiled - compiler docs, not user docs. This is the foundational conceptual document.
+
 - **Clarify kit facility patterns**
-  Document when kits use arcanum vs workbench vs testbench. Define rules: Which kits need which facilities? Can kits have multiple? Examples: Does JJK need `jja_arcanum.sh` AND `jjw_workbench.sh`? Does CGK need `cga_arcanum.sh` AND `cgw_workbench.sh`? Where does model differential tool belong (JJ workbench, not CGK)? Output: Clear architectural decision documented in VOK README.
+  Document when kits use arcanum vs workbench vs testbench. Define rules: Which kits need which facilities? Can kits have multiple? Examples: Does JJK need `jja_arcanum.sh` AND `jjw_workbench.sh`? Does CGK need `cga_arcanum.sh` AND `cgw_workbench.sh`? Where does model differential tool belong (JJ workbench, not CGK)? Output: Section in VOK README.
 
 - **Create VOK skeleton**
-  Create `Tools/vok/` directory with `voa_arcanum.sh` stub and `README.md` documenting the Vox Obscura concept and prefix conventions.
+  Create `Tools/vok/` directory with `voa_arcanum.sh` stub. README already written in prior pace.
 
 - **Implement Codex**
   Extract ledger machinery from JJK. Functions: `zvoa_compute_source_hash()`, `zvoa_lookup_sigil_by_hash()`. File: `vox_codex.json`.
@@ -213,7 +257,7 @@ Uninstall = `rm -rf .claude/«kit»/` removes that kit's binary.
   Write the Claude Rust Coding Guide as a VOK lens document. Document: pure filter pattern, minimal deps policy, exit code conventions, Cargo.lock/edition pinning, the 5 target platforms, and how Rust utilities integrate with BCG bash orchestration. Reference BCG as the companion guide for bash. Output: `Tools/vok/lenses/vop-CRCG-ClaudeRustCodingGuide.md`.
 
 - **Create VOK Rust workspace**
-  Create `Tools/vok/rust/` directory structure. Root `Cargo.toml` with `[workspace]` definition. Empty member directories for future utilities (`cgr/`, `jjr/`). Document workspace conventions in README. No actual Rust code yet - just the skeleton that prepare-release will build.
+  Create `Tools/vok/rust/` with Option A structure: single `vok` binary with feature-gated subcommands. Cargo.toml with `[features]` for jjk, cgk, etc. build.rs with kit directory auto-detection. src/ with main.rs (clap multicall dispatch), core/ (shared platform/env), and placeholder modules for jj/ and guard/. No business logic yet - just the skeleton that compiles and proves the feature-gating works.
 
 - **Create Prepare Release script**
   Implement `vop_prepare_release.sh` with functions: detect current platform, build all workspace members (`cargo build --release`), run all tests (`cargo test`), copy binaries to `Tools/vok/release/«platform»/`. Create tabtarget `tt/vok-pr.PrepareRelease.sh`. Exit non-zero if tests fail (gate release on tests).
@@ -221,11 +265,11 @@ Uninstall = `rm -rf .claude/«kit»/` removes that kit's binary.
 - **Update arcanum for Rust artifacts**
   Extend `voa_arcanum.sh` to copy prepared binaries from `Tools/vok/release/` to `.claude/«kit»/«binary»/«platform»/`. Detect current platform and copy appropriate binary. Fail gracefully if release artifacts missing (prompt to run prepare-release first).
 
-- **Create CGK Guard (Rust)**
-  Implement `cgr` (Claude Git Rust) binary for pre-commit size validation. Uses git plumbing to sum staged blob sizes. Pure stdin/stdout filter pattern (like jjr). No git2 crate - shells out to git for blob queries. Tabtarget: `tt/cgk-guard.sh`. Hook integration: `.claude/hooks/pre-commit`. Simpler than commit (no LLM), establishes Rust pattern for CGK.
+- **Implement vok guard subcommand**
+  Add `vok guard` subcommand (gated by `cgk` feature) for pre-commit size validation. Uses git plumbing to sum staged blob sizes. Pure filter pattern - bash pipes git output to vok, vok returns verdict. No git2 crate. Exit codes: 0 (ok), 1 (over limit), 2 (warning). Tabtarget: `tt/cgk-guard.sh`. Hook integration: `.claude/hooks/pre-commit`. Simpler than JJ operations (no LLM), good first subcommand to prove the pattern.
 
 - **Create CGK (Claude Git Kit)**
   Foundational kit for Claude-aware git operations, starting with commit message generation. Create `Tools/cgk/` directory with `cga_arcanum.sh` and tabtarget `tt/cgk-commit.sh` that invokes Claude to write commit messages. Document pattern for extensibility to other git operations (branch prep, PR formatting, etc.).
 
 - **Document arcane vocabulary**
-  Finalize README with full prefix conventions, reserved suffixes, and arcane term glossary.
+  Add to veiled VOK README: full prefix conventions, reserved suffixes, arcane term glossary (Arcanum, Codex, Sigil, Veil, etc.). This is reference material for kit authors.
