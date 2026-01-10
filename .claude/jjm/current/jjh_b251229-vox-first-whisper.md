@@ -371,6 +371,9 @@ Runtime:     Target Claude executes emitted instructions
 
 ### Foundation
 
+- **Establish subcommand naming convention**
+  References to "jj subcommand", "guard subcommand" need acronym-consistent naming. BLOCKED: Requires acronym convention document (user to provide). Once available, revise all paddock/pace references to use consistent pattern (e.g., if convention is `vok-jj` vs `vok jj` vs `jje`). This affects: VOK Rust Architecture section, CGK Guard section, Deferred paces.
+
 - **Write veiled VOK README**
   Create `Tools/vok/veiled/README.md` (lives in veiled/, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention, (4) VOK Rust architecture with path deps, (5) Full vok subcommand API reference (for kit authors writing arcanums), (6) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
 
