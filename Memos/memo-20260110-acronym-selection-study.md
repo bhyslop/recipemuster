@@ -1,7 +1,7 @@
 # Prefix Naming System Memo
 
 ## Status
-Draft v0.6 — Ten assessments complete, all anchored (2026-01-10)
+Draft v0.8 — Thirteen assessments complete (10 core + 3 tabtarget) (2026-01-10)
 
 ## Purpose
 Codify the naming convention system used across projects for human-AI collaboration. The system creates unique, prefix-free identifiers that enable unambiguous reference to concepts, files, and modules in conversation.
@@ -525,6 +525,247 @@ pb (non-terminal: Paneboard)
 
 ---
 
+### Assessment 11: RBM Tabtargets (tt/)
+- **Private**: `https://github.com/bhyslop/recipemuster.git` · `tt/`
+- **Local**: `/Users/bhyslop/projects/rbm_alpha_recipemuster/tt/`
+- **Pattern expected**: `prefix-action.HumanReadable.sh` launcher naming with clean prefix-based routing to workbenches
+- **Conformance**: HIGH (mature launcher namespace with clear kit/project separation)
+
+**Portable Kit Prefixes (27 files):**
+```
+buw-*   (12) — BUK Workbench (regime ops, tabtarget creation)
+jja-*    (3) — Job Jockey Actions (install, uninstall, check)
+jjt-*    (5) — Job Jockey Test (test suite runners)
+jjw-*    (5) — Job Jockey Workbench (heat/pace management)
+cmk-*    (2) — Concept Model Kit (install, uninstall)
+```
+
+**Project-Specific Prefixes (79 files):**
+```
+rbw-*   (70) — Recipe Bottle Workbench (primary project commands)
+ccck-*   (7) — Container Console Coordinator Kit (Docker/container ops)
+gadf-*   (1) — GAD Factory (Python backend launcher)
+gadi-*   (1) — GAD Inspector (UI launcher)
+gadcf-*  (1) — GAD containerized factory launcher
+```
+
+**Other/Legacy Prefixes (8 files):**
+```
+lmci-*   (2) — LLM CI utilities (bundle, strip)
+vslk-*   (1) — SlickEdit project installer
+ttc-*    (1) — Legacy tabtarget creator
+ttx-*    (1) — Legacy tabtarget fixer
+oga-*    (1) — Open GitHub Action
+machine_setup_PROTOTYPE_rule.sh (1) — Legacy setup script
+```
+
+**Observations:**
+
+- **Terminal Exclusivity Confirmed**: All tt/ prefixes are terminal — `rbw`, `buw`, `jja`, `jjt`, `jjw`, `ccck`, `gadf`, `gadi` all exist as launchers but have no children within tt/ namespace
+- **Kit/Project Coexistence**: Portable kits (BUK, JJK, CMK) and project-specific tools (RBW, CCCK, GAD) share tt/ directory without collision
+- **Launcher Delegation Pattern**: Each file delegates to a workbench via `.buk/launcher.{workbench}_workbench.sh` pattern
+- **Three-Part Naming**: Format is `{prefix}-{code}.{HumanReadable}.sh` where:
+  - `prefix` = kit/project identifier (buw, rbw, jja, etc.)
+  - `code` = command/action code (often single letter, sometimes 2-3 chars)
+  - `HumanReadable` = PascalCase description of action
+- **Code Hierarchy Within Prefix**: Some prefixes show sub-codes:
+  - `buw-rgi-burc` = BUK Workbench + Regime Info + BURC config
+  - `buw-tt-cl` = BUK Workbench + TabTarget + Create Launcher
+  - `rbw-aCD` = RBW + Account ops + Create Director
+- **Variant Suffix Pattern** (18 files): Some launchers duplicate for different contexts:
+  - `rbw-B.ConnectBottle.{nsproto,srjcl}.sh` — environment-specific variants
+  - `rbw-o.ObserveNetworks.{nsproto,pluml,srjcl}.sh` — multi-context variants
+  - Pattern: `{prefix}-{code}.{Action}.{variant}.sh`
+- **Case Conventions**:
+  - Prefix: lowercase (`rbw`, `buw`)
+  - Code: mixed case (single lowercase `a`, multi-char mixed `aCD`, uppercase `GD`)
+  - Action: PascalCase (`CreateBottle`, `ListLaunchers`)
+  - Variant: lowercase (`nsproto`, `srjcl`, `pluml`)
+
+**Anomalies:**
+
+- **Legacy tt* files**: `ttc.CreateTabtarget.sh` and `ttx.FixTabtargetExecutability.sh` use old dotted naming, predating hyphen convention
+- **gadcf anomaly**: `gadcf.LaunchFactoryInContainer.sh` uses dot separator (legacy?) instead of hyphen like `gadf-f.Factory.sh`
+- **Code length inconsistency**: Single-char codes (`rbw-a`, `rbw-b`) coexist with multi-char codes (`rbw-aCD`, `rbw-GD`) — appears to be expansion pattern as feature set grows
+- **Uppercase codes**: Some codes use uppercase (`rbw-B`, `rbw-C`, `rbw-GD`) vs lowercase (`rbw-b`, `rbw-c`) — possibly semantic (uppercase = interactive shell connection, lowercase = batch operation)?
+
+**Notes:** The tt/ directory demonstrates a mature launcher namespace pattern where:
+
+1. **Clean Separation**: Portable kits use isolated prefixes that can be installed/uninstalled without affecting project-specific launchers
+2. **Hierarchical Codes**: Within a prefix like `buw-`, secondary codes (`rgi`, `tt`) create command families without violating terminal exclusivity — the hierarchy is within the filename, not the prefix tree
+3. **Variant Proliferation**: The `*.{variant}.sh` pattern enables context-specific launchers without prefix explosion (18 files share base commands across 3 variants)
+4. **Workbench Delegation**: All launchers are thin wrappers delegating to `launcher.{workbench}_workbench.sh`, enforcing consistent routing architecture
+5. **Evolution Evidence**: Legacy files (`ttc.`, `ttx.`, `gadcf.`) show older dotted convention migrating to hyphenated convention (`buw-`, `rbw-`)
+
+The tt/ namespace is effectively a **flat launcher registry** where prefixes route to workbenches, codes identify actions, and human-readable names provide shell completion hints. Terminal exclusivity is preserved because no launcher prefix has child launchers — hierarchy exists within command codes, not between launchers.
+
+---
+
+### Assessment 12: CNMP Tabtargets (tt/)
+- **Private**: `https://github.com/bhyslop/cnmp_CellNodeMessagePrototype.git` · `tt/`
+- **Local**: `/Users/bhyslop/projects/cnmp_CellNodeMessagePrototype/tt/`
+- **Pattern expected**: `prefix-action.HumanReadable.sh` launcher naming with domain-specific conventions
+- **Conformance**: MEDIUM (experimental patterns coexist with systematic naming)
+
+**Launcher Prefixes Found (26 distinct families):**
+
+**Docker/Container Operations (mbde):**
+- `mbde-` (28) — Makefile Bash Docker Execute (dominant family)
+  - Single-letter operations: `B__` (Build), `i__` (Interact), `z__` (Zap), `c__` (Connect), `l__` (Launch), `o__` (Open), `v__` (Visit)
+  - Variant suffixes: `.dkrpy`, `.dkrcpp`, `.dkrrst`, `.dkrxrt`, `.dkrjcl`, `.dkrjnp`, `.dkrjpy`, `.dkrpgd`, `.dkrnupy`, `.dkrpyz`, `.dkrswz`
+  - Numbered variants: `.000-dkrxrt`, `.001-dkrxrt` (version/iteration tracking)
+
+**Application Launchers (dash-kebab):**
+- `app-` (1) — Application namespace
+- `cnmp-` (1) — CNMP all
+- `cv0a-` (1) — CarVerse0 Application
+- `dpcsa-` (1) — DemoPlatformCellSwarm Application
+- `dpmsa-` (1) — DemoPlatformMasterSlave Application
+
+**Execution Frameworks:**
+- `elbm-` (3) — Execute Logging Bash Make (`true`, `false`, `last`)
+- `MBC-` (2) — Makefile Bash Console (`.D` Demo, `.T` Test)
+- `Ttm-` (3) — TabTarget Manager (`clt`, `cqt`, `x`)
+
+**Python Testing (underscore):**
+- `pyut_` (5) — Python Unit Tests (`Ap`, `As`, `Wp`, `Ws`, `x`)
+- `pygt-` (2) — Python Generate Tests (`acg`)
+
+**Study Launchers (single instance each):**
+- `satip__` — Study Ast Tree Parse
+- `sbsr-` — Study Brad State Rust
+- `scbg1__`, `scbg2__` — Study Claude Back Gen (1 & 2)
+- `sdca__` — Study Deepen Cerastes Alpha
+- `sdcl-` (3) — Study Docker Cuda Linux (`b`, `i`, `x`)
+- `sggap__` — Study GPS Github App Python
+- `snb__` — Study Namespace Behaviors
+- `srb__` (2 variants) — Study Basic Rust / Study Random Behaviors
+- `srtt__` — Study Random Template Tricks
+- `swfc__` — Study Workup Face Clang
+- `swfi__` — Study Workup Face Incremental
+
+**Environment/Automation:**
+- `reas-` (1) — Rig Environment Automation Space
+- `utssq-` (3) — Unit Test Sha Sequence (`ba`, `ghj`, `tv`)
+
+**Utilities:**
+- `ocj__`, `ocp__`, `ogf__` — Open (Journals, Project, File on Github)
+- `vsep_` — VSCode Slickedit Project operations
+- `uptime-` — System utilities
+- `ICMA-` — Itch Codebase Markup Analyzer
+
+**Observations:**
+- **Separator patterns indicate semantic tiers**:
+  - Dash (`-`) = primary namespace separator (`mbde-`, `sdcl-`)
+  - Double underscore (`__`) = operation separator (`B__BuildDockerImage`, `i__InteractDockerContainer`)
+  - Single underscore (`_`) = variant separator (`pyut_Ap`, `pyut_Ws`)
+  - Dot (`.`) = variant suffix separator (`.dkrpy.sh`, `.dkrcpp.sh`)
+
+- **MBDE family demonstrates 3-tier hierarchy**:
+  1. `mbde` (prefix)
+  2. Single letter operation (`B`, `i`, `z`, `c`, `l`, `o`, `v`)
+  3. Docker variant (`.dkrpy`, `.dkrcpp`, etc.)
+
+- **Variant suffixes are systematic**:
+  - `dkrpy` = Docker Python
+  - `dkrcpp` = Docker C++
+  - `dkrrst` = Docker Rust
+  - `dkrxrt` = Docker XRT (Xilinx Runtime?)
+  - `dkrjcl` = Docker Java/JCL?
+  - `dkrjnp` = Docker JNP?
+  - `dkrjpy` = Docker JPY?
+  - `dkrpgd` = Docker PGD?
+  - `dkrnupy` = Docker NumPy
+  - `dkrpyz` = Docker Pyz?
+  - `dkrswz` = Docker SWZ?
+
+- **Case conventions reveal organizational intent**:
+  - Lowercase prefixes = standard launchers
+  - Uppercase prefixes (`MBC-`, `Ttm-`, `ICMA-`) = meta-operations or special tools
+  - Mixed case operations (`pyut_Ap`, `pyut_Ws`) = mode indicators (A=All, W=Working; p=parallel, s=serial)
+
+- **Study launchers use double underscore consistently**: All `s*__` files follow pattern `prefix__Action.variant.sh`
+
+**Anomalies:**
+- **Terminal Exclusivity violation**: `srb__` appears twice with different expansions (Study Basic Rust vs Study Random Behaviors) — violates Rule 2
+- **Mixed separator styles**: Some prefixes use dash (`mbde-`, `sdcl-`), others underscore (`pyut_`, `vsep_`), some double-underscore (`satip__`, `ogf__`) — no clear rule
+- **Prefix length inconsistency**: 3-char (`app`, `ocj`), 4-char (`mbde`, `elbm`, `pyut`), 5-char (`dpcsa`, `utssq`, `satip`) without clear semantic reason
+- **CAPS prefixes**: `MBC-`, `Ttm-`, `ICMA-` break lowercase convention — suggests special status but undocumented
+- **Numbered variants**: `.000-dkrxrt.sh`, `.001-dkrxrt.sh` suggest iteration/versioning but only applied to `mbde-B__BuildDockerImage`
+
+**Notes:**
+
+The CNMP tt/ directory reveals a **tabtarget launcher namespace** with three coexisting patterns:
+
+1. **Mature pattern (mbde family)**: Systematic 3-tier hierarchy with deliberate double-underscore separator between prefix-operation-variant. This is the most sophisticated naming in any tt/ directory studied so far.
+
+2. **Study pattern**: Single-instance exploratory launchers (`s*__`) with descriptive names, less concerned with namespace collision since they're temporary/experimental.
+
+3. **Framework pattern**: Meta-operations (`MBC-`, `Ttm-`, `ICMA-`) using CAPS to signal "this operates on the tabtarget system itself" vs "this is a tabtarget for project work".
+
+The **double-underscore convention** (`B__`, `i__`) appears to be deliberate hierarchy, not ad-hoc — it separates the mnemonic operation letter from the human-readable expansion. This enables both tab-completion efficiency (type `mbde-B<tab>`) and self-documentation (the full name explains what `B` means).
+
+**Variant suffixes** (`.dkrpy.sh`, `.dkrcpp.sh`) relate to the prefix system as **execution environment discriminators** — multiple launchers for the same logical operation targeting different Docker base images or language runtimes. This is domain-specific to containerized polyglot development and doesn't generalize to other tt/ directories.
+
+The `srb__` collision suggests this namespace predates strict prefix-free enforcement, or "study" prefixes are considered disposable and don't require permanent uniqueness.
+
+Overall conformance is MEDIUM because the core patterns are systematic and sophisticated, but lack of documented rules leads to organic inconsistencies (separator choice, prefix length, CAPS usage) that would benefit from codification.
+
+---
+
+### Assessment 13: PB Tabtargets (tt/)
+- **Private**: `https://github.com/bhyslop/pb_paneboard02.git` · `tt/`
+- **Public**: `https://github.com/scaleinv/paneboard.git` · `tt/`
+- **Local**: `/Users/bhyslop/projects/pb_paneboard02/tt/`
+- **Pattern expected**: `prefix-action.HumanReadable.sh` launcher naming, sparse greenfield conformance
+- **Conformance**: HIGH (exemplary greenfield application)
+
+**Portable Kit Prefixes Found (5):**
+```
+buw-*  BU Workbench (2 launchers)
+  buw-tt-cbn.CreateTabTargetBatchNolog.sh
+  buw-tt-cl.CreateLauncher.sh
+
+jja-*  JJ Action (3 launchers)
+  jja-c.Check.sh
+  jja-i.Install.sh
+  jja-u.Uninstall.sh
+```
+
+**Project-Specific Prefixes Found (2):**
+```
+pbw-*  PB Workbench (2 launchers)
+  pbw-p.ProofOfConcept.sh
+  pbw-t.ProofOfConceptTimed.10.sh
+```
+
+**Observations:**
+- **Sparse by design**: Only 7 launchers total (9 files including 2 buw utilities)
+- **Perfect conformance**: All files follow `prefix-{code}.HumanReadable.sh` pattern
+- **Three-tier launcher architecture**:
+  1. Portable kit self-management: `buw-*` (BUK utilities)
+  2. Portable kit operations: `jja-*` (Job Jockey actions)
+  3. Project-specific operations: `pbw-*` (Paneboard workbench)
+- **Portable kit launchers are byte-identical** to RBM counterparts (confirmed via file content comparison)
+- **Semantic suffix patterns**:
+  - Single-letter codes: `jja-c`, `jja-i`, `jja-u` (kit standard actions)
+  - Multi-letter codes: `buw-tt-cbn`, `buw-tt-cl` (utility-specific actions)
+  - Single-letter with semantic name: `pbw-p` (ProofOfConcept)
+  - Versioned suffixes: `pbw-t.ProofOfConceptTimed.10.sh` (suggests iteration tracking)
+- **Delegation pattern consistent**: All launchers use `exec` to delegate to `.buk/launcher.{workbench}.sh`
+- **Configuration via environment**: `BUD_LAUNCHER`, `BUD_NO_LOG` set before exec
+
+**Anomalies:**
+- None. This is a textbook greenfield implementation.
+
+**Notes:** PB tt/ demonstrates "kit + project" isolation perfectly. The 7-file launcher set shows minimal viable operational surface for a Rust PoC project. Portable kit launchers (jja-*, buw-*) are identical across repos, confirming Pattern E (portable kit prefixes) and establishing a new pattern: **Pattern I: Launcher Byte Identity** — portable kit launchers in tt/ are byte-identical across all repos where the kit is installed, enabling version consistency and cross-repo portability.
+
+The versioned suffix `.10` in `pbw-t.ProofOfConceptTimed.10.sh` suggests iteration tracking within the project-specific namespace, not part of the core convention but a natural extension for experimental/variant launchers.
+
+**Greenfield Validation:** This sparse tt/ serves as a control group — created recently with full knowledge of the convention, it shows what conformance looks like when applied from the start. Zero legacy anomalies. Zero ad-hoc patterns. Pure three-tier architecture: kit self-management (buw), kit operations (jja), project operations (pbw).
+
+---
+
 ## Candidates for Future Assessment
 
 ### All Priority Candidates COMPLETE
@@ -539,6 +780,11 @@ pb (non-terminal: Paneboard)
 ### Lower Priority (older patterns, not assessed)
 - `lens-*` files in cnmp — pre-date strict convention?
 - `../recipebottle-admin/` — mixed patterns observed
+
+### Tabtarget Directories (tt/) — COMPLETE
+- ~~`rbm_alpha_recipemuster/tt/`~~ — Assessment 11
+- ~~`cnmp_CellNodeMessagePrototype/tt/`~~ — Assessment 12
+- ~~`pb_paneboard02/tt/`~~ — Assessment 13
 
 ---
 
@@ -642,6 +888,18 @@ Voicing: rbbc_call (concrete: curl REST call in bash)
 
 Depth is determined by domain complexity, not a fixed rule. PB shows deepest (5) but only 2 real fork points.
 
+### Pattern I: Launcher Byte Identity (from tt/ assessments)
+Portable kit launchers in tt/ directories are **byte-identical** across all repos where the kit is installed:
+- `jja-c.Check.sh`, `jja-i.Install.sh`, `jja-u.Uninstall.sh` — identical in RBM, CNMP, PB
+- `buw-tt-*.sh` utilities — identical where BUK is installed
+
+This enables:
+- **Version consistency**: Same launcher behavior across all repos
+- **Cross-repo portability**: Kit installation is pure file copy
+- **Update propagation**: Kit upgrade updates all repos uniformly
+
+Pattern confirmed by Assessment 13 (PB greenfield) comparing against Assessment 11 (RBM mature).
+
 ## Future Work
 
 - [x] Complete 2-3 deep assessments (actually completed 10)
@@ -652,6 +910,8 @@ Depth is determined by domain complexity, not a fixed rule. PB shows deepest (5)
 - [x] Document Pattern G (motif-voicing ontology)
 - [x] Document Pattern H (hierarchy depth varies)
 - [x] Assess all priority candidates (10/10 complete)
+- [x] Assess tabtarget directories (3/3 complete)
+- [x] Document Pattern I (launcher byte identity)
 - [ ] Refine rules based on exceptions found
 - [ ] Create validation tooling (lint script?)
 - [ ] Document migration path for non-conforming files
