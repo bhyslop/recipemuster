@@ -511,13 +511,11 @@ Runtime:     Target Claude executes emitted instructions
 - **Implement vvr guard subcommand** — vorg_guard.rs parses git diff-index, calculates blob sizes, returns exit codes 0/1/2
 - **Create VVK testbench** — 15-test testbench for lock, guard workflow, and vvr size validation
 - **Create JJK veiled/ Rust crate** — veiled/ with Cargo.toml, lib.rs placeholder, moved ledger
+- **Create Prepare Release script** — BCG-compliant vop_prepare_release.sh, tabtarget, first darwin-arm64 binary
 
 ## Remaining
 
 ### Release & Install
-
-- **Create Prepare Release script**
-  `Tools/vok/vop_prepare_release.sh`: Build vvr binary for current platform (`cargo build --release`), run tests, copy to `Tools/vok/release/«platform»/vvr`. Compute hash, record in `vol_ledger.json`. Tabtarget: `tt/vok-R.GenerateRelease.sh`. Note: dev workflow copies to `vvk/bin/` for local testing (gitignored); release copies to `vok/release/` (tracked).
 
 - **Implement two-repo arcanum install**
   Rewrite `voa_arcanum.sh` for VVK model. Takes target path as argument. Steps:

@@ -93,3 +93,18 @@
 ### 2026-01-11 18:45 - design-crcg - DEFERRED
 **Reason**: Only one Rust utility exists (guard). Patterns should emerge from practice before codifying. Moved to Deferred section - revisit when we have more Rust utilities and clearer patterns.
 ---
+
+---
+### 2026-01-11 18:50 - create-prepare-release-script - APPROACH
+**Proposed approach**:
+- Create `Tools/vok/vop_prepare_release.sh` following BCG patterns
+- Detect current platform, build release, run tests
+- Copy binary to `Tools/vok/release/«platform»/vvr`
+- Compute SHA256, update vol_ledger.json
+- Create tabtarget `tt/vok-R.GenerateRelease.sh`
+---
+
+---
+### 2026-01-11 19:08 - create-prepare-release-script - WRAP
+**Outcome**: BCG-compliant vop_prepare_release.sh with kindle/sentinel, first darwin-arm64 binary, ledger updated
+---
