@@ -1400,6 +1400,123 @@ Complete the bash migration by implementing podman VM machinery, making the arch
 
 Deferred from dockerize-bashize-proto-bottle heat (jjh_b251229), completed 2025-12-31. Docker runtime fully validated; podman runtime is natural next step to complete the architecture vision.
 
+## vvr-mint-analyzer
+Prefix inventory and validation for the mint naming discipline — any persistent identifier anywhere.
+
+### Motivation
+
+The mint naming discipline (CLAUDE.md "Prefix Naming Discipline") enforces terminal exclusivity and prefix registration. Currently, violations are discovered manually during code review. A deterministic analyzer would:
+- Inventory all prefix usage across **all namespaces** (code, git refs, slash commands, etc.)
+- Detect terminal exclusivity violations (`rbg` used as both name AND parent)
+- Find orphan prefixes (used but not registered)
+- Identify stale registry entries (registered but unused)
+- Validate kit suffix conventions (`*a_`=Arcanum, `*c-`=Command, etc.)
+
+### Architecture: vvr Subcommand
+
+```
+vvr mint scan [--config <path>]    → JSON inventory to stdout
+vvr mint check [--config <path>]   → exit 0 (clean) or 1 (violations found)
+vvr mint tree [--config <path>]    → prefix tree visualization
+```
+
+The analyzer is a pure filter: reads files, outputs structured data. No mutations.
+
+### What It Extracts
+
+| Source | Pattern | Example |
+|--------|---------|---------|
+| Filenames | `prefix_Word.ext` | `rbga_ArtifactRegistry.sh` |
+| Filenames | `ACRONYM-Words.ext` | `RBAGS-AdminGoogleSpec.adoc` |
+| Bash functions | `prefix_name()` | `buc_log_args()` |
+| Bash functions | `zprefix_name()` | `zbuc_color()` |
+| Variables | `PREFIX_NAME` | `BURC_PROJECT_ROOT` |
+| AsciiDoc attrs | `:prefix_term:` | `:rbw_depot:` |
+| AsciiDoc anchors | `[[prefix_term]]` | `[[rbw_depot]]` |
+| Directories | `Tools/prefix/` | `Tools/buk/` |
+| Git refs | `refs/{prefix}/...` | `refs/vvg/locks/*` |
+| Slash commands | `/{prefix}-{noun}` | `/vvc-commit` |
+| Command files | `.claude/commands/{cmd}.md` | `vvc-commit.md` |
+
+This is not exhaustive. The principle: **any persistent name anywhere is in scope**.
+
+### Exclusion Config
+
+Some paths contain historical/aspirational content outside the mint universe:
+
+```json
+{
+  "exclude": [
+    ".claude/jjm/retired/",
+    ".claude/jjm/jjz_scar.md"
+  ],
+  "warn_only": [
+    ".claude/jjm/jji_itch.md"
+  ],
+  "ignore_patterns": [
+    "*.silks"
+  ]
+}
+```
+
+**Exclusion rationale:**
+- **Trophies** (retired/) — frozen historical record
+- **Scars** (jjz_scar.md) — declined itches, lessons learned
+- **Itches** (jji_itch.md) — aspirational, may reference speculative names
+- **Silks** — human traction only, expiring, not in mint universe
+- **Favors** — generated IDs (₣Kb), not human-minted prefixes
+- **Git history** — not scanned (working tree only)
+
+### Output Format
+
+```json
+{
+  "tokens": [
+    {"token": "rbga", "file": "Tools/rbw/rbga_ArtifactRegistry.sh", "line": 1, "category": "filename"},
+    {"token": "buc_log_args", "file": "Tools/buk/buc_command.sh", "line": 47, "category": "function"}
+  ],
+  "prefix_tree": {
+    "rb": {"children": ["rbg", "rbi", "rbo", "rbw"], "terminal": false},
+    "rbg": {"children": ["rbga", "rbgb", "rbgc"], "terminal": false},
+    "rbga": {"children": [], "terminal": true}
+  },
+  "violations": [
+    {"type": "terminal_exclusivity", "prefix": "foo", "message": "foo is both a name and has children"}
+  ]
+}
+```
+
+### Validation Categories
+
+| Check | Description |
+|-------|-------------|
+| Terminal exclusivity | Prefix used as both name AND parent |
+| Orphan prefix | Used but not registered in project registry |
+| Stale registry | Registered but unused in codebase |
+| Kit suffix violation | Kit prefix (`vo*`, `vv*`, `jj*`, `cg*`) uses wrong reserved suffix |
+
+**Domain-aware validation:** Kit suffix rules (`*a_`=Arcanum, `*c-`=Command, `*w_`=Workbench, etc.) apply only to kit infrastructure prefixes. AsciiDoc concept attributes (`:prefix_term:`) follow MCM semantic categories, not kit suffixes. The analyzer must know which domain a prefix belongs to.
+
+### Implementation Notes
+
+- Pure Rust, minimal deps (regex, serde_json, clap)
+- Pattern matching via regex, not full parser (sufficient for mint patterns)
+- Config file optional — sensible defaults for JJ paths
+- Integrates with VOK as `vvx mint` subcommand (invokes `vvr mint`)
+
+### Success Criteria
+
+- Correctly inventories this repo's mint universe
+- Detects intentionally introduced violations in test fixtures
+- Exclusion config respected (trophies don't trigger violations)
+- Output parseable by both humans and tooling
+
+### Context
+
+Identified 2026-01-11 during Project Prefix Registry update. As codebase grows, manual mint discipline enforcement becomes error-prone.
+
+**Refined 2026-01-11** after VV naming scrub session revealed that mint scope extends beyond "code" to git refs, slash commands, command files, target repo paths, and other persistent identifiers. Added extended namespace extraction, validation categories, and domain-aware suffix checking.
+
 ## jjr-studbook-core
 Replace jq-based studbook operations with a pure Rust CLI filter.
 

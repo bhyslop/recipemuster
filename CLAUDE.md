@@ -150,7 +150,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 
 ### Two Universes
 
-**Primary Universe** — code, docs, functions, variables, attributes, anchors, directories. Prefixes must be globally unique and respect terminal exclusivity.
+**Primary Universe** — ANY persistent identifier, regardless of where it lives. This includes the obvious (code, docs, functions, variables, directories) AND the easy-to-miss: git refs, slash commands, environment variables, paths in target repos, configuration keys. **If it's a name that persists, it's in scope.** Prefixes must be globally unique and respect terminal exclusivity.
 
 **Tabtarget Universe** — launchers in `tt/`. These are *colophons* referencing the primary universe. `rbw-` points to the `rbw` workbench; it doesn't consume new prefix space.
 
@@ -182,9 +182,45 @@ Tabtargets follow: `{colophon}.{frontispiece}[.{imprint}].sh`
 
 Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** below for terminology (colophon, frontispiece, imprint, formulary).
 
+### Extended Namespace Checklist
+
+When minting, enumerate ALL namespaces the system touches:
+
+| Namespace | Pattern | Example |
+|-----------|---------|---------|
+| Git refs | `refs/{prefix}/...` | `refs/vvg/locks/*` |
+| Slash commands | `/{prefix}-{noun}` | `/vvc-commit` |
+| Command files | `.claude/commands/{cmd}.md` | `vvc-commit.md` |
+| Environment vars | `{PREFIX}_NAME` | `VVG_SIZE_LIMIT` |
+| Target repo paths | `Tools/{kit}/...` | `Tools/vvk/bin/vvx` |
+
+This is not exhaustive. The principle: **any persistent name anywhere is in the mint universe.**
+
+### Kit Infrastructure Suffixes
+
+**Scoped to kit development** (VOK, VVK, JJK, CGK, etc.) — not universal:
+
+| Suffix | Type | Suffix | Type |
+|--------|------|--------|------|
+| `*a_` | Arcanum | `*k` | Kit directory |
+| `*b_` | suBagent | `*l_` | Ledger |
+| `*c-` | slash Command | `*r` | Rust binary |
+| `*g_` | Git utilities | `*t_` | Testbench |
+| `*h_` | Hook | `*w_` | Workbench |
+
+Within kit prefixes, these constrain the tree. If `*c_` means Command, don't use `vvc_` for "Commit".
+
+**Other domains have their own conventions:**
+- AsciiDoc concept attributes (`:prefix_term:`) follow MCM semantic categories
+- Domain-specific suffixes may evolve per project
+
 ### Minting Workflow
 
-Before minting new prefixes, verify against existing trees via search or the memo to preserve terminal exclusivity.
+Before minting new prefixes:
+1. **Enumerate namespaces** — list every place this name will appear (code, refs, commands, env vars, target paths...)
+2. **Check reserved suffixes** — ensure the suffix matches intended type
+3. **Verify terminal exclusivity** — search existing trees, check the memo
+4. **Document the allocation** — add to prefix map in relevant heat/spec
 
 ### Project Prefix Registry
 
