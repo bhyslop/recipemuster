@@ -395,7 +395,8 @@ tt/vok-R.GenerateRelease.sh
 ```bash
 cd ~/kit-forge
 ./Tools/jjk/jja_arcanum.sh jja-i ~/my-app
-  → copy Tools/vvk/ to ~/my-app/Tools/vvk/
+  → copy Tools/vvk/ to ~/my-app/Tools/vvk/ (wrapper + utilities)
+  → copy Tools/vok/release/*/vvr to ~/my-app/Tools/vvk/bin/vvr-* (binaries)
   → emit slash commands to ~/my-app/.claude/commands/
   → patch ~/my-app/CLAUDE.md
   → record in ~/my-app/.claude/kit_manifest.json
@@ -497,19 +498,11 @@ Runtime:     Target Claude executes emitted instructions
 
 ## Done
 
+- **Bootstrap VOK+VVK** — Created VOK crate, VVK wrapper, release dirs, gitignore for dev/release separation
+
 ## Remaining
 
 ### Foundation
-
-- **Bootstrap VOK+VVK (minimal working system)**
-  Prove end-to-end integration before adding features:
-  1. Create `Tools/vok/` skeleton with minimal Cargo.toml, src/main.rs that prints version
-  2. Create `Tools/vvk/bin/vvx` wrapper script
-  3. `cargo build --release` in Tools/vok/, copy binary to `Tools/vvk/bin/vvr-{platform}`
-  4. Verify: `Tools/vvk/bin/vvx --version` prints `vvr 0.0.1`
-  5. Copy `Tools/vvk/` to temp directory, verify it still works (simulates target install)
-
-  Success: wrapper dispatches to binary in both source and "installed" locations.
 
 - **Write VOK README**
   Create `Tools/vok/README.md` (VOK is inherently veiled, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention (for other kits), (4) Voce Viva concept (VOK → VVK → vvx/vvr), (5) VOK Rust architecture with path deps, (6) Full vvx/vvr subcommand API reference (for kit authors writing arcanums), (7) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
@@ -528,6 +521,12 @@ Runtime:     Target Claude executes emitted instructions
       main.rs                   # multicall dispatch
       guard.rs                  # core: pre-commit size validation
       core.rs                   # shared infrastructure
+    release/                    # tracked release binaries (arcanum source)
+      darwin-arm64/vvr
+      darwin-x86_64/vvr
+      linux-x86_64/vvr
+      linux-aarch64/vvr
+      windows-x86_64/vvr.exe
     vol_ledger.json             # release record (empty)
     README.md                   # full internal docs
   ```
@@ -617,16 +616,17 @@ Runtime:     Target Claude executes emitted instructions
 ### Release & Install
 
 - **Create Prepare Release script**
-  `Tools/vok/vop_prepare_release.sh`: Build vvr binary for current platform (`cargo build --release`), run tests, copy to `Tools/vok/release/«platform»/vvr`, then copy to `Tools/vvk/bin/vvr-«platform»` (wrapper `vvx` is already checked in). Compute hash, record in `vol_ledger.json`. Tabtarget: `tt/vok-R.GenerateRelease.sh`.
+  `Tools/vok/vop_prepare_release.sh`: Build vvr binary for current platform (`cargo build --release`), run tests, copy to `Tools/vok/release/«platform»/vvr`. Compute hash, record in `vol_ledger.json`. Tabtarget: `tt/vok-R.GenerateRelease.sh`. Note: dev workflow copies to `vvk/bin/` for local testing (gitignored); release copies to `vok/release/` (tracked).
 
 - **Implement two-repo arcanum install**
   Rewrite `voa_arcanum.sh` for VVK model. Takes target path as argument. Steps:
   1. Delete `<target>/Tools/vvk/` if exists
-  2. Copy `Tools/vvk/` from source → `<target>/Tools/vvk/`
-  3. Emit slash commands to `<target>/.claude/commands/`
-  4. Patch `<target>/CLAUDE.md` with VVK configuration
-  5. Record in `<target>/.claude/kit_manifest.json`
-  Fails if VVK binaries missing (run release first).
+  2. Copy `Tools/vvk/` from source → `<target>/Tools/vvk/` (wrapper + utilities, no binaries)
+  3. Copy `Tools/vok/release/*/vvr` → `<target>/Tools/vvk/bin/vvr-*` (release binaries)
+  4. Emit slash commands to `<target>/.claude/commands/`
+  5. Patch `<target>/CLAUDE.md` with VVK configuration
+  6. Record in `<target>/.claude/kit_manifest.json`
+  Fails if release binaries missing in `Tools/vok/release/` (run release first).
 
 - **Implement prep-pr flow**
   Script that: reads which kits are upstream-safe, builds minimal vvr (features for upstream kits only), records release, applies veil (`--exclude='*/veiled/'`), prepares PR branch. Move veil config from CMK.
