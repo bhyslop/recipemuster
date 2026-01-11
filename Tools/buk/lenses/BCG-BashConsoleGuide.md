@@ -23,7 +23,7 @@ The patterns reject bash 4+ features to maintain compatibility with older enterp
 Every module has an implementation file. CLI entry points are only present if module requires standalone execution.
 
 ```bash
-«prefix»_«TitleCase».sh (implementation - REQUIRED)
+«prefix»_«name».sh (implementation - REQUIRED, prefer single lowercase word, allow snake_case)
 «prefix»_cli.sh (executable entry point - OPTIONAL, omit for library/utility modules)
 ```
 
@@ -132,7 +132,7 @@ Z«PREFIX»_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source all dependencies
 source "${Z«PREFIX»_CLI_SCRIPT_DIR}/buc_command.sh"
 source "${Z«PREFIX»_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${Z«PREFIX»_CLI_SCRIPT_DIR}/«prefix»_«TitleCase».sh"
+source "${Z«PREFIX»_CLI_SCRIPT_DIR}/«prefix»_«name».sh"
 
 z«prefix»_furnish() {
   
@@ -428,7 +428,7 @@ fi
 | Element                      | Pattern                      | Example                      | Location | Name/ Case Constraints        |
 |------------------------------|------------------------------|------------------------------|----------|-------------------------------|
 | Module prefix                | `[a-z]{2,4}_`                | `rbv_`, `buc_`, `auth_`      | Both     | single char group             |
-| Implementation file          | `«prefix»_«Name».sh`         | `rbv_PodmanVM.sh`            | N/A      | TitleCase (compound)          |
+| Implementation file          | `«prefix»_«name».sh`         | `rbv_podman.sh`              | N/A      | lowercase (prefer 1 word, allow snake_case) |
 | CLI file                     | `«prefix»_cli.sh`            | `rbv_cli.sh`                 | N/A      | snake_case (fixed)            |
 | Public functions             | `«prefix»_«command»`         | `rbv_init`, `rbv_start`      | Impl     | snake_case (usually one word) |
 | Internal functions           | `z«prefix»_«name»`           | `zrbv_validate_pat`          | Impl     | snake_case (often multi word) |
@@ -649,7 +649,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 ## Module Maturity Checklist
 
 ### Module Structure
-- [ ] Implementation file «prefix»_«TitleCase».sh exists
+- [ ] Implementation file «prefix»_«name».sh exists
 - [ ] CLI file «prefix»_cli.sh exists (skip if library/utility module with no direct user commands)
 - [ ] Implementation has multiple inclusion detection guard (`Z«PREFIX»_SOURCED`)
 - [ ] CLI starts with `set -euo pipefail`
