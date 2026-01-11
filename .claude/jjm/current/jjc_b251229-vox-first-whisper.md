@@ -42,3 +42,17 @@
 ### 2026-01-11 09:20 - clarify-kit-facility-patterns - WRAP
 **Outcome**: Expanded Kit Facilities section (301→355 lines): types table, when to use each, combinations matrix, tool placement flowchart
 ---
+
+---
+### 2026-01-11 09:22 - create-vok-skeleton - APPROACH
+**Proposed approach**:
+- Create stub files: voa_arcanum.sh, build.rs, src/guard.rs, src/core.rs
+- Create empty vol_ledger.json
+- Update Cargo.toml to reference new modules
+- Keep implementations minimal (logic in later paces)
+---
+
+---
+### 2026-01-11 09:35 - create-vok-skeleton - WRAP
+**Outcome**: Added voa_arcanum.sh, build.rs, vol_ledger.json; renamed sources to vor* mint prefixes (vorm_main.rs, vorg_guard.rs, vorc_core.rs); updated README prefix table
+---

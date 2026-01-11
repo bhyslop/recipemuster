@@ -285,7 +285,7 @@ vvx guard [--limit <bytes>] [--warn <bytes>]
   Exit 2: over warn threshold (proceed with caution)
 ```
 
-**Subcommand:** `vvx guard` (invokes `vvr guard`, core VOK functionality in `Tools/vok/src/guard.rs`)
+**Subcommand:** `vvx guard` (invokes `vvr guard`, core VOK functionality in `Tools/vok/src/vorg_guard.rs`)
 
 ### CRCG - Claude Rust Coding Guide
 
@@ -322,9 +322,9 @@ Tools/vok/                    # ALL of this is veiled (never distributed)
   Cargo.lock                  # checked in
   build.rs                    # auto-detects kit veiled/ dirs
   src/
-    main.rs                   # multicall dispatch
-    guard.rs                  # core: pre-commit size validation
-    core.rs                   # shared infrastructure
+    vorm_main.rs              # multicall dispatch
+    vorg_guard.rs             # core: pre-commit size validation
+    vorc_core.rs              # shared infrastructure
   release/                    # built binaries per platform
     darwin-arm64/vvr
     linux-x86_64/vvr
@@ -501,31 +501,9 @@ Runtime:     Target Claude executes emitted instructions
 - **Bootstrap VOK+VVK** — Created VOK crate, VVK wrapper, release dirs, gitignore for dev/release separation
 - **Write VOK README** — 301-line kit-author reference: compilation model, two-repo install, veiled convention, Voce Viva, Rust architecture, API, glossary
 - **Clarify kit facility patterns** — Expanded Kit Facilities section: types table, when to use each, combinations matrix, tool placement flowchart
+- **Create VOK skeleton** — Added voa_arcanum.sh, build.rs, vorm_main.rs, vorg_guard.rs, vorc_core.rs, vol_ledger.json; applied vor* mint prefixes
 
 ## Remaining
-
-### Foundation
-
-- **Create VOK skeleton**
-  Create `Tools/vok/` (inherently veiled - no veiled/ subdirectory needed):
-  ```
-  Tools/vok/
-    voa_arcanum.sh              # two-repo install logic
-    Cargo.toml                  # vvr binary crate
-    build.rs                    # kit auto-detection
-    src/
-      main.rs                   # multicall dispatch
-      guard.rs                  # core: pre-commit size validation
-      core.rs                   # shared infrastructure
-    release/                    # tracked release binaries (arcanum source)
-      darwin-arm64/vvr
-      darwin-x86_64/vvr
-      linux-x86_64/vvr
-      linux-aarch64/vvr
-      windows-x86_64/vvr.exe
-    vol_ledger.json             # release record (empty)
-    README.md                   # full internal docs
-  ```
 
 ### VVK Infrastructure
 
@@ -598,10 +576,10 @@ Runtime:     Target Claude executes emitted instructions
 ### Rust Infrastructure
 
 - **Create VOK Rust crate (vvr)**
-  In `Tools/vok/`: Cargo.toml with `name = "vvr"` and path deps to kit veiled/ dirs. build.rs that detects `../«kit»/veiled/Cargo.toml` and enables features. src/main.rs with clap multicall dispatch. src/core.rs with shared platform/env utilities. No kit logic yet - just skeleton that compiles and produces `vvr` binary.
+  In `Tools/vok/`: Cargo.toml with `name = "vvr"` and path deps to kit veiled/ dirs. build.rs that detects `../«kit»/veiled/Cargo.toml` and enables features. src/vorm_main.rs with clap multicall dispatch. src/vorc_core.rs with shared platform/env utilities. No kit logic yet - just skeleton that compiles and produces `vvr` binary.
 
 - **Implement vvr guard subcommand**
-  Add guard logic to `Tools/vok/src/guard.rs`. Core VOK functionality, always available. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn). This enables the guarded commit facility in VVK.
+  Add guard logic to `Tools/vok/src/vorg_guard.rs`. Core VOK functionality, always available. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn). This enables the guarded commit facility in VVK.
 
 - **Create JJK veiled/ Rust crate**
   In `Tools/jjk/veiled/`: Cargo.toml as `[lib]` crate. src/lib.rs with placeholder exports. Move jjl_ledger.json here (rename from brand-based). This establishes the kit Rust co-location pattern.
