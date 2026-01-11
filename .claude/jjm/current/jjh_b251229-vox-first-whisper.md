@@ -506,64 +506,26 @@ Runtime:     Target Claude executes emitted instructions
 - **Create platform wrapper script** — Done in bootstrap (bin/vvx)
 - **Implement git locking utilities** — Done in VVK skeleton (vvg_git.sh with full implementation)
 - **Create VVK README** — Done in VVK skeleton (README.md)
+- **Implement guarded commit facility** — BCG module vvg_git.sh with vvg_guard_begin/end/force_unlock, vvg_cli.sh, /vvc-commit slash command. Lock bracket explicit in naming.
+- **Create VOK Rust crate (vvr)** — Cargo.toml, build.rs, vorm_main.rs multicall dispatch, vorc_core.rs platform utilities
+- **Implement vvr guard subcommand** — vorg_guard.rs parses git diff-index, calculates blob sizes, returns exit codes 0/1/2
 
 ## Remaining
 
 ### VVK Infrastructure
 
-- **Implement guarded commit facility**
-  Create guarded commit workflow with size validation and background processing.
+- **Create VVK testbench**
+  Create `Tools/vvk/vvt_testbench.sh` following BUK testbench patterns. Tests for:
+  - Lock operations: acquire, release, break, check, list
+  - Guard workflow: guard_begin stages files and acquires lock, guard_end releases
+  - Size validation: vvr guard exit codes (0/1/2) for under/over/warn thresholds
+  - Edge cases: nothing staged, lock already held, binary not found
 
-  **Race condition fix**: Stage files BEFORE dispatching background agent. This captures
-  the exact working tree state the user intended. Concurrent edits after staging don't
-  pollute the commit. The lock protects the staged snapshot, not the working tree.
-
-  **`vvg_guard()` function in `Tools/vvk/vvg_git.sh`** - Pre-commit guard:
-  - Acquire lock via `vvg_lock_acquire "commit"`
-  - Run `git add -u` to stage modified/deleted files (captures snapshot NOW)
-  - Run `vvx guard --limit ${VVG_SIZE_LIMIT:-500000}` on staged content
-  - On guard failure: unstage, release lock, return non-zero with message
-  - On success: return 0 (lock + staged snapshot ready for agent)
-
-  **Slash command `/vvc-commit <description>`:**
-  1. Source `vvg_git.sh`, run `vvg_guard` — non-zero stops, 0 proceeds (files now staged)
-  2. Spawn background sonnet agent (Task tool, run_in_background=true) with prompt:
-     - User's description
-     - Commit format template (from CLAUDE.md config)
-     - Git safety rules: no force push, no skip hooks, no secrets
-     - Steps: `git diff --cached --stat`, construct message, `git commit` (already staged!)
-     - Final step: `source Tools/vvk/vvg_git.sh && vvg_lock_release "commit"`
-     - Report: hash, files changed, remind user to push
-  3. Report "Commit dispatched" and return immediately
-
-  **Commit message format** (default, configured in CLAUDE.md):
-  ```
-  <description>
-
-  - <change 1>
-  - <change 2>
-
-  Co-Authored-By: Claude <noreply@anthropic.com>
-  ```
-
-  **Git safety rules** (embedded in agent prompt):
-  - Never update git config
-  - Never force push or skip hooks
-  - Never commit files matching secret patterns (.env, credentials.*, etc.)
-  - Never run `git add` (already staged by guard - prevents race condition)
-  - No auto-push (sandbox considerations), remind user to push
-
-  **VOK arcanum emits:**
-  - Slash command file: `.claude/commands/vvc-commit.md`
-  - CLAUDE.md section: commit format template, size limit (default 500KB)
+  Use temporary git repos for isolation. Each test creates a fresh repo, runs operations,
+  validates outcomes, cleans up. CLI entry point `vvt_cli.sh` with `buc_execute vvt_` dispatch.
+  Tabtarget: `tt/vvk-T.RunTests.sh`.
 
 ### Rust Infrastructure
-
-- **Create VOK Rust crate (vvr)**
-  In `Tools/vok/`: Cargo.toml with `name = "vvr"` and path deps to kit veiled/ dirs. build.rs that detects `../«kit»/veiled/Cargo.toml` and enables features. src/vorm_main.rs with clap multicall dispatch. src/vorc_core.rs with shared platform/env utilities. No kit logic yet - just skeleton that compiles and produces `vvr` binary.
-
-- **Implement vvr guard subcommand**
-  Add guard logic to `Tools/vok/src/vorg_guard.rs`. Core VOK functionality, always available. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn). This enables the guarded commit facility in VVK.
 
 - **Create JJK veiled/ Rust crate**
   In `Tools/jjk/veiled/`: Cargo.toml as `[lib]` crate. src/lib.rs with placeholder exports. Move jjl_ledger.json here (rename from brand-based). This establishes the kit Rust co-location pattern.
