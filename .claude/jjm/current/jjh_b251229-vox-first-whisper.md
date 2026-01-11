@@ -500,13 +500,11 @@ Runtime:     Target Claude executes emitted instructions
 
 - **Bootstrap VOK+VVK** — Created VOK crate, VVK wrapper, release dirs, gitignore for dev/release separation
 - **Write VOK README** — 301-line kit-author reference: compilation model, two-repo install, veiled convention, Voce Viva, Rust architecture, API, glossary
+- **Clarify kit facility patterns** — Expanded Kit Facilities section: types table, when to use each, combinations matrix, tool placement flowchart
 
 ## Remaining
 
 ### Foundation
-
-- **Clarify kit facility patterns**
-  Document when kits use arcanum vs workbench vs testbench. Can kits have multiple? Where does model differential tool belong (JJ workbench)? Output: Section in VOK README.
 
 - **Create VOK skeleton**
   Create `Tools/vok/` (inherently veiled - no veiled/ subdirectory needed):

@@ -28,3 +28,17 @@
 ### 2026-01-11 09:15 - write-vok-readme - WRAP
 **Outcome**: Created 301-line README covering compilation model, two-repo install, veiled convention, Voce Viva, Rust architecture, API, glossary
 ---
+
+---
+### 2026-01-11 09:16 - clarify-kit-facility-patterns - APPROACH
+**Proposed approach**:
+- Expand existing "Kit Facilities" section in VOK README
+- Add decision matrix: when to use each facility type
+- Clarify that kits can have multiple facilities
+- Document model differential tool placement (JJ workbench)
+---
+
+---
+### 2026-01-11 09:20 - clarify-kit-facility-patterns - WRAP
+**Outcome**: Expanded Kit Facilities section (301→355 lines): types table, when to use each, combinations matrix, tool placement flowchart
+---
