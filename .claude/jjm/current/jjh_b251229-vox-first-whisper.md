@@ -502,21 +502,11 @@ Runtime:     Target Claude executes emitted instructions
 - **Write VOK README** — 301-line kit-author reference: compilation model, two-repo install, veiled convention, Voce Viva, Rust architecture, API, glossary
 - **Clarify kit facility patterns** — Expanded Kit Facilities section: types table, when to use each, combinations matrix, tool placement flowchart
 - **Create VOK skeleton** — Added voa_arcanum.sh, build.rs, vorm_main.rs, vorg_guard.rs, vorc_core.rs, vol_ledger.json; applied vor* mint prefixes
+- **Create VVK skeleton** — Added vvg_git.sh (locking functions) and README.md; bin/vvx from bootstrap
 
 ## Remaining
 
 ### VVK Infrastructure
-
-- **Create VVK skeleton**
-  Create `Tools/vvk/` directory structure:
-  ```
-  Tools/vvk/
-    vvg_git.sh                  # Git utilities (locking, guard) - stub
-    bin/
-      vvx                       # Platform-selecting wrapper (checked in)
-    README.md                   # VVK documentation
-  ```
-  The `bin/vvr-*` binaries will be populated by VOK release.
 
 - **Create platform wrapper script**
   Create `Tools/vvk/bin/vvx` - the platform-detecting wrapper that execs correct `vvr-{platform}` binary. Handle Darwin-arm64, Darwin-x86_64, Linux-x86_64, Linux-aarch64, Windows (MINGW/MSYS). Checked into git. Exit with clear error on unsupported platform.

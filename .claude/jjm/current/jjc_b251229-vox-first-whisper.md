@@ -56,3 +56,16 @@
 ### 2026-01-11 09:35 - create-vok-skeleton - WRAP
 **Outcome**: Added voa_arcanum.sh, build.rs, vol_ledger.json; renamed sources to vor* mint prefixes (vorm_main.rs, vorg_guard.rs, vorc_core.rs); updated README prefix table
 ---
+
+---
+### 2026-01-11 09:40 - create-vvk-skeleton - APPROACH
+**Proposed approach**:
+- Create vvg_git.sh stub with function signatures
+- Create README.md documenting VVK purpose and API
+- Note: platform wrapper already exists from bootstrap
+---
+
+---
+### 2026-01-11 09:45 - create-vvk-skeleton - WRAP
+**Outcome**: Created vvg_git.sh with full lock implementation (acquire/release/break/check/list) and README.md documenting VVK
+---
