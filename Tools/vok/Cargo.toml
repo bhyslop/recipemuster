@@ -1,0 +1,22 @@
+[package]
+name = "vvr"
+version = "0.0.1"
+edition = "2021"
+description = "Voce Viva Rust - Platform utilities for Claude Code kits"
+build = "build.rs"
+
+[[bin]]
+name = "vvr"
+path = "src/vorm_main.rs"
+
+[features]
+default = []
+# Kit features are auto-detected by build.rs
+# jjk = ["dep:jjk"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+# serde_json = "1"  # Uncomment when needed
+
+# Kit dependencies (optional, auto-enabled by build.rs)
+# jjk = { path = "../jjk/veiled", optional = true }
