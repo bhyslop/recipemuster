@@ -156,8 +156,8 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 
 ### Core Rules
 
-**Rule 1 - Project Prefix**: Names start with 2-3 char project ID:
-`rb` (Recipe Bottle), `gad` (GAD), `bu` (BUK), `jj` (Job Jockey), `pb` (Paneboard), `mcm`/`axl` (CMK), `crg`, `wrs`, `srf`
+**Rule 1 - Project Prefix**: Names start with 2-4 char project ID:
+`rb` (Recipe Bottle), `gad` (GAD), `bu` (BUK), `jj` (Job Jockey), `pb` (Paneboard), `mcm`/`axl` (CMK), `crg`, `wrs`, `ccc` (CCCK), `hm` (HMK), `lmci`, `vsl` (VSLK)
 
 **Rule 2 - Terminal Exclusivity**: A prefix either IS a name or HAS children, never both.
 - `rbg` has children (`rbga`, `rbgb`...) → `rbg` cannot name a thing
@@ -197,8 +197,11 @@ Before minting new prefixes, verify against existing trees via search or the mem
 | `pb` | Paneboard |
 | `mcm`, `axl` | CMK (Concept Model Kit) |
 | `crg` | Config Regime |
-| `wrs` | Ward Realm System |
-| `srf` | Study Raft |
+| `wrs` | Ward Realm Substrate |
+| `ccc` | CCCK (Claude Code Container Kit) |
+| `hm` | HMK (Hard-state Machine Kit) |
+| `lmci` | LMCI (Language Model Console Integration) |
+| `vsl` | VSLK (Visual SlickEdit Local Kit) |
 
 For expanded prefix trees within each project, see **File Acronym Mappings** above.
 

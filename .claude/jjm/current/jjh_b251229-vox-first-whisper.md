@@ -14,23 +14,128 @@ VOK provides the arcane infrastructure that other kits depend on:
 
 ### Voce Viva - The Living Voice
 
-**vv** (Voce Viva) is the creature that springs from the release process - the refined yet secretive executable that animates Claude context management tooling in target repos.
+**Voce Viva** (the living voice) is the poetic name for the user-facing tooling that VOK produces. Users invoke `vvx`, the platform-detecting wrapper, which dispatches to the appropriate `vvr` binary.
 
 ```
 VOK (Vox Obscura Kit)     - The veiled source, hidden infrastructure
        ↓ (release process - whispering into existence)
-vv (Voce Viva)            - The living voice, what users experience
-vvr                       - The Rust binary that embodies vv
+VVK (Voce Viva Kit)       - The installable artifact (bash + binaries)
+  └── vvx                 - What users invoke (wrapper → vvr binary)
 ```
 
 **The relationship:**
 - **VOK** is the *source* - veiled, arcane, never seen by users
-- **vv** is the *concept* - the living voice, creation, symphony, beauty
-- **vvr** is the *creature* - the actual binary that helps users
+- **VVK** is the *artifact* - the kit that travels to target repos
+- **vvx** is the *entry point* - what users and scripts invoke
+- **vvr** is the *binary* - Rust code, platform-specific variants
 
-Users know vvr. They experience it as helpful and alive. They never need to know about VOK or the hidden voice that whispered it into existence.
+Users invoke `vvx guard`. The wrapper detects platform and execs `vvr-{platform} guard`. They never need to know about VOK or the hidden voice that whispered it into existence.
 
-**Commands:** `vvr guard`, `vvr jj`, etc.
+**Commands:** `vvx guard`, etc.
+
+### VVK - The Living Kit
+
+VVK (Voce Viva Kit) is the installable artifact that VOK produces. While VOK is veiled and never leaves the source repo, VVK is visible and travels to target repos.
+
+```
+Tools/vok/                    # Veiled - source repo only
+  voa_arcanum.sh              # THE arcanum (does the installing)
+  Cargo.toml, src/, build.rs  # Rust compilation
+  release/                    # Multi-platform binaries built here
+    darwin-arm64/vvr
+    linux-x86_64/vvr
+    ...
+
+Tools/vvk/                    # Visible - copied wholesale to targets
+  vvg_git.sh                  # Git utilities (locking, guard)
+  bin/
+    vvx                       # Platform-selecting wrapper (checked in)
+    vvr-darwin-arm64          # Binaries (populated by VOK release)
+    vvr-darwin-x86_64
+    vvr-linux-x86_64
+    vvr-linux-aarch64
+    vvr-windows-x86_64.exe
+  README.md
+```
+
+**VOK arcanum (`voa-i <target>`) does:**
+1. Delete `<target>/Tools/vvk/` if exists
+2. Copy `Tools/vvk/` from source → target
+3. Emit slash commands to `<target>/.claude/commands/`
+4. Patch `<target>/CLAUDE.md`
+
+**The relationship:**
+- VOK compiles vvr for all platforms → `Tools/vok/release/*/vvr`
+- VOK release populates `Tools/vvk/bin/vvr-*`
+- VVK is a complete, self-contained artifact (bash + binaries)
+- VOK arcanum installs VVK + Claude config into target repos
+
+### VV Prefix Map
+
+| Prefix | Name | Purpose |
+|--------|------|---------|
+| `vvc-` | Command | Slash commands (per `*c_` convention) |
+| `vvg_` | Git | Git utilities (locking, guard, refs) |
+| `vvk` | Kit | Directory name (terminal) |
+| `vvr` | Rust | Binary base name (terminal) |
+| `vvx` | eXecutor | Platform wrapper (terminal) |
+
+### Platform Binary Selection
+
+VVK includes binaries for all supported platforms. Selection happens at runtime via a wrapper script:
+
+```bash
+# Tools/vvk/bin/vvx (checked into git)
+#!/bin/bash
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64)   exec "$SCRIPT_DIR/vvr-darwin-arm64" "$@" ;;
+  Darwin-x86_64)  exec "$SCRIPT_DIR/vvr-darwin-x86_64" "$@" ;;
+  Linux-x86_64)   exec "$SCRIPT_DIR/vvr-linux-x86_64" "$@" ;;
+  Linux-aarch64)  exec "$SCRIPT_DIR/vvr-linux-aarch64" "$@" ;;
+  MINGW*|MSYS*)   exec "$SCRIPT_DIR/vvr-windows-x86_64.exe" "$@" ;;
+  *)              echo "vvx: unsupported platform: $(uname -s)-$(uname -m)" >&2; exit 1 ;;
+esac
+```
+
+**Why this approach:**
+- No priming step after clone
+- Works identically in source and target repos
+- Arcanum scribes absolute path to wrapper
+- Tiny overhead (single exec)
+
+### Git Locking Infrastructure
+
+VVK provides git-based locking for multi-agent coordination via `vvg_git.sh`.
+
+**Why git update-ref:**
+- Git already solves distributed coordination
+- `git update-ref` provides atomic operations
+- Platform-portable (Git handles macOS/Linux/Windows)
+- Temporally stable (Git CLI more stable than git2 crate)
+
+**Refs namespace:** `refs/vvg/locks/*`
+
+**Functions:**
+```bash
+vvg_lock_acquire "resource"   # Create lock, fail if exists
+vvg_lock_release "resource"   # Release lock (normal use)
+vvg_lock_break "resource"     # Unconditional release (human recovery)
+```
+
+**Usage pattern:**
+```bash
+source Tools/vvk/vvg_git.sh
+
+vvg_lock_acquire "studbook" || buc_die "Lock held, try later"
+# ... do work ...
+vvg_lock_release "studbook"
+```
+
+**Recovery:** If a script fails mid-operation, human runs `vvg_lock_break "studbook"` to clear the stale lock.
+
+Kits using VVK locking (JJK, etc.) source `vvg_git.sh` and call these functions.
 
 ### VO Prefix Map
 
@@ -84,9 +189,12 @@ Source Repo (Kit Forge):
       ...
 
 Target Repo (Consumer):
-  .claude/                # only installed artifacts
+  Tools/vvk/              # VVK copied wholesale from source
+    bin/vvx               # Platform wrapper
+    bin/vvr-*             # Platform binaries
+    vvg_git.sh            # Git utilities
+  .claude/
     commands/             # emitted slash commands
-    bin/vvr               # Voce Viva Rust binary
     kit_manifest.json     # what's installed
   CLAUDE.md               # patched with kit sections
 ```
@@ -100,7 +208,7 @@ cd ~/kit-forge                              # source repo
 The arcanum:
 1. Knows where IT lives (source repo)
 2. Takes target repo path as argument
-3. Copies pre-built vvr binary from VOK's release/ directory
+3. Copies `Tools/vvk/` wholesale (includes vvx wrapper + vvr binaries)
 4. Emits slash commands into target's .claude/commands/
 5. Patches target's CLAUDE.md
 6. Records in target's .claude/kit_manifest.json
@@ -172,7 +280,7 @@ cgr guard [--limit <bytes>] [--warn <bytes>]
   Exit 2: over warn threshold (proceed with caution)
 ```
 
-**Subcommand:** `vvr guard` (cgk feature-gated, code in `Tools/cgk/veiled/src/lib.rs`)
+**Subcommand:** `vvx guard` (invokes `vvr guard`, cgk feature-gated, code in `Tools/cgk/veiled/src/lib.rs`)
 
 ### CRCG - Claude Rust Coding Guide
 
@@ -280,7 +388,7 @@ Two distinct operations in the two-repo model:
 **Prepare Release flow:**
 ```bash
 cd ~/kit-forge
-tt/vok-pr.PrepareRelease.sh
+tt/vok-R.GenerateRelease.sh
   → cargo build --release (in Tools/vok/)
   → cargo test
   → copy vvr binary to Tools/vok/release/«platform»/
@@ -292,7 +400,7 @@ tt/vok-pr.PrepareRelease.sh
 ```bash
 cd ~/kit-forge
 ./Tools/jjk/jja_arcanum.sh jja-i ~/my-app
-  → copy vvr binary to ~/my-app/.claude/bin/
+  → copy Tools/vvk/ to ~/my-app/Tools/vvk/
   → emit slash commands to ~/my-app/.claude/commands/
   → patch ~/my-app/CLAUDE.md
   → record in ~/my-app/.claude/kit_manifest.json
@@ -300,9 +408,14 @@ cd ~/kit-forge
 
 **Target repo structure:**
 ```
-.claude/
+Tools/vvk/
   bin/
-    vvr                   # Voce Viva Rust, feature-gated
+    vvx                   # Platform wrapper
+    vvr-darwin-arm64      # Platform binaries
+    vvr-linux-x86_64
+    ...
+  vvg_git.sh              # Git utilities
+.claude/
   commands/
     jjc-notch.md
     jjc-heat-saddle.md
@@ -380,8 +493,8 @@ Runtime:     Target Claude executes emitted instructions
 **Why this enables obscurity:**
 - No API spec to publish - knowledge compiles away
 - Target repo has instructions only, not understanding
-- `vvr --help` exists (clap-generated), but no external docs
-- Bash scripts bridge slash commands to vvr calls
+- `vvx --help` exists (wrapper shows usage), `vvr --help` (clap-generated), but no external docs
+- Bash scripts bridge slash commands to vvx calls
 - Only source repo readers see the full picture
 
 **The veiled README:**
@@ -394,10 +507,10 @@ Runtime:     Target Claude executes emitted instructions
 ### Foundation
 
 - **Establish subcommand naming convention**
-  References to "jj subcommand", "guard subcommand" need acronym-consistent naming. BLOCKED: Requires acronym convention document (user to provide). Once available, revise all paddock/pace references to use consistent pattern (e.g., if convention is `vvr-jj` vs `vvr jj` vs other). This affects: VOK Rust Architecture section, CGK Guard section, Deferred paces.
+  References to "guard subcommand" need acronym-consistent naming. BLOCKED: Requires acronym convention document (user to provide). Once available, revise all paddock/pace references to use consistent pattern (e.g., if convention is `vvr-guard` vs `vvr guard` vs other). This affects: VOK Rust Architecture section, CGK Guard section.
 
 - **Write VOK README**
-  Create `Tools/vok/README.md` (VOK is inherently veiled, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention (for other kits), (4) Voce Viva concept (VOK → vv → vvr), (5) VOK Rust architecture with path deps, (6) Full vvr subcommand API reference (for kit authors writing arcanums), (7) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
+  Create `Tools/vok/README.md` (VOK is inherently veiled, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention (for other kits), (4) Voce Viva concept (VOK → VVK → vvx/vvr), (5) VOK Rust architecture with path deps, (6) Full vvx/vvr subcommand API reference (for kit authors writing arcanums), (7) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
 
 - **Clarify kit facility patterns**
   Document when kits use arcanum vs workbench vs testbench. Can kits have multiple? Where does model differential tool belong (JJ workbench, not CGK)? Output: Section in VOK README.
@@ -413,6 +526,74 @@ Runtime:     Target Claude executes emitted instructions
     vol_ledger.json             # release record (empty)
     README.md                   # full internal docs
   ```
+
+### VVK Infrastructure
+
+- **Create VVK skeleton**
+  Create `Tools/vvk/` directory structure:
+  ```
+  Tools/vvk/
+    vvg_git.sh                  # Git utilities (locking, guard) - stub
+    bin/
+      vvx                       # Platform-selecting wrapper (checked in)
+    README.md                   # VVK documentation
+  ```
+  The `bin/vvr-*` binaries will be populated by VOK release.
+
+- **Create platform wrapper script**
+  Create `Tools/vvk/bin/vvx` - the platform-detecting wrapper that execs correct `vvr-{platform}` binary. Handle Darwin-arm64, Darwin-x86_64, Linux-x86_64, Linux-aarch64, Windows (MINGW/MSYS). Checked into git. Exit with clear error on unsupported platform.
+
+- **Implement git locking utilities**
+  Create `Tools/vvk/vvg_git.sh` with BCG-compliant implementation:
+  - `vvg_lock_acquire(resource)` - create `refs/vvg/locks/<resource>`, fail if exists
+  - `vvg_lock_release(resource)` - delete ref (normal use)
+  - `vvg_lock_break(resource)` - unconditional delete (human recovery)
+  - Include guard pattern (ZVVG_INCLUDED)
+  - Use `git update-ref` for atomic operations
+
+- **Create VVK README**
+  Document: (1) VVK purpose (living kit, installed artifact), (2) Directory structure, (3) Platform wrapper usage, (4) Git locking API (`vvg_lock_*`), (5) Relationship to VOK.
+
+- **Implement guarded commit facility**
+  Create guarded commit workflow with size validation and background processing.
+
+  **`vvg_guard()` function in `Tools/vvk/vvg_git.sh`** - Pre-commit guard:
+  - Acquire lock via `vvg_lock_acquire "commit"`
+  - Run `vvx guard --limit ${VVG_SIZE_LIMIT:-500000}`
+  - On guard failure: release lock, return non-zero with message
+  - On success: return 0 (lock remains held for agent)
+
+  **Slash command `/vvc-commit <description>`:**
+  1. Source `vvg_git.sh`, run `vvg_guard` — non-zero stops, 0 proceeds
+  2. Spawn background sonnet agent (Task tool, run_in_background=true) with prompt:
+     - User's description
+     - Commit format template (from CLAUDE.md config)
+     - Git safety rules: no force push, no skip hooks, no secrets, `git add -u` only
+     - Steps: `git add -u`, `git diff --cached --stat`, construct message, `git commit`
+     - Final step: `source Tools/vvk/vvg_git.sh && vvg_lock_release "commit"`
+     - Report: hash, files changed, remind user to push
+  3. Report "Commit dispatched" and return immediately
+
+  **Commit message format** (default, configured in CLAUDE.md):
+  ```
+  <description>
+
+  - <change 1>
+  - <change 2>
+
+  Co-Authored-By: Claude <noreply@anthropic.com>
+  ```
+
+  **Git safety rules** (embedded in agent prompt):
+  - Never update git config
+  - Never force push or skip hooks
+  - Never commit files matching secret patterns (.env, credentials.*, etc.)
+  - Only modified/deleted files (`git add -u`), new files allowed (guard protects)
+  - No auto-push (sandbox considerations), remind user to push
+
+  **VOK arcanum emits:**
+  - Slash command file: `.claude/commands/vvc-commit.md`
+  - CLAUDE.md section: commit format template, size limit (default 500KB)
 
 ### Rust Infrastructure
 
@@ -431,10 +612,16 @@ Runtime:     Target Claude executes emitted instructions
 ### Release & Install
 
 - **Create Prepare Release script**
-  `Tools/vok/vop_prepare_release.sh`: Build vvr binary (`cargo build --release`), run tests, copy to `release/«platform»/`, compute hash, record in `vol_ledger.json`. Tabtarget: `tt/vok-pr.PrepareRelease.sh`.
+  `Tools/vok/vop_prepare_release.sh`: Build vvr binary for current platform (`cargo build --release`), run tests, copy to `Tools/vok/release/«platform»/vvr`, then copy to `Tools/vvk/bin/vvr-«platform»` (wrapper `vvx` is already checked in). Compute hash, record in `vol_ledger.json`. Tabtarget: `tt/vok-R.GenerateRelease.sh`.
 
 - **Implement two-repo arcanum install**
-  Rewrite `voa_arcanum.sh` for two-repo model. Takes target path as argument. Copies binary from `release/` to target's `.claude/bin/`. Emits commands to target's `.claude/commands/`. Patches target's CLAUDE.md. Records in target's `.claude/kit_manifest.json`. Fails if release artifacts missing.
+  Rewrite `voa_arcanum.sh` for VVK model. Takes target path as argument. Steps:
+  1. Delete `<target>/Tools/vvk/` if exists
+  2. Copy `Tools/vvk/` from source → `<target>/Tools/vvk/`
+  3. Emit slash commands to `<target>/.claude/commands/`
+  4. Patch `<target>/CLAUDE.md` with VVK configuration
+  5. Record in `<target>/.claude/kit_manifest.json`
+  Fails if VVK binaries missing (run release first).
 
 - **Implement prep-pr flow**
   Script that: reads which kits are upstream-safe, builds minimal vvr (features for upstream kits only), records release, applies veil (`--exclude='*/veiled/'`), prepares PR branch. Move veil config from CMK.
@@ -442,15 +629,12 @@ Runtime:     Target Claude executes emitted instructions
 ### Kit Migration
 
 - **Migrate JJK to veiled/ structure**
-  Move `Tools/jjk/jjl_ledger.json` to `Tools/jjk/veiled/jjl_ledger.json`. Update arcanum to work in two-repo model. JJK arcanum calls vvr binary for Rust operations.
+  Move `Tools/jjk/jjl_ledger.json` to `Tools/jjk/veiled/jjl_ledger.json`. Update arcanum to work in two-repo model. JJK arcanum calls vvx (which dispatches to vvr) for Rust operations.
 
 - **Create CGK skeleton**
-  Create `Tools/cgk/` with cga_arcanum.sh and veiled/ structure. Arcanum emits guard-related slash commands. Calls `vvr guard` for size validation.
+  Create `Tools/cgk/` with cga_arcanum.sh and veiled/ structure. Arcanum emits guard-related slash commands. Calls `vvx guard` for size validation.
 
 ### Deferred
 
 - **Implement vvr guard subcommand**
-  Add guard logic to `Tools/cgk/veiled/src/lib.rs`. VOK imports and exposes as `vvr guard`. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn).
-
-- **Implement vvr jj subcommand**
-  Add JJ text processing to `Tools/jjk/veiled/src/lib.rs`. VOK imports and exposes as `vvr jj`. Operations TBD based on what JJK needs.
+  Add guard logic to `Tools/cgk/veiled/src/lib.rs`. VOK imports and exposes as `vvr guard` (users invoke via `vvx guard`). Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn).
