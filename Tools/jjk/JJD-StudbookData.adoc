@@ -24,72 +24,68 @@
 //
 
 // Types
-:jjdt_firemark:           <<jjdt_firemark,Firemark>>
-:jjdt_firemark_s:         <<jjdt_firemark,Firemarks>>
-:jjdt_firemark_p:         <<jjdt_firemark,Firemark's>>
-:jjdt_coronet:            <<jjdt_coronet,Coronet>>
-:jjdt_coronet_s:          <<jjdt_coronet,Coronets>>
-:jjdt_coronet_p:          <<jjdt_coronet,Coronet's>>
-:jjdt_silks:              <<jjdt_silks,Silks>>
-:jjdt_favor:              <<jjdt_favor,Favor>>
-:jjdt_favor_s:            <<jjdt_favor,Favors>>
+:jjdt_coronet:    <<jjdt_coronet,Coronet>>
+:jjdt_coronet_p:  <<jjdt_coronet,Coronet's>>
+:jjdt_coronet_s:  <<jjdt_coronet,Coronets>>
+:jjdt_favor:      <<jjdt_favor,Favor>>
+:jjdt_favor_s:    <<jjdt_favor,Favors>>
+:jjdt_firemark:   <<jjdt_firemark,Firemark>>
+:jjdt_firemark_p: <<jjdt_firemark,Firemark's>>
+:jjdt_firemark_s: <<jjdt_firemark,Firemarks>>
+:jjdt_silks:      <<jjdt_silks,Silks>>
 
 // Studbook record and members
-:jjdsr_studbook:          <<jjdsr_studbook,Studbook>>
-:jjdsr_studbook_p:        <<jjdsr_studbook,Studbook's>>
-:jjdsm_seed:              <<jjdsm_seed,next_heat_seed>>
+:jjdsm_seed:        <<jjdsm_seed,next_heat_seed>>
+:jjdsr_studbook:    <<jjdsr_studbook,Studbook>>
+:jjdsr_studbook_p:  <<jjdsr_studbook,Studbook's>>
 
 // Heat record and members
-:jjdhr_heat:              <<jjdhr_heat,Heat>>
-:jjdhr_heat_s:            <<jjdhr_heat,Heats>>
-:jjdhr_heat_p:            <<jjdhr_heat,Heat's>>
-:jjdhm_firemark:          <<jjdhm_firemark,firemark>>
-:jjdhm_silks:             <<jjdhm_silks,silks>>
-:jjdhm_created:           <<jjdhm_created,creation_time>>
-:jjdhm_status:            <<jjdhm_status,status>>
-:jjdhm_order:             <<jjdhm_order,order>>
-
-// Heat enum values
-:jjdhe_current:           <<jjdhe_current,current>>
-:jjdhe_retired:           <<jjdhe_retired,retired>>
+:jjdhe_current:   <<jjdhe_current,current>>
+:jjdhe_retired:   <<jjdhe_retired,retired>>
+:jjdhm_created:   <<jjdhm_created,creation_time>>
+:jjdhm_firemark:  <<jjdhm_firemark,firemark>>
+:jjdhm_order:     <<jjdhm_order,order>>
+:jjdhm_silks:     <<jjdhm_silks,silks>>
+:jjdhm_status:    <<jjdhm_status,status>>
+:jjdhr_heat:      <<jjdhr_heat,Heat>>
+:jjdhr_heat_p:    <<jjdhr_heat,Heat's>>
+:jjdhr_heat_s:    <<jjdhr_heat,Heats>>
 
 // Pace record and members
-:jjdpr_pace:              <<jjdpr_pace,Pace>>
-:jjdpr_pace_s:            <<jjdpr_pace,Paces>>
-:jjdpr_pace_p:            <<jjdpr_pace,Pace's>>
-:jjdpm_coronet:           <<jjdpm_coronet,coronet>>
-:jjdpm_silks:             <<jjdpm_silks,silks>>
-:jjdpm_state:             <<jjdpm_state,state>>
-
-// Pace enum values
-:jjdpe_pending:           <<jjdpe_pending,pending>>
-:jjdpe_current:           <<jjdpe_current,current>>
-:jjdpe_complete:          <<jjdpe_complete,complete>>
-:jjdpe_abandoned:         <<jjdpe_abandoned,abandoned>>
+:jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
+:jjdpe_complete:  <<jjdpe_complete,complete>>
+:jjdpe_current:   <<jjdpe_current,current>>
+:jjdpe_pending:   <<jjdpe_pending,pending>>
+:jjdpm_coronet:   <<jjdpm_coronet,coronet>>
+:jjdpm_silks:     <<jjdpm_silks,silks>>
+:jjdpm_state:     <<jjdpm_state,state>>
+:jjdpr_pace:      <<jjdpr_pace,Pace>>
+:jjdpr_pace_p:    <<jjdpr_pace,Pace's>>
+:jjdpr_pace_s:    <<jjdpr_pace,Paces>>
 
 // Tack record and members
-:jjdkr_tack:              <<jjdkr_tack,Tack>>
-:jjdkr_tack_s:            <<jjdkr_tack,Tacks>>
-:jjdkr_tack_p:            <<jjdkr_tack,Tack's>>
-:jjdkm_refined:           <<jjdkm_refined,ts>>
-:jjdkm_text:              <<jjdkm_text,text>>
+:jjdkm_refined:   <<jjdkm_refined,ts>>
+:jjdkm_text:      <<jjdkm_text,text>>
+:jjdkr_tack:      <<jjdkr_tack,Tack>>
+:jjdkr_tack_p:    <<jjdkr_tack,Tack's>>
+:jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
 
 // Operations
-:jjdo_nominate:           <<jjdo_nominate,Nominate>>
-:jjdo_slate:              <<jjdo_slate,Slate>>
-:jjdo_reslate:            <<jjdo_reslate,Reslate>>
-:jjdo_rail:               <<jjdo_rail,Rail>>
-:jjdo_tally:              <<jjdo_tally,Tally>>
-:jjdo_validate:           <<jjdo_validate,Validate>>
-:jjdo_heat_exists:        <<jjdo_heat_exists,Heat Exists>>
-:jjdo_muster:             <<jjdo_muster,Muster>>
-:jjdo_retire_extract:     <<jjdo_retire_extract,Retire Extract>>
-:jjdo_current_tack:       <<jjdo_current_tack,Current Tack>>
-:jjdo_current_pace:       <<jjdo_current_pace,Current Pace>>
+:jjdo_current_pace:   <<jjdo_current_pace,Current Pace>>
+:jjdo_current_tack:   <<jjdo_current_tack,Current Tack>>
+:jjdo_heat_exists:    <<jjdo_heat_exists,Heat Exists>>
+:jjdo_muster:         <<jjdo_muster,Muster>>
+:jjdo_nominate:       <<jjdo_nominate,Nominate>>
+:jjdo_rail:           <<jjdo_rail,Rail>>
+:jjdo_reslate:        <<jjdo_reslate,Reslate>>
+:jjdo_retire_extract: <<jjdo_retire_extract,Retire Extract>>
+:jjdo_slate:          <<jjdo_slate,Slate>>
+:jjdo_tally:          <<jjdo_tally,Tally>>
+:jjdo_validate:       <<jjdo_validate,Validate>>
 
 // Serialization
-:jjdz_charset:            <<jjdz_charset,Charset>>
-:jjdz_encoding:           <<jjdz_encoding,Favor Encoding>>
+:jjdz_charset:  <<jjdz_charset,Charset>>
+:jjdz_encoding: <<jjdz_encoding,Favor Encoding>>
 
 // end::mapping-section[]
 
