@@ -258,7 +258,7 @@ resources.
 
 For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.
 
-include::rbw-RBSGS-GettingStarted.adoc[leveloffset=+2]
+include::RBSGS-GettingStarted.adoc[leveloffset=+2]
 
 == {rbtr_payor} Operations
 
@@ -266,7 +266,7 @@ include::rbw-RBSGS-GettingStarted.adoc[leveloffset=+2]
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_payor_establish}
 
-include::rbw-RBSPE-payor_establish.adoc[]
+include::RBSPE-payor_establish.adoc[]
 
 [[rbtgo_payor_install]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
@@ -274,13 +274,13 @@ include::rbw-RBSPE-payor_establish.adoc[]
 
 Completes OAuth credential installation by performing authorization flow, storing credentials, and validating payor project access.
 
-include::rbw-RBSPI-payor_install.adoc[]
+include::RBSPI-payor_install.adoc[]
 
 [[rbtgo_payor_refresh]]
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_payor_refresh}
 
-include::rbw-RBSPR-payor_refresh.adoc[]
+include::RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_depot_create]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
@@ -288,25 +288,25 @@ include::rbw-RBSPR-payor_refresh.adoc[]
 
 Creates depot infrastructure (project, bucket, repository, Mason service account).
 
-include::rbw-RBSDC-depot_create.adoc[]
+include::RBSDC-depot_create.adoc[]
 
 [[rbtgo_depot_destroy]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_depot_destroy}
 
-include::rbw-RBSDD-depot_destroy.adoc[]
+include::RBSDD-depot_destroy.adoc[]
 
 [[rbtgo_depot_list]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_depot_list}
 
-include::rbw-RBSDL-depot_list.adoc[]
+include::RBSDL-depot_list.adoc[]
 
 [[rbtgo_governor_reset]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_governor_reset}
 
-include::rbw-RBSGR-governor_reset.adoc[]
+include::RBSGR-governor_reset.adoc[]
 
 == {rbtr_governor} Operations
 
@@ -314,13 +314,13 @@ include::rbw-RBSGR-governor_reset.adoc[]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_retriever_create}
 
-include::rbw-RBSRC-retriever_create.adoc[]
+include::RBSRC-retriever_create.adoc[]
 
 [[rbtgo_director_create]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_director_create}
 
-include::rbw-RBSDI-director_create.adoc[]
+include::RBSDI-director_create.adoc[]
 
 == {rbtr_director} Operations
 
@@ -330,15 +330,15 @@ include::rbw-RBSDI-director_create.adoc[]
 
 Builds container image from vessel specification using Cloud Build and stores in repository.
 
-include::rbw-RBSTB-trigger_build.adoc[]
+include::RBSTB-trigger_build.adoc[]
 
-NOTE: For multi-platform build authentication challenges and research findings, see link:rbw-RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
+NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
 [[rbtgo_image_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_delete}
 
-include::rbw-RBSID-image_delete.adoc[]
+include::RBSID-image_delete.adoc[]
 
 == {rbtr_retriever} Operations
 
@@ -346,7 +346,7 @@ include::rbw-RBSID-image_delete.adoc[]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_image_retrieve}
 
-include::rbw-RBSIR-image_retrieve.adoc[]
+include::RBSIR-image_retrieve.adoc[]
 
 == Multi Role Operations
 
@@ -354,13 +354,13 @@ include::rbw-RBSIR-image_retrieve.adoc[]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_sa_list}
 
-include::rbw-RBSSL-sa_list.adoc[]
+include::RBSSL-sa_list.adoc[]
 
 [[rbtgo_sa_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_sa_delete}
 
-include::rbw-RBSSD-sa_delete.adoc[]
+include::RBSSD-sa_delete.adoc[]
 
 == Definitions
 
@@ -1396,4 +1396,4 @@ Each study presents constraints, evaluated alternatives, and the rationale for c
 
 === OCI Layout Bridge
 
-include::rbw-RBSOB-oci_layout_bridge.adoc[]
+include::RBSOB-oci_layout_bridge.adoc[]

@@ -137,5 +137,5 @@ resource (not project-level) for Skopeo push to succeed
 
 ==== References
 
-* Research memo: link:rbw-RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo]
+* Research memo: link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo]
 * Verified working: Cloud Build 3b544930 (2025-12-31)

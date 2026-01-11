@@ -80,9 +80,9 @@ The kit directory contains:
 
 - `README.md` - This file: conceptual reference
 - `cmw_workbench.sh` - Installation and management script
-- `mcm-MCM-MetaConceptModel.adoc` - Meta Concept Model specification
-- `axl-AXLA-Lexicon.adoc` - Axial Lexicon (optional, for AXL-annotated documents)
-- `axl-AXMCM-ClaudeMarkConceptMemo.md` - ClaudeMark format reference
+- `MCM-MetaConceptModel.adoc` - Meta Concept Model specification
+- `AXLA-Lexicon.adoc` - Axial Lexicon (optional, for AXL-annotated documents)
+- `AXMCM-ClaudeMarkConceptMemo.md` - ClaudeMark format reference
 
 ### Project Files (created at install)
 
@@ -223,4 +223,4 @@ Defaults:
 
 ---
 
-For the full Meta Concept Model specification, see `mcm-MCM-MetaConceptModel.adoc`.
+For the full Meta Concept Model specification, see `MCM-MetaConceptModel.adoc`.

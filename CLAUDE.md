@@ -101,7 +101,7 @@ Full read and edit access is pre-approved for all files in:
 #### CMK Subdirectory (`Tools/cmk/`)
 - **MCM**   → `cmk/MCM-MetaConceptModel.adoc`
 - **AXLA**  → `cmk/AXLA-Lexicon.adoc`
-- **AXMCM** → `cmk/axl-AXMCM-ClaudeMarkConceptMemo.md`
+- **AXMCM** → `cmk/AXMCM-ClaudeMarkConceptMemo.md`
 
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`
