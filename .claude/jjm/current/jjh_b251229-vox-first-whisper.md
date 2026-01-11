@@ -514,19 +514,24 @@ Runtime:     Target Claude executes emitted instructions
 - **Implement guarded commit facility**
   Create guarded commit workflow with size validation and background processing.
 
+  **Race condition fix**: Stage files BEFORE dispatching background agent. This captures
+  the exact working tree state the user intended. Concurrent edits after staging don't
+  pollute the commit. The lock protects the staged snapshot, not the working tree.
+
   **`vvg_guard()` function in `Tools/vvk/vvg_git.sh`** - Pre-commit guard:
   - Acquire lock via `vvg_lock_acquire "commit"`
-  - Run `vvx guard --limit ${VVG_SIZE_LIMIT:-500000}`
-  - On guard failure: release lock, return non-zero with message
-  - On success: return 0 (lock remains held for agent)
+  - Run `git add -u` to stage modified/deleted files (captures snapshot NOW)
+  - Run `vvx guard --limit ${VVG_SIZE_LIMIT:-500000}` on staged content
+  - On guard failure: unstage, release lock, return non-zero with message
+  - On success: return 0 (lock + staged snapshot ready for agent)
 
   **Slash command `/vvc-commit <description>`:**
-  1. Source `vvg_git.sh`, run `vvg_guard` — non-zero stops, 0 proceeds
+  1. Source `vvg_git.sh`, run `vvg_guard` — non-zero stops, 0 proceeds (files now staged)
   2. Spawn background sonnet agent (Task tool, run_in_background=true) with prompt:
      - User's description
      - Commit format template (from CLAUDE.md config)
-     - Git safety rules: no force push, no skip hooks, no secrets, `git add -u` only
-     - Steps: `git add -u`, `git diff --cached --stat`, construct message, `git commit`
+     - Git safety rules: no force push, no skip hooks, no secrets
+     - Steps: `git diff --cached --stat`, construct message, `git commit` (already staged!)
      - Final step: `source Tools/vvk/vvg_git.sh && vvg_lock_release "commit"`
      - Report: hash, files changed, remind user to push
   3. Report "Commit dispatched" and return immediately
@@ -545,7 +550,7 @@ Runtime:     Target Claude executes emitted instructions
   - Never update git config
   - Never force push or skip hooks
   - Never commit files matching secret patterns (.env, credentials.*, etc.)
-  - Only modified/deleted files (`git add -u`), new files allowed (guard protects)
+  - Never run `git add` (already staged by guard - prevents race condition)
   - No auto-push (sandbox considerations), remind user to push
 
   **VOK arcanum emits:**
