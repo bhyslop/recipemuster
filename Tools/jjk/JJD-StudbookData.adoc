@@ -70,6 +70,9 @@
 :jjdkr_tack_p:    <<jjdkr_tack,Tack's>>
 :jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
 
+// Arguments
+:jjda_file:           <<jjda_file,--file>>
+
 // Operations
 :jjdo_current_pace:   <<jjdo_current_pace,Current Pace>>
 :jjdo_current_tack:   <<jjdo_current_tack,Current Tack>>
@@ -156,19 +159,22 @@ This redundancy is cheap and enables grep, copy-paste, and self-documenting JSON
 
 === Crash-Safe Architecture
 
-Bash handles locking via `git update-ref` and file orchestration.
-jjr is a pure filter: stdin JSON in, stdout JSON out.
+Bash handles locking via `git update-ref`.
+jjr owns all
+{jjdsr_studbook}
+file access - reading, transforming, and writing.
+jjr implements atomic writes internally (write to temp file, then rename).
 If jjr crashes mid-transform, no partial writes occur.
-Bash detects the failure and releases the lock.
 
 The pattern:
 [source,bash]
 ----
 lock_acquire
-jjr transform < studbook.json > studbook_new.json || { lock_release; die; }
-mv studbook_new.json studbook.json
+jjr studbook nominate --file studbook.json "my-heat" "260111" || { lock_release; die; }
 lock_release
 ----
+
+This keeps bash simple (just locking and invocation) while jjr owns all JSON file operations.
 
 === Logical vs Serialized Identity
 
@@ -504,10 +510,24 @@ C
 (5 chars): extract F from first 2, C from last 3
 . C = pos(char3) * 4096 + pos(char4) * 64 + pos(char5)
 
+== Arguments
+
+[[jjda_file]]
+// ⟦axl_voices axa_argument axd_required⟧
+{jjda_file}::
+Path to the
+{jjdsr_studbook}
+JSON file.
+Required by all operations.
+
 == Operations
 
-Operations are implemented in jjr as pure stdin/stdout filters.
-Bash handles file I/O, locking, and orchestration.
+Operations are implemented in jjr.
+jjr owns all
+{jjdsr_studbook}
+file access (read, transform, atomic write).
+Bash handles locking via `git update-ref` and invokes jjr with
+{jjda_file}.
 
 === Write Operations
 
@@ -519,6 +539,48 @@ Create a new
 with empty
 {jjdpr_pace}
 structure.
+
+*Arguments:*
+{jjda_file},
+`silks` (kebab-case),
+`created` (YYMMDD)
+
+*Stdout:* New
+{jjdhr_heat}
+{jjdt_favor}
+
+*Behavior:*
+
+. Read
+{jjdsr_studbook}
+from file
+. Read current
+{jjdsm_seed}
+as
+{jjdt_firemark}
+. Create new
+{jjdhr_heat}
+with:
+.. Key: `₣` + encoded
+{jjdt_firemark}
+.. {jjdhm_silks}:
+from argument
+.. {jjdhm_created}:
+from argument
+.. {jjdhm_status}:
+{jjdhe_current}
+.. {jjdhm_order}:
+empty array
+.. `paces`: empty object
+. Increment
+{jjdsm_seed}
+(base64 arithmetic with carry)
+. Write transformed
+{jjdsr_studbook}
+to file (atomic)
+. Output new
+{jjdt_favor}
+to stdout
 
 [[jjdo_slate]]
 ==== {jjdo_slate}
@@ -562,7 +624,61 @@ Update a
 Check that
 {jjdsr_studbook}
 JSON conforms to schema.
-Returns exit code 0 (valid) or 1 (invalid).
+
+*Arguments:*
+{jjda_file}
+
+*Stdout:* None
+
+*Validation Rules:*
+
+. Root must be JSON object with
+{jjdsm_seed}
+(2 base64 characters)
+. Root must have `heats` object
+. Each
+{jjdhr_heat}
+key must match `₣[A-Za-z0-9]{2}`
+. Each
+{jjdhr_heat}
+must have:
+{jjdhm_silks}
+(non-empty kebab-case),
+{jjdhm_created}
+(YYMMDD),
+{jjdhm_status}
+({jjdhe_current}
+or
+{jjdhe_retired}),
+{jjdhm_order}
+(array),
+`paces` (object)
+. {jjdhm_order}
+array and `paces` object must have identical key sets
+. Each
+{jjdpr_pace}
+key must match `₣[A-Za-z0-9]{5}` and start with parent
+{jjdhr_heat}
+key
+. Each
+{jjdpr_pace}
+must have:
+{jjdpm_silks}
+(non-empty kebab-case),
+{jjdpm_state}
+({jjdpe_pending},
+{jjdpe_current},
+{jjdpe_complete},
+or
+{jjdpe_abandoned}),
+`tacks` (non-empty array)
+. Each
+{jjdkr_tack}
+must have:
+{jjdkm_refined}
+(YYMMDD-HHMM),
+{jjdkm_text}
+(non-empty string)
 
 [[jjdo_heat_exists]]
 ==== {jjdo_heat_exists}
