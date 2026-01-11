@@ -509,21 +509,9 @@ Runtime:     Target Claude executes emitted instructions
 - **Implement guarded commit facility** — BCG module vvg_git.sh with vvg_guard_begin/end/force_unlock, vvg_cli.sh, /vvc-commit slash command. Lock bracket explicit in naming.
 - **Create VOK Rust crate (vvr)** — Cargo.toml, build.rs, vorm_main.rs multicall dispatch, vorc_core.rs platform utilities
 - **Implement vvr guard subcommand** — vorg_guard.rs parses git diff-index, calculates blob sizes, returns exit codes 0/1/2
+- **Create VVK testbench** — 15-test testbench for lock, guard workflow, and vvr size validation
 
 ## Remaining
-
-### VVK Infrastructure
-
-- **Create VVK testbench**
-  Create `Tools/vvk/vvt_testbench.sh` following BUK testbench patterns. Tests for:
-  - Lock operations: acquire, release, break, check, list
-  - Guard workflow: guard_begin stages files and acquires lock, guard_end releases
-  - Size validation: vvr guard exit codes (0/1/2) for under/over/warn thresholds
-  - Edge cases: nothing staged, lock already held, binary not found
-
-  Use temporary git repos for isolation. Each test creates a fresh repo, runs operations,
-  validates outcomes, cleans up. CLI entry point `vvt_cli.sh` with `buc_execute vvt_` dispatch.
-  Tabtarget: `tt/vvk-T.RunTests.sh`.
 
 ### Rust Infrastructure
 
