@@ -503,24 +503,13 @@ Runtime:     Target Claude executes emitted instructions
 - **Clarify kit facility patterns** — Expanded Kit Facilities section: types table, when to use each, combinations matrix, tool placement flowchart
 - **Create VOK skeleton** — Added voa_arcanum.sh, build.rs, vorm_main.rs, vorg_guard.rs, vorc_core.rs, vol_ledger.json; applied vor* mint prefixes
 - **Create VVK skeleton** — Added vvg_git.sh (locking functions) and README.md; bin/vvx from bootstrap
+- **Create platform wrapper script** — Done in bootstrap (bin/vvx)
+- **Implement git locking utilities** — Done in VVK skeleton (vvg_git.sh with full implementation)
+- **Create VVK README** — Done in VVK skeleton (README.md)
 
 ## Remaining
 
 ### VVK Infrastructure
-
-- **Create platform wrapper script**
-  Create `Tools/vvk/bin/vvx` - the platform-detecting wrapper that execs correct `vvr-{platform}` binary. Handle Darwin-arm64, Darwin-x86_64, Linux-x86_64, Linux-aarch64, Windows (MINGW/MSYS). Checked into git. Exit with clear error on unsupported platform.
-
-- **Implement git locking utilities**
-  Create `Tools/vvk/vvg_git.sh` with BCG-compliant implementation:
-  - `vvg_lock_acquire(resource)` - create `refs/vvg/locks/<resource>`, fail if exists
-  - `vvg_lock_release(resource)` - delete ref (normal use)
-  - `vvg_lock_break(resource)` - unconditional delete (human recovery)
-  - Include guard pattern (ZVVG_INCLUDED)
-  - Use `git update-ref` for atomic operations
-
-- **Create VVK README**
-  Document: (1) VVK purpose (living kit, installed artifact), (2) Directory structure, (3) Platform wrapper usage, (4) Git locking API (`vvg_lock_*`), (5) Relationship to VOK.
 
 - **Implement guarded commit facility**
   Create guarded commit workflow with size validation and background processing.
