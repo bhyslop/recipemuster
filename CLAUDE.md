@@ -178,11 +178,9 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 
 ### Tabtarget Universe Pattern
 
-| Domain | Pattern | Example |
-|--------|---------|---------|
-| Launchers | `prefix-HumanName.sh` | `rbw-a.AccountInfo.sh` |
+Tabtargets follow: `{colophon}.{frontispiece}[.{imprint}].sh`
 
-The hyphen is part of the colophon prefix (`rbw-`), not a separator.
+Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** below for terminology (colophon, frontispiece, imprint, formulary).
 
 ### Minting Workflow
 
@@ -207,6 +205,28 @@ For expanded prefix trees within each project, see **File Acronym Mappings** abo
 ## Common Workflows
 1. **Bash Development**: Start with relevant utility (BUC/BUD/BUT/BUV/BUW), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory
+
+## Bash Utility Kit (BUK) Concepts
+
+BUK provides tabtarget/launcher infrastructure. Key vocabulary:
+
+| Term | Definition |
+|------|------------|
+| **Tabtarget** | Launcher script in `tt/` that delegates to a formulary |
+| **Colophon** | Routing identifier (includes hyphen): `rbw-B`, `buw-tt-ll` |
+| **Frontispiece** | Human-readable description (PascalCase): `ConnectBottle` |
+| **Imprint** | Optional target parameter: `nsproto`, `srjcl` |
+| **Formulary** | Component that routes colophons to implementations |
+| **Workbench** | Formulary for commands: `{prefix}w_workbench.sh` |
+| **Testbench** | Formulary for tests: `{prefix}t_testbench.sh` |
+
+**Tabtarget pattern**: `{colophon}.{frontispiece}[.{imprint}].sh`
+
+- The `.` is the delimiter between parts
+- The hyphen is part of the colophon (not a separator)
+- Colophon naming follows **Prefix Naming Discipline** above
+
+Full spec: `Tools/buk/README.md`
 
 ## Concept Model Kit Configuration
 
