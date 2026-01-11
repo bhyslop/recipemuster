@@ -14,3 +14,17 @@
 ### 2026-01-11 09:00 - bootstrap-vok-vvk - WRAP
 **Outcome**: Created VOK crate, VVK wrapper, release dirs, gitignore for dev/release separation
 ---
+
+---
+### 2026-01-11 09:01 - write-vok-readme - APPROACH
+**Proposed approach**:
+- Extract key concepts from paddock (already well-documented)
+- Structure as kit-author-facing reference (not end-user docs)
+- Include concrete examples: directory trees, command invocations
+- Keep vocabulary glossary concise with linked terms
+---
+
+---
+### 2026-01-11 09:15 - write-vok-readme - WRAP
+**Outcome**: Created 301-line README covering compilation model, two-repo install, veiled convention, Voce Viva, Rust architecture, API, glossary
+---

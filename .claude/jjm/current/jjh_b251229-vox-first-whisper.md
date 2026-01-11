@@ -499,13 +499,11 @@ Runtime:     Target Claude executes emitted instructions
 ## Done
 
 - **Bootstrap VOK+VVK** — Created VOK crate, VVK wrapper, release dirs, gitignore for dev/release separation
+- **Write VOK README** — 301-line kit-author reference: compilation model, two-repo install, veiled convention, Voce Viva, Rust architecture, API, glossary
 
 ## Remaining
 
 ### Foundation
-
-- **Write VOK README**
-  Create `Tools/vok/README.md` (VOK is inherently veiled, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention (for other kits), (4) Voce Viva concept (VOK → VVK → vvx/vvr), (5) VOK Rust architecture with path deps, (6) Full vvx/vvr subcommand API reference (for kit authors writing arcanums), (7) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
 
 - **Clarify kit facility patterns**
   Document when kits use arcanum vs workbench vs testbench. Can kits have multiple? Where does model differential tool belong (JJ workbench)? Output: Section in VOK README.
