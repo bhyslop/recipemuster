@@ -514,11 +514,6 @@ Runtime:     Target Claude executes emitted instructions
 
 ## Remaining
 
-### Rust Infrastructure
-
-- **Design CRCG**
-  Write Claude Rust Coding Guide as `Tools/vok/CRCG.md`. Document: pure filter pattern, minimal deps, exit codes, Cargo.lock pinning, 5 target platforms, BCG integration. This guides all kit Rust development.
-
 ### Release & Install
 
 - **Create Prepare Release script**
@@ -539,5 +534,10 @@ Runtime:     Target Claude executes emitted instructions
 
 ### Kit Migration
 
-- **Migrate JJK to veiled/ structure**
-  Move `Tools/jjk/jjl_ledger.json` to `Tools/jjk/veiled/jjl_ledger.json`. Update arcanum to work in two-repo model. JJK arcanum calls vvx (which dispatches to vvr) for Rust operations.
+- **Migrate JJK arcanum to two-repo model**
+  Update arcanum to work in two-repo model. JJK arcanum calls vvx (which dispatches to vvr) for Rust operations. (Note: ledger already moved to veiled/ in previous pace.)
+
+### Deferred
+
+- **Design CRCG (if needed)**
+  Consider whether a Claude Rust Coding Guide is warranted. We only have one Rust utility (guard) so far - patterns should emerge from practice before codifying. If needed: document filter vs inspector patterns, minimal deps, exit codes, Cargo.lock pinning, 5 target platforms.

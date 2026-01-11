@@ -88,3 +88,8 @@
 ### 2026-01-11 18:44 - create-jjk-veiled-rust-crate - WRAP
 **Outcome**: veiled/ with Cargo.toml, lib.rs placeholder, Cargo.lock, .gitignore; moved ledger
 ---
+
+---
+### 2026-01-11 18:45 - design-crcg - DEFERRED
+**Reason**: Only one Rust utility exists (guard). Patterns should emerge from practice before codifying. Moved to Deferred section - revisit when we have more Rust utilities and clearer patterns.
+---
