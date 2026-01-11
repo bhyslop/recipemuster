@@ -501,6 +501,16 @@ Runtime:     Target Claude executes emitted instructions
 
 ### Foundation
 
+- **Bootstrap VOK+VVK (minimal working system)**
+  Prove end-to-end integration before adding features:
+  1. Create `Tools/vok/` skeleton with minimal Cargo.toml, src/main.rs that prints version
+  2. Create `Tools/vvk/bin/vvx` wrapper script
+  3. `cargo build --release` in Tools/vok/, copy binary to `Tools/vvk/bin/vvr-{platform}`
+  4. Verify: `Tools/vvk/bin/vvx --version` prints `vvr 0.0.1`
+  5. Copy `Tools/vvk/` to temp directory, verify it still works (simulates target install)
+
+  Success: wrapper dispatches to binary in both source and "installed" locations.
+
 - **Write VOK README**
   Create `Tools/vok/README.md` (VOK is inherently veiled, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention (for other kits), (4) Voce Viva concept (VOK → VVK → vvx/vvr), (5) VOK Rust architecture with path deps, (6) Full vvx/vvr subcommand API reference (for kit authors writing arcanums), (7) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
 
@@ -595,6 +605,9 @@ Runtime:     Target Claude executes emitted instructions
 - **Create VOK Rust crate (vvr)**
   In `Tools/vok/`: Cargo.toml with `name = "vvr"` and path deps to kit veiled/ dirs. build.rs that detects `../«kit»/veiled/Cargo.toml` and enables features. src/main.rs with clap multicall dispatch. src/core.rs with shared platform/env utilities. No kit logic yet - just skeleton that compiles and produces `vvr` binary.
 
+- **Implement vvr guard subcommand**
+  Add guard logic to `Tools/vok/src/guard.rs`. Core VOK functionality, always available. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn). This enables the guarded commit facility in VVK.
+
 - **Create JJK veiled/ Rust crate**
   In `Tools/jjk/veiled/`: Cargo.toml as `[lib]` crate. src/lib.rs with placeholder exports. Move jjl_ledger.json here (rename from brand-based). This establishes the kit Rust co-location pattern.
 
@@ -622,8 +635,3 @@ Runtime:     Target Claude executes emitted instructions
 
 - **Migrate JJK to veiled/ structure**
   Move `Tools/jjk/jjl_ledger.json` to `Tools/jjk/veiled/jjl_ledger.json`. Update arcanum to work in two-repo model. JJK arcanum calls vvx (which dispatches to vvr) for Rust operations.
-
-### Deferred
-
-- **Implement vvr guard subcommand**
-  Add guard logic to `Tools/vok/src/guard.rs`. Core VOK functionality, always available. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn).
