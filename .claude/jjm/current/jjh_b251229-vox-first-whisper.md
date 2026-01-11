@@ -142,24 +142,29 @@ Kits using VVK locking (JJK, etc.) source `vvg_git.sh` and call these functions.
 | Prefix | Name | Purpose |
 |--------|------|---------|
 | `voa_` | Arcanum | Main kit entry (install/uninstall) |
+| `vol_` | Ledger | Release record (`vol_ledger.json`) |
 | `vop_` | Prepare | Release preparation (compile/test/package) |
-| `vox_` | Codex | Version ledger |
 | `vos_` | Sigil | Version ID |
 | `vov_` | Veil | Upstream filter |
+| `vox_` | Codex | Version tracking |
 
 ### Reserved Suffixes (Claude Code Native Types)
 
 All kits use these consistently:
 
-| Suffix | Type |
-|--------|------|
-| `*a_` | Arcanum (kit main) |
-| `*b_` | suBagent |
-| `*c_` | slash Command |
-| `*h_` | Hook |
-| `*k_` | sKill |
-| `*w_` | Workbench |
-| `*t_` | Testbench |
+| Suffix | Type | Notes |
+|--------|------|-------|
+| `*a_` | Arcanum | Kit main entry |
+| `*b_` | suBagent | |
+| `*c-` | slash Command | Hyphen for command names (`/vvc-commit`) |
+| `*g_` | Git utilities | Locking, refs, guard |
+| `*h_` | Hook | |
+| `*k` | Kit directory | Terminal (no underscore) |
+| `*l_` | Ledger | Release records |
+| `*r` | Rust binary | Terminal (no underscore) |
+| `*t_` | Testbench | |
+| `*w_` | Workbench | |
+| `*x` | eXecutor | Platform wrapper, terminal |
 
 ### Kit Facility Pattern
 
@@ -253,9 +258,9 @@ Tools/«kit»/
 
 **prep-pr filter:** Simply `--exclude='*/veiled/'`
 
-### CGK Guard - Pre-commit Size Validation
+### VOK Guard - Pre-commit Size Validation
 
-Rust utility that measures staged blob sizes before commit. Prevents catastrophic auto-adds (node_modules, build artifacts, binaries) by enforcing size limits.
+Core VOK utility that measures staged blob sizes before commit. Prevents catastrophic auto-adds (node_modules, build artifacts, binaries) by enforcing size limits.
 
 **Why blob size, not file size:**
 - Git commits blobs, not files
@@ -274,13 +279,13 @@ git diff --cached --name-only -z \
 
 **Interface:**
 ```
-cgr guard [--limit <bytes>] [--warn <bytes>]
+vvx guard [--limit <bytes>] [--warn <bytes>]
   Exit 0: under limit
   Exit 1: over limit (with breakdown by file)
   Exit 2: over warn threshold (proceed with caution)
 ```
 
-**Subcommand:** `vvx guard` (invokes `vvr guard`, cgk feature-gated, code in `Tools/cgk/veiled/src/lib.rs`)
+**Subcommand:** `vvx guard` (invokes `vvr guard`, core VOK functionality in `Tools/vok/src/guard.rs`)
 
 ### CRCG - Claude Rust Coding Guide
 
@@ -306,7 +311,7 @@ CRCG (`Tools/vok/CRCG.md`) documents constraints for small Rust utilities that c
 
 ### VOK Rust Architecture
 
-Single `vvr` (Voce Viva Rust) multicall binary with feature-gated subcommands. Kit Rust source lives WITH each kit (in veiled/), VOK references via path dependencies.
+Single `vvr` (Voce Viva Rust) multicall binary. Core functionality (guard) lives in VOK. Kit-specific Rust code lives WITH each kit (in veiled/), VOK references via path dependencies and feature flags.
 
 **VOK is inherently veiled** - the entire `Tools/vok/` directory never leaves the source repo. No veiled/ subdirectory needed.
 
@@ -318,6 +323,7 @@ Tools/vok/                    # ALL of this is veiled (never distributed)
   build.rs                    # auto-detects kit veiled/ dirs
   src/
     main.rs                   # multicall dispatch
+    guard.rs                  # core: pre-commit size validation
     core.rs                   # shared infrastructure
   release/                    # built binaries per platform
     darwin-arm64/vvr
@@ -331,13 +337,6 @@ Tools/jjk/                    # public part
     Cargo.toml                # [lib] name = "jjk"
     src/lib.rs                # JJK Rust code
     jjl_ledger.json
-
-Tools/cgk/                    # public part
-  cga_arcanum.sh
-  veiled/                     # private part
-    Cargo.toml                # [lib] name = "cgk"
-    src/lib.rs                # CGK Rust code
-    cgl_ledger.json
 ```
 
 **VOK Cargo.toml:**
@@ -348,11 +347,9 @@ name = "vvr"   # Voce Viva Rust
 [features]
 default = []
 jjk = ["dep:jjk"]
-cgk = ["dep:cgk"]
 
 [dependencies]
 jjk = { path = "../jjk/veiled", optional = true }
-cgk = { path = "../cgk/veiled", optional = true }
 clap = "4"
 serde_json = "1"
 ```
@@ -363,14 +360,12 @@ fn main() {
     if Path::new("../jjk/veiled/Cargo.toml").exists() {
         println!("cargo:rustc-cfg=feature=\"jjk\"");
     }
-    if Path::new("../cgk/veiled/Cargo.toml").exists() {
-        println!("cargo:rustc-cfg=feature=\"cgk\"");
-    }
 }
 ```
 
 **Why this structure:**
-- Kit Rust lives with kit (co-maintenance)
+- Core functionality (guard) always available in VOK
+- Kit-specific Rust lives with kit (co-maintenance)
 - VOK orchestrates via path deps (no copying)
 - Single binary output (std/serde link once)
 - Feature flags compile out absent kits
@@ -433,7 +428,7 @@ Each kit's ledger lives in veiled/ and records release events:
       "sigil": "v1.0.0",
       "date": "2025-01-10",
       "source_hash": "abc123def456",
-      "features": ["jjk", "cgk"],
+      "features": ["jjk"],
       "platforms": ["darwin-arm64", "linux-x86_64"],
       "commit": "2597deb"
     }
@@ -465,8 +460,8 @@ For contributing to upstream from a private fork:
 
 **Private fork workflow:**
 - Your fork has internal kits (e.g., Tools/internal-kit/)
-- Upstream only has public kits (e.g., Tools/cgk/)
-- prep-pr builds minimal vvr for upstream
+- Upstream has shared kits (e.g., Tools/jjk/)
+- prep-pr builds minimal vvr for upstream (only shared kit features)
 - prep-pr excludes all veiled/ content
 - PR is clean, upstream-ready
 
@@ -506,14 +501,11 @@ Runtime:     Target Claude executes emitted instructions
 
 ### Foundation
 
-- **Establish subcommand naming convention**
-  References to "guard subcommand" need acronym-consistent naming. BLOCKED: Requires acronym convention document (user to provide). Once available, revise all paddock/pace references to use consistent pattern (e.g., if convention is `vvr-guard` vs `vvr guard` vs other). This affects: VOK Rust Architecture section, CGK Guard section.
-
 - **Write VOK README**
   Create `Tools/vok/README.md` (VOK is inherently veiled, never distributed). Document: (1) The Compilation Model, (2) Two-repo install model, (3) veiled/ convention (for other kits), (4) Voce Viva concept (VOK → VVK → vvx/vvr), (5) VOK Rust architecture with path deps, (6) Full vvx/vvr subcommand API reference (for kit authors writing arcanums), (7) Arcane vocabulary glossary. This is the foundational conceptual document for kit authors.
 
 - **Clarify kit facility patterns**
-  Document when kits use arcanum vs workbench vs testbench. Can kits have multiple? Where does model differential tool belong (JJ workbench, not CGK)? Output: Section in VOK README.
+  Document when kits use arcanum vs workbench vs testbench. Can kits have multiple? Where does model differential tool belong (JJ workbench)? Output: Section in VOK README.
 
 - **Create VOK skeleton**
   Create `Tools/vok/` (inherently veiled - no veiled/ subdirectory needed):
@@ -522,7 +514,10 @@ Runtime:     Target Claude executes emitted instructions
     voa_arcanum.sh              # two-repo install logic
     Cargo.toml                  # vvr binary crate
     build.rs                    # kit auto-detection
-    src/main.rs                 # multicall stub
+    src/
+      main.rs                   # multicall dispatch
+      guard.rs                  # core: pre-commit size validation
+      core.rs                   # shared infrastructure
     vol_ledger.json             # release record (empty)
     README.md                   # full internal docs
   ```
@@ -603,9 +598,6 @@ Runtime:     Target Claude executes emitted instructions
 - **Create JJK veiled/ Rust crate**
   In `Tools/jjk/veiled/`: Cargo.toml as `[lib]` crate. src/lib.rs with placeholder exports. Move jjl_ledger.json here (rename from brand-based). This establishes the kit Rust co-location pattern.
 
-- **Create CGK veiled/ Rust crate**
-  In `Tools/cgk/veiled/`: Cargo.toml as `[lib]` crate. src/lib.rs with guard logic (blob size validation). cgl_ledger.json for releases. First real Rust functionality - proves the path dep pattern works.
-
 - **Design CRCG**
   Write Claude Rust Coding Guide as `Tools/vok/CRCG.md`. Document: pure filter pattern, minimal deps, exit codes, Cargo.lock pinning, 5 target platforms, BCG integration. This guides all kit Rust development.
 
@@ -631,10 +623,7 @@ Runtime:     Target Claude executes emitted instructions
 - **Migrate JJK to veiled/ structure**
   Move `Tools/jjk/jjl_ledger.json` to `Tools/jjk/veiled/jjl_ledger.json`. Update arcanum to work in two-repo model. JJK arcanum calls vvx (which dispatches to vvr) for Rust operations.
 
-- **Create CGK skeleton**
-  Create `Tools/cgk/` with cga_arcanum.sh and veiled/ structure. Arcanum emits guard-related slash commands. Calls `vvx guard` for size validation.
-
 ### Deferred
 
 - **Implement vvr guard subcommand**
-  Add guard logic to `Tools/cgk/veiled/src/lib.rs`. VOK imports and exposes as `vvr guard` (users invoke via `vvx guard`). Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn).
+  Add guard logic to `Tools/vok/src/guard.rs`. Core VOK functionality, always available. Pure filter: bash pipes git output, vvr returns verdict. Exit codes: 0 (ok), 1 (over), 2 (warn).
