@@ -74,3 +74,17 @@
 ### 2026-01-11 18:32 - create-vvk-testbench - WRAP
 **Outcome**: 15-test testbench for lock, guard workflow, and vvr size validation (vvt_testbench.sh, vvt_cli.sh, tt/vvk-T.RunTests.sh)
 ---
+
+---
+### 2026-01-11 18:35 - create-jjk-veiled-rust-crate - APPROACH
+**Proposed approach**:
+- Create `Tools/jjk/veiled/` directory
+- Create `Cargo.toml` as `[lib]` crate named "jjk"
+- Create `src/lib.rs` with placeholder pub exports
+- Move `Tools/jjk/jjl_ledger.json` → `Tools/jjk/veiled/jjl_ledger.json`
+---
+
+---
+### 2026-01-11 18:44 - create-jjk-veiled-rust-crate - WRAP
+**Outcome**: veiled/ with Cargo.toml, lib.rs placeholder, Cargo.lock, .gitignore; moved ledger
+---

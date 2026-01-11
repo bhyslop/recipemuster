@@ -510,13 +510,11 @@ Runtime:     Target Claude executes emitted instructions
 - **Create VOK Rust crate (vvr)** — Cargo.toml, build.rs, vorm_main.rs multicall dispatch, vorc_core.rs platform utilities
 - **Implement vvr guard subcommand** — vorg_guard.rs parses git diff-index, calculates blob sizes, returns exit codes 0/1/2
 - **Create VVK testbench** — 15-test testbench for lock, guard workflow, and vvr size validation
+- **Create JJK veiled/ Rust crate** — veiled/ with Cargo.toml, lib.rs placeholder, moved ledger
 
 ## Remaining
 
 ### Rust Infrastructure
-
-- **Create JJK veiled/ Rust crate**
-  In `Tools/jjk/veiled/`: Cargo.toml as `[lib]` crate. src/lib.rs with placeholder exports. Move jjl_ledger.json here (rename from brand-based). This establishes the kit Rust co-location pattern.
 
 - **Design CRCG**
   Write Claude Rust Coding Guide as `Tools/vok/CRCG.md`. Document: pure filter pattern, minimal deps, exit codes, Cargo.lock pinning, 5 target platforms, BCG integration. This guides all kit Rust development.
