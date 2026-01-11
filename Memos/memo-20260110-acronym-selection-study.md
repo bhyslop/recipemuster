@@ -564,40 +564,40 @@ machine_setup_PROTOTYPE_rule.sh (1) — Legacy setup script
 - **Terminal Exclusivity Confirmed**: All tt/ prefixes are terminal — `rbw`, `buw`, `jja`, `jjt`, `jjw`, `ccck`, `gadf`, `gadi` all exist as launchers but have no children within tt/ namespace
 - **Kit/Project Coexistence**: Portable kits (BUK, JJK, CMK) and project-specific tools (RBW, CCCK, GAD) share tt/ directory without collision
 - **Launcher Delegation Pattern**: Each file delegates to a workbench via `.buk/launcher.{workbench}_workbench.sh` pattern
-- **Three-Part Naming**: Format is `{prefix}-{code}.{HumanReadable}.sh` where:
-  - `prefix` = kit/project identifier (buw, rbw, jja, etc.)
-  - `code` = command/action code (often single letter, sometimes 2-3 chars)
-  - `HumanReadable` = PascalCase description of action
-- **Code Hierarchy Within Prefix**: Some prefixes show sub-codes:
-  - `buw-rgi-burc` = BUK Workbench + Regime Info + BURC config
-  - `buw-tt-cl` = BUK Workbench + TabTarget + Create Launcher
-  - `rbw-aCD` = RBW + Account ops + Create Director
+- **Colophon + Human Naming**: Format is `{prefix-}.{Everything After}.sh` where:
+  - `prefix-` = the colophon (including the hyphen) that identifies the workbench/kit
+  - Everything after the hyphen = human-chosen naming with no structural code/name distinction
+  - Examples: `rbw-aCD.CreateDirector.sh` (the `aCD` and `CreateDirector` are both just human choices), `buw-rgi-burc.RegimeInfoBurc.sh` (all human choices)
+- **Naming Patterns Beyond Colophon**: The human-chosen portions after `prefix-` exhibit consistent organizational patterns:
+  - `buw-rgi-burc` — human chose to use additional hyphens (rgi-burc) to organize hierarchical meaning
+  - `buw-tt-cl` — human chose nested names within the single colophon
+  - `rbw-aCD` — human chose mixed case (aCD) as part of the action identifier
 - **Variant Suffix Pattern** (18 files): Some launchers duplicate for different contexts:
   - `rbw-B.ConnectBottle.{nsproto,srjcl}.sh` — environment-specific variants
   - `rbw-o.ObserveNetworks.{nsproto,pluml,srjcl}.sh` — multi-context variants
-  - Pattern: `{prefix}-{code}.{Action}.{variant}.sh`
-- **Case Conventions**:
-  - Prefix: lowercase (`rbw`, `buw`)
-  - Code: mixed case (single lowercase `a`, multi-char mixed `aCD`, uppercase `GD`)
-  - Action: PascalCase (`CreateBottle`, `ListLaunchers`)
-  - Variant: lowercase (`nsproto`, `srjcl`, `pluml`)
+  - Pattern: `{prefix-}{HumanChoice}.{variant}.sh` — everything after colophon is human-chosen
+- **Case Conventions in Human-Chosen Naming**:
+  - Colophon prefix: lowercase (`rbw-`, `buw-`)
+  - Human-chosen action identifier: mixed case (single lowercase `a`, multi-char mixed `aCD`, uppercase `B`)
+  - Human-chosen action name: PascalCase (`CreateBottle`, `ListLaunchers`)
+  - Context variant: lowercase (`nsproto`, `srjcl`, `pluml`)
 
 **Anomalies:**
 
 - **Legacy tt* files**: `ttc.CreateTabtarget.sh` and `ttx.FixTabtargetExecutability.sh` use old dotted naming, predating hyphen convention
 - **gadcf anomaly**: `gadcf.LaunchFactoryInContainer.sh` uses dot separator (legacy?) instead of hyphen like `gadf-f.Factory.sh`
-- **Code length inconsistency**: Single-char codes (`rbw-a`, `rbw-b`) coexist with multi-char codes (`rbw-aCD`, `rbw-GD`) — appears to be expansion pattern as feature set grows
-- **Uppercase codes**: Some codes use uppercase (`rbw-B`, `rbw-C`, `rbw-GD`) vs lowercase (`rbw-b`, `rbw-c`) — possibly semantic (uppercase = interactive shell connection, lowercase = batch operation)?
+- **Human-naming length variation**: Single-char human choices (`rbw-a`, `rbw-b`) coexist with multi-char human choices (`rbw-aCD`, `rbw-GD`) — appears to be expansion pattern as feature set grows
+- **Uppercase vs lowercase in human naming**: Some human choices use uppercase (`rbw-B`, `rbw-C`, `rbw-GD`) vs lowercase (`rbw-b`, `rbw-c`) — possibly semantic (uppercase = interactive shell connection, lowercase = batch operation)?
 
 **Notes:** The tt/ directory demonstrates a mature launcher namespace pattern where:
 
 1. **Clean Separation**: Portable kits use isolated prefixes that can be installed/uninstalled without affecting project-specific launchers
-2. **Hierarchical Codes**: Within a prefix like `buw-`, secondary codes (`rgi`, `tt`) create command families without violating terminal exclusivity — the hierarchy is within the filename, not the prefix tree
+2. **Hierarchical Naming Beyond Colophon**: Within a colophon like `buw-`, humans chose secondary names (`rgi`, `tt`) to create command families without violating terminal exclusivity — the hierarchy is within the human-chosen filename portion, not the prefix tree
 3. **Variant Proliferation**: The `*.{variant}.sh` pattern enables context-specific launchers without prefix explosion (18 files share base commands across 3 variants)
 4. **Workbench Delegation**: All launchers are thin wrappers delegating to `launcher.{workbench}_workbench.sh`, enforcing consistent routing architecture
 5. **Evolution Evidence**: Legacy files (`ttc.`, `ttx.`, `gadcf.`) show older dotted convention migrating to hyphenated convention (`buw-`, `rbw-`)
 
-The tt/ namespace is effectively a **flat launcher registry** where prefixes route to workbenches, codes identify actions, and human-readable names provide shell completion hints. Terminal exclusivity is preserved because no launcher prefix has child launchers — hierarchy exists within command codes, not between launchers.
+The tt/ namespace is effectively a **flat launcher registry** where colophons route to workbenches, human-chosen naming identifies actions and contexts, and the full filenames provide shell completion hints. Terminal exclusivity is preserved because no colophon has child colophons — hierarchy exists within human-chosen filenames, not between colophons.
 
 ---
 
@@ -741,17 +741,17 @@ pbw-*  PB Workbench (2 launchers)
 
 **Observations:**
 - **Sparse by design**: Only 7 launchers total (9 files including 2 buw utilities)
-- **Perfect conformance**: All files follow `prefix-{code}.HumanReadable.sh` pattern
+- **Perfect conformance**: All files follow `prefix-.HumanReadable.sh` pattern (colophon identifies kit/workbench, everything after hyphen is human-chosen naming)
 - **Three-tier launcher architecture**:
   1. Portable kit self-management: `buw-*` (BUK utilities)
   2. Portable kit operations: `jja-*` (Job Jockey actions)
   3. Project-specific operations: `pbw-*` (Paneboard workbench)
 - **Portable kit launchers are byte-identical** to RBM counterparts (confirmed via file content comparison)
-- **Semantic suffix patterns**:
-  - Single-letter codes: `jja-c`, `jja-i`, `jja-u` (kit standard actions)
-  - Multi-letter codes: `buw-tt-cbn`, `buw-tt-cl` (utility-specific actions)
-  - Single-letter with semantic name: `pbw-p` (ProofOfConcept)
-  - Versioned suffixes: `pbw-t.ProofOfConceptTimed.10.sh` (suggests iteration tracking)
+- **Naming patterns after colophon**:
+  - Simple suffixes: `jja-c`, `jja-i`, `jja-u` (human chose single letters for kit standard actions)
+  - Hierarchical suffixes: `buw-tt-cbn`, `buw-tt-cl` (human chose nested hyphenated names for utility-specific actions)
+  - Semantic pairs: `pbw-p.ProofOfConcept` (human chose mnemonic + full name)
+  - Versioned variants: `pbw-t.ProofOfConceptTimed.10.sh` (human chose to append version number)
 - **Delegation pattern consistent**: All launchers use `exec` to delegate to `.buk/launcher.{workbench}.sh`
 - **Configuration via environment**: `BUD_LAUNCHER`, `BUD_NO_LOG` set before exec
 

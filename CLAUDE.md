@@ -15,12 +15,12 @@ Which would you like to start with? (Enter acronym)
 ## Preset Activities
 
 ### bcbcg: Bash Coding with BCG
-- Primary file: `Tools/buk/lenses/bpu-BCG-BashConsoleGuide.md`
+- Primary file: `Tools/buk/lenses/BCG-BashConsoleGuide.md`
 - Context: Bash scripting and console development
 - Related utilities: BUC, BUD, BUT, BUV, BUW in Tools/buk/
 
 ### adocrbags: Requirements writing with RBAGS
-- Primary file: `lenses/rbw-RBAGS-AdminGoogleSpec.adoc`
+- Primary file: `lenses/RBAGS-AdminGoogleSpec.adoc`
 - Context: Requirements documentation and specification writing
 - Related specs: RBRN, RBRR, RBS, CRR in lenses/
 
@@ -38,12 +38,28 @@ Full read and edit access is pre-approved for all files in:
 ## File Acronym Mappings
 
 ### Lenses Directory (`lenses/`)
-- **RBAGS** → `rbw-RBAGS-AdminGoogleSpec.adoc`
-- **RBRN**  → `rbw-RBRN-RegimeNameplate.adoc`
-- **RBRR**  → `rbw-RBRR-RegimeRepo.adoc`
-- **RBS**   → `rbw-RBS-Specification.adoc`
-- **CRR**   → `crg-CRR-ConfigRegimeRequirements.adoc`
-- **RBWMBX** → `rbw-RBWMBX-BuildxMultiPlatformAuth.adoc` (Memo: Buildx multi-platform authentication research)
+- **RBAGS** → `RBAGS-AdminGoogleSpec.adoc`
+- **RBRN**  → `RBRN-RegimeNameplate.adoc`
+- **RBRR**  → `RBRR-RegimeRepo.adoc`
+- **RBS**   → `RBS-Specification.adoc`
+- **CRR**   → `CRR-ConfigRegimeRequirements.adoc`
+- **RBSDC** → `RBSDC-depot_create.adoc`
+- **RBSDD** → `RBSDD-depot_destroy.adoc`
+- **RBSDI** → `RBSDI-director_create.adoc`
+- **RBSDL** → `RBSDL-depot_list.adoc`
+- **RBSGR** → `RBSGR-governor_reset.adoc`
+- **RBSGS** → `RBSGS-GettingStarted.adoc`
+- **RBSID** → `RBSID-image_delete.adoc`
+- **RBSIR** → `RBSIR-image_retrieve.adoc`
+- **RBSOB** → `RBSOB-oci_layout_bridge.adoc`
+- **RBSPE** → `RBSPE-payor_establish.adoc`
+- **RBSPI** → `RBSPI-payor_install.adoc`
+- **RBSPR** → `RBSPR-payor_refresh.adoc`
+- **RBSRC** → `RBSRC-retriever_create.adoc`
+- **RBSSD** → `RBSSD-sa_delete.adoc`
+- **RBSSL** → `RBSSL-sa_list.adoc`
+- **RBSTB** → `RBSTB-trigger_build.adoc`
+- **RBWMBX** → `RBWMBX-BuildxMultiPlatformAuth.adoc` (Memo: Buildx multi-platform authentication research)
 
 ### Tools Directory (`Tools/`)
 
@@ -65,7 +81,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
 
 #### BUK Subdirectory (`Tools/buk/`)
-- **BCG**  → `buk/lenses/bpu-BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **BCG**  → `buk/lenses/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, bud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
@@ -83,8 +99,8 @@ Full read and edit access is pre-approved for all files in:
 - Quick reference: GADF (factory), GADI* (inspector), GADS (spec), GADP (planner), GADM* (memos)
 
 #### CMK Subdirectory (`Tools/cmk/`)
-- **MCM**   → `cmk/mcm-MCM-MetaConceptModel.adoc`
-- **AXLA**  → `cmk/axl-AXLA-Lexicon.adoc`
+- **MCM**   → `cmk/MCM-MetaConceptModel.adoc`
+- **AXLA**  → `cmk/AXLA-Lexicon.adoc`
 - **AXMCM** → `cmk/axl-AXMCM-ClaudeMarkConceptMemo.md`
 
 #### Other Tools
@@ -128,6 +144,66 @@ When working with .adoc files using MCM patterns:
 - Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`, `gad_`)
 - Use snake_case for anchors, match attribute to anchor
 
+## Prefix Naming Discipline ("mint")
+
+When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-acronym-selection-study.md`
+
+### Two Universes
+
+**Primary Universe** — code, docs, functions, variables, attributes, anchors, directories. Prefixes must be globally unique and respect terminal exclusivity.
+
+**Tabtarget Universe** — launchers in `tt/`. These are *colophons* referencing the primary universe. `rbw-` points to the `rbw` workbench; it doesn't consume new prefix space.
+
+### Core Rules
+
+**Rule 1 - Project Prefix**: Names start with 2-3 char project ID:
+`rb` (Recipe Bottle), `gad` (GAD), `bu` (BUK), `jj` (Job Jockey), `pb` (Paneboard), `mcm`/`axl` (CMK), `crg`, `wrs`, `srf`
+
+**Rule 2 - Terminal Exclusivity**: A prefix either IS a name or HAS children, never both.
+- `rbg` has children (`rbga`, `rbgb`...) → `rbg` cannot name a thing
+- `rbi` names Image module → `rbia`, `rbib` forbidden
+
+### Primary Universe Patterns
+
+| Domain | Pattern | Example |
+|--------|---------|---------|
+| Code files | `prefix_Word.ext` | `rbga_ArtifactRegistry.sh` |
+| Doc files | `ACRONYM-Words.ext` | `RBAGS-AdminGoogleSpec.adoc` |
+| Functions (public) | `prefix_name()` | `buc_log_args()` |
+| Functions (private) | `zprefix_name()` | `zbuc_color()` |
+| Variables | `PREFIX_NAME` | `BURC_PROJECT_ROOT` |
+| AsciiDoc attributes | `:prefix_term:` | `:rbw_depot:` |
+| AsciiDoc anchors | `[[prefix_term]]` | `[[rbw_depot]]` |
+| Directories | `prefix/` | `Tools/buk/` |
+
+### Tabtarget Universe Pattern
+
+| Domain | Pattern | Example |
+|--------|---------|---------|
+| Launchers | `prefix-HumanName.sh` | `rbw-a.AccountInfo.sh` |
+
+The hyphen is part of the colophon prefix (`rbw-`), not a separator.
+
+### Minting Workflow
+
+Before minting new prefixes, verify against existing trees via search or the memo to preserve terminal exclusivity.
+
+### Project Prefix Registry
+
+| Prefix | Project |
+|--------|---------|
+| `rb` | Recipe Bottle |
+| `gad` | GAD (Google AsciiDoc Differ) |
+| `bu` | BUK (Bash Utilities Kit) |
+| `jj` | Job Jockey |
+| `pb` | Paneboard |
+| `mcm`, `axl` | CMK (Concept Model Kit) |
+| `crg` | Config Regime |
+| `wrs` | Ward Realm System |
+| `srf` | Study Raft |
+
+For expanded prefix trees within each project, see **File Acronym Mappings** above.
+
 ## Common Workflows
 1. **Bash Development**: Start with relevant utility (BUC/BUD/BUT/BUV/BUW), check dependencies
 2. **Requirements Writing**: Open spec file, review related documents in same directory
@@ -157,7 +233,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 **Subagents:**
 - `cmsa-normalizer` - Haiku-enforced MCM normalization (text, mapping, validation)
 
-For full MCM specification, see `Tools/cmk/mcm-MCM-MetaConceptModel.adoc`.
+For full MCM specification, see `Tools/cmk/MCM-MetaConceptModel.adoc`.
 
 **Important**: Restart Claude Code session after installation for new commands and subagents to become available.
 
