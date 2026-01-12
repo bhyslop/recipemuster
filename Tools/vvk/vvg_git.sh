@@ -42,8 +42,8 @@ zvvg_kindle() {
   ZVVG_COMMIT_RESOURCE="commit"
 
   # Size limits (hardcoded for now)
-  ZVVG_SIZE_LIMIT=500000
-  ZVVG_WARN_LIMIT=250000
+  ZVVG_SIZE_LIMIT=50000
+  ZVVG_WARN_LIMIT=30000
 
   ZVVG_KINDLED=1
 }
@@ -58,26 +58,25 @@ zvvg_lock_acquire() {
   zvvg_sentinel
 
   local z_resource="${1:-}"
-
   test -n "${z_resource}" || buc_die "zvvg_lock_acquire: resource name required"
 
   local z_ref="${ZVVG_LOCK_PREFIX}/${z_resource}"
-
   buc_log_args "Acquiring lock: ${z_resource}"
 
-  # Get current HEAD as lock value
+  # Get current HEAD as lock value (fallback to null SHA if not in repo)
   local z_lock_value
-  z_lock_value=$(git rev-parse HEAD 2>/dev/null) || z_lock_value="0000000000000000000000000000000000000000"
+  z_lock_value=$(git rev-parse HEAD) || z_lock_value="0000000000000000000000000000000000000000"
 
   # Try to create the ref - fails if it already exists
   # The empty string as third arg means "only create if ref doesn't exist"
+  # Expected failure when lock held - suppress stderr, log outcome
   if git update-ref "${z_ref}" "${z_lock_value}" "" 2>/dev/null; then
     buc_log_args "Lock acquired: ${z_resource}"
     return 0
-  else
-    buc_log_args "Lock already held: ${z_resource}"
-    return 1
   fi
+
+  buc_log_args "Lock already held: ${z_resource}"
+  return 1
 }
 
 # Internal: Release a lock on a resource
@@ -86,41 +85,44 @@ zvvg_lock_release() {
   zvvg_sentinel
 
   local z_resource="${1:-}"
-
   test -n "${z_resource}" || buc_die "zvvg_lock_release: resource name required"
 
   local z_ref="${ZVVG_LOCK_PREFIX}/${z_resource}"
-
   buc_log_args "Releasing lock: ${z_resource}"
 
+  # Expected failure when lock not held - suppress stderr, log outcome
   if git update-ref -d "${z_ref}" 2>/dev/null; then
     buc_log_args "Lock released: ${z_resource}"
     return 0
-  else
-    buc_log_args "Lock not held: ${z_resource}"
-    return 1
   fi
+
+  buc_log_args "Lock not held: ${z_resource}"
+  return 1
 }
 
-# Internal: Stage modified/deleted files
+# Internal: Stage all changes including untracked files
 # Returns 0 on success with files staged, 1 on failure or nothing to stage
 zvvg_stage() {
   zvvg_sentinel
 
-  buc_log_args "Staging modified/deleted files"
+  buc_log_args "Staging all changes (tracked and untracked)"
 
-  if ! git add -u 2>/dev/null; then
-    buc_log_args "git add -u failed"
+  # Stage everything: new, modified, deleted
+  if ! git add -A; then
+    buc_log_args "git add -A failed"
     return 1
   fi
 
-  # Check if anything is staged
-  if git diff --cached --quiet 2>/dev/null; then
+  # Check if anything is staged (quiet mode returns 1 if differences exist)
+  if git diff --cached --quiet; then
     buc_log_args "Nothing staged to commit"
     return 1
   fi
 
-  buc_log_args "Files staged successfully"
+  # Log what was staged for forensic trail
+  buc_log_args "Files staged:"
+  git diff --cached --name-status | buc_log_pipe
+
   return 0
 }
 
@@ -130,20 +132,22 @@ zvvg_check_size() {
   zvvg_sentinel
 
   buc_log_args "Validating staged content size (limit: ${ZVVG_SIZE_LIMIT}, warn: ${ZVVG_WARN_LIMIT})"
-
   test -x "${ZVVG_VVX_PATH}" || buc_die "vvx not found at ${ZVVG_VVX_PATH}"
 
+  # Capture vvx output for user visibility and forensic trail
   local z_result=0
-  "${ZVVG_VVX_PATH}" guard --limit "${ZVVG_SIZE_LIMIT}" --warn "${ZVVG_WARN_LIMIT}" || z_result=$?
+  "${ZVVG_VVX_PATH}" guard --limit "${ZVVG_SIZE_LIMIT}" --warn "${ZVVG_WARN_LIMIT}" 2>&1 | buc_log_pipe || z_result=$?
 
   return "${z_result}"
 }
 
 # Internal: Unstage all staged files
+# Best-effort cleanup - errors intentionally ignored
 zvvg_unstage() {
   zvvg_sentinel
 
   buc_log_args "Unstaging files"
+  # Cleanup operation - suppress errors, always succeed
   git reset HEAD --quiet 2>/dev/null || true
 }
 
@@ -165,7 +169,7 @@ vvg_guard_begin() {
     buc_die "Another commit in progress - lock held"
   fi
 
-  # Step 2: Stage modified/deleted files (captures snapshot NOW)
+  # Step 2: Stage all files including untracked (captures snapshot NOW)
   # This is the race condition fix: staging happens before agent dispatch
   if ! zvvg_stage; then
     zvvg_lock_release "${ZVVG_COMMIT_RESOURCE}" || true
@@ -220,7 +224,7 @@ vvg_force_unlock() {
 
   local z_ref="${ZVVG_LOCK_PREFIX}/${ZVVG_COMMIT_RESOURCE}"
 
-  # Force delete - ignore errors
+  # Force delete - intentionally ignore errors (recovery operation)
   git update-ref -d "${z_ref}" 2>/dev/null || true
 
   buc_success "Commit lock cleared"
