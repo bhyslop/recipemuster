@@ -66,18 +66,9 @@ Work proceeds in logical phases. Each pace notes its phase for context.
 
 ## Done
 
-(none yet)
+- **rename-studbook-to-gallops** — [Phase 0] Rename throughout JJD spec and update all prefixes. ✓
 
 ## Remaining
-
-- **rename-studbook-to-gallops** — [Phase 0] Rename throughout JJD spec and update all prefixes.
-  **Deliverables**:
-  (1) Rename `JJD-StudbookData.adoc` → `JJD-GallopsData.adoc`
-  (2) Update category declarations: `jjdsr_` → `jjdgr_`, `jjdsm_` → `jjdgm_`
-  (3) Update all attribute references and anchors
-  (4) Update prose references (Studbook → Gallops)
-  (5) Update file path reference (`.claude/jjm/jjd_studbook.json` → `.claude/jjm/jjg_gallops.json`)
-  **Success criteria**: Document renders correctly, all internal links resolve, grep finds no "studbook" references.
 
 - **exit-status-treatment** — [Phase 1] Decide and document exit code semantics for operations.
   **Context**: AXLA has `axc_fatal` and `axc_warn` but no explicit exit code motifs. Queries (heat_exists, current_pace) use exit code as boolean result (0=true, 1=false), not error indicator. Mutations use 0=success, non-zero=fatal.
@@ -94,6 +85,14 @@ Work proceeds in logical phases. Each pace notes its phase for context.
   (2) Document shared argument `{jjda_file}` usage pattern
   (3) Add any missing AXLA voicing annotations to operations
   **Success criteria**: Template is clear enough to apply mechanically to remaining operations.
+
+- **pace-state-autonomy** — [Phase 1] Explore whether Pace state enum should capture readiness for autonomous execution.
+  **Context**: Current states (pending/current/complete/abandoned) track progress but not whether a pace spec is detailed enough for unattended model execution vs. needing human collaboration.
+  **Deliverables**:
+  (1) Evaluate: expand state enum (e.g., add `armed`) vs. status quo
+  (2) If expanding, update JJD Pace state values and document semantics
+  (3) If expanding, define jjr operation to transition pace to armed state
+  **Success criteria**: Clear decision documented; if yes, JJD updated accordingly.
 
 - **spec-slate-reslate** — [Phase 2] Document Slate and Reslate operations in JJD.
   **Reference**: `jju_slate()` lines 624-715, `jju_reslate()` lines 717-791
