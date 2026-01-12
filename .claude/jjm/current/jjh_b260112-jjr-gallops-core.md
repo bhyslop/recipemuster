@@ -22,6 +22,16 @@ Bash (locking, git ops, orchestration)
         └─ gallops query (muster, heat_exists, current_pace, etc.)
 ```
 
+### Pacing Strategy
+
+Work proceeds in logical phases. Each pace notes its phase for context.
+
+- **Phase 0 (Vocabulary)**: Rename studbook → gallops throughout
+- **Phase 1 (Foundation)**: AXLA voicing, operation template style
+- **Phase 2 (Specification)**: Complete all JJD operation specs
+- **Phase 3 (Rust)**: Implement jjr — read VOK/VVK READMEs first
+- **Phase 4 (Integration)**: Wire bash to jjr, end-to-end test
+
 ### Essential References
 
 **JJD Specification** (our target):
@@ -30,7 +40,7 @@ Bash (locking, git ops, orchestration)
 **Bash Prototype** (behavior reference):
 - `Tools/jjk/jju_utility.sh` — current jq-based implementation
 
-**Rust Infrastructure** (read before Phase 3):
+**Rust Infrastructure** (read before Phase 3 paces):
 - `Tools/vok/README.md` — VOK patterns and conventions
 - `Tools/vvk/README.md` — VVK infrastructure for veiled Rust crates
 
@@ -60,9 +70,7 @@ Bash (locking, git ops, orchestration)
 
 ## Remaining
 
-### Phase 0: Vocabulary Migration
-
-- **rename-studbook-to-gallops** — Rename throughout JJD spec and update all prefixes.
+- **rename-studbook-to-gallops** — [Phase 0] Rename throughout JJD spec and update all prefixes.
   **Deliverables**:
   (1) Rename `JJD-StudbookData.adoc` → `JJD-GallopsData.adoc`
   (2) Update category declarations: `jjdsr_` → `jjdgr_`, `jjdsm_` → `jjdgm_`
@@ -71,9 +79,7 @@ Bash (locking, git ops, orchestration)
   (5) Update file path reference (`.claude/jjm/jjd_studbook.json` → `.claude/jjm/jjg_gallops.json`)
   **Success criteria**: Document renders correctly, all internal links resolve, grep finds no "studbook" references.
 
-### Phase 1: AXLA/Style Foundation
-
-- **exit-status-treatment** — Decide and document exit code semantics for operations.
+- **exit-status-treatment** — [Phase 1] Decide and document exit code semantics for operations.
   **Context**: AXLA has `axc_fatal` and `axc_warn` but no explicit exit code motifs. Queries (heat_exists, current_pace) use exit code as boolean result (0=true, 1=false), not error indicator. Mutations use 0=success, non-zero=fatal.
   **Deliverables**:
   (1) Decide: add AXLA terms, JJD-local terms, or prose-only documentation
@@ -81,7 +87,7 @@ Bash (locking, git ops, orchestration)
   (3) Document the query-vs-mutation distinction
   **Success criteria**: Every operation has clear exit status documentation.
 
-- **operation-template-finalize** — Establish DRY template for operation documentation.
+- **operation-template-finalize** — [Phase 1] Establish DRY template for operation documentation.
   **Context**: Nominate is fully documented with Arguments, Stdout, Behavior. Other ops are stubs.
   **Deliverables**:
   (1) Confirm template sections: Brief, Arguments, Stdout, Exit Status, Behavior (numbered steps)
@@ -89,23 +95,21 @@ Bash (locking, git ops, orchestration)
   (3) Add any missing AXLA voicing annotations to operations
   **Success criteria**: Template is clear enough to apply mechanically to remaining operations.
 
-### Phase 2: Operation Specifications
-
-- **spec-slate-reslate** — Document Slate and Reslate operations in JJD.
+- **spec-slate-reslate** — [Phase 2] Document Slate and Reslate operations in JJD.
   **Reference**: `jju_slate()` lines 624-715, `jju_reslate()` lines 717-791
   **Deliverables**:
   (1) Slate: Arguments, Stdout, Exit Status, Behavior (auto-assign Coronet, first pace gets `current` state)
   (2) Reslate: Arguments, Stdout, Exit Status, Behavior (prepend Tack to position 0)
   **Success criteria**: Operations fully specified with all sections.
 
-- **spec-rail-tally** — Document Rail and Tally operations in JJD.
+- **spec-rail-tally** — [Phase 2] Document Rail and Tally operations in JJD.
   **Reference**: `jju_rail()` lines 793-889, `jju_tally()` lines 891-972
   **Deliverables**:
   (1) Rail: Arguments (heat favor, order string), validation (same key set), Behavior
   (2) Tally: Arguments (pace favor, state), valid states, Behavior
   **Success criteria**: Operations fully specified with all sections.
 
-- **spec-read-ops-query** — Document query operations: Validate, Heat Exists, Muster.
+- **spec-read-ops-query** — [Phase 2] Document query operations: Validate, Heat Exists, Muster.
   **Reference**: `zjju_studbook_validate()` lines 235-279, `jju_muster()` lines 349-386
   **Note**: Heat Exists not explicit in bash - derive from validation pattern
   **Deliverables**:
@@ -114,7 +118,7 @@ Bash (locking, git ops, orchestration)
   (3) Muster: output format, Exit Status
   **Success criteria**: Query operations fully specified.
 
-- **spec-read-ops-extract** — Document extraction operations: Retire Extract, Current Tack, Current Pace.
+- **spec-read-ops-extract** — [Phase 2] Document extraction operations: Retire Extract, Current Tack, Current Pace.
   **Reference**: `jju_retire_extract()` lines 974-1107
   **Note**: Current Tack/Current Pace not explicit - derive from saddle/wrap usage
   **Deliverables**:
@@ -123,20 +127,15 @@ Bash (locking, git ops, orchestration)
   (3) Current Pace: return first pending/current Pace Favor, exit 1 if none
   **Success criteria**: Extraction operations fully specified.
 
-### Phase 3: Rust Implementation
-
-**IMPORTANT**: Before starting any Phase 3 pace, read:
-- `Tools/vok/README.md` — VOK patterns and conventions
-- `Tools/vvk/README.md` — VVK infrastructure for veiled Rust crates
-
-- **jjr-cargo-scaffold** — Create jjr crate structure following VOK/VVK patterns.
+- **jjr-cargo-scaffold** — [Phase 3] Create jjr crate structure following VOK/VVK patterns.
+  **Prerequisite**: Read `Tools/vok/README.md` and `Tools/vvk/README.md` before starting.
   **Deliverables**:
   (1) `Tools/jjk/jjr/Cargo.toml` with minimal deps (serde, serde_json, clap)
   (2) `src/main.rs` with clap command structure
   (3) Module structure: `favor.rs`, `gallops.rs`, `ops/` directory
   **Success criteria**: `cargo build` succeeds, `jjr --help` shows command structure.
 
-- **jjr-favor-encoding** — Implement Favor encode/decode in Rust.
+- **jjr-favor-encoding** — [Phase 3] Implement Favor encode/decode in Rust.
   **Reference**: JJD Serialization section, `zjju_favor_encode/decode()` in bash
   **Deliverables**:
   (1) `favor.rs` module with encode/decode functions
@@ -145,7 +144,7 @@ Bash (locking, git ops, orchestration)
   (4) Unit tests for encode/decode roundtrip
   **Success criteria**: All favor encoding tests pass.
 
-- **jjr-gallops-validate** — Implement Gallops schema validation in Rust.
+- **jjr-gallops-validate** — [Phase 3] Implement Gallops schema validation in Rust.
   **Reference**: JJD Validate operation, `zjju_studbook_validate()` in bash
   **Deliverables**:
   (1) `gallops.rs` with serde structs matching JJD schema
@@ -153,7 +152,7 @@ Bash (locking, git ops, orchestration)
   (3) `jjr gallops validate --file PATH` command
   **Success criteria**: Validates correct JSON, rejects malformed with clear errors.
 
-- **jjr-write-ops** — Implement write operations: nominate, slate, reslate, rail, tally.
+- **jjr-write-ops** — [Phase 3] Implement write operations: nominate, slate, reslate, rail, tally.
   **Reference**: JJD operation specs (completed in Phase 2)
   **Deliverables**:
   (1) Each operation as subcommand: `jjr gallops nominate --file PATH --silks X --created YYMMDD`
@@ -161,7 +160,7 @@ Bash (locking, git ops, orchestration)
   (3) Stdout output per JJD spec
   **Success criteria**: All write operations match JJD behavior spec.
 
-- **jjr-read-ops** — Implement read operations: heat-exists, muster, retire-extract, current-tack, current-pace.
+- **jjr-read-ops** — [Phase 3] Implement read operations: heat-exists, muster, retire-extract, current-tack, current-pace.
   **Reference**: JJD operation specs (completed in Phase 2)
   **Deliverables**:
   (1) Each operation as subcommand
@@ -169,16 +168,14 @@ Bash (locking, git ops, orchestration)
   (3) Stdout output per JJD spec
   **Success criteria**: All read operations match JJD behavior spec.
 
-### Phase 4: Integration
-
-- **jjb-orchestration-update** — Update bash orchestration to call jjr instead of jq.
+- **jjb-orchestration-update** — [Phase 4] Update bash orchestration to call jjr instead of jq.
   **Deliverables**:
   (1) Replace jq pipelines in jju_utility.sh with jjr calls
   (2) Maintain locking pattern (lock → jjr → unlock)
   (3) Update file path constant to `jjg_gallops.json`
   **Success criteria**: All existing JJ commands work with jjr backend.
 
-- **test-full-lifecycle** — Integration test of complete heat lifecycle via jjr.
+- **test-full-lifecycle** — [Phase 4] Integration test of complete heat lifecycle via jjr.
   **Deliverables**:
   (1) Create test heat via jjr nominate
   (2) Add paces via jjr slate
