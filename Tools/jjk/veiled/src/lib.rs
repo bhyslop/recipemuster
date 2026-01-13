@@ -1,24 +1,17 @@
 //! JJK - Job Jockey Kit
 //!
-//! Rust utilities for project initiative management.
-//! This crate is compiled into vvr when the jjk feature is enabled.
+//! Rust backend for Job Jockey initiative management.
+//! Implements Gallops JSON operations as vvx jjx_* subcommands.
 //!
-//! Currently a placeholder - add functionality as needed.
+//! This crate is compiled into vvr when the jjk feature is enabled.
 
-/// Placeholder module for future JJK Rust functionality
-pub mod placeholder {
-    /// Returns the JJK version string
-    pub fn version() -> &'static str {
-        env!("CARGO_PKG_VERSION")
-    }
-}
+pub mod jjrc_core;
+pub mod jjrf_favor;
+pub mod jjrg_gallops;
+pub mod jjrn_notch;
+pub mod jjrs_steeplechase;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_version() {
-        assert!(!placeholder::version().is_empty());
-    }
-}
+// Re-export commonly used types
+pub use jjrf_favor::{Coronet, Firemark};
+pub use jjrn_notch::{ChalkArgs, ChalkMarker, NotchArgs};
+pub use jjrs_steeplechase::ReinArgs;

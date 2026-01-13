@@ -242,3 +242,104 @@
 
 **Naming**: User renamed `canter` → `parade` (better describes showing off the whole heat).
 ---
+
+---
+### 2026-01-13 14:30 - jjr-cargo-scaffold - APPROACH
+**Proposed approach**:
+- Create `Tools/jjk/veiled/` directory structure (flat inside veiled, only src/ nesting)
+- Create `Cargo.toml` with `[lib] name = "jjk"`, minimal deps (serde, serde_json)
+- Create `src/lib.rs` with module declarations for jjrf_favor, jjrg_gallops, jjrc_core
+- Create stub files: `jjrf_favor.rs`, `jjrg_gallops.rs`, `jjrc_core.rs`
+- Update VOK `Cargo.toml`: uncomment jjk feature and optional dependency
+- Verify: `cargo build --features jjk` succeeds in VOK
+---
+
+---
+### 2026-01-13 15:00 - jjr-cargo-scaffold - WRAP
+**Outcome**: JJK Rust crate structure created. Updated existing veiled/ scaffold with:
+- `Cargo.toml`: enabled serde/serde_json dependencies
+- `lib.rs`: module declarations for jjrc_core, jjrf_favor, jjrg_gallops with re-exports
+- `jjrf_favor.rs`: Firemark/Coronet type stubs with CHARSET constant
+- `jjrg_gallops.rs`: Serde structs for Gallops schema (Gallops, Heat, Pace, Tack, enums)
+- `jjrc_core.rs`: shared utilities (default path, timestamp stubs)
+- VOK `Cargo.toml`: enabled jjk feature and path dependency
+
+Build succeeds: `cargo build --features jjk`
+---
+
+---
+### 2026-01-13 15:15 - jjr-favor-encoding - WRAP
+**Outcome**: Favor encode/decode fully implemented. 28 tests pass.
+
+**Firemark (Heat identity)**:
+- `encode(value: u16)` / `decode() -> Result<u16>`
+- `parse(input: &str)` accepts with/without `₣` prefix
+- `display()` returns prefixed form
+
+**Coronet (Pace identity)**:
+- `encode(heat: &Firemark, pace_index: u32)` / `decode() -> Result<(Firemark, u32)>`
+- `parse(input: &str)` accepts with/without `₢` prefix
+- `parent_firemark()` extracts parent Heat
+
+Helper functions: `char_to_value()`, `value_to_char()` for charset lookup.
+---
+
+---
+### 2026-01-13 15:15 - vvr-commit-core - WRAP
+**Outcome**: Core commit infrastructure implemented in VOK. `vvx commit --help` works.
+
+**New file**: `vorc_commit.rs` with CommitArgs struct and workflow:
+1. Lock acquire (`refs/vvg/locks/vvx`)
+2. Stage changes (`git add -u` unless --no-stage)
+3. Guard check (reuses vorg_guard)
+4. Claude message generation (if no --message)
+5. Commit with formatted message + co-author
+6. Lock release (guaranteed via RAII pattern)
+
+**Arguments**: `--prefix`, `--message/-m`, `--allow-empty`, `--no-stage`
+
+**Integration**: vorm_main.rs updated with Commit subcommand.
+---
+
+---
+### 2026-01-13 15:45 - jjr-gallops-validate - WRAP
+**Outcome**: Gallops schema validation fully implemented. 72 JJK tests pass.
+
+**Gallops methods implemented**:
+- `load(path)` — deserialize JSON file to struct
+- `save(path)` — atomic write (temp + rename)
+- `validate()` — comprehensive validation per JJD spec
+
+**Validation rules**: next_heat_seed format, Heat keys (`₣XX`), Heat fields (silks, creation_time, status, order, next_pace_seed, paddock_file), order/paces consistency, Pace keys (`₢XXXXX` with embedded Heat), Pace fields (silks, tacks non-empty), Tack fields (ts, state, text), direction conditional (required iff primed).
+
+**CLI**: `vvx jjx_validate --file PATH` — exits 0 if valid, 1 with errors if invalid.
+---
+
+---
+### 2026-01-13 15:45 - jjr-notch-chalk - WRAP
+**Outcome**: JJ commit wrappers implemented. Shells out to `vvx commit`.
+
+**New file**: `jjrn_notch.rs` with:
+- `NotchArgs` — firemark, pace, optional message
+- `ChalkArgs` — firemark, marker type, description
+- `ChalkMarker` enum — APPROACH, WRAP, FLY, DISCUSSION
+
+**CLI commands**:
+- `vvx jjx_notch <firemark> --pace <silks> [--message]` — formats `[jj:BRAND][₣XX/pace-silks]` prefix
+- `vvx jjx_chalk <firemark> --marker <type> --description <text>` — empty commit with marker
+
+**Architecture**: JJK shells to `vvx commit` to avoid circular deps.
+---
+
+---
+### 2026-01-13 15:45 - jjr-steeplechase-rein - WRAP
+**Outcome**: Git history parsing for steeplechase entries implemented.
+
+**New file**: `jjrs_steeplechase.rs` with:
+- `ReinArgs` — firemark, brand, limit
+- `SteeplechaseEntry` — timestamp, pace_silks (Option), marker (Option), subject
+
+**Behavior**: Runs `git log --grep` to find JJ commits, parses standard commits (`[jj:BRAND][₣XX/silks] msg`) and markers (`[jj:BRAND][₣XX] MARKER: desc`), outputs JSON array.
+
+**CLI**: `vvx jjx_rein <firemark> --brand <brand> [--limit N]`
+---

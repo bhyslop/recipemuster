@@ -12,11 +12,11 @@ path = "src/vorm_main.rs"
 [features]
 default = []
 # Kit features are auto-detected by build.rs
-# jjk = ["dep:jjk"]
+jjk = ["dep:jjk"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-# serde_json = "1"  # Uncomment when needed
+serde_json = "1"
 
 # Kit dependencies (optional, auto-enabled by build.rs)
-# jjk = { path = "../jjk/veiled", optional = true }
+jjk = { path = "../jjk/veiled", optional = true }
