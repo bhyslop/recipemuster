@@ -167,3 +167,78 @@
 ### 2026-01-13 - spec-rail-tally - WRAP
 **Outcome**: Eliminated Reslate; documented Rail with full behavior specs; unified Tally with optional --state, inheritance semantics, and full behavior.
 ---
+
+---
+### 2026-01-13 - spec-read-ops-query - APPROACH
+**Proposed approach**:
+- Validate: Already complete (Arguments, Stdout, Exit Status, Validation Rules) - verify and confirm
+- Heat Exists: Add Arguments (file, Firemark positional), Behavior (check heats object for key)
+- Muster: Add Arguments (file, optional --status filter), Stdout format (TSV: Firemark, silks, status, pace count), Exit Status (uniform), Behavior
+---
+
+---
+### 2026-01-13 12:15 - spec-read-ops-query - APPROACH (resumed)
+**Context**: Resuming pace from prior session. JJD review shows:
+- Validate: Complete (lines 972-1047) with Arguments, Stdout, Exit Status, Validation Rules
+- Heat Exists: Partial (lines 1049-1061) - has Stdout/Exit Status, missing Arguments and Behavior
+- Muster: Minimal (lines 1063-1069) - only description, needs full documentation
+---
+
+---
+### 2026-01-13 12:20 - spec-read-ops-query - WRAP
+**Outcome**: Query operations fully documented with uniform exit semantics.
+
+**Changes made**:
+- Validate: Confirmed complete (no changes needed)
+- Heat Exists: Added Arguments (file, Firemark positional), Behavior (read, check key, output true/false)
+- Muster: Added Arguments (file, optional --status filter), Stdout (TSV format), Exit Status (uniform), Behavior
+- Added jjda_status to mapping section and Arguments section for Muster's filter option
+---
+
+---
+### 2026-01-13 12:35 - spec-read-ops-extract - WRAP
+**Outcome**: Extraction operations simplified and documented.
+
+**Key decision**: Eliminated `current_pace` and `current_tack` as separate operations; replaced with unified `jjx_saddle` that returns all context needed for saddle workflow in one call.
+
+**Changes made**:
+- Removed jjdo_current_pace and jjdo_current_tack from mapping and operations
+- Added jjdo_saddle: returns JSON with heat_silks, pace_coronet, pace_silks, pace_state, tack_text, tack_direction (optional)
+- Renamed jjdo_retire_extract → jjdo_retire (simpler name)
+- Documented jjx_retire with full JSON output structure for trophy creation
+---
+
+---
+### 2026-01-13 12:50 - jjd-steeplechase-ops - WRAP
+**Outcome**: Steeplechase operations fully documented. Phase 2 (Specification) complete.
+
+**New section added**: "Steeplechase Operations" with commit message patterns.
+
+**Operations documented**:
+- jjx_rein: parses git log for JJ commits, returns JSON array of entries (timestamp, pace_silks or marker, subject)
+- jjx_notch: JJ-aware commit with `[jj:BRAND][₣XX/pace-silks]` prefix, optional claude-generated message
+- jjx_chalk: empty commit for steeplechase markers (APPROACH, WRAP, FLY, DISCUSSION)
+
+**Patterns defined**:
+- Standard commit: `[jj:BRAND][₣XX/pace-silks] message`
+- Marker commit: `[jj:BRAND][₣XX] MARKER: description`
+---
+
+---
+### 2026-01-13 13:10 - paddock-and-parade - DISCUSSION
+**Context**: User requested additional operations for heat review and archival.
+
+**New Heat field**: `paddock_file` - path to `jjp_XX.md` containing heat context/background.
+
+**Operations added/updated**:
+- jjx_nominate: now creates paddock file with template, stores path in Heat record
+- jjx_saddle: now includes `paddock_file` and `paddock_content` in output
+- jjx_parade (new): comprehensive heat status for project review
+  - Full paddock content
+  - All paces in order with tack details for rough/primed
+  - Just silks for complete/abandoned (unless --full flag)
+- jjx_retire: updated to include paddock and steeplechase (calls jjx_rein internally)
+  - Complete archive before squash merge preserves all session history
+
+**Naming**: User renamed `canter` → `parade` (better describes showing off the whole heat).
+---

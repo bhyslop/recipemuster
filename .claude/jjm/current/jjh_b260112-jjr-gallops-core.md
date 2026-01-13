@@ -103,33 +103,13 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **spec-rail-tally** — [Phase 2] Eliminated Reslate; documented Rail; unified Tally with optional --state and full behavior specs. ✓
 
+- **spec-read-ops-query** — [Phase 2] Documented query operations: Validate (confirmed complete), Heat Exists (added Args/Behavior), Muster (full documentation with --status filter). ✓
+
+- **spec-read-ops-extract** — [Phase 2] Simplified extraction: eliminated current_tack/current_pace, added jjx_saddle (bundled context), renamed retire_extract → retire with full JSON spec. ✓
+
+- **jjd-steeplechase-ops** — [Phase 2] Added Steeplechase Operations section with commit patterns; documented jjx_rein (git log parsing), jjx_notch (JJ commit), jjx_chalk (markers). ✓
+
 ## Remaining
-
-- **spec-read-ops-query** — [Phase 2] Document query operations: Validate, Heat Exists, Muster.
-  **Reference**: `zjju_studbook_validate()` lines 235-279, `jju_muster()` lines 349-386
-  **Note**: Heat Exists not explicit in bash - derive from validation pattern
-  **Deliverables**:
-  (1) Validate: validation rules already listed, add Exit Status (0=valid, non-zero=error)
-  (2) Heat Exists: Arguments, Stdout (true/false), Exit Status (uniform 0=success)
-  (3) Muster: output format, Exit Status
-  **Success criteria**: Query operations fully specified with uniform exit semantics.
-
-- **spec-read-ops-extract** — [Phase 2] Document extraction operations: Retire Extract, Current Tack, Current Pace.
-  **Reference**: `jju_retire_extract()` lines 974-1107
-  **Note**: Current Tack/Current Pace not explicit - derive from saddle/wrap usage
-  **Deliverables**:
-  (1) Retire Extract: output JSON structure for trophy creation
-  (2) Current Tack: return latest Tack text (and direction if primed) for a Pace
-  (3) Current Pace: return first rough/primed Pace Favor, exit 1 if none
-  **Success criteria**: Extraction operations fully specified.
-
-- **jjd-steeplechase-ops** — [Phase 2] Document steeplechase operations in JJD.
-  **Context**: Steeplechase tracks session history via git. Saddle needs to read this; notch/chalk create entries.
-  **Deliverables**:
-  (1) Add `rein` operation to JJD: Arguments (heat favor), Stdout (formatted steeplechase entries), Behavior (parse git log for JJ patterns)
-  (2) Define steeplechase entry patterns: APPROACH, WRAP, FLY, DISCUSSION
-  (3) Document notch/chalk as `vvx jjx_notch` / `vvx jjx_chalk` (spec only; implementation in jjr-notch-chalk)
-  **Success criteria**: Steeplechase operations fully specified.
 
 - **jjr-cargo-scaffold** — [Phase 3] Create JJK Rust crate structure following VOK/VVK patterns.
   **Prerequisite**: Read `Tools/vok/README.md` and `Tools/vvk/README.md` before starting.

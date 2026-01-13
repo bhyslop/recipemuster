@@ -44,6 +44,7 @@
 :jjdhm_created:   <<jjdhm_created,creation_time>>
 :jjdhm_firemark:  <<jjdhm_firemark,firemark>>
 :jjdhm_order:     <<jjdhm_order,order>>
+:jjdhm_paddock:   <<jjdhm_paddock,paddock_file>>
 :jjdhm_seed:      <<jjdhm_seed,next_pace_seed>>
 :jjdhm_silks:     <<jjdhm_silks,silks>>
 :jjdhm_status:    <<jjdhm_status,status>>
@@ -79,19 +80,22 @@
 :jjda_file:           <<jjda_file,--file>>
 :jjda_silks:          <<jjda_silks,--silks>>
 :jjda_state:          <<jjda_state,--state>>
+:jjda_status:         <<jjda_status,--status>>
 
 // CLI executor
 :jjdx_vvx:   <<jjdx_vvx,vvx>>
 :jjdx_cli:   <<jjdx_cli,jjx>>
 
 // Operations
-:jjdo_current_pace:   <<jjdo_current_pace,jjx_current_pace>>
-:jjdo_current_tack:   <<jjdo_current_tack,jjx_current_tack>>
-:jjdo_heat_exists:    <<jjdo_heat_exists,jjx_heat_exists>>
+:jjdo_canter:         <<jjdo_canter,jjx_canter>>
+:jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_muster:         <<jjdo_muster,jjx_muster>>
 :jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
+:jjdo_notch:          <<jjdo_notch,jjx_notch>>
 :jjdo_rail:           <<jjdo_rail,jjx_rail>>
-:jjdo_retire_extract: <<jjdo_retire_extract,jjx_retire_extract>>
+:jjdo_rein:           <<jjdo_rein,jjx_rein>>
+:jjdo_retire:         <<jjdo_retire,jjx_retire>>
+:jjdo_saddle:         <<jjdo_saddle,jjx_saddle>>
 :jjdo_slate:          <<jjdo_slate,jjx_slate>>
 :jjdo_tally:          <<jjdo_tally,jjx_tally>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
@@ -343,6 +347,18 @@ index to allocate, stored as 3 base64 characters.
 Incremented by
 {jjdo_slate}.
 
+* [[jjdhm_paddock]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_paddock}
+is the path to the paddock file containing
+{jjdhr_heat}
+context and background.
+Format: `.claude/jjm/jjp_XX.md` where XX is the base64-encoded
+{jjdt_firemark}
+(without `₣` prefix).
+Created by
+{jjdo_nominate}.
+
 ==== Status Values
 
 [[jjdhe_current]]
@@ -589,6 +605,18 @@ Creation date in YYMMDD format.
 Long: `--created`.
 Short: `-c`.
 
+[[jjda_status]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_status}::
+Filter by
+{jjdhr_heat}
+status.
+Long: `--status`.
+Short: none.
+Values:
+{jjdhe_current},
+{jjdhe_retired}.
+
 == Section Headers
 
 [[jjds_arguments]]
@@ -678,6 +706,20 @@ from file
 {jjdgm_seed}
 as
 {jjdt_firemark}
+. Compute paddock path: `.claude/jjm/jjp_XX.md` where XX is the 2 base64 chars
+. Create paddock file with template:
++
+----
+# Paddock: {silks}
+
+## Context
+
+(Describe the initiative's background and goals)
+
+## References
+
+(List relevant files, docs, or prior work)
+----
 . Create new
 {jjdhr_heat}
 with:
@@ -693,6 +735,8 @@ from argument
 empty array
 .. {jjdhm_seed}:
 `AAA` (index 0)
+.. {jjdhm_paddock}:
+computed paddock path
 .. `paces`: empty object
 . Increment
 {jjdgm_seed}
@@ -1046,20 +1090,6 @@ must be present (non-empty string); otherwise
 {jjdkm_direction}
 must be absent
 
-[[jjdo_heat_exists]]
-// ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_heat_exists}
-
-Check whether a
-{jjdhr_heat}
-with given
-{jjdt_firemark}
-exists.
-
-{jjds_stdout} `true` or `false`
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
 [[jjdo_muster]]
 // ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_muster}
@@ -1068,33 +1098,475 @@ List all
 {jjdhr_heat_s}
 with summary information.
 
-[[jjdo_retire_extract]]
-// ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_retire_extract}
+{jjds_arguments}
 
-Extract
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_optional⟧
+* {jjda_status}
+— filter to show only
+{jjdhr_heat_s}
+with this status; if absent, show all
+
+{jjds_stdout} Tab-separated values, one line per
+{jjdhr_heat}:
+`{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><pace_count>`
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Iterate over `heats` object entries
+. If
+{jjda_status}
+provided, skip
+{jjdhr_heat_s}
+not matching filter
+. For each included
+{jjdhr_heat},
+output TSV line:
+{jjdt_firemark},
+{jjdhm_silks},
+{jjdhm_status},
+count of
+{jjdpr_pace_s}
+in `paces` object
+. Output lines in arbitrary order (JSON object iteration order)
+
+[[jjdo_retire]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_retire}
+
+Extract complete
 {jjdhr_heat}
 data for archival trophy.
+Includes paddock content and full steeplechase history from git.
+Use before squash merge to preserve session history.
 
-[[jjdo_current_tack]]
-// ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_current_tack}
+{jjds_arguments}
 
-Return the most recent
-{jjdkr_tack_p}
-{jjdkm_text}
-for a given
-{jjdpr_pace}.
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
 
-[[jjdo_current_pace]]
-// ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_current_pace}
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
 
-Return the first
-{jjdpr_pace}
-in
+{jjds_stdout} JSON object containing complete archive:
+[source,json]
+----
+{
+  "firemark": "₣XX",
+  "silks": "...",
+  "created": "YYMMDD",
+  "status": "current|retired",
+  "paddock_file": ".claude/jjm/jjp_XX.md",
+  "paddock_content": "...",
+  "paces": [
+    {
+      "coronet": "₢XXXXX",
+      "silks": "...",
+      "tacks": [
+        {
+          "ts": "YYMMDD-HHMM",
+          "state": "...",
+          "text": "...",
+          "direction": "..."
+        }
+      ]
+    }
+  ],
+  "steeplechase": [
+    {
+      "timestamp": "YYYY-MM-DD HH:MM",
+      "pace_silks": "...",
+      "marker": null,
+      "subject": "commit message"
+    }
+  ]
+}
+----
+The `paces` array is ordered per
 {jjdhm_order}
-whose current state (from `tacks[0].state`) is
+with full
+{jjdkr_tack}
+history for each pace.
+Field `direction` appears only on
+{jjdkr_tack_s}
+with state
+{jjdpe_primed}.
+The `steeplechase` array contains all session history entries (from
+{jjdo_rein}).
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Extract
+{jjdhr_heat}
+metadata:
+{jjdt_firemark},
+{jjdhm_silks},
+{jjdhm_created},
+{jjdhm_status}
+. Output `paddock_file` from
+{jjdhm_paddock}
+. Read paddock file contents, output as `paddock_content`
+. Build `paces` array by walking
+{jjdhm_order}:
+.. For each
+{jjdt_coronet},
+include
+{jjdpm_silks}
+and full `tacks` array (all history)
+. Call
+{jjdo_rein}
+internally to get steeplechase entries
+. Output JSON object with all fields
+
+[[jjdo_saddle]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_saddle}
+
+Return context needed to saddle up on a
+{jjdhr_heat}:
+the current
+{jjdpr_pace}
+(first in
+{jjdhm_order}
+whose state is
 {jjdpe_rough}
 or
+{jjdpe_primed})
+and its
+{jjdkr_tack}
+details.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+{jjds_stdout} JSON object with structure:
+[source,json]
+----
+{
+  "heat_silks": "...",
+  "paddock_file": ".claude/jjm/jjp_XX.md",
+  "paddock_content": "...",
+  "pace_coronet": "₢XXXXX",
+  "pace_silks": "...",
+  "pace_state": "rough|primed",
+  "tack_text": "...",
+  "tack_direction": "..."
+}
+----
+Fields `pace_coronet` through `tack_direction` are absent if no actionable pace exists.
+Field `tack_direction` is present only when `pace_state` is
 {jjdpe_primed}.
+Field `paddock_content` contains the full text of the paddock file.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Output `heat_silks` from
+{jjdhr_heat}
+. Output `paddock_file` from
+{jjdhm_paddock}
+. Read paddock file contents, output as `paddock_content`
+. Walk
+{jjdhm_order}
+array in sequence
+. For each
+{jjdt_coronet},
+check `paces[coronet].tacks[0].state`
+. If state is
+{jjdpe_rough}
+or
+{jjdpe_primed}:
+.. Output `pace_coronet`,
+`pace_silks`,
+`pace_state`
+.. Output `tack_text` from `tacks[0].text`
+.. If state is
+{jjdpe_primed},
+output `tack_direction` from `tacks[0].direction`
+.. Stop walking (first match wins)
+. If no actionable pace found, output only `heat_silks`, `paddock_file`, and `paddock_content`
+
+[[jjdo_parade]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_parade}
+
+Display comprehensive
+{jjdhr_heat}
+status for project review.
+Shows paddock, all
+{jjdpr_pace_s}
+in order, with tack details for actionable paces.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_optional⟧
+* `--full` — include tack details for
+{jjdpe_complete}
+and
+{jjdpe_abandoned}
+paces (default: silks only)
+
+{jjds_stdout} JSON object with structure:
+[source,json]
+----
+{
+  "heat_silks": "...",
+  "heat_created": "YYMMDD",
+  "heat_status": "current|retired",
+  "paddock_file": ".claude/jjm/jjp_XX.md",
+  "paddock_content": "...",
+  "paces": [
+    {
+      "coronet": "₢XXXXX",
+      "silks": "...",
+      "state": "rough|primed",
+      "tack_text": "...",
+      "tack_direction": "..."
+    },
+    {
+      "coronet": "₢YYYYY",
+      "silks": "...",
+      "state": "complete"
+    }
+  ]
+}
+----
+For
+{jjdpe_rough}
+or
+{jjdpe_primed}
+paces: includes `tack_text` (and `tack_direction` if primed).
+For
+{jjdpe_complete}
+or
+{jjdpe_abandoned}
+paces: includes only `silks` and `state` unless `--full` flag is set.
+Paces ordered per
+{jjdhm_order}.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Output heat metadata: `heat_silks`, `heat_created`, `heat_status`
+. Output `paddock_file` from
+{jjdhm_paddock}
+. Read paddock file contents, output as `paddock_content`
+. Build `paces` array by walking
+{jjdhm_order}:
+.. For each
+{jjdt_coronet},
+read `tacks[0]` to get current state
+.. Output `coronet`, `silks`, `state`
+.. If state is
+{jjdpe_rough}
+or
+{jjdpe_primed}:
+output `tack_text` (and `tack_direction` if primed)
+.. If state is
+{jjdpe_complete}
+or
+{jjdpe_abandoned}
+and `--full` flag:
+output `tack_text`
+. Output JSON
+
+=== Steeplechase Operations
+
+The steeplechase is Job Jockey's session history, stored in git commits rather than the
+{jjdgr_gallops}
+JSON.
+Commit messages follow patterns that
+{jjdo_rein}
+can parse to reconstruct session history.
+
+==== Commit Message Patterns
+
+*Standard commit* (created by {jjdo_notch}):
+----
+[jj:BRAND][₣XX/pace-silks] commit message
+
+Co-Authored-By: ...
+----
+
+* `BRAND` — repository identifier baked into arcanum at install time
+* `₣XX` — {jjdt_firemark} of the active heat
+* `pace-silks` — {jjdt_silks} of the current pace
+
+*Steeplechase marker* (created by {jjdo_chalk}):
+----
+[jj:BRAND][₣XX] MARKER: description
+
+Co-Authored-By: ...
+----
+
+Marker types:
+
+* `APPROACH` — proposed approach for a pace, recorded before work begins
+* `WRAP` — pace completion summary
+* `FLY` — autonomous execution began (primed pace)
+* `DISCUSSION` — significant decision or design discussion
+
+[[jjdo_rein]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_rein}
+
+Parse git history for steeplechase entries belonging to a
+{jjdhr_heat}.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_optional⟧
+* `--limit` — maximum entries to return (default: 50)
+
+{jjds_stdout} JSON array of steeplechase entries:
+[source,json]
+----
+[
+  {
+    "timestamp": "YYYY-MM-DD HH:MM",
+    "pace_silks": "...",
+    "marker": null,
+    "subject": "commit message"
+  },
+  {
+    "timestamp": "YYYY-MM-DD HH:MM",
+    "pace_silks": null,
+    "marker": "APPROACH",
+    "subject": "description"
+  }
+]
+----
+Field `pace_silks` is present for standard commits, `marker` for chalk entries.
+Entries ordered newest first.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Run `git log --all --extended-regexp --grep="^\[jj:BRAND\]\[₣XX" --format="%ai%x09%s"`
+. Parse each line: extract timestamp, determine if standard commit or marker
+. For standard commits: extract pace-silks from `[₣XX/pace-silks]`
+. For markers: extract marker type and description
+. Build JSON array, limit to requested count
+. Output JSON
+
+[[jjdo_notch]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_notch}
+
+Create a JJ-aware git commit with heat/pace context prefix.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — active
+{jjdhr_heat}
+
+// ⟦axd_required⟧
+* `--pace` — {jjdt_silks} of the current pace
+
+// ⟦axd_optional⟧
+* `--message` — commit message; if absent, invoke `claude --print` to generate from diff
+
+{jjds_stdout} Commit hash
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Acquire lock (`refs/vvg/locks/vvx`)
+. Stage changes (`git add -u`)
+. Run size guard check
+. If `--message` absent:
+.. Run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
+.. Use response as message
+. Format full message: `[jj:BRAND][₣XX/pace-silks] message\n\nCo-Authored-By: ...`
+. Run `git commit -m "..."`
+. Release lock
+. Output commit hash
+
+[[jjdo_chalk]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_chalk}
+
+Create an empty commit marking a steeplechase event.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — active
+{jjdhr_heat}
+
+// ⟦axd_required⟧
+* `--marker` — marker type: `APPROACH`, `WRAP`, `FLY`, or `DISCUSSION`
+
+// ⟦axd_required⟧
+* `--description` — marker description text
+
+{jjds_stdout} Commit hash
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Acquire lock (`refs/vvg/locks/vvx`)
+. Format message: `[jj:BRAND][₣XX] MARKER: description\n\nCo-Authored-By: ...`
+. Run `git commit --allow-empty -m "..."`
+. Release lock
+. Output commit hash
