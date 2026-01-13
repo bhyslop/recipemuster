@@ -217,6 +217,10 @@
 :axa_required:                        <<axa_required,Required>>
 :axa_optional:                        <<axa_optional,Optional>>
 :axa_defaulted:                       <<axa_defaulted,Defaulted>>
+:axa_argument_list:                   <<axa_argument_list,Argument List>>
+:axa_cli_option:                      <<axa_cli_option,CLI Option>>
+:axa_exit_uniform:                    <<axa_exit_uniform,Exit Uniform>>
+:axa_exit_enumerated:                 <<axa_exit_enumerated,Exit Enumerated>>
 
 // Axial Interface Terms
 :axi_command_interface:               <<axi_command_interface,Command Interface>>
@@ -234,6 +238,7 @@
 :axi_response_body:                   <<axi_response_body,Response Body>>
 :axi_cli_interface:                   <<axi_cli_interface,CLI Interface>>
 :axi_cli_program:                     <<axi_cli_program,CLI Program>>
+:axi_cli_command_group:               <<axi_cli_command_group,CLI Command Group>>
 :axi_cli_subcommand:                  <<axi_cli_subcommand,CLI Subcommand>>
 :axi_rest_api:                        <<axi_rest_api,REST API>>
 :axi_rpc_interface:                   <<axi_rpc_interface,RPC Interface>>
@@ -930,6 +935,124 @@ Specifies behavior when
 {axa_optional}
 argument omitted.
 
+[[axa_argument_list]]
+{axa_argument_list}::
+A
+{axl_motif}
+representing a structured section documenting an operation's arguments.
+Within an
+{axa_argument_list},
+{axd_dimension}
+annotations may precede bullet items to qualify argument usage without requiring anchors.
+Each item references a globally-defined argument term.
+The voicing is placed on the section header term definition, not repeated at each usage.
++
+Example section header definition:
++
+[source,asciidoc]
+----
+[[jjds_arguments]]
+// ⟦axl_voices axa_argument_list⟧
+{jjds_arguments}::
+Section header introducing operation arguments.
+----
++
+Example usage in an operation:
++
+[source,asciidoc]
+----
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjda_silks}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+----
+
+[[axa_cli_option]]
+{axa_cli_option}::
+A
+{axl_motif}
+representing a command-line option definition.
+{axl_voicing_s}
+require the definition text to specify:
++
+* The long form (e.g., `--file`)
+* The short form, or its absence (e.g., `-f` or "none")
++
+Example:
++
+[source,asciidoc]
+----
+[[jjda_file]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_file}::
+Path to the Gallops JSON file.
+Long: `--file`.
+Short: none.
+Default: `.claude/jjm/jjg_gallops.json`.
+----
+
+[[axa_exit_uniform]]
+{axa_exit_uniform}::
+A
+{axl_motif}
+representing an Exit Status section that follows standard Unix conventions.
+Exit 0 indicates success; any non-zero exit indicates error.
+{axl_voicing_s}
+may use terse notation since the pattern is conventional.
+The voicing is placed on the section header term definition, not repeated at each usage.
+Specifications define separate section header terms for uniform vs enumerated exit patterns.
++
+Example section header definition:
++
+[source,asciidoc]
+----
+[[jjds_exit_uniform]]
+// ⟦axl_voices axa_exit_uniform⟧
+{jjds_exit_uniform}::
+Section header for operations with standard exit semantics.
+----
++
+Example usage:
++
+[source,asciidoc]
+----
+{jjds_exit_uniform} 0 success, non-zero error.
+----
+
+[[axa_exit_enumerated]]
+{axa_exit_enumerated}::
+A
+{axl_motif}
+representing an Exit Status section with distinct exit codes carrying specific meanings.
+{axl_voicing_s}
+require the definition text to list each exit code and its meaning.
+The voicing is placed on the section header term definition, not repeated at each usage.
+Specifications define separate section header terms for uniform vs enumerated exit patterns.
++
+Example section header definition:
++
+[source,asciidoc]
+----
+[[jjds_exit_enumerated]]
+// ⟦axl_voices axa_exit_enumerated⟧
+{jjds_exit_enumerated}::
+Section header for operations with distinct exit codes.
+----
++
+Example usage:
++
+[source,asciidoc]
+----
+{jjds_exit_enumerated}
+
+* 0 — found and valid
+* 1 — not found
+* 2 — found but malformed
+----
+
 == Axial Interface Terms
 
 [[axi_command_interface]]
@@ -1019,14 +1142,28 @@ Writes results to stdout, errors to stderr.
 Returns exit status: 0 for success, non-zero for failure.
 Suitable for scripted, non-interactive use.
 
+[[axi_cli_command_group]]
+{axi_cli_command_group}::
+A
+{axl_motif}
+representing a namespace within a CLI that contains subcommands.
+Does not perform operations itself; serves as organizational container.
+May be nested within an
+{axi_cli_program}
+or another
+{axi_cli_command_group}.
+Inherits Unix CLI semantics from parent.
+
 [[axi_cli_subcommand]]
 {axi_cli_subcommand}::
 A
 {axl_motif}
-representing an operation within an
-{axi_cli_program}.
-Inherits Unix CLI semantics from parent program: arguments, stdout, stderr, exit status.
-Typically invoked as `program subcommand [args]` or `program group subcommand [args]`.
+representing a leaf operation within an
+{axi_cli_program}
+or
+{axi_cli_command_group}.
+Performs an actual operation; not a container for other commands.
+Inherits Unix CLI semantics from parent: arguments, stdout, stderr, exit status.
 
 [[axi_rest_api]]
 {axi_rest_api}::
@@ -1561,3 +1698,51 @@ A
 {axl_motif}
 representing required component or library for operation.
 Specifies external requirements for functionality.
+
+== Compliance Rules
+
+This section specifies compositional requirements between motifs.
+When a term voices a particular motif, these rules define what companion elements are required.
+
+=== CLI Subcommand Completeness
+
+Voicing as
+{axi_cli_subcommand}
+requires:
+
+* Exit Status section voiced as
+{axa_exit_uniform}
+or
+{axa_exit_enumerated}
+
+* Arguments section voiced as
+{axa_argument_list}
+(may list zero arguments if operation takes none)
+
+=== CLI Option Completeness
+
+Voicing as
+{axa_cli_option}
+requires the definition text to specify:
+
+* Long form (e.g., `--file`)
+
+* Short form or explicit absence (e.g., `-f` or "none")
+
+* Default value, if the argument is used with
+{axd_defaulted}
+
+=== Argument List Item Qualification
+
+Within an
+{axa_argument_list},
+each item requires a preceding
+{axd_dimension}
+annotation specifying at minimum:
+
+* {axd_required}
+or
+{axd_optional}
+
+* {axd_defaulted}
+if a default value applies

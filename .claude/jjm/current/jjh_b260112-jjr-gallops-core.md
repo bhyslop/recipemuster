@@ -1,6 +1,6 @@
 # Heat: JJR Gallops Core
 
-Implement `vvx jjx`, the Job Jockey subcommand that owns all Gallops JSON operations. Complete the JJD specification, then build the Rust implementation informed by VOK/VVK patterns.
+Implement Job Jockey Rust backend: `vvx jjx_*` subcommands for Gallops JSON operations, steeplechase history, and JJ-aware commits. Complete the JJD specification, then build the Rust implementation informed by VOK/VVK patterns. Also adds `vvx commit` core infrastructure to VOK.
 
 ## Paddock
 
@@ -10,17 +10,31 @@ The gallops are where horses train - where real work happens before race day. Th
 
 ### Architecture Recap
 
-**`vvx jjx` owns all Gallops file access.** No jq, no direct JSON manipulation. Bash handles locking via `git update-ref`; `vvx jjx` handles read, transform, atomic write.
+**`vvx commit`** — Core commit infrastructure in VOK: lock, stage, guard, claude-for-message, commit. Shared by all commit operations.
+
+**`vvx jjx_*`** — Flat namespace for all JJK operations. No nested subcommands; underscore-delimited single tokens.
 
 ```
-Bash (locking, git ops, orchestration)
+vvx (Rust via VOK)
+  ├─ commit              # Core: lock, stage, guard, claude call, commit
   │
-  └─► vvx jjx (Rust) - all JSON operations
-        ├─ favor encode/decode
-        ├─ gallops validate
-        ├─ gallops transform (nominate, slate, tally, etc.)
-        └─ gallops query (muster, heat_exists, current_pace, etc.)
+  └─ jjx_* (JJK feature, flat namespace)
+        ├─ jjx_notch     # JJ commit with heat/pace prefix (uses commit core)
+        ├─ jjx_chalk     # Steeplechase marker, empty commit (uses commit core)
+        ├─ jjx_validate  # Gallops JSON validation
+        ├─ jjx_nominate  # Create heat
+        ├─ jjx_slate     # Add pace
+        ├─ jjx_reslate   # Add tack
+        ├─ jjx_rail      # Reorder paces
+        ├─ jjx_tally     # State transition
+        ├─ jjx_muster    # List heats
+        ├─ jjx_rein      # Steeplechase history from git log
+        └─ ... (other ops)
 ```
+
+**Single lock:** All `vvx` operations share one lock (`refs/vvg/locks/vvx`). Rust acquires at start, releases on completion or failure.
+
+**Slash commands become thin wrappers:** Extract context from conversation, invoke background `vvx` process, return immediately.
 
 ### Pacing Strategy
 
@@ -29,8 +43,8 @@ Work proceeds in logical phases. Each pace notes its phase for context.
 - **Phase 0 (Vocabulary)**: Rename studbook → gallops throughout
 - **Phase 1 (Foundation)**: AXLA voicing, operation template style
 - **Phase 2 (Specification)**: Complete all JJD operation specs
-- **Phase 3 (Rust)**: Implement `vvx jjx` — read VOK/VVK READMEs first
-- **Phase 4 (Integration)**: Wire bash to `vvx jjx`, end-to-end test
+- **Phase 3 (Rust)**: Implement `vvx jjx_*` and `vvx commit` — read VOK/VVK READMEs first
+- **Phase 4 (Integration)**: Wire bash to `vvx jjx_*`, end-to-end test
 
 ### Essential References
 
@@ -50,8 +64,8 @@ Work proceeds in logical phases. Each pace notes its phase for context.
 ### Key Constraints
 
 1. **JJD is the authority** — bash prototype shows behavior, JJD defines it precisely
-2. **No jq in final system** — all JSON ops move to `vvx jjx`
-3. **Atomic writes** — `vvx jjx` writes to temp file, then renames
+2. **No jq in final system** — all JSON ops move to `vvx jjx_*`
+3. **Atomic writes** — `vvx jjx_*` writes to temp file, then renames
 4. **Git as journal** — every mutation is a diffable commit
 5. **Uniform exit codes** — 0=success, non-zero=failure; answers to stdout, not exit codes
 
@@ -63,6 +77,8 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 | `jjrf_favor.rs` | `jjrf_` | Favor encode/decode |
 | `jjrg_gallops.rs` | `jjrg_` | Gallops JSON operations |
 | `jjrc_core.rs` | `jjrc_` | Shared infrastructure |
+| `jjrn_notch.rs` | `jjrn_` | Notch/chalk commit operations |
+| `jjrs_steeplechase.rs` | `jjrs_` | Steeplechase (rein) operations |
 | `lib.rs` | — | Crate root, module declarations |
 
 ### Prefix Changes (Studbook → Gallops)
@@ -122,9 +138,9 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   **Context**: Steeplechase tracks session history via git. Saddle needs to read this; notch/chalk create entries.
   **Deliverables**:
   (1) Add `rein` operation to JJD: Arguments (heat favor), Stdout (formatted steeplechase entries), Behavior (parse git log for JJ patterns)
-  (2) Document that notch/chalk delegate to vvc-commit with --prefix parameter
-  (3) Define steeplechase entry patterns: APPROACH, WRAP, FLY, DISCUSSION
-  **Success criteria**: Steeplechase operations fully specified; clear that git ops use vvc-commit.
+  (2) Define steeplechase entry patterns: APPROACH, WRAP, FLY, DISCUSSION
+  (3) Document notch/chalk as `vvx jjx_notch` / `vvx jjx_chalk` (spec only; implementation in jjr-notch-chalk)
+  **Success criteria**: Steeplechase operations fully specified.
 
 - **jjr-cargo-scaffold** — [Phase 3] Create JJK Rust crate structure following VOK/VVK patterns.
   **Prerequisite**: Read `Tools/vok/README.md` and `Tools/vvk/README.md` before starting.
@@ -152,14 +168,14 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   **Deliverables**:
   (1) Serde structs in `jjrg_gallops.rs` matching JJD schema
   (2) Validation function checking all rules from JJD
-  (3) `vvx jjx gallops validate --file PATH` subcommand
+  (3) `vvx jjx_validate --file PATH` subcommand
   **Success criteria**: Validates correct JSON, rejects malformed with clear errors.
 
 - **jjr-write-ops** — [Phase 3] Implement write operations: nominate, slate, reslate, rail, tally.
   **Reference**: JJD operation specs (completed in Phase 2)
   **Source file**: `jjrg_gallops.rs`
   **Deliverables**:
-  (1) Each operation as subcommand: `vvx jjx gallops nominate --file PATH --silks X --created YYMMDD`
+  (1) Each operation as subcommand: `vvx jjx_nominate --file PATH --silks X --created YYMMDD`
   (2) Atomic write (temp file + rename)
   (3) Stdout output per JJD spec
   **Success criteria**: All write operations match JJD behavior spec.
@@ -173,43 +189,59 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (3) Stdout output per JJD spec
   **Success criteria**: All read operations match JJD behavior spec.
 
-- **vvc-prefix-support** — [Phase 3] Add --prefix parameter to vvc-commit.
-  **Context**: JJ needs to include heat/pace context in commit messages without duplicating commit logic. Crosses into VVK but enables JJ.
-  **Location**: VVK (Tools/vvk/ - wherever vvc-commit slash command is defined)
+- **vvr-commit-core** — [Phase 3] Build core commit infrastructure in VOK Rust.
+  **Context**: Unified commit implementation that both vvc-commit and JJ commands use. Rust orchestrates: lock, stage, guard, claude call, commit.
+  **Location**: `Tools/vok/src/vorc_commit.rs` (new file)
   **Deliverables**:
-  (1) Update vvc-commit to accept --prefix STRING parameter
-  (2) Prefix prepended to commit message summary line: "[prefix] Summary"
-  (3) Works with existing vvc-commit flow (guarded, size-checked)
-  **Success criteria**: `vvc-commit --prefix "[₣HH/silks]"` produces commit with prefixed message.
+  (1) `vvx commit` subcommand with args: `--prefix`, `--allow-empty`, `--message` (optional, triggers claude call if absent)
+  (2) Lock acquire via git update-ref before any operation
+  (3) Stage files (`git add -u` by default, or respect pre-staged with `--no-stage`)
+  (4) Size guard check (reuse existing vorg_guard.rs)
+  (5) Shell to `claude --print "..."` to generate commit message from diff (if no --message)
+  (6) `git commit` with formatted message
+  (7) Lock release on success or failure
+  (8) If `claude` CLI unavailable or fails: exit with error, do not commit (require --message as fallback)
+  **Success criteria**: `vvx commit` produces guarded commit with LLM-generated message.
+
+- **jjr-notch-chalk** — [Phase 3] Build JJ commit commands in JJK Rust.
+  **Context**: JJ-specific commit wrappers that use vvr-commit-core.
+  **Depends on**: vvr-commit-core, jjr-cargo-scaffold
+  **Location**: `Tools/jjk/veiled/src/jjrn_notch.rs`
+  **Deliverables**:
+  (1) `vvx jjx_notch --heat FAVOR --pace SILKS` — formats `[jj:BRAND][heat/pace]` prefix, calls commit core
+  (2) `vvx jjx_chalk --heat FAVOR --marker TYPE` — steeplechase marker, uses `--allow-empty`
+  (3) Marker types: APPROACH, WRAP, FLY, DISCUSSION
+  (4) Brand value baked in at arcanum emit time (see jja_arcanum.sh)
+  **Success criteria**: `vvx jjx_notch` produces JJ-prefixed commit via core infrastructure.
 
 - **jjr-steeplechase-rein** — [Phase 3] Implement steeplechase rein in Rust.
   **Reference**: JJD steeplechase-ops spec
+  **Depends on**: jjr-cargo-scaffold
+  **Location**: `Tools/jjk/veiled/src/jjrs_steeplechase.rs`
   **Deliverables**:
   (1) Parse git log for commits matching JJ steeplechase patterns
   (2) Extract and format entries (APPROACH, WRAP, FLY, DISCUSSION)
-  (3) Add `vvx jjx steeplechase rein --heat ₣HH` subcommand
+  (3) Add `vvx jjx_rein --heat ₣HH` subcommand
   (4) Output formatted history for saddle context display
   **Success criteria**: Returns formatted steeplechase history for specified heat.
 
-- **jjb-orchestration-update** — [Phase 4] Update bash orchestration to call `vvx jjx` instead of jq.
+- **jjb-orchestration-update** — [Phase 4] Update bash orchestration to call `vvx` instead of jq.
   **Source file**: `jju_utility.sh`
   **Deliverables**:
-  (1) Replace jq pipelines in `jju_utility.sh` with `vvx jjx` calls
-  (2) Maintain locking pattern (lock → `vvx jjx` → unlock)
-  (3) Update file path constant to `jjg_gallops.json`
+  (1) Replace jq pipelines in `jju_utility.sh` with `vvx jjx_*` calls
+  (2) Update file path constant to `jjg_gallops.json`
   **Clarification - bash retains**:
-  - Locking via git update-ref (proven pattern)
   - Slash command dispatch (tabtargets)
   **Clarification - bash delegates**:
-  - All JSON operations → `vvx jjx gallops *`
-  - Steeplechase reading → `vvx jjx steeplechase rein`
-  - Commits → `vvc-commit --prefix`
-  **Success criteria**: All existing JJ commands work with `vvx jjx` backend.
+  - All JSON operations → `vvx jjx_*` (validate, nominate, slate, etc.)
+  - Steeplechase reading → `vvx jjx_rein`
+  - Commits → `vvx jjx_notch` / `vvx jjx_chalk` (Rust owns locking)
+  **Success criteria**: All existing JJ commands work with `vvx` backend.
 
-- **test-full-lifecycle** — [Phase 4] Integration test of complete heat lifecycle via `vvx jjx`.
+- **test-full-lifecycle** — [Phase 4] Integration test of complete heat lifecycle via `vvx jjx_*`.
   **Deliverables**:
-  (1) Create test heat via `vvx jjx gallops nominate`
-  (2) Add paces via `vvx jjx gallops slate`
+  (1) Create test heat via `vvx jjx_nominate`
+  (2) Add paces via `vvx jjx_slate`
   (3) Run saddle/wrap/retire cycle
   (4) Verify trophy creation
   **Success criteria**: Full lifecycle works end-to-end with Rust backend.
@@ -221,21 +253,21 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (1) Update `zjjw_emit_heat_saddle`: branch on pace state
       - rough: guide LLM to refine spec, recommend approach, ask before proceeding
       - primed: read direction field, execute per direction without asking
-  (2) Add `zjjw_emit_pace_prime`: study pace spec, recommend agent type + cardinality, call `vvx jjx gallops tally --state primed --direction "..."`
+  (2) Add `zjjw_emit_pace_prime`: study pace spec, recommend agent type + cardinality, call `vvx jjx_tally --state primed --direction "..."`
   (3) Update `zjjw_emit_pace_wrap`: works with rough/primed states
   (4) Remove `zjjw_emit_pace_arm` and `zjjw_emit_pace_fly` (replaced by prime + primed execution)
   (5) Update `zjjw_emit_claudemd_section`: new command list, rough/primed concepts
   **Success criteria**: Fresh arcanum install produces commands reflecting rough/primed workflow.
 
-- **arcanum-vvc-integration** — [Phase 4] Integrate arcanum with vvc-commit for git operations.
-  **Context**: JJ should use vvc-commit rather than own commit logic.
-  **Depends on**: vvc-prefix-support
+- **arcanum-commit-commands** — [Phase 4] Emit thin slash commands for Rust commit infrastructure.
+  **Context**: Slash commands extract context and invoke background `vvx` processes. No agent spawning needed.
+  **Depends on**: vvr-commit-core, jjr-notch-chalk
   **Source file**: `Tools/jjk/jja_arcanum.sh`
   **Deliverables**:
-  (1) Update `zjjw_emit_notch_command`: extract heat/pace from context, invoke `/vvc-commit --prefix "[₣HH/silks]"`
-  (2) Update chalk pattern: use `vvc-commit --allow-empty --prefix "..."` for steeplechase markers (APPROACH, WRAP entries)
-  (3) Remove background haiku agent dispatch from notch (vvc-commit handles it)
-  **Success criteria**: /jjc-notch produces commits via vvc-commit with JJ prefix.
+  (1) Update `zjjw_emit_notch_command`: extract heat/pace from conversation context, invoke `vvx jjx_notch --heat X --pace Y` via Bash tool with run_in_background=true
+  (2) Update `zjjw_emit_chalk_command`: extract heat from context, invoke `vvx jjx_chalk --heat X --marker TYPE` (background)
+  (3) Emit `/vvc-commit` that invokes `vvx commit --message "$ARGS"` (background) for non-JJ repos
+  **Success criteria**: `/jja-notch` produces JJ-prefixed commits via background Rust process.
 
 - **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
   **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).
@@ -261,3 +293,36 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 - JJD spec has Types, Records, Serialization complete
 - Nominate and Validate operations mostly documented
 - Horse racing vocabulary established (Firemark, Coronet, Tack, Silks, Favor)
+
+---
+### 2026-01-13 - rust-commit-architecture - DISCUSSION
+**Context**: Re-evaluated how JJ commit commands (notch, chalk) should integrate with VVK infrastructure.
+
+**Original plan**: Slash commands spawn haiku agents; JJ uses `vvc-commit --prefix` parameter.
+
+**Problems identified**:
+1. Skill-calling-skill not supported (slash commands can't invoke other slash commands)
+2. Behavioral divergence (notch auto-pushed, vvc-commit didn't; different staging models)
+3. Agent configuration duplicated across multiple slash command prompts
+4. No auto-push allowed (learned constraint)
+
+**Key insight**: Rust can shell out to `claude` CLI for LLM-generated commit messages.
+
+**New architecture**:
+- `vvx commit` (VOK) — core infrastructure: lock, stage, guard, claude call, commit
+- `vvx jjx_notch` / `vvx jjx_chalk` (JJK) — JJ-specific wrappers using core
+- Flat namespace: all JJK ops are `vvx jjx_*` (underscore-delimited single tokens)
+- Single lock for all vvx operations (`refs/vvg/locks/vvx`)
+- Slash commands become thin: extract context → background `vvx` call → return immediately
+- No haiku agent spawning needed; Rust orchestrates everything including LLM call
+- If `claude` CLI unavailable: fail with error, require `--message` fallback
+
+**Paces updated**:
+- Removed: `vvc-prefix-support` (obsolete)
+- Added: `vvr-commit-core` (VOK Rust commit infrastructure)
+- Added: `jjr-notch-chalk` (JJK Rust commit wrappers)
+- Renamed: `arcanum-vvc-integration` → `arcanum-commit-commands` (thin slash command emitters)
+- Revised: `jjb-orchestration-update` (bash delegates commits to Rust)
+- Revised: `jjd-steeplechase-ops` (notch/chalk spec only, impl in jjr-notch-chalk)
+- Added: `jjrn_` and `jjrs_` to Source File Names table
+---
