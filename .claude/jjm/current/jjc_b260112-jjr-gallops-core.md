@@ -34,3 +34,8 @@
 ### 2026-01-13 16:45 - cli-structure-and-voicing - WRAP
 **Outcome**: Established CLI voicing hierarchy (jjdx_vvx/jjdx_cli), AXLA motifs (axi_cli_command_group, axa_argument_list, axa_cli_option, axa_exit_*), section header terms (jjds_*), argument terms (jjda_silks/created), Compliance Rules section. Articulated ops voiced as axi_cli_subcommand.
 ---
+
+---
+### 2026-01-13 - operation-template-finalize - WRAP
+**Outcome**: Added axi_cli_subcommand voicing to 8 stub operations; documented shared {jjda_file} pattern in Arguments section.
+---

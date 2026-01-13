@@ -80,15 +80,9 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **cli-structure-and-voicing** — [Phase 1] Established CLI voicing hierarchy in JJD (jjdx_vvx, jjdx_cli) and AXLA (axi_cli_command_group, axa_argument_list, axa_cli_option, axa_exit_*); added section header and argument linked terms; Compliance Rules section. ✓
 
-## Remaining
+- **operation-template-finalize** — [Phase 1] Added axi_cli_subcommand voicing to 8 operations; documented shared {jjda_file} pattern. ✓
 
-- **operation-template-finalize** — [Phase 1] Establish DRY template for operation documentation.
-  **Context**: Nominate is fully documented with Arguments, Stdout, Behavior. Other ops are stubs.
-  **Deliverables**:
-  (1) Confirm template sections: Brief, Arguments, Stdout, Exit Status, Behavior (numbered steps)
-  (2) Document shared argument `{jjda_file}` usage pattern
-  (3) Add any missing AXLA voicing annotations to operations
-  **Success criteria**: Template is clear enough to apply mechanically to remaining operations.
+## Remaining
 
 - **pace-state-autonomy** — [Phase 1] Explore whether Pace state enum should capture readiness for autonomous execution.
   **Context**: Current states (pending/current/complete/abandoned) track progress but not whether a pace spec is detailed enough for unattended model execution vs. needing human collaboration.
@@ -192,6 +186,14 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (3) Run saddle/wrap/retire cycle
   (4) Verify trophy creation
   **Success criteria**: Full lifecycle works end-to-end with Rust backend.
+
+- **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
+  **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).
+  **Deliverables**:
+  (1) Survey existing relational concepts in JJD and other specs
+  (2) Evaluate whether explicit voicings would add clarity or are unnecessary
+  (3) If worthwhile, propose specific voicings following MCM patterns
+  **Success criteria**: Clear decision documented; if yes, AXLA updated accordingly.
 
 ## Steeplechase
 
