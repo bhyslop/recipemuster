@@ -100,14 +100,9 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **pace-state-autonomy** — [Phase 1] Redesigned state enum: replaced pending/current with rough/primed; added direction field to Tack (required iff primed); tally handles all state transitions with --state and --direction args. ✓
 
-## Remaining
+- **spec-slate-reslate** — [Phase 2] Added next_pace_seed to Heat; documented Slate/Reslate with full behavior specs. ✓
 
-- **spec-slate-reslate** — [Phase 2] Document Slate and Reslate operations in JJD.
-  **Reference**: `jju_slate()` lines 624-715, `jju_reslate()` lines 717-791
-  **Deliverables**:
-  (1) Slate: Arguments, Stdout, Exit Status, Behavior (auto-assign Coronet, initial tack gets `rough` state)
-  (2) Reslate: Arguments, Stdout, Exit Status, Behavior (prepend Tack to position 0, inherit state)
-  **Success criteria**: Operations fully specified with all sections.
+## Remaining
 
 - **spec-rail-tally** — [Phase 2] Document Rail and Tally operations in JJD.
   **Reference**: `jju_rail()` lines 793-889, `jju_tally()` lines 891-972

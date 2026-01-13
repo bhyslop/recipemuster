@@ -92,3 +92,44 @@
 
 **jj-studbook-redesign**: To be archived as abandoned (bash v2 superseded).
 ---
+
+---
+### 2026-01-13 - vocabulary-simplification - DISCUSSION
+**Context**: Confusion between Firemark, Coronet, and Favor terms during spec-slate-reslate approach discussion.
+
+**Decision**: Retire "Favor" entirely; simplify to two identity types.
+
+**Old model (3 terms)**:
+- Firemark: integer (0-4095) identifying Heat
+- Coronet: integer (0-262143) identifying Pace *within* Heat
+- Favor: serialized `₣`-prefixed string (3 or 6 chars)
+
+**New model (2 terms)**:
+- **Firemark**: `₣` + 2 base64 chars — Heat identity (e.g., `₣AB`)
+- **Coronet**: `₢` + 5 base64 chars — Pace identity, globally unique (e.g., `₢ABCDE`)
+  - First 2 chars = parent Heat's encoded identity
+  - Last 3 chars = pace index within Heat
+
+**Key changes**:
+- Different Unicode prefixes: `₣` (Franc) for Heat, `₢` (Cruzeiro) for Pace
+- Visual distinction at a glance
+- Coronet is now self-sufficient (no need to pair with Firemark)
+- Input accepts bare base64 (length determines type); output always includes prefix
+
+**JJD updated**: Removed jjdt_favor, rewrote Types section, updated Serialization section, updated all operation references.
+---
+
+---
+### 2026-01-13 - spec-slate-reslate - APPROACH
+**Proposed approach**:
+- Add `next_pace_seed` member to Heat record (consistency with Gallops' `next_heat_seed`)
+- Document Slate: Arguments (file, Firemark, silks, stdin text), Stdout (new Coronet), Behavior (allocate from seed, create initial Tack with rough state)
+- Document Reslate: Arguments (file, Coronet, stdin text), Stdout (none), Behavior (prepend Tack to position 0, inherit state/direction)
+- Update validation rules to include `next_pace_seed` (3 base64 chars)
+- Fix Pace key validation rule: `₣` → `₢` (Coronet prefix)
+---
+
+---
+### 2026-01-13 - spec-slate-reslate - WRAP
+**Outcome**: Added next_pace_seed to Heat; documented Slate/Reslate operations with Arguments, Stdout, Exit Status, Behavior sections; fixed Coronet prefix in validation.
+---
