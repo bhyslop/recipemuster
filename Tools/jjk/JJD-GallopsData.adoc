@@ -75,6 +75,9 @@
 // Arguments
 :jjda_file:           <<jjda_file,--file>>
 
+// CLI executor
+:jjdx_cli:   <<jjdx_cli,jjx>>
+
 // Operations
 :jjdo_current_pace:   <<jjdo_current_pace,Current Pace>>
 :jjdo_current_tack:   <<jjdo_current_tack,Current Tack>>
@@ -116,7 +119,7 @@ maintains a history of
 
 All access to the
 {jjdgr_gallops}
-goes through jjr, the Rust CLI application.
+goes through {jjdx_cli}, the Job Jockey subcommand of the Voce Viva executor.
 No jq or direct JSON manipulation ever touches this data.
 This is an absolute architectural constraint, not a preference.
 
@@ -162,21 +165,21 @@ This redundancy is cheap and enables grep, copy-paste, and self-documenting JSON
 === Crash-Safe Architecture
 
 Bash handles locking via `git update-ref`.
-jjr owns all
+{jjdx_cli} owns all
 {jjdgr_gallops}
 file access - reading, transforming, and writing.
-jjr implements atomic writes internally (write to temp file, then rename).
-If jjr crashes mid-transform, no partial writes occur.
+{jjdx_cli} implements atomic writes internally (write to temp file, then rename).
+If {jjdx_cli} crashes mid-transform, no partial writes occur.
 
 The pattern:
 [source,bash]
 ----
 lock_acquire
-jjr gallops nominate --file gallops.json "my-heat" "260111" || { lock_release; die; }
+vvx jjx gallops nominate --file gallops.json "my-heat" "260111" || { lock_release; die; }
 lock_release
 ----
 
-This keeps bash simple (just locking and invocation) while jjr owns all JSON file operations.
+This keeps bash simple (just locking and invocation) while {jjdx_cli} owns all JSON file operations.
 
 === Logical vs Serialized Identity
 
@@ -438,7 +441,7 @@ or
 {jjdpe_abandoned}.
 When adding a new
 {jjdkr_tack}
-via jjr, if state is not explicitly provided, jjr auto-fills from the previous
+via {jjdx_cli}, if state is not explicitly provided, it auto-fills from the previous
 {jjdkr_tack_p}
 state (or
 {jjdpe_pending}
@@ -539,13 +542,23 @@ Path to the
 JSON file.
 Required by all operations.
 
+== CLI
+
+[[jjdx_cli]]
+// ⟦axl_voices axi_cli_subcommand⟧
+{jjdx_cli}::
+The Job Jockey subcommand of the Voce Viva executor.
+Invoked as `vvx jjx`.
+All operations are subcommands of {jjdx_cli}.
+Inherits Unix CLI semantics: stdout for results, stderr for errors, exit 0 for success, non-zero for failure.
+
 == Operations
 
-Operations are implemented in jjr.
-jjr owns all
+Operations are implemented as {jjdx_cli} subcommands.
+{jjdx_cli} owns all
 {jjdgr_gallops}
 file access (read, transform, atomic write).
-Bash handles locking via `git update-ref` and invokes jjr with
+Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
 {jjda_file}.
 
 === Write Operations
