@@ -233,6 +233,8 @@
 :axi_request_body:                    <<axi_request_body,Request Body>>
 :axi_response_body:                   <<axi_response_body,Response Body>>
 :axi_cli_interface:                   <<axi_cli_interface,CLI Interface>>
+:axi_cli_program:                     <<axi_cli_program,CLI Program>>
+:axi_cli_subcommand:                  <<axi_cli_subcommand,CLI Subcommand>>
 :axi_rest_api:                        <<axi_rest_api,REST API>>
 :axi_rpc_interface:                   <<axi_rpc_interface,RPC Interface>>
 :axi_sse_endpoint:                    <<axi_sse_endpoint,SSE Endpoint>>
@@ -1006,6 +1008,25 @@ representing command-line invocation pattern specification.
 Documents
 {axa_argument_s}
 and behavior.
+
+[[axi_cli_program]]
+{axi_cli_program}::
+A
+{axl_motif}
+representing a Unix-style command-line program.
+Invoked from a shell with arguments.
+Writes results to stdout, errors to stderr.
+Returns exit status: 0 for success, non-zero for failure.
+Suitable for scripted, non-interactive use.
+
+[[axi_cli_subcommand]]
+{axi_cli_subcommand}::
+A
+{axl_motif}
+representing an operation within an
+{axi_cli_program}.
+Inherits Unix CLI semantics from parent program: arguments, stdout, stderr, exit status.
+Typically invoked as `program subcommand [args]` or `program group subcommand [args]`.
 
 [[axi_rest_api]]
 {axi_rest_api}::

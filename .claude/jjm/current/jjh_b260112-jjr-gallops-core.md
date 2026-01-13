@@ -70,13 +70,14 @@ Work proceeds in logical phases. Each pace notes its phase for context.
 
 ## Remaining
 
-- **exit-status-treatment** — [Phase 1] Decide and document exit code semantics for operations.
-  **Context**: AXLA has `axc_fatal` and `axc_warn` but no explicit exit code motifs. Queries (heat_exists, current_pace) use exit code as boolean result (0=true, 1=false), not error indicator. Mutations use 0=success, non-zero=fatal.
+- **cli-structure-and-voicing** — [Phase 1] Establish jjr CLI structure in JJD using new AXLA terms.
+  **Context**: Minted `axi_cli_program` and `axi_cli_subcommand` in AXLA. All operations are subcommands with uniform exit semantics: 0=success, non-zero=failure. No predicate/boolean exit codes — fact-finding ops output answers to stdout.
   **Deliverables**:
-  (1) Decide: add AXLA terms, JJD-local terms, or prose-only documentation
-  (2) Add Exit Status subsection to each operation in JJD
-  (3) Document the query-vs-mutation distinction
-  **Success criteria**: Every operation has clear exit status documentation.
+  (1) Add "jjr CLI" section to JJD with `axi_cli_program` voicing, documenting global behavior (exit semantics, stdout/stderr, non-interactive)
+  (2) Add `axi_cli_subcommand` voicing annotation to each operation
+  (3) Add *Exit Status:* line to each operation (uniform: 0=success, non-zero=error)
+  (4) For query ops (heat_exists, validate, etc.), clarify that answers go to stdout, not exit code
+  **Success criteria**: JJD has clear CLI structure; all operations voiced as `axi_cli_subcommand` with uniform exit semantics.
 
 - **operation-template-finalize** — [Phase 1] Establish DRY template for operation documentation.
   **Context**: Nominate is fully documented with Arguments, Stdout, Behavior. Other ops are stubs.
