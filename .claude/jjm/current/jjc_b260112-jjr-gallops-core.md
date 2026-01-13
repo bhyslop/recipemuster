@@ -39,3 +39,32 @@
 ### 2026-01-13 - operation-template-finalize - WRAP
 **Outcome**: Added axi_cli_subcommand voicing to 8 stub operations; documented shared {jjda_file} pattern in Arguments section.
 ---
+
+---
+### 2026-01-13 - pace-state-autonomy - APPROACH
+**Proposed approach**:
+- Review current JJD Pace/Tack state definitions and /jja-pace-arm skill usage
+- Evaluate: separate state (`armed`) vs. orthogonal flag vs. status quo
+- If expanding, add `armed` state to JJD with clear semantics
+- If expanding, define `vvx jjx gallops arm` operation
+---
+
+---
+### 2026-01-13 - pace-state-autonomy - WRAP
+**Outcome**: Major state redesign via collaborative discussion.
+
+**States revised**:
+- Removed: `pending`, `current` (redundant; both meant "needs work")
+- Added: `rough` (needs clarification), `primed` (ready for autonomous execution)
+- Kept: `complete`, `abandoned`
+
+**New Tack field**: `direction` — execution guidance for autonomous operation. Required iff state=primed; forbidden otherwise. Contains agent type, cardinality, strategy.
+
+**Tally operation revised**: Now handles all state transitions. Args: --state (required), --direction (required iff primed), stdin text (optional, inherits from previous tack).
+
+**JJD updated**: mapping section, state enum definitions, Tack members, validation rules, current_pace operation, tally arguments, slate initial state.
+
+**Key insight**: "priming" workflow where LLM studies pace spec and recommends agent strategy before transitioning to primed state. Direction captures that recommendation.
+
+**Related decision**: jj-studbook-redesign heat to be abandoned (bash v2 superseded by Rust backend). Added jj-system-integration pace for arcanum updates.
+---

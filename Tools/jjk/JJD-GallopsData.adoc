@@ -16,6 +16,7 @@
 // jjdkm_: Tack members
 // jjdpe_: Tack state enum values
 // jjdo_:  Operations
+// jjds_:  Section headers (operation documentation structure)
 // jjdz_:  Serialization concerns
 //
 // Variant patterns:
@@ -61,10 +62,11 @@
 // Pace/Tack state enum values (used in Tack)
 :jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
 :jjdpe_complete:  <<jjdpe_complete,complete>>
-:jjdpe_current:   <<jjdpe_current,current>>
-:jjdpe_pending:   <<jjdpe_pending,pending>>
+:jjdpe_primed:    <<jjdpe_primed,primed>>
+:jjdpe_rough:     <<jjdpe_rough,rough>>
 
 // Tack record and members
+:jjdkm_direction: <<jjdkm_direction,direction>>
 :jjdkm_refined:   <<jjdkm_refined,ts>>
 :jjdkm_state:     <<jjdkm_state,state>>
 :jjdkm_text:      <<jjdkm_text,text>>
@@ -73,9 +75,14 @@
 :jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
 
 // Arguments
+:jjda_created:        <<jjda_created,--created>>
+:jjda_direction:      <<jjda_direction,--direction>>
 :jjda_file:           <<jjda_file,--file>>
+:jjda_silks:          <<jjda_silks,--silks>>
+:jjda_state:          <<jjda_state,--state>>
 
 // CLI executor
+:jjdx_vvx:   <<jjdx_vvx,vvx>>
 :jjdx_cli:   <<jjdx_cli,jjx>>
 
 // Operations
@@ -90,6 +97,13 @@
 :jjdo_slate:          <<jjdo_slate,Slate>>
 :jjdo_tally:          <<jjdo_tally,Tally>>
 :jjdo_validate:       <<jjdo_validate,Validate>>
+
+// Section headers
+:jjds_arguments:        <<jjds_arguments,Arguments:>>
+:jjds_behavior:         <<jjds_behavior,Behavior:>>
+:jjds_exit_enumerated:  <<jjds_exit_enumerated,Exit Status:>>
+:jjds_exit_uniform:     <<jjds_exit_uniform,Exit Status:>>
+:jjds_stdout:           <<jjds_stdout,Stdout:>>
 
 // Serialization
 :jjdz_charset:  <<jjdz_charset,Charset>>
@@ -434,19 +448,11 @@ indicates the
 {jjdpr_pace_p}
 progress at this snapshot.
 Values:
-{jjdpe_pending},
-{jjdpe_current},
+{jjdpe_rough},
+{jjdpe_primed},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}.
-When adding a new
-{jjdkr_tack}
-via {jjdx_cli}, if state is not explicitly provided, it auto-fills from the previous
-{jjdkr_tack_p}
-state (or
-{jjdpe_pending}
-for the initial
-{jjdkr_tack}).
 
 * [[jjdkm_text]]
 // ⟦axl_voices axr_member axd_required⟧
@@ -456,21 +462,41 @@ Non-empty string describing what the
 {jjdpr_pace}
 should accomplish.
 
+* [[jjdkm_direction]]
+// ⟦axl_voices axr_member axd_conditional⟧
+{jjdkm_direction}
+contains execution guidance for autonomous operation.
+Required when
+{jjdkm_state}
+is
+{jjdpe_primed};
+forbidden otherwise.
+Describes which agent to dispatch, parallelism strategy, or other execution parameters.
+
 ==== State Values
 
-[[jjdpe_pending]]
+[[jjdpe_rough]]
 // ⟦axl_voices axt_enum_value⟧
-{jjdpe_pending}::
+{jjdpe_rough}::
 The
 {jjdpr_pace}
-is queued but not yet started.
+needs clarification before work can proceed.
+When context is assembled for a
+{jjdpe_rough}
+pace, the model is guided to refine the specification rather than begin execution.
 
-[[jjdpe_current]]
+[[jjdpe_primed]]
 // ⟦axl_voices axt_enum_value⟧
-{jjdpe_current}::
+{jjdpe_primed}::
 The
 {jjdpr_pace}
-is actively being worked.
+is ready for autonomous execution.
+The
+{jjdkm_direction}
+field contains explicit guidance for the executing agent.
+When context is assembled for a
+{jjdpe_primed}
+pace, the model proceeds without human confirmation.
 
 [[jjdpe_complete]]
 // ⟦axl_voices axt_enum_value⟧
@@ -534,22 +560,99 @@ C
 
 == Arguments
 
+*Note:* {jjda_file} appears as the first argument on all operations.
+It is annotated `// ⟦axd_optional axd_defaulted⟧` and uses the default value when not explicitly provided.
+
 [[jjda_file]]
-// ⟦axl_voices axa_argument axd_required⟧
+// ⟦axl_voices axa_cli_option⟧
 {jjda_file}::
 Path to the
 {jjdgr_gallops}
 JSON file.
-Required by all operations.
+Long: `--file`.
+Short: none.
+Default: `.claude/jjm/jjg_gallops.json`.
+
+[[jjda_silks]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_silks}::
+Kebab-case display name for the target entity.
+Long: `--silks`.
+Short: `-s`.
+
+[[jjda_state]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_state}::
+Target state for the
+{jjdkr_tack}.
+Long: `--state`.
+Short: none.
+Values:
+{jjdpe_rough},
+{jjdpe_primed},
+{jjdpe_complete},
+{jjdpe_abandoned}.
+
+[[jjda_direction]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_direction}::
+Execution guidance for autonomous operation.
+Long: `--direction`.
+Short: `-d`.
+Required when
+{jjda_state}
+is
+{jjdpe_primed};
+forbidden otherwise.
+
+[[jjda_created]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_created}::
+Creation date in YYMMDD format.
+Long: `--created`.
+Short: `-c`.
+
+== Section Headers
+
+[[jjds_arguments]]
+// ⟦axl_voices axa_argument_list⟧
+{jjds_arguments}::
+Section header introducing operation arguments.
+
+[[jjds_stdout]]
+{jjds_stdout}::
+Section header introducing operation standard output.
+
+[[jjds_exit_uniform]]
+// ⟦axl_voices axa_exit_uniform⟧
+{jjds_exit_uniform}::
+Section header for operations with standard exit semantics.
+
+[[jjds_exit_enumerated]]
+// ⟦axl_voices axa_exit_enumerated⟧
+{jjds_exit_enumerated}::
+Section header for operations with distinct exit codes.
+
+[[jjds_behavior]]
+{jjds_behavior}::
+Section header introducing operation behavior steps.
 
 == CLI
 
+[[jjdx_vvx]]
+// ⟦axl_voices axi_cli_program⟧
+{jjdx_vvx}::
+The Voce Viva executor.
+Local reference to the VVK-defined CLI program that hosts Job Jockey.
+
 [[jjdx_cli]]
-// ⟦axl_voices axi_cli_subcommand⟧
+// ⟦axl_voices axi_cli_command_group⟧
 {jjdx_cli}::
-The Job Jockey subcommand of the Voce Viva executor.
+The Job Jockey command group within
+{jjdx_vvx}.
 Invoked as `vvx jjx`.
-All operations are subcommands of {jjdx_cli}.
+All operations are subcommands of
+{jjdx_cli}.
 Inherits Unix CLI semantics: stdout for results, stderr for errors, exit 0 for success, non-zero for failure.
 
 == Operations
@@ -564,6 +667,7 @@ Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
 === Write Operations
 
 [[jjdo_nominate]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_nominate}
 
 Create a new
@@ -572,16 +676,24 @@ with empty
 {jjdpr_pace}
 structure.
 
-*Arguments:*
-{jjda_file},
-`silks` (kebab-case),
-`created` (YYMMDD)
+{jjds_arguments}
 
-*Stdout:* New
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjda_silks}
+
+// ⟦axd_required⟧
+* {jjda_created}
+
+{jjds_stdout} New
 {jjdhr_heat}
 {jjdt_favor}
 
-*Behavior:*
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
 
 . Read
 {jjdgr_gallops}
@@ -615,14 +727,20 @@ to file (atomic)
 to stdout
 
 [[jjdo_slate]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_slate}
 
 Add a new
 {jjdpr_pace}
 to a
 {jjdhr_heat}.
+The initial
+{jjdkr_tack}
+is created with state
+{jjdpe_rough}.
 
 [[jjdo_reslate]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_reslate}
 
 Add a new
@@ -632,6 +750,7 @@ to a
 refining the plan.
 
 [[jjdo_rail]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_rail}
 
 Reorder
@@ -642,6 +761,7 @@ by updating
 {jjdhm_order}.
 
 [[jjdo_tally]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_tally}
 
 Add a new
@@ -649,26 +769,52 @@ Add a new
 to a
 {jjdpr_pace}
 with a specified state transition.
-This is a convenience wrapper around
-{jjdo_reslate}
-that requires an explicit state change.
-The
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* Pace
+{jjdt_favor}
+(positional)
+
+// ⟦axd_required⟧
+* {jjda_state}
+
+// ⟦axd_conditional⟧
+* {jjda_direction}
+— required if
+{jjda_state}
+is
+{jjdpe_primed},
+forbidden otherwise
+
+// ⟦axd_optional⟧
+* stdin —
 {jjdkm_text}
-may describe the reason for the state change.
+content; if absent, inherits from previous
+{jjdkr_tack}
 
 === Read Operations
 
 [[jjdo_validate]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_validate}
 
 Check that
 {jjdgr_gallops}
 JSON conforms to schema.
 
-*Arguments:*
-{jjda_file}
+{jjds_arguments}
 
-*Stdout:* None
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
 
 *Validation Rules:*
 
@@ -712,15 +858,24 @@ must have:
 {jjdkm_refined}
 (YYMMDD-HHMM),
 {jjdkm_state}
-({jjdpe_pending},
-{jjdpe_current},
+({jjdpe_rough},
+{jjdpe_primed},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}),
 {jjdkm_text}
 (non-empty string)
+. If
+{jjdkm_state}
+is
+{jjdpe_primed},
+{jjdkm_direction}
+must be present (non-empty string); otherwise
+{jjdkm_direction}
+must be absent
 
 [[jjdo_heat_exists]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_heat_exists}
 
 Check whether a
@@ -728,9 +883,13 @@ Check whether a
 with given
 {jjdt_favor}
 exists.
-Returns exit code 0 (exists) or 1 (not found).
+
+{jjds_stdout} `true` or `false`
+
+{jjds_exit_uniform} 0 success, non-zero error.
 
 [[jjdo_muster]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_muster}
 
 List all
@@ -738,6 +897,7 @@ List all
 with summary information.
 
 [[jjdo_retire_extract]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_retire_extract}
 
 Extract
@@ -745,6 +905,7 @@ Extract
 data for archival trophy.
 
 [[jjdo_current_tack]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_current_tack}
 
 Return the most recent
@@ -754,6 +915,7 @@ for a given
 {jjdpr_pace}.
 
 [[jjdo_current_pace]]
+// ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_current_pace}
 
 Return the first
@@ -761,6 +923,6 @@ Return the first
 in
 {jjdhm_order}
 whose current state (from `tacks[0].state`) is
-{jjdpe_pending}
+{jjdpe_rough}
 or
-{jjdpe_current}.
+{jjdpe_primed}.

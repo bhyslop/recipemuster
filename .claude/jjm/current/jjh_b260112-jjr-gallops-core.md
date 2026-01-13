@@ -82,28 +82,22 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **operation-template-finalize** — [Phase 1] Added axi_cli_subcommand voicing to 8 operations; documented shared {jjda_file} pattern. ✓
 
-## Remaining
+- **pace-state-autonomy** — [Phase 1] Redesigned state enum: replaced pending/current with rough/primed; added direction field to Tack (required iff primed); tally handles all state transitions with --state and --direction args. ✓
 
-- **pace-state-autonomy** — [Phase 1] Explore whether Pace state enum should capture readiness for autonomous execution.
-  **Context**: Current states (pending/current/complete/abandoned) track progress but not whether a pace spec is detailed enough for unattended model execution vs. needing human collaboration.
-  **Deliverables**:
-  (1) Evaluate: expand state enum (e.g., add `armed`) vs. status quo
-  (2) If expanding, update JJD Pace state values and document semantics
-  (3) If expanding, define `vvx jjx` operation to transition pace to armed state
-  **Success criteria**: Clear decision documented; if yes, JJD updated accordingly.
+## Remaining
 
 - **spec-slate-reslate** — [Phase 2] Document Slate and Reslate operations in JJD.
   **Reference**: `jju_slate()` lines 624-715, `jju_reslate()` lines 717-791
   **Deliverables**:
-  (1) Slate: Arguments, Stdout, Exit Status, Behavior (auto-assign Coronet, first pace gets `current` state)
-  (2) Reslate: Arguments, Stdout, Exit Status, Behavior (prepend Tack to position 0)
+  (1) Slate: Arguments, Stdout, Exit Status, Behavior (auto-assign Coronet, initial tack gets `rough` state)
+  (2) Reslate: Arguments, Stdout, Exit Status, Behavior (prepend Tack to position 0, inherit state)
   **Success criteria**: Operations fully specified with all sections.
 
 - **spec-rail-tally** — [Phase 2] Document Rail and Tally operations in JJD.
   **Reference**: `jju_rail()` lines 793-889, `jju_tally()` lines 891-972
   **Deliverables**:
   (1) Rail: Arguments (heat favor, order string), validation (same key set), Behavior
-  (2) Tally: Arguments (pace favor, state), valid states, Behavior
+  (2) Tally: Behavior steps for state transition; note --direction required iff primed, stdin text optional (inherits)
   **Success criteria**: Operations fully specified with all sections.
 
 - **spec-read-ops-query** — [Phase 2] Document query operations: Validate, Heat Exists, Muster.
@@ -120,8 +114,8 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   **Note**: Current Tack/Current Pace not explicit - derive from saddle/wrap usage
   **Deliverables**:
   (1) Retire Extract: output JSON structure for trophy creation
-  (2) Current Tack: return latest Tack text for a Pace
-  (3) Current Pace: return first pending/current Pace Favor, exit 1 if none
+  (2) Current Tack: return latest Tack text (and direction if primed) for a Pace
+  (3) Current Pace: return first rough/primed Pace Favor, exit 1 if none
   **Success criteria**: Extraction operations fully specified.
 
 - **jjr-cargo-scaffold** — [Phase 3] Create JJK Rust crate structure following VOK/VVK patterns.
@@ -186,6 +180,18 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (3) Run saddle/wrap/retire cycle
   (4) Verify trophy creation
   **Success criteria**: Full lifecycle works end-to-end with Rust backend.
+
+- **jj-system-integration** — [Phase 4] Consolidate path to working Job Jockey with rough/primed workflow.
+  **Context**: jj-studbook-redesign heat abandoned (bash v2 superseded by Rust backend). Need clear path from JJD spec → working slash commands.
+  **Deliverables**:
+  (1) Audit remaining paces against what's needed for functioning JJ
+  (2) Update arcanum emitters (`jja_arcanum.sh`) for `vvx jjx` backend + rough/primed workflow:
+      - heat-saddle: branch on state (rough → guide refinement, primed → execute per direction)
+      - pace-prime (new): study pace, recommend agent type + cardinality, call `vvx jjx gallops tally --state primed --direction "..."`
+      - Remove pace-arm/pace-fly (replaced by prime + primed execution in saddle)
+  (3) Map jjx operations → slash commands (which ops does each command invoke?)
+  (4) Define bash locking layer that wraps `vvx jjx` calls
+  **Success criteria**: Clear checklist from current state to `/jjc-heat-saddle` working with Rust backend and rough/primed states.
 
 - **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
   **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).
