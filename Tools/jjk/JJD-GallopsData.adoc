@@ -12,9 +12,9 @@
 // jjdhe_: Heat enum values (status)
 // jjdpr_: Pace record
 // jjdpm_: Pace members
-// jjdpe_: Pace enum values (state)
 // jjdkr_: Tack record
 // jjdkm_: Tack members
+// jjdpe_: Tack state enum values
 // jjdo_:  Operations
 // jjdz_:  Serialization concerns
 //
@@ -52,19 +52,21 @@
 :jjdhr_heat_s:    <<jjdhr_heat,Heats>>
 
 // Pace record and members
-:jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
-:jjdpe_complete:  <<jjdpe_complete,complete>>
-:jjdpe_current:   <<jjdpe_current,current>>
-:jjdpe_pending:   <<jjdpe_pending,pending>>
 :jjdpm_coronet:   <<jjdpm_coronet,coronet>>
 :jjdpm_silks:     <<jjdpm_silks,silks>>
-:jjdpm_state:     <<jjdpm_state,state>>
 :jjdpr_pace:      <<jjdpr_pace,Pace>>
 :jjdpr_pace_p:    <<jjdpr_pace,Pace's>>
 :jjdpr_pace_s:    <<jjdpr_pace,Paces>>
 
+// Pace/Tack state enum values (used in Tack)
+:jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
+:jjdpe_complete:  <<jjdpe_complete,complete>>
+:jjdpe_current:   <<jjdpe_current,current>>
+:jjdpe_pending:   <<jjdpe_pending,pending>>
+
 // Tack record and members
 :jjdkm_refined:   <<jjdkm_refined,ts>>
+:jjdkm_state:     <<jjdkm_state,state>>
 :jjdkm_text:      <<jjdkm_text,text>>
 :jjdkr_tack:      <<jjdkr_tack,Tack>>
 :jjdkr_tack_p:    <<jjdkr_tack,Tack's>>
@@ -114,7 +116,7 @@ maintains a history of
 
 All access to the
 {jjdgr_gallops}
-goes through jjr, the Rust CLI filter.
+goes through jjr, the Rust CLI application.
 No jq or direct JSON manipulation ever touches this data.
 This is an absolute architectural constraint, not a preference.
 
@@ -364,7 +366,8 @@ A discrete action within a
 {jjdhr_heat}.
 Contains one or more
 {jjdkr_tack_s}
-representing plan refinements.
+representing state snapshots and plan refinements.
+Current state is derived from `tacks[0].state`.
 Keyed in JSON by Pace
 {jjdt_favor}.
 
@@ -390,18 +393,65 @@ display name.
 Type:
 {jjdt_silks}.
 
-* [[jjdpm_state]]
+=== {jjdkr_tack}
+
+[[jjdkr_tack]]
+// ⟦axl_voices axr_record_json⟧
+{jjdkr_tack}::
+A snapshot of
+{jjdpr_pace}
+state and plan at a point in time.
+{jjdkr_tack_s}
+form an append-only history capturing both plan refinements and state transitions.
+Position 0 is the most recent; older
+{jjdkr_tack_s}
+follow.
+New
+{jjdkr_tack_s}
+are prepended for cleaner git diffs.
+The current
+{jjdpr_pace}
+state is always
+`tacks[0].state`.
+
+==== Members
+
+* [[jjdkm_refined]]
 // ⟦axl_voices axr_member axd_required⟧
-{jjdpm_state}
+{jjdkm_refined}
+records when this
+{jjdkr_tack}
+was added.
+Format: YYMMDD-HHMM.
+
+* [[jjdkm_state]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_state}
 indicates the
 {jjdpr_pace_p}
-progress.
+progress at this snapshot.
 Values:
 {jjdpe_pending},
 {jjdpe_current},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}.
+When adding a new
+{jjdkr_tack}
+via jjr, if state is not explicitly provided, jjr auto-fills from the previous
+{jjdkr_tack_p}
+state (or
+{jjdpe_pending}
+for the initial
+{jjdkr_tack}).
+
+* [[jjdkm_text]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_text}
+contains the plan specification.
+Non-empty string describing what the
+{jjdpr_pace}
+should accomplish.
 
 ==== State Values
 
@@ -433,40 +483,6 @@ The
 {jjdpr_pace}
 was stopped without completion.
 
-=== {jjdkr_tack}
-
-[[jjdkr_tack]]
-// ⟦axl_voices axr_record_json⟧
-{jjdkr_tack}::
-A plan refinement entry for a
-{jjdpr_pace}.
-{jjdkr_tack_s}
-form an append-only history.
-Position 0 is the most recent; older
-{jjdkr_tack_s}
-follow.
-New
-{jjdkr_tack_s}
-are prepended for cleaner git diffs.
-
-==== Members
-
-* [[jjdkm_refined]]
-// ⟦axl_voices axr_member axd_required⟧
-{jjdkm_refined}
-records when this
-{jjdkr_tack}
-was added.
-Format: YYMMDD-HHMM.
-
-* [[jjdkm_text]]
-// ⟦axl_voices axr_member axd_required⟧
-{jjdkm_text}
-contains the plan specification.
-Non-empty string describing what the
-{jjdpr_pace}
-should accomplish.
-
 == Serialization
 
 [[jjdz_charset]]
@@ -474,8 +490,11 @@ should accomplish.
 The 64-character alphabet for
 {jjdt_favor}
 encoding.
-Characters: `A-Za-z0-9` plus two additional characters (TBD: confirm `-_` or other).
-Position in charset determines numeric value (A=0, B=1, ...).
+Uses URL-safe base64 (RFC 4648 §5):
+`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
+Position in charset determines numeric value (A=0, B=1, ..., `-`=62, `_`=63).
+This alphabet is safe for JSON keys, URLs, shell, git refs, and filenames.
+Matches Rust `base64::engine::general_purpose::URL_SAFE_NO_PAD`.
 
 [[jjdz_encoding]]
 {jjdz_encoding}::
@@ -612,9 +631,17 @@ by updating
 [[jjdo_tally]]
 ==== {jjdo_tally}
 
-Update a
-{jjdpr_pace_p}
-{jjdpm_state}.
+Add a new
+{jjdkr_tack}
+to a
+{jjdpr_pace}
+with a specified state transition.
+This is a convenience wrapper around
+{jjdo_reslate}
+that requires an explicit state change.
+The
+{jjdkm_text}
+may describe the reason for the state change.
 
 === Read Operations
 
@@ -634,11 +661,11 @@ JSON conforms to schema.
 
 . Root must be JSON object with
 {jjdgm_seed}
-(2 base64 characters)
+(2 URL-safe base64 characters matching `[A-Za-z0-9_-]{2}`)
 . Root must have `heats` object
 . Each
 {jjdhr_heat}
-key must match `₣[A-Za-z0-9]{2}`
+key must match `₣[A-Za-z0-9_-]{2}`
 . Each
 {jjdhr_heat}
 must have:
@@ -657,7 +684,7 @@ or
 array and `paces` object must have identical key sets
 . Each
 {jjdpr_pace}
-key must match `₣[A-Za-z0-9]{5}` and start with parent
+key must match `₣[A-Za-z0-9_-]{5}` and start with parent
 {jjdhr_heat}
 key
 . Each
@@ -665,18 +692,18 @@ key
 must have:
 {jjdpm_silks}
 (non-empty kebab-case),
-{jjdpm_state}
-({jjdpe_pending},
-{jjdpe_current},
-{jjdpe_complete},
-or
-{jjdpe_abandoned}),
 `tacks` (non-empty array)
 . Each
 {jjdkr_tack}
 must have:
 {jjdkm_refined}
 (YYMMDD-HHMM),
+{jjdkm_state}
+({jjdpe_pending},
+{jjdpe_current},
+{jjdpe_complete},
+or
+{jjdpe_abandoned}),
 {jjdkm_text}
 (non-empty string)
 
@@ -720,9 +747,7 @@ Return the first
 {jjdpr_pace}
 in
 {jjdhm_order}
-whose
-{jjdpm_state}
-is
+whose current state (from `tacks[0].state`) is
 {jjdpe_pending}
 or
 {jjdpe_current}.
