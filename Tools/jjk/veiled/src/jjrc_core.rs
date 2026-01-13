@@ -3,6 +3,7 @@
 //! Common utilities used across JJK modules.
 
 use std::path::PathBuf;
+use chrono::Local;
 
 /// Default path to the Gallops JSON file
 pub const DEFAULT_GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
@@ -14,22 +15,12 @@ pub fn default_gallops_path() -> PathBuf {
 
 /// Generate timestamp in YYMMDD format
 pub fn timestamp_date() -> String {
-    let now = std::time::SystemTime::now();
-    let datetime = now
-        .duration_since(std::time::UNIX_EPOCH)
-        .expect("Time went backwards");
-    // Simple conversion - will be replaced with proper chrono usage if needed
-    let secs = datetime.as_secs();
-    let days = secs / 86400;
-    // Approximate calculation - good enough for stub
-    let years = 1970 + (days / 365);
-    let yy = (years % 100) as u8;
-    format!("{:02}0101", yy) // Placeholder - implement properly later
+    Local::now().format("%y%m%d").to_string()
 }
 
 /// Generate timestamp in YYMMDD-HHMM format
 pub fn timestamp_full() -> String {
-    format!("{}-0000", timestamp_date())
+    Local::now().format("%y%m%d-%H%M").to_string()
 }
 
 #[cfg(test)]

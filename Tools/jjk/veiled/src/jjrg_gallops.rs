@@ -4,10 +4,11 @@
 //! All operations are atomic (write to temp, then rename).
 
 use serde::{Deserialize, Serialize};
-use crate::jjrf_favor::CHARSET;
+use crate::jjrc_core::timestamp_full;
+use crate::jjrf_favor::{CHARSET, Firemark, Coronet, FIREMARK_PREFIX, CORONET_PREFIX};
 use std::collections::HashSet;
 use std::fs;
-use std::io::Write;
+use std::io::{Read as IoRead, Write};
 use std::path::Path;
 
 /// Pace state values
@@ -391,6 +392,346 @@ impl Gallops {
     }
 }
 
+// ===== Seed Increment Helpers =====
+
+/// Increment a base64 seed string (with carry)
+/// Works for both 2-char (heat) and 3-char (pace) seeds
+fn increment_seed(seed: &str) -> String {
+    let mut chars: Vec<u8> = seed.bytes().collect();
+    let mut carry = true;
+
+    // Process from right to left
+    for i in (0..chars.len()).rev() {
+        if !carry {
+            break;
+        }
+
+        // Find current position in charset
+        let pos = CHARSET.iter().position(|&c| c == chars[i]).unwrap_or(0);
+
+        if pos == 63 {
+            // Wrap around
+            chars[i] = CHARSET[0];
+            // carry remains true
+        } else {
+            chars[i] = CHARSET[pos + 1];
+            carry = false;
+        }
+    }
+
+    String::from_utf8(chars).unwrap_or_else(|_| seed.to_string())
+}
+
+// ===== Write Operations =====
+
+/// Arguments for the nominate operation
+pub struct NominateArgs {
+    pub silks: String,
+    pub created: String,
+}
+
+/// Result of the nominate operation
+#[derive(Debug)]
+pub struct NominateResult {
+    pub firemark: String,
+}
+
+/// Arguments for the slate operation
+pub struct SlateArgs {
+    pub firemark: String,
+    pub silks: String,
+    pub text: String,
+}
+
+/// Result of the slate operation
+#[derive(Debug)]
+pub struct SlateResult {
+    pub coronet: String,
+}
+
+/// Arguments for the rail operation
+pub struct RailArgs {
+    pub firemark: String,
+    pub order: Vec<String>,
+}
+
+/// Arguments for the tally operation
+pub struct TallyArgs {
+    pub coronet: String,
+    pub state: Option<PaceState>,
+    pub direction: Option<String>,
+    pub text: Option<String>,
+}
+
+impl Gallops {
+    /// Nominate a new Heat
+    ///
+    /// Creates a new Heat with empty Pace structure and creates the paddock file.
+    pub fn nominate(&mut self, args: NominateArgs, base_path: &Path) -> Result<NominateResult, String> {
+        // Validate silks is kebab-case
+        if !is_kebab_case(&args.silks) {
+            return Err(format!("silks must be kebab-case, got '{}'", args.silks));
+        }
+
+        // Validate created is YYMMDD
+        if !is_yymmdd(&args.created) {
+            return Err(format!("created must be YYMMDD format, got '{}'", args.created));
+        }
+
+        // Allocate Firemark from next_heat_seed
+        let firemark_str = format!("{}{}", FIREMARK_PREFIX, self.next_heat_seed);
+        let heat_id = self.next_heat_seed.clone();
+
+        // Compute paddock path
+        let paddock_file = format!(".claude/jjm/jjp_{}.md", heat_id);
+
+        // Create paddock file with template
+        let paddock_path = base_path.join(&paddock_file);
+        if let Some(parent) = paddock_path.parent() {
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create paddock directory: {}", e))?;
+        }
+
+        let paddock_content = format!(
+            "# Paddock: {}\n\n## Context\n\n(Describe the initiative's background and goals)\n\n## References\n\n(List relevant files, docs, or prior work)\n",
+            args.silks
+        );
+
+        fs::write(&paddock_path, paddock_content)
+            .map_err(|e| format!("Failed to write paddock file: {}", e))?;
+
+        // Create new Heat
+        let heat = Heat {
+            silks: args.silks,
+            creation_time: args.created,
+            status: HeatStatus::Current,
+            order: Vec::new(),
+            next_pace_seed: "AAA".to_string(),
+            paddock_file,
+            paces: std::collections::HashMap::new(),
+        };
+
+        // Insert Heat
+        self.heats.insert(firemark_str.clone(), heat);
+
+        // Increment next_heat_seed
+        self.next_heat_seed = increment_seed(&self.next_heat_seed);
+
+        Ok(NominateResult { firemark: firemark_str })
+    }
+
+    /// Slate a new Pace
+    ///
+    /// Adds a new Pace to a Heat with an initial Tack in rough state.
+    pub fn slate(&mut self, args: SlateArgs) -> Result<SlateResult, String> {
+        // Validate silks is kebab-case
+        if !is_kebab_case(&args.silks) {
+            return Err(format!("silks must be kebab-case, got '{}'", args.silks));
+        }
+
+        // Validate text is non-empty
+        if args.text.is_empty() {
+            return Err("text must not be empty".to_string());
+        }
+
+        // Parse and normalize firemark
+        let firemark = Firemark::parse(&args.firemark)
+            .map_err(|e| format!("Invalid firemark: {}", e))?;
+        let firemark_key = firemark.display();
+
+        // Verify Heat exists
+        let heat = self.heats.get_mut(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // Construct Coronet
+        let coronet_str = format!("{}{}{}", CORONET_PREFIX, firemark.as_str(), heat.next_pace_seed);
+
+        // Create initial Tack
+        let tack = Tack {
+            ts: timestamp_full(),
+            state: PaceState::Rough,
+            text: args.text,
+            direction: None,
+        };
+
+        // Create new Pace
+        let pace = Pace {
+            silks: args.silks,
+            tacks: vec![tack],
+        };
+
+        // Append to order and insert pace
+        heat.order.push(coronet_str.clone());
+        heat.paces.insert(coronet_str.clone(), pace);
+
+        // Increment next_pace_seed
+        heat.next_pace_seed = increment_seed(&heat.next_pace_seed);
+
+        Ok(SlateResult { coronet: coronet_str })
+    }
+
+    /// Rail - reorder Paces within a Heat
+    ///
+    /// Replaces the order array with a new sequence. Validates that the new order
+    /// contains exactly the same Coronets as the current order.
+    pub fn rail(&mut self, args: RailArgs) -> Result<(), String> {
+        // Parse and normalize firemark
+        let firemark = Firemark::parse(&args.firemark)
+            .map_err(|e| format!("Invalid firemark: {}", e))?;
+        let firemark_key = firemark.display();
+
+        // Verify Heat exists
+        let heat = self.heats.get_mut(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // Normalize the input order (add prefix if missing)
+        let normalized_order: Result<Vec<String>, String> = args.order.iter()
+            .map(|c| {
+                let coronet = Coronet::parse(c)
+                    .map_err(|e| format!("Invalid coronet '{}': {}", c, e))?;
+                Ok(coronet.display())
+            })
+            .collect();
+        let new_order = normalized_order?;
+
+        // Validate count matches
+        if new_order.len() != heat.order.len() {
+            return Err(format!(
+                "Order count mismatch: got {}, expected {}",
+                new_order.len(),
+                heat.order.len()
+            ));
+        }
+
+        // Validate no duplicates
+        let new_set: HashSet<&String> = new_order.iter().collect();
+        if new_set.len() != new_order.len() {
+            return Err("Order contains duplicate Coronets".to_string());
+        }
+
+        // Validate all Coronets exist in paces
+        for coronet in &new_order {
+            if !heat.paces.contains_key(coronet) {
+                return Err(format!("Coronet '{}' not found in Heat's paces", coronet));
+            }
+        }
+
+        // Validate all Coronets embed correct parent Firemark
+        for coronet in &new_order {
+            let c = Coronet::parse(coronet).unwrap();
+            if c.parent_firemark().display() != firemark_key {
+                return Err(format!(
+                    "Coronet '{}' does not embed parent Heat '{}'",
+                    coronet, firemark_key
+                ));
+            }
+        }
+
+        // Replace order
+        heat.order = new_order;
+
+        Ok(())
+    }
+
+    /// Tally - add a new Tack to a Pace
+    ///
+    /// Prepends a new Tack with state transition and/or plan refinement.
+    pub fn tally(&mut self, args: TallyArgs) -> Result<(), String> {
+        // Parse and normalize coronet
+        let coronet = Coronet::parse(&args.coronet)
+            .map_err(|e| format!("Invalid coronet: {}", e))?;
+        let coronet_key = coronet.display();
+
+        // Extract parent Firemark
+        let firemark = coronet.parent_firemark();
+        let firemark_key = firemark.display();
+
+        // Verify Heat exists
+        let heat = self.heats.get_mut(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // Verify Pace exists
+        let pace = heat.paces.get_mut(&coronet_key)
+            .ok_or_else(|| format!("Pace '{}' not found", coronet_key))?;
+
+        // Read current Tack
+        let current_tack = pace.tacks.first()
+            .ok_or_else(|| "Pace has no tacks (should never happen)".to_string())?;
+
+        // Determine new state
+        let new_state = args.state.clone().unwrap_or_else(|| current_tack.state.clone());
+
+        // Determine new direction
+        let new_direction = match (&args.state, &new_state) {
+            // State explicitly set to primed: direction required
+            (Some(PaceState::Primed), _) => {
+                match &args.direction {
+                    Some(d) if !d.is_empty() => Some(d.clone()),
+                    Some(_) => return Err("direction must not be empty when state is primed".to_string()),
+                    None => return Err("direction is required when state is primed".to_string()),
+                }
+            }
+            // State explicitly set to something other than primed: direction forbidden
+            (Some(_), _) => {
+                if args.direction.is_some() {
+                    return Err("direction must be absent when state is not primed".to_string());
+                }
+                None
+            }
+            // State inherited and was primed: inherit direction
+            (None, PaceState::Primed) => {
+                args.direction.or_else(|| current_tack.direction.clone())
+            }
+            // State inherited and was not primed: no direction
+            (None, _) => None,
+        };
+
+        // Determine new text
+        let new_text = args.text.unwrap_or_else(|| current_tack.text.clone());
+        if new_text.is_empty() {
+            return Err("text must not be empty".to_string());
+        }
+
+        // Create new Tack
+        let new_tack = Tack {
+            ts: timestamp_full(),
+            state: new_state,
+            text: new_text,
+            direction: new_direction,
+        };
+
+        // Prepend to tacks array
+        pace.tacks.insert(0, new_tack);
+
+        Ok(())
+    }
+}
+
+/// Read text from stdin (for CLI commands)
+pub fn read_stdin() -> Result<String, String> {
+    let mut buffer = String::new();
+    std::io::stdin().read_to_string(&mut buffer)
+        .map_err(|e| format!("Failed to read from stdin: {}", e))?;
+    Ok(buffer.trim_end().to_string())
+}
+
+/// Read text from stdin, returning None if stdin is empty or a tty
+pub fn read_stdin_optional() -> Result<Option<String>, String> {
+    use std::io::IsTerminal;
+
+    // If stdin is a terminal, no input was piped
+    if std::io::stdin().is_terminal() {
+        return Ok(None);
+    }
+
+    let text = read_stdin()?;
+    if text.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(text))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -766,5 +1107,387 @@ mod tests {
         let errors = gallops.validate().unwrap_err();
         // Should have multiple errors
         assert!(errors.len() >= 3);
+    }
+
+    // ===== Seed increment tests =====
+
+    #[test]
+    fn test_increment_seed_simple() {
+        assert_eq!(increment_seed("AA"), "AB");
+        assert_eq!(increment_seed("AB"), "AC");
+        assert_eq!(increment_seed("Az"), "A0");
+    }
+
+    #[test]
+    fn test_increment_seed_carry() {
+        // '_' is position 63, should wrap to 'A' (position 0) and carry
+        assert_eq!(increment_seed("A_"), "BA");
+        assert_eq!(increment_seed("__"), "AA"); // Full wrap around
+    }
+
+    #[test]
+    fn test_increment_seed_three_chars() {
+        assert_eq!(increment_seed("AAA"), "AAB");
+        assert_eq!(increment_seed("AA_"), "ABA");
+        assert_eq!(increment_seed("A__"), "BAA");
+        assert_eq!(increment_seed("___"), "AAA");
+    }
+
+    // ===== Write operation tests =====
+
+    #[test]
+    fn test_nominate_creates_heat() {
+        let mut gallops = make_valid_gallops();
+        let temp_dir = std::env::temp_dir().join("jjk_test_nominate");
+        let _ = std::fs::remove_dir_all(&temp_dir);
+        std::fs::create_dir_all(&temp_dir).unwrap();
+
+        let args = NominateArgs {
+            silks: "test-heat".to_string(),
+            created: "260113".to_string(),
+        };
+
+        let result = gallops.nominate(args, &temp_dir).unwrap();
+
+        // Check result
+        assert!(result.firemark.starts_with('₣'));
+
+        // Check heat was created
+        assert!(gallops.heats.contains_key(&result.firemark));
+        let heat = gallops.heats.get(&result.firemark).unwrap();
+        assert_eq!(heat.silks, "test-heat");
+        assert_eq!(heat.creation_time, "260113");
+        assert_eq!(heat.status, HeatStatus::Current);
+        assert!(heat.order.is_empty());
+        assert_eq!(heat.next_pace_seed, "AAA");
+
+        // Check seed was incremented
+        assert_eq!(gallops.next_heat_seed, "AC");
+
+        // Cleanup
+        let _ = std::fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_nominate_invalid_silks() {
+        let mut gallops = make_valid_gallops();
+        let temp_dir = std::env::temp_dir();
+
+        let args = NominateArgs {
+            silks: "InvalidSilks".to_string(),
+            created: "260113".to_string(),
+        };
+
+        let result = gallops.nominate(args, &temp_dir);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("silks must be kebab-case"));
+    }
+
+    #[test]
+    fn test_nominate_invalid_created() {
+        let mut gallops = make_valid_gallops();
+        let temp_dir = std::env::temp_dir();
+
+        let args = NominateArgs {
+            silks: "test-heat".to_string(),
+            created: "2026-01-13".to_string(),
+        };
+
+        let result = gallops.nominate(args, &temp_dir);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("created must be YYMMDD format"));
+    }
+
+    #[test]
+    fn test_slate_creates_pace() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "test-pace".to_string(),
+            text: "Do something useful".to_string(),
+        };
+
+        let result = gallops.slate(args).unwrap();
+
+        // Check result
+        assert!(result.coronet.starts_with('₢'));
+        assert!(result.coronet.contains("AB")); // Embeds heat identity
+
+        // Check pace was created
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert!(heat.paces.contains_key(&result.coronet));
+        let pace = heat.paces.get(&result.coronet).unwrap();
+        assert_eq!(pace.silks, "test-pace");
+        assert_eq!(pace.tacks.len(), 1);
+        assert_eq!(pace.tacks[0].state, PaceState::Rough);
+        assert_eq!(pace.tacks[0].text, "Do something useful");
+
+        // Check order was updated
+        assert!(heat.order.contains(&result.coronet));
+
+        // Check seed was incremented (was AAB, now AAC due to existing pace)
+        assert_eq!(heat.next_pace_seed, "AAC");
+    }
+
+    #[test]
+    fn test_slate_heat_not_found() {
+        let mut gallops = make_valid_gallops();
+
+        let args = SlateArgs {
+            firemark: "CD".to_string(),
+            silks: "test-pace".to_string(),
+            text: "Do something".to_string(),
+        };
+
+        let result = gallops.slate(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("not found"));
+    }
+
+    #[test]
+    fn test_slate_invalid_silks() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        gallops.heats.insert(heat_key, heat);
+
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "InvalidSilks".to_string(),
+            text: "Do something".to_string(),
+        };
+
+        let result = gallops.slate(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("silks must be kebab-case"));
+    }
+
+    #[test]
+    fn test_slate_empty_text() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        gallops.heats.insert(heat_key, heat);
+
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "test-pace".to_string(),
+            text: "".to_string(),
+        };
+
+        let result = gallops.slate(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("text must not be empty"));
+    }
+
+    #[test]
+    fn test_rail_reorders_paces() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        // Add another pace
+        let pace2_key = "₢ABAAB".to_string();
+        let pace2 = Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        };
+        heat.paces.insert(pace2_key.clone(), pace2);
+        heat.order.push(pace2_key.clone());
+        heat.next_pace_seed = "AAC".to_string();
+
+        let original_first = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Reorder: swap the two paces
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![pace2_key.clone(), original_first.clone()],
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], pace2_key);
+        assert_eq!(heat.order[1], original_first);
+    }
+
+    #[test]
+    fn test_rail_count_mismatch() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        gallops.heats.insert(heat_key, heat);
+
+        // Try to reorder with wrong count
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()], // 2 items but only 1 pace
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("count mismatch"));
+    }
+
+    #[test]
+    fn test_rail_duplicate_coronets() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        // Add another pace
+        let pace2_key = "₢ABAAB".to_string();
+        let pace2 = Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        };
+        heat.paces.insert(pace2_key.clone(), pace2);
+        heat.order.push(pace2_key.clone());
+        gallops.heats.insert(heat_key, heat);
+
+        // Try with duplicate
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec!["₢ABAAA".to_string(), "₢ABAAA".to_string()],
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("duplicate"));
+    }
+
+    #[test]
+    fn test_tally_state_transition() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Transition to complete
+        let args = TallyArgs {
+            coronet: pace_key.clone(),
+            state: Some(PaceState::Complete),
+            direction: None,
+            text: Some("Work completed successfully".to_string()),
+        };
+
+        let result = gallops.tally(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        let pace = heat.paces.get(&pace_key).unwrap();
+        assert_eq!(pace.tacks.len(), 2); // Original + new
+        assert_eq!(pace.tacks[0].state, PaceState::Complete);
+        assert_eq!(pace.tacks[0].text, "Work completed successfully");
+    }
+
+    #[test]
+    fn test_tally_primed_requires_direction() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key, heat);
+
+        let args = TallyArgs {
+            coronet: pace_key,
+            state: Some(PaceState::Primed),
+            direction: None, // Missing!
+            text: Some("Ready for execution".to_string()),
+        };
+
+        let result = gallops.tally(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("direction is required"));
+    }
+
+    #[test]
+    fn test_tally_primed_with_direction() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        let args = TallyArgs {
+            coronet: pace_key.clone(),
+            state: Some(PaceState::Primed),
+            direction: Some("Execute autonomously".to_string()),
+            text: Some("Ready for execution".to_string()),
+        };
+
+        let result = gallops.tally(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        let pace = heat.paces.get(&pace_key).unwrap();
+        assert_eq!(pace.tacks[0].state, PaceState::Primed);
+        assert_eq!(pace.tacks[0].direction.as_ref().unwrap(), "Execute autonomously");
+    }
+
+    #[test]
+    fn test_tally_inherit_state() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // First tack is rough, add new tack without specifying state
+        let args = TallyArgs {
+            coronet: pace_key.clone(),
+            state: None, // Inherit
+            direction: None,
+            text: Some("Updated plan text".to_string()),
+        };
+
+        let result = gallops.tally(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        let pace = heat.paces.get(&pace_key).unwrap();
+        assert_eq!(pace.tacks[0].state, PaceState::Rough); // Inherited
+        assert_eq!(pace.tacks[0].text, "Updated plan text");
+    }
+
+    #[test]
+    fn test_tally_inherit_text() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        let original_text = heat.paces.get(&pace_key).unwrap().tacks[0].text.clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Just change state, inherit text
+        let args = TallyArgs {
+            coronet: pace_key.clone(),
+            state: Some(PaceState::Complete),
+            direction: None,
+            text: None, // Inherit
+        };
+
+        let result = gallops.tally(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        let pace = heat.paces.get(&pace_key).unwrap();
+        assert_eq!(pace.tacks[0].state, PaceState::Complete);
+        assert_eq!(pace.tacks[0].text, original_text); // Inherited
+    }
+
+    #[test]
+    fn test_tally_non_primed_forbids_direction() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key, heat);
+
+        let args = TallyArgs {
+            coronet: pace_key,
+            state: Some(PaceState::Complete),
+            direction: Some("Should not be here".to_string()), // Not allowed!
+            text: Some("Done".to_string()),
+        };
+
+        let result = gallops.tally(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("direction must be absent"));
     }
 }
