@@ -118,6 +118,14 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (3) Current Pace: return first rough/primed Pace Favor, exit 1 if none
   **Success criteria**: Extraction operations fully specified.
 
+- **jjd-steeplechase-ops** — [Phase 2] Document steeplechase operations in JJD.
+  **Context**: Steeplechase tracks session history via git. Saddle needs to read this; notch/chalk create entries.
+  **Deliverables**:
+  (1) Add `rein` operation to JJD: Arguments (heat favor), Stdout (formatted steeplechase entries), Behavior (parse git log for JJ patterns)
+  (2) Document that notch/chalk delegate to vvc-commit with --prefix parameter
+  (3) Define steeplechase entry patterns: APPROACH, WRAP, FLY, DISCUSSION
+  **Success criteria**: Steeplechase operations fully specified; clear that git ops use vvc-commit.
+
 - **jjr-cargo-scaffold** — [Phase 3] Create JJK Rust crate structure following VOK/VVK patterns.
   **Prerequisite**: Read `Tools/vok/README.md` and `Tools/vvk/README.md` before starting.
   **Source files**: `Tools/jjk/veiled/Cargo.toml`, `lib.rs`, `jjrf_favor.rs`, `jjrg_gallops.rs`, `jjrc_core.rs`
@@ -165,12 +173,37 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (3) Stdout output per JJD spec
   **Success criteria**: All read operations match JJD behavior spec.
 
+- **vvc-prefix-support** — [Phase 3] Add --prefix parameter to vvc-commit.
+  **Context**: JJ needs to include heat/pace context in commit messages without duplicating commit logic. Crosses into VVK but enables JJ.
+  **Location**: VVK (Tools/vvk/ - wherever vvc-commit slash command is defined)
+  **Deliverables**:
+  (1) Update vvc-commit to accept --prefix STRING parameter
+  (2) Prefix prepended to commit message summary line: "[prefix] Summary"
+  (3) Works with existing vvc-commit flow (guarded, size-checked)
+  **Success criteria**: `vvc-commit --prefix "[₣HH/silks]"` produces commit with prefixed message.
+
+- **jjr-steeplechase-rein** — [Phase 3] Implement steeplechase rein in Rust.
+  **Reference**: JJD steeplechase-ops spec
+  **Deliverables**:
+  (1) Parse git log for commits matching JJ steeplechase patterns
+  (2) Extract and format entries (APPROACH, WRAP, FLY, DISCUSSION)
+  (3) Add `vvx jjx steeplechase rein --heat ₣HH` subcommand
+  (4) Output formatted history for saddle context display
+  **Success criteria**: Returns formatted steeplechase history for specified heat.
+
 - **jjb-orchestration-update** — [Phase 4] Update bash orchestration to call `vvx jjx` instead of jq.
   **Source file**: `jju_utility.sh`
   **Deliverables**:
   (1) Replace jq pipelines in `jju_utility.sh` with `vvx jjx` calls
   (2) Maintain locking pattern (lock → `vvx jjx` → unlock)
   (3) Update file path constant to `jjg_gallops.json`
+  **Clarification - bash retains**:
+  - Locking via git update-ref (proven pattern)
+  - Slash command dispatch (tabtargets)
+  **Clarification - bash delegates**:
+  - All JSON operations → `vvx jjx gallops *`
+  - Steeplechase reading → `vvx jjx steeplechase rein`
+  - Commits → `vvc-commit --prefix`
   **Success criteria**: All existing JJ commands work with `vvx jjx` backend.
 
 - **test-full-lifecycle** — [Phase 4] Integration test of complete heat lifecycle via `vvx jjx`.
@@ -181,17 +214,28 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (4) Verify trophy creation
   **Success criteria**: Full lifecycle works end-to-end with Rust backend.
 
-- **jj-system-integration** — [Phase 4] Consolidate path to working Job Jockey with rough/primed workflow.
-  **Context**: jj-studbook-redesign heat abandoned (bash v2 superseded by Rust backend). Need clear path from JJD spec → working slash commands.
+- **arcanum-state-workflow** — [Phase 4] Update arcanum emitters for rough/primed workflow.
+  **Context**: New states require different saddle behavior and new prime command.
+  **Source file**: `Tools/jjk/jja_arcanum.sh`
   **Deliverables**:
-  (1) Audit remaining paces against what's needed for functioning JJ
-  (2) Update arcanum emitters (`jja_arcanum.sh`) for `vvx jjx` backend + rough/primed workflow:
-      - heat-saddle: branch on state (rough → guide refinement, primed → execute per direction)
-      - pace-prime (new): study pace, recommend agent type + cardinality, call `vvx jjx gallops tally --state primed --direction "..."`
-      - Remove pace-arm/pace-fly (replaced by prime + primed execution in saddle)
-  (3) Map jjx operations → slash commands (which ops does each command invoke?)
-  (4) Define bash locking layer that wraps `vvx jjx` calls
-  **Success criteria**: Clear checklist from current state to `/jjc-heat-saddle` working with Rust backend and rough/primed states.
+  (1) Update `zjjw_emit_heat_saddle`: branch on pace state
+      - rough: guide LLM to refine spec, recommend approach, ask before proceeding
+      - primed: read direction field, execute per direction without asking
+  (2) Add `zjjw_emit_pace_prime`: study pace spec, recommend agent type + cardinality, call `vvx jjx gallops tally --state primed --direction "..."`
+  (3) Update `zjjw_emit_pace_wrap`: works with rough/primed states
+  (4) Remove `zjjw_emit_pace_arm` and `zjjw_emit_pace_fly` (replaced by prime + primed execution)
+  (5) Update `zjjw_emit_claudemd_section`: new command list, rough/primed concepts
+  **Success criteria**: Fresh arcanum install produces commands reflecting rough/primed workflow.
+
+- **arcanum-vvc-integration** — [Phase 4] Integrate arcanum with vvc-commit for git operations.
+  **Context**: JJ should use vvc-commit rather than own commit logic.
+  **Depends on**: vvc-prefix-support
+  **Source file**: `Tools/jjk/jja_arcanum.sh`
+  **Deliverables**:
+  (1) Update `zjjw_emit_notch_command`: extract heat/pace from context, invoke `/vvc-commit --prefix "[₣HH/silks]"`
+  (2) Update chalk pattern: use `vvc-commit --allow-empty --prefix "..."` for steeplechase markers (APPROACH, WRAP entries)
+  (3) Remove background haiku agent dispatch from notch (vvc-commit handles it)
+  **Success criteria**: /jjc-notch produces commits via vvc-commit with JJ prefix.
 
 - **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
   **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).

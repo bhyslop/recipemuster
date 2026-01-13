@@ -68,3 +68,27 @@
 
 **Related decision**: jj-studbook-redesign heat to be abandoned (bash v2 superseded by Rust backend). Added jj-system-integration pace for arcanum updates.
 ---
+
+---
+### 2026-01-13 - pace-planning - DISCUSSION
+**Context**: Analyzed path to working JJ with rough/primed states.
+
+**Architecture decisions**:
+- jjx owns JSON ops (gallops subcommand) AND steeplechase reading (rein)
+- vvc-commit owns all git commits; JJ uses --prefix for context
+- Bash retains locking (git update-ref) and slash command dispatch
+- notch/chalk become thin wrappers around vvc-commit
+
+**New paces added**:
+- jjd-steeplechase-ops [Phase 2] - spec rein operation
+- vvc-prefix-support [Phase 3] - add --prefix to vvc-commit (VVK)
+- jjr-steeplechase-rein [Phase 3] - implement rein in Rust
+- arcanum-state-workflow [Phase 4] - rough/primed emitters
+- arcanum-vvc-integration [Phase 4] - notch/chalk via vvc-commit
+
+**Removed**: jj-system-integration (absorbed into specific paces)
+
+**Updated**: jjb-orchestration-update (clarified what bash retains vs delegates)
+
+**jj-studbook-redesign**: To be archived as abandoned (bash v2 superseded).
+---
