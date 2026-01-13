@@ -133,3 +133,37 @@
 ### 2026-01-13 - spec-slate-reslate - WRAP
 **Outcome**: Added next_pace_seed to Heat; documented Slate/Reslate operations with Arguments, Stdout, Exit Status, Behavior sections; fixed Coronet prefix in validation.
 ---
+
+---
+### 2026-01-13 - spec-rail-tally - APPROACH
+**Proposed approach**:
+- Rail: Add Arguments (file, Firemark, order array), Stdout (none), Exit Status (uniform), Behavior (validate same key set, replace order array)
+- Tally: Add Stdout (none), Exit Status (uniform), Behavior (prepend Tack with specified state, handle direction/text inheritance)
+- Note: Tally Arguments already documented from pace-state-autonomy; need Behavior steps only
+---
+
+---
+### 2026-01-13 - reslate-elimination - DISCUSSION
+**Context**: Noticed significant overlap between Tally and Reslate during spec-rail-tally approach.
+
+**Overlap identified**:
+- Both create a new Tack
+- Both prepend to tacks[0]
+- Both take text from stdin
+- Only difference: Reslate inherits state, Tally sets explicit state
+
+**Decision**: Eliminate Reslate; unify all Tack creation under Tally.
+
+**Changes made**:
+- Removed jjdo_reslate from mapping section and operation definition
+- Made --state optional in Tally (inherits if not provided)
+- Updated --direction semantics: required if --state=primed, forbidden if --state is other value, inherits with state if --state absent
+- Documented full Behavior section for unified Tally
+
+**Rationale**: One operation for all Tack creation is simpler mental model, fewer operations to implement.
+---
+
+---
+### 2026-01-13 - spec-rail-tally - WRAP
+**Outcome**: Eliminated Reslate; documented Rail with full behavior specs; unified Tally with optional --state, inheritance semantics, and full behavior.
+---

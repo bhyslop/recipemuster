@@ -28,8 +28,6 @@
 :jjdt_coronet:    <<jjdt_coronet,Coronet>>
 :jjdt_coronet_p:  <<jjdt_coronet,Coronet's>>
 :jjdt_coronet_s:  <<jjdt_coronet,Coronets>>
-:jjdt_favor:      <<jjdt_favor,Favor>>
-:jjdt_favor_s:    <<jjdt_favor,Favors>>
 :jjdt_firemark:   <<jjdt_firemark,Firemark>>
 :jjdt_firemark_p: <<jjdt_firemark,Firemark's>>
 :jjdt_firemark_s: <<jjdt_firemark,Firemarks>>
@@ -46,6 +44,7 @@
 :jjdhm_created:   <<jjdhm_created,creation_time>>
 :jjdhm_firemark:  <<jjdhm_firemark,firemark>>
 :jjdhm_order:     <<jjdhm_order,order>>
+:jjdhm_seed:      <<jjdhm_seed,next_pace_seed>>
 :jjdhm_silks:     <<jjdhm_silks,silks>>
 :jjdhm_status:    <<jjdhm_status,status>>
 :jjdhr_heat:      <<jjdhr_heat,Heat>>
@@ -86,17 +85,16 @@
 :jjdx_cli:   <<jjdx_cli,jjx>>
 
 // Operations
-:jjdo_current_pace:   <<jjdo_current_pace,Current Pace>>
-:jjdo_current_tack:   <<jjdo_current_tack,Current Tack>>
-:jjdo_heat_exists:    <<jjdo_heat_exists,Heat Exists>>
-:jjdo_muster:         <<jjdo_muster,Muster>>
-:jjdo_nominate:       <<jjdo_nominate,Nominate>>
-:jjdo_rail:           <<jjdo_rail,Rail>>
-:jjdo_reslate:        <<jjdo_reslate,Reslate>>
-:jjdo_retire_extract: <<jjdo_retire_extract,Retire Extract>>
-:jjdo_slate:          <<jjdo_slate,Slate>>
-:jjdo_tally:          <<jjdo_tally,Tally>>
-:jjdo_validate:       <<jjdo_validate,Validate>>
+:jjdo_current_pace:   <<jjdo_current_pace,jjx_current_pace>>
+:jjdo_current_tack:   <<jjdo_current_tack,jjx_current_tack>>
+:jjdo_heat_exists:    <<jjdo_heat_exists,jjx_heat_exists>>
+:jjdo_muster:         <<jjdo_muster,jjx_muster>>
+:jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
+:jjdo_rail:           <<jjdo_rail,jjx_rail>>
+:jjdo_retire_extract: <<jjdo_retire_extract,jjx_retire_extract>>
+:jjdo_slate:          <<jjdo_slate,jjx_slate>>
+:jjdo_tally:          <<jjdo_tally,jjx_tally>>
+:jjdo_validate:       <<jjdo_validate,jjx_validate>>
 
 // Section headers
 :jjds_arguments:        <<jjds_arguments,Arguments:>>
@@ -107,7 +105,7 @@
 
 // Serialization
 :jjdz_charset:  <<jjdz_charset,Charset>>
-:jjdz_encoding: <<jjdz_encoding,Favor Encoding>>
+:jjdz_encoding: <<jjdz_encoding,Identity Encoding>>
 
 // end::mapping-section[]
 
@@ -169,11 +167,14 @@ Small discipline, large cumulative benefit.
 
 The
 {jjdhm_order}
-array contains full Pace
-{jjdt_favor_s}
-despite the redundant
+array contains full
+{jjdt_coronet_s}.
+Each
+{jjdt_coronet}
+embeds its parent
 {jjdt_firemark}
-prefix.
+(redundant within a single
+{jjdhr_heat}).
 This redundancy is cheap and enables grep, copy-paste, and self-documenting JSON.
 
 === Crash-Safe Architecture
@@ -195,17 +196,14 @@ lock_release
 
 This keeps bash simple (just locking and invocation) while {jjdx_cli} owns all JSON file operations.
 
-=== Logical vs Serialized Identity
+=== Identity Encoding
 
 {jjdt_firemark}
-and
+(`₣` prefix) and
 {jjdt_coronet}
-are the logical identities: simple integers.
-{jjdt_favor}
-is purely serialization: the base64-encoded, `₣`-prefixed string for JSON keys and human reference.
-
-This separation keeps the Rust data model clean (integers) while providing readable external identifiers.
-Encoding and decoding live in a well-defined serialization layer, not scattered through business logic.
+(`₢` prefix) are the canonical identities used in JSON keys, CLI arguments, and display.
+The base64 encoding provides compact, URL-safe, shell-safe strings.
+Internally, Rust may decode to integers for arithmetic, but the string form is authoritative.
 
 === Horse Racing Vocabulary
 
@@ -215,35 +213,34 @@ This is intentional: vivid domain vocabulary helps humans hold complex systems i
 * {jjdhr_heat} - a bounded initiative (like a race)
 * {jjdpr_pace} - a discrete action (the rhythm of the race)
 * {jjdkr_tack} - plan refinement (equipment; also "tacking" = adjusting course)
-* {jjdt_firemark} - heat identity (hot-iron brand marking ownership)
-* {jjdt_coronet} - pace identity (marking at the hoof line)
+* {jjdt_firemark} - heat identity, `₣`-prefixed (hot-iron brand marking ownership)
+* {jjdt_coronet} - pace identity, `₢`-prefixed (marking at the hoof line)
 * {jjdt_silks} - display name (jockey's colors)
-* {jjdt_favor} - external identifier (racing favor/token)
 * {jjdgr_gallops} - the training grounds (where real work happens before race day)
 
 == Types
 
 [[jjdt_firemark]]
-// ⟦axl_voices axt_number⟧
+// ⟦axl_voices axt_string⟧
 {jjdt_firemark}::
-An integer identifying a
+The identity of a
 {jjdhr_heat}.
-Valid range: 0-4095 (2^12).
-Serializes to 2 base64 characters in
-{jjdt_favor}
-encoding.
+Format: `₣` + 2 base64 characters (e.g., `₣AB`).
+The 2 base64 characters encode an integer 0-4095 (2^12).
+Used as JSON keys and in CLI arguments.
+Input may omit the `₣` prefix; output always includes it.
 
 [[jjdt_coronet]]
-// ⟦axl_voices axt_number⟧
+// ⟦axl_voices axt_string⟧
 {jjdt_coronet}::
-An integer identifying a
-{jjdpr_pace}
-within its parent
-{jjdhr_heat}.
-Valid range: 0-262143 (2^18).
-Serializes to 3 base64 characters in
-{jjdt_favor}
-encoding.
+The identity of a
+{jjdpr_pace}.
+Format: `₢` + 5 base64 characters (e.g., `₢ABCDE`).
+Globally unique: the first 2 base64 characters are the parent
+{jjdhr_heat_p}
+encoded identity; the remaining 3 encode the pace index (0-262143, 2^18).
+Used as JSON keys and in CLI arguments.
+Input may omit the `₢` prefix; output always includes it.
 
 [[jjdt_silks]]
 // ⟦axl_voices axt_string⟧
@@ -254,26 +251,6 @@ Used for human-readable identification of
 and
 {jjdpr_pace_s}.
 Pattern: `[a-z0-9]+(-[a-z0-9]+)*`
-
-[[jjdt_favor]]
-// ⟦axl_voices axt_string⟧
-{jjdt_favor}::
-The serialized form of
-{jjdt_firemark}
-and
-{jjdt_coronet}
-used in JSON keys and external references.
-Always prefixed with `₣`.
-Heat
-{jjdt_favor}
-is 3 characters (`₣` + encoded
-{jjdt_firemark}).
-Pace
-{jjdt_favor}
-is 6 characters (`₣` + encoded
-{jjdt_firemark}
-+ encoded
-{jjdt_coronet}).
 
 == Records
 
@@ -305,8 +282,8 @@ A bounded initiative with coherent goals.
 Contains zero or more
 {jjdpr_pace_s}
 representing discrete actions.
-Keyed in JSON by Heat
-{jjdt_favor}.
+Keyed in JSON by
+{jjdt_firemark}.
 
 ==== Members
 
@@ -351,12 +328,20 @@ or
 * [[jjdhm_order]]
 // ⟦axl_voices axr_member axd_required axd_repeated⟧
 {jjdhm_order}
-lists Pace
-{jjdt_favor_s}
+lists
+{jjdt_coronet_s}
 in execution sequence.
-Array of 6-character strings.
 May be reordered via
 {jjdo_rail}.
+
+* [[jjdhm_seed]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_seed}
+is the next
+{jjdt_coronet}
+index to allocate, stored as 3 base64 characters.
+Incremented by
+{jjdo_slate}.
 
 ==== Status Values
 
@@ -385,8 +370,8 @@ Contains one or more
 {jjdkr_tack_s}
 representing state snapshots and plan refinements.
 Current state is derived from `tacks[0].state`.
-Keyed in JSON by Pace
-{jjdt_favor}.
+Keyed in JSON by
+{jjdt_coronet}.
 
 ==== Members
 
@@ -395,8 +380,7 @@ Keyed in JSON by Pace
 {jjdpm_coronet}
 is the
 {jjdpr_pace_p}
-identity within its parent
-{jjdhr_heat}.
+globally unique identity.
 Type:
 {jjdt_coronet}.
 Implicit from JSON key; not stored as separate field.
@@ -516,9 +500,7 @@ was stopped without completion.
 
 [[jjdz_charset]]
 {jjdz_charset}::
-The 64-character alphabet for
-{jjdt_favor}
-encoding.
+The 64-character alphabet for identity encoding.
 Uses URL-safe base64 (RFC 4648 §5):
 `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
 Position in charset determines numeric value (A=0, B=1, ..., `-`=62, `_`=63).
@@ -527,36 +509,31 @@ Matches Rust `base64::engine::general_purpose::URL_SAFE_NO_PAD`.
 
 [[jjdz_encoding]]
 {jjdz_encoding}::
-The algorithm for converting between logical identities and
-{jjdt_favor}
-strings.
-+
-*Encoding:*
-+
-. Given
+The algorithm for encoding
 {jjdt_firemark}
-F and
+and
 {jjdt_coronet}
-C
-. Encode F as 2 base64 digits: `charset[F/64]` + `charset[F%64]`
-. Encode C as 3 base64 digits: `charset[C/4096]` + `charset[(C/64)%64]` + `charset[C%64]`
-. Heat
-{jjdt_favor}
-= `₣` + encoded F
-. Pace
-{jjdt_favor}
-= `₣` + encoded F + encoded C
+values.
 +
-*Decoding:*
+*{jjdt_firemark} (Heat identity):*
 +
-. Strip `₣` prefix
-. For Heat
-{jjdt_favor}
-(2 chars): F = pos(char1) * 64 + pos(char2)
-. For Pace
-{jjdt_favor}
-(5 chars): extract F from first 2, C from last 3
-. C = pos(char3) * 4096 + pos(char4) * 64 + pos(char5)
+. Format: `₣` + 2 base64 characters
+. Given integer H (0-4095): encode as `₣` + `charset[H/64]` + `charset[H%64]`
+. To decode `₣XY`: H = pos(X) * 64 + pos(Y)
++
+*{jjdt_coronet} (Pace identity):*
++
+. Format: `₢` + 5 base64 characters
+. First 2 characters encode the parent Heat (same as {jjdt_firemark} without prefix)
+. Last 3 characters encode the pace index P (0-262143)
+. Given Heat H and pace index P: encode as `₢` + `charset[H/64]` + `charset[H%64]` + `charset[P/4096]` + `charset[(P/64)%64]` + `charset[P%64]`
+. To decode `₢XYZAB`: H from XY, P = pos(Z) * 4096 + pos(A) * 64 + pos(B)
++
+*Input flexibility:*
++
+CLI commands accept identities with or without prefix.
+Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
+Output always includes the prefix (`₣` or `₢`).
 
 == Arguments
 
@@ -688,8 +665,7 @@ structure.
 * {jjda_created}
 
 {jjds_stdout} New
-{jjdhr_heat}
-{jjdt_favor}
+{jjdt_firemark}
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -715,6 +691,8 @@ from argument
 {jjdhe_current}
 .. {jjdhm_order}:
 empty array
+.. {jjdhm_seed}:
+`AAA` (index 0)
 .. `paces`: empty object
 . Increment
 {jjdgm_seed}
@@ -723,7 +701,7 @@ empty array
 {jjdgr_gallops}
 to file (atomic)
 . Output new
-{jjdt_favor}
+{jjdt_firemark}
 to stdout
 
 [[jjdo_slate]]
@@ -739,15 +717,78 @@ The initial
 is created with state
 {jjdpe_rough}.
 
-[[jjdo_reslate]]
-// ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_reslate}
+{jjds_arguments}
 
-Add a new
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_required⟧
+* {jjda_silks}
+
+// ⟦axd_required⟧
+* stdin —
+{jjdkm_text}
+content for the initial
 {jjdkr_tack}
-to a
-{jjdpr_pace},
-refining the plan.
+
+{jjds_stdout} New
+{jjdt_coronet}
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Read
+{jjdhm_seed}
+from target
+{jjdhr_heat}
+. Construct
+{jjdt_coronet}:
+`₢` + encoded
+{jjdt_firemark}
+(2 chars) +
+{jjdhm_seed}
+(3 chars)
+. Create new
+{jjdpr_pace}
+with:
+.. Key: constructed
+{jjdt_coronet}
+.. {jjdpm_silks}:
+from argument
+.. `tacks`: array with single
+{jjdkr_tack}:
+... {jjdkm_refined}:
+current timestamp (YYMMDD-HHMM)
+... {jjdkm_state}:
+{jjdpe_rough}
+... {jjdkm_text}:
+from stdin
+. Append
+{jjdt_coronet}
+to
+{jjdhm_order}
+. Increment
+{jjdhm_seed}
+(base64 arithmetic with carry)
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
+. Output new
+{jjdt_coronet}
+to stdout
 
 [[jjdo_rail]]
 // ⟦axl_voices axi_cli_subcommand⟧
@@ -760,6 +801,58 @@ within a
 by updating
 {jjdhm_order}.
 
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_required⟧
+* order — array of
+{jjdt_coronet_s}
+in desired sequence (JSON array or space-separated)
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Parse order argument into array of
+{jjdt_coronet_s}
+. Validate order array:
+.. Count must match current
+{jjdhm_order}
+length
+.. No duplicate
+{jjdt_coronet_s}
+.. All
+{jjdt_coronet_s}
+must exist in
+{jjdhr_heat_p}
+`paces` object
+.. All
+{jjdt_coronet_s}
+must embed correct parent
+{jjdt_firemark}
+. Replace
+{jjdhm_order}
+with new order array
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
+
 [[jjdo_tally]]
 // ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_tally}
@@ -767,8 +860,10 @@ by updating
 Add a new
 {jjdkr_tack}
 to a
-{jjdpr_pace}
-with a specified state transition.
+{jjdpr_pace}.
+This is the unified operation for all
+{jjdkr_tack}
+creation: state transitions, plan refinements, or both.
 
 {jjds_arguments}
 
@@ -776,26 +871,101 @@ with a specified state transition.
 * {jjda_file}
 
 // ⟦axd_required⟧
-* Pace
-{jjdt_favor}
+* {jjdt_coronet}
 (positional)
 
-// ⟦axd_required⟧
+// ⟦axd_optional⟧
 * {jjda_state}
+— if absent, inherits from previous
+{jjdkr_tack}
 
 // ⟦axd_conditional⟧
 * {jjda_direction}
 — required if
 {jjda_state}
 is
-{jjdpe_primed},
-forbidden otherwise
+{jjdpe_primed};
+forbidden if
+{jjda_state}
+is provided and not
+{jjdpe_primed};
+ignored if
+{jjda_state}
+is absent (inherits with state)
 
 // ⟦axd_optional⟧
 * stdin —
 {jjdkm_text}
 content; if absent, inherits from previous
 {jjdkr_tack}
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Extract parent
+{jjdt_firemark}
+from
+{jjdt_coronet}
+(first 2 base64 chars after prefix)
+. Verify
+{jjdhr_heat}
+exists
+. Verify
+{jjdpr_pace}
+exists with given
+{jjdt_coronet}
+. Read current
+{jjdkr_tack}
+from `tacks[0]`
+. Determine new state:
+.. If
+{jjda_state}
+provided: use that value
+.. Otherwise: inherit from previous
+{jjdkr_tack}
+. Determine new direction:
+.. If
+{jjda_state}
+is
+{jjdpe_primed}:
+use
+{jjda_direction}
+argument (required)
+.. If
+{jjda_state}
+is absent and previous state is
+{jjdpe_primed}:
+inherit from previous
+{jjdkr_tack}
+.. Otherwise: omit
+{jjdkm_direction}
+. Determine new text:
+.. If stdin provided: use stdin content
+.. Otherwise: inherit from previous
+{jjdkr_tack}
+. Create new
+{jjdkr_tack}
+with:
+.. {jjdkm_refined}:
+current timestamp (YYMMDD-HHMM)
+.. {jjdkm_state}:
+determined above
+.. {jjdkm_text}:
+determined above
+.. {jjdkm_direction}:
+determined above (if applicable)
+. Prepend new
+{jjdkr_tack}
+to `tacks` array (position 0)
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
 
 === Read Operations
 
@@ -838,14 +1008,16 @@ or
 {jjdhe_retired}),
 {jjdhm_order}
 (array),
+{jjdhm_seed}
+(3 URL-safe base64 characters matching `[A-Za-z0-9_-]{3}`),
 `paces` (object)
 . {jjdhm_order}
 array and `paces` object must have identical key sets
 . Each
 {jjdpr_pace}
-key must match `₣[A-Za-z0-9_-]{5}` and start with parent
+key must match `₢[A-Za-z0-9_-]{5}` and embed parent
 {jjdhr_heat}
-key
+identity (first 2 base64 chars after prefix)
 . Each
 {jjdpr_pace}
 must have:
@@ -881,7 +1053,7 @@ must be absent
 Check whether a
 {jjdhr_heat}
 with given
-{jjdt_favor}
+{jjdt_firemark}
 exists.
 
 {jjds_stdout} `true` or `false`

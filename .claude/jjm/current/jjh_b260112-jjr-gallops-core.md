@@ -24,9 +24,8 @@ vvx (Rust via VOK)
         ├─ jjx_validate  # Gallops JSON validation
         ├─ jjx_nominate  # Create heat
         ├─ jjx_slate     # Add pace
-        ├─ jjx_reslate   # Add tack
         ├─ jjx_rail      # Reorder paces
-        ├─ jjx_tally     # State transition
+        ├─ jjx_tally     # Add tack (unified: state transition + plan refinement)
         ├─ jjx_muster    # List heats
         ├─ jjx_rein      # Steeplechase history from git log
         └─ ... (other ops)
@@ -100,16 +99,11 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **pace-state-autonomy** — [Phase 1] Redesigned state enum: replaced pending/current with rough/primed; added direction field to Tack (required iff primed); tally handles all state transitions with --state and --direction args. ✓
 
-- **spec-slate-reslate** — [Phase 2] Added next_pace_seed to Heat; documented Slate/Reslate with full behavior specs. ✓
+- **spec-slate-reslate** — [Phase 2] Added next_pace_seed to Heat; documented Slate with full behavior specs. (Reslate later eliminated; see spec-rail-tally.) ✓
+
+- **spec-rail-tally** — [Phase 2] Eliminated Reslate; documented Rail; unified Tally with optional --state and full behavior specs. ✓
 
 ## Remaining
-
-- **spec-rail-tally** — [Phase 2] Document Rail and Tally operations in JJD.
-  **Reference**: `jju_rail()` lines 793-889, `jju_tally()` lines 891-972
-  **Deliverables**:
-  (1) Rail: Arguments (heat favor, order string), validation (same key set), Behavior
-  (2) Tally: Behavior steps for state transition; note --direction required iff primed, stdin text optional (inherits)
-  **Success criteria**: Operations fully specified with all sections.
 
 - **spec-read-ops-query** — [Phase 2] Document query operations: Validate, Heat Exists, Muster.
   **Reference**: `zjju_studbook_validate()` lines 235-279, `jju_muster()` lines 349-386
@@ -166,7 +160,7 @@ Rust source lives in `Tools/jjk/veiled/src/`:
   (3) `vvx jjx_validate --file PATH` subcommand
   **Success criteria**: Validates correct JSON, rejects malformed with clear errors.
 
-- **jjr-write-ops** — [Phase 3] Implement write operations: nominate, slate, reslate, rail, tally.
+- **jjr-write-ops** — [Phase 3] Implement write operations: nominate, slate, rail, tally.
   **Reference**: JJD operation specs (completed in Phase 2)
   **Source file**: `jjrg_gallops.rs`
   **Deliverables**:
