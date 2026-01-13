@@ -78,16 +78,9 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **rename-studbook-to-gallops** — [Phase 0] Rename throughout JJD spec and update all prefixes. ✓
 
-## Remaining
+- **cli-structure-and-voicing** — [Phase 1] Established CLI voicing hierarchy in JJD (jjdx_vvx, jjdx_cli) and AXLA (axi_cli_command_group, axa_argument_list, axa_cli_option, axa_exit_*); added section header and argument linked terms; Compliance Rules section. ✓
 
-- **cli-structure-and-voicing** — [Phase 1] Establish `vvx jjx` CLI structure in JJD using new AXLA terms.
-  **Context**: Minted `axi_cli_program` and `axi_cli_subcommand` in AXLA. All operations are subcommands with uniform exit semantics: 0=success, non-zero=failure. No predicate/boolean exit codes — fact-finding ops output answers to stdout. Updated JJD to use `vvx jjx` naming.
-  **Deliverables**:
-  (1) Add "vvx jjx CLI" section to JJD with `axi_cli_program` voicing, documenting global behavior (exit semantics, stdout/stderr, non-interactive)
-  (2) Add `axi_cli_subcommand` voicing annotation to each operation
-  (3) Add *Exit Status:* line to each operation (uniform: 0=success, non-zero=error)
-  (4) For query ops (heat_exists, validate, etc.), clarify that answers go to stdout, not exit code
-  **Success criteria**: JJD has clear CLI structure; all operations voiced as `axi_cli_subcommand` with uniform exit semantics.
+## Remaining
 
 - **operation-template-finalize** — [Phase 1] Establish DRY template for operation documentation.
   **Context**: Nominate is fully documented with Arguments, Stdout, Behavior. Other ops are stubs.
