@@ -137,13 +137,7 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 ## Remaining
 
-- **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
-  **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).
-  **Deliverables**:
-  (1) Survey existing relational concepts in JJD and other specs
-  (2) Evaluate whether explicit voicings would add clarity or are unnecessary
-  (3) If worthwhile, propose specific voicings following MCM patterns
-  **Success criteria**: Clear decision documented; if yes, AXLA updated accordingly.
+(none)
 
 ## Steeplechase
 

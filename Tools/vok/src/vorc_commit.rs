@@ -76,19 +76,19 @@ fn release_lock() {
     eprintln!("commit: lock released");
 }
 
-/// Stage tracked file changes with 'git add -u'
+/// Stage all changes including untracked files with 'git add -A'
 fn stage_changes() -> Result<(), String> {
     let result = Command::new("git")
-        .args(["add", "-u"])
+        .args(["add", "-A"])
         .output()
         .map_err(|e| format!("Failed to run git add: {}", e))?;
 
     if result.status.success() {
-        eprintln!("commit: staged tracked changes");
+        eprintln!("commit: staged all changes");
         Ok(())
     } else {
         Err(format!(
-            "git add -u failed: {}",
+            "git add -A failed: {}",
             String::from_utf8_lossy(&result.stderr)
         ))
     }

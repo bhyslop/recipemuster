@@ -1517,6 +1517,27 @@ Identified 2026-01-11 during Project Prefix Registry update. As codebase grows, 
 
 **Refined 2026-01-11** after VV naming scrub session revealed that mint scope extends beyond "code" to git refs, slash commands, command files, target repo paths, and other persistent identifiers. Added extended namespace extraction, validation categories, and domain-aware suffix checking.
 
+## axla-relational-voicing
+Evaluate AXLA voicings for relational table concepts.
+
+### Context
+
+As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).
+
+### Deliverables
+
+1. Survey existing relational concepts in JJD and other specs
+2. Evaluate whether explicit voicings would add clarity or are unnecessary
+3. If worthwhile, propose specific voicings following MCM patterns
+
+### Success Criteria
+
+Clear decision documented; if yes, AXLA updated accordingly.
+
+### Origin
+
+Deferred from JJR Gallops Core heat (Phase 5 - Future), 2026-01-14.
+
 ## jjr-studbook-core
 Replace jq-based studbook operations with a pure Rust CLI filter.
 

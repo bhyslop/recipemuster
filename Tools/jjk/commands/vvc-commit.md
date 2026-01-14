@@ -10,17 +10,7 @@ Arguments: $ARGUMENTS (optional commit message; if omitted, Claude generates fro
 Use this command for non-JJ repositories or when you don't need heat/pace context.
 For JJ-aware commits, use `/jjc-pace-notch` instead.
 
-## Step 1: Check for changes
-
-Run:
-```bash
-git status --porcelain
-```
-
-If no changes:
-- Error: "Nothing to commit. Working tree clean."
-
-## Step 2: Execute commit
+## Step 1: Execute commit
 
 **If $ARGUMENTS provided (user gave message):**
 ```bash
@@ -34,13 +24,13 @@ vvx commit
 
 The `vvx commit` command will:
 1. Acquire lock (`refs/vvg/locks/vvx`)
-2. Stage modified files (`git add -u`)
+2. Stage all files including untracked (`git add -A`)
 3. Run size guard (reject if staged changes too large)
 4. Generate commit message from diff using `claude --print` (if not provided)
 5. Commit with Co-Authored-By trailer
 6. Release lock
 
-## Step 3: Report result
+## Step 2: Report result
 
 On success, report:
 - Commit hash

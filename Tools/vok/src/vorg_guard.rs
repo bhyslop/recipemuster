@@ -1,7 +1,8 @@
 // vorg_guard.rs - Pre-commit size validation
 //
-// Core VOK functionality that measures staged blob sizes before commit.
-// Prevents catastrophic auto-adds (node_modules, build artifacts, binaries).
+// Core VOK functionality that measures staged diff sizes before commit.
+// Prevents catastrophic auto-adds (node_modules, build artifacts, binaries)
+// while allowing small edits to large files.
 //
 // Usage: vvx guard [--limit <bytes>] [--warn <bytes>]
 //
@@ -24,113 +25,54 @@ pub struct GuardArgs {
     pub warn: u64,
 }
 
-/// Entry for a staged file with its blob size
+/// Entry for a staged file with its diff size
 struct StagedFile {
     path: String,
     size: u64,
 }
 
-/// Get list of staged files with their blob sizes
+/// Get list of staged files with their diff sizes
 fn get_staged_files() -> Result<Vec<StagedFile>, String> {
-    // Get staged file info using git diff-index
-    // Format: :old_mode new_mode old_oid new_oid status\tpath
+    // Get list of staged file paths
     let output = Command::new("git")
-        .args(["diff-index", "--cached", "-z", "HEAD"])
+        .args(["diff", "--cached", "--name-only"])
         .output()
-        .map_err(|e| format!("Failed to run git diff-index: {}", e))?;
+        .map_err(|e| format!("Failed to run git diff: {}", e))?;
 
     if !output.status.success() {
-        // If HEAD doesn't exist (initial commit), try against empty tree
-        let empty_tree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
-        let output = Command::new("git")
-            .args(["diff-index", "--cached", "-z", empty_tree])
-            .output()
-            .map_err(|e| format!("Failed to run git diff-index: {}", e))?;
-
-        if !output.status.success() {
-            return Err("git diff-index failed".to_string());
-        }
-        return parse_diff_index_output(&output.stdout);
+        return Err("git diff --cached --name-only failed".to_string());
     }
 
-    parse_diff_index_output(&output.stdout)
-}
-
-/// Parse null-separated git diff-index output
-fn parse_diff_index_output(data: &[u8]) -> Result<Vec<StagedFile>, String> {
+    let paths_str = String::from_utf8_lossy(&output.stdout);
     let mut files = Vec::new();
 
-    // Output format: ":old_mode new_mode old_oid new_oid status\0path\0"
-    // Split on null bytes
-    let parts: Vec<&[u8]> = data.split(|&b| b == 0).collect();
-
-    let mut i = 0;
-    while i < parts.len() {
-        let part = parts[i];
-        if part.is_empty() {
-            i += 1;
+    for path in paths_str.lines() {
+        if path.is_empty() {
             continue;
         }
 
-        // Parse the info line: ":old_mode new_mode old_oid new_oid status"
-        let info = String::from_utf8_lossy(part);
-        if !info.starts_with(':') {
-            // This is a path from previous entry, skip
-            i += 1;
-            continue;
-        }
-
-        // Extract new_oid (4th field, after splitting on space)
-        let fields: Vec<&str> = info[1..].split_whitespace().collect();
-        if fields.len() < 4 {
-            i += 1;
-            continue;
-        }
-
-        let new_oid = fields[3];
-        let status = fields.get(4).map(|s| s.chars().next()).flatten();
-
-        // Skip deleted files (status 'D') - they don't add to commit size
-        if status == Some('D') {
-            i += 2; // Skip info line and path
-            continue;
-        }
-
-        // Get path from next part
-        i += 1;
-        if i >= parts.len() {
-            break;
-        }
-        let path = String::from_utf8_lossy(parts[i]).to_string();
-
-        // Get blob size using git cat-file -s
-        if new_oid != "0000000000000000000000000000000000000000" {
-            let size = get_blob_size(new_oid)?;
-            files.push(StagedFile { path, size });
-        }
-
-        i += 1;
+        let size = get_diff_size(path)?;
+        files.push(StagedFile {
+            path: path.to_string(),
+            size,
+        });
     }
 
     Ok(files)
 }
 
-/// Get size of a blob by OID
-fn get_blob_size(oid: &str) -> Result<u64, String> {
+/// Get size of staged diff for a specific file
+fn get_diff_size(path: &str) -> Result<u64, String> {
     let output = Command::new("git")
-        .args(["cat-file", "-s", oid])
+        .args(["diff", "--cached", "--", path])
         .output()
-        .map_err(|e| format!("Failed to run git cat-file: {}", e))?;
+        .map_err(|e| format!("Failed to run git diff for {}: {}", path, e))?;
 
     if !output.status.success() {
-        return Err(format!("git cat-file -s {} failed", oid));
+        return Err(format!("git diff --cached -- {} failed", path));
     }
 
-    let size_str = String::from_utf8_lossy(&output.stdout);
-    size_str
-        .trim()
-        .parse::<u64>()
-        .map_err(|e| format!("Failed to parse size '{}': {}", size_str.trim(), e))
+    Ok(output.stdout.len() as u64)
 }
 
 pub fn run(args: GuardArgs) -> i32 {
