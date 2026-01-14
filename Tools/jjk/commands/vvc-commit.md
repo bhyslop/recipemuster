@@ -10,7 +10,9 @@ Arguments: $ARGUMENTS (optional commit message; if omitted, Claude generates fro
 Use this command for non-JJ repositories or when you don't need heat/pace context.
 For JJ-aware commits, use `/jjc-pace-notch` instead.
 
-## Step 1: Execute commit
+## Step 1: Execute commit (in background)
+
+Run the commit command in the background using `run_in_background: true`.
 
 **If $ARGUMENTS provided (user gave message):**
 ```bash
@@ -32,9 +34,10 @@ The `vvx commit` command will:
 
 ## Step 2: Report result
 
-On success, report:
-- Commit hash
-- Files changed summary
+Use `TaskOutput` to retrieve the background task result, then report:
+
+On success:
+- Commit hash (first line of stdout)
 - "Push when ready: `git push`"
 
 On failure, report the error from vvx.
