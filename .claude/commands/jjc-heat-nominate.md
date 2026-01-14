@@ -7,11 +7,6 @@ Create a new Job Jockey heat (bounded initiative).
 
 Arguments: $ARGUMENTS (required: kebab-case silks name for the heat)
 
-## Prerequisites
-
-- Gallops JSON must exist at `.claude/jjm/jjg_gallops.json`
-- If not present, error: "Gallops not initialized. Run JJK installation first."
-
 ## Step 1: Parse arguments
 
 Extract silks from $ARGUMENTS.

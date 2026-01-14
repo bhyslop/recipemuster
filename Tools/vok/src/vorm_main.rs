@@ -520,12 +520,27 @@ fn run_jjx_nominate(args: JjxNominateArgs) -> i32 {
     use jjk::jjrg_gallops::{Gallops, NominateArgs};
     use std::path::Path;
 
-    // Load the Gallops file
-    let mut gallops = match Gallops::load(&args.file) {
-        Ok(g) => g,
-        Err(e) => {
-            eprintln!("jjx_nominate: error loading Gallops: {}", e);
-            return 1;
+    // Load or create the Gallops file
+    let mut gallops = if args.file.exists() {
+        match Gallops::load(&args.file) {
+            Ok(g) => g,
+            Err(e) => {
+                eprintln!("jjx_nominate: error loading Gallops: {}", e);
+                return 1;
+            }
+        }
+    } else {
+        // Create parent directory if needed
+        if let Some(parent) = args.file.parent() {
+            if let Err(e) = std::fs::create_dir_all(parent) {
+                eprintln!("jjx_nominate: error creating directory: {}", e);
+                return 1;
+            }
+        }
+        // Initialize new Gallops with seed AA and empty heats
+        Gallops {
+            next_heat_seed: "AA".to_string(),
+            heats: std::collections::HashMap::new(),
         }
     };
 

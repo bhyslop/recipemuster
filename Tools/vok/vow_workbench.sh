@@ -57,9 +57,12 @@ vow_route() {
 
   case "${z_command}" in
 
-    # Build subsystem (vow-b-*)
+    # Build subsystem
     vow-b)  exec "${z_vob_cli}" vob_build   $z_args ;;
-    vow-r)  exec "${z_vob_cli}" vob_release $z_args ;;
+    vow-R)  exec "${z_vob_cli}" vob_release $z_args ;;  # capital R = big action
+
+    # Run VVX binary directly
+    vow-r)  exec "${VOW_SCRIPT_DIR}/target/release/vvr" $z_args ;;
 
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;

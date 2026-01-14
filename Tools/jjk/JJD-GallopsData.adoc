@@ -707,9 +707,18 @@ structure.
 
 {jjds_behavior}
 
+. If
+{jjdgr_gallops}
+file does not exist:
+.. Create parent directory `.claude/jjm/` if needed
+.. Initialize new
+{jjdgr_gallops}
+with
+{jjdgm_seed}
+`AA` and empty `heats`
 . Read
 {jjdgr_gallops}
-from file
+from file (or use newly created)
 . Read current
 {jjdgm_seed}
 as
