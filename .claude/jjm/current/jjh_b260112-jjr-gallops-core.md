@@ -125,28 +125,11 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **jjr-steeplechase-rein** — [Phase 3] Implemented git log parsing for steeplechase entries. ✓
 
+- **test-full-lifecycle** — [Phase 4] Full e2e test of vvx jjx_* lifecycle. All 7 commands verified. ✓
+
+- **jjb-orchestration-update** — [Phase 4] Bash utility rewritten as thin vvx wrappers. ~1200 lines deleted. ✓
+
 ## Remaining
-
-- **jjb-orchestration-update** — [Phase 4] Update bash utility to call `vvx jjx_*` instead of jq.
-  **Source file**: `Tools/jjk/jju_utility.sh`
-  **Context**: The bash utility uses old studbook schema and jq pipelines. Most functions can be deleted since Rust handles everything. Keep minimal wrappers if needed for tabtargets.
-  **Deliverables**:
-  (1) Delete or stub out functions that duplicate `vvx jjx_*` operations
-  (2) Update path constant: `jjs_studbook.json` → `jjg_gallops.json`
-  (3) Update terminology: Favor → Firemark/Coronet
-  (4) Verify remaining bash (if any) calls correct `vvx` commands
-  **Success criteria**: `cargo test` still passes; bash doesn't break arcanum install.
-
-- **test-full-lifecycle** — [Phase 4] Integration test of complete heat lifecycle via `vvx jjx_*`.
-  **Deliverables**:
-  (1) Create test Gallops file: `echo '{"next_heat_seed":"AA","heats":{}}' > test_gallops.json`
-  (2) Create heat: `vvx jjx_nominate --file test_gallops.json --silks test-heat --created 260113`
-  (3) Add pace: `echo "Test spec" | vvx jjx_slate --file test_gallops.json <FIREMARK> --silks test-pace`
-  (4) Query: `vvx jjx_muster --file test_gallops.json`
-  (5) Saddle: `vvx jjx_saddle --file test_gallops.json <FIREMARK>`
-  (6) Tally complete: `echo "Done" | vvx jjx_tally --file test_gallops.json <CORONET> --state complete`
-  (7) Retire: `vvx jjx_retire --file test_gallops.json <FIREMARK>`
-  **Success criteria**: Full lifecycle works end-to-end; JSON valid at each step.
 
 - **arcanum-state-workflow** — [Phase 4] Update arcanum emitters for rough/primed workflow.
   **Source file**: `Tools/jjk/jja_arcanum.sh`

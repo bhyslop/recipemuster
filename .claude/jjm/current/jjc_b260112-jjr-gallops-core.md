@@ -362,3 +362,50 @@ Helper functions: `char_to_value()`, `value_to_char()` for charset lookup.
 **Phase 4 paces revised** with correct CLI syntax and deliverables.
 Ready for: jjb-orchestration-update, test-full-lifecycle, arcanum-state-workflow, arcanum-commit-commands.
 ---
+
+---
+### 2026-01-13 - test-full-lifecycle - APPROACH
+**Proposed approach**:
+- Create test Gallops file with empty seed
+- Run complete lifecycle: nominate → slate → muster → saddle → tally → retire
+- Capture FIREMARK from nominate, CORONET from slate for subsequent commands
+- Validate JSON after each mutation step
+- Clean up test file when done
+---
+
+---
+### 2026-01-13 15:57 - test-full-lifecycle - WRAP
+**Outcome**: Full lifecycle test passed. All 7 vvx jjx_* commands work correctly.
+
+**Note**: Required rebuilding vvx with `--features jjk` and installing to vvk/bin.
+
+**Commands tested**:
+- `jjx_nominate` → created heat, returned `₣AA`
+- `jjx_slate` → added pace, returned `₢AAAAA`
+- `jjx_muster` → listed heats (TSV: firemark, silks, status, pace_count)
+- `jjx_saddle` → returned JSON context (heat_silks, paddock, pace state, tack_text)
+- `jjx_tally --state complete` → prepended completion tack
+- `jjx_retire` → returned full archive JSON with tack history
+- `jjx_validate` → confirmed JSON valid after all mutations
+---
+
+---
+### 2026-01-13 16:15 - jjb-orchestration-update - WRAP
+**Outcome**: Bash utility rewritten as thin vvx wrappers. ~1200 lines of jq code deleted.
+
+**Changes made**:
+- `jju_utility.sh`: Replaced jq-based operations with vvx calls (317 lines, down from 1502)
+- `jjw_workbench.sh`: Removed jjw-fe, jjw-fd, jjw-rs (encoding and reslate removed)
+- `jjt_testbench.sh`: Simplified to vvx availability and wrapper help tests
+- `jjl_ledger.json`: Created empty ledger (was missing)
+
+**Terminology updates**:
+- Studbook → Gallops
+- Favor → Firemark (heat) / Coronet (pace)
+- STUDBOOK_FILE → GALLOPS_FILE (.claude/jjm/jjg_gallops.json)
+
+**Verification**:
+- 102 Rust tests pass
+- All bash syntax checks pass
+- Arcanum check runs (detects unregistered source, expected)
+---

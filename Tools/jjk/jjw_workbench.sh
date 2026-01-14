@@ -98,18 +98,14 @@ jjw_route() {
       fi
       ;;
 
-    # Favor encoding/decoding
-    jjw-fe) exec "${z_cli}" jju_favor_encode "$@" ;;
-    jjw-fd) exec "${z_cli}" jju_favor_decode "$@" ;;
-
-    # Studbook operations
+    # Gallops operations (delegate to vvx via jju wrappers)
     jjw-m)  exec "${z_cli}" jju_muster "$@" ;;
     jjw-n)  exec "${z_cli}" jju_nominate "$@" ;;
     jjw-sl) exec "${z_cli}" jju_slate "$@" ;;
-    jjw-rs) exec "${z_cli}" jju_reslate "$@" ;;
     jjw-ra) exec "${z_cli}" jju_rail "$@" ;;
     jjw-t)  exec "${z_cli}" jju_tally "$@" ;;
     jjw-pw) exec "${z_cli}" jju_wrap "$@" ;;
+    jjw-pa) exec "${z_cli}" jju_parade "$@" ;;
     jjw-re) exec "${z_cli}" jju_retire_extract "$@" ;;
     jjw-hr) exec "${z_cli}" jju_retire "$@" ;;
 
