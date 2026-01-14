@@ -1,13 +1,9 @@
-# Test Heat One
+# Paddock: vok-fresh-install-release
 
-## Goal
+## Context
 
-Test the saddle implementation with a sample heat.
+(Describe the initiative's background and goals)
 
-## Approach
+## References
 
-Create sample paces and verify saddle output format.
-
-## Constraints
-
-None - this is a test heat.
+(List relevant files, docs, or prior work)
