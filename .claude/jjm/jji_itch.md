@@ -1653,3 +1653,77 @@ Every jq pipeline in jju_utility.sh:
 ### Context
 
 Emerged from conversation 2026-01-05 about energy cost of getting Claude to write reliable bash. Architecture refined with input on distributed locking: let Git own coordination, let Rust own data integrity. The compiler is tireless; humans are not.
+
+## jj-chalking-clues-trophy-analysis
+Instrument slash commands with chalk markers, analyze patterns at heat retirement to build templates.
+
+### Concept
+
+Add structured chalk markers during pace execution that capture workflow patterns. When a heat retires (trophy), analyze the chalk trail + git commits to discover common patterns and generate heat/pace templates.
+
+### Chalk Vocabulary (during work)
+
+- `APPROACH` - starting a pace (already exists)
+- `PATTERN:slash-command-update` - doing slash command work
+- `PATTERN:rust-impl` - Rust implementation
+- `PATTERN:bash-infra` - bash/tabtarget infrastructure
+- `PATTERN:mcm-doc` - MCM concept model work
+- `BLOCKER` - hit an obstacle
+- `PIVOT` - changed approach mid-pace
+
+### Trophy Analysis (at retirement)
+
+When heat retires via `/jjc-heat-retire`:
+1. Query steeplechase (git log with `[jj:*]` markers)
+2. Extract chalk markers per pace
+3. Correlate with:
+   - Pace silks patterns (e.g., `*-impl`, `*-decision`)
+   - Number of commits per pace
+   - Reslate frequency
+   - Blocker/pivot occurrence
+4. Generate statistics: "rust-impl paces average 3 commits, slash-command-update averages 1"
+
+### Template Generation
+
+Identify common pace sequences across heats:
+- "Most heats start with a decision pace"
+- "MCM doc paces typically precede impl paces"
+- "Bash infra often follows design decisions"
+
+Generate suggested templates:
+```markdown
+## Template: rust-feature-heat
+Suggested paces:
+1. {feature}-arch-decision (decision)
+2. {feature}-concept-model (MCM doc, if complex)
+3. {prefix}-coding-guide (if new domain)
+4. {feature}-impl (rust-impl)
+5. {feature}-slash-commands (slash-command-update)
+```
+
+### Benefits
+
+- **Self-improving system** - JJ learns from usage patterns
+- **Onboarding** - new users get suggested pace structures
+- **Consistency** - common patterns become templates
+- **Meta-insights** - understand what pace types take most effort
+
+### Prerequisites
+
+- Consistent chalk vocabulary (needs definition)
+- Trophy analysis tooling (rust or bash)
+- Template storage location (`.claude/jjm/templates/`?)
+
+### Why "Too Soon"
+
+This requires:
+1. More heats completed to have pattern data
+2. Chalk vocabulary stabilized
+3. Trophy/retirement workflow solidified
+4. Analysis tooling built
+
+Better to accumulate experience first, then instrument.
+
+### Context
+
+Emerged 2026-01-14 during VOK heat planning session. Recognized that we're manually discovering patterns (decision paces first, reordering by dependency) that could eventually be codified.

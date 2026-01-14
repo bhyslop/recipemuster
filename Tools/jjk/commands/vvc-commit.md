@@ -37,8 +37,16 @@ The `vvx commit` command will:
 Use `TaskOutput` to retrieve the background task result, then report:
 
 On success:
-- Commit hash (first line of stdout)
+- Commit hash (from stdout, line starting with hex characters)
+- Commit size (from stderr, extract bytes from `guard: OK - staged content N bytes`)
 - "Push when ready: `git push`"
+
+Example output format:
+```
+Commit: abc123def
+Size: 12,345 bytes
+Push when ready: `git push`
+```
 
 On failure, report the error from vvx.
 

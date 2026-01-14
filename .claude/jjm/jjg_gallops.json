@@ -9,33 +9,25 @@
         "₢AAAAI",
         "₢AAAAD",
         "₢AAAAB",
+        "₢AAAAJ",
         "₢AAAAC",
         "₢AAAAA",
         "₢AAAAH",
         "₢AAAAG",
         "₢AAAAE",
-        "₢AAAAF"
+        "₢AAAAF",
+        "₢AAAAK"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
-        "₢AAAAE": {
-          "silks": "vvx-release-impl",
+        "₢AAAAJ": {
+          "silks": "vvx-push-rename",
           "tacks": [
             {
-              "ts": "260114-1057",
+              "ts": "260114-1107",
               "state": "rough",
-              "text": "Implement vvx release subcommand in Rust.\n\nResponsibilities (see paddock Architecture section):\n1. Run all testbenches - fail release if tests fail\n2. Build vvx for target platforms (darwin-arm64, darwin-x86_64, linux-x86_64)\n3. Collect kit assets via KitAsset registry (depends on kit-asset-registry pace)\n4. Package archive: vok-release-YYMMDD-HHMM.tar.gz\n\nArchive structure per paddock - lean package with binaries + install tabtarget.\nKit files embedded in vvx binary, not loose in archive.\n\nDepends on: kit-asset-registry pace for KitAsset structs."
-            }
-          ]
-        },
-        "₢AAAAH": {
-          "silks": "version-manifest",
-          "tacks": [
-            {
-              "ts": "260114-1058",
-              "state": "rough",
-              "text": "Design and implement version manifest for tracking installed kits.\n\nProposed location: .claude/vvx-manifest.json\n\nSchema (see paddock):\n{\n  \"version\": \"260115-1430\",    // Release version\n  \"installed\": \"260115-1823\",  // Install timestamp\n  \"commit\": \"abc123def\",       // Git commit of install\n  \"kits\": [\"jjk\", \"buk\", \"cmk\", \"vok\"]\n}\n\nUsed by:\n- Diff analysis (find previous install commit)\n- vvx --version to show installed version\n- Future upgrade logic\n\nOpen decision: Confirm .claude/ as location vs Tools/vok/."
+              "text": "Add vvx_push operation and rename commit to vvx_commit for naming clarity.\n\nChanges:\n1. Rename 'vvx commit' to 'vvx vvx_commit' (matches jjx_* naming pattern)\n2. Add 'vvx vvx_push' operation - guarded push with lock\n\nvvx_push responsibilities:\n- Acquire lock (refs/vvg/locks/vvx)\n- Run git push (with configurable remote/branch?)\n- Release lock\n\nNaming rationale: vvx subcommands should follow prefix discipline.\n- jjx_* for JJ operations (jjx_muster, jjx_saddle, etc.)\n- vvx_* for VVK core operations (vvx_commit, vvx_push)\n- guard stays as-is (it's a standalone utility)\n\nFiles to update:\n- Tools/vok/src/vorm_main.rs (subcommand dispatch)\n- Tools/vok/src/vorc_commit.rs (or rename file?)\n- All slash commands referencing 'vvx commit'\n- vvc-commit.md slash command"
             }
           ]
         },
@@ -84,26 +76,6 @@
             }
           ]
         },
-        "₢AAAAC": {
-          "silks": "vvw-workbench-tabtarget",
-          "tacks": [
-            {
-              "ts": "260114-1053",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md (NEW)\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            },
-            {
-              "ts": "260114-1049",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            },
-            {
-              "ts": "260114-1046",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nAlso update CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            }
-          ]
-        },
         "₢AAAAB": {
           "silks": "rcg-establish",
           "tacks": [
@@ -124,6 +96,51 @@
             }
           ]
         },
+        "₢AAAAE": {
+          "silks": "vvx-release-impl",
+          "tacks": [
+            {
+              "ts": "260114-1057",
+              "state": "rough",
+              "text": "Implement vvx release subcommand in Rust.\n\nResponsibilities (see paddock Architecture section):\n1. Run all testbenches - fail release if tests fail\n2. Build vvx for target platforms (darwin-arm64, darwin-x86_64, linux-x86_64)\n3. Collect kit assets via KitAsset registry (depends on kit-asset-registry pace)\n4. Package archive: vok-release-YYMMDD-HHMM.tar.gz\n\nArchive structure per paddock - lean package with binaries + install tabtarget.\nKit files embedded in vvx binary, not loose in archive.\n\nDepends on: kit-asset-registry pace for KitAsset structs."
+            }
+          ]
+        },
+        "₢AAAAC": {
+          "silks": "vvw-workbench-tabtarget",
+          "tacks": [
+            {
+              "ts": "260114-1108",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations.\n\nNOTE: By this point, vvx-push-rename pace will have renamed 'commit' to 'vvx_commit'. Use the NEW names in slash commands:\n- vvx vvx_commit (not vvx commit)\n- vvx vvx_push (new)\n\nFiles to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md (update to use vvx_commit)\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1053",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md (NEW)\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1049",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1046",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nAlso update CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            }
+          ]
+        },
+        "₢AAAAH": {
+          "silks": "version-manifest",
+          "tacks": [
+            {
+              "ts": "260114-1058",
+              "state": "rough",
+              "text": "Design and implement version manifest for tracking installed kits.\n\nProposed location: .claude/vvx-manifest.json\n\nSchema (see paddock):\n{\n  \"version\": \"260115-1430\",    // Release version\n  \"installed\": \"260115-1823\",  // Install timestamp\n  \"commit\": \"abc123def\",       // Git commit of install\n  \"kits\": [\"jjk\", \"buk\", \"cmk\", \"vok\"]\n}\n\nUsed by:\n- Diff analysis (find previous install commit)\n- vvx --version to show installed version\n- Future upgrade logic\n\nOpen decision: Confirm .claude/ as location vs Tools/vok/."
+            }
+          ]
+        },
         "₢AAAAI": {
           "silks": "install-arch-decision",
           "tacks": [
@@ -131,6 +148,16 @@
               "ts": "260114-1102",
               "state": "rough",
               "text": "Resolve install architecture: static copy vs config-aware deployment.\n\nKey question: Is install just 'copy files to fixed paths' or does it need to adapt to target repo configuration (burc.env)?\n\nWhat might vary per target repo:\n- Paths in slash commands (where is vvx binary?)\n- CLAUDE.md structure/location\n- Kit-specific settings from burc.env\n- Tabtarget launcher paths\n\nOptions to evaluate:\n1. Static install - target repos must conform to expected structure\n2. Config-aware install (arcanum pattern in Rust) - reads burc.env, adapts content\n3. Hybrid - most content static, slash commands get path templating\n\nThis decision affects:\n- kit-asset-registry design (static content vs templates?)\n- vvx-install-impl (copy vs transform?)\n- Whether 'arcanums eliminated' holds or needs revision\n\nDeliverable: Clear decision documented in paddock, possibly reflected in MCM concept model."
+            }
+          ]
+        },
+        "₢AAAAK": {
+          "silks": "rail-move-semantics",
+          "tacks": [
+            {
+              "ts": "260114-1121",
+              "state": "rough",
+              "text": "Add move semantics to jjx_rail for easier pace reordering.\n\nCurrent: must list ALL coronets in new order\n  vvx jjx_rail AA ₢AAAAI ₢AAAAD ₢AAAAB ₢AAAAJ ₢AAAAC ...\n\nProposed: relative move operations\n  vvx jjx_rail AA --move ₢AAAAJ --before ₢AAAAC\n  vvx jjx_rail AA --move ₢AAAAJ --after ₢AAAAB\n  vvx jjx_rail AA --move ₢AAAAJ --first\n  vvx jjx_rail AA --move ₢AAAAJ --last\n\nImplementation:\n- Add --move, --before, --after, --first, --last flags to Clap args\n- If --move provided, compute new order from current + operation\n- Validate result same as current validation\n- Existing positional coronet list still works (backwards compatible)\n\nUpdate /jjc-heat-rail slash command to document both syntaxes.\n\nRust file: Tools/vok/src (wherever jjx_rail is implemented - check JJK veiled)"
             }
           ]
         }
