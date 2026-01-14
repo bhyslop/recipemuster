@@ -116,6 +116,10 @@ struct JjxChalkArgs {
     /// Marker description text
     #[arg(long)]
     description: String,
+
+    /// Pace silks (required for APPROACH, WRAP, FLY; optional for DISCUSSION)
+    #[arg(short, long)]
+    pace: Option<String>,
 }
 
 /// Arguments for jjx_rein command
@@ -370,6 +374,7 @@ fn run_jjx_chalk(args: JjxChalkArgs) -> i32 {
         firemark,
         marker,
         description: args.description,
+        pace: args.pace,
     };
 
     run_chalk(chalk_args)

@@ -131,49 +131,38 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 ## Remaining
 
-- **arcanum-state-workflow** — [Phase 4] Update arcanum emitters for rough/primed workflow.
-  **Source file**: `Tools/jjk/jja_arcanum.sh`
-  **Context**: Current arcanum uses old states (pending/current) and old commands (pace-arm, pace-fly). Need to reflect new rough/primed model.
-  **Deliverables**:
-  (1) Update `zjjw_emit_heat_saddle`:
-      - Call `vvx jjx_saddle <FIREMARK>` and parse JSON output
-      - Branch on `pace_state`: rough → propose approach; primed → execute per direction
-      - Display paddock_content and tack_text
-  (2) Add `zjjw_emit_pace_prime`:
-      - LLM studies pace spec from saddle context
-      - Recommend agent type (haiku/sonnet/opus) and strategy
-      - Call `echo "<direction>" | vvx jjx_tally <CORONET> --state primed --direction "..."`
-  (3) Update `zjjw_emit_pace_wrap`:
-      - Call `echo "outcome" | vvx jjx_tally <CORONET> --state complete`
-      - Call `vvx jjx_chalk <FIREMARK> --marker WRAP --description "..."`
-  (4) Remove `zjjw_emit_pace_arm` and `zjjw_emit_pace_fly` (replaced by prime workflow)
-  (5) Update `zjjw_emit_claudemd_section`:
-      - New command list: `/jja-heat-saddle`, `/jja-pace-prime`, `/jja-pace-wrap`, `/jja-notch`, etc.
-      - Explain rough/primed workflow
-      - Update terminology: Firemark (Heat ID), Coronet (Pace ID)
-  **Success criteria**: Fresh arcanum install produces working slash commands.
+- **jjd-chalk-pace-context** — [Phase 4] Add pace context to jjx_chalk operation.
+  **Context**: Chalk markers (APPROACH/WRAP/FLY) are pace-level events but currently only take Firemark. Need to include pace silks in commit message format.
+  **Parallel execution**: Spawn two agents simultaneously:
+  (1) **Spec agent** updates JJD-GallopsData.adoc:
+      - Add `--pace` argument (silks) to jjdo_chalk
+      - Update commit format: `[jj:BRAND][₣XX/pace-silks] MARKER: description`
+      - Decide: required for APPROACH/WRAP/FLY, optional for DISCUSSION
+  (2) **Code agent** updates Rust implementation:
+      - `Tools/jjk/veiled/src/jjrn_notch.rs` — update chalk function signature and formatting
+      - Add tests for new pace context in commit messages
+  **Success criteria**: `vvx jjx_chalk ₣XX --pace my-pace --marker WRAP --description "done"` produces `[jj:BRAND][₣XX/my-pace] WRAP: done`.
 
-- **arcanum-commit-commands** — [Phase 4] Update arcanum to emit thin commit slash commands.
-  **Source file**: `Tools/jjk/jja_arcanum.sh`
-  **Context**: Slash commands extract context and invoke `vvx` directly. No haiku agent needed.
-  **Actual CLI syntax** (must match exactly):
-  - `vvx jjx_notch <FIREMARK> --pace <SILKS> [--message <MSG>]`
-  - `vvx jjx_chalk <FIREMARK> --marker <TYPE> --description <TEXT>`
-  - `vvx commit [--prefix <PREFIX>] [--message <MSG>]`
+- **jjk-commands-workflow** — [Phase 4] Author workflow slash commands directly.
+  **Target directory**: `Tools/jjk/commands/`
+  **Context**: No arcanum — directly author markdown files that VOK smart-install will embed.
   **Deliverables**:
-  (1) Update `zjjw_emit_notch_command`:
-      - Extract FIREMARK and pace SILKS from conversation context
-      - Run `vvx jjx_notch <FIREMARK> --pace <SILKS>` via Bash tool
-      - If no staged changes, fail early
-      - Return "Committed: <hash>" when done
-  (2) Add `zjjw_emit_chalk_command`:
-      - Extract FIREMARK from conversation context
-      - Take --marker (APPROACH/WRAP/FLY/DISCUSSION) and --description from args
-      - Run `vvx jjx_chalk <FIREMARK> --marker <TYPE> --description "<TEXT>"`
-  (3) Add `/vvc-commit` for non-JJ repos:
-      - Run `vvx commit --message "<ARGS>"` if args provided
-      - Run `vvx commit` (claude generates message) if no args
-  **Success criteria**: `/jja-notch` produces JJ-prefixed commit via Rust.
+  (1) `jjc-heat-saddle.md` — Call `vvx jjx_saddle`, branch on pace_state:
+      - rough → propose approach, wait for approval
+      - primed → execute per direction autonomously
+  (2) `jjc-pace-prime.md` — Study pace spec, recommend agent, call tally with --state primed --direction
+  (3) `jjc-pace-wrap.md` — Call tally --state complete, then chalk WRAP marker
+  (4) `jjc-heat-parade.md` — Display comprehensive heat status
+  **Manual bootstrap**: Symlink `Tools/jjk/commands/*.md` → `.claude/commands/` until smart-install exists.
+  **Success criteria**: `/jjc-heat-saddle` works with rough/primed workflow.
+
+- **jjk-commands-commit** — [Phase 4] Author commit slash commands directly.
+  **Target directory**: `Tools/jjk/commands/`
+  **Deliverables**:
+  (1) `jjc-pace-notch.md` — Extract context, run `vvx jjx_notch <FIREMARK> --pace <SILKS>`
+  (2) `jjc-heat-chalk.md` — Run `vvx jjx_chalk <FIREMARK> --pace <SILKS> --marker <TYPE> --description <TEXT>`
+  (3) `vvc-commit.md` — Non-JJ repos: run `vvx commit [--message <MSG>]`
+  **Success criteria**: `/jjc-pace-notch` produces JJ-prefixed commit via Rust.
 
 - **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
   **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).

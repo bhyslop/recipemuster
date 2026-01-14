@@ -78,6 +78,7 @@
 :jjda_created:        <<jjda_created,--created>>
 :jjda_direction:      <<jjda_direction,--direction>>
 :jjda_file:           <<jjda_file,--file>>
+:jjda_pace:           <<jjda_pace,--pace>>
 :jjda_silks:          <<jjda_silks,--silks>>
 :jjda_state:          <<jjda_state,--state>>
 :jjda_status:         <<jjda_status,--status>>
@@ -597,6 +598,13 @@ Required when
 is
 {jjdpe_primed};
 forbidden otherwise.
+
+[[jjda_pace]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_pace}::
+Pace silks for context in commit messages.
+Long: `--pace`.
+Short: `-p`.
 
 [[jjda_created]]
 // ⟦axl_voices axa_cli_option⟧
@@ -1443,10 +1451,14 @@ Co-Authored-By: ...
 
 *Steeplechase marker* (created by {jjdo_chalk}):
 ----
-[jj:BRAND][₣XX] MARKER: description
+[jj:BRAND][₣XX/pace-silks] MARKER: description
 
 Co-Authored-By: ...
 ----
+
+* `BRAND` — repository identifier baked into arcanum at install time
+* `₣XX` — {jjdt_firemark} of the active heat
+* `pace-silks` — {jjdt_silks} of the current pace (required for APPROACH/WRAP/FLY; optional for DISCUSSION)
 
 Marker types:
 
@@ -1484,13 +1496,20 @@ Parse git history for steeplechase entries belonging to a
   },
   {
     "timestamp": "YYYY-MM-DD HH:MM",
-    "pace_silks": null,
+    "pace_silks": "...",
     "marker": "APPROACH",
+    "subject": "description"
+  },
+  {
+    "timestamp": "YYYY-MM-DD HH:MM",
+    "pace_silks": null,
+    "marker": "DISCUSSION",
     "subject": "description"
   }
 ]
 ----
-Field `pace_silks` is present for standard commits, `marker` for chalk entries.
+Field `pace_silks` is present for standard commits and chalk entries with pace context.
+Field `marker` is present for chalk entries (null for standard commits).
 Entries ordered newest first.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -1500,7 +1519,7 @@ Entries ordered newest first.
 . Run `git log --all --extended-regexp --grep="^\[jj:BRAND\]\[₣XX" --format="%ai%x09%s"`
 . Parse each line: extract timestamp, determine if standard commit or marker
 . For standard commits: extract pace-silks from `[₣XX/pace-silks]`
-. For markers: extract marker type and description
+. For markers: extract marker type, pace-silks (if present in `[₣XX/pace-silks]`), and description
 . Build JSON array, limit to requested count
 . Output JSON
 
@@ -1556,6 +1575,10 @@ Create an empty commit marking a steeplechase event.
 // ⟦axd_required⟧
 * `--marker` — marker type: `APPROACH`, `WRAP`, `FLY`, or `DISCUSSION`
 
+// ⟦axd_conditional⟧
+* {jjda_pace}
+— required for `APPROACH`, `WRAP`, and `FLY` markers; optional for `DISCUSSION`
+
 // ⟦axd_required⟧
 * `--description` — marker description text
 
@@ -1566,7 +1589,16 @@ Create an empty commit marking a steeplechase event.
 {jjds_behavior}
 
 . Acquire lock (`refs/vvg/locks/vvx`)
-. Format message: `[jj:BRAND][₣XX] MARKER: description\n\nCo-Authored-By: ...`
+. Validate
+{jjda_pace}:
+required if marker is `APPROACH`, `WRAP`, or `FLY`; optional for `DISCUSSION`
+. Format message:
+.. If
+{jjda_pace}
+provided: `[jj:BRAND][₣XX/pace-silks] MARKER: description\n\nCo-Authored-By: ...`
+.. If
+{jjda_pace}
+absent (DISCUSSION only): `[jj:BRAND][₣XX] MARKER: description\n\nCo-Authored-By: ...`
 . Run `git commit --allow-empty -m "..."`
 . Release lock
 . Output commit hash

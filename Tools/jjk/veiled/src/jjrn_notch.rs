@@ -45,6 +45,14 @@ impl ChalkMarker {
             ChalkMarker::Discussion => "DISCUSSION",
         }
     }
+
+    /// Returns true if this marker type requires a pace to be specified
+    pub fn requires_pace(&self) -> bool {
+        match self {
+            ChalkMarker::Approach | ChalkMarker::Wrap | ChalkMarker::Fly => true,
+            ChalkMarker::Discussion => false,
+        }
+    }
 }
 
 /// Arguments for jjx_notch command
@@ -67,6 +75,8 @@ pub struct ChalkArgs {
     pub marker: ChalkMarker,
     /// Marker description text
     pub description: String,
+    /// Pace silks (required for APPROACH, WRAP, FLY; optional for DISCUSSION)
+    pub pace: Option<String>,
 }
 
 /// Format the notch prefix: [jj:BRAND][₣XX/pace-silks]
@@ -80,13 +90,17 @@ fn format_notch_prefix(firemark: &Firemark, pace_silks: &str) -> String {
     )
 }
 
-/// Format the chalk message: [jj:BRAND][₣XX] MARKER: description
-fn format_chalk_message(firemark: &Firemark, marker: ChalkMarker, description: &str) -> String {
+/// Format the chalk message: [jj:BRAND][₣XX/pace-silks] MARKER: description
+/// When pace is None, format as: [jj:BRAND][₣XX] MARKER: description
+fn format_chalk_message(firemark: &Firemark, marker: ChalkMarker, pace: Option<&str>, description: &str) -> String {
+    let heat_pace = match pace {
+        Some(p) => format!("{}{}/{}", FIREMARK_PREFIX, firemark.as_str(), p),
+        None => format!("{}{}", FIREMARK_PREFIX, firemark.as_str()),
+    };
     format!(
-        "[jj:{}][{}{}] {}: {}",
+        "[jj:{}][{}] {}: {}",
         DEFAULT_BRAND,
-        FIREMARK_PREFIX,
-        firemark.as_str(),
+        heat_pace,
         marker.as_str(),
         description
     )
@@ -142,7 +156,16 @@ pub fn run_notch(args: NotchArgs) -> i32 {
 /// Shells out to `vvx commit` with --allow-empty and formatted message.
 /// Returns exit code (0 = success).
 pub fn run_chalk(args: ChalkArgs) -> i32 {
-    let message = format_chalk_message(&args.firemark, args.marker, &args.description);
+    // Validate pace requirement
+    if args.marker.requires_pace() && args.pace.is_none() {
+        eprintln!(
+            "chalk: error: {} marker requires --pace to be specified",
+            args.marker.as_str()
+        );
+        return 1;
+    }
+
+    let message = format_chalk_message(&args.firemark, args.marker, args.pace.as_deref(), &args.description);
 
     eprintln!("chalk: invoking vvx commit --allow-empty");
 
@@ -204,16 +227,38 @@ mod tests {
     }
 
     #[test]
-    fn test_format_chalk_message() {
-        let fm = Firemark::parse("AB").unwrap();
-        let msg = format_chalk_message(&fm, ChalkMarker::Approach, "Starting work on feature");
-        assert_eq!(msg, "[jj:RBM][₣AB] APPROACH: Starting work on feature");
+    fn test_chalk_marker_requires_pace() {
+        assert!(ChalkMarker::Approach.requires_pace());
+        assert!(ChalkMarker::Wrap.requires_pace());
+        assert!(ChalkMarker::Fly.requires_pace());
+        assert!(!ChalkMarker::Discussion.requires_pace());
     }
 
     #[test]
-    fn test_format_chalk_message_wrap() {
+    fn test_format_chalk_message_with_pace() {
+        let fm = Firemark::parse("AB").unwrap();
+        let msg = format_chalk_message(&fm, ChalkMarker::Approach, Some("my-pace"), "Starting work on feature");
+        assert_eq!(msg, "[jj:RBM][₣AB/my-pace] APPROACH: Starting work on feature");
+    }
+
+    #[test]
+    fn test_format_chalk_message_wrap_with_pace() {
         let fm = Firemark::parse("__").unwrap();
-        let msg = format_chalk_message(&fm, ChalkMarker::Wrap, "Completed the task");
-        assert_eq!(msg, "[jj:RBM][₣__] WRAP: Completed the task");
+        let msg = format_chalk_message(&fm, ChalkMarker::Wrap, Some("test-pace"), "Completed the task");
+        assert_eq!(msg, "[jj:RBM][₣__/test-pace] WRAP: Completed the task");
+    }
+
+    #[test]
+    fn test_format_chalk_message_without_pace() {
+        let fm = Firemark::parse("AB").unwrap();
+        let msg = format_chalk_message(&fm, ChalkMarker::Discussion, None, "Design discussion");
+        assert_eq!(msg, "[jj:RBM][₣AB] DISCUSSION: Design discussion");
+    }
+
+    #[test]
+    fn test_format_chalk_message_discussion_with_optional_pace() {
+        let fm = Firemark::parse("AB").unwrap();
+        let msg = format_chalk_message(&fm, ChalkMarker::Discussion, Some("context-pace"), "Design discussion");
+        assert_eq!(msg, "[jj:RBM][₣AB/context-pace] DISCUSSION: Design discussion");
     }
 }
