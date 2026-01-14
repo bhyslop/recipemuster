@@ -129,40 +129,13 @@ Rust source lives in `Tools/jjk/veiled/src/`:
 
 - **jjb-orchestration-update** — [Phase 4] Bash utility rewritten as thin vvx wrappers. ~1200 lines deleted. ✓
 
+- **jjd-chalk-pace-context** — [Phase 4] Added --pace arg to jjx_chalk. JJD spec + Rust impl updated. Required for APPROACH/WRAP/FLY, optional for DISCUSSION. ✓
+
+- **jjk-commands-workflow** — [Phase 4] Authored workflow slash commands in Tools/jjk/commands/: jjc-heat-saddle, jjc-pace-prime, jjc-pace-wrap, jjc-heat-parade. Symlinked to .claude/commands/. ✓
+
+- **jjk-commands-commit** — [Phase 4] Authored commit slash commands: jjc-pace-notch, jjc-heat-chalk, vvc-commit. Symlinked to .claude/commands/. ✓
+
 ## Remaining
-
-- **jjd-chalk-pace-context** — [Phase 4] Add pace context to jjx_chalk operation.
-  **Context**: Chalk markers (APPROACH/WRAP/FLY) are pace-level events but currently only take Firemark. Need to include pace silks in commit message format.
-  **Parallel execution**: Spawn two agents simultaneously:
-  (1) **Spec agent** updates JJD-GallopsData.adoc:
-      - Add `--pace` argument (silks) to jjdo_chalk
-      - Update commit format: `[jj:BRAND][₣XX/pace-silks] MARKER: description`
-      - Decide: required for APPROACH/WRAP/FLY, optional for DISCUSSION
-  (2) **Code agent** updates Rust implementation:
-      - `Tools/jjk/veiled/src/jjrn_notch.rs` — update chalk function signature and formatting
-      - Add tests for new pace context in commit messages
-  **Success criteria**: `vvx jjx_chalk ₣XX --pace my-pace --marker WRAP --description "done"` produces `[jj:BRAND][₣XX/my-pace] WRAP: done`.
-
-- **jjk-commands-workflow** — [Phase 4] Author workflow slash commands directly.
-  **Target directory**: `Tools/jjk/commands/`
-  **Context**: No arcanum — directly author markdown files that VOK smart-install will embed.
-  **Deliverables**:
-  (1) `jjc-heat-saddle.md` — Call `vvx jjx_saddle`, branch on pace_state:
-      - rough → propose approach, wait for approval
-      - primed → execute per direction autonomously
-  (2) `jjc-pace-prime.md` — Study pace spec, recommend agent, call tally with --state primed --direction
-  (3) `jjc-pace-wrap.md` — Call tally --state complete, then chalk WRAP marker
-  (4) `jjc-heat-parade.md` — Display comprehensive heat status
-  **Manual bootstrap**: Symlink `Tools/jjk/commands/*.md` → `.claude/commands/` until smart-install exists.
-  **Success criteria**: `/jjc-heat-saddle` works with rough/primed workflow.
-
-- **jjk-commands-commit** — [Phase 4] Author commit slash commands directly.
-  **Target directory**: `Tools/jjk/commands/`
-  **Deliverables**:
-  (1) `jjc-pace-notch.md` — Extract context, run `vvx jjx_notch <FIREMARK> --pace <SILKS>`
-  (2) `jjc-heat-chalk.md` — Run `vvx jjx_chalk <FIREMARK> --pace <SILKS> --marker <TYPE> --description <TEXT>`
-  (3) `vvc-commit.md` — Non-JJ repos: run `vvx commit [--message <MSG>]`
-  **Success criteria**: `/jjc-pace-notch` produces JJ-prefixed commit via Rust.
 
 - **axla-relational-voicing** — [Phase 5 - Future] Evaluate AXLA voicings for relational table concepts.
   **Context**: As JJD defines structured data (Gallops JSON with heats, paces, tacks), consider whether AXLA should provide voicings to express database integrity concepts (foreign keys, referential integrity, cardinality, normalization).
