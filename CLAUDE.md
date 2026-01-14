@@ -333,3 +333,25 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
+
+### Primeability Assessment
+
+When evaluating whether a pace is ready for autonomous execution (primed state), apply these criteria:
+
+**Primeable** (can arm for autonomous execution) — ALL must be true:
+- **Mechanical**: Clear transformation, not design work
+- **Pattern exists**: Following established pattern, not creating new one
+- **No forks**: Single obvious approach, not "we could do X or Y"
+- **Bounded**: Touches known files, not "find where this should go"
+
+**NOT primeable** (needs human judgment):
+- Language like "define", "design", "architect", "decide"
+- Establishing new patterns others will follow
+- Multiple valid approaches requiring human choice
+- Scope unclear or requires judgment calls
+
+**Examples:**
+- ✓ Primeable: "Rename function `getCwd` to `getCurrentWorkingDirectory` across codebase"
+- ✓ Primeable: "Add error handling to `fetchUser` following pattern in `fetchOrder`"
+- ✗ Not primeable: "Define KitAsset struct and registry pattern" (design decisions)
+- ✗ Not primeable: "Improve performance of dashboard" (unclear scope, many approaches)

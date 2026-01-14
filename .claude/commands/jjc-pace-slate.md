@@ -65,24 +65,12 @@ Then **assess the pace's health**:
 2. **Scope**: Is it well-bounded or too broad?
 3. **Dependencies**: Does it depend on other paces completing first?
 
-## Step 5: Propose priming (if appropriate)
+## Step 5: Assess primeability
 
-If the pace is a good candidate for autonomous execution (primed state), propose:
+Apply **Primeability Assessment** criteria from CLAUDE.md.
 
-**Prime candidate?** Evaluate:
-- Clear, bounded scope
-- No blocking dependencies
-- Can be accomplished by agents without human decision points
-
-**If primeable, suggest direction:**
-- Which agent type(s): Explore, Bash, Plan, general-purpose?
-- Parallelism: single agent or multiple in parallel?
-- Key files or patterns to target
-
-**Remind user:**
-> To arm for autonomous execution: `/jjc-pace-prime`
-
-## Step 6: Next steps
+If primeable, suggest direction (agent type, parallelism, key files).
+If not primeable, state why: "Needs human judgment — [reason]"
 
 **Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-prime` (arm)
 

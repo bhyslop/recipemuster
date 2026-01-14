@@ -6,11 +6,39 @@
       "creation_time": "260114",
       "status": "current",
       "order": [
-        "₢AAAAA"
+        "₢AAAAI",
+        "₢AAAAD",
+        "₢AAAAB",
+        "₢AAAAC",
+        "₢AAAAA",
+        "₢AAAAH",
+        "₢AAAAG",
+        "₢AAAAE",
+        "₢AAAAF"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
+        "₢AAAAE": {
+          "silks": "vvx-release-impl",
+          "tacks": [
+            {
+              "ts": "260114-1057",
+              "state": "rough",
+              "text": "Implement vvx release subcommand in Rust.\n\nResponsibilities (see paddock Architecture section):\n1. Run all testbenches - fail release if tests fail\n2. Build vvx for target platforms (darwin-arm64, darwin-x86_64, linux-x86_64)\n3. Collect kit assets via KitAsset registry (depends on kit-asset-registry pace)\n4. Package archive: vok-release-YYMMDD-HHMM.tar.gz\n\nArchive structure per paddock - lean package with binaries + install tabtarget.\nKit files embedded in vvx binary, not loose in archive.\n\nDepends on: kit-asset-registry pace for KitAsset structs."
+            }
+          ]
+        },
+        "₢AAAAH": {
+          "silks": "version-manifest",
+          "tacks": [
+            {
+              "ts": "260114-1058",
+              "state": "rough",
+              "text": "Design and implement version manifest for tracking installed kits.\n\nProposed location: .claude/vvx-manifest.json\n\nSchema (see paddock):\n{\n  \"version\": \"260115-1430\",    // Release version\n  \"installed\": \"260115-1823\",  // Install timestamp\n  \"commit\": \"abc123def\",       // Git commit of install\n  \"kits\": [\"jjk\", \"buk\", \"cmk\", \"vok\"]\n}\n\nUsed by:\n- Diff analysis (find previous install commit)\n- vvx --version to show installed version\n- Future upgrade logic\n\nOpen decision: Confirm .claude/ as location vs Tools/vok/."
+            }
+          ]
+        },
         "₢AAAAA": {
           "silks": "kit-asset-registry",
           "tacks": [
@@ -18,6 +46,91 @@
               "ts": "260114-0954",
               "state": "rough",
               "text": "Define KitAsset struct and registry pattern in Rust. Each kit declares its assets with source_path, install_path, and embedded content via include_str\\!(). No external manifest files - Rust structs own the knowledge of what files belong to each kit."
+            }
+          ]
+        },
+        "₢AAAAG": {
+          "silks": "claude-md-freshening",
+          "tacks": [
+            {
+              "ts": "260114-1058",
+              "state": "rough",
+              "text": "Implement CLAUDE.md managed section freshening in Rust.\n\nMarker format (see paddock):\n<!-- MANAGED:{KIT}:BEGIN -->\n...content from embedded template...\n<!-- MANAGED:{KIT}:END -->\n\nRules to implement:\n- Markers are authoritative - content between them replaced entirely\n- User content outside markers preserved\n- Order of managed sections follows kit installation order\n- Missing markers - append section at end of file\n\nEach kit has its CLAUDE.md section template embedded via include_str!().\n\nThis is a utility used by vvx-install-impl, may also be useful standalone for testing."
+            }
+          ]
+        },
+        "₢AAAAF": {
+          "silks": "vvx-install-impl",
+          "tacks": [
+            {
+              "ts": "260114-1058",
+              "state": "rough",
+              "text": "Implement vvx install subcommand in Rust.\n\nThe 6-step process (see paddock Architecture section):\n1. Pre-install snapshot - git commit if working tree dirty\n2. Extract assets - write embedded kit files to install_path locations\n3. Freshen CLAUDE.md - managed section markers (depends on claude-md-freshening pace)\n4. Cleanup obsolete - remove files no longer in current release\n5. Post-install commit - git commit with version and kit list\n6. Diff analysis - find previous install, diff, invoke Claude for recovery guidance\n\nGit commit message formats:\n- Pre: [vvx:pre-install] Snapshot before {version}\n- Post: [vvx:install:{version}] {kit-list}\n\nDepends on: kit-asset-registry, claude-md-freshening, version-manifest paces."
+            }
+          ]
+        },
+        "₢AAAAD": {
+          "silks": "vok-concept-model",
+          "tacks": [
+            {
+              "ts": "260114-1102",
+              "state": "rough",
+              "text": "Create MCM-style concept model for VOK release/install system with AXLA annotations.\n\nDocument: Tools/vok/lenses/VOKD-VoxObscuraData.adoc (mint appropriate name)\n\nKEY DESIGN DECISIONS TO CAPTURE (not just vocabulary):\n\n1. Kit Asset Definition\n   - What constitutes a kit asset (source_path, install_path, content, permissions?)\n   - Static vs templated content\n   - How assets are declared in Rust (include_str\\! pattern)\n\n2. Version/Release Identity\n   - Version numbering scheme (YYMMDD-HHMM? semver?)\n   - Release naming conventions\n   - How versions are embedded and tracked\n\n3. Ledger Design\n   - Release history tracking\n   - What's recorded per release (timestamp, commit, assets, platforms)\n   - Location: Tools/vok/vol_ledger.json?\n\n4. Kit CLAUDE.md Sections\n   - Template structure for each kit's managed section\n   - What configuration each kit contributes\n   - Marker format and freshening rules\n\n5. Permissions Model\n   - File permissions during install (executable bits, etc.)\n   - Directory creation permissions\n\n6. Two-Repo Relationship\n   - Kit Forge (source) vs Target Repo (consumer)\n   - What crosses the boundary, what stays veiled\n   - burc.env role in target repos\n\nCONCEPTS TO DEFINE (with AXLA annotations):\n- KitAsset, ReleaseArchive, InstallManifest\n- Veiled vs Public content\n- Arcanum (if retained) vs static install\n- Ledger, Sigil (version), Codex (tracking)\n\nReference: JJD-GallopsData.adoc for MCM patterns, Tools/cmk/MCM-MetaConceptModel.adoc for spec."
+            },
+            {
+              "ts": "260114-1050",
+              "state": "rough",
+              "text": "Create MCM-style concept model for VOK release/install system with AXLA annotations.\n\nDocument: Tools/vok/lenses/VOKD-VoxObscuraData.adoc (or similar - mint appropriate name)\n\nCapture from session discussion:\n- VOK describes a PROCESS (release/install) but has meaningful data structures worth formalizing\n- Two-repo model: source repo (kit forge) vs target repo (consumer)\n- Compilation model: knowledge compiles into arcanum emitters, doesn't persist as docs\n- Voce Viva (vvx/VVK - user-facing) vs Vox Obscura (VOK - hidden infrastructure)\n\nKey concepts to define (with AXLA annotations for type categorization):\n- KitAsset: source_path, install_path, embedded content\n- ReleaseArchive: structure of packaged release\n- InstallManifest: what's installed where (if any external tracking)\n- Veiled vs Public: content that never leaves source repo\n- Kit Forge / Target Repo: the two-repo relationship\n- Arcanum: install script that configures Claude environment\n- Ledger: release record history\n\nOperations to specify (parallel to JJD pattern):\n- vvx release: tests → builds → packages archive\n- vvx install: snapshot → extract → freshen CLAUDE.md → cleanup → commit\n- Version tracking via git (no external manifest)\n\nScope decision: Focus on data model and operations. Less vocabulary reuse than JJD (Gallops) but the veiled/public distinction and two-repo model warrant formal treatment.\n\nReference: JJD-GallopsData.adoc for MCM patterns, Tools/cmk/MCM-MetaConceptModel.adoc for spec."
+            }
+          ]
+        },
+        "₢AAAAC": {
+          "silks": "vvw-workbench-tabtarget",
+          "tacks": [
+            {
+              "ts": "260114-1053",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md (NEW)\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1049",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1046",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nAlso update CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            }
+          ]
+        },
+        "₢AAAAB": {
+          "silks": "rcg-establish",
+          "tacks": [
+            {
+              "ts": "260114-1028",
+              "state": "rough",
+              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md. Note: RCG will be comparatively skimpy vs BCG - trusting more of Claude's inherent Rust idioms; focus only on project-specific conventions."
+            },
+            {
+              "ts": "260114-1026",
+              "state": "rough",
+              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md."
+            },
+            {
+              "ts": "260114-1025",
+              "state": "rough",
+              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section."
+            }
+          ]
+        },
+        "₢AAAAI": {
+          "silks": "install-arch-decision",
+          "tacks": [
+            {
+              "ts": "260114-1102",
+              "state": "rough",
+              "text": "Resolve install architecture: static copy vs config-aware deployment.\n\nKey question: Is install just 'copy files to fixed paths' or does it need to adapt to target repo configuration (burc.env)?\n\nWhat might vary per target repo:\n- Paths in slash commands (where is vvx binary?)\n- CLAUDE.md structure/location\n- Kit-specific settings from burc.env\n- Tabtarget launcher paths\n\nOptions to evaluate:\n1. Static install - target repos must conform to expected structure\n2. Config-aware install (arcanum pattern in Rust) - reads burc.env, adapts content\n3. Hybrid - most content static, slash commands get path templating\n\nThis decision affects:\n- kit-asset-registry design (static content vs templates?)\n- vvx-install-impl (copy vs transform?)\n- Whether 'arcanums eliminated' holds or needs revision\n\nDeliverable: Clear decision documented in paddock, possibly reflected in MCM concept model."
             }
           ]
         }
