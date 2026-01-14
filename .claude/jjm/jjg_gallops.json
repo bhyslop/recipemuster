@@ -5,10 +5,23 @@
       "silks": "vok-fresh-install-release",
       "creation_time": "260114",
       "status": "current",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AAAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AA.md",
-      "paces": {}
+      "paces": {
+        "₢AAAAA": {
+          "silks": "kit-asset-registry",
+          "tacks": [
+            {
+              "ts": "260114-0954",
+              "state": "rough",
+              "text": "Define KitAsset struct and registry pattern in Rust. Each kit declares its assets with source_path, install_path, and embedded content via include_str\\!(). No external manifest files - Rust structs own the knowledge of what files belong to each kit."
+            }
+          ]
+        }
+      }
     }
   }
 }

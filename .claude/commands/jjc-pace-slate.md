@@ -1,30 +1,30 @@
 ---
-argument-hint: <silks> <text>
+argument-hint: <silks> [description]
 description: Add a new pace to a heat
 ---
 
 Add a new pace (discrete action) to a Job Jockey heat.
 
-Arguments: $ARGUMENTS (format: `<silks> <pace description text>`)
-
-## Prerequisites
-
-- Must have active heat context (run `/jjc-heat-saddle` first, or provide Firemark)
-- Gallops JSON must exist at `.claude/jjm/jjg_gallops.json`
+Arguments: $ARGUMENTS (format: `<silks> [optional description]`)
 
 ## Step 1: Parse arguments
 
 Extract from $ARGUMENTS:
 - First word = silks (kebab-case pace name)
-- Remaining text = pace description (the tack text)
+- Remaining text = pace description (optional)
 
-**If $ARGUMENTS is empty or missing description:**
-- Error: "Usage: /jjc-pace-slate <silks> <description>"
-- Example: `/jjc-pace-slate add-validation Add input validation to the form submission handler`
+**If $ARGUMENTS is empty:**
+- Error: "Usage: /jjc-pace-slate <silks> [description]"
+- Example: `/jjc-pace-slate add-validation Add input validation to the form handler`
 
 **Validate silks format:**
 - Must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
 - Error if invalid: "Silks must be kebab-case (e.g., 'add-tests', 'fix-bug')"
+
+**If description is missing (only silks provided):**
+- Synthesize a description from recent conversation context
+- Draw on what was discussed about this pace concept
+- Do NOT ask for confirmation - proceed directly
 
 ## Step 2: Get heat context
 
@@ -52,19 +52,44 @@ The pace description text is passed via stdin.
 
 Capture the new Coronet from stdout.
 
-## Step 4: Report result
+## Step 4: Report and assess
 
-On success:
+On success, report:
 - "Created pace: **<SILKS>** (<CORONET>)"
 - "Heat: <HEAT_SILKS> (₣XX)"
-- "State: rough (needs approach before execution)"
-- "Text: <first 100 chars of description>..."
+- "State: rough"
+
+Then **assess the pace's health**:
+
+1. **Clarity**: Is the description clear and actionable?
+2. **Scope**: Is it well-bounded or too broad?
+3. **Dependencies**: Does it depend on other paces completing first?
+
+## Step 5: Propose priming (if appropriate)
+
+If the pace is a good candidate for autonomous execution (primed state), propose:
+
+**Prime candidate?** Evaluate:
+- Clear, bounded scope
+- No blocking dependencies
+- Can be accomplished by agents without human decision points
+
+**If primeable, suggest direction:**
+- Which agent type(s): Explore, Bash, Plan, general-purpose?
+- Parallelism: single agent or multiple in parallel?
+- Key files or patterns to target
+
+**Remind user:**
+> To arm for autonomous execution: `/jjc-pace-prime`
+
+## Step 6: Next steps
+
+**Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-prime` (arm)
+
+## Error handling
 
 On failure, report the error from vvx.
 
-## Step 5: Offer next steps
-
-Ask: "Would you like to:"
-1. Add another pace with `/jjc-pace-slate`
-2. Saddle up and start working with `/jjc-heat-saddle`
-3. View all paces with `/jjc-heat-parade`
+Common errors:
+- "Heat not found" — invalid Firemark
+- "text must not be empty" — description synthesis failed
