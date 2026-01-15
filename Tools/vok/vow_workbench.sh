@@ -42,9 +42,9 @@ vow_show() {
 vow_route() {
   local z_command="$1"
   shift
-  local z_args="$*"
+  local z_args=("$@")
 
-  vow_show "Routing command: ${z_command} with args: ${z_args}"
+  vow_show "Routing command: ${z_command} with args: ${z_args[*]}"
 
   # Verify BUD environment variables are present
   test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
@@ -58,11 +58,11 @@ vow_route() {
   case "${z_command}" in
 
     # Build subsystem
-    vow-b)  exec "${z_vob_cli}" vob_build   $z_args ;;
-    vow-R)  exec "${z_vob_cli}" vob_release $z_args ;;  # capital R = big action
+    vow-b)  exec "${z_vob_cli}" vob_build   "${z_args[@]}" ;;
+    vow-R)  exec "${z_vob_cli}" vob_release "${z_args[@]}" ;;  # capital R = big action
 
     # Run VVX binary directly
-    vow-r)  exec "${VOW_SCRIPT_DIR}/target/release/vvr" $z_args ;;
+    vow-r)  exec "${VOW_SCRIPT_DIR}/target/release/vvr" "${z_args[@]}" ;;
 
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;

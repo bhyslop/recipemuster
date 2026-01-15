@@ -71,9 +71,9 @@ rbw_local_build() {
 rbw_route() {
   local z_command="$1"
   shift
-  local z_args="$*"
+  local z_args=("$@")
 
-  rbw_show "Routing command: ${z_command} with args: ${z_args}"
+  rbw_show "Routing command: ${z_command} with args: ${z_args[*]}"
 
   # Verify BUD environment
   test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
