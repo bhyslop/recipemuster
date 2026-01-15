@@ -1438,12 +1438,10 @@ output `tack_direction` from `tacks[0].direction`
 // ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_parade}
 
-Display comprehensive
+Display
 {jjdhr_heat}
-status for project review.
-Shows paddock, all
-{jjdpr_pace_s}
-in order, with tack details for actionable paces.
+status in human-readable text format.
+Output varies by format mode.
 
 {jjds_arguments}
 
@@ -1455,55 +1453,67 @@ in order, with tack details for actionable paces.
 (positional) — target
 {jjdhr_heat}
 
-// ⟦axd_optional⟧
-* `--full` — include tack details for
-{jjdpe_complete}
-and
-{jjdpe_abandoned}
-paces (default: silks only)
+// ⟦axd_optional axd_defaulted⟧
+* `--format <mode>` — output format mode (default: `full`)
 
-{jjds_stdout} JSON object with structure:
-[source,json]
+// ⟦axd_optional⟧
+* `--pace <coronet>` — target
+{jjdt_coronet}
+(required with `--format detail`)
+
+*Format Modes*
+
+[cols="1,2,3"]
+|===
+| Mode | Purpose | Output
+
+| `overview`
+| Quick status
+| One line per pace: `[state] silks (₢coronet)`
+
+| `order`
+| Dependency check
+| Numbered: `N. [state] silks (₢coronet)`
+
+| `detail`
+| Inspect one pace
+| Full tack text for specified pace (requires `--pace`)
+
+| `full`
+| Planning context
+| Paddock content + all paces with tack text
+|===
+
+{jjds_stdout} Human-readable text (not JSON).
+
+*Example output — overview:*
 ----
-{
-  "heat_silks": "...",
-  "heat_created": "YYMMDD",
-  "heat_status": "current|retired",
-  "paddock_file": ".claude/jjm/jjp_XX.md",
-  "paddock_content": "...",
-  "paces": [
-    {
-      "coronet": "₢XXXXX",
-      "silks": "...",
-      "state": "rough|primed",
-      "tack_text": "...",
-      "tack_direction": "..."
-    },
-    {
-      "coronet": "₢YYYYY",
-      "silks": "...",
-      "state": "complete"
-    }
-  ]
-}
+[abandoned] vvw-workbench-tabtarget (₢AAAAC)
+[complete] install-arch-decision (₢AAAAI)
+[rough] vvx-push-rename (₢AAAAJ)
 ----
-For
-{jjdpe_rough}
-or
-{jjdpe_primed}
-paces: includes `tack_text` (and `tack_direction` if primed).
-For
-{jjdpe_complete}
-or
-{jjdpe_abandoned}
-paces: includes only `silks` and `state` unless `--full` flag is set.
-Paces ordered per
-{jjdhm_order}.
+
+*Example output — order:*
+----
+1. [abandoned] vvw-workbench-tabtarget (₢AAAAC)
+2. [complete] install-arch-decision (₢AAAAI)
+3. [rough] vvx-push-rename (₢AAAAJ)
+----
+
+*Example output — detail:*
+----
+Pace: vvx-push-rename (₢AAAAJ)
+State: rough
+Heat: ₣AA
+
+[full tack text...]
+----
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
+. Validate arguments (if `--format detail`, require `--pace`)
 . Read
 {jjdgr_gallops}
 from file
@@ -1511,28 +1521,13 @@ from file
 {jjdhr_heat}
 exists with given
 {jjdt_firemark}
-. Output heat metadata: `heat_silks`, `heat_created`, `heat_status`
-. Output `paddock_file` from
-{jjdhm_paddock}
-. Read paddock file contents, output as `paddock_content`
-. Build `paces` array by walking
-{jjdhm_order}:
-.. For each
-{jjdt_coronet},
-read `tacks[0]` to get current state
-.. Output `coronet`, `silks`, `state`
-.. If state is
-{jjdpe_rough}
-or
-{jjdpe_primed}:
-output `tack_text` (and `tack_direction` if primed)
-.. If state is
-{jjdpe_complete}
-or
-{jjdpe_abandoned}
-and `--full` flag:
-output `tack_text`
-. Output JSON
+. Match on format mode:
+.. *overview*: For each pace in
+{jjdhm_order},
+print `[state] silks (coronet)`
+.. *order*: Same as overview with line numbers
+.. *detail*: Find specified pace, print header and full tack text
+.. *full*: Print heat header, paddock content, then each pace with tack text
 
 === Steeplechase Operations
 

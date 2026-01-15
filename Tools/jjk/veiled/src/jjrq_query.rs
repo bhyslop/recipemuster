@@ -159,39 +159,37 @@ pub fn run_saddle(args: SaddleArgs) -> i32 {
 // Parade - Display comprehensive Heat status for project review
 // ============================================================================
 
+/// Output format modes for parade command
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum ParadeFormat {
+    /// One line per pace: [state] silks (₢coronet)
+    Overview,
+    /// Numbered list: N. [state] silks (₢coronet)
+    Order,
+    /// Full tack text for one pace (requires --pace)
+    Detail,
+    /// Paddock + all paces with tack text (default)
+    #[default]
+    Full,
+}
+
 /// Arguments for parade command
 #[derive(Debug)]
 pub struct ParadeArgs {
     pub file: std::path::PathBuf,
     pub firemark: Firemark,
-    pub full: bool,
-}
-
-/// Output structure for parade command
-#[derive(Serialize)]
-struct ParadeOutput {
-    heat_silks: String,
-    heat_created: String,
-    heat_status: String,
-    paddock_file: String,
-    paddock_content: String,
-    paces: Vec<ParadePace>,
-}
-
-/// Pace structure for parade output
-#[derive(Serialize)]
-struct ParadePace {
-    coronet: String,
-    silks: String,
-    state: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tack_text: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tack_direction: Option<String>,
+    pub format: ParadeFormat,
+    pub pace: Option<String>,
 }
 
 /// Run the parade command - display comprehensive Heat status
 pub fn run_parade(args: ParadeArgs) -> i32 {
+    // Validate: detail format requires --pace
+    if args.format == ParadeFormat::Detail && args.pace.is_none() {
+        eprintln!("jjx_parade: error: --format detail requires --pace <coronet>");
+        return 1;
+    }
+
     let gallops = match Gallops::load(&args.file) {
         Ok(g) => g,
         Err(e) => {
@@ -209,77 +207,103 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
         }
     };
 
-    // Read paddock file content
-    let paddock_content = match fs::read_to_string(&heat.paddock_file) {
-        Ok(content) => content,
-        Err(e) => {
-            eprintln!("jjx_parade: error reading paddock file '{}': {}", heat.paddock_file, e);
-            return 1;
-        }
-    };
-
-    // Build paces array
-    let mut paces = Vec::new();
-    for coronet_key in &heat.order {
-        if let Some(pace) = heat.paces.get(coronet_key) {
-            if let Some(tack) = pace.tacks.first() {
-                let state_str = match tack.state {
-                    PaceState::Rough => "rough",
-                    PaceState::Primed => "primed",
-                    PaceState::Complete => "complete",
-                    PaceState::Abandoned => "abandoned",
-                };
-
-                let mut parade_pace = ParadePace {
-                    coronet: coronet_key.clone(),
-                    silks: pace.silks.clone(),
-                    state: state_str.to_string(),
-                    tack_text: None,
-                    tack_direction: None,
-                };
-
-                // Include tack_text for rough/primed, or for complete/abandoned with --full
-                match tack.state {
-                    PaceState::Rough | PaceState::Primed => {
-                        parade_pace.tack_text = Some(tack.text.clone());
-                        if tack.state == PaceState::Primed {
-                            parade_pace.tack_direction = tack.direction.clone();
-                        }
-                    }
-                    PaceState::Complete | PaceState::Abandoned => {
-                        if args.full {
-                            parade_pace.tack_text = Some(tack.text.clone());
-                        }
+    match args.format {
+        ParadeFormat::Overview => {
+            for coronet_key in &heat.order {
+                if let Some(pace) = heat.paces.get(coronet_key) {
+                    if let Some(tack) = pace.tacks.first() {
+                        let state_str = pace_state_str(&tack.state);
+                        println!("[{}] {} ({})", state_str, pace.silks, coronet_key);
                     }
                 }
+            }
+        }
+        ParadeFormat::Order => {
+            for (idx, coronet_key) in heat.order.iter().enumerate() {
+                if let Some(pace) = heat.paces.get(coronet_key) {
+                    if let Some(tack) = pace.tacks.first() {
+                        let state_str = pace_state_str(&tack.state);
+                        println!("{}. [{}] {} ({})", idx + 1, state_str, pace.silks, coronet_key);
+                    }
+                }
+            }
+        }
+        ParadeFormat::Detail => {
+            let target_coronet = args.pace.as_ref().unwrap();
+            let pace = match heat.paces.get(target_coronet) {
+                Some(p) => p,
+                None => {
+                    eprintln!("jjx_parade: error: Pace '{}' not found in Heat '{}'", target_coronet, heat_key);
+                    return 1;
+                }
+            };
+            if let Some(tack) = pace.tacks.first() {
+                let state_str = pace_state_str(&tack.state);
+                println!("Pace: {} ({})", pace.silks, target_coronet);
+                println!("State: {}", state_str);
+                println!("Heat: {}", heat_key);
+                println!();
+                println!("{}", tack.text);
+                if let Some(ref direction) = tack.direction {
+                    println!();
+                    println!("Direction: {}", direction);
+                }
+            }
+        }
+        ParadeFormat::Full => {
+            // Read paddock file content
+            let paddock_content = match fs::read_to_string(&heat.paddock_file) {
+                Ok(content) => content,
+                Err(e) => {
+                    eprintln!("jjx_parade: error reading paddock file '{}': {}", heat.paddock_file, e);
+                    return 1;
+                }
+            };
 
-                paces.push(parade_pace);
+            let status_str = match heat.status {
+                HeatStatus::Current => "current",
+                HeatStatus::Retired => "retired",
+            };
+
+            println!("Heat: {} ({})", heat.silks, heat_key);
+            println!("Status: {}", status_str);
+            println!("Created: {}", heat.creation_time);
+            println!();
+            println!("## Paddock");
+            println!();
+            println!("{}", paddock_content);
+            println!();
+            println!("## Paces");
+            println!();
+
+            for coronet_key in &heat.order {
+                if let Some(pace) = heat.paces.get(coronet_key) {
+                    if let Some(tack) = pace.tacks.first() {
+                        let state_str = pace_state_str(&tack.state);
+                        println!("### {} ({}) [{}]", pace.silks, coronet_key, state_str);
+                        println!();
+                        println!("{}", tack.text);
+                        if let Some(ref direction) = tack.direction {
+                            println!();
+                            println!("**Direction:** {}", direction);
+                        }
+                        println!();
+                    }
+                }
             }
         }
     }
 
-    let output = ParadeOutput {
-        heat_silks: heat.silks.clone(),
-        heat_created: heat.creation_time.clone(),
-        heat_status: match heat.status {
-            HeatStatus::Current => "current".to_string(),
-            HeatStatus::Retired => "retired".to_string(),
-        },
-        paddock_file: heat.paddock_file.clone(),
-        paddock_content,
-        paces,
-    };
+    0
+}
 
-    // Output JSON
-    match serde_json::to_string_pretty(&output) {
-        Ok(json) => {
-            println!("{}", json);
-            0
-        }
-        Err(e) => {
-            eprintln!("jjx_parade: error serializing output: {}", e);
-            1
-        }
+/// Helper to convert PaceState to display string
+fn pace_state_str(state: &PaceState) -> &'static str {
+    match state {
+        PaceState::Rough => "rough",
+        PaceState::Primed => "primed",
+        PaceState::Complete => "complete",
+        PaceState::Abandoned => "abandoned",
     }
 }
 
@@ -534,35 +558,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parade_output_structure() {
-        let output = ParadeOutput {
-            heat_silks: "my-heat".to_string(),
-            heat_created: "260101".to_string(),
-            heat_status: "current".to_string(),
-            paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
-            paddock_content: "# Heat context".to_string(),
-            paces: vec![
-                ParadePace {
-                    coronet: "₢ABAAA".to_string(),
-                    silks: "first-pace".to_string(),
-                    state: "rough".to_string(),
-                    tack_text: Some("Plan here".to_string()),
-                    tack_direction: None,
-                },
-                ParadePace {
-                    coronet: "₢ABAAB".to_string(),
-                    silks: "done-pace".to_string(),
-                    state: "complete".to_string(),
-                    tack_text: None,
-                    tack_direction: None,
-                },
-            ],
-        };
-        let json = serde_json::to_string(&output).unwrap();
-        assert!(json.contains("heat_created"));
-        assert!(json.contains("heat_status"));
-        assert!(json.contains("paces"));
-        assert!(json.contains("first-pace"));
+    fn test_parade_format_enum() {
+        // Test ParadeFormat default
+        let format: ParadeFormat = Default::default();
+        assert_eq!(format, ParadeFormat::Full);
     }
 
     #[test]

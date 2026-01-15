@@ -192,6 +192,21 @@ struct JjxSaddleArgs {
     firemark: String,
 }
 
+/// Output format modes for jjx_parade
+#[cfg(feature = "jjk")]
+#[derive(clap::ValueEnum, Clone, Copy, Debug, Default)]
+enum ParadeFormatArg {
+    /// One line per pace: [state] silks (₢coronet)
+    Overview,
+    /// Numbered list: N. [state] silks (₢coronet)
+    Order,
+    /// Full tack text for one pace (requires --pace)
+    Detail,
+    /// Paddock + all paces with tack text
+    #[default]
+    Full,
+}
+
 /// Arguments for jjx_parade command
 #[cfg(feature = "jjk")]
 #[derive(clap::Args, Debug)]
@@ -203,9 +218,13 @@ struct JjxParadeArgs {
     /// Target Heat identity (Firemark)
     firemark: String,
 
-    /// Include tack details for complete/abandoned paces
+    /// Output format mode
+    #[arg(long, value_enum, default_value = "full")]
+    format: ParadeFormatArg,
+
+    /// Target Pace coronet (required for --format detail)
     #[arg(long)]
-    full: bool,
+    pace: Option<String>,
 }
 
 /// Arguments for jjx_retire command
@@ -506,7 +525,7 @@ fn run_jjx_saddle(args: JjxSaddleArgs) -> i32 {
 #[cfg(feature = "jjk")]
 fn run_jjx_parade(args: JjxParadeArgs) -> i32 {
     use jjk::jjrf_favor::Firemark;
-    use jjk::jjrq_query::{ParadeArgs, run_parade};
+    use jjk::jjrq_query::{ParadeArgs, ParadeFormat, run_parade};
 
     // Parse firemark
     let firemark = match Firemark::parse(&args.firemark) {
@@ -517,10 +536,19 @@ fn run_jjx_parade(args: JjxParadeArgs) -> i32 {
         }
     };
 
+    // Convert Clap enum to library enum
+    let format = match args.format {
+        ParadeFormatArg::Overview => ParadeFormat::Overview,
+        ParadeFormatArg::Order => ParadeFormat::Order,
+        ParadeFormatArg::Detail => ParadeFormat::Detail,
+        ParadeFormatArg::Full => ParadeFormat::Full,
+    };
+
     let parade_args = ParadeArgs {
         file: args.file,
         firemark,
-        full: args.full,
+        format,
+        pace: args.pace,
     };
 
     run_parade(parade_args)

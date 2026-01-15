@@ -323,7 +323,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - JJ Kit path: `Tools/jjk/README.md`
 
 **Available commands:**
-- `/jja-heat-saddle` - Saddle up on heat at session start, analyze and propose approach
+- `/jjc-heat-mount` - Mount up and execute next pace
 - `/jja-heat-retire` - Move completed heat to retired with datestamp
 - `/jja-pace-new` - Add a new pace
 - `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
