@@ -1,11 +1,13 @@
 ---
 argument-hint: [firemark]
-description: Saddle up on a heat
+description: Mount up and execute next pace
 ---
 
-Saddle up on a Job Jockey heat and prepare for work.
+Mount a heat: identify the next actionable pace and begin execution.
 
-Arguments: $ARGUMENTS (optional Firemark to select specific heat)
+Use this command when you're ready to work - it finds the next rough or primed pace and drives toward completing it.
+
+Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Prerequisites
 
@@ -29,7 +31,7 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initial
 - If $ARGUMENTS matches a silks value, use that heat
 - Otherwise list heats and ask user to select
 
-## Step 2: Get saddle context
+## Step 2: Get current pace context
 
 Run:
 ```bash
@@ -65,6 +67,7 @@ Show:
 **If no actionable pace:**
 - Report "All paces complete or abandoned"
 - Suggest `/jjc-pace-slate` to add a new pace
+- Suggest `/jjc-heat-groom` to review the heat
 - Stop
 
 **If pace_state is "rough":**

@@ -15,7 +15,7 @@ Markers:
 
 ## Prerequisites
 
-- Must have active heat context (run `/jjc-heat-saddle` first)
+- Must have active heat context (run `/jjc-heat-mount` first)
 - For APPROACH/WRAP/FLY markers, must have pace context
 
 ## Step 1: Parse arguments
@@ -34,7 +34,7 @@ Retrieve from current session:
 - PACE_SILKS (current pace) — required for APPROACH/WRAP/FLY
 
 If no FIREMARK:
-- Error: "No heat context. Run /jjc-heat-saddle first."
+- Error: "No heat context. Run /jjc-heat-mount first."
 
 If no PACE_SILKS and marker requires it:
 - Error: "<MARKER> marker requires pace context."

@@ -9,7 +9,7 @@ Arguments: $ARGUMENTS (optional commit message; if omitted, Claude generates fro
 
 ## Prerequisites
 
-- Must have active heat context (run `/jjc-heat-saddle` first)
+- Must have active heat context (run `/jjc-heat-mount` first)
 - Must have staged or modified files to commit
 
 ## Step 1: Get context
@@ -19,7 +19,7 @@ Retrieve from current session:
 - PACE_SILKS (current pace)
 
 If no context available:
-- Error: "No heat context. Run /jjc-heat-saddle first."
+- Error: "No heat context. Run /jjc-heat-mount first."
 
 ## Step 2: Check for changes
 

@@ -1,0 +1,106 @@
+---
+argument-hint: [firemark]
+description: Review and refine heat plan
+---
+
+Groom a heat: review the full plan and prepare for refinement work.
+
+Use this command when you want to work on the heat's overall structure - adding paces, reordering, refining specifications - rather than executing the next pace.
+
+Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
+
+## Prerequisites
+
+Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `vvx jjx_nominate`.
+
+## Step 1: Identify target heat
+
+**If $ARGUMENTS contains a Firemark (e.g., `AB` or `₣AB`):**
+- Use that Firemark directly
+- Skip to Step 2
+
+**If $ARGUMENTS is empty or contains silks:**
+- Run: `vvx jjx_muster --status current`
+- Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
+
+**If 0 heats:** Report "No active heats. Create one with `vvx jjx_nominate`." and stop.
+
+**If 1 heat:** Use that heat's Firemark.
+
+**If 2+ heats:**
+- If $ARGUMENTS matches a silks value, use that heat
+- Otherwise list heats and ask user to select
+
+## Step 2: Get parade data
+
+Run:
+```bash
+vvx jjx_parade <FIREMARK>
+```
+
+Parse JSON output:
+```json
+{
+  "heat_silks": "...",
+  "heat_created": "YYMMDD",
+  "heat_status": "current|retired",
+  "paddock_file": ".claude/jjm/jjp_XX.md",
+  "paddock_content": "...",
+  "paces": [
+    {
+      "coronet": "₢XXXXX",
+      "silks": "...",
+      "state": "rough|primed|complete|abandoned",
+      "tack_text": "...",
+      "tack_direction": "..."
+    }
+  ]
+}
+```
+
+## Step 3: Display heat overview
+
+Present the full heat for planning review:
+
+### Heat: {heat_silks} (₣{firemark})
+**Created:** {heat_created} | **Status:** {heat_status}
+
+### Paddock
+{Full paddock_content - this is the planning context}
+
+### Paces ({N} total)
+
+For each pace in order, show:
+```
+{index}. [{state}] {silks} (₢{coronet})
+   {tack_text - full specification}
+   {If primed: "Direction: " + tack_direction}
+```
+
+Show all paces with full detail regardless of state - this is a planning view.
+
+### Progress
+- Complete: X | Abandoned: Y | Remaining: Z (rough: A, primed: B)
+
+## Step 4: Enter planning mode
+
+Prompt the user:
+
+"Heat **{silks}** has {N} paces. What would you like to work on?"
+
+Suggest relevant actions based on state:
+- "Add new paces with `/jjc-pace-slate`"
+- "Reorder paces with `/jjc-heat-rail`"
+- "Refine a pace specification with `/jjc-pace-reslate`"
+- "Review paddock context" (offer to edit paddock file)
+
+If all paces complete:
+- "All paces complete. `/jjc-heat-retire` to archive."
+
+Remain in planning discussion mode - do not automatically proceed to execution.
+
+## Context preservation
+
+Store for use by other commands:
+- Current FIREMARK
+- Current heat SILKS

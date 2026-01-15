@@ -5,7 +5,7 @@ description: Display comprehensive heat status
 
 Show full status of a heat including all paces and their states.
 
-Arguments: $ARGUMENTS (optional Firemark; uses current heat if omitted)
+Arguments: $ARGUMENTS (optional Firemark; uses current context if omitted)
 
 ## Prerequisites
 
@@ -17,10 +17,8 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`.
 - Use that Firemark directly
 
 **If $ARGUMENTS is empty:**
-- Use FIREMARK from current saddle context
-- If no context, run `vvx jjx_muster --status current` and:
-  - If 1 heat: use it
-  - If 0 or 2+ heats: list and ask user to select
+- Use FIREMARK from current context
+- If no context: Report "No heat context. Use `/jjc-heat-groom` or `/jjc-heat-mount` to establish one." and stop.
 
 ## Step 2: Get parade data
 
@@ -71,10 +69,6 @@ For each pace in order:
 - Complete: X
 - Remaining: Y (Z rough, W primed)
 
-## Step 4: Suggest next action
+## Step 4: Done
 
-Based on the state:
-- If has rough pace: "Next: /jjc-heat-saddle to work on {first rough pace}"
-- If has primed pace: "Next: /jjc-heat-saddle to execute {primed pace}"
-- If all complete: "All paces done. /jjc-heat-retire to archive, or /jjc-pace-slate to add more."
-- If no paces: "No paces yet. /jjc-pace-slate to add work."
+Display only. No suggestions or next actions.

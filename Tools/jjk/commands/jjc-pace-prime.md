@@ -11,7 +11,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 - Gallops JSON must exist
 - Pace must be in "rough" state (not already primed/complete/abandoned)
-- Should have run `/jjc-heat-saddle` first to establish context
+- Should have run `/jjc-heat-mount` first to establish context
 
 ## Step 1: Identify target pace
 
@@ -20,8 +20,8 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 - Use that Coronet directly
 
 **If $ARGUMENTS is empty:**
-- Use PACE_CORONET from current saddle context
-- If no context, error: "No pace context. Run /jjc-heat-saddle first."
+- Use PACE_CORONET from current context
+- If no context, error: "No pace context. Run /jjc-heat-mount first."
 
 ## Step 2: Verify pace state
 
@@ -31,7 +31,7 @@ vvx jjx_saddle <FIREMARK>
 ```
 
 Verify the target pace is in "rough" state. If not:
-- If "primed": "Pace already primed. Run /jjc-heat-saddle to execute."
+- If "primed": "Pace already primed. Run /jjc-heat-mount to execute."
 - If "complete"/"abandoned": "Pace is closed. Select another pace."
 
 ## Step 3: Study the pace
@@ -78,5 +78,5 @@ echo "<direction text>" | vvx jjx_tally <CORONET> --state primed --direction -
 
 Report:
 - "Pace <SILKS> is now primed"
-- "Run /jjc-heat-saddle to begin autonomous execution"
-- Or: "Ready to execute now?" → if yes, proceed as /jjc-heat-saddle would for primed pace
+- "Run /jjc-heat-mount to begin autonomous execution"
+- Or: "Ready to execute now?" → if yes, proceed as /jjc-heat-mount would for primed pace

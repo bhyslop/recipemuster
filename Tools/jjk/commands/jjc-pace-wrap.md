@@ -20,8 +20,8 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 - Use that Coronet directly
 
 **If $ARGUMENTS is empty:**
-- Use PACE_CORONET from current saddle context
-- If no context, error: "No pace context. Run /jjc-heat-saddle first."
+- Use PACE_CORONET from current context
+- If no context, error: "No pace context. Run /jjc-heat-mount first."
 
 ## Step 2: Get current state
 
@@ -66,7 +66,7 @@ vvx jjx_saddle <FIREMARK>
 
 **If another actionable pace exists:**
 - Display the next pace's silks and tack_text
-- If rough: Propose approach (as in /jjc-heat-saddle)
+- If rough: Propose approach (as in /jjc-heat-mount)
 - If primed: Ask if ready to execute
 
 **If no more actionable paces:**
