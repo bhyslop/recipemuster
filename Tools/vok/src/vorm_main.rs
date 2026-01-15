@@ -22,7 +22,11 @@ enum Commands {
     /// Pre-commit size validation
     Guard(vorg_guard::GuardArgs),
     /// Atomic commit with lock, stage, guard, and optional claude message
-    Commit(vorc_commit::CommitArgs),
+    #[command(name = "vvx_commit")]
+    VvxCommit(vorc_commit::CommitArgs),
+    /// Push with lock (prevents concurrent push/commit)
+    #[command(name = "vvx_push")]
+    VvxPush(VvxPushArgs),
 
     // JJK commands (only available with jjk feature)
     #[cfg(feature = "jjk")]
@@ -84,6 +88,22 @@ enum Commands {
     /// Add a new Tack to a Pace
     #[command(name = "jjx_tally")]
     JjxTally(JjxTallyArgs),
+}
+
+/// Arguments for vvx_push command
+#[derive(clap::Args, Debug)]
+struct VvxPushArgs {
+    /// Remote name (default: origin)
+    #[arg(long, default_value = "origin")]
+    remote: String,
+
+    /// Branch name (default: current branch)
+    #[arg(long)]
+    branch: Option<String>,
+
+    /// Force push (use with caution)
+    #[arg(long)]
+    force: bool,
 }
 
 /// Arguments for jjx_notch command
@@ -286,7 +306,8 @@ fn main() -> ExitCode {
 
     let exit_code = match cli.command {
         Some(Commands::Guard(args)) => vorg_guard::run(args),
-        Some(Commands::Commit(args)) => vorc_commit::run(args),
+        Some(Commands::VvxCommit(args)) => vorc_commit::run(args),
+        Some(Commands::VvxPush(args)) => run_vvx_push(args),
 
         #[cfg(feature = "jjk")]
         Some(Commands::JjxNotch(args)) => run_jjx_notch(args),
@@ -739,4 +760,100 @@ fn run_jjx_tally(args: JjxTallyArgs) -> i32 {
             1
         }
     }
+}
+
+/// Lock reference path for push operations (same as commit to prevent concurrent ops)
+const PUSH_LOCK_REF: &str = "refs/vvg/locks/vvx";
+
+fn run_vvx_push(args: VvxPushArgs) -> i32 {
+    use std::process::Command;
+
+    // Step 1: Acquire lock (same lock as commit to prevent concurrent commit/push)
+    eprintln!("push: acquiring lock...");
+    let head_output = Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .output();
+
+    let lock_value = match head_output {
+        Ok(output) if output.status.success() => {
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        }
+        _ => "0000000000000000000000000000000000000000".to_string(),
+    };
+
+    let lock_result = Command::new("git")
+        .args(["update-ref", PUSH_LOCK_REF, &lock_value, ""])
+        .output();
+
+    match lock_result {
+        Ok(output) if output.status.success() => {
+            eprintln!("push: lock acquired");
+        }
+        _ => {
+            eprintln!("push: error: Another operation in progress - lock held");
+            return 1;
+        }
+    }
+
+    // Execute push workflow (lock will be released on any exit path)
+    let result = run_push_workflow(&args);
+
+    // Release lock
+    let _ = Command::new("git")
+        .args(["update-ref", "-d", PUSH_LOCK_REF])
+        .output();
+    eprintln!("push: lock released");
+
+    match result {
+        Ok(()) => {
+            eprintln!("push: success");
+            0
+        }
+        Err(e) => {
+            eprintln!("push: error: {}", e);
+            1
+        }
+    }
+}
+
+fn run_push_workflow(args: &VvxPushArgs) -> Result<(), String> {
+    use std::process::Command;
+
+    // Determine branch to push
+    let branch = match &args.branch {
+        Some(b) => b.clone(),
+        None => {
+            // Get current branch name
+            let output = Command::new("git")
+                .args(["rev-parse", "--abbrev-ref", "HEAD"])
+                .output()
+                .map_err(|e| format!("Failed to get current branch: {}", e))?;
+
+            if !output.status.success() {
+                return Err("Failed to determine current branch".to_string());
+            }
+
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        }
+    };
+
+    eprintln!("push: pushing {} to {}", branch, args.remote);
+
+    // Build push command
+    let mut push_args = vec!["push", &args.remote, &branch];
+    if args.force {
+        push_args.push("--force");
+    }
+
+    let output = Command::new("git")
+        .args(&push_args)
+        .output()
+        .map_err(|e| format!("Failed to run git push: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("git push failed: {}", stderr));
+    }
+
+    Ok(())
 }
