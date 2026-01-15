@@ -81,6 +81,8 @@
 :jjda_direction:      <<jjda_direction,--direction>>
 :jjda_file:           <<jjda_file,--file>>
 :jjda_first:          <<jjda_first,--first>>
+:jjda_last:           <<jjda_last,--last>>
+:jjda_move:           <<jjda_move,--move>>
 :jjda_pace:           <<jjda_pace,--pace>>
 :jjda_silks:          <<jjda_silks,--silks>>
 :jjda_state:          <<jjda_state,--state>>
@@ -643,8 +645,8 @@ and
 [[jjda_first]]
 // ⟦axl_voices axa_cli_flag⟧
 {jjda_first}::
-Insert at beginning of
-{jjdhr_heat}.
+Position at beginning of
+{jjdhm_order}.
 Long: `--first`.
 Short: none.
 Boolean flag, no value.
@@ -652,6 +654,40 @@ Mutually exclusive with
 {jjda_before}
 and
 {jjda_after}.
+
+[[jjda_last]]
+// ⟦axl_voices axa_cli_flag⟧
+{jjda_last}::
+Move to end of
+{jjdhm_order}.
+Long: `--last`.
+Short: none.
+Boolean flag, no value.
+Used only by
+{jjdo_rail}
+move mode.
+Mutually exclusive with
+{jjda_before},
+{jjda_after},
+and
+{jjda_first}.
+
+[[jjda_move]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_move}::
+{jjdt_coronet}
+to relocate within
+{jjdhm_order}.
+Long: `--move`.
+Short: `-m`.
+Triggers move mode in
+{jjdo_rail}.
+Requires exactly one positioning flag:
+{jjda_before},
+{jjda_after},
+{jjda_first},
+or
+{jjda_last}.
 
 [[jjda_status]]
 // ⟦axl_voices axa_cli_option⟧
@@ -959,6 +995,18 @@ within a
 {jjdhr_heat}
 by updating
 {jjdhm_order}.
+Supports two modes: *order mode* replaces the entire sequence; *move mode* relocates a single
+{jjdpr_pace}.
+
+*Order mode* (full replacement):
+----
+vvx jjx_rail <FIREMARK> <CORONET>...
+----
+
+*Move mode* (single relocation):
+----
+vvx jjx_rail <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET> | --first | --last]
+----
 
 {jjds_arguments}
 
@@ -970,16 +1018,43 @@ by updating
 (positional) — target
 {jjdhr_heat}
 
+*Order mode arguments:*
+
 // ⟦axd_required⟧
 * order — array of
 {jjdt_coronet_s}
-in desired sequence (JSON array or space-separated)
+in desired sequence (space-separated positional arguments)
 
-{jjds_stdout} None
+*Move mode arguments:*
+
+// ⟦axd_required⟧
+* {jjda_move}
+— {jjdt_coronet}
+to relocate
+
+// ⟦axd_required⟧
+* Exactly one positioning flag:
+{jjda_before},
+{jjda_after},
+{jjda_first},
+or
+{jjda_last}
+
+*Mode detection:* If
+{jjda_move}
+is present, move mode; otherwise order mode.
+
+{jjds_stdout} Updated
+{jjdhm_order}
+array, one
+{jjdt_coronet}
+per line, in new sequence.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
+
+*Common steps:*
 
 . Read
 {jjdgr_gallops}
@@ -988,7 +1063,10 @@ from file
 {jjdhr_heat}
 exists with given
 {jjdt_firemark}
-. Parse order argument into array of
+
+*Order mode:*
+
+. Parse positional arguments into array of
 {jjdt_coronet_s}
 . Validate order array:
 .. Count must match current
@@ -1011,6 +1089,82 @@ with new order array
 . Write transformed
 {jjdgr_gallops}
 to file (atomic)
+. Output new
+{jjdhm_order},
+one
+{jjdt_coronet}
+per line
+
+*Move mode:*
+
+. Validate
+{jjda_move}
+{jjdt_coronet}
+exists in
+{jjdhr_heat}
+. Validate exactly one positioning flag provided
+. If
+{jjda_before}
+or
+{jjda_after}:
+validate target
+{jjdt_coronet}
+exists and differs from
+{jjda_move}
+{jjdt_coronet}
+. Remove
+{jjda_move}
+{jjdt_coronet}
+from current position in
+{jjdhm_order}
+. Insert at new position:
+.. If
+{jjda_first}:
+prepend to beginning
+.. If
+{jjda_last}:
+append to end
+.. If
+{jjda_before}:
+insert immediately before target
+{jjdt_coronet}
+.. If
+{jjda_after}:
+insert immediately after target
+{jjdt_coronet}
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
+. Output new
+{jjdhm_order},
+one
+{jjdt_coronet}
+per line
+
+*Validation errors:*
+
+[cols="2,3"]
+|===
+| Condition | Error
+
+| {jjda_move} with positional coronets
+| "Cannot combine --move with positional coronets"
+
+| {jjda_move} {jjdt_coronet} not found
+| "Pace {coronet} not found in heat {firemark}"
+
+| No positioning flag provided
+| "Move mode requires exactly one positioning flag"
+
+| Multiple positioning flags
+| "Conflicting positioning flags: {flags}"
+
+| Target same as move
+| "Cannot position pace relative to itself"
+
+| Target {jjdt_coronet} not found
+| "Target pace {coronet} not found in heat {firemark}"
+|===
 
 [[jjdo_tally]]
 // ⟦axl_voices axi_cli_subcommand⟧
