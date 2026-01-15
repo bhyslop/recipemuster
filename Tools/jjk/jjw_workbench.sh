@@ -38,9 +38,8 @@ jjw_show() {
 jjw_route() {
   local z_command="$1"
   shift
-  local z_args=("$@")
 
-  jjw_show "Routing command: ${z_command} with args: ${z_args[*]}"
+  jjw_show "Routing command: ${z_command} with args: $*"
 
   # Verify BDU environment variables are present
   test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
