@@ -75,9 +75,12 @@
 :jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
 
 // Arguments
+:jjda_after:          <<jjda_after,--after>>
+:jjda_before:         <<jjda_before,--before>>
 :jjda_created:        <<jjda_created,--created>>
 :jjda_direction:      <<jjda_direction,--direction>>
 :jjda_file:           <<jjda_file,--file>>
+:jjda_first:          <<jjda_first,--first>>
 :jjda_pace:           <<jjda_pace,--pace>>
 :jjda_silks:          <<jjda_silks,--silks>>
 :jjda_state:          <<jjda_state,--state>>
@@ -613,6 +616,43 @@ Creation date in YYMMDD format.
 Long: `--created`.
 Short: `-c`.
 
+[[jjda_before]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_before}::
+{jjdt_coronet}
+to insert before.
+Long: `--before`.
+Short: none.
+Mutually exclusive with
+{jjda_after}
+and
+{jjda_first}.
+
+[[jjda_after]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_after}::
+{jjdt_coronet}
+to insert after.
+Long: `--after`.
+Short: none.
+Mutually exclusive with
+{jjda_before}
+and
+{jjda_first}.
+
+[[jjda_first]]
+// ⟦axl_voices axa_cli_flag⟧
+{jjda_first}::
+Insert at beginning of
+{jjdhr_heat}.
+Long: `--first`.
+Short: none.
+Boolean flag, no value.
+Mutually exclusive with
+{jjda_before}
+and
+{jjda_after}.
+
 [[jjda_status]]
 // ⟦axl_voices axa_cli_option⟧
 {jjda_status}::
@@ -778,6 +818,12 @@ The initial
 is created with state
 {jjdpe_rough}.
 
+By default, the new
+{jjdpr_pace}
+is appended to the end of
+{jjdhm_order}.
+Use positioning flags to insert at a specific location.
+
 {jjds_arguments}
 
 // ⟦axd_optional axd_defaulted⟧
@@ -797,6 +843,37 @@ is created with state
 content for the initial
 {jjdkr_tack}
 
+// ⟦axd_optional⟧
+* {jjda_before}
+— insert before specified
+{jjdt_coronet}
+
+// ⟦axd_optional⟧
+* {jjda_after}
+— insert after specified
+{jjdt_coronet}
+
+// ⟦axd_optional⟧
+* {jjda_first}
+— insert at beginning of
+{jjdhm_order}
+
+*Positioning:* Only one of
+{jjda_before},
+{jjda_after},
+or
+{jjda_first}
+may be specified.
+If none provided, append to end (default).
+Note:
+{jjdo_rail}
+reorders existing
+{jjdpr_pace_s};
+{jjdo_slate}
+positioning inserts a new
+{jjdpr_pace}
+at a specific location.
+
 {jjds_stdout} New
 {jjdt_coronet}
 
@@ -811,6 +888,14 @@ from file
 {jjdhr_heat}
 exists with given
 {jjdt_firemark}
+. If
+{jjda_before}
+or
+{jjda_after}
+provided, verify target
+{jjdt_coronet}
+exists in
+{jjdhr_heat}
 . Read
 {jjdhm_seed}
 from target
@@ -837,10 +922,23 @@ current timestamp (YYMMDD-HHMM)
 {jjdpe_rough}
 ... {jjdkm_text}:
 from stdin
-. Append
+. Insert
 {jjdt_coronet}
-to
+into
 {jjdhm_order}
+at determined position:
+.. If
+{jjda_first}:
+prepend to beginning
+.. If
+{jjda_before}:
+insert immediately before target
+{jjdt_coronet}
+.. If
+{jjda_after}:
+insert immediately after target
+{jjdt_coronet}
+.. Otherwise: append to end
 . Increment
 {jjdhm_seed}
 (base64 arithmetic with carry)

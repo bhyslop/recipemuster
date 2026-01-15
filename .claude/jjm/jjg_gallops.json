@@ -29,187 +29,23 @@
       "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
-        "₢AAAAJ": {
-          "silks": "vvx-push-rename",
+        "₢AAAAO": {
+          "silks": "jjd-draft-concepts",
           "tacks": [
             {
-              "ts": "260115-1424",
-              "state": "primed",
-              "text": "Confirmed scope.",
-              "direction": "Rename-commit-to-vvx_commit-and-add-vvx_push-following-lock-pattern"
+              "ts": "260115-1417",
+              "state": "rough",
+              "text": "Update JJD-GallopsData.adoc with draft operation concepts.\n\n## Purpose\n\nEstablish authoritative definitions for draft and restring operations. Implementation paces (₢AAAAN jjx-draft) reference these definitions.\n\n## Concepts to Define\n\n### Draft\n\nThe operation of moving paces from one heat to another.\n\n- Draft moves paces between heats\n- Draft reassigns coronets (new firemark, new local ID)\n- Draft preserves all tack history\n- Draft does NOT change pace state (rough stays rough, complete stays complete)\n- Draft is a primitive operation — mechanical, no ceremony\n\n### Restring\n\nThe guided workflow for drafting paces with paddock ceremony.\n\n- Restring calls draft primitive\n- Restring guides paddock updates on both heats\n- Restring adds steeplechase entries\n- Restring warns about empty source heat\n- Restring is a slash command ceremony, not a primitive\n\n### Coronet Reassignment\n\nWhen a pace is drafted:\n- Old coronet becomes invalid\n- New coronet assigned using destination heat seed\n- Format: destination firemark + allocated local ID\n- Tack history includes \"Drafted from ₢{old} in ₣{source}\"\n\n## NOT a State\n\n\"Drafted\" is NOT a pace state. Pace states remain: rough, primed, complete, abandoned.\nDraft is an operation/event that moves paces. State is preserved through the move.\n\n## Sections to Update in JJD\n\n1. **Operations** — Add jjx_draft alongside jjx_rail, jjx_slate, etc.\n2. **Coronet** — Document reassignment during draft\n3. **Glossary** — Add draft, restring, coronet reassignment\n\n## AXLA Annotations\n\n- `{jjd_draft}` — the draft operation\n- `{jjd_restring}` — the restring ceremony\n\n## Scope\n\nThis pace updates JJD concept model only. Slash command design is separate (handled by jjx-draft pace)."
             },
             {
-              "ts": "260115-1412",
+              "ts": "260115-1341",
               "state": "rough",
-              "text": "Add vvx_push operation and rename commit to vvx_commit.\n\n## Scope: Rust Only\n\nThis pace modifies Rust code. Slash command updates are handled by slash-command-modernize.\n\n## Changes\n\n1. **Rename subcommand**: `commit` → `vvx_commit`\n2. **Add subcommand**: `vvx_push`\n\n## vvx_push Behavior (Simple)\n\n- Acquire lock (refs/vvg/locks/vvx)\n- Run `git push` to origin/current-branch\n- Release lock\n- Report success/failure\n\nNo configuration flags. Simple push to origin. Add flexibility later if needed.\n\n## Naming Rationale\n\nvvx subcommands follow prefix discipline:\n- `jjx_*` for JJ operations\n- `vvx_*` for VVK core operations\n- `guard` stays as-is (standalone utility)\n\n## Files to Modify\n\n- Tools/vok/src/vorm_main.rs (subcommand dispatch)\n- Tools/vok/src/vorc_commit.rs (keep filename, command becomes vvx_commit)\n- Add new file for vvx_push (e.g., vorc_push.rs or similar)\n\n## NOT in Scope\n\nSlash command updates — handled by slash-command-modernize (₢AAAAL)."
+              "text": "Update JJD-GallopsData.adoc with draft operation concepts.\n\n## New Concepts to Document\n\n**Draft** — Moving paces from one heat to another, reassigning coronets while preserving tack history. The primitive operation.\n\n**Restring** — The guided workflow for drafting paces, including paddock ceremony (reviewing/updating both paddocks, adding steeplechase entries).\n\n**Coronet Reassignment** — When a pace moves heats, its coronet changes to reflect new firemark. Old coronet becomes invalid. Tack history transfers intact.\n\n## Naming Discipline\n\n- Primitive: `jjx_draft` — mechanical operation\n- Slash command: `/jjc-heat-restring` — guided workflow with paddock ceremony\n\nDifferent names because different scope. Restring adds significant ceremony around the primitive.\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n- Both heats must exist\n- Moves paces, reassigns coronets\n- Preserves tack history\n- Returns old→new coronet mapping\n\n## Slash Command: /jjc-heat-restring\n\n1. Calls jjx_draft\n2. Guides source paddock review (remove context for restrung paces)\n3. Guides destination paddock review (add context for arriving paces)\n4. Adds steeplechase entries to both heats\n5. Warns if source becomes empty (suggests retire, does not auto-act)\n\n## Workflow\n\n```bash\n# Create destination heat if needed\n/jjc-heat-nominate --silks \"jjk-command-refinement\"\n\n# Restring paces with ceremony\n/jjc-heat-restring <dest> <source> <paces...>\n```\n\n## Sections to Update in JJD\n\n1. Operations section — Add jjx_draft\n2. Coronet section — Document reassignment during draft\n3. Pace lifecycle — Add \"drafted\" as transition\n4. Glossary — Add draft, restring terms\n\n## AXLA Annotations\n\n- `{jjd_draft}` — the draft operation\n- `{jjd_restring}` — the guided restring workflow"
             },
             {
-              "ts": "260114-1107",
+              "ts": "260115-1335",
               "state": "rough",
-              "text": "Add vvx_push operation and rename commit to vvx_commit for naming clarity.\n\nChanges:\n1. Rename 'vvx commit' to 'vvx vvx_commit' (matches jjx_* naming pattern)\n2. Add 'vvx vvx_push' operation - guarded push with lock\n\nvvx_push responsibilities:\n- Acquire lock (refs/vvg/locks/vvx)\n- Run git push (with configurable remote/branch?)\n- Release lock\n\nNaming rationale: vvx subcommands should follow prefix discipline.\n- jjx_* for JJ operations (jjx_muster, jjx_saddle, etc.)\n- vvx_* for VVK core operations (vvx_commit, vvx_push)\n- guard stays as-is (it's a standalone utility)\n\nFiles to update:\n- Tools/vok/src/vorm_main.rs (subcommand dispatch)\n- Tools/vok/src/vorc_commit.rs (or rename file?)\n- All slash commands referencing 'vvx commit'\n- vvc-commit.md slash command"
-            }
-          ]
-        },
-        "₢AAAAH": {
-          "silks": "version-manifest",
-          "tacks": [
-            {
-              "ts": "260114-1058",
-              "state": "rough",
-              "text": "Design and implement version manifest for tracking installed kits.\n\nProposed location: .claude/vvx-manifest.json\n\nSchema (see paddock):\n{\n  \"version\": \"260115-1430\",    // Release version\n  \"installed\": \"260115-1823\",  // Install timestamp\n  \"commit\": \"abc123def\",       // Git commit of install\n  \"kits\": [\"jjk\", \"buk\", \"cmk\", \"vok\"]\n}\n\nUsed by:\n- Diff analysis (find previous install commit)\n- vvx --version to show installed version\n- Future upgrade logic\n\nOpen decision: Confirm .claude/ as location vs Tools/vok/."
-            }
-          ]
-        },
-        "₢AAAAS": {
-          "silks": "bul-launcher-refactor",
-          "tacks": [
-            {
-              "ts": "260115-1518",
-              "state": "complete",
-              "text": "Moved launcher infrastructure to Tools/buk/bul_launcher.sh. BURC exports consolidated into zburc_kindle() for module cohesion. All 10 launcher stubs updated and verified."
-            },
-            {
-              "ts": "260115-1509",
-              "state": "primed",
-              "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)",
-              "direction": "Agent: sonnet\n\n## File Operations\n1. Create Tools/buk/bul_launcher.sh from .buk/launcher_common.sh\n2. Update .buk/launcher.*.sh stubs to use relative path: source \"${BASH_SOURCE[0]%/*}/../Tools/buk/bul_launcher.sh\"\n3. Delete .buk/launcher_common.sh after verification\n\n## Export Decisions\n- BURC_TABTARGET_DIR, BURC_TOOLS_DIR → move to zburc_kindle() in burc_regime.sh\n- BUD_REGIME_FILE, BUD_STATION_FILE → keep in bul_launcher.sh (dispatch context, set before kindle)\n\n## Verification\n- Run tt/vow-r.RunVVX.sh --help to verify tabtarget chain works\n- Run one BUK tabtarget (e.g., tt/buw-tt-ll.ListLaunchers.sh) to verify full path\n\n## BCG Notes\n- bul_launcher.sh is NOT a full BCG module (no kindle/sentinel) - it's bootstrap infrastructure\n- Add standard copyright header and guard against multiple inclusion"
-            },
-            {
-              "ts": "260115-1454",
-              "state": "primed",
-              "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)",
-              "direction": "Agent: sonnet\n\n## File Operations\n1. Create Tools/buk/bul_launcher.sh from .buk/launcher_common.sh\n2. Update .buk/launcher.*.sh stubs to use relative path: source \"${BASH_SOURCE[0]%/*}/../Tools/buk/bul_launcher.sh\"\n3. Delete .buk/launcher_common.sh after verification\n\n## Export Decisions\n- BURC_TABTARGET_DIR, BURC_TOOLS_DIR → move to zburc_kindle() in burc_regime.sh\n- BUD_REGIME_FILE, BUD_STATION_FILE → keep in bul_launcher.sh (dispatch context, set before kindle)\n\n## Verification\n- Run tt/vow-r.RunVVX.sh --help to verify tabtarget chain works\n- Run one BUK tabtarget (e.g., tt/buw-tt-ll.ListLaunchers.sh) to verify full path\n\n## BCG Notes\n- bul_launcher.sh is NOT a full BCG module (no kindle/sentinel) - it's bootstrap infrastructure\n- Add standard copyright header and guard against multiple inclusion"
-            },
-            {
-              "ts": "260115-1449",
-              "state": "rough",
-              "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)"
-            }
-          ]
-        },
-        "₢AAAAQ": {
-          "silks": "slate-position-flags",
-          "tacks": [
-            {
-              "ts": "260115-1444",
-              "state": "primed",
-              "text": "Add --before/--after positioning flags to jjx_slate.\n\n## Current Behavior\n\n`jjx_slate` always appends new pace to end of heat. Must follow with `jjx_rail` to reposition.\n\n## Proposed Enhancement\n\n```bash\nvvx jjx_slate ₣AA --silks 'new-pace' --before ₢AAAAJ <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --after ₢AAAAK <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --first <<< \"tack\"\n```\n\nWithout position flag: append to end (current behavior, backwards compatible).\n\n## Implementation\n\nSame Clap pattern as rail-move-semantics (₢AAAAK). Can share validation logic.\n\n## Scope\n\n- jjx_slate: YES — add position flags\n- jjx_reslate: NO — reslate updates tack, doesn't change position. Position is jjx_rail's job.\n\n## Files\n\nTools/vok/src (wherever jjx_slate is implemented)",
-              "direction": "Agent: sonnet - Add --before/--after/--first flags to jjx_slate in Tools/vok/src, follow Clap pattern from rail-move-semantics"
-            },
-            {
-              "ts": "260115-1431",
-              "state": "rough",
-              "text": "Add --before/--after positioning flags to jjx_slate.\n\n## Current Behavior\n\n`jjx_slate` always appends new pace to end of heat. Must follow with `jjx_rail` to reposition.\n\n## Proposed Enhancement\n\n```bash\nvvx jjx_slate ₣AA --silks 'new-pace' --before ₢AAAAJ <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --after ₢AAAAK <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --first <<< \"tack\"\n```\n\nWithout position flag: append to end (current behavior, backwards compatible).\n\n## Implementation\n\nSame Clap pattern as rail-move-semantics (₢AAAAK). Can share validation logic.\n\n## Scope\n\n- jjx_slate: YES — add position flags\n- jjx_reslate: NO — reslate updates tack, doesn't change position. Position is jjx_rail's job.\n\n## Files\n\nTools/vok/src (wherever jjx_slate is implemented)"
-            }
-          ]
-        },
-        "₢AAAAF": {
-          "silks": "vvx-install-impl",
-          "tacks": [
-            {
-              "ts": "260115-1247",
-              "state": "rough",
-              "text": "Implement vvx install subcommand in Rust.\n\nRun from extracted archive directory:\n```bash\n./bin/vvx-darwin-arm64 install --target /path/to/repo\n```\n\nThe 7-step process:\n1. **Pre-install snapshot** — git commit if working tree dirty\n2. **Copy kit assets** — Read from archive `kits/` directory, write to install_path locations in target\n3. **Copy platform binaries** — Copy ALL sibling binaries from archive `bin/` to target `Tools/vvk/bin/`\n4. **Freshen CLAUDE.md** — Managed section markers (depends on claude-md-freshening pace)\n5. **Cleanup obsolete** — Remove files no longer in current release\n6. **Post-install commit** — git commit with version and kit list\n7. **Diff analysis** — Find previous install, diff, invoke Claude for recovery guidance\n\nKey: Install reads kit assets from archive filesystem, NOT from embedded content. Binary locates its archive context via path relative to itself.\n\nInstall is platform-agnostic: any platform binary can install everything.\n\nDepends on: kit-asset-registry, claude-md-freshening, version-manifest paces."
-            },
-            {
-              "ts": "260114-1058",
-              "state": "rough",
-              "text": "Implement vvx install subcommand in Rust.\n\nThe 6-step process (see paddock Architecture section):\n1. Pre-install snapshot - git commit if working tree dirty\n2. Extract assets - write embedded kit files to install_path locations\n3. Freshen CLAUDE.md - managed section markers (depends on claude-md-freshening pace)\n4. Cleanup obsolete - remove files no longer in current release\n5. Post-install commit - git commit with version and kit list\n6. Diff analysis - find previous install, diff, invoke Claude for recovery guidance\n\nGit commit message formats:\n- Pre: [vvx:pre-install] Snapshot before {version}\n- Post: [vvx:install:{version}] {kit-list}\n\nDepends on: kit-asset-registry, claude-md-freshening, version-manifest paces."
-            }
-          ]
-        },
-        "₢AAAAK": {
-          "silks": "rail-move-semantics",
-          "tacks": [
-            {
-              "ts": "260115-1413",
-              "state": "rough",
-              "text": "Add move semantics to jjx_rail for easier pace reordering.\n\n## Current Syntax (Retained)\n\nList ALL coronets in new order:\n```bash\nvvx jjx_rail ₣AA ₢AAAAI ₢AAAAD ₢AAAAB ...\n```\n\n## New Syntax: Relative Move\n\n```bash\nvvx jjx_rail ₣AA --move ₢AAAAJ --before ₢AAAAC\nvvx jjx_rail ₣AA --move ₢AAAAJ --after ₢AAAAB\nvvx jjx_rail ₣AA --move ₢AAAAJ --first\nvvx jjx_rail ₣AA --move ₢AAAAJ --last\n```\n\n## Validation Rules (Strict)\n\n| Condition | Result |\n|-----------|--------|\n| `--move` without position flag | Error: \"--move requires --before, --after, --first, or --last\" |\n| `--before` AND `--after` | Error: \"Cannot specify both --before and --after\" |\n| `--move X --before X` | Error: \"Cannot move pace before itself\" |\n| `--move X --after X` | Error: \"Cannot move pace after itself\" |\n| Move to current position | No-op, success (already in position) |\n| Unknown coronet | Error: \"Pace not found: ₢XXXXX\" |\n\n## Implementation\n\n- Add --move, --before, --after, --first, --last flags to Clap args\n- If --move provided, compute new order from current + operation\n- Validate as above\n- Write new order to gallops\n- Output new order (--format order style)\n\nRust file: Tools/vok/src (wherever jjx_rail is implemented)\n\n## Slash Command\n\nUpdate /jjc-heat-rail to document both syntaxes."
-            },
-            {
-              "ts": "260114-1121",
-              "state": "rough",
-              "text": "Add move semantics to jjx_rail for easier pace reordering.\n\nCurrent: must list ALL coronets in new order\n  vvx jjx_rail AA ₢AAAAI ₢AAAAD ₢AAAAB ₢AAAAJ ₢AAAAC ...\n\nProposed: relative move operations\n  vvx jjx_rail AA --move ₢AAAAJ --before ₢AAAAC\n  vvx jjx_rail AA --move ₢AAAAJ --after ₢AAAAB\n  vvx jjx_rail AA --move ₢AAAAJ --first\n  vvx jjx_rail AA --move ₢AAAAJ --last\n\nImplementation:\n- Add --move, --before, --after, --first, --last flags to Clap args\n- If --move provided, compute new order from current + operation\n- Validate result same as current validation\n- Existing positional coronet list still works (backwards compatible)\n\nUpdate /jjc-heat-rail slash command to document both syntaxes.\n\nRust file: Tools/vok/src (wherever jjx_rail is implemented - check JJK veiled)"
-            }
-          ]
-        },
-        "₢AAAAC": {
-          "silks": "vvw-workbench-tabtarget",
-          "tacks": [
-            {
-              "ts": "260115-1259",
-              "state": "abandoned",
-              "text": "Superseded by consolidated slash-command-modernize pace. Rationale: avoid multiple touches across files in multiple paces; one pace handles vocabulary coherence + passthrough + new command names together."
-            },
-            {
-              "ts": "260114-1108",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations.\n\nNOTE: By this point, vvx-push-rename pace will have renamed 'commit' to 'vvx_commit'. Use the NEW names in slash commands:\n- vvx vvx_commit (not vvx commit)\n- vvx vvx_push (new)\n\nFiles to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md (update to use vvx_commit)\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            },
-            {
-              "ts": "260114-1053",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md (NEW)\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            },
-            {
-              "ts": "260114-1049",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            },
-            {
-              "ts": "260114-1046",
-              "state": "rough",
-              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nAlso update CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
-            }
-          ]
-        },
-        "₢AAAAI": {
-          "silks": "install-arch-decision",
-          "tacks": [
-            {
-              "ts": "260115-1249",
-              "state": "complete",
-              "text": "Resolved via paddock discussion 2026-01-15. Decision: archive-based asset model with plain text kit assets in kits/ directory, lean binaries with install logic only."
-            },
-            {
-              "ts": "260115-1247",
-              "state": "rough",
-              "text": "Document resolved install architecture decision.\n\nThis pace was resolved via paddock discussion (see Steeplechase 2026-01-15).\n\n**Decision**: Archive-based asset model with plain text kit assets.\n\nKey points captured in paddock Architecture section:\n- Archive is the distribution unit (not self-contained binaries)\n- Kit assets are plain text in `kits/` directory\n- Lean binaries contain install logic only, no embedded content\n- Any platform binary can perform full install\n\nNo implementation work needed — decision is documented. Mark complete when paddock is reviewed and confirmed accurate."
-            },
-            {
-              "ts": "260114-1102",
-              "state": "rough",
-              "text": "Resolve install architecture: static copy vs config-aware deployment.\n\nKey question: Is install just 'copy files to fixed paths' or does it need to adapt to target repo configuration (burc.env)?\n\nWhat might vary per target repo:\n- Paths in slash commands (where is vvx binary?)\n- CLAUDE.md structure/location\n- Kit-specific settings from burc.env\n- Tabtarget launcher paths\n\nOptions to evaluate:\n1. Static install - target repos must conform to expected structure\n2. Config-aware install (arcanum pattern in Rust) - reads burc.env, adapts content\n3. Hybrid - most content static, slash commands get path templating\n\nThis decision affects:\n- kit-asset-registry design (static content vs templates?)\n- vvx-install-impl (copy vs transform?)\n- Whether 'arcanums eliminated' holds or needs revision\n\nDeliverable: Clear decision documented in paddock, possibly reflected in MCM concept model."
-            }
-          ]
-        },
-        "₢AAAAG": {
-          "silks": "claude-md-freshening",
-          "tacks": [
-            {
-              "ts": "260114-1058",
-              "state": "rough",
-              "text": "Implement CLAUDE.md managed section freshening in Rust.\n\nMarker format (see paddock):\n<!-- MANAGED:{KIT}:BEGIN -->\n...content from embedded template...\n<!-- MANAGED:{KIT}:END -->\n\nRules to implement:\n- Markers are authoritative - content between them replaced entirely\n- User content outside markers preserved\n- Order of managed sections follows kit installation order\n- Missing markers - append section at end of file\n\nEach kit has its CLAUDE.md section template embedded via include_str!().\n\nThis is a utility used by vvx-install-impl, may also be useful standalone for testing."
-            }
-          ]
-        },
-        "₢AAAAB": {
-          "silks": "rcg-establish",
-          "tacks": [
-            {
-              "ts": "260114-1028",
-              "state": "rough",
-              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md. Note: RCG will be comparatively skimpy vs BCG - trusting more of Claude's inherent Rust idioms; focus only on project-specific conventions."
-            },
-            {
-              "ts": "260114-1026",
-              "state": "rough",
-              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md."
-            },
-            {
-              "ts": "260114-1025",
-              "state": "rough",
-              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section."
+              "text": "Update JJD-GallopsData.adoc with draft operation concepts.\n\n## New Concepts to Document\n\n**Draft** — Moving paces from one heat to another, reassigning coronets while preserving tack history.\n\n**Coronet Reassignment** — When a pace moves heats, its coronet changes to reflect new firemark. Old coronet becomes invalid. Tack history transfers intact.\n\n**Cross-Heat Operation** — Operations that span two heats (draft is the first). Requires both heats to exist.\n\n## Sections to Add/Update\n\n1. **Operations section** — Add jjx_draft alongside jjx_rail, jjx_slate, etc.\n\n2. **Coronet section** — Document that coronets are heat-scoped and can be reassigned during draft.\n\n3. **Pace lifecycle** — Add \"drafted\" as a transition (pace leaves heat, enters another).\n\n## AXLA Annotations\n\nAdd appropriate annotations for new terms:\n- `{jjd_draft}` — the draft operation\n- `{jjd_coronet_reassignment}` — coronet change during draft\n\n## Reference\n\n- Current JJD: Tools/jjk/JJD-GallopsData.adoc\n- MCM patterns: Tools/cmk/MCM-MetaConceptModel.adoc\n\n## Why Before Implementation\n\nConcept model guides implementation. Documenting draft semantics in JJD ensures the Rust implementation matches the conceptual design."
             }
           ]
         },
@@ -234,6 +70,31 @@
             }
           ]
         },
+        "₢AAAAN": {
+          "silks": "jjx-draft",
+          "tacks": [
+            {
+              "ts": "260115-1417",
+              "state": "rough",
+              "text": "Implement jjx_draft primitive and /jjc-heat-restring slash command.\n\n## Reference\n\nImplements concepts defined in JJD-GallopsData.adoc (see jjd-draft-concepts pace ₢AAAAO):\n- {jjd_draft} — pace movement operation\n- {jjd_restring} — ceremony workflow\n- Coronet reassignment semantics\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft ₣<dest> ₣<source> ₢<coronet> [₢<coronet>...]\n```\n\n### Behavior (per JJD)\n\n1. Validate: both heats exist, all coronets exist in source\n2. For each coronet (in order):\n   - Remove pace from source heat\n   - Allocate new coronet using destination heat seed\n   - Copy all tacks to new pace\n   - Add tack entry: \"Drafted from ₢{old} in ₣{source}\"\n   - Preserve pace state (draft does NOT change state)\n   - Append to destination heat\n3. Return mapping: old coronet → new coronet\n\n### Atomicity\n\nAll-or-nothing per JJD definition.\n\n### Example\n\n```bash\nvvx jjx_draft ₣AB ₣AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command: /jjc-heat-restring\n\nCreate `.claude/commands/jjc-heat-restring.md` implementing {jjd_restring} ceremony:\n\n1. Call jjx_draft primitive\n2. Guide source paddock review\n3. Guide destination paddock review\n4. Add steeplechase entries to both heats\n5. Warn if source becomes empty\n6. Auto-commit: \"Restring: {N} paces ₣{src} → ₣{dest}\"\n\n## Implementation\n\nRust: Tools/vok/src (near jjx_rail)\nSlash command: .claude/commands/jjc-heat-restring.md\n\n## Dependency\n\nRequires jjd-draft-concepts (₢AAAAO) complete first — definitions must exist before implementation."
+            },
+            {
+              "ts": "260115-1414",
+              "state": "rough",
+              "text": "Add jjx_draft primitive and /jjc-heat-restring slash command.\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n### Behavior\n\n1. Validate: both heats exist, all coronets exist in source\n2. For each coronet (in order):\n   - Remove pace from source heat\n   - Allocate new coronet using destination heat seed (simplest approach)\n   - Copy all tacks to new pace\n   - Add tack entry: \"Drafted from ₢{old} in ₣{source}\"\n   - Preserve pace state (rough/primed/complete/abandoned)\n   - Append to destination heat\n3. Return mapping: old coronet → new coronet\n\n### Atomicity\n\nAll-or-nothing. If any operation fails:\n- Abort entirely\n- Leave both heats in original state\n- Report error\n\n### Example\n\n```bash\nvvx jjx_draft ₣AB ₣AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n# Output:\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command: /jjc-heat-restring\n\nCreate `.claude/commands/jjc-heat-restring.md`:\n\n```markdown\nRestring paces from one heat to another with paddock ceremony.\n\nArguments: <dest> <source> <paces...>\n\n1. Call jjx_draft primitive\n2. Guide source paddock review (remove restrung context)\n3. Guide destination paddock review (add arriving context)\n4. Add steeplechase entries to both heats\n5. Warn if source becomes empty (suggest retire)\n6. Auto-commit with guarded commit: \"Restring: {N} paces ₣{src} → ₣{dest}\"\n```\n\n## Implementation\n\nRust: Tools/vok/src (near jjx_rail)\nSlash command: .claude/commands/jjc-heat-restring.md"
+            },
+            {
+              "ts": "260115-1341",
+              "state": "rough",
+              "text": "Add jjx_draft primitive for moving paces between heats.\n\n## Command\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n## Behavior\n\n1. For each specified coronet (in order):\n   - Remove pace from source heat\n   - Assign new coronet with destination firemark\n   - Preserve all tack history\n   - Append to destination heat in specified order\n\n2. Return mapping: old coronet → new coronet\n\n## Validation\n\n- Destination heat must exist\n- Source heat must exist\n- All coronets must exist in source heat\n- Paces can be any state (rough, primed, complete, abandoned)\n\n## Example\n\n```bash\nvvx jjx_draft AB AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n# Output:\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command\n\n`/jjc-heat-restring` wraps this primitive with paddock ceremony:\n1. Calls jjx_draft\n2. Guides source paddock review (remove restrung context)\n3. Guides destination paddock review (add arriving context)\n4. Adds steeplechase entries to both heats\n5. Warns if source becomes empty\n\nNote: Different names (draft vs restring) because different scope — slash command adds significant ceremony.\n\n## Implementation\n\nRust file: Tools/vok/src (near jjx_rail, similar pace manipulation)"
+            },
+            {
+              "ts": "260115-1335",
+              "state": "rough",
+              "text": "Add jjx_draft primitive for moving paces between heats.\n\n## Command\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n## Behavior\n\n1. For each specified coronet (in order):\n   - Remove pace from source heat\n   - Assign new coronet with destination firemark\n   - Preserve all tack history\n   - Append to destination heat in specified order\n\n2. Return mapping: old coronet → new coronet\n\n## Validation\n\n- Destination heat must exist\n- Source heat must exist\n- All coronets must exist in source heat\n- Paces can be any state (rough, primed, complete, abandoned)\n\n## Example\n\n```bash\n# Draft JJK paces from AA to AB\nvvx jjx_draft AB AA ₢AAAAJ ₢AAAAM ₢AAAAL ₢AAAAK\n\n# Output:\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n₢AAAAK → ₢ABAAD\n```\n\n## Slash Command\n\n`/jjc-heat-draft` wraps this primitive and guides paddock maintenance:\n1. Calls jjx_draft\n2. Prompts to review/edit source paddock (remove drafted context)\n3. Prompts to review/edit destination paddock (add relevant context)\n4. Adds steeplechase entries to both heats recording the draft\n\n## Implementation\n\nRust file: Tools/vok/src (near jjx_rail, similar pace manipulation)"
+            }
+          ]
+        },
         "₢AAAAE": {
           "silks": "vvx-release-impl",
           "tacks": [
@@ -249,34 +110,18 @@
             }
           ]
         },
-        "₢AAAAA": {
-          "silks": "kit-asset-registry",
+        "₢AAAAF": {
+          "silks": "vvx-install-impl",
           "tacks": [
             {
               "ts": "260115-1247",
               "state": "rough",
-              "text": "Define KitAsset struct and registry pattern in Rust.\n\nEach kit declares its assets with:\n- `source_path`: Location in source repo (e.g., `Tools/buk/buc_command.sh`)\n- `install_path`: Location in target repo (e.g., `Tools/buk/buc_command.sh`)\n- Kit membership (which kit owns this asset)\n\nThe registry defines WHAT files belong to each kit and WHERE they install — but does NOT embed content. Content lives as plain text in the archive `kits/` directory.\n\nRelease process uses registry to:\n1. Know which files to copy from source tree to archive\n2. Organize files into `kits/{kit}/` structure\n\nInstall process uses registry to:\n1. Know where to read each file from archive `kits/` directory  \n2. Know where to write each file in target repo\n\nNo `include_str\\!()` — registry is metadata only."
+              "text": "Implement vvx install subcommand in Rust.\n\nRun from extracted archive directory:\n```bash\n./bin/vvx-darwin-arm64 install --target /path/to/repo\n```\n\nThe 7-step process:\n1. **Pre-install snapshot** — git commit if working tree dirty\n2. **Copy kit assets** — Read from archive `kits/` directory, write to install_path locations in target\n3. **Copy platform binaries** — Copy ALL sibling binaries from archive `bin/` to target `Tools/vvk/bin/`\n4. **Freshen CLAUDE.md** — Managed section markers (depends on claude-md-freshening pace)\n5. **Cleanup obsolete** — Remove files no longer in current release\n6. **Post-install commit** — git commit with version and kit list\n7. **Diff analysis** — Find previous install, diff, invoke Claude for recovery guidance\n\nKey: Install reads kit assets from archive filesystem, NOT from embedded content. Binary locates its archive context via path relative to itself.\n\nInstall is platform-agnostic: any platform binary can install everything.\n\nDepends on: kit-asset-registry, claude-md-freshening, version-manifest paces."
             },
             {
-              "ts": "260114-0954",
+              "ts": "260114-1058",
               "state": "rough",
-              "text": "Define KitAsset struct and registry pattern in Rust. Each kit declares its assets with source_path, install_path, and embedded content via include_str\\!(). No external manifest files - Rust structs own the knowledge of what files belong to each kit."
-            }
-          ]
-        },
-        "₢AAAAR": {
-          "silks": "jjd-slate-position-concepts",
-          "tacks": [
-            {
-              "ts": "260115-1443",
-              "state": "primed",
-              "text": "Update JJD-GallopsData.adoc with slate positioning concepts.\n\n## Purpose\n\nDocument --before/--after/--first positioning flags for jjx_slate before implementation.\n\n## Concepts to Add\n\n**Slate Positioning** — New pace can be inserted at specific position rather than always appending.\n\n- --before <coronet>: Insert before specified pace\n- --after <coronet>: Insert after specified pace  \n- --first: Insert at beginning of heat\n- Default (no flag): Append to end (backwards compatible)\n\n## Relationship to Rail\n\nRail reorders existing paces. Slate positioning inserts new pace at desired location. Different operations, same position vocabulary.\n\n## Sections to Update\n\n1. Operations section — Add positioning flags to jjx_slate entry\n2. Glossary — If needed for new terms\n\n## Reference\n\nImplementation pace: ₢AAAAQ slate-position-flags",
-              "direction": "Agent: haiku - Update JJD-GallopsData.adoc: add slate positioning concepts to Operations section, add glossary if needed"
-            },
-            {
-              "ts": "260115-1432",
-              "state": "rough",
-              "text": "Update JJD-GallopsData.adoc with slate positioning concepts.\n\n## Purpose\n\nDocument --before/--after/--first positioning flags for jjx_slate before implementation.\n\n## Concepts to Add\n\n**Slate Positioning** — New pace can be inserted at specific position rather than always appending.\n\n- --before <coronet>: Insert before specified pace\n- --after <coronet>: Insert after specified pace  \n- --first: Insert at beginning of heat\n- Default (no flag): Append to end (backwards compatible)\n\n## Relationship to Rail\n\nRail reorders existing paces. Slate positioning inserts new pace at desired location. Different operations, same position vocabulary.\n\n## Sections to Update\n\n1. Operations section — Add positioning flags to jjx_slate entry\n2. Glossary — If needed for new terms\n\n## Reference\n\nImplementation pace: ₢AAAAQ slate-position-flags"
+              "text": "Implement vvx install subcommand in Rust.\n\nThe 6-step process (see paddock Architecture section):\n1. Pre-install snapshot - git commit if working tree dirty\n2. Extract assets - write embedded kit files to install_path locations\n3. Freshen CLAUDE.md - managed section markers (depends on claude-md-freshening pace)\n4. Cleanup obsolete - remove files no longer in current release\n5. Post-install commit - git commit with version and kit list\n6. Diff analysis - find previous install, diff, invoke Claude for recovery guidance\n\nGit commit message formats:\n- Pre: [vvx:pre-install] Snapshot before {version}\n- Post: [vvx:install:{version}] {kit-list}\n\nDepends on: kit-asset-registry, claude-md-freshening, version-manifest paces."
             }
           ]
         },
@@ -315,6 +160,191 @@
             }
           ]
         },
+        "₢AAAAG": {
+          "silks": "claude-md-freshening",
+          "tacks": [
+            {
+              "ts": "260114-1058",
+              "state": "rough",
+              "text": "Implement CLAUDE.md managed section freshening in Rust.\n\nMarker format (see paddock):\n<!-- MANAGED:{KIT}:BEGIN -->\n...content from embedded template...\n<!-- MANAGED:{KIT}:END -->\n\nRules to implement:\n- Markers are authoritative - content between them replaced entirely\n- User content outside markers preserved\n- Order of managed sections follows kit installation order\n- Missing markers - append section at end of file\n\nEach kit has its CLAUDE.md section template embedded via include_str!().\n\nThis is a utility used by vvx-install-impl, may also be useful standalone for testing."
+            }
+          ]
+        },
+        "₢AAAAM": {
+          "silks": "jjx-parade-variants",
+          "tacks": [
+            {
+              "ts": "260115-1413",
+              "state": "rough",
+              "text": "Add output format modes to jjx_parade. Text output only — no JSON.\n\n## Design Philosophy\n\nSlash commands tell Claude what it needs to know without leaking internal structure. All parade output is human-readable text, formatted for purpose.\n\n## Flag\n\n`--format <mode>` where mode is one of:\n\n| Mode | Purpose | Output |\n|------|---------|--------|\n| `overview` | Quick status | One line per pace: `[state] silks (₢coronet)` |\n| `order` | Dependency check | Numbered: `N. [state] silks (₢coronet)` |\n| `detail` | Inspect one pace | Full tack text (requires --pace) |\n| `full` | Planning context | Paddock + all paces with tack text |\n\n## Default Behavior\n\nDefault to `full` if --format not specified. No JSON output mode.\n\n## --pace Flag\n\nRequired with `--format detail`. Error without it: \"--format detail requires --pace <coronet>\"\n\n## Output Examples\n\n`--format overview`:\n```\n[abandoned] vvw-workbench-tabtarget (₢AAAAC)\n[complete] install-arch-decision (₢AAAAI)\n[rough] vvx-push-rename (₢AAAAJ)\n```\n\n`--format order`:\n```\n1. [abandoned] vvw-workbench-tabtarget (₢AAAAC)\n2. [complete] install-arch-decision (₢AAAAI)\n3. [rough] vvx-push-rename (₢AAAAJ)\n```\n\n`--format detail --pace ₢AAAAJ`:\n```\nPace: vvx-push-rename (₢AAAAJ)\nState: rough\nHeat: ₣AA\n\nAdd vvx_push operation and rename commit to vvx_commit...\n[full tack text]\n```\n\nNote: Always include sigils (₣, ₢) in output.\n\n## Implementation\n\nRust file: Tools/vok/src (wherever jjx_parade is implemented)\nAdd Clap enum for format modes, match on mode to produce text output."
+            },
+            {
+              "ts": "260115-1312",
+              "state": "rough",
+              "text": "Add output format modes to jjx_parade for purpose-specific views.\n\n## New Flag\n\n`--format <mode>` where mode is one of:\n\n| Mode | Purpose | Output |\n|------|---------|--------|\n| `overview` | Quick status | One line per pace: `[state] silks (coronet)` |\n| `order` | Dependency check | Numbered list: `N. [state] silks (coronet)` |\n| `detail` | Inspect one pace | Full tack text (requires `--pace <coronet>`) |\n| `full` | Planning context | Paddock content + all paces with tack text |\n\n## Output Format\n\nText output, not JSON. Each mode produces human-readable (and Claude-readable) text that requires no parsing.\n\nExample `--format overview`:\n```\n[complete] install-arch-decision (₢AAAAI)\n[rough] vok-concept-model (₢AAAAD)\n[rough] rcg-establish (₢AAAAB)\n...\n```\n\nExample `--format order`:\n```\n1. [complete] install-arch-decision (₢AAAAI)\n2. [rough] vok-concept-model (₢AAAAD)\n3. [rough] rcg-establish (₢AAAAB)\n...\n```\n\nExample `--format detail --pace ₢AAAAD`:\n```\nPace: vok-concept-model (₢AAAAD)\nState: rough\n\nCreate MCM-style concept model for VOK release/install system...\n[full tack text]\n```\n\n## Default Behavior\n\nIf `--format` not specified, default to current JSON behavior for backwards compatibility (or change default to `full`?).\n\n## Implementation\n\nRust file: Tools/vok/src (wherever jjx_parade is implemented)\n\nAdd Clap enum for format modes, match on mode to produce appropriate output.\n\n## Why This Matters\n\nSlash commands will wrap these modes. Claude picks the right slash command by name/description, never sees raw JSON, never needs to parse output."
+            }
+          ]
+        },
+        "₢AAAAQ": {
+          "silks": "slate-position-flags",
+          "tacks": [
+            {
+              "ts": "260115-1444",
+              "state": "primed",
+              "text": "Add --before/--after positioning flags to jjx_slate.\n\n## Current Behavior\n\n`jjx_slate` always appends new pace to end of heat. Must follow with `jjx_rail` to reposition.\n\n## Proposed Enhancement\n\n```bash\nvvx jjx_slate ₣AA --silks 'new-pace' --before ₢AAAAJ <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --after ₢AAAAK <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --first <<< \"tack\"\n```\n\nWithout position flag: append to end (current behavior, backwards compatible).\n\n## Implementation\n\nSame Clap pattern as rail-move-semantics (₢AAAAK). Can share validation logic.\n\n## Scope\n\n- jjx_slate: YES — add position flags\n- jjx_reslate: NO — reslate updates tack, doesn't change position. Position is jjx_rail's job.\n\n## Files\n\nTools/vok/src (wherever jjx_slate is implemented)",
+              "direction": "Agent: sonnet - Add --before/--after/--first flags to jjx_slate in Tools/vok/src, follow Clap pattern from rail-move-semantics"
+            },
+            {
+              "ts": "260115-1431",
+              "state": "rough",
+              "text": "Add --before/--after positioning flags to jjx_slate.\n\n## Current Behavior\n\n`jjx_slate` always appends new pace to end of heat. Must follow with `jjx_rail` to reposition.\n\n## Proposed Enhancement\n\n```bash\nvvx jjx_slate ₣AA --silks 'new-pace' --before ₢AAAAJ <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --after ₢AAAAK <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --first <<< \"tack\"\n```\n\nWithout position flag: append to end (current behavior, backwards compatible).\n\n## Implementation\n\nSame Clap pattern as rail-move-semantics (₢AAAAK). Can share validation logic.\n\n## Scope\n\n- jjx_slate: YES — add position flags\n- jjx_reslate: NO — reslate updates tack, doesn't change position. Position is jjx_rail's job.\n\n## Files\n\nTools/vok/src (wherever jjx_slate is implemented)"
+            }
+          ]
+        },
+        "₢AAAAJ": {
+          "silks": "vvx-push-rename",
+          "tacks": [
+            {
+              "ts": "260115-1424",
+              "state": "primed",
+              "text": "Confirmed scope.",
+              "direction": "Rename-commit-to-vvx_commit-and-add-vvx_push-following-lock-pattern"
+            },
+            {
+              "ts": "260115-1412",
+              "state": "rough",
+              "text": "Add vvx_push operation and rename commit to vvx_commit.\n\n## Scope: Rust Only\n\nThis pace modifies Rust code. Slash command updates are handled by slash-command-modernize.\n\n## Changes\n\n1. **Rename subcommand**: `commit` → `vvx_commit`\n2. **Add subcommand**: `vvx_push`\n\n## vvx_push Behavior (Simple)\n\n- Acquire lock (refs/vvg/locks/vvx)\n- Run `git push` to origin/current-branch\n- Release lock\n- Report success/failure\n\nNo configuration flags. Simple push to origin. Add flexibility later if needed.\n\n## Naming Rationale\n\nvvx subcommands follow prefix discipline:\n- `jjx_*` for JJ operations\n- `vvx_*` for VVK core operations\n- `guard` stays as-is (standalone utility)\n\n## Files to Modify\n\n- Tools/vok/src/vorm_main.rs (subcommand dispatch)\n- Tools/vok/src/vorc_commit.rs (keep filename, command becomes vvx_commit)\n- Add new file for vvx_push (e.g., vorc_push.rs or similar)\n\n## NOT in Scope\n\nSlash command updates — handled by slash-command-modernize (₢AAAAL)."
+            },
+            {
+              "ts": "260114-1107",
+              "state": "rough",
+              "text": "Add vvx_push operation and rename commit to vvx_commit for naming clarity.\n\nChanges:\n1. Rename 'vvx commit' to 'vvx vvx_commit' (matches jjx_* naming pattern)\n2. Add 'vvx vvx_push' operation - guarded push with lock\n\nvvx_push responsibilities:\n- Acquire lock (refs/vvg/locks/vvx)\n- Run git push (with configurable remote/branch?)\n- Release lock\n\nNaming rationale: vvx subcommands should follow prefix discipline.\n- jjx_* for JJ operations (jjx_muster, jjx_saddle, etc.)\n- vvx_* for VVK core operations (vvx_commit, vvx_push)\n- guard stays as-is (it's a standalone utility)\n\nFiles to update:\n- Tools/vok/src/vorm_main.rs (subcommand dispatch)\n- Tools/vok/src/vorc_commit.rs (or rename file?)\n- All slash commands referencing 'vvx commit'\n- vvc-commit.md slash command"
+            }
+          ]
+        },
+        "₢AAAAS": {
+          "silks": "bul-launcher-refactor",
+          "tacks": [
+            {
+              "ts": "260115-1518",
+              "state": "complete",
+              "text": "Moved launcher infrastructure to Tools/buk/bul_launcher.sh. BURC exports consolidated into zburc_kindle() for module cohesion. All 10 launcher stubs updated and verified."
+            },
+            {
+              "ts": "260115-1509",
+              "state": "primed",
+              "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)",
+              "direction": "Agent: sonnet\n\n## File Operations\n1. Create Tools/buk/bul_launcher.sh from .buk/launcher_common.sh\n2. Update .buk/launcher.*.sh stubs to use relative path: source \"${BASH_SOURCE[0]%/*}/../Tools/buk/bul_launcher.sh\"\n3. Delete .buk/launcher_common.sh after verification\n\n## Export Decisions\n- BURC_TABTARGET_DIR, BURC_TOOLS_DIR → move to zburc_kindle() in burc_regime.sh\n- BUD_REGIME_FILE, BUD_STATION_FILE → keep in bul_launcher.sh (dispatch context, set before kindle)\n\n## Verification\n- Run tt/vow-r.RunVVX.sh --help to verify tabtarget chain works\n- Run one BUK tabtarget (e.g., tt/buw-tt-ll.ListLaunchers.sh) to verify full path\n\n## BCG Notes\n- bul_launcher.sh is NOT a full BCG module (no kindle/sentinel) - it's bootstrap infrastructure\n- Add standard copyright header and guard against multiple inclusion"
+            },
+            {
+              "ts": "260115-1454",
+              "state": "primed",
+              "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)",
+              "direction": "Agent: sonnet\n\n## File Operations\n1. Create Tools/buk/bul_launcher.sh from .buk/launcher_common.sh\n2. Update .buk/launcher.*.sh stubs to use relative path: source \"${BASH_SOURCE[0]%/*}/../Tools/buk/bul_launcher.sh\"\n3. Delete .buk/launcher_common.sh after verification\n\n## Export Decisions\n- BURC_TABTARGET_DIR, BURC_TOOLS_DIR → move to zburc_kindle() in burc_regime.sh\n- BUD_REGIME_FILE, BUD_STATION_FILE → keep in bul_launcher.sh (dispatch context, set before kindle)\n\n## Verification\n- Run tt/vow-r.RunVVX.sh --help to verify tabtarget chain works\n- Run one BUK tabtarget (e.g., tt/buw-tt-ll.ListLaunchers.sh) to verify full path\n\n## BCG Notes\n- bul_launcher.sh is NOT a full BCG module (no kindle/sentinel) - it's bootstrap infrastructure\n- Add standard copyright header and guard against multiple inclusion"
+            },
+            {
+              "ts": "260115-1449",
+              "state": "rough",
+              "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)"
+            }
+          ]
+        },
+        "₢AAAAB": {
+          "silks": "rcg-establish",
+          "tacks": [
+            {
+              "ts": "260114-1028",
+              "state": "rough",
+              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md. Note: RCG will be comparatively skimpy vs BCG - trusting more of Claude's inherent Rust idioms; focus only on project-specific conventions."
+            },
+            {
+              "ts": "260114-1026",
+              "state": "rough",
+              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md."
+            },
+            {
+              "ts": "260114-1025",
+              "state": "rough",
+              "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section."
+            }
+          ]
+        },
+        "₢AAAAH": {
+          "silks": "version-manifest",
+          "tacks": [
+            {
+              "ts": "260114-1058",
+              "state": "rough",
+              "text": "Design and implement version manifest for tracking installed kits.\n\nProposed location: .claude/vvx-manifest.json\n\nSchema (see paddock):\n{\n  \"version\": \"260115-1430\",    // Release version\n  \"installed\": \"260115-1823\",  // Install timestamp\n  \"commit\": \"abc123def\",       // Git commit of install\n  \"kits\": [\"jjk\", \"buk\", \"cmk\", \"vok\"]\n}\n\nUsed by:\n- Diff analysis (find previous install commit)\n- vvx --version to show installed version\n- Future upgrade logic\n\nOpen decision: Confirm .claude/ as location vs Tools/vok/."
+            }
+          ]
+        },
+        "₢AAAAA": {
+          "silks": "kit-asset-registry",
+          "tacks": [
+            {
+              "ts": "260115-1247",
+              "state": "rough",
+              "text": "Define KitAsset struct and registry pattern in Rust.\n\nEach kit declares its assets with:\n- `source_path`: Location in source repo (e.g., `Tools/buk/buc_command.sh`)\n- `install_path`: Location in target repo (e.g., `Tools/buk/buc_command.sh`)\n- Kit membership (which kit owns this asset)\n\nThe registry defines WHAT files belong to each kit and WHERE they install — but does NOT embed content. Content lives as plain text in the archive `kits/` directory.\n\nRelease process uses registry to:\n1. Know which files to copy from source tree to archive\n2. Organize files into `kits/{kit}/` structure\n\nInstall process uses registry to:\n1. Know where to read each file from archive `kits/` directory  \n2. Know where to write each file in target repo\n\nNo `include_str\\!()` — registry is metadata only."
+            },
+            {
+              "ts": "260114-0954",
+              "state": "rough",
+              "text": "Define KitAsset struct and registry pattern in Rust. Each kit declares its assets with source_path, install_path, and embedded content via include_str\\!(). No external manifest files - Rust structs own the knowledge of what files belong to each kit."
+            }
+          ]
+        },
+        "₢AAAAR": {
+          "silks": "jjd-slate-position-concepts",
+          "tacks": [
+            {
+              "ts": "260115-1523",
+              "state": "complete",
+              "text": "Added --before/--after/--first positioning flags to JJD-GallopsData.adoc. Updated jjx_slate operation with positioning arguments, mutual exclusivity rules, and insertion behavior."
+            },
+            {
+              "ts": "260115-1443",
+              "state": "primed",
+              "text": "Update JJD-GallopsData.adoc with slate positioning concepts.\n\n## Purpose\n\nDocument --before/--after/--first positioning flags for jjx_slate before implementation.\n\n## Concepts to Add\n\n**Slate Positioning** — New pace can be inserted at specific position rather than always appending.\n\n- --before <coronet>: Insert before specified pace\n- --after <coronet>: Insert after specified pace  \n- --first: Insert at beginning of heat\n- Default (no flag): Append to end (backwards compatible)\n\n## Relationship to Rail\n\nRail reorders existing paces. Slate positioning inserts new pace at desired location. Different operations, same position vocabulary.\n\n## Sections to Update\n\n1. Operations section — Add positioning flags to jjx_slate entry\n2. Glossary — If needed for new terms\n\n## Reference\n\nImplementation pace: ₢AAAAQ slate-position-flags",
+              "direction": "Agent: haiku - Update JJD-GallopsData.adoc: add slate positioning concepts to Operations section, add glossary if needed"
+            },
+            {
+              "ts": "260115-1432",
+              "state": "rough",
+              "text": "Update JJD-GallopsData.adoc with slate positioning concepts.\n\n## Purpose\n\nDocument --before/--after/--first positioning flags for jjx_slate before implementation.\n\n## Concepts to Add\n\n**Slate Positioning** — New pace can be inserted at specific position rather than always appending.\n\n- --before <coronet>: Insert before specified pace\n- --after <coronet>: Insert after specified pace  \n- --first: Insert at beginning of heat\n- Default (no flag): Append to end (backwards compatible)\n\n## Relationship to Rail\n\nRail reorders existing paces. Slate positioning inserts new pace at desired location. Different operations, same position vocabulary.\n\n## Sections to Update\n\n1. Operations section — Add positioning flags to jjx_slate entry\n2. Glossary — If needed for new terms\n\n## Reference\n\nImplementation pace: ₢AAAAQ slate-position-flags"
+            }
+          ]
+        },
+        "₢AAAAC": {
+          "silks": "vvw-workbench-tabtarget",
+          "tacks": [
+            {
+              "ts": "260115-1259",
+              "state": "abandoned",
+              "text": "Superseded by consolidated slash-command-modernize pace. Rationale: avoid multiple touches across files in multiple paces; one pace handles vocabulary coherence + passthrough + new command names together."
+            },
+            {
+              "ts": "260114-1108",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations.\n\nNOTE: By this point, vvx-push-rename pace will have renamed 'commit' to 'vvx_commit'. Use the NEW names in slash commands:\n- vvx vvx_commit (not vvx commit)\n- vvx vvx_push (new)\n\nFiles to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md (update to use vvx_commit)\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1053",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-heat-rail.md (NEW)\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1049",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nUpdate CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nALSO: Revise ALL JJK slash commands to use the new ./tt/vvw-r.RunVVX.sh passthrough instead of bare 'vvx' calls. This consolidates permissions - one grant covers all vvx operations. Files to update:\n- .claude/commands/jjc-heat-saddle.md\n- .claude/commands/jjc-heat-parade.md\n- .claude/commands/jjc-heat-chalk.md\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-wrap.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-pace-prime.md\n- .claude/commands/vvc-commit.md\n- Tools/jjk/commands/*.md (source copies)\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            },
+            {
+              "ts": "260114-1046",
+              "state": "rough",
+              "text": "Create VVW workbench with passthrough tabtarget for consolidated vvx permissions.\n\nFiles to create:\n- Tools/vvk/vvw_workbench.sh - routes vvw-* colophons\n- Tools/vvk/vvb_bash.sh - bash utilities (if needed)\n- Tools/vvk/vvb_cli.sh - CLI routing\n\nTabtarget to create:\n- tt/vvw-r.RunVVX.sh - passthrough to ./Tools/vvk/bin/vvx\n\nIMPORTANT: Use buw-tt-cl (CreateLauncher) and buw-tt-cbn (CreateTabTargetBatchNolog) operations to create launcher and tabtarget infrastructure. Do NOT hand-write these files.\n\nAlso update CLAUDE.md BUK Concepts section to add instructions directing Claude to use buw-tt-* operations when creating new tabtargets/launchers rather than hand-writing them.\n\nReference existing patterns:\n- Tools/vok/vow_workbench.sh for workbench structure\n- tt/vow-r.RunVVX.sh for passthrough pattern (but point to vvk/bin/vvx not vok/target)"
+            }
+          ]
+        },
         "₢AAAAD": {
           "silks": "vok-concept-model",
           "tacks": [
@@ -335,63 +365,38 @@
             }
           ]
         },
-        "₢AAAAO": {
-          "silks": "jjd-draft-concepts",
+        "₢AAAAI": {
+          "silks": "install-arch-decision",
           "tacks": [
             {
-              "ts": "260115-1417",
-              "state": "rough",
-              "text": "Update JJD-GallopsData.adoc with draft operation concepts.\n\n## Purpose\n\nEstablish authoritative definitions for draft and restring operations. Implementation paces (₢AAAAN jjx-draft) reference these definitions.\n\n## Concepts to Define\n\n### Draft\n\nThe operation of moving paces from one heat to another.\n\n- Draft moves paces between heats\n- Draft reassigns coronets (new firemark, new local ID)\n- Draft preserves all tack history\n- Draft does NOT change pace state (rough stays rough, complete stays complete)\n- Draft is a primitive operation — mechanical, no ceremony\n\n### Restring\n\nThe guided workflow for drafting paces with paddock ceremony.\n\n- Restring calls draft primitive\n- Restring guides paddock updates on both heats\n- Restring adds steeplechase entries\n- Restring warns about empty source heat\n- Restring is a slash command ceremony, not a primitive\n\n### Coronet Reassignment\n\nWhen a pace is drafted:\n- Old coronet becomes invalid\n- New coronet assigned using destination heat seed\n- Format: destination firemark + allocated local ID\n- Tack history includes \"Drafted from ₢{old} in ₣{source}\"\n\n## NOT a State\n\n\"Drafted\" is NOT a pace state. Pace states remain: rough, primed, complete, abandoned.\nDraft is an operation/event that moves paces. State is preserved through the move.\n\n## Sections to Update in JJD\n\n1. **Operations** — Add jjx_draft alongside jjx_rail, jjx_slate, etc.\n2. **Coronet** — Document reassignment during draft\n3. **Glossary** — Add draft, restring, coronet reassignment\n\n## AXLA Annotations\n\n- `{jjd_draft}` — the draft operation\n- `{jjd_restring}` — the restring ceremony\n\n## Scope\n\nThis pace updates JJD concept model only. Slash command design is separate (handled by jjx-draft pace)."
+              "ts": "260115-1249",
+              "state": "complete",
+              "text": "Resolved via paddock discussion 2026-01-15. Decision: archive-based asset model with plain text kit assets in kits/ directory, lean binaries with install logic only."
             },
             {
-              "ts": "260115-1341",
+              "ts": "260115-1247",
               "state": "rough",
-              "text": "Update JJD-GallopsData.adoc with draft operation concepts.\n\n## New Concepts to Document\n\n**Draft** — Moving paces from one heat to another, reassigning coronets while preserving tack history. The primitive operation.\n\n**Restring** — The guided workflow for drafting paces, including paddock ceremony (reviewing/updating both paddocks, adding steeplechase entries).\n\n**Coronet Reassignment** — When a pace moves heats, its coronet changes to reflect new firemark. Old coronet becomes invalid. Tack history transfers intact.\n\n## Naming Discipline\n\n- Primitive: `jjx_draft` — mechanical operation\n- Slash command: `/jjc-heat-restring` — guided workflow with paddock ceremony\n\nDifferent names because different scope. Restring adds significant ceremony around the primitive.\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n- Both heats must exist\n- Moves paces, reassigns coronets\n- Preserves tack history\n- Returns old→new coronet mapping\n\n## Slash Command: /jjc-heat-restring\n\n1. Calls jjx_draft\n2. Guides source paddock review (remove context for restrung paces)\n3. Guides destination paddock review (add context for arriving paces)\n4. Adds steeplechase entries to both heats\n5. Warns if source becomes empty (suggests retire, does not auto-act)\n\n## Workflow\n\n```bash\n# Create destination heat if needed\n/jjc-heat-nominate --silks \"jjk-command-refinement\"\n\n# Restring paces with ceremony\n/jjc-heat-restring <dest> <source> <paces...>\n```\n\n## Sections to Update in JJD\n\n1. Operations section — Add jjx_draft\n2. Coronet section — Document reassignment during draft\n3. Pace lifecycle — Add \"drafted\" as transition\n4. Glossary — Add draft, restring terms\n\n## AXLA Annotations\n\n- `{jjd_draft}` — the draft operation\n- `{jjd_restring}` — the guided restring workflow"
+              "text": "Document resolved install architecture decision.\n\nThis pace was resolved via paddock discussion (see Steeplechase 2026-01-15).\n\n**Decision**: Archive-based asset model with plain text kit assets.\n\nKey points captured in paddock Architecture section:\n- Archive is the distribution unit (not self-contained binaries)\n- Kit assets are plain text in `kits/` directory\n- Lean binaries contain install logic only, no embedded content\n- Any platform binary can perform full install\n\nNo implementation work needed — decision is documented. Mark complete when paddock is reviewed and confirmed accurate."
             },
             {
-              "ts": "260115-1335",
+              "ts": "260114-1102",
               "state": "rough",
-              "text": "Update JJD-GallopsData.adoc with draft operation concepts.\n\n## New Concepts to Document\n\n**Draft** — Moving paces from one heat to another, reassigning coronets while preserving tack history.\n\n**Coronet Reassignment** — When a pace moves heats, its coronet changes to reflect new firemark. Old coronet becomes invalid. Tack history transfers intact.\n\n**Cross-Heat Operation** — Operations that span two heats (draft is the first). Requires both heats to exist.\n\n## Sections to Add/Update\n\n1. **Operations section** — Add jjx_draft alongside jjx_rail, jjx_slate, etc.\n\n2. **Coronet section** — Document that coronets are heat-scoped and can be reassigned during draft.\n\n3. **Pace lifecycle** — Add \"drafted\" as a transition (pace leaves heat, enters another).\n\n## AXLA Annotations\n\nAdd appropriate annotations for new terms:\n- `{jjd_draft}` — the draft operation\n- `{jjd_coronet_reassignment}` — coronet change during draft\n\n## Reference\n\n- Current JJD: Tools/jjk/JJD-GallopsData.adoc\n- MCM patterns: Tools/cmk/MCM-MetaConceptModel.adoc\n\n## Why Before Implementation\n\nConcept model guides implementation. Documenting draft semantics in JJD ensures the Rust implementation matches the conceptual design."
+              "text": "Resolve install architecture: static copy vs config-aware deployment.\n\nKey question: Is install just 'copy files to fixed paths' or does it need to adapt to target repo configuration (burc.env)?\n\nWhat might vary per target repo:\n- Paths in slash commands (where is vvx binary?)\n- CLAUDE.md structure/location\n- Kit-specific settings from burc.env\n- Tabtarget launcher paths\n\nOptions to evaluate:\n1. Static install - target repos must conform to expected structure\n2. Config-aware install (arcanum pattern in Rust) - reads burc.env, adapts content\n3. Hybrid - most content static, slash commands get path templating\n\nThis decision affects:\n- kit-asset-registry design (static content vs templates?)\n- vvx-install-impl (copy vs transform?)\n- Whether 'arcanums eliminated' holds or needs revision\n\nDeliverable: Clear decision documented in paddock, possibly reflected in MCM concept model."
             }
           ]
         },
-        "₢AAAAM": {
-          "silks": "jjx-parade-variants",
+        "₢AAAAK": {
+          "silks": "rail-move-semantics",
           "tacks": [
             {
               "ts": "260115-1413",
               "state": "rough",
-              "text": "Add output format modes to jjx_parade. Text output only — no JSON.\n\n## Design Philosophy\n\nSlash commands tell Claude what it needs to know without leaking internal structure. All parade output is human-readable text, formatted for purpose.\n\n## Flag\n\n`--format <mode>` where mode is one of:\n\n| Mode | Purpose | Output |\n|------|---------|--------|\n| `overview` | Quick status | One line per pace: `[state] silks (₢coronet)` |\n| `order` | Dependency check | Numbered: `N. [state] silks (₢coronet)` |\n| `detail` | Inspect one pace | Full tack text (requires --pace) |\n| `full` | Planning context | Paddock + all paces with tack text |\n\n## Default Behavior\n\nDefault to `full` if --format not specified. No JSON output mode.\n\n## --pace Flag\n\nRequired with `--format detail`. Error without it: \"--format detail requires --pace <coronet>\"\n\n## Output Examples\n\n`--format overview`:\n```\n[abandoned] vvw-workbench-tabtarget (₢AAAAC)\n[complete] install-arch-decision (₢AAAAI)\n[rough] vvx-push-rename (₢AAAAJ)\n```\n\n`--format order`:\n```\n1. [abandoned] vvw-workbench-tabtarget (₢AAAAC)\n2. [complete] install-arch-decision (₢AAAAI)\n3. [rough] vvx-push-rename (₢AAAAJ)\n```\n\n`--format detail --pace ₢AAAAJ`:\n```\nPace: vvx-push-rename (₢AAAAJ)\nState: rough\nHeat: ₣AA\n\nAdd vvx_push operation and rename commit to vvx_commit...\n[full tack text]\n```\n\nNote: Always include sigils (₣, ₢) in output.\n\n## Implementation\n\nRust file: Tools/vok/src (wherever jjx_parade is implemented)\nAdd Clap enum for format modes, match on mode to produce text output."
+              "text": "Add move semantics to jjx_rail for easier pace reordering.\n\n## Current Syntax (Retained)\n\nList ALL coronets in new order:\n```bash\nvvx jjx_rail ₣AA ₢AAAAI ₢AAAAD ₢AAAAB ...\n```\n\n## New Syntax: Relative Move\n\n```bash\nvvx jjx_rail ₣AA --move ₢AAAAJ --before ₢AAAAC\nvvx jjx_rail ₣AA --move ₢AAAAJ --after ₢AAAAB\nvvx jjx_rail ₣AA --move ₢AAAAJ --first\nvvx jjx_rail ₣AA --move ₢AAAAJ --last\n```\n\n## Validation Rules (Strict)\n\n| Condition | Result |\n|-----------|--------|\n| `--move` without position flag | Error: \"--move requires --before, --after, --first, or --last\" |\n| `--before` AND `--after` | Error: \"Cannot specify both --before and --after\" |\n| `--move X --before X` | Error: \"Cannot move pace before itself\" |\n| `--move X --after X` | Error: \"Cannot move pace after itself\" |\n| Move to current position | No-op, success (already in position) |\n| Unknown coronet | Error: \"Pace not found: ₢XXXXX\" |\n\n## Implementation\n\n- Add --move, --before, --after, --first, --last flags to Clap args\n- If --move provided, compute new order from current + operation\n- Validate as above\n- Write new order to gallops\n- Output new order (--format order style)\n\nRust file: Tools/vok/src (wherever jjx_rail is implemented)\n\n## Slash Command\n\nUpdate /jjc-heat-rail to document both syntaxes."
             },
             {
-              "ts": "260115-1312",
+              "ts": "260114-1121",
               "state": "rough",
-              "text": "Add output format modes to jjx_parade for purpose-specific views.\n\n## New Flag\n\n`--format <mode>` where mode is one of:\n\n| Mode | Purpose | Output |\n|------|---------|--------|\n| `overview` | Quick status | One line per pace: `[state] silks (coronet)` |\n| `order` | Dependency check | Numbered list: `N. [state] silks (coronet)` |\n| `detail` | Inspect one pace | Full tack text (requires `--pace <coronet>`) |\n| `full` | Planning context | Paddock content + all paces with tack text |\n\n## Output Format\n\nText output, not JSON. Each mode produces human-readable (and Claude-readable) text that requires no parsing.\n\nExample `--format overview`:\n```\n[complete] install-arch-decision (₢AAAAI)\n[rough] vok-concept-model (₢AAAAD)\n[rough] rcg-establish (₢AAAAB)\n...\n```\n\nExample `--format order`:\n```\n1. [complete] install-arch-decision (₢AAAAI)\n2. [rough] vok-concept-model (₢AAAAD)\n3. [rough] rcg-establish (₢AAAAB)\n...\n```\n\nExample `--format detail --pace ₢AAAAD`:\n```\nPace: vok-concept-model (₢AAAAD)\nState: rough\n\nCreate MCM-style concept model for VOK release/install system...\n[full tack text]\n```\n\n## Default Behavior\n\nIf `--format` not specified, default to current JSON behavior for backwards compatibility (or change default to `full`?).\n\n## Implementation\n\nRust file: Tools/vok/src (wherever jjx_parade is implemented)\n\nAdd Clap enum for format modes, match on mode to produce appropriate output.\n\n## Why This Matters\n\nSlash commands will wrap these modes. Claude picks the right slash command by name/description, never sees raw JSON, never needs to parse output."
-            }
-          ]
-        },
-        "₢AAAAN": {
-          "silks": "jjx-draft",
-          "tacks": [
-            {
-              "ts": "260115-1417",
-              "state": "rough",
-              "text": "Implement jjx_draft primitive and /jjc-heat-restring slash command.\n\n## Reference\n\nImplements concepts defined in JJD-GallopsData.adoc (see jjd-draft-concepts pace ₢AAAAO):\n- {jjd_draft} — pace movement operation\n- {jjd_restring} — ceremony workflow\n- Coronet reassignment semantics\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft ₣<dest> ₣<source> ₢<coronet> [₢<coronet>...]\n```\n\n### Behavior (per JJD)\n\n1. Validate: both heats exist, all coronets exist in source\n2. For each coronet (in order):\n   - Remove pace from source heat\n   - Allocate new coronet using destination heat seed\n   - Copy all tacks to new pace\n   - Add tack entry: \"Drafted from ₢{old} in ₣{source}\"\n   - Preserve pace state (draft does NOT change state)\n   - Append to destination heat\n3. Return mapping: old coronet → new coronet\n\n### Atomicity\n\nAll-or-nothing per JJD definition.\n\n### Example\n\n```bash\nvvx jjx_draft ₣AB ₣AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command: /jjc-heat-restring\n\nCreate `.claude/commands/jjc-heat-restring.md` implementing {jjd_restring} ceremony:\n\n1. Call jjx_draft primitive\n2. Guide source paddock review\n3. Guide destination paddock review\n4. Add steeplechase entries to both heats\n5. Warn if source becomes empty\n6. Auto-commit: \"Restring: {N} paces ₣{src} → ₣{dest}\"\n\n## Implementation\n\nRust: Tools/vok/src (near jjx_rail)\nSlash command: .claude/commands/jjc-heat-restring.md\n\n## Dependency\n\nRequires jjd-draft-concepts (₢AAAAO) complete first — definitions must exist before implementation."
-            },
-            {
-              "ts": "260115-1414",
-              "state": "rough",
-              "text": "Add jjx_draft primitive and /jjc-heat-restring slash command.\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n### Behavior\n\n1. Validate: both heats exist, all coronets exist in source\n2. For each coronet (in order):\n   - Remove pace from source heat\n   - Allocate new coronet using destination heat seed (simplest approach)\n   - Copy all tacks to new pace\n   - Add tack entry: \"Drafted from ₢{old} in ₣{source}\"\n   - Preserve pace state (rough/primed/complete/abandoned)\n   - Append to destination heat\n3. Return mapping: old coronet → new coronet\n\n### Atomicity\n\nAll-or-nothing. If any operation fails:\n- Abort entirely\n- Leave both heats in original state\n- Report error\n\n### Example\n\n```bash\nvvx jjx_draft ₣AB ₣AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n# Output:\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command: /jjc-heat-restring\n\nCreate `.claude/commands/jjc-heat-restring.md`:\n\n```markdown\nRestring paces from one heat to another with paddock ceremony.\n\nArguments: <dest> <source> <paces...>\n\n1. Call jjx_draft primitive\n2. Guide source paddock review (remove restrung context)\n3. Guide destination paddock review (add arriving context)\n4. Add steeplechase entries to both heats\n5. Warn if source becomes empty (suggest retire)\n6. Auto-commit with guarded commit: \"Restring: {N} paces ₣{src} → ₣{dest}\"\n```\n\n## Implementation\n\nRust: Tools/vok/src (near jjx_rail)\nSlash command: .claude/commands/jjc-heat-restring.md"
-            },
-            {
-              "ts": "260115-1341",
-              "state": "rough",
-              "text": "Add jjx_draft primitive for moving paces between heats.\n\n## Command\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n## Behavior\n\n1. For each specified coronet (in order):\n   - Remove pace from source heat\n   - Assign new coronet with destination firemark\n   - Preserve all tack history\n   - Append to destination heat in specified order\n\n2. Return mapping: old coronet → new coronet\n\n## Validation\n\n- Destination heat must exist\n- Source heat must exist\n- All coronets must exist in source heat\n- Paces can be any state (rough, primed, complete, abandoned)\n\n## Example\n\n```bash\nvvx jjx_draft AB AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n# Output:\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command\n\n`/jjc-heat-restring` wraps this primitive with paddock ceremony:\n1. Calls jjx_draft\n2. Guides source paddock review (remove restrung context)\n3. Guides destination paddock review (add arriving context)\n4. Adds steeplechase entries to both heats\n5. Warns if source becomes empty\n\nNote: Different names (draft vs restring) because different scope — slash command adds significant ceremony.\n\n## Implementation\n\nRust file: Tools/vok/src (near jjx_rail, similar pace manipulation)"
-            },
-            {
-              "ts": "260115-1335",
-              "state": "rough",
-              "text": "Add jjx_draft primitive for moving paces between heats.\n\n## Command\n\n```bash\nvvx jjx_draft <dest-firemark> <source-firemark> <coronet> [<coronet>...]\n```\n\n## Behavior\n\n1. For each specified coronet (in order):\n   - Remove pace from source heat\n   - Assign new coronet with destination firemark\n   - Preserve all tack history\n   - Append to destination heat in specified order\n\n2. Return mapping: old coronet → new coronet\n\n## Validation\n\n- Destination heat must exist\n- Source heat must exist\n- All coronets must exist in source heat\n- Paces can be any state (rough, primed, complete, abandoned)\n\n## Example\n\n```bash\n# Draft JJK paces from AA to AB\nvvx jjx_draft AB AA ₢AAAAJ ₢AAAAM ₢AAAAL ₢AAAAK\n\n# Output:\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n₢AAAAK → ₢ABAAD\n```\n\n## Slash Command\n\n`/jjc-heat-draft` wraps this primitive and guides paddock maintenance:\n1. Calls jjx_draft\n2. Prompts to review/edit source paddock (remove drafted context)\n3. Prompts to review/edit destination paddock (add relevant context)\n4. Adds steeplechase entries to both heats recording the draft\n\n## Implementation\n\nRust file: Tools/vok/src (near jjx_rail, similar pace manipulation)"
+              "text": "Add move semantics to jjx_rail for easier pace reordering.\n\nCurrent: must list ALL coronets in new order\n  vvx jjx_rail AA ₢AAAAI ₢AAAAD ₢AAAAB ₢AAAAJ ₢AAAAC ...\n\nProposed: relative move operations\n  vvx jjx_rail AA --move ₢AAAAJ --before ₢AAAAC\n  vvx jjx_rail AA --move ₢AAAAJ --after ₢AAAAB\n  vvx jjx_rail AA --move ₢AAAAJ --first\n  vvx jjx_rail AA --move ₢AAAAJ --last\n\nImplementation:\n- Add --move, --before, --after, --first, --last flags to Clap args\n- If --move provided, compute new order from current + operation\n- Validate result same as current validation\n- Existing positional coronet list still works (backwards compatible)\n\nUpdate /jjc-heat-rail slash command to document both syntaxes.\n\nRust file: Tools/vok/src (wherever jjx_rail is implemented - check JJK veiled)"
             }
           ]
         }
