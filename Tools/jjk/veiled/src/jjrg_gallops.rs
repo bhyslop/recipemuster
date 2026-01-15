@@ -441,6 +441,12 @@ pub struct SlateArgs {
     pub firemark: String,
     pub silks: String,
     pub text: String,
+    /// Coronet to insert before (mutually exclusive with after/first)
+    pub before: Option<String>,
+    /// Coronet to insert after (mutually exclusive with before/first)
+    pub after: Option<String>,
+    /// Insert at beginning (mutually exclusive with before/after)
+    pub first: bool,
 }
 
 /// Result of the slate operation
@@ -523,6 +529,7 @@ impl Gallops {
     /// Slate a new Pace
     ///
     /// Adds a new Pace to a Heat with an initial Tack in rough state.
+    /// Positioning: use before/after/first to insert at specific location.
     pub fn slate(&mut self, args: SlateArgs) -> Result<SlateResult, String> {
         // Validate silks is kebab-case
         if !is_kebab_case(&args.silks) {
@@ -534,6 +541,15 @@ impl Gallops {
             return Err("text must not be empty".to_string());
         }
 
+        // Validate positioning mutual exclusivity
+        let position_count = [args.before.is_some(), args.after.is_some(), args.first]
+            .iter()
+            .filter(|&&x| x)
+            .count();
+        if position_count > 1 {
+            return Err("Only one of --before, --after, or --first may be specified".to_string());
+        }
+
         // Parse and normalize firemark
         let firemark = Firemark::parse(&args.firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
@@ -542,6 +558,27 @@ impl Gallops {
         // Verify Heat exists
         let heat = self.heats.get_mut(&firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // If --before or --after specified, validate target coronet exists
+        let insert_position = if let Some(ref before_str) = args.before {
+            let target = Coronet::parse(before_str)
+                .map_err(|e| format!("Invalid --before coronet: {}", e))?;
+            let target_key = target.display();
+            let pos = heat.order.iter().position(|c| c == &target_key)
+                .ok_or_else(|| format!("Target coronet '{}' not found in heat", target_key))?;
+            Some(pos) // Insert before this position
+        } else if let Some(ref after_str) = args.after {
+            let target = Coronet::parse(after_str)
+                .map_err(|e| format!("Invalid --after coronet: {}", e))?;
+            let target_key = target.display();
+            let pos = heat.order.iter().position(|c| c == &target_key)
+                .ok_or_else(|| format!("Target coronet '{}' not found in heat", target_key))?;
+            Some(pos + 1) // Insert after this position
+        } else if args.first {
+            Some(0) // Insert at beginning
+        } else {
+            None // Append to end (default)
+        };
 
         // Construct Coronet
         let coronet_str = format!("{}{}{}", CORONET_PREFIX, firemark.as_str(), heat.next_pace_seed);
@@ -560,8 +597,11 @@ impl Gallops {
             tacks: vec![tack],
         };
 
-        // Append to order and insert pace
-        heat.order.push(coronet_str.clone());
+        // Insert into order at determined position
+        match insert_position {
+            Some(pos) => heat.order.insert(pos, coronet_str.clone()),
+            None => heat.order.push(coronet_str.clone()),
+        }
         heat.paces.insert(coronet_str.clone(), pace);
 
         // Increment next_pace_seed
@@ -1208,6 +1248,9 @@ mod tests {
             firemark: "AB".to_string(),
             silks: "test-pace".to_string(),
             text: "Do something useful".to_string(),
+            before: None,
+            after: None,
+            first: false,
         };
 
         let result = gallops.slate(args).unwrap();
@@ -1240,6 +1283,9 @@ mod tests {
             firemark: "CD".to_string(),
             silks: "test-pace".to_string(),
             text: "Do something".to_string(),
+            before: None,
+            after: None,
+            first: false,
         };
 
         let result = gallops.slate(args);
@@ -1257,6 +1303,9 @@ mod tests {
             firemark: "AB".to_string(),
             silks: "InvalidSilks".to_string(),
             text: "Do something".to_string(),
+            before: None,
+            after: None,
+            first: false,
         };
 
         let result = gallops.slate(args);
@@ -1274,11 +1323,151 @@ mod tests {
             firemark: "AB".to_string(),
             silks: "test-pace".to_string(),
             text: "".to_string(),
+            before: None,
+            after: None,
+            first: false,
         };
 
         let result = gallops.slate(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("text must not be empty"));
+    }
+
+    #[test]
+    fn test_slate_with_first_inserts_at_beginning() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let existing_pace = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "new-first-pace".to_string(),
+            text: "This should be first".to_string(),
+            before: None,
+            after: None,
+            first: true,
+        };
+
+        let result = gallops.slate(args).unwrap();
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], result.coronet); // New pace is first
+        assert_eq!(heat.order[1], existing_pace); // Existing pace moved to second
+    }
+
+    #[test]
+    fn test_slate_with_before_inserts_at_position() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        // Add a second pace
+        let pace2_key = "₢ABAAB".to_string();
+        let pace2 = Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        };
+        heat.paces.insert(pace2_key.clone(), pace2);
+        heat.order.push(pace2_key.clone());
+        heat.next_pace_seed = "AAC".to_string();
+
+        let first_pace = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Insert before the second pace
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "inserted-pace".to_string(),
+            text: "Insert before second".to_string(),
+            before: Some(pace2_key.clone()),
+            after: None,
+            first: false,
+        };
+
+        let result = gallops.slate(args).unwrap();
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], first_pace); // Original first unchanged
+        assert_eq!(heat.order[1], result.coronet); // New pace inserted
+        assert_eq!(heat.order[2], pace2_key); // Second pace moved
+    }
+
+    #[test]
+    fn test_slate_with_after_inserts_at_position() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        // Add a second pace
+        let pace2_key = "₢ABAAB".to_string();
+        let pace2 = Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        };
+        heat.paces.insert(pace2_key.clone(), pace2);
+        heat.order.push(pace2_key.clone());
+        heat.next_pace_seed = "AAC".to_string();
+
+        let first_pace = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Insert after the first pace
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "inserted-pace".to_string(),
+            text: "Insert after first".to_string(),
+            before: None,
+            after: Some(first_pace.clone()),
+            first: false,
+        };
+
+        let result = gallops.slate(args).unwrap();
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], first_pace); // Original first unchanged
+        assert_eq!(heat.order[1], result.coronet); // New pace inserted after first
+        assert_eq!(heat.order[2], pace2_key); // Second pace at end
+    }
+
+    #[test]
+    fn test_slate_mutual_exclusivity() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let existing_pace = heat.order[0].clone();
+        gallops.heats.insert(heat_key, heat);
+
+        // Try with both before and first
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "bad-pace".to_string(),
+            text: "Should fail".to_string(),
+            before: Some(existing_pace),
+            after: None,
+            first: true,
+        };
+
+        let result = gallops.slate(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Only one of"));
+    }
+
+    #[test]
+    fn test_slate_before_invalid_coronet() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        gallops.heats.insert(heat_key, heat);
+
+        let args = SlateArgs {
+            firemark: "AB".to_string(),
+            silks: "new-pace".to_string(),
+            text: "Test".to_string(),
+            before: Some("₢ABXXX".to_string()), // Non-existent
+            after: None,
+            first: false,
+        };
+
+        let result = gallops.slate(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("not found in heat"));
     }
 
     #[test]

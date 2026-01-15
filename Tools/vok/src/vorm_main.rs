@@ -231,6 +231,18 @@ struct JjxSlateArgs {
     /// Kebab-case display name for the Pace
     #[arg(long, short = 's')]
     silks: String,
+
+    /// Insert before specified Coronet
+    #[arg(long, conflicts_with_all = ["after", "first"])]
+    before: Option<String>,
+
+    /// Insert after specified Coronet
+    #[arg(long, conflicts_with_all = ["before", "first"])]
+    after: Option<String>,
+
+    /// Insert at beginning of Heat
+    #[arg(long, conflicts_with_all = ["before", "after"])]
+    first: bool,
 }
 
 /// Arguments for jjx_rail command
@@ -599,6 +611,9 @@ fn run_jjx_slate(args: JjxSlateArgs) -> i32 {
         firemark: args.firemark,
         silks: args.silks,
         text,
+        before: args.before,
+        after: args.after,
+        first: args.first,
     };
 
     // Execute slate
