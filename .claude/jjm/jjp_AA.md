@@ -14,37 +14,60 @@ Runs from source repo. Responsibilities:
 
 1. Run all testbenches (fail release if tests fail)
 2. Build `vvx` for target platforms (darwin-arm64, darwin-x86_64, linux-x86_64)
-3. Collect kit assets (Rust knows what files belong to each kit)
+3. Collect kit assets from source tree (Rust knows what files belong to each kit)
 4. Package archive: `vok-release-YYMMDD-HHMM.tar.gz`
 
-Rust owns the knowledge of what to collect. No external manifest files. Each kit's assets are defined in Rust structs with `include_str!()`.
+Rust owns the knowledge of what to collect and where each file installs. No external manifest files. Kit membership and install paths defined in Rust structs.
 
 ### Archive Structure
 
 ```
 vok-release-260115-1430/
 ├── bin/
-│   ├── vvx-darwin-arm64
+│   ├── vvx-darwin-arm64      # Lean: install/release logic only
 │   ├── vvx-darwin-x86_64
 │   └── vvx-linux-x86_64
-├── .buk/
-│   └── burc.env           # Used during install, not installed
-└── tt/
-    └── vok-i.Install.sh   # Install tabtarget
+└── kits/
+    ├── buk/                  # Plain text shell scripts
+    │   ├── buc_command.sh
+    │   ├── bud_dispatch.sh
+    │   └── ...
+    ├── cmk/                  # Plain text concept model files
+    │   ├── MCM-MetaConceptModel.adoc
+    │   └── ...
+    ├── jjk/                  # Plain text utilities, commands
+    │   ├── jju_utility.sh
+    │   ├── commands/
+    │   │   └── jjc-*.md
+    │   └── ...
+    └── vok/                  # VOK slash commands, etc.
+        └── commands/
+            └── vvc-*.md
 ```
 
-Note: Kit files are NOT loose in the archive. They're embedded in `vvx`. The archive is lean: binaries + install tabtarget + minimal BUK config for the install process itself.
+Kit assets are plain text in the archive, not embedded in binaries. This provides:
+- **Lean binaries** — Rust code for install logic only, no duplicated content
+- **Single source of truth** — Kit assets exist once in archive
+- **Inspectability** — Plain text reviewable before install
+- **Simpler kit development** — Edit text files, rebuild archive, done
 
 ### Install Process
 
-`vvx install --target /path/to/repo`:
+Run from extracted archive directory:
+```bash
+./bin/vvx-darwin-arm64 install --target /path/to/repo
+```
 
+The executing binary:
 1. **Pre-install snapshot** — `git commit -m "[vvx:pre-install] Snapshot before {version}"` (skip if clean)
-2. **Extract assets** — Write all embedded kit files to their `install_path` locations
-3. **Freshen CLAUDE.md** — Replace content between managed section markers
-4. **Cleanup obsolete** — Remove files no longer part of current release
-5. **Post-install commit** — `git commit -m "[vvx:install:{version}] {kit-list}"`
-6. **Diff analysis** — Find previous install, diff pre-install against it, invoke Claude for recovery guidance
+2. **Copy kit assets** — Read from archive's `kits/` directory, write to `install_path` locations in target
+3. **Copy platform binaries** — Copy all sibling binaries from archive's `bin/` to target
+4. **Freshen CLAUDE.md** — Replace content between managed section markers
+5. **Cleanup obsolete** — Remove files no longer part of current release
+6. **Post-install commit** — `git commit -m "[vvx:install:{version}] {kit-list}"`
+7. **Diff analysis** — Find previous install, diff pre-install against it, invoke Claude for recovery guidance
+
+Install is platform-agnostic: any platform's binary can perform a full install (all binaries, all kit assets).
 
 ### CLAUDE.md Freshening
 
@@ -52,9 +75,11 @@ Section markers:
 ```markdown
 <!-- MANAGED:JJK:BEGIN -->
 ## Job Jockey Configuration
-...content from embedded template...
+...content from kit's CLAUDE.md template...
 <!-- MANAGED:JJK:END -->
 ```
+
+Each kit provides a CLAUDE.md template in its `kits/{kit}/` directory (e.g., `kits/jjk/CLAUDE.md.template`).
 
 Rules:
 - Markers are authoritative — content between them is replaced entirely
@@ -110,3 +135,19 @@ Rules:
 ### 2026-01-14 - Gallops Migration
 
 Migrated from legacy heat file to Gallops system. Paddock populated from legacy Architecture section. Paces slated for implementation work.
+
+### 2026-01-15 - Archive-Based Asset Model
+
+**Context**: Resolved root architectural tension — whether distribution is self-contained binaries with embedded kit assets, or archive containing lean binaries plus plain text kit assets.
+
+**Decision**: Archive with plain text kit assets.
+
+**Rationale**:
+- Install is inherently multi-platform (installs all platform binaries to target repo)
+- Archive already bundles platform binaries, so it's the natural distribution unit
+- Embedding kit assets in each binary triplicates content unnecessarily
+- Plain text in archive is inspectable, single source of truth
+- Simpler development cycle (edit text, rebuild archive, no Rust recompile for kit changes)
+- Bootstrap problem solved: Rust install logic doesn't depend on BUK (which is being installed)
+
+**Supersedes**: Earlier assumption of `include_str!()` embedded assets in binaries.

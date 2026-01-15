@@ -11,7 +11,7 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Prerequisites
 
-Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `vvx jjx_nominate`.
+Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `./tt/vow-r.RunVVX.sh jjx_nominate`.
 
 ## Step 1: Identify target heat
 
@@ -20,7 +20,7 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initial
 - Skip to Step 2
 
 **If $ARGUMENTS is empty or contains silks:**
-- Run: `vvx jjx_muster --status current`
+- Run: `./tt/vow-r.RunVVX.sh jjx_muster --status current`
 - Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
 
 **If 0 heats:** Report "No active heats. Create one with `vvx jjx_nominate`." and stop.
@@ -35,7 +35,7 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initial
 
 Run:
 ```bash
-vvx jjx_parade <FIREMARK>
+./tt/vow-r.RunVVX.sh jjx_parade <FIREMARK>
 ```
 
 Parse JSON output:
