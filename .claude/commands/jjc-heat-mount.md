@@ -11,19 +11,19 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Prerequisites
 
-Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `vvx jjx_nominate`.
+Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `./tt/vvx-r.RunVVX.sh jjx_nominate`.
 
 ## Step 1: Identify target heat
 
-**If $ARGUMENTS contains a Firemark (e.g., `AB` or `₣AB`):**
+**If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`):**
 - Use that Firemark directly
 - Skip to Step 2
 
 **If $ARGUMENTS is empty or contains silks:**
-- Run: `vvx jjx_muster --status current`
+- Run: `./tt/vvx-r.RunVVX.sh jjx_muster --status current`
 - Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
 
-**If 0 heats:** Report "No active heats. Create one with `vvx jjx_nominate`." and stop.
+**If 0 heats:** Report "No active heats. Create one with `./tt/vvx-r.RunVVX.sh jjx_nominate`." and stop.
 
 **If 1 heat:** Use that heat's Firemark.
 
@@ -35,7 +35,7 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initial
 
 Run:
 ```bash
-vvx jjx_saddle <FIREMARK>
+./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 Parse JSON output:
@@ -44,7 +44,7 @@ Parse JSON output:
   "heat_silks": "...",
   "paddock_file": ".claude/jjm/jjp_XX.md",
   "paddock_content": "...",
-  "pace_coronet": "₢XXXXX",
+  "pace_coronet": "₢AAAAC",
   "pace_silks": "...",
   "pace_state": "rough|primed",
   "tack_text": "...",
@@ -74,13 +74,13 @@ Show:
 - Analyze the tack_text to understand the work
 - Read any files referenced in the pace spec
 - Propose a concrete approach (2-4 bullets)
-- Create chalk APPROACH marker: `vvx jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker APPROACH --description "<approach summary>"`
+- Create chalk APPROACH marker: `./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker APPROACH --description "<approach summary>"`
 - Ask: "Ready to proceed with this approach?"
 - On approval: Begin work directly
 
 **If pace_state is "primed":**
 - The pace has explicit direction in tack_direction
-- Create chalk FLY marker: `vvx jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker FLY --description "Executing primed pace"`
+- Create chalk FLY marker: `./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker FLY --description "Executing primed pace"`
 - Execute per the direction autonomously (no confirmation needed)
 - When complete, run `/jjc-pace-wrap` to mark done
 
@@ -90,3 +90,13 @@ Store for use by other commands:
 - Current FIREMARK
 - Current PACE_CORONET
 - Current PACE_SILKS
+
+## Available Operations
+
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-muster` — List all heats
+- `/jjc-heat-groom` — Review and refine heat
+- `/jjc-heat-nominate` — Create new heat
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-notch` — JJ-aware git commit
+- `/jjc-parade-overview` — Heat summary

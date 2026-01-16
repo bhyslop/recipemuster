@@ -15,7 +15,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 ## Step 1: Identify target pace
 
-**If $ARGUMENTS contains a Coronet (e.g., `ABCDE` or `₢ABCDE`):**
+**If $ARGUMENTS contains a Coronet (e.g., `AAAAC` or `₢AAAAC`):**
 - Extract Firemark from first 2 characters
 - Use that Coronet directly
 
@@ -27,7 +27,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 Run:
 ```bash
-vvx jjx_saddle <FIREMARK>
+./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 Verify the target pace is in "rough" state. If not:
@@ -69,7 +69,7 @@ Notes: <any special considerations>
 
 Run:
 ```bash
-echo "<direction text>" | vvx jjx_tally <CORONET> --state primed --direction -
+echo "<direction text>" | ./tt/vvx-r.RunVVX.sh jjx_tally <CORONET> --state primed --direction -
 ```
 
 (The `-` reads direction from stdin)
@@ -80,3 +80,13 @@ Report:
 - "Pace <SILKS> is now primed"
 - "Run /jjc-heat-mount to begin autonomous execution"
 - Or: "Ready to execute now?" → if yes, proceed as /jjc-heat-mount would for primed pace
+
+## Available Operations
+
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-muster` — List all heats
+- `/jjc-heat-groom` — Review and refine heat
+- `/jjc-heat-nominate` — Create new heat
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-notch` — JJ-aware git commit
+- `/jjc-parade-overview` — Heat summary

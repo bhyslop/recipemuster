@@ -7,15 +7,15 @@ Reorder paces within a Job Jockey heat. Supports two modes:
 
 **Order mode** — replace entire sequence:
 ```bash
-/jjc-heat-rail ₢AAAAD ₢AAAAB ₢AAAAC
+/jjc-heat-rail ₢AAAAC ₢AAAAD ₢AAAAE
 ```
 
 **Move mode** — relocate a single pace:
 ```bash
-/jjc-heat-rail --move ₢AAAAD --first
-/jjc-heat-rail --move ₢AAAAD --last
-/jjc-heat-rail --move ₢AAAAD --before ₢AAAAB
-/jjc-heat-rail --move ₢AAAAD --after ₢AAAAC
+/jjc-heat-rail --move ₢AAAAE --first
+/jjc-heat-rail --move ₢AAAAE --last
+/jjc-heat-rail --move ₢AAAAE --before ₢AAAAC
+/jjc-heat-rail --move ₢AAAAE --after ₢AAAAD
 ```
 
 Arguments: $ARGUMENTS
@@ -29,20 +29,20 @@ Arguments: $ARGUMENTS
 
 ### Step 1: Parse Coronets
 
-Extract Coronets from $ARGUMENTS (space-separated list like `₢AAAAD ₢AAAAB ₢AAAAC`).
+Extract Coronets from $ARGUMENTS (space-separated list like `₢AAAAC ₢AAAAD ₢AAAAE`).
 
 **If fewer than 2 Coronets:**
 - Error: "Usage: /jjc-heat-rail <coronet> <coronet> [coronet...]"
 
 ### Step 2: Get heat context
 
-Extract Firemark from first Coronet (e.g., `₢AAAAD` → `AA`).
+Extract Firemark from first Coronet (e.g., `₢AAAAC` → `₣AA`).
 
 ### Step 3: Reorder
 
 Run:
 ```bash
-vvx jjx_rail <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
+./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
 ```
 
 **Validation:**
@@ -71,10 +71,10 @@ Extract Firemark from the move Coronet.
 
 Run:
 ```bash
-vvx jjx_rail <FIREMARK> --move <CORONET> --first
-vvx jjx_rail <FIREMARK> --move <CORONET> --last
-vvx jjx_rail <FIREMARK> --move <CORONET> --before <TARGET>
-vvx jjx_rail <FIREMARK> --move <CORONET> --after <TARGET>
+./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --first
+./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --last
+./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --before <TARGET>
+./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --after <TARGET>
 ```
 
 **Validation:**
@@ -87,8 +87,17 @@ On success, the command outputs the new order (one Coronet per line).
 
 Run parade to display the reordered pace list with silks and states:
 ```bash
-vvx jjx_parade <FIREMARK> --format order
+./tt/vvx-r.RunVVX.sh jjx_parade <FIREMARK> --format order
 ```
+
+## Auto-commit changes
+
+Run guarded commit:
+```bash
+./tt/vvx-r.RunVVX.sh vvx_commit --message "Rail: reorder ₣<FIREMARK>"
+```
+
+On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
 
 ## Error handling
 
@@ -102,3 +111,14 @@ Common errors:
 - "Cannot position pace relative to itself" — self-reference
 - "Order count mismatch" — order mode must include all paces
 - "Order contains duplicate Coronets" — each pace listed once
+
+## Available Operations
+
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-wrap` — Mark pace complete
+- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-rail` — Reorder paces
+- `/jjc-heat-chalk` — Add steeplechase marker
+- `/jjc-heat-parade` — Heat summary

@@ -16,15 +16,15 @@ Run the commit command in the background using `run_in_background: true`.
 
 **If $ARGUMENTS provided (user gave message):**
 ```bash
-vvx commit --message "<$ARGUMENTS>"
+./tt/vvx-r.RunVVX.sh vvx_commit --message "<$ARGUMENTS>"
 ```
 
 **If $ARGUMENTS empty (generate message):**
 ```bash
-vvx commit
+./tt/vvx-r.RunVVX.sh vvx_commit
 ```
 
-The `vvx commit` command will:
+The `vvx_commit` command will:
 1. Acquire lock (`refs/vvg/locks/vvx`)
 2. Stage all files including untracked (`git add -A`)
 3. Run size guard (reject if staged changes too large)
@@ -70,3 +70,8 @@ Common errors:
 - "Lock held" — another vvx operation is in progress; wait and retry
 - "Size guard failed" — staged changes too large; unstage large files
 - "claude CLI not found" — install claude CLI or provide --message
+
+## Available Operations
+
+- `/vvc-commit` — Guarded git commit (this command)
+- `/jjc-pace-notch` — JJ-aware commit with heat/pace context

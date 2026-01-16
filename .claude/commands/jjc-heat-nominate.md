@@ -31,7 +31,7 @@ date +%y%m%d
 
 Run:
 ```bash
-vvx jjx_nominate --silks "<SILKS>" --created "<YYMMDD>"
+./tt/vvx-r.RunVVX.sh jjx_nominate --silks "<SILKS>" --created "<YYMMDD>"
 ```
 
 Capture the new Firemark from stdout.
@@ -39,7 +39,7 @@ Capture the new Firemark from stdout.
 ## Step 4: Report result
 
 On success:
-- "Created heat: **<SILKS>** (₣XX)"
+- "Created heat: **<SILKS>** (₣AA)"
 - "Paddock file: `.claude/jjm/jjp_XX.md`"
 - "Next: Edit the paddock to add context, then `/jjc-pace-slate` to add paces"
 
@@ -51,3 +51,13 @@ Ask: "Would you like to:"
 1. Edit the paddock file to add context
 2. Add a pace with `/jjc-pace-slate`
 3. Continue without further setup
+
+## Available Operations
+
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-muster` — List all heats
+- `/jjc-heat-groom` — Review and refine heat
+- `/jjc-heat-nominate` — Create new heat
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-notch` — JJ-aware git commit
+- `/jjc-parade-overview` — Heat summary

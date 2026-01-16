@@ -15,7 +15,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 ## Step 1: Identify target pace
 
-**If $ARGUMENTS contains a Coronet (e.g., `ABCDE` or `₢ABCDE`):**
+**If $ARGUMENTS contains a Coronet (e.g., `AAAAC` or `₢AAAAC`):**
 - Extract Firemark from first 2 characters
 - Use that Coronet directly
 
@@ -27,7 +27,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 Run:
 ```bash
-vvx jjx_saddle <FIREMARK>
+./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 Verify pace state:
@@ -47,21 +47,21 @@ Construct a brief outcome summary (1-3 sentences).
 
 Run:
 ```bash
-echo "<outcome summary>" | vvx jjx_tally <CORONET> --state complete
+echo "<outcome summary>" | ./tt/vvx-r.RunVVX.sh jjx_tally <CORONET> --state complete
 ```
 
 ## Step 5: Create wrap marker
 
 Run:
 ```bash
-vvx jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker WRAP --description "<outcome summary>"
+./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker WRAP --description "<outcome summary>"
 ```
 
 ## Step 6: Advance to next pace
 
 Run:
 ```bash
-vvx jjx_saddle <FIREMARK>
+./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 **If another actionable pace exists:**
@@ -73,8 +73,22 @@ vvx jjx_saddle <FIREMARK>
 - Report "All paces complete for heat <SILKS>"
 - Suggest `/jjc-pace-slate` to add more work, or `/jjc-heat-retire` if done
 
-## Step 7: Prompt for commit
+## Step 7: Auto-commit changes
 
-If there are uncommitted changes:
-- Ask: "Commit these changes with /jjc-pace-notch?"
-- If yes, invoke `/jjc-pace-notch`
+Run guarded commit:
+```bash
+./tt/vvx-r.RunVVX.sh vvx_commit --message "Wrap: <SILKS>"
+```
+
+On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
+
+## Available Operations
+
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-wrap` — Mark pace complete
+- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-rail` — Reorder paces
+- `/jjc-heat-chalk` — Add steeplechase marker
+- `/jjc-heat-parade` — Heat summary

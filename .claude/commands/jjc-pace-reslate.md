@@ -28,24 +28,24 @@ Extract from $ARGUMENTS:
 
 ## Step 2: Resolve pace
 
-**If identifier looks like a Coronet (5 base64 chars, optionally with ₢ prefix):**
+**If identifier looks like a Coronet (5 base64 chars, optionally with ₢ prefix, e.g., `₢AAAAC`):**
 - Use directly
 
 **If identifier looks like silks (kebab-case):**
 - Need heat context to resolve
 - If FIREMARK available from session: use it
-- Otherwise run `vvx jjx_muster --status current`:
+- Otherwise run `./tt/vvx-r.RunVVX.sh jjx_muster --status current`:
   - If 1 heat: use it
   - If 0 heats: Error "No active heats"
   - If 2+ heats: ask user to select
-- Run `vvx jjx_parade <FIREMARK>` and find pace by silks match
+- Run `./tt/vvx-r.RunVVX.sh jjx_parade <FIREMARK>` and find pace by silks match
 - Error if silks not found in heat
 
 ## Step 3: Apply reslate
 
 Run:
 ```bash
-echo "<NEW_TEXT>" | vvx jjx_tally <CORONET>
+echo "<NEW_TEXT>" | ./tt/vvx-r.RunVVX.sh jjx_tally <CORONET>
 ```
 
 The new tack text is passed via stdin. State is inherited (stays rough, stays primed, etc.).
@@ -57,7 +57,7 @@ To change state, use:
 ## Step 4: Report and assess
 
 On success, report:
-- "Refined pace: **<SILKS>** (<CORONET>)"
+- "Refined pace: **<SILKS>** (₢AAAAC)"
 - "State: <current state> (unchanged)"
 - "New tack text: <first 100 chars>..."
 
@@ -76,6 +76,15 @@ If not primeable, state why: "Needs human judgment — [reason]"
 
 **Next:** `/jjc-pace-reslate` (refine more) | `/jjc-pace-prime` (arm) | `/jjc-heat-parade` (view all)
 
+## Step 6: Auto-commit changes
+
+Run guarded commit:
+```bash
+./tt/vvx-r.RunVVX.sh vvx_commit --message "Reslate: <SILKS>"
+```
+
+On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
+
 ## Error handling
 
 On failure, report the error from vvx.
@@ -84,3 +93,14 @@ Common errors:
 - "Pace not found" — invalid coronet or silks not in heat
 - "Heat not found" — invalid Firemark context
 - "text must not be empty" — synthesis failed
+
+## Available Operations
+
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-wrap` — Mark pace complete
+- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-rail` — Reorder paces
+- `/jjc-heat-chalk` — Add steeplechase marker
+- `/jjc-heat-parade` — Heat summary

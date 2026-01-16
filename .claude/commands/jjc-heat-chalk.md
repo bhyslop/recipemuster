@@ -43,12 +43,12 @@ If no PACE_SILKS and marker requires it:
 
 **For APPROACH/WRAP/FLY (pace required):**
 ```bash
-vvx jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker <MARKER> --description "<description>"
+./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker <MARKER> --description "<description>"
 ```
 
 **For DISCUSSION (pace optional):**
 ```bash
-vvx jjx_chalk <FIREMARK> [--pace <PACE_SILKS>] --marker DISCUSSION --description "<description>"
+./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> [--pace <PACE_SILKS>] --marker DISCUSSION --description "<description>"
 ```
 
 Include `--pace` if pace context is available.
@@ -56,7 +56,7 @@ Include `--pace` if pace context is available.
 ## Step 4: Report result
 
 On success:
-- "Chalk marker created: [jj:BRAND][₣XX/pace] <MARKER>: <description>"
+- "Chalk marker created: [jj:BRAND][₣AA/pace] <MARKER>: <description>"
 - Report commit hash
 
 On failure, report the error from vvx.
@@ -65,14 +65,34 @@ On failure, report the error from vvx.
 
 The empty commit message will be:
 ```
-[jj:BRAND][₣XX/pace-silks] MARKER: description
+[jj:BRAND][₣AA/pace-silks] MARKER: description
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 Or for DISCUSSION without pace:
 ```
-[jj:BRAND][₣XX] DISCUSSION: description
+[jj:BRAND][₣AA] DISCUSSION: description
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+## Step 5: Auto-commit changes
+
+Run guarded commit:
+```bash
+./tt/vvx-r.RunVVX.sh vvx_commit --message "Chalk: <MARKER> in ₣<FIREMARK>"
+```
+
+On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
+
+## Available Operations
+
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-wrap` — Mark pace complete
+- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-rail` — Reorder paces
+- `/jjc-heat-chalk` — Add steeplechase marker
+- `/jjc-heat-parade` — Heat summary

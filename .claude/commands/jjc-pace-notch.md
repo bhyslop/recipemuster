@@ -35,15 +35,15 @@ If no changes:
 
 **If $ARGUMENTS provided (user gave message):**
 ```bash
-vvx jjx_notch <FIREMARK> --pace <PACE_SILKS> --message "<$ARGUMENTS>"
+./tt/vvx-r.RunVVX.sh jjx_notch <FIREMARK> --pace <PACE_SILKS> --message "<$ARGUMENTS>"
 ```
 
 **If $ARGUMENTS empty (generate message):**
 ```bash
-vvx jjx_notch <FIREMARK> --pace <PACE_SILKS>
+./tt/vvx-r.RunVVX.sh jjx_notch <FIREMARK> --pace <PACE_SILKS>
 ```
 
-The `vvx jjx_notch` command will:
+The `./tt/vvx-r.RunVVX.sh jjx_notch` command will:
 1. Acquire lock
 2. Stage modified files (`git add -u`)
 3. Run size guard
@@ -65,12 +65,22 @@ On failure, report the error from vvx.
 
 The commit will be formatted as:
 ```
-[jj:BRAND][₣XX/pace-silks] <message>
+[jj:BRAND][₣AA/pace-silks] <message>
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 Where:
 - BRAND = repository identifier
-- ₣XX = Firemark
+- ₣AA = Firemark (example)
 - pace-silks = current pace silks
+
+## Available Operations
+
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-muster` — List all heats
+- `/jjc-heat-groom` — Review and refine heat
+- `/jjc-heat-nominate` — Create new heat
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-notch` — JJ-aware git commit
+- `/jjc-parade-overview` — Heat summary

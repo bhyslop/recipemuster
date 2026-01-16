@@ -11,19 +11,19 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Prerequisites
 
-Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `./tt/vow-r.RunVVX.sh jjx_nominate`.
+Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `./tt/vvx-r.RunVVX.sh jjx_nominate`.
 
 ## Step 1: Identify target heat
 
-**If $ARGUMENTS contains a Firemark (e.g., `AB` or `₣AB`):**
+**If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`):**
 - Use that Firemark directly
 - Skip to Step 2
 
 **If $ARGUMENTS is empty or contains silks:**
-- Run: `./tt/vow-r.RunVVX.sh jjx_muster --status current`
+- Run: `./tt/vvx-r.RunVVX.sh jjx_muster --status current`
 - Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
 
-**If 0 heats:** Report "No active heats. Create one with `vvx jjx_nominate`." and stop.
+**If 0 heats:** Report "No active heats. Create one with `./tt/vvx-r.RunVVX.sh jjx_nominate`." and stop.
 
 **If 1 heat:** Use that heat's Firemark.
 
@@ -35,7 +35,7 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initial
 
 Run:
 ```bash
-./tt/vow-r.RunVVX.sh jjx_parade <FIREMARK>
+./tt/vvx-r.RunVVX.sh jjx_parade <FIREMARK>
 ```
 
 Parse JSON output:
@@ -48,7 +48,7 @@ Parse JSON output:
   "paddock_content": "...",
   "paces": [
     {
-      "coronet": "₢XXXXX",
+      "coronet": "₢AAAAC",
       "silks": "...",
       "state": "rough|primed|complete|abandoned",
       "tack_text": "...",
@@ -104,3 +104,13 @@ Remain in planning discussion mode - do not automatically proceed to execution.
 Store for use by other commands:
 - Current FIREMARK
 - Current heat SILKS
+
+## Available Operations
+
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-muster` — List all heats
+- `/jjc-heat-groom` — Review and refine heat
+- `/jjc-heat-nominate` — Create new heat
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-notch` — JJ-aware git commit
+- `/jjc-parade-overview` — Heat summary

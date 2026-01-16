@@ -32,7 +32,7 @@ Extract from $ARGUMENTS:
 - Use that Firemark
 
 **Otherwise:**
-- Run: `vvx jjx_muster --status current`
+- Run: `./tt/vvx-r.RunVVX.sh jjx_muster --status current`
 - Parse TSV output
 
 **If 0 heats:** Error: "No active heats. Create one with `/jjc-heat-nominate` first."
@@ -45,7 +45,7 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-echo "<PACE_TEXT>" | vvx jjx_slate <FIREMARK> --silks "<SILKS>"
+echo "<PACE_TEXT>" | ./tt/vvx-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>"
 ```
 
 The pace description text is passed via stdin.
@@ -55,8 +55,8 @@ Capture the new Coronet from stdout.
 ## Step 4: Report and assess
 
 On success, report:
-- "Created pace: **<SILKS>** (<CORONET>)"
-- "Heat: <HEAT_SILKS> (₣XX)"
+- "Created pace: **<SILKS>** (₢AAAAC)"
+- "Heat: <HEAT_SILKS> (₣AA)"
 - "State: rough"
 
 Then **assess the pace's health**:
@@ -74,6 +74,15 @@ If not primeable, state why: "Needs human judgment — [reason]"
 
 **Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-prime` (arm)
 
+## Step 6: Auto-commit changes
+
+Run guarded commit:
+```bash
+./tt/vvx-r.RunVVX.sh vvx_commit --message "Slate: <SILKS> in ₣<FIREMARK>"
+```
+
+On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
+
 ## Error handling
 
 On failure, report the error from vvx.
@@ -81,3 +90,14 @@ On failure, report the error from vvx.
 Common errors:
 - "Heat not found" — invalid Firemark
 - "text must not be empty" — description synthesis failed
+
+## Available Operations
+
+- `/jjc-pace-slate` — Add a new pace
+- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-wrap` — Mark pace complete
+- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-heat-mount` — Begin work on next pace
+- `/jjc-heat-rail` — Reorder paces
+- `/jjc-heat-chalk` — Add steeplechase marker
+- `/jjc-heat-parade` — Heat summary
