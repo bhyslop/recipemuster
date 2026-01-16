@@ -8,6 +8,7 @@
       "order": [
         "₢AAAAd",
         "₢AAAAe",
+        "₢AAAAf",
         "₢AAAAZ",
         "₢AAAAY",
         "₢AAAAX",
@@ -38,7 +39,7 @@
         "₢AAAAa",
         "₢AAAAb"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -664,6 +665,16 @@
               "ts": "260116-1044",
               "state": "rough",
               "text": "Remove orphaned jjw-rn infrastructure.\n\n## Delete\n\n1. jjw_workbench.sh line 113: remove jjw-rn) case\n2. jju_utility.sh: remove jju_rein function (~lines 227-239)\n\n## Rationale\n\n- jjw-rn route exists but no tabtarget file\n- jju_rein was bash wrapper for jjx_rein\n- Will be replaced by /jjc-heat-rein slash command (uses vvx directly)"
+            }
+          ]
+        },
+        "₢AAAAf": {
+          "silks": "deprecate-jju-tabtargets",
+          "tacks": [
+            {
+              "ts": "260116-1049",
+              "state": "rough",
+              "text": "Deprecate jjw tabtargets and jju utility functions.\n\n## Starting Point - Delete Tabtargets\n\n- tt/jjw-hr.HeatRetire.sh\n- tt/jjw-i.Info.sh\n- tt/jjw-m.Muster.sh\n- tt/jjw-pw.PaceWrap.sh\n\n## Audit jju_utility.sh\n\n1. List all jju_* functions\n2. Check each for callers (grep across codebase)\n3. Verify slash commands cover all use cases\n4. Delete unused functions\n\n## Clean Up Workbench\n\n- Remove all jjw-* routes from jjw_workbench.sh\n- Or delete jjw_workbench.sh entirely if empty\n\n## Create Missing Slash Commands\n\n- /jjc-heat-retire (for jjw-hr)\n- /jjc-heat-rein (already in ₢AAAAe scope)\n\n## Verify\n\n- All JJ operations work via slash commands\n- No dangling references to jju_* or jjw-*"
             }
           ]
         }
