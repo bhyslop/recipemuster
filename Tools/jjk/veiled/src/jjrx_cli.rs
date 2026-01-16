@@ -100,10 +100,6 @@ struct ReinArgs {
     /// Target Heat identity (Firemark)
     firemark: String,
 
-    /// Repository brand identifier (from arcanum installation)
-    #[arg(long)]
-    brand: String,
-
     /// Maximum entries to return
     #[arg(long, default_value = "50")]
     limit: usize,
@@ -453,7 +449,6 @@ fn run_rein(args: ReinArgs) -> i32 {
 
     let rein_args = LibReinArgs {
         firemark: args.firemark,
-        brand: args.brand,
         limit: args.limit,
     };
 
@@ -578,10 +573,9 @@ fn run_retire(args: RetireArgs) -> i32 {
         }
     };
 
-    // Get steeplechase entries (use default brand)
+    // Get steeplechase entries (filtered by firemark identity)
     let rein_args = ReinArgs {
         firemark: args.firemark.clone(),
-        brand: "RBM".to_string(),
         limit: 1000,
     };
     let steeplechase = match get_entries(&rein_args) {

@@ -18,9 +18,6 @@ pub struct ReinArgs {
     /// Target Heat identity (Firemark, with or without prefix)
     pub firemark: String,
 
-    /// Repository brand identifier (from arcanum installation)
-    pub brand: String,
-
     /// Maximum entries to return
     pub limit: usize,
 }
@@ -55,15 +52,18 @@ fn parse_timestamp(git_timestamp: &str) -> String {
 }
 
 /// Parse a new-format commit: jjb:BRAND:IDENTITY[:ACTION]: message
-/// Returns (coronet_option, action_option, message) if successful
-fn parse_new_format(subject: &str, brand: &str, firemark_raw: &str) -> Option<SteeplechaseEntry> {
+/// Filters by firemark identity, not by brand. Brand is parsed but not matched.
+fn parse_new_format(subject: &str, firemark_raw: &str) -> Option<SteeplechaseEntry> {
     // Expected format: jjb:BRAND:IDENTITY[:ACTION]: message
-    let prefix = format!("jjb:{}:", brand);
-    if !subject.starts_with(&prefix) {
+    // We match any brand - filtering is by identity only
+    if !subject.starts_with("jjb:") {
         return None;
     }
 
-    let after_brand = &subject[prefix.len()..];
+    // Skip past "jjb:" and find the brand (next colon-delimited segment)
+    let after_jjb = &subject[4..]; // skip "jjb:"
+    let brand_end = after_jjb.find(':')?;
+    let after_brand = &after_jjb[brand_end + 1..];
 
     // Parse identity (₢CORONET or ₣FIREMARK)
     let (identity, rest) = if after_brand.starts_with(CORONET_PREFIX) {
@@ -128,7 +128,7 @@ fn parse_new_format(subject: &str, brand: &str, firemark_raw: &str) -> Option<St
 
 /// Parse a single git log line into a SteeplechaseEntry
 /// Line format: "YYYY-MM-DD HH:MM:SS -ZZZZ<TAB>subject"
-fn parse_log_line(line: &str, brand: &str, firemark_raw: &str) -> Option<SteeplechaseEntry> {
+fn parse_log_line(line: &str, firemark_raw: &str) -> Option<SteeplechaseEntry> {
     let parts: Vec<&str> = line.splitn(2, '\t').collect();
     if parts.len() != 2 {
         return None;
@@ -138,7 +138,7 @@ fn parse_log_line(line: &str, brand: &str, firemark_raw: &str) -> Option<Steeple
     let subject = parts[1];
 
     // Try parsing new format
-    if let Some(mut entry) = parse_new_format(subject, brand, firemark_raw) {
+    if let Some(mut entry) = parse_new_format(subject, firemark_raw) {
         entry.timestamp = timestamp;
         return Some(entry);
     }
@@ -155,10 +155,9 @@ pub fn get_entries(args: &ReinArgs) -> Result<Vec<SteeplechaseEntry>, String> {
 
     // Build the grep pattern for git log
     // Pattern matches both heat-level (₣XX) and pace-level (₢XX...) entries
-    // jjb:BRAND:₣XX or jjb:BRAND:₢XX
+    // Filter by identity, not brand: jjb:*:₣XX or jjb:*:₢XX
     let grep_pattern = format!(
-        "^jjb:{}:({}{}|{}{})",
-        args.brand,
+        "^jjb:[^:]+:({}{}|{}{})",
         FIREMARK_PREFIX, firemark_raw,
         CORONET_PREFIX, firemark_raw
     );
@@ -183,7 +182,7 @@ pub fn get_entries(args: &ReinArgs) -> Result<Vec<SteeplechaseEntry>, String> {
 
     let entries: Vec<SteeplechaseEntry> = stdout
         .lines()
-        .filter_map(|line| parse_log_line(line, &args.brand, firemark_raw))
+        .filter_map(|line| parse_log_line(line, firemark_raw))
         .take(args.limit)
         .collect();
 
@@ -231,7 +230,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_standard_notch() {
         let subject = "jjb:RBM:₢ABAAA:n: Fix the bug";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
         assert_eq!(entry.action, Some("n".to_string()));
         assert_eq!(entry.subject, "Fix the bug");
@@ -240,7 +239,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_chalk_wrap() {
         let subject = "jjb:RBM:₢ABAAA:W: Completed the task";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
         assert_eq!(entry.action, Some("W".to_string()));
         assert_eq!(entry.subject, "Completed the task");
@@ -249,7 +248,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_chalk_approach() {
         let subject = "jjb:RBM:₢ABCDE:A: Starting work";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, Some("₢ABCDE".to_string()));
         assert_eq!(entry.action, Some("A".to_string()));
         assert_eq!(entry.subject, "Starting work");
@@ -258,7 +257,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_heat_level_nominate() {
         let subject = "jjb:RBM:₣AB:N: my-new-heat";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, None);
         assert_eq!(entry.action, Some("N".to_string()));
         assert_eq!(entry.subject, "my-new-heat");
@@ -267,7 +266,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_heat_level_slate() {
         let subject = "jjb:RBM:₣AB:S: new-pace-silks";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, None);
         assert_eq!(entry.action, Some("S".to_string()));
         assert_eq!(entry.subject, "new-pace-silks");
@@ -276,7 +275,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_heat_level_rail() {
         let subject = "jjb:RBM:₣AB:r: reordered";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, None);
         assert_eq!(entry.action, Some("r".to_string()));
         assert_eq!(entry.subject, "reordered");
@@ -285,7 +284,7 @@ mod tests {
     #[test]
     fn test_parse_new_format_heat_level_retire() {
         let subject = "jjb:RBM:₣AB:R: my-heat-silks";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, None);
         assert_eq!(entry.action, Some("R".to_string()));
         assert_eq!(entry.subject, "my-heat-silks");
@@ -294,37 +293,41 @@ mod tests {
     #[test]
     fn test_parse_new_format_heat_discussion() {
         let subject = "jjb:RBM:₣AB:d: Design discussion";
-        let entry = parse_new_format(subject, "RBM", "AB").unwrap();
+        let entry = parse_new_format(subject, "AB").unwrap();
         assert_eq!(entry.coronet, None);
         assert_eq!(entry.action, Some("d".to_string()));
         assert_eq!(entry.subject, "Design discussion");
     }
 
     #[test]
-    fn test_parse_new_format_wrong_brand() {
+    fn test_parse_new_format_any_brand() {
+        // Should parse successfully with any brand - filtering is by identity
         let subject = "jjb:OTHER:₢ABAAA:n: Fix bug";
-        let result = parse_new_format(subject, "RBM", "AB");
-        assert!(result.is_none());
+        let entry = parse_new_format(subject, "AB").unwrap();
+        assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
+        assert_eq!(entry.action, Some("n".to_string()));
+        assert_eq!(entry.subject, "Fix bug");
     }
 
     #[test]
     fn test_parse_new_format_wrong_firemark() {
+        // Different firemark in coronet - should NOT match
         let subject = "jjb:RBM:₢CDAAA:n: Fix bug";
-        let result = parse_new_format(subject, "RBM", "AB");
+        let result = parse_new_format(subject, "AB");
         assert!(result.is_none());
     }
 
     #[test]
     fn test_parse_new_format_wrong_heat_firemark() {
         let subject = "jjb:RBM:₣CD:N: some-heat";
-        let result = parse_new_format(subject, "RBM", "AB");
+        let result = parse_new_format(subject, "AB");
         assert!(result.is_none());
     }
 
     #[test]
     fn test_parse_log_line_new_format() {
         let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:n: Fix bug";
-        let entry = parse_log_line(line, "RBM", "AB").unwrap();
+        let entry = parse_log_line(line, "AB").unwrap();
         assert_eq!(entry.timestamp, "2024-01-15 14:30");
         assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
         assert_eq!(entry.action, Some("n".to_string()));
@@ -334,7 +337,7 @@ mod tests {
     #[test]
     fn test_parse_log_line_new_format_with_action() {
         let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:F: Autonomous execution";
-        let entry = parse_log_line(line, "RBM", "AB").unwrap();
+        let entry = parse_log_line(line, "AB").unwrap();
         assert_eq!(entry.timestamp, "2024-01-15 14:30");
         assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
         assert_eq!(entry.action, Some("F".to_string()));

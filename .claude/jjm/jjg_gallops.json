@@ -854,6 +854,11 @@
           "silks": "rein-filter-by-identity",
           "tacks": [
             {
+              "ts": "260116-1334",
+              "state": "complete",
+              "text": "Refactored jjx_rein to filter by firemark/coronet identity instead of brand. Removed --brand CLI arg. Updated grep pattern to ^jjb:[^:]+:(₣XX|₢XX). All 133 tests pass. Rein now works without brand parameter."
+            },
+            {
               "ts": "260116-1330",
               "state": "primed",
               "text": "Refactor jjx_rein to filter by firemark/coronet identity rather than brand.\n\n## Changes\n\n1. **Grep pattern**: Change from `^jjb:BRAND:(₣XX|₢XX)` to `^jjb:[^:]+:(₣XX|₢XX)` - match any brand, filter by identity\n2. **CLI args**: Remove `--brand` argument from ReinArgs\n3. **Internal calls**: Update run_retire() to not need brand for get_entries()\n\n## Rationale\n\nThe firemark/coronet already uniquely identifies heat membership:\n- ₢AAAAk → first 2 chars after prefix = AA = parent heat\n- ₣AA → direct heat identity\n\nBrand is orthogonal - it identifies which installation made the commit, not which heat it belongs to.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (grep pattern, ReinArgs)\n- Tools/jjk/veiled/src/jjrx_cli.rs (CLI ReinArgs, run_retire)\n- Tools/jjk/JJD-GallopsData.adoc (update jjdo_rein spec)\n\n## Unblocks\n\n- /jjc-heat-rein slash command (no longer needs installation-identifier)\n- Cleaner retire flow",

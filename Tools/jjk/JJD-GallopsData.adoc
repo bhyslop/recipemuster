@@ -2047,7 +2047,8 @@ Entries ordered newest first.
 
 {jjds_behavior}
 
-. Run `git log --all --extended-regexp --grep="^jjb:BRAND:(₣XX|₢XX)" --format="%ai%x09%s"`
+. Run `git log --all --extended-regexp --grep="^jjb:[^:]+:(₣XX|₢XX)" --format="%ai%x09%s"`
+  (matches any brand; filtering is by identity, not brand)
 . Parse each line: extract timestamp, identity, action (if present), and message
 . For pace-level (₢CORONET): verify coronet belongs to target heat
 . For heat-level (₣FIREMARK): verify firemark matches target heat
