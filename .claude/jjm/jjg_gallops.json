@@ -6,6 +6,7 @@
       "creation_time": "260114",
       "status": "current",
       "order": [
+        "₢AAAAg",
         "₢AAAAd",
         "₢AAAAe",
         "₢AAAAf",
@@ -39,7 +40,7 @@
         "₢AAAAa",
         "₢AAAAb"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -675,6 +676,16 @@
               "ts": "260116-1049",
               "state": "rough",
               "text": "Deprecate jjw tabtargets and jju utility functions.\n\n## Starting Point - Delete Tabtargets\n\n- tt/jjw-hr.HeatRetire.sh\n- tt/jjw-i.Info.sh\n- tt/jjw-m.Muster.sh\n- tt/jjw-pw.PaceWrap.sh\n\n## Audit jju_utility.sh\n\n1. List all jju_* functions\n2. Check each for callers (grep across codebase)\n3. Verify slash commands cover all use cases\n4. Delete unused functions\n\n## Clean Up Workbench\n\n- Remove all jjw-* routes from jjw_workbench.sh\n- Or delete jjw_workbench.sh entirely if empty\n\n## Create Missing Slash Commands\n\n- /jjc-heat-retire (for jjw-hr)\n- /jjc-heat-rein (already in ₢AAAAe scope)\n\n## Verify\n\n- All JJ operations work via slash commands\n- No dangling references to jju_* or jjw-*"
+            }
+          ]
+        },
+        "₢AAAAg": {
+          "silks": "jjd-retire-spec-update",
+          "tacks": [
+            {
+              "ts": "260116-1056",
+              "state": "rough",
+              "text": "Update JJD spec: jjx_retire must remove heat from gallops.json, delete paddock file, and git commit - not just extract trophy data"
             }
           ]
         }
