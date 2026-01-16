@@ -391,7 +391,7 @@ fn run_notch(args: NotchArgs) -> i32 {
 
     let prefix = format_notch_prefix(&firemark, &args.pace);
 
-    let commit_args = vvc::CommitArgs {
+    let commit_args = vvc::vvcc_CommitArgs {
         prefix: Some(prefix),
         message: args.message,
         allow_empty: false,
@@ -425,7 +425,7 @@ fn run_chalk(args: ChalkArgs) -> i32 {
 
     let message = format_chalk_message(&firemark, marker, args.pace.as_deref(), &args.description);
 
-    let commit_args = vvc::CommitArgs {
+    let commit_args = vvc::vvcc_CommitArgs {
         prefix: None,
         message: Some(message),
         allow_empty: true,
@@ -570,7 +570,7 @@ fn run_nominate(args: NominateArgs) -> i32 {
     use std::path::Path;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::CommitLock::acquire() {
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_nominate: error: {}", e);
@@ -618,11 +618,11 @@ fn run_nominate(args: NominateArgs) -> i32 {
             }
 
             // Commit while holding lock
-            let commit_args = vvc::CommitArgs {
+            let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format!("Nominate: {} {}", silks, result.firemark)),
                 ..Default::default()
             };
-            match lock.commit(&commit_args) {
+            match lock.vvcc_commit(&commit_args) {
                 Ok(hash) => eprintln!("jjx_nominate: committed {}", &hash[..8]),
                 Err(e) => eprintln!("jjx_nominate: commit warning: {}", e),
             }
@@ -642,7 +642,7 @@ fn run_slate(args: SlateArgs) -> i32 {
     use crate::jjrg_gallops::SlateArgs as LibSlateArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::CommitLock::acquire() {
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_slate: error: {}", e);
@@ -685,11 +685,11 @@ fn run_slate(args: SlateArgs) -> i32 {
             }
 
             // Commit while holding lock
-            let commit_args = vvc::CommitArgs {
+            let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format!("Slate: {} in ₣{}", silks, firemark)),
                 ..Default::default()
             };
-            match lock.commit(&commit_args) {
+            match lock.vvcc_commit(&commit_args) {
                 Ok(hash) => eprintln!("jjx_slate: committed {}", &hash[..8]),
                 Err(e) => eprintln!("jjx_slate: commit warning: {}", e),
             }
@@ -709,7 +709,7 @@ fn run_rail(args: RailArgs) -> i32 {
     use crate::jjrg_gallops::RailArgs as LibRailArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::CommitLock::acquire() {
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_rail: error: {}", e);
@@ -753,11 +753,11 @@ fn run_rail(args: RailArgs) -> i32 {
             }
 
             // Commit while holding lock
-            let commit_args = vvc::CommitArgs {
+            let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format!("Rail: reorder ₣{}", firemark)),
                 ..Default::default()
             };
-            match lock.commit(&commit_args) {
+            match lock.vvcc_commit(&commit_args) {
                 Ok(hash) => eprintln!("jjx_rail: committed {}", &hash[..8]),
                 Err(e) => eprintln!("jjx_rail: commit warning: {}", e),
             }
@@ -780,7 +780,7 @@ fn run_tally(args: TallyArgs) -> i32 {
     use crate::jjrf_favor::Coronet;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::CommitLock::acquire() {
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_tally: error: {}", e);
@@ -845,11 +845,11 @@ fn run_tally(args: TallyArgs) -> i32 {
             }
 
             // Commit while holding lock
-            let commit_args = vvc::CommitArgs {
+            let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format!("Tally: {}", silks)),
                 ..Default::default()
             };
-            match lock.commit(&commit_args) {
+            match lock.vvcc_commit(&commit_args) {
                 Ok(hash) => eprintln!("jjx_tally: committed {}", &hash[..8]),
                 Err(e) => eprintln!("jjx_tally: commit warning: {}", e),
             }
@@ -868,7 +868,7 @@ fn run_draft(args: DraftArgs) -> i32 {
     use crate::jjrg_gallops::DraftArgs as LibDraftArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::CommitLock::acquire() {
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_draft: error: {}", e);
@@ -902,11 +902,11 @@ fn run_draft(args: DraftArgs) -> i32 {
             }
 
             // Commit while holding lock
-            let commit_args = vvc::CommitArgs {
+            let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format!("Draft: {} → ₣{}", coronet, to)),
                 ..Default::default()
             };
-            match lock.commit(&commit_args) {
+            match lock.vvcc_commit(&commit_args) {
                 Ok(hash) => eprintln!("jjx_draft: committed {}", &hash[..8]),
                 Err(e) => eprintln!("jjx_draft: commit warning: {}", e),
             }

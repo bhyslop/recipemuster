@@ -568,6 +568,11 @@
           "silks": "vvc-rcg-compliance",
           "tacks": [
             {
+              "ts": "260116-0949",
+              "state": "complete",
+              "text": "VVC RCG compliance complete: vvcg_GuardArgs, vvcg_run, vvcc_CommitArgs, vvcc_CommitLock, vvcc_run. Internal funcs zvvcc/zvvcg. Updated JJK call sites."
+            },
+            {
               "ts": "260116-0944",
               "state": "primed",
               "text": "Bring all VVC Rust code into RCG compliance.\n\n## Scope\n\nAll files in Tools/vvc/src/:\n- lib.rs (add boilerplate)\n- vvcc_commit.rs\n- vvcg_guard.rs\n\n## Required Changes\n\n1. **Crate boilerplate**: Add `#![allow(non_camel_case_types)]` to lib.rs\n\n2. **Type prefixing**: All pub struct/enum get file prefix\n   - `CommitArgs` → `vvcc_CommitArgs`\n   - `CommitLock` → `vvcc_CommitLock`\n   - `GuardArgs` → `vvcg_GuardArgs`\n\n3. **Function prefixing**: All pub fn get file prefix\n   - `run` (vvcc_commit) → `vvcc_run`\n   - `run` (vvcg_guard) → `vvcg_run`\n\n4. **Impl method prefixing**: All pub methods on impl blocks get file prefix\n   - `CommitLock::acquire` → `vvcc_CommitLock::vvcc_acquire`\n   - `CommitLock::commit` → `vvcc_CommitLock::vvcc_commit`\n\n5. **Internal functions**: Any non-pub helpers get z prefix\n\n6. **Update lib.rs re-exports** to use new names\n\n7. **Update all call sites** in VVC and any VOK code that imports VVC\n\n## Verification\n\nRun `cargo build` and `cargo test` after changes. All must pass.\n\n## Note\n\nVVC is used by JJK. Coordinate with jjk-rcg-compliance pace — run VVC first since JJK imports from VVC.",

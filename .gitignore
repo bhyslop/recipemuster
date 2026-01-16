@@ -42,3 +42,6 @@ __pycache__/
 *$py.class
 lenses/.idea/
 Tools/vvk/bin/vvx-*
+
+# Rust build artifacts
+**/target/
