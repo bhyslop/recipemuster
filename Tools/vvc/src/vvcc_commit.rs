@@ -233,7 +233,6 @@ fn zvvcc_format_commit_message(prefix: Option<&str>, message: &str) -> String {
     }
 
     full_message.push_str(message);
-    full_message.push_str("\n\nCo-Authored-By: Claude <noreply@anthropic.com>");
 
     full_message
 }
