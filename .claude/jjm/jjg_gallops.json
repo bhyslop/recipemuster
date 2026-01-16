@@ -600,6 +600,11 @@
           "silks": "update-jjd-section-voicings",
           "tacks": [
             {
+              "ts": "260116-0820",
+              "state": "rough",
+              "text": "Clarification: We are NOT changing JJD annotations - voicing is to immediate parent only. The change is in AXLA: update axa_argument_list to voice axs_inputs, update axa_exit_uniform/enumerated to voice axs_completion. JJD's jjds_arguments continues to voice axa_argument_list; the chain to axs_inputs is implicit through AXLA. Verify JJD annotations remain correct after AXLA changes."
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Update JJD jjds_* term annotations to show voicing relationship: jjds_arguments voices axa_argument_list (which voices axs_inputs), jjds_exit_* voices axa_exit_* (which voices axs_completion)"
