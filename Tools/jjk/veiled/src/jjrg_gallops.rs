@@ -6,7 +6,7 @@
 use serde::{Deserialize, Serialize};
 use crate::jjrc_core::timestamp_full;
 use crate::jjrf_favor::{CHARSET, Firemark, Coronet, FIREMARK_PREFIX, CORONET_PREFIX};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::io::{Read as IoRead, Write};
 use std::path::Path;
@@ -55,14 +55,14 @@ pub struct Heat {
     pub order: Vec<String>,
     pub next_pace_seed: String,
     pub paddock_file: String,
-    pub paces: std::collections::HashMap<String, Pace>,
+    pub paces: BTreeMap<String, Pace>,
 }
 
 /// Root Gallops structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Gallops {
     pub next_heat_seed: String,
-    pub heats: std::collections::HashMap<String, Heat>,
+    pub heats: BTreeMap<String, Heat>,
 }
 
 // Validation helper functions
@@ -529,7 +529,7 @@ impl Gallops {
             order: Vec::new(),
             next_pace_seed: "AAA".to_string(),
             paddock_file,
-            paces: std::collections::HashMap::new(),
+            paces: BTreeMap::new(),
         };
 
         // Insert Heat
@@ -885,7 +885,7 @@ pub fn read_stdin_optional() -> Result<Option<String>, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
+    use BTreeMap;
 
     #[test]
     fn test_pace_state_serialization() {
@@ -898,7 +898,7 @@ mod tests {
     fn make_valid_gallops() -> Gallops {
         Gallops {
             next_heat_seed: "AB".to_string(),
-            heats: HashMap::new(),
+            heats: BTreeMap::new(),
         }
     }
 
@@ -926,7 +926,7 @@ mod tests {
     fn make_valid_heat(heat_id: &str, silks: &str) -> (String, Heat) {
         let heat_key = format!("₣{}", heat_id);
         let (pace_key, pace) = make_valid_pace(heat_id, "test-pace");
-        let mut paces = HashMap::new();
+        let mut paces = BTreeMap::new();
         paces.insert(pace_key.clone(), pace);
 
         let heat = Heat {
@@ -1247,7 +1247,7 @@ mod tests {
     fn test_multiple_errors_collected() {
         let mut gallops = Gallops {
             next_heat_seed: "!!!".to_string(), // Wrong length and chars
-            heats: HashMap::new(),
+            heats: BTreeMap::new(),
         };
         let (_, mut heat) = make_valid_heat("AB", "my-heat");
         heat.silks = "InvalidSilks".to_string(); // Not kebab-case

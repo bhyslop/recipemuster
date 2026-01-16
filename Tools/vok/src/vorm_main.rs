@@ -623,7 +623,7 @@ fn run_jjx_nominate(args: JjxNominateArgs) -> i32 {
         // Initialize new Gallops with seed AA and empty heats
         Gallops {
             next_heat_seed: "AA".to_string(),
-            heats: std::collections::HashMap::new(),
+            heats: std::collections::BTreeMap::new(),
         }
     };
 

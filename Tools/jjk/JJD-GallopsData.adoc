@@ -206,6 +206,14 @@ lock_release
 
 This keeps bash simple (just locking and invocation) while {jjdx_cli} owns all JSON file operations.
 
+=== Deterministic Serialization
+
+Implementations MUST serialize JSON object keys in deterministic order to minimize diff churn.
+For `heats` and `paces` objects, use sorted key order (e.g., Rust `BTreeMap` instead of `HashMap`).
+This ensures that reordering paces via
+{jjdo_rail}
+produces minimal diffs — only the `order` array changes, not the entire `paces` object.
+
 === Identity Encoding
 
 {jjdt_firemark}

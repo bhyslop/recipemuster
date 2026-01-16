@@ -439,10 +439,10 @@ pub fn run_retire(args: RetireArgs) -> i32 {
 mod tests {
     use super::*;
     use crate::jjrg_gallops::{Heat, Pace, Tack};
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     fn create_test_gallops() -> Gallops {
-        let mut paces = HashMap::new();
+        let mut paces = BTreeMap::new();
         paces.insert(
             "₢ABAAA".to_string(),
             Pace {
@@ -468,7 +468,7 @@ mod tests {
             },
         );
 
-        let mut heats = HashMap::new();
+        let mut heats = BTreeMap::new();
         heats.insert(
             "₣AB".to_string(),
             Heat {
