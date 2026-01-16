@@ -1727,3 +1727,33 @@ Better to accumulate experience first, then instrument.
 ### Context
 
 Emerged 2026-01-14 during VOK heat planning session. Recognized that we're manually discovering patterns (decision paces first, reordering by dependency) that could eventually be codified.
+
+## jj-pace-duplicate-state
+Consider adding a 'duplicate' state for paces that were superseded by other paces.
+
+### Problem
+
+Sometimes a pace's work is completed by a different pace (e.g., `deprecate-jju-tabtargets` had `/jjc-heat-rein` creation in scope, but that's tracked separately as `create-heat-rein-command`). Currently we mark such paces as 'complete' even though the work was done elsewhere, or 'abandoned' which implies the work won't happen.
+
+### Proposed Solution
+
+Add a `duplicate` state (or perhaps `superseded`) that indicates:
+- The pace's intent is addressed
+- But the work was done under a different pace's identity
+- Distinct from `abandoned` (work won't happen) and `complete` (work done here)
+
+### Benefits
+
+- **Accurate history** - steeplechase shows why pace closed without work
+- **Cleaner trophies** - can distinguish "we did this elsewhere" from "we gave up"
+- **Better metrics** - don't inflate completion counts with duplicates
+
+### Alternatives
+
+1. Keep using `abandoned` with a note in tack text
+2. Use `complete` and note "superseded by ₢XXXXX" in tack
+3. Add `duplicate` as true state in JJD spec
+
+### Context
+
+Identified 2026-01-16 while wrapping `deprecate-jju-tabtargets` which had `/jjc-heat-rein` creation listed, but that work is tracked as a separate pace.
