@@ -648,6 +648,11 @@
           "silks": "contextualize-cli-compliance-rules",
           "tacks": [
             {
+              "ts": "260116-0936",
+              "state": "complete",
+              "text": "Contextualize existing CLI Subcommand Completeness rule to show axa_argument_list voices axs_inputs and axa_exit_* voices axs_completion"
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Contextualize existing CLI Subcommand Completeness rule to show axa_argument_list voices axs_inputs and axa_exit_* voices axs_completion"

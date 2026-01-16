@@ -1981,10 +1981,15 @@ requires:
 {axa_exit_uniform}
 or
 {axa_exit_enumerated}
+(which voice
+{axs_completion}
+in CLI context)
 
 * Arguments section voiced as
 {axa_argument_list}
-(may list zero arguments if operation takes none)
+(which voices
+{axs_inputs}
+in CLI context; may list zero arguments if operation takes none)
 
 === CLI Option Completeness
 
