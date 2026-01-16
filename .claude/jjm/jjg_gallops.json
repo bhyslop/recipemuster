@@ -525,9 +525,10 @@
         "₢ABAAF",
         "₢ABAAG",
         "₢ABAAH",
-        "₢ABAAI"
+        "₢ABAAI",
+        "₢ABAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -617,6 +618,16 @@
               "ts": "260116-0820",
               "state": "rough",
               "text": "Add axs_preconditions (environmental state requirements before execution) and axs_postconditions (environmental state guarantees after success) as optional section motifs, distinct from inputs/outputs"
+            }
+          ]
+        },
+        "₢ABAAJ": {
+          "silks": "propose-lifecycle-dimension",
+          "tacks": [
+            {
+              "ts": "260116-0820",
+              "state": "rough",
+              "text": "Propose lifecycle dimension for procedures: transient (executes and completes), long-running (continues until stopped), periodic (executes on schedule). Determine if this is a dimension annotation, a new category, or section content. Iterate with editor on design."
             }
           ]
         }
