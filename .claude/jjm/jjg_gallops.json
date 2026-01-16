@@ -39,6 +39,7 @@
         "₢AAAAB",
         "₢AAAAA",
         "₢AAAAc",
+        "₢AAAAo",
         "₢AAAAH",
         "₢AAAAG",
         "₢AAAAE",
@@ -47,7 +48,7 @@
         "₢AAAAb",
         "₢AAAAl"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -834,6 +835,16 @@
               "ts": "260116-1203",
               "state": "rough",
               "text": "Remove --message flag from jjx_notch. Commits should always have Claude-analyzed messages. Use chalk for explicit human messages (ceremony). Update: JJD spec, jjrn_notch.rs, jjrx_cli.rs (remove --message arg), jjc-pace-notch.md slash command."
+            }
+          ]
+        },
+        "₢AAAAo": {
+          "silks": "create-heat-rein-command",
+          "tacks": [
+            {
+              "ts": "260116-1309",
+              "state": "rough",
+              "text": "Create /jjc-heat-rein slash command.\n\n## Prerequisites\n\n- ₢AAAAc (installation-identifier) complete — jjx_rein no longer requires --brand\n\n## Implementation\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Parses JSON output into human-readable steeplechase history\n\n## Reference\n\nSee JJD jjdo_rein spec for jjx_rein output format and behavior."
             }
           ]
         }
