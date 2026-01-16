@@ -28,9 +28,10 @@
         "₢AAAAH",
         "₢AAAAG",
         "₢AAAAE",
-        "₢AAAAF"
+        "₢AAAAF",
+        "₢AAAAX"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -507,6 +508,16 @@
               "ts": "260115-1713",
               "state": "rough",
               "text": "Expose slate positioning flags in /jjc-pace-slate slash command.\n\nJJD supports --before, --after, --first for jjx_slate but the slash command doesn't expose them.\n\nUpdate /jjc-pace-slate to:\n1. Accept optional positioning in arguments (e.g., `--before AAAAC` or `--first`)\n2. Pass flags through to vvx jjx_slate\n3. Document the positioning options in usage examples\n\nDepends on: slash-command-modernize (₢AAAAL) — should complete first so this pace builds on modernized command format."
+            }
+          ]
+        },
+        "₢AAAAX": {
+          "silks": "fix-jjx-cli-command-name",
+          "tacks": [
+            {
+              "ts": "260116-0826",
+              "state": "rough",
+              "text": "Fix JJK CLI command group name: jjrx_cli.rs declares #[command(name = \"jjx\")] but VVX integration causes it to appear as jjx_nominate. Invocation should be 'vvx jjx <subcommand>' not 'vvx jjx_nominate <subcommand>'. Check external_subcommand registration in VVX main."
             }
           ]
         }
