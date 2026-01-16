@@ -568,6 +568,11 @@
           "silks": "vvc-rcg-compliance",
           "tacks": [
             {
+              "ts": "260116-0950",
+              "state": "complete",
+              "text": "VVC RCG compliance complete. Types: vvcg_GuardArgs, vvcc_CommitArgs, vvcc_CommitLock. Functions: vvcg_run, vvcc_run, vvcc_acquire, vvcc_commit. Internals: zvvcc_*, zvvcg_*. JJK call sites updated."
+            },
+            {
               "ts": "260116-0949",
               "state": "complete",
               "text": "VVC RCG compliance complete: vvcg_GuardArgs, vvcg_run, vvcc_CommitArgs, vvcc_CommitLock, vvcc_run. Internal funcs zvvcc/zvvcg. Updated JJK call sites."
