@@ -517,9 +517,10 @@
       "creation_time": "260116",
       "status": "current",
       "order": [
-        "₢ABAAA"
+        "₢ABAAA",
+        "₢ABAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -529,6 +530,16 @@
               "ts": "260116-0814",
               "state": "rough",
               "text": "Add axo_procedure definition and axs_ category declaration to AXLA mapping section header"
+            }
+          ]
+        },
+        "₢ABAAB": {
+          "silks": "axs-section-motif-definitions",
+          "tacks": [
+            {
+              "ts": "260116-0814",
+              "state": "rough",
+              "text": "Define axs_inputs, axs_behavior, axs_outputs, axs_completion, axs_errors section motifs with guidance on interface-specific voicings"
             }
           ]
         }

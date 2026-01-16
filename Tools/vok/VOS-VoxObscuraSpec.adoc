@@ -9,7 +9,7 @@
 // vosem_: Entity members (fields within entities)
 // vosp_:  Places (repository and location concepts)
 // vosa_:  Assets (distributable or indexed artifacts)
-// voso_:  Operations (release, install, uninstall workflows)
+// voso:   Operations (non-terminal, has children: vosoi_, vosou_, vosor_)
 // vosk_:  Key premises (design constraints)
 //
 // Variant patterns:
