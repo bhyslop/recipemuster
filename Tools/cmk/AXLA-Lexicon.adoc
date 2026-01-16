@@ -1914,6 +1914,63 @@ Specifies external requirements for functionality.
 This section specifies compositional requirements between motifs.
 When a term voices a particular motif, these rules define what companion elements are required.
 
+=== Procedure Documentation Completeness
+
+Voicing as
+{axo_procedure}
+requires documentation sections for:
+
+* {axs_inputs}
+— what the procedure requires to execute
+
+* {axs_behavior}
+— what the procedure does
+
+* {axs_outputs}
+— what the procedure produces
+
+* {axs_completion}
+— how the procedure signals success or failure
+
+Optional sections that MAY be included:
+
+* {axs_preconditions}
+— environmental state requirements before execution
+
+* {axs_postconditions}
+— environmental state guarantees after success
+
+* {axs_errors}
+— failure modes and recovery guidance
+
+=== Command Documentation Completeness
+
+Voicing as
+{axo_command}
+requires all
+{axo_procedure}
+sections plus:
+
+* {axe_environment}
+dimension specifying execution context (e.g.,
+{axe_bash_interactive},
+{axe_bash_unattended})
+
+=== Guide Documentation Completeness
+
+Voicing as
+{axo_guide}
+requires all
+{axo_procedure}
+sections plus:
+
+* {axs_behavior}
+steps use
+{axe_human_guide}
+control voicings
+
+* Steps describe actions the human performs in external systems
+
 === CLI Subcommand Completeness
 
 Voicing as

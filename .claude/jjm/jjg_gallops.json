@@ -628,6 +628,11 @@
           "silks": "add-procedure-compliance-rules",
           "tacks": [
             {
+              "ts": "260116-0935",
+              "state": "complete",
+              "text": "Add Compliance Rules: Procedure Documentation Completeness, Command Documentation Completeness, Guide Documentation Completeness"
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Add Compliance Rules: Procedure Documentation Completeness, Command Documentation Completeness, Guide Documentation Completeness"
