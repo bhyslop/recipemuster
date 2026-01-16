@@ -3,6 +3,21 @@
 //! Provides atomic commit workflow: lock, stage, guard, commit.
 //! Used by vvx commit and JJK commands for consistent commit handling.
 //!
+//! ## Usage Patterns
+//!
+//! ### Simple commit (lock acquired and released automatically):
+//! ```ignore
+//! let exit_code = vvc::commit(&args);
+//! ```
+//!
+//! ### Protected operation (hold lock across multiple steps):
+//! ```ignore
+//! let lock = vvc::CommitLock::acquire()?;
+//! // ... do work while holding lock ...
+//! let hash = lock.commit(&args)?;
+//! // lock released when dropped
+//! ```
+//!
 //! Exit codes:
 //!   0 - Success (commit hash printed to stdout)
 //!   1 - Failure (lock held, guard failed, claude failed, commit failed)
@@ -29,6 +44,51 @@ pub struct CommitArgs {
     pub allow_empty: bool,
     /// Skip 'git add -A' (respect pre-staged files)
     pub no_stage: bool,
+}
+
+/// RAII guard that holds the commit lock.
+///
+/// The lock is automatically released when the guard is dropped, ensuring
+/// no code path can leak the lock. Use this when you need to hold the lock
+/// across multiple operations (e.g., modify gallops, then commit).
+///
+/// ## Example
+/// ```ignore
+/// let lock = CommitLock::acquire()?;
+/// // Do protected work here...
+/// let hash = lock.commit(&args)?;
+/// // Lock released when `lock` goes out of scope
+/// ```
+pub struct CommitLock {
+    /// Private field prevents external construction
+    _private: (),
+}
+
+impl CommitLock {
+    /// Acquire the commit lock.
+    ///
+    /// Returns `Err` if the lock is already held by another operation.
+    /// The lock is held until this `CommitLock` is dropped.
+    pub fn acquire() -> Result<Self, String> {
+        acquire_lock()?;
+        Ok(CommitLock { _private: () })
+    }
+
+    /// Perform a commit while holding the lock.
+    ///
+    /// This does NOT release the lock - the caller retains the guard
+    /// and can perform additional operations if needed.
+    ///
+    /// Returns the commit hash on success.
+    pub fn commit(&self, args: &CommitArgs) -> Result<String, String> {
+        run_commit_workflow(args)
+    }
+}
+
+impl Drop for CommitLock {
+    fn drop(&mut self) {
+        release_lock();
+    }
 }
 
 /// Acquire the commit lock using git update-ref
@@ -206,17 +266,20 @@ fn execute_commit(message: &str, allow_empty: bool) -> Result<String, String> {
 ///
 /// Returns exit code: 0 for success, 1 for failure.
 /// On success, prints commit hash to stdout.
+///
+/// This is the simple API that acquires and releases the lock automatically.
+/// For operations that need to hold the lock across multiple steps, use
+/// `CommitLock::acquire()` instead.
 pub fn run(args: &CommitArgs) -> i32 {
-    if let Err(e) = acquire_lock() {
-        eprintln!("commit: error: {}", e);
-        return 1;
-    }
+    let lock = match CommitLock::acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("commit: error: {}", e);
+            return 1;
+        }
+    };
 
-    let result = run_commit_workflow(args);
-
-    release_lock();
-
-    match result {
+    match lock.commit(args) {
         Ok(hash) => {
             println!("{}", hash);
             eprintln!("commit: success");
@@ -227,6 +290,7 @@ pub fn run(args: &CommitArgs) -> i32 {
             1
         }
     }
+    // lock dropped here, releasing the git ref lock
 }
 
 /// Inner workflow that can return Result for cleaner error handling

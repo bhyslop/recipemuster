@@ -563,6 +563,15 @@ fn run_nominate(args: NominateArgs) -> i32 {
     use crate::jjrg_gallops::NominateArgs as LibNominateArgs;
     use std::path::Path;
 
+    // Acquire lock FIRST - fail fast if another operation is in progress
+    let lock = match vvc::CommitLock::acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_nominate: error: {}", e);
+            return 1;
+        }
+    };
+
     let mut gallops = if args.file.exists() {
         match Gallops::load(&args.file) {
             Ok(g) => g,
@@ -589,6 +598,7 @@ fn run_nominate(args: NominateArgs) -> i32 {
         .and_then(|p| p.parent())
         .unwrap_or(Path::new("."));
 
+    let silks = args.silks.clone();
     let nominate_args = LibNominateArgs {
         silks: args.silks,
         created: args.created,
@@ -600,6 +610,17 @@ fn run_nominate(args: NominateArgs) -> i32 {
                 eprintln!("jjx_nominate: error saving Gallops: {}", e);
                 return 1;
             }
+
+            // Commit while holding lock
+            let commit_args = vvc::CommitArgs {
+                message: Some(format!("Nominate: {} {}", silks, result.firemark)),
+                ..Default::default()
+            };
+            match lock.commit(&commit_args) {
+                Ok(hash) => eprintln!("jjx_nominate: committed {}", &hash[..8]),
+                Err(e) => eprintln!("jjx_nominate: commit warning: {}", e),
+            }
+
             println!("{}", result.firemark);
             0
         }
@@ -608,10 +629,20 @@ fn run_nominate(args: NominateArgs) -> i32 {
             1
         }
     }
+    // lock released here
 }
 
 fn run_slate(args: SlateArgs) -> i32 {
     use crate::jjrg_gallops::SlateArgs as LibSlateArgs;
+
+    // Acquire lock FIRST - fail fast if another operation is in progress
+    let lock = match vvc::CommitLock::acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_slate: error: {}", e);
+            return 1;
+        }
+    };
 
     let text = match read_stdin() {
         Ok(t) => t,
@@ -629,6 +660,8 @@ fn run_slate(args: SlateArgs) -> i32 {
         }
     };
 
+    let firemark = args.firemark.clone();
+    let silks = args.silks.clone();
     let slate_args = LibSlateArgs {
         firemark: args.firemark,
         silks: args.silks,
@@ -644,6 +677,17 @@ fn run_slate(args: SlateArgs) -> i32 {
                 eprintln!("jjx_slate: error saving Gallops: {}", e);
                 return 1;
             }
+
+            // Commit while holding lock
+            let commit_args = vvc::CommitArgs {
+                message: Some(format!("Slate: {} in ₣{}", silks, firemark)),
+                ..Default::default()
+            };
+            match lock.commit(&commit_args) {
+                Ok(hash) => eprintln!("jjx_slate: committed {}", &hash[..8]),
+                Err(e) => eprintln!("jjx_slate: commit warning: {}", e),
+            }
+
             println!("{}", result.coronet);
             0
         }
@@ -652,10 +696,20 @@ fn run_slate(args: SlateArgs) -> i32 {
             1
         }
     }
+    // lock released here
 }
 
 fn run_rail(args: RailArgs) -> i32 {
     use crate::jjrg_gallops::RailArgs as LibRailArgs;
+
+    // Acquire lock FIRST - fail fast if another operation is in progress
+    let lock = match vvc::CommitLock::acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_rail: error: {}", e);
+            return 1;
+        }
+    };
 
     let order: Vec<String> = if args.order.len() == 1 && args.order[0].starts_with('[') {
         match serde_json::from_str(&args.order[0]) {
@@ -674,6 +728,7 @@ fn run_rail(args: RailArgs) -> i32 {
         }
     };
 
+    let firemark = args.firemark.clone();
     let rail_args = LibRailArgs {
         firemark: args.firemark,
         order,
@@ -690,6 +745,17 @@ fn run_rail(args: RailArgs) -> i32 {
                 eprintln!("jjx_rail: error saving Gallops: {}", e);
                 return 1;
             }
+
+            // Commit while holding lock
+            let commit_args = vvc::CommitArgs {
+                message: Some(format!("Rail: reorder ₣{}", firemark)),
+                ..Default::default()
+            };
+            match lock.commit(&commit_args) {
+                Ok(hash) => eprintln!("jjx_rail: committed {}", &hash[..8]),
+                Err(e) => eprintln!("jjx_rail: commit warning: {}", e),
+            }
+
             for coronet in new_order {
                 println!("{}", coronet);
             }
@@ -700,10 +766,21 @@ fn run_rail(args: RailArgs) -> i32 {
             1
         }
     }
+    // lock released here
 }
 
 fn run_tally(args: TallyArgs) -> i32 {
     use crate::jjrg_gallops::TallyArgs as LibTallyArgs;
+    use crate::jjrf_favor::Coronet;
+
+    // Acquire lock FIRST - fail fast if another operation is in progress
+    let lock = match vvc::CommitLock::acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_tally: error: {}", e);
+            return 1;
+        }
+    };
 
     let text = match read_stdin_optional() {
         Ok(t) => t,
@@ -735,6 +812,18 @@ fn run_tally(args: TallyArgs) -> i32 {
         }
     };
 
+    // Get silks for commit message before we move args
+    let coronet_str = args.coronet.clone();
+    let silks = Coronet::parse(&coronet_str)
+        .ok()
+        .and_then(|c| {
+            let firemark = c.parent_firemark().display();
+            gallops.heats.get(&firemark)
+                .and_then(|h| h.paces.get(&c.display()))
+                .map(|p| p.silks.clone())
+        })
+        .unwrap_or_else(|| coronet_str.clone());
+
     let tally_args = LibTallyArgs {
         coronet: args.coronet,
         state,
@@ -748,6 +837,17 @@ fn run_tally(args: TallyArgs) -> i32 {
                 eprintln!("jjx_tally: error saving Gallops: {}", e);
                 return 1;
             }
+
+            // Commit while holding lock
+            let commit_args = vvc::CommitArgs {
+                message: Some(format!("Tally: {}", silks)),
+                ..Default::default()
+            };
+            match lock.commit(&commit_args) {
+                Ok(hash) => eprintln!("jjx_tally: committed {}", &hash[..8]),
+                Err(e) => eprintln!("jjx_tally: commit warning: {}", e),
+            }
+
             0
         }
         Err(e) => {
@@ -755,10 +855,20 @@ fn run_tally(args: TallyArgs) -> i32 {
             1
         }
     }
+    // lock released here
 }
 
 fn run_draft(args: DraftArgs) -> i32 {
     use crate::jjrg_gallops::DraftArgs as LibDraftArgs;
+
+    // Acquire lock FIRST - fail fast if another operation is in progress
+    let lock = match vvc::CommitLock::acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_draft: error: {}", e);
+            return 1;
+        }
+    };
 
     let mut gallops = match Gallops::load(&args.file) {
         Ok(g) => g,
@@ -768,6 +878,8 @@ fn run_draft(args: DraftArgs) -> i32 {
         }
     };
 
+    let coronet = args.coronet.clone();
+    let to = args.to.clone();
     let draft_args = LibDraftArgs {
         coronet: args.coronet,
         to: args.to,
@@ -782,6 +894,17 @@ fn run_draft(args: DraftArgs) -> i32 {
                 eprintln!("jjx_draft: error saving Gallops: {}", e);
                 return 1;
             }
+
+            // Commit while holding lock
+            let commit_args = vvc::CommitArgs {
+                message: Some(format!("Draft: {} → ₣{}", coronet, to)),
+                ..Default::default()
+            };
+            match lock.commit(&commit_args) {
+                Ok(hash) => eprintln!("jjx_draft: committed {}", &hash[..8]),
+                Err(e) => eprintln!("jjx_draft: commit warning: {}", e),
+            }
+
             println!("{}", result.new_coronet);
             0
         }
@@ -790,4 +913,5 @@ fn run_draft(args: DraftArgs) -> i32 {
             1
         }
     }
+    // lock released here
 }

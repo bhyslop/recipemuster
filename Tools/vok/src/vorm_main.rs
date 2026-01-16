@@ -30,6 +30,10 @@ enum Commands {
     #[command(name = "vvx_push")]
     VvxPush(PushArgs),
 
+    /// Force-break a stuck lock (use after crash)
+    #[command(name = "vvx_unlock")]
+    VvxUnlock,
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
@@ -90,6 +94,7 @@ fn main() -> ExitCode {
         Some(Commands::Guard(args)) => run_guard(args),
         Some(Commands::VvxCommit(args)) => run_commit(args),
         Some(Commands::VvxPush(args)) => run_push(args),
+        Some(Commands::VvxUnlock) => run_unlock(),
         Some(Commands::External(args)) => dispatch_external(args),
         None => {
             use clap::CommandFactory;
@@ -143,7 +148,51 @@ fn dispatch_external(args: Vec<OsString>) -> i32 {
 }
 
 /// Lock reference path for push operations (same as commit to prevent concurrent ops)
-const PUSH_LOCK_REF: &str = "refs/vvg/locks/vvx";
+const LOCK_REF: &str = "refs/vvg/locks/vvx";
+
+/// Force-break a stuck lock
+fn run_unlock() -> i32 {
+    use std::process::Command;
+
+    // Check if lock exists
+    let check = Command::new("git")
+        .args(["show-ref", "--verify", "--quiet", LOCK_REF])
+        .status();
+
+    match check {
+        Ok(status) if status.success() => {
+            // Lock exists, delete it
+            let delete = Command::new("git")
+                .args(["update-ref", "-d", LOCK_REF])
+                .output();
+
+            match delete {
+                Ok(output) if output.status.success() => {
+                    eprintln!("unlock: lock broken successfully");
+                    0
+                }
+                Ok(output) => {
+                    eprintln!("unlock: error: failed to delete lock: {}",
+                        String::from_utf8_lossy(&output.stderr));
+                    1
+                }
+                Err(e) => {
+                    eprintln!("unlock: error: {}", e);
+                    1
+                }
+            }
+        }
+        Ok(_) => {
+            // Lock doesn't exist
+            eprintln!("unlock: no lock held");
+            0
+        }
+        Err(e) => {
+            eprintln!("unlock: error checking lock: {}", e);
+            1
+        }
+    }
+}
 
 fn run_push(args: PushArgs) -> i32 {
     use std::process::Command;
@@ -161,7 +210,7 @@ fn run_push(args: PushArgs) -> i32 {
     };
 
     let lock_result = Command::new("git")
-        .args(["update-ref", PUSH_LOCK_REF, &lock_value, ""])
+        .args(["update-ref", LOCK_REF, &lock_value, ""])
         .output();
 
     match lock_result {
@@ -177,7 +226,7 @@ fn run_push(args: PushArgs) -> i32 {
     let result = run_push_workflow(&args);
 
     let _ = Command::new("git")
-        .args(["update-ref", "-d", PUSH_LOCK_REF])
+        .args(["update-ref", "-d", LOCK_REF])
         .output();
     eprintln!("push: lock released");
 
