@@ -7,6 +7,7 @@
       "status": "current",
       "order": [
         "₢AAAAg",
+        "₢AAAAh",
         "₢AAAAd",
         "₢AAAAe",
         "₢AAAAf",
@@ -40,7 +41,7 @@
         "₢AAAAa",
         "₢AAAAb"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -686,6 +687,16 @@
               "ts": "260116-1056",
               "state": "rough",
               "text": "Update JJD spec: jjx_retire must remove heat from gallops.json, delete paddock file, and git commit - not just extract trophy data"
+            }
+          ]
+        },
+        "₢AAAAh": {
+          "silks": "fix-retire-slash-command",
+          "tacks": [
+            {
+              "ts": "260116-1056",
+              "state": "rough",
+              "text": "Fix /jjc-heat-retire slash command to call jjx_retire (which should do all the work) instead of manually editing files"
             }
           ]
         }
