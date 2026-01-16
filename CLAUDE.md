@@ -110,6 +110,10 @@ Full read and edit access is pre-approved for all files in:
 - **JJU**  → `jjk/jju_cli.sh`, `jjk/jju_utility.sh` (CLI and utility functions)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 
+#### VOK Subdirectory (`Tools/vok/`)
+- **RCG**  → `vok/lenses/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
+- **VOS**  → `vok/VOS-VoxObscuraSpec.adoc` (Vox Obscura specification)
+
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`
 
