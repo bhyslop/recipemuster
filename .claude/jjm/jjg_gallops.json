@@ -47,11 +47,12 @@
         "₢AAAAa",
         "₢AAAAb",
         "₢AAAAr",
+        "₢AAAAs",
         "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAs",
+      "next_pace_seed": "AAt",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -914,6 +915,16 @@
               "ts": "260116-1353",
               "state": "rough",
               "text": "Rename saddle output fields: tack_text → spec, tack_direction → direction.\n\n## Rationale\n\nConsumers of jjx_saddle output do not need internal terminology. \"spec\" and \"direction\" are clearer for slash command prompts.\n\n## Rust changes (jjrq_query.rs)\n\n- Struct field: tack_text → spec\n- Struct field: tack_direction → direction\n- Update initialization, assignment, tests (~14 lines)\n\n## Slash command changes\n\n- jjc-heat-mount.md (6 references)\n- jjc-heat-groom.md (4 references)\n- jjc-pace-wrap.md (1 reference)\n- jjc-pace-prime.md (1 reference)\n\n## Verification\n\n- cargo build && cargo test\n- Spot-check jjx_saddle AA output has new field names"
+            }
+          ]
+        },
+        "₢AAAAs": {
+          "silks": "fix-gallops-commit-scope",
+          "tacks": [
+            {
+              "ts": "260116-1419",
+              "state": "rough",
+              "text": "Fix gallops commit scope: slate/tally/rail should only stage jjg_gallops.json + heat-specific paddock.\n\n## Problem\n\njjx_slate, jjx_tally, jjx_rail use vvcc_commit which does git add -A, staging everything. This causes tangles when unrelated work is in progress.\n\n## Solution\n\nSwitch from vvcc_commit to vvcm_commit (machine commit) with explicit file list:\n- jjg_gallops.json (always)\n- jjp_{firemark}.md (heat-specific paddock)\n\n## Pattern\n\njjx_retire already does this correctly (lines 663-684 in jjrx_cli.rs).\n\n## Files to change\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — 4 operations: slate, tally, rail, nominate\n\n## Firemark derivation\n\n- slate/rail: firemark from CLI arg\n- tally: derive from coronet (first 2 chars after ₢)\n- nominate: firemark from result\n\n## JJD update\n\nNot required — spec does not mention commit behavior."
             }
           ]
         }
