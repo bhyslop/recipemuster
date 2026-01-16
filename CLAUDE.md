@@ -343,6 +343,10 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 - `/jja-itch-add` - Add a new itch to the backlog
 - `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
 
+**JJ operations:**
+- Use slash commands (`/jjc-pace-slate`, `/jjc-pace-reslate`, etc.) rather than calling `jjx_*` directly
+- Slash commands document correct invocation patterns and handle context
+
 **Build & Run Discipline:**
 Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build
