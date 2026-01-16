@@ -47,9 +47,10 @@
         "₢AAAAa",
         "₢AAAAb",
         "₢AAAAl",
-        "₢AAAAp"
+        "₢AAAAp",
+        "₢AAAAq"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -856,6 +857,16 @@
               "ts": "260116-1327",
               "state": "rough",
               "text": "Refactor jjx_rein to filter by firemark/coronet identity rather than brand.\n\n## Changes\n\n1. **Grep pattern**: Change from `^jjb:BRAND:(₣XX|₢XX)` to `^jjb:[^:]+:(₣XX|₢XX)` - match any brand, filter by identity\n2. **CLI args**: Remove `--brand` argument from ReinArgs\n3. **Internal calls**: Update run_retire() to not need brand for get_entries()\n\n## Rationale\n\nThe firemark/coronet already uniquely identifies heat membership:\n- ₢AAAAk → first 2 chars after prefix = AA = parent heat\n- ₣AA → direct heat identity\n\nBrand is orthogonal - it identifies which installation made the commit, not which heat it belongs to.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (grep pattern, ReinArgs)\n- Tools/jjk/veiled/src/jjrx_cli.rs (CLI ReinArgs, run_retire)\n- Tools/jjk/JJD-GallopsData.adoc (update jjdo_rein spec)\n\n## Unblocks\n\n- /jjc-heat-rein slash command (no longer needs installation-identifier)\n- Cleaner retire flow"
+            }
+          ]
+        },
+        "₢AAAAq": {
+          "silks": "steeplechase-version-tracking",
+          "tacks": [
+            {
+              "ts": "260116-1328",
+              "state": "rough",
+              "text": "Add version/brand observability to steeplechase entries and trophy output.\n\n## Changes\n\n1. **SteeplechaseEntry**: Add `brand` field (parsed from commit, informational only)\n2. **Trophy rendering**: Show version transitions across heat history\n3. **Potential**: Include VVX version if embedded in commits\n\n## Steeplechase Entry Enhancement\n\n```rust\npub struct SteeplechaseEntry {\n    pub timestamp: String,\n    pub coronet: Option<String>,\n    pub action: Option<String>,\n    pub subject: String,\n    pub brand: Option<String>,  // NEW: parsed from jjb:BRAND:...\n}\n```\n\n## Trophy Version Section\n\nIn the Steeplechase section of trophy, group or annotate by version:\n- Show when brand/version changed during heat\n- Example: \"Commits 1-15: RBM/JJK-v1, Commits 16-30: RBM/JJK-v2\"\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (SteeplechaseEntry, parsing)\n- Tools/jjk/veiled/src/jjrg_gallops.rs (trophy rendering)\n- Tools/jjk/JJD-GallopsData.adoc (document brand field)\n\n## Depends On\n\n- rein-filter-by-identity (₢AAAAp) - brand parsing happens alongside identity filtering"
             }
           ]
         }
