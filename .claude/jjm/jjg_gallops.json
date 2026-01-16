@@ -773,6 +773,11 @@
           "silks": "retire-heat-ab-test",
           "tacks": [
             {
+              "ts": "260116-1349",
+              "state": "complete",
+              "text": "Heat AB retired via jjx_retire. Trophy written, heat removed from gallops, paddock deleted, commit created (ba845a0)."
+            },
+            {
               "ts": "260116-1348",
               "state": "complete",
               "text": "Test jjx_retire end-to-end by retiring ₣AB (axla-procedure-section-motifs). Validates: trophy file written, heat removed from gallops, paddock deleted, commit created."
