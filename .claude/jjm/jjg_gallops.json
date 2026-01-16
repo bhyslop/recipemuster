@@ -56,9 +56,10 @@
         "₢AAAAv",
         "₢AAAAl",
         "₢AAAAp",
-        "₢AAAAq"
+        "₢AAAAq",
+        "₢AAAAz"
       ],
-      "next_pace_seed": "AAz",
+      "next_pace_seed": "AA0",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -1057,6 +1058,16 @@
               "ts": "260116-1439",
               "state": "rough",
               "text": "Add --remaining flag to jjx_parade to filter out complete/abandoned paces.\n\n## Files to change\n\n1. **Tools/jjk/veiled/src/jjrx_cli.rs** (~line 155)\n   - Add to zjjrx_ParadeArgs: `#[arg(long)] remaining: bool`\n   - Pass through to LibParadeArgs\n\n2. **Tools/jjk/veiled/src/jjrq_query.rs** (~line 178, 186)\n   - Add to jjrq_ParadeArgs: `pub remaining: bool`\n   - In jjrq_run_parade: skip paces where state is \"complete\" or \"abandoned\"\n\n3. **Tools/jjk/JJD-GallopsData.adoc**\n   - Document --remaining argument for jjdo_parade\n\n## Implementation\n\nIn jjrq_run_parade pace iteration:\n```rust\nif args.remaining && (state == \"complete\" || state == \"abandoned\") {\n    continue;\n}\n```\n\n## Verification\n\n- cargo build && cargo test\n- ./tt/vvw-r.RunVVX.sh jjx_parade AA --format overview --remaining"
+            }
+          ]
+        },
+        "₢AAAAz": {
+          "silks": "prime-merges-direction-into-spec",
+          "tacks": [
+            {
+              "ts": "260116-1509",
+              "state": "rough",
+              "text": "Refactor /jjc-pace-prime to merge direction into spec instead of using separate tack_direction field.\n\n## Current behavior\n\nPrime writes direction to tack_direction field. Mount reads both tack_text and tack_direction for primed paces.\n\n## Proposed behavior\n\nPrime appends direction content to tack_text under a '## Direction' heading. The tack_direction field becomes unused for new paces.\n\n## Benefits\n\n- Single source of truth - what agent sees is in one place\n- No risk of direction referencing spec content agent doesn't see\n- Simpler mental model\n\n## Changes\n\n1. **jjc-pace-prime.md**: Change jjx_tally call to append direction to --text instead of using --direction\n2. **jjc-heat-mount.md**: Remove tack_direction references for primed paces (direction is in spec)\n3. **JJD-GallopsData.adoc**: Document that tack_direction is deprecated for new paces\n\n## Migration\n\nExisting primed paces with tack_direction continue to work (mount reads both). New paces use merged approach.\n\n## Verification\n\n- Prime a test pace, verify direction appears in tack_text\n- Mount primed pace, verify execution succeeds"
             }
           ]
         }
