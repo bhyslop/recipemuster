@@ -66,6 +66,9 @@
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_endianness:                      <<axd_endianness,Endianness>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
+:axd_transient:                       <<axd_transient,Transient>>
+:axd_longrunning:                     <<axd_longrunning,Long-running>>
+:axd_periodic:                        <<axd_periodic,Periodic>>
 
 // Axial Format Terms
 :axf_format:                          <<axf_format,Format>>
@@ -175,6 +178,14 @@
 :axs_postconditions:                  <<axs_postconditions,Postconditions>>
 :axs_completion:                      <<axs_completion,Completion>>
 :axs_errors:                          <<axs_errors,Errors>>
+:axs_startup:                         <<axs_startup,Startup>>
+:axs_shutdown:                        <<axs_shutdown,Shutdown>>
+:axs_health:                          <<axs_health,Health>>
+:axs_signals:                         <<axs_signals,Signals>>
+:axs_recovery:                        <<axs_recovery,Recovery>>
+:axs_schedule:                        <<axs_schedule,Schedule>>
+:axs_idempotency:                     <<axs_idempotency,Idempotency>>
+:axs_overlap:                         <<axs_overlap,Overlap>>
 
 // Axial Type Terms
 :axt_type:                            <<axt_type,Type>>
@@ -670,6 +681,109 @@ Covers error categories, recovery actions, or diagnostic guidance.
 Distinct from
 {axs_completion}
 which documents the signaling mechanism rather than failure semantics.
+
+=== Lifecycle Section Motifs
+
+These
+{axs_*}
+sections apply to specific lifecycle dimensions.
+
+[[axs_startup]]
+{axs_startup}::
+A
+{axl_motif}
+representing a section documenting initialization behavior for an
+{axd_longrunning}
+{axo_procedure}.
+Covers startup sequence, readiness criteria, and initialization dependencies.
+Required for
+{axd_longrunning}
+procedures.
+
+[[axs_shutdown]]
+{axs_shutdown}::
+A
+{axl_motif}
+representing a section documenting graceful termination for an
+{axd_longrunning}
+{axo_procedure}.
+Covers cleanup behavior, in-flight request handling, and resource release.
+Required for
+{axd_longrunning}
+procedures.
+
+[[axs_health]]
+{axs_health}::
+A
+{axl_motif}
+representing a section documenting health check semantics for an
+{axd_longrunning}
+{axo_procedure}.
+Covers liveness probes (is it running?), readiness probes (can it serve?), and health endpoints.
+Optional for
+{axd_longrunning}
+procedures.
+
+[[axs_signals]]
+{axs_signals}::
+A
+{axl_motif}
+representing a section documenting Unix signal handling for an
+{axo_procedure}.
+Covers SIGTERM (graceful stop), SIGHUP (reload config), SIGUSR1/2 (custom actions).
+Optional; most relevant for
+{axd_longrunning}
+but available to any
+{axo_command}.
+
+[[axs_recovery]]
+{axs_recovery}::
+A
+{axl_motif}
+representing a section documenting crash recovery behavior for an
+{axd_longrunning}
+{axo_procedure}.
+Covers restart behavior, state recovery, and failure mode handling.
+Optional for
+{axd_longrunning}
+procedures.
+
+[[axs_schedule]]
+{axs_schedule}::
+A
+{axl_motif}
+representing a section documenting timing specification for an
+{axd_periodic}
+{axo_procedure}.
+Covers cron expressions, intervals, or calendar-based triggers.
+Required for
+{axd_periodic}
+procedures.
+
+[[axs_idempotency]]
+{axs_idempotency}::
+A
+{axl_motif}
+representing a section documenting re-run safety for an
+{axd_periodic}
+{axo_procedure}.
+Covers duplicate handling, safe re-execution, and state management across runs.
+Optional for
+{axd_periodic}
+procedures.
+
+[[axs_overlap]]
+{axs_overlap}::
+A
+{axl_motif}
+representing a section documenting concurrent execution behavior for an
+{axd_periodic}
+{axo_procedure}.
+Covers what happens when a new run triggers while previous run is still executing.
+Options include: skip, queue, terminate previous, or allow parallel.
+Optional for
+{axd_periodic}
+procedures.
 
 == Axial Operation Terms
 
@@ -1481,6 +1595,57 @@ Whether XML member is attribute or child element.
 Required for XML format.
 Forbidden for JSON, YAML, protobuf, binary.
 
+=== Lifecycle Dimensions
+
+These
+{axd_dimension_s}
+qualify
+{axo_procedure}
+voicings to specify execution lifecycle.
+Exactly one lifecycle dimension is required for any
+{axo_procedure}
+voicing.
+Lifecycle dimensions are mutually exclusive.
+
+[[axd_transient]]
+{axd_transient}::
+{axo_procedure}
+executes and completes.
+The default lifecycle for most procedures.
+{axs_completion}
+documents exit status or return value.
+
+[[axd_longrunning]]
+{axd_longrunning}::
+{axo_procedure}
+runs continuously until explicitly stopped.
+{axs_completion}
+documents startup success criteria, not termination.
+Requires
+{axs_startup}
+and
+{axs_shutdown}
+sections.
+May include
+{axs_health},
+{axs_signals},
+{axs_recovery}
+sections.
+
+[[axd_periodic]]
+{axd_periodic}::
+{axo_procedure}
+executes on a schedule.
+{axs_completion}
+applies per-run.
+Requires
+{axs_schedule}
+section.
+May include
+{axs_idempotency},
+{axs_overlap}
+sections.
+
 === Dimension Applicability
 
 Per-format guidance for
@@ -1970,6 +2135,67 @@ steps use
 control voicings
 
 * Steps describe actions the human performs in external systems
+
+=== Lifecycle Dimension Requirement
+
+Every
+{axo_procedure}
+voicing requires exactly one lifecycle dimension:
+
+* {axd_transient}
+— executes and completes (most common)
+
+* {axd_longrunning}
+— runs until stopped
+
+* {axd_periodic}
+— runs on schedule
+
+Lifecycle dimensions are mutually exclusive.
+
+=== Long-running Procedure Completeness
+
+Voicing with
+{axd_longrunning}
+requires all
+{axo_procedure}
+sections plus:
+
+* {axs_startup}
+— initialization behavior and readiness criteria
+
+* {axs_shutdown}
+— graceful termination and cleanup
+
+Optional sections:
+
+* {axs_health}
+— liveness and readiness probes
+
+* {axs_signals}
+— Unix signal handling
+
+* {axs_recovery}
+— crash recovery behavior
+
+=== Periodic Procedure Completeness
+
+Voicing with
+{axd_periodic}
+requires all
+{axo_procedure}
+sections plus:
+
+* {axs_schedule}
+— timing specification
+
+Optional sections:
+
+* {axs_idempotency}
+— re-run safety guarantees
+
+* {axs_overlap}
+— concurrent execution handling
 
 === CLI Subcommand Completeness
 

@@ -12,9 +12,9 @@
 //!
 //! ### Protected operation (hold lock across multiple steps):
 //! ```ignore
-//! let lock = vvc::CommitLock::acquire()?;
+//! let lock = vvc::vvcc_CommitLock::vvcc_acquire()?;
 //! // ... do work while holding lock ...
-//! let hash = lock.commit(&args)?;
+//! let hash = lock.vvcc_commit(&args)?;
 //! // lock released when dropped
 //! ```
 //!
@@ -27,15 +27,15 @@ use std::process::Command;
 use crate::vvcg_guard;
 
 /// Lock reference path for commit operations
-const LOCK_REF: &str = "refs/vvg/locks/vvx";
+const VVCC_LOCK_REF: &str = "refs/vvg/locks/vvx";
 
 /// Default size limits
-const SIZE_LIMIT: u64 = 50000;
-const WARN_LIMIT: u64 = 30000;
+const VVCC_SIZE_LIMIT: u64 = 50000;
+const VVCC_WARN_LIMIT: u64 = 30000;
 
 /// Arguments for commit operation
 #[derive(Debug, Clone, Default)]
-pub struct CommitArgs {
+pub struct vvcc_CommitArgs {
     /// Prefix string to prepend to commit message (e.g., "[jj:BRAND][F00/silks]")
     pub prefix: Option<String>,
     /// Commit message; if absent, invoke claude to generate from diff
@@ -54,24 +54,24 @@ pub struct CommitArgs {
 ///
 /// ## Example
 /// ```ignore
-/// let lock = CommitLock::acquire()?;
+/// let lock = vvcc_CommitLock::vvcc_acquire()?;
 /// // Do protected work here...
-/// let hash = lock.commit(&args)?;
+/// let hash = lock.vvcc_commit(&args)?;
 /// // Lock released when `lock` goes out of scope
 /// ```
-pub struct CommitLock {
+pub struct vvcc_CommitLock {
     /// Private field prevents external construction
     _private: (),
 }
 
-impl CommitLock {
+impl vvcc_CommitLock {
     /// Acquire the commit lock.
     ///
     /// Returns `Err` if the lock is already held by another operation.
-    /// The lock is held until this `CommitLock` is dropped.
-    pub fn acquire() -> Result<Self, String> {
-        acquire_lock()?;
-        Ok(CommitLock { _private: () })
+    /// The lock is held until this `vvcc_CommitLock` is dropped.
+    pub fn vvcc_acquire() -> Result<Self, String> {
+        zvvcc_acquire_lock()?;
+        Ok(vvcc_CommitLock { _private: () })
     }
 
     /// Perform a commit while holding the lock.
@@ -80,19 +80,19 @@ impl CommitLock {
     /// and can perform additional operations if needed.
     ///
     /// Returns the commit hash on success.
-    pub fn commit(&self, args: &CommitArgs) -> Result<String, String> {
-        run_commit_workflow(args)
+    pub fn vvcc_commit(&self, args: &vvcc_CommitArgs) -> Result<String, String> {
+        zvvcc_run_commit_workflow(args)
     }
 }
 
-impl Drop for CommitLock {
+impl Drop for vvcc_CommitLock {
     fn drop(&mut self) {
-        release_lock();
+        zvvcc_release_lock();
     }
 }
 
 /// Acquire the commit lock using git update-ref
-fn acquire_lock() -> Result<(), String> {
+fn zvvcc_acquire_lock() -> Result<(), String> {
     let head_output = Command::new("git")
         .args(["rev-parse", "HEAD"])
         .output()
@@ -105,7 +105,7 @@ fn acquire_lock() -> Result<(), String> {
     };
 
     let result = Command::new("git")
-        .args(["update-ref", LOCK_REF, &lock_value, ""])
+        .args(["update-ref", VVCC_LOCK_REF, &lock_value, ""])
         .output()
         .map_err(|e| format!("Failed to run git update-ref: {}", e))?;
 
@@ -118,15 +118,15 @@ fn acquire_lock() -> Result<(), String> {
 }
 
 /// Release the commit lock
-fn release_lock() {
+fn zvvcc_release_lock() {
     let _ = Command::new("git")
-        .args(["update-ref", "-d", LOCK_REF])
+        .args(["update-ref", "-d", VVCC_LOCK_REF])
         .output();
     eprintln!("commit: lock released");
 }
 
 /// Stage all changes including untracked files with 'git add -A'
-fn stage_changes() -> Result<(), String> {
+fn zvvcc_stage_changes() -> Result<(), String> {
     let result = Command::new("git")
         .args(["add", "-A"])
         .output()
@@ -144,7 +144,7 @@ fn stage_changes() -> Result<(), String> {
 }
 
 /// Check if there are staged changes
-fn has_staged_changes() -> Result<bool, String> {
+fn zvvcc_has_staged_changes() -> Result<bool, String> {
     let result = Command::new("git")
         .args(["diff", "--cached", "--quiet"])
         .output()
@@ -154,13 +154,13 @@ fn has_staged_changes() -> Result<bool, String> {
 }
 
 /// Run size guard check on staged content
-fn run_guard() -> Result<(), String> {
-    let args = vvcg_guard::GuardArgs {
-        limit: SIZE_LIMIT,
-        warn: WARN_LIMIT,
+fn zvvcc_run_guard() -> Result<(), String> {
+    let args = vvcg_guard::vvcg_GuardArgs {
+        limit: VVCC_SIZE_LIMIT,
+        warn: VVCC_WARN_LIMIT,
     };
 
-    let result = vvcg_guard::run(&args);
+    let result = vvcg_guard::vvcg_run(&args);
 
     match result {
         0 => Ok(()),
@@ -174,7 +174,7 @@ fn run_guard() -> Result<(), String> {
 }
 
 /// Get the staged diff for commit message generation
-fn get_staged_diff() -> Result<String, String> {
+fn zvvcc_get_staged_diff() -> Result<String, String> {
     let output = Command::new("git")
         .args(["diff", "--cached"])
         .output()
@@ -188,7 +188,7 @@ fn get_staged_diff() -> Result<String, String> {
 }
 
 /// Generate commit message using claude CLI
-fn generate_message_with_claude(diff: &str) -> Result<String, String> {
+fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
     let prompt = format!(
         "Generate a concise commit message for this diff:\n\n<diff>\n{}\n</diff>\n\nRespond with only the commit message, no explanation.",
         diff
@@ -217,7 +217,7 @@ fn generate_message_with_claude(diff: &str) -> Result<String, String> {
 }
 
 /// Format the full commit message with prefix and co-author
-fn format_commit_message(prefix: Option<&str>, message: &str) -> String {
+fn zvvcc_format_commit_message(prefix: Option<&str>, message: &str) -> String {
     let mut full_message = String::new();
 
     if let Some(p) = prefix {
@@ -231,7 +231,7 @@ fn format_commit_message(prefix: Option<&str>, message: &str) -> String {
 }
 
 /// Execute the git commit
-fn execute_commit(message: &str, allow_empty: bool) -> Result<String, String> {
+fn zvvcc_execute_commit(message: &str, allow_empty: bool) -> Result<String, String> {
     let mut args = vec!["commit", "-m", message];
 
     if allow_empty {
@@ -269,9 +269,9 @@ fn execute_commit(message: &str, allow_empty: bool) -> Result<String, String> {
 ///
 /// This is the simple API that acquires and releases the lock automatically.
 /// For operations that need to hold the lock across multiple steps, use
-/// `CommitLock::acquire()` instead.
-pub fn run(args: &CommitArgs) -> i32 {
-    let lock = match CommitLock::acquire() {
+/// `vvcc_CommitLock::vvcc_acquire()` instead.
+pub fn vvcc_run(args: &vvcc_CommitArgs) -> i32 {
+    let lock = match vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("commit: error: {}", e);
@@ -279,7 +279,7 @@ pub fn run(args: &CommitArgs) -> i32 {
         }
     };
 
-    match lock.commit(args) {
+    match lock.vvcc_commit(args) {
         Ok(hash) => {
             println!("{}", hash);
             eprintln!("commit: success");
@@ -294,29 +294,29 @@ pub fn run(args: &CommitArgs) -> i32 {
 }
 
 /// Inner workflow that can return Result for cleaner error handling
-fn run_commit_workflow(args: &CommitArgs) -> Result<String, String> {
+fn zvvcc_run_commit_workflow(args: &vvcc_CommitArgs) -> Result<String, String> {
     if !args.no_stage {
-        stage_changes()?;
+        zvvcc_stage_changes()?;
     }
 
-    if !args.allow_empty && !has_staged_changes()? {
+    if !args.allow_empty && !zvvcc_has_staged_changes()? {
         return Err("Nothing to commit".to_string());
     }
 
-    run_guard()?;
+    zvvcc_run_guard()?;
 
     let message = match &args.message {
         Some(m) => m.clone(),
         None => {
-            let diff = get_staged_diff()?;
+            let diff = zvvcc_get_staged_diff()?;
             if diff.is_empty() && !args.allow_empty {
                 return Err("No diff to generate message from".to_string());
             }
-            generate_message_with_claude(&diff)?
+            zvvcc_generate_message_with_claude(&diff)?
         }
     };
 
-    let full_message = format_commit_message(args.prefix.as_deref(), &message);
+    let full_message = zvvcc_format_commit_message(args.prefix.as_deref(), &message);
 
-    execute_commit(&full_message, args.allow_empty)
+    zvvcc_execute_commit(&full_message, args.allow_empty)
 }

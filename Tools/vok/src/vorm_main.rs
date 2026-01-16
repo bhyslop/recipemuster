@@ -108,7 +108,7 @@ fn main() -> ExitCode {
 
 /// Run guard command using vvc
 fn run_guard(args: GuardArgs) -> i32 {
-    let vvc_args = vvc::GuardArgs {
+    let vvc_args = vvc::vvcg_GuardArgs {
         limit: args.limit,
         warn: args.warn,
     };
@@ -117,7 +117,7 @@ fn run_guard(args: GuardArgs) -> i32 {
 
 /// Run commit command using vvc
 fn run_commit(args: CommitArgs) -> i32 {
-    let vvc_args = vvc::CommitArgs {
+    let vvc_args = vvc::vvcc_CommitArgs {
         prefix: args.prefix,
         message: args.message,
         allow_empty: args.allow_empty,

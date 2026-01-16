@@ -13,14 +13,14 @@ use std::process::Command;
 
 /// Arguments for guard operation
 #[derive(Debug, Clone)]
-pub struct GuardArgs {
+pub struct vvcg_GuardArgs {
     /// Size limit in bytes
     pub limit: u64,
     /// Warning threshold in bytes
     pub warn: u64,
 }
 
-impl Default for GuardArgs {
+impl Default for vvcg_GuardArgs {
     fn default() -> Self {
         Self {
             limit: 500000,
@@ -30,13 +30,13 @@ impl Default for GuardArgs {
 }
 
 /// Entry for a staged file with its diff size
-struct StagedFile {
+struct zvvcg_StagedFile {
     path: String,
     size: u64,
 }
 
 /// Get list of staged files with their diff sizes
-fn get_staged_files() -> Result<Vec<StagedFile>, String> {
+fn zvvcg_get_staged_files() -> Result<Vec<zvvcg_StagedFile>, String> {
     let output = Command::new("git")
         .args(["diff", "--cached", "--name-only"])
         .output()
@@ -54,8 +54,8 @@ fn get_staged_files() -> Result<Vec<StagedFile>, String> {
             continue;
         }
 
-        let size = get_diff_size(path)?;
-        files.push(StagedFile {
+        let size = zvvcg_get_diff_size(path)?;
+        files.push(zvvcg_StagedFile {
             path: path.to_string(),
             size,
         });
@@ -65,7 +65,7 @@ fn get_staged_files() -> Result<Vec<StagedFile>, String> {
 }
 
 /// Get size of staged diff for a specific file
-fn get_diff_size(path: &str) -> Result<u64, String> {
+fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
     let output = Command::new("git")
         .args(["diff", "--cached", "--", path])
         .output()
@@ -84,8 +84,8 @@ fn get_diff_size(path: &str) -> Result<u64, String> {
 /// - 0: Under limit (OK)
 /// - 1: Over limit (BLOCKED)
 /// - 2: Over warn threshold (WARNING)
-pub fn run(args: &GuardArgs) -> i32 {
-    let files = match get_staged_files() {
+pub fn vvcg_run(args: &vvcg_GuardArgs) -> i32 {
+    let files = match zvvcg_get_staged_files() {
         Ok(f) => f,
         Err(e) => {
             eprintln!("guard: error: {}", e);

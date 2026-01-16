@@ -779,6 +779,16 @@
           "silks": "propose-lifecycle-dimension",
           "tacks": [
             {
+              "ts": "260116-0948",
+              "state": "complete",
+              "text": "Propose lifecycle dimension for procedures: transient (executes and completes), long-running (continues until stopped), periodic (executes on schedule). Determine if this is a dimension annotation, a new category, or section content. Iterate with editor on design."
+            },
+            {
+              "ts": "260116-0948",
+              "state": "complete",
+              "text": "Propose lifecycle dimension for procedures: transient (executes and completes), long-running (continues until stopped), periodic (executes on schedule). Determine if this is a dimension annotation, a new category, or section content. Iterate with editor on design."
+            },
+            {
               "ts": "260116-0820",
               "state": "rough",
               "text": "Propose lifecycle dimension for procedures: transient (executes and completes), long-running (continues until stopped), periodic (executes on schedule). Determine if this is a dimension annotation, a new category, or section content. Iterate with editor on design."
