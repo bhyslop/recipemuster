@@ -1,3 +1,6 @@
+// ⟦axs_inputs axd_none⟧
+
+// ⟦axs_behavior⟧
 The
 {rbtr_governor}
 creates a
@@ -10,8 +13,12 @@ access and generates credentials using
 to create
 {rbrr_retriever_rbra_file}.
 
+// ⟦axs_outputs⟧
 NOTE: Script outputs copy command for RBRA file installation.
 {rbbc_warn}
 if
 {rbrr_retriever_rbra_file}
 already exists.
+
+// ⟦axs_completion⟧
+Successful execution generates retriever credentials and provides RBRA file installation command.

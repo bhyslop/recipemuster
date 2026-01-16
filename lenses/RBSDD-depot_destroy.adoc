@@ -75,7 +75,8 @@ project state with 5-second intervals for up to 60 seconds
 .. {rbbc_require}
 project state equals `DELETE_REQUESTED`
 
-// ⟦axs_completion⟧ Successful execution destroys depot infrastructure.
+// ⟦axs_completion⟧
+Successful execution destroys depot infrastructure.
 
 NOTE: Depot deletion automatically removes all infrastructure created by
 {rbtgo_depot_create}:

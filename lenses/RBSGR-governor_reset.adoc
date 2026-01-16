@@ -135,4 +135,5 @@ governor service account: `«GOVERNOR_SERVICE_ACCOUNT»`
 RBRA file path:
 {rbrr_governor_rbra_file}
 
-// ⟦axs_completion⟧ Successful execution resets governor state.
+// ⟦axs_completion⟧
+Successful execution resets governor state.

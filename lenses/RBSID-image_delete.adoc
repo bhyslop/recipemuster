@@ -7,12 +7,14 @@ The
 {rbtr_director}
 deletes an image by tag:
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_TAG»` provided as first argument
 .. {rbbc_fatal}
 if missing: "Tag parameter required"
 
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_director}*:
 .. Execute
@@ -57,6 +59,10 @@ HTTP 202 (Accepted) or 204 (No Content) response
 .. {rbbc_fatal}
 if delete fails: "Delete failed with HTTP «STATUS_CODE»"
 
+// ⟦axs_outputs⟧
 . *Display Results*:
 .. {rbbc_show}
 image deleted: `«INPUT_TAG»`
+
+// ⟦axs_completion⟧
+Procedure completes successfully when the manifest has been deleted from the registry and the image deleted message is displayed.

@@ -4,13 +4,14 @@ lists all
 {rbtgi_depot}
 instances and their status:
 
-// ⟦axs_inputs⟧
+// ⟦axs_inputs axd_none⟧
+
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
 {rbtoe_payor_authenticate}
 
-// ⟦axs_behavior⟧
 . *Query depot projects*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter: `projectId:rbw-* AND lifecycleState:ACTIVE`
@@ -32,4 +33,5 @@ total depot count
 .. {rbbc_show}
 each depot with ID, name, region, and status
 
-// ⟦axs_completion⟧ Successful execution lists depot projects.
+// ⟦axs_completion⟧
+Successful execution lists depot projects.

@@ -9,6 +9,7 @@ The
 {rbtr_director}
 triggers a remote container build:
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_VESSEL_DIR»` provided as first argument
@@ -21,6 +22,7 @@ triggers a remote container build:
 .. {rbbc_fatal}
 if missing: "Vessel configuration not found"
 
+// ⟦axs_behavior⟧
 . *Load Vessel Configuration*:
 .. Source `«VESSEL_ENV_FILE»` into current environment
 .. {rbbc_require}
@@ -171,6 +173,7 @@ build submitted with `«BUILD_ID»`
 .. {rbbc_show}
 Cloud Console URL for build monitoring
 
+// ⟦axs_outputs⟧
 . *Cloud Build Execution*:
 .. NOTE: Build executes via OCI Layout Bridge pattern to solve BuildKit credential isolation. See Trade Study RBSOB for design rationale.
 .. {gcb_service}
@@ -217,3 +220,6 @@ image tag: `«BUILD_TAG»`
 .. {rbbc_show}
 image available in
 {rbtgi_repository}
+
+// ⟦axs_completion⟧
+Successful execution builds container image and stores it in the repository.

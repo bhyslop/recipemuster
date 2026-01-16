@@ -3,6 +3,7 @@ The
 completes OAuth credential installation by running the automated installation command with the downloaded OAuth client JSON file.
 This step performs the OAuth authorization flow, securely stores credentials, and validates the Payor project is accessible.
 
+// ⟦axs_inputs⟧
 . *Prerequisites*:
 .. {rbhg_require}
 {rbrp_billing_account_id}
@@ -12,6 +13,7 @@ OAuth client JSON file from
 {rbtgo_payor_establish}
 is available locally
 
+// ⟦axs_behavior⟧
 . *Execute OAuth Credential Installation*:
 .. Export
 {rbrp_billing_account_id}
@@ -40,6 +42,7 @@ rbgp_payor_install ~/Downloads/client_secret_*.json
 .. {rbhg_warn}
 Never commit `~/.rbw/rbro.env` to version control
 
+// ⟦axs_outputs⟧
 . *Configuration Summary*:
 .. Installation displays payor configuration values needed in `rbrp.env`:
 ... `RBRP_PAYOR_PROJECT_ID`: Payor project ID from OAuth JSON
@@ -50,3 +53,6 @@ Never commit `~/.rbw/rbro.env` to version control
 .. Record configuration values for `rbrp.env` setup
 .. Use {rbtgo_depot_create} to create depot projects
 .. Example: `rbgp_depot_create dev us-central1`
+
+// ⟦axs_completion⟧
+Successful execution stores OAuth credentials and displays payor configuration values.

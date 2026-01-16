@@ -8,6 +8,7 @@ The
 {rbtr_retriever}
 pulls an image by tag or digest:
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_IMAGE_REF»` provided as first argument
@@ -15,6 +16,7 @@ pulls an image by tag or digest:
 .. {rbbc_fatal}
 if missing or malformed: "Image reference required (name:tag or name@digest)"
 
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_retriever}*:
 .. Execute
@@ -50,8 +52,12 @@ pull completes successfully
 .. {rbbc_fatal}
 if pull fails: "Image pull failed"
 
+// ⟦axs_outputs⟧
 . *Display Results*:
 .. {rbbc_show}
 image retrieved: `«FULL_IMAGE_REF»`
 .. {rbbc_show}
 local image ID: `«IMAGE_ID»`
+
+// ⟦axs_completion⟧
+Successful execution retrieves the image and displays the local image ID.

@@ -61,6 +61,7 @@
 :axd_optional:                        <<axd_optional,Optional>>
 :axd_nullable:                        <<axd_nullable,Nullable>>
 :axd_defaulted:                       <<axd_defaulted,Defaulted>>
+:axd_none:                            <<axd_none,None>>
 :axd_repeated:                        <<axd_repeated,Repeated>>
 :axd_field_number:                    <<axd_field_number,Field Number>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
@@ -1553,6 +1554,12 @@ Absence is valid and handled gracefully.
 Null, nil, or None is a valid value, distinct from absent.
 Required for JSON where null is an explicit value type.
 Some formats (protobuf) conflate nullable with optional.
+
+[[axd_none]]
+{axd_none}::
+Presence dimension indicating a section or field is explicitly declared as having no content.
+Distinguishes intentional absence from omission.
+Use in section annotations to mark compliance with required sections that have no applicable content.
 
 [[axd_defaulted]]
 {axd_defaulted}::

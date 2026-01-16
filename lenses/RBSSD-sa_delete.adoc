@@ -2,12 +2,14 @@ NOTE: This operation deletes a service account from the
 {rbtgi_depot_project}.
 It is a multi-role operation that can be invoked by any authenticated role with IAM admin access.
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_SA_EMAIL»` provided as first argument
 .. {rbbc_fatal}
 if missing: "Service account email required"
 
+// ⟦axs_behavior⟧
 . *Authenticate*:
 .. {rbbc_require}
 caller has valid OAuth token with `https://www.googleapis.com/auth/cloud-platform` scope
@@ -25,6 +27,10 @@ HTTP 200 response OR HTTP 404 (already deleted)
 .. {rbbc_warn}
 if HTTP 404: "Service account not found (already deleted)"
 
+// ⟦axs_outputs⟧
 . *Display Results*:
 .. {rbbc_show}
 delete operation completed
+
+// ⟦axs_completion⟧
+Successful completion is indicated by the "delete operation completed" message.

@@ -6,6 +6,10 @@ OAuth infrastructure.
 No API path exists for initial bootstrap - OAuth client creation requires human Console interaction.
 This procedure creates the project and OAuth client but does NOT install credentials.
 
+// ⟦axs_inputs axd_none⟧
+
+// ⟦axs_behavior⟧
+
 . *Create Payor Project*:
 .. Navigate to project creation in Console
 .. Set project name: `Recipe Bottle Payor`
@@ -50,6 +54,14 @@ billing linkage for API operations
 .. Download JSON (filename: `client_secret_[id].apps.googleusercontent.com.json`)
 .. {rbhg_warn}
 Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
+
+// ⟦axs_outputs⟧
+
+The outputs of payor establishment are:
+- Project ID (`«PAYOR_PROJECT_ID»`) recorded from step 1
+- OAuth client credentials: client ID and secret from the downloaded JSON file
+
+// ⟦axs_completion⟧
 
 NOTE: Payor establishment creates the OAuth client configuration but does not perform credential installation.
 Proceed to
