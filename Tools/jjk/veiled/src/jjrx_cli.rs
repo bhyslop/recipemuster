@@ -10,9 +10,9 @@ use clap::Parser;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use crate::jjrf_favor::Firemark;
+use crate::jjrf_favor::{Coronet, Firemark};
 use crate::jjrg_gallops::{Gallops, PaceState, read_stdin, read_stdin_optional};
-use crate::jjrn_notch::{ChalkMarker, format_notch_prefix, format_chalk_message, validate_chalk_args};
+use crate::jjrn_notch::{ChalkMarker, HeatAction, format_notch_prefix, format_chalk_message, format_heat_message, format_heat_discussion};
 
 /// JJK subcommands - all jjx_* commands
 #[derive(Parser)]
@@ -75,31 +75,23 @@ pub enum JjxCommands {
 /// Arguments for jjx_notch command
 #[derive(clap::Args, Debug)]
 pub struct NotchArgs {
-    /// Active Heat identity (Firemark)
-    pub firemark: String,
-
-    /// Silks of the current pace
-    #[arg(long)]
-    pub pace: String,
+    /// Pace identity (Coronet) - embeds parent Heat
+    pub coronet: String,
 }
 
 /// Arguments for jjx_chalk command
 #[derive(clap::Args, Debug)]
 pub struct ChalkArgs {
-    /// Active Heat identity (Firemark)
-    pub firemark: String,
+    /// Identity: Coronet (pace-level) or Firemark (heat-level discussion only)
+    pub identity: String,
 
-    /// Marker type: APPROACH, WRAP, FLY, or DISCUSSION
+    /// Marker type: A(pproach), W(rap), F(ly), d(iscussion)
     #[arg(long)]
     pub marker: String,
 
     /// Marker description text
     #[arg(long)]
     pub description: String,
-
-    /// Pace silks (required for APPROACH, WRAP, FLY; optional for DISCUSSION)
-    #[arg(short, long)]
-    pub pace: Option<String>,
 }
 
 /// Arguments for jjx_rein command
@@ -381,15 +373,15 @@ pub fn is_jjk_command(name: &str) -> bool {
 // ============================================================================
 
 fn run_notch(args: NotchArgs) -> i32 {
-    let firemark = match Firemark::parse(&args.firemark) {
-        Ok(fm) => fm,
+    let coronet = match Coronet::parse(&args.coronet) {
+        Ok(c) => c,
         Err(e) => {
             eprintln!("jjx_notch: error: {}", e);
             return 1;
         }
     };
 
-    let prefix = format_notch_prefix(&firemark, &args.pace);
+    let prefix = format_notch_prefix(&coronet);
 
     let commit_args = vvc::vvcc_CommitArgs {
         prefix: Some(prefix),
@@ -402,14 +394,6 @@ fn run_notch(args: NotchArgs) -> i32 {
 }
 
 fn run_chalk(args: ChalkArgs) -> i32 {
-    let firemark = match Firemark::parse(&args.firemark) {
-        Ok(fm) => fm,
-        Err(e) => {
-            eprintln!("jjx_chalk: error: {}", e);
-            return 1;
-        }
-    };
-
     let marker = match ChalkMarker::parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
@@ -418,12 +402,37 @@ fn run_chalk(args: ChalkArgs) -> i32 {
         }
     };
 
-    if let Err(e) = validate_chalk_args(marker, args.pace.as_deref()) {
-        eprintln!("jjx_chalk: error: {}", e);
-        return 1;
-    }
+    // Try parsing as Coronet first (5 base64 chars), then as Firemark (2 base64 chars)
+    let identity = args.identity.strip_prefix('₢').or_else(|| args.identity.strip_prefix('₣')).unwrap_or(&args.identity);
 
-    let message = format_chalk_message(&firemark, marker, args.pace.as_deref(), &args.description);
+    let message = if identity.len() == 5 {
+        // Coronet - pace-level chalk
+        let coronet = match Coronet::parse(&args.identity) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("jjx_chalk: error: {}", e);
+                return 1;
+            }
+        };
+        format_chalk_message(&coronet, marker, &args.description)
+    } else if identity.len() == 2 {
+        // Firemark - heat-level (discussion only)
+        if marker.requires_pace() {
+            eprintln!("jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.as_str());
+            return 1;
+        }
+        let firemark = match Firemark::parse(&args.identity) {
+            Ok(fm) => fm,
+            Err(e) => {
+                eprintln!("jjx_chalk: error: {}", e);
+                return 1;
+            }
+        };
+        format_heat_discussion(&firemark, &args.description)
+    } else {
+        eprintln!("jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        return 1;
+    };
 
     let commit_args = vvc::vvcc_CommitArgs {
         prefix: None,
@@ -666,7 +675,7 @@ fn run_retire(args: RetireArgs) -> i32 {
             result.trophy_path.clone(),
             result.paddock_path.clone(),
         ],
-        message: format!("Retire: {} {}", result.firemark, result.silks),
+        message: format_heat_message(&firemark, HeatAction::Retire, &result.silks),
         size_limit: 200000,  // 200KB - trophy files can be large
         warn_limit: 100000,
     };
@@ -741,8 +750,9 @@ fn run_nominate(args: NominateArgs) -> i32 {
             }
 
             // Commit while holding lock
+            let fm = Firemark::parse(&result.firemark).expect("nominate returned invalid firemark");
             let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format!("Nominate: {} {}", silks, result.firemark)),
+                message: Some(format_heat_message(&fm, HeatAction::Nominate, &silks)),
                 ..Default::default()
             };
             match lock.vvcc_commit(&commit_args) {
@@ -808,8 +818,9 @@ fn run_slate(args: SlateArgs) -> i32 {
             }
 
             // Commit while holding lock
+            let fm = Firemark::parse(&firemark).expect("slate given invalid firemark");
             let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format!("Slate: {} in ₣{}", silks, firemark)),
+                message: Some(format_heat_message(&fm, HeatAction::Slate, &silks)),
                 ..Default::default()
             };
             match lock.vvcc_commit(&commit_args) {
@@ -876,8 +887,9 @@ fn run_rail(args: RailArgs) -> i32 {
             }
 
             // Commit while holding lock
+            let fm = Firemark::parse(&firemark).expect("rail given invalid firemark");
             let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format!("Rail: reorder ₣{}", firemark)),
+                message: Some(format_heat_message(&fm, HeatAction::Rail, "reordered")),
                 ..Default::default()
             };
             match lock.vvcc_commit(&commit_args) {
@@ -900,7 +912,6 @@ fn run_rail(args: RailArgs) -> i32 {
 
 fn run_tally(args: TallyArgs) -> i32 {
     use crate::jjrg_gallops::TallyArgs as LibTallyArgs;
-    use crate::jjrf_favor::Coronet;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -941,17 +952,22 @@ fn run_tally(args: TallyArgs) -> i32 {
         }
     };
 
-    // Get silks for commit message before we move args
+    // Get firemark and silks for commit message before we move args
     let coronet_str = args.coronet.clone();
-    let silks = Coronet::parse(&coronet_str)
-        .ok()
-        .and_then(|c| {
-            let firemark = c.parent_firemark().display();
-            gallops.heats.get(&firemark)
+    let (fm, silks) = match Coronet::parse(&coronet_str) {
+        Ok(c) => {
+            let parent_fm = c.parent_firemark();
+            let silks = gallops.heats.get(&parent_fm.display())
                 .and_then(|h| h.paces.get(&c.display()))
                 .map(|p| p.silks.clone())
-        })
-        .unwrap_or_else(|| coronet_str.clone());
+                .unwrap_or_else(|| coronet_str.clone());
+            (parent_fm, silks)
+        }
+        Err(e) => {
+            eprintln!("jjx_tally: error: {}", e);
+            return 1;
+        }
+    };
 
     let tally_args = LibTallyArgs {
         coronet: args.coronet,
@@ -969,7 +985,7 @@ fn run_tally(args: TallyArgs) -> i32 {
 
             // Commit while holding lock
             let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format!("Tally: {}", silks)),
+                message: Some(format_heat_message(&fm, HeatAction::Tally, &silks)),
                 ..Default::default()
             };
             match lock.vvcc_commit(&commit_args) {
@@ -1024,9 +1040,10 @@ fn run_draft(args: DraftArgs) -> i32 {
                 return 1;
             }
 
-            // Commit while holding lock
+            // Commit while holding lock - use destination firemark as identity
+            let dest_fm = Firemark::parse(&to).expect("draft given invalid destination firemark");
             let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format!("Draft: {} → ₣{}", coronet, to)),
+                message: Some(format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet))),
                 ..Default::default()
             };
             match lock.vvcc_commit(&commit_args) {

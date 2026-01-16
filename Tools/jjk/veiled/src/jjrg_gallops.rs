@@ -1185,12 +1185,12 @@ impl Gallops {
             content.push_str("(no entries)\n\n");
         } else {
             for entry in steeplechase {
-                // Format: ### {date} - {pace_silks or "Heat"} - {marker or "commit"}
-                let pace_or_heat = entry.pace_silks.as_deref().unwrap_or("Heat");
-                let marker_or_commit = entry.marker.as_deref().unwrap_or("commit");
+                // Format: ### {date} - {coronet or "Heat"} - {action or "notch"}
+                let identity = entry.coronet.as_deref().unwrap_or("Heat");
+                let action = entry.action.as_deref().unwrap_or("notch");
                 content.push_str(&format!(
                     "### {} - {} - {}\n\n",
-                    entry.timestamp, pace_or_heat, marker_or_commit
+                    entry.timestamp, identity, action
                 ));
                 content.push_str(&entry.subject);
                 if !entry.subject.ends_with('\n') {

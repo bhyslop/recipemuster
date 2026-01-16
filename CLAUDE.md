@@ -343,6 +343,11 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 - `/jja-itch-add` - Add a new itch to the backlog
 - `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
 
+**Build & Run Discipline:**
+Always run these after Rust code changes:
+- `tt/vow-b.Build.sh` — Build
+- `tt/vvw-r.RunVVX.sh` — Run VVX
+
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
 ### Primeability Assessment

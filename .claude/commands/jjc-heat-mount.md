@@ -74,22 +74,22 @@ Show:
 - Analyze the tack_text to understand the work
 - Read any files referenced in the pace spec
 - Propose a concrete approach (2-4 bullets)
-- Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker APPROACH --description "<approach summary>"`
+- Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker A --description "<approach summary>"`
 - Ask: "Ready to proceed with this approach?"
 - On approval: Begin work directly
 
 **If pace_state is "primed":**
 - The pace has explicit direction in tack_direction
-- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker FLY --description "Executing primed pace"`
+- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing primed pace"`
 - Execute per the direction autonomously (no confirmation needed)
 - When complete, run `/jjc-pace-wrap` to mark done
 
 ## Context preservation
 
 Store for use by other commands:
-- Current FIREMARK
-- Current PACE_CORONET
-- Current PACE_SILKS
+- Current FIREMARK (for heat-level operations)
+- Current PACE_CORONET (primary identifier for pace-level operations)
+- Current PACE_SILKS (for display)
 
 ## Available Operations
 

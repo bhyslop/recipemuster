@@ -15,7 +15,7 @@ pub mod jjrx_cli;
 
 // Re-export commonly used types
 pub use jjrf_favor::{Coronet, Firemark};
-pub use jjrn_notch::{ChalkMarker, format_notch_prefix, format_chalk_message, validate_chalk_args};
+pub use jjrn_notch::{ChalkMarker, HeatAction, format_notch_prefix, format_chalk_message, format_heat_message, format_heat_discussion};
 pub use jjrq_query::{MusterArgs, SaddleArgs, ParadeArgs, RetireArgs};
 pub use jjrs_steeplechase::{ReinArgs, SteeplechaseEntry, get_entries as get_steeplechase_entries};
 

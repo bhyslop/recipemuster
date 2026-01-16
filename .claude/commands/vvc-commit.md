@@ -10,6 +10,16 @@ Arguments: $ARGUMENTS (optional commit message; if omitted, Claude generates fro
 Use this command for non-JJ repositories or when you don't need heat/pace context.
 For JJ-aware commits, use `/jjc-pace-notch` instead.
 
+## Step 0: JJ context detection
+
+If you have an active JJ heat context (PACE_CORONET stored from `/jjc-heat-mount`):
+
+- Warn the user: "You have an active JJ heat context. Consider using `/jjc-pace-notch` to include pace tracking in the commit."
+- Ask: "Proceed with plain commit anyway, or use JJ-aware commit?"
+- If user chooses JJ-aware: run `/jjc-pace-notch` instead
+
+If no JJ context, proceed silently.
+
 ## Step 1: Execute commit (in background)
 
 Run the commit command in the background using `run_in_background: true`.
