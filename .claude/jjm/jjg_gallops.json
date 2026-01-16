@@ -652,6 +652,11 @@
           "silks": "jjk-rcg-phase3-finalize",
           "tacks": [
             {
+              "ts": "260116-1421",
+              "state": "abandoned",
+              "text": "Superseded by ₢AAAAY which completed all RCG prefixing in one pass."
+            },
+            {
               "ts": "260116-1000",
               "state": "rough",
               "text": "JJK RCG Phase 3: Finalize and verify\n\n## Prerequisite\n\nPhase 2 complete - all call sites updated.\n\n## Tasks\n\n1. Add crate boilerplate: #![allow(non_camel_case_types)] to lib.rs\n2. Update lib.rs re-exports to use new prefixed names\n3. Run cargo build --features jjk - fix any errors\n4. Run cargo test - verify tests pass\n5. Commit all changes\n\n## Test extraction (deferred)\n\nTest file separation (jjt*.rs pattern) is NOT in scope. Deferred to separate pace.\n\n## Verification\n\ncargo build and cargo test both pass."
