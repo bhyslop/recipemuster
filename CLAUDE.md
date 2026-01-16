@@ -106,8 +106,6 @@ Full read and edit access is pre-approved for all files in:
 #### JJK Subdirectory (`Tools/jjk/`)
 - **JJD**  → `jjk/JJD-GallopsData.adoc` (Gallops data model specification)
 - **JJA**  → `jjk/jja_arcanum.sh` (arcanum - core internal functions)
-- **JJT**  → `jjk/jjt_testbench.sh` (testbench)
-- **JJU**  → `jjk/jju_cli.sh`, `jjk/jju_utility.sh` (CLI and utility functions)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 
 #### VOK Subdirectory (`Tools/vok/`)
