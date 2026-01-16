@@ -9,6 +9,7 @@
         "₢AAAAg",
         "₢AAAAh",
         "₢AAAAi",
+        "₢AAAAj",
         "₢AAAAd",
         "₢AAAAe",
         "₢AAAAf",
@@ -42,7 +43,7 @@
         "₢AAAAa",
         "₢AAAAb"
       ],
-      "next_pace_seed": "AAj",
+      "next_pace_seed": "AAk",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -718,6 +719,16 @@
               "ts": "260116-1056",
               "state": "rough",
               "text": "Implement full retire in jjx_retire Rust: extract trophy data, write trophy file to retired/, remove heat from gallops.json, delete paddock file, git commit with message 'Retire: ₣{firemark} {silks}'"
+            }
+          ]
+        },
+        "₢AAAAj": {
+          "silks": "retire-heat-ab-test",
+          "tacks": [
+            {
+              "ts": "260116-1110",
+              "state": "rough",
+              "text": "Test jjx_retire end-to-end by retiring ₣AB (axla-procedure-section-motifs). Validates: trophy file written, heat removed from gallops, paddock deleted, commit created."
             }
           ]
         }
