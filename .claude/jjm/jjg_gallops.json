@@ -743,6 +743,11 @@
           "silks": "jjrc-commit-helper",
           "tacks": [
             {
+              "ts": "260116-1135",
+              "state": "complete",
+              "text": "Added vvcm_machine.rs to VVC crate with machine commit infrastructure. Provides vvcm_CommitArgs and vvcm_commit() for programmatic operations: explicit file staging, custom guard limits, no Co-Authored-By. Placed in VVC as shared infrastructure rather than JJK-specific."
+            },
+            {
               "ts": "260116-1117",
               "state": "rough",
               "text": "Add jjrc_commit helper to JJK Rust: reuses vvc lock, stages explicit file list, runs vvcg_guard with custom limit (200KB for retire), commits with provided message (no Claude). Used by jjx_retire and potentially other JJD write ops."
