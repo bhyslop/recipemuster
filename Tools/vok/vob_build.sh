@@ -42,7 +42,7 @@ zvob_kindle() {
   # Paths
   ZVOB_CARGO_DIR="${BURC_TOOLS_DIR}/vok"
   ZVOB_TARGET_BINARY="${ZVOB_CARGO_DIR}/target/release/vvr"
-  ZVOB_CANONICAL_BINARY="${BURC_TOOLS_DIR}/vvk/bin/vvx"
+  ZVOB_VVK_BIN_DIR="${BURC_TOOLS_DIR}/vvk/bin"
   ZVOB_RELEASE_DIR="${ZVOB_CARGO_DIR}/release"
   ZVOB_LEDGER_FILE="${ZVOB_CARGO_DIR}/vol_ledger.json"
 
@@ -94,16 +94,25 @@ vob_build() {
 
   cargo build --release --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${ZVOB_FEATURE_LIST}" || buc_die "cargo build failed"
 
-  buc_step "Installing to canonical location"
+  buc_step "Installing to VVK bin directory"
+
+  local z_dest="${ZVOB_VVK_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
+
   buc_log_args "Source: ${ZVOB_TARGET_BINARY}"
-  buc_log_args "Destination: ${ZVOB_CANONICAL_BINARY}"
+  buc_log_args "Destination: ${z_dest}"
 
   test -f "${ZVOB_TARGET_BINARY}" || buc_die "Binary not found: ${ZVOB_TARGET_BINARY}"
+  test -d "${ZVOB_VVK_BIN_DIR}" || mkdir -p "${ZVOB_VVK_BIN_DIR}" || buc_die "Failed to create: ${ZVOB_VVK_BIN_DIR}"
 
-  cp "${ZVOB_TARGET_BINARY}" "${ZVOB_CANONICAL_BINARY}" || buc_die "Failed to copy binary"
-  chmod +x "${ZVOB_CANONICAL_BINARY}" || buc_die "Failed to chmod"
+  cp "${ZVOB_TARGET_BINARY}" "${z_dest}" || buc_die "Failed to copy binary"
+  chmod +x "${z_dest}" || buc_die "Failed to chmod"
 
-  buc_success "Built and installed to ${ZVOB_CANONICAL_BINARY}"
+  # Ad-hoc codesign for macOS (prevents quarantine kills)
+  if command -v codesign >/dev/null 2>&1; then
+    codesign --force --sign - "${z_dest}" 2>/dev/null || buc_warn "codesign failed (non-fatal)"
+  fi
+
+  buc_success "Built and installed to ${z_dest}"
 }
 
 vob_release() {

@@ -41,3 +41,4 @@ __pycache__/
 *.py[cod]
 *$py.class
 lenses/.idea/
+Tools/vvk/bin/vvx-*
