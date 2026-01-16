@@ -1,25 +1,35 @@
 ---
-argument-hint: <silks> [description]
+argument-hint: <silks> [description] [--before ₢X | --after ₢X | --first]
 description: Add a new pace to a heat
 ---
 
 Add a new pace (discrete action) to a Job Jockey heat.
 
-Arguments: $ARGUMENTS (format: `<silks> [optional description]`)
+Arguments: $ARGUMENTS (format: `<silks> [description] [positioning]`)
 
 ## Step 1: Parse arguments
 
 Extract from $ARGUMENTS:
 - First word = silks (kebab-case pace name)
+- Positioning flag (if present): `--before <CORONET>`, `--after <CORONET>`, or `--first`
 - Remaining text = pace description (optional)
 
 **If $ARGUMENTS is empty:**
-- Error: "Usage: /jjc-pace-slate <silks> [description]"
-- Example: `/jjc-pace-slate add-validation Add input validation to the form handler`
+- Error: "Usage: /jjc-pace-slate <silks> [description] [--before ₢X | --after ₢X | --first]"
+- Examples:
+  - `/jjc-pace-slate add-validation Add input validation to the form handler`
+  - `/jjc-pace-slate fix-bug --first` (insert at beginning)
+  - `/jjc-pace-slate new-feature --after ₢AAAAC` (insert after specific pace)
+  - `/jjc-pace-slate cleanup --before ₢AAAAD` (insert before specific pace)
 
 **Validate silks format:**
 - Must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
 - Error if invalid: "Silks must be kebab-case (e.g., 'add-tests', 'fix-bug')"
+
+**Validate positioning (if provided):**
+- `--before` and `--after` require a Coronet argument
+- Only one positioning flag allowed
+- Coronet must exist in the target heat
 
 **If description is missing (only silks provided):**
 - Synthesize a description from recent conversation context
@@ -45,8 +55,14 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-echo "<PACE_TEXT>" | ./tt/vvx-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>"
+echo "<PACE_TEXT>" | ./tt/vvx-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>" [POSITIONING]
 ```
+
+Where `[POSITIONING]` is one of (if provided):
+- `--first` — insert at beginning of pace order
+- `--before <CORONET>` — insert before specified pace
+- `--after <CORONET>` — insert after specified pace
+- (omitted) — append at end (default)
 
 The pace description text is passed via stdin.
 
@@ -57,6 +73,7 @@ Capture the new Coronet from stdout.
 On success, report:
 - "Created pace: **<SILKS>** (₢AAAAC)"
 - "Heat: <HEAT_SILKS> (₣AA)"
+- "Position: {first | after ₢X | before ₢X | end}" (if positioning was specified)
 - "State: rough"
 
 Then **assess the pace's health**:
@@ -100,4 +117,4 @@ Common errors:
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker
-- `/jjc-heat-parade` — Heat summary
+- `/jjc-parade-overview` — Heat summary

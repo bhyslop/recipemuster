@@ -95,4 +95,4 @@ On failure (e.g., lock held), report error but don't fail the operation — gall
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker
-- `/jjc-heat-parade` — Heat summary
+- `/jjc-parade-overview` — Heat summary

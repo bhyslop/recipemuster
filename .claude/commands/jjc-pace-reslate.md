@@ -74,7 +74,7 @@ Apply **Primeability Assessment** criteria from CLAUDE.md.
 If primeable, suggest direction (agent type, parallelism, key files).
 If not primeable, state why: "Needs human judgment — [reason]"
 
-**Next:** `/jjc-pace-reslate` (refine more) | `/jjc-pace-prime` (arm) | `/jjc-heat-parade` (view all)
+**Next:** `/jjc-pace-reslate` (refine more) | `/jjc-pace-prime` (arm) | `/jjc-parade-overview` (view all)
 
 ## Step 6: Auto-commit changes
 
@@ -103,4 +103,4 @@ Common errors:
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker
-- `/jjc-heat-parade` — Heat summary
+- `/jjc-parade-overview` — Heat summary
