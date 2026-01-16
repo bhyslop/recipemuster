@@ -110,7 +110,6 @@ jjw_route() {
 
     # Steeplechase operations
     jjw-c)  exec "${z_cli}" jju_chalk "$@" ;;
-    jjw-rn) exec "${z_cli}" jju_rein "$@" ;;
     jjw-no) exec "${z_cli}" jju_notch "$@" ;;
 
     # Info - show all function docs

@@ -224,20 +224,6 @@ jju_chalk() {
   "${ZJJU_VVX_BIN}" jjx_chalk "${z_firemark}" --marker "${z_marker}" --description "${z_description}"
 }
 
-jju_rein() {
-  zjju_sentinel
-  local z_firemark="${1:-}"
-
-  buc_doc_brief "Query steeplechase entries from git history"
-  buc_doc_param "firemark" "Heat Firemark (₣XX or bare XX)"
-  buc_doc_shown || return 0
-
-  test -n "${z_firemark}" || buc_die "Parameter 'firemark' is required"
-
-  # Note: --brand would need to be configured; using default for now
-  "${ZJJU_VVX_BIN}" jjx_rein "${z_firemark}" --brand "jj"
-}
-
 jju_notch() {
   zjju_sentinel
   local z_firemark="${1:-}"
