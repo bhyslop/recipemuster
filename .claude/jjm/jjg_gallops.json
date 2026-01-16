@@ -928,6 +928,12 @@
           "silks": "saddle-output-field-rename",
           "tacks": [
             {
+              "ts": "260116-1508",
+              "state": "primed",
+              "text": "Rename saddle output fields: tack_text → spec, tack_direction → direction.\n\n## Rationale\n\nConsumers of jjx_saddle output do not need internal terminology. \"spec\" and \"direction\" are clearer for slash command prompts.\n\n## Rust changes (jjrq_query.rs)\n\n- Struct field: tack_text → spec\n- Struct field: tack_direction → direction\n- Update initialization, assignment, tests (~14 lines)\n\n## Slash command changes\n\n- jjc-heat-mount.md (6 references)\n- jjc-heat-groom.md (4 references)\n- jjc-pace-wrap.md (1 reference)\n- jjc-pace-prime.md (1 reference)\n\n## Verification\n\n- cargo build && cargo test\n- Spot-check jjx_saddle AA output has new field names",
+              "direction": "Agent: haiku. Cardinality: 1 sequential. Files: jjrq_query.rs, jjc-heat-mount.md, jjc-heat-groom.md, jjc-pace-wrap.md, jjc-pace-prime.md (5 files). Steps: 1) In jjrq_query.rs: rename tack_text → spec, tack_direction → direction (struct fields, initialization, assignment, test assertions). 2) Verify: cargo build --features jjk && cargo test --features jjk. 3) In each slash command: replace tack_text → spec, tack_direction → direction. Verify: ./tt/vvw-r.RunVVX.sh jjx_saddle AA (confirm new field names in output)."
+            },
+            {
               "ts": "260116-1353",
               "state": "rough",
               "text": "Rename saddle output fields: tack_text → spec, tack_direction → direction.\n\n## Rationale\n\nConsumers of jjx_saddle output do not need internal terminology. \"spec\" and \"direction\" are clearer for slash command prompts.\n\n## Rust changes (jjrq_query.rs)\n\n- Struct field: tack_text → spec\n- Struct field: tack_direction → direction\n- Update initialization, assignment, tests (~14 lines)\n\n## Slash command changes\n\n- jjc-heat-mount.md (6 references)\n- jjc-heat-groom.md (4 references)\n- jjc-pace-wrap.md (1 reference)\n- jjc-pace-prime.md (1 reference)\n\n## Verification\n\n- cargo build && cargo test\n- Spot-check jjx_saddle AA output has new field names"
