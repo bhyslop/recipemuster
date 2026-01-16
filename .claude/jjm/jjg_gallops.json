@@ -685,6 +685,11 @@
           "silks": "jjd-retire-spec-update",
           "tacks": [
             {
+              "ts": "260116-1108",
+              "state": "complete",
+              "text": "Updated jjdo_retire spec: moved to Write Operations, changed output from JSON to markdown trophy format, added full lifecycle (lock, write trophy, remove from gallops, delete paddock, commit). Commit format deferred to unify-commit-format pace."
+            },
+            {
               "ts": "260116-1056",
               "state": "rough",
               "text": "Update JJD spec: jjx_retire must remove heat from gallops.json, delete paddock file, and git commit - not just extract trophy data"

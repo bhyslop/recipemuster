@@ -1500,6 +1500,101 @@ to `tacks` array (position 0)
 {jjdgr_gallops}
 to file (atomic)
 
+[[jjdo_retire]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_retire}
+
+Archive a
+{jjdhr_heat}
+by writing a trophy file, removing the heat from
+{jjdgr_gallops},
+deleting the paddock file, and committing.
+This is a destructive operation that permanently removes the heat from active tracking.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+{jjds_stdout} Path to the written trophy file.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Acquire lock (`refs/vvg/locks/vvx`)
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Extract
+{jjdhr_heat}
+metadata:
+{jjdhm_silks},
+{jjdhm_created}
+. Read paddock file contents from
+{jjdhm_paddock}
+. Call
+{jjdo_rein}
+internally to get steeplechase entries
+. Build trophy markdown:
++
+----
+# Heat: {silks-as-title}
+
+{first paragraph from paddock, or silks if paddock empty}
+
+## Paddock
+
+{full paddock content}
+
+## Done
+
+{for each pace in order where tacks[0].state is complete:}
+- **{pace_silks}** — {tacks[0].text} ✓
+
+## Remaining
+
+{for each pace in order where tacks[0].state is NOT complete:}
+- **{pace_silks}** [{state}] — {tacks[0].text}
+
+{or "(none)" if all complete}
+
+## Steeplechase
+
+{for each steeplechase entry, newest first:}
+---
+### {date} - {pace_silks or "Heat"} - {marker or "commit"}
+{subject/description}
+---
+----
+. Compute trophy filename: `.claude/jjm/retired/jjh_b{created}-r{today}-{silks}.md`
+where `{today}` is current date in YYMMDD format
+. Create `.claude/jjm/retired/` directory if it does not exist
+. Write trophy markdown to trophy file
+. Remove
+{jjdhr_heat}
+entry from
+{jjdgr_gallops}
+`heats` object
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
+. Delete paddock file at
+{jjdhm_paddock}
+. Stage all changes: trophy file, gallops.json, deleted paddock
+. Commit with message per steeplechase conventions (format TBD by unify-commit-format)
+. Release lock
+. Output trophy file path to stdout
+
 === Read Operations
 
 [[jjdo_validate]]
@@ -1625,105 +1720,6 @@ count of
 {jjdpr_pace_s}
 in `paces` object
 . Output lines in arbitrary order (JSON object iteration order)
-
-[[jjdo_retire]]
-// ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_retire}
-
-Extract complete
-{jjdhr_heat}
-data for archival trophy.
-Includes paddock content and full steeplechase history from git.
-Use before squash merge to preserve session history.
-
-{jjds_arguments}
-
-// ⟦axd_optional axd_defaulted⟧
-* {jjda_file}
-
-// ⟦axd_required⟧
-* {jjdt_firemark}
-(positional) — target
-{jjdhr_heat}
-
-{jjds_stdout} JSON object containing complete archive:
-[source,json]
-----
-{
-  "firemark": "₣XX",
-  "silks": "...",
-  "created": "YYMMDD",
-  "status": "current|retired",
-  "paddock_file": ".claude/jjm/jjp_XX.md",
-  "paddock_content": "...",
-  "paces": [
-    {
-      "coronet": "₢XXXXX",
-      "silks": "...",
-      "tacks": [
-        {
-          "ts": "YYMMDD-HHMM",
-          "state": "...",
-          "text": "...",
-          "direction": "..."
-        }
-      ]
-    }
-  ],
-  "steeplechase": [
-    {
-      "timestamp": "YYYY-MM-DD HH:MM",
-      "pace_silks": "...",
-      "marker": null,
-      "subject": "commit message"
-    }
-  ]
-}
-----
-The `paces` array is ordered per
-{jjdhm_order}
-with full
-{jjdkr_tack}
-history for each pace.
-Field `direction` appears only on
-{jjdkr_tack_s}
-with state
-{jjdpe_primed}.
-The `steeplechase` array contains all session history entries (from
-{jjdo_rein}).
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
-{jjds_behavior}
-
-. Read
-{jjdgr_gallops}
-from file
-. Verify
-{jjdhr_heat}
-exists with given
-{jjdt_firemark}
-. Extract
-{jjdhr_heat}
-metadata:
-{jjdt_firemark},
-{jjdhm_silks},
-{jjdhm_created},
-{jjdhm_status}
-. Output `paddock_file` from
-{jjdhm_paddock}
-. Read paddock file contents, output as `paddock_content`
-. Build `paces` array by walking
-{jjdhm_order}:
-.. For each
-{jjdt_coronet},
-include
-{jjdpm_silks}
-and full `tacks` array (all history)
-. Call
-{jjdo_rein}
-internally to get steeplechase entries
-. Output JSON object with all fields
 
 [[jjdo_saddle]]
 // ⟦axl_voices axi_cli_subcommand⟧
