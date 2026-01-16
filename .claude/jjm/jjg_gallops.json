@@ -19,6 +19,7 @@
         "₢AAAAV",
         "₢AAAAU",
         "₢AAAAL",
+        "₢AAAAW",
         "₢AAAAO",
         "₢AAAAN",
         "₢AAAAD",
@@ -29,7 +30,7 @@
         "₢AAAAE",
         "₢AAAAF"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -471,6 +472,16 @@
               "ts": "260115-1612",
               "state": "rough",
               "text": "Deterministic gallops serialization for minimal diffs.\n\n## JJD Update\nAdd assertion to JJD-GallopsData.adoc: \"Implementations MUST serialize paces keys in deterministic order to minimize diff churn.\"\n\n## Rust Fix\nChange paces storage from HashMap to BTreeMap in gallops structs. BTreeMap iterates in sorted key order, giving deterministic JSON output.\n\nFiles:\n- Tools/jjk/JJD-GallopsData.adoc\n- Tools/vok/src/jjx_*.rs (whichever defines Heat/Gallops structs)"
+            }
+          ]
+        },
+        "₢AAAAW": {
+          "silks": "slate-positioning-flags",
+          "tacks": [
+            {
+              "ts": "260115-1713",
+              "state": "rough",
+              "text": "Expose slate positioning flags in /jjc-pace-slate slash command.\n\nJJD supports --before, --after, --first for jjx_slate but the slash command doesn't expose them.\n\nUpdate /jjc-pace-slate to:\n1. Accept optional positioning in arguments (e.g., `--before AAAAC` or `--first`)\n2. Pass flags through to vvx jjx_slate\n3. Document the positioning options in usage examples\n\nDepends on: slash-command-modernize (₢AAAAL) — should complete first so this pace builds on modernized command format."
             }
           ]
         }
