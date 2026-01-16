@@ -6,6 +6,7 @@
 use serde::{Deserialize, Serialize};
 use crate::jjrc_core::timestamp_full;
 use crate::jjrf_favor::{CHARSET, Firemark, Coronet, FIREMARK_PREFIX, CORONET_PREFIX};
+use crate::jjrs_steeplechase::SteeplechaseEntry;
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::io::{Read as IoRead, Write};
@@ -1021,7 +1022,12 @@ impl Gallops {
     ///
     /// Creates trophy file, removes heat from gallops, deletes paddock file.
     /// Does NOT save gallops or commit - caller is responsible for that.
-    pub fn retire(&mut self, args: RetireArgs, base_path: &Path) -> Result<RetireResult, String> {
+    pub fn retire(
+        &mut self,
+        args: RetireArgs,
+        base_path: &Path,
+        steeplechase: &[SteeplechaseEntry],
+    ) -> Result<RetireResult, String> {
         // Parse and normalize firemark
         let firemark = Firemark::parse(&args.firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
@@ -1042,7 +1048,7 @@ impl Gallops {
             .map_err(|e| format!("Failed to read paddock file '{}': {}", heat.paddock_file, e))?;
 
         // Build trophy content
-        let trophy_content = self.build_trophy_content(&firemark_key, heat, &paddock_content, &args.today)?;
+        let trophy_content = self.build_trophy_content(&firemark_key, heat, &paddock_content, &args.today, steeplechase)?;
 
         // Compute trophy path: .claude/jjm/retired/jjh_<created>-r<today>-<silks>.md
         let trophy_filename = format!(
@@ -1085,6 +1091,28 @@ impl Gallops {
         })
     }
 
+    /// Build trophy markdown preview (dry-run, no file modifications)
+    ///
+    /// Returns the markdown content that would be written to the trophy file.
+    pub fn build_trophy_preview(
+        &self,
+        firemark: &str,
+        paddock_content: &str,
+        today: &str,
+        steeplechase: &[SteeplechaseEntry],
+    ) -> Result<String, String> {
+        // Parse and normalize firemark
+        let fm = Firemark::parse(firemark)
+            .map_err(|e| format!("Invalid firemark: {}", e))?;
+        let firemark_key = fm.display();
+
+        // Verify heat exists
+        let heat = self.heats.get(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        self.build_trophy_content(&firemark_key, heat, paddock_content, today, steeplechase)
+    }
+
     /// Build trophy markdown content
     fn build_trophy_content(
         &self,
@@ -1092,6 +1120,7 @@ impl Gallops {
         heat: &Heat,
         paddock_content: &str,
         today: &str,
+        steeplechase: &[SteeplechaseEntry],
     ) -> Result<String, String> {
         let mut content = String::new();
 
@@ -1147,6 +1176,27 @@ impl Gallops {
                     }
                     content.push('\n');
                 }
+            }
+        }
+
+        // Steeplechase (newest first, as provided)
+        content.push_str("## Steeplechase\n\n");
+        if steeplechase.is_empty() {
+            content.push_str("(no entries)\n\n");
+        } else {
+            for entry in steeplechase {
+                // Format: ### {date} - {pace_silks or "Heat"} - {marker or "commit"}
+                let pace_or_heat = entry.pace_silks.as_deref().unwrap_or("Heat");
+                let marker_or_commit = entry.marker.as_deref().unwrap_or("commit");
+                content.push_str(&format!(
+                    "### {} - {} - {}\n\n",
+                    entry.timestamp, pace_or_heat, marker_or_commit
+                ));
+                content.push_str(&entry.subject);
+                if !entry.subject.ends_with('\n') {
+                    content.push('\n');
+                }
+                content.push('\n');
             }
         }
 

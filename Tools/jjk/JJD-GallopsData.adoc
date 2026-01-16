@@ -1521,11 +1521,36 @@ This is a destructive operation that permanently removes the heat from active tr
 (positional) — target
 {jjdhr_heat}
 
-{jjds_stdout} Path to the written trophy file.
+// ⟦axd_optional⟧
+* `--execute` — perform the retire operation.
+Without this flag, outputs trophy markdown to stdout as a dry-run preview.
+
+{jjds_stdout}
+Without `--execute`: trophy markdown content (dry-run preview).
+With `--execute`: path to the written trophy file.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
+
+Without `--execute` (dry-run):
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Read paddock file contents from
+{jjdhm_paddock}
+. Call
+{jjdo_rein}
+internally to get steeplechase entries
+. Build trophy markdown (see format below)
+. Output trophy markdown to stdout
+
+With `--execute`:
 
 . Acquire lock (`refs/vvg/locks/vvx`)
 . Read
@@ -1548,33 +1573,39 @@ internally to get steeplechase entries
 . Build trophy markdown:
 +
 ----
-# Heat: {silks-as-title}
+# Heat Trophy: {silks}
 
-{first paragraph from paddock, or silks if paddock empty}
+**Firemark:** {firemark}
+**Created:** {created}
+**Retired:** {today}
+**Status:** retired
 
 ## Paddock
 
 {full paddock content}
 
-## Done
+## Paces
 
-{for each pace in order where tacks[0].state is complete:}
-- **{pace_silks}** — {tacks[0].text} ✓
+{for each pace in order:}
 
-## Remaining
+### {pace_silks} ({coronet}) [{final_state}]
 
-{for each pace in order where tacks[0].state is NOT complete:}
-- **{pace_silks}** [{state}] — {tacks[0].text}
+{for each tack, newest first:}
+**[{ts}] {state}**
 
-{or "(none)" if all complete}
+{tack text}
+
+{if tack has direction:}
+*Direction:* {direction}
 
 ## Steeplechase
 
-{for each steeplechase entry, newest first:}
----
+{for each steeplechase entry from rein, newest first:}
+
 ### {date} - {pace_silks or "Heat"} - {marker or "commit"}
+
 {subject/description}
----
+
 ----
 . Compute trophy filename: `.claude/jjm/retired/jjh_b{created}-r{today}-{silks}.md`
 where `{today}` is current date in YYMMDD format

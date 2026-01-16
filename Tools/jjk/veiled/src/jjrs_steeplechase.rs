@@ -143,16 +143,11 @@ fn parse_log_line(line: &str, brand: &str, firemark_raw: &str) -> Option<Steeple
     None
 }
 
-/// Run jjx_rein command
-pub fn run(args: ReinArgs) -> i32 {
+/// Get steeplechase entries for a heat (library function)
+pub fn get_entries(args: &ReinArgs) -> Result<Vec<SteeplechaseEntry>, String> {
     // Parse and validate Firemark
-    let firemark = match Firemark::parse(&args.firemark) {
-        Ok(fm) => fm,
-        Err(e) => {
-            eprintln!("rein: error: {}", e);
-            return 1;
-        }
-    };
+    let firemark = Firemark::parse(&args.firemark)
+        .map_err(|e| format!("Invalid firemark: {}", e))?;
 
     let firemark_raw = firemark.as_str();
 
@@ -164,7 +159,7 @@ pub fn run(args: ReinArgs) -> i32 {
     );
 
     // Run git log with extended regexp
-    let output = match Command::new("git")
+    let output = Command::new("git")
         .args([
             "log",
             "--all",
@@ -173,18 +168,11 @@ pub fn run(args: ReinArgs) -> i32 {
             "--format=%ai\t%s",
         ])
         .output()
-    {
-        Ok(out) => out,
-        Err(e) => {
-            eprintln!("rein: error: failed to run git log: {}", e);
-            return 1;
-        }
-    };
+        .map_err(|e| format!("Failed to run git log: {}", e))?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        eprintln!("rein: error: git log failed: {}", stderr);
-        return 1;
+        return Err(format!("git log failed: {}", stderr));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -196,14 +184,26 @@ pub fn run(args: ReinArgs) -> i32 {
         .take(args.limit)
         .collect();
 
-    // Output as JSON array
-    match serde_json::to_string_pretty(&entries) {
-        Ok(json) => {
-            println!("{}", json);
-            0
+    Ok(entries)
+}
+
+/// Run jjx_rein command (CLI wrapper)
+pub fn run(args: ReinArgs) -> i32 {
+    match get_entries(&args) {
+        Ok(entries) => {
+            match serde_json::to_string_pretty(&entries) {
+                Ok(json) => {
+                    println!("{}", json);
+                    0
+                }
+                Err(e) => {
+                    eprintln!("rein: error: failed to serialize JSON: {}", e);
+                    1
+                }
+            }
         }
         Err(e) => {
-            eprintln!("rein: error: failed to serialize JSON: {}", e);
+            eprintln!("rein: error: {}", e);
             1
         }
     }

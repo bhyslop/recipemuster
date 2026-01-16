@@ -549,6 +549,7 @@ fn run_parade(args: ParadeArgs) -> i32 {
 fn run_retire(args: RetireArgs) -> i32 {
     use crate::jjrc_core::timestamp_date;
     use crate::jjrg_gallops::RetireArgs as LibRetireArgs;
+    use crate::jjrs_steeplechase::{ReinArgs, get_entries};
     use std::path::Path;
 
     let firemark = match Firemark::parse(&args.firemark) {
@@ -559,17 +560,73 @@ fn run_retire(args: RetireArgs) -> i32 {
         }
     };
 
-    // If --execute not specified, just output JSON preview (existing behavior)
+    // Load gallops
+    let gallops = match Gallops::load(&args.file) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_retire: error loading Gallops: {}", e);
+            return 1;
+        }
+    };
+
+    // Get steeplechase entries (use default brand)
+    let rein_args = ReinArgs {
+        firemark: args.firemark.clone(),
+        brand: "RBM".to_string(),
+        limit: 1000,
+    };
+    let steeplechase = match get_entries(&rein_args) {
+        Ok(entries) => entries,
+        Err(e) => {
+            eprintln!("jjx_retire: warning: could not get steeplechase: {}", e);
+            Vec::new()
+        }
+    };
+
+    // Compute base path from gallops file
+    let base_path = args.file.parent()
+        .and_then(|p| p.parent())
+        .and_then(|p| p.parent())
+        .unwrap_or(Path::new("."));
+
+    // If --execute not specified, output trophy markdown preview
     if !args.execute {
-        use crate::jjrq_query::{RetireArgs as QueryRetireArgs, run_retire as lib_run_retire};
-        let retire_args = QueryRetireArgs {
-            file: args.file,
-            firemark,
+        // Read paddock content
+        let firemark_key = firemark.display();
+        let heat = match gallops.heats.get(&firemark_key) {
+            Some(h) => h,
+            None => {
+                eprintln!("jjx_retire: error: Heat '{}' not found", firemark_key);
+                return 1;
+            }
         };
-        return lib_run_retire(retire_args);
+        let paddock_path = base_path.join(&heat.paddock_file);
+        let paddock_content = match std::fs::read_to_string(&paddock_path) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("jjx_retire: error reading paddock: {}", e);
+                return 1;
+            }
+        };
+
+        // Build and output trophy preview
+        let today = timestamp_date();
+        match gallops.build_trophy_preview(&args.firemark, &paddock_content, &today, &steeplechase) {
+            Ok(markdown) => {
+                println!("{}", markdown);
+                return 0;
+            }
+            Err(e) => {
+                eprintln!("jjx_retire: error: {}", e);
+                return 1;
+            }
+        }
     }
 
     // --execute: perform the actual retire operation
+
+    // Need mutable gallops for execute path
+    let mut gallops = gallops;
 
     // Acquire lock FIRST
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -580,28 +637,13 @@ fn run_retire(args: RetireArgs) -> i32 {
         }
     };
 
-    // Load gallops
-    let mut gallops = match Gallops::load(&args.file) {
-        Ok(g) => g,
-        Err(e) => {
-            eprintln!("jjx_retire: error loading Gallops: {}", e);
-            return 1;
-        }
-    };
-
-    // Compute base path from gallops file
-    let base_path = args.file.parent()
-        .and_then(|p| p.parent())
-        .and_then(|p| p.parent())
-        .unwrap_or(Path::new("."));
-
     // Execute retire
     let retire_args = LibRetireArgs {
         firemark: args.firemark.clone(),
         today: timestamp_date(),
     };
 
-    let result = match gallops.retire(retire_args, base_path) {
+    let result = match gallops.retire(retire_args, base_path, &steeplechase) {
         Ok(r) => r,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
