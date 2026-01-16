@@ -6,6 +6,7 @@
       "creation_time": "260114",
       "status": "current",
       "order": [
+        "₢AAAAn",
         "₢AAAAg",
         "₢AAAAk",
         "₢AAAAi",
@@ -46,7 +47,7 @@
         "₢AAAAb",
         "₢AAAAl"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -803,6 +804,16 @@
               "ts": "260116-1142",
               "state": "rough",
               "text": "Optimize VVC Claude commit message generation: switch to haiku model, add custom system prompt, add --no-session-persistence flag"
+            }
+          ]
+        },
+        "₢AAAAn": {
+          "silks": "notch-remove-message-bypass",
+          "tacks": [
+            {
+              "ts": "260116-1203",
+              "state": "rough",
+              "text": "Remove --message flag from jjx_notch. Commits should always have Claude-analyzed messages. Use chalk for explicit human messages (ceremony). Update: JJD spec, jjrn_notch.rs, jjrx_cli.rs (remove --message arg), jjc-pace-notch.md slash command."
             }
           ]
         }
