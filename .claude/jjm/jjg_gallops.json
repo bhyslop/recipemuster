@@ -555,6 +555,11 @@
           "silks": "refactor-procedural-term-definitions",
           "tacks": [
             {
+              "ts": "260116-0820",
+              "state": "rough",
+              "text": "Refactor axo_command, axo_guide, axo_pattern definitions to reference axo_procedure as superset. Critically: reposition axo_sequence as STRUCTURAL CHARACTERISTIC not procedure type - most procedures ARE sequential, so axo_sequence describes HOW behavior is organized, not WHAT kind of procedure it is. Also explicitly note that axo_entity, axo_role, axo_identity, axo_actor, axo_dependency are OUTSIDE the procedure hierarchy."
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Refactor axo_command, axo_guide, axo_pattern definitions to reference axo_procedure as superset; clarify axo_sequence as structural characteristic"
