@@ -456,9 +456,24 @@ pub struct SlateResult {
 }
 
 /// Arguments for the rail operation
+///
+/// Supports two modes:
+/// - Order mode: provide `order` array to replace entire sequence
+/// - Move mode: provide `move_coronet` + one positioning field to relocate a single pace
 pub struct RailArgs {
     pub firemark: String,
+    /// Order mode: new sequence of all coronets
     pub order: Vec<String>,
+    /// Move mode: coronet to relocate
+    pub move_coronet: Option<String>,
+    /// Move before this coronet
+    pub before: Option<String>,
+    /// Move after this coronet
+    pub after: Option<String>,
+    /// Move to beginning
+    pub first: bool,
+    /// Move to end
+    pub last: bool,
 }
 
 /// Arguments for the tally operation
@@ -612,9 +627,10 @@ impl Gallops {
 
     /// Rail - reorder Paces within a Heat
     ///
-    /// Replaces the order array with a new sequence. Validates that the new order
-    /// contains exactly the same Coronets as the current order.
-    pub fn rail(&mut self, args: RailArgs) -> Result<(), String> {
+    /// Supports two modes:
+    /// - Order mode: replace entire sequence with provided order array
+    /// - Move mode: relocate a single pace using positioning flags
+    pub fn rail(&mut self, args: RailArgs) -> Result<Vec<String>, String> {
         // Parse and normalize firemark
         let firemark = Firemark::parse(&args.firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
@@ -624,53 +640,147 @@ impl Gallops {
         let heat = self.heats.get_mut(&firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
-        // Normalize the input order (add prefix if missing)
-        let normalized_order: Result<Vec<String>, String> = args.order.iter()
-            .map(|c| {
-                let coronet = Coronet::parse(c)
-                    .map_err(|e| format!("Invalid coronet '{}': {}", c, e))?;
-                Ok(coronet.display())
-            })
-            .collect();
-        let new_order = normalized_order?;
-
-        // Validate count matches
-        if new_order.len() != heat.order.len() {
-            return Err(format!(
-                "Order count mismatch: got {}, expected {}",
-                new_order.len(),
-                heat.order.len()
-            ));
-        }
-
-        // Validate no duplicates
-        let new_set: HashSet<&String> = new_order.iter().collect();
-        if new_set.len() != new_order.len() {
-            return Err("Order contains duplicate Coronets".to_string());
-        }
-
-        // Validate all Coronets exist in paces
-        for coronet in &new_order {
-            if !heat.paces.contains_key(coronet) {
-                return Err(format!("Coronet '{}' not found in Heat's paces", coronet));
+        // Mode detection: if move_coronet present, use move mode
+        if let Some(ref move_str) = args.move_coronet {
+            // Move mode validation
+            if !args.order.is_empty() {
+                return Err("Cannot combine --move with positional coronets".to_string());
             }
-        }
 
-        // Validate all Coronets embed correct parent Firemark
-        for coronet in &new_order {
-            let c = Coronet::parse(coronet).unwrap();
-            if c.parent_firemark().display() != firemark_key {
+            // Parse and normalize move coronet
+            let move_coronet = Coronet::parse(move_str)
+                .map_err(|e| format!("Invalid --move coronet: {}", e))?;
+            let move_key = move_coronet.display();
+
+            // Validate move coronet exists in heat
+            if !heat.paces.contains_key(&move_key) {
+                return Err(format!("Pace {} not found in heat {}", move_key, firemark_key));
+            }
+
+            // Count positioning flags
+            let position_count = [
+                args.before.is_some(),
+                args.after.is_some(),
+                args.first,
+                args.last,
+            ].iter().filter(|&&x| x).count();
+
+            if position_count == 0 {
+                return Err("Move mode requires exactly one positioning flag".to_string());
+            }
+            if position_count > 1 {
+                let mut flags = Vec::new();
+                if args.before.is_some() { flags.push("--before"); }
+                if args.after.is_some() { flags.push("--after"); }
+                if args.first { flags.push("--first"); }
+                if args.last { flags.push("--last"); }
+                return Err(format!("Conflicting positioning flags: {}", flags.join(", ")));
+            }
+
+            // Determine target position and validate
+            let current_pos = heat.order.iter().position(|c| c == &move_key)
+                .ok_or_else(|| format!("Pace {} not in order array", move_key))?;
+
+            let new_pos = if args.first {
+                0
+            } else if args.last {
+                heat.order.len() - 1
+            } else if let Some(ref before_str) = args.before {
+                let target = Coronet::parse(before_str)
+                    .map_err(|e| format!("Invalid --before coronet: {}", e))?;
+                let target_key = target.display();
+
+                if target_key == move_key {
+                    return Err("Cannot position pace relative to itself".to_string());
+                }
+
+                let target_pos = heat.order.iter().position(|c| c == &target_key)
+                    .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, firemark_key))?;
+
+                // If moving from before target, the target shifts down after removal
+                if current_pos < target_pos {
+                    target_pos - 1
+                } else {
+                    target_pos
+                }
+            } else if let Some(ref after_str) = args.after {
+                let target = Coronet::parse(after_str)
+                    .map_err(|e| format!("Invalid --after coronet: {}", e))?;
+                let target_key = target.display();
+
+                if target_key == move_key {
+                    return Err("Cannot position pace relative to itself".to_string());
+                }
+
+                let target_pos = heat.order.iter().position(|c| c == &target_key)
+                    .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, firemark_key))?;
+
+                // If moving from before target, the target shifts down after removal
+                if current_pos < target_pos {
+                    target_pos // After removal, target is at target_pos-1, we want target_pos-1+1 = target_pos
+                } else {
+                    target_pos + 1
+                }
+            } else {
+                unreachable!()
+            };
+
+            // Remove from current position and insert at new position
+            heat.order.remove(current_pos);
+            heat.order.insert(new_pos, move_key);
+
+        } else {
+            // Order mode: replace entire sequence
+
+            // Normalize the input order (add prefix if missing)
+            let normalized_order: Result<Vec<String>, String> = args.order.iter()
+                .map(|c| {
+                    let coronet = Coronet::parse(c)
+                        .map_err(|e| format!("Invalid coronet '{}': {}", c, e))?;
+                    Ok(coronet.display())
+                })
+                .collect();
+            let new_order = normalized_order?;
+
+            // Validate count matches
+            if new_order.len() != heat.order.len() {
                 return Err(format!(
-                    "Coronet '{}' does not embed parent Heat '{}'",
-                    coronet, firemark_key
+                    "Order count mismatch: got {}, expected {}",
+                    new_order.len(),
+                    heat.order.len()
                 ));
             }
+
+            // Validate no duplicates
+            let new_set: HashSet<&String> = new_order.iter().collect();
+            if new_set.len() != new_order.len() {
+                return Err("Order contains duplicate Coronets".to_string());
+            }
+
+            // Validate all Coronets exist in paces
+            for coronet in &new_order {
+                if !heat.paces.contains_key(coronet) {
+                    return Err(format!("Coronet '{}' not found in Heat's paces", coronet));
+                }
+            }
+
+            // Validate all Coronets embed correct parent Firemark
+            for coronet in &new_order {
+                let c = Coronet::parse(coronet).unwrap();
+                if c.parent_firemark().display() != firemark_key {
+                    return Err(format!(
+                        "Coronet '{}' does not embed parent Heat '{}'",
+                        coronet, firemark_key
+                    ));
+                }
+            }
+
+            // Replace order
+            heat.order = new_order;
         }
 
-        // Replace order
-        heat.order = new_order;
-
-        Ok(())
+        // Return the new order
+        Ok(heat.order.clone())
     }
 
     /// Tally - add a new Tack to a Pace
@@ -1488,10 +1598,15 @@ mod tests {
         let original_first = heat.order[0].clone();
         gallops.heats.insert(heat_key.clone(), heat);
 
-        // Reorder: swap the two paces
+        // Reorder: swap the two paces (order mode)
         let args = RailArgs {
             firemark: "AB".to_string(),
             order: vec![pace2_key.clone(), original_first.clone()],
+            move_coronet: None,
+            before: None,
+            after: None,
+            first: false,
+            last: false,
         };
 
         let result = gallops.rail(args);
@@ -1512,6 +1627,11 @@ mod tests {
         let args = RailArgs {
             firemark: "AB".to_string(),
             order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()], // 2 items but only 1 pace
+            move_coronet: None,
+            before: None,
+            after: None,
+            first: false,
+            last: false,
         };
 
         let result = gallops.rail(args);
@@ -1538,11 +1658,246 @@ mod tests {
         let args = RailArgs {
             firemark: "AB".to_string(),
             order: vec!["₢ABAAA".to_string(), "₢ABAAA".to_string()],
+            move_coronet: None,
+            before: None,
+            after: None,
+            first: false,
+            last: false,
         };
 
         let result = gallops.rail(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("duplicate"));
+    }
+
+    // Move mode tests
+
+    #[test]
+    fn test_rail_move_first() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        // Add two more paces (total 3)
+        let pace2_key = "₢ABAAB".to_string();
+        let pace3_key = "₢ABAAC".to_string();
+        heat.paces.insert(pace2_key.clone(), Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.paces.insert(pace3_key.clone(), Pace {
+            silks: "third-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.order.push(pace2_key.clone());
+        heat.order.push(pace3_key.clone());
+        heat.next_pace_seed = "AAD".to_string();
+
+        let original_first = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Move third pace to first
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![],
+            move_coronet: Some(pace3_key.clone()),
+            before: None,
+            after: None,
+            first: true,
+            last: false,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], pace3_key);
+        assert_eq!(heat.order[1], original_first);
+        assert_eq!(heat.order[2], pace2_key);
+    }
+
+    #[test]
+    fn test_rail_move_last() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        let pace2_key = "₢ABAAB".to_string();
+        heat.paces.insert(pace2_key.clone(), Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.order.push(pace2_key.clone());
+        heat.next_pace_seed = "AAC".to_string();
+
+        let original_first = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Move first pace to last
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![],
+            move_coronet: Some(original_first.clone()),
+            before: None,
+            after: None,
+            first: false,
+            last: true,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], pace2_key);
+        assert_eq!(heat.order[1], original_first);
+    }
+
+    #[test]
+    fn test_rail_move_before() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        let pace2_key = "₢ABAAB".to_string();
+        let pace3_key = "₢ABAAC".to_string();
+        heat.paces.insert(pace2_key.clone(), Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.paces.insert(pace3_key.clone(), Pace {
+            silks: "third-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.order.push(pace2_key.clone());
+        heat.order.push(pace3_key.clone());
+        heat.next_pace_seed = "AAD".to_string();
+
+        let original_first = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Move third pace before second (from [1,2,3] to [1,3,2])
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![],
+            move_coronet: Some(pace3_key.clone()),
+            before: Some(pace2_key.clone()),
+            after: None,
+            first: false,
+            last: false,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], original_first);
+        assert_eq!(heat.order[1], pace3_key);
+        assert_eq!(heat.order[2], pace2_key);
+    }
+
+    #[test]
+    fn test_rail_move_after() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+        let pace2_key = "₢ABAAB".to_string();
+        let pace3_key = "₢ABAAC".to_string();
+        heat.paces.insert(pace2_key.clone(), Pace {
+            silks: "second-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.paces.insert(pace3_key.clone(), Pace {
+            silks: "third-pace".to_string(),
+            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+        });
+        heat.order.push(pace2_key.clone());
+        heat.order.push(pace3_key.clone());
+        heat.next_pace_seed = "AAD".to_string();
+
+        let original_first = heat.order[0].clone();
+        gallops.heats.insert(heat_key.clone(), heat);
+
+        // Move first pace after second (from [1,2,3] to [2,1,3])
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![],
+            move_coronet: Some(original_first.clone()),
+            before: None,
+            after: Some(pace2_key.clone()),
+            first: false,
+            last: false,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_ok());
+
+        let heat = gallops.heats.get(&heat_key).unwrap();
+        assert_eq!(heat.order[0], pace2_key);
+        assert_eq!(heat.order[1], original_first);
+        assert_eq!(heat.order[2], pace3_key);
+    }
+
+    #[test]
+    fn test_rail_move_requires_positioning_flag() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key, heat);
+
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![],
+            move_coronet: Some(pace_key),
+            before: None,
+            after: None,
+            first: false,
+            last: false,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("requires exactly one positioning flag"));
+    }
+
+    #[test]
+    fn test_rail_move_cannot_position_relative_to_self() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key, heat);
+
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![],
+            move_coronet: Some(pace_key.clone()),
+            before: Some(pace_key),
+            after: None,
+            first: false,
+            last: false,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("relative to itself"));
+    }
+
+    #[test]
+    fn test_rail_move_cannot_combine_with_order() {
+        let mut gallops = make_valid_gallops();
+        let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+        let pace_key = heat.order[0].clone();
+        gallops.heats.insert(heat_key, heat);
+
+        let args = RailArgs {
+            firemark: "AB".to_string(),
+            order: vec![pace_key.clone()],
+            move_coronet: Some(pace_key),
+            before: None,
+            after: None,
+            first: true,
+            last: false,
+        };
+
+        let result = gallops.rail(args);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Cannot combine --move with positional coronets"));
     }
 
     #[test]

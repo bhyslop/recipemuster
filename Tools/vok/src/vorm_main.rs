@@ -295,9 +295,31 @@ struct JjxRailArgs {
     /// Target Heat identity (Firemark)
     firemark: String,
 
-    /// New order of Coronets (space-separated or JSON array)
+    /// New order of Coronets (space-separated or JSON array) - order mode
     #[arg(trailing_var_arg = true)]
     order: Vec<String>,
+
+    // Move mode arguments
+
+    /// Coronet to relocate within order - triggers move mode
+    #[arg(long, short = 'm')]
+    r#move: Option<String>,
+
+    /// Move before specified Coronet
+    #[arg(long, conflicts_with_all = ["after", "first", "last"])]
+    before: Option<String>,
+
+    /// Move after specified Coronet
+    #[arg(long, conflicts_with_all = ["before", "first", "last"])]
+    after: Option<String>,
+
+    /// Move to beginning of order
+    #[arg(long, conflicts_with_all = ["before", "after", "last"])]
+    first: bool,
+
+    /// Move to end of order
+    #[arg(long, conflicts_with_all = ["before", "after", "first"])]
+    last: bool,
 }
 
 /// Arguments for jjx_tally command
@@ -710,15 +732,24 @@ fn run_jjx_rail(args: JjxRailArgs) -> i32 {
     let rail_args = RailArgs {
         firemark: args.firemark,
         order,
+        move_coronet: args.r#move,
+        before: args.before,
+        after: args.after,
+        first: args.first,
+        last: args.last,
     };
 
     // Execute rail
     match gallops.rail(rail_args) {
-        Ok(()) => {
+        Ok(new_order) => {
             // Save atomically
             if let Err(e) = gallops.save(&args.file) {
                 eprintln!("jjx_rail: error saving Gallops: {}", e);
                 return 1;
+            }
+            // Output new order, one coronet per line
+            for coronet in new_order {
+                println!("{}", coronet);
             }
             0
         }
