@@ -637,6 +637,11 @@
           "silks": "jjk-rcg-phase2-callsites",
           "tacks": [
             {
+              "ts": "260116-1421",
+              "state": "abandoned",
+              "text": "Superseded by ₢AAAAY which completed all RCG prefixing in one pass."
+            },
+            {
               "ts": "260116-1000",
               "state": "rough",
               "text": "JJK RCG Phase 2: Cross-file call site updates\n\n## Prerequisite\n\nPhase 1 complete - all declarations prefixed, manifests collected.\n\n## Approach\n\nUsing rename manifests from Phase 1, update all cross-file references:\n- jjrx_cli.rs uses types from jjrg, jjrf, jjrq, jjrs, jjrn\n- jjrq_query.rs uses types from jjrg, jjrf\n- etc.\n\n## Method\n\nFor each rename mapping (old -> new) from Phase 1:\n- replace_all across all 7 source files\n- Order: types first, then functions, then constants\n\n## Verification\n\nAfter all replacements, cargo build must pass (may have errors to fix).\n\n## Output\n\nAll call sites updated. Ready for Phase 3 coordination."
