@@ -516,10 +516,23 @@
       "silks": "axla-procedure-section-motifs",
       "creation_time": "260116",
       "status": "current",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ABAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AB.md",
-      "paces": {}
+      "paces": {
+        "₢ABAAA": {
+          "silks": "axla-mapping-section-updates",
+          "tacks": [
+            {
+              "ts": "260116-0814",
+              "state": "rough",
+              "text": "Add axo_procedure definition and axs_ category declaration to AXLA mapping section header"
+            }
+          ]
+        }
+      }
     }
   }
 }

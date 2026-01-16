@@ -64,10 +64,10 @@
 :vosa_concept_model:    <<vosa_concept_model,Concept Model>>
 :vosa_concept_model_s:  <<vosa_concept_model,Concept Models>>
 
-// Operations
-:voso_release:          <<voso_release,Release>>
-:voso_install:          <<voso_install,Install>>
-:voso_uninstall:        <<voso_uninstall,Uninstall>>
+// Operations (voso has children)
+:vosor_release:         <<vosor_release,Release>>
+:vosoi_install:         <<vosoi_install,Install>>
+:vosou_uninstall:       <<vosou_uninstall,Uninstall>>
 
 // Key premises
 :vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
@@ -104,20 +104,20 @@ and
 {vosa_concept_model_s}.
 
 The
-{voso_release}
+{vosor_release}
 operation creates a
 {vose_parcel}
 containing all
 {vose_kit}
 assets.
 The
-{voso_install}
+{vosoi_install}
 operation deploys a
 {vose_parcel}
 to a
 {vosp_target_repo}.
 The
-{voso_uninstall}
+{vosou_uninstall}
 operation cleanly removes a
 {vose_kit}
 using
@@ -139,16 +139,16 @@ must match their
 {vose_kit_p}
 {vost_cipher}
 pattern.
-{voso_release}
+{vosor_release}
 fails if any asset violates prefix rules.
 This constraint enables deterministic
-{voso_uninstall}
+{vosou_uninstall}
 by prefix matching.
 
 [[vosk_all_or_none]]
 // ⟦axl_voices axk_premise⟧
 {vosk_all_or_none}::
-{voso_install}
+{vosoi_install}
 is atomic.
 A
 {vose_parcel}
@@ -164,7 +164,7 @@ A
 {vose_parcel}
 contains everything needed for installation.
 No dependency resolution or external fetches during
-{voso_install}.
+{vosoi_install}.
 The
 {vose_parcel}
 can function from its extracted directory.
@@ -172,7 +172,7 @@ can function from its extracted directory.
 [[vosk_burc_prerequisite]]
 // ⟦axl_voices axk_premise⟧
 {vosk_burc_prerequisite}::
-{voso_install}
+{vosoi_install}
 requires BURC (BUK Regime Configuration) in the
 {vosp_target_repo}.
 The install script reads `.buk/burc.env` to locate `BURC_TOOLS_DIR`.
@@ -208,7 +208,7 @@ Validation: lowercase letters only, globally unique, no prefix may be a prefix o
 {vost_sigil}::
 A version identifier in YYMMDD-HHMM format.
 Generated at
-{voso_release}
+{vosor_release}
 time.
 Appears in
 {vose_parcel}
@@ -299,7 +299,7 @@ Collects
 and validates
 {vosk_prefix_validation}
 during
-{voso_release}.
+{vosor_release}.
 +
 Responsibilities:
 +
@@ -310,11 +310,11 @@ from all participating
 * Enforce
 {vosk_prefix_validation}
 during
-{voso_release}
+{vosor_release}
 * Provide asset enumeration for
-{voso_install}
+{vosoi_install}
 and
-{voso_uninstall}
+{vosou_uninstall}
 
 [[vose_kit]]
 // ⟦axl_voices axo_entity⟧
@@ -390,7 +390,7 @@ Format: `<\!-- MANAGED:{tag}:BEGIN -->` and `<\!-- MANAGED:{tag}:END -->`
 Content between
 {vose_marker_s}
 is replaced entirely on
-{voso_install}.
+{vosoi_install}.
 Content outside
 {vose_marker_s}
 is preserved.
@@ -406,7 +406,7 @@ are developed.
 Contains full source including
 {vosp_veiled}
 content.
-{voso_release}
+{vosor_release}
 runs from the
 {vosp_kit_forge}.
 
@@ -419,7 +419,7 @@ are installed.
 Receives only distributed assets - no
 {vosp_veiled}
 content.
-{voso_install}
+{vosoi_install}
 deploys to the
 {vosp_target_repo}.
 
@@ -450,9 +450,9 @@ VOK itself is inherently
 == Assets
 
 Assets are artifacts that participate in
-{voso_install}
+{vosoi_install}
 and
-{voso_uninstall}.
+{vosou_uninstall}.
 All assets must comply with
 {vosk_prefix_validation}.
 
@@ -515,9 +515,9 @@ via `.concept_model()` builder method.
 
 == Operations
 
-[[voso_release]]
+[[vosor_release]]
 // ⟦axl_voices axo_sequence⟧
-{voso_release}::
+{vosor_release}::
 Creates a
 {vose_parcel}
 from the
@@ -544,9 +544,9 @@ assets (everything except
 {vose_parcel}:
 `vvk-parcel-{sigil}.tar.gz`
 
-[[voso_install]]
+[[vosoi_install]]
 // ⟦axl_voices axo_sequence⟧
-{voso_install}::
+{vosoi_install}::
 Deploys a
 {vose_parcel}
 to a
@@ -579,15 +579,15 @@ in CLAUDE.md
 9. Post-install git commit
 10. Diff analysis for user modification recovery
 
-[[voso_uninstall]]
+[[vosou_uninstall]]
 // ⟦axl_voices axo_sequence⟧
-{voso_uninstall}::
+{vosou_uninstall}::
 Removes a
 {vose_kit}
 from
 {vosp_target_repo}.
 Script lives in target after
-{voso_install}.
+{vosoi_install}.
 +
 Invocation (from target repo):
 +
