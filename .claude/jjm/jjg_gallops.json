@@ -537,9 +537,10 @@
         "₢ABAAG",
         "₢ABAAH",
         "₢ABAAJ",
-        "₢ABAAI"
+        "₢ABAAI",
+        "₢ABAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -659,6 +660,16 @@
               "ts": "260116-0820",
               "state": "rough",
               "text": "Propose lifecycle dimension for procedures: transient (executes and completes), long-running (continues until stopped), periodic (executes on schedule). Determine if this is a dimension annotation, a new category, or section content. Iterate with editor on design."
+            }
+          ]
+        },
+        "₢ABAAK": {
+          "silks": "reconsider-rbags-retrofit-options",
+          "tacks": [
+            {
+              "ts": "260116-0838",
+              "state": "rough",
+              "text": "Reconsider RBAGS retrofit options after AXLA taxonomy is complete. Option B (Haiku, annotation-only, ~1-2 hrs) vs Option A (Sonnet, full restructure, ~3-5 hrs). Both parallelizable across 16 files + 11 inline patterns. Decide based on how compliance rules turned out and whether explicit section structure adds enough value over metadata-only approach."
             }
           ]
         }
