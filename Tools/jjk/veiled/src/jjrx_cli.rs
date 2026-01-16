@@ -10,78 +10,78 @@ use clap::Parser;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use crate::jjrf_favor::{Coronet, Firemark};
-use crate::jjrg_gallops::{Gallops, PaceState, read_stdin, read_stdin_optional};
-use crate::jjrn_notch::{ChalkMarker, HeatAction, format_notch_prefix, format_chalk_message, format_heat_message, format_heat_discussion};
+use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, jjrg_read_stdin as read_stdin, jjrg_read_stdin_optional as read_stdin_optional};
+use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_HeatAction as HeatAction, jjrn_format_notch_prefix as format_notch_prefix, jjrn_format_chalk_message as format_chalk_message, jjrn_format_heat_message as format_heat_message, jjrn_format_heat_discussion as format_heat_discussion};
 
 /// JJK subcommands - all jjx_* commands
 #[derive(Parser)]
 #[command(name = "jjx")]
 #[command(about = "Job Jockey Kit commands")]
-pub enum JjxCommands {
+pub enum jjrx_JjxCommands {
     /// JJ-aware commit with heat/pace context prefix
     #[command(name = "jjx_notch")]
-    Notch(NotchArgs),
+    Notch(jjrx_NotchArgs),
 
     /// Empty commit marking a steeplechase event
     #[command(name = "jjx_chalk")]
-    Chalk(ChalkArgs),
+    Chalk(jjrx_ChalkArgs),
 
     /// Parse git history for steeplechase entries
     #[command(name = "jjx_rein")]
-    Rein(ReinArgs),
+    Rein(zjjrx_ReinArgs),
 
     /// Validate Gallops JSON schema
     #[command(name = "jjx_validate")]
-    Validate(ValidateArgs),
+    Validate(zjjrx_ValidateArgs),
 
     /// List all Heats with summary information
     #[command(name = "jjx_muster")]
-    Muster(MusterArgs),
+    Muster(zjjrx_MusterArgs),
 
     /// Return context needed to saddle up on a Heat
     #[command(name = "jjx_saddle")]
-    Saddle(SaddleArgs),
+    Saddle(zjjrx_SaddleArgs),
 
     /// Display comprehensive Heat status for project review
     #[command(name = "jjx_parade")]
-    Parade(ParadeArgs),
+    Parade(zjjrx_ParadeArgs),
 
     /// Extract complete Heat data for archival trophy
     #[command(name = "jjx_retire")]
-    Retire(RetireArgs),
+    Retire(zjjrx_RetireArgs),
 
     /// Create a new Heat with empty Pace structure
     #[command(name = "jjx_nominate")]
-    Nominate(NominateArgs),
+    Nominate(zjjrx_NominateArgs),
 
     /// Add a new Pace to a Heat
     #[command(name = "jjx_slate")]
-    Slate(SlateArgs),
+    Slate(zjjrx_SlateArgs),
 
     /// Reorder Paces within a Heat
     #[command(name = "jjx_rail")]
-    Rail(RailArgs),
+    Rail(zjjrx_RailArgs),
 
     /// Add a new Tack to a Pace
     #[command(name = "jjx_tally")]
-    Tally(TallyArgs),
+    Tally(zjjrx_TallyArgs),
 
     /// Move a Pace from one Heat to another
     #[command(name = "jjx_draft")]
-    Draft(DraftArgs),
+    Draft(zjjrx_DraftArgs),
 }
 
 /// Arguments for jjx_notch command
 #[derive(clap::Args, Debug)]
-pub struct NotchArgs {
+pub struct jjrx_NotchArgs {
     /// Pace identity (Coronet) - embeds parent Heat
     pub coronet: String,
 }
 
 /// Arguments for jjx_chalk command
 #[derive(clap::Args, Debug)]
-pub struct ChalkArgs {
+pub struct jjrx_ChalkArgs {
     /// Identity: Coronet (pace-level) or Firemark (heat-level discussion only)
     pub identity: String,
 
@@ -96,7 +96,7 @@ pub struct ChalkArgs {
 
 /// Arguments for jjx_rein command
 #[derive(clap::Args, Debug)]
-struct ReinArgs {
+struct zjjrx_ReinArgs {
     /// Target Heat identity (Firemark)
     firemark: String,
 
@@ -107,7 +107,7 @@ struct ReinArgs {
 
 /// Arguments for jjx_validate command
 #[derive(clap::Args, Debug)]
-struct ValidateArgs {
+struct zjjrx_ValidateArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -115,7 +115,7 @@ struct ValidateArgs {
 
 /// Arguments for jjx_muster command
 #[derive(clap::Args, Debug)]
-struct MusterArgs {
+struct zjjrx_MusterArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -127,7 +127,7 @@ struct MusterArgs {
 
 /// Arguments for jjx_saddle command
 #[derive(clap::Args, Debug)]
-struct SaddleArgs {
+struct zjjrx_SaddleArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -138,7 +138,7 @@ struct SaddleArgs {
 
 /// Output format modes for jjx_parade
 #[derive(clap::ValueEnum, Clone, Copy, Debug, Default)]
-enum ParadeFormatArg {
+enum zjjrx_ParadeFormatArg {
     /// One line per pace: [state] silks (coronet)
     Overview,
     /// Numbered list: N. [state] silks (coronet)
@@ -152,7 +152,7 @@ enum ParadeFormatArg {
 
 /// Arguments for jjx_parade command
 #[derive(clap::Args, Debug)]
-struct ParadeArgs {
+struct zjjrx_ParadeArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -162,7 +162,7 @@ struct ParadeArgs {
 
     /// Output format mode
     #[arg(long, value_enum, default_value = "full")]
-    format: ParadeFormatArg,
+    format: zjjrx_ParadeFormatArg,
 
     /// Target Pace coronet (required for --format detail)
     #[arg(long)]
@@ -171,7 +171,7 @@ struct ParadeArgs {
 
 /// Arguments for jjx_retire command
 #[derive(clap::Args, Debug)]
-struct RetireArgs {
+struct zjjrx_RetireArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -186,7 +186,7 @@ struct RetireArgs {
 
 /// Arguments for jjx_nominate command
 #[derive(clap::Args, Debug)]
-struct NominateArgs {
+struct zjjrx_NominateArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -202,7 +202,7 @@ struct NominateArgs {
 
 /// Arguments for jjx_slate command
 #[derive(clap::Args, Debug)]
-struct SlateArgs {
+struct zjjrx_SlateArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -229,7 +229,7 @@ struct SlateArgs {
 
 /// Arguments for jjx_rail command
 #[derive(clap::Args, Debug)]
-struct RailArgs {
+struct zjjrx_RailArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -266,7 +266,7 @@ struct RailArgs {
 
 /// Arguments for jjx_tally command
 #[derive(clap::Args, Debug)]
-struct TallyArgs {
+struct zjjrx_TallyArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -285,7 +285,7 @@ struct TallyArgs {
 
 /// Arguments for jjx_draft command
 #[derive(clap::Args, Debug)]
-struct DraftArgs {
+struct zjjrx_DraftArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
@@ -320,7 +320,7 @@ struct DraftArgs {
 /// The first element of `args` should be the subcommand name (e.g., "jjx_muster").
 ///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn dispatch(args: &[OsString]) -> i32 {
+pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
     // Prepend synthetic binary name for clap parsing.
     // Clap expects args[0] to be the binary name (used in help text).
     // VOK passes ["jjx_muster", ...] so we prepend "jjx" to get ["jjx", "jjx_muster", ...].
@@ -328,7 +328,7 @@ pub fn dispatch(args: &[OsString]) -> i32 {
     full_args.extend(args.iter().cloned());
 
     // Parse the subcommand and arguments
-    let parsed = match JjxCommands::try_parse_from(&full_args) {
+    let parsed = match jjrx_JjxCommands::try_parse_from(&full_args) {
         Ok(cmd) => cmd,
         Err(e) => {
             // Let clap handle help/version/error display
@@ -343,24 +343,24 @@ pub fn dispatch(args: &[OsString]) -> i32 {
     };
 
     match parsed {
-        JjxCommands::Notch(args) => run_notch(args),
-        JjxCommands::Chalk(args) => run_chalk(args),
-        JjxCommands::Rein(args) => run_rein(args),
-        JjxCommands::Validate(args) => run_validate(args),
-        JjxCommands::Muster(args) => run_muster(args),
-        JjxCommands::Saddle(args) => run_saddle(args),
-        JjxCommands::Parade(args) => run_parade(args),
-        JjxCommands::Retire(args) => run_retire(args),
-        JjxCommands::Nominate(args) => run_nominate(args),
-        JjxCommands::Slate(args) => run_slate(args),
-        JjxCommands::Rail(args) => run_rail(args),
-        JjxCommands::Tally(args) => run_tally(args),
-        JjxCommands::Draft(args) => run_draft(args),
+        jjrx_JjxCommands::Notch(args) => zjjrx_run_notch(args),
+        jjrx_JjxCommands::Chalk(args) => zjjrx_run_chalk(args),
+        jjrx_JjxCommands::Rein(args) => zjjrx_run_rein(args),
+        jjrx_JjxCommands::Validate(args) => zjjrx_run_validate(args),
+        jjrx_JjxCommands::Muster(args) => zjjrx_run_muster(args),
+        jjrx_JjxCommands::Saddle(args) => zjjrx_run_saddle(args),
+        jjrx_JjxCommands::Parade(args) => zjjrx_run_parade(args),
+        jjrx_JjxCommands::Retire(args) => zjjrx_run_retire(args),
+        jjrx_JjxCommands::Nominate(args) => zjjrx_run_nominate(args),
+        jjrx_JjxCommands::Slate(args) => zjjrx_run_slate(args),
+        jjrx_JjxCommands::Rail(args) => zjjrx_run_rail(args),
+        jjrx_JjxCommands::Tally(args) => zjjrx_run_tally(args),
+        jjrx_JjxCommands::Draft(args) => zjjrx_run_draft(args),
     }
 }
 
 /// Check if a command name is a JJK command
-pub fn is_jjk_command(name: &str) -> bool {
+pub fn jjrx_is_jjk_command(name: &str) -> bool {
     name.starts_with("jjx_")
 }
 
@@ -368,8 +368,8 @@ pub fn is_jjk_command(name: &str) -> bool {
 // Notch/Chalk implementations (use vvc for commits)
 // ============================================================================
 
-fn run_notch(args: NotchArgs) -> i32 {
-    let coronet = match Coronet::parse(&args.coronet) {
+fn zjjrx_run_notch(args: jjrx_NotchArgs) -> i32 {
+    let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("jjx_notch: error: {}", e);
@@ -389,8 +389,8 @@ fn run_notch(args: NotchArgs) -> i32 {
     vvc::commit(&commit_args)
 }
 
-fn run_chalk(args: ChalkArgs) -> i32 {
-    let marker = match ChalkMarker::parse(&args.marker) {
+fn zjjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
+    let marker = match ChalkMarker::jjrn_parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
             eprintln!("jjx_chalk: error: {}", e);
@@ -403,7 +403,7 @@ fn run_chalk(args: ChalkArgs) -> i32 {
 
     let message = if identity.len() == 5 {
         // Coronet - pace-level chalk
-        let coronet = match Coronet::parse(&args.identity) {
+        let coronet = match Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("jjx_chalk: error: {}", e);
@@ -413,11 +413,11 @@ fn run_chalk(args: ChalkArgs) -> i32 {
         format_chalk_message(&coronet, marker, &args.description)
     } else if identity.len() == 2 {
         // Firemark - heat-level (discussion only)
-        if marker.requires_pace() {
-            eprintln!("jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.as_str());
+        if marker.jjrn_requires_pace() {
+            eprintln!("jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
             return 1;
         }
-        let firemark = match Firemark::parse(&args.identity) {
+        let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
                 eprintln!("jjx_chalk: error: {}", e);
@@ -444,8 +444,8 @@ fn run_chalk(args: ChalkArgs) -> i32 {
 // Command implementations (pure JJK operations)
 // ============================================================================
 
-fn run_rein(args: ReinArgs) -> i32 {
-    use crate::jjrs_steeplechase::{ReinArgs as LibReinArgs, run};
+fn zjjrx_run_rein(args: zjjrx_ReinArgs) -> i32 {
+    use crate::jjrs_steeplechase::{jjrs_ReinArgs as LibReinArgs, jjrs_run as run};
 
     let rein_args = LibReinArgs {
         firemark: args.firemark,
@@ -455,8 +455,8 @@ fn run_rein(args: ReinArgs) -> i32 {
     run(rein_args)
 }
 
-fn run_validate(args: ValidateArgs) -> i32 {
-    let gallops = match Gallops::load(&args.file) {
+fn zjjrx_run_validate(args: zjjrx_ValidateArgs) -> i32 {
+    let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_validate: error loading Gallops: {}", e);
@@ -464,7 +464,7 @@ fn run_validate(args: ValidateArgs) -> i32 {
         }
     };
 
-    match gallops.validate() {
+    match gallops.jjrg_validate() {
         Ok(()) => {
             println!("Gallops validation passed");
             0
@@ -479,9 +479,9 @@ fn run_validate(args: ValidateArgs) -> i32 {
     }
 }
 
-fn run_muster(args: MusterArgs) -> i32 {
-    use crate::jjrg_gallops::HeatStatus;
-    use crate::jjrq_query::{MusterArgs as LibMusterArgs, run_muster as lib_run_muster};
+fn zjjrx_run_muster(args: zjjrx_MusterArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_HeatStatus as HeatStatus;
+    use crate::jjrq_query::{jjrq_MusterArgs as LibMusterArgs, jjrq_run_muster as lib_run_muster};
 
     let status = match &args.status {
         Some(s) => match s.to_lowercase().as_str() {
@@ -503,10 +503,10 @@ fn run_muster(args: MusterArgs) -> i32 {
     lib_run_muster(muster_args)
 }
 
-fn run_saddle(args: SaddleArgs) -> i32 {
-    use crate::jjrq_query::{SaddleArgs as LibSaddleArgs, run_saddle as lib_run_saddle};
+fn zjjrx_run_saddle(args: zjjrx_SaddleArgs) -> i32 {
+    use crate::jjrq_query::{jjrq_SaddleArgs as LibSaddleArgs, jjrq_run_saddle as lib_run_saddle};
 
-    let firemark = match Firemark::parse(&args.firemark) {
+    let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_saddle: error: {}", e);
@@ -522,10 +522,10 @@ fn run_saddle(args: SaddleArgs) -> i32 {
     lib_run_saddle(saddle_args)
 }
 
-fn run_parade(args: ParadeArgs) -> i32 {
-    use crate::jjrq_query::{ParadeArgs as LibParadeArgs, ParadeFormat, run_parade as lib_run_parade};
+fn zjjrx_run_parade(args: zjjrx_ParadeArgs) -> i32 {
+    use crate::jjrq_query::{jjrq_ParadeArgs as LibParadeArgs, jjrq_ParadeFormat as ParadeFormat, jjrq_run_parade as lib_run_parade};
 
-    let firemark = match Firemark::parse(&args.firemark) {
+    let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_parade: error: {}", e);
@@ -534,10 +534,10 @@ fn run_parade(args: ParadeArgs) -> i32 {
     };
 
     let format = match args.format {
-        ParadeFormatArg::Overview => ParadeFormat::Overview,
-        ParadeFormatArg::Order => ParadeFormat::Order,
-        ParadeFormatArg::Detail => ParadeFormat::Detail,
-        ParadeFormatArg::Full => ParadeFormat::Full,
+        zjjrx_ParadeFormatArg::Overview => ParadeFormat::Overview,
+        zjjrx_ParadeFormatArg::Order => ParadeFormat::Order,
+        zjjrx_ParadeFormatArg::Detail => ParadeFormat::Detail,
+        zjjrx_ParadeFormatArg::Full => ParadeFormat::Full,
     };
 
     let parade_args = LibParadeArgs {
@@ -550,13 +550,13 @@ fn run_parade(args: ParadeArgs) -> i32 {
     lib_run_parade(parade_args)
 }
 
-fn run_retire(args: RetireArgs) -> i32 {
-    use crate::jjrc_core::timestamp_date;
-    use crate::jjrg_gallops::RetireArgs as LibRetireArgs;
-    use crate::jjrs_steeplechase::{ReinArgs, get_entries};
+fn zjjrx_run_retire(args: zjjrx_RetireArgs) -> i32 {
+    use crate::jjrc_core::jjrc_timestamp_date;
+    use crate::jjrg_gallops::jjrg_RetireArgs as LibRetireArgs;
+    use crate::jjrs_steeplechase::{jjrs_ReinArgs as ReinArgs, jjrs_get_entries as get_entries};
     use std::path::Path;
 
-    let firemark = match Firemark::parse(&args.firemark) {
+    let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
@@ -565,7 +565,7 @@ fn run_retire(args: RetireArgs) -> i32 {
     };
 
     // Load gallops
-    let gallops = match Gallops::load(&args.file) {
+    let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_retire: error loading Gallops: {}", e);
@@ -595,7 +595,7 @@ fn run_retire(args: RetireArgs) -> i32 {
     // If --execute not specified, output trophy markdown preview
     if !args.execute {
         // Read paddock content
-        let firemark_key = firemark.display();
+        let firemark_key = firemark.jjrf_display();
         let heat = match gallops.heats.get(&firemark_key) {
             Some(h) => h,
             None => {
@@ -613,8 +613,8 @@ fn run_retire(args: RetireArgs) -> i32 {
         };
 
         // Build and output trophy preview
-        let today = timestamp_date();
-        match gallops.build_trophy_preview(&args.firemark, &paddock_content, &today, &steeplechase) {
+        let today = jjrc_timestamp_date();
+        match gallops.jjrg_build_trophy_preview(&args.firemark, &paddock_content, &today, &steeplechase) {
             Ok(markdown) => {
                 println!("{}", markdown);
                 return 0;
@@ -643,10 +643,10 @@ fn run_retire(args: RetireArgs) -> i32 {
     // Execute retire
     let retire_args = LibRetireArgs {
         firemark: args.firemark.clone(),
-        today: timestamp_date(),
+        today: jjrc_timestamp_date(),
     };
 
-    let result = match gallops.retire(retire_args, base_path, &steeplechase) {
+    let result = match gallops.jjrg_retire(retire_args, base_path, &steeplechase) {
         Ok(r) => r,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
@@ -655,7 +655,7 @@ fn run_retire(args: RetireArgs) -> i32 {
     };
 
     // Save gallops
-    if let Err(e) = gallops.save(&args.file) {
+    if let Err(e) = gallops.jjrg_save(&args.file) {
         eprintln!("jjx_retire: error saving Gallops: {}", e);
         return 1;
     }
@@ -691,8 +691,8 @@ fn run_retire(args: RetireArgs) -> i32 {
     // lock released here
 }
 
-fn run_nominate(args: NominateArgs) -> i32 {
-    use crate::jjrg_gallops::NominateArgs as LibNominateArgs;
+fn zjjrx_run_nominate(args: zjjrx_NominateArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_NominateArgs as LibNominateArgs;
     use std::path::Path;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -705,7 +705,7 @@ fn run_nominate(args: NominateArgs) -> i32 {
     };
 
     let mut gallops = if args.file.exists() {
-        match Gallops::load(&args.file) {
+        match Gallops::jjrg_load(&args.file) {
             Ok(g) => g,
             Err(e) => {
                 eprintln!("jjx_nominate: error loading Gallops: {}", e);
@@ -736,15 +736,15 @@ fn run_nominate(args: NominateArgs) -> i32 {
         created: args.created,
     };
 
-    match gallops.nominate(nominate_args, base_path) {
+    match gallops.jjrg_nominate(nominate_args, base_path) {
         Ok(result) => {
-            if let Err(e) = gallops.save(&args.file) {
+            if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_nominate: error saving Gallops: {}", e);
                 return 1;
             }
 
             // Commit while holding lock
-            let fm = Firemark::parse(&result.firemark).expect("nominate returned invalid firemark");
+            let fm = Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
             let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format_heat_message(&fm, HeatAction::Nominate, &silks)),
                 ..Default::default()
@@ -765,8 +765,8 @@ fn run_nominate(args: NominateArgs) -> i32 {
     // lock released here
 }
 
-fn run_slate(args: SlateArgs) -> i32 {
-    use crate::jjrg_gallops::SlateArgs as LibSlateArgs;
+fn zjjrx_run_slate(args: zjjrx_SlateArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_SlateArgs as LibSlateArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -785,7 +785,7 @@ fn run_slate(args: SlateArgs) -> i32 {
         }
     };
 
-    let mut gallops = match Gallops::load(&args.file) {
+    let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_slate: error loading Gallops: {}", e);
@@ -804,15 +804,15 @@ fn run_slate(args: SlateArgs) -> i32 {
         first: args.first,
     };
 
-    match gallops.slate(slate_args) {
+    match gallops.jjrg_slate(slate_args) {
         Ok(result) => {
-            if let Err(e) = gallops.save(&args.file) {
+            if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_slate: error saving Gallops: {}", e);
                 return 1;
             }
 
             // Commit while holding lock
-            let fm = Firemark::parse(&firemark).expect("slate given invalid firemark");
+            let fm = Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
             let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format_heat_message(&fm, HeatAction::Slate, &silks)),
                 ..Default::default()
@@ -833,8 +833,8 @@ fn run_slate(args: SlateArgs) -> i32 {
     // lock released here
 }
 
-fn run_rail(args: RailArgs) -> i32 {
-    use crate::jjrg_gallops::RailArgs as LibRailArgs;
+fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_RailArgs as LibRailArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -854,7 +854,7 @@ fn run_rail(args: RailArgs) -> i32 {
         args.order.clone()
     };
 
-    let mut gallops = match Gallops::load(&args.file) {
+    let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_rail: error loading Gallops: {}", e);
@@ -873,15 +873,15 @@ fn run_rail(args: RailArgs) -> i32 {
         last: args.last,
     };
 
-    match gallops.rail(rail_args) {
+    match gallops.jjrg_rail(rail_args) {
         Ok(new_order) => {
-            if let Err(e) = gallops.save(&args.file) {
+            if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_rail: error saving Gallops: {}", e);
                 return 1;
             }
 
             // Commit while holding lock
-            let fm = Firemark::parse(&firemark).expect("rail given invalid firemark");
+            let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
             let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format_heat_message(&fm, HeatAction::Rail, "reordered")),
                 ..Default::default()
@@ -904,8 +904,8 @@ fn run_rail(args: RailArgs) -> i32 {
     // lock released here
 }
 
-fn run_tally(args: TallyArgs) -> i32 {
-    use crate::jjrg_gallops::TallyArgs as LibTallyArgs;
+fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -938,7 +938,7 @@ fn run_tally(args: TallyArgs) -> i32 {
         None => None,
     };
 
-    let mut gallops = match Gallops::load(&args.file) {
+    let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_tally: error loading Gallops: {}", e);
@@ -948,11 +948,11 @@ fn run_tally(args: TallyArgs) -> i32 {
 
     // Get firemark and silks for commit message before we move args
     let coronet_str = args.coronet.clone();
-    let (fm, silks) = match Coronet::parse(&coronet_str) {
+    let (fm, silks) = match Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => {
-            let parent_fm = c.parent_firemark();
-            let silks = gallops.heats.get(&parent_fm.display())
-                .and_then(|h| h.paces.get(&c.display()))
+            let parent_fm = c.jjrf_parent_firemark();
+            let silks = gallops.heats.get(&parent_fm.jjrf_display())
+                .and_then(|h| h.paces.get(&c.jjrf_display()))
                 .map(|p| p.silks.clone())
                 .unwrap_or_else(|| coronet_str.clone());
             (parent_fm, silks)
@@ -970,9 +970,9 @@ fn run_tally(args: TallyArgs) -> i32 {
         text,
     };
 
-    match gallops.tally(tally_args) {
+    match gallops.jjrg_tally(tally_args) {
         Ok(()) => {
-            if let Err(e) = gallops.save(&args.file) {
+            if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_tally: error saving Gallops: {}", e);
                 return 1;
             }
@@ -997,8 +997,8 @@ fn run_tally(args: TallyArgs) -> i32 {
     // lock released here
 }
 
-fn run_draft(args: DraftArgs) -> i32 {
-    use crate::jjrg_gallops::DraftArgs as LibDraftArgs;
+fn zjjrx_run_draft(args: zjjrx_DraftArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_DraftArgs as LibDraftArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -1009,7 +1009,7 @@ fn run_draft(args: DraftArgs) -> i32 {
         }
     };
 
-    let mut gallops = match Gallops::load(&args.file) {
+    let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_draft: error loading Gallops: {}", e);
@@ -1027,15 +1027,15 @@ fn run_draft(args: DraftArgs) -> i32 {
         first: args.first,
     };
 
-    match gallops.draft(draft_args) {
+    match gallops.jjrg_draft(draft_args) {
         Ok(result) => {
-            if let Err(e) = gallops.save(&args.file) {
+            if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_draft: error saving Gallops: {}", e);
                 return 1;
             }
 
             // Commit while holding lock - use destination firemark as identity
-            let dest_fm = Firemark::parse(&to).expect("draft given invalid destination firemark");
+            let dest_fm = Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
             let commit_args = vvc::vvcc_CommitArgs {
                 message: Some(format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet))),
                 ..Default::default()

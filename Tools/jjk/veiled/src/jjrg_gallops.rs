@@ -4,9 +4,9 @@
 //! All operations are atomic (write to temp, then rename).
 
 use serde::{Deserialize, Serialize};
-use crate::jjrc_core::timestamp_full;
-use crate::jjrf_favor::{CHARSET, Firemark, Coronet, FIREMARK_PREFIX, CORONET_PREFIX};
-use crate::jjrs_steeplechase::SteeplechaseEntry;
+use crate::jjrc_core::jjrc_timestamp_full as timestamp_full;
+use crate::jjrf_favor::{JJRF_CHARSET, jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
+use crate::jjrs_steeplechase::jjrs_SteeplechaseEntry as SteeplechaseEntry;
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::io::{Read as IoRead, Write};
@@ -15,7 +15,7 @@ use std::path::Path;
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum PaceState {
+pub enum jjrg_PaceState {
     Rough,
     Primed,
     Complete,
@@ -25,16 +25,16 @@ pub enum PaceState {
 /// Heat status values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum HeatStatus {
+pub enum jjrg_HeatStatus {
     Current,
     Retired,
 }
 
 /// Tack record - snapshot of Pace state and plan
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Tack {
+pub struct jjrg_Tack {
     pub ts: String,
-    pub state: PaceState,
+    pub state: jjrg_PaceState,
     pub text: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direction: Option<String>,
@@ -42,39 +42,39 @@ pub struct Tack {
 
 /// Pace record - discrete action within a Heat
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Pace {
+pub struct jjrg_Pace {
     pub silks: String,
-    pub tacks: Vec<Tack>,
+    pub tacks: Vec<jjrg_Tack>,
 }
 
 /// Heat record - bounded initiative
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Heat {
+pub struct jjrg_Heat {
     pub silks: String,
     pub creation_time: String,
-    pub status: HeatStatus,
+    pub status: jjrg_HeatStatus,
     pub order: Vec<String>,
     pub next_pace_seed: String,
     pub paddock_file: String,
-    pub paces: BTreeMap<String, Pace>,
+    pub paces: BTreeMap<String, jjrg_Pace>,
 }
 
 /// Root Gallops structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Gallops {
+pub struct jjrg_Gallops {
     pub next_heat_seed: String,
-    pub heats: BTreeMap<String, Heat>,
+    pub heats: BTreeMap<String, jjrg_Heat>,
 }
 
 // Validation helper functions
 
 /// Check if string contains only URL-safe base64 characters
-fn is_base64(s: &str) -> bool {
-    s.bytes().all(|b| CHARSET.contains(&b))
+fn zjjrg_is_base64(s: &str) -> bool {
+    s.bytes().all(|b| JJRF_CHARSET.contains(&b))
 }
 
 /// Check if string is valid kebab-case (non-empty, lowercase alphanumeric with hyphens)
-fn is_kebab_case(s: &str) -> bool {
+fn zjjrg_is_kebab_case(s: &str) -> bool {
     if s.is_empty() {
         return false;
     }
@@ -92,7 +92,7 @@ fn is_kebab_case(s: &str) -> bool {
 }
 
 /// Check if string matches YYMMDD format
-fn is_yymmdd(s: &str) -> bool {
+fn zjjrg_is_yymmdd(s: &str) -> bool {
     if s.len() != 6 {
         return false;
     }
@@ -100,7 +100,7 @@ fn is_yymmdd(s: &str) -> bool {
 }
 
 /// Check if string matches YYMMDD-HHMM format
-fn is_yymmdd_hhmm(s: &str) -> bool {
+fn zjjrg_is_yymmdd_hhmm(s: &str) -> bool {
     if s.len() != 11 {
         return false;
     }
@@ -114,20 +114,20 @@ fn is_yymmdd_hhmm(s: &str) -> bool {
         && parts[1].chars().all(|c| c.is_ascii_digit())
 }
 
-impl Gallops {
+impl jjrg_Gallops {
     /// Load Gallops from a file path
-    pub fn load(path: &Path) -> Result<Self, String> {
+    pub fn jjrg_load(path: &Path) -> Result<Self, String> {
         let content = fs::read_to_string(path)
             .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
 
-        let gallops: Gallops = serde_json::from_str(&content)
+        let gallops: jjrg_Gallops = serde_json::from_str(&content)
             .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
         Ok(gallops)
     }
 
     /// Save Gallops to a file path (atomic write)
-    pub fn save(&self, path: &Path) -> Result<(), String> {
+    pub fn jjrg_save(&self, path: &Path) -> Result<(), String> {
         // Serialize to pretty JSON
         let content = serde_json::to_string_pretty(self)
             .map_err(|e| format!("Failed to serialize JSON: {}", e))?;
@@ -155,7 +155,7 @@ impl Gallops {
     /// Validate the Gallops structure
     ///
     /// Returns Ok(()) if valid, Err(Vec<String>) with all validation errors otherwise.
-    pub fn validate(&self) -> Result<(), Vec<String>> {
+    pub fn jjrg_validate(&self) -> Result<(), Vec<String>> {
         let mut errors = Vec::new();
 
         // Rule 1: next_heat_seed must be 2 URL-safe base64 characters
@@ -164,7 +164,7 @@ impl Gallops {
                 "next_heat_seed must be 2 characters, got {}",
                 self.next_heat_seed.len()
             ));
-        } else if !is_base64(&self.next_heat_seed) {
+        } else if !zjjrg_is_base64(&self.next_heat_seed) {
             errors.push(format!(
                 "next_heat_seed contains invalid base64 characters: '{}'",
                 self.next_heat_seed
@@ -175,7 +175,7 @@ impl Gallops {
 
         // Validate each Heat
         for (heat_key, heat) in &self.heats {
-            self.validate_heat(heat_key, heat, &mut errors);
+            self.zjjrg_validate_heat(heat_key, heat, &mut errors);
         }
 
         if errors.is_empty() {
@@ -185,7 +185,7 @@ impl Gallops {
         }
     }
 
-    fn validate_heat(&self, heat_key: &str, heat: &Heat, errors: &mut Vec<String>) {
+    fn zjjrg_validate_heat(&self, heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String>) {
         let heat_ctx = format!("Heat '{}'", heat_key);
 
         // Rule 3: Heat key must match ₣[A-Za-z0-9_-]{2}
@@ -199,7 +199,7 @@ impl Gallops {
                     heat_ctx,
                     suffix.len()
                 ));
-            } else if !is_base64(suffix) {
+            } else if !zjjrg_is_base64(suffix) {
                 errors.push(format!(
                     "{}: key contains invalid base64 characters",
                     heat_ctx
@@ -209,7 +209,7 @@ impl Gallops {
 
         // Rule 4: Required Heat fields
         // silks (non-empty kebab-case)
-        if !is_kebab_case(&heat.silks) {
+        if !zjjrg_is_kebab_case(&heat.silks) {
             errors.push(format!(
                 "{}: silks must be non-empty kebab-case, got '{}'",
                 heat_ctx, heat.silks
@@ -217,7 +217,7 @@ impl Gallops {
         }
 
         // creation_time (YYMMDD)
-        if !is_yymmdd(&heat.creation_time) {
+        if !zjjrg_is_yymmdd(&heat.creation_time) {
             errors.push(format!(
                 "{}: creation_time must be YYMMDD format, got '{}'",
                 heat_ctx, heat.creation_time
@@ -233,7 +233,7 @@ impl Gallops {
                 heat_ctx,
                 heat.next_pace_seed.len()
             ));
-        } else if !is_base64(&heat.next_pace_seed) {
+        } else if !zjjrg_is_base64(&heat.next_pace_seed) {
             errors.push(format!(
                 "{}: next_pace_seed contains invalid base64 characters",
                 heat_ctx
@@ -281,16 +281,16 @@ impl Gallops {
 
         // Validate each Pace
         for (pace_key, pace) in &heat.paces {
-            self.validate_pace(&heat_ctx, heat_identity, pace_key, pace, errors);
+            self.zjjrg_validate_pace(&heat_ctx, heat_identity, pace_key, pace, errors);
         }
     }
 
-    fn validate_pace(
+    fn zjjrg_validate_pace(
         &self,
         heat_ctx: &str,
         heat_identity: Option<&str>,
         pace_key: &str,
-        pace: &Pace,
+        pace: &jjrg_Pace,
         errors: &mut Vec<String>,
     ) {
         let pace_ctx = format!("{} Pace '{}'", heat_ctx, pace_key);
@@ -307,7 +307,7 @@ impl Gallops {
                     suffix.len()
                 ));
             } else {
-                if !is_base64(suffix) {
+                if !zjjrg_is_base64(suffix) {
                     errors.push(format!(
                         "{}: key contains invalid base64 characters",
                         pace_ctx
@@ -328,7 +328,7 @@ impl Gallops {
         }
 
         // Rule 7: Pace must have silks (non-empty kebab-case)
-        if !is_kebab_case(&pace.silks) {
+        if !zjjrg_is_kebab_case(&pace.silks) {
             errors.push(format!(
                 "{}: silks must be non-empty kebab-case, got '{}'",
                 pace_ctx, pace.silks
@@ -342,15 +342,15 @@ impl Gallops {
 
         // Validate each Tack
         for (i, tack) in pace.tacks.iter().enumerate() {
-            self.validate_tack(&pace_ctx, i, tack, errors);
+            self.zjjrg_validate_tack(&pace_ctx, i, tack, errors);
         }
     }
 
-    fn validate_tack(&self, pace_ctx: &str, index: usize, tack: &Tack, errors: &mut Vec<String>) {
+    fn zjjrg_validate_tack(&self, pace_ctx: &str, index: usize, tack: &jjrg_Tack, errors: &mut Vec<String>) {
         let tack_ctx = format!("{} Tack[{}]", pace_ctx, index);
 
         // Rule 8: ts must be YYMMDD-HHMM
-        if !is_yymmdd_hhmm(&tack.ts) {
+        if !zjjrg_is_yymmdd_hhmm(&tack.ts) {
             errors.push(format!(
                 "{}: ts must be YYMMDD-HHMM format, got '{}'",
                 tack_ctx, tack.ts
@@ -364,7 +364,7 @@ impl Gallops {
 
         // Rule 9: direction presence depends on state
         match tack.state {
-            PaceState::Primed => {
+            jjrg_PaceState::Primed => {
                 match &tack.direction {
                     None => {
                         errors.push(format!(
@@ -397,7 +397,7 @@ impl Gallops {
 
 /// Increment a base64 seed string (with carry)
 /// Works for both 2-char (heat) and 3-char (pace) seeds
-fn increment_seed(seed: &str) -> String {
+fn zjjrg_increment_seed(seed: &str) -> String {
     let mut chars: Vec<u8> = seed.bytes().collect();
     let mut carry = true;
 
@@ -408,14 +408,14 @@ fn increment_seed(seed: &str) -> String {
         }
 
         // Find current position in charset
-        let pos = CHARSET.iter().position(|&c| c == chars[i]).unwrap_or(0);
+        let pos = JJRF_CHARSET.iter().position(|&c| c == chars[i]).unwrap_or(0);
 
         if pos == 63 {
             // Wrap around
-            chars[i] = CHARSET[0];
+            chars[i] = JJRF_CHARSET[0];
             // carry remains true
         } else {
-            chars[i] = CHARSET[pos + 1];
+            chars[i] = JJRF_CHARSET[pos + 1];
             carry = false;
         }
     }
@@ -426,19 +426,19 @@ fn increment_seed(seed: &str) -> String {
 // ===== Write Operations =====
 
 /// Arguments for the nominate operation
-pub struct NominateArgs {
+pub struct jjrg_NominateArgs {
     pub silks: String,
     pub created: String,
 }
 
 /// Result of the nominate operation
 #[derive(Debug)]
-pub struct NominateResult {
+pub struct jjrg_NominateResult {
     pub firemark: String,
 }
 
 /// Arguments for the slate operation
-pub struct SlateArgs {
+pub struct jjrg_SlateArgs {
     pub firemark: String,
     pub silks: String,
     pub text: String,
@@ -452,7 +452,7 @@ pub struct SlateArgs {
 
 /// Result of the slate operation
 #[derive(Debug)]
-pub struct SlateResult {
+pub struct jjrg_SlateResult {
     pub coronet: String,
 }
 
@@ -461,7 +461,7 @@ pub struct SlateResult {
 /// Supports two modes:
 /// - Order mode: provide `order` array to replace entire sequence
 /// - Move mode: provide `move_coronet` + one positioning field to relocate a single pace
-pub struct RailArgs {
+pub struct jjrg_RailArgs {
     pub firemark: String,
     /// Order mode: new sequence of all coronets
     pub order: Vec<String>,
@@ -478,15 +478,15 @@ pub struct RailArgs {
 }
 
 /// Arguments for the tally operation
-pub struct TallyArgs {
+pub struct jjrg_TallyArgs {
     pub coronet: String,
-    pub state: Option<PaceState>,
+    pub state: Option<jjrg_PaceState>,
     pub direction: Option<String>,
     pub text: Option<String>,
 }
 
 /// Arguments for the draft operation
-pub struct DraftArgs {
+pub struct jjrg_DraftArgs {
     /// Coronet of the pace to move
     pub coronet: String,
     /// Destination heat Firemark
@@ -501,13 +501,13 @@ pub struct DraftArgs {
 
 /// Result of the draft operation
 #[derive(Debug)]
-pub struct DraftResult {
+pub struct jjrg_DraftResult {
     /// New coronet in destination heat
     pub new_coronet: String,
 }
 
 /// Arguments for the retire operation
-pub struct RetireArgs {
+pub struct jjrg_RetireArgs {
     /// Firemark of heat to retire
     pub firemark: String,
     /// Today's date in YYMMDD format (for trophy filename)
@@ -516,7 +516,7 @@ pub struct RetireArgs {
 
 /// Result of the retire operation
 #[derive(Debug)]
-pub struct RetireResult {
+pub struct jjrg_RetireResult {
     /// Path to created trophy file
     pub trophy_path: String,
     /// Path to deleted paddock file
@@ -527,18 +527,18 @@ pub struct RetireResult {
     pub firemark: String,
 }
 
-impl Gallops {
+impl jjrg_Gallops {
     /// Nominate a new Heat
     ///
     /// Creates a new Heat with empty Pace structure and creates the paddock file.
-    pub fn nominate(&mut self, args: NominateArgs, base_path: &Path) -> Result<NominateResult, String> {
+    pub fn jjrg_nominate(&mut self, args: jjrg_NominateArgs, base_path: &Path) -> Result<jjrg_NominateResult, String> {
         // Validate silks is kebab-case
-        if !is_kebab_case(&args.silks) {
+        if !zjjrg_is_kebab_case(&args.silks) {
             return Err(format!("silks must be kebab-case, got '{}'", args.silks));
         }
 
         // Validate created is YYMMDD
-        if !is_yymmdd(&args.created) {
+        if !zjjrg_is_yymmdd(&args.created) {
             return Err(format!("created must be YYMMDD format, got '{}'", args.created));
         }
 
@@ -565,10 +565,10 @@ impl Gallops {
             .map_err(|e| format!("Failed to write paddock file: {}", e))?;
 
         // Create new Heat
-        let heat = Heat {
+        let heat = jjrg_Heat {
             silks: args.silks,
             creation_time: args.created,
-            status: HeatStatus::Current,
+            status: jjrg_HeatStatus::Current,
             order: Vec::new(),
             next_pace_seed: "AAA".to_string(),
             paddock_file,
@@ -579,18 +579,18 @@ impl Gallops {
         self.heats.insert(firemark_str.clone(), heat);
 
         // Increment next_heat_seed
-        self.next_heat_seed = increment_seed(&self.next_heat_seed);
+        self.next_heat_seed = zjjrg_increment_seed(&self.next_heat_seed);
 
-        Ok(NominateResult { firemark: firemark_str })
+        Ok(jjrg_NominateResult { firemark: firemark_str })
     }
 
     /// Slate a new Pace
     ///
     /// Adds a new Pace to a Heat with an initial Tack in rough state.
     /// Positioning: use before/after/first to insert at specific location.
-    pub fn slate(&mut self, args: SlateArgs) -> Result<SlateResult, String> {
+    pub fn jjrg_slate(&mut self, args: jjrg_SlateArgs) -> Result<jjrg_SlateResult, String> {
         // Validate silks is kebab-case
-        if !is_kebab_case(&args.silks) {
+        if !zjjrg_is_kebab_case(&args.silks) {
             return Err(format!("silks must be kebab-case, got '{}'", args.silks));
         }
 
@@ -609,9 +609,9 @@ impl Gallops {
         }
 
         // Parse and normalize firemark
-        let firemark = Firemark::parse(&args.firemark)
+        let firemark = Firemark::jjrf_parse(&args.firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
-        let firemark_key = firemark.display();
+        let firemark_key = firemark.jjrf_display();
 
         // Verify Heat exists
         let heat = self.heats.get_mut(&firemark_key)
@@ -619,16 +619,16 @@ impl Gallops {
 
         // If --before or --after specified, validate target coronet exists
         let insert_position = if let Some(ref before_str) = args.before {
-            let target = Coronet::parse(before_str)
+            let target = Coronet::jjrf_parse(before_str)
                 .map_err(|e| format!("Invalid --before coronet: {}", e))?;
-            let target_key = target.display();
+            let target_key = target.jjrf_display();
             let pos = heat.order.iter().position(|c| c == &target_key)
                 .ok_or_else(|| format!("Target coronet '{}' not found in heat", target_key))?;
             Some(pos) // Insert before this position
         } else if let Some(ref after_str) = args.after {
-            let target = Coronet::parse(after_str)
+            let target = Coronet::jjrf_parse(after_str)
                 .map_err(|e| format!("Invalid --after coronet: {}", e))?;
-            let target_key = target.display();
+            let target_key = target.jjrf_display();
             let pos = heat.order.iter().position(|c| c == &target_key)
                 .ok_or_else(|| format!("Target coronet '{}' not found in heat", target_key))?;
             Some(pos + 1) // Insert after this position
@@ -639,18 +639,18 @@ impl Gallops {
         };
 
         // Construct Coronet
-        let coronet_str = format!("{}{}{}", CORONET_PREFIX, firemark.as_str(), heat.next_pace_seed);
+        let coronet_str = format!("{}{}{}", CORONET_PREFIX, firemark.jjrf_as_str(), heat.next_pace_seed);
 
         // Create initial Tack
-        let tack = Tack {
+        let tack = jjrg_Tack {
             ts: timestamp_full(),
-            state: PaceState::Rough,
+            state: jjrg_PaceState::Rough,
             text: args.text,
             direction: None,
         };
 
         // Create new Pace
-        let pace = Pace {
+        let pace = jjrg_Pace {
             silks: args.silks,
             tacks: vec![tack],
         };
@@ -663,9 +663,9 @@ impl Gallops {
         heat.paces.insert(coronet_str.clone(), pace);
 
         // Increment next_pace_seed
-        heat.next_pace_seed = increment_seed(&heat.next_pace_seed);
+        heat.next_pace_seed = zjjrg_increment_seed(&heat.next_pace_seed);
 
-        Ok(SlateResult { coronet: coronet_str })
+        Ok(jjrg_SlateResult { coronet: coronet_str })
     }
 
     /// Rail - reorder Paces within a Heat
@@ -673,11 +673,11 @@ impl Gallops {
     /// Supports two modes:
     /// - Order mode: replace entire sequence with provided order array
     /// - Move mode: relocate a single pace using positioning flags
-    pub fn rail(&mut self, args: RailArgs) -> Result<Vec<String>, String> {
+    pub fn jjrg_rail(&mut self, args: jjrg_RailArgs) -> Result<Vec<String>, String> {
         // Parse and normalize firemark
-        let firemark = Firemark::parse(&args.firemark)
+        let firemark = Firemark::jjrf_parse(&args.firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
-        let firemark_key = firemark.display();
+        let firemark_key = firemark.jjrf_display();
 
         // Verify Heat exists
         let heat = self.heats.get_mut(&firemark_key)
@@ -691,9 +691,9 @@ impl Gallops {
             }
 
             // Parse and normalize move coronet
-            let move_coronet = Coronet::parse(move_str)
+            let move_coronet = Coronet::jjrf_parse(move_str)
                 .map_err(|e| format!("Invalid --move coronet: {}", e))?;
-            let move_key = move_coronet.display();
+            let move_key = move_coronet.jjrf_display();
 
             // Validate move coronet exists in heat
             if !heat.paces.contains_key(&move_key) {
@@ -729,9 +729,9 @@ impl Gallops {
             } else if args.last {
                 heat.order.len() - 1
             } else if let Some(ref before_str) = args.before {
-                let target = Coronet::parse(before_str)
+                let target = Coronet::jjrf_parse(before_str)
                     .map_err(|e| format!("Invalid --before coronet: {}", e))?;
-                let target_key = target.display();
+                let target_key = target.jjrf_display();
 
                 if target_key == move_key {
                     return Err("Cannot position pace relative to itself".to_string());
@@ -747,9 +747,9 @@ impl Gallops {
                     target_pos
                 }
             } else if let Some(ref after_str) = args.after {
-                let target = Coronet::parse(after_str)
+                let target = Coronet::jjrf_parse(after_str)
                     .map_err(|e| format!("Invalid --after coronet: {}", e))?;
-                let target_key = target.display();
+                let target_key = target.jjrf_display();
 
                 if target_key == move_key {
                     return Err("Cannot position pace relative to itself".to_string());
@@ -778,9 +778,9 @@ impl Gallops {
             // Normalize the input order (add prefix if missing)
             let normalized_order: Result<Vec<String>, String> = args.order.iter()
                 .map(|c| {
-                    let coronet = Coronet::parse(c)
+                    let coronet = Coronet::jjrf_parse(c)
                         .map_err(|e| format!("Invalid coronet '{}': {}", c, e))?;
-                    Ok(coronet.display())
+                    Ok(coronet.jjrf_display())
                 })
                 .collect();
             let new_order = normalized_order?;
@@ -809,8 +809,8 @@ impl Gallops {
 
             // Validate all Coronets embed correct parent Firemark
             for coronet in &new_order {
-                let c = Coronet::parse(coronet).unwrap();
-                if c.parent_firemark().display() != firemark_key {
+                let c = Coronet::jjrf_parse(coronet).unwrap();
+                if c.jjrf_parent_firemark().jjrf_display() != firemark_key {
                     return Err(format!(
                         "Coronet '{}' does not embed parent Heat '{}'",
                         coronet, firemark_key
@@ -829,15 +829,15 @@ impl Gallops {
     /// Tally - add a new Tack to a Pace
     ///
     /// Prepends a new Tack with state transition and/or plan refinement.
-    pub fn tally(&mut self, args: TallyArgs) -> Result<(), String> {
+    pub fn jjrg_tally(&mut self, args: jjrg_TallyArgs) -> Result<(), String> {
         // Parse and normalize coronet
-        let coronet = Coronet::parse(&args.coronet)
+        let coronet = Coronet::jjrf_parse(&args.coronet)
             .map_err(|e| format!("Invalid coronet: {}", e))?;
-        let coronet_key = coronet.display();
+        let coronet_key = coronet.jjrf_display();
 
         // Extract parent Firemark
-        let firemark = coronet.parent_firemark();
-        let firemark_key = firemark.display();
+        let firemark = coronet.jjrf_parent_firemark();
+        let firemark_key = firemark.jjrf_display();
 
         // Verify Heat exists
         let heat = self.heats.get_mut(&firemark_key)
@@ -857,7 +857,7 @@ impl Gallops {
         // Determine new direction
         let new_direction = match (&args.state, &new_state) {
             // State explicitly set to primed: direction required
-            (Some(PaceState::Primed), _) => {
+            (Some(jjrg_PaceState::Primed), _) => {
                 match &args.direction {
                     Some(d) if !d.is_empty() => Some(d.clone()),
                     Some(_) => return Err("direction must not be empty when state is primed".to_string()),
@@ -872,7 +872,7 @@ impl Gallops {
                 None
             }
             // State inherited and was primed: inherit direction
-            (None, PaceState::Primed) => {
+            (None, jjrg_PaceState::Primed) => {
                 args.direction.or_else(|| current_tack.direction.clone())
             }
             // State inherited and was not primed: no direction
@@ -886,7 +886,7 @@ impl Gallops {
         }
 
         // Create new Tack
-        let new_tack = Tack {
+        let new_tack = jjrg_Tack {
             ts: timestamp_full(),
             state: new_state,
             text: new_text,
@@ -904,7 +904,7 @@ impl Gallops {
     /// Moves the pace to the destination heat with a new Coronet.
     /// All Tack history is preserved, with a new Tack recording the draft.
     /// State is NOT changed - draft is a move operation, not a state transition.
-    pub fn draft(&mut self, args: DraftArgs) -> Result<DraftResult, String> {
+    pub fn jjrg_draft(&mut self, args: jjrg_DraftArgs) -> Result<jjrg_DraftResult, String> {
         // Validate positioning mutual exclusivity
         let position_count = [args.before.is_some(), args.after.is_some(), args.first]
             .iter()
@@ -915,18 +915,18 @@ impl Gallops {
         }
 
         // Parse and normalize source coronet
-        let source_coronet = Coronet::parse(&args.coronet)
+        let source_coronet = Coronet::jjrf_parse(&args.coronet)
             .map_err(|e| format!("Invalid coronet: {}", e))?;
-        let source_coronet_key = source_coronet.display();
+        let source_coronet_key = source_coronet.jjrf_display();
 
         // Extract source Firemark from coronet
-        let source_firemark = source_coronet.parent_firemark();
-        let source_firemark_key = source_firemark.display();
+        let source_firemark = source_coronet.jjrf_parent_firemark();
+        let source_firemark_key = source_firemark.jjrf_display();
 
         // Parse and normalize destination firemark
-        let dest_firemark = Firemark::parse(&args.to)
+        let dest_firemark = Firemark::jjrf_parse(&args.to)
             .map_err(|e| format!("Invalid destination firemark: {}", e))?;
-        let dest_firemark_key = dest_firemark.display();
+        let dest_firemark_key = dest_firemark.jjrf_display();
 
         // Validate source and destination are different
         if source_firemark_key == dest_firemark_key {
@@ -953,17 +953,17 @@ impl Gallops {
 
         // Validate positioning target if specified
         let insert_position = if let Some(ref before_str) = args.before {
-            let target = Coronet::parse(before_str)
+            let target = Coronet::jjrf_parse(before_str)
                 .map_err(|e| format!("Invalid --before coronet: {}", e))?;
-            let target_key = target.display();
+            let target_key = target.jjrf_display();
             let dest_heat = self.heats.get(&dest_firemark_key).unwrap();
             let pos = dest_heat.order.iter().position(|c| c == &target_key)
                 .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, dest_firemark_key))?;
             Some(pos)
         } else if let Some(ref after_str) = args.after {
-            let target = Coronet::parse(after_str)
+            let target = Coronet::jjrf_parse(after_str)
                 .map_err(|e| format!("Invalid --after coronet: {}", e))?;
-            let target_key = target.display();
+            let target_key = target.jjrf_display();
             let dest_heat = self.heats.get(&dest_firemark_key).unwrap();
             let pos = dest_heat.order.iter().position(|c| c == &target_key)
                 .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, dest_firemark_key))?;
@@ -982,16 +982,16 @@ impl Gallops {
 
         // Get destination heat and allocate new coronet
         let dest_heat = self.heats.get_mut(&dest_firemark_key).unwrap();
-        let new_coronet_str = format!("{}{}{}", CORONET_PREFIX, dest_firemark.as_str(), dest_heat.next_pace_seed);
+        let new_coronet_str = format!("{}{}{}", CORONET_PREFIX, dest_firemark.jjrf_as_str(), dest_heat.next_pace_seed);
 
         // Create new tack recording the draft
         let draft_note = format!("Drafted from {} in {}.\n\n{}",
             source_coronet_key, source_firemark_key,
             pace_data.tacks.first().map(|t| t.text.as_str()).unwrap_or(""));
 
-        let draft_tack = Tack {
+        let draft_tack = jjrg_Tack {
             ts: timestamp_full(),
-            state: pace_data.tacks.first().map(|t| t.state.clone()).unwrap_or(PaceState::Rough),
+            state: pace_data.tacks.first().map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough),
             text: draft_note,
             direction: pace_data.tacks.first().and_then(|t| t.direction.clone()),
         };
@@ -1000,7 +1000,7 @@ impl Gallops {
         let mut new_tacks = vec![draft_tack];
         new_tacks.extend(pace_data.tacks);
 
-        let new_pace = Pace {
+        let new_pace = jjrg_Pace {
             silks: pace_data.silks,
             tacks: new_tacks,
         };
@@ -1013,28 +1013,28 @@ impl Gallops {
         dest_heat.paces.insert(new_coronet_str.clone(), new_pace);
 
         // Increment destination seed
-        dest_heat.next_pace_seed = increment_seed(&dest_heat.next_pace_seed);
+        dest_heat.next_pace_seed = zjjrg_increment_seed(&dest_heat.next_pace_seed);
 
-        Ok(DraftResult { new_coronet: new_coronet_str })
+        Ok(jjrg_DraftResult { new_coronet: new_coronet_str })
     }
 
     /// Retire a Heat
     ///
     /// Creates trophy file, removes heat from gallops, deletes paddock file.
     /// Does NOT save gallops or commit - caller is responsible for that.
-    pub fn retire(
+    pub fn jjrg_retire(
         &mut self,
-        args: RetireArgs,
+        args: jjrg_RetireArgs,
         base_path: &Path,
         steeplechase: &[SteeplechaseEntry],
-    ) -> Result<RetireResult, String> {
+    ) -> Result<jjrg_RetireResult, String> {
         // Parse and normalize firemark
-        let firemark = Firemark::parse(&args.firemark)
+        let firemark = Firemark::jjrf_parse(&args.firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
-        let firemark_key = firemark.display();
+        let firemark_key = firemark.jjrf_display();
 
         // Validate today is YYMMDD
-        if !is_yymmdd(&args.today) {
+        if !zjjrg_is_yymmdd(&args.today) {
             return Err(format!("today must be YYMMDD format, got '{}'", args.today));
         }
 
@@ -1048,7 +1048,7 @@ impl Gallops {
             .map_err(|e| format!("Failed to read paddock file '{}': {}", heat.paddock_file, e))?;
 
         // Build trophy content
-        let trophy_content = self.build_trophy_content(&firemark_key, heat, &paddock_content, &args.today, steeplechase)?;
+        let trophy_content = self.zjjrg_build_trophy_content(&firemark_key, heat, &paddock_content, &args.today, steeplechase)?;
 
         // Compute trophy path: .claude/jjm/retired/jjh_<created>-r<today>-<silks>.md
         let trophy_filename = format!(
@@ -1083,7 +1083,7 @@ impl Gallops {
                 .map_err(|e| format!("Failed to delete paddock file: {}", e))?;
         }
 
-        Ok(RetireResult {
+        Ok(jjrg_RetireResult {
             trophy_path: trophy_rel_path,
             paddock_path: paddock_file,
             silks,
@@ -1094,7 +1094,7 @@ impl Gallops {
     /// Build trophy markdown preview (dry-run, no file modifications)
     ///
     /// Returns the markdown content that would be written to the trophy file.
-    pub fn build_trophy_preview(
+    pub fn jjrg_build_trophy_preview(
         &self,
         firemark: &str,
         paddock_content: &str,
@@ -1102,22 +1102,22 @@ impl Gallops {
         steeplechase: &[SteeplechaseEntry],
     ) -> Result<String, String> {
         // Parse and normalize firemark
-        let fm = Firemark::parse(firemark)
+        let fm = Firemark::jjrf_parse(firemark)
             .map_err(|e| format!("Invalid firemark: {}", e))?;
-        let firemark_key = fm.display();
+        let firemark_key = fm.jjrf_display();
 
         // Verify heat exists
         let heat = self.heats.get(&firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
-        self.build_trophy_content(&firemark_key, heat, paddock_content, today, steeplechase)
+        self.zjjrg_build_trophy_content(&firemark_key, heat, paddock_content, today, steeplechase)
     }
 
     /// Build trophy markdown content
-    fn build_trophy_content(
+    fn zjjrg_build_trophy_content(
         &self,
         firemark_key: &str,
-        heat: &Heat,
+        heat: &jjrg_Heat,
         paddock_content: &str,
         today: &str,
         steeplechase: &[SteeplechaseEntry],
@@ -1146,10 +1146,10 @@ impl Gallops {
                 // Get final state from most recent tack
                 let final_state = pace.tacks.first()
                     .map(|t| match t.state {
-                        PaceState::Rough => "rough",
-                        PaceState::Primed => "primed",
-                        PaceState::Complete => "complete",
-                        PaceState::Abandoned => "abandoned",
+                        jjrg_PaceState::Rough => "rough",
+                        jjrg_PaceState::Primed => "primed",
+                        jjrg_PaceState::Complete => "complete",
+                        jjrg_PaceState::Abandoned => "abandoned",
                     })
                     .unwrap_or("unknown");
 
@@ -1161,10 +1161,10 @@ impl Gallops {
                 // Tack history (newest first, as stored)
                 for tack in &pace.tacks {
                     let state_str = match tack.state {
-                        PaceState::Rough => "rough",
-                        PaceState::Primed => "primed",
-                        PaceState::Complete => "complete",
-                        PaceState::Abandoned => "abandoned",
+                        jjrg_PaceState::Rough => "rough",
+                        jjrg_PaceState::Primed => "primed",
+                        jjrg_PaceState::Complete => "complete",
+                        jjrg_PaceState::Abandoned => "abandoned",
                     };
                     content.push_str(&format!("**[{}] {}**\n\n", tack.ts, state_str));
                     content.push_str(&tack.text);
@@ -1205,7 +1205,7 @@ impl Gallops {
 }
 
 /// Read text from stdin (for CLI commands)
-pub fn read_stdin() -> Result<String, String> {
+pub fn jjrg_read_stdin() -> Result<String, String> {
     let mut buffer = String::new();
     std::io::stdin().read_to_string(&mut buffer)
         .map_err(|e| format!("Failed to read from stdin: {}", e))?;
@@ -1213,7 +1213,7 @@ pub fn read_stdin() -> Result<String, String> {
 }
 
 /// Read text from stdin, returning None if stdin is empty or a tty
-pub fn read_stdin_optional() -> Result<Option<String>, String> {
+pub fn jjrg_read_stdin_optional() -> Result<Option<String>, String> {
     use std::io::IsTerminal;
 
     // If stdin is a terminal, no input was piped
@@ -1221,7 +1221,7 @@ pub fn read_stdin_optional() -> Result<Option<String>, String> {
         return Ok(None);
     }
 
-    let text = read_stdin()?;
+    let text = jjrg_read_stdin()?;
     if text.is_empty() {
         Ok(None)
     } else {
@@ -1236,22 +1236,22 @@ mod tests {
 
     #[test]
     fn test_pace_state_serialization() {
-        let state = PaceState::Rough;
+        let state = jjrg_PaceState::Rough;
         let json = serde_json::to_string(&state).unwrap();
         assert_eq!(json, "\"rough\"");
     }
 
     // Helper to create a minimal valid Gallops structure
-    fn make_valid_gallops() -> Gallops {
-        Gallops {
+    fn make_valid_gallops() -> jjrg_Gallops {
+        jjrg_Gallops {
             next_heat_seed: "AB".to_string(),
             heats: BTreeMap::new(),
         }
     }
 
     // Helper to create a valid Tack
-    fn make_valid_tack(state: PaceState, direction: Option<String>) -> Tack {
-        Tack {
+    fn make_valid_tack(state: jjrg_PaceState, direction: Option<String>) -> jjrg_Tack {
+        jjrg_Tack {
             ts: "260101-1200".to_string(),
             state,
             text: "Test tack text".to_string(),
@@ -1260,26 +1260,26 @@ mod tests {
     }
 
     // Helper to create a valid Pace
-    fn make_valid_pace(heat_id: &str, silks: &str) -> (String, Pace) {
+    fn make_valid_pace(heat_id: &str, silks: &str) -> (String, jjrg_Pace) {
         let pace_key = format!("₢{}AAA", heat_id);
-        let pace = Pace {
+        let pace = jjrg_Pace {
             silks: silks.to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         };
         (pace_key, pace)
     }
 
     // Helper to create a valid Heat
-    fn make_valid_heat(heat_id: &str, silks: &str) -> (String, Heat) {
+    fn make_valid_heat(heat_id: &str, silks: &str) -> (String, jjrg_Heat) {
         let heat_key = format!("₣{}", heat_id);
         let (pace_key, pace) = make_valid_pace(heat_id, "test-pace");
         let mut paces = BTreeMap::new();
         paces.insert(pace_key.clone(), pace);
 
-        let heat = Heat {
+        let heat = jjrg_Heat {
             silks: silks.to_string(),
             creation_time: "260101".to_string(),
-            status: HeatStatus::Current,
+            status: jjrg_HeatStatus::Current,
             order: vec![pace_key],
             next_pace_seed: "AAB".to_string(),
             paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
@@ -1291,63 +1291,63 @@ mod tests {
     // ===== Validation helper tests =====
 
     #[test]
-    fn test_is_base64_valid() {
-        assert!(is_base64("AB"));
-        assert!(is_base64("ABCDE"));
-        assert!(is_base64("Az09-_"));
+    fn test_zjjrg_is_base64_valid() {
+        assert!(zjjrg_is_base64("AB"));
+        assert!(zjjrg_is_base64("ABCDE"));
+        assert!(zjjrg_is_base64("Az09-_"));
     }
 
     #[test]
-    fn test_is_base64_invalid() {
-        assert!(!is_base64("A!"));
-        assert!(!is_base64("A B"));
-        assert!(!is_base64("+/"));
+    fn test_zjjrg_is_base64_invalid() {
+        assert!(!zjjrg_is_base64("A!"));
+        assert!(!zjjrg_is_base64("A B"));
+        assert!(!zjjrg_is_base64("+/"));
     }
 
     #[test]
-    fn test_is_kebab_case_valid() {
-        assert!(is_kebab_case("test"));
-        assert!(is_kebab_case("test-pace"));
-        assert!(is_kebab_case("my-cool-heat123"));
-        assert!(is_kebab_case("a1-b2-c3"));
+    fn test_zjjrg_is_kebab_case_valid() {
+        assert!(zjjrg_is_kebab_case("test"));
+        assert!(zjjrg_is_kebab_case("test-pace"));
+        assert!(zjjrg_is_kebab_case("my-cool-heat123"));
+        assert!(zjjrg_is_kebab_case("a1-b2-c3"));
     }
 
     #[test]
-    fn test_is_kebab_case_invalid() {
-        assert!(!is_kebab_case(""));
-        assert!(!is_kebab_case("Test"));
-        assert!(!is_kebab_case("test_pace"));
-        assert!(!is_kebab_case("-test"));
-        assert!(!is_kebab_case("test-"));
-        assert!(!is_kebab_case("test--pace"));
+    fn test_zjjrg_is_kebab_case_invalid() {
+        assert!(!zjjrg_is_kebab_case(""));
+        assert!(!zjjrg_is_kebab_case("Test"));
+        assert!(!zjjrg_is_kebab_case("test_pace"));
+        assert!(!zjjrg_is_kebab_case("-test"));
+        assert!(!zjjrg_is_kebab_case("test-"));
+        assert!(!zjjrg_is_kebab_case("test--pace"));
     }
 
     #[test]
-    fn test_is_yymmdd_valid() {
-        assert!(is_yymmdd("260101"));
-        assert!(is_yymmdd("991231"));
+    fn test_zjjrg_is_yymmdd_valid() {
+        assert!(zjjrg_is_yymmdd("260101"));
+        assert!(zjjrg_is_yymmdd("991231"));
     }
 
     #[test]
-    fn test_is_yymmdd_invalid() {
-        assert!(!is_yymmdd("2601"));
-        assert!(!is_yymmdd("26010101"));
-        assert!(!is_yymmdd("26-01-01"));
-        assert!(!is_yymmdd("26ab01"));
+    fn test_zjjrg_is_yymmdd_invalid() {
+        assert!(!zjjrg_is_yymmdd("2601"));
+        assert!(!zjjrg_is_yymmdd("26010101"));
+        assert!(!zjjrg_is_yymmdd("26-01-01"));
+        assert!(!zjjrg_is_yymmdd("26ab01"));
     }
 
     #[test]
-    fn test_is_yymmdd_hhmm_valid() {
-        assert!(is_yymmdd_hhmm("260101-1234"));
-        assert!(is_yymmdd_hhmm("991231-2359"));
+    fn test_zjjrg_is_yymmdd_hhmm_valid() {
+        assert!(zjjrg_is_yymmdd_hhmm("260101-1234"));
+        assert!(zjjrg_is_yymmdd_hhmm("991231-2359"));
     }
 
     #[test]
-    fn test_is_yymmdd_hhmm_invalid() {
-        assert!(!is_yymmdd_hhmm("260101"));
-        assert!(!is_yymmdd_hhmm("260101-123"));
-        assert!(!is_yymmdd_hhmm("260101-12345"));
-        assert!(!is_yymmdd_hhmm("26010112:34"));
+    fn test_zjjrg_is_yymmdd_hhmm_invalid() {
+        assert!(!zjjrg_is_yymmdd_hhmm("260101"));
+        assert!(!zjjrg_is_yymmdd_hhmm("260101-123"));
+        assert!(!zjjrg_is_yymmdd_hhmm("260101-12345"));
+        assert!(!zjjrg_is_yymmdd_hhmm("26010112:34"));
     }
 
     // ===== Gallops validation tests =====
@@ -1355,7 +1355,7 @@ mod tests {
     #[test]
     fn test_validate_minimal_valid_gallops() {
         let gallops = make_valid_gallops();
-        assert!(gallops.validate().is_ok());
+        assert!(gallops.jjrg_validate().is_ok());
     }
 
     #[test]
@@ -1363,14 +1363,14 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, heat) = make_valid_heat("AB", "my-heat");
         gallops.heats.insert(heat_key, heat);
-        assert!(gallops.validate().is_ok());
+        assert!(gallops.jjrg_validate().is_ok());
     }
 
     #[test]
     fn test_validate_invalid_next_heat_seed_length() {
         let mut gallops = make_valid_gallops();
         gallops.next_heat_seed = "ABC".to_string();
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("next_heat_seed must be 2 characters")));
     }
 
@@ -1378,7 +1378,7 @@ mod tests {
     fn test_validate_invalid_next_heat_seed_chars() {
         let mut gallops = make_valid_gallops();
         gallops.next_heat_seed = "A!".to_string();
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("invalid base64 characters")));
     }
 
@@ -1387,7 +1387,7 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (_, heat) = make_valid_heat("AB", "my-heat");
         gallops.heats.insert("AB".to_string(), heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("key must start with '₣'")));
     }
 
@@ -1397,7 +1397,7 @@ mod tests {
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         heat.silks = "Invalid_Silks".to_string();
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("silks must be non-empty kebab-case")));
     }
 
@@ -1407,7 +1407,7 @@ mod tests {
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         heat.creation_time = "2026-01-01".to_string();
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("creation_time must be YYMMDD format")));
     }
 
@@ -1417,7 +1417,7 @@ mod tests {
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         heat.next_pace_seed = "AB".to_string(); // Should be 3 chars
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("next_pace_seed must be 3 characters")));
     }
 
@@ -1428,7 +1428,7 @@ mod tests {
         // Add extra entry to order that doesn't exist in paces
         heat.order.push("₢ABXXX".to_string());
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("order contains keys not in paces")));
     }
 
@@ -1440,14 +1440,14 @@ mod tests {
         heat.paces.clear();
         heat.order.clear();
         let bad_pace_key = "₢CDAAA".to_string(); // CD instead of AB
-        let pace = Pace {
+        let pace = jjrg_Pace {
             silks: "bad-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         };
         heat.paces.insert(bad_pace_key.clone(), pace);
         heat.order.push(bad_pace_key);
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("must embed parent heat identity")));
     }
 
@@ -1460,7 +1460,7 @@ mod tests {
             pace.silks = "".to_string();
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("silks must be non-empty kebab-case")));
     }
 
@@ -1472,7 +1472,7 @@ mod tests {
             pace.tacks.clear();
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("tacks array must not be empty")));
     }
 
@@ -1484,7 +1484,7 @@ mod tests {
             pace.tacks[0].ts = "invalid".to_string();
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("ts must be YYMMDD-HHMM format")));
     }
 
@@ -1496,7 +1496,7 @@ mod tests {
             pace.tacks[0].text = "".to_string();
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("text must not be empty")));
     }
 
@@ -1505,11 +1505,11 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         if let Some(pace) = heat.paces.values_mut().next() {
-            pace.tacks[0].state = PaceState::Primed;
+            pace.tacks[0].state = jjrg_PaceState::Primed;
             pace.tacks[0].direction = None;
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("direction is required when state is 'primed'")));
     }
 
@@ -1518,11 +1518,11 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         if let Some(pace) = heat.paces.values_mut().next() {
-            pace.tacks[0].state = PaceState::Primed;
+            pace.tacks[0].state = jjrg_PaceState::Primed;
             pace.tacks[0].direction = Some("".to_string());
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("direction must not be empty when state is 'primed'")));
     }
 
@@ -1531,11 +1531,11 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         if let Some(pace) = heat.paces.values_mut().next() {
-            pace.tacks[0].state = PaceState::Primed;
+            pace.tacks[0].state = jjrg_PaceState::Primed;
             pace.tacks[0].direction = Some("Execute autonomously".to_string());
         }
         gallops.heats.insert(heat_key, heat);
-        assert!(gallops.validate().is_ok());
+        assert!(gallops.jjrg_validate().is_ok());
     }
 
     #[test]
@@ -1543,11 +1543,11 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         if let Some(pace) = heat.paces.values_mut().next() {
-            pace.tacks[0].state = PaceState::Rough;
+            pace.tacks[0].state = jjrg_PaceState::Rough;
             pace.tacks[0].direction = Some("Should not be here".to_string());
         }
         gallops.heats.insert(heat_key, heat);
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         assert!(errors.iter().any(|e| e.contains("direction must be absent when state is not 'primed'")));
     }
 
@@ -1556,11 +1556,11 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         if let Some(pace) = heat.paces.values_mut().next() {
-            pace.tacks[0].state = PaceState::Complete;
+            pace.tacks[0].state = jjrg_PaceState::Complete;
             pace.tacks[0].direction = None;
         }
         gallops.heats.insert(heat_key, heat);
-        assert!(gallops.validate().is_ok());
+        assert!(gallops.jjrg_validate().is_ok());
     }
 
     #[test]
@@ -1568,11 +1568,11 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
         if let Some(pace) = heat.paces.values_mut().next() {
-            pace.tacks[0].state = PaceState::Abandoned;
+            pace.tacks[0].state = jjrg_PaceState::Abandoned;
             pace.tacks[0].direction = None;
         }
         gallops.heats.insert(heat_key, heat);
-        assert!(gallops.validate().is_ok());
+        assert!(gallops.jjrg_validate().is_ok());
     }
 
     // ===== Load/Save round-trip tests =====
@@ -1584,7 +1584,7 @@ mod tests {
         gallops.heats.insert(heat_key, heat);
 
         let json = serde_json::to_string_pretty(&gallops).unwrap();
-        let restored: Gallops = serde_json::from_str(&json).unwrap();
+        let restored: jjrg_Gallops = serde_json::from_str(&json).unwrap();
 
         assert_eq!(gallops.next_heat_seed, restored.next_heat_seed);
         assert_eq!(gallops.heats.len(), restored.heats.len());
@@ -1592,7 +1592,7 @@ mod tests {
 
     #[test]
     fn test_multiple_errors_collected() {
-        let mut gallops = Gallops {
+        let mut gallops = jjrg_Gallops {
             next_heat_seed: "!!!".to_string(), // Wrong length and chars
             heats: BTreeMap::new(),
         };
@@ -1601,7 +1601,7 @@ mod tests {
         heat.creation_time = "invalid".to_string(); // Not YYMMDD
         gallops.heats.insert("₣AB".to_string(), heat);
 
-        let errors = gallops.validate().unwrap_err();
+        let errors = gallops.jjrg_validate().unwrap_err();
         // Should have multiple errors
         assert!(errors.len() >= 3);
     }
@@ -1609,25 +1609,25 @@ mod tests {
     // ===== Seed increment tests =====
 
     #[test]
-    fn test_increment_seed_simple() {
-        assert_eq!(increment_seed("AA"), "AB");
-        assert_eq!(increment_seed("AB"), "AC");
-        assert_eq!(increment_seed("Az"), "A0");
+    fn test_zjjrg_increment_seed_simple() {
+        assert_eq!(zjjrg_increment_seed("AA"), "AB");
+        assert_eq!(zjjrg_increment_seed("AB"), "AC");
+        assert_eq!(zjjrg_increment_seed("Az"), "A0");
     }
 
     #[test]
-    fn test_increment_seed_carry() {
+    fn test_zjjrg_increment_seed_carry() {
         // '_' is position 63, should wrap to 'A' (position 0) and carry
-        assert_eq!(increment_seed("A_"), "BA");
-        assert_eq!(increment_seed("__"), "AA"); // Full wrap around
+        assert_eq!(zjjrg_increment_seed("A_"), "BA");
+        assert_eq!(zjjrg_increment_seed("__"), "AA"); // Full wrap around
     }
 
     #[test]
-    fn test_increment_seed_three_chars() {
-        assert_eq!(increment_seed("AAA"), "AAB");
-        assert_eq!(increment_seed("AA_"), "ABA");
-        assert_eq!(increment_seed("A__"), "BAA");
-        assert_eq!(increment_seed("___"), "AAA");
+    fn test_zjjrg_increment_seed_three_chars() {
+        assert_eq!(zjjrg_increment_seed("AAA"), "AAB");
+        assert_eq!(zjjrg_increment_seed("AA_"), "ABA");
+        assert_eq!(zjjrg_increment_seed("A__"), "BAA");
+        assert_eq!(zjjrg_increment_seed("___"), "AAA");
     }
 
     // ===== Write operation tests =====
@@ -1639,12 +1639,12 @@ mod tests {
         let _ = std::fs::remove_dir_all(&temp_dir);
         std::fs::create_dir_all(&temp_dir).unwrap();
 
-        let args = NominateArgs {
+        let args = jjrg_NominateArgs {
             silks: "test-heat".to_string(),
             created: "260113".to_string(),
         };
 
-        let result = gallops.nominate(args, &temp_dir).unwrap();
+        let result = gallops.jjrg_nominate(args, &temp_dir).unwrap();
 
         // Check result
         assert!(result.firemark.starts_with('₣'));
@@ -1654,7 +1654,7 @@ mod tests {
         let heat = gallops.heats.get(&result.firemark).unwrap();
         assert_eq!(heat.silks, "test-heat");
         assert_eq!(heat.creation_time, "260113");
-        assert_eq!(heat.status, HeatStatus::Current);
+        assert_eq!(heat.status, jjrg_HeatStatus::Current);
         assert!(heat.order.is_empty());
         assert_eq!(heat.next_pace_seed, "AAA");
 
@@ -1670,12 +1670,12 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let temp_dir = std::env::temp_dir();
 
-        let args = NominateArgs {
+        let args = jjrg_NominateArgs {
             silks: "InvalidSilks".to_string(),
             created: "260113".to_string(),
         };
 
-        let result = gallops.nominate(args, &temp_dir);
+        let result = gallops.jjrg_nominate(args, &temp_dir);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("silks must be kebab-case"));
     }
@@ -1685,12 +1685,12 @@ mod tests {
         let mut gallops = make_valid_gallops();
         let temp_dir = std::env::temp_dir();
 
-        let args = NominateArgs {
+        let args = jjrg_NominateArgs {
             silks: "test-heat".to_string(),
             created: "2026-01-13".to_string(),
         };
 
-        let result = gallops.nominate(args, &temp_dir);
+        let result = gallops.jjrg_nominate(args, &temp_dir);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("created must be YYMMDD format"));
     }
@@ -1701,7 +1701,7 @@ mod tests {
         let (heat_key, heat) = make_valid_heat("AB", "my-heat");
         gallops.heats.insert(heat_key.clone(), heat);
 
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "test-pace".to_string(),
             text: "Do something useful".to_string(),
@@ -1710,7 +1710,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args).unwrap();
+        let result = gallops.jjrg_slate(args).unwrap();
 
         // Check result
         assert!(result.coronet.starts_with('₢'));
@@ -1722,7 +1722,7 @@ mod tests {
         let pace = heat.paces.get(&result.coronet).unwrap();
         assert_eq!(pace.silks, "test-pace");
         assert_eq!(pace.tacks.len(), 1);
-        assert_eq!(pace.tacks[0].state, PaceState::Rough);
+        assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
         assert_eq!(pace.tacks[0].text, "Do something useful");
 
         // Check order was updated
@@ -1736,7 +1736,7 @@ mod tests {
     fn test_slate_heat_not_found() {
         let mut gallops = make_valid_gallops();
 
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "CD".to_string(),
             silks: "test-pace".to_string(),
             text: "Do something".to_string(),
@@ -1745,7 +1745,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args);
+        let result = gallops.jjrg_slate(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("not found"));
     }
@@ -1756,7 +1756,7 @@ mod tests {
         let (heat_key, heat) = make_valid_heat("AB", "my-heat");
         gallops.heats.insert(heat_key, heat);
 
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "InvalidSilks".to_string(),
             text: "Do something".to_string(),
@@ -1765,7 +1765,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args);
+        let result = gallops.jjrg_slate(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("silks must be kebab-case"));
     }
@@ -1776,7 +1776,7 @@ mod tests {
         let (heat_key, heat) = make_valid_heat("AB", "my-heat");
         gallops.heats.insert(heat_key, heat);
 
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "test-pace".to_string(),
             text: "".to_string(),
@@ -1785,7 +1785,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args);
+        let result = gallops.jjrg_slate(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("text must not be empty"));
     }
@@ -1797,7 +1797,7 @@ mod tests {
         let existing_pace = heat.order[0].clone();
         gallops.heats.insert(heat_key.clone(), heat);
 
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "new-first-pace".to_string(),
             text: "This should be first".to_string(),
@@ -1806,7 +1806,7 @@ mod tests {
             first: true,
         };
 
-        let result = gallops.slate(args).unwrap();
+        let result = gallops.jjrg_slate(args).unwrap();
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         assert_eq!(heat.order[0], result.coronet); // New pace is first
@@ -1820,9 +1820,9 @@ mod tests {
 
         // Add a second pace
         let pace2_key = "₢ABAAB".to_string();
-        let pace2 = Pace {
+        let pace2 = jjrg_Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         };
         heat.paces.insert(pace2_key.clone(), pace2);
         heat.order.push(pace2_key.clone());
@@ -1832,7 +1832,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Insert before the second pace
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "inserted-pace".to_string(),
             text: "Insert before second".to_string(),
@@ -1841,7 +1841,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args).unwrap();
+        let result = gallops.jjrg_slate(args).unwrap();
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         assert_eq!(heat.order[0], first_pace); // Original first unchanged
@@ -1856,9 +1856,9 @@ mod tests {
 
         // Add a second pace
         let pace2_key = "₢ABAAB".to_string();
-        let pace2 = Pace {
+        let pace2 = jjrg_Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         };
         heat.paces.insert(pace2_key.clone(), pace2);
         heat.order.push(pace2_key.clone());
@@ -1868,7 +1868,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Insert after the first pace
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "inserted-pace".to_string(),
             text: "Insert after first".to_string(),
@@ -1877,7 +1877,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args).unwrap();
+        let result = gallops.jjrg_slate(args).unwrap();
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         assert_eq!(heat.order[0], first_pace); // Original first unchanged
@@ -1893,7 +1893,7 @@ mod tests {
         gallops.heats.insert(heat_key, heat);
 
         // Try with both before and first
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "bad-pace".to_string(),
             text: "Should fail".to_string(),
@@ -1902,7 +1902,7 @@ mod tests {
             first: true,
         };
 
-        let result = gallops.slate(args);
+        let result = gallops.jjrg_slate(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("Only one of"));
     }
@@ -1913,7 +1913,7 @@ mod tests {
         let (heat_key, heat) = make_valid_heat("AB", "my-heat");
         gallops.heats.insert(heat_key, heat);
 
-        let args = SlateArgs {
+        let args = jjrg_SlateArgs {
             firemark: "AB".to_string(),
             silks: "new-pace".to_string(),
             text: "Test".to_string(),
@@ -1922,7 +1922,7 @@ mod tests {
             first: false,
         };
 
-        let result = gallops.slate(args);
+        let result = gallops.jjrg_slate(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("not found in heat"));
     }
@@ -1934,9 +1934,9 @@ mod tests {
 
         // Add another pace
         let pace2_key = "₢ABAAB".to_string();
-        let pace2 = Pace {
+        let pace2 = jjrg_Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         };
         heat.paces.insert(pace2_key.clone(), pace2);
         heat.order.push(pace2_key.clone());
@@ -1946,7 +1946,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Reorder: swap the two paces (order mode)
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![pace2_key.clone(), original_first.clone()],
             move_coronet: None,
@@ -1956,7 +1956,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
@@ -1971,7 +1971,7 @@ mod tests {
         gallops.heats.insert(heat_key, heat);
 
         // Try to reorder with wrong count
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()], // 2 items but only 1 pace
             move_coronet: None,
@@ -1981,7 +1981,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("count mismatch"));
     }
@@ -1993,16 +1993,16 @@ mod tests {
 
         // Add another pace
         let pace2_key = "₢ABAAB".to_string();
-        let pace2 = Pace {
+        let pace2 = jjrg_Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         };
         heat.paces.insert(pace2_key.clone(), pace2);
         heat.order.push(pace2_key.clone());
         gallops.heats.insert(heat_key, heat);
 
         // Try with duplicate
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec!["₢ABAAA".to_string(), "₢ABAAA".to_string()],
             move_coronet: None,
@@ -2012,7 +2012,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("duplicate"));
     }
@@ -2029,11 +2029,11 @@ mod tests {
         let pace3_key = "₢ABAAC".to_string();
         heat.paces.insert(pace2_key.clone(), Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.paces.insert(pace3_key.clone(), Pace {
             silks: "third-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.order.push(pace2_key.clone());
         heat.order.push(pace3_key.clone());
@@ -2043,7 +2043,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Move third pace to first
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![],
             move_coronet: Some(pace3_key.clone()),
@@ -2053,7 +2053,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
@@ -2070,7 +2070,7 @@ mod tests {
         let pace2_key = "₢ABAAB".to_string();
         heat.paces.insert(pace2_key.clone(), Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.order.push(pace2_key.clone());
         heat.next_pace_seed = "AAC".to_string();
@@ -2079,7 +2079,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Move first pace to last
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![],
             move_coronet: Some(original_first.clone()),
@@ -2089,7 +2089,7 @@ mod tests {
             last: true,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
@@ -2106,11 +2106,11 @@ mod tests {
         let pace3_key = "₢ABAAC".to_string();
         heat.paces.insert(pace2_key.clone(), Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.paces.insert(pace3_key.clone(), Pace {
             silks: "third-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.order.push(pace2_key.clone());
         heat.order.push(pace3_key.clone());
@@ -2120,7 +2120,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Move third pace before second (from [1,2,3] to [1,3,2])
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![],
             move_coronet: Some(pace3_key.clone()),
@@ -2130,7 +2130,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
@@ -2148,11 +2148,11 @@ mod tests {
         let pace3_key = "₢ABAAC".to_string();
         heat.paces.insert(pace2_key.clone(), Pace {
             silks: "second-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.paces.insert(pace3_key.clone(), Pace {
             silks: "third-pace".to_string(),
-            tacks: vec![make_valid_tack(PaceState::Rough, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
         heat.order.push(pace2_key.clone());
         heat.order.push(pace3_key.clone());
@@ -2162,7 +2162,7 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Move first pace after second (from [1,2,3] to [2,1,3])
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![],
             move_coronet: Some(original_first.clone()),
@@ -2172,7 +2172,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
@@ -2188,7 +2188,7 @@ mod tests {
         let pace_key = heat.order[0].clone();
         gallops.heats.insert(heat_key, heat);
 
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![],
             move_coronet: Some(pace_key),
@@ -2198,7 +2198,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("requires exactly one positioning flag"));
     }
@@ -2210,7 +2210,7 @@ mod tests {
         let pace_key = heat.order[0].clone();
         gallops.heats.insert(heat_key, heat);
 
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![],
             move_coronet: Some(pace_key.clone()),
@@ -2220,7 +2220,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("relative to itself"));
     }
@@ -2232,7 +2232,7 @@ mod tests {
         let pace_key = heat.order[0].clone();
         gallops.heats.insert(heat_key, heat);
 
-        let args = RailArgs {
+        let args = jjrg_RailArgs {
             firemark: "AB".to_string(),
             order: vec![pace_key.clone()],
             move_coronet: Some(pace_key),
@@ -2242,7 +2242,7 @@ mod tests {
             last: false,
         };
 
-        let result = gallops.rail(args);
+        let result = gallops.jjrg_rail(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("Cannot combine --move with positional coronets"));
     }
@@ -2255,20 +2255,20 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Transition to complete
-        let args = TallyArgs {
+        let args = jjrg_TallyArgs {
             coronet: pace_key.clone(),
-            state: Some(PaceState::Complete),
+            state: Some(jjrg_PaceState::Complete),
             direction: None,
             text: Some("Work completed successfully".to_string()),
         };
 
-        let result = gallops.tally(args);
+        let result = gallops.jjrg_tally(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         let pace = heat.paces.get(&pace_key).unwrap();
         assert_eq!(pace.tacks.len(), 2); // Original + new
-        assert_eq!(pace.tacks[0].state, PaceState::Complete);
+        assert_eq!(pace.tacks[0].state, jjrg_PaceState::Complete);
         assert_eq!(pace.tacks[0].text, "Work completed successfully");
     }
 
@@ -2279,14 +2279,14 @@ mod tests {
         let pace_key = heat.order[0].clone();
         gallops.heats.insert(heat_key, heat);
 
-        let args = TallyArgs {
+        let args = jjrg_TallyArgs {
             coronet: pace_key,
-            state: Some(PaceState::Primed),
+            state: Some(jjrg_PaceState::Primed),
             direction: None, // Missing!
             text: Some("Ready for execution".to_string()),
         };
 
-        let result = gallops.tally(args);
+        let result = gallops.jjrg_tally(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("direction is required"));
     }
@@ -2298,19 +2298,19 @@ mod tests {
         let pace_key = heat.order[0].clone();
         gallops.heats.insert(heat_key.clone(), heat);
 
-        let args = TallyArgs {
+        let args = jjrg_TallyArgs {
             coronet: pace_key.clone(),
-            state: Some(PaceState::Primed),
+            state: Some(jjrg_PaceState::Primed),
             direction: Some("Execute autonomously".to_string()),
             text: Some("Ready for execution".to_string()),
         };
 
-        let result = gallops.tally(args);
+        let result = gallops.jjrg_tally(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         let pace = heat.paces.get(&pace_key).unwrap();
-        assert_eq!(pace.tacks[0].state, PaceState::Primed);
+        assert_eq!(pace.tacks[0].state, jjrg_PaceState::Primed);
         assert_eq!(pace.tacks[0].direction.as_ref().unwrap(), "Execute autonomously");
     }
 
@@ -2322,19 +2322,19 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // First tack is rough, add new tack without specifying state
-        let args = TallyArgs {
+        let args = jjrg_TallyArgs {
             coronet: pace_key.clone(),
             state: None, // Inherit
             direction: None,
             text: Some("Updated plan text".to_string()),
         };
 
-        let result = gallops.tally(args);
+        let result = gallops.jjrg_tally(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         let pace = heat.paces.get(&pace_key).unwrap();
-        assert_eq!(pace.tacks[0].state, PaceState::Rough); // Inherited
+        assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough); // Inherited
         assert_eq!(pace.tacks[0].text, "Updated plan text");
     }
 
@@ -2347,19 +2347,19 @@ mod tests {
         gallops.heats.insert(heat_key.clone(), heat);
 
         // Just change state, inherit text
-        let args = TallyArgs {
+        let args = jjrg_TallyArgs {
             coronet: pace_key.clone(),
-            state: Some(PaceState::Complete),
+            state: Some(jjrg_PaceState::Complete),
             direction: None,
             text: None, // Inherit
         };
 
-        let result = gallops.tally(args);
+        let result = gallops.jjrg_tally(args);
         assert!(result.is_ok());
 
         let heat = gallops.heats.get(&heat_key).unwrap();
         let pace = heat.paces.get(&pace_key).unwrap();
-        assert_eq!(pace.tacks[0].state, PaceState::Complete);
+        assert_eq!(pace.tacks[0].state, jjrg_PaceState::Complete);
         assert_eq!(pace.tacks[0].text, original_text); // Inherited
     }
 
@@ -2370,14 +2370,14 @@ mod tests {
         let pace_key = heat.order[0].clone();
         gallops.heats.insert(heat_key, heat);
 
-        let args = TallyArgs {
+        let args = jjrg_TallyArgs {
             coronet: pace_key,
-            state: Some(PaceState::Complete),
+            state: Some(jjrg_PaceState::Complete),
             direction: Some("Should not be here".to_string()), // Not allowed!
             text: Some("Done".to_string()),
         };
 
-        let result = gallops.tally(args);
+        let result = gallops.jjrg_tally(args);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("direction must be absent"));
     }

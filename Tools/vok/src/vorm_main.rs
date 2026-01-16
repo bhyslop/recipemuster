@@ -137,8 +137,8 @@ fn dispatch_external(args: Vec<OsString>) -> i32 {
 
     // Delegate to JJK if available and command matches
     #[cfg(feature = "jjk")]
-    if jjk::is_jjk_command(&cmd_name) {
-        return jjk::dispatch(&args);
+    if jjk::jjrx_is_jjk_command(&cmd_name) {
+        return jjk::jjrx_dispatch(&args);
     }
 
     // Unknown external subcommand

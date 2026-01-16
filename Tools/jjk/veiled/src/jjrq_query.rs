@@ -3,8 +3,8 @@
 //! Implements read operations: muster, saddle, parade, retire.
 //! All operations read from Gallops JSON and optionally paddock files.
 
-use crate::jjrf_favor::Firemark;
-use crate::jjrg_gallops::{Gallops, HeatStatus, PaceState};
+use crate::jjrf_favor::jjrf_Firemark as Firemark;
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use serde::Serialize;
 use std::fs;
 
@@ -14,14 +14,14 @@ use std::fs;
 
 /// Arguments for muster command
 #[derive(Debug)]
-pub struct MusterArgs {
+pub struct jjrq_MusterArgs {
     pub file: std::path::PathBuf,
     pub status: Option<HeatStatus>,
 }
 
 /// Run the muster command - list Heats as TSV
-pub fn run_muster(args: MusterArgs) -> i32 {
-    let gallops = match Gallops::load(&args.file) {
+pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
+    let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_muster: error: {}", e);
@@ -55,14 +55,14 @@ pub fn run_muster(args: MusterArgs) -> i32 {
 
 /// Arguments for saddle command
 #[derive(Debug)]
-pub struct SaddleArgs {
+pub struct jjrq_SaddleArgs {
     pub file: std::path::PathBuf,
     pub firemark: Firemark,
 }
 
 /// Output structure for saddle command
 #[derive(Serialize)]
-struct SaddleOutput {
+struct zjjrq_SaddleOutput {
     heat_silks: String,
     paddock_file: String,
     paddock_content: String,
@@ -79,8 +79,8 @@ struct SaddleOutput {
 }
 
 /// Run the saddle command - return Heat context
-pub fn run_saddle(args: SaddleArgs) -> i32 {
-    let gallops = match Gallops::load(&args.file) {
+pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
+    let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_saddle: error: {}", e);
@@ -88,7 +88,7 @@ pub fn run_saddle(args: SaddleArgs) -> i32 {
         }
     };
 
-    let heat_key = args.firemark.display();
+    let heat_key = args.firemark.jjrf_display();
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
@@ -107,7 +107,7 @@ pub fn run_saddle(args: SaddleArgs) -> i32 {
     };
 
     // Find first actionable pace (rough or primed)
-    let mut output = SaddleOutput {
+    let mut output = zjjrq_SaddleOutput {
         heat_silks: heat.silks.clone(),
         paddock_file: heat.paddock_file.clone(),
         paddock_content,
@@ -161,7 +161,7 @@ pub fn run_saddle(args: SaddleArgs) -> i32 {
 
 /// Output format modes for parade command
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub enum ParadeFormat {
+pub enum jjrq_ParadeFormat {
     /// One line per pace: [state] silks (₢coronet)
     Overview,
     /// Numbered list: N. [state] silks (₢coronet)
@@ -175,22 +175,22 @@ pub enum ParadeFormat {
 
 /// Arguments for parade command
 #[derive(Debug)]
-pub struct ParadeArgs {
+pub struct jjrq_ParadeArgs {
     pub file: std::path::PathBuf,
     pub firemark: Firemark,
-    pub format: ParadeFormat,
+    pub format: jjrq_ParadeFormat,
     pub pace: Option<String>,
 }
 
 /// Run the parade command - display comprehensive Heat status
-pub fn run_parade(args: ParadeArgs) -> i32 {
+pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
     // Validate: detail format requires --pace
-    if args.format == ParadeFormat::Detail && args.pace.is_none() {
+    if args.format == jjrq_ParadeFormat::Detail && args.pace.is_none() {
         eprintln!("jjx_parade: error: --format detail requires --pace <coronet>");
         return 1;
     }
 
-    let gallops = match Gallops::load(&args.file) {
+    let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_parade: error: {}", e);
@@ -198,7 +198,7 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
         }
     };
 
-    let heat_key = args.firemark.display();
+    let heat_key = args.firemark.jjrf_display();
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
@@ -208,27 +208,27 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
     };
 
     match args.format {
-        ParadeFormat::Overview => {
+        jjrq_ParadeFormat::Overview => {
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
-                        let state_str = pace_state_str(&tack.state);
+                        let state_str = zjjrq_pace_state_str(&tack.state);
                         println!("[{}] {} ({})", state_str, pace.silks, coronet_key);
                     }
                 }
             }
         }
-        ParadeFormat::Order => {
+        jjrq_ParadeFormat::Order => {
             for (idx, coronet_key) in heat.order.iter().enumerate() {
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
-                        let state_str = pace_state_str(&tack.state);
+                        let state_str = zjjrq_pace_state_str(&tack.state);
                         println!("{}. [{}] {} ({})", idx + 1, state_str, pace.silks, coronet_key);
                     }
                 }
             }
         }
-        ParadeFormat::Detail => {
+        jjrq_ParadeFormat::Detail => {
             let target_coronet = args.pace.as_ref().unwrap();
             let pace = match heat.paces.get(target_coronet) {
                 Some(p) => p,
@@ -238,7 +238,7 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
                 }
             };
             if let Some(tack) = pace.tacks.first() {
-                let state_str = pace_state_str(&tack.state);
+                let state_str = zjjrq_pace_state_str(&tack.state);
                 println!("Pace: {} ({})", pace.silks, target_coronet);
                 println!("State: {}", state_str);
                 println!("Heat: {}", heat_key);
@@ -250,7 +250,7 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
                 }
             }
         }
-        ParadeFormat::Full => {
+        jjrq_ParadeFormat::Full => {
             // Read paddock file content
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
@@ -279,7 +279,7 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
-                        let state_str = pace_state_str(&tack.state);
+                        let state_str = zjjrq_pace_state_str(&tack.state);
                         println!("### {} ({}) [{}]", pace.silks, coronet_key, state_str);
                         println!();
                         println!("{}", tack.text);
@@ -298,7 +298,7 @@ pub fn run_parade(args: ParadeArgs) -> i32 {
 }
 
 /// Helper to convert PaceState to display string
-fn pace_state_str(state: &PaceState) -> &'static str {
+fn zjjrq_pace_state_str(state: &PaceState) -> &'static str {
     match state {
         PaceState::Rough => "rough",
         PaceState::Primed => "primed",
@@ -313,36 +313,36 @@ fn pace_state_str(state: &PaceState) -> &'static str {
 
 /// Arguments for retire command
 #[derive(Debug)]
-pub struct RetireArgs {
+pub struct jjrq_RetireArgs {
     pub file: std::path::PathBuf,
     pub firemark: Firemark,
 }
 
 /// Output structure for retire command
 #[derive(Serialize)]
-struct RetireOutput {
+struct zjjrq_RetireOutput {
     firemark: String,
     silks: String,
     created: String,
     status: String,
     paddock_file: String,
     paddock_content: String,
-    paces: Vec<RetirePace>,
+    paces: Vec<zjjrq_RetirePace>,
     // TODO: steeplechase array from jjx_rein
     // steeplechase: Vec<SteeplechaseEntry>,
 }
 
 /// Pace structure for retire output (full tack history)
 #[derive(Serialize)]
-struct RetirePace {
+struct zjjrq_RetirePace {
     coronet: String,
     silks: String,
-    tacks: Vec<RetireTack>,
+    tacks: Vec<zjjrq_RetireTack>,
 }
 
 /// Tack structure for retire output
 #[derive(Serialize)]
-struct RetireTack {
+struct zjjrq_RetireTack {
     ts: String,
     state: String,
     text: String,
@@ -351,8 +351,8 @@ struct RetireTack {
 }
 
 /// Run the retire command - extract complete Heat data for archival
-pub fn run_retire(args: RetireArgs) -> i32 {
-    let gallops = match Gallops::load(&args.file) {
+pub fn jjrq_run_retire(args: jjrq_RetireArgs) -> i32 {
+    let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
@@ -360,7 +360,7 @@ pub fn run_retire(args: RetireArgs) -> i32 {
         }
     };
 
-    let heat_key = args.firemark.display();
+    let heat_key = args.firemark.jjrf_display();
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
@@ -382,8 +382,8 @@ pub fn run_retire(args: RetireArgs) -> i32 {
     let mut paces = Vec::new();
     for coronet_key in &heat.order {
         if let Some(pace) = heat.paces.get(coronet_key) {
-            let tacks: Vec<RetireTack> = pace.tacks.iter().map(|tack| {
-                RetireTack {
+            let tacks: Vec<zjjrq_RetireTack> = pace.tacks.iter().map(|tack| {
+                zjjrq_RetireTack {
                     ts: tack.ts.clone(),
                     state: match tack.state {
                         PaceState::Rough => "rough".to_string(),
@@ -396,7 +396,7 @@ pub fn run_retire(args: RetireArgs) -> i32 {
                 }
             }).collect();
 
-            paces.push(RetirePace {
+            paces.push(zjjrq_RetirePace {
                 coronet: coronet_key.clone(),
                 silks: pace.silks.clone(),
                 tacks,
@@ -404,7 +404,7 @@ pub fn run_retire(args: RetireArgs) -> i32 {
         }
     }
 
-    let output = RetireOutput {
+    let output = zjjrq_RetireOutput {
         firemark: heat_key.clone(),
         silks: heat.silks.clone(),
         created: heat.creation_time.clone(),
@@ -506,7 +506,7 @@ mod tests {
     #[test]
     fn test_saddle_output_structure() {
         // Test the SaddleOutput serialization
-        let output = SaddleOutput {
+        let output = zjjrq_SaddleOutput {
             heat_silks: "my-heat".to_string(),
             paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
             paddock_content: "# Test content".to_string(),
@@ -524,7 +524,7 @@ mod tests {
 
     #[test]
     fn test_saddle_output_with_primed_direction() {
-        let output = SaddleOutput {
+        let output = zjjrq_SaddleOutput {
             heat_silks: "my-heat".to_string(),
             paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
             paddock_content: "# Test".to_string(),
@@ -541,7 +541,7 @@ mod tests {
 
     #[test]
     fn test_saddle_output_no_actionable_pace() {
-        let output = SaddleOutput {
+        let output = zjjrq_SaddleOutput {
             heat_silks: "my-heat".to_string(),
             paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
             paddock_content: "# All done".to_string(),
@@ -560,30 +560,30 @@ mod tests {
     #[test]
     fn test_parade_format_enum() {
         // Test ParadeFormat default
-        let format: ParadeFormat = Default::default();
-        assert_eq!(format, ParadeFormat::Full);
+        let format: jjrq_ParadeFormat = Default::default();
+        assert_eq!(format, jjrq_ParadeFormat::Full);
     }
 
     #[test]
     fn test_retire_output_structure() {
-        let output = RetireOutput {
+        let output = zjjrq_RetireOutput {
             firemark: "₣AB".to_string(),
             silks: "my-heat".to_string(),
             created: "260101".to_string(),
             status: "current".to_string(),
             paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
             paddock_content: "# Archive this".to_string(),
-            paces: vec![RetirePace {
+            paces: vec![zjjrq_RetirePace {
                 coronet: "₢ABAAA".to_string(),
                 silks: "test-pace".to_string(),
                 tacks: vec![
-                    RetireTack {
+                    zjjrq_RetireTack {
                         ts: "260101-1400".to_string(),
                         state: "complete".to_string(),
                         text: "Final plan".to_string(),
                         direction: None,
                     },
-                    RetireTack {
+                    zjjrq_RetireTack {
                         ts: "260101-1200".to_string(),
                         state: "rough".to_string(),
                         text: "Initial plan".to_string(),
@@ -603,7 +603,7 @@ mod tests {
 
     #[test]
     fn test_retire_tack_with_direction() {
-        let tack = RetireTack {
+        let tack = zjjrq_RetireTack {
             ts: "260101-1200".to_string(),
             state: "primed".to_string(),
             text: "Ready to fly".to_string(),
