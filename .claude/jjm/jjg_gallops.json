@@ -675,6 +675,11 @@
           "silks": "cleanup-orphan-rein",
           "tacks": [
             {
+              "ts": "260116-1306",
+              "state": "rough",
+              "text": "Remove orphaned jjw-rn infrastructure (shell cleanup only).\n\n## Delete\n\n1. jjw_workbench.sh line 113: remove jjw-rn) case\n2. jju_utility.sh: remove jju_rein function (~lines 227-239)\n\n## Rationale\n\nThese are dead code paths - jjw-rn route exists but no tabtarget, jju_rein was a bash wrapper for jjx_rein.\n\n## Deferred\n\nSlash command /jjc-heat-rein creation deferred until install infrastructure provides brand identifier (see ₢AAAAc, ₢AAAAF)."
+            },
+            {
               "ts": "260116-1045",
               "state": "rough",
               "text": "Remove orphaned jjw-rn infrastructure and create replacement slash command.\n\n## Delete\n\n1. jjw_workbench.sh line 113: remove jjw-rn) case\n2. jju_utility.sh: remove jju_rein function (~lines 227-239)\n\n## Create\n\n/jjc-heat-rein slash command:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Displays: steeplechase history for heat (parsed JSON → readable format)\n\n## Depends On\n\n- installation-identifier (₢AAAAc): removes --brand requirement from jjx_rein\n- unify-commit-format (₢AAAAd): rein parsing uses new format"
