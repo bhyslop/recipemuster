@@ -46,9 +46,10 @@
         "₢AAAAF",
         "₢AAAAa",
         "₢AAAAb",
-        "₢AAAAl"
+        "₢AAAAl",
+        "₢AAAAp"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -845,6 +846,16 @@
               "ts": "260116-1309",
               "state": "rough",
               "text": "Create /jjc-heat-rein slash command.\n\n## Prerequisites\n\n- ₢AAAAc (installation-identifier) complete — jjx_rein no longer requires --brand\n\n## Implementation\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Parses JSON output into human-readable steeplechase history\n\n## Reference\n\nSee JJD jjdo_rein spec for jjx_rein output format and behavior."
+            }
+          ]
+        },
+        "₢AAAAp": {
+          "silks": "rein-filter-by-identity",
+          "tacks": [
+            {
+              "ts": "260116-1327",
+              "state": "rough",
+              "text": "Refactor jjx_rein to filter by firemark/coronet identity rather than brand.\n\n## Changes\n\n1. **Grep pattern**: Change from `^jjb:BRAND:(₣XX|₢XX)` to `^jjb:[^:]+:(₣XX|₢XX)` - match any brand, filter by identity\n2. **CLI args**: Remove `--brand` argument from ReinArgs\n3. **Internal calls**: Update run_retire() to not need brand for get_entries()\n\n## Rationale\n\nThe firemark/coronet already uniquely identifies heat membership:\n- ₢AAAAk → first 2 chars after prefix = AA = parent heat\n- ₣AA → direct heat identity\n\nBrand is orthogonal - it identifies which installation made the commit, not which heat it belongs to.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (grep pattern, ReinArgs)\n- Tools/jjk/veiled/src/jjrx_cli.rs (CLI ReinArgs, run_retire)\n- Tools/jjk/JJD-GallopsData.adoc (update jjdo_rein spec)\n\n## Unblocks\n\n- /jjc-heat-rein slash command (no longer needs installation-identifier)\n- Cleaner retire flow"
             }
           ]
         }

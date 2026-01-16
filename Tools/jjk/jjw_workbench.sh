@@ -47,9 +47,8 @@ jjw_route() {
 
   jjw_show "BDU environment verified"
 
-  local z_cli="${JJW_SCRIPT_DIR}/jju_cli.sh"
-
-  # Route based on command
+  # Route based on command - only arcanum commands remain
+  # All jjw-* commands deprecated: use /jjc-* slash commands instead
   case "${z_command}" in
 
     # Arcanum commands (install/check/uninstall)
@@ -58,65 +57,8 @@ jjw_route() {
       exec "${JJW_SCRIPT_DIR}/jja_arcanum.sh" "${z_command}" "$@"
       ;;
 
-    # Heat saddle (smart argument handling)
-    jjw-hs)
-      local z_favor="${1:-}"
-
-      if test -z "${z_favor}"; then
-        # No argument - check heat count and decide
-        local z_heat_count_file="${BUD_TEMP_DIR}/hs_heat_count.txt"
-        local z_scalar_file="${BUD_TEMP_DIR}/hs_scalar.txt"
-        "${z_cli}" jju_muster > "${z_heat_count_file}"
-
-        # Count heats (lines starting with ₣) - BCG: temp file for grep
-        local z_count
-        grep -c '^₣' "${z_heat_count_file}" > "${z_scalar_file}" || echo "0" > "${z_scalar_file}"
-        read -r z_count < "${z_scalar_file}"
-
-        if test "${z_count}" -eq 0; then
-          cat "${z_heat_count_file}"
-          exit 0
-        elif test "${z_count}" -eq 1; then
-          # Auto-saddle the single heat - BCG: temp file for extraction
-          grep '^₣' "${z_heat_count_file}" > "${z_scalar_file}"
-          read -r z_favor _ < "${z_scalar_file}"
-          # Append AAA for heat-only reference
-          z_favor="${z_favor}AAA"
-          exec "${z_cli}" jju_saddle "${z_favor}"
-        else
-          # Multiple heats - show list and require explicit selection
-          cat "${z_heat_count_file}"
-          echo ""
-          echo "Multiple heats found. Please specify which heat to saddle:"
-          echo "  tt/jjw-hs.HeatSaddle.sh <favor>"
-          exit 1
-        fi
-      else
-        # Favor provided - saddle it
-        exec "${z_cli}" jju_saddle "${z_favor}"
-      fi
-      ;;
-
-    # Gallops operations (delegate to vvx via jju wrappers)
-    jjw-m)  exec "${z_cli}" jju_muster "$@" ;;
-    jjw-n)  exec "${z_cli}" jju_nominate "$@" ;;
-    jjw-sl) exec "${z_cli}" jju_slate "$@" ;;
-    jjw-ra) exec "${z_cli}" jju_rail "$@" ;;
-    jjw-t)  exec "${z_cli}" jju_tally "$@" ;;
-    jjw-pw) exec "${z_cli}" jju_wrap "$@" ;;
-    jjw-pa) exec "${z_cli}" jju_parade "$@" ;;
-    jjw-re) exec "${z_cli}" jju_retire_extract "$@" ;;
-    jjw-hr) exec "${z_cli}" jju_retire "$@" ;;
-
-    # Steeplechase operations
-    jjw-c)  exec "${z_cli}" jju_chalk "$@" ;;
-    jjw-no) exec "${z_cli}" jju_notch "$@" ;;
-
-    # Info - show all function docs
-    jjw-i) exec "${z_cli}" ;;
-
     *)
-      buc_die "Unknown command: ${z_command}"
+      buc_die "Unknown command: ${z_command} (jjw-* commands removed; use /jjc-* slash commands)"
       ;;
   esac
 }
