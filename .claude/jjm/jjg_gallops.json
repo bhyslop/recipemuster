@@ -628,6 +628,12 @@
           "silks": "add-axs-form-expectations",
           "tacks": [
             {
+              "ts": "260116-0912",
+              "state": "primed",
+              "text": "Agent: haiku\nStrategy: Add single bullet to Form Expectations section (around line 386-389).\n1. Add: * {axs_*} section terms expect {xref_MCM} `mcm_form_section` for section headers\nKey files: Tools/cmk/AXLA-Lexicon.adoc\nNotes: Follow existing bullet pattern in Form Expectations section. Single mechanical addition.",
+              "direction": "-"
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Add Form Expectations for axs_* category in AXLA (likely mcm_form_section for most section voicings)"
