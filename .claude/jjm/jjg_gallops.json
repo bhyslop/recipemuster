@@ -518,9 +518,10 @@
       "status": "current",
       "order": [
         "₢ABAAA",
-        "₢ABAAB"
+        "₢ABAAB",
+        "₢ABAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -540,6 +541,16 @@
               "ts": "260116-0814",
               "state": "rough",
               "text": "Define axs_inputs, axs_behavior, axs_outputs, axs_completion, axs_errors section motifs with guidance on interface-specific voicings"
+            }
+          ]
+        },
+        "₢ABAAC": {
+          "silks": "refactor-procedural-term-definitions",
+          "tacks": [
+            {
+              "ts": "260116-0814",
+              "state": "rough",
+              "text": "Refactor axo_command, axo_guide, axo_pattern definitions to reference axo_procedure as superset; clarify axo_sequence as structural characteristic"
             }
           ]
         }
