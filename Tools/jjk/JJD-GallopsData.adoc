@@ -1590,7 +1590,8 @@ entry from
 to file (atomic)
 . Delete paddock file at
 {jjdhm_paddock}
-. Stage all changes: trophy file, gallops.json, deleted paddock
+. Stage exactly three paths: trophy file, gallops.json, paddock file (as deletion)
+. Run size guard with 200KB limit (trophy files can be large for big heats)
 . Commit with message per steeplechase conventions (format TBD by unify-commit-format)
 . Release lock
 . Output trophy file path to stdout
