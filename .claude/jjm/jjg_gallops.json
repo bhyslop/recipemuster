@@ -849,6 +849,11 @@
           "tacks": [
             {
               "ts": "260116-1021",
+              "state": "complete",
+              "text": "Option B retrofit complete: minted axd_none, annotated 14 RBAGS files with parallel Haiku agents, established section annotation pattern."
+            },
+            {
+              "ts": "260116-1021",
               "state": "rough",
               "text": "COMPLETED: Option B annotation-only retrofit. Minted axd_none dimension for procedures with no explicit inputs. Annotated 14 RBAGS operation files (axs_inputs, axs_behavior, axs_outputs, axs_completion). Used parallel Haiku agents in batches. Pattern: annotations mark section locations, completion criteria as document prose. Skipped RBSOB (trade study). Commit: e3310ec."
             },
