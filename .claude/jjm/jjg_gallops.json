@@ -7,6 +7,7 @@
       "status": "current",
       "order": [
         "₢AAAAd",
+        "₢AAAAe",
         "₢AAAAZ",
         "₢AAAAY",
         "₢AAAAX",
@@ -37,7 +38,7 @@
         "₢AAAAa",
         "₢AAAAb"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -648,6 +649,16 @@
               "ts": "260116-1044",
               "state": "rough",
               "text": "Unify all JJ commit formats to colon-delimited coronet-based pattern.\n\n## New Format\n\nStandard: jjb:RBM:₢AAAAB: message\nChalk: jjb:RBM:₢AAAAB:WRAP: description\nHeat-level: jjb:RBM:₣AB:SLATE: silks\n\n## Files to Update\n\n- jjrn_notch.rs: format_notch_prefix(), format_chalk_message()\n- jjrs_steeplechase.rs: rein parsing patterns\n- jjrx_cli.rs: tally, slate, rail, nominate, draft commit messages\n- JJD-GallopsData.adoc: commit format documentation\n- jjc-pace-notch.md: update format docs\n- vvc-commit.md: add JJ context detection/warning\n\n## Depends On\n\ninstallation-identifier (₢AAAAc) for runtime brand lookup"
+            }
+          ]
+        },
+        "₢AAAAe": {
+          "silks": "cleanup-orphan-rein",
+          "tacks": [
+            {
+              "ts": "260116-1044",
+              "state": "rough",
+              "text": "Remove orphaned jjw-rn infrastructure.\n\n## Delete\n\n1. jjw_workbench.sh line 113: remove jjw-rn) case\n2. jju_utility.sh: remove jju_rein function (~lines 227-239)\n\n## Rationale\n\n- jjw-rn route exists but no tabtarget file\n- jju_rein was bash wrapper for jjx_rein\n- Will be replaced by /jjc-heat-rein slash command (uses vvx directly)"
             }
           ]
         }
