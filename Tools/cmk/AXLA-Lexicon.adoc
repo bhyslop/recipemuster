@@ -673,33 +673,99 @@ which documents the signaling mechanism rather than failure semantics.
 
 == Axial Operation Terms
 
+=== Procedure Hierarchy
+
+{axo_procedure}
+is the superset
+{axl_motif}
+for procedural articulations.
+{axo_command},
+{axo_guide},
+and
+{axo_pattern}
+are specialized forms that voice
+{axo_procedure}
+with additional constraints.
+
+{axo_sequence}
+is a structural characteristic describing HOW behavior is organized, not a procedure type.
+Most procedures ARE sequential.
+
+The following
+{axo_*}
+terms are NOT procedures and remain outside the hierarchy:
+{axo_entity},
+{axo_role},
+{axo_identity},
+{axo_actor},
+{axo_dependency}.
+
+[[axo_procedure]]
+{axo_procedure}::
+A
+{axl_motif}
+representing an executable operation with defined inputs, behavior, outputs, and completion semantics.
+{axo_procedure}
+is the superset for all procedural articulations.
+{axl_voicing_s}
+specialize by executor (machine vs human), reusability (terminal vs composite), and interface (CLI, REST, console).
+Documentation follows
+{axs_*}
+section patterns.
+
 [[axo_command]]
 {axo_command}::
 A
 {axl_motif}
-representing an automated execution pattern implemented through programmatic orchestration.
-Executes without human intervention once initiated.
+representing an
+{axo_procedure}
+executed by machine without human intervention.
+{axl_voices}
+{axo_procedure}
+with machine executor constraint.
+Requires
+{axe_environment}
+dimension specifying execution context.
 
 [[axo_guide]]
 {axo_guide}::
 A
 {axl_motif}
-representing a system-presented procedure that a human operator executes.
-The system displays steps and the human performs them, typically in external systems or consoles.
+representing an
+{axo_procedure}
+executed by a human operator following system-presented steps.
+{axl_voices}
+{axo_procedure}
+with human executor constraint.
+The system displays steps; the human performs them in external systems or consoles.
+Behavior steps use
+{axe_human_guide}
+control voicings.
 
 [[axo_pattern]]
 {axo_pattern}::
 A
 {axl_motif}
-representing a reusable operational subsequence invoked within other operations.
+representing a reusable
+{axo_procedure}
+invoked as a subsequence within other procedures.
+{axl_voices}
+{axo_procedure}
+with composite reusability constraint.
 Encapsulates common logic for consistent reuse across specifications.
 
 [[axo_sequence]]
 {axo_sequence}::
 A
 {axl_motif}
-representing ordered processing steps executed in defined progression.
-Maintains strict ordering requirements between operations.
+representing a structural characteristic: ordered processing steps executed in defined progression.
+NOT a procedure type—describes HOW behavior is organized, not WHAT kind of procedure something is.
+Most
+{axo_procedure}
+voicings ARE sequential.
+Use within
+{axs_behavior}
+sections to document step ordering.
 
 [[axo_role]]
 {axo_role}::
