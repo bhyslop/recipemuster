@@ -463,6 +463,11 @@
           "silks": "gallops-deterministic-serial",
           "tacks": [
             {
+              "ts": "260115-1622",
+              "state": "complete",
+              "text": "JJD spec updated with Deterministic Serialization requirement. Rust changed HashMap to BTreeMap for heats and paces. Verified minimal diffs on subsequent rail operations."
+            },
+            {
               "ts": "260115-1612",
               "state": "rough",
               "text": "Deterministic gallops serialization for minimal diffs.\n\n## JJD Update\nAdd assertion to JJD-GallopsData.adoc: \"Implementations MUST serialize paces keys in deterministic order to minimize diff churn.\"\n\n## Rust Fix\nChange paces storage from HashMap to BTreeMap in gallops structs. BTreeMap iterates in sorted key order, giving deterministic JSON output.\n\nFiles:\n- Tools/jjk/JJD-GallopsData.adoc\n- Tools/vok/src/jjx_*.rs (whichever defines Heat/Gallops structs)"
