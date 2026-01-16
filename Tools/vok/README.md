@@ -232,18 +232,22 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | Term | Definition |
 |------|------------|
 | **Arcanum** | Kit's install script (`*a_`). The hidden knowledge that configures Claude. |
+| **Cipher** | Project prefix (2-5 chars). Const declarations in `voci_`. Globally unique namespace root. |
 | **Codex** | Version tracking system (`vox_`) |
+| **Conclave** | Kit registration API (`vocv_`). Collects whispers, validates ciphers. |
 | **Kit** | A distributable Claude Code extension (directory in Tools/) |
 | **Kit Forge** | Source repo where kits are developed |
 | **Ledger** | Release record (`*l_`). JSON history of releases. |
-| **Sigil** | Version identifier (`vos_`) |
+| **Parcel** | Distribution archive (`vvk-parcel-{sigil}.tar.gz`). Contains binaries and kit assets. |
+| **Sigil** | Version identifier (YYMMDD-HHMM format). Generated at release time. |
 | **Target Repo** | Consumer repo where kits are installed |
 | **Veil** | Upstream filter (`vov_`). Excludes private content from PRs. |
-| **Veiled** | Content that never leaves the source repo |
+| **Veiled** | Content that never leaves the source repo (`vov_veiled/` directories) |
 | **Voce Viva** | The living voice - user-facing tooling (VVK, vvx) |
 | **Vox Obscura** | The hidden voice - source infrastructure (VOK) |
 | **vvr** | Voce Viva Rust - the compiled binary |
 | **vvx** | Platform wrapper that dispatches to correct vvr binary |
+| **Whisper** | Kit's declaration to conclave (`*w_`). Builder API for registration. |
 
 ## Prefix Maps
 
@@ -252,13 +256,13 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | Prefix | Name | Purpose |
 |--------|------|---------|
 | `voa_` | Arcanum | Main kit entry (install/uninstall) |
+| `voci_` | Cipher | Project prefix registry (const declarations) |
+| `vocv_` | Conclave | Kit registration API (collects whispers) |
 | `vol_` | Ledger | Release record |
 | `vop_` | Prepare | Release preparation |
 | `vor`  | Rust source | Has children (not terminal) |
-| `vorc_` | Rust Core | Shared infrastructure |
 | `vorg_` | Rust Guard | Pre-commit size validation |
 | `vorm_` | Rust Main | Binary entry point |
-| `vos_` | Sigil | Version ID |
 | `vov_` | Veil | Upstream filter |
 | `vox_` | Codex | Version tracking |
 

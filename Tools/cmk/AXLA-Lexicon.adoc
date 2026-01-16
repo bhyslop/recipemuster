@@ -161,6 +161,8 @@
 :axo_identity_s:                      <<axo_identity,Identities>>
 :axo_actor:                           <<axo_actor,Actor>>
 :axo_actor_s:                         <<axo_actor,Actors>>
+:axo_entity:                          <<axo_entity,Entity>>
+:axo_entity_s:                        <<axo_entity,Entities>>
 
 // Axial Type Terms
 :axt_type:                            <<axt_type,Type>>
@@ -605,6 +607,20 @@ representing a specific named identity with defined responsibilities and exclusi
 {axo_actor_s} instantiate
 {axo_identity}
 with concrete bindings (human via OAuth, service via service account) and permissions.
+
+[[axo_entity]]
+{axo_entity}::
+A
+{axl_motif}
+representing an object with both structure and behavior.
+Unlike
+{axr_record}
+which captures pure data,
+{axo_entity}
+includes methods, builder patterns, or lifecycle operations.
+{axl_voicing_s}
+describe the entity's data members and its behavioral interface (construction, mutation, registration).
+Typical manifestations include Rust structs with `impl` blocks, builder-pattern APIs, or objects that participate in registration protocols.
 
 == Axial Type Terms
 

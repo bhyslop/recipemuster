@@ -1,0 +1,685 @@
+= Vox Obscura Specification
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// vost_:  Types (scalar identifiers with validation rules)
+// vose_:  Entities (objects with structure and behavior)
+// vosem_: Entity members (fields within entities)
+// vosp_:  Places (repository and location concepts)
+// vosa_:  Assets (distributable or indexed artifacts)
+// voso_:  Operations (release, install, uninstall workflows)
+// vosk_:  Key premises (design constraints)
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//
+
+// Types
+:vost_cipher:           <<vost_cipher,Cipher>>
+:vost_cipher_s:         <<vost_cipher,Ciphers>>
+:vost_cipher_p:         <<vost_cipher,Cipher's>>
+:vost_sigil:            <<vost_sigil,Sigil>>
+:vost_sigil_s:          <<vost_sigil,Sigils>>
+
+// Entities
+:vose_parcel:           <<vose_parcel,Parcel>>
+:vose_parcel_s:         <<vose_parcel,Parcels>>
+:vose_parcel_p:         <<vose_parcel,Parcel's>>
+:vose_whisper:          <<vose_whisper,Whisper>>
+:vose_whisper_s:        <<vose_whisper,Whispers>>
+:vose_whisper_p:        <<vose_whisper,Whisper's>>
+:vose_conclave:         <<vose_conclave,Conclave>>
+:vose_conclave_p:       <<vose_conclave,Conclave's>>
+:vose_kit:              <<vose_kit,Kit>>
+:vose_kit_s:            <<vose_kit,Kits>>
+:vose_kit_p:            <<vose_kit,Kit's>>
+:vose_managed_section:  <<vose_managed_section,Managed Section>>
+:vose_managed_section_s: <<vose_managed_section,Managed Sections>>
+:vose_marker:           <<vose_marker,Marker>>
+:vose_marker_s:         <<vose_marker,Markers>>
+
+// Entity members
+:vosem_kit_id:          <<vosem_kit_id,kit_id>>
+:vosem_display_name:    <<vosem_display_name,display_name>>
+:vosem_file:            <<vosem_file,file>>
+:vosem_tag:             <<vosem_tag,tag>>
+
+// Places
+:vosp_kit_forge:        <<vosp_kit_forge,Kit Forge>>
+:vosp_target_repo:      <<vosp_target_repo,Target Repo>>
+:vosp_veiled:           <<vosp_veiled,Veiled>>
+
+// Assets
+:vosa_command:          <<vosa_command,Command>>
+:vosa_command_s:        <<vosa_command,Commands>>
+:vosa_hook:             <<vosa_hook,Hook>>
+:vosa_hook_s:           <<vosa_hook,Hooks>>
+:vosa_skill:            <<vosa_skill,Skill>>
+:vosa_skill_s:          <<vosa_skill,Skills>>
+:vosa_subagent:         <<vosa_subagent,Subagent>>
+:vosa_subagent_s:       <<vosa_subagent,Subagents>>
+:vosa_concept_model:    <<vosa_concept_model,Concept Model>>
+:vosa_concept_model_s:  <<vosa_concept_model,Concept Models>>
+
+// Operations
+:voso_release:          <<voso_release,Release>>
+:voso_install:          <<voso_install,Install>>
+:voso_uninstall:        <<voso_uninstall,Uninstall>>
+
+// Key premises
+:vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
+:vosk_all_or_none:       <<vosk_all_or_none,All Or None>>
+:vosk_parcel_self_contained: <<vosk_parcel_self_contained,Parcel Self-Contained>>
+
+// end::mapping-section[]
+
+== Overview
+
+The Vox Obscura Specification defines the release and installation infrastructure for Claude Code
+{vose_kit_s}.
+{vose_kit_s}
+are developed in a
+{vosp_kit_forge}
+and distributed via
+{vose_parcel_s}
+to
+{vosp_target_repo}
+consumers.
+
+Each
+{vose_kit}
+declares itself to the
+{vose_conclave}
+through a
+{vose_whisper}
+- a builder-pattern API that registers the
+{vose_kit_p}
+identity,
+{vose_managed_section_s},
+and
+{vosa_concept_model_s}.
+
+The
+{voso_release}
+operation creates a
+{vose_parcel}
+containing all
+{vose_kit}
+assets.
+The
+{voso_install}
+operation deploys a
+{vose_parcel}
+to a
+{vosp_target_repo}.
+The
+{voso_uninstall}
+operation cleanly removes a
+{vose_kit}
+using
+{vost_cipher}
+-based prefix matching.
+
+== Key Premises
+
+[[vosk_prefix_validation]]
+// ⟦axl_voices axk_premise⟧
+{vosk_prefix_validation}::
+All
+{vosa_command_s},
+{vosa_hook_s},
+{vosa_skill_s},
+and
+{vosa_subagent_s}
+must match their
+{vose_kit_p}
+{vost_cipher}
+pattern.
+{voso_release}
+fails if any asset violates prefix rules.
+This constraint enables deterministic
+{voso_uninstall}
+by prefix matching.
+
+[[vosk_all_or_none]]
+// ⟦axl_voices axk_premise⟧
+{vosk_all_or_none}::
+{voso_install}
+is atomic.
+A
+{vose_parcel}
+represents a tested, coherent release.
+No selective installation of individual
+{vose_kit_s}
+or assets.
+
+[[vosk_parcel_self_contained]]
+// ⟦axl_voices axk_premise⟧
+{vosk_parcel_self_contained}::
+A
+{vose_parcel}
+contains everything needed for installation.
+No dependency resolution or external fetches during
+{voso_install}.
+The
+{vose_parcel}
+can function from its extracted directory.
+
+== Types
+
+[[vost_cipher]]
+// ⟦axl_voices axt_string⟧
+{vost_cipher}::
+A 2-5 character project prefix that owns exclusive namespace rights.
+Declared as const in `voci_ciphers.rs` — the single source of truth for all project prefixes.
+All
+{vose_kit}
+artifacts must use prefixes derived from their
+{vost_cipher}.
++
+Declaration pattern:
++
+[source,rust]
+----
+// voci_ciphers.rs - Cipher registry (const declarations)
+pub const JJ: Cipher = Cipher::new("jj", "Job Jockey");
+pub const BU: Cipher = Cipher::new("bu", "Bash Utilities");
+pub const CM: Cipher = Cipher::new("cm", "Concept Model");
+pub const VV: Cipher = Cipher::new("vv", "Voce Viva");
+----
++
+Validation: lowercase letters only, globally unique, no prefix may be a prefix of another (terminal exclusivity).
+
+[[vost_sigil]]
+// ⟦axl_voices axt_string⟧
+{vost_sigil}::
+A version identifier in YYMMDD-HHMM format.
+Generated at
+{voso_release}
+time.
+Appears in
+{vose_parcel}
+filenames and manifests.
++
+Example: `260115-1430` for January 15, 2026 at 14:30.
+
+== Entities
+
+[[vose_parcel]]
+// ⟦axl_voices axo_entity⟧
+{vose_parcel}::
+The distribution archive for
+{vose_kit_s}.
+Named `vvk-parcel-{sigil}.tar.gz`.
+Contains platform binaries and plain-text
+{vose_kit}
+assets.
++
+Structure:
++
+----
+vvk-parcel-260115-1430/
+  bin/
+    vvx-darwin-arm64
+    vvx-darwin-x86_64
+    vvx-linux-x86_64
+  kits/
+    buk/
+      buc_command.sh
+      ...
+    jjk/
+      jju_utility.sh
+      commands/
+        jjc-heat-mount.md
+      ...
+----
++
+The `bin/` directory contains lean binaries (install logic only).
+The `kits/` directory contains plain-text assets organized by
+{vose_kit}.
+
+[[vose_whisper]]
+// ⟦axl_voices axo_entity⟧
+{vose_whisper}::
+A
+{vose_kit_p}
+declaration to the
+{vose_conclave}.
+Implemented as a Rust builder API in the
+{vose_kit_p}
+{vosp_veiled}
+directory.
++
+Builder API:
++
+[source,rust]
+----
+use voci_ciphers::JJ;
+
+Whisper::for_kit("jjk")
+    .cipher(JJ)                 // symbolic reference to const
+    .display_name("Job Jockey")
+    .managed_section("vojjmc_core.md", "JJK")
+    .managed_section("vojjmc_gallops.md", "JJK_GALLOPS")
+    .concept_model("JJD-GallopsData.adoc")
+    .register(&mut conclave)
+----
++
+File location: `Tools/{kit}/vov_veiled/vo{cipher}w_whisper.rs`
+
+[[vose_conclave]]
+// ⟦axl_voices axo_entity⟧
+{vose_conclave}::
+The central API that
+{vose_kit_s}
+use to describe themselves.
+Lives in VOK as `vocv_conclave.rs`.
+Collects
+{vose_whisper_s}
+and validates
+{vosk_prefix_validation}
+during
+{voso_release}.
++
+Responsibilities:
++
+* Collect
+{vose_whisper_s}
+from all participating
+{vose_kit_s}
+* Enforce
+{vosk_prefix_validation}
+during
+{voso_release}
+* Provide asset enumeration for
+{voso_install}
+and
+{voso_uninstall}
+
+[[vose_kit]]
+// ⟦axl_voices axo_entity⟧
+{vose_kit}::
+A distributable Claude Code extension.
+Lives in `Tools/{kit}/` in the
+{vosp_kit_forge}.
++
+Structure:
++
+----
+Tools/{kit}/
+  {kit}a_arcanum.sh      # Public - install script
+  {kit}u_utility.sh      # Public - utilities
+  README.md              # Public - documentation
+  commands/              # Public - slash commands
+    {cipher}c-*.md
+  vov_veiled/            # Private - never distributed
+    vo{cipher}w_whisper.rs
+    vo{cipher}mc_*.md    # CLAUDE.md templates
+    {ACRONYM}-*.adoc     # Concept models
+----
++
+**VVK Special Status:**
+VVK (Voce Viva Kit) is a
+{vose_kit}
+with unique characteristics:
++
+* Has a
+{vose_whisper}
+like other kits (for CLAUDE.md knowledge)
+* Contents are primarily binaries (`vvx` wrapper, `vvr-*` platform binaries)
+* Serves as the install target — all kit binaries install into `Tools/vvk/bin/`
+* Present in every
+{vosp_target_repo}
+— the universal kit
+* Uses cipher `vv` (Voce Viva)
+
+[[vose_managed_section]]
+// ⟦axl_voices axo_entity⟧
+{vose_managed_section}::
+A block of content in the target CLAUDE.md file bounded by
+{vose_marker_s}.
+Each
+{vose_kit}
+may contribute multiple
+{vose_managed_section_s}
+for distinct feature groups.
++
+Members:
+
+[[vosem_file]]
+// ⟦axl_voices axr_member axd_required⟧
+* {vosem_file} - Template file path relative to
+{vosp_veiled}
+(e.g., `vojjmc_core.md`)
+
+[[vosem_tag]]
+// ⟦axl_voices axr_member axd_required⟧
+* {vosem_tag} - Identifier used in
+{vose_marker_s}
+(e.g., `JJK`, `JJK_GALLOPS`)
+
+[[vose_marker]]
+// ⟦axl_voices axt_string⟧
+{vose_marker}::
+Delimiters bounding a
+{vose_managed_section}
+in CLAUDE.md.
++
+Format: `<\!-- MANAGED:{tag}:BEGIN -->` and `<\!-- MANAGED:{tag}:END -->`
++
+Content between
+{vose_marker_s}
+is replaced entirely on
+{voso_install}.
+Content outside
+{vose_marker_s}
+is preserved.
+
+== Places
+
+[[vosp_kit_forge]]
+// ⟦axl_voices axo_entity⟧
+{vosp_kit_forge}::
+The source repository where
+{vose_kit_s}
+are developed.
+Contains full source including
+{vosp_veiled}
+content.
+{voso_release}
+runs from the
+{vosp_kit_forge}.
+
+[[vosp_target_repo]]
+// ⟦axl_voices axo_entity⟧
+{vosp_target_repo}::
+A consumer repository where
+{vose_kit_s}
+are installed.
+Receives only distributed assets - no
+{vosp_veiled}
+content.
+{voso_install}
+deploys to the
+{vosp_target_repo}.
+
+[[vosp_veiled]]
+// ⟦axl_voices axo_entity⟧
+{vosp_veiled}::
+Content that never leaves the
+{vosp_kit_forge}.
+Each
+{vose_kit}
+has a `vov_veiled/` subdirectory containing:
++
+* {vose_whisper}
+Rust source (`vo{cipher}w_whisper.rs`)
+* {vose_managed_section}
+templates (`vo{cipher}mc_*.md`)
+* {vosa_concept_model_s}
+(AsciiDoc specs)
++
+Excluded from
+{vose_parcel}
+by structural convention.
+VOK itself is inherently
+{vosp_veiled}
+(entire `Tools/vok/` stays in
+{vosp_kit_forge}).
+
+== Assets
+
+Assets are artifacts that participate in
+{voso_install}
+and
+{voso_uninstall}.
+All assets must comply with
+{vosk_prefix_validation}.
+
+[[vosa_command]]
+// ⟦axl_voices axo_entity⟧
+{vosa_command}::
+A slash command file.
+Located in `{kit}/commands/` in source, installed to `.claude/commands/` in target.
++
+Naming: `{cipher}c-{name}.md`
++
+Example: `jjc-heat-mount.md` for JJK.
+
+[[vosa_hook]]
+// ⟦axl_voices axo_entity⟧
+{vosa_hook}::
+A hook definition.
++
+Naming: `{cipher}h_{name}.*`
++
+[Reserved for future implementation]
+
+[[vosa_skill]]
+// ⟦axl_voices axo_entity⟧
+{vosa_skill}::
+A skill declaration.
++
+Naming: must include
+{vost_cipher}
+prefix.
++
+[Reserved for future implementation]
+
+[[vosa_subagent]]
+// ⟦axl_voices axo_entity⟧
+{vosa_subagent}::
+A subagent declaration.
++
+Naming: must include
+{vost_cipher}
+prefix.
++
+[Reserved for future implementation]
+
+[[vosa_concept_model]]
+// ⟦axl_voices axo_entity⟧
+{vosa_concept_model}::
+An AsciiDoc specification file following MCM patterns.
+Lives in
+{vosp_veiled},
+never distributed.
+Indexed by
+{vose_conclave}
+for acronym registry and uniqueness validation.
++
+Naming: Keeps existing acronym (e.g., `JJD-GallopsData.adoc`).
+Registered in
+{vose_whisper}
+via `.concept_model()` builder method.
+
+== Operations
+
+[[voso_release]]
+// ⟦axl_voices axo_sequence⟧
+{voso_release}::
+Creates a
+{vose_parcel}
+from the
+{vosp_kit_forge}.
++
+Steps:
++
+1. Collect all
+{vose_whisper_s}
+via
+{vose_conclave}
+2. Validate
+{vosk_prefix_validation}
+for all assets - fail if violations
+3. Run all testbenches - fail if tests fail
+4. Build `vvx` for target platforms
+5. Collect
+{vose_kit}
+assets (everything except
+{vosp_veiled})
+6. Generate
+{vost_sigil}
+7. Package
+{vose_parcel}:
+`vvk-parcel-{sigil}.tar.gz`
+
+[[voso_install]]
+// ⟦axl_voices axo_sequence⟧
+{voso_install}::
+Deploys a
+{vose_parcel}
+to a
+{vosp_target_repo}.
++
+Steps:
++
+1. Pre-install git commit (if working tree dirty)
+2. Copy platform binaries from `bin/` to `Tools/vvk/bin/`
+3. Copy
+{vose_kit}
+assets from `kits/` preserving structure
+4. For each
+{vose_managed_section}:
+replace content between
+{vose_marker_s}
+in CLAUDE.md
+5. Write manifest to `.claude/vvx-manifest.json`
+6. Post-install git commit
+7. Diff analysis for user modification recovery
+
+[[voso_uninstall]]
+// ⟦axl_voices axo_sequence⟧
+{voso_uninstall}::
+Removes a
+{vose_kit}
+from
+{vosp_target_repo}.
++
+Steps:
++
+1. Read
+{vost_cipher}
+from manifest
+2. Remove all
+{vosa_command_s}
+matching `{cipher}c-*`
+3. Remove all
+{vosa_hook_s}
+matching `{cipher}h_*`
+4. Remove
+{vose_managed_section_s}
+by
+{vose_marker}
+tags
+5. Update manifest
+6. Git commit
+
+== Whisper Builder API
+
+The
+{vose_whisper}
+builder provides a fluent interface for
+{vose_kit}
+registration.
+
+=== Required Methods
+
+`Whisper::for_kit(id: &str)` — Create whisper for kit with given
+{vosem_kit_id}.
+
+`.cipher(c: Cipher)` — Set the
+{vost_cipher}
+(symbolic const from `voci_ciphers`).
+
+`.display_name(name: &str)` — Set human-readable name.
+
+`.register(&mut Conclave)` — Finalize and register with
+{vose_conclave}.
+
+=== Optional Methods
+
+`.managed_section(file: &str, tag: &str)` — Add a
+{vose_managed_section}.
+May be called multiple times.
+
+`.concept_model(path: &str)` — Register a
+{vosa_concept_model}
+for acronym indexing.
+May be called multiple times.
+
+=== Validation
+
+Each builder method validates its input immediately.
+Final validation occurs at `.register()`:
+
+* {vosem_kit_id}
+must be valid identifier
+* {vost_cipher}
+must be a valid const from `voci_ciphers`
+* All
+{vose_managed_section}
+files must exist
+* All
+{vosa_concept_model}
+files must exist
+
+== Cipher Registry
+
+{vost_cipher_s}
+are declared as const values in `voci_ciphers.rs`.
+This file is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+
+=== Declaration Pattern
+
+[source,rust]
+----
+// voci_ciphers.rs
+
+/// Cipher represents a project's namespace root.
+/// Uniqueness enforced at compile time by const declaration.
+pub struct Cipher {
+    prefix: &'static str,
+    project: &'static str,
+}
+
+impl Cipher {
+    pub const fn new(prefix: &'static str, project: &'static str) -> Self {
+        Self { prefix, project }
+    }
+}
+
+// Project cipher declarations
+pub const JJ: Cipher = Cipher::new("jj", "Job Jockey");
+pub const BU: Cipher = Cipher::new("bu", "Bash Utilities");
+pub const CM: Cipher = Cipher::new("cm", "Concept Model");
+pub const VV: Cipher = Cipher::new("vv", "Voce Viva");
+pub const RB: Cipher = Cipher::new("rb", "Recipe Bottle");
+pub const GAD: Cipher = Cipher::new("gad", "Google AsciiDoc Differ");
+// ... all projects
+----
+
+=== Uniqueness Guarantees
+
+* Compile-time: duplicate const names are compilation errors
+* Runtime: `Cipher::new()` can validate prefix format and terminal exclusivity
+* Convention: new ciphers require coordinated addition to `voci_ciphers.rs`
+
+=== Usage
+
+{vose_kit_s}
+import their
+{vost_cipher}
+symbolically:
+
+[source,rust]
+----
+use voci_ciphers::JJ;
+
+Whisper::for_kit("jjk")
+    .cipher(JJ)
+    // ...
+----
