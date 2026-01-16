@@ -323,6 +323,13 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 
+**Identities vs Display Names:**
+- **Firemark**: Heat identity (`₣AA` or `AA`). Used in CLI args and JSON keys.
+- **Coronet**: Pace identity (`₢AAAAk` or `AAAAk`). Used in CLI args and JSON keys.
+- **Silks**: kebab-case display name. Human-readable only — NOT usable for lookups.
+
+When a command takes `<firemark>` or `<coronet>`, provide the identity, not the silks.
+
 - Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/README.md`
 

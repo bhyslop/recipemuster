@@ -42,9 +42,10 @@
         "₢AAAAE",
         "₢AAAAF",
         "₢AAAAa",
-        "₢AAAAb"
+        "₢AAAAb",
+        "₢AAAAl"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -745,6 +746,16 @@
               "ts": "260116-1117",
               "state": "rough",
               "text": "Add jjrc_commit helper to JJK Rust: reuses vvc lock, stages explicit file list, runs vvcg_guard with custom limit (200KB for retire), commits with provided message (no Claude). Used by jjx_retire and potentially other JJD write ops."
+            }
+          ]
+        },
+        "₢AAAAl": {
+          "silks": "parade-pace-silks-lookup",
+          "tacks": [
+            {
+              "ts": "260116-1125",
+              "state": "rough",
+              "text": "Add silks lookup fallback to jjx_parade --pace: if coronet lookup fails, try matching against pace silks in the heat. Allows --pace jjrc-commit-helper as convenience."
             }
           ]
         }
