@@ -6,6 +6,7 @@
       "creation_time": "260114",
       "status": "current",
       "order": [
+        "₢AAAAd",
         "₢AAAAZ",
         "₢AAAAY",
         "₢AAAAX",
@@ -36,7 +37,7 @@
         "₢AAAAa",
         "₢AAAAb"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -637,6 +638,16 @@
               "ts": "260116-1032",
               "state": "rough",
               "text": "Replace hardcoded DEFAULT_BRAND with installation identifier set during parcel generation. Update jjrn_notch.rs and jjrs_steeplechase.rs to read from manifest."
+            }
+          ]
+        },
+        "₢AAAAd": {
+          "silks": "unify-commit-format",
+          "tacks": [
+            {
+              "ts": "260116-1044",
+              "state": "rough",
+              "text": "Unify all JJ commit formats to colon-delimited coronet-based pattern.\n\n## New Format\n\nStandard: jjb:RBM:₢AAAAB: message\nChalk: jjb:RBM:₢AAAAB:WRAP: description\nHeat-level: jjb:RBM:₣AB:SLATE: silks\n\n## Files to Update\n\n- jjrn_notch.rs: format_notch_prefix(), format_chalk_message()\n- jjrs_steeplechase.rs: rein parsing patterns\n- jjrx_cli.rs: tally, slate, rail, nominate, draft commit messages\n- JJD-GallopsData.adoc: commit format documentation\n- jjc-pace-notch.md: update format docs\n- vvc-commit.md: add JJ context detection/warning\n\n## Depends On\n\ninstallation-identifier (₢AAAAc) for runtime brand lookup"
             }
           ]
         }
