@@ -50,11 +50,12 @@
         "₢AAAAs",
         "₢AAAAt",
         "₢AAAAu",
+        "₢AAAAv",
         "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -957,6 +958,16 @@
               "ts": "260116-1420",
               "state": "rough",
               "text": "Add copyright templates to RCG and apply proprietary header to all Rust files.\n\n## RCG changes\n\nAdd \"File Templates\" section with two templates:\n\n### Template 1: Proprietary\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n// All rights reserved.\n// SPDX-License-Identifier: LicenseRef-Proprietary\n```\n\n### Template 2: Open Source (Apache 2.0)\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// ... full Apache 2.0 text ...\n```\n\nPlacement note: Header at very top, before //\\! doc comments or #\\![...] attributes.\n\n## Rust files to update (14 files, proprietary header)\n\nTools/jjk/veiled/src/:\n- jjrc_core.rs, jjrf_favor.rs, jjrg_gallops.rs, jjrn_notch.rs\n- jjrq_query.rs, jjrs_steeplechase.rs, jjrx_cli.rs, lib.rs\n\nTools/vvc/src/:\n- vvcc_commit.rs, vvcg_guard.rs, vvcm_machine.rs, lib.rs\n\nTools/vok/:\n- build.rs, src/vorm_main.rs\n\n## Files\n\n- Tools/vok/lenses/RCG-RustCodingGuide.md (add section)\n- 14 Rust source files (add proprietary header)"
+            }
+          ]
+        },
+        "₢AAAAv": {
+          "silks": "jjk-test-file-separation",
+          "tacks": [
+            {
+              "ts": "260116-1421",
+              "state": "rough",
+              "text": "Extract inline tests to separate jjt*.rs files per RCG.\n\n## RCG Pattern\n\nSource: `{cipher}r{classifier}_{name}.rs`\nTests:  `{cipher}t{classifier}_{name}.rs`\n\nExample: jjrg_gallops.rs → jjtg_gallops.rs\n\n## Files to Split\n\n1. jjrc_core.rs → jjtc_core.rs\n2. jjrf_favor.rs → jjtf_favor.rs\n3. jjrg_gallops.rs → jjtg_gallops.rs\n4. jjrn_notch.rs → jjtn_notch.rs\n5. jjrq_query.rs → jjtq_query.rs\n6. jjrs_steeplechase.rs → jjts_steeplechase.rs\n\nNote: jjrx_cli.rs has no inline tests currently.\n\n## Per-file Process\n\n1. Create new jjt{x}_{name}.rs file\n2. Move #[cfg(test)] mod tests { ... } content to new file\n3. Add `use super::{module}::*;` import\n4. Rename test functions with jjt{x}_ prefix\n5. Wire in lib.rs: `#[cfg(test)] mod jjt{x}_{name};`\n\n## lib.rs Changes\n\n```rust\npub mod jjrg_gallops;\n#[cfg(test)]\nmod jjtg_gallops;\n```\n\n## Verification\n\ncargo test --manifest-path Tools/jjk/veiled/Cargo.toml"
             }
           ]
         }
