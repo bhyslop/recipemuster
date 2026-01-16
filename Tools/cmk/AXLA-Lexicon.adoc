@@ -567,6 +567,110 @@ Errors are logged, not displayed.
 Fatal means graceful shutdown with cleanup.
 No human in immediate feedback loop.
 
+== Axial Section Terms
+
+{axs_*} terms represent documentation sections for
+{axo_procedure}
+specifications.
+Each section motif captures a standard aspect of procedure documentation.
+{axl_voicing_s}
+adapt these abstract sections to interface-specific forms.
+
+[[axs_inputs]]
+{axs_inputs}::
+A
+{axl_motif}
+representing a section documenting what an
+{axo_procedure}
+requires to execute.
+Covers arguments, parameters, configuration, and input data.
+{axl_voicing_s}
+specify interface-appropriate input documentation:
+{axa_argument_list}
+for CLI,
+{axi_request_body}
+for REST APIs.
+
+[[axs_preconditions]]
+{axs_preconditions}::
+A
+{axl_motif}
+representing a section documenting environmental state requirements before
+{axo_procedure}
+execution.
+Optional section for procedures with significant prerequisites.
+Covers required services, authentication state, file system conditions, or resource availability.
+Distinct from
+{axs_inputs}
+which documents explicit parameters.
+
+[[axs_behavior]]
+{axs_behavior}::
+A
+{axl_motif}
+representing a section documenting what an
+{axo_procedure}
+does during execution.
+Describes the steps, actions, or transformations performed.
+{axl_voicing_s}
+may use
+{axo_sequence}
+patterns for ordered steps or prose for atomic operations.
+
+[[axs_outputs]]
+{axs_outputs}::
+A
+{axl_motif}
+representing a section documenting what an
+{axo_procedure}
+produces upon completion.
+Covers return values, created artifacts, modified state, or emitted data.
+{axl_voicing_s}
+specify interface-appropriate output documentation:
+{axi_response_body}
+for REST APIs, stdout/stderr patterns for CLI.
+
+[[axs_postconditions]]
+{axs_postconditions}::
+A
+{axl_motif}
+representing a section documenting environmental state guarantees after successful
+{axo_procedure}
+execution.
+Optional section for procedures with significant side effects.
+Covers created resources, modified permissions, or system state changes.
+Distinct from
+{axs_outputs}
+which documents explicit return values.
+
+[[axs_completion]]
+{axs_completion}::
+A
+{axl_motif}
+representing a section documenting how an
+{axo_procedure}
+signals success or failure.
+Covers exit codes, return status, completion indicators, or success criteria.
+{axl_voicing_s}
+specify interface-appropriate completion documentation:
+{axa_exit_uniform}
+or
+{axa_exit_enumerated}
+for CLI,
+HTTP status codes for REST APIs.
+
+[[axs_errors]]
+{axs_errors}::
+A
+{axl_motif}
+representing a section documenting failure modes of an
+{axo_procedure}.
+Optional section for procedures with non-obvious failure conditions.
+Covers error categories, recovery actions, or diagnostic guidance.
+Distinct from
+{axs_completion}
+which documents the signaling mechanism rather than failure semantics.
+
 == Axial Operation Terms
 
 [[axo_command]]
