@@ -1,12 +1,12 @@
-//! Notch and Chalk - Steeplechase commit operations
+//! Notch and Chalk - Steeplechase commit formatting
 //!
-//! Implements JJ-aware git commits that record session history:
+//! Provides message formatting for JJ-aware git commits that record session history:
 //! - jjx_notch: Standard commit with heat/pace context prefix
 //! - jjx_chalk: Empty commit marking a steeplechase event
 //!
-//! Both commands delegate to vvx commit for the actual git work.
+//! The actual commit execution is handled by vorc_commit in the vok crate.
+//! This module exports formatting functions that the CLI handlers use.
 
-use std::process::Command;
 use crate::jjrf_favor::{Firemark, FIREMARK_PREFIX};
 
 /// Default brand identifier (placeholder until configured)
@@ -55,32 +55,10 @@ impl ChalkMarker {
     }
 }
 
-/// Arguments for jjx_notch command
-#[derive(Debug)]
-pub struct NotchArgs {
-    /// Active Heat identity (positional)
-    pub firemark: Firemark,
-    /// Silks of the current pace
-    pub pace_silks: String,
-    /// Optional commit message (if absent, claude generates from diff)
-    pub message: Option<String>,
-}
-
-/// Arguments for jjx_chalk command
-#[derive(Debug)]
-pub struct ChalkArgs {
-    /// Active Heat identity (positional)
-    pub firemark: Firemark,
-    /// Marker type
-    pub marker: ChalkMarker,
-    /// Marker description text
-    pub description: String,
-    /// Pace silks (required for APPROACH, WRAP, FLY; optional for DISCUSSION)
-    pub pace: Option<String>,
-}
-
 /// Format the notch prefix: [jj:BRAND][₣XX/pace-silks]
-fn format_notch_prefix(firemark: &Firemark, pace_silks: &str) -> String {
+///
+/// Returns the prefix string to prepend to commit messages for JJ-aware commits.
+pub fn format_notch_prefix(firemark: &Firemark, pace_silks: &str) -> String {
     format!(
         "[jj:{}][{}{}/{}] ",
         DEFAULT_BRAND,
@@ -92,7 +70,9 @@ fn format_notch_prefix(firemark: &Firemark, pace_silks: &str) -> String {
 
 /// Format the chalk message: [jj:BRAND][₣XX/pace-silks] MARKER: description
 /// When pace is None, format as: [jj:BRAND][₣XX] MARKER: description
-fn format_chalk_message(firemark: &Firemark, marker: ChalkMarker, pace: Option<&str>, description: &str) -> String {
+///
+/// Returns the full commit message for a chalk (steeplechase marker) commit.
+pub fn format_chalk_message(firemark: &Firemark, marker: ChalkMarker, pace: Option<&str>, description: &str) -> String {
     let heat_pace = match pace {
         Some(p) => format!("{}{}/{}", FIREMARK_PREFIX, firemark.as_str(), p),
         None => format!("{}{}", FIREMARK_PREFIX, firemark.as_str()),
@@ -106,95 +86,17 @@ fn format_chalk_message(firemark: &Firemark, marker: ChalkMarker, pace: Option<&
     )
 }
 
-/// Execute jjx_notch: JJ-aware commit with heat/pace context
+/// Validate chalk arguments
 ///
-/// Shells out to `vvx commit` with appropriate prefix.
-/// Returns exit code (0 = success).
-pub fn run_notch(args: NotchArgs) -> i32 {
-    let prefix = format_notch_prefix(&args.firemark, &args.pace_silks);
-
-    // Build vvx commit arguments
-    let mut cmd_args = vec!["commit".to_string(), "--prefix".to_string(), prefix];
-
-    if let Some(msg) = &args.message {
-        cmd_args.push("--message".to_string());
-        cmd_args.push(msg.clone());
+/// Returns Ok(()) if valid, Err with message if invalid.
+pub fn validate_chalk_args(marker: ChalkMarker, pace: Option<&str>) -> Result<(), String> {
+    if marker.requires_pace() && pace.is_none() {
+        return Err(format!(
+            "{} marker requires --pace to be specified",
+            marker.as_str()
+        ));
     }
-
-    eprintln!("notch: invoking vvx commit");
-
-    let result = Command::new("vvx")
-        .args(&cmd_args)
-        .output();
-
-    match result {
-        Ok(output) => {
-            // Forward stdout (commit hash)
-            if !output.stdout.is_empty() {
-                print!("{}", String::from_utf8_lossy(&output.stdout));
-            }
-            // Forward stderr
-            if !output.stderr.is_empty() {
-                eprint!("{}", String::from_utf8_lossy(&output.stderr));
-            }
-
-            if output.status.success() {
-                0
-            } else {
-                output.status.code().unwrap_or(1)
-            }
-        }
-        Err(e) => {
-            eprintln!("notch: error: failed to invoke vvx: {}", e);
-            1
-        }
-    }
-}
-
-/// Execute jjx_chalk: Empty commit marking a steeplechase event
-///
-/// Shells out to `vvx commit` with --allow-empty and formatted message.
-/// Returns exit code (0 = success).
-pub fn run_chalk(args: ChalkArgs) -> i32 {
-    // Validate pace requirement
-    if args.marker.requires_pace() && args.pace.is_none() {
-        eprintln!(
-            "chalk: error: {} marker requires --pace to be specified",
-            args.marker.as_str()
-        );
-        return 1;
-    }
-
-    let message = format_chalk_message(&args.firemark, args.marker, args.pace.as_deref(), &args.description);
-
-    eprintln!("chalk: invoking vvx commit --allow-empty");
-
-    let result = Command::new("vvx")
-        .args(["commit", "--allow-empty", "--no-stage", "--message", &message])
-        .output();
-
-    match result {
-        Ok(output) => {
-            // Forward stdout (commit hash)
-            if !output.stdout.is_empty() {
-                print!("{}", String::from_utf8_lossy(&output.stdout));
-            }
-            // Forward stderr
-            if !output.stderr.is_empty() {
-                eprint!("{}", String::from_utf8_lossy(&output.stderr));
-            }
-
-            if output.status.success() {
-                0
-            } else {
-                output.status.code().unwrap_or(1)
-            }
-        }
-        Err(e) => {
-            eprintln!("chalk: error: failed to invoke vvx: {}", e);
-            1
-        }
-    }
+    Ok(())
 }
 
 #[cfg(test)]

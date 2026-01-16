@@ -437,7 +437,7 @@ fn main() -> ExitCode {
 #[cfg(feature = "jjk")]
 fn run_jjx_notch(args: JjxNotchArgs) -> i32 {
     use jjk::jjrf_favor::Firemark;
-    use jjk::jjrn_notch::{NotchArgs, run_notch};
+    use jjk::jjrn_notch::format_notch_prefix;
 
     // Parse firemark
     let firemark = match Firemark::parse(&args.firemark) {
@@ -448,19 +448,24 @@ fn run_jjx_notch(args: JjxNotchArgs) -> i32 {
         }
     };
 
-    let notch_args = NotchArgs {
-        firemark,
-        pace_silks: args.pace,
+    // Format the prefix
+    let prefix = format_notch_prefix(&firemark, &args.pace);
+
+    // Call vorc_commit directly
+    let commit_args = vorc_commit::CommitArgs {
+        prefix: Some(prefix),
         message: args.message,
+        allow_empty: false,
+        no_stage: false,
     };
 
-    run_notch(notch_args)
+    vorc_commit::run(commit_args)
 }
 
 #[cfg(feature = "jjk")]
 fn run_jjx_chalk(args: JjxChalkArgs) -> i32 {
     use jjk::jjrf_favor::Firemark;
-    use jjk::jjrn_notch::{ChalkArgs, ChalkMarker, run_chalk};
+    use jjk::jjrn_notch::{ChalkMarker, format_chalk_message, validate_chalk_args};
 
     // Parse firemark
     let firemark = match Firemark::parse(&args.firemark) {
@@ -480,14 +485,24 @@ fn run_jjx_chalk(args: JjxChalkArgs) -> i32 {
         }
     };
 
-    let chalk_args = ChalkArgs {
-        firemark,
-        marker,
-        description: args.description,
-        pace: args.pace,
+    // Validate pace requirement
+    if let Err(e) = validate_chalk_args(marker, args.pace.as_deref()) {
+        eprintln!("jjx_chalk: error: {}", e);
+        return 1;
+    }
+
+    // Format the chalk message
+    let message = format_chalk_message(&firemark, marker, args.pace.as_deref(), &args.description);
+
+    // Call vorc_commit directly with --allow-empty --no-stage
+    let commit_args = vorc_commit::CommitArgs {
+        prefix: None,
+        message: Some(message),
+        allow_empty: true,
+        no_stage: true,
     };
 
-    run_chalk(chalk_args)
+    vorc_commit::run(commit_args)
 }
 
 #[cfg(feature = "jjk")]
