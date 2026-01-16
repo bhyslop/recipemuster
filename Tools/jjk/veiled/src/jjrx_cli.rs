@@ -194,6 +194,10 @@ struct RetireArgs {
 
     /// Target Heat identity (Firemark)
     firemark: String,
+
+    /// Execute the retire (write trophy, remove from gallops, delete paddock, commit)
+    #[arg(long)]
+    execute: bool,
 }
 
 /// Arguments for jjx_nominate command
@@ -547,7 +551,9 @@ fn run_parade(args: ParadeArgs) -> i32 {
 }
 
 fn run_retire(args: RetireArgs) -> i32 {
-    use crate::jjrq_query::{RetireArgs as LibRetireArgs, run_retire as lib_run_retire};
+    use crate::jjrc_core::timestamp_date;
+    use crate::jjrg_gallops::RetireArgs as LibRetireArgs;
+    use std::path::Path;
 
     let firemark = match Firemark::parse(&args.firemark) {
         Ok(fm) => fm,
@@ -557,12 +563,91 @@ fn run_retire(args: RetireArgs) -> i32 {
         }
     };
 
-    let retire_args = LibRetireArgs {
-        file: args.file,
-        firemark,
+    // If --execute not specified, just output JSON preview (existing behavior)
+    if !args.execute {
+        use crate::jjrq_query::{RetireArgs as QueryRetireArgs, run_retire as lib_run_retire};
+        let retire_args = QueryRetireArgs {
+            file: args.file,
+            firemark,
+        };
+        return lib_run_retire(retire_args);
+    }
+
+    // --execute: perform the actual retire operation
+
+    // Acquire lock FIRST
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_retire: error: {}", e);
+            return 1;
+        }
     };
 
-    lib_run_retire(retire_args)
+    // Load gallops
+    let mut gallops = match Gallops::load(&args.file) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_retire: error loading Gallops: {}", e);
+            return 1;
+        }
+    };
+
+    // Compute base path from gallops file
+    let base_path = args.file.parent()
+        .and_then(|p| p.parent())
+        .and_then(|p| p.parent())
+        .unwrap_or(Path::new("."));
+
+    // Execute retire
+    let retire_args = LibRetireArgs {
+        firemark: args.firemark.clone(),
+        today: timestamp_date(),
+    };
+
+    let result = match gallops.retire(retire_args, base_path) {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("jjx_retire: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Save gallops
+    if let Err(e) = gallops.save(&args.file) {
+        eprintln!("jjx_retire: error saving Gallops: {}", e);
+        return 1;
+    }
+
+    // Commit using vvcm_commit with explicit file list
+    // Files: gallops.json, trophy file (created), paddock file (deleted - git add handles this)
+    let gallops_path = args.file.to_string_lossy().to_string();
+    let commit_args = vvc::vvcm_CommitArgs {
+        files: vec![
+            gallops_path,
+            result.trophy_path.clone(),
+            result.paddock_path.clone(),
+        ],
+        message: format!("Retire: {} {}", result.firemark, result.silks),
+        size_limit: 200000,  // 200KB - trophy files can be large
+        warn_limit: 100000,
+    };
+
+    match vvc::machine_commit(&lock, &commit_args) {
+        Ok(hash) => {
+            eprintln!("jjx_retire: committed {}", &hash[..8]);
+        }
+        Err(e) => {
+            eprintln!("jjx_retire: commit warning: {}", e);
+        }
+    }
+
+    // Output result
+    println!("trophy: {}", result.trophy_path);
+    println!("Heat {} retired successfully", result.firemark);
+
+    0
+    // lock released here
 }
 
 fn run_nominate(args: NominateArgs) -> i32 {
