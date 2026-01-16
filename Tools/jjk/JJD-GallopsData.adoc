@@ -783,6 +783,13 @@ All operations are subcommands of
 {jjdx_cli}.
 Inherits Unix CLI semantics: stdout for results, stderr for errors, exit 0 for success, non-zero for failure.
 
+== Commit Message Architecture
+
+All JJ commits include an action code that serves multiple purposes:
+- **Parsing steeplechase history**: Distinguishes between different operation types
+- **Semantic clarity**: Indicates the nature and context of each commit
+- **Consistency**: Applies uniformly across pace-level and heat-level operations
+
 == Operations
 
 Operations are implemented as {jjdx_cli} subcommands.
@@ -1947,16 +1954,16 @@ All JJ commits use the format: `jjb:BRAND:IDENTITY[:ACTION]: message`
 * `jjb` — JJ brand prefix (literal)
 * `BRAND` — repository identifier baked into arcanum at install time (e.g., "RBM")
 * `IDENTITY` — ₢CORONET for pace-level, ₣FIREMARK for heat-level
-* `ACTION` — single-letter code (optional for standard notch commits)
+* `ACTION` — single-letter code (required for all commits)
 
 *Standard notch* (created by {jjdo_notch}):
 ----
-jjb:BRAND:₢XXXXX: commit message
+jjb:BRAND:₢XXXXX:n: commit message
 
 Co-Authored-By: ...
 ----
 
-No action code for standard commits. The {jjdt_coronet} provides full context.
+Standard notch commits use `n` to denote routine progress tracking.
 
 *Pace-level chalk* (created by {jjdo_chalk}):
 ----
@@ -1967,6 +1974,7 @@ Co-Authored-By: ...
 
 Pace-level action codes:
 
+* `n` — Notch: standard commit
 * `A` — APPROACH: proposed approach before work begins
 * `W` — WRAP: pace completion summary
 * `F` — FLY: autonomous execution began (primed pace)
@@ -2015,6 +2023,7 @@ Parse git history for steeplechase entries belonging to a
   {
     "timestamp": "YYYY-MM-DD HH:MM",
     "coronet": "₢XXXXX",
+    "action": "n",
     "subject": "commit message"
   },
   {
@@ -2031,7 +2040,7 @@ Parse git history for steeplechase entries belonging to a
 ]
 ----
 Field `coronet` is present for pace-level entries, absent for heat-level operations.
-Field `action` is present for chalk/heat operations, absent for standard notch commits.
+Field `action` is present for all commits, including standard notch commits (`n`).
 Entries ordered newest first.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -2067,7 +2076,7 @@ Create a JJ-aware git commit with heat/pace context prefix.
 . Stage changes (`git add -u`)
 . Run size guard check
 . Run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
-. Format full message: `jjb:BRAND:₢XXXXX: message\n\nCo-Authored-By: ...`
+. Format full message: `jjb:BRAND:₢XXXXX:n: message\n\nCo-Authored-By: ...`
 . Run `git commit -m "..."`
 . Release lock
 . Output commit hash

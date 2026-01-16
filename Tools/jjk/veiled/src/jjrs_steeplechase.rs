@@ -35,7 +35,7 @@ pub struct SteeplechaseEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coronet: Option<String>,
 
-    /// Action code (single letter), None for standard notch commits
+    /// Action code (single letter), 'n' for standard notch commits
     #[serde(skip_serializing_if = "Option::is_none")]
     pub action: Option<String>,
 
@@ -230,10 +230,10 @@ mod tests {
 
     #[test]
     fn test_parse_new_format_standard_notch() {
-        let subject = "jjb:RBM:₢ABAAA: Fix the bug";
+        let subject = "jjb:RBM:₢ABAAA:n: Fix the bug";
         let entry = parse_new_format(subject, "RBM", "AB").unwrap();
         assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, None);
+        assert_eq!(entry.action, Some("n".to_string()));
         assert_eq!(entry.subject, "Fix the bug");
     }
 
@@ -302,14 +302,14 @@ mod tests {
 
     #[test]
     fn test_parse_new_format_wrong_brand() {
-        let subject = "jjb:OTHER:₢ABAAA: Fix bug";
+        let subject = "jjb:OTHER:₢ABAAA:n: Fix bug";
         let result = parse_new_format(subject, "RBM", "AB");
         assert!(result.is_none());
     }
 
     #[test]
     fn test_parse_new_format_wrong_firemark() {
-        let subject = "jjb:RBM:₢CDAAA: Fix bug";
+        let subject = "jjb:RBM:₢CDAAA:n: Fix bug";
         let result = parse_new_format(subject, "RBM", "AB");
         assert!(result.is_none());
     }
@@ -323,11 +323,11 @@ mod tests {
 
     #[test]
     fn test_parse_log_line_new_format() {
-        let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA: Fix bug";
+        let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:n: Fix bug";
         let entry = parse_log_line(line, "RBM", "AB").unwrap();
         assert_eq!(entry.timestamp, "2024-01-15 14:30");
         assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, None);
+        assert_eq!(entry.action, Some("n".to_string()));
         assert_eq!(entry.subject, "Fix bug");
     }
 

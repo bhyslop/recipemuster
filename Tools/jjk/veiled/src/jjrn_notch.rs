@@ -121,13 +121,13 @@ impl HeatAction {
     }
 }
 
-/// Format the notch prefix: jjb:BRAND:₢CORONET:
+/// Format the notch prefix: jjb:BRAND:₢CORONET:n:
 ///
 /// Returns the prefix string to prepend to commit messages for JJ-aware commits.
 /// The coronet provides full context (embeds parent firemark).
 pub fn format_notch_prefix(coronet: &Coronet) -> String {
     format!(
-        "{}:{}:{}{}: ",
+        "{}:{}:{}{}:n: ",
         COMMIT_PREFIX,
         DEFAULT_BRAND,
         CORONET_PREFIX,
@@ -254,7 +254,7 @@ mod tests {
     fn test_format_notch_prefix() {
         let coronet = Coronet::parse("ABAAA").unwrap();
         let prefix = format_notch_prefix(&coronet);
-        assert_eq!(prefix, "jjb:RBM:₢ABAAA: ");
+        assert_eq!(prefix, "jjb:RBM:₢ABAAA:n: ");
     }
 
     #[test]
