@@ -17,6 +17,7 @@ jjk = ["dep:jjk"]
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 serde_json = "1"
+vvc = { path = "../vvc" }
 
 # Kit dependencies (optional, auto-enabled by build.rs)
 jjk = { path = "../jjk/veiled", optional = true }

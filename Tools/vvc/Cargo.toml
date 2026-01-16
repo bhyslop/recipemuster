@@ -1,0 +1,12 @@
+[package]
+name = "vvc"
+version = "0.0.1"
+edition = "2021"
+description = "Voce Viva Core - Shared commit infrastructure for VOK kits"
+
+[lib]
+name = "vvc"
+path = "src/lib.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }

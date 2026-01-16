@@ -1,28 +1,32 @@
-// vorg_guard.rs - Pre-commit size validation
-//
-// Core VOK functionality that measures staged diff sizes before commit.
-// Prevents catastrophic auto-adds (node_modules, build artifacts, binaries)
-// while allowing small edits to large files.
-//
-// Usage: vvx guard [--limit <bytes>] [--warn <bytes>]
-//
-// Exit codes:
-//   0 - Under limit
-//   1 - Over limit (with breakdown by file)
-//   2 - Over warn threshold (proceed with caution)
+//! VVC Guard - Pre-commit size validation
+//!
+//! Core functionality that measures staged diff sizes before commit.
+//! Prevents catastrophic auto-adds (node_modules, build artifacts, binaries)
+//! while allowing small edits to large files.
+//!
+//! Exit codes:
+//!   0 - Under limit
+//!   1 - Over limit (with breakdown by file)
+//!   2 - Over warn threshold (proceed with caution)
 
-use clap::Args;
 use std::process::Command;
 
-#[derive(Args, Debug)]
+/// Arguments for guard operation
+#[derive(Debug, Clone)]
 pub struct GuardArgs {
-    /// Size limit in bytes (default: 500000)
-    #[arg(long, default_value = "500000")]
+    /// Size limit in bytes
     pub limit: u64,
-
-    /// Warning threshold in bytes (default: 250000)
-    #[arg(long, default_value = "250000")]
+    /// Warning threshold in bytes
     pub warn: u64,
+}
+
+impl Default for GuardArgs {
+    fn default() -> Self {
+        Self {
+            limit: 500000,
+            warn: 250000,
+        }
+    }
 }
 
 /// Entry for a staged file with its diff size
@@ -33,7 +37,6 @@ struct StagedFile {
 
 /// Get list of staged files with their diff sizes
 fn get_staged_files() -> Result<Vec<StagedFile>, String> {
-    // Get list of staged file paths
     let output = Command::new("git")
         .args(["diff", "--cached", "--name-only"])
         .output()
@@ -75,7 +78,13 @@ fn get_diff_size(path: &str) -> Result<u64, String> {
     Ok(output.stdout.len() as u64)
 }
 
-pub fn run(args: GuardArgs) -> i32 {
+/// Run the guard check on staged content.
+///
+/// Returns:
+/// - 0: Under limit (OK)
+/// - 1: Over limit (BLOCKED)
+/// - 2: Over warn threshold (WARNING)
+pub fn run(args: &GuardArgs) -> i32 {
     let files = match get_staged_files() {
         Ok(f) => f,
         Err(e) => {
@@ -87,7 +96,10 @@ pub fn run(args: GuardArgs) -> i32 {
     let total_size: u64 = files.iter().map(|f| f.size).sum();
 
     if total_size > args.limit {
-        eprintln!("guard: BLOCKED - staged content {} bytes exceeds limit {} bytes", total_size, args.limit);
+        eprintln!(
+            "guard: BLOCKED - staged content {} bytes exceeds limit {} bytes",
+            total_size, args.limit
+        );
         eprintln!();
         eprintln!("Breakdown by file:");
         let mut sorted_files = files;
@@ -102,10 +114,16 @@ pub fn run(args: GuardArgs) -> i32 {
     }
 
     if total_size > args.warn {
-        eprintln!("guard: WARNING - staged content {} bytes exceeds warning threshold {} bytes", total_size, args.warn);
+        eprintln!(
+            "guard: WARNING - staged content {} bytes exceeds warning threshold {} bytes",
+            total_size, args.warn
+        );
         return 2;
     }
 
-    eprintln!("guard: OK - staged content {} bytes (limit: {})", total_size, args.limit);
+    eprintln!(
+        "guard: OK - staged content {} bytes (limit: {})",
+        total_size, args.limit
+    );
     0
 }

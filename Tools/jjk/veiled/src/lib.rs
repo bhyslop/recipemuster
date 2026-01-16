@@ -11,9 +11,13 @@ pub mod jjrg_gallops;
 pub mod jjrn_notch;
 pub mod jjrq_query;
 pub mod jjrs_steeplechase;
+pub mod jjrx_cli;
 
 // Re-export commonly used types
 pub use jjrf_favor::{Coronet, Firemark};
 pub use jjrn_notch::{ChalkMarker, format_notch_prefix, format_chalk_message, validate_chalk_args};
 pub use jjrq_query::{MusterArgs, SaddleArgs, ParadeArgs, RetireArgs};
 pub use jjrs_steeplechase::ReinArgs;
+
+// Re-export CLI dispatch function
+pub use jjrx_cli::{dispatch, is_jjk_command};

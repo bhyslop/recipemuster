@@ -1,47 +1,38 @@
-// vorc_commit.rs - Core commit infrastructure for VOK
-//
-// Provides atomic commit workflow: lock, stage, guard, commit.
-// Used by vvc-commit and JJ commands for consistent commit handling.
-//
-// Usage: vvx commit [--prefix <str>] [--message <str>] [--allow-empty] [--no-stage]
-//
-// Exit codes:
-//   0 - Success (commit hash printed to stdout)
-//   1 - Failure (lock held, guard failed, claude failed, commit failed)
+//! VVC Commit - Core commit infrastructure
+//!
+//! Provides atomic commit workflow: lock, stage, guard, commit.
+//! Used by vvx commit and JJK commands for consistent commit handling.
+//!
+//! Exit codes:
+//!   0 - Success (commit hash printed to stdout)
+//!   1 - Failure (lock held, guard failed, claude failed, commit failed)
 
-use clap::Args;
 use std::process::Command;
+
+use crate::vvcg_guard;
 
 /// Lock reference path for commit operations
 const LOCK_REF: &str = "refs/vvg/locks/vvx";
 
-/// Default size limits (match vvg_git.sh constants)
+/// Default size limits
 const SIZE_LIMIT: u64 = 50000;
 const WARN_LIMIT: u64 = 30000;
 
-#[derive(Args, Debug)]
+/// Arguments for commit operation
+#[derive(Debug, Clone, Default)]
 pub struct CommitArgs {
     /// Prefix string to prepend to commit message (e.g., "[jj:BRAND][F00/silks]")
-    #[arg(long)]
     pub prefix: Option<String>,
-
     /// Commit message; if absent, invoke claude to generate from diff
-    #[arg(short, long)]
     pub message: Option<String>,
-
     /// Allow empty commits (for chalk markers)
-    #[arg(long)]
     pub allow_empty: bool,
-
-    /// Skip 'git add -u' (respect pre-staged files)
-    #[arg(long)]
+    /// Skip 'git add -A' (respect pre-staged files)
     pub no_stage: bool,
 }
 
 /// Acquire the commit lock using git update-ref
-/// Returns Ok(()) on success, Err(message) if lock already held
 fn acquire_lock() -> Result<(), String> {
-    // Get current HEAD as lock value
     let head_output = Command::new("git")
         .args(["rev-parse", "HEAD"])
         .output()
@@ -50,11 +41,9 @@ fn acquire_lock() -> Result<(), String> {
     let lock_value = if head_output.status.success() {
         String::from_utf8_lossy(&head_output.stdout).trim().to_string()
     } else {
-        // No HEAD yet (empty repo) - use null SHA
         "0000000000000000000000000000000000000000".to_string()
     };
 
-    // Try to create the ref - empty third arg means "only create if ref doesn't exist"
     let result = Command::new("git")
         .args(["update-ref", LOCK_REF, &lock_value, ""])
         .output()
@@ -101,22 +90,17 @@ fn has_staged_changes() -> Result<bool, String> {
         .output()
         .map_err(|e| format!("Failed to run git diff: {}", e))?;
 
-    // Exit code 0 = no differences (nothing staged)
-    // Exit code 1 = differences exist (something staged)
     Ok(!result.status.success())
 }
 
 /// Run size guard check on staged content
-/// Returns Ok(()) if under limit, Err if over limit
 fn run_guard() -> Result<(), String> {
-    // Reuse the guard logic from vorg_guard
-    // We import it as a module in vorm_main, so call it directly
-    let args = crate::vorg_guard::GuardArgs {
+    let args = vvcg_guard::GuardArgs {
         limit: SIZE_LIMIT,
         warn: WARN_LIMIT,
     };
 
-    let result = crate::vorg_guard::run(args);
+    let result = vvcg_guard::run(&args);
 
     match result {
         0 => Ok(()),
@@ -204,7 +188,6 @@ fn execute_commit(message: &str, allow_empty: bool) -> Result<String, String> {
         return Err(format!("git commit failed: {}", stderr));
     }
 
-    // Get the commit hash
     let hash_output = Command::new("git")
         .args(["rev-parse", "HEAD"])
         .output()
@@ -219,22 +202,22 @@ fn execute_commit(message: &str, allow_empty: bool) -> Result<String, String> {
         .to_string())
 }
 
-pub fn run(args: CommitArgs) -> i32 {
-    // Step 1: Acquire lock
+/// Run the commit workflow.
+///
+/// Returns exit code: 0 for success, 1 for failure.
+/// On success, prints commit hash to stdout.
+pub fn run(args: &CommitArgs) -> i32 {
     if let Err(e) = acquire_lock() {
         eprintln!("commit: error: {}", e);
         return 1;
     }
 
-    // From here on, we must release the lock on any exit path
-    let result = run_commit_workflow(&args);
+    let result = run_commit_workflow(args);
 
-    // Step 7: Release lock (always, regardless of success/failure)
     release_lock();
 
     match result {
         Ok(hash) => {
-            // Output commit hash to stdout
             println!("{}", hash);
             eprintln!("commit: success");
             0
@@ -248,20 +231,16 @@ pub fn run(args: CommitArgs) -> i32 {
 
 /// Inner workflow that can return Result for cleaner error handling
 fn run_commit_workflow(args: &CommitArgs) -> Result<String, String> {
-    // Step 2: Stage changes (unless --no-stage)
     if !args.no_stage {
         stage_changes()?;
     }
 
-    // Check if we have anything to commit (unless --allow-empty)
     if !args.allow_empty && !has_staged_changes()? {
         return Err("Nothing to commit".to_string());
     }
 
-    // Step 3: Run size guard
     run_guard()?;
 
-    // Step 4: Get or generate commit message
     let message = match &args.message {
         Some(m) => m.clone(),
         None => {
@@ -273,9 +252,7 @@ fn run_commit_workflow(args: &CommitArgs) -> Result<String, String> {
         }
     };
 
-    // Step 5: Format full message with prefix and co-author
     let full_message = format_commit_message(args.prefix.as_deref(), &message);
 
-    // Step 6: Execute commit
     execute_commit(&full_message, args.allow_empty)
 }
