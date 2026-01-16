@@ -520,6 +520,11 @@
           "silks": "fix-jjx-cli-command-name",
           "tacks": [
             {
+              "ts": "260116-0849",
+              "state": "complete",
+              "text": "Fixed clap argument parsing in jjrx_cli.rs dispatch() by prepending synthetic 'jjx' binary name. Commands like 'vvx jjx_saddle AA' now parse correctly instead of treating the firemark as a subcommand."
+            },
+            {
               "ts": "260116-0826",
               "state": "rough",
               "text": "Fix JJK CLI command group name: jjrx_cli.rs declares #[command(name = \"jjx\")] but VVX integration causes it to appear as jjx_nominate. Invocation should be 'vvx jjx <subcommand>' not 'vvx jjx_nominate <subcommand>'. Check external_subcommand registration in VVX main."

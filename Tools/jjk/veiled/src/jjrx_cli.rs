@@ -333,8 +333,14 @@ struct DraftArgs {
 ///
 /// Returns exit code (0 for success, non-zero for failure).
 pub fn dispatch(args: &[OsString]) -> i32 {
+    // Prepend synthetic binary name for clap parsing.
+    // Clap expects args[0] to be the binary name (used in help text).
+    // VOK passes ["jjx_muster", ...] so we prepend "jjx" to get ["jjx", "jjx_muster", ...].
+    let mut full_args = vec![OsString::from("jjx")];
+    full_args.extend(args.iter().cloned());
+
     // Parse the subcommand and arguments
-    let parsed = match JjxCommands::try_parse_from(args) {
+    let parsed = match JjxCommands::try_parse_from(&full_args) {
         Ok(cmd) => cmd,
         Err(e) => {
             // Let clap handle help/version/error display
