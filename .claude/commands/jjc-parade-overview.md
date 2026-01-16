@@ -9,8 +9,6 @@ Arguments: $ARGUMENTS (optional Firemark; uses current context if omitted)
 
 ## Prerequisites
 
-Requires gallops JSON at `.claude/jjm/jjg_gallops.json`.
-
 ## Step 1: Identify target heat
 
 **If $ARGUMENTS contains a Firemark (e.g., `AB` or `₣AB`):**

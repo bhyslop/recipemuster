@@ -11,8 +11,6 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Prerequisites
 
-Requires gallops JSON at `.claude/jjm/jjg_gallops.json`. If not present, initialize with `./tt/vvw-r.RunVVX.sh jjx_nominate`.
-
 ## Step 1: Identify target heat
 
 **If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`):**
