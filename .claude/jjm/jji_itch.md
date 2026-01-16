@@ -1757,3 +1757,46 @@ Add a `duplicate` state (or perhaps `superseded`) that indicates:
 ### Context
 
 Identified 2026-01-16 while wrapping `deprecate-jju-tabtargets` which had `/jjc-heat-rein` creation listed, but that work is tracked as a separate pace.
+
+## jjc-heat-groom-execution-strategy
+Add execution strategy assessment to `/jjc-heat-groom` output.
+
+### Problem
+
+`/jjc-heat-mount` now includes execution strategy assessment (primeability, parallelization, model tier) when proposing an approach for rough paces. But `/jjc-heat-groom` reviews the full heat and could provide this analysis for ALL paces at once, enabling better session planning.
+
+### Proposed Enhancement
+
+When groom displays paces, include a summary table:
+
+| # | Pace | Primeable | Model | Blocks | Parallelizable with |
+|---|------|-----------|-------|--------|---------------------|
+| 1 | fix-foo | ✓ | haiku | — | 2, 3 |
+| 2 | add-bar | ✓ | sonnet | — | 1 |
+| 3 | design-baz | ✗ | opus | 4 | 1 |
+| 4 | impl-baz | ✓ | sonnet | — | — |
+
+### Assessment Criteria
+
+**Primeability** (from CLAUDE.md):
+- Mechanical, Pattern exists, No forks, Bounded → all four = primeable
+
+**Parallelization** (cross-pace, not within-pace):
+- File independence across paces
+- Dependency ordering (does pace B need pace A's output?)
+- Can run concurrently without conflicts
+
+**Model tier**:
+- haiku: mechanical pattern application
+- sonnet: standard development
+- opus: architectural decisions
+
+### Benefits
+
+- **Session planning**: "Prime 1 and 2, run parallel, then I'll handle opus, then prime 4"
+- **Batching**: Group haiku tasks for efficient parallel execution
+- **Visibility**: See which paces block others before starting work
+
+### Context
+
+Identified 2026-01-16. Enhancement to `/jjc-heat-mount` was just added; this extends the same analysis to heat-level review.

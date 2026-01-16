@@ -938,6 +938,12 @@
           "silks": "fix-gallops-commit-scope",
           "tacks": [
             {
+              "ts": "260116-1448",
+              "state": "primed",
+              "text": "Fix gallops commit scope: slate/tally/rail should only stage jjg_gallops.json + heat-specific paddock.\n\n## Problem\n\njjx_slate, jjx_tally, jjx_rail use vvcc_commit which does git add -A, staging everything. This causes tangles when unrelated work is in progress.\n\n## Solution\n\nSwitch from vvcc_commit to vvcm_commit (machine commit) with explicit file list:\n- jjg_gallops.json (always)\n- jjp_{firemark}.md (heat-specific paddock)\n\n## Pattern\n\njjx_retire already does this correctly (lines 663-684 in jjrx_cli.rs).\n\n## Files to change\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — 4 operations: slate, tally, rail, nominate\n\n## Firemark derivation\n\n- slate/rail: firemark from CLI arg\n- tally: derive from coronet (first 2 chars after ₢)\n- nominate: firemark from result\n\n## JJD update\n\nNot required — spec does not mention commit behavior.",
+              "direction": "Agent: haiku\nPattern: Copy jjx_retire pattern (lines 663-684) to slate, tally, rail, nominate\nFiles: jjrx_cli.rs only\nChanges:\n1. Replace vvcc_commit() calls with vvcm_CommitArgs + machine_commit()\n2. Build explicit file list: gallops_path + paddock_path (derive from firemark)\n3. Firemark derivation: slate/rail from CLI arg, tally from coronet[0:2], nominate from result\nVerify: cargo test --manifest-path Tools/jjk/veiled/Cargo.toml"
+            },
+            {
               "ts": "260116-1419",
               "state": "rough",
               "text": "Fix gallops commit scope: slate/tally/rail should only stage jjg_gallops.json + heat-specific paddock.\n\n## Problem\n\njjx_slate, jjx_tally, jjx_rail use vvcc_commit which does git add -A, staging everything. This causes tangles when unrelated work is in progress.\n\n## Solution\n\nSwitch from vvcc_commit to vvcm_commit (machine commit) with explicit file list:\n- jjg_gallops.json (always)\n- jjp_{firemark}.md (heat-specific paddock)\n\n## Pattern\n\njjx_retire already does this correctly (lines 663-684 in jjrx_cli.rs).\n\n## Files to change\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — 4 operations: slate, tally, rail, nominate\n\n## Firemark derivation\n\n- slate/rail: firemark from CLI arg\n- tally: derive from coronet (first 2 chars after ₢)\n- nominate: firemark from result\n\n## JJD update\n\nNot required — spec does not mention commit behavior."

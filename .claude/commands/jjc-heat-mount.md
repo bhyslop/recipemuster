@@ -76,8 +76,16 @@ Show:
   - If sequencing appears wrong, suggest `/jjc-heat-groom` to reorder or refine
 - Read any files referenced in the pace spec
 - Propose a concrete approach (2-4 bullets)
+- Assess execution strategy:
+  - **Primeability**: Apply CLAUDE.md criteria (mechanical, pattern exists, no forks, bounded). If all four hold, note "This pace is primeable" and mention `/jjc-pace-prime` as an option.
+  - **Parallelization**: Would multiple agents help? Consider:
+    - File independence (same-file edits conflict)
+    - Task decomposability (can work be split into independent units?)
+    - Overhead vs benefit (parallel setup cost vs sequential simplicity)
+  - **Model tier**: Recommend haiku (mechanical), sonnet (standard dev), or opus (architectural) based on complexity.
+  - State recommendation explicitly: e.g., "Sequential haiku — single file, mechanical pattern" or "Parallel sonnet×2 — independent modules"
 - Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker A --description "<approach summary>"`
-- Ask: "Ready to proceed with this approach?"
+- Ask: "Ready to proceed, or would you prefer to `/jjc-pace-prime` for autonomous execution later?"
 - On approval: Begin work directly
 
 **If pace_state is "primed":**
