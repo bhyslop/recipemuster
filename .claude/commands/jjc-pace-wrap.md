@@ -27,7 +27,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 Verify pace state:
@@ -47,21 +47,21 @@ Construct a brief outcome summary (1-3 sentences).
 
 Run:
 ```bash
-echo "<outcome summary>" | ./tt/vvx-r.RunVVX.sh jjx_tally <CORONET> --state complete
+echo "<outcome summary>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state complete
 ```
 
 ## Step 5: Create wrap marker
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker WRAP --description "<outcome summary>"
+./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker WRAP --description "<outcome summary>"
 ```
 
 ## Step 6: Advance to next pace
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 **If another actionable pace exists:**
@@ -77,7 +77,7 @@ Run:
 
 Run guarded commit:
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "Wrap: <SILKS>"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "Wrap: <SILKS>"
 ```
 
 On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.

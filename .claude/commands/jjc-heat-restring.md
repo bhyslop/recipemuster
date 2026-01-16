@@ -33,7 +33,7 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_muster --status current
+./tt/vvw-r.RunVVX.sh jjx_muster --status current
 ```
 
 Verify both source and destination Firemarks appear in the output.
@@ -42,7 +42,7 @@ Verify both source and destination Firemarks appear in the output.
 
 For each Coronet, run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_draft <CORONET> --to <DEST_FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_draft <CORONET> --to <DEST_FIREMARK>
 ```
 
 Collect the mapping: old coronet -> new coronet for each pace.
@@ -61,7 +61,7 @@ Show:
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_parade <SOURCE_FIREMARK> --format overview
+./tt/vvw-r.RunVVX.sh jjx_parade <SOURCE_FIREMARK> --format overview
 ```
 
 **If source heat is now empty (no paces):**
@@ -90,14 +90,14 @@ If user confirms, read and display relevant sections of both paddock files.
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_chalk <DEST_FIREMARK> --marker DISCUSSION --description "Restring: {N} paces from ₣{source}"
+./tt/vvw-r.RunVVX.sh jjx_chalk <DEST_FIREMARK> --marker DISCUSSION --description "Restring: {N} paces from ₣{source}"
 ```
 
 ## Step 8: Auto-commit changes
 
 Run guarded commit:
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "Restring: {N} paces ₣{source} -> ₣{dest}"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "Restring: {N} paces ₣{source} -> ₣{dest}"
 ```
 
 On failure (e.g., lock held), report error but don't fail - gallops changes are already saved.

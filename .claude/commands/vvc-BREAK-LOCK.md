@@ -36,7 +36,7 @@ Wait for user confirmation before proceeding.
 ## Step 3: Break the lock
 
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_unlock
+./tt/vvw-r.RunVVX.sh vvx_unlock
 ```
 
 ## Step 4: Report result

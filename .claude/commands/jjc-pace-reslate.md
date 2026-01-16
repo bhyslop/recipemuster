@@ -34,18 +34,18 @@ Extract from $ARGUMENTS:
 **If identifier looks like silks (kebab-case):**
 - Need heat context to resolve
 - If FIREMARK available from session: use it
-- Otherwise run `./tt/vvx-r.RunVVX.sh jjx_muster --status current`:
+- Otherwise run `./tt/vvw-r.RunVVX.sh jjx_muster --status current`:
   - If 1 heat: use it
   - If 0 heats: Error "No active heats"
   - If 2+ heats: ask user to select
-- Run `./tt/vvx-r.RunVVX.sh jjx_parade <FIREMARK>` and find pace by silks match
+- Run `./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>` and find pace by silks match
 - Error if silks not found in heat
 
 ## Step 3: Apply reslate
 
 Run:
 ```bash
-echo "<NEW_TEXT>" | ./tt/vvx-r.RunVVX.sh jjx_tally <CORONET>
+echo "<NEW_TEXT>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
 ```
 
 The new tack text is passed via stdin. State is inherited (stays rough, stays primed, etc.).
@@ -80,7 +80,7 @@ If not primeable, state why: "Needs human judgment — [reason]"
 
 Run guarded commit:
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "Reslate: <SILKS>"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "Reslate: <SILKS>"
 ```
 
 On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.

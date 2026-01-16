@@ -16,12 +16,12 @@ Run the commit command in the background using `run_in_background: true`.
 
 **If $ARGUMENTS provided (user gave message):**
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "<$ARGUMENTS>"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "<$ARGUMENTS>"
 ```
 
 **If $ARGUMENTS empty (generate message):**
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit
+./tt/vvw-r.RunVVX.sh vvx_commit
 ```
 
 The `vvx_commit` command will:

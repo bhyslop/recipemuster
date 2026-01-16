@@ -42,7 +42,7 @@ Extract from $ARGUMENTS:
 - Use that Firemark
 
 **Otherwise:**
-- Run: `./tt/vvx-r.RunVVX.sh jjx_muster --status current`
+- Run: `./tt/vvw-r.RunVVX.sh jjx_muster --status current`
 - Parse TSV output
 
 **If 0 heats:** Error: "No active heats. Create one with `/jjc-heat-nominate` first."
@@ -55,7 +55,7 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-echo "<PACE_TEXT>" | ./tt/vvx-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>" [POSITIONING]
+echo "<PACE_TEXT>" | ./tt/vvw-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>" [POSITIONING]
 ```
 
 Where `[POSITIONING]` is one of (if provided):
@@ -95,7 +95,7 @@ If not primeable, state why: "Needs human judgment — [reason]"
 
 Run guarded commit:
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "Slate: <SILKS> in ₣<FIREMARK>"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "Slate: <SILKS> in ₣<FIREMARK>"
 ```
 
 On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.

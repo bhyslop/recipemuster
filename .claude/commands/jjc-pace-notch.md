@@ -35,15 +35,15 @@ If no changes:
 
 **If $ARGUMENTS provided (user gave message):**
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_notch <FIREMARK> --pace <PACE_SILKS> --message "<$ARGUMENTS>"
+./tt/vvw-r.RunVVX.sh jjx_notch <FIREMARK> --pace <PACE_SILKS> --message "<$ARGUMENTS>"
 ```
 
 **If $ARGUMENTS empty (generate message):**
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_notch <FIREMARK> --pace <PACE_SILKS>
+./tt/vvw-r.RunVVX.sh jjx_notch <FIREMARK> --pace <PACE_SILKS>
 ```
 
-The `./tt/vvx-r.RunVVX.sh jjx_notch` command will:
+The `./tt/vvw-r.RunVVX.sh jjx_notch` command will:
 1. Acquire lock
 2. Stage modified files (`git add -u`)
 3. Run size guard

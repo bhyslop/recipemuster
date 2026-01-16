@@ -43,12 +43,12 @@ If no PACE_SILKS and marker requires it:
 
 **For APPROACH/WRAP/FLY (pace required):**
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker <MARKER> --description "<description>"
+./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker <MARKER> --description "<description>"
 ```
 
 **For DISCUSSION (pace optional):**
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_chalk <FIREMARK> [--pace <PACE_SILKS>] --marker DISCUSSION --description "<description>"
+./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> [--pace <PACE_SILKS>] --marker DISCUSSION --description "<description>"
 ```
 
 Include `--pace` if pace context is available.
@@ -81,7 +81,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 Run guarded commit:
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "Chalk: <MARKER> in ₣<FIREMARK>"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "Chalk: <MARKER> in ₣<FIREMARK>"
 ```
 
 On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.

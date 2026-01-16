@@ -42,7 +42,7 @@ Extract Firemark from first Coronet (e.g., `₢AAAAC` → `₣AA`).
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
+./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
 ```
 
 **Validation:**
@@ -71,10 +71,10 @@ Extract Firemark from the move Coronet.
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --first
-./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --last
-./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --before <TARGET>
-./tt/vvx-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --after <TARGET>
+./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --first
+./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --last
+./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --before <TARGET>
+./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --after <TARGET>
 ```
 
 **Validation:**
@@ -87,14 +87,14 @@ On success, the command outputs the new order (one Coronet per line).
 
 Run parade to display the reordered pace list with silks and states:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_parade <FIREMARK> --format order
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --format order
 ```
 
 ## Auto-commit changes
 
 Run guarded commit:
 ```bash
-./tt/vvx-r.RunVVX.sh vvx_commit --message "Rail: reorder ₣<FIREMARK>"
+./tt/vvw-r.RunVVX.sh vvx_commit --message "Rail: reorder ₣<FIREMARK>"
 ```
 
 On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.

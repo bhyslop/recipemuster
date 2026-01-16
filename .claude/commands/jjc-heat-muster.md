@@ -4,7 +4,7 @@ description: List all heats with summary
 
 Run and display output:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_muster
+./tt/vvw-r.RunVVX.sh jjx_muster
 ```
 
 ## Available Operations

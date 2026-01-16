@@ -50,7 +50,7 @@ vvw_route() {
   case "${z_command}" in
 
     # Run VVX binary - primary command
-    vvx-r)  exec "${z_vvb_cli}" vvb_run "$@" ;;
+    vvw-r)  exec "${z_vvb_cli}" vvb_run "$@" ;;
 
     # Show platform
     vvx-p)  exec "${z_vvb_cli}" vvb_platform "$@" ;;

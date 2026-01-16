@@ -24,7 +24,7 @@ Requires gallops JSON at `.claude/jjm/jjg_gallops.json`.
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_parade <FIREMARK> --format detail
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --format detail
 ```
 
 ## Step 3: Display output

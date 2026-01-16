@@ -31,7 +31,7 @@ date +%y%m%d
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_nominate --silks "<SILKS>" --created "<YYMMDD>"
+./tt/vvw-r.RunVVX.sh jjx_nominate --silks "<SILKS>" --created "<YYMMDD>"
 ```
 
 Capture the new Firemark from stdout.

@@ -27,7 +27,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 Run:
 ```bash
-./tt/vvx-r.RunVVX.sh jjx_saddle <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
 Verify the target pace is in "rough" state. If not:
@@ -69,7 +69,7 @@ Notes: <any special considerations>
 
 Run:
 ```bash
-echo "<direction text>" | ./tt/vvx-r.RunVVX.sh jjx_tally <CORONET> --state primed --direction -
+echo "<direction text>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state primed --direction -
 ```
 
 (The `-` reads direction from stdin)
