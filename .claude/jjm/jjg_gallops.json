@@ -987,6 +987,11 @@
           "silks": "rcg-copyright-templates",
           "tacks": [
             {
+              "ts": "260116-1514",
+              "state": "complete",
+              "text": "Added File Templates section to RCG (proprietary + Apache 2.0). Applied proprietary 3-line header to all 14 Rust files via 14 parallel Haiku agents. Build verified."
+            },
+            {
               "ts": "260116-1424",
               "state": "primed",
               "text": "Add copyright templates to RCG and apply proprietary header to all Rust files.\n\n## RCG changes (1 file, Sonnet)\n\nAdd \"File Templates\" section to Tools/vok/lenses/RCG-RustCodingGuide.md with two templates:\n\n### Template 1: Proprietary\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n// All rights reserved.\n// SPDX-License-Identifier: LicenseRef-Proprietary\n```\n\n### Template 2: Open Source (Apache 2.0)\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//     http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n```\n\nPlacement note: Header at very top, before //\\! doc comments or #\\![...] attributes.\n\n## Rust file updates (14 files, parallel Haiku agents)\n\nPrepend proprietary 3-line header to each file. Mechanical, independent edits.\n\n**Batch 1 (7 agents): Tools/jjk/veiled/src/**\n- jjrc_core.rs, jjrf_favor.rs, jjrg_gallops.rs, jjrn_notch.rs\n- jjrq_query.rs, jjrs_steeplechase.rs, jjrx_cli.rs, lib.rs\n\n**Batch 2 (6 agents): Tools/vvc/src/ + Tools/vok/**\n- vvcc_commit.rs, vvcg_guard.rs, vvcm_machine.rs, lib.rs\n- build.rs, src/vorm_main.rs\n\n## Execution strategy\n\n1. Sonnet edits RCG (add File Templates section)\n2. Launch 14 parallel Haiku agents (single message, 14 Task tool calls)\n3. Each agent: Read file, prepend 3-line header, Write file\n4. Verify: cargo build in Tools/vok",
