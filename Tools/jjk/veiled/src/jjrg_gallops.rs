@@ -484,6 +484,27 @@ pub struct TallyArgs {
     pub text: Option<String>,
 }
 
+/// Arguments for the draft operation
+pub struct DraftArgs {
+    /// Coronet of the pace to move
+    pub coronet: String,
+    /// Destination heat Firemark
+    pub to: String,
+    /// Coronet to insert before (mutually exclusive with after/first)
+    pub before: Option<String>,
+    /// Coronet to insert after (mutually exclusive with before/first)
+    pub after: Option<String>,
+    /// Insert at beginning (mutually exclusive with before/after)
+    pub first: bool,
+}
+
+/// Result of the draft operation
+#[derive(Debug)]
+pub struct DraftResult {
+    /// New coronet in destination heat
+    pub new_coronet: String,
+}
+
 impl Gallops {
     /// Nominate a new Heat
     ///
@@ -854,6 +875,125 @@ impl Gallops {
         pace.tacks.insert(0, new_tack);
 
         Ok(())
+    }
+
+    /// Draft - move a Pace from one Heat to another
+    ///
+    /// Moves the pace to the destination heat with a new Coronet.
+    /// All Tack history is preserved, with a new Tack recording the draft.
+    /// State is NOT changed - draft is a move operation, not a state transition.
+    pub fn draft(&mut self, args: DraftArgs) -> Result<DraftResult, String> {
+        // Validate positioning mutual exclusivity
+        let position_count = [args.before.is_some(), args.after.is_some(), args.first]
+            .iter()
+            .filter(|&&x| x)
+            .count();
+        if position_count > 1 {
+            return Err("Only one of --before, --after, or --first may be specified".to_string());
+        }
+
+        // Parse and normalize source coronet
+        let source_coronet = Coronet::parse(&args.coronet)
+            .map_err(|e| format!("Invalid coronet: {}", e))?;
+        let source_coronet_key = source_coronet.display();
+
+        // Extract source Firemark from coronet
+        let source_firemark = source_coronet.parent_firemark();
+        let source_firemark_key = source_firemark.display();
+
+        // Parse and normalize destination firemark
+        let dest_firemark = Firemark::parse(&args.to)
+            .map_err(|e| format!("Invalid destination firemark: {}", e))?;
+        let dest_firemark_key = dest_firemark.display();
+
+        // Validate source and destination are different
+        if source_firemark_key == dest_firemark_key {
+            return Err("Cannot draft pace to same heat".to_string());
+        }
+
+        // Verify source heat exists
+        if !self.heats.contains_key(&source_firemark_key) {
+            return Err(format!("Source heat '{}' not found", source_firemark_key));
+        }
+
+        // Verify destination heat exists
+        if !self.heats.contains_key(&dest_firemark_key) {
+            return Err(format!("Heat '{}' not found", dest_firemark_key));
+        }
+
+        // Verify pace exists in source heat
+        {
+            let source_heat = self.heats.get(&source_firemark_key).unwrap();
+            if !source_heat.paces.contains_key(&source_coronet_key) {
+                return Err(format!("Pace {} not found in heat {}", source_coronet_key, source_firemark_key));
+            }
+        }
+
+        // Validate positioning target if specified
+        let insert_position = if let Some(ref before_str) = args.before {
+            let target = Coronet::parse(before_str)
+                .map_err(|e| format!("Invalid --before coronet: {}", e))?;
+            let target_key = target.display();
+            let dest_heat = self.heats.get(&dest_firemark_key).unwrap();
+            let pos = dest_heat.order.iter().position(|c| c == &target_key)
+                .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, dest_firemark_key))?;
+            Some(pos)
+        } else if let Some(ref after_str) = args.after {
+            let target = Coronet::parse(after_str)
+                .map_err(|e| format!("Invalid --after coronet: {}", e))?;
+            let target_key = target.display();
+            let dest_heat = self.heats.get(&dest_firemark_key).unwrap();
+            let pos = dest_heat.order.iter().position(|c| c == &target_key)
+                .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, dest_firemark_key))?;
+            Some(pos + 1)
+        } else if args.first {
+            Some(0)
+        } else {
+            None // Append to end
+        };
+
+        // Remove pace from source heat
+        let source_heat = self.heats.get_mut(&source_firemark_key).unwrap();
+        let pace_data = source_heat.paces.remove(&source_coronet_key)
+            .ok_or_else(|| format!("Pace {} not found", source_coronet_key))?;
+        source_heat.order.retain(|c| c != &source_coronet_key);
+
+        // Get destination heat and allocate new coronet
+        let dest_heat = self.heats.get_mut(&dest_firemark_key).unwrap();
+        let new_coronet_str = format!("{}{}{}", CORONET_PREFIX, dest_firemark.as_str(), dest_heat.next_pace_seed);
+
+        // Create new tack recording the draft
+        let draft_note = format!("Drafted from {} in {}.\n\n{}",
+            source_coronet_key, source_firemark_key,
+            pace_data.tacks.first().map(|t| t.text.as_str()).unwrap_or(""));
+
+        let draft_tack = Tack {
+            ts: timestamp_full(),
+            state: pace_data.tacks.first().map(|t| t.state.clone()).unwrap_or(PaceState::Rough),
+            text: draft_note,
+            direction: pace_data.tacks.first().and_then(|t| t.direction.clone()),
+        };
+
+        // Build new pace with draft tack prepended
+        let mut new_tacks = vec![draft_tack];
+        new_tacks.extend(pace_data.tacks);
+
+        let new_pace = Pace {
+            silks: pace_data.silks,
+            tacks: new_tacks,
+        };
+
+        // Insert into destination heat
+        match insert_position {
+            Some(pos) => dest_heat.order.insert(pos, new_coronet_str.clone()),
+            None => dest_heat.order.push(new_coronet_str.clone()),
+        }
+        dest_heat.paces.insert(new_coronet_str.clone(), new_pace);
+
+        // Increment destination seed
+        dest_heat.next_pace_seed = increment_seed(&dest_heat.next_pace_seed);
+
+        Ok(DraftResult { new_coronet: new_coronet_str })
     }
 }
 

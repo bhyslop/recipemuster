@@ -88,6 +88,11 @@ enum Commands {
     /// Add a new Tack to a Pace
     #[command(name = "jjx_tally")]
     JjxTally(JjxTallyArgs),
+
+    #[cfg(feature = "jjk")]
+    /// Move a Pace from one Heat to another
+    #[command(name = "jjx_draft")]
+    JjxDraft(JjxDraftArgs),
 }
 
 /// Arguments for vvx_push command
@@ -342,6 +347,34 @@ struct JjxTallyArgs {
     direction: Option<String>,
 }
 
+/// Arguments for jjx_draft command
+#[cfg(feature = "jjk")]
+#[derive(clap::Args, Debug)]
+struct JjxDraftArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
+    file: std::path::PathBuf,
+
+    /// Pace identity to move (Coronet)
+    coronet: String,
+
+    /// Destination Heat identity (Firemark)
+    #[arg(long)]
+    to: String,
+
+    /// Insert before specified Coronet in destination
+    #[arg(long, conflicts_with_all = ["after", "first"])]
+    before: Option<String>,
+
+    /// Insert after specified Coronet in destination
+    #[arg(long, conflicts_with_all = ["before", "first"])]
+    after: Option<String>,
+
+    /// Insert at beginning of destination Heat
+    #[arg(long, conflicts_with_all = ["before", "after"])]
+    first: bool,
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
@@ -385,6 +418,9 @@ fn main() -> ExitCode {
 
         #[cfg(feature = "jjk")]
         Some(Commands::JjxTally(args)) => run_jjx_tally(args),
+
+        #[cfg(feature = "jjk")]
+        Some(Commands::JjxDraft(args)) => run_jjx_draft(args),
 
         None => {
             // No subcommand - clap handles --help and --version
@@ -816,6 +852,45 @@ fn run_jjx_tally(args: JjxTallyArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("jjx_tally: error: {}", e);
+            1
+        }
+    }
+}
+
+#[cfg(feature = "jjk")]
+fn run_jjx_draft(args: JjxDraftArgs) -> i32 {
+    use jjk::jjrg_gallops::{Gallops, DraftArgs};
+
+    // Load the Gallops file
+    let mut gallops = match Gallops::load(&args.file) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_draft: error loading Gallops: {}", e);
+            return 1;
+        }
+    };
+
+    let draft_args = DraftArgs {
+        coronet: args.coronet,
+        to: args.to,
+        before: args.before,
+        after: args.after,
+        first: args.first,
+    };
+
+    // Execute draft
+    match gallops.draft(draft_args) {
+        Ok(result) => {
+            // Save atomically
+            if let Err(e) = gallops.save(&args.file) {
+                eprintln!("jjx_draft: error saving Gallops: {}", e);
+                return 1;
+            }
+            println!("{}", result.new_coronet);
+            0
+        }
+        Err(e) => {
+            eprintln!("jjx_draft: error: {}", e);
             1
         }
     }
