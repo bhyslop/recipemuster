@@ -524,9 +524,10 @@
         "₢ABAAE",
         "₢ABAAF",
         "₢ABAAG",
-        "₢ABAAH"
+        "₢ABAAH",
+        "₢ABAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -606,6 +607,16 @@
               "ts": "260116-0814",
               "state": "rough",
               "text": "Review MCM for any needed updates: verify form patterns support procedure section structure, confirm annotation grammar handles voicing chains"
+            }
+          ]
+        },
+        "₢ABAAI": {
+          "silks": "add-precondition-postcondition-sections",
+          "tacks": [
+            {
+              "ts": "260116-0820",
+              "state": "rough",
+              "text": "Add axs_preconditions (environmental state requirements before execution) and axs_postconditions (environmental state guarantees after success) as optional section motifs, distinct from inputs/outputs"
             }
           ]
         }
