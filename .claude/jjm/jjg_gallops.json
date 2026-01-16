@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AB",
+  "next_heat_seed": "AC",
   "heats": {
     "₣AA": {
       "silks": "vok-fresh-install-release",
@@ -511,6 +511,15 @@
           ]
         }
       }
+    },
+    "₣AB": {
+      "silks": "axla-procedure-section-motifs",
+      "creation_time": "260116",
+      "status": "current",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AB.md",
+      "paces": {}
     }
   }
 }

@@ -73,6 +73,7 @@
 :vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
 :vosk_all_or_none:       <<vosk_all_or_none,All Or None>>
 :vosk_parcel_self_contained: <<vosk_parcel_self_contained,Parcel Self-Contained>>
+:vosk_burc_prerequisite: <<vosk_burc_prerequisite,BURC Prerequisite>>
 
 // end::mapping-section[]
 
@@ -168,6 +169,15 @@ The
 {vose_parcel}
 can function from its extracted directory.
 
+[[vosk_burc_prerequisite]]
+// ⟦axl_voices axk_premise⟧
+{vosk_burc_prerequisite}::
+{voso_install}
+requires BURC (BUK Regime Configuration) in the
+{vosp_target_repo}.
+The install script reads `.buk/burc.env` to locate `BURC_TOOLS_DIR`.
+Install fails immediately if BURC is missing — no bootstrap, no prompts.
+
 == Types
 
 [[vost_cipher]]
@@ -222,6 +232,8 @@ Structure:
 +
 ----
 vvk-parcel-260115-1430/
+  vvi_install.sh          # Install script (BCG-style)
+  vvu_uninstall.sh        # Uninstall script (copied to target)
   bin/
     vvx-darwin-arm64
     vvx-darwin-x86_64
@@ -240,6 +252,11 @@ vvk-parcel-260115-1430/
 The `bin/` directory contains lean binaries (install logic only).
 The `kits/` directory contains plain-text assets organized by
 {vose_kit}.
++
+**Scripts:**
++
+* `vvi_install.sh` — Standalone BCG-style script. Reads target's BURC to locate `BURC_TOOLS_DIR`. Copies `vvu_uninstall.sh` to target for later use.
+* `vvu_uninstall.sh` — Also BCG-style. After install, lives at `${BURC_TOOLS_DIR}/vvk/vvu_uninstall.sh` in target.
 
 [[vose_whisper]]
 // ⟦axl_voices axo_entity⟧
@@ -534,22 +551,33 @@ Deploys a
 {vose_parcel}
 to a
 {vosp_target_repo}.
+Requires
+{vosk_burc_prerequisite}.
++
+Invocation (from extracted parcel):
++
+----
+./vvi_install.sh /path/to/target-repo
+----
 +
 Steps:
 +
-1. Pre-install git commit (if working tree dirty)
-2. Copy platform binaries from `bin/` to `Tools/vvk/bin/`
-3. Copy
+1. Verify `.buk/burc.env` exists in target — fail if missing
+2. Source BURC, read `BURC_TOOLS_DIR`
+3. Pre-install git commit (if working tree dirty)
+4. Copy platform binaries from `bin/` to `${BURC_TOOLS_DIR}/vvk/bin/`
+5. Copy
 {vose_kit}
-assets from `kits/` preserving structure
-4. For each
+assets from `kits/` to `${BURC_TOOLS_DIR}/` preserving structure
+6. Copy `vvu_uninstall.sh` to `${BURC_TOOLS_DIR}/vvk/`
+7. For each
 {vose_managed_section}:
 replace content between
 {vose_marker_s}
 in CLAUDE.md
-5. Write manifest to `.claude/vvx-manifest.json`
-6. Post-install git commit
-7. Diff analysis for user modification recovery
+8. Write manifest to `.claude/vvx-manifest.json`
+9. Post-install git commit
+10. Diff analysis for user modification recovery
 
 [[voso_uninstall]]
 // ⟦axl_voices axo_sequence⟧
@@ -558,25 +586,35 @@ Removes a
 {vose_kit}
 from
 {vosp_target_repo}.
+Script lives in target after
+{voso_install}.
++
+Invocation (from target repo):
++
+----
+./Tools/vvk/vvu_uninstall.sh
+----
 +
 Steps:
 +
-1. Read
+1. Source BURC, read `BURC_TOOLS_DIR`
+2. Read
 {vost_cipher}
 from manifest
-2. Remove all
+3. Remove all
 {vosa_command_s}
 matching `{cipher}c-*`
-3. Remove all
+4. Remove all
 {vosa_hook_s}
 matching `{cipher}h_*`
-4. Remove
+5. Remove
 {vose_managed_section_s}
 by
 {vose_marker}
 tags
-5. Update manifest
-6. Git commit
+6. Remove kit directories from `${BURC_TOOLS_DIR}/`
+7. Update manifest
+8. Git commit
 
 == Whisper Builder API
 

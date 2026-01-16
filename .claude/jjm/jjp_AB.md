@@ -1,13 +1,9 @@
-# Test Heat Two
+# Paddock: axla-procedure-section-motifs
 
-## Goal
+## Context
 
-Test the saddle implementation with an empty heat (no paces).
+(Describe the initiative's background and goals)
 
-## Approach
+## References
 
-Verify that saddle handles heats with no paces correctly.
-
-## Constraints
-
-None - this is a test heat.
+(List relevant files, docs, or prior work)
