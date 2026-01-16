@@ -774,6 +774,12 @@
           "silks": "vvcc-optimize-claude-call",
           "tacks": [
             {
+              "ts": "260116-1145",
+              "state": "primed",
+              "text": "Ready for autonomous execution",
+              "direction": "Haiku agent. Read Tools/vvc/src/vvcc_commit.rs, locate zvvcc_generate_message_with_claude() (~line 191), update Command::new(\"claude\").args() to include: \"--system-prompt\", \"Output only a conventional git commit message. No explanation or commentary.\", \"--model\", \"haiku\", \"--no-session-persistence\". Verify cargo build -p vvc succeeds. No commit."
+            },
+            {
               "ts": "260116-1144",
               "state": "rough",
               "text": "Optimize VVC Claude commit message generation for speed and cost.\n\n## Changes\n\nFile: `Tools/vvc/src/vvcc_commit.rs`\n\nUpdate `zvvcc_generate_message_with_claude()` (lines 191-217):\n\n```rust\nfn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {\n    const SYSTEM: &str = \"Output only a conventional git commit message. No explanation or commentary.\";\n    \n    let prompt = format!(\"<diff>\\n{}\\n</diff>\", diff);\n\n    eprintln!(\"commit: invoking claude for commit message...\");\n\n    let output = Command::new(\"claude\")\n        .args([\n            \"--print\",\n            \"--system-prompt\", SYSTEM,\n            \"--model\", \"haiku\",\n            \"--no-session-persistence\",\n            &prompt\n        ])\n        .output()\n        .map_err(|e| format!(\"Failed to invoke claude: {}\", e))?;\n    // ... rest unchanged\n}\n```\n\n## Rationale\n\n- `--system-prompt`: Replaces ~4000 token default with ~15 tokens\n- `--model haiku`: Faster and cheaper for simple generation task\n- `--no-session-persistence`: Skips disk writes for ephemeral call"

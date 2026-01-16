@@ -505,6 +505,27 @@ pub struct DraftResult {
     pub new_coronet: String,
 }
 
+/// Arguments for the retire operation
+pub struct RetireArgs {
+    /// Firemark of heat to retire
+    pub firemark: String,
+    /// Today's date in YYMMDD format (for trophy filename)
+    pub today: String,
+}
+
+/// Result of the retire operation
+#[derive(Debug)]
+pub struct RetireResult {
+    /// Path to created trophy file
+    pub trophy_path: String,
+    /// Path to deleted paddock file
+    pub paddock_path: String,
+    /// Heat silks (for commit message)
+    pub silks: String,
+    /// Firemark display string (for commit message)
+    pub firemark: String,
+}
+
 impl Gallops {
     /// Nominate a new Heat
     ///
@@ -994,6 +1015,142 @@ impl Gallops {
         dest_heat.next_pace_seed = increment_seed(&dest_heat.next_pace_seed);
 
         Ok(DraftResult { new_coronet: new_coronet_str })
+    }
+
+    /// Retire a Heat
+    ///
+    /// Creates trophy file, removes heat from gallops, deletes paddock file.
+    /// Does NOT save gallops or commit - caller is responsible for that.
+    pub fn retire(&mut self, args: RetireArgs, base_path: &Path) -> Result<RetireResult, String> {
+        // Parse and normalize firemark
+        let firemark = Firemark::parse(&args.firemark)
+            .map_err(|e| format!("Invalid firemark: {}", e))?;
+        let firemark_key = firemark.display();
+
+        // Validate today is YYMMDD
+        if !is_yymmdd(&args.today) {
+            return Err(format!("today must be YYMMDD format, got '{}'", args.today));
+        }
+
+        // Verify heat exists
+        let heat = self.heats.get(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // Read paddock content before we remove anything
+        let paddock_path = base_path.join(&heat.paddock_file);
+        let paddock_content = fs::read_to_string(&paddock_path)
+            .map_err(|e| format!("Failed to read paddock file '{}': {}", heat.paddock_file, e))?;
+
+        // Build trophy content
+        let trophy_content = self.build_trophy_content(&firemark_key, heat, &paddock_content, &args.today)?;
+
+        // Compute trophy path: .claude/jjm/retired/jjh_<created>-r<today>-<silks>.md
+        let trophy_filename = format!(
+            "jjh_{}-r{}-{}.md",
+            heat.creation_time,
+            args.today,
+            heat.silks
+        );
+        let trophy_rel_path = format!(".claude/jjm/retired/{}", trophy_filename);
+        let trophy_full_path = base_path.join(&trophy_rel_path);
+
+        // Create retired directory if needed
+        if let Some(parent) = trophy_full_path.parent() {
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create retired directory: {}", e))?;
+        }
+
+        // Write trophy file
+        fs::write(&trophy_full_path, trophy_content)
+            .map_err(|e| format!("Failed to write trophy file: {}", e))?;
+
+        // Capture info for result before removing heat
+        let silks = heat.silks.clone();
+        let paddock_file = heat.paddock_file.clone();
+
+        // Remove heat from gallops (do NOT change next_heat_seed)
+        self.heats.remove(&firemark_key);
+
+        // Delete paddock file
+        if paddock_path.exists() {
+            fs::remove_file(&paddock_path)
+                .map_err(|e| format!("Failed to delete paddock file: {}", e))?;
+        }
+
+        Ok(RetireResult {
+            trophy_path: trophy_rel_path,
+            paddock_path: paddock_file,
+            silks,
+            firemark: firemark_key,
+        })
+    }
+
+    /// Build trophy markdown content
+    fn build_trophy_content(
+        &self,
+        firemark_key: &str,
+        heat: &Heat,
+        paddock_content: &str,
+        today: &str,
+    ) -> Result<String, String> {
+        let mut content = String::new();
+
+        // Header
+        content.push_str(&format!("# Heat Trophy: {}\n\n", heat.silks));
+        content.push_str(&format!("**Firemark:** {}\n", firemark_key));
+        content.push_str(&format!("**Created:** {}\n", heat.creation_time));
+        content.push_str(&format!("**Retired:** {}\n", today));
+        content.push_str("**Status:** retired\n\n");
+
+        // Paddock
+        content.push_str("## Paddock\n\n");
+        content.push_str(paddock_content);
+        if !paddock_content.ends_with('\n') {
+            content.push('\n');
+        }
+        content.push('\n');
+
+        // Paces (in order)
+        content.push_str("## Paces\n\n");
+        for coronet_key in &heat.order {
+            if let Some(pace) = heat.paces.get(coronet_key) {
+                // Get final state from most recent tack
+                let final_state = pace.tacks.first()
+                    .map(|t| match t.state {
+                        PaceState::Rough => "rough",
+                        PaceState::Primed => "primed",
+                        PaceState::Complete => "complete",
+                        PaceState::Abandoned => "abandoned",
+                    })
+                    .unwrap_or("unknown");
+
+                content.push_str(&format!(
+                    "### {} ({}) [{}]\n\n",
+                    pace.silks, coronet_key, final_state
+                ));
+
+                // Tack history (newest first, as stored)
+                for tack in &pace.tacks {
+                    let state_str = match tack.state {
+                        PaceState::Rough => "rough",
+                        PaceState::Primed => "primed",
+                        PaceState::Complete => "complete",
+                        PaceState::Abandoned => "abandoned",
+                    };
+                    content.push_str(&format!("**[{}] {}**\n\n", tack.ts, state_str));
+                    content.push_str(&tack.text);
+                    if !tack.text.ends_with('\n') {
+                        content.push('\n');
+                    }
+                    if let Some(ref direction) = tack.direction {
+                        content.push_str(&format!("\n*Direction:* {}\n", direction));
+                    }
+                    content.push('\n');
+                }
+            }
+        }
+
+        Ok(content)
     }
 }
 
