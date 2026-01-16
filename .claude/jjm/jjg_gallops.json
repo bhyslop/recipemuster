@@ -710,6 +710,11 @@
           "silks": "review-mcm-compatibility",
           "tacks": [
             {
+              "ts": "260116-0937",
+              "state": "complete",
+              "text": "Review MCM for any needed updates: verify form patterns support procedure section structure, confirm annotation grammar handles voicing chains"
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Review MCM for any needed updates: verify form patterns support procedure section structure, confirm annotation grammar handles voicing chains"
