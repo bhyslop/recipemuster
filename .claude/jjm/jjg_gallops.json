@@ -49,11 +49,12 @@
         "₢AAAAr",
         "₢AAAAs",
         "₢AAAAt",
+        "₢AAAAu",
         "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAu",
+      "next_pace_seed": "AAv",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -936,6 +937,16 @@
               "ts": "260116-1419",
               "state": "rough",
               "text": "Add --size-limit parameter to jjx_notch for legitimate large commits.\n\n## Rationale\n\nGuard protects against accidental large commits (default 50KB). Legitimate large work (e.g., RCG renames across 7 files) needs an escape hatch. The pace spec serves as justification.\n\n## Files to change\n\n1. Tools/vvc/src/vvcc_commit.rs\n   - Add optional size_limit/warn_limit fields to vvcc_CommitArgs\n   - Propagate to guard check (None = use default)\n\n2. Tools/jjk/veiled/src/jjrx_cli.rs\n   - Add --size-limit to jjrx_NotchArgs\n   - Pass to vvcc_CommitArgs\n\n3. Tools/jjk/JJD-GallopsData.adoc\n   - Document --size-limit argument for jjdo_notch\n   - Note default limit (50KB) and guard behavior\n\n4. .claude/commands/jjc-pace-notch.md\n   - Document that --size-limit requires justification in pace spec\n\n## Design\n\nvvcc_CommitArgs gains:\n```rust\npub size_limit: Option<u64>,  // None = use VVCC_SIZE_LIMIT (50KB)\npub warn_limit: Option<u64>,  // None = use VVCC_WARN_LIMIT (30KB)\n```"
+            }
+          ]
+        },
+        "₢AAAAu": {
+          "silks": "rcg-copyright-templates",
+          "tacks": [
+            {
+              "ts": "260116-1420",
+              "state": "rough",
+              "text": "Add copyright templates to RCG and apply proprietary header to all Rust files.\n\n## RCG changes\n\nAdd \"File Templates\" section with two templates:\n\n### Template 1: Proprietary\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n// All rights reserved.\n// SPDX-License-Identifier: LicenseRef-Proprietary\n```\n\n### Template 2: Open Source (Apache 2.0)\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// ... full Apache 2.0 text ...\n```\n\nPlacement note: Header at very top, before //\\! doc comments or #\\![...] attributes.\n\n## Rust files to update (14 files, proprietary header)\n\nTools/jjk/veiled/src/:\n- jjrc_core.rs, jjrf_favor.rs, jjrg_gallops.rs, jjrn_notch.rs\n- jjrq_query.rs, jjrs_steeplechase.rs, jjrx_cli.rs, lib.rs\n\nTools/vvc/src/:\n- vvcc_commit.rs, vvcg_guard.rs, vvcm_machine.rs, lib.rs\n\nTools/vok/:\n- build.rs, src/vorm_main.rs\n\n## Files\n\n- Tools/vok/lenses/RCG-RustCodingGuide.md (add section)\n- 14 Rust source files (add proprietary header)"
             }
           ]
         }
