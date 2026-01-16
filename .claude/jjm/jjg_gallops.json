@@ -46,11 +46,12 @@
         "₢AAAAF",
         "₢AAAAa",
         "₢AAAAb",
+        "₢AAAAr",
         "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -898,6 +899,16 @@
               "ts": "260116-1328",
               "state": "rough",
               "text": "Add version/brand observability to steeplechase entries and trophy output.\n\n## Changes\n\n1. **SteeplechaseEntry**: Add `brand` field (parsed from commit, informational only)\n2. **Trophy rendering**: Show version transitions across heat history\n3. **Potential**: Include VVX version if embedded in commits\n\n## Steeplechase Entry Enhancement\n\n```rust\npub struct SteeplechaseEntry {\n    pub timestamp: String,\n    pub coronet: Option<String>,\n    pub action: Option<String>,\n    pub subject: String,\n    pub brand: Option<String>,  // NEW: parsed from jjb:BRAND:...\n}\n```\n\n## Trophy Version Section\n\nIn the Steeplechase section of trophy, group or annotate by version:\n- Show when brand/version changed during heat\n- Example: \"Commits 1-15: RBM/JJK-v1, Commits 16-30: RBM/JJK-v2\"\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (SteeplechaseEntry, parsing)\n- Tools/jjk/veiled/src/jjrg_gallops.rs (trophy rendering)\n- Tools/jjk/JJD-GallopsData.adoc (document brand field)\n\n## Depends On\n\n- rein-filter-by-identity (₢AAAAp) - brand parsing happens alongside identity filtering"
+            }
+          ]
+        },
+        "₢AAAAr": {
+          "silks": "saddle-output-field-rename",
+          "tacks": [
+            {
+              "ts": "260116-1353",
+              "state": "rough",
+              "text": "Rename saddle output fields: tack_text → spec, tack_direction → direction.\n\n## Rationale\n\nConsumers of jjx_saddle output do not need internal terminology. \"spec\" and \"direction\" are clearer for slash command prompts.\n\n## Rust changes (jjrq_query.rs)\n\n- Struct field: tack_text → spec\n- Struct field: tack_direction → direction\n- Update initialization, assignment, tests (~14 lines)\n\n## Slash command changes\n\n- jjc-heat-mount.md (6 references)\n- jjc-heat-groom.md (4 references)\n- jjc-pace-wrap.md (1 reference)\n- jjc-pace-prime.md (1 reference)\n\n## Verification\n\n- cargo build && cargo test\n- Spot-check jjx_saddle AA output has new field names"
             }
           ]
         }
