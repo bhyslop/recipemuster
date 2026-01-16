@@ -1015,6 +1015,12 @@
           "tacks": [
             {
               "ts": "260116-1439",
+              "state": "primed",
+              "text": "Add --remaining flag to jjx_parade to filter out complete/abandoned paces.\n\n## Files to change\n\n1. **Tools/jjk/veiled/src/jjrx_cli.rs** (~line 155)\n   - Add to zjjrx_ParadeArgs: `#[arg(long)] remaining: bool`\n   - Pass through to LibParadeArgs\n\n2. **Tools/jjk/veiled/src/jjrq_query.rs** (~line 178, 186)\n   - Add to jjrq_ParadeArgs: `pub remaining: bool`\n   - In jjrq_run_parade: skip paces where state is \"complete\" or \"abandoned\"\n\n3. **Tools/jjk/JJD-GallopsData.adoc**\n   - Document --remaining argument for jjdo_parade\n\n## Implementation\n\nIn jjrq_run_parade pace iteration:\n```rust\nif args.remaining && (state == \"complete\" || state == \"abandoned\") {\n    continue;\n}\n```\n\n## Verification\n\n- cargo build && cargo test\n- ./tt/vvw-r.RunVVX.sh jjx_parade AA --format overview --remaining",
+              "direction": "Agent: sonnet. 1) Read jjrx_cli.rs, find zjjrx_ParadeArgs (~line 155), add: #[arg(long)] remaining: bool. 2) Read jjrq_query.rs, find jjrq_ParadeArgs (~line 178), add: pub remaining: bool. In jjrq_run_parade (~line 186), add filter: skip paces where tack.state is complete or abandoned when args.remaining is true. 3) Read JJD-GallopsData.adoc, find jjdo_parade arguments section, add --remaining documentation. 4) Verify: cargo build --features jjk in Tools/vok."
+            },
+            {
+              "ts": "260116-1439",
               "state": "rough",
               "text": "Add --remaining flag to jjx_parade to filter out complete/abandoned paces.\n\n## Files to change\n\n1. **Tools/jjk/veiled/src/jjrx_cli.rs** (~line 155)\n   - Add to zjjrx_ParadeArgs: `#[arg(long)] remaining: bool`\n   - Pass through to LibParadeArgs\n\n2. **Tools/jjk/veiled/src/jjrq_query.rs** (~line 178, 186)\n   - Add to jjrq_ParadeArgs: `pub remaining: bool`\n   - In jjrq_run_parade: skip paces where state is \"complete\" or \"abandoned\"\n\n3. **Tools/jjk/JJD-GallopsData.adoc**\n   - Document --remaining argument for jjdo_parade\n\n## Implementation\n\nIn jjrq_run_parade pace iteration:\n```rust\nif args.remaining && (state == \"complete\" || state == \"abandoned\") {\n    continue;\n}\n```\n\n## Verification\n\n- cargo build && cargo test\n- ./tt/vvw-r.RunVVX.sh jjx_parade AA --format overview --remaining"
             }
