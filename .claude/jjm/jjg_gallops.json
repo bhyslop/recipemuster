@@ -755,6 +755,11 @@
             {
               "ts": "260116-1125",
               "state": "rough",
+              "text": "Fix jjx_parade --pace argument handling:\n\n1. **Coronet normalization**: Add Coronet::parse() + .display() before lookup (matches jjx_rail/jjx_tally pattern). Fixes: `--pace AAAAk` currently fails because map keys are `₢AAAAk`.\n\n2. **Silks fallback**: If coronet lookup fails, iterate heat.paces to find pace by silks match. Allows `--pace jjrc-commit-helper` as convenience.\n\n3. **JJD update**: Document the silks fallback behavior in jjx_parade's --pace argument description.\n\nFiles: Tools/jjk/veiled/src/jjrq_query.rs (implementation), Tools/jjk/JJD-GallopsData.adoc (spec)"
+            },
+            {
+              "ts": "260116-1125",
+              "state": "rough",
               "text": "Add silks lookup fallback to jjx_parade --pace: if coronet lookup fails, try matching against pace silks in the heat. Allows --pace jjrc-commit-helper as convenience."
             }
           ]
