@@ -522,9 +522,10 @@
         "₢ABAAC",
         "₢ABAAD",
         "₢ABAAE",
-        "₢ABAAF"
+        "₢ABAAF",
+        "₢ABAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -584,6 +585,16 @@
               "ts": "260116-0814",
               "state": "rough",
               "text": "Add Form Expectations for axs_* category in AXLA (likely mcm_form_section for most section voicings)"
+            }
+          ]
+        },
+        "₢ABAAG": {
+          "silks": "update-jjd-section-voicings",
+          "tacks": [
+            {
+              "ts": "260116-0814",
+              "state": "rough",
+              "text": "Update JJD jjds_* term annotations to show voicing relationship: jjds_arguments voices axa_argument_list (which voices axs_inputs), jjds_exit_* voices axa_exit_* (which voices axs_completion)"
             }
           ]
         }
