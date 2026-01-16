@@ -1023,6 +1023,11 @@
           "silks": "rail-descriptive-commits",
           "tacks": [
             {
+              "ts": "260116-1515",
+              "state": "complete",
+              "text": "Improved jjx_rail commit messages: move mode shows 'moved ₢XXXXX {position}', order mode shows 'order: coronet1, coronet2, ...'"
+            },
+            {
               "ts": "260116-1501",
               "state": "primed",
               "text": "Improve jjx_rail commit messages to be descriptive instead of just \"reordered\".\n\n## Move mode\n\nFormat: \"moved {coronet} {position}\"\n\nExamples:\n- \"moved ₢AAAAC after ₢AAAAB\"\n- \"moved ₢AAAAC before ₢AAAAD\"\n- \"moved ₢AAAAC to first\"\n- \"moved ₢AAAAC to last\"\n\n## Order mode\n\nFormat: \"order: {coronet1}, {coronet2}, ...\"\n\nJust list the new order. No diff presentation needed.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — zjjrx_run_rail function, around line 886\n\n## Implementation\n\nReplace hardcoded \"reordered\" with:\n```rust\nlet subject = if let Some(ref moved) = args.r#move {\n    // Move mode\n    let target = if args.first { \"to first\".to_string() }\n        else if args.last { \"to last\".to_string() }\n        else if let Some(ref b) = args.before { format\\!(\"before {}\", b) }\n        else if let Some(ref a) = args.after { format\\!(\"after {}\", a) }\n        else { \"???\".to_string() };\n    format\\!(\"moved {} {}\", moved, target)\n} else {\n    // Order mode - list new order\n    format\\!(\"order: {}\", new_order.join(\", \"))\n};\n```\n\n## Verification\n\n- cargo build && cargo test\n- Manual test: rail a pace, check commit message",
