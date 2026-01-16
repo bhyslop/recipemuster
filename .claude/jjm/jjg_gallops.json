@@ -655,6 +655,11 @@
           "silks": "unify-commit-format",
           "tacks": [
             {
+              "ts": "260116-1237",
+              "state": "complete",
+              "text": "Unify all JJ commit formats to colon-delimited coronet-based pattern.\n\n## New Format\n\nStandard: jjb:RBM:₢AAAAB: message\nChalk: jjb:RBM:₢AAAAB:WRAP: description\nHeat-level: jjb:RBM:₣AB:SLATE: silks\nRetire: jjb:RBM:₣AB:RETIRE: silks\n\n## Files to Update\n\n- jjrn_notch.rs: format_notch_prefix(), format_chalk_message()\n- jjrs_steeplechase.rs: rein parsing patterns\n- jjrx_cli.rs: tally, slate, rail, nominate, draft, retire commit messages\n- jjrc_core.rs: retire commit formatting (uses jjrc_commit helper)\n- JJD-GallopsData.adoc: commit format documentation\n- jjc-pace-notch.md: update format docs\n- vvc-commit.md: add JJ context detection/warning\n\n## Depends On\n\ninstallation-identifier (₢AAAAc) for runtime brand lookup"
+            },
+            {
               "ts": "260116-1118",
               "state": "rough",
               "text": "Unify all JJ commit formats to colon-delimited coronet-based pattern.\n\n## New Format\n\nStandard: jjb:RBM:₢AAAAB: message\nChalk: jjb:RBM:₢AAAAB:WRAP: description\nHeat-level: jjb:RBM:₣AB:SLATE: silks\nRetire: jjb:RBM:₣AB:RETIRE: silks\n\n## Files to Update\n\n- jjrn_notch.rs: format_notch_prefix(), format_chalk_message()\n- jjrs_steeplechase.rs: rein parsing patterns\n- jjrx_cli.rs: tally, slate, rail, nominate, draft, retire commit messages\n- jjrc_core.rs: retire commit formatting (uses jjrc_commit helper)\n- JJD-GallopsData.adoc: commit format documentation\n- jjc-pace-notch.md: update format docs\n- vvc-commit.md: add JJ context detection/warning\n\n## Depends On\n\ninstallation-identifier (₢AAAAc) for runtime brand lookup"
