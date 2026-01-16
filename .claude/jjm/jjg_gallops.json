@@ -48,11 +48,12 @@
         "₢AAAAb",
         "₢AAAAr",
         "₢AAAAs",
+        "₢AAAAt",
         "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAt",
+      "next_pace_seed": "AAu",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -925,6 +926,16 @@
               "ts": "260116-1419",
               "state": "rough",
               "text": "Fix gallops commit scope: slate/tally/rail should only stage jjg_gallops.json + heat-specific paddock.\n\n## Problem\n\njjx_slate, jjx_tally, jjx_rail use vvcc_commit which does git add -A, staging everything. This causes tangles when unrelated work is in progress.\n\n## Solution\n\nSwitch from vvcc_commit to vvcm_commit (machine commit) with explicit file list:\n- jjg_gallops.json (always)\n- jjp_{firemark}.md (heat-specific paddock)\n\n## Pattern\n\njjx_retire already does this correctly (lines 663-684 in jjrx_cli.rs).\n\n## Files to change\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — 4 operations: slate, tally, rail, nominate\n\n## Firemark derivation\n\n- slate/rail: firemark from CLI arg\n- tally: derive from coronet (first 2 chars after ₢)\n- nominate: firemark from result\n\n## JJD update\n\nNot required — spec does not mention commit behavior."
+            }
+          ]
+        },
+        "₢AAAAt": {
+          "silks": "notch-size-limit-flag",
+          "tacks": [
+            {
+              "ts": "260116-1419",
+              "state": "rough",
+              "text": "Add --size-limit parameter to jjx_notch for legitimate large commits.\n\n## Rationale\n\nGuard protects against accidental large commits (default 50KB). Legitimate large work (e.g., RCG renames across 7 files) needs an escape hatch. The pace spec serves as justification.\n\n## Files to change\n\n1. Tools/vvc/src/vvcc_commit.rs\n   - Add optional size_limit/warn_limit fields to vvcc_CommitArgs\n   - Propagate to guard check (None = use default)\n\n2. Tools/jjk/veiled/src/jjrx_cli.rs\n   - Add --size-limit to jjrx_NotchArgs\n   - Pass to vvcc_CommitArgs\n\n3. Tools/jjk/JJD-GallopsData.adoc\n   - Document --size-limit argument for jjdo_notch\n   - Note default limit (50KB) and guard behavior\n\n4. .claude/commands/jjc-pace-notch.md\n   - Document that --size-limit requires justification in pace spec\n\n## Design\n\nvvcc_CommitArgs gains:\n```rust\npub size_limit: Option<u64>,  // None = use VVCC_SIZE_LIMIT (50KB)\npub warn_limit: Option<u64>,  // None = use VVCC_WARN_LIMIT (30KB)\n```"
             }
           ]
         }
