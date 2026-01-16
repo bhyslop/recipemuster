@@ -87,6 +87,7 @@
 :jjda_silks:          <<jjda_silks,--silks>>
 :jjda_state:          <<jjda_state,--state>>
 :jjda_status:         <<jjda_status,--status>>
+:jjda_to:             <<jjda_to,--to>>
 
 // CLI executor
 :jjdx_vvx:   <<jjdx_vvx,vvx>>
@@ -95,6 +96,7 @@
 // Operations
 :jjdo_canter:         <<jjdo_canter,jjx_canter>>
 :jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
+:jjdo_draft:          <<jjdo_draft,jjx_draft>>
 :jjdo_muster:         <<jjdo_muster,jjx_muster>>
 :jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
 :jjdo_notch:          <<jjdo_notch,jjx_notch>>
@@ -259,6 +261,25 @@ Globally unique: the first 2 base64 characters are the parent
 encoded identity; the remaining 3 encode the pace index (0-262143, 2^18).
 Used as JSON keys and in CLI arguments.
 Input may omit the `₢` prefix; output always includes it.
++
+*Reassignment:* When a
+{jjdpr_pace}
+is moved between
+{jjdhr_heat_s}
+via
+{jjdo_draft},
+the old
+{jjdt_coronet}
+becomes invalid and a new one is assigned using the destination
+{jjdhr_heat_p}
+{jjdhm_seed}.
+The new
+{jjdt_coronet}
+embeds the destination
+{jjdt_firemark}.
+{jjdkr_tack}
+history is preserved, with a note recording the original
+{jjdt_coronet}.
 
 [[jjdt_silks]]
 // ⟦axl_voices axt_string⟧
@@ -708,6 +729,16 @@ Short: none.
 Values:
 {jjdhe_current},
 {jjdhe_retired}.
+
+[[jjda_to]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_to}::
+Destination
+{jjdt_firemark}
+for
+{jjdo_draft}.
+Long: `--to`.
+Short: none.
 
 == Section Headers
 
@@ -1171,6 +1202,187 @@ per line
 | "Cannot position pace relative to itself"
 
 | Target {jjdt_coronet} not found
+| "Target pace {coronet} not found in heat {firemark}"
+|===
+
+[[jjdo_draft]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_draft}
+
+Move a
+{jjdpr_pace}
+from one
+{jjdhr_heat}
+to another.
+This is a primitive operation: mechanical transfer with no ceremony.
+The
+{jjdpr_pace}
+receives a new
+{jjdt_coronet}
+in the destination
+{jjdhr_heat};
+all
+{jjdkr_tack}
+history is preserved.
+
+*Important:* "Drafted" is not a
+{jjdpr_pace}
+state.
+{jjdpr_pace}
+states remain:
+{jjdpe_rough},
+{jjdpe_primed},
+{jjdpe_complete},
+{jjdpe_abandoned}.
+Draft is an operation that moves
+{jjdpr_pace_s}
+between
+{jjdhr_heat_s};
+state is preserved through the move.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_coronet}
+(positional) —
+{jjdpr_pace}
+to move
+
+// ⟦axd_required⟧
+* {jjda_to}
+— destination
+{jjdt_firemark}
+
+// ⟦axd_optional⟧
+* {jjda_before}
+— insert before specified
+{jjdt_coronet}
+in destination
+
+// ⟦axd_optional⟧
+* {jjda_after}
+— insert after specified
+{jjdt_coronet}
+in destination
+
+// ⟦axd_optional⟧
+* {jjda_first}
+— insert at beginning of destination
+{jjdhm_order}
+
+*Positioning:* Only one of
+{jjda_before},
+{jjda_after},
+or
+{jjda_first}
+may be specified.
+If none provided, append to end of destination
+{jjdhm_order}
+(default).
+
+{jjds_stdout} New
+{jjdt_coronet}
+in destination
+{jjdhr_heat}
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Extract source
+{jjdt_firemark}
+from
+{jjdt_coronet}
+(first 2 base64 chars after prefix)
+. Verify source
+{jjdhr_heat}
+exists
+. Verify
+{jjdpr_pace}
+exists in source
+{jjdhr_heat}
+. Verify destination
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. If
+{jjda_before}
+or
+{jjda_after}
+provided, verify target
+{jjdt_coronet}
+exists in destination
+{jjdhr_heat}
+. Read destination
+{jjdhm_seed}
+. Construct new
+{jjdt_coronet}:
+`₢` + destination
+{jjdt_firemark}
+(2 chars) + destination
+{jjdhm_seed}
+(3 chars)
+. Copy
+{jjdpr_pace}
+data to destination with new
+{jjdt_coronet}:
+.. Preserve
+{jjdpm_silks}
+.. Prepend new
+{jjdkr_tack}
+recording the draft:
+... {jjdkm_refined}:
+current timestamp (YYMMDD-HHMM)
+... {jjdkm_state}:
+inherited from previous `tacks[0].state`
+... {jjdkm_text}:
+`Drafted from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
+.. Preserve remaining
+{jjdkr_tack}
+history
+. Insert new
+{jjdt_coronet}
+into destination
+{jjdhm_order}
+at determined position
+. Increment destination
+{jjdhm_seed}
+. Remove
+{jjdpr_pace}
+from source
+{jjdhr_heat}:
+.. Remove from source `paces` object
+.. Remove from source
+{jjdhm_order}
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
+. Output new
+{jjdt_coronet}
+to stdout
+
+*Validation errors:*
+
+[cols="2,3"]
+|===
+| Condition | Error
+
+| Source and destination same
+| "Cannot draft pace to same heat"
+
+| Source {jjdpr_pace} not found
+| "Pace {coronet} not found in heat {firemark}"
+
+| Destination {jjdhr_heat} not found
+| "Heat {firemark} not found"
+
+| Target {jjdt_coronet} not found in destination
 | "Target pace {coronet} not found in heat {firemark}"
 |===
 
