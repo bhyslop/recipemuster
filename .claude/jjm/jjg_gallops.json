@@ -9,6 +9,7 @@
         "₢AAAAs",
         "₢AAAAt",
         "₢AAAAu",
+        "₢AAAAw",
         "₢AAAAn",
         "₢AAAAg",
         "₢AAAAk",
@@ -55,7 +56,7 @@
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAw",
+      "next_pace_seed": "AAx",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -979,6 +980,16 @@
               "ts": "260116-1421",
               "state": "rough",
               "text": "Extract inline tests to separate jjt*.rs files per RCG.\n\n## RCG Pattern\n\nSource: `{cipher}r{classifier}_{name}.rs`\nTests:  `{cipher}t{classifier}_{name}.rs`\n\nExample: jjrg_gallops.rs → jjtg_gallops.rs\n\n## Files to Split\n\n1. jjrc_core.rs → jjtc_core.rs\n2. jjrf_favor.rs → jjtf_favor.rs\n3. jjrg_gallops.rs → jjtg_gallops.rs\n4. jjrn_notch.rs → jjtn_notch.rs\n5. jjrq_query.rs → jjtq_query.rs\n6. jjrs_steeplechase.rs → jjts_steeplechase.rs\n\nNote: jjrx_cli.rs has no inline tests currently.\n\n## Per-file Process\n\n1. Create new jjt{x}_{name}.rs file\n2. Move #[cfg(test)] mod tests { ... } content to new file\n3. Add `use super::{module}::*;` import\n4. Rename test functions with jjt{x}_ prefix\n5. Wire in lib.rs: `#[cfg(test)] mod jjt{x}_{name};`\n\n## lib.rs Changes\n\n```rust\npub mod jjrg_gallops;\n#[cfg(test)]\nmod jjtg_gallops;\n```\n\n## Verification\n\ncargo test --manifest-path Tools/jjk/veiled/Cargo.toml"
+            }
+          ]
+        },
+        "₢AAAAw": {
+          "silks": "rail-descriptive-commits",
+          "tacks": [
+            {
+              "ts": "260116-1433",
+              "state": "rough",
+              "text": "Improve jjx_rail commit messages to be descriptive instead of just \"reordered\".\n\n## Move mode\n\nFormat: \"moved {coronet} {position}\"\n\nExamples:\n- \"moved ₢AAAAC after ₢AAAAB\"\n- \"moved ₢AAAAC before ₢AAAAD\"\n- \"moved ₢AAAAC to first\"\n- \"moved ₢AAAAC to last\"\n\n## Order mode\n\nFormat: \"order: {coronet1}, {coronet2}, ...\"\n\nJust list the new order. No diff presentation needed.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — zjjrx_run_rail function, around line 886\n\n## Implementation\n\nReplace hardcoded \"reordered\" with:\n```rust\nlet subject = if let Some(ref moved) = args.r#move {\n    // Move mode\n    let target = if args.first { \"to first\".to_string() }\n        else if args.last { \"to last\".to_string() }\n        else if let Some(ref b) = args.before { format\\!(\"before {}\", b) }\n        else if let Some(ref a) = args.after { format\\!(\"after {}\", a) }\n        else { \"???\".to_string() };\n    format\\!(\"moved {} {}\", moved, target)\n} else {\n    // Order mode - list new order\n    format\\!(\"order: {}\", new_order.join(\", \"))\n};\n```\n\n## Verification\n\n- cargo build && cargo test\n- Manual test: rail a pace, check commit message"
             }
           ]
         }
