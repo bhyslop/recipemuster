@@ -303,6 +303,11 @@
           "silks": "jjx-draft",
           "tacks": [
             {
+              "ts": "260116-0631",
+              "state": "complete",
+              "text": "Implemented jjx_draft primitive and /jjc-heat-restring slash command. Rust: DraftArgs, DraftResult, draft() method with coronet reassignment and tack history preservation. CLI: JjxDraftArgs with --to and positioning flags. Slash command guides paddock updates and steeplechase markers."
+            },
+            {
               "ts": "260115-1417",
               "state": "rough",
               "text": "Implement jjx_draft primitive and /jjc-heat-restring slash command.\n\n## Reference\n\nImplements concepts defined in JJD-GallopsData.adoc (see jjd-draft-concepts pace ₢AAAAO):\n- {jjd_draft} — pace movement operation\n- {jjd_restring} — ceremony workflow\n- Coronet reassignment semantics\n\n## Primitive: jjx_draft\n\n```bash\nvvx jjx_draft ₣<dest> ₣<source> ₢<coronet> [₢<coronet>...]\n```\n\n### Behavior (per JJD)\n\n1. Validate: both heats exist, all coronets exist in source\n2. For each coronet (in order):\n   - Remove pace from source heat\n   - Allocate new coronet using destination heat seed\n   - Copy all tacks to new pace\n   - Add tack entry: \"Drafted from ₢{old} in ₣{source}\"\n   - Preserve pace state (draft does NOT change state)\n   - Append to destination heat\n3. Return mapping: old coronet → new coronet\n\n### Atomicity\n\nAll-or-nothing per JJD definition.\n\n### Example\n\n```bash\nvvx jjx_draft ₣AB ₣AA ₢AAAAJ ₢AAAAM ₢AAAAL\n\n₢AAAAJ → ₢ABAAA\n₢AAAAM → ₢ABAAB\n₢AAAAL → ₢ABAAC\n```\n\n## Slash Command: /jjc-heat-restring\n\nCreate `.claude/commands/jjc-heat-restring.md` implementing {jjd_restring} ceremony:\n\n1. Call jjx_draft primitive\n2. Guide source paddock review\n3. Guide destination paddock review\n4. Add steeplechase entries to both heats\n5. Warn if source becomes empty\n6. Auto-commit: \"Restring: {N} paces ₣{src} → ₣{dest}\"\n\n## Implementation\n\nRust: Tools/vok/src (near jjx_rail)\nSlash command: .claude/commands/jjc-heat-restring.md\n\n## Dependency\n\nRequires jjd-draft-concepts (₢AAAAO) complete first — definitions must exist before implementation."
