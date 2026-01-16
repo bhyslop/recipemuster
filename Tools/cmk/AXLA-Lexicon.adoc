@@ -971,6 +971,9 @@ argument omitted.
 A
 {axl_motif}
 representing a structured section documenting an operation's arguments.
+{axl_voices}
+{axs_inputs}
+in CLI context.
 Within an
 {axa_argument_list},
 {axd_dimension}
@@ -1030,6 +1033,9 @@ Default: `.claude/jjm/jjg_gallops.json`.
 A
 {axl_motif}
 representing an Exit Status section that follows standard Unix conventions.
+{axl_voices}
+{axs_completion}
+in CLI context.
 Exit 0 indicates success; any non-zero exit indicates error.
 {axl_voicing_s}
 may use terse notation since the pattern is conventional.
@@ -1058,6 +1064,9 @@ Example usage:
 A
 {axl_motif}
 representing an Exit Status section with distinct exit codes carrying specific meanings.
+{axl_voices}
+{axs_completion}
+in CLI context.
 {axl_voicing_s}
 require the definition text to list each exit code and its meaning.
 The voicing is placed on the section header term definition, not repeated at each usage.

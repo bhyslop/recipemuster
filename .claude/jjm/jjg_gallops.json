@@ -659,6 +659,11 @@
           "silks": "update-jjd-section-voicings",
           "tacks": [
             {
+              "ts": "260116-0915",
+              "state": "complete",
+              "text": "Agent: haiku\nStrategy: Update three existing definitions to add voicing annotations:\n1. axa_argument_list (line ~954): Add note that it voices axs_inputs in CLI context\n2. axa_exit_uniform (line ~1013): Add note that it voices axs_completion in CLI context\n3. axa_exit_enumerated (line ~1041): Add note that it voices axs_completion in CLI context\nKey files: Tools/cmk/AXLA-Lexicon.adoc\nNotes: Add voicing relationship to definition prose, not annotations. Keep existing content."
+            },
+            {
               "ts": "260116-0912",
               "state": "primed",
               "text": "Agent: haiku\nStrategy: Update three existing definitions to add voicing annotations:\n1. axa_argument_list (line ~954): Add note that it voices axs_inputs in CLI context\n2. axa_exit_uniform (line ~1013): Add note that it voices axs_completion in CLI context\n3. axa_exit_enumerated (line ~1041): Add note that it voices axs_completion in CLI context\nKey files: Tools/cmk/AXLA-Lexicon.adoc\nNotes: Add voicing relationship to definition prose, not annotations. Keep existing content.",
