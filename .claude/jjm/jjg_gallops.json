@@ -811,6 +811,11 @@
           "silks": "notch-remove-message-bypass",
           "tacks": [
             {
+              "ts": "260116-1207",
+              "state": "complete",
+              "text": "Removed --message bypass from jjx_notch. Commits now always use Claude-generated messages. Updated JJD spec, CLI args, and slash command."
+            },
+            {
               "ts": "260116-1203",
               "state": "rough",
               "text": "Remove --message flag from jjx_notch. Commits should always have Claude-analyzed messages. Use chalk for explicit human messages (ceremony). Update: JJD spec, jjrn_notch.rs, jjrx_cli.rs (remove --message arg), jjc-pace-notch.md slash command."
