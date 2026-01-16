@@ -7,6 +7,7 @@ The
 creates a new depot infrastructure from the
 {rbtgi_payor_project}:
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_DEPOT_NAME»` provided as first argument
@@ -20,6 +21,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_fatal}
 if invalid: "Invalid region. Valid regions: [list]"
 
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
@@ -138,6 +140,7 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 .. {rbbc_require}
 IAM binding successful (enables Cloud Build to execute as Mason)
 
+// ⟦axs_outputs⟧
 . *Display Depot Configuration*:
 .. {rbbc_show}
 depot creation successful
@@ -157,3 +160,5 @@ creation
 .. Execute
 {rbtoe_depot_list_update}
 to add new depot to RBRP_DEPOT_PROJECT_IDS
+
+// ⟦axs_completion⟧ Successful execution creates depot infrastructure with configured build bucket, container repository, and Mason service account ready for governor creation.

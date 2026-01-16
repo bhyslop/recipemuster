@@ -5,6 +5,7 @@ creates a
 {giam_service_account}
 with build management permissions:
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_INSTANCE»` provided as first argument
@@ -15,6 +16,7 @@ with build management permissions:
 .. {rbbc_store}
 `«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
 
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_governor}*:
 .. Execute
@@ -114,6 +116,7 @@ link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buck
 .. {rbbc_require}
 bucket IAM update successful
 
+// ⟦axs_outputs⟧
 . *Display Installation Instructions*:
 .. {rbbc_show}
 Director created successfully
@@ -126,3 +129,5 @@ installation command:
 if
 {rbrr_director_rbra_file}
 already exists
+
+// ⟦axs_completion⟧ Successful execution creates director service account.

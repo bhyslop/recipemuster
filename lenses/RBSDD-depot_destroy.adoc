@@ -4,6 +4,7 @@ destroys an
 {rbtgi_depot}
 and all contained resources:
 
+// ⟦axs_inputs⟧
 . *Safety Confirmation*:
 .. If `RBGP_CONFIRM_DESTROY` environment variable is set:
 ... {rbbc_require}
@@ -14,6 +15,7 @@ value matches the depot project ID argument
 ... {rbbc_require}
 operator confirmation with exact depot project ID (interactive)
 
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
@@ -64,6 +66,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete
 .. {rbbc_require}
 deletion initiated successfully
 
+// ⟦axs_outputs⟧
 . *Verify deletion transition*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
@@ -71,6 +74,8 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 project state with 5-second intervals for up to 60 seconds
 .. {rbbc_require}
 project state equals `DELETE_REQUESTED`
+
+// ⟦axs_completion⟧ Successful execution destroys depot infrastructure.
 
 NOTE: Depot deletion automatically removes all infrastructure created by
 {rbtgo_depot_create}:

@@ -15,12 +15,14 @@ resets the
 for a specified
 {rbtgi_depot_project}:
 
+// ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_DEPOT_PROJECT_ID»` provided as first argument
 .. {rbbc_require}
 `«INPUT_DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
 
+// ⟦axs_behavior⟧
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
@@ -123,6 +125,7 @@ already exists (will be overwritten)
 .. {rbbc_require}
 RBRA file creation successful
 
+// ⟦axs_outputs⟧
 . *Display Result*:
 .. {rbbc_show}
 governor reset successful
@@ -131,3 +134,5 @@ governor service account: `«GOVERNOR_SERVICE_ACCOUNT»`
 .. {rbbc_show}
 RBRA file path:
 {rbrr_governor_rbra_file}
+
+// ⟦axs_completion⟧ Successful execution resets governor state.
