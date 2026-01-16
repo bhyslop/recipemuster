@@ -216,6 +216,15 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
 
     let message = String::from_utf8_lossy(&output.stdout).trim().to_string();
 
+    // Strip Co-Authored-By trailer if Claude CLI added it from global settings
+    let message: String = message
+        .lines()
+        .filter(|line| !line.starts_with("Co-Authored-By:"))
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string();
+
     if message.is_empty() {
         return Err("claude returned empty message".to_string());
     }
