@@ -523,9 +523,10 @@
         "₢ABAAD",
         "₢ABAAE",
         "₢ABAAF",
-        "₢ABAAG"
+        "₢ABAAG",
+        "₢ABAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AB.md",
       "paces": {
         "₢ABAAA": {
@@ -595,6 +596,16 @@
               "ts": "260116-0814",
               "state": "rough",
               "text": "Update JJD jjds_* term annotations to show voicing relationship: jjds_arguments voices axa_argument_list (which voices axs_inputs), jjds_exit_* voices axa_exit_* (which voices axs_completion)"
+            }
+          ]
+        },
+        "₢ABAAH": {
+          "silks": "review-mcm-compatibility",
+          "tacks": [
+            {
+              "ts": "260116-0814",
+              "state": "rough",
+              "text": "Review MCM for any needed updates: verify form patterns support procedure section structure, confirm annotation grammar handles voicing chains"
             }
           ]
         }
