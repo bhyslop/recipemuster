@@ -454,6 +454,11 @@
           "silks": "vvx-tabtarget",
           "tacks": [
             {
+              "ts": "260115-1732",
+              "state": "complete",
+              "text": "BCG-compliant VVK tabtarget: vvb_bash.sh (platform detection), vvb_cli.sh, vvw_workbench.sh, launcher, tt/vvx-r.RunVVX.sh. Build updated for platform-specific install with codesign."
+            },
+            {
               "ts": "260115-1607",
               "state": "rough",
               "text": "Create tabtarget for vvx invocation that can be distributed to target repos. Should be simple launcher that finds and runs the correct platform binary from Tools/vvk/bin/."
