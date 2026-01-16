@@ -11,6 +11,7 @@
         "₢AAAAt",
         "₢AAAAu",
         "₢AAAAw",
+        "₢AAAAy",
         "₢AAAAn",
         "₢AAAAg",
         "₢AAAAk",
@@ -57,7 +58,7 @@
         "₢AAAAp",
         "₢AAAAq"
       ],
-      "next_pace_seed": "AAy",
+      "next_pace_seed": "AAz",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAAA": {
@@ -1006,6 +1007,16 @@
               "ts": "260116-1433",
               "state": "rough",
               "text": "Fix 35 test compilation errors from incomplete RCG prefixing (₢AAAAY).\n\n## Errors by category\n\n1. **17 errors**: `.as_str()` on Firemark/Coronet → `.jjrf_as_str()`\n2. **10 errors**: `.jjrf_as_str()` on HeatAction/ChalkMarker → `.jjrn_as_str()`\n3. **7 errors**: `Pace` type not found → `jjrg_Pace`\n4. **1 error**: Unresolved imports `Heat`, `Pace`, `Tack` → prefixed names\n\n## Files\n\n- Tools/jjk/veiled/src/jjrn_notch.rs (tests)\n- Tools/jjk/veiled/src/jjrf_favor.rs (tests)\n- Tools/jjk/veiled/src/jjrq_query.rs (tests)\n\n## Verification\n\n```bash\ncargo test --manifest-path Tools/jjk/veiled/Cargo.toml\n```\n\nAll 133+ tests must pass.\n\n## Context\n\nPace ₢AAAAY prefixed declarations but tests still use old names. Tests are inline (not yet split to jjt*.rs files per RCG)."
+            }
+          ]
+        },
+        "₢AAAAy": {
+          "silks": "parade-remaining-flag",
+          "tacks": [
+            {
+              "ts": "260116-1439",
+              "state": "rough",
+              "text": "Add --remaining flag to jjx_parade to filter out complete/abandoned paces.\n\n## Files to change\n\n1. **Tools/jjk/veiled/src/jjrx_cli.rs** (~line 155)\n   - Add to zjjrx_ParadeArgs: `#[arg(long)] remaining: bool`\n   - Pass through to LibParadeArgs\n\n2. **Tools/jjk/veiled/src/jjrq_query.rs** (~line 178, 186)\n   - Add to jjrq_ParadeArgs: `pub remaining: bool`\n   - In jjrq_run_parade: skip paces where state is \"complete\" or \"abandoned\"\n\n3. **Tools/jjk/JJD-GallopsData.adoc**\n   - Document --remaining argument for jjdo_parade\n\n## Implementation\n\nIn jjrq_run_parade pace iteration:\n```rust\nif args.remaining && (state == \"complete\" || state == \"abandoned\") {\n    continue;\n}\n```\n\n## Verification\n\n- cargo build && cargo test\n- ./tt/vvw-r.RunVVX.sh jjx_parade AA --format overview --remaining"
             }
           ]
         }
