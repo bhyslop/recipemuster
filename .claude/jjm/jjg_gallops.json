@@ -641,6 +641,11 @@
           "silks": "add-precondition-postcondition-sections",
           "tacks": [
             {
+              "ts": "260116-0827",
+              "state": "rough",
+              "text": "SUPERSEDED: Content merged into pace ABAAB (axs-section-motif-definitions). Skip this pace."
+            },
+            {
               "ts": "260116-0820",
               "state": "rough",
               "text": "Add axs_preconditions (environmental state requirements before execution) and axs_postconditions (environmental state guarantees after success) as optional section motifs, distinct from inputs/outputs"
