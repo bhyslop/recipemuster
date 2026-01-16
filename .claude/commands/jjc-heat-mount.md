@@ -70,6 +70,10 @@ Show:
 
 **If pace_state is "rough":**
 - Analyze the tack_text to understand the work
+- If tack_text mentions dependencies, blockers, or sequencing concerns:
+  - Surface these to the user as questions before proceeding
+  - Do NOT investigate gallops data to validate the system's pace selection
+  - If sequencing appears wrong, suggest `/jjc-heat-groom` to reorder or refine
 - Read any files referenced in the pace spec
 - Propose a concrete approach (2-4 bullets)
 - Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker A --description "<approach summary>"`
