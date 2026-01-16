@@ -197,7 +197,15 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
     eprintln!("commit: invoking claude for commit message...");
 
     let output = Command::new("claude")
-        .args(["--print", &prompt])
+        .args([
+            "--print",
+            "--system-prompt",
+            "Output only a conventional git commit message. No explanation or commentary.",
+            "--model",
+            "haiku",
+            "--no-session-persistence",
+            &prompt,
+        ])
         .output()
         .map_err(|e| format!("Failed to invoke claude: {}", e))?;
 

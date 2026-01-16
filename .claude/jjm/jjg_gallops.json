@@ -779,6 +779,11 @@
           "silks": "vvcc-optimize-claude-call",
           "tacks": [
             {
+              "ts": "260116-1155",
+              "state": "complete",
+              "text": "Added --system-prompt, --model haiku, and --no-session-persistence flags to claude CLI invocation in zvvcc_generate_message_with_claude(). Build verified."
+            },
+            {
               "ts": "260116-1145",
               "state": "primed",
               "text": "Ready for autonomous execution",
