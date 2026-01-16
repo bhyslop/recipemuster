@@ -644,6 +644,12 @@
           "silks": "update-jjd-section-voicings",
           "tacks": [
             {
+              "ts": "260116-0912",
+              "state": "primed",
+              "text": "Agent: haiku\nStrategy: Update three existing definitions to add voicing annotations:\n1. axa_argument_list (line ~954): Add note that it voices axs_inputs in CLI context\n2. axa_exit_uniform (line ~1013): Add note that it voices axs_completion in CLI context\n3. axa_exit_enumerated (line ~1041): Add note that it voices axs_completion in CLI context\nKey files: Tools/cmk/AXLA-Lexicon.adoc\nNotes: Add voicing relationship to definition prose, not annotations. Keep existing content.",
+              "direction": "-"
+            },
+            {
               "ts": "260116-0820",
               "state": "rough",
               "text": "Clarification: We are NOT changing JJD annotations - voicing is to immediate parent only. The change is in AXLA: update axa_argument_list to voice axs_inputs, update axa_exit_uniform/enumerated to voice axs_completion. JJD's jjds_arguments continues to voice axa_argument_list; the chain to axs_inputs is implicit through AXLA. Verify JJD annotations remain correct after AXLA changes."
