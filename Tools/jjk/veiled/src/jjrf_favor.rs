@@ -189,14 +189,14 @@ mod tests {
     #[test]
     fn test_firemark_encode_zero() {
         let fm = jjrf_Firemark::jjrf_encode(0);
-        assert_eq!(fm.as_str(), "AA");
+        assert_eq!(fm.jjrf_as_str(), "AA");
         assert_eq!(fm.jjrf_display(), "₣AA");
     }
 
     #[test]
     fn test_firemark_encode_one() {
         let fm = jjrf_Firemark::jjrf_encode(1);
-        assert_eq!(fm.as_str(), "AB");
+        assert_eq!(fm.jjrf_as_str(), "AB");
         assert_eq!(fm.jjrf_display(), "₣AB");
     }
 
@@ -204,14 +204,14 @@ mod tests {
     fn test_firemark_encode_64() {
         // 64 = 1*64 + 0
         let fm = jjrf_Firemark::jjrf_encode(64);
-        assert_eq!(fm.as_str(), "BA");
+        assert_eq!(fm.jjrf_as_str(), "BA");
     }
 
     #[test]
     fn test_firemark_encode_max() {
         // 4095 = 63*64 + 63
         let fm = jjrf_Firemark::jjrf_encode(4095);
-        assert_eq!(fm.as_str(), "__");
+        assert_eq!(fm.jjrf_as_str(), "__");
         assert_eq!(fm.jjrf_display(), "₣__");
     }
 
@@ -236,14 +236,14 @@ mod tests {
     #[test]
     fn test_firemark_parse_with_prefix() {
         let fm = jjrf_Firemark::jjrf_parse("₣AB").unwrap();
-        assert_eq!(fm.as_str(), "AB");
+        assert_eq!(fm.jjrf_as_str(), "AB");
         assert_eq!(fm.jjrf_decode().unwrap(), 1);
     }
 
     #[test]
     fn test_firemark_parse_without_prefix() {
         let fm = jjrf_Firemark::jjrf_parse("AB").unwrap();
-        assert_eq!(fm.as_str(), "AB");
+        assert_eq!(fm.jjrf_as_str(), "AB");
         assert_eq!(fm.jjrf_decode().unwrap(), 1);
     }
 
@@ -262,7 +262,7 @@ mod tests {
     fn test_coronet_encode_zero() {
         let heat = jjrf_Firemark::jjrf_encode(0);
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 0);
-        assert_eq!(coronet.as_str(), "AAAAA");
+        assert_eq!(coronet.jjrf_as_str(), "AAAAA");
         assert_eq!(coronet.jjrf_display(), "₢AAAAA");
     }
 
@@ -270,7 +270,7 @@ mod tests {
     fn test_coronet_encode_one() {
         let heat = jjrf_Firemark::jjrf_encode(0);
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 1);
-        assert_eq!(coronet.as_str(), "AAAAB");
+        assert_eq!(coronet.jjrf_as_str(), "AAAAB");
     }
 
     #[test]
@@ -278,7 +278,7 @@ mod tests {
         // pace 64 = 0*4096 + 1*64 + 0
         let heat = jjrf_Firemark::jjrf_encode(0);
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 64);
-        assert_eq!(coronet.as_str(), "AAABA");
+        assert_eq!(coronet.jjrf_as_str(), "AAABA");
     }
 
     #[test]
@@ -286,7 +286,7 @@ mod tests {
         // pace 4096 = 1*4096 + 0*64 + 0
         let heat = jjrf_Firemark::jjrf_encode(0);
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 4096);
-        assert_eq!(coronet.as_str(), "AABAA");
+        assert_eq!(coronet.jjrf_as_str(), "AABAA");
     }
 
     #[test]
@@ -294,14 +294,14 @@ mod tests {
         // 262143 = 63*4096 + 63*64 + 63
         let heat = jjrf_Firemark::jjrf_encode(0);
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 262143);
-        assert_eq!(coronet.as_str(), "AA___");
+        assert_eq!(coronet.jjrf_as_str(), "AA___");
     }
 
     #[test]
     fn test_coronet_encode_with_nonzero_heat() {
         let heat = jjrf_Firemark::jjrf_encode(1); // "AB"
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 0);
-        assert_eq!(coronet.as_str(), "ABAAA");
+        assert_eq!(coronet.jjrf_as_str(), "ABAAA");
         assert_eq!(coronet.jjrf_display(), "₢ABAAA");
     }
 
@@ -333,14 +333,14 @@ mod tests {
         let heat = jjrf_Firemark::jjrf_encode(42);
         let coronet = jjrf_Coronet::jjrf_encode(&heat, 123);
         let parent = coronet.jjrf_parent_firemark();
-        assert_eq!(parent.as_str(), heat.as_str());
+        assert_eq!(parent.jjrf_as_str(), heat.jjrf_as_str());
         assert_eq!(parent.jjrf_decode().unwrap(), 42);
     }
 
     #[test]
     fn test_coronet_parse_with_prefix() {
         let coronet = jjrf_Coronet::jjrf_parse("₢ABAAA").unwrap();
-        assert_eq!(coronet.as_str(), "ABAAA");
+        assert_eq!(coronet.jjrf_as_str(), "ABAAA");
         let (heat, pace) = coronet.jjrf_decode().unwrap();
         assert_eq!(heat.jjrf_decode().unwrap(), 1);
         assert_eq!(pace, 0);
@@ -349,7 +349,7 @@ mod tests {
     #[test]
     fn test_coronet_parse_without_prefix() {
         let coronet = jjrf_Coronet::jjrf_parse("ABAAA").unwrap();
-        assert_eq!(coronet.as_str(), "ABAAA");
+        assert_eq!(coronet.jjrf_as_str(), "ABAAA");
     }
 
     #[test]
@@ -376,7 +376,7 @@ mod tests {
         // Example from spec: charset[H/64] + charset[H%64]
         // H = 65 -> 65/64 = 1, 65%64 = 1 -> "BB"
         let fm = jjrf_Firemark::jjrf_encode(65);
-        assert_eq!(fm.as_str(), "BB");
+        assert_eq!(fm.jjrf_as_str(), "BB");
     }
 
     #[test]

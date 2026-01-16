@@ -212,10 +212,10 @@ mod tests {
 
     #[test]
     fn test_chalk_marker_as_str() {
-        assert_eq!(jjrn_ChalkMarker::Approach.jjrf_as_str(), "APPROACH");
-        assert_eq!(jjrn_ChalkMarker::Wrap.jjrf_as_str(), "WRAP");
-        assert_eq!(jjrn_ChalkMarker::Fly.jjrf_as_str(), "FLY");
-        assert_eq!(jjrn_ChalkMarker::Discussion.jjrf_as_str(), "discussion");
+        assert_eq!(jjrn_ChalkMarker::Approach.jjrn_as_str(), "APPROACH");
+        assert_eq!(jjrn_ChalkMarker::Wrap.jjrn_as_str(), "WRAP");
+        assert_eq!(jjrn_ChalkMarker::Fly.jjrn_as_str(), "FLY");
+        assert_eq!(jjrn_ChalkMarker::Discussion.jjrn_as_str(), "discussion");
     }
 
     #[test]
@@ -240,12 +240,12 @@ mod tests {
 
     #[test]
     fn test_heat_action_as_str() {
-        assert_eq!(jjrn_HeatAction::Nominate.jjrf_as_str(), "nominate");
-        assert_eq!(jjrn_HeatAction::Slate.jjrf_as_str(), "slate");
-        assert_eq!(jjrn_HeatAction::Rail.jjrf_as_str(), "rail");
-        assert_eq!(jjrn_HeatAction::Tally.jjrf_as_str(), "tally");
-        assert_eq!(jjrn_HeatAction::Draft.jjrf_as_str(), "draft");
-        assert_eq!(jjrn_HeatAction::Retire.jjrf_as_str(), "retire");
+        assert_eq!(jjrn_HeatAction::Nominate.jjrn_as_str(), "nominate");
+        assert_eq!(jjrn_HeatAction::Slate.jjrn_as_str(), "slate");
+        assert_eq!(jjrn_HeatAction::Rail.jjrn_as_str(), "rail");
+        assert_eq!(jjrn_HeatAction::Tally.jjrn_as_str(), "tally");
+        assert_eq!(jjrn_HeatAction::Draft.jjrn_as_str(), "draft");
+        assert_eq!(jjrn_HeatAction::Retire.jjrn_as_str(), "retire");
     }
 
     // Format function tests

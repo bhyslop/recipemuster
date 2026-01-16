@@ -998,6 +998,11 @@
           "silks": "jjk-test-compilation-fix",
           "tacks": [
             {
+              "ts": "260116-1438",
+              "state": "complete",
+              "text": "Fixed 35 test compilation errors by applying RCG prefix conventions across jjrf_favor.rs, jjrn_notch.rs, jjrq_query.rs, and jjrg_gallops.rs. All 133 tests pass."
+            },
+            {
               "ts": "260116-1433",
               "state": "rough",
               "text": "Fix 35 test compilation errors from incomplete RCG prefixing (₢AAAAY).\n\n## Errors by category\n\n1. **17 errors**: `.as_str()` on Firemark/Coronet → `.jjrf_as_str()`\n2. **10 errors**: `.jjrf_as_str()` on HeatAction/ChalkMarker → `.jjrn_as_str()`\n3. **7 errors**: `Pace` type not found → `jjrg_Pace`\n4. **1 error**: Unresolved imports `Heat`, `Pace`, `Tack` → prefixed names\n\n## Files\n\n- Tools/jjk/veiled/src/jjrn_notch.rs (tests)\n- Tools/jjk/veiled/src/jjrf_favor.rs (tests)\n- Tools/jjk/veiled/src/jjrq_query.rs (tests)\n\n## Verification\n\n```bash\ncargo test --manifest-path Tools/jjk/veiled/Cargo.toml\n```\n\nAll 133+ tests must pass.\n\n## Context\n\nPace ₢AAAAY prefixed declarations but tests still use old names. Tests are inline (not yet split to jjt*.rs files per RCG)."

@@ -438,7 +438,7 @@ pub fn jjrq_run_retire(args: jjrq_RetireArgs) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::jjrg_gallops::{Heat, Pace, Tack};
+    use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack};
     use std::collections::BTreeMap;
 
     fn create_test_gallops() -> Gallops {

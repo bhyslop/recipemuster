@@ -2027,11 +2027,11 @@ mod tests {
         // Add two more paces (total 3)
         let pace2_key = "₢ABAAB".to_string();
         let pace3_key = "₢ABAAC".to_string();
-        heat.paces.insert(pace2_key.clone(), Pace {
+        heat.paces.insert(pace2_key.clone(), jjrg_Pace {
             silks: "second-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
-        heat.paces.insert(pace3_key.clone(), Pace {
+        heat.paces.insert(pace3_key.clone(), jjrg_Pace {
             silks: "third-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
@@ -2068,7 +2068,7 @@ mod tests {
         let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
 
         let pace2_key = "₢ABAAB".to_string();
-        heat.paces.insert(pace2_key.clone(), Pace {
+        heat.paces.insert(pace2_key.clone(), jjrg_Pace {
             silks: "second-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
@@ -2104,11 +2104,11 @@ mod tests {
 
         let pace2_key = "₢ABAAB".to_string();
         let pace3_key = "₢ABAAC".to_string();
-        heat.paces.insert(pace2_key.clone(), Pace {
+        heat.paces.insert(pace2_key.clone(), jjrg_Pace {
             silks: "second-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
-        heat.paces.insert(pace3_key.clone(), Pace {
+        heat.paces.insert(pace3_key.clone(), jjrg_Pace {
             silks: "third-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
@@ -2146,11 +2146,11 @@ mod tests {
 
         let pace2_key = "₢ABAAB".to_string();
         let pace3_key = "₢ABAAC".to_string();
-        heat.paces.insert(pace2_key.clone(), Pace {
+        heat.paces.insert(pace2_key.clone(), jjrg_Pace {
             silks: "second-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
-        heat.paces.insert(pace3_key.clone(), Pace {
+        heat.paces.insert(pace3_key.clone(), jjrg_Pace {
             silks: "third-pace".to_string(),
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
         });
