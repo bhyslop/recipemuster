@@ -153,6 +153,16 @@ When working with .adoc files using MCM patterns:
 - Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`, `gad_`)
 - Use snake_case for anchors, match attribute to anchor
 
+### Rust Build Discipline
+
+Tabtargets for Rust operations (run from project root):
+- `tt/vow-b.Build.sh` → `cargo build --manifest-path Tools/vok/Cargo.toml`
+- `tt/vvw-r.RunVVX.sh <cmd>` → runs vvx binary with arguments
+- `tt/vvw-t.TestVVX.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
+
+Never `cd` in Bash commands — it persists and breaks subsequent tabtarget calls.
+When running cargo directly, use `--manifest-path` to stay at project root.
+
 ## Prefix Naming Discipline ("mint")
 
 When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-acronym-selection-study.md`

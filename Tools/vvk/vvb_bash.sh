@@ -112,4 +112,17 @@ vvb_platform() {
   echo "${z_platform}"
 }
 
+vvb_test() {
+  zvvb_sentinel
+
+  buc_doc_brief "Run VVX Rust test suite"
+  buc_doc_param "..." "Arguments passed to cargo test"
+  buc_doc_shown || return 0
+
+  buc_step "Running cargo test"
+
+  local z_manifest="${ZVVB_SCRIPT_DIR}/../vok/Cargo.toml"
+  exec cargo test --manifest-path "${z_manifest}" "$@"
+}
+
 # eof

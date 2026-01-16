@@ -52,6 +52,9 @@ vvw_route() {
     # Run VVX binary - primary command
     vvw-r)  exec "${z_vvb_cli}" vvb_run "$@" ;;
 
+    # Run Rust test suite
+    vvw-t)  exec "${z_vvb_cli}" vvb_test "$@" ;;
+
     # Show platform
     vvx-p)  exec "${z_vvb_cli}" vvb_platform "$@" ;;
 
