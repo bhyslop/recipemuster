@@ -58,6 +58,11 @@
           "silks": "rcg-establish",
           "tacks": [
             {
+              "ts": "260116-0935",
+              "state": "complete",
+              "text": "RCG established at Tools/vok/lenses/RCG-RustCodingGuide.md. Covers: file naming ({cipher}r{classifier}), declaration prefixing, z-prefix internals, separate test files, crate boilerplate."
+            },
+            {
               "ts": "260114-1028",
               "state": "rough",
               "text": "Establish RCG (Rust Coding Guide) for VOK/JJK Rust development. Core tenets: (1) Minting discipline - all files need unique prefixes following CLAUDE.md patterns; (2) Public functions/variables exported by a file must carry that file's prefix; (3) Test organization - study JJK test patterns, likely distinct files with naming like <prefix>rt_<submodule>.rs for Rust Tests. Reference CLAUDE.md Prefix Naming Discipline section. Model structure after BCG (Bash Console Guide) at Tools/buk/lenses/BCG-BashConsoleGuide.md. Note: RCG will be comparatively skimpy vs BCG - trusting more of Claude's inherent Rust idioms; focus only on project-specific conventions."
