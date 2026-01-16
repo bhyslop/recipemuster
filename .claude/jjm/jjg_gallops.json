@@ -1059,6 +1059,11 @@
           "silks": "parade-remaining-flag",
           "tacks": [
             {
+              "ts": "260116-1517",
+              "state": "complete",
+              "text": "Added --remaining flag to jjx_parade to filter out complete/abandoned paces. Updated jjrx_cli.rs, jjrq_query.rs (with filtering in Overview/Order/Full formats), and JJD-GallopsData.adoc."
+            },
+            {
               "ts": "260116-1439",
               "state": "primed",
               "text": "Add --remaining flag to jjx_parade to filter out complete/abandoned paces.\n\n## Files to change\n\n1. **Tools/jjk/veiled/src/jjrx_cli.rs** (~line 155)\n   - Add to zjjrx_ParadeArgs: `#[arg(long)] remaining: bool`\n   - Pass through to LibParadeArgs\n\n2. **Tools/jjk/veiled/src/jjrq_query.rs** (~line 178, 186)\n   - Add to jjrq_ParadeArgs: `pub remaining: bool`\n   - In jjrq_run_parade: skip paces where state is \"complete\" or \"abandoned\"\n\n3. **Tools/jjk/JJD-GallopsData.adoc**\n   - Document --remaining argument for jjdo_parade\n\n## Implementation\n\nIn jjrq_run_parade pace iteration:\n```rust\nif args.remaining && (state == \"complete\" || state == \"abandoned\") {\n    continue;\n}\n```\n\n## Verification\n\n- cargo build && cargo test\n- ./tt/vvw-r.RunVVX.sh jjx_parade AA --format overview --remaining",
