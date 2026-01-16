@@ -14,6 +14,7 @@
 // axi_: Axial Interface (interface patterns) → mcm_form_deflist
 // axk_: Axial Key Premise (design constraints) → mcm_form_deflist
 // axl_: Axial Lexicon (motif vocabulary terms) → mcm_form_deflist
+// axs_: Axial Section (documentation section motifs) → mcm_form_deflist
 // axd_: Axial Dimension (member/argument characteristic modifiers) → mcm_form_deflist
 // axf_: Axial Format (serialization/carriage formats) → mcm_form_deflist
 // axrg_: Axial Regime (configuration system patterns) → mcm_form_deflist
@@ -155,6 +156,8 @@
 :axo_pattern_s:                       <<axo_pattern,Patterns>>
 :axo_sequence:                        <<axo_sequence,Sequence>>
 :axo_sequence_s:                      <<axo_sequence,Sequences>>
+:axo_procedure:                       <<axo_procedure,Procedure>>
+:axo_procedure_s:                     <<axo_procedure,Procedures>>
 :axo_role:                            <<axo_role,Role>>
 :axo_role_s:                          <<axo_role,Roles>>
 :axo_identity:                        <<axo_identity,Identity>>
@@ -163,6 +166,15 @@
 :axo_actor_s:                         <<axo_actor,Actors>>
 :axo_entity:                          <<axo_entity,Entity>>
 :axo_entity_s:                        <<axo_entity,Entities>>
+
+// Axial Section Terms
+:axs_inputs:                          <<axs_inputs,Inputs>>
+:axs_preconditions:                   <<axs_preconditions,Preconditions>>
+:axs_behavior:                        <<axs_behavior,Behavior>>
+:axs_outputs:                         <<axs_outputs,Outputs>>
+:axs_postconditions:                  <<axs_postconditions,Postconditions>>
+:axs_completion:                      <<axs_completion,Completion>>
+:axs_errors:                          <<axs_errors,Errors>>
 
 // Axial Type Terms
 :axt_type:                            <<axt_type,Type>>

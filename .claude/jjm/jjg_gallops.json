@@ -108,6 +108,11 @@
           "silks": "vok-concept-model",
           "tacks": [
             {
+              "ts": "260116-0913",
+              "state": "complete",
+              "text": "VOS coverage is sufficient - no separate data model needed. VOS already defines Types, Entities, Places, Assets, Operations, and Key Premises for the release/install infrastructure."
+            },
+            {
               "ts": "260116-0844",
               "state": "rough",
               "text": "Review VOS-VoxObscuraSpec.adoc coverage and identify remaining data model work.\n\nVOS already covers: Parcel structure, Kit, Whisper/Conclave, ManagedSection/Marker, Sigil, KitForge/TargetRepo, Release/Install/Uninstall operations, Cipher registry.\n\nOriginal tack requested concepts that are largely addressed. Remaining gaps to discuss:\n\n1. **KitAsset entity** — VOS has Assets category (vosa_) but no explicit KitAsset with source_path/install_path/kit_id members. Is this needed? Current approach uses convention-based discovery (cipher prefix matching) rather than explicit registration.\n\n2. **Manifest schema** — VOS mentions `.claude/vvx-manifest.json` but doesn't define its structure. Is a formal schema needed in VOS?\n\n3. **Whisper discovery** — VOS shows Whisper builder API but not how kits are discovered/collected. Convention-based or explicit?\n\n**Decision needed:** Does VOS need these additions, or is current level sufficient for implementation? The original pace title \"vok-concept-model\" suggested a separate data model doc (like JJD for Gallops), but VOS already serves that role."
