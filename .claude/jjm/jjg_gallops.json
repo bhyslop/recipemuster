@@ -959,6 +959,11 @@
           "silks": "notch-size-limit-flag",
           "tacks": [
             {
+              "ts": "260116-1457",
+              "state": "complete",
+              "text": "Added --size-limit parameter to jjx_notch for legitimate large commits. Updated vvcc_CommitArgs with optional size_limit/warn_limit fields, propagated through JJK CLI, and documented in JJD spec and jjc-pace-notch.md."
+            },
+            {
               "ts": "260116-1450",
               "state": "primed",
               "text": "Add --size-limit parameter to jjx_notch for legitimate large commits.\n\n## Rationale\n\nGuard protects against accidental large commits (default 50KB). Legitimate large work (e.g., RCG renames across 7 files) needs an escape hatch. The pace spec serves as justification.\n\n## Files to change\n\n1. Tools/vvc/src/vvcc_commit.rs\n   - Add optional size_limit/warn_limit fields to vvcc_CommitArgs\n   - Propagate to guard check (None = use default)\n\n2. Tools/jjk/veiled/src/jjrx_cli.rs\n   - Add --size-limit to jjrx_NotchArgs\n   - Pass to vvcc_CommitArgs\n\n3. Tools/jjk/JJD-GallopsData.adoc\n   - Document --size-limit argument for jjdo_notch\n   - Note default limit (50KB) and guard behavior\n\n4. .claude/commands/jjc-pace-notch.md\n   - Document that --size-limit requires justification in pace spec\n\n## Design\n\nvvcc_CommitArgs gains:\n```rust\npub size_limit: Option<u64>,  // None = use VVCC_SIZE_LIMIT (50KB)\npub warn_limit: Option<u64>,  // None = use VVCC_WARN_LIMIT (30KB)\n```",
