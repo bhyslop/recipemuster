@@ -2012,9 +2012,6 @@ Create a JJ-aware git commit with heat/pace context prefix.
 // ⟦axd_required⟧
 * `--pace` — {jjdt_silks} of the current pace
 
-// ⟦axd_optional⟧
-* `--message` — commit message; if absent, invoke `claude --print` to generate from diff
-
 {jjds_stdout} Commit hash
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -2024,9 +2021,7 @@ Create a JJ-aware git commit with heat/pace context prefix.
 . Acquire lock (`refs/vvg/locks/vvx`)
 . Stage changes (`git add -u`)
 . Run size guard check
-. If `--message` absent:
-.. Run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
-.. Use response as message
+. Run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
 . Format full message: `[jj:BRAND][₣XX/pace-silks] message\n\nCo-Authored-By: ...`
 . Run `git commit -m "..."`
 . Release lock

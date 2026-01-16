@@ -81,10 +81,6 @@ pub struct NotchArgs {
     /// Silks of the current pace
     #[arg(long)]
     pub pace: String,
-
-    /// Commit message (if absent, claude generates from diff)
-    #[arg(short, long)]
-    pub message: Option<String>,
 }
 
 /// Arguments for jjx_chalk command
@@ -397,7 +393,7 @@ fn run_notch(args: NotchArgs) -> i32 {
 
     let commit_args = vvc::vvcc_CommitArgs {
         prefix: Some(prefix),
-        message: args.message,
+        message: None,
         allow_empty: false,
         no_stage: false,
     };
