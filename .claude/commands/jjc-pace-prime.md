@@ -59,12 +59,46 @@ Present recommendation to user and ask for approval or adjustments.
 
 ## Step 5: Write direction and transition to primed
 
-Once user approves the strategy, construct direction text:
+Once user approves the strategy, construct direction text using this structured format:
+
 ```
 Agent: <haiku|sonnet|opus>
-Strategy: <brief execution plan>
-Key files: <list>
-Notes: <any special considerations>
+Cardinality: <1 sequential | N parallel>
+Files: <file1.rs, file2.rs, ...> (N files)
+Steps:
+1. <first action>
+2. <second action>
+...
+Verify: <build/test command>
+```
+
+**Format rules:**
+- **Agent**: Always specify model tier (haiku/sonnet/opus)
+- **Cardinality**: "1 sequential" for single agent, "N parallel" for parallel Task agents
+- **Files**: List ALL files touched, with count in parentheses
+- **Steps**: Numbered, scannable actions
+- **Verify**: Build or test command to confirm success
+
+**Example (sequential):**
+```
+Agent: sonnet
+Cardinality: 1 sequential
+Files: vvcc_commit.rs, jjrx_cli.rs, JJD-GallopsData.adoc (3 files)
+Steps:
+1. Add size_limit field to vvcc_CommitArgs
+2. Add --size-limit CLI arg to NotchArgs
+3. Document in JJD
+Verify: cargo build --features jjk
+```
+
+**Example (parallel):**
+```
+Agent: haiku
+Cardinality: 14 parallel
+Files: jjrc_core.rs, jjrf_favor.rs, ... (14 files)
+Steps:
+1. Each agent: read file, prepend copyright header, write file
+Verify: cargo build --features jjk
 ```
 
 Run:
