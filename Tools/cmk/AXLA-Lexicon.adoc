@@ -396,6 +396,9 @@ During type-scheme linting, these expectations guide validation of definition st
 * {axk_premise} definitions expect
 {xref_MCM}
 `mcm_form_deflist`
+* {axs_*} section terms expect
+{xref_MCM}
+`mcm_form_section` for section headers
 * Most other categories expect
 {xref_MCM}
 `mcm_form_deflist`
