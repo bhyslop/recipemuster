@@ -69,10 +69,10 @@ Notes: <any special considerations>
 
 Run:
 ```bash
-echo "<direction text>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state primed --direction -
+./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state primed --direction "<direction text>"
 ```
 
-(The `-` reads direction from stdin)
+Note: `--direction` is a string argument, not stdin. The text field is inherited when stdin is empty.
 
 ## Step 6: Confirm primed
 
