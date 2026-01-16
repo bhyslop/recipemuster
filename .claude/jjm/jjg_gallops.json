@@ -703,6 +703,11 @@
           "silks": "deprecate-jju-tabtargets",
           "tacks": [
             {
+              "ts": "260116-1347",
+              "state": "complete",
+              "text": "Deprecated jju/jjt infrastructure: deleted tabtargets, removed workbench routes, cleaned up testbench. Added vvw-t.TestVVX.sh tabtarget and Rust Build Discipline to CLAUDE.md."
+            },
+            {
               "ts": "260116-1339",
               "state": "complete",
               "text": "Deprecated JJW tabtargets and JJU utility functions. Deleted tt/jjw-*.sh and tt/jjt-*.sh launchers. Removed jju_utility.sh. Cleaned jjw_workbench.sh to only route arcanum commands. Slash command coverage verified (/jjc-heat-rein tracked separately in ₢AAAAo)."
