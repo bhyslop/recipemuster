@@ -720,6 +720,11 @@
           "silks": "add-precondition-postcondition-sections",
           "tacks": [
             {
+              "ts": "260116-0936",
+              "state": "abandoned",
+              "text": "SUPERSEDED: Content merged into pace ABAAB (axs-section-motif-definitions). Skip this pace."
+            },
+            {
               "ts": "260116-0827",
               "state": "rough",
               "text": "SUPERSEDED: Content merged into pace ABAAB (axs-section-motif-definitions). Skip this pace."
