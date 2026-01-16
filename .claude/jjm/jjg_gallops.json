@@ -724,6 +724,11 @@
           "silks": "implement-jjx-retire-full",
           "tacks": [
             {
+              "ts": "260116-1153",
+              "state": "complete",
+              "text": "Implemented full retire operation in jjx_retire with --execute flag. Rust handles complete lifecycle: acquire lock, build trophy content, write to retired/, remove heat from gallops.json, delete paddock file, commit via vvcm_commit."
+            },
+            {
               "ts": "260116-1056",
               "state": "rough",
               "text": "Implement full retire in jjx_retire Rust: extract trophy data, write trophy file to retired/, remove heat from gallops.json, delete paddock file, git commit with message 'Retire: ₣{firemark} {silks}'"
