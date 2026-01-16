@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! JJK CLI - Command line interface for Job Jockey Kit
 //!
 //! This module owns all jjx_* command definitions and dispatch logic.
@@ -77,6 +81,10 @@ pub enum jjrx_JjxCommands {
 pub struct jjrx_NotchArgs {
     /// Pace identity (Coronet) - embeds parent Heat
     pub coronet: String,
+
+    /// Size limit in bytes (overrides default 50KB guard)
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Arguments for jjx_chalk command
@@ -167,6 +175,10 @@ struct zjjrx_ParadeArgs {
     /// Target Pace coronet (required for --format detail)
     #[arg(long)]
     pace: Option<String>,
+
+    /// Show only remaining paces (exclude complete/abandoned)
+    #[arg(long)]
+    remaining: bool,
 }
 
 /// Arguments for jjx_retire command
@@ -384,6 +396,8 @@ fn zjjrx_run_notch(args: jjrx_NotchArgs) -> i32 {
         message: None,
         allow_empty: false,
         no_stage: false,
+        size_limit: args.size_limit,
+        warn_limit: None,
     };
 
     vvc::commit(&commit_args)
@@ -435,6 +449,8 @@ fn zjjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
         message: Some(message),
         allow_empty: true,
         no_stage: true,
+        size_limit: None,
+        warn_limit: None,
     };
 
     vvc::commit(&commit_args)
@@ -545,6 +561,7 @@ fn zjjrx_run_parade(args: zjjrx_ParadeArgs) -> i32 {
         firemark,
         format,
         pace: args.pace,
+        remaining: args.remaining,
     };
 
     lib_run_parade(parade_args)
@@ -887,6 +904,11 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
     };
 
     let firemark = args.firemark.clone();
+    let move_coronet = args.r#move.clone();
+    let move_before = args.before.clone();
+    let move_after = args.after.clone();
+    let move_first = args.first;
+    let move_last = args.last;
     let rail_args = LibRailArgs {
         firemark: args.firemark,
         order,
@@ -904,6 +926,20 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
                 return 1;
             }
 
+            // Compute descriptive subject for commit message
+            let subject = if let Some(ref moved) = move_coronet {
+                // Move mode: describe where the pace was moved
+                let target = if move_first { "to first".to_string() }
+                    else if move_last { "to last".to_string() }
+                    else if let Some(ref b) = move_before { format!("before {}", b) }
+                    else if let Some(ref a) = move_after { format!("after {}", a) }
+                    else { "???".to_string() };
+                format!("moved {} {}", moved, target)
+            } else {
+                // Order mode: list the new order
+                format!("order: {}", new_order.join(", "))
+            };
+
             // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
             let gallops_path = args.file.to_string_lossy().to_string();
@@ -913,7 +949,7 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
                     gallops_path,
                     paddock_path,
                 ],
-                message: format_heat_message(&fm, HeatAction::Rail, "reordered"),
+                message: format_heat_message(&fm, HeatAction::Rail, &subject),
                 size_limit: 50000,
                 warn_limit: 30000,
             };

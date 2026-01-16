@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! Notch and Chalk - Steeplechase commit formatting
 //!
 //! Provides message formatting for JJ-aware git commits that record session history:

@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! VVC Commit - Core commit infrastructure
 //!
 //! Provides atomic commit workflow: lock, stage, guard, commit.
@@ -44,6 +48,10 @@ pub struct vvcc_CommitArgs {
     pub allow_empty: bool,
     /// Skip 'git add -A' (respect pre-staged files)
     pub no_stage: bool,
+    /// Size limit in bytes; None = use VVCC_SIZE_LIMIT (50KB)
+    pub size_limit: Option<u64>,
+    /// Warning limit in bytes; None = use VVCC_WARN_LIMIT (30KB)
+    pub warn_limit: Option<u64>,
 }
 
 /// RAII guard that holds the commit lock.
@@ -154,13 +162,13 @@ fn zvvcc_has_staged_changes() -> Result<bool, String> {
 }
 
 /// Run size guard check on staged content
-fn zvvcc_run_guard() -> Result<(), String> {
-    let args = vvcg_guard::vvcg_GuardArgs {
-        limit: VVCC_SIZE_LIMIT,
-        warn: VVCC_WARN_LIMIT,
+fn zvvcc_run_guard(args: &vvcc_CommitArgs) -> Result<(), String> {
+    let guard_args = vvcg_guard::vvcg_GuardArgs {
+        limit: args.size_limit.unwrap_or(VVCC_SIZE_LIMIT),
+        warn: args.warn_limit.unwrap_or(VVCC_WARN_LIMIT),
     };
 
-    let result = vvcg_guard::vvcg_run(&args);
+    let result = vvcg_guard::vvcg_run(&guard_args);
 
     match result {
         0 => Ok(()),
@@ -319,7 +327,7 @@ fn zvvcc_run_commit_workflow(args: &vvcc_CommitArgs) -> Result<String, String> {
         return Err("Nothing to commit".to_string());
     }
 
-    zvvcc_run_guard()?;
+    zvvcc_run_guard(args)?;
 
     let message = match &args.message {
         Some(m) => m.clone(),

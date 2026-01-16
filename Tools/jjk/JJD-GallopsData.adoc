@@ -1870,6 +1870,12 @@ Output varies by format mode.
 {jjdt_coronet}
 (required with `--format detail`)
 
+// ⟦axd_optional⟧
+* `--remaining` — show only remaining paces (exclude
+{jjdpe_complete}
+and
+{jjdpe_abandoned})
+
 *Format Modes*
 
 [cols="1,2,3"]
@@ -2067,6 +2073,10 @@ Create a JJ-aware git commit with heat/pace context prefix.
 * {jjdt_coronet}
 (positional) — active pace identity (embeds parent heat)
 
+// ⟦axd_optional⟧
+* `--size-limit` — size limit in bytes for the commit guard (default: 50KB).
+Use when the pace spec justifies legitimate large commits.
+
 {jjds_stdout} Commit hash
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -2075,7 +2085,7 @@ Create a JJ-aware git commit with heat/pace context prefix.
 
 . Acquire lock (`refs/vvg/locks/vvx`)
 . Stage changes (`git add -u`)
-. Run size guard check
+. Run size guard check (uses `--size-limit` if provided, otherwise 50KB default)
 . Run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
 . Format full message: `jjb:BRAND:₢XXXXX:n: message\n\nCo-Authored-By: ...`
 . Run `git commit -m "..."`

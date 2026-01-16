@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! Gallops JSON operations
 //!
 //! Implements read/write operations on the Gallops JSON store.

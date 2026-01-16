@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! Query operations for Gallops JSON
 //!
 //! Implements read operations: muster, saddle, parade, retire.
@@ -180,6 +184,7 @@ pub struct jjrq_ParadeArgs {
     pub firemark: Firemark,
     pub format: jjrq_ParadeFormat,
     pub pace: Option<String>,
+    pub remaining: bool,
 }
 
 /// Run the parade command - display comprehensive Heat status
@@ -212,6 +217,10 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
+                        // Skip complete/abandoned if --remaining
+                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                            continue;
+                        }
                         let state_str = zjjrq_pace_state_str(&tack.state);
                         println!("[{}] {} ({})", state_str, pace.silks, coronet_key);
                     }
@@ -219,11 +228,17 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             }
         }
         jjrq_ParadeFormat::Order => {
-            for (idx, coronet_key) in heat.order.iter().enumerate() {
+            let mut num = 0;
+            for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
+                        // Skip complete/abandoned if --remaining
+                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                            continue;
+                        }
+                        num += 1;
                         let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("{}. [{}] {} ({})", idx + 1, state_str, pace.silks, coronet_key);
+                        println!("{}. [{}] {} ({})", num, state_str, pace.silks, coronet_key);
                     }
                 }
             }
@@ -279,6 +294,10 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
+                        // Skip complete/abandoned if --remaining
+                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                            continue;
+                        }
                         let state_str = zjjrq_pace_state_str(&tack.state);
                         println!("### {} ({}) [{}]", pace.silks, coronet_key, state_str);
                         println!();

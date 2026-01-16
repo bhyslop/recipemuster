@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! JJK - Job Jockey Kit
 //!
 //! Rust backend for Job Jockey initiative management.

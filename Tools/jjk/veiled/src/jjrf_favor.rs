@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! Favor encoding - Firemark and Coronet identity types
 //!
 //! Implements base64 encoding/decoding for Job Jockey identity types:

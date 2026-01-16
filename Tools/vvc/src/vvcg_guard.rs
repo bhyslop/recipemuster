@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! VVC Guard - Pre-commit size validation
 //!
 //! Core functionality that measures staged diff sizes before commit.

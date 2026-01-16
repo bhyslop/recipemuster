@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! VOK Main - Voce Viva Rust binary entry point
 //!
 //! Provides core VOK commands and delegates kit commands via external subcommand pattern.
@@ -122,6 +126,8 @@ fn run_commit(args: CommitArgs) -> i32 {
         message: args.message,
         allow_empty: args.allow_empty,
         no_stage: args.no_stage,
+        size_limit: None,
+        warn_limit: None,
     };
     vvc::commit(&vvc_args)
 }

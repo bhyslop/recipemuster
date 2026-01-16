@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! Steeplechase Operations - git history parsing for JJ session tracking
 //!
 //! Implements jjx_rein: parse git history for steeplechase entries belonging to a Heat.

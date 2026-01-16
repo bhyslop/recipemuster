@@ -91,7 +91,8 @@ Show:
 **If pace_state is "primed":**
 - The pace has explicit direction in tack_direction
 - Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing primed pace"`
-- Execute per the direction autonomously (no confirmation needed)
+- Execute using both tack_text (the spec) and tack_direction (execution guidance) autonomously (no confirmation needed)
+- The spec contains the "what" (requirements, code snippets, acceptance criteria); direction contains the "how" (agent tier, steps, verification)
 - When complete, run `/jjc-pace-wrap` to mark done
 
 ## Context preservation

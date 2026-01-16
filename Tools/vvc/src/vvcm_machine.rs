@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! VVC Machine Commit - programmatic commit infrastructure
 //!
 //! For automated operations that know exactly what files to commit

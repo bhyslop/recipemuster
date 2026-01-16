@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 //! VVC - Voce Viva Core
 //!
 //! Shared commit infrastructure for VOK kits.

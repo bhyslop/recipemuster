@@ -1,3 +1,7 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 // build.rs - Kit auto-detection for VOK
 //
 // Detects which kits have veiled/ Rust code and enables corresponding features.
