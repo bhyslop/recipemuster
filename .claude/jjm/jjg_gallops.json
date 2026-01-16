@@ -695,6 +695,11 @@
           "silks": "fix-retire-slash-command",
           "tacks": [
             {
+              "ts": "260116-1058",
+              "state": "rough",
+              "text": "Fix /jjc-heat-retire slash command: (1) Prompt user 'This will permanently retire heat ₣XX. Are you sure?' before proceeding, (2) Call jjx_retire (which should do all the work) instead of manually editing files"
+            },
+            {
               "ts": "260116-1056",
               "state": "rough",
               "text": "Fix /jjc-heat-retire slash command to call jjx_retire (which should do all the work) instead of manually editing files"
