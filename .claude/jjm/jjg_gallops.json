@@ -556,6 +556,11 @@
           "silks": "axs-section-motif-definitions",
           "tacks": [
             {
+              "ts": "260116-0827",
+              "state": "rough",
+              "text": "EXPANDED: Define ALL axs_* section motifs: axs_inputs, axs_preconditions (optional), axs_behavior, axs_outputs, axs_postconditions (optional), axs_completion, axs_errors (optional). Include guidance on interface-specific voicings for each."
+            },
+            {
               "ts": "260116-0814",
               "state": "rough",
               "text": "Define axs_inputs, axs_behavior, axs_outputs, axs_completion, axs_errors section motifs with guidance on interface-specific voicings"
