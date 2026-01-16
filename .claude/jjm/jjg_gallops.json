@@ -675,6 +675,11 @@
           "silks": "cleanup-orphan-rein",
           "tacks": [
             {
+              "ts": "260116-1308",
+              "state": "complete",
+              "text": "Removed orphaned jjw-rn route and jju_rein function. Slash command creation deferred to post-install infrastructure."
+            },
+            {
               "ts": "260116-1306",
               "state": "rough",
               "text": "Remove orphaned jjw-rn infrastructure (shell cleanup only).\n\n## Delete\n\n1. jjw_workbench.sh line 113: remove jjw-rn) case\n2. jju_utility.sh: remove jju_rein function (~lines 227-239)\n\n## Rationale\n\nThese are dead code paths - jjw-rn route exists but no tabtarget, jju_rein was a bash wrapper for jjx_rein.\n\n## Deferred\n\nSlash command /jjc-heat-rein creation deferred until install infrastructure provides brand identifier (see ₢AAAAc, ₢AAAAF)."
