@@ -743,15 +743,27 @@ fn zjjrx_run_nominate(args: zjjrx_NominateArgs) -> i32 {
                 return 1;
             }
 
-            // Commit while holding lock
+            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
-            let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format_heat_message(&fm, HeatAction::Nominate, &silks)),
-                ..Default::default()
+            let gallops_path = args.file.to_string_lossy().to_string();
+            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![
+                    gallops_path,
+                    paddock_path,
+                ],
+                message: format_heat_message(&fm, HeatAction::Nominate, &silks),
+                size_limit: 50000,
+                warn_limit: 30000,
             };
-            match lock.vvcc_commit(&commit_args) {
-                Ok(hash) => eprintln!("jjx_nominate: committed {}", &hash[..8]),
-                Err(e) => eprintln!("jjx_nominate: commit warning: {}", e),
+
+            match vvc::machine_commit(&lock, &commit_args) {
+                Ok(hash) => {
+                    eprintln!("jjx_nominate: committed {}", &hash[..8]);
+                }
+                Err(e) => {
+                    eprintln!("jjx_nominate: commit warning: {}", e);
+                }
             }
 
             println!("{}", result.firemark);
@@ -811,15 +823,27 @@ fn zjjrx_run_slate(args: zjjrx_SlateArgs) -> i32 {
                 return 1;
             }
 
-            // Commit while holding lock
+            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
-            let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format_heat_message(&fm, HeatAction::Slate, &silks)),
-                ..Default::default()
+            let gallops_path = args.file.to_string_lossy().to_string();
+            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![
+                    gallops_path,
+                    paddock_path,
+                ],
+                message: format_heat_message(&fm, HeatAction::Slate, &silks),
+                size_limit: 50000,
+                warn_limit: 30000,
             };
-            match lock.vvcc_commit(&commit_args) {
-                Ok(hash) => eprintln!("jjx_slate: committed {}", &hash[..8]),
-                Err(e) => eprintln!("jjx_slate: commit warning: {}", e),
+
+            match vvc::machine_commit(&lock, &commit_args) {
+                Ok(hash) => {
+                    eprintln!("jjx_slate: committed {}", &hash[..8]);
+                }
+                Err(e) => {
+                    eprintln!("jjx_slate: commit warning: {}", e);
+                }
             }
 
             println!("{}", result.coronet);
@@ -880,15 +904,27 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
                 return 1;
             }
 
-            // Commit while holding lock
+            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
-            let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format_heat_message(&fm, HeatAction::Rail, "reordered")),
-                ..Default::default()
+            let gallops_path = args.file.to_string_lossy().to_string();
+            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![
+                    gallops_path,
+                    paddock_path,
+                ],
+                message: format_heat_message(&fm, HeatAction::Rail, "reordered"),
+                size_limit: 50000,
+                warn_limit: 30000,
             };
-            match lock.vvcc_commit(&commit_args) {
-                Ok(hash) => eprintln!("jjx_rail: committed {}", &hash[..8]),
-                Err(e) => eprintln!("jjx_rail: commit warning: {}", e),
+
+            match vvc::machine_commit(&lock, &commit_args) {
+                Ok(hash) => {
+                    eprintln!("jjx_rail: committed {}", &hash[..8]);
+                }
+                Err(e) => {
+                    eprintln!("jjx_rail: commit warning: {}", e);
+                }
             }
 
             for coronet in new_order {
@@ -977,14 +1013,26 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                 return 1;
             }
 
-            // Commit while holding lock
-            let commit_args = vvc::vvcc_CommitArgs {
-                message: Some(format_heat_message(&fm, HeatAction::Tally, &silks)),
-                ..Default::default()
+            // Commit using vvcm_commit with explicit file list
+            let gallops_path = args.file.to_string_lossy().to_string();
+            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![
+                    gallops_path,
+                    paddock_path,
+                ],
+                message: format_heat_message(&fm, HeatAction::Tally, &silks),
+                size_limit: 50000,
+                warn_limit: 30000,
             };
-            match lock.vvcc_commit(&commit_args) {
-                Ok(hash) => eprintln!("jjx_tally: committed {}", &hash[..8]),
-                Err(e) => eprintln!("jjx_tally: commit warning: {}", e),
+
+            match vvc::machine_commit(&lock, &commit_args) {
+                Ok(hash) => {
+                    eprintln!("jjx_tally: committed {}", &hash[..8]);
+                }
+                Err(e) => {
+                    eprintln!("jjx_tally: commit warning: {}", e);
+                }
             }
 
             0
