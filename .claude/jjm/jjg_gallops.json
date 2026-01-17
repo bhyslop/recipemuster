@@ -135,6 +135,11 @@
           "silks": "vos-uninstall-procedure",
           "tacks": [
             {
+              "ts": "260117-0931",
+              "state": "complete",
+              "text": "Already completed as part of vos-install-procedures pace - vosou_uninstall procedure included with full AXLA compliance."
+            },
+            {
               "ts": "260117-0806",
               "state": "rough",
               "text": "Add MCM/AXLA-style uninstall procedure to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n- Companion to vos-install-procedures pace\n\n## Deliverables\n\nOne MCM/AXLA-style procedure in VOS-VoxObscuraSpec.adoc:\n\n**Uninstall process** - Remove installed kit assets from target repo\n- Git-aware (commit before removing)\n- Handle CLAUDE.md managed section removal\n- Clean up manifest\n- Consider partial uninstall (single kit vs all kits)\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- Paddock architecture section (install process details - inverse applies)"
