@@ -1612,13 +1612,14 @@
       "creation_time": "260117",
       "status": "current",
       "order": [
+        "₢AEAAF",
         "₢AEAAA",
         "₢AEAAB",
         "₢AEAAC",
         "₢AEAAD",
         "₢AEAAE"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -1718,6 +1719,16 @@
               "ts": "260117-1350",
               "state": "rough",
               "text": "Migrate silks from Pace to Tack and add commit SHA tracking.\n\n## Changes\n\n### 1. Move silks to Tack (required field)\n\n**Current:**\n```rust\nstruct jjrg_Pace {\n    silks: String,\n    tacks: Vec<jjrg_Tack>,\n}\n```\n\n**New:**\n```rust\nstruct jjrg_Pace {\n    tacks: Vec<jjrg_Tack>,  // silks removed\n}\n\nstruct jjrg_Tack {\n    ts: String,\n    state: PaceState,\n    text: String,\n    silks: String,          // NEW: required\n    direction: Option<String>,\n}\n```\n\nCurrent silks = `tacks[0].silks` (same pattern as state derivation).\n\n### 2. Add commit SHA to Tack (optional field)\n\n```rust\nstruct jjrg_Tack {\n    // ... existing fields ...\n    commit: Option<String>,  // NEW: HEAD SHA at tack write time\n}\n```\n\nCapture via `git rev-parse HEAD` at tack creation.\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — spec updates\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs — struct changes\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — tack creation sites\n- All slash commands that reference silks lookup\n\n## Migration\n\nLazy migration on read:\n- If old format (silks on Pace): copy to each tack, remove from Pace on write\n- If tack missing commit: leave as None (historical data)\n\n## Enables\n\n- Pace renaming via `/jjc-pace-reslate` with --silks flag\n- Point-in-time file recovery via `git show <commit>:path`"
+            }
+          ]
+        },
+        "₢AEAAF": {
+          "silks": "vvc-guard-binary-file-size",
+          "tacks": [
+            {
+              "ts": "260117-1424",
+              "state": "rough",
+              "text": "Fix VVC guard to properly measure binary file sizes.\n\n## The Bug\n\n`zvvcg_get_diff_size()` in vvcg_guard.rs measures git diff output length, not actual file size:\n\n```rust\nlet output = Command::new(\"git\")\n    .args([\"diff\", \"--cached\", \"--\", path])\n    ...\nOk(output.stdout.len() as u64)  // counts diff output bytes, not file size\n```\n\nFor binary files, git diff outputs:\n```\nBinary files /dev/null and b/vvk-parcel-1000.tar.gz differ\n```\n\nThat is ~60 bytes regardless of actual file size. A 2MB tarball slips through a 50KB guard.\n\n## The Fix\n\nFor new/modified files, get actual staged content size:\n- Use `git ls-files --cached -s` to get blob SHA\n- Use `git cat-file -s <sha>` to get blob size\n- Or use `git diff --cached --numstat` which shows actual byte counts\n\n## Files\n\n- Tools/vvc/src/vvcg_guard.rs\n\n## Testing\n\n1. Stage a large binary file (>50KB)\n2. Run vvx_commit with default limit\n3. Verify guard rejects it\n\n## Prevention\n\nThis bug allowed vvk-parcel-1000.tar.gz (2MB) to be committed. Guard should have caught it."
             }
           ]
         }
