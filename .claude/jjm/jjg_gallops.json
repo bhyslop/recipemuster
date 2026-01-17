@@ -69,7 +69,6 @@
         "₢AAAAp",
         "₢AAAAq",
         "₢AAAAz",
-        "₢AAAA8",
         "₢AAAA-",
         "₢AAAA_",
         "₢AAABG",
@@ -230,16 +229,6 @@
               "ts": "260117-0959",
               "state": "rough",
               "text": "Change --first flag in jjx_rail to position pace at first actionable slot (before first rough/bridled pace) rather than absolute position 0.\n\nRATIONALE: When users say 'move to first', they mean 'make it the next pace to work on.' Moving before 45 completed paces is never useful.\n\nCHANGES:\n1. Update jjrg_rail() in jjrg_gallops.rs to find first actionable position\n2. Update tests in jjtg_gallops.rs (jjtg_rail_move_first)\n3. Update JJD jjda_first definition to clarify semantics\n4. Consider: should --last also mean 'last actionable'? Probably not - last overall is useful for deferral\n\nACCEPTANCE:\n- --first places pace before first rough/bridled pace\n- If all paces complete/abandoned, --first places at end (nothing actionable)\n- --last unchanged (absolute last)\n- Tests pass"
-            }
-          ]
-        },
-        "₢AAAA8": {
-          "silks": "vos-liturgy-cleanup-batch",
-          "tacks": [
-            {
-              "ts": "260117-1009",
-              "state": "rough",
-              "text": "VOS cleanup batch addressing issues from liturgy vocabulary review:\n\nIssue 1: Update legacy vost_cipher references to voslc_cipher\n- Lines 1207, 1211, 1217 (Uninstall operation)\n- Lines 1274, 1300 (Whisper Builder API)\n- Use canonical forms now that alias exists\n\nIssue 3: Fix Rust vesture signet_case (line 430)\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (voic), snake_case describes full inscription\n\nIssue 4: Clarify AsciiDoc vesture scope (line 455)\n- Currently conflates attributes and anchors\n- Decide: two domains, or clarify voslda covers both with different envelopes\n\nIssue 5: Fix colophon definition (lines 528, 534)\n- Clarify that colophon includes content after hyphen (e.g., rbw-B not rbw-)\n- Examples show incomplete colophons\n\nIssue 6: Fix colophon example error (line 534)\n- Change \"jjw- routes to JJK workbench\" to \"JJW workbench\"\n- JJK is kit; JJW is workbench\n\nIssue 10: Clarify tabtarget signet_case (line 496)\n- Current \"lowercase with hyphen\" description incomplete\n- Colophon has internal structure not captured\n\nFiles: Tools/vok/VOS-VoxObscuraSpec.adoc"
             }
           ]
         },
@@ -1630,9 +1619,10 @@
       "creation_time": "260117",
       "status": "current",
       "order": [
-        "₢ADAAA"
+        "₢ADAAA",
+        "₢ADAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1657,6 +1647,21 @@
               "ts": "260117-0924",
               "state": "rough",
               "text": "Define the \"envelope\" component of vesture - the domain-specific framing that completes an inscription.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary"
+            }
+          ]
+        },
+        "₢ADAAB": {
+          "silks": "vos-liturgy-cleanup-batch",
+          "tacks": [
+            {
+              "ts": "260117-1408",
+              "state": "rough",
+              "text": "Drafted from ₢AAAA8 in ₣AA.\n\nVOS cleanup batch addressing issues from liturgy vocabulary review:\n\nIssue 1: Update legacy vost_cipher references to voslc_cipher\n- Lines 1207, 1211, 1217 (Uninstall operation)\n- Lines 1274, 1300 (Whisper Builder API)\n- Use canonical forms now that alias exists\n\nIssue 3: Fix Rust vesture signet_case (line 430)\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (voic), snake_case describes full inscription\n\nIssue 4: Clarify AsciiDoc vesture scope (line 455)\n- Currently conflates attributes and anchors\n- Decide: two domains, or clarify voslda covers both with different envelopes\n\nIssue 5: Fix colophon definition (lines 528, 534)\n- Clarify that colophon includes content after hyphen (e.g., rbw-B not rbw-)\n- Examples show incomplete colophons\n\nIssue 6: Fix colophon example error (line 534)\n- Change \"jjw- routes to JJK workbench\" to \"JJW workbench\"\n- JJK is kit; JJW is workbench\n\nIssue 10: Clarify tabtarget signet_case (line 496)\n- Current \"lowercase with hyphen\" description incomplete\n- Colophon has internal structure not captured\n\nFiles: Tools/vok/VOS-VoxObscuraSpec.adoc"
+            },
+            {
+              "ts": "260117-1009",
+              "state": "rough",
+              "text": "VOS cleanup batch addressing issues from liturgy vocabulary review:\n\nIssue 1: Update legacy vost_cipher references to voslc_cipher\n- Lines 1207, 1211, 1217 (Uninstall operation)\n- Lines 1274, 1300 (Whisper Builder API)\n- Use canonical forms now that alias exists\n\nIssue 3: Fix Rust vesture signet_case (line 430)\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (voic), snake_case describes full inscription\n\nIssue 4: Clarify AsciiDoc vesture scope (line 455)\n- Currently conflates attributes and anchors\n- Decide: two domains, or clarify voslda covers both with different envelopes\n\nIssue 5: Fix colophon definition (lines 528, 534)\n- Clarify that colophon includes content after hyphen (e.g., rbw-B not rbw-)\n- Examples show incomplete colophons\n\nIssue 6: Fix colophon example error (line 534)\n- Change \"jjw- routes to JJK workbench\" to \"JJW workbench\"\n- JJK is kit; JJW is workbench\n\nIssue 10: Clarify tabtarget signet_case (line 496)\n- Current \"lowercase with hyphen\" description incomplete\n- Colophon has internal structure not captured\n\nFiles: Tools/vok/VOS-VoxObscuraSpec.adoc"
             }
           ]
         }
