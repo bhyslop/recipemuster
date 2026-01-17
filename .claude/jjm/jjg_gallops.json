@@ -72,9 +72,10 @@
         "₢AAAA-",
         "₢AAAA_",
         "₢AAABB",
-        "₢AAABC"
+        "₢AAABC",
+        "₢AAABD"
       ],
-      "next_pace_seed": "ABD",
+      "next_pace_seed": "ABE",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1373,6 +1374,16 @@
               "ts": "260117-1129",
               "state": "rough",
               "text": "Implement furlough feature in Rust:\n\n1. Lazy migration in jjrg_gallops.rs:\n   - Deserialize: accept both \"current\" and \"racing\" as valid HeatStatus\n   - Serialize: always write \"racing\" (never \"current\")\n   - Add HeatStatus::Stabled variant\n\n2. Implement jjx_furlough command in jjrx_cli.rs:\n   - Args: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required (validate)\n   - Check heat exists and is not retired\n   - If --racing/--stabled: verify not already in target state, update status\n   - If --silks: update heat silks\n   - Atomic write\n\n3. Update jjx_saddle in jjrq_query.rs:\n   - Check heat status before returning saddle context\n   - If stabled: return error \"Heat is stabled, cannot saddle\"\n\n4. Update jjx_muster in jjrq_query.rs:\n   - Remove --status filter argument\n   - Always return all heats (racing + stabled)\n\nFiles: Tools/jjk/veiled/src/jjrg_gallops.rs, jjrx_cli.rs, jjrq_query.rs"
+            }
+          ]
+        },
+        "₢AAABD": {
+          "silks": "furlough-slash-mount",
+          "tacks": [
+            {
+              "ts": "260117-1129",
+              "state": "rough",
+              "text": "Create slash command and update mount/groom behavior:\n\n1. Create /jjc-heat-furlough slash command:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - Document all options with examples\n   - Call: ./tt/vvw-r.RunVVX.sh jjx_furlough <firemark> [options]\n   - Report new status and/or new silks on success\n   - Auto-commit via vvx_commit\n\n2. Update /jjc-heat-mount:\n   - When checking current heats, filter to racing only (exclude stabled)\n   - If exactly 1 racing heat: auto-proceed without prompting\n   - If 0 racing heats: error with suggestion to check stabled heats\n   - If 2+ racing heats: prompt for selection (existing behavior)\n\n3. Update /jjc-heat-groom:\n   - Allow grooming stabled heats (no status check)\n   - Mention in output if heat is stabled\n\nFiles: .claude/commands/jjc-heat-furlough.md (new), jjc-heat-mount.md, jjc-heat-groom.md"
             }
           ]
         }
