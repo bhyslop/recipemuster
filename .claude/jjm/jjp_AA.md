@@ -15,7 +15,7 @@ Runs from source repo. Responsibilities:
 1. Run all testbenches (fail release if tests fail)
 2. Build `vvx` for target platforms (darwin-arm64, darwin-x86_64, linux-x86_64)
 3. Collect kit assets from source tree (Rust knows what files belong to each kit)
-4. Package archive: `vok-release-YYMMDD-HHMM.tar.gz`
+4. Package archive: `vvk-parcel-{hallmark}.tar.gz`
 
 Rust owns the knowledge of what to collect and where each file installs. No external manifest files. Kit membership and install paths defined in Rust structs.
 

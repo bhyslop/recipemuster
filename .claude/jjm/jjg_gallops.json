@@ -73,9 +73,10 @@
         "₢AAAA_",
         "₢AAABB",
         "₢AAABC",
-        "₢AAABD"
+        "₢AAABD",
+        "₢AAABE"
       ],
-      "next_pace_seed": "ABE",
+      "next_pace_seed": "ABF",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1389,6 +1390,16 @@
               "ts": "260117-1129",
               "state": "rough",
               "text": "Create slash command and update mount/groom behavior:\n\n1. Create /jjc-heat-furlough slash command:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - Document all options with examples\n   - Call: ./tt/vvw-r.RunVVX.sh jjx_furlough <firemark> [options]\n   - Report new status and/or new silks on success\n   - Auto-commit via vvx_commit\n\n2. Update /jjc-heat-mount:\n   - When checking current heats, filter to racing only (exclude stabled)\n   - If exactly 1 racing heat: auto-proceed without prompting\n   - If 0 racing heats: error with suggestion to check stabled heats\n   - If 2+ racing heats: prompt for selection (existing behavior)\n\n3. Update /jjc-heat-groom:\n   - Allow grooming stabled heats (no status check)\n   - Mention in output if heat is stabled\n\nFiles: .claude/commands/jjc-heat-furlough.md (new), jjc-heat-mount.md, jjc-heat-groom.md"
+            }
+          ]
+        },
+        "₢AAABE": {
+          "silks": "veiled-whisper-spec",
+          "tacks": [
+            {
+              "ts": "260117-1145",
+              "state": "rough",
+              "text": "Update VOS spec to fully specify the Whisper mechanism before implementation.\n\nCONTEXT:\nVOS mentions Whisper (lines 780-799) with a builder API example but lacks:\n- Complete API specification\n- All builder methods and their semantics\n- How whispers register with Conclave\n- How managed sections are generated from templates\n- Relationship between concept models and CLAUDE.md extraction\n\nGOALS:\n1. Fully specify Whisper builder API:\n   - .cipher() - symbolic cipher reference\n   - .display_name() - human-readable kit name\n   - .managed_section(file, tag) - CLAUDE.md template registration\n   - .concept_model(file) - concept model registration\n   - .register(&mut conclave) - registration with Conclave\n\n2. Specify Conclave responsibilities:\n   - How it collects Whispers\n   - Validation during release\n   - Asset enumeration for install/uninstall\n\n3. Specify managed section generation:\n   - How vo{cipher}mc_*.md templates are authored\n   - How they reference concept model content\n   - Marker format and replacement semantics\n\n4. Clarify veiled directory structure:\n   - Rename from veiled/ to vov_veiled/ if needed\n   - File naming conventions (vo{cipher}*)\n   - What goes in veiled vs kit root\n\nFILES: Tools/vok/VOS-VoxObscuraSpec.adoc\n\nThis pace is SPEC ONLY - no implementation. Must complete before veiled-directory-migration can be bridled."
             }
           ]
         }
