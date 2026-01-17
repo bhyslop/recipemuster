@@ -674,8 +674,14 @@ and
 [[jjda_first]]
 // ⟦axl_voices axa_cli_flag⟧
 {jjda_first}::
-Position at beginning of
-{jjdhm_order}.
+Position at first actionable slot in
+{jjdhm_order}
+(before the first
+{jjdpe_rough}
+or
+{jjdpe_bridled}
+pace).
+If no actionable paces exist, positions at end.
 Long: `--first`.
 Short: none.
 Boolean flag, no value.

@@ -730,7 +730,27 @@ impl jjrg_Gallops {
                 .ok_or_else(|| format!("Pace {} not in order array", move_key))?;
 
             let new_pos = if args.first {
-                0
+                // Find first actionable pace (rough or bridled)
+                // If none found, use end of array (nothing actionable to precede)
+                let first_actionable_idx = heat.order.iter().position(|coronet| {
+                    if let Some(pace) = heat.paces.get(coronet) {
+                        if let Some(tack) = pace.tacks.first() {
+                            matches!(tack.state, jjrg_PaceState::Rough | jjrg_PaceState::Bridled)
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                });
+                // Use len() as fallback so adjustment logic works correctly for "end" position
+                let target_idx = first_actionable_idx.unwrap_or(heat.order.len());
+                // If moving from before target, the target shifts down after removal
+                if current_pos < target_idx {
+                    target_idx - 1
+                } else {
+                    target_idx
+                }
             } else if args.last {
                 heat.order.len() - 1
             } else if let Some(ref before_str) = args.before {

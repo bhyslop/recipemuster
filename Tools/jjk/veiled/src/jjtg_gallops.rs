@@ -792,32 +792,44 @@ fn jjtg_rail_duplicate_coronets() {
 
 #[test]
 fn jjtg_rail_move_first() {
+    // Test that --first moves to first ACTIONABLE position, not absolute position 0
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
 
-    // Add two more paces (total 3)
+    // Make the first pace (from make_valid_heat) complete
+    let pace1_key = heat.order[0].clone();
+    heat.paces.get_mut(&pace1_key).unwrap().tacks[0].state = jjrg_PaceState::Complete;
+
+    // Add pace2 (complete) and pace3 (rough) and pace4 (rough)
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
+    let pace4_key = "₢ABAAD".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
         silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, None)],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
         silks: "third-pace".to_string(),
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
     });
+    heat.paces.insert(pace4_key.clone(), jjrg_Pace {
+        silks: "fourth-pace".to_string(),
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+    });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
-    heat.next_pace_seed = "AAD".to_string();
+    heat.order.push(pace4_key.clone());
+    heat.next_pace_seed = "AAE".to_string();
 
-    let original_first = heat.order[0].clone();
+    // Order: [complete1, complete2, rough3, rough4]
     gallops.heats.insert(heat_key.clone(), heat);
 
-    // Move third pace to first
+    // Move fourth pace (rough) to first actionable position
+    // Should go BEFORE pace3 (first rough), not before pace1 (absolute first)
     let args = jjrg_RailArgs {
         firemark: "AB".to_string(),
         order: vec![],
-        move_coronet: Some(pace3_key.clone()),
+        move_coronet: Some(pace4_key.clone()),
         before: None,
         after: None,
         first: true,
@@ -827,10 +839,60 @@ fn jjtg_rail_move_first() {
     let result = gallops.jjrg_rail(args);
     assert!(result.is_ok());
 
+    // Expected order: [complete1, complete2, rough4, rough3]
     let heat = gallops.heats.get(&heat_key).unwrap();
-    assert_eq!(heat.order[0], pace3_key);
-    assert_eq!(heat.order[1], original_first);
-    assert_eq!(heat.order[2], pace2_key);
+    assert_eq!(heat.order[0], pace1_key, "complete1 should stay at index 0");
+    assert_eq!(heat.order[1], pace2_key, "complete2 should stay at index 1");
+    assert_eq!(heat.order[2], pace4_key, "rough4 should move to first actionable (index 2)");
+    assert_eq!(heat.order[3], pace3_key, "rough3 should shift to index 3");
+}
+
+#[test]
+fn jjtg_rail_move_first_all_complete() {
+    // Test that --first moves to end when all paces are complete
+    let mut gallops = make_valid_gallops();
+    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
+
+    // Make all paces complete
+    let pace1_key = heat.order[0].clone();
+    heat.paces.get_mut(&pace1_key).unwrap().tacks[0].state = jjrg_PaceState::Complete;
+
+    let pace2_key = "₢ABAAB".to_string();
+    let pace3_key = "₢ABAAC".to_string();
+    heat.paces.insert(pace2_key.clone(), jjrg_Pace {
+        silks: "second-pace".to_string(),
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, None)],
+    });
+    heat.paces.insert(pace3_key.clone(), jjrg_Pace {
+        silks: "third-pace".to_string(),
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, None)],
+    });
+    heat.order.push(pace2_key.clone());
+    heat.order.push(pace3_key.clone());
+    heat.next_pace_seed = "AAD".to_string();
+
+    // Order: [complete1, complete2, complete3]
+    gallops.heats.insert(heat_key.clone(), heat);
+
+    // Move first pace to "first actionable" - but all are complete, so goes to end
+    let args = jjrg_RailArgs {
+        firemark: "AB".to_string(),
+        order: vec![],
+        move_coronet: Some(pace1_key.clone()),
+        before: None,
+        after: None,
+        first: true,
+        last: false,
+    };
+
+    let result = gallops.jjrg_rail(args);
+    assert!(result.is_ok());
+
+    // Expected order: [complete2, complete3, complete1]
+    let heat = gallops.heats.get(&heat_key).unwrap();
+    assert_eq!(heat.order[0], pace2_key);
+    assert_eq!(heat.order[1], pace3_key);
+    assert_eq!(heat.order[2], pace1_key, "pace1 should move to end when no actionable paces");
 }
 
 #[test]

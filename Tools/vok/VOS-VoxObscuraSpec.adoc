@@ -147,6 +147,7 @@
 :vosk_all_or_none:       <<vosk_all_or_none,All Or None>>
 :vosk_parcel_self_contained: <<vosk_parcel_self_contained,Parcel Self-Contained>>
 :vosk_burc_prerequisite: <<vosk_burc_prerequisite,BURC Prerequisite>>
+:vosk_default_routing:   <<vosk_default_routing,Default Routing>>
 
 // end::mapping-section[]
 
@@ -224,6 +225,10 @@ This constraint enables deterministic
 by
 {vosls_signet}
 matching.
++
+Validation applies to artifact *file names* only.
+Internal content (function names, variable names within scripts) is not validated during
+{vosor_release}.
 
 [[vosk_all_or_none]]
 // ⟦axl_voices axk_premise⟧
@@ -257,6 +262,19 @@ requires BURC (BUK Regime Configuration) in the
 {vosp_target_repo}.
 The install script reads `.buk/burc.env` to locate `BURC_TOOLS_DIR`.
 Install fails immediately if BURC is missing — no bootstrap, no prompts.
+
+[[vosk_default_routing]]
+// ⟦axl_voices axk_premise⟧
+{vosk_default_routing}::
+Assets without special routing rules copy in place, preserving directory structure relative to
+{vose_kit}
+root.
+Only
+{vosa_command_s}
+and
+{vosa_hook_s}
+have special routing (to `.claude/commands/` and `.claude/hooks/` respectively).
+All other files install to `${BURC_TOOLS_DIR}/{kit}/` maintaining their source-relative paths.
 
 == Control Terms
 
@@ -842,7 +860,10 @@ templates (`vo{cipher}mc_*.md`)
 +
 Excluded from
 {vose_parcel}
-by structural convention.
+by structural convention:
+during
+{vosor_release}
+asset collection, any path containing `vov_veiled/` is skipped.
 VOK itself is inherently
 {vosp_veiled}
 (entire `Tools/vok/` stays in
