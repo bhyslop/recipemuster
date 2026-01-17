@@ -77,9 +77,10 @@
         "₢AAABC",
         "₢AAABD",
         "₢AAABG",
-        "₢AAABH"
+        "₢AAABH",
+        "₢AAABI"
       ],
-      "next_pace_seed": "ABI",
+      "next_pace_seed": "ABJ",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1468,6 +1469,16 @@
               "ts": "260117-1210",
               "state": "rough",
               "text": "Refactor DISTRIBUTABLE_KITS to use typed voic_Cipher registry instead of raw strings.\n\n## Current State\n\n`DISTRIBUTABLE_KITS` (voic_registry.rs:162-167) uses raw strings:\n```rust\npub const DISTRIBUTABLE_KITS: &[&str] = &[\"buk\", \"cmk\", \"jjk\", \"vvk\"];\n```\n\nMeanwhile the typed cipher registry exists with `BU`, `CM`, `JJ`, `VV` constants.\n\n## Problem\n\nNo compile-time guarantee that distributable kit names correspond to registered ciphers.\n\n## Design Questions (not resolved)\n\n1. Kit directory = cipher + \"k\" suffix. Where does this mapping live?\n   - Method on voic_Cipher: `fn kit_dir(&self) -> &str`?\n   - Separate struct for \"kit\" vs \"cipher\"?\n   - Const fn that derives it?\n\n2. Should DISTRIBUTABLE_KITS be `&[voic_Cipher]` or a new `voic_Kit` type?\n\n3. Not all ciphers are kits (e.g., MCM, AXL are vocabulary, not kits). How to distinguish?\n\n4. Some kits share ciphers with non-kit uses (e.g., `vv` is both VVC crate and VVK kit).\n\n## Not MVP\n\nRaw strings work. This is type-safety cleanup for later.\n\n## Status\n\nNeeds design thinking before implementation. Do not bridle without resolving design questions."
+            }
+          ]
+        },
+        "₢AAABI": {
+          "silks": "vof-prefix-tree-checker",
+          "tacks": [
+            {
+              "ts": "260117-1243",
+              "state": "rough",
+              "text": "Implement prefix tree registry in vof with vvx checker utility.\n\n## Problem\n\nPrefix tree integrity across codebase. Need to ensure all inscriptions use registered prefixes and respect terminal exclusivity.\n\n## Rejected Approach (₢AAAA- abandoned)\n\nMCM-based documentation of prefix trees in mapping section comments.\n\nWhy rejected:\n- Requires Claude to parse/remember prefix trees each session (context window cost)\n- No enforcement — hope-based compliance\n- Violations discovered late (during review) not early (at build time)\n\n## Proposed Approach\n\nBake all known prefix tree paths into vof (Tools/vok/vof). VVX provides `vvx check` utility that scans entire repo for prefix violations.\n\n### Registry Enhancement\n\nExtend vof beyond cipher registry to full prefix tree:\n- Terminal prefixes (leaf nodes that name things): `buc_`, `jjrg_`\n- Non-terminal prefixes (have children): `bu`, `jjr`\n- Tree structure with parent-child relationships\n\n### Checker Utility\n\n`vvx check` (or `vvx lint`) subcommand:\n\n1. Scan all files in repo (respecting .gitignore)\n2. Vesture-aware extraction:\n   - File names: `rbga_*.sh`, `JJD-*.adoc`\n   - Function declarations: `buc_log_args()`, `zbuc_color()`\n   - AsciiDoc attributes: `:rbw_depot:`\n   - Anchors: `[[rbw_depot]]`\n   - Slash commands: `/jjc-*`\n   - Rust declarations: `voic_Cipher`, `jjrg_Gallops`\n3. Parse prefix from each inscription\n4. Validate against vof registry\n5. Report unknown prefixes as warnings/errors\n\n### Enforcement\n\n- CI integration: fail build on unknown prefix\n- Forces immediate documentation of new terms\n- Single source of truth in vof\n- Zero context window cost for Claude\n\n## Relationship to Other Paces\n\n- ₢AAABG (voi-directory-relocation): Already done — vof is the result\n- ₢AAABH (distributable-kits-typed-registry): Complementary — that's about consolidating kit metadata, this is about prefix validation\n\n## Open Questions\n\n1. Error vs warning for unknown prefixes during transition?\n2. Allowlist for legacy prefixes not yet registered?\n3. How to handle external dependencies with their own prefixes?"
             }
           ]
         }
