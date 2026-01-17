@@ -11,7 +11,6 @@
 
 use std::collections::BTreeMap;
 use std::fs;
-use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
 use crate::vofc_registry::{DISTRIBUTABLE_KITS, vofc_Kit};

@@ -329,3 +329,60 @@ fn run_push_workflow(args: &PushArgs) -> Result<(), String> {
 
     Ok(())
 }
+
+/// Run release_collect command
+fn run_release_collect(args: ReleaseCollectArgs) -> i32 {
+    eprintln!("release_collect: collecting assets...");
+    eprintln!("  staging: {}", args.staging.display());
+    eprintln!("  tools_dir: {}", args.tools_dir.display());
+    eprintln!("  install_script: {}", args.install_script.display());
+
+    match vof::vofr_collect(&args.tools_dir, &args.staging, &args.install_script) {
+        Ok(result) => {
+            // Output JSON for bash to parse
+            let mut output = serde_json::Map::new();
+            output.insert("total_files".to_string(), serde_json::Value::Number(result.total_files.into()));
+            output.insert("commands_routed".to_string(), serde_json::Value::Number(result.commands_routed.into()));
+
+            let kit_counts: serde_json::Map<String, serde_json::Value> = result.kit_counts
+                .into_iter()
+                .map(|(k, v)| (k, serde_json::Value::Number(v.into())))
+                .collect();
+            output.insert("kit_counts".to_string(), serde_json::Value::Object(kit_counts));
+
+            println!("{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
+            eprintln!("release_collect: success - {} files collected", result.total_files);
+            0
+        }
+        Err(e) => {
+            eprintln!("release_collect: error: {}", e);
+            1
+        }
+    }
+}
+
+/// Run release_brand command
+fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
+    eprintln!("release_brand: branding staging...");
+    eprintln!("  staging: {}", args.staging.display());
+    eprintln!("  registry: {}", args.registry.display());
+    eprintln!("  commit: {}", args.commit);
+
+    match vof::vofr_brand(&args.staging, &args.registry, &args.commit) {
+        Ok(result) => {
+            // Output hallmark for bash to use in tarball name
+            println!("{}", result.hallmark);
+            if result.is_new {
+                eprintln!("release_brand: allocated new hallmark {}", result.hallmark);
+            } else {
+                eprintln!("release_brand: reusing existing hallmark {}", result.hallmark);
+            }
+            eprintln!("release_brand: super-SHA: {}", result.super_sha);
+            0
+        }
+        Err(e) => {
+            eprintln!("release_brand: error: {}", e);
+            1
+        }
+    }
+}

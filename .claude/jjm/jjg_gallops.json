@@ -69,7 +69,6 @@
         "₢AAAAp",
         "₢AAAAq",
         "₢AAAAz",
-        "₢AAAA4",
         "₢AAAA8",
         "₢AAAA-",
         "₢AAAA_",
@@ -176,26 +175,6 @@
               "ts": "260117-0806",
               "state": "rough",
               "text": "Add MCM/AXLA-style uninstall procedure to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n- Companion to vos-install-procedures pace\n\n## Deliverables\n\nOne MCM/AXLA-style procedure in VOS-VoxObscuraSpec.adoc:\n\n**Uninstall process** - Remove installed kit assets from target repo\n- Git-aware (commit before removing)\n- Handle CLAUDE.md managed section removal\n- Clean up manifest\n- Consider partial uninstall (single kit vs all kits)\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- Paddock architecture section (install process details - inverse applies)"
-            }
-          ]
-        },
-        "₢AAAA4": {
-          "silks": "define-envelope-vesture-component",
-          "tacks": [
-            {
-              "ts": "260117-1023",
-              "state": "rough",
-              "text": "CONTEXT: Envelope is the fourth component of Vesture (alongside signet_case, separator, epithet_case). Deferred because the dual-nature (suffix vs frame) was blocking conceptual progress.\n\nSTATUS: Domain vestures in VOS already specify envelope values informally (e.g., `.sh`, `[[...]]`, `.md`). The inscription structure definition deliberately omits envelope, deferring to vesture. This pace formalizes what exists.\n\nTASK: Create voslve_envelope linked term and reconcile the definition.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary\n\nPossible resolution: Two sub-concepts under envelope umbrella, or accept envelope as polymorphic with domain-specific interpretation.\n\nIMPLEMENTATION:\n1. Add voslve_envelope to VOS mapping section\n2. Add formal definition reconciling suffix vs frame\n3. Update vesture definition to reference the new linked term\n4. Domain vestures already have values - just need term to reference"
-            },
-            {
-              "ts": "260117-0933",
-              "state": "rough",
-              "text": "CONTEXT: Envelope is the fourth component of Vesture (alongside signet_case, separator, epithet_case). Deferred because the dual-nature (suffix vs frame) was blocking conceptual progress. This is a prerequisite for fully documenting each domain vesture in vosld* terms.\n\nDefine the \"envelope\" component of vesture - the domain-specific framing that completes an inscription.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary\n\nPossible resolution direction: Two sub-concepts under envelope umbrella, or accept envelope as polymorphic with domain-specific interpretation."
-            },
-            {
-              "ts": "260117-0924",
-              "state": "rough",
-              "text": "Define the \"envelope\" component of vesture - the domain-specific framing that completes an inscription.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary"
             }
           ]
         },
@@ -1650,10 +1629,38 @@
       "silks": "vos-spec-and-tooling",
       "creation_time": "260117",
       "status": "current",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ADAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AD.md",
-      "paces": {}
+      "paces": {
+        "₢ADAAA": {
+          "silks": "define-envelope-vesture-component",
+          "tacks": [
+            {
+              "ts": "260117-1408",
+              "state": "rough",
+              "text": "Drafted from ₢AAAA4 in ₣AA.\n\nCONTEXT: Envelope is the fourth component of Vesture (alongside signet_case, separator, epithet_case). Deferred because the dual-nature (suffix vs frame) was blocking conceptual progress.\n\nSTATUS: Domain vestures in VOS already specify envelope values informally (e.g., `.sh`, `[[...]]`, `.md`). The inscription structure definition deliberately omits envelope, deferring to vesture. This pace formalizes what exists.\n\nTASK: Create voslve_envelope linked term and reconcile the definition.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary\n\nPossible resolution: Two sub-concepts under envelope umbrella, or accept envelope as polymorphic with domain-specific interpretation.\n\nIMPLEMENTATION:\n1. Add voslve_envelope to VOS mapping section\n2. Add formal definition reconciling suffix vs frame\n3. Update vesture definition to reference the new linked term\n4. Domain vestures already have values - just need term to reference"
+            },
+            {
+              "ts": "260117-1023",
+              "state": "rough",
+              "text": "CONTEXT: Envelope is the fourth component of Vesture (alongside signet_case, separator, epithet_case). Deferred because the dual-nature (suffix vs frame) was blocking conceptual progress.\n\nSTATUS: Domain vestures in VOS already specify envelope values informally (e.g., `.sh`, `[[...]]`, `.md`). The inscription structure definition deliberately omits envelope, deferring to vesture. This pace formalizes what exists.\n\nTASK: Create voslve_envelope linked term and reconcile the definition.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary\n\nPossible resolution: Two sub-concepts under envelope umbrella, or accept envelope as polymorphic with domain-specific interpretation.\n\nIMPLEMENTATION:\n1. Add voslve_envelope to VOS mapping section\n2. Add formal definition reconciling suffix vs frame\n3. Update vesture definition to reference the new linked term\n4. Domain vestures already have values - just need term to reference"
+            },
+            {
+              "ts": "260117-0933",
+              "state": "rough",
+              "text": "CONTEXT: Envelope is the fourth component of Vesture (alongside signet_case, separator, epithet_case). Deferred because the dual-nature (suffix vs frame) was blocking conceptual progress. This is a prerequisite for fully documenting each domain vesture in vosld* terms.\n\nDefine the \"envelope\" component of vesture - the domain-specific framing that completes an inscription.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary\n\nPossible resolution direction: Two sub-concepts under envelope umbrella, or accept envelope as polymorphic with domain-specific interpretation."
+            },
+            {
+              "ts": "260117-0924",
+              "state": "rough",
+              "text": "Define the \"envelope\" component of vesture - the domain-specific framing that completes an inscription.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary"
+            }
+          ]
+        }
+      }
     }
   }
 }
