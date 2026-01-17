@@ -1,3 +1,8 @@
 {
-  "hallmarks": {}
+  "hallmarks": {
+    "1000": {
+      "date": "260117-1409",
+      "sha": "943c44b47e60066a3e73da34eb97b802bc85a96caf766be7e8792a15b0055180"
+    }
+  }
 }

@@ -59,6 +59,7 @@ vow_route() {
     # Build subsystem
     vow-b)  exec "${z_vob_cli}" vob_build   "$@" ;;
     vow-R)  exec "${z_vob_cli}" vob_release "$@" ;;  # capital R = big action
+    vow-P)  exec "${z_vob_cli}" vob_parcel  "$@" ;;  # capital P = parcel release
 
     # Run VVX binary directly
     vow-r)  exec "${VOW_SCRIPT_DIR}/target/release/vvr" "$@" ;;
