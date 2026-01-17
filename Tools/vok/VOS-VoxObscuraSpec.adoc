@@ -20,6 +20,8 @@
 // vosle_: Liturgy Epithet (descriptive word after separator)
 // vosli_: Liturgy Inscription (full artifact name)
 // voslv_: Liturgy Vesture (domain construction rules)
+// vosln_: Liturgy Ensign (signet extension that classifies category)
+// voslm_: Liturgy Monogram (signet extension that binds to epithet initial)
 // vosld:  Liturgy Domain (non-terminal, domain-specific vestures)
 // vosldr_: Liturgy Domain Rust (Rust source vesture)
 // vosldb_: Liturgy Domain Bash (Bash source vesture)
@@ -53,6 +55,10 @@
 :vosli_inscription_s:   <<vosli_inscription,Inscriptions>>
 :voslv_vesture:         <<voslv_vesture,Vesture>>
 :voslv_vesture_s:       <<voslv_vesture,Vestures>>
+:vosln_ensign:          <<vosln_ensign,Ensign>>
+:vosln_ensign_s:        <<vosln_ensign,Ensigns>>
+:voslm_monogram:        <<voslm_monogram,Monogram>>
+:voslm_monogram_s:      <<voslm_monogram,Monograms>>
 
 // Liturgy Domains (vesture specializations)
 :vosldr_rust:           <<vosldr_rust,Rust Vesture>>
@@ -396,6 +402,58 @@ The
 is the identity stamp that binds an artifact to its owning project.
 +
 Examples: `jjk` (kit), `jjc` (command prefix), `voslc` (this term's signet).
++
+A
+{vosls_signet}
+is extended from its
+{voslc_cipher}
+using either an
+{vosln_ensign}
+(classification marker) or a
+{voslm_monogram}
+(epithet-initial binding).
+
+[[vosln_ensign]]
+// ⟦axl_voices axt_string⟧
+{vosln_ensign}::
+A
+{vosls_signet}
+extension that classifies artifact category.
+The terminal character(s) mark a type or role, independent of the
+{vosle_epithet}.
++
+Examples:
++
+* `axt_string` — `t` = type classification, `string` = epithet
+* `burc_regime` — `rc` = regime-config classification, `regime` = epithet
+* `axtu_path` — `tu` = type-universal sub-classification, `path` = epithet
++
+{vosln_ensign_s}
+enable hierarchical categorization within a
+{voslc_cipher}
+namespace.
+
+[[voslm_monogram]]
+// ⟦axl_voices axt_string⟧
+{voslm_monogram}::
+A
+{vosls_signet}
+extension where the terminal character binds to the
+{vosle_epithet}
+initial.
+Creates a mnemonic connection between
+{vosls_signet}
+and
+{vosle_epithet}.
++
+Examples:
++
+* `buc_command` — `c` = first letter of `command`
+* `jjw_workbench` — `w` = first letter of `workbench`
+* `voslc_cipher` — `c` = first letter of `cipher`
++
+{voslm_monogram_s}
+create tight signet-epithet binding but limit each terminal letter to one artifact.
 
 [[vosle_epithet]]
 // ⟦axl_voices axt_string⟧
@@ -651,12 +709,7 @@ Structure:
 +
 ----
 vvk-parcel-260115-1430/
-  vvi_install.sh          # Install script (BCG-style)
-  vvu_uninstall.sh        # Uninstall script (copied to target)
-  bin/
-    vvx-darwin-arm64
-    vvx-darwin-x86_64
-    vvx-linux-x86_64
+  vvi_install.sh          # Install script (BCG-style, not installed)
   kits/
     buk/
       buc_command.sh
@@ -666,16 +719,26 @@ vvk-parcel-260115-1430/
       commands/
         jjc-heat-mount.md
       ...
+    vvk/
+      bin/
+        vvx-darwin-arm64
+        vvx-darwin-x86_64
+        vvx-linux-x86_64
+      vvu_uninstall.sh
 ----
 +
-The `bin/` directory contains lean binaries (install logic only).
-The `kits/` directory contains plain-text assets organized by
-{vose_kit}.
+The `kits/` directory mirrors the target `Tools/` structure.
+VVK is a
+{vose_kit}
+like any other — it just happens to contain binaries.
+The
+{vose_parcel}
+layout matches the installed layout: `kits/*` becomes `Tools/*`.
 +
 **Scripts:**
 +
-* `vvi_install.sh` — Standalone BCG-style script. Reads target's BURC to locate `BURC_TOOLS_DIR`. Copies `vvu_uninstall.sh` to target for later use.
-* `vvu_uninstall.sh` — Also BCG-style. After install, lives at `${BURC_TOOLS_DIR}/vvk/vvu_uninstall.sh` in target.
+* `vvi_install.sh` — Bootstrap script at archive root. Reads target's BURC to locate `BURC_TOOLS_DIR`. Not installed to target.
+* `vvu_uninstall.sh` — Lives in `kits/vvk/`, installs to `${BURC_TOOLS_DIR}/vvk/`.
 
 [[vose_whisper]]
 // ⟦axl_voices axo_entity⟧
@@ -765,8 +828,10 @@ with unique characteristics:
 * Has a
 {vose_whisper}
 like other kits (for CLAUDE.md knowledge)
-* Contents are primarily binaries (`vvx` wrapper, `vvr-*` platform binaries)
-* Serves as the install target — all kit binaries install into `Tools/vvk/bin/`
+* Contents are primarily binaries (`vvx-{platform}`) and the uninstall script
+* Installed like any other kit — `kits/vvk/` in
+{vose_parcel}
+becomes `Tools/vvk/` in target
 * Present in every
 {vosp_target_repo}
 — the universal kit
@@ -1004,10 +1069,8 @@ as current timestamp (YYMMDD-HHMM)
 
 . *Package parcel*:
 .. Create `vvk-parcel-{sigil}.tar.gz` with structure:
-... `vvi_install.sh` — install script
-... `vvu_uninstall.sh` — uninstall script (copied to target)
-... `bin/` — platform binaries
-... `kits/` — kit assets by directory
+... `vvi_install.sh` — install script (bootstrap, not installed)
+... `kits/` — all kit assets by directory (including VVK with binaries)
 
 {voss_outputs}
 
@@ -1066,19 +1129,12 @@ source BURC
 .. {vosc_step}
 "Pre-install snapshot created"
 
-. *Install platform binaries*:
-.. {vosc_call}
-detect current platform
-.. {vosc_call}
-copy matching binary from `bin/` to `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-.. {vosc_call}
-copy `vvu_uninstall.sh` to `${BURC_TOOLS_DIR}/vvk/`
-
 . *Install each kit*:
 .. For each kit directory in `kits/`:
 ... Invoke
 {vosok_kit}
 with kit source and target paths
+.. VVK is installed like any other kit (binaries land at `${BURC_TOOLS_DIR}/vvk/bin/`)
 
 . *Write manifest*:
 .. {vosc_store}
@@ -1100,8 +1156,7 @@ user modifications that may need recovery
 
 {voss_outputs}
 
-* Platform binary at `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-* Kit assets under `${BURC_TOOLS_DIR}/`
+* Kit assets under `${BURC_TOOLS_DIR}/` (including VVK binaries at `vvk/bin/`)
 * Manifest at `.claude/vvx-manifest.json`
 * Two git commits (pre-install, post-install)
 
