@@ -251,6 +251,11 @@
           "silks": "vos-brand-hallmark-system",
           "tacks": [
             {
+              "ts": "260117-1102",
+              "state": "complete",
+              "text": "Added brand/hallmark system to VOS spec: vose_brand_file, vose_registry, vost_hallmark types; amended vosor_release and vosoi_install operations."
+            },
+            {
               "ts": "260117-1048",
               "state": "rough",
               "text": "Add brand/hallmark system to VOS specification.\n\nNEW CONCEPTS:\n1. vose_brand_file (axj_structure) — Runtime identity file at parcel root\n   - vosem_hallmark (axj_field): vvbh_hallmark — 4-digit version identifier (string, starts at 1000)\n   - vosem_brand_date (axj_field): vvbd_date — Minted timestamp (YYMMDD-HHMM)\n   - vosem_brand_sha (axj_field): vvbs_sha — Content super-SHA\n2. vose_registry (axj_structure) — Veiled registry mapping hallmark to {date, sha}\n   - File: Tools/vok/vov_veiled/vovr_registry.json\n   - Keys are hallmark values; entries use vvbd_date and vvbs_sha field names\n3. vost_hallmark type — 4-digit string starting at 1000, increments for each unique content set\n\nAMEND vosor_release:\n- Compute order-independent super-SHA (sort files, hash path+content, combine)\n- Exclude vvbf_brand_file.json from SHA computation\n- Look up super-SHA in vovr_registry.json\n- If new: allocate next hallmark, update registry, commit\n- Write vvbf_brand_file.json to parcel root\n- Parcel naming: vvk-parcel-{hallmark}.tar.gz (drop sigil from name)\n\nAMEND vosoi_install:\n- Read vvbf_brand_file.json from parcel\n- Write hallmark to target manifest\n\nACCEPTANCE:\n- VOS has complete brand file and registry entity definitions\n- vosor_release behavior documents hallmark allocation flow\n- vosoi_install behavior documents brand file consumption\n- Field tags explicitly documented via axj_field_tag pattern"
