@@ -345,6 +345,11 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 
 ALWAYS read the corresponding slash command before attempting JJ operations.
 
+**CRITICAL**: JJK CLI syntax is non-standard. Do NOT guess based on common CLI conventions.
+- Specs go via stdin, not `--spec`
+- Positioning uses `--move X --first`, not `--position first`
+- Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
+
 | When you need to... | Read first |
 |---------------------|------------|
 | Add a new pace | /jjc-pace-slate |
