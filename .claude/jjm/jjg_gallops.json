@@ -166,6 +166,11 @@
           "silks": "formalize-dispatch-vocabulary",
           "tacks": [
             {
+              "ts": "260117-0953",
+              "state": "complete",
+              "text": "Added dispatch vocabulary (vosd*) to VOS: colophon, frontispiece, imprint, formulary, launcher. Cross-references liturgy terms for tabtarget inscription patterns."
+            },
+            {
               "ts": "260117-0934",
               "state": "rough",
               "text": "Incorporate tabtarget/dispatch vocabulary into VOS under vosd* prefix.\n\nDESIGN PATTERN: First-letter trick (like vosl*)\n- vosd = dispatch umbrella (non-terminal)\n- vosdc = colophon (c)\n- vosdf = frontispiece (f)\n- vosdi = imprint (i)\n- vosdm = formulary (m for mapping)\n- vosdl = launcher (l)\n\nTERM CATEGORIES:\nTypes (string patterns):\n- vosdc_colophon: Routing identifier (what formulary matches on)\n- vosdf_frontispiece: Human-readable description  \n- vosdi_imprint: Embedded parameter(s), target/instance specifier\n\nEntities (structured objects):\n- vosdm_formulary: Component that routes colophons to implementations\n- vosdl_launcher: Bootstrap script that validates and delegates\n\nRELATIONSHIP TO LITURGY:\n- Dispatch vocabulary (vosd*) describes the TABTARGET UNIVERSE conceptually\n- Domain vosldt describes the tabtarget DOMAIN VESTURE (construction rules)\n- These are complementary, not redundant\n\nCROSS-REFERENCE: BUK README documents implementation details; VOS defines formal linked terms with [[anchors]].\n\nTabtarget domain vesture (vosldt):\n- Pattern: {colophon}.{frontispiece}[.{imprint}].sh\n- signet_case: per-colophon (inherits from routed kit)\n- separator: . (dot)\n- epithet_case: PascalCase (frontispiece)\n- envelope: .sh suffix"
