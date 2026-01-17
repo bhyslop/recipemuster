@@ -1126,6 +1126,11 @@
           "silks": "create-heat-rein-command",
           "tacks": [
             {
+              "ts": "260117-1225",
+              "state": "abandoned",
+              "text": "Blocked by stale installation-identifier pace"
+            },
+            {
               "ts": "260116-1309",
               "state": "rough",
               "text": "Create /jjc-heat-rein slash command.\n\n## Prerequisites\n\n- ₢AAAAc (installation-identifier) complete — jjx_rein no longer requires --brand\n\n## Implementation\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Parses JSON output into human-readable steeplechase history\n\n## Reference\n\nSee JJD jjdo_rein spec for jjx_rein output format and behavior."
