@@ -54,7 +54,7 @@ echo "<outcome summary>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state comp
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker WRAP --description "<outcome summary>"
+./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker W --description "<outcome summary>"
 ```
 
 ## Step 6: Advance to next pace

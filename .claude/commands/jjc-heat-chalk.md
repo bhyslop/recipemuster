@@ -43,15 +43,15 @@ If no PACE_SILKS and marker requires it:
 
 **For APPROACH/WRAP/FLY (pace required):**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --pace <PACE_SILKS> --marker <MARKER> --description "<description>"
+./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker <MARKER> --description "<description>"
 ```
 
-**For DISCUSSION (pace optional):**
+**For DISCUSSION (heat-level, no pace):**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> [--pace <PACE_SILKS>] --marker DISCUSSION --description "<description>"
+./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --marker DISCUSSION --description "<description>"
 ```
 
-Include `--pace` if pace context is available.
+The CLI accepts either a Coronet (for pace-level markers) or a Firemark (for heat-level markers) as the identity argument.
 
 ## Step 4: Report result
 
