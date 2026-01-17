@@ -208,6 +208,11 @@
           "silks": "rail-first-actionable-semantics",
           "tacks": [
             {
+              "ts": "260117-1014",
+              "state": "complete",
+              "text": "Implemented first-actionable semantics: --first now positions pace before first rough/bridled pace instead of absolute position 0. Added tests for both standard case and all-complete fallback."
+            },
+            {
               "ts": "260117-0959",
               "state": "rough",
               "text": "Change --first flag in jjx_rail to position pace at first actionable slot (before first rough/bridled pace) rather than absolute position 0.\n\nRATIONALE: When users say 'move to first', they mean 'make it the next pace to work on.' Moving before 45 completed paces is never useful.\n\nCHANGES:\n1. Update jjrg_rail() in jjrg_gallops.rs to find first actionable position\n2. Update tests in jjtg_gallops.rs (jjtg_rail_move_first)\n3. Update JJD jjda_first definition to clarify semantics\n4. Consider: should --last also mean 'last actionable'? Probably not - last overall is useful for deferral\n\nACCEPTANCE:\n- --first places pace before first rough/bridled pace\n- If all paces complete/abandoned, --first places at end (nothing actionable)\n- --last unchanged (absolute last)\n- Tests pass"
