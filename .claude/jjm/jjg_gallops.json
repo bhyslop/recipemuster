@@ -66,7 +66,6 @@
         "₢AAAAa",
         "₢AAAAb",
         "₢AAAAp",
-        "₢AAAAq",
         "₢AAAAz",
         "₢AAAA-",
         "₢AAABG",
@@ -1125,16 +1124,6 @@
             }
           ]
         },
-        "₢AAAAq": {
-          "silks": "steeplechase-version-tracking",
-          "tacks": [
-            {
-              "ts": "260116-1328",
-              "state": "rough",
-              "text": "Add version/brand observability to steeplechase entries and trophy output.\n\n## Changes\n\n1. **SteeplechaseEntry**: Add `brand` field (parsed from commit, informational only)\n2. **Trophy rendering**: Show version transitions across heat history\n3. **Potential**: Include VVX version if embedded in commits\n\n## Steeplechase Entry Enhancement\n\n```rust\npub struct SteeplechaseEntry {\n    pub timestamp: String,\n    pub coronet: Option<String>,\n    pub action: Option<String>,\n    pub subject: String,\n    pub brand: Option<String>,  // NEW: parsed from jjb:BRAND:...\n}\n```\n\n## Trophy Version Section\n\nIn the Steeplechase section of trophy, group or annotate by version:\n- Show when brand/version changed during heat\n- Example: \"Commits 1-15: RBM/JJK-v1, Commits 16-30: RBM/JJK-v2\"\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (SteeplechaseEntry, parsing)\n- Tools/jjk/veiled/src/jjrg_gallops.rs (trophy rendering)\n- Tools/jjk/JJD-GallopsData.adoc (document brand field)\n\n## Depends On\n\n- rein-filter-by-identity (₢AAAAp) - brand parsing happens alongside identity filtering"
-            }
-          ]
-        },
         "₢AAAAr": {
           "silks": "saddle-output-field-rename",
           "tacks": [
@@ -1651,9 +1640,10 @@
       "status": "current",
       "order": [
         "₢AEAAA",
-        "₢AEAAB"
+        "₢AEAAB",
+        "₢AEAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -1698,6 +1688,21 @@
               "ts": "260116-1125",
               "state": "rough",
               "text": "Add silks lookup fallback to jjx_parade --pace: if coronet lookup fails, try matching against pace silks in the heat. Allows --pace jjrc-commit-helper as convenience."
+            }
+          ]
+        },
+        "₢AEAAC": {
+          "silks": "steeplechase-version-tracking",
+          "tacks": [
+            {
+              "ts": "260117-1410",
+              "state": "rough",
+              "text": "Drafted from ₢AAAAq in ₣AA.\n\nAdd version/brand observability to steeplechase entries and trophy output.\n\n## Changes\n\n1. **SteeplechaseEntry**: Add `brand` field (parsed from commit, informational only)\n2. **Trophy rendering**: Show version transitions across heat history\n3. **Potential**: Include VVX version if embedded in commits\n\n## Steeplechase Entry Enhancement\n\n```rust\npub struct SteeplechaseEntry {\n    pub timestamp: String,\n    pub coronet: Option<String>,\n    pub action: Option<String>,\n    pub subject: String,\n    pub brand: Option<String>,  // NEW: parsed from jjb:BRAND:...\n}\n```\n\n## Trophy Version Section\n\nIn the Steeplechase section of trophy, group or annotate by version:\n- Show when brand/version changed during heat\n- Example: \"Commits 1-15: RBM/JJK-v1, Commits 16-30: RBM/JJK-v2\"\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (SteeplechaseEntry, parsing)\n- Tools/jjk/veiled/src/jjrg_gallops.rs (trophy rendering)\n- Tools/jjk/JJD-GallopsData.adoc (document brand field)\n\n## Depends On\n\n- rein-filter-by-identity (₢AAAAp) - brand parsing happens alongside identity filtering"
+            },
+            {
+              "ts": "260116-1328",
+              "state": "rough",
+              "text": "Add version/brand observability to steeplechase entries and trophy output.\n\n## Changes\n\n1. **SteeplechaseEntry**: Add `brand` field (parsed from commit, informational only)\n2. **Trophy rendering**: Show version transitions across heat history\n3. **Potential**: Include VVX version if embedded in commits\n\n## Steeplechase Entry Enhancement\n\n```rust\npub struct SteeplechaseEntry {\n    pub timestamp: String,\n    pub coronet: Option<String>,\n    pub action: Option<String>,\n    pub subject: String,\n    pub brand: Option<String>,  // NEW: parsed from jjb:BRAND:...\n}\n```\n\n## Trophy Version Section\n\nIn the Steeplechase section of trophy, group or annotate by version:\n- Show when brand/version changed during heat\n- Example: \"Commits 1-15: RBM/JJK-v1, Commits 16-30: RBM/JJK-v2\"\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (SteeplechaseEntry, parsing)\n- Tools/jjk/veiled/src/jjrg_gallops.rs (trophy rendering)\n- Tools/jjk/JJD-GallopsData.adoc (document brand field)\n\n## Depends On\n\n- rein-filter-by-identity (₢AAAAp) - brand parsing happens alongside identity filtering"
             }
           ]
         }
