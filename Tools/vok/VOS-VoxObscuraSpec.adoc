@@ -9,18 +9,57 @@
 // vosem_: Entity members (fields within entities)
 // vosp_:  Places (repository and location concepts)
 // vosa_:  Assets (distributable or indexed artifacts)
-// voso:   Operations (non-terminal, has children: vosoi_, vosou_, vosor_)
+// voso:   Operations (non-terminal, has children: vosoi_, vosok_, vosou_, vosor_)
 // vosk_:  Key premises (design constraints)
+// vosc_:  Control terms (voices axc_* in bash scripted context)
+// voss_:  Section headers (voices axs_*)
+//
+// vosl:   Liturgy (non-terminal, naming system umbrella)
+// voslc_: Liturgy Cipher (project root prefix)
+// vosls_: Liturgy Signet (complete prefix before separator)
+// vosle_: Liturgy Epithet (descriptive word after separator)
+// vosli_: Liturgy Inscription (full artifact name)
+// voslv_: Liturgy Vesture (domain construction rules)
+// vosld:  Liturgy Domain (non-terminal, domain-specific vestures)
+// vosldr_: Liturgy Domain Rust (Rust source vesture)
+// vosldb_: Liturgy Domain Bash (Bash source vesture)
+// voslda_: Liturgy Domain AsciiDoc (AsciiDoc attribute vesture)
+// vosldp_: Liturgy Domain Publication (spec/publication vesture)
+// vosldg_: Liturgy Domain Git (git ref vesture)
+// voslds_: Liturgy Domain Slash (slash command vesture)
+// vosldt_: Liturgy Domain Tabtarget (tabtarget vesture)
 //
 // Variant patterns:
 //   _s: plural form
 //   _p: possessive form
 //
 
-// Types
-:vost_cipher:           <<vost_cipher,Cipher>>
-:vost_cipher_s:         <<vost_cipher,Ciphers>>
-:vost_cipher_p:         <<vost_cipher,Cipher's>>
+// Liturgy (naming system)
+:voslc_cipher:          <<voslc_cipher,Cipher>>
+:voslc_cipher_s:        <<voslc_cipher,Ciphers>>
+:voslc_cipher_p:        <<voslc_cipher,Cipher's>>
+:vosls_signet:          <<vosls_signet,Signet>>
+:vosls_signet_s:        <<vosls_signet,Signets>>
+:vosle_epithet:         <<vosle_epithet,Epithet>>
+:vosle_epithet_s:       <<vosle_epithet,Epithets>>
+:vosli_inscription:     <<vosli_inscription,Inscription>>
+:vosli_inscription_s:   <<vosli_inscription,Inscriptions>>
+:voslv_vesture:         <<voslv_vesture,Vesture>>
+:voslv_vesture_s:       <<voslv_vesture,Vestures>>
+
+// Liturgy Domains (vesture specializations)
+:vosldr_rust:           <<vosldr_rust,Rust Vesture>>
+:vosldb_bash:           <<vosldb_bash,Bash Vesture>>
+:voslda_asciidoc:       <<voslda_asciidoc,AsciiDoc Vesture>>
+:vosldp_publication:    <<vosldp_publication,Publication Vesture>>
+:vosldg_git:            <<vosldg_git,Git Vesture>>
+:voslds_slash:          <<voslds_slash,Slash Command Vesture>>
+:vosldt_tabtarget:      <<vosldt_tabtarget,Tabtarget Vesture>>
+
+// Types (aliases for backward compatibility)
+:vost_cipher:           <<voslc_cipher,Cipher>>
+:vost_cipher_s:         <<voslc_cipher,Ciphers>>
+:vost_cipher_p:         <<voslc_cipher,Cipher's>>
 :vost_sigil:            <<vost_sigil,Sigil>>
 :vost_sigil_s:          <<vost_sigil,Sigils>>
 
@@ -67,7 +106,22 @@
 // Operations (voso has children)
 :vosor_release:         <<vosor_release,Release>>
 :vosoi_install:         <<vosoi_install,Install>>
+:vosok_kit:             <<vosok_kit,Kit Install>>
 :vosou_uninstall:       <<vosou_uninstall,Uninstall>>
+
+// Control terms (voice axc_* in bash scripted context)
+:vosc_require:          <<vosc_require,REQUIRE>>
+:vosc_fatal:            <<vosc_fatal,FATAL>>
+:vosc_store:            <<vosc_store,STORE>>
+:vosc_call:             <<vosc_call,CALL>>
+:vosc_show:             <<vosc_show,SHOW>>
+:vosc_step:             <<vosc_step,STEP>>
+
+// Section headers (voice axs_*)
+:voss_inputs:           <<voss_inputs,Inputs:>>
+:voss_behavior:         <<voss_behavior,Behavior:>>
+:voss_outputs:          <<voss_outputs,Outputs:>>
+:voss_completion:       <<voss_completion,Completion:>>
 
 // Key premises
 :vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
@@ -121,7 +175,7 @@ The
 operation cleanly removes a
 {vose_kit}
 using
-{vost_cipher}
+{vosls_signet}
 -based prefix matching.
 
 == Key Premises
@@ -135,15 +189,22 @@ All
 {vosa_skill_s},
 and
 {vosa_subagent_s}
-must match their
+must have
+{vosls_signet_s}
+derived from their
 {vose_kit_p}
-{vost_cipher}
-pattern.
+{voslc_cipher}.
 {vosor_release}
-fails if any asset violates prefix rules.
+fails if any asset's
+{vosli_inscription}
+violates the
+{voslc_cipher}
+derivation rules.
 This constraint enables deterministic
 {vosou_uninstall}
-by prefix matching.
+by
+{vosls_signet}
+matching.
 
 [[vosk_all_or_none]]
 // ⟦axl_voices axk_premise⟧
@@ -178,30 +239,247 @@ requires BURC (BUK Regime Configuration) in the
 The install script reads `.buk/burc.env` to locate `BURC_TOOLS_DIR`.
 Install fails immediately if BURC is missing — no bootstrap, no prompts.
 
-== Types
+== Control Terms
 
-[[vost_cipher]]
+VOS control terms voice `axc_*` motifs for bash scripted execution context.
+These terms appear inline within procedure steps to classify actions.
+
+[[vosc_require]]
+// ⟦axl_voices axc_require⟧
+{vosc_require}::
+Validation check that confirms an expected condition.
+Script exits with error if condition not met.
+
+[[vosc_fatal]]
+// ⟦axl_voices axc_fatal⟧
+{vosc_fatal}::
+Immediate termination with error status.
+Displays error message and exits non-zero.
+
+[[vosc_store]]
+// ⟦axl_voices axc_store⟧
+{vosc_store}::
+Capture a value into a shell variable for later use.
+
+[[vosc_call]]
+// ⟦axl_voices axc_call⟧
+{vosc_call}::
+Invoke an external command or function.
+Captures exit status for processing.
+
+[[vosc_show]]
+// ⟦axl_voices axc_show⟧
+{vosc_show}::
+Display information to stdout.
+Progress messages or results.
+
+[[vosc_step]]
+// ⟦axl_voices axc_step⟧
+{vosc_step}::
+Progress message indicating completion of a processing stage.
+
+== Section Headers
+
+VOS section headers voice `axs_*` motifs for procedure documentation structure.
+
+[[voss_inputs]]
+// ⟦axl_voices axs_inputs⟧
+{voss_inputs}::
+Section header for operation input parameters.
+
+[[voss_behavior]]
+// ⟦axl_voices axs_behavior⟧
+{voss_behavior}::
+Section header for operation behavior steps.
+
+[[voss_outputs]]
+// ⟦axl_voices axs_outputs⟧
+{voss_outputs}::
+Section header for operation outputs and artifacts.
+
+[[voss_completion]]
+// ⟦axl_voices axs_completion⟧
+{voss_completion}::
+Section header for operation completion criteria.
+
+== Liturgy
+
+The liturgy vocabulary defines the naming system for VOS artifacts.
+A
+{voslc_cipher}
+seeds the namespace;
+{vosls_signet_s}
+build on it;
+{vosle_epithet_s}
+provide human-readable descriptions;
+{vosli_inscription_s}
+are complete names;
+{voslv_vesture_s}
+define domain-specific construction rules.
+
+=== Core Liturgy Terms
+
+[[voslc_cipher]]
 // ⟦axl_voices axt_string⟧
-{vost_cipher}::
-A 2-5 character project prefix that owns exclusive namespace rights.
-Declared as const in `voci_ciphers.rs` — the single source of truth for all project prefixes.
-All
-{vose_kit}
-artifacts must use prefixes derived from their
-{vost_cipher}.
+{voslc_cipher}::
+A 2-5 character project root that seeds the namespace.
+The
+{voslc_cipher}
+is globally unique across all projects and serves as the foundation for all derived
+{vosls_signet_s}.
+Lowercase letters only; no
+{voslc_cipher}
+may be a prefix of another (terminal exclusivity).
++
+Declared as const in `Tools/voi/src/voic_registry.rs` — the single source of truth for all project prefixes.
 +
 Declaration pattern:
 +
 [source,rust]
 ----
-// voci_ciphers.rs - Cipher registry (const declarations)
-pub const JJ: Cipher = Cipher::new("jj", "Job Jockey");
-pub const BU: Cipher = Cipher::new("bu", "Bash Utilities");
-pub const CM: Cipher = Cipher::new("cm", "Concept Model");
-pub const VV: Cipher = Cipher::new("vv", "Voce Viva");
+// Tools/voi/src/voic_registry.rs - Cipher registry (const declarations)
+pub const JJ: voic_Cipher = voic_Cipher::new("jj", "Job Jockey");
+pub const BU: voic_Cipher = voic_Cipher::new("bu", "Bash Utilities");
+pub const CM: voic_Cipher = voic_Cipher::new("cm", "Concept Model");
+pub const VV: voic_Cipher = voic_Cipher::new("vv", "Voce Viva");
 ----
+
+[[vosls_signet]]
+// ⟦axl_voices axt_string⟧
+{vosls_signet}::
+The complete prefix before the separator in an
+{vosli_inscription}.
+A
+{vosls_signet}
+is derived from a
+{voslc_cipher}
+by extending with additional characters that respect terminal exclusivity.
+The
+{vosls_signet}
+is the identity stamp that binds an artifact to its owning project.
 +
-Validation: lowercase letters only, globally unique, no prefix may be a prefix of another (terminal exclusivity).
+Examples: `jjk` (kit), `jjc` (command prefix), `voslc` (this term's signet).
+
+[[vosle_epithet]]
+// ⟦axl_voices axt_string⟧
+{vosle_epithet}::
+The descriptive word after the separator in an
+{vosli_inscription}.
+Provides human-readable meaning while the
+{vosls_signet}
+provides machine-parseable identity.
++
+Examples: `cipher` in `voslc_cipher`, `heat` in `jjc-heat-mount`.
+
+[[vosli_inscription]]
+// ⟦axl_voices axt_string⟧
+{vosli_inscription}::
+The full artifact name combining
+{vosls_signet},
+separator, and
+{vosle_epithet}.
+An
+{vosli_inscription}
+is the complete, unambiguous identifier for any named artifact.
++
+Structure: `{signet}{separator}{epithet}{envelope}`
++
+Examples: `voslc_cipher` (underscore separator), `jjc-heat-mount` (hyphen separator).
+
+[[voslv_vesture]]
+// ⟦axl_voices axo_entity⟧
+{voslv_vesture}::
+Domain-specific construction rules for
+{vosli_inscription_s}.
+Each
+{voslv_vesture}
+defines signet_case, separator, epithet_case, and envelope for its domain.
+Different domains (Rust, Bash, AsciiDoc, etc.) have different naming conventions.
++
+A
+{voslv_vesture}
+is like clothing for a domain — it dresses the abstract naming concepts in domain-appropriate form.
+
+=== Liturgy Domains
+
+[[vosldr_rust]]
+// ⟦axl_voices axo_entity⟧
+{vosldr_rust}::
+{voslv_vesture}
+for Rust source identifiers.
++
+* signet_case: snake_case
+* separator: `_`
+* epithet_case: PascalCase for types, snake_case for functions
+* envelope: none
+
+[[vosldb_bash]]
+// ⟦axl_voices axo_entity⟧
+{vosldb_bash}::
+{voslv_vesture}
+for Bash source identifiers.
++
+* signet_case: lowercase
+* separator: `_`
+* epithet_case: snake_case
+* envelope: `.sh` for files
+
+[[voslda_asciidoc]]
+// ⟦axl_voices axo_entity⟧
+{voslda_asciidoc}::
+{voslv_vesture}
+for AsciiDoc attribute identifiers.
++
+* signet_case: lowercase
+* separator: `_`
+* epithet_case: snake_case
+* envelope: none (attributes), `[[` `]]` for anchors
+
+[[vosldp_publication]]
+// ⟦axl_voices axo_entity⟧
+{vosldp_publication}::
+{voslv_vesture}
+for publication and specification files.
++
+* signet_case: UPPERCASE
+* separator: `-`
+* epithet_case: PascalCase
+* envelope: `.adoc`, `.md`
+
+[[vosldg_git]]
+// ⟦axl_voices axo_entity⟧
+{vosldg_git}::
+{voslv_vesture}
+for git refs.
++
+* signet_case: lowercase
+* separator: `/`
+* epithet_case: kebab-case
+* envelope: none
+
+[[voslds_slash]]
+// ⟦axl_voices axo_entity⟧
+{voslds_slash}::
+{voslv_vesture}
+for slash command identifiers.
++
+* signet_case: lowercase
+* separator: `-`
+* epithet_case: kebab-case
+* envelope: `.md` for files
+
+[[vosldt_tabtarget]]
+// ⟦axl_voices axo_entity⟧
+{vosldt_tabtarget}::
+{voslv_vesture}
+for tabtarget launcher identifiers.
++
+* signet_case: lowercase with hyphen (colophon)
+* separator: `.`
+* epithet_case: PascalCase (frontispiece)
+* envelope: `.sh`
+
+== Types
 
 [[vost_sigil]]
 // ⟦axl_voices axt_string⟧
@@ -480,9 +758,11 @@ Naming: `{cipher}h_{name}.*`
 {vosa_skill}::
 A skill declaration.
 +
-Naming: must include
-{vost_cipher}
-prefix.
+Naming:
+{vosls_signet}
+must derive from
+{vose_kit_p}
+{voslc_cipher}.
 +
 [Reserved for future implementation]
 
@@ -491,9 +771,11 @@ prefix.
 {vosa_subagent}::
 A subagent declaration.
 +
-Naming: must include
-{vost_cipher}
-prefix.
+Naming:
+{vosls_signet}
+must derive from
+{vose_kit_p}
+{voslc_cipher}.
 +
 [Reserved for future implementation]
 
@@ -516,105 +798,341 @@ via `.concept_model()` builder method.
 == Operations
 
 [[vosor_release]]
-// ⟦axl_voices axo_sequence⟧
-{vosor_release}::
+// ⟦axl_voices axo_command axe_bash_scripted axd_transient⟧
+=== {vosor_release}
+
 Creates a
 {vose_parcel}
 from the
 {vosp_kit_forge}.
-+
-Steps:
-+
-1. Collect all
-{vose_whisper_s}
-via
+
+{voss_inputs}
+
+// ⟦axd_none⟧
+No external inputs. Operates on current
+{vosp_kit_forge}
+state.
+
+{voss_behavior}
+
+. *Collect kit declarations*:
+.. {vosc_call}
 {vose_conclave}
-2. Validate
-{vosk_prefix_validation}
-for all assets - fail if violations
-3. Run all testbenches - fail if tests fail
-4. Build `vvx` for target platforms
-5. Collect
-{vose_kit}
-assets (everything except
-{vosp_veiled})
-6. Generate
+to enumerate all
+{vose_whisper_s}
+.. {vosc_store}
+kit list for processing
+
+. *Validate prefix compliance*:
+.. For each
+{vose_kit}:
+{vosc_require}
+all asset
+{vosls_signet_s}
+derive from
+{voslc_cipher}
+.. {vosc_fatal}
+if any violations: list non-compliant
+{vosli_inscription_s}
+
+. *Run testbenches*:
+.. {vosc_call}
+each kit's testbench
+.. {vosc_fatal}
+if any tests fail
+
+. *Build binaries*:
+.. {vosc_call}
+cargo build for each target platform
+.. {vosc_store}
+binary paths
+
+. *Collect assets*:
+.. For each
+{vose_kit}:
+collect files excluding
+{vosp_veiled}
+
+. *Generate sigil*:
+.. {vosc_store}
 {vost_sigil}
-7. Package
-{vose_parcel}:
-`vvk-parcel-{sigil}.tar.gz`
+as current timestamp (YYMMDD-HHMM)
+
+. *Package parcel*:
+.. Create `vvk-parcel-{sigil}.tar.gz` with structure:
+... `vvi_install.sh` — install script
+... `vvu_uninstall.sh` — uninstall script (copied to target)
+... `bin/` — platform binaries
+... `kits/` — kit assets by directory
+
+{voss_outputs}
+
+* {vose_parcel}
+archive: `vvk-parcel-{sigil}.tar.gz`
+
+{voss_completion}
+
+{vose_parcel}
+created with all validated
+{vose_kit}
+assets and platform binaries.
+
 
 [[vosoi_install]]
-// ⟦axl_voices axo_sequence⟧
-{vosoi_install}::
+// ⟦axl_voices axo_command axe_bash_scripted axd_transient⟧
+=== {vosoi_install}
+
 Deploys a
 {vose_parcel}
 to a
 {vosp_target_repo}.
-Requires
-{vosk_burc_prerequisite}.
-+
+Invokes
+{vosok_kit}
+for each kit in the parcel.
+
 Invocation (from extracted parcel):
-+
+
 ----
 ./vvi_install.sh /path/to/target-repo
 ----
-+
-Steps:
-+
-1. Verify `.buk/burc.env` exists in target — fail if missing
-2. Source BURC, read `BURC_TOOLS_DIR`
-3. Pre-install git commit (if working tree dirty)
-4. Copy platform binaries from `bin/` to `${BURC_TOOLS_DIR}/vvk/bin/`
-5. Copy
+
+{voss_inputs}
+
+// ⟦axd_required⟧
+* Target repository path (positional argument)
+
+{voss_behavior}
+
+. *Verify prerequisites*:
+.. {vosc_require}
+target path is a git repository
+.. {vosc_require}
+`.buk/burc.env` exists in target
+.. {vosc_fatal}
+if missing: "BURC not configured"
+.. {vosc_call}
+source BURC
+.. {vosc_store}
+`BURC_TOOLS_DIR` from BURC
+
+. *Pre-install commit*:
+.. If working tree dirty:
+{vosc_call}
+`git add -A && git commit -m "Pre-install snapshot"`
+.. {vosc_step}
+"Pre-install snapshot created"
+
+. *Install platform binaries*:
+.. {vosc_call}
+detect current platform
+.. {vosc_call}
+copy matching binary from `bin/` to `${BURC_TOOLS_DIR}/vvk/bin/vvx`
+.. {vosc_call}
+copy `vvu_uninstall.sh` to `${BURC_TOOLS_DIR}/vvk/`
+
+. *Install each kit*:
+.. For each kit directory in `kits/`:
+... Invoke
+{vosok_kit}
+with kit source and target paths
+
+. *Write manifest*:
+.. {vosc_store}
+installed kit list, sigil, timestamp
+.. {vosc_call}
+write `.claude/vvx-manifest.json`
+
+. *Post-install commit*:
+.. {vosc_call}
+`git add -A && git commit -m "VVK install: {sigil}"`
+.. {vosc_step}
+"Post-install commit created"
+
+. *Diff analysis*:
+.. {vosc_call}
+compare pre-install to post-install
+.. {vosc_show}
+user modifications that may need recovery
+
+{voss_outputs}
+
+* Platform binary at `${BURC_TOOLS_DIR}/vvk/bin/vvx`
+* Kit assets under `${BURC_TOOLS_DIR}/`
+* Manifest at `.claude/vvx-manifest.json`
+* Two git commits (pre-install, post-install)
+
+{voss_completion}
+
+All
+{vose_kit_s}
+installed.
+CLAUDE.md sections updated.
+Manifest written.
+User notified of any modifications requiring recovery.
+
+
+[[vosok_kit]]
+// ⟦axl_voices axo_routine axe_bash_scripted axd_transient⟧
+=== {vosok_kit}
+
+Installs a single
 {vose_kit}
-assets from `kits/` to `${BURC_TOOLS_DIR}/` preserving structure
-6. Copy `vvu_uninstall.sh` to `${BURC_TOOLS_DIR}/vvk/`
-7. For each
-{vose_managed_section}:
-replace content between
+to the
+{vosp_target_repo}.
+Called by
+{vosoi_install}
+for each kit in the
+{vose_parcel}.
+
+{voss_inputs}
+
+// ⟦axd_required⟧
+* Kit source directory (within extracted parcel)
+
+// ⟦axd_required⟧
+* Target tools directory (`BURC_TOOLS_DIR`)
+
+// ⟦axd_required⟧
+* Target CLAUDE.md path
+
+{voss_behavior}
+
+. *Copy kit assets*:
+.. {vosc_call}
+copy kit directory to `${BURC_TOOLS_DIR}/{kit}/`
+.. Preserve directory structure
+.. {vosc_step}
+"{kit} assets copied"
+
+. *Install commands*:
+.. For each file matching `{cipher}c-*.md` in `commands/`:
+... {vosc_call}
+copy to `.claude/commands/`
+.. {vosc_step}
+"{n} commands installed"
+
+. *Install hooks*:
+.. For each file matching `{cipher}h_*` in `hooks/`:
+... {vosc_call}
+copy to `.claude/hooks/`
+.. {vosc_step}
+"{n} hooks installed"
+
+. *Update managed sections*:
+.. For each
+{vose_managed_section}
+declared in kit's manifest:
+... {vosc_require}
 {vose_marker_s}
-in CLAUDE.md
-8. Write manifest to `.claude/vvx-manifest.json`
-9. Post-install git commit
-10. Diff analysis for user modification recovery
+exist in CLAUDE.md
+... {vosc_fatal}
+if markers missing: "Missing markers for {tag}"
+... {vosc_call}
+replace content between markers with template content
+.. {vosc_step}
+"CLAUDE.md sections updated"
+
+{voss_outputs}
+
+* Kit directory at `${BURC_TOOLS_DIR}/{kit}/`
+* Commands in `.claude/commands/`
+* Hooks in `.claude/hooks/`
+* Updated sections in CLAUDE.md
+
+{voss_completion}
+
+Single
+{vose_kit}
+fully installed with all assets and CLAUDE.md sections.
+
 
 [[vosou_uninstall]]
-// ⟦axl_voices axo_sequence⟧
-{vosou_uninstall}::
+// ⟦axl_voices axo_command axe_bash_scripted axd_transient⟧
+=== {vosou_uninstall}
+
 Removes a
 {vose_kit}
 from
 {vosp_target_repo}.
 Script lives in target after
 {vosoi_install}.
-+
+
 Invocation (from target repo):
-+
+
 ----
 ./Tools/vvk/vvu_uninstall.sh
 ----
-+
-Steps:
-+
-1. Source BURC, read `BURC_TOOLS_DIR`
-2. Read
-{vost_cipher}
-from manifest
-3. Remove all
-{vosa_command_s}
-matching `{cipher}c-*`
-4. Remove all
-{vosa_hook_s}
-matching `{cipher}h_*`
-5. Remove
-{vose_managed_section_s}
-by
-{vose_marker}
-tags
-6. Remove kit directories from `${BURC_TOOLS_DIR}/`
-7. Update manifest
-8. Git commit
+
+{voss_inputs}
+
+// ⟦axd_none⟧
+No external inputs. Operates on current repository state.
+
+{voss_behavior}
+
+. *Load configuration*:
+.. {vosc_call}
+source `.buk/burc.env`
+.. {vosc_store}
+`BURC_TOOLS_DIR`
+
+. *Read manifest*:
+.. {vosc_call}
+parse `.claude/vvx-manifest.json`
+.. {vosc_store}
+list of installed kits and their
+{vost_cipher_s}
+
+. *Remove commands*:
+.. For each
+{vost_cipher}:
+... {vosc_call}
+remove files matching `{cipher}c-*` from `.claude/commands/`
+
+. *Remove hooks*:
+.. For each
+{vost_cipher}:
+... {vosc_call}
+remove files matching `{cipher}h_*` from `.claude/hooks/`
+
+. *Remove managed sections*:
+.. For each
+{vose_managed_section}
+in manifest:
+... {vosc_call}
+delete content between
+{vose_marker_s}
+(preserve markers)
+
+. *Remove kit directories*:
+.. For each kit in manifest:
+... {vosc_call}
+remove `${BURC_TOOLS_DIR}/{kit}/`
+
+. *Update manifest*:
+.. {vosc_call}
+remove uninstalled kits from manifest
+.. If no kits remain:
+{vosc_call}
+delete manifest file
+
+. *Commit changes*:
+.. {vosc_call}
+`git add -A && git commit -m "VVK uninstall"`
+
+{voss_outputs}
+
+* Removed kit directories
+* Removed commands and hooks
+* Cleared managed sections (markers preserved)
+* Updated or removed manifest
+
+{voss_completion}
+
+{vose_kit}
+cleanly removed.
+No orphaned assets remain.
+
 
 == Whisper Builder API
 
@@ -667,55 +1185,116 @@ files must exist
 
 == Cipher Registry
 
-{vost_cipher_s}
-are declared as const values in `voci_ciphers.rs`.
-This file is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+{voslc_cipher_s}
+are declared as const values in `Tools/voi/src/voic_registry.rs`.
+The VOI crate (Vox Obscura Infrastructure) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+Each const
+{voslc_cipher}
+seeds the namespace for derived
+{vosls_signet_s}.
+
+=== Crate Structure
+
+----
+Tools/voi/
+  Cargo.toml
+  src/
+    lib.rs           # Re-exports voic_registry
+    voic_registry.rs # Cipher type and all cipher constants
+----
 
 === Declaration Pattern
 
 [source,rust]
 ----
-// voci_ciphers.rs
+// Tools/voi/src/voic_registry.rs
 
 /// Cipher represents a project's namespace root.
 /// Uniqueness enforced at compile time by const declaration.
-pub struct Cipher {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct voic_Cipher {
     prefix: &'static str,
     project: &'static str,
 }
 
-impl Cipher {
+impl voic_Cipher {
     pub const fn new(prefix: &'static str, project: &'static str) -> Self {
         Self { prefix, project }
     }
+
+    pub const fn prefix(&self) -> &'static str { self.prefix }
+    pub const fn project(&self) -> &'static str { self.project }
+    pub fn matches_prefix(&self, s: &str) -> bool { s.starts_with(self.prefix) }
 }
 
-// Project cipher declarations
-pub const JJ: Cipher = Cipher::new("jj", "Job Jockey");
-pub const BU: Cipher = Cipher::new("bu", "Bash Utilities");
-pub const CM: Cipher = Cipher::new("cm", "Concept Model");
-pub const VV: Cipher = Cipher::new("vv", "Voce Viva");
-pub const RB: Cipher = Cipher::new("rb", "Recipe Bottle");
-pub const GAD: Cipher = Cipher::new("gad", "Google AsciiDoc Differ");
-// ... all projects
+// Project cipher declarations by domain
+pub const VV: voic_Cipher = voic_Cipher::new("vv", "Voce Viva");
+pub const VO: voic_Cipher = voic_Cipher::new("vo", "Vox Obscura");
+pub const JJ: voic_Cipher = voic_Cipher::new("jj", "Job Jockey");
+pub const BU: voic_Cipher = voic_Cipher::new("bu", "Bash Utilities");
+pub const CM: voic_Cipher = voic_Cipher::new("cm", "Concept Model");
+pub const RB: voic_Cipher = voic_Cipher::new("rb", "Recipe Bottle");
+pub const GAD: voic_Cipher = voic_Cipher::new("gad", "Google AsciiDoc Differ");
+// ... all projects (17 total)
+
+pub const ALL_CIPHERS: &[voic_Cipher] = &[VV, VO, JJ, BU, CM, ...];
 ----
+
+=== Complete Cipher List
+
+[cols="1,3,3", options="header"]
+|===
+| Cipher | Project | Domain
+
+| `vv` | Voce Viva | Universal kit (in every target repo)
+| `vo` | Vox Obscura | Kit forge infrastructure
+| `jj` | Job Jockey | Project management
+| `bu` | Bash Utilities | Enterprise bash infrastructure
+| `cm` | Concept Model | MCM/AXLA tooling
+| `hm` | Hard-state Machine | State machine infrastructure
+| `rb` | Recipe Bottle | Container orchestration
+| `crg` | Config Regime | Configuration management
+| `gad` | Google AsciiDoc Differ | Diff visualization
+| `ccc` | Claude Code Container | Docker operations
+| `lmci` | Language Model Console Integration | LLM CI utilities
+| `vsl` | Visual SlickEdit Local | IDE integration
+| `mcm` | Meta Concept Model | Concept model specification
+| `axl` | Axiom Lexicon | Shared vocabulary
+| `pb` | Paneboard | Cross-platform UI toolkit
+| `wrs` | Ward Realm Substrate | Distributed state machines
+| `srf` | Study Raft | Learning and exploration
+|===
 
 === Uniqueness Guarantees
 
 * Compile-time: duplicate const names are compilation errors
-* Runtime: `Cipher::new()` can validate prefix format and terminal exclusivity
-* Convention: new ciphers require coordinated addition to `voci_ciphers.rs`
+* Runtime: `voic_validate_terminal_exclusivity()` verifies no prefix is a prefix of another
+* Convention: new ciphers require coordinated addition to `voic_registry.rs`
+
+=== Utility Functions
+
+[source,rust]
+----
+// Find cipher by prefix
+pub fn voic_find_by_prefix(prefix: &str) -> Option<&'static voic_Cipher>;
+
+// Check if prefix is registered
+pub fn voic_is_registered(prefix: &str) -> bool;
+
+// Validate terminal exclusivity (returns conflicting pair if violated)
+pub fn voic_validate_terminal_exclusivity() -> Option<(&'static voic_Cipher, &'static voic_Cipher)>;
+----
 
 === Usage
 
 {vose_kit_s}
 import their
-{vost_cipher}
-symbolically:
+{voslc_cipher}
+via the `voi` crate:
 
 [source,rust]
 ----
-use voci_ciphers::JJ;
+use voi::{JJ, voic_Cipher};
 
 Whisper::for_kit("jjk")
     .cipher(JJ)

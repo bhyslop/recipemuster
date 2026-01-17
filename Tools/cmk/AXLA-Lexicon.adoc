@@ -148,6 +148,7 @@
 :axe_environment_s:                   <<axe_environment,Environments>>
 :axe_bash_interactive:                <<axe_bash_interactive,Bash Interactive>>
 :axe_bash_unattended:                 <<axe_bash_unattended,Bash Unattended>>
+:axe_bash_scripted:                   <<axe_bash_scripted,Bash Scripted>>
 :axe_human_guide:                     <<axe_human_guide,Human Guide>>
 :axe_rest_api:                        <<axe_rest_api,REST API>>
 :axe_daemon_runtime:                  <<axe_daemon_runtime,Daemon Runtime>>
@@ -156,8 +157,8 @@
 :axo_command:                         <<axo_command,Command>>
 :axo_command_s:                       <<axo_command,Commands>>
 :axo_guide:                           <<axo_guide,Guide>>
-:axo_pattern:                         <<axo_pattern,Pattern>>
-:axo_pattern_s:                       <<axo_pattern,Patterns>>
+:axo_routine:                         <<axo_routine,Routine>>
+:axo_routine_s:                       <<axo_routine,Routines>>
 :axo_sequence:                        <<axo_sequence,Sequence>>
 :axo_sequence_s:                      <<axo_sequence,Sequences>>
 :axo_procedure:                       <<axo_procedure,Procedure>>
@@ -551,6 +552,18 @@ Output captured to logs.
 No interactive prompts possible.
 Failures must be self-documenting for later analysis.
 
+[[axe_bash_scripted]]
+{axe_bash_scripted}::
+A
+{axl_motif}
+representing a bash script deliberately invoked to run to completion.
+No human interaction during execution.
+Succeeds atomically or fails with error status.
+Output may go to stdout/stderr for capture or display.
+Distinct from
+{axe_bash_unattended}
+which implies background/scheduled execution with log capture.
+
 [[axe_human_guide]]
 {axe_human_guide}::
 A
@@ -797,7 +810,7 @@ for procedural articulations.
 {axo_command},
 {axo_guide},
 and
-{axo_pattern}
+{axo_routine}
 are specialized forms that voice
 {axo_procedure}
 with additional constraints.
@@ -857,8 +870,8 @@ Behavior steps use
 {axe_human_guide}
 control voicings.
 
-[[axo_pattern]]
-{axo_pattern}::
+[[axo_routine]]
+{axo_routine}::
 A
 {axl_motif}
 representing a reusable

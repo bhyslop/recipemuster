@@ -819,7 +819,7 @@ Provides context or expected outcomes without requiring action.
 === Recipe Bottle Orchestration Patterns (RB-specific)
 
 [[rbtoe_rbra_generate]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_rbra_generate}::
 A pattern that converts Google
 {giam_service_account}
@@ -831,7 +831,7 @@ converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`,
 and writes to specified file path with 600 permissions (owner read/write only).
 
 [[rbtoe_rbra_load]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_rbra_load}::
 A pattern that sources an
 {rbtgi_rbra_file}
@@ -843,7 +843,7 @@ and triggers
 with standardized error message if any field is missing or invalid.
 
 [[rbtoe_jwt_oauth_exchange]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_jwt_oauth_exchange}::
 A pattern that exchanges
 {giam_service_account}
@@ -858,7 +858,7 @@ triggers
 on non-200 HTTP response.
 
 [[rbtoe_api_enable]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_api_enable}::
 A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
 
@@ -875,7 +875,7 @@ on unexpected errors (409 conflicts, permission denied, etc.),
 
 
 [[rbtoe_oauth_refresh]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_oauth_refresh}::
 A pattern that exchanges OAuth refresh token for access token:
 
@@ -899,7 +899,7 @@ with "OAuth credentials expired or invalid - run
 ".
 
 [[rbtoe_payor_authenticate]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_payor_authenticate}::
 A pattern that establishes
 {rbtr_payor}
@@ -915,7 +915,7 @@ to obtain access token,
 . stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_governor_authenticate]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_governor_authenticate}::
 A pattern that establishes
 {rbtr_governor}
@@ -933,7 +933,7 @@ exists or
 . stores token as `«GOVERNOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_director_authenticate]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_director_authenticate}::
 A pattern that establishes
 {rbtr_director}
@@ -951,7 +951,7 @@ exists or
 . stores token as `«DIRECTOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_retriever_authenticate]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_retriever_authenticate}::
 A pattern that establishes
 {rbtr_retriever}
@@ -969,7 +969,7 @@ exists or
 . stores token as `«RETRIEVER_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_rbro_load]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_rbro_load}::
 A pattern that loads and validates RBRO credentials:
 
@@ -992,7 +992,7 @@ A pattern that loads and validates RBRO credentials:
 . returns success when all RBRO variables are loaded and validated.
 
 [[rbtoe_depot_list_update]]
-// ⟦axl_voices axo_pattern axe_bash_interactive⟧
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
 {rbtoe_depot_list_update}::
 A pattern that synchronizes depot project tracking:
 

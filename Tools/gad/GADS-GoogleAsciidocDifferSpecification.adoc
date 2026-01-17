@@ -1620,7 +1620,7 @@ values referencing positions in
 {gadic_to_dom}.
 
 [[gadis_change_correlation]]
-// ⟦axo_pattern⟧
+// ⟦axo_routine⟧
 {gadis_change_correlation}::
 The process within
 {gadis_diff_sequence}
@@ -1642,7 +1642,7 @@ Produces
 as output.
 
 [[gadis_change_rendering]]
-// ⟦axo_pattern⟧
+// ⟦axo_routine⟧
 {gadis_change_rendering}::
 The process within
 {gadis_diff_sequence}
@@ -1985,7 +1985,7 @@ HEAD-only processing state entered by {gadt_factory} when {gadfa_max_distinct_re
 In {gadf_limit_mode}, the {gadt_factory} continues processing only HEAD commit changes, skipping parent commit traversal to maintain the distinct render file limit while ensuring the latest content remains available.
 
 [[gadf_hash_lookup]]
-// ⟦axo_pattern⟧
+// ⟦axo_routine⟧
 {gadf_hash_lookup}::
 SHA-256 comparison algorithm used during {gadfs_render} to detect duplicate HTML content through manifest inspection.
 {gadf_hash_lookup} enables content-based deduplication by comparing the normalized HTML hash against existing {gadmf_html_sha256} values, allowing multiple commits to reference the same HTML file when content is identical.
