@@ -70,9 +70,10 @@
         "₢AAAA4",
         "₢AAAA8",
         "₢AAAA-",
-        "₢AAAA_"
+        "₢AAAA_",
+        "₢AAABB"
       ],
-      "next_pace_seed": "ABB",
+      "next_pace_seed": "ABC",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1351,6 +1352,16 @@
               "ts": "260117-1115",
               "state": "rough",
               "text": "Specify CLAUDE.md freshening behavior in VOS.\n\n## Deliverables\n\n1. **Update vosoi_install procedure**:\n   - Remove fatal on missing markers\n   - Add: no markers → append section at end of file\n   - Add: UNINSTALLED marker → expand to BEGIN/END at that location\n\n2. **Update vosou_uninstall procedure**:\n   - Change: delete content, replace BEGIN/END with single UNINSTALLED marker\n   - Document: preserves user's section ordering for re-install\n\n3. **Add vose_uninstalled_marker entity**:\n   - Format: `<!-- MANAGED:{tag}:UNINSTALLED -->`\n   - Semantics: placeholder preserving position\n\n4. **Clarify ordering rules**:\n   - Multiple sections per kit: order follows manifest declaration order\n   - User reordering: preserved across install cycles (via marker positions)\n\n5. **Document programmatic approach**:\n   - Rust implementation, not Claude-assisted\n   - Add note in VOS that this is deterministic text transformation\n\n## References\n\n- Current spec: VOS lines 1360-1372 (install), 1437-1444 (uninstall)\n- Paddock CLAUDE.md Freshening section\n- Pace ₢AAAAG depends on this spec work"
+            }
+          ]
+        },
+        "₢AAABB": {
+          "silks": "furlough-jjd-spec",
+          "tacks": [
+            {
+              "ts": "260117-1129",
+              "state": "rough",
+              "text": "Update JJD-GallopsData.adoc specification:\n\n1. Add new status enum value:\n   - jjdhe_stabled: Heat is paused, not actively worked\n\n2. Rename existing enum value (lazy migration):\n   - jjdhe_current → jjdhe_racing (accept \"current\" on read, write \"racing\")\n\n3. Add jjdo_furlough operation:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required\n   - Errors if already in target state\n   - Errors if heat is retired (terminal)\n\n4. Update jjdo_saddle:\n   - Add: Fails with error if heat status is stabled\n\n5. Update jjdo_muster:\n   - Remove --status filter (show all heats, no filtering)\n\nFiles: Tools/jjk/JJD-GallopsData.adoc"
             }
           ]
         }
