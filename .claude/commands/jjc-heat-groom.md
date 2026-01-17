@@ -49,8 +49,8 @@ Parse JSON output:
       "coronet": "₢AAAAC",
       "silks": "...",
       "state": "rough|primed|complete|abandoned",
-      "tack_text": "...",
-      "tack_direction": "..."
+      "spec": "...",
+      "direction": "..."
     }
   ]
 }
@@ -71,8 +71,8 @@ Present the full heat for planning review:
 For each pace in order, show:
 ```
 {index}. [{state}] {silks} (₢{coronet})
-   {tack_text - full specification}
-   {If primed: "Direction: " + tack_direction}
+   {spec - full specification}
+   {If primed: "Direction: " + direction}
 ```
 
 Show all paces with full detail regardless of state - this is a planning view.

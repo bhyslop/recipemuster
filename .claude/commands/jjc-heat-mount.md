@@ -45,12 +45,12 @@ Parse JSON output:
   "pace_coronet": "₢AAAAC",
   "pace_silks": "...",
   "pace_state": "rough|primed",
-  "tack_text": "...",
-  "tack_direction": "..."
+  "spec": "...",
+  "direction": "..."
 }
 ```
 
-Fields `pace_coronet` through `tack_direction` are absent if no actionable pace.
+Fields `pace_coronet` through `direction` are absent if no actionable pace.
 
 ## Step 3: Display context
 
@@ -58,7 +58,7 @@ Show:
 - Heat silks and Firemark
 - Brief paddock summary (from paddock_content)
 - Current pace silks and state (if present)
-- Tack text (the pace specification)
+- Spec (the pace specification)
 
 ## Step 4: Branch on state
 
@@ -69,8 +69,8 @@ Show:
 - Stop
 
 **If pace_state is "rough":**
-- Analyze the tack_text to understand the work
-- If tack_text mentions dependencies, blockers, or sequencing concerns:
+- Analyze the spec to understand the work
+- If spec mentions dependencies, blockers, or sequencing concerns:
   - Surface these to the user as questions before proceeding
   - Do NOT investigate gallops data to validate the system's pace selection
   - If sequencing appears wrong, suggest `/jjc-heat-groom` to reorder or refine
@@ -89,9 +89,9 @@ Show:
 - On approval: Begin work directly
 
 **If pace_state is "primed":**
-- The pace has explicit direction in tack_direction
+- The pace has explicit direction in the direction field
 - Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing primed pace"`
-- Execute using both tack_text (the spec) and tack_direction (execution guidance) autonomously (no confirmation needed)
+- Execute using both spec (the specification) and direction (execution guidance) autonomously (no confirmation needed)
 - The spec contains the "what" (requirements, code snippets, acceptance criteria); direction contains the "how" (agent tier, steps, verification)
 - When complete, run `/jjc-pace-wrap` to mark done
 

@@ -37,7 +37,7 @@ Verify the target pace is in "rough" state. If not:
 ## Step 3: Study the pace
 
 Read and analyze:
-1. The tack_text (pace specification)
+1. The spec (pace specification)
 2. Any files referenced in the spec
 3. The paddock_content for broader context
 

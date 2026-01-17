@@ -77,9 +77,9 @@ struct zjjrq_SaddleOutput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pace_state: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    tack_text: Option<String>,
+    spec: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    tack_direction: Option<String>,
+    direction: Option<String>,
 }
 
 /// Run the saddle command - return Heat context
@@ -118,8 +118,8 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         pace_coronet: None,
         pace_silks: None,
         pace_state: None,
-        tack_text: None,
-        tack_direction: None,
+        spec: None,
+        direction: None,
     };
 
     for coronet_key in &heat.order {
@@ -134,9 +134,9 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
                             PaceState::Primed => "primed".to_string(),
                             _ => unreachable!(),
                         });
-                        output.tack_text = Some(tack.text.clone());
+                        output.spec = Some(tack.text.clone());
                         if tack.state == PaceState::Primed {
-                            output.tack_direction = tack.direction.clone();
+                            output.direction = tack.direction.clone();
                         }
                         break;
                     }
@@ -532,13 +532,13 @@ mod tests {
             pace_coronet: Some("₢ABAAA".to_string()),
             pace_silks: Some("my-pace".to_string()),
             pace_state: Some("rough".to_string()),
-            tack_text: Some("Do the thing".to_string()),
-            tack_direction: None,
+            spec: Some("Do the thing".to_string()),
+            direction: None,
         };
         let json = serde_json::to_string(&output).unwrap();
         assert!(json.contains("heat_silks"));
         assert!(json.contains("pace_coronet"));
-        assert!(!json.contains("tack_direction")); // None should be skipped
+        assert!(!json.contains("\"direction\"")); // None should be skipped
     }
 
     #[test]
@@ -550,11 +550,11 @@ mod tests {
             pace_coronet: Some("₢ABAAA".to_string()),
             pace_silks: Some("my-pace".to_string()),
             pace_state: Some("primed".to_string()),
-            tack_text: Some("Ready to execute".to_string()),
-            tack_direction: Some("Execute autonomously".to_string()),
+            spec: Some("Ready to execute".to_string()),
+            direction: Some("Execute autonomously".to_string()),
         };
         let json = serde_json::to_string(&output).unwrap();
-        assert!(json.contains("tack_direction"));
+        assert!(json.contains("\"direction\""));
         assert!(json.contains("Execute autonomously"));
     }
 
@@ -567,8 +567,8 @@ mod tests {
             pace_coronet: None,
             pace_silks: None,
             pace_state: None,
-            tack_text: None,
-            tack_direction: None,
+            spec: None,
+            direction: None,
         };
         let json = serde_json::to_string(&output).unwrap();
         assert!(json.contains("heat_silks"));

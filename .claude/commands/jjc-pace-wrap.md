@@ -65,7 +65,7 @@ Run:
 ```
 
 **If another actionable pace exists:**
-- Display the next pace's silks and tack_text
+- Display the next pace's silks and spec
 - If rough: Propose approach (as in /jjc-heat-mount)
 - If primed: Ask if ready to execute
 
