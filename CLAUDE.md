@@ -379,9 +379,13 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | slate | /jjc-pace-slate |
 | wrap | /jjc-pace-wrap |
 | bridle | /jjc-pace-bridle |
+| notch | /jjc-pace-notch |
 | muster | /jjc-heat-muster |
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
+
+**Commit Discipline:**
+When working on a heat/pace, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses pace affiliation and steeplechase tracking.
 
 **Build & Run Discipline:**
 Always run these after Rust code changes:
