@@ -946,6 +946,11 @@
           "silks": "saddle-output-field-rename",
           "tacks": [
             {
+              "ts": "260117-0804",
+              "state": "complete",
+              "text": "Renamed jjx_saddle output fields from tack_text/tack_direction to spec/direction in Rust struct and tests, plus updated 4 slash command docs. All 133 tests pass."
+            },
+            {
               "ts": "260116-1508",
               "state": "primed",
               "text": "Rename saddle output fields: tack_text → spec, tack_direction → direction.\n\n## Rationale\n\nConsumers of jjx_saddle output do not need internal terminology. \"spec\" and \"direction\" are clearer for slash command prompts.\n\n## Rust changes (jjrq_query.rs)\n\n- Struct field: tack_text → spec\n- Struct field: tack_direction → direction\n- Update initialization, assignment, tests (~14 lines)\n\n## Slash command changes\n\n- jjc-heat-mount.md (6 references)\n- jjc-heat-groom.md (4 references)\n- jjc-pace-wrap.md (1 reference)\n- jjc-pace-prime.md (1 reference)\n\n## Verification\n\n- cargo build && cargo test\n- Spot-check jjx_saddle AA output has new field names",
