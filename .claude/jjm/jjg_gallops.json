@@ -1445,6 +1445,11 @@
           "silks": "voi-directory-relocation",
           "tacks": [
             {
+              "ts": "260117-1241",
+              "state": "abandoned",
+              "text": "Relocate Tools/voi/ to Tools/vok/voi/ per prefix naming discipline.\n\n## Rationale\n\nThe `voi` crate uses `vo` prefix (VOK namespace) and is VOK's infrastructure crate. Per prefix naming discipline, it belongs under `Tools/vok/` not as a sibling.\n\n## Tasks\n\n1. Move `Tools/voi/` → `Tools/vok/voi/`\n2. Update `Tools/vok/Cargo.toml`: change `voi = { path = \"../voi\" }` to `voi = { path = \"voi\" }`\n3. Verify build: `tt/vow-b.Build.sh`\n4. Update any documentation referencing `Tools/voi/`\n\n## Precedent\n\nJJK uses `Tools/jjk/veiled/` for its nested Rust crate.\n\n## Not MVP\n\nThis is organizational cleanup, not blocking release/install functionality."
+            },
+            {
               "ts": "260117-1207",
               "state": "rough",
               "text": "Relocate Tools/voi/ to Tools/vok/voi/ per prefix naming discipline.\n\n## Rationale\n\nThe `voi` crate uses `vo` prefix (VOK namespace) and is VOK's infrastructure crate. Per prefix naming discipline, it belongs under `Tools/vok/` not as a sibling.\n\n## Tasks\n\n1. Move `Tools/voi/` → `Tools/vok/voi/`\n2. Update `Tools/vok/Cargo.toml`: change `voi = { path = \"../voi\" }` to `voi = { path = \"voi\" }`\n3. Verify build: `tt/vow-b.Build.sh`\n4. Update any documentation referencing `Tools/voi/`\n\n## Precedent\n\nJJK uses `Tools/jjk/veiled/` for its nested Rust crate.\n\n## Not MVP\n\nThis is organizational cleanup, not blocking release/install functionality."
