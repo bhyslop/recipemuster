@@ -29,6 +29,13 @@
 // voslds_: Liturgy Domain Slash (slash command vesture)
 // vosldt_: Liturgy Domain Tabtarget (tabtarget vesture)
 //
+// vosd:   Dispatch (non-terminal, tabtarget system umbrella)
+// vosdc_: Dispatch Colophon (routing identifier)
+// vosdf_: Dispatch Frontispiece (human-readable description)
+// vosdi_: Dispatch Imprint (embedded parameter/target specifier)
+// vosdm_: Dispatch Formulary (routing component)
+// vosdl_: Dispatch Launcher (bootstrap script)
+//
 // Variant patterns:
 //   _s: plural form
 //   _p: possessive form
@@ -55,6 +62,18 @@
 :vosldg_git:            <<vosldg_git,Git Vesture>>
 :voslds_slash:          <<voslds_slash,Slash Command Vesture>>
 :vosldt_tabtarget:      <<vosldt_tabtarget,Tabtarget Vesture>>
+
+// Dispatch (tabtarget system)
+:vosdc_colophon:        <<vosdc_colophon,Colophon>>
+:vosdc_colophon_s:      <<vosdc_colophon,Colophons>>
+:vosdf_frontispiece:    <<vosdf_frontispiece,Frontispiece>>
+:vosdf_frontispiece_s:  <<vosdf_frontispiece,Frontispieces>>
+:vosdi_imprint:         <<vosdi_imprint,Imprint>>
+:vosdi_imprint_s:       <<vosdi_imprint,Imprints>>
+:vosdm_formulary:       <<vosdm_formulary,Formulary>>
+:vosdm_formulary_s:     <<vosdm_formulary,Formularies>>
+:vosdl_launcher:        <<vosdl_launcher,Launcher>>
+:vosdl_launcher_s:      <<vosdl_launcher,Launchers>>
 
 // Types (aliases for backward compatibility)
 :vost_cipher:           <<voslc_cipher,Cipher>>
@@ -478,6 +497,110 @@ for tabtarget launcher identifiers.
 * separator: `.`
 * epithet_case: PascalCase (frontispiece)
 * envelope: `.sh`
+
+== Dispatch
+
+The dispatch vocabulary defines the tabtarget launcher system.
+A
+{vosdl_launcher}
+validates arguments and delegates to a
+{vosdm_formulary}.
+The
+{vosdc_colophon}
+identifies the routing path;
+the
+{vosdf_frontispiece}
+provides human-readable description;
+the
+{vosdi_imprint}
+embeds target parameters.
+
+[[vosdc_colophon]]
+// ⟦axl_voices axt_string⟧
+{vosdc_colophon}::
+The routing identifier in a tabtarget
+{vosli_inscription}.
+A
+{vosdc_colophon}
+determines which
+{vosdm_formulary}
+handles the dispatch.
+Includes the hyphen as part of its identity (e.g., `rbw-`, `buw-tt-`).
++
+The
+{vosdc_colophon}
+is the first component of the tabtarget pattern, before the first dot separator.
++
+Examples: `rbw-` routes to RBW workbench, `jjw-` routes to JJK workbench.
+
+[[vosdf_frontispiece]]
+// ⟦axl_voices axt_string⟧
+{vosdf_frontispiece}::
+The human-readable description in a tabtarget
+{vosli_inscription}.
+A
+{vosdf_frontispiece}
+uses PascalCase and describes the operation.
++
+Appears after the
+{vosdc_colophon}
+and dot separator.
++
+Examples: `Build`, `ConnectBottle`, `RunVVX`.
+
+[[vosdi_imprint]]
+// ⟦axl_voices axt_string⟧
+{vosdi_imprint}::
+An optional embedded parameter in a tabtarget
+{vosli_inscription}.
+An
+{vosdi_imprint}
+specifies a target, instance, or configuration variant.
++
+Appears after a second dot separator following the
+{vosdf_frontispiece}.
++
+Examples: `nsproto` in `rbw-B.ConnectBottle.nsproto.sh`.
+
+[[vosdm_formulary]]
+// ⟦axl_voices axo_entity⟧
+{vosdm_formulary}::
+A component that routes
+{vosdc_colophon_s}
+to implementations.
+Each
+{vosdm_formulary}
+registers handlers for a set of
+{vosdc_colophon_s}
+and dispatches to the appropriate function.
++
+Types:
++
+* **Workbench** (`{prefix}w_workbench.sh`): Routes commands for a kit
+* **Testbench** (`{prefix}t_testbench.sh`): Routes tests for a kit
+
+[[vosdl_launcher]]
+// ⟦axl_voices axo_entity⟧
+{vosdl_launcher}::
+A bootstrap script in the `tt/` directory that validates arguments and delegates to a
+{vosdm_formulary}.
+A
+{vosdl_launcher}
+is the entry point for tabtarget invocation.
++
+Naming follows
+{vosldt_tabtarget}
+vesture: `{colophon}.{frontispiece}[.{imprint}].sh`
++
+Responsibilities:
++
+* Parse
+{vosdc_colophon}
+from own filename
+* Validate required arguments
+* Source the target
+{vosdm_formulary}
+* Invoke the dispatched function
 
 == Types
 
