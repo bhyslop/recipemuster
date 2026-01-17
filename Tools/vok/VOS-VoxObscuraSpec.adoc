@@ -85,13 +85,18 @@
 :vost_cipher:           <<voslc_cipher,Cipher>>
 :vost_cipher_s:         <<voslc_cipher,Ciphers>>
 :vost_cipher_p:         <<voslc_cipher,Cipher's>>
+:vost_hallmark:         <<vost_hallmark,Hallmark>>
+:vost_hallmark_s:       <<vost_hallmark,Hallmarks>>
 :vost_sigil:            <<vost_sigil,Sigil>>
 :vost_sigil_s:          <<vost_sigil,Sigils>>
 
 // Entities
+:vose_brand_file:       <<vose_brand_file,Brand File>>
+:vose_brand_file_s:     <<vose_brand_file,Brand Files>>
 :vose_parcel:           <<vose_parcel,Parcel>>
 :vose_parcel_s:         <<vose_parcel,Parcels>>
 :vose_parcel_p:         <<vose_parcel,Parcel's>>
+:vose_registry:         <<vose_registry,Registry>>
 :vose_whisper:          <<vose_whisper,Whisper>>
 :vose_whisper_s:        <<vose_whisper,Whispers>>
 :vose_whisper_p:        <<vose_whisper,Whisper's>>
@@ -106,9 +111,12 @@
 :vose_marker_s:         <<vose_marker,Markers>>
 
 // Entity members
-:vosem_kit_id:          <<vosem_kit_id,kit_id>>
+:vosem_brand_date:      <<vosem_brand_date,brand_date>>
+:vosem_brand_sha:       <<vosem_brand_sha,brand_sha>>
 :vosem_display_name:    <<vosem_display_name,display_name>>
 :vosem_file:            <<vosem_file,file>>
+:vosem_hallmark:        <<vosem_hallmark,hallmark>>
+:vosem_kit_id:          <<vosem_kit_id,kit_id>>
 :vosem_tag:             <<vosem_tag,tag>>
 
 // Places
@@ -683,6 +691,22 @@ from own filename
 
 == Types
 
+[[vost_hallmark]]
+// ⟦axl_voices axt_string⟧
+{vost_hallmark}::
+A 4-digit version identifier starting at 1000.
+{vost_hallmark_s}
+increment for each unique content set during
+{vosor_release}.
+Unlike
+{vost_sigil}
+(timestamp-based),
+{vost_hallmark}
+represents content identity — same content always produces same
+{vost_hallmark}.
++
+Examples: `1000`, `1001`, `1042`.
+
 [[vost_sigil]]
 // ⟦axl_voices axt_string⟧
 {vost_sigil}::
@@ -703,7 +727,7 @@ Example: `260115-1430` for January 15, 2026 at 14:30.
 {vose_parcel}::
 The distribution archive for
 {vose_kit_s}.
-Named `vvk-parcel-{sigil}.tar.gz`.
+Named `vvk-parcel-{hallmark}.tar.gz`.
 Contains platform binaries and plain-text
 {vose_kit}
 assets.
@@ -711,8 +735,9 @@ assets.
 Structure:
 +
 ----
-vvk-parcel-260115-1430/
+vvk-parcel-1000/
   vvi_install.sh          # Install script (BCG-style, not installed)
+  vvbf_brand.json         # Brand file (runtime identity)
   kits/
     buk/
       buc_command.sh
@@ -881,6 +906,61 @@ is replaced entirely on
 Content outside
 {vose_marker_s}
 is preserved.
+
+[[vose_brand_file]]
+// ⟦axl_voices axj_structure⟧
+{vose_brand_file}::
+Runtime identity file at
+{vose_parcel}
+root.
+Contains
+{vost_hallmark},
+minted timestamp, and content super-SHA.
++
+File location: `vvbf_brand.json` at parcel root.
++
+Members:
+
+[[vosem_hallmark]]
+// ⟦axl_voices axj_field axd_required⟧
+* {vosem_hallmark} — {axj_field_tag}: `vvbh_hallmark`.
+4-digit version identifier (
+{vost_hallmark}
+).
+
+[[vosem_brand_date]]
+// ⟦axl_voices axj_field axd_required⟧
+* {vosem_brand_date} — {axj_field_tag}: `vvbd_date`.
+Minted timestamp in YYMMDD-HHMM format.
+
+[[vosem_brand_sha]]
+// ⟦axl_voices axj_field axd_required⟧
+* {vosem_brand_sha} — {axj_field_tag}: `vvbs_sha`.
+Content super-SHA (order-independent hash of all parcel files).
+
+[[vose_registry]]
+// ⟦axl_voices axj_structure⟧
+{vose_registry}::
+{vosp_veiled}
+mapping of
+{vost_hallmark}
+to content identity.
+Keys are
+{vost_hallmark}
+values; entries contain
+{vosem_brand_date}
+and
+{vosem_brand_sha}.
++
+File location: `Tools/vok/vov_veiled/vovr_registry.json`
++
+Used by
+{vosor_release}
+to allocate
+{vost_hallmark_s}
+— if super-SHA exists, reuse its
+{vost_hallmark};
+otherwise allocate next sequential value.
 
 == Places
 
@@ -1070,15 +1150,61 @@ collect files excluding
 {vost_sigil}
 as current timestamp (YYMMDD-HHMM)
 
+. *Compute brand identity*:
+.. {vosc_call}
+compute order-independent super-SHA:
+... Sort all parcel files by path
+... Hash each file's path + content
+... Combine hashes
+... Exclude
+{vose_brand_file}
+from computation
+.. {vosc_store}
+super-SHA for registry lookup
+
+. *Allocate hallmark*:
+.. {vosc_call}
+read
+{vose_registry}
+.. If super-SHA exists in registry:
+{vosc_store}
+existing
+{vost_hallmark}
+.. If super-SHA is new:
+... {vosc_store}
+next sequential
+{vost_hallmark}
+(max + 1, starting at 1000)
+... {vosc_call}
+update
+{vose_registry}
+with new entry
+... {vosc_call}
+commit registry change
+
+. *Write brand file*:
+.. {vosc_call}
+create
+{vose_brand_file}
+at parcel root with
+{vosem_hallmark},
+{vosem_brand_date},
+{vosem_brand_sha}
+
 . *Package parcel*:
-.. Create `vvk-parcel-{sigil}.tar.gz` with structure:
+.. Create `vvk-parcel-{hallmark}.tar.gz` with structure:
 ... `vvi_install.sh` — install script (bootstrap, not installed)
+... `vvbf_brand.json` —
+{vose_brand_file}
+at parcel root
 ... `kits/` — all kit assets by directory (including VVK with binaries)
 
 {voss_outputs}
 
 * {vose_parcel}
-archive: `vvk-parcel-{sigil}.tar.gz`
+archive: `vvk-parcel-{hallmark}.tar.gz`
+* {vose_brand_file}
+at parcel root
 
 {voss_completion}
 
@@ -1125,6 +1251,15 @@ source BURC
 .. {vosc_store}
 `BURC_TOOLS_DIR` from BURC
 
+. *Read brand identity*:
+.. {vosc_call}
+parse
+{vose_brand_file}
+from parcel root
+.. {vosc_store}
+{vosem_hallmark}
+for manifest
+
 . *Pre-install commit*:
 .. If working tree dirty:
 {vosc_call}
@@ -1141,7 +1276,9 @@ with kit source and target paths
 
 . *Write manifest*:
 .. {vosc_store}
-installed kit list, sigil, timestamp
+installed kit list,
+{vosem_hallmark},
+sigil, timestamp
 .. {vosc_call}
 write `.claude/vvx-manifest.json`
 
