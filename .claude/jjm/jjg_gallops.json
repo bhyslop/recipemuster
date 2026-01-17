@@ -79,9 +79,10 @@
         "₢AAABD",
         "₢AAABG",
         "₢AAABI",
-        "₢AAABJ"
+        "₢AAABJ",
+        "₢AAABK"
       ],
-      "next_pace_seed": "ABK",
+      "next_pace_seed": "ABL",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1540,6 +1541,16 @@
               "ts": "260117-1333",
               "state": "rough",
               "text": "Implement vvx_vacate: the Rust utility that removes kit assets from target repo.\n\n## Layered Architecture\n\n**vvu_uninstall.sh (bash orchestration):**\n1. Verify current directory is git repo with BURC\n2. Verify .vvk/vvbf_brand.json exists (something is installed)\n3. Pre-uninstall snapshot — `git commit` if working tree dirty\n4. Call `vvx_vacate --target .`\n5. Post-uninstall commit — `git commit -m \"VVK uninstall\"`\n\n**vvx_vacate (Rust, this pace):**\nPure file operations, no git. Called by vvu_uninstall.sh.\n\n## vvx_vacate --target <repo>\n\nInputs:\n- `--target` — target repository root (usually `.`)\n\nBehavior:\n\n1. **Read brand file**\n   - Parse `.vvk/vvbf_brand.json`\n   - Extract kit list from `vvbk_kits`\n   - Extract cipher for each kit\n\n2. **Remove commands**\n   - For each kit cipher: delete `.claude/commands/{cipher}c-*`\n\n3. **Remove hooks**\n   - For each kit cipher: delete `.claude/hooks/{cipher}h_*`\n\n4. **Collapse CLAUDE.md sections**\n   - For each kit's managed section tag:\n     - Call voff_collapse() to replace BEGIN/END with UNINSTALLED marker\n   - Preserves user's section ordering for future reinstall\n\n5. **Remove kit directories**\n   - For each kit in brand: delete `${BURC_TOOLS_DIR}/{kit}/`\n\n6. **Remove brand file**\n   - Delete `.vvk/vvbf_brand.json`\n   - Remove `.vvk/` directory if empty\n\nOutput: JSON summary\n```json\n{\n  \"kits_removed\": [\"buk\", \"cmk\", \"jjk\", \"vvk\"],\n  \"files_deleted\": 47,\n  \"commands_removed\": 12,\n  \"claude_sections_collapsed\": [\"BUK\", \"CMK\", \"JJK\", \"VVK\"]\n}\n```\n\n## Key Design Points\n\n- **No git operations** — bash handles all commits\n- **Brand-driven** — only removes what brand file says was installed\n- **Preserves CLAUDE.md structure** — collapses to UNINSTALLED markers, not deletion\n- **Clean removal** — no orphaned files if prefix validation was enforced at install\n\n## MVP Shortcut: Hardcoded Section Tags\n\nLike vvx_emplace, the managed section tags are hardcoded in Rust:\n- BUK, CMK, JJK, VVK (matching vofm_managed.rs constants)\n- Future: Whisper/Conclave will provide tag registry\n\n## Prerequisites\n\n- ₢AAAAF (vvx_emplace) — parallel implementation, shares patterns\n- ₢AAAAG (claude-md-freshening) — COMPLETE, provides voff_collapse\n\n## Files\n\n- Tools/vok/src/vorm_main.rs — add vvx_vacate subcommand\n- Tools/vvk/vvu_uninstall.sh — NEW: bash orchestration script"
+            }
+          ]
+        },
+        "₢AAABK": {
+          "silks": "managed-section-templates",
+          "tacks": [
+            {
+              "ts": "260117-1337",
+              "state": "rough",
+              "text": "Externalize CLAUDE.md templates from hardcoded Rust to editable markdown files.\n\n## Goal\n\nReplace MVP hardcoding with template files in vov_veiled/, enabling CLAUDE.md content iteration without Rust rebuilds.\n\n## Registry Extension (vofc_registry.rs)\n\nExtend vofc_Kit with managed section declarations:\n\n```rust\npub struct vofc_Kit {\n    pub cipher: &'static vofc_Cipher,\n    pub display_name: &'static str,\n    pub managed_sections: &'static [vofc_ManagedSection],\n}\n\npub struct vofc_ManagedSection {\n    pub tag: &'static str,           // \"JJK\", \"BUK\"\n    pub template_path: &'static str, // \"vocjjmc_core.md\" (relative to kit's vov_veiled)\n}\n\npub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[\n    vofc_Kit {\n        cipher: &BU,\n        display_name: \"Bash Utilities\",\n        managed_sections: &[\n            vofc_ManagedSection { tag: \"BUK\", template_path: \"vocbumc_core.md\" },\n        ],\n    },\n    vofc_Kit {\n        cipher: &JJ,\n        display_name: \"Job Jockey\", \n        managed_sections: &[\n            vofc_ManagedSection { tag: \"JJK\", template_path: \"vocjjmc_core.md\" },\n        ],\n    },\n    // ... etc\n];\n```\n\n## Template Files to Create\n\nEach kit gets a template file in its vov_veiled/:\n\n- Tools/buk/vov_veiled/vocbumc_core.md — BUK CLAUDE.md section\n- Tools/cmk/vov_veiled/voccmmc_core.md — CMK CLAUDE.md section  \n- Tools/jjk/vov_veiled/vocjjmc_core.md — JJK CLAUDE.md section\n- Tools/vvk/vov_veiled/vocvvmc_core.md — VVK CLAUDE.md section\n\nContent: Extract from current CLAUDE.md managed sections (the \"## Job Jockey Configuration\" etc.)\n\n## Update release_collect\n\nModify to read templates:\n1. For each kit in DISTRIBUTABLE_KITS:\n2. For each managed_section in kit:\n3. Read template from `{kit_dir}/vov_veiled/{template_path}`\n4. Copy to parcel at `kits/{kit_id}/templates/{template_path}`\n\n## Update vvx_emplace  \n\nModify to read from parcel:\n1. For each kit being installed:\n2. For each managed_section in kit's registry entry:\n3. Read template from `{parcel}/kits/{kit_id}/templates/{template_path}`\n4. Build voff_ManagedSection with tag + content\n5. Call voff_freshen()\n\n## Update vvx_vacate\n\nModify to use registry for tags:\n1. For each kit in brand file:\n2. Look up kit in DISTRIBUTABLE_KITS\n3. Collect all managed_section.tag values\n4. Call voff_collapse() with those tags\n\n## Delete Hardcoded Shortcuts\n\nRemove vofm_managed.rs (or never create it) — templates are the source of truth.\n\n## Verification\n\n1. Edit a template file\n2. Run release (no Rust rebuild needed)\n3. Install to test repo\n4. Verify CLAUDE.md has updated content\n\n## Prerequisites\n\n- ₢AAAAE (release_collect exists to modify)\n- ₢AAAAF (vvx_emplace exists to modify)\n- ₢AAABJ (vvx_vacate exists to modify)"
             }
           ]
         }
