@@ -73,7 +73,6 @@
         "₢AAAA8",
         "₢AAAA-",
         "₢AAAA_",
-        "₢AAABB",
         "₢AAABC",
         "₢AAABD",
         "₢AAABG",
@@ -1433,16 +1432,6 @@
             }
           ]
         },
-        "₢AAABB": {
-          "silks": "furlough-jjd-spec",
-          "tacks": [
-            {
-              "ts": "260117-1129",
-              "state": "rough",
-              "text": "Update JJD-GallopsData.adoc specification:\n\n1. Add new status enum value:\n   - jjdhe_stabled: Heat is paused, not actively worked\n\n2. Rename existing enum value (lazy migration):\n   - jjdhe_current → jjdhe_racing (accept \"current\" on read, write \"racing\")\n\n3. Add jjdo_furlough operation:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required\n   - Errors if already in target state\n   - Errors if heat is retired (terminal)\n\n4. Update jjdo_saddle:\n   - Add: Fails with error if heat status is stabled\n\n5. Update jjdo_muster:\n   - Remove --status filter (show all heats, no filtering)\n\nFiles: Tools/jjk/JJD-GallopsData.adoc"
-            }
-          ]
-        },
         "₢AAABC": {
           "silks": "furlough-rust-impl",
           "tacks": [
@@ -1624,10 +1613,28 @@
       "silks": "jjk-furlough-feature",
       "creation_time": "260117",
       "status": "current",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ACAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AC.md",
-      "paces": {}
+      "paces": {
+        "₢ACAAA": {
+          "silks": "furlough-jjd-spec",
+          "tacks": [
+            {
+              "ts": "260117-1406",
+              "state": "rough",
+              "text": "Drafted from ₢AAABB in ₣AA.\n\nUpdate JJD-GallopsData.adoc specification:\n\n1. Add new status enum value:\n   - jjdhe_stabled: Heat is paused, not actively worked\n\n2. Rename existing enum value (lazy migration):\n   - jjdhe_current → jjdhe_racing (accept \"current\" on read, write \"racing\")\n\n3. Add jjdo_furlough operation:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required\n   - Errors if already in target state\n   - Errors if heat is retired (terminal)\n\n4. Update jjdo_saddle:\n   - Add: Fails with error if heat status is stabled\n\n5. Update jjdo_muster:\n   - Remove --status filter (show all heats, no filtering)\n\nFiles: Tools/jjk/JJD-GallopsData.adoc"
+            },
+            {
+              "ts": "260117-1129",
+              "state": "rough",
+              "text": "Update JJD-GallopsData.adoc specification:\n\n1. Add new status enum value:\n   - jjdhe_stabled: Heat is paused, not actively worked\n\n2. Rename existing enum value (lazy migration):\n   - jjdhe_current → jjdhe_racing (accept \"current\" on read, write \"racing\")\n\n3. Add jjdo_furlough operation:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required\n   - Errors if already in target state\n   - Errors if heat is retired (terminal)\n\n4. Update jjdo_saddle:\n   - Add: Fails with error if heat status is stabled\n\n5. Update jjdo_muster:\n   - Remove --status filter (show all heats, no filtering)\n\nFiles: Tools/jjk/JJD-GallopsData.adoc"
+            }
+          ]
+        }
+      }
     }
   }
 }
