@@ -9,6 +9,7 @@
 
 use clap::Parser;
 use std::ffi::OsString;
+use std::path::PathBuf;
 use std::process::ExitCode;
 
 #[derive(Parser)]
@@ -37,6 +38,14 @@ enum Commands {
     /// Force-break a stuck lock (use after crash)
     #[command(name = "vvx_unlock")]
     VvxUnlock,
+
+    /// Collect kit assets to staging directory
+    #[command(name = "release_collect")]
+    ReleaseCollect(ReleaseCollectArgs),
+
+    /// Brand staging directory with hallmark
+    #[command(name = "release_brand")]
+    ReleaseBrand(ReleaseBrandArgs),
 
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
@@ -91,6 +100,38 @@ struct PushArgs {
     force: bool,
 }
 
+/// Arguments for release_collect command
+#[derive(clap::Args, Debug)]
+struct ReleaseCollectArgs {
+    /// Staging directory to populate
+    #[arg(long)]
+    staging: PathBuf,
+
+    /// Source Tools/ directory
+    #[arg(long)]
+    tools_dir: PathBuf,
+
+    /// Path to vvi_install.sh
+    #[arg(long)]
+    install_script: PathBuf,
+}
+
+/// Arguments for release_brand command
+#[derive(clap::Args, Debug)]
+struct ReleaseBrandArgs {
+    /// Staging directory with collected assets
+    #[arg(long)]
+    staging: PathBuf,
+
+    /// Path to vovr_registry.json
+    #[arg(long)]
+    registry: PathBuf,
+
+    /// Current git commit SHA
+    #[arg(long)]
+    commit: String,
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
@@ -99,6 +140,8 @@ fn main() -> ExitCode {
         Some(Commands::VvxCommit(args)) => run_commit(args),
         Some(Commands::VvxPush(args)) => run_push(args),
         Some(Commands::VvxUnlock) => run_unlock(),
+        Some(Commands::ReleaseCollect(args)) => run_release_collect(args),
+        Some(Commands::ReleaseBrand(args)) => run_release_brand(args),
         Some(Commands::External(args)) => dispatch_external(args),
         None => {
             use clap::CommandFactory;

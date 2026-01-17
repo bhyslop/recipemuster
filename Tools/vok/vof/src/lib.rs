@@ -15,9 +15,13 @@
 
 pub mod vofc_registry;
 pub mod voff_freshen;
+pub mod vofr_release;
 
 // Re-export the Cipher type and all cipher constants
 pub use vofc_registry::*;
 
 // Re-export freshen types and functions
 pub use voff_freshen::{voff_freshen, voff_collapse, voff_parse_sections, voff_ManagedSection, voff_FreshenResult};
+
+// Re-export release types and functions
+pub use vofr_release::{vofr_collect, vofr_brand, vofr_CollectResult, vofr_BrandResult};
