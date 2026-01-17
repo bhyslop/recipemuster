@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AC",
+  "next_heat_seed": "AD",
   "heats": {
     "₣AA": {
       "silks": "vok-fresh-install-release",
@@ -1619,6 +1619,15 @@
           ]
         }
       }
+    },
+    "₣AC": {
+      "silks": "jjk-furlough-feature",
+      "creation_time": "260117",
+      "status": "current",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AC.md",
+      "paces": {}
     }
   }
 }
