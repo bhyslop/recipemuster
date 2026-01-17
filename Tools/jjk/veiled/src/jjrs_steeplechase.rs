@@ -46,7 +46,7 @@ pub struct jjrs_SteeplechaseEntry {
 
 /// Parse timestamp from git %ai format to "YYYY-MM-DD HH:MM"
 /// Input format: "2024-01-15 14:30:00 -0800"
-fn zjjrs_parse_timestamp(git_timestamp: &str) -> String {
+pub(crate) fn zjjrs_parse_timestamp(git_timestamp: &str) -> String {
     let trimmed = git_timestamp.trim();
     if trimmed.len() >= 16 {
         trimmed[..16].to_string()
@@ -57,7 +57,7 @@ fn zjjrs_parse_timestamp(git_timestamp: &str) -> String {
 
 /// Parse a new-format commit: jjb:BRAND:IDENTITY[:ACTION]: message
 /// Filters by firemark identity, not by brand. Brand is parsed but not matched.
-fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_SteeplechaseEntry> {
+pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_SteeplechaseEntry> {
     // Expected format: jjb:BRAND:IDENTITY[:ACTION]: message
     // We match any brand - filtering is by identity only
     if !subject.starts_with("jjb:") {
@@ -132,7 +132,7 @@ fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_Stee
 
 /// Parse a single git log line into a SteeplechaseEntry
 /// Line format: "YYYY-MM-DD HH:MM:SS -ZZZZ<TAB>subject"
-fn zjjrs_parse_log_line(line: &str, firemark_raw: &str) -> Option<jjrs_SteeplechaseEntry> {
+pub fn zjjrs_parse_log_line(line: &str, firemark_raw: &str) -> Option<jjrs_SteeplechaseEntry> {
     let parts: Vec<&str> = line.splitn(2, '\t').collect();
     if parts.len() != 2 {
         return None;
@@ -212,139 +212,5 @@ pub fn jjrs_run(args: jjrs_ReinArgs) -> i32 {
             eprintln!("rein: error: {}", e);
             1
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_timestamp() {
-        assert_eq!(
-            zjjrs_parse_timestamp("2024-01-15 14:30:00 -0800"),
-            "2024-01-15 14:30"
-        );
-        assert_eq!(
-            zjjrs_parse_timestamp("2024-12-31 23:59:59 +0000"),
-            "2024-12-31 23:59"
-        );
-    }
-
-    #[test]
-    fn test_parse_new_format_standard_notch() {
-        let subject = "jjb:RBM:₢ABAAA:n: Fix the bug";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, Some("n".to_string()));
-        assert_eq!(entry.subject, "Fix the bug");
-    }
-
-    #[test]
-    fn test_parse_new_format_chalk_wrap() {
-        let subject = "jjb:RBM:₢ABAAA:W: Completed the task";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, Some("W".to_string()));
-        assert_eq!(entry.subject, "Completed the task");
-    }
-
-    #[test]
-    fn test_parse_new_format_chalk_approach() {
-        let subject = "jjb:RBM:₢ABCDE:A: Starting work";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, Some("₢ABCDE".to_string()));
-        assert_eq!(entry.action, Some("A".to_string()));
-        assert_eq!(entry.subject, "Starting work");
-    }
-
-    #[test]
-    fn test_parse_new_format_heat_level_nominate() {
-        let subject = "jjb:RBM:₣AB:N: my-new-heat";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, None);
-        assert_eq!(entry.action, Some("N".to_string()));
-        assert_eq!(entry.subject, "my-new-heat");
-    }
-
-    #[test]
-    fn test_parse_new_format_heat_level_slate() {
-        let subject = "jjb:RBM:₣AB:S: new-pace-silks";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, None);
-        assert_eq!(entry.action, Some("S".to_string()));
-        assert_eq!(entry.subject, "new-pace-silks");
-    }
-
-    #[test]
-    fn test_parse_new_format_heat_level_rail() {
-        let subject = "jjb:RBM:₣AB:r: reordered";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, None);
-        assert_eq!(entry.action, Some("r".to_string()));
-        assert_eq!(entry.subject, "reordered");
-    }
-
-    #[test]
-    fn test_parse_new_format_heat_level_retire() {
-        let subject = "jjb:RBM:₣AB:R: my-heat-silks";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, None);
-        assert_eq!(entry.action, Some("R".to_string()));
-        assert_eq!(entry.subject, "my-heat-silks");
-    }
-
-    #[test]
-    fn test_parse_new_format_heat_discussion() {
-        let subject = "jjb:RBM:₣AB:d: Design discussion";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, None);
-        assert_eq!(entry.action, Some("d".to_string()));
-        assert_eq!(entry.subject, "Design discussion");
-    }
-
-    #[test]
-    fn test_parse_new_format_any_brand() {
-        // Should parse successfully with any brand - filtering is by identity
-        let subject = "jjb:OTHER:₢ABAAA:n: Fix bug";
-        let entry = zjjrs_parse_new_format(subject, "AB").unwrap();
-        assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, Some("n".to_string()));
-        assert_eq!(entry.subject, "Fix bug");
-    }
-
-    #[test]
-    fn test_parse_new_format_wrong_firemark() {
-        // Different firemark in coronet - should NOT match
-        let subject = "jjb:RBM:₢CDAAA:n: Fix bug";
-        let result = zjjrs_parse_new_format(subject, "AB");
-        assert!(result.is_none());
-    }
-
-    #[test]
-    fn test_parse_new_format_wrong_heat_firemark() {
-        let subject = "jjb:RBM:₣CD:N: some-heat";
-        let result = zjjrs_parse_new_format(subject, "AB");
-        assert!(result.is_none());
-    }
-
-    #[test]
-    fn test_parse_log_line_new_format() {
-        let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:n: Fix bug";
-        let entry = zjjrs_parse_log_line(line, "AB").unwrap();
-        assert_eq!(entry.timestamp, "2024-01-15 14:30");
-        assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, Some("n".to_string()));
-        assert_eq!(entry.subject, "Fix bug");
-    }
-
-    #[test]
-    fn test_parse_log_line_new_format_with_action() {
-        let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:F: Autonomous execution";
-        let entry = zjjrs_parse_log_line(line, "AB").unwrap();
-        assert_eq!(entry.timestamp, "2024-01-15 14:30");
-        assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
-        assert_eq!(entry.action, Some("F".to_string()));
-        assert_eq!(entry.subject, "Autonomous execution");
     }
 }

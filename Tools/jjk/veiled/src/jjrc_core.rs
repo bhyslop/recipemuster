@@ -28,14 +28,3 @@ pub fn jjrc_timestamp_date() -> String {
 pub fn jjrc_timestamp_full() -> String {
     Local::now().format("%y%m%d-%H%M").to_string()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_default_path() {
-        let path = jjrc_default_gallops_path();
-        assert!(path.to_str().unwrap().contains("jjg_gallops.json"));
-    }
-}
