@@ -424,6 +424,11 @@
           "silks": "version-manifest",
           "tacks": [
             {
+              "ts": "260117-1225",
+              "state": "abandoned",
+              "text": "Superseded by VOS vose_brand_file specification"
+            },
+            {
               "ts": "260114-1058",
               "state": "rough",
               "text": "Design and implement version manifest for tracking installed kits.\n\nProposed location: .claude/vvx-manifest.json\n\nSchema (see paddock):\n{\n  \"version\": \"260115-1430\",    // Release version\n  \"installed\": \"260115-1823\",  // Install timestamp\n  \"commit\": \"abc123def\",       // Git commit of install\n  \"kits\": [\"jjk\", \"buk\", \"cmk\", \"vok\"]\n}\n\nUsed by:\n- Diff analysis (find previous install commit)\n- vvx --version to show installed version\n- Future upgrade logic\n\nOpen decision: Confirm .claude/ as location vs Tools/vok/."
