@@ -1,0 +1,11 @@
+[package]
+name = "vof"
+version = "0.0.1"
+edition = "2021"
+description = "Vox Obscura Foundation - Shared types and utilities for VOK ecosystem"
+
+[lib]
+name = "vof"
+path = "src/lib.rs"
+
+[dependencies]

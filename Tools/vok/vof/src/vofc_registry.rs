@@ -17,12 +17,12 @@
 /// Cipher represents a project's namespace root.
 /// Uniqueness enforced at compile time by const declaration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct voic_Cipher {
+pub struct vofc_Cipher {
     prefix: &'static str,
     project: &'static str,
 }
 
-impl voic_Cipher {
+impl vofc_Cipher {
     /// Create a new cipher at compile time.
     pub const fn new(prefix: &'static str, project: &'static str) -> Self {
         Self { prefix, project }
@@ -67,82 +67,82 @@ impl voic_Cipher {
 // -----------------------------------------------------------------------------
 
 /// VV: Voce Viva - the universal kit present in every target repo
-pub const VV: voic_Cipher = voic_Cipher::new("vv", "Voce Viva");
+pub const VV: vofc_Cipher = vofc_Cipher::new("vv", "Voce Viva");
 
 /// VO: Vox Obscura - the kit forge infrastructure (never distributed)
-pub const VO: voic_Cipher = voic_Cipher::new("vo", "Vox Obscura");
+pub const VO: vofc_Cipher = vofc_Cipher::new("vo", "Vox Obscura");
 
 // -----------------------------------------------------------------------------
 // Portable Kits
 // -----------------------------------------------------------------------------
 
 /// JJ: Job Jockey - project management and heat tracking
-pub const JJ: voic_Cipher = voic_Cipher::new("jj", "Job Jockey");
+pub const JJ: vofc_Cipher = vofc_Cipher::new("jj", "Job Jockey");
 
 /// BU: Bash Utilities Kit - enterprise bash infrastructure
-pub const BU: voic_Cipher = voic_Cipher::new("bu", "Bash Utilities");
+pub const BU: vofc_Cipher = vofc_Cipher::new("bu", "Bash Utilities");
 
 /// CM: Concept Model Kit - MCM/AXLA concept model tooling
-pub const CM: voic_Cipher = voic_Cipher::new("cm", "Concept Model");
+pub const CM: vofc_Cipher = vofc_Cipher::new("cm", "Concept Model");
 
 /// HM: Hard-state Machine Kit - state machine infrastructure
-pub const HM: voic_Cipher = voic_Cipher::new("hm", "Hard-state Machine");
+pub const HM: vofc_Cipher = vofc_Cipher::new("hm", "Hard-state Machine");
 
 // -----------------------------------------------------------------------------
 // Recipe Bottle Domain
 // -----------------------------------------------------------------------------
 
 /// RB: Recipe Bottle - container orchestration and deployment
-pub const RB: voic_Cipher = voic_Cipher::new("rb", "Recipe Bottle");
+pub const RB: vofc_Cipher = vofc_Cipher::new("rb", "Recipe Bottle");
 
 /// CRG: Config Regime - configuration management
-pub const CRG: voic_Cipher = voic_Cipher::new("crg", "Config Regime");
+pub const CRG: vofc_Cipher = vofc_Cipher::new("crg", "Config Regime");
 
 // -----------------------------------------------------------------------------
 // Tools and Utilities
 // -----------------------------------------------------------------------------
 
 /// GAD: Google AsciiDoc Differ - diff visualization tool
-pub const GAD: voic_Cipher = voic_Cipher::new("gad", "Google AsciiDoc Differ");
+pub const GAD: vofc_Cipher = vofc_Cipher::new("gad", "Google AsciiDoc Differ");
 
 /// CCC: Claude Code Container Kit - Docker/container operations
-pub const CCC: voic_Cipher = voic_Cipher::new("ccc", "Claude Code Container");
+pub const CCC: vofc_Cipher = vofc_Cipher::new("ccc", "Claude Code Container");
 
 /// LMCI: Language Model Console Integration
-pub const LMCI: voic_Cipher = voic_Cipher::new("lmci", "Language Model Console Integration");
+pub const LMCI: vofc_Cipher = vofc_Cipher::new("lmci", "Language Model Console Integration");
 
 /// VSL: Visual SlickEdit Local Kit - IDE integration
-pub const VSL: voic_Cipher = voic_Cipher::new("vsl", "Visual SlickEdit Local");
+pub const VSL: vofc_Cipher = vofc_Cipher::new("vsl", "Visual SlickEdit Local");
 
 // -----------------------------------------------------------------------------
 // Concept Model Vocabulary
 // -----------------------------------------------------------------------------
 
 /// MCM: Meta Concept Model - specification for concept models
-pub const MCM: voic_Cipher = voic_Cipher::new("mcm", "Meta Concept Model");
+pub const MCM: vofc_Cipher = vofc_Cipher::new("mcm", "Meta Concept Model");
 
 /// AXL: Axiom Lexicon - shared vocabulary definitions
-pub const AXL: voic_Cipher = voic_Cipher::new("axl", "Axiom Lexicon");
+pub const AXL: vofc_Cipher = vofc_Cipher::new("axl", "Axiom Lexicon");
 
 // -----------------------------------------------------------------------------
 // Other Projects
 // -----------------------------------------------------------------------------
 
 /// PB: Paneboard - cross-platform UI toolkit
-pub const PB: voic_Cipher = voic_Cipher::new("pb", "Paneboard");
+pub const PB: vofc_Cipher = vofc_Cipher::new("pb", "Paneboard");
 
 /// WRS: Ward Realm Substrate - distributed state machine substrate
-pub const WRS: voic_Cipher = voic_Cipher::new("wrs", "Ward Realm Substrate");
+pub const WRS: vofc_Cipher = vofc_Cipher::new("wrs", "Ward Realm Substrate");
 
 /// SRF: Study Raft - learning and exploration
-pub const SRF: voic_Cipher = voic_Cipher::new("srf", "Study Raft");
+pub const SRF: vofc_Cipher = vofc_Cipher::new("srf", "Study Raft");
 
 // =============================================================================
 // Registry Access
 // =============================================================================
 
 /// All registered ciphers for iteration and validation.
-pub const ALL_CIPHERS: &[voic_Cipher] = &[
+pub const ALL_CIPHERS: &[vofc_Cipher] = &[
     // VO/VV ecosystem
     VV, VO,
     // Portable kits
@@ -167,18 +167,18 @@ pub const DISTRIBUTABLE_KITS: &[&str] = &[
 ];
 
 /// Find a cipher by prefix.
-pub fn voic_find_by_prefix(prefix: &str) -> Option<&'static voic_Cipher> {
+pub fn vofc_find_by_prefix(prefix: &str) -> Option<&'static vofc_Cipher> {
     ALL_CIPHERS.iter().find(|c| c.prefix == prefix)
 }
 
 /// Check if a prefix is registered.
-pub fn voic_is_registered(prefix: &str) -> bool {
-    voic_find_by_prefix(prefix).is_some()
+pub fn vofc_is_registered(prefix: &str) -> bool {
+    vofc_find_by_prefix(prefix).is_some()
 }
 
 /// Validate terminal exclusivity: ensure no prefix is a prefix of another.
 /// Returns None if valid, or Some pair of conflicting ciphers.
-pub fn voic_validate_terminal_exclusivity() -> Option<(&'static voic_Cipher, &'static voic_Cipher)> {
+pub fn vofc_validate_terminal_exclusivity() -> Option<(&'static vofc_Cipher, &'static vofc_Cipher)> {
     for (i, a) in ALL_CIPHERS.iter().enumerate() {
         for b in ALL_CIPHERS.iter().skip(i + 1) {
             if a.prefix.starts_with(b.prefix) || b.prefix.starts_with(a.prefix) {
@@ -217,14 +217,14 @@ mod tests {
     #[test]
     fn test_terminal_exclusivity() {
         // Should be None if all ciphers are properly exclusive
-        assert!(voic_validate_terminal_exclusivity().is_none());
+        assert!(vofc_validate_terminal_exclusivity().is_none());
     }
 
     #[test]
     fn test_find_by_prefix() {
-        assert_eq!(voic_find_by_prefix("jj"), Some(&JJ));
-        assert_eq!(voic_find_by_prefix("bu"), Some(&BU));
-        assert_eq!(voic_find_by_prefix("nonexistent"), None);
+        assert_eq!(vofc_find_by_prefix("jj"), Some(&JJ));
+        assert_eq!(vofc_find_by_prefix("bu"), Some(&BU));
+        assert_eq!(vofc_find_by_prefix("nonexistent"), None);
     }
 
     #[test]

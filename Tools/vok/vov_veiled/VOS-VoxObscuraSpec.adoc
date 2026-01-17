@@ -385,17 +385,17 @@ Lowercase letters only; no
 {voslc_cipher}
 may be a prefix of another (terminal exclusivity).
 +
-Declared as const in `Tools/voi/src/voic_registry.rs` — the single source of truth for all project prefixes.
+Declared as const in `Tools/vok/vof/src/vofc_registry.rs` — the single source of truth for all project prefixes.
 +
 Declaration pattern:
 +
 [source,rust]
 ----
-// Tools/voi/src/voic_registry.rs - Cipher registry (const declarations)
-pub const JJ: voic_Cipher = voic_Cipher::new("jj", "Job Jockey");
-pub const BU: voic_Cipher = voic_Cipher::new("bu", "Bash Utilities");
-pub const CM: voic_Cipher = voic_Cipher::new("cm", "Concept Model");
-pub const VV: voic_Cipher = voic_Cipher::new("vv", "Voce Viva");
+// Tools/vok/vof/src/vofc_registry.rs - Cipher registry (const declarations)
+pub const JJ: vofc_Cipher = vofc_Cipher::new("jj", "Job Jockey");
+pub const BU: vofc_Cipher = vofc_Cipher::new("bu", "Bash Utilities");
+pub const CM: vofc_Cipher = vofc_Cipher::new("cm", "Concept Model");
+pub const VV: vofc_Cipher = vofc_Cipher::new("vv", "Voce Viva");
 ----
 
 [[vosls_signet]]
@@ -792,8 +792,8 @@ use voci_ciphers::JJ;
 Whisper::for_kit("jjk")
     .cipher(JJ)                 // symbolic reference to const
     .display_name("Job Jockey")
-    .managed_section("vojjmc_core.md", "JJK")
-    .managed_section("vojjmc_gallops.md", "JJK_GALLOPS")
+    .managed_section("vocjjmc_core.md", "JJK")
+    .managed_section("vocjjmc_gallops.md", "JJK_GALLOPS")
     .concept_model("JJD-GallopsData.adoc")
     .register(&mut conclave)
 ----
@@ -885,7 +885,7 @@ Members:
 // ⟦axl_voices axr_member axd_required⟧
 * {vosem_file} - Template file path relative to
 {vosp_veiled}
-(e.g., `vojjmc_core.md`)
+(e.g., `vocjjmc_core.md`)
 
 [[vosem_tag]]
 // ⟦axl_voices axr_member axd_required⟧
@@ -1586,8 +1586,8 @@ files must exist
 == Cipher Registry
 
 {voslc_cipher_s}
-are declared as const values in `Tools/voi/src/voic_registry.rs`.
-The VOI crate (Vox Obscura Infrastructure) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+are declared as const values in `Tools/vok/vof/src/vofc_registry.rs`.
+The VOF crate (Vox Obscura Foundation) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
 Each const
 {voslc_cipher}
 seeds the namespace for derived
@@ -1596,28 +1596,28 @@ seeds the namespace for derived
 === Crate Structure
 
 ----
-Tools/voi/
+Tools/vok/vof/
   Cargo.toml
   src/
-    lib.rs           # Re-exports voic_registry
-    voic_registry.rs # Cipher type and all cipher constants
+    lib.rs           # Re-exports vofc_registry
+    vofc_registry.rs # Cipher type and all cipher constants
 ----
 
 === Declaration Pattern
 
 [source,rust]
 ----
-// Tools/voi/src/voic_registry.rs
+// Tools/vok/vof/src/vofc_registry.rs
 
 /// Cipher represents a project's namespace root.
 /// Uniqueness enforced at compile time by const declaration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct voic_Cipher {
+pub struct vofc_Cipher {
     prefix: &'static str,
     project: &'static str,
 }
 
-impl voic_Cipher {
+impl vofc_Cipher {
     pub const fn new(prefix: &'static str, project: &'static str) -> Self {
         Self { prefix, project }
     }
@@ -1628,16 +1628,16 @@ impl voic_Cipher {
 }
 
 // Project cipher declarations by domain
-pub const VV: voic_Cipher = voic_Cipher::new("vv", "Voce Viva");
-pub const VO: voic_Cipher = voic_Cipher::new("vo", "Vox Obscura");
-pub const JJ: voic_Cipher = voic_Cipher::new("jj", "Job Jockey");
-pub const BU: voic_Cipher = voic_Cipher::new("bu", "Bash Utilities");
-pub const CM: voic_Cipher = voic_Cipher::new("cm", "Concept Model");
-pub const RB: voic_Cipher = voic_Cipher::new("rb", "Recipe Bottle");
-pub const GAD: voic_Cipher = voic_Cipher::new("gad", "Google AsciiDoc Differ");
+pub const VV: vofc_Cipher = vofc_Cipher::new("vv", "Voce Viva");
+pub const VO: vofc_Cipher = vofc_Cipher::new("vo", "Vox Obscura");
+pub const JJ: vofc_Cipher = vofc_Cipher::new("jj", "Job Jockey");
+pub const BU: vofc_Cipher = vofc_Cipher::new("bu", "Bash Utilities");
+pub const CM: vofc_Cipher = vofc_Cipher::new("cm", "Concept Model");
+pub const RB: vofc_Cipher = vofc_Cipher::new("rb", "Recipe Bottle");
+pub const GAD: vofc_Cipher = vofc_Cipher::new("gad", "Google AsciiDoc Differ");
 // ... all projects (17 total)
 
-pub const ALL_CIPHERS: &[voic_Cipher] = &[VV, VO, JJ, BU, CM, ...];
+pub const ALL_CIPHERS: &[vofc_Cipher] = &[VV, VO, JJ, BU, CM, ...];
 ----
 
 === Complete Cipher List
@@ -1668,21 +1668,21 @@ pub const ALL_CIPHERS: &[voic_Cipher] = &[VV, VO, JJ, BU, CM, ...];
 === Uniqueness Guarantees
 
 * Compile-time: duplicate const names are compilation errors
-* Runtime: `voic_validate_terminal_exclusivity()` verifies no prefix is a prefix of another
-* Convention: new ciphers require coordinated addition to `voic_registry.rs`
+* Runtime: `vofc_validate_terminal_exclusivity()` verifies no prefix is a prefix of another
+* Convention: new ciphers require coordinated addition to `vofc_registry.rs`
 
 === Utility Functions
 
 [source,rust]
 ----
 // Find cipher by prefix
-pub fn voic_find_by_prefix(prefix: &str) -> Option<&'static voic_Cipher>;
+pub fn vofc_find_by_prefix(prefix: &str) -> Option<&'static vofc_Cipher>;
 
 // Check if prefix is registered
-pub fn voic_is_registered(prefix: &str) -> bool;
+pub fn vofc_is_registered(prefix: &str) -> bool;
 
 // Validate terminal exclusivity (returns conflicting pair if violated)
-pub fn voic_validate_terminal_exclusivity() -> Option<(&'static voic_Cipher, &'static voic_Cipher)>;
+pub fn vofc_validate_terminal_exclusivity() -> Option<(&'static vofc_Cipher, &'static vofc_Cipher)>;
 ----
 
 === Usage
@@ -1690,11 +1690,11 @@ pub fn voic_validate_terminal_exclusivity() -> Option<(&'static voic_Cipher, &'s
 {vose_kit_s}
 import their
 {voslc_cipher}
-via the `voi` crate:
+via the `vof` crate:
 
 [source,rust]
 ----
-use voi::{JJ, voic_Cipher};
+use vof::{JJ, vofc_Cipher};
 
 Whisper::for_kit("jjk")
     .cipher(JJ)

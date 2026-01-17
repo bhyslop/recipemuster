@@ -2,17 +2,22 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! VOI - Vox Obscura Infrastructure
+//! VOF - Vox Obscura Foundation
 //!
-//! Common types for the VOK ecosystem. Provides:
+//! Shared types and utilities for the VOK ecosystem. Provides:
 //! - Cipher registry: typed project prefixes with validation
+//! - CLAUDE.md freshening: managed section manipulation
 //!
 //! All project naming flows through this crate to ensure type safety
 //! and compile-time enforcement of terminal exclusivity.
 
 #![allow(non_camel_case_types)]
 
-pub mod voic_registry;
+pub mod vofc_registry;
+pub mod voff_freshen;
 
 // Re-export the Cipher type and all cipher constants
-pub use voic_registry::*;
+pub use vofc_registry::*;
+
+// Re-export freshen types and functions
+pub use voff_freshen::{voff_freshen, voff_collapse, voff_parse_sections, voff_ManagedSection, voff_FreshenResult};
