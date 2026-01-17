@@ -48,6 +48,7 @@
         "₢AAAA0",
         "₢AAAA1",
         "₢AAAA2",
+        "₢AAAA3",
         "₢AAAAA",
         "₢AAAAc",
         "₢AAAAo",
@@ -62,7 +63,7 @@
         "₢AAAAq",
         "₢AAAAz"
       ],
-      "next_pace_seed": "AA3",
+      "next_pace_seed": "AA4",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -98,6 +99,16 @@
               "ts": "260117-0805",
               "state": "rough",
               "text": "Add MCM/AXLA-style install procedures to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- RBAGS-AdminGoogleSpec.adoc also demonstrates AXLA patterns\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n\n## Deliverables\n\nTwo MCM/AXLA-style procedures in VOS-VoxObscuraSpec.adoc:\n\n1. **Install process (whole)** - The complete vvx install workflow from archive to target repo\n2. **Per-kit process** - The kit-level installation performed as part of the whole install\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- lenses/RBAGS-AdminGoogleSpec.adoc (another AXLA example)\n- Paddock architecture section (install process details)"
+            }
+          ]
+        },
+        "₢AAAA3": {
+          "silks": "vos-uninstall-procedure",
+          "tacks": [
+            {
+              "ts": "260117-0806",
+              "state": "rough",
+              "text": "Add MCM/AXLA-style uninstall procedure to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n- Companion to vos-install-procedures pace\n\n## Deliverables\n\nOne MCM/AXLA-style procedure in VOS-VoxObscuraSpec.adoc:\n\n**Uninstall process** - Remove installed kit assets from target repo\n- Git-aware (commit before removing)\n- Handle CLAUDE.md managed section removal\n- Clean up manifest\n- Consider partial uninstall (single kit vs all kits)\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- Paddock architecture section (install process details - inverse applies)"
             }
           ]
         },
