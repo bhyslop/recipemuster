@@ -71,8 +71,7 @@
         "₢AAABJ",
         "₢AAABK",
         "₢AAABL",
-        "₢AAABM",
-        "₢AAABO"
+        "₢AAABM"
       ],
       "next_pace_seed": "ABP",
       "paddock_file": ".claude/jjm/jjp_AA.md",
@@ -1425,16 +1424,6 @@
               "text": "Implement lightweight Whisper/Conclave: decentralized kit registration with concept model indexing.\n\n## Goal\n\nEvolve from centralized DISTRIBUTABLE_KITS to decentralized kit self-declaration, preserving simplicity.\n\n## What We Keep from VOS\n\n**Whisper concept** — Each kit declares itself in its own file:\n- Location: `Tools/{kit}/vov_veiled/vo{cipher}w_whisper.rs`\n- Declares: cipher, display_name, managed_sections, concept_models\n\n**Conclave concept** — Central registry that collects Whispers:\n- Location: `Tools/vok/src/vocv_conclave.rs`\n- Build-time: collects all Whisper declarations\n- Provides: kit enumeration, template paths, concept model paths\n\n**Concept model registration** — Foundation for future acronym validation:\n- Each kit registers its concept models (JJD, VOS, MCM, etc.)\n- Conclave can enumerate all concept models across kits\n- Future: validate acronym uniqueness, build cross-reference index\n\n## What We Simplify\n\n**No builder API** — Static struct, not fluent builder:\n```rust\n// Instead of Whisper::for_kit(\"jjk\").cipher(JJ).display_name(...)\npub const JJK_WHISPER: vofw_Whisper = vofw_Whisper {\n    kit_id: \"jjk\",\n    cipher: &JJ,\n    display_name: \"Job Jockey\",\n    managed_sections: &[...],\n    concept_models: &[\"JJD-GallopsData.adoc\"],\n};\n```\n\n**No runtime registration** — Compile-time const aggregation:\n```rust\n// In vocv_conclave.rs\npub const ALL_WHISPERS: &[&vofw_Whisper] = &[\n    &buk::BUK_WHISPER,\n    &cmk::CMK_WHISPER,\n    &jjk::JJK_WHISPER,\n    &vvk::VVK_WHISPER,\n];\n```\n\n## VOS Updates\n\n1. **Simplify vose_whisper** — Replace builder API example with static struct\n2. **Simplify vose_conclave** — Remove \"collects at runtime\" language, clarify compile-time\n3. **Keep concept model registration** — Valuable for future tooling\n4. **Remove .register(&mut conclave)** — Not needed with static aggregation\n\n## Implementation\n\n### 1. Create Whisper type (vof)\n\n```rust\n// Tools/vok/vof/src/vofw_whisper.rs\npub struct vofw_Whisper {\n    pub kit_id: &'static str,\n    pub cipher: &'static vofc_Cipher,\n    pub display_name: &'static str,\n    pub managed_sections: &'static [vofc_ManagedSection],\n    pub concept_models: &'static [&'static str],\n}\n```\n\n### 2. Create Whisper for each kit\n\n- Tools/buk/vov_veiled/vowbuw_whisper.rs — BUK declaration\n- Tools/cmk/vov_veiled/vowcmw_whisper.rs — CMK declaration\n- Tools/jjk/vov_veiled/vowjjw_whisper.rs — JJK declaration\n- Tools/vvk/vov_veiled/vowvvw_whisper.rs — VVK declaration\n\n### 3. Create Conclave (vok)\n\n```rust\n// Tools/vok/src/vocv_conclave.rs\npub const ALL_WHISPERS: &[&vofw_Whisper] = &[...];\n\npub fn vocv_kits() -> impl Iterator<Item = &'static vofw_Whisper>;\npub fn vocv_managed_sections() -> impl Iterator<Item = (&'static str, &'static vofc_ManagedSection)>;\npub fn vocv_concept_models() -> impl Iterator<Item = (&'static str, &'static str)>;\n```\n\n### 4. Migrate callers\n\n- release_collect: use vocv_kits() instead of DISTRIBUTABLE_KITS\n- vvx_emplace: use vocv_managed_sections()\n- vvx_vacate: use vocv_managed_sections() for tags\n\n### 5. Deprecate centralized registry\n\n- Remove DISTRIBUTABLE_KITS from vofc_registry.rs\n- Keep vofc_Kit and vofc_ManagedSection types (used by Whisper)\n- Update any remaining callers\n\n## Benefits\n\n- **Decentralized ownership** — Kit authors edit their own Whisper\n- **Concept model foundation** — Ready for acronym validation tooling\n- **Simpler than VOS spec** — Static structs, compile-time aggregation\n- **Type-safe** — Compiler catches missing Whispers\n\n## Prerequisites\n\n- ₢AAABL (test-mvp) — Validates MVP before we refactor\n\n## Verification\n\n- All existing tests pass\n- Release/install/uninstall cycle still works\n- Each kit has its own Whisper file"
             }
           ]
-        },
-        "₢AAABO": {
-          "silks": "tack-silks-and-commit-migration",
-          "tacks": [
-            {
-              "ts": "260117-1350",
-              "state": "rough",
-              "text": "Migrate silks from Pace to Tack and add commit SHA tracking.\n\n## Changes\n\n### 1. Move silks to Tack (required field)\n\n**Current:**\n```rust\nstruct jjrg_Pace {\n    silks: String,\n    tacks: Vec<jjrg_Tack>,\n}\n```\n\n**New:**\n```rust\nstruct jjrg_Pace {\n    tacks: Vec<jjrg_Tack>,  // silks removed\n}\n\nstruct jjrg_Tack {\n    ts: String,\n    state: PaceState,\n    text: String,\n    silks: String,          // NEW: required\n    direction: Option<String>,\n}\n```\n\nCurrent silks = `tacks[0].silks` (same pattern as state derivation).\n\n### 2. Add commit SHA to Tack (optional field)\n\n```rust\nstruct jjrg_Tack {\n    // ... existing fields ...\n    commit: Option<String>,  // NEW: HEAD SHA at tack write time\n}\n```\n\nCapture via `git rev-parse HEAD` at tack creation.\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — spec updates\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs — struct changes\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — tack creation sites\n- All slash commands that reference silks lookup\n\n## Migration\n\nLazy migration on read:\n- If old format (silks on Pace): copy to each tack, remove from Pace on write\n- If tack missing commit: leave as None (historical data)\n\n## Enables\n\n- Pace renaming via `/jjc-pace-reslate` with --silks flag\n- Point-in-time file recovery via `git show <commit>:path`"
-            }
-          ]
         }
       }
     },
@@ -1621,9 +1610,10 @@
         "₢AEAAA",
         "₢AEAAB",
         "₢AEAAC",
-        "₢AEAAD"
+        "₢AEAAD",
+        "₢AEAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -1708,6 +1698,21 @@
               "ts": "260116-1509",
               "state": "rough",
               "text": "Refactor /jjc-pace-prime to merge direction into spec instead of using separate tack_direction field.\n\n## Current behavior\n\nPrime writes direction to tack_direction field. Mount reads both tack_text and tack_direction for primed paces.\n\n## Proposed behavior\n\nPrime appends direction content to tack_text under a '## Direction' heading. The tack_direction field becomes unused for new paces.\n\n## Benefits\n\n- Single source of truth - what agent sees is in one place\n- No risk of direction referencing spec content agent doesn't see\n- Simpler mental model\n\n## Changes\n\n1. **jjc-pace-prime.md**: Change jjx_tally call to append direction to --text instead of using --direction\n2. **jjc-heat-mount.md**: Remove tack_direction references for primed paces (direction is in spec)\n3. **JJD-GallopsData.adoc**: Document that tack_direction is deprecated for new paces\n\n## Migration\n\nExisting primed paces with tack_direction continue to work (mount reads both). New paces use merged approach.\n\n## Verification\n\n- Prime a test pace, verify direction appears in tack_text\n- Mount primed pace, verify execution succeeds"
+            }
+          ]
+        },
+        "₢AEAAE": {
+          "silks": "tack-silks-and-commit-migration",
+          "tacks": [
+            {
+              "ts": "260117-1410",
+              "state": "rough",
+              "text": "Drafted from ₢AAABO in ₣AA.\n\nMigrate silks from Pace to Tack and add commit SHA tracking.\n\n## Changes\n\n### 1. Move silks to Tack (required field)\n\n**Current:**\n```rust\nstruct jjrg_Pace {\n    silks: String,\n    tacks: Vec<jjrg_Tack>,\n}\n```\n\n**New:**\n```rust\nstruct jjrg_Pace {\n    tacks: Vec<jjrg_Tack>,  // silks removed\n}\n\nstruct jjrg_Tack {\n    ts: String,\n    state: PaceState,\n    text: String,\n    silks: String,          // NEW: required\n    direction: Option<String>,\n}\n```\n\nCurrent silks = `tacks[0].silks` (same pattern as state derivation).\n\n### 2. Add commit SHA to Tack (optional field)\n\n```rust\nstruct jjrg_Tack {\n    // ... existing fields ...\n    commit: Option<String>,  // NEW: HEAD SHA at tack write time\n}\n```\n\nCapture via `git rev-parse HEAD` at tack creation.\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — spec updates\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs — struct changes\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — tack creation sites\n- All slash commands that reference silks lookup\n\n## Migration\n\nLazy migration on read:\n- If old format (silks on Pace): copy to each tack, remove from Pace on write\n- If tack missing commit: leave as None (historical data)\n\n## Enables\n\n- Pace renaming via `/jjc-pace-reslate` with --silks flag\n- Point-in-time file recovery via `git show <commit>:path`"
+            },
+            {
+              "ts": "260117-1350",
+              "state": "rough",
+              "text": "Migrate silks from Pace to Tack and add commit SHA tracking.\n\n## Changes\n\n### 1. Move silks to Tack (required field)\n\n**Current:**\n```rust\nstruct jjrg_Pace {\n    silks: String,\n    tacks: Vec<jjrg_Tack>,\n}\n```\n\n**New:**\n```rust\nstruct jjrg_Pace {\n    tacks: Vec<jjrg_Tack>,  // silks removed\n}\n\nstruct jjrg_Tack {\n    ts: String,\n    state: PaceState,\n    text: String,\n    silks: String,          // NEW: required\n    direction: Option<String>,\n}\n```\n\nCurrent silks = `tacks[0].silks` (same pattern as state derivation).\n\n### 2. Add commit SHA to Tack (optional field)\n\n```rust\nstruct jjrg_Tack {\n    // ... existing fields ...\n    commit: Option<String>,  // NEW: HEAD SHA at tack write time\n}\n```\n\nCapture via `git rev-parse HEAD` at tack creation.\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — spec updates\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs — struct changes\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — tack creation sites\n- All slash commands that reference silks lookup\n\n## Migration\n\nLazy migration on read:\n- If old format (silks on Pace): copy to each tack, remove from Pace on write\n- If tack missing commit: leave as None (historical data)\n\n## Enables\n\n- Pace renaming via `/jjc-pace-reslate` with --silks flag\n- Point-in-time file recovery via `git show <commit>:path`"
             }
           ]
         }
