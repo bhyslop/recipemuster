@@ -477,9 +477,12 @@ An
 {vosli_inscription}
 is the complete, unambiguous identifier for any named artifact.
 +
-Structure: `{signet}{separator}{epithet}{envelope}`
+Structure: `{signet}{separator}{epithet}`
 +
 Examples: `voslc_cipher` (underscore separator), `jjc-heat-mount` (hyphen separator).
+Domain
+{voslv_vesture_s}
+may specify additional completion rules (see individual domain definitions).
 
 [[voslv_vesture]]
 // ⟦axl_voices axo_entity⟧
