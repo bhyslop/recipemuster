@@ -63,9 +63,10 @@
         "₢AAAAq",
         "₢AAAAz",
         "₢AAAA4",
-        "₢AAAA5"
+        "₢AAAA5",
+        "₢AAAA6"
       ],
-      "next_pace_seed": "AA6",
+      "next_pace_seed": "AA7",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -163,6 +164,16 @@
               "ts": "260117-0924",
               "state": "rough",
               "text": "Incorporate tabtarget/dispatch vocabulary into VOS under vosd* prefix.\n\nTerms to formalize:\n- vosdc_colophon: Routing identifier (what formulary matches on)\n- vosdf_frontispiece: Human-readable description  \n- vosdi_imprint: Embedded parameter(s), target/instance specifier\n- vosdm_formulary: Component that routes colophons to implementations\n- vosdl_launcher: Bootstrap script that validates and delegates\n\nThese terms originate in BUK but belong in VOS as the formal nomenclature.\n\nCross-reference: BUK README documents implementation; VOS defines the linked terms.\n\nRelated domains in liturgy:\n- vosldt already reserved for tabtarget domain vesture\n- Tabtarget vesture: {colophon}.{frontispiece}[.{imprint}].sh"
+            }
+          ]
+        },
+        "₢AAAA6": {
+          "silks": "incorporate-liturgy-vocabulary-vos",
+          "tacks": [
+            {
+              "ts": "260117-0931",
+              "state": "rough",
+              "text": "Incorporate liturgy vocabulary (vosl*) and dispatch vocabulary (vosd*) into VOS.\n\nReference: Chat session where vocabulary was designed (this chat).\n\nCore terms to add:\n- voslc_cipher (subsumes vost_cipher)\n- vosls_signet\n- vosle_epithet  \n- vosli_inscription\n- voslv_vesture\n\nDomain catalog:\n- vosldr (rust), vosldb (bash), voslda (asciidoc attr)\n- vosldp (publication), vosldg (git ref), voslds (slash cmd), vosldt (tabtarget)\n\nDispatch terms (cross-ref BUK):\n- vosdc_colophon, vosdf_frontispiece, vosdi_imprint\n- vosdm_formulary, vosdl_launcher\n\nImplementation:\n1. Add category declarations to mapping section\n2. Add linked term attributes\n3. Add definition sections with [[anchors]]\n4. Migrate vost_cipher → voslc_cipher (update all references)\n5. Cross-reference vosk_prefix_validation to liturgy concepts"
             }
           ]
         },
