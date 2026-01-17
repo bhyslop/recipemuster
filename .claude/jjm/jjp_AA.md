@@ -22,11 +22,9 @@ Rust owns the knowledge of what to collect and where each file installs. No exte
 ### Archive Structure
 
 ```
-vok-release-260115-1430/
-├── bin/
-│   ├── vvx-darwin-arm64      # Lean: install/release logic only
-│   ├── vvx-darwin-x86_64
-│   └── vvx-linux-x86_64
+vvk-parcel-1000/
+├── vvi_install.sh            # Thin bash: detect platform, invoke vvx
+├── vvbf_brand.json           # Brand identity (hallmark, date, sha)
 └── kits/
     ├── buk/                  # Plain text shell scripts
     │   ├── buc_command.sh
@@ -40,9 +38,14 @@ vok-release-260115-1430/
     │   ├── commands/
     │   │   └── jjc-*.md
     │   └── ...
-    └── vok/                  # VOK slash commands, etc.
-        └── commands/
-            └── vvc-*.md
+    ├── vok/                  # VOK slash commands, etc.
+    │   └── commands/
+    │       └── vvc-*.md
+    └── vvk/                  # VVK (distributed kit)
+        └── bin/
+            ├── vvx-darwin-arm64
+            ├── vvx-darwin-x86_64
+            └── vvx-linux-x86_64
 ```
 
 Kit assets are plain text in the archive, not embedded in binaries. This provides:
@@ -55,19 +58,21 @@ Kit assets are plain text in the archive, not embedded in binaries. This provide
 
 Run from extracted archive directory:
 ```bash
-./bin/vvx-darwin-arm64 install --target /path/to/repo
+./vvi_install.sh /path/to/target/.buk/burc.env
 ```
 
-The executing binary:
-1. **Pre-install snapshot** — `git commit -m "[vvx:pre-install] Snapshot before {version}"` (skip if clean)
-2. **Copy kit assets** — Read from archive's `kits/` directory, write to `install_path` locations in target
-3. **Copy platform binaries** — Copy all sibling binaries from archive's `bin/` to target
-4. **Freshen CLAUDE.md** — Replace content between managed section markers
-5. **Cleanup obsolete** — Remove files no longer part of current release
-6. **Post-install commit** — `git commit -m "[vvx:install:{version}] {kit-list}"`
-7. **Diff analysis** — Find previous install, diff pre-install against it, invoke Claude for recovery guidance
+The thin bash script detects platform and invokes the appropriate `vvx` binary. Rust does all the work:
 
-Install is platform-agnostic: any platform's binary can perform a full install (all binaries, all kit assets).
+1. **Validate BURC** — Parse burc.env, extract BURC_TOOLS_DIR, BURC_PROJECT_ROOT
+2. **Pre-install snapshot** — `git commit` if working tree dirty (skip if clean)
+3. **Copy kit assets** — Read from archive's `kits/` directory, write to `${BURC_TOOLS_DIR}/`
+4. **Copy brand file** — Copy `vvbf_brand.json` to `.vvk/vvbf_brand.json`
+5. **Freshen CLAUDE.md** — Replace content between managed section markers
+6. **Write manifest** — Write `.vvk/vvx-manifest.json` with hallmark, kit list
+7. **Post-install commit** — `git commit -m "VVK install: {hallmark}"`
+8. **Diff analysis** — Compare pre-install to previous install, invoke Claude for recovery guidance
+
+Install is platform-agnostic: any platform's binary can install everything (all kits, all binaries).
 
 ### CLAUDE.md Freshening
 
