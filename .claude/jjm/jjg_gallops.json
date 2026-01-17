@@ -114,6 +114,11 @@
           "silks": "vos-install-procedures",
           "tacks": [
             {
+              "ts": "260117-0929",
+              "state": "complete",
+              "text": "Added axe_bash_scripted to AXLA. Renamed axo_pattern→axo_routine across 4 files. Added VOS control terms, section headers, and 4 AXLA-compliant procedures."
+            },
+            {
               "ts": "260117-0924",
               "state": "bridled",
               "text": "Add MCM/AXLA-style install procedures to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- RBAGS-AdminGoogleSpec.adoc also demonstrates AXLA patterns\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n\n## Deliverables\n\nTwo MCM/AXLA-style procedures in VOS-VoxObscuraSpec.adoc:\n\n1. **Install process (whole)** - The complete vvx install workflow from archive to target repo\n2. **Per-kit process** - The kit-level installation performed as part of the whole install\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- lenses/RBAGS-AdminGoogleSpec.adoc (another AXLA example)\n- Paddock architecture section (install process details)",
