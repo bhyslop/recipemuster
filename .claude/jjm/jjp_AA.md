@@ -68,9 +68,8 @@ The thin bash script detects platform and invokes the appropriate `vvx` binary. 
 3. **Copy kit assets** — Read from archive's `kits/` directory, write to `${BURC_TOOLS_DIR}/`
 4. **Copy brand file** — Copy `vvbf_brand.json` to `.vvk/vvbf_brand.json`
 5. **Freshen CLAUDE.md** — Replace content between managed section markers
-6. **Write manifest** — Write `.vvk/vvx-manifest.json` with hallmark, kit list
-7. **Post-install commit** — `git commit -m "VVK install: {hallmark}"`
-8. **Diff analysis** — Compare pre-install to previous install, invoke Claude for recovery guidance
+6. **Post-install commit** — `git commit -m "VVK install: {hallmark}"`
+7. **Diff analysis** — Compare pre-install to previous install, invoke Claude for recovery guidance
 
 Install is platform-agnostic: any platform's binary can install everything (all kits, all binaries).
 
@@ -94,15 +93,18 @@ Rules:
 
 ### Version Tracking
 
-`vvx install` writes `.claude/vvx-manifest.json`:
+Brand file (`.vvk/vvbf_brand.json`) identifies what's installed:
 ```json
 {
-  "version": "260115-1430",
-  "installed": "260115-1823",
-  "commit": "abc123def",
-  "kits": ["jjk", "buk", "cmk", "vok"]
+  "vvbh_hallmark": 1000,
+  "vvbd_date": "260115-1430",
+  "vvbs_sha": "abc123...",
+  "vvbc_commit": "9a8f15ef...",
+  "vvbk_kits": ["buk", "cmk", "jjk", "vvk"]
 }
 ```
+
+The hallmark registry (`.vvk/vovr_registry.json`) stays in source repo only — never delivered.
 
 ## Key Constraints
 
@@ -113,9 +115,14 @@ Rules:
 
 ## Open Decisions
 
-- Binary placement in target repo: `Tools/vvk/bin/vvx`? (current approach)
-- Manifest location: `.claude/vvx-manifest.json`? (proposed)
 - Release trigger: Manual tabtarget? CI?
+
+## Closed Decisions
+
+- Binary placement: `Tools/vvk/bin/vvx-{platform}` (consistent with kit structure)
+- Brand file: `.vvk/vvbf_brand.json` (follows `.buk/` pattern for kit state)
+- Registry: Source repo only (`.vvk/vovr_registry.json`), never delivered
+- Install invocation: `./vvi_install.sh /path/to/burc.env` (thin bash, Rust does work)
 
 ## References
 
@@ -156,3 +163,16 @@ Migrated from legacy heat file to Gallops system. Paddock populated from legacy 
 - Bootstrap problem solved: Rust install logic doesn't depend on BUK (which is being installed)
 
 **Supersedes**: Earlier assumption of `include_str!()` embedded assets in binaries.
+
+### 2026-01-17 - Install Architecture Finalized
+
+**Context**: Reconciled VOS spec with paddock, resolved remaining design questions.
+
+**Key decisions**:
+- Parcel structure: `vvi_install.sh` + `vvbf_brand.json` at root, binaries in `kits/vvk/bin/`
+- Install invocation: `./vvi_install.sh /path/to/burc.env` — thin bash detects platform, Rust does work
+- Brand file location: `.vvk/vvbf_brand.json` (follows `.buk/` pattern for kit state)
+- Brand file expanded: now includes `vvbc_commit` (source SHA) and `vvbk_kits` (kit list)
+- Registry stays in source: never delivered, tracks all releases for hallmark allocation
+- CLAUDE.md freshening: `UNINSTALLED` marker preserves user section ordering across reinstall
+- Programmatic: Rust handles all install logic, no Claude assistance for marker manipulation

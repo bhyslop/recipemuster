@@ -112,7 +112,9 @@
 :vose_uninstalled_marker: <<vose_uninstalled_marker,Uninstalled Marker>>
 
 // Entity members
+:vosem_brand_commit:    <<vosem_brand_commit,brand_commit>>
 :vosem_brand_date:      <<vosem_brand_date,brand_date>>
+:vosem_brand_kits:      <<vosem_brand_kits,brand_kits>>
 :vosem_brand_sha:       <<vosem_brand_sha,brand_sha>>
 :vosem_display_name:    <<vosem_display_name,display_name>>
 :vosem_file:            <<vosem_file,file>>
@@ -766,7 +768,7 @@ layout matches the installed layout: `kits/*` becomes `Tools/*`.
 +
 **Scripts:**
 +
-* `vvi_install.sh` — Bootstrap script at archive root. Reads target's BURC to locate `BURC_TOOLS_DIR`. Not installed to target.
+* `vvi_install.sh` — Bootstrap script at archive root. Takes `burc.env` path as argument; Rust validates file and parses needed variables (`BURC_TOOLS_DIR`, `BURC_PROJECT_ROOT`). Not installed to target.
 * `vvu_uninstall.sh` — Lives in `kits/vvk/`, installs to `${BURC_TOOLS_DIR}/vvk/`.
 
 [[vose_whisper]]
@@ -941,6 +943,7 @@ Contains
 minted timestamp, and content super-SHA.
 +
 File location: `vvbf_brand.json` at parcel root.
+Installed to `.vvk/vvbf_brand.json` in target.
 +
 Members:
 
@@ -960,6 +963,19 @@ Minted timestamp in YYMMDD-HHMM format.
 // ⟦axl_voices axj_field axd_required⟧
 * {vosem_brand_sha} — {axj_field_tag}: `vvbs_sha`.
 Content super-SHA (order-independent hash of all parcel files).
+
+[[vosem_brand_commit]]
+// ⟦axl_voices axj_field axd_required⟧
+* {vosem_brand_commit} — {axj_field_tag}: `vvbc_commit`.
+Git commit SHA of source repo at release time.
+
+[[vosem_brand_kits]]
+// ⟦axl_voices axj_field axd_required⟧
+* {vosem_brand_kits} — {axj_field_tag}: `vvbk_kits`.
+Array of kit identifiers included in this release.
+Used by
+{vosou_uninstall}
+to enumerate installed kits.
 
 [[vose_registry]]
 // ⟦axl_voices axj_structure⟧
@@ -1212,7 +1228,11 @@ create
 at parcel root with
 {vosem_hallmark},
 {vosem_brand_date},
-{vosem_brand_sha}
+{vosem_brand_sha},
+{vosem_brand_commit}
+(current git HEAD),
+{vosem_brand_kits}
+(list of kit identifiers)
 
 . *Package parcel*:
 .. Create `vvk-parcel-{hallmark}.tar.gz` with structure:
@@ -1297,13 +1317,15 @@ for manifest
 with kit source and target paths
 .. VVK is installed like any other kit (binaries land at `${BURC_TOOLS_DIR}/vvk/bin/`)
 
-. *Write manifest*:
-.. {vosc_store}
-installed kit list,
-{vosem_hallmark},
-sigil, timestamp
+. *Copy brand file*:
 .. {vosc_call}
-write `.claude/vvx-manifest.json`
+copy
+{vose_brand_file}
+from parcel root to `.vvk/vvbf_brand.json`
+.. Brand file contains
+{vosem_brand_kits}
+for
+{vosou_uninstall}
 
 . *Post-install commit*:
 .. {vosc_call}
@@ -1320,7 +1342,7 @@ user modifications that may need recovery
 {voss_outputs}
 
 * Kit assets under `${BURC_TOOLS_DIR}/` (including VVK binaries at `vvk/bin/`)
-* Manifest at `.claude/vvx-manifest.json`
+* Brand file at `.vvk/vvbf_brand.json`
 * Two git commits (pre-install, post-install)
 
 {voss_completion}
@@ -1329,7 +1351,7 @@ All
 {vose_kit_s}
 installed.
 CLAUDE.md sections updated.
-Manifest written.
+Brand file written.
 User notified of any modifications requiring recovery.
 
 
@@ -1451,11 +1473,12 @@ source `.buk/burc.env`
 .. {vosc_store}
 `BURC_TOOLS_DIR`
 
-. *Read manifest*:
+. *Read brand file*:
 .. {vosc_call}
-parse `.claude/vvx-manifest.json`
+parse `.vvk/vvbf_brand.json`
 .. {vosc_store}
-list of installed kits and their
+{vosem_brand_kits}
+and their
 {vost_cipher_s}
 
 . *Remove commands*:
@@ -1473,7 +1496,8 @@ remove files matching `{cipher}h_*` from `.claude/hooks/`
 . *Remove managed sections*:
 .. For each
 {vose_managed_section}
-in manifest:
+declared by kits in
+{vosem_brand_kits}:
 ... {vosc_call}
 replace
 {vose_marker_s}
@@ -1483,16 +1507,14 @@ and content between them with single
 NOTE: Preserves user's chosen section ordering for future reinstall.
 
 . *Remove kit directories*:
-.. For each kit in manifest:
+.. For each kit in
+{vosem_brand_kits}:
 ... {vosc_call}
 remove `${BURC_TOOLS_DIR}/{kit}/`
 
-. *Update manifest*:
+. *Remove brand file*:
 .. {vosc_call}
-remove uninstalled kits from manifest
-.. If no kits remain:
-{vosc_call}
-delete manifest file
+delete `.vvk/vvbf_brand.json`
 
 . *Commit changes*:
 .. {vosc_call}
@@ -1503,7 +1525,7 @@ delete manifest file
 * Removed kit directories
 * Removed commands and hooks
 * Managed sections replaced with {vose_uninstalled_marker} placeholders
-* Updated or removed manifest
+* Removed brand file
 
 {voss_completion}
 
