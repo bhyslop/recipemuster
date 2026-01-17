@@ -71,9 +71,10 @@
         "₢AAAA8",
         "₢AAAA-",
         "₢AAAA_",
-        "₢AAABB"
+        "₢AAABB",
+        "₢AAABC"
       ],
-      "next_pace_seed": "ABC",
+      "next_pace_seed": "ABD",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1362,6 +1363,16 @@
               "ts": "260117-1129",
               "state": "rough",
               "text": "Update JJD-GallopsData.adoc specification:\n\n1. Add new status enum value:\n   - jjdhe_stabled: Heat is paused, not actively worked\n\n2. Rename existing enum value (lazy migration):\n   - jjdhe_current → jjdhe_racing (accept \"current\" on read, write \"racing\")\n\n3. Add jjdo_furlough operation:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required\n   - Errors if already in target state\n   - Errors if heat is retired (terminal)\n\n4. Update jjdo_saddle:\n   - Add: Fails with error if heat status is stabled\n\n5. Update jjdo_muster:\n   - Remove --status filter (show all heats, no filtering)\n\nFiles: Tools/jjk/JJD-GallopsData.adoc"
+            }
+          ]
+        },
+        "₢AAABC": {
+          "silks": "furlough-rust-impl",
+          "tacks": [
+            {
+              "ts": "260117-1129",
+              "state": "rough",
+              "text": "Implement furlough feature in Rust:\n\n1. Lazy migration in jjrg_gallops.rs:\n   - Deserialize: accept both \"current\" and \"racing\" as valid HeatStatus\n   - Serialize: always write \"racing\" (never \"current\")\n   - Add HeatStatus::Stabled variant\n\n2. Implement jjx_furlough command in jjrx_cli.rs:\n   - Args: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required (validate)\n   - Check heat exists and is not retired\n   - If --racing/--stabled: verify not already in target state, update status\n   - If --silks: update heat silks\n   - Atomic write\n\n3. Update jjx_saddle in jjrq_query.rs:\n   - Check heat status before returning saddle context\n   - If stabled: return error \"Heat is stabled, cannot saddle\"\n\n4. Update jjx_muster in jjrq_query.rs:\n   - Remove --status filter argument\n   - Always return all heats (racing + stabled)\n\nFiles: Tools/jjk/veiled/src/jjrg_gallops.rs, jjrx_cli.rs, jjrq_query.rs"
             }
           ]
         }
