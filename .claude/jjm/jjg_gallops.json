@@ -61,9 +61,10 @@
         "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq",
-        "₢AAAAz"
+        "₢AAAAz",
+        "₢AAAA4"
       ],
-      "next_pace_seed": "AA4",
+      "next_pace_seed": "AA5",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -125,6 +126,16 @@
               "ts": "260117-0806",
               "state": "rough",
               "text": "Add MCM/AXLA-style uninstall procedure to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n- Companion to vos-install-procedures pace\n\n## Deliverables\n\nOne MCM/AXLA-style procedure in VOS-VoxObscuraSpec.adoc:\n\n**Uninstall process** - Remove installed kit assets from target repo\n- Git-aware (commit before removing)\n- Handle CLAUDE.md managed section removal\n- Clean up manifest\n- Consider partial uninstall (single kit vs all kits)\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- Paddock architecture section (install process details - inverse applies)"
+            }
+          ]
+        },
+        "₢AAAA4": {
+          "silks": "define-envelope-vesture-component",
+          "tacks": [
+            {
+              "ts": "260117-0924",
+              "state": "rough",
+              "text": "Define the \"envelope\" component of vesture - the domain-specific framing that completes an inscription.\n\nIssues to resolve:\n\n1. Two flavors exist:\n   - Suffix envelope: `.sh`, `.rs`, `.adoc`\n   - Frame envelope: `:...:`, `[[...]]`, `/...`\n   - Are these one concept or two?\n\n2. Validation dependency:\n   - VVX needs envelope to validate inscriptions\n   - Same string (`voslc_cipher`) valid in multiple domains with different envelopes\n\n3. Function invocation ambiguity:\n   - Is `buc_log_args()` an inscription with `()` envelope?\n   - Or is `buc_log_args` the inscription and `()` just invocation syntax?\n\n4. Prefix vs suffix envelopes:\n   - Slash commands: `/` prefix\n   - Git refs: `refs/` prefix  \n   - Extensions: `.sh` suffix\n   - Frames: both sides (`:...:`)\n\n5. Naming: Is \"envelope\" the right term? Alternatives: frame, wrapper, casing, boundary"
             }
           ]
         },
