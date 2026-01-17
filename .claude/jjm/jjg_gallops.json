@@ -46,6 +46,7 @@
         "₢AAAAr",
         "₢AAAAv",
         "₢AAAA0",
+        "₢AAAA1",
         "₢AAAAA",
         "₢AAAAc",
         "₢AAAAo",
@@ -60,7 +61,7 @@
         "₢AAAAq",
         "₢AAAAz"
       ],
-      "next_pace_seed": "AA1",
+      "next_pace_seed": "AA2",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -76,6 +77,16 @@
               "ts": "260116-1530",
               "state": "rough",
               "text": "Rename 'prime/primed' vocabulary to 'bridle/bridled' throughout the codebase.\n\n## Scope (from grep analysis)\n\n**Rust files (4 files):**\n- jjrg_gallops.rs: PaceState::Primed enum, validation logic, string literals, tests\n- jjrx_cli.rs: state parsing, --direction help text\n- jjrq_query.rs: saddle output, state display\n- jjrn_notch.rs: chalk marker comment\n\n**JJD-GallopsData.adoc:**\n- Attribute: :jjdpe_primed: → :jjdpe_bridled:\n- ~20 references to {jjdpe_primed}\n\n**Slash commands (5 files):**\n- jjc-pace-prime.md → rename to jjc-pace-bridle.md\n- jjc-heat-mount.md: references to primed state and /jjc-pace-prime\n- jjc-pace-reslate.md: references to prime command\n- jjc-pace-slate.md: primeability reference\n- jjc-heat-quarter.md: references to prime command (just created)\n\n**CLAUDE.md:**\n- Primeability Assessment section → Bridleability Assessment\n- /jjc-pace-prime in skills list → /jjc-pace-bridle\n\n**Exclude (unrelated):**\n- rbgg_Governor.sh, rbgi_IAM.sh: 'cb_prime' is Cloud Build, not JJ\n- Retired heat files: historical, leave as-is\n\n## Approach\n\nMechanical find-replace with these transformations:\n- PaceState::Primed → PaceState::Bridled\n- \"primed\" → \"bridled\" (string literals)\n- primed → bridled (prose, preserving case)\n- prime → bridle (command names, prose)\n- primeable → bridleable\n- primeability → bridleability\n- /jjc-pace-prime → /jjc-pace-bridle\n\nRename file: jjc-pace-prime.md → jjc-pace-bridle.md (git mv)"
+            }
+          ]
+        },
+        "₢AAAA1": {
+          "silks": "common-crate-cipher-registry",
+          "tacks": [
+            {
+              "ts": "260117-0805",
+              "state": "rough",
+              "text": "Create common crate with cipher registry as Rust enums/structs.\n\n## Context\n\n- Reference: Memos/memo-20260110-acronym-selection-study.md (minting rules, project-wide acronyms)\n- VOS has initial cipher concept to build from\n- Must be in a common crate usable from multiple locations (JJK, VVK, etc.)\n- This crate is for global naming logic consolidation, not cipher-specific\n\n## Requirements\n\n- Ciphers as Rust types (enums/structs), NOT strings scattered through code\n- Validation functions for naming rules\n- Naming violations must be compilation errors (type safety)\n- Include all project ciphers: JJ, VV, BU, RB, GAD, MCM, AXL, CCC, HM, etc.\n\n## Deliverables\n\n1. Design common crate location and structure\n2. Implement cipher enum with all known ciphers\n3. Validation functions enforcing minting rules\n4. Update existing call sites to use typed ciphers\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (initial cipher concepts)\n- CLAUDE.md Prefix Naming Discipline section"
             }
           ]
         },
