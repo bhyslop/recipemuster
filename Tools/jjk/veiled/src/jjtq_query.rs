@@ -88,14 +88,14 @@ fn jjtq_saddle_output_structure() {
 }
 
 #[test]
-fn jjtq_saddle_output_with_primed_direction() {
+fn jjtq_saddle_output_with_bridled_direction() {
     let output = zjjrq_SaddleOutput {
         heat_silks: "my-heat".to_string(),
         paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
         paddock_content: "# Test".to_string(),
         pace_coronet: Some("₢ABAAA".to_string()),
         pace_silks: Some("my-pace".to_string()),
-        pace_state: Some("primed".to_string()),
+        pace_state: Some("bridled".to_string()),
         spec: Some("Ready to execute".to_string()),
         direction: Some("Execute autonomously".to_string()),
     };
@@ -170,7 +170,7 @@ fn jjtq_retire_output_structure() {
 fn jjtq_retire_tack_with_direction() {
     let tack = zjjrq_RetireTack {
         ts: "260101-1200".to_string(),
-        state: "primed".to_string(),
+        state: "bridled".to_string(),
         text: "Ready to fly".to_string(),
         direction: Some("Execute with agent X".to_string()),
     };
@@ -207,7 +207,7 @@ fn jjtq_pace_state_to_string() {
     assert_eq!(
         match PaceState::Rough {
             PaceState::Rough => "rough",
-            PaceState::Primed => "primed",
+            PaceState::Bridled => "bridled",
             PaceState::Complete => "complete",
             PaceState::Abandoned => "abandoned",
         },
@@ -226,7 +226,7 @@ fn jjtq_find_first_actionable_pace() {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 match tack.state {
-                    PaceState::Rough | PaceState::Primed => {
+                    PaceState::Rough | PaceState::Bridled => {
                         found_coronet = Some(coronet_key.clone());
                         break;
                     }

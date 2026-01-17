@@ -5,7 +5,7 @@ description: Mount up and execute next pace
 
 Mount a heat: identify the next actionable pace and begin execution.
 
-Use this command when you're ready to work - it finds the next rough or primed pace and drives toward completing it.
+Use this command when you're ready to work - it finds the next rough or bridled pace and drives toward completing it.
 
 Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
@@ -44,7 +44,7 @@ Parse JSON output:
   "paddock_content": "...",
   "pace_coronet": "₢AAAAC",
   "pace_silks": "...",
-  "pace_state": "rough|primed",
+  "pace_state": "rough|bridled",
   "spec": "...",
   "direction": "..."
 }
@@ -77,7 +77,7 @@ Show:
 - Read any files referenced in the pace spec
 - Propose a concrete approach (2-4 bullets)
 - Assess execution strategy:
-  - **Primeability**: Apply CLAUDE.md criteria (mechanical, pattern exists, no forks, bounded). If all four hold, note "This pace is primeable" and mention `/jjc-pace-prime` as an option.
+  - **Bridleability**: Apply CLAUDE.md criteria (mechanical, pattern exists, no forks, bounded). If all four hold, note "This pace is bridleable" and mention `/jjc-pace-bridle` as an option.
   - **Parallelization**: Would multiple agents help? Consider:
     - File independence (same-file edits conflict)
     - Task decomposability (can work be split into independent units?)
@@ -85,12 +85,12 @@ Show:
   - **Model tier**: Recommend haiku (mechanical), sonnet (standard dev), or opus (architectural) based on complexity.
   - State recommendation explicitly: e.g., "Sequential haiku — single file, mechanical pattern" or "Parallel sonnet×2 — independent modules"
 - Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker A --description "<approach summary>"`
-- Ask: "Ready to proceed, or would you prefer to `/jjc-pace-prime` for autonomous execution later?"
+- Ask: "Ready to proceed, or would you prefer to `/jjc-pace-bridle` for autonomous execution later?"
 - On approval: Begin work directly
 
-**If pace_state is "primed":**
+**If pace_state is "bridled":**
 - The pace has explicit direction in the direction field
-- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing primed pace"`
+- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing bridled pace"`
 - Execute using both spec (the specification) and direction (execution guidance) autonomously (no confirmation needed)
 - The spec contains the "what" (requirements, code snippets, acceptance criteria); direction contains the "how" (agent tier, steps, verification)
 - When complete, run `/jjc-pace-wrap` to mark done

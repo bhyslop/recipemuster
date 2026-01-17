@@ -1,6 +1,6 @@
 ---
 argument-hint: [coronet]
-description: Prime a pace for autonomous execution
+description: Bridle a pace for autonomous execution
 ---
 
 Study a rough pace and prepare it for autonomous execution by adding direction.
@@ -10,7 +10,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 ## Prerequisites
 
 - Gallops JSON must exist
-- Pace must be in "rough" state (not already primed/complete/abandoned)
+- Pace must be in "rough" state (not already bridled/complete/abandoned)
 - Should have run `/jjc-heat-mount` first to establish context
 
 ## Step 1: Identify target pace
@@ -31,7 +31,7 @@ Run:
 ```
 
 Verify the target pace is in "rough" state. If not:
-- If "primed": "Pace already primed. Run /jjc-heat-mount to execute."
+- If "bridled": "Pace already bridled. Run /jjc-heat-mount to execute."
 - If "complete"/"abandoned": "Pace is closed. Select another pace."
 
 ## Step 3: Study the pace
@@ -57,7 +57,7 @@ Based on your analysis, recommend:
 
 Present recommendation to user and ask for approval or adjustments.
 
-## Step 5: Write direction and transition to primed
+## Step 5: Write direction and transition to bridled
 
 Once user approves the strategy, construct direction text using this structured format:
 
@@ -116,17 +116,17 @@ Steps:
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state primed --direction "<direction text>"
+./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state bridled --direction "<direction text>"
 ```
 
 Note: `--direction` is a string argument, not stdin. The text field is inherited when stdin is empty.
 
-## Step 6: Confirm primed
+## Step 6: Confirm bridled
 
 Report:
-- "Pace <SILKS> is now primed"
+- "Pace <SILKS> is now bridled"
 - "Run /jjc-heat-mount to begin autonomous execution"
-- Or: "Ready to execute now?" → if yes, proceed as /jjc-heat-mount would for primed pace
+- Or: "Ready to execute now?" → if yes, proceed as /jjc-heat-mount would for bridled pace
 
 ## Available Operations
 

@@ -272,37 +272,37 @@ fn jjtg_validate_tack_empty_text() {
 }
 
 #[test]
-fn jjtg_validate_primed_without_direction() {
+fn jjtg_validate_bridled_without_direction() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Primed;
+        pace.tacks[0].state = jjrg_PaceState::Bridled;
         pace.tacks[0].direction = None;
     }
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("direction is required when state is 'primed'")));
+    assert!(errors.iter().any(|e| e.contains("direction is required when state is 'bridled'")));
 }
 
 #[test]
-fn jjtg_validate_primed_with_empty_direction() {
+fn jjtg_validate_bridled_with_empty_direction() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Primed;
+        pace.tacks[0].state = jjrg_PaceState::Bridled;
         pace.tacks[0].direction = Some("".to_string());
     }
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("direction must not be empty when state is 'primed'")));
+    assert!(errors.iter().any(|e| e.contains("direction must not be empty when state is 'bridled'")));
 }
 
 #[test]
-fn jjtg_validate_primed_with_direction_valid() {
+fn jjtg_validate_bridled_with_direction_valid() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Primed;
+        pace.tacks[0].state = jjrg_PaceState::Bridled;
         pace.tacks[0].direction = Some("Execute autonomously".to_string());
     }
     gallops.heats.insert(heat_key, heat);
@@ -310,7 +310,7 @@ fn jjtg_validate_primed_with_direction_valid() {
 }
 
 #[test]
-fn jjtg_validate_non_primed_with_direction() {
+fn jjtg_validate_non_bridled_with_direction() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
@@ -319,7 +319,7 @@ fn jjtg_validate_non_primed_with_direction() {
     }
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("direction must be absent when state is not 'primed'")));
+    assert!(errors.iter().any(|e| e.contains("direction must be absent when state is not 'bridled'")));
 }
 
 #[test]
@@ -1044,7 +1044,7 @@ fn jjtg_tally_state_transition() {
 }
 
 #[test]
-fn jjtg_tally_primed_requires_direction() {
+fn jjtg_tally_bridled_requires_direction() {
     let mut gallops = make_valid_gallops();
     let (heat_key, heat) = make_valid_heat("AB", "my-heat");
     let pace_key = heat.order[0].clone();
@@ -1052,7 +1052,7 @@ fn jjtg_tally_primed_requires_direction() {
 
     let args = jjrg_TallyArgs {
         coronet: pace_key,
-        state: Some(jjrg_PaceState::Primed),
+        state: Some(jjrg_PaceState::Bridled),
         direction: None, // Missing!
         text: Some("Ready for execution".to_string()),
     };
@@ -1063,7 +1063,7 @@ fn jjtg_tally_primed_requires_direction() {
 }
 
 #[test]
-fn jjtg_tally_primed_with_direction() {
+fn jjtg_tally_bridled_with_direction() {
     let mut gallops = make_valid_gallops();
     let (heat_key, heat) = make_valid_heat("AB", "my-heat");
     let pace_key = heat.order[0].clone();
@@ -1071,7 +1071,7 @@ fn jjtg_tally_primed_with_direction() {
 
     let args = jjrg_TallyArgs {
         coronet: pace_key.clone(),
-        state: Some(jjrg_PaceState::Primed),
+        state: Some(jjrg_PaceState::Bridled),
         direction: Some("Execute autonomously".to_string()),
         text: Some("Ready for execution".to_string()),
     };
@@ -1081,7 +1081,7 @@ fn jjtg_tally_primed_with_direction() {
 
     let heat = gallops.heats.get(&heat_key).unwrap();
     let pace = heat.paces.get(&pace_key).unwrap();
-    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Primed);
+    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Bridled);
     assert_eq!(pace.tacks[0].direction.as_ref().unwrap(), "Execute autonomously");
 }
 
@@ -1135,7 +1135,7 @@ fn jjtg_tally_inherit_text() {
 }
 
 #[test]
-fn jjtg_tally_non_primed_forbids_direction() {
+fn jjtg_tally_non_bridled_forbids_direction() {
     let mut gallops = make_valid_gallops();
     let (heat_key, heat) = make_valid_heat("AB", "my-heat");
     let pace_key = heat.order[0].clone();

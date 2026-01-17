@@ -28,7 +28,7 @@ pub const JJRN_COMMIT_PREFIX: &str = "jjb";
 /// Pace-level chalk markers (single-letter codes)
 /// - A = APPROACH: proposed approach before work begins
 /// - W = WRAP: pace completion summary
-/// - F = FLY: autonomous execution began (primed pace)
+/// - F = FLY: autonomous execution began (bridled pace)
 /// - d = discussion: significant decision (lowercase, can be heat-level too)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrn_ChalkMarker {

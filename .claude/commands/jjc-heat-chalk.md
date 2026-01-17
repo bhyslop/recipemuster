@@ -91,7 +91,7 @@ On failure (e.g., lock held), report error but don't fail the operation — gall
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace specification
 - `/jjc-pace-wrap` — Mark pace complete
-- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker

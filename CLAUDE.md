@@ -327,7 +327,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
 - **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Location: `current/` (active) or `retired/` (done).
-- **Pace**: Discrete action within a heat; can be armed for autonomous execution via `/jja-pace-arm`
+- **Pace**: Discrete action within a heat; can be bridled for autonomous execution via `/jjc-pace-bridle`
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 
@@ -349,7 +349,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 |---------------------|------------|
 | Add a new pace | /jjc-pace-slate |
 | Refine pace spec | /jjc-pace-reslate |
-| Arm for autonomous execution | /jjc-pace-bridle |
+| Bridle for autonomous execution | /jjc-pace-bridle |
 | Mark pace complete | /jjc-pace-wrap |
 | Commit with JJ context | /jjc-pace-notch |
 | Execute next pace | /jjc-heat-mount |
@@ -373,24 +373,24 @@ Always run these after Rust code changes:
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
-### Primeability Assessment
+### Bridleability Assessment
 
-When evaluating whether a pace is ready for autonomous execution (primed state), apply these criteria:
+When evaluating whether a pace is ready for autonomous execution (bridled state), apply these criteria:
 
-**Primeable** (can arm for autonomous execution) — ALL must be true:
+**Bridleable** (can bridle for autonomous execution) — ALL must be true:
 - **Mechanical**: Clear transformation, not design work
 - **Pattern exists**: Following established pattern, not creating new one
 - **No forks**: Single obvious approach, not "we could do X or Y"
 - **Bounded**: Touches known files, not "find where this should go"
 
-**NOT primeable** (needs human judgment):
+**NOT bridleable** (needs human judgment):
 - Language like "define", "design", "architect", "decide"
 - Establishing new patterns others will follow
 - Multiple valid approaches requiring human choice
 - Scope unclear or requires judgment calls
 
 **Examples:**
-- ✓ Primeable: "Rename function `getCwd` to `getCurrentWorkingDirectory` across codebase"
-- ✓ Primeable: "Add error handling to `fetchUser` following pattern in `fetchOrder`"
-- ✗ Not primeable: "Define KitAsset struct and registry pattern" (design decisions)
-- ✗ Not primeable: "Improve performance of dashboard" (unclear scope, many approaches)
+- ✓ Bridleable: "Rename function `getCwd` to `getCurrentWorkingDirectory` across codebase"
+- ✓ Bridleable: "Add error handling to `fetchUser` following pattern in `fetchOrder`"
+- ✗ Not bridleable: "Define KitAsset struct and registry pattern" (design decisions)
+- ✗ Not bridleable: "Improve performance of dashboard" (unclear scope, many approaches)

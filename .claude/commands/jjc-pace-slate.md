@@ -82,14 +82,14 @@ Then **assess the pace's health**:
 2. **Scope**: Is it well-bounded or too broad?
 3. **Dependencies**: Does it depend on other paces completing first?
 
-## Step 5: Assess primeability
+## Step 5: Assess bridleability
 
 Apply **Primeability Assessment** criteria from CLAUDE.md.
 
-If primeable, suggest direction (agent type, parallelism, key files).
-If not primeable, state why: "Needs human judgment — [reason]"
+If bridleable, suggest direction (agent type, parallelism, key files).
+If not bridleable, state why: "Needs human judgment — [reason]"
 
-**Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-prime` (arm)
+**Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-bridle` (arm)
 
 ## Step 6: Auto-commit changes
 
@@ -113,7 +113,7 @@ Common errors:
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace specification
 - `/jjc-pace-wrap` — Mark pace complete
-- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker

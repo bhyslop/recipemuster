@@ -21,7 +21,8 @@ use std::path::Path;
 #[serde(rename_all = "lowercase")]
 pub enum jjrg_PaceState {
     Rough,
-    Primed,
+    #[serde(alias = "primed")]
+    Bridled,
     Complete,
     Abandoned,
 }
@@ -368,17 +369,17 @@ impl jjrg_Gallops {
 
         // Rule 9: direction presence depends on state
         match tack.state {
-            jjrg_PaceState::Primed => {
+            jjrg_PaceState::Bridled => {
                 match &tack.direction {
                     None => {
                         errors.push(format!(
-                            "{}: direction is required when state is 'primed'",
+                            "{}: direction is required when state is 'bridled'",
                             tack_ctx
                         ));
                     }
                     Some(d) if d.is_empty() => {
                         errors.push(format!(
-                            "{}: direction must not be empty when state is 'primed'",
+                            "{}: direction must not be empty when state is 'bridled'",
                             tack_ctx
                         ));
                     }
@@ -388,7 +389,7 @@ impl jjrg_Gallops {
             _ => {
                 if tack.direction.is_some() {
                     errors.push(format!(
-                        "{}: direction must be absent when state is not 'primed'",
+                        "{}: direction must be absent when state is not 'bridled'",
                         tack_ctx
                     ));
                 }
@@ -860,26 +861,26 @@ impl jjrg_Gallops {
 
         // Determine new direction
         let new_direction = match (&args.state, &new_state) {
-            // State explicitly set to primed: direction required
-            (Some(jjrg_PaceState::Primed), _) => {
+            // State explicitly set to bridled: direction required
+            (Some(jjrg_PaceState::Bridled), _) => {
                 match &args.direction {
                     Some(d) if !d.is_empty() => Some(d.clone()),
-                    Some(_) => return Err("direction must not be empty when state is primed".to_string()),
-                    None => return Err("direction is required when state is primed".to_string()),
+                    Some(_) => return Err("direction must not be empty when state is bridled".to_string()),
+                    None => return Err("direction is required when state is bridled".to_string()),
                 }
             }
-            // State explicitly set to something other than primed: direction forbidden
+            // State explicitly set to something other than bridled: direction forbidden
             (Some(_), _) => {
                 if args.direction.is_some() {
-                    return Err("direction must be absent when state is not primed".to_string());
+                    return Err("direction must be absent when state is not bridled".to_string());
                 }
                 None
             }
-            // State inherited and was primed: inherit direction
-            (None, jjrg_PaceState::Primed) => {
+            // State inherited and was bridled: inherit direction
+            (None, jjrg_PaceState::Bridled) => {
                 args.direction.or_else(|| current_tack.direction.clone())
             }
-            // State inherited and was not primed: no direction
+            // State inherited and was not bridled: no direction
             (None, _) => None,
         };
 
@@ -1151,7 +1152,7 @@ impl jjrg_Gallops {
                 let final_state = pace.tacks.first()
                     .map(|t| match t.state {
                         jjrg_PaceState::Rough => "rough",
-                        jjrg_PaceState::Primed => "primed",
+                        jjrg_PaceState::Bridled => "bridled",
                         jjrg_PaceState::Complete => "complete",
                         jjrg_PaceState::Abandoned => "abandoned",
                     })
@@ -1166,7 +1167,7 @@ impl jjrg_Gallops {
                 for tack in &pace.tacks {
                     let state_str = match tack.state {
                         jjrg_PaceState::Rough => "rough",
-                        jjrg_PaceState::Primed => "primed",
+                        jjrg_PaceState::Bridled => "bridled",
                         jjrg_PaceState::Complete => "complete",
                         jjrg_PaceState::Abandoned => "abandoned",
                     };

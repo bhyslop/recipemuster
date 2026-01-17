@@ -48,7 +48,7 @@ Parse JSON output:
     {
       "coronet": "₢AAAAC",
       "silks": "...",
-      "state": "rough|primed|complete|abandoned",
+      "state": "rough|bridled|complete|abandoned",
       "spec": "...",
       "direction": "..."
     }
@@ -72,13 +72,13 @@ For each pace in order, show:
 ```
 {index}. [{state}] {silks} (₢{coronet})
    {spec - full specification}
-   {If primed: "Direction: " + direction}
+   {If bridled: "Direction: " + direction}
 ```
 
 Show all paces with full detail regardless of state - this is a planning view.
 
 ### Progress
-- Complete: X | Abandoned: Y | Remaining: Z (rough: A, primed: B)
+- Complete: X | Abandoned: Y | Remaining: Z (rough: A, bridled: B)
 
 ## Step 4: Enter planning mode
 

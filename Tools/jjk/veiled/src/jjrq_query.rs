@@ -110,7 +110,7 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         }
     };
 
-    // Find first actionable pace (rough or primed)
+    // Find first actionable pace (rough or bridled)
     let mut output = zjjrq_SaddleOutput {
         heat_silks: heat.silks.clone(),
         paddock_file: heat.paddock_file.clone(),
@@ -126,16 +126,16 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 match tack.state {
-                    PaceState::Rough | PaceState::Primed => {
+                    PaceState::Rough | PaceState::Bridled => {
                         output.pace_coronet = Some(coronet_key.clone());
                         output.pace_silks = Some(pace.silks.clone());
                         output.pace_state = Some(match tack.state {
                             PaceState::Rough => "rough".to_string(),
-                            PaceState::Primed => "primed".to_string(),
+                            PaceState::Bridled => "bridled".to_string(),
                             _ => unreachable!(),
                         });
                         output.spec = Some(tack.text.clone());
-                        if tack.state == PaceState::Primed {
+                        if tack.state == PaceState::Bridled {
                             output.direction = tack.direction.clone();
                         }
                         break;
@@ -320,7 +320,7 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
 fn zjjrq_pace_state_str(state: &PaceState) -> &'static str {
     match state {
         PaceState::Rough => "rough",
-        PaceState::Primed => "primed",
+        PaceState::Bridled => "bridled",
         PaceState::Complete => "complete",
         PaceState::Abandoned => "abandoned",
     }
@@ -406,7 +406,7 @@ pub fn jjrq_run_retire(args: jjrq_RetireArgs) -> i32 {
                     ts: tack.ts.clone(),
                     state: match tack.state {
                         PaceState::Rough => "rough".to_string(),
-                        PaceState::Primed => "primed".to_string(),
+                        PaceState::Bridled => "bridled".to_string(),
                         PaceState::Complete => "complete".to_string(),
                         PaceState::Abandoned => "abandoned".to_string(),
                     },

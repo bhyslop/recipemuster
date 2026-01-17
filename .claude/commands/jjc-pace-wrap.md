@@ -10,7 +10,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 ## Prerequisites
 
 - Gallops JSON must exist
-- Pace should be in "rough" or "primed" state
+- Pace should be in "rough" or "bridled" state
 - Work on the pace should be done
 
 ## Step 1: Identify target pace
@@ -67,7 +67,7 @@ Run:
 **If another actionable pace exists:**
 - Display the next pace's silks and spec
 - If rough: Propose approach (as in /jjc-heat-mount)
-- If primed: Ask if ready to execute
+- If bridled: Ask if ready to execute
 
 **If no more actionable paces:**
 - Report "All paces complete for heat <SILKS>"
@@ -87,7 +87,7 @@ On failure (e.g., lock held), report error but don't fail the operation — gall
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace specification
 - `/jjc-pace-wrap` — Mark pace complete
-- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker

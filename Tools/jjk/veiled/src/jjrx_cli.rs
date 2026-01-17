@@ -286,11 +286,11 @@ struct zjjrx_TallyArgs {
     /// Target Pace identity (Coronet)
     coronet: String,
 
-    /// Target state (rough, primed, complete, abandoned)
+    /// Target state (rough, bridled, complete, abandoned)
     #[arg(long)]
     state: Option<String>,
 
-    /// Execution guidance (required if state is primed)
+    /// Execution guidance (required if state is bridled)
     #[arg(long, short = 'd')]
     direction: Option<String>,
 }
@@ -999,11 +999,11 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
     let state = match &args.state {
         Some(s) => match s.to_lowercase().as_str() {
             "rough" => Some(PaceState::Rough),
-            "primed" => Some(PaceState::Primed),
+            "bridled" => Some(PaceState::Bridled),
             "complete" => Some(PaceState::Complete),
             "abandoned" => Some(PaceState::Abandoned),
             _ => {
-                eprintln!("jjx_tally: error: invalid state '{}', must be rough, primed, complete, or abandoned", s);
+                eprintln!("jjx_tally: error: invalid state '{}', must be rough, bridled, complete, or abandoned", s);
                 return 1;
             }
         },

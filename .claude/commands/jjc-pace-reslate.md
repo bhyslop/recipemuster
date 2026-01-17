@@ -48,10 +48,10 @@ Run:
 echo "<NEW_TEXT>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
 ```
 
-The new tack text is passed via stdin. State is inherited (stays rough, stays primed, etc.).
+The new tack text is passed via stdin. State is inherited (stays rough, stays bridled, etc.).
 
 To change state, use:
-- `/jjc-pace-prime` → primed (arm for autonomous execution)
+- `/jjc-pace-bridle` → bridled (arm for autonomous execution)
 - `/jjc-pace-wrap` → complete
 
 ## Step 4: Report and assess
@@ -67,14 +67,14 @@ Then **assess the pace's health**:
 2. **Scope**: Has scope crept or tightened appropriately?
 3. **Readiness**: Is it now ready for priming?
 
-## Step 5: Assess primeability
+## Step 5: Assess bridleability
 
 Apply **Primeability Assessment** criteria from CLAUDE.md.
 
-If primeable, suggest direction (agent type, parallelism, key files).
-If not primeable, state why: "Needs human judgment — [reason]"
+If bridleable, suggest direction (agent type, parallelism, key files).
+If not bridleable, state why: "Needs human judgment — [reason]"
 
-**Next:** `/jjc-pace-reslate` (refine more) | `/jjc-pace-prime` (arm) | `/jjc-parade-overview` (view all)
+**Next:** `/jjc-pace-reslate` (refine more) | `/jjc-pace-bridle` (arm) | `/jjc-parade-overview` (view all)
 
 ## Step 6: Auto-commit changes
 
@@ -99,7 +99,7 @@ Common errors:
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace specification
 - `/jjc-pace-wrap` — Mark pace complete
-- `/jjc-pace-prime` — Arm pace for autonomous execution
+- `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
 - `/jjc-heat-chalk` — Add steeplechase marker

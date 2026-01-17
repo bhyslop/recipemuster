@@ -62,7 +62,7 @@
 // Pace/Tack state enum values (used in Tack)
 :jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
 :jjdpe_complete:  <<jjdpe_complete,complete>>
-:jjdpe_primed:    <<jjdpe_primed,primed>>
+:jjdpe_bridled:   <<jjdpe_bridled,bridled>>
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 
 // Tack record and members
@@ -484,7 +484,7 @@ indicates the
 progress at this snapshot.
 Values:
 {jjdpe_rough},
-{jjdpe_primed},
+{jjdpe_bridled},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}.
@@ -504,7 +504,7 @@ contains execution guidance for autonomous operation.
 Required when
 {jjdkm_state}
 is
-{jjdpe_primed};
+{jjdpe_bridled};
 forbidden otherwise.
 Describes which agent to dispatch, parallelism strategy, or other execution parameters.
 
@@ -520,9 +520,9 @@ When context is assembled for a
 {jjdpe_rough}
 pace, the model is guided to refine the specification rather than begin execution.
 
-[[jjdpe_primed]]
+[[jjdpe_bridled]]
 // ⟦axl_voices axt_enum_value⟧
-{jjdpe_primed}::
+{jjdpe_bridled}::
 The
 {jjdpr_pace}
 is ready for autonomous execution.
@@ -530,7 +530,7 @@ The
 {jjdkm_direction}
 field contains explicit guidance for the executing agent.
 When context is assembled for a
-{jjdpe_primed}
+{jjdpe_bridled}
 pace, the model proceeds without human confirmation.
 
 [[jjdpe_complete]]
@@ -617,7 +617,7 @@ Long: `--state`.
 Short: none.
 Values:
 {jjdpe_rough},
-{jjdpe_primed},
+{jjdpe_bridled},
 {jjdpe_complete},
 {jjdpe_abandoned}.
 
@@ -630,7 +630,7 @@ Short: `-d`.
 Required when
 {jjda_state}
 is
-{jjdpe_primed};
+{jjdpe_bridled};
 forbidden otherwise.
 
 [[jjda_pace]]
@@ -1238,7 +1238,7 @@ state.
 {jjdpr_pace}
 states remain:
 {jjdpe_rough},
-{jjdpe_primed},
+{jjdpe_bridled},
 {jjdpe_complete},
 {jjdpe_abandoned}.
 Draft is an operation that moves
@@ -1424,11 +1424,11 @@ creation: state transitions, plan refinements, or both.
 — required if
 {jjda_state}
 is
-{jjdpe_primed};
+{jjdpe_bridled};
 forbidden if
 {jjda_state}
 is provided and not
-{jjdpe_primed};
+{jjdpe_bridled};
 ignored if
 {jjda_state}
 is absent (inherits with state)
@@ -1473,14 +1473,14 @@ provided: use that value
 .. If
 {jjda_state}
 is
-{jjdpe_primed}:
+{jjdpe_bridled}:
 use
 {jjda_direction}
 argument (required)
 .. If
 {jjda_state}
 is absent and previous state is
-{jjdpe_primed}:
+{jjdpe_bridled}:
 inherit from previous
 {jjdkr_tack}
 .. Otherwise: omit
@@ -1698,7 +1698,7 @@ must have:
 (YYMMDD-HHMM),
 {jjdkm_state}
 ({jjdpe_rough},
-{jjdpe_primed},
+{jjdpe_bridled},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}),
@@ -1707,7 +1707,7 @@ or
 . If
 {jjdkm_state}
 is
-{jjdpe_primed},
+{jjdpe_bridled},
 {jjdkm_direction}
 must be present (non-empty string); otherwise
 {jjdkm_direction}
@@ -1773,7 +1773,7 @@ the current
 whose state is
 {jjdpe_rough}
 or
-{jjdpe_primed})
+{jjdpe_bridled})
 and its
 {jjdkr_tack}
 details.
@@ -1797,14 +1797,14 @@ details.
   "paddock_content": "...",
   "pace_coronet": "₢XXXXX",
   "pace_silks": "...",
-  "pace_state": "rough|primed",
+  "pace_state": "rough|bridled",
   "tack_text": "...",
   "tack_direction": "..."
 }
 ----
 Fields `pace_coronet` through `tack_direction` are absent if no actionable pace exists.
 Field `tack_direction` is present only when `pace_state` is
-{jjdpe_primed}.
+{jjdpe_bridled}.
 Field `paddock_content` contains the full text of the paddock file.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -1832,13 +1832,13 @@ check `paces[coronet].tacks[0].state`
 . If state is
 {jjdpe_rough}
 or
-{jjdpe_primed}:
+{jjdpe_bridled}:
 .. Output `pace_coronet`,
 `pace_silks`,
 `pace_state`
 .. Output `tack_text` from `tacks[0].text`
 .. If state is
-{jjdpe_primed},
+{jjdpe_bridled},
 output `tack_direction` from `tacks[0].direction`
 .. Stop walking (first match wins)
 . If no actionable pace found, output only `heat_silks`, `paddock_file`, and `paddock_content`
@@ -1983,7 +1983,7 @@ Pace-level action codes:
 * `n` — Notch: standard commit
 * `A` — APPROACH: proposed approach before work begins
 * `W` — WRAP: pace completion summary
-* `F` — FLY: autonomous execution began (primed pace)
+* `F` — FLY: autonomous execution began (bridled pace)
 * `d` — discussion: significant decision (lowercase, can also be heat-level)
 
 *Heat-level operations*:
