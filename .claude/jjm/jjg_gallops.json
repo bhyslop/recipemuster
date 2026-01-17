@@ -1476,6 +1476,11 @@
           "silks": "distributable-kits-typed-registry",
           "tacks": [
             {
+              "ts": "260117-1318",
+              "state": "complete",
+              "text": "Typed kit registry implemented: vofc_Kit and vofc_AssetRoute structs, DISTRIBUTABLE_KITS now typed, kit_id() derived from cipher. Added String Boundary Discipline to RCG."
+            },
+            {
               "ts": "260117-1255",
               "state": "rough",
               "text": "Implement typed kit registry in VOF crate to consolidate scattered kit knowledge.\n\n## Goal\n\nReplace string-based DISTRIBUTABLE_KITS with typed structs that capture:\n- Kit identity (cipher reference, kit_id, display_name)\n- Asset routing (what files go where during install)\n\n## Implementation\n\nAdd to `vofc_registry.rs`:\n\n```rust\npub struct vofc_Kit {\n    pub cipher: &'static vofc_Cipher,\n    pub id: &'static str,           // \"jjk\", \"buk\", etc.\n    pub display_name: &'static str,\n}\n\npub struct vofc_AssetRoute {\n    pub source_pattern: &'static str,  // relative to kit dir\n    pub target_path: &'static str,     // relative to target repo\n    pub is_command: bool,              // routes to .claude/commands/\n}\n\npub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[\n    vofc_Kit { cipher: &BU, id: \"buk\", display_name: \"Bash Utilities\" },\n    vofc_Kit { cipher: &CM, id: \"cmk\", display_name: \"Concept Model\" },\n    vofc_Kit { cipher: &JJ, id: \"jjk\", display_name: \"Job Jockey\" },\n    vofc_Kit { cipher: &VV, id: \"vvk\", display_name: \"Voce Viva\" },\n];\n```\n\n## Asset Routing Rules (hardcoded for MVP)\n\nPer-kit patterns:\n- `commands/{cipher}c-*.md` → `.claude/commands/`\n- `hooks/{cipher}h_*` → `.claude/hooks/`\n- Everything else → `${BURC_TOOLS_DIR}/{kit}/` preserving structure\n- Exclude `vov_veiled/` entirely\n\n## Design Decisions\n\n1. vofc_Kit references vofc_Cipher (typed, not string)\n2. Kit id is explicit (not derived from cipher + \"k\")\n3. Asset routes are data, not scattered logic\n4. Whisper/Conclave can replace this later — structure is compatible\n\n## Files\n\n- Tools/vok/vof/src/vofc_registry.rs (extend)\n\n## Verification\n\n- cargo build succeeds\n- cargo test succeeds\n- Existing DISTRIBUTABLE_KITS usage still works (provide compatibility accessor)"
