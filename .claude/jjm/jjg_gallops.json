@@ -65,7 +65,6 @@
         "₢AAAAF",
         "₢AAAAa",
         "₢AAAAb",
-        "₢AAAAl",
         "₢AAAAp",
         "₢AAAAq",
         "₢AAAAz",
@@ -1064,21 +1063,6 @@
             }
           ]
         },
-        "₢AAAAl": {
-          "silks": "parade-pace-silks-lookup",
-          "tacks": [
-            {
-              "ts": "260116-1125",
-              "state": "rough",
-              "text": "Fix jjx_parade --pace argument handling:\n\n1. **Coronet normalization**: Add Coronet::parse() + .display() before lookup (matches jjx_rail/jjx_tally pattern). Fixes: `--pace AAAAk` currently fails because map keys are `₢AAAAk`.\n\n2. **Silks fallback**: If coronet lookup fails, iterate heat.paces to find pace by silks match. Allows `--pace jjrc-commit-helper` as convenience.\n\n3. **JJD update**: Document the silks fallback behavior in jjx_parade's --pace argument description.\n\nFiles: Tools/jjk/veiled/src/jjrq_query.rs (implementation), Tools/jjk/JJD-GallopsData.adoc (spec)"
-            },
-            {
-              "ts": "260116-1125",
-              "state": "rough",
-              "text": "Add silks lookup fallback to jjx_parade --pace: if coronet lookup fails, try matching against pace silks in the heat. Allows --pace jjrc-commit-helper as convenience."
-            }
-          ]
-        },
         "₢AAAAm": {
           "silks": "vvcc-optimize-claude-call",
           "tacks": [
@@ -1666,9 +1650,10 @@
       "creation_time": "260117",
       "status": "current",
       "order": [
-        "₢AEAAA"
+        "₢AEAAA",
+        "₢AEAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -1693,6 +1678,26 @@
               "ts": "260116-1309",
               "state": "rough",
               "text": "Create /jjc-heat-rein slash command.\n\n## Prerequisites\n\n- ₢AAAAc (installation-identifier) complete — jjx_rein no longer requires --brand\n\n## Implementation\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Parses JSON output into human-readable steeplechase history\n\n## Reference\n\nSee JJD jjdo_rein spec for jjx_rein output format and behavior."
+            }
+          ]
+        },
+        "₢AEAAB": {
+          "silks": "parade-pace-silks-lookup",
+          "tacks": [
+            {
+              "ts": "260117-1410",
+              "state": "rough",
+              "text": "Drafted from ₢AAAAl in ₣AA.\n\nFix jjx_parade --pace argument handling:\n\n1. **Coronet normalization**: Add Coronet::parse() + .display() before lookup (matches jjx_rail/jjx_tally pattern). Fixes: `--pace AAAAk` currently fails because map keys are `₢AAAAk`.\n\n2. **Silks fallback**: If coronet lookup fails, iterate heat.paces to find pace by silks match. Allows `--pace jjrc-commit-helper` as convenience.\n\n3. **JJD update**: Document the silks fallback behavior in jjx_parade's --pace argument description.\n\nFiles: Tools/jjk/veiled/src/jjrq_query.rs (implementation), Tools/jjk/JJD-GallopsData.adoc (spec)"
+            },
+            {
+              "ts": "260116-1125",
+              "state": "rough",
+              "text": "Fix jjx_parade --pace argument handling:\n\n1. **Coronet normalization**: Add Coronet::parse() + .display() before lookup (matches jjx_rail/jjx_tally pattern). Fixes: `--pace AAAAk` currently fails because map keys are `₢AAAAk`.\n\n2. **Silks fallback**: If coronet lookup fails, iterate heat.paces to find pace by silks match. Allows `--pace jjrc-commit-helper` as convenience.\n\n3. **JJD update**: Document the silks fallback behavior in jjx_parade's --pace argument description.\n\nFiles: Tools/jjk/veiled/src/jjrq_query.rs (implementation), Tools/jjk/JJD-GallopsData.adoc (spec)"
+            },
+            {
+              "ts": "260116-1125",
+              "state": "rough",
+              "text": "Add silks lookup fallback to jjx_parade --pace: if coronet lookup fails, try matching against pace silks in the heat. Allows --pace jjrc-commit-helper as convenience."
             }
           ]
         }
