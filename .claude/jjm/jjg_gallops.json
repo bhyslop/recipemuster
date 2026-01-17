@@ -900,6 +900,11 @@
           "silks": "installation-identifier",
           "tacks": [
             {
+              "ts": "260117-1225",
+              "state": "abandoned",
+              "text": "Superseded by VOS vose_brand_file specification"
+            },
+            {
               "ts": "260116-1032",
               "state": "rough",
               "text": "Replace hardcoded DEFAULT_BRAND with installation identifier set during parcel generation. Update jjrn_notch.rs and jjrs_steeplechase.rs to read from manifest."
