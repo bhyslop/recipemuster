@@ -208,7 +208,7 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
         .args([
             "--print",
             "--system-prompt",
-            "Output only a conventional git commit message. No explanation or commentary.",
+            "Output only a conventional git commit message. No explanation or commentary. Do not wrap in markdown code blocks.",
             "--model",
             "haiku",
             "--no-session-persistence",

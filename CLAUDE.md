@@ -341,19 +341,30 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 - Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/README.md`
 
-**Available commands:**
-- `/jjc-heat-mount` - Mount up and execute next pace
-- `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-new` - Add a new pace
-- `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
-- `/jja-pace-fly` - Execute an armed pace autonomously
-- `/jja-pace-wrap` - Mark pace complete, analyze next pace, propose approach
-- `/jja-itch-add` - Add a new itch to the backlog
-- `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
+**JJ Slash Command Reference:**
 
-**JJ operations:**
-- Use slash commands (`/jjc-pace-slate`, `/jjc-pace-reslate`, etc.) rather than calling `jjx_*` directly
-- Slash commands document correct invocation patterns and handle context
+ALWAYS read the corresponding slash command before attempting JJ operations.
+
+| When you need to... | Read first |
+|---------------------|------------|
+| Add a new pace | /jjc-pace-slate |
+| Refine pace spec | /jjc-pace-reslate |
+| Arm for autonomous execution | /jjc-pace-bridle |
+| Mark pace complete | /jjc-pace-wrap |
+| Commit with JJ context | /jjc-pace-notch |
+| Execute next pace | /jjc-heat-mount |
+| Review heat plan | /jjc-heat-groom |
+| Evaluate bridleable paces | /jjc-heat-quarter |
+| Reorder paces | /jjc-heat-rail |
+| Add steeplechase marker | /jjc-heat-chalk |
+| Create new heat | /jjc-heat-nominate |
+| List all heats | /jjc-heat-muster |
+| Draft paces between heats | /jjc-heat-restring |
+| Retire completed heat | /jjc-heat-retire |
+| View heat summary | /jjc-parade-overview |
+| View pace order | /jjc-parade-order |
+| View heat detail | /jjc-parade-detail |
+| View full heat | /jjc-parade-full |
 
 **Build & Run Discipline:**
 Always run these after Rust code changes:
