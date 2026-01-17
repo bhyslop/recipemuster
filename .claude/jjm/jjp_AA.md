@@ -32,6 +32,15 @@ vvk-parcel-{hallmark}/
 
 **Bash wrappers** (vvi_install.sh, vvu_uninstall.sh) handle git commits before/after.
 
+## CLAUDE.md Managed Sections
+
+**Reminder**: CLAUDE.md content inside `<!-- MANAGED:{tag}:BEGIN/END -->` markers is overwritten on install. When modifying managed section content:
+
+1. **MVP (hardcoded)**: Update constants in `vofm_managed.rs` (to be created in ₢AAAAF)
+2. **Post-MVP (₢AAABK)**: Update template files `vo{cipher}mc_*.md` in kit's `vov_veiled/`
+
+Content outside markers is user content — survives reinstall, no template update needed.
+
 ## References
 
 - RCG: Tools/vok/vov_veiled/RCG-RustCodingGuide.md
