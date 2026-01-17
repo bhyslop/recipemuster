@@ -21,4 +21,4 @@ voi = { path = "../voi" }
 vvc = { path = "../vvc" }
 
 # Kit dependencies (optional, auto-enabled by build.rs)
-jjk = { path = "../jjk/veiled", optional = true }
+jjk = { path = "../jjk/vov_veiled", optional = true }

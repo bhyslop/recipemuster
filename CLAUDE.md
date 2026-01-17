@@ -15,7 +15,7 @@ Which would you like to start with? (Enter acronym)
 ## Preset Activities
 
 ### bcbcg: Bash Coding with BCG
-- Primary file: `Tools/buk/lenses/BCG-BashConsoleGuide.md`
+- Primary file: `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`
 - Context: Bash scripting and console development
 - Related utilities: BUC, BUD, BUT, BUV, BUW in Tools/buk/
 
@@ -81,7 +81,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
 
 #### BUK Subdirectory (`Tools/buk/`)
-- **BCG**  → `buk/lenses/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, bud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
@@ -99,18 +99,18 @@ Full read and edit access is pre-approved for all files in:
 - Quick reference: GADF (factory), GADI* (inspector), GADS (spec), GADP (planner), GADM* (memos)
 
 #### CMK Subdirectory (`Tools/cmk/`)
-- **MCM**   → `cmk/MCM-MetaConceptModel.adoc`
-- **AXLA**  → `cmk/AXLA-Lexicon.adoc`
+- **MCM**   → `cmk/vov_veiled/MCM-MetaConceptModel.adoc`
+- **AXLA**  → `cmk/vov_veiled/AXLA-Lexicon.adoc`
 - **AXMCM** → `cmk/AXMCM-ClaudeMarkConceptMemo.md`
 
 #### JJK Subdirectory (`Tools/jjk/`)
-- **JJD**  → `jjk/JJD-GallopsData.adoc` (Gallops data model specification)
+- **JJD**  → `jjk/vov_veiled/JJD-GallopsData.adoc` (Gallops data model specification)
 - **JJA**  → `jjk/jja_arcanum.sh` (arcanum - core internal functions)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 
 #### VOK Subdirectory (`Tools/vok/`)
-- **RCG**  → `vok/lenses/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
-- **VOS**  → `vok/VOS-VoxObscuraSpec.adoc` (Vox Obscura specification)
+- **RCG**  → `vok/vov_veiled/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
+- **VOS**  → `vok/vov_veiled/VOS-VoxObscuraSpec.adoc` (Vox Obscura specification)
 
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`
@@ -370,6 +370,18 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | View pace order | /jjc-parade-order |
 | View heat detail | /jjc-parade-detail |
 | View full heat | /jjc-parade-full |
+
+**Quick Verbs** — When user says just the verb, invoke the corresponding command:
+
+| Verb | Command |
+|------|---------|
+| mount | /jjc-heat-mount |
+| slate | /jjc-pace-slate |
+| wrap | /jjc-pace-wrap |
+| bridle | /jjc-pace-bridle |
+| muster | /jjc-heat-muster |
+| groom | /jjc-heat-groom |
+| quarter | /jjc-heat-quarter |
 
 **Build & Run Discipline:**
 Always run these after Rust code changes:

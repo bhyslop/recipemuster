@@ -48,6 +48,18 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | View heat detail | /jjc-parade-detail |
 | View full heat | /jjc-parade-full |
 
+**Quick Verbs** — When user says just the verb, invoke the corresponding command:
+
+| Verb | Command |
+|------|---------|
+| mount | /jjc-heat-mount |
+| slate | /jjc-pace-slate |
+| wrap | /jjc-pace-wrap |
+| bridle | /jjc-pace-bridle |
+| muster | /jjc-heat-muster |
+| groom | /jjc-heat-groom |
+| quarter | /jjc-heat-quarter |
+
 **Build & Run Discipline:**
 Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build

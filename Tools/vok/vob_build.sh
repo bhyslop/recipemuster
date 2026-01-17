@@ -50,7 +50,7 @@ zvob_kindle() {
   ZVOB_FEATURE_LIST=""
 
   # Detect jjk
-  if test -f "${BURC_TOOLS_DIR}/jjk/veiled/Cargo.toml"; then
+  if test -f "${BURC_TOOLS_DIR}/jjk/vov_veiled/Cargo.toml"; then
     ZVOB_FEATURE_LIST="${ZVOB_FEATURE_LIST:+${ZVOB_FEATURE_LIST},}jjk"
   fi
 

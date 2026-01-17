@@ -14,7 +14,7 @@ fn main() {
     // Each detected kit enables a feature flag
 
     let kits = [
-        ("jjk", "../jjk/veiled/Cargo.toml"),
+        ("jjk", "../jjk/vov_veiled/Cargo.toml"),
         // Add more kits here as they gain Rust code
     ];
 
