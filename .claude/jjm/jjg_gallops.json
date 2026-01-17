@@ -420,6 +420,11 @@
           "silks": "claude-md-freshening",
           "tacks": [
             {
+              "ts": "260117-1244",
+              "state": "complete",
+              "text": "Implemented voff_freshen.rs in VOF crate with voff_freshen(), voff_collapse(), and voff_parse_sections() functions. Also migrated VOI→VOF, renamed voic_→vofc_ prefixes, and updated CLAUDE.md template naming to voc{cipher}mc pattern."
+            },
+            {
               "ts": "260114-1058",
               "state": "rough",
               "text": "Implement CLAUDE.md managed section freshening in Rust.\n\nMarker format (see paddock):\n<!-- MANAGED:{KIT}:BEGIN -->\n...content from embedded template...\n<!-- MANAGED:{KIT}:END -->\n\nRules to implement:\n- Markers are authoritative - content between them replaced entirely\n- User content outside markers preserved\n- Order of managed sections follows kit installation order\n- Missing markers - append section at end of file\n\nEach kit has its CLAUDE.md section template embedded via include_str!().\n\nThis is a utility used by vvx-install-impl, may also be useful standalone for testing."
