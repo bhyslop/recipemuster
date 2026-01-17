@@ -76,9 +76,10 @@
         "₢AAABB",
         "₢AAABC",
         "₢AAABD",
-        "₢AAABG"
+        "₢AAABG",
+        "₢AAABH"
       ],
-      "next_pace_seed": "ABH",
+      "next_pace_seed": "ABI",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1427,6 +1428,16 @@
               "ts": "260117-1207",
               "state": "rough",
               "text": "Relocate Tools/voi/ to Tools/vok/voi/ per prefix naming discipline.\n\n## Rationale\n\nThe `voi` crate uses `vo` prefix (VOK namespace) and is VOK's infrastructure crate. Per prefix naming discipline, it belongs under `Tools/vok/` not as a sibling.\n\n## Tasks\n\n1. Move `Tools/voi/` → `Tools/vok/voi/`\n2. Update `Tools/vok/Cargo.toml`: change `voi = { path = \"../voi\" }` to `voi = { path = \"voi\" }`\n3. Verify build: `tt/vow-b.Build.sh`\n4. Update any documentation referencing `Tools/voi/`\n\n## Precedent\n\nJJK uses `Tools/jjk/veiled/` for its nested Rust crate.\n\n## Not MVP\n\nThis is organizational cleanup, not blocking release/install functionality."
+            }
+          ]
+        },
+        "₢AAABH": {
+          "silks": "distributable-kits-typed-registry",
+          "tacks": [
+            {
+              "ts": "260117-1210",
+              "state": "rough",
+              "text": "Refactor DISTRIBUTABLE_KITS to use typed voic_Cipher registry instead of raw strings.\n\n## Current State\n\n`DISTRIBUTABLE_KITS` (voic_registry.rs:162-167) uses raw strings:\n```rust\npub const DISTRIBUTABLE_KITS: &[&str] = &[\"buk\", \"cmk\", \"jjk\", \"vvk\"];\n```\n\nMeanwhile the typed cipher registry exists with `BU`, `CM`, `JJ`, `VV` constants.\n\n## Problem\n\nNo compile-time guarantee that distributable kit names correspond to registered ciphers.\n\n## Design Questions (not resolved)\n\n1. Kit directory = cipher + \"k\" suffix. Where does this mapping live?\n   - Method on voic_Cipher: `fn kit_dir(&self) -> &str`?\n   - Separate struct for \"kit\" vs \"cipher\"?\n   - Const fn that derives it?\n\n2. Should DISTRIBUTABLE_KITS be `&[voic_Cipher]` or a new `voic_Kit` type?\n\n3. Not all ciphers are kits (e.g., MCM, AXL are vocabulary, not kits). How to distinguish?\n\n4. Some kits share ciphers with non-kit uses (e.g., `vv` is both VVC crate and VVK kit).\n\n## Not MVP\n\nRaw strings work. This is type-safety cleanup for later.\n\n## Status\n\nNeeds design thinking before implementation. Do not bridle without resolving design questions."
             }
           ]
         }
