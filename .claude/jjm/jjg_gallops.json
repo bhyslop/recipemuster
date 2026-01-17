@@ -75,7 +75,6 @@
         "₢AAABK",
         "₢AAABL",
         "₢AAABM",
-        "₢AAAAo",
         "₢AAABO"
       ],
       "next_pace_seed": "ABP",
@@ -1121,26 +1120,6 @@
             }
           ]
         },
-        "₢AAAAo": {
-          "silks": "create-heat-rein-command",
-          "tacks": [
-            {
-              "ts": "260117-1344",
-              "state": "rough",
-              "text": "Create /jjc-heat-rein slash command AND enhance saddle with recent work context.\n\n## Part 1: Slash Command\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required), --limit (optional, default 20)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK> --limit <N>\n- Formats JSON output as human-readable steeplechase history\n- Shows: timestamp, pace silks (if pace-level), action type, subject\n\n## Part 2: Saddle Enhancement\n\nModify jjx_saddle to include recent steeplechase entries in output.\n\n### JJD Spec Update\n\nAdd to jjdo_saddle output:\n- `recent_work`: array of last N steeplechase entries (default 10)\n\n### Rust Implementation\n\nIn jjrq_query.rs saddle function:\n1. After getting pace info, call jjrs_get_entries() with limit 10\n2. Include entries in SaddleResult struct\n3. Serialize in JSON output\n\n### Slash Command Update\n\nUpdate /jjc-heat-mount to display recent work section:\n- Show 5-10 recent entries before presenting the pace\n- Helps Claude orient to what was just accomplished\n- Format: \"Recent work on this heat:\" followed by entries\n\n## Rationale\n\nSteeplechase history provides crucial context for Claude when starting work:\n- What was just completed\n- Pattern of recent activity\n- Continuity across sessions\n\n## Files\n\n- .claude/commands/jjc-heat-rein.md (new)\n- .claude/commands/jjc-heat-mount.md (update)\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (saddle output spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (saddle implementation)"
-            },
-            {
-              "ts": "260117-1225",
-              "state": "abandoned",
-              "text": "Blocked by stale installation-identifier pace"
-            },
-            {
-              "ts": "260116-1309",
-              "state": "rough",
-              "text": "Create /jjc-heat-rein slash command.\n\n## Prerequisites\n\n- ₢AAAAc (installation-identifier) complete — jjx_rein no longer requires --brand\n\n## Implementation\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Parses JSON output into human-readable steeplechase history\n\n## Reference\n\nSee JJD jjdo_rein spec for jjx_rein output format and behavior."
-            }
-          ]
-        },
         "₢AAAAp": {
           "silks": "rein-filter-by-identity",
           "tacks": [
@@ -1686,10 +1665,38 @@
       "silks": "jjk-features-polish",
       "creation_time": "260117",
       "status": "current",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AEAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AE.md",
-      "paces": {}
+      "paces": {
+        "₢AEAAA": {
+          "silks": "create-heat-rein-command",
+          "tacks": [
+            {
+              "ts": "260117-1410",
+              "state": "rough",
+              "text": "Drafted from ₢AAAAo in ₣AA.\n\nCreate /jjc-heat-rein slash command AND enhance saddle with recent work context.\n\n## Part 1: Slash Command\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required), --limit (optional, default 20)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK> --limit <N>\n- Formats JSON output as human-readable steeplechase history\n- Shows: timestamp, pace silks (if pace-level), action type, subject\n\n## Part 2: Saddle Enhancement\n\nModify jjx_saddle to include recent steeplechase entries in output.\n\n### JJD Spec Update\n\nAdd to jjdo_saddle output:\n- `recent_work`: array of last N steeplechase entries (default 10)\n\n### Rust Implementation\n\nIn jjrq_query.rs saddle function:\n1. After getting pace info, call jjrs_get_entries() with limit 10\n2. Include entries in SaddleResult struct\n3. Serialize in JSON output\n\n### Slash Command Update\n\nUpdate /jjc-heat-mount to display recent work section:\n- Show 5-10 recent entries before presenting the pace\n- Helps Claude orient to what was just accomplished\n- Format: \"Recent work on this heat:\" followed by entries\n\n## Rationale\n\nSteeplechase history provides crucial context for Claude when starting work:\n- What was just completed\n- Pattern of recent activity\n- Continuity across sessions\n\n## Files\n\n- .claude/commands/jjc-heat-rein.md (new)\n- .claude/commands/jjc-heat-mount.md (update)\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (saddle output spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (saddle implementation)"
+            },
+            {
+              "ts": "260117-1344",
+              "state": "rough",
+              "text": "Create /jjc-heat-rein slash command AND enhance saddle with recent work context.\n\n## Part 1: Slash Command\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required), --limit (optional, default 20)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK> --limit <N>\n- Formats JSON output as human-readable steeplechase history\n- Shows: timestamp, pace silks (if pace-level), action type, subject\n\n## Part 2: Saddle Enhancement\n\nModify jjx_saddle to include recent steeplechase entries in output.\n\n### JJD Spec Update\n\nAdd to jjdo_saddle output:\n- `recent_work`: array of last N steeplechase entries (default 10)\n\n### Rust Implementation\n\nIn jjrq_query.rs saddle function:\n1. After getting pace info, call jjrs_get_entries() with limit 10\n2. Include entries in SaddleResult struct\n3. Serialize in JSON output\n\n### Slash Command Update\n\nUpdate /jjc-heat-mount to display recent work section:\n- Show 5-10 recent entries before presenting the pace\n- Helps Claude orient to what was just accomplished\n- Format: \"Recent work on this heat:\" followed by entries\n\n## Rationale\n\nSteeplechase history provides crucial context for Claude when starting work:\n- What was just completed\n- Pattern of recent activity\n- Continuity across sessions\n\n## Files\n\n- .claude/commands/jjc-heat-rein.md (new)\n- .claude/commands/jjc-heat-mount.md (update)\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (saddle output spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (saddle implementation)"
+            },
+            {
+              "ts": "260117-1225",
+              "state": "abandoned",
+              "text": "Blocked by stale installation-identifier pace"
+            },
+            {
+              "ts": "260116-1309",
+              "state": "rough",
+              "text": "Create /jjc-heat-rein slash command.\n\n## Prerequisites\n\n- ₢AAAAc (installation-identifier) complete — jjx_rein no longer requires --brand\n\n## Implementation\n\nCreate .claude/commands/jjc-heat-rein.md:\n- Arguments: firemark (required)\n- Calls: ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK>\n- Parses JSON output into human-readable steeplechase history\n\n## Reference\n\nSee JJD jjdo_rein spec for jjx_rein output format and behavior."
+            }
+          ]
+        }
+      }
     }
   }
 }

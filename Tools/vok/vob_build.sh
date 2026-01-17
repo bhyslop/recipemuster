@@ -245,7 +245,8 @@ vob_parcel() {
   buc_step "Creating tarball"
 
   local z_parcel_name="vvk-parcel-${z_hallmark}"
-  local z_tarball="${BURC_PROJECT_ROOT}/${z_parcel_name}.tar.gz"
+  local z_project_root="${BURC_PROJECT_ROOT:-${PWD}}"
+  local z_tarball="${z_project_root}/${z_parcel_name}.tar.gz"
 
   buc_log_args "Tarball: ${z_tarball}"
 
