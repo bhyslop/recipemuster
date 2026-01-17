@@ -109,6 +109,7 @@
 :vose_managed_section_s: <<vose_managed_section,Managed Sections>>
 :vose_marker:           <<vose_marker,Marker>>
 :vose_marker_s:         <<vose_marker,Markers>>
+:vose_uninstalled_marker: <<vose_uninstalled_marker,Uninstalled Marker>>
 
 // Entity members
 :vosem_brand_date:      <<vosem_brand_date,brand_date>>
@@ -907,6 +908,28 @@ Content outside
 {vose_marker_s}
 is preserved.
 
+[[vose_uninstalled_marker]]
+// ⟦axl_voices axt_string⟧
+{vose_uninstalled_marker}::
+Placeholder preserving position of a removed
+{vose_managed_section}.
++
+Format: `<\!-- MANAGED:{tag}:UNINSTALLED -->`
++
+On
+{vosoi_install},
+an
+{vose_uninstalled_marker}
+is expanded back to
+{vose_marker_s}
+at the same location.
+On
+{vosou_uninstall},
+{vose_marker_s}
+are collapsed to a single
+{vose_uninstalled_marker},
+preserving user's chosen section ordering for future reinstall.
+
 [[vose_brand_file]]
 // ⟦axl_voices axj_structure⟧
 {vose_brand_file}::
@@ -1361,15 +1384,28 @@ copy to `.claude/hooks/`
 .. For each
 {vose_managed_section}
 declared in kit's manifest:
-... {vosc_require}
+... If
 {vose_marker_s}
-exist in CLAUDE.md
-... {vosc_fatal}
-if markers missing: "Missing markers for {tag}"
-... {vosc_call}
+exist in CLAUDE.md:
+{vosc_call}
 replace content between markers with template content
+... Else if
+{vose_uninstalled_marker}
+exists for this tag:
+{vosc_call}
+expand to
+{vose_marker_s}
+at that location with template content
+... Else (no markers):
+{vosc_call}
+append
+{vose_marker_s}
+with template content at end of file
 .. {vosc_step}
 "CLAUDE.md sections updated"
++
+NOTE: This is a deterministic text transformation implemented in Rust.
+No LLM assistance required for marker manipulation.
 
 {voss_outputs}
 
@@ -1439,9 +1475,12 @@ remove files matching `{cipher}h_*` from `.claude/hooks/`
 {vose_managed_section}
 in manifest:
 ... {vosc_call}
-delete content between
+replace
 {vose_marker_s}
-(preserve markers)
+and content between them with single
+{vose_uninstalled_marker}
++
+NOTE: Preserves user's chosen section ordering for future reinstall.
 
 . *Remove kit directories*:
 .. For each kit in manifest:
@@ -1463,7 +1502,7 @@ delete manifest file
 
 * Removed kit directories
 * Removed commands and hooks
-* Cleared managed sections (markers preserved)
+* Managed sections replaced with {vose_uninstalled_marker} placeholders
 * Updated or removed manifest
 
 {voss_completion}
