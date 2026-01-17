@@ -91,6 +91,11 @@
           "silks": "common-crate-cipher-registry",
           "tacks": [
             {
+              "ts": "260117-0849",
+              "state": "complete",
+              "text": "Created voi crate with voic_Cipher struct and 17 ciphers. Added validation functions. Updated VOS spec."
+            },
+            {
               "ts": "260117-0845",
               "state": "bridled",
               "text": "Create common crate with cipher registry as Rust enums/structs.\n\n## Context\n\n- Reference: Memos/memo-20260110-acronym-selection-study.md (minting rules, project-wide acronyms)\n- VOS has initial cipher concept to build from\n- Must be in a common crate usable from multiple locations (JJK, VVK, etc.)\n- This crate is for global naming logic consolidation, not cipher-specific\n\n## Requirements\n\n- Ciphers as Rust types (enums/structs), NOT strings scattered through code\n- Validation functions for naming rules\n- Naming violations must be compilation errors (type safety)\n- Include all project ciphers: JJ, VV, BU, RB, GAD, MCM, AXL, CCC, HM, etc.\n\n## Deliverables\n\n1. Design common crate location and structure\n2. Implement cipher enum with all known ciphers\n3. Validation functions enforcing minting rules\n4. Update existing call sites to use typed ciphers\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (initial cipher concepts)\n- CLAUDE.md Prefix Naming Discipline section",
