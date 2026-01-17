@@ -1415,6 +1415,11 @@
           "silks": "veiled-directory-migration",
           "tacks": [
             {
+              "ts": "260117-1220",
+              "state": "complete",
+              "text": "Migrated concept models/lenses to vov_veiled/ across JJK, VOK, CMK, BUK, GAD. Updated Cargo.toml, build.rs, vob_build.sh paths. Updated CLAUDE.md mappings. Build verified."
+            },
+            {
               "ts": "260117-1145",
               "state": "rough",
               "text": "Migrate concept models to veiled directories and create CLAUDE.md templates.\n\nPREREQUISITE: veiled-whisper-spec (₢AAABE) must be complete first.\n\nTASKS:\n\n1. Rename/create veiled directories per VOS spec:\n   - Tools/jjk/veiled/ → Tools/jjk/vov_veiled/ (or restructure)\n   - Create Tools/vok/vov_veiled/\n   - Create Tools/cmk/vov_veiled/\n   - Create Tools/gad/vov_veiled/\n\n2. Move concept model files:\n   - JJD-GallopsData.adoc → Tools/jjk/vov_veiled/\n   - VOS-VoxObscuraSpec.adoc → Tools/vok/vov_veiled/\n   - MCM-MetaConceptModel.adoc → Tools/cmk/vov_veiled/\n   - AXLA-Lexicon.adoc → Tools/cmk/vov_veiled/\n   - GADS-*.adoc → Tools/gad/vov_veiled/\n\n3. Update CLAUDE.md mappings:\n   - All acronym paths in \"File Acronym Mappings\" section\n   - Point to new vov_veiled/ locations\n\n4. Extract CLAUDE.md managed section templates:\n   - Analyze current CLAUDE.md for kit-specific content\n   - Create vo{cipher}mc_*.md templates for each kit\n   - JJK:vojjmc_*.md (Job Jockey configuration section)\n   - CMK: vocmmc_*.md (Concept Model Kit section)\n   - Identify marker boundaries for managed sections\n\n5. Preserve Rust crate structure:\n   - JJK veiled/src/ Rust code needs to remain buildable\n   - May need vov_veiled/ alongside veiled/ or restructure\n\nFILES: \n- Tools/*/vov_veiled/ (create)\n- Tools/*/*.adoc (move)\n- CLAUDE.md (update mappings)\n- vo*mc_*.md templates (create)"
