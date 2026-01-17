@@ -6,6 +6,7 @@
       "creation_time": "260114",
       "status": "current",
       "order": [
+        "₢AAABA",
         "₢AAAA9",
         "₢AAAAx",
         "₢AAAAs",
@@ -71,7 +72,7 @@
         "₢AAAA-",
         "₢AAAA_"
       ],
-      "next_pace_seed": "ABA",
+      "next_pace_seed": "ABB",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1329,6 +1330,16 @@
               "ts": "260116-1509",
               "state": "rough",
               "text": "Refactor /jjc-pace-prime to merge direction into spec instead of using separate tack_direction field.\n\n## Current behavior\n\nPrime writes direction to tack_direction field. Mount reads both tack_text and tack_direction for primed paces.\n\n## Proposed behavior\n\nPrime appends direction content to tack_text under a '## Direction' heading. The tack_direction field becomes unused for new paces.\n\n## Benefits\n\n- Single source of truth - what agent sees is in one place\n- No risk of direction referencing spec content agent doesn't see\n- Simpler mental model\n\n## Changes\n\n1. **jjc-pace-prime.md**: Change jjx_tally call to append direction to --text instead of using --direction\n2. **jjc-heat-mount.md**: Remove tack_direction references for primed paces (direction is in spec)\n3. **JJD-GallopsData.adoc**: Document that tack_direction is deprecated for new paces\n\n## Migration\n\nExisting primed paces with tack_direction continue to work (mount reads both). New paces use merged approach.\n\n## Verification\n\n- Prime a test pace, verify direction appears in tack_text\n- Mount primed pace, verify execution succeeds"
+            }
+          ]
+        },
+        "₢AAABA": {
+          "silks": "vos-claudemd-freshening-spec",
+          "tacks": [
+            {
+              "ts": "260117-1115",
+              "state": "rough",
+              "text": "Specify CLAUDE.md freshening behavior in VOS.\n\n## Deliverables\n\n1. **Update vosoi_install procedure**:\n   - Remove fatal on missing markers\n   - Add: no markers → append section at end of file\n   - Add: UNINSTALLED marker → expand to BEGIN/END at that location\n\n2. **Update vosou_uninstall procedure**:\n   - Change: delete content, replace BEGIN/END with single UNINSTALLED marker\n   - Document: preserves user's section ordering for re-install\n\n3. **Add vose_uninstalled_marker entity**:\n   - Format: `<!-- MANAGED:{tag}:UNINSTALLED -->`\n   - Semantics: placeholder preserving position\n\n4. **Clarify ordering rules**:\n   - Multiple sections per kit: order follows manifest declaration order\n   - User reordering: preserved across install cycles (via marker positions)\n\n5. **Document programmatic approach**:\n   - Rust implementation, not Claude-assisted\n   - Add note in VOS that this is deterministic text transformation\n\n## References\n\n- Current spec: VOS lines 1360-1372 (install), 1437-1444 (uninstall)\n- Paddock CLAUDE.md Freshening section\n- Pace ₢AAAAG depends on this spec work"
             }
           ]
         }
