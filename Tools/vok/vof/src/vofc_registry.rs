@@ -54,6 +54,12 @@ impl vofc_Cipher {
         // Name must have content after the prefix
         name.len() > self.prefix.len()
     }
+
+    /// Generate kit identifier by appending 'k' to prefix.
+    /// Does not validate whether this cipher actually has a kit.
+    pub fn kit_id(&self) -> String {
+        format!("{}k", self.prefix)
+    }
 }
 
 // =============================================================================
@@ -157,14 +163,48 @@ pub const ALL_CIPHERS: &[vofc_Cipher] = &[
     PB, WRS, SRF,
 ];
 
+// =============================================================================
+// Kit Registry
+// =============================================================================
+// Typed kit declarations for distribution. Field names align with VOS entity
+// members (vosem_kit_id, vosem_display_name).
+
+/// A distributable kit with typed cipher reference.
+/// Kit identifier derived from cipher via cipher.kit_id().
+#[derive(Debug, Clone, Copy)]
+pub struct vofc_Kit {
+    /// Reference to the kit's cipher (typed, not string).
+    pub cipher: &'static vofc_Cipher,
+    /// Human-readable name. See vosem_display_name.
+    pub display_name: &'static str,
+}
+
+/// Asset routing rule for kit installation.
+/// Determines where files are copied during install.
+#[derive(Debug, Clone, Copy)]
+pub struct vofc_AssetRoute {
+    /// Source pattern relative to kit directory.
+    pub source_pattern: &'static str,
+    /// Target path relative to target repo.
+    pub target_path: &'static str,
+    /// If true, routes to .claude/commands/ instead of target_path.
+    pub is_command: bool,
+}
+
 /// Kits included in VVK distribution.
 /// Order matters: kits are installed in this order, affecting CLAUDE.md section ordering.
-pub const DISTRIBUTABLE_KITS: &[&str] = &[
-    "buk",  // Bash Utilities Kit - foundational infrastructure
-    "cmk",  // Concept Model Kit - documentation tooling
-    "jjk",  // Job Jockey Kit - project management
-    "vvk",  // Voce Viva Kit - the universal kit (binaries + uninstall)
+pub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[
+    vofc_Kit { cipher: &BU, display_name: "Bash Utilities" },
+    vofc_Kit { cipher: &CM, display_name: "Concept Model" },
+    vofc_Kit { cipher: &JJ, display_name: "Job Jockey" },
+    vofc_Kit { cipher: &VV, display_name: "Voce Viva" },
 ];
+
+/// Compatibility accessor: returns kit IDs as strings.
+/// For callers that only need the kit identifier strings.
+pub fn vofc_distributable_kit_ids() -> Vec<String> {
+    DISTRIBUTABLE_KITS.iter().map(|k| k.cipher.kit_id()).collect()
+}
 
 /// Find a cipher by prefix.
 pub fn vofc_find_by_prefix(prefix: &str) -> Option<&'static vofc_Cipher> {
@@ -236,5 +276,19 @@ mod tests {
                 cipher.prefix
             );
         }
+    }
+
+    #[test]
+    fn test_kit_id_generation() {
+        assert_eq!(JJ.kit_id(), "jjk");
+        assert_eq!(BU.kit_id(), "buk");
+        assert_eq!(VV.kit_id(), "vvk");
+        assert_eq!(GAD.kit_id(), "gadk");
+    }
+
+    #[test]
+    fn test_distributable_kit_ids() {
+        let ids = vofc_distributable_kit_ids();
+        assert_eq!(ids, vec!["buk", "cmk", "jjk", "vvk"]);
     }
 }

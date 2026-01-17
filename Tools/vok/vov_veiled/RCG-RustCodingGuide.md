@@ -171,6 +171,79 @@ All naming follows the project's minting rules. Key constraints:
 
 Reference: CLAUDE.md "Prefix Naming Discipline" section.
 
+## String Boundary Discipline
+
+**Core principle**: This is an internal system. Strings that cross serialization boundaries (JSON, display, CLI) are produced and consumed by the same codebase. There are no external users typing variants.
+
+### Single Definition Rule
+
+Any string value that appears in serialization or display must have exactly **one** const definition. Both parse and emit reference that const.
+
+```rust
+// ✅ Single definition - const is the source of truth
+const JJRG_STATE_ROUGH: &str = "rough";
+
+impl jjrg_PaceState {
+    pub fn jjrg_as_str(&self) -> &'static str {
+        match self {
+            Self::Rough => JJRG_STATE_ROUGH,
+            Self::Bridled => JJRG_STATE_BRIDLED,
+            // ...
+        }
+    }
+
+    pub fn jjrg_from_str(s: &str) -> Option<Self> {
+        match s {
+            JJRG_STATE_ROUGH => Some(Self::Rough),
+            JJRG_STATE_BRIDLED => Some(Self::Bridled),
+            // ...
+            _ => None,  // Bug upstream, not our problem
+        }
+    }
+}
+```
+
+```rust
+// ❌ String literal appears twice - immature interface
+impl jjrg_PaceState {
+    pub fn jjrg_as_str(&self) -> &'static str {
+        match self {
+            Self::Rough => "rough",  // First occurrence
+        }
+    }
+
+    pub fn jjrg_from_str(s: &str) -> Option<Self> {
+        match s {
+            "rough" => Some(Self::Rough),  // Second occurrence - drift risk
+        }
+    }
+}
+```
+
+### No Friendly Parsing
+
+Do not accommodate input variants. If the canonical form is `"rough"`, do not also accept `"Rough"`, `"ROUGH"`, or `"r"`. Flexible parsing is for external APIs with human users — not internal systems.
+
+```rust
+// ❌ Web-brain: accommodating sloppy input
+"A" | "a" | "APPROACH" | "approach" | "Approach" => Ok(Self::Approach),
+
+// ✅ Internal system: exact match only
+JJRN_MARKER_APPROACH => Ok(Self::Approach),
+```
+
+If input doesn't match the canonical const exactly, that's a bug in the producer — not a variant to handle gracefully.
+
+### Serde Integration
+
+Prefer `#[serde(rename = "...")]` or `#[serde(rename_all = "lowercase")]` over manual string methods when serde handles both serialization and deserialization. The attribute is the single definition.
+
+When manual methods are needed (e.g., for display or CLI), define consts that match the serde representation.
+
+### Smell Test
+
+If `grep '"rough"'` finds the same string literal in multiple places, the interface is immature. Extract a const.
+
 ## What RCG Does Not Cover
 
 Trust Claude's Rust idioms for:
@@ -300,3 +373,11 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] Test file imports source module with `use super::*`
 - [ ] Test functions prefixed with test file's prefix
 - [ ] Helper functions local to test file (no prefix needed)
+
+### String Boundary Discipline
+- [ ] Each serialized/displayed string value has exactly one `const` definition
+- [ ] `from_str` and `as_str` methods both reference the same const
+- [ ] No "friendly" parsing variants (no `"A" | "a" | "APPROACH"`)
+- [ ] `grep` for any string literal finds at most one definition (plus tests)
+- [ ] Serde attributes used where possible (`rename`, `rename_all`)
+- [ ] Manual string methods only when serde insufficient (CLI, display)

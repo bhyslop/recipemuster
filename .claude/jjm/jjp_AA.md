@@ -126,6 +126,8 @@ The hallmark registry (`.vvk/vovr_registry.json`) stays in source repo only — 
 
 ## References
 
+- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc — VOS spec (entity members, operations, liturgy)
+- Tools/vok/vov_veiled/RCG-RustCodingGuide.md — Rust naming conventions
 - Tools/vok/README.md — VOK architecture and concepts
 - Tools/vvk/README.md — VVK (distributed kit)
 - Tools/buk/README.md — Tabtarget/launcher infrastructure
