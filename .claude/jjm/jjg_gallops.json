@@ -78,9 +78,10 @@
         "₢AAABC",
         "₢AAABD",
         "₢AAABG",
-        "₢AAABI"
+        "₢AAABI",
+        "₢AAABJ"
       ],
-      "next_pace_seed": "ABJ",
+      "next_pace_seed": "ABK",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1529,6 +1530,16 @@
               "ts": "260117-1243",
               "state": "rough",
               "text": "Implement prefix tree registry in vof with vvx checker utility.\n\n## Problem\n\nPrefix tree integrity across codebase. Need to ensure all inscriptions use registered prefixes and respect terminal exclusivity.\n\n## Rejected Approach (₢AAAA- abandoned)\n\nMCM-based documentation of prefix trees in mapping section comments.\n\nWhy rejected:\n- Requires Claude to parse/remember prefix trees each session (context window cost)\n- No enforcement — hope-based compliance\n- Violations discovered late (during review) not early (at build time)\n\n## Proposed Approach\n\nBake all known prefix tree paths into vof (Tools/vok/vof). VVX provides `vvx check` utility that scans entire repo for prefix violations.\n\n### Registry Enhancement\n\nExtend vof beyond cipher registry to full prefix tree:\n- Terminal prefixes (leaf nodes that name things): `buc_`, `jjrg_`\n- Non-terminal prefixes (have children): `bu`, `jjr`\n- Tree structure with parent-child relationships\n\n### Checker Utility\n\n`vvx check` (or `vvx lint`) subcommand:\n\n1. Scan all files in repo (respecting .gitignore)\n2. Vesture-aware extraction:\n   - File names: `rbga_*.sh`, `JJD-*.adoc`\n   - Function declarations: `buc_log_args()`, `zbuc_color()`\n   - AsciiDoc attributes: `:rbw_depot:`\n   - Anchors: `[[rbw_depot]]`\n   - Slash commands: `/jjc-*`\n   - Rust declarations: `voic_Cipher`, `jjrg_Gallops`\n3. Parse prefix from each inscription\n4. Validate against vof registry\n5. Report unknown prefixes as warnings/errors\n\n### Enforcement\n\n- CI integration: fail build on unknown prefix\n- Forces immediate documentation of new terms\n- Single source of truth in vof\n- Zero context window cost for Claude\n\n## Relationship to Other Paces\n\n- ₢AAABG (voi-directory-relocation): Already done — vof is the result\n- ₢AAABH (distributable-kits-typed-registry): Complementary — that's about consolidating kit metadata, this is about prefix validation\n\n## Open Questions\n\n1. Error vs warning for unknown prefixes during transition?\n2. Allowlist for legacy prefixes not yet registered?\n3. How to handle external dependencies with their own prefixes?"
+            }
+          ]
+        },
+        "₢AAABJ": {
+          "silks": "vvx-vacate-impl",
+          "tacks": [
+            {
+              "ts": "260117-1333",
+              "state": "rough",
+              "text": "Implement vvx_vacate: the Rust utility that removes kit assets from target repo.\n\n## Layered Architecture\n\n**vvu_uninstall.sh (bash orchestration):**\n1. Verify current directory is git repo with BURC\n2. Verify .vvk/vvbf_brand.json exists (something is installed)\n3. Pre-uninstall snapshot — `git commit` if working tree dirty\n4. Call `vvx_vacate --target .`\n5. Post-uninstall commit — `git commit -m \"VVK uninstall\"`\n\n**vvx_vacate (Rust, this pace):**\nPure file operations, no git. Called by vvu_uninstall.sh.\n\n## vvx_vacate --target <repo>\n\nInputs:\n- `--target` — target repository root (usually `.`)\n\nBehavior:\n\n1. **Read brand file**\n   - Parse `.vvk/vvbf_brand.json`\n   - Extract kit list from `vvbk_kits`\n   - Extract cipher for each kit\n\n2. **Remove commands**\n   - For each kit cipher: delete `.claude/commands/{cipher}c-*`\n\n3. **Remove hooks**\n   - For each kit cipher: delete `.claude/hooks/{cipher}h_*`\n\n4. **Collapse CLAUDE.md sections**\n   - For each kit's managed section tag:\n     - Call voff_collapse() to replace BEGIN/END with UNINSTALLED marker\n   - Preserves user's section ordering for future reinstall\n\n5. **Remove kit directories**\n   - For each kit in brand: delete `${BURC_TOOLS_DIR}/{kit}/`\n\n6. **Remove brand file**\n   - Delete `.vvk/vvbf_brand.json`\n   - Remove `.vvk/` directory if empty\n\nOutput: JSON summary\n```json\n{\n  \"kits_removed\": [\"buk\", \"cmk\", \"jjk\", \"vvk\"],\n  \"files_deleted\": 47,\n  \"commands_removed\": 12,\n  \"claude_sections_collapsed\": [\"BUK\", \"CMK\", \"JJK\", \"VVK\"]\n}\n```\n\n## Key Design Points\n\n- **No git operations** — bash handles all commits\n- **Brand-driven** — only removes what brand file says was installed\n- **Preserves CLAUDE.md structure** — collapses to UNINSTALLED markers, not deletion\n- **Clean removal** — no orphaned files if prefix validation was enforced at install\n\n## MVP Shortcut: Hardcoded Section Tags\n\nLike vvx_emplace, the managed section tags are hardcoded in Rust:\n- BUK, CMK, JJK, VVK (matching vofm_managed.rs constants)\n- Future: Whisper/Conclave will provide tag registry\n\n## Prerequisites\n\n- ₢AAAAF (vvx_emplace) — parallel implementation, shares patterns\n- ₢AAAAG (claude-md-freshening) — COMPLETE, provides voff_collapse\n\n## Files\n\n- Tools/vok/src/vorm_main.rs — add vvx_vacate subcommand\n- Tools/vvk/vvu_uninstall.sh — NEW: bash orchestration script"
             }
           ]
         }
