@@ -157,6 +157,15 @@ pub const ALL_CIPHERS: &[voic_Cipher] = &[
     PB, WRS, SRF,
 ];
 
+/// Kits included in VVK distribution.
+/// Order matters: kits are installed in this order, affecting CLAUDE.md section ordering.
+pub const DISTRIBUTABLE_KITS: &[&str] = &[
+    "buk",  // Bash Utilities Kit - foundational infrastructure
+    "cmk",  // Concept Model Kit - documentation tooling
+    "jjk",  // Job Jockey Kit - project management
+    "vvk",  // Voce Viva Kit - the universal kit (binaries + uninstall)
+];
+
 /// Find a cipher by prefix.
 pub fn voic_find_by_prefix(prefix: &str) -> Option<&'static voic_Cipher> {
     ALL_CIPHERS.iter().find(|c| c.prefix == prefix)
