@@ -70,8 +70,13 @@
           "silks": "prime-to-bridle-rename",
           "tacks": [
             {
+              "ts": "260117-0832",
+              "state": "complete",
+              "text": "Renamed prime/primed vocabulary to bridle/bridled throughout codebase. Rust enum, JJD spec, CLAUDE.md, 9 slash commands, gallops JSON migration. Added serde alias for backwards compatibility."
+            },
+            {
               "ts": "260116-1530",
-              "state": "primed",
+              "state": "bridled",
               "text": "Rename 'prime/primed' vocabulary to 'bridle/bridled' throughout the codebase.\n\n## Scope (from grep analysis)\n\n**Rust files (4 files):**\n- jjrg_gallops.rs: PaceState::Primed enum, validation logic, string literals, tests\n- jjrx_cli.rs: state parsing, --direction help text\n- jjrq_query.rs: saddle output, state display\n- jjrn_notch.rs: chalk marker comment\n\n**JJD-GallopsData.adoc:**\n- Attribute: :jjdpe_primed: → :jjdpe_bridled:\n- ~20 references to {jjdpe_primed}\n\n**Slash commands (5 files):**\n- jjc-pace-prime.md → rename to jjc-pace-bridle.md\n- jjc-heat-mount.md: references to primed state and /jjc-pace-prime\n- jjc-pace-reslate.md: references to prime command\n- jjc-pace-slate.md: primeability reference\n- jjc-heat-quarter.md: references to prime command (just created)\n\n**CLAUDE.md:**\n- Primeability Assessment section → Bridleability Assessment\n- /jjc-pace-prime in skills list → /jjc-pace-bridle\n\n**Exclude (unrelated):**\n- rbgg_Governor.sh, rbgi_IAM.sh: 'cb_prime' is Cloud Build, not JJ\n- Retired heat files: historical, leave as-is\n\n## Approach\n\nMechanical find-replace with these transformations:\n- PaceState::Primed → PaceState::Bridled\n- \"primed\" → \"bridled\" (string literals)\n- primed → bridled (prose, preserving case)\n- prime → bridle (command names, prose)\n- primeable → bridleable\n- primeability → bridleability\n- /jjc-pace-prime → /jjc-pace-bridle\n\nRename file: jjc-pace-prime.md → jjc-pace-bridle.md (git mv)",
               "direction": "Agent: sonnet\nCardinality: 2 parallel + sequential build\nFiles: jjrg_gallops.rs, jjrx_cli.rs, jjrq_query.rs, jjrn_notch.rs, JJD-GallopsData.adoc, jjc-pace-prime.md, jjc-pace-bridle.md, jjc-heat-mount.md, jjc-pace-reslate.md, jjc-pace-slate.md, jjc-heat-quarter.md, CLAUDE.md (12 files)\n\nBatch 1 (parallel):\n- Agent A (sonnet): Rust files — replace PaceState::Primed→Bridled, \"primed\"→\"bridled\", update test function names\n- Agent B (sonnet): Docs — JJD attribute jjdpe_primed→jjdpe_bridled, all {jjdpe_primed} refs, CLAUDE.md primeability→bridleability section\n\nSequential:\n1. git mv .claude/commands/jjc-pace-prime.md .claude/commands/jjc-pace-bridle.md\n2. Update all slash commands: /jjc-pace-prime→/jjc-pace-bridle, primed→bridled, primeable→bridleable\n3. cargo build --manifest-path Tools/vok/Cargo.toml\n\nExclude: rbgg_Governor.sh, rbgi_IAM.sh (cb_prime is Cloud Build), retired heats (historical)"
             },
@@ -297,7 +302,7 @@
             },
             {
               "ts": "260115-1424",
-              "state": "primed",
+              "state": "bridled",
               "text": "Confirmed scope.",
               "direction": "Rename-commit-to-vvx_commit-and-add-vvx_push-following-lock-pattern"
             },
@@ -463,7 +468,7 @@
             },
             {
               "ts": "260115-1441",
-              "state": "primed",
+              "state": "bridled",
               "text": "Fix argument quoting bug in bud_dispatch.sh that breaks multi-word arguments.\n\n## The Bug\n\nLine 177: `BUD_CLI_ARGS=\"$*\"` — joins args into single string, loses boundaries\nLines 281/287/293: `$BUD_CLI_ARGS` unquoted — word splits on spaces\n\n## Impact\n\nAny multi-word argument through tabtarget dispatch gets broken:\n- `--direction \"has spaces\"` becomes 4 separate args\n- Affects ALL tabtargets, not just vvx\n\n## The Fix\n\n1. Store as array: `BUD_CLI_ARGS=(\"$@\")`\n2. Expand as array: `\"${BUD_CLI_ARGS[@]}\"`\n\n## Files\n\n- Tools/buk/bud_dispatch.sh\n\n## REVIEW REMINDER\n\nUser did not expect this bug. Review before executing to confirm fix approach is correct and complete. May have broader implications for BUK infrastructure.",
               "direction": "Agent: haiku - Fix bud_dispatch.sh quoting"
             },
@@ -484,13 +489,13 @@
             },
             {
               "ts": "260115-1526",
-              "state": "primed",
+              "state": "bridled",
               "text": "Implement jjx_slate positioning flags per JJD-GallopsData.adoc.\n\n## Authoritative Spec\n\nTools/jjk/JJD-GallopsData.adoc section `jjdo_slate` defines:\n- Arguments: --before, --after, --first (mutually exclusive)\n- Validation: target coronet must exist in heat\n- Insertion behavior: prepend, before, after, or append (default)\n\n## Implementation\n\n1. Add Clap args with mutual exclusivity (same pattern as rail-move-semantics)\n2. Validate target coronet exists when --before/--after provided\n3. Update order array insertion logic per JJD behavior spec\n\n## Files\n\nTools/vok/src (wherever jjx_slate is implemented)\n\n## NOT in scope\n\n- jjx_reslate positioning (position is rail's job)",
               "direction": "Agent: sonnet - Implement per JJD-GallopsData.adoc jjdo_slate spec. Add Clap args for --before, --after, --first with mutual exclusivity. Update insertion logic in behavior."
             },
             {
               "ts": "260115-1444",
-              "state": "primed",
+              "state": "bridled",
               "text": "Add --before/--after positioning flags to jjx_slate.\n\n## Current Behavior\n\n`jjx_slate` always appends new pace to end of heat. Must follow with `jjx_rail` to reposition.\n\n## Proposed Enhancement\n\n```bash\nvvx jjx_slate ₣AA --silks 'new-pace' --before ₢AAAAJ <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --after ₢AAAAK <<< \"tack\"\nvvx jjx_slate ₣AA --silks 'new-pace' --first <<< \"tack\"\n```\n\nWithout position flag: append to end (current behavior, backwards compatible).\n\n## Implementation\n\nSame Clap pattern as rail-move-semantics (₢AAAAK). Can share validation logic.\n\n## Scope\n\n- jjx_slate: YES — add position flags\n- jjx_reslate: NO — reslate updates tack, doesn't change position. Position is jjx_rail's job.\n\n## Files\n\nTools/vok/src (wherever jjx_slate is implemented)",
               "direction": "Agent: sonnet - Add --before/--after/--first flags to jjx_slate in Tools/vok/src, follow Clap pattern from rail-move-semantics"
             },
@@ -511,7 +516,7 @@
             },
             {
               "ts": "260115-1443",
-              "state": "primed",
+              "state": "bridled",
               "text": "Update JJD-GallopsData.adoc with slate positioning concepts.\n\n## Purpose\n\nDocument --before/--after/--first positioning flags for jjx_slate before implementation.\n\n## Concepts to Add\n\n**Slate Positioning** — New pace can be inserted at specific position rather than always appending.\n\n- --before <coronet>: Insert before specified pace\n- --after <coronet>: Insert after specified pace  \n- --first: Insert at beginning of heat\n- Default (no flag): Append to end (backwards compatible)\n\n## Relationship to Rail\n\nRail reorders existing paces. Slate positioning inserts new pace at desired location. Different operations, same position vocabulary.\n\n## Sections to Update\n\n1. Operations section — Add positioning flags to jjx_slate entry\n2. Glossary — If needed for new terms\n\n## Reference\n\nImplementation pace: ₢AAAAQ slate-position-flags",
               "direction": "Agent: haiku - Update JJD-GallopsData.adoc: add slate positioning concepts to Operations section, add glossary if needed"
             },
@@ -532,13 +537,13 @@
             },
             {
               "ts": "260115-1509",
-              "state": "primed",
+              "state": "bridled",
               "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)",
               "direction": "Agent: sonnet\n\n## File Operations\n1. Create Tools/buk/bul_launcher.sh from .buk/launcher_common.sh\n2. Update .buk/launcher.*.sh stubs to use relative path: source \"${BASH_SOURCE[0]%/*}/../Tools/buk/bul_launcher.sh\"\n3. Delete .buk/launcher_common.sh after verification\n\n## Export Decisions\n- BURC_TABTARGET_DIR, BURC_TOOLS_DIR → move to zburc_kindle() in burc_regime.sh\n- BUD_REGIME_FILE, BUD_STATION_FILE → keep in bul_launcher.sh (dispatch context, set before kindle)\n\n## Verification\n- Run tt/vow-r.RunVVX.sh --help to verify tabtarget chain works\n- Run one BUK tabtarget (e.g., tt/buw-tt-ll.ListLaunchers.sh) to verify full path\n\n## BCG Notes\n- bul_launcher.sh is NOT a full BCG module (no kindle/sentinel) - it's bootstrap infrastructure\n- Add standard copyright header and guard against multiple inclusion"
             },
             {
               "ts": "260115-1454",
-              "state": "primed",
+              "state": "bridled",
               "text": "Move launcher infrastructure to Tools/buk/ and consolidate exports.\n\n## Changes\n\n1. Move `.buk/launcher_common.sh` → `Tools/buk/bul_launcher.sh`\n2. Move BURC variable exports into `zburc_kindle()`\n3. Move BURS variable exports into `zburs_kindle()` \n4. Update `.buk/launcher.*.sh` stubs to source from new location\n5. Verify tabtargets still function\n\n## Rationale\n\n- `bul_` prefix follows BUK naming (buc, bud, but, buv, buw → bul)\n- Shared logic belongs in Tools/buk/, not hidden .buk/\n- Exports belong in kindle functions that own the variables\n- Discovered during arg quoting fix — natural time to address\n\n## Files\n\n- .buk/launcher_common.sh (delete after move)\n- Tools/buk/bul_launcher.sh (new)\n- Tools/buk/burc_regime.sh (add exports to kindle)\n- Tools/buk/burs_regime.sh (add exports to kindle)\n- .buk/launcher.*.sh (update source paths)",
               "direction": "Agent: sonnet\n\n## File Operations\n1. Create Tools/buk/bul_launcher.sh from .buk/launcher_common.sh\n2. Update .buk/launcher.*.sh stubs to use relative path: source \"${BASH_SOURCE[0]%/*}/../Tools/buk/bul_launcher.sh\"\n3. Delete .buk/launcher_common.sh after verification\n\n## Export Decisions\n- BURC_TABTARGET_DIR, BURC_TOOLS_DIR → move to zburc_kindle() in burc_regime.sh\n- BUD_REGIME_FILE, BUD_STATION_FILE → keep in bul_launcher.sh (dispatch context, set before kindle)\n\n## Verification\n- Run tt/vow-r.RunVVX.sh --help to verify tabtarget chain works\n- Run one BUK tabtarget (e.g., tt/buw-tt-ll.ListLaunchers.sh) to verify full path\n\n## BCG Notes\n- bul_launcher.sh is NOT a full BCG module (no kindle/sentinel) - it's bootstrap infrastructure\n- Add standard copyright header and guard against multiple inclusion"
             },
@@ -634,13 +639,13 @@
             },
             {
               "ts": "260116-1010",
-              "state": "primed",
+              "state": "bridled",
               "text": "JJK RCG Phase 1: Parallel declaration prefixing\n\n## Approach\n\nLaunch 7 parallel Sonnet agents, one per source file. Each agent prefixes declarations DEFINED in its file only. No cross-file call site updates. No commits.\n\n## Files and agents\n\n1. jjrc_core.rs - prefix constants/functions with jjrc_\n2. jjrf_favor.rs - prefix types/constants with jjrf_\n3. jjrg_gallops.rs - prefix types/functions with jjrg_\n4. jjrn_notch.rs - prefix types/functions with jjrn_\n5. jjrq_query.rs - prefix types/functions with jjrq_\n6. jjrs_steeplechase.rs - prefix types/functions with jjrs_\n7. jjrx_cli.rs - prefix types/functions with jjrx_\n\n## Per-agent instructions\n\nFor assigned file {prefix}_{name}.rs:\n1. Add file to context\n2. Prefix all pub struct/enum with {prefix}_ (e.g., Gallops -> jjrg_Gallops)\n3. Prefix all pub fn with {prefix}_ (e.g., load -> jjrg_load)\n4. Prefix all pub const with {PREFIX}_ (e.g., CHARSET -> JJRF_CHARSET)\n5. Prefix impl methods with {prefix}_\n6. Prefix private/internal items with z{prefix}_\n7. Update call sites WITHIN this file only\n8. Report: list of old_name -> new_name mappings\n\n## Output\n\nEach agent returns rename manifest. Do NOT commit. Phase 2 handles cross-file updates.\n\n## Reference\n\nRCG guide: Tools/vok/lenses/RCG-RustCodingGuide.md",
               "direction": "Launch 7 parallel Sonnet Task agents (single message, 7 Task tool calls). Agent prompts: 1) jjrc_core.rs: Read RCG then file, prefix jjrc_/JJRC_/zjjrc_, internal calls only, return manifest, no commit. 2) jjrf_favor.rs: jjrf_/JJRF_/zjjrf_. 3) jjrg_gallops.rs: jjrg_/JJRG_/zjjrg_. 4) jjrn_notch.rs: jjrn_/JJRN_/zjjrn_. 5) jjrq_query.rs: jjrq_/JJRQ_/zjjrq_. 6) jjrs_steeplechase.rs: jjrs_/JJRS_/zjjrs_. 7) jjrx_cli.rs: jjrx_/JJRX_/zjjrx_. After all complete, collect manifests, proceed to Phase 2."
             },
             {
               "ts": "260116-1001",
-              "state": "primed",
+              "state": "bridled",
               "text": "JJK RCG Phase 1: Parallel declaration prefixing\n\n## Approach\n\nLaunch 7 parallel Sonnet agents, one per source file. Each agent prefixes declarations DEFINED in its file only. No cross-file call site updates. No commits.\n\n## Files and agents\n\n1. jjrc_core.rs - prefix constants/functions with jjrc_\n2. jjrf_favor.rs - prefix types/constants with jjrf_\n3. jjrg_gallops.rs - prefix types/functions with jjrg_\n4. jjrn_notch.rs - prefix types/functions with jjrn_\n5. jjrq_query.rs - prefix types/functions with jjrq_\n6. jjrs_steeplechase.rs - prefix types/functions with jjrs_\n7. jjrx_cli.rs - prefix types/functions with jjrx_\n\n## Per-agent instructions\n\nFor assigned file {prefix}_{name}.rs:\n1. Add file to context\n2. Prefix all pub struct/enum with {prefix}_ (e.g., Gallops -> jjrg_Gallops)\n3. Prefix all pub fn with {prefix}_ (e.g., load -> jjrg_load)\n4. Prefix all pub const with {PREFIX}_ (e.g., CHARSET -> JJRF_CHARSET)\n5. Prefix impl methods with {prefix}_\n6. Prefix private/internal items with z{prefix}_\n7. Update call sites WITHIN this file only\n8. Report: list of old_name -> new_name mappings\n\n## Output\n\nEach agent returns rename manifest. Do NOT commit. Phase 2 handles cross-file updates.\n\n## Reference\n\nRCG guide: Tools/vok/lenses/RCG-RustCodingGuide.md",
               "direction": "Launch 7 parallel Sonnet Task agents. Each agent: read RCG guide, read assigned file, prefix all declarations per RCG, update internal call sites only, return rename manifest. Files: jjrc_core, jjrf_favor, jjrg_gallops, jjrn_notch, jjrq_query, jjrs_steeplechase, jjrx_cli. No commits. Collect manifests for Phase 2."
             },
@@ -651,7 +656,7 @@
             },
             {
               "ts": "260116-0944",
-              "state": "primed",
+              "state": "bridled",
               "text": "Bring all JJK Rust code into RCG compliance.\n\n## Scope\n\nAll files in Tools/jjk/veiled/src/:\n- lib.rs (add boilerplate)\n- jjrc_core.rs\n- jjrf_favor.rs\n- jjrg_gallops.rs\n- jjrn_notch.rs\n- jjrq_query.rs\n- jjrs_steeplechase.rs\n- jjrx_cli.rs\n\n## Required Changes\n\n1. **Crate boilerplate**: Add `#![allow(non_camel_case_types)]` to lib.rs\n\n2. **Type prefixing**: All pub struct/enum get file prefix\n   - `Gallops` → `jjrg_Gallops`\n   - `Heat` → `jjrg_Heat`\n   - `Pace` → `jjrg_Pace`\n   - `Tack` → `jjrg_Tack`\n   - `PaceState` → `jjrg_PaceState`\n   - `HeatStatus` → `jjrg_HeatStatus`\n   - `NominateArgs` → `jjrg_NominateArgs`\n   - `NominateResult` → `jjrg_NominateResult`\n   - `SlateArgs` → `jjrg_SlateArgs`\n   - `SlateResult` → `jjrg_SlateResult`\n   - `RailArgs` → `jjrg_RailArgs`\n   - `TallyArgs` → `jjrg_TallyArgs`\n   - `DraftArgs` → `jjrg_DraftArgs`\n   - `DraftResult` → `jjrg_DraftResult`\n   - `Firemark` → `jjrf_Firemark`\n   - `Coronet` → `jjrf_Coronet`\n   - `ChalkMarker` → `jjrn_ChalkMarker`\n   - `ReinArgs` → `jjrs_ReinArgs`\n   - `SteeplechaseEntry` → `jjrs_SteeplechaseEntry`\n   - `MusterArgs` → `jjrq_MusterArgs`\n   - `SaddleArgs` → `jjrq_SaddleArgs`\n   - `ParadeFormat` → `jjrq_ParadeFormat`\n   - `ParadeArgs` → `jjrq_ParadeArgs`\n   - `RetireArgs` → `jjrq_RetireArgs`\n   - `JjxCommands` → `jjrx_Commands`\n   - `NotchArgs` → `jjrx_NotchArgs`\n   - `ChalkArgs` → `jjrx_ChalkArgs`\n\n3. **Function prefixing**: All pub fn get file prefix\n   - `dispatch` → `jjrx_dispatch`\n   - `is_jjk_command` → `jjrx_is_jjk_command`\n   - `run_muster` → `jjrq_run_muster`\n   - `run_saddle` → `jjrq_run_saddle`\n   - `run_parade` → `jjrq_run_parade`\n   - `run_retire` → `jjrq_run_retire`\n   - `run` (jjrs) → `jjrs_run`\n   - `format_notch_prefix` → `jjrn_format_notch_prefix`\n   - `format_chalk_message` → `jjrn_format_chalk_message`\n   - `validate_chalk_args` → `jjrn_validate_chalk_args`\n   - `read_stdin` → `jjrg_read_stdin`\n   - `read_stdin_optional` → `jjrg_read_stdin_optional`\n   - `default_gallops_path` → `jjrc_default_gallops_path`\n   - `timestamp_date` → `jjrc_timestamp_date`\n   - `timestamp_full` → `jjrc_timestamp_full`\n\n4. **Constant prefixing**: All pub const get FILE PREFIX (screaming)\n   - `DEFAULT_GALLOPS_PATH` → `JJRC_DEFAULT_GALLOPS_PATH`\n   - `CHARSET` → `JJRF_CHARSET`\n   - `FIREMARK_PREFIX` → `JJRF_FIREMARK_PREFIX`\n   - `CORONET_PREFIX` → `JJRF_CORONET_PREFIX`\n   - `FIREMARK_MAX` → `JJRF_FIREMARK_MAX`\n   - `CORONET_PACE_MAX` → `JJRF_CORONET_PACE_MAX`\n\n5. **Impl method prefixing**: All pub methods on impl blocks get file prefix\n\n6. **Internal functions**: Any non-pub helpers get z prefix (e.g., `fn validate()` → `fn zjjrg_validate()`)\n\n7. **Update lib.rs re-exports** to use new names\n\n8. **Update all call sites** across all files\n\n## Verification\n\nRun `cargo build` and `cargo test` after changes. All must pass.\n\n## Test extraction\n\nNOT in scope for this pace. Tests remain inline. Separate pace for test file extraction.",
               "direction": "Execute JJK RCG compliance per RCG guide. Prefix all types/functions/constants per the tack list. Add crate boilerplate. Update all 7 source files. Update lib.rs re-exports. Update call sites. Run cargo build and cargo test to verify. Note: Run vvc-rcg-compliance first since JJK imports VVC."
             },
@@ -677,7 +682,7 @@
             },
             {
               "ts": "260116-0944",
-              "state": "primed",
+              "state": "bridled",
               "text": "Bring all VVC Rust code into RCG compliance.\n\n## Scope\n\nAll files in Tools/vvc/src/:\n- lib.rs (add boilerplate)\n- vvcc_commit.rs\n- vvcg_guard.rs\n\n## Required Changes\n\n1. **Crate boilerplate**: Add `#![allow(non_camel_case_types)]` to lib.rs\n\n2. **Type prefixing**: All pub struct/enum get file prefix\n   - `CommitArgs` → `vvcc_CommitArgs`\n   - `CommitLock` → `vvcc_CommitLock`\n   - `GuardArgs` → `vvcg_GuardArgs`\n\n3. **Function prefixing**: All pub fn get file prefix\n   - `run` (vvcc_commit) → `vvcc_run`\n   - `run` (vvcg_guard) → `vvcg_run`\n\n4. **Impl method prefixing**: All pub methods on impl blocks get file prefix\n   - `CommitLock::acquire` → `vvcc_CommitLock::vvcc_acquire`\n   - `CommitLock::commit` → `vvcc_CommitLock::vvcc_commit`\n\n5. **Internal functions**: Any non-pub helpers get z prefix\n\n6. **Update lib.rs re-exports** to use new names\n\n7. **Update all call sites** in VVC and any VOK code that imports VVC\n\n## Verification\n\nRun `cargo build` and `cargo test` after changes. All must pass.\n\n## Note\n\nVVC is used by JJK. Coordinate with jjk-rcg-compliance pace — run VVC first since JJK imports from VVC.",
               "direction": "Execute VVC RCG compliance per RCG guide. Prefix all types/functions/constants. Update vvcg_guard.rs and vvcc_commit.rs. Update lib.rs re-exports. Update call sites in Tools/vok/src/. Run cargo build and cargo test to verify."
             },
@@ -903,7 +908,7 @@
             },
             {
               "ts": "260116-1145",
-              "state": "primed",
+              "state": "bridled",
               "text": "Ready for autonomous execution",
               "direction": "Haiku agent. Read Tools/vvc/src/vvcc_commit.rs, locate zvvcc_generate_message_with_claude() (~line 191), update Command::new(\"claude\").args() to include: \"--system-prompt\", \"Output only a conventional git commit message. No explanation or commentary.\", \"--model\", \"haiku\", \"--no-session-persistence\". Verify cargo build -p vvc succeeds. No commit."
             },
@@ -954,7 +959,7 @@
             },
             {
               "ts": "260116-1330",
-              "state": "primed",
+              "state": "bridled",
               "text": "Refactor jjx_rein to filter by firemark/coronet identity rather than brand.\n\n## Changes\n\n1. **Grep pattern**: Change from `^jjb:BRAND:(₣XX|₢XX)` to `^jjb:[^:]+:(₣XX|₢XX)` - match any brand, filter by identity\n2. **CLI args**: Remove `--brand` argument from ReinArgs\n3. **Internal calls**: Update run_retire() to not need brand for get_entries()\n\n## Rationale\n\nThe firemark/coronet already uniquely identifies heat membership:\n- ₢AAAAk → first 2 chars after prefix = AA = parent heat\n- ₣AA → direct heat identity\n\nBrand is orthogonal - it identifies which installation made the commit, not which heat it belongs to.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrs_steeplechase.rs (grep pattern, ReinArgs)\n- Tools/jjk/veiled/src/jjrx_cli.rs (CLI ReinArgs, run_retire)\n- Tools/jjk/JJD-GallopsData.adoc (update jjdo_rein spec)\n\n## Unblocks\n\n- /jjc-heat-rein slash command (no longer needs installation-identifier)\n- Cleaner retire flow",
               "direction": "Agent: sonnet. Strategy: 1) Update grep pattern in jjrs_steeplechase.rs from ^jjb:BRAND: to ^jjb:[^:]+: to match any brand. 2) Remove brand field from ReinArgs struct in jjrs_steeplechase.rs. 3) Remove --brand arg from CLI ReinArgs in jjrx_cli.rs. 4) Update run_retire() to not pass brand to get_entries(). 5) Update JJD jjdo_rein spec removing --brand argument. 6) Build and run tests. Key files: jjrs_steeplechase.rs, jjrx_cli.rs, JJD-GallopsData.adoc"
             },
@@ -985,7 +990,7 @@
             },
             {
               "ts": "260116-1508",
-              "state": "primed",
+              "state": "bridled",
               "text": "Rename saddle output fields: tack_text → spec, tack_direction → direction.\n\n## Rationale\n\nConsumers of jjx_saddle output do not need internal terminology. \"spec\" and \"direction\" are clearer for slash command prompts.\n\n## Rust changes (jjrq_query.rs)\n\n- Struct field: tack_text → spec\n- Struct field: tack_direction → direction\n- Update initialization, assignment, tests (~14 lines)\n\n## Slash command changes\n\n- jjc-heat-mount.md (6 references)\n- jjc-heat-groom.md (4 references)\n- jjc-pace-wrap.md (1 reference)\n- jjc-pace-prime.md (1 reference)\n\n## Verification\n\n- cargo build && cargo test\n- Spot-check jjx_saddle AA output has new field names",
               "direction": "Agent: haiku. Cardinality: 1 sequential. Files: jjrq_query.rs, jjc-heat-mount.md, jjc-heat-groom.md, jjc-pace-wrap.md, jjc-pace-prime.md (5 files). Steps: 1) In jjrq_query.rs: rename tack_text → spec, tack_direction → direction (struct fields, initialization, assignment, test assertions). 2) Verify: cargo build --features jjk && cargo test --features jjk. 3) In each slash command: replace tack_text → spec, tack_direction → direction. Verify: ./tt/vvw-r.RunVVX.sh jjx_saddle AA (confirm new field names in output)."
             },
@@ -1006,7 +1011,7 @@
             },
             {
               "ts": "260116-1448",
-              "state": "primed",
+              "state": "bridled",
               "text": "Fix gallops commit scope: slate/tally/rail should only stage jjg_gallops.json + heat-specific paddock.\n\n## Problem\n\njjx_slate, jjx_tally, jjx_rail use vvcc_commit which does git add -A, staging everything. This causes tangles when unrelated work is in progress.\n\n## Solution\n\nSwitch from vvcc_commit to vvcm_commit (machine commit) with explicit file list:\n- jjg_gallops.json (always)\n- jjp_{firemark}.md (heat-specific paddock)\n\n## Pattern\n\njjx_retire already does this correctly (lines 663-684 in jjrx_cli.rs).\n\n## Files to change\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — 4 operations: slate, tally, rail, nominate\n\n## Firemark derivation\n\n- slate/rail: firemark from CLI arg\n- tally: derive from coronet (first 2 chars after ₢)\n- nominate: firemark from result\n\n## JJD update\n\nNot required — spec does not mention commit behavior.",
               "direction": "Agent: haiku\nPattern: Copy jjx_retire pattern (lines 663-684) to slate, tally, rail, nominate\nFiles: jjrx_cli.rs only\nChanges:\n1. Replace vvcc_commit() calls with vvcm_CommitArgs + machine_commit()\n2. Build explicit file list: gallops_path + paddock_path (derive from firemark)\n3. Firemark derivation: slate/rail from CLI arg, tally from coronet[0:2], nominate from result\nVerify: cargo test --manifest-path Tools/jjk/veiled/Cargo.toml"
             },
@@ -1027,7 +1032,7 @@
             },
             {
               "ts": "260116-1450",
-              "state": "primed",
+              "state": "bridled",
               "text": "Add --size-limit parameter to jjx_notch for legitimate large commits.\n\n## Rationale\n\nGuard protects against accidental large commits (default 50KB). Legitimate large work (e.g., RCG renames across 7 files) needs an escape hatch. The pace spec serves as justification.\n\n## Files to change\n\n1. Tools/vvc/src/vvcc_commit.rs\n   - Add optional size_limit/warn_limit fields to vvcc_CommitArgs\n   - Propagate to guard check (None = use default)\n\n2. Tools/jjk/veiled/src/jjrx_cli.rs\n   - Add --size-limit to jjrx_NotchArgs\n   - Pass to vvcc_CommitArgs\n\n3. Tools/jjk/JJD-GallopsData.adoc\n   - Document --size-limit argument for jjdo_notch\n   - Note default limit (50KB) and guard behavior\n\n4. .claude/commands/jjc-pace-notch.md\n   - Document that --size-limit requires justification in pace spec\n\n## Design\n\nvvcc_CommitArgs gains:\n```rust\npub size_limit: Option<u64>,  // None = use VVCC_SIZE_LIMIT (50KB)\npub warn_limit: Option<u64>,  // None = use VVCC_WARN_LIMIT (30KB)\n```",
               "direction": "Agent: sonnet. 1) Read vvcc_commit.rs, add to vvcc_CommitArgs: pub size_limit: Option<u64> and pub warn_limit: Option<u64>. Update guard call to use args.size_limit.unwrap_or(VVCC_SIZE_LIMIT) and similar for warn. 2) Read jjrx_cli.rs, add to jjrx_NotchArgs: #[arg(long)] size_limit: Option<u64>. Pass to vvcc_CommitArgs. 3) Read JJD-GallopsData.adoc, find jjdo_notch arguments, add --size-limit (optional) with description. 4) Read jjc-pace-notch.md, add note that --size-limit requires justification in pace spec. 5) Verify: cargo build --features jjk in Tools/vok."
             },
@@ -1048,7 +1053,7 @@
             },
             {
               "ts": "260116-1424",
-              "state": "primed",
+              "state": "bridled",
               "text": "Add copyright templates to RCG and apply proprietary header to all Rust files.\n\n## RCG changes (1 file, Sonnet)\n\nAdd \"File Templates\" section to Tools/vok/lenses/RCG-RustCodingGuide.md with two templates:\n\n### Template 1: Proprietary\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n// All rights reserved.\n// SPDX-License-Identifier: LicenseRef-Proprietary\n```\n\n### Template 2: Open Source (Apache 2.0)\n```rust\n// Copyright 2026 Scale Invariant, Inc.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//     http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n```\n\nPlacement note: Header at very top, before //\\! doc comments or #\\![...] attributes.\n\n## Rust file updates (14 files, parallel Haiku agents)\n\nPrepend proprietary 3-line header to each file. Mechanical, independent edits.\n\n**Batch 1 (7 agents): Tools/jjk/veiled/src/**\n- jjrc_core.rs, jjrf_favor.rs, jjrg_gallops.rs, jjrn_notch.rs\n- jjrq_query.rs, jjrs_steeplechase.rs, jjrx_cli.rs, lib.rs\n\n**Batch 2 (6 agents): Tools/vvc/src/ + Tools/vok/**\n- vvcc_commit.rs, vvcg_guard.rs, vvcm_machine.rs, lib.rs\n- build.rs, src/vorm_main.rs\n\n## Execution strategy\n\n1. Sonnet edits RCG (add File Templates section)\n2. Launch 14 parallel Haiku agents (single message, 14 Task tool calls)\n3. Each agent: Read file, prepend 3-line header, Write file\n4. Verify: cargo build in Tools/vok",
               "direction": "1) Sonnet edits RCG: add File Templates section after Quick Reference. 2) Launch 14 parallel Haiku Task agents (single message, 14 Task tool calls). Each agent: read assigned Rust file, prepend 3-line proprietary header (// Copyright 2026 Scale Invariant, Inc. // All rights reserved. // SPDX-License-Identifier: LicenseRef-Proprietary), write file. Files: jjrc_core.rs, jjrf_favor.rs, jjrg_gallops.rs, jjrn_notch.rs, jjrq_query.rs, jjrs_steeplechase.rs, jjrx_cli.rs, lib.rs (jjk), vvcc_commit.rs, vvcg_guard.rs, vvcm_machine.rs, lib.rs (vvc), build.rs, vorm_main.rs. 3) Verify: cargo build --features jjk in Tools/vok."
             },
@@ -1074,7 +1079,7 @@
             },
             {
               "ts": "260116-1534",
-              "state": "primed",
+              "state": "bridled",
               "text": "Extract inline tests to separate jjt*.rs files per RCG.\n\n## RCG Pattern\n\nSource: `{cipher}r{classifier}_{name}.rs`\nTests:  `{cipher}t{classifier}_{name}.rs`\n\nExample: jjrg_gallops.rs → jjtg_gallops.rs\n\n## Files to Split\n\n1. jjrc_core.rs → jjtc_core.rs\n2. jjrf_favor.rs → jjtf_favor.rs\n3. jjrg_gallops.rs → jjtg_gallops.rs\n4. jjrn_notch.rs → jjtn_notch.rs\n5. jjrq_query.rs → jjtq_query.rs\n6. jjrs_steeplechase.rs → jjts_steeplechase.rs\n\nNote: jjrx_cli.rs has no inline tests currently.\n\n## Per-file Process\n\n1. Create new jjt{x}_{name}.rs file\n2. Move #[cfg(test)] mod tests { ... } content to new file\n3. Add `use super::{module}::*;` import\n4. Rename test functions with jjt{x}_ prefix\n5. Wire in lib.rs: `#[cfg(test)] mod jjt{x}_{name};`\n\n## lib.rs Changes\n\n```rust\npub mod jjrg_gallops;\n#[cfg(test)]\nmod jjtg_gallops;\n```\n\n## Verification\n\ncargo test --manifest-path Tools/jjk/veiled/Cargo.toml",
               "direction": "Agent: haiku\nCardinality: 6 parallel + sequential lib.rs update\nFiles: jjrc_core.rs, jjrf_favor.rs, jjrg_gallops.rs, jjrn_notch.rs, jjrq_query.rs, jjrs_steeplechase.rs, jjtc_core.rs, jjtf_favor.rs, jjtg_gallops.rs, jjtn_notch.rs, jjtq_query.rs, jjts_steeplechase.rs, lib.rs (13 files)\nSteps:\n1. Each agent (parallel): Extract #[cfg(test)] mod tests block from jjr{x}_{name}.rs to new jjt{x}_{name}.rs\n2. Each agent (parallel): Add 'use super::jjr{x}_{name}::*;' import to test file\n3. Each agent (parallel): Rename test functions from test_* to jjt{x}_*\n4. Each agent (parallel): Remove #[cfg(test)] mod tests block from source file\n5. Sequential: Add '#[cfg(test)] mod jjt{x}_{name};' lines to lib.rs for all 6 test modules\nVerify: cargo test --manifest-path Tools/jjk/veiled/Cargo.toml"
             },
@@ -1095,7 +1100,7 @@
             },
             {
               "ts": "260116-1501",
-              "state": "primed",
+              "state": "bridled",
               "text": "Improve jjx_rail commit messages to be descriptive instead of just \"reordered\".\n\n## Move mode\n\nFormat: \"moved {coronet} {position}\"\n\nExamples:\n- \"moved ₢AAAAC after ₢AAAAB\"\n- \"moved ₢AAAAC before ₢AAAAD\"\n- \"moved ₢AAAAC to first\"\n- \"moved ₢AAAAC to last\"\n\n## Order mode\n\nFormat: \"order: {coronet1}, {coronet2}, ...\"\n\nJust list the new order. No diff presentation needed.\n\n## Files\n\n- Tools/jjk/veiled/src/jjrx_cli.rs — zjjrx_run_rail function, around line 886\n\n## Implementation\n\nReplace hardcoded \"reordered\" with:\n```rust\nlet subject = if let Some(ref moved) = args.r#move {\n    // Move mode\n    let target = if args.first { \"to first\".to_string() }\n        else if args.last { \"to last\".to_string() }\n        else if let Some(ref b) = args.before { format\\!(\"before {}\", b) }\n        else if let Some(ref a) = args.after { format\\!(\"after {}\", a) }\n        else { \"???\".to_string() };\n    format\\!(\"moved {} {}\", moved, target)\n} else {\n    // Order mode - list new order\n    format\\!(\"order: {}\", new_order.join(\", \"))\n};\n```\n\n## Verification\n\n- cargo build && cargo test\n- Manual test: rail a pace, check commit message",
               "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: jjrx_cli.rs (1 file)\nSteps:\n1. Read jjrx_cli.rs, find zjjrx_run_rail function (~line 868)\n2. Before line 919 (let commit_args), insert subject computation using args.r#move/first/last/before/after for move mode, or new_order.join for order mode\n3. Replace \"reordered\" on line 924 with &subject\nVerify: cargo build --manifest-path Tools/vok/Cargo.toml --features jjk"
             },
@@ -1131,7 +1136,7 @@
             },
             {
               "ts": "260116-1439",
-              "state": "primed",
+              "state": "bridled",
               "text": "Add --remaining flag to jjx_parade to filter out complete/abandoned paces.\n\n## Files to change\n\n1. **Tools/jjk/veiled/src/jjrx_cli.rs** (~line 155)\n   - Add to zjjrx_ParadeArgs: `#[arg(long)] remaining: bool`\n   - Pass through to LibParadeArgs\n\n2. **Tools/jjk/veiled/src/jjrq_query.rs** (~line 178, 186)\n   - Add to jjrq_ParadeArgs: `pub remaining: bool`\n   - In jjrq_run_parade: skip paces where state is \"complete\" or \"abandoned\"\n\n3. **Tools/jjk/JJD-GallopsData.adoc**\n   - Document --remaining argument for jjdo_parade\n\n## Implementation\n\nIn jjrq_run_parade pace iteration:\n```rust\nif args.remaining && (state == \"complete\" || state == \"abandoned\") {\n    continue;\n}\n```\n\n## Verification\n\n- cargo build && cargo test\n- ./tt/vvw-r.RunVVX.sh jjx_parade AA --format overview --remaining",
               "direction": "Agent: sonnet. 1) Read jjrx_cli.rs, find zjjrx_ParadeArgs (~line 155), add: #[arg(long)] remaining: bool. 2) Read jjrq_query.rs, find jjrq_ParadeArgs (~line 178), add: pub remaining: bool. In jjrq_run_parade (~line 186), add filter: skip paces where tack.state is complete or abandoned when args.remaining is true. 3) Read JJD-GallopsData.adoc, find jjdo_parade arguments section, add --remaining documentation. 4) Verify: cargo build --features jjk in Tools/vok."
             },
