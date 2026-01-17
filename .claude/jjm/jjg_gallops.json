@@ -83,9 +83,10 @@
         "₢AAABL",
         "₢AAABM",
         "₢AAABN",
-        "₢AAAAo"
+        "₢AAAAo",
+        "₢AAABO"
       ],
-      "next_pace_seed": "ABO",
+      "next_pace_seed": "ABP",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1589,6 +1590,16 @@
               "ts": "260117-1344",
               "state": "rough",
               "text": "End-to-end review: VOS specification versus Rust/Bash implementation reality.\n\n## Purpose\n\nAfter MVP + Whisper-lite implementation, assess the gap between VOS (the plan) and what we built. Identify lessons for future specification work.\n\n## Two Failure Modes\n\n### 1. Unrecognized Unspecified Complexity\n\nThings that were harder than VOS suggested, or emerged during implementation:\n\n- **Layered architecture** — VOS didn't clearly separate bash orchestration from Rust utilities. We discovered vvi_install.sh vs vvx_emplace distinction during implementation.\n\n- **Template lifecycle** — VOS specified Whisper builder API but not how templates flow from vov_veiled → parcel → target CLAUDE.md.\n\n- **Naming collisions** — \"install\" meant different things at different layers. Required inventing emplace/vacate vocabulary.\n\n- **What else?** — Review implementation paces for \"we had to figure this out\" moments.\n\n### 2. Overspecification Without Quality\n\nVOS prose that didn't translate to better code or clearer thinking:\n\n- **Builder API** — Fluent `.cipher().display_name().register()` pattern specified in detail, but static structs work fine.\n\n- **Runtime Conclave** — \"Collects Whispers\" language implied runtime registration; compile-time const aggregation is simpler.\n\n- **Liturgy depth** — Signet/Epithet/Inscription/Vesture vocabulary: useful for thinking, or just baroque naming?\n\n- **What else?** — Review VOS sections that have no implementation counterpart.\n\n## Review Process\n\n### Phase 1: Implementation Inventory\n\nList what actually exists after ₢AAABM:\n- Rust modules and their responsibilities\n- Bash scripts and their responsibilities  \n- Data files (brand, registry, templates)\n- Key types and functions\n\n### Phase 2: VOS Section Audit\n\nFor each VOS section, classify:\n- **Implemented as specified** — VOS matched reality\n- **Implemented differently** — VOS idea present, form changed\n- **Not implemented** — VOS specified, we skipped it\n- **Implemented but unspecified** — We built it, VOS didn't mention it\n\n### Phase 3: Gap Analysis\n\nFor each gap:\n- Was VOS wrong (overspecified, wrong abstraction)?\n- Was implementation expedient (tech debt, will revisit)?\n- Was this genuinely emergent (couldn't have known)?\n\n### Phase 4: VOS Revision\n\nUpdate VOS to:\n- Remove speculative complexity that didn't earn its keep\n- Add discovered complexity that should be documented\n- Clarify layered architecture (bash vs Rust responsibilities)\n- Simplify Whisper/Conclave to match lite implementation\n\n### Phase 5: Lessons Learned\n\nDocument in paddock steeplechase:\n- What specification patterns worked well\n- What patterns led us astray\n- Recommendations for future heat specifications\n\n## Deliverables\n\n1. Gap analysis document (can be in paddock or memo)\n2. Revised VOS reflecting implementation reality\n3. Steeplechase entry with lessons learned\n\n## Prerequisites\n\n- ₢AAABM (whisper-conclave-lite) — Implementation complete to compare against\n\n## Not in Scope\n\n- New features\n- Refactoring beyond VOS alignment\n- Other concept model documents (JJD, MCM, etc.)"
+            }
+          ]
+        },
+        "₢AAABO": {
+          "silks": "tack-silks-and-commit-migration",
+          "tacks": [
+            {
+              "ts": "260117-1350",
+              "state": "rough",
+              "text": "Migrate silks from Pace to Tack and add commit SHA tracking.\n\n## Changes\n\n### 1. Move silks to Tack (required field)\n\n**Current:**\n```rust\nstruct jjrg_Pace {\n    silks: String,\n    tacks: Vec<jjrg_Tack>,\n}\n```\n\n**New:**\n```rust\nstruct jjrg_Pace {\n    tacks: Vec<jjrg_Tack>,  // silks removed\n}\n\nstruct jjrg_Tack {\n    ts: String,\n    state: PaceState,\n    text: String,\n    silks: String,          // NEW: required\n    direction: Option<String>,\n}\n```\n\nCurrent silks = `tacks[0].silks` (same pattern as state derivation).\n\n### 2. Add commit SHA to Tack (optional field)\n\n```rust\nstruct jjrg_Tack {\n    // ... existing fields ...\n    commit: Option<String>,  // NEW: HEAD SHA at tack write time\n}\n```\n\nCapture via `git rev-parse HEAD` at tack creation.\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — spec updates\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs — struct changes\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — tack creation sites\n- All slash commands that reference silks lookup\n\n## Migration\n\nLazy migration on read:\n- If old format (silks on Pace): copy to each tack, remove from Pace on write\n- If tack missing commit: leave as None (historical data)\n\n## Enables\n\n- Pace renaming via `/jjc-pace-reslate` with --silks flag\n- Point-in-time file recovery via `git show <commit>:path`"
             }
           ]
         }
