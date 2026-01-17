@@ -224,6 +224,19 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
 
     let message = String::from_utf8_lossy(&output.stdout).trim().to_string();
 
+    // Strip markdown code blocks if Claude wrapped the response
+    let message = if message.starts_with("```") {
+        let after_opening = message.find('\n').map(|i| i + 1).unwrap_or(0);
+        let before_closing = message.rfind("```").unwrap_or(message.len());
+        if before_closing > after_opening {
+            message[after_opening..before_closing].trim().to_string()
+        } else {
+            message
+        }
+    } else {
+        message
+    };
+
     // Strip Co-Authored-By trailer if Claude CLI added it from global settings
     let message: String = message
         .lines()

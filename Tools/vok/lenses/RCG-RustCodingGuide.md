@@ -111,6 +111,26 @@ pub(crate) fn zjjrg_validate_silks(s: &str) -> bool {
 
 The `z` prefix signals "do not call from outside this module's conceptual boundary" even though Rust visibility permits crate-internal access.
 
+### Struct Field Visibility for Tests
+
+When tests construct internal structs directly, both the struct AND its fields need `pub(crate)` visibility:
+
+```rust
+// ❌ Tests can't construct this — fields are private
+pub(crate) struct zjjrg_Output {
+    heat_silks: String,
+    pace_count: Option<u32>,
+}
+
+// ✅ Tests can construct this — fields are accessible
+pub(crate) struct zjjrg_Output {
+    pub(crate) heat_silks: String,
+    pub(crate) pace_count: Option<u32>,
+}
+```
+
+If tests only READ internal structs (returned by functions), field visibility doesn't matter. But if tests CONSTRUCT them for unit testing serialization, validation, or helper logic, fields must be `pub(crate)`.
+
 ## Test Functions
 
 Test functions in `jjt{classifier}_{name}.rs` files use the test file's prefix:
@@ -221,3 +241,62 @@ impl jjrg_Gallops {
 ### Placement
 
 The license header goes at the very top of the file, before `//!` doc comments or `#![...]` attributes.
+
+## Test File Extraction Checklist
+
+When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{name}.rs`:
+
+### Source File Changes
+- [ ] Remove entire `#[cfg(test)] mod tests { ... }` block
+- [ ] Change internal functions from `fn` to `pub(crate) fn` if tests call them
+- [ ] Change internal structs from `struct` to `pub(crate) struct` if tests construct them
+- [ ] Add `pub(crate)` to struct fields if tests construct the struct
+
+### New Test File
+- [ ] File named `{cipher}t{x}_{name}.rs` (matching source classifier)
+- [ ] Copyright header copied from source
+- [ ] Import: `use super::{cipher}r{x}_{name}::*;`
+- [ ] Additional imports for types from sibling modules as needed
+- [ ] Test functions renamed from `test_*` to `{cipher}t{x}_*`
+- [ ] Each test function has `#[test]` attribute
+- [ ] NO `#[cfg(test)]` wrapper — lib.rs handles that
+- [ ] NO `mod tests` wrapper — functions go directly in file
+- [ ] Helper functions (e.g., `create_test_data()`) can remain unprefixed
+
+### lib.rs Wiring
+- [ ] Add `#[cfg(test)] mod {cipher}t{x}_{name};` declaration
+- [ ] Place after corresponding `pub mod {cipher}r{x}_{name};`
+
+### Verification
+- [ ] `cargo build` succeeds
+- [ ] `cargo test` runs all extracted tests
+- [ ] Test count matches pre-extraction count
+
+## Module Maturity Checklist
+
+### File Structure
+- [ ] Source file: `{cipher}r{x}_{name}.rs`
+- [ ] Test file: `{cipher}t{x}_{name}.rs` (if tests exist)
+- [ ] `lib.rs` has `#![allow(non_camel_case_types)]`
+- [ ] `lib.rs` declares source module: `pub mod {cipher}r{x}_{name};`
+- [ ] `lib.rs` declares test module: `#[cfg(test)] mod {cipher}t{x}_{name};`
+
+### Naming Conventions
+- [ ] All public structs/enums: `{prefix}_PascalName`
+- [ ] All public functions: `{prefix}_snake_name`
+- [ ] All public constants: `{PREFIX}_SCREAMING`
+- [ ] All impl methods: `{prefix}_method_name`
+- [ ] All internal items: `z{prefix}_name` with `pub(crate)`
+- [ ] All test functions: `{cipher}t{x}_test_name`
+
+### Visibility Discipline
+- [ ] Public API uses `pub`
+- [ ] Internal helpers use `pub(crate)` with `z` prefix
+- [ ] Structs constructed by tests have `pub(crate)` fields
+- [ ] True private reserved for trivial implementation details
+
+### Test Organization
+- [ ] Tests in separate `{cipher}t{x}_*.rs` files, not inline
+- [ ] Test file imports source module with `use super::*`
+- [ ] Test functions prefixed with test file's prefix
+- [ ] Helper functions local to test file (no prefix needed)
