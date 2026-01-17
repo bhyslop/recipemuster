@@ -34,12 +34,18 @@ vvk-parcel-{hallmark}/
 
 ## CLAUDE.md Managed Sections
 
-**Reminder**: CLAUDE.md content inside `<!-- MANAGED:{tag}:BEGIN/END -->` markers is overwritten on install. When modifying managed section content:
+**Reminder**: Content inside `<!-- MANAGED:{tag}:BEGIN/END -->` markers is overwritten on install.
 
-1. **MVP (hardcoded)**: Update constants in `vofm_managed.rs` (to be created in ₢AAAAF)
-2. **Post-MVP (₢AAABK)**: Update template files `vo{cipher}mc_*.md` in kit's `vov_veiled/`
+**Template sources** (update these when modifying managed content):
 
-Content outside markers is user content — survives reinstall, no template update needed.
+| Section | MVP Source (₢AAAAF) | Post-MVP Source (₢AAABK) |
+|---------|---------------------|--------------------------|
+| BUK | `Tools/vok/vof/src/vofm_managed.rs` | `Tools/buk/vov_veiled/vocbumc_core.md` |
+| CMK | `Tools/vok/vof/src/vofm_managed.rs` | `Tools/cmk/vov_veiled/voccmmc_core.md` |
+| JJK | `Tools/vok/vof/src/vofm_managed.rs` | `Tools/jjk/vov_veiled/vocjjmc_core.md` |
+| VVK | `Tools/vok/vof/src/vofm_managed.rs` | `Tools/vvk/vov_veiled/vocvvmc_core.md` |
+
+Content outside markers is user content — survives reinstall.
 
 ## References
 
