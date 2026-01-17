@@ -64,9 +64,10 @@
         "₢AAAAp",
         "₢AAAAq",
         "₢AAAAz",
-        "₢AAAA4"
+        "₢AAAA4",
+        "₢AAAA7"
       ],
-      "next_pace_seed": "AA7",
+      "next_pace_seed": "AA8",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -199,6 +200,16 @@
               "ts": "260117-0931",
               "state": "rough",
               "text": "Incorporate liturgy vocabulary (vosl*) and dispatch vocabulary (vosd*) into VOS.\n\nReference: Chat session where vocabulary was designed (this chat).\n\nCore terms to add:\n- voslc_cipher (subsumes vost_cipher)\n- vosls_signet\n- vosle_epithet  \n- vosli_inscription\n- voslv_vesture\n\nDomain catalog:\n- vosldr (rust), vosldb (bash), voslda (asciidoc attr)\n- vosldp (publication), vosldg (git ref), voslds (slash cmd), vosldt (tabtarget)\n\nDispatch terms (cross-ref BUK):\n- vosdc_colophon, vosdf_frontispiece, vosdi_imprint\n- vosdm_formulary, vosdl_launcher\n\nImplementation:\n1. Add category declarations to mapping section\n2. Add linked term attributes\n3. Add definition sections with [[anchors]]\n4. Migrate vost_cipher → voslc_cipher (update all references)\n5. Cross-reference vosk_prefix_validation to liturgy concepts"
+            }
+          ]
+        },
+        "₢AAAA7": {
+          "silks": "rail-first-actionable-semantics",
+          "tacks": [
+            {
+              "ts": "260117-0959",
+              "state": "rough",
+              "text": "Change --first flag in jjx_rail to position pace at first actionable slot (before first rough/bridled pace) rather than absolute position 0.\n\nRATIONALE: When users say 'move to first', they mean 'make it the next pace to work on.' Moving before 45 completed paces is never useful.\n\nCHANGES:\n1. Update jjrg_rail() in jjrg_gallops.rs to find first actionable position\n2. Update tests in jjtg_gallops.rs (jjtg_rail_move_first)\n3. Update JJD jjda_first definition to clarify semantics\n4. Consider: should --last also mean 'last actionable'? Probably not - last overall is useful for deferral\n\nACCEPTANCE:\n- --first places pace before first rough/bridled pace\n- If all paces complete/abandoned, --first places at end (nothing actionable)\n- --last unchanged (absolute last)\n- Tests pass"
             }
           ]
         },
