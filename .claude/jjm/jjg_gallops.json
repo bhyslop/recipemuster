@@ -47,6 +47,7 @@
         "₢AAAAv",
         "₢AAAA0",
         "₢AAAA1",
+        "₢AAAA2",
         "₢AAAAA",
         "₢AAAAc",
         "₢AAAAo",
@@ -61,7 +62,7 @@
         "₢AAAAq",
         "₢AAAAz"
       ],
-      "next_pace_seed": "AA2",
+      "next_pace_seed": "AA3",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -87,6 +88,16 @@
               "ts": "260117-0805",
               "state": "rough",
               "text": "Create common crate with cipher registry as Rust enums/structs.\n\n## Context\n\n- Reference: Memos/memo-20260110-acronym-selection-study.md (minting rules, project-wide acronyms)\n- VOS has initial cipher concept to build from\n- Must be in a common crate usable from multiple locations (JJK, VVK, etc.)\n- This crate is for global naming logic consolidation, not cipher-specific\n\n## Requirements\n\n- Ciphers as Rust types (enums/structs), NOT strings scattered through code\n- Validation functions for naming rules\n- Naming violations must be compilation errors (type safety)\n- Include all project ciphers: JJ, VV, BU, RB, GAD, MCM, AXL, CCC, HM, etc.\n\n## Deliverables\n\n1. Design common crate location and structure\n2. Implement cipher enum with all known ciphers\n3. Validation functions enforcing minting rules\n4. Update existing call sites to use typed ciphers\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (initial cipher concepts)\n- CLAUDE.md Prefix Naming Discipline section"
+            }
+          ]
+        },
+        "₢AAAA2": {
+          "silks": "vos-install-procedures",
+          "tacks": [
+            {
+              "ts": "260117-0805",
+              "state": "rough",
+              "text": "Add MCM/AXLA-style install procedures to VOS.\n\n## Context\n\n- Read MCM (Tools/cmk/MCM-MetaConceptModel.adoc) and AXLA (Tools/cmk/AXLA-Lexicon.adoc) for procedure patterns\n- JJD-GallopsData.adoc is a healthy example of AXLA annotation usage\n- RBAGS-AdminGoogleSpec.adoc also demonstrates AXLA patterns\n- Key concept is \"procedure\" - exact AXLA terminology to be determined during execution\n\n## Deliverables\n\nTwo MCM/AXLA-style procedures in VOS-VoxObscuraSpec.adoc:\n\n1. **Install process (whole)** - The complete vvx install workflow from archive to target repo\n2. **Per-kit process** - The kit-level installation performed as part of the whole install\n\n## References\n\n- Tools/vok/VOS-VoxObscuraSpec.adoc (target file)\n- Tools/cmk/MCM-MetaConceptModel.adoc (procedure format)\n- Tools/cmk/AXLA-Lexicon.adoc (annotations)\n- Tools/jjk/JJD-GallopsData.adoc (healthy AXLA example)\n- lenses/RBAGS-AdminGoogleSpec.adoc (another AXLA example)\n- Paddock architecture section (install process details)"
             }
           ]
         },
