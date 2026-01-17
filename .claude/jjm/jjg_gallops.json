@@ -6,6 +6,7 @@
       "creation_time": "260114",
       "status": "current",
       "order": [
+        "₢AAAA9",
         "₢AAAAx",
         "₢AAAAs",
         "₢AAAAt",
@@ -68,7 +69,7 @@
         "₢AAAA4",
         "₢AAAA8"
       ],
-      "next_pace_seed": "AA9",
+      "next_pace_seed": "AA-",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA0": {
@@ -231,6 +232,16 @@
               "ts": "260117-1009",
               "state": "rough",
               "text": "VOS cleanup batch addressing issues from liturgy vocabulary review:\n\nIssue 1: Update legacy vost_cipher references to voslc_cipher\n- Lines 1207, 1211, 1217 (Uninstall operation)\n- Lines 1274, 1300 (Whisper Builder API)\n- Use canonical forms now that alias exists\n\nIssue 3: Fix Rust vesture signet_case (line 430)\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (voic), snake_case describes full inscription\n\nIssue 4: Clarify AsciiDoc vesture scope (line 455)\n- Currently conflates attributes and anchors\n- Decide: two domains, or clarify voslda covers both with different envelopes\n\nIssue 5: Fix colophon definition (lines 528, 534)\n- Clarify that colophon includes content after hyphen (e.g., rbw-B not rbw-)\n- Examples show incomplete colophons\n\nIssue 6: Fix colophon example error (line 534)\n- Change \"jjw- routes to JJK workbench\" to \"JJW workbench\"\n- JJK is kit; JJW is workbench\n\nIssue 10: Clarify tabtarget signet_case (line 496)\n- Current \"lowercase with hyphen\" description incomplete\n- Colophon has internal structure not captured\n\nFiles: Tools/vok/VOS-VoxObscuraSpec.adoc"
+            }
+          ]
+        },
+        "₢AAAA9": {
+          "silks": "vos-brand-hallmark-system",
+          "tacks": [
+            {
+              "ts": "260117-1048",
+              "state": "rough",
+              "text": "Add brand/hallmark system to VOS specification.\n\nNEW CONCEPTS:\n1. vose_brand_file (axj_structure) — Runtime identity file at parcel root\n   - vosem_hallmark (axj_field): vvbh_hallmark — 4-digit version identifier (string, starts at 1000)\n   - vosem_brand_date (axj_field): vvbd_date — Minted timestamp (YYMMDD-HHMM)\n   - vosem_brand_sha (axj_field): vvbs_sha — Content super-SHA\n2. vose_registry (axj_structure) — Veiled registry mapping hallmark to {date, sha}\n   - File: Tools/vok/vov_veiled/vovr_registry.json\n   - Keys are hallmark values; entries use vvbd_date and vvbs_sha field names\n3. vost_hallmark type — 4-digit string starting at 1000, increments for each unique content set\n\nAMEND vosor_release:\n- Compute order-independent super-SHA (sort files, hash path+content, combine)\n- Exclude vvbf_brand_file.json from SHA computation\n- Look up super-SHA in vovr_registry.json\n- If new: allocate next hallmark, update registry, commit\n- Write vvbf_brand_file.json to parcel root\n- Parcel naming: vvk-parcel-{hallmark}.tar.gz (drop sigil from name)\n\nAMEND vosoi_install:\n- Read vvbf_brand_file.json from parcel\n- Write hallmark to target manifest\n\nACCEPTANCE:\n- VOS has complete brand file and registry entity definitions\n- vosor_release behavior documents hallmark allocation flow\n- vosoi_install behavior documents brand file consumption\n- Field tags explicitly documented via axj_field_tag pattern"
             }
           ]
         },
