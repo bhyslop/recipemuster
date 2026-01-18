@@ -1546,9 +1546,10 @@
         "₢ADAAB",
         "₢ADAAC",
         "₢ADAAD",
-        "₢ADAAE"
+        "₢ADAAE",
+        "₢ADAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1699,6 +1700,16 @@
               "ts": "260118-0752",
               "state": "rough",
               "text": "Study to verify Liturgy and Dispatch vocabulary dispersion before extraction.\n\n## Purpose\n\nBefore extracting VOSL (Liturgy) and VOSD (Dispatch) terms from VOS to new VLS and BUS specifications, verify that these changes are non-disruptive — affecting only AsciiDoc concept model documents, not code or other artifacts.\n\n## Search Targets\n\n**Liturgy terms (vosl_* family):**\n- voslc_cipher, vosls_signet, vosle_epithet, vosli_inscription\n- voslv_vesture, vosln_ensign, voslm_monogram\n- Domain vestures: vosldr_*, vosldb_*, voslda_*, vosldp_*, vosldg_*, voslds_*, vosldt_*\n\n**Dispatch terms (vosd_* family):**\n- vosdc_colophon, vosdf_frontispiece, vosdi_imprint\n- vosdm_formulary, vosdl_launcher\n\n## Searches to Perform\n\n1. **Grep for vosl_ prefix** across entire repo\n   - Expect: Only in VOS-VoxObscuraSpec.adoc (definitions) and possibly CLAUDE.md (references)\n   - Red flag: Appearances in .rs, .sh, .md (non-concept-model), .json files\n\n2. **Grep for vosd_ prefix** across entire repo\n   - Expect: Only in VOS-VoxObscuraSpec.adoc\n   - Red flag: Appearances in code or configuration\n\n3. **Grep for prose terms** (Cipher, Signet, Colophon, etc.) in code\n   - These may appear as comments/docs — acceptable\n   - Red flag: Appearances as identifiers or in parsing logic\n\n4. **Check vofc_registry.rs**\n   - Uses vofc_Cipher — this is VOF vocabulary, not VOSL\n   - Confirm no vosl_* references\n\n5. **Check CLAUDE.md**\n   - References to Liturgy/Dispatch terms in prose — acceptable, will update\n   - Check \"Prefix Naming Discipline\" and \"BUK Concepts\" sections\n\n## Success Criteria\n\n**Green light** if:\n- vosl_* and vosd_* appear ONLY in:\n  - VOS-VoxObscuraSpec.adoc (source — will be moved)\n  - CLAUDE.md (will be updated with new file locations)\n  - Potentially MCM/AXLA (cross-references — will be updated)\n\n**Yellow flag** if:\n- Terms appear in prose/comments in other files\n- Requires updating comments but no code changes\n\n**Red flag** if:\n- Terms appear as identifiers in Rust/Bash code\n- Terms parsed or matched programmatically\n- Extraction would break runtime behavior\n\n## Deliverables\n\n1. Search results summary with file locations\n2. Classification: green/yellow/red for extraction\n3. If yellow/red: list of additional files requiring updates\n4. Go/no-go recommendation for ₢ADAAF (vls-bus-extraction)"
+            }
+          ]
+        },
+        "₢ADAAH": {
+          "silks": "vos-cleanup-legacy-refs",
+          "tacks": [
+            {
+              "ts": "260118-0841",
+              "state": "rough",
+              "text": "VOS cleanup: update legacy vost_cipher references.\n\n## Issues\n\nUpdate legacy vost_cipher references to voslc_cipher throughout VOS:\n- Search for remaining `vost_cipher` usage\n- Replace with `voslc_cipher` (canonical form now that alias exists in mapping section)\n\n## Context\n\nVOS mapping section has backward-compatibility aliases:\n```\n:vost_cipher:           <<voslc_cipher,Cipher>>\n```\n\nBody text should use the canonical `{voslc_cipher}` form, not the alias.\n\n## Target File\n\nTools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical find/replace with verification."
             }
           ]
         }
