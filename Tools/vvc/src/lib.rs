@@ -14,10 +14,12 @@
 #![allow(non_camel_case_types)]
 
 pub mod vvcc_commit;
+pub mod vvce_env;
 pub mod vvcg_guard;
 pub mod vvcm_machine;
 
 // Re-export commonly used types (RCG-compliant names)
 pub use vvcc_commit::{vvcc_CommitArgs, vvcc_CommitLock, vvcc_run as commit};
+pub use vvce_env::{vvce_env, VvcEnv};
 pub use vvcg_guard::{vvcg_GuardArgs, vvcg_run as guard};
 pub use vvcm_machine::{vvcm_CommitArgs, vvcm_commit as machine_commit};
