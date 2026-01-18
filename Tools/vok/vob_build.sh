@@ -55,6 +55,22 @@ zvob_sentinel() {
   test "${ZVOB_KINDLED:-}" = "1" || buc_die "Module vob not kindled - call zvob_kindle first"
 }
 
+zvob_hash_capture() {
+  local z_file="$1"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "${z_file}" | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "${z_file}" | awk '{print $1}'
+  else
+    return 1
+  fi
+}
+
+zvob_commit_capture() {
+  git rev-parse HEAD 2>/dev/null || echo "unknown"
+}
+
 ######################################################################
 # External Functions (vob_*)
 
@@ -167,8 +183,8 @@ vob_release() {
 
   buc_step "Branding parcel"
 
-  local z_commit
-  z_commit=$(git rev-parse HEAD 2>/dev/null) || z_commit="unknown"
+  local z_commit=""
+  z_commit=$(zvob_commit_capture)
 
   buc_log_args "Registry: ${z_registry}"
   buc_log_args "Commit: ${z_commit}"
@@ -180,7 +196,7 @@ vob_release() {
     --registry "${z_registry}" \
     --commit "${z_commit}" > "${z_hallmark_file}" || buc_die "release_brand failed"
 
-  local z_hallmark
+  local z_hallmark=""
   z_hallmark=$(<"${z_hallmark_file}")
   test -n "${z_hallmark}" || buc_die "Failed to read hallmark"
 
