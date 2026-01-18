@@ -203,8 +203,8 @@ fn run_commit(args: CommitArgs) -> i32 {
         message: args.message,
         allow_empty: args.allow_empty,
         no_stage: args.no_stage,
-        size_limit: None,
-        warn_limit: None,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
     };
     vvc::commit(&vvc_args)
 }

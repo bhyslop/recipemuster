@@ -45,3 +45,4 @@ Tools/vvk/bin/vvx-*
 
 # Rust build artifacts
 **/target/
+Tools/vvc/target/

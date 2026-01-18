@@ -2,35 +2,64 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! VVC Guard - Pre-commit size validation
+//! VVC Guard - Pre-commit storage cost validation
 //!
-//! Core functionality that measures staged diff sizes before commit.
-//! Prevents catastrophic auto-adds (node_modules, build artifacts, binaries)
-//! while allowing small edits to large files.
+//! Prevents accidental commits that significantly increase repository storage
+//! costs. Guards against: release tarballs, build artifacts, node_modules,
+//! accidentally added binaries.
+//!
+//! # Cost Model
+//!
+//! GitHub charges by repository size, which reflects Git packfile storage
+//! with delta compression. The guard approximates incremental storage cost:
+//!
+//! | Change Type        | Storage Cost    | Measurement           |
+//! |--------------------|-----------------|----------------------|
+//! | New file           | ~Blob size      | `git cat-file -s`    |
+//! | Modified text      | ~Diff size      | `git diff --cached`  |
+//! | Modified binary    | ~Blob size      | `git cat-file -s`    |
+//! | Deleted file       | 0               | (no measurement)     |
+//!
+//! # Key Behaviors
+//!
+//! - A 6-line edit to a 350KB JSON file costs ~200 bytes, not 350KB
+//! - A new 100KB tarball costs 100KB (no delta possible)
+//! - A modified PNG costs full blob size (binary delta is poor)
+//!
+//! # Limits
+//!
+//! Standard limits are defined as constants. All callers must explicitly
+//! specify limits - there is no Default impl to avoid hidden assumptions.
 //!
 //! Exit codes:
-//!   0 - Under limit
-//!   1 - Over limit (with breakdown by file)
-//!   2 - Over warn threshold (proceed with caution)
+//!   0 - Under limit (OK)
+//!   1 - Over limit (BLOCKED)
+//!   2 - Over warn threshold (WARNING)
 
 use std::process::Command;
 
+/// Standard size limit for guard check (50KB)
+///
+/// Blocks commits where incremental storage cost exceeds this threshold.
+/// Use this constant at all call sites for consistency.
+pub const VVCG_SIZE_LIMIT: u64 = 50_000;
+
+/// Standard warning threshold for guard check (30KB)
+///
+/// Warns when incremental storage cost exceeds this threshold.
+/// Use this constant at all call sites for consistency.
+pub const VVCG_WARN_LIMIT: u64 = 30_000;
+
 /// Arguments for guard operation
+///
+/// No Default impl - callers must explicitly specify limits using
+/// VVCG_SIZE_LIMIT and VVCG_WARN_LIMIT constants.
 #[derive(Debug, Clone)]
 pub struct vvcg_GuardArgs {
-    /// Size limit in bytes
+    /// Size limit in bytes (use VVCG_SIZE_LIMIT)
     pub limit: u64,
-    /// Warning threshold in bytes
+    /// Warning threshold in bytes (use VVCG_WARN_LIMIT)
     pub warn: u64,
-}
-
-impl Default for vvcg_GuardArgs {
-    fn default() -> Self {
-        Self {
-            limit: 500000,
-            warn: 250000,
-        }
-    }
 }
 
 /// Entry for a staged file with its diff size

@@ -396,8 +396,8 @@ fn zjjrx_run_notch(args: jjrx_NotchArgs) -> i32 {
         message: None,
         allow_empty: false,
         no_stage: false,
-        size_limit: args.size_limit,
-        warn_limit: None,
+        size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
+        warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
     vvc::commit(&commit_args)
@@ -449,8 +449,8 @@ fn zjjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
         message: Some(message),
         allow_empty: true,
         no_stage: true,
-        size_limit: None,
-        warn_limit: None,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
     vvc::commit(&commit_args)
@@ -1121,8 +1121,12 @@ fn zjjrx_run_draft(args: zjjrx_DraftArgs) -> i32 {
             // Commit while holding lock - use destination firemark as identity
             let dest_fm = Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
             let commit_args = vvc::vvcc_CommitArgs {
+                prefix: None,
                 message: Some(format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet))),
-                ..Default::default()
+                allow_empty: false,
+                no_stage: false,
+                size_limit: vvc::VVCG_SIZE_LIMIT,
+                warn_limit: vvc::VVCG_WARN_LIMIT,
             };
             match lock.vvcc_commit(&commit_args) {
                 Ok(hash) => eprintln!("jjx_draft: committed {}", &hash[..8]),

@@ -6,7 +6,7 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::vvcg_guard::{vvcg_run, vvcg_GuardArgs, zvvcg_get_diff_size};
+    use crate::vvcg_guard::{vvcg_run, vvcg_GuardArgs, VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
     use std::fs;
     use std::process::Command;
 
@@ -217,27 +217,19 @@ mod tests {
         let size = vvtg_get_size_in_repo(&repo, "large.bin").expect("Failed to get size");
         assert_eq!(size, 100_000, "File should be staged with correct size");
 
-        // Run guard with default limit (500KB) - should pass
+        // Run guard with standard limits (50KB) - 100KB file should be blocked
         let original_dir = std::env::current_dir().expect("Failed to get current dir");
         std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-        let args = vvcg_GuardArgs::default();
-        let exit_code = vvcg_run(&args);
-        std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
-
-        assert_eq!(exit_code, 0, "100KB file should pass 500KB default limit");
-
-        // Now test with a smaller limit that should block it
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-        let small_args = vvcg_GuardArgs {
-            limit: 50_000,
-            warn: 25_000,
+        let args = vvcg_GuardArgs {
+            limit: VVCG_SIZE_LIMIT,
+            warn: VVCG_WARN_LIMIT,
         };
-        let exit_code = vvcg_run(&small_args);
+        let exit_code = vvcg_run(&args);
         std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
 
         assert_eq!(
             exit_code, 1,
-            "100KB file should be blocked by 50KB limit (exit code 1)"
+            "100KB file should be blocked by 50KB standard limit (exit code 1)"
         );
     }
 
@@ -259,19 +251,19 @@ mod tests {
             "Tarball size should be 2MB, not ~60 bytes from diff output"
         );
 
-        // Run guard with 50KB limit (should block)
+        // Run guard with standard limits (should block)
         let original_dir = std::env::current_dir().expect("Failed to get current dir");
         std::env::set_current_dir(&repo).expect("Failed to change to test repo");
         let args = vvcg_GuardArgs {
-            limit: 50_000,
-            warn: 25_000,
+            limit: VVCG_SIZE_LIMIT,
+            warn: VVCG_WARN_LIMIT,
         };
         let exit_code = vvcg_run(&args);
         std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
 
         assert_eq!(
             exit_code, 1,
-            "2MB tarball must be blocked by 50KB limit (exit code 1)"
+            "2MB tarball must be blocked by standard limit (exit code 1)"
         );
     }
 }

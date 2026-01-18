@@ -33,12 +33,12 @@ use crate::vvcg_guard;
 /// Lock reference path for commit operations
 const VVCC_LOCK_REF: &str = "refs/vvg/locks/vvx";
 
-/// Default size limits
-const VVCC_SIZE_LIMIT: u64 = 50000;
-const VVCC_WARN_LIMIT: u64 = 30000;
-
 /// Arguments for commit operation
-#[derive(Debug, Clone, Default)]
+///
+/// Note: No Default impl - callers must explicitly specify all fields,
+/// including size limits. Use VVCG_SIZE_LIMIT/VVCG_WARN_LIMIT constants
+/// for standard behavior.
+#[derive(Debug, Clone)]
 pub struct vvcc_CommitArgs {
     /// Prefix string to prepend to commit message (e.g., "[jj:BRAND][F00/silks]")
     pub prefix: Option<String>,
@@ -48,10 +48,10 @@ pub struct vvcc_CommitArgs {
     pub allow_empty: bool,
     /// Skip 'git add -A' (respect pre-staged files)
     pub no_stage: bool,
-    /// Size limit in bytes; None = use VVCC_SIZE_LIMIT (50KB)
-    pub size_limit: Option<u64>,
-    /// Warning limit in bytes; None = use VVCC_WARN_LIMIT (30KB)
-    pub warn_limit: Option<u64>,
+    /// Size limit in bytes (use VVCG_SIZE_LIMIT for standard behavior)
+    pub size_limit: u64,
+    /// Warning threshold in bytes (use VVCG_WARN_LIMIT for standard behavior)
+    pub warn_limit: u64,
 }
 
 /// RAII guard that holds the commit lock.
@@ -164,8 +164,8 @@ fn zvvcc_has_staged_changes() -> Result<bool, String> {
 /// Run size guard check on staged content
 fn zvvcc_run_guard(args: &vvcc_CommitArgs) -> Result<(), String> {
     let guard_args = vvcg_guard::vvcg_GuardArgs {
-        limit: args.size_limit.unwrap_or(VVCC_SIZE_LIMIT),
-        warn: args.warn_limit.unwrap_or(VVCC_WARN_LIMIT),
+        limit: args.size_limit,
+        warn: args.warn_limit,
     };
 
     let result = vvcg_guard::vvcg_run(&guard_args);

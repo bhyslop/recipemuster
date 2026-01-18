@@ -138,6 +138,7 @@ fn zvvcm_execute_commit(message: &str) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::vvcg_guard::{VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
 
     #[test]
     fn test_args_validation_empty_files() {
@@ -146,8 +147,8 @@ mod tests {
         let args = vvcm_CommitArgs {
             files: vec![],
             message: "test".to_string(),
-            size_limit: 50000,
-            warn_limit: 30000,
+            size_limit: VVCG_SIZE_LIMIT,
+            warn_limit: VVCG_WARN_LIMIT,
         };
         assert!(args.files.is_empty());
     }
@@ -157,23 +158,24 @@ mod tests {
         let args = vvcm_CommitArgs {
             files: vec!["file.txt".to_string()],
             message: "".to_string(),
-            size_limit: 50000,
-            warn_limit: 30000,
+            size_limit: VVCG_SIZE_LIMIT,
+            warn_limit: VVCG_WARN_LIMIT,
         };
         assert!(args.message.is_empty());
     }
 
     #[test]
     fn test_args_construction() {
+        // Test that constants have expected values
         let args = vvcm_CommitArgs {
             files: vec!["a.txt".to_string(), "b.txt".to_string()],
             message: "Update files".to_string(),
-            size_limit: 200000,
-            warn_limit: 100000,
+            size_limit: VVCG_SIZE_LIMIT,
+            warn_limit: VVCG_WARN_LIMIT,
         };
         assert_eq!(args.files.len(), 2);
         assert_eq!(args.message, "Update files");
-        assert_eq!(args.size_limit, 200000);
-        assert_eq!(args.warn_limit, 100000);
+        assert_eq!(args.size_limit, 50_000);
+        assert_eq!(args.warn_limit, 30_000);
     }
 }
