@@ -95,9 +95,10 @@ Show:
 - **Spawn a Task agent** to execute the pace:
   - `model`: the extracted agent tier (haiku/sonnet/opus)
   - `subagent_type`: "general-purpose"
-  - `prompt`: Combine spec + direction + instruction to run `/jjc-pace-wrap <CORONET>` on completion
+  - `prompt`: Combine spec + direction. Agent should report completion status when done.
 - The spec contains the "what" (requirements, acceptance criteria); direction contains the "how" (steps, verification)
 - Wait for agent completion and report outcome to user
+- **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `/jjc-pace-wrap`
 
 ## Context preservation
 

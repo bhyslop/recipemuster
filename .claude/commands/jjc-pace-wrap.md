@@ -9,6 +9,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 ## Prerequisites
 
+- **User must explicitly invoke this command** — never auto-wrap
 - Gallops JSON must exist
 - Pace should be in "rough" or "bridled" state
 - Work on the pace should be done
