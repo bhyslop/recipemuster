@@ -95,6 +95,52 @@ mod tests {
         }
     }
 
+    /// Helper to get diff size in a specific repo directory
+    fn vvtg_get_size_in_repo(repo: &std::path::Path, file: &str) -> Result<u64, String> {
+        // Get staged blob info
+        let output = Command::new("git")
+            .args(["ls-files", "--cached", "-s", "--", file])
+            .current_dir(repo)
+            .output()
+            .map_err(|e| format!("Failed to run git ls-files: {}", e))?;
+
+        if !output.status.success() {
+            return Err(format!("git ls-files failed for {}", file));
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let line = stdout.trim();
+
+        if line.is_empty() {
+            return Ok(0); // File deleted or not in index
+        }
+
+        // Parse: "100644 <sha> 0\t<path>"
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 2 {
+            return Err(format!("Unexpected git ls-files output: {}", line));
+        }
+
+        let blob_sha = parts[1];
+
+        // Get blob size
+        let output = Command::new("git")
+            .args(["cat-file", "-s", blob_sha])
+            .current_dir(repo)
+            .output()
+            .map_err(|e| format!("Failed to run git cat-file: {}", e))?;
+
+        if !output.status.success() {
+            return Err(format!("git cat-file -s {} failed", blob_sha));
+        }
+
+        let size_str = String::from_utf8_lossy(&output.stdout);
+        size_str
+            .trim()
+            .parse::<u64>()
+            .map_err(|e| format!("Failed to parse size: {}", e))
+    }
+
     #[test]
     fn vvtg_text_file_size() {
         let repo = vvtg_setup_test_repo("vvtg_text_file_size");
@@ -103,14 +149,7 @@ mod tests {
         let content = b"Hello, world!\nThis is a test file.\n";
         vvtg_stage_file(&repo, "test.txt", content);
 
-        // Change directory to the test repo to run zvvcg_get_diff_size
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-
-        let size = zvvcg_get_diff_size("test.txt").expect("Failed to get diff size");
-
-        // Restore original directory
-        std::env::set_current_dir(original_dir).expect("Failed to restore directory");
+        let size = vvtg_get_size_in_repo(&repo, "test.txt").expect("Failed to get diff size");
 
         assert_eq!(
             size,
@@ -127,12 +166,7 @@ mod tests {
         let content: Vec<u8> = (0..1024).map(|i| (i % 256) as u8).collect();
         vvtg_stage_file(&repo, "binary.bin", &content);
 
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-
-        let size = zvvcg_get_diff_size("binary.bin").expect("Failed to get diff size");
-
-        std::env::set_current_dir(original_dir).expect("Failed to restore directory");
+        let size = vvtg_get_size_in_repo(&repo, "binary.bin").expect("Failed to get diff size");
 
         assert_eq!(
             size,
@@ -150,7 +184,7 @@ mod tests {
         vvtg_stage_file(&repo, "to_delete.txt", content);
 
         Command::new("git")
-            .args(["commit", "-m", "Initial commit"])
+            .args(["commit", "-m", "Second commit"])
             .current_dir(&repo)
             .output()
             .expect("Failed to commit");
@@ -164,12 +198,7 @@ mod tests {
             .output()
             .expect("Failed to stage deletion");
 
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-
-        let size = zvvcg_get_diff_size("to_delete.txt").expect("Failed to get diff size");
-
-        std::env::set_current_dir(original_dir).expect("Failed to restore directory");
+        let size = vvtg_get_size_in_repo(&repo, "to_delete.txt").expect("Failed to get diff size");
 
         assert_eq!(size, 0, "Deleted file should have size 0");
     }
@@ -182,26 +211,26 @@ mod tests {
         let content: Vec<u8> = vec![0xFF; 100_000];
         vvtg_stage_file(&repo, "large.bin", &content);
 
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
+        // Verify file was staged correctly
+        let size = vvtg_get_size_in_repo(&repo, "large.bin").expect("Failed to get size");
+        assert_eq!(size, 100_000, "File should be staged with correct size");
 
         // Run guard with default limit (500KB) - should pass
+        let original_dir = std::env::current_dir().expect("Failed to get current dir");
+        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
         let args = vvcg_GuardArgs::default();
         let exit_code = vvcg_run(&args);
-
         std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
 
         assert_eq!(exit_code, 0, "100KB file should pass 500KB default limit");
 
         // Now test with a smaller limit that should block it
         std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-
         let small_args = vvcg_GuardArgs {
             limit: 50_000,
             warn: 25_000,
         };
         let exit_code = vvcg_run(&small_args);
-
         std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
 
         assert_eq!(
@@ -218,11 +247,8 @@ mod tests {
         let content: Vec<u8> = vec![0x1F; 2_000_000]; // ~2MB
         vvtg_stage_file(&repo, "vvk-parcel-1000.tar.gz", &content);
 
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
-
         // Verify the file size is correctly detected
-        let size = zvvcg_get_diff_size("vvk-parcel-1000.tar.gz")
+        let size = vvtg_get_size_in_repo(&repo, "vvk-parcel-1000.tar.gz")
             .expect("Failed to get tarball size");
 
         assert_eq!(
@@ -232,12 +258,13 @@ mod tests {
         );
 
         // Run guard with 50KB limit (should block)
+        let original_dir = std::env::current_dir().expect("Failed to get current dir");
+        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
         let args = vvcg_GuardArgs {
             limit: 50_000,
             warn: 25_000,
         };
         let exit_code = vvcg_run(&args);
-
         std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
 
         assert_eq!(

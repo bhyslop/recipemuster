@@ -17,25 +17,35 @@ Specification quality and enforcement: refine VOS/AXLA concept models, reconcile
 
 ## Architecture
 
-Five paces in two categories:
+**Completed:**
+- ₢ADAAG — liturgy-dispatch-dispersion-study (verified extraction safe)
+- ₢ADAAF — vls-bus-extraction (created VLS + BUS specs)
 
-**Spec Refinement (4 paces):**
-- ₢ADAAA — define-envelope-vesture-component (formalize suffix vs frame)
-- ₢ADAAB — vos-liturgy-cleanup-batch (fix legacy refs, signet_case, colophon)
-- ₢ADAAC — liturgy-state-machine-vocabulary (AXLA patterns for state machines)
-- ₢ADAAD — vos-implementation-reconciliation (spec vs reality gap analysis)
+**Spec Cleanup (3 paces):**
+- ₢ADAAH — vos-cleanup-legacy-refs (vost_cipher → voslc_cipher)
+- ₢ADAAI — vls-vesture-cleanup (fix vesture definitions)
+- ₢ADAAJ — bus-dispatch-cleanup (fix colophon/tabtarget definitions)
+
+**Concept Development (3 paces):**
+- ₢ADAAA — define-envelope-vesture-component (formalize in VLS)
+- ₢ADAAC — liturgy-state-machine-vocabulary (AXLA patterns)
+- ₢ADAAD — vos-implementation-reconciliation (spec vs reality)
 
 **Enforcement Tooling (1 pace):**
-- ₢ADAAE — vof-prefix-tree-checker (`vvx check` for CI enforcement)
+- ₢ADAAE — vof-prefix-tree-checker (`vvx check` for CI)
+
+**Abandoned:**
+- ₢ADAAB — vos-liturgy-cleanup-batch (superseded by ADAAH/ADAAI/ADAAJ split)
 
 ## References
 
-- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc — VOS spec (primary target)
+- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc — VOS spec (kit distribution)
+- Tools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc — VLS spec (naming vocabulary)
+- Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc — BUS spec (dispatch vocabulary)
 - Tools/cmk/vov_veiled/AXLA-Lexicon.adoc — AXLA shared vocabulary
 - Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc — MCM patterns
 - Tools/jjk/vov_veiled/JJD-GallopsData.adoc — JJD (state machine exemplar)
-- Tools/vok/vof/ — VOF crate (prefix registry target)
-- CLAUDE.md "Prefix Naming Discipline" — Current rules to migrate to tooling
+- Tools/vok/vof/ — VOF crate (prefix registry)
 
 ## Key Constraints
 
