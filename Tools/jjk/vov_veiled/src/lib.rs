@@ -11,6 +11,7 @@
 
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
+#![deny(unused_variables)]
 
 pub mod jjrc_core;
 pub mod jjrf_favor;

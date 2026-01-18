@@ -338,13 +338,8 @@ fn zjjrq_resolve_pace<'a>(
     // Try parsing as Coronet first
     if let Ok(coronet) = Coronet::jjrf_parse(pace_arg) {
         let coronet_key = coronet.jjrf_display();
-        if let Some(pace) = heat.paces.get(&coronet_key) {
-            // Find the actual key in the HashMap that matches
-            for (key, p) in &heat.paces {
-                if key == &coronet_key {
-                    return Some((key, p));
-                }
-            }
+        if let Some((key, pace)) = heat.paces.get_key_value(&coronet_key) {
+            return Some((key, pace));
         }
     }
 

@@ -19,12 +19,14 @@ Every crate's `lib.rs` must include these attributes to support RCG naming conve
 ```rust
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
+#![deny(unused_variables)]
 ```
 
 - `non_camel_case_types`: Allows prefixed type names like `jjrg_Gallops`
 - `private_interfaces`: Allows z-prefixed (internal) types in public enum variants
+- `unused_variables`: Promotes to error — catches logic bugs like redundant lookups
 
-Both are mandatory. RCG naming conventions override Rust's default warnings.
+The `allow` directives are mandatory for RCG naming. The `deny` directive catches bugs early.
 
 ## File Naming
 
@@ -504,6 +506,7 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] Test file: `{cipher}t{x}_{name}.rs` (if tests exist)
 - [ ] `lib.rs` has `#![allow(non_camel_case_types)]`
 - [ ] `lib.rs` has `#![allow(private_interfaces)]`
+- [ ] `lib.rs` has `#![deny(unused_variables)]`
 - [ ] `lib.rs` declares source module: `pub mod {cipher}r{x}_{name};`
 - [ ] `lib.rs` declares test module: `#[cfg(test)] mod {cipher}t{x}_{name};`
 
