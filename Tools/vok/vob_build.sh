@@ -119,63 +119,6 @@ vob_test() {
 vob_release() {
   zvob_sentinel
 
-  buc_doc_brief "Run tests, copy to release dir, update ledger"
-  buc_doc_shown || return 0
-
-  buc_step "Running tests"
-  buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
-
-  cargo test --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${VOF_VOK_FEATURES}" || buc_die "Tests failed"
-
-  buc_step "Copying to release directory"
-  buc_log_args "Source: ${ZVOB_TARGET_BINARY}"
-  buc_log_args "Destination: ${ZVOB_RELEASE_BINARY}"
-
-  test -f "${ZVOB_TARGET_BINARY}" || buc_die "Binary not found - run vob_build first"
-  test -d "${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}" || buc_die "Release dir not found: ${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}"
-
-  cp "${ZVOB_TARGET_BINARY}" "${ZVOB_RELEASE_BINARY}" || buc_die "Failed to copy binary"
-  chmod +x "${ZVOB_RELEASE_BINARY}" || buc_die "Failed to chmod"
-
-  buc_step "Updating ledger"
-
-  local z_hash
-  if command -v shasum >/dev/null 2>&1; then
-    z_hash=$(shasum -a 256 "${ZVOB_RELEASE_BINARY}" | cut -d' ' -f1) || buc_die "Failed to compute hash"
-  elif command -v sha256sum >/dev/null 2>&1; then
-    z_hash=$(sha256sum "${ZVOB_RELEASE_BINARY}" | cut -d' ' -f1) || buc_die "Failed to compute hash"
-  else
-    buc_die "No sha256 tool available"
-  fi
-
-  local z_date
-  local z_commit
-  z_date=$(date +%Y-%m-%d) || buc_die "Failed to get date"
-  z_commit=$(git rev-parse --short HEAD 2>/dev/null) || z_commit="unknown"
-
-  buc_log_args "Hash: ${z_hash}"
-  buc_log_args "Date: ${z_date}"
-  buc_log_args "Commit: ${z_commit}"
-
-  test -f "${ZVOB_LEDGER_FILE}" || buc_die "Ledger not found: ${ZVOB_LEDGER_FILE}"
-
-  local z_ledger_tmp="${BUD_TEMP_DIR}/vob_ledger_update.json"
-
-  jq --arg date "${z_date}" \
-     --arg platform "${VVB_PLATFORM}" \
-     --arg hash "${z_hash}" \
-     --arg commit "${z_commit}" \
-     '.releases += [{"date": $date, "platform": $platform, "hash": $hash, "commit": $commit}]' \
-     "${ZVOB_LEDGER_FILE}" > "${z_ledger_tmp}" || buc_die "jq failed"
-
-  mv "${z_ledger_tmp}" "${ZVOB_LEDGER_FILE}" || buc_die "Failed to update ledger"
-
-  buc_success "Release complete: ${ZVOB_RELEASE_BINARY}"
-}
-
-vob_parcel() {
-  zvob_sentinel
-
   buc_doc_brief "Create VVK parcel: test, build, collect, brand, tarball"
   buc_doc_shown || return 0
 
