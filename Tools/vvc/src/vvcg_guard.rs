@@ -36,6 +36,7 @@
 //!   1 - Over limit (BLOCKED)
 //!   2 - Over warn threshold (WARNING)
 
+use std::path::Path;
 use std::process::Command;
 
 /// Standard size limit for guard check (50KB)
@@ -69,9 +70,13 @@ pub(crate) struct zvvcg_StagedFile {
 }
 
 /// Get list of staged files with their diff sizes
-fn zvvcg_get_staged_files() -> Result<Vec<zvvcg_StagedFile>, String> {
-    let output = Command::new("git")
-        .args(["diff", "--cached", "--name-only"])
+fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFile>, String> {
+    let mut cmd = Command::new("git");
+    cmd.args(["diff", "--cached", "--name-only"]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to run git diff: {}", e))?;
 
@@ -87,7 +92,7 @@ fn zvvcg_get_staged_files() -> Result<Vec<zvvcg_StagedFile>, String> {
             continue;
         }
 
-        let size = zvvcg_get_diff_size(path)?;
+        let size = zvvcg_get_diff_size(path, repo_dir)?;
         files.push(zvvcg_StagedFile {
             path: path.to_string(),
             size,
@@ -106,9 +111,13 @@ enum zvvcg_ChangeStatus {
 }
 
 /// Get the change status of a staged file (A/M/D)
-fn zvvcg_get_change_status(path: &str) -> Result<zvvcg_ChangeStatus, String> {
-    let output = Command::new("git")
-        .args(["diff", "--cached", "--name-status", "--", path])
+fn zvvcg_get_change_status(path: &str, repo_dir: Option<&Path>) -> Result<zvvcg_ChangeStatus, String> {
+    let mut cmd = Command::new("git");
+    cmd.args(["diff", "--cached", "--name-status", "--", path]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to run git diff --name-status for {}: {}", path, e))?;
 
@@ -139,9 +148,13 @@ fn zvvcg_get_change_status(path: &str) -> Result<zvvcg_ChangeStatus, String> {
 /// Check if a modified file is binary
 ///
 /// Uses git diff --numstat which reports `-\t-\t<path>` for binary files.
-fn zvvcg_is_binary(path: &str) -> Result<bool, String> {
-    let output = Command::new("git")
-        .args(["diff", "--cached", "--numstat", "--", path])
+fn zvvcg_is_binary(path: &str, repo_dir: Option<&Path>) -> Result<bool, String> {
+    let mut cmd = Command::new("git");
+    cmd.args(["diff", "--cached", "--numstat", "--", path]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to run git diff --numstat for {}: {}", path, e))?;
 
@@ -158,10 +171,14 @@ fn zvvcg_is_binary(path: &str) -> Result<bool, String> {
 }
 
 /// Get the blob size for a staged file
-fn zvvcg_get_blob_size(path: &str) -> Result<u64, String> {
+fn zvvcg_get_blob_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
     // Get staged blob info: mode, sha, stage, path
-    let output = Command::new("git")
-        .args(["ls-files", "--cached", "-s", "--", path])
+    let mut cmd = Command::new("git");
+    cmd.args(["ls-files", "--cached", "-s", "--", path]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to run git ls-files for {}: {}", path, e))?;
 
@@ -185,8 +202,12 @@ fn zvvcg_get_blob_size(path: &str) -> Result<u64, String> {
     let blob_sha = parts[1];
 
     // Get actual blob size
-    let output = Command::new("git")
-        .args(["cat-file", "-s", blob_sha])
+    let mut cmd = Command::new("git");
+    cmd.args(["cat-file", "-s", blob_sha]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to run git cat-file for {}: {}", blob_sha, e))?;
 
@@ -202,9 +223,13 @@ fn zvvcg_get_blob_size(path: &str) -> Result<u64, String> {
 }
 
 /// Get the diff output size for a modified text file
-fn zvvcg_get_text_diff_size(path: &str) -> Result<u64, String> {
-    let output = Command::new("git")
-        .args(["diff", "--cached", "--", path])
+fn zvvcg_get_text_diff_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
+    let mut cmd = Command::new("git");
+    cmd.args(["diff", "--cached", "--", path]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Failed to run git diff for {}: {}", path, e))?;
 
@@ -222,17 +247,17 @@ fn zvvcg_get_text_diff_size(path: &str) -> Result<u64, String> {
 /// - Modified text (M): diff size
 /// - Modified binary (M): blob size
 /// - Deleted file (D): 0
-pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
-    let status = zvvcg_get_change_status(path)?;
+pub(crate) fn zvvcg_get_diff_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
+    let status = zvvcg_get_change_status(path, repo_dir)?;
 
     match status {
         zvvcg_ChangeStatus::Deleted => Ok(0),
-        zvvcg_ChangeStatus::Added => zvvcg_get_blob_size(path),
+        zvvcg_ChangeStatus::Added => zvvcg_get_blob_size(path, repo_dir),
         zvvcg_ChangeStatus::Modified => {
-            if zvvcg_is_binary(path)? {
-                zvvcg_get_blob_size(path)
+            if zvvcg_is_binary(path, repo_dir)? {
+                zvvcg_get_blob_size(path, repo_dir)
             } else {
-                zvvcg_get_text_diff_size(path)
+                zvvcg_get_text_diff_size(path, repo_dir)
             }
         }
     }
@@ -240,12 +265,14 @@ pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
 
 /// Run the guard check on staged content.
 ///
+/// `repo_dir`: Optional path to git repository. If None, uses current working directory.
+///
 /// Returns:
 /// - 0: Under limit (OK)
 /// - 1: Over limit (BLOCKED)
 /// - 2: Over warn threshold (WARNING)
-pub fn vvcg_run(args: &vvcg_GuardArgs) -> i32 {
-    let files = match zvvcg_get_staged_files() {
+pub fn vvcg_run(args: &vvcg_GuardArgs, repo_dir: Option<&Path>) -> i32 {
+    let files = match zvvcg_get_staged_files(repo_dir) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("guard: error: {}", e);

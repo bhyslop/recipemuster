@@ -218,14 +218,11 @@ mod tests {
         assert_eq!(size, 100_000, "File should be staged with correct size");
 
         // Run guard with standard limits (50KB) - 100KB file should be blocked
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
         let args = vvcg_GuardArgs {
             limit: VVCG_SIZE_LIMIT,
             warn: VVCG_WARN_LIMIT,
         };
-        let exit_code = vvcg_run(&args);
-        std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
+        let exit_code = vvcg_run(&args, Some(&repo));
 
         assert_eq!(
             exit_code, 1,
@@ -252,14 +249,11 @@ mod tests {
         );
 
         // Run guard with standard limits (should block)
-        let original_dir = std::env::current_dir().expect("Failed to get current dir");
-        std::env::set_current_dir(&repo).expect("Failed to change to test repo");
         let args = vvcg_GuardArgs {
             limit: VVCG_SIZE_LIMIT,
             warn: VVCG_WARN_LIMIT,
         };
-        let exit_code = vvcg_run(&args);
-        std::env::set_current_dir(&original_dir).expect("Failed to restore directory");
+        let exit_code = vvcg_run(&args, Some(&repo));
 
         assert_eq!(
             exit_code, 1,

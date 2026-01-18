@@ -68,7 +68,7 @@ pub fn vvcm_commit(
         limit: args.size_limit,
         warn: args.warn_limit,
     };
-    let guard_result = vvcg_guard::vvcg_run(&guard_args);
+    let guard_result = vvcg_guard::vvcg_run(&guard_args, None);
     match guard_result {
         0 => {}
         1 => return Err("Staged content exceeds size limit".to_string()),

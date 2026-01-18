@@ -168,7 +168,7 @@ fn zvvcc_run_guard(args: &vvcc_CommitArgs) -> Result<(), String> {
         warn: args.warn_limit,
     };
 
-    let result = vvcg_guard::vvcg_run(&guard_args);
+    let result = vvcg_guard::vvcg_run(&guard_args, None);
 
     match result {
         0 => Ok(()),

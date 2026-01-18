@@ -193,7 +193,7 @@ fn run_guard(args: GuardArgs) -> i32 {
         limit: args.limit,
         warn: args.warn,
     };
-    vvc::guard(&vvc_args)
+    vvc::guard(&vvc_args, None)
 }
 
 /// Run commit command using vvc
