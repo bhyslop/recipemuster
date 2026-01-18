@@ -25,6 +25,8 @@ ZVOB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source all dependencies
 source "${ZVOB_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZVOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
+source "${ZVOB_CLI_SCRIPT_DIR}/vof_features.sh"
+source "${ZVOB_CLI_SCRIPT_DIR}/../vvk/vvb_bash.sh"
 source "${ZVOB_CLI_SCRIPT_DIR}/vob_build.sh"
 
 zvob_furnish() {
@@ -37,6 +39,8 @@ zvob_furnish() {
   buv_file_exists "${z_burc_file}"
   source "${z_burc_file}" || buc_die "Failed to source BURC file"
 
+  zvof_kindle
+  zvvb_kindle
   zvob_kindle
 }
 

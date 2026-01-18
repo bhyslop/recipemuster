@@ -32,10 +32,9 @@ zvvb_kindle() {
 
   # Locate VVK directory (parent of this script)
   ZVVB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-  ZVVB_BIN_DIR="${ZVVB_SCRIPT_DIR}/bin"
 
-  # Validate binary directory exists
-  test -d "${ZVVB_BIN_DIR}" || buc_die "VVK bin directory not found: ${ZVVB_BIN_DIR}"
+  # Public export - binary directory (may not exist until first build)
+  VVB_BIN_DIR="${ZVVB_SCRIPT_DIR}/bin"
 
   ZVVB_KINDLED=1
 }
@@ -71,7 +70,7 @@ zvvb_binary_path_capture() {
   local z_platform
   z_platform=$(zvvb_platform_capture) || return 1
 
-  local z_binary="${ZVVB_BIN_DIR}/vvx-${z_platform}"
+  local z_binary="${VVB_BIN_DIR}/vvx-${z_platform}"
 
   test -f "${z_binary}" || return 1
   test -x "${z_binary}" || return 1
@@ -110,19 +109,6 @@ vvb_platform() {
   z_platform=$(zvvb_platform_capture) || buc_die "Unsupported platform: $(uname -s)-$(uname -m)"
 
   echo "${z_platform}"
-}
-
-vvb_test() {
-  zvvb_sentinel
-
-  buc_doc_brief "Run VVX Rust test suite"
-  buc_doc_param "..." "Arguments passed to cargo test"
-  buc_doc_shown || return 0
-
-  buc_step "Running cargo test"
-
-  local z_manifest="${ZVVB_SCRIPT_DIR}/../vok/Cargo.toml"
-  exec cargo test --manifest-path "${z_manifest}" "$@"
 }
 
 # eof

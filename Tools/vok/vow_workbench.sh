@@ -58,6 +58,7 @@ vow_route() {
 
     # Build subsystem
     vow-b)  exec "${z_vob_cli}" vob_build   "$@" ;;
+    vow-t)  exec "${z_vob_cli}" vob_test    "$@" ;;
     vow-R)  exec "${z_vob_cli}" vob_release "$@" ;;  # capital R = big action
     vow-P)  exec "${z_vob_cli}" vob_parcel  "$@" ;;  # capital P = parcel release
 

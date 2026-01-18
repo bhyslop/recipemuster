@@ -18,8 +18,9 @@
 #
 # VOB - VOK Build Module
 #
-# BCG-compliant module for building vvr/vvx Rust binaries.
-# Detects available kit features and builds with appropriate flags.
+# BCG-compliant module for building and testing vvr/vvx Rust binaries.
+# Uses VOF_VOK_FEATURES from vof_features.sh for kit feature flags.
+# Uses VVB_BIN_DIR from vvb_bash.sh for binary installation location.
 
 set -euo pipefail
 
@@ -39,20 +40,11 @@ zvob_kindle() {
   # Validate BURC environment
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"
 
-  # Paths
+  # Paths (VVB_BIN_DIR comes from vvb_bash.sh)
   ZVOB_CARGO_DIR="${BURC_TOOLS_DIR}/vok"
   ZVOB_TARGET_BINARY="${ZVOB_CARGO_DIR}/target/release/vvr"
-  ZVOB_VVK_BIN_DIR="${BURC_TOOLS_DIR}/vvk/bin"
   ZVOB_RELEASE_DIR="${ZVOB_CARGO_DIR}/release"
   ZVOB_LEDGER_FILE="${ZVOB_CARGO_DIR}/vol_ledger.json"
-
-  # Feature detection - build comma-separated list
-  ZVOB_FEATURE_LIST=""
-
-  # Detect jjk
-  if test -f "${BURC_TOOLS_DIR}/jjk/vov_veiled/Cargo.toml"; then
-    ZVOB_FEATURE_LIST="${ZVOB_FEATURE_LIST:+${ZVOB_FEATURE_LIST},}jjk"
-  fi
 
   # Platform detection
   local z_os
@@ -87,22 +79,23 @@ vob_build() {
   buc_doc_brief "Build vvr binary and install to canonical location"
   buc_doc_shown || return 0
 
+  vof_clean
+
   buc_step "Building vvr binary"
-  buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
-  buc_log_args "Features: ${ZVOB_FEATURE_LIST:-none}"
+  buc_log_args "Features: ${VOF_VOK_FEATURES:-none}"
   buc_log_args "Platform: ${ZVOB_PLATFORM}"
 
-  cargo build --release --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${ZVOB_FEATURE_LIST}" || buc_die "cargo build failed"
+  cargo build --release --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${VOF_VOK_FEATURES}" || buc_die "cargo build failed"
 
   buc_step "Installing to VVK bin directory"
 
-  local z_dest="${ZVOB_VVK_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
+  local z_dest="${VVB_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
 
   buc_log_args "Source: ${ZVOB_TARGET_BINARY}"
   buc_log_args "Destination: ${z_dest}"
 
   test -f "${ZVOB_TARGET_BINARY}" || buc_die "Binary not found: ${ZVOB_TARGET_BINARY}"
-  test -d "${ZVOB_VVK_BIN_DIR}" || mkdir -p "${ZVOB_VVK_BIN_DIR}" || buc_die "Failed to create: ${ZVOB_VVK_BIN_DIR}"
+  test -d "${VVB_BIN_DIR}" || mkdir -p "${VVB_BIN_DIR}" || buc_die "Failed to create: ${VVB_BIN_DIR}"
 
   cp "${ZVOB_TARGET_BINARY}" "${z_dest}" || buc_die "Failed to copy binary"
   chmod +x "${z_dest}" || buc_die "Failed to chmod"
@@ -115,6 +108,31 @@ vob_build() {
   buc_success "Built and installed to ${z_dest}"
 }
 
+vob_test() {
+  zvob_sentinel
+
+  buc_doc_brief "Run tests for all detected kit manifests"
+  buc_doc_shown || return 0
+
+  vof_clean
+
+  buc_step "Testing vok"
+  buc_log_args "Manifest: ${VOF_VOK_MANIFEST}"
+  buc_log_args "Features: ${VOF_VOK_FEATURES:-none}"
+
+  cargo test --manifest-path "${VOF_VOK_MANIFEST}" --features "${VOF_VOK_FEATURES}" || buc_die "Tests failed: vok"
+
+  local z_manifest=""
+  for z_manifest in ${VOF_TEST_MANIFESTS}; do
+    buc_step "Testing ${z_manifest##*/}"
+    buc_log_args "Manifest: ${z_manifest}"
+
+    cargo test --manifest-path "${z_manifest}" || buc_die "Tests failed: ${z_manifest}"
+  done
+
+  buc_success "All tests passed"
+}
+
 vob_release() {
   zvob_sentinel
 
@@ -124,7 +142,7 @@ vob_release() {
   buc_step "Running tests"
   buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
 
-  cargo test --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${ZVOB_FEATURE_LIST}" || buc_die "Tests failed"
+  cargo test --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${VOF_VOK_FEATURES}" || buc_die "Tests failed"
 
   buc_step "Copying to release directory"
   buc_log_args "Source: ${ZVOB_TARGET_BINARY}"
@@ -181,13 +199,13 @@ vob_parcel() {
   local z_staging="${BUD_TEMP_DIR}/staging"
   local z_install_script="${BURC_TOOLS_DIR}/vvk/vvi_install.sh"
   local z_registry="${BURC_TOOLS_DIR}/vok/vov_veiled/vovr_registry.json"
-  local z_vvx="${ZVOB_VVK_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
+  local z_vvx="${VVB_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
 
   buc_step "Running tests"
   buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
-  buc_log_args "Features: ${ZVOB_FEATURE_LIST:-none}"
+  buc_log_args "Features: ${VOF_VOK_FEATURES:-none}"
 
-  cargo test --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${ZVOB_FEATURE_LIST}" || buc_die "Tests failed"
+  cargo test --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${VOF_VOK_FEATURES}" || buc_die "Tests failed"
 
   buc_step "Building binary"
 
