@@ -1801,9 +1801,10 @@
         "₢AEAAB",
         "₢AEAAC",
         "₢AEAAD",
-        "₢AEAAE"
+        "₢AEAAE",
+        "₢AEAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -1946,6 +1947,16 @@
               "ts": "260117-1424",
               "state": "rough",
               "text": "Fix VVC guard to properly measure binary file sizes.\n\n## The Bug\n\n`zvvcg_get_diff_size()` in vvcg_guard.rs measures git diff output length, not actual file size:\n\n```rust\nlet output = Command::new(\"git\")\n    .args([\"diff\", \"--cached\", \"--\", path])\n    ...\nOk(output.stdout.len() as u64)  // counts diff output bytes, not file size\n```\n\nFor binary files, git diff outputs:\n```\nBinary files /dev/null and b/vvk-parcel-1000.tar.gz differ\n```\n\nThat is ~60 bytes regardless of actual file size. A 2MB tarball slips through a 50KB guard.\n\n## The Fix\n\nFor new/modified files, get actual staged content size:\n- Use `git ls-files --cached -s` to get blob SHA\n- Use `git cat-file -s <sha>` to get blob size\n- Or use `git diff --cached --numstat` which shows actual byte counts\n\n## Files\n\n- Tools/vvc/src/vvcg_guard.rs\n\n## Testing\n\n1. Stage a large binary file (>50KB)\n2. Run vvx_commit with default limit\n3. Verify guard rejects it\n\n## Prevention\n\nThis bug allowed vvk-parcel-1000.tar.gz (2MB) to be committed. Guard should have caught it."
+            }
+          ]
+        },
+        "₢AEAAG": {
+          "silks": "accept-unprefixed-identities",
+          "tacks": [
+            {
+              "ts": "260118-1100",
+              "state": "rough",
+              "text": "JJD specifies input flexibility for Firemark and Coronet types:\n- 'Input may omit the ₣ prefix; output always includes it.' (Firemark, line 251)\n- 'Input may omit the ₢ prefix; output always includes it.' (Coronet, line 264)\n- 'CLI commands accept identities with or without prefix. Length determines type: 2 base64 chars = firemark, 5 base64 chars = coronet.' (lines 585-586)\n\nCurrently the Rust implementation requires the unicode prefix. For example:\n- `jjx_parade --format detail --pace ADAAL AD` fails with 'Pace ADAAL not found'\n- `jjx_parade --format detail --pace ₢ADAAL AD` succeeds\n\nUpdate identity parsing throughout jjx to accept bare base64 strings:\n- 2 characters → Firemark (prepend ₣ internally)\n- 5 characters → Coronet (prepend ₢ internally)\n- Already-prefixed inputs continue to work\n\nThis reduces stumbles when slash commands or users omit the unicode prefix."
             }
           ]
         }
