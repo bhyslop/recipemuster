@@ -1922,6 +1922,11 @@
           "silks": "vvc-guard-binary-file-size",
           "tacks": [
             {
+              "ts": "260118-1110",
+              "state": "complete",
+              "text": "Refactored vvtg_guard.rs tests to eliminate set_current_dir() race conditions by passing repo_dir to test functions and using get_test_base() helper for temp directory fallback. All 4 tests now pass in parallel."
+            },
+            {
               "ts": "260118-1009",
               "state": "bridled",
               "text": "Fix parallel test race condition in vvtg_guard.rs tests.\n\nTwo tests (vvtg_deleted_file_size, vvtg_regression_tarball) use std::env::set_current_dir() which is process-wide, causing race conditions when tests run in parallel.\n\nOptions:\n1. Add --test-threads=1 to vob_test cargo invocation (quick fix)\n2. Refactor tests to pass working directory to vvcg_run instead of using set_current_dir (proper fix)\n\nAll 9 tests pass with --test-threads=1.\n\nPrior work completed:\n- Build infrastructure refactored (vof_features.sh, vob_test, vow-t tabtarget) - committed 926bc81e\n- Path canonicalization for BUD_TEMP_DIR/BUD_OUTPUT_DIR in vvce_env.rs - committed 42f60d58\n- Test helper canonicalizes temp path - committed 42f60d58\n- Tools/temp-buk debris deleted",
