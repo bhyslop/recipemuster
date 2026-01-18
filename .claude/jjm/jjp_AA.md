@@ -43,21 +43,27 @@ vvk-parcel-{hallmark}/
 
 ## Operation Contracts
 
-**vvx_emplace** (Rust, no git):
-- Parse burc.env → BURC_TOOLS_DIR, BURC_PROJECT_ROOT
+**vvx_emplace** (Rust, with git commit):
+- Parse burc.env → BURC_TOOLS_DIR, BURC_PROJECT_ROOT, BURC_MANAGED_KITS
+- Validate exact match: parcel's vvbk_kits == BURC_MANAGED_KITS
+- Nuclear cleanup: delete existing .vvk/ and kit directories
 - Copy kits/* → ${BURC_TOOLS_DIR}/
 - Route commands ({cipher}c-*.md) → .claude/commands/
 - Freshen CLAUDE.md via voff_freshen()
 - Copy brand → .vvk/vvbf_brand.json
+- Git commit
 
-**vvx_vacate** (Rust, no git):
+**vvx_vacate** (Rust, with git commit):
+- Parse burc.env (requires BURC_MANAGED_KITS for defense in depth)
 - Read .vvk/vvbf_brand.json for kit list
-- Remove kit directories
-- Remove routed commands
+- Remove routed commands/hooks
 - Collapse CLAUDE.md via voff_collapse()
-- Remove brand file
+- Remove vvx binaries from Tools/vvk/bin/
+- **Preserve** kit directories (unveiled content remains functional)
+- Remove brand file and .vvk/
+- Git commit
 
-**Bash wrappers** (vvi_install.sh, vvu_uninstall.sh) handle git commits before/after.
+**Bash wrappers** (vvi_install.sh, vvu_uninstall.sh) are thin bootstraps that exec Rust.
 
 ## CLAUDE.md Managed Sections
 
@@ -87,3 +93,10 @@ Content outside markers is user content — survives reinstall.
 - **260113**: Heat created. Decisions: all-Rust, all-or-none install, git-aware with Claude recovery.
 - **260115**: Archive-based asset model chosen over embedded binaries.
 - **260117**: Release implemented (₢AAAAE). Hallmark 1000 allocated. Paddock condensed for MVP focus.
+- **260118**: BURC_MANAGED_KITS added for kit inventory control. Exact match validation on emplace prevents binary capability leakage. Vacate updated to preserve kit directories (unveiled content is open-source). Install to pb tested successfully (hallmark 1005). Orphaned CMK from previous install cleaned up manually. VOS updated to match implementation.
+
+## Next Steps
+
+1. Test uninstall/reinstall cycle on pb
+2. Verify pb bash utilities remain functional after vacate
+3. Test reinstall after vacate
