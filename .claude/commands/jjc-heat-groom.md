@@ -82,11 +82,25 @@ Show all paces with full detail regardless of state - this is a planning view.
 
 ## Step 4: Enter planning mode
 
+Identify the **next pace** — first incomplete pace by order (skip complete/abandoned). This is what `/jjc-heat-mount` will execute.
+
+**Order determines execution priority; state determines execution mode:**
+- rough → interactive (human collaboration)
+- bridled → autonomous (agent execution)
+
+A bridled pace later in the queue is NOT higher priority than a rough pace earlier in the queue.
+
 Prompt the user:
 
-"Heat **{silks}** has {N} paces. What would you like to work on?"
+"Heat **{silks}** has {N} paces. **Next up:** {next_pace_silks} (₢{coronet}) [{state}]"
 
-Suggest relevant actions based on state:
+"What would you like to work on?"
+
+Suggest actions anchored to the next pace:
+- If next pace is rough: "Execute interactively with `/jjc-heat-mount`" or "Bridle for autonomous execution with `/jjc-pace-bridle {coronet}`"
+- If next pace is bridled: "Execute autonomously with `/jjc-heat-mount`"
+
+Then offer structural operations:
 - "Add new paces with `/jjc-pace-slate`"
 - "Reorder paces with `/jjc-heat-rail`"
 - "Refine a pace specification with `/jjc-pace-reslate`"
