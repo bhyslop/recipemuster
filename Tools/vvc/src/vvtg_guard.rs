@@ -14,7 +14,9 @@ mod tests {
     fn vvtg_get_test_base() -> std::path::PathBuf {
         // Try to use BUD temp dir if available (when run via tabtarget)
         if let Ok(bud_temp) = std::env::var("BUD_TEMP_DIR") {
-            std::path::PathBuf::from(bud_temp)
+            let path = std::path::PathBuf::from(bud_temp);
+            // Canonicalize to absolute path (BUD_TEMP_DIR may be relative)
+            path.canonicalize().unwrap_or(path)
         } else {
             // Fall back to system temp for direct cargo test
             std::env::temp_dir()

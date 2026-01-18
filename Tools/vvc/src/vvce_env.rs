@@ -55,14 +55,22 @@ fn zvvce_validate_env() -> VvcEnv {
     let mut missing: Vec<&str> = Vec::new();
     let mut invalid: Vec<String> = Vec::new();
 
-    // Validate BUD_TEMP_DIR
+    // Validate BUD_TEMP_DIR (canonicalize to absolute path for test compatibility)
     let temp_dir = match std::env::var("BUD_TEMP_DIR") {
         Ok(v) if !v.is_empty() => {
             let path = PathBuf::from(&v);
-            if !path.is_dir() {
-                invalid.push(format!("BUD_TEMP_DIR='{}' is not a directory", v));
+            match path.canonicalize() {
+                Ok(abs_path) => {
+                    if !abs_path.is_dir() {
+                        invalid.push(format!("BUD_TEMP_DIR='{}' is not a directory", v));
+                    }
+                    abs_path
+                }
+                Err(e) => {
+                    invalid.push(format!("BUD_TEMP_DIR='{}' cannot be resolved: {}", v, e));
+                    path
+                }
             }
-            path
         }
         Ok(_) => {
             missing.push("BUD_TEMP_DIR");
@@ -74,14 +82,22 @@ fn zvvce_validate_env() -> VvcEnv {
         }
     };
 
-    // Validate BUD_OUTPUT_DIR
+    // Validate BUD_OUTPUT_DIR (canonicalize to absolute path for consistency)
     let output_dir = match std::env::var("BUD_OUTPUT_DIR") {
         Ok(v) if !v.is_empty() => {
             let path = PathBuf::from(&v);
-            if !path.is_dir() {
-                invalid.push(format!("BUD_OUTPUT_DIR='{}' is not a directory", v));
+            match path.canonicalize() {
+                Ok(abs_path) => {
+                    if !abs_path.is_dir() {
+                        invalid.push(format!("BUD_OUTPUT_DIR='{}' is not a directory", v));
+                    }
+                    abs_path
+                }
+                Err(e) => {
+                    invalid.push(format!("BUD_OUTPUT_DIR='{}' cannot be resolved: {}", v, e));
+                    path
+                }
             }
-            path
         }
         Ok(_) => {
             missing.push("BUD_OUTPUT_DIR");
