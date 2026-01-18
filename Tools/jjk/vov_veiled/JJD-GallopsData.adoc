@@ -1906,7 +1906,10 @@ Output varies by format mode.
 // ⟦axd_optional⟧
 * `--pace <coronet>` — target
 {jjdt_coronet}
-(required with `--format detail`)
+(accepts with or without `₢` prefix; falls back to
+{jjdts_silks}
+match if coronet parse fails or pace not found by coronet).
+Required with `--format detail`
 
 // ⟦axd_optional⟧
 * `--remaining` — show only remaining paces (exclude

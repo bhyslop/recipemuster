@@ -8,7 +8,8 @@
 //! All operations read from Gallops JSON and optionally paddock files.
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, jjrg_Pace as Pace};
 use crate::jjrs_steeplechase::{jjrs_SteeplechaseEntry, jjrs_get_entries, jjrs_ReinArgs};
 use serde::Serialize;
 use std::fs;
@@ -253,17 +254,17 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             }
         }
         jjrq_ParadeFormat::Detail => {
-            let target_coronet = args.pace.as_ref().unwrap();
-            let pace = match heat.paces.get(target_coronet) {
-                Some(p) => p,
+            let pace_arg = args.pace.as_ref().unwrap();
+            let (coronet_key, pace) = match zjjrq_resolve_pace(heat, pace_arg) {
+                Some(result) => result,
                 None => {
-                    eprintln!("jjx_parade: error: Pace '{}' not found in Heat '{}'", target_coronet, heat_key);
+                    eprintln!("jjx_parade: error: Pace '{}' not found in Heat '{}' (tried coronet and silks)", pace_arg, heat_key);
                     return 1;
                 }
             };
             if let Some(tack) = pace.tacks.first() {
                 let state_str = zjjrq_pace_state_str(&tack.state);
-                println!("Pace: {} ({})", tack.silks, target_coronet);
+                println!("Pace: {} ({})", tack.silks, coronet_key);
                 println!("State: {}", state_str);
                 println!("Heat: {}", heat_key);
                 println!();
@@ -323,6 +324,40 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
     }
 
     0
+}
+
+/// Helper to resolve pace by coronet or silks
+///
+/// First tries to parse pace_arg as a Coronet and lookup by coronet key.
+/// If that fails, iterates heat.paces to find a pace where tacks[0].silks matches pace_arg.
+/// Returns tuple of (coronet_key, pace_ref) if found.
+fn zjjrq_resolve_pace<'a>(
+    heat: &'a crate::jjrg_gallops::jjrg_Heat,
+    pace_arg: &str,
+) -> Option<(&'a String, &'a Pace)> {
+    // Try parsing as Coronet first
+    if let Ok(coronet) = Coronet::jjrf_parse(pace_arg) {
+        let coronet_key = coronet.jjrf_display();
+        if let Some(pace) = heat.paces.get(&coronet_key) {
+            // Find the actual key in the HashMap that matches
+            for (key, p) in &heat.paces {
+                if key == &coronet_key {
+                    return Some((key, p));
+                }
+            }
+        }
+    }
+
+    // Fallback: search by silks
+    for (coronet_key, pace) in &heat.paces {
+        if let Some(tack) = pace.tacks.first() {
+            if tack.silks == pace_arg {
+                return Some((coronet_key, pace));
+            }
+        }
+    }
+
+    None
 }
 
 /// Helper to convert PaceState to display string

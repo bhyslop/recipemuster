@@ -293,18 +293,22 @@ fn zvofr_collect_kit(
 }
 
 /// Collect Claude config assets for a single kit.
-/// Scans .claude/commands/ and .claude/hooks/ in kit forge for cipher-matched files.
+/// Scans .claude/commands/ and .claude/hooks/ at kit forge root for cipher-matched files.
+/// Uses CWD as kit forge root (commands run from project root per launcher convention).
 /// Returns (commands_collected, hooks_collected).
 fn zvofr_collect_claude_assets(
-    kit_forge: &Path,
+    _kit_forge: &Path,
     staging: &Path,
     cipher: &str,
 ) -> Result<(u32, u32), String> {
     let mut commands_count = 0u32;
     let mut hooks_count = 0u32;
 
+    // Kit forge root is CWD (launcher cd's to project root before execution)
+    let kit_forge_root = Path::new(".");
+
     // Collect commands from .claude/commands/
-    let commands_source = kit_forge.join(".claude").join("commands");
+    let commands_source = kit_forge_root.join(".claude").join("commands");
     if commands_source.exists() {
         let commands_dest = staging.join("claude").join("commands");
         fs::create_dir_all(&commands_dest)
@@ -314,7 +318,7 @@ fn zvofr_collect_claude_assets(
     }
 
     // Collect hooks from .claude/hooks/
-    let hooks_source = kit_forge.join(".claude").join("hooks");
+    let hooks_source = kit_forge_root.join(".claude").join("hooks");
     if hooks_source.exists() {
         let hooks_dest = staging.join("claude").join("hooks");
         fs::create_dir_all(&hooks_dest)
