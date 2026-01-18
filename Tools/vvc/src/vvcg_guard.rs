@@ -97,15 +97,68 @@ fn zvvcg_get_staged_files() -> Result<Vec<zvvcg_StagedFile>, String> {
     Ok(files)
 }
 
-/// Get size of staged diff for a specific file
+/// Change status for a staged file
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum zvvcg_ChangeStatus {
+    Added,
+    Modified,
+    Deleted,
+}
+
+/// Get the change status of a staged file (A/M/D)
+fn zvvcg_get_change_status(path: &str) -> Result<zvvcg_ChangeStatus, String> {
+    let output = Command::new("git")
+        .args(["diff", "--cached", "--name-status", "--", path])
+        .output()
+        .map_err(|e| format!("Failed to run git diff --name-status for {}: {}", path, e))?;
+
+    if !output.status.success() {
+        return Err(format!("git diff --cached --name-status -- {} failed", path));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let line = stdout.trim();
+
+    if line.is_empty() {
+        // File not in diff - shouldn't happen if called from staged files list
+        return Err(format!("File {} not found in staged changes", path));
+    }
+
+    // Format: "A\tpath" or "M\tpath" or "D\tpath" (or R/C with rename info)
+    let status_char = line.chars().next().unwrap_or('?');
+
+    match status_char {
+        'A' => Ok(zvvcg_ChangeStatus::Added),
+        'M' => Ok(zvvcg_ChangeStatus::Modified),
+        'D' => Ok(zvvcg_ChangeStatus::Deleted),
+        'R' | 'C' => Ok(zvvcg_ChangeStatus::Modified), // Rename/Copy treated as modified
+        _ => Err(format!("Unknown status '{}' for {}", status_char, path)),
+    }
+}
+
+/// Check if a modified file is binary
 ///
-/// For new or modified files, returns the actual blob size in the staging area.
-/// For deleted files, returns 0.
-///
-/// Uses git ls-files --cached -s to get the blob SHA, then git cat-file -s
-/// to get the actual size. This correctly handles binary files, which would
-/// otherwise be misreported by measuring git diff output length.
-pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
+/// Uses git diff --numstat which reports `-\t-\t<path>` for binary files.
+fn zvvcg_is_binary(path: &str) -> Result<bool, String> {
+    let output = Command::new("git")
+        .args(["diff", "--cached", "--numstat", "--", path])
+        .output()
+        .map_err(|e| format!("Failed to run git diff --numstat for {}: {}", path, e))?;
+
+    if !output.status.success() {
+        return Err(format!("git diff --cached --numstat -- {} failed", path));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let line = stdout.trim();
+
+    // Binary files show: "-\t-\t<path>"
+    // Text files show: "<added>\t<removed>\t<path>"
+    Ok(line.starts_with("-\t-\t"))
+}
+
+/// Get the blob size for a staged file
+fn zvvcg_get_blob_size(path: &str) -> Result<u64, String> {
     // Get staged blob info: mode, sha, stage, path
     let output = Command::new("git")
         .args(["ls-files", "--cached", "-s", "--", path])
@@ -119,7 +172,6 @@ pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let line = stdout.trim();
 
-    // If file is deleted (not in index), it has no size
     if line.is_empty() {
         return Ok(0);
     }
@@ -147,6 +199,43 @@ pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
         .trim()
         .parse::<u64>()
         .map_err(|e| format!("Failed to parse blob size for {}: {}", path, e))
+}
+
+/// Get the diff output size for a modified text file
+fn zvvcg_get_text_diff_size(path: &str) -> Result<u64, String> {
+    let output = Command::new("git")
+        .args(["diff", "--cached", "--", path])
+        .output()
+        .map_err(|e| format!("Failed to run git diff for {}: {}", path, e))?;
+
+    if !output.status.success() {
+        return Err(format!("git diff --cached -- {} failed", path));
+    }
+
+    Ok(output.stdout.len() as u64)
+}
+
+/// Get incremental storage cost for a staged file
+///
+/// Implements the cost model from the module doc:
+/// - New file (A): blob size
+/// - Modified text (M): diff size
+/// - Modified binary (M): blob size
+/// - Deleted file (D): 0
+pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
+    let status = zvvcg_get_change_status(path)?;
+
+    match status {
+        zvvcg_ChangeStatus::Deleted => Ok(0),
+        zvvcg_ChangeStatus::Added => zvvcg_get_blob_size(path),
+        zvvcg_ChangeStatus::Modified => {
+            if zvvcg_is_binary(path)? {
+                zvvcg_get_blob_size(path)
+            } else {
+                zvvcg_get_text_diff_size(path)
+            }
+        }
+    }
 }
 
 /// Run the guard check on staged content.
