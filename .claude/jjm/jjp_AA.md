@@ -11,26 +11,25 @@ Complete release/install/uninstall cycle. Single platform. Hardcoded CLAUDE.md t
 
 **Iteration workflow** (from kit forge):
 ```bash
-# 0. Notch to establish known state (delete local tarballs first if any)
-rm -f vvk-parcel-*.tar.gz
+# 0. Notch to establish known state
 /jjc-pace-notch
 
 # 1. Build release (creates vvk-parcel-NNNN.tar.gz in kit forge)
 tt/vow-R.Release.sh
 
-# 2. Nuke staging (including hidden files), extract, delete tarball
+# 2. Nuke staging (including hidden files), extract, delete ALL local tarballs
 rm -rf ../release-install-tarball/.* ../release-install-tarball/* 2>/dev/null
 tar -xzf vvk-parcel-*.tar.gz -C ../release-install-tarball/
 rm -f vvk-parcel-*.tar.gz
 
-# 3. Install to target
-../release-install-tarball/vvi_install.sh /Users/bhyslop/projects/pb_paneboard02
+# 3. Install to target (parameter is path to burc.env, NOT just target dir)
+../release-install-tarball/vvi_install.sh /Users/bhyslop/projects/pb_paneboard02/.buk/burc.env
 
 # 4. Uninstall from target
 /Users/bhyslop/projects/pb_paneboard02/Tools/vvk/vvu_uninstall.sh
 ```
 
-**Test discipline**: Continue as far as possible through steps 1-4. Diagnose any errors encountered. **STOP before editing kit forge code to fix** — report findings to human first.
+**Test discipline**: Continue as far as possible through steps 0-4. Diagnose any errors encountered. **STOP before editing kit forge code to fix** — report findings to human first.
 
 ## Parcel Structure (established)
 
