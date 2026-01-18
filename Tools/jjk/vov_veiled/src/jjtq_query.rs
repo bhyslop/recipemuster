@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use super::jjrq_query::*;
-use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_COMMIT};
 use std::collections::BTreeMap;
 
 fn create_test_gallops() -> Gallops {
@@ -11,11 +11,12 @@ fn create_test_gallops() -> Gallops {
     paces.insert(
         "₢ABAAA".to_string(),
         Pace {
-            silks: "test-pace-one".to_string(),
             tacks: vec![Tack {
                 ts: "260101-1200".to_string(),
                 state: PaceState::Rough,
                 text: "First pace rough plan".to_string(),
+                silks: "test-pace-one".to_string(),
+                commit: JJRG_UNKNOWN_COMMIT.to_string(),
                 direction: None,
             }],
         },
@@ -23,11 +24,12 @@ fn create_test_gallops() -> Gallops {
     paces.insert(
         "₢ABAAB".to_string(),
         Pace {
-            silks: "test-pace-two".to_string(),
             tacks: vec![Tack {
                 ts: "260101-1300".to_string(),
                 state: PaceState::Complete,
                 text: "Completed pace".to_string(),
+                silks: "test-pace-two".to_string(),
+                commit: JJRG_UNKNOWN_COMMIT.to_string(),
                 direction: None,
             }],
         },

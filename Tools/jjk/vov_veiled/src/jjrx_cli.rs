@@ -1025,7 +1025,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             let parent_fm = c.jjrf_parent_firemark();
             let silks = gallops.heats.get(&parent_fm.jjrf_display())
                 .and_then(|h| h.paces.get(&c.jjrf_display()))
-                .map(|p| p.silks.clone())
+                .and_then(|p| p.tacks.first().map(|t| t.silks.clone()))
                 .unwrap_or_else(|| coronet_str.clone());
             (parent_fm, silks)
         }
