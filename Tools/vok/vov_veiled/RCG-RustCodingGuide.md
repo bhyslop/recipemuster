@@ -14,13 +14,17 @@ The primary concern is **minting discipline** — ensuring all identifiers follo
 
 ## Crate Boilerplate
 
-Every crate's `lib.rs` must include this attribute to allow prefixed type names:
+Every crate's `lib.rs` must include these attributes to support RCG naming conventions:
 
 ```rust
 #![allow(non_camel_case_types)]
+#![allow(private_interfaces)]
 ```
 
-This is mandatory. RCG naming conventions override Rust's default CamelCase warnings.
+- `non_camel_case_types`: Allows prefixed type names like `jjrg_Gallops`
+- `private_interfaces`: Allows z-prefixed (internal) types in public enum variants
+
+Both are mandatory. RCG naming conventions override Rust's default warnings.
 
 ## File Naming
 
@@ -110,6 +114,10 @@ pub(crate) fn zjjrg_validate_silks(s: &str) -> bool {
 ```
 
 The `z` prefix signals "do not call from outside this module's conceptual boundary" even though Rust visibility permits crate-internal access.
+
+### Visibility and Derive Macros
+
+When using derive macros like `clap`, internal argument structs (`z{prefix}_*Args`) may appear in public enum variants. Rust warns about this visibility mismatch. The `#![allow(private_interfaces)]` attribute in Crate Boilerplate suppresses this expected noise — the `z` prefix communicates intent to humans even when Rust forces technical exposure.
 
 ### Struct Field Visibility for Tests
 
@@ -495,6 +503,7 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] Source file: `{cipher}r{x}_{name}.rs`
 - [ ] Test file: `{cipher}t{x}_{name}.rs` (if tests exist)
 - [ ] `lib.rs` has `#![allow(non_camel_case_types)]`
+- [ ] `lib.rs` has `#![allow(private_interfaces)]`
 - [ ] `lib.rs` declares source module: `pub mod {cipher}r{x}_{name};`
 - [ ] `lib.rs` declares test module: `#[cfg(test)] mod {cipher}t{x}_{name};`
 

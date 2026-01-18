@@ -10,6 +10,7 @@
 //! This crate is compiled into vvr when the jjk feature is enabled.
 
 #![allow(non_camel_case_types)]
+#![allow(private_interfaces)]
 
 pub mod jjrc_core;
 pub mod jjrf_favor;
