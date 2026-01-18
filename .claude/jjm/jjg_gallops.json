@@ -2545,6 +2545,14 @@
         "₢AEAAJ": {
           "tacks": [
             {
+              "ts": "260118-1419",
+              "state": "bridled",
+              "text": "Remove legacy format acceptance from JJD spec.\n\n## Context\n\nAfter tack-struct-rust-migration (₢AEAAI) completes, legacy format\nno longer exists in the data. The spec should reflect this.\n\n## Changes\n\n### 1. Remove Legacy Format Acceptance section\n\nDelete lines 602-614 (the entire \"=== Legacy Format Acceptance\" section).\n\n### 2. Simplify jjdkm_commit definition\n\nLine 511 currently says:\n  Value `0000000` indicates unknown (migrated data).\n\nChange to:\n  Value `0000000` indicates commit was unavailable at creation time.\n\n(Removes \"migrated\" reference while keeping the sentinel documented.)\n\n## Verification\n\nSearch for: \"legacy\", \"migration\", \"migrated\"\nExpected: zero matches\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n\n## Scope\n\nSpec cleanup only. Bridleable.",
+              "silks": "tack-struct-jjd-cleanup",
+              "commit": "d72b1a3",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/jjk/vov_veiled/JJD-GallopsData.adoc (1 file)\nSteps:\n1. Delete === Legacy Format Acceptance section (from === Legacy Format Acceptance through blank line before == Arguments)\n2. Change jjdkm_commit definition from indicates unknown (migrated data) to indicates commit was unavailable at creation time\n3. Grep verify: no matches for legacy, migration, migrated\nVerify: grep -i legacy|migrat Tools/jjk/vov_veiled/JJD-GallopsData.adoc (expect no output)"
+            },
+            {
               "ts": "260118-1349",
               "state": "rough",
               "text": "Remove legacy format acceptance from JJD spec.\n\n## Context\n\nAfter tack-struct-rust-migration (₢AEAAI) completes, legacy format\nno longer exists in the data. The spec should reflect this.\n\n## Changes\n\n### 1. Remove Legacy Format Acceptance section\n\nDelete lines 602-614 (the entire \"=== Legacy Format Acceptance\" section).\n\n### 2. Simplify jjdkm_commit definition\n\nLine 511 currently says:\n  Value `0000000` indicates unknown (migrated data).\n\nChange to:\n  Value `0000000` indicates commit was unavailable at creation time.\n\n(Removes \"migrated\" reference while keeping the sentinel documented.)\n\n## Verification\n\nSearch for: \"legacy\", \"migration\", \"migrated\"\nExpected: zero matches\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n\n## Scope\n\nSpec cleanup only. Bridleable.",
