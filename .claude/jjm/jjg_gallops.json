@@ -1542,6 +1542,7 @@
       "order": [
         "₢ADAAG",
         "₢ADAAF",
+        "₢ADAAK",
         "₢ADAAA",
         "₢ADAAB",
         "₢ADAAC",
@@ -1549,8 +1550,7 @@
         "₢ADAAE",
         "₢ADAAH",
         "₢ADAAI",
-        "₢ADAAJ",
-        "₢ADAAK"
+        "₢ADAAJ"
       ],
       "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AD.md",
