@@ -2375,6 +2375,14 @@
         "₢AEAAB": {
           "tacks": [
             {
+              "ts": "260118-1505",
+              "state": "bridled",
+              "text": "Drafted from ₢AAAAl in ₣AA.\n\nFix jjx_parade --pace argument handling:\n\n1. **Coronet normalization**: Add Coronet::parse() + .display() before lookup (matches jjx_rail/jjx_tally pattern). Fixes: `--pace AAAAk` currently fails because map keys are `₢AAAAk`.\n\n2. **Silks fallback**: If coronet lookup fails, iterate heat.paces to find pace by silks match. Allows `--pace jjrc-commit-helper` as convenience.\n\n3. **JJD update**: Document the silks fallback behavior in jjx_parade's --pace argument description.\n\nFiles: Tools/jjk/veiled/src/jjrq_query.rs (implementation), Tools/jjk/JJD-GallopsData.adoc (spec)",
+              "silks": "parade-pace-silks-lookup",
+              "commit": "d3df819",
+              "direction": "Agent: sonnet\nCardinality: 2 parallel + sequential build\nFiles: jjrq_query.rs, JJD-GallopsData.adoc (2 files)\nSteps:\n1. Agent A (sonnet): In jjrq_query.rs, import Coronet from jjrf_favor. Add zjjrq_resolve_pace() helper that: (a) tries Coronet::jjrf_parse() + .jjrf_display() for lookup, (b) if parse fails or lookup fails, iterates heat.paces to find by tacks[0].silks match. Apply helper in Detail format branch replacing direct heat.paces.get().\n2. Agent B (sonnet): In JJD-GallopsData.adoc, update jjdo_parade --pace argument description to document: accepts coronet with or without prefix, falls back to silks match if coronet not found.\n3. Sequential: tt/vow-b.Build.sh && tt/vow-t.Test.sh\nVerify: tt/vow-b.Build.sh && tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260117-1410",
               "state": "rough",
               "text": "Drafted from ₢AAAAl in ₣AA.\n\nFix jjx_parade --pace argument handling:\n\n1. **Coronet normalization**: Add Coronet::parse() + .display() before lookup (matches jjx_rail/jjx_tally pattern). Fixes: `--pace AAAAk` currently fails because map keys are `₢AAAAk`.\n\n2. **Silks fallback**: If coronet lookup fails, iterate heat.paces to find pace by silks match. Allows `--pace jjrc-commit-helper` as convenience.\n\n3. **JJD update**: Document the silks fallback behavior in jjx_parade's --pace argument description.\n\nFiles: Tools/jjk/veiled/src/jjrq_query.rs (implementation), Tools/jjk/JJD-GallopsData.adoc (spec)",
