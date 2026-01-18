@@ -40,28 +40,13 @@ zvob_kindle() {
   # Validate BURC environment
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"
 
-  # Paths (VVB_BIN_DIR comes from vvb_bash.sh)
+  # Paths (VVB_BIN_DIR and VVB_PLATFORM come from vvb_bash.sh)
   ZVOB_CARGO_DIR="${BURC_TOOLS_DIR}/vok"
   ZVOB_TARGET_BINARY="${ZVOB_CARGO_DIR}/target/release/vvr"
   ZVOB_RELEASE_DIR="${ZVOB_CARGO_DIR}/release"
   ZVOB_LEDGER_FILE="${ZVOB_CARGO_DIR}/vol_ledger.json"
 
-  # Platform detection
-  local z_os
-  local z_arch
-  z_os="$(uname -s)" || buc_die "Failed to detect OS"
-  z_arch="$(uname -m)" || buc_die "Failed to detect architecture"
-
-  case "${z_os}-${z_arch}" in
-    Darwin-arm64)   ZVOB_PLATFORM="darwin-arm64" ;;
-    Darwin-x86_64)  ZVOB_PLATFORM="darwin-x86_64" ;;
-    Linux-x86_64)   ZVOB_PLATFORM="linux-x86_64" ;;
-    Linux-aarch64)  ZVOB_PLATFORM="linux-aarch64" ;;
-    MINGW*-x86_64|MSYS*-x86_64) ZVOB_PLATFORM="windows-x86_64" ;;
-    *)              buc_die "Unsupported platform: ${z_os}-${z_arch}" ;;
-  esac
-
-  ZVOB_RELEASE_BINARY="${ZVOB_RELEASE_DIR}/${ZVOB_PLATFORM}/vvr"
+  ZVOB_RELEASE_BINARY="${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}/vvr"
 
   ZVOB_KINDLED=1
 }
@@ -83,29 +68,27 @@ vob_build() {
 
   buc_step "Building vvr binary"
   buc_log_args "Features: ${VOF_VOK_FEATURES:-none}"
-  buc_log_args "Platform: ${ZVOB_PLATFORM}"
+  buc_log_args "Platform: ${VVB_PLATFORM}"
 
   cargo build --release --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${VOF_VOK_FEATURES}" || buc_die "cargo build failed"
 
   buc_step "Installing to VVK bin directory"
 
-  local z_dest="${VVB_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
-
   buc_log_args "Source: ${ZVOB_TARGET_BINARY}"
-  buc_log_args "Destination: ${z_dest}"
+  buc_log_args "Destination: ${VVB_VVX_BINARY}"
 
   test -f "${ZVOB_TARGET_BINARY}" || buc_die "Binary not found: ${ZVOB_TARGET_BINARY}"
   test -d "${VVB_BIN_DIR}" || mkdir -p "${VVB_BIN_DIR}" || buc_die "Failed to create: ${VVB_BIN_DIR}"
 
-  cp "${ZVOB_TARGET_BINARY}" "${z_dest}" || buc_die "Failed to copy binary"
-  chmod +x "${z_dest}" || buc_die "Failed to chmod"
+  cp "${ZVOB_TARGET_BINARY}" "${VVB_VVX_BINARY}" || buc_die "Failed to copy binary"
+  chmod +x "${VVB_VVX_BINARY}" || buc_die "Failed to chmod"
 
   # Ad-hoc codesign for macOS (prevents quarantine kills)
   if command -v codesign >/dev/null 2>&1; then
-    codesign --force --sign - "${z_dest}" 2>/dev/null || buc_warn "codesign failed (non-fatal)"
+    codesign --force --sign - "${VVB_VVX_BINARY}" 2>/dev/null || buc_warn "codesign failed (non-fatal)"
   fi
 
-  buc_success "Built and installed to ${z_dest}"
+  buc_success "Built and installed to ${VVB_VVX_BINARY}"
 }
 
 vob_test() {
@@ -149,7 +132,7 @@ vob_release() {
   buc_log_args "Destination: ${ZVOB_RELEASE_BINARY}"
 
   test -f "${ZVOB_TARGET_BINARY}" || buc_die "Binary not found - run vob_build first"
-  test -d "${ZVOB_RELEASE_DIR}/${ZVOB_PLATFORM}" || buc_die "Release dir not found: ${ZVOB_RELEASE_DIR}/${ZVOB_PLATFORM}"
+  test -d "${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}" || buc_die "Release dir not found: ${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}"
 
   cp "${ZVOB_TARGET_BINARY}" "${ZVOB_RELEASE_BINARY}" || buc_die "Failed to copy binary"
   chmod +x "${ZVOB_RELEASE_BINARY}" || buc_die "Failed to chmod"
@@ -179,7 +162,7 @@ vob_release() {
   local z_ledger_tmp="${BUD_TEMP_DIR}/vob_ledger_update.json"
 
   jq --arg date "${z_date}" \
-     --arg platform "${ZVOB_PLATFORM}" \
+     --arg platform "${VVB_PLATFORM}" \
      --arg hash "${z_hash}" \
      --arg commit "${z_commit}" \
      '.releases += [{"date": $date, "platform": $platform, "hash": $hash, "commit": $commit}]' \
@@ -199,7 +182,7 @@ vob_parcel() {
   local z_staging="${BUD_TEMP_DIR}/staging"
   local z_install_script="${BURC_TOOLS_DIR}/vvk/vvi_install.sh"
   local z_registry="${BURC_TOOLS_DIR}/vok/vov_veiled/vovr_registry.json"
-  local z_vvx="${VVB_BIN_DIR}/vvx-${ZVOB_PLATFORM}"
+  local z_vvx="${VVB_VVX_BINARY}"
 
   buc_step "Running tests"
   buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
@@ -234,10 +217,10 @@ vob_parcel() {
   local z_bin_dest="${z_staging}/kits/vvk/bin"
   mkdir -p "${z_bin_dest}" || buc_die "Failed to create bin dir"
 
-  cp "${z_vvx}" "${z_bin_dest}/vvx-${ZVOB_PLATFORM}" || buc_die "Failed to copy binary"
-  chmod +x "${z_bin_dest}/vvx-${ZVOB_PLATFORM}" || buc_die "Failed to chmod"
+  cp "${z_vvx}" "${z_bin_dest}/vvx-${VVB_PLATFORM}" || buc_die "Failed to copy binary"
+  chmod +x "${z_bin_dest}/vvx-${VVB_PLATFORM}" || buc_die "Failed to chmod"
 
-  buc_log_args "Binary: ${z_bin_dest}/vvx-${ZVOB_PLATFORM}"
+  buc_log_args "Binary: ${z_bin_dest}/vvx-${VVB_PLATFORM}"
 
   buc_step "Branding parcel"
 

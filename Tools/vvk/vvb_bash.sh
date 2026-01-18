@@ -36,6 +36,24 @@ zvvb_kindle() {
   # Public export - binary directory (may not exist until first build)
   VVB_BIN_DIR="${ZVVB_SCRIPT_DIR}/bin"
 
+  # Public export - platform identifier (inline detection to avoid sentinel dependency)
+  local z_os
+  local z_arch
+  z_os=$(uname -s) || buc_die "Failed to detect OS"
+  z_arch=$(uname -m) || buc_die "Failed to detect architecture"
+
+  case "${z_os}-${z_arch}" in
+    Darwin-arm64)                      VVB_PLATFORM="darwin-arm64" ;;
+    Darwin-x86_64)                     VVB_PLATFORM="darwin-x86_64" ;;
+    Linux-x86_64)                      VVB_PLATFORM="linux-x86_64" ;;
+    Linux-aarch64)                     VVB_PLATFORM="linux-aarch64" ;;
+    MINGW*-x86_64|MSYS*-x86_64)        VVB_PLATFORM="windows-x86_64" ;;
+    *)                                 buc_die "Unsupported platform: ${z_os}-${z_arch}" ;;
+  esac
+
+  # Public export - full path to platform-specific VVX binary
+  VVB_VVX_BINARY="${VVB_BIN_DIR}/vvx-${VVB_PLATFORM}"
+
   ZVVB_KINDLED=1
 }
 
@@ -57,6 +75,7 @@ zvvb_platform_capture() {
     Darwin-arm64)                      z_platform="darwin-arm64" ;;
     Darwin-x86_64)                     z_platform="darwin-x86_64" ;;
     Linux-x86_64)                      z_platform="linux-x86_64" ;;
+    Linux-aarch64)                     z_platform="linux-aarch64" ;;
     MINGW*-x86_64|MSYS*-x86_64)        z_platform="windows-x86_64" ;;
     *)                                 return 1 ;;
   esac
@@ -67,15 +86,10 @@ zvvb_platform_capture() {
 zvvb_binary_path_capture() {
   zvvb_sentinel
 
-  local z_platform
-  z_platform=$(zvvb_platform_capture) || return 1
+  test -f "${VVB_VVX_BINARY}" || return 1
+  test -x "${VVB_VVX_BINARY}" || return 1
 
-  local z_binary="${VVB_BIN_DIR}/vvx-${z_platform}"
-
-  test -f "${z_binary}" || return 1
-  test -x "${z_binary}" || return 1
-
-  echo "${z_binary}"
+  echo "${VVB_VVX_BINARY}"
 }
 
 ######################################################################
