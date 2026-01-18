@@ -1548,9 +1548,10 @@
         "₢ADAAD",
         "₢ADAAE",
         "₢ADAAH",
-        "₢ADAAI"
+        "₢ADAAI",
+        "₢ADAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1721,6 +1722,16 @@
               "ts": "260118-0842",
               "state": "rough",
               "text": "VLS cleanup: fix vesture definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Rust vesture signet_case\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (vofc), snake_case describes full inscription\n\n### Issue 2: AsciiDoc vesture scope\n- Currently conflates attributes and anchors in single vesture\n- Clarify voslda covers both with different envelope sub-types:\n  - Attributes: no envelope\n  - Anchors: frame envelope `[[...]]`\n\n## Target File\n\nTools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical edits with clear targets."
+            }
+          ]
+        },
+        "₢ADAAJ": {
+          "silks": "bus-dispatch-cleanup",
+          "tacks": [
+            {
+              "ts": "260118-0843",
+              "state": "rough",
+              "text": "BUS cleanup: fix dispatch definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Colophon definition clarity\n- Clarify that colophon includes full routing prefix (e.g., `rbw-B` not just `rbw-`)\n- The trailing hyphen is part of colophon identity\n\n### Issue 2: Colophon example error\n- Fix any references to \"jjw- routes to JJK workbench\"\n- Should be \"JJW workbench\" (JJK is kit; JJW is workbench prefix)\n\n### Issue 3: Tabtarget signet_case description\n- Current \"lowercase with hyphen\" description may be incomplete\n- Colophon has internal structure (cipher + variant indicator + hyphen)\n- Clarify the pattern\n\n## Target File\n\nTools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc\n\n## Bridleability\n\nBridleable - editorial fixes with clear targets."
             }
           ]
         }
