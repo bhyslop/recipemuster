@@ -169,6 +169,16 @@ pub const ALL_CIPHERS: &[vofc_Cipher] = &[
 // Typed kit declarations for distribution. Field names align with VOS entity
 // members (vosem_kit_id, vosem_display_name).
 
+/// A managed section declaration for CLAUDE.md.
+/// Template content lives in vov_veiled/, copied to parcel during release.
+#[derive(Debug, Clone, Copy)]
+pub struct vofc_ManagedSection {
+    /// Tag identifier for the section (e.g., "JJK", "BUK")
+    pub tag: &'static str,
+    /// Template file path relative to kit's vov_veiled/ directory
+    pub template_path: &'static str,
+}
+
 /// A distributable kit with typed cipher reference.
 /// Kit identifier derived from cipher via cipher.kit_id().
 #[derive(Debug, Clone, Copy)]
@@ -177,6 +187,8 @@ pub struct vofc_Kit {
     pub cipher: &'static vofc_Cipher,
     /// Human-readable name. See vosem_display_name.
     pub display_name: &'static str,
+    /// Managed sections for CLAUDE.md. Templates in vov_veiled/.
+    pub managed_sections: &'static [vofc_ManagedSection],
 }
 
 /// Asset routing rule for kit installation.
@@ -194,16 +206,45 @@ pub struct vofc_AssetRoute {
 /// Kits included in VVK distribution.
 /// Order matters: kits are installed in this order, affecting CLAUDE.md section ordering.
 pub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[
-    vofc_Kit { cipher: &BU, display_name: "Bash Utilities" },
-    vofc_Kit { cipher: &CM, display_name: "Concept Model" },
-    vofc_Kit { cipher: &JJ, display_name: "Job Jockey" },
-    vofc_Kit { cipher: &VV, display_name: "Voce Viva" },
+    vofc_Kit {
+        cipher: &BU,
+        display_name: "Bash Utilities",
+        managed_sections: &[
+            vofc_ManagedSection { tag: "BUK", template_path: "vocbumc_core.md" },
+        ],
+    },
+    vofc_Kit {
+        cipher: &CM,
+        display_name: "Concept Model",
+        managed_sections: &[
+            vofc_ManagedSection { tag: "CMK", template_path: "voccmmc_core.md" },
+        ],
+    },
+    vofc_Kit {
+        cipher: &JJ,
+        display_name: "Job Jockey",
+        managed_sections: &[
+            vofc_ManagedSection { tag: "JJK", template_path: "vocjjmc_core.md" },
+        ],
+    },
+    vofc_Kit {
+        cipher: &VV,
+        display_name: "Voce Viva",
+        managed_sections: &[
+            vofc_ManagedSection { tag: "VVK", template_path: "vocvvmc_core.md" },
+        ],
+    },
 ];
 
 /// Compatibility accessor: returns kit IDs as strings.
 /// For callers that only need the kit identifier strings.
 pub fn vofc_distributable_kit_ids() -> Vec<String> {
     DISTRIBUTABLE_KITS.iter().map(|k| k.cipher.kit_id()).collect()
+}
+
+/// Find a kit by its ID (e.g., "jjk", "buk").
+pub fn vofc_find_kit_by_id(kit_id: &str) -> Option<&'static vofc_Kit> {
+    DISTRIBUTABLE_KITS.iter().find(|k| k.cipher.kit_id() == kit_id)
 }
 
 /// Find a cipher by prefix.

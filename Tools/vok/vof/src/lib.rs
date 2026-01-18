@@ -16,7 +16,6 @@
 pub mod vofc_registry;
 pub mod vofe_emplace;
 pub mod voff_freshen;
-pub mod vofm_managed;
 pub mod vofr_release;
 
 // Re-export the Cipher type and all cipher constants
@@ -31,6 +30,3 @@ pub use vofr_release::{vofr_collect, vofr_brand, vofr_CollectResult, vofr_BrandR
 // Re-export emplace and vacate types and functions
 pub use vofe_emplace::{vofe_emplace, vofe_EmplaceArgs, vofe_EmplaceResult};
 pub use vofe_emplace::{vofe_vacate, vofe_VacateArgs, vofe_VacateResult};
-
-// Re-export managed section functions
-pub use vofm_managed::{vofm_all_sections, vofm_section_for_kit};

@@ -90,10 +90,14 @@ Show:
 
 **If pace_state is "bridled":**
 - The pace has explicit direction in the direction field
-- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing bridled pace"`
-- Execute using both spec (the specification) and direction (execution guidance) autonomously (no confirmation needed)
-- The spec contains the "what" (requirements, code snippets, acceptance criteria); direction contains the "how" (agent tier, steps, verification)
-- When complete, run `/jjc-pace-wrap` to mark done
+- Parse direction to extract `Agent:` line (haiku/sonnet/opus)
+- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing bridled pace via {agent} agent"`
+- **Spawn a Task agent** to execute the pace:
+  - `model`: the extracted agent tier (haiku/sonnet/opus)
+  - `subagent_type`: "general-purpose"
+  - `prompt`: Combine spec + direction + instruction to run `/jjc-pace-wrap <CORONET>` on completion
+- The spec contains the "what" (requirements, acceptance criteria); direction contains the "how" (steps, verification)
+- Wait for agent completion and report outcome to user
 
 ## Context preservation
 

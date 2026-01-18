@@ -28,7 +28,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::voff_freshen::{voff_freshen, voff_collapse, voff_ManagedSection};
-use crate::vofm_managed::vofm_section_for_kit;
+use crate::vofc_registry::vofc_find_kit_by_id;
 
 // =============================================================================
 // Constants
@@ -144,12 +144,8 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         hooks_routed += hks;
     }
 
-    // 5. Freshen CLAUDE.md
-    let sections: Vec<voff_ManagedSection> = kit_ids
-        .iter()
-        .filter_map(|kit_id| vofm_section_for_kit(kit_id))
-        .collect();
-
+    // 5. Read templates from parcel and freshen CLAUDE.md
+    let sections = zvofe_read_templates(&args.parcel_dir, &kit_ids)?;
     let section_tags: Vec<String> = sections.iter().map(|s| s.tag.clone()).collect();
 
     let claude_path = burc.project_root.join("CLAUDE.md");
@@ -212,11 +208,11 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         }
     }
 
-    // 4. Collapse CLAUDE.md sections
+    // 4. Collapse CLAUDE.md sections (get tags from registry)
     let section_tags: Vec<String> = kit_ids
         .iter()
-        .filter_map(|kit_id| vofm_section_for_kit(kit_id))
-        .map(|s| s.tag)
+        .filter_map(|kit_id| vofc_find_kit_by_id(kit_id))
+        .flat_map(|kit| kit.managed_sections.iter().map(|s| s.tag.to_string()))
         .collect();
 
     let claude_path = burc.project_root.join("CLAUDE.md");
@@ -439,6 +435,41 @@ fn zvofe_is_command_file(file_name: &str, cipher: &str) -> bool {
 fn zvofe_is_hook_file(file_name: &str, cipher: &str) -> bool {
     let prefix = format!("{}h_", cipher);
     file_name.starts_with(&prefix)
+}
+
+/// Read managed section templates from parcel.
+fn zvofe_read_templates(
+    parcel_dir: &Path,
+    kit_ids: &[String],
+) -> Result<Vec<voff_ManagedSection>, String> {
+    let mut sections = Vec::new();
+
+    for kit_id in kit_ids {
+        let kit = vofc_find_kit_by_id(kit_id)
+            .ok_or_else(|| format!("Kit not in registry: {}", kit_id))?;
+
+        let templates_dir = parcel_dir.join("kits").join(kit_id).join("templates");
+
+        for section in kit.managed_sections {
+            let template_path = templates_dir.join(section.template_path);
+            if !template_path.exists() {
+                return Err(format!(
+                    "Template not found in parcel: {}",
+                    template_path.display()
+                ));
+            }
+
+            let content = fs::read_to_string(&template_path)
+                .map_err(|e| format!("Failed to read template {}: {}", section.template_path, e))?;
+
+            sections.push(voff_ManagedSection {
+                tag: section.tag.to_string(),
+                content,
+            });
+        }
+    }
+
+    Ok(sections)
 }
 
 /// Freshen CLAUDE.md with managed sections.

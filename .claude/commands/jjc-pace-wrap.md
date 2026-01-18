@@ -67,7 +67,7 @@ Run:
 **If another actionable pace exists:**
 - Display the next pace's silks and spec
 - If rough: Propose approach (as in /jjc-heat-mount)
-- If bridled: Ask if ready to execute
+- If bridled: Parse direction for `Agent:` line and report: "Next pace is bridled for {agent} agent. Run `/jjc-heat-mount` to execute."
 
 **If no more actionable paces:**
 - Report "All paces complete for heat <SILKS>"
