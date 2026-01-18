@@ -16,20 +16,22 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# VVU Uninstall - Remove VVK kit assets from target repo
+# VVU Uninstall - Bootstrap script for VVK removal
 #
-# This script runs from the target repo's root. It verifies installation
-# exists, creates a pre-uninstall snapshot, invokes vacate, and commits.
+# Thin bootstrap: detect platform, exec vvx_vacate.
+# All logic (git checks, commits) is in Rust.
 #
 # Usage: ./Tools/vvk/vvu_uninstall.sh
-#
-# Note: This is a kit asset - distributed with VVK, runs in target repo.
-# Local functions follow BCG patterns without sourcing dependencies.
 
 set -euo pipefail
 
 ######################################################################
-# Local BCG-style functions (cannot source BUK - it's being removed!)
+# Constants
+
+readonly ZVVU_BURC_RELPATH=".buk/burc.env"
+
+######################################################################
+# Local BCG-style functions
 
 zvvu_die() {
   echo "vvu_uninstall: error: ${1}" >&2
@@ -62,31 +64,14 @@ zvvu_platform_capture() {
   echo "${z_platform}"
 }
 
-zvvu_git_is_dirty() {
-  # Returns 0 if working tree has uncommitted changes, 1 if clean
-  ! git diff --quiet HEAD 2>/dev/null || ! git diff --cached --quiet HEAD 2>/dev/null
-}
-
-zvvu_git_commit_if_dirty() {
-  local z_message="${1}"
-
-  if zvvu_git_is_dirty; then
-    zvvu_step "Creating pre-uninstall snapshot..."
-    git add -A
-    git commit -m "${z_message}" || zvvu_die "Failed to commit snapshot"
-  fi
-}
-
 ######################################################################
 # Main
 
 zvvu_main() {
-  local z_burc_path=".buk/burc.env"
-  local z_brand_path=".vvk/vvbf_brand.json"
+  local z_burc_path="${ZVVU_BURC_RELPATH}"
 
-  # Verify we're in a repo with VVK installed
+  # Verify we're in a VVK-enabled repo
   test -f "${z_burc_path}" || zvvu_die "Not in a VVK-enabled repo (missing ${z_burc_path})"
-  test -f "${z_brand_path}" || zvvu_die "Nothing installed (missing ${z_brand_path})"
 
   # Get platform and find binary
   local z_platform
@@ -99,18 +84,7 @@ zvvu_main() {
   zvvu_step "Uninstalling VVK..."
   zvvu_step "  Platform: ${z_platform}"
 
-  # Pre-uninstall snapshot
-  zvvu_git_commit_if_dirty "VVK pre-uninstall snapshot"
-
-  # Run vacate
-  "${z_binary}" vvx_vacate --burc "${z_burc_path}" || zvvu_die "Vacate failed"
-
-  # Post-uninstall commit
-  zvvu_step "Creating post-uninstall commit..."
-  git add -A
-  git commit -m "VVK uninstall" || zvvu_die "Failed to commit uninstall"
-
-  zvvu_step "Uninstall complete."
+  exec "${z_binary}" vvx_vacate --burc "${z_burc_path}"
 }
 
 zvvu_main "$@"

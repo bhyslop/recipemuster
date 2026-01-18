@@ -73,15 +73,6 @@ Run:
 - Report "All paces complete for heat <SILKS>"
 - Suggest `/jjc-pace-slate` to add more work, or `/jjc-heat-retire` if done
 
-## Step 7: Auto-commit changes
-
-Run guarded commit:
-```bash
-./tt/vvw-r.RunVVX.sh vvx_commit --message "Wrap: <SILKS>"
-```
-
-On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
-
 ## Available Operations
 
 - `/jjc-pace-slate` — Add a new pace

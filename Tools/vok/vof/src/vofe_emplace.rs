@@ -4,28 +4,32 @@
 
 //! VVK Emplace/Vacate - Install and uninstall kit assets
 //!
-//! Pure file operations, no git. Called by vvi_install.sh and vvu_uninstall.sh
-//! which handle git commits.
+//! Full install/uninstall operations including git commits.
+//! Bash scripts (vvi_install.sh, vvu_uninstall.sh) are thin bootstraps
+//! that detect platform and exec the binary.
 //!
-//! Emplace behavior:
-//! 1. Parse burc.env to get BURC_TOOLS_DIR and BURC_PROJECT_ROOT
-//! 2. Read brand file to get kit list
-//! 3. Copy kit directories to target Tools/
-//! 4. Route commands and hooks to .claude/
-//! 5. Freshen CLAUDE.md with kit sections
-//! 6. Copy brand file to .vvk/
+//! Emplace behavior (nuclear install):
+//! 1. Parse burc.env, resolve paths relative to burc.env location
+//! 2. Verify git repo is clean
+//! 3. Delete .vvk/ and kit directories (nuclear cleanup)
+//! 4. Create .vvk/, copy brand file
+//! 5. Copy kit directories, route commands/hooks
+//! 6. Freshen CLAUDE.md with kit sections
+//! 7. Commit installation
 //!
 //! Vacate behavior:
-//! 1. Parse burc.env to get paths
+//! 1. Parse burc.env, verify git clean
 //! 2. Read brand file from .vvk/ to get kit list
 //! 3. Remove commands and hooks from .claude/
 //! 4. Collapse CLAUDE.md sections to UNINSTALLED markers
 //! 5. Delete kit directories
-//! 6. Delete brand file and .vvk/ if empty
+//! 6. Delete brand file and .vvk/
+//! 7. Commit uninstallation
 
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use crate::voff_freshen::{voff_freshen, voff_collapse, voff_ManagedSection};
 use crate::vofc_registry::vofc_find_kit_by_id;
@@ -37,6 +41,83 @@ use crate::vofc_registry::vofc_find_kit_by_id;
 /// Brand file JSON field tags (must match vofr_release.rs)
 const VOFE_BRAND_HALLMARK: &str = "vvbh_hallmark";
 const VOFE_BRAND_KITS: &str = "vvbk_kits";
+
+// =============================================================================
+// Git Operations
+// =============================================================================
+
+/// Check that git working tree is clean (no uncommitted changes).
+fn zvofe_check_git_clean(project_root: &Path) -> Result<(), String> {
+    let output = Command::new("git")
+        .args(["status", "--porcelain"])
+        .current_dir(project_root)
+        .output()
+        .map_err(|e| format!("Failed to run git status: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("git status failed: {}", stderr.trim()));
+    }
+
+    if !output.stdout.is_empty() {
+        return Err(
+            "Target repo has uncommitted changes. Commit or stash before install.".to_string(),
+        );
+    }
+
+    Ok(())
+}
+
+/// Check that path is a git repository.
+fn zvofe_check_is_git_repo(project_root: &Path) -> Result<(), String> {
+    let output = Command::new("git")
+        .args(["rev-parse", "--git-dir"])
+        .current_dir(project_root)
+        .output()
+        .map_err(|e| format!("Failed to run git rev-parse: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Target is not a git repository: {}",
+            project_root.display()
+        ));
+    }
+
+    Ok(())
+}
+
+/// Run git add -A and commit with message.
+fn zvofe_git_commit(project_root: &Path, message: &str) -> Result<(), String> {
+    // Stage all changes
+    let output = Command::new("git")
+        .args(["add", "-A"])
+        .current_dir(project_root)
+        .output()
+        .map_err(|e| format!("Failed to run git add: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("git add failed: {}", stderr.trim()));
+    }
+
+    // Commit
+    let output = Command::new("git")
+        .args(["commit", "-m", message])
+        .current_dir(project_root)
+        .output()
+        .map_err(|e| format!("Failed to run git commit: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        // "nothing to commit" is not an error for us
+        if stderr.contains("nothing to commit") {
+            return Ok(());
+        }
+        return Err(format!("git commit failed: {}", stderr.trim()));
+    }
+
+    Ok(())
+}
 
 // =============================================================================
 // Public Types
@@ -104,6 +185,7 @@ pub struct vofe_VacateResult {
 // =============================================================================
 
 /// Install kit assets from parcel to target repo.
+/// Nuclear install: deletes existing installation before copying fresh.
 ///
 /// # Arguments
 /// * `args` - Emplace arguments (parcel dir and burc.env path)
@@ -111,14 +193,45 @@ pub struct vofe_VacateResult {
 /// # Returns
 /// EmplaceResult with installation summary, or error message
 pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, String> {
-    // 1. Parse BURC
+    eprintln!("emplace: installing kit assets...");
+    eprintln!("  parcel: {}", args.parcel_dir.display());
+    eprintln!("  burc: {}", args.burc_path.display());
+
+    // 1. Parse BURC (resolves paths relative to burc.env location)
     let burc = zvofe_parse_burc(&args.burc_path)?;
 
-    // 2. Read brand file
+    // 2. Validate git state
+    zvofe_check_is_git_repo(&burc.project_root)?;
+    zvofe_check_git_clean(&burc.project_root)?;
+
+    // 3. Read brand identity
     let brand_path = args.parcel_dir.join("vvbf_brand.json");
     let (hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
 
-    // 3. Copy kit assets and route special files
+    // 4. Nuclear cleanup - delete existing .vvk/ and kit directories
+    let vvk_dir = burc.project_root.join(".vvk");
+    if vvk_dir.exists() {
+        fs::remove_dir_all(&vvk_dir)
+            .map_err(|e| format!("Failed to remove .vvk directory: {}", e))?;
+    }
+
+    for kit_id in &kit_ids {
+        let kit_dir = burc.tools_dir.join(kit_id);
+        if kit_dir.exists() {
+            fs::remove_dir_all(&kit_dir)
+                .map_err(|e| format!("Failed to remove kit directory {}: {}", kit_id, e))?;
+        }
+    }
+
+    // 5. Create .vvk/ and copy brand file
+    fs::create_dir_all(&vvk_dir)
+        .map_err(|e| format!("Failed to create .vvk directory: {}", e))?;
+
+    let brand_dest = vvk_dir.join("vvbf_brand.json");
+    fs::copy(&brand_path, &brand_dest)
+        .map_err(|e| format!("Failed to copy brand file: {}", e))?;
+
+    // 6. Copy kit assets and route special files
     let mut total_files = 0u32;
     let mut commands_routed = 0u32;
     let mut hooks_routed = 0u32;
@@ -144,21 +257,18 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         hooks_routed += hks;
     }
 
-    // 5. Read templates from parcel and freshen CLAUDE.md
+    // 7. Freshen CLAUDE.md with kit sections
     let sections = zvofe_read_templates(&args.parcel_dir, &kit_ids)?;
     let section_tags: Vec<String> = sections.iter().map(|s| s.tag.clone()).collect();
 
     let claude_path = burc.project_root.join("CLAUDE.md");
     zvofe_freshen_claude(&claude_path, &sections)?;
 
-    // 6. Copy brand file
-    let vvk_dir = burc.project_root.join(".vvk");
-    fs::create_dir_all(&vvk_dir)
-        .map_err(|e| format!("Failed to create .vvk directory: {}", e))?;
+    // 8. Commit installation
+    let commit_msg = format!("VVK install: hallmark {}", hallmark);
+    zvofe_git_commit(&burc.project_root, &commit_msg)?;
 
-    let brand_dest = vvk_dir.join("vvbf_brand.json");
-    fs::copy(&brand_path, &brand_dest)
-        .map_err(|e| format!("Failed to copy brand file: {}", e))?;
+    eprintln!("emplace: success - {} files, {} commands, {} hooks", total_files, commands_routed, hooks_routed);
 
     Ok(vofe_EmplaceResult {
         hallmark,
@@ -178,14 +288,23 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
 /// # Returns
 /// VacateResult with removal summary, or error message
 pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> {
+    eprintln!("vacate: removing kit assets...");
+    eprintln!("  burc: {}", args.burc_path.display());
+
     // 1. Parse BURC
     let burc = zvofe_parse_burc(&args.burc_path)?;
 
-    // 2. Read brand file from .vvk/
+    // 2. Validate git state
+    zvofe_check_git_clean(&burc.project_root)?;
+
+    // 3. Read brand file from .vvk/
     let brand_path = burc.project_root.join(".vvk").join("vvbf_brand.json");
+    if !brand_path.exists() {
+        return Err("No VVK installation found (.vvk/vvbf_brand.json missing)".to_string());
+    }
     let (_hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
 
-    // 3. Remove commands and hooks, count files in kit directories
+    // 4. Remove commands and hooks
     let mut total_files = 0u32;
     let mut commands_removed = 0u32;
     let mut hooks_removed = 0u32;
@@ -208,7 +327,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         }
     }
 
-    // 4. Collapse CLAUDE.md sections (get tags from registry)
+    // 5. Collapse CLAUDE.md sections (get tags from registry)
     let section_tags: Vec<String> = kit_ids
         .iter()
         .filter_map(|kit_id| vofc_find_kit_by_id(kit_id))
@@ -218,7 +337,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
     let claude_path = burc.project_root.join("CLAUDE.md");
     zvofe_collapse_claude(&claude_path, &section_tags)?;
 
-    // 5. Delete kit directories
+    // 6. Delete kit directories
     for kit_id in &kit_ids {
         let kit_dir = burc.tools_dir.join(kit_id);
         if kit_dir.exists() {
@@ -226,18 +345,25 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
             total_files += zvofe_count_files(&kit_dir)?;
             fs::remove_dir_all(&kit_dir)
                 .map_err(|e| format!("Failed to remove kit directory {}: {}", kit_dir.display(), e))?;
+        } else {
+            eprintln!("  warning: kit directory not found: {}", kit_dir.display());
         }
     }
 
-    // 6. Delete brand file and .vvk/ if empty
+    // 7. Delete brand file and .vvk/
     fs::remove_file(&brand_path)
         .map_err(|e| format!("Failed to remove brand file: {}", e))?;
 
     let vvk_dir = burc.project_root.join(".vvk");
     if vvk_dir.exists() {
-        // Try to remove .vvk/ - will fail if not empty, which is fine
+        // Remove .vvk/ directory
         let _ = fs::remove_dir(&vvk_dir);
     }
+
+    // 8. Commit uninstallation
+    zvofe_git_commit(&burc.project_root, "VVK uninstall")?;
+
+    eprintln!("vacate: success - {} files, {} commands, {} hooks removed", total_files, commands_removed, hooks_removed);
 
     Ok(vofe_VacateResult {
         kits_removed: kit_ids,
@@ -253,10 +379,16 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
 // =============================================================================
 
 /// Parse burc.env file to extract environment variables.
+/// Paths are resolved relative to burc.env's parent directory.
 fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
     if !path.exists() {
         return Err(format!("burc.env not found: {}", path.display()));
     }
+
+    // Get the parent directory of burc.env for path resolution
+    let burc_parent = path
+        .parent()
+        .ok_or_else(|| "burc.env path has no parent directory".to_string())?;
 
     let content = fs::read_to_string(path)
         .map_err(|e| format!("Failed to read burc.env: {}", e))?;
@@ -287,17 +419,30 @@ fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
         }
     }
 
-    let tools_dir = vars
+    let tools_dir_str = vars
         .get("BURC_TOOLS_DIR")
-        .ok_or_else(|| "BURC_TOOLS_DIR not defined in burc.env".to_string())?;
+        .ok_or_else(|| "burc.env missing required variable: BURC_TOOLS_DIR".to_string())?;
 
-    let project_root = vars
+    let project_root_str = vars
         .get("BURC_PROJECT_ROOT")
-        .ok_or_else(|| "BURC_PROJECT_ROOT not defined in burc.env".to_string())?;
+        .ok_or_else(|| "burc.env missing required variable: BURC_PROJECT_ROOT".to_string())?;
+
+    // Resolve paths relative to burc.env parent directory
+    let tools_dir = burc_parent.join(tools_dir_str);
+    let project_root = burc_parent.join(project_root_str);
+
+    // Canonicalize to get absolute paths
+    let tools_dir = tools_dir
+        .canonicalize()
+        .map_err(|e| format!("BURC_TOOLS_DIR path invalid ({}): {}", tools_dir.display(), e))?;
+
+    let project_root = project_root
+        .canonicalize()
+        .map_err(|e| format!("BURC_PROJECT_ROOT path invalid ({}): {}", project_root.display(), e))?;
 
     Ok(vofe_BurcEnv {
-        tools_dir: PathBuf::from(tools_dir),
-        project_root: PathBuf::from(project_root),
+        tools_dir,
+        project_root,
     })
 }
 

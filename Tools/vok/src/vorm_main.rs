@@ -161,10 +161,6 @@ struct VacateArgs {
 }
 
 fn main() -> ExitCode {
-    // Validate BUD environment early - panics with clear message if missing
-    // This ensures vvx is only run via BUK tabtarget
-    let _env = vvc::vvce_env();
-
     let cli = Cli::parse();
 
     let exit_code = match cli.command {

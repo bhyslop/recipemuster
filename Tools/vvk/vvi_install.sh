@@ -21,12 +21,19 @@
 # This script lives at the root of an extracted parcel. It validates
 # the target environment and invokes the appropriate platform binary.
 #
-# Usage: ./vvi_install.sh /path/to/target/.buk/burc.env
+# Usage: ./vvi_install.sh /path/to/target/<BURC_RELPATH>
+#        where BURC_RELPATH is defined as ZVVI_BURC_RELPATH below
 #
 # Note: This is a standalone bootstrap - cannot depend on BUK.
 # Local functions follow BCG patterns without sourcing dependencies.
 
 set -euo pipefail
+
+######################################################################
+# Constants
+
+# Canonical BURC relative path - single definition for this script
+readonly ZVVI_BURC_RELPATH=".buk/burc.env"
 
 ######################################################################
 # Local BCG-style functions (cannot source BUK)
@@ -68,7 +75,14 @@ zvvi_platform_capture() {
 zvvi_main() {
   local z_burc_path="${1:-}"
 
-  test -n "${z_burc_path}" || zvvi_die "Usage: $0 /path/to/target/.buk/burc.env"
+  if [[ -z "${z_burc_path}" ]]; then
+    echo "vvi_install: Install VVK parcel to a target repository" >&2
+    echo "" >&2
+    echo "Usage: $0 /path/to/target/${ZVVI_BURC_RELPATH}" >&2
+    echo "" >&2
+    echo "The target repository must have BURC configured (${ZVVI_BURC_RELPATH})." >&2
+    exit 1
+  fi
 
   test -f "${z_burc_path}" || zvvi_die "BURC file not found: ${z_burc_path}"
   test -r "${z_burc_path}" || zvvi_die "BURC file not readable: ${z_burc_path}"

@@ -4,6 +4,26 @@
 
 Complete release/install/uninstall cycle. Single platform. Hardcoded CLAUDE.md templates (externalized post-MVP).
 
+## Test Environment
+
+- **Target repo**: /Users/bhyslop/projects/pb_paneboard02
+- **Staging dir**: ../release-install-tarball/
+
+**Iteration workflow** (from kit forge):
+```bash
+# 1. Build release (creates vvk-parcel-NNNN.tar.gz in kit forge)
+tt/vow-R.Release.sh
+
+# 2. Nuke and extract to staging
+rm -rf ../release-install-tarball/* && tar -xzf vvk-parcel-*.tar.gz -C ../release-install-tarball/
+
+# 3. Install to target
+../release-install-tarball/vvi_install.sh /Users/bhyslop/projects/pb_paneboard02
+
+# 4. Uninstall from target
+/Users/bhyslop/projects/pb_paneboard02/Tools/vvk/vvu_uninstall.sh
+```
+
 ## Parcel Structure (established)
 
 ```

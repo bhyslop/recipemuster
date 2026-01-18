@@ -142,7 +142,6 @@
 // Operations (voso has children)
 :vosor_release:         <<vosor_release,Release>>
 :vosoi_install:         <<vosoi_install,Install>>
-:vosok_kit:             <<vosok_kit,Kit Install>>
 :vosou_uninstall:       <<vosou_uninstall,Uninstall>>
 
 // Control terms (voice axc_* in bash scripted context)
@@ -927,41 +926,57 @@ assets and platform binaries.
 
 
 [[vosoi_install]]
-// ⟦axl_voices axo_command axe_bash_scripted axd_transient⟧
+// ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
 === {vosoi_install}
 
 Deploys a
 {vose_parcel}
 to a
 {vosp_target_repo}.
-Invokes
-{vosok_kit}
-for each kit in the parcel.
+Nuclear replacement: deletes existing installation before copying fresh.
+Handles both first-time install and reinstall identically.
 
 Invocation (from extracted parcel):
 
 ----
-./vvi_install.sh /path/to/target-repo
+./vvi_install.sh /path/to/target/.buk/burc.env
 ----
+
+The bash script is a thin bootstrap: detect platform, exec `vvx_emplace`.
+All logic is implemented in Rust for path safety and testability.
 
 {voss_inputs}
 
 // ⟦axd_required⟧
-* Target repository path (positional argument)
+* Path to target repository's `burc.env` file (positional argument)
 
 {voss_behavior}
 
-. *Verify prerequisites*:
+. *Validate burc.env*:
 .. {vosc_require}
-target path is a git repository
-.. {vosc_require}
-`.buk/burc.env` exists in target
-.. {vosc_fatal}
-if missing: "BURC not configured"
+burc.env exists and is readable
 .. {vosc_call}
-source BURC
+parse burc.env as KEY=VALUE pairs
+.. {vosc_require}
+`BURC_TOOLS_DIR` is defined and non-empty
+.. {vosc_require}
+`BURC_PROJECT_ROOT` is defined and non-empty
+.. {vosc_fatal}
+if missing or empty: "burc.env missing required variable: {name}"
+.. {vosc_call}
+resolve paths relative to burc.env parent directory (not CWD)
 .. {vosc_store}
-`BURC_TOOLS_DIR` from BURC
+absolute paths for tools_dir and project_root
+
+. *Validate git state*:
+.. {vosc_require}
+project_root is a git repository
+.. {vosc_fatal}
+if not: "Target is not a git repository"
+.. {vosc_require}
+working tree is clean (no uncommitted changes)
+.. {vosc_fatal}
+if dirty: "Target repo has uncommitted changes. Commit or stash before install."
 
 . *Read brand identity*:
 .. {vosc_call}
@@ -970,237 +985,219 @@ parse
 from parcel root
 .. {vosc_store}
 {vosem_hallmark}
-for manifest
+and
+{vosem_brand_kits}
 
-. *Pre-install commit*:
-.. If working tree dirty:
+. *Nuclear cleanup*:
+.. If `.vvk/` exists:
 {vosc_call}
-`git add -A && git commit -m "Pre-install snapshot"`
+delete recursively
+.. If `.vvk/` absent: no action (first-time install)
+.. For each kit in
+{vosem_brand_kits}:
+... If `${BURC_TOOLS_DIR}/{kit}/` exists:
+{vosc_call}
+delete recursively
+... If absent: no action
 .. {vosc_step}
-"Pre-install snapshot created"
+"Previous installation removed" or "Clean target (first-time install)"
 
-. *Install each kit*:
-.. For each kit directory in `kits/`:
-... Invoke
-{vosok_kit}
-with kit source and target paths
-.. VVK is installed like any other kit (binaries land at `${BURC_TOOLS_DIR}/vvk/bin/`)
-
-. *Copy brand file*:
+. *Create brand directory*:
+.. {vosc_call}
+create `.vvk/` directory
 .. {vosc_call}
 copy
 {vose_brand_file}
-from parcel root to `.vvk/vvbf_brand.json`
-.. Brand file contains
-{vosem_brand_kits}
-for
-{vosou_uninstall}
+to `.vvk/vvbf_brand.json`
 
-. *Post-install commit*:
-.. {vosc_call}
-`git add -A && git commit -m "VVK install: {sigil}"`
-.. {vosc_step}
-"Post-install commit created"
-
-. *Diff analysis*:
-.. {vosc_call}
-compare pre-install to post-install
-.. {vosc_show}
-user modifications that may need recovery
-
-{voss_outputs}
-
-* Kit assets under `${BURC_TOOLS_DIR}/` (including VVK binaries at `vvk/bin/`)
-* Brand file at `.vvk/vvbf_brand.json`
-* Two git commits (pre-install, post-install)
-
-{voss_completion}
-
-All
-{vose_kit_s}
-installed.
-CLAUDE.md sections updated.
-Brand file written.
-User notified of any modifications requiring recovery.
-
-
-[[vosok_kit]]
-// ⟦axl_voices axo_routine axe_bash_scripted axd_transient⟧
-=== {vosok_kit}
-
-Installs a single
-{vose_kit}
-to the
-{vosp_target_repo}.
-Called by
-{vosoi_install}
-for each kit in the
-{vose_parcel}.
-
-{voss_inputs}
-
-// ⟦axd_required⟧
-* Kit source directory (within extracted parcel)
-
-// ⟦axd_required⟧
-* Target tools directory (`BURC_TOOLS_DIR`)
-
-// ⟦axd_required⟧
-* Target CLAUDE.md path
-
-{voss_behavior}
-
-. *Copy kit assets*:
-.. {vosc_call}
-copy kit directory to `${BURC_TOOLS_DIR}/{kit}/`
-.. Preserve directory structure
-.. {vosc_step}
-"{kit} assets copied"
-
-. *Install commands*:
-.. For each file matching `{cipher}c-*.md` in `commands/`:
+. *Install kits*:
+.. For each kit in
+{vosem_brand_kits}:
 ... {vosc_call}
-copy to `.claude/commands/`
+copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
+... Route files matching `{cipher}c-*.md` to `.claude/commands/`
+... Route files matching `{cipher}h_*` to `.claude/hooks/`
 .. {vosc_step}
-"{n} commands installed"
+"{n} kits installed, {m} commands routed, {p} hooks routed"
 
-. *Install hooks*:
-.. For each file matching `{cipher}h_*` in `hooks/`:
-... {vosc_call}
-copy to `.claude/hooks/`
-.. {vosc_step}
-"{n} hooks installed"
-
-. *Update managed sections*:
+. *Freshen CLAUDE.md*:
+.. If CLAUDE.md absent:
+{vosc_call}
+create with header `# Claude Code Project Memory`
+.. {vosc_call}
+read templates from `kits/{kit}/templates/`
 .. For each
-{vose_managed_section}
-declared in kit's manifest:
+{vose_managed_section}:
 ... If
 {vose_marker_s}
-exist in CLAUDE.md:
-{vosc_call}
-replace content between markers with template content
+exist: replace content between markers
 ... Else if
 {vose_uninstalled_marker}
-exists for this tag:
-{vosc_call}
-expand to
-{vose_marker_s}
-at that location with template content
-... Else (no markers):
-{vosc_call}
-append
-{vose_marker_s}
-with template content at end of file
+exists: expand at that location
+... Else: append at end of file
 .. {vosc_step}
 "CLAUDE.md sections updated"
 +
 NOTE: This is a deterministic text transformation implemented in Rust.
 No LLM assistance required for marker manipulation.
 
+. *Commit installation*:
+.. {vosc_call}
+`git add -A`
+.. {vosc_call}
+`git commit -m "VVK install: hallmark {hallmark}"`
+.. {vosc_step}
+"Installation committed"
+
 {voss_outputs}
 
-* Kit directory at `${BURC_TOOLS_DIR}/{kit}/`
+* Kit assets under `${BURC_TOOLS_DIR}/`
 * Commands in `.claude/commands/`
 * Hooks in `.claude/hooks/`
-* Updated sections in CLAUDE.md
+* Brand file at `.vvk/vvbf_brand.json`
+* Updated CLAUDE.md with
+{vose_managed_section_s}
+* Single git commit
 
 {voss_completion}
 
-Single
-{vose_kit}
-fully installed with all assets and CLAUDE.md sections.
+All
+{vose_kit_s}
+installed atomically.
+Clean git history with single install commit.
 
 
 [[vosou_uninstall]]
-// ⟦axl_voices axo_command axe_bash_scripted axd_transient⟧
+// ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
 === {vosou_uninstall}
 
-Removes a
-{vose_kit}
+Removes installed
+{vose_kit_s}
 from
 {vosp_target_repo}.
-Script lives in target after
-{vosoi_install}.
+Uses brand file to enumerate what to remove.
 
-Invocation (from target repo):
+Invocation (from target repo root):
 
 ----
 ./Tools/vvk/vvu_uninstall.sh
 ----
 
+The bash script is a thin bootstrap: exec `vvx_vacate`.
+All logic is implemented in Rust.
+
 {voss_inputs}
 
 // ⟦axd_none⟧
-No external inputs. Operates on current repository state.
+No arguments. Operates on current repository using `.buk/burc.env`.
 
 {voss_behavior}
 
-. *Load configuration*:
+. *Validate burc.env*:
+.. {vosc_require}
+`.buk/burc.env` exists and is readable
 .. {vosc_call}
-source `.buk/burc.env`
-.. {vosc_store}
-`BURC_TOOLS_DIR`
+parse burc.env as KEY=VALUE pairs
+.. {vosc_require}
+`BURC_TOOLS_DIR` is defined and non-empty
+.. {vosc_require}
+`BURC_PROJECT_ROOT` is defined and non-empty
+.. {vosc_fatal}
+if missing or empty: "burc.env missing required variable: {name}"
+.. {vosc_call}
+resolve paths relative to burc.env parent directory
+
+. *Validate git state*:
+.. {vosc_require}
+working tree is clean
+.. {vosc_fatal}
+if dirty: "Repo has uncommitted changes. Commit or stash before uninstall."
 
 . *Read brand file*:
+.. {vosc_require}
+`.vvk/vvbf_brand.json` exists
+.. {vosc_fatal}
+if absent: "No VVK installation found (.vvk/vvbf_brand.json missing)"
 .. {vosc_call}
-parse `.vvk/vvbf_brand.json`
-.. {vosc_store}
+parse brand file
+.. {vosc_require}
 {vosem_brand_kits}
-and their
-{vost_cipher_s}
+is present and non-empty
+.. {vosc_fatal}
+if malformed: "Brand file malformed: {details}"
+.. {vosc_store}
+kit list and their
+{voslc_cipher_s}
 
-. *Remove commands*:
+. *Remove commands and hooks*:
 .. For each
-{vost_cipher}:
+{voslc_cipher}
+from kit list:
 ... {vosc_call}
-remove files matching `{cipher}c-*` from `.claude/commands/`
-
-. *Remove hooks*:
-.. For each
-{vost_cipher}:
+remove files matching `{cipher}c-*.md` from `.claude/commands/`
 ... {vosc_call}
 remove files matching `{cipher}h_*` from `.claude/hooks/`
+.. {vosc_step}
+"{n} commands removed, {m} hooks removed"
 
-. *Remove managed sections*:
-.. For each
+. *Collapse CLAUDE.md sections*:
+.. If CLAUDE.md exists:
+... For each
 {vose_managed_section}
-declared by kits in
-{vosem_brand_kits}:
-... {vosc_call}
-replace
+tag from kit list:
+.... If
 {vose_marker_s}
-and content between them with single
+exist: replace with single
 {vose_uninstalled_marker}
+.... If markers absent: no action (section was never added or already collapsed)
+.. {vosc_step}
+"CLAUDE.md sections collapsed"
 +
 NOTE: Preserves user's chosen section ordering for future reinstall.
 
 . *Remove kit directories*:
-.. For each kit in
+.. For each kit in brand's
 {vosem_brand_kits}:
-... {vosc_call}
-remove `${BURC_TOOLS_DIR}/{kit}/`
+... If `${BURC_TOOLS_DIR}/{kit}/` exists:
+{vosc_call}
+delete recursively
+... If absent: log warning, continue (may have been manually removed)
+.. {vosc_step}
+"{n} kit directories removed"
 
-. *Remove brand file*:
+. *Remove brand infrastructure*:
 .. {vosc_call}
 delete `.vvk/vvbf_brand.json`
-
-. *Commit changes*:
 .. {vosc_call}
-`git add -A && git commit -m "VVK uninstall"`
+delete `.vvk/` directory if empty
+.. {vosc_step}
+"Brand file removed"
+
+. *Commit uninstallation*:
+.. {vosc_call}
+`git add -A`
+.. {vosc_call}
+`git commit -m "VVK uninstall"`
+.. {vosc_step}
+"Uninstallation committed"
 
 {voss_outputs}
 
-* Removed kit directories
-* Removed commands and hooks
-* Managed sections replaced with {vose_uninstalled_marker} placeholders
-* Removed brand file
+* Kit directories removed from `${BURC_TOOLS_DIR}/`
+* Commands removed from `.claude/commands/`
+* Hooks removed from `.claude/hooks/`
+* CLAUDE.md sections collapsed to
+{vose_uninstalled_marker_s}
+* Brand file and `.vvk/` removed
+* Single git commit
 
 {voss_completion}
 
-{vose_kit}
+All
+{vose_kit_s}
 cleanly removed.
-No orphaned assets remain.
+{vose_uninstalled_marker_s}
+preserve section positions for future reinstall.
 
 
 == Whisper Builder API
