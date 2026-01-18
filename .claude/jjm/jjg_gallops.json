@@ -1819,9 +1819,10 @@
         "₢AEAAC",
         "₢AEAAD",
         "₢AEAAE",
-        "₢AEAAG"
+        "₢AEAAG",
+        "₢AEAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -1985,6 +1986,16 @@
               "ts": "260118-1100",
               "state": "rough",
               "text": "JJD specifies input flexibility for Firemark and Coronet types:\n- 'Input may omit the ₣ prefix; output always includes it.' (Firemark, line 251)\n- 'Input may omit the ₢ prefix; output always includes it.' (Coronet, line 264)\n- 'CLI commands accept identities with or without prefix. Length determines type: 2 base64 chars = firemark, 5 base64 chars = coronet.' (lines 585-586)\n\nCurrently the Rust implementation requires the unicode prefix. For example:\n- `jjx_parade --format detail --pace ADAAL AD` fails with 'Pace ADAAL not found'\n- `jjx_parade --format detail --pace ₢ADAAL AD` succeeds\n\nUpdate identity parsing throughout jjx to accept bare base64 strings:\n- 2 characters → Firemark (prepend ₣ internally)\n- 5 characters → Coronet (prepend ₢ internally)\n- Already-prefixed inputs continue to work\n\nThis reduces stumbles when slash commands or users omit the unicode prefix."
+            }
+          ]
+        },
+        "₢AEAAH": {
+          "silks": "consider-pace-locking",
+          "tacks": [
+            {
+              "ts": "260118-1120",
+              "state": "rough",
+              "text": "Consider adding pessimistic locking to prevent concurrent session collisions on paces.\n\n## Problem\n\nTwo Claude Code sessions can mount the same pace simultaneously. One completes and wraps while the other churns or attempts execution on stale state. Observed 260118 when parallel sessions caused Task agent display loop.\n\n## Proposed Solution\n\nAdd \"mounted\" state for pessimistic locking:\n- rough/bridled → mounted (on mount, if not locked)\n- mounted → complete (wrap succeeds)\n- mounted → rough/bridled (failure or explicit dismount)\n\nLock metadata in tack:\n```json\n{\n  \"state\": \"mounted\",\n  \"lock\": {\n    \"session\": \"abc123\",\n    \"acquired\": \"260118-1145\"\n  }\n}\n```\n\nMount fails if pace already mounted by different session.\n\n## Escape Hatch\n\nNeed `/jjc-pace-dismount --force` for breaking stale locks (crashed sessions).\nOptions: manual break, timestamp expiry, or both.\n\n## Open Question\n\nWhat constitutes a \"session\"? Claude Code doesn't expose session ID. May need to generate one.\n\n## Constraint\n\n**Must begin with JJD spec update.** State machine is growing complex; need specification clarity before implementation.\n\n## Verb: Consider\n\nThis pace requires re-justification before execution. Behavioral workaround exists (don't run parallel sessions on same heat). Evaluate whether the complexity is worth the protection."
             }
           ]
         }
