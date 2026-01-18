@@ -1090,7 +1090,7 @@ Removes Claude Code integration from
 while preserving
 {vose_kit}
 directories.
-Kits are open-source utilities usable outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, managed sections, vvx binary).
+Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, managed sections, vvx binary).
 Uses brand file to enumerate what to remove.
 
 Invocation (from target repo root):
@@ -1183,7 +1183,7 @@ delete file (e.g., `vvx-darwin-arm64`, `vvx-linux-x86_64`)
 "{n} vvx binaries removed"
 +
 NOTE: Kit directories (`buk/`, `jjk/`, etc.) are intentionally *preserved*.
-These contain open-source utilities usable outside Claude Code.
+Unveiled kit content is typically open-source and remains functional outside Claude Code.
 Vacate removes Claude-specific integration while retaining underlying functionality.
 
 . *Remove brand infrastructure*:
@@ -1210,7 +1210,7 @@ delete `.vvk/` directory if empty
 * CLAUDE.md sections collapsed to
 {vose_uninstalled_marker_s}
 * Brand file and `.vvk/` removed
-* Kit directories *preserved* (open-source utilities remain usable)
+* Kit directories *preserved* (unveiled content remains functional)
 * Single git commit
 
 {voss_completion}
