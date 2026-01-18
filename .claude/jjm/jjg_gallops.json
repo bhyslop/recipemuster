@@ -1809,6 +1809,11 @@
           "silks": "vvb-vob-bcg-compliance",
           "tacks": [
             {
+              "ts": "260118-1238",
+              "state": "complete",
+              "text": "Fixed BCG compliance in vvb_bash.sh and vob_build.sh by creating capture functions (zvvb_platform_capture, zvob_hash_capture, zvob_commit_capture) and updating all command substitutions to use two-line local pattern. Build verification succeeded."
+            },
+            {
               "ts": "260118-1111",
               "state": "bridled",
               "text": "Fix BCG compliance issues in vvb_bash.sh and vob_build.sh.\n\n## Problem\n\nCommand substitution used directly outside of _capture functions, violating BCG rule: \"NO command substitution except $(<file) builtin and _capture functions.\"\n\n## Issues\n\n**vvb_bash.sh:**\n1. Lines 40-41: `local z_os` and `local z_arch` declared without initialization\n2. Lines 42-43: Direct `$(uname -s)` and `$(uname -m)` in zvvb_kindle()\n3. Lines 67-70: Same local declaration issue in zvvb_platform_capture()\n4. Platform detection duplicated in zvvb_kindle() and zvvb_platform_capture()\n\n**vob_build.sh:**\n5. Lines 143-147: `$(shasum)` / `$(sha256sum)` not in _capture function\n6. Lines 151-152: `$(date +%Y-%m-%d)` not in _capture function\n7. Lines 153-154, 227-228: `$(git rev-parse)` not in _capture function\n\n## Changes\n\n**vvb_bash.sh:**\n- Move zvvb_platform_capture() above zvvb_kindle()\n- Have zvvb_kindle() call zvvb_platform_capture() instead of inline detection\n- Fix local declarations to use two-line pattern\n\n**vob_build.sh:**\n- Create zvob_hash_capture() for shasum/sha256sum\n- Create zvob_date_capture() for date\n- Create zvob_commit_capture() for git rev-parse\n- Update vob_release() and vob_parcel() to use these capture functions\n\n## Files\n\n- Tools/vvk/vvb_bash.sh\n- Tools/vok/vob_build.sh",
