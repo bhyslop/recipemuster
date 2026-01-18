@@ -75,6 +75,7 @@ pub struct vofr_RegistryEntry {
 /// * `tools_dir` - Source Tools/ directory
 /// * `staging_dir` - Target staging directory
 /// * `install_script_path` - Path to vvi_install.sh to copy to staging root
+/// * `managed_kits` - List of kit IDs to include (from BURC_MANAGED_KITS)
 ///
 /// # Returns
 /// CollectResult with file counts, or error message
@@ -82,6 +83,7 @@ pub fn vofr_collect(
     tools_dir: &Path,
     staging_dir: &Path,
     install_script_path: &Path,
+    managed_kits: &[String],
 ) -> Result<vofr_CollectResult, String> {
     let mut kit_counts = BTreeMap::new();
     let mut total_files = 0u32;
@@ -92,11 +94,15 @@ pub fn vofr_collect(
     fs::create_dir_all(&kits_dir)
         .map_err(|e| format!("Failed to create kits dir: {}", e))?;
 
-    // Process each distributable kit
-    for kit in DISTRIBUTABLE_KITS {
-        let kit_id = kit.cipher.kit_id();
-        let kit_source = tools_dir.join(&kit_id);
-        let kit_staging = kits_dir.join(&kit_id);
+    // Process only kits in managed_kits list
+    for kit_id in managed_kits {
+        let kit = DISTRIBUTABLE_KITS
+            .iter()
+            .find(|k| k.cipher.kit_id() == *kit_id)
+            .ok_or_else(|| format!("Kit '{}' not found in registry", kit_id))?;
+
+        let kit_source = tools_dir.join(kit_id);
+        let kit_staging = kits_dir.join(kit_id);
 
         if !kit_source.exists() {
             return Err(format!("Kit source not found: {}", kit_source.display()));
@@ -131,6 +137,7 @@ pub fn vofr_collect(
 /// * `staging_dir` - Staging directory with collected assets
 /// * `registry_path` - Path to vovr_registry.json
 /// * `commit_sha` - Current git commit SHA
+/// * `managed_kits` - List of kit IDs included (from BURC_MANAGED_KITS)
 ///
 /// # Returns
 /// BrandResult with hallmark info, or error message
@@ -138,6 +145,7 @@ pub fn vofr_brand(
     staging_dir: &Path,
     registry_path: &Path,
     commit_sha: &str,
+    managed_kits: &[String],
 ) -> Result<vofr_BrandResult, String> {
     // Compute super-SHA of staging content
     let super_sha = zvofr_compute_super_sha(staging_dir)?;
@@ -165,15 +173,9 @@ pub fn vofr_brand(
         zvofr_save_registry(registry_path, &registry)?;
     }
 
-    // Get kit list
-    let kit_ids: Vec<String> = DISTRIBUTABLE_KITS
-        .iter()
-        .map(|k| k.cipher.kit_id())
-        .collect();
-
-    // Write brand file
+    // Write brand file with managed_kits as the kit list
     let brand_path = staging_dir.join("vvbf_brand.json");
-    zvofr_write_brand_file(&brand_path, hallmark, &date, &super_sha, commit_sha, &kit_ids)?;
+    zvofr_write_brand_file(&brand_path, hallmark, &date, &super_sha, commit_sha, managed_kits)?;
 
     Ok(vofr_BrandResult {
         hallmark,

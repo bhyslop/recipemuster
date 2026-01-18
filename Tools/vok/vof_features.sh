@@ -36,26 +36,26 @@ zvof_kindle() {
 
   # Validate BURC environment
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"
+  test -n "${BURC_MANAGED_KITS:-}" || buc_die "BURC_MANAGED_KITS is unset"
 
   # Public exports - VOK is special (integrator crate, gets features)
   VOF_VOK_MANIFEST="${BURC_TOOLS_DIR}/vok/Cargo.toml"
   VOF_VOK_FEATURES=""
 
   # Other test manifests - space-separated list of Cargo.toml paths (no features)
+  # vvc is always included (core commit infrastructure)
   VOF_TEST_MANIFESTS="${BURC_TOOLS_DIR}/vvc/Cargo.toml"
 
-  # Detect jjk
-  if test -f "${BURC_TOOLS_DIR}/jjk/vov_veiled/Cargo.toml"; then
-    VOF_VOK_FEATURES="${VOF_VOK_FEATURES:+${VOF_VOK_FEATURES},}jjk"
-    VOF_TEST_MANIFESTS="${VOF_TEST_MANIFESTS} ${BURC_TOOLS_DIR}/jjk/vov_veiled/Cargo.toml"
-  fi
-
-  # Add more kit detection here as needed
-  # Example pattern:
-  # if test -f "${BURC_TOOLS_DIR}/«kit»/vov_veiled/Cargo.toml"; then
-  #   VOF_VOK_FEATURES="${VOF_VOK_FEATURES:+${VOF_VOK_FEATURES},}«kit»"
-  #   VOF_TEST_MANIFESTS="${VOF_TEST_MANIFESTS} ${BURC_TOOLS_DIR}/«kit»/vov_veiled/Cargo.toml"
-  # fi
+  # Process BURC_MANAGED_KITS - add features and manifests for kits with Rust code
+  local z_kit=""
+  local z_manifest=""
+  for z_kit in ${BURC_MANAGED_KITS//,/ }; do
+    z_manifest="${BURC_TOOLS_DIR}/${z_kit}/vov_veiled/Cargo.toml"
+    if test -f "${z_manifest}"; then
+      VOF_VOK_FEATURES="${VOF_VOK_FEATURES:+${VOF_VOK_FEATURES},}${z_kit}"
+      VOF_TEST_MANIFESTS="${VOF_TEST_MANIFESTS} ${z_manifest}"
+    fi
+  done
 
   ZVOF_KINDLED=1
 }

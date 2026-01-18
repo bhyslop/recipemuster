@@ -122,6 +122,10 @@ struct ReleaseCollectArgs {
     /// Path to vvi_install.sh
     #[arg(long)]
     install_script: PathBuf,
+
+    /// Comma-separated list of kit IDs (from BURC_MANAGED_KITS)
+    #[arg(long)]
+    managed_kits: String,
 }
 
 /// Arguments for release_brand command
@@ -138,6 +142,10 @@ struct ReleaseBrandArgs {
     /// Current git commit SHA
     #[arg(long)]
     commit: String,
+
+    /// Comma-separated list of kit IDs (from BURC_MANAGED_KITS)
+    #[arg(long)]
+    managed_kits: String,
 }
 
 /// Arguments for vvx_emplace command
@@ -367,7 +375,14 @@ fn run_release_collect(args: ReleaseCollectArgs) -> i32 {
     eprintln!("  tools_dir: {}", args.tools_dir.display());
     eprintln!("  install_script: {}", args.install_script.display());
 
-    match vof::vofr_collect(&args.tools_dir, &args.staging, &args.install_script) {
+    // Parse comma-separated kit list
+    let managed_kits: Vec<String> = args.managed_kits
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    match vof::vofr_collect(&args.tools_dir, &args.staging, &args.install_script, &managed_kits) {
         Ok(result) => {
             // Output JSON for bash to parse
             let mut output = serde_json::Map::new();
@@ -398,7 +413,14 @@ fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
     eprintln!("  registry: {}", args.registry.display());
     eprintln!("  commit: {}", args.commit);
 
-    match vof::vofr_brand(&args.staging, &args.registry, &args.commit) {
+    // Parse comma-separated kit list
+    let managed_kits: Vec<String> = args.managed_kits
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    match vof::vofr_brand(&args.staging, &args.registry, &args.commit, &managed_kits) {
         Ok(result) => {
             // Output hallmark for bash to use in tarball name
             println!("{}", result.hallmark);

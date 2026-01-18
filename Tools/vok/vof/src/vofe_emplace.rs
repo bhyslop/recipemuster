@@ -11,11 +11,13 @@
 //! Emplace behavior (nuclear install):
 //! 1. Parse burc.env, resolve paths relative to burc.env location
 //! 2. Verify git repo is clean
-//! 3. Delete .vvk/ and kit directories (nuclear cleanup)
-//! 4. Create .vvk/, copy brand file
-//! 5. Copy kit directories, route commands/hooks
-//! 6. Freshen CLAUDE.md with kit sections
-//! 7. Commit installation
+//! 3. Read brand identity from parcel
+//! 4. Validate exact match: parcel kits == BURC_MANAGED_KITS
+//! 5. Delete .vvk/ and kit directories (nuclear cleanup)
+//! 6. Create .vvk/, copy brand file
+//! 7. Copy kit directories, route commands/hooks
+//! 8. Freshen CLAUDE.md with kit sections
+//! 9. Commit installation
 //!
 //! Vacate behavior:
 //! 1. Parse burc.env, verify git clean
@@ -156,6 +158,8 @@ pub struct vofe_BurcEnv {
     pub tools_dir: PathBuf,
     /// BURC_PROJECT_ROOT - project root for .claude/, CLAUDE.md, .vvk/
     pub project_root: PathBuf,
+    /// BURC_MANAGED_KITS - list of kits to install (must match parcel)
+    pub managed_kits: Vec<String>,
 }
 
 /// Arguments for vacate operation.
@@ -208,7 +212,21 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     let brand_path = args.parcel_dir.join("vvbf_brand.json");
     let (hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
 
-    // 4. Nuclear cleanup - delete existing .vvk/ and kit directories
+    // 4. Validate exact match between parcel kits and target BURC_MANAGED_KITS
+    let mut burc_kits_sorted = burc.managed_kits.clone();
+    let mut brand_kits_sorted = kit_ids.clone();
+    burc_kits_sorted.sort();
+    brand_kits_sorted.sort();
+
+    if burc_kits_sorted != brand_kits_sorted {
+        return Err(format!(
+            "Kit mismatch: parcel contains [{}] but target expects [{}]",
+            kit_ids.join(","),
+            burc.managed_kits.join(",")
+        ));
+    }
+
+    // 5. Nuclear cleanup - delete existing .vvk/ and kit directories
     let vvk_dir = burc.project_root.join(".vvk");
     if vvk_dir.exists() {
         fs::remove_dir_all(&vvk_dir)
@@ -223,7 +241,7 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         }
     }
 
-    // 5. Create .vvk/ and copy brand file
+    // 6. Create .vvk/ and copy brand file
     fs::create_dir_all(&vvk_dir)
         .map_err(|e| format!("Failed to create .vvk directory: {}", e))?;
 
@@ -231,7 +249,7 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     fs::copy(&brand_path, &brand_dest)
         .map_err(|e| format!("Failed to copy brand file: {}", e))?;
 
-    // 6. Copy kit assets and route special files
+    // 7. Copy kit assets and route special files
     let mut total_files = 0u32;
     let mut commands_routed = 0u32;
     let mut hooks_routed = 0u32;
@@ -257,14 +275,14 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         hooks_routed += hks;
     }
 
-    // 7. Freshen CLAUDE.md with kit sections
+    // 8. Freshen CLAUDE.md with kit sections
     let sections = zvofe_read_templates(&args.parcel_dir, &kit_ids)?;
     let section_tags: Vec<String> = sections.iter().map(|s| s.tag.clone()).collect();
 
     let claude_path = burc.project_root.join("CLAUDE.md");
     zvofe_freshen_claude(&claude_path, &sections)?;
 
-    // 8. Commit installation
+    // 9. Commit installation
     let commit_msg = format!("VVK install: hallmark {}", hallmark);
     zvofe_git_commit(&burc.project_root, &commit_msg)?;
 
@@ -440,9 +458,25 @@ fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
         .canonicalize()
         .map_err(|e| format!("BURC_TOOLS_DIR path invalid ({}): {}", tools_dir.display(), e))?;
 
+    // Parse BURC_MANAGED_KITS (comma-separated list)
+    let managed_kits_str = vars
+        .get("BURC_MANAGED_KITS")
+        .ok_or_else(|| "burc.env missing required variable: BURC_MANAGED_KITS".to_string())?;
+
+    let managed_kits: Vec<String> = managed_kits_str
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    if managed_kits.is_empty() {
+        return Err("BURC_MANAGED_KITS must specify at least one kit".to_string());
+    }
+
     Ok(vofe_BurcEnv {
         tools_dir,
         project_root,
+        managed_kits,
     })
 }
 
@@ -727,17 +761,25 @@ mod tests {
         use std::io::Write;
         let temp_dir = std::env::temp_dir().join("vofe_test_burc");
         let _ = fs::remove_dir_all(&temp_dir);
-        fs::create_dir_all(&temp_dir).unwrap();
 
-        let burc_path = temp_dir.join("burc.env");
+        // Create directory structure: temp/buk/burc.env, temp/project, temp/project/Tools
+        let buk_dir = temp_dir.join("buk");
+        let project_dir = temp_dir.join("project");
+        let tools_dir = project_dir.join("Tools");
+        fs::create_dir_all(&buk_dir).unwrap();
+        fs::create_dir_all(&tools_dir).unwrap();
+
+        let burc_path = buk_dir.join("burc.env");
         let mut f = fs::File::create(&burc_path).unwrap();
         writeln!(f, "# Comment").unwrap();
-        writeln!(f, "BURC_TOOLS_DIR=/path/to/tools").unwrap();
-        writeln!(f, "BURC_PROJECT_ROOT=/path/to/project").unwrap();
+        writeln!(f, "BURC_PROJECT_ROOT=../project").unwrap();
+        writeln!(f, "BURC_TOOLS_DIR=Tools").unwrap();
+        writeln!(f, "BURC_MANAGED_KITS=buk,jjk").unwrap();
 
         let result = zvofe_parse_burc(&burc_path).unwrap();
-        assert_eq!(result.tools_dir, PathBuf::from("/path/to/tools"));
-        assert_eq!(result.project_root, PathBuf::from("/path/to/project"));
+        assert_eq!(result.project_root.canonicalize().unwrap(), project_dir.canonicalize().unwrap());
+        assert_eq!(result.tools_dir.canonicalize().unwrap(), tools_dir.canonicalize().unwrap());
+        assert_eq!(result.managed_kits, vec!["buk", "jjk"]);
 
         let _ = fs::remove_dir_all(&temp_dir);
     }
@@ -747,16 +789,24 @@ mod tests {
         use std::io::Write;
         let temp_dir = std::env::temp_dir().join("vofe_test_burc_quoted");
         let _ = fs::remove_dir_all(&temp_dir);
-        fs::create_dir_all(&temp_dir).unwrap();
 
-        let burc_path = temp_dir.join("burc.env");
+        // Create directory structure
+        let buk_dir = temp_dir.join("buk");
+        let project_dir = temp_dir.join("project");
+        let tools_dir = project_dir.join("Tools");
+        fs::create_dir_all(&buk_dir).unwrap();
+        fs::create_dir_all(&tools_dir).unwrap();
+
+        let burc_path = buk_dir.join("burc.env");
         let mut f = fs::File::create(&burc_path).unwrap();
-        writeln!(f, "BURC_TOOLS_DIR=\"/path/to/tools\"").unwrap();
-        writeln!(f, "BURC_PROJECT_ROOT='/path/to/project'").unwrap();
+        writeln!(f, "BURC_PROJECT_ROOT=\"../project\"").unwrap();
+        writeln!(f, "BURC_TOOLS_DIR='Tools'").unwrap();
+        writeln!(f, "BURC_MANAGED_KITS=\"vvk\"").unwrap();
 
         let result = zvofe_parse_burc(&burc_path).unwrap();
-        assert_eq!(result.tools_dir, PathBuf::from("/path/to/tools"));
-        assert_eq!(result.project_root, PathBuf::from("/path/to/project"));
+        assert_eq!(result.project_root.canonicalize().unwrap(), project_dir.canonicalize().unwrap());
+        assert_eq!(result.tools_dir.canonicalize().unwrap(), tools_dir.canonicalize().unwrap());
+        assert_eq!(result.managed_kits, vec!["vvk"]);
 
         let _ = fs::remove_dir_all(&temp_dir);
     }

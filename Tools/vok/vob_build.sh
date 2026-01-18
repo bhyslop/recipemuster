@@ -39,6 +39,7 @@ zvob_kindle() {
 
   # Validate BURC environment
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"
+  test -n "${BURC_MANAGED_KITS:-}" || buc_die "BURC_MANAGED_KITS is unset"
 
   # Paths (VVB_BIN_DIR and VVB_PLATFORM come from vvb_bash.sh)
   ZVOB_CARGO_DIR="${BURC_TOOLS_DIR}/vok"
@@ -169,7 +170,8 @@ vob_release() {
   "${z_vvx}" release_collect \
     --staging "${z_staging}" \
     --tools-dir "${BURC_TOOLS_DIR}" \
-    --install-script "${z_install_script}" || buc_die "release_collect failed"
+    --install-script "${z_install_script}" \
+    --managed-kits "${BURC_MANAGED_KITS}" || buc_die "release_collect failed"
 
   buc_step "Copying platform binary"
 
@@ -194,7 +196,8 @@ vob_release() {
   "${z_vvx}" release_brand \
     --staging "${z_staging}" \
     --registry "${z_registry}" \
-    --commit "${z_commit}" > "${z_hallmark_file}" || buc_die "release_brand failed"
+    --commit "${z_commit}" \
+    --managed-kits "${BURC_MANAGED_KITS}" > "${z_hallmark_file}" || buc_die "release_brand failed"
 
   local z_hallmark=""
   z_hallmark=$(<"${z_hallmark_file}")
