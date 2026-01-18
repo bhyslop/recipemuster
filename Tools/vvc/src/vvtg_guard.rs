@@ -2,19 +2,23 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Tests for vvcg_guard - VVC guard size validation
+//! Tests for vvcg_guard module
+//!
+//! Unit tests for guard cost model and integration test for the full guard workflow.
+//! These tests avoid std::env::set_current_dir() to prevent race conditions in parallel test runs.
 
 #[cfg(test)]
 mod tests {
-    use crate::vvcg_guard::{vvcg_run, vvcg_GuardArgs, VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
+    use crate::vvcg_guard::{zvvcg_get_diff_size, vvcg_run, vvcg_GuardArgs, VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
     use std::fs;
+    use std::path::{Path, PathBuf};
     use std::process::Command;
 
     /// Get test temp directory - uses BUD if available, falls back to system temp
-    fn vvtg_get_test_base() -> std::path::PathBuf {
+    fn get_test_base() -> PathBuf {
         // Try to use BUD temp dir if available (when run via tabtarget)
         if let Ok(bud_temp) = std::env::var("BUD_TEMP_DIR") {
-            let path = std::path::PathBuf::from(bud_temp);
+            let path = PathBuf::from(bud_temp);
             // Canonicalize to absolute path (BUD_TEMP_DIR may be relative)
             path.canonicalize().unwrap_or(path)
         } else {
@@ -23,241 +27,143 @@ mod tests {
         }
     }
 
-    /// Helper to create a test git repo
-    fn vvtg_setup_test_repo(name: &str) -> std::path::PathBuf {
-        let test_dir = vvtg_get_test_base().join("vvc-guard-tests").join(name);
-
-        // Clean up any existing test repo
-        if test_dir.exists() {
-            fs::remove_dir_all(&test_dir).expect("Failed to remove existing test dir");
-        }
-
-        fs::create_dir_all(&test_dir).expect("Failed to create test dir");
-
-        // Initialize git repo
-        let output = Command::new("git")
+    /// Helper to initialize a git repo in a directory
+    fn init_git_repo(dir: &Path) {
+        Command::new("git")
             .args(["init"])
-            .current_dir(&test_dir)
+            .current_dir(dir)
             .output()
-            .expect("Failed to init git repo");
-        assert!(output.status.success(), "git init failed");
+            .expect("git init failed");
 
-        // Configure git user for commits
-        let output = Command::new("git")
-            .args(["config", "user.name", "Test"])
-            .current_dir(&test_dir)
+        // Set user config for commits
+        Command::new("git")
+            .args(["config", "user.name", "Test User"])
+            .current_dir(dir)
             .output()
-            .expect("Failed to set git user name");
-        assert!(output.status.success(), "git config user.name failed");
+            .expect("git config user.name failed");
 
-        let output = Command::new("git")
+        Command::new("git")
             .args(["config", "user.email", "test@example.com"])
-            .current_dir(&test_dir)
+            .current_dir(dir)
             .output()
-            .expect("Failed to set git user email");
-        assert!(output.status.success(), "git config user.email failed");
-
-        // Create initial commit to establish HEAD
-        // (some git operations need at least one commit)
-        fs::write(test_dir.join(".gitignore"), "").expect("Failed to create .gitignore");
-        let output = Command::new("git")
-            .args(["add", ".gitignore"])
-            .current_dir(&test_dir)
-            .output()
-            .expect("Failed to add .gitignore");
-        assert!(output.status.success(), "git add .gitignore failed");
-
-        let output = Command::new("git")
-            .args(["commit", "-m", "Initial commit"])
-            .current_dir(&test_dir)
-            .output()
-            .expect("Failed to create initial commit");
-        assert!(output.status.success(), "git commit failed");
-
-        test_dir
+            .expect("git config user.email failed");
     }
 
-    /// Helper to stage a file in a test repo
-    fn vvtg_stage_file(repo: &std::path::Path, name: &str, content: &[u8]) {
-        let file_path = repo.join(name);
-        fs::write(&file_path, content).expect("Failed to write test file");
-
-        let output = Command::new("git")
-            .args(["add", name])
-            .current_dir(repo)
+    /// Helper to stage a file in a git repo
+    fn stage_file(dir: &Path, path: &str) {
+        Command::new("git")
+            .args(["add", path])
+            .current_dir(dir)
             .output()
-            .expect("Failed to stage file");
-
-        if !output.status.success() {
-            panic!(
-                "Failed to stage file {}: {}",
-                name,
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
-    }
-
-    /// Helper to get diff size in a specific repo directory
-    fn vvtg_get_size_in_repo(repo: &std::path::Path, file: &str) -> Result<u64, String> {
-        // Get staged blob info
-        let output = Command::new("git")
-            .args(["ls-files", "--cached", "-s", "--", file])
-            .current_dir(repo)
-            .output()
-            .map_err(|e| format!("Failed to run git ls-files: {}", e))?;
-
-        if !output.status.success() {
-            return Err(format!("git ls-files failed for {}", file));
-        }
-
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let line = stdout.trim();
-
-        if line.is_empty() {
-            return Ok(0); // File deleted or not in index
-        }
-
-        // Parse: "100644 <sha> 0\t<path>"
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() < 2 {
-            return Err(format!("Unexpected git ls-files output: {}", line));
-        }
-
-        let blob_sha = parts[1];
-
-        // Get blob size
-        let output = Command::new("git")
-            .args(["cat-file", "-s", blob_sha])
-            .current_dir(repo)
-            .output()
-            .map_err(|e| format!("Failed to run git cat-file: {}", e))?;
-
-        if !output.status.success() {
-            return Err(format!("git cat-file -s {} failed", blob_sha));
-        }
-
-        let size_str = String::from_utf8_lossy(&output.stdout);
-        size_str
-            .trim()
-            .parse::<u64>()
-            .map_err(|e| format!("Failed to parse size: {}", e))
+            .expect("git add failed");
     }
 
     #[test]
     fn vvtg_text_file_size() {
-        let repo = vvtg_setup_test_repo("vvtg_text_file_size");
+        // Create temp dir and git repo
+        let temp_dir = get_test_base().join("vvtg_text_file_size");
+        let _ = fs::remove_dir_all(&temp_dir); // Clean up any previous run
+        fs::create_dir_all(&temp_dir).unwrap();
+        init_git_repo(&temp_dir);
 
-        // Create and stage a text file with known size
-        let content = b"Hello, world!\nThis is a test file.\n";
-        vvtg_stage_file(&repo, "test.txt", content);
+        // Create and stage a text file
+        let file_path = temp_dir.join("test.txt");
+        let content = "Hello, World!\n";
+        fs::write(&file_path, content).unwrap();
+        stage_file(&temp_dir, "test.txt");
 
-        let size = vvtg_get_size_in_repo(&repo, "test.txt").expect("Failed to get diff size");
+        // Get diff size
+        let size = zvvcg_get_diff_size("test.txt", Some(&temp_dir)).unwrap();
 
-        assert_eq!(
-            size,
-            content.len() as u64,
-            "Text file size should match content length"
-        );
+        // For a new text file, size should equal blob size (content length)
+        assert_eq!(size, content.len() as u64);
+
+        // Cleanup
+        fs::remove_dir_all(&temp_dir).ok();
     }
 
     #[test]
     fn vvtg_binary_file_size() {
-        let repo = vvtg_setup_test_repo("vvtg_binary_file_size");
+        // Create temp dir and git repo
+        let temp_dir = get_test_base().join("vvtg_binary_file_size");
+        let _ = fs::remove_dir_all(&temp_dir); // Clean up any previous run
+        fs::create_dir_all(&temp_dir).unwrap();
+        init_git_repo(&temp_dir);
 
-        // Create a binary file with known size (1KB of random-ish bytes)
-        let content: Vec<u8> = (0..1024).map(|i| (i % 256) as u8).collect();
-        vvtg_stage_file(&repo, "binary.bin", &content);
+        // Create and stage a binary file (null bytes make it binary)
+        let file_path = temp_dir.join("test.bin");
+        let content = vec![0u8; 100]; // 100 null bytes
+        fs::write(&file_path, &content).unwrap();
+        stage_file(&temp_dir, "test.bin");
 
-        let size = vvtg_get_size_in_repo(&repo, "binary.bin").expect("Failed to get diff size");
+        // Get diff size
+        let size = zvvcg_get_diff_size("test.bin", Some(&temp_dir)).unwrap();
 
-        assert_eq!(
-            size,
-            content.len() as u64,
-            "Binary file size should match actual content length, not git diff output"
-        );
+        // For a new binary file, size should equal blob size (100 bytes)
+        // This is the key test: binary files report actual blob size, not diff output
+        assert_eq!(size, 100);
+
+        // Cleanup
+        fs::remove_dir_all(&temp_dir).ok();
     }
 
     #[test]
     fn vvtg_deleted_file_size() {
-        let repo = vvtg_setup_test_repo("vvtg_deleted_file_size");
+        // Create temp dir and git repo
+        let temp_dir = get_test_base().join("vvtg_deleted_file_size");
+        let _ = fs::remove_dir_all(&temp_dir); // Clean up any previous run
+        fs::create_dir_all(&temp_dir).unwrap();
+        init_git_repo(&temp_dir);
 
-        // Create and commit a file
-        let content = b"This file will be deleted\n";
-        vvtg_stage_file(&repo, "to_delete.txt", content);
-
-        Command::new("git")
-            .args(["commit", "-m", "Second commit"])
-            .current_dir(&repo)
-            .output()
-            .expect("Failed to commit");
-
-        // Delete and stage the deletion
-        fs::remove_file(repo.join("to_delete.txt")).expect("Failed to delete file");
+        // Create, commit, then delete a file
+        let file_path = temp_dir.join("test.txt");
+        fs::write(&file_path, "content\n").unwrap();
+        stage_file(&temp_dir, "test.txt");
 
         Command::new("git")
-            .args(["add", "to_delete.txt"])
-            .current_dir(&repo)
+            .args(["commit", "-m", "Initial commit"])
+            .current_dir(&temp_dir)
             .output()
-            .expect("Failed to stage deletion");
+            .expect("git commit failed");
 
-        let size = vvtg_get_size_in_repo(&repo, "to_delete.txt").expect("Failed to get diff size");
+        fs::remove_file(&file_path).unwrap();
+        stage_file(&temp_dir, "test.txt");
 
-        assert_eq!(size, 0, "Deleted file should have size 0");
+        // Get diff size for deleted file
+        let size = zvvcg_get_diff_size("test.txt", Some(&temp_dir)).unwrap();
+
+        // Deleted files should have 0 incremental cost
+        assert_eq!(size, 0);
+
+        // Cleanup
+        fs::remove_dir_all(&temp_dir).ok();
     }
 
     #[test]
     fn vvtg_large_binary_blocked() {
-        let repo = vvtg_setup_test_repo("vvtg_large_binary_blocked");
+        // Create temp dir and git repo (integration test)
+        let temp_dir = get_test_base().join("vvtg_large_binary_blocked");
+        let _ = fs::remove_dir_all(&temp_dir); // Clean up any previous run
+        fs::create_dir_all(&temp_dir).unwrap();
+        init_git_repo(&temp_dir);
 
-        // Create a binary file larger than the default limit (100KB > 50KB default)
-        let content: Vec<u8> = vec![0xFF; 100_000];
-        vvtg_stage_file(&repo, "large.bin", &content);
+        // Create and stage a 100KB binary file
+        let file_path = temp_dir.join("large.bin");
+        let content = vec![0u8; 100_000]; // 100KB
+        fs::write(&file_path, &content).unwrap();
+        stage_file(&temp_dir, "large.bin");
 
-        // Verify file was staged correctly
-        let size = vvtg_get_size_in_repo(&repo, "large.bin").expect("Failed to get size");
-        assert_eq!(size, 100_000, "File should be staged with correct size");
-
-        // Run guard with standard limits (50KB) - 100KB file should be blocked
+        // Run guard check with standard limits
         let args = vvcg_GuardArgs {
-            limit: VVCG_SIZE_LIMIT,
-            warn: VVCG_WARN_LIMIT,
+            limit: VVCG_SIZE_LIMIT,  // 50KB
+            warn: VVCG_WARN_LIMIT,   // 30KB
         };
-        let exit_code = vvcg_run(&args, Some(&repo));
+        let result = vvcg_run(&args, Some(&temp_dir));
 
-        assert_eq!(
-            exit_code, 1,
-            "100KB file should be blocked by 50KB standard limit (exit code 1)"
-        );
-    }
+        // Should be blocked (exit code 1) because 100KB > 50KB limit
+        assert_eq!(result, 1);
 
-    #[test]
-    fn vvtg_regression_tarball() {
-        let repo = vvtg_setup_test_repo("vvtg_regression_tarball");
-
-        // Simulate a 2MB tarball (the original failure case)
-        let content: Vec<u8> = vec![0x1F; 2_000_000]; // ~2MB
-        vvtg_stage_file(&repo, "vvk-parcel-1000.tar.gz", &content);
-
-        // Verify the file size is correctly detected
-        let size = vvtg_get_size_in_repo(&repo, "vvk-parcel-1000.tar.gz")
-            .expect("Failed to get tarball size");
-
-        assert_eq!(
-            size,
-            2_000_000,
-            "Tarball size should be 2MB, not ~60 bytes from diff output"
-        );
-
-        // Run guard with standard limits (should block)
-        let args = vvcg_GuardArgs {
-            limit: VVCG_SIZE_LIMIT,
-            warn: VVCG_WARN_LIMIT,
-        };
-        let exit_code = vvcg_run(&args, Some(&repo));
-
-        assert_eq!(
-            exit_code, 1,
-            "2MB tarball must be blocked by standard limit (exit code 1)"
-        );
+        // Cleanup
+        fs::remove_dir_all(&temp_dir).ok();
     }
 }

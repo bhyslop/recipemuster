@@ -64,6 +64,8 @@ pub struct vvcg_GuardArgs {
 }
 
 /// Entry for a staged file with its diff size
+///
+/// Public for testing. External callers should use vvcg_run.
 pub(crate) struct zvvcg_StagedFile {
     pub(crate) path: String,
     pub(crate) size: u64,
@@ -247,6 +249,8 @@ fn zvvcg_get_text_diff_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, 
 /// - Modified text (M): diff size
 /// - Modified binary (M): blob size
 /// - Deleted file (D): 0
+///
+/// Public for testing. External callers should use vvcg_run.
 pub(crate) fn zvvcg_get_diff_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
     let status = zvvcg_get_change_status(path, repo_dir)?;
 
