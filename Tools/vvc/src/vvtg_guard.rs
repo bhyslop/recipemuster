@@ -33,24 +33,44 @@ mod tests {
         fs::create_dir_all(&test_dir).expect("Failed to create test dir");
 
         // Initialize git repo
-        Command::new("git")
+        let output = Command::new("git")
             .args(["init"])
             .current_dir(&test_dir)
             .output()
             .expect("Failed to init git repo");
+        assert!(output.status.success(), "git init failed");
 
         // Configure git user for commits
-        Command::new("git")
+        let output = Command::new("git")
             .args(["config", "user.name", "Test"])
             .current_dir(&test_dir)
             .output()
             .expect("Failed to set git user name");
+        assert!(output.status.success(), "git config user.name failed");
 
-        Command::new("git")
+        let output = Command::new("git")
             .args(["config", "user.email", "test@example.com"])
             .current_dir(&test_dir)
             .output()
             .expect("Failed to set git user email");
+        assert!(output.status.success(), "git config user.email failed");
+
+        // Create initial commit to establish HEAD
+        // (some git operations need at least one commit)
+        fs::write(test_dir.join(".gitignore"), "").expect("Failed to create .gitignore");
+        let output = Command::new("git")
+            .args(["add", ".gitignore"])
+            .current_dir(&test_dir)
+            .output()
+            .expect("Failed to add .gitignore");
+        assert!(output.status.success(), "git add .gitignore failed");
+
+        let output = Command::new("git")
+            .args(["commit", "-m", "Initial commit"])
+            .current_dir(&test_dir)
+            .output()
+            .expect("Failed to create initial commit");
+        assert!(output.status.success(), "git commit failed");
 
         test_dir
     }
@@ -60,11 +80,19 @@ mod tests {
         let file_path = repo.join(name);
         fs::write(&file_path, content).expect("Failed to write test file");
 
-        Command::new("git")
+        let output = Command::new("git")
             .args(["add", name])
             .current_dir(repo)
             .output()
             .expect("Failed to stage file");
+
+        if !output.status.success() {
+            panic!(
+                "Failed to stage file {}: {}",
+                name,
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
     }
 
     #[test]
