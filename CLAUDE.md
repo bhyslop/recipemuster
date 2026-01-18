@@ -160,7 +160,7 @@ When working with .adoc files using MCM patterns:
 Tabtargets for Rust operations (run from project root):
 - `tt/vow-b.Build.sh` → `cargo build --manifest-path Tools/vok/Cargo.toml`
 - `tt/vvw-r.RunVVX.sh <cmd>` → runs vvx binary with arguments
-- `tt/vvw-t.TestVVX.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
+- `tt/vow-t.Test.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
 
 Never `cd` in Bash commands — it persists and breaks subsequent tabtarget calls.
 When running cargo directly, use `--manifest-path` to stay at project root.

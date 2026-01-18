@@ -244,6 +244,150 @@ When manual methods are needed (e.g., for display or CLI), define consts that ma
 
 If `grep '"rough"'` finds the same string literal in multiple places, the interface is immature. Extract a const.
 
+## Constant Discipline (Beyond Strings)
+
+String Boundary Discipline covers serialized strings. This section extends to **all** repeated values.
+
+### Rule
+
+Any magic value that appears 2+ times requires a const. This includes numbers, format strings, and computed values.
+
+### Derivation Rule
+
+If value B depends on value A, always derive B from A at the use site. Never define B as a separate constant.
+
+```rust
+// ✅ Length derived from the const
+pub const JJRG_UNKNOWN_COMMIT: &str = "0000000";
+let short_arg = format!("--short={}", JJRG_UNKNOWN_COMMIT.len());
+
+fn zjjrg_is_commit_sha(s: &str) -> bool {
+    s.len() == JJRG_UNKNOWN_COMMIT.len() && s.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+// ❌ Magic number exists separately — drift risk
+const COMMIT_LEN: usize = 7;  // Could diverge from JJRG_UNKNOWN_COMMIT
+format!("--short=7")          // Hardcoded, not derived
+```
+
+### Smell Test
+
+If `grep '7'` (or any literal) finds the same value used for the same purpose in multiple places, extract a const and derive.
+
+## Constructor Discipline
+
+When a struct requires non-trivial initialization (timestamps, captured values, computed defaults), define a constructor helper. All creation sites use the helper.
+
+### Rationale
+
+Scattered struct construction leads to:
+- Inconsistent initialization (some sites forget fields)
+- Duplicated capture logic (timestamps, git SHAs)
+- Drift when struct fields change
+
+### Pattern
+
+```rust
+// ✅ Constructor centralizes initialization logic
+pub fn jjrg_make_tack(
+    state: jjrg_PaceState,
+    text: String,
+    silks: String,
+    direction: Option<String>,
+) -> jjrg_Tack {
+    jjrg_Tack {
+        ts: timestamp_full(),           // Captured once
+        state,
+        text,
+        silks,
+        commit: jjrg_capture_commit_sha(),  // Captured once
+        direction,
+    }
+}
+
+// All creation sites use the helper
+let tack = jjrg_make_tack(PaceState::Rough, text, silks, None);
+```
+
+```rust
+// ❌ Raw struct construction scattered across files
+// In jjx_slate:
+jjrg_Tack { ts: timestamp_full(), state, text, silks, commit: capture_sha(), direction }
+// In jjx_tally:
+jjrg_Tack { ts: timestamp_full(), state, text, silks, commit: capture_sha(), direction }
+// In deserializer:
+jjrg_Tack { ts, state, text, silks: migrated, commit: UNKNOWN.to_string(), direction }
+```
+
+### When to Use
+
+- Struct has fields requiring runtime capture (timestamps, git state)
+- Struct has fields with non-trivial defaults
+- Struct is created in 2+ locations
+
+### Exception
+
+Test files may construct structs directly with test values (no runtime capture needed).
+
+## Comment Discipline
+
+Comments describe what code does permanently, not why it was written this session.
+
+### Prohibited
+
+- References to pace names, coronets, firemarks (`₢AEAAI`, `₣AB`)
+- References to heat names or silks
+- Phrases like "this migration", "for this pace", "current task"
+- Explanations of what changed (that's what git commits are for)
+
+### Permitted
+
+- What the code does in general terms
+- Why a non-obvious approach was chosen (permanent rationale)
+- Constraints or invariants the code maintains
+
+```rust
+// ✅ Permanent description
+// Use unknown commit placeholder for legacy data without commit tracking
+
+// ❌ Task-focused — meaningless to future readers
+// Migration: if tack lacks commit, use JJRG_UNKNOWN_COMMIT for ₢AEAAI
+
+// ✅ Permanent rationale
+// Custom deserializer handles legacy format where silks lived on Pace
+
+// ❌ Task-focused
+// Added in tack-struct-rust-migration pace to support old JSON
+```
+
+## File Size Discipline
+
+Large files degrade code quality by hiding patterns and encouraging copy-paste.
+
+### Thresholds
+
+| Lines | Action |
+|-------|--------|
+| <500 | Good |
+| 500-800 | Consider splitting by responsibility |
+| >800 | **Stop and ask** before continuing |
+
+### When >800 Lines
+
+Do not autonomously refactor. Instead:
+1. Note the file size in your response
+2. Identify natural split points (types, serde, validation, operations)
+3. Ask the user how to proceed
+
+### Natural Split Boundaries
+
+Large files typically split into 2-3 smaller files by responsibility. Common boundaries:
+- Data definitions vs. operations on that data
+- Core logic vs. serialization concerns
+- Public API vs. internal helpers
+
+All split files keep the same cipher prefix for grep-ability.
+
 ## What RCG Does Not Cover
 
 Trust Claude's Rust idioms for:
@@ -381,3 +525,24 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] `grep` for any string literal finds at most one definition (plus tests)
 - [ ] Serde attributes used where possible (`rename`, `rename_all`)
 - [ ] Manual string methods only when serde insufficient (CLI, display)
+
+### Constant Discipline
+- [ ] Magic values appearing 2+ times extracted to const
+- [ ] Derived values (e.g., length) computed from source const, not hardcoded
+- [ ] No duplicate literals for same semantic value
+
+### Constructor Discipline
+- [ ] Structs with runtime captures (timestamps, git SHA) have constructor helpers
+- [ ] All creation sites use the constructor, not raw struct syntax
+- [ ] Constructor named `{prefix}_make_{type}` or `{prefix}_new`
+- [ ] Test files exempt (may construct with literal test values)
+
+### Comment Discipline
+- [ ] No references to pace/heat names, coronets, firemarks
+- [ ] No task-focused language ("this migration", "for this pace")
+- [ ] Comments describe permanent purpose, not current task
+
+### File Size Discipline
+- [ ] File under 500 lines (good)
+- [ ] File 500-800 lines (noted, consider future split)
+- [ ] File over 800 lines (**stop and ask** before continuing)
