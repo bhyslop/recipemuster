@@ -1,0 +1,416 @@
+// Copyright 2026 Scale Invariant, Inc.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
+//! VVK Emplace - Install kit assets from parcel to target repo
+//!
+//! Pure file operations, no git. Called by vvi_install.sh which handles git commits.
+//!
+//! Behavior:
+//! 1. Parse burc.env to get BURC_TOOLS_DIR and BURC_PROJECT_ROOT
+//! 2. Read brand file to get kit list
+//! 3. Copy kit directories to target Tools/
+//! 4. Route commands and hooks to .claude/
+//! 5. Freshen CLAUDE.md with kit sections
+//! 6. Copy brand file to .vvk/
+
+use std::collections::HashMap;
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use crate::voff_freshen::{voff_freshen, voff_ManagedSection};
+use crate::vofm_managed::vofm_section_for_kit;
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/// Brand file JSON field tags (must match vofr_release.rs)
+const VOFE_BRAND_HALLMARK: &str = "vvbh_hallmark";
+const VOFE_BRAND_KITS: &str = "vvbk_kits";
+
+// =============================================================================
+// Public Types
+// =============================================================================
+
+/// Arguments for emplace operation.
+#[derive(Debug)]
+pub struct vofe_EmplaceArgs {
+    /// Path to extracted parcel directory
+    pub parcel_dir: PathBuf,
+    /// Path to target repo's burc.env file
+    pub burc_path: PathBuf,
+}
+
+/// Result of emplace operation.
+#[derive(Debug)]
+pub struct vofe_EmplaceResult {
+    /// Hallmark from brand file
+    pub hallmark: u32,
+    /// Kits that were installed
+    pub kits_installed: Vec<String>,
+    /// Total files copied
+    pub files_copied: u32,
+    /// Commands routed to .claude/commands/
+    pub commands_routed: u32,
+    /// Hooks routed to .claude/hooks/
+    pub hooks_routed: u32,
+    /// CLAUDE.md sections updated
+    pub claude_sections_updated: Vec<String>,
+}
+
+/// Parsed BURC environment.
+#[derive(Debug)]
+pub struct vofe_BurcEnv {
+    /// BURC_TOOLS_DIR - where kit directories go
+    pub tools_dir: PathBuf,
+    /// BURC_PROJECT_ROOT - project root for .claude/, CLAUDE.md, .vvk/
+    pub project_root: PathBuf,
+}
+
+// =============================================================================
+// Public Functions
+// =============================================================================
+
+/// Install kit assets from parcel to target repo.
+///
+/// # Arguments
+/// * `args` - Emplace arguments (parcel dir and burc.env path)
+///
+/// # Returns
+/// EmplaceResult with installation summary, or error message
+pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, String> {
+    // 1. Parse BURC
+    let burc = zvofe_parse_burc(&args.burc_path)?;
+
+    // 2. Read brand file
+    let brand_path = args.parcel_dir.join("vvbf_brand.json");
+    let (hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
+
+    // 3. Copy kit assets and route special files
+    let mut total_files = 0u32;
+    let mut commands_routed = 0u32;
+    let mut hooks_routed = 0u32;
+
+    let kits_dir = args.parcel_dir.join("kits");
+    for kit_id in &kit_ids {
+        let kit_source = kits_dir.join(kit_id);
+        let kit_dest = burc.tools_dir.join(kit_id);
+
+        if !kit_source.exists() {
+            return Err(format!("Kit not found in parcel: {}", kit_id));
+        }
+
+        let (files, cmds, hks) = zvofe_copy_kit(
+            &kit_source,
+            &kit_dest,
+            &burc.project_root,
+            kit_id,
+        )?;
+
+        total_files += files;
+        commands_routed += cmds;
+        hooks_routed += hks;
+    }
+
+    // 5. Freshen CLAUDE.md
+    let sections: Vec<voff_ManagedSection> = kit_ids
+        .iter()
+        .filter_map(|kit_id| vofm_section_for_kit(kit_id))
+        .collect();
+
+    let section_tags: Vec<String> = sections.iter().map(|s| s.tag.clone()).collect();
+
+    let claude_path = burc.project_root.join("CLAUDE.md");
+    zvofe_freshen_claude(&claude_path, &sections)?;
+
+    // 6. Copy brand file
+    let vvk_dir = burc.project_root.join(".vvk");
+    fs::create_dir_all(&vvk_dir)
+        .map_err(|e| format!("Failed to create .vvk directory: {}", e))?;
+
+    let brand_dest = vvk_dir.join("vvbf_brand.json");
+    fs::copy(&brand_path, &brand_dest)
+        .map_err(|e| format!("Failed to copy brand file: {}", e))?;
+
+    Ok(vofe_EmplaceResult {
+        hallmark,
+        kits_installed: kit_ids,
+        files_copied: total_files,
+        commands_routed,
+        hooks_routed,
+        claude_sections_updated: section_tags,
+    })
+}
+
+// =============================================================================
+// Internal Functions (zvofe_*)
+// =============================================================================
+
+/// Parse burc.env file to extract environment variables.
+fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
+    if !path.exists() {
+        return Err(format!("burc.env not found: {}", path.display()));
+    }
+
+    let content = fs::read_to_string(path)
+        .map_err(|e| format!("Failed to read burc.env: {}", e))?;
+
+    let mut vars: HashMap<String, String> = HashMap::new();
+
+    for line in content.lines() {
+        let line = line.trim();
+
+        // Skip comments and empty lines
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+
+        // Parse KEY=VALUE (handle quoted values)
+        if let Some(eq_pos) = line.find('=') {
+            let key = line[..eq_pos].trim();
+            let mut value = line[eq_pos + 1..].trim();
+
+            // Remove surrounding quotes if present
+            if (value.starts_with('"') && value.ends_with('"'))
+                || (value.starts_with('\'') && value.ends_with('\''))
+            {
+                value = &value[1..value.len() - 1];
+            }
+
+            vars.insert(key.to_string(), value.to_string());
+        }
+    }
+
+    let tools_dir = vars
+        .get("BURC_TOOLS_DIR")
+        .ok_or_else(|| "BURC_TOOLS_DIR not defined in burc.env".to_string())?;
+
+    let project_root = vars
+        .get("BURC_PROJECT_ROOT")
+        .ok_or_else(|| "BURC_PROJECT_ROOT not defined in burc.env".to_string())?;
+
+    Ok(vofe_BurcEnv {
+        tools_dir: PathBuf::from(tools_dir),
+        project_root: PathBuf::from(project_root),
+    })
+}
+
+/// Read brand file and extract hallmark and kit list.
+fn zvofe_read_brand(path: &Path) -> Result<(u32, Vec<String>), String> {
+    if !path.exists() {
+        return Err(format!("Brand file not found: {}", path.display()));
+    }
+
+    let content = fs::read_to_string(path)
+        .map_err(|e| format!("Failed to read brand file: {}", e))?;
+
+    let json: serde_json::Value = serde_json::from_str(&content)
+        .map_err(|e| format!("Failed to parse brand JSON: {}", e))?;
+
+    let hallmark = json
+        .get(VOFE_BRAND_HALLMARK)
+        .and_then(|v| v.as_u64())
+        .map(|v| v as u32)
+        .ok_or_else(|| "Brand file missing hallmark".to_string())?;
+
+    let kits = json
+        .get(VOFE_BRAND_KITS)
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| "Brand file missing kits array".to_string())?;
+
+    let kit_ids: Vec<String> = kits
+        .iter()
+        .filter_map(|v| v.as_str().map(String::from))
+        .collect();
+
+    if kit_ids.is_empty() {
+        return Err("Brand file has empty kits array".to_string());
+    }
+
+    Ok((hallmark, kit_ids))
+}
+
+/// Copy a kit directory and route special files.
+/// Returns (files_copied, commands_routed, hooks_routed).
+fn zvofe_copy_kit(
+    source: &Path,
+    dest: &Path,
+    project_root: &Path,
+    kit_id: &str,
+) -> Result<(u32, u32, u32), String> {
+    let mut files = 0u32;
+    let mut commands = 0u32;
+    let mut hooks = 0u32;
+
+    // Get cipher from kit_id (e.g., "jjk" -> "jj")
+    let cipher = &kit_id[..kit_id.len().saturating_sub(1)];
+
+    // Walk source directory
+    let entries = zvofe_walk_dir(source)?;
+
+    for entry in entries {
+        let rel_path = entry
+            .strip_prefix(source)
+            .map_err(|e| format!("Path strip failed: {}", e))?;
+
+        let file_name = rel_path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("");
+
+        // Determine destination based on file type
+        let dest_path = if zvofe_is_command_file(file_name, cipher) {
+            // Route commands to .claude/commands/
+            let commands_dir = project_root.join(".claude").join("commands");
+            fs::create_dir_all(&commands_dir)
+                .map_err(|e| format!("Failed to create commands dir: {}", e))?;
+            commands += 1;
+            commands_dir.join(file_name)
+        } else if zvofe_is_hook_file(file_name, cipher) {
+            // Route hooks to .claude/hooks/
+            let hooks_dir = project_root.join(".claude").join("hooks");
+            fs::create_dir_all(&hooks_dir)
+                .map_err(|e| format!("Failed to create hooks dir: {}", e))?;
+            hooks += 1;
+            hooks_dir.join(file_name)
+        } else {
+            // Default: preserve relative path in kit directory
+            dest.join(rel_path)
+        };
+
+        // Create parent directories
+        if let Some(parent) = dest_path.parent() {
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create dir {}: {}", parent.display(), e))?;
+        }
+
+        // Copy file
+        fs::copy(&entry, &dest_path)
+            .map_err(|e| format!("Failed to copy {} to {}: {}", entry.display(), dest_path.display(), e))?;
+
+        files += 1;
+    }
+
+    Ok((files, commands, hooks))
+}
+
+/// Walk directory recursively, returning all file paths.
+fn zvofe_walk_dir(dir: &Path) -> Result<Vec<PathBuf>, String> {
+    let mut files = Vec::new();
+
+    if !dir.is_dir() {
+        return Ok(files);
+    }
+
+    let entries = fs::read_dir(dir)
+        .map_err(|e| format!("Failed to read dir {}: {}", dir.display(), e))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("Dir entry error: {}", e))?;
+        let path = entry.path();
+
+        if path.is_dir() {
+            files.extend(zvofe_walk_dir(&path)?);
+        } else {
+            files.push(path);
+        }
+    }
+
+    Ok(files)
+}
+
+/// Check if file is a command file (matches {cipher}c-*.md pattern).
+fn zvofe_is_command_file(file_name: &str, cipher: &str) -> bool {
+    let prefix = format!("{}c-", cipher);
+    file_name.starts_with(&prefix) && file_name.ends_with(".md")
+}
+
+/// Check if file is a hook file (matches {cipher}h_* pattern).
+fn zvofe_is_hook_file(file_name: &str, cipher: &str) -> bool {
+    let prefix = format!("{}h_", cipher);
+    file_name.starts_with(&prefix)
+}
+
+/// Freshen CLAUDE.md with managed sections.
+fn zvofe_freshen_claude(
+    claude_path: &Path,
+    sections: &[voff_ManagedSection],
+) -> Result<(), String> {
+    // Read existing content or start with empty
+    let content = if claude_path.exists() {
+        fs::read_to_string(claude_path)
+            .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?
+    } else {
+        "# Claude Code Project Memory\n".to_string()
+    };
+
+    // Freshen with new sections
+    let result = voff_freshen(&content, sections);
+
+    // Write back
+    fs::write(claude_path, &result.content)
+        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_command_file() {
+        assert!(zvofe_is_command_file("jjc-heat-mount.md", "jj"));
+        assert!(zvofe_is_command_file("vvc-commit.md", "vv"));
+        assert!(!zvofe_is_command_file("jjw_workbench.sh", "jj"));
+        assert!(!zvofe_is_command_file("README.md", "jj"));
+    }
+
+    #[test]
+    fn test_is_hook_file() {
+        assert!(zvofe_is_hook_file("jjh_post_commit.sh", "jj"));
+        assert!(zvofe_is_hook_file("vvh_pre_push", "vv"));
+        assert!(!zvofe_is_hook_file("jjc-heat-mount.md", "jj"));
+        assert!(!zvofe_is_hook_file("jjw_workbench.sh", "jj"));
+    }
+
+    #[test]
+    fn test_parse_burc_simple() {
+        use std::io::Write;
+        let temp_dir = std::env::temp_dir().join("vofe_test_burc");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let burc_path = temp_dir.join("burc.env");
+        let mut f = fs::File::create(&burc_path).unwrap();
+        writeln!(f, "# Comment").unwrap();
+        writeln!(f, "BURC_TOOLS_DIR=/path/to/tools").unwrap();
+        writeln!(f, "BURC_PROJECT_ROOT=/path/to/project").unwrap();
+
+        let result = zvofe_parse_burc(&burc_path).unwrap();
+        assert_eq!(result.tools_dir, PathBuf::from("/path/to/tools"));
+        assert_eq!(result.project_root, PathBuf::from("/path/to/project"));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_parse_burc_quoted() {
+        use std::io::Write;
+        let temp_dir = std::env::temp_dir().join("vofe_test_burc_quoted");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let burc_path = temp_dir.join("burc.env");
+        let mut f = fs::File::create(&burc_path).unwrap();
+        writeln!(f, "BURC_TOOLS_DIR=\"/path/to/tools\"").unwrap();
+        writeln!(f, "BURC_PROJECT_ROOT='/path/to/project'").unwrap();
+
+        let result = zvofe_parse_burc(&burc_path).unwrap();
+        assert_eq!(result.tools_dir, PathBuf::from("/path/to/tools"));
+        assert_eq!(result.project_root, PathBuf::from("/path/to/project"));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+}

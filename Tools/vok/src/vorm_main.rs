@@ -47,6 +47,10 @@ enum Commands {
     #[command(name = "release_brand")]
     ReleaseBrand(ReleaseBrandArgs),
 
+    /// Install kit assets from parcel to target repo
+    #[command(name = "vvx_emplace")]
+    VvxEmplace(EmplaceArgs),
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
@@ -132,6 +136,18 @@ struct ReleaseBrandArgs {
     commit: String,
 }
 
+/// Arguments for vvx_emplace command
+#[derive(clap::Args, Debug)]
+struct EmplaceArgs {
+    /// Extracted parcel directory (contains vvbf_brand.json, kits/)
+    #[arg(long)]
+    parcel: PathBuf,
+
+    /// Path to target repo's burc.env file
+    #[arg(long)]
+    burc: PathBuf,
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
@@ -142,6 +158,7 @@ fn main() -> ExitCode {
         Some(Commands::VvxUnlock) => run_unlock(),
         Some(Commands::ReleaseCollect(args)) => run_release_collect(args),
         Some(Commands::ReleaseBrand(args)) => run_release_brand(args),
+        Some(Commands::VvxEmplace(args)) => run_emplace(args),
         Some(Commands::External(args)) => dispatch_external(args),
         None => {
             use clap::CommandFactory;
@@ -382,6 +399,52 @@ fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("release_brand: error: {}", e);
+            1
+        }
+    }
+}
+
+/// Run vvx_emplace command
+fn run_emplace(args: EmplaceArgs) -> i32 {
+    eprintln!("emplace: installing kit assets...");
+    eprintln!("  parcel: {}", args.parcel.display());
+    eprintln!("  burc: {}", args.burc.display());
+
+    let emplace_args = vof::vofe_EmplaceArgs {
+        parcel_dir: args.parcel,
+        burc_path: args.burc,
+    };
+
+    match vof::vofe_emplace(&emplace_args) {
+        Ok(result) => {
+            // Output JSON summary
+            let mut output = serde_json::Map::new();
+            output.insert("hallmark".to_string(), serde_json::Value::Number(result.hallmark.into()));
+
+            let kits: Vec<serde_json::Value> = result.kits_installed
+                .iter()
+                .map(|k| serde_json::Value::String(k.clone()))
+                .collect();
+            output.insert("kits_installed".to_string(), serde_json::Value::Array(kits));
+
+            output.insert("files_copied".to_string(), serde_json::Value::Number(result.files_copied.into()));
+            output.insert("commands_routed".to_string(), serde_json::Value::Number(result.commands_routed.into()));
+            output.insert("hooks_routed".to_string(), serde_json::Value::Number(result.hooks_routed.into()));
+
+            let sections: Vec<serde_json::Value> = result.claude_sections_updated
+                .iter()
+                .map(|s| serde_json::Value::String(s.clone()))
+                .collect();
+            output.insert("claude_sections_updated".to_string(), serde_json::Value::Array(sections));
+
+            println!("{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
+
+            eprintln!("emplace: success - {} files, {} commands, {} hooks",
+                result.files_copied, result.commands_routed, result.hooks_routed);
+            0
+        }
+        Err(e) => {
+            eprintln!("emplace: error: {}", e);
             1
         }
     }
