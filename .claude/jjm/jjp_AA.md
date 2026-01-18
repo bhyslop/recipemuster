@@ -100,3 +100,35 @@ Content outside markers is user content — survives reinstall.
 1. Test uninstall/reinstall cycle on pb
 2. Verify pb bash utilities remain functional after vacate
 3. Test reinstall after vacate
+
+## Gallops Functional Test (post-install)
+
+After successful install, validate JJK functionality in target repo:
+
+```bash
+# From target repo (pb_paneboard02)
+cd /Users/bhyslop/projects/pb_paneboard02
+
+# 1. Create a test heat
+./Tools/vvk/bin/vvx jjx_nominate --silks test-install-validation
+
+# 2. Slate a few short paces
+echo "Verify JJK installed correctly" | ./Tools/vvk/bin/vvx jjx_slate <FIREMARK> --silks verify-install
+echo "Check git commit history" | ./Tools/vvk/bin/vvx jjx_slate <FIREMARK> --silks check-commits
+echo "Clean up test heat" | ./Tools/vvk/bin/vvx jjx_slate <FIREMARK> --silks cleanup
+
+# 3. Read back - verify paces appear
+./Tools/vvk/bin/vvx jjx_saddle <FIREMARK>
+
+# 4. Check git log for JJK commits
+git log --oneline -5
+# Should see: nominate commit, slate commits
+
+# 5. Cleanup: abandon heat (or leave for manual inspection)
+```
+
+**Success criteria**:
+- [ ] jjx_nominate creates heat with correct firemark
+- [ ] jjx_slate adds paces (each creates git commit)
+- [ ] jjx_saddle returns correct JSON with paces
+- [ ] Git history shows JJK-prefixed commit messages
