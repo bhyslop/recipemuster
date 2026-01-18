@@ -1549,9 +1549,10 @@
         "₢ADAAE",
         "₢ADAAH",
         "₢ADAAI",
-        "₢ADAAJ"
+        "₢ADAAJ",
+        "₢ADAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1747,6 +1748,16 @@
               "ts": "260118-0843",
               "state": "rough",
               "text": "BUS cleanup: fix dispatch definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Colophon definition clarity\n- Clarify that colophon includes full routing prefix (e.g., `rbw-B` not just `rbw-`)\n- The trailing hyphen is part of colophon identity\n\n### Issue 2: Colophon example error\n- Fix any references to \"jjw- routes to JJK workbench\"\n- Should be \"JJW workbench\" (JJK is kit; JJW is workbench prefix)\n\n### Issue 3: Tabtarget signet_case description\n- Current \"lowercase with hyphen\" description may be incomplete\n- Colophon has internal structure (cipher + variant indicator + hyphen)\n- Clarify the pattern\n\n## Target File\n\nTools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc\n\n## Bridleability\n\nBridleable - editorial fixes with clear targets."
+            }
+          ]
+        },
+        "₢ADAAK": {
+          "silks": "vvb-platform-consolidation",
+          "tacks": [
+            {
+              "ts": "260118-1045",
+              "state": "rough",
+              "text": "Consolidate platform detection and binary path construction from VOB to VVB.\n\n## Problem\n\nPlatform detection and binary path construction are duplicated:\n- `vob_build.sh` (lines 49-62): sets `ZVOB_PLATFORM` in kindle\n- `vvb_bash.sh` (lines 46-64): `zvvb_platform_capture()` function\n\nBinary path `${VVB_BIN_DIR}/vvx-${PLATFORM}` is constructed 5 times across both files.\n\n## Layering Principle\n\nVVK is lower-level than VOK (can have VV without VO, not vice versa). The lower layer should own platform detection and binary path.\n\n## Changes\n\n**vvb_bash.sh:**\n1. In `zvvb_kindle()`: Add `VVB_PLATFORM` and `VVB_VVX_BINARY` public exports\n2. In `zvvb_platform_capture()`: Add missing `Linux-aarch64` case\n3. Simplify `zvvb_binary_path_capture()` to use `VVB_VVX_BINARY`\n\n**vob_build.sh:**\n4. Remove platform detection block (lines 49-62)\n5. Update `ZVOB_RELEASE_BINARY` to use `VVB_PLATFORM`\n6. Replace all `${VVB_BIN_DIR}/vvx-${ZVOB_PLATFORM}` with `VVB_VVX_BINARY`\n\n## Result\n\n- VVB gains: `VVB_PLATFORM`, `VVB_VVX_BINARY` public exports\n- VOB loses: `ZVOB_PLATFORM`, consumes VVB exports\n- Platform case list consolidated in one place (VVB)\n- 5 path constructions → 1 definition\n\n## Files\n\n- Tools/vvk/vvb_bash.sh\n- Tools/vok/vob_build.sh"
             }
           ]
         }
