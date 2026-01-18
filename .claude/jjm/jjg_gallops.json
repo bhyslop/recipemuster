@@ -1778,6 +1778,11 @@
           "silks": "vob-release-parcel-consolidation",
           "tacks": [
             {
+              "ts": "260118-1122",
+              "state": "complete",
+              "text": "Work already completed in previous session: vob_release now implements full VOS vosor_release ceremony (no vestigial function, no vob_parcel, no vow-P case)."
+            },
+            {
               "ts": "260118-1120",
               "state": "complete",
               "text": "Consolidated vob_parcel and vob_release: deleted vestigial vob_release function, renamed vob_parcel to vob_release, removed vow-P case. Build verified successful."
