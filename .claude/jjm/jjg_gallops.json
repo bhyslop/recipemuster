@@ -1547,9 +1547,10 @@
         "₢ADAAC",
         "₢ADAAD",
         "₢ADAAE",
-        "₢ADAAH"
+        "₢ADAAH",
+        "₢ADAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1710,6 +1711,16 @@
               "ts": "260118-0841",
               "state": "rough",
               "text": "VOS cleanup: update legacy vost_cipher references.\n\n## Issues\n\nUpdate legacy vost_cipher references to voslc_cipher throughout VOS:\n- Search for remaining `vost_cipher` usage\n- Replace with `voslc_cipher` (canonical form now that alias exists in mapping section)\n\n## Context\n\nVOS mapping section has backward-compatibility aliases:\n```\n:vost_cipher:           <<voslc_cipher,Cipher>>\n```\n\nBody text should use the canonical `{voslc_cipher}` form, not the alias.\n\n## Target File\n\nTools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical find/replace with verification."
+            }
+          ]
+        },
+        "₢ADAAI": {
+          "silks": "vls-vesture-cleanup",
+          "tacks": [
+            {
+              "ts": "260118-0842",
+              "state": "rough",
+              "text": "VLS cleanup: fix vesture definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Rust vesture signet_case\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (vofc), snake_case describes full inscription\n\n### Issue 2: AsciiDoc vesture scope\n- Currently conflates attributes and anchors in single vesture\n- Clarify voslda covers both with different envelope sub-types:\n  - Attributes: no envelope\n  - Anchors: frame envelope `[[...]]`\n\n## Target File\n\nTools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical edits with clear targets."
             }
           ]
         }
