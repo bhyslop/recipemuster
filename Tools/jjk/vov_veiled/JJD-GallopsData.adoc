@@ -54,7 +54,6 @@
 
 // Pace record and members
 :jjdpm_coronet:   <<jjdpm_coronet,coronet>>
-:jjdpm_silks:     <<jjdpm_silks,silks>>
 :jjdpr_pace:      <<jjdpr_pace,Pace>>
 :jjdpr_pace_p:    <<jjdpr_pace,Pace's>>
 :jjdpr_pace_s:    <<jjdpr_pace,Paces>>
@@ -66,8 +65,10 @@
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 
 // Tack record and members
+:jjdkm_commit:    <<jjdkm_commit,commit>>
 :jjdkm_direction: <<jjdkm_direction,direction>>
 :jjdkm_refined:   <<jjdkm_refined,ts>>
+:jjdkm_silks:     <<jjdkm_silks,silks>>
 :jjdkm_state:     <<jjdkm_state,state>>
 :jjdkm_text:      <<jjdkm_text,text>>
 :jjdkr_tack:      <<jjdkr_tack,Tack>>
@@ -421,6 +422,7 @@ Contains one or more
 {jjdkr_tack_s}
 representing state snapshots and plan refinements.
 Current state is derived from `tacks[0].state`.
+Current silks is derived from `tacks[0].silks`.
 Keyed in JSON by
 {jjdt_coronet}.
 
@@ -435,15 +437,6 @@ globally unique identity.
 Type:
 {jjdt_coronet}.
 Implicit from JSON key; not stored as separate field.
-
-* [[jjdpm_silks]]
-// ⟦axl_voices axr_member axd_required⟧
-{jjdpm_silks}
-is the
-{jjdpr_pace_p}
-display name.
-Type:
-{jjdt_silks}.
 
 === {jjdkr_tack}
 
@@ -496,6 +489,26 @@ contains the plan specification.
 Non-empty string describing what the
 {jjdpr_pace}
 should accomplish.
+
+* [[jjdkm_silks]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_silks}
+is the
+{jjdpr_pace_p}
+display name at this point in time.
+Type:
+{jjdt_silks}.
+Enables rename history; current pace silks is derived from `tacks[0].silks`.
+
+* [[jjdkm_commit]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_commit}
+is the commit SHA at
+{jjdkr_tack}
+creation.
+Format: 7-character hex string.
+Captures repo state when plan was written.
+Value `0000000` indicates unknown (migrated data).
 
 * [[jjdkm_direction]]
 // ⟦axl_voices axr_member axd_conditional⟧
@@ -585,6 +598,20 @@ values.
 CLI commands accept identities with or without prefix.
 Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
 Output always includes the prefix (`₣` or `₢`).
+
+=== Legacy Format Acceptance
+
+During migration period, implementations MUST accept legacy format on read:
+
+* {jjdpr_pace} with `silks` field → copy to all {jjdkr_tack_s} missing {jjdkm_silks}, discard from {jjdpr_pace}
+* {jjdkr_tack} without {jjdkm_silks} → inherit from {jjdpr_pace} (error if {jjdpr_pace} also missing silks)
+* {jjdkr_tack} without {jjdkm_commit} → use `0000000`
+
+Implementations MUST write only canonical format:
+
+* {jjdpr_pace} without `silks` field
+* {jjdkr_tack} with {jjdkm_silks} (required)
+* {jjdkr_tack} with {jjdkm_commit} (required, `0000000` if unknown)
 
 == Arguments
 
@@ -1000,8 +1027,6 @@ from target
 with:
 .. Key: constructed
 {jjdt_coronet}
-.. {jjdpm_silks}:
-from argument
 .. `tacks`: array with single
 {jjdkr_tack}:
 ... {jjdkm_refined}:
@@ -1010,6 +1035,10 @@ current timestamp (YYMMDD-HHMM)
 {jjdpe_rough}
 ... {jjdkm_text}:
 from stdin
+... {jjdkm_silks}:
+from argument
+... {jjdkm_commit}:
+current HEAD (7-char hex via `git rev-parse --short=7 HEAD`)
 . Insert
 {jjdt_coronet}
 into
@@ -1345,8 +1374,6 @@ exists in destination
 {jjdpr_pace}
 data to destination with new
 {jjdt_coronet}:
-.. Preserve
-{jjdpm_silks}
 .. Prepend new
 {jjdkr_tack}
 recording the draft:
@@ -1356,6 +1383,10 @@ current timestamp (YYMMDD-HHMM)
 inherited from previous `tacks[0].state`
 ... {jjdkm_text}:
 `Drafted from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
+... {jjdkm_silks}:
+inherited from previous `tacks[0].silks`
+... {jjdkm_commit}:
+current HEAD (7-char hex via `git rev-parse --short=7 HEAD`)
 .. Preserve remaining
 {jjdkr_tack}
 history
@@ -1504,6 +1535,10 @@ current timestamp (YYMMDD-HHMM)
 determined above
 .. {jjdkm_text}:
 determined above
+.. {jjdkm_silks}:
+inherited from previous `tacks[0].silks`
+.. {jjdkm_commit}:
+current HEAD (7-char hex via `git rev-parse --short=7 HEAD`)
 .. {jjdkm_direction}:
 determined above (if applicable)
 . Prepend new
@@ -1694,8 +1729,6 @@ identity (first 2 base64 chars after prefix)
 . Each
 {jjdpr_pace}
 must have:
-{jjdpm_silks}
-(non-empty kebab-case),
 `tacks` (non-empty array)
 . Each
 {jjdkr_tack}
@@ -1709,7 +1742,11 @@ must have:
 or
 {jjdpe_abandoned}),
 {jjdkm_text}
-(non-empty string)
+(non-empty string),
+{jjdkm_silks}
+(non-empty kebab-case),
+{jjdkm_commit}
+(7-character hex string matching `[0-9a-f]{7}`)
 . If
 {jjdkm_state}
 is
@@ -1809,6 +1846,7 @@ details.
 }
 ----
 Fields `pace_coronet` through `tack_direction` are absent if no actionable pace exists.
+Field `pace_silks` is derived from `tacks[0].silks`.
 Field `tack_direction` is present only when `pace_state` is
 {jjdpe_bridled}.
 Field `paddock_content` contains the full text of the paddock file.
@@ -1840,7 +1878,7 @@ check `paces[coronet].tacks[0].state`
 or
 {jjdpe_bridled}:
 .. Output `pace_coronet`,
-`pace_silks`,
+`pace_silks` (from `tacks[0].silks`),
 `pace_state`
 .. Output `tack_text` from `tacks[0].text`
 .. If state is
@@ -1945,7 +1983,7 @@ exists with given
 . Match on format mode:
 .. *overview*: For each pace in
 {jjdhm_order},
-print `[state] silks (coronet)`
+print `[state] silks (coronet)` where silks is derived from `tacks[0].silks`
 .. *order*: Same as overview with line numbers
 .. *detail*: Find specified pace, print header and full tack text
 .. *full*: Print heat header, paddock content, then each pace with tack text
