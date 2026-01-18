@@ -34,9 +34,9 @@ impl Default for vvcg_GuardArgs {
 }
 
 /// Entry for a staged file with its diff size
-struct zvvcg_StagedFile {
-    path: String,
-    size: u64,
+pub(crate) struct zvvcg_StagedFile {
+    pub(crate) path: String,
+    pub(crate) size: u64,
 }
 
 /// Get list of staged files with their diff sizes
@@ -69,17 +69,55 @@ fn zvvcg_get_staged_files() -> Result<Vec<zvvcg_StagedFile>, String> {
 }
 
 /// Get size of staged diff for a specific file
-fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
+///
+/// For new or modified files, returns the actual blob size in the staging area.
+/// For deleted files, returns 0.
+///
+/// Uses git ls-files --cached -s to get the blob SHA, then git cat-file -s
+/// to get the actual size. This correctly handles binary files, which would
+/// otherwise be misreported by measuring git diff output length.
+pub(crate) fn zvvcg_get_diff_size(path: &str) -> Result<u64, String> {
+    // Get staged blob info: mode, sha, stage, path
     let output = Command::new("git")
-        .args(["diff", "--cached", "--", path])
+        .args(["ls-files", "--cached", "-s", "--", path])
         .output()
-        .map_err(|e| format!("Failed to run git diff for {}: {}", path, e))?;
+        .map_err(|e| format!("Failed to run git ls-files for {}: {}", path, e))?;
 
     if !output.status.success() {
-        return Err(format!("git diff --cached -- {} failed", path));
+        return Err(format!("git ls-files --cached -s -- {} failed", path));
     }
 
-    Ok(output.stdout.len() as u64)
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let line = stdout.trim();
+
+    // If file is deleted (not in index), it has no size
+    if line.is_empty() {
+        return Ok(0);
+    }
+
+    // Parse: "100644 <sha> 0\t<path>"
+    let parts: Vec<&str> = line.split_whitespace().collect();
+    if parts.len() < 2 {
+        return Err(format!("Unexpected git ls-files output for {}: {}", path, line));
+    }
+
+    let blob_sha = parts[1];
+
+    // Get actual blob size
+    let output = Command::new("git")
+        .args(["cat-file", "-s", blob_sha])
+        .output()
+        .map_err(|e| format!("Failed to run git cat-file for {}: {}", blob_sha, e))?;
+
+    if !output.status.success() {
+        return Err(format!("git cat-file -s {} failed", blob_sha));
+    }
+
+    let size_str = String::from_utf8_lossy(&output.stdout);
+    size_str
+        .trim()
+        .parse::<u64>()
+        .map_err(|e| format!("Failed to parse blob size for {}: {}", path, e))
 }
 
 /// Run the guard check on staged content.

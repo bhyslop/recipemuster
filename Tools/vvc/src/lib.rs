@@ -18,6 +18,9 @@ pub mod vvce_env;
 pub mod vvcg_guard;
 pub mod vvcm_machine;
 
+#[cfg(test)]
+mod vvtg_guard;
+
 // Re-export commonly used types (RCG-compliant names)
 pub use vvcc_commit::{vvcc_CommitArgs, vvcc_CommitLock, vvcc_run as commit};
 pub use vvce_env::{vvce_env, VvcEnv};
