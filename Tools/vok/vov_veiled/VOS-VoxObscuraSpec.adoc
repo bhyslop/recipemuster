@@ -281,8 +281,11 @@ can function from its extracted directory.
 {vosoi_install}
 requires BURC (BUK Regime Configuration) in the
 {vosp_target_repo}.
-The install script reads `.buk/burc.env` to locate `BURC_TOOLS_DIR`.
-Install fails immediately if BURC is missing — no bootstrap, no prompts.
+The install script reads `.buk/burc.env` for required variables:
+`BURC_PROJECT_ROOT` (path from burc.env's location to project root),
+`BURC_TOOLS_DIR` (relative to project root), and
+`BURC_MANAGED_KITS` (comma-separated list of kits included in vvx).
+Install fails immediately if any required variable is missing — no bootstrap, no prompts.
 
 [[vosk_default_routing]]
 // ⟦axl_voices axk_premise⟧
@@ -816,11 +819,11 @@ state.
 
 . *Collect kit declarations*:
 .. {vosc_call}
-{vose_conclave}
-to enumerate all
-{vose_whisper_s}
+read `BURC_MANAGED_KITS` from kit forge's `.buk/burc.env`
+.. {vosc_fatal}
+if missing or empty: "burc.env missing required variable: BURC_MANAGED_KITS"
 .. {vosc_store}
-kit list for processing
+kit list for processing (only kits in BURC_MANAGED_KITS)
 
 . *Validate prefix compliance*:
 .. For each
@@ -958,15 +961,19 @@ burc.env exists and is readable
 .. {vosc_call}
 parse burc.env as KEY=VALUE pairs
 .. {vosc_require}
+`BURC_PROJECT_ROOT` is defined and non-empty
+.. {vosc_require}
 `BURC_TOOLS_DIR` is defined and non-empty
 .. {vosc_require}
-`BURC_PROJECT_ROOT` is defined and non-empty
+`BURC_MANAGED_KITS` is defined and non-empty
 .. {vosc_fatal}
 if missing or empty: "burc.env missing required variable: {name}"
 .. {vosc_call}
-resolve paths relative to burc.env parent directory (not CWD)
+resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
+.. {vosc_call}
+resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
 .. {vosc_store}
-absolute paths for tools_dir and project_root
+absolute paths for tools_dir and project_root, kit list from BURC_MANAGED_KITS
 
 . *Validate git state*:
 .. {vosc_require}
@@ -988,13 +995,20 @@ from parcel root
 and
 {vosem_brand_kits}
 
+. *Validate kit match*:
+.. {vosc_require}
+`BURC_MANAGED_KITS` exactly matches
+{vosem_brand_kits}
+(same kits, order independent)
+.. {vosc_fatal}
+if mismatch: "Target requests kits [{target_kits}] but parcel contains [{parcel_kits}]"
+
 . *Nuclear cleanup*:
 .. If `.vvk/` exists:
 {vosc_call}
 delete recursively
 .. If `.vvk/` absent: no action (first-time install)
-.. For each kit in
-{vosem_brand_kits}:
+.. For each kit in `BURC_MANAGED_KITS`:
 ... If `${BURC_TOOLS_DIR}/{kit}/` exists:
 {vosc_call}
 delete recursively
@@ -1011,8 +1025,7 @@ copy
 to `.vvk/vvbf_brand.json`
 
 . *Install kits*:
-.. For each kit in
-{vosem_brand_kits}:
+.. For each kit in `BURC_MANAGED_KITS`:
 ... {vosc_call}
 copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
 ... Route files matching `{cipher}c-*.md` to `.claude/commands/`
@@ -1099,13 +1112,15 @@ No arguments. Operates on current repository using `.buk/burc.env`.
 .. {vosc_call}
 parse burc.env as KEY=VALUE pairs
 .. {vosc_require}
-`BURC_TOOLS_DIR` is defined and non-empty
-.. {vosc_require}
 `BURC_PROJECT_ROOT` is defined and non-empty
+.. {vosc_require}
+`BURC_TOOLS_DIR` is defined and non-empty
 .. {vosc_fatal}
 if missing or empty: "burc.env missing required variable: {name}"
 .. {vosc_call}
-resolve paths relative to burc.env parent directory
+resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
+.. {vosc_call}
+resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
 
 . *Validate git state*:
 .. {vosc_require}
