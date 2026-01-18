@@ -19,14 +19,17 @@
 //! 8. Freshen CLAUDE.md with kit sections
 //! 9. Commit installation
 //!
-//! Vacate behavior:
+//! Vacate behavior (removes Claude integration, preserves kit scripts):
 //! 1. Parse burc.env, verify git clean
 //! 2. Read brand file from .vvk/ to get kit list
 //! 3. Remove commands and hooks from .claude/
 //! 4. Collapse CLAUDE.md sections to UNINSTALLED markers
-//! 5. Delete kit directories
+//! 5. Delete vvx binary from Tools/vvk/bin/
 //! 6. Delete brand file and .vvk/
 //! 7. Commit uninstallation
+//!
+//! Note: Kit directories (buk/, jjk/, etc.) are intentionally preserved.
+//! They contain open-source utilities usable outside Claude Code.
 
 use std::collections::HashMap;
 use std::fs;
@@ -172,9 +175,9 @@ pub struct vofe_VacateArgs {
 /// Result of vacate operation.
 #[derive(Debug)]
 pub struct vofe_VacateResult {
-    /// Kits that were removed
+    /// Kits unlinked from VVK management (directories preserved)
     pub kits_removed: Vec<String>,
-    /// Total files deleted
+    /// Total files deleted (vvx binaries, brand file)
     pub files_deleted: u32,
     /// Commands removed from .claude/commands/
     pub commands_removed: u32,
@@ -355,16 +358,25 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
     let claude_path = burc.project_root.join("CLAUDE.md");
     zvofe_collapse_claude(&claude_path, &section_tags)?;
 
-    // 6. Delete kit directories
-    for kit_id in &kit_ids {
-        let kit_dir = burc.tools_dir.join(kit_id);
-        if kit_dir.exists() {
-            // Count files before deletion
-            total_files += zvofe_count_files(&kit_dir)?;
-            fs::remove_dir_all(&kit_dir)
-                .map_err(|e| format!("Failed to remove kit directory {}: {}", kit_dir.display(), e))?;
-        } else {
-            eprintln!("  warning: kit directory not found: {}", kit_dir.display());
+    // 6. Delete vvx binary from Tools/vvk/bin/
+    // Kit directories are intentionally preserved (open-source utilities)
+    let vvk_bin_dir = burc.tools_dir.join("vvk").join("bin");
+    if vvk_bin_dir.exists() {
+        let entries = fs::read_dir(&vvk_bin_dir)
+            .map_err(|e| format!("Failed to read vvk bin dir: {}", e))?;
+
+        for entry in entries {
+            let entry = entry.map_err(|e| format!("Dir entry error: {}", e))?;
+            let path = entry.path();
+            let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+            // Remove vvx binaries (vvx-darwin-arm64, vvx-linux-x86_64, etc.)
+            if file_name.starts_with("vvx") {
+                fs::remove_file(&path)
+                    .map_err(|e| format!("Failed to remove vvx binary {}: {}", path.display(), e))?;
+                total_files += 1;
+                eprintln!("  removed: {}", path.display());
+            }
         }
     }
 
@@ -728,12 +740,6 @@ fn zvofe_remove_matching_files(dir: &Path, cipher: &str, is_command: bool) -> Re
     }
 
     Ok(count)
-}
-
-/// Count files in a directory recursively.
-fn zvofe_count_files(dir: &Path) -> Result<u32, String> {
-    let files = zvofe_walk_dir(dir)?;
-    Ok(files.len() as u32)
 }
 
 #[cfg(test)]
