@@ -45,7 +45,6 @@ Source Repo (Kit Forge):
   Tools/vvk/              # VVK template (wrapper + utilities)
     bin/vvx               # Platform wrapper (tracked)
     bin/vvr-*             # Dev binaries (gitignored)
-    vvg_git.sh            # Git utilities
   Tools/jjk/              # Other kits
     jja_arcanum.sh        # Install script
     veiled/               # Never distributed
@@ -54,7 +53,6 @@ Target Repo (Consumer):
   Tools/vvk/              # Assembled by arcanum
     bin/vvx               # Platform wrapper
     bin/vvr-*             # Release binaries (from vok/release/)
-    vvg_git.sh            # Git utilities
   .claude/
     commands/             # Emitted slash commands
     kit_manifest.json     # What's installed
@@ -271,7 +269,6 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | Prefix | Name | Purpose |
 |--------|------|---------|
 | `vvc-` | Command | Slash commands |
-| `vvg_` | Git | Git utilities (locking, guard) |
 | `vvk` | Kit | Directory name (terminal) |
 | `vvr` | Rust | Binary base name (terminal) |
 | `vvx` | eXecutor | Platform wrapper (terminal) |

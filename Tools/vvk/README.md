@@ -8,7 +8,6 @@ VVK is the **distributable artifact** that travels from source repo to target re
 
 ```
 Tools/vvk/
-  vvg_git.sh              # Git utilities (locking, guard)
   bin/
     vvx                   # Platform-selecting wrapper
     vvr-darwin-arm64      # Platform binaries (populated by release)
@@ -35,47 +34,6 @@ Tools/vvk/bin/vvx guard --limit 500000
 - `linux-x86_64` — Linux Intel/AMD, WSL, CI
 - `linux-aarch64` — AWS Graviton, ARM servers
 - `windows-x86_64` — Windows (MINGW/MSYS)
-
-## Git Utilities (vvg_git.sh)
-
-Source the script to access git-based locking functions.
-
-```bash
-source Tools/vvk/vvg_git.sh
-
-# Acquire a lock (fails if already held)
-vvg_lock_acquire "myresource" || echo "Lock held by another process"
-
-# Do work...
-
-# Release the lock
-vvg_lock_release "myresource"
-```
-
-### Lock Functions
-
-| Function | Purpose |
-|----------|---------|
-| `vvg_lock_acquire <resource>` | Create lock, fail if exists |
-| `vvg_lock_release <resource>` | Release lock (normal use) |
-| `vvg_lock_break <resource>` | Force release (human recovery) |
-| `vvg_lock_check <resource>` | Check if lock held (0=held, 1=free) |
-| `vvg_lock_list` | List all held locks |
-
-**Refs namespace:** `refs/vvg/locks/*`
-
-### Guard Function
-
-```bash
-source Tools/vvk/vvg_git.sh
-
-# Run pre-commit size check
-vvg_guard  # Uses VVG_SIZE_LIMIT (default 500KB)
-```
-
-Environment variables:
-- `VVG_SIZE_LIMIT` — Maximum staged blob size in bytes (default: 500000)
-- `VVG_WARN_LIMIT` — Warning threshold in bytes (default: 250000)
 
 ## vvr Subcommands
 
