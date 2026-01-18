@@ -208,11 +208,12 @@ to a
 {vosp_target_repo}.
 The
 {vosou_uninstall}
-operation cleanly removes a
+operation removes Claude Code integration (commands, hooks, CLAUDE.md sections, vvx binary) while preserving
 {vose_kit}
-using
+directories.
+Uses
 {vosls_signet}
--based prefix matching.
+-based prefix matching for command/hook removal.
 
 **Related Specifications:**
 
@@ -1084,10 +1085,12 @@ Clean git history with single install commit.
 // ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
 === {vosou_uninstall}
 
-Removes installed
-{vose_kit_s}
-from
-{vosp_target_repo}.
+Removes Claude Code integration from
+{vosp_target_repo}
+while preserving
+{vose_kit}
+directories.
+Kits are open-source utilities usable outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, managed sections, vvx binary).
 Uses brand file to enumerate what to remove.
 
 Invocation (from target repo root):
@@ -1170,15 +1173,18 @@ exist: replace with single
 +
 NOTE: Preserves user's chosen section ordering for future reinstall.
 
-. *Remove kit directories*:
-.. For each kit in brand's
-{vosem_brand_kits}:
-... If `${BURC_TOOLS_DIR}/{kit}/` exists:
-{vosc_call}
-delete recursively
-... If absent: log warning, continue (may have been manually removed)
+. *Remove vvx binary*:
+.. {vosc_call}
+enumerate files in `${BURC_TOOLS_DIR}/vvk/bin/`
+.. For each file starting with `vvx`:
+... {vosc_call}
+delete file (e.g., `vvx-darwin-arm64`, `vvx-linux-x86_64`)
 .. {vosc_step}
-"{n} kit directories removed"
+"{n} vvx binaries removed"
++
+NOTE: Kit directories (`buk/`, `jjk/`, etc.) are intentionally *preserved*.
+These contain open-source utilities usable outside Claude Code.
+Vacate removes Claude-specific integration while retaining underlying functionality.
 
 . *Remove brand infrastructure*:
 .. {vosc_call}
@@ -1198,19 +1204,19 @@ delete `.vvk/` directory if empty
 
 {voss_outputs}
 
-* Kit directories removed from `${BURC_TOOLS_DIR}/`
+* vvx binaries removed from `${BURC_TOOLS_DIR}/vvk/bin/`
 * Commands removed from `.claude/commands/`
 * Hooks removed from `.claude/hooks/`
 * CLAUDE.md sections collapsed to
 {vose_uninstalled_marker_s}
 * Brand file and `.vvk/` removed
+* Kit directories *preserved* (open-source utilities remain usable)
 * Single git commit
 
 {voss_completion}
 
-All
-{vose_kit_s}
-cleanly removed.
+Claude Code integration cleanly removed.
+Kit directories remain for continued use outside Claude Code.
 {vose_uninstalled_marker_s}
 preserve section positions for future reinstall.
 
