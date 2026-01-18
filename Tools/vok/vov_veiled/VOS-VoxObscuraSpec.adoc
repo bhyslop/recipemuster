@@ -1118,12 +1118,16 @@ parse burc.env as KEY=VALUE pairs
 `BURC_PROJECT_ROOT` is defined and non-empty
 .. {vosc_require}
 `BURC_TOOLS_DIR` is defined and non-empty
+.. {vosc_require}
+`BURC_MANAGED_KITS` is defined and non-empty
 .. {vosc_fatal}
 if missing or empty: "burc.env missing required variable: {name}"
 .. {vosc_call}
 resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
 .. {vosc_call}
 resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
++
+NOTE: `BURC_MANAGED_KITS` is required for defense in depth; any VVK-managed repo should declare its kit inventory.
 
 . *Validate git state*:
 .. {vosc_require}
