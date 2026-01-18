@@ -1551,9 +1551,10 @@
         "₢ADAAE",
         "₢ADAAH",
         "₢ADAAI",
-        "₢ADAAJ"
+        "₢ADAAJ",
+        "₢ADAAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1786,6 +1787,16 @@
               "ts": "260118-1055",
               "state": "rough",
               "text": "Consolidate vob_parcel and vob_release: align implementation with VOS naming.\n\n## Problem\n\nVOS defines `vosor_release` as the operation that creates a `vose_parcel`. But implementation has:\n- `vob_release` — vestigial ledger-only operation (not VOS-aligned)\n- `vob_parcel` — full release ceremony (IS the VOS vosor_release)\n\nThe naming is backward: the function that implements VOS Release is called \"parcel\".\n\n## Changes\n\n**vob_build.sh:**\n1. Delete `vob_release()` function (lines 136-191) — vestigial\n2. Rename `vob_parcel()` → `vob_release()` — align with VOS\n\n**vow_workbench.sh:**\n3. Delete `vow-P)` case (line 63) — redundant entry point\n4. Update `vow-R)` to call renamed `vob_release`\n\n**vob_cli.sh:**\n5. Update dispatch if needed\n\n## Result\n\n- Single release command: `vow-R` calls `vob_release`\n- `vob_release` implements full VOS vosor_release ceremony\n- No `vow-P` / `vob_parcel` cruft\n\n## Files\n\n- Tools/vok/vob_build.sh\n- Tools/vok/vow_workbench.sh\n- Tools/vok/vob_cli.sh (verify)\n\n## Bridleability\n\nBridleable — mechanical refactor with clear file targets and no design decisions."
+            }
+          ]
+        },
+        "₢ADAAM": {
+          "silks": "vvb-vob-bcg-compliance",
+          "tacks": [
+            {
+              "ts": "260118-1109",
+              "state": "rough",
+              "text": "Fix BCG compliance issues in vvb_bash.sh and vob_build.sh.\n\n## Problem\n\nCommand substitution used directly outside of _capture functions, violating BCG rule: \"NO command substitution except $(<file) builtin and _capture functions.\"\n\n## Issues\n\n**vvb_bash.sh:**\n1. Lines 40-41: `local z_os` and `local z_arch` declared without initialization\n2. Lines 42-43: Direct `$(uname -s)` and `$(uname -m)` in zvvb_kindle()\n3. Lines 67-70: Same local declaration issue in zvvb_platform_capture()\n4. Platform detection duplicated in zvvb_kindle() and zvvb_platform_capture()\n\n**vob_build.sh:**\n5. Lines 143-147: `$(shasum)` / `$(sha256sum)` not in _capture function\n6. Lines 151-152: `$(date +%Y-%m-%d)` not in _capture function\n7. Lines 153-154, 227-228: `$(git rev-parse)` not in _capture function\n\n## Changes\n\n**vvb_bash.sh:**\n- Move zvvb_platform_capture() above zvvb_kindle()\n- Have zvvb_kindle() call zvvb_platform_capture() instead of inline detection\n- Fix local declarations to use two-line pattern\n\n**vob_build.sh:**\n- Create zvob_hash_capture() for shasum/sha256sum\n- Create zvob_date_capture() for date\n- Create zvob_commit_capture() for git rev-parse\n- Update vob_release() and vob_parcel() to use these capture functions\n\n## Files\n\n- Tools/vvk/vvb_bash.sh\n- Tools/vok/vob_build.sh"
             }
           ]
         }
