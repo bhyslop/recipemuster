@@ -1,0 +1,247 @@
+= Bash Utilities Specification
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// bust_:  Tabtarget (launcher naming vesture)
+// busd:   Dispatch (non-terminal, tabtarget system umbrella)
+// busdc_: Dispatch Colophon (routing identifier)
+// busdf_: Dispatch Frontispiece (human-readable description)
+// busdi_: Dispatch Imprint (embedded parameter/target specifier)
+// busdm_: Dispatch Formulary (routing component)
+// busdl_: Dispatch Launcher (bootstrap script)
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//
+
+// Tabtarget Vesture
+:bust_tabtarget:        <<bust_tabtarget,Tabtarget Vesture>>
+
+// Dispatch
+:busdc_colophon:        <<busdc_colophon,Colophon>>
+:busdc_colophon_s:      <<busdc_colophon,Colophons>>
+:busdf_frontispiece:    <<busdf_frontispiece,Frontispiece>>
+:busdf_frontispiece_s:  <<busdf_frontispiece,Frontispieces>>
+:busdi_imprint:         <<busdi_imprint,Imprint>>
+:busdi_imprint_s:       <<busdi_imprint,Imprints>>
+:busdm_formulary:       <<busdm_formulary,Formulary>>
+:busdm_formulary_s:     <<busdm_formulary,Formularies>>
+:busdl_launcher:        <<busdl_launcher,Launcher>>
+:busdl_launcher_s:      <<busdl_launcher,Launchers>>
+
+// end::mapping-section[]
+
+== Overview
+
+The Bash Utilities Specification defines the tabtarget dispatch system — the infrastructure for tab-completion-friendly launchers that route to kit formularies.
+
+BUK invented tabtargets; BUK defines them.
+
+For universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture), see VLS-VoxLiturgicalSpec.adoc.
+
+== Tabtarget Vesture
+
+[[bust_tabtarget]]
+// ⟦axl_voices axo_entity⟧
+{bust_tabtarget}::
+Vesture for tabtarget launcher identifiers.
+Defines how launcher scripts in `tt/` are named.
++
+* signet_case: lowercase with hyphen (the colophon)
+* separator: `.`
+* epithet_case: PascalCase (the frontispiece)
+* envelope: `.sh`
++
+Pattern: `{colophon}.{frontispiece}[.{imprint}].sh`
++
+Examples:
++
+* `rbw-B.ConnectBottle.sh` — RBW workbench, ConnectBottle operation
+* `rbw-B.ConnectBottle.nsproto.sh` — same, with imprint specifying target
+* `jjw-.HeatMount.sh` — JJK workbench, HeatMount operation
+* `buw-tt.LauncherList.sh` — BUK tabtarget testbench, LauncherList operation
+
+== Dispatch
+
+The dispatch vocabulary defines the tabtarget launcher system.
+A
+{busdl_launcher}
+validates arguments and delegates to a
+{busdm_formulary}.
+The
+{busdc_colophon}
+identifies the routing path;
+the
+{busdf_frontispiece}
+provides human-readable description;
+the
+{busdi_imprint}
+embeds target parameters.
+
+[[busdc_colophon]]
+// ⟦axl_voices axt_string⟧
+{busdc_colophon}::
+The routing identifier in a tabtarget inscription.
+A
+{busdc_colophon}
+determines which
+{busdm_formulary}
+handles the dispatch.
+Includes the hyphen as part of its identity (e.g., `rbw-`, `buw-tt-`).
++
+The
+{busdc_colophon}
+is the first component of the tabtarget pattern, before the first dot separator.
++
+Examples:
++
+* `rbw-` routes to RBW workbench
+* `jjw-` routes to JJK workbench
+* `buw-tt-` routes to BUK tabtarget testbench
+
+[[busdf_frontispiece]]
+// ⟦axl_voices axt_string⟧
+{busdf_frontispiece}::
+The human-readable description in a tabtarget inscription.
+A
+{busdf_frontispiece}
+uses PascalCase and describes the operation.
++
+Appears after the
+{busdc_colophon}
+and dot separator.
++
+Examples: `Build`, `ConnectBottle`, `RunVVX`, `HeatMount`.
+
+[[busdi_imprint]]
+// ⟦axl_voices axt_string⟧
+{busdi_imprint}::
+An optional embedded parameter in a tabtarget inscription.
+An
+{busdi_imprint}
+specifies a target, instance, or configuration variant.
++
+Appears after a second dot separator following the
+{busdf_frontispiece}.
++
+Examples:
++
+* `nsproto` in `rbw-B.ConnectBottle.nsproto.sh`
+* `srjcl` in `rbw-B.ConnectBottle.srjcl.sh`
+
+[[busdm_formulary]]
+// ⟦axl_voices axo_entity⟧
+{busdm_formulary}::
+A component that routes
+{busdc_colophon_s}
+to implementations.
+Each
+{busdm_formulary}
+registers handlers for a set of
+{busdc_colophon_s}
+and dispatches to the appropriate function.
++
+Types:
++
+* **Workbench** (`{prefix}w_workbench.sh`): Routes commands for a kit
+* **Testbench** (`{prefix}t_testbench.sh`): Routes tests for a kit
++
+A
+{busdm_formulary}
+is sourced by the
+{busdl_launcher}
+and provides the dispatch function.
+
+[[busdl_launcher]]
+// ⟦axl_voices axo_entity⟧
+{busdl_launcher}::
+A bootstrap script in the `tt/` directory that validates arguments and delegates to a
+{busdm_formulary}.
+A
+{busdl_launcher}
+is the entry point for tabtarget invocation.
++
+Naming follows
+{bust_tabtarget}:
+`{colophon}.{frontispiece}[.{imprint}].sh`
++
+Responsibilities:
++
+* Parse
+{busdc_colophon}
+from own filename
+* Validate required arguments
+* Source the target
+{busdm_formulary}
+* Invoke the dispatched function
+
+== Routing Behavior
+
+=== Dispatch Flow
+
+. User invokes launcher: `./tt/rbw-B.ConnectBottle.nsproto.sh`
+. Launcher parses its filename to extract:
+* {busdc_colophon}:
+`rbw-B`
+* {busdf_frontispiece}:
+`ConnectBottle`
+* {busdi_imprint}:
+`nsproto`
+. Launcher sources the appropriate
+{busdm_formulary}
+(`rbw_workbench.sh`)
+. Formulary's dispatch function routes based on frontispiece
+. Target function executes with imprint as parameter
+
+=== Workbench Pattern
+
+[source,bash]
+----
+# Tools/{kit}/{prefix}w_workbench.sh
+
+{prefix}w_dispatch() {
+    local frontispiece="$1"
+    local imprint="$2"
+    shift 2
+
+    case "$frontispiece" in
+        Build)          {prefix}w_build "$imprint" "$@" ;;
+        ConnectBottle)  {prefix}w_connect_bottle "$imprint" "$@" ;;
+        *)              buc_fatal "Unknown frontispiece: $frontispiece" ;;
+    esac
+}
+----
+
+=== Testbench Pattern
+
+Testbenches follow the same pattern but route to test functions:
+
+[source,bash]
+----
+# Tools/{kit}/{prefix}t_testbench.sh
+
+{prefix}t_dispatch() {
+    local frontispiece="$1"
+    shift
+
+    case "$frontispiece" in
+        Unit)        {prefix}t_unit "$@" ;;
+        Integration) {prefix}t_integration "$@" ;;
+        *)           buc_fatal "Unknown test: $frontispiece" ;;
+    esac
+}
+----
+
+=== Colophon Conventions
+
+{busdc_colophon_s}
+follow a structure that encodes both kit identity and formulary type:
+
+* `{cipher}-` — default workbench (e.g., `rbw-`, `jjw-`)
+* `{cipher}-t-` — testbench (e.g., `buw-t-`, `jjw-t-`)
+* `{cipher}-{variant}-` — specialized workbench (e.g., `rbw-B-` for bottle operations)
+
+The trailing hyphen is always part of the colophon — it separates the routing prefix from the dot-delimited tabtarget components.

@@ -82,6 +82,7 @@ Full read and edit access is pre-approved for all files in:
 
 #### BUK Subdirectory (`Tools/buk/`)
 - **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **BUS**  → `buk/vov_veiled/BUS-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, bud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
@@ -110,6 +111,7 @@ Full read and edit access is pre-approved for all files in:
 
 #### VOK Subdirectory (`Tools/vok/`)
 - **RCG**  → `vok/vov_veiled/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
+- **VLS**  → `vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc` (Vox Liturgical Specification - universal naming vocabulary)
 - **VOS**  → `vok/vov_veiled/VOS-VoxObscuraSpec.adoc` (Vox Obscura specification)
 
 #### Other Tools

@@ -1,0 +1,358 @@
+= Vox Liturgical Specification
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// vosl:    Liturgy (non-terminal, naming system umbrella)
+// voslc_:  Liturgy Cipher (project root prefix)
+// vosls_:  Liturgy Signet (complete prefix before separator)
+// vosle_:  Liturgy Epithet (descriptive word after separator)
+// vosli_:  Liturgy Inscription (full artifact name)
+// voslv_:  Liturgy Vesture (domain construction rules)
+// vosln_:  Liturgy Ensign (signet extension that classifies category)
+// voslm_:  Liturgy Monogram (signet extension that binds to epithet initial)
+// vosld:   Liturgy Domain (non-terminal, domain-specific vestures)
+// vosldr_: Liturgy Domain Rust (Rust source vesture)
+// vosldb_: Liturgy Domain Bash (Bash source vesture)
+// voslda_: Liturgy Domain AsciiDoc (AsciiDoc attribute vesture)
+// vosldp_: Liturgy Domain Publication (spec/publication vesture)
+// vosldg_: Liturgy Domain Git (git ref vesture)
+// voslds_: Liturgy Domain Slash (slash command vesture)
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//
+
+// Liturgy (naming system)
+:voslc_cipher:          <<voslc_cipher,Cipher>>
+:voslc_cipher_s:        <<voslc_cipher,Ciphers>>
+:voslc_cipher_p:        <<voslc_cipher,Cipher's>>
+:vosls_signet:          <<vosls_signet,Signet>>
+:vosls_signet_s:        <<vosls_signet,Signets>>
+:vosle_epithet:         <<vosle_epithet,Epithet>>
+:vosle_epithet_s:       <<vosle_epithet,Epithets>>
+:vosli_inscription:     <<vosli_inscription,Inscription>>
+:vosli_inscription_s:   <<vosli_inscription,Inscriptions>>
+:voslv_vesture:         <<voslv_vesture,Vesture>>
+:voslv_vesture_s:       <<voslv_vesture,Vestures>>
+:vosln_ensign:          <<vosln_ensign,Ensign>>
+:vosln_ensign_s:        <<vosln_ensign,Ensigns>>
+:voslm_monogram:        <<voslm_monogram,Monogram>>
+:voslm_monogram_s:      <<voslm_monogram,Monograms>>
+
+// Liturgy Domains (vesture specializations)
+:vosldr_rust:           <<vosldr_rust,Rust Vesture>>
+:vosldb_bash:           <<vosldb_bash,Bash Vesture>>
+:voslda_asciidoc:       <<voslda_asciidoc,AsciiDoc Vesture>>
+:vosldp_publication:    <<vosldp_publication,Publication Vesture>>
+:vosldg_git:            <<vosldg_git,Git Vesture>>
+:voslds_slash:          <<voslds_slash,Slash Command Vesture>>
+
+// end::mapping-section[]
+
+== Overview
+
+The Vox Liturgical Specification defines the universal naming system for artifacts across all specifications.
+A
+{voslc_cipher}
+seeds the namespace;
+{vosls_signet_s}
+build on it;
+{vosle_epithet_s}
+provide human-readable descriptions;
+{vosli_inscription_s}
+are complete names;
+{voslv_vesture_s}
+define domain-specific construction rules.
+
+This vocabulary applies to ALL specifications — VOS (kit distribution), BUS (bash dispatch), JJD (gallops data), and others.
+The liturgy is the shared language for naming things.
+
+For tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher), see BUS-BashUtilitiesSpec.adoc.
+
+== Core Liturgy Terms
+
+[[voslc_cipher]]
+// ⟦axl_voices axt_string⟧
+{voslc_cipher}::
+A 2-5 character project root that seeds the namespace.
+The
+{voslc_cipher}
+is globally unique across all projects and serves as the foundation for all derived
+{vosls_signet_s}.
+Lowercase letters only; no
+{voslc_cipher}
+may be a prefix of another (terminal exclusivity).
++
+Single source of truth: `Tools/vok/vof/src/vofc_registry.rs`
++
+See <<cipher_registry>> for declaration pattern and the complete list.
+
+[[vosls_signet]]
+// ⟦axl_voices axt_string⟧
+{vosls_signet}::
+The complete prefix before the separator in an
+{vosli_inscription}.
+A
+{vosls_signet}
+is derived from a
+{voslc_cipher}
+by extending with additional characters that respect terminal exclusivity.
+The
+{vosls_signet}
+is the identity stamp that binds an artifact to its owning project.
++
+Examples: `jjk` (kit), `jjc` (command prefix), `voslc` (this term's signet).
++
+A
+{vosls_signet}
+is extended from its
+{voslc_cipher}
+using either an
+{vosln_ensign}
+(classification marker) or a
+{voslm_monogram}
+(epithet-initial binding).
+
+[[vosln_ensign]]
+// ⟦axl_voices axt_string⟧
+{vosln_ensign}::
+A
+{vosls_signet}
+extension that classifies artifact category.
+The terminal character(s) mark a type or role, independent of the
+{vosle_epithet}.
++
+Examples:
++
+* `axt_string` — `t` = type classification, `string` = epithet
+* `burc_regime` — `rc` = regime-config classification, `regime` = epithet
+* `axtu_path` — `tu` = type-universal sub-classification, `path` = epithet
++
+{vosln_ensign_s}
+enable hierarchical categorization within a
+{voslc_cipher}
+namespace.
+
+[[voslm_monogram]]
+// ⟦axl_voices axt_string⟧
+{voslm_monogram}::
+A
+{vosls_signet}
+extension where the terminal character binds to the
+{vosle_epithet}
+initial.
+Creates a mnemonic connection between
+{vosls_signet}
+and
+{vosle_epithet}.
++
+Examples:
++
+* `buc_command` — `c` = first letter of `command`
+* `jjw_workbench` — `w` = first letter of `workbench`
+* `voslc_cipher` — `c` = first letter of `cipher`
++
+{voslm_monogram_s}
+create tight signet-epithet binding but limit each terminal letter to one artifact.
+
+[[vosle_epithet]]
+// ⟦axl_voices axt_string⟧
+{vosle_epithet}::
+The descriptive word after the separator in an
+{vosli_inscription}.
+Provides human-readable meaning while the
+{vosls_signet}
+provides machine-parseable identity.
++
+Examples: `cipher` in `voslc_cipher`, `heat` in `jjc-heat-mount`.
+
+[[vosli_inscription]]
+// ⟦axl_voices axt_string⟧
+{vosli_inscription}::
+The full artifact name combining
+{vosls_signet},
+separator, and
+{vosle_epithet}.
+An
+{vosli_inscription}
+is the complete, unambiguous identifier for any named artifact.
++
+Structure: `{signet}{separator}{epithet}`
++
+Examples: `voslc_cipher` (underscore separator), `jjc-heat-mount` (hyphen separator).
+Domain
+{voslv_vesture_s}
+may specify additional completion rules (see individual domain definitions).
+
+[[voslv_vesture]]
+// ⟦axl_voices axo_entity⟧
+{voslv_vesture}::
+Domain-specific construction rules for
+{vosli_inscription_s}.
+Each
+{voslv_vesture}
+defines signet_case, separator, epithet_case, and envelope for its domain.
+Different domains (Rust, Bash, AsciiDoc, etc.) have different naming conventions.
++
+A
+{voslv_vesture}
+is like clothing for a domain — it dresses the abstract naming concepts in domain-appropriate form.
+
+== Liturgy Domains
+
+[[vosldr_rust]]
+// ⟦axl_voices axo_entity⟧
+{vosldr_rust}::
+{voslv_vesture}
+for Rust source identifiers.
++
+* signet_case: snake_case
+* separator: `_`
+* epithet_case: PascalCase for types, snake_case for functions
+* envelope: none
+
+[[vosldb_bash]]
+// ⟦axl_voices axo_entity⟧
+{vosldb_bash}::
+{voslv_vesture}
+for Bash source identifiers.
++
+* signet_case: lowercase
+* separator: `_`
+* epithet_case: snake_case
+* envelope: `.sh` for files
+
+[[voslda_asciidoc]]
+// ⟦axl_voices axo_entity⟧
+{voslda_asciidoc}::
+{voslv_vesture}
+for AsciiDoc attribute identifiers.
++
+* signet_case: lowercase
+* separator: `_`
+* epithet_case: snake_case
+* envelope: none (attributes), `[[` `]]` for anchors
+
+[[vosldp_publication]]
+// ⟦axl_voices axo_entity⟧
+{vosldp_publication}::
+{voslv_vesture}
+for publication and specification files.
++
+* signet_case: UPPERCASE
+* separator: `-`
+* epithet_case: PascalCase
+* envelope: `.adoc`, `.md`
+
+[[vosldg_git]]
+// ⟦axl_voices axo_entity⟧
+{vosldg_git}::
+{voslv_vesture}
+for git refs.
++
+* signet_case: lowercase
+* separator: `/`
+* epithet_case: kebab-case
+* envelope: none
+
+[[voslds_slash]]
+// ⟦axl_voices axo_entity⟧
+{voslds_slash}::
+{voslv_vesture}
+for slash command identifiers.
++
+* signet_case: lowercase
+* separator: `-`
+* epithet_case: kebab-case
+* envelope: `.md` for files
+
+== Terminal Exclusivity
+
+A fundamental constraint on
+{voslc_cipher_s}
+and
+{vosls_signet_s}:
+a prefix either IS a name or HAS children, never both.
+
+Examples:
+
+* `rbg` has children (`rbga`, `rbgb`...) → `rbg` cannot name a thing
+* `rbi` names Image module → `rbia`, `rbib` forbidden
+
+This rule ensures unambiguous prefix matching for operations like uninstall (which removes all files matching a
+{vosls_signet}).
+
+Validated at runtime by `vofc_validate_terminal_exclusivity()` in `vofc_registry.rs`.
+
+== Minting Workflow
+
+Before minting new prefixes:
+
+1. **Enumerate namespaces** — list every place this name will appear (code, refs, commands, env vars, target paths...)
+2. **Check reserved suffixes** — ensure the suffix matches intended type within the kit
+3. **Verify terminal exclusivity** — search existing trees, ensure no conflicts
+4. **Document the allocation** — add to prefix map in relevant spec or CLAUDE.md
+
+[[cipher_registry]]
+== Cipher Registry
+
+{voslc_cipher_s}
+are declared as const values in `Tools/vok/vof/src/vofc_registry.rs`.
+The VOF crate (Vox Obscura Foundation) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+
+=== Declaration Pattern
+
+[source,rust]
+----
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct vofc_Cipher {
+    prefix: &'static str,
+    project: &'static str,
+}
+
+impl vofc_Cipher {
+    pub const fn new(prefix: &'static str, project: &'static str) -> Self {
+        Self { prefix, project }
+    }
+}
+
+// Example declarations
+pub const JJ: vofc_Cipher = vofc_Cipher::new("jj", "Job Jockey");
+pub const BU: vofc_Cipher = vofc_Cipher::new("bu", "Bash Utilities");
+----
+
+=== Uniqueness Guarantees
+
+* **Compile-time**: duplicate const names are compilation errors
+* **Runtime**: `vofc_validate_terminal_exclusivity()` verifies no prefix is a prefix of another
+* **Convention**: new ciphers require coordinated addition to `vofc_registry.rs`
+
+=== Complete Registry
+
+See `Tools/vok/vof/src/vofc_registry.rs` for the authoritative list of all
+{voslc_cipher_s}.
+The registry is organized by domain:
+
+* Voce Viva Ecosystem (VV, VO)
+* Portable Kits (JJ, BU, CM, HM)
+* Recipe Bottle Domain (RB, CRG)
+* Tools and Utilities (GAD, CCC, LMCI, VSL)
+* Concept Model Vocabulary (MCM, AXL)
+* Other Projects (PB, WRS, SRF)
+
+=== Utility Functions
+
+[source,rust]
+----
+// Find cipher by prefix
+pub fn vofc_find_by_prefix(prefix: &str) -> Option<&'static vofc_Cipher>;
+
+// Check if prefix is registered
+pub fn vofc_is_registered(prefix: &str) -> bool;
+
+// Validate terminal exclusivity
+pub fn vofc_validate_terminal_exclusivity() -> Option<(&'static vofc_Cipher, &'static vofc_Cipher)>;
+----
