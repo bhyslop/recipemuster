@@ -1841,9 +1841,10 @@
         "₢AEAAE",
         "₢AEAAG",
         "₢AEAAH",
-        "₢AEAAI"
+        "₢AEAAI",
+        "₢AEAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -2032,6 +2033,16 @@
               "ts": "260118-1314",
               "state": "rough",
               "text": "Implement Rust serde for tack structural migration.\n\n## Changes\n\n### 1. Update Tack struct (jjrg_gallops.rs)\n\n```rust\npub struct Tack {\n    pub ts: String,\n    pub state: PaceState,\n    pub text: String,\n    pub silks: String,              // NEW - required\n    pub commit: String,             // NEW - required, \"0000000\" if unknown\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    pub direction: Option<String>,\n}\n```\n\n### 2. Update Pace struct (jjrg_gallops.rs)\n\n```rust\npub struct Pace {\n    // silks: String,  // REMOVED - now on Tack\n    pub tacks: Vec<Tack>,\n}\n```\n\n### 3. Custom deserialization\n\nImplement custom Deserialize for Pace that:\n- If `silks` field exists on Pace: copy to all tacks missing silks, then discard\n- If Tack missing `silks`: inherit from Pace (error if Pace also missing)\n- If Tack missing `commit`: use \"0000000\"\n\n### 4. Serialization\n\nStandard derive should work - just ensure:\n- Pace never serializes `silks`\n- Tack always serializes `silks` and `commit`\n\n### 5. Update all tack creation sites\n\nFind all places that create Tack instances:\n- jjx_slate (new pace → new tack)\n- jjx_tally (add tack)\n- jjx_draft (copy with note)\n\nEach must now provide:\n- `silks`: inherit from previous tack[0].silks or pace.silks (during migration)\n- `commit`: capture via `git rev-parse --short=7 HEAD`\n\n## Verification\n\n```bash\ntt/vow-b.Build.sh\n./tt/vvw-r.RunVVX.sh jjx_validate\n./tt/vvw-r.RunVVX.sh jjx_muster  # Should work with migrated data\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs (struct changes, custom serde)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (tack creation sites)\n\n## Scope\n\nMigration only. No new features (rename flag, etc.)."
+            }
+          ]
+        },
+        "₢AEAAJ": {
+          "silks": "tack-struct-jjd-cleanup",
+          "tacks": [
+            {
+              "ts": "260118-1316",
+              "state": "rough",
+              "text": "Remove legacy format acceptance from JJD spec.\n\n## Context\n\nAfter tack-struct-rust-migration (₢AEAAI) completes and gallops.json is migrated, the legacy format no longer exists in the data. The spec should reflect this.\n\n## Changes\n\n### 1. Remove migration note\n\nDelete the \"Legacy Format Acceptance\" section added in ₢AEAAE.\n\n### 2. Simplify member documentation\n\n- jjdkm_silks: Remove any \"inherited from pace\" language\n- jjdkm_commit: Remove \"0000000 for migrated data\" emphasis (keep format spec)\n\n### 3. Verify no legacy references remain\n\nSearch for:\n- \"legacy\"\n- \"migration\"\n- \"Pace.silks\" or \"pace silks\" (should only reference tack now)\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n\n## Depends On\n\n- ₢AEAAE (JJD migration spec)\n- ₢AEAAI (Rust migration impl) — must complete first so data is migrated\n\n## Scope\n\nSpec cleanup only. No Rust changes."
             }
           ]
         }
