@@ -1840,9 +1840,10 @@
         "₢AEAAD",
         "₢AEAAE",
         "₢AEAAG",
-        "₢AEAAH"
+        "₢AEAAH",
+        "₢AEAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -2021,6 +2022,16 @@
               "ts": "260118-1120",
               "state": "rough",
               "text": "Consider adding pessimistic locking to prevent concurrent session collisions on paces.\n\n## Problem\n\nTwo Claude Code sessions can mount the same pace simultaneously. One completes and wraps while the other churns or attempts execution on stale state. Observed 260118 when parallel sessions caused Task agent display loop.\n\n## Proposed Solution\n\nAdd \"mounted\" state for pessimistic locking:\n- rough/bridled → mounted (on mount, if not locked)\n- mounted → complete (wrap succeeds)\n- mounted → rough/bridled (failure or explicit dismount)\n\nLock metadata in tack:\n```json\n{\n  \"state\": \"mounted\",\n  \"lock\": {\n    \"session\": \"abc123\",\n    \"acquired\": \"260118-1145\"\n  }\n}\n```\n\nMount fails if pace already mounted by different session.\n\n## Escape Hatch\n\nNeed `/jjc-pace-dismount --force` for breaking stale locks (crashed sessions).\nOptions: manual break, timestamp expiry, or both.\n\n## Open Question\n\nWhat constitutes a \"session\"? Claude Code doesn't expose session ID. May need to generate one.\n\n## Constraint\n\n**Must begin with JJD spec update.** State machine is growing complex; need specification clarity before implementation.\n\n## Verb: Consider\n\nThis pace requires re-justification before execution. Behavioral workaround exists (don't run parallel sessions on same heat). Evaluate whether the complexity is worth the protection."
+            }
+          ]
+        },
+        "₢AEAAI": {
+          "silks": "tack-struct-rust-migration",
+          "tacks": [
+            {
+              "ts": "260118-1314",
+              "state": "rough",
+              "text": "Implement Rust serde for tack structural migration.\n\n## Changes\n\n### 1. Update Tack struct (jjrg_gallops.rs)\n\n```rust\npub struct Tack {\n    pub ts: String,\n    pub state: PaceState,\n    pub text: String,\n    pub silks: String,              // NEW - required\n    pub commit: String,             // NEW - required, \"0000000\" if unknown\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    pub direction: Option<String>,\n}\n```\n\n### 2. Update Pace struct (jjrg_gallops.rs)\n\n```rust\npub struct Pace {\n    // silks: String,  // REMOVED - now on Tack\n    pub tacks: Vec<Tack>,\n}\n```\n\n### 3. Custom deserialization\n\nImplement custom Deserialize for Pace that:\n- If `silks` field exists on Pace: copy to all tacks missing silks, then discard\n- If Tack missing `silks`: inherit from Pace (error if Pace also missing)\n- If Tack missing `commit`: use \"0000000\"\n\n### 4. Serialization\n\nStandard derive should work - just ensure:\n- Pace never serializes `silks`\n- Tack always serializes `silks` and `commit`\n\n### 5. Update all tack creation sites\n\nFind all places that create Tack instances:\n- jjx_slate (new pace → new tack)\n- jjx_tally (add tack)\n- jjx_draft (copy with note)\n\nEach must now provide:\n- `silks`: inherit from previous tack[0].silks or pace.silks (during migration)\n- `commit`: capture via `git rev-parse --short=7 HEAD`\n\n## Verification\n\n```bash\ntt/vow-b.Build.sh\n./tt/vvw-r.RunVVX.sh jjx_validate\n./tt/vvw-r.RunVVX.sh jjx_muster  # Should work with migrated data\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs (struct changes, custom serde)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (tack creation sites)\n\n## Scope\n\nMigration only. No new features (rename flag, etc.)."
             }
           ]
         }
