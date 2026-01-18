@@ -2557,6 +2557,13 @@
         "₢AEAAJ": {
           "tacks": [
             {
+              "ts": "260118-1441",
+              "state": "complete",
+              "text": "Removed Legacy Format Acceptance section and simplified jjdkm_commit definition. Verification confirmed zero legacy/migration references remain.",
+              "silks": "tack-struct-jjd-cleanup",
+              "commit": "613b92f"
+            },
+            {
               "ts": "260118-1419",
               "state": "bridled",
               "text": "Remove legacy format acceptance from JJD spec.\n\n## Context\n\nAfter tack-struct-rust-migration (₢AEAAI) completes, legacy format\nno longer exists in the data. The spec should reflect this.\n\n## Changes\n\n### 1. Remove Legacy Format Acceptance section\n\nDelete lines 602-614 (the entire \"=== Legacy Format Acceptance\" section).\n\n### 2. Simplify jjdkm_commit definition\n\nLine 511 currently says:\n  Value `0000000` indicates unknown (migrated data).\n\nChange to:\n  Value `0000000` indicates commit was unavailable at creation time.\n\n(Removes \"migrated\" reference while keeping the sentinel documented.)\n\n## Verification\n\nSearch for: \"legacy\", \"migration\", \"migrated\"\nExpected: zero matches\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n\n## Scope\n\nSpec cleanup only. Bridleable.",
