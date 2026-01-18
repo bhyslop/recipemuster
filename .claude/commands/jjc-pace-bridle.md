@@ -124,9 +124,11 @@ Note: `--direction` is a string argument, not stdin. The text field is inherited
 ## Step 6: Confirm bridled
 
 Report:
-- "Pace <SILKS> is now bridled"
-- "Run /jjc-heat-mount to begin autonomous execution"
-- Or: "Ready to execute now?" → if yes, proceed as /jjc-heat-mount would for bridled pace
+- "Pace **<SILKS>** (₢<CORONET>) is now **bridled**"
+- If this pace is next in order: "`/jjc-heat-mount` to execute"
+- If this pace is not next: "This pace is not next. Next pace is **<SILKS>** (₢<CORONET>)"
+
+Do not offer to execute directly. Execution belongs to `/jjc-heat-mount`.
 
 ## Available Operations
 
