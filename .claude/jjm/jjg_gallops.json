@@ -2513,6 +2513,13 @@
         "₢AEAAI": {
           "tacks": [
             {
+              "ts": "260118-1417",
+              "state": "complete",
+              "text": "Migrated silks from Pace to Tack level with custom deserializer for legacy format. Added commit field (0000000 default). Created jjrg_make_tack constructor. Extended RCG with Constant, Constructor, Comment, and File Size disciplines.",
+              "silks": "tack-struct-rust-migration",
+              "commit": "b827a14"
+            },
+            {
               "ts": "260118-1405",
               "state": "rough",
               "text": "Migration test note",
