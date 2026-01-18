@@ -28,8 +28,9 @@ pub use voff_freshen::{voff_freshen, voff_collapse, voff_parse_sections, voff_Ma
 // Re-export release types and functions
 pub use vofr_release::{vofr_collect, vofr_brand, vofr_CollectResult, vofr_BrandResult};
 
-// Re-export emplace types and functions
+// Re-export emplace and vacate types and functions
 pub use vofe_emplace::{vofe_emplace, vofe_EmplaceArgs, vofe_EmplaceResult};
+pub use vofe_emplace::{vofe_vacate, vofe_VacateArgs, vofe_VacateResult};
 
 // Re-export managed section functions
 pub use vofm_managed::{vofm_all_sections, vofm_section_for_kit};

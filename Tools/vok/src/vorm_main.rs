@@ -51,6 +51,10 @@ enum Commands {
     #[command(name = "vvx_emplace")]
     VvxEmplace(EmplaceArgs),
 
+    /// Remove kit assets from target repo
+    #[command(name = "vvx_vacate")]
+    VvxVacate(VacateArgs),
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
@@ -148,6 +152,14 @@ struct EmplaceArgs {
     burc: PathBuf,
 }
 
+/// Arguments for vvx_vacate command
+#[derive(clap::Args, Debug)]
+struct VacateArgs {
+    /// Path to target repo's burc.env file
+    #[arg(long)]
+    burc: PathBuf,
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
@@ -159,6 +171,7 @@ fn main() -> ExitCode {
         Some(Commands::ReleaseCollect(args)) => run_release_collect(args),
         Some(Commands::ReleaseBrand(args)) => run_release_brand(args),
         Some(Commands::VvxEmplace(args)) => run_emplace(args),
+        Some(Commands::VvxVacate(args)) => run_vacate(args),
         Some(Commands::External(args)) => dispatch_external(args),
         None => {
             use clap::CommandFactory;
@@ -445,6 +458,49 @@ fn run_emplace(args: EmplaceArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("emplace: error: {}", e);
+            1
+        }
+    }
+}
+
+/// Run vvx_vacate command
+fn run_vacate(args: VacateArgs) -> i32 {
+    eprintln!("vacate: removing kit assets...");
+    eprintln!("  burc: {}", args.burc.display());
+
+    let vacate_args = vof::vofe_VacateArgs {
+        burc_path: args.burc,
+    };
+
+    match vof::vofe_vacate(&vacate_args) {
+        Ok(result) => {
+            // Output JSON summary
+            let mut output = serde_json::Map::new();
+
+            let kits: Vec<serde_json::Value> = result.kits_removed
+                .iter()
+                .map(|k| serde_json::Value::String(k.clone()))
+                .collect();
+            output.insert("kits_removed".to_string(), serde_json::Value::Array(kits));
+
+            output.insert("files_deleted".to_string(), serde_json::Value::Number(result.files_deleted.into()));
+            output.insert("commands_removed".to_string(), serde_json::Value::Number(result.commands_removed.into()));
+            output.insert("hooks_removed".to_string(), serde_json::Value::Number(result.hooks_removed.into()));
+
+            let sections: Vec<serde_json::Value> = result.claude_sections_collapsed
+                .iter()
+                .map(|s| serde_json::Value::String(s.clone()))
+                .collect();
+            output.insert("claude_sections_collapsed".to_string(), serde_json::Value::Array(sections));
+
+            println!("{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
+
+            eprintln!("vacate: success - {} files, {} commands, {} hooks removed",
+                result.files_deleted, result.commands_removed, result.hooks_removed);
+            0
+        }
+        Err(e) => {
+            eprintln!("vacate: error: {}", e);
             1
         }
     }

@@ -2,23 +2,32 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! VVK Emplace - Install kit assets from parcel to target repo
+//! VVK Emplace/Vacate - Install and uninstall kit assets
 //!
-//! Pure file operations, no git. Called by vvi_install.sh which handles git commits.
+//! Pure file operations, no git. Called by vvi_install.sh and vvu_uninstall.sh
+//! which handle git commits.
 //!
-//! Behavior:
+//! Emplace behavior:
 //! 1. Parse burc.env to get BURC_TOOLS_DIR and BURC_PROJECT_ROOT
 //! 2. Read brand file to get kit list
 //! 3. Copy kit directories to target Tools/
 //! 4. Route commands and hooks to .claude/
 //! 5. Freshen CLAUDE.md with kit sections
 //! 6. Copy brand file to .vvk/
+//!
+//! Vacate behavior:
+//! 1. Parse burc.env to get paths
+//! 2. Read brand file from .vvk/ to get kit list
+//! 3. Remove commands and hooks from .claude/
+//! 4. Collapse CLAUDE.md sections to UNINSTALLED markers
+//! 5. Delete kit directories
+//! 6. Delete brand file and .vvk/ if empty
 
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::voff_freshen::{voff_freshen, voff_ManagedSection};
+use crate::voff_freshen::{voff_freshen, voff_collapse, voff_ManagedSection};
 use crate::vofm_managed::vofm_section_for_kit;
 
 // =============================================================================
@@ -66,6 +75,28 @@ pub struct vofe_BurcEnv {
     pub tools_dir: PathBuf,
     /// BURC_PROJECT_ROOT - project root for .claude/, CLAUDE.md, .vvk/
     pub project_root: PathBuf,
+}
+
+/// Arguments for vacate operation.
+#[derive(Debug)]
+pub struct vofe_VacateArgs {
+    /// Path to target repo's burc.env file
+    pub burc_path: PathBuf,
+}
+
+/// Result of vacate operation.
+#[derive(Debug)]
+pub struct vofe_VacateResult {
+    /// Kits that were removed
+    pub kits_removed: Vec<String>,
+    /// Total files deleted
+    pub files_deleted: u32,
+    /// Commands removed from .claude/commands/
+    pub commands_removed: u32,
+    /// Hooks removed from .claude/hooks/
+    pub hooks_removed: u32,
+    /// CLAUDE.md sections collapsed
+    pub claude_sections_collapsed: Vec<String>,
 }
 
 // =============================================================================
@@ -140,6 +171,84 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         commands_routed,
         hooks_routed,
         claude_sections_updated: section_tags,
+    })
+}
+
+/// Remove kit assets from target repo.
+///
+/// # Arguments
+/// * `args` - Vacate arguments (burc.env path)
+///
+/// # Returns
+/// VacateResult with removal summary, or error message
+pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> {
+    // 1. Parse BURC
+    let burc = zvofe_parse_burc(&args.burc_path)?;
+
+    // 2. Read brand file from .vvk/
+    let brand_path = burc.project_root.join(".vvk").join("vvbf_brand.json");
+    let (_hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
+
+    // 3. Remove commands and hooks, count files in kit directories
+    let mut total_files = 0u32;
+    let mut commands_removed = 0u32;
+    let mut hooks_removed = 0u32;
+
+    let commands_dir = burc.project_root.join(".claude").join("commands");
+    let hooks_dir = burc.project_root.join(".claude").join("hooks");
+
+    for kit_id in &kit_ids {
+        // Get cipher from kit_id (e.g., "jjk" -> "jj")
+        let cipher = &kit_id[..kit_id.len().saturating_sub(1)];
+
+        // Remove commands matching {cipher}c-*.md
+        if commands_dir.exists() {
+            commands_removed += zvofe_remove_matching_files(&commands_dir, cipher, true)?;
+        }
+
+        // Remove hooks matching {cipher}h_*
+        if hooks_dir.exists() {
+            hooks_removed += zvofe_remove_matching_files(&hooks_dir, cipher, false)?;
+        }
+    }
+
+    // 4. Collapse CLAUDE.md sections
+    let section_tags: Vec<String> = kit_ids
+        .iter()
+        .filter_map(|kit_id| vofm_section_for_kit(kit_id))
+        .map(|s| s.tag)
+        .collect();
+
+    let claude_path = burc.project_root.join("CLAUDE.md");
+    zvofe_collapse_claude(&claude_path, &section_tags)?;
+
+    // 5. Delete kit directories
+    for kit_id in &kit_ids {
+        let kit_dir = burc.tools_dir.join(kit_id);
+        if kit_dir.exists() {
+            // Count files before deletion
+            total_files += zvofe_count_files(&kit_dir)?;
+            fs::remove_dir_all(&kit_dir)
+                .map_err(|e| format!("Failed to remove kit directory {}: {}", kit_dir.display(), e))?;
+        }
+    }
+
+    // 6. Delete brand file and .vvk/ if empty
+    fs::remove_file(&brand_path)
+        .map_err(|e| format!("Failed to remove brand file: {}", e))?;
+
+    let vvk_dir = burc.project_root.join(".vvk");
+    if vvk_dir.exists() {
+        // Try to remove .vvk/ - will fail if not empty, which is fine
+        let _ = fs::remove_dir(&vvk_dir);
+    }
+
+    Ok(vofe_VacateResult {
+        kits_removed: kit_ids,
+        files_deleted: total_files,
+        commands_removed,
+        hooks_removed,
+        claude_sections_collapsed: section_tags,
     })
 }
 
@@ -353,6 +462,68 @@ fn zvofe_freshen_claude(
         .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
 
     Ok(())
+}
+
+/// Collapse CLAUDE.md managed sections to UNINSTALLED markers.
+fn zvofe_collapse_claude(claude_path: &Path, tags: &[String]) -> Result<(), String> {
+    if !claude_path.exists() {
+        return Ok(()); // Nothing to collapse
+    }
+
+    let content = fs::read_to_string(claude_path)
+        .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?;
+
+    let tag_refs: Vec<&str> = tags.iter().map(|s| s.as_str()).collect();
+    let collapsed = voff_collapse(&content, &tag_refs);
+
+    fs::write(claude_path, &collapsed)
+        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
+
+    Ok(())
+}
+
+/// Remove files matching a pattern from a directory.
+/// If is_command is true, matches {cipher}c-*.md; otherwise matches {cipher}h_*
+/// Returns count of files removed.
+fn zvofe_remove_matching_files(dir: &Path, cipher: &str, is_command: bool) -> Result<u32, String> {
+    let mut count = 0u32;
+
+    let entries = fs::read_dir(dir)
+        .map_err(|e| format!("Failed to read directory {}: {}", dir.display(), e))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("Dir entry error: {}", e))?;
+        let path = entry.path();
+
+        if !path.is_file() {
+            continue;
+        }
+
+        let file_name = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("");
+
+        let matches = if is_command {
+            zvofe_is_command_file(file_name, cipher)
+        } else {
+            zvofe_is_hook_file(file_name, cipher)
+        };
+
+        if matches {
+            fs::remove_file(&path)
+                .map_err(|e| format!("Failed to remove {}: {}", path.display(), e))?;
+            count += 1;
+        }
+    }
+
+    Ok(count)
+}
+
+/// Count files in a directory recursively.
+fn zvofe_count_files(dir: &Path) -> Result<u32, String> {
+    let files = zvofe_walk_dir(dir)?;
+    Ok(files.len() as u32)
 }
 
 #[cfg(test)]
