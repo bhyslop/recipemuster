@@ -1756,6 +1756,11 @@
           "silks": "vvb-platform-consolidation",
           "tacks": [
             {
+              "ts": "260118-1059",
+              "state": "complete",
+              "text": "Platform detection consolidated from VOB to VVB layer. Added VVB_PLATFORM and VVB_VVX_BINARY public exports, added Linux-aarch64 support, removed ZVOB_PLATFORM, and replaced 5 path constructions with single definition. Build verified successfully."
+            },
+            {
               "ts": "260118-1049",
               "state": "bridled",
               "text": "Consolidate platform detection and binary path construction from VOB to VVB.\n\n## Problem\n\nPlatform detection and binary path construction are duplicated:\n- `vob_build.sh` (lines 49-62): sets `ZVOB_PLATFORM` in kindle\n- `vvb_bash.sh` (lines 46-64): `zvvb_platform_capture()` function\n\nBinary path `${VVB_BIN_DIR}/vvx-${PLATFORM}` is constructed 5 times across both files.\n\n## Layering Principle\n\nVVK is lower-level than VOK (can have VV without VO, not vice versa). The lower layer should own platform detection and binary path.\n\n## Changes\n\n**vvb_bash.sh:**\n1. In `zvvb_kindle()`: Add `VVB_PLATFORM` and `VVB_VVX_BINARY` public exports\n2. In `zvvb_platform_capture()`: Add missing `Linux-aarch64` case\n3. Simplify `zvvb_binary_path_capture()` to use `VVB_VVX_BINARY`\n\n**vob_build.sh:**\n4. Remove platform detection block (lines 49-62)\n5. Update `ZVOB_RELEASE_BINARY` to use `VVB_PLATFORM`\n6. Replace all `${VVB_BIN_DIR}/vvx-${ZVOB_PLATFORM}` with `VVB_VVX_BINARY`\n\n## Result\n\n- VVB gains: `VVB_PLATFORM`, `VVB_VVX_BINARY` public exports\n- VOB loses: `ZVOB_PLATFORM`, consumes VVB exports\n- Platform case list consolidated in one place (VVB)\n- 5 path constructions → 1 definition\n\n## Files\n\n- Tools/vvk/vvb_bash.sh\n- Tools/vok/vob_build.sh",
