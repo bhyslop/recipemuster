@@ -1585,6 +1585,11 @@
           "silks": "vos-liturgy-cleanup-batch",
           "tacks": [
             {
+              "ts": "260118-0841",
+              "state": "abandoned",
+              "text": "Superseded by split into VOS/VLS/BUS-specific cleanup paces after VLS/BUS extraction."
+            },
+            {
               "ts": "260117-1408",
               "state": "rough",
               "text": "Drafted from ₢AAAA8 in ₣AA.\n\nVOS cleanup batch addressing issues from liturgy vocabulary review:\n\nIssue 1: Update legacy vost_cipher references to voslc_cipher\n- Lines 1207, 1211, 1217 (Uninstall operation)\n- Lines 1274, 1300 (Whisper Builder API)\n- Use canonical forms now that alias exists\n\nIssue 3: Fix Rust vesture signet_case (line 430)\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (voic), snake_case describes full inscription\n\nIssue 4: Clarify AsciiDoc vesture scope (line 455)\n- Currently conflates attributes and anchors\n- Decide: two domains, or clarify voslda covers both with different envelopes\n\nIssue 5: Fix colophon definition (lines 528, 534)\n- Clarify that colophon includes content after hyphen (e.g., rbw-B not rbw-)\n- Examples show incomplete colophons\n\nIssue 6: Fix colophon example error (line 534)\n- Change \"jjw- routes to JJK workbench\" to \"JJW workbench\"\n- JJK is kit; JJW is workbench\n\nIssue 10: Clarify tabtarget signet_case (line 496)\n- Current \"lowercase with hyphen\" description incomplete\n- Colophon has internal structure not captured\n\nFiles: Tools/vok/VOS-VoxObscuraSpec.adoc"
