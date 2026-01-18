@@ -379,7 +379,8 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
 // =============================================================================
 
 /// Parse burc.env file to extract environment variables.
-/// Paths are resolved relative to burc.env's parent directory.
+/// BURC_PROJECT_ROOT is the path from burc.env's location to the project root.
+/// BURC_TOOLS_DIR is resolved relative to the resolved project_root (per BURC spec).
 fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
     if !path.exists() {
         return Err(format!("burc.env not found: {}", path.display()));
@@ -427,18 +428,17 @@ fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
         .get("BURC_PROJECT_ROOT")
         .ok_or_else(|| "burc.env missing required variable: BURC_PROJECT_ROOT".to_string())?;
 
-    // Resolve paths relative to burc.env parent directory
-    let tools_dir = burc_parent.join(tools_dir_str);
+    // BURC_PROJECT_ROOT is the path from burc.env's location to project root
     let project_root = burc_parent.join(project_root_str);
-
-    // Canonicalize to get absolute paths
-    let tools_dir = tools_dir
-        .canonicalize()
-        .map_err(|e| format!("BURC_TOOLS_DIR path invalid ({}): {}", tools_dir.display(), e))?;
-
     let project_root = project_root
         .canonicalize()
         .map_err(|e| format!("BURC_PROJECT_ROOT path invalid ({}): {}", project_root.display(), e))?;
+
+    // Resolve tools_dir relative to project_root (per BURC spec)
+    let tools_dir = project_root.join(tools_dir_str);
+    let tools_dir = tools_dir
+        .canonicalize()
+        .map_err(|e| format!("BURC_TOOLS_DIR path invalid ({}): {}", tools_dir.display(), e))?;
 
     Ok(vofe_BurcEnv {
         tools_dir,
