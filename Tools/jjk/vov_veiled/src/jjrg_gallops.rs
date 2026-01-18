@@ -16,6 +16,12 @@ use std::fs;
 use std::io::{Read as IoRead, Write};
 use std::path::Path;
 
+/// Unknown/default commit SHA (7 zeros)
+///
+/// Used when commit cannot be determined (legacy migration, git errors).
+/// All commit-related code derives the expected length from this constant.
+pub const JJRG_UNKNOWN_COMMIT: &str = "0000000";
+
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -41,15 +47,86 @@ pub struct jjrg_Tack {
     pub ts: String,
     pub state: jjrg_PaceState,
     pub text: String,
+    pub silks: String,
+    pub commit: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direction: Option<String>,
 }
 
 /// Pace record - discrete action within a Heat
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// Note: Custom Deserialize implementation handles legacy format migration.
+/// Legacy format had `silks` on Pace; canonical format has `silks` on each Tack.
+#[derive(Debug, Clone, Serialize)]
 pub struct jjrg_Pace {
-    pub silks: String,
     pub tacks: Vec<jjrg_Tack>,
+}
+
+impl<'de> serde::Deserialize<'de> for jjrg_Pace {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::Error;
+
+        // Deserialize as raw JSON value first
+        let raw: serde_json::Value = serde::Deserialize::deserialize(deserializer)?;
+
+        // Extract legacy silks from pace (if present)
+        let pace_silks = raw.get("silks").and_then(|v| v.as_str()).map(String::from);
+
+        // Extract tacks array
+        let tacks_value = raw.get("tacks").ok_or_else(|| D::Error::missing_field("tacks"))?;
+        let tacks_array = tacks_value.as_array().ok_or_else(|| D::Error::custom("tacks must be an array"))?;
+
+        // Process each tack with migration
+        let mut tacks = Vec::with_capacity(tacks_array.len());
+        for (i, tack_value) in tacks_array.iter().enumerate() {
+            let ts = tack_value.get("ts")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| D::Error::custom(format!("tacks[{}]: missing ts", i)))?
+                .to_string();
+
+            let state: jjrg_PaceState = tack_value.get("state")
+                .ok_or_else(|| D::Error::custom(format!("tacks[{}]: missing state", i)))
+                .and_then(|v| serde_json::from_value(v.clone()).map_err(|e| D::Error::custom(format!("tacks[{}]: invalid state: {}", i, e))))?;
+
+            let text = tack_value.get("text")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| D::Error::custom(format!("tacks[{}]: missing text", i)))?
+                .to_string();
+
+            // Migration: silks from tack, or inherit from pace, or error
+            let silks = if let Some(s) = tack_value.get("silks").and_then(|v| v.as_str()) {
+                s.to_string()
+            } else if let Some(ref ps) = pace_silks {
+                ps.clone()
+            } else {
+                return Err(D::Error::custom(format!("tacks[{}]: missing silks and no pace-level silks to inherit", i)));
+            };
+
+            // Migration: commit from tack, or use JJRG_UNKNOWN_COMMIT
+            let commit = tack_value.get("commit")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+                .unwrap_or_else(|| JJRG_UNKNOWN_COMMIT.to_string());
+
+            let direction = tack_value.get("direction")
+                .and_then(|v| v.as_str())
+                .map(String::from);
+
+            tacks.push(jjrg_Tack {
+                ts,
+                state,
+                text,
+                silks,
+                commit,
+                direction,
+            });
+        }
+
+        Ok(jjrg_Pace { tacks })
+    }
 }
 
 /// Heat record - bounded initiative
@@ -117,6 +194,13 @@ pub(crate) fn zjjrg_is_yymmdd_hhmm(s: &str) -> bool {
         && parts[0].chars().all(|c| c.is_ascii_digit())
         && parts[1].len() == 4
         && parts[1].chars().all(|c| c.is_ascii_digit())
+}
+
+/// Check if string is valid commit SHA format
+///
+/// Length is derived from JJRG_UNKNOWN_COMMIT constant.
+pub(crate) fn zjjrg_is_commit_sha(s: &str) -> bool {
+    s.len() == JJRG_UNKNOWN_COMMIT.len() && s.chars().all(|c| c.is_ascii_hexdigit())
 }
 
 impl jjrg_Gallops {
@@ -332,14 +416,6 @@ impl jjrg_Gallops {
             }
         }
 
-        // Rule 7: Pace must have silks (non-empty kebab-case)
-        if !zjjrg_is_kebab_case(&pace.silks) {
-            errors.push(format!(
-                "{}: silks must be non-empty kebab-case, got '{}'",
-                pace_ctx, pace.silks
-            ));
-        }
-
         // Rule 7: tacks must be non-empty array
         if pace.tacks.is_empty() {
             errors.push(format!("{}: tacks array must not be empty", pace_ctx));
@@ -365,6 +441,22 @@ impl jjrg_Gallops {
         // Rule 8: text must be non-empty
         if tack.text.is_empty() {
             errors.push(format!("{}: text must not be empty", tack_ctx));
+        }
+
+        // Rule 8: silks must be non-empty kebab-case
+        if !zjjrg_is_kebab_case(&tack.silks) {
+            errors.push(format!(
+                "{}: silks must be non-empty kebab-case, got '{}'",
+                tack_ctx, tack.silks
+            ));
+        }
+
+        // Rule 8: commit must be valid format (7 hex chars)
+        if !zjjrg_is_commit_sha(&tack.commit) {
+            errors.push(format!(
+                "{}: commit must be 7 hex characters, got '{}'",
+                tack_ctx, tack.commit
+            ));
         }
 
         // Rule 9: direction presence depends on state
@@ -426,6 +518,45 @@ pub(crate) fn zjjrg_increment_seed(seed: &str) -> String {
     }
 
     String::from_utf8(chars).unwrap_or_else(|_| seed.to_string())
+}
+
+/// Capture current commit SHA
+///
+/// Runs `git rev-parse --short=N HEAD` where N is derived from JJRG_UNKNOWN_COMMIT length.
+/// Returns JJRG_UNKNOWN_COMMIT on error (e.g., not in a git repo).
+pub fn jjrg_capture_commit_sha() -> String {
+    use std::process::Command;
+
+    let short_arg = format!("--short={}", JJRG_UNKNOWN_COMMIT.len());
+    match Command::new("git")
+        .args(["rev-parse", &short_arg, "HEAD"])
+        .output()
+    {
+        Ok(output) if output.status.success() => {
+            String::from_utf8_lossy(&output.stdout).trim().to_string()
+        }
+        _ => JJRG_UNKNOWN_COMMIT.to_string(),
+    }
+}
+
+/// Create a new Tack with current timestamp and commit SHA
+///
+/// Centralizes Tack creation to ensure consistent timestamp/commit capture.
+/// All code creating new Tacks should use this helper.
+pub fn jjrg_make_tack(
+    state: jjrg_PaceState,
+    text: String,
+    silks: String,
+    direction: Option<String>,
+) -> jjrg_Tack {
+    jjrg_Tack {
+        ts: timestamp_full(),
+        state,
+        text,
+        silks,
+        commit: jjrg_capture_commit_sha(),
+        direction,
+    }
 }
 
 // ===== Write Operations =====
@@ -646,17 +777,14 @@ impl jjrg_Gallops {
         // Construct Coronet
         let coronet_str = format!("{}{}{}", CORONET_PREFIX, firemark.jjrf_as_str(), heat.next_pace_seed);
 
-        // Create initial Tack
-        let tack = jjrg_Tack {
-            ts: timestamp_full(),
-            state: jjrg_PaceState::Rough,
-            text: args.text,
-            direction: None,
-        };
-
-        // Create new Pace
+        // Create initial Tack and Pace
+        let tack = jjrg_make_tack(
+            jjrg_PaceState::Rough,
+            args.text,
+            args.silks,
+            None,
+        );
         let pace = jjrg_Pace {
-            silks: args.silks,
             tacks: vec![tack],
         };
 
@@ -910,13 +1038,13 @@ impl jjrg_Gallops {
             return Err("text must not be empty".to_string());
         }
 
-        // Create new Tack
-        let new_tack = jjrg_Tack {
-            ts: timestamp_full(),
-            state: new_state,
-            text: new_text,
-            direction: new_direction,
-        };
+        // Create new Tack (inheriting silks from current tack)
+        let new_tack = jjrg_make_tack(
+            new_state,
+            new_text,
+            current_tack.silks.clone(),
+            new_direction,
+        );
 
         // Prepend to tacks array
         pace.tacks.insert(0, new_tack);
@@ -1010,23 +1138,23 @@ impl jjrg_Gallops {
         let new_coronet_str = format!("{}{}{}", CORONET_PREFIX, dest_firemark.jjrf_as_str(), dest_heat.next_pace_seed);
 
         // Create new tack recording the draft
+        let first_tack = pace_data.tacks.first();
         let draft_note = format!("Drafted from {} in {}.\n\n{}",
             source_coronet_key, source_firemark_key,
-            pace_data.tacks.first().map(|t| t.text.as_str()).unwrap_or(""));
+            first_tack.map(|t| t.text.as_str()).unwrap_or(""));
 
-        let draft_tack = jjrg_Tack {
-            ts: timestamp_full(),
-            state: pace_data.tacks.first().map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough),
-            text: draft_note,
-            direction: pace_data.tacks.first().and_then(|t| t.direction.clone()),
-        };
+        let draft_tack = jjrg_make_tack(
+            first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough),
+            draft_note,
+            first_tack.map(|t| t.silks.clone()).unwrap_or_default(),
+            first_tack.and_then(|t| t.direction.clone()),
+        );
 
         // Build new pace with draft tack prepended
         let mut new_tacks = vec![draft_tack];
         new_tacks.extend(pace_data.tacks);
 
         let new_pace = jjrg_Pace {
-            silks: pace_data.silks,
             tacks: new_tacks,
         };
 
@@ -1178,9 +1306,13 @@ impl jjrg_Gallops {
                     })
                     .unwrap_or("unknown");
 
+                let pace_silks = pace.tacks.first()
+                    .map(|t| t.silks.as_str())
+                    .unwrap_or("unknown");
+
                 content.push_str(&format!(
                     "### {} ({}) [{}]\n\n",
-                    pace.silks, coronet_key, final_state
+                    pace_silks, coronet_key, final_state
                 ));
 
                 // Tack history (newest first, as stored)

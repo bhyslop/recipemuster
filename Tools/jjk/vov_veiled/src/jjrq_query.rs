@@ -128,7 +128,7 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
                 match tack.state {
                     PaceState::Rough | PaceState::Bridled => {
                         output.pace_coronet = Some(coronet_key.clone());
-                        output.pace_silks = Some(pace.silks.clone());
+                        output.pace_silks = Some(tack.silks.clone());
                         output.pace_state = Some(match tack.state {
                             PaceState::Rough => "rough".to_string(),
                             PaceState::Bridled => "bridled".to_string(),
@@ -222,7 +222,7 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
                             continue;
                         }
                         let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("[{}] {} ({})", state_str, pace.silks, coronet_key);
+                        println!("[{}] {} ({})", state_str, tack.silks, coronet_key);
                     }
                 }
             }
@@ -238,7 +238,7 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
                         }
                         num += 1;
                         let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("{}. [{}] {} ({})", num, state_str, pace.silks, coronet_key);
+                        println!("{}. [{}] {} ({})", num, state_str, tack.silks, coronet_key);
                     }
                 }
             }
@@ -254,7 +254,7 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             };
             if let Some(tack) = pace.tacks.first() {
                 let state_str = zjjrq_pace_state_str(&tack.state);
-                println!("Pace: {} ({})", pace.silks, target_coronet);
+                println!("Pace: {} ({})", tack.silks, target_coronet);
                 println!("State: {}", state_str);
                 println!("Heat: {}", heat_key);
                 println!();
@@ -299,7 +299,7 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
                             continue;
                         }
                         let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("### {} ({}) [{}]", pace.silks, coronet_key, state_str);
+                        println!("### {} ({}) [{}]", tack.silks, coronet_key, state_str);
                         println!();
                         println!("{}", tack.text);
                         if let Some(ref direction) = tack.direction {
@@ -417,7 +417,7 @@ pub fn jjrq_run_retire(args: jjrq_RetireArgs) -> i32 {
 
             paces.push(zjjrq_RetirePace {
                 coronet: coronet_key.clone(),
-                silks: pace.silks.clone(),
+                silks: pace.tacks.first().map(|t| t.silks.clone()).unwrap_or_default(),
                 tacks,
             });
         }

@@ -1038,7 +1038,7 @@ from stdin
 ... {jjdkm_silks}:
 from argument
 ... {jjdkm_commit}:
-current HEAD (7-char hex via `git rev-parse --short=7 HEAD`)
+capture {jjdkm_commit}
 . Insert
 {jjdt_coronet}
 into
@@ -1386,7 +1386,7 @@ inherited from previous `tacks[0].state`
 ... {jjdkm_silks}:
 inherited from previous `tacks[0].silks`
 ... {jjdkm_commit}:
-current HEAD (7-char hex via `git rev-parse --short=7 HEAD`)
+capture {jjdkm_commit}
 .. Preserve remaining
 {jjdkr_tack}
 history
@@ -1538,7 +1538,7 @@ determined above
 .. {jjdkm_silks}:
 inherited from previous `tacks[0].silks`
 .. {jjdkm_commit}:
-current HEAD (7-char hex via `git rev-parse --short=7 HEAD`)
+capture {jjdkm_commit}
 .. {jjdkm_direction}:
 determined above (if applicable)
 . Prepend new
@@ -1746,7 +1746,7 @@ or
 {jjdkm_silks}
 (non-empty kebab-case),
 {jjdkm_commit}
-(7-character hex string matching `[0-9a-f]{7}`)
+(valid {jjdkm_commit} format)
 . If
 {jjdkm_state}
 is

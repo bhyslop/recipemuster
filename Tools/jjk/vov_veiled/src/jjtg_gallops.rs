@@ -20,12 +20,14 @@ fn make_valid_gallops() -> jjrg_Gallops {
     }
 }
 
-// Helper to create a valid Tack
-fn make_valid_tack(state: jjrg_PaceState, direction: Option<String>) -> jjrg_Tack {
+// Helper to create a valid Tack (uses JJRG_UNKNOWN_COMMIT for consistent commit format)
+fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>) -> jjrg_Tack {
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
         text: "Test tack text".to_string(),
+        silks: silks.to_string(),
+        commit: JJRG_UNKNOWN_COMMIT.to_string(),
         direction,
     }
 }
@@ -34,8 +36,7 @@ fn make_valid_tack(state: jjrg_PaceState, direction: Option<String>) -> jjrg_Tac
 fn make_valid_pace(heat_id: &str, silks: &str) -> (String, jjrg_Pace) {
     let pace_key = format!("₢{}AAA", heat_id);
     let pace = jjrg_Pace {
-        silks: silks.to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, silks, None)],
     };
     (pace_key, pace)
 }
@@ -212,8 +213,7 @@ fn jjtg_validate_pace_key_wrong_heat_identity() {
     heat.order.clear();
     let bad_pace_key = "₢CDAAA".to_string(); // CD instead of AB
     let pace = jjrg_Pace {
-        silks: "bad-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "bad-pace", None)],
     };
     heat.paces.insert(bad_pace_key.clone(), pace);
     heat.order.push(bad_pace_key);
@@ -223,12 +223,14 @@ fn jjtg_validate_pace_key_wrong_heat_identity() {
 }
 
 #[test]
-fn jjtg_validate_pace_invalid_silks() {
+fn jjtg_validate_tack_invalid_silks() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    // Get the first pace and modify its silks
+    // Get the first pace's first tack and modify its silks
     if let Some(pace) = heat.paces.values_mut().next() {
-        pace.silks = "".to_string();
+        if let Some(tack) = pace.tacks.first_mut() {
+            tack.silks = "".to_string();
+        }
     }
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
@@ -491,8 +493,8 @@ fn jjtg_slate_creates_pace() {
     let heat = gallops.heats.get(&heat_key).unwrap();
     assert!(heat.paces.contains_key(&result.coronet));
     let pace = heat.paces.get(&result.coronet).unwrap();
-    assert_eq!(pace.silks, "test-pace");
     assert_eq!(pace.tacks.len(), 1);
+    assert_eq!(pace.tacks[0].silks, "test-pace");
     assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
     assert_eq!(pace.tacks[0].text, "Do something useful");
 
@@ -592,8 +594,7 @@ fn jjtg_slate_with_before_inserts_at_position() {
     // Add a second pace
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -628,8 +629,7 @@ fn jjtg_slate_with_after_inserts_at_position() {
     // Add a second pace
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -706,8 +706,7 @@ fn jjtg_rail_reorders_paces() {
     // Add another pace
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -765,8 +764,7 @@ fn jjtg_rail_duplicate_coronets() {
     // Add another pace
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -805,16 +803,13 @@ fn jjtg_rail_move_first() {
     let pace3_key = "₢ABAAC".to_string();
     let pace4_key = "₢ABAAD".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace", None)],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        silks: "third-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace", None)],
     });
     heat.paces.insert(pace4_key.clone(), jjrg_Pace {
-        silks: "fourth-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "fourth-pace", None)],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -860,12 +855,10 @@ fn jjtg_rail_move_first_all_complete() {
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace", None)],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        silks: "third-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "third-pace", None)],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -902,8 +895,7 @@ fn jjtg_rail_move_last() {
 
     let pace2_key = "₢ABAAB".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     });
     heat.order.push(pace2_key.clone());
     heat.next_pace_seed = "AAC".to_string();
@@ -938,12 +930,10 @@ fn jjtg_rail_move_before() {
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        silks: "third-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace", None)],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -980,12 +970,10 @@ fn jjtg_rail_move_after() {
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        silks: "second-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        silks: "third-pace".to_string(),
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace", None)],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
