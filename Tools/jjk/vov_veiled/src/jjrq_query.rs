@@ -9,6 +9,7 @@
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrs_steeplechase::{jjrs_SteeplechaseEntry, jjrs_get_entries, jjrs_ReinArgs};
 use serde::Serialize;
 use std::fs;
 
@@ -80,6 +81,7 @@ pub(crate) struct zjjrq_SaddleOutput {
     pub(crate) spec: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) direction: Option<String>,
+    pub(crate) recent_work: Vec<jjrs_SteeplechaseEntry>,
 }
 
 /// Run the saddle command - return Heat context
@@ -110,6 +112,12 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         }
     };
 
+    // Get recent steeplechase entries
+    let recent_work = jjrs_get_entries(&jjrs_ReinArgs {
+        firemark: args.firemark.jjrf_as_str().to_string(),
+        limit: 10,
+    }).unwrap_or_default();
+
     // Find first actionable pace (rough or bridled)
     let mut output = zjjrq_SaddleOutput {
         heat_silks: heat.silks.clone(),
@@ -120,6 +128,7 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         pace_state: None,
         spec: None,
         direction: None,
+        recent_work,
     };
 
     for coronet_key in &heat.order {

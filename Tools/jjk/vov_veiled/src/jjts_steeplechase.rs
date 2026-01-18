@@ -115,9 +115,10 @@ fn jjts_parse_new_format_wrong_heat_firemark() {
 
 #[test]
 fn jjts_parse_log_line_new_format() {
-    let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:n: Fix bug";
+    let line = "2024-01-15 14:30:00 -0800\tabc123ef\tjjb:RBM:₢ABAAA:n: Fix bug";
     let entry = zjjrs_parse_log_line(line, "AB").unwrap();
     assert_eq!(entry.timestamp, "2024-01-15 14:30");
+    assert_eq!(entry.commit, "abc123ef");
     assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
     assert_eq!(entry.action, Some("n".to_string()));
     assert_eq!(entry.subject, "Fix bug");
@@ -125,9 +126,10 @@ fn jjts_parse_log_line_new_format() {
 
 #[test]
 fn jjts_parse_log_line_new_format_with_action() {
-    let line = "2024-01-15 14:30:00 -0800\tjjb:RBM:₢ABAAA:F: Autonomous execution";
+    let line = "2024-01-15 14:30:00 -0800\tdef456ab\tjjb:RBM:₢ABAAA:F: Autonomous execution";
     let entry = zjjrs_parse_log_line(line, "AB").unwrap();
     assert_eq!(entry.timestamp, "2024-01-15 14:30");
+    assert_eq!(entry.commit, "def456ab");
     assert_eq!(entry.coronet, Some("₢ABAAA".to_string()));
     assert_eq!(entry.action, Some("F".to_string()));
     assert_eq!(entry.subject, "Autonomous execution");

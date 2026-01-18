@@ -27,10 +27,13 @@ pub struct jjrs_ReinArgs {
 }
 
 /// Steeplechase entry - parsed from git commit message
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Default)]
 pub struct jjrs_SteeplechaseEntry {
     /// Timestamp in "YYYY-MM-DD HH:MM" format
     pub timestamp: String,
+
+    /// Abbreviated git commit SHA
+    pub commit: String,
 
     /// Coronet for pace-level entries, None for heat-level
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -124,6 +127,7 @@ pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_
 
     Some(jjrs_SteeplechaseEntry {
         timestamp: String::new(), // filled by caller
+        commit: String::new(),    // filled by caller
         coronet: identity,
         action,
         subject: message,
@@ -131,19 +135,21 @@ pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_
 }
 
 /// Parse a single git log line into a SteeplechaseEntry
-/// Line format: "YYYY-MM-DD HH:MM:SS -ZZZZ<TAB>subject"
+/// Line format: "YYYY-MM-DD HH:MM:SS -ZZZZ<TAB>abbrev_commit<TAB>subject"
 pub fn zjjrs_parse_log_line(line: &str, firemark_raw: &str) -> Option<jjrs_SteeplechaseEntry> {
-    let parts: Vec<&str> = line.splitn(2, '\t').collect();
-    if parts.len() != 2 {
+    let parts: Vec<&str> = line.splitn(3, '\t').collect();
+    if parts.len() != 3 {
         return None;
     }
 
     let timestamp = zjjrs_parse_timestamp(parts[0]);
-    let subject = parts[1];
+    let commit = parts[1].to_string();
+    let subject = parts[2];
 
     // Try parsing new format
     if let Some(mut entry) = zjjrs_parse_new_format(subject, firemark_raw) {
         entry.timestamp = timestamp;
+        entry.commit = commit;
         return Some(entry);
     }
 
@@ -172,7 +178,7 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
             "--all",
             "--extended-regexp",
             &format!("--grep={}", grep_pattern),
-            "--format=%ai\t%s",
+            "--format=%ai\t%h\t%s",
         ])
         .output()
         .map_err(|e| format!("Failed to run git log: {}", e))?;

@@ -37,7 +37,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::voff_freshen::{voff_freshen, voff_collapse, voff_ManagedSection};
-use crate::vofc_registry::vofc_find_kit_by_id;
+use crate::vofc_registry::{vofc_find_kit_by_id, VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
 
 // =============================================================================
 // Constants
@@ -277,6 +277,12 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         commands_routed += cmds;
         hooks_routed += hks;
     }
+
+    // 7b. Route Claude config assets from parcel claude/* to target .claude/*
+    let (parcel_cmds, parcel_hks) = zvofe_route_claude_assets(&args.parcel_dir, &burc.project_root)?;
+    total_files += parcel_cmds + parcel_hks;
+    commands_routed += parcel_cmds;
+    hooks_routed += parcel_hks;
 
     // 8. Freshen CLAUDE.md with kit sections
     let sections = zvofe_read_templates(&args.parcel_dir, &kit_ids)?;
@@ -618,14 +624,75 @@ fn zvofe_walk_dir(dir: &Path) -> Result<Vec<PathBuf>, String> {
 
 /// Check if file is a command file (matches {cipher}c-*.md pattern).
 fn zvofe_is_command_file(file_name: &str, cipher: &str) -> bool {
-    let prefix = format!("{}c-", cipher);
+    let prefix = format!("{}{}", cipher, VOFC_COMMAND_SIGNET_SUFFIX);
     file_name.starts_with(&prefix) && file_name.ends_with(".md")
 }
 
-/// Check if file is a hook file (matches {cipher}h_* pattern).
+/// Check if file is a hook file (matches {cipher}h-*.md pattern).
 fn zvofe_is_hook_file(file_name: &str, cipher: &str) -> bool {
-    let prefix = format!("{}h_", cipher);
-    file_name.starts_with(&prefix)
+    let prefix = format!("{}{}", cipher, VOFC_HOOK_SIGNET_SUFFIX);
+    file_name.starts_with(&prefix) && file_name.ends_with(".md")
+}
+
+/// Route Claude config assets from parcel claude/* to target .claude/*.
+/// Returns (commands_routed, hooks_routed).
+fn zvofe_route_claude_assets(
+    parcel_dir: &Path,
+    project_root: &Path,
+) -> Result<(u32, u32), String> {
+    let mut commands_count = 0u32;
+    let mut hooks_count = 0u32;
+
+    // Route commands from parcel claude/commands/ to target .claude/commands/
+    let commands_source = parcel_dir.join("claude").join("commands");
+    if commands_source.exists() {
+        let commands_dest = project_root.join(".claude").join("commands");
+        fs::create_dir_all(&commands_dest)
+            .map_err(|e| format!("Failed to create .claude/commands dir: {}", e))?;
+
+        commands_count = zvofe_copy_all_files(&commands_source, &commands_dest)?;
+    }
+
+    // Route hooks from parcel claude/hooks/ to target .claude/hooks/
+    let hooks_source = parcel_dir.join("claude").join("hooks");
+    if hooks_source.exists() {
+        let hooks_dest = project_root.join(".claude").join("hooks");
+        fs::create_dir_all(&hooks_dest)
+            .map_err(|e| format!("Failed to create .claude/hooks dir: {}", e))?;
+
+        hooks_count = zvofe_copy_all_files(&hooks_source, &hooks_dest)?;
+    }
+
+    Ok((commands_count, hooks_count))
+}
+
+/// Copy all files from source directory to dest directory.
+/// Returns count of files copied.
+fn zvofe_copy_all_files(source_dir: &Path, dest_dir: &Path) -> Result<u32, String> {
+    let mut count = 0u32;
+
+    let entries = fs::read_dir(source_dir)
+        .map_err(|e| format!("Failed to read directory {}: {}", source_dir.display(), e))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("Dir entry error: {}", e))?;
+        let path = entry.path();
+
+        if !path.is_file() {
+            continue;
+        }
+
+        let file_name = path
+            .file_name()
+            .ok_or_else(|| format!("No file name for {}", path.display()))?;
+
+        let dest_path = dest_dir.join(file_name);
+        fs::copy(&path, &dest_path)
+            .map_err(|e| format!("Failed to copy {} to {}: {}", path.display(), dest_path.display(), e))?;
+        count += 1;
+    }
+
+    Ok(count)
 }
 
 /// Read managed section templates from parcel.
@@ -756,8 +823,8 @@ mod tests {
 
     #[test]
     fn test_is_hook_file() {
-        assert!(zvofe_is_hook_file("jjh_post_commit.sh", "jj"));
-        assert!(zvofe_is_hook_file("vvh_pre_push", "vv"));
+        assert!(zvofe_is_hook_file("jjh-post-commit.md", "jj"));
+        assert!(zvofe_is_hook_file("vvh-pre-push.md", "vv"));
         assert!(!zvofe_is_hook_file("jjc-heat-mount.md", "jj"));
         assert!(!zvofe_is_hook_file("jjw_workbench.sh", "jj"));
     }

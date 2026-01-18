@@ -508,7 +508,7 @@ is the commit SHA at
 creation.
 Format: 7-character hex string.
 Captures repo state when plan was written.
-Value `0000000` indicates unknown (migrated data).
+Value `0000000` indicates commit was unavailable at creation time.
 
 * [[jjdkm_direction]]
 // ⟦axl_voices axr_member axd_conditional⟧
@@ -598,20 +598,6 @@ values.
 CLI commands accept identities with or without prefix.
 Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
 Output always includes the prefix (`₣` or `₢`).
-
-=== Legacy Format Acceptance
-
-During migration period, implementations MUST accept legacy format on read:
-
-* {jjdpr_pace} with `silks` field → copy to all {jjdkr_tack_s} missing {jjdkm_silks}, discard from {jjdpr_pace}
-* {jjdkr_tack} without {jjdkm_silks} → inherit from {jjdpr_pace} (error if {jjdpr_pace} also missing silks)
-* {jjdkr_tack} without {jjdkm_commit} → use `0000000`
-
-Implementations MUST write only canonical format:
-
-* {jjdpr_pace} without `silks` field
-* {jjdkr_tack} with {jjdkm_silks} (required)
-* {jjdkr_tack} with {jjdkm_commit} (required, `0000000` if unknown)
 
 == Arguments
 
@@ -1841,15 +1827,20 @@ details.
   "pace_coronet": "₢XXXXX",
   "pace_silks": "...",
   "pace_state": "rough|bridled",
-  "tack_text": "...",
-  "tack_direction": "..."
+  "spec": "...",
+  "direction": "...",
+  "recent_work": [
+    {"timestamp": "...", "commit": "...", "coronet": "...", "action": "...", "subject": "..."}
+  ]
 }
 ----
-Fields `pace_coronet` through `tack_direction` are absent if no actionable pace exists.
+Fields `pace_coronet` through `direction` are absent if no actionable pace exists.
 Field `pace_silks` is derived from `tacks[0].silks`.
-Field `tack_direction` is present only when `pace_state` is
+Field `direction` is present only when `pace_state` is
 {jjdpe_bridled}.
 Field `paddock_content` contains the full text of the paddock file.
+Field `recent_work` contains the last 10 steeplechase entries for the heat (from
+{jjdo_rein}).
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -1880,12 +1871,15 @@ or
 .. Output `pace_coronet`,
 `pace_silks` (from `tacks[0].silks`),
 `pace_state`
-.. Output `tack_text` from `tacks[0].text`
+.. Output `spec` from `tacks[0].text`
 .. If state is
 {jjdpe_bridled},
-output `tack_direction` from `tacks[0].direction`
+output `direction` from `tacks[0].direction`
 .. Stop walking (first match wins)
-. If no actionable pace found, output only `heat_silks`, `paddock_file`, and `paddock_content`
+. If no actionable pace found, output only `heat_silks`, `paddock_file`, `paddock_content`, and `recent_work`
+. Get last 10 steeplechase entries for the heat via
+{jjdo_rein}
+logic, output as `recent_work` array
 
 [[jjdo_parade]]
 // ⟦axl_voices axi_cli_subcommand⟧
@@ -2072,12 +2066,14 @@ Parse git history for steeplechase entries belonging to a
 [
   {
     "timestamp": "YYYY-MM-DD HH:MM",
+    "commit": "abc123ef",
     "coronet": "₢XXXXX",
     "action": "n",
     "subject": "commit message"
   },
   {
     "timestamp": "YYYY-MM-DD HH:MM",
+    "commit": "def456ab",
     "coronet": "₢XXXXX",
     "action": "A",
     "subject": "description"

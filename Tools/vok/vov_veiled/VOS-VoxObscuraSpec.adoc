@@ -419,8 +419,6 @@ vvk-parcel-1000/
       ...
     jjk/
       jju_utility.sh
-      commands/
-        jjc-heat-mount.md
       ...
     vvk/
       bin/
@@ -428,15 +426,19 @@ vvk-parcel-1000/
         vvx-darwin-x86_64
         vvx-linux-x86_64
       vvu_uninstall.sh
+  claude/
+    commands/
+      jjc-heat-mount.md
+      cma-normalize.md
+      vvc-commit.md
+    hooks/                # Future
 ----
 +
-The `kits/` directory mirrors the target `Tools/` structure.
+The `kits/` directory mirrors the target `Tools/` structure: `kits/*` becomes `Tools/*`.
+The `claude/` directory contains Claude Code configuration assets collected from kit forges and routed to `.claude/*` in the target.
 VVK is a
 {vose_kit}
 like any other — it just happens to contain binaries.
-The
-{vose_parcel}
-layout matches the installed layout: `kits/*` becomes `Tools/*`.
 +
 **Scripts:**
 +
@@ -741,7 +743,13 @@ All assets must comply with
 // ⟦axl_voices axo_entity⟧
 {vosa_command}::
 A slash command file.
-Located in `{kit}/commands/` in source, installed to `.claude/commands/` in target.
+Located in `.claude/commands/` in
+{vosp_kit_forge},
+collected during
+{vosor_release}
+by
+{voslc_cipher}
+pattern, installed to `.claude/commands/` in target.
 +
 Naming: `{cipher}c-{name}.md`
 +
@@ -751,8 +759,15 @@ Example: `jjc-heat-mount.md` for JJK.
 // ⟦axl_voices axo_entity⟧
 {vosa_hook}::
 A hook definition.
+Located in `.claude/hooks/` in
+{vosp_kit_forge},
+collected during
+{vosor_release}
+by
+{voslc_cipher}
+pattern, installed to `.claude/hooks/` in target.
 +
-Naming: `{cipher}h_{name}.*`
+Naming: `{cipher}h-{name}.md`
 +
 [Reserved for future implementation]
 
@@ -855,6 +870,14 @@ binary paths
 {vose_kit}:
 collect files excluding
 {vosp_veiled}
+.. For each
+{voslc_cipher}
+from kit list:
+... Scan kit forge `.claude/commands/` for files matching `{cipher}c-*.md`
+... Scan kit forge `.claude/hooks/` for files matching `{cipher}h-*.md`
+... Copy matching files to parcel `claude/commands/` and `claude/hooks/` respectively
+.. {vosc_step}
+"Claude config assets collected by cipher pattern"
 
 . *Generate sigil*:
 .. {vosc_store}
@@ -913,6 +936,7 @@ at parcel root with
 {vose_brand_file}
 at parcel root
 ... `kits/` — all kit assets by directory (including VVK with binaries)
+... `claude/` — commands and hooks collected by cipher pattern
 
 {voss_outputs}
 
@@ -1029,10 +1053,16 @@ to `.vvk/vvbf_brand.json`
 .. For each kit in `BURC_MANAGED_KITS`:
 ... {vosc_call}
 copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
-... Route files matching `{cipher}c-*.md` to `.claude/commands/`
-... Route files matching `{cipher}h_*` to `.claude/hooks/`
 .. {vosc_step}
-"{n} kits installed, {m} commands routed, {p} hooks routed"
+"{n} kits installed"
+
+. *Install Claude config assets*:
+.. {vosc_call}
+copy `claude/commands/*` to `.claude/commands/`
+.. {vosc_call}
+copy `claude/hooks/*` to `.claude/hooks/`
+.. {vosc_step}
+"{m} commands installed, {p} hooks installed"
 
 . *Freshen CLAUDE.md*:
 .. If CLAUDE.md absent:
@@ -1158,7 +1188,7 @@ from kit list:
 ... {vosc_call}
 remove files matching `{cipher}c-*.md` from `.claude/commands/`
 ... {vosc_call}
-remove files matching `{cipher}h_*` from `.claude/hooks/`
+remove files matching `{cipher}h-*.md` from `.claude/hooks/`
 .. {vosc_step}
 "{n} commands removed, {m} hooks removed"
 

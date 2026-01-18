@@ -18,7 +18,7 @@ use std::path::Path;
 
 /// Unknown/default commit SHA (7 zeros)
 ///
-/// Used when commit cannot be determined (legacy migration, git errors).
+/// Used when commit cannot be determined (git errors).
 /// All commit-related code derives the expected length from this constant.
 pub const JJRG_UNKNOWN_COMMIT: &str = "0000000";
 
@@ -54,79 +54,9 @@ pub struct jjrg_Tack {
 }
 
 /// Pace record - discrete action within a Heat
-///
-/// Note: Custom Deserialize implementation handles legacy format migration.
-/// Legacy format had `silks` on Pace; canonical format has `silks` on each Tack.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Pace {
     pub tacks: Vec<jjrg_Tack>,
-}
-
-impl<'de> serde::Deserialize<'de> for jjrg_Pace {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        use serde::de::Error;
-
-        // Deserialize as raw JSON value first
-        let raw: serde_json::Value = serde::Deserialize::deserialize(deserializer)?;
-
-        // Extract legacy silks from pace (if present)
-        let pace_silks = raw.get("silks").and_then(|v| v.as_str()).map(String::from);
-
-        // Extract tacks array
-        let tacks_value = raw.get("tacks").ok_or_else(|| D::Error::missing_field("tacks"))?;
-        let tacks_array = tacks_value.as_array().ok_or_else(|| D::Error::custom("tacks must be an array"))?;
-
-        // Process each tack with migration
-        let mut tacks = Vec::with_capacity(tacks_array.len());
-        for (i, tack_value) in tacks_array.iter().enumerate() {
-            let ts = tack_value.get("ts")
-                .and_then(|v| v.as_str())
-                .ok_or_else(|| D::Error::custom(format!("tacks[{}]: missing ts", i)))?
-                .to_string();
-
-            let state: jjrg_PaceState = tack_value.get("state")
-                .ok_or_else(|| D::Error::custom(format!("tacks[{}]: missing state", i)))
-                .and_then(|v| serde_json::from_value(v.clone()).map_err(|e| D::Error::custom(format!("tacks[{}]: invalid state: {}", i, e))))?;
-
-            let text = tack_value.get("text")
-                .and_then(|v| v.as_str())
-                .ok_or_else(|| D::Error::custom(format!("tacks[{}]: missing text", i)))?
-                .to_string();
-
-            // Migration: silks from tack, or inherit from pace, or error
-            let silks = if let Some(s) = tack_value.get("silks").and_then(|v| v.as_str()) {
-                s.to_string()
-            } else if let Some(ref ps) = pace_silks {
-                ps.clone()
-            } else {
-                return Err(D::Error::custom(format!("tacks[{}]: missing silks and no pace-level silks to inherit", i)));
-            };
-
-            // Migration: commit from tack, or use JJRG_UNKNOWN_COMMIT
-            let commit = tack_value.get("commit")
-                .and_then(|v| v.as_str())
-                .map(String::from)
-                .unwrap_or_else(|| JJRG_UNKNOWN_COMMIT.to_string());
-
-            let direction = tack_value.get("direction")
-                .and_then(|v| v.as_str())
-                .map(String::from);
-
-            tacks.push(jjrg_Tack {
-                ts,
-                state,
-                text,
-                silks,
-                commit,
-                direction,
-            });
-        }
-
-        Ok(jjrg_Pace { tacks })
-    }
 }
 
 /// Heat record - bounded initiative

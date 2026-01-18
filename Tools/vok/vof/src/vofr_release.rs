@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::vofc_registry::{DISTRIBUTABLE_KITS, vofc_Kit};
+use crate::vofc_registry::{DISTRIBUTABLE_KITS, vofc_Kit, VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
 
 // =============================================================================
 // Constants
@@ -116,6 +116,12 @@ pub fn vofr_collect(
         // Copy managed section templates from vov_veiled/ to templates/
         let template_count = zvofr_copy_templates(&kit_source, &kit_staging, kit)?;
         total_files += template_count;
+
+        // Collect Claude config assets (commands and hooks) from kit forge
+        let cipher = kit.cipher.prefix();
+        let (cmds, hks) = zvofr_collect_claude_assets(tools_dir, staging_dir, cipher)?;
+        total_files += cmds + hks;
+        commands_routed += cmds;
     }
 
     // Copy install script to staging root
@@ -286,6 +292,84 @@ fn zvofr_collect_kit(
     Ok((count, cmd_count))
 }
 
+/// Collect Claude config assets for a single kit.
+/// Scans .claude/commands/ and .claude/hooks/ in kit forge for cipher-matched files.
+/// Returns (commands_collected, hooks_collected).
+fn zvofr_collect_claude_assets(
+    kit_forge: &Path,
+    staging: &Path,
+    cipher: &str,
+) -> Result<(u32, u32), String> {
+    let mut commands_count = 0u32;
+    let mut hooks_count = 0u32;
+
+    // Collect commands from .claude/commands/
+    let commands_source = kit_forge.join(".claude").join("commands");
+    if commands_source.exists() {
+        let commands_dest = staging.join("claude").join("commands");
+        fs::create_dir_all(&commands_dest)
+            .map_err(|e| format!("Failed to create claude/commands dir: {}", e))?;
+
+        commands_count = zvofr_copy_matching_files(&commands_source, &commands_dest, cipher, true)?;
+    }
+
+    // Collect hooks from .claude/hooks/
+    let hooks_source = kit_forge.join(".claude").join("hooks");
+    if hooks_source.exists() {
+        let hooks_dest = staging.join("claude").join("hooks");
+        fs::create_dir_all(&hooks_dest)
+            .map_err(|e| format!("Failed to create claude/hooks dir: {}", e))?;
+
+        hooks_count = zvofr_copy_matching_files(&hooks_source, &hooks_dest, cipher, false)?;
+    }
+
+    Ok((commands_count, hooks_count))
+}
+
+/// Copy files matching cipher pattern from source to dest.
+/// is_command determines whether to match commands (c-) or hooks (h-).
+/// Returns count of files copied.
+fn zvofr_copy_matching_files(
+    source_dir: &Path,
+    dest_dir: &Path,
+    cipher: &str,
+    is_command: bool,
+) -> Result<u32, String> {
+    let mut count = 0u32;
+
+    let entries = fs::read_dir(source_dir)
+        .map_err(|e| format!("Failed to read directory {}: {}", source_dir.display(), e))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("Dir entry error: {}", e))?;
+        let path = entry.path();
+
+        if !path.is_file() {
+            continue;
+        }
+
+        let file_name = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("");
+
+        let matches = if is_command {
+            zvofr_is_command_file(file_name, cipher)
+        } else {
+            zvofr_is_hook_file(file_name, cipher)
+        };
+
+        if matches {
+            let dest_path = dest_dir.join(file_name);
+            fs::copy(&path, &dest_path)
+                .map_err(|e| format!("Failed to copy {} to {}: {}", path.display(), dest_path.display(), e))?;
+            count += 1;
+        }
+    }
+
+    Ok(count)
+}
+
 /// Walk directory recursively, returning all file paths.
 fn zvofr_walk_dir(dir: &Path) -> Result<Vec<PathBuf>, String> {
     let mut files = Vec::new();
@@ -325,8 +409,13 @@ fn zvofr_is_veiled_path(rel_path: &Path) -> bool {
 
 /// Check if file is a command file (matches {cipher}c-*.md pattern).
 fn zvofr_is_command_file(file_name: &str, cipher: &str) -> bool {
-    // Pattern: {cipher}c-*.md
-    let prefix = format!("{}c-", cipher);
+    let prefix = format!("{}{}", cipher, VOFC_COMMAND_SIGNET_SUFFIX);
+    file_name.starts_with(&prefix) && file_name.ends_with(".md")
+}
+
+/// Check if file is a hook file (matches {cipher}h-*.md pattern).
+fn zvofr_is_hook_file(file_name: &str, cipher: &str) -> bool {
+    let prefix = format!("{}{}", cipher, VOFC_HOOK_SIGNET_SUFFIX);
     file_name.starts_with(&prefix) && file_name.ends_with(".md")
 }
 
@@ -507,7 +596,6 @@ fn zvofr_write_brand_file(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
 
     #[test]
     fn vofr_is_command_file_test() {

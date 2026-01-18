@@ -46,7 +46,8 @@ Parse JSON output:
   "pace_silks": "...",
   "pace_state": "rough|bridled",
   "spec": "...",
-  "direction": "..."
+  "direction": "...",
+  "recent_work": [{"timestamp": "...", "commit": "...", "coronet": "...", "action": "...", "subject": "..."}]
 }
 ```
 
@@ -57,6 +58,13 @@ Fields `pace_coronet` through `direction` are absent if no actionable pace.
 Show:
 - Heat silks and Firemark
 - Brief paddock summary (from paddock_content)
+- **Recent work** (from `recent_work` array, last 5-10 entries):
+  ```
+  Recent work on this heat:
+  YYYY-MM-DD HH:MM  abc123ef  [W] ₢XXXXX  Wrap description
+  YYYY-MM-DD HH:MM  def456ab  [n] ₢XXXXX  Commit message
+  ...
+  ```
 - Current pace silks and state (if present)
 - Spec (the pace specification)
 

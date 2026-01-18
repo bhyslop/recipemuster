@@ -82,6 +82,7 @@ fn jjtq_saddle_output_structure() {
         pace_state: Some("rough".to_string()),
         spec: Some("Do the thing".to_string()),
         direction: None,
+        recent_work: vec![],
     };
     let json = serde_json::to_string(&output).unwrap();
     assert!(json.contains("heat_silks"));
@@ -100,6 +101,7 @@ fn jjtq_saddle_output_with_bridled_direction() {
         pace_state: Some("bridled".to_string()),
         spec: Some("Ready to execute".to_string()),
         direction: Some("Execute autonomously".to_string()),
+        recent_work: vec![],
     };
     let json = serde_json::to_string(&output).unwrap();
     assert!(json.contains("\"direction\""));
@@ -117,6 +119,7 @@ fn jjtq_saddle_output_no_actionable_pace() {
         pace_state: None,
         spec: None,
         direction: None,
+        recent_work: vec![],
     };
     let json = serde_json::to_string(&output).unwrap();
     assert!(json.contains("heat_silks"));

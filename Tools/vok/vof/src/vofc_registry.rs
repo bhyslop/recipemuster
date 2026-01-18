@@ -247,6 +247,18 @@ pub fn vofc_find_kit_by_id(kit_id: &str) -> Option<&'static vofc_Kit> {
     DISTRIBUTABLE_KITS.iter().find(|k| k.cipher.kit_id() == kit_id)
 }
 
+// =============================================================================
+// Claude Asset Signets
+// =============================================================================
+
+/// Command signet suffix (appears after cipher prefix)
+/// Pattern: {cipher}c-*.md
+pub const VOFC_COMMAND_SIGNET_SUFFIX: &str = "c-";
+
+/// Hook signet suffix (appears after cipher prefix)
+/// Pattern: {cipher}h-*.md
+pub const VOFC_HOOK_SIGNET_SUFFIX: &str = "h-";
+
 /// Find a cipher by prefix.
 pub fn vofc_find_by_prefix(prefix: &str) -> Option<&'static vofc_Cipher> {
     ALL_CIPHERS.iter().find(|c| c.prefix == prefix)
