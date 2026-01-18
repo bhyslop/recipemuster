@@ -1529,13 +1529,14 @@
       "creation_time": "260117",
       "status": "current",
       "order": [
+        "₢ADAAF",
         "₢ADAAA",
         "₢ADAAB",
         "₢ADAAC",
         "₢ADAAD",
         "₢ADAAE"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AD.md",
       "paces": {
         "₢ADAAA": {
@@ -1630,6 +1631,16 @@
               "ts": "260117-1243",
               "state": "rough",
               "text": "Implement prefix tree registry in vof with vvx checker utility.\n\n## Problem\n\nPrefix tree integrity across codebase. Need to ensure all inscriptions use registered prefixes and respect terminal exclusivity.\n\n## Rejected Approach (₢AAAA- abandoned)\n\nMCM-based documentation of prefix trees in mapping section comments.\n\nWhy rejected:\n- Requires Claude to parse/remember prefix trees each session (context window cost)\n- No enforcement — hope-based compliance\n- Violations discovered late (during review) not early (at build time)\n\n## Proposed Approach\n\nBake all known prefix tree paths into vof (Tools/vok/vof). VVX provides `vvx check` utility that scans entire repo for prefix violations.\n\n### Registry Enhancement\n\nExtend vof beyond cipher registry to full prefix tree:\n- Terminal prefixes (leaf nodes that name things): `buc_`, `jjrg_`\n- Non-terminal prefixes (have children): `bu`, `jjr`\n- Tree structure with parent-child relationships\n\n### Checker Utility\n\n`vvx check` (or `vvx lint`) subcommand:\n\n1. Scan all files in repo (respecting .gitignore)\n2. Vesture-aware extraction:\n   - File names: `rbga_*.sh`, `JJD-*.adoc`\n   - Function declarations: `buc_log_args()`, `zbuc_color()`\n   - AsciiDoc attributes: `:rbw_depot:`\n   - Anchors: `[[rbw_depot]]`\n   - Slash commands: `/jjc-*`\n   - Rust declarations: `voic_Cipher`, `jjrg_Gallops`\n3. Parse prefix from each inscription\n4. Validate against vof registry\n5. Report unknown prefixes as warnings/errors\n\n### Enforcement\n\n- CI integration: fail build on unknown prefix\n- Forces immediate documentation of new terms\n- Single source of truth in vof\n- Zero context window cost for Claude\n\n## Relationship to Other Paces\n\n- ₢AAABG (voi-directory-relocation): Already done — vof is the result\n- ₢AAABH (distributable-kits-typed-registry): Complementary — that's about consolidating kit metadata, this is about prefix validation\n\n## Open Questions\n\n1. Error vs warning for unknown prefixes during transition?\n2. Allowlist for legacy prefixes not yet registered?\n3. How to handle external dependencies with their own prefixes?"
+            }
+          ]
+        },
+        "₢ADAAF": {
+          "silks": "vls-bus-extraction",
+          "tacks": [
+            {
+              "ts": "260118-0752",
+              "state": "rough",
+              "text": "Extract Liturgy vocabulary from VOS to new VLS (Vox Liturgical Specification) and Dispatch vocabulary to new BUS (Bash Utilities Specification).\n\n## Context\n\nDiscussion identified architectural misplacement in VOS:\n\n**Liturgy (VOSL)** — Universal naming system (Cipher, Signet, Epithet, Inscription, Vesture, Ensign, Monogram) plus domain vestures (Rust, Bash, AsciiDoc, Publication, Git, Slash). These apply to ALL specifications, not just kit distribution. Should be standalone spec that VOS references.\n\n**Dispatch (VOSD)** — Tabtarget vocabulary. Two categories:\n- Naming components: Colophon, Frontispiece, Imprint (parts of tabtarget inscription)\n- Operational concepts: Formulary, Launcher, Workbench, Testbench (routing behavior)\n\nBUK invented tabtargets; BUK should define them completely. Keeping naming + operations together tells the whole tabtarget story in one place.\n\n## Proposed Split\n\n**VLS (Vox Liturgical Specification)** — new file `Tools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc`:\n- Core naming: Cipher, Signet, Epithet, Inscription, Vesture, Ensign, Monogram\n- Standard vestures: Rust, Bash, AsciiDoc, Publication, Git, Slash\n- Cipher registry reference\n- Terminal exclusivity rules\n- Minting discipline\n\n**BUS (Bash Utilities Specification)** — new file `Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc`:\n- Tabtarget Vesture (naming rules)\n- Tabtarget naming components: Colophon, Frontispiece, Imprint\n- Dispatch operations: Formulary, Launcher, Workbench, Testbench\n- Routing behavior\n\n**VOS changes:**\n- Remove Liturgy section (vosl_* terms)\n- Remove Dispatch section (vosd_* terms)\n- Add references to VLS and BUS\n- Keep VOS focused on kit release/install\n\n## Deliverables\n\n1. Create VLS-VoxLiturgicalSpec.adoc with extracted Liturgy vocabulary\n2. Create BUS-BashUtilitiesSpec.adoc with Tabtarget Vesture + all Dispatch vocabulary\n3. Update VOS to remove extracted sections, add cross-references\n4. Update CLAUDE.md acronym mappings for new files\n5. Verify MCM compliance (mapping sections, linked terms, annotations)\n\n## Prerequisites\n\n- ₢ADAAF (liturgy-dispatch-dispersion-study) must confirm changes are AsciiDoc-only"
             }
           ]
         }
