@@ -50,8 +50,8 @@ fn zjjrn_get_hallmark() -> String {
     let mut max_hallmark = 0u32;
     if let Ok(registry_content) = fs::read_to_string("Tools/vok/vov_veiled/vovr_registry.json") {
         if let Ok(registry_json) = serde_json::from_str::<serde_json::Value>(&registry_content) {
-            if let Some(obj) = registry_json.as_object() {
-                for key in obj.keys() {
+            if let Some(hallmarks) = registry_json.get("hallmarks").and_then(|v| v.as_object()) {
+                for key in hallmarks.keys() {
                     if let Ok(num) = key.parse::<u32>() {
                         max_hallmark = max_hallmark.max(num);
                     }
