@@ -3100,10 +3100,24 @@
       "silks": "jjk-post-alpha-breaking",
       "creation_time": "260119",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AGAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AG.md",
-      "paces": {}
+      "paces": {
+        "₢AGAAA": {
+          "tacks": [
+            {
+              "ts": "260119-0941",
+              "state": "rough",
+              "text": "Add 'express' pace state for heavy human intervention. Prevents Claude from incorrectly assuming autonomous solvability.\n\n**Problem:** Claude sometimes presumes it can solve things when it can't. Current states (rough, bridled, complete, abandoned) don't signal 'needs significant human guidance.'\n\n**Proposed state:** express (or similar name TBD)\n- Signals: 'human must drive this, Claude assists'\n- Opposite of bridled: bridled = autonomous, express = human-led\n\n**Schema change:** Add to PaceState enum in jjrg_gallops.rs\n\n**Workflow implications to muse:**\n- mount: How does express affect pace selection? Skip for autonomous mount?\n- bridle: Can't bridle an express pace (mutual exclusion)\n- saddle: Include express paces in output? With flag?\n- groom: Surface express paces prominently\n- State transitions: rough → express? express → complete?\n\n**Open questions:**\n- Name: express, guided, manual, assisted?\n- Can a pace transition bridled ↔ express? Or only from rough?\n- Does mount skip express paces entirely, or show them with warning?",
+              "silks": "express-pace-state",
+              "commit": "81b30f5"
+            }
+          ]
+        }
+      }
     }
   }
 }
