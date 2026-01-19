@@ -293,6 +293,10 @@ struct zjjrx_TallyArgs {
     /// Execution guidance (required if state is bridled)
     #[arg(long, short = 'd')]
     direction: Option<String>,
+
+    /// Kebab-case display name (if provided, new Tack uses this value; otherwise inherits)
+    #[arg(long, short = 's')]
+    silks: Option<String>,
 }
 
 /// Arguments for jjx_draft command
@@ -1040,6 +1044,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
         state,
         direction: args.direction,
         text,
+        silks: args.silks,
     };
 
     match gallops.jjrg_tally(tally_args) {

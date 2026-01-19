@@ -68,6 +68,44 @@ Show:
 - Current pace silks and state (if present)
 - Spec (the pace specification)
 
+## Step 3.5: Name assessment
+
+Before branching on state, assess whether the pace silks fits the spec:
+
+**Assessment:**
+- Read the spec content
+- Consider if the kebab-case name accurately reflects the work
+- If name fits: proceed silently to Step 4
+- If mismatch detected: present 3-option prompt
+
+**If mismatch detected:**
+
+```
+⚠ Name check: "{current_silks}" may not fit.
+  Spec is about: [brief summary of actual work]
+  Suggested: "{better_name}"
+
+  [R] Rename to "{better_name}" (default)
+  [C] Continue with current name
+  [S] Stop
+
+  Choice [R]:
+```
+
+**On R (or Enter):**
+- Run: `./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks "{better_name}"`
+- Report: `"Renamed to {better_name}"`
+- Update pace_silks in context to reflect new name
+- Continue to Step 4
+
+**On C:**
+- Proceed silently to Step 4 with current name
+
+**On S:**
+- Report: "Mount stopped at Step 3.5"
+- Suggest: "Consider using `/jjc-pace-reslate` to refine the pace scope and silks"
+- Stop mount
+
 ## Step 4: Branch on state
 
 **If no actionable pace:**

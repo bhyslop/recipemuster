@@ -549,6 +549,7 @@ pub struct jjrg_TallyArgs {
     pub state: Option<jjrg_PaceState>,
     pub direction: Option<String>,
     pub text: Option<String>,
+    pub silks: Option<String>,
 }
 
 /// Arguments for the draft operation
@@ -968,11 +969,14 @@ impl jjrg_Gallops {
             return Err("text must not be empty".to_string());
         }
 
-        // Create new Tack (inheriting silks from current tack)
+        // Determine new silks
+        let new_silks = args.silks.unwrap_or_else(|| current_tack.silks.clone());
+
+        // Create new Tack
         let new_tack = jjrg_make_tack(
             new_state,
             new_text,
-            current_tack.silks.clone(),
+            new_silks,
             new_direction,
         );
 

@@ -1081,6 +1081,7 @@ fn jjtg_tally_state_transition() {
         state: Some(jjrg_PaceState::Complete),
         direction: None,
         text: Some("Work completed successfully".to_string()),
+        silks: None,
     };
 
     let result = gallops.jjrg_tally(args);
@@ -1105,6 +1106,7 @@ fn jjtg_tally_bridled_requires_direction() {
         state: Some(jjrg_PaceState::Bridled),
         direction: None, // Missing!
         text: Some("Ready for execution".to_string()),
+        silks: None,
     };
 
     let result = gallops.jjrg_tally(args);
@@ -1124,6 +1126,7 @@ fn jjtg_tally_bridled_with_direction() {
         state: Some(jjrg_PaceState::Bridled),
         direction: Some("Execute autonomously".to_string()),
         text: Some("Ready for execution".to_string()),
+        silks: None,
     };
 
     let result = gallops.jjrg_tally(args);
@@ -1148,6 +1151,7 @@ fn jjtg_tally_inherit_state() {
         state: None, // Inherit
         direction: None,
         text: Some("Updated plan text".to_string()),
+        silks: None,
     };
 
     let result = gallops.jjrg_tally(args);
@@ -1173,6 +1177,7 @@ fn jjtg_tally_inherit_text() {
         state: Some(jjrg_PaceState::Complete),
         direction: None,
         text: None, // Inherit
+        silks: None,
     };
 
     let result = gallops.jjrg_tally(args);
@@ -1196,6 +1201,7 @@ fn jjtg_tally_non_bridled_forbids_direction() {
         state: Some(jjrg_PaceState::Complete),
         direction: Some("Should not be here".to_string()), // Not allowed!
         text: Some("Done".to_string()),
+        silks: None,
     };
 
     let result = gallops.jjrg_tally(args);

@@ -1457,6 +1457,10 @@ ignored if
 is absent (inherits with state)
 
 // ⟦axd_optional⟧
+* {jjda_silks}
+— if provided, new Tack uses this value; otherwise inherits from previous Tack
+
+// ⟦axd_optional⟧
 * stdin —
 {jjdkm_text}
 content; if absent, inherits from previous
