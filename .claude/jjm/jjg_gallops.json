@@ -3043,9 +3043,10 @@
       "status": "racing",
       "order": [
         "₢AFAAB",
-        "₢AFAAA"
+        "₢AFAAA",
+        "₢AFAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3067,6 +3068,17 @@
               "text": "Formalize a JJD routine for committing gallops+paddock. Audit all jjx commands for consistent use.\n\n**Goal:** Single pattern for 'commit gallops+paddock' — no ad-hoc implementations scattered across commands.\n\n**Tasks:**\n1. Define routine in JJD spec (name TBD: jjdr_commit_state? jjdr_persist?)\n2. Audit each jjx command:\n   - slate — currently commits both\n   - tally — currently commits both\n   - nominate — check\n   - rail — check\n   - draft — check\n   - furlough — check\n   - wrap (via tally?) — check\n   - bridle (via tally?) — check\n3. Refactor any ad-hoc implementations to use the new routine\n4. Ensure chalk remains marker-only (no state commit)\n\n**Constraint:** Schema-stable — this is implementation refactoring, not data model change.",
               "silks": "gallops-commit-routine",
               "commit": "6789c57"
+            }
+          ]
+        },
+        "₢AFAAC": {
+          "tacks": [
+            {
+              "ts": "260119-0930",
+              "state": "rough",
+              "text": "Fix vob_release() conformance with VOS spec:\n1. Registry commit: VOS line 917 requires 'commit registry change' after allocating new hallmark - implementation updates file but doesn't commit\n2. Parcel output location: BURC_PROJECT_ROOT is misapplied - parcel goes to parent dir instead of kit forge root; VOS needs explicit spec text for output directory\n\nRequires human decisions on:\n- Where exactly should parcel be output (kit forge root? explicit --output flag?)\n- Commit message format for registry commits\n- Whether to use vvx_commit or direct git",
+              "silks": "vob-release-conformance",
+              "commit": "c19ff34"
             }
           ]
         }
