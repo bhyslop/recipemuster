@@ -63,6 +63,9 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
 
+**Commit Discipline:**
+When working on a heat/pace, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses pace affiliation and steeplechase tracking.
+
 **Build & Run Discipline:**
 Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build
@@ -91,3 +94,14 @@ When evaluating whether a pace is ready for autonomous execution (bridled state)
 - ✓ Bridleable: "Add error handling to `fetchUser` following pattern in `fetchOrder`"
 - ✗ Not bridleable: "Define KitAsset struct and registry pattern" (design decisions)
 - ✗ Not bridleable: "Improve performance of dashboard" (unclear scope, many approaches)
+
+### Wrap Discipline
+
+**NEVER auto-wrap a pace.** Always ask the user explicitly: "Ready to wrap ₢XXXXX?" and wait for confirmation before running `/jjc-pace-wrap`. The user decides when work is complete, not the agent.
+
+This applies to:
+- Direct work on rough paces
+- Spawned agents executing bridled paces
+- Any situation where work appears "done"
+
+When work is complete, report outcomes and ask. Do not wrap.

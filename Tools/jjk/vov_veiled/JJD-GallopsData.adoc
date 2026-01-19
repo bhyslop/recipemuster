@@ -16,6 +16,7 @@
 // jjdkm_: Tack members
 // jjdpe_: Tack state enum values
 // jjdo_:  Operations
+// jjdr_:  Routines (internal reusable procedures)
 // jjds_:  Section headers (operation documentation structure)
 // jjdz_:  Serialization concerns
 //
@@ -96,7 +97,6 @@
 :jjdx_cli:   <<jjdx_cli,jjx>>
 
 // Operations
-:jjdo_canter:         <<jjdo_canter,jjx_canter>>
 :jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_draft:          <<jjdo_draft,jjx_draft>>
 :jjdo_furlough:       <<jjdo_furlough,jjx_furlough>>
@@ -110,6 +110,10 @@
 :jjdo_slate:          <<jjdo_slate,jjx_slate>>
 :jjdo_tally:          <<jjdo_tally,jjx_tally>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
+
+// Routines
+:jjdr_load:           <<jjdr_load,load routine>>
+:jjdr_save:           <<jjdr_save,save routine>>
 
 // Section headers
 :jjds_arguments:        <<jjds_arguments,Arguments:>>
@@ -820,12 +824,121 @@ All JJ commits include an action code that serves multiple purposes:
 - **Semantic clarity**: Indicates the nature and context of each commit
 - **Consistency**: Applies uniformly across pace-level and heat-level operations
 
+== Routines
+
+Routines are internal reusable procedures invoked by operations.
+They encapsulate common logic for consistent behavior across the codebase.
+
+[[jjdr_load]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_load}
+
+Load and validate the
+{jjdgr_gallops}
+file.
+Every operation that reads
+{jjdgr_gallops}
+invokes this routine.
+Returns a validated
+{jjdgr_gallops}
+only after all checks pass.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjda_file}
+
+{jjds_behavior}
+
+. Read file contents as raw bytes
+. Deserialize bytes into
+{jjdgr_gallops}
+structure
+. Reserialize
+{jjdgr_gallops}
+structure to JSON string
+. Compare reserialized bytes against original bytes
+. If different:
+{axc_fatal}
+with diagnostic showing first difference location
+. Validate semantic constraints (timestamps, kebab-case silks, invariants)
+. If validation fails:
+{axc_fatal}
+with validation errors
+. Return validated
+{jjdgr_gallops}
+
+{jjds_stdout} None (returns structure to caller)
+
+{jjds_exit_uniform} 0 success, non-zero on validation failure or I/O error.
+
+*Architectural constraint:*
+{jjdr_load}
+is the ONLY way to obtain a
+{jjdgr_gallops}
+from disk.
+This makes validation bypass architecturally impossible.
+The round-trip check (steps 3-5) ensures the file is in canonical form.
+The semantic validation (steps 6-7) ensures business rules are satisfied.
+
+[[jjdr_save]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_save}
+
+Persist
+{jjdgr_gallops}
+to disk with validation.
+Every operation that writes
+{jjdgr_gallops}
+invokes this routine.
+Validates output by loading it back before finalizing.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+*
+{jjdgr_gallops}
+(in-memory structure to persist)
+
+// ⟦axd_required⟧
+* {jjda_file}
+
+{jjds_behavior}
+
+. Serialize
+{jjdgr_gallops}
+to canonical JSON string
+. Write JSON to temporary file (atomic write preparation)
+. Call
+{jjdr_load}
+on temporary file to validate what was written
+. If
+{jjdr_load}
+fails: delete temporary file,
+{axc_fatal}
+with error
+. Rename temporary file to final path (atomic commit)
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero on validation failure or I/O error.
+
+*Design rationale:*
+{jjdr_save}
+reuses
+{jjdr_load}
+for validation, ensuring a single validation code path for both reading and writing.
+If an operation produces invalid output, the save fails before corrupting the file.
+
 == Operations
 
 Operations are implemented as {jjdx_cli} subcommands.
 {jjdx_cli} owns all
 {jjdgr_gallops}
-file access (read, transform, atomic write).
+file access through
+{jjdr_load}
+and
+{jjdr_save}.
 Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
 {jjda_file}.
 
@@ -861,6 +974,14 @@ structure.
 
 . If
 {jjdgr_gallops}
+file exists:
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. If
+{jjdgr_gallops}
 file does not exist:
 .. Create parent directory `.claude/jjm/` if needed
 .. Initialize new
@@ -868,9 +989,6 @@ file does not exist:
 with
 {jjdgm_seed}
 `AA` and empty `heats`
-. Read
-{jjdgr_gallops}
-from file (or use newly created)
 . Read current
 {jjdgm_seed}
 as
@@ -910,9 +1028,11 @@ computed paddock path
 . Increment
 {jjdgm_seed}
 (base64 arithmetic with carry)
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 . Output new
 {jjdt_firemark}
 to stdout
@@ -993,9 +1113,12 @@ at a specific location.
 
 {jjds_behavior}
 
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Verify
 {jjdhr_heat}
 exists with given
@@ -1056,9 +1179,11 @@ insert immediately after target
 . Increment
 {jjdhm_seed}
 (base64 arithmetic with carry)
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 . Output new
 {jjdt_coronet}
 to stdout
@@ -1134,9 +1259,12 @@ per line, in new sequence.
 
 *Common steps:*
 
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Verify
 {jjdhr_heat}
 exists with given
@@ -1164,9 +1292,11 @@ must embed correct parent
 . Replace
 {jjdhm_order}
 with new order array
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 . Output new
 {jjdhm_order},
 one
@@ -1210,9 +1340,11 @@ insert immediately before target
 {jjda_after}:
 insert immediately after target
 {jjdt_coronet}
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 . Output new
 {jjdhm_order},
 one
@@ -1331,9 +1463,12 @@ in destination
 
 {jjds_behavior}
 
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Extract source
 {jjdt_firemark}
 from
@@ -1401,9 +1536,11 @@ from source
 .. Remove from source `paces` object
 .. Remove from source
 {jjdhm_order}
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 . Output new
 {jjdt_coronet}
 to stdout
@@ -1483,9 +1620,12 @@ content; if absent, inherits from previous
 
 {jjds_behavior}
 
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Extract parent
 {jjdt_firemark}
 from
@@ -1545,9 +1685,11 @@ determined above (if applicable)
 . Prepend new
 {jjdkr_tack}
 to `tacks` array (position 0)
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 
 [[jjdo_furlough]]
 // ⟦axl_voices axi_cli_subcommand⟧
@@ -1592,9 +1734,12 @@ or rename its
 
 {jjds_behavior}
 
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Verify
 {jjdhr_heat}
 exists with given
@@ -1615,9 +1760,11 @@ to new value
 .. Update
 {jjdhm_silks}
 to new value
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 
 *Validation errors:*
 
@@ -1673,9 +1820,12 @@ With `--execute`: path to the written trophy file.
 
 Without `--execute` (dry-run):
 
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Verify
 {jjdhr_heat}
 exists with given
@@ -1691,9 +1841,12 @@ internally to get steeplechase entries
 With `--execute`:
 
 . Acquire lock (`refs/vvg/locks/vvx`)
-. Read
-{jjdgr_gallops}
-from file
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
 . Verify
 {jjdhr_heat}
 exists with given
@@ -1754,9 +1907,11 @@ where `{today}` is current date in YYMMDD format
 entry from
 {jjdgr_gallops}
 `heats` object
-. Write transformed
+.
+{jjdr_save}
 {jjdgr_gallops}
-to file (atomic)
+to
+{jjda_file}
 . Delete paddock file at
 {jjdhm_paddock}
 . Stage exactly three paths: trophy file, gallops.json, paddock file (as deletion)
