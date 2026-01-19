@@ -2333,11 +2333,12 @@
         "₢AEAAA",
         "₢AEAAB",
         "₢AEAAC",
+        "₢AEAAL",
         "₢AEAAD",
         "₢AEAAG",
         "₢AEAAH"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -2740,6 +2741,17 @@
               "text": "Remove legacy format deserialization from Rust.\n\n## Context\n\nAfter tack-struct-jjd-cleanup (₢AEAAJ) confirms the spec no longer permits legacy format, the Rust code can drop that support.\n\n## Changes\n\n### 1. Simplify Pace deserialization\n\nRemove custom Deserialize impl that handled:\n- Pace with `silks` field\n- Tacks without `silks`\n- Tacks without `commit`\n\nReplace with standard derive:\n```rust\n#[derive(Deserialize, Serialize)]\npub struct Pace {\n    pub tacks: Vec<Tack>,\n}\n```\n\n### 2. Simplify Tack deserialization\n\nStandard derive should now work:\n```rust\n#[derive(Deserialize, Serialize)]\npub struct Tack {\n    pub ts: String,\n    pub state: PaceState,\n    pub text: String,\n    pub silks: String,\n    pub commit: String,\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    pub direction: Option<String>,\n}\n```\n\n### 3. Remove migration helper code\n\nDelete any:\n- `migrate_pace()` functions\n- `ensure_tack_silks()` helpers\n- Comments about \"legacy format\"\n\n## Verification\n\n```bash\ntt/vow-b.Build.sh\n./tt/vvw-r.RunVVX.sh jjx_validate\n./tt/vvw-r.RunVVX.sh jjx_muster\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs\n\n## Depends On\n\n- ₢AEAAI (Rust migration impl)\n- ₢AEAAJ (JJD cleanup) — confirms legacy is gone\n\n## Scope\n\nCode cleanup only. No new features.",
               "silks": "tack-struct-rust-cleanup",
               "commit": "0000000"
+            }
+          ]
+        },
+        "₢AEAAL": {
+          "tacks": [
+            {
+              "ts": "260118-2014",
+              "state": "rough",
+              "text": "Add `--silks` to `jjx_tally` for pace rename capability.\n\n## Changes\n\n### 1. JJD-GallopsData.adoc - Update tally arguments\n\nAdd to jjdo_tally Arguments section:\n```\n// ⟦axd_optional⟧\n* {jjda_silks}\n— if provided, new Tack uses this value; otherwise inherits from previous Tack\n```\n\n### 2. jjrg_gallops.rs - Add silks to TallyArgs\n\nAdd `silks: Option<String>` to `jjrg_TallyArgs` struct.\n\nUpdate `jjrg_tally()` to use provided silks or inherit:\n```rust\nlet new_silks = args.silks.unwrap_or_else(|| current_tack.silks.clone());\n```\n\n### 3. jjrm_main.rs - Wire up CLI argument\n\nAdd `--silks` / `-s` argument to tally subcommand, pass to TallyArgs.\n\n## Files\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs\n- Tools/jjk/vov_veiled/src/jjrm_main.rs\n\n## Verification\n- tt/vow-b.Build.sh && tt/vow-t.Test.sh\n- Manual: `echo \"test\" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks new-name`",
+              "silks": "tally-silks-argument",
+              "commit": "f7b70db"
             }
           ]
         }
