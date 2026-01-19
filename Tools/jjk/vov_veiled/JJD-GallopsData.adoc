@@ -1862,7 +1862,11 @@ with summary information.
 
 {jjds_stdout} Tab-separated values, one line per
 {jjdhr_heat}:
-`{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><pace_count>`
+`{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><remaining><TAB><total>`
+
+Where:
+* `<remaining>` — count of actionable paces ({{jjdpe_rough}} or {{jjdpe_bridled}})
+* `<total>` — total pace count
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -1871,17 +1875,20 @@ with summary information.
 . Read
 {jjdgr_gallops}
 from file
-. Iterate over `heats` object entries
+. Sort heats by status:
+.. {{jjdhe_racing}} heats first
+.. {{jjdhe_stabled}} heats second
+.. {{jjdhe_retired}} heats third (if any)
 . For each
-{jjdhr_heat},
-output TSV line:
+{jjdhr_heat}
+in sorted order, output TSV line:
 {jjdt_firemark},
 {jjdhm_silks},
 {jjdhm_status},
-count of
+count of actionable paces ({{jjdpe_rough}} or {{jjdpe_bridled}}) in `paces` object,
+total count of
 {jjdpr_pace_s}
 in `paces` object
-. Output lines in arbitrary order (JSON object iteration order)
 
 [[jjdo_saddle]]
 // ⟦axl_voices axi_cli_subcommand⟧

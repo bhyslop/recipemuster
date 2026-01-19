@@ -34,15 +34,43 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
         }
     };
 
-    for (key, heat) in &gallops.heats {
-        let pace_count = heat.paces.len();
+    // Collect heats with status info for sorting
+    let mut heats_by_status: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heats.iter().collect();
+
+    // Sort: racing first, then stabled, then retired
+    heats_by_status.sort_by(|a, b| {
+        let a_status_order = match a.1.status {
+            HeatStatus::Racing => 0,
+            HeatStatus::Stabled => 1,
+            HeatStatus::Retired => 2,
+        };
+        let b_status_order = match b.1.status {
+            HeatStatus::Racing => 0,
+            HeatStatus::Stabled => 1,
+            HeatStatus::Retired => 2,
+        };
+        a_status_order.cmp(&b_status_order)
+    });
+
+    for (key, heat) in heats_by_status {
+        let total_pace_count = heat.paces.len();
+
+        // Count actionable paces (rough or bridled)
+        let remaining_count = heat.paces.values().filter(|pace| {
+            if let Some(tack) = pace.tacks.first() {
+                matches!(tack.state, PaceState::Rough | PaceState::Bridled)
+            } else {
+                false
+            }
+        }).count();
+
         let status_str = match heat.status {
             HeatStatus::Racing => "racing",
             HeatStatus::Stabled => "stabled",
             HeatStatus::Retired => "retired",
         };
 
-        println!("{}\t{}\t{}\t{}", key, heat.silks, status_str, pace_count);
+        println!("{}\t{}\t{}\t{}\t{}", key, heat.silks, status_str, remaining_count, total_pace_count);
     }
 
     0

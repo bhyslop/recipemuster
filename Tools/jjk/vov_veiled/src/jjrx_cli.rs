@@ -993,6 +993,8 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
 fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
 
+    eprintln!("jjx_tally: starting");
+
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
@@ -1001,6 +1003,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             return 1;
         }
     };
+    eprintln!("jjx_tally: lock acquired");
 
     let text = match read_stdin_optional() {
         Ok(t) => t,
@@ -1009,6 +1012,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             return 1;
         }
     };
+    eprintln!("jjx_tally: stdin read ({} bytes)", text.as_ref().map(|t| t.len()).unwrap_or(0));
 
     let state = match &args.state {
         Some(s) => match s.to_lowercase().as_str() {
@@ -1031,6 +1035,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             return 1;
         }
     };
+    eprintln!("jjx_tally: gallops loaded");
 
     // Get firemark and silks for commit message before we move args
     let coronet_str = args.coronet.clone();
@@ -1057,12 +1062,15 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
         silks: args.silks,
     };
 
+    eprintln!("jjx_tally: calling jjrg_tally");
     match gallops.jjrg_tally(tally_args) {
         Ok(()) => {
+            eprintln!("jjx_tally: tally succeeded, saving gallops");
             if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_tally: error saving Gallops: {}", e);
                 return 1;
             }
+            eprintln!("jjx_tally: gallops saved");
 
             // Commit using vvcm_commit with explicit file list
             let gallops_path = args.file.to_string_lossy().to_string();
@@ -1077,6 +1085,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                 warn_limit: 30000,
             };
 
+            eprintln!("jjx_tally: calling machine_commit");
             match vvc::machine_commit(&lock, &commit_args) {
                 Ok(hash) => {
                     eprintln!("jjx_tally: committed {}", &hash[..8]);
@@ -1086,6 +1095,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                 }
             }
 
+            eprintln!("jjx_tally: complete, releasing lock");
             0
         }
         Err(e) => {
