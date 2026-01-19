@@ -2047,6 +2047,14 @@
         "₢ACAAE": {
           "tacks": [
             {
+              "ts": "260118-2134",
+              "state": "bridled",
+              "text": "Update jjx_muster output format:\n\n1. **Sort order**: Racing heats first, then stabled (then retired if any)\n\n2. **Replace Paces column** with two columns:\n   - **Remaining**: Actionable paces count (rough + bridled)\n   - **Total**: Total pace count\n\nOutput format (TSV):\n```\nFIREMARK<TAB>SILKS<TAB>STATUS<TAB>REMAINING<TAB>TOTAL\n```\n\nFiles:\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (update jjdo_muster spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (update jjrq_run_muster implementation)",
+              "silks": "muster-remaining-sort",
+              "commit": "82a85e1",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/jjk/vov_veiled/JJD-GallopsData.adoc, Tools/jjk/vov_veiled/src/jjrq_query.rs (2 files)\nSteps:\n1. Read jjrq_query.rs to find jjrq_run_muster function\n2. Update JJD-GallopsData.adoc jjdo_muster spec: add sort order (racing first) and new columns (Remaining, Total)\n3. Update jjrq_run_muster:\n   - Add sort: racing heats first, then stabled, then retired\n   - Replace single paces count with two: remaining (rough + bridled) and total\n   - Adjust output format to match new TSV spec\n4. Build: cargo build --manifest-path Tools/vok/Cargo.toml\n5. Test: ./tt/vvw-r.RunVVX.sh jjx_muster\nVerify: cargo build --manifest-path Tools/vok/Cargo.toml"
+            },
+            {
               "ts": "260118-2131",
               "state": "bridled",
               "text": "Update jjx_muster output format:\n\n1. **Sort order**: Racing heats first, then stabled (then retired if any)\n\n2. **Replace Paces column** with two columns:\n   - **Remaining**: Actionable paces count (rough + bridled)\n   - **Total**: Total pace count\n\nOutput format (TSV):\n```\nFIREMARK<TAB>SILKS<TAB>STATUS<TAB>REMAINING<TAB>TOTAL\n```\n\nFiles:\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (update jjdo_muster spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (update jjrq_run_muster implementation)",
