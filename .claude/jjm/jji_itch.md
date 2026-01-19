@@ -1800,3 +1800,52 @@ When groom displays paces, include a summary table:
 ### Context
 
 Identified 2026-01-16. Enhancement to `/jjc-heat-mount` was just added; this extends the same analysis to heat-level review.
+
+## jjx-wrap-atomic-command
+Combine notch + tally + chalk into a single `jjx_wrap` command for atomic pace completion.
+
+### Problem
+
+Wrap currently requires three separate jjx invocations:
+1. `jjx_notch` — commit pending changes
+2. `jjx_tally --state complete` — transition pace state
+3. `jjx_chalk --marker W` — record wrap marker
+
+Each is a separate git commit, making wrap heavyweight and fragmented. The slash command must orchestrate these steps, interpret intermediate results, and handle failures at each stage.
+
+### Proposed Solution
+
+Create `jjx_wrap <CORONET>` that:
+1. Stages and commits pending changes (if any) with notch prefix
+2. Transitions pace to complete state
+3. Records wrap chalk marker
+4. All in a single atomic operation (one or two commits max)
+
+### CLI Interface
+
+```bash
+echo "<outcome summary>" | ./tt/vvw-r.RunVVX.sh jjx_wrap <CORONET>
+```
+
+Or with explicit outcome:
+```bash
+./tt/vvw-r.RunVVX.sh jjx_wrap <CORONET> --outcome "<summary>"
+```
+
+### Behavior
+
+- If pending changes exist: notch commit + wrap commit (gallops + chalk)
+- If no changes: single wrap commit only
+- Outcome summary used for both tally text and chalk description
+- Returns structured result: `{"notch_hash": "abc123" | null, "wrap_hash": "def456"}`
+
+### Benefits
+
+- **Simpler slash command** — `/jjc-pace-wrap` becomes thin wrapper
+- **Fewer git commits** — gallops update + chalk in one commit
+- **Atomic** — can't have partial wrap state
+- **Consistent** — notch always happens when needed
+
+### Context
+
+Identified 2026-01-18 when wrap was missing automatic notch. Adding Step 3.5 to slash command works but highlighted that wrap is doing too much orchestration that belongs in Rust.
