@@ -39,7 +39,8 @@
 :jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
 
 // Heat record and members
-:jjdhe_current:   <<jjdhe_current,current>>
+:jjdhe_racing:    <<jjdhe_racing,racing>>
+:jjdhe_stabled:   <<jjdhe_stabled,stabled>>
 :jjdhe_retired:   <<jjdhe_retired,retired>>
 :jjdhm_created:   <<jjdhm_created,creation_time>>
 :jjdhm_firemark:  <<jjdhm_firemark,firemark>>
@@ -98,6 +99,7 @@
 :jjdo_canter:         <<jjdo_canter,jjx_canter>>
 :jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_draft:          <<jjdo_draft,jjx_draft>>
+:jjdo_furlough:       <<jjdo_furlough,jjx_furlough>>
 :jjdo_muster:         <<jjdo_muster,jjx_muster>>
 :jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
 :jjdo_notch:          <<jjdo_notch,jjx_notch>>
@@ -361,7 +363,8 @@ indicates the
 {jjdhr_heat_p}
 lifecycle state.
 Values:
-{jjdhe_current}
+{jjdhe_racing},
+{jjdhe_stabled},
 or
 {jjdhe_retired}.
 
@@ -397,12 +400,19 @@ Created by
 
 ==== Status Values
 
-[[jjdhe_current]]
+[[jjdhe_racing]]
 // ⟦axl_voices axt_enum_value⟧
-{jjdhe_current}::
+{jjdhe_racing}::
 The
 {jjdhr_heat}
-is active and accepting work.
+is actively being worked.
+
+[[jjdhe_stabled]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdhe_stabled}::
+The
+{jjdhr_heat}
+is paused, not actively worked.
 
 [[jjdhe_retired]]
 // ⟦axl_voices axt_enum_value⟧
@@ -746,7 +756,8 @@ status.
 Long: `--status`.
 Short: none.
 Values:
-{jjdhe_current},
+{jjdhe_racing},
+{jjdhe_stabled},
 {jjdhe_retired}.
 
 [[jjda_to]]
@@ -888,7 +899,7 @@ from argument
 .. {jjdhm_created}:
 from argument
 .. {jjdhm_status}:
-{jjdhe_current}
+{jjdhe_racing}
 .. {jjdhm_order}:
 empty array
 .. {jjdhm_seed}:
@@ -1538,6 +1549,95 @@ to `tacks` array (position 0)
 {jjdgr_gallops}
 to file (atomic)
 
+[[jjdo_furlough]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_furlough}
+
+Change a
+{jjdhr_heat_p}
+status between
+{jjdhe_racing}
+and
+{jjdhe_stabled},
+or rename its
+{jjdhm_silks}.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_optional⟧
+* `--racing` — set status to
+{jjdhe_racing}
+
+// ⟦axd_optional⟧
+* `--stabled` — set status to
+{jjdhe_stabled}
+
+// ⟦axd_optional⟧
+* {jjda_silks}
+— new display name
+
+*Requirements:* At least one of `--racing`, `--stabled`, or {jjda_silks} must be provided.
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Verify at least one argument provided (`--racing`, `--stabled`, or {jjda_silks})
+. If status change requested:
+.. Error if heat is
+{jjdhe_retired}
+(terminal state)
+.. Error if `--racing` and heat already
+{jjdhe_racing}
+.. Error if `--stabled` and heat already
+{jjdhe_stabled}
+.. Update
+{jjdhm_status}
+to new value
+. If {jjda_silks} provided:
+.. Update
+{jjdhm_silks}
+to new value
+. Write transformed
+{jjdgr_gallops}
+to file (atomic)
+
+*Validation errors:*
+
+[cols="2,3"]
+|===
+| Condition | Error
+
+| No arguments provided
+| "At least one of --racing, --stabled, or --silks required"
+
+| Heat is retired
+| "Cannot furlough retired heat {firemark}"
+
+| `--racing` when already racing
+| "Heat {firemark} is already racing"
+
+| `--stabled` when already stabled
+| "Heat {firemark} is already stabled"
+|===
+
 [[jjdo_retire]]
 // ⟦axl_voices axi_cli_subcommand⟧
 ==== {jjdo_retire}
@@ -1701,7 +1801,8 @@ must have:
 {jjdhm_created}
 (YYMMDD),
 {jjdhm_status}
-({jjdhe_current}
+({jjdhe_racing},
+{jjdhe_stabled},
 or
 {jjdhe_retired}),
 {jjdhm_order}
@@ -1759,12 +1860,6 @@ with summary information.
 // ⟦axd_optional axd_defaulted⟧
 * {jjda_file}
 
-// ⟦axd_optional⟧
-* {jjda_status}
-— filter to show only
-{jjdhr_heat_s}
-with this status; if absent, show all
-
 {jjds_stdout} Tab-separated values, one line per
 {jjdhr_heat}:
 `{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><pace_count>`
@@ -1777,12 +1872,7 @@ with this status; if absent, show all
 {jjdgr_gallops}
 from file
 . Iterate over `heats` object entries
-. If
-{jjda_status}
-provided, skip
-{jjdhr_heat_s}
-not matching filter
-. For each included
+. For each
 {jjdhr_heat},
 output TSV line:
 {jjdt_firemark},
@@ -1857,6 +1947,11 @@ from file
 {jjdhr_heat}
 exists with given
 {jjdt_firemark}
+. Error if
+{jjdhm_status}
+is
+{jjdhe_stabled}
+("Cannot saddle stabled heat {firemark}")
 . Output `heat_silks` from
 {jjdhr_heat}
 . Output `paddock_file` from
