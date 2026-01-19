@@ -2335,11 +2335,12 @@
         "₢AEAAC",
         "₢AEAAL",
         "₢AEAAM",
+        "₢AEAAN",
         "₢AEAAD",
         "₢AEAAG",
         "₢AEAAH"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -2771,6 +2772,17 @@
               "text": "Add name assessment to mount for rough and bridled paces, with 3-option prompt.\n\n## Behavior\n\nAfter displaying pace context (Step 3), before branching on state (Step 4):\n\n**Step 3.5: Name assessment**\n\nAssess whether the pace silks fits the spec:\n- Read the spec content\n- Consider if the kebab-case name accurately reflects the work\n- If name fits: proceed silently\n- If mismatch detected: present 3 options\n\n```\n⚠ Name check: \"current-silks\" may not fit.\n  Spec is about [brief summary of actual work].\n  Suggested: \"better-name\"\n  \n  [R] Rename to \"better-name\" (default)\n  [C] Continue with current name  \n  [S] Stop\n\n  Choice [R]:\n```\n\n**On R (or Enter)**: \n- Run `./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks \"better-name\"`\n- Report: \"Renamed to better-name\"\n- Continue with mount\n\n**On C**: Continue with current name, no action.\n\n**On S**: Stop mount, suggest `/jjc-pace-reslate` to refine scope.\n\n## Applies to\n- Rough paces\n- Bridled paces\n\nBoth should have correct names before work begins.\n\n## Files\n- .claude/commands/jjc-heat-mount.md\n\n## Verification\n- Mount a pace with mismatched name, verify prompt appears\n- Test all 3 options (R, C, S)\n- Mount a pace with fitting name, verify no prompt",
               "silks": "mount-name-check",
               "commit": "8cde708"
+            }
+          ]
+        },
+        "₢AEAAN": {
+          "tacks": [
+            {
+              "ts": "260118-2015",
+              "state": "rough",
+              "text": "Add name assessment to reslate after spec refinement.\n\n## Behavior\n\nAfter spec is refined, before committing:\n\n**Name assessment step**\n\nAssess whether the pace silks still fits the refined spec:\n- Compare old spec gestalt to new spec gestalt\n- If name still fits: proceed silently\n- If gestalt has shifted: suggest new name with 3-option prompt\n\n```\n⚠ Name check: \"old-silks\" may not fit refined spec.\n  Was: [old focus]\n  Now: [new focus]\n  Suggested: \"better-name\"\n  \n  [R] Rename to \"better-name\" (default)\n  [C] Continue with current name  \n  [S] Stop (abort reslate)\n\n  Choice [R]:\n```\n\n**On R (or Enter)**: Include `--silks \"new-name\"` in the jjx_tally call.\n\n**On C**: Proceed with current silks (tally without --silks).\n\n**On S**: Abort the reslate entirely, no changes made.\n\n## Files\n- .claude/commands/jjc-pace-reslate.md\n\n## Verification\n- Reslate a pace with significant scope change, verify rename suggestion\n- Reslate a pace with minor refinement, verify no prompt\n- Test all 3 options (R, C, S)",
+              "silks": "reslate-name-check",
+              "commit": "c3e60ac"
             }
           ]
         }
