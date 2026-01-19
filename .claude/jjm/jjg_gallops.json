@@ -2756,6 +2756,14 @@
         "₢AEAAL": {
           "tacks": [
             {
+              "ts": "260118-2016",
+              "state": "bridled",
+              "text": "Add `--silks` to `jjx_tally` for pace rename capability.\n\n## Changes\n\n### 1. JJD-GallopsData.adoc - Update tally arguments\n\nAdd to jjdo_tally Arguments section:\n```\n// ⟦axd_optional⟧\n* {jjda_silks}\n— if provided, new Tack uses this value; otherwise inherits from previous Tack\n```\n\n### 2. jjrg_gallops.rs - Add silks to TallyArgs\n\nAdd `silks: Option<String>` to `jjrg_TallyArgs` struct.\n\nUpdate `jjrg_tally()` to use provided silks or inherit:\n```rust\nlet new_silks = args.silks.unwrap_or_else(|| current_tack.silks.clone());\n```\n\n### 3. jjrm_main.rs - Wire up CLI argument\n\nAdd `--silks` / `-s` argument to tally subcommand, pass to TallyArgs.\n\n## Files\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs\n- Tools/jjk/vov_veiled/src/jjrm_main.rs\n\n## Verification\n- tt/vow-b.Build.sh && tt/vow-t.Test.sh\n- Manual: `echo \"test\" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks new-name`",
+              "silks": "tally-silks-argument",
+              "commit": "b47c3e3",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: jjrg_gallops.rs, jjrx_cli.rs, JJD-GallopsData.adoc (3 files)\nSteps:\n1. Add silks: Option<String> to jjrg_TallyArgs struct\n2. Update jjrg_tally(): replace current_tack.silks.clone() with args.silks.unwrap_or_else(|| current_tack.silks.clone())\n3. Add #[arg(long, short = 's')] silks: Option<String> to zjjrx_TallyArgs struct\n4. Pass silks: args.silks in LibTallyArgs construction in zjjrx_run_tally()\n5. Update JJD jjdo_tally Arguments section with silks documentation\nVerify: tt/vow-b.Build.sh && tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260118-2014",
               "state": "rough",
               "text": "Add `--silks` to `jjx_tally` for pace rename capability.\n\n## Changes\n\n### 1. JJD-GallopsData.adoc - Update tally arguments\n\nAdd to jjdo_tally Arguments section:\n```\n// ⟦axd_optional⟧\n* {jjda_silks}\n— if provided, new Tack uses this value; otherwise inherits from previous Tack\n```\n\n### 2. jjrg_gallops.rs - Add silks to TallyArgs\n\nAdd `silks: Option<String>` to `jjrg_TallyArgs` struct.\n\nUpdate `jjrg_tally()` to use provided silks or inherit:\n```rust\nlet new_silks = args.silks.unwrap_or_else(|| current_tack.silks.clone());\n```\n\n### 3. jjrm_main.rs - Wire up CLI argument\n\nAdd `--silks` / `-s` argument to tally subcommand, pass to TallyArgs.\n\n## Files\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs\n- Tools/jjk/vov_veiled/src/jjrm_main.rs\n\n## Verification\n- tt/vow-b.Build.sh && tt/vow-t.Test.sh\n- Manual: `echo \"test\" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks new-name`",
