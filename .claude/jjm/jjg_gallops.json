@@ -2047,6 +2047,13 @@
         "₢ACAAE": {
           "tacks": [
             {
+              "ts": "260118-2136",
+              "state": "rough",
+              "text": "Update jjx_muster output format:\n\n1. **Sort order**: Racing heats first, then stabled (then retired if any)\n\n2. **Replace Paces column** with two columns:\n   - **Remaining**: Actionable paces count (rough + bridled)\n   - **Total**: Total pace count\n\nOutput format (TSV):\n```\nFIREMARK<TAB>SILKS<TAB>STATUS<TAB>REMAINING<TAB>TOTAL\n```\n\nFiles:\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (update jjdo_muster spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (update jjrq_run_muster implementation)",
+              "silks": "muster-remaining-sort",
+              "commit": "53e587a"
+            },
+            {
               "ts": "260118-2134",
               "state": "bridled",
               "text": "Update jjx_muster output format:\n\n1. **Sort order**: Racing heats first, then stabled (then retired if any)\n\n2. **Replace Paces column** with two columns:\n   - **Remaining**: Actionable paces count (rough + bridled)\n   - **Total**: Total pace count\n\nOutput format (TSV):\n```\nFIREMARK<TAB>SILKS<TAB>STATUS<TAB>REMAINING<TAB>TOTAL\n```\n\nFiles:\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (update jjdo_muster spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (update jjrq_run_muster implementation)",
