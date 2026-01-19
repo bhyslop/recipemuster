@@ -7,6 +7,7 @@
       "status": "racing",
       "order": [
         "₢AAABU",
+        "₢AAABV",
         "₢AAABQ",
         "₢AAABR",
         "₢AAABA",
@@ -79,7 +80,7 @@
         "₢AAABS",
         "₢AAABT"
       ],
-      "next_pace_seed": "ABV",
+      "next_pace_seed": "ABW",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1930,6 +1931,17 @@
               "text": "Add jjdr_ (Routines) category to JJD with two routines enforcing round-trip validation:\n\n## jjdr_load\n- Read file as raw bytes\n- Deserialize to Rust Gallops structure  \n- Reserialize Rust structure to JSON string\n- Compare reserialized string against original bytes (raw comparison, not normalized)\n- If different: FATAL with diagnostic showing first difference location\n- If identical: return Rust object model\n\n## jjdr_save\n- Accept Rust Gallops object\n- Serialize to canonical JSON (sorted keys via BTreeMap, consistent formatting)\n- Atomic write (temp file → rename)\n\n## Update all write operations\nRevise behavior sections of: jjdo_nominate, jjdo_slate, jjdo_rail, jjdo_draft, jjdo_tally, jjdo_furlough, jjdo_retire\n\nEach write operation behavior becomes:\n1. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status\n2. (command-specific transformation steps)\n3. {jjdr_save} {jjdgr_gallops} → {jjda_file}\n\n## Mapping section additions\nAdd to JJD mapping section:\n// jjdr_:  Routines (internal reusable procedures)\n:jjdr_load:           <<jjdr_load,load routine>>\n:jjdr_save:           <<jjdr_save,save routine>>\n\n## Architectural constraint\nDocument that jjdr_load is the ONLY way to obtain a Gallops struct - no public constructor. This makes validation bypass impossible.",
               "silks": "jjd-routines-load-save",
               "commit": "608fa24"
+            }
+          ]
+        },
+        "₢AAABV": {
+          "tacks": [
+            {
+              "ts": "260119-0848",
+              "state": "rough",
+              "text": "Implement jjdr_load and jjdr_save routines in Rust, including file split refactor.\n\n## File Split\n\nSplit `jjrg_gallops.rs` (1,395 lines) into focused modules with unique prefix letters:\n\n| New File | Contents |\n|----------|----------|\n| `jjrt_types.rs` | Gallops, Heat, Pace, Tack structs; HeatStatus, PaceState enums; serde derives |\n| `jjrv_validate.rs` | jjrg_validate() and all zjjrg_is_* validator helpers |\n| `jjri_io.rs` | jjdr_load, jjdr_save implementations; ValidatedGallops newtype |\n| `jjro_ops.rs` | All operation methods (nominate, slate, tally, rail, draft, retire, furlough) |\n| `jjru_util.rs` | zjjrg_increment_seed, jjrg_capture_commit_sha, jjrg_make_tack, stdin helpers |\n\nUpdate `lib.rs` to re-export public API from new modules.\n\n## ValidatedGallops Newtype\n\n```rust\npub struct ValidatedGallops(jjrg_Gallops);\n\nimpl ValidatedGallops {\n    // No public constructor - only jjdr_load can create\n    pub fn inner(&self) -> &jjrg_Gallops { &self.0 }\n    pub fn inner_mut(&mut self) -> &mut jjrg_Gallops { &self.0 }\n    pub fn into_inner(self) -> jjrg_Gallops { self.0 }\n    \n    #[cfg(test)]\n    pub fn test_wrap(g: jjrg_Gallops) -> Self { Self(g) }\n}\n```\n\n## jjdr_load Implementation\n\n```rust\npub fn jjdr_load(path: &Path) -> Result<ValidatedGallops, String> {\n    let original_bytes = fs::read(path)?;\n    let gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)?;\n    let reserialized = serde_json::to_string_pretty(&gallops)?;\n    if reserialized.as_bytes() \\!= original_bytes {\n        return Err(format\\!(\"Round-trip validation failed at byte {}\", \n            find_first_diff(&original_bytes, reserialized.as_bytes())));\n    }\n    gallops.jjrg_validate()?;\n    Ok(ValidatedGallops(gallops))\n}\n```\n\n## jjdr_save Implementation\n\n```rust\npub fn jjdr_save(gallops: &jjrg_Gallops, path: &Path) -> Result<(), String> {\n    let json = serde_json::to_string_pretty(gallops)?;\n    let temp_path = path.with_extension(format\\!(\"tmp.{}.json\", std::process::id()));\n    fs::write(&temp_path, &json)?;\n    // Validate what we wrote by loading it back\n    match jjdr_load(&temp_path) {\n        Ok(_) => {\n            fs::rename(&temp_path, path)?;\n            Ok(())\n        }\n        Err(e) => {\n            let _ = fs::remove_file(&temp_path);\n            Err(format\\!(\"Save validation failed: {}\", e))\n        }\n    }\n}\n```\n\n## CLI Updates\n\nUpdate jjrx_cli.rs to use jjdr_load/jjdr_save instead of direct jjrg_load/jjrg_save calls.\n\n## Test Updates\n\n- Move tests to corresponding new modules\n- Add round-trip validation tests\n- Add ValidatedGallops newtype tests\n- Ensure all existing tests pass after refactor",
+              "silks": "jjr-io-routines-impl",
+              "commit": "fe4164c"
             }
           ]
         }
