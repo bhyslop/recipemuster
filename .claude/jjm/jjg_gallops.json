@@ -2028,6 +2028,13 @@
         "₢ACAAD": {
           "tacks": [
             {
+              "ts": "260118-2142",
+              "state": "complete",
+              "text": "Removed serde alias for 'current' - schema now strictly requires 'racing' status value.",
+              "silks": "furlough-remove-current-alias",
+              "commit": "c1e2f91"
+            },
+            {
               "ts": "260118-2035",
               "state": "bridled",
               "text": "Remove #[serde(alias = \"current\")] from HeatStatus deserialization in jjrg_gallops.rs. Before removing, verify all heat JSON files in current/ and retired/ directories use \"racing\" (not \"current\"). This hardens the schema to match the final-form JJD spec.\n\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs",
