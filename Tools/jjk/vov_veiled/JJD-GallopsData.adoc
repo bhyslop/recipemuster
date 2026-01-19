@@ -1996,16 +1996,17 @@ can parse to reconstruct session history.
 
 ==== Commit Message Patterns
 
-All JJ commits use the format: `jjb:BRAND:IDENTITY[:ACTION]: message`
+All JJ commits use the format: `jjb:BRAND:HALLMARK:IDENTITY[:ACTION]: message`
 
 * `jjb` — JJ brand prefix (literal)
 * `BRAND` — repository identifier baked into arcanum at install time (e.g., "RBM")
+* `HALLMARK` — Version identifier. Format: NNNN (installed) or NNNN-xxxxxxx (dev). Source: `.vvk/vvbf_brand.json` (installed) or max hallmark from `Tools/vok/vov_veiled/vovr_registry.json` + git HEAD (Kit Forge)
 * `IDENTITY` — ₢CORONET for pace-level, ₣FIREMARK for heat-level
 * `ACTION` — single-letter code (required for all commits)
 
 *Standard notch* (created by {jjdo_notch}):
 ----
-jjb:BRAND:₢XXXXX:n: commit message
+jjb:BRAND:HALLMARK:₢XXXXX:n: commit message
 
 Co-Authored-By: ...
 ----
@@ -2014,7 +2015,7 @@ Standard notch commits use `n` to denote routine progress tracking.
 
 *Pace-level chalk* (created by {jjdo_chalk}):
 ----
-jjb:BRAND:₢XXXXX:A: description
+jjb:BRAND:HALLMARK:₢XXXXX:A: description
 
 Co-Authored-By: ...
 ----
@@ -2029,12 +2030,12 @@ Pace-level action codes:
 
 *Heat-level operations*:
 ----
-jjb:BRAND:₣XX:N: heat-silks
-jjb:BRAND:₣XX:S: pace-silks
-jjb:BRAND:₣XX:r: reordered
-jjb:BRAND:₣XX:T: pace-silks
-jjb:BRAND:₣XX:D: old-coronet → new-coronet
-jjb:BRAND:₣XX:R: heat-silks
+jjb:BRAND:HALLMARK:₣XX:N: heat-silks
+jjb:BRAND:HALLMARK:₣XX:S: pace-silks
+jjb:BRAND:HALLMARK:₣XX:r: reordered
+jjb:BRAND:HALLMARK:₣XX:T: pace-silks
+jjb:BRAND:HALLMARK:₣XX:D: old-coronet → new-coronet
+jjb:BRAND:HALLMARK:₣XX:R: heat-silks
 ----
 
 Heat-level action codes:
@@ -2070,6 +2071,7 @@ Parse git history for steeplechase entries belonging to a
   {
     "timestamp": "YYYY-MM-DD HH:MM",
     "commit": "abc123ef",
+    "hallmark": "1009",
     "coronet": "₢XXXXX",
     "action": "n",
     "subject": "commit message"
@@ -2077,17 +2079,20 @@ Parse git history for steeplechase entries belonging to a
   {
     "timestamp": "YYYY-MM-DD HH:MM",
     "commit": "def456ab",
+    "hallmark": "1009-abc1234",
     "coronet": "₢XXXXX",
     "action": "A",
     "subject": "description"
   },
   {
     "timestamp": "YYYY-MM-DD HH:MM",
+    "hallmark": "1009",
     "action": "N",
     "subject": "heat-silks"
   }
 ]
 ----
+Field `hallmark` is present for new-format commits, absent for old-format commits.
 Field `coronet` is present for pace-level entries, absent for heat-level operations.
 Field `action` is present for all commits, including standard notch commits (`n`).
 Entries ordered newest first.
