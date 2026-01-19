@@ -2834,6 +2834,13 @@
         "₢AEAAN": {
           "tacks": [
             {
+              "ts": "260118-2028",
+              "state": "complete",
+              "text": "Added name assessment to jjc-pace-reslate.md with gestalt comparison and 3-option prompt for conditional rename",
+              "silks": "reslate-name-check",
+              "commit": "8afa2cc"
+            },
+            {
               "ts": "260118-2019",
               "state": "bridled",
               "text": "Add name assessment to reslate after spec refinement.\n\n## Behavior\n\nAfter spec is refined, before committing:\n\n**Name assessment step**\n\nAssess whether the pace silks still fits the refined spec:\n- Compare old spec gestalt to new spec gestalt\n- If name still fits: proceed silently\n- If gestalt has shifted: suggest new name with 3-option prompt\n\n```\n⚠ Name check: \"old-silks\" may not fit refined spec.\n  Was: [old focus]\n  Now: [new focus]\n  Suggested: \"better-name\"\n  \n  [R] Rename to \"better-name\" (default)\n  [C] Continue with current name  \n  [S] Stop (abort reslate)\n\n  Choice [R]:\n```\n\n**On R (or Enter)**: Include `--silks \"new-name\"` in the jjx_tally call.\n\n**On C**: Proceed with current silks (tally without --silks).\n\n**On S**: Abort the reslate entirely, no changes made.\n\n## Files\n- .claude/commands/jjc-pace-reslate.md\n\n## Verification\n- Reslate a pace with significant scope change, verify rename suggestion\n- Reslate a pace with minor refinement, verify no prompt\n- Test all 3 options (R, C, S)",
