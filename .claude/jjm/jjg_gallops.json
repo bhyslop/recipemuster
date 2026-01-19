@@ -2619,6 +2619,13 @@
         "₢AEAAG": {
           "tacks": [
             {
+              "ts": "260118-2015",
+              "state": "complete",
+              "text": "Verified unprefixed identity parsing already implemented in jjrf_favor.rs; no changes needed",
+              "silks": "accept-unprefixed-identities",
+              "commit": "c29fff1"
+            },
+            {
               "ts": "260118-1105",
               "state": "bridled",
               "text": "JJD specifies input flexibility for Firemark and Coronet types:\n- 'Input may omit the ₣ prefix; output always includes it.' (Firemark, line 251)\n- 'Input may omit the ₢ prefix; output always includes it.' (Coronet, line 264)\n- 'CLI commands accept identities with or without prefix. Length determines type: 2 base64 chars = firemark, 5 base64 chars = coronet.' (lines 585-586)\n\nCurrently the Rust implementation requires the unicode prefix. For example:\n- `jjx_parade --format detail --pace ADAAL AD` fails with 'Pace ADAAL not found'\n- `jjx_parade --format detail --pace ₢ADAAL AD` succeeds\n\nUpdate identity parsing throughout jjx to accept bare base64 strings:\n- 2 characters → Firemark (prepend ₣ internally)\n- 5 characters → Coronet (prepend ₢ internally)\n- Already-prefixed inputs continue to work\n\nThis reduces stumbles when slash commands or users omit the unicode prefix.",
