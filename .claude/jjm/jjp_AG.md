@@ -2,8 +2,15 @@
 
 ## Context
 
-(Describe the initiative's background and goals)
+Backlog for JJK changes that require JSON schema modifications. Parked until post-alpha release to maintain data compatibility.
+
+**Candidates** (may restring from other heats):
+- Steeplechase version tracking (brand field)
+- Direction merge into tack_text
+- Silks migration to Tack + commit SHA tracking
 
 ## References
 
-(List relevant files, docs, or prior work)
+- JJD: Tools/jjk/vov_veiled/JJD-GallopsData.adoc
+- RCG: Tools/vok/vov_veiled/RCG-RustCodingGuide.md
+- VOS: Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc
